@@ -58,8 +58,10 @@ int TestHyperOctreeIO(int argc, char* argv[])
   int compressed = 1;
   int showcontour = 1;
   int ncontours = 1;
-  int interactive = 0;
   int rewrite = 0;
+#ifdef HYPEROCTREEIO_STANDALONE
+  int interactive = 0;
+#endif
 
   if (argc > 1) 
     {
@@ -110,16 +112,16 @@ int TestHyperOctreeIO(int argc, char* argv[])
         if (ncontours < 1) ncontours = 1;
         if (ncontours > 3) ncontours = 3;
         }
-      else if (!strcmp("-I",argv[i]))
+#ifdef HYPEROCTREEIO_STANDALONE
+      else if (!strcmp("-interactive",argv[i]))
         {
         interactive = 1;
         }
       else if (i > 1)
         {
-#ifdef HYPEROCTREEIO_STANDALONE
         cout << "Unrecognized argument " << argv[i] << endl;
-#endif
         }
+#endif
       }
     }
 

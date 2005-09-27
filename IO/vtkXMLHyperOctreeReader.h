@@ -80,7 +80,7 @@ protected:
   int BuildNextCell(vtkIntArray *, vtkHyperOctreeCursor *, int);
 
   //Helper for BuildNextCell
-  int idx;
+  int ArrayIndex;
 
 private:
   vtkXMLHyperOctreeReader(const vtkXMLHyperOctreeReader&);  // Not implemented.

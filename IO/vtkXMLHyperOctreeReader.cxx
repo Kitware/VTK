@@ -30,7 +30,7 @@
 #include "vtkIntArray.h"
 #include "vtkFieldData.h"
 
-vtkCxxRevisionMacro(vtkXMLHyperOctreeReader, "1.1");
+vtkCxxRevisionMacro(vtkXMLHyperOctreeReader, "1.2");
 vtkStandardNewMacro(vtkXMLHyperOctreeReader);
 
 //----------------------------------------------------------------------------
@@ -243,7 +243,7 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
   vtkHyperOctreeCursor *cursor=this->GetOutput()->NewCellCursor();
   cursor->ToRoot();
   //Where in the array we need to read from next.
-  this->idx = 0; 
+  this->ArrayIndex = 0; 
   if (!this->BuildNextCell(ta, cursor, cursor->GetNumberOfChildren()))
     {
     vtkErrorMacro( << "Problem reading topology. ");
@@ -263,7 +263,7 @@ int vtkXMLHyperOctreeReader::BuildNextCell(
   int nchildren)
 {
 
-  int nodeType = ta->GetValue(idx);
+  int nodeType = ta->GetValue(this->ArrayIndex);
 
   if (nodeType == 1)
     {
@@ -288,7 +288,7 @@ int vtkXMLHyperOctreeReader::BuildNextCell(
       {
       cursor->ToChild(i);
       
-      this->idx++;
+      this->ArrayIndex++;
       if (!this->BuildNextCell(ta, cursor, nchildren))
         {
         //IO failure somewhere below
