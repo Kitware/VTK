@@ -21,7 +21,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.60");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.61");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 class vtkCTFNode
@@ -849,6 +849,9 @@ void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
   if (f != NULL)
     {
     this->Clamping     = f->Clamping;
+    this->ColorSpace   = f->ColorSpace;
+    this->HSVWrap      = f->HSVWrap;
+
     int i;
     this->RemoveAllPoints();
     for ( i = 0; i < f->GetSize(); i++ )
@@ -867,6 +870,9 @@ void vtkColorTransferFunction::ShallowCopy( vtkColorTransferFunction *f )
   if (f != NULL)
     {
     this->Clamping     = f->Clamping;
+    this->ColorSpace   = f->ColorSpace;
+    this->HSVWrap      = f->HSVWrap;
+
     int i;
     this->RemoveAllPoints();
     for ( i = 0; i < f->GetSize(); i++ )
