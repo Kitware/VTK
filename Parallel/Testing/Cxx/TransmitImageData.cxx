@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// Test of vtkTransmitImageData and vtkExtractImageData.
+// Tests vtkTransmitImageData.
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
