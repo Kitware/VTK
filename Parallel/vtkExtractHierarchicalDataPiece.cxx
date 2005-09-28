@@ -15,10 +15,10 @@
 #include "vtkExtractHierarchicalDataPiece.h"
 
 #include "vtkExtentTranslator.h"
-#include "vtkExtractImageDataPiece.h"
+#include "vtkImageClip.h"
 #include "vtkExtractPolyDataPiece.h"
-#include "vtkExtractRectilinearGridPiece.h"
-#include "vtkExtractStructuredGridPiece.h"
+#include "vtkExtractRectilinearGrid.h"
+#include "vtkExtractGrid.h"
 #include "vtkExtractUnstructuredGridPiece.h"
 #include "vtkHierarchicalDataSet.h"
 #include "vtkImageData.h"
@@ -31,7 +31,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractHierarchicalDataPiece, "1.1");
+vtkCxxRevisionMacro(vtkExtractHierarchicalDataPiece, "1.2");
 vtkStandardNewMacro(vtkExtractHierarchicalDataPiece);
 
 int vtkExtractHierarchicalDataPiece::RequestData(
@@ -115,7 +115,8 @@ void vtkExtractHierarchicalDataPiece::ExtractImageData(
   vtkInformation *extractInfo;
   int ext[6];
 
-  vtkExtractImageDataPiece *extractID = vtkExtractImageDataPiece::New();
+  vtkImageClip *extractID = vtkImageClip::New();
+  extractID->ClipDataOn();
   imageData->GetExtent(ext);
 
   vtkExtentTranslator *translate = vtkExtentTranslator::New();
@@ -175,8 +176,8 @@ void vtkExtractHierarchicalDataPiece::ExtractRectilinearGrid(
   vtkInformation *extractInfo;
   int ext[6];
 
-  vtkExtractRectilinearGridPiece *extractRG =
-    vtkExtractRectilinearGridPiece::New();
+  vtkExtractRectilinearGrid *extractRG =
+    vtkExtractRectilinearGrid::New();
   rGrid->GetExtent(ext);
 
   vtkExtentTranslator *translate = vtkExtentTranslator::New();
@@ -210,8 +211,8 @@ void vtkExtractHierarchicalDataPiece::ExtractStructuredGrid(
   vtkInformation *extractInfo;
   int ext[6];
 
-  vtkExtractStructuredGridPiece *extractSG =
-    vtkExtractStructuredGridPiece::New();
+  vtkExtractGrid *extractSG =
+    vtkExtractGrid::New();
   sGrid->GetExtent(ext);
 
   vtkExtentTranslator *translate = vtkExtentTranslator::New();

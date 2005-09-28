@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// Test of vtkTransmitRectilinearGrid and vtkExtractRectilinearGrid.
+// Tests vtkTransmitRectilinearGrid.
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"

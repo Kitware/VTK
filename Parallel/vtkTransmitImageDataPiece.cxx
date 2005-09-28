@@ -15,7 +15,7 @@
 #include "vtkTransmitImageDataPiece.h"
 
 #include "vtkCellData.h"
-#include "vtkExtractImageDataPiece.h"
+#include "vtkImageClip.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
@@ -25,7 +25,7 @@
 #include "vtkImageData.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkTransmitImageDataPiece, "1.3");
+vtkCxxRevisionMacro(vtkTransmitImageDataPiece, "1.4");
 vtkStandardNewMacro(vtkTransmitImageDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitImageDataPiece,Controller,
@@ -206,8 +206,9 @@ void vtkTransmitImageDataPiece::RootExecute(vtkImageData *input,
                                                    vtkInformation *outInfo)
 {
   vtkImageData *tmp = vtkImageData::New();
-  vtkExtractImageDataPiece *extract = 
-    vtkExtractImageDataPiece::New();
+  vtkImageClip *extract = vtkImageClip::New();
+  extract->ClipDataOn();
+
   int ext[7];
   int numProcs, i;
 

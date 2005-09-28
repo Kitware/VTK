@@ -15,7 +15,7 @@
 #include "vtkTransmitStructuredGridPiece.h"
 
 #include "vtkCellData.h"
-#include "vtkExtractStructuredGridPiece.h"
+#include "vtkExtractGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
@@ -25,7 +25,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkTransmitStructuredGridPiece, "1.6");
+vtkCxxRevisionMacro(vtkTransmitStructuredGridPiece, "1.7");
 vtkStandardNewMacro(vtkTransmitStructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitStructuredGridPiece,Controller,
@@ -195,8 +195,7 @@ void vtkTransmitStructuredGridPiece::RootExecute(vtkStructuredGrid *input,
                                                    vtkInformation *outInfo)
 {
   vtkStructuredGrid *tmp = vtkStructuredGrid::New();
-  vtkExtractStructuredGridPiece *extract = 
-    vtkExtractStructuredGridPiece::New();
+  vtkExtractGrid *extract = vtkExtractGrid::New();
   int ext[7];
   int numProcs, i;
 

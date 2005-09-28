@@ -15,7 +15,7 @@
 // .NAME vtkExtractHierarchicalDataPiece
 // .SECTION Description
 // vtkExtractHierarchicalDataPiece returns the appropriate piece of each
-// sub-dataset in the vtkHierarchicalDataSet by requesting it from process 0.
+// sub-dataset in the vtkHierarchicalDataSet.
 // This filter can handle sub-datasets of type vtkImageData, vtkPolyData,
 // vtkRectilinearGrid, vtkStructuredGrid, and vtkUnstructuredGrid; it does
 // not handle sub-grids of type vtkHierarchicalDataSet.

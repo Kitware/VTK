@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// Test of vtkTransmitStructuredGrid and vtkExtractStructuredGrid.
+// Tests vtkTransmitStructuredGrid.
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"

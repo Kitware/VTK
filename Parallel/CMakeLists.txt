@@ -61,9 +61,6 @@ vtkDummyController.cxx
 vtkEnSightWriter.cxx
 vtkExtractCTHPart.cxx
 vtkExtractHierarchicalDataPiece.cxx
-vtkExtractImageDataPiece.cxx
-vtkExtractRectilinearGridPiece.cxx
-vtkExtractStructuredGridPiece.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
 vtkExtractUserDefinedPiece.cxx

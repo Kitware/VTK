@@ -15,7 +15,7 @@
 #include "vtkTransmitRectilinearGridPiece.h"
 
 #include "vtkCellData.h"
-#include "vtkExtractRectilinearGridPiece.h"
+#include "vtkExtractRectilinearGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
@@ -25,7 +25,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkTransmitRectilinearGridPiece, "1.3");
+vtkCxxRevisionMacro(vtkTransmitRectilinearGridPiece, "1.4");
 vtkStandardNewMacro(vtkTransmitRectilinearGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitRectilinearGridPiece,Controller,
@@ -183,8 +183,7 @@ void vtkTransmitRectilinearGridPiece::RootExecute(vtkRectilinearGrid *input,
                                                    vtkInformation *outInfo)
 {
   vtkRectilinearGrid *tmp = vtkRectilinearGrid::New();
-  vtkExtractRectilinearGridPiece *extract = 
-    vtkExtractRectilinearGridPiece::New();
+  vtkExtractRectilinearGrid *extract = vtkExtractRectilinearGrid::New();
   int ext[7];
   int numProcs, i;
 
@@ -265,12 +264,44 @@ void vtkTransmitRectilinearGridPiece::SatelliteExecute(
   //recover structure
   int ext[6];
   tmp->GetExtent(ext);
+
   output->SetExtent(wExtent);
 
-  output->SetZCoordinates(tmp->GetZCoordinates());
-  output->SetYCoordinates(tmp->GetYCoordinates());
-  output->SetXCoordinates(tmp->GetXCoordinates());
+  //create coordinate array of whole size, but only fill in
+  //out piece with what root sent to us
+  vtkDataArray *ida = tmp->GetZCoordinates();
+  vtkDataArray *oda = ida->NewInstance();
+  oda->SetNumberOfComponents(ida->GetNumberOfComponents());
+  oda->SetNumberOfTuples(wExtent[5]-wExtent[4]+1);
+  for (int i = uExtent[4]; i <= uExtent[5]; i++)
+    {
+    oda->SetTuple(i, ida->GetTuple(i-uExtent[4]));
+    }
+  output->SetZCoordinates(oda);
+  oda->Delete();
 
+  ida = tmp->GetYCoordinates();
+  oda = ida->NewInstance();
+  oda->SetNumberOfComponents(ida->GetNumberOfComponents());
+  oda->SetNumberOfTuples(wExtent[3]-wExtent[2]+1);
+  for (int i = uExtent[2]; i <= uExtent[3]; i++)
+    {
+    oda->SetTuple(i, ida->GetTuple(i-uExtent[2]));
+    }
+  output->SetYCoordinates(oda);
+  oda->Delete();
+
+  ida = tmp->GetXCoordinates();
+  oda = ida->NewInstance();
+  oda->SetNumberOfComponents(ida->GetNumberOfComponents());
+  oda->SetNumberOfTuples(wExtent[1]-wExtent[0]+1);
+  for (int i = uExtent[0]; i <= uExtent[1]; i++)
+    {
+    oda->SetTuple(i, ida->GetTuple(i-uExtent[0]));
+    }
+  output->SetXCoordinates(oda);
+  oda->Delete();
+      
   //copy in retrieved attributes from sent region
   int usizek = uExtent[5]-uExtent[4]+1;
   int usizej = uExtent[3]-uExtent[2]+1;
