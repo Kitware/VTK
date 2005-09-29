@@ -364,8 +364,14 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 { NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA, NO_TETRA},
 };
 
+// Return the classification state for each original vertex.
+// TRIANGLE_VERTEX_STATE[originalvertex]
+//                                    edge: 2 1 0
+static int TRIANGLE_VERTEX_STATE[3]={5,  // 1 0 1
+                                     3,  // 0 1 1
+                                     6}; // 1 1 0
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.21");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.22");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -508,8 +514,7 @@ public:
       this->Vertex[i][1] = source->Vertex[j][1];
       this->Vertex[i][2] = source->Vertex[j][2];
       
-      this->Edges[i][0]=source->Edges[j][0];
-      this->Edges[i][1]=source->Edges[j][1];
+      this->ClassificationState[i]=source->ClassificationState[j];
       
       assert("inv: " && this->ClassInvariant());
     }
@@ -524,17 +529,9 @@ public:
   // Initialize the Edges array as for a root triangle
   void SetOriginal()
     {
-      // key note: for each vertex, the edges number it belongs to are
-      // given in increasing order.
-      // vertex 0
-      this->Edges[0][0]=0;
-      this->Edges[0][1]=2;
-      // vertex 1
-      this->Edges[1][0]=0;
-      this->Edges[1][1]=1;
-      // vertex 2
-      this->Edges[2][0]=1;
-      this->Edges[2][1]=2;
+      this->ClassificationState[0]=TRIANGLE_VERTEX_STATE[0];
+      this->ClassificationState[1]=TRIANGLE_VERTEX_STATE[1];
+      this->ClassificationState[2]=TRIANGLE_VERTEX_STATE[2];
     }
   
   // Description:
@@ -544,58 +541,29 @@ public:
                              int p2)
     {
       assert("pre: primary point" && p1>=0 && p1<=2 && p2>=0 && p2<=2);
-      int p;
-      int q;
+      signed char result=-1;
       
-      // choose the point with minimal edge id.
-      if(this->Edges[p1][0]<=this->Edges[p2][0])
+      int midPointState=this->ClassificationState[p1]&this->ClassificationState[p2];
+      if(midPointState==0)
         {
-        p=p1;
-        q=p2;
+        result=-1; // no parent edge
         }
       else
         {
-        p=p2;
-        q=p1;
-        }
-      int i=0;
-      signed char result=-1;
-      
-      while(result==-1 && i<2)
-        {
-        if(this->Edges[p][i]<0)
+        if((midPointState&1)!=0)
           {
-          i=2;
+          result=0;
           }
         else
           {
-          int j=0;
-          while(result==-1 && j<2)
+          if((midPointState&2)!=0)
+          {
+          result=1;
+          }
+          else
             {
-            if(this->Edges[q][j]<0)
-              {
-              j=2;
-              }
-            else
-              {
-              if(this->Edges[p][i]==this->Edges[q][j])
-                {
-                result=this->Edges[p][i];
-                }
-              else
-                {
-                if(this->Edges[p][i]<this->Edges[q][j])
-                  {
-                  j=2; // no way to find a common edge
-                  }
-                else
-                  {
-                  ++j;
-                  }
-                }
-              }
+            result=2;
             }
-          ++i;
           }
         }
       return result;
@@ -604,11 +572,12 @@ public:
   // Description:
   // Set the edge parent of mid as parentEdge.
   void SetEdgeParent(int mid,
-                     signed char parentEdge)
+                     int p1,
+                     int p2)
     {
       assert("pre: mid-point" && mid>=3 && mid<=5);
-      this->Edges[mid][0]=parentEdge;
-      this->Edges[mid][1]=-1; // always for mid-points
+      assert("pre: primary point" && p1>=0 && p1<=2 && p2>=0 && p2<=2);
+      this->ClassificationState[mid]=this->ClassificationState[p1]&this->ClassificationState[p2];
     }
   
 private:
@@ -617,13 +586,8 @@ private:
   vtkIdType PointId[3+3];
   int SubdivisionLevel;
   
-  // local ids (-1 to 2) of the original edges on which the points are.
-  // a point can be on almost 2 edges:
-  // * only a vertex of the original triangle is on 2 edges
-  // * the mid-points can be only on 1 edge
-  // * -1 encodes no edge
-  // * each array is an increasing list of ids terminated by -1 is no edge
-  signed char Edges[3+3][2];
+  // bit i (0 to 3) tells if point p (0 to 5) is lying on original edge i.
+  unsigned char ClassificationState[6];
 };
 //-----------------------------------------------------------------------------
 //
@@ -640,6 +604,14 @@ static int VERTEX_EDGES[4][3]={{0,2,3},{0,1,4},{1,2,5},{3,4,5}};
 // each sub-array is in increasing order.
 // [vertex][face]
 static int VERTEX_FACES[4][3]={{0,2,3},{0,1,3},{1,2,3},{0,1,2}};
+
+// Return the classification state for each original vertex.
+// TETRA_VERTEX_STATE[originalvertex]
+//                                           f3 f2 f1 f0 e5 e4 e3 e2 e1 e0
+static int TETRA_VERTEX_STATE[4]={0x34d,  // 1  1  0  1  0  0  1  1  0  1
+                                  0x2d3,  // 1  0  1  1  0  1  0  0  1  1
+                                  0x3a6,  // 1  1  1  0  1  0  0  1  1  0
+                                  0x1f8}; // 0  1  1  1  1  1  1  0  0  0
 
 class vtkTetraTile
 {
@@ -777,13 +749,8 @@ public:
       this->Vertex[i][0] = source->Vertex[j][0];
       this->Vertex[i][1] = source->Vertex[j][1];
       this->Vertex[i][2] = source->Vertex[j][2];
-      
-      this->Edges[i][0]=source->Edges[j][0];
-      this->Edges[i][1]=source->Edges[j][1];
-      this->Edges[i][2]=source->Edges[j][2];
-      this->Faces[i][0]=source->Faces[j][0];
-      this->Faces[i][1]=source->Faces[j][1];
-      this->Faces[i][2]=source->Faces[j][2];
+
+      this->ClassificationState[i]=source->ClassificationState[j];
       
       assert("inv: " && this->ClassInvariant());
     }
@@ -835,41 +802,26 @@ public:
       while(i<4) // for each vertex
         {
         int j=order[i];
-        int k=0;
+        this->ClassificationState[i]=TETRA_VERTEX_STATE[j];
+        
         int n=0;
         int tmp;
+        unsigned short mask;
         while(n<3) // copy each edge
           {
           tmp=VERTEX_EDGES[j][n];
-          if(edgeIds[tmp]!=-1)
+          if(edgeIds[tmp]==-1)
             {
-            this->Edges[i][k]=tmp;
-            ++k;
+            mask=~(1<<tmp);
+            this->ClassificationState[i]=this->ClassificationState[i]&mask;
             }
-          ++n;
-          }
-        while(k<3)
-          {
-          this->Edges[i][k]=-1;
-          ++k;
-          }
-        
-        k=0;
-        n=0;
-        while(n<3) // copy each face
-          {
           tmp=VERTEX_FACES[j][n];
-          if(faceIds[tmp]!=-1)
+          if(faceIds[tmp]==-1)
             {
-            this->Faces[i][k]=tmp;
-            ++k;
+            mask=~(1<<(tmp+6));
+            this->ClassificationState[i]=this->ClassificationState[i]&mask;
             }
           ++n;
-          }
-        while(k<3)
-          {
-          this->Faces[i][k]=-1;
-          ++k;
           }
         ++i;
         }
@@ -884,114 +836,49 @@ public:
     {
       assert("pre: primary point" && p1>=0 && p1<=3 && p2>=0 && p2<=3);
       
-      int p;
-      int q;
-      // choose the point with minimal edge id.
-      if(this->Edges[p1][0]<=this->Edges[p2][0])
+      unsigned short midPointState=this->ClassificationState[p1]&this->ClassificationState[p2];
+      
+      int result;
+      if(midPointState==0)
         {
-        p=p1;
-        q=p2;
+        result=3;
+        parentId=-1;
         }
       else
         {
-        p=p2;
-        q=p1;
-        }
-      int i=0;
-      int result=3;
-      parentId=-1;
-      
-      while(result==3 && i<3)
-        {
-        if(this->Edges[p][i]<0)
+        if(midPointState&(0x3f))
           {
-          i=3; //done
+          result=1; // on edge
+          parentId=0; // TODO
+          unsigned short mask=1;
+          int found=0;
+          while(parentId<5 && !found)
+            {
+            found=(midPointState&mask)!=0;
+            if(!found)
+              {
+              mask<<=1;
+              ++parentId;
+              }
+            }
           }
         else
           {
-          int j=0;
-          while(result==3 && j<3)
+          result=2; // on face
+          parentId=0; // TODO
+          
+          unsigned short mask=0x40; // first face bit
+          int found=0;
+          while(parentId<4 && !found)
             {
-            if(this->Edges[q][j]<0)
+            found=(midPointState&mask)!=0;
+            if(!found)
               {
-              j=3; // end of the edges of q, skip to next i
-              }
-            else
-              {
-              if(this->Edges[p][i]==this->Edges[q][j])
-                {
-                parentId=this->Edges[p][i];
-                result=1;
-                }
-              else
-                {
-                if(this->Edges[p][i]<this->Edges[q][j])
-                  {
-                  j=3; // no way to find a common face for this i, skip to next i
-                  }
-                else
-                  {
-                  ++j;
-                  }
-                }
+              mask<<=1;
+              ++parentId;
               }
             }
-          ++i;
-          }
-        }
-      
-      if(result==3) // there is no common edge
-        {
-        // it seems there is at most one common face
-        // choose the point with minimal face id.
-        if(this->Faces[p1][0]<=this->Faces[p2][0])
-          {
-          p=p1;
-          q=p2;
-          }
-        else
-          {
-          p=p2;
-          q=p1;
-          }
-        i=0;
-        while(result==3 && i<3)
-          {
-          if(this->Faces[p][i]<0)
-            {
-            i=3; // no common face
-            }
-          else
-            {
-            int j=0;
-            while(result==3 && j<3)
-              {
-              if(this->Faces[q][j]<0)
-                {
-                j=3; // end of the edges of q, skip to next i
-                }
-              else
-                {
-                if(this->Faces[p][i]==this->Faces[q][j])
-                  {
-                  parentId=this->Faces[p][i];
-                  result=2;
-                  }
-                else
-                  {
-                  if(this->Faces[p][i]<this->Faces[q][j])
-                    {
-                    j=3; // no way to find a common face for this i, skip to next i
-                    }
-                  else
-                    {
-                    ++j;
-                    }
-                  }
-                }
-              }
-            ++i;
-            }
+          
           }
         }
       return result;
@@ -1001,61 +888,13 @@ public:
   // Description:
   // Set the edge parent of mid as parentEdge.
   void SetParent(int mid,
-                 signed char parentId,
-                 int type)
+                 int p1,
+                 int p2)
     {
       assert("pre: mid-point" && mid>=4 && mid<=9);
-      assert("pre: valid_type" && type>=1 && type<=3);
-      assert("pre: id_match_type" &&
-             ( (type==1 && parentId>=0 && parentId<=5) ||
-               (type==2 && parentId>=0 && parentId<=3) ||
-               (type==3 && parentId==-1) ) );
+      assert("pre: primary point" && p1>=0 && p1<=3 && p2>=0 && p2<=3);
       
-      if(type==1) // edge
-        {
-        this->Edges[mid][0]=parentId;
-        // it means also that the point belongs to two faces
-        // the id of the faces can be found thanks to the edge id
-        switch(parentId)
-          {
-          case 0:
-            this->Faces[mid][0]=0;
-            this->Faces[mid][1]=3;
-            break;
-          case 1:
-            this->Faces[mid][0]=1;
-            this->Faces[mid][1]=3;
-            break;
-          case 2:
-            this->Faces[mid][0]=2;
-            this->Faces[mid][1]=3;
-            break;
-          case 3:
-            this->Faces[mid][0]=0;
-            this->Faces[mid][1]=2;
-            break;
-          case 4:
-            this->Faces[mid][0]=0;
-            this->Faces[mid][1]=1;
-            break;
-          case 5:
-            this->Faces[mid][0]=1;
-            this->Faces[mid][1]=2;
-            break;
-          default:
-            assert("check: impossible case" && 0);
-          }
-        
-        }
-      else // face (type==2 parentId!=-1) or no parent (parentId==-1 type==3)
-        {
-        this->Edges[mid][0]=-1;
-        this->Faces[mid][0]=parentId;
-        this->Faces[mid][1]=-1;
-        }
-      this->Edges[mid][1]=-1; // always for mid-points
-      this->Edges[mid][2]=-1; // always for mid-points
-      this->Faces[mid][2]=-1; // always for mid-points
+      this->ClassificationState[mid]=this->ClassificationState[p1]&this->ClassificationState[p2];
     }
   
   // Description:
@@ -1112,21 +951,9 @@ private:
   vtkIdType PointId[4+6];
   int SubdivisionLevel;
   
-  // local ids (-1 to 5) of the original edges on which the points are.
-  // a point can be on almost 3 edges:
-  // * only a vertex of the original tetrahedron is on 3 edges
-  // * the mid-points can be only on 1 edge
-  // * -1 encodes no edge
-  // * each array is an increasing list of ids terminated by -1 is no edge
-  signed char Edges[4+6][3];
-  // local ids (-1 to 3) of the original faces on which the points are.
-  // a point can be on almost 3 faces:
-  // * only a vertex of the original tetrahedron is on 3 faces
-  // * the mid-points can be only on 2 faces
-  // * a mid-point which is on two faces is also on one edge.
-  // * -1 encodes no face
-  // * each array is an increasing list of ids terminated by -1 is no face
-  signed char Faces[4+6][3];
+  // bit i (0 to 5) tells if point p (0 to 9) is lying on original edge i.
+  // bit j (6 to 9) tells if point p (0 to 9) is lying on original face j.
+  unsigned short ClassificationState[4+6];
   
   int *EdgeIds;
   int *FaceIds;
@@ -1715,7 +1542,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
         //Save mid point:
         tri.SetVertex(j+3, local);
         tri.SetPointId(j+3, ptId);
-        tri.SetEdgeParent(j+3,parentEdge);
+        tri.SetEdgeParent(j+3,l,r); //parentEdge);
 
         //Put everything in ths point hash table
         this->EdgeTable->InsertPointAndScalar(ptId, midPoint,
@@ -1750,7 +1577,9 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
         // it is already tessellated. All other point using this
         // edge will come from either inside the triangle either from
         // and another edge. For sur the resulting edge will be inside (-1)
-        tri.SetEdgeParent(j+3,-1);
+        
+//        tri.SetEdgeParent(j+3,-1);
+        
         }
       }
     }
@@ -1940,7 +1769,9 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
         //Save mid point:
         tetra.SetVertex(j+4, local);
         tetra.SetPointId(j+4, ptId);
-        tetra.SetParent(j+4,parentId,type);
+        tetra.SetParent(j+4,l,r);
+        
+//        tetra.SetParent(j+4,parentId,type);
         
         //Put everything in the point hash table
         this->EdgeTable->InsertPointAndScalar(ptId, midPoint,
@@ -1979,10 +1810,12 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
 
         tetra.SetVertex(j+4, pcoords);
         
-        signed char parentId;
-        int type=tetra.FindEdgeParent(l,r,parentId);
+//        signed char parentId;
+//        int type=tetra.FindEdgeParent(l,r,parentId);
 
-        tetra.SetParent(j+4,parentId,type); //tetra.SetParent(j+4,-1,3);
+//        tetra.SetParent(j+4,parentId,type); //tetra.SetParent(j+4,-1,3);
+        
+        tetra.SetParent(j+4,l,r);
         }
       }
     }
