@@ -17,8 +17,10 @@
 // vtkHierarchicalDataSet is a vtkCompositeDataSet that stores
 // a hierarchy of datasets. The dataset collection consists of
 // multiple levels. Each dataset can have an arbitrary number of
-// parents and children at levels above and below. Currently,
-// the interface for connecting parents-children is incomplete.
+// parents and children at levels above and below. The levels are
+// implemented as groups (see vtkMultiGroupDataSet) and can be
+// treated as such. This allows the use of all vtkMultiGroupDataSet.
+// Currently, the interface for connecting parents-children is incomplete.
 // .SECTION See Also
 // vtkMultiGroupDataSet
 

@@ -30,6 +30,10 @@
 //   * (null)
 //   * ds 1
 // @endverbatim
+// 
+// The levels are implemented as groups (see vtkMultiGroupDataSet) and can
+// be treated as such. This allows the use of all vtkMultiGroupDataSet.
+// Currently, the interface for connecting parents-children is incomplete.
 //
 // .SECTION See Also
 // vtkMultiGroupDataSet
