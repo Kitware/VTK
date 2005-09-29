@@ -12,11 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLMultiGroupDataWriter - Writer for hierarchical datasets
+// .NAME vtkXMLMultiGroupDataWriter - Writer for multi-group datasets
 // .SECTION Description
-// vtkXMLMultiGroupDataWriter writes (serially) the VTK XML hierarchical
-// and hierarchical box files. XML hierarchical data files are meta-files
-// that point to a list of serial VTK XML files.
+// vtkXMLMultiGroupDataWriter writes (serially) the VTK XML multi-group,
+// multi-block hierarchical and hierarchical box files. XML multi-group
+// data files are meta-files that point to a list of serial VTK XML files.
 // .SECTION See Also
 // vtkXMLPMultiGroupDataWriter
 
