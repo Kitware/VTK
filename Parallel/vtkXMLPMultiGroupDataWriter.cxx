@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   ParaView
-  Module:    vtkXMLPHierarchicalDataWriter.cxx
+  Module:    vtkXMLPMultiGroupDataWriter.cxx
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
@@ -12,35 +12,35 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkXMLPHierarchicalDataWriter.h"
+#include "vtkXMLPMultiGroupDataWriter.h"
 
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkXMLPHierarchicalDataWriter);
-vtkCxxRevisionMacro(vtkXMLPHierarchicalDataWriter, "1.2");
+vtkStandardNewMacro(vtkXMLPMultiGroupDataWriter);
+vtkCxxRevisionMacro(vtkXMLPMultiGroupDataWriter, "1.1");
 
-vtkCxxSetObjectMacro(vtkXMLPHierarchicalDataWriter, 
+vtkCxxSetObjectMacro(vtkXMLPMultiGroupDataWriter, 
                      Controller,
                      vtkMultiProcessController);
 
 
 //----------------------------------------------------------------------------
-vtkXMLPHierarchicalDataWriter::vtkXMLPHierarchicalDataWriter()
+vtkXMLPMultiGroupDataWriter::vtkXMLPMultiGroupDataWriter()
 {
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
-vtkXMLPHierarchicalDataWriter::~vtkXMLPHierarchicalDataWriter()
+vtkXMLPMultiGroupDataWriter::~vtkXMLPMultiGroupDataWriter()
 {
   this->SetController(0);
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPHierarchicalDataWriter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkXMLPMultiGroupDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -56,7 +56,7 @@ void vtkXMLPHierarchicalDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPHierarchicalDataWriter::FillDataTypes(vtkHierarchicalDataSet* hdInput)
+void vtkXMLPMultiGroupDataWriter::FillDataTypes(vtkMultiGroupDataSet* hdInput)
 {
   this->Superclass::FillDataTypes(hdInput);
 
@@ -77,7 +77,10 @@ void vtkXMLPHierarchicalDataWriter::FillDataTypes(vtkHierarchicalDataSet* hdInpu
     for (int i=1; i<numProcs; i++)
       {
       this->Controller->Receive(
-        dataTypes, numBlocks, i, vtkMultiProcessController::XML_WRITER_DATA_INFO);
+        dataTypes, 
+        numBlocks, 
+        i, 
+        vtkMultiProcessController::XML_WRITER_DATA_INFO);
       for (unsigned int j=0; j<numBlocks; j++)
         {
         if (dataTypes[j] >= 0)

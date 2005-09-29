@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   ParaView
-  Module:    vtkXMLPHierarchicalDataWriter.h
+  Module:    vtkXMLPMultiGroupDataWriter.h
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
@@ -12,24 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPHierarchicalDataWriter -  Writer for hierarchical datasets
+// .NAME vtkXMLPMultiGroupDataWriter -  Writer for hierarchical datasets
 // .SECTION Description
-// vtkXMLHierarchicalDataWriter writes (in parallel or serially) the VTK
+// vtkXMLMultiGroupDataWriter writes (in parallel or serially) the VTK
 // XML hierarchical and hierarchical box files. XML hierarchical data files
 // are meta-files that point to a list of serial VTK XML files.
 
-#ifndef __vtkXMLPHierarchicalDataWriter_h
-#define __vtkXMLPHierarchicalDataWriter_h
+#ifndef __vtkXMLPMultiGroupDataWriter_h
+#define __vtkXMLPMultiGroupDataWriter_h
 
-#include "vtkXMLHierarchicalDataWriter.h"
+#include "vtkXMLMultiGroupDataWriter.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkXMLPHierarchicalDataWriter : public vtkXMLHierarchicalDataWriter
+class VTK_PARALLEL_EXPORT vtkXMLPMultiGroupDataWriter : public vtkXMLMultiGroupDataWriter
 {
 public:
-  static vtkXMLPHierarchicalDataWriter* New();
-  vtkTypeRevisionMacro(vtkXMLPHierarchicalDataWriter,vtkXMLHierarchicalDataWriter);
+  static vtkXMLPMultiGroupDataWriter* New();
+  vtkTypeRevisionMacro(vtkXMLPMultiGroupDataWriter,vtkXMLMultiGroupDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);  
 
   // Description:
@@ -42,16 +42,16 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   
 protected:
-  vtkXMLPHierarchicalDataWriter();
-  ~vtkXMLPHierarchicalDataWriter();
+  vtkXMLPMultiGroupDataWriter();
+  ~vtkXMLPMultiGroupDataWriter();
   
-  virtual void FillDataTypes(vtkHierarchicalDataSet*);
+  virtual void FillDataTypes(vtkMultiGroupDataSet*);
 
   vtkMultiProcessController* Controller;
 
 private:
-  vtkXMLPHierarchicalDataWriter(const vtkXMLPHierarchicalDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPHierarchicalDataWriter&);  // Not implemented.
+  vtkXMLPMultiGroupDataWriter(const vtkXMLPMultiGroupDataWriter&);  // Not implemented.
+  void operator=(const vtkXMLPMultiGroupDataWriter&);  // Not implemented.
 };
 
 #endif

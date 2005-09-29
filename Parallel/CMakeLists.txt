@@ -60,10 +60,10 @@ vtkDistributedStreamTracer.cxx
 vtkDummyController.cxx
 vtkEnSightWriter.cxx
 vtkExtractCTHPart.cxx
-vtkExtractHierarchicalDataPiece.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
 vtkExtractUserDefinedPiece.cxx
+vtkMultiGroupDataExtractPiece.cxx
 vtkPKdTree.cxx
 vtkMemoryLimitImageDataStreamer.cxx
 vtkMultiProcessController.cxx
@@ -97,7 +97,7 @@ vtkTransmitStructuredGridPiece.cxx
 vtkTransmitPolyDataPiece.cxx
 vtkTransmitUnstructuredGridPiece.cxx
 vtkTreeCompositer.cxx
-vtkXMLPHierarchicalDataWriter.cxx
+vtkXMLPMultiGroupDataWriter.cxx
 )
 
 IF(VTK_HAS_EXODUS)

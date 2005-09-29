@@ -68,6 +68,7 @@ vtkLightCollection.cxx
 vtkLightKit.cxx
 vtkMapper.cxx
 vtkMapperCollection.cxx
+vtkMultiGroupPolyDataMapper.cxx
 vtkOBJExporter.cxx
 vtkOOGLExporter.cxx
 vtkParallelCoordinatesActor.cxx

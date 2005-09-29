@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkExtractHierarchicalDataPiece.cxx
+  Module:    vtkMultiGroupDataExtractPiece.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkExtractHierarchicalDataPiece.h"
+#include "vtkMultiGroupDataExtractPiece.h"
 
 #include "vtkExtentTranslator.h"
 #include "vtkImageClip.h"
@@ -20,7 +20,7 @@
 #include "vtkExtractRectilinearGrid.h"
 #include "vtkExtractGrid.h"
 #include "vtkExtractUnstructuredGridPiece.h"
-#include "vtkHierarchicalDataSet.h"
+#include "vtkMultiGroupDataSet.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -31,10 +31,10 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractHierarchicalDataPiece, "1.3");
-vtkStandardNewMacro(vtkExtractHierarchicalDataPiece);
+vtkCxxRevisionMacro(vtkMultiGroupDataExtractPiece, "1.1");
+vtkStandardNewMacro(vtkMultiGroupDataExtractPiece);
 
-int vtkExtractHierarchicalDataPiece::RequestData(
+int vtkMultiGroupDataExtractPiece::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -44,13 +44,13 @@ int vtkExtractHierarchicalDataPiece::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and ouptut
-  vtkHierarchicalDataSet *input = vtkHierarchicalDataSet::SafeDownCast(
+  vtkMultiGroupDataSet *input = vtkMultiGroupDataSet::SafeDownCast(
     inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
   if (!input)
     {
     return 0;
     }
-  vtkHierarchicalDataSet *output = vtkHierarchicalDataSet::SafeDownCast(
+  vtkMultiGroupDataSet *output = vtkMultiGroupDataSet::SafeDownCast(
     outInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
   if (!output)
     {
@@ -67,7 +67,7 @@ int vtkExtractHierarchicalDataPiece::RequestData(
   vtkDataObject *tmpDS;
   unsigned int i;
 
-  for (i = 0; i < input->GetNumberOfLevels(); i++)
+  for (i = 0; i < input->GetNumberOfGroups(); i++)
     {
     tmpDS = input->GetDataSet(i, 0);
     switch (tmpDS->GetDataObjectType())
@@ -107,9 +107,9 @@ int vtkExtractHierarchicalDataPiece::RequestData(
   return 1;
 }
 
-void vtkExtractHierarchicalDataPiece::ExtractImageData(
-  vtkImageData *imageData, vtkHierarchicalDataSet *output,
-  int piece, int numberOfPieces, int ghostLevel, unsigned int level)
+void vtkMultiGroupDataExtractPiece::ExtractImageData(
+  vtkImageData *imageData, vtkMultiGroupDataSet *output,
+  int piece, int numberOfPieces, int ghostLevel, unsigned int group)
 {
   vtkStreamingDemandDrivenPipeline *extractExecutive;
   vtkInformation *extractInfo;
@@ -139,15 +139,15 @@ void vtkExtractHierarchicalDataPiece::ExtractImageData(
   extractID->Update();
   vtkImageData *extractOutput = vtkImageData::New();
   extractOutput->ShallowCopy(extractID->GetOutput());
-  output->SetDataSet(level, piece, extractOutput);
+  output->SetDataSet(group, piece, extractOutput);
   extractID->Delete();
   translate->Delete();
   extractOutput->Delete();
 }
 
-void vtkExtractHierarchicalDataPiece::ExtractPolyData(
-  vtkPolyData *polyData, vtkHierarchicalDataSet *output,
-  int piece, int numberOfPieces, int ghostLevel, unsigned int level)
+void vtkMultiGroupDataExtractPiece::ExtractPolyData(
+  vtkPolyData *polyData, vtkMultiGroupDataSet *output,
+  int piece, int numberOfPieces, int ghostLevel, unsigned int group)
 {
   vtkStreamingDemandDrivenPipeline *extractExecutive;
   vtkInformation *extractInfo;
@@ -169,14 +169,14 @@ void vtkExtractHierarchicalDataPiece::ExtractPolyData(
   extractPD->Update();
   vtkPolyData *extractOutput = vtkPolyData::New();
   extractOutput->ShallowCopy(extractPD->GetOutput());
-  output->SetDataSet(level, piece, extractOutput);
+  output->SetDataSet(group, piece, extractOutput);
   extractPD->Delete();
   extractOutput->Delete();
 }
 
-void vtkExtractHierarchicalDataPiece::ExtractRectilinearGrid(
-  vtkRectilinearGrid *rGrid, vtkHierarchicalDataSet *output,
-  int piece, int numberOfPieces, int ghostLevel, unsigned int level)
+void vtkMultiGroupDataExtractPiece::ExtractRectilinearGrid(
+  vtkRectilinearGrid *rGrid, vtkMultiGroupDataSet *output,
+  int piece, int numberOfPieces, int ghostLevel, unsigned int group)
 {
   vtkStreamingDemandDrivenPipeline *extractExecutive;
   vtkInformation *extractInfo;
@@ -206,15 +206,15 @@ void vtkExtractHierarchicalDataPiece::ExtractRectilinearGrid(
   extractRG->Update();
   vtkRectilinearGrid *extractOutput = vtkRectilinearGrid::New();
   extractOutput->ShallowCopy(extractRG->GetOutput());
-  output->SetDataSet(level, piece, extractOutput);
+  output->SetDataSet(group, piece, extractOutput);
   extractRG->Delete();
   translate->Delete();
   extractOutput->Delete();
 }
 
-void vtkExtractHierarchicalDataPiece::ExtractStructuredGrid(
-  vtkStructuredGrid *sGrid, vtkHierarchicalDataSet *output,
-  int piece, int numberOfPieces, int ghostLevel, unsigned int level)
+void vtkMultiGroupDataExtractPiece::ExtractStructuredGrid(
+  vtkStructuredGrid *sGrid, vtkMultiGroupDataSet *output,
+  int piece, int numberOfPieces, int ghostLevel, unsigned int group)
 {
   vtkStreamingDemandDrivenPipeline *extractExecutive;
   vtkInformation *extractInfo;
@@ -244,15 +244,15 @@ void vtkExtractHierarchicalDataPiece::ExtractStructuredGrid(
   extractSG->Update();
   vtkStructuredGrid *extractOutput = vtkStructuredGrid::New();
   extractOutput->ShallowCopy(extractSG->GetOutput());
-  output->SetDataSet(level, piece, extractOutput);
+  output->SetDataSet(group, piece, extractOutput);
   extractSG->Delete();
   translate->Delete();
   extractOutput->Delete();
 }
 
-void vtkExtractHierarchicalDataPiece::ExtractUnstructuredGrid(
-  vtkUnstructuredGrid *uGrid, vtkHierarchicalDataSet *output,
-  int piece, int numberOfPieces, int ghostLevel, unsigned int level)
+void vtkMultiGroupDataExtractPiece::ExtractUnstructuredGrid(
+  vtkUnstructuredGrid *uGrid, vtkMultiGroupDataSet *output,
+  int piece, int numberOfPieces, int ghostLevel, unsigned int group)
 {
   vtkStreamingDemandDrivenPipeline *extractExecutive;
   vtkInformation *extractInfo;
@@ -275,12 +275,12 @@ void vtkExtractHierarchicalDataPiece::ExtractUnstructuredGrid(
   extractUG->Update();
   vtkUnstructuredGrid *extractOutput = vtkUnstructuredGrid::New();
   extractOutput->ShallowCopy(extractUG->GetOutput());
-  output->SetDataSet(level, piece, extractOutput);
+  output->SetDataSet(group, piece, extractOutput);
   extractUG->Delete();
   extractOutput->Delete();
 }
 
-void vtkExtractHierarchicalDataPiece::PrintSelf(ostream &os, vtkIndent indent)
+void vtkMultiGroupDataExtractPiece::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

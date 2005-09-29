@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkExtractHierarchicalDataPiece.h
+  Module:    vtkMultiGroupDataExtractPiece.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,18 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractHierarchicalDataPiece
+// .NAME vtkMultiGroupDataExtractPiece
 // .SECTION Description
-// vtkExtractHierarchicalDataPiece returns the appropriate piece of each
-// sub-dataset in the vtkHierarchicalDataSet.
+// vtkMultiGroupDataExtractPiece returns the appropriate piece of each
+// sub-dataset in the vtkMultiGroupDataSet.
 // This filter can handle sub-datasets of type vtkImageData, vtkPolyData,
 // vtkRectilinearGrid, vtkStructuredGrid, and vtkUnstructuredGrid; it does
-// not handle sub-grids of type vtkHierarchicalDataSet.
+// not handle sub-grids of type vtkMultiGroupDataSet.
 
-#ifndef __vtkExtractHierarchicalDataPiece_h
-#define __vtkExtractHierarchicalDataPiece_h
+#ifndef __vtkMultiGroupDataExtractPiece_h
+#define __vtkMultiGroupDataExtractPiece_h
 
-#include "vtkHierarchicalDataSetAlgorithm.h"
+#include "vtkMultiGroupDataSetAlgorithm.h"
 
 class vtkImageData;
 class vtkPolyData;
@@ -31,45 +31,45 @@ class vtkRectilinearGrid;
 class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 
-class VTK_PARALLEL_EXPORT vtkExtractHierarchicalDataPiece : public vtkHierarchicalDataSetAlgorithm
+class VTK_PARALLEL_EXPORT vtkMultiGroupDataExtractPiece : public vtkMultiGroupDataSetAlgorithm
 {
 public:
-  static vtkExtractHierarchicalDataPiece* New();
-  vtkTypeRevisionMacro(vtkExtractHierarchicalDataPiece, vtkHierarchicalDataSetAlgorithm);
+  static vtkMultiGroupDataExtractPiece* New();
+  vtkTypeRevisionMacro(vtkMultiGroupDataExtractPiece, vtkMultiGroupDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
 protected:
-  vtkExtractHierarchicalDataPiece() {}
-  ~vtkExtractHierarchicalDataPiece() {}
+  vtkMultiGroupDataExtractPiece() {}
+  ~vtkMultiGroupDataExtractPiece() {}
 
   virtual int RequestData(vtkInformation*,
                           vtkInformationVector**,
                           vtkInformationVector*);
 
   void ExtractImageData(vtkImageData *imageData,
-                        vtkHierarchicalDataSet *output,
+                        vtkMultiGroupDataSet *output,
                         int piece, int numberOfPieces, int ghostLevel,
-                        unsigned int level);
+                        unsigned int group);
   void ExtractPolyData(vtkPolyData *polyData,
-                       vtkHierarchicalDataSet *output,
+                       vtkMultiGroupDataSet *output,
                        int piece, int numberOfPieces, int ghostLevel,
-                       unsigned int level);
+                       unsigned int group);
   void ExtractRectilinearGrid(vtkRectilinearGrid *rGrid,
-                              vtkHierarchicalDataSet *output,
+                              vtkMultiGroupDataSet *output,
                               int piece, int numberOfPieces, int ghostLevel,
-                              unsigned int level);
+                              unsigned int group);
   void ExtractStructuredGrid(vtkStructuredGrid *sGrid,
-                             vtkHierarchicalDataSet *output,
+                             vtkMultiGroupDataSet *output,
                              int piece, int numberOfPieces, int ghostLevel,
-                             unsigned int level);
+                             unsigned int group);
   void ExtractUnstructuredGrid(vtkUnstructuredGrid *uGrid,
-                               vtkHierarchicalDataSet *output,
+                               vtkMultiGroupDataSet *output,
                                int piece, int numberOfPieces, int ghostLevel,
-                               unsigned int level);
+                               unsigned int group);
 
 private:
-  vtkExtractHierarchicalDataPiece(const vtkExtractHierarchicalDataPiece&); // Not implemented.
-  void operator=(const vtkExtractHierarchicalDataPiece&); // Not implemented.
+  vtkMultiGroupDataExtractPiece(const vtkMultiGroupDataExtractPiece&); // Not implemented.
+  void operator=(const vtkMultiGroupDataExtractPiece&); // Not implemented.
 };
 
 #endif
