@@ -114,6 +114,11 @@ vtkMergeFields.cxx
 vtkMergeFilter.cxx
 vtkMeshQuality.cxx
 vtkModelMetadata.cxx
+vtkMultiGroupDataExtractDataSets.cxx
+vtkMultiGroupDataExtractGroup.cxx
+vtkMultiGroupDataGeometryFilter.cxx
+vtkMultiGroupDataGroupFilter.cxx
+vtkMultiGroupDataGroupIdScalars.cxx
 vtkOBBDicer.cxx
 vtkOBBTree.cxx
 vtkOutlineCornerFilter.cxx

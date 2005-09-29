@@ -14,31 +14,44 @@
 =========================================================================*/
 // .NAME vtkHierarchicalDataExtractLevel - extact levels between min and max
 // .SECTION Description
-// vtkHierarchicalDataExtractLevel is a filter to that extracts levels
-// between user specified min and max.
+// Legacy class. Use vtkMultiGroupDataExtractGroup instead.
+// .SECTION See Also
+// vtkMultiGroupDataExtractGroup
 
 #ifndef __vtkHierarchicalDataExtractLevel_h
 #define __vtkHierarchicalDataExtractLevel_h
 
-#include "vtkHierarchicalDataSetAlgorithm.h"
+#include "vtkMultiGroupDataExtractGroup.h"
 
-class VTK_GRAPHICS_EXPORT vtkHierarchicalDataExtractLevel : public vtkHierarchicalDataSetAlgorithm 
+class VTK_GRAPHICS_EXPORT vtkHierarchicalDataExtractLevel : public vtkMultiGroupDataExtractGroup 
 {
 public:
-  vtkTypeRevisionMacro(vtkHierarchicalDataExtractLevel,vtkHierarchicalDataSetAlgorithm);
+  vtkTypeRevisionMacro(vtkHierarchicalDataExtractLevel,vtkMultiGroupDataExtractGroup);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkHierarchicalDataExtractLevel *New();
 
   // Description:
   // Minimum level to be extacted
-  vtkSetMacro(MinLevel, unsigned int);
-  vtkGetMacro(MinLevel, unsigned int);
+  void SetMinLevel(unsigned int level)
+    {
+      this->Superclass::SetMinGroup(level);
+    }
+  unsigned int GetMinLevel()
+    {
+      return this->Superclass::GetMinGroup();
+    }
 
   // Description:
   // Maximum level to be extacted
-  vtkSetMacro(MaxLevel, unsigned int);
-  vtkGetMacro(MaxLevel, unsigned int);
+  void SetMaxLevel(unsigned int level)
+    {
+      this->Superclass::SetMaxGroup(level);
+    }
+  unsigned int GetMaxLevel()
+    {
+      return this->Superclass::GetMaxGroup();
+    }
 
   // Description:
   // Sets the min and max levels
@@ -50,25 +63,22 @@ public:
 
   // Description:
   // Returns input min (always 0) and max levels.
-  vtkGetVector2Macro(InputLevels, int);
+  int* GetInputLevels()
+    {
+      return this->GetInputGroups();
+    }
+  void GetInputLevels(int& minLevel, int& maxLevel)
+    {
+      this->GetInputGroups(minLevel, maxLevel);
+    }
+  void GetInputLevels(int levels[2])
+    {
+      this->GetInputGroups(levels);
+    }
 
 protected:
   vtkHierarchicalDataExtractLevel();
   ~vtkHierarchicalDataExtractLevel();
-
-  virtual int RequestDataObject(vtkInformation* request, 
-                                vtkInformationVector** inputVector, 
-                                vtkInformationVector* outputVector);
-  virtual int RequestInformation(vtkInformation *, 
-                                 vtkInformationVector **, 
-                                 vtkInformationVector *);
-  virtual int RequestData(vtkInformation *, 
-                          vtkInformationVector **, 
-                          vtkInformationVector *);
-
-  unsigned int MinLevel;
-  unsigned int MaxLevel;
-  int InputLevels[2];
 
 private:
   vtkHierarchicalDataExtractLevel(const vtkHierarchicalDataExtractLevel&);  // Not implemented.

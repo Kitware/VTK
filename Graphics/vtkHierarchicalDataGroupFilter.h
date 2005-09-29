@@ -14,21 +14,20 @@
 =========================================================================*/
 // .NAME vtkHierarchicalDataGroupFilter - collects multiple inputs into one hierarchical dataset
 // .SECTION Description
-// vtkHierarchicalDataGroupFilter is an M to 1 filter that merges multiple
-// input into one hierarchical dataset. It will assign each input to
-// one level of the hierarchical dataset and will assign each update piece
-// as a sub-block. For example, if there are two inputs and four update
-// pieces, the output contains two levels with four datasets each.
+// Legacy class. Use vtkMultiGroupDataGroupFilter instead.
+//
+// .SECTION See Also
+// vtkMultiGroupDataGroupFilter
 
 #ifndef __vtkHierarchicalDataGroupFilter_h
 #define __vtkHierarchicalDataGroupFilter_h
 
-#include "vtkHierarchicalDataSetAlgorithm.h"
+#include "vtkMultiGroupDataGroupFilter.h"
 
-class VTK_GRAPHICS_EXPORT vtkHierarchicalDataGroupFilter : public vtkHierarchicalDataSetAlgorithm 
+class VTK_GRAPHICS_EXPORT vtkHierarchicalDataGroupFilter : public vtkMultiGroupDataGroupFilter 
 {
 public:
-  vtkTypeRevisionMacro(vtkHierarchicalDataGroupFilter,vtkHierarchicalDataSetAlgorithm);
+  vtkTypeRevisionMacro(vtkHierarchicalDataGroupFilter,vtkMultiGroupDataGroupFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -36,23 +35,9 @@ public:
   // as scalars.
   static vtkHierarchicalDataGroupFilter *New();
 
-  // Description:
-  // Add an input of this algorithm.  Note that these methods support
-  // old-style pipeline connections.  When writing new code you should
-  // use the more general vtkAlgorithm::AddInputConnection().  See
-  // SetInput() for details.
-  void AddInput(vtkDataObject *);
-  void AddInput(int, vtkDataObject*);
-
 protected:
   vtkHierarchicalDataGroupFilter();
   ~vtkHierarchicalDataGroupFilter();
-
-  int RequestData(vtkInformation *, 
-                  vtkInformationVector **, 
-                  vtkInformationVector *);
-
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
   vtkHierarchicalDataGroupFilter(const vtkHierarchicalDataGroupFilter&);  // Not implemented.

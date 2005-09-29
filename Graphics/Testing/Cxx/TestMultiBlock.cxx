@@ -102,7 +102,7 @@ int TestMultiBlock(int argc, char* argv[])
   vtkHierarchicalDataExtractDataSets* eds = 
     vtkHierarchicalDataExtractDataSets::New();
   eds->SetInputConnection(0, reader->GetOutputPort(0));
-  eds->AddDataSet(0, 1);
+  eds->AddDataSet(1, 0);
 
   // contour
   vtkContourFilter* contour = vtkContourFilter::New();
