@@ -27,7 +27,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.26");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.27");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -183,7 +183,6 @@ int vtkXMLDataReader::SetUpdateExtentInfo(vtkXMLDataElement *eDSA,
     }
 
   int i;
-  vtkInformation *info = NULL;
 
   // Cycle through each data array
   for(i = 0; i < eDSA->GetNumberOfNestedElements(); i++)
