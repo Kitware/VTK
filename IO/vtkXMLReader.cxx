@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.40");
+vtkCxxRevisionMacro(vtkXMLReader, "1.41");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -330,19 +330,23 @@ int vtkXMLReader::ReadXMLInformation()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLReader::RequestInformation(vtkInformation *request,
-                                     vtkInformationVector **vtkNotUsed(inputVector),
-                                     vtkInformationVector *outputVector)
+int vtkXMLReader
+::RequestInformation(vtkInformation *request,
+                     vtkInformationVector **vtkNotUsed(inputVector),
+                     vtkInformationVector *outputVector)
 {
   if (this->ReadXMLInformation())
     {
     this->InformationError = 0;
     // Let the subclasses read the information they want.
-    int outputPort = request->Get( vtkDemandDrivenPipeline::FROM_OUTPUT_PORT() );
+    int outputPort = 
+      request->Get( vtkDemandDrivenPipeline::FROM_OUTPUT_PORT() );
     outputPort = outputPort >= 0 ? outputPort : 0;
-    this->SetupOutputInformation( outputVector->GetInformationObject(outputPort) );
+    this->SetupOutputInformation
+      (outputVector->GetInformationObject(outputPort) );
 
-    // this->NumberOfTimeSteps has been set during the this->ReadXMLInformation()
+    // this->NumberOfTimeSteps has been set during the
+    // this->ReadXMLInformation()
     int numTimesteps = this->GetNumberOfTimeSteps();
     this->TimeStepRange[0] = 0;
     this->TimeStepRange[1] = numTimesteps-1;
@@ -365,6 +369,22 @@ int vtkXMLReader::RequestInformation(vtkInformation *request,
     }
 
   return !this->InformationError;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLReader
+::RequestUpdateExtentInformation
+(vtkInformation *request,
+ vtkInformationVector **vtkNotUsed(inputVector),
+ vtkInformationVector *outputVector)
+{
+  int outputPort = 
+    request->Get( vtkDemandDrivenPipeline::FROM_OUTPUT_PORT() );
+  outputPort = outputPort >= 0 ? outputPort : 0;
+  this->SetupUpdateExtentInformation
+    (outputVector->GetInformationObject(outputPort) );
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -547,7 +567,8 @@ int vtkXMLReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   // Let check the "TimeValues" here
   const int tsMax = 4096;
   double timevalues[tsMax];
-  int numTimeSteps = ePrimary->GetVectorAttribute("TimeValues", tsMax, timevalues);
+  int numTimeSteps = 
+    ePrimary->GetVectorAttribute("TimeValues", tsMax, timevalues);
   assert( numTimeSteps <= tsMax);
   this->SetNumberOfTimeSteps( numTimeSteps );
 
@@ -598,7 +619,7 @@ vtkDataArray* vtkXMLReader::CreateDataArray(vtkXMLDataElement* da)
     {
     array->SetNumberOfComponents(components);
     }
-  
+
   return array;
 }
 
@@ -937,6 +958,13 @@ int vtkXMLReader::SetFieldDataInfo(vtkXMLDataElement *eDSA,
       info->Set(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS(), 1);
       }
 
+    double range[2];
+    if (eNested->GetScalarAttribute("RangeMin", range[0]) &&
+        eNested->GetScalarAttribute("RangeMax", range[1]))
+      {
+      info->Set(vtkDataObject::FIELD_RANGE(), range, 2);
+      }
+
     info->Set(vtkDataObject::FIELD_ACTIVE_ATTRIBUTE(), activeFlag);
     infoVector->Append( info );
     info->Delete();
@@ -1124,6 +1152,14 @@ int vtkXMLReader::ProcessRequest(vtkInformation* request,
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
     return this->RequestInformation(request, inputVector, outputVector);
+    }
+
+  // return UE info
+  if(request->Has
+     (vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT_INFORMATION()))
+    {
+    return this->RequestUpdateExtentInformation(request, 
+                                                inputVector, outputVector);
     }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);

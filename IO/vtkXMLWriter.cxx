@@ -42,7 +42,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.58");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.59");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -666,6 +666,7 @@ unsigned long vtkXMLWriter::WriteAppendedDataOffset(unsigned long streamPos,
 
   return endPos;
 }
+
 //----------------------------------------------------------------------------
 unsigned long vtkXMLWriter::ForwardAppendedDataOffset(unsigned long streamPos,
                                                       unsigned long offset,
@@ -679,6 +680,31 @@ unsigned long vtkXMLWriter::ForwardAppendedDataOffset(unsigned long streamPos,
     os << " " << attr << "=";
     }
   os << "\"" << offset << "\"";
+  unsigned long endPos = os.tellp();
+  os.seekp(returnPos);
+
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::GetLastSystemError());
+    }
+
+  return endPos;
+}
+
+//----------------------------------------------------------------------------
+unsigned long vtkXMLWriter::ForwardAppendedDataDouble(unsigned long streamPos,
+                                                      double value,
+                                                      const char* attr)
+{
+  ostream& os = *(this->Stream);
+  unsigned long returnPos = os.tellp();
+  os.seekp(streamPos);
+  if(attr)
+    {
+    os << " " << attr << "=";
+    }
+  os << "\"" << value << "\"";
   unsigned long endPos = os.tellp();
   os.seekp(returnPos);
 
@@ -1224,6 +1250,12 @@ int vtkXMLWriter::WriteScalarAttribute(const char* name, float data)
 }
 
 //----------------------------------------------------------------------------
+int vtkXMLWriter::WriteScalarAttribute(const char* name, double data)
+{
+  return this->WriteVectorAttribute(name, 1, &data);
+}
+
+//----------------------------------------------------------------------------
 #ifdef VTK_USE_64BIT_IDS
 int vtkXMLWriter::WriteScalarAttribute(const char* name, vtkIdType data)
 {
@@ -1494,21 +1526,28 @@ int vtkXMLWriter::WriteAsciiData(void* data, int numWords, int wordType,
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkXMLWriter::WriteDataArrayAppended(vtkDataArray* a,
-                                                   vtkIndent indent,
-                                                   const char* alternateName,
-                                                   int writeNumTuples,
-                                                   int timestep)
+void vtkXMLWriter::WriteDataArrayAppended(vtkDataArray* a,
+                                          vtkIndent indent,
+                                          OffsetsManager &offs,
+                                          const char* alternateName,
+                                          int writeNumTuples,
+                                          int timestep)
 {
   ostream& os = *(this->Stream);
   // Write the header <DataArray:
   this->WriteDataArrayHeader(a,indent,alternateName, writeNumTuples, timestep);
-  unsigned long pos = this->ReserveAttributeSpace("offset");
+
+  // write the scalar range of this data array, we reserver space because we
+  // don't actually have the data at this point
+  offs.GetRangeMinPosition(timestep) 
+    = this->ReserveAttributeSpace("RangeMin");
+  offs.GetRangeMaxPosition(timestep) 
+    = this->ReserveAttributeSpace("RangeMax");
+  
+  offs.GetPosition(timestep) = this->ReserveAttributeSpace("offset");
   // Close the header
   os << "/>\n";
   this->WriteDataArrayFooter(os, indent);
-
-  return pos;
 }
 
 //----------------------------------------------------------------------------
@@ -1565,6 +1604,7 @@ void vtkXMLWriter::WriteDataArrayHeader(vtkDataArray* a, vtkIndent indent,
     this->WriteScalarAttribute("NumberOfTuples",
                                a->GetNumberOfTuples());
     }
+  
   this->WriteDataModeAttribute("format");
 }
 
@@ -1584,7 +1624,12 @@ void vtkXMLWriter::WriteDataArrayInline(vtkDataArray* a, vtkIndent indent,
 {
   ostream& os = *(this->Stream);
   // Write the header <DataArray:
-  this->WriteDataArrayHeader(a, indent, alternateName, writeNumTuples, -1);
+  this->WriteDataArrayHeader(a, indent, alternateName, writeNumTuples, 0);
+
+  // write the range
+  this->WriteScalarAttribute("RangeMin",a->GetRange(-1)[0]);
+  this->WriteScalarAttribute("RangeMax",a->GetRange(-1)[1]);
+  
   // Close the header
   os << ">\n";
   // Write the data
@@ -1774,10 +1819,10 @@ void vtkXMLWriter::WriteFieldDataAppended(vtkFieldData* fd,
   for(i=0; i < fd->GetNumberOfArrays(); ++i)
     {
     fdManager->GetElement(i).Allocate(1);
-    fdManager->GetElement(i).GetPosition(0) = 
-      this->WriteDataArrayAppended(fd->GetArray(i),
-                                   indent.GetNextIndent(),
-                                   names[i], 1 , -1);
+    this->WriteDataArrayAppended(fd->GetArray(i),
+                                 indent.GetNextIndent(),
+                                 fdManager->GetElement(i),
+                                 names[i], 1 , 0);
     if (this->ErrorCode != vtkErrorCode::NoError)
       {
       this->DestroyStringArray(fd->GetNumberOfArrays(), names);
@@ -1811,6 +1856,13 @@ void vtkXMLWriter::WriteFieldDataAppendedData(vtkFieldData* fd, int timestep,
     this->WriteDataArrayAppendedData(fd->GetArray(i),
       fdManager->GetElement(i).GetPosition(timestep),
       fdManager->GetElement(i).GetOffsetValue(timestep));
+    double *range = fd->GetArray(i)->GetRange(-1);
+    this->ForwardAppendedDataDouble
+      (fdManager->GetElement(i).GetRangeMinPosition(timestep),
+       range[0],"RangeMin" );
+    this->ForwardAppendedDataDouble
+      (fdManager->GetElement(i).GetRangeMaxPosition(timestep),
+       range[1],"RangeMax" );
     if (this->ErrorCode != vtkErrorCode::NoError)
       {
       return;
@@ -1843,10 +1895,10 @@ void vtkXMLWriter::WritePointDataAppended(vtkPointData* pd, vtkIndent indent,
     pdManager->GetElement(i).Allocate(this->NumberOfTimeSteps);
     for(int t=0; t< this->NumberOfTimeSteps; ++t)
       {
-      pdManager->GetElement(i).GetPosition(t) =
-        this->WriteDataArrayAppended(pd->GetArray(i),
-                                     indent.GetNextIndent(),
-                                     names[i],0,t);
+      this->WriteDataArrayAppended(pd->GetArray(i),
+                                   indent.GetNextIndent(),
+                                   pdManager->GetElement(i),
+                                   names[i],0,t);
       if (this->ErrorCode != vtkErrorCode::NoError)
         {
         this->DestroyStringArray(pd->GetNumberOfArrays(), names);
@@ -1878,13 +1930,14 @@ void vtkXMLWriter::WritePointDataAppendedData(vtkPointData* pd, int timestep,
     unsigned long mtime = pd->GetMTime();
     // Only write pd if MTime has changed
     unsigned long &pdMTime = pdManager->GetElement(i).GetLastMTime();
+    vtkDataArray* a = this->CreateArrayForPoints(pd->GetArray(i));
     if( pdMTime != mtime )
       {
       pdMTime = mtime;
-      vtkDataArray* a = this->CreateArrayForPoints(pd->GetArray(i));
-      this->WriteDataArrayAppendedData(a, pdManager->GetElement(i).GetPosition(timestep),
-                                          pdManager->GetElement(i).GetOffsetValue(timestep));
-      a->Delete();
+      this->WriteDataArrayAppendedData
+        (a, 
+         pdManager->GetElement(i).GetPosition(timestep),
+         pdManager->GetElement(i).GetOffsetValue(timestep));
       if (this->ErrorCode != vtkErrorCode::NoError)
         {
         return;
@@ -1895,10 +1948,18 @@ void vtkXMLWriter::WritePointDataAppendedData(vtkPointData* pd, int timestep,
       assert( timestep > 0 );
       pdManager->GetElement(i).GetOffsetValue(timestep) =
         pdManager->GetElement(i).GetOffsetValue(timestep-1);
-      this->ForwardAppendedDataOffset(pdManager->GetElement(i).GetPosition(timestep),
-                                      pdManager->GetElement(i).GetOffsetValue(timestep),
-                                      "offset" );
+      this->ForwardAppendedDataOffset
+        (pdManager->GetElement(i).GetPosition(timestep),
+         pdManager->GetElement(i).GetOffsetValue(timestep),"offset" );
       }
+    double *range = a->GetRange(-1);
+    this->ForwardAppendedDataDouble
+      (pdManager->GetElement(i).GetRangeMinPosition(timestep),
+       range[0],"RangeMin" );
+    this->ForwardAppendedDataDouble
+      (pdManager->GetElement(i).GetRangeMaxPosition(timestep),
+       range[1],"RangeMax" );
+    a->Delete();
     }
 }
 
@@ -1926,10 +1987,10 @@ void vtkXMLWriter::WriteCellDataAppended(vtkCellData* cd, vtkIndent indent,
     cdManager->GetElement(i).Allocate(this->NumberOfTimeSteps);
     for(int t=0; t< this->NumberOfTimeSteps; ++t)
       {
-      cdManager->GetElement(i).GetPosition(t) = 
-        this->WriteDataArrayAppended(cd->GetArray(i),
-                                     indent.GetNextIndent(),
-                                     names[i],0,t);
+      this->WriteDataArrayAppended(cd->GetArray(i),
+                                   indent.GetNextIndent(),
+                                   cdManager->GetElement(i),
+                                   names[i],0,t);
       if (this->ErrorCode != vtkErrorCode::NoError)
         {
         this->DestroyStringArray(cd->GetNumberOfArrays(), names);
@@ -1961,13 +2022,14 @@ void vtkXMLWriter::WriteCellDataAppendedData(vtkCellData* cd, int timestep,
     unsigned long mtime = cd->GetMTime();
     // Only write pd if MTime has changed
     unsigned long &cdMTime = cdManager->GetElement(i).GetLastMTime();
+    vtkDataArray* a = this->CreateArrayForCells(cd->GetArray(i));
     if( cdMTime != mtime )
       {
       cdMTime = mtime;
-      vtkDataArray* a = this->CreateArrayForCells(cd->GetArray(i));
-      this->WriteDataArrayAppendedData(a, cdManager->GetElement(i).GetPosition(timestep),
-                                          cdManager->GetElement(i).GetOffsetValue(timestep));
-      a->Delete();
+      this->WriteDataArrayAppendedData
+        (a, 
+         cdManager->GetElement(i).GetPosition(timestep),
+         cdManager->GetElement(i).GetOffsetValue(timestep));
       if (this->ErrorCode != vtkErrorCode::NoError)
         {
         return;
@@ -1983,6 +2045,14 @@ void vtkXMLWriter::WriteCellDataAppendedData(vtkCellData* cd, int timestep,
         cdManager->GetElement(i).GetOffsetValue(timestep),
         "offset" );
       }
+    double *range = a->GetRange(-1);
+    this->ForwardAppendedDataDouble
+      (cdManager->GetElement(i).GetRangeMinPosition(timestep),
+       range[0],"RangeMin" );
+    this->ForwardAppendedDataDouble
+      (cdManager->GetElement(i).GetRangeMaxPosition(timestep),
+       range[1],"RangeMax" );
+    a->Delete();
     }
 }
 
@@ -2029,8 +2099,10 @@ void vtkXMLWriter::WritePointsAppended(vtkPoints* points, vtkIndent indent,
     {
     for(int t=0; t< this->NumberOfTimeSteps; ++t)
       {
-      ptManager->GetPosition(t) =
-        this->WriteDataArrayAppended(points->GetData(), indent.GetNextIndent(),0,0,t);
+      this->WriteDataArrayAppended(points->GetData(), 
+                                   indent.GetNextIndent(),
+                                   *ptManager,
+                                   0,0,t);
       }
     }
   os << indent << "</Points>\n";
@@ -2052,13 +2124,13 @@ void vtkXMLWriter::WritePointsAppendedData(vtkPoints* points, int timestep,
     unsigned long mtime = points->GetMTime();
     // Only write points if MTime has changed
     unsigned long &pointsMTime = ptManager->GetLastMTime();
+    vtkDataArray* outPoints = this->CreateArrayForPoints(points->GetData());
     if( pointsMTime != mtime )
       {
       pointsMTime = mtime;
-      vtkDataArray* outPoints = this->CreateArrayForPoints(points->GetData());
-      this->WriteDataArrayAppendedData(outPoints, ptManager->GetPosition(timestep),
-                                                  ptManager->GetOffsetValue(timestep));
-      outPoints->Delete();
+      this->WriteDataArrayAppendedData(outPoints, 
+                                       ptManager->GetPosition(timestep),
+                                       ptManager->GetOffsetValue(timestep));
       }
     else
       {
@@ -2068,6 +2140,14 @@ void vtkXMLWriter::WritePointsAppendedData(vtkPoints* points, int timestep,
         ptManager->GetPosition(timestep),
         ptManager->GetOffsetValue(timestep), "offset");
       }
+    double *range = outPoints->GetRange(-1);
+    this->ForwardAppendedDataDouble
+      (ptManager->GetRangeMinPosition(timestep),
+       range[0],"RangeMin" );
+    this->ForwardAppendedDataDouble
+      (ptManager->GetRangeMaxPosition(timestep),
+       range[1],"RangeMax" );
+    outPoints->Delete();
     }
 }
 
@@ -2105,7 +2185,7 @@ void vtkXMLWriter::WriteCoordinatesInline(vtkDataArray* xc, vtkDataArray* yc,
     vtkDataArray* oxc = this->CreateExactCoordinates(xc, 0);
     vtkDataArray* oyc = this->CreateExactCoordinates(yc, 1);
     vtkDataArray* ozc = this->CreateExactCoordinates(zc, 2);
-
+    
     // Split progress over the three coordinates arrays.
     vtkIdType total = (oxc->GetNumberOfTuples()+
                        oyc->GetNumberOfTuples()+
@@ -2192,8 +2272,8 @@ vtkXMLWriter::WriteCoordinatesAppended(vtkDataArray* xc, vtkDataArray* yc,
       coordManager->GetElement(i).Allocate(this->NumberOfTimeSteps);
       for(int t=0; t<this->NumberOfTimeSteps; ++t)
         {
-        coordManager->GetElement(i).GetPosition(t) =
-          this->WriteDataArrayAppended(allcoords[i], indent.GetNextIndent());
+        this->WriteDataArrayAppended(allcoords[i], indent.GetNextIndent(),
+                                     coordManager->GetElement(i), 0, 0, t);
         if (this->ErrorCode != vtkErrorCode::NoError)
           {
           return ;

@@ -288,6 +288,9 @@ protected:
   unsigned long ForwardAppendedDataOffset(unsigned long streamPos,
                                          unsigned long offset,
                                          const char* attr=0);
+  unsigned long ForwardAppendedDataDouble(unsigned long streamPos,
+                                          double value,
+                                          const char* attr);
   int WriteBinaryData(void* data, int numWords, int wordType);
   
   int WriteBinaryData(char* data)
@@ -326,6 +329,7 @@ protected:
   
   int WriteScalarAttribute(const char* name, int data);
   int WriteScalarAttribute(const char* name, float data);
+  int WriteScalarAttribute(const char* name, double data);
 #ifdef VTK_USE_64BIT_IDS
   int WriteScalarAttribute(const char* name, vtkIdType data);
 #endif
@@ -341,9 +345,10 @@ protected:
   int WriteWordTypeAttribute(const char* name, int dataType);
   int WriteStringAttribute(const char* name, const char* value);
   
-  unsigned long WriteDataArrayAppended(vtkDataArray* a, vtkIndent indent,
-                                       const char* alternateName=0, 
-                                       int writeNumTuples=0, int timestep=-1);
+  void WriteDataArrayAppended(vtkDataArray* a, vtkIndent indent,
+                              OffsetsManager &offs,
+                              const char* alternateName=0, 
+                              int writeNumTuples=0, int timestep=0);
   void WriteDataArrayAppendedData(vtkDataArray* a, unsigned long pos, unsigned long &lastoffset);
   void WriteDataArrayInline(vtkDataArray* a, vtkIndent indent,
                             const char* alternateName=0, int writeNumTuples=0);
@@ -351,7 +356,8 @@ protected:
                        vtkIndent indent);
   
   void WriteDataArrayHeader(vtkDataArray* a, vtkIndent indent,
-                            const char* alternateName, int writeNumTuples, int timestep);
+                            const char* alternateName, 
+                            int writeNumTuples, int timestep);
   void WriteDataArrayFooter(ostream &os, vtkIndent indent);
   
   // Methods for writing points, point data, and cell data.

@@ -33,7 +33,7 @@
 #undef  vtkOffsetsManager_DoNotInclude
 
 
-vtkCxxRevisionMacro(vtkXMLHyperOctreeWriter, "1.4");
+vtkCxxRevisionMacro(vtkXMLHyperOctreeWriter, "1.5");
 vtkStandardNewMacro(vtkXMLHyperOctreeWriter);
 
 //----------------------------------------------------------------------------
@@ -43,6 +43,7 @@ vtkXMLHyperOctreeWriter::vtkXMLHyperOctreeWriter()
   this->TopologyOM = new OffsetsManagerGroup;
   this->PointDataOM = new OffsetsManagerGroup;
   this->CellDataOM = new OffsetsManagerGroup;
+  this->TopologyOM->Allocate(1,1);
 }
 
 //----------------------------------------------------------------------------
@@ -143,11 +144,19 @@ int vtkXMLHyperOctreeWriter::WriteData()
     //write out the data arrays in the appended data block while going back
     //and filling in empty offset space in previously written entries
 
-    unsigned long dummy;
-    this->WriteDataArrayAppendedData(this->TopologyArray, this->TopoOffset, dummy);
-
+    this->WriteDataArrayAppendedData
+      (this->TopologyArray, 
+       this->TopologyOM->GetElement(0).GetPosition(0), 
+       this->TopologyOM->GetElement(0).GetOffsetValue(0));
+    double *range = this->TopologyArray->GetRange(-1);
+    this->ForwardAppendedDataDouble
+      (this->TopologyOM->GetElement(0).GetRangeMinPosition(0),
+       range[0],"RangeMin" );
+    this->ForwardAppendedDataDouble
+      (this->TopologyOM->GetElement(0).GetRangeMaxPosition(0),
+       range[1],"RangeMax" );
     this->SetProgressRange(progressRange, 1, fractions);
-
+    
     this->WritePointDataAppendedData(this->GetInput()->GetPointData(), 0, this->PointDataOM);
 
     this->SetProgressRange(progressRange, 2, fractions);
@@ -239,11 +248,15 @@ int vtkXMLHyperOctreeWriter::WriteTopology(vtkIndent indent)
 
   if (this->GetDataMode() == vtkXMLWriter::Appended)
     {
-    this->TopoOffset = this->WriteDataArrayAppended(this->TopologyArray, indent.GetNextIndent(), "Topology", 1);
+    this->WriteDataArrayAppended(this->TopologyArray, 
+                                 indent.GetNextIndent(),
+                                 this->TopologyOM->GetElement(0),
+                                 "Topology", 1, 0);
     }
   else
     {
-    this->WriteDataArrayInline(this->TopologyArray, indent.GetNextIndent(), "Topology", 1);
+    this->WriteDataArrayInline(this->TopologyArray, 
+                               indent.GetNextIndent(), "Topology", 1);
     }
 
   os << indent << "</" << "Topology" << ">\n";

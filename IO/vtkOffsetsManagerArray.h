@@ -61,12 +61,24 @@ public:
     {
     assert( numTimeStep > 0);
     this->Positions.resize(numTimeStep);
+    this->RangeMinPositions.resize(numTimeStep);
+    this->RangeMaxPositions.resize(numTimeStep);
     this->OffsetValues.resize(numTimeStep);
     }
   unsigned long &GetPosition(unsigned int t)
     {
     assert( t < this->Positions.size());
     return this->Positions[t];
+    }
+  unsigned long &GetRangeMinPosition(unsigned int t)
+    {
+    assert( t < this->RangeMinPositions.size());
+    return this->RangeMinPositions[t];
+    }
+  unsigned long &GetRangeMaxPosition(unsigned int t)
+    {
+    assert( t < this->RangeMaxPositions.size());
+    return this->RangeMaxPositions[t];
     }
   unsigned long &GetOffsetValue(unsigned int t)
     {
@@ -79,7 +91,15 @@ public:
     }
 private:
   unsigned long LastMTime; // Previously written dataarray mtime 
-  vtkstd::vector<unsigned long> Positions; // Position in the stream to write the offset
+  // at some point these vectors could become a vector of map <string,ul>
+  // where the string is the name of the offset, but that would be pretty fat
+  // and slow, but if another couple offsets are added then we should
+  // consider doing it
+  // Position in the stream to write the offset
+  vtkstd::vector<unsigned long> Positions; 
+  vtkstd::vector<unsigned long> RangeMinPositions; // Where is this
+  vtkstd::vector<unsigned long> RangeMaxPositions; // Whee is this
+
   vtkstd::vector<unsigned long> OffsetValues;    // Value of offset
 };
 
@@ -87,11 +107,12 @@ private:
 class OffsetsManagerGroup
 {
 public:
-  // This is kind of a hack since we need to consider both the case of Points with
-  // only one array over time and PointData with possibly multiple array over time
-  // therefore we need to use a OffsetsManagerGroup for representing offset from
-  // Points but OffsetsManagerArray for PointData. In both case the toplevel structure
-  // is a container of Pieces...
+  // This is kind of a hack since we need to consider both the case of Points
+  // with only one array over time and PointData with possibly multiple array
+  // over time therefore we need to use a OffsetsManagerGroup for
+  // representing offset from Points but OffsetsManagerArray for
+  // PointData. In both case the toplevel structure is a container of
+  // Pieces...
   OffsetsManager &GetPiece(unsigned int index)
     {
     assert( index < this->Internals.size());
@@ -101,10 +122,10 @@ public:
   // GetElement should be used when manipulating a OffsetsManagerArray
   OffsetsManager &GetElement(unsigned int index)
     {
-    // commenting the following out, this is an heisenbug which only appears on gcc
-    // when exporting GLIBCPP_NEW=1. If you try to print the value or run through gdb
-    // it desepears
-    //assert( index < this->Internals.size());
+    // commenting the following out, this is an heisenbug which only appears
+    // on gcc when exporting GLIBCPP_NEW=1. If you try to print the value or
+    // run through gdb it desepears //assert( index <
+    // this->Internals.size());
     OffsetsManager &e = this->Internals[index];
     return e;
     }

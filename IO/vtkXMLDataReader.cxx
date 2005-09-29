@@ -23,11 +23,11 @@
 #include "vtkXMLDataParser.h"
 #include "vtkInformationVector.h"
 #include "vtkInformation.h"
-#include "vtkExecutive.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.25");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.26");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -114,14 +114,17 @@ void vtkXMLDataReader::SetupOutputInformation(vtkInformation *outInfo)
     }
 
   // Initialize DataArraySelections to enable all that are present
-  this->SetDataArraySelections(this->PointDataElements[0], this->PointDataArraySelection);
-  this->SetDataArraySelections(this->CellDataElements[0], this->CellDataArraySelection);
+  this->SetDataArraySelections(this->PointDataElements[0], 
+                               this->PointDataArraySelection);
+  this->SetDataArraySelections(this->CellDataElements[0], 
+                               this->CellDataArraySelection);
 
   // Setup the Field Information for PointData.  We only need the
   // information from one piece because all pieces have the same set of arrays.
   vtkInformationVector *infoVector = NULL;
   if (!this->SetFieldDataInfo(this->PointDataElements[0],
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, this->GetNumberOfPoints(), infoVector))
+                              vtkDataObject::FIELD_ASSOCIATION_POINTS, 
+                              this->GetNumberOfPoints(), infoVector))
     {
     return;
     }
@@ -134,7 +137,8 @@ void vtkXMLDataReader::SetupOutputInformation(vtkInformation *outInfo)
   // now the Cell data
   infoVector = NULL;
   if (!this->SetFieldDataInfo(this->CellDataElements[0],
-    vtkDataObject::FIELD_ASSOCIATION_CELLS, this->GetNumberOfCells(), infoVector))
+                              vtkDataObject::FIELD_ASSOCIATION_CELLS, 
+                              this->GetNumberOfCells(), infoVector))
     {
     return;
     }
@@ -145,11 +149,64 @@ void vtkXMLDataReader::SetupOutputInformation(vtkInformation *outInfo)
     }
 }
 
+void vtkXMLDataReader::SetupUpdateExtentInformation(vtkInformation *outInfo)
+{
+  // get the current piece being requested
+  int piece = 
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  
+  // Setup the Field Information for PointData. 
+  vtkInformationVector *infoVector = 
+    outInfo->Get(vtkDataObject::POINT_DATA_VECTOR());
+  if (!this->SetUpdateExtentInfo(this->PointDataElements[piece],
+                                 infoVector))
+    {
+    return;
+    }
+
+  // now the Cell data
+  infoVector = outInfo->Get(vtkDataObject::CELL_DATA_VECTOR());
+  if (!this->SetUpdateExtentInfo(this->CellDataElements[piece],
+                                 infoVector))
+    {
+    return;
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLDataReader::SetUpdateExtentInfo(vtkXMLDataElement *eDSA, 
+                                          vtkInformationVector *infoVector)
+{
+  if (!eDSA)
+    {
+    return 1;
+    }
+
+  int i;
+  vtkInformation *info = NULL;
+
+  // Cycle through each data array
+  for(i = 0; i < eDSA->GetNumberOfNestedElements(); i++)
+    {
+    vtkXMLDataElement* eNested = eDSA->GetNestedElement(i);
+    vtkInformation *info = infoVector->GetInformationObject(i);
+    
+    double range[2];
+    if (eNested->GetScalarAttribute("RangeMin", range[0]) &&
+        eNested->GetScalarAttribute("RangeMax", range[1]))
+      {
+      info->Set(vtkDataObject::FIELD_RANGE(), range, 2);
+      }
+    }
+  
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkXMLDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
   {
-  vtkInformation *localInfo = this->GetExecutive()->GetOutputInformation( port );
+  vtkInformation *localInfo = 
+    this->GetExecutive()->GetOutputInformation( port );
   if ( localInfo->Has(vtkDataObject::POINT_DATA_VECTOR()) )
     {
     outInfo->CopyEntry( localInfo, vtkDataObject::POINT_DATA_VECTOR() );

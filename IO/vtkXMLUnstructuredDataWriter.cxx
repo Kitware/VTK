@@ -35,7 +35,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.19");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.20");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -626,8 +626,9 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
       {
       if(allcells[i])
         {
-        cellsManager->GetElement(i).GetPosition(t) =
-          this->WriteDataArrayAppended(allcells[i], indent.GetNextIndent(),names[i],0,t);
+        this->WriteDataArrayAppended(allcells[i], indent.GetNextIndent(),
+                                     cellsManager->GetElement(i),
+                                     names[i],0,t);
         if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
           {
           return;
