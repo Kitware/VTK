@@ -31,7 +31,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractHierarchicalDataPiece, "1.2");
+vtkCxxRevisionMacro(vtkExtractHierarchicalDataPiece, "1.3");
 vtkStandardNewMacro(vtkExtractHierarchicalDataPiece);
 
 int vtkExtractHierarchicalDataPiece::RequestData(
@@ -137,9 +137,12 @@ void vtkExtractHierarchicalDataPiece::ExtractImageData(
   extractInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
   extractID->Update();
-  output->SetDataSet(level, piece, extractID->GetOutput());
+  vtkImageData *extractOutput = vtkImageData::New();
+  extractOutput->ShallowCopy(extractID->GetOutput());
+  output->SetDataSet(level, piece, extractOutput);
   extractID->Delete();
   translate->Delete();
+  extractOutput->Delete();
 }
 
 void vtkExtractHierarchicalDataPiece::ExtractPolyData(
@@ -164,8 +167,11 @@ void vtkExtractHierarchicalDataPiece::ExtractPolyData(
   extractInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
   extractPD->Update();
-  output->SetDataSet(level, piece, extractPD->GetOutput());
+  vtkPolyData *extractOutput = vtkPolyData::New();
+  extractOutput->ShallowCopy(extractPD->GetOutput());
+  output->SetDataSet(level, piece, extractOutput);
   extractPD->Delete();
+  extractOutput->Delete();
 }
 
 void vtkExtractHierarchicalDataPiece::ExtractRectilinearGrid(
@@ -198,9 +204,12 @@ void vtkExtractHierarchicalDataPiece::ExtractRectilinearGrid(
   extractInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
   extractRG->Update();
-  output->SetDataSet(level, piece, extractRG->GetOutput());
+  vtkRectilinearGrid *extractOutput = vtkRectilinearGrid::New();
+  extractOutput->ShallowCopy(extractRG->GetOutput());
+  output->SetDataSet(level, piece, extractOutput);
   extractRG->Delete();
   translate->Delete();
+  extractOutput->Delete();
 }
 
 void vtkExtractHierarchicalDataPiece::ExtractStructuredGrid(
@@ -211,8 +220,7 @@ void vtkExtractHierarchicalDataPiece::ExtractStructuredGrid(
   vtkInformation *extractInfo;
   int ext[6];
 
-  vtkExtractGrid *extractSG =
-    vtkExtractGrid::New();
+  vtkExtractGrid *extractSG = vtkExtractGrid::New();
   sGrid->GetExtent(ext);
 
   vtkExtentTranslator *translate = vtkExtentTranslator::New();
@@ -230,12 +238,16 @@ void vtkExtractHierarchicalDataPiece::ExtractStructuredGrid(
   extractExecutive->UpdateDataObject();
   extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                    ext, 6);
+  extractInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
   extractInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
   extractSG->Update();
-  output->SetDataSet(level, piece, extractSG->GetOutput());
+  vtkStructuredGrid *extractOutput = vtkStructuredGrid::New();
+  extractOutput->ShallowCopy(extractSG->GetOutput());
+  output->SetDataSet(level, piece, extractOutput);
   extractSG->Delete();
   translate->Delete();
+  extractOutput->Delete();
 }
 
 void vtkExtractHierarchicalDataPiece::ExtractUnstructuredGrid(
@@ -261,8 +273,11 @@ void vtkExtractHierarchicalDataPiece::ExtractUnstructuredGrid(
   extractInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
   extractUG->Update();
-  output->SetDataSet(level, piece, extractUG->GetOutput());
+  vtkUnstructuredGrid *extractOutput = vtkUnstructuredGrid::New();
+  extractOutput->ShallowCopy(extractUG->GetOutput());
+  output->SetDataSet(level, piece, extractOutput);
   extractUG->Delete();
+  extractOutput->Delete();
 }
 
 void vtkExtractHierarchicalDataPiece::PrintSelf(ostream &os, vtkIndent indent)
