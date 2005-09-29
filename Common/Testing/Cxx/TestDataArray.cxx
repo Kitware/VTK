@@ -33,14 +33,14 @@ int TestDataArray(int,char *[])
     {
     farray->InsertNextTuple3( cc + 0.1, cc + 0.2, cc + 0.3);
     }
-  array->RemoveFirstTuple();
-  array->RemoveTuple(3);
-  array->RemoveTuple(4);
-  array->RemoveLastTuple();
+  farray->RemoveFirstTuple();
+  farray->RemoveTuple(3);
+  farray->RemoveTuple(4);
+  farray->RemoveLastTuple();
   cout << "Array:";
-  for ( cc = 0; cc < array->GetNumberOfTuples(); ++cc )
+  for ( cc = 0; cc < farray->GetNumberOfTuples(); ++cc )
     {
-    double* fa = array->GetTuple3(cc);
+    double* fa = farray->GetTuple3(cc);
     double fc[3];
     fc[0] = ca[cc] + .1;
     fc[1] = ca[cc] + .2;
