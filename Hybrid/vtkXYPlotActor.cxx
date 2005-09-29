@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.59");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.60");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -970,6 +970,11 @@ void vtkXYPlotActor::ComputeXRange(double range[2], double *lengths)
         (ds = this->InputList->GetNextDataSet(dsit)); dsNum++)
     {
     numPts = ds->GetNumberOfPoints();
+    if (numPts == 0)
+      {
+      vtkErrorMacro(<<"No scalar data to plot!");
+      continue;
+      }
 
     if ( this->XValues != VTK_XYPLOT_INDEX )
       {
