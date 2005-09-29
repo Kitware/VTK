@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.26");
+vtkCxxRevisionMacro(vtkTesting, "1.27");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 
@@ -604,7 +604,6 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     rt_jpegw_dashboard->Write();
     rt_jpegw_dashboard->Delete();
 
-
     os <<  "<DartMeasurementFile name=\"TestImage\" type=\"image/jpeg\">";
     os << valid_test_small;
     delete [] valid_test_small;
@@ -617,6 +616,16 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     os <<  "</DartMeasurementFile>";
 
     delete [] valid;
+
+    char* vImage = new char[strlen(tmpDir) + validName.size() + 30];
+    sprintf(vImage, "%s/%s", tmpDir, validName.c_str());
+    vtkPNGWriter *rt_pngw = vtkPNGWriter::New();
+    rt_pngw->SetFileName(vImage);
+    rt_pngw->SetInput(image);
+    rt_pngw->Write();
+    rt_pngw->Delete();
+    delete [] vImage;
+
 
     rt_shrink->Delete();
     rt_gamma->Delete();
