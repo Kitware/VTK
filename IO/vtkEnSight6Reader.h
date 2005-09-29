@@ -37,7 +37,7 @@
 
 #include "vtkEnSightReader.h"
 
-class vtkHierarchicalDataSet;
+class vtkMultiBlockDataSet;
 class vtkIdTypeArray;
 class vtkPoints;
 
@@ -55,20 +55,20 @@ protected:
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
   virtual int ReadGeometryFile(const char* fileName, int timeStep,
-                               vtkHierarchicalDataSet *output);
+                               vtkMultiBlockDataSet *output);
 
   // Description:
   // Read the measured geometry file.  If an error occurred, 0 is returned;
   // otherwise 1.
   virtual int ReadMeasuredGeometryFile(const char* fileName, int timeStep,
-                                       vtkHierarchicalDataSet *output);
+                                       vtkMultiBlockDataSet *output);
 
   // Description:
   // Read scalars per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.  If there will be more than one component in
   // the scalars array, we assume that 0 is the first component added to the array.
   virtual int ReadScalarsPerNode(const char* fileName, const char* description,
-                                 int timeStep, vtkHierarchicalDataSet *output,
+                                 int timeStep, vtkMultiBlockDataSet *output,
                                  int measured = 0,
                                  int numberOfComponents = 1,
                                  int component = 0);
@@ -77,21 +77,21 @@ protected:
   // Read vectors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadVectorsPerNode(const char* fileName, const char* description,
-                                 int timeStep, vtkHierarchicalDataSet *output,
+                                 int timeStep, vtkMultiBlockDataSet *output,
                                  int measured = 0);
 
   // Description:
   // Read tensors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadTensorsPerNode(const char* fileName, const char* description,
-                                 int timeStep, vtkHierarchicalDataSet *output);
+                                 int timeStep, vtkMultiBlockDataSet *output);
 
   // Description:
   // Read scalars per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.  If there will be more than one component in the
   // scalars array, we assume that 0 is the first component added to the array.
   virtual int ReadScalarsPerElement(const char* fileName, const char* description,
-                                    int timeStep, vtkHierarchicalDataSet *output,
+                                    int timeStep, vtkMultiBlockDataSet *output,
                                     int numberOfComponents = 1,
                                     int component = 0);
 
@@ -99,13 +99,13 @@ protected:
   // Read vectors per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadVectorsPerElement(const char* fileName, const char* description,
-                                    int timeStep, vtkHierarchicalDataSet *output);
+                                    int timeStep, vtkMultiBlockDataSet *output);
 
   // Description:
   // Read tensors per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadTensorsPerElement(const char* fileName, const char* description,
-                                    int timeStep, vtkHierarchicalDataSet *output);
+                                    int timeStep, vtkMultiBlockDataSet *output);
 
   // Description:
   // Read an unstructured part (partId) from the geometry file and create a
@@ -113,7 +113,7 @@ protected:
   virtual int CreateUnstructuredGridOutput(int partId, 
                                            char line[256], 
                                            const char* name,
-                                           vtkHierarchicalDataSet *output);
+                                           vtkMultiBlockDataSet *output);
   
   // Description:
   // Read a structured part from the geometry file and create a
@@ -121,7 +121,7 @@ protected:
   virtual int CreateStructuredGridOutput(int partId, 
                                          char line[256],
                                          const char* name,
-                                         vtkHierarchicalDataSet *output);
+                                         vtkMultiBlockDataSet *output);
   
   // global list of points for the unstructured parts of the model
   int NumberOfUnstructuredPoints;

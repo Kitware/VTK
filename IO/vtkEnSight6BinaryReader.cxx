@@ -18,7 +18,7 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkFloatArray.h"
-#include "vtkHierarchicalDataSet.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.50");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.51");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -116,7 +116,7 @@ int vtkEnSight6BinaryReader::OpenFile(const char* filename)
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadGeometryFile(const char* fileName,
                                               int timeStep,
-                                              vtkHierarchicalDataSet *output)
+                                              vtkMultiBlockDataSet *output)
 {
   char line[80], subLine[80];
   int partId, realId;
@@ -724,7 +724,7 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
 
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
-  const char* fileName, int timeStep, vtkHierarchicalDataSet *output)
+  const char* fileName, int timeStep, vtkMultiBlockDataSet *output)
 {
   char line[80], subLine[80];
   int i;
@@ -873,7 +873,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadScalarsPerNode(
   const char* fileName, const char* description, int timeStep,
-  vtkHierarchicalDataSet *compositeOutput, int measured,
+  vtkMultiBlockDataSet *compositeOutput, int measured,
   int numberOfComponents, int component)
 {
   char line[80];
@@ -1134,7 +1134,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadVectorsPerNode(
   const char* fileName, const char* description, int timeStep,
-  vtkHierarchicalDataSet *compositeOutput, int measured)
+  vtkMultiBlockDataSet *compositeOutput, int measured)
 {
   char line[80];
   int partId, realId, numPts, i;
@@ -1341,7 +1341,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadTensorsPerNode(
   const char* fileName, const char* description, int timeStep,
-  vtkHierarchicalDataSet *compositeOutput)
+  vtkMultiBlockDataSet *compositeOutput)
 {
   char line[80];
   int partId, realId, numPts, i;
@@ -1511,7 +1511,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadScalarsPerElement(
   const char* fileName, const char* description, int timeStep,
-  vtkHierarchicalDataSet *compositeOutput, int numberOfComponents,
+  vtkMultiBlockDataSet *compositeOutput, int numberOfComponents,
   int component)
 {
   char line[80];
@@ -1713,7 +1713,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadVectorsPerElement(
   const char* fileName, const char* description, int timeStep,
-  vtkHierarchicalDataSet *compositeOutput)
+  vtkMultiBlockDataSet *compositeOutput)
 {
   char line[80];
   int partId, realId, numCells, numCellsPerElement, i, idx;
@@ -1900,7 +1900,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::ReadTensorsPerElement(
   const char* fileName, const char* description, int timeStep,
-  vtkHierarchicalDataSet *compositeOutput)
+  vtkMultiBlockDataSet *compositeOutput)
 {
   char line[80];
   int partId, realId, numCells, numCellsPerElement, i, idx;
@@ -2093,7 +2093,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(
   int partId, char line[80], const char* name,
-  vtkHierarchicalDataSet *compositeOutput)
+  vtkMultiBlockDataSet *compositeOutput)
 {
   int lineRead = 1;
   int i, j;
@@ -2684,7 +2684,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(
 //----------------------------------------------------------------------------
 int vtkEnSight6BinaryReader::CreateStructuredGridOutput(
   int partId, char line[80], const char* name,
-  vtkHierarchicalDataSet *compositeOutput)
+  vtkMultiBlockDataSet *compositeOutput)
 {
   char subLine[80];
   int lineRead;

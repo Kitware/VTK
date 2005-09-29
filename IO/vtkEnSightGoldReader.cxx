@@ -17,7 +17,7 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkFloatArray.h"
-#include "vtkHierarchicalDataSet.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.55");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.56");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -61,7 +61,7 @@ vtkEnSightGoldReader::~vtkEnSightGoldReader()
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep,
-                                           vtkHierarchicalDataSet *output)
+                                           vtkMultiBlockDataSet *output)
 {
   char line[256], subLine[256];
   int partId, realId, i;
@@ -210,7 +210,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep,
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
-  const char* fileName, int timeStep, vtkHierarchicalDataSet *output)
+  const char* fileName, int timeStep, vtkMultiBlockDataSet *output)
 {
   char line[256], subLine[256];
   vtkPoints *newPoints;
@@ -323,7 +323,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* description,
-                                             int timeStep, vtkHierarchicalDataSet *compositeOutput,
+                                             int timeStep, vtkMultiBlockDataSet *compositeOutput,
                                              int measured,
                                              int numberOfComponents,
                                              int component)
@@ -516,7 +516,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* description,
-                                             int timeStep, vtkHierarchicalDataSet *compositeOutput,
+                                             int timeStep, vtkMultiBlockDataSet *compositeOutput,
                                              int measured)
 {
   char line[256], formatLine[256], tempLine[256]; 
@@ -663,7 +663,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* description,
-                                             int timeStep, vtkHierarchicalDataSet *compositeOutput)
+                                             int timeStep, vtkMultiBlockDataSet *compositeOutput)
 {
   char line[256];
   int partId, realId, numPts, i, j;
@@ -760,7 +760,7 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
 int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName,
                                                 const char* description,
                                                 int timeStep,
-                                                vtkHierarchicalDataSet *compositeOutput,
+                                                vtkMultiBlockDataSet *compositeOutput,
                                                 int numberOfComponents,
                                                 int component)
 {
@@ -944,7 +944,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName,
 int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName,
                                                 const char* description,
                                                 int timeStep,
-                                                vtkHierarchicalDataSet *compositeOutput)
+                                                vtkMultiBlockDataSet *compositeOutput)
 {
   char line[256];
   int partId, realId, numCells, numCellsPerElement, i, j, idx;
@@ -1089,7 +1089,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName,
 int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
                                                 const char* description,
                                                 int timeStep,
-                                                vtkHierarchicalDataSet *compositeOutput)
+                                                vtkMultiBlockDataSet *compositeOutput)
 {
   char line[256];
   int partId, realId, numCells, numCellsPerElement, i, j, idx;
@@ -1230,7 +1230,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
 int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
                                                        char line[256],
                                                        const char* name,
-                                                       vtkHierarchicalDataSet *compositeOutput)
+                                                       vtkMultiBlockDataSet *compositeOutput)
 {
   int lineRead = 1;
   char subLine[256];
@@ -1812,7 +1812,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
 int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
                                                      char line[256],
                                                      const char* name,
-                                                     vtkHierarchicalDataSet *compositeOutput)
+                                                     vtkMultiBlockDataSet *compositeOutput)
 {
   char subLine[256];
   int lineRead;
@@ -1903,7 +1903,7 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
 int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
                                                       char line[256],
                                                       const char* name,
-                                                      vtkHierarchicalDataSet *compositeOutput)
+                                                      vtkMultiBlockDataSet *compositeOutput)
 {
   char subLine[256];
   int lineRead;
@@ -2004,7 +2004,7 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
 int vtkEnSightGoldReader::CreateImageDataOutput(int partId, 
                                                 char line[256],
                                                 const char* name,
-                                                vtkHierarchicalDataSet *compositeOutput)
+                                                vtkMultiBlockDataSet *compositeOutput)
 {
   char subLine[256];
   int lineRead;

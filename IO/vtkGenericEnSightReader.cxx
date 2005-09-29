@@ -22,7 +22,7 @@
 #include "vtkEnSight6Reader.h"
 #include "vtkEnSightGoldBinaryReader.h"
 #include "vtkEnSightGoldReader.h"
-#include "vtkHierarchicalDataSet.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkIdListCollection.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.75");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.76");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -217,8 +217,8 @@ int vtkGenericEnSightReader::RequestData(
     this->Reader->GetNumberOfComplexScalarsPerElement();
 
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkHierarchicalDataSet *output = vtkHierarchicalDataSet::SafeDownCast(
-    outInfo->Get(vtkHierarchicalDataSet::COMPOSITE_DATA_SET()));
+  vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
+    outInfo->Get(vtkMultiBlockDataSet::COMPOSITE_DATA_SET()));
   output->ShallowCopy(this->Reader->GetOutput());
 
   for (i = 0; i < this->Reader->GetNumberOfVariables(); i++)
@@ -1458,6 +1458,6 @@ int vtkGenericEnSightReader::FillOutputPortInformation(int vtkNotUsed(port),
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataSet");
   info->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_TYPE_NAME(), 
-            "vtkHierarchicalDataSet");
+            "vtkMultiBlockDataSet");
   return 1;
 }

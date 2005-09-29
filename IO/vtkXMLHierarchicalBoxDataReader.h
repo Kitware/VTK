@@ -14,12 +14,15 @@
 =========================================================================*/
 // .NAME vtkXMLHierarchicalBoxDataReader - Reader for hierarchical datasets
 // .SECTION Description
-// vtkXMLHierarchicalBoxDataReader reads the VTK XML hierarchical box data
-// file (uniform grid amr) format. XML hierarchical data files are
-// meta-files that point to a list of serial VTK XML files. Reading in
-// parallel is not yet supported.
-// .SECTION See Also
-// vtkXMLHierarchicalDataReader
+// vtkXMLHierarchicalBoxDataReader reads the VTK XML hierarchical data file
+// format. XML hierarchical data files are meta-files that point to a list
+// of serial VTK XML files. When reading in parallel, it will distribute
+// sub-blocks among processor. If the number of sub-blocks is less than
+// the number of processors, some processors will not have any sub-blocks
+// for that level. If the number of sub-blocks is larger than the
+// number of processors, each processor will possibly have more than
+// 1 sub-block. This reader does not yet work since there is no reader
+// for vtkUniformGrid yet.
 
 #ifndef __vtkXMLHierarchicalBoxDataReader_h
 #define __vtkXMLHierarchicalBoxDataReader_h
@@ -43,9 +46,9 @@ protected:
   virtual void ReadXMLData();
   virtual int FillOutputPortInformation(int, vtkInformation* info);
 
-  virtual void HandleBlock(
+  virtual void HandleDataSet(
     vtkXMLDataElement* ds, int level, int dsId, 
-    vtkHierarchicalDataSet* output, vtkDataSet* data);
+    vtkMultiGroupDataSet* output, vtkDataSet* data);
   
 private:
   vtkXMLHierarchicalBoxDataReader(const vtkXMLHierarchicalBoxDataReader&);  // Not implemented.

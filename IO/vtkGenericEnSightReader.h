@@ -20,7 +20,7 @@
 #ifndef __vtkGenericEnSightReader_h
 #define __vtkGenericEnSightReader_h
 
-#include "vtkHierarchicalDataSetAlgorithm.h"
+#include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkCallbackCommand;
 class vtkDataArrayCollection;
@@ -30,11 +30,11 @@ class vtkIdListCollection;
 class TranslationTableType;
 //ETX
 
-class VTK_IO_EXPORT vtkGenericEnSightReader : public vtkHierarchicalDataSetAlgorithm
+class VTK_IO_EXPORT vtkGenericEnSightReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkGenericEnSightReader *New();
-  vtkTypeRevisionMacro(vtkGenericEnSightReader, vtkHierarchicalDataSetAlgorithm);
+  vtkTypeRevisionMacro(vtkGenericEnSightReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

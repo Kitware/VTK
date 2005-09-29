@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   ParaView
-  Module:    vtkXMLHierarchicalDataReader.h
+  Module:    vtkXMLMultiBlockDataReader.h
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
@@ -12,46 +12,48 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLHierarchicalDataReader - Reader for hierarchical datasets
+// .NAME vtkXMLMultiBlockDataReader - Reader for multi-block datasets
 // .SECTION Description
-// vtkXMLHierarchicalDataReader reads the VTK XML hierarchical data file
-// format. XML hierarchical data files are meta-files that point to a list
+// vtkXMLMultiBlockDataReader reads the VTK XML multi-block data file
+// format. XML multi-block data files are meta-files that point to a list
 // of serial VTK XML files. When reading in parallel, it will distribute
 // sub-blocks among processor. If the number of sub-blocks is less than
 // the number of processors, some processors will not have any sub-blocks
-// for that level. If the number of sub-blocks is larger than the
+// for that block. If the number of sub-blocks is larger than the
 // number of processors, each processor will possibly have more than
 // 1 sub-block.
 
-#ifndef __vtkXMLHierarchicalDataReader_h
-#define __vtkXMLHierarchicalDataReader_h
+#ifndef __vtkXMLMultiBlockDataReader_h
+#define __vtkXMLMultiBlockDataReader_h
 
 #include "vtkXMLMultiGroupDataReader.h"
 
-class vtkHierarchicalDataSet;
+class vtkMultiBlockDataSet;
 
-class VTK_IO_EXPORT vtkXMLHierarchicalDataReader : public vtkXMLMultiGroupDataReader
+class VTK_IO_EXPORT vtkXMLMultiBlockDataReader : public vtkXMLMultiGroupDataReader
 {
 public:
-  static vtkXMLHierarchicalDataReader* New();
-  vtkTypeRevisionMacro(vtkXMLHierarchicalDataReader,vtkXMLMultiGroupDataReader);
+  static vtkXMLMultiBlockDataReader* New();
+  vtkTypeRevisionMacro(vtkXMLMultiBlockDataReader,vtkXMLMultiGroupDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the output data object for a port on this algorithm.
-  vtkHierarchicalDataSet* GetOutput();
-  vtkHierarchicalDataSet* GetOutput(int);
+  vtkMultiBlockDataSet* GetOutput();
+  vtkMultiBlockDataSet* GetOutput(int);
 
 protected:
-  vtkXMLHierarchicalDataReader();
-  ~vtkXMLHierarchicalDataReader();  
+  vtkXMLMultiBlockDataReader();
+  ~vtkXMLMultiBlockDataReader();  
 
   // Get the name of the data set being read.
   virtual const char* GetDataSetName();
 
+  virtual int FillOutputPortInformation(int, vtkInformation* info);
+
 private:
-  vtkXMLHierarchicalDataReader(const vtkXMLHierarchicalDataReader&);  // Not implemented.
-  void operator=(const vtkXMLHierarchicalDataReader&);  // Not implemented.
+  vtkXMLMultiBlockDataReader(const vtkXMLMultiBlockDataReader&);  // Not implemented.
+  void operator=(const vtkXMLMultiBlockDataReader&);  // Not implemented.
 };
 
 #endif

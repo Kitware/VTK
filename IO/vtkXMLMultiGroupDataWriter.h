@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   ParaView
-  Module:    vtkXMLHierarchicalDataWriter.h
+  Module:    vtkXMLMultiGroupDataWriter.h
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
@@ -12,28 +12,28 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLHierarchicalDataWriter - Writer for hierarchical datasets
+// .NAME vtkXMLMultiGroupDataWriter - Writer for hierarchical datasets
 // .SECTION Description
-// vtkXMLHierarchicalDataWriter writes (serially) the VTK XML hierarchical
+// vtkXMLMultiGroupDataWriter writes (serially) the VTK XML hierarchical
 // and hierarchical box files. XML hierarchical data files are meta-files
 // that point to a list of serial VTK XML files.
 // .SECTION See Also
-// vtkXMLPHierarchicalDataWriter
+// vtkXMLPMultiGroupDataWriter
 
-#ifndef __vtkXMLHierarchicalDataWriter_h
-#define __vtkXMLHierarchicalDataWriter_h
+#ifndef __vtkXMLMultiGroupDataWriter_h
+#define __vtkXMLMultiGroupDataWriter_h
 
 #include "vtkXMLWriter.h"
 
 class vtkCallbackCommand;
-class vtkHierarchicalDataSet;
-class vtkXMLHierarchicalDataWriterInternals;
+class vtkMultiGroupDataSet;
+class vtkXMLMultiGroupDataWriterInternals;
 
-class VTK_IO_EXPORT vtkXMLHierarchicalDataWriter : public vtkXMLWriter
+class VTK_IO_EXPORT vtkXMLMultiGroupDataWriter : public vtkXMLWriter
 {
 public:
-  static vtkXMLHierarchicalDataWriter* New();
-  vtkTypeRevisionMacro(vtkXMLHierarchicalDataWriter,vtkXMLWriter);
+  static vtkXMLMultiGroupDataWriter* New();
+  vtkTypeRevisionMacro(vtkXMLMultiGroupDataWriter,vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent);  
   
   // Description:
@@ -67,8 +67,8 @@ public:
                      vtkInformationVector*);
 
 protected:
-  vtkXMLHierarchicalDataWriter();
-  ~vtkXMLHierarchicalDataWriter();
+  vtkXMLMultiGroupDataWriter();
+  ~vtkXMLMultiGroupDataWriter();
   
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
@@ -86,13 +86,13 @@ protected:
 
   vtkInformation* InputInformation;
 
-  virtual void FillDataTypes(vtkHierarchicalDataSet*);
+  virtual void FillDataTypes(vtkMultiGroupDataSet*);
 
   unsigned int GetNumberOfDataTypes();
   int* GetDataTypesPointer();
 
   // Methods to create the set of writers matching the set of inputs.
-  void CreateWriters(vtkHierarchicalDataSet*);
+  void CreateWriters(vtkMultiGroupDataSet*);
   vtkXMLWriter* GetWriter(int index);
   
   // Methods to help construct internal file names.
@@ -114,7 +114,7 @@ protected:
   void RemoveADirectory(const char* name);
   
   // Internal implementation details.
-  vtkXMLHierarchicalDataWriterInternals* Internal;  
+  vtkXMLMultiGroupDataWriterInternals* Internal;  
   
   // The piece number to write.
   int Piece;
@@ -141,8 +141,8 @@ protected:
   // Garbage collection support.
   virtual void ReportReferences(vtkGarbageCollector*);
 private:
-  vtkXMLHierarchicalDataWriter(const vtkXMLHierarchicalDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLHierarchicalDataWriter&);  // Not implemented.
+  vtkXMLMultiGroupDataWriter(const vtkXMLMultiGroupDataWriter&);  // Not implemented.
+  void operator=(const vtkXMLMultiGroupDataWriter&);  // Not implemented.
 };
 
 #endif

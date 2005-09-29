@@ -96,11 +96,13 @@ vtkXMLDataSetWriter.cxx
 vtkXMLFileReadTester.cxx
 vtkXMLHierarchicalBoxDataReader.cxx
 vtkXMLHierarchicalDataReader.cxx
-vtkXMLHierarchicalDataWriter.cxx
 vtkXMLImageDataReader.cxx
 vtkXMLImageDataWriter.cxx
 vtkXMLHyperOctreeReader.cxx
 vtkXMLHyperOctreeWriter.cxx
+vtkXMLMultiBlockDataReader.cxx
+vtkXMLMultiGroupDataReader.cxx
+vtkXMLMultiGroupDataWriter.cxx
 vtkXMLPDataReader.cxx
 vtkXMLPDataSetWriter.cxx
 vtkXMLPDataWriter.cxx
@@ -195,3 +197,4 @@ SET(KIT_JAVA_DEPS)
 # Include CMake code common to all kits.
 INCLUDE(${VTK_SOURCE_DIR}/CMake/KitCommonBlock.cmake)
 #-----------------------------------------------------------------------------
+

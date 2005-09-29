@@ -19,7 +19,7 @@
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
-#include "vtkHierarchicalDataSet.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.5");
+vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.6");
 vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -743,7 +743,7 @@ int vtkMultiBlockPLOT3DReader::RequestInformation(
 
   vtkInformation* info = outputVector->GetInformationObject(0);
   info->Set(
-    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), 1);
 
   return 1;
 }
@@ -755,24 +755,12 @@ int vtkMultiBlockPLOT3DReader::RequestData(
 
   vtkDataObject* doOutput = 
     info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
-  vtkHierarchicalDataSet* mb = 
-    vtkHierarchicalDataSet::SafeDownCast(doOutput);
+  vtkMultiBlockDataSet* mb = 
+    vtkMultiBlockDataSet::SafeDownCast(doOutput);
   if (!mb)
     {
     return 0;
     }
-
-  if (!info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) ||
-      !info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
-    {
-    vtkErrorMacro("Expected information not found. Cannot produce data.");
-    return 0;
-    }
-
-  int updatePiece =
-    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  int updateNumPieces =
-    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   this->SetErrorCode(vtkErrorCode::NoError);
 
@@ -1061,29 +1049,11 @@ int vtkMultiBlockPLOT3DReader::RequestData(
     fclose(qFp);
     }
 
-  mb->SetNumberOfLevels(1);
-  mb->SetNumberOfDataSets(0, numBlocks);
-
-  int numBlocksPerPiece = 1;
-  if (updateNumPieces < numBlocks)
-    {
-    numBlocksPerPiece = numBlocks / updateNumPieces;
-    }
-  int minBlock = numBlocksPerPiece*updatePiece;
-  int maxBlock = numBlocksPerPiece*(updatePiece+1);
-  if (updatePiece == updateNumPieces - 1)
-    {
-    maxBlock = numBlocks;
-    }
-  if (maxBlock > numBlocks)
-    {
-    maxBlock = numBlocks;
-    }
-
-  for(i=minBlock; i<maxBlock; i++)
+  mb->SetNumberOfBlocks(numBlocks);
+  for(i=0; i<numBlocks; i++)
     {
     vtkStructuredGrid* nthOutput = this->Internal->Blocks[i];
-    mb->SetDataSet(0, i, nthOutput);
+    mb->SetDataSet(i, 0, nthOutput);
     }
 
   this->Internal->Blocks.clear();
@@ -2104,7 +2074,7 @@ int vtkMultiBlockPLOT3DReader::FillOutputPortInformation(
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkStructuredGrid");
   info->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_TYPE_NAME(), 
-            "vtkHierarchicalDataSet");
+            "vtkMultiBlockDataSet");
   return 1;
 }
 

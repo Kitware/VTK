@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   ParaView
-  Module:    vtkXMLHierarchicalDataReader.cxx
+  Module:    vtkXMLMultiBlockDataReader.cxx
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
@@ -12,50 +12,60 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkXMLHierarchicalDataReader.h"
+#include "vtkXMLMultiBlockDataReader.h"
 
 #include "vtkCompositeDataPipeline.h"
-#include "vtkHierarchicalDataSet.h"
+#include "vtkInformation.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXMLHierarchicalDataReader, "1.4");
-vtkStandardNewMacro(vtkXMLHierarchicalDataReader);
+vtkCxxRevisionMacro(vtkXMLMultiBlockDataReader, "1.1");
+vtkStandardNewMacro(vtkXMLMultiBlockDataReader);
 
 //----------------------------------------------------------------------------
-vtkXMLHierarchicalDataReader::vtkXMLHierarchicalDataReader()
+vtkXMLMultiBlockDataReader::vtkXMLMultiBlockDataReader()
 {
 }
 
 //----------------------------------------------------------------------------
-vtkXMLHierarchicalDataReader::~vtkXMLHierarchicalDataReader()
+vtkXMLMultiBlockDataReader::~vtkXMLMultiBlockDataReader()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalDataReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkXMLMultiBlockDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-vtkHierarchicalDataSet* vtkXMLHierarchicalDataReader::GetOutput()
+vtkMultiBlockDataSet* vtkXMLMultiBlockDataReader::GetOutput()
 {
   return this->GetOutput(0);
 }
 
 //----------------------------------------------------------------------------
-vtkHierarchicalDataSet* vtkXMLHierarchicalDataReader::GetOutput(int port)
+vtkMultiBlockDataSet* vtkXMLMultiBlockDataReader::GetOutput(int port)
 {
   vtkDataObject* output = 
     vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive())->
     GetCompositeOutputData(port);
-  return vtkHierarchicalDataSet::SafeDownCast(output);
+  return vtkMultiBlockDataSet::SafeDownCast(output);
 }
 
+//----------------------------------------------------------------------------
+int vtkXMLMultiBlockDataReader::FillOutputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
+  info->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_TYPE_NAME(), 
+            "vtkMultiBlockDataSet");
+  return 1;
+}
 
 //----------------------------------------------------------------------------
-const char* vtkXMLHierarchicalDataReader::GetDataSetName()
+const char* vtkXMLMultiBlockDataReader::GetDataSetName()
 {
-  return "vtkHierarchicalDataSet";
+  return "vtkMultiBlockDataSet";
 }
 

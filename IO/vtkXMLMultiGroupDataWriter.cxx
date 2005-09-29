@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   ParaView
-  Module:    vtkXMLHierarchicalDataWriter.cxx
+  Module:    vtkXMLMultiGroupDataWriter.cxx
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkXMLHierarchicalDataWriter.h"
+#include "vtkXMLMultiGroupDataWriter.h"
 
 #include "vtkAMRBox.h"
 #include "vtkCallbackCommand.h"
@@ -21,7 +21,7 @@
 #include "vtkErrorCode.h"
 #include "vtkGarbageCollector.h"
 #include "vtkHierarchicalBoxDataSet.h"
-#include "vtkHierarchicalDataSet.h"
+#include "vtkMultiGroupDataSet.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -50,10 +50,10 @@
 #include <vtkstd/vector>
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkXMLHierarchicalDataWriter);
-vtkCxxRevisionMacro(vtkXMLHierarchicalDataWriter, "1.1");
+vtkStandardNewMacro(vtkXMLMultiGroupDataWriter);
+vtkCxxRevisionMacro(vtkXMLMultiGroupDataWriter, "1.1");
 
-class vtkXMLHierarchicalDataWriterInternals
+class vtkXMLMultiGroupDataWriterInternals
 {
 public:
   vtkstd::vector< vtkSmartPointer<vtkXMLWriter> > Writers;
@@ -65,9 +65,9 @@ public:
 };
 
 //----------------------------------------------------------------------------
-vtkXMLHierarchicalDataWriter::vtkXMLHierarchicalDataWriter()
+vtkXMLMultiGroupDataWriter::vtkXMLMultiGroupDataWriter()
 {
-  this->Internal = new vtkXMLHierarchicalDataWriterInternals;
+  this->Internal = new vtkXMLMultiGroupDataWriterInternals;
   this->Piece = 0;
   this->NumberOfPieces = 1;
   this->GhostLevel = 0;
@@ -76,33 +76,33 @@ vtkXMLHierarchicalDataWriter::vtkXMLHierarchicalDataWriter()
   
   // Setup a callback for the internal writers to report progress.
   this->ProgressObserver = vtkCallbackCommand::New();
-  this->ProgressObserver->SetCallback(&vtkXMLHierarchicalDataWriter::ProgressCallbackFunction);
+  this->ProgressObserver->SetCallback(&vtkXMLMultiGroupDataWriter::ProgressCallbackFunction);
   this->ProgressObserver->SetClientData(this);
 
   this->InputInformation = 0;
 }
 
 //----------------------------------------------------------------------------
-vtkXMLHierarchicalDataWriter::~vtkXMLHierarchicalDataWriter()
+vtkXMLMultiGroupDataWriter::~vtkXMLMultiGroupDataWriter()
 {
   this->ProgressObserver->Delete();
   delete this->Internal;
 }
 
 //----------------------------------------------------------------------------
-unsigned int vtkXMLHierarchicalDataWriter::GetNumberOfDataTypes()
+unsigned int vtkXMLMultiGroupDataWriter::GetNumberOfDataTypes()
 {
   return this->Internal->DataTypes.size();
 }
 
 //----------------------------------------------------------------------------
-int* vtkXMLHierarchicalDataWriter::GetDataTypesPointer()
+int* vtkXMLMultiGroupDataWriter::GetDataTypesPointer()
 {
   return &this->Internal->DataTypes[0];
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalDataWriter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkXMLMultiGroupDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "GhostLevel: " << this->GhostLevel << endl;
@@ -112,7 +112,7 @@ void vtkXMLHierarchicalDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHierarchicalDataWriter::ProcessRequest(
+int vtkXMLMultiGroupDataWriter::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -130,7 +130,7 @@ int vtkXMLHierarchicalDataWriter::ProcessRequest(
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalDataWriter::SetWriteMetaFile(int flag)
+void vtkXMLMultiGroupDataWriter::SetWriteMetaFile(int flag)
 {
   this->WriteMetaFileInitialized = 1;
   vtkDebugMacro(<< this->GetClassName() << " ("
@@ -143,7 +143,7 @@ void vtkXMLHierarchicalDataWriter::SetWriteMetaFile(int flag)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHierarchicalDataWriter::RequestUpdateExtent(
+int vtkXMLMultiGroupDataWriter::RequestUpdateExtent(
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* vtkNotUsed(outputVector))
@@ -152,7 +152,7 @@ int vtkXMLHierarchicalDataWriter::RequestUpdateExtent(
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHierarchicalDataWriter::RequestData(vtkInformation*,
+int vtkXMLMultiGroupDataWriter::RequestData(vtkInformation*,
                                               vtkInformationVector** inputVector,
                                               vtkInformationVector*)
 {
@@ -160,7 +160,7 @@ int vtkXMLHierarchicalDataWriter::RequestData(vtkInformation*,
 
   this->InputInformation = inInfo;
 
-  vtkHierarchicalDataSet *hdInput = vtkHierarchicalDataSet::SafeDownCast(
+  vtkMultiGroupDataSet *hdInput = vtkMultiGroupDataSet::SafeDownCast(
     inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
   if (!hdInput) 
     {
@@ -220,11 +220,11 @@ int vtkXMLHierarchicalDataWriter::RequestData(vtkInformation*,
   // Write each input.
   int i, j;
   this->DeleteAllEntries();
-  unsigned int numLevels = hdInput->GetNumberOfLevels();
+  unsigned int numGroups = hdInput->GetNumberOfGroups();
   i=0;
-  for (unsigned int levelId=0; levelId<numLevels; levelId++)
+  for (unsigned int groupId=0; groupId<numGroups; groupId++)
     {
-    unsigned int numDataSets = hdInput->GetNumberOfDataSets(levelId);
+    unsigned int numDataSets = hdInput->GetNumberOfDataSets(groupId);
     for (unsigned int dataSetId=0; dataSetId<numDataSets; dataSetId++)
       {
       vtkXMLWriter* w = this->GetWriter(i);
@@ -238,11 +238,11 @@ int vtkXMLHierarchicalDataWriter::RequestData(vtkInformation*,
       // Create the entry for the collection file.
       ostrstream entry_with_warning_C4701;
       entry_with_warning_C4701
-        << "<DataSet level=\"" << levelId << "\" block=\"" << dataSetId << "\"";
+        << "<DataSet group=\"" << groupId << "\" dataset=\"" << dataSetId << "\"";
       if (hdBoxInput)
         {
         vtkAMRBox box;
-        hdBoxInput->GetDataSet(levelId, dataSetId, box);
+        hdBoxInput->GetDataSet(groupId, dataSetId, box);
         entry_with_warning_C4701
             << " amr_box=\"" 
             << box.LoCorner[0] << " "
@@ -258,7 +258,7 @@ int vtkXMLHierarchicalDataWriter::RequestData(vtkInformation*,
       entry_with_warning_C4701.rdbuf()->freeze(0);
       
       vtkDataSet* ds = 
-        vtkDataSet::SafeDownCast(hdInput->GetDataSet(levelId, dataSetId));
+        vtkDataSet::SafeDownCast(hdInput->GetDataSet(groupId, dataSetId));
       if (!ds)
         {
         i++;
@@ -315,7 +315,7 @@ int vtkXMLHierarchicalDataWriter::RequestData(vtkInformation*,
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHierarchicalDataWriter::WriteData()
+int vtkXMLMultiGroupDataWriter::WriteData()
 {
   // Write the collection file.
   this->StartFile();
@@ -339,7 +339,7 @@ int vtkXMLHierarchicalDataWriter::WriteData()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHierarchicalDataWriter::WriteMetaFileIfRequested()
+int vtkXMLMultiGroupDataWriter::WriteMetaFileIfRequested()
 {
   // Decide whether to write the collection file.
   int writeCollection = 0;
@@ -360,7 +360,7 @@ int vtkXMLHierarchicalDataWriter::WriteMetaFileIfRequested()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalDataWriter::MakeDirectory(const char* name)
+void vtkXMLMultiGroupDataWriter::MakeDirectory(const char* name)
 {
   if( !vtksys::SystemTools::MakeDirectory(name) )
     {
@@ -371,7 +371,7 @@ void vtkXMLHierarchicalDataWriter::MakeDirectory(const char* name)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalDataWriter::RemoveADirectory(const char* name)
+void vtkXMLMultiGroupDataWriter::RemoveADirectory(const char* name)
 {
   if( !vtksys::SystemTools::RemoveADirectory(name) )
     {
@@ -383,17 +383,17 @@ void vtkXMLHierarchicalDataWriter::RemoveADirectory(const char* name)
 }
 
 //----------------------------------------------------------------------------
-const char* vtkXMLHierarchicalDataWriter::GetDefaultFileExtension()
+const char* vtkXMLMultiGroupDataWriter::GetDefaultFileExtension()
 {
   return "vth";
 }
 
 //----------------------------------------------------------------------------
-const char* vtkXMLHierarchicalDataWriter::GetDataSetName()
+const char* vtkXMLMultiGroupDataWriter::GetDataSetName()
 {
   if (!this->InputInformation)
     {
-    return "HierarchicalDataSet";
+    return "MultiGroupDataSet";
     }
   vtkDataObject *hdInput = vtkDataObject::SafeDownCast(
     this->InputInformation->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
@@ -405,25 +405,25 @@ const char* vtkXMLHierarchicalDataWriter::GetDataSetName()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalDataWriter::FillDataTypes(vtkHierarchicalDataSet* hdInput)
+void vtkXMLMultiGroupDataWriter::FillDataTypes(vtkMultiGroupDataSet* hdInput)
 {
-  unsigned int levelId;
-  unsigned int numBlocks = 0;
-  unsigned int numLevels = hdInput->GetNumberOfLevels();
-  for (levelId=0; levelId<numLevels; levelId++)
+  unsigned int groupId;
+  unsigned int numDatasets = 0;
+  unsigned int numGroups = hdInput->GetNumberOfGroups();
+  for (groupId=0; groupId<numGroups; groupId++)
     {
-    numBlocks += hdInput->GetNumberOfDataSets(levelId);
+    numDatasets += hdInput->GetNumberOfDataSets(groupId);
     }
 
-  this->Internal->DataTypes.resize(numBlocks);
+  this->Internal->DataTypes.resize(numDatasets);
   unsigned int i = 0;
-  for (levelId=0; levelId<numLevels; levelId++)
+  for (groupId=0; groupId<numGroups; groupId++)
     {
-    unsigned int numDataSets = hdInput->GetNumberOfDataSets(levelId);
+    unsigned int numDataSets = hdInput->GetNumberOfDataSets(groupId);
     for (unsigned int dataSetId=0; dataSetId<numDataSets; dataSetId++)
       {
       vtkDataSet* ds = 
-        vtkDataSet::SafeDownCast(hdInput->GetDataSet(levelId, dataSetId));
+        vtkDataSet::SafeDownCast(hdInput->GetDataSet(groupId, dataSetId));
       if (ds)
         {
         this->Internal->DataTypes[i] = ds->GetDataObjectType();
@@ -438,24 +438,24 @@ void vtkXMLHierarchicalDataWriter::FillDataTypes(vtkHierarchicalDataSet* hdInput
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalDataWriter::CreateWriters(vtkHierarchicalDataSet* hdInput)
+void vtkXMLMultiGroupDataWriter::CreateWriters(vtkMultiGroupDataSet* hdInput)
 {
   this->FillDataTypes(hdInput);
 
-  unsigned int levelId;
-  unsigned int numLevels = hdInput->GetNumberOfLevels();
+  unsigned int groupId;
+  unsigned int numGroups = hdInput->GetNumberOfGroups();
 
-  unsigned int numBlocks = this->Internal->DataTypes.size();
-  this->Internal->Writers.resize(numBlocks);
+  unsigned int numDatasets = this->Internal->DataTypes.size();
+  this->Internal->Writers.resize(numDatasets);
 
   int i = 0;
-  for (levelId=0; levelId<numLevels; levelId++)
+  for (groupId=0; groupId<numGroups; groupId++)
     {
-    unsigned int numDataSets = hdInput->GetNumberOfDataSets(levelId);
+    unsigned int numDataSets = hdInput->GetNumberOfDataSets(groupId);
     for (unsigned int dataSetId=0; dataSetId<numDataSets; dataSetId++)
       {
       vtkDataSet* ds = 
-        vtkDataSet::SafeDownCast(hdInput->GetDataSet(levelId, dataSetId));
+        vtkDataSet::SafeDownCast(hdInput->GetDataSet(groupId, dataSetId));
       
       // Create a writer based on the type of this input.
       switch (this->Internal->DataTypes[i])
@@ -560,7 +560,7 @@ void vtkXMLHierarchicalDataWriter::CreateWriters(vtkHierarchicalDataSet* hdInput
 }
 
 //----------------------------------------------------------------------------
-vtkXMLWriter* vtkXMLHierarchicalDataWriter::GetWriter(int index)
+vtkXMLWriter* vtkXMLMultiGroupDataWriter::GetWriter(int index)
 {
   int size = static_cast<int>(this->Internal->Writers.size());
   if(index >= 0 && index < size)
@@ -571,7 +571,7 @@ vtkXMLWriter* vtkXMLHierarchicalDataWriter::GetWriter(int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalDataWriter::SplitFileName()
+void vtkXMLMultiGroupDataWriter::SplitFileName()
 {
   vtkstd::string fileName = this->FileName;
   vtkstd::string name;
@@ -607,19 +607,19 @@ void vtkXMLHierarchicalDataWriter::SplitFileName()
 }
 
 //----------------------------------------------------------------------------
-const char* vtkXMLHierarchicalDataWriter::GetFilePrefix()
+const char* vtkXMLMultiGroupDataWriter::GetFilePrefix()
 {
   return this->Internal->FilePrefix.c_str();
 }
 
 //----------------------------------------------------------------------------
-const char* vtkXMLHierarchicalDataWriter::GetFilePath()
+const char* vtkXMLMultiGroupDataWriter::GetFilePath()
 {
   return this->Internal->FilePath.c_str();
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalDataWriter::ProgressCallbackFunction(vtkObject* caller,
+void vtkXMLMultiGroupDataWriter::ProgressCallbackFunction(vtkObject* caller,
                                                         unsigned long,
                                                         void* clientdata,
                                                         void*)
@@ -627,12 +627,12 @@ void vtkXMLHierarchicalDataWriter::ProgressCallbackFunction(vtkObject* caller,
   vtkAlgorithm* w = vtkAlgorithm::SafeDownCast(caller);
   if(w)
     {
-    reinterpret_cast<vtkXMLHierarchicalDataWriter*>(clientdata)->ProgressCallback(w);
+    reinterpret_cast<vtkXMLMultiGroupDataWriter*>(clientdata)->ProgressCallback(w);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalDataWriter::ProgressCallback(vtkAlgorithm* w)
+void vtkXMLMultiGroupDataWriter::ProgressCallback(vtkAlgorithm* w)
 {
   float width = this->ProgressRange[1]-this->ProgressRange[0];
   float internalProgress = w->GetProgress();
@@ -645,19 +645,19 @@ void vtkXMLHierarchicalDataWriter::ProgressCallback(vtkAlgorithm* w)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalDataWriter::AppendEntry(const char* entry)
+void vtkXMLMultiGroupDataWriter::AppendEntry(const char* entry)
 {
   this->Internal->Entries.push_back(entry);
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalDataWriter::DeleteAllEntries()
+void vtkXMLMultiGroupDataWriter::DeleteAllEntries()
 {
   this->Internal->Entries.clear();
 }
 
 //----------------------------------------------------------------------------
-vtkstd::string vtkXMLHierarchicalDataWriterInternals::CreatePieceFileName(int index)
+vtkstd::string vtkXMLMultiGroupDataWriterInternals::CreatePieceFileName(int index)
 {
   vtkstd::string fname;
   ostrstream fn_with_warning_C4701;
@@ -671,7 +671,7 @@ vtkstd::string vtkXMLHierarchicalDataWriterInternals::CreatePieceFileName(int in
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalDataWriter::ReportReferences(vtkGarbageCollector* collector)
+void vtkXMLMultiGroupDataWriter::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
   int size = static_cast<int>(this->Internal->Writers.size());
@@ -682,17 +682,17 @@ void vtkXMLHierarchicalDataWriter::ReportReferences(vtkGarbageCollector* collect
 }
 
 //----------------------------------------------------------------------------
-vtkExecutive* vtkXMLHierarchicalDataWriter::CreateDefaultExecutive()
+vtkExecutive* vtkXMLMultiGroupDataWriter::CreateDefaultExecutive()
 {
   return vtkCompositeDataPipeline::New();
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHierarchicalDataWriter::FillInputPortInformation(
+int vtkXMLMultiGroupDataWriter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   info->Set(vtkCompositeDataPipeline::INPUT_REQUIRED_COMPOSITE_DATA_TYPE(), 
-            "vtkHierarchicalDataSet");
+            "vtkMultiGroupDataSet");
   return 1;
 }

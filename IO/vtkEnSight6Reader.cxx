@@ -17,7 +17,7 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkFloatArray.h"
-#include "vtkHierarchicalDataSet.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.59");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.60");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ int vtkEnSight6ReaderRead4(const char *line, float *point1)
 
 //----------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadGeometryFile(const char* fileName, int timeStep,
-                                        vtkHierarchicalDataSet *output)
+                                        vtkMultiBlockDataSet *output)
 {
   char line[256], subLine[256];
   int partId;
@@ -338,7 +338,7 @@ int vtkEnSight6Reader::ReadGeometryFile(const char* fileName, int timeStep,
 //----------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName,
                                                 int timeStep,
-                                                vtkHierarchicalDataSet *output)
+                                                vtkMultiBlockDataSet *output)
 {
   char line[256], subLine[256];
   vtkPoints *newPoints;
@@ -461,7 +461,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName,
 //----------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadScalarsPerNode(
   const char* fileName, const char* description, int timeStep,
-  vtkHierarchicalDataSet *compositeOutput, int measured,
+  vtkMultiBlockDataSet *compositeOutput, int measured,
   int numberOfComponents, int component)
 {
   char line[256];
@@ -696,7 +696,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(
 //----------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadVectorsPerNode(
   const char* fileName, const char* description, int timeStep,
-  vtkHierarchicalDataSet *compositeOutput, int measured)
+  vtkMultiBlockDataSet *compositeOutput, int measured)
 {
   char line[256];
   char tempLine[256];
@@ -895,7 +895,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(
 //----------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadTensorsPerNode(
   const char* fileName, const char* description, int timeStep,
-  vtkHierarchicalDataSet *compositeOutput)
+  vtkMultiBlockDataSet *compositeOutput)
 {
   char line[256];
   char tempLine[256];
@@ -1044,7 +1044,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(
 //----------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadScalarsPerElement(
   const char* fileName, const char* description, int timeStep,
-  vtkHierarchicalDataSet *compositeOutput, int numberOfComponents,
+  vtkMultiBlockDataSet *compositeOutput, int numberOfComponents,
   int component)
 {
   char line[256];
@@ -1227,7 +1227,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(
 //----------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadVectorsPerElement(
   const char* fileName, const char* description, int timeStep,
-  vtkHierarchicalDataSet *compositeOutput)
+  vtkMultiBlockDataSet *compositeOutput)
 {
   char line[256];
   int partId, numCells, numCellsPerElement, i, j, k, idx;
@@ -1397,7 +1397,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(
 //----------------------------------------------------------------------------
 int vtkEnSight6Reader::ReadTensorsPerElement(
   const char* fileName, const char* description, int timeStep,
-  vtkHierarchicalDataSet *compositeOutput)
+  vtkMultiBlockDataSet *compositeOutput)
 {
   char line[256];
   int partId, numCells, numCellsPerElement, i, j, k, idx;
@@ -1547,7 +1547,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(
 //----------------------------------------------------------------------------
 int vtkEnSight6Reader::CreateUnstructuredGridOutput(
   int partId, char line[256], const char* name,
-  vtkHierarchicalDataSet *compositeOutput)
+  vtkMultiBlockDataSet *compositeOutput)
 {
   int lineRead = 1;
   char subLine[256];
@@ -2064,7 +2064,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(
 //----------------------------------------------------------------------------
 int vtkEnSight6Reader::CreateStructuredGridOutput(
   int partId, char line[256], const char* name,
-  vtkHierarchicalDataSet *compositeOutput)
+  vtkMultiBlockDataSet *compositeOutput)
 {
   char subLine[256];
   char formatLine[256], tempLine[256];
