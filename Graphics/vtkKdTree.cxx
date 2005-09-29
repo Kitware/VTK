@@ -47,7 +47,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.6");
+vtkCxxRevisionMacro(vtkKdTree, "1.7");
 
 // Timing data ---------------------------------------------
 
@@ -219,8 +219,11 @@ void vtkKdTree::DeleteCellLists()
 //----------------------------------------------------------------------------
 vtkKdTree::~vtkKdTree()
 {
-  this->DataSets->Delete();
-  this->DataSets = NULL;
+  if (this->DataSets)
+    {
+    this->DataSets->Delete();
+    this->DataSets = NULL;
+    }
 
   this->FreeSearchStructure();
 
