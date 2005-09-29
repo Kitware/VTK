@@ -66,10 +66,12 @@
 #define VTK_POINT_SET                       9
 #define VTK_UNIFORM_GRID                   10
 #define VTK_COMPOSITE_DATA_SET             11
-#define VTK_HIERARCHICAL_DATA_SET          12
-#define VTK_HIERARCHICAL_BOX_DATA_SET      13
-#define VTK_GENERIC_DATA_SET               14
-#define VTK_HYPER_OCTREE                   15
+#define VTK_MULTIGROUP_DATA_SET            12
+#define VTK_MULTIBLOCK_DATA_SET            13
+#define VTK_HIERARCHICAL_DATA_SET          14
+#define VTK_HIERARCHICAL_BOX_DATA_SET      15
+#define VTK_GENERIC_DATA_SET               16
+#define VTK_HYPER_OCTREE                   17
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */
