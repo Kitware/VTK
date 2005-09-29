@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.4");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.5");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 //----------------------------------------------------------------------------
@@ -52,7 +52,6 @@ vtkQuadraticTetra::~vtkQuadraticTetra()
   this->Tetra->Delete();
   this->Scalars->Delete();
 }
-
 
 //----------------------------------------------------------------------------
 //clip each of the four vertices; the remaining octahedron is
