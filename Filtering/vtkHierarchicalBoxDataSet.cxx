@@ -16,7 +16,7 @@
 
 #include "vtkHierarchicalBoxDataSetInternal.h"
 
-#include "vtkHierarchicalDataInformation.h"
+#include "vtkMultiGroupDataInformation.h"
 #include "vtkInformation.h"
 #include "vtkInformationIdTypeKey.h"
 #include "vtkInformationIntegerVectorKey.h"
@@ -25,7 +25,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.10");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.11");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
@@ -50,7 +50,7 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
   this->Superclass::SetDataSet(level, id, dataSet);
 
   vtkInformation* info = 
-    this->HierarchicalDataInformation->GetInformation(level, id);
+    this->MultiGroupDataInformation->GetInformation(level, id);
   if (info)
     {
     info->Set(BOX(), 
@@ -69,7 +69,7 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level,
     return 0;
     }
 
-  vtkHierarchicalDataSetInternal::LevelDataSetsType& ldataSets = 
+  vtkMultiGroupDataSetInternal::GroupDataSetsType& ldataSets = 
     this->Internal->DataSets[level];
   if (ldataSets.size() <= id)
     {
@@ -82,7 +82,7 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level,
     }
 
   vtkInformation* info = 
-    this->HierarchicalDataInformation->GetInformation(level, id);
+    this->MultiGroupDataInformation->GetInformation(level, id);
   if (info)
     {
     int* boxVec = info->Get(BOX());
@@ -134,7 +134,7 @@ int vtkHierarchicalBoxDataSetIsInBoxes(vtkstd::vector<vtkAMRBox>& boxes,
 //----------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
 {
-  if (!this->HierarchicalDataInformation)
+  if (!this->MultiGroupDataInformation)
     {
     vtkErrorMacro("No information about data layout is specified. "
                   "Cannot generate visibility arrays");
@@ -153,13 +153,13 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
       {
       for (dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
         {
-        if (!this->HierarchicalDataInformation->HasInformation(
+        if (!this->MultiGroupDataInformation->HasInformation(
               levelIdx+1, dataSetIdx))
           {
           continue;
           }
         vtkInformation* info = 
-          this->HierarchicalDataInformation->GetInformation(
+          this->MultiGroupDataInformation->GetInformation(
             levelIdx+1,dataSetIdx);
         int* boxVec = info->Get(BOX());
         vtkAMRBox coarsebox(3, boxVec, boxVec+3);
@@ -215,11 +215,11 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
           }
         grid->SetCellVisibilityArray(vis);
         vis->Delete();
-        if (this->HierarchicalDataInformation->HasInformation(
+        if (this->MultiGroupDataInformation->HasInformation(
               levelIdx, dataSetIdx))
           {
           vtkInformation* infotmp = 
-            this->HierarchicalDataInformation->GetInformation(
+            this->MultiGroupDataInformation->GetInformation(
               levelIdx,dataSetIdx);
           infotmp->Set(NUMBER_OF_BLANKED_POINTS(), numBlankedPts);
           }
@@ -241,7 +241,7 @@ vtkIdType vtkHierarchicalBoxDataSet::GetNumberOfPoints()
       {
       vtkIdType numBlankedPts = 0;
       vtkInformation* blockInfo = 
-        this->HierarchicalDataInformation->GetInformation(level, dataIdx);
+        this->MultiGroupDataInformation->GetInformation(level, dataIdx);
       if (blockInfo)
         {
         if (blockInfo->Has(

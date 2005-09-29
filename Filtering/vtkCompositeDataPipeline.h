@@ -25,7 +25,7 @@
 //
 // * REQUEST_INFORMATION: The producers have to provide information about
 // the contents of the composite dataset in this pass. This is accomplished
-// by creating and populating a vtkHierarchicalDataInformation and setting
+// by creating and populating a vtkMultiGroupDataInformation and setting
 // it using the COMPOSITE_DATA_INFORMATION() key in the output information
 // vector. Sources that can produce more than one piece (note that a piece is
 // different than a block; each piece consistes of 0 or more blocks) should
@@ -60,9 +60,9 @@
 // Furthermore, if the vtkCompositeDataPipeline is assigned to a simple filter, 
 // it will invoke the  vtkStreamingDemandDrivenPipeline passes in a loop, 
 // passing a different block each time and will collect the results in a 
-// composite dataset (vtkHierarchicalDataSet).
+// composite dataset (vtkMultiGroupDataSet).
 // .SECTION See also
-//  vtkHierarchicalDataInformation vtkCompositeDataSet vtkHierarchicalDataSet
+//  vtkMultiGroupDataInformation vtkCompositeDataSet vtkMultiGroupDataSet
 
 #ifndef __vtkCompositeDataPipeline_h
 #define __vtkCompositeDataPipeline_h
@@ -70,7 +70,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 class vtkCompositeDataSet;
-class vtkHierarchicalDataSet;
+class vtkMultiGroupDataSet;
 class vtkInformationDoubleKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationObjectBaseKey;
@@ -188,11 +188,11 @@ protected:
   
   virtual int SendBeginLoop(int i, int j, 
                             vtkInformation* inInfo, 
-                            vtkHierarchicalDataSet* updateInfo);
+                            vtkMultiGroupDataSet* updateInfo);
   virtual vtkCompositeDataSet* CreateInputCompositeData(
     int i, vtkInformation* inInfo);
   virtual int UpdateBlocks(int i, int j, int outputPort, 
-                           vtkHierarchicalDataSet* updateInfo, 
+                           vtkMultiGroupDataSet* updateInfo, 
                            vtkCompositeDataSet* input,
                            vtkInformation* inInfo);
   virtual void ExecuteSimpleAlgorithm(vtkInformation* request,

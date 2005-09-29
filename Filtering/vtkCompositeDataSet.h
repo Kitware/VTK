@@ -43,7 +43,7 @@ public:
   virtual vtkCompositeDataIterator* NewIterator() = 0;
 
   // Description:
-  // Return class name of data type (see vtkSystemIncludes.h for
+  // Return class name of data type (see vtkType.h for
   // definitions).
   virtual int GetDataObjectType() {return VTK_COMPOSITE_DATA_SET;}
 

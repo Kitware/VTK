@@ -66,9 +66,9 @@ vtkGeometricErrorMetric.cxx
 vtkAttributesErrorMetric.cxx
 vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
-vtkHierarchicalBoxDataSet.cxx
 vtkHierarchicalDataInformation.cxx
 vtkHierarchicalDataIterator.cxx
+vtkHierarchicalBoxDataSet.cxx
 vtkHierarchicalDataSet.cxx
 vtkHierarchicalDataSetAlgorithm.cxx
 vtkHyperOctree.cxx
@@ -117,6 +117,12 @@ vtkLine.cxx
 vtkLocator.cxx
 vtkMapper2D.cxx
 vtkMergePoints.cxx
+vtkMultiBlockDataSet.cxx
+vtkMultiBlockDataSetAlgorithm.cxx
+vtkMultiGroupDataInformation.cxx
+vtkMultiGroupDataIterator.cxx
+vtkMultiGroupDataSet.cxx
+vtkMultiGroupDataSetAlgorithm.cxx
 vtkNonLinearCell.cxx
 vtkOrderedTriangulator.cxx
 vtkParametricSpline.cxx
@@ -252,6 +258,7 @@ vtkInformationStringKey
 vtkInformationUnsignedLongKey
 vtkLocator
 vtkMapper2D
+vtkMultiGroupDataSetAlgorithm
 vtkNonLinearCell
 vtkPointSet
 vtkPointSetSource

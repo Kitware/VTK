@@ -16,8 +16,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
-#include "vtkHierarchicalDataInformation.h"
-#include "vtkHierarchicalDataSet.h"
+#include "vtkMultiGroupDataInformation.h"
+#include "vtkMultiGroupDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationIntegerKey.h"
@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.28");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.29");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -415,7 +415,7 @@ int vtkCompositeDataPipeline::ExecuteDataObjectForBlock(vtkInformation* request)
           {
           vtkSmartPointer<vtkInformation> r = 
             vtkSmartPointer<vtkInformation>::New();
-          r->Set(vtkHierarchicalDataSet::LEVEL(), 0);
+          r->Set(vtkMultiGroupDataSet::GROUP(), 0);
           r->Set(vtkCompositeDataSet::INDEX(),    0);
           dobj = output->GetDataSet(r);
           }
@@ -562,8 +562,8 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request,
         continue;
         }
 
-      vtkHierarchicalDataSet* updateInfo = 
-        vtkHierarchicalDataSet::SafeDownCast(
+      vtkMultiGroupDataSet* updateInfo = 
+        vtkMultiGroupDataSet::SafeDownCast(
           inInfo->Get(vtkCompositeDataPipeline::UPDATE_BLOCKS()));
 
       // Tell the producer upstream that looping is about to start
@@ -691,13 +691,13 @@ void vtkCompositeDataPipeline::CheckInputPorts(int& inputPortIsComposite,
 //----------------------------------------------------------------------------
 int vtkCompositeDataPipeline::UpdateBlocks(
   int i, int j, int outputPort, 
-  vtkHierarchicalDataSet* updateInfo, 
+  vtkMultiGroupDataSet* updateInfo, 
   vtkCompositeDataSet* input,
   vtkInformation* inInfo)
 {
   // Execute the streaming demand driven pipeline for each block
-  unsigned int numLevels = updateInfo->GetNumberOfLevels();
-  for (unsigned int k=0; k<numLevels; k++)
+  unsigned int numGroups = updateInfo->GetNumberOfGroups();
+  for (unsigned int k=0; k<numGroups; k++)
     {
     unsigned int numDataSets = updateInfo->GetNumberOfDataSets(k);
     for (unsigned l=0; l<numDataSets; l++)
@@ -710,7 +710,7 @@ int vtkCompositeDataPipeline::UpdateBlocks(
       // First pipeline mtime
               
       // Setup the request for pipeline modification time.
-      this->GenericRequest->Set(vtkHierarchicalDataSet::LEVEL(), k);
+      this->GenericRequest->Set(vtkMultiGroupDataSet::GROUP(), k);
       this->GenericRequest->Set(vtkCompositeDataSet::INDEX(), l);
       if(vtkExecutive* e = this->GetInputExecutive(i, j))
         {
@@ -721,7 +721,7 @@ int vtkCompositeDataPipeline::UpdateBlocks(
       // Do the data-object creation pass before the information pass.
               
       // Send the request for data object creation.
-      this->DataObjectRequest->Set(vtkHierarchicalDataSet::LEVEL(), k);
+      this->DataObjectRequest->Set(vtkMultiGroupDataSet::GROUP(), k);
       this->DataObjectRequest->Set(vtkCompositeDataSet::INDEX(), l);
       if (!this->ForwardUpstream(i, j, this->DataObjectRequest))
         {
@@ -730,7 +730,7 @@ int vtkCompositeDataPipeline::UpdateBlocks(
         }
               
       // Send the request for information.
-      this->InformationRequest->Set(vtkHierarchicalDataSet::LEVEL(), k);
+      this->InformationRequest->Set(vtkMultiGroupDataSet::GROUP(), k);
       this->InformationRequest->Set(vtkCompositeDataSet::INDEX(), l);
       if (!this->ForwardUpstream(i, j, this->InformationRequest))
         {
@@ -756,7 +756,7 @@ int vtkCompositeDataPipeline::UpdateBlocks(
         }
             
       // Send the request for update extent propagation.
-      this->UpdateExtentRequest->Set(vtkHierarchicalDataSet::LEVEL(), k);
+      this->UpdateExtentRequest->Set(vtkMultiGroupDataSet::GROUP(), k);
       this->UpdateExtentRequest->Set(vtkCompositeDataSet::INDEX(), l);
       this->UpdateExtentRequest->Set(
         vtkExecutive::FROM_OUTPUT_PORT(), outputPort);
@@ -767,7 +767,7 @@ int vtkCompositeDataPipeline::UpdateBlocks(
         }
             
       // Send the request for data.
-      this->DataRequest->Set(vtkHierarchicalDataSet::LEVEL(), k);
+      this->DataRequest->Set(vtkMultiGroupDataSet::GROUP(), k);
       this->DataRequest->Set(vtkCompositeDataSet::INDEX(), l);
       this->DataRequest->Set(FROM_OUTPUT_PORT(), outputPort);
               
@@ -793,7 +793,7 @@ int vtkCompositeDataPipeline::UpdateBlocks(
 
 //----------------------------------------------------------------------------
 int vtkCompositeDataPipeline::SendBeginLoop(
-  int i, int j, vtkInformation* inInfo, vtkHierarchicalDataSet* updateInfo)
+  int i, int j, vtkInformation* inInfo, vtkMultiGroupDataSet* updateInfo)
 {
 
   // Tell the producer upstream that looping is about to start
@@ -889,8 +889,8 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
   vtkCompositeDataSet* input = vtkCompositeDataSet::SafeDownCast(
     inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
 
-  vtkHierarchicalDataSet* updateInfo = 
-    vtkHierarchicalDataSet::SafeDownCast(
+  vtkMultiGroupDataSet* updateInfo = 
+    vtkMultiGroupDataSet::SafeDownCast(
       inInfo->Get(vtkCompositeDataPipeline::UPDATE_BLOCKS()));
 
   vtkCompositeDataSet* output = 
@@ -911,7 +911,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     // Algorithms process this request after it is forwarded.
     r->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
 
-    unsigned int numLevels = updateInfo->GetNumberOfLevels();
+    unsigned int numGroups = updateInfo->GetNumberOfGroups();
     vtkSmartPointer<vtkDataObject> prevInput = 
       inInfo->Get(vtkDataObject::DATA_OBJECT());
 
@@ -927,14 +927,14 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     // changes (because we pretend that the max. number of pieces is
     // one to process the whole block)
     this->PushInformation(inInfo);
-    for (unsigned int k=0; k<numLevels; k++)
+    for (unsigned int k=0; k<numGroups; k++)
       {
       unsigned int numDataSets = updateInfo->GetNumberOfDataSets(k);
       for (unsigned l=0; l<numDataSets; l++)
         {
         if (updateInfo->GetDataSet(k,l))
           {
-          r->Set(vtkHierarchicalDataSet::LEVEL(), k);
+          r->Set(vtkMultiGroupDataSet::GROUP(), k);
           r->Set(vtkCompositeDataSet::INDEX(),    l);
           vtkDataObject* dobj = input->GetDataSet(r);
           // There must be a bug somehwere. If this Remove()
@@ -1345,8 +1345,8 @@ vtkCompositeDataSet* vtkCompositeDataPipeline::CreateInputCompositeData(
     if (strcmp(dt, "vtkCompositeDataSet") == 0)
       {
       // If vtkCompositeDataSet is specified, the algorithm
-      // will work with all sub-classes. Create a vtkHierarchicalDataSet
-      dt = "vtkHierarchicalDataSet";
+      // will work with all sub-classes. Create a vtkMultiGroupDataSet
+      dt = "vtkMultiGroupDataSet";
       }
     // If the composite data input to the algorithm is not
     // set, create and assign it. This happens when the producer
@@ -1463,7 +1463,7 @@ int vtkCompositeDataPipeline::CheckCompositeData(
     vtkCompositeDataSet* output = vtkCompositeDataSet::SafeDownCast(doOutput);
     if (!output)
       {
-      output = vtkHierarchicalDataSet::New();
+      output = vtkMultiGroupDataSet::New();
       output->SetPipelineInformation(outInfo);
       output->Delete();
       }

@@ -24,8 +24,8 @@ IF(PYTHON_EXECUTABLE)
     vtkMarchingCubesCases.h
     vtkMarchingSquaresCases.h
     vtkMultiBlockDataSetInternal.h
+    vtkMultiGroupDataSetInternal.h
     vtkDataObjectCollection.h
-    vtkHierarchicalDataSetInternal.h
     vtkHierarchicalBoxDataSetInternal.h
     vtkStructuredPoints.h
     )

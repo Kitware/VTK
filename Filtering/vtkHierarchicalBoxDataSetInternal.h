@@ -16,7 +16,7 @@
 #ifndef __vtkHierarchicalBoxDataSetInternal_h
 #define __vtkHierarchicalBoxDataSetInternal_h
 
-#include "vtkHierarchicalDataSetInternal.h"
+#include "vtkMultiGroupDataSetInternal.h"
 #include "vtkAMRBox.h"
 
 struct vtkHierarchicalBoxDataSetInternal

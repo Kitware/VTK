@@ -41,7 +41,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Return class name of data type (see vtkSystemIncludes.h for
+  // Return class name of data type (see vtkType.h for
   // definitions).
   virtual int GetDataObjectType() {return VTK_HIERARCHICAL_BOX_DATA_SET;}
 
