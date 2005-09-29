@@ -59,6 +59,10 @@ public:
   static vtkExodusReader *New();
   vtkTypeRevisionMacro(vtkExodusReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
+  
+  // Description:
+  // Determine if the file can be readed with this reader.
+  int CanReadFile(const char* fname);
 
   // Description:
   // Specify file name of the Exodus file.

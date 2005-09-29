@@ -1391,7 +1391,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.10");
+vtkCxxRevisionMacro(vtkExodusReader, "1.11");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -1423,6 +1423,44 @@ const char *vtkExodusReader::ArrayTypeNames[NUM_ARRAY_TYPES] = {
 };
 #endif
 
+// Helper function
+int vtkExodusReaderFileExist(const char *file_name) 
+{
+  struct stat fs;
+  if (file_name)
+    {
+    return (stat(file_name, &fs) != -1);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+// Description:
+// Determine if the file can be readed with this reader.
+int vtkExodusReader::CanReadFile(const char* fname)
+{ 
+  // First see if the file exists at all
+  if (vtkExodusReaderFileExist(fname) == 0)
+    {
+    return 0;
+    }
+    
+  // Okay now see if it's really an exodus file
+  int returnVal = ex_open( fname, EX_READ, 
+                           &(this->ExodusCPUWordSize),
+                           &(this->ExodusIOWordSize), 
+                           &(this->ExodusVersion));
+  // Failure
+  if (returnVal < 0)
+    {
+    return 0;
+    }
+  
+  // Success
+  return 1;
+}
 //----------------------------------------------------------------------------
 // Description:
 // Instantiate object with NULL filename.
@@ -2088,20 +2126,6 @@ void vtkExodusReader::SetDisplayType(int type){
     this->MetaData->SetDisplayType(type);
     }
   this->DisplayType=type;
-}
-
-// Helper function
-int vtkExodusReaderFileExist(char *file_name) 
-{
-  struct stat fs;
-  if (file_name)
-    {
-    return (stat(file_name, &fs) != -1);
-    }
-  else
-    {
-    return 0;
-    }
 }
 
 //----------------------------------------------------------------------------
