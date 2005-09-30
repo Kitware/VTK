@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataExtractGroup, "1.1");
+vtkCxxRevisionMacro(vtkMultiGroupDataExtractGroup, "1.2");
 vtkStandardNewMacro(vtkMultiGroupDataExtractGroup);
 
 //----------------------------------------------------------------------------
@@ -104,25 +104,30 @@ int vtkMultiGroupDataExtractGroup::RequestInformation(
     {
     numGroups = this->MaxGroup+1;
     }
-  compInfo->SetNumberOfGroups(numGroups);
+  compInfo->SetNumberOfGroups(numGroups-this->MinGroup);
 
   for (unsigned int i=0; i<numGroups; i++)
     {
-    if (i < this->MinGroup || i > this->MaxGroup)
+    if (i < this->MinGroup)
       {
-      compInfo->SetNumberOfDataSets(i, 0);
+      continue;
+      }
+    else if (i > this->MaxGroup)
+      {
+      compInfo->SetNumberOfDataSets(i-this->MinGroup, 0);
       }
     else
       {
-      compInfo->SetNumberOfDataSets(i, inCompInfo->GetNumberOfDataSets(i));
+      compInfo->SetNumberOfDataSets(i-this->MinGroup,
+                                    inCompInfo->GetNumberOfDataSets(i));
       }
-    unsigned int numDataSets = compInfo->GetNumberOfDataSets(i);
+    unsigned int numDataSets = compInfo->GetNumberOfDataSets(i-this->MinGroup);
     for (unsigned int j=0; j<numDataSets; j++)
       {
       if (inCompInfo->HasInformation(i, j))
         {
-        vtkInformation* outdInfo = compInfo->GetInformation(i, j);
-        vtkInformation* indInfo = inCompInfo->GetInformation(i, j);
+        vtkInformation* outdInfo = compInfo->GetInformation(i-this->MinGroup, j);
+        vtkInformation* indInfo = inCompInfo->GetInformation(i-this->MinGroup, j);
         outdInfo->Copy(indInfo);
         }
       }
@@ -152,18 +157,23 @@ int vtkMultiGroupDataExtractGroup::RequestData(
     info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
   if (!output) {return 0;}
 
-  output->SetNumberOfGroups(this->MaxGroup+1);
+  output->SetNumberOfGroups(this->MaxGroup-this->MinGroup+1);
   unsigned int numGroups = output->GetNumberOfGroups();
+  unsigned int numInputGroups = input->GetNumberOfGroups();
 
-  for (unsigned int group=0; group<numGroups; group++)
+  for (unsigned int group=0; group<numInputGroups; group++)
     {
-    if (group < this->MinGroup || group > this->MaxGroup)
+    if (group < this->MinGroup)
       {
-      output->SetNumberOfDataSets(group, 0);
+      continue;
+      }
+    else if (group > this->MaxGroup)
+      {
+      output->SetNumberOfDataSets(group-this->MinGroup, 0);
       continue;
       }
     unsigned int numDataSets = input->GetNumberOfDataSets(group);
-    output->SetNumberOfDataSets(group, numDataSets);
+    output->SetNumberOfDataSets(group-this->MinGroup, numDataSets);
     for (unsigned int dataSet=0; dataSet<numDataSets; dataSet++)
       {
       vtkDataSet* dObj = vtkDataSet::SafeDownCast(
@@ -172,7 +182,7 @@ int vtkMultiGroupDataExtractGroup::RequestData(
         {
         vtkDataSet* copy = dObj->NewInstance();
         copy->ShallowCopy(dObj);
-        output->SetDataSet(group, dataSet, copy);
+        output->SetDataSet(group-this->MinGroup, dataSet, copy);
         copy->Delete();
         }
       }
@@ -189,9 +199,14 @@ int vtkMultiGroupDataExtractGroup::RequestData(
     {
     vtkHierarchicalBoxDataSet* ihbds = 
       vtkHierarchicalBoxDataSet::SafeDownCast(input);
-    for (unsigned int group=0; group<numGroups-1; group++)
+    for (unsigned int group=0; group<numInputGroups-1; group++)
       {
-      hbds->SetRefinementRatio(group, ihbds->GetRefinementRatio(group));
+      if (group < this->MinGroup)
+        {
+        continue;
+        }
+      hbds->SetRefinementRatio(group-this->MinGroup,
+                               ihbds->GetRefinementRatio(group));
       }
     }
 

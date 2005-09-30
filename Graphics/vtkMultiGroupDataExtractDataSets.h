@@ -72,6 +72,8 @@ protected:
   };
 //ETX
 
+  unsigned int MinGroup;
+
 private:
   vtkMultiGroupDataExtractDataSetsInternals* Internal;
 

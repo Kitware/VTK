@@ -26,7 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkMultiGroupDataExtractDataSets, "1.1");
+vtkCxxRevisionMacro(vtkMultiGroupDataExtractDataSets, "1.2");
 vtkStandardNewMacro(vtkMultiGroupDataExtractDataSets);
 
 struct vtkMultiGroupDataExtractDataSetsInternals
@@ -40,6 +40,7 @@ struct vtkMultiGroupDataExtractDataSetsInternals
 vtkMultiGroupDataExtractDataSets::vtkMultiGroupDataExtractDataSets()
 {
   this->Internal = new vtkMultiGroupDataExtractDataSetsInternals;
+  this->MinGroup = VTK_UNSIGNED_INT_MAX;
 }
 
 //----------------------------------------------------------------------------
@@ -53,6 +54,8 @@ void vtkMultiGroupDataExtractDataSets::AddDataSet(
   unsigned int group, unsigned int idx)
 {
   this->Internal->DataSets.push_back(DataSetNode(group, idx));
+  this->MinGroup = (group < this->MinGroup) ? group : this->MinGroup;
+
   this->Modified();
 }
 
@@ -60,6 +63,7 @@ void vtkMultiGroupDataExtractDataSets::AddDataSet(
 void vtkMultiGroupDataExtractDataSets::ClearDataSetList()
 {
   this->Internal->DataSets.clear();
+  this->MinGroup = VTK_UNSIGNED_INT_MAX;
   this->Modified();
 }
 
@@ -73,7 +77,7 @@ unsigned int vtkMultiGroupDataExtractDataSets::ComputeOutputGroups(
   for (; it != this->Internal->DataSets.end(); it++)
     {
     DataSetNode& node = *it;
-    unsigned int curNumGroups = node.Group + 1;
+    unsigned int curNumGroups = node.Group - this->MinGroup + 1;
     if (curNumGroups > numGroups && curNumGroups <= inputNumGroups)
       {
       numGroups = curNumGroups;
@@ -147,14 +151,17 @@ int vtkMultiGroupDataExtractDataSets::RequestInformation(
         inCompInfo->GetNumberOfDataSets(node.Group);
       if (node.DataSetId <= numInputDataSets)
         {
-        if (node.DataSetId >= compInfo->GetNumberOfDataSets(node.Group))
+        if (node.DataSetId >= compInfo->GetNumberOfDataSets(
+              node.Group - this->MinGroup))
           {
-          compInfo->SetNumberOfDataSets(node.Group, node.DataSetId+1);
+          compInfo->SetNumberOfDataSets(
+            node.Group - this->MinGroup, node.DataSetId+1);
 
           if (inCompInfo->HasInformation(node.Group, node.DataSetId))
             {
             vtkInformation* outdInfo = 
-              compInfo->GetInformation(node.Group, node.DataSetId);
+              compInfo->GetInformation(node.Group - this->MinGroup,
+                                       node.DataSetId);
             vtkInformation* indInfo = 
               inCompInfo->GetInformation(node.Group, node.DataSetId);
             outdInfo->Copy(indInfo);
@@ -203,9 +210,11 @@ int vtkMultiGroupDataExtractDataSets::RequestData(
       unsigned int numInputDataSets = input->GetNumberOfDataSets(node.Group);
       if (node.DataSetId <= numInputDataSets)
         {
-        if (node.DataSetId >= output->GetNumberOfDataSets(node.Group))
+        if (node.DataSetId >= output->GetNumberOfDataSets(
+              node.Group - this->MinGroup))
           {
-          output->SetNumberOfDataSets(node.Group, node.DataSetId+1);
+          output->SetNumberOfDataSets(node.Group - this->MinGroup,
+                                      node.DataSetId+1);
           }
         vtkDataObject* dObj = 
           input->GetDataSet(node.Group, node.DataSetId);
@@ -213,14 +222,14 @@ int vtkMultiGroupDataExtractDataSets::RequestData(
           {
           vtkDataObject* copy = dObj->NewInstance();
           copy->ShallowCopy(dObj);
-          output->SetDataSet(node.Group, node.DataSetId, copy);
+
           // Remove blanking from output datasets.
           vtkUniformGrid* ug = vtkUniformGrid::SafeDownCast(copy);
           if (ug)
             {
             ug->SetCellVisibilityArray(0);
             }
-          output->SetDataSet(node.Group, node.DataSetId, copy);
+          output->SetDataSet(node.Group - this->MinGroup, node.DataSetId, copy);
           copy->Delete();
           }
         }
@@ -244,7 +253,8 @@ int vtkMultiGroupDataExtractDataSets::RequestData(
         vtkHierarchicalBoxDataSet::SafeDownCast(input);
       for (unsigned int group=0; group<numGroups-1; group++)
         {
-        hbds->SetRefinementRatio(group, ihbds->GetRefinementRatio(group));
+        hbds->SetRefinementRatio(
+          group, ihbds->GetRefinementRatio(group + this->MinGroup));
         }
       hbds->GenerateVisibilityArrays();
       }
