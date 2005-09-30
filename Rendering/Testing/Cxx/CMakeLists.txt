@@ -2,6 +2,7 @@ SET(KIT Rendering)
 
 SET(RenderingTests
   otherCoordinate.cxx
+  TestPriorityStreaming.cxx
   )
 
 SET(RenderingTestsWithArguments)
@@ -31,7 +32,9 @@ REMOVE (TestsToRun ${KIT}CxxTests.cxx)
 # Add all the executables 
 FOREACH (test ${RenderingTests})
   GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
-  ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}) 
+  ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}
+    -T ${VTK_BINARY_DIR}/Testing/Temporary
+    ) 
 ENDFOREACH (test) 
 
 FOREACH (test ${RenderingTestsWithArguments})
@@ -42,7 +45,9 @@ FOREACH (test ${RenderingTestsWithArguments})
         -T ${VTK_BINARY_DIR}/Testing/Temporary
         -V Baseline/${KIT}/${TName}.png)
   ELSE (VTK_DATA_ROOT)
-    ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
+    ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}
+      -T ${VTK_BINARY_DIR}/Testing/Temporary
+      )
   ENDIF (VTK_DATA_ROOT)
 ENDFOREACH(test)
 
