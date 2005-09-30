@@ -38,7 +38,7 @@
 #include "vtkGenericEdgeTable.h"
 #include "vtkSimpleCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkBridgeDataSet, "1.5");
+vtkCxxRevisionMacro(vtkBridgeDataSet, "1.6");
 vtkStandardNewMacro(vtkBridgeDataSet);
 
 //----------------------------------------------------------------------------
@@ -75,6 +75,14 @@ void vtkBridgeDataSet::PrintSelf(ostream& os, vtkIndent indent)
     os << endl;
     this->Implementation->PrintSelf(os,indent.GetNextIndent());
     }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Return the dataset that will be manipulated through the adaptor interface.
+vtkDataSet *vtkBridgeDataSet::GetDataSet()
+{
+  return this->Implementation;
 }
 
 //----------------------------------------------------------------------------

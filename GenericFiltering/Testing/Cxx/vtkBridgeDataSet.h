@@ -33,6 +33,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Return the dataset that will be manipulated through the adaptor interface.
+  vtkDataSet *GetDataSet();
+  
+  // Description:
   // Set the dataset that will be manipulated through the adaptor interface.
   // \pre ds_exists: ds!=0
   void SetDataSet(vtkDataSet *ds);
