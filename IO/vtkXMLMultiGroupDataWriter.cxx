@@ -51,7 +51,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLMultiGroupDataWriter);
-vtkCxxRevisionMacro(vtkXMLMultiGroupDataWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLMultiGroupDataWriter, "1.2");
 
 class vtkXMLMultiGroupDataWriterInternals
 {
@@ -217,9 +217,25 @@ int vtkXMLMultiGroupDataWriter::RequestData(vtkInformation*,
   subdir += this->Internal->FilePrefix;
   this->MakeDirectory(subdir.c_str());
  
+  this->DeleteAllEntries();
+
+  if (hdBoxInput)
+    {
+    unsigned int numLevels = hdBoxInput->GetNumberOfLevels();
+    for (unsigned int levelId=0; levelId<numLevels-1; levelId++)
+      {
+      ostrstream entry_with_warning_C4701;
+      entry_with_warning_C4701
+        << "<RefinementRatio level=\"" << levelId << "\""
+        << " refinement=\"" << hdBoxInput->GetRefinementRatio(levelId) << "\""
+        << "/>" << ends;
+      this->AppendEntry(entry_with_warning_C4701.str());
+      delete[] entry_with_warning_C4701.str();
+      }
+    }
+
   // Write each input.
   int i, j;
-  this->DeleteAllEntries();
   unsigned int numGroups = hdInput->GetNumberOfGroups();
   i=0;
   for (unsigned int groupId=0; groupId<numGroups; groupId++)
@@ -255,7 +271,7 @@ int vtkXMLMultiGroupDataWriter::RequestData(vtkInformation*,
       entry_with_warning_C4701
         << " file=\"" << fname.c_str() << "\"/>" << ends;
       this->AppendEntry(entry_with_warning_C4701.str());
-      entry_with_warning_C4701.rdbuf()->freeze(0);
+      delete[] entry_with_warning_C4701.str();
       
       vtkDataSet* ds = 
         vtkDataSet::SafeDownCast(hdInput->GetDataSet(groupId, dataSetId));
