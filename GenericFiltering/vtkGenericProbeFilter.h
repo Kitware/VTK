@@ -40,16 +40,16 @@
 #ifndef __vtkGenericProbeFilter_h
 #define __vtkGenericProbeFilter_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkIdTypeArray;
 class vtkGenericDataSet;
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericProbeFilter : public vtkDataSetToDataSetFilter
+class VTK_GENERIC_FILTERING_EXPORT vtkGenericProbeFilter : public vtkDataSetAlgorithm
 {
 public:
   static vtkGenericProbeFilter *New();
-  vtkTypeRevisionMacro(vtkGenericProbeFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkGenericProbeFilter,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -67,8 +67,10 @@ protected:
   vtkGenericProbeFilter();
   ~vtkGenericProbeFilter();
 
-  virtual void Execute();
-
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  
+  int FillInputPortInformation(int, vtkInformation*);
+  
   vtkIdTypeArray *ValidPoints;
 
 private:
