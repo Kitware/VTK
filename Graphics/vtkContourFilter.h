@@ -136,6 +136,12 @@ public:
   void SetArrayComponent( int );
   int  GetArrayComponent();
 
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector**,
+                             vtkInformationVector*);
+
 protected:
   vtkContourFilter();
   ~vtkContourFilter();
