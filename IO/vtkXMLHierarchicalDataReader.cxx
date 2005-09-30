@@ -18,7 +18,7 @@
 #include "vtkHierarchicalDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXMLHierarchicalDataReader, "1.4");
+vtkCxxRevisionMacro(vtkXMLHierarchicalDataReader, "1.5");
 vtkStandardNewMacro(vtkXMLHierarchicalDataReader);
 
 //----------------------------------------------------------------------------
@@ -36,22 +36,6 @@ void vtkXMLHierarchicalDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
-
-//----------------------------------------------------------------------------
-vtkHierarchicalDataSet* vtkXMLHierarchicalDataReader::GetOutput()
-{
-  return this->GetOutput(0);
-}
-
-//----------------------------------------------------------------------------
-vtkHierarchicalDataSet* vtkXMLHierarchicalDataReader::GetOutput(int port)
-{
-  vtkDataObject* output = 
-    vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive())->
-    GetCompositeOutputData(port);
-  return vtkHierarchicalDataSet::SafeDownCast(output);
-}
-
 
 //----------------------------------------------------------------------------
 const char* vtkXMLHierarchicalDataReader::GetDataSetName()

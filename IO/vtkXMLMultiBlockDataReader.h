@@ -37,11 +37,6 @@ public:
   vtkTypeRevisionMacro(vtkXMLMultiBlockDataReader,vtkXMLMultiGroupDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the output data object for a port on this algorithm.
-  vtkMultiBlockDataSet* GetOutput();
-  vtkMultiBlockDataSet* GetOutput(int);
-
 protected:
   vtkXMLMultiBlockDataReader();
   ~vtkXMLMultiBlockDataReader();  

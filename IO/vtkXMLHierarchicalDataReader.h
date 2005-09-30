@@ -37,11 +37,6 @@ public:
   vtkTypeRevisionMacro(vtkXMLHierarchicalDataReader,vtkXMLMultiGroupDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the output data object for a port on this algorithm.
-  vtkHierarchicalDataSet* GetOutput();
-  vtkHierarchicalDataSet* GetOutput(int);
-
 protected:
   vtkXMLHierarchicalDataReader();
   ~vtkXMLHierarchicalDataReader();  
