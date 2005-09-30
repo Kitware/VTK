@@ -371,7 +371,7 @@ static int TRIANGLE_VERTEX_STATE[3]={5,  // 1 0 1
                                      3,  // 0 1 1
                                      6}; // 1 1 0
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.22");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.23");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -557,9 +557,9 @@ public:
         else
           {
           if((midPointState&2)!=0)
-          {
-          result=1;
-          }
+            {
+            result=1;
+            }
           else
             {
             result=2;
@@ -1578,7 +1578,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
         // edge will come from either inside the triangle either from
         // and another edge. For sur the resulting edge will be inside (-1)
         
-//        tri.SetEdgeParent(j+3,-1);
+        tri.SetEdgeParent(j+3,l,r);
         
         }
       }
@@ -2504,7 +2504,7 @@ void vtkSimpleCellTessellator::TriangulateTriangle(vtkGenericAdaptorCell *cell,
   vtkstd::queue< vtkTriangleTile > work;
   vtkTriangleTile begin = vtkTriangleTile(root);
   work.push( begin );
-
+  
   while( !work.empty() ) 
     {
     vtkTriangleTile piece[4];
