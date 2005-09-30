@@ -289,6 +289,7 @@ vtkViewport
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkFilteringInformationKeyManager.cxx
+  vtkHierarchicalDataIterator.cxx
   vtkImageIterator.cxx
   vtkImageProgressIterator.cxx
   WRAP_EXCLUDE
