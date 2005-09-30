@@ -45,8 +45,8 @@ public:
   // Description:
   // Specify the point locations used to probe input. Any geometry
   // can be used.
-  void SetSource(vtkDataSet *source);
-  vtkDataSet *GetSource();
+  void SetSource(vtkDataObject *source);
+  vtkDataObject *GetSource();
 
   // Description:
   // This flag is used only when a piece is requested to update.  By default
@@ -75,6 +75,8 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
+  void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output);
 
   vtkIdTypeArray *ValidPoints;
 private:

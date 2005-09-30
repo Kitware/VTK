@@ -14,9 +14,11 @@
 =========================================================================*/
 #include "vtkPProbeFilter.h"
 
+#include "vtkCompositeDataPipeline.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -24,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.10");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.11");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -54,15 +56,37 @@ int vtkPProbeFilter::RequestInformation(vtkInformation *,
 }
 
 //----------------------------------------------------------------------------
-int vtkPProbeFilter::RequestData(vtkInformation *request,
+int vtkPProbeFilter::RequestData(vtkInformation *vtkNotUsed(request),
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector)
 {
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *srcInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
-  this->vtkProbeFilter::RequestData(request, inputVector, outputVector);
+  vtkDataSet *source = vtkDataSet::SafeDownCast(
+    srcInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!source || !source->GetNumberOfPoints())
+    {
+    int pieceNum = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    vtkMultiBlockDataSet *tmpSource = vtkMultiBlockDataSet::SafeDownCast(
+      srcInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    if (tmpSource)
+      {
+      source = vtkDataSet::SafeDownCast(tmpSource->GetDataSet(0, pieceNum));
+      }
+    }
+
+  if (!source)
+    {
+    vtkErrorMacro("No source provided.");
+    return 0;
+    }
+
+  this->Probe(input, source, output);
   int procid = 0;
   int numProcs = 1;
   if ( this->Controller )
@@ -146,6 +170,23 @@ int vtkPProbeFilter::RequestUpdateExtent(vtkInformation *,
   sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
                   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
 
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkPProbeFilter::FillInputPortInformation(int port, vtkInformation *info)
+{
+  if (!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+
+  if (port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+    info->Set(vtkCompositeDataPipeline::INPUT_REQUIRED_COMPOSITE_DATA_TYPE(),
+              "vtkMultiBlockDataSet");
+    }
   return 1;
 }
 

@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.82");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.83");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -42,21 +42,20 @@ vtkProbeFilter::~vtkProbeFilter()
 }
 
 //----------------------------------------------------------------------------
-void vtkProbeFilter::SetSource(vtkDataSet *input)
+void vtkProbeFilter::SetSource(vtkDataObject *input)
 {
   this->SetInput(1, input);
 }
 
 //----------------------------------------------------------------------------
-vtkDataSet *vtkProbeFilter::GetSource()
+vtkDataObject *vtkProbeFilter::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
     {
     return NULL;
     }
   
-  return vtkDataSet::SafeDownCast(
-    this->GetExecutive()->GetInputData(1, 0));
+  return this->GetExecutive()->GetInputData(1, 0);
 }
 
 //----------------------------------------------------------------------------
@@ -78,6 +77,18 @@ int vtkProbeFilter::RequestData(
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  if (!source)
+    {
+    return 0;
+    }
+
+  this->Probe(input, source, output);
+  return 1;
+}
+
+void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
+                           vtkDataSet *output)
+{
   vtkIdType ptId, numPts;
   double x[3], tol2;
   vtkCell *cell;
@@ -160,8 +171,6 @@ int vtkProbeFilter::RequestData(
     {
     delete [] weights;
     }
-
-  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -311,7 +320,7 @@ int vtkProbeFilter::RequestUpdateExtent(
 //----------------------------------------------------------------------------
 void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSet *source = this->GetSource();
+  vtkDataObject *source = this->GetSource();
 
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Source: " << source << "\n";
