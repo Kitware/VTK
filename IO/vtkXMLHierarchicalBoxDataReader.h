@@ -21,13 +21,16 @@
 // the number of processors, some processors will not have any sub-blocks
 // for that level. If the number of sub-blocks is larger than the
 // number of processors, each processor will possibly have more than
-// 1 sub-block. This reader does not yet work since there is no reader
-// for vtkUniformGrid yet.
+// 1 sub-block.
 
 #ifndef __vtkXMLHierarchicalBoxDataReader_h
 #define __vtkXMLHierarchicalBoxDataReader_h
 
 #include "vtkXMLHierarchicalDataReader.h"
+
+//BTX
+struct vtkXMLHierarchicalBoxDataReaderInternals;
+//ETX
 
 class VTK_IO_EXPORT vtkXMLHierarchicalBoxDataReader : public vtkXMLHierarchicalDataReader
 {
@@ -44,6 +47,7 @@ protected:
   virtual const char* GetDataSetName();
 
   virtual void ReadXMLData();
+  virtual int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   virtual int FillOutputPortInformation(int, vtkInformation* info);
 
   virtual void HandleDataSet(
@@ -51,6 +55,8 @@ protected:
     vtkMultiGroupDataSet* output, vtkDataSet* data);
   
 private:
+  vtkXMLHierarchicalBoxDataReaderInternals* Internal;
+
   vtkXMLHierarchicalBoxDataReader(const vtkXMLHierarchicalBoxDataReader&);  // Not implemented.
   void operator=(const vtkXMLHierarchicalBoxDataReader&);  // Not implemented.
 
