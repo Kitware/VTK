@@ -123,8 +123,10 @@ int TestPriorityStreaming(int argc, char *argv[])
       priority[36] != 0.0 ||
       priority[37] != 1.0)
     {
+    delete [] priority;
     cerr << "Bad results for prioity streaming test\n";
     return 1;
     }
+  delete [] priority;
   return 0;
 }
