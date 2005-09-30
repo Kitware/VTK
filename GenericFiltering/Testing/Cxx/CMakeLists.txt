@@ -61,6 +61,7 @@ IF (VTK_DATA_ROOT)
   TestGenericContourFilter.cxx
   TestGenericClip.cxx
   TestGenericCutter.cxx
+  TestGenericProbeFilter.cxx
   TestGenericStreamTracer.cxx
   TestSmoothErrorMetric.cxx
   TestViewDependentErrorMetric.cxx
