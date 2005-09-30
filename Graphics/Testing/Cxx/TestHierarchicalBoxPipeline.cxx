@@ -35,8 +35,8 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkShrinkPolyData.h"
-#include "vtkTestHierarchicalDataReader.h"
 #include "vtkTestUtilities.h"
+#include "vtkXMLHierarchicalBoxDataReader.h"
 
 int TestHierarchicalBoxPipeline(int argc, char* argv[])
 {
@@ -53,9 +53,11 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
 
   char* cfname = 
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/chombo3d/chombo3d");
+    vtkTestUtilities::ExpandDataFileName(argc, argv, 
+                                         "Data/chombo3d/chombo3d.vtm");
 
-  vtkTestHierarchicalDataReader* reader = vtkTestHierarchicalDataReader::New();
+  vtkXMLHierarchicalBoxDataReader* reader = 
+    vtkXMLHierarchicalBoxDataReader::New();
   reader->SetFileName(cfname);
   delete[] cfname;
 
