@@ -61,6 +61,19 @@ public:
   vtkGetMacro(MinimumFontSize,int);
 
   // Description:
+  // Set/Get font scaling factors
+  // The font size, f, is calculated as the largest possible value
+  // such that the annotations for the given viewport do not overlap. 
+  // This font size is scaled non-linearly with the viewport size,
+  // to maintain an acceptable readable size at larger viewport sizes, 
+  // without being too big.
+  // f' = linearScale * pow(f,nonlinearScale)
+  vtkSetMacro( LinearFontScaleFactor, float );
+  vtkGetMacro( LinearFontScaleFactor, float );
+  vtkSetMacro( NonlinearFontScaleFactor, float );
+  vtkGetMacro( NonlinearFontScaleFactor, float );
+
+  // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
   // resources to release.
@@ -126,7 +139,10 @@ protected:
   vtkTimeStamp   BuildTime;
   int            LastSize[2];
   vtkTextMapper *TextMapper[4];
-  int MinimumFontSize;
+
+  int   MinimumFontSize;
+  float LinearFontScaleFactor;
+  float NonlinearFontScaleFactor;
   
   int ShowSliceAndImage;
   
