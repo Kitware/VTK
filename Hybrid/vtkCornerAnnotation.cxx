@@ -27,7 +27,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCornerAnnotation);
-vtkCxxRevisionMacro(vtkCornerAnnotation, "1.4");
+vtkCxxRevisionMacro(vtkCornerAnnotation, "1.5");
 
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,ImageActor,vtkImageActor);
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,WindowLevel,
@@ -524,6 +524,8 @@ void vtkCornerAnnotation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "ImageActor: " << this->GetImageActor() << endl;
   os << indent << "MinimumFontSize: " << this->GetMinimumFontSize() << endl;
+  os << indent << "LinearFontScaleFactor: " << this->GetLinearFontScaleFactor() << endl;
+  os << indent << "NonlinearFontScaleFactor: " << this->GetNonlinearFontScaleFactor() << endl;
   os << indent << "WindowLevel: " << this->GetWindowLevel() << endl;
   os << indent << "Mapper: " << this->GetMapper() << endl;
   os << indent << "MaximumLineHeight: " << this->MaximumLineHeight << endl;
