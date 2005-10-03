@@ -27,7 +27,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCornerAnnotation);
-vtkCxxRevisionMacro(vtkCornerAnnotation, "1.5");
+vtkCxxRevisionMacro(vtkCornerAnnotation, "1.6");
 
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,ImageActor,vtkImageActor);
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,WindowLevel,
@@ -105,13 +105,17 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
 {
   int i;
   char *text, *text2;
-  int image=0;
+  int slice = 0, slice_max = 0;
   char *rpos, *tmp;
-  float window=0, level=0;
-    
+  float window = 0, level = 0;
+  long int windowi = 0, leveli = 0;
+  vtkImageData *wl_input = NULL;
+  int wl_input_type_is_float = 0;
+
   if (ia)
     {
-    image = ia->GetSliceNumber();
+    slice = ia->GetSliceNumber();
+    slice_max = ia->GetSliceNumberMax();
     }
   if (wl)
     {
@@ -119,6 +123,11 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
     window *= this->LevelScale;
     level = wl->GetLevel();    
     level = level * this->LevelScale + this->LevelShift;
+    windowi = (long int)window;
+    leveli = (long int)level;
+    wl_input = vtkImageData::SafeDownCast(wl->GetInput());
+    wl_input_type_is_float = (wl_input->GetScalarType() == VTK_FLOAT || 
+                              wl_input->GetScalarType() == VTK_DOUBLE);
     }
   
   // search for tokens, replace and then assign to TextMappers
@@ -129,14 +138,16 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
       text = new char [strlen(this->CornerText[i])+1000];
       text2 = new char [strlen(this->CornerText[i])+1000];
       strcpy(text,this->CornerText[i]);
+
       // now do the replacements
+
       rpos = strstr(text,"<image>");
       while (rpos)
         {
         *rpos = '\0';
         if (ia && this->ShowSliceAndImage)
           {
-          sprintf(text2,"%sImage: %i%s",text,image,rpos+7);
+          sprintf(text2,"%sImage: %i%s",text,slice,rpos+7);
           }
         else
           {
@@ -147,13 +158,32 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         text2 = tmp;
         rpos = strstr(text,"<image>");
         }
+
+      rpos = strstr(text,"<image_and_max>");
+      while (rpos)
+        {
+        *rpos = '\0';
+        if (ia && this->ShowSliceAndImage)
+          {
+          sprintf(text2,"%sImage: %i / %i%s",text,slice,slice_max,rpos+15);
+          }
+        else
+          {
+          sprintf(text2,"%s%s",text,rpos+15);
+          }
+        tmp = text;
+        text = text2;
+        text2 = tmp;
+        rpos = strstr(text,"<image_and_max>");
+        }
+
       rpos = strstr(text,"<slice>");
       while (rpos)
         {
         *rpos = '\0';
         if (ia && this->ShowSliceAndImage)
           {
-          sprintf(text2,"%sSlice: %i%s",text,image,rpos+7);
+          sprintf(text2,"%sSlice: %i%s",text,slice,rpos+7);
           }
         else
           {
@@ -164,13 +194,39 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         text2 = tmp;
         rpos = strstr(text,"<slice>");
         }
+
+      rpos = strstr(text,"<slice_and_max>");
+      while (rpos)
+        {
+        *rpos = '\0';
+        if (ia && this->ShowSliceAndImage)
+          {
+          sprintf(text2,"%sSlice: %i / %i%s",text,slice,slice_max,rpos+15);
+          }
+        else
+          {
+          sprintf(text2,"%s%s",text,rpos+15);
+          }
+        tmp = text;
+        text = text2;
+        text2 = tmp;
+        rpos = strstr(text,"<slice_and_max>");
+        }
+
       rpos = strstr(text,"<window>");
       while (rpos)
         {
         *rpos = '\0';
         if (wl)
           {
-          sprintf(text2,"%sWindow: %g%s",text,window,rpos+8);
+          if (wl_input_type_is_float)
+            {
+            sprintf(text2,"%sWindow: %g%s",text,window,rpos+8);
+            }
+          else
+            {
+            sprintf(text2,"%sWindow: %li%s",text,windowi,rpos+8);
+            }
           }
         else
           {
@@ -181,13 +237,21 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         text2 = tmp;
         rpos = strstr(text,"<window>");
         }
+
       rpos = strstr(text,"<level>");
       while (rpos)
         {
         *rpos = '\0';
         if (wl)
           {
-          sprintf(text2,"%sLevel: %g%s",text,level,rpos+7);
+          if (wl_input_type_is_float)
+            {
+            sprintf(text2,"%sLevel: %g%s",text,level,rpos+7);
+            }
+          else
+            {
+            sprintf(text2,"%sLevel: %li%s",text,leveli,rpos+7);
+            }
           }
         else
           {
@@ -198,6 +262,32 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         text2 = tmp;
         rpos = strstr(text,"<level>");
         }
+
+      rpos = strstr(text,"<window_level>");
+      while (rpos)
+        {
+        *rpos = '\0';
+        if (wl)
+          {
+          if (wl_input_type_is_float)
+            {
+            sprintf(text2,"%sW/L: %g / %g%s",text,window,level,rpos+14);
+            }
+          else
+            {
+            sprintf(text2,"%sW/L: %li / %li%s",text,windowi,leveli,rpos+14);
+            }
+          }
+        else
+          {
+          sprintf(text2,"%s%s",text,rpos+14);
+          }
+        tmp = text;
+        text = text2;
+        text2 = tmp;
+        rpos = strstr(text,"<window_level>");
+        }
+
       this->TextMapper[i]->SetInput(text);
       delete [] text;
       delete [] text2;
