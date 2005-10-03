@@ -23,12 +23,17 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
+#include "vtkXMLImageDataReader.h"
+#include "vtkXMLPolyDataReader.h"
+#include "vtkXMLRectilinearGridReader.h"
+#include "vtkXMLStructuredGridReader.h"
+#include "vtkXMLUnstructuredGridReader.h"
 
 #include <vtkstd/map>
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkXMLMultiGroupDataReader, "1.1");
+vtkCxxRevisionMacro(vtkXMLMultiGroupDataReader, "1.2");
 vtkStandardNewMacro(vtkXMLMultiGroupDataReader);
 
 struct vtkXMLMultiGroupDataReaderEntry
@@ -146,9 +151,33 @@ vtkXMLReader* vtkXMLMultiGroupDataReader::GetReaderOfType(const char* type)
     {
     return iter->second.GetPointer();
     }
-  // Use the instantiator to create the reader.
-  vtkObject* o = vtkInstantiator::CreateInstance(type);
-  vtkXMLReader* reader = vtkXMLReader::SafeDownCast(o);
+
+  vtkXMLReader* reader = 0;
+  if (strcmp(type, "vtkXMLImageDataReader") == 0)
+    {
+    reader = vtkXMLImageDataReader::New();
+    }
+  else if (strcmp(type,"vtkXMLUnstructuredGridReader") == 0)
+    {
+    reader = vtkXMLUnstructuredGridReader::New();
+    }
+  else if (strcmp(type,"vtkXMLPolyDataReader") == 0)
+    {
+    reader = vtkXMLPolyDataReader::New();
+    }
+  else if (strcmp(type,"vtkXMLRectilinearGridReader") == 0)
+    {
+    reader = vtkXMLRectilinearGridReader::New();
+    }
+  else if (strcmp(type,"vtkXMLStructuredGridReader") == 0)
+    {
+    reader = vtkXMLStructuredGridReader::New();
+    }
+  if (!reader)
+    {
+    // If all fails, Use the instantiator to create the reader.
+    reader = vtkXMLReader::SafeDownCast(vtkInstantiator::CreateInstance(type));
+    }
   if (reader)
     {
     this->Internal->Readers[type] = reader;
@@ -299,6 +328,11 @@ void vtkXMLMultiGroupDataReader::ReadXMLData()
           }
         }
       vtkXMLReader* reader = this->GetReaderOfType(rname);
+      if (!reader)
+        {
+        vtkErrorMacro("Could not create reader for " << rname);
+        continue;
+        }
       reader->SetFileName(fileName.c_str());
       reader->Update();
       vtkDataSet* output = reader->GetOutputAsDataSet();
