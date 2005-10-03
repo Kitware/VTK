@@ -22,7 +22,7 @@
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkXMLShader);
-vtkCxxRevisionMacro(vtkXMLShader, "1.1.2.6");
+vtkCxxRevisionMacro(vtkXMLShader, "1.1.2.7");
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
 //-----------------------------------------------------------------------------
 vtkXMLShader::vtkXMLShader()
@@ -359,16 +359,19 @@ void vtkXMLShader::PrintSelf(ostream& os, vtkIndent indent)
     <<  (this->GetEntry()? this->GetEntry() : "(none)") << endl;
   os << indent << "Args: ";
   const char** args = this->GetArgs();
-  if (!*args)
+  if (!args)
     {
     os << "(none)" << endl;
     }
-  while (*args)
+  else
     {
-    os << indent << *args << " ";
-    args++;
+    while (*args)
+      {
+      os << indent << *args << " ";
+      args++;
+      }
+    os << endl;
     }
-  os << endl;
 
   os << indent << "RootElement: ";
   if (this->RootElement)
