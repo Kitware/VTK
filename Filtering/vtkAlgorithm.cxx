@@ -35,7 +35,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.28");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.29");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -252,9 +252,38 @@ vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
     }
 
   int port = inArrayInfo->Get(INPUT_PORT());
-  int fieldAssoc = inArrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION());
   vtkInformation *inInfo = inputVector[port]->GetInformationObject(connection);
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+
+  return this->GetInputArrayToProcess(idx, input);
+}
+
+//----------------------------------------------------------------------------
+vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
+  int idx, vtkDataObject* input)
+{
+  if (!input)
+    {
+    return NULL;
+    }
+
+  vtkInformationVector *inArrayVec = 
+    this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
+  if (!inArrayVec)
+    {
+    vtkErrorMacro
+      ("Attempt to get an input array for an index that has not been specified");
+    return NULL;
+    }
+  vtkInformation *inArrayInfo = inArrayVec->GetInformationObject(idx);
+  if (!inArrayInfo)
+    {
+    vtkErrorMacro
+      ("Attempt to get an input array for an index that has not been specified");
+    return NULL;
+    }
+
+  int fieldAssoc = inArrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION());
   
   if (inArrayInfo->Has(vtkDataObject::FIELD_NAME()))
     {
@@ -272,6 +301,7 @@ vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
       vtkErrorMacro("Attempt to get point or cell data from a data object");
       return NULL;
       }
+
     if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS)
       {
       return inputDS->GetPointData()->GetArray(name);
@@ -286,14 +316,13 @@ vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
     }
   else
     {
-    int fType = inArrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
-    // must have a data set 
     vtkDataSet *inputDS = vtkDataSet::SafeDownCast(input);
     if (!inputDS)
       {
       vtkErrorMacro("Attempt to get point or cell data from a data object");
       return NULL;
       }
+    int fType = inArrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
     if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS)
       {
       return inputDS->GetPointData()->GetAttribute(fType);

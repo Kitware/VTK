@@ -355,6 +355,8 @@ protected:
   vtkDataArray *GetInputArrayToProcess(int idx,
                                        int connection,
                                        vtkInformationVector **inputVector);
+  vtkDataArray *GetInputArrayToProcess(int idx, 
+                                       vtkDataObject* input);
 
   // Description:
   // This method takes in an index (as specified in SetInputArrayToProcess)
