@@ -41,38 +41,149 @@ public:
 
   // Description:
   // Patient name
+  // For ex: DICOM (0010,0010) = DOE,JOHN
   vtkSetStringMacro(PatientName);
   vtkGetStringMacro(PatientName);
 
   // Description:
   // Patient ID
+  // For ex: DICOM (0010,0020) = 1933197
   vtkSetStringMacro(PatientID);
   vtkGetStringMacro(PatientID);
 
   // Description:
+  // Patient age
+  // For ex: DICOM (0010,1010) = 31 year(s)
+  vtkSetStringMacro(PatientAge);
+  vtkGetStringMacro(PatientAge);
+
+  // Description:
+  // Patient sex
+  // For ex: DICOM (0010,0040) = M
+  vtkSetStringMacro(PatientSex);
+  vtkGetStringMacro(PatientSex);
+
+  // Description:
+  // Patient birth date
+  // For ex: DICOM (0010,0030) = 1968.04.27
+  vtkSetStringMacro(PatientBirthDate);
+  vtkGetStringMacro(PatientBirthDate);
+
+  // Description:
+  // Acquisition Date
+  // For ex: DICOM (0008,0022) = 2003.06.17
+  vtkSetStringMacro(AcquisitionDate);
+  vtkGetStringMacro(AcquisitionDate);
+
+  // Description:
+  // Acquisition time
+  // For ex: DICOM (0008,0032) = 16:25:52
+  vtkSetStringMacro(AcquisitionTime);
+  vtkGetStringMacro(AcquisitionTime);
+
+  // Description:
   // Image Date
+  // For ex: DICOM (0008,0023) = 2003.06.17
   vtkSetStringMacro(ImageDate);
   vtkGetStringMacro(ImageDate);
 
   // Description:
-  // Series
-  vtkSetStringMacro(Series);
-  vtkGetStringMacro(Series);
-
-  // Description:
-  // Study
-  vtkSetStringMacro(Study);
-  vtkGetStringMacro(Study);
+  // Image Time
+  // For ex: DICOM (0008,0033) = 16:35:49
+  vtkSetStringMacro(ImageTime);
+  vtkGetStringMacro(ImageTime);
 
   // Description:
   // Image number
+  // For ex: DICOM (0020,0013) = 1
   vtkSetStringMacro(ImageNumber);
   vtkGetStringMacro(ImageNumber);
 
   // Description:
+  // Series number
+  // For ex: DICOM (0020,0011) = 902
+  vtkSetStringMacro(SeriesNumber);
+  vtkGetStringMacro(SeriesNumber);
+
+  // Description:
+  // Study ID
+  // For ex: DICOM (0020,0010) = 37481
+  vtkSetStringMacro(StudyID);
+  vtkGetStringMacro(StudyID);
+
+  // Description:
+  // Study description
+  // For ex: DICOM (0008,1030) = BRAIN/C-SP/FACIAL
+  vtkSetStringMacro(StudyDescription);
+  vtkGetStringMacro(StudyDescription);
+
+  // Description:
   // Modality
+  // For ex: DICOM (0008,0060)= CT
   vtkSetStringMacro(Modality);
   vtkGetStringMacro(Modality);
+
+  // Description:
+  // Manufacturer's Model Name
+  // For ex: DICOM (0008,1090) = LightSpeed QX/i
+  vtkSetStringMacro(ManufacturerModelName);
+  vtkGetStringMacro(ManufacturerModelName);
+
+  // Description:
+  // Station Name
+  // For ex: DICOM (0008,1010) = LSPD_OC8
+  vtkSetStringMacro(StationName);
+  vtkGetStringMacro(StationName);
+
+  // Description:
+  // Institution Name
+  // For ex: DICOM (0008,0080) = FooCity Medical Center
+  vtkSetStringMacro(InstitutionName);
+  vtkGetStringMacro(InstitutionName);
+
+  // Description:
+  // Convolution Kernel (or algorithm used to reconstruct the data)
+  // For ex: DICOM (0018,1210) = Bone
+  vtkSetStringMacro(ConvolutionKernel);
+  vtkGetStringMacro(ConvolutionKernel);
+
+  // Description:
+  // Slice Thickness
+  // For ex: DICOM (0018,0050) = 0.273438
+  vtkSetStringMacro(SliceThickness);
+  vtkGetStringMacro(SliceThickness);
+
+  // Description:
+  // Peak kilo voltage output of the (x-ray) generator used
+  // For ex: DICOM (0018,0060) = 120
+  vtkSetStringMacro(KVP);
+  vtkGetStringMacro(KVP);
+
+  // Description:
+  // Gantry/Detector tilt (Nominal angle of tilt in degrees of the scanning
+  // gantry.)
+  // For ex: DICOM (0018,1120) = 15
+  vtkSetStringMacro(GantryTilt);
+  vtkGetStringMacro(GantryTilt);
+
+  // Description:
+  // Exposure time (time of x-ray exposure in msec)
+  // For ex: DICOM (0018,1150) = 5
+  vtkSetStringMacro(ExposureTime);
+  vtkGetStringMacro(ExposureTime);
+
+  // Description:
+  // X-ray tube current (in mA)
+  // For ex: DICOM (0018,1151) = 400
+  vtkSetStringMacro(XRayTubeCurrent);
+  vtkGetStringMacro(XRayTubeCurrent);
+
+  // Description:
+  // Exposure (The exposure expressed in mAs, for example calculated 
+  // from Exposure Time and X-ray Tube Current)
+  // For ex: DICOM (0018,1152) = 114
+  vtkSetStringMacro(Exposure);
+  vtkGetStringMacro(Exposure);
 
   // Description:
   // Copy the contents of p to this instance. 
@@ -80,7 +191,10 @@ public:
 
   // Description:
   // Add/Remove/Query the window/level presets that may have been associated
-  // to a medical image.
+  // to a medical image. Window is also known as 'width', level is also known
+  // as 'center'.
+  // For ex: DICOM Window Center (0028,1050) = 00045\000470
+  //         DICOM Window Width  (0028,1051) = 0106\03412
   virtual void AddWindowLevelPreset(double w, double l);
   virtual void RemoveWindowLevelPreset(double w, double l);
   virtual void RemoveAllWindowLevelPresets();
@@ -93,13 +207,30 @@ protected:
   vtkMedicalImageProperties();
   ~vtkMedicalImageProperties();
 
-  char *PatientName;
-  char *PatientID;
+  char *AcquisitionDate;
+  char *AcquisitionTime;
+  char *ConvolutionKernel;
+  char *Exposure;
+  char *ExposureTime;
+  char *GantryTilt;
   char *ImageDate;
   char *ImageNumber;
-  char *Study;
-  char *Series;
+  char *ImageTime;
+  char *InstitutionName;
+  char *KVP;
+  char *ManufacturerModelName;
   char *Modality;
+  char *PatientAge;
+  char *PatientBirthDate;
+  char *PatientID;
+  char *PatientName;
+  char *PatientSex;
+  char *SeriesNumber;
+  char *SliceThickness;
+  char *StationName;
+  char *StudyDescription;
+  char *StudyID;
+  char *XRayTubeCurrent;
 
   // Description:
   // PIMPL Encapsulation for STL containers

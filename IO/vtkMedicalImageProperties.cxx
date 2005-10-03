@@ -19,7 +19,7 @@
 #include <vtksys/stl/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.3");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.4");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -45,13 +45,30 @@ vtkMedicalImageProperties::vtkMedicalImageProperties()
 {
   this->Internals = new vtkMedicalImagePropertiesInternals;
 
-  this->ImageDate   = NULL;
-  this->ImageNumber = NULL;
-  this->Modality    = NULL;
-  this->PatientID   = NULL;
-  this->PatientName = NULL;
-  this->Series      = NULL;
-  this->Study       = NULL;
+  this->AcquisitionDate        = NULL;
+  this->AcquisitionTime        = NULL;
+  this->ConvolutionKernel      = NULL;
+  this->Exposure               = NULL;
+  this->ExposureTime           = NULL;
+  this->GantryTilt             = NULL;
+  this->ImageDate              = NULL;
+  this->ImageNumber            = NULL;
+  this->ImageTime              = NULL;
+  this->InstitutionName        = NULL;
+  this->KVP                    = NULL;
+  this->ManufacturerModelName  = NULL;
+  this->Modality               = NULL;
+  this->PatientAge             = NULL;
+  this->PatientBirthDate       = NULL;
+  this->PatientID              = NULL;
+  this->PatientName            = NULL;
+  this->PatientSex             = NULL;
+  this->SeriesNumber           = NULL;
+  this->SliceThickness         = NULL;
+  this->StationName            = NULL;
+  this->StudyDescription       = NULL;
+  this->StudyID                = NULL;
+  this->XRayTubeCurrent        = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -69,13 +86,30 @@ vtkMedicalImageProperties::~vtkMedicalImageProperties()
 //----------------------------------------------------------------------------
 void vtkMedicalImageProperties::Clear()
 {
+  this->SetAcquisitionDate(NULL);
+  this->SetAcquisitionTime(NULL);
+  this->SetConvolutionKernel(NULL);
+  this->SetExposure(NULL);
+  this->SetExposureTime(NULL);
+  this->SetGantryTilt(NULL);
   this->SetImageDate(NULL);
   this->SetImageNumber(NULL);
+  this->SetImageTime(NULL);
+  this->SetInstitutionName(NULL);
+  this->SetKVP(NULL);
+  this->SetManufacturerModelName(NULL);
   this->SetModality(NULL);
+  this->SetPatientAge(NULL);
+  this->SetPatientBirthDate(NULL);
   this->SetPatientID(NULL);
   this->SetPatientName(NULL);
-  this->SetSeries(NULL);
-  this->SetStudy(NULL);
+  this->SetPatientSex(NULL);
+  this->SetSeriesNumber(NULL);
+  this->SetSliceThickness(NULL);
+  this->SetStationName(NULL);
+  this->SetStudyDescription(NULL);
+  this->SetStudyID(NULL);
+  this->SetXRayTubeCurrent(NULL);
 
   this->RemoveAllWindowLevelPresets();
 }
@@ -90,13 +124,30 @@ void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
 
   this->Clear();
 
+  this->SetAcquisitionDate(p->GetAcquisitionDate());
+  this->SetAcquisitionTime(p->GetAcquisitionTime());
+  this->SetConvolutionKernel(p->GetConvolutionKernel());
+  this->SetExposure(p->GetExposure());
+  this->SetExposureTime(p->GetExposureTime());
+  this->SetGantryTilt(p->GetGantryTilt());
   this->SetImageDate(p->GetImageDate());
   this->SetImageNumber(p->GetImageNumber());
+  this->SetImageTime(p->GetImageTime());
+  this->SetInstitutionName(p->GetInstitutionName());
+  this->SetKVP(p->GetKVP());
+  this->SetManufacturerModelName(p->GetManufacturerModelName());
   this->SetModality(p->GetModality());
+  this->SetPatientAge(p->GetPatientAge());
+  this->SetPatientBirthDate(p->GetPatientBirthDate());
   this->SetPatientID(p->GetPatientID());
   this->SetPatientName(p->GetPatientName());
-  this->SetSeries(p->GetSeries());
-  this->SetStudy(p->GetStudy());
+  this->SetPatientSex(p->GetPatientSex());
+  this->SetSeriesNumber(p->GetSeriesNumber());
+  this->SetSliceThickness(p->GetSliceThickness());
+  this->SetStationName(p->GetStationName());
+  this->SetStudyDescription(p->GetStudyDescription());
+  this->SetStudyID(p->GetStudyID());
+  this->SetXRayTubeCurrent(p->GetXRayTubeCurrent());
 
   int nb_presets = p->GetNumberOfWindowLevelPresets();
   for (int i = 0; i < nb_presets; i++)
@@ -213,34 +264,142 @@ void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << this->PatientName;
     }
+
   os << "\n" << indent << "PatientID: ";
   if (this->PatientID)
     {
     os << this->PatientID;
     }
+
+  os << "\n" << indent << "PatientAge: ";
+  if (this->PatientAge)
+    {
+    os << this->PatientAge;
+    }
+
+  os << "\n" << indent << "PatientSex: ";
+  if (this->PatientSex)
+    {
+    os << this->PatientSex;
+    }
+
+  os << "\n" << indent << "PatientBirthDate: ";
+  if (this->PatientBirthDate)
+    {
+    os << this->PatientBirthDate;
+    }
+
   os << "\n" << indent << "ImageDate: ";
   if (this->ImageDate)
     {
     os << this->ImageDate;
     }
+
+  os << "\n" << indent << "ImageTime: ";
+  if (this->ImageTime)
+    {
+    os << this->ImageTime;
+    }
+
   os << "\n" << indent << "ImageNumber: ";
   if (this->ImageNumber)
     {
     os << this->ImageNumber;
     }
-  os << "\n" << indent << "Series: ";
-  if (this->Series)
+
+  os << "\n" << indent << "AcquisitionDate: ";
+  if (this->AcquisitionDate)
     {
-    os << this->Series;
+    os << this->AcquisitionDate;
     }
-  os << "\n" << indent << "Study: ";
-  if (this->Study)
+
+  os << "\n" << indent << "AcquisitionTime: ";
+  if (this->AcquisitionTime)
     {
-    os << this->Study;
+    os << this->AcquisitionTime;
     }
+
+  os << "\n" << indent << "SeriesNumber: ";
+  if (this->SeriesNumber)
+    {
+    os << this->SeriesNumber;
+    }
+
+  os << "\n" << indent << "StudyDescription: ";
+  if (this->StudyDescription)
+    {
+    os << this->StudyDescription;
+    }
+
+  os << "\n" << indent << "StudyID: ";
+  if (this->StudyID)
+    {
+    os << this->StudyID;
+    }
+
   os << "\n" << indent << "Modality: ";
   if (this->Modality)
     {
     os << this->Modality;
+    }
+
+  os << "\n" << indent << "ManufacturerModelName: ";
+  if (this->ManufacturerModelName)
+    {
+    os << this->ManufacturerModelName;
+    }
+
+  os << "\n" << indent << "StationName: ";
+  if (this->StationName)
+    {
+    os << this->StationName;
+    }
+
+  os << "\n" << indent << "InstitutionName: ";
+  if (this->InstitutionName)
+    {
+    os << this->InstitutionName;
+    }
+
+  os << "\n" << indent << "ConvolutionKernel: ";
+  if (this->ConvolutionKernel)
+    {
+    os << this->ConvolutionKernel;
+    }
+
+  os << "\n" << indent << "SliceThickness: ";
+  if (this->SliceThickness)
+    {
+    os << this->SliceThickness;
+    }
+
+  os << "\n" << indent << "KVP: ";
+  if (this->KVP)
+    {
+    os << this->KVP;
+    }
+
+  os << "\n" << indent << "GantryTilt: ";
+  if (this->GantryTilt)
+    {
+    os << this->GantryTilt;
+    }
+
+  os << "\n" << indent << "ExposureTime: ";
+  if (this->ExposureTime)
+    {
+    os << this->ExposureTime;
+    }
+
+  os << "\n" << indent << "XRayTubeCurrent: ";
+  if (this->XRayTubeCurrent)
+    {
+    os << this->XRayTubeCurrent;
+    }
+
+  os << "\n" << indent << "Exposure: ";
+  if (this->Exposure)
+    {
+    os << this->Exposure;
     }
 }

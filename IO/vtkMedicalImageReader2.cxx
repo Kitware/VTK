@@ -18,7 +18,7 @@
 #include "vtkMedicalImageProperties.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageReader2, "1.6");
+vtkCxxRevisionMacro(vtkMedicalImageReader2, "1.7");
 vtkStandardNewMacro(vtkMedicalImageReader2);
 
 //----------------------------------------------------------------------------
@@ -99,7 +99,7 @@ void vtkMedicalImageReader2::SetSeries(const char *arg)
 {
   if (this->MedicalImageProperties)
     {
-    this->MedicalImageProperties->SetSeries(arg);
+    this->MedicalImageProperties->SetSeriesNumber(arg);
     }
 }
 
@@ -108,7 +108,7 @@ const char* vtkMedicalImageReader2::GetSeries()
 {
   if (this->MedicalImageProperties)
     {
-    return this->MedicalImageProperties->GetSeries();
+    return this->MedicalImageProperties->GetSeriesNumber();
     }
   return NULL;
 }
@@ -118,7 +118,7 @@ void vtkMedicalImageReader2::SetStudy(const char *arg)
 {
   if (this->MedicalImageProperties)
     {
-    this->MedicalImageProperties->SetStudy(arg);
+    this->MedicalImageProperties->SetStudyID(arg);
     }
 }
 
@@ -127,7 +127,7 @@ const char* vtkMedicalImageReader2::GetStudy()
 {
   if (this->MedicalImageProperties)
     {
-    return this->MedicalImageProperties->GetStudy();
+    return this->MedicalImageProperties->GetStudyID();
     }
   return NULL;
 }
