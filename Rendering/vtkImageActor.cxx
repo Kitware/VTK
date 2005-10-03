@@ -20,7 +20,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageActor, "1.19");
+vtkCxxRevisionMacro(vtkImageActor, "1.20");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -58,6 +58,7 @@ vtkImageActor::~vtkImageActor()
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkImageActor::GetSliceNumber()
 {
   // find the first axis with a one pixel extent and return
@@ -71,6 +72,30 @@ int vtkImageActor::GetSliceNumber()
     return this->DisplayExtent[2];
     }
   return this->DisplayExtent[4];
+}
+
+//----------------------------------------------------------------------------
+int vtkImageActor::GetSliceNumberMax()
+{
+  if (!this->GetInput())
+    {
+    return 0;
+    }
+
+  this->GetInput()->UpdateInformation();
+  int *wextent = this->GetInput()->GetWholeExtent();
+
+  // find the first axis with a one pixel extent and return
+  // its value
+  if (this->DisplayExtent[0] == this->DisplayExtent[1])
+    {
+    return wextent[1];
+    }
+  if (this->DisplayExtent[2] == this->DisplayExtent[3])
+    {
+    return wextent[3];
+    }
+  return wextent[5];
 }
 
 //----------------------------------------------------------------------------

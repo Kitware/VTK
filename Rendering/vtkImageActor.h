@@ -91,10 +91,12 @@ public:
   void GetDisplayBounds(double bounds[6]);
 
   // Description:
-  // Return a slice number computed from the display extent.
+  // Return the slice number (and max slice number) computed from the display
+  // extent.
   int GetSliceNumber();
+  int GetSliceNumberMax();
   
-//BTX
+  //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -102,7 +104,7 @@ public:
   int RenderTranslucentGeometry(vtkViewport *viewport);
   int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual void Render(vtkRenderer *) {};
-//ETX
+  //ETX
 
   // Description:
   // Set/Get the current slice number. The axis Z in ZSlice does not
@@ -116,7 +118,6 @@ public:
     this->DisplayExtent[0], this->DisplayExtent[1],
     this->DisplayExtent[2], this->DisplayExtent[3], z, z);
   };
-  
   int GetZSlice() { return this->DisplayExtent[4];};
   int GetWholeZMin();
   int GetWholeZMax();
