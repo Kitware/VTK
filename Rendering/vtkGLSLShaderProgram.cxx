@@ -65,7 +65,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.1.2.5");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.1.2.6");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -150,6 +150,11 @@ int vtkGLSLShaderProgram::IsLinked()
 //-----------------------------------------------------------------------------
 void vtkGLSLShaderProgram::GetProgramInfo()
 {
+  if (!this->Program)
+    {
+    return;
+    }
+
   vtkstd::string infoString;
   // is this a GLSL Program?
   GLint type = 0;

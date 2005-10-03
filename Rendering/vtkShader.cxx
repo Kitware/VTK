@@ -163,7 +163,7 @@ public:
       }
     }
 
-  void PrintSelf(ostream& os, vtkIndent indent)
+  void Print(ostream& os, vtkIndent indent)
     {
     int i;
     os << indent << "Name: " << ((this->Name)? this->Name : "(none)") << endl;
@@ -239,7 +239,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.1.2.4")
+vtkCxxRevisionMacro(vtkShader, "1.1.2.5")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -1011,17 +1011,18 @@ void vtkShader::SetSamplerParameter(vtkActor* act, vtkRenderer*,
 void vtkShader::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
   os << indent << "Number of Shader Variables: " 
     << this->Internals->UniformVariables.size() << endl;
-  
+ 
   vtkstd::map<vtkstd::string, vtkShaderUniformVariable>::iterator iter;
   for (iter = this->Internals->UniformVariables.begin();
     iter != this->Internals->UniformVariables.end(); ++iter)
     {
     os << indent << "ShaderVariable: " << endl;
-    iter->second.PrintSelf(os, indent.GetNextIndent());
-    }
-
+    iter->second.Print(os, indent.GetNextIndent());
+    } 
+  
   os << indent << "XMLShader: ";
   if (this->XMLShader)
     {
@@ -1032,4 +1033,6 @@ void vtkShader::PrintSelf(ostream &os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
+ 
+  
 }

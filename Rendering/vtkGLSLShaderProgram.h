@@ -63,8 +63,6 @@ public:
   virtual vtkGLSLShader* GetGLSLVertex();
   virtual vtkGLSLShader* GetGLSLFragment(); 
 
-  void GetProgramInfo();
-  void GetInfoLog();
 
   // Description:
   // Called to unload the shaders after the actor has been rendered.
@@ -88,6 +86,8 @@ protected:
   vtkSetStringMacro( Info );
   vtkGetStringMacro( Info );
   char* Info;
+  void GetProgramInfo();
+  void GetInfoLog();
 
 private:
   vtkGLSLShaderProgram(const vtkGLSLShaderProgram&); // Not Implemented

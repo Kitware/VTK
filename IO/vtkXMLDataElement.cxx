@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.24.4.1");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.24.4.2");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -1002,5 +1002,7 @@ void vtkXMLDataElement::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Id: " << (this->Id? this->Id : "(none)") << "\n";
   os << indent << "NumberOfAttributes: " << this->NumberOfAttributes << "\n";
   os << indent << "AttributeEncoding: " << this->AttributeEncoding << "\n";
+  os << indent << "CharacterData: " << 
+    (this->CharacterData? this->CharacterData : "(null)") << endl;
 }
 

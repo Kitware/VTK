@@ -37,7 +37,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.55.24.7");
+vtkCxxRevisionMacro(vtkProperty, "1.55.24.8");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -212,6 +212,11 @@ void vtkProperty::SetTexture(vtkTexture* tex)
 //----------------------------------------------------------------------------
 vtkIdType vtkProperty::AddTexture(vtkTexture* tex)
 {
+  if (!tex)
+    {
+    vtkErrorMacro("Cannot add NULL texture.");
+    return -1;
+    }
   this->TextureCollection->AddItem(tex);
   return (this->TextureCollection->GetNumberOfItems()-1);
 }
@@ -241,7 +246,8 @@ vtkTexture* vtkProperty::GetTexture(vtkIdType index)
 //----------------------------------------------------------------------------
 int vtkProperty::GetNumberOfTextures()
 {
-  return this->TextureCollection->GetNumberOfItems();
+  return this->TextureCollection? this->TextureCollection->GetNumberOfItems()
+    : 0;
 }
 
 //----------------------------------------------------------------------------
@@ -306,7 +312,6 @@ void vtkProperty::LoadMaterial(vtkXMLMaterial* material)
       shader->Delete();
       this->ShaderProgram->SetMaterial(this->Material);
       this->ShaderProgram->ReadMaterial();
-      this->ShaderProgram->PrintSelf(cout, vtkIndent());
       }
     else
       {
@@ -681,11 +686,26 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Line width: " << this->LineWidth << "\n";
   os << indent << "Line stipple pattern: " << this->LineStipplePattern << "\n";
   os << indent << "Line stipple repeat factor: " << this->LineStippleRepeatFactor << "\n";
+
+  os << indent << "Shading: " 
+    << (this->Shading? "On" : "Off") << endl;
+  
   os << indent << "Material: " ;
   if (this->Material)
     {
     os << endl;
     this->Material->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+
+  os << indent << "ShaderProgram: ";
+  if (this->ShaderProgram)
+    {
+    os << endl;
+    this->ShaderProgram->PrintSelf(os, indent.GetNextIndent());
     }
   else
     {

@@ -40,7 +40,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkXMLMaterial);
-vtkCxxRevisionMacro(vtkXMLMaterial, "1.1.2.3");
+vtkCxxRevisionMacro(vtkXMLMaterial, "1.1.2.4");
 //-----------------------------------------------------------------------------
 vtkXMLMaterial::vtkXMLMaterial()
 {
@@ -214,4 +214,14 @@ void vtkXMLMaterial::PrintSelf(ostream& os, vtkIndent indent)
     << this->GetNumberOfVertexShaders() << endl;
   os << indent << "Number of Fragment Shaders: " 
     << this->GetNumberOfFragmentShaders() << endl;
+  os << indent << "RootElement: ";
+  if (this->RootElement)
+    {
+    os << endl;
+    this->RootElement->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(null)" << endl;
+    }
 }

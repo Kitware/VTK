@@ -22,7 +22,7 @@
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkXMLShader);
-vtkCxxRevisionMacro(vtkXMLShader, "1.1.2.5");
+vtkCxxRevisionMacro(vtkXMLShader, "1.1.2.6");
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
 //-----------------------------------------------------------------------------
 vtkXMLShader::vtkXMLShader()
@@ -302,7 +302,6 @@ void vtkXMLShader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Name: " << (this->GetName()? this->GetName() : "(none)")
                                                                     << endl;
-  
   os << indent << "Type: ";
   switch(this->GetScope())
     {
@@ -370,4 +369,15 @@ void vtkXMLShader::PrintSelf(ostream& os, vtkIndent indent)
     args++;
     }
   os << endl;
+
+  os << indent << "RootElement: ";
+  if (this->RootElement)
+    {
+    os << endl;
+    this->RootElement->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }

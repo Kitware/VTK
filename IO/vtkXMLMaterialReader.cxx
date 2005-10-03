@@ -19,7 +19,7 @@
 #include "vtkXMLMaterial.h"
 #include "vtkXMLMaterialParser.h"
 
-vtkCxxRevisionMacro(vtkXMLMaterialReader, "1.1.2.1");
+vtkCxxRevisionMacro(vtkXMLMaterialReader, "1.1.2.2");
 vtkStandardNewMacro( vtkXMLMaterialReader );
 //-----------------------------------------------------------------------------
 vtkXMLMaterialReader::vtkXMLMaterialReader()
@@ -108,4 +108,6 @@ void vtkXMLMaterialReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
+  os << indent << "FileName: " <<
+    (this->FileName? this->FileName : "(null)") << endl;
 }

@@ -169,7 +169,7 @@ static void printAttributeInfo(GLuint program, const char* vtkNotUsed(filename))
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLSLShader);
-vtkCxxRevisionMacro(vtkGLSLShader, "1.1.2.5");
+vtkCxxRevisionMacro(vtkGLSLShader, "1.1.2.6");
 
 //-----------------------------------------------------------------------------
 vtkGLSLShader::vtkGLSLShader()
@@ -457,4 +457,6 @@ int vtkGLSLShader::GetUniformLocation( const char* name )
 void vtkGLSLShader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  
+  os << indent << "Program: " << this->Program << endl;
 }
