@@ -1391,7 +1391,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.11");
+vtkCxxRevisionMacro(vtkExodusReader, "1.12");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -1472,7 +1472,7 @@ vtkExodusReader::vtkExodusReader()
   this->TimeStep = 0;
   this->ActualTimeStep = 0;
   this->GenerateBlockIdCellArray = 1;
-  this->GenerateGlobalElementIdArray = 0;
+  this->GenerateGlobalElementIdArray = 1;
   this->GenerateGlobalNodeIdArray = 1;
   this->ApplyDisplacements = 1;
   this->DisplacementMagnitude = 1;
