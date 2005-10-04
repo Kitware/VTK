@@ -66,11 +66,20 @@ LineSourceWidget0 SetPoint1 3.05638 -3.00497 28.2211
 LineSourceWidget0 SetPoint2 3.05638 3.95916 28.2211
 LineSourceWidget0 SetResolution 20
 
+vtkMultiBlockDataSet mbds
+mbds SetNumberOfBlocks 3
+
+for {set i 0} {$i<3} {incr i 1} {
+    ExtractGrid$i Update
+    vtkStructuredGrid sg$i
+    sg$i ShallowCopy [ExtractGrid$i GetOutput]
+    mbds SetDataSet $i 0 sg$i
+    sg$i Delete
+}
+
 vtkStreamTracer Stream0
-Stream0 AddInput [ExtractGrid0 GetOutput]
+Stream0 SetInput mbds
 Stream0 SetSource [LineSourceWidget0 GetOutput]
-Stream0 AddInput [ExtractGrid1 GetOutput]
-Stream0 AddInput [ExtractGrid2 GetOutput]
 Stream0 SetMaximumPropagationUnit 1
 Stream0 SetMaximumPropagation 20
 Stream0 SetInitialIntegrationStepUnit 2
@@ -79,6 +88,9 @@ Stream0 SetIntegrationDirection 0
 Stream0 SetIntegratorType 0
 Stream0 SetMaximumNumberOfSteps 2000
 Stream0 SetTerminalSpeed 1e-12
+
+puts [mbds GetReferenceCount]
+mbds Delete
 
 vtkAssignAttribute aa
 aa SetInputConnection [Stream0 GetOutputPort]
