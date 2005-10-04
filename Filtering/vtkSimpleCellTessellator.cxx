@@ -371,7 +371,7 @@ static int TRIANGLE_VERTEX_STATE[3]={5,  // 1 0 1
                                      3,  // 0 1 1
                                      6}; // 1 1 0
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.23");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.24");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -1172,6 +1172,13 @@ static void Reorder(vtkIdType in[4], vtkIdType order[4])
     }
 }
 
+// With Visual Studio 7.0 in release mode, we have to disable the global
+// optimization flag for compiling vtkTetraTile::Refine
+#ifdef _MSC_VER
+# if _MSC_VER==1300
+#  pragma optimize("g",off)
+# endif
+#endif
 
 //-----------------------------------------------------------------------------
 int vtkTetraTile::Refine(vtkSimpleCellTessellator* tess,
@@ -1239,6 +1246,10 @@ int vtkTetraTile::Refine(vtkSimpleCellTessellator* tess,
         {
         for(k=0; k<4; k++)
           {
+          // This is the line that makes Visual Studio 7.0 to fail compiling
+          // a valid code in release mode. If we add the following line before
+          // the actual use of cases[k], everything works fine...
+          // line that fixes Visual Studio: cout<<cases[k]<<endl;
           tetra[k] = this->PointId[cases[k]];
           }
 
@@ -1279,6 +1290,16 @@ int vtkTetraTile::Refine(vtkSimpleCellTessellator* tess,
 
   return numTetraCreated;
 }
+
+// With Visual Studio 7.0 in release mode, we have to disable the global
+// optimization flag for compiling vtkTetraTile::Refine
+// Here we restore the flag value (it does not mean we put the flag to
+// on, the pragma syntax is confusing for that)
+#ifdef _MSC_VER
+# if _MSC_VER==1300
+#  pragma optimize("g",on)
+# endif
+#endif
 
 //-----------------------------------------------------------------------------
 // Create the tessellator helper with a default of 0.25 for threshold
