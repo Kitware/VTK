@@ -27,7 +27,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCornerAnnotation);
-vtkCxxRevisionMacro(vtkCornerAnnotation, "1.6");
+vtkCxxRevisionMacro(vtkCornerAnnotation, "1.7");
 
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,ImageActor,vtkImageActor);
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,WindowLevel,
@@ -109,14 +109,9 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
   char *rpos, *tmp;
   float window = 0, level = 0;
   long int windowi = 0, leveli = 0;
-  vtkImageData *wl_input = NULL;
-  int wl_input_type_is_float = 0;
+  vtkImageData *wl_input = NULL, *ia_input = NULL;
+  int input_type_is_float = 0;
 
-  if (ia)
-    {
-    slice = ia->GetSliceNumber();
-    slice_max = ia->GetSliceNumberMax();
-    }
   if (wl)
     {
     window = wl->GetWindow();
@@ -126,9 +121,24 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
     windowi = (long int)window;
     leveli = (long int)level;
     wl_input = vtkImageData::SafeDownCast(wl->GetInput());
-    wl_input_type_is_float = (wl_input->GetScalarType() == VTK_FLOAT || 
-                              wl_input->GetScalarType() == VTK_DOUBLE);
+    if (wl_input)
+      {
+      input_type_is_float = (wl_input->GetScalarType() == VTK_FLOAT || 
+                             wl_input->GetScalarType() == VTK_DOUBLE);
+      }
     }
+  if (ia)
+    {
+    slice = ia->GetSliceNumber();
+    slice_max = ia->GetSliceNumberMax();
+    ia_input = ia->GetInput();
+    if (!wl_input && ia_input)
+      {
+      input_type_is_float = (ia_input->GetScalarType() == VTK_FLOAT || 
+                             ia_input->GetScalarType() == VTK_DOUBLE);
+      }
+    }
+
   
   // search for tokens, replace and then assign to TextMappers
   for (i = 0; i < 4; i++)
@@ -219,7 +229,7 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         *rpos = '\0';
         if (wl)
           {
-          if (wl_input_type_is_float)
+          if (input_type_is_float)
             {
             sprintf(text2,"%sWindow: %g%s",text,window,rpos+8);
             }
@@ -244,7 +254,7 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         *rpos = '\0';
         if (wl)
           {
-          if (wl_input_type_is_float)
+          if (input_type_is_float)
             {
             sprintf(text2,"%sLevel: %g%s",text,level,rpos+7);
             }
@@ -269,7 +279,7 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         *rpos = '\0';
         if (wl)
           {
-          if (wl_input_type_is_float)
+          if (input_type_is_float)
             {
             sprintf(text2,"%sW/L: %g / %g%s",text,window,level,rpos+14);
             }
