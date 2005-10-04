@@ -22,7 +22,7 @@
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkXMLShader);
-vtkCxxRevisionMacro(vtkXMLShader, "1.2");
+vtkCxxRevisionMacro(vtkXMLShader, "1.3");
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
 //-----------------------------------------------------------------------------
 vtkXMLShader::vtkXMLShader()
@@ -73,7 +73,7 @@ void vtkXMLShader::SetRootElement(vtkXMLDataElement* root)
     case vtkXMLShader::LOCATION_FILE:
         {
         const char* filename = this->RootElement->GetAttribute("location");
-        const char* fullpath = this->LocateFile(filename);
+        char* fullpath = this->LocateFile(filename);
         if (!fullpath)
           {
           vtkErrorMacro("Failed to locate file " << filename);
