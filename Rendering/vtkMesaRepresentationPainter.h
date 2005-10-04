@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLRepresentationPainter.h
+  Module:    vtkMesaRepresentationPainter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,36 +12,36 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLRepresentationPainter - painter handling representation 
-// using OpenGL.
+// .NAME vtkMesaRepresentationPainter - painter handling representation 
+// using Mesa.
 // .SECTION Description
-// This is OpenGL implementation of a painter handling representation 
+// This is Mesa implementation of a painter handling representation 
 // i.e. Points, Wireframe, Surface.
 
-#ifndef __vtkOpenGLRepresentationPainter_h
-#define __vtkOpenGLRepresentationPainter_h
+#ifndef __vtkMesaRepresentationPainter_h
+#define __vtkMesaRepresentationPainter_h
 
 #include "vtkRepresentationPainter.h"
 
-class VTK_RENDERING_EXPORT vtkOpenGLRepresentationPainter : 
+class VTK_RENDERING_EXPORT vtkMesaRepresentationPainter : 
   public vtkRepresentationPainter
 {
 public:
-  static vtkOpenGLRepresentationPainter* New();
-  vtkTypeRevisionMacro(vtkOpenGLRepresentationPainter, vtkRepresentationPainter);
+  static vtkMesaRepresentationPainter* New();
+  vtkTypeRevisionMacro(vtkMesaRepresentationPainter, vtkRepresentationPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkOpenGLRepresentationPainter();
-  ~vtkOpenGLRepresentationPainter();
+  vtkMesaRepresentationPainter();
+  ~vtkMesaRepresentationPainter();
 
   // Description:
   // Changes the polygon mode according to the representation.
   void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
     unsigned long typeflags);
 private:
-  vtkOpenGLRepresentationPainter(const vtkOpenGLRepresentationPainter&); // Not implemented.
-  void operator=(const vtkOpenGLRepresentationPainter&); // Not implemented.
+  vtkMesaRepresentationPainter(const vtkMesaRepresentationPainter&); // Not implemented.
+  void operator=(const vtkMesaRepresentationPainter&); // Not implemented.
 };
 
 #endif

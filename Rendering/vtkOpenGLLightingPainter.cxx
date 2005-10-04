@@ -24,15 +24,13 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #  include "vtkOpenGL.h"
-#  if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-#    include <OpenGL/gl.h>
-#  else
-#    include <GL/gl.h>
-#  endif
 #endif
 
+#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLLightingPainter);
-vtkCxxRevisionMacro(vtkOpenGLLightingPainter, "1.1.2.1");
+vtkCxxRevisionMacro(vtkOpenGLLightingPainter, "1.1.2.2");
+#endif
+
 //-----------------------------------------------------------------------------
 static inline int vtkOpenGLLightingPainterGetTotalCells(vtkPolyData* pd,
   unsigned long typeflags)

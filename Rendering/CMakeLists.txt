@@ -363,14 +363,21 @@ IF (VTK_USE_MANGLED_MESA)
     SET ( KitOpenGL_SRCS ${KitOpenGL_SRCS}
                  vtkMesaActor.cxx
                  vtkMesaCamera.cxx
+                 vtkMesaClipPlanesPainter.cxx
+                 vtkMesaCoincidentTopologyResolutionPainter.cxx
+                 vtkMesaDisplayListPainter.cxx
                  vtkMesaImageActor.cxx
                  vtkMesaImageMapper.cxx
                  vtkMesaLight.cxx
+                 vtkMesaLightingPainter.cxx
+                 vtkMesaPainterDeviceAdapter.cxx
                  vtkMesaPolyDataMapper.cxx
                  vtkMesaPolyDataMapper2D.cxx
                  vtkMesaProperty.cxx
                  vtkMesaRenderWindow.cxx
                  vtkMesaRenderer.cxx
+                 vtkMesaRepresentationPainter.cxx
+                 vtkMesaScalarsToColorsPainter.cxx
                  vtkMesaTexture.cxx
                  vtkXMesaRenderWindow.cxx
                 )

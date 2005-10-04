@@ -25,15 +25,13 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #  include "vtkOpenGL.h"
-#  if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-#    include <OpenGL/gl.h>
-#  else
-#    include <GL/gl.h>
-#  endif
 #endif
 
+
+#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLDisplayListPainter);
-vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.1.2.1");
+vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.1.2.2");
+#endif
 //-----------------------------------------------------------------------------
 vtkOpenGLDisplayListPainter::vtkOpenGLDisplayListPainter()
 {

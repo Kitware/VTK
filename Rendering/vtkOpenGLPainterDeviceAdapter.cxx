@@ -1,15 +1,17 @@
-// -*- c++ -*-
-
 /*=========================================================================
 
   Program:   Visualization Toolkit
   Module:    vtkOpenGLPainterDeviceAdapter.cxx
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 /*
  * Copyright 2004 Sandia Corporation.
  * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
@@ -26,19 +28,16 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-#  include "vtkOpenGL.h"
-#  if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-#    include <OpenGL/gl.h>
-#  else
-#    include <GL/gl.h>
-#  endif
-#endif
-
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.1.2.1");
+#ifndef VTK_IMPLEMENT_MESA_CXX
+#  include "vtkOpenGL.h"
+#endif
+
+#ifndef VTK_IMPLEMENT_MESA_CXX
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.1.2.2");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
+#endif
 //-----------------------------------------------------------------------------
 vtkOpenGLPainterDeviceAdapter::vtkOpenGLPainterDeviceAdapter()
 {

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLPainterDeviceAdapter.h
+  Module:    vtkMesaPainterDeviceAdapter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -21,12 +21,12 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkOpenGLPainterDeviceAdapter - An adapter between a vtkPainter and a rendering device.
+// .NAME vtkMesaPainterDeviceAdapter - An adapter between a vtkPainter and a rendering device.
 //
 // .SECTION Description
 //
-// An adapter between vtkPainter and the OpenGL rendering system.  Only a
-// handful of attributes with special meaning are supported.  The OpenGL
+// An adapter between vtkPainter and the Mesa rendering system.  Only a
+// handful of attributes with special meaning are supported.  The Mesa
 // attribute used for each attribute is given below.
 //
 // \verbatim
@@ -37,17 +37,17 @@
 // \endverbatim
 //
 
-#ifndef __vtkOpenGLPainterDeviceAdapter_h
-#define __vtkOpenGLPainterDeviceAdapter_h
+#ifndef __vtkMesaPainterDeviceAdapter_h
+#define __vtkMesaPainterDeviceAdapter_h
 
 #include "vtkPainterDeviceAdapter.h"
 
-class VTK_RENDERING_EXPORT vtkOpenGLPainterDeviceAdapter : 
+class VTK_RENDERING_EXPORT vtkMesaPainterDeviceAdapter : 
   public vtkPainterDeviceAdapter
 {
 public:
-  vtkTypeRevisionMacro(vtkOpenGLPainterDeviceAdapter, vtkPainterDeviceAdapter);
-  static vtkOpenGLPainterDeviceAdapter *New();
+  vtkTypeRevisionMacro(vtkMesaPainterDeviceAdapter, vtkPainterDeviceAdapter);
+  static vtkMesaPainterDeviceAdapter *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
@@ -83,16 +83,16 @@ public:
   virtual void DrawElements(int mode, vtkIdType count, int type, void *indices);
 
   // Description:
-  // Returns true if renderer is a vtkOpenGLRenderer.
+  // Returns true if renderer is a vtkMesaRenderer.
   virtual int Compatible(vtkRenderer *renderer);
 
 protected:
-  vtkOpenGLPainterDeviceAdapter();
-  ~vtkOpenGLPainterDeviceAdapter();
+  vtkMesaPainterDeviceAdapter();
+  ~vtkMesaPainterDeviceAdapter();
 
 private:
-  vtkOpenGLPainterDeviceAdapter(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.
-  void operator=(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.
+  vtkMesaPainterDeviceAdapter(const vtkMesaPainterDeviceAdapter &);  // Not implemented.
+  void operator=(const vtkMesaPainterDeviceAdapter &);  // Not implemented.
 };
 
-#endif //_vtkOpenGLPainterDeviceAdapter_h
+#endif //_vtkMesaPainterDeviceAdapter_h

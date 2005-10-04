@@ -22,16 +22,13 @@
 #include "vtkPlaneCollection.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-#  include "vtkOpenGL.h"
-#  if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-#    include <OpenGL/gl.h>
-#  else
-#    include <GL/gl.h>
-#  endif
+# include "vtkOpenGL.h"
 #endif
 
+#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLClipPlanesPainter);
-vtkCxxRevisionMacro(vtkOpenGLClipPlanesPainter, "1.1.2.1");
+vtkCxxRevisionMacro(vtkOpenGLClipPlanesPainter, "1.1.2.2");
+#endif
 //-----------------------------------------------------------------------------
 vtkOpenGLClipPlanesPainter::vtkOpenGLClipPlanesPainter()
 {
