@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkShepardMethod, "1.47");
+vtkCxxRevisionMacro(vtkShepardMethod, "1.48");
 vtkStandardNewMacro(vtkShepardMethod);
 
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
@@ -182,6 +182,8 @@ int vtkShepardMethod::RequestData(
     vtkErrorMacro(<<"Scalars must be defined!");
     return 1;
     }
+
+  newScalars->SetName(inScalars->GetName());
 
   // Allocate
   //
