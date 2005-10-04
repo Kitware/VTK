@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
 /*
  * Copyright 2003 Sandia Corporation.
  * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
@@ -41,7 +42,7 @@ public:
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLMaterialParser);
-vtkCxxRevisionMacro(vtkXMLMaterialParser, "1.2" );
+vtkCxxRevisionMacro(vtkXMLMaterialParser, "1.3" );
 vtkCxxSetObjectMacro(vtkXMLMaterialParser, Material, vtkXMLMaterial);
 
 //-----------------------------------------------------------------------------

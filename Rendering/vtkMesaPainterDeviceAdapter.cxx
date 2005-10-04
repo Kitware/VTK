@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
 // Make sure this is first, so any includes of gl.h can be stoped if needed
 // This also keeps the New method from being defined in included cxx file.
 #define VTK_IMPLEMENT_MESA_CXX
@@ -32,5 +33,5 @@
 #include "vtkOpenGLPainterDeviceAdapter.cxx"
 #undef vtkOpenGLPainterDeviceAdapter
 
-vtkCxxRevisionMacro(vtkMesaPainterDeviceAdapter, "1.2");
+vtkCxxRevisionMacro(vtkMesaPainterDeviceAdapter, "1.3");
 vtkStandardNewMacro(vtkMesaPainterDeviceAdapter);

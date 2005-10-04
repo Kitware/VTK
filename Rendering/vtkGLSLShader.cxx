@@ -12,22 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkGLSLShader.cxx
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
-
-  Copyright 2003 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
-  license for use of this work by or on behalf of the
-  U.S. Government. Redistribution and use in source and binary forms, with
-  or without modification, are permitted provided that this Notice and any
-  statement of authorship are reproduced on all copies.
-
-=========================================================================*/
+/*
+ * Copyright 2003 Sandia Corporation.
+ * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
+ * license for use of this work by or on behalf of the
+ * U.S. Government. Redistribution and use in source and binary forms, with
+ * or without modification, are permitted provided that this Notice and any
+ * statement of authorship are reproduced on all copies.
+ */
 
 #include "vtkGLSLShader.h"
 
@@ -169,7 +161,7 @@ static void printAttributeInfo(GLuint program, const char* vtkNotUsed(filename))
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLSLShader);
-vtkCxxRevisionMacro(vtkGLSLShader, "1.2");
+vtkCxxRevisionMacro(vtkGLSLShader, "1.3");
 
 //-----------------------------------------------------------------------------
 vtkGLSLShader::vtkGLSLShader()
