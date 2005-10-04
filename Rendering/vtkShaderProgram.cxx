@@ -43,7 +43,7 @@
 #include "vtkGLSLShaderProgram.h"
 #endif
 
-vtkCxxRevisionMacro(vtkShaderProgram, "1.2");
+vtkCxxRevisionMacro(vtkShaderProgram, "1.3");
 
 vtkCxxSetObjectMacro(vtkShaderProgram, Material, vtkXMLMaterial);
 vtkCxxSetObjectMacro(vtkShaderProgram, VertexShader, vtkShader);
@@ -85,19 +85,19 @@ void vtkShaderProgram::ReleaseGraphicsResources(vtkWindow *w)
 // user-selected build options for shader types.
 vtkShaderProgram* vtkShaderProgram::CreateShaderProgram(int shaderType)
 {
-#ifdef VTK_USE_CG_SHADERS
   if( shaderType == vtkXMLShader::LANGUAGE_CG )
     {
+#ifdef VTK_USE_CG_SHADERS
     return vtkCgShaderProgram::New();
-    }
 #endif
+    }
 
-#ifdef VTK_USE_GLSL_SHADERS 
   if( shaderType == vtkXMLShader::LANGUAGE_GLSL )
     {
+#ifdef VTK_USE_GLSL_SHADERS 
     return vtkGLSLShaderProgram::New();
-    }
 #endif
+    }
   return NULL;
 }
 
