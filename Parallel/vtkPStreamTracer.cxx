@@ -29,7 +29,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.18");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.19");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -354,6 +354,7 @@ int vtkPStreamTracer::RequestData(
     vtkDebugMacro("No appropriate inputs have been found. Can not execute.");
     func->Delete();
     // >>>>>>>>>> TODO: All should pass this test.
+    this->InputData->UnRegister(this);
     return 1;
     }
   func->SetCaching(0);
