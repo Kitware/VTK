@@ -89,7 +89,6 @@ Stream0 SetIntegratorType 0
 Stream0 SetMaximumNumberOfSteps 2000
 Stream0 SetTerminalSpeed 1e-12
 
-puts [mbds GetReferenceCount]
 mbds Delete
 
 vtkAssignAttribute aa
