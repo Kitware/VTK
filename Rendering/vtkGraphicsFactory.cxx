@@ -93,7 +93,7 @@
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 int vtkGraphicsFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.37.4.2");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.37.4.3");
 vtkStandardNewMacro(vtkGraphicsFactory);
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
@@ -268,13 +268,6 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     if(strcmp(vtkclassname, "vtkPolyDataMapper") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaPolyDataMapper::New();
-        }
-#endif
-      //return vtkOpenGLPolyDataMapper::New();
       return vtkPainterPolyDataMapper::New();
       }
     if (strcmp(vtkclassname, "vtkPainterDeviceAdapter") == 0)
