@@ -27,7 +27,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.56");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.57");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -422,4 +422,5 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs, int &ys, unsigned
 void vtkOpenGLTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Index: " << this->Index << endl;
 }

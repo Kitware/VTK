@@ -27,15 +27,15 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.33");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.34");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
 
 
 // Implement base class method.
-void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
-                             vtkRenderer *vtkNotUsed(ren))
+void vtkOpenGLProperty::Render(vtkActor *anActor,
+                             vtkRenderer *ren)
 {
   int i;
   GLenum method;
@@ -171,6 +171,8 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
     gl2psDisable(GL2PS_LINE_STIPPLE);
 #endif // VTK_USE_GL2PS
     }
+
+  this->Superclass::Render(anActor, ren);
 }
 
 // Implement base class method.

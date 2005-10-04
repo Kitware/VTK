@@ -29,9 +29,14 @@ vtkAxisActor2D.cxx
 vtkCamera.cxx
 vtkCameraInterpolator.cxx
 vtkCellPicker.cxx
+vtkChooserPainter.cxx
+vtkClipPlanesPainter.cxx
+vtkCoincidentTopologyResolutionPainter.cxx
 vtkCuller.cxx
 vtkCullerCollection.cxx
 vtkDataSetMapper.cxx
+vtkDefaultPainter.cxx
+vtkDisplayListPainter.cxx
 vtkExporter.cxx
 vtkFollower.cxx
 vtkFrustumCoverageCuller.cxx
@@ -66,16 +71,25 @@ vtkLabeledDataMapper.cxx
 vtkLight.cxx
 vtkLightCollection.cxx
 vtkLightKit.cxx
+vtkLightingPainter.cxx
+vtkLinesPainter.cxx
 vtkMapper.cxx
 vtkMapperCollection.cxx
 vtkMultiGroupPolyDataMapper.cxx
 vtkOBJExporter.cxx
 vtkOOGLExporter.cxx
+vtkPainter.cxx
+vtkPainterDeviceAdapter.cxx
+vtkPainterPolyDataMapper.cxx
 vtkParallelCoordinatesActor.cxx
 vtkPicker.cxx
+vtkPointsPainter.cxx
 vtkPointPicker.cxx
 vtkPolyDataMapper.cxx
 vtkPolyDataMapper2D.cxx
+vtkPolyDataPainter.cxx
+vtkPolygonsPainter.cxx
+vtkPrimitivePainter.cxx
 vtkProp3D.cxx
 vtkProp3DCollection.cxx
 vtkPropPicker.cxx
@@ -87,9 +101,14 @@ vtkRenderWindowInteractor.cxx
 vtkRenderer.cxx
 vtkRendererCollection.cxx
 vtkRendererSource.cxx
+vtkRepresentationPainter.cxx
 vtkScalarBarActor.cxx
+vtkScalarsToColorsPainter.cxx
 vtkScaledTextActor.cxx
 vtkSelectVisiblePoints.cxx
+vtkShader.cxx
+vtkShaderProgram.cxx
+vtkStandardPolyDataPainter.cxx
 vtkTesting.cxx
 vtkTextActor.cxx
 # vtkTextActor2D.cxx
@@ -98,6 +117,7 @@ vtkTextMapper.cxx
 vtkTextProperty.cxx
 vtkTexture.cxx
 vtkTransformInterpolator.cxx
+vtkTStripsPainter.cxx
 vtkTupleInterpolator.cxx
 vtkVRMLExporter.cxx
 vtkVolume.cxx
@@ -113,21 +133,44 @@ IF(VTK_USE_GL2PS)
   ADD_DEFINITIONS(-DGL2PS_HAVE_ZLIB)
 ENDIF(VTK_USE_GL2PS)
 
+IF(VTK_USE_CG_SHADERS)
+  SET(Kit_SRCS ${Kit_SRCS} 
+    vtkCgShader.cxx
+    vtkCgShaderProgram.cxx
+    )
+  INCLUDE_DIRECTORIES(${CG_INCLUDE_PATH})
+  SET (KIT_LIBS ${KIT_LIBS} ${CG_LIBRARY} ${CG_GL_LIBRARY})
+ENDIF(VTK_USE_CG_SHADERS)
+
+
 SET( KitOpenGL_SRCS
   vtkOpenGLActor.cxx
   vtkOpenGLCamera.cxx
+  vtkOpenGLClipPlanesPainter.cxx
+  vtkOpenGLCoincidentTopologyResolutionPainter.cxx
+  vtkOpenGLDisplayListPainter.cxx
   vtkOpenGLExtensionManager.cxx
   vtkOpenGLImageActor.cxx
   vtkOpenGLImageMapper.cxx
   vtkOpenGLLight.cxx
+  vtkOpenGLLightingPainter.cxx
+  vtkOpenGLPainterDeviceAdapter.cxx
   vtkOpenGLPolyDataMapper.cxx
   vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
   vtkOpenGLRenderWindow.cxx
   vtkOpenGLRenderer.cxx
+  vtkOpenGLRepresentationPainter.cxx
+  vtkOpenGLScalarsToColorsPainter.cxx
   vtkOpenGLTexture.cxx
   )
 
+IF(VTK_USE_GLSL_SHADERS)
+  SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
+    vtkGLSLShader.cxx
+    vtkGLSLShaderProgram.cxx
+    )
+ENDIF(VTK_USE_GLSL_SHADERS)
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractMapper3D
@@ -140,7 +183,12 @@ vtkImporter
 vtkInteractorObserver
 vtkMapper
 vtkOpenGLRenderWindow
+vtkPainter
+vtkPolyDataPainter
+vtkPrimitivePainter
 vtkProp3D
+vtkShader
+vtkShaderProgram
 ABSTRACT
 )
 
@@ -317,14 +365,21 @@ IF (VTK_USE_MANGLED_MESA)
     SET ( KitOpenGL_SRCS ${KitOpenGL_SRCS}
                  vtkMesaActor.cxx
                  vtkMesaCamera.cxx
+                 vtkMesaClipPlanesPainter.cxx
+                 vtkMesaCoincidentTopologyResolutionPainter.cxx
+                 vtkMesaDisplayListPainter.cxx
                  vtkMesaImageActor.cxx
                  vtkMesaImageMapper.cxx
                  vtkMesaLight.cxx
+                 vtkMesaLightingPainter.cxx
+                 vtkMesaPainterDeviceAdapter.cxx
                  vtkMesaPolyDataMapper.cxx
                  vtkMesaPolyDataMapper2D.cxx
                  vtkMesaProperty.cxx
                  vtkMesaRenderWindow.cxx
                  vtkMesaRenderer.cxx
+                 vtkMesaRepresentationPainter.cxx
+                 vtkMesaScalarsToColorsPainter.cxx
                  vtkMesaTexture.cxx
                  vtkXMesaRenderWindow.cxx
                 )

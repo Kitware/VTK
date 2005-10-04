@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.126");
+vtkCxxRevisionMacro(vtkActor, "1.127");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 
@@ -173,8 +173,8 @@ int vtkActor::RenderOpaqueGeometry(vtkViewport *vp)
       this->Texture->Render(ren);
       }
     this->Render(ren,this->Mapper);
+    this->Property->PostRender(this, ren);
     this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
-
     renderedSomething = 1;
     }
 
@@ -215,6 +215,7 @@ int vtkActor::RenderTranslucentGeometry(vtkViewport *vp)
       this->Texture->Render(ren);
       }
     this->Render(ren,this->Mapper);
+    this->Property->PostRender(this, ren);
     this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
 
     renderedSomething = 1;

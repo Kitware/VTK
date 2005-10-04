@@ -172,6 +172,25 @@ OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying dat
 VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF
                      "VTK_USE_RENDERING" OFF)
 
+# Determine Shading Support
+VTK_DEPENDENT_OPTION(VTK_USE_CG_SHADERS "Build pixel and vertex shader support for Cg." OFF
+                     "VTK_USE_RENDERING" OFF)
+VTK_DEPENDENT_OPTION(VTK_USE_GLSL_SHADERS "Build pixel and vertex shader support for GLSL." OFF
+                     "VTK_USE_RENDERING" OFF)
+
+SET(VTK_DEFAULT_SHADERS_DIR
+   "${VTK_BINARY_DIR}/Utilities/MaterialLibrary/Repository"
+   CACHE INTERNAL 
+   "The directory in which code for Shaders is provided.")
+
+SET(VTK_SHADERS_DIRS 
+  ${VTK_DEFAULT_SHADERS_DIR}
+  CACHE STRING
+  "; separated directories to search for materials/shaders")
+
+MARK_AS_ADVANCED(VTK_SHADERS_DIRS)
+
+  
 # Determine GUI Support.
 VTK_DEPENDENT_OPTION(VTK_USE_GUISUPPORT "Build VTK with GUI Support" OFF
                      "VTK_USE_RENDERING" OFF)
@@ -837,6 +856,7 @@ SUBDIRS(
   Graphics
   GenericFiltering
   IO)
+
 IF(VTK_USE_RENDERING)
   SUBDIRS(Rendering)
   SUBDIRS(VolumeRendering)
@@ -1000,6 +1020,17 @@ IF(VTK_OPENGL_HAS_OSMESA AND VTK_USE_MANGLED_MESA)
     "Off-Screen MESA cannot be used with Mangled MESA.  Turn off either "
     "VTK_OPENGL_HAS_OSMESA or VTK_USE_MANGLED_MESA.")
 ENDIF(VTK_OPENGL_HAS_OSMESA AND VTK_USE_MANGLED_MESA)
+
+#-----------------------------------------------------------------------------
+# Configure CG-Shading support.
+IF(VTK_USE_CG_SHADERS)
+  INCLUDE(${VTK_SOURCE_DIR}/CMake/FindCg.cmake)
+  MARK_AS_ADVANCED(CG_COMPILER CG_INCLUDE_PATH CG_LIBRARY CG_GL_LIBRARY)
+ENDIF(VTK_USE_CG_SHADERS)
+
+#-----------------------------------------------------------------------------
+# Configure GLSL-Shading support.
+# TODO: Should verify that GL2.0 is supported.
 
 #-----------------------------------------------------------------------------
 # Configure Matrox Imaging support.

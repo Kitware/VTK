@@ -41,6 +41,7 @@
 #include "vtkWindow.h"
 
 class vtkFloatArray;
+class vtkPainterDeviceAdapter;
 class vtkRenderWindowInteractor;
 class vtkRenderer;
 class vtkRendererCollection;
@@ -453,6 +454,11 @@ public:
   // precision are there in the zbuffer?
   virtual int GetDepthBufferSize() = 0;
 
+  // Description:
+  // Get the vtkPainterDeviceAdapter which can be used to paint on
+  // this render window.
+  vtkGetObjectMacro(PainterDeviceAdapter, vtkPainterDeviceAdapter);
+
 protected:
   vtkRenderWindow();
   ~vtkRenderWindow();
@@ -461,6 +467,7 @@ protected:
   virtual void DoFDRender();
   virtual void DoAARender();
 
+  vtkPainterDeviceAdapter* PainterDeviceAdapter;
   vtkRendererCollection *Renderers;
   int Borders;
   int FullScreen;

@@ -128,8 +128,9 @@ protected:
   virtual int Parse(const char*, unsigned int);
 
   // Implement parsing methods.
-  void StartElement(const char* name, const char** atts);
-  void EndElement(const char*);
+  virtual void StartElement(const char* name, const char** atts);
+  virtual void EndElement(const char*);
+
   int ParsingComplete();
   int CheckPrimaryAttributes();
   void FindAppendedDataPosition();

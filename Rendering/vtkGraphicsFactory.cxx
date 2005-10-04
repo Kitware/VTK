@@ -17,16 +17,24 @@
 #include "vtkGraphicsFactory.h"
 #include "vtkToolkits.h"
 #include "vtkDebugLeaks.h"
+#include "vtkPainterPolyDataMapper.h"
 
 // if using some sort of opengl, then include these files
 #if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
+#include "vtkOpenGLClipPlanesPainter.h"
+#include "vtkOpenGLCoincidentTopologyResolutionPainter.h"
+#include "vtkOpenGLDisplayListPainter.h"
 #include "vtkOpenGLImageActor.h"
 #include "vtkOpenGLLight.h"
+#include "vtkOpenGLLightingPainter.h"
+#include "vtkOpenGLPainterDeviceAdapter.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRepresentationPainter.h"
+#include "vtkOpenGLScalarsToColorsPainter.h"
 #include "vtkOpenGLTexture.h"
 #endif
 
@@ -62,11 +70,18 @@
 #if defined(VTK_USE_MANGLED_MESA)
 #include "vtkMesaActor.h"
 #include "vtkMesaCamera.h"
+#include "vtkMesaClipPlanesPainter.h"
+#include "vtkMesaCoincidentTopologyResolutionPainter.h"
+#include "vtkMesaDisplayListPainter.h"
 #include "vtkMesaImageActor.h"
 #include "vtkMesaLight.h"
+#include "vtkMesaLightingPainter.h"
+#include "vtkMesaPainterDeviceAdapter.h"
 #include "vtkMesaProperty.h"
 #include "vtkMesaPolyDataMapper.h"
 #include "vtkMesaRenderer.h"
+#include "vtkMesaRepresentationPainter.h"
+#include "vtkMesaScalarsToColorsPainter.h"
 #include "vtkMesaTexture.h"
 #include "vtkXMesaRenderWindow.h"
 #endif
@@ -85,7 +100,7 @@ int vtkGraphicsFactory::OffScreenOnlyMode = 1;
 int vtkGraphicsFactory::OffScreenOnlyMode = 0;
 #endif
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.38");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.39");
 vtkStandardNewMacro(vtkGraphicsFactory);
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
@@ -272,13 +287,77 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     if(strcmp(vtkclassname, "vtkPolyDataMapper") == 0)
       {
+      return vtkPainterPolyDataMapper::New();
+      }
+    if (strcmp(vtkclassname, "vtkPainterDeviceAdapter") == 0)
+      {
 #if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::UseMesaClasses )
         {
-        return vtkMesaPolyDataMapper::New();
+        return vtkMesaPainterDeviceAdapter::New();
         }
 #endif
-      return vtkOpenGLPolyDataMapper::New();
+      return vtkOpenGLPainterDeviceAdapter::New();
+      }
+    if (strcmp(vtkclassname, "vtkScalarsToColorsPainter") == 0)
+      {
+#if defined(VTK_USE_MANGLED_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+        {
+        return vtkMesaScalarsToColorsPainter::New();
+        }
+#endif
+      return vtkOpenGLScalarsToColorsPainter::New();
+      }
+    if (strcmp(vtkclassname, "vtkClipPlanesPainter") == 0)
+      {
+#if defined(VTK_USE_MANGLED_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+        {
+        return vtkMesaClipPlanesPainter::New();
+        }
+#endif
+      return vtkOpenGLClipPlanesPainter::New();
+      }
+    if (strcmp(vtkclassname, "vtkCoincidentTopologyResolutionPainter") == 0)
+      {
+#if defined(VTK_USE_MANGLED_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+        {
+        return vtkMesaCoincidentTopologyResolutionPainter::New();
+        }
+#endif
+      return vtkOpenGLCoincidentTopologyResolutionPainter::New();
+      }
+    if (strcmp(vtkclassname, "vtkDisplayListPainter") == 0)
+      {
+#if defined(VTK_USE_MANGLED_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+        {
+        return vtkMesaDisplayListPainter::New();
+        }
+#endif
+      return vtkOpenGLDisplayListPainter::New();
+      }
+    if (strcmp(vtkclassname, "vtkLightingPainter") == 0)
+      {
+#if defined(VTK_USE_MANGLED_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+        {
+        return vtkMesaLightingPainter::New();
+        }
+#endif
+      return vtkOpenGLLightingPainter::New();
+      }
+    if (strcmp(vtkclassname, "vtkRepresentationPainter") == 0)
+      {
+#if defined(VTK_USE_MANGLED_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+        {
+        return vtkMesaRepresentationPainter::New();
+        }
+#endif
+      return vtkOpenGLRepresentationPainter::New();
       }
     if(strcmp(vtkclassname, "vtkRenderer") == 0)
       {

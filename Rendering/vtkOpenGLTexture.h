@@ -44,6 +44,11 @@ public:
   // render windows is NOT currently supported. 
   void ReleaseGraphicsResources(vtkWindow *);
 
+  
+  // Description:
+  // Get the openGL texture name to which this texture is bound.
+  // This is available only if GL version >= 1.1
+  vtkGetMacro(Index, long);
 protected:
   vtkOpenGLTexture();
   ~vtkOpenGLTexture();
