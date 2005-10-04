@@ -39,7 +39,7 @@
 #include "vtkTriangle.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.2");
+vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.3");
 vtkStandardNewMacro(vtkStandardPolyDataPainter);
 //-----------------------------------------------------------------------------
 static inline int vtkStandardPolyDataPainterGetTotalCells(vtkPolyData* pd,
@@ -223,7 +223,7 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
         }
       
       // Send point centered attributes.
-      for (int attribii = 0; attribii < vtkPointData::NUM_ATTRIBUTES; attribii++)
+      for (attribii = 0; attribii < vtkPointData::NUM_ATTRIBUTES; attribii++)
         {
         vtkDataArray *a = pointData->GetAttribute(attribii);
         if (!a || attribii == vtkPointData::VECTORS || 

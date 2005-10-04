@@ -36,7 +36,7 @@
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.2");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.3");
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_MODE, Integer);
@@ -503,7 +503,7 @@ void vtkScalarsToColorsPainter::MapScalarsToTexture(vtkDataArray* scalars,
 
     // Now create the color texture coordinates.
     int numComps = scalars->GetNumberOfComponents();
-    void* input = scalars->GetVoidPointer(0);
+    void* void_input = scalars->GetVoidPointer(0);
     vtkIdType num = scalars->GetNumberOfTuples();
     vtkFloatArray* dtcoords = vtkFloatArray::New();
     dtcoords->SetNumberOfTuples(num);
@@ -525,7 +525,7 @@ void vtkScalarsToColorsPainter::MapScalarsToTexture(vtkDataArray* scalars,
     switch (scalars->GetDataType())
       {
       vtkTemplateMacro(
-        vtkMapperCreateColorTextureCoordinates(static_cast<VTK_TT*>(input),
+        vtkMapperCreateColorTextureCoordinates(static_cast<VTK_TT*>(void_input),
           output, num, numComps,
           scalarComponent, range)
       );
