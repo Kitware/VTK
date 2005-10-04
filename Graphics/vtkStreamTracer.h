@@ -67,6 +67,7 @@
 
 #include "vtkInitialValueProblemSolver.h" // Needed for constants
 
+class vtkCompositeDataSet;
 class vtkDataArray;
 class vtkDoubleArray;
 class vtkGenericCell;
@@ -278,10 +279,6 @@ public:
   vtkGetMacro(RotationScale, double);
 
   // Description:
-  // Add a dataset to the list inputs
-  void AddInput(vtkDataSet *in);
-
-  // Description:
   void SetInterpolatorPrototype(vtkInterpolatedVelocityField* ivf);
 
 protected:
@@ -312,8 +309,7 @@ protected:
                        double delt,
                        vtkInterpolatedVelocityField* func);
   int CheckInputs(vtkInterpolatedVelocityField*& func,
-                  int* maxCellSize,
-                  vtkInformationVector **inputVector);
+                  int* maxCellSize);
   void GenerateNormals(vtkPolyData* output, double* firstNormal, const char *vecName);
 
   int GenerateNormalsInIntegrate;
@@ -353,6 +349,8 @@ protected:
                         int direction, double cellLength, double speed);
 //ETX
 
+  void SetupOutput(vtkInformation* inInfo, 
+                   vtkInformation* outInfo);
   void InitializeSeeds(vtkDataArray*& seeds,
                        vtkIdList*& seedIds,
                        vtkIntArray*& integrationDirections,
@@ -370,6 +368,8 @@ protected:
   double RotationScale;
 
   vtkInterpolatedVelocityField* InterpolatorPrototype;
+
+  vtkCompositeDataSet* InputData;
 
 private:
   vtkStreamTracer(const vtkStreamTracer&);  // Not implemented.

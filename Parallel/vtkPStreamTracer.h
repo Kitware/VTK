@@ -70,7 +70,7 @@ protected:
   void ReceiveLastPoints(vtkPolyData *output);
   void MoveToNextSend(vtkPolyData *output);
 
-  virtual void ParallelIntegrate(vtkInformationVector **inputVector) = 0;
+  virtual void ParallelIntegrate() = 0;
 
   vtkDataArray* Seeds;
   vtkIdList* SeedIds;

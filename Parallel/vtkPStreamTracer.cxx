@@ -16,6 +16,7 @@
 
 #include "vtkAppendPolyData.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -28,7 +29,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.17");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.18");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -332,6 +333,10 @@ int vtkPStreamTracer::RequestData(
     return retVal;
     }
 
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  this->SetupOutput(inInfo, outInfo);
+
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkDataSet *source = 0;
   if (sourceInfo)
@@ -339,13 +344,12 @@ int vtkPStreamTracer::RequestData(
     source = vtkDataSet::SafeDownCast(
       sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
     }
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkPolyData* output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkInterpolatedVelocityField* func;
   int maxCellSize = 0;
-  if (this->CheckInputs(func, &maxCellSize, inputVector) != VTK_OK)
+  if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
     {
     vtkDebugMacro("No appropriate inputs have been found. Can not execute.");
     func->Delete();
@@ -362,7 +366,7 @@ int vtkPStreamTracer::RequestData(
                         source);
 
   this->TmpOutputs.erase(this->TmpOutputs.begin(), this->TmpOutputs.end());
-  this->ParallelIntegrate(inputVector);
+  this->ParallelIntegrate();
 
   // The parallel integration adds all streamlines to TmpOutputs
   // container. We append them all together here.
@@ -411,6 +415,7 @@ int vtkPStreamTracer::RequestData(
 
   output->Squeeze();
 
+  this->InputData->UnRegister(this);
   return 1;
 }
 

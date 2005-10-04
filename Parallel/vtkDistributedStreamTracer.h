@@ -54,12 +54,11 @@ protected:
                   int lastid, 
                   int lastCellId,
                   int currentLine,
-                  double* firstNormal,
-                  vtkInformationVector **inputVector);
-  int ProcessNextLine(int currentLine, vtkInformationVector **inputVector);
-  int ReceiveAndProcessTask(vtkInformationVector **inputVector);
+                  double* firstNormal);
+  int ProcessNextLine(int currentLine);
+  int ReceiveAndProcessTask();
 
-  virtual void ParallelIntegrate(vtkInformationVector **inputVector);
+  virtual void ParallelIntegrate();
 
 private:
   vtkDistributedStreamTracer(const vtkDistributedStreamTracer&);  // Not implemented.
