@@ -29,7 +29,7 @@
 #include "vtkUnsignedCharArray.h"
 
 
-vtkCxxRevisionMacro(vtkPrimitivePainter, "1.2");
+vtkCxxRevisionMacro(vtkPrimitivePainter, "1.3");
 //-----------------------------------------------------------------------------
 vtkPrimitivePainter::vtkPrimitivePainter()
 {
@@ -103,7 +103,6 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer, vtkActor* act,
   int interpolation;
   float tran;
   vtkProperty *prop;
-  vtkPoints *p;
   vtkUnsignedCharArray *c=NULL;
   vtkDataArray *n;
   vtkDataArray *t;
@@ -128,9 +127,6 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer, vtkActor* act,
   // get the shading interpolation 
   interpolation = prop->GetInterpolation();
 
-  // and draw the display list
-  p = input->GetPoints();
-  
   // are they cell or point scalars
   c = vtkUnsignedCharArray::SafeDownCast(input->GetPointData()->GetScalars());
   if (!c)
