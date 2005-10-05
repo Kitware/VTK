@@ -30,7 +30,7 @@
 #include "vtkScalarsToColorsPainter.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.2")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.3")
 
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
@@ -153,8 +153,8 @@ void vtkPainterPolyDataMapper::UpdatePainterInformation()
   info->Set(vtkCoincidentTopologyResolutionPainter::POLYGON_OFFSET_PARAMETERS(),
     p, 2);
 
-  int immr = (this->ImmediateModeRendering && 
-    vtkMapper::GetGlobalImmediateModeRendering());
+  int immr = (this->ImmediateModeRendering || 
+              vtkMapper::GetGlobalImmediateModeRendering());
   info->Set(vtkDisplayListPainter::IMMEDIATE_MODE_RENDERING(), immr);
 }
 
