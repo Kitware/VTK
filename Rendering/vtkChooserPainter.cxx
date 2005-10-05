@@ -17,13 +17,16 @@
 #include "vtkCommand.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
-#include "vtkInstantiator.h"
+#include "vtkLinesPainter.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointsPainter.h"
 #include "vtkPolyData.h"
+#include "vtkPolygonsPainter.h"
 #include "vtkRenderer.h"
 #include "vtkStandardPolyDataPainter.h"
+#include "vtkTStripsPainter.h"
 
-vtkCxxRevisionMacro(vtkChooserPainter, "1.2");
+vtkCxxRevisionMacro(vtkChooserPainter, "1.3");
 vtkStandardNewMacro(vtkChooserPainter);
 
 vtkCxxSetObjectMacro(vtkChooserPainter, VertPainter, vtkPolyDataPainter);
@@ -145,11 +148,14 @@ void vtkChooserPainter::ChoosePainters(vtkRenderer *renderer)
   if (!this->VertPainter || !this->VertPainter->IsA(vertpaintertype))
     {
     painter = this->CreatePainter(vertpaintertype);
-    this->SetVertPainter(painter);
-    painter->Delete();
-    vtkStandardPolyDataPainter* sp = vtkStandardPolyDataPainter::New();
-    painter->SetDelegatePainter(sp);
-    sp->Delete();
+    if (painter)
+      {
+      this->SetVertPainter(painter);
+      painter->Delete();
+      vtkStandardPolyDataPainter* sp = vtkStandardPolyDataPainter::New();
+      painter->SetDelegatePainter(sp);
+      sp->Delete();
+      }
     }
 
   if (!this->LinePainter || !this->LinePainter->IsA(linepaintertype))
@@ -161,11 +167,14 @@ void vtkChooserPainter::ChoosePainters(vtkRenderer *renderer)
     else
       {
       painter = this->CreatePainter(linepaintertype);
-      this->SetLinePainter(painter);
-      painter->Delete();
-      vtkStandardPolyDataPainter* sp = vtkStandardPolyDataPainter::New();
-      painter->SetDelegatePainter(sp);
-      sp->Delete();
+      if (painter)
+        {
+        this->SetLinePainter(painter);
+        painter->Delete();
+        vtkStandardPolyDataPainter* sp = vtkStandardPolyDataPainter::New();
+        painter->SetDelegatePainter(sp);
+        sp->Delete();
+        }
       }
     }
 
@@ -182,11 +191,14 @@ void vtkChooserPainter::ChoosePainters(vtkRenderer *renderer)
     else
       {
       painter = this->CreatePainter(polypaintertype);
-      this->SetPolyPainter(painter);
-      painter->Delete();
-      vtkStandardPolyDataPainter* sp = vtkStandardPolyDataPainter::New();
-      painter->SetDelegatePainter(sp);
-      sp->Delete();
+      if (painter)
+        {
+        this->SetPolyPainter(painter);
+        painter->Delete();
+        vtkStandardPolyDataPainter* sp = vtkStandardPolyDataPainter::New();
+        painter->SetDelegatePainter(sp);
+        sp->Delete();
+        }
       }
     }
 
@@ -207,11 +219,14 @@ void vtkChooserPainter::ChoosePainters(vtkRenderer *renderer)
     else
       {
       painter = this->CreatePainter(strippaintertype);
-      this->SetStripPainter(painter);
-      painter->Delete();
-      vtkStandardPolyDataPainter* sp = vtkStandardPolyDataPainter::New();
-      painter->SetDelegatePainter(sp);
-      sp->Delete();
+      if (painter)
+        {
+        this->SetStripPainter(painter);
+        painter->Delete();
+        vtkStandardPolyDataPainter* sp = vtkStandardPolyDataPainter::New();
+        painter->SetDelegatePainter(sp);
+        sp->Delete();
+        }
       }
     }
 }
@@ -234,11 +249,27 @@ void vtkChooserPainter::SelectPainters(vtkRenderer *vtkNotUsed(renderer),
 //-----------------------------------------------------------------------------
 vtkPolyDataPainter* vtkChooserPainter::CreatePainter(const char *paintertype)
 {
-  vtkObject* o = vtkInstantiator::CreateInstance(paintertype);
-  vtkPolyDataPainter* p = vtkPolyDataPainter::SafeDownCast(o);
-  if (!p && o)
+  vtkPolyDataPainter* p = 0;
+  if (strcmp(paintertype, "vtkPointsPainter") == 0)
     {
-    o->Delete();
+    p = vtkPointsPainter::New();
+    }
+  else if (strcmp(paintertype, "vtkLinesPainter") == 0)
+    {
+    p = vtkLinesPainter::New();
+    }
+  else if (strcmp(paintertype, "vtkPolygonsPainter") == 0)
+    {
+    p = vtkPolygonsPainter::New();
+    }
+  else if (strcmp(paintertype, "vtkTStripsPainter") == 0)
+    {
+    p = vtkTStripsPainter::New();
+    }
+  else
+    {
+    vtkErrorMacro("Cannot create painter " << paintertype);
+    return 0;
     }
   this->ObserverPainterProgress(p);
   return p;
