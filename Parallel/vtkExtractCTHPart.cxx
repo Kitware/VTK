@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.8");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.9");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -324,7 +324,17 @@ int vtkExtractCTHPart::RequestData(
                                          tmps[idx]);
       }
     }
-  
+
+  //vtkDataArray* cellVolumeFraction;
+  //cellVolumeFraction = input->GetCellData()->GetArray(arrayName);
+  //if (cellVolumeFraction == NULL)
+  //  {
+  //  vtkErrorMacro("Could not find cell array " << arrayName);
+  //  return;
+  //  }
+  //double* range = cellVolumeFraction->GetRange();
+  //cout << "@@@@ Range: " << range[0] << " " range[1] << " midpoint: " << ((range[0] + range[1]) * .5) << endl;
+
   vtkClipPolyData* clip = vtkClipPolyData::New();
   clip->SetValue(CTH_AMR_SURFACE_VALUE);
   vtkClipPolyData *clip2=clip;
@@ -716,7 +726,8 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
     return;
     }
   if (cellVolumeFraction->GetDataType() != VTK_DOUBLE &&
-      cellVolumeFraction->GetDataType() != VTK_FLOAT)
+      cellVolumeFraction->GetDataType() != VTK_FLOAT &&
+      cellVolumeFraction->GetDataType() != VTK_UNSIGNED_CHAR )
     {
     vtkErrorMacro("Expecting volume fraction to be of type float or double.");
     return;
@@ -970,7 +981,8 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
     return;
     }
   if (cellVolumeFraction->GetDataType() != VTK_DOUBLE &&
-      cellVolumeFraction->GetDataType() != VTK_FLOAT)
+      cellVolumeFraction->GetDataType() != VTK_FLOAT &&
+      cellVolumeFraction->GetDataType() != VTK_UNSIGNED_CHAR )
     {
     vtkErrorMacro("Expecting volume fraction to be of type float or double.");
     return;
