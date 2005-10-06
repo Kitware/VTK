@@ -27,6 +27,9 @@
 #include <Carbon/Carbon.h> // Carbon and MAC specific
 #include <AGL/agl.h> // Carbon and MAC specific
 
+class vtkCarbonRenderWindowInternal;
+
+
 class VTK_RENDERING_EXPORT vtkCarbonRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
@@ -62,6 +65,10 @@ public:
   // resources. After having called this, it should be possible to destroy
   // a window that was used for a SetWindowId() call without any ill effects.
   virtual void Finalize();
+
+  // Description:
+  // Create a rendering area in memory.
+  void SetOffScreenRendering(int);
 
   // Description:
   // Change the window to fill the entire screen.
@@ -112,12 +119,12 @@ public:
      }
 
   //BTX
-  virtual void *GetGenericDisplayId() {return NULL;};
-  virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
-  virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
-  virtual AGLContext GetContextId()   {return this->ContextId;};
-  virtual void *GetGenericContext()   {return (void *)this->ContextId;};
-  virtual void SetDisplayId(void *) {};
+  virtual void *GetGenericDisplayId() {return NULL;}
+  virtual void *GetGenericWindowId()  {return (void *)this->WindowId;}
+  virtual void *GetGenericParentId()  {return (void *)this->ParentId;}
+  virtual AGLContext GetContextId();
+  virtual void *GetGenericContext()  {return (void*)this->GetContextId();}
+  virtual void SetDisplayId(void *) {}
 
   virtual void* GetGenericDrawable()
     {
@@ -213,6 +220,8 @@ protected:
   vtkCarbonRenderWindow();
   ~vtkCarbonRenderWindow();
 
+  vtkCarbonRenderWindowInternal* Internal;
+
   int ApplicationInitialized; // Toolboxen initialized?
   Boolean fAcceleratedMust;   // input: must renderer be accelerated?
   Boolean draggable;          // input: is the window draggable?
@@ -222,7 +231,6 @@ protected:
                               //   (if successful otherwise input)
   SInt32 textureRAM;          // input: amount of texture RAM required on card;
                               // output: same (used in allocation)
-  AGLPixelFormat fmt;         // input: none; output pixel format...
   AGLContext ContextId;
   HIViewRef WindowId;
   HIViewRef ParentId;

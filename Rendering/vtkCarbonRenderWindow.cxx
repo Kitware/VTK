@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.39");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.40");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -319,9 +319,39 @@ short FindGDHandleFromWindow (WindowPtr pWindow, GDHandle * phgdOnThisDevice)
     return numDevices;
 }
 
+static void* vtkCreateOSWindow(int width, int height, int pixel_size)
+{
+  return malloc(width*height*pixel_size);
+}
+
+static void vtkDestroyOSWindow(void* win)
+{
+  free(win);
+}
+
+class vtkCarbonRenderWindowInternal
+{
+public:
+  vtkCarbonRenderWindowInternal(vtkRenderWindow* win)
+  {
+    this->OffScreenWindow = NULL;
+    this->OffScreenContextId = NULL;
+    this->ScreenMapped = win->GetMapped();
+    this->ScreenDoubleBuffer = win->GetDoubleBuffer();
+  }
+
+  void* OffScreenWindow;
+  AGLContext OffScreenContextId;
+  AGLPixelFormat OffScreenPixelFmt;
+  int ScreenMapped;
+  int ScreenDoubleBuffer;
+  
+};
+
 //--------------------------------------------------------------------------
 vtkCarbonRenderWindow::vtkCarbonRenderWindow()
 {
+  this->Internal = new vtkCarbonRenderWindowInternal(this);
   this->ApplicationInitialized = 0;
   this->ContextId = 0;
   this->MultiSamples = 8;
@@ -339,6 +369,7 @@ vtkCarbonRenderWindow::vtkCarbonRenderWindow()
 vtkCarbonRenderWindow::~vtkCarbonRenderWindow()
 {
   this->Finalize();
+  delete this->Internal;
 }
 
 //--------------------------------------------------------------------------
@@ -347,7 +378,7 @@ void vtkCarbonRenderWindow::Clean()
   GLuint txId;
 
   /* finish OpenGL rendering */
-  if (this->ContextId)
+  if (this->ContextId || this->Internal->OffScreenContextId)
     {
     this->MakeCurrent();
 
@@ -380,9 +411,20 @@ void vtkCarbonRenderWindow::Clean()
       ren->SetRenderWindow(NULL);
       }
 
-    aglSetCurrentContext(this->ContextId);
-    aglDestroyContext(this->ContextId);
-    this->ContextId = NULL;
+    if(this->Internal->OffScreenContextId)
+      {
+      aglDestroyContext(this->Internal->OffScreenContextId);
+      this->Internal->OffScreenContextId = NULL;
+      vtkDestroyOSWindow(this->Internal->OffScreenWindow);
+      this->Internal->OffScreenWindow = NULL;
+      }
+
+    if(this->ContextId)
+      {
+      aglSetCurrentContext(this->ContextId);
+      aglDestroyContext(this->ContextId);
+      this->ContextId = NULL;
+      }
     }
 }
 
@@ -421,7 +463,7 @@ void vtkCarbonRenderWindow::SetParentId(HIViewRef arg)
 void vtkCarbonRenderWindow::Start()
 {
   // if the renderer has not been initialized, do so now
-  if (!this->ContextId)
+  if (!this->ContextId && !this->Internal->OffScreenContextId)
     {
     this->Initialize();
     }
@@ -433,10 +475,21 @@ void vtkCarbonRenderWindow::Start()
 // --------------------------------------------------------------------------
 void vtkCarbonRenderWindow::MakeCurrent()
 {
-  if (this->ContextId || this->ForceMakeCurrent)
+  if(this->OffScreenRendering && this->Internal->OffScreenContextId)
     {
-    aglSetCurrentContext(this->ContextId);
-    this->ForceMakeCurrent = 0;
+    if((this->Internal->OffScreenContextId != aglGetCurrentContext()) || this->ForceMakeCurrent)
+      {
+      aglSetCurrentContext(this->Internal->OffScreenContextId);
+      this->ForceMakeCurrent = 0;
+      }
+    }
+  else if (this->ContextId || this->ForceMakeCurrent)
+    {
+    if((this->ContextId != aglGetCurrentContext()) || this->ForceMakeCurrent)
+      {
+      aglSetCurrentContext(this->ContextId);
+      this->ForceMakeCurrent = 0;
+      }
     }
 }
 
@@ -572,6 +625,35 @@ void vtkCarbonRenderWindow::SetSize(int x, int y)
     this->Modified();
     this->Size[0] = x;
     this->Size[1] = y;
+    }
+
+  if(this->OffScreenRendering && this->Internal->OffScreenWindow)
+    {
+    vtkRenderer *ren;
+    // Disconnect renderers from this render window.
+    // Done to release graphic resources.
+    vtkCollectionSimpleIterator rit;
+    this->Renderers->InitTraversal(rit);
+    while ( (ren = this->Renderers->GetNextRenderer(rit)) )
+      {
+      ren->SetRenderWindow(NULL);
+      }
+    
+    aglDestroyContext(this->Internal->OffScreenContextId);
+    this->Internal->OffScreenContextId = NULL;
+    vtkDestroyOSWindow(this->Internal->OffScreenWindow);
+    this->Internal->OffScreenWindow = NULL;
+
+    this->WindowInitialize();
+    
+    this->Renderers->InitTraversal(rit);
+    while ( (ren = this->Renderers->GetNextRenderer(rit)) )
+      {
+      ren->SetRenderWindow(this);
+      }
+    }
+  else
+    {
     if (this->Mapped)
       {
       if (!resizing)
@@ -636,11 +718,22 @@ void vtkCarbonRenderWindow::SetPosition(int x, int y)
 // End the rendering process and display the image.
 void vtkCarbonRenderWindow::Frame()
 {
-  if (!this->AbortRender && this->DoubleBuffer)
+  this->MakeCurrent();
+  glFlush();
+  if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
     {
     aglSwapBuffers(this->ContextId);
-    vtkDebugMacro(<< " SwapBuffers\n");
+    vtkDebugMacro(<< " aglSwapBuffers\n");
     }
+}
+  
+AGLContext vtkCarbonRenderWindow::GetContextId()
+{
+  if(this->OffScreenRendering)
+    {
+    return this->Internal->OffScreenContextId;
+    }
+  return this->ContextId;
 }
 
 //--------------------------------------------------------------------------
@@ -758,7 +851,7 @@ void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
   this->fAcceleratedMust = false;  //must renderer be accelerated?
   this->VRAM = 0 * 1048576;    // minimum VRAM
   this->textureRAM = 0 * 1048576;  // minimum texture RAM
-  this->fmt = 0;      // output pixel format
+  AGLPixelFormat fmt = 0;      // output pixel format
   i = 0;
   this->aglAttributes [i++] = AGL_RGBA;
   this->aglAttributes [i++] = AGL_DOUBLEBUFFER;
@@ -817,20 +910,21 @@ void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
   
   if ((!this->draggable && (numDevices == 1)))
     {// not draggable on a single device
-    this->fmt = aglChoosePixelFormat (&hGD, 1, this->aglAttributes);
+    fmt = aglChoosePixelFormat (&hGD, 1, this->aglAttributes);
     }
   else
     {
-    this->fmt = aglChoosePixelFormat (NULL, 0, this->aglAttributes);
+    fmt = aglChoosePixelFormat (NULL, 0, this->aglAttributes);
     }  
   aglReportError (); // cough up any errors encountered
-  if (NULL == this->fmt)
+  if (NULL == fmt)
     {
     vtkErrorMacro("Could not find valid pixel format");
     return;
     }
   
-  this->ContextId = aglCreateContext (this->fmt, 0); // create without sharing
+  this->ContextId = aglCreateContext (fmt, 0); // create without sharing
+  aglDestroyPixelFormat(fmt);
   aglReportError (); // cough up errors
   if (NULL == this->ContextId)
     {
@@ -867,9 +961,48 @@ void vtkCarbonRenderWindow::WindowInitialize()
   width = ((this->Size[0] > 0) ? this->Size[0] : 300);
   
   // create our own window if not already set
-  this->OwnWindow = 0;
-  this->InitializeApplication();
-  this->CreateAWindow(x,y,width,height);
+  if(!this->OffScreenRendering)
+    {
+    this->InitializeApplication();
+    this->OwnWindow = 0;
+    this->CreateAWindow(x,y,width,height);
+    }
+  else
+    {
+    
+    int i=0;
+    GLint attr[50];
+    attr [i++] = AGL_OFFSCREEN;
+    attr [i++] = AGL_RGBA;
+    attr [i++] = AGL_PIXEL_SIZE;
+    attr [i++] = 32;
+    attr [i++] = AGL_DEPTH_SIZE;
+    attr [i++] = 32;
+    if (this->AlphaBitPlanes)
+      {
+      attr [i++] = AGL_ALPHA_SIZE;
+      attr [i++] = 8;
+      }
+    attr [i] = AGL_NONE;
+
+    AGLPixelFormat fmt = aglChoosePixelFormat(NULL, 0, attr);
+    this->Internal->OffScreenContextId = aglCreateContext(fmt, 0);
+    aglDestroyPixelFormat(fmt);
+
+    this->Internal->OffScreenWindow = vtkCreateOSWindow(width, height, 4);
+    this->Size[0] = width;
+    this->Size[1] = height;
+    
+    aglSetOffScreen(this->Internal->OffScreenContextId, 
+                    width, height, width*4,
+                    this->Internal->OffScreenWindow);
+
+    aglSetCurrentContext(this->Internal->OffScreenContextId);
+    
+    this->Mapped = 0;
+    this->OpenGLInit();
+
+    }
 
   // tell our renderers about us
   vtkRenderer* ren;
@@ -890,7 +1023,7 @@ void vtkCarbonRenderWindow::Initialize ()
 {
   // make sure we havent already been initialized
 
-  if (this->ContextId)
+  if (this->ContextId || this->Internal->OffScreenContextId)
     {
     return;
     }
@@ -903,11 +1036,6 @@ void vtkCarbonRenderWindow::Finalize(void)
   if (this->CursorHidden)
     {
       this->ShowCursor();
-    }
-
-  if (this->OffScreenRendering) // does not exist yet
-    {
-      //this->CleanUpOffScreenRendering()
     }
 
   this->Clean();
@@ -924,6 +1052,44 @@ void vtkCarbonRenderWindow::Finalize(void)
   if (this->RootWindow && this->OwnWindow)
     {
       DisposeWindow(this->RootWindow);
+    }
+}
+
+void vtkCarbonRenderWindow::SetOffScreenRendering(int i)
+{
+  if (this->OffScreenRendering == i)
+    {
+    return;
+    }
+  Superclass::SetOffScreenRendering(i);
+  
+  // setup the offscreen area
+  if(i)
+    {
+    this->Internal->ScreenDoubleBuffer = this->DoubleBuffer;
+    this->DoubleBuffer = 0;
+    this->Internal->ScreenMapped = this->Mapped;
+    this->Mapped = 0;
+    if(!this->Internal->OffScreenWindow)
+      {
+      this->WindowInitialize();
+      }
+    }
+  else
+    {
+    if (this->Internal->OffScreenWindow)
+      {
+      aglDestroyContext(this->Internal->OffScreenContextId);
+      this->Internal->OffScreenContextId = NULL;
+      vtkDestroyOSWindow(this->Internal->OffScreenWindow);
+      this->Internal->OffScreenWindow = NULL;
+      }
+    this->DoubleBuffer = this->Internal->ScreenDoubleBuffer;
+    this->Mapped = this->Internal->ScreenMapped;
+    this->MakeCurrent();
+    // reset the size based on the screen window
+    this->GetSize();
+    this->WindowInitialize();
     }
 }
 
@@ -963,9 +1129,10 @@ int *vtkCarbonRenderWindow::GetSize()
 // Get the current size of the screen.
 int *vtkCarbonRenderWindow::GetScreenSize()
 {
-  cout << "Inside vtkCarbonRenderWindow::GetScreenSize - MUST IMPLEMENT\n";
-  this->Size[0] = 0;
-  this->Size[1] = 0;
+  Rect r;
+  GetAvailableWindowPositioningBounds(GetMainDevice(),&r);
+  this->Size[0] = r.right - r.left;
+  this->Size[1] = r.bottom - r.top;
 
   return this->Size;
 }
