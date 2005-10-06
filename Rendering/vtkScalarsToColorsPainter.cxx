@@ -36,7 +36,7 @@
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.3");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.4");
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_MODE, Integer);
@@ -91,6 +91,8 @@ vtkScalarsToColorsPainter::~vtkScalarsToColorsPainter()
     this->ColorTextureMap->UnRegister(this);
     this->ColorTextureMap = NULL;
     }
+
+  this->SetArrayName(0);
 }
 
 //-----------------------------------------------------------------------------
