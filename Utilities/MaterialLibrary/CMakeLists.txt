@@ -141,19 +141,28 @@ ENDIF (VTK_USE_GLSL_SHADERS)
 SET (Materials ${MaterialXMLs}
   )
 
+CONFIGURE_FILE(
+  ${MaterialLibrary_SOURCE_DIR}/vtkMaterialXMLLibrary.h.forcebuild.in
+  ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h.forcebuild
+  @ONLY)
+  
+
 ADD_CUSTOM_COMMAND(
   OUTPUT ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
-  DEPENDS ${MaterialXMLs}
+  DEPENDS ${MaterialXMLs} 
     ProcessShader
+    ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h.forcebuild
   COMMAND ${CMD}
   ARGS ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
   vtkMaterial XML GetXML
-  ${MaterialXMLs})
+  ${MaterialXMLs}
+  )
 
 # Write the MaterialLibraryMacro header file.
 SET (VTK_MATERIAL_LIBRARY_MACRO "#include \"vtkMaterialXMLLibrary.h\"\n")
 SET (VTK_MATERIAL_LIBRARY_MACRO "${VTK_MATERIAL_LIBRARY_MACRO}
 #define vtkMaterialLibraryMacro(name) \\\n")
+
 
 SET (MaterialModules)
 get_modules(MaterialModules "" "${MaterialXMLs}")
