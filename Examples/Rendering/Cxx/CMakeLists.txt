@@ -18,3 +18,5 @@ TARGET_LINK_LIBRARIES(DiffuseSpheres vtkRendering)
 ADD_EXECUTABLE(AmbientSpheres AmbientSpheres.cxx)
 TARGET_LINK_LIBRARIES(AmbientSpheres vtkRendering)
 
+ADD_EXECUTABLE(MaterialObjects MaterialObjects.cxx)
+TARGET_LINK_LIBRARIES(MaterialObjects vtkRendering)
