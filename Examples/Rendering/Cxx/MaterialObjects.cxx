@@ -139,12 +139,13 @@ void gridLayoutActors( vtkstd::vector<vtkActor*> actors )
                     1.25 * (bounds[3]-bounds[2]),
                     1.25 * (bounds[5]-bounds[4])};
 
+
   double dim = ceil( pow( (double)actors.size(), 0.5 ) );
   for( int i=0; i<dim; i++ )
     {
     for( int j=0; j<dim; j++ )
       {
-      int id = i*dim+j;
+      int id = i*(int)dim+j;
       if( (id) < (int)actors.size() )
         {
 #if 0
