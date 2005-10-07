@@ -40,7 +40,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkXMLMaterial);
-vtkCxxRevisionMacro(vtkXMLMaterial, "1.2");
+vtkCxxRevisionMacro(vtkXMLMaterial, "1.3");
 //-----------------------------------------------------------------------------
 vtkXMLMaterial::vtkXMLMaterial()
 {
@@ -58,16 +58,38 @@ vtkXMLMaterial::~vtkXMLMaterial()
 //-----------------------------------------------------------------------------
 vtkXMLMaterial* vtkXMLMaterial::CreateInstance(const char* name)
 {
+  if( !name )
+    {
+    return 0;
+    }
+
+  vtkXMLMaterialParser* parser = vtkXMLMaterialParser::New();
+  vtkXMLMaterial* material = vtkXMLMaterial::New();
+  parser->SetMaterial(material);
+
   char* xml = vtkMaterialLibrary::GetMaterial(name);
+  const char* filename = vtkXMLShader::LocateFile(name);
+
+
+  // First, look for material library files.
+  // Then, look for Repository files.
   if (xml)
     {
-    vtkXMLMaterialParser* parser = vtkXMLMaterialParser::New();
-    vtkXMLMaterial* material = vtkXMLMaterial::New();
-    parser->SetMaterial(material);
     parser->Parse(xml);
+    }
+  else if( filename )
+    {
+    parser->SetFileName( filename );
+    delete [] filename;
+    }
+
+  if( xml || filename )
+    {
+    parser->Parse();
     parser->Delete();
     return material;
     }
+
   return NULL;
 }
 

@@ -67,7 +67,7 @@ public:
   const char** GetArgs();
 
   // Description:
-  // Searches the file in the VTK_SHADERS_DIRS.
+  // Searches the file in the VTK_MATERIALS_DIRS.
   // Note that this allocates new memory for the string.
   // The caller must delete it.
   static char* LocateFile(const char* filename);

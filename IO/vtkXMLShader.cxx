@@ -16,21 +16,21 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkShaderCodeLibrary.h"
-#include "vtkToolkits.h" // for VTK_SHADERS_DIRS.
+#include "vtkToolkits.h" // for VTK_MATERIALS_DIRS.
 #include "vtkXMLDataElement.h"
 
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkXMLShader);
-vtkCxxRevisionMacro(vtkXMLShader, "1.3");
+vtkCxxRevisionMacro(vtkXMLShader, "1.4");
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
 //-----------------------------------------------------------------------------
 vtkXMLShader::vtkXMLShader()
+  : Code(NULL),
+    RootElement(NULL),
+    SourceLibraryElement(NULL),
+    Args(NULL)
 {
-  this->RootElement = 0;
-  this->SourceLibraryElement = 0;
-  this->Code = 0;
-  this->Args = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -92,16 +92,21 @@ void vtkXMLShader::SetRootElement(vtkXMLDataElement* root)
 // the caller.
 char* vtkXMLShader::LocateFile(const char* filename)
 {
+  if(!filename)
+    {
+    return NULL;
+    }
+
   // if filename is absolute path, return the same.
   if (vtksys::SystemTools::FileExists(filename))
     {
     return vtksys::SystemTools::DuplicateString(filename);
     }
 
-#ifdef VTK_SHADERS_DIRS
+#ifdef VTK_MATERIALS_DIRS
   // search thru default paths to locate file.
   vtkstd::vector<vtkstd::string> paths;
-  vtksys::SystemTools::Split(VTK_SHADERS_DIRS, paths, ';');
+  vtksys::SystemTools::Split(VTK_MATERIALS_DIRS, paths, ';');
   for (unsigned int i =0; i < paths.size(); i++)
     {
     vtkstd::string path = paths[i];
@@ -121,7 +126,7 @@ char* vtkXMLShader::LocateFile(const char* filename)
       }
     }
 #endif
-  return 0;
+  return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -178,7 +183,7 @@ int vtkXMLShader::GetScope()
 {
   if (this->RootElement)
     {
-    const char* scope = this->RootElement->GetAttribute("type");
+    const char* scope = this->RootElement->GetAttribute("scope");
     if (!scope)
       {
       vtkErrorMacro("Shader description missing Type attribute.");
@@ -266,17 +271,18 @@ const char* vtkXMLShader::GetCode()
 {
   switch(this->GetLocation())
     {
-  case vtkXMLShader::LOCATION_INLINE:
-    return this->RootElement->GetCharacterData();
-
-  case vtkXMLShader::LOCATION_LIBRARY:
-    // until the ShaderCode library starts providing XMLs, we just return the code.
-    return this->Code;
-  
-  case vtkXMLShader::LOCATION_FILE:
-    return this->Code;
+    case vtkXMLShader::LOCATION_INLINE:
+      return this->RootElement->GetCharacterData();
+      break;
+    case vtkXMLShader::LOCATION_LIBRARY:
+      // until the ShaderCode library starts providing XMLs, we just return the code.
+      return this->Code;
+      break;
+    case vtkXMLShader::LOCATION_FILE:
+      return this->Code;
+      break;
     }
-  return 0;
+    return 0;
 }
 
 
