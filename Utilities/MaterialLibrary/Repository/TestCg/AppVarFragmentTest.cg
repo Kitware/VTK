@@ -1,0 +1,51 @@
+// don't reference TEXCOORD0, it's and alias for POSITION
+void fragment_program( in float4 normal : TEXCOORD1,
+                       in float4 col    : COLOR0,
+                       out float4 color  : COLOR,
+
+                       uniform float3 lightFocalPoint,
+                       uniform float3 lightPosition,
+
+                       uniform float3 cameraFocalPoint,
+                       uniform float3 cameraPosition,
+
+                       // Testing vars
+                       uniform float4 appVara,
+                       uniform float4 appVarb,
+                       uniform float4 appVarc,
+                       uniform float4 appVard,
+                       uniform float4 appVare,
+                       uniform float4 appVarf,
+                       uniform float4 appVarg
+
+                     )
+{
+  float3 lightVec = lightFocalPoint - lightPosition;
+  float3 eyeVec   = cameraFocalPoint - cameraPosition;
+  float ne = dot( normal.xyz, normalize(eyeVec) );
+
+  // Halfway Vector varies once per object
+  float3 H = normalize( lightVec + eyeVec );
+
+  float diffuse = max(0.0, dot(normalize(normal.xyz),normalize(lightVec)));
+
+  // check Vector inputs, object is red upon error conditions
+  if( 0
+    || appVara.x != 0.37714 || appVara.y != 0.61465 || appVara.z != 0.48399 || appVara.w != 0.68252
+    || appVarb.x != 0.03900 || appVarb.y != 0.15857 || appVarb.z != 0.57913 || appVarb.w != 0.54458
+    || appVarc.x != 0.97061 || appVarc.y != 0.86053 || appVarc.z != 0.63583 || appVarc.w != 0.51058
+    || appVard.x != 0.12885 || appVard.y != 0.91490 || appVard.z != 0.86394 || appVard.w != 0.58951
+    || appVare.x != 0.23403 || appVare.y != 0.35340 || appVare.z != 0.52559 || appVare.w != 0.77830
+    || appVarf.x != 0.19550 || appVarf.y != 0.17429 || appVarf.z != 0.89958 || appVarf.w != 0.15063
+    || appVarg.x != 0.75796 || appVarg.y != 0.48072 || appVarg.z != 0.07728 || appVarg.w != 0.16434
+    )
+    {
+    color = float4( 1.0, 0.0, 0.0, 1.0 );
+    }
+  else
+    {
+    color = (0.5 + diffuse) * col;
+    color.a = 1.0;
+    }
+
+}

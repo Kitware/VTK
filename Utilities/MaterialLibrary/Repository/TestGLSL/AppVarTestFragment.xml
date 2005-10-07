@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Material name="Mat1" NumberOfProperties="1" NumberOfVertexShaders="1" NumberOfFragmentShaders="1">>
+
+  <Property name="Property1">
+    <Member name="AmbientColor" number_of_elements="3" type="Double" value="0.75 0.751 0.752"> </Member>
+    <Member name="DiffuseColor" number_of_elements="3" type="Double" value="0.61 0.62 0.006"> </Member>
+    <Member name="SpecularColor" number_of_elements="3" type="Double" value="0.001 0.002 0.61"> </Member>
+
+    <Member name="EdgeColor" number_of_elements="3" type="Double" value="0.1 0.2 0.3"> </Member>
+    <Member name="Ambient" number_of_elements="1" type="Double" value="0.45"> </Member>
+    <Member name="Diffuse" number_of_elements="1" type="Double" value="0.451"> </Member>
+    <Member name="Specular" number_of_elements="1" type="Double" value="0.4"> </Member>
+    <Member name="SpecularPower" number_of_elements="1" type="Double" value="1.0"> </Member>
+    <Member name="Opacity" number_of_elements="1" type="Double" value="1.0"> </Member>
+    <Member name="PointSize" number_of_elements="1" type="Float" value="1.0"> </Member>
+    <Member name="LineWidth" number_of_elements="1" type="Float" value="1.0"> </Member>
+    <Member name="LineStipplePattern" number_of_elements="1"  type="Int" value="0"> </Member>
+    <Member name="LineStippleRepeatFactor" number_of_elements="1"  type="Int" value="1"> </Member>
+    <Member name="Interpolation" number_of_elements="1" type="Int" value="1"> </Member>
+    <Member name="Representation" number_of_elements="1" type="Int" value="2"> </Member>
+    <Member name="EdgeVisibility" number_of_elements="1" type="Int" value="0"> </Member>
+    <Member name="BackfaceCulling" number_of_elements="1" type="Int" value="0"> </Member>
+    <Member name="FrontfaceCulling" number_of_elements="1" type="Int" value="0"> </Member>
+  </Property>
+
+  <Shader scope="Vertex" name="TestGLSLScalarVectorVert" location="TestGLSL/Vertex.glsl" language="GLSL" entry="main" args="-DVERTEX_PROGRAM">
+    <LightUniform  value="Position" name="LightPosition"> </LightUniform>
+  </Shader>
+
+  <Shader scope="Fragment" name="TestAppVarFrag" location="TestGLSL/AppVarTestFragment.glsl" language="GLSL" entry="main" args="-DFRAGMENT_PROGRAM">
+    <!-- these values are for rendering -->
+    <PropertyUniform  value="AmbientColor" name="SurfaceColor"> </PropertyUniform>
+    <PropertyUniform  value="DiffuseColor" name="WarmColor"> </PropertyUniform>
+    <PropertyUniform  value="SpecularColor" name="CoolColor"> </PropertyUniform>
+    <PropertyUniform  value="Ambient" name="DiffuseWarm"> </PropertyUniform>
+    <PropertyUniform  value="Diffuse" name="DiffuseCool"> </PropertyUniform>
+
+    <!-- these values are for testing -->
+    <ApplicationUniform value="appVar1" name="appVara"> </ApplicationUniform>
+    <ApplicationUniform value="appVar2" name="appVarb"> </ApplicationUniform>
+    <ApplicationUniform value="appVar3" name="appVarc"> </ApplicationUniform>
+    <ApplicationUniform value="appVar4" name="appVard"> </ApplicationUniform>
+    <ApplicationUniform value="appVar5" name="appVare"> </ApplicationUniform>
+    <ApplicationUniform value="appVar6" name="appVarf"> </ApplicationUniform>
+    <ApplicationUniform value="appVar7" name="appVarg"> </ApplicationUniform>
+
+  </Shader>
+
+</Material>

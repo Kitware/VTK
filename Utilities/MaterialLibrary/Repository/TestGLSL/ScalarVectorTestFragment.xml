@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Material name="Mat1" NumberOfProperties="1" NumberOfVertexShaders="1" NumberOfFragmentShaders="1">>
+
+  <Property name="Property1">
+    <Member name="AmbientColor" number_of_elements="3" type="Double" value="0.75 0.751 0.752"> </Member>
+    <Member name="DiffuseColor" number_of_elements="3" type="Double" value="0.61 0.62 0.006"> </Member>
+    <Member name="SpecularColor" number_of_elements="3" type="Double" value="0.001 0.002 0.61"> </Member>
+
+    <Member name="EdgeColor" number_of_elements="3" type="Double" value="0.1 0.2 0.3"> </Member>
+    <Member name="Ambient" number_of_elements="1" type="Double" value="0.45"> </Member>
+    <Member name="Diffuse" number_of_elements="1"  type="Double" value="0.451"> </Member>
+    <Member name="Specular" number_of_elements="1"  type="Double" value="0.4"> </Member>
+    <Member name="SpecularPower" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="Opacity" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="PointSize" number_of_elements="1"  type="Float" value="1.0"> </Member>
+    <Member name="LineWidth" number_of_elements="1"  type="Float" value="1.0"> </Member>
+    <Member name="LineStipplePattern" number_of_elements="1"  type="Int" value="0"> </Member>
+    <Member name="LineStippleRepeatFactor" number_of_elements="1"  type="Int" value="1"> </Member>
+    <Member name="Interpolation" number_of_elements="1"  type="Int" value="1"> </Member>
+    <Member name="Representation" number_of_elements="1"  type="Int" value="2"> </Member>
+    <Member name="EdgeVisibility" number_of_elements="1"  type="Int" value="0"> </Member>
+    <Member name="BackfaceCulling" number_of_elements="1"  type="Int" value="0"> </Member>
+    <Member name="FrontfaceCulling" number_of_elements="1"  type="Int" value="0"> </Member>
+  </Property>
+
+  <Shader scope="Vertex" name="TestGLSLScalarVectorVert" location="TestGLSL/Vertex.glsl" language="GLSL" entry="main" args="-DVERTEX_PROGRAM">
+    <LightUniform  value="Position" name="LightPosition"> </LightUniform>
+  </Shader>
+
+
+
+  <Shader scope="Fragment" name="TestGLSLScalarVectorFrag" location="TestGLSL/ScalarVectorTestFragment.glsl" language="GLSL" entry="main" args="-DFRAGMENT_PROGRAM">
+
+    <!-- these values are for rendering -->
+    <PropertyUniform  value="AmbientColor"  name="SurfaceColor"> </PropertyUniform>
+    <PropertyUniform  value="DiffuseColor"  name="WarmColor"> </PropertyUniform>
+    <PropertyUniform  value="SpecularColor" name="CoolColor"> </PropertyUniform>
+    <PropertyUniform  value="Ambient"       name="DiffuseWarm"> </PropertyUniform>
+    <PropertyUniform  value="Diffuse"       name="DiffuseCool"> </PropertyUniform>
+
+    <!-- these values are for testing -->
+    <Uniform type="float" name="testFloat" number_of_elements="1" value="2.63749"> </Uniform>
+
+    <Uniform type="vec2" name="testVec2" number_of_elements="2" value="76.95621 50.41138"> </Uniform>
+    <Uniform type="vec3" name="testVec3" number_of_elements="3" value="76.96096 63.27260 18.99907"> </Uniform>
+    <Uniform type="vec4" name="testVec4" number_of_elements="4" value=" 3.40330 93.71665  3.25358 53.86765"> </Uniform>
+
+    <Uniform type="int"   name="testInt"   number_of_elements="1" value="55"> </Uniform>
+    <Uniform type="ivec2" name="testIVec2" number_of_elements="2" value="33 14"> </Uniform>
+    <Uniform type="ivec3" name="testIVec3" number_of_elements="3" value="13 97 86"> </Uniform>
+    <Uniform type="ivec4" name="testIVec4" number_of_elements="4" value="20 76 36 57"> </Uniform>
+
+    <MatrixUniform type="mat2" name="testMat2" number_of_elements="4" order="ColumnMajor"
+      value="47.50016 77.17215
+             93.53756 26.49386"> </MatrixUniform>
+
+    <MatrixUniform type="mat3" name="testMat3" number_of_elements="9" order="ColumnMajor"
+      value="20.76451 68.89935  1.55911
+             61.52196 24.00890 20.14159
+             12.79913 41.43690 43.70222"> </MatrixUniform>
+
+    <MatrixUniform type="mat4" name="testMat4" number_of_elements="16" order="ColumnMajor"
+      value="78.48394 18.00379 58.96785 39.45659
+             46.36133 20.19386 61.52903 91.34887
+             35.78233 28.60134 23.23688  4.85008
+             94.90575 43.35341 28.75032 64.18256"> </MatrixUniform>
+
+    <Uniform type="float" name="tStruct2.f"  number_of_elements="1" value="80.79816"> </Uniform>
+    <Uniform type="vec2"  name="tStruct2.f2" number_of_elements="2" value="55.42347 84.07679"> </Uniform>
+    <Uniform type="vec3"  name="tStruct2.f3" number_of_elements="3" value="93.45425 17.00968 77.06349"> </Uniform>
+    <Uniform type="vec4"  name="tStruct2.f4" number_of_elements="4" value="44.63571 62.42333 86.14692 1.50092"> </Uniform>
+    <!-- end testing values -->
+
+
+
+  </Shader>
+
+</Material>

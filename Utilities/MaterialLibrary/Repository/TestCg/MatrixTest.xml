@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Material name="Mat1" NumberOfProperties="1" NumberOfVertexShaders="1" NumberOfFragmentShaders="1">>
+
+  <Property name="Property1">
+    <Member name="AmbientColor" number_of_elements="3" type="Double" value="0.75 0.751 0.752"> </Member>
+    <Member name="DiffuseColor" number_of_elements="3" type="Double" value="0.61 0.62 0.006"> </Member>
+    <Member name="SpecularColor" number_of_elements="3" type="Double" value="0.001 0.002 0.61"> </Member>
+
+    <Member name="EdgeColor" number_of_elements="3" type="Double" value="0.1 0.2 0.3"> </Member>
+    <Member name="Ambient" number_of_elements="1" type="Double" value="0.45"> </Member>
+    <Member name="Diffuse" number_of_elements="1"  type="Double" value="0.451"> </Member>
+    <Member name="Specular" number_of_elements="1"  type="Double" value="0.4"> </Member>
+    <Member name="SpecularPower" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="Opacity" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="PointSize" number_of_elements="1"  type="Float" value="1.0"> </Member>
+    <Member name="LineWidth" number_of_elements="1"  type="Float" value="1.0"> </Member>
+    <Member name="LineStipplePattern" number_of_elements="1"  type="Int" value="0"> </Member>
+    <Member name="LineStippleRepeatFactor" number_of_elements="1"  type="Int" value="1"> </Member>
+    <Member name="Interpolation" number_of_elements="1"  type="Int" value="1"> </Member>
+    <Member name="Representation" number_of_elements="1"  type="Int" value="2"> </Member>
+    <Member name="EdgeVisibility" number_of_elements="1"  type="Int" value="0"> </Member>
+    <Member name="BackfaceCulling" number_of_elements="1"  type="Int" value="0"> </Member>
+    <Member name="FrontfaceCulling" number_of_elements="1"  type="Int" value="0"> </Member>
+  </Property>
+
+
+
+  <Shader scope="Vertex" name="Vertex" location="TestCg/Vertex.cg" language="Cg" entry="main" args="-DVERTEX_PROGRAM">
+    <MatrixUniform name="ModelViewProj" type="State" number_of_elements="2"
+      value="CG_GL_MODELVIEW_PROJECTION_MATRIX CG_GL_MATRIX_IDENTITY"> </MatrixUniform>
+    <MatrixUniform name="ModelViewIT" type="State" number_of_elements="2"
+      value="CG_GL_MODELVIEW_MATRIX CG_GL_MATRIX_INVERSE_TRANSPOSE"> </MatrixUniform>
+  </Shader>
+
+
+
+  <Shader scope="Fragment" name="TestMatrixFrag" location="TestCg/MatrixFragmentTest.cg" language="Cg" entry="fragment_program" args="-DFRAGMENT_PROGRAM">
+
+    <!-- these values are for rendering -->
+    <LightUniform  value="Position" name="lightPosition"> </LightUniform>
+    <LightUniform  value="FocalPoint" name="lightFocalPoint"> </LightUniform>
+
+    <CameraUniform  value="Position" name="cameraPosition"> </CameraUniform>
+    <CameraUniform  value="FocalPoint" name="cameraFocalPoint"> </CameraUniform>
+    <!-- end rendering values -->
+
+    <!-- these values are for testing -->
+    <MatrixUniform type="float" name="testFloat4x4" number_of_rows="4" number_of_columns="4" order="RowMajor"
+      number_of_elements="16"
+      value="99.43669 53.27563 31.72327 46.41460
+              3.92156 36.45097 32.70953 62.55845
+              8.42773 55.26141 14.26995 27.33909
+             45.95263 72.71652 74.05554 83.90914"> </MatrixUniform>
+    <MatrixUniform type="double" name="testDouble4x4" number_of_rows="4" number_of_columns="4" order="RowMajor"
+      number_of_elements="16"
+      value="17.68202 20.61210 90.67103 0.10092
+             30.20822 45.71106 59.58049 48.07516
+             92.06191 92.43174 90.71167 39.48975
+             77.99728 51.03002 12.48477 48.91196"> </MatrixUniform>
+    <!-- end testing values -->
+
+  </Shader>
+
+</Material>

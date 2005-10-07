@@ -25,6 +25,16 @@ IF (NOT "${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
   # In that case we don't need to copy anything.
   COPY_FILES_TO_DIR(${MaterialLibrary_SOURCE_DIR}/Repository
     ${VTK_DEFAULT_SHADERS_DIR})
+
+  # copy materials and shaders that test VTK-Cg interface
+  # copy the directory stucture (not just the files) to avoid name clashes
+  COPY_FILES_TO_DIR(${MaterialLibrary_SOURCE_DIR}/Repository/TestCg
+    ${VTK_DEFAULT_SHADERS_DIR}/TestCg)
+
+  # copy materials and shaders that test VTK-GLSL interface
+  # copy the directory stucture (not just the files) to avoid name clashes
+  COPY_FILES_TO_DIR(${MaterialLibrary_SOURCE_DIR}/Repository/TestGLSL
+    ${VTK_DEFAULT_SHADERS_DIR}/TestGLSL)
 ENDIF (NOT "${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
 
 # Build the ShaderCodes Library.
