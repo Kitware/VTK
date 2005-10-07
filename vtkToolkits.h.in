@@ -42,10 +42,10 @@
 #cmakedefine VTK_USE_CG_SHADERS
 #cmakedefine VTK_USE_GLSL_SHADERS
 
-#cmakedefine VTK_SHADERS_DIRS
-#ifdef VTK_SHADERS_DIRS
-#  undef VTK_SHADERS_DIRS
-#  define VTK_SHADERS_DIRS "@VTK_SHADERS_DIRS@"
+#cmakedefine VTK_MATERIALS_DIRS
+#ifdef VTK_MATERIALS_DIRS
+#  undef VTK_MATERIALS_DIRS
+#  define VTK_MATERIALS_DIRS "@VTK_MATERIALS_DIRS@"
 #endif
 
 /*--------------------------------------------------------------------------*/

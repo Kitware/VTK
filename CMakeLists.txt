@@ -183,12 +183,12 @@ SET(VTK_DEFAULT_SHADERS_DIR
    CACHE INTERNAL 
    "The directory in which code for Shaders is provided.")
 
-SET(VTK_SHADERS_DIRS 
+SET(VTK_MATERIALS_DIRS 
   ${VTK_DEFAULT_SHADERS_DIR}
   CACHE STRING
   "; separated directories to search for materials/shaders")
 
-MARK_AS_ADVANCED(VTK_SHADERS_DIRS)
+MARK_AS_ADVANCED(VTK_MATERIALS_DIRS)
 
   
 # Determine GUI Support.
