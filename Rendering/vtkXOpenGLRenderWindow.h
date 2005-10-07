@@ -125,6 +125,10 @@ public:
   // Description:
   // Get the size of the screen in pixels
   virtual int     *GetScreenSize();
+  
+  // Description:
+  // Get the size of the window
+  virtual int     *GetSize();
 
   // Description:
   // Get the position in screen coordinates (pixels) of the window.
