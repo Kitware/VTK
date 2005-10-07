@@ -68,6 +68,25 @@ class CgStateMatrixMap
     // Their destructors are call automatically when this class is destroyed
     }
 
+  bool HaveCGGLenum( vtkstd::string name )
+    {
+    if( this->StateMap.find(name) == this->StateMap.end() )
+      {
+      return 0;
+      }
+    return 1;
+    }
+
+  bool HaveCGGLenum( const char* name )
+    {
+    if(!name)
+      {
+      return 0;
+      }
+    vtkstd::string Name = name;
+    return this->HaveCGGLenum(Name);
+    }
+
   CGGLenum GetCGGLenum( vtkstd::string name )
     {
     return this->StateMap[ name ];
@@ -132,7 +151,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCgShader, "1.3");
+vtkCxxRevisionMacro(vtkCgShader, "1.4");
 vtkStandardNewMacro(vtkCgShader);
 
 //-----------------------------------------------------------------------------
@@ -392,10 +411,15 @@ void vtkCgShader::SetMatrixParameter(const char* name, int , int order,
 }
 
 //-----------------------------------------------------------------------------
-void vtkCgShader::SetMatrixParameter(const char* name, const char* state_matix_type,
+void vtkCgShader::SetMatrixParameter(const char* name, const char* state_matrix_type,
   const char* transform_type)
 {
-  if (transform_type==0)
+  if (!state_matrix_type )
+    {
+    vtkErrorMacro( "state_matrix Type not specified!" );
+    return;
+    }
+  if (!transform_type )
     {
     transform_type = "CG_GL_MATRIX_IDENTITY";
     }
@@ -404,9 +428,20 @@ void vtkCgShader::SetMatrixParameter(const char* name, const char* state_matix_t
     {
     return;
     }
-  cgGLSetStateMatrixParameter(param,
-    this->Internals->StateMatrixMap.GetCGGLenum(state_matix_type),
-    this->Internals->StateMatrixMap.GetCGGLenum(transform_type));
+
+  if( this->Internals->StateMatrixMap.HaveCGGLenum(state_matrix_type) &&
+      this->Internals->StateMatrixMap.HaveCGGLenum(transform_type) )
+    {
+    cgGLSetStateMatrixParameter(param,
+      this->Internals->StateMatrixMap.GetCGGLenum(state_matrix_type),
+      this->Internals->StateMatrixMap.GetCGGLenum(transform_type));
+    }
+  else
+    {
+    vtkErrorMacro( "Can't find state matrix valuse or xforms for : " <<
+                   name << ", " << state_matrix_type << ", " << transform_type << endl );
+    exit(0);
+    }
 }
 
 //-----------------------------------------------------------------------------

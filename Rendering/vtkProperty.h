@@ -242,7 +242,20 @@ public:
   // Get the Shader program. If Material is not set/or not loaded properly,
   // this will return null.
   vtkGetObjectMacro(ShaderProgram, vtkShaderProgram);
- 
+
+  // Description
+  // Provide values to initialize shader variables. This is a conduit to initialize
+  // shader variables that change over time, useful for animation, gui widget inputs,
+  // etc.
+  // name - hardware name of the uniform variable
+  // numVars - number of variables being set
+  // x - values
+  virtual void AddShaderVariable(const char* name, int numVars=0, int* x=NULL);
+  virtual void AddShaderVariable(const char* name, int numVars=0, float* x=NULL);
+  virtual void AddShaderVariable(const char* name, int numVars=0, double* x=NULL);
+
+
+
   // TODO: I am not adding the AddShaderVariable() methods to the
   // property. One must get the shader program and then set the variables.
   // This will keep the user from adding shader variables before

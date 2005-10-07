@@ -133,10 +133,9 @@ protected:
   vtkShader();
   ~vtkShader();
 
-  vtkShaderInternals* Internals;
   vtkXMLShader* XMLShader;
-  int Enable;
-  
+  vtkShaderInternals* Internals;
+
   //BTX
   enum MatrixOrders
     {
@@ -174,6 +173,10 @@ protected:
   // Description:
   // Process <SamplerUniform />
   void SetSamplerParameter(vtkActor*, vtkRenderer*, vtkXMLDataElement*);
+
+  // Description:
+  // Process <ApplicationUniform />
+  void SetApplicationParameter(vtkActor*, vtkRenderer*, vtkXMLDataElement*);
 
   // Description:
   // Equivalent to cgGLSetParameter and glUniform.

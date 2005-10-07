@@ -37,7 +37,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.56");
+vtkCxxRevisionMacro(vtkProperty, "1.57");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -269,27 +269,36 @@ void vtkProperty::RemoveAllTextures()
 //----------------------------------------------------------------------------
 void vtkProperty::LoadMaterial(const char* name)
 {
+  if( !name )
+    {
+    return;
+    }
   this->SetMaterialName(name);
 
   char* filename = vtkXMLShader::LocateFile(name);
   if (filename)
     {
+#if 0
     vtkXMLMaterialReader* reader = vtkXMLMaterialReader::New();
     reader->SetFileName(filename);
     reader->ReadMaterial();
     this->LoadMaterial(reader->GetMaterial());
     reader->Delete();
     delete [] filename;
-    return;
-    }
-  
-  vtkXMLMaterial* material = vtkXMLMaterial::CreateInstance(name);
-  if (material)
-    {
-    // Located material in library. Using it.
-    this->LoadMaterial(material);
-    material->Delete();
-    return;
+#endif
+    vtkXMLMaterial* material = vtkXMLMaterial::CreateInstance(filename);
+    if (material)
+      {
+      // Located material in library. Using it.
+      this->LoadMaterial(material);
+      material->Delete();
+      return;
+      }
+    else
+      {
+      vtkErrorMacro("Failed to create Material from file: " << name);
+      }
+    delete [] filename;
     }
   else
     {
@@ -641,6 +650,42 @@ void vtkProperty::PostRender(vtkActor* actor, vtkRenderer* renderer)
     this->ShaderProgram->PostRender(actor, renderer);
     }
 }
+
+
+
+
+//----------------------------------------------------------------------------
+void vtkProperty::AddShaderVariable(const char* name, int numVars, int* x)
+{
+  if( !this->ShaderProgram )
+    {
+    return;
+    }
+  this->ShaderProgram->AddShaderVariable( name, numVars, x );
+}
+
+//----------------------------------------------------------------------------
+void vtkProperty::AddShaderVariable(const char* name, int numVars, float* x)
+{
+  if( !this->ShaderProgram )
+    {
+    return;
+    }
+  this->ShaderProgram->AddShaderVariable( name, numVars, x );
+}
+
+//----------------------------------------------------------------------------
+void vtkProperty::AddShaderVariable(const char* name, int numVars, double* x)
+{
+  if( !this->ShaderProgram )
+    {
+    return;
+    }
+  this->ShaderProgram->AddShaderVariable( name, numVars, x );
+}
+
+
+
 
 //----------------------------------------------------------------------------
 void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)

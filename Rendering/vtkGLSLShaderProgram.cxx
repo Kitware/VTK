@@ -58,11 +58,13 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.3");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.4");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
 vtkGLSLShaderProgram::vtkGLSLShaderProgram()
+  : Program(0),
+    Info(NULL)
 {
   vtkShader* shader =  vtkGLSLShader::New();
   this->SetVertexShader(shader);
@@ -196,7 +198,8 @@ void vtkGLSLShaderProgram::GetProgramInfo()
 
   if( info )
     {
-    infoString += (char *)info;
+    infoString += static_cast<char*>(info);
+    infoString += "\n";
     }
 
   if( infoString.empty() )
@@ -278,11 +281,11 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
 {
   this->LoadExtensions( renderer->GetRenderWindow() );
 
+  // Get a gl identifier for the shader program if we don't already have one.
   if( vtkgl::IsProgram(static_cast<GLuint>(this->Program)) == GL_FALSE )
     {
     this->Program = static_cast<unsigned int>(vtkgl::CreateProgram());
     }
-  printOpenGLError();
   
   if( vtkgl::IsProgram(static_cast<GLuint>(this->Program)) == GL_FALSE )
     {
@@ -290,7 +293,6 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
     return;
     }
 
-  int attached_shader_count = 0;
   if (this->VertexShader)
     {
     if (this->VertexShader->Compile())
@@ -299,11 +301,9 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
         {
         vtkgl::AttachShader( static_cast<GLuint>(this->Program), 
           this->GetGLSLVertex()->GetHandle() );
-        attached_shader_count++;
         }
       }
     }
-  printOpenGLError();
 
   if (this->FragmentShader)
     {
@@ -313,37 +313,28 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
         {
         vtkgl::AttachShader(static_cast<GLuint>(this->Program), 
           this->GetGLSLFragment()->GetHandle());
-        attached_shader_count++;
         }
       }
-    }
-  printOpenGLError();
-
-  if (attached_shader_count>0)
-    {
-    // if either a vertex or a fragment program is attached (or both)
-    // link program.
-    vtkgl::LinkProgram(static_cast<GLuint>(this->Program));
     }
 
   if( !this->IsLinked() )
     {
-    this->GetProgramInfo();
-    if( this->GetInfo() )
+    // if either a vertex or a fragment program is attached (or both)
+    // link the program.
+    GLint numObjects = 0;
+    vtkgl::GetProgramiv( static_cast<GLuint>(this->Program),
+      vtkgl::OBJECT_ATTACHED_OBJECTS_ARB, &numObjects );
+    if (numObjects>0)
       {
-      vtkErrorMacro( "GLSL Program is not linked." << this->GetInfo() << endl );
-      }
-    else
-      {
-      vtkErrorMacro( "GLSL Program is not linked." << endl );
+      vtkgl::LinkProgram(static_cast<GLuint>(this->Program));
       }
     }
-  else
+
+  if( this->IsLinked() )
     {
     // check to see if this is the active program
     vtkgl::UseProgram(static_cast<GLuint>(this->Program));
     }
-  printOpenGLError();
 
   // handle attributes and uniform variables
   // uniform variables

@@ -48,15 +48,37 @@ static inline int vtkShaderGetType(const char* type)
     {
     return 0;
     }
-  if (strcmp(type,"Double")==0)
+  if (strcmp(type,"double")==0 ||
+      strcmp(type,"double1")==0 ||
+      strcmp(type,"double2")==0 ||
+      strcmp(type,"double3")==0 ||
+      strcmp(type,"double4")==0 )
     {
     return VTK_DOUBLE;
     }
-  if (strcmp(type, "Float")==0)
+
+  // XML attributes should reflect native shader types
+  if (strcmp(type, "float")==0  ||
+      strcmp(type, "float1")==0 ||
+      strcmp(type, "float2")==0 ||
+      strcmp(type, "float3")==0 ||
+      strcmp(type, "float4")==0 ||
+
+      strcmp(type, "vec1")==0 ||
+      strcmp(type, "vec2")==0 ||
+      strcmp(type, "vec3")==0 ||
+      strcmp(type, "vec4")==0 ||
+
+      strcmp(type, "mat2")==0 ||
+      strcmp(type, "mat3")==0 ||
+      strcmp(type, "mat4")==0  )
     {
     return VTK_FLOAT;
     }
-  if (strcmp(type, "Int") == 0)
+  if (strcmp(type, "int")==0 ||
+      strcmp(type, "ivec2")==0 ||
+      strcmp(type, "ivec3")==0 ||
+      strcmp(type, "ivec4")==0 )
     {
     return VTK_INT;
     }
@@ -68,16 +90,26 @@ class vtkShaderUniformVariable
 {
 public:
   vtkShaderUniformVariable()
+    : Name(),
+      NumberOfValues(0),
+      Type(0),
+      IntValues(NULL),
+      FloatValues(NULL),
+      DoubleValues(NULL)
     {
-    this->Initialize();    
     }
 
   vtkShaderUniformVariable(const char* name, int num, const int* val)
+    : Name(),
+      NumberOfValues(0),
+      Type(0),
+      IntValues(NULL),
+      FloatValues(NULL),
+      DoubleValues(NULL)
     {
-    this->Initialize();
     this->SetName(name);
-    this->Type = VTK_INT;
     this->NumberOfValues = num;
+    this->Type = VTK_INT;
     this->IntValues = new int[num];
     for (int i=0; i < num; i++)
       {
@@ -86,11 +118,16 @@ public:
     }
 
   vtkShaderUniformVariable(const char* name, int num, const double* val)
+    : Name(),
+      NumberOfValues(0),
+      Type(0),
+      IntValues(NULL),
+      FloatValues(NULL),
+      DoubleValues(NULL)
     {
-    this->Initialize();
     this->SetName(name);
-    this->Type = VTK_DOUBLE;
     this->NumberOfValues = num;
+    this->Type = VTK_DOUBLE;
     this->DoubleValues = new double[num];
     for (int i=0; i < num; i++)
       {
@@ -99,11 +136,16 @@ public:
     }
 
   vtkShaderUniformVariable(const char* name, int num, const float* val)
+    : Name(),
+      NumberOfValues(0),
+      Type(0),
+      IntValues(NULL),
+      FloatValues(NULL),
+      DoubleValues(NULL)
     {
-    this->Initialize();
     this->SetName(name);
-    this->Type = VTK_FLOAT;
     this->NumberOfValues = num;
+    this->Type = VTK_FLOAT;
     this->FloatValues = new float[num];
     for (int i=0; i < num; i++)
       {
@@ -111,69 +153,130 @@ public:
       }
     }
 
-  int GetType() { return this->Type; }
-  int GetNumberOfValues() { return this->NumberOfValues; }
+  // A copy constructor is required to use a class as
+  // a map value.
+  vtkShaderUniformVariable(const vtkShaderUniformVariable& x)
+    {
+    this->SetName( x.GetName() );
+    this->NumberOfValues = x.GetNumberOfValues();
+    this->Type = x.GetType();
+    this->IntValues = NULL;
+    this->FloatValues = NULL;
+    this->DoubleValues = NULL;
+    if ( (this->Type == VTK_INT) && (this->NumberOfValues > 0) )
+      {
+      this->IntValues = new int[this->NumberOfValues];
+      x.GetValue( this->IntValues );
+      }
+    else if ( (this->Type == VTK_FLOAT) && (this->NumberOfValues > 0) )
+      {
+      this->FloatValues = new float[this->NumberOfValues];
+      x.GetValue( this->FloatValues );
+      }
+    else if ( (this->Type == VTK_DOUBLE) && (this->NumberOfValues > 0) )
+      {
+      this->DoubleValues = new double[this->NumberOfValues];
+      x.GetValue( this->DoubleValues );
+      }
+    }
 
-  int GetValue(int *a)
+  // Don't allow the default assignment operator to copy pointers
+  // that might be made invalid later if the original objects move,
+  // for instance, in a map operation.
+  void operator=(const vtkShaderUniformVariable& x)
     {
-    if (this->Type != VTK_INT)
+    this->SetName( x.GetName() );
+    this->NumberOfValues = x.GetNumberOfValues();
+    this->Type = x.GetType();
+    this->IntValues = NULL;
+    this->FloatValues = NULL;
+    this->DoubleValues = NULL;
+    if ( (this->Type == VTK_INT) && (this->NumberOfValues > 0) )
       {
-      return 0;
+      this->IntValues = new int[this->NumberOfValues];
+      x.GetValue( this->IntValues );
       }
-    for (int i=0; i < this->NumberOfValues; i++)
+    else if ( (this->Type == VTK_FLOAT) && (this->NumberOfValues > 0) )
       {
-      a[i] = this->IntValues[i];
+      this->FloatValues = new float[this->NumberOfValues];
+      x.GetValue( this->FloatValues );
       }
-    return 1;
+    else if ( (this->Type == VTK_DOUBLE) && (this->NumberOfValues > 0) )
+      {
+      this->DoubleValues = new double[this->NumberOfValues];
+      x.GetValue( this->DoubleValues );
+      }
     }
-  
-  int GetValue(float *a)
+
+
+
+  int GetType() const { return this->Type; }
+  int GetNumberOfValues() const { return this->NumberOfValues; }
+
+  int GetValue(int *a) const
     {
-    if (this->Type != VTK_FLOAT)
+    if( (this->Type == VTK_INT) && this->IntValues )
       {
-      return 0;
+      for (int i=0; i < this->NumberOfValues; i++)
+        {
+        a[i] = this->IntValues[i];
+        }
+      return 1;
       }
-    for (int i=0; i < this->NumberOfValues; i++)
-      {
-      a[i] = this->FloatValues[i];
-      }
-    return 1;
+    return 0;
     }
-  
-  int GetValue(double *a)
+
+  int GetValue(float *a) const
     {
-    if (this->Type != VTK_DOUBLE)
+    if( (this->Type == VTK_FLOAT) && this->FloatValues )
       {
-      return 0;
+      for (int i=0; i < this->NumberOfValues; i++)
+        {
+        a[i] = this->FloatValues[i];
+        }
+      return 1;
       }
-    for (int i=0; i < this->NumberOfValues; i++)
-      {
-      a[i] = this->DoubleValues[i];
-      }
-    return 1;
+    return 0;
     }
+
+  int GetValue(double *a) const
+    {
+    if( (this->Type == VTK_DOUBLE) && this->DoubleValues )
+      {
+      for (int i=0; i < this->NumberOfValues; i++)
+        {
+        a[i] = this->DoubleValues[i];
+        }
+      return 1;
+      }
+    return 0;
+    }
+
+
 
   ~vtkShaderUniformVariable()
     {
-    this->SetName(0);
     if (this->IntValues)
       {
       delete [] this->IntValues;
+      this->IntValues = NULL;
       }
     if (this->FloatValues)
       {
       delete [] this->FloatValues;
+      this->FloatValues = NULL;
       }
     if (this->DoubleValues)
       {
       delete [] this->DoubleValues;
+      this->DoubleValues = NULL;
       }
     }
 
   void Print(ostream& os, vtkIndent indent)
     {
     int i;
-    os << indent << "Name: " << ((this->Name)? this->Name : "(none)") << endl;
+    os << indent << "Name: " << ((this->GetName())? this->GetName() : "(none)") << endl;
     os << indent << "NumberOfValues: " << this->NumberOfValues;
     switch (this->Type)
       {
@@ -207,29 +310,20 @@ public:
       }
     }
 
-private:
-  void Initialize()
+  char* GetName() const
     {
-    this->Name = 0;
-    this->Type = 0;
-    this->NumberOfValues = 0;
-    this->IntValues = 0;
-    this->FloatValues = 0;
-    this->DoubleValues = 0;
+    return vtksys::SystemTools::DuplicateString(this->Name.c_str());
     }
   void SetName(const char* name)
     {
-    if (this->Name)
-      {
-      delete [] this->Name;
-      this->Name = 0;
-      }
     if (name)
       {
-      this->Name = vtksys::SystemTools::DuplicateString(name);
+      this->Name.clear();
+      this->Name = name;
       }
     }
-  char* Name;
+private:
+  vtkstd::string Name;
   int NumberOfValues;
   int Type;
   int* IntValues;
@@ -246,7 +340,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.3")
+vtkCxxRevisionMacro(vtkShader, "1.4")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -265,9 +359,21 @@ vtkShader::~vtkShader()
 //-----------------------------------------------------------------------------
 void vtkShader::PassShaderVariables(vtkActor* actor, vtkRenderer* renderer)
 {
-  this->SetShaderParameters(actor, renderer, 
-    this->XMLShader->GetRootElement());
-  this->PassShaderVariablesTime.Modified();
+  if( !this->XMLShader )
+    {
+    return;
+    }
+
+  if( !this->XMLShader->GetRootElement() )
+    {
+    return;
+    }
+
+  if( this->XMLShader->GetRootElement() )
+    {
+    this->SetShaderParameters(actor, renderer, this->XMLShader->GetRootElement());
+    this->PassShaderVariablesTime.Modified();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -278,7 +384,7 @@ int vtkShader::HasShaderVariable(const char* name)
     return 0;
     }
   if (this->Internals->UniformVariables.find(name) !=
-    this->Internals->UniformVariables.end())
+      this->Internals->UniformVariables.end())
     {
     return 1;
     }
@@ -329,6 +435,7 @@ void vtkShader::AddShaderVariable(const char* name, int num_of_elements,
 {
   if (!name || num_of_elements <= 0 || !values)
     {
+    vtkWarningMacro("Need more info to build a Shader Variables!");
     return;
     }
   if (this->HasShaderVariable(name))
@@ -405,6 +512,7 @@ void vtkShader::SetShaderParameters(vtkActor* actor, vtkRenderer* renderer,
     return;
     }
 
+
   int max = root->GetNumberOfNestedElements();
   for (int i=0; i < max; i++)
     {
@@ -413,7 +521,7 @@ void vtkShader::SetShaderParameters(vtkActor* actor, vtkRenderer* renderer,
     const char* name = elem->GetAttribute("name");
     if (!name)
       {
-      vtkErrorMacro("Uniform parameter missing required attribute 'name'");
+      vtkErrorMacro("Uniform parameter missing required attribute 'name' " << *elem);
       continue;
       }
 
@@ -448,6 +556,10 @@ void vtkShader::SetShaderParameters(vtkActor* actor, vtkRenderer* renderer,
       {
       this->SetSamplerParameter(actor, renderer, elem);
       }
+    else if (strcmp(tagname, "ApplicationUniform") == 0)
+      {
+      this->SetApplicationParameter(actor, renderer, elem);
+      }
     else
       {
       vtkErrorMacro("Invalid tag: " << tagname);
@@ -473,11 +585,10 @@ void vtkShader::SetUniformParameter(vtkActor* , vtkRenderer* ,
     return;
     }
 
-  int number_of_elements;
-
+  int number_of_elements = 0;
   if (!elem->GetScalarAttribute("number_of_elements", number_of_elements))
     {
-    vtkErrorMacro("Missing return attribute 'number_of_elements'");
+    vtkErrorMacro("Missing return attribute 'number_of_elements' " << name );
     return;
     }
 
@@ -898,6 +1009,8 @@ void vtkShader::SetLightParameter(vtkActor* , vtkRenderer* renderer,
 
 
 //-----------------------------------------------------------------------------
+// FIXME: Cg allows non-square matrices to be set and program parameters, that
+// should be reflected here as well, but I'm not sure just how.
 void vtkShader::SetMatrixParameter(vtkActor* , vtkRenderer* , 
   vtkXMLDataElement* elem)
 {
@@ -910,6 +1023,8 @@ void vtkShader::SetMatrixParameter(vtkActor* , vtkRenderer* ,
     }
   
   // TODO: for starters, matrices can't be set as Shader Variables.
+  // Matrices CAN be set as shader variables, specifically, they can
+  // be used as uniform variables to both fragment and vertex programs.
   const char* cvalue = elem->GetAttribute("value");
   if (!cvalue)
     {
@@ -931,6 +1046,8 @@ void vtkShader::SetMatrixParameter(vtkActor* , vtkRenderer* ,
     order = vtkShader::ColumnMajor;
     }
     
+  // FIXME : 'State' is only meaningful in a Cg context, so it should be in
+  // vtkCgShader and not in vtkShader
   if (strcmp(type, "State") == 0)
     {
     vtkstd::vector<vtkstd::string> args;
@@ -949,7 +1066,10 @@ void vtkShader::SetMatrixParameter(vtkActor* , vtkRenderer* ,
   else
     {
 
-    if (strcmp(type, "Float") == 0)
+    if ( (strcmp(type, "float")==0) ||
+         (strcmp(type,"mat2")==0) ||
+         (strcmp(type,"mat3")==0) ||
+         (strcmp(type,"mat4")==0) )
       {
       float *v = new float[number_of_elements];
       if (elem->GetVectorAttribute("value",number_of_elements, v))
@@ -962,7 +1082,7 @@ void vtkShader::SetMatrixParameter(vtkActor* , vtkRenderer* ,
         }
       delete [] v;
       }
-    else if (strcmp(type, "Double") == 0)
+    else if (strcmp(type, "double") == 0)
       {
       double *v = new double[number_of_elements];
       if (elem->GetVectorAttribute("value",number_of_elements, v))
@@ -1013,6 +1133,69 @@ void vtkShader::SetSamplerParameter(vtkActor* act, vtkRenderer*,
   
   this->SetSamplerParameter(name, texture);
 }
+//-----------------------------------------------------------------------------
+void vtkShader::SetApplicationParameter(vtkActor* act, vtkRenderer*, 
+  vtkXMLDataElement* elem)
+{
+  // 'name' is the variable name in the hardware shader program.
+  const char* name = elem->GetAttribute("name");
+  if (!name)
+    {
+    vtkErrorMacro("Missing required attribute 'name' on element.");
+    return;
+    }
+
+  // 'value' is the variable name in the application.
+  const char* value = elem->GetAttribute("value");
+  if (!value)
+    {
+    vtkErrorMacro("Missing required attribute 'value' on element "
+      "with name=" << name);
+    return;
+    }
+
+  // check to see if the application has set a variable named 'value'
+  // If it exists, set it as a uniform parameter
+  if( this->HasShaderVariable(value) )
+    {
+    vtkShaderUniformVariable var = this->Internals->UniformVariables.find(value)->second;
+    if( var.GetType() == VTK_INT )
+      {
+      int x[var.GetNumberOfValues()];
+      if( var.GetValue(x)==1 );
+        {
+        this->SetUniformParameter( name,
+                                   var.GetNumberOfValues(),
+                                   x);
+        }
+      }
+    else if( var.GetType() == VTK_FLOAT )
+      {
+      float x[var.GetNumberOfValues()];
+      if( var.GetValue(x)==1 );
+        {
+        this->SetUniformParameter( name,
+                                   var.GetNumberOfValues(),
+                                   x);
+        }
+      }
+    else if( var.GetType() == VTK_DOUBLE )
+      {
+      double x[var.GetNumberOfValues()];
+      if( var.GetValue(x)==1 );
+        {
+        this->SetUniformParameter( name,
+                                   var.GetNumberOfValues(),
+                                   x);
+        }
+      }
+    }
+  else
+    {
+    cout << name << " is not an application variable." << endl;
+    }
+}
+
 
 //-----------------------------------------------------------------------------
 void vtkShader::PrintSelf(ostream &os, vtkIndent indent)

@@ -66,6 +66,7 @@ static void printLogInfo( GLuint shader, const char* filename)
 {
 #if 1
   GLint type = 0;
+  // Check language
   vtkgl::GetShaderiv( shader, vtkgl::OBJECT_TYPE_ARB, &type);
   if( type == vtkgl::SHADER_OBJECT_ARB )
     {
@@ -76,6 +77,7 @@ static void printLogInfo( GLuint shader, const char* filename)
     cout << "Not a GLSL Program!!!." << endl;
     }
 
+  // Check scope
   vtkgl::GetShaderiv( shader, vtkgl::OBJECT_SUBTYPE_ARB, &type);
   if( type == vtkgl::VERTEX_SHADER_ARB )
     {
@@ -161,7 +163,7 @@ static void printAttributeInfo(GLuint program, const char* vtkNotUsed(filename))
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLSLShader);
-vtkCxxRevisionMacro(vtkGLSLShader, "1.3");
+vtkCxxRevisionMacro(vtkGLSLShader, "1.4");
 
 //-----------------------------------------------------------------------------
 vtkGLSLShader::vtkGLSLShader()
@@ -238,6 +240,14 @@ void vtkGLSLShader::LoadShader()
 //-----------------------------------------------------------------------------
 int vtkGLSLShader::Compile()
 {
+  if (this->IsCompiled())
+    {
+    return 1;
+    }
+
+  // Later, an XMLShader may not be necessary if the source is set by the
+  // application.
+  // For now, we need an XMLShader
   if (!this->XMLShader)
     {
     return 0;
@@ -297,6 +307,10 @@ int vtkGLSLShader::Compile()
 void vtkGLSLShader::SetUniformParameter(const char* name, int numValues, 
   const int* values)
 {
+  if( !this->IsShader() )
+    {
+    return;
+    }
   GLint loc = static_cast<GLint>(this->GetUniformLocation(name));
   if (loc == -1)
     {
@@ -325,6 +339,10 @@ void vtkGLSLShader::SetUniformParameter(const char* name, int numValues,
 void vtkGLSLShader::SetUniformParameter(const char* name, int numValues, 
   const float* values)
 {
+  if( !this->IsShader() )
+    {
+    return;
+    }
   GLint loc = static_cast<GLint>(this->GetUniformLocation(name));
   if (loc == -1)
     {
@@ -353,6 +371,10 @@ void vtkGLSLShader::SetUniformParameter(const char* name, int numValues,
 void vtkGLSLShader::SetUniformParameter(const char* name, int numValues, 
   const double* values)
 {
+  if( !this->IsShader() )
+    {
+    return;
+    }
   float* fvalues = new float [numValues];
 
   for (int i=0; i<numValues; i++)
@@ -367,7 +389,11 @@ void vtkGLSLShader::SetUniformParameter(const char* name, int numValues,
 void vtkGLSLShader:: SetMatrixParameter(const char* name, int numValues, 
   int order, const float* value)
 {
-  int transpose = (order == vtkShader::RowMajor)? 1: 0;
+  if( !this->IsShader() )
+    {
+    return;
+    }
+  int transpose = (order == vtkShader::RowMajor) ? 1 : 0;
 
   GLint loc = static_cast<GLint>(this->GetUniformLocation(name));
   if (loc == -1)
@@ -394,6 +420,10 @@ void vtkGLSLShader:: SetMatrixParameter(const char* name, int numValues,
 void vtkGLSLShader:: SetMatrixParameter(const char* name, int numValues, 
   int order, const double* value)
 {
+  if( !this->IsShader() )
+    {
+    return;
+    }
   float *v = new float[numValues];
   for (int i=0; i < numValues; i++)
     {
@@ -407,12 +437,20 @@ void vtkGLSLShader:: SetMatrixParameter(const char* name, int numValues,
 //-----------------------------------------------------------------------------
 void vtkGLSLShader::SetMatrixParameter(const char*, const char*, const char*)
 {
+  if( !this->IsShader() )
+    {
+    return;
+    }
   vtkErrorMacro("GLSL does not support any system matrices!");
 }
 
 //-----------------------------------------------------------------------------
 void vtkGLSLShader::SetSamplerParameter(const char* name, vtkTexture* texture)
 {
+  if( !this->IsShader() )
+    {
+    return;
+    }
   vtkOpenGLTexture* glTexture = vtkOpenGLTexture::SafeDownCast(texture);
   if (glTexture)
     {
@@ -424,6 +462,10 @@ void vtkGLSLShader::SetSamplerParameter(const char* name, vtkTexture* texture)
 //-----------------------------------------------------------------------------
 int vtkGLSLShader::GetUniformLocation( const char* name )
 {
+  if( !this->IsShader() )
+    {
+    return -1;
+    }
   if( !name )
     {
     vtkErrorMacro( "NULL uniform shader parameter name.");
