@@ -339,7 +339,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.5")
+vtkCxxRevisionMacro(vtkShader, "1.6")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -1161,7 +1161,7 @@ void vtkShader::SetApplicationParameter(vtkActor* act, vtkRenderer*,
     if( var.GetType() == VTK_INT )
       {
       vtkstd::vector<int> x(4,0);
-      if( var.GetValue(&x[0])==1 );
+      if( var.GetValue(&x[0])==1 )
         {
         this->SetUniformParameter( name,
                                    var.GetNumberOfValues(),
@@ -1171,7 +1171,7 @@ void vtkShader::SetApplicationParameter(vtkActor* act, vtkRenderer*,
     else if( var.GetType() == VTK_FLOAT )
       {
       vtkstd::vector<float> x(4,0.0);
-      if( var.GetValue(&x[0])==1 );
+      if( var.GetValue(&x[0])==1 )
         {
         this->SetUniformParameter( name,
                                    var.GetNumberOfValues(),
@@ -1181,7 +1181,7 @@ void vtkShader::SetApplicationParameter(vtkActor* act, vtkRenderer*,
     else if( var.GetType() == VTK_DOUBLE )
       {
       vtkstd::vector<double> x(4,0.0);
-      if( var.GetValue(&x[0])==1 );
+      if( var.GetValue(&x[0])==1 )
         {
         this->SetUniformParameter( name,
                                    var.GetNumberOfValues(),
