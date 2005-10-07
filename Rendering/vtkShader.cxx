@@ -318,7 +318,6 @@ public:
     {
     if (name)
       {
-      this->Name.clear();
       this->Name = name;
       }
     }
@@ -340,7 +339,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.4")
+vtkCxxRevisionMacro(vtkShader, "1.5")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -1161,32 +1160,32 @@ void vtkShader::SetApplicationParameter(vtkActor* act, vtkRenderer*,
     vtkShaderUniformVariable var = this->Internals->UniformVariables.find(value)->second;
     if( var.GetType() == VTK_INT )
       {
-      int x[var.GetNumberOfValues()];
-      if( var.GetValue(x)==1 );
+      vtkstd::vector<int> x(4,0);
+      if( var.GetValue(&x[0])==1 );
         {
         this->SetUniformParameter( name,
                                    var.GetNumberOfValues(),
-                                   x);
+                                   &x[0]);
         }
       }
     else if( var.GetType() == VTK_FLOAT )
       {
-      float x[var.GetNumberOfValues()];
-      if( var.GetValue(x)==1 );
+      vtkstd::vector<float> x(4,0.0);
+      if( var.GetValue(&x[0])==1 );
         {
         this->SetUniformParameter( name,
                                    var.GetNumberOfValues(),
-                                   x);
+                                   &x[0]);
         }
       }
     else if( var.GetType() == VTK_DOUBLE )
       {
-      double x[var.GetNumberOfValues()];
-      if( var.GetValue(x)==1 );
+      vtkstd::vector<double> x(4,0.0);
+      if( var.GetValue(&x[0])==1 );
         {
         this->SetUniformParameter( name,
                                    var.GetNumberOfValues(),
-                                   x);
+                                   &x[0]);
         }
       }
     }
