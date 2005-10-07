@@ -210,6 +210,10 @@ protected:
   vtkClipPolyData *RClip1;
   vtkCutter *RCut;
   vtkClipPolyData *RClip2;
+
+  void EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkHierarchicalDataSet* input);
+  int VolumeFractionType;
+  double VolumeFractionSurfaceValue;
   
   double Bounds[6]; // Whole bounds (dataset over all the processors)
   
