@@ -89,7 +89,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.56");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.57");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -485,6 +485,8 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
         }
       }
     this->Mapped = 0;
+    this->Size[0] = width;
+    this->Size[1] = height;
     }
 
   // tell our renderers about us
