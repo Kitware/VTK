@@ -176,7 +176,7 @@ protected:
 
   // Description:
   // Process <ApplicationUniform />
-  void SetApplicationParameter(vtkActor*, vtkRenderer*, vtkXMLDataElement*);
+  void SetApplicationParameter(vtkXMLDataElement*);
 
   // Description:
   // Equivalent to cgGLSetParameter and glUniform.
