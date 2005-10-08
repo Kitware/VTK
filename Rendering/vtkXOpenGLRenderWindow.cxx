@@ -89,7 +89,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.55");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.56");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -465,7 +465,7 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
       {
       if(!this->Internal->PixmapContextId)
         {
-        XVisualInfo* v = this->GetDesiredVisualInfo();
+        v = this->GetDesiredVisualInfo();
 
         this->Internal->PixmapContextId = glXCreateContext(this->DisplayId,
                                                            v, 0, GL_FALSE);
