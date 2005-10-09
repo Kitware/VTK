@@ -221,7 +221,8 @@ int main(int argc, char* argv[])
     }
 
   vtkstd::vector<vtkActor*> actors;
-  for( int i=0; i<numActors; i++ )
+  int i = 0;
+  for( i=0; i<numActors; i++ )
     {
     if( i < (int)geom.size() && i < (int)mat.size() )
       {
@@ -248,7 +249,6 @@ int main(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
 
   // Add the actors to the renderer, set the background and size.
-  //
   vtkstd::vector<vtkActor*>::iterator it = actors.begin();
   vtkstd::vector<vtkActor*>::iterator itEnd = actors.end();
   while( it != itEnd )
