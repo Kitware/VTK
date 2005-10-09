@@ -250,9 +250,9 @@ public:
   // name - hardware name of the uniform variable
   // numVars - number of variables being set
   // x - values
-  virtual void AddShaderVariable(const char* name, int numVars=0, int* x=NULL);
-  virtual void AddShaderVariable(const char* name, int numVars=0, float* x=NULL);
-  virtual void AddShaderVariable(const char* name, int numVars=0, double* x=NULL);
+  virtual void AddShaderVariable(const char* name, int numVars, int* x);
+  virtual void AddShaderVariable(const char* name, int numVars, float* x);
+  virtual void AddShaderVariable(const char* name, int numVars, double* x);
 
 
 
