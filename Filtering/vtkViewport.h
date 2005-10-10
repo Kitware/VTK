@@ -178,11 +178,11 @@ public:
   // Get the size and origin of the viewport in display coordinates. Note:
   // if the window has not yet been realized, GetSize() and GetOrigin() 
   // return (0,0).
-  int *GetSize();
-  int *GetOrigin();
+  virtual int *GetSize();
+  virtual int *GetOrigin();
   void GetTiledSize(int *width, int *height);
-  void GetTiledSizeAndOrigin(int *width, int *height, 
-                             int *lowerLeftX, int *lowerLeftY);
+  virtual void GetTiledSizeAndOrigin(int *width, int *height, 
+                                     int *lowerLeftX, int *lowerLeftY);
   
   // The following methods describe the public pick interface for picking
   // Props in a viewport.
