@@ -205,7 +205,9 @@ int main(int argc, char* argv[])
   vtkstd::vector<int> mat;
   int numActors = 0;
   int count=0;
-  for( int i=1; i<argc; i++ )
+  int i = 0;
+
+  for( i=1; i<argc; i++ )
     {
     if( count==0 )
       {
@@ -221,7 +223,7 @@ int main(int argc, char* argv[])
     }
 
   vtkstd::vector<vtkActor*> actors;
-  int i = 0;
+  i = 0;
   for( i=0; i<numActors; i++ )
     {
     if( i < (int)geom.size() && i < (int)mat.size() )
