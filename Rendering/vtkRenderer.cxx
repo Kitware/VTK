@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.219");
+vtkCxxRevisionMacro(vtkRenderer, "1.220");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -99,6 +99,7 @@ vtkRenderer::vtkRenderer()
   this->NearClippingPlaneTolerance = 0;
 
   this->Erase = 1;
+  this->Draw = 1;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -147,6 +148,13 @@ void vtkRenderer::Render(void)
   int      i;
   vtkProp  *aProp;
   int *size;
+
+  // If Draw is not on, ignore the render.
+  if (!this->Draw)
+    {
+    vtkDebugMacro("Ignoring render because Draw is off.");
+    return;
+    }
 
   t1 = vtkTimerLog::GetUniversalTime();
 
@@ -1182,6 +1190,9 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Erase: " 
      << (this->Erase ? "On\n" : "Off\n");
+
+  os << indent << "Draw: "
+     << (this->Draw ? "On\n" : "Off\n");
 
   // I don't want to print this since it is used just internally
   // os << indent << this->NumberOfPropsRendered;

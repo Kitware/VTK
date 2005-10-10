@@ -163,6 +163,14 @@ public:
   vtkBooleanMacro(Erase, int);
 
   // Description:
+  // When this flag is off, render commands are ignored.  It is used to either
+  // multiplex a vtkRenderWindow or render only part of a vtkRenderWindow.
+  // By default, Draw is on.
+  vtkSetMacro(Draw, int);
+  vtkGetMacro(Draw, int);
+  vtkBooleanMacro(Draw, int);
+
+  // Description:
   // Add an culler to the list of cullers.
   void AddCuller(vtkCuller *);
 
@@ -428,6 +436,12 @@ protected:
   // Both the RenderWindow Erase and Render Erase must be on
   // for the camera to clear the renderer.  By default, Erase is on.
   int Erase;
+
+  // Description:
+  // When this flag is off, render commands are ignored.  It is used to either
+  // multiplex a vtkRenderWindow or render only part of a vtkRenderWindow.
+  // By default, Draw is on.
+  int Draw;
 
   // Description:
   // Ask all props to update and draw any opaque and translucent
