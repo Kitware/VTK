@@ -275,6 +275,10 @@ public:
            vtkUnsignedCharArray *data);
 
   // Description:
+  // Returns the buffer containing the full image.
+  vtkGetObjectMacro(FullImage, vtkUnsignedCharArray);
+
+  // Description:
   // Returns the full image size calculated at the last render.
   vtkGetVector2Macro(FullImageSize, int);
   // Description:

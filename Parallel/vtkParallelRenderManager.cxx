@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.54");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.55");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -196,6 +196,16 @@ void vtkParallelRenderManager::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Last image processing time: "
      << this->ImageProcessingTime << endl;
   os << indent << "UseRGBA: " << this->UseRGBA << endl;
+
+  os << indent << "FullImage: ";
+  if (this->FullImage)
+    {
+    this->FullImage->PrintSelf(os, indent.GetNextIndent());;
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }
 
 //----------------------------------------------------------------------------
