@@ -70,19 +70,21 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.53");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.54");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
   this->RenderWindow = NULL;
   this->ObservingRenderWindow = 0;
-  this->ObservingRenderer = 0;
   this->ObservingAbort = 0;
 
   this->Controller = NULL;
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->RootProcessId = 0;
+
+  this->Renderers = vtkRendererCollection::New();
+  this->SyncRenderWindowRenderers = 1;
 
   this->Lock = 0;
 
@@ -136,6 +138,7 @@ vtkParallelRenderManager::~vtkParallelRenderManager()
   this->ReducedImage->Delete();
   this->Viewports->Delete();
   this->Timer->Delete();
+  this->Renderers->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -149,11 +152,11 @@ void vtkParallelRenderManager::PrintSelf(ostream &os, vtkIndent indent)
      << (this->RenderEventPropagation ? "on" : "off") << endl;
   os << indent << "UseCompositing: "
      << (this->UseCompositing ? "on" : "off") << endl;
+  os << indent << "SyncRenderWindowRenderers: "
+     << (this->SyncRenderWindowRenderers ? "on" : "off") << endl;
 
-  os << indent << "ObservingRendererWindow: "
+  os << indent << "ObservingRenderWindow: "
      << (this->ObservingRenderWindow ? "yes" : "no") << endl;
-  os << indent << "ObservingRenderer: "
-     << (this->ObservingRenderer ? "yes" : "no") << endl;
   os << indent << "Locked: " << (this->Lock ? "yes" : "no") << endl;
 
   os << indent << "ImageReductionFactor: "
@@ -185,6 +188,7 @@ void vtkParallelRenderManager::PrintSelf(ostream &os, vtkIndent indent)
 
   os << indent << "RenderWindow: " << this->RenderWindow << endl;
   os << indent << "Controller: " << this->Controller << endl;
+  os << indent << "Renderers: " << this->Renderers << endl;
   os << indent << "RootProcessId: " << this->RootProcessId << endl;
 
   os << indent << "Last render time: " << this->RenderTime << endl;
@@ -215,9 +219,6 @@ void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow *renWin)
 {
   vtkDebugMacro("SetRenderWindow");
 
-  vtkRendererCollection *rens;
-  vtkRenderer *ren;
-
   if (this->RenderWindow == renWin)
     {
     return;
@@ -229,18 +230,9 @@ void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow *renWin)
     // Remove all of the observers.
     if (this->ObservingRenderWindow)
       {
-      rens = this->RenderWindow->GetRenderers();
-      ren = rens->GetFirstRenderer();
-      if (ren)
-        {
-        ren->RemoveObserver(this->StartRenderTag);
-        ren->RemoveObserver(this->EndRenderTag);
-        }
+      this->RenderWindow->RemoveObserver(this->StartRenderTag);
+      this->RenderWindow->RemoveObserver(this->EndRenderTag);
     
-      if (this->ObservingRenderer)
-        {
-        this->ObservingRenderer = 0;
-        }
       this->ObservingRenderWindow = 0;
       }
     if (this->ObservingAbort)
@@ -275,67 +267,43 @@ void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow *renWin)
       {
       if (this->Controller->GetLocalProcessId() == this->RootProcessId)
         {
-        rens = this->RenderWindow->GetRenderers();
-        ren = rens->GetFirstRenderer();
-        if (ren)
-          {
-          this->ObservingRenderWindow = 1;
+        this->ObservingRenderWindow = 1;
 
-          cbc = vtkCallbackCommand::New();
-          cbc->SetCallback(::StartRender);
-          cbc->SetClientData((void*)this);
-          // renWin will delete the cbc when the observer is removed.
-          this->StartRenderTag = ren->AddObserver(vtkCommand::StartEvent,cbc);
-          cbc->Delete();
-          
-          cbc = vtkCallbackCommand::New();
-          cbc->SetCallback(::EndRender);
-          cbc->SetClientData((void*)this);
-          // renWin will delete the cbc when the observer is removed.
-          this->EndRenderTag = ren->AddObserver(vtkCommand::EndEvent,cbc);
-          cbc->Delete();
+        cbc = vtkCallbackCommand::New();
+        cbc->SetCallback(::StartRender);
+        cbc->SetClientData((void*)this);
+        // renWin will delete the cbc when the observer is removed.
+        this->StartRenderTag
+          = this->RenderWindow->AddObserver(vtkCommand::StartEvent,cbc);
+        cbc->Delete();
 
-          this->ObservingRenderer = 1;
-
-          //cbc = vtkCallbackCommand::New();
-          //cbc->SetCallback(::ResetCameraClippingRange);
-          //cbc->SetClientData((void*)this);
-          // ren will delete the cbc when the observer is removed.
-          //this->ResetCameraClippingRangeTag = 
-          //ren->AddObserver(vtkCommand::ResetCameraClippingRangeEvent,cbc);
-          //cbc->Delete();
-
-          //cbc = vtkCallbackCommand::New();
-          //cbc->SetCallback(::ResetCamera);
-          //cbc->SetClientData((void*)this);
-          // ren will delete the cbc when the observer is removed.
-          //this->ResetCameraTag =
-          //ren->AddObserver(vtkCommand::ResetCameraEvent,cbc);
-          //cbc->Delete();
-          }
+        cbc = vtkCallbackCommand::New();
+        cbc->SetCallback(::EndRender);
+        cbc->SetClientData((void*)this);
+        // renWin will delete the cbc when the observer is removed.
+        this->EndRenderTag
+          = this->RenderWindow->AddObserver(vtkCommand::EndEvent,cbc);
+        cbc->Delete();
         }
       else // LocalProcessId != RootProcessId
         {
-        rens = this->RenderWindow->GetRenderers();
-        ren = rens->GetFirstRenderer();
-        if (ren)
-          {
-          this->ObservingRenderWindow = 1;
+        this->ObservingRenderWindow = 1;
 
-          cbc= vtkCallbackCommand::New();
-          cbc->SetCallback(::SatelliteStartRender);
-          cbc->SetClientData((void*)this);
-          // renWin will delete the cbc when the observer is removed.
-          this->StartRenderTag = ren->AddObserver(vtkCommand::StartEvent,cbc);
-          cbc->Delete();
+        cbc= vtkCallbackCommand::New();
+        cbc->SetCallback(::SatelliteStartRender);
+        cbc->SetClientData((void*)this);
+        // renWin will delete the cbc when the observer is removed.
+        this->StartRenderTag
+          = this->RenderWindow->AddObserver(vtkCommand::StartEvent,cbc);
+        cbc->Delete();
           
-          cbc = vtkCallbackCommand::New();
-          cbc->SetCallback(::SatelliteEndRender);
-          cbc->SetClientData((void*)this);
-          // renWin will delete the cbc when the observer is removed.
-          this->EndRenderTag = ren->AddObserver(vtkCommand::EndEvent,cbc);
-          cbc->Delete();
-          }
+        cbc = vtkCallbackCommand::New();
+        cbc->SetCallback(::SatelliteEndRender);
+        cbc->SetClientData((void*)this);
+        // renWin will delete the cbc when the observer is removed.
+        this->EndRenderTag
+          = this->RenderWindow->AddObserver(vtkCommand::EndEvent,cbc);
+        cbc->Delete();
         }
       }
     }
@@ -380,7 +348,7 @@ void vtkParallelRenderManager::InitializePieces()
   piece = this->Controller->GetLocalProcessId();
   numPieces = this->Controller->GetNumberOfProcesses();
 
-  rens = this->RenderWindow->GetRenderers();
+  rens = this->GetRenderers();
   vtkCollectionSimpleIterator rsit;
   rens->InitTraversal(rsit);
   while ( (ren = rens->GetNextRenderer(rsit)) )
@@ -572,13 +540,12 @@ void vtkParallelRenderManager::StartRender()
     (int)((size[1]+this->ImageReductionFactor-1)/this->ImageReductionFactor);
 
   // Collect and distribute information about current state of RenderWindow
-  vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
+  vtkRendererCollection *rens = this->GetRenderers();
   winInfoInt.FullSize[0] = this->FullImageSize[0];
   winInfoInt.FullSize[1] = this->FullImageSize[1];
   winInfoInt.ReducedSize[0] = this->ReducedImageSize[0];
   winInfoInt.ReducedSize[1] = this->ReducedImageSize[1];
-//  winInfoInt.NumberOfRenderers = rens->GetNumberOfItems();
-  winInfoInt.NumberOfRenderers = 1;
+  winInfoInt.NumberOfRenderers = rens->GetNumberOfItems();
   winInfoDouble.ImageReductionFactor = this->ImageReductionFactor;
   winInfoInt.UseCompositing = this->UseCompositing;
   winInfoDouble.DesiredUpdateRate = this->RenderWindow->GetDesiredUpdateRate();
@@ -610,22 +577,28 @@ void vtkParallelRenderManager::StartRender()
     {
     this->Viewports->SetNumberOfTuples(rens->GetNumberOfItems());
     }
+
+  vtkCollectionSimpleIterator cookie;
   vtkRenderer *ren;
-  ren = rens->GetFirstRenderer();
-  
-  if (ren)
+  int i;
+
+  for (rens->InitTraversal(cookie), i = 0;
+       (ren = rens->GetNextRenderer(cookie)) != NULL; i++)
     {
     ren->GetViewport(renInfoDouble.Viewport);
 
     // Adjust Renderer viewports to get reduced size image.
     if (this->ImageReductionFactor > 1)
       {
-      this->Viewports->SetTuple(0, renInfoDouble.Viewport);
-      renInfoDouble.Viewport[0] /= this->ImageReductionFactor;
-      renInfoDouble.Viewport[1] /= this->ImageReductionFactor;
-      renInfoDouble.Viewport[2] /= this->ImageReductionFactor;
-      renInfoDouble.Viewport[3] /= this->ImageReductionFactor;
-      ren->SetViewport(renInfoDouble.Viewport);
+      this->Viewports->SetTuple(i, renInfoDouble.Viewport);
+      if (this->ImageReduceRenderer(ren))
+        {
+        renInfoDouble.Viewport[0] /= this->ImageReductionFactor;
+        renInfoDouble.Viewport[1] /= this->ImageReductionFactor;
+        renInfoDouble.Viewport[2] /= this->ImageReductionFactor;
+        renInfoDouble.Viewport[3] /= this->ImageReductionFactor;
+        ren->SetViewport(renInfoDouble.Viewport);
+        }
       }
 
     vtkCamera *cam = ren->GetActiveCamera();
@@ -676,14 +649,13 @@ void vtkParallelRenderManager::StartRender()
         {
         if (id == this->RootProcessId) continue;
         this->Controller->Send((double *)(&lightInfoDouble),
-                               vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE, 
+                               vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE,
                                id,
                                vtkParallelRenderManager::LIGHT_INFO_DOUBLE_TAG);
         }
       }
+    this->SendRendererInformation(ren);
     }
-
-  this->SendRendererInformation(ren);
 
   this->PreRenderProcessing();
 }
@@ -718,9 +690,15 @@ void vtkParallelRenderManager::EndRender()
   // Restore renderer viewports, if necessary.
   if (this->ImageReductionFactor > 1)
     {
+    vtkRendererCollection *rens = this->GetRenderers();
+    vtkCollectionSimpleIterator cookie;
     vtkRenderer *ren;
-    ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
-    ren->SetViewport(this->Viewports->GetPointer(0));
+    int i;
+    for (rens->InitTraversal(cookie), i = 0;
+         (ren = rens->GetNextRenderer(cookie)) != NULL; i++)
+      {
+      ren->SetViewport(this->Viewports->GetPointer(4*i));
+      }
     }
 
   this->WriteFullImage();
@@ -834,7 +812,7 @@ void vtkParallelRenderManager::ComputeVisiblePropBoundsRMI()
     {
     return;
     }
-  vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
+  vtkRendererCollection *rens = this->GetRenderers();
   vtkRenderer *ren = NULL;
   vtkCollectionSimpleIterator rsit;
   rens->InitTraversal(rsit);
@@ -886,7 +864,7 @@ void vtkParallelRenderManager::ComputeVisiblePropBounds(vtkRenderer *ren,
       return;
       }
 
-    vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
+    vtkRendererCollection *rens = this->GetRenderers();
     vtkCollectionSimpleIterator rsit;
     rens->InitTraversal(rsit);
     int renderId = 0;
@@ -1006,7 +984,7 @@ void vtkParallelRenderManager::ResetAllCameras()
   vtkRendererCollection *rens;
   vtkRenderer *ren;
 
-  rens = this->RenderWindow->GetRenderers();
+  rens = this->GetRenderers();
   vtkCollectionSimpleIterator rsit;
   for (rens->InitTraversal(rsit); (ren = rens->GetNextRenderer(rsit)); )
     {
@@ -1161,6 +1139,37 @@ void vtkParallelRenderManager::SetRenderWindowSize()
     = (double)this->FullImageSize[0]/this->ReducedImageSize[0];
 
   this->RenderWindow->SetSize(this->FullImageSize[0], this->FullImageSize[1]);
+}
+
+//-----------------------------------------------------------------------------
+vtkRendererCollection *vtkParallelRenderManager::GetRenderers()
+{
+  if (this->SyncRenderWindowRenderers)
+    {
+    return this->RenderWindow->GetRenderers();
+    }
+  else
+    {
+    return this->Renderers;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkParallelRenderManager::AddRenderer(vtkRenderer *ren)
+{
+  this->Renderers->AddItem(ren);
+}
+
+//-----------------------------------------------------------------------------
+void vtkParallelRenderManager::RemoveRenderer(vtkRenderer *ren)
+{
+  this->Renderers->RemoveItem(ren);
+}
+
+//-----------------------------------------------------------------------------
+void vtkParallelRenderManager::RemoveAllRenderers()
+{
+  this->Renderers->RemoveAllItems();
 }
 
 //----------------------------------------------------------------------------
@@ -1781,7 +1790,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
     }
   
   if (!this->Controller->Receive((double *)(&winInfoDouble),
-                                 vtkParallelRenderManager::WIN_INFO_DOUBLE_SIZE, 
+                                 vtkParallelRenderManager::WIN_INFO_DOUBLE_SIZE,
                                  this->RootProcessId,
                                  vtkParallelRenderManager::WIN_INFO_DOUBLE_TAG))
     {
@@ -1804,7 +1813,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
   this->SetRenderWindowSize();
 
   vtkCollectionSimpleIterator rsit;
-  vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
+  vtkRendererCollection *rens = this->GetRenderers();
 
   this->Viewports->SetNumberOfTuples(rens->GetNumberOfItems());
 
@@ -1895,6 +1904,11 @@ void vtkParallelRenderManager::SatelliteStartRender()
       }
 
     this->ReceiveRendererInformation(ren);
+    }
+
+  if (rens->GetNextRenderer(rsit))
+    {
+    vtkErrorMacro("Too many renderers.");
     }
 
   this->PreRenderProcessing();

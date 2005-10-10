@@ -45,12 +45,13 @@
 
 #include "vtkObject.h"
 
-class vtkRenderWindow;
-class vtkRenderer;
-class vtkUnsignedCharArray;
 class vtkDoubleArray;
-class vtkTimerLog;
 class vtkMultiProcessController;
+class vtkRenderer;
+class vtkRendererCollection;
+class vtkRenderWindow;
+class vtkTimerLog;
+class vtkUnsignedCharArray;
 
 class VTK_PARALLEL_EXPORT vtkParallelRenderManager : public vtkObject
 {
@@ -202,6 +203,21 @@ public:
   vtkGetMacro(ImageProcessingTime, double);
 
   // Description:
+  // By default, the state of all renderers in the root's render window is
+  // propagated to the rest of the processes.  In order for this to work, all
+  // render windows must have the same renderers in the same order.  If this is
+  // not the case, you can turn off the SyncRenderWindowRenderers.  When this
+  // flag is off, the list of renderers held by this parallel render manager
+  // (initially empty) is synced.  You can modify the list of renderers with the
+  // AddRenderer, RemoveRenderer, and RemoveAllRenderers methods.
+  vtkGetMacro(SyncRenderWindowRenderers, int);
+  vtkSetMacro(SyncRenderWindowRenderers, int);
+  vtkBooleanMacro(SyncRenderWindowRenderers, int);
+  virtual void AddRenderer(vtkRenderer *);
+  virtual void RemoveRenderer(vtkRenderer *);
+  virtual void RemoveAllRenderers();
+
+  // Description:
   // If on (the default), the result of any image space manipulations are
   // written back to the render window frame buffer.  If off, the image
   // stored in the frame buffer may not be correct.  Either way, the
@@ -335,6 +351,9 @@ protected:
 
   vtkRenderWindow *RenderWindow;
   vtkMultiProcessController *Controller;
+  vtkRendererCollection *Renderers;
+
+  virtual vtkRendererCollection *GetRenderers();
 
   // Description:
   // The "root" node's process id.  This is the node which is listening for
@@ -346,7 +365,6 @@ protected:
   int RootProcessId;
 
   int ObservingRenderWindow;
-  int ObservingRenderer;
   int ObservingAbort;
 
   unsigned long StartRenderTag;
@@ -381,6 +399,7 @@ protected:
   int ParallelRendering;
   int RenderEventPropagation;
   int UseCompositing;
+  int SyncRenderWindowRenderers;
 
   vtkTimerLog *Timer;
 
@@ -441,6 +460,13 @@ protected:
   // Sets the current render window's pixel data.
   virtual void SetRenderWindowPixelData(vtkUnsignedCharArray *pixels,
           const int pixelDimensions[2]);
+
+  // Description:
+  // Returns true if the image for the given renderer should be rendered at a
+  // reduced size to be magnified later.  This method always returns true, but
+  // subclasses may render some renderers at a reduced size, magnify them, and
+  // then render the other renderers at full resolution.
+  virtual int ImageReduceRenderer(vtkRenderer *) { return 1; }
 
 //BTX
   struct RenderWindowInfoInt
