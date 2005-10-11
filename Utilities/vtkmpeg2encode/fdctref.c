@@ -46,7 +46,7 @@ void MPEG2_fdct _ANSI_ARGS_((short *block));
 /* private data */
 static double c[8][8]; /* transform coefficients */
 
-GLOBAL(void) MPEG2_init_fdct()
+VTK_MPEG2ENC_EXPORT void MPEG2_init_fdct()
 {
   int i, j;
   double s;
