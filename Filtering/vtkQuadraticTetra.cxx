@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.3");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.3.8.1");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 //----------------------------------------------------------------------------
@@ -52,7 +52,6 @@ vtkQuadraticTetra::~vtkQuadraticTetra()
   this->Tetra->Delete();
   this->Scalars->Delete();
 }
-
 
 //----------------------------------------------------------------------------
 //clip each of the four vertices; the remaining octahedron is
@@ -121,8 +120,7 @@ int vtkQuadraticTetra::EvaluatePosition(double* x,
 
   //  set initial position for Newton's method
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2]=0.333;
-
+  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2]=0.25;
   //  enter iteration loop
   for (iteration=converged=0;
        !converged && (iteration < VTK_TETRA_MAX_ITERATION);  iteration++) 
@@ -490,8 +488,8 @@ void vtkQuadraticTetra::InterpolationDerivs(double pcoords[3], double derivs[30]
   double s = pcoords[1];
   double t = pcoords[2];
 
-  // r-derivatives
-  derivs[0] = 4.0*r + 4.0*s + 4.0*t - 3.0;
+  // r-derivatives: dW0/dr to dW9/dr
+  derivs[0] = 4.0*(r + s + t) - 3.0;
   derivs[1] = 4.0*r - 1.0;
   derivs[2] = 0.0;
   derivs[3] = 0.0;
@@ -499,11 +497,11 @@ void vtkQuadraticTetra::InterpolationDerivs(double pcoords[3], double derivs[30]
   derivs[5] = 4.0*s;
   derivs[6] = -4.0*s;
   derivs[7] = -4.0*t;
-  derivs[8] = 0.0;
-  derivs[9] = 4.0*t;
+  derivs[8] = 4.0*t;
+  derivs[9] = 0.0;
 
-  // s-derivatives
-  derivs[10] = 4.0*r + 4.0*s + 4.0*t - 3.0;
+  // s-derivatives: dW0/ds to dW9/ds
+  derivs[10] = 4.0*(r + s + t) - 3.0;
   derivs[11] = 0.0;
   derivs[12] = 4.0*s - 1.0;
   derivs[13] = 0.0;
@@ -511,21 +509,20 @@ void vtkQuadraticTetra::InterpolationDerivs(double pcoords[3], double derivs[30]
   derivs[15] =  4.0*r;
   derivs[16] = 4.0 - 4.0*r - 8.0*s - 4.0*t;
   derivs[17] = -4.0*t;
-  derivs[18] =  4.0*t;
-  derivs[19] = 0.0;
+  derivs[18] = 0.0;
+  derivs[19] =  4.0*t;
 
-  // t-derivatives
-  derivs[20] = 4.0*r + 4.0*s + 4.0*t - 3.0;
+  // t-derivatives: dW0/dt to dW9/dt
+  derivs[20] = 4.0*(r + s + t) - 3.0;
   derivs[21] = 0.0;
   derivs[22] = 0.0;
   derivs[23] = 4.0*t - 1.0;
   derivs[24] = -4.0*r;
   derivs[25] = 0.0;
-  derivs[26] = -4.0*t;
-  derivs[27] = 4.0 - 4.0*r - 8.0*s - 4.0*t;
-  derivs[28] = 4.0*s;
-  derivs[29] = 4.0*t;
-  
+  derivs[26] = -4.0*s;
+  derivs[27] = 4.0 - 4.0*r - 4.0*s - 8.0*t;
+  derivs[28] = 4.0*r;
+  derivs[29] = 4.0*s;
 }
 
 //----------------------------------------------------------------------------
