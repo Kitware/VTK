@@ -66,12 +66,12 @@ protected:
   // Description:
   // Called to pick which painters to used based on the current state of
   // this painter and the poly data.
-  virtual void ChoosePainters(vtkRenderer *renderer);
+  virtual void ChoosePainters(vtkRenderer *renderer, vtkActor*);
 
   // Description:
   // Called from ChoosePainters.  Returns a string for the type of
   // each painter.  The painters will be built with CreatePainter.
-  virtual void SelectPainters(vtkRenderer *renderer,
+  virtual void SelectPainters(vtkRenderer *renderer, vtkActor* actor,
                               const char *&vertpaintertype,
                               const char *&linepaintertype,
                               const char *&polypaintertype,

@@ -27,11 +27,12 @@
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkLinesPainter);
-vtkCxxRevisionMacro(vtkLinesPainter, "1.2");
+vtkCxxRevisionMacro(vtkLinesPainter, "1.3");
 //-----------------------------------------------------------------------------
 vtkLinesPainter::vtkLinesPainter()
 {
-  this->SetSupportedPrimitive(vtkPainter::LINES);
+  this->SetSupportedPrimitive(vtkPainter::LINES | vtkPainter::POLYS);
+  this->RenderPolys = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -69,13 +70,28 @@ vtkLinesPainter::~vtkLinesPainter()
     } \
   cellNum += count; \
 }
+//-----------------------------------------------------------------------------
+void vtkLinesPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
+  unsigned long typeflags)
+{
+  if (typeflags == vtkPainter::POLYS)
+    {
+    this->RenderPolys = 1;
+    }
+  else
+    {
+    this->RenderPolys = 0;
+    }
+  this->Superclass::RenderInternal(renderer, actor, typeflags);
+}
 
 //-----------------------------------------------------------------------------
 int vtkLinesPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren)
 {
   vtkPoints* p = this->PolyData->GetPoints();
-  vtkCellArray* ca = this->PolyData->GetLines();
+  vtkCellArray* ca = (this->RenderPolys)? this->PolyData->GetPolys() :
+    this->PolyData->GetLines();
   vtkIdType cellNum = this->PolyData->GetVerts()->GetNumberOfCells();
   vtkIdType cellNumStart = cellNum;
   vtkIdType totalCells = ca->GetNumberOfCells();
@@ -108,7 +124,7 @@ int vtkLinesPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   int ntype = (n)? n->GetDataType() : 0;
   int ttype = (t)? t->GetDataType() : 0;
   int tcomps = (t)? t->GetNumberOfComponents() : 0;
-  int primitive = VTK_POLY_LINE;
+  int primitive = (this->RenderPolys)? VTK_TETRA : VTK_POLY_LINE;
 
   // since this painter does not deal with field colors specially,
   // we just ignore the flag.

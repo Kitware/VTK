@@ -15,6 +15,7 @@
 #include "vtkChooserPainter.h"
 
 #include "vtkCommand.h"
+#include "vtkConfigure.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkLinesPainter.h"
@@ -22,11 +23,12 @@
 #include "vtkPointsPainter.h"
 #include "vtkPolyData.h"
 #include "vtkPolygonsPainter.h"
+#include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkStandardPolyDataPainter.h"
 #include "vtkTStripsPainter.h"
 
-vtkCxxRevisionMacro(vtkChooserPainter, "1.3");
+vtkCxxRevisionMacro(vtkChooserPainter, "1.4");
 vtkStandardNewMacro(vtkChooserPainter);
 
 vtkCxxSetObjectMacro(vtkChooserPainter, VertPainter, vtkPolyDataPainter);
@@ -100,7 +102,7 @@ void vtkChooserPainter::PrepareForRendering(vtkRenderer* ren, vtkActor* actor)
     {
     this->LastRenderer = ren;
     // Choose the painters.
-    this->ChoosePainters(ren);
+    this->ChoosePainters(ren, actor);
     // Pass them the information and poly data we have.
     this->UpdateChoosenPainters();
     this->PaintersChoiceTime.Modified();
@@ -130,7 +132,7 @@ void vtkChooserPainter::UpdateChoosenPainters()
 }
 
 //-----------------------------------------------------------------------------
-void vtkChooserPainter::ChoosePainters(vtkRenderer *renderer)
+void vtkChooserPainter::ChoosePainters(vtkRenderer *renderer, vtkActor* actor)
 {
   const char *vertpaintertype;
   const char *linepaintertype;
@@ -139,7 +141,7 @@ void vtkChooserPainter::ChoosePainters(vtkRenderer *renderer)
 
   vtkPolyDataPainter* painter;
   
-  this->SelectPainters(renderer, vertpaintertype, linepaintertype,
+  this->SelectPainters(renderer, actor, vertpaintertype, linepaintertype,
                        polypaintertype, strippaintertype);
   vtkDebugMacro(<< "Selected " << vertpaintertype << ", "
                 << linepaintertype << ", " << polypaintertype << ", "
@@ -233,14 +235,24 @@ void vtkChooserPainter::ChoosePainters(vtkRenderer *renderer)
 
 //-----------------------------------------------------------------------------
 void vtkChooserPainter::SelectPainters(vtkRenderer *vtkNotUsed(renderer),
-                                       const char *&vertptype,
-                                       const char *&lineptype,
-                                       const char *&polyptype,
-                                       const char *&stripptype)
+    vtkActor* actor, const char *&vertptype, const char *&lineptype,
+    const char *&polyptype, const char *&stripptype)
 {
   vertptype = "vtkPointsPainter";
   lineptype = "vtkLinesPainter";
   polyptype = "vtkPolygonsPainter";
+  
+#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
+  /*
+   * On some apples, glPolygonMode(*,GL_LINE) does not render anything
+   * for polys. To fix this, we use the GL_LINE_LOOP to render the polygons.
+   */
+  if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+    {
+    polyptype = "vtkLinesPainter";
+    }
+#endif
+  (void)actor; 
   stripptype = "vtkTStripsPainter";
   // No elaborate selection as yet. 
   // Merely create the pipeline as the vtkOpenGLPolyDataMapper.

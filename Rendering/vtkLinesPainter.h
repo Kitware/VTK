@@ -38,6 +38,14 @@ protected:
   vtkLinesPainter();
   ~vtkLinesPainter();
   
+  int RenderPolys; // Flag indicating if the line loops are to be closed. 
+
+  // Description:
+  // Overriden to set RenderPolys flag. When set, polys are rendered
+  // as line loops.
+  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
+    unsigned long typeflags);
+
   // Description:
   // The actual rendering happens here. This method is called only when
   // SupportedPrimitive is present in typeflags when Render() is invoked.

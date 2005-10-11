@@ -26,6 +26,7 @@
 #include "vtkActor.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkConfigure.h"
 #include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPainterDeviceAdapter.h"
@@ -39,7 +40,7 @@
 #include "vtkTriangle.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.3");
+vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.4");
 vtkStandardNewMacro(vtkStandardPolyDataPainter);
 //-----------------------------------------------------------------------------
 static inline int vtkStandardPolyDataPainterGetTotalCells(vtkPolyData* pd,
@@ -108,8 +109,18 @@ void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer, vtkActor*
   startCell += this->PolyData->GetNumberOfLines();
   if (typeflags & vtkPainter::POLYS)
     {
-    this->DrawCells(VTK_POLYGON, this->PolyData->GetPolys(), startCell,
-      renderer, this->BuildNormals, interpolation);
+#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
+    if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+      {
+      this->DrawCells(VTK_TETRA, this->PolyData->GetPolys(), startCell,
+        renderer, this->BuildNormals, interpolation);
+      }
+    else
+#endif
+      {
+      this->DrawCells(VTK_POLYGON, this->PolyData->GetPolys(), startCell,
+        renderer, this->BuildNormals, interpolation);
+      }
     }
  
   startCell += this->PolyData->GetNumberOfPolys();
