@@ -130,7 +130,7 @@ static void MPEG2_evaluate_frame_info(int cframe, int* f0, int* realframe, unsig
     }
 }
 
-GLOBAL(int) MPEG2_putseq_one(int cframe, int max,struct MPEG2_structure *mpeg2_struct)
+VTK_MPEG2ENC_EXPORT int MPEG2_putseq_one(int cframe, int max,struct MPEG2_structure *mpeg2_struct)
 {
   int j, k, realframe, f0, sxf, syf, sxb, syb;
   int ipflag;
