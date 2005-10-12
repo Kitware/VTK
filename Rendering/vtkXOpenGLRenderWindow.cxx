@@ -101,7 +101,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.58");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.59");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -419,7 +419,7 @@ void vtkXOpenGLRenderWindow::SetStereoCapableWindow(int capable)
 }
 
 static int PbufferAllocFail = 0;
-static int pbuffer_error_handler(Display*, XErrorEvent* e)
+static int pbuffer_error_handler(Display*, XErrorEvent*)
 {
   PbufferAllocFail = 1;
   return 1;
