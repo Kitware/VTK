@@ -26,7 +26,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.68");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.69");
 #endif
 
 #define MAX_LIGHTS 8
@@ -439,6 +439,7 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     }
 
   glDisable( GL_SCISSOR_TEST );
+  glViewport(0, 0, this->Size[0], this->Size[1]);
 
 #if defined(sparc) && !defined(GL_VERSION_1_2)
   // We need to read the image data one row at a time and convert it
@@ -506,7 +507,6 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
-  glViewport(0,0, this->Size[0], this->Size[1]);
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
   glDisable(GL_BLEND);
   glDrawPixels((x_hi-x_low+1), (y_hi - y_low + 1),
@@ -776,6 +776,7 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 
   /* write out a row of pixels */
   glDisable( GL_SCISSOR_TEST );
+  glViewport(0, 0, this->Size[0], this->Size[1]);
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
@@ -1076,6 +1077,7 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
 
 
   /* write out a row of pixels */
+  glViewport(0, 0, this->Size[0], this->Size[1]);
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
@@ -1260,6 +1262,7 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   // Must clear previous errors first.
   while(glGetError() != GL_NO_ERROR);
 
+  glViewport(0, 0, this->Size[0], this->Size[1]);
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
