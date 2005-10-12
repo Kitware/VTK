@@ -38,6 +38,8 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
+#include "vtkOpenGLExtensionManager.h"
+#include "vtkgl.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -52,11 +54,18 @@ private:
   vtkXOpenGLRenderWindowInternal(vtkRenderWindow*);
 
   GLXContext ContextId;
-  
+
+  // so we basically have 4 methods here for handling drawables
+  // how about abstracting this a bit?
+
   // support for Pixmap based offscreen rendering
   Pixmap pixmap;
   GLXContext PixmapContextId;
   Window PixmapWindowId;
+
+  // support for Pbuffer based offscreen rendering
+  GLXContext PbufferContextId;
+  vtkglX::GLXPbuffer Pbuffer;
 
   // store previous settings of on screen window
   int ScreenDoubleBuffer;
@@ -76,6 +85,9 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
   this->PixmapContextId = NULL;
   this->PixmapWindowId = 0;
+
+  this->PbufferContextId = NULL;
+  this->Pbuffer = 0;
   
   this->ScreenMapped = rw->GetMapped();
   this->ScreenDoubleBuffer = rw->GetDoubleBuffer();
@@ -89,7 +101,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.57");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.58");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -109,6 +121,60 @@ void *vtkOSMesaCreateWindow(int width, int height)
   return malloc(width*height*4);
 }
 #endif
+
+
+vtkglX::GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
+                                                 int drawable_type,
+                                                 int doublebuff, int stereo,
+                                                 int multisamples,
+                                                 int alphaBitPlanes)
+{
+  int           index;
+  static int    attributes[50];
+
+  // setup the default stuff we ask for
+  index = 0;
+  attributes[index++] = vtkglX::DRAWABLE_TYPE;
+  attributes[index++] = drawable_type;
+  attributes[index++] = vtkglX::RENDER_TYPE;
+  attributes[index++] = vtkglX::RGBA_BIT;
+  attributes[index++] = GLX_RED_SIZE;
+  attributes[index++] = 1;
+  attributes[index++] = GLX_GREEN_SIZE;
+  attributes[index++] = 1;
+  attributes[index++] = GLX_BLUE_SIZE;
+  attributes[index++] = 1;
+  attributes[index++] = GLX_DEPTH_SIZE;
+  attributes[index++] = 1;
+  if (alphaBitPlanes)
+    {
+    attributes[index++] = GLX_ALPHA_SIZE;
+    attributes[index++] = 1;
+    }
+  if (doublebuff)
+    {
+    attributes[index++] = GLX_DOUBLEBUFFER;
+    }
+  if (stereo)
+    {
+    // also try for STEREO
+    attributes[index++] = GLX_STEREO;
+    }
+  if (multisamples)
+    {
+#ifdef GLX_SAMPLE_BUFFERS_SGIS
+    attributes[index++] = GLX_SAMPLE_BUFFERS_SGIS;
+    attributes[index++] = 1;
+    attributes[index++] = GLX_SAMPLES_SGIS;
+    attributes[index++] = multisamples;
+#endif
+    }
+    
+  attributes[index++] = None;
+  int tmp;
+  vtkglX::GLXFBConfig* fb = vtkglX::ChooseFBConfig(DisplayId, DefaultScreen(DisplayId), attributes, &tmp);
+  return fb;
+}
 
 
 XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
@@ -157,6 +223,63 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
   attributes[index++] = None;
 
   return glXChooseVisual(DisplayId, DefaultScreen(DisplayId), attributes );
+}
+
+vtkglX::GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
+        Display* DisplayId,
+        int& win_stereo, int& win_multisamples, int& win_doublebuffer, int& win_alphaplanes,
+        int drawable_type)
+{
+  vtkglX::GLXFBConfig   *fbc = NULL;
+  int           multi;
+  int           stereo = 0;
+  
+  // try every possibility stoping when we find one that works
+  for (stereo = win_stereo; !fbc && stereo >= 0; stereo--)
+    {
+    for (multi = win_multisamples; !fbc && multi >= 0; multi--)
+      {
+      if (fbc) 
+        {
+        XFree(fbc);
+        }
+      fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
+                                               drawable_type,
+                                               win_doublebuffer,
+                                               stereo, multi,
+                                               win_alphaplanes);
+      if (fbc && win_stereo && !stereo)
+        {
+        // requested a stereo capable window but we could not get one
+        win_stereo = 0;
+        }
+      }
+    }
+  for (stereo = win_stereo; !fbc && stereo >= 0; stereo--)
+    {
+    for (multi = win_multisamples; !fbc && multi >= 0; multi--)
+      {
+      if (fbc) 
+        {
+        XFree(fbc);
+        }
+      fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
+                                               drawable_type,
+                                               !win_doublebuffer, 
+                                               stereo, multi,
+                                               win_alphaplanes);
+      if (fbc)
+        {
+        win_doublebuffer = !win_doublebuffer;
+        }
+      if (fbc && win_stereo && !stereo)
+        {
+        // requested a stereo capable window but we could not get one
+        win_stereo = 0;
+        }
+      }
+    }
+  return ( fbc );
 }
 
 XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
@@ -293,6 +416,13 @@ void vtkXOpenGLRenderWindow::SetStereoCapableWindow(int capable)
     vtkWarningMacro(<< "Requesting a StereoCapableWindow must be performed "
                     << "before the window is realized, i.e. before a render.");
     }
+}
+
+static int PbufferAllocFail = 0;
+static int pbuffer_error_handler(Display*, XErrorEvent* e)
+{
+  PbufferAllocFail = 1;
+  return 1;
 }
 
 // Initialize the window for rendering.
@@ -463,10 +593,71 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
     else
 #endif
       {
-      if(!this->Internal->PixmapContextId)
+      
+      // get the default display connection 
+      if (!this->DisplayId)
+        {
+        this->DisplayId = XOpenDisplay((char *)NULL); 
+        if (this->DisplayId == NULL) 
+          {
+          vtkErrorMacro(<< "bad X server connection.\n");
+          }
+        this->OwnDisplay = 1;
+        }
+
+      int v1, v2;
+      glXQueryVersion(this->DisplayId, &v1, &v2);
+
+      // check for GLX 1.3 or greater for Pbuffer offscreen support
+      if(v1 > 1 || (v1 == 1 && v2 >= 3))
+        {
+        if(!this->Internal->PbufferContextId)
+          {
+          // Load GLX 1.3
+          vtkOpenGLExtensionManager* manager = vtkOpenGLExtensionManager::New();
+          vtkgl::LoadExtension("GLX_VERSION_1_3", manager);
+          manager->Delete();
+
+          // get FBConfig
+          vtkglX::GLXFBConfig* fb = vtkXOpenGLRenderWindowGetDesiredFBConfig(this->DisplayId,
+                                    this->StereoCapableWindow, this->MultiSamples, this->DoubleBuffer,
+                                    this->AlphaBitPlanes, vtkglX::PBUFFER_BIT);
+          if(fb)
+            {
+            XSetErrorHandler(pbuffer_error_handler);
+            this->Internal->PbufferContextId = 
+              vtkglX::CreateNewContext(this->DisplayId, fb[0], vtkglX::RGBA_TYPE, NULL, true);
+            int atts [] = 
+              {
+              vtkglX::PBUFFER_WIDTH, width,
+              vtkglX::PBUFFER_HEIGHT, height,
+              0
+              };
+            this->Internal->Pbuffer = vtkglX::CreatePbuffer(this->DisplayId, fb[0], atts);
+            vtkglX::MakeContextCurrent( this->DisplayId, this->Internal->Pbuffer, 
+                                        this->Internal->Pbuffer, this->Internal->PbufferContextId );
+            XFree(fb);
+            XSetErrorHandler(NULL);
+            
+            // failed to allocate Pbuffer, clean up
+            if(PbufferAllocFail)
+              {
+              //vtkglX::DestroyPbuffer(this->DisplayId, this->Internal->Pbuffer);
+              this->Internal->Pbuffer = 0;
+              if(this->Internal->PbufferContextId)
+                glXDestroyContext(this->DisplayId, this->Internal->PbufferContextId);
+              this->Internal->PbufferContextId = NULL;
+              }
+            PbufferAllocFail = 0;
+            }
+          }
+        }
+      
+      // GLX 1.3 doesn't exist or failed to allocate Pbuffer
+      // fallback on GLX 1.0 GLXPixmap offscreen support
+      if(!this->Internal->PbufferContextId && !this->Internal->PixmapContextId)
         {
         v = this->GetDesiredVisualInfo();
-
         this->Internal->PixmapContextId = glXCreateContext(this->DisplayId,
                                                            v, 0, GL_FALSE);
         this->Internal->pixmap = XCreatePixmap(this->DisplayId,
@@ -506,7 +697,8 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
 void vtkXOpenGLRenderWindow::Initialize (void)
 {
   // make sure we havent already been initialized 
-  if (this->Internal->ContextId || this->Internal->PixmapContextId
+  if (this->Internal->ContextId || this->Internal->PixmapContextId 
+      || this->Internal->PbufferContextId
 #ifdef VTK_OPENGL_HAS_OSMESA
       || this->Internal->OffScreenContextId
 #endif
@@ -583,6 +775,7 @@ void vtkXOpenGLRenderWindow::Finalize (void)
   
   // make sure we have been initialized 
   if (this->Internal->ContextId || this->Internal->PixmapContextId
+      || this->Internal->PbufferContextId
 #ifdef VTK_OPENGL_HAS_OSMESA
       || this->Internal->OffScreenContextId
 #endif
@@ -637,7 +830,14 @@ void vtkXOpenGLRenderWindow::Finalize (void)
     else
 #endif
       {
-      if(this->OffScreenRendering && this->Internal->PixmapContextId)
+      if(this->OffScreenRendering && this->Internal->PbufferContextId)
+        {
+        vtkglX::DestroyPbuffer(this->DisplayId, this->Internal->Pbuffer);
+        this->Internal->Pbuffer = 0;
+        glXDestroyContext(this->DisplayId, this->Internal->PbufferContextId);
+        this->Internal->PbufferContextId = NULL;
+        }
+      else if(this->OffScreenRendering && this->Internal->PixmapContextId)
         {
         glXDestroyGLXPixmap(this->DisplayId, this->Internal->PixmapWindowId);
         this->Internal->PixmapWindowId = 0;
@@ -783,6 +983,7 @@ void vtkXOpenGLRenderWindow::Start(void)
 {
   // if the renderer has not been initialized, do so now
   if (!this->Internal->ContextId && !this->Internal->PixmapContextId
+      && !this->Internal->PbufferContextId
 #ifdef VTK_OPENGL_HAS_OSMESA
  && !this->Internal->OffScreenContextId
 #endif
@@ -835,23 +1036,44 @@ void vtkXOpenGLRenderWindow::SetSize(int x,int y)
     }
   else
 #endif
-  if(this->OffScreenRendering && this->Internal->PixmapWindowId)
+  if(this->OffScreenRendering && this->Internal->PbufferContextId)
     {
+    // Disconnect renderers from this render window.
+    // Done to release graphic resources.
+    vtkRenderer *ren;
+    vtkCollectionSimpleIterator rit;
+    this->Renderers->InitTraversal(rit);
+    while ( (ren = this->Renderers->GetNextRenderer(rit)) )
+      {
+      ren->SetRenderWindow(NULL);
+      }
+
+    // destroy offscreen Pbuffer and create new one with new size
+    vtkglX::DestroyPbuffer(this->DisplayId, this->Internal->Pbuffer);
+    this->Internal->Pbuffer = 0;
+    glXDestroyContext(this->DisplayId, this->Internal->PbufferContextId);
+    this->Internal->PbufferContextId = NULL;
+    this->WindowInitialize();
+    }
+  else if(this->OffScreenRendering && this->Internal->PixmapContextId)
+    {
+    // Disconnect renderers from this render window.
+    // Done to release graphic resources.
+    vtkRenderer *ren;
+    vtkCollectionSimpleIterator rit;
+    this->Renderers->InitTraversal(rit);
+    while ( (ren = this->Renderers->GetNextRenderer(rit)) )
+      {
+      ren->SetRenderWindow(NULL);
+      }
+
     // destroy offscreen window and create new one with new size
     glXDestroyGLXPixmap(this->DisplayId, this->Internal->PixmapWindowId);
+    this->Internal->PixmapWindowId = 0;
     XFreePixmap(this->DisplayId, this->Internal->pixmap);
     glXDestroyContext( this->DisplayId, this->Internal->PixmapContextId);
-
-    XVisualInfo* v = this->GetDesiredVisualInfo();
-    this->Internal->PixmapContextId = glXCreateContext(this->DisplayId,
-                                                       v, 0, GL_FALSE);
-    this->Internal->pixmap = XCreatePixmap(this->DisplayId,
-                                 RootWindow(this->DisplayId,v->screen),
-                                 x, y, v->depth);
-    this->Internal->PixmapWindowId = glXCreateGLXPixmap(this->DisplayId, v, this->Internal->pixmap);
-    glXMakeCurrent(this->DisplayId,this->Internal->PixmapWindowId,this->Internal->PixmapContextId);
-    XFree(v);
-    XSync(this->DisplayId,False);
+    this->Internal->PixmapContextId = NULL;
+    this->WindowInitialize();
     }
   else if(this->WindowId && this->Mapped)
     {
@@ -966,6 +1188,15 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
     }
   else
 #endif
+  if(this->OffScreenRendering && this->Internal->PbufferContextId)
+    {
+    if (((this->Internal->PbufferContextId != glXGetCurrentContext()) || this->ForceMakeCurrent))
+      {
+      vtkglX::MakeContextCurrent(this->DisplayId, this->Internal->Pbuffer,
+                                 this->Internal->Pbuffer, this->Internal->PbufferContextId);
+      this->ForceMakeCurrent = 0;
+      }
+    }
   if(this->OffScreenRendering && this->Internal->PixmapContextId)
     {
     if (((this->Internal->PixmapContextId != glXGetCurrentContext()) || this->ForceMakeCurrent))
@@ -1018,7 +1249,11 @@ void *vtkXOpenGLRenderWindow::GetGenericContext()
     }
   else
 #endif
-  if(this->OffScreenRendering && this->Internal->PixmapContextId)
+  if(this->OffScreenRendering && this->Internal->PbufferContextId)
+    {
+    return (void *)this->Internal->PbufferContextId;
+    }
+  else if(this->OffScreenRendering && this->Internal->PixmapContextId)
     {
     return (void *)this->Internal->PixmapContextId;
     }
@@ -1328,16 +1563,20 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
 int vtkXOpenGLRenderWindow::IsDirect()
 {
   MakeCurrent();
-  if (this->OffScreenRendering && this->Internal->PixmapContextId)
+  this->UsingHardware = 0;
+  if (this->OffScreenRendering && this->Internal->PbufferContextId)
+    {
+    this->UsingHardware = glXIsDirect(this->DisplayId, this->Internal->PbufferContextId) ? 1:0;
+    }
+  else if (this->OffScreenRendering && this->Internal->PixmapContextId)
     {
     this->UsingHardware = glXIsDirect(this->DisplayId, this->Internal->PixmapContextId) ? 1:0;
     }
-  else if (!this->DisplayId || !this->Internal->ContextId)
+  else if (this->DisplayId && this->Internal->ContextId)
     {
-      return 0;
+    this->UsingHardware = glXIsDirect(this->DisplayId, 
+                                      this->Internal->ContextId) ? 1:0;
     }
-  this->UsingHardware = glXIsDirect(this->DisplayId, 
-                                    this->Internal->ContextId) ? 1:0;
   return this->UsingHardware;
 }
 
@@ -1526,14 +1765,21 @@ void vtkXOpenGLRenderWindow::SetOffScreenRendering(int i)
         this->DoubleBuffer = 0;
         this->Internal->ScreenMapped = this->Mapped;
         this->Mapped = 0;
-        if(!this->Internal->PixmapWindowId)
+        if(!this->Internal->PixmapContextId || !this->Internal->PbufferContextId)
           {
           this->WindowInitialize();
           }
         }
       else
         {
-        if(this->Internal->PixmapWindowId)
+        if(this->Internal->PbufferContextId)
+          {
+          vtkglX::DestroyPbuffer(this->DisplayId, this->Internal->Pbuffer);
+          this->Internal->Pbuffer = 0;
+          glXDestroyContext(this->DisplayId, this->Internal->PbufferContextId);
+          this->Internal->PbufferContextId = NULL;
+          }
+        else if(this->Internal->PixmapContextId)
           {
           glXDestroyGLXPixmap(this->DisplayId, this->Internal->PixmapWindowId);
           this->Internal->PixmapWindowId = 0;
