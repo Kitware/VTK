@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.11");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.12");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -45,10 +45,11 @@ vtkPProbeFilter::~vtkPProbeFilter()
 }
 
 //----------------------------------------------------------------------------
-int vtkPProbeFilter::RequestInformation(vtkInformation *,
-                                        vtkInformationVector **,
+int vtkPProbeFilter::RequestInformation(vtkInformation *request,
+                                        vtkInformationVector **inputVector,
                                         vtkInformationVector *outputVector)
 {
+  this->Superclass::RequestInformation(request, inputVector, outputVector);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
                -1);
