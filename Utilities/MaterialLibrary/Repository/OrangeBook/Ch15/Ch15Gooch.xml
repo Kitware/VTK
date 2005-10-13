@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Material name="Mat1" NumberOfProperties="1" NumberOfVertexShaders="1" NumberOfFragmentShaders="1">
+
+
+
+  <Property name="Property1">
+    <Member name="AmbientColor" number_of_elements="3" type="Double" value="0.75 0.75 0.75"> </Member>
+    <Member name="DiffuseColor" number_of_elements="3" type="Double" value="0.6 0.6 0.0"> </Member>
+    <Member name="SpecularColor" number_of_elements="3" type="Double" value="0.0 0.0 0.6"> </Member>
+
+    <Member name="Ambient" number_of_elements="1" type="Double" value="0.45"> </Member>
+    <Member name="Diffuse" number_of_elements="1"  type="Double" value="0.45"> </Member>
+  </Property>
+
+
+
+  <Shader scope="Vertex" name="Ch15GoochVert" location="OrangeBook/Ch15/Ch15GoochVert.glsl" language="GLSL" entry="main" args="-DVERTEX_PROGRAM">
+
+    <Uniform type="vec3" name="LightPosition" number_of_elements="3" value="0.0 10.0 4.0"> </Uniform>
+    <!--
+    <LightUniform  value="Position" name="LightPosition" > </LightUniform>
+    -->
+
+  </Shader>
+
+
+
+  <Shader scope="Fragment" name="Ch15GoochFrag" location="OrangeBook/Ch15/Ch15GoochFrag.glsl" language="GLSL" entry="fragment_program" args="-DFRAGMENT_PROGRAM">
+
+    <PropertyUniform  value="AmbientColor" name="SurfaceColor"> </PropertyUniform>
+    <PropertyUniform  value="DiffuseColor" name="WarmColor"> </PropertyUniform>
+    <PropertyUniform  value="SpecularColor" name="CoolColor"> </PropertyUniform>
+
+    <PropertyUniform  value="Ambient" name="DiffuseWarm"> </PropertyUniform>
+    <PropertyUniform  value="Diffuse" name="DiffuseCool"> </PropertyUniform>
+
+    <!--
+    <varying type="Float" name="NdotL" Index="1">
+    </varying>
+    <varying type="vec3" name="ReflectVec" Index="1">
+    </varying>
+    <varying type="vec3" name="ViewVec" Index="1">
+    </varying>
+    -->
+
+
+
+  </Shader>
+
+
+
+</Material>
