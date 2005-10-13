@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Material name="Mat1" NumberOfProperties="1" NumberOfVertexShaders="1" NumberOfFragmentShaders="1">>
+
+
+
+  <Property name="Property1">
+    <!--
+    <Member name="Color" number_of_elements="3" type="Double" value="0.75 0.75 0.75">
+    </Member>
+    -->
+    <Member name="AmbientColor" number_of_elements="3" type="Double" value="0.0 0.0 0.15"> </Member>
+    <Member name="DiffuseColor" number_of_elements="3" type="Double" value="0.65 0.55 0.15"> </Member>
+    <Member name="SpecularColor" number_of_elements="3" type="Double" value="1.0 1.0 1.0"> </Member>
+
+    <Member name="EdgeColor" number_of_elements="3" type="Double" value="0.0 0.0 0.0"> </Member>
+    <Member name="Ambient" number_of_elements="1" type="Double" value="0.5"> </Member>
+    <Member name="Diffuse" number_of_elements="1"  type="Double" value="0.6"> </Member>
+    <Member name="Specular" number_of_elements="1"  type="Double" value="0.4"> </Member>
+    <Member name="SpecularPower" number_of_elements="1"  type="Double" value="0.0"> </Member>
+    <Member name="Opacity" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="PointSize" number_of_elements="1"  type="Float" value="1.0"> </Member>
+    <Member name="LineWidth" number_of_elements="1"  type="Float" value="1.0"> </Member>
+    <!-- Setting this to '0' here causes the object to disappear in the scene
+    <Member name="LineStipplePattern" number_of_elements="1"  type="Int" value="1">
+    </Member>
+    -->
+    <Member name="LineStippleRepeatFactor" number_of_elements="1"  type="Int" value="1"> </Member>
+    <Member name="Interpolation" number_of_elements="1"  type="Int" value="1"> </Member>
+    <Member name="Representation" number_of_elements="1"  type="Int" value="2"> </Member>
+    <Member name="EdgeVisibility" number_of_elements="1"  type="Int" value="0"> </Member>
+    <Member name="BackfaceCulling" number_of_elements="1"  type="Int" value="0"> </Member>
+    <Member name="FrontfaceCulling" number_of_elements="1"  type="Int" value="0"> </Member>
+  </Property>
+
+
+
+  <Shader scope="Vertex" name="brickVert" location="OrangeBook/Ch06/Ch06BrickVert.glsl" language="GLSL" entry="main" args="-DVERTEX_PROGRAM">
+
+    <Uniform type="vec3" name="LightPosition" number_of_elements="3" value="0.0 10.0 4.0"> </Uniform>
+
+  </Shader>
+
+
+
+  <Shader scope="Fragment" name="brickFrag" location="OrangeBook/Ch06/Ch06BrickFrag.glsl" language="GLSL" entry="main" args="-DFRAGMENT_PROGRAM">
+
+    <Uniform type="vec3" name="BrickColor" number_of_elements="3" value="0.75 0.15 0.15"> </Uniform>
+    <Uniform type="vec3" name="MortarColor" number_of_elements="3" value="0.75 0.75 0.75"> </Uniform>
+    <Uniform type="vec2" name="BrickSize" number_of_elements="2" value="0.75 0.75"> </Uniform>
+    <Uniform type="vec2" name="BrickPct" number_of_elements="2" value="0.75 0.75"> </Uniform>
+
+  </Shader>
+
+
+
+</Material>
