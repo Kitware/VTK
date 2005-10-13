@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Material name="UnnamedMaterial" number_of_properties="1" number_of_vertex_shaders="1"  number_of_fragment_shaders="1" >
+
+  <Property name="Property1">
+    <!--
+    <Texture dimension="2D" format="bmp" location="Textures/texture.bmp"> </Texture>
+    <Texture dimension="2D" format="bmp" location="Textures/masonry.bmp"> </Texture>
+    -->
+    <Texture name="earthTexture" type="2D" format="ppm" location="Textures/earth.ppm"> </Texture>
+  </Property>
+
+  <Shader scope="Vertex" name="Ch10Earth1DTexVertex" location="OrangeBook/Ch10/Ch10Earth1DTexVert.glsl"  language="GLSL" entry="main">
+    <LightUniform value="Position" name="LightPosition"> </LightUniform>
+  </Shader>
+
+  <Shader scope="Fragment" name="Ch10Earth1DTexFrag" location="OrangeBook/Ch10/Ch10Earth1DTexFrag.glsl"  language="GLSL" entry="main">
+    <!--
+    <SamplerUniform type="sampler2D" name="EarthTexture" value="1"> </SamplerUniform>
+    -->
+    <Uniform type="int" name="EarthTexture" number_of_elements="1" value="0"> </Uniform>
+  </Shader>
+
+</Material>
