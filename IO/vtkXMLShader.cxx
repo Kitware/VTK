@@ -22,7 +22,7 @@
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkXMLShader);
-vtkCxxRevisionMacro(vtkXMLShader, "1.4");
+vtkCxxRevisionMacro(vtkXMLShader, "1.5");
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
 //-----------------------------------------------------------------------------
 vtkXMLShader::vtkXMLShader()
@@ -132,17 +132,20 @@ char* vtkXMLShader::LocateFile(const char* filename)
 //-----------------------------------------------------------------------------
 void vtkXMLShader::ReadCodeFromFile(const char* filepath)
 {
+  // Delete the existing code first. If 'filepath' doesn't exist,
+  // default to standard rendering.
+  if (this->Code)
+    {
+    delete [] this->Code;
+    this->Code = 0;
+    }
+
   ifstream ifp;
   ifp.open(filepath);
   if (!ifp)
     {
     vtkErrorMacro("Failed to open file " << filepath);
     return;
-    }
-  if (this->Code)
-    {
-    delete [] this->Code;
-    this->Code = 0;
     }
 
   // determine the length of the file.
@@ -151,11 +154,13 @@ void vtkXMLShader::ReadCodeFromFile(const char* filepath)
   length = ifp.tellg();
   ifp.seekg(0, ios::beg);
 
-  this->Code = new char[length+10];
+  // Allocate for the file and the null terminator.
+  this->Code = new char[length+1];
   ifp.read(this->Code, length);
   ifp.close();
+  // Null terminate the string so GL doesn't get confused.
+  this->Code[length] = '\0';
 }
-
 //-----------------------------------------------------------------------------
 int vtkXMLShader::GetLanguage()
 {
