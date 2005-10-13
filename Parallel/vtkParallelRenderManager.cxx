@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.55");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.56");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -134,11 +134,11 @@ vtkParallelRenderManager::~vtkParallelRenderManager()
     this->AddedRMIs = 0;
     }
   this->SetController(NULL);
-  this->FullImage->Delete();
-  this->ReducedImage->Delete();
-  this->Viewports->Delete();
-  this->Timer->Delete();
-  this->Renderers->Delete();
+  if (this->FullImage) this->FullImage->Delete();
+  if (this->ReducedImage) this->ReducedImage->Delete();
+  if (this->Viewports) this->Viewports->Delete();
+  if (this->Timer) this->Timer->Delete();
+  if (this->Renderers) this->Renderers->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -628,6 +628,7 @@ void vtkParallelRenderManager::StartRender()
       {
       renInfoDouble.ParallelScale = 0.0;
       }
+    renInfoInt.Draw = ren->GetDraw();
     vtkLightCollection *lc = ren->GetLights();
     renInfoInt.NumberOfLights = lc->GetNumberOfItems();
 
@@ -1806,8 +1807,6 @@ void vtkParallelRenderManager::SatelliteStartRender()
     {
     return;
     }
-  
-  this->ReceiveWindowInformation();
 
   this->RenderWindow->SetDesiredUpdateRate(winInfoDouble.DesiredUpdateRate);
   this->SetUseCompositing(winInfoInt.UseCompositing);
@@ -1820,6 +1819,9 @@ void vtkParallelRenderManager::SatelliteStartRender()
   this->FullImageSize[1] = winInfoInt.FullSize[1];
   this->ReducedImageSize[0] = winInfoInt.ReducedSize[0];
   this->ReducedImageSize[1] = winInfoInt.ReducedSize[1];
+  
+  this->ReceiveWindowInformation();
+
   this->SetRenderWindowSize();
 
   vtkCollectionSimpleIterator rsit;
@@ -1837,10 +1839,11 @@ void vtkParallelRenderManager::SatelliteStartRender()
       {
       continue;
       }
-    if (!this->Controller->Receive((double *)(&renInfoDouble),
-                                   vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE,
-                                   this->RootProcessId,
-                                   vtkParallelRenderManager::REN_INFO_DOUBLE_TAG))
+    if (!this->Controller->Receive(
+                                 (double *)(&renInfoDouble),
+                                 vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE,
+                                 this->RootProcessId,
+                                 vtkParallelRenderManager::REN_INFO_DOUBLE_TAG))
       {
       continue;
       }
@@ -1875,6 +1878,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
         {
         cam->ParallelProjectionOff();
         }
+      ren->SetDraw(renInfoInt.Draw);
       lc = ren->GetLights();
       lc->InitTraversal(lsit);
       }

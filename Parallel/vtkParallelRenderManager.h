@@ -485,6 +485,7 @@ protected:
   
   struct RendererInfoInt
   {
+    int Draw;
     int NumberOfLights;
   };
 
