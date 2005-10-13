@@ -101,7 +101,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.59");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.60");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -419,10 +419,13 @@ void vtkXOpenGLRenderWindow::SetStereoCapableWindow(int capable)
 }
 
 static int PbufferAllocFail = 0;
-static int pbuffer_error_handler(Display*, XErrorEvent*)
+extern "C"
 {
-  PbufferAllocFail = 1;
-  return 1;
+  static int pbuffer_error_handler(Display*, XErrorEvent*)
+  {
+    PbufferAllocFail = 1;
+    return 1;
+  }
 }
 
 // Initialize the window for rendering.
@@ -624,7 +627,7 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
                                     this->AlphaBitPlanes, vtkglX::PBUFFER_BIT);
           if(fb)
             {
-            XSetErrorHandler(pbuffer_error_handler);
+            XErrorHandler previousHandler = XSetErrorHandler(pbuffer_error_handler);
             this->Internal->PbufferContextId = 
               vtkglX::CreateNewContext(this->DisplayId, fb[0], vtkglX::RGBA_TYPE, NULL, true);
             int atts [] = 
@@ -637,7 +640,7 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
             vtkglX::MakeContextCurrent( this->DisplayId, this->Internal->Pbuffer, 
                                         this->Internal->Pbuffer, this->Internal->PbufferContextId );
             XFree(fb);
-            XSetErrorHandler(NULL);
+            XSetErrorHandler(previousHandler);
             
             // failed to allocate Pbuffer, clean up
             if(PbufferAllocFail)
