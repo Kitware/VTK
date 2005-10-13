@@ -339,7 +339,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.8")
+vtkCxxRevisionMacro(vtkShader, "1.9")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -574,117 +574,7 @@ void vtkShader::SetUniformParameter(vtkActor* , vtkRenderer* ,
     {
     return; // no need to update.
     }
-  const char* name = elem->GetAttribute("name");
-  const char* ctype = elem->GetAttribute("type");
-  const char* cvalue = elem->GetAttribute("value");
-
-  if (!ctype)
-    {
-    vtkErrorMacro("Missing required attribute 'type' on name=" << name);
-    return;
-    }
-
-  int number_of_elements = 0;
-  if (!elem->GetScalarAttribute("number_of_elements", number_of_elements))
-    {
-    vtkErrorMacro("Missing return attribute 'number_of_elements' " << name );
-    return;
-    }
-
-  if (number_of_elements <= 0)
-    {
-    vtkErrorMacro("'number_of_elements' cannot be " << number_of_elements);
-    return;
-    }
-
-  if (!cvalue && !this->HasShaderVariable(name))
-    {
-    vtkErrorMacro("Variable '" << name << "' doesn't have a value specified in the XML"
-      << " nor as a Shader Variable.");
-    return;
-    }
-
-  int type = vtkShaderGetType(ctype);
-  if (!cvalue && type != this->GetShaderVariableType(name))
-    {
-    vtkErrorMacro("Parameter type mismatch: " << name);
-    return;
-    }
-
-  if (!cvalue && number_of_elements != this->GetShaderVariableSize(name))
-    {
-    vtkErrorMacro("Parameter size mismatch: " << name);
-    return;
-    }
-
-  switch (type)
-    {
-  case VTK_INT:
-      {
-      int *v = new int [number_of_elements];
-      if  ((cvalue && elem->GetVectorAttribute("value", number_of_elements, v))
-        ||(!cvalue && this->GetShaderVariable(name, v)))
-        {
-        this->SetUniformParameter(name, number_of_elements, v);
-        }
-      else
-        {
-        vtkErrorMacro("Failed to set unform variable : " << name);
-        }
-      delete []v;
-      }
-    break;
-
-  case VTK_FLOAT:
-      {
-      float *v = new float [number_of_elements];
-      if  ((cvalue && elem->GetVectorAttribute("value", number_of_elements, v))
-        ||(!cvalue && this->GetShaderVariable(name, v)))
-        {
-        this->SetUniformParameter(name, number_of_elements, v);
-        }
-      else
-        {
-        vtkErrorMacro("Failed to set unform variable : " << name);
-        }     
-      delete []v;
-      }
-    break;
-
-  case VTK_DOUBLE:
-      {
-      double *v = new double[number_of_elements];
-      if  ((cvalue && elem->GetVectorAttribute("value", number_of_elements, v))
-        ||(!cvalue && this->GetShaderVariable(name, v)))
-        {
-        this->SetUniformParameter(name, number_of_elements, v);
-        }
-      else
-        {
-        vtkErrorMacro("Failed to set unform variable : " << name);
-        }
-      delete []v;
-      }
-    break;
-
-  default:
-    vtkErrorMacro("Invalid type: " << ctype);
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkShader::SetCameraParameter(vtkActor* , vtkRenderer* ren, 
-  vtkXMLDataElement* elem)
-{
-  vtkCamera* camera = ren->GetActiveCamera();
-
-  if (camera->GetMTime() < this->PassShaderVariablesTime)
-    {
-    // no need to update.
-    return;
-    }
-
-  const char* name = elem->GetAttribute("name");
+ame: Command not found.
   const char* value = elem->GetAttribute("value");
   
   if (!value)
@@ -794,7 +684,7 @@ void vtkShader::SetPropertyParameter(vtkActor* actor, vtkRenderer* ,
   const char* name = elem->GetAttribute("name");
   if (!name)
     {
-    vtkErrorMacro("Missing required attribute 'name' on name=" << name);
+    vtkErrorMacro("Missing required attribute 'name'");
     return;
     }
 
