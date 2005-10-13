@@ -21,7 +21,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.61");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.62");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 class vtkCTFNode
@@ -747,6 +747,8 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
     tPtr   ++;
     tmpPtr ++;
     }
+
+  delete tmpTable;
 }
 
 //----------------------------------------------------------------------------
@@ -786,7 +788,9 @@ const unsigned char *vtkColorTransferFunction::GetTable( double xStart, double x
     tPtr   ++;
     tmpPtr ++;
     }
-  
+
+  delete tmpTable;
+
   this->BuildTime.Modified();
   return this->Table;
 }
@@ -843,6 +847,7 @@ int vtkColorTransferFunction::GetNodeValue( int index, double val[6] )
   
   return 1;
 }
+
 //----------------------------------------------------------------------------
 void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
 {
