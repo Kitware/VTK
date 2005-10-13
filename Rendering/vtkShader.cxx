@@ -339,7 +339,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.7")
+vtkCxxRevisionMacro(vtkShader, "1.8")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -792,13 +792,19 @@ void vtkShader::SetPropertyParameter(vtkActor* actor, vtkRenderer* ,
     return;
     }
   const char* name = elem->GetAttribute("name");
+  if (!name)
+    {
+    vtkErrorMacro("Missing required attribute 'name' on name=" << name);
+    return;
+    }
+
   const char* value = elem->GetAttribute("value");
   if (!value)
     {
     vtkErrorMacro("Missing required attribute 'value' on name=" << name);
     return;
     }
-  
+
   if( strcmp(value,"Color")==0 )
     {
     this->SetUniformParameter(name, 3, property->GetColor());
