@@ -339,7 +339,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.12")
+vtkCxxRevisionMacro(vtkShader, "1.13")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -567,7 +567,7 @@ void vtkShader::SetShaderParameters(vtkActor* actor, vtkRenderer* renderer,
 }
 
 
-void vtkShader::SetUniformParameter(vtkActor* , vtkRenderer* ren, 
+void vtkShader::SetUniformParameter(vtkActor* , vtkRenderer* ,
                                     vtkXMLDataElement* elem)
   {
     if (this->GetMTime() < this->PassShaderVariablesTime)
