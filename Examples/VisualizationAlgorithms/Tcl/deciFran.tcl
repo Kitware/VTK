@@ -19,7 +19,7 @@ vtkDecimatePro deci
     deci SetTargetReduction 0.9
     deci PreserveTopologyOn
 vtkPolyDataNormals normals
-    normals SetInputConnection [fran GetOutputPort]
+    normals SetInputConnection [deci GetOutputPort]
     normals FlipNormalsOn
 vtkPolyDataMapper franMapper
     franMapper SetInputConnection [normals GetOutputPort]
