@@ -339,7 +339,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.10")
+vtkCxxRevisionMacro(vtkShader, "1.11")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -567,14 +567,22 @@ void vtkShader::SetShaderParameters(vtkActor* actor, vtkRenderer* renderer,
 }
 
 //-----------------------------------------------------------------------------
-void vtkShader::SetUniformParameter(vtkActor* , vtkRenderer* , 
+void vtkShader::SetCameraParameter(vtkActor* , vtkRenderer* ren, 
   vtkXMLDataElement* elem)
 {
+  vtkCamera* camera = ren->GetActiveCamera();
   if (this->GetMTime() < this->PassShaderVariablesTime)
     {
     return; // no need to update.
     }
+  const char* name = elem->GetAttribute("value");
   const char* value = elem->GetAttribute("value");
+  
+  if (!name)
+    {
+    vtkErrorMacro("Missing required attribute 'name' on name=");
+    return;
+    }
   
   if (!value)
     {
