@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.83");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.84");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -184,23 +184,32 @@ int vtkProbeFilter::RequestInformation(
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
+  outInfo->CopyEntry(sourceInfo, 
+                     vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
                6);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-               inInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
+               inInfo->Get(
+                 vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
 
   // Special case for ParaView.
   if (this->SpatialMatch == 2)
     {
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-                 sourceInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
+    outInfo->Set(
+      vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+      sourceInfo->Get(
+        vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
     }
   
   if (this->SpatialMatch == 1)
     {
-    int m1 = inInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
-    int m2 = sourceInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
+    int m1 = 
+      inInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
+    int m2 = 
+      sourceInfo->Get(
+        vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
     if (m1 < 0 && m2 < 0)
       {
       outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
