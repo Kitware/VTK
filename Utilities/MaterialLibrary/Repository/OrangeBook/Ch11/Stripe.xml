@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Material>
+  <Property name="Property1">
+    <Member name="AmbientColor" number_of_elements="3" type="Double" value="1.0 1.0 1.0"> </Member>
+    <Member name="DiffuseColor" number_of_elements="3" type="Double" value="1.0 1.0 1.0"> </Member>
+    <Member name="SpecularColor" number_of_elements="3" type="Double" value="1.0 1.0 1.0"> </Member>
+
+    <Member name="EdgeColor" number_of_elements="3" type="Double" value="1.0 1.0 1.0"> </Member>
+    <Member name="Ambient" number_of_elements="1" type="Double" value="1.0"> </Member>
+    <Member name="Diffuse" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="Specular" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="SpecularPower" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="Opacity" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="PointSize" number_of_elements="1"  type="Float" value="1.0"> </Member>
+    <Member name="LineWidth" number_of_elements="1"  type="Float" value="1.0"> </Member>
+    <Member name="Interpolation" number_of_elements="1"  type="Int" value="1"> </Member>
+    <Member name="Representation" number_of_elements="1"  type="Int" value="2"> </Member>
+    <Member name="EdgeVisibility" number_of_elements="1"  type="Int" value="0"> </Member>
+    <Member name="BackfaceCulling" number_of_elements="1"  type="Int" value="0"> </Member>
+    <Member name="FrontfaceCulling" number_of_elements="1"  type="Int" value="0"> </Member>
+  </Property>
+
+
+
+  <Shader scope="Vertex" name="Ch11StripeVert.glsl" location="OrangeBook/Ch11/Ch11StripeVert.glsl"  language="GLSL" entry="main">
+    <LightUniform  value="Position" name="LightPosition"> </LightUniform>
+    <LightUniform  value="AmbientColor" name="LightColor"> </LightUniform>
+
+    <CameraUniform  value="Position" name="EyePosition"> </CameraUniform>
+
+    <PropertyUniform  value="SpecularColor" name="Specular"> </PropertyUniform>
+    <PropertyUniform  value="AmbientColor" name="Ambient"> </PropertyUniform>
+    <PropertyUniform  value="Diffuse" name="Kd"> </PropertyUniform>
+  </Shader>
+
+
+
+  <Shader scope="Fragment" name="Ch11StripeFrag.glsl" location="OrangeBook/Ch11/Ch11StripeFrag.glsl"  language="GLSL" entry="main">
+
+    <Uniform type="vec3" name="StripeColor" number_of_elements="3" value="1.0 0.5 0.5"> </Uniform>
+    <Uniform type="vec3" name="BackColor" number_of_elements="3" value="0.5 0.5 1.0"> </Uniform>
+
+    <Uniform type="float" name="Width" number_of_elements="1" value="0.5"> </Uniform>
+    <Uniform type="float" name="Fuzz" number_of_elements="1" value="1.0"> </Uniform>
+    <Uniform type="float" name="Scale" number_of_elements="1" value="10.0"> </Uniform>
+
+  </Shader>
+
+
+
+</Material>

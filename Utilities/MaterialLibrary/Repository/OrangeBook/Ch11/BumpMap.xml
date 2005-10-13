@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Material>
+  <Property name="Property1">
+    <Member name="AmbientColor" number_of_elements="3" type="Double" value="0.1 0.1 0.8"> </Member>
+    <Member name="DiffuseColor" number_of_elements="3" type="Double" value="1.0 1.0 1.0"> </Member>
+    <Member name="SpecularColor" number_of_elements="3" type="Double" value="1.0 1.0 1.0"> </Member>
+
+    <Member name="EdgeColor" number_of_elements="3" type="Double" value="1.0 1.0 1.0"> </Member>
+    <Member name="Ambient" number_of_elements="1" type="Double" value="1.0"> </Member>
+    <Member name="Diffuse" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="Specular" number_of_elements="1"  type="Double" value="0.9"> </Member>
+    <Member name="SpecularPower" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="Opacity" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="PointSize" number_of_elements="1"  type="Float" value="1.0"> </Member>
+    <Member name="LineWidth" number_of_elements="1"  type="Float" value="1.0"> </Member>
+  </Property>
+
+  <Shader scope="Vertex" name="OrangeBook/Ch11/Ch11BumpMapVert.glsl" location="OrangeBook/Ch11/Ch11BumpMapVert.glsl"  language="GLSL" entry="main">
+    <LightUniform  value="Position"  name="LightPosition"> </LightUniform>
+</Shader>
+
+
+
+<Shader scope="Fragment" name="OrangeBook/Ch11/Ch11BumpMapFrag.glsl" location="OrangeBook/Ch11/Ch11BumpMapFrag.glsl"  language="GLSL" entry="main">
+
+    <PropertyUniform  value="AmbientColor" name="SurfaceColor"> </PropertyUniform>
+    <PropertyUniform  value="Specular" name="SpecularFactor"> </PropertyUniform>
+
+    <Uniform type="float" name="BumpDensity" number_of_elements="1" value="15.0"> </Uniform>
+    <Uniform type="float" name="BumpSize" number_of_elements="1" value="0.15"> </Uniform>
+
+</Shader>
+
+</Material>
