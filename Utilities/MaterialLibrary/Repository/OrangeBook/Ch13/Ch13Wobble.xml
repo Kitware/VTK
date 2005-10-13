@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Material>
+
+  <Property name="Property1">
+    <!--
+    <Texture dimension="Texture2D" format="bmp" location="Textures/Rust.bmp"> </Texture>
+    <Texture dimension="Texture2D" format="bmp" location="Textures/RgbRand.bmp"> </Texture>
+    -->
+    <Texture name="goodOleMasonry" type="Texture2D" format="bmp" location="Textures/masonry.bmp"> </Texture>
+  </Property>
+
+  <Shader scope="Vertex" name="OrangeBook/Ch13/Ch13WobbleVert.glsl" location="OrangeBook/Ch13/Ch13WobbleVert.glsl"  language="GLSL" entry="main">
+    <LightUniform  value="Position" name="LightPosition"> </LightUniform>
+  </Shader>
+
+  <Shader scope="Fragment" name="OrangeBook/Ch13/Ch13WobbleFrag.glsl" location="OrangeBook/Ch13/Ch13WobbleFrag.glsl"  language="GLSL" entry="main">
+
+    <PropertyUniform  value="MTime" name="mtime"> </PropertyUniform>
+
+    <Uniform type="float" name="StartRad" number_of_elements="1" value="1.0"> </Uniform>
+    <Uniform type="vec2" name="Freq" number_of_elements="2" value="0.000000001 0.0001"> </Uniform>
+    <Uniform type="vec2" name="Amplitude" number_of_elements="2" value="1.0 1.0"> </Uniform>
+    <!--
+    <SamplerUniform type="sampler2D" name="WobbleTex" value="0"> </SamplerUniform>
+    -->
+    <Uniform type="int" name="WobbleTex" number_of_elements="1" value="0"> </Uniform>
+  </Shader>
+
+</Material>

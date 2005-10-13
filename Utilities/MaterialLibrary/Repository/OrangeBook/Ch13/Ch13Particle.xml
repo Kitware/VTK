@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Material>
+
+  <Property name="Property1">
+    <Member name="AmbientColor" number_of_elements="3" type="Double" value="1.0 1.0 1.0"> </Member>
+    <Member name="DiffuseColor" number_of_elements="3" type="Double" value="1.0 1.0 1.0"> </Member>
+    <Member name="SpecularColor" number_of_elements="3" type="Double" value="1.0 1.0 1.0"> </Member>
+
+    <Member name="EdgeColor" number_of_elements="3" type="Double" value="1.0 1.0 1.0"> </Member>
+    <Member name="Ambient" number_of_elements="1" type="Double" value="1.0"> </Member>
+    <Member name="Diffuse" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="Specular" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="SpecularPower" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="Opacity" number_of_elements="1"  type="Double" value="1.0"> </Member>
+    <Member name="PointSize" number_of_elements="1"  type="Float" value="1.0"> </Member>
+    <Member name="LineWidth" number_of_elements="1"  type="Float" value="1.0"> </Member>
+    <Member name="LineStippleRepeatFactor" number_of_elements="1"  type="Int" value="1"> </Member>
+    <Member name="Interpolation" number_of_elements="1"  type="Int" value="1"> </Member>
+    <Member name="Representation" number_of_elements="1"  type="Int" value="2"> </Member>
+    <Member name="EdgeVisibility" number_of_elements="1"  type="Int" value="0"> </Member>
+    <Member name="BackfaceCulling" number_of_elements="1"  type="Int" value="0"> </Member>
+    <Member name="FrontfaceCulling" number_of_elements="1"  type="Int" value="0"> </Member>
+  </Property>
+
+  <Shader scope="Vertex" name="OrangeBook/Ch13/Ch13ParticleVert.glsl" location="OrangeBook/Ch13/Ch13ParticleVert.glsl"  language="GLSL" entry="main">
+    <Uniform type="float" name="Time" number_of_elements="1" value="1.0"> </Uniform>
+    <Uniform type="vec4" name="Background" number_of_elements="4" value="1.0 1.0 1.0 1.0"> </Uniform>
+  </Shader>
+
+  <Shader scope="Fragment" name="OrangeBook/Ch13/Ch13ParticleFrag.glsl" location="OrangeBook/Ch13/Ch13ParticleFrag.glsl"  language="GLSL" entry="main">
+  </Shader>
+
+</Material>
