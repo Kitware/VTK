@@ -28,6 +28,7 @@ vtkAssembly.cxx
 vtkAxisActor2D.cxx
 vtkCamera.cxx
 vtkCameraInterpolator.cxx
+vtkCellCenterDepthSort.cxx
 vtkCellPicker.cxx
 vtkChooserPainter.cxx
 vtkClipPlanesPainter.cxx
@@ -119,6 +120,7 @@ vtkTexture.cxx
 vtkTransformInterpolator.cxx
 vtkTStripsPainter.cxx
 vtkTupleInterpolator.cxx
+vtkVisibilitySort.cxx
 vtkVRMLExporter.cxx
 vtkVolume.cxx
 vtkVolumeCollection.cxx
@@ -189,6 +191,7 @@ vtkPrimitivePainter
 vtkProp3D
 vtkShader
 vtkShaderProgram
+vtkVisibilitySort.cxx
 ABSTRACT
 )
 

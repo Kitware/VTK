@@ -42,7 +42,7 @@ class vtkFloatArray;
 
 class vtkCellCenterDepthSortStack;
 
-class VTK_GRAPHICS_EXPORT vtkCellCenterDepthSort : public vtkVisibilitySort
+class VTK_RENDERING_EXPORT vtkCellCenterDepthSort : public vtkVisibilitySort
 {
 public:
   vtkTypeRevisionMacro(vtkCellCenterDepthSort, vtkVisibilitySort);

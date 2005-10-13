@@ -24,7 +24,6 @@ vtkButterflySubdivisionFilter.cxx
 vtkButtonSource.cxx
 vtkBSPCuts.cxx
 vtkBSPIntersections.cxx
-vtkCellCenterDepthSort.cxx
 vtkCellCenters.cxx
 vtkCellDataToPointData.cxx
 vtkCellDerivatives.cxx
@@ -204,7 +203,6 @@ vtkTriangularTCoords.cxx
 vtkTubeFilter.cxx
 vtkVectorDot.cxx
 vtkVectorNorm.cxx
-vtkVisibilitySort.cxx
 vtkVoxelContoursToSurfaceFilter.cxx
 vtkWarpLens.cxx
 vtkWarpScalar.cxx
@@ -219,7 +217,6 @@ vtkButtonSource
 vtkDicer
 vtkInterpolatingSubdivisionFilter
 vtkStreamer
-vtkVisibilitySort.cxx
 ABSTRACT
 )
 
