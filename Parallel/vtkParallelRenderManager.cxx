@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.56");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.57");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -1197,118 +1197,104 @@ int vtkParallelRenderManager::ChooseBuffer()
 }
 
 //----------------------------------------------------------------------------
-static void MagnifyImageNearest(vtkUnsignedCharArray *fullImage,
-                                int fullImageSize[2],
-                                vtkUnsignedCharArray *reducedImage,
-                                int reducedImageSize[2],
-                                vtkTimerLog *timer)
+void vtkParallelRenderManager::MagnifyImageNearest(
+                                             vtkUnsignedCharArray *fullImage,
+                                             const int fullImageSize[2],
+                                             vtkUnsignedCharArray *reducedImage,
+                                             const int reducedImageSize[2])
 {
   int numComp = reducedImage->GetNumberOfComponents();;
 
   fullImage->SetNumberOfComponents(numComp);
   fullImage->SetNumberOfTuples(fullImageSize[0]*fullImageSize[1]);
 
-  timer->StartTimer();
-
-  // Inflate image.
-  double xstep = (double)reducedImageSize[0]/fullImageSize[0];
-  double ystep = (double)reducedImageSize[1]/fullImageSize[1];
-  unsigned char *lastsrcline = NULL;
-  for (int y = 0; y < fullImageSize[1]; y++)
+  if (numComp == 4)
     {
-    unsigned char *destline =
-      fullImage->GetPointer(numComp*fullImageSize[0]*y);
-    unsigned char *srcline =
-      reducedImage->GetPointer(numComp*reducedImageSize[0]*(int)(ystep*y));
-    if (srcline == lastsrcline)
+    // If there are 4 components per pixel, we can speed up the inflation
+    // by copying integers instead of characters.
+
+    // Making a bunch of tmp variables for speed within the loops
+    // Look I know the compiler should optimize this stuff
+    // but I don't trust compilers... besides testing shows
+    // this code is faster than the old code
+    float xstep = (float)reducedImageSize[0]/fullImageSize[0];
+    float ystep = (float)reducedImageSize[1]/fullImageSize[1];
+    float xaccum=0, yaccum=0;
+    int xfullsize = fullImageSize[0];
+    int xmemsize = xfullsize*numComp;
+    int yfullsize = fullImageSize[1];
+    int xreducedsize = reducedImageSize[0];
+    unsigned int *lastsrcline = NULL;
+    unsigned int *destline = (unsigned int*)fullImage->GetPointer(0);
+    unsigned int *srcline = (unsigned int*)reducedImage->GetPointer(0);
+    unsigned int *srczero = srcline;
+
+    // Inflate image.
+    for (int y=0; y < yfullsize; ++y, yaccum+=ystep)
       {
-      // This line same as last one.
-      memcpy(destline,
-             (const unsigned char *)(destline - numComp*fullImageSize[0]),
-             numComp*fullImageSize[0]);
-      }
-    else
-      {
-      for (int x = 0; x < fullImageSize[0]; x++)
+      // If this line same as last one.
+      if (srcline == lastsrcline)
         {
-        int srcloc = numComp*(int)(x*xstep);
-        int destloc = numComp*x;
-        for (int i = 0; i < numComp; i++)
+        memcpy(destline, destline - xfullsize, xmemsize);
+        }
+      else
+        {
+        for (int x = 0; x < xfullsize; ++x, xaccum+=xstep)
           {
-          destline[destloc + i] = srcline[srcloc + i];
+          destline[x] = srcline[(int)(xaccum)];
           }
+        xaccum=0;
+        lastsrcline = srcline;
         }
-      lastsrcline = srcline;
+      destline += xfullsize;
+      srcline = srczero + xreducedsize * int(yaccum); // Performance fixme
       }
     }
-
-  timer->StopTimer();
-}
-static void MagnifyImageNearestFourComp(vtkUnsignedCharArray *fullImage,
-                                int fullImageSize[2],
-                                vtkUnsignedCharArray *reducedImage,
-                                int reducedImageSize[2],
-                                vtkTimerLog *timer)
-{
-  int numComp = reducedImage->GetNumberOfComponents();
-  if (numComp != 4)
+  else
     {
-    vtkGenericWarningMacro("MagnifyImageNearestFourComp only works on 4 component image");
-    return;
-    }
-  fullImage->SetNumberOfComponents(numComp);
-  fullImage->SetNumberOfTuples(fullImageSize[0]*fullImageSize[1]);
-
-  timer->StartTimer();
-
-  // Making a bunch of tmp variables for speed within the loops
-  // Look I know the compiler should optimize this stuff
-  // but I don't trust compilers... besides testing shows
-  // this code is faster than the old code
-  float xstep = (float)reducedImageSize[0]/fullImageSize[0];
-  float ystep = (float)reducedImageSize[1]/fullImageSize[1];
-  float xaccum=0, yaccum=0;
-  int xfullsize = fullImageSize[0];
-  int xmemsize = xfullsize*numComp;
-  int yfullsize = fullImageSize[1];
-  int xreducedsize = reducedImageSize[0];
-  unsigned int *lastsrcline = NULL;
-  unsigned int *destline = (unsigned int*)fullImage->GetPointer(0);
-  unsigned int *srcline = (unsigned int*)reducedImage->GetPointer(0);
-  unsigned int *srczero = srcline;
-
-  // Inflate image.
-  for (int y=0; y < yfullsize; ++y, yaccum+=ystep)
-    {
-    // If this line same as last one.
-    if (srcline == lastsrcline)
+    // Inflate image.
+    double xstep = (double)reducedImageSize[0]/fullImageSize[0];
+    double ystep = (double)reducedImageSize[1]/fullImageSize[1];
+    unsigned char *lastsrcline = NULL;
+    for (int y = 0; y < fullImageSize[1]; y++)
       {
-      memcpy(destline, destline - xfullsize, xmemsize);
-      }
-    else
-      {
-      for (int x = 0; x < xfullsize; ++x, xaccum+=xstep)
+      unsigned char *destline =
+        fullImage->GetPointer(numComp*fullImageSize[0]*y);
+      unsigned char *srcline =
+        reducedImage->GetPointer(numComp*reducedImageSize[0]*(int)(ystep*y));
+      if (srcline == lastsrcline)
         {
-        destline[x] = srcline[(int)(xaccum)];
+        // This line same as last one.
+        memcpy(destline,
+               (const unsigned char *)(destline - numComp*fullImageSize[0]),
+               numComp*fullImageSize[0]);
         }
-      xaccum=0;
-      lastsrcline = srcline;
+      else
+        {
+        for (int x = 0; x < fullImageSize[0]; x++)
+          {
+          int srcloc = numComp*(int)(x*xstep);
+          int destloc = numComp*x;
+          for (int i = 0; i < numComp; i++)
+            {
+            destline[destloc + i] = srcline[srcloc + i];
+            }
+          }
+        lastsrcline = srcline;
+        }
       }
-     destline += xfullsize;
-     srcline = srczero + xreducedsize * int(yaccum); // Performance fixme
     }
-
-  timer->StopTimer();
 }
+
 //----------------------------------------------------------------------------
 // A neat trick to quickly divide all 4 of the bytes in an integer by 2.
 #define VTK_VEC_DIV_2(intvector)    (((intvector) >> 1) & 0x7F7F7F7F)
 
-static void MagnifyImageLinear(vtkUnsignedCharArray *fullImage,
-                               int fullImageSize[2],
-                               vtkUnsignedCharArray *reducedImage,
-                               int reducedImageSize[2],
-                               vtkTimerLog *timer)
+void vtkParallelRenderManager::MagnifyImageLinear(
+                                             vtkUnsignedCharArray *fullImage,
+                                             const int fullImageSize[2],
+                                             vtkUnsignedCharArray *reducedImage,
+                                             const int reducedImageSize[2])
 {
   int xmag, ymag;
   int x, y;
@@ -1317,8 +1303,6 @@ static void MagnifyImageLinear(vtkUnsignedCharArray *fullImage,
   //Allocate full image so all pixels are on 4-byte integer boundaries.
   fullImage->SetNumberOfComponents(4);
   fullImage->SetNumberOfTuples(fullImageSize[0]*fullImageSize[1]);
-
-  timer->StartTimer();
 
   // Guess x and y magnification.  Round up to ensure we do not try to
   // read data from the image data that does not exist.
@@ -1391,6 +1375,25 @@ static void MagnifyImageLinear(vtkUnsignedCharArray *fullImage,
     }
 }
 
+//-----------------------------------------------------------------------------
+void vtkParallelRenderManager::MagnifyImage(vtkUnsignedCharArray *fullimage,
+                                            const int fullImageSize[2],
+                                            vtkUnsignedCharArray *reducedImage,
+                                            const int reducedImageSize[2])
+{
+  switch (this->MagnifyImageMethod)
+    {
+    case vtkParallelRenderManager::NEAREST:
+      this->MagnifyImageNearest(this->FullImage, this->FullImageSize,
+                                this->ReducedImage, this->ReducedImageSize);
+      break;
+    case LINEAR:
+      this->MagnifyImageLinear(this->FullImage, this->FullImageSize,
+                               this->ReducedImage, this->ReducedImageSize);
+      break;
+    }
+}
+
 //----------------------------------------------------------------------------
 void vtkParallelRenderManager::MagnifyReducedImage()
 {
@@ -1403,31 +1406,13 @@ void vtkParallelRenderManager::MagnifyReducedImage()
 
   if (this->FullImage->GetPointer(0) != this->ReducedImage->GetPointer(0))
     {
-    switch (this->MagnifyImageMethod)
-      {
-      case vtkParallelRenderManager::NEAREST:
-        if (this->ReducedImage->GetNumberOfComponents() == 4)
-          {
-          MagnifyImageNearestFourComp(this->FullImage, this->FullImageSize,
-                            this->ReducedImage, this->ReducedImageSize,
-                            this->Timer);
-          }
-        else
-          {
-          MagnifyImageNearest(this->FullImage, this->FullImageSize,
-                            this->ReducedImage, this->ReducedImageSize,
-                            this->Timer);
-          }
-        break;
-      case LINEAR:
-        MagnifyImageLinear(this->FullImage, this->FullImageSize,
-                           this->ReducedImage, this->ReducedImageSize,
-                           this->Timer);
-        break;
-      }
     // We log the image inflation under render time because it is inversely
     // proportional to the image size.  This makes the auto image reduction
     // calculation work better.
+    this->Timer->StartTimer();
+    this->MagnifyImage(this->FullImage, this->FullImageSize,
+                       this->ReducedImage, this->ReducedImageSize);
+    this->Timer->StopTimer();
     this->RenderTime += this->Timer->GetElapsedTime();
     }
 

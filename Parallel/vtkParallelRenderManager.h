@@ -255,6 +255,21 @@ public:
   }
 
   // Description:
+  // Convenience functions for magnifying images.
+  virtual void MagnifyImage(vtkUnsignedCharArray *fullImage,
+                            const int fullImageSize[2],
+                            vtkUnsignedCharArray *reducedImage,
+                            const int reducedImageSize[2]);
+  static void MagnifyImageNearest(vtkUnsignedCharArray *fullImage,
+                                  const int fullImageSize[2],
+                                  vtkUnsignedCharArray *reducedImage,
+                                  const int reducedImageSize[2]);
+  static void MagnifyImageLinear(vtkUnsignedCharArray *fullImage,
+                                 const int fullImageSize[2],
+                                 vtkUnsignedCharArray *reducedImage,
+                                 const int reducedImageSize[2]);
+
+  // Description:
   // The most appropriate way to retrieve full size image data after a
   // render.  Will work regardless of whether WriteBackImages or
   // MagnifyImage is on or off.  The data returned may be a shallow copy of
