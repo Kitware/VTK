@@ -623,6 +623,26 @@ static int TestDriverDebugReport(int type, char* message, int* retVal)
 }
 #endif
 
+
+//----------------------------------------------------------------------------
+
+/* Test setlocale  */
+#include <locale.h>
+int TestSetLocale()
+{
+  char *oldLocale = strdup(setlocale(LC_NUMERIC,NULL));
+  setlocale(LC_NUMERIC,"English");
+  
+  // restore the local
+  if (oldLocale)
+    {
+    setlocale(LC_NUMERIC,oldLocale);
+    delete [] oldLocale;
+    return 1;
+    }
+  return 0;
+}
+
 //----------------------------------------------------------------------------
 
 #define DO_TEST(x) \
@@ -647,6 +667,8 @@ int main()
   DO_TEST(TestBinaryWriting);
   DO_TEST(TestSafeBoolIdiom);
   DO_TEST(TestException);
+  DO_TEST(TestSetLocale);
+  
 #if defined(_MSC_VER) && defined(_DEBUG)
   // just call the code to shut up a linker warning
   int retVal = 0;
