@@ -1,9 +1,33 @@
 PROJECT(MaterialLibrary)
 
-# TODO: Handle no RPATH support.
-ADD_EXECUTABLE(ProcessShader ProcessShader.cxx)
-TARGET_LINK_LIBRARIES(ProcessShader
+# Enable shared link forwarding support it needed.
+SET (ML_EXE_SUFFIX)
+SET (ML_EXE_INSTALL ${VTK_INSTALL_BIN_DIR})
+IF(BUILD_SHARED_LIBS AND CMAKE_SKIP_RPATH AND NOT WIN32)
+  SET (NEED_SHARED_FORWARD 1)
+  SET (ML_EXE_SUFFIX -real)
+  SET (ML_EXE_INSTALL ${VTK_INSTALL_LIB_DIR})
+  SET (ML_FORWARD_DIR_BUILD "${EXECUTABLE_OUTPUT_PATH}")
+  SET (ML_FORWARD_DIR_INSTALL "..${ML_EXE_INSTALL}")
+  SET (ML_FORWARD_PATH_BUILD "\"${ML_FORWARD_DIR_BUILD}\"")
+  SET (ML_FORWARD_PATH_INSTALL "\"${ML_FORWARD_DIR_INSTALL}\"")
+ENDIF(BUILD_SHARED_LIBS AND CMAKE_SKIP_RPATH AND NOT WIN32)
+
+
+ADD_EXECUTABLE(ProcessShader${ML_EXE_SUFFIX} ProcessShader.cxx)
+TARGET_LINK_LIBRARIES(ProcessShader${ML_EXE_SUFFIX}
   vtksys)
+
+# Add shared link forwarding executable if necessary.
+IF (NEED_SHARED_FORWARD)
+  SET (ML_FORWARD_EXE ProcessShader${ML_EXE_SUFFIX})
+  CONFIGURE_FILE(
+    ${MaterialLibrary_SOURCE_DIR}/vtk-forward.c.in
+    ${MaterialLibrary_BINARY_DIR}/ProcessShader-forward.c
+    @ONLY IMMEDIATE)
+  ADD_EXECUTABLE(ProcessShader ${MaterialLibrary_BINARY_DIR}/ProcessShader-forward.c)
+  ADD_DEPENDENCIES(ProcessShader ProcessShader${ML_EXE_SUFFIX})
+ENDIF (NEED_SHARED_FORWARD)
 
 #Macro to copy files over
 MACRO(COPY_FILES_TO_DIR src_dir target_dir)
