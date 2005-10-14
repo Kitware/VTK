@@ -23,7 +23,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.8");
+vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.9");
 vtkStandardNewMacro(vtkCompositeRenderManager);
 
 vtkCxxSetObjectMacro(vtkCompositeRenderManager, Compositer, vtkCompositer);
@@ -74,6 +74,11 @@ void vtkCompositeRenderManager::PreRenderProcessing()
 //----------------------------------------------------------------------------
 void vtkCompositeRenderManager::PostRenderProcessing()
 {
+  if (!this->UseCompositing || this->CheckForAbortComposite())
+    {
+    return;
+    }
+
   if (this->Controller->GetNumberOfProcesses() > 1)
     {
     // Read in data.

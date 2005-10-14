@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.58");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.59");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -683,18 +683,20 @@ void vtkParallelRenderManager::EndRender()
   this->RenderTime = this->Timer->GetElapsedTime();
   this->ImageProcessingTime = 0;
 
-  if (!this->UseCompositing)
-    {
-    this->Lock = 0;
-    return;
-    }
+  // Just because we are not doing compositing does not mean a subclass
+  // does not need to do post render processing.
+//   if (!this->UseCompositing)
+//     {
+//     this->Lock = 0;
+//     return;
+//     }
 
-  // EndRender only happens on root.
-  if (this->CheckForAbortComposite())
-    {
-    this->Lock = 0;
-    return;
-    }  
+//   // EndRender only happens on root.
+//   if (this->CheckForAbortComposite())
+//     {
+//     this->Lock = 0;
+//     return;
+//     }  
 
   this->PostRenderProcessing();
 
@@ -733,10 +735,12 @@ void vtkParallelRenderManager::SatelliteEndRender()
 //    {
 //    return;
 //    }
-  if (!this->UseCompositing)
-    {
-    return;
-    }
+  // Just because we are not doing compositing does not mean a subclass
+  // does not need to do post render processing.
+//   if (!this->UseCompositing)
+//     {
+//     return;
+//     }
 
   this->PostRenderProcessing();
 
