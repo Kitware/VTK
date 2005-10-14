@@ -7,15 +7,17 @@ ENDIF(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
 IF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
   SET(ConditionalTests ${ConditionalTests} TestMovieWriter.cxx)
 ENDIF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
+IF(VTK_USE_RENDERING)
+  SET(ConditionalTests ${ConditionalTests} TestHyperOctreeIO.cxx)
+ENDIF(VTK_USE_RENDERING)
+
 
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestXML.cxx
   TestCompress.cxx
-  TestHyperOctreeIO.cxx
   ${ConditionalTests}
   EXTRA_INCLUDE vtkTestDriver.h
 )
-
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkIO vtkImaging vtksys vtkRendering)
 
