@@ -24,11 +24,11 @@ TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkIO vtkImaging vtksys vtkRendering)
 IF (VTK_DATA_ROOT)
   ADD_TEST(TestXML ${CXX_TEST_PATH}/${KIT}CxxTests TestXML ${VTK_DATA_ROOT}/Data/sample.xml)
   ADD_TEST(TestCompress ${CXX_TEST_PATH}/${KIT}CxxTests TestCompress ${VTK_DATA_ROOT}/Data/sample.xml)
-  IF (VTK_USE_DISPLAY)
+  IF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ADD_TEST(TestHyperOctreeIO ${CXX_TEST_PATH}/${KIT}CxxTests TestHyperOctreeIO         -D ${VTK_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestHyperOctreeIO.png)
-  ENDIF (VTK_USE_DISPLAY)
+  ENDIF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 ENDIF (VTK_DATA_ROOT)
 
 IF(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
