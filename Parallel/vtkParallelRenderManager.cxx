@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.59");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.60");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -1380,7 +1380,7 @@ void vtkParallelRenderManager::MagnifyImageLinear(
 }
 
 //-----------------------------------------------------------------------------
-void vtkParallelRenderManager::MagnifyImage(vtkUnsignedCharArray *fullimage,
+void vtkParallelRenderManager::MagnifyImage(vtkUnsignedCharArray *fullImage,
                                             const int fullImageSize[2],
                                             vtkUnsignedCharArray *reducedImage,
                                             const int reducedImageSize[2])
@@ -1388,12 +1388,12 @@ void vtkParallelRenderManager::MagnifyImage(vtkUnsignedCharArray *fullimage,
   switch (this->MagnifyImageMethod)
     {
     case vtkParallelRenderManager::NEAREST:
-      this->MagnifyImageNearest(this->FullImage, this->FullImageSize,
-                                this->ReducedImage, this->ReducedImageSize);
+      this->MagnifyImageNearest(fullImage, fullImageSize,
+                                reducedImage, reducedImageSize);
       break;
     case LINEAR:
-      this->MagnifyImageLinear(this->FullImage, this->FullImageSize,
-                               this->ReducedImage, this->ReducedImageSize);
+      this->MagnifyImageLinear(fullImage, fullImageSize,
+                               reducedImage, reducedImageSize);
       break;
     }
 }
