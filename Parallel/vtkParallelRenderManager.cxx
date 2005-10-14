@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.57");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.58");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -1406,13 +1406,13 @@ void vtkParallelRenderManager::MagnifyReducedImage()
 
   if (this->FullImage->GetPointer(0) != this->ReducedImage->GetPointer(0))
     {
-    // We log the image inflation under render time because it is inversely
-    // proportional to the image size.  This makes the auto image reduction
-    // calculation work better.
     this->Timer->StartTimer();
     this->MagnifyImage(this->FullImage, this->FullImageSize,
                        this->ReducedImage, this->ReducedImageSize);
     this->Timer->StopTimer();
+    // We log the image inflation under render time because it is inversely
+    // proportional to the image size.  This makes the auto image reduction
+    // calculation work better.
     this->RenderTime += this->Timer->GetElapsedTime();
     }
 
