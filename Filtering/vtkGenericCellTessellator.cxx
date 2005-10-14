@@ -33,7 +33,7 @@
 
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.11");
+vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.12");
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetrics, vtkCollection);
 
 //-----------------------------------------------------------------------------
@@ -176,6 +176,7 @@ void vtkGenericCellTessellator::UpdateMaxError(double *leftPoint,
 // before any tessellation of any cell.
 void vtkGenericCellTessellator::InitErrorMetrics(vtkGenericDataSet *ds)
 {
+  this->Initialize(ds);
   this->ErrorMetrics->InitTraversal();
   vtkGenericSubdivisionErrorMetric *e=static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
   
