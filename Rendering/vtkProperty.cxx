@@ -37,7 +37,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.57");
+vtkCxxRevisionMacro(vtkProperty, "1.58");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -275,34 +275,18 @@ void vtkProperty::LoadMaterial(const char* name)
     }
   this->SetMaterialName(name);
 
-  char* filename = vtkXMLShader::LocateFile(name);
-  if (filename)
+  // vtkXMLMaterial::CreateInstance using library/absolute path/repository
+  // in that order.
+  vtkXMLMaterial* material = vtkXMLMaterial::CreateInstance(name);
+  if (material)
     {
-#if 0
-    vtkXMLMaterialReader* reader = vtkXMLMaterialReader::New();
-    reader->SetFileName(filename);
-    reader->ReadMaterial();
-    this->LoadMaterial(reader->GetMaterial());
-    reader->Delete();
-    delete [] filename;
-#endif
-    vtkXMLMaterial* material = vtkXMLMaterial::CreateInstance(filename);
-    if (material)
-      {
-      // Located material in library. Using it.
-      this->LoadMaterial(material);
-      material->Delete();
-      return;
-      }
-    else
-      {
-      vtkErrorMacro("Failed to create Material from file: " << name);
-      }
-    delete [] filename;
+    this->LoadMaterial(material);
+    material->Delete();
+    return;
     }
   else
     {
-    vtkErrorMacro("Failed to locate Material file: " << name);
+    vtkErrorMacro("Failed to create Material : " << name);
     }
 }
 

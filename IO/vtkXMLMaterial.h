@@ -35,9 +35,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Create a new instance using the vtkMaterialLibrary.
-  // If a material by the given name is found, a new instance
-  // is returned, else it returns NULL.
+  // Create a new instance. It searches for the material
+  // using the following order: first, check the MaterialLibrary; second,
+  // treat the name as an absolute path and try to locate it; third,
+  // search the Material repository. Returns null is it fails to
+  // locate the material.
   static vtkXMLMaterial* CreateInstance(const char* name);
   
   // Description:
