@@ -29,17 +29,55 @@ IF (NEED_SHARED_FORWARD)
   ADD_DEPENDENCIES(ProcessShader ProcessShader${ML_EXE_SUFFIX})
 ENDIF (NEED_SHARED_FORWARD)
 
-#Macro to copy files over
+# Macro to obtain the relative path of a file.
+MACRO(GET_RELATIVE_PATH __path __file __result)
+  STRING(REGEX REPLACE "/" ";" __dirfilelist "${__file}")
+  SET(__found)
+  SET(__cfile "${__file}")
+  SET(__res "")
+  FOREACH(__dir ${__dirfilelist})
+    IF(NOT __found)
+      STRING(REGEX REPLACE ".*/(.*)" "\\1" __lineres "${__cfile}")
+      STRING(REGEX REPLACE "(.*)/.*" "\\1" __cfile "${__cfile}")
+      SET(__res "${__lineres}/${__res}")
+      STRING(COMPARE EQUAL "${__cfile}" "${__path}" __flag)
+      IF(__flag)
+        SET(__found 1)
+      ENDIF(__flag)
+    ENDIF(NOT __found)
+  ENDFOREACH(__dir)
+  STRING(REGEX REPLACE "/$" "" __res "${__res}")
+  #MESSAGE("Dir: ${__cfile}")
+  #MESSAGE("File: ${__res}")
+  SET(${__result} "${__res}")
+ENDMACRO(GET_RELATIVE_PATH)
+
+#Macro to copy files over. Copies the entire subtree.
 MACRO(COPY_FILES_TO_DIR src_dir target_dir)
   IF (NOT EXISTS ${target_dir})
     MAKE_DIRECTORY(${target_dir})
   ENDIF(NOT EXISTS ${target_dir})
 
-  FILE (GLOB files_to_copy1 ${src_dir}/*.*)
-  FOREACH(file ${files_to_copy1})
-    GET_FILENAME_COMPONENT(file_name "${file}" NAME)
-    CONFIGURE_FILE(${file} "${target_dir}/${file_name}" COPYONLY IMMEDIATE)
-  ENDFOREACH(file)
+  FILE (GLOB_RECURSE files_to_copy1 ${src_dir}/*.*)
+
+  FOREACH (src_file ${files_to_copy1})
+    GET_RELATIVE_PATH( ${src_dir} ${src_file} rel_file )
+    GET_FILENAME_COMPONENT(src_path "${rel_file}" PATH)
+    GET_FILENAME_COMPONENT(filename "${rel_file}" NAME)
+    STRING(REGEX REPLACE "/" ";" dirlist "${src_path}")
+
+    # Ensure that the tree structure is identical on the destination side.
+    SET (path ${target_dir})
+    FOREACH(subdir ${dirlist})
+      SET(path "${path}/${subdir}")
+      IF (NOT EXISTS ${path})
+        MAKE_DIRECTORY(${path})
+      ENDIF (NOT EXISTS ${path})
+    ENDFOREACH(subdir)
+
+    # Now configure the file over.
+    CONFIGURE_FILE(${src_file} "${path}/${filename}" COPYONLY IMMEDIATE)
+  ENDFOREACH (src_file)
 ENDMACRO(COPY_FILES_TO_DIR)
 
 # Shaders/Materials provided in Utilities/MaterialLibrary/Repository
@@ -50,15 +88,6 @@ IF (NOT "${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
   COPY_FILES_TO_DIR(${MaterialLibrary_SOURCE_DIR}/Repository
     ${VTK_DEFAULT_SHADERS_DIR})
 
-  # copy materials and shaders that test VTK-Cg interface
-  # copy the directory stucture (not just the files) to avoid name clashes
-  COPY_FILES_TO_DIR(${MaterialLibrary_SOURCE_DIR}/Repository/TestCg
-    ${VTK_DEFAULT_SHADERS_DIR}/TestCg)
-
-  # copy materials and shaders that test VTK-GLSL interface
-  # copy the directory stucture (not just the files) to avoid name clashes
-  COPY_FILES_TO_DIR(${MaterialLibrary_SOURCE_DIR}/Repository/TestGLSL
-    ${VTK_DEFAULT_SHADERS_DIR}/TestGLSL)
 ENDIF (NOT "${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
 
 # Build the ShaderCodes Library.
