@@ -35,5 +35,4 @@ renWin Render
 [renderer GetActiveCamera] Azimuth -50
 [renderer GetActiveCamera] Roll 70
 renWin Render
-iren Start
 wm withdraw .
