@@ -39,7 +39,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.8");
+vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.9");
 vtkStandardNewMacro(vtkGenericGeometryFilter);
 
 //----------------------------------------------------------------------------
@@ -244,6 +244,7 @@ int vtkGenericGeometryFilter::RequestData(
 
   int attributeType;
   
+  this->internalPD->Initialize();
   i=0;
   while(i<c)
     {
