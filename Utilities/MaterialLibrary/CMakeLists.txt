@@ -97,6 +97,8 @@ SET (CgCodes
   ${MaterialLibrary_SOURCE_DIR}/CgShaders/VertPassThrough.cg
   ${MaterialLibrary_SOURCE_DIR}/CgShaders/FragmentIsotropicTorranceSparrow.cg
   ${MaterialLibrary_SOURCE_DIR}/CgShaders/cg_sinewave.cg
+  ${MaterialLibrary_SOURCE_DIR}/CgShaders/VertexLighting.cg
+  ${MaterialLibrary_SOURCE_DIR}/CgShaders/Twisted.cg
   )
 
 SET (GLSLCodes
@@ -201,6 +203,8 @@ IF (VTK_USE_CG_SHADERS)
   # Add Materials using Cg Shaders.
   SET (MaterialXMLs ${MaterialXMLs}
     ${MaterialLibrary_SOURCE_DIR}/Materials/CgSinewave.xml
+    ${MaterialLibrary_SOURCE_DIR}/Materials/CgLighting.xml
+    ${MaterialLibrary_SOURCE_DIR}/Materials/CgTwisted.xml
     )
 ENDIF (VTK_USE_CG_SHADERS)
 
