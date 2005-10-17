@@ -9,7 +9,7 @@ vtkRenderer renderer
 renWin AddRenderer renderer
 
 vtkSphereSource src1
-src1 SetRadius 1
+src1 SetRadius 5
 src1 SetPhiResolution 20
 src1 SetThetaResolution 20
 
@@ -35,5 +35,5 @@ renWin Render
 [renderer GetActiveCamera] Azimuth -50
 [renderer GetActiveCamera] Roll 70
 renWin Render
-
+iren Start
 wm withdraw .
