@@ -101,7 +101,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.60");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.61");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -421,7 +421,7 @@ void vtkXOpenGLRenderWindow::SetStereoCapableWindow(int capable)
 static int PbufferAllocFail = 0;
 extern "C"
 {
-  static int pbuffer_error_handler(Display*, XErrorEvent*)
+  int vtkXOGLPbufferErrorHandler(Display*, XErrorEvent*)
   {
     PbufferAllocFail = 1;
     return 1;
@@ -618,40 +618,43 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
           {
           // Load GLX 1.3
           vtkOpenGLExtensionManager* manager = vtkOpenGLExtensionManager::New();
-          vtkgl::LoadExtension("GLX_VERSION_1_3", manager);
+          int loaded = vtkgl::LoadExtension("GLX_VERSION_1_3", manager);
           manager->Delete();
 
-          // get FBConfig
-          vtkglX::GLXFBConfig* fb = vtkXOpenGLRenderWindowGetDesiredFBConfig(this->DisplayId,
-                                    this->StereoCapableWindow, this->MultiSamples, this->DoubleBuffer,
-                                    this->AlphaBitPlanes, vtkglX::PBUFFER_BIT);
-          if(fb)
+          if(loaded)
             {
-            XErrorHandler previousHandler = XSetErrorHandler(pbuffer_error_handler);
-            this->Internal->PbufferContextId = 
-              vtkglX::CreateNewContext(this->DisplayId, fb[0], vtkglX::RGBA_TYPE, NULL, true);
-            int atts [] = 
+            // get FBConfig
+            vtkglX::GLXFBConfig* fb = vtkXOpenGLRenderWindowGetDesiredFBConfig(this->DisplayId,
+                                      this->StereoCapableWindow, this->MultiSamples, this->DoubleBuffer,
+                                      this->AlphaBitPlanes, vtkglX::PBUFFER_BIT);
+            if(fb)
               {
-              vtkglX::PBUFFER_WIDTH, width,
-              vtkglX::PBUFFER_HEIGHT, height,
-              0
-              };
-            this->Internal->Pbuffer = vtkglX::CreatePbuffer(this->DisplayId, fb[0], atts);
-            vtkglX::MakeContextCurrent( this->DisplayId, this->Internal->Pbuffer, 
-                                        this->Internal->Pbuffer, this->Internal->PbufferContextId );
-            XFree(fb);
-            XSetErrorHandler(previousHandler);
-            
-            // failed to allocate Pbuffer, clean up
-            if(PbufferAllocFail)
-              {
-              //vtkglX::DestroyPbuffer(this->DisplayId, this->Internal->Pbuffer);
-              this->Internal->Pbuffer = 0;
-              if(this->Internal->PbufferContextId)
-                glXDestroyContext(this->DisplayId, this->Internal->PbufferContextId);
-              this->Internal->PbufferContextId = NULL;
+              XErrorHandler previousHandler = XSetErrorHandler(vtkXOGLPbufferErrorHandler);
+              this->Internal->PbufferContextId = 
+                vtkglX::CreateNewContext(this->DisplayId, fb[0], vtkglX::RGBA_TYPE, NULL, true);
+              int atts [] = 
+                {
+                vtkglX::PBUFFER_WIDTH, width,
+                vtkglX::PBUFFER_HEIGHT, height,
+                0
+                };
+              this->Internal->Pbuffer = vtkglX::CreatePbuffer(this->DisplayId, fb[0], atts);
+              vtkglX::MakeContextCurrent( this->DisplayId, this->Internal->Pbuffer, 
+                                          this->Internal->Pbuffer, this->Internal->PbufferContextId );
+              XFree(fb);
+              XSetErrorHandler(previousHandler);
+              
+              // failed to allocate Pbuffer, clean up
+              if(PbufferAllocFail)
+                {
+                //vtkglX::DestroyPbuffer(this->DisplayId, this->Internal->Pbuffer);
+                this->Internal->Pbuffer = 0;
+                if(this->Internal->PbufferContextId)
+                  glXDestroyContext(this->DisplayId, this->Internal->PbufferContextId);
+                this->Internal->PbufferContextId = NULL;
+                }
+              PbufferAllocFail = 0;
               }
-            PbufferAllocFail = 0;
             }
           }
         }
