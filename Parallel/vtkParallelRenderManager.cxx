@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.60");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.61");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -512,6 +512,8 @@ void vtkParallelRenderManager::StartRender()
 
   this->InvokeEvent(vtkCommand::StartEvent, NULL);
 
+  this->ImageProcessingTime = 0;
+
   // Used to time the total render (without compositing).
   this->Timer->StartTimer();
 
@@ -680,8 +682,7 @@ void vtkParallelRenderManager::EndRender()
     }
 
   this->Timer->StopTimer();
-  this->RenderTime = this->Timer->GetElapsedTime();
-  this->ImageProcessingTime = 0;
+  this->RenderTime = this->Timer->GetElapsedTime() - this->ImageProcessingTime;
 
   // Just because we are not doing compositing does not mean a subclass
   // does not need to do post render processing.
@@ -1205,12 +1206,46 @@ void vtkParallelRenderManager::MagnifyImageNearest(
                                              vtkUnsignedCharArray *fullImage,
                                              const int fullImageSize[2],
                                              vtkUnsignedCharArray *reducedImage,
-                                             const int reducedImageSize[2])
+                                             const int reducedImageSize[2],
+                                             const int fullImageViewport[4],
+                                             const int reducedImageViewport[4])
 {
-  int numComp = reducedImage->GetNumberOfComponents();;
+  int numComp = reducedImage->GetNumberOfComponents();
 
-  fullImage->SetNumberOfComponents(numComp);
+  fullImage->SetNumberOfComponents(4);
   fullImage->SetNumberOfTuples(fullImageSize[0]*fullImageSize[1]);
+
+  int destLeft, destRight, destBottom, destTop, destWidth, destHeight;
+  if (fullImageViewport)
+    {
+    destLeft   = fullImageViewport[0];
+    destBottom = fullImageViewport[1];
+    destRight  = fullImageViewport[2];
+    destTop    = fullImageViewport[3];
+    destWidth  = fullImageViewport[2] - fullImageViewport[0];
+    destHeight = fullImageViewport[3] - fullImageViewport[1];
+    }
+  else
+    {
+    destLeft = destBottom = destRight = destTop = 0;
+    destWidth = fullImageSize[0];  destHeight = fullImageSize[1];
+    }
+
+  int srcLeft, srcRight, srcBottom, srcTop, srcWidth, srcHeight;
+  if (reducedImageViewport)
+    {
+    srcLeft   = reducedImageViewport[0];
+    srcBottom = reducedImageViewport[1];
+    srcRight  = reducedImageViewport[2];
+    srcTop    = reducedImageViewport[3];
+    srcWidth  = reducedImageViewport[2] - reducedImageViewport[0];
+    srcHeight = reducedImageViewport[3] - reducedImageViewport[1];
+    }
+  else
+    {
+    srcLeft = srcBottom = srcRight = srcTop = 0;
+    srcWidth = reducedImageSize[0];  srcHeight = reducedImageSize[1];
+    }
 
   if (numComp == 4)
     {
@@ -1221,67 +1256,75 @@ void vtkParallelRenderManager::MagnifyImageNearest(
     // Look I know the compiler should optimize this stuff
     // but I don't trust compilers... besides testing shows
     // this code is faster than the old code
-    float xstep = (float)reducedImageSize[0]/fullImageSize[0];
-    float ystep = (float)reducedImageSize[1]/fullImageSize[1];
+    float xstep = (float)srcWidth/destWidth;
+    float ystep = (float)srcHeight/destHeight;
     float xaccum=0, yaccum=0;
-    int xfullsize = fullImageSize[0];
-    int xmemsize = xfullsize*numComp;
-    int yfullsize = fullImageSize[1];
-    int xreducedsize = reducedImageSize[0];
+    int destlinesize = fullImageSize[0];
+    int srclinesize = reducedImageSize[0];
+    int xmemsize = 4*destWidth;
     unsigned int *lastsrcline = NULL;
-    unsigned int *destline = (unsigned int*)fullImage->GetPointer(0);
-    unsigned int *srcline = (unsigned int*)reducedImage->GetPointer(0);
+    unsigned int *destline = (unsigned int*)fullImage->GetPointer(
+                                                    4*(  destBottom*destlinesize
+                                                       + destLeft));
+    unsigned int *srcline = (unsigned int*)reducedImage->GetPointer(
+                                                      4*(  srcBottom*srclinesize
+                                                         + srcLeft));
     unsigned int *srczero = srcline;
 
     // Inflate image.
-    for (int y=0; y < yfullsize; ++y, yaccum+=ystep)
+    for (int y=0; y < destHeight; ++y, yaccum+=ystep)
       {
       // If this line same as last one.
       if (srcline == lastsrcline)
         {
-        memcpy(destline, destline - xfullsize, xmemsize);
+        memcpy(destline, destline - destlinesize, xmemsize);
         }
       else
         {
-        for (int x = 0; x < xfullsize; ++x, xaccum+=xstep)
+        for (int x = 0; x < destWidth; ++x, xaccum+=xstep)
           {
           destline[x] = srcline[(int)(xaccum)];
           }
         xaccum=0;
         lastsrcline = srcline;
         }
-      destline += xfullsize;
-      srcline = srczero + xreducedsize * int(yaccum); // Performance fixme
+      destline += destlinesize;
+      srcline = srczero + srclinesize * int(yaccum); // Performance fixme
       }
     }
   else
     {
     // Inflate image.
-    double xstep = (double)reducedImageSize[0]/fullImageSize[0];
-    double ystep = (double)reducedImageSize[1]/fullImageSize[1];
+    double xstep = (double)srcWidth/destWidth;
+    double ystep = (double)srcHeight/destHeight;
     unsigned char *lastsrcline = NULL;
-    for (int y = 0; y < fullImageSize[1]; y++)
+    for (int y = 0; y < destHeight; y++)
       {
       unsigned char *destline =
-        fullImage->GetPointer(numComp*fullImageSize[0]*y);
-      unsigned char *srcline =
-        reducedImage->GetPointer(numComp*reducedImageSize[0]*(int)(ystep*y));
+        fullImage->GetPointer(4*(fullImageSize[0]*(y+destBottom) + destLeft));
+      unsigned char *srcline = reducedImage->GetPointer(
+           numComp*(reducedImageSize[0]*((int)(ystep*y)+srcBottom) + srcLeft) );
       if (srcline == lastsrcline)
         {
         // This line same as last one.
         memcpy(destline,
-               (const unsigned char *)(destline - numComp*fullImageSize[0]),
-               numComp*fullImageSize[0]);
+               (const unsigned char *)(destline - 4*fullImageSize[0]),
+               4*destWidth);
         }
       else
         {
-        for (int x = 0; x < fullImageSize[0]; x++)
+        for (int x = 0; x < destWidth; x++)
           {
           int srcloc = numComp*(int)(x*xstep);
-          int destloc = numComp*x;
-          for (int i = 0; i < numComp; i++)
+          int destloc = 4*x;
+          int i;
+          for (i = 0; i < numComp; i++)
             {
             destline[destloc + i] = srcline[srcloc + i];
+            }
+          for (; i < 4; i++)
+            {
+            destline[destloc + i] = 0xFF;
             }
           }
         lastsrcline = srcline;
@@ -1298,7 +1341,9 @@ void vtkParallelRenderManager::MagnifyImageLinear(
                                              vtkUnsignedCharArray *fullImage,
                                              const int fullImageSize[2],
                                              vtkUnsignedCharArray *reducedImage,
-                                             const int reducedImageSize[2])
+                                             const int reducedImageSize[2],
+                                             const int fullImageViewport[4],
+                                             const int reducedImageViewport[4])
 {
   int xmag, ymag;
   int x, y;
@@ -1308,10 +1353,42 @@ void vtkParallelRenderManager::MagnifyImageLinear(
   fullImage->SetNumberOfComponents(4);
   fullImage->SetNumberOfTuples(fullImageSize[0]*fullImageSize[1]);
 
+  int destLeft, destRight, destBottom, destTop, destWidth, destHeight;
+  if (fullImageViewport)
+    {
+    destLeft   = fullImageViewport[0];
+    destBottom = fullImageViewport[1];
+    destRight  = fullImageViewport[2];
+    destTop    = fullImageViewport[3];
+    destWidth  = fullImageViewport[2] - fullImageViewport[0];
+    destHeight = fullImageViewport[3] - fullImageViewport[1];
+    }
+  else
+    {
+    destLeft = destBottom = destRight = destTop = 0;
+    destWidth = fullImageSize[0];  destHeight = fullImageSize[1];
+    }
+
+  int srcLeft, srcRight, srcBottom, srcTop, srcWidth, srcHeight;
+  if (reducedImageViewport)
+    {
+    srcLeft   = reducedImageViewport[0];
+    srcBottom = reducedImageViewport[1];
+    srcRight  = reducedImageViewport[2];
+    srcTop    = reducedImageViewport[3];
+    srcWidth  = reducedImageViewport[2] - reducedImageViewport[0];
+    srcHeight = reducedImageViewport[3] - reducedImageViewport[1];
+    }
+  else
+    {
+    srcLeft = srcBottom = srcRight = srcTop = 0;
+    srcWidth = reducedImageSize[0];  srcHeight = reducedImageSize[1];
+    }
+
   // Guess x and y magnification.  Round up to ensure we do not try to
   // read data from the image data that does not exist.
-  xmag = (fullImageSize[0]+reducedImageSize[0]-1)/reducedImageSize[0];
-  ymag = (fullImageSize[1]+reducedImageSize[1]-1)/reducedImageSize[1];
+  xmag = (destWidth +srcWidth -1)/srcWidth;
+  ymag = (destHeight+srcHeight-1)/srcHeight;
 
   // For speed, we only magnify by powers of 2.  Round up to the nearest
   // power of 2 to ensure that the reduced image is large enough.
@@ -1321,13 +1398,15 @@ void vtkParallelRenderManager::MagnifyImageLinear(
   for (powOf2 = 1; powOf2 < ymag; powOf2 <<= 1);
   ymag = powOf2;
 
-  unsigned char *srcline = reducedImage->GetPointer(0);
-  unsigned char *destline = fullImage->GetPointer(0);
-  for (y = 0; y < fullImageSize[1]; y += ymag)
+  unsigned char *srcline = reducedImage->GetPointer(
+                                         srcComp*srcBottom*reducedImageSize[0]);
+  unsigned char *destline = fullImage->GetPointer(
+                                                 4*destBottom*fullImageSize[0]);
+  for (y = 0; y < destHeight; y += ymag)
     {
-    unsigned char *srcval = srcline;
-    unsigned char *destval = destline;
-    for (x = 0; x < fullImageSize[0]; x += xmag)
+    unsigned char *srcval = srcline + srcComp*srcLeft;
+    unsigned char *destval = destline + 4*destLeft;
+    for (x = 0; x < destWidth; x += xmag)
       {
       destval[0] = srcval[0];
       destval[1] = srcval[1];
@@ -1342,16 +1421,18 @@ void vtkParallelRenderManager::MagnifyImageLinear(
 
   // Now that we have everything on 4-byte boundaries, we will treat
   // everything as integers for much faster computation.
-  unsigned int *image = (unsigned int *)fullImage->GetPointer(0);
+  unsigned int *image =
+    (unsigned int *)fullImage->GetPointer(0)
+    + destBottom*fullImageSize[0] + destLeft;
 
   // Fill in scanlines.
   for (; xmag > 1; xmag >>= 1)
     {
     int halfXMag = xmag/2;
-    for (y = 0; y < fullImageSize[1]; y += ymag)
+    for (y = 0; y < destHeight; y += ymag)
       {
       unsigned int *scanline = image + y*fullImageSize[0];
-      int maxX = fullImageSize[0] - halfXMag;    //Don't access bad memory.
+      int maxX = destWidth - halfXMag;    //Don't access bad memory.
       for (x = halfXMag; x < maxX; x += xmag)
         {
         scanline[x] =
@@ -1365,13 +1446,13 @@ void vtkParallelRenderManager::MagnifyImageLinear(
   for (; ymag > 1; ymag >>= 1)
     {
     int halfYMag = ymag/2;
-    int maxY = fullImageSize[1] - halfYMag;    //Don't access bad memory.
+    int maxY = destHeight - halfYMag;    //Don't access bad memory.
     for (y = halfYMag; y < maxY; y += ymag)
       {
       unsigned int *destline2 = image + y*fullImageSize[0];
       unsigned int *srcline1 = image + (y-halfYMag)*fullImageSize[0];
       unsigned int *srcline2 = image + (y+halfYMag)*fullImageSize[0];
-      for (x = 0; x < fullImageSize[0]; x++)
+      for (x = 0; x < destWidth; x++)
         {
         destline2[x] = VTK_VEC_DIV_2(srcline1[x]) + VTK_VEC_DIV_2(srcline2[x]);
         }
@@ -1383,17 +1464,21 @@ void vtkParallelRenderManager::MagnifyImageLinear(
 void vtkParallelRenderManager::MagnifyImage(vtkUnsignedCharArray *fullImage,
                                             const int fullImageSize[2],
                                             vtkUnsignedCharArray *reducedImage,
-                                            const int reducedImageSize[2])
+                                            const int reducedImageSize[2],
+                                            const int fullImageViewport[4],
+                                            const int reducedImageViewport[4])
 {
   switch (this->MagnifyImageMethod)
     {
     case vtkParallelRenderManager::NEAREST:
       this->MagnifyImageNearest(fullImage, fullImageSize,
-                                reducedImage, reducedImageSize);
+                                reducedImage, reducedImageSize,
+                                fullImageViewport, reducedImageViewport);
       break;
     case LINEAR:
       this->MagnifyImageLinear(fullImage, fullImageSize,
-                               reducedImage, reducedImageSize);
+                               reducedImage, reducedImageSize,
+                               fullImageViewport, reducedImageViewport);
       break;
     }
 }

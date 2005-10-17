@@ -259,15 +259,21 @@ public:
   virtual void MagnifyImage(vtkUnsignedCharArray *fullImage,
                             const int fullImageSize[2],
                             vtkUnsignedCharArray *reducedImage,
-                            const int reducedImageSize[2]);
+                            const int reducedImageSize[2],
+                            const int fullImageViewport[4] = NULL,
+                            const int reducedImageViewport[4] = NULL);
   static void MagnifyImageNearest(vtkUnsignedCharArray *fullImage,
                                   const int fullImageSize[2],
                                   vtkUnsignedCharArray *reducedImage,
-                                  const int reducedImageSize[2]);
+                                  const int reducedImageSize[2],
+                                  const int fullImageViewport[4] = NULL,
+                                  const int reducedImageViewport[4] = NULL);
   static void MagnifyImageLinear(vtkUnsignedCharArray *fullImage,
                                  const int fullImageSize[2],
                                  vtkUnsignedCharArray *reducedImage,
-                                 const int reducedImageSize[2]);
+                                 const int reducedImageSize[2],
+                                 const int fullImageViewport[4] = NULL,
+                                 const int reducedImageViewport[4] = NULL);
 
   // Description:
   // The most appropriate way to retrieve full size image data after a
