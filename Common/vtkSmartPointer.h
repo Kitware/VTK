@@ -99,6 +99,29 @@ public:
     {
     return vtkSmartPointer<T>(t->NewInstance(), NoReference());
     }
+
+  // Work-around for HP overload resolution bug.
+#if defined(__HP_aCC)
+# define VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(op) \
+  vtkstd_bool operator op (const vtkSmartPointer<T>& r)   \
+    {                                                     \
+    return ::operator op (*this, r);                      \
+    }                                                     \
+  vtkstd_bool operator op (T* r)                          \
+    {                                                     \
+    return ::operator op (*this, r);                      \
+    }
+#else
+# define VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(op)
+#endif
+  VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(==)
+  VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(!=)
+  VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(<)
+  VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(<=)
+  VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(>)
+  VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(>=)
+#undef VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND
+
 protected:
   vtkSmartPointer(T* r, const NoReference& n): vtkSmartPointerBase(r, n) {}
 };
