@@ -253,21 +253,74 @@ public:
   virtual void AddShaderVariable(const char* name, int numVars, int* x);
   virtual void AddShaderVariable(const char* name, int numVars, float* x);
   virtual void AddShaderVariable(const char* name, int numVars, double* x);
+ 
+  // Description:
+  // Methods to provide to add shader variables from tcl.
+  void AddShaderVariable(const char* name, int v)
+    {
+    this->AddShaderVariable(name, 1, &v);
+    }
+  void AddShaderVariable(const char* name, float v)
+    {
+    this->AddShaderVariable(name, 1, &v);
+    }
+  void AddShaderVariable(const char* name, double v)
+    {
+    this->AddShaderVariable(name, 1, &v);
+    }
+  void AddShaderVariable(const char* name, int v1, int v2)
+    {
+    int v[2];
+    v[0] = v1;
+    v[1] = v2;
+    this->AddShaderVariable(name, 2, v);
+    }
+  void AddShaderVariable(const char* name, float v1, float v2)
+    {
+    float v[2];
+    v[0] = v1;
+    v[1] = v2;
+    this->AddShaderVariable(name, 2, v);
+    } 
+  void AddShaderVariable(const char* name, double v1, double v2)
+    {
+    double v[2];
+    v[0] = v1;
+    v[1] = v2;
+    this->AddShaderVariable(name, 2, v);
+    }
+  void AddShaderVariable(const char* name, int v1, int v2, int v3)
+    {
+    int v[3];
+    v[0] = v1;
+    v[1] = v2;
+    v[2] = v3;
+    this->AddShaderVariable(name, 3, v);
+    }
+  void AddShaderVariable(const char* name, float v1, float v2, float v3)
+    {
+    float v[3];
+    v[0] = v1;
+    v[1] = v2;
+    v[2] = v3;
+    this->AddShaderVariable(name, 3, v);
+    } 
+  void AddShaderVariable(const char* name, double v1, double v2, double v3)
+    {
+    double v[3];
+    v[0] = v1;
+    v[1] = v2;
+    v[2] = v3;
+    this->AddShaderVariable(name, 3, v);
+    } 
 
-
-
-  // TODO: I am not adding the AddShaderVariable() methods to the
-  // property. One must get the shader program and then set the variables.
-  // This will keep the user from adding shader variables before
-  // setting the material.
-  
   // Description: 
   // Set/Get the texture object to control rendering texture maps.  This will
   // be a vtkTexture object. A property does not need to have an associated
   // texture map and multiple properties can share one texture.
   void SetTexture(vtkTexture* texture);
   vtkTexture* GetTexture() { return this->GetTexture(0); }
-  
+
   // Description:
   // Adds a texture to the collection of textures.
   // Multiple textures can be used when using shading.
@@ -327,7 +380,7 @@ protected:
   int   FrontfaceCulling;
 
   int Shading;
-  
+
   char* MaterialName;
   vtkSetStringMacro(MaterialName);
 
@@ -336,7 +389,7 @@ protected:
 
   vtkXMLMaterial* Material; // TODO: I wonder if this reference needs to be maintained.
   vtkCollection* TextureCollection;
-  
+
 private:
   vtkProperty(const vtkProperty&);  // Not implemented.
   void operator=(const vtkProperty&);  // Not implemented.
