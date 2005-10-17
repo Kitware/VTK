@@ -4,6 +4,18 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
   TARGET_LINK_LIBRARIES(SocketClient vtkParallel)
   TARGET_LINK_LIBRARIES(SocketServer vtkParallel)
 
+  ADD_EXECUTABLE(PrmMagnifyTest PrmMagnify.cxx)
+  TARGET_LINK_LIBRARIES(PrmMagnifyTest vtkParallel)
+
+  IF (VTK_DATA_ROOT)
+    ADD_TEST(PrmMagnify-image 
+      ${CXX_TEST_PATH}/PrmMagnifyTest
+      -D ${VTK_DATA_ROOT}
+      -T ${VTK_BINARY_DIR}/Testing/Temporary
+      -V Baseline/Parallel/PrmMagnify.png
+      )
+  ENDIF(VTK_DATA_ROOT)
+
   IF (VTK_USE_MPI)
     ADD_EXECUTABLE(ParallelIsoTest ParallelIso.cxx)
     TARGET_LINK_LIBRARIES(ParallelIsoTest vtkVolumeRendering vtkParallel vtkHybrid vtkWidgets)
