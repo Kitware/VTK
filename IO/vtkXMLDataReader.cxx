@@ -27,7 +27,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.27");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.28");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -587,7 +587,7 @@ int vtkXMLDataReader::ReadArrayForCells(vtkXMLDataElement* da,
 
 //----------------------------------------------------------------------------
 int vtkXMLDataReader::ReadData(vtkXMLDataElement* da, void* data, int wordType,
-                               int startWord, int numWords)
+                               vtkIdType startWord, vtkIdType numWords)
 {
   // Skip real read if aborting.
   if(this->AbortExecute)
@@ -596,7 +596,7 @@ int vtkXMLDataReader::ReadData(vtkXMLDataElement* da, void* data, int wordType,
     }
   
   this->InReadData = 1;
-  unsigned long num = numWords;
+  vtkIdType num = numWords;
   int result;
   if(da->GetAttribute("offset"))
     {

@@ -81,8 +81,8 @@ protected:
                                 vtkDataArray* outArray);
   
   // Read data from a given element.
-  int ReadData(vtkXMLDataElement* da, void* data, int wordType, int startWord,
-               int numWords);  
+  int ReadData(vtkXMLDataElement* da, void* data, int wordType,
+               vtkIdType startWord, vtkIdType numWords);
   
   // Callback registered with the DataProgressObserver.
   static void DataProgressCallbackFunction(vtkObject*, unsigned long, void*,
