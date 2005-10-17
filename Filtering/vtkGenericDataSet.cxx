@@ -23,7 +23,7 @@
 #include "vtkGenericAdaptorCell.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSet, "1.5");
+vtkCxxRevisionMacro(vtkGenericDataSet, "1.6");
 vtkCxxSetObjectMacro(vtkGenericDataSet, Tessellator,vtkGenericCellTessellator);
 
 //----------------------------------------------------------------------------
@@ -176,6 +176,12 @@ unsigned long int vtkGenericDataSet::GetMTime()
   mtime = this->Attributes->GetMTime();
   result = ( mtime > result ? mtime : result );
 
+  if(this->Tessellator!=0)
+    {
+     mtime = this->Tessellator->GetMTime();
+     result = ( mtime > result ? mtime : result );
+    }
+  
   return result;
 }
 
