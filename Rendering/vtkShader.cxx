@@ -339,7 +339,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.14")
+vtkCxxRevisionMacro(vtkShader, "1.15")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -1198,7 +1198,8 @@ void vtkShader::SetApplicationParameter(vtkXMLDataElement* elem)
     }
   else
     {
-    cout << name << " is not an application variable." << endl;
+    vtkErrorMacro("Shader requires application variable " << name
+      << " which is missing.");
     }
 }
 
