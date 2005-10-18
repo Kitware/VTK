@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.30");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.31");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -462,7 +462,7 @@ void vtkXMLDataParser::ReadCompressionHeader()
     buffer = reinterpret_cast<unsigned char*>(&this->BlockCompressedSizes[0]);
 
     // Read the compressed block sizes.
-    OffsetType len = this->NumberOfBlocks*sizeof(HeaderType);
+    unsigned long len = this->NumberOfBlocks*sizeof(HeaderType);
     if(this->DataStream->Read(buffer, len) < len)
       {
       vtkErrorMacro("Error reading compression header.");
@@ -544,16 +544,16 @@ vtkXMLDataParser::ReadUncompressedData(unsigned char* data,
                                        int wordSize)
 {
   // First read the length of the data.
-  HeaderType size;
-  const OffsetType len = sizeof(HeaderType);
-  unsigned char* p = reinterpret_cast<unsigned char*>(&size);
+  HeaderType rsize;
+  const unsigned long len = sizeof(HeaderType);
+  unsigned char* p = reinterpret_cast<unsigned char*>(&rsize);
   if(this->DataStream->Read(p, len) < len) { return 0; }
-  this->PerformByteSwap(&size, 1, len);
+  this->PerformByteSwap(&rsize, 1, len);
 
   // Adjust the size to be a multiple of the wordSize by taking
   // advantage of integer division.  This will only change the value
   // when the input file is invalid.
-  size = (size/wordSize)*wordSize;
+  OffsetType size = (rsize/wordSize)*wordSize;
 
   // Convert the start/length into bytes.
   OffsetType offset = startWord*wordSize;
