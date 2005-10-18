@@ -21,7 +21,7 @@ actor SetMapper mapper
 # Load the material. Here, we are loading a material
 # defined in the Vtk Library. One can also specify
 # a filename to a material description xml.
-[actor GetProperty] LoadMaterial "CgTwisted"
+[actor GetProperty] LoadMaterial "GLSLTwisted"
 
 # Turn shading on. Otherwise, shaders are not used.
 [actor GetProperty] ShadingOn

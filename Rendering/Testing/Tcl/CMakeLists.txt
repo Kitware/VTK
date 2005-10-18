@@ -45,6 +45,13 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     IF (VTK_USE_GLSL_SHADERS)
       # Tests testing GLSL Shaders.
       SET(tests ${tests}
+        TestGLSLShader
+        )
+    ENDIF (VTK_USE_GLSL_SHADERS)
+
+    IF (VTK_USE_GLSL_SHADERS)
+      # Tests testing GLSL Shaders.
+      SET(tests ${tests}
         )
     ENDIF (VTK_USE_GLSL_SHADERS)
 

@@ -107,6 +107,7 @@ SET (GLSLCodes
   ${MaterialLibrary_SOURCE_DIR}/GLSLShaders/TestVtkPropertyFrag.glsl
   ${MaterialLibrary_SOURCE_DIR}/GLSLShaders/TestMatrixFrag.glsl
   ${MaterialLibrary_SOURCE_DIR}/GLSLShaders/TestScalarVectorFrag.glsl
+  ${MaterialLibrary_SOURCE_DIR}/GLSLShaders/Twisted.glsl
   )
 
 SET(EXE_EXT "")
@@ -211,6 +212,7 @@ ENDIF (VTK_USE_CG_SHADERS)
 IF (VTK_USE_GLSL_SHADERS)
   # Add Materials using GLSL Shaders.
   SET (MaterialXMLs ${MaterialXMLs}
+    ${MaterialLibrary_SOURCE_DIR}/Materials/GLSLTwisted.xml
     )
 ENDIF (VTK_USE_GLSL_SHADERS)
 
