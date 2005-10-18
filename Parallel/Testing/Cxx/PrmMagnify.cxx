@@ -33,6 +33,13 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 
+#include "vtkImageActor.h"
+#include "vtkImageData.h"
+#include "vtkImageMandelbrotSource.h"
+#include "vtkImageShiftScale.h"
+#include "vtkPointData.h"
+#include "vtkUnsignedCharArray.h"
+
 #include "vtkSmartPointer.h"
 
 #define VTK_CREATE(type, var)   \
@@ -47,22 +54,37 @@ public:
   static vtkTestMagnifyRenderManager *New();
 
 protected:
-  vtkTestMagnifyRenderManager() { }
-  ~vtkTestMagnifyRenderManager() { }
+  vtkTestMagnifyRenderManager();
+  ~vtkTestMagnifyRenderManager();
 
   virtual void PreRenderProcessing();
   virtual void PostRenderProcessing();
+
+  virtual void ReadReducedImage();
+
+  vtkImageMandelbrotSource *Mandelbrot;
 
 private:
   vtkTestMagnifyRenderManager(const vtkTestMagnifyRenderManager &);  // Not implemented.
   void operator=(const vtkTestMagnifyRenderManager &);  // Not implemented.
 };
 
-vtkCxxRevisionMacro(vtkTestMagnifyRenderManager, "1.2");
+vtkCxxRevisionMacro(vtkTestMagnifyRenderManager, "1.3");
 vtkStandardNewMacro(vtkTestMagnifyRenderManager);
+
+vtkTestMagnifyRenderManager::vtkTestMagnifyRenderManager()
+{
+  this->Mandelbrot = vtkImageMandelbrotSource::New();
+}
+
+vtkTestMagnifyRenderManager::~vtkTestMagnifyRenderManager()
+{
+  this->Mandelbrot->Delete();
+}
 
 void vtkTestMagnifyRenderManager::PreRenderProcessing()
 {
+  this->RenderWindowImageUpToDate = 0;
   this->RenderWindow->SwapBuffersOff();
 }
 
@@ -75,6 +97,7 @@ void vtkTestMagnifyRenderManager::PostRenderProcessing()
 
   // Read in image as RGBA.
   this->UseRGBA = 1;
+  this->ReducedImageUpToDate = 0;
   this->ReadReducedImage();
 
   fullImageViewport[0] = 0;  fullImageViewport[1] = 0;
@@ -136,6 +159,48 @@ void vtkTestMagnifyRenderManager::PostRenderProcessing()
   this->RenderWindow->Frame();
 }
 
+void vtkTestMagnifyRenderManager::ReadReducedImage()
+{
+  if (this->ReducedImageUpToDate) return;
+
+  this->Mandelbrot->SetWholeExtent(0, this->ReducedImageSize[0]-1,
+                                   0, this->ReducedImageSize[1]-1, 0, 0);
+  this->Mandelbrot->SetMaximumNumberOfIterations(255);
+  this->Mandelbrot->Update();
+
+  vtkIdType numpixels = this->ReducedImageSize[0]*this->ReducedImageSize[1];
+
+  vtkDataArray *src
+    = this->Mandelbrot->GetOutput()->GetPointData()->GetScalars();
+  if (src->GetNumberOfTuples() != numpixels)
+    {
+    vtkErrorMacro("Image is wrong size!");
+    return;
+    }
+
+  if (this->UseRGBA)
+    {
+    this->ReducedImage->SetNumberOfComponents(4);
+    }
+  else
+    {
+    this->ReducedImage->SetNumberOfComponents(3);
+    }
+  this->ReducedImage->SetNumberOfTuples(numpixels);
+
+  double color[4];
+  color[3] = 255;
+
+  for (vtkIdType i = 0; i < numpixels; i++)
+    {
+    double value = src->GetComponent(i, 0);
+    color[0] = value;
+    color[1] = (value < 128) ? value : (255 - value);
+    color[2] = 255 - value;
+    this->ReducedImage->SetTuple(i, color);
+    }
+}
+
 
 //-----------------------------------------------------------------------------
 
@@ -147,33 +212,48 @@ int main(int argc, char *argv[])
   VTK_CREATE(vtkTestMagnifyRenderManager, prm);
   prm->SetController(controller);
 
-  VTK_CREATE(vtkSphereSource, sphere);
-  sphere->SetEndPhi(90.0);
-  sphere->SetPhiResolution(4);
+//   VTK_CREATE(vtkSphereSource, sphere);
+//   sphere->SetEndPhi(90.0);
+//   sphere->SetPhiResolution(4);
 
-  VTK_CREATE(vtkIdFilter, colors);
-  colors->SetInputConnection(sphere->GetOutputPort());
-  colors->PointIdsOff();
-  colors->CellIdsOn();
-  colors->FieldDataOff();
-  colors->Update();
+//   VTK_CREATE(vtkIdFilter, colors);
+//   colors->SetInputConnection(sphere->GetOutputPort());
+//   colors->PointIdsOff();
+//   colors->CellIdsOn();
+//   colors->FieldDataOff();
+//   colors->Update();
 
-  VTK_CREATE(vtkPolyDataMapper, mapper);
-  mapper->SetInputConnection(colors->GetOutputPort());
-  mapper->UseLookupTableScalarRangeOff();
-  mapper->SetScalarRange(colors->GetOutput()->GetCellData()
-                         ->GetScalars()->GetRange());
+//   VTK_CREATE(vtkPolyDataMapper, mapper);
+//   mapper->SetInputConnection(colors->GetOutputPort());
+//   mapper->UseLookupTableScalarRangeOff();
+//   mapper->SetScalarRange(colors->GetOutput()->GetCellData()
+//                          ->GetScalars()->GetRange());
 
-  VTK_CREATE(vtkActor, actor);
-  actor->SetMapper(mapper);
+//   VTK_CREATE(vtkActor, actor);
+//   actor->SetMapper(mapper);
+
+  VTK_CREATE(vtkImageMandelbrotSource, mandelbrot);
+  mandelbrot->SetWholeExtent(0, 73, 0, 73, 0, 0);
+  mandelbrot->SetMaximumNumberOfIterations(255);
+
+  VTK_CREATE(vtkImageShiftScale, charImage);
+  charImage->SetInputConnection(mandelbrot->GetOutputPort());
+  charImage->SetShift(0);
+  charImage->SetScale(1);
+  charImage->SetOutputScalarTypeToUnsignedChar();
+
+  VTK_CREATE(vtkImageActor, actor);
+  actor->SetInput(charImage->GetOutput());
+  actor->InterpolateOff();
 
   vtkSmartPointer<vtkRenderer> renderer = prm->MakeRenderer();
   renderer->Delete();   // Remove duplicate reference.
   renderer->AddActor(actor);
+  renderer->SetBackground(1, 0, 0);
 
   vtkSmartPointer<vtkRenderWindow> renwin = prm->MakeRenderWindow();
   renwin->Delete();     // Remove duplicate reference.
-  renwin->SetSize(299, 299);
+  renwin->SetSize(256, 256);
   renwin->AddRenderer(renderer);
   prm->SetRenderWindow(renwin);
 
