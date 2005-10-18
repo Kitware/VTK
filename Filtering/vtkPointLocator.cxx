@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPointLocator, "1.1");
+vtkCxxRevisionMacro(vtkPointLocator, "1.2");
 vtkStandardNewMacro(vtkPointLocator);
 
 static const int VTK_INITIAL_SIZE=1000;
@@ -167,6 +167,11 @@ vtkIdType vtkPointLocator::FindClosestPoint(const double x[3])
   vtkIdList *ptIds;
   int ijk[3], *nei;
   vtkNeighborPoints buckets;
+
+  if ( !this->DataSet || this->DataSet->GetNumberOfPoints() < 1 )
+    {
+    return -1;
+    }
 
   this->BuildLocator(); // will subdivide if modified; otherwise returns
 
