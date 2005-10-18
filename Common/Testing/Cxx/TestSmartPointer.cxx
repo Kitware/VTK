@@ -49,6 +49,12 @@ int TestSmartPointer(int,char *[])
   da2 <= ia;
   da2 > ia;
   da2 >= ia;
+  da1 == 0;
+  da1 != 0;
+  da1 < 0;
+  da1 <= 0;
+  da1 > 0;
+  da1 >= 0;
   (*da1).SetNumberOfComponents(1);
   if(da2)
     {
