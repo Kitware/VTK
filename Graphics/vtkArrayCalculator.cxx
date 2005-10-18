@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.31");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.32");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -199,6 +199,11 @@ int vtkArrayCalculator::RequestData(
     attributeDataType = 1;
     numTuples = input->GetNumberOfCells();
     }
+  if (numTuples < 1)
+    {
+    vtkDebugMacro("Empty data.");
+    return 1;
+    }
   
   for (i = 0; i < this->NumberOfScalarArrays; i++)
     {
@@ -209,8 +214,9 @@ int vtkArrayCalculator::RequestData(
           this->SelectedScalarComponents[i])
         {
         this->FunctionParser->
-          SetScalarVariableValue(this->ScalarVariableNames[i],
-                                 currentArray->GetComponent(0, this->SelectedScalarComponents[i]));
+          SetScalarVariableValue(
+            this->ScalarVariableNames[i],
+            currentArray->GetComponent(0, this->SelectedScalarComponents[i]));
         }
       else
         {
@@ -239,10 +245,11 @@ int vtkArrayCalculator::RequestData(
            this->SelectedVectorComponents[i][2]))
         {
         this->FunctionParser->
-          SetVectorVariableValue(this->VectorVariableNames[i],
-                                 currentArray->GetComponent(0, this->SelectedVectorComponents[i][0]),
-                                 currentArray->GetComponent(0, this->SelectedVectorComponents[i][1]),
-                                 currentArray->GetComponent(0, this->SelectedVectorComponents[i][2]));
+          SetVectorVariableValue(
+            this->VectorVariableNames[i],
+            currentArray->GetComponent(0, this->SelectedVectorComponents[i][0]),
+            currentArray->GetComponent(0, this->SelectedVectorComponents[i][1]),
+            currentArray->GetComponent(0, this->SelectedVectorComponents[i][2]));
         }
       else
         {
@@ -294,15 +301,18 @@ int vtkArrayCalculator::RequestData(
       {
       currentArray = inFD->GetArray(this->ScalarArrayNames[j]);
       this->FunctionParser->
-        SetScalarVariableValue(j, currentArray->GetComponent(i, this->SelectedScalarComponents[j]));
+        SetScalarVariableValue(
+          j, currentArray->GetComponent(i, this->SelectedScalarComponents[j]));
       }
     for (j = 0; j < this->NumberOfVectorArrays; j++)
       {
       currentArray = inFD->GetArray(this->VectorArrayNames[j]);
       this->FunctionParser->
-        SetVectorVariableValue(j, currentArray->GetComponent(i, this->SelectedVectorComponents[j][0]),
-                               currentArray->GetComponent(i, this->SelectedVectorComponents[j][1]),
-                               currentArray->GetComponent(i, this->SelectedVectorComponents[j][2]));      
+        SetVectorVariableValue(
+          j, currentArray->GetComponent(i, this->SelectedVectorComponents[j][0]),
+          currentArray->GetComponent(
+            i, this->SelectedVectorComponents[j][1]),
+          currentArray->GetComponent(i, this->SelectedVectorComponents[j][2]));
       }
     if (resultType == 0)
       {
