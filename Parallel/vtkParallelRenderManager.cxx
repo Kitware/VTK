@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.62");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.63");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -1214,35 +1214,31 @@ void vtkParallelRenderManager::MagnifyImageNearest(
   fullImage->SetNumberOfComponents(4);
   fullImage->SetNumberOfTuples(fullImageSize[0]*fullImageSize[1]);
 
-  int destLeft, destRight, destBottom, destTop, destWidth, destHeight;
+  int destLeft, destBottom, destWidth, destHeight;
   if (fullImageViewport)
     {
     destLeft   = fullImageViewport[0];
     destBottom = fullImageViewport[1];
-    destRight  = fullImageViewport[2];
-    destTop    = fullImageViewport[3];
     destWidth  = fullImageViewport[2] - fullImageViewport[0];
     destHeight = fullImageViewport[3] - fullImageViewport[1];
     }
   else
     {
-    destLeft = destBottom = destRight = destTop = 0;
+    destLeft = destBottom = 0;
     destWidth = fullImageSize[0];  destHeight = fullImageSize[1];
     }
 
-  int srcLeft, srcRight, srcBottom, srcTop, srcWidth, srcHeight;
+  int srcLeft, srcBottom, srcWidth, srcHeight;
   if (reducedImageViewport)
     {
     srcLeft   = reducedImageViewport[0];
     srcBottom = reducedImageViewport[1];
-    srcRight  = reducedImageViewport[2];
-    srcTop    = reducedImageViewport[3];
     srcWidth  = reducedImageViewport[2] - reducedImageViewport[0];
     srcHeight = reducedImageViewport[3] - reducedImageViewport[1];
     }
   else
     {
-    srcLeft = srcBottom = srcRight = srcTop = 0;
+    srcLeft = srcBottom = 0;
     srcWidth = reducedImageSize[0];  srcHeight = reducedImageSize[1];
     }
 
@@ -1352,35 +1348,31 @@ void vtkParallelRenderManager::MagnifyImageLinear(
   fullImage->SetNumberOfComponents(4);
   fullImage->SetNumberOfTuples(fullImageSize[0]*fullImageSize[1]);
 
-  int destLeft, destRight, destBottom, destTop, destWidth, destHeight;
+  int destLeft, destBottom, destWidth, destHeight;
   if (fullImageViewport)
     {
     destLeft   = fullImageViewport[0];
     destBottom = fullImageViewport[1];
-    destRight  = fullImageViewport[2];
-    destTop    = fullImageViewport[3];
     destWidth  = fullImageViewport[2] - fullImageViewport[0];
     destHeight = fullImageViewport[3] - fullImageViewport[1];
     }
   else
     {
-    destLeft = destBottom = destRight = destTop = 0;
+    destLeft = destBottom = 0;
     destWidth = fullImageSize[0];  destHeight = fullImageSize[1];
     }
 
-  int srcLeft, srcRight, srcBottom, srcTop, srcWidth, srcHeight;
+  int srcLeft, srcBottom, srcWidth, srcHeight;
   if (reducedImageViewport)
     {
     srcLeft   = reducedImageViewport[0];
     srcBottom = reducedImageViewport[1];
-    srcRight  = reducedImageViewport[2];
-    srcTop    = reducedImageViewport[3];
     srcWidth  = reducedImageViewport[2] - reducedImageViewport[0];
     srcHeight = reducedImageViewport[3] - reducedImageViewport[1];
     }
   else
     {
-    srcLeft = srcBottom = srcRight = srcTop = 0;
+    srcLeft = srcBottom = 0;
     srcWidth = reducedImageSize[0];  srcHeight = reducedImageSize[1];
     }
 
