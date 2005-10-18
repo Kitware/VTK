@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.63");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.64");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -1430,6 +1430,10 @@ void vtkParallelRenderManager::MagnifyImageLinear(
           VTK_VEC_DIV_2(scanline[x-halfXMag]) +
           VTK_VEC_DIV_2(scanline[x+halfXMag]);
         }
+      if (x < destWidth)
+        {
+        scanline[x] = scanline[x-halfXMag];
+        }
       }
     }
 
@@ -1446,6 +1450,15 @@ void vtkParallelRenderManager::MagnifyImageLinear(
       for (x = 0; x < destWidth; x++)
         {
         destline2[x] = VTK_VEC_DIV_2(srcline1[x]) + VTK_VEC_DIV_2(srcline2[x]);
+        }
+      }
+    if (y < destHeight)
+      {
+      unsigned int *destline2 = image + y*fullImageSize[0];
+      unsigned int *srcline1 = image + (y-halfYMag)*fullImageSize[0];
+      for (x = 0; x < destWidth; x++)
+        {
+        destline2[x] = srcline1[x];
         }
       }
     }
