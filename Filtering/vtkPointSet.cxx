@@ -20,7 +20,7 @@
 #include "vtkPointLocator.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPointSet, "1.3");
+vtkCxxRevisionMacro(vtkPointSet, "1.4");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
@@ -151,7 +151,7 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
   int             initialCellProvided = 1;
 
   // make sure everything is up to snuff
-  if ( !this->Points )
+  if ( !this->Points || this->Points->GetNumberOfPoints() < 1)
     {
     return -1;
     }
