@@ -25,6 +25,8 @@
 #include "vtkShaderProgram.h"
 
 #include "vtkActor.h"
+#include "vtkCollection.h"
+#include "vtkCollectionIterator.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkRenderer.h"
@@ -43,19 +45,17 @@
 #include "vtkGLSLShaderProgram.h"
 #endif
 
-vtkCxxRevisionMacro(vtkShaderProgram, "1.4");
+vtkCxxRevisionMacro(vtkShaderProgram, "1.5");
 
 vtkCxxSetObjectMacro(vtkShaderProgram, Material, vtkXMLMaterial);
-vtkCxxSetObjectMacro(vtkShaderProgram, VertexShader, vtkShader);
-vtkCxxSetObjectMacro(vtkShaderProgram, FragmentShader, vtkShader);
 
 //-----------------------------------------------------------------------------
 vtkShaderProgram::vtkShaderProgram()
 {
   this->Material= 0;
-  this->VertexShader = 0;;
-  this->FragmentShader = 0;
-
+  this->ShaderCollection = vtkCollection::New();
+  this->ShaderCollectionIterator = this->ShaderCollection->NewIterator();
+  
   this->GLExtensionsLoaded = 0;
 }
 
@@ -63,20 +63,20 @@ vtkShaderProgram::vtkShaderProgram()
 vtkShaderProgram::~vtkShaderProgram()
 {
   this->SetMaterial(0);
-  this->SetVertexShader(0);
-  this->SetFragmentShader(0);
+  this->ShaderCollection->Delete();
+  this->ShaderCollectionIterator->Delete();
 }
 
 //-----------------------------------------------------------------------------
 void vtkShaderProgram::ReleaseGraphicsResources(vtkWindow *w)
 {
-  if (this->VertexShader)
+  for (this->ShaderCollectionIterator->InitTraversal();
+    !this->ShaderCollectionIterator->IsDoneWithTraversal();
+    this->ShaderCollectionIterator->GoToNextItem())
     {
-    this->VertexShader->ReleaseGraphicsResources(w);
-    }
-  if (this->FragmentShader)
-    {
-    this->FragmentShader->ReleaseGraphicsResources(w);
+    vtkShader* shader = vtkShader::SafeDownCast(
+      this->ShaderCollectionIterator->GetCurrentObject());
+    shader->ReleaseGraphicsResources(w);
     }
 }
 
@@ -104,15 +104,65 @@ vtkShaderProgram* vtkShaderProgram::CreateShaderProgram(int shaderType)
 //-----------------------------------------------------------------------------
 void vtkShaderProgram::ReadMaterial()
 {
-  if( this->GetVertexShader())
+  if (this->ShaderCollection->GetNumberOfItems() != 0)
     {
-    this->VertexShader->SetXMLShader(this->GetMaterial()->GetVertexShader());
+    vtkErrorMacro("ReadMaterial() can only be called on a clean ShaderProgram."
+      "This shader program already has some shaders loaded.");
+    return;
     }
-  if( this->GetFragmentShader())
+
+  if (!this->Material)
     {
-    this->FragmentShader->SetXMLShader(
-      this->GetMaterial()->GetFragmentShader());
+    vtkErrorMacro("No Material set to read.");
+    return;
     }
+ 
+  int cc;
+  int max = this->Material->GetNumberOfVertexShaders();
+  for (cc=0; cc < max; cc++)
+    {
+    vtkShader* shader = this->NewShader();
+    shader->SetXMLShader(this->Material->GetVertexShader(cc));
+    this->AddShader(shader);
+    shader->Delete();
+    }
+  vtkDebugMacro(<< max << " Vertex shaders added.");
+ 
+  max = this->Material->GetNumberOfFragmentShaders();
+  for (cc=0; cc < max; cc++)
+    {
+    vtkShader* shader = this->NewShader();
+    shader->SetXMLShader(this->Material->GetFragmentShader(cc));
+    this->AddShader(shader);
+    shader->Delete();
+    }
+  vtkDebugMacro(<< max << " Fragment shaders added.");
+}
+
+//-----------------------------------------------------------------------------
+int vtkShaderProgram::AddShader(vtkShader* shader)
+{
+  int index = this->GetNumberOfShaders();
+  this->ShaderCollection->AddItem(shader);
+  return index;
+}
+
+//-----------------------------------------------------------------------------
+void vtkShaderProgram::RemoveShader(vtkShader* shader)
+{
+  this->ShaderCollection->RemoveItem(shader);
+}
+
+//-----------------------------------------------------------------------------
+void vtkShaderProgram::RemoveShader(int index)
+{
+  this->ShaderCollection->RemoveItem(index);
+}
+
+//-----------------------------------------------------------------------------
+int vtkShaderProgram::GetNumberOfShaders()
+{
+  return this->ShaderCollection->GetNumberOfItems();
 }
 
 //-----------------------------------------------------------------------------
@@ -142,48 +192,48 @@ void vtkShaderProgram::LoadExtensions( vtkRenderWindow* renWin )
 //-----------------------------------------------------------------------------
 void vtkShaderProgram::AddShaderVariable(const char* name, int numVars, int* x)
 {
-  if( this->VertexShader )
+  vtkCollectionIterator* iter = this->ShaderCollectionIterator;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
+    iter->GoToNextItem())
     {
-    this->VertexShader->AddShaderVariable( name, numVars, x );
-    }
-
-  if( this->FragmentShader )
-    {
-    this->FragmentShader->AddShaderVariable( name, numVars, x );
+    vtkShader* shader = vtkShader::SafeDownCast(iter->GetCurrentObject());
+    shader->AddShaderVariable(name, numVars, x);
     }
 }
 
 //-----------------------------------------------------------------------------
 void vtkShaderProgram::AddShaderVariable(const char* name, int numVars, float* x)
 {
-  if( this->VertexShader )
+  vtkCollectionIterator* iter = this->ShaderCollectionIterator;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
+    iter->GoToNextItem())
     {
-    this->VertexShader->AddShaderVariable( name, numVars, x );
-    }
-
-  if( this->FragmentShader )
-    {
-    this->FragmentShader->AddShaderVariable( name, numVars, x );
+    vtkShader* shader = vtkShader::SafeDownCast(iter->GetCurrentObject());
+    shader->AddShaderVariable(name, numVars, x);
     }
 }
 
 //-----------------------------------------------------------------------------
 void vtkShaderProgram::AddShaderVariable(const char* name, int numVars, double* x)
 {
-  this->VertexShader->AddShaderVariable( name, numVars, x );
-  this->FragmentShader->AddShaderVariable( name, numVars, x );
+  vtkCollectionIterator* iter = this->ShaderCollectionIterator;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
+    iter->GoToNextItem())
+    {
+    vtkShader* shader = vtkShader::SafeDownCast(iter->GetCurrentObject());
+    shader->AddShaderVariable(name, numVars, x);
+    }
 }
 
 //-----------------------------------------------------------------------------
 void vtkShaderProgram::PostRender(vtkActor*, vtkRenderer*)
 {
-  if (this->VertexShader)
+  vtkCollectionIterator* iter = this->ShaderCollectionIterator;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
+    iter->GoToNextItem())
     {
-    this->VertexShader->Unbind();
-    }
-  if (this->FragmentShader)
-    {
-    this->FragmentShader->Unbind();
+    vtkShader* shader = vtkShader::SafeDownCast(iter->GetCurrentObject());
+    shader->Unbind(); 
     }
 }
 
@@ -202,25 +252,12 @@ void vtkShaderProgram::PrintSelf(ostream &os, vtkIndent indent)
     os << "(none)" << endl;
     }
   
-  os << indent << "VertexShader: ";
-  if (this->VertexShader)
+  vtkCollectionIterator* iter = this->ShaderCollectionIterator;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
+    iter->GoToNextItem())
     {
-    os << endl;
-    this->VertexShader->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << "(none)" << endl;
-    }
-  
-  os << indent << "FragmentShader: ";
-  if (this->FragmentShader)
-    {
-    os << endl;
-    this->FragmentShader->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << "(none)" << endl;
+    vtkShader* shader = vtkShader::SafeDownCast(iter->GetCurrentObject());
+    os << indent << "Shader: " << endl;
+    shader->PrintSelf(os, indent.GetNextIndent());
     }
 }

@@ -51,6 +51,8 @@
 #include "vtkObject.h"
 
 class vtkActor;
+class vtkCollection;
+class vtkCollectionIterator;
 class vtkRenderer;
 class vtkRenderWindow;
 class vtkShader;
@@ -71,14 +73,21 @@ public:
   virtual void SetMaterial( vtkXMLMaterial* );
 
   // .Description:
-  // Accessors for the VertexShader.
-  vtkGetObjectMacro( VertexShader, vtkShader );
-  virtual void SetVertexShader( vtkShader* );
+  // Add shaders. Returns the index of the shader.
+  int AddShader(vtkShader* shader);
 
-  // .Description:
-  // Accessors for the Fragment Shader.
-  vtkGetObjectMacro( FragmentShader, vtkShader );
-  virtual void SetFragmentShader( vtkShader* );
+  // Description:
+  // Remove a shader at the given index.
+  void RemoveShader(int index);
+
+  // Description:
+  // Removes the given shader.
+  void RemoveShader(vtkShader* shader);
+
+  // Description:
+  // Returns the number of shaders available in this
+  // shader program.
+  int GetNumberOfShaders();
 
   // .Description
   // This static function creates concrete shaders of a specific type. This is
@@ -122,14 +131,17 @@ protected:
   ~vtkShaderProgram();
 
   vtkXMLMaterial* Material;
-  vtkShader *VertexShader;
-  vtkShader *FragmentShader;
+  vtkCollection* ShaderCollection;
+  vtkCollectionIterator* ShaderCollectionIterator;
 
   vtkSetMacro(GLExtensionsLoaded, int);
   vtkGetMacro(GLExtensionsLoaded, int);
   int GLExtensionsLoaded;
   virtual void LoadExtensions(vtkRenderWindow*);
 
+  // Description:;
+  // Must be overloaded by subclasses to create the shader of appropriate type.
+  virtual vtkShader* NewShader() =0;
 private:
   vtkShaderProgram(const vtkShaderProgram&); // Not Implemented
   void operator=(const vtkShaderProgram&); // Not Implemented

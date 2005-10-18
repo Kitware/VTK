@@ -53,10 +53,6 @@ public:
   // and application-specified uniform variables.
   virtual void Render(vtkActor *actor, vtkRenderer *renderer);
   
-  virtual vtkGLSLShader* GetGLSLVertex();
-  virtual vtkGLSLShader* GetGLSLFragment(); 
-
-
   // Description:
   // Called to unload the shaders after the actor has been rendered.
   virtual void PostRender(vtkActor*, vtkRenderer*);
@@ -70,10 +66,14 @@ protected:
   vtkGLSLShaderProgram();
   virtual ~vtkGLSLShaderProgram();
 
+  // Description:
+  // Creates and returns a new vtkCgShader.
+  virtual vtkShader* NewShader();
+
   unsigned int Program;
   int IsProgram();
   int IsLinked();
-  int IsAttached(unsigned int handle);
+  int IsAttached(vtkGLSLShader* shader);
   virtual void Link();
 
   vtkSetStringMacro( Info );

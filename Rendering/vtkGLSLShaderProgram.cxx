@@ -25,6 +25,7 @@
 #include "vtkGLSLShaderProgram.h"
 
 #include "vtkActor.h"
+#include "vtkCollectionIterator.h"
 #include "vtkGLSLShader.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
@@ -58,7 +59,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.4");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.5");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -66,13 +67,7 @@ vtkGLSLShaderProgram::vtkGLSLShaderProgram()
   : Program(0),
     Info(NULL)
 {
-  vtkShader* shader =  vtkGLSLShader::New();
-  this->SetVertexShader(shader);
-  shader->Delete();
 
-  shader = vtkGLSLShader::New();
-  this->SetFragmentShader(shader);
-  shader->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -80,6 +75,12 @@ vtkGLSLShaderProgram::~vtkGLSLShaderProgram()
 {
 }
 
+
+//-----------------------------------------------------------------------------
+vtkShader* vtkGLSLShaderProgram::NewShader()
+{
+  return vtkGLSLShader::New();
+}
 
 //-----------------------------------------------------------------------------
 void vtkGLSLShaderProgram::ReleaseGraphicsResources(vtkWindow* w)
@@ -96,18 +97,6 @@ void vtkGLSLShaderProgram::ReleaseGraphicsResources(vtkWindow* w)
 void vtkGLSLShaderProgram::Link()
 {
 
-}
-
-//-----------------------------------------------------------------------------
-vtkGLSLShader* vtkGLSLShaderProgram::GetGLSLVertex()
-{
-  return vtkGLSLShader::SafeDownCast(this->GetVertexShader());
-}
-
-//-----------------------------------------------------------------------------
-vtkGLSLShader* vtkGLSLShaderProgram::GetGLSLFragment()
-{
-  return vtkGLSLShader::SafeDownCast(this->GetFragmentShader());
 }
 
 //-----------------------------------------------------------------------------
@@ -248,8 +237,9 @@ void vtkGLSLShaderProgram::GetInfoLog()
 }
 
 //-----------------------------------------------------------------------------
-int vtkGLSLShaderProgram::IsAttached(unsigned int handle)
+int vtkGLSLShaderProgram::IsAttached(vtkGLSLShader* glslshader)
 {
+  unsigned int handle = glslshader->GetHandle();
   int attached = 0;
   // find out what's attached
   GLint numObjects = 0;
@@ -292,27 +282,26 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
     vtkErrorMacro( "Not able to create a GLSL Program!!!" << endl );
     return;
     }
-
-  if (this->VertexShader)
+  
+  vtkCollectionIterator* iter = this->ShaderCollectionIterator;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+    iter->GoToNextItem())
     {
-    if (this->VertexShader->Compile())
+    vtkGLSLShader* shader = vtkGLSLShader::SafeDownCast(
+      iter->GetCurrentObject());
+
+    if (!shader)
       {
-      if (!this->IsAttached(this->GetGLSLVertex()->GetHandle()))
-        {
-        vtkgl::AttachShader( static_cast<GLuint>(this->Program), 
-          this->GetGLSLVertex()->GetHandle() );
-        }
+      vtkErrorMacro("GLSL Shader program cannot contain a non-GLSL shader.");
+      continue;
       }
-    }
-
-  if (this->FragmentShader)
-    {
-    if (this->FragmentShader->Compile())
+    
+    if (shader->Compile())
       {
-      if (!this->IsAttached(this->GetGLSLFragment()->GetHandle()))
+      if (!this->IsAttached(shader))
         {
         vtkgl::AttachShader(static_cast<GLuint>(this->Program), 
-          this->GetGLSLFragment()->GetHandle());
+          shader->GetHandle());
         }
       }
     }
@@ -338,16 +327,18 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
 
   // handle attributes and uniform variables
   // uniform variables
-  if (this->VertexShader)
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+    iter->GoToNextItem())
     {
-    this->GetGLSLVertex()->SetProgram( this->Program );
-    this->VertexShader->PassShaderVariables(actor, renderer);
-    }
-
-  if (this->FragmentShader)
-    {
-    this->GetGLSLFragment()->SetProgram(this->Program);
-    this->FragmentShader->PassShaderVariables(actor, renderer);
+    vtkGLSLShader* shader = vtkGLSLShader::SafeDownCast(
+      iter->GetCurrentObject());
+    if (!shader)
+      {
+      // no need to flag error...already marked.
+      continue;
+      }
+    shader->SetProgram(this->Program);
+    shader->PassShaderVariables(actor, renderer);
     }
 }
 //-----------------------------------------------------------------------------

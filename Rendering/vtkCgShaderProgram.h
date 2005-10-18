@@ -64,6 +64,9 @@ protected:
   vtkCgShaderProgram();
   ~vtkCgShaderProgram();
 
+  // Description:
+  // Creates and returns a new vtkCgShader.
+  virtual vtkShader* NewShader();
 private:
   vtkCgShaderProgram(const vtkCgShaderProgram&); // Not Implemented
   void operator=(const vtkCgShaderProgram&); // Not Implemented
