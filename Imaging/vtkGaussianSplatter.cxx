@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGaussianSplatter, "1.60");
+vtkCxxRevisionMacro(vtkGaussianSplatter, "1.61");
 vtkStandardNewMacro(vtkGaussianSplatter);
 
 // Construct object with dimensions=(50,50,50); automatic computation of 
@@ -138,7 +138,7 @@ int vtkGaussianSplatter::RequestData(
   //
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
-    vtkErrorMacro(<<"No points to splat!");
+    vtkDebugMacro(<<"No points to splat!");
     return 1;
     }
 
