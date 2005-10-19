@@ -37,7 +37,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.4");
+vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.5");
 vtkStandardNewMacro(vtkUnstructuredGridPreIntegration);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridPreIntegration, Integrator,
@@ -141,6 +141,8 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     {
     delete[] this->IntegrationTableScalarScale;
     }
+  
+  this->NumComponents = scalars->GetNumberOfComponents();
 
   // Establish temporary inputs to integrator.
   vtkVolume         *tmpVolume = vtkVolume::New();
@@ -391,8 +393,7 @@ void vtkUnstructuredGridPreIntegration::Initialize(vtkVolume *volume,
     // Nothing changed from the last time Initialize was run.
     return;
     }
-
-  this->NumComponents = scalars->GetNumberOfComponents();
+  
   this->Property = property;
   this->Volume = volume;
   this->IntegrationTableBuilt.Modified();
