@@ -139,6 +139,7 @@ nm libvtktiff.a |grep " [TR] "
 #define TIFFWriteScanline vtk_TIFFWriteScanline
 #define TIFFWriteTile vtk_TIFFWriteTile
 #define XYZtoRGB24 vtk_tiff_XYZtoRGB24
+#define _TIFFBuiltinCODECS vtk__TIFFBuiltinCODECS
 #define _TIFFDefaultStripSize vtk__TIFFDefaultStripSize
 #define _TIFFDefaultTileSize vtk__TIFFDefaultTileSize
 #define _TIFFFax3fillruns vtk__TIFFFax3fillruns
