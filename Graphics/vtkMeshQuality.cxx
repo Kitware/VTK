@@ -35,7 +35,7 @@
 #include "vtkMath.h"
 #include "vtkTetra.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.31");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.32");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -257,7 +257,7 @@ int vtkMeshQuality::RequestData(
 
   int p;
   vtkIdType c = 0;
-  vtkIdType sz = N < 19 ? 1 : N / 19;
+  vtkIdType sz = N / 20 + 1;
   vtkIdType inner;
   this->UpdateProgress( 0.01 );
   for ( p = 0; p < 20; ++p )
