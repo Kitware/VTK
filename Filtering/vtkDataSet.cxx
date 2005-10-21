@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.3");
+vtkCxxRevisionMacro(vtkDataSet, "1.4");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -184,6 +184,11 @@ void vtkDataSet::GetCenter(double center[3])
 // Return the length of the diagonal of the bounding box.
 double vtkDataSet::GetLength()
 {
+  if (this->GetNumberOfPoints() == 0)
+    {
+    return 0;
+    }
+
   double diff, l=0.0;
   int i;
 
