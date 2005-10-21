@@ -187,10 +187,10 @@ protected:
   void BuildUseSets();
   
   // Description:
-  // Reorder vertices `v' in increasing order in `w'. Orientation does not
-  // matter for the algorithm.
-  void ReorderTriangle(vtkIdType v[3],
-                       vtkIdType w[3]);
+  // Reorder vertices `v' in increasing order in `w'. Return if the orientation
+  // has changed.
+  int ReorderTriangle(vtkIdType v[3],
+                      vtkIdType w[3]);
 
   // Description:
   // Project and sort the vertices by z-coordinates in view space in the
@@ -328,6 +328,12 @@ protected:
   
   vtkDataArray *Scalars;
   int CellScalars;
+  
+  // if use CellScalars, we need to keep track of the
+  // values on each side of the face and figure out
+  // if the face is used by two cells (twosided) or one cell.
+  double FaceScalars[2];
+  int FaceSide;
   
   vtkSpan *Span;
   vtkPixelListFrame *PixelListFrame;
