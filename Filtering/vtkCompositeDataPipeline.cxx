@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.30");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.31");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -106,7 +106,6 @@ vtkCompositeDataPipeline::~vtkCompositeDataPipeline()
 //----------------------------------------------------------------------------
 int
 vtkCompositeDataPipeline::ComputePipelineMTime(vtkInformation* request,
-                                               int forward,
                                                vtkInformationVector** inInfoVec,
                                                vtkInformationVector* outInfoVec,
                                                int requestFromOutputPort,
@@ -115,7 +114,7 @@ vtkCompositeDataPipeline::ComputePipelineMTime(vtkInformation* request,
   // if not a subpass then just do normal stuff
   if (!this->InSubPass)
     {
-    return this->Superclass::ComputePipelineMTime(request, forward,
+    return this->Superclass::ComputePipelineMTime(request,
                                                   inInfoVec, outInfoVec,
                                                   requestFromOutputPort,
                                                   mtime);
@@ -133,7 +132,6 @@ vtkCompositeDataPipeline::ComputePipelineMTime(vtkInformation* request,
 
 //----------------------------------------------------------------------------
 int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request,
-                                             int forward,
                                              vtkInformationVector** inInfoVec,
                                              vtkInformationVector* outInfoVec)
 {
@@ -201,8 +199,7 @@ int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request,
                         vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION());
         }
       
-      result = this->Superclass::ProcessRequest(request,1,
-                                                inInfoVec,outInfoVec);
+      result = this->Superclass::ProcessRequest(request, inInfoVec,outInfoVec);
       }
     return result;
     }
@@ -292,8 +289,7 @@ int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request,
     }
 
   // Let the superclass handle other requests.
-  return this->Superclass::ProcessRequest(request, forward, 
-                                          inInfoVec, outInfoVec);
+  return this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec);
 }
 
 //----------------------------------------------------------------------------
@@ -737,7 +733,7 @@ int vtkCompositeDataPipeline::UpdateBlocks(
       this->GenericRequest->Set(vtkMultiGroupDataSet::GROUP(), k);
       this->GenericRequest->Set(vtkCompositeDataSet::INDEX(), l);
       unsigned long mtime;
-      producer->ComputePipelineMTime(this->GenericRequest, 1,
+      producer->ComputePipelineMTime(this->GenericRequest,
                                      producer->GetInputInformation(),
                                      producer->GetOutputInformation(),
                                      producerPort, &mtime);
@@ -1208,13 +1204,19 @@ int vtkCompositeDataPipeline::ForwardUpstream(vtkInformation* request)
 int vtkCompositeDataPipeline::ForwardUpstream(
   int i, int j, vtkInformation* request)
 {
+  // Do not forward upstream if input information is shared.
+  if(this->SharedInputInformation)
+    {
+    return 1;
+    }
   int result = 1;
   if(vtkExecutive* e = this->GetInputExecutive(i, j))
     {
     vtkAlgorithmOutput* input = this->Algorithm->GetInputConnection(i, j);
     int port = request->Get(FROM_OUTPUT_PORT());
     request->Set(FROM_OUTPUT_PORT(), input->GetIndex());
-    if(!e->ProcessRequest(request,1,e->GetInputInformation(),
+    if(!e->ProcessRequest(request,
+                          e->GetInputInformation(),
                           e->GetOutputInformation()))
       {
       result = 0;

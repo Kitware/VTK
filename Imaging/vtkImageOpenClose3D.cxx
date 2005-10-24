@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.31");
+vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.32");
 vtkStandardNewMacro(vtkImageOpenClose3D);
 
 //----------------------------------------------------------------------------
@@ -188,20 +188,16 @@ vtkImageOpenClose3D::ComputePipelineMTime(vtkInformation* request,
 {
   // Process the request on the internal pipeline.  Share our input
   // information with the first filter and our output information with
-  // the last filter.  Algorithms process the request in
-  // upstream-to-downstream order.
+  // the last filter.
   vtkExecutive* exec0 = this->Filter0->GetExecutive();
   vtkExecutive* exec1 = this->Filter1->GetExecutive();
-  unsigned long mtime0;
+  exec0->SetSharedInputInformation(inInfoVec);
+  exec1->SetSharedOutputInformation(outInfoVec);
   unsigned long mtime1;
-  if(exec0->ComputePipelineMTime(request, 0,
-                                 inInfoVec,
-                                 exec0->GetOutputInformation(),
-                                 0, &mtime0) &&
-     exec1->ComputePipelineMTime(request, 0,
+  if(exec1->ComputePipelineMTime(request,
                                  exec1->GetInputInformation(),
-                                 outInfoVec,
-                                 0, &mtime1))
+                                 exec1->GetOutputInformation(),
+                                 requestFromOutputPort, &mtime1))
     {
     // Now run the request in this algorithm.
     return this->Superclass::ComputePipelineMTime(request,
@@ -223,32 +219,16 @@ int vtkImageOpenClose3D::ProcessRequest(vtkInformation* request,
                                         vtkInformationVector** inInfoVec,
                                         vtkInformationVector* outInfoVec)
 {
-  // Process the request on the internal pipeline in the proper order
-  // according to the forwarding direction.  Share our input
+  // Process the request on the internal pipeline.  Share our input
   // information with the first filter and our output information with
   // the last filter.
   vtkExecutive* exec0 = this->Filter0->GetExecutive();
   vtkExecutive* exec1 = this->Filter1->GetExecutive();
-  if(request->Get(vtkExecutive::ALGORITHM_BEFORE_FORWARD()))
-    {
-    // Algorithms process the request in downstream-to-upstream order.
-    return (exec1->ProcessRequest(request, 0,
-                                  exec1->GetInputInformation(),
-                                  outInfoVec) &&
-            exec0->ProcessRequest(request, 0,
-                                  inInfoVec,
-                                  exec0->GetOutputInformation()));
-    }
-  else
-    {
-    // Algorithms process the request in upstream-to-downstream order.
-    return (exec0->ProcessRequest(request, 0,
-                                  inInfoVec,
-                                  exec0->GetOutputInformation()) &&
-            exec1->ProcessRequest(request, 0,
-                                  exec1->GetInputInformation(),
-                                  outInfoVec));
-    }
+  exec0->SetSharedInputInformation(inInfoVec);
+  exec1->SetSharedOutputInformation(outInfoVec);
+  return exec1->ProcessRequest(request,
+                               exec1->GetInputInformation(),
+                               exec1->GetOutputInformation());
 }
 
 //----------------------------------------------------------------------------

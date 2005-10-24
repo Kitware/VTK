@@ -30,7 +30,7 @@
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.28");
+vtkCxxRevisionMacro(vtkExecutive, "1.29");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -120,6 +120,8 @@ vtkExecutive::vtkExecutive()
   this->OutputInformation = vtkInformationVector::New();
   this->Algorithm = 0;
   this->InAlgorithm = 0;
+  this->SharedInputInformation = 0;
+  this->SharedOutputInformation = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -189,6 +191,13 @@ vtkAlgorithm* vtkExecutive::GetAlgorithm()
 //----------------------------------------------------------------------------
 vtkInformationVector** vtkExecutive::GetInputInformation()
 {
+  // Use the shared input information vector if any is set.
+  if(this->SharedInputInformation)
+    {
+    return this->SharedInputInformation;
+    }
+
+  // Use this executive's input information vector.
   if(this->Algorithm)
     {
     int numPorts = this->Algorithm->GetNumberOfInputPorts();
@@ -224,6 +233,13 @@ vtkInformationVector* vtkExecutive::GetInputInformation(int port)
 //----------------------------------------------------------------------------
 vtkInformationVector* vtkExecutive::GetOutputInformation()
 {
+  // Use the shared output information vector if any is set.
+  if(this->SharedOutputInformation)
+    {
+    return this->SharedOutputInformation;
+    }
+
+  // Use this executive's output information vector.
   if (!this->Algorithm)
     {
     return 0;
@@ -405,6 +421,18 @@ vtkAlgorithmOutput* vtkExecutive::GetProducerPort(vtkDataObject* d)
 }
 
 //----------------------------------------------------------------------------
+void vtkExecutive::SetSharedInputInformation(vtkInformationVector** inInfoVec)
+{
+  this->SharedInputInformation = inInfoVec;
+}
+
+//----------------------------------------------------------------------------
+void vtkExecutive::SetSharedOutputInformation(vtkInformationVector* outInfoVec)
+{
+  this->SharedOutputInformation = outInfoVec;
+}
+
+//----------------------------------------------------------------------------
 vtkDataObject* vtkExecutive::GetOutputData(int port)
 {
   if(!this->OutputPortIndexInRange(port, "get data for"))
@@ -507,7 +535,6 @@ vtkDataObject* vtkExecutive::GetInputData
 
 //----------------------------------------------------------------------------
 int vtkExecutive::ProcessRequest(vtkInformation* request,
-                                 int forward,
                                  vtkInformationVector** inInfo,
                                  vtkInformationVector* outInfo)
 {
@@ -524,7 +551,7 @@ int vtkExecutive::ProcessRequest(vtkInformation* request,
           return 0;
           }
         }
-      if(forward && !this->ForwardUpstream(request))
+      if(!this->ForwardUpstream(request))
         {
         return 0;
         }
@@ -553,7 +580,7 @@ int vtkExecutive::ProcessRequest(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-int vtkExecutive::ComputePipelineMTime(vtkInformation*, int,
+int vtkExecutive::ComputePipelineMTime(vtkInformation*,
                                        vtkInformationVector**,
                                        vtkInformationVector*,
                                        int, unsigned long*)
@@ -567,6 +594,14 @@ int vtkExecutive::ComputePipelineMTime(vtkInformation*, int,
 //----------------------------------------------------------------------------
 int vtkExecutive::ForwardDownstream(vtkInformation*)
 {
+  // Do not forward downstream if the output is shared with another
+  // executive.
+  if(this->SharedOutputInformation)
+    {
+    return 1;
+    }
+
+  // Forwarding downstream is not yet implemented.
   vtkErrorMacro("ForwardDownstream not yet implemented.");
   return 0;
 }
@@ -574,6 +609,14 @@ int vtkExecutive::ForwardDownstream(vtkInformation*)
 //----------------------------------------------------------------------------
 int vtkExecutive::ForwardUpstream(vtkInformation* request)
 {
+  // Do not forward upstream if the input is shared with another
+  // executive.
+  if(this->SharedInputInformation)
+    {
+    return 1;
+    }
+
+  // Forward the request upstream through all input connections.
   int result = 1;
   for(int i=0; i < this->GetNumberOfInputPorts(); ++i)
     {
@@ -591,7 +634,8 @@ int vtkExecutive::ForwardUpstream(vtkInformation* request)
         {
         int port = request->Get(FROM_OUTPUT_PORT());
         request->Set(FROM_OUTPUT_PORT(), producerPort);
-        if(!e->ProcessRequest(request,1,e->GetInputInformation(),
+        if(!e->ProcessRequest(request,
+                              e->GetInputInformation(),
                               e->GetOutputInformation()))
           {
           result = 0;

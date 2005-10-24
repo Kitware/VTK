@@ -45,7 +45,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.41");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.42");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -91,7 +91,6 @@ void vtkDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int
 vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
-                                              int forward,
                                               vtkInformationVector** inInfoVec,
                                               vtkInformationVector* outInfoVec,
                                               int requestFromOutputPort,
@@ -129,9 +128,10 @@ vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
     return 0;
     }
 
-  // We want the maximum PipelineMTime of all inputs.
-  if (forward)
+  // Forward the request upstream if not sharing input information.
+  if(!this->SharedInputInformation)
     {
+    // We want the maximum PipelineMTime of all inputs.
     for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
       {
       for(int j=0; j < inInfoVec[i]->GetNumberOfInformationObjects(); ++j)
@@ -144,7 +144,7 @@ vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
         if(e)
           {
           unsigned long mtime;
-          if(!e->ComputePipelineMTime(request, 1,
+          if(!e->ComputePipelineMTime(request,
                                       e->GetInputInformation(),
                                       e->GetOutputInformation(),
                                       producerPort, &mtime))
@@ -166,7 +166,6 @@ vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
 
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
-                                            int forward,
                                             vtkInformationVector** inInfoVec,
                                             vtkInformationVector* outInfoVec)
 {
@@ -184,7 +183,7 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
       return 1;
       }
     // Update inputs first if they are out of date
-    if(forward && !this->ForwardUpstream(request))
+    if(!this->ForwardUpstream(request))
       {
       return 0;
       }
@@ -225,7 +224,7 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
       return 1;
       }
     // Update inputs first.
-    if(forward && !this->ForwardUpstream(request))
+    if(!this->ForwardUpstream(request))
       {
       return 0;
       }
@@ -265,7 +264,7 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
     if(this->NeedToExecuteData(outputPort,inInfoVec,outInfoVec))
       {
       // Update inputs first.
-      if(forward && !this->ForwardUpstream(request))
+      if(!this->ForwardUpstream(request))
         {
         return 0;
         }
@@ -299,8 +298,7 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
     }
 
   // Let the superclass handle other requests.
-  return this->Superclass::ProcessRequest(request, forward, 
-                                          inInfoVec, outInfoVec);
+  return this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec);
 }
 
 //----------------------------------------------------------------------------
@@ -344,7 +342,7 @@ int vtkDemandDrivenPipeline::UpdatePipelineMTime()
 
   // Send the request for pipeline modified time.
   unsigned long mtime;
-  this->ComputePipelineMTime(0, 1,
+  this->ComputePipelineMTime(0,
                              this->GetInputInformation(),
                              this->GetOutputInformation(),
                              -1, &mtime);
@@ -378,7 +376,8 @@ int vtkDemandDrivenPipeline::UpdateDataObject()
     }
   
   // Send the request.
-  return this->ProcessRequest(this->DataObjectRequest,1,this->GetInputInformation(),
+  return this->ProcessRequest(this->DataObjectRequest,
+                              this->GetInputInformation(),
                               this->GetOutputInformation());
 }
 
@@ -409,7 +408,8 @@ int vtkDemandDrivenPipeline::UpdateInformation()
     }
   
   // Send the request.
-  return this->ProcessRequest(this->InfoRequest,1,this->GetInputInformation(),
+  return this->ProcessRequest(this->InfoRequest,
+                              this->GetInputInformation(),
                               this->GetOutputInformation());
 }
 
@@ -446,7 +446,8 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
   
   // Send the request.
   this->DataRequest->Set(FROM_OUTPUT_PORT(), outputPort);
-  return this->ProcessRequest(this->DataRequest,1,this->GetInputInformation(),
+  return this->ProcessRequest(this->DataRequest,
+                              this->GetInputInformation(),
                               this->GetOutputInformation());
 }
 

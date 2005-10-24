@@ -108,10 +108,10 @@ int TestPriorityStreaming(int argc, char *argv[])
     outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
                  piece);
     contour->GetExecutive()->
-      ProcessRequest(UpdateExtentRequest,1,inVec,outVec);
+      ProcessRequest(UpdateExtentRequest, inVec, outVec);
     // get the ue info
     contour->GetExecutive()->
-      ProcessRequest(UEInfoRequest,1,inVec,outVec);
+      ProcessRequest(UEInfoRequest, inVec, outVec);
 
     // get the priority
     priority[piece] = 
