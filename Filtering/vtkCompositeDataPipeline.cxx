@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.31");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.32");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -701,8 +701,8 @@ int vtkCompositeDataPipeline::UpdateBlocks(
   vtkInformation* inInfo)
 {
   // Get the producer and its output port for input connection i,j.
-  vtkExecutive* producer;
-  int producerPort;
+  vtkExecutive* producer = 0;
+  int producerPort = -1;
   if(vtkInformation* info = this->GetInputInformation(i, j))
     {
     // Get the executive producing this input.  If there is none, then
