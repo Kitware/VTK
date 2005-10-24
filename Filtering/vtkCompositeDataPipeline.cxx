@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.29");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.30");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -104,22 +104,31 @@ vtkCompositeDataPipeline::~vtkCompositeDataPipeline()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkCompositeDataPipeline::ComputePipelineMTime(
-  int forward, vtkInformation *request, vtkInformationVector **inInfoVec)
+int
+vtkCompositeDataPipeline::ComputePipelineMTime(vtkInformation* request,
+                                               int forward,
+                                               vtkInformationVector** inInfoVec,
+                                               vtkInformationVector* outInfoVec,
+                                               int requestFromOutputPort,
+                                               unsigned long* mtime)
 {
   // if not a subpass then just do normal stuff
   if (!this->InSubPass)
     {
-    return this->Superclass::ComputePipelineMTime(forward,request,inInfoVec);
+    return this->Superclass::ComputePipelineMTime(request, forward,
+                                                  inInfoVec, outInfoVec,
+                                                  requestFromOutputPort,
+                                                  mtime);
     }
-  
+
   // if in subpass then Update the time only if it is the beginning of the
   // next pass in the loop.
   if (request->Has(vtkCompositeDataSet::INDEX()))
     {
     this->SubPassTime.Modified();
     }
-  return this->SubPassTime;
+  *mtime = this->SubPassTime;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -695,6 +704,21 @@ int vtkCompositeDataPipeline::UpdateBlocks(
   vtkCompositeDataSet* input,
   vtkInformation* inInfo)
 {
+  // Get the producer and its output port for input connection i,j.
+  vtkExecutive* producer;
+  int producerPort;
+  if(vtkInformation* info = this->GetInputInformation(i, j))
+    {
+    // Get the executive producing this input.  If there is none, then
+    // it is a NULL input.
+    info->Get(vtkExecutive::PRODUCER(), producer, producerPort);
+    }
+  if(!producer)
+    {
+    this->SendEndLoop(i,j);
+    return EXECUTE_BLOCK_ERROR;
+    }
+
   // Execute the streaming demand driven pipeline for each block
   unsigned int numGroups = updateInfo->GetNumberOfGroups();
   for (unsigned int k=0; k<numGroups; k++)
@@ -712,12 +736,12 @@ int vtkCompositeDataPipeline::UpdateBlocks(
       // Setup the request for pipeline modification time.
       this->GenericRequest->Set(vtkMultiGroupDataSet::GROUP(), k);
       this->GenericRequest->Set(vtkCompositeDataSet::INDEX(), l);
-      if(vtkExecutive* e = this->GetInputExecutive(i, j))
-        {
-        e->ComputePipelineMTime(
-          1, this->GenericRequest, e->GetInputInformation());
-        }
-            
+      unsigned long mtime;
+      producer->ComputePipelineMTime(this->GenericRequest, 1,
+                                     producer->GetInputInformation(),
+                                     producer->GetOutputInformation(),
+                                     producerPort, &mtime);
+
       // Do the data-object creation pass before the information pass.
               
       // Send the request for data object creation.

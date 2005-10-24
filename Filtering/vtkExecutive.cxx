@@ -30,7 +30,7 @@
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.27");
+vtkCxxRevisionMacro(vtkExecutive, "1.28");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -550,6 +550,18 @@ int vtkExecutive::ProcessRequest(vtkInformation* request,
     return 0;
     }
   return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkExecutive::ComputePipelineMTime(vtkInformation*, int,
+                                       vtkInformationVector**,
+                                       vtkInformationVector*,
+                                       int, unsigned long*)
+{
+  // Demand-driven executives that use this request should implement
+  // this method.
+  vtkErrorMacro("ComputePipelineMTime not implemented for this executive.");
+  return 0;
 }
 
 //----------------------------------------------------------------------------

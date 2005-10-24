@@ -35,7 +35,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.29");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.30");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -419,6 +419,18 @@ int vtkAlgorithm::ProcessRequest(vtkInformation* /* request */,
                                  vtkInformationVector**,
                                  vtkInformationVector*)
 {
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::ComputePipelineMTime(vtkInformation* /* request */,
+                                       vtkInformationVector**,
+                                       vtkInformationVector*,
+                                       int /* requestFromOutputPort */,
+                                       unsigned long* mtime)
+{
+  // By default algorithms contribute only their own modified time.
+  *mtime = this->GetMTime();
   return 1;
 }
 

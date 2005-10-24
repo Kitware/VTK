@@ -45,22 +45,19 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.40");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.41");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
-vtkInformationKeyMacro(vtkDemandDrivenPipeline, PIPELINE_MODIFIED_TIME, UnsignedLong);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, RELEASE_DATA, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA, Request);
-vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_NOT_GENERATED, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_NOT_GENERATED, Request);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Request);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_INFORMATION, Request);
-vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_PIPELINE_MODIFIED_TIME, Request);
 
 //----------------------------------------------------------------------------
 vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
 {
-  this->MTimeRequest = 0;
   this->InfoRequest = 0;
   this->DataObjectRequest = 0;
   this->DataRequest = 0;
@@ -69,10 +66,6 @@ vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
 //----------------------------------------------------------------------------
 vtkDemandDrivenPipeline::~vtkDemandDrivenPipeline()
 {
-  if (this->MTimeRequest)
-    {
-    this->MTimeRequest->Delete();
-    }
   if (this->InfoRequest)
     {
     this->InfoRequest->Delete();
@@ -95,13 +88,47 @@ void vtkDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-unsigned long vtkDemandDrivenPipeline::ComputePipelineMTime(int forward, vtkInformation *request,
-                                                            vtkInformationVector **inInfoVec)
+//----------------------------------------------------------------------------
+int
+vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
+                                              int forward,
+                                              vtkInformationVector** inInfoVec,
+                                              vtkInformationVector* outInfoVec,
+                                              int requestFromOutputPort,
+                                              unsigned long* mtime)
 {
   // The pipeline's MTime starts with this algorithm's MTime.
   // Invoke the request on the algorithm.
-  this->PipelineMTime = this->Algorithm->ComputePipelineMTime(request);
-  
+  this->InAlgorithm = 1;
+  int result =
+    this->Algorithm->ComputePipelineMTime(request,
+                                          inInfoVec, outInfoVec,
+                                          requestFromOutputPort,
+                                          &this->PipelineMTime);
+  this->InAlgorithm = 0;
+
+  // If the algorithm failed report it now.
+  if(!result)
+    {
+    if(request)
+      {
+      vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName()
+                    << "(" << this->Algorithm
+                    << ") returned failure for pipeline"
+                    << " modified time request from output port "
+                    << requestFromOutputPort<< ": " << *request);
+      }
+    else
+      {
+      vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName()
+                    << "(" << this->Algorithm
+                    << ") returned failure for pipeline"
+                    << " modified time request from output port "
+                    << requestFromOutputPort<< ".");
+      }
+    return 0;
+    }
+
   // We want the maximum PipelineMTime of all inputs.
   if (forward)
     {
@@ -116,7 +143,14 @@ unsigned long vtkDemandDrivenPipeline::ComputePipelineMTime(int forward, vtkInfo
         info->Get(vtkExecutive::PRODUCER(),e,producerPort);
         if(e)
           {
-          unsigned long mtime = e->ComputePipelineMTime(1,request,e->GetInputInformation());
+          unsigned long mtime;
+          if(!e->ComputePipelineMTime(request, 1,
+                                      e->GetInputInformation(),
+                                      e->GetOutputInformation(),
+                                      producerPort, &mtime))
+            {
+            return 0;
+            }
           if(mtime > this->PipelineMTime)
             {
             this->PipelineMTime = mtime;
@@ -125,7 +159,8 @@ unsigned long vtkDemandDrivenPipeline::ComputePipelineMTime(int forward, vtkInfo
         }
       }
     }
-  return this->PipelineMTime;
+  *mtime = this->PipelineMTime;
+  return 1;
 }
 
 
@@ -307,7 +342,12 @@ int vtkDemandDrivenPipeline::UpdatePipelineMTime()
     return 0;
     }
 
-  this->ComputePipelineMTime(1,0,this->GetInputInformation());
+  // Send the request for pipeline modified time.
+  unsigned long mtime;
+  this->ComputePipelineMTime(0, 1,
+                             this->GetInputInformation(),
+                             this->GetOutputInformation(),
+                             -1, &mtime);
   return 1;
 }
 
@@ -477,7 +517,7 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request,
 {
   // Ask the algorithm to mark outputs that it will not generate.
   request->Remove(REQUEST_DATA());
-  request->Set(REQUEST_DATA_NOT_GENERATED(), 1);
+  request->Set(REQUEST_DATA_NOT_GENERATED());
   this->CallAlgorithm(request, vtkExecutive::RequestDownstream,
                       inInfo, outputs);
   request->Remove(REQUEST_DATA_NOT_GENERATED());

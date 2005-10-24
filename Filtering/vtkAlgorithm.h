@@ -92,6 +92,17 @@ public:
                              vtkInformationVector* outInfo);
 
   // Description:
+  // A special version of ProcessRequest meant specifically for the
+  // pipeline modified time request.  See
+  // vtkExecutive::ComputePipelineMTime() for details.
+  virtual int
+  ComputePipelineMTime(vtkInformation* request,
+                       vtkInformationVector** inInfoVec,
+                       vtkInformationVector* outInfoVec,
+                       int requestFromOutputPort,
+                       unsigned long* mtime);
+
+  // Description:
   // Get the information object associated with an input port.  There
   // is one input port per kind of input to the algorithm.  Each input
   // port tells executives what kind of data and downstream requests
@@ -294,12 +305,6 @@ public:
   int UpdateExtentIsEmpty(vtkDataObject *output);
   int UpdateExtentIsEmpty(vtkInformation *pinfo, int extentType);
 
-  // Description:
-  // perform computations required for the pipeline mtime. By default just
-  // calls GetMTime and returns
-  virtual unsigned long ComputePipelineMTime(vtkInformation * /* request */) 
-  { return this->GetMTime(); };
-  
   // Description:
   // If the DefaultExecutivePrototype is set, a copy of it is created
   // in CreateDefaultExecutive() using NewInstance().

@@ -59,6 +59,25 @@ public:
                              vtkInformationVector* outInfo);
 
   // Description:
+  // A special version of ProcessRequest meant specifically for the
+  // pipeline modified time request.  This is an optimization since
+  // the request is called so often and it travels the full length of
+  // the pipeline.  We augment the signature with method arguments
+  // containing the common information, specifically the output port
+  // through which the request was made and the resulting modified
+  // time.  Note that unlike ProcessRequest the request information
+  // object may be NULL for this method.  It also does not contain a
+  // request identifcation key because the request is known from the
+  // method name.
+  virtual int
+  ComputePipelineMTime(vtkInformation* request,
+                       int forward,
+                       vtkInformationVector** inInfoVec,
+                       vtkInformationVector* outInfoVec,
+                       int requestFromOutputPort,
+                       unsigned long* mtime);
+
+  // Description:
   // Bring the algorithm's outputs up-to-date.  Returns 1 for success
   // and 0 for failure.
   virtual int Update();
@@ -153,14 +172,6 @@ public:
                             vtkInformationVector** inInfo,
                             vtkInformationVector* outInfo);
 
-  // since PipelineMTime is called so often and since it travels the full
-  // length of the pipeline every time we have an optimized funciton to
-  // handle it. For most executives the request is not used.
-  virtual unsigned long ComputePipelineMTime
-  (int /* forward */, 
-   vtkInformation * /* request */,
-   vtkInformationVector ** /* inInfoVec */) { return 0; };
-  
 protected:
   vtkExecutive();
   ~vtkExecutive();
