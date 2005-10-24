@@ -70,6 +70,7 @@ int TestSmartPointer(int,char *[])
   da1.TakeReference(vtkIntArray::New());
   vtkSmartPointer<vtkIntArray> da4 =
     vtkSmartPointer<vtkIntArray>::Take(vtkIntArray::New());
+  (void)da4;
   ia->Delete();
   
   return 0;
