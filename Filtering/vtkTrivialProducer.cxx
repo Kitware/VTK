@@ -21,8 +21,19 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.9");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.10");
 vtkStandardNewMacro(vtkTrivialProducer);
+
+// This compile-time switch determines whether the update extent is
+// checked.  If so this algorithm will produce an error message when
+// the update extent is smaller than the whole extent which will
+// result in lost data.  There are real cases in which this is a valid
+// thing so an error message should normally not be produced.  However
+// there are hard-to-find bugs that can be revealed quickly if this
+// option is enabled.  This should be enabled only for debugging
+// purposes in a working checkout of VTK.  Do not commit a change that
+// turns on this switch!
+#define VTK_TRIVIAL_PRODUCER_CHECK_UPDATE_EXTENT 0
 
 //----------------------------------------------------------------------------
 vtkTrivialProducer::vtkTrivialProducer()
@@ -124,6 +135,44 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
                       extent, 6);
       }
     }
+#if VTK_TRIVIAL_PRODUCER_CHECK_UPDATE_EXTENT
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    // If an exact extent smaller than the whole extent has been
+    // requested then warn.
+    vtkInformation* outputInfo = outputVector->GetInformationObject(0);
+    if(outputInfo->Get(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT()))
+      {
+      vtkInformation* dataInfo = this->Output->GetInformation();
+      if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+        {
+        // Compare the update extent to the whole extent.
+        int updateExtent[6] = {0,-1,0,-1,0,-1};
+        int wholeExtent[6] = {0,-1,0,-1,0,-1};
+        outputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                        wholeExtent);
+        outputInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                        updateExtent);
+        if(updateExtent[0] != wholeExtent[0] ||
+           updateExtent[1] != wholeExtent[1] ||
+           updateExtent[2] != wholeExtent[2] ||
+           updateExtent[3] != wholeExtent[3] ||
+           updateExtent[4] != wholeExtent[4] ||
+           updateExtent[5] != wholeExtent[5])
+          {
+          vtkErrorMacro("Request for exact extent "
+                        << updateExtent[0] << " " << updateExtent[1] << " "
+                        << updateExtent[2] << " " << updateExtent[3] << " "
+                        << updateExtent[4] << " " << updateExtent[5]
+                        << " will lose data because it is not the whole extent "
+                        << wholeExtent[0] << " " << wholeExtent[1] << " "
+                        << wholeExtent[2] << " " << wholeExtent[3] << " "
+                        << wholeExtent[4] << " " << wholeExtent[5] << ".");
+          }
+        }
+      }
+    }
+#endif
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
     {
     // We do not really generate the output.  Do not let the executive
