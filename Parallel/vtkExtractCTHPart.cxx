@@ -34,7 +34,7 @@
 
 #include "vtkExecutive.h"
 #include "vtkCompositeDataPipeline.h"
-#include "vtkHierarchicalDataSet.h"
+#include "vtkMultiGroupDataSet.h"
 #include "vtkUniformGrid.h"
 #include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.10");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.11");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -230,14 +230,14 @@ int vtkExtractCTHPart::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   // get the input and output
-  vtkHierarchicalDataSet *input=vtkHierarchicalDataSet::SafeDownCast(
+  vtkMultiGroupDataSet *input=vtkMultiGroupDataSet::SafeDownCast(
     inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
   
   vtkRectilinearGrid *rg=0;
   
   if(input!=0)
     {
-    if(input->GetNumberOfLevels()==0)
+    if(input->GetNumberOfGroups()==0)
       {
       // empty input, do nothing.
       return 1;
@@ -432,7 +432,7 @@ enum
 };
 
 //-----------------------------------------------------------------------------
-void vtkExtractCTHPart::ComputeBounds(vtkHierarchicalDataSet *input,
+void vtkExtractCTHPart::ComputeBounds(vtkMultiGroupDataSet *input,
                                       int processNumber,
                                       int numProcessors)
 {
@@ -444,15 +444,15 @@ void vtkExtractCTHPart::ComputeBounds(vtkHierarchicalDataSet *input,
   int firstBlock=1;
   double realBounds[6];
   
-  int numberOfLevels=input->GetNumberOfLevels();
-  int level=0;
-  while(level<numberOfLevels)
+  int numberOfGroups=input->GetNumberOfGroups();
+  int group=0;
+  while(group<numberOfGroups)
     {
-    int numberOfDataSets=input->GetNumberOfDataSets(level);    
+    int numberOfDataSets=input->GetNumberOfDataSets(group);    
     int dataset=0;
     while(dataset<numberOfDataSets)
       {
-      vtkDataObject *dataObj=input->GetDataSet(level,dataset);
+      vtkDataObject *dataObj=input->GetDataSet(group,dataset);
       if(dataObj!=0)// can be null if on another processor
         {
         vtkDataSet *ds=vtkDataSet::SafeDownCast(dataObj);
@@ -487,7 +487,7 @@ void vtkExtractCTHPart::ComputeBounds(vtkHierarchicalDataSet *input,
         }
       ++dataset;
       }
-    ++level;
+    ++group;
     }
   // Here we have the bounds according to our local datasets.
   
@@ -652,7 +652,7 @@ int vtkExtractCTHPart::GetLeftChildProcessor(int proc)
 }
 
 //-----------------------------------------------------------------------------
-void vtkExtractCTHPart::EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkHierarchicalDataSet* input)
+void vtkExtractCTHPart::EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkMultiGroupDataSet* input)
 {
   int num = this->GetNumberOfVolumeArrayNames();
   int cc;
@@ -661,15 +661,15 @@ void vtkExtractCTHPart::EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkHi
     const char* arrayName = this->GetVolumeArrayName(cc);
     if ( input )
       {
-      int numberOfLevels=input->GetNumberOfLevels();
-      int level;
-      for ( level = 0; level < numberOfLevels; ++ level )
+      int numberOfGroups=input->GetNumberOfGroups();
+      int group;
+      for ( group = 0; group < numberOfGroups; ++ group )
         {
-        int numberOfDataSets=input->GetNumberOfDataSets(level);
+        int numberOfDataSets=input->GetNumberOfDataSets(group);
         int dataset;
         for ( dataset = 0; dataset < numberOfDataSets; ++ dataset )
           {
-          vtkDataObject *dataObj=input->GetDataSet(level,dataset);
+          vtkDataObject *dataObj=input->GetDataSet(group,dataset);
           vtkDataSet* dataSet = vtkDataSet::SafeDownCast(dataObj);
           if(dataSet!=0)// can be null if on another processor
             {
@@ -753,19 +753,19 @@ void vtkExtractCTHPart::EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkHi
 // the input is a hierarchy of vtkUniformGrid or one level of
 // vtkRectilinearGrid. The output is a hierarchy of vtkPolyData.
 void vtkExtractCTHPart::ExecutePart(const char *arrayName,
-                                    vtkHierarchicalDataSet *input,
+                                    vtkMultiGroupDataSet *input,
                                     vtkAppendPolyData *appendSurface,
                                     vtkAppendPolyData *append)
 {
-  int numberOfLevels=input->GetNumberOfLevels();
-  int level;
-  for ( level = 0; level < numberOfLevels; ++ level )
+  int numberOfGroups=input->GetNumberOfGroups();
+  int group;
+  for ( group = 0; group < numberOfGroups; ++ group )
     {
-    int numberOfDataSets=input->GetNumberOfDataSets(level);
+    int numberOfDataSets=input->GetNumberOfDataSets(group);
     int dataset;
     for ( dataset = 0; dataset < numberOfDataSets; ++ dataset )
       {
-      vtkDataObject *dataObj=input->GetDataSet(level,dataset);
+      vtkDataObject *dataObj=input->GetDataSet(group,dataset);
       if(dataObj!=0)// can be null if on another processor
         {
         vtkRectilinearGrid *rg=vtkRectilinearGrid::SafeDownCast(dataObj);
