@@ -77,7 +77,7 @@ void vtkQtConnection::Execute(vtkObject* caller, unsigned long event, void*)
 }
 
 bool vtkQtConnection::IsConnection(vtkObject* vtk_obj, unsigned long event,
-                  QObject* qt_obj, const char* slot)
+                  QObject* qt_obj, const char* slot, void* client_data)
 {
   if(VTKObject != vtk_obj)
     return false;
@@ -89,6 +89,9 @@ bool vtkQtConnection::IsConnection(vtkObject* vtk_obj, unsigned long event,
     return false;
 
   if(slot && QtSlot != slot)
+    return false;
+
+  if(client_data && ClientData != client_data)
     return false;
 
   return true;
@@ -165,7 +168,7 @@ void vtkEventQtSlotConnect::Connect(vtkObject* vtk_obj, unsigned long event,
 
 
 void vtkEventQtSlotConnect::Disconnect(vtkObject* vtk_obj, unsigned long event,
-                 QObject* qt_obj, const char* slot)
+                 QObject* qt_obj, const char* slot, void* client_data)
 {
   bool all_info = true;
   if(slot == NULL || qt_obj == NULL || event == vtkCommand::NoEvent)
@@ -175,7 +178,7 @@ void vtkEventQtSlotConnect::Disconnect(vtkObject* vtk_obj, unsigned long event,
   for(iter=Connections->begin(); iter!=Connections->end();)
     {
       // if information matches, remove the connection
-      if((*iter)->IsConnection(vtk_obj, event, qt_obj, slot))
+      if((*iter)->IsConnection(vtk_obj, event, qt_obj, slot, client_data))
         {
         delete (*iter);
         iter = Connections->erase(iter);

@@ -80,7 +80,7 @@ class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
     // Passing only a vtk object and event, will disconnect all slots matching the vtk object and event.
     // Passing all information in will match all information.
     virtual void Disconnect(vtkObject* vtk_obj, unsigned long event=vtkCommand::NoEvent, 
-                 QObject* qt_obj=NULL, const char* slot = 0);
+                 QObject* qt_obj=NULL, const char* slot = 0, void* client_data=NULL);
 
   protected:
     vtkQtConnections* Connections;
@@ -123,7 +123,8 @@ class vtkQtConnection : public QObject
     
     // check if a connection matches input parameters
     bool IsConnection(vtkObject* vtk_obj, unsigned long event,
-                      QObject* qt_obj, const char* slot);
+                      QObject* qt_obj, const char* slot,
+                      void* client_data);
 
     static void DoCallback(vtkObject* vtk_obj, unsigned long event,
                            void* client_data, void* call_data);
