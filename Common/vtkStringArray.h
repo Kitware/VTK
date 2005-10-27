@@ -82,7 +82,7 @@ public:
 
   // Description:
   // Resize the array while conserving the data.
-  void Resize(vtkIdType numTuples);
+  int Resize(vtkIdType numTuples);
 
   // Description:
   // Given a list of indices, return an array of values.  You must

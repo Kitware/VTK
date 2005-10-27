@@ -15,7 +15,7 @@
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBitArray, "1.60");
+vtkCxxRevisionMacro(vtkBitArray, "1.61");
 vtkStandardNewMacro(vtkBitArray);
 
 // Instantiate object.
@@ -233,26 +233,26 @@ unsigned char *vtkBitArray::ResizeAndExtend(vtkIdType sz)
   return this->Array;
 }
 
-void vtkBitArray::Resize(vtkIdType sz)
+int vtkBitArray::Resize(vtkIdType sz)
 {
   unsigned char *newArray;
   vtkIdType newSize = sz*this->NumberOfComponents;
 
   if (newSize == this->Size)
     {
-    return;
+    return 1;
     }
 
   if (newSize <= 0)
     {
     this->Initialize();
-    return;
+    return 1;
     }
 
   if ( (newArray = new unsigned char[(newSize+7)/8]) == NULL )
     {
     vtkErrorMacro(<< "Cannot allocate memory\n");
-    return;
+    return 0;
     }
 
   if (this->Array)
@@ -275,7 +275,7 @@ void vtkBitArray::Resize(vtkIdType sz)
   this->Array = newArray;
   this->SaveUserArray = 0;
 
-  return;
+  return 1;
 }
 
 // Set the number of n-tuples in the array.

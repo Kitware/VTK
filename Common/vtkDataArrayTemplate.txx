@@ -31,8 +31,8 @@ vtkDataArrayTemplate<T>::vtkDataArrayTemplate(vtkIdType numComp):
   vtkDataArray(numComp)
 {
   this->Array = 0;
-  this->TupleSize = 3;
-  this->Tuple = new double[this->TupleSize]; //used for conversion
+  this->Tuple = 0;
+  this->TupleSize = 0;
   this->SaveUserArray = 0;
 }
 
@@ -42,9 +42,12 @@ vtkDataArrayTemplate<T>::~vtkDataArrayTemplate()
 {
   if ((this->Array) && (!this->SaveUserArray))
     {
-    delete [] this->Array;
+    free(this->Array);
     }
-  delete [] this->Tuple;
+  if(this->Tuple)
+    {
+    free(this->Tuple);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -60,7 +63,7 @@ void vtkDataArrayTemplate<T>::SetArray(T* array, vtkIdType size, int save)
   if ((this->Array) && (!this->SaveUserArray))
     {
     vtkDebugMacro (<< "Deleting the array...");
-    delete [] this->Array;
+    free(this->Array);
     }
   else
     {
@@ -86,7 +89,7 @@ int vtkDataArrayTemplate<T>::Allocate(vtkIdType sz, vtkIdType)
     {
     if(this->Array && !this->SaveUserArray)
       {
-      delete [] this->Array;
+      free(this->Array);
       }
 
     this->Array = 0;
@@ -94,19 +97,12 @@ int vtkDataArrayTemplate<T>::Allocate(vtkIdType sz, vtkIdType)
     this->SaveUserArray = 0;
 
     int newSize = (sz > 0 ? sz : 1);
-    try
-      {
-      this->Array = new T[newSize];
-      }
-    catch (vtkstd::exception& e)
+    this->Array = (T*)malloc(newSize * sizeof(T));
+    if(!this->Array)
       {
       vtkErrorMacro("Unable to allocate " << newSize
                     << " elements of size " << sizeof(T)
-                    << ": " << e.what());
-      this->Array = 0;
-      }
-    if(!this->Array)
-      {
+                    << " bytes. ");
       return 0;
       }
     this->Size = newSize;
@@ -122,7 +118,7 @@ void vtkDataArrayTemplate<T>::Initialize()
 {
   if(this->Array && !this->SaveUserArray)
     {
-    delete [] this->Array;
+    free(this->Array);
     }
   this->Array = 0;
   this->Size = 0;
@@ -157,7 +153,7 @@ void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
   // Free our previous memory.
   if(this->Array && !this->SaveUserArray)
     {
-    delete [] this->Array;
+    free(this->Array);
     }
 
   // Copy the given array into new memory.
@@ -165,18 +161,15 @@ void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
   this->MaxId = fa->GetMaxId();
   this->Size = fa->GetSize();
   this->SaveUserArray = 0;
-  try
+  this->Array = (T*)malloc(this->Size * sizeof(T));
+  if(!this->Array)
     {
-    this->Array = new T[this->Size];
-    }
-  catch (vtkstd::exception& e)
-    {
-    vtkErrorMacro("Unable to allocate " <<  this->Size << " bytes: "
-                  << e.what());
+    vtkErrorMacro("Unable to allocate " << this->Size
+                  << " elements of size " << sizeof(T)
+                  << " bytes. ");
     this->Size = 0;
     this->NumberOfComponents = 0;
     this->MaxId = -1;
-    this->Array = 0;
     return;
     }
   memcpy(this->Array, fa->GetVoidPointer(0), this->Size*sizeof(T));
@@ -225,44 +218,54 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
     newSize = sz;
     }
 
+  // Wipe out the array completely if new size is zero.
   if(newSize <= 0)
     {
     this->Initialize();
     return 0;
     }
-  try
-    {
-    newArray = new T[newSize];
-    }
-  catch (vtkstd::exception& e)
-    {
-    vtkErrorMacro("Unable to allocate " << newSize
-                  << " elements of size " << sizeof(T)
-                  << ": " << e.what());
-    return 0;
-    }
-  if(!newArray)
-    {
-    vtkErrorMacro("Cannot allocate memory\n");
-    return 0;
-    }
 
-  if(this->Array)
+  // Allocate the new array or reallocate the old.
+  if(this->Array && this->SaveUserArray)
     {
-    memcpy(newArray, this->Array,
-           (sz < this->Size ? sz : this->Size) * sizeof(T));
-    if(!this->SaveUserArray)
+    // The old array is owned by the user so we cannot try to
+    // reallocate it.  Just allocate new memory that we will own.
+    newArray = (T*)malloc(newSize*sizeof(T));
+    if(!newArray)
       {
-      delete [] this->Array;
+      vtkErrorMacro("Unable to allocate " << newSize
+                    << " elements of size " << sizeof(T)
+                    << " bytes. ");
+      return 0;
+      }
+
+    // Copy the data from the old array.
+    memcpy(newArray, this->Array,
+           (newSize < this->Size ? newSize : this->Size) * sizeof(T));
+    }
+  else
+    {
+    // Try to reallocate with minimal memory usage and possibly avoid
+    // copying.
+    newArray = (T*)realloc(this->Array, newSize*sizeof(T));
+    if(!newArray)
+      {
+      vtkErrorMacro("Unable to allocate " << newSize
+                    << " elements of size " << sizeof(T)
+                    << " bytes. ");
+      return 0;
       }
     }
 
+  // Allocation was successful.  Save it.
   if(newSize < this->Size)
     {
     this->MaxId = newSize-1;
     }
   this->Size = newSize;
   this->Array = newArray;
+
+  // This object has now allocated its memory and owns it.
   this->SaveUserArray = 0;
 
   return this->Array;
@@ -270,56 +273,16 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkDataArrayTemplate<T>::Resize(vtkIdType sz)
+int vtkDataArrayTemplate<T>::Resize(vtkIdType sz)
 {
-  T* newArray;
-  vtkIdType newSize = sz*NumberOfComponents;
-
-  if(newSize == this->Size)
+  if(this->ResizeAndExtend(sz*this->NumberOfComponents) || sz <= 0)
     {
-    return;
+    return 1;
     }
-
-  if(newSize <= 0)
+  else
     {
-    this->Initialize();
-    return;
+    return 0;
     }
-
-  try
-    {
-    newArray = new T[newSize];
-    }
-  catch (vtkstd::exception& e)
-    {
-    vtkErrorMacro("Unable to allocate " << newSize
-                  << " elements of size " << sizeof(T)
-                  << ": " << e.what());
-    return;
-    }
-  if(!newArray)
-    {
-    vtkErrorMacro(<< "Cannot allocate memory\n");
-    return;
-    }
-
-  if(this->Array)
-    {
-    memcpy(newArray, this->Array,
-           (newSize < this->Size ? newSize : this->Size) * sizeof(T));
-    if(!this->SaveUserArray)
-      {
-      delete[] this->Array;
-      }
-    }
-
-  if(newSize < this->Size)
-    {
-    this->MaxId = newSize-1;
-    }
-  this->Size = newSize;
-  this->Array = newArray;
-  this->SaveUserArray = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -336,14 +299,29 @@ void vtkDataArrayTemplate<T>::SetNumberOfTuples(vtkIdType number)
 template <class T>
 double* vtkDataArrayTemplate<T>::GetTuple(vtkIdType i)
 {
+  // If the small Tuple array fails to allocate we need something to
+  // return.  This will avoid an immediate crash for arrays that do
+  // not have too many components.
+  static double sentryTuple[6] = {0,0,0,0,0,0};
 #if 1
+  // Allocate a larger tuple buffer if needed.
   if(this->TupleSize < this->NumberOfComponents)
     {
     this->TupleSize = this->NumberOfComponents;
-    delete [] this->Tuple;
-    this->Tuple = new double[this->TupleSize];
+    free(this->Tuple);
+    this->Tuple = (double*)malloc(this->TupleSize * sizeof(double));
     }
 
+  // Make sure tuple allocation succeeded.
+  if(!this->Tuple)
+    {
+    vtkErrorMacro("Unable to allocate " << this->TupleSize
+                  << " elements of size " << sizeof(double)
+                  << " bytes. ");
+    return sentryTuple;
+    }
+
+  // Copy the data into the tuple.
   T* t = this->Array + this->NumberOfComponents*i;
   for(int j=0; j < this->NumberOfComponents; ++j)
     {
@@ -352,14 +330,28 @@ double* vtkDataArrayTemplate<T>::GetTuple(vtkIdType i)
   return this->Tuple;
 #else
   // Use this version along with purify or valgrind to detect code
-  // that saves the pointer returned by GetTuple.
+  // that saves the pointer returned by GetTuple.  By always
+  // allocating a new tuple and freeing the old one code that keeps
+  // the pointer will do invalid reads or writes.
+  double* newTuple;
+  newTuple = (double*)malloc(this->NumberOfComponents * sizeof(double));
+  if(!newTuple)
+    {
+    vtkErrorMacro("Unable to allocate " << this->NumberOfComponents
+                  << " elements of size " << sizeof(double)
+                  << " bytes. ");
+    return sentryTuple;
+    }
+
+  // Copy the data into the new tuple.
   T* t = this->Array + this->NumberOfComponents*i;
-  double* newTuple = new double[this->NumberOfComponents];
   for(int j=0; j < this->NumberOfComponents; ++j)
     {
     newTuple[j] = static_cast<double>(t[j]);
     }
-  delete [] this->Tuple;
+
+  // Replace the old tuple with the new one.
+  free(this->Tuple);
   this->Tuple = newTuple;
   return this->Tuple;
 #endif
@@ -515,11 +507,13 @@ void vtkDataArrayTemplate<T>::RemoveTuple(vtkIdType id)
     this->RemoveLastTuple();
     return;
     }
+  // Remove the element by moving those after it over by one.  We must
+  // use memmove instead of memcpy because the memory areas overlap.
   vtkIdType len = (this->GetNumberOfTuples() - id) - 1;
   len *= this->GetNumberOfComponents();
   vtkIdType from = (id+1) * this->GetNumberOfComponents();
   vtkIdType to = id * this->GetNumberOfComponents();
-  memcpy(this->Array + to, this->Array + from, len * sizeof(T));
+  memmove(this->Array + to, this->Array + from, len * sizeof(T));
   this->Resize(this->GetNumberOfTuples() - 1);
 }
 

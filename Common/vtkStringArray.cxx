@@ -32,7 +32,7 @@
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkStringArray, "1.4");
+vtkCxxRevisionMacro(vtkStringArray, "1.5");
 vtkStandardNewMacro(vtkStringArray);
 
 //----------------------------------------------------------------------------
@@ -256,27 +256,27 @@ vtkStdString * vtkStringArray::ResizeAndExtend(vtkIdType sz)
 
 //----------------------------------------------------------------------------
 
-void vtkStringArray::Resize(vtkIdType sz)
+int vtkStringArray::Resize(vtkIdType sz)
 {
   vtkStdString * newArray;
   vtkIdType newSize = sz;
 
   if(newSize == this->Size)
     {
-    return;
+    return 1;
     }
 
   if(newSize <= 0)
     {
     this->Initialize();
-    return;
+    return 1;
     }
 
   newArray = new vtkStdString[newSize];
   if(!newArray)
     {
     vtkErrorMacro(<< "Cannot allocate memory\n");
-    return;
+    return 0;
     }
 
   if(this->Array)
@@ -301,6 +301,7 @@ void vtkStringArray::Resize(vtkIdType sz)
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
+  return 1;
 }
 
 

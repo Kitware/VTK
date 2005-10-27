@@ -130,7 +130,7 @@ public:
 
   // Description:
   // Resize the array while conserving the data.
-  virtual void Resize(vtkIdType numTuples) = 0;
+  virtual int Resize(vtkIdType numTuples) = 0;
 
   // Description:
   // Reset to an empty state, without freeing any memory.

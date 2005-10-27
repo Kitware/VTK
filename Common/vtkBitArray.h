@@ -94,7 +94,7 @@ public:
 
   // Description:
   // Resize the array while conserving the data.
-  virtual void Resize(vtkIdType numTuples);
+  virtual int Resize(vtkIdType numTuples);
 
   // Description:
   // Get the data at a particular index.
