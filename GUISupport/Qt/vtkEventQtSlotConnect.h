@@ -33,7 +33,8 @@
 // - MySlot(vtkObject* caller)
 // - MySlot(vtkObject* caller, unsigned long vtk_event)
 // - MySlot(vtkObject* caller, unsigned long vtk_event, void* client_data)
-// - MySlot(vtkObject* caller, unsigned long vtk_event, void* client_data, vtkCommand*)
+// - MySlot(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data)
+// - MySlot(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data, vtkCommand*)
 
 
 #ifndef VTK_EVENT_QT_SLOT_CONNECT
@@ -131,7 +132,7 @@ class vtkQtConnection : public QObject
     
   signals:
     // the qt signal for moc to take care of
-    void EmitExecute(vtkObject*, unsigned long, void* client_data, vtkCommand*);
+    void EmitExecute(vtkObject*, unsigned long, void* client_data, void* call_data, vtkCommand*);
 
   protected:
     

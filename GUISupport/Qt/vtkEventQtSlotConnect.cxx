@@ -61,12 +61,12 @@ void vtkQtConnection::DoCallback(vtkObject* vtk_obj, unsigned long event,
     
       
 // callback from VTK to emit signal
-void vtkQtConnection::Execute(vtkObject* caller, unsigned long event, void*)
+void vtkQtConnection::Execute(vtkObject* caller, unsigned long event, void* call_data)
 {
   if(event != vtkCommand::DeleteEvent || 
      event == vtkCommand::DeleteEvent && VTKEvent == vtkCommand::DeleteEvent)
     {
-    emit EmitExecute(caller, event, ClientData, this->Callback);
+    emit EmitExecute(caller, event, ClientData, call_data, this->Callback);
     }
   
   if(event == vtkCommand::DeleteEvent)
@@ -117,7 +117,7 @@ void vtkQtConnection::SetConnection(vtkObject* vtk_obj, unsigned long event,
     }
 
   // make a connection between this and the Qt object
-  qt_obj->connect(this, SIGNAL(EmitExecute(vtkObject*,unsigned long,void*,vtkCommand*)), slot);
+  qt_obj->connect(this, SIGNAL(EmitExecute(vtkObject*,unsigned long,void*,void*,vtkCommand*)), slot);
 }
 
 void vtkQtConnection::PrintSelf(ostream& os, vtkIndent indent)
