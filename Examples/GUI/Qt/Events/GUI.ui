@@ -178,7 +178,7 @@
 <slots>
     <slot>fileExit()</slot>
     <slot>updateCoords( vtkObject * obj )</slot>
-    <slot>popup( vtkObject * obj, unsigned long event, void * client_data, vtkCommand * command )</slot>
+    <slot>popup( vtkObject * obj, unsigned long event, void * client_data, void* call_data, vtkCommand * command )</slot>
     <slot>color1(int color)</slot>
     <slot>color2(int color)</slot>
 </slots>

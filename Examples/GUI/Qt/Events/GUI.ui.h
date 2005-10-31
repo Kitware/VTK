@@ -101,14 +101,14 @@ void Form1::init()
   connections->Connect(qVTK1->GetRenderWindow()->GetInteractor(),
                        vtkCommand::RightButtonPressEvent,
                        this,
-                       SLOT(popup( vtkObject*, unsigned long, void*, vtkCommand*)),
+                       SLOT(popup( vtkObject*, unsigned long, void*, void*, vtkCommand*)),
                        popup1, 1.0);
   
   // get right mouse pressed with high priority
   connections->Connect(qVTK2->GetRenderWindow()->GetInteractor(),
                        vtkCommand::RightButtonPressEvent,
                        this,
-                       SLOT(popup( vtkObject*, unsigned long, void*, vtkCommand*)),
+                       SLOT(popup( vtkObject*, unsigned long, void*, void*, vtkCommand*)),
                        popup2, 1.0);
   
   // connect window enter event to radio button slot
@@ -169,7 +169,7 @@ void Form1::updateCoords( vtkObject * obj)
 }
 
 
-void Form1::popup( vtkObject * obj, unsigned long , void * client_data, vtkCommand* command)
+void Form1::popup( vtkObject * obj, unsigned long , void * client_data, void* call_data, vtkCommand* command)
 {
 
   // A note about context menus in Qt and the QVTKWidget
