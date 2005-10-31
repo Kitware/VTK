@@ -30,7 +30,7 @@ class vtkDoubleArray;
 class vtkRectilinearGrid;
 
 class vtkExtractCTHPartInternal;
-class vtkHierarchicalDataSet;
+class vtkMultiGroupDataSet;
 class vtkPolyData;
 class vtkUniformGrid;
 class vtkImageData;
@@ -106,7 +106,7 @@ protected:
   // Description:
   // Compute the bounds over the composite dataset, some sub-dataset
   // can be on other processors.
-  void ComputeBounds(vtkHierarchicalDataSet *input,
+  void ComputeBounds(vtkMultiGroupDataSet *input,
                      int processNumber,
                      int numProcessors);
   
@@ -117,7 +117,7 @@ protected:
   int GetLeftChildProcessor(int proc);
   
   void ExecutePart(const char *arrayName,
-                   vtkHierarchicalDataSet *input,
+                   vtkMultiGroupDataSet *input,
                    vtkAppendPolyData *appendSurface,
                    vtkAppendPolyData *append);
   
@@ -211,7 +211,7 @@ protected:
   vtkCutter *RCut;
   vtkClipPolyData *RClip2;
 
-  void EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkHierarchicalDataSet* input);
+  void EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkMultiGroupDataSet* input);
   int VolumeFractionType;
   double VolumeFractionSurfaceValue;
   
