@@ -133,12 +133,12 @@ public:
     return vtkSmartPointer<T>(t, NoReference());
     }
 
-  // Work-around for HP overload resolution bug.  Since
+  // Work-around for HP and IBM overload resolution bug.  Since
   // NullPointerOnly is a private type the only pointer value that can
   // be passed by user code is a null pointer.  This operator will be
   // chosen by the compiler when comparing against null explicitly and
   // avoid the bogus ambiguous overload error.
-#if defined(__HP_aCC)
+#if defined(__HP_aCC) || defined(__IBMCPP__)
 # define VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(op) \
   vtkstd_bool operator op (NullPointerOnly*) const        \
     {                                                     \
