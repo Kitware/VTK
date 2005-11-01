@@ -27,7 +27,7 @@
 #pragma warning ( disable : 4100 )
 #endif
 
-vtkCxxRevisionMacro(vtkBSPCuts, "1.1");
+vtkCxxRevisionMacro(vtkBSPCuts, "1.2");
 vtkStandardNewMacro(vtkBSPCuts);
 
 //----------------------------------------------------------------------------
@@ -415,6 +415,63 @@ int vtkBSPCuts::GetArrays(int len,
 
   return 0;
 }
+
+//-----------------------------------------------------------------------------
+int vtkBSPCuts::Equals(vtkBSPCuts *other, double tolerance)
+{
+#define EQ(x, y)        (((x)-(y) <= tolerance) && (y)-(x) <= tolerance)
+  if (!other)
+    {
+    return 0;
+    }
+
+  if (this->NumberOfCuts != other->NumberOfCuts)
+    {
+    return 0;
+    }
+
+  for (int i = 0; i < this->NumberOfCuts; i++)
+    {
+    if (this->Dim[i] != other->Dim[i])
+      {
+      return 0;
+      }
+
+    if (this->Dim[i] < 0)
+      {
+      // Leaf nodes have no real data.
+      continue;
+      }
+
+    if (!EQ(this->Coord[i], other->Coord[i]))
+      {
+      return 0;
+      }
+    if (this->Lower[i] != other->Lower[i])
+      {
+      return 0;
+      }
+    if (this->Upper[i] != other->Upper[i])
+      {
+      return 0;
+      }
+    if (!EQ(this->LowerDataCoord[i], other->LowerDataCoord[i]))
+      {
+      return 0;
+      }
+    if (!EQ(this->UpperDataCoord[i], other->UpperDataCoord[i]))
+      {
+      return 0;
+      }
+    if (this->Npoints[i] != other->Npoints[i])
+      {
+      return 0;
+      }
+    }
+
+  return 1;
+}
+
 //----------------------------------------------------------------------------
 void vtkBSPCuts::PrintArrays()
 {
