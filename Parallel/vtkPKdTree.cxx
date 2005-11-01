@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.20");
+vtkCxxRevisionMacro(vtkPKdTree, "1.21");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -2995,6 +2995,7 @@ int vtkPKdTree::AssignRegionsContiguous()
   if (nRegions <= nProcesses)
     {
     this->AssignRegionsRoundRobin();
+    this->RegionAssignment = ContiguousAssignment;
     return 0;
     }
 
