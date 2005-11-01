@@ -25,7 +25,7 @@
 
 #include <locale.h>
 
-vtkCxxRevisionMacro(vtkVectorText, "1.35");
+vtkCxxRevisionMacro(vtkVectorText, "1.36");
 vtkStandardNewMacro(vtkVectorText);
 
 char *VTK_VECTOR_TEXT_33 = (char *) "11 0.438482 "
@@ -1748,7 +1748,7 @@ int vtkVectorText::RequestData(
   if (oldLocale)
     {
     setlocale(LC_NUMERIC,oldLocale);
-    delete [] oldLocale;
+    free(oldLocale);
     }
   return 1;
 }
