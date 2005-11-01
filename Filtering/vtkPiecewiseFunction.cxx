@@ -19,7 +19,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.45");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.46");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // The Node structure
@@ -819,7 +819,7 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
     tmpPtr ++;
     }
 
-  delete tmpTable;
+  delete[] tmpTable;
 }
 
 // Given a table of values, build the piecewise function. Legacy method
