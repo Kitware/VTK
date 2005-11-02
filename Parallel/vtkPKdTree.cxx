@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.20");
+vtkCxxRevisionMacro(vtkPKdTree, "1.20.2.1");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -621,12 +621,12 @@ int vtkPKdTree::BreadthFirstDivide(double *volBounds)
 
   int midpt = this->DivideRegion(kd, 0, 0, 0x00000001);
 
-  if (midpt > 0)
+  if (midpt >= 0)
     {
     ENQUEUE(kd->GetLeft(), 0, 1, 0x00000002);
     ENQUEUE(kd->GetRight(), midpt, 1, 0x00000003);
     }
-  else if (midpt < 0)
+  else if (midpt < -1)
     {
     this->FreeSelectBuffer();
     this->FreeDoubleBuffer();
@@ -646,13 +646,13 @@ int vtkPKdTree::BreadthFirstDivide(double *volBounds)
 
     midpt = this->DivideRegion(kd, L, level, tag);
 
-    if (midpt > 0)
+    if (midpt >= 0)
       {
       ENQUEUE(kd->GetLeft(), L, level+1, tag << 1);
 
       ENQUEUE(kd->GetRight(), midpt, level+1, (tag << 1) | 1);
       }
-    else if (midpt < 0)
+    else if (midpt < -1)
       {
       returnVal = 1;  // have to keep going, or remote ops may hang
       }
@@ -672,7 +672,7 @@ int vtkPKdTree::BreadthFirstDivide(double *volBounds)
 }
 int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
 {
-  if (!this->DivideTest(kd->GetNumberOfPoints(), level)) return 0;
+  if (!this->DivideTest(kd->GetNumberOfPoints(), level)) return -1;
 
   int numpoints = kd->GetNumberOfPoints();
   int R = L + numpoints - 1;
@@ -681,7 +681,7 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
     {
     // Special case: not enough points to go around.
     int p = this->WhoHas(L);
-    if (this->MyId != p) return 0;
+    if (this->MyId != p) return -1;
 
     int maxdim = this->SelectCutDirection(kd);
     kd->SetDim(maxdim);
@@ -729,7 +729,7 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
   int p1 = this->WhoHas(L);
   int p2 = this->WhoHas(R);
 
-  if ((this->MyId < p1) || (this->MyId > p2)) return 0;
+  if ((this->MyId < p1) || (this->MyId > p2)) return -1;
 
   this->SubGroup = vtkSubGroup::New();
   this->SubGroup->Initialize(p1, p2, this->MyId, tag, 
@@ -788,7 +788,7 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
     left->Delete();
     right->Delete();
     FreeObject(this->SubGroup);
-    return -1;
+    return -3;
     }
 
   double coord = (newDataBounds[maxdim*2 + 1] +   // max on left side
@@ -2995,6 +2995,7 @@ int vtkPKdTree::AssignRegionsContiguous()
   if (nRegions <= nProcesses)
     {
     this->AssignRegionsRoundRobin();
+    this->RegionAssignment = ContiguousAssignment;
     return 0;
     }
 

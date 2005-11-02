@@ -47,7 +47,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.7");
+vtkCxxRevisionMacro(vtkKdTree, "1.7.2.1");
 
 // Timing data ---------------------------------------------
 
@@ -292,7 +292,10 @@ void vtkKdTree::SetCuts(vtkBSPCuts *cuts, int userDefined)
     return;
     }
 
-  this->Modified();
+  if (!this->Cuts || !this->Cuts->Equals(cuts))
+    {
+    this->Modified();
+    }
 
   if (this->Cuts)
     {

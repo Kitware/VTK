@@ -90,6 +90,11 @@ public:
   int GetArrays(int len, int *dim, double *coord, int *lower, int *upper,
                 double *lowerDataCoord, double *upperDataCoord, int *npoints);
 
+  // Description:
+  // Compare these cuts with those of the other tree.  Returns true if
+  // the two trees are the same.
+  int Equals(vtkBSPCuts *other, double tolerance = 0.0);
+
   void PrintTree();
   void PrintArrays();
 
@@ -97,8 +102,6 @@ protected:
 
   vtkBSPCuts();
   ~vtkBSPCuts();
-
-private:
 
   static void DeleteAllDescendants(vtkKdNode *kd);
 
