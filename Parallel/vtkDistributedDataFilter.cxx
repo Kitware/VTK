@@ -57,7 +57,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.30")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.31")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -1063,120 +1063,151 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
     }
   else
     {
-    // This is an uncommon enough event to not bothering to implement (until
-    // someone needs it).
     if (numTotalCells < nprocs)
       {
-      vtkErrorMacro(<< "D3 - fewer cells than processes");
-      delete [] nodeType;
+      for (proc = 0; nodeType[proc] != Producer; proc++);
+      if (proc == me)
+        {
+        // Have one process give out its cells to consumers.
+        int numCells = inputSize->GetValue(me);
+        i = 0;
+        sendCells[me] = vtkIdList::New();
+        sendCells[me]->SetNumberOfIds(1);
+        sendCells[me]->SetId(0, i++);
+        if (i >= numCells) i = 0;
+        for (proc = 0; proc < nprocs; proc++)
+          {
+          if (nodeType[proc] == Consumer)
+            {
+            sendCells[proc] = vtkIdList::New();
+            sendCells[proc]->SetNumberOfIds(1);
+            sendCells[proc]->SetId(0, i++);
+            if (i >= numCells) i = 0;
+            }
+          }
+        }
+      else if (nodeType[me] == Producer)
+        {
+        // All other producers keep their own cells.
+        int numCells = inputSize->GetValue(me);
+        sendCells[me] = vtkIdList::New();
+        sendCells[me]->SetNumberOfIds(numCells);
+        for (i = 0; i < numCells; i++)
+          {
+          sendCells[me]->SetId(i, i);
+          }
+        }
+
       inputSize->Delete();
-      return NULL;
-      }    
-
-    // The processes with data send it to processes without data.
-    // This is not the most balanced decomposition, and it is not the
-    // fastest.  It is somewhere inbetween.
-
-    int minCells = (int)(.8 * cellsPerNode);
-  
-    struct _procInfo{ int had; int procId; int has; };
-  
-    struct _procInfo *procInfo = new struct _procInfo [nprocs];
-  
-    for (proc = 0; proc < nprocs ; proc++)
-      {
-      procInfo[proc].had   = inputSize->GetValue(proc);
-      procInfo[proc].procId = proc;
-      procInfo[proc].has   = inputSize->GetValue(proc);
       }
-
-    inputSize->Delete();
-  
-    qsort(procInfo, nprocs, sizeof(struct _procInfo), 
-          vtkDistributedDataFilterSortSize);
-
-    struct _procInfo *nextProducer = procInfo;
-    struct _procInfo *nextConsumer = procInfo + (nprocs - 1);
-
-    int numTransferCells = 0;
-
-    int sanityCheck=0;
-    int nprocsSquared = nprocs * nprocs;
-  
-    while (sanityCheck++ < nprocsSquared)
+    else
       {
-      int c = nextConsumer->procId;
 
-      if (nodeType[c] == Producer)
+      // The processes with data send it to processes without data.
+      // This is not the most balanced decomposition, and it is not the
+      // fastest.  It is somewhere inbetween.
+
+      int minCells = (int)(.8 * cellsPerNode);
+  
+      struct _procInfo{ int had; int procId; int has; };
+  
+      struct _procInfo *procInfo = new struct _procInfo [nprocs];
+  
+      for (proc = 0; proc < nprocs ; proc++)
         {
-        break;
+        procInfo[proc].had   = inputSize->GetValue(proc);
+        procInfo[proc].procId = proc;
+        procInfo[proc].has   = inputSize->GetValue(proc);
         }
+
+      inputSize->Delete();
   
-      int cGetMin = minCells - nextConsumer->has;
+      qsort(procInfo, nprocs, sizeof(struct _procInfo), 
+            vtkDistributedDataFilterSortSize);
+
+      struct _procInfo *nextProducer = procInfo;
+      struct _procInfo *nextConsumer = procInfo + (nprocs - 1);
+
+      int numTransferCells = 0;
+
+      int sanityCheck=0;
+      int nprocsSquared = nprocs * nprocs;
   
-      if (cGetMin < 1)
+      while (sanityCheck++ < nprocsSquared)
         {
-        nextConsumer--;
+        int c = nextConsumer->procId;
+
+        if (nodeType[c] == Producer)
+          {
+          break;
+          }
+  
+        int cGetMin = minCells - nextConsumer->has;
+  
+        if (cGetMin < 1)
+          {
+          nextConsumer--;
+          continue;
+          }
+        int cGetMax = cellsPerNode - nextConsumer->has;
+  
+        int p = nextProducer->procId;
+
+        int pSendMax = nextProducer->has - minCells;
+  
+        if (pSendMax < 1)
+          {
+          nextProducer++;
+          continue;
+          }
+  
+        int transferSize = (pSendMax < cGetMax) ? pSendMax : cGetMax;
+
+        if (me == p)
+          {
+          vtkIdType startCellId = nextProducer->had - nextProducer->has;
+          sendCells[c] = vtkIdList::New();
+          sendCells[c]->SetNumberOfIds(transferSize);
+          for (i=0; i<transferSize; i++)
+            {
+            sendCells[c]->SetId(i, startCellId++);
+            }
+
+          numTransferCells += transferSize;
+          }
+  
+        nextProducer->has -= transferSize;
+        nextConsumer->has += transferSize;
+  
         continue;
         }
-      int cGetMax = cellsPerNode - nextConsumer->has;
-  
-      int p = nextProducer->procId;
 
-      int pSendMax = nextProducer->has - minCells;
-  
-      if (pSendMax < 1)
-        {
-        nextProducer++;
-        continue;
-        }
-  
-      int transferSize = (pSendMax < cGetMax) ? pSendMax : cGetMax;
+      delete [] procInfo;
 
-      if (me == p)
+      if (sanityCheck > nprocsSquared)
         {
-        vtkIdType startCellId = nextProducer->had - nextProducer->has;
-        sendCells[c] = vtkIdList::New();
-        sendCells[c]->SetNumberOfIds(transferSize);
-        for (i=0; i<transferSize; i++)
+        vtkErrorMacro(<< "TestFixTooFewInputFiles error");
+        for (i=0; i<nprocs; i++)
           {
-          sendCells[c]->SetId(i, startCellId++);
-          }
-
-        numTransferCells += transferSize;
+          if (sendCells[i])
+            {
+            sendCells[i]->Delete();
+            }
+          } 
+        delete [] sendCells;
+        delete [] nodeType;
+        sendCells = NULL;
         }
-  
-      nextProducer->has -= transferSize;
-      nextConsumer->has += transferSize;
-  
-      continue;
-      }
-
-    delete [] procInfo;
-
-    if (sanityCheck > nprocsSquared)
-      {
-      vtkErrorMacro(<< "TestFixTooFewInputFiles error");
-      for (i=0; i<nprocs; i++)
+      else if (nodeType[me] == Producer)
         {
-        if (sendCells[i])
+        int keepCells = numMyCells - numTransferCells;
+        vtkIdType startCellId = (vtkIdType)numTransferCells;
+        sendCells[me] = vtkIdList::New();
+        sendCells[me]->SetNumberOfIds(keepCells);
+        for (i=0; i<keepCells; i++)
           {
-          sendCells[i]->Delete();
+          sendCells[me]->SetId(i, startCellId++);
           }
-        } 
-      delete [] sendCells;
-      delete [] nodeType;
-      sendCells = NULL;
-      }
-   else if (nodeType[me] == Producer)
-      {
-      int keepCells = numMyCells - numTransferCells;
-      vtkIdType startCellId = (vtkIdType)numTransferCells;
-      sendCells[me] = vtkIdList::New();
-      sendCells[me]->SetNumberOfIds(keepCells);
-      for (i=0; i<keepCells; i++)
-        {
-        sendCells[me]->SetId(i, startCellId++);
         }
       }
     }
