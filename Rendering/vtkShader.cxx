@@ -339,7 +339,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.16")
+vtkCxxRevisionMacro(vtkShader, "1.17")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -659,7 +659,8 @@ void vtkShader::SetCameraParameter(vtkActor* , vtkRenderer* ren,
   vtkXMLDataElement* elem)
 {
   vtkCamera* camera = ren->GetActiveCamera();
-  if (this->GetMTime() < this->PassShaderVariablesTime)
+  if (this->GetMTime() < this->PassShaderVariablesTime &&
+    camera->GetMTime() < this->PassShaderVariablesTime)
     {
     return; // no need to update.
     }
