@@ -1391,7 +1391,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.13");
+vtkCxxRevisionMacro(vtkExodusReader, "1.14");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -2678,9 +2678,13 @@ void vtkExodusReader::ReadGeometry(int handle, vtkUnstructuredGrid* output)
  
   // Read in cell topology
   this->ReadCells(handle, output);
+
+  this->UpdateProgress(0.4);
   
   // Read in node and side sets
   this->ReadNodeAndSideSets(handle, output);
+
+  this->UpdateProgress(0.6);
   
   // Now read in the points
   // Note: This should come after reading in

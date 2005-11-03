@@ -41,6 +41,7 @@
 #include "vtkCellData.h"
 #include "vtkExodusModel.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkCommand.h"
 
 #include "netcdf.h"
 #include "exodusII.h"
@@ -51,8 +52,51 @@
 #define DEBUG 0
 #define vtkPExodusReaderMAXPATHLEN 2048
 
-vtkCxxRevisionMacro(vtkPExodusReader, "1.4");
+vtkCxxRevisionMacro(vtkPExodusReader, "1.5");
 vtkStandardNewMacro(vtkPExodusReader);
+
+class vtkPExodusReaderUpdateProgress : public vtkCommand
+{
+public:
+  vtkTypeMacro(vtkPExodusReaderUpdateProgress, vtkCommand)
+  static vtkPExodusReaderUpdateProgress* New()
+  {
+    return new vtkPExodusReaderUpdateProgress;
+  }
+  void SetReader(vtkPExodusReader* r)
+  {
+    Reader = r;
+  }
+  void SetIndex(int i)
+  {
+    Index = i;
+  }
+protected:
+
+  vtkPExodusReaderUpdateProgress()
+  {
+    Reader = NULL;
+    Index = 0;
+  }
+  ~vtkPExodusReaderUpdateProgress(){}
+
+  void Execute(vtkObject*, unsigned long event, void* callData)
+  {
+    if(event == vtkCommand::ProgressEvent)
+    {
+      double num = Reader->GetNumberOfFileNames();
+      if(num == 0)
+        num = Reader->GetNumberOfFiles();
+      double* progress = static_cast<double*>(callData);
+      double newProgress = *progress/num + Index/num;
+      Reader->UpdateProgress(newProgress);
+    }
+  }
+
+  vtkPExodusReader* Reader;
+  int Index;
+};
+
 
 //----------------------------------------------------------------------------
 // Description:
@@ -293,6 +337,11 @@ int vtkPExodusReader::RequestData(
     for(reader_idx=readerList.size(); reader_idx < numMyFiles; ++reader_idx)
       {
       vtkExodusReader *er = vtkExodusReader::New();
+      vtkPExodusReaderUpdateProgress* progress = vtkPExodusReaderUpdateProgress::New();
+      progress->SetReader(this);
+      progress->SetIndex(reader_idx);
+      er->AddObserver(vtkCommand::ProgressEvent, progress);
+      progress->Delete();
 
 
       //begin USE_EXO_DSP_FILTERS
