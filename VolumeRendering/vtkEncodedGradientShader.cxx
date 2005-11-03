@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.2");
+vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.3");
 vtkStandardNewMacro(vtkEncodedGradientShader);
 
 vtkEncodedGradientShader::vtkEncodedGradientShader()
@@ -192,9 +192,9 @@ float *vtkEncodedGradientShader::GetBlueSpecularShadingTable( vtkVolume *vol )
   return this->ShadingTable[index][5];
 }
 
-void vtkEncodedGradientShader::UpdateShadingTable( 
-  vtkRenderer *ren, vtkVolume *vol,
-  vtkEncodedGradientEstimator *gradest)
+void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren, 
+                                                   vtkVolume *vol,
+                                                   vtkEncodedGradientEstimator *gradest)
 {
   double                 lightDirection[3], material[4], lightColor[3];
   double                 lightPosition[3], lightFocalPoint[3];

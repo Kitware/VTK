@@ -247,6 +247,11 @@ public:
   void DisplayRenderedImage( vtkRenderer *, vtkVolume * );
   void AbortRender();
 
+  void CreateCanonicalView( vtkVolume *volume,
+                            vtkImageData *image, 
+                            double viewDirection[3],
+                            double viewUp[3] );
+  
   // Description:
   // Get an estimate of the rendering time for a given volume / renderer.
   // Only valid if this mapper has been used to render that volume for

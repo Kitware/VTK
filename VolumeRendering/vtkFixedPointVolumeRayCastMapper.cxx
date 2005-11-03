@@ -27,6 +27,7 @@
 #include "vtkFixedPointVolumeRayCastCompositeHelper.h"
 #include "vtkFixedPointVolumeRayCastCompositeShadeHelper.h"
 #include "vtkFixedPointVolumeRayCastMIPHelper.h"
+#include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
@@ -43,7 +44,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.21");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.22");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -156,6 +157,9 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
                                                vtkDirectionEncoder *directionEncoder,
                                                vtkFixedPointVolumeRayCastMapper *me )
 {
+  vtkTimerLog *timer = vtkTimerLog::New();
+  timer->StartTimer();
+  
   int                 x, y, z, c;
   int                 x_start, x_limit;
   int                 y_start, y_limit;
@@ -378,6 +382,10 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
     }
   
   me->InvokeEvent( vtkCommand::EndEvent, NULL );  
+  
+  timer->StopTimer();
+//  cout << "Time to compute is: " << timer->GetElapsedTime() << endl;
+  timer->Delete();
 }
 
 // Construct a new vtkFixedPointVolumeRayCastMapper with default values
@@ -584,14 +592,14 @@ vtkFixedPointVolumeRayCastMapper::~vtkFixedPointVolumeRayCastMapper()
 }
 
 float vtkFixedPointVolumeRayCastMapper::ComputeRequiredImageSampleDistance( float desiredTime,
-                                                                    vtkRenderer *ren )
+                                                                            vtkRenderer *ren )
 {
   return this->ComputeRequiredImageSampleDistance( desiredTime, ren, NULL );
 }
 
 float vtkFixedPointVolumeRayCastMapper::ComputeRequiredImageSampleDistance( float desiredTime,
-                                                                    vtkRenderer *ren,
-                                                                    vtkVolume *vol )
+                                                                            vtkRenderer *ren,
+                                                                            vtkVolume *vol )
 {
   float result;
   
@@ -1204,6 +1212,7 @@ void vtkFixedPointVolumeRayCastMapper::RenderSubVolume()
   // Set the number of threads to use for ray casting,
   // then set the execution method and do it.
   this->Threader->SetNumberOfThreads( this->NumberOfThreads );
+  this->Threader->SetNumberOfThreads( 1 );
   this->Threader->SetSingleMethod( FixedPointVolumeRayCastMapper_CastRays,
                                    (void *)this);
   this->Threader->SingleMethodExecute();
@@ -1407,6 +1416,116 @@ VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg )
     }
   
   return VTK_THREAD_RETURN_VALUE;
+}
+
+// Create an image into the vtkImageData argmument. Used generally for 
+// creating thumbnail images
+void vtkFixedPointVolumeRayCastMapper::CreateCanonicalView( vtkVolume *vol,
+                                                            vtkImageData *image,
+                                                            double direction[3],
+                                                            double viewUp[3] )
+{
+  // Make sure we have as long as we'd like so that the
+  // image sample distance will be 1.0
+  vol->SetAllocatedRenderTime(VTK_FLOAT_MAX, NULL);
+
+  // Create a renderer / camera with the right parameters
+  // These will never be mapped to the screen - just used
+  // to hold parameters such as size, view direction, aspect,
+  // etc.
+  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderer *ren = vtkRenderer::New();
+  vtkCamera *cam = ren->GetActiveCamera();
+  
+  renWin->AddRenderer(ren);
+  int dim[3];
+  image->GetDimensions(dim);
+  
+  // The size of the window is the size of the image
+  renWin->SetSize( dim[0], dim[1] );
+  
+  double *center =  vol->GetCenter();
+  
+  double bnds[6];
+  vol->GetBounds(bnds);
+  double d = sqrt((bnds[1]-bnds[0])*(bnds[1]-bnds[0]) + 
+                  (bnds[3]-bnds[2])*(bnds[3]-bnds[2]) + 
+                  (bnds[5]-bnds[4])*(bnds[5]-bnds[4]));
+  
+  // For now use x distance - need to change this
+  d = bnds[1]-bnds[0];
+  
+  // Set up the camera in parallel
+  cam->SetFocalPoint( center );
+  cam->ParallelProjectionOn();
+  cam->SetPosition( center[0] - d*direction[0],
+                    center[1] - d*direction[1],
+                    center[2] - d*direction[2] );
+  cam->SetViewUp(viewUp);
+  
+  cam->SetParallelScale(d/2);
+  
+  // Add a light
+  vtkLight *light = vtkLight::New();
+  light->SetPosition( center[0] - d*direction[0],
+                      center[1] - d*direction[1],
+                      center[2] - d*direction[2] );
+  light->SetFocalPoint( center );
+  ren->AddLight(light);
+  
+  // Do all the initialization. This is not a multipass image
+  // so just pass in dummy origin, spacing, and extent here
+  double dummyOrigin[3]  = {0.0, 0.0, 0.0};
+  double dummySpacing[3] = {0.0, 0.0, 0.0};
+  int dummyExtent[6] = {0, 0, 0, 0, 0, 0};
+  this->PerImageInitialization( ren, vol, 0,
+                                dummyOrigin,
+                                dummySpacing,
+                                dummyExtent );
+  this->PerVolumeInitialization( ren, vol );
+  this->PerSubVolumeInitialization( ren, vol, 0 );
+  
+  // Render the image
+  this->RenderSubVolume();
+  
+  // Now copy the image into the vtkImageData
+  unsigned char *outPtr = (unsigned char *)image->GetScalarPointer();
+  unsigned short *inPtr = this->RayCastImage->GetImage();
+  
+  int viewportSize[2];
+  int inUseSize[2];
+  int memorySize[2];
+  int origin[2];
+  
+  this->RayCastImage->GetImageViewportSize( viewportSize );
+  this->RayCastImage->GetImageInUseSize( inUseSize );
+  this->RayCastImage->GetImageMemorySize( memorySize );
+  this->RayCastImage->GetImageOrigin( origin );
+  
+  int i, j;
+  for ( j = 0; j < dim[1]; j++ )
+    {
+    for ( i = 0; i < dim[0]; i++ )
+      {
+      if ( j < origin[1] ||
+           i < origin[0] )
+        {
+        *(outPtr++) = 0;
+        *(outPtr++) = 0;
+        *(outPtr++) = 0;
+        }      
+      else
+        {
+        unsigned short *tmp = inPtr + (j-origin[1])*memorySize[0]*4 + (i-origin[0])*4;
+        *(outPtr++) = (*(tmp++))>>7;
+        *(outPtr++) = (*(tmp++))>>7;
+        *(outPtr++) = (*(tmp++))>>7;
+        }
+      }
+    }
+  
+  // Restore
+  this->SampleDistance = this->OldSampleDistance;
 }
 
 void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned int pos[3],
