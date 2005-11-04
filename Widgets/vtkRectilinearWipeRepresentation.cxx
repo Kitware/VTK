@@ -31,7 +31,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkRectilinearWipeRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkRectilinearWipeRepresentation, "1.3");
 vtkStandardNewMacro(vtkRectilinearWipeRepresentation);
 
 vtkCxxSetObjectMacro(vtkRectilinearWipeRepresentation,RectilinearWipe,vtkImageRectilinearWipe);
@@ -196,20 +196,20 @@ void vtkRectilinearWipeRepresentation::WidgetInteraction(double newEventPos[2])
      v46[1]*(newEventPos[1] - this->StartEventPosition[1])) / l46;
 
   int newPosition[2];
-  newPosition[0] = this->StartWipePosition[0];
-  newPosition[1] = this->StartWipePosition[1];
+  newPosition[0] = static_cast<int>(this->StartWipePosition[0]);
+  newPosition[1] = static_cast<int>(this->StartWipePosition[1]);
 
   switch ( this->InteractionState )
     {
     case MovingVPane:
-      newPosition[0] += xPixels + 0.5;
+      newPosition[0] += static_cast<int>(xPixels + 0.5);
       break;
     case MovingHPane:
-      newPosition[1] += yPixels + 0.5;
+      newPosition[1] += static_cast<int>(yPixels + 0.5);
       break;
     case MovingCenter:
-      newPosition[0] += xPixels + 0.5;
-      newPosition[1] += yPixels + 0.5;
+      newPosition[0] += static_cast<int>(xPixels + 0.5);
+      newPosition[1] += static_cast<int>(yPixels + 0.5);
     }
   
   newPosition[0] = (newPosition[0] < 0 ? 0 : newPosition[0] );

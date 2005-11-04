@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkLeaderActor2D, "1.3");
+vtkCxxRevisionMacro(vtkLeaderActor2D, "1.4");
 vtkStandardNewMacro(vtkLeaderActor2D);
 
 vtkCxxSetObjectMacro(vtkLeaderActor2D,LabelTextProperty,vtkTextProperty);
@@ -523,7 +523,7 @@ void vtkLeaderActor2D::BuildCurvedLeader(double p1[3], double p2[3], double ray[
   // Build the polyline for the leader. Start by generating the points.
   double x[3]; x[2]=0.0;
   double length = radius*phi;
-  int numDivs = (length / 3.0) + 1; //every three pixels
+  int numDivs = static_cast<int>((length / 3.0) + 1); //every three pixels
   for (i=0; i<=numDivs; i++)
     {
     theta = theta1 + (static_cast<double>(i)/numDivs)*(theta2-theta1);

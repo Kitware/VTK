@@ -26,7 +26,7 @@
 #define __vtkPointHandleRepresentation3D_h
 
 #include "vtkHandleRepresentation.h"
-#include "vtkCursor3D.h"
+#include "vtkCursor3D.h" // Needed for delegation to cursor3D
 
 class vtkCursor3D;
 class vtkProperty;

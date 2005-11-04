@@ -20,7 +20,7 @@
 #include "vtkPlaneCollection.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkBoundedPlanePointPlacer, "1.2");
+vtkCxxRevisionMacro(vtkBoundedPlanePointPlacer, "1.3");
 vtkStandardNewMacro(vtkBoundedPlanePointPlacer);
 
 vtkCxxSetObjectMacro(vtkBoundedPlanePointPlacer, ObliquePlane, vtkPlane);
@@ -120,7 +120,7 @@ void vtkBoundedPlanePointPlacer::SetBoundingPlanes(vtkPlanes *planes)
 //----------------------------------------------------------------------
 int vtkBoundedPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
                                                       double displayPos[2],
-                                                      double refWorldPos[3],
+                                                      double* vtkNotUsed(refWorldPos),
                                                       double worldPos[3],
                                                       double worldOrient[9] )
 {
@@ -170,7 +170,7 @@ int vtkBoundedPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
       
       this->BoundingPlanes->InitTraversal();
       
-      while ( p = this->BoundingPlanes->GetNextItem() )
+      while ( (p = this->BoundingPlanes->GetNextItem()) )
         {
         if ( p->EvaluateFunction( position ) < this->WorldTolerance )
           {
@@ -193,7 +193,7 @@ int vtkBoundedPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
 
 //----------------------------------------------------------------------
 int vtkBoundedPlanePointPlacer::ValidateWorldPosition( double worldPos[3],
-                                                       double worldOrient[9] )
+                                                       double* vtkNotUsed(worldOrient) )
 {
   return this->ValidateWorldPosition( worldPos );
 }
@@ -208,7 +208,7 @@ int vtkBoundedPlanePointPlacer::ValidateWorldPosition( double worldPos[3] )
       
       this->BoundingPlanes->InitTraversal();
       
-      while ( p = this->BoundingPlanes->GetNextItem() )
+      while ( (p = this->BoundingPlanes->GetNextItem()) )
         {
         if ( p->EvaluateFunction( worldPos ) < this->WorldTolerance )
           {

@@ -39,7 +39,7 @@
 #include "vtkTransform.h"
 #include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkConstrainedPointHandleRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkConstrainedPointHandleRepresentation, "1.3");
 vtkStandardNewMacro(vtkConstrainedPointHandleRepresentation);
 
 vtkCxxSetObjectMacro(vtkConstrainedPointHandleRepresentation, ObliquePlane, vtkPlane);
@@ -463,7 +463,7 @@ int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double even
       
       this->BoundingPlanes->InitTraversal();
       
-      while ( p = this->BoundingPlanes->GetNextItem() )
+      while ( (p = this->BoundingPlanes->GetNextItem()) )
         {
         if ( p->EvaluateFunction( position ) < tolerance )
           {

@@ -22,7 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkSliderWidget.h"
 
-vtkCxxRevisionMacro(vtkCheckerboardWidget, "1.2");
+vtkCxxRevisionMacro(vtkCheckerboardWidget, "1.3");
 vtkStandardNewMacro(vtkCheckerboardWidget);
 
 
@@ -49,7 +49,7 @@ public:
           break;
         }
     }
-  vtkCWCallback():CheckerboardWidget(0),SliderNumber(0) {}
+  vtkCWCallback():SliderNumber(0),CheckerboardWidget(0) {}
   int SliderNumber; //the number of the currently active slider
   vtkCheckerboardWidget *CheckerboardWidget;
 };

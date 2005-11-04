@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkBezierContourLineInterpolator, "1.2");
+vtkCxxRevisionMacro(vtkBezierContourLineInterpolator, "1.3");
 vtkStandardNewMacro(vtkBezierContourLineInterpolator);
 
 //----------------------------------------------------------------------
@@ -88,7 +88,7 @@ int vtkBezierContourLineInterpolator::InterpolateLine( vtkRenderer *vtkNotUsed(r
   while ( stackCount )
     {
     //process last point on stack
-    int recursionLevel = controlPointsStack[13*(stackCount-1)];
+    int recursionLevel = static_cast<int>(controlPointsStack[13*(stackCount-1)]);
     
     p1 = controlPointsStack + 13*(stackCount-1)+1;
     p2 = controlPointsStack + 13*(stackCount-1)+4;

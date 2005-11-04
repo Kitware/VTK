@@ -20,7 +20,7 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCheckerboardRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkCheckerboardRepresentation, "1.3");
 vtkStandardNewMacro(vtkCheckerboardRepresentation);
 
 vtkCxxSetObjectMacro(vtkCheckerboardRepresentation,Checkerboard,vtkImageCheckerboard);
@@ -118,25 +118,25 @@ void vtkCheckerboardRepresentation::SliderValueChanged(int sliderNum)
   int value;
   if ( sliderNum == vtkCheckerboardRepresentation::TopSlider )
     {
-    value = this->TopRepresentation->GetValue();
+    value = static_cast<int>(this->TopRepresentation->GetValue());
     this->BottomRepresentation->SetValue(value);
     this->Checkerboard->SetNumberOfDivisions(value,numDivisions[1],1);
     }
   else if ( sliderNum == vtkCheckerboardRepresentation::RightSlider )
     {
-    value = this->RightRepresentation->GetValue();
+    value = static_cast<int>(this->RightRepresentation->GetValue());
     this->LeftRepresentation->SetValue(value);
     this->Checkerboard->SetNumberOfDivisions(numDivisions[0],value,1);
     }
   else if ( sliderNum == vtkCheckerboardRepresentation::BottomSlider )
     {
-    value = this->BottomRepresentation->GetValue();
+    value = static_cast<int>(this->BottomRepresentation->GetValue());
     this->TopRepresentation->SetValue(value);
     this->Checkerboard->SetNumberOfDivisions(value,numDivisions[1],1);
     }
   else if ( sliderNum == vtkCheckerboardRepresentation::LeftSlider )
     {
-    value = this->LeftRepresentation->GetValue();
+    value = static_cast<int>(this->LeftRepresentation->GetValue());
     this->RightRepresentation->SetValue(value);
     this->Checkerboard->SetNumberOfDivisions(numDivisions[0],value,1);
     }

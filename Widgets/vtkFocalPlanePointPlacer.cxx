@@ -22,7 +22,7 @@
 #include "vtkPlaneCollection.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkFocalPlanePointPlacer, "1.2");
+vtkCxxRevisionMacro(vtkFocalPlanePointPlacer, "1.3");
 vtkStandardNewMacro(vtkFocalPlanePointPlacer);
 
 
@@ -99,14 +99,14 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
 }
 
 //----------------------------------------------------------------------
-int vtkFocalPlanePointPlacer::ValidateWorldPosition( double worldPos[3] )
+int vtkFocalPlanePointPlacer::ValidateWorldPosition( double* vtkNotUsed(worldPos) )
 {
   return 1;
 }
 
 //----------------------------------------------------------------------
-int vtkFocalPlanePointPlacer::ValidateWorldPosition( double worldPos[3],
-                                                     double worldOrient[9] )
+int vtkFocalPlanePointPlacer::ValidateWorldPosition( double* vtkNotUsed(worldPos),
+                                                     double* vtkNotUsed(worldOrient) )
 {
   return 1;
 }
