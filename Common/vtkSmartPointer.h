@@ -99,6 +99,29 @@ public:
     {
     return vtkSmartPointer<T>(t->NewInstance(), NoReference());
     }
+
+  // Work-around for HP overload resolution bug.  Since
+  // NullPointerOnly is a private type the only pointer value that can
+  // be passed by user code is a null pointer.  This operator will be
+  // chosen by the compiler when comparing against null explicitly and
+  // avoid the bogus ambiguous overload error.
+#if defined(__HP_aCC)
+# define VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(op) \
+  vtkstd_bool operator op (NullPointerOnly*) const        \
+    {                                                     \
+    return ::operator op (*this, 0);                      \
+    }
+private:
+  class NullPointerOnly {};
+public:
+  VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(==)
+  VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(!=)
+  VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(<)
+  VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(<=)
+  VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(>)
+  VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(>=)
+# undef VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND
+#endif
 protected:
   vtkSmartPointer(T* r, const NoReference& n): vtkSmartPointerBase(r, n) {}
 };
