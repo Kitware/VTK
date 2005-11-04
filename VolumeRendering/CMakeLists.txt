@@ -141,3 +141,6 @@ INCLUDE(${VTK_SOURCE_DIR}/CMake/KitCommonBlock.cmake)
 # This will make sure vtkgl.h exists.
 ADD_DEPENDENCIES(vtkVolumeRendering vtkRendering)
 
+IF(BUILD_TESTING)
+  SUBDIRS(Testing)
+ENDIF(BUILD_TESTING)

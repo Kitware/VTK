@@ -216,3 +216,7 @@ INCLUDE(${VTK_SOURCE_DIR}/CMake/KitCommonBlock.cmake)
 ADD_DEPENDENCIES(vtkIO
   vtkMaterialLibraryConfiguredFiles)
 #-----------------------------------------------------------------------------
+
+IF(BUILD_TESTING)
+  SUBDIRS(Testing)
+ENDIF(BUILD_TESTING)

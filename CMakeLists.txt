@@ -847,6 +847,13 @@ ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.8)
 # Utility libraries and executables.
 SUBDIRS(Wrapping Utilities)
 
+# Testing.
+IF(BUILD_TESTING)
+  MAKE_DIRECTORY(${VTK_BINARY_DIR}/Testing/Temporary)
+  # Build scripts to convert tcl tests to python
+  SUBDIRS(Utilities/vtkTclTest2Py)
+ENDIF(BUILD_TESTING)
+
 # Build the subdirector for each kit.
 
 SUBDIRS(
@@ -880,25 +887,6 @@ ENDIF(VTK_WRAP_PYTHON)
 IF(VTK_WRAP_JAVA)
   SUBDIRS(Wrapping/Java)
 ENDIF(VTK_WRAP_JAVA)
-
-# Testing.
-IF(BUILD_TESTING)
-  MAKE_DIRECTORY(${VTK_BINARY_DIR}/Testing/Temporary)
-  # Build scripts to convert tcl tests to python
-  SUBDIRS(Utilities/vtkTclTest2Py)
-  SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing GenericFiltering/Testing Imaging/Testing
-          IO/Testing)
-  IF(VTK_USE_RENDERING)
-    SUBDIRS(Rendering/Testing)
-    SUBDIRS(VolumeRendering/Testing)
-    SUBDIRS(Hybrid/Testing)
-    SUBDIRS(Widgets/Testing)
-  ENDIF(VTK_USE_RENDERING)
-  IF(VTK_USE_PARALLEL)
-    SUBDIRS(Parallel/Testing)
-  ENDIF(VTK_USE_PARALLEL)
-ENDIF(BUILD_TESTING)
-
 
 # Include the examples if they are enabled.  Note that the in-tree
 # build adds tests and a custom target to build the examples project
