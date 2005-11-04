@@ -38,6 +38,7 @@
 #include "vtkImageMapToColors.h"
 #include "vtkImageActor.h"
 #include "vtkLookupTable.h"
+#include "vtkTestUtilities.h"
 
 // This callback is responsible for setting the seed label.
 class vtkSeedCallback : public vtkCommand
@@ -65,7 +66,8 @@ int TestSeedWidget2( int argc, char *argv[] )
   iren->SetRenderWindow(renWin);
 
   // Create a test pipeline
-  //
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
+
   // Start by creatin a black/white lookup table.
   vtkLookupTable *bwLut = vtkLookupTable::New();
     bwLut->SetTableRange (0, 2000);
@@ -76,7 +78,7 @@ int TestSeedWidget2( int argc, char *argv[] )
   vtkVolume16Reader *v16 = vtkVolume16Reader::New();
     v16->SetDataDimensions(64,64);
     v16->SetDataByteOrderToLittleEndian();
-    v16->SetFilePrefix ("c:/D/VTK/VTKData/Data/headsq/quarter");
+    v16->SetFilePrefix(fname);
     v16->SetImageRange(1, 93);
     v16->SetDataSpacing (3.2, 3.2, 1.5);
   vtkImageMapToColors *saggitalColors = vtkImageMapToColors::New();
