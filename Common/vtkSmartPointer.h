@@ -87,6 +87,22 @@ public:
     }
 
   // Description:
+  // Transfer ownership of one reference to the given VTK object to
+  // this smart pointer.  This does not increment the reference count
+  // of the object, but will decrement it later.  The caller is
+  // effectively passing ownership of one reference to the smart
+  // pointer.  This is useful for code like:
+  //
+  //   vtkSmartPointer<vtkFoo> foo;
+  //   foo.TakeReference(bar->NewFoo());
+  //
+  // The input argument may not be another smart pointer.
+  void TakeReference(T* t)
+    {
+    *this = vtkSmartPointer<T>(t, NoReference());
+    }
+
+  // Description:
   // Create an instance of a VTK object.
   static vtkSmartPointer<T> New()
     {
@@ -98,6 +114,23 @@ public:
   static vtkSmartPointer<T> NewInstance(T* t)
     {
     return vtkSmartPointer<T>(t->NewInstance(), NoReference());
+    }
+
+  // Description:
+  // Transfer ownership of one reference to the given VTK object to a
+  // new smart pointer.  The returned smart pointer does not increment
+  // the reference count of the object on construction but will
+  // decrement it on destruction.  The caller is effectively passing
+  // ownership of one reference to the smart pointer.  This is useful
+  // for code like:
+  //
+  //   vtkSmartPointer<vtkFoo> foo =
+  //     vtkSmartPointer<vtkFoo>::Take(bar->NewFoo());
+  //
+  // The input argument may not be another smart pointer.
+  static vtkSmartPointer<T> Take(T* t)
+    {
+    return vtkSmartPointer<T>(t, NoReference());
     }
 
   // Work-around for HP overload resolution bug.  Since
@@ -124,6 +157,11 @@ public:
 #endif
 protected:
   vtkSmartPointer(T* r, const NoReference& n): vtkSmartPointerBase(r, n) {}
+private:
+  // These are purposely not implemented to prevent callers from
+  // trying to take references from other smart pointers.
+  void TakeReference(const vtkSmartPointerBase&);  // Not implemented.
+  static void Take(const vtkSmartPointerBase&);  // Not implemented.
 };
 
 #define VTK_SMART_POINTER_DEFINE_OPERATOR(op) \
