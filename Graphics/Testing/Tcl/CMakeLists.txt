@@ -215,6 +215,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       constrainedDelaunay
       contourCells
       contoursToSurface
+      cursor2D
       cutLoop
       Delaunay2D
       Delaunay2DAlpha

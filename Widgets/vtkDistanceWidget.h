@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMeasureWidget.h
+  Module:    vtkDistanceWidget.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,18 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMeasureWidget - measure the distance between two points
+// .NAME vtkDistanceWidget - measure the distance between two points
 // .SECTION Description
-// The vtkMeasureWidget is used to measure the distance between two points.
+// The vtkDistanceWidget is used to measure the distance between two points.
 // The two end points can be positioned independently, and when they are
 // released, a special PlacePointEvent is invoked so that special operations
 // may be take to reposition the point (snap to grid, etc.)
 // 
-// To use this widget, specify an instance of vtkMeasureWidget and a
-// representation (a subclass of vtkMeasureRepresentation). The widget is
+// To use this widget, specify an instance of vtkDistanceWidget and a
+// representation (a subclass of vtkDistanceRepresentation). The widget is
 // implemented using two instances of vtkHandleWidget which are used to
 // position the end points of the line. The representations for these two
-// handle widgets are provided by the vtkMeasureRepresentation.
+// handle widgets are provided by the vtkDistanceRepresentation.
 //
 // .SECTION Event Bindings
 // By default, the widget responds to the following VTK events (i.e., it
@@ -59,26 +59,26 @@
 // vtkHandleWidget 
 
 
-#ifndef __vtkMeasureWidget_h
-#define __vtkMeasureWidget_h
+#ifndef __vtkDistanceWidget_h
+#define __vtkDistanceWidget_h
 
 #include "vtkAbstractWidget.h"
 
-class vtkMeasureRepresentation;
+class vtkDistanceRepresentation;
 class vtkHandleWidget;
-class vtkMeasureWidgetCallback;
+class vtkDistanceWidgetCallback;
 
 
-class VTK_WIDGETS_EXPORT vtkMeasureWidget : public vtkAbstractWidget
+class VTK_WIDGETS_EXPORT vtkDistanceWidget : public vtkAbstractWidget
 {
 public:
   // Description:
   // Instantiate this class.
-  static vtkMeasureWidget *New();
+  static vtkDistanceWidget *New();
 
   // Description:
   // Standard methods for a VTK class.
-  vtkTypeRevisionMacro(vtkMeasureWidget,vtkAbstractWidget);
+  vtkTypeRevisionMacro(vtkDistanceWidget,vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -91,12 +91,12 @@ public:
   // Specify an instance of vtkWidgetRepresentation used to represent this
   // widget in the scene. Note that the representation is a subclass of vtkProp
   // so it can be added to the renderer independent of the widget.
-  void SetRepresentation(vtkMeasureRepresentation *r)
+  void SetRepresentation(vtkDistanceRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  vtkMeasureRepresentation *GetRepresentation()
+  vtkDistanceRepresentation *GetRepresentation()
     {
       this->CreateDefaultRepresentation();
-      return reinterpret_cast<vtkMeasureRepresentation*>(this->WidgetRep);
+      return reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep);
     }
   
   // Description:
@@ -104,8 +104,8 @@ public:
   void CreateDefaultRepresentation();
 
 protected:
-  vtkMeasureWidget();
-  ~vtkMeasureWidget();
+  vtkDistanceWidget();
+  ~vtkDistanceWidget();
 
   // The state of the widget
 //BTX
@@ -123,8 +123,8 @@ protected:
   // The positioning handle widgets
   vtkHandleWidget *Point1Widget;
   vtkHandleWidget *Point2Widget;
-  vtkMeasureWidgetCallback *MeasureWidgetCallback1;
-  vtkMeasureWidgetCallback *MeasureWidgetCallback2;
+  vtkDistanceWidgetCallback *MeasureWidgetCallback1;
+  vtkDistanceWidgetCallback *MeasureWidgetCallback2;
   
   // Methods invoked when the handles at the
   // end points of the widget are manipulated
@@ -133,12 +133,12 @@ protected:
   void EndMeasureInteraction(int handleNum);
   
 //BTX
-  friend class vtkMeasureWidgetCallback;
+  friend class vtkDistanceWidgetCallback;
 //ETX  
 
 private:
-  vtkMeasureWidget(const vtkMeasureWidget&);  //Not implemented
-  void operator=(const vtkMeasureWidget&);  //Not implemented
+  vtkDistanceWidget(const vtkDistanceWidget&);  //Not implemented
+  void operator=(const vtkDistanceWidget&);  //Not implemented
 };
 
 #endif

@@ -27,8 +27,8 @@
 #define __vtkWidgetCallbackMapper_h
 
 #include "vtkObject.h"
-#include "vtkWidgetEvent.h"
 
+class vtkWidgetEvent;
 class vtkAbstractWidget;
 class vtkWidgetEventTranslator;
 class vtkCallbackMap; // PIMPL encapsulation of STL map
@@ -97,6 +97,11 @@ protected:
   void SetCallbackMethod(unsigned long widgetEvent, 
                          vtkAbstractWidget *w, CallbackType f);
   
+
+private:
+  vtkWidgetCallbackMapper(const vtkWidgetCallbackMapper&);  //Not implemented
+  void operator=(const vtkWidgetCallbackMapper&);  //Not implemented
+
 };
 
 

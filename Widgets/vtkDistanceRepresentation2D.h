@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMeasureRepresentation2D.h
+  Module:    vtkDistanceRepresentation2D.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,36 +12,36 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMeasureRepresentation2D - represent the vtkMeasureWidget
+// .NAME vtkDistanceRepresentation2D - represent the vtkDistanceWidget
 // .SECTION Description
-// The vtkMeasureRepresentation2D is a representation for the
-// vtkMeasureWidget. This representation consists of a measuring line (axis)
+// The vtkDistanceRepresentation2D is a representation for the
+// vtkDistanceWidget. This representation consists of a measuring line (axis)
 // and two vtkHandleWidgets to place the end points of the line. Note that
 // this particular widget draws its representation in the overlay plane.
 
 // .SECTION See Also
-// vtkMeasureWidget vtkMeasureRepresentation
+// vtkDistanceWidget vtkDistanceRepresentation
 
 
-#ifndef __vtkMeasureRepresentation2D_h
-#define __vtkMeasureRepresentation2D_h
+#ifndef __vtkDistanceRepresentation2D_h
+#define __vtkDistanceRepresentation2D_h
 
-#include "vtkMeasureRepresentation.h"
+#include "vtkDistanceRepresentation.h"
 
 class vtkAxisActor2D;
 class vtkProperty2D;
 
 
-class VTK_WIDGETS_EXPORT vtkMeasureRepresentation2D : public vtkMeasureRepresentation
+class VTK_WIDGETS_EXPORT vtkDistanceRepresentation2D : public vtkDistanceRepresentation
 {
 public:
   // Description:
   // Instantiate class.
-  static vtkMeasureRepresentation2D *New();
+  static vtkDistanceRepresentation2D *New();
 
   // Description:
   // Standard VTK methods.
-  vtkTypeRevisionMacro(vtkMeasureRepresentation2D,vtkWidgetRepresentation);
+  vtkTypeRevisionMacro(vtkDistanceRepresentation2D,vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -66,16 +66,16 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
 
 protected:
-  vtkMeasureRepresentation2D();
-  ~vtkMeasureRepresentation2D();
+  vtkDistanceRepresentation2D();
+  ~vtkDistanceRepresentation2D();
 
   // Add a line to the mix
   vtkAxisActor2D *AxisActor;
   vtkProperty2D  *AxisProperty;
 
 private:
-  vtkMeasureRepresentation2D(const vtkMeasureRepresentation2D&);  //Not implemented
-  void operator=(const vtkMeasureRepresentation2D&);  //Not implemented
+  vtkDistanceRepresentation2D(const vtkDistanceRepresentation2D&);  //Not implemented
+  void operator=(const vtkDistanceRepresentation2D&);  //Not implemented
 };
 
 #endif

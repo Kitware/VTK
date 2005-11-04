@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestMeasureWidget.cxx
+  Module:    TestDistanceWidget.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,8 +16,8 @@
 // This example tests the vtkBorderWidget.
 
 // First include the required header files for the VTK classes we are using.
-#include "vtkMeasureWidget.h"
-#include "vtkMeasureRepresentation2D.h"
+#include "vtkDistanceWidget.h"
+#include "vtkDistanceRepresentation2D.h"
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
@@ -39,36 +39,36 @@
 // This callback is responsible for adjusting the point position.
 // It looks in the region around the point and finds the maximum or
 // minimum value.
-class vtkMeasureCallback : public vtkCommand
+class vtkDistanceCallback : public vtkCommand
 {
 public:
-  static vtkMeasureCallback *New() 
-    { return new vtkMeasureCallback; }
+  static vtkDistanceCallback *New() 
+    { return new vtkDistanceCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*);
-  vtkMeasureCallback():Renderer(0),RenderWindow(0),MeasureWidget(0),Measure(0) {}
+  vtkDistanceCallback():Renderer(0),RenderWindow(0),DistanceWidget(0),Distance(0) {}
   vtkRenderer *Renderer;
   vtkRenderWindow *RenderWindow;
-  vtkMeasureWidget *MeasureWidget;
-  vtkMeasureRepresentation2D *Measure;
+  vtkDistanceWidget *DistanceWidget;
+  vtkDistanceRepresentation2D *Distance;
 };
 
 
 // Method re-positions the points using random perturbation
-void vtkMeasureCallback::Execute(vtkObject*, unsigned long eid, void* callData)
+void vtkDistanceCallback::Execute(vtkObject*, unsigned long eid, void* callData)
 {
   if ( eid == vtkCommand::InteractionEvent ||
        eid == vtkCommand::EndInteractionEvent )
     {
         double pos1[3], pos2[3];
     // Modify the measure axis
-    this->Measure->GetPoint1WorldPosition(pos1);
-    this->Measure->GetPoint2WorldPosition(pos2);
+    this->Distance->GetPoint1WorldPosition(pos1);
+    this->Distance->GetPoint2WorldPosition(pos2);
     double dist=sqrt(vtkMath::Distance2BetweenPoints(pos1,pos2));
 
     char title[256];
-    this->Measure->GetAxis()->SetRange(0.0,dist);
+    this->Distance->GetAxis()->SetRange(0.0,dist);
     sprintf(title,"%-#6.3g",dist);
-    this->Measure->GetAxis()->SetTitle(title);
+    this->Distance->GetAxis()->SetTitle(title);
     }
   else
     {
@@ -76,8 +76,8 @@ void vtkMeasureCallback::Execute(vtkObject*, unsigned long eid, void* callData)
     
     //From the point id, get the display coordinates
     double pos1[3], pos2[3], *pos;
-    this->Measure->GetPoint1DisplayPosition(pos1);
-    this->Measure->GetPoint2DisplayPosition(pos2);
+    this->Distance->GetPoint1DisplayPosition(pos1);
+    this->Distance->GetPoint2DisplayPosition(pos2);
     if ( pid == 0 )
       {
       pos = pos1;
@@ -88,10 +88,10 @@ void vtkMeasureCallback::Execute(vtkObject*, unsigned long eid, void* callData)
       }
 
     // Okay, render without the widget, and get the color buffer
-    int enabled = this->MeasureWidget->GetEnabled();
+    int enabled = this->DistanceWidget->GetEnabled();
     if ( enabled )
       {
-      this->MeasureWidget->SetEnabled(0); //does a Render() as a side effect
+      this->DistanceWidget->SetEnabled(0); //does a Render() as a side effect
       }
 
     // Pretend we are doing something serious....just randomly bump the
@@ -104,23 +104,23 @@ void vtkMeasureCallback::Execute(vtkObject*, unsigned long eid, void* callData)
     // Set the new position
     if ( pid == 0 )
       {
-      this->Measure->SetPoint1DisplayPosition(p);
+      this->Distance->SetPoint1DisplayPosition(p);
       }
     else
       {
-      this->Measure->SetPoint2DisplayPosition(p);
+      this->Distance->SetPoint2DisplayPosition(p);
       }
 
     // Side effect of a render here
     if ( enabled )
       {
-      this->MeasureWidget->SetEnabled(1);
+      this->DistanceWidget->SetEnabled(1);
       }
     }
 }
 
 // The actual test function
-int TestMeasureWidget( int argc, char *argv[] )
+int TestDistanceWidget( int argc, char *argv[] )
 {
   // Create the RenderWindow, Renderer and both Actors
   //
@@ -142,18 +142,18 @@ int TestMeasureWidget( int argc, char *argv[] )
   // Create the widget and its representation
   vtkPointHandleRepresentation2D *handle = vtkPointHandleRepresentation2D::New();
   handle->GetProperty()->SetColor(1,0,0);
-  vtkMeasureRepresentation2D *rep = vtkMeasureRepresentation2D::New();
+  vtkDistanceRepresentation2D *rep = vtkDistanceRepresentation2D::New();
   rep->SetHandleRepresentation(handle);
 
-  vtkMeasureWidget *widget = vtkMeasureWidget::New();
+  vtkDistanceWidget *widget = vtkDistanceWidget::New();
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
 
-  vtkMeasureCallback *mcbk = vtkMeasureCallback::New();
+  vtkDistanceCallback *mcbk = vtkDistanceCallback::New();
   mcbk->Renderer = ren1;
   mcbk->RenderWindow = renWin;
-  mcbk->Measure = rep;
-  mcbk->MeasureWidget = widget;
+  mcbk->Distance = rep;
+  mcbk->DistanceWidget = widget;
 //  widget->AddObserver(vtkCommand::PlacePointEvent,mcbk);
 //  widget->AddObserver(vtkCommand::InteractionEvent,mcbk);
 //  widget->AddObserver(vtkCommand::EndInteractionEvent,mcbk);

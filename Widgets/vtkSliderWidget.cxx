@@ -22,8 +22,9 @@
 #include "vtkWidgetEventTranslator.h"
 #include "vtkWidgetCallbackMapper.h" 
 #include "vtkEvent.h"
+#include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkSliderWidget, "1.2");
+vtkCxxRevisionMacro(vtkSliderWidget, "1.3");
 vtkStandardNewMacro(vtkSliderWidget);
 
 //----------------------------------------------------------------------------------

@@ -23,9 +23,10 @@
 #include "vtkWidgetEventTranslator.h"
 #include "vtkWidgetCallbackMapper.h" 
 #include "vtkEvent.h"
+#include "vtkWidgetEvent.h"
 
 
-vtkCxxRevisionMacro(vtkBorderWidget, "1.2");
+vtkCxxRevisionMacro(vtkBorderWidget, "1.3");
 vtkStandardNewMacro(vtkBorderWidget);
 
 

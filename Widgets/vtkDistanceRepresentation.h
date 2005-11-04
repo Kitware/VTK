@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMeasureRepresentation.h
+  Module:    vtkDistanceRepresentation.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,30 +12,30 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMeasureRepresentation - represent the vtkMeasureWidget
+// .NAME vtkDistanceRepresentation - represent the vtkDistanceWidget
 // .SECTION Description
-// The vtkMeasureRepresentation is a superclass for various types of
-// representations for the vtkMeasureWidget. Logically subclasses consist of
+// The vtkDistanceRepresentation is a superclass for various types of
+// representations for the vtkDistanceWidget. Logically subclasses consist of
 // an axis and two handles for placing/manipulating the end points.
 
 // .SECTION See Also
-// vtkMeasureWidget vtkHandleRepresentation vtkMeasureRepresentation2D vtkMeasureRepresentation
+// vtkDistanceWidget vtkHandleRepresentation vtkDistanceRepresentation2D vtkDistanceRepresentation
 
 
-#ifndef __vtkMeasureRepresentation_h
-#define __vtkMeasureRepresentation_h
+#ifndef __vtkDistanceRepresentation_h
+#define __vtkDistanceRepresentation_h
 
 #include "vtkWidgetRepresentation.h"
 
 class vtkHandleRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkMeasureRepresentation : public vtkWidgetRepresentation
+class VTK_WIDGETS_EXPORT vtkDistanceRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:
   // Standard VTK methods.
-  vtkTypeRevisionMacro(vtkMeasureRepresentation,vtkWidgetRepresentation);
+  vtkTypeRevisionMacro(vtkDistanceRepresentation,vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -51,18 +51,18 @@ public:
 
   // Description:
   // This method is used to specify the type of handle representation to
-  // use for the two internal vtkHandleWidgets within vtkMeasureWidget.
+  // use for the two internal vtkHandleWidgets within vtkDistanceWidget.
   // To use this method, create a dummy vtkHandleWidget (or subclass),
   // and then invoke this method with this dummy. Then the 
-  // vtkMeasureRepresentation uses this dummy to clone two vtkHandleWidgets
+  // vtkDistanceRepresentation uses this dummy to clone two vtkHandleWidgets
   // of the same type. Make sure you set the handle representation before
   // the widget is enabled. (The method InstantiateHandleRepresentation()
-  // is invoked by the vtkMeasure widget.)
+  // is invoked by the vtkDistance widget.)
   void SetHandleRepresentation(vtkHandleRepresentation *handle);
   void InstantiateHandleRepresentation();
 
   // Description:
-  // Set/Get the two handle representations used for the vtkMeasureWidget.
+  // Set/Get the two handle representations used for the vtkDistanceWidget.
   vtkGetObjectMacro(Point1Representation,vtkHandleRepresentation);
   vtkGetObjectMacro(Point2Representation,vtkHandleRepresentation);
 
@@ -85,8 +85,8 @@ public:
   virtual void WidgetInteraction(double e[2]);
   
 protected:
-  vtkMeasureRepresentation();
-  ~vtkMeasureRepresentation();
+  vtkDistanceRepresentation();
+  ~vtkDistanceRepresentation();
 
   // The handle and the rep used to close the handles
   vtkHandleRepresentation *HandleRepresentation;
@@ -97,8 +97,8 @@ protected:
   int Tolerance;
 
 private:
-  vtkMeasureRepresentation(const vtkMeasureRepresentation&);  //Not implemented
-  void operator=(const vtkMeasureRepresentation&);  //Not implemented
+  vtkDistanceRepresentation(const vtkDistanceRepresentation&);  //Not implemented
+  void operator=(const vtkDistanceRepresentation&);  //Not implemented
 };
 
 #endif

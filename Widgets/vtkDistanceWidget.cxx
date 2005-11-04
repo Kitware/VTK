@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMeasureWidget.cxx
+  Module:    vtkDistanceWidget.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkMeasureWidget.h"
-#include "vtkMeasureRepresentation2D.h"
+#include "vtkDistanceWidget.h"
+#include "vtkDistanceRepresentation2D.h"
 #include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
 #include "vtkRenderWindowInteractor.h"
@@ -24,19 +24,20 @@
 #include "vtkHandleRepresentation.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkAxisActor2D.h"
+#include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkMeasureWidget, "1.2");
-vtkStandardNewMacro(vtkMeasureWidget);
+vtkCxxRevisionMacro(vtkDistanceWidget, "1.1");
+vtkStandardNewMacro(vtkDistanceWidget);
 
 
 // The checkerboard simply observes the behavior of four vtkSliderWidgets.
 // Here we create the command/observer classes to respond to the 
 // slider widgets.
-class vtkMeasureWidgetCallback : public vtkCommand
+class vtkDistanceWidgetCallback : public vtkCommand
 {
 public:
-  static vtkMeasureWidgetCallback *New() 
-    { return new vtkMeasureWidgetCallback; }
+  static vtkDistanceWidgetCallback *New() 
+    { return new vtkDistanceWidgetCallback; }
   virtual void Execute(vtkObject*, unsigned long eventId, void*)
     {
       switch (eventId)
@@ -53,16 +54,16 @@ public:
         }
     }
   int HandleNumber;
-  vtkMeasureWidget *MeasureWidget;
+  vtkDistanceWidget *MeasureWidget;
 };
 
 
 //----------------------------------------------------------------------
-vtkMeasureWidget::vtkMeasureWidget()
+vtkDistanceWidget::vtkDistanceWidget()
 {
   this->ManagesCursor = 0;
 
-  this->WidgetState = vtkMeasureWidget::Start;
+  this->WidgetState = vtkDistanceWidget::Start;
   this->CurrentHandle = 0;
 
   // The widgets for moving the end points. They observe this widget (i.e.,
@@ -73,7 +74,7 @@ vtkMeasureWidget::vtkMeasureWidget()
   this->Point2Widget->SetParent(this);
 
   // Set up the callbacks on the two handles
-  this->MeasureWidgetCallback1 = vtkMeasureWidgetCallback::New();
+  this->MeasureWidgetCallback1 = vtkDistanceWidgetCallback::New();
   this->MeasureWidgetCallback1->HandleNumber = 0;
   this->MeasureWidgetCallback1->MeasureWidget = this;
   this->Point1Widget->AddObserver(vtkCommand::StartInteractionEvent, this->MeasureWidgetCallback1, 
@@ -83,7 +84,7 @@ vtkMeasureWidget::vtkMeasureWidget()
   this->Point1Widget->AddObserver(vtkCommand::EndInteractionEvent, this->MeasureWidgetCallback1,
                                   this->Priority);
 
-  this->MeasureWidgetCallback2 = vtkMeasureWidgetCallback::New();
+  this->MeasureWidgetCallback2 = vtkDistanceWidgetCallback::New();
   this->MeasureWidgetCallback2->HandleNumber = 1;
   this->MeasureWidgetCallback2->MeasureWidget = this;
   this->Point2Widget->AddObserver(vtkCommand::StartInteractionEvent, this->MeasureWidgetCallback2, 
@@ -97,17 +98,17 @@ vtkMeasureWidget::vtkMeasureWidget()
   // These are the event callbacks supported by this widget
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
                                           vtkWidgetEvent::AddPoint,
-                                          this, vtkMeasureWidget::AddPointAction);
+                                          this, vtkDistanceWidget::AddPointAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
                                           vtkWidgetEvent::Move,
-                                          this, vtkMeasureWidget::MoveAction);
+                                          this, vtkDistanceWidget::MoveAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
                                           vtkWidgetEvent::EndSelect,
-                                          this, vtkMeasureWidget::EndSelectAction);
+                                          this, vtkDistanceWidget::EndSelectAction);
 }
 
 //----------------------------------------------------------------------
-vtkMeasureWidget::~vtkMeasureWidget()
+vtkDistanceWidget::~vtkDistanceWidget()
 {
   this->Point1Widget->RemoveObserver(this->MeasureWidgetCallback1);
   this->Point1Widget->Delete();
@@ -119,26 +120,26 @@ vtkMeasureWidget::~vtkMeasureWidget()
 }
 
 //----------------------------------------------------------------------
-void vtkMeasureWidget::CreateDefaultRepresentation()
+void vtkDistanceWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
     {
-    this->WidgetRep = vtkMeasureRepresentation2D::New();
+    this->WidgetRep = vtkDistanceRepresentation2D::New();
     }
-  reinterpret_cast<vtkMeasureRepresentation*>(this->WidgetRep)->
+  reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
     InstantiateHandleRepresentation();
 }
 
 //----------------------------------------------------------------------
-void vtkMeasureWidget::SetEnabled(int enabling)
+void vtkDistanceWidget::SetEnabled(int enabling)
 {
   // The handle widgets are not actually enabled until they are placed.
-  // The handle widgets take their representation from the vtkMeasureRepresentation.
+  // The handle widgets take their representation from the vtkDistanceRepresentation.
   if ( enabling )
     {
-    if ( this->WidgetState == vtkMeasureWidget::Start )
+    if ( this->WidgetState == vtkDistanceWidget::Start )
       {
-      reinterpret_cast<vtkMeasureRepresentation*>(this->WidgetRep)->VisibilityOff();    
+      reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->VisibilityOff();    
       }
     else
       {
@@ -153,12 +154,12 @@ void vtkMeasureWidget::SetEnabled(int enabling)
 
   if ( enabling )
     {
-    this->Point1Widget->SetRepresentation(reinterpret_cast<vtkMeasureRepresentation*>
+    this->Point1Widget->SetRepresentation(reinterpret_cast<vtkDistanceRepresentation*>
                                           (this->WidgetRep)->GetPoint1Representation());
     this->Point1Widget->SetInteractor(this->Interactor);
     this->Point1Widget->GetRepresentation()->SetRenderer(this->CurrentRenderer);
     
-    this->Point2Widget->SetRepresentation(reinterpret_cast<vtkMeasureRepresentation*>
+    this->Point2Widget->SetRepresentation(reinterpret_cast<vtkDistanceRepresentation*>
                                           (this->WidgetRep)->GetPoint2Representation());
     this->Point2Widget->SetInteractor(this->Interactor);
     this->Point2Widget->GetRepresentation()->SetRenderer(this->CurrentRenderer);
@@ -173,21 +174,21 @@ void vtkMeasureWidget::SetEnabled(int enabling)
 
 // The following methods are the callbacks that the measure widget responds to. 
 //-------------------------------------------------------------------------
-void vtkMeasureWidget::AddPointAction(vtkAbstractWidget *w)
+void vtkDistanceWidget::AddPointAction(vtkAbstractWidget *w)
 {
-  vtkMeasureWidget *self = reinterpret_cast<vtkMeasureWidget*>(w);
+  vtkDistanceWidget *self = reinterpret_cast<vtkDistanceWidget*>(w);
 
   // Need to distinguish between placing handles and manipulating handles
-  if ( self->WidgetState == vtkMeasureWidget::MovingHandle )
+  if ( self->WidgetState == vtkDistanceWidget::MovingHandle )
     {
     return;
     }
 
   // Placing the second point is easy
-  if ( self->WidgetState == vtkMeasureWidget::PlacingPoints )
+  if ( self->WidgetState == vtkDistanceWidget::PlacingPoints )
     {
     self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
-    self->WidgetState = vtkMeasureWidget::Placed;
+    self->WidgetState = vtkDistanceWidget::Placed;
     self->Point1Widget->SetEnabled(1);
     self->Point2Widget->SetEnabled(1);
     }
@@ -198,33 +199,33 @@ void vtkMeasureWidget::AddPointAction(vtkAbstractWidget *w)
     int X = self->Interactor->GetEventPosition()[0];
     int Y = self->Interactor->GetEventPosition()[1];
     int state = self->WidgetRep->ComputeInteractionState(X,Y);
-    if ( self->WidgetState == vtkMeasureWidget::Start ||
-         (self->WidgetState == vtkMeasureWidget::Placed && state == vtkMeasureRepresentation::Outside ) )
+    if ( self->WidgetState == vtkDistanceWidget::Start ||
+         (self->WidgetState == vtkDistanceWidget::Placed && state == vtkDistanceRepresentation::Outside ) )
       { //putting down the first point
-      self->WidgetState = vtkMeasureWidget::PlacingPoints;
+      self->WidgetState = vtkDistanceWidget::PlacingPoints;
       self->Point1Widget->SetEnabled(0);
       self->Point2Widget->SetEnabled(0);
-      reinterpret_cast<vtkMeasureRepresentation*>(self->WidgetRep)->VisibilityOn();    
+      reinterpret_cast<vtkDistanceRepresentation*>(self->WidgetRep)->VisibilityOn();    
       double e[2];
       e[0] = static_cast<double>(X);
       e[1] = static_cast<double>(Y);
-      reinterpret_cast<vtkMeasureRepresentation*>(self->WidgetRep)->
+      reinterpret_cast<vtkDistanceRepresentation*>(self->WidgetRep)->
         StartWidgetInteraction(e);
       self->CurrentHandle = 0;
       self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
       self->CurrentHandle++;
       }
-    else if ( state == vtkMeasureRepresentation::NearP1 ||
-              state == vtkMeasureRepresentation::NearP2 )
+    else if ( state == vtkDistanceRepresentation::NearP1 ||
+              state == vtkDistanceRepresentation::NearP2 )
       {
-      if ( state == vtkMeasureRepresentation::NearP1 )
+      if ( state == vtkDistanceRepresentation::NearP1 )
         {
-        self->WidgetState = vtkMeasureWidget::MovingHandle;
+        self->WidgetState = vtkDistanceWidget::MovingHandle;
         self->CurrentHandle = 0;
         }
-      else if ( state == vtkMeasureRepresentation::NearP2 )
+      else if ( state == vtkDistanceRepresentation::NearP2 )
         {
-        self->WidgetState = vtkMeasureWidget::MovingHandle;
+        self->WidgetState = vtkDistanceWidget::MovingHandle;
         self->CurrentHandle = 1;
         }
       // Invoke an event on ourself for the handles 
@@ -238,13 +239,13 @@ void vtkMeasureWidget::AddPointAction(vtkAbstractWidget *w)
 }
 
 //-------------------------------------------------------------------------
-void vtkMeasureWidget::MoveAction(vtkAbstractWidget *w)
+void vtkDistanceWidget::MoveAction(vtkAbstractWidget *w)
 {
-  vtkMeasureWidget *self = reinterpret_cast<vtkMeasureWidget*>(w);
+  vtkDistanceWidget *self = reinterpret_cast<vtkDistanceWidget*>(w);
 
   // Do nothing if outside
-  if ( self->WidgetState == vtkMeasureWidget::Start ||
-       self->WidgetState == vtkMeasureWidget::Placed )
+  if ( self->WidgetState == vtkDistanceWidget::Start ||
+       self->WidgetState == vtkDistanceWidget::Placed )
     {
     return;
     }
@@ -254,12 +255,12 @@ void vtkMeasureWidget::MoveAction(vtkAbstractWidget *w)
   int Y = self->Interactor->GetEventPosition()[1];
 
   // Delegate the event consistent with the state
-  if ( self->WidgetState == vtkMeasureWidget::PlacingPoints )
+  if ( self->WidgetState == vtkDistanceWidget::PlacingPoints )
     {
     double e[2];
     e[0] = static_cast<double>(X);
     e[1] = static_cast<double>(Y);
-    reinterpret_cast<vtkMeasureRepresentation*>(self->WidgetRep)->
+    reinterpret_cast<vtkDistanceRepresentation*>(self->WidgetRep)->
       WidgetInteraction(e);
     }
   else //must be moving a handle, invoke a event for the handle widgets
@@ -274,17 +275,17 @@ void vtkMeasureWidget::MoveAction(vtkAbstractWidget *w)
 }
 
 //-------------------------------------------------------------------------
-void vtkMeasureWidget::EndSelectAction(vtkAbstractWidget *w)
+void vtkDistanceWidget::EndSelectAction(vtkAbstractWidget *w)
 {
-  vtkMeasureWidget *self = reinterpret_cast<vtkMeasureWidget*>(w);
+  vtkDistanceWidget *self = reinterpret_cast<vtkDistanceWidget*>(w);
 
   // Do nothing if outside
-  if ( self->WidgetState != vtkMeasureWidget::MovingHandle )
+  if ( self->WidgetState != vtkDistanceWidget::MovingHandle )
     {
     return;
     }
 
-  self->WidgetState = vtkMeasureWidget::Placed;
+  self->WidgetState = vtkDistanceWidget::Placed;
   self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
 
   self->WidgetRep->BuildRepresentation();
@@ -296,28 +297,28 @@ void vtkMeasureWidget::EndSelectAction(vtkAbstractWidget *w)
 // These are callbacks that are active when the user is manipulating the
 // handles of the measure widget.
 //----------------------------------------------------------------------
-void vtkMeasureWidget::StartMeasureInteraction(int)
+void vtkDistanceWidget::StartMeasureInteraction(int)
 {
   this->Superclass::StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
 }
 
 //----------------------------------------------------------------------
-void vtkMeasureWidget::MeasureInteraction(int handle)
+void vtkDistanceWidget::MeasureInteraction(int handle)
 {
   double pos[3];
   if ( handle == 0 )
     {
-    reinterpret_cast<vtkMeasureRepresentation*>(this->WidgetRep)->
+    reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
       GetPoint1Representation()->GetDisplayPosition(pos);
-    reinterpret_cast<vtkMeasureRepresentation*>(this->WidgetRep)->
+    reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
       SetPoint1DisplayPosition(pos);
     }
   else
     {
-    reinterpret_cast<vtkMeasureRepresentation*>(this->WidgetRep)->
+    reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
       GetPoint2Representation()->GetDisplayPosition(pos);
-    reinterpret_cast<vtkMeasureRepresentation*>(this->WidgetRep)->
+    reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
       SetPoint2DisplayPosition(pos);
     }
 
@@ -325,7 +326,7 @@ void vtkMeasureWidget::MeasureInteraction(int handle)
 }
 
 //----------------------------------------------------------------------
-void vtkMeasureWidget::EndMeasureInteraction(int)
+void vtkDistanceWidget::EndMeasureInteraction(int)
 {
   this->Superclass::EndInteraction();
 
@@ -333,7 +334,7 @@ void vtkMeasureWidget::EndMeasureInteraction(int)
 }
 
 //----------------------------------------------------------------------
-void vtkMeasureWidget::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDistanceWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);

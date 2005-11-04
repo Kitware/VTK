@@ -23,8 +23,9 @@
 #include "vtkHandleRepresentation.h"
 #include "vtkCoordinate.h"
 #include "vtkWidgetCallbackMapper.h"
+#include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAngleWidget, "1.2");
+vtkCxxRevisionMacro(vtkAngleWidget, "1.3");
 vtkStandardNewMacro(vtkAngleWidget);
 
 

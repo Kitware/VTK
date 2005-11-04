@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMeasureRepresentation.cxx
+  Module:    vtkDistanceRepresentation.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkMeasureRepresentation.h"
+#include "vtkDistanceRepresentation.h"
 #include "vtkHandleRepresentation.h"
 #include "vtkCoordinate.h"
 #include "vtkRenderer.h"
@@ -21,13 +21,12 @@
 #include "vtkInteractorObserver.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMeasureRepresentation, "1.2");
-
-vtkCxxSetObjectMacro(vtkMeasureRepresentation,HandleRepresentation,vtkHandleRepresentation);
+vtkCxxRevisionMacro(vtkDistanceRepresentation, "1.1");
+vtkCxxSetObjectMacro(vtkDistanceRepresentation,HandleRepresentation,vtkHandleRepresentation);
 
 
 //----------------------------------------------------------------------
-vtkMeasureRepresentation::vtkMeasureRepresentation()
+vtkDistanceRepresentation::vtkDistanceRepresentation()
 {
   this->HandleRepresentation  = NULL;
   this->Point1Representation = NULL;
@@ -38,7 +37,7 @@ vtkMeasureRepresentation::vtkMeasureRepresentation()
 }
 
 //----------------------------------------------------------------------
-vtkMeasureRepresentation::~vtkMeasureRepresentation()
+vtkDistanceRepresentation::~vtkDistanceRepresentation()
 {
   if ( this->HandleRepresentation )
     {
@@ -56,7 +55,7 @@ vtkMeasureRepresentation::~vtkMeasureRepresentation()
 
   
 //----------------------------------------------------------------------
-void vtkMeasureRepresentation::InstantiateHandleRepresentation()
+void vtkDistanceRepresentation::InstantiateHandleRepresentation()
 {
   if ( ! this->Point1Representation )
     {
@@ -73,19 +72,19 @@ void vtkMeasureRepresentation::InstantiateHandleRepresentation()
   
 
 //----------------------------------------------------------------------
-void vtkMeasureRepresentation::GetPoint1WorldPosition(double pos[3])
+void vtkDistanceRepresentation::GetPoint1WorldPosition(double pos[3])
 {
   this->Point1Representation->GetWorldPosition(pos);
 }
 
 //----------------------------------------------------------------------
-void vtkMeasureRepresentation::GetPoint2WorldPosition(double pos[3])
+void vtkDistanceRepresentation::GetPoint2WorldPosition(double pos[3])
 {
   this->Point2Representation->GetWorldPosition(pos);
 }
 
 //----------------------------------------------------------------------
-int vtkMeasureRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
+int vtkDistanceRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   // See if we are near one of the end points or outside
   double pos1[3], pos2[3];
@@ -104,22 +103,22 @@ int vtkMeasureRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUs
   double tol2 = this->Tolerance*this->Tolerance;
   if ( vtkMath::Distance2BetweenPoints(xyz,p1) <= tol2 )
     {
-    this->InteractionState = vtkMeasureRepresentation::NearP1;
+    this->InteractionState = vtkDistanceRepresentation::NearP1;
     }
   else if ( vtkMath::Distance2BetweenPoints(xyz,p2) <= tol2 )
     {
-    this->InteractionState = vtkMeasureRepresentation::NearP2;
+    this->InteractionState = vtkDistanceRepresentation::NearP2;
     }
   else 
     {
-    this->InteractionState = vtkMeasureRepresentation::Outside;
+    this->InteractionState = vtkDistanceRepresentation::Outside;
     }
 
   return this->InteractionState;
 }
 
 //----------------------------------------------------------------------
-void vtkMeasureRepresentation::StartWidgetInteraction(double e[2])
+void vtkDistanceRepresentation::StartWidgetInteraction(double e[2])
 {
   double pos[3];
   pos[0] = e[0];
@@ -130,7 +129,7 @@ void vtkMeasureRepresentation::StartWidgetInteraction(double e[2])
 }
 
 //----------------------------------------------------------------------
-void vtkMeasureRepresentation::WidgetInteraction(double e[2])
+void vtkDistanceRepresentation::WidgetInteraction(double e[2])
 {
   double pos[3];
   pos[0] = e[0];
@@ -140,7 +139,7 @@ void vtkMeasureRepresentation::WidgetInteraction(double e[2])
 }
 
 //----------------------------------------------------------------------
-void vtkMeasureRepresentation::BuildRepresentation()
+void vtkDistanceRepresentation::BuildRepresentation()
 {
   // Make sure the handles are up to date
   this->Point1Representation->BuildRepresentation();
@@ -148,7 +147,7 @@ void vtkMeasureRepresentation::BuildRepresentation()
 }
 
 //----------------------------------------------------------------------
-void vtkMeasureRepresentation::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDistanceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);

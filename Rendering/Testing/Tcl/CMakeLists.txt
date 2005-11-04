@@ -19,6 +19,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       rotations
       ScalarBar
       TestFlyTo
+      TestLeaderActor2D
       TestOnePoint
       TestParallelCoordinates
       TestStyleTerrain

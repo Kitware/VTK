@@ -94,6 +94,11 @@ protected:
   
   // Used for performance reasons to avoid object construction/deletion
   vtkEvent *Event;
+  
+private:
+  vtkWidgetEventTranslator(const vtkWidgetEventTranslator&);  //Not implemented
+  void operator=(const vtkWidgetEventTranslator&);  //Not implemented
+
 };
 
 #endif /* __vtkWidgetEventTranslator_h */

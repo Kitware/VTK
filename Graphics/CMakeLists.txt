@@ -37,6 +37,7 @@ vtkConnectivityFilter.cxx
 vtkContourFilter.cxx
 vtkContourGrid.cxx
 vtkCubeSource.cxx
+vtkCursor2D.cxx
 vtkCursor3D.cxx
 vtkCutter.cxx
 vtkCurvatures.cxx

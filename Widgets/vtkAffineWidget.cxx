@@ -23,8 +23,9 @@
 #include "vtkWidgetEventTranslator.h"
 #include "vtkWidgetCallbackMapper.h" 
 #include "vtkEvent.h"
+#include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAffineWidget, "1.2");
+vtkCxxRevisionMacro(vtkAffineWidget, "1.3");
 vtkStandardNewMacro(vtkAffineWidget);
 
 //----------------------------------------------------------------------------------

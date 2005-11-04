@@ -28,6 +28,7 @@
 #include "vtkHandleRepresentation.h"
 #include "vtkCursor3D.h"
 
+class vtkCursor3D;
 class vtkProperty;
 class vtkActor;
 class vtkPolyDataMapper;

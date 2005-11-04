@@ -96,6 +96,10 @@ protected:
   char          KeyCode;
   int           RepeatCount;
   char*         KeySym;
+  
+private:
+  vtkEvent(const vtkEvent&);  //Not implemented
+  void operator=(const vtkEvent&);  //Not implemented
 
 };
 
