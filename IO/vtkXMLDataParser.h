@@ -39,48 +39,58 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLDataParser* New();
 
-  //BTX
-  // Description:
-  // Enumerate big and little endian byte order settings.
-  enum { BigEndian, LittleEndian };
-  //ETX
-
   // Description:
   // Get the root element from the XML document.
   vtkXMLDataElement* GetRootElement();
 
+  //BTX
+  // Description:
+  // Enumerate big and little endian byte order settings.
+  enum { BigEndian, LittleEndian };
+
+  // Description:
+  // A type used for data sizes and offsets for stream i/o.  Using
+  // vtkIdType should satisfy most users.  This could be streamoff if
+  // it is deemed portable.  It could also be split into OffsetType
+  // (streamoff) and PositionType (streampos).
+  typedef vtkIdType OffsetType;
+
   // Description:
   // Read inline data from inside the given element.  Returns the
   // number of words read.
-  unsigned long ReadInlineData(vtkXMLDataElement* element, int isAscii,
-                               void* buffer, int startWord, int numWords,
-                               int wordType);
-  unsigned long ReadInlineData(vtkXMLDataElement* element, int isAscii,
-                               char* buffer, int startWord, int numWords)
+  OffsetType ReadInlineData(vtkXMLDataElement* element, int isAscii,
+                            void* buffer, OffsetType startWord,
+                            OffsetType numWords, int wordType);
+  OffsetType ReadInlineData(vtkXMLDataElement* element, int isAscii,
+                            char* buffer, OffsetType startWord,
+                            OffsetType numWords)
     { return this->ReadInlineData(element, isAscii, buffer, startWord,
                                   numWords, VTK_CHAR); }
 
   // Description:
   // Read from an appended data section starting at the given appended
   // data offset.  Returns the number of words read.
-  unsigned long ReadAppendedData(unsigned long offset, void* buffer,
-                                 int startWord, int numWords, int wordType);
-  unsigned long ReadAppendedData(unsigned long offset, char* buffer,
-                                 int startWord, int numWords)
+  OffsetType ReadAppendedData(OffsetType offset, void* buffer,
+                              OffsetType startWord,
+                              OffsetType numWords, int wordType);
+  OffsetType ReadAppendedData(OffsetType offset, char* buffer,
+                              OffsetType startWord,
+                              OffsetType numWords)
     { return this->ReadAppendedData(offset, buffer, startWord, numWords,
                                     VTK_CHAR); }
 
   // Description:
   // Read from an ascii data section starting at the current position in
   // the stream.  Returns the number of words read.
-  unsigned long ReadAsciiData(void* buffer, int startWord, int numWords,
-                              int wordType);
+  OffsetType ReadAsciiData(void* buffer, OffsetType startWord,
+                           OffsetType numWords, int wordType);
 
   // Description:
   // Read from a data section starting at the current position in the
   // stream.  Returns the number of words read.
-  unsigned long ReadBinaryData(void* buffer, int startWord, int maxWords,
-                               int wordType);
+  OffsetType ReadBinaryData(void* buffer, OffsetType startWord,
+                            OffsetType maxWords, int wordType);
+  //ETX
 
   // Description:
   // Get/Set the compressor used to decompress binary and appended data
@@ -133,28 +143,28 @@ protected:
   int ParsingComplete();
   int CheckPrimaryAttributes();
   void FindAppendedDataPosition();
-  unsigned long FindInlineDataPosition(unsigned long start);
+  OffsetType FindInlineDataPosition(OffsetType start);
   int ParseBuffer(const char* buffer, unsigned int count);
 
   void AddElement(vtkXMLDataElement* element);
   void PushOpenElement(vtkXMLDataElement* element);
   vtkXMLDataElement* PopOpenElement();
   void FreeAllElements();
-  void PerformByteSwap(void* data, int numWords, int wordSize);
+  void PerformByteSwap(void* data, OffsetType numWords, int wordSize);
 
   // Data reading methods.
   void ReadCompressionHeader();
   unsigned int FindBlockSize(unsigned int block);
   int ReadBlock(unsigned int block, unsigned char* buffer);
   unsigned char* ReadBlock(unsigned int block);
-  unsigned long ReadUncompressedData(unsigned char* data,
-                                     unsigned long startWord,
-                                     unsigned long numWords,
-                                     int wordSize);
-  unsigned long ReadCompressedData(unsigned char* data,
-                                   unsigned long startWord,
-                                   unsigned long numWords,
-                                   int wordSize);
+  OffsetType ReadUncompressedData(unsigned char* data,
+                                  OffsetType startWord,
+                                  OffsetType numWords,
+                                  int wordSize);
+  OffsetType ReadCompressedData(unsigned char* data,
+                                OffsetType startWord,
+                                OffsetType numWords,
+                                int wordSize);
 
   // Ascii data reading methods.
   int ParseAsciiData(int wordType);
@@ -172,7 +182,7 @@ protected:
   unsigned int OpenElementsSize;
 
   // The position of the appended data section, if found.
-  unsigned long AppendedDataPosition;
+  OffsetType AppendedDataPosition;
 
   // How much of the string "<AppendedData" has been matched in input.
   int AppendedDataMatched;
@@ -211,13 +221,13 @@ protected:
   unsigned int BlockUncompressedSize;
   unsigned int PartialLastBlockUncompressedSize;
   HeaderType* BlockCompressedSizes;
-  unsigned long* BlockStartOffsets;
+  OffsetType* BlockStartOffsets;
 
   // Ascii data parsing.
   unsigned char* AsciiDataBuffer;
-  int AsciiDataBufferLength;
+  OffsetType AsciiDataBufferLength;
   int AsciiDataWordType;
-  unsigned long AsciiDataPosition;
+  OffsetType AsciiDataPosition;
 
   // Progress during reading of data.
   float Progress;
