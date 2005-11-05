@@ -81,6 +81,7 @@ int TestSeedWidget2( int argc, char *argv[] )
     v16->SetFilePrefix(fname);
     v16->SetImageRange(1, 93);
     v16->SetDataSpacing (3.2, 3.2, 1.5);
+  delete[] fname;
   vtkImageMapToColors *saggitalColors = vtkImageMapToColors::New();
     saggitalColors->SetInputConnection(v16->GetOutputPort());
     saggitalColors->SetLookupTable(bwLut);
