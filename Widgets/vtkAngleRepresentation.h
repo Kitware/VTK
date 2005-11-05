@@ -42,6 +42,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // This representation and all subclasses must keep an angle (in degrees)
+  // consistent with the state of the widget.
+  virtual double GetAngle() = 0;
+
+  // Description:
   // Methods to Set/Get the coordinates of the three points defining
   // this representation. Note that methods are available for both
   // display and world coordinates.

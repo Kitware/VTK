@@ -42,10 +42,19 @@ class vtkAngleCallback : public vtkCommand
 public:
   static vtkAngleCallback *New() 
     { return new vtkAngleCallback; }
-  virtual void Execute(vtkObject*, unsigned long, void*)
+  virtual void Execute(vtkObject*, unsigned long eid, void*)
     {
-      cout << "point placed\n";
+      if ( eid == vtkCommand::PlacePointEvent )
+        {
+        cout << "point placed\n";
+        }
+      else //if ( eid == vtkCommand::InteractionEvent )
+        {
+        cout << "Angle: " << this->Rep->GetAngle() << "\n";
+        }
     }
+  vtkAngleRepresentation2D *Rep;
+  vtkAngleCallback():Rep(0) {}
 };
 
 
@@ -80,7 +89,9 @@ int TestAngleWidget( int argc, char *argv[] )
   widget->SetRepresentation(rep);
 
   vtkAngleCallback *mcbk = vtkAngleCallback::New();
+  mcbk->Rep = rep;
   widget->AddObserver(vtkCommand::PlacePointEvent,mcbk);
+//  widget->AddObserver(vtkCommand::InteractionEvent,mcbk);
 
   // Add the actors to the renderer, set the background and size
   //

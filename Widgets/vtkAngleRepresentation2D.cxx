@@ -21,7 +21,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.2");
+vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.3");
 vtkStandardNewMacro(vtkAngleRepresentation2D);
 
 
@@ -54,6 +54,12 @@ vtkAngleRepresentation2D::~vtkAngleRepresentation2D()
   this->Ray1->Delete();
   this->Ray2->Delete();
   this->Arc->Delete();
+}
+
+//----------------------------------------------------------------------
+double vtkAngleRepresentation2D::GetAngle()
+{
+  return this->Arc->GetAngle();
 }
 
 //----------------------------------------------------------------------

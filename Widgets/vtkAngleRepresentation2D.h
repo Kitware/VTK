@@ -48,6 +48,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Satisfy the superclasses API.
+  virtual double GetAngle();
+
+  // Description:
   // Methods to Set/Get the coordinates of the two points defining
   // this representation. Note that methods are available for both
   // display and world coordinates.

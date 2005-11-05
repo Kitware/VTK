@@ -148,6 +148,12 @@ public:
   vtkGetStringMacro(LabelFormat);
 
   // Description:
+  // Obtain the length of the leader if the leader is not curved,
+  // otherwise obtain the angle that the leader circumscribes.
+  vtkGetMacro(Length,double);
+  vtkGetMacro(Angle,double);
+
+  // Description:
   // Methods required by vtkProp and vtkActor2D superclasses.
   int RenderOverlay(vtkViewport* viewport);
   int RenderOpaqueGeometry(vtkViewport* viewport);
@@ -169,7 +175,11 @@ protected:
                          double theta, vtkViewport *viewport, int viewportChanged);
   int InStringBox(double center[3], int stringSize[2], double x[3]);
 
+
+  // Characteristics of the leader
   double Radius;
+  double Length;
+  double Angle;
 
   int              AutoLabel;
   char            *LabelFormat;

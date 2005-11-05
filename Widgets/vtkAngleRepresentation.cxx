@@ -24,7 +24,7 @@
 #include "vtkMath.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkAngleRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkAngleRepresentation, "1.3");
 
 vtkCxxSetObjectMacro(vtkAngleRepresentation,HandleRepresentation,vtkHandleRepresentation);
 
@@ -178,6 +178,7 @@ void vtkAngleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
   
+  os << indent << "Angle: " << this->GetAngle() << "\n";
   os << indent << "Tolerance: " << this->Tolerance <<"\n";
   os << indent << "Ray1 Visibility: " << (this->Ray1Visibility ? "On\n" : "Off\n");
   os << indent << "Ray2 Visibility: " << (this->Ray2Visibility ? "On\n" : "Off\n");

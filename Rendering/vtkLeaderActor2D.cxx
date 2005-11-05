@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkLeaderActor2D, "1.4");
+vtkCxxRevisionMacro(vtkLeaderActor2D, "1.5");
 vtkStandardNewMacro(vtkLeaderActor2D);
 
 vtkCxxSetObjectMacro(vtkLeaderActor2D,LabelTextProperty,vtkTextProperty);
@@ -43,6 +43,8 @@ vtkLeaderActor2D::vtkLeaderActor2D()
   this->Position2Coordinate->SetReferenceCoordinate(NULL);
   
   this->Radius = 0.0;
+  this->Length = 0.0;
+  this->Angle = 0.0;
 
   this->Label = NULL;
   this->LabelFactor = 1.0;
@@ -221,15 +223,17 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
   // Build the labels
   int i, clippedLeader=0;
   double xL[3], xR[3], c1[3], c2[3];
+  double *x1 = this->PositionCoordinate->GetComputedWorldValue(viewport);
+  double *x2 = this->Position2Coordinate->GetComputedWorldValue(viewport);
+  this->Length = sqrt(vtkMath::Distance2BetweenPoints(x1,x2));
+
   if ( this->AutoLabel || (this->Label != NULL && this->Label[0] != 0) )
     {
     int stringSize[2];
     if ( this->AutoLabel )
       {
       char string[512];
-      double *x1 = this->PositionCoordinate->GetComputedWorldValue(viewport);
-      double *x2 = this->Position2Coordinate->GetComputedWorldValue(viewport);
-      sprintf(string, this->LabelFormat, sqrt(vtkMath::Distance2BetweenPoints(x1,x2)));
+      sprintf(string, this->LabelFormat, this->Length);
       this->LabelMapper->SetInput(string);
       }
     else
@@ -533,13 +537,14 @@ void vtkLeaderActor2D::BuildCurvedLeader(double p1[3], double p2[3], double ray[
     }
   
   // Now insert lines. Only those not clipped by the string are added.
+  this->Angle = (theta1-theta2)*vtkMath::RadiansToDegrees();
   if ( this->AutoLabel || (this->Label != NULL && this->Label[0] != 0) )
     {
     int stringSize[2];
     if ( this->AutoLabel )
       {
       char string[512];
-      sprintf(string, this->LabelFormat, (theta1-theta2)*vtkMath::RadiansToDegrees());
+      sprintf(string, this->LabelFormat, this->Angle);
       this->LabelMapper->SetInput(string);
       }
     else
