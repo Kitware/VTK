@@ -49,6 +49,7 @@ int TestConstrainedHandleWidget( int argc, char *argv[] )
   v16->ReleaseDataFlagOn();
   v16->SetDataMask(0x7fff);
   v16->Update();
+  delete[] fname;
     
   double range[2];
   v16->GetOutput()->GetScalarRange(range);
