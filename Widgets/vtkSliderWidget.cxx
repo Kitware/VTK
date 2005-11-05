@@ -24,7 +24,7 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkSliderWidget, "1.3");
+vtkCxxRevisionMacro(vtkSliderWidget, "1.4");
 vtkStandardNewMacro(vtkSliderWidget);
 
 //----------------------------------------------------------------------------------
@@ -69,7 +69,8 @@ void vtkSliderWidget::SelectAction(vtkAbstractWidget *w)
   eventPos[1] = self->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  if (!self->CurrentRenderer || !self->CurrentRenderer->IsInViewport(eventPos[0], eventPos[1]))
+  if (!self->CurrentRenderer || 
+      !self->CurrentRenderer->IsInViewport(static_cast<int>(eventPos[0]), static_cast<int>(eventPos[1])))
     {
     self->WidgetState = vtkSliderWidget::Start;
     return;

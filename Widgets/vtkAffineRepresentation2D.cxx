@@ -36,7 +36,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkAffineRepresentation2D, "1.3");
+vtkCxxRevisionMacro(vtkAffineRepresentation2D, "1.4");
 vtkStandardNewMacro(vtkAffineRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkAffineRepresentation2D,Property,vtkProperty2D);
@@ -861,7 +861,7 @@ void vtkAffineRepresentation2D::CreateDefaultProperties()
   this->SelectedProperty->SetLineWidth(1.0);
 
   this->TextProperty = vtkTextProperty::New();
-  this->TextProperty->SetFontSize(12.0);
+  this->TextProperty->SetFontSize(12);
   this->TextProperty->SetColor(1.0,0.0,0.0);
   this->TextProperty->SetBold(1);
   this->TextProperty->SetFontFamilyToArial();
