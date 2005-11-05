@@ -55,7 +55,7 @@ public:
     AddPoint,
     AddFinalPoint,
     Completed,
-    TimedOut,
+    TimedOut
   };
 //ETX
 
