@@ -39,6 +39,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // This representation and all subclasses must keep a distance
+  // consistent with the state of the widget.
+  virtual double GetDistance() = 0;
+
+  // Description:
   // Methods to Set/Get the coordinates of the two points defining
   // this representation. Note that methods are available for both
   // display and world coordinates.
@@ -73,6 +78,13 @@ public:
   vtkSetClampMacro(Tolerance,int,1,100);
   vtkGetMacro(Tolerance,int);
 
+  // Description:
+  // Specify the format to use for labelling the distance. Note that an empty
+  // string results in no label, or a format string without a "%" character
+  // will not print the distance value.
+  vtkSetStringMacro(LabelFormat);
+  vtkGetStringMacro(LabelFormat);
+
 //BTX -- used to communicate about the state of the representation
   enum {Outside=0,NearP1,NearP2};
 //ETX
@@ -95,6 +107,9 @@ protected:
 
   // Selection tolerance for the handles
   int Tolerance;
+
+  // Format for printing the distance
+  char *LabelFormat;
 
 private:
   vtkDistanceRepresentation(const vtkDistanceRepresentation&);  //Not implemented

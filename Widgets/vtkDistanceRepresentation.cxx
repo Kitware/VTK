@@ -20,8 +20,9 @@
 #include "vtkBox.h"
 #include "vtkInteractorObserver.h"
 #include "vtkMath.h"
+#include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkDistanceRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkDistanceRepresentation, "1.2");
 vtkCxxSetObjectMacro(vtkDistanceRepresentation,HandleRepresentation,vtkHandleRepresentation);
 
 
@@ -34,6 +35,9 @@ vtkDistanceRepresentation::vtkDistanceRepresentation()
 
   this->Tolerance = 5;
   this->Placed = 0;
+  
+  this->LabelFormat = new char[8]; 
+  sprintf(this->LabelFormat,"%s","%-#6.3g");
 }
 
 //----------------------------------------------------------------------
@@ -50,6 +54,12 @@ vtkDistanceRepresentation::~vtkDistanceRepresentation()
   if ( this->Point2Representation )
     {
     this->Point2Representation->Delete();
+    }
+
+  if (this->LabelFormat) 
+    {
+    delete [] this->LabelFormat;
+    this->LabelFormat = NULL;
     }
 }
 
@@ -141,6 +151,7 @@ void vtkDistanceRepresentation::WidgetInteraction(double e[2])
 //----------------------------------------------------------------------
 void vtkDistanceRepresentation::BuildRepresentation()
 {
+  // We don't worry about mtime 'cause the subclass deals with that
   // Make sure the handles are up to date
   this->Point1Representation->BuildRepresentation();
   this->Point2Representation->BuildRepresentation();
@@ -152,5 +163,6 @@ void vtkDistanceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
   
+  os << indent << "Distance: " << this->GetDistance() <<"\n";
   os << indent << "Tolerance: " << this->Tolerance <<"\n";
 }

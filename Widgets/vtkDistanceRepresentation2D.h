@@ -45,6 +45,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Satisfy the superclasses API.
+  virtual double GetDistance() 
+    {return this->Distance;}
+
+  // Description:
   // Methods to Set/Get the coordinates of the two points defining
   // this representation. Note that methods are available for both
   // display and world coordinates.
@@ -60,6 +65,10 @@ public:
   vtkAxisActor2D *GetAxis();
 
   // Description:
+  // Method to satisfy superclasses' API.
+  virtual void BuildRepresentation();
+
+  // Description:
   // Methods required by vtkProp superclass.
   virtual void ReleaseGraphicsResources(vtkWindow *w);
   virtual int RenderOverlay(vtkViewport *viewport);
@@ -72,6 +81,9 @@ protected:
   // Add a line to the mix
   vtkAxisActor2D *AxisActor;
   vtkProperty2D  *AxisProperty;
+  
+  // The distance between the two points
+  double Distance;
 
 private:
   vtkDistanceRepresentation2D(const vtkDistanceRepresentation2D&);  //Not implemented
