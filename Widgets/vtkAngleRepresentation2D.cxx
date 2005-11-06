@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.4");
+vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.5");
 vtkStandardNewMacro(vtkAngleRepresentation2D);
 
 
@@ -142,7 +142,6 @@ void vtkAngleRepresentation2D::BuildRepresentation()
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
     this->Superclass::BuildRepresentation();
-    this->VisibilityOn();
 
     double p1[3], p2[3], c[3];
     this->Point1Representation->GetDisplayPosition(p1);
@@ -207,6 +206,7 @@ void vtkAngleRepresentation2D::BuildRepresentation()
         this->Arc->SetRadius(radius/l);
         }
       }
+    this->BuildTime.Modified();
     }
 }
 
@@ -222,7 +222,6 @@ void vtkAngleRepresentation2D::ReleaseGraphicsResources(vtkWindow *w)
 int vtkAngleRepresentation2D::RenderOverlay(vtkViewport *v)
 {
   this->BuildRepresentation();
-    cout << "Render overlay\n";
   
   int count=0;
   if ( this->Ray1Visibility )

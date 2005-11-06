@@ -25,7 +25,7 @@
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAngleRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkAngleRepresentation, "1.5");
 
 vtkCxxSetObjectMacro(vtkAngleRepresentation,HandleRepresentation,vtkHandleRepresentation);
 
@@ -176,20 +176,11 @@ void vtkAngleRepresentation::WidgetInteraction(double e[2])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime || 
-       this->Point1Representation->GetMTime() > this->BuildTime ||
-       this->CenterRepresentation->GetMTime() > this->BuildTime ||
-       this->Point2Representation->GetMTime() > this->BuildTime ||
-       (this->Renderer && this->Renderer->GetVTKWindow() &&
-        this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
-    {
-    // Make sure the handles are up to date
-    cout << "Building rep super\n";
-    this->Point1Representation->BuildRepresentation();
-    this->CenterRepresentation->BuildRepresentation();
-    this->Point2Representation->BuildRepresentation();
-    this->BuildTime.Modified();
-    }
+  // We don't worry about mtime 'cause the subclass deals with that
+  // Make sure the handles are up to date
+  this->Point1Representation->BuildRepresentation();
+  this->CenterRepresentation->BuildRepresentation();
+  this->Point2Representation->BuildRepresentation();
 }
 
 //----------------------------------------------------------------------
