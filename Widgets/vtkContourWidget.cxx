@@ -30,7 +30,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.3");
+vtkCxxRevisionMacro(vtkContourWidget, "1.4");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -172,12 +172,6 @@ void vtkContourWidget::AddFinalPointAction(vtkAbstractWidget *w)
   vtkContourWidget *self = reinterpret_cast<vtkContourWidget*>(w);
   vtkContourRepresentation *rep = 
     reinterpret_cast<vtkContourRepresentation*>(self->WidgetRep);
-
-  int X = self->Interactor->GetEventPosition()[0];
-  int Y = self->Interactor->GetEventPosition()[1];
-  double pos[2];
-  pos[0] = X;
-  pos[1] = Y;
 
   if ( self->WidgetState ==  vtkContourWidget::Define &&
        rep->GetNumberOfNodes() >= 1 )
