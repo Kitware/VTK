@@ -25,7 +25,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAngleWidget, "1.4");
+vtkCxxRevisionMacro(vtkAngleWidget, "1.5");
 vtkStandardNewMacro(vtkAngleWidget);
 
 
@@ -263,7 +263,6 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
       self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
       self->CurrentHandle++;
       reinterpret_cast<vtkAngleRepresentation*>(self->WidgetRep)->Ray1VisibilityOn();
-      cout << "Ray1 on\n";
       self->Point1Widget->SetEnabled(1);
       }
     else if ( state == vtkAngleRepresentation::NearP1 ||
@@ -336,7 +335,6 @@ void vtkAngleWidget::MoveAction(vtkAbstractWidget *w)
   self->WidgetRep->BuildRepresentation();
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-  cout << "Move render\n";
   self->Render();
 }
 
