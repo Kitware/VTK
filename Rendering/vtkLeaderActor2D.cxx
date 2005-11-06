@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkLeaderActor2D, "1.5");
+vtkCxxRevisionMacro(vtkLeaderActor2D, "1.6");
 vtkStandardNewMacro(vtkLeaderActor2D);
 
 vtkCxxSetObjectMacro(vtkLeaderActor2D,LabelTextProperty,vtkTextProperty);
@@ -735,5 +735,8 @@ void vtkLeaderActor2D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Arrow on both ends\n";
     }
+  
+  os << indent << "Angle: " << this->Angle << "\n";
+  os << indent << "Length: " << this->Length << "\n";
 }
 
