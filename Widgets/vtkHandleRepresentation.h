@@ -109,6 +109,11 @@ public:
   virtual void ShallowCopy(vtkProp *prop);
   virtual void SetRenderer(vtkRenderer *ren);
 
+  // Description:
+  // Overload the superclasses' GetMTime() because the internal vtkCoordinates
+  // are used to keep the state of the representation.
+  virtual unsigned long GetMTime();
+
 protected:
   vtkHandleRepresentation();
   ~vtkHandleRepresentation();

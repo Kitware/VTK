@@ -74,6 +74,11 @@ public:
   vtkGetObjectMacro(Arc,vtkLeaderActor2D);
   
   // Description:
+  // Method defined by vtkWidgetRepresentation superclass and
+  // needed here.
+  void BuildRepresentation();
+
+  // Description:
   // Methods required by vtkProp superclass.
   virtual void ReleaseGraphicsResources(vtkWindow *w);
   virtual int RenderOverlay(vtkViewport *viewport);
@@ -81,9 +86,6 @@ public:
 protected:
   vtkAngleRepresentation2D();
   ~vtkAngleRepresentation2D();
-
-  // Helper method for placing the arc
-  void BuildArc();
 
   // The pieces that make up the angle representations
   vtkLeaderActor2D *Ray1;

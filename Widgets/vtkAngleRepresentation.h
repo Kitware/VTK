@@ -86,6 +86,13 @@ public:
   vtkGetMacro(Tolerance,int);
 
   // Description:
+  // Specify the format to use for labelling the angle. Note that an empty
+  // string results in no label, or a format string without a "%" character
+  // will not print the angle value.
+  vtkSetStringMacro(LabelFormat);
+  vtkGetStringMacro(LabelFormat);
+
+  // Description:
   // Special methods for turning off the rays and arc that define the cone
   // and arc of the angle.
   vtkSetMacro(Ray1Visibility,int);
@@ -127,6 +134,9 @@ protected:
   int Ray1Visibility;
   int Ray2Visibility;
   int ArcVisibility;
+  
+  // Format for the label
+  char *LabelFormat;
   
 private:
   vtkAngleRepresentation(const vtkAngleRepresentation&);  //Not implemented

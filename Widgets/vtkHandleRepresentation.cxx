@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 
 
-vtkCxxRevisionMacro(vtkHandleRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkHandleRepresentation, "1.3");
 
 //----------------------------------------------------------------------
 vtkHandleRepresentation::vtkHandleRepresentation()
@@ -103,6 +103,18 @@ void vtkHandleRepresentation::ShallowCopy(vtkProp *prop)
     this->SetConstrained(rep->GetConstrained());
     }
   this->Superclass::ShallowCopy(prop);
+}
+
+//----------------------------------------------------------------------
+unsigned long vtkHandleRepresentation::GetMTime()
+{
+  unsigned long mTime=this->Superclass::GetMTime();
+  unsigned long wMTime=this->WorldPosition->GetMTime();
+  mTime = ( wMTime > mTime ? wMTime : mTime );
+  unsigned long dMTime=this->DisplayPosition->GetMTime();
+  mTime = ( dMTime > mTime ? dMTime : mTime );
+  
+  return mTime;
 }
 
 //----------------------------------------------------------------------
