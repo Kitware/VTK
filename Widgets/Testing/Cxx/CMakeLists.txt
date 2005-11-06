@@ -2,35 +2,35 @@ SET(KIT Widgets)
 # add tests that do not require data
 SET(MyTests     
   BoxWidget.cxx
-  TestAffineWidget.cxx
-  TestAngleWidget.cxx
-  TestBorderWidget.cxx
-  TestCameraWidget.cxx
-  TestCaptionWidget.cxx
-  TestCheckerboardWidget.cxx
-  TestDistanceWidget.cxx
-  TestHandleWidget.cxx
-  TestHandleWidget2D.cxx
+#  TestAffineWidget.cxx
+#  TestAngleWidget.cxx
+#  TestBorderWidget.cxx
+#  TestCameraWidget.cxx
+#  TestCaptionWidget.cxx
+#  TestCheckerboardWidget.cxx
+#  TestDistanceWidget.cxx
+#  TestHandleWidget.cxx
+#  TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx
   TestOrientationMarkerWidget.cxx
-  TestRectilinearWipeWidget.cxx
-  TestSeedWidget.cxx
-  TestSliderWidget.cxx
-  TestTextWidget.cxx
+#  TestRectilinearWipeWidget.cxx
+#  TestSeedWidget.cxx
+#  TestSliderWidget.cxx
+#  TestTextWidget.cxx
   )
 IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}
     ImagePlaneWidget.cxx
-    TestOrientedGlyphContour.cxx
-    TestFocalPlaneContour.cxx
-    TestConstrainedHandleWidget.cxx
+#    TestConstrainedHandleWidget.cxx
+#    TestFocalPlaneContour.cxx
+#    TestOrientedGlyphContour.cxx
     TestImageTracerWidget.cxx
     TestLineWidget.cxx
     TestPlaneWidget.cxx
     TestPointWidget.cxx
     TestScalarBarWidget.cxx
-    TestSeedWidget2.cxx
+#    TestSeedWidget2.cxx
     TestSplineWidget.cxx
     )
 ENDIF (VTK_DATA_ROOT)
