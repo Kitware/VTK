@@ -50,11 +50,9 @@ public:
   vtkAlgorithm* GetAlgorithm();
 
   // Description:
-  // Generalized interface for asking the executive to fullfill update
-  // requests. In this signature you inputs and outputs are provided and
-  // it does not chain up or down stream.
+  // Generalized interface for asking the executive to fullfill
+  // pipeline requests.
   virtual int ProcessRequest(vtkInformation* request,
-                             int forward,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo);
 
@@ -71,7 +69,6 @@ public:
   // method name.
   virtual int
   ComputePipelineMTime(vtkInformation* request,
-                       int forward,
                        vtkInformationVector** inInfoVec,
                        vtkInformationVector* outInfoVec,
                        int requestFromOutputPort,
@@ -132,6 +129,16 @@ public:
   // Description:
   // Get the output port that produces the given data object.
   virtual vtkAlgorithmOutput* GetProducerPort(vtkDataObject*);
+
+  // Description:
+  // Set a pointer to an outside instance of input or output
+  // information vectors.  No references are held to the given
+  // vectors, and setting this does not change the executive object
+  // modification time.  This is a preliminary interface to use in
+  // implementing filters with internal pipelines, and may change
+  // without notice when a future interface is created.
+  void SetSharedInputInformation(vtkInformationVector** inInfoVec);
+  void SetSharedOutputInformation(vtkInformationVector* outInfoVec);
 
   // Description:
   // Participate in garbage collection.
@@ -214,8 +221,13 @@ protected:
   // Flag set when the algorithm is processing a request.
   int InAlgorithm;
 
-private:
+  // Pointers to an outside instance of input or output information.
+  // No references are held.  These are used to implement internal
+  // pipelines.
+  vtkInformationVector** SharedInputInformation;
+  vtkInformationVector* SharedOutputInformation;
 
+private:
   // Store an information object for each output port of the algorithm.
   vtkInformationVector* OutputInformation;
 
