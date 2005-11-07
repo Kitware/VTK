@@ -89,8 +89,13 @@ public:
                              vtkInformationVector*);
 
   // Description:
-  // perform computations required for the pipeline mtime. By default just calls GetMTime and returns
-  virtual unsigned long ComputePipelineMTime(vtkInformation *request);
+  // Override to send the request to internal pipeline.
+  virtual int
+  ComputePipelineMTime(vtkInformation* request,
+                       vtkInformationVector** inInfoVec,
+                       vtkInformationVector* outInfoVec,
+                       int requestFromOutputPort,
+                       unsigned long* mtime);
 
 protected:
   vtkImageOpenClose3D();
