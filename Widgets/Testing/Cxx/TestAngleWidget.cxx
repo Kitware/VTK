@@ -86,6 +86,7 @@ int TestAngleWidget( int argc, char *argv[] )
 
   vtkAngleWidget *widget = vtkAngleWidget::New();
   widget->SetInteractor(iren);
+  widget->CreateDefaultRepresentation();
   widget->SetRepresentation(rep);
 
   vtkAngleCallback *mcbk = vtkAngleCallback::New();
