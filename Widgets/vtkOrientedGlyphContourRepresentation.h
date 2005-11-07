@@ -82,6 +82,10 @@ public:
   vtkGetObjectMacro(ActiveProperty,vtkProperty);
   
   // Description:
+  // This is the property used by the lines.
+  vtkGetObjectMacro(LinesProperty,vtkProperty);
+  
+  // Description:
   // Subclasses of vtkOrientedGlyphContourRepresentation must implement these methods. These
   // are the methods that the widget and its representation use to
   // communicate with each other.
