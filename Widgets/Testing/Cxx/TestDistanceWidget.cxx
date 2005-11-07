@@ -147,6 +147,7 @@ int TestDistanceWidget( int argc, char *argv[] )
 
   vtkDistanceWidget *widget = vtkDistanceWidget::New();
   widget->SetInteractor(iren);
+  widget->CreateDefaultRepresentation();
   widget->SetRepresentation(rep);
 
   vtkDistanceCallback *mcbk = vtkDistanceCallback::New();
@@ -154,9 +155,6 @@ int TestDistanceWidget( int argc, char *argv[] )
   mcbk->RenderWindow = renWin;
   mcbk->Distance = rep;
   mcbk->DistanceWidget = widget;
-//  widget->AddObserver(vtkCommand::PlacePointEvent,mcbk);
-//  widget->AddObserver(vtkCommand::InteractionEvent,mcbk);
-//  widget->AddObserver(vtkCommand::EndInteractionEvent,mcbk);
 
   // Add the actors to the renderer, set the background and size
   //

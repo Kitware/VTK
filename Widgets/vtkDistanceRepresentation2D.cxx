@@ -27,12 +27,15 @@
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkDistanceRepresentation2D, "1.3");
+vtkCxxRevisionMacro(vtkDistanceRepresentation2D, "1.4");
 vtkStandardNewMacro(vtkDistanceRepresentation2D);
 
 //----------------------------------------------------------------------
 vtkDistanceRepresentation2D::vtkDistanceRepresentation2D()
 {
+  // By default, use one of these handles
+  this->HandleRepresentation  = vtkPointHandleRepresentation2D::New();
+
   this->AxisProperty = vtkProperty2D::New();
   this->AxisProperty->SetColor(0,1,0);
 
