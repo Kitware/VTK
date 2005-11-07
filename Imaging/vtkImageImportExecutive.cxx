@@ -24,12 +24,11 @@
 #include "vtkInformationVector.h"
 #include "vtkImageImport.h"
 
-vtkCxxRevisionMacro(vtkImageImportExecutive, "1.2");
+vtkCxxRevisionMacro(vtkImageImportExecutive, "1.2.6.1");
 vtkStandardNewMacro(vtkImageImportExecutive);
 
 //----------------------------------------------------------------------------
 int vtkImageImportExecutive::ProcessRequest(vtkInformation* request,
-                                            int forward,
                                             vtkInformationVector** inInfoVec,
                                             vtkInformationVector* outInfoVec)
 {
@@ -39,7 +38,6 @@ int vtkImageImportExecutive::ProcessRequest(vtkInformation* request,
     vtkImageImport *ii = vtkImageImport::SafeDownCast(this->Algorithm);
     ii->InvokeUpdateInformationCallbacks();
     }
-  
-  return this->Superclass::ProcessRequest(request,forward,
-                                          inInfoVec, outInfoVec);
+
+  return this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec);
 }
