@@ -48,7 +48,7 @@ public:
   // Description:
   // Set/Get the RGB color of this property.
   vtkSetVector3Macro(Color, double);
-  vtkGetVectorMacro(Color, double, 3);
+  vtkGetVector3Macro(Color, double);
 
   // Description:
   // Set/Get the Opacity of this property.
