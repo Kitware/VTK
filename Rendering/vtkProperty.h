@@ -111,10 +111,11 @@ public:
   // Set the color of the object. Has the side effect of setting the
   // ambient diffuse and specular colors as well. This is basically
   // a quick overall color setting method.
-  void SetColor(double r,double g,double b);
+  void SetColor(double r, double g, double b);
   void SetColor(double a[3]) { this->SetColor(a[0], a[1], a[2]); };
   double *GetColor();
   void GetColor(double rgb[3]);
+  void GetColor(double &r, double &g, double &b);
 
   // Description:
   // Set/Get the ambient lighting coefficient.
@@ -148,17 +149,17 @@ public:
   // doesn't make too much sense to have both. For the rendering
   // libraries that don't support both, the diffuse color is used.
   vtkSetVector3Macro(AmbientColor,double);
-  vtkGetVectorMacro(AmbientColor,double,3);
+  vtkGetVector3Macro(AmbientColor,double);
 
   // Description:
   // Set/Get the diffuse surface color.
   vtkSetVector3Macro(DiffuseColor,double);
-  vtkGetVectorMacro(DiffuseColor,double,3);
+  vtkGetVector3Macro(DiffuseColor,double);
 
   // Description:
   // Set/Get the specular surface color.
   vtkSetVector3Macro(SpecularColor,double);
-  vtkGetVectorMacro(SpecularColor,double,3);
+  vtkGetVector3Macro(SpecularColor,double);
 
   // Description:
   // Turn on/off the visibility of edges. On some renderers it is
@@ -171,7 +172,7 @@ public:
   // Description:
   // Set/Get the color of primitive edges (if edge visibility is enabled).
   vtkSetVector3Macro(EdgeColor,double);
-  vtkGetVectorMacro(EdgeColor,double,3);
+  vtkGetVector3Macro(EdgeColor,double);
 
   // Description:
   // Set/Get the width of a Line. The width is expressed in screen units.
