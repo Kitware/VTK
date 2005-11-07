@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.22");
+vtkCxxRevisionMacro(vtkPKdTree, "1.23");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -723,7 +723,10 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
     left ->SetDataBounds(val[0], val[0], val[1], val[1], val[2], val[2]);
     right->SetDataBounds(val[0], val[0], val[1], val[1], val[2], val[2]);
 
-    return L + numpoints;
+    // Return L as the midpoint to guarantee that both left and right trees
+    // are "owned" by the same process as the parent.  This is important
+    // because only one process has not culled this node in the tree.
+    return L;
     }
 
   int p1 = this->WhoHas(L);
