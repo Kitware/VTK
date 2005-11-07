@@ -30,10 +30,8 @@ public:
                        vtkStreamingDemandDrivenPipeline);
 
   // Description:
-  // Generalized interface for asking the executive to fullfill update
-  // requests.
+  // Override to implement some requests with callbacks.
   virtual int ProcessRequest(vtkInformation* request,
-                             int forward,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo);
 
