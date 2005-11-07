@@ -48,6 +48,16 @@ public:
                              vtkInformationVector* outInfo);
 
   // Description:
+  // Implement the pipeline modified time request.
+  virtual int
+  ComputePipelineMTime(vtkInformation* request,
+                       int forward,
+                       vtkInformationVector** inInfoVec,
+                       vtkInformationVector* outInfoVec,
+                       int requestFromOutputPort,
+                       unsigned long* mtime);
+
+  // Description:
   // Bring the algorithm's outputs up-to-date.  Returns 1 for success
   // and 0 for failure.
   virtual int Update();
@@ -87,10 +97,6 @@ public:
   virtual int UpdateData(int outputPort);
 
   // Description:
-  // Key defining a request to get the cumulative pipeline modification time.
-  static vtkInformationRequestKey* REQUEST_PIPELINE_MODIFIED_TIME();
-
-  // Description:
   // Key defining a request to make sure the output data objects exist.
   static vtkInformationRequestKey* REQUEST_DATA_OBJECT();
   
@@ -105,16 +111,12 @@ public:
   // Description:
   // Key defining a request to mark outputs that will NOT be generated
   // during a REQUEST_DATA.
-  static vtkInformationIntegerKey* REQUEST_DATA_NOT_GENERATED();
+  static vtkInformationRequestKey* REQUEST_DATA_NOT_GENERATED();
 
   // Description:
   // Key to specify in pipeline information the request that data be
   // released after it is used.
   static vtkInformationIntegerKey* RELEASE_DATA();
-
-  // Description:
-  // Key to store the pipeline modified time in pipeline information.
-  static vtkInformationUnsignedLongKey* PIPELINE_MODIFIED_TIME();
 
   // Description:
   // Key to store a mark for an output that will not be generated.
@@ -125,14 +127,6 @@ public:
   // Description:
   // Create (New) and return a data object of the given type.
   static vtkDataObject* NewDataObject(const char* type);
-
-  // since PipelineMTime is called so often and since it travels the full
-  // length of the pipeline every time we have an optimized funciton to
-  // handle it. For most executives the request is not used.
-  virtual unsigned long ComputePipelineMTime(int forward, 
-                                             vtkInformation *request,
-                                             vtkInformationVector **inInfoVec);
-  
 
 protected:
   vtkDemandDrivenPipeline();
@@ -207,7 +201,6 @@ protected:
 //ETX
 
 
-  vtkInformation *MTimeRequest;
   vtkInformation *InfoRequest;
   vtkInformation *DataObjectRequest;
   vtkInformation *DataRequest;
