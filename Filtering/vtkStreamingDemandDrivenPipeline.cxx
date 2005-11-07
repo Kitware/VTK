@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.35");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.35.2.1");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -85,7 +85,6 @@ void vtkStreamingDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
 ::ProcessRequest(vtkInformation* request,
-                 int forward,
                  vtkInformationVector** inInfoVec,
                  vtkInformationVector* outInfoVec)
 {
@@ -129,7 +128,7 @@ int vtkStreamingDemandDrivenPipeline
                                    inInfoVec, outInfoVec);
       
       // Propagate the update extent to all inputs.
-      if(result && forward)
+      if(result)
         {
         result = this->ForwardUpstream(request);
         }
@@ -141,8 +140,7 @@ int vtkStreamingDemandDrivenPipeline
   if(request->Has(REQUEST_DATA()))
     {
     // Let the superclass handle the request first.
-    if(this->Superclass::ProcessRequest(request, forward, 
-                                        inInfoVec, outInfoVec))
+    if(this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec))
       {
       // Crop the output if the exact extent flag is set.
       for(int i=0; i < outInfoVec->GetNumberOfInformationObjects(); ++i)
@@ -160,8 +158,7 @@ int vtkStreamingDemandDrivenPipeline
     }
 
   // Let the superclass handle other requests.
-  return this->Superclass::ProcessRequest(request, forward, 
-                                          inInfoVec, outInfoVec);
+  return this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec);
 }
 
 //----------------------------------------------------------------------------
@@ -508,7 +505,8 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
   this->UpdateExtentRequest->Set(FROM_OUTPUT_PORT(), outputPort);
 
   // Send the request.
-  return this->ProcessRequest(this->UpdateExtentRequest,1,this->GetInputInformation(),
+  return this->ProcessRequest(this->UpdateExtentRequest,
+                              this->GetInputInformation(),
                               this->GetOutputInformation());
 }
 
