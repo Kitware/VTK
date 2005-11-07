@@ -28,8 +28,9 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkPoints.h"
 #include "vtkWindow.h"
+#include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation2D, "1.2");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation2D, "1.3");
 vtkStandardNewMacro(vtkPointHandleRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D,Property,vtkProperty2D);
@@ -302,6 +303,8 @@ void vtkPointHandleRepresentation2D::CreateDefaultProperties()
 void vtkPointHandleRepresentation2D::BuildRepresentation()
 {
   if ( this->GetMTime() > this->BuildTime || 
+       (this->Renderer && this->Renderer->GetActiveCamera() &&
+        this->Renderer->GetActiveCamera()->GetMTime() > this->BuildTime) ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
@@ -343,6 +346,7 @@ void vtkPointHandleRepresentation2D::ReleaseGraphicsResources(vtkWindow *win)
 //----------------------------------------------------------------------
 int vtkPointHandleRepresentation2D::RenderOverlay(vtkViewport *viewport)
 {
+  this->BuildRepresentation();
   return this->Actor->RenderOverlay(viewport);
 }
 

@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.5");
+vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.6");
 vtkStandardNewMacro(vtkAngleRepresentation2D);
 
 
@@ -88,6 +88,7 @@ void vtkAngleRepresentation2D::SetPoint1DisplayPosition(double x[3])
   this->Point1Representation->SetDisplayPosition(x);
   double p[3];
   this->Point1Representation->GetWorldPosition(p);
+  this->Point1Representation->SetWorldPosition(p);
   this->Ray1->GetPosition2Coordinate()->SetValue(p);
 }
 
@@ -97,6 +98,7 @@ void vtkAngleRepresentation2D::SetCenterDisplayPosition(double x[3])
   this->CenterRepresentation->SetDisplayPosition(x);
   double p[3];
   this->CenterRepresentation->GetWorldPosition(p);
+  this->CenterRepresentation->SetWorldPosition(p);
   this->Ray1->GetPositionCoordinate()->SetValue(p);
   this->Ray2->GetPositionCoordinate()->SetValue(p);
 }
@@ -107,6 +109,7 @@ void vtkAngleRepresentation2D::SetPoint2DisplayPosition(double x[3])
   this->Point2Representation->SetDisplayPosition(x);
   double p[3];
   this->Point2Representation->GetWorldPosition(p);
+  this->Point2Representation->SetWorldPosition(p);
   this->Ray2->GetPosition2Coordinate()->SetValue(p);
 }
 

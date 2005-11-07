@@ -27,7 +27,7 @@
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkDistanceRepresentation2D, "1.2");
+vtkCxxRevisionMacro(vtkDistanceRepresentation2D, "1.3");
 vtkStandardNewMacro(vtkDistanceRepresentation2D);
 
 //----------------------------------------------------------------------
@@ -76,6 +76,7 @@ void vtkDistanceRepresentation2D::SetPoint1DisplayPosition(double x[3])
   this->Point1Representation->SetDisplayPosition(x);
   double p[3];
   this->Point1Representation->GetWorldPosition(p);
+  this->Point1Representation->SetWorldPosition(p);
   this->AxisActor->GetPoint1Coordinate()->SetValue(p);
 }
 
@@ -85,6 +86,7 @@ void vtkDistanceRepresentation2D::SetPoint2DisplayPosition(double x[3])
   this->Point2Representation->SetDisplayPosition(x);
   double p[3];
   this->Point2Representation->GetWorldPosition(p);
+  this->Point2Representation->SetWorldPosition(p);
   this->AxisActor->GetPoint2Coordinate()->SetValue(p);
 }
 
@@ -142,7 +144,7 @@ void vtkDistanceRepresentation2D::ReleaseGraphicsResources(vtkWindow *w)
 int vtkDistanceRepresentation2D::RenderOverlay(vtkViewport *v)
 {
   this->BuildRepresentation();
-
+  
   if ( this->AxisActor->GetVisibility() )
     {
     return this->AxisActor->RenderOverlay(v);
@@ -157,7 +159,7 @@ int vtkDistanceRepresentation2D::RenderOverlay(vtkViewport *v)
 int vtkDistanceRepresentation2D::RenderOpaqueGeometry(vtkViewport *v)
 {
   this->BuildRepresentation();
-
+  
   if ( this->AxisActor->GetVisibility() )
     {
     return this->AxisActor->RenderOpaqueGeometry(v);

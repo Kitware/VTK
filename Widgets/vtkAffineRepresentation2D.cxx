@@ -36,7 +36,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkAffineRepresentation2D, "1.4");
+vtkCxxRevisionMacro(vtkAffineRepresentation2D, "1.5");
 vtkStandardNewMacro(vtkAffineRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkAffineRepresentation2D,Property,vtkProperty2D);
@@ -277,7 +277,6 @@ void vtkAffineRepresentation2D::SetOrigin(double ox, double oy, double oz)
     this->Origin[2] = oz;
     
     this->BuildRepresentation();
-    
     this->Modified();
     }
 }
