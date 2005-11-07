@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.30");
+vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.30.4.1");
 vtkStandardNewMacro(vtkImageOpenClose3D);
 
 //----------------------------------------------------------------------------
@@ -178,40 +178,77 @@ unsigned long int vtkImageOpenClose3D::GetMTime()
   return t1;
 }
 
-unsigned long vtkImageOpenClose3D::ComputePipelineMTime(vtkInformation *request)
+//----------------------------------------------------------------------------
+int
+vtkImageOpenClose3D::ComputePipelineMTime(vtkInformation* request,
+                                          vtkInformationVector** inInfoVec,
+                                          vtkInformationVector* outInfoVec,
+                                          int requestFromOutputPort,
+                                          unsigned long* mtime)
 {
-  this->Filter0->GetExecutive()->
-    ComputePipelineMTime(0, request, this->GetExecutive()->GetInputInformation());
-  this->Filter1->GetExecutive()->
-    ComputePipelineMTime(0, request, this->Filter1->GetExecutive()->GetInputInformation());
-  return this->GetMTime();
+  // Process the request on the internal pipeline.  Share our input
+  // information with the first filter and our output information with
+  // the last filter.  Algorithms process the request in
+  // upstream-to-downstream order.
+  vtkExecutive* exec0 = this->Filter0->GetExecutive();
+  vtkExecutive* exec1 = this->Filter1->GetExecutive();
+  unsigned long mtime0;
+  unsigned long mtime1;
+  if(exec0->ComputePipelineMTime(request, 0,
+                                 inInfoVec,
+                                 exec0->GetOutputInformation(),
+                                 0, &mtime0) &&
+     exec1->ComputePipelineMTime(request, 0,
+                                 exec1->GetInputInformation(),
+                                 outInfoVec,
+                                 0, &mtime1))
+    {
+    // Now run the request in this algorithm.
+    return this->Superclass::ComputePipelineMTime(request,
+                                                  inInfoVec, outInfoVec,
+                                                  requestFromOutputPort,
+                                                  mtime);
+    }
+  else
+    {
+    // The internal pipeline failed to process the request.
+    vtkErrorMacro("Internal pipeline failed to process pipeline modified "
+                  "time request.");
+    return 0;
+    }
 }
 
 //----------------------------------------------------------------------------
 int vtkImageOpenClose3D::ProcessRequest(vtkInformation* request,
-                                        vtkInformationVector** inputVector,
-                                        vtkInformationVector* outputVector)
+                                        vtkInformationVector** inInfoVec,
+                                        vtkInformationVector* outInfoVec)
 {
+  // Process the request on the internal pipeline in the proper order
+  // according to the forwarding direction.  Share our input
+  // information with the first filter and our output information with
+  // the last filter.
+  vtkExecutive* exec0 = this->Filter0->GetExecutive();
+  vtkExecutive* exec1 = this->Filter1->GetExecutive();
   if(request->Get(vtkExecutive::ALGORITHM_BEFORE_FORWARD()))
     {
-    this->Filter1->GetExecutive()->ProcessRequest
-      (request, 0,
-       this->Filter1->GetExecutive()->GetInputInformation(), 
-       outputVector);
-    return this->Filter0->GetExecutive()->ProcessRequest
-      (request, 0,
-       inputVector, 
-       this->Filter0->GetExecutive()->GetOutputInformation());
+    // Algorithms process the request in downstream-to-upstream order.
+    return (exec1->ProcessRequest(request, 0,
+                                  exec1->GetInputInformation(),
+                                  outInfoVec) &&
+            exec0->ProcessRequest(request, 0,
+                                  inInfoVec,
+                                  exec0->GetOutputInformation()));
     }
-
-  this->Filter0->GetExecutive()->ProcessRequest
-    (request, 0,
-     inputVector, 
-     this->Filter0->GetExecutive()->GetOutputInformation());
-  return this->Filter1->GetExecutive()->ProcessRequest
-    (request, 0,
-     this->Filter1->GetExecutive()->GetInputInformation(), 
-     outputVector);
+  else
+    {
+    // Algorithms process the request in upstream-to-downstream order.
+    return (exec0->ProcessRequest(request, 0,
+                                  inInfoVec,
+                                  exec0->GetOutputInformation()) &&
+            exec1->ProcessRequest(request, 0,
+                                  exec1->GetInputInformation(),
+                                  outInfoVec));
+    }
 }
 
 //----------------------------------------------------------------------------
