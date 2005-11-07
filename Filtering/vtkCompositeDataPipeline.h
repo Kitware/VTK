@@ -92,6 +92,17 @@ public:
                              vtkInformationVector* outInfo);
 
   // Description:
+  // Override the pipeline modified time request to support
+  // sub-passes.
+  virtual int
+  ComputePipelineMTime(vtkInformation* request,
+                       int forward,
+                       vtkInformationVector** inInfoVec,
+                       vtkInformationVector* outInfoVec,
+                       int reqeustFromOutputPort,
+                       unsigned long* mtime);
+
+  // Description:
   // Returns the data object stored with the COMPOSITE_DATA_SET() in the
   // output port
   vtkDataObject* GetCompositeOutputData(int port);
@@ -105,13 +116,6 @@ public:
   static vtkInformationIntegerKey*       MARKED_FOR_UPDATE();
   static vtkInformationStringKey*        INPUT_REQUIRED_COMPOSITE_DATA_TYPE();
   static vtkInformationObjectBaseKey*    UPDATE_BLOCKS();
-
-  // since PipelineMTime is called so often and since it travels the full
-  // length of the pipeline every time we have an optimized funciton to
-  // handle it. For most executives the request is not used.
-  virtual unsigned long ComputePipelineMTime(int forward, 
-                                             vtkInformation *request,
-                                             vtkInformationVector **inInfoVec);
 
 protected:
   vtkCompositeDataPipeline();
