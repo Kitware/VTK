@@ -25,7 +25,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAngleWidget, "1.6");
+vtkCxxRevisionMacro(vtkAngleWidget, "1.7");
 vtkStandardNewMacro(vtkAngleWidget);
 
 
@@ -248,6 +248,21 @@ void vtkAngleWidget::SetEnabled(int enabling)
         {
         this->Point2Widget->SetEnabled(0);
         }
+    }
+}
+
+//----------------------------------------------------------------------
+int vtkAngleWidget::IsAngleValid()
+{
+  if ( this->WidgetState == vtkAngleWidget::Placed ||
+       this->WidgetState == vtkAngleWidget::MovingHandle ||
+       (this->WidgetState == vtkAngleWidget::PlacingPoints && this->CurrentHandle == 2) )
+    {
+    return 1;
+    }
+  else
+    {
+    return 0;
     }
 }
 

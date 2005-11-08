@@ -49,7 +49,7 @@
 // This widget invokes the following VTK events on itself (which observers
 // can listen for):
 // <pre>
-//   vtkCommand::BeginInteractionEvent (beginning to interact)
+//   vtkCommand::StartInteractionEvent (beginning to interact)
 //   vtkCommand::EndInteractionEvent (completing interaction)
 //   vtkCommand::InteractionEvent (moving after selecting something)
 //   vtkCommand::PlacePointEvent (after point is positioned; 
@@ -103,6 +103,11 @@ public:
   // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
+
+  // Description:
+  // A flag indicates whether the angle is valid. The angle value only becomes
+  // valid after two of the three points are placed.
+  int IsAngleValid();
 
 protected:
   vtkAngleWidget();
