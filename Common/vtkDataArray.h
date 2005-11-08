@@ -250,8 +250,9 @@ public:
   virtual void Squeeze() = 0;
 
   // Description:
-  // Resize the array while conserving the data.
-  virtual void Resize(vtkIdType numTuples) = 0;
+  // Resize the array while conserving the data.  Returns 1 if
+  // resizing succeeded and 0 otherwise.
+  virtual int Resize(vtkIdType numTuples) = 0;
 
   // Description:
   // Reset to an empty state, without freeing any memory.
