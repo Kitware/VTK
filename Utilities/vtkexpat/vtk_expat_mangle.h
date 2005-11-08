@@ -14,6 +14,7 @@ nm libvtkexpat.a |grep " [TR] "
 
 */
 
+#define asParser vtk_expat_asParser 
 #define XML_DefaultCurrent vtk_expat_XML_DefaultCurrent
 #define XML_ErrorString vtk_expat_XML_ErrorString
 #define XML_ExpatVersion vtk_expat_XML_ExpatVersion
