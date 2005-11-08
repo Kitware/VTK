@@ -52,7 +52,7 @@
 // In turn, when these widget events are processed, the vtkSliderWidget
 // invokes the following VTK events on itself (which observers can listen for):
 // <pre>
-//   vtkCommand::BeginInteractionEvent (on vtkWidgetEvent::Select)
+//   vtkCommand::StartInteractionEvent (on vtkWidgetEvent::Select)
 //   vtkCommand::EndInteractionEvent (on vtkWidgetEvent::EndSelect)
 //   vtkCommand::InteractionEvent (on vtkWidgetEvent::Move)
 // </pre>

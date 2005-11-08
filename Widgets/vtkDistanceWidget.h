@@ -48,7 +48,7 @@
 // This widget invokes the following VTK events on itself (which observers
 // can listen for):
 // <pre>
-//   vtkCommand::BeginInteractionEvent (beginning to interact)
+//   vtkCommand::StartInteractionEvent (beginning to interact)
 //   vtkCommand::EndInteractionEvent (completing interaction)
 //   vtkCommand::InteractionEvent (moving after selecting something)
 //   vtkCommand::PlacePointEvent (after point is positioned; 

@@ -55,7 +55,7 @@
 // vtkRectilinearWipeWidget invokes the following VTK events (which
 // observers can listen for):
 // <pre>
-//   vtkCommand::BeginInteractionEvent (on vtkWidgetEvent::Select)
+//   vtkCommand::StartInteractionEvent (on vtkWidgetEvent::Select)
 //   vtkCommand::EndInteractionEvent (on vtkWidgetEvent::EndSelect)
 //   vtkCommand::InteractionEvent (on vtkWidgetEvent::Move)
 // </pre>
