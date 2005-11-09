@@ -14,40 +14,19 @@
 =========================================================================*/
 #include "vtkSocketCommunicator.h"
 
+#include "vtkClientSocket.h"
 #include "vtkObjectFactory.h"
+#include "vtkServerSocket.h"
 #include "vtkSocketController.h"
 #include "vtkCommand.h"
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-# define VTK_WINDOWS_FULL
-# include "vtkWindows.h"
-#else
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <sys/time.h>
-#endif
-
-
-#if defined(_WIN32) && !defined(__CYGWIN__)
-#define WSA_VERSION MAKEWORD(1,1)
-#define vtkCloseSocketMacro(sock) (closesocket(sock))
-#else
-#define vtkCloseSocketMacro(sock) (close(sock))
-#endif
-
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.61");
 vtkStandardNewMacro(vtkSocketCommunicator);
-
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.62");
+vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
 {
-  this->Socket = -1;
-  this->IsConnected = 0;
+  this->Socket = NULL;
   this->NumberOfProcesses = 2;
   this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapNotSet;
   this->PerformHandshake = 1;
@@ -60,11 +39,7 @@ vtkSocketCommunicator::vtkSocketCommunicator()
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::~vtkSocketCommunicator()
 {
-  if (this->IsConnected)
-    {
-    vtkCloseSocketMacro(this->Socket);
-    this->Socket = -1;
-    }
+  this->SetSocket(0);
   this->SetLogStream(0);
 }
 
@@ -88,7 +63,6 @@ void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
     os << "NotSet\n";
     }
 
-  os << indent << "IsConnected: " << this->IsConnected << endl;
   os << indent << "Perform a handshake: " 
      << ( this->PerformHandshake ? "Yes" : "No" ) << endl;
 
@@ -110,6 +84,16 @@ void vtkSocketCommunicator::SetLogStream(ostream* stream)
     // Use the given log stream.
     this->LogStream = stream;
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::GetIsConnected()
+{
+  if (this->Socket)
+    {
+    return this->Socket->GetConnected();
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -291,128 +275,14 @@ int vtkSocketCommunicator::Receive(vtkIdType* data, int length,
 #endif
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::GetPort(int sock)
+int vtkSocketCommunicator::ServerSideHandshake()
 {
-  struct sockaddr_in sockinfo;
-  memset(&sockinfo, 0, sizeof(sockinfo));
-#if defined(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T)
-  socklen_t sizebuf = sizeof(sockinfo);
-#else
-  int sizebuf = sizeof(sockinfo);
-#endif
-  if(getsockname(sock, reinterpret_cast<sockaddr*>(&sockinfo), &sizebuf) != 0)
-    {
-    if (this->ReportErrors)
-      {
-      vtkErrorMacro("No port found for socket " << sock);
-      }
-    return 0;
-    }
-  return ntohs(sockinfo.sin_port);
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::OpenSocket(int port, const char* )
-{
-  if ( this->IsConnected )
-    {
-    if (this->ReportErrors)
-      {
-      vtkErrorMacro("Port " << 1 << " is occupied.");
-      }
-    return 0;
-    }
-
-  int sock = socket(AF_INET, SOCK_STREAM, 0);
-  // Elimate windows 0.2 second delay sending (buffering) data.
-  int on = 1;
-  if (setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char*)&on, sizeof(on)))
-    {
-    return -1;
-    }
-
-  struct sockaddr_in server;
-
-  server.sin_family = AF_INET;
-  server.sin_addr.s_addr = INADDR_ANY;
-  server.sin_port = htons(port);
-  // Allow the socket to be bound to an address that is already in use
-  int opt=1;
-#ifdef _WIN32
-  setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*) &opt, sizeof(int));
-#else
-  setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (void *) &opt, sizeof(int));
-#endif
-
-  if ( bind(sock, reinterpret_cast<sockaddr*>(&server), sizeof(server)) )
-    {
-    if (this->ReportErrors)
-      {
-      vtkErrorMacro("Can not bind socket to port " << port);
-      }
-    return 0;
-    }
-  listen(sock,1);
-  return sock;
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::SelectSocket(int socket, unsigned long msec)
-{
-  if ( socket < 0 )
-    {
-    return 0;
-    }
-  fd_set rset;
-  struct timeval tval;
-  struct timeval* tvalptr = 0;
-  if ( msec > 0 )
-    {
-    tval.tv_sec = msec / 1000;
-    tval.tv_usec = (msec % 1000)*1000;
-    tvalptr = &tval;
-    }
-  FD_ZERO(&rset);
-  FD_SET(socket, &rset);
-  int res = select(socket + 1, &rset, 0, 0, tvalptr);
-  if(res == 0)
-    {
-    return -1;//for time limit expire
-    }
-  if ( res < 0 || !(FD_ISSET(socket, &rset)) )
-    {
-    return 0;
-    }
-  return 1;
-}
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::WaitForConnectionOnSocket(int sock, unsigned long timeout)
-{
-  int res = this->SelectSocket(sock, timeout);
-  if ( res <= 0 )
-    {
-    return res;
-    }
-  this->Socket = accept(sock, 0, 0);
-  if ( this->Socket == -1 )
-    {
-    if (this->ReportErrors)
-      {
-      vtkErrorMacro("Error in accept.");
-      }
-    return 0;
-    }
-  vtkCloseSocketMacro(sock);
-  sock = -1;
-  
-  this->IsConnected = 1;
-  
   if ( this->PerformHandshake )
     {
     // Handshake to determine if the client machine has the same endianness
     char clientIsBE;
     if(!this->ReceiveTagged(&clientIsBE, static_cast<int>(sizeof(char)),
-                            1, vtkSocketController::ENDIAN_TAG, 0))
+        1, vtkSocketController::ENDIAN_TAG, 0))
       {
       if (this->ReportErrors)
         {
@@ -421,8 +291,8 @@ int vtkSocketCommunicator::WaitForConnectionOnSocket(int sock, unsigned long tim
       return 0;
       }
     vtkDebugMacro(<< "Client is " << ( clientIsBE ? "big" : "little" ) 
-                  << "-endian");
-    
+      << "-endian");
+
 #ifdef VTK_WORDS_BIGENDIAN
     char IAmBE = 1;
 #else
@@ -430,7 +300,7 @@ int vtkSocketCommunicator::WaitForConnectionOnSocket(int sock, unsigned long tim
 #endif
     vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
     if(!this->SendTagged(&IAmBE, static_cast<int>(sizeof(char)),
-                         1, vtkSocketController::ENDIAN_TAG, 0))
+        1, vtkSocketController::ENDIAN_TAG, 0))
       {
       if (this->ReportErrors)
         {
@@ -438,7 +308,7 @@ int vtkSocketCommunicator::WaitForConnectionOnSocket(int sock, unsigned long tim
         }
       return 0;
       }
-    
+
     if ( clientIsBE != IAmBE )
       {
       this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapOn;
@@ -448,83 +318,16 @@ int vtkSocketCommunicator::WaitForConnectionOnSocket(int sock, unsigned long tim
       this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapOff;
       }
     }
-  
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::WaitForConnection(int port)
+int vtkSocketCommunicator::ClientSideHandshake()
 {
-  int sock = this->OpenSocket(port);
-  if(sock == 0)
+  if (!this->PerformHandshake)
     {
-    return 0;
+    return 1;
     }
-  return this->WaitForConnectionOnSocket(sock);
-}
-
-void vtkSocketCommunicator::CloseConnection()
-{
-  if ( this->IsConnected )
-    {
-    vtkCloseSocketMacro(this->Socket);
-    this->Socket = -1; 
-    this->IsConnected = 0;
-    }
-}
-
-int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
-{
-
-  if ( this->IsConnected )
-    {
-    if (this->ReportErrors)
-      {
-      vtkErrorMacro("Communicator port " << 1 << " is occupied.");
-      }
-    return 0;
-    }
-
-  struct hostent* hp;
-  hp = gethostbyname(hostName);
-  if (!hp)
-    {
-    unsigned long addr = inet_addr(hostName);
-    hp = gethostbyaddr((char *)&addr, sizeof(addr), AF_INET);
-    }
-  if (!hp)
-    {
-    if (this->ReportErrors)
-      {
-      vtkErrorMacro("Unknown host: " << hostName);
-      }
-    return 0;
-    }
-
-  this->Socket = socket(AF_INET, SOCK_STREAM, 0);
-  // Elimate windows 0.2 second delay sending (buffering) data.
-  int on = 1;
-  if (setsockopt(this->Socket, IPPROTO_TCP, TCP_NODELAY, (char*)&on, sizeof(on)))
-    {
-    return -1;
-    }
-
-  struct sockaddr_in name;
-  name.sin_family = AF_INET;
-  memcpy(&name.sin_addr, hp->h_addr, hp->h_length);
-  name.sin_port = htons(port);
-
-  if( connect(this->Socket, reinterpret_cast<sockaddr*>(&name), sizeof(name)) < 0)
-    {
-    if (this->ReportErrors)
-      {
-      vtkErrorMacro("Can not connect to " << hostName << " on port " << port);
-      }
-    return 0;
-    }
-
-  vtkDebugMacro("Connected to " << hostName << " on port " << port);
-  this->IsConnected = 1;
 
   // Handshake to determine if the server machine has the same endianness
 #ifdef VTK_WORDS_BIGENDIAN
@@ -534,7 +337,7 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
 #endif
   vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
   if(!this->SendTagged(&IAmBE, static_cast<int>(sizeof(char)),
-                       1, vtkSocketController::ENDIAN_TAG, 0))
+      1, vtkSocketController::ENDIAN_TAG, 0))
     {
     if (this->ReportErrors)
       {
@@ -545,7 +348,7 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
 
   char serverIsBE;
   if (!this->ReceiveTagged(&serverIsBE, static_cast<int>(sizeof(char)), 1,
-                           vtkSocketController::ENDIAN_TAG, 0))
+      vtkSocketController::ENDIAN_TAG, 0))
     {
     if (this->ReportErrors)
       {
@@ -563,55 +366,104 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
     {
     this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapOff;
     }
-
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::SendInternal(int socket, void* data, int length)
+int vtkSocketCommunicator::WaitForConnection(int port)
 {
-  char* buffer = reinterpret_cast<char*>(data);
-  int total = 0;
-  do
+  if ( this->GetIsConnected() )
     {
-    int n = send(socket, buffer+total, length-total, 0);
-    if(n < 1)
+    if (this->ReportErrors)
       {
-      return 0;
+      vtkErrorMacro("Communicator port " << 1 << " is occupied.");
       }
-    total += n;
-    } while(total < length);
-  return 1;
+    return 0;
+    }
+  vtkServerSocket * soc = vtkServerSocket::New();
+  if (soc->CreateServer(port) != 0)
+    {
+    soc->Delete();
+    return 0;
+    }
+  int ret = this->WaitForConnection(soc);
+  soc->Delete();
+ 
+  return ret;
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::ReceiveInternal(int socket, void* data, int length)
+int vtkSocketCommunicator::WaitForConnection(vtkServerSocket* socket, 
+  unsigned long msec/*=0*/)
 {
-  char* buffer = reinterpret_cast<char*>(data);
-  int total = 0;
-  do
+  if ( this->GetIsConnected() )
     {
-#if defined(_WIN32) && !defined(__CYGWIN__)
-    int trys = 0;
-#endif
-    int n = recv(socket, buffer+total, length-total, 0);
-    if(n < 1)
+    if (this->ReportErrors)
       {
-#if defined(_WIN32) && !defined(__CYGWIN__)
-      // On long messages, Windows recv sometimes fails with WSAENOBUFS, but
-      // will work if you try again.
-      int error = WSAGetLastError();
-      if ((error == WSAENOBUFS) && (trys++ < 1000))
-        {
-        Sleep(1);
-        continue;
-        }
-#endif
-      return 0;
+      vtkErrorMacro("Communicator port " << 1 << " is occupied.");
       }
-    total += n;
-    } while(total < length);
-  return 1;
+    return 0;
+    }
+
+  if (!socket)
+    {
+    return 0;
+    }
+
+  vtkClientSocket *cs= socket->WaitForConnection(msec);
+  if (cs)
+    {
+    this->SetSocket(cs);
+    cs->Delete();
+    }
+
+  if (!this->Socket)
+    {
+    return 0;
+    }
+  return this->ServerSideHandshake();
+}
+
+//----------------------------------------------------------------------------
+void vtkSocketCommunicator::CloseConnection()
+{
+  if (this->Socket)
+    {
+    this->Socket->CloseSocket();
+    this->Socket->Delete();
+    this->Socket = 0;
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
+{
+
+  if ( this->GetIsConnected() )
+    {
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Communicator port " << 1 << " is occupied.");
+      }
+    return 0;
+    }
+
+  vtkClientSocket* tmp = vtkClientSocket::New();
+  
+  if(tmp->ConnectToServer(hostName, port))
+    {
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Can not connect to " << hostName << " on port " << port);
+      }
+    tmp->Delete();
+    return 0;
+    }
+  this->SetSocket(tmp);
+  tmp->Delete();
+  
+  vtkDebugMacro("Connected to " << hostName << " on port " << port);
+  return this->ClientSideHandshake();
 }
 
 //----------------------------------------------------------------------------
@@ -619,7 +471,7 @@ int vtkSocketCommunicator::SendTagged(void* data, int wordSize,
                                       int numWords, int tag,
                                       const char* logName)
 {
-  if(!this->SendInternal(this->Socket, &tag, static_cast<int>(sizeof(int))))
+  if(!this->Socket->Send(&tag, static_cast<int>(sizeof(int))))
     {
     if (this->ReportErrors)
       {
@@ -628,7 +480,7 @@ int vtkSocketCommunicator::SendTagged(void* data, int wordSize,
     return 0;
     }
   int length = wordSize * numWords;
-  if(!this->SendInternal(this->Socket, &length, 
+  if(!this->Socket->Send(&length, 
       static_cast<int>(sizeof(int))))
     {
     if (this->ReportErrors)
@@ -637,7 +489,7 @@ int vtkSocketCommunicator::SendTagged(void* data, int wordSize,
       }
     return 0;
     }  
-  if(!this->SendInternal(this->Socket, data, wordSize*numWords))
+  if(!this->Socket->Send(data, wordSize*numWords))
     {
     if (this->ReportErrors)
       {
@@ -663,7 +515,7 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
     {
     int recvTag = -1;
     length = -1;
-    if(!this->ReceiveInternal(this->Socket, &recvTag,
+    if(!this->Socket->Receive(&recvTag,
         static_cast<int>(sizeof(int))))
       {
       if (this->ReportErrors)
@@ -676,7 +528,7 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
       {
       vtkSwap4(reinterpret_cast<char*>(&recvTag));
       }
-    if(!this->ReceiveInternal(this->Socket, &length,
+    if(!this->Socket->Receive(&length,
         static_cast<int>(sizeof(int))))
       {
       if (this->ReportErrors)
@@ -739,7 +591,7 @@ int vtkSocketCommunicator::ReceivePartialTagged(void* data, int wordSize,
                                          int numWords, int tag,
                                          const char* logName)
 {
-  if(!this->ReceiveInternal(this->Socket, data, wordSize*numWords))
+  if(!this->Socket->Receive(data, wordSize*numWords))
     {
     if (this->ReportErrors)
       {

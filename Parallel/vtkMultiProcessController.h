@@ -188,7 +188,9 @@ public:
   // RMI_ARG_ERROR : rmi arg could not be received.
   // If reportErrors is false, no vtkErrorMacro is called.
   // ProcessRMIs() calls ProcessRMIs(int) with reportErrors = 0.
-  int ProcessRMIs(int reportErrors);
+  // If dont_loop is 1, this call just process one RMI message
+  // and exits.
+  int ProcessRMIs(int reportErrors, int dont_loop = 0);
   int ProcessRMIs();
  
   // Description:

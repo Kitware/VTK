@@ -49,10 +49,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.23");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.24");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.23");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.24");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -307,17 +307,17 @@ void vtkMultiProcessController::TriggerBreakRMIs()
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::ProcessRMIs()
 {
-  return this->ProcessRMIs(1);
+  return this->ProcessRMIs(1, 0);
 }
 
 //----------------------------------------------------------------------------
-int vtkMultiProcessController::ProcessRMIs(int reportErrors)
+int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
 {
   int triggerMessage[3];
   unsigned char *arg = NULL;
   int error = RMI_NO_ERROR;
   
-  while (1)
+  do 
     {
     if (!this->RMICommunicator->Receive(triggerMessage, 3, ANY_SOURCE, RMI_TAG))
       {
@@ -332,7 +332,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors)
       {
       arg = new unsigned char[triggerMessage[1]];
       if (!this->RMICommunicator->Receive((char*)(arg), triggerMessage[1], 
-                                          triggerMessage[2], RMI_ARG_TAG))
+          triggerMessage[2], RMI_ARG_TAG))
         {
         if (reportErrors)
           {
@@ -343,20 +343,20 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors)
         }
       }
     this->ProcessRMI(triggerMessage[2], arg, triggerMessage[1], 
-                     triggerMessage[0]);
+      triggerMessage[0]);
     if (arg)
       {
       delete [] arg;
       arg = NULL;
       }
-    
+
     // check for break
     if (this->BreakFlag)
       {
       this->BreakFlag = 0;
       return error;
       }
-    }
+    } while (!dont_loop);
 
   return error;
 }

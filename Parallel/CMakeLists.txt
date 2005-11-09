@@ -49,6 +49,7 @@ ENDIF("VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T" MATCHES "^VTK_HAVE_GETSOCKNAME_WITH_
 SET ( Kit_SRCS
 vtkDuplicatePolyData.cxx
 vtkBranchExtentTranslator.cxx
+vtkClientSocket.cxx
 vtkCollectPolyData.cxx
 vtkCommunicator.cxx
 vtkCompositer.cxx
@@ -88,6 +89,9 @@ vtkPipelineSize.cxx
 vtkProcessIdScalars.cxx
 vtkRTAnalyticSource.cxx
 vtkRectilinearGridOutlineFilter.cxx
+vtkServerSocket.cxx
+vtkSocket.cxx
+vtkSocketCollection.cxx
 vtkSocketCommunicator.cxx
 vtkSocketController.cxx
 vtkSubGroup.cxx
@@ -111,6 +115,7 @@ vtkCommunicator
 vtkMultiProcessController
 vtkParallelRenderManager
 vtkPStreamTracer
+vtkSocket
 ABSTRACT
 )
 

@@ -47,6 +47,9 @@
 # define vtkSwap8Range vtkByteSwap::Swap8BERange
 #endif
 
+class vtkClientSocket;
+class vtkServerSocket;
+
 class VTK_PARALLEL_EXPORT vtkSocketCommunicator : public vtkCommunicator
 {
 public:
@@ -55,24 +58,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Create a socket on the given port, if port is 0, then
-  // create a random port.  If network is specified, then use
-  // the given network.  The socket number is returned.
-  virtual int OpenSocket(int port, const char* network = 0);
-  
-  // Description:
-  // Return the port used by an open socket.
-  virtual int GetPort(int sock);
-  
-  // Description:
-  // Wait for a connection on an already bound port created
-  // by a call to BindPort. If the timeout is specified, then the call will
-  // fail after timeout expiers with resulting code of -1.
-  virtual int WaitForConnectionOnSocket(int socket, unsigned long timeout = 0);
-  
-  // Description:
   // Wait for connection on a given port.
+  // These methods return 1 on success, 0 on error.
   virtual int WaitForConnection(int port);
+  virtual int WaitForConnection(vtkServerSocket* socket,
+    unsigned  long msec = 0);
 
   // Description:
   // Close a connection.
@@ -88,7 +78,7 @@ public:
 
   // Description:
   // Is the communicator connected?.
-  vtkGetMacro(IsConnected, int);
+  int GetIsConnected();
 
   //------------------ Communication --------------------
   
@@ -156,10 +146,21 @@ public:
   vtkSetMacro(ReportErrors, int);
   vtkGetMacro(ReportErrors, int);
 
+  // Description:
+  // Get/Set the actual socket used for communication.
+  vtkGetObjectMacro(Socket, vtkClientSocket);
+  void SetSocket(vtkClientSocket*);
+
+  // Description:
+  // Performs ServerSide handshake.
+  int ServerSideHandshake();
+
+  // Description:
+  // Performs ClientSide handshake.
+  int ClientSideHandshake();
 protected:
 
-  int Socket;
-  int IsConnected;
+  vtkClientSocket* Socket;
   int NumberOfProcesses;
   int SwapBytesInReceivedData;
   int PerformHandshake;
@@ -174,8 +175,6 @@ protected:
   
   // Wrappers around send/recv calls to implement loops.  Return 1 for
   // success, and 0 for failure.
-  int SendInternal(int socket, void* data, int length);
-  int ReceiveInternal(int socket, void* data, int length);
   int SendTagged(void* data, int wordSize, int numWords, int tag,
                  const char* logName);
   int ReceiveTagged(void* data, int wordSize, int numWords, int tag,
