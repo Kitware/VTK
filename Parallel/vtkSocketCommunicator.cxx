@@ -21,7 +21,7 @@
 #include "vtkCommand.h"
 
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.62");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.63");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -62,7 +62,18 @@ void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "NotSet\n";
     }
-
+  os << indent << "Socket: ";
+  if (this->Socket)
+    {
+    os << endl;
+    this->Socket->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+    
+    
   os << indent << "Perform a handshake: " 
      << ( this->PerformHandshake ? "Yes" : "No" ) << endl;
 
