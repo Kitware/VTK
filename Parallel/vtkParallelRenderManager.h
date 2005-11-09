@@ -313,6 +313,18 @@ public:
   vtkSetMacro(UseRGBA, int);
   vtkGetMacro(UseRGBA, int);
 
+  // Description:
+  // If ForceRenderWindowSize is set to true, the render manager will use
+  // the RenderWindowSize ivar instead of getting the size from the render window.
+  vtkSetMacro(ForceRenderWindowSize, int);
+  vtkGetMacro(ForceRenderWindowSize, int);
+
+  // Description:
+  // If ForceRenderWindowSize is set to true, the render manager will use
+  // the Size ivar instead of getting the size from the render window.
+  vtkSetVector2Macro(RenderWindowSize, int);
+  vtkGetVector2Macro(RenderWindowSize, int);
+
 //BTX
   enum Tags {
     RENDER_RMI_TAG=34532,
@@ -375,6 +387,9 @@ protected:
   vtkRendererCollection *Renderers;
 
   virtual vtkRendererCollection *GetRenderers();
+
+  int ForceRenderWindowSize;
+  int RenderWindowSize[2];
 
   // Description:
   // The "root" node's process id.  This is the node which is listening for

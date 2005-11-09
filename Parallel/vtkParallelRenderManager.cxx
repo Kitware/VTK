@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.64");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.65");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -113,6 +113,10 @@ vtkParallelRenderManager::vtkParallelRenderManager()
 
   this->ReducedImageSize[0] = 0;
   this->ReducedImageSize[1] = 0;
+
+  this->ForceRenderWindowSize = 0;
+  this->RenderWindowSize[0] = 0;
+  this->RenderWindowSize[1] = 0;
 
   this->Viewports = vtkDoubleArray::New();
   this->Viewports->SetNumberOfComponents(4);
@@ -242,12 +246,16 @@ void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow *renWin)
       {
       this->RenderWindow->RemoveObserver(this->StartRenderTag);
       this->RenderWindow->RemoveObserver(this->EndRenderTag);
+      this->StartRenderTag = 0;
+      this->EndRenderTag = 0;
     
       this->ObservingRenderWindow = 0;
       }
     if (this->ObservingAbort)
       {
       this->RenderWindow->RemoveObserver(this->AbortRenderCheckTag);
+      this->AbortRenderCheckTag = 0;
+
       this->ObservingAbort = 0;
       }
 
@@ -527,7 +535,15 @@ void vtkParallelRenderManager::StartRender()
   int numProcs = this->Controller->GetNumberOfProcesses();
 
   // Make adjustments for window size.
-  int *tilesize = this->RenderWindow->GetSize();
+  int *tilesize;
+  if (this->ForceRenderWindowSize)
+    {
+    tilesize = this->RenderWindowSize;
+    }
+  else
+    {
+    tilesize = this->RenderWindow->GetSize();
+    }
   // To me, it seems dangerous for RenderWindow to return a size bigger
   // than it actually supports or for GetSize to not return the same values
   // as SetSize.  Yet this is the case when tile rendering is established
@@ -545,6 +561,7 @@ void vtkParallelRenderManager::StartRender()
     }
   this->FullImageSize[0] = size[0];
   this->FullImageSize[1] = size[1];
+
   //Round up.
   this->ReducedImageSize[0] =
     (int)((size[0]+this->ImageReductionFactor-1)/this->ImageReductionFactor);
@@ -1060,7 +1077,15 @@ void vtkParallelRenderManager::SetImageReductionFactorForUpdateRate(double desir
     return;
     }
 
-  int *size = this->RenderWindow->GetSize();
+  int *size;
+  if (this->ForceRenderWindowSize)
+    {
+    size = this->RenderWindowSize;
+    }
+  else
+    {
+    size = this->RenderWindow->GetSize();
+    }
   int numPixels = size[0]*size[1];
   int numReducedPixels
     = (int)(numPixels/(this->ImageReductionFactor*this->ImageReductionFactor));
