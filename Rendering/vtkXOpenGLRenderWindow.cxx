@@ -101,7 +101,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.61");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.62");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1290,8 +1290,10 @@ int *vtkXOpenGLRenderWindow::GetSize()
 {
   if(this->Mapped && this->WindowId)
     {
+    XSync(this->DisplayId,False);
     XWindowAttributes a;
     XGetWindowAttributes(this->DisplayId, this->WindowId, &a);
+
     this->Size[0] = a.width;
     this->Size[1] = a.height;
     }
