@@ -25,7 +25,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.108");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.109");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -86,6 +86,7 @@ vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
     {
     delete [] this->KeySym;
     }
+  this->SetRenderWindow(0);
 }
 
 vtkRenderWindowInteractor *vtkRenderWindowInteractor::New()
