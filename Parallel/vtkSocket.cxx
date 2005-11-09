@@ -37,7 +37,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocket, "1.1");
+vtkCxxRevisionMacro(vtkSocket, "1.2");
 //-----------------------------------------------------------------------------
 vtkSocket::vtkSocket()
 {
@@ -271,7 +271,13 @@ int vtkSocket::Send(void* data, int length)
   int total = 0;
   do
     {
-    int n = send(this->SocketDescriptor, buffer+total, length-total, MSG_NOSIGNAL);
+    int flags;
+#if defined(_WIN32) && !defined(__CYGWIN__)
+    flags = 0;
+#else
+    flags = MSG_NOSIGNAL; //disable signal on Unix boxes.
+#endif
+    int n = send(this->SocketDescriptor, buffer+total, length-total, flags);
     if(n < 0)
       {
       vtkErrorMacro("Socket Error: Send failed.");
