@@ -322,8 +322,8 @@ public:
   // Description:
   // If ForceRenderWindowSize is set to true, the render manager will use
   // the Size ivar instead of getting the size from the render window.
-  vtkSetVector2Macro(RenderWindowSize, int);
-  vtkGetVector2Macro(RenderWindowSize, int);
+  vtkSetVector2Macro(ForcedRenderWindowSize, int);
+  vtkGetVector2Macro(ForcedRenderWindowSize, int);
 
 //BTX
   enum Tags {
@@ -389,7 +389,7 @@ protected:
   virtual vtkRendererCollection *GetRenderers();
 
   int ForceRenderWindowSize;
-  int RenderWindowSize[2];
+  int ForcedRenderWindowSize[2];
 
   // Description:
   // The "root" node's process id.  This is the node which is listening for

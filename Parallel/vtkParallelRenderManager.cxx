@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.65");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.66");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -115,8 +115,8 @@ vtkParallelRenderManager::vtkParallelRenderManager()
   this->ReducedImageSize[1] = 0;
 
   this->ForceRenderWindowSize = 0;
-  this->RenderWindowSize[0] = 0;
-  this->RenderWindowSize[1] = 0;
+  this->ForcedRenderWindowSize[0] = 0;
+  this->ForcedRenderWindowSize[1] = 0;
 
   this->Viewports = vtkDoubleArray::New();
   this->Viewports->SetNumberOfComponents(4);
@@ -538,7 +538,7 @@ void vtkParallelRenderManager::StartRender()
   int *tilesize;
   if (this->ForceRenderWindowSize)
     {
-    tilesize = this->RenderWindowSize;
+    tilesize = this->ForcedRenderWindowSize;
     }
   else
     {
@@ -1080,7 +1080,7 @@ void vtkParallelRenderManager::SetImageReductionFactorForUpdateRate(double desir
   int *size;
   if (this->ForceRenderWindowSize)
     {
-    size = this->RenderWindowSize;
+    size = this->ForcedRenderWindowSize;
     }
   else
     {
