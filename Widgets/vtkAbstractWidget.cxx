@@ -23,7 +23,7 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAbstractWidget, "1.3");
+vtkCxxRevisionMacro(vtkAbstractWidget, "1.4");
 
 //----------------------------------------------------------------------
 vtkAbstractWidget::vtkAbstractWidget()
@@ -94,12 +94,6 @@ void vtkAbstractWidget::SetWidgetRepresentation(vtkWidgetRepresentation *r)
 //----------------------------------------------------------------------
 void vtkAbstractWidget::SetEnabled(int enabling)
 {
-  if ( ! this->Interactor )
-    {
-    vtkErrorMacro(<<"The interactor must be set prior to enabling/disabling widget");
-    return;
-    }
-
   if ( enabling ) //----------------
     {
     vtkDebugMacro(<<"Enabling widget");
@@ -109,6 +103,12 @@ void vtkAbstractWidget::SetEnabled(int enabling)
       return;
       }
     
+    if ( ! this->Interactor )
+      {
+      vtkErrorMacro(<<"The interactor must be set prior to enabling the widget");
+      return;
+      }
+
     int X=this->Interactor->GetLastEventPosition()[0];
     int Y=this->Interactor->GetLastEventPosition()[1];
 
@@ -136,7 +136,7 @@ void vtkAbstractWidget::SetEnabled(int enabling)
     else
       {
       this->EventTranslator->AddEventsToParent(this->Parent,
-                                                   this->EventCallbackCommand,this->Priority);
+                                               this->EventCallbackCommand,this->Priority);
       }
 
     if ( this->ManagesCursor )
