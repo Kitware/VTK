@@ -22,7 +22,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkCaptionWidget, "1.2");
+vtkCxxRevisionMacro(vtkCaptionWidget, "1.3");
 vtkStandardNewMacro(vtkCaptionWidget);
 
 // The point widget invokes events that we watch for. Basically
@@ -79,7 +79,11 @@ vtkCaptionWidget::~vtkCaptionWidget()
 //----------------------------------------------------------------------
 void vtkCaptionWidget::SetEnabled(int enabling)
 {
-  this->Interactor->Disable(); //avoid extra renders
+  if ( this->Interactor )
+    {
+    this->Interactor->Disable(); //avoid extra renders
+    }
+  
   if ( enabling )
     {
     this->CreateDefaultRepresentation();
@@ -92,7 +96,10 @@ void vtkCaptionWidget::SetEnabled(int enabling)
     {
     this->HandleWidget->SetEnabled(0);
     }
-  this->Interactor->Enable();
+  if ( this->Interactor )
+    {
+    this->Interactor->Enable();
+    }
   
   this->Superclass::SetEnabled(enabling);
 }
