@@ -162,6 +162,8 @@ public:
     WidgetValueChangedEvent,
     WidgetActivateEvent,
     DomainModifiedEvent,
+    PropertyModifiedEvent,
+    UpdateEvent,
     UserEvent = 1000
   };
 //ETX

@@ -81,6 +81,9 @@ static const char *vtkCommandEventStrings[] = {
   "WidgetModifiedEvent",
   "WidgetValueChangedEvent",
   "WidgetActivateEvent",
+  "DomainModifiedEvent",
+  "PropertyModifiedEvent",
+  "UpdateEvent",
   NULL
 };
 
