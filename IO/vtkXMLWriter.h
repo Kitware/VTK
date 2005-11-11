@@ -50,7 +50,16 @@ public:
   // Enumerate big and little endian byte order settings.
   enum { BigEndian, LittleEndian };
   //ETX
-  
+
+  //BTX
+  // Description:
+  // A type used for data sizes and offsets for stream i/o.  Using
+  // vtkIdType should satisfy most users.  This could be streamoff if
+  // it is deemed portable.  It could also be split into OffsetType
+  // (streamoff) and PositionType (streampos).
+  typedef vtkIdType OffsetType;
+  //ETX
+
   //BTX
   // Description:
   // Enumerate the supported data modes.
@@ -197,7 +206,7 @@ protected:
   int EncodeAppendedData;
   
   // The stream position at which appended data starts.
-  unsigned long AppendedDataPosition;
+  OffsetType AppendedDataPosition;
 
   // appended data offsets for field data
   OffsetsManagerGroup *FieldDataOM;  //one per array
@@ -241,10 +250,10 @@ protected:
   // Compression information.
   vtkDataCompressor* Compressor;
   unsigned int   BlockSize;  
-  unsigned long  CompressionBlockNumber;
+  OffsetType  CompressionBlockNumber;
   HeaderType*    CompressionHeader;
   unsigned int   CompressionHeaderLength;
-  unsigned long  CompressionHeaderPosition;
+  OffsetType  CompressionHeaderPosition;
   
   // The output stream used to write binary and appended data.  May
   // transparently encode the data.
@@ -280,51 +289,51 @@ protected:
   virtual void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
   void StartAppendedData();
   void EndAppendedData();
-  unsigned long ReserveAttributeSpace(const char* attr=0);
-  unsigned long GetAppendedDataOffset();
-  unsigned long WriteAppendedDataOffset(unsigned long streamPos,
-                                        unsigned long &lastoffset,
+  OffsetType ReserveAttributeSpace(const char* attr=0);
+  OffsetType GetAppendedDataOffset();
+  OffsetType WriteAppendedDataOffset(OffsetType streamPos,
+                                        OffsetType &lastoffset,
                                         const char* attr=0);
-  unsigned long ForwardAppendedDataOffset(unsigned long streamPos,
-                                         unsigned long offset,
+  OffsetType ForwardAppendedDataOffset(OffsetType streamPos,
+                                         OffsetType offset,
                                          const char* attr=0);
-  unsigned long ForwardAppendedDataDouble(unsigned long streamPos,
+  OffsetType ForwardAppendedDataDouble(OffsetType streamPos,
                                           double value,
                                           const char* attr);
-  int WriteBinaryData(void* data, int numWords, int wordType);
+  int WriteBinaryData(void* data, OffsetType numWords, int wordType);
   
   int WriteBinaryData(char* data)
     { return this->WriteBinaryData(data, static_cast<int>(strlen(data)),
                                    VTK_CHAR); }
-  int WriteBinaryData(char* data, int numWords)
+  int WriteBinaryData(char* data, OffsetType numWords)
     { return this->WriteBinaryData(data, numWords, VTK_CHAR); }
-  int WriteBinaryData(unsigned char* data, int numWords)
+  int WriteBinaryData(unsigned char* data, OffsetType numWords)
     { return this->WriteBinaryData(data, numWords, VTK_UNSIGNED_CHAR); }
-  int WriteBinaryData(short* data, int numWords)
+  int WriteBinaryData(short* data, OffsetType numWords)
     { return this->WriteBinaryData(data, numWords, VTK_SHORT); }
-  int WriteBinaryData(unsigned short* data, int numWords)
+  int WriteBinaryData(unsigned short* data, OffsetType numWords)
     { return this->WriteBinaryData(data, numWords, VTK_UNSIGNED_SHORT); }
-  int WriteBinaryData(int* data, int numWords)
+  int WriteBinaryData(int* data, OffsetType numWords)
     { return this->WriteBinaryData(data, numWords, VTK_INT); }
-  int WriteBinaryData(unsigned int* data, int numWords)
+  int WriteBinaryData(unsigned int* data, OffsetType numWords)
     { return this->WriteBinaryData(data, numWords, VTK_UNSIGNED_INT); }
   
-  int WriteAsciiData(void* data, int numWords, int wordType, vtkIndent indent);
+  int WriteAsciiData(void* data, OffsetType numWords, int wordType, vtkIndent indent);
   
   int WriteAsciiData(char* data, vtkIndent indent)
     { return this->WriteAsciiData(data, static_cast<int>(strlen(data)),
                                   VTK_CHAR, indent); }
-  int WriteAsciiData(char* data, int numWords, vtkIndent indent)
+  int WriteAsciiData(char* data, OffsetType numWords, vtkIndent indent)
     { return this->WriteAsciiData(data, numWords, VTK_CHAR, indent); }
-  int WriteAsciiData(unsigned char* data, int numWords, vtkIndent indent)
+  int WriteAsciiData(unsigned char* data, OffsetType numWords, vtkIndent indent)
     { return this->WriteAsciiData(data, numWords, VTK_UNSIGNED_CHAR, indent); }
-  int WriteAsciiData(short* data, int numWords, vtkIndent indent)
+  int WriteAsciiData(short* data, OffsetType numWords, vtkIndent indent)
     { return this->WriteAsciiData(data, numWords, VTK_SHORT, indent); }
-  int WriteAsciiData(unsigned short* data, int numWords, vtkIndent indent)
+  int WriteAsciiData(unsigned short* data, OffsetType numWords, vtkIndent indent)
     { return this->WriteAsciiData(data, numWords, VTK_UNSIGNED_SHORT, indent); }
-  int WriteAsciiData(int* data, int numWords, vtkIndent indent)
+  int WriteAsciiData(int* data, OffsetType numWords, vtkIndent indent)
     { return this->WriteAsciiData(data, numWords, VTK_INT, indent); }
-  int WriteAsciiData(unsigned int* data, int numWords, vtkIndent indent)
+  int WriteAsciiData(unsigned int* data, OffsetType numWords, vtkIndent indent)
     { return this->WriteAsciiData(data, numWords, VTK_UNSIGNED_INT, indent); }
   
   int WriteScalarAttribute(const char* name, int data);
@@ -349,10 +358,10 @@ protected:
                               OffsetsManager &offs,
                               const char* alternateName=0, 
                               int writeNumTuples=0, int timestep=0);
-  void WriteDataArrayAppendedData(vtkDataArray* a, unsigned long pos, unsigned long &lastoffset);
+  void WriteDataArrayAppendedData(vtkDataArray* a, OffsetType pos, OffsetType &lastoffset);
   void WriteDataArrayInline(vtkDataArray* a, vtkIndent indent,
                             const char* alternateName=0, int writeNumTuples=0);
-  void WriteInlineData(void* data, int numWords, int wordType,
+  void WriteInlineData(void* data, OffsetType numWords, int wordType,
                        vtkIndent indent);
   
   void WriteDataArrayHeader(vtkDataArray* a, vtkIndent indent,
@@ -401,15 +410,15 @@ protected:
                          vtkDataArray* zc, vtkIndent indent);
   
   // Internal utility methods.
-  int WriteBinaryDataInternal(void* data, int numWords, int wordType);
-  int WriteBinaryDataBlock(unsigned char* in_data, int numWords, int wordType);
-  void PerformByteSwap(void* data, int numWords, int wordSize);
-  int CreateCompressionHeader(unsigned long size);
-  int WriteCompressionBlock(unsigned char* data, unsigned long size);
+  int WriteBinaryDataInternal(void* data, OffsetType numWords, int wordType);
+  int WriteBinaryDataBlock(unsigned char* in_data, OffsetType numWords, int wordType);
+  void PerformByteSwap(void* data, OffsetType numWords, int wordSize);
+  int CreateCompressionHeader(OffsetType size);
+  int WriteCompressionBlock(unsigned char* data, OffsetType size);
   int WriteCompressionHeader();
-  unsigned long GetWordTypeSize(int dataType);
+  OffsetType GetWordTypeSize(int dataType);
   const char* GetWordTypeName(int dataType);
-  unsigned long GetOutputWordTypeSize(int dataType);
+  OffsetType GetOutputWordTypeSize(int dataType);
   
   char** CreateStringArray(int numStrings);
   void DestroyStringArray(int numStrings, char** strings);
