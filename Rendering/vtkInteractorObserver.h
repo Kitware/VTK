@@ -129,9 +129,11 @@ public:
   vtkGetObjectMacro(CurrentRenderer,vtkRenderer);
   virtual void SetCurrentRenderer(vtkRenderer*);
 
+  // Description:
   // Sets up the keypress-i event. 
   virtual void OnChar();
   
+  // Description: 
   // Convenience methods for outside classes. Make sure that the
   // parameter "ren" is not-null.
   static void ComputeDisplayToWorld(vtkRenderer *ren, double x, double y, 

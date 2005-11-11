@@ -40,7 +40,7 @@
 // <pre>
 //   vtkWidgetEvent::Select 
 //        widget state is: 
-//            Empty or
+//            Start or
 //            Define: If we already have at least 2 nodes, test
 //                 whether the current (X,Y) location is near an existing
 //                 node. If so, close the contour and change to Manipulate
@@ -53,7 +53,7 @@
 //
 //   vtkWidgetEvent::AddFinalPoint
 //        widget state is: 
-//            Empty: Do nothing.
+//            Start: Do nothing.
 //            Define: If we already have at least 2 nodes, test
 //                 whether the current (X,Y) location is near an existing
 //                 node. If so, close the contour and change to Manipulate
@@ -64,7 +64,7 @@
 //
 //   vtkWidgetEvent::Move
 //        widget state is: 
-//            Empty or
+//            Start or
 //            Define: Do nothing.
 //            Manipulate: If our operation is Translate, then call
 //                  WidgetInteration on the representation. If our 
@@ -73,14 +73,14 @@
 //
 //   vtkWidgetEvent::EndSelect
 //        widget state is: 
-//            Empty or
+//            Start or
 //            Define: Do nothing.
 //            Manipulate: If our operation is not Inactive, set it to
 //                  Inactive.
 //
 //   vtkWidgetEvent::Delete
 //        widget state is: 
-//            Empty: Do nothing.
+//            Start: Do nothing.
 //            Define: Remove the last point on the contour.
 //            Manipulate: Attempt to activate a node at (X,Y). If
 //                   we do activate a node, delete it. If we now

@@ -462,7 +462,7 @@ protected:
 
   // Description:
   // Called in satellites to set the render window size to the current
-  // FullImageSize and ReducedImageSize (or vice versa)
+  // FullImageSize and ReducedImageSize (or vice versa).
   virtual void SetRenderWindowSize();
 
   // Description:
