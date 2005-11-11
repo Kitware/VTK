@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.8");
+vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.9");
 vtkStandardNewMacro(vtkInteractorEventRecorder);
 
 float vtkInteractorEventRecorder::StreamVersion = 1.0;
@@ -354,8 +354,15 @@ void vtkInteractorEventRecorder::WriteEvent(const char* event, int pos[2],
 {
   *this->OutputStream << event << " " << pos[0] << " " << pos[1] << " "
                       << ctrlKey << " " << shiftKey << " "
-                      << keyCode << " " << repeatCount << " "
-                      << keySym << "\n";
+                      << keyCode << " " << repeatCount << " ";
+  if ( keySym )
+    {
+    *this->OutputStream << keySym << "\n";
+    }
+  else
+    {
+    *this->OutputStream << "0\n";
+    }
 }
   
 void vtkInteractorEventRecorder::ReadEvent()
