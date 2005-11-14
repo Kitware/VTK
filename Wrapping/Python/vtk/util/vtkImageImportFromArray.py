@@ -65,6 +65,7 @@ class vtkImageImportFromArray:
                    VTK_SHORT:2,
                    VTK_UNSIGNED_SHORT:2,
                    VTK_INT:4,
+                   VTK_LONG:4,
                    VTK_FLOAT:4,
                    VTK_DOUBLE:8 }
 
