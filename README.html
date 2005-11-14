@@ -186,7 +186,7 @@ Compiling VTK requires a complete VTK source tree.  Running VTK tests
 requires a complete VTK data tree.  Now is the time to extract the
 source and data archives if one has not done so already.  These
 instructions assume there is a directory "<code>VTK</code>" containing
-the source code and optionally a sibling direcory
+the source code and optionally a sibling directory
 "<code>VTKData</code>" containing the data.
 <p>
 
@@ -513,7 +513,7 @@ rooted at the directory specified by CMAKE_INSTALL_PREFIX.
   <li>Link errors on Windows platforms. Make sure that the swap space is
       at least 300 MByte.
   <li>Link error with borland: TCL82.LIB contains invalid OMF record, 
-      type 0x21 (possibly COFF). You have to convert Tcl libraires 
+      type 0x21 (possibly COFF). You have to convert Tcl libraries
       from coff to omf with the Borland utilitiy coff2omf. Once you 
       have created OMF versions, re-run cmake to tell it where the Borland
       versions of Tcl and Tk are located. Also, make sure that you are using
@@ -534,7 +534,7 @@ be obtained much faster.
 <pre>
   1) Download the data at ftp://public.kitware.com/pub/vtk/VTKData.tgz
 
-  2) Checkout the data from CVS using the folling commands:
+  2) Checkout the data from CVS using the following commands:
      cvs -d :pserver:anoncvs@www.vtk.org:/cvsroot/VTK login
         (there is no password...just press enter)
      cvs -d :pserver:anoncvs@www.vtk.org:/cvsroot/VTK checkout VTKData
