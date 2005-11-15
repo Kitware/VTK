@@ -60,7 +60,7 @@ static int tet_edges[6][2] = { {0,1}, {1,2}, {2,0},
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.2");
+vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.3");
 vtkStandardNewMacro(vtkProjectedTetrahedraMapper);
 
 vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper,
@@ -419,6 +419,7 @@ static inline float GetCorrectedDepth(float x, float y, float z1, float z2,
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer,
                                                      vtkVolume *volume)
 {
@@ -955,6 +956,7 @@ void vtkProjectedTetrahedraMapper::MapScalarsToColors(vtkDataArray *colors,
     }
 }
 
+//-----------------------------------------------------------------------------
 namespace vtkProjectedTetrahedraMapperNamespace
 {
 

@@ -20,9 +20,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkIVWriter, "1.33");
+vtkCxxRevisionMacro(vtkIVWriter, "1.34");
 vtkStandardNewMacro(vtkIVWriter);
 
+//----------------------------------------------------------------------------
 void vtkIVWriter::WriteData()
 {
   FILE *fp;
@@ -56,6 +57,7 @@ void vtkIVWriter::WriteData()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
 {
   vtkPoints *points;

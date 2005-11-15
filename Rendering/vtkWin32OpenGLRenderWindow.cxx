@@ -36,7 +36,7 @@
 # include "vtkOpenGL.h"
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.130");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.131");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -361,7 +361,7 @@ int vtkWin32OpenGLRenderWindow::IsDirect()
   MakeCurrent();
   if (!this->DeviceContext)
     {
-      return 0;
+    return 0;
     }
 
   int pixelFormat = GetPixelFormat(this->DeviceContext);

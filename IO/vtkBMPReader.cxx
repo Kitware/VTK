@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.53");
+vtkCxxRevisionMacro(vtkBMPReader, "1.54");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read
@@ -57,6 +57,7 @@ vtkBMPReader::~vtkBMPReader()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkBMPReader::ExecuteInformation()
 {
   int xsize, ysize;
