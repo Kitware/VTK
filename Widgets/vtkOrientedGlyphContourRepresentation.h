@@ -103,6 +103,10 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual int RenderTranslucentGeometry(vtkViewport *viewport);
  
+  // Description:
+  // Get the points in this contour as a vtkPolyData. 
+  virtual const vtkPolyData * const GetContourRepresentationAsPolyData() const;
+  
 protected:
   vtkOrientedGlyphContourRepresentation();
   ~vtkOrientedGlyphContourRepresentation();
