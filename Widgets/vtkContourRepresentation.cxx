@@ -34,7 +34,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.4");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -141,6 +141,7 @@ public:
       }
     this->Perimeter = perimeter;
     this->LastPerimeterComputedTime = this->LastBuildTime;
+    return perimeter;
     }
 
   // Description: 
@@ -150,7 +151,7 @@ public:
     {
     if( this->LastBuildTime > this->LastPerimeterComputedTime )
       {
-      this->ComputePerimeter();
+      return this->ComputePerimeter();
       }
     return this->Perimeter;
     }
