@@ -26,7 +26,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.6");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.7");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -72,15 +72,16 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
 
   int   inputDimensions[3];
   double inputSpacing[3];
-  me->GetInput()->GetDimensions( inputDimensions );
-  me->GetInput()->GetSpacing( inputSpacing );
+  vtkImageData *input = me->GetInput();
+  input->GetDimensions( inputDimensions );
+  input->GetSpacing( inputSpacing );
 
   int   outputDimensions[3];
   float outputSpacing[3];
   me->GetVolumeDimensions( outputDimensions );
   me->GetVolumeSpacing( outputSpacing );
 
-  int components = me->GetInput()->GetNumberOfScalarComponents();
+  int components = input->GetNumberOfScalarComponents();
 
   double wx, wy, wz;
   double fx, fy, fz;
@@ -392,6 +393,7 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
 }
 
 
+//-----------------------------------------------------------------------------
 template <class T>
 void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
                                                  vtkVolumeTextureMapper3D *me,
@@ -424,17 +426,18 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
   me->GetVolumeSpacing( outputSpacing );
 
   double spacing[3];
-  me->GetInput()->GetSpacing( spacing );
+  vtkImageData *input = me->GetInput();
+  input->GetSpacing( spacing );
 
   double sampleRate[3];
   sampleRate[0] = (double)outputSpacing[0] / (double)spacing[0];
   sampleRate[1] = (double)outputSpacing[1] / (double)spacing[1];
   sampleRate[2] = (double)outputSpacing[2] / (double)spacing[2];
  
-  int components = me->GetInput()->GetNumberOfScalarComponents();
+  int components = input->GetNumberOfScalarComponents();
  
   int dim[3];
-  me->GetInput()->GetDimensions(dim);
+  input->GetDimensions(dim);
 
   int outputDim[3];
   me->GetVolumeDimensions( outputDim );
@@ -638,6 +641,7 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
 }
 
 
+//-----------------------------------------------------------------------------
 vtkVolumeTextureMapper3D::vtkVolumeTextureMapper3D()
 {
   this->PolygonBuffer                 = NULL;
@@ -671,6 +675,7 @@ vtkVolumeTextureMapper3D::vtkVolumeTextureMapper3D()
   this->PreferredRenderMethod         = vtkVolumeTextureMapper3D::FRAGMENT_PROGRAM_METHOD;
 }
 
+//-----------------------------------------------------------------------------
 vtkVolumeTextureMapper3D::~vtkVolumeTextureMapper3D()
 {
     delete [] this->PolygonBuffer;
@@ -681,6 +686,7 @@ vtkVolumeTextureMapper3D::~vtkVolumeTextureMapper3D()
 }
 
 
+//-----------------------------------------------------------------------------
 vtkVolumeTextureMapper3D *vtkVolumeTextureMapper3D::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -689,6 +695,7 @@ vtkVolumeTextureMapper3D *vtkVolumeTextureMapper3D::New()
   return (vtkVolumeTextureMapper3D*)ret;
 }
 
+//-----------------------------------------------------------------------------
 void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren, 
                                                 vtkVolume *vol,
                                                 double inBounds[6] )
@@ -1009,6 +1016,7 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
     }
 }
 
+//-----------------------------------------------------------------------------
 int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
 {
   int needToUpdate = 0;
@@ -1183,6 +1191,7 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
 }
 
 
+//-----------------------------------------------------------------------------
 int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
 {
   int needToUpdate = 0;
@@ -1465,6 +1474,7 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
 }
 
 
+//-----------------------------------------------------------------------------
 // Print the vtkVolumeTextureMapper3D
 void vtkVolumeTextureMapper3D::PrintSelf(ostream& os, vtkIndent indent)
 {
