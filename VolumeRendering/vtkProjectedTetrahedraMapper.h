@@ -144,4 +144,4 @@ private:
   void operator=(const vtkProjectedTetrahedraMapper &);  // Not Implemented.
 };
 
-#endif //__vtkProjectedTetrahedraMapper_h
+#endif
