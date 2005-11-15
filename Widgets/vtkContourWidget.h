@@ -95,6 +95,8 @@
 //   vtkCommand::InteractionEvent (moving after selecting something)
 //   vtkCommand::PlacePointEvent (after point is positioned; 
 //                                call data includes handle id (0,1))
+//   vtkCommand::WidgetValueChangedEvent (Invoked when the contour is closed
+//                                        for the first time. )
 // </pre>
 
 // .SECTION See Also
