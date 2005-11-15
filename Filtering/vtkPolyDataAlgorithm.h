@@ -17,18 +17,18 @@
 
 // vtkPolyDataAlgorithm is a convenience class to make writing algorithms
 // easier. It is also designed to help transition old algorithms to the new
-// pipeline architecture. Ther are some assumptions and defaults made by this
+// pipeline architecture. There are some assumptions and defaults made by this
 // class you should be aware of. This class defaults such that your filter
 // will have one input port and one output port. If that is not the case
-// simply change it with SetNumberOfInputPorts etc. See this classes
+// simply change it with SetNumberOfInputPorts etc. See this class
 // constructor for the default. This class also provides a FillInputPortInfo
 // method that by default says that all inputs will be PolyData. If that
 // isn't the case then please override this method in your subclass. This
-// class breaks out the downstream requests into seperate functions such as
+// class breaks out the downstream requests into separate functions such as
 // ExecuteData and ExecuteInformation.  For new algorithms you should
 // implement RequestData( request, inputVec, outputVec) but for older filters
 // there is a default implementation that calls the old ExecuteData(output)
-// signature, for even older filters that don;t implement ExecuteData the
+// signature. For even older filters that don't implement ExecuteData the
 // default implementation calls the even older Execute() signature.
 
 #ifndef __vtkPolyDataAlgorithm_h
