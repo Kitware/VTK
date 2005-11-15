@@ -31,6 +31,9 @@ class vtkHandleRepresentation;
 class vtkContourRepresentationInternals;
 class vtkPointPlacer;
 class vtkContourLineInterpolator;
+class vtkComputeContourStatistics;
+class vtkPolyData;
+class vtkContourStatistics;
 
 class VTK_WIDGETS_EXPORT vtkContourRepresentation : public vtkWidgetRepresentation
 {
@@ -140,6 +143,38 @@ public:
   vtkGetMacro( ClosedLoop, int );
   vtkBooleanMacro( ClosedLoop, int );
   
+  // Description:
+  // Get the points in this contour as a vtkPolyData. 
+  virtual const vtkPolyData * const GetContourRepresentationAsPolyData() const = 0;
+
+  // Description:
+  // Should we compute statistics or not ? 1 = yes, 0 = no.
+  // If true, the contour statistics will be calculated. Typically the user 
+  // will need to set this flag to on and check for 
+  // vtkCommand::WidgetValueChangedEvent (signalled when the contour is first 
+  // closed) or vtkCommand::EndInteractionEvent (signalled every time the contour
+  // is interacted with) to compute the statistics. If the contour is not closed,
+  // values returned are 0. 
+  void ComputeStatisticsOn();
+  void ComputeStatisticsOff();
+  void SetComputeStatistics( int );
+  vtkGetMacro( ComputeStatistics, int );
+
+  // Description::
+  // Get the area of the contour. A value of 0 is returned if the contour
+  // is not closed.
+  double GetArea();
+
+  // Description::
+  // Get the area of the contour. A value of 0 is returned if the contour
+  // is not closed.
+  double GetPerimeter();
+
+  // Description::
+  // Get the NSI of the contour. A value of 0 is returned if the contour
+  // is not closed. See vtkMassProperties for info on NSI.
+  double GetNormalizedShapeIndex();
+
 protected:
   vtkContourRepresentation();
   ~vtkContourRepresentation();
@@ -155,14 +190,13 @@ protected:
   vtkPointPlacer             *PointPlacer;
   vtkContourLineInterpolator *LineInterpolator;
   
-  
   int ActiveNode;
   
   int CurrentOperation;
   int ClosedLoop;
   
   vtkContourRepresentationInternals *Internal;
-  
+
   void AddNodeAtWorldPositionInternal( double worldPos[3],
                                        double worldOrient[9] );
   void SetNthNodeWorldPositionInternal( int n, double worldPos[3],
@@ -183,6 +217,18 @@ protected:
       mid[1] = (p1[1] + p2[1])/2;
       mid[2] = (p1[2] + p2[2])/2;
     }
+  
+  // Description:
+  // Convenience method to pass the poly data to the ContourStatistics 
+  // calculator. 
+  void AssignPolyDataToStatisticsCalculator();
+
+  // helper class that computes statistics on this countour
+  vtkContourStatistics *ContourStatistics;
+  
+  // Contour statistics are computed if this ivar is 1. (0 by default.)
+  int ComputeStatistics; 
+  
 private:
   vtkContourRepresentation(const vtkContourRepresentation&);  //Not implemented
   void operator=(const vtkContourRepresentation&);  //Not implemented
