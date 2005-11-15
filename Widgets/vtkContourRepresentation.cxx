@@ -34,7 +34,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.5");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -110,7 +110,6 @@ public:
   double ComputePerimeter() 
     {
     double perimeter=0.0;
-    vtkPoints *points   = this->PolyData->GetPoints();
     vtkCellArray *lines = this->PolyData->GetPolys();
     const vtkIdType ncells = this->PolyData->GetNumberOfCells(); 
                         // = 1 for the one and only contour
