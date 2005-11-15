@@ -258,7 +258,7 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
     }
 
   // Allocation was successful.  Save it.
-  if(newSize < this->Size)
+  if((newSize-1) < this->MaxId)
     {
     this->MaxId = newSize-1;
     }
