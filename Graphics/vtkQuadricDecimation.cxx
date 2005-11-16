@@ -55,7 +55,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.38");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.39");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 
@@ -1001,7 +1001,7 @@ double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double *x)
     this->GetPointAttributeArray(pointIds[1], pt2);
     for (i = 0; i < 3+this->NumberOfComponents; ++i) 
       {
-      v[i] = pt2[i] - pt2[i];
+      v[i] = pt2[i] - pt1[i];
       }
      
     // equation for the edge pt1 + c * v
