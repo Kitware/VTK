@@ -105,7 +105,7 @@ public:
  
   // Description:
   // Get the points in this contour as a vtkPolyData. 
-  virtual const vtkPolyData * const GetContourRepresentationAsPolyData() const;
+  virtual vtkPolyData * const GetContourRepresentationAsPolyData() const;
   
 protected:
   vtkOrientedGlyphContourRepresentation();

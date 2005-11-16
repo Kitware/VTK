@@ -146,7 +146,7 @@ public:
   // Description:
   // Get the points in this contour as a vtkPolyData. 
 //BTX
-  virtual const vtkPolyData * const GetContourRepresentationAsPolyData() const = 0;
+  virtual vtkPolyData * const GetContourRepresentationAsPolyData() const = 0;
 //ETX
 
   // Description:
