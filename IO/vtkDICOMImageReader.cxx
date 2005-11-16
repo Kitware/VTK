@@ -27,7 +27,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.32");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.33");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -354,7 +354,7 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
       char* filename = new char[len+1];
       strcpy(filename, (char*) (*fiter).c_str());
       this->SetProgressText(filename);
-
+      delete[] filename;
       }
     }
 }
