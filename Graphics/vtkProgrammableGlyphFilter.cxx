@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkProgrammableGlyphFilter, "1.32");
+vtkCxxRevisionMacro(vtkProgrammableGlyphFilter, "1.32.12.1");
 vtkStandardNewMacro(vtkProgrammableGlyphFilter);
 
 // Construct object with scaling on, scaling mode is by scalar value, 
@@ -73,7 +73,7 @@ vtkPolyData *vtkProgrammableGlyphFilter::GetSource()
     }
 
   return vtkPolyData::SafeDownCast(
-    this->GetExecutive()->GetInputData(0, 0));
+    this->GetExecutive()->GetInputData(1, 0));
 }
 
 int vtkProgrammableGlyphFilter::RequestData(
