@@ -31,7 +31,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataExtractPiece, "1.1");
+vtkCxxRevisionMacro(vtkMultiGroupDataExtractPiece, "1.1.2.1");
 vtkStandardNewMacro(vtkMultiGroupDataExtractPiece);
 
 int vtkMultiGroupDataExtractPiece::RequestData(
@@ -128,6 +128,7 @@ void vtkMultiGroupDataExtractPiece::ExtractImageData(
   translate->GetExtent(ext);
 
   extractID->SetInput(imageData);
+  extractID->SetOutputWholeExtent(ext);
   extractExecutive = vtkStreamingDemandDrivenPipeline::SafeDownCast(
     extractID->GetExecutive());
   extractInfo = extractExecutive->GetOutputInformation(0);
