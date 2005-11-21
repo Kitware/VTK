@@ -101,7 +101,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.63");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.64");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -514,14 +514,17 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
                          &matcher, &nItems);
       }
     
-    // RESIZE THE WINDOW TO THE DESIRED SIZE
-    vtkDebugMacro(<< "Resizing the xwindow\n");
-    XResizeWindow(this->DisplayId,this->WindowId,
-                  ((this->Size[0] > 0) ? 
-                   (int)(this->Size[0]) : 300),
-                  ((this->Size[1] > 0) ? 
-                   (int)(this->Size[1]) : 300));
-    XSync(this->DisplayId,False);
+    if (this->OwnWindow)
+      {
+      // RESIZE THE WINDOW TO THE DESIRED SIZE
+      vtkDebugMacro(<< "Resizing the xwindow\n");
+      XResizeWindow(this->DisplayId,this->WindowId,
+                    ((this->Size[0] > 0) ? 
+                     (int)(this->Size[0]) : 300),
+                    ((this->Size[1] > 0) ? 
+                     (int)(this->Size[1]) : 300));
+      XSync(this->DisplayId,False);
+      }
 
     // is GLX extension is supported?
     if(!glXQueryExtension(this->DisplayId, NULL, NULL)) 
@@ -529,8 +532,8 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
       vtkErrorMacro("GLX not found.  Aborting.");
       if (this->HasObserver(vtkCommand::ExitEvent))
         {
-          this->InvokeEvent(vtkCommand::ExitEvent, NULL);
-          return;
+        this->InvokeEvent(vtkCommand::ExitEvent, NULL);
+        return;
         }
       else
         {
@@ -545,8 +548,8 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
       vtkErrorMacro("Cannot create GLX context.  Aborting.");
       if (this->HasObserver(vtkCommand::ExitEvent))
         {
-          this->InvokeEvent(vtkCommand::ExitEvent, NULL);
-          return;
+        this->InvokeEvent(vtkCommand::ExitEvent, NULL);
+        return;
         }
       else
         {
@@ -868,10 +871,6 @@ void vtkXOpenGLRenderWindow::Finalize (void)
     this->WindowId = (Window)NULL;
     }
 
-  if (this->DisplayId)
-    {
-    XSync(this->DisplayId,0);
-    }
   // if we create the display, we'll delete it
   if (this->OwnDisplay && this->DisplayId)
     {
