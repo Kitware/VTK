@@ -201,7 +201,7 @@ CONFIGURE_FILE(${MaterialLibrary_SOURCE_DIR}/vtkShaderCodeLibraryMacro.h.in
 SET (MaterialXMLs)
 
 IF (VTK_USE_CG_SHADERS)
-  # Add Materials using Cg Shaders.
+# # Add Materials using Cg Shaders.
   SET (MaterialXMLs ${MaterialXMLs}
     ${MaterialLibrary_SOURCE_DIR}/Materials/CgSinewave.xml
     ${MaterialLibrary_SOURCE_DIR}/Materials/CgLighting.xml
@@ -225,20 +225,31 @@ CONFIGURE_FILE(
   ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h.forcebuild
   @ONLY)
   
+SET (VTK_MATERIAL_LIBRARY_MACRO "")
+# materials_exist is variable to indicate if there are any materials.
+# if not we can reduce our work by not trying to build the headers at
+# all.
+SET (materials_exist 0)
+FOREACH(material ${Materials})
+  SET (materials_exist 1)
+ENDFOREACH(material ${Materials})
+  
+IF (${materials_exist})
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
+    DEPENDS ${MaterialXMLs} 
+      ProcessShader
+      ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h.forcebuild
+    COMMAND ${CMD}
+    ARGS ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
+    vtkMaterial XML GetXML
+    ${MaterialXMLs}
+    )
 
-ADD_CUSTOM_COMMAND(
-  OUTPUT ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
-  DEPENDS ${MaterialXMLs} 
-    ProcessShader
-    ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h.forcebuild
-  COMMAND ${CMD}
-  ARGS ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
-  vtkMaterial XML GetXML
-  ${MaterialXMLs}
-  )
+  SET (VTK_MATERIAL_LIBRARY_MACRO "#include \"vtkMaterialXMLLibrary.h\"\n")
+ENDIF (${materials_exist})
 
 # Write the MaterialLibraryMacro header file.
-SET (VTK_MATERIAL_LIBRARY_MACRO "#include \"vtkMaterialXMLLibrary.h\"\n")
 SET (VTK_MATERIAL_LIBRARY_MACRO "${VTK_MATERIAL_LIBRARY_MACRO}
 #define vtkMaterialLibraryMacro(name) \\\n")
 
@@ -259,9 +270,14 @@ CONFIGURE_FILE(
 
 ADD_CUSTOM_TARGET(vtkMaterialLibraryConfiguredFiles ALL DEPENDS
   ${ShaderLibraryDependencies}
-  ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
   ${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
   ${MaterialLibrary_BINARY_DIR}/vtkMaterialLibraryMacro.h)
+
+IF(${materials_exist})
+  ADD_DEPENDENCIES(vtkMaterialLibraryConfiguredFiles
+    ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h)
+ENDIF(${materials_exist})
+  
  
 SET(MATERIAL_LIBRARY_SHADER_MACRO_HEADER
   ${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
