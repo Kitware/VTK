@@ -29,7 +29,7 @@
 typedef vtkstd::vector<vtkXMLDataElement*> vtkXMLUtilitiesDataElementContainer;
 
 vtkStandardNewMacro(vtkXMLUtilities);
-vtkCxxRevisionMacro(vtkXMLUtilities, "1.6");
+vtkCxxRevisionMacro(vtkXMLUtilities, "1.7");
 
 #define  VTK_XML_UTILITIES_FACTORED_POOL_NAME "FactoredPool"
 #define  VTK_XML_UTILITIES_FACTORED_NAME      "Factored"
@@ -303,16 +303,31 @@ void vtkXMLUtilities::FlattenElement(vtkXMLDataElement *elem,
       }
     }
 
-  // Nested elements and close
-
+  const char *cdata = elem->GetCharacterData();
   int nb_nested = elem->GetNumberOfNestedElements();
-  if (!nb_nested)
+  int need_close_tag = (nb_nested || cdata);
+
+  if (!need_close_tag)
     {
     os << "/>";
     }
   else
     {
     os << '>';
+    }
+
+  // cdata
+
+  if (cdata)
+    {
+    vtkXMLUtilities::EncodeString(
+      cdata, elem->GetAttributeEncoding(), os, VTK_ENCODING_UTF_8, 1);
+    }
+  
+  // Nested elements
+  
+  if (nb_nested)
+    {
     if (indent)
       {
       os << '\n';
@@ -334,8 +349,15 @@ void vtkXMLUtilities::FlattenElement(vtkXMLDataElement *elem,
       {
       os << *indent;
       }
+    }
+
+  // Close
+
+  if (need_close_tag)
+    {
     os << "</" << elem->GetName() << '>';
     }
+
   if (indent)
     {
     os << '\n';
