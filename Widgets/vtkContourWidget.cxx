@@ -30,7 +30,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.5");
+vtkCxxRevisionMacro(vtkContourWidget, "1.6");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -222,6 +222,7 @@ void vtkContourWidget::AddNode()
       reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep)->ClosedLoopOn();    
       this->EventCallbackCommand->SetAbortFlag(1);
       this->InvokeEvent( vtkCommand::WidgetValueChangedEvent, NULL );
+      this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
       return;
       }
     }
@@ -232,6 +233,7 @@ void vtkContourWidget::AddNode()
     this->WidgetState = vtkContourWidget::Define;
     reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep)->VisibilityOn();    
     this->EventCallbackCommand->SetAbortFlag(1);
+    this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
 }
 
@@ -257,7 +259,10 @@ void vtkContourWidget::DeleteAction(vtkAbstractWidget *w)
     int X = self->Interactor->GetEventPosition()[0];
     int Y = self->Interactor->GetEventPosition()[1];
     rep->ActivateNode( X, Y );
-    rep->DeleteActiveNode();
+    if ( rep->DeleteActiveNode() )
+      {
+      self->InvokeEvent(vtkCommand::InteractionEvent,NULL);      
+      }
     rep->ActivateNode( X, Y );
     if ( rep->GetNumberOfNodes() < 3 )
       {
@@ -303,9 +308,8 @@ void vtkContourWidget::MoveAction(vtkAbstractWidget *w)
     pos[0] = X;
     pos[1] = Y;
     self->WidgetRep->WidgetInteraction(pos);
+    self->Interaction();
     }
-
-  self->Interaction();
   
   if ( self->WidgetRep->GetNeedToRender() )
     {
