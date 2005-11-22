@@ -104,6 +104,7 @@ int TestAngleWidget( int argc, char *argv[] )
   vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
   recorder->SetInteractor(iren);
   recorder->SetFileName("c:/record.log");
+//  recorder->On();
 //  recorder->Record();
 //  recorder->ReadFromInputStringOn();
 //  recorder->SetInputString(eventLog);
@@ -117,13 +118,13 @@ int TestAngleWidget( int argc, char *argv[] )
 
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.
-  recorder->Off();
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }
+  recorder->Off();
 
   ss->Delete();
   mapper->Delete();
