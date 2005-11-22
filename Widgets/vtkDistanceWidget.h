@@ -109,7 +109,7 @@ protected:
 
   // The state of the widget
 //BTX
-  enum {Start=0,PlacingPoints,Placed,MovingHandle};
+  enum {Start=0,Define,Manipulate};
 //ETX
   int WidgetState;
   int CurrentHandle;

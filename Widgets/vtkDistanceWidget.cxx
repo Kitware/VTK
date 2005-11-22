@@ -26,7 +26,7 @@
 #include "vtkAxisActor2D.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkDistanceWidget, "1.1");
+vtkCxxRevisionMacro(vtkDistanceWidget, "1.2");
 vtkStandardNewMacro(vtkDistanceWidget);
 
 
@@ -177,62 +177,57 @@ void vtkDistanceWidget::SetEnabled(int enabling)
 void vtkDistanceWidget::AddPointAction(vtkAbstractWidget *w)
 {
   vtkDistanceWidget *self = reinterpret_cast<vtkDistanceWidget*>(w);
+  int X = self->Interactor->GetEventPosition()[0];
+  int Y = self->Interactor->GetEventPosition()[1];
+  int state = self->WidgetRep->ComputeInteractionState(X,Y);
 
-  // Need to distinguish between placing handles and manipulating handles
-  if ( self->WidgetState == vtkDistanceWidget::MovingHandle )
+  // Freshly enabled and placing the first point
+  if ( self->WidgetState == vtkDistanceWidget::Start )
     {
-    return;
+    self->WidgetState = vtkDistanceWidget::Define;
+    self->Point1Widget->SetEnabled(0);
+    self->Point2Widget->SetEnabled(0);
+    reinterpret_cast<vtkDistanceRepresentation*>(self->WidgetRep)->VisibilityOn();    
+    double e[2];
+    e[0] = static_cast<double>(X);
+    e[1] = static_cast<double>(Y);
+    reinterpret_cast<vtkDistanceRepresentation*>(self->WidgetRep)->
+      StartWidgetInteraction(e);
+    self->CurrentHandle = 0;
+    self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
+    self->CurrentHandle++;
     }
-
+  
   // Placing the second point is easy
-  if ( self->WidgetState == vtkDistanceWidget::PlacingPoints )
+  else if ( self->WidgetState == vtkDistanceWidget::Define )
     {
     self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
-    self->WidgetState = vtkDistanceWidget::Placed;
+    self->WidgetState = vtkDistanceWidget::Manipulate;
     self->Point1Widget->SetEnabled(1);
     self->Point2Widget->SetEnabled(1);
     }
   
-  else //need to see whether we are placing the first point or manipulating a handle
+  // See if we are trying to manipulate the widget handles
+  else if ( self->WidgetState == vtkDistanceWidget::Manipulate )
     {
-    // compute some info we need for all cases
-    int X = self->Interactor->GetEventPosition()[0];
-    int Y = self->Interactor->GetEventPosition()[1];
-    int state = self->WidgetRep->ComputeInteractionState(X,Y);
-    if ( self->WidgetState == vtkDistanceWidget::Start ||
-         (self->WidgetState == vtkDistanceWidget::Placed && state == vtkDistanceRepresentation::Outside ) )
-      { //putting down the first point
-      self->WidgetState = vtkDistanceWidget::PlacingPoints;
-      self->Point1Widget->SetEnabled(0);
-      self->Point2Widget->SetEnabled(0);
-      reinterpret_cast<vtkDistanceRepresentation*>(self->WidgetRep)->VisibilityOn();    
-      double e[2];
-      e[0] = static_cast<double>(X);
-      e[1] = static_cast<double>(Y);
-      reinterpret_cast<vtkDistanceRepresentation*>(self->WidgetRep)->
-        StartWidgetInteraction(e);
-      self->CurrentHandle = 0;
-      self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
-      self->CurrentHandle++;
-      }
-    else if ( state == vtkDistanceRepresentation::NearP1 ||
-              state == vtkDistanceRepresentation::NearP2 )
+    if ( state == vtkDistanceRepresentation::NearP1 )
       {
-      if ( state == vtkDistanceRepresentation::NearP1 )
-        {
-        self->WidgetState = vtkDistanceWidget::MovingHandle;
-        self->CurrentHandle = 0;
-        }
-      else if ( state == vtkDistanceRepresentation::NearP2 )
-        {
-        self->WidgetState = vtkDistanceWidget::MovingHandle;
-        self->CurrentHandle = 1;
-        }
-      // Invoke an event on ourself for the handles 
+      self->CurrentHandle = 0;
       self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+      }
+    else if ( state == vtkDistanceRepresentation::NearP2 )
+      {
+      self->CurrentHandle = 1;
+      self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+      }
+
+    else if ( state == vtkDistanceRepresentation::Outside )
+      {
+      return;
       }
     }
 
+  // Clean up
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   self->Render();
@@ -244,8 +239,9 @@ void vtkDistanceWidget::MoveAction(vtkAbstractWidget *w)
   vtkDistanceWidget *self = reinterpret_cast<vtkDistanceWidget*>(w);
 
   // Do nothing if outside
-  if ( self->WidgetState == vtkDistanceWidget::Start ||
-       self->WidgetState == vtkDistanceWidget::Placed )
+  if ( self->WidgetState == vtkDistanceWidget::Start || 
+       (self->WidgetState == vtkDistanceWidget::Manipulate &&
+        self->WidgetRep->GetInteractionState() == vtkDistanceRepresentation::Outside) )
     {
     return;
     }
@@ -255,7 +251,7 @@ void vtkDistanceWidget::MoveAction(vtkAbstractWidget *w)
   int Y = self->Interactor->GetEventPosition()[1];
 
   // Delegate the event consistent with the state
-  if ( self->WidgetState == vtkDistanceWidget::PlacingPoints )
+  if ( self->WidgetState == vtkDistanceWidget::Define )
     {
     double e[2];
     e[0] = static_cast<double>(X);
@@ -280,18 +276,24 @@ void vtkDistanceWidget::EndSelectAction(vtkAbstractWidget *w)
   vtkDistanceWidget *self = reinterpret_cast<vtkDistanceWidget*>(w);
 
   // Do nothing if outside
-  if ( self->WidgetState != vtkDistanceWidget::MovingHandle )
+  if ( self->WidgetState != vtkDistanceWidget::Manipulate )
     {
     return;
     }
 
-  self->WidgetState = vtkDistanceWidget::Placed;
-  self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
-
-  self->WidgetRep->BuildRepresentation();
-  self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-  self->Render();
+  int state = self->WidgetRep->GetInteractionState();
+  if ( state == vtkDistanceRepresentation::Outside )
+    {
+    return;
+    }
+  else
+    {
+    self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+    self->WidgetRep->BuildRepresentation();
+    self->EventCallbackCommand->SetAbortFlag(1);
+    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->Render();
+    }
 }
 
 // These are callbacks that are active when the user is manipulating the
