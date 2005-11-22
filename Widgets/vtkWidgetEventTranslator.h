@@ -78,11 +78,13 @@ public:
   // translated).
   void ClearEvents();
   
+//BTX
   // Description:
   // Add the events in the current translation table to the interactor.
   void AddEventsToParent(vtkAbstractWidget*, vtkCallbackCommand*, float priority);
   void AddEventsToInteractor(vtkRenderWindowInteractor*, vtkCallbackCommand*, 
                              float priority);
+//ETX
   
 protected:
   // Constructors/destructors made public for widgets to use
