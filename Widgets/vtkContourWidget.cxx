@@ -30,7 +30,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.6");
+vtkCxxRevisionMacro(vtkContourWidget, "1.7");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -56,6 +56,10 @@ vtkContourWidget::vtkContourWidget()
                                           vtkWidgetEvent::EndSelect,
                                           this, vtkContourWidget::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent,
+                                          vtkEvent::NoModifier, 46, 1, NULL,
+                                          vtkWidgetEvent::Delete,
+                                          this, vtkContourWidget::DeleteAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::CharEvent,
                                           vtkEvent::NoModifier, 46, 1, NULL,
                                           vtkWidgetEvent::Delete,
                                           this, vtkContourWidget::DeleteAction);
