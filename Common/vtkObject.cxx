@@ -19,12 +19,13 @@
 #include "vtkGarbageCollector.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.93");
+vtkCxxRevisionMacro(vtkObject, "1.94");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
 
 
+//----------------------------------------------------------------------------
 // avoid dll boundary problems
 #ifdef _WIN32
 void* vtkObject::operator new(size_t nSize)
@@ -33,23 +34,29 @@ void* vtkObject::operator new(size_t nSize)
   return p;
 }
 
+//----------------------------------------------------------------------------
 void vtkObject::operator delete( void *p )
 {
   free(p);
 }
 #endif 
 
+//----------------------------------------------------------------------------
 void vtkObject::SetGlobalWarningDisplay(int val)
 {
   vtkObjectGlobalWarningDisplay = val;
 }
 
+//----------------------------------------------------------------------------
 int vtkObject::GetGlobalWarningDisplay()
 {
   return vtkObjectGlobalWarningDisplay;
 }
 
 //----------------------------------Command/Observer stuff-------------------
+// The Command/Observer design pattern is used to invoke and dispatch events.
+// The class vtkSubjectHelper keeps a list of observers (which in turn keep
+// an instance of vtkCommand) which respond to registered events.
 //
 class vtkObserver
 {
@@ -77,10 +84,16 @@ void vtkObserver::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tag: " << this->Tag << "\n";
 }
 
+//----------------------------------------------------------------------------
+// The vtkSubjectHelper keeps a list of observers and dispatches events to them.
+// It also invokes the vtkCommands associated with the observers. Currently 
+// vtkSubjectHelper is an internal class to vtkObject. However, due to requirements
+// from the VTK widgets it may be necessary to break out the vtkSubjectHelper at
+// some point (for reasons of event management, etc.)
 class vtkSubjectHelper
 {
 public:
-  vtkSubjectHelper():ListModified(0),Start(0),Count(1) {}
+  vtkSubjectHelper():ListModified(0),Focus(0),Start(0),Count(1) {}
   ~vtkSubjectHelper();
   
   unsigned long AddObserver(unsigned long event, vtkCommand *cmd, float p);
@@ -92,12 +105,15 @@ public:
   unsigned long GetTag(vtkCommand*);
   int HasObserver(unsigned long event);
   int HasObserver(unsigned long event, vtkCommand *cmd);
+  void GrabFocus(vtkCommand *c) {this->Focus = c;}
+  void ReleaseFocus() {this->Focus = NULL;}
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  int ListModified;
+  int         ListModified;
+  vtkCommand *Focus;
 
 protected:
-  vtkObserver *Start;
+  vtkObserver  *Start;
   unsigned long Count;
 };
 
@@ -116,6 +132,7 @@ vtkObject *vtkObject::New()
 }
 
 
+//----------------------------------------------------------------------------
 // Create an object with Debug turned off and modified time initialized 
 // to zero.
 vtkObject::vtkObject()
@@ -126,6 +143,7 @@ vtkObject::vtkObject()
   // initial reference count = 1 and reference counting on.
 }
 
+//----------------------------------------------------------------------------
 vtkObject::~vtkObject() 
 {
   vtkDebugMacro(<< "Destructing!");
@@ -140,6 +158,7 @@ vtkObject::~vtkObject()
   this->SubjectHelper = NULL;
 }
 
+//----------------------------------------------------------------------------
 // Return the modification for this object.
 unsigned long int vtkObject::GetMTime() 
 {
@@ -165,24 +184,30 @@ void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+//----------------------------------------------------------------------------
 // Turn debugging output on.
+// The Modified() method is prposely not called since we do not want to affect
+// the modification time when enabling debug output.
 void vtkObject::DebugOn()
 {
   this->Debug = 1;
 }
 
+//----------------------------------------------------------------------------
 // Turn debugging output off.
 void vtkObject::DebugOff()
 {
   this->Debug = 0;
 }
 
+//----------------------------------------------------------------------------
 // Get the value of the debug flag.
 unsigned char vtkObject::GetDebug()
 {
   return this->Debug;
 }
 
+//----------------------------------------------------------------------------
 // Set the value of the debug flag. A non-zero value turns debugging on.
 void vtkObject::SetDebug(unsigned char debugFlag)
 {
@@ -190,6 +215,7 @@ void vtkObject::SetDebug(unsigned char debugFlag)
 }
 
 
+//----------------------------------------------------------------------------
 // This method is called when vtkErrorMacro executes. It allows 
 // the debugger to break on error.
 void vtkObject::BreakOnError()
@@ -199,11 +225,13 @@ void vtkObject::BreakOnError()
 //----------------------------------Command/Observer stuff-------------------
 //
 
+//----------------------------------------------------------------------------
 vtkObserver::~vtkObserver()
 {
   this->Command->UnRegister(0);
 }
 
+//----------------------------------------------------------------------------
 vtkSubjectHelper::~vtkSubjectHelper()
 {
   vtkObserver *elem = this->Start;
@@ -215,9 +243,11 @@ vtkSubjectHelper::~vtkSubjectHelper()
     elem = next;
     }
   this->Start = NULL;
+  this->Focus = NULL;
 }
 
 
+//----------------------------------------------------------------------------
 unsigned long vtkSubjectHelper::
 AddObserver(unsigned long event, vtkCommand *cmd, float p)
 {
@@ -271,6 +301,7 @@ AddObserver(unsigned long event, vtkCommand *cmd, float p)
   return elem->Tag;
 }
 
+//----------------------------------------------------------------------------
 void vtkSubjectHelper::RemoveObserver(unsigned long tag)
 {
   vtkObserver *elem;
@@ -306,6 +337,7 @@ void vtkSubjectHelper::RemoveObserver(unsigned long tag)
   this->ListModified = 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkSubjectHelper::RemoveObservers(unsigned long event)
 {
   vtkObserver *elem;
@@ -341,6 +373,7 @@ void vtkSubjectHelper::RemoveObservers(unsigned long event)
   this->ListModified = 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkSubjectHelper::RemoveObservers(unsigned long event, vtkCommand *cmd)
 {
   vtkObserver *elem;
@@ -376,6 +409,7 @@ void vtkSubjectHelper::RemoveObservers(unsigned long event, vtkCommand *cmd)
   this->ListModified = 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkSubjectHelper::HasObserver(unsigned long event)
 {
   vtkObserver *elem = this->Start;
@@ -390,6 +424,7 @@ int vtkSubjectHelper::HasObserver(unsigned long event)
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkSubjectHelper::HasObserver(unsigned long event, vtkCommand *cmd)
 {
   vtkObserver *elem = this->Start;
@@ -405,6 +440,7 @@ int vtkSubjectHelper::HasObserver(unsigned long event, vtkCommand *cmd)
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
                                    vtkObject *self)
 {
@@ -424,7 +460,8 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
     // store the next pointer because elem could disappear due to Command
     next = elem->Next;
     if (!elem->Visited &&
-        elem->Event == event || elem->Event == vtkCommand::AnyEvent)
+        (elem->Event == event || elem->Event == vtkCommand::AnyEvent) &&
+        (!this->Focus || this->Focus == elem->Command) )
       {
       elem->Visited = 1;
       vtkCommand* command = elem->Command;
@@ -453,6 +490,7 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
   return 0;
 }
 
+//----------------------------------------------------------------------------
 unsigned long vtkSubjectHelper::GetTag(vtkCommand* cmd)
 {
   vtkObserver *elem = this->Start;
@@ -467,6 +505,7 @@ unsigned long vtkSubjectHelper::GetTag(vtkCommand* cmd)
   return 0;
 }
 
+//----------------------------------------------------------------------------
 vtkCommand *vtkSubjectHelper::GetCommand(unsigned long tag)
 {
   vtkObserver *elem = this->Start;
@@ -481,6 +520,7 @@ vtkCommand *vtkSubjectHelper::GetCommand(unsigned long tag)
   return NULL;
 }
 
+//----------------------------------------------------------------------------
 void vtkSubjectHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Registered Observers:\n";
@@ -508,11 +548,13 @@ unsigned long vtkObject::AddObserver(unsigned long event, vtkCommand *cmd, float
   return this->SubjectHelper->AddObserver(event,cmd, p);
 }
 
+//----------------------------------------------------------------------------
 unsigned long vtkObject::AddObserver(const char *event,vtkCommand *cmd, float p)
 {
   return this->AddObserver(vtkCommand::GetEventIdFromString(event), cmd, p);
 }
 
+//----------------------------------------------------------------------------
 vtkCommand *vtkObject::GetCommand(unsigned long tag)
 {
   if (this->SubjectHelper)
@@ -522,6 +564,7 @@ vtkCommand *vtkObject::GetCommand(unsigned long tag)
   return NULL;
 }
 
+//----------------------------------------------------------------------------
 void vtkObject::RemoveObserver(unsigned long tag)
 {
   if (this->SubjectHelper)
@@ -530,6 +573,7 @@ void vtkObject::RemoveObserver(unsigned long tag)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkObject::RemoveObserver(vtkCommand* c)
 {
   if (this->SubjectHelper)
@@ -543,6 +587,7 @@ void vtkObject::RemoveObserver(vtkCommand* c)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkObject::RemoveObservers(unsigned long event)
 {
   if (this->SubjectHelper)
@@ -551,11 +596,13 @@ void vtkObject::RemoveObservers(unsigned long event)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkObject::RemoveObservers(const char *event)
 {
   this->RemoveObservers(vtkCommand::GetEventIdFromString(event));
 }
 
+//----------------------------------------------------------------------------
 void vtkObject::RemoveObservers(unsigned long event, vtkCommand *cmd)
 {
   if (this->SubjectHelper)
@@ -564,11 +611,13 @@ void vtkObject::RemoveObservers(unsigned long event, vtkCommand *cmd)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkObject::RemoveObservers(const char *event, vtkCommand *cmd)
 {
   this->RemoveObservers(vtkCommand::GetEventIdFromString(event), cmd);
 }
 
+//----------------------------------------------------------------------------
 int vtkObject::InvokeEvent(unsigned long event, void *callData)
 {
   if (this->SubjectHelper)
@@ -578,11 +627,13 @@ int vtkObject::InvokeEvent(unsigned long event, void *callData)
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkObject::InvokeEvent(const char *event, void *callData)
 {
   return this->InvokeEvent(vtkCommand::GetEventIdFromString(event), callData);
 }
 
+//----------------------------------------------------------------------------
 int vtkObject::HasObserver(unsigned long event)
 {
   if (this->SubjectHelper)
@@ -592,11 +643,13 @@ int vtkObject::HasObserver(unsigned long event)
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkObject::HasObserver(const char *event)
 {
   return this->HasObserver(vtkCommand::GetEventIdFromString(event));
 }
 
+//----------------------------------------------------------------------------
 int vtkObject::HasObserver(unsigned long event, vtkCommand *cmd)
 {
   if (this->SubjectHelper)
@@ -606,11 +659,32 @@ int vtkObject::HasObserver(unsigned long event, vtkCommand *cmd)
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkObject::HasObserver(const char *event, vtkCommand *cmd)
 {
   return this->HasObserver(vtkCommand::GetEventIdFromString(event), cmd);
 }
 
+//----------------------------------------------------------------------------
+void vtkObject::GrabFocus(vtkCommand *c)
+{
+  if (this->SubjectHelper)
+    {
+    this->SubjectHelper->GrabFocus(c);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkObject::ReleaseFocus()
+{
+  if (this->SubjectHelper)
+    {
+    this->SubjectHelper->ReleaseFocus();
+    }
+}
+
+
+//----------------------------------------------------------------------------
 void vtkObject::Modified()
 {
   this->MTime.Modified();

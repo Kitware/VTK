@@ -131,7 +131,7 @@ public:
   void RemoveObservers(const char *event, vtkCommand *);
   int HasObserver(unsigned long event, vtkCommand *);
   int HasObserver(const char *event, vtkCommand *);
-  //ETX
+  //ETX 
   void RemoveObserver(unsigned long tag);
   void RemoveObservers(unsigned long event);
   void RemoveObservers(const char *event);
@@ -160,6 +160,13 @@ public:
   int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, NULL); };
   int InvokeEvent(const char *event) { return this->InvokeEvent(event, NULL); };
   
+  // Description:
+  // These methods allow a particular command to exclusively grab
+  // all events. (This method is typically used by widgets to grab
+  // events once an event sequence begins.)
+  void GrabFocus(vtkCommand *);
+  void ReleaseFocus();
+
 protected:
   vtkObject(); 
   virtual ~vtkObject(); 
@@ -168,8 +175,8 @@ protected:
   virtual void RegisterInternal(vtkObjectBase*, int check);
   virtual void UnRegisterInternal(vtkObjectBase*, int check);
 
-  unsigned char Debug;     // Enable debug messages
-  vtkTimeStamp MTime;      // Keep track of modification time
+  unsigned char     Debug;      // Enable debug messages
+  vtkTimeStamp      MTime;      // Keep track of modification time
   vtkSubjectHelper *SubjectHelper;
 
 private:
