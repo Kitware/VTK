@@ -26,7 +26,7 @@
 #include "vtkAxisActor2D.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkDistanceWidget, "1.2");
+vtkCxxRevisionMacro(vtkDistanceWidget, "1.3");
 vtkStandardNewMacro(vtkDistanceWidget);
 
 
@@ -184,6 +184,7 @@ void vtkDistanceWidget::AddPointAction(vtkAbstractWidget *w)
   // Freshly enabled and placing the first point
   if ( self->WidgetState == vtkDistanceWidget::Start )
     {
+    self->Interactor->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkDistanceWidget::Define;
     self->Point1Widget->SetEnabled(0);
     self->Point2Widget->SetEnabled(0);
@@ -212,11 +213,13 @@ void vtkDistanceWidget::AddPointAction(vtkAbstractWidget *w)
     {
     if ( state == vtkDistanceRepresentation::NearP1 )
       {
+      self->Interactor->GrabFocus(self->EventCallbackCommand);
       self->CurrentHandle = 0;
       self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
       }
     else if ( state == vtkDistanceRepresentation::NearP2 )
       {
+      self->Interactor->GrabFocus(self->EventCallbackCommand);
       self->CurrentHandle = 1;
       self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
       }
@@ -276,24 +279,18 @@ void vtkDistanceWidget::EndSelectAction(vtkAbstractWidget *w)
   vtkDistanceWidget *self = reinterpret_cast<vtkDistanceWidget*>(w);
 
   // Do nothing if outside
-  if ( self->WidgetState != vtkDistanceWidget::Manipulate )
+  if ( self->WidgetState != vtkDistanceWidget::Manipulate ||
+       self->WidgetRep->GetInteractionState() == vtkDistanceRepresentation::Outside )
     {
     return;
     }
 
-  int state = self->WidgetRep->GetInteractionState();
-  if ( state == vtkDistanceRepresentation::Outside )
-    {
-    return;
-    }
-  else
-    {
-    self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
-    self->WidgetRep->BuildRepresentation();
-    self->EventCallbackCommand->SetAbortFlag(1);
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-    self->Render();
-    }
+  self->Interactor->ReleaseFocus();
+  self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+  self->WidgetRep->BuildRepresentation();
+  self->EventCallbackCommand->SetAbortFlag(1);
+  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  self->Render();
 }
 
 // These are callbacks that are active when the user is manipulating the
