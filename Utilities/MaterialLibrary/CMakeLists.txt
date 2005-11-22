@@ -233,7 +233,12 @@ SET (materials_exist 0)
 FOREACH(material ${Materials})
   SET (materials_exist 1)
 ENDFOREACH(material ${Materials})
-  
+ 
+SET(vtkMaterialLibraryConfiguredFilesDependencies
+  ${ShaderLibraryDependencies}
+  ${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
+  ${MaterialLibrary_BINARY_DIR}/vtkMaterialLibraryMacro.h)
+
 IF (${materials_exist})
   ADD_CUSTOM_COMMAND(
     OUTPUT ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
@@ -247,6 +252,12 @@ IF (${materials_exist})
     )
 
   SET (VTK_MATERIAL_LIBRARY_MACRO "#include \"vtkMaterialXMLLibrary.h\"\n")
+
+  # Add a dependency on the vtkMaterialXMLLibrary.h file for the target that generates all
+  # the configured files.
+  SET(vtkMaterialLibraryConfiguredFilesDependencies 
+    ${vtkMaterialLibraryConfiguredFilesDependencies}
+    ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h)
 ENDIF (${materials_exist})
 
 # Write the MaterialLibraryMacro header file.
@@ -269,15 +280,9 @@ CONFIGURE_FILE(
   ${MaterialLibrary_BINARY_DIR}/vtkMaterialLibraryMacro.h)
 
 ADD_CUSTOM_TARGET(vtkMaterialLibraryConfiguredFiles ALL DEPENDS
-  ${ShaderLibraryDependencies}
-  ${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
-  ${MaterialLibrary_BINARY_DIR}/vtkMaterialLibraryMacro.h)
+  ${vtkMaterialLibraryConfiguredFilesDependencies}
+  )
 
-IF(${materials_exist})
-  ADD_DEPENDENCIES(vtkMaterialLibraryConfiguredFiles
-    ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h)
-ENDIF(${materials_exist})
-  
  
 SET(MATERIAL_LIBRARY_SHADER_MACRO_HEADER
   ${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
