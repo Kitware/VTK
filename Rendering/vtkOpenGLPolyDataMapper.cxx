@@ -42,7 +42,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.106");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.107");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -660,7 +660,7 @@ void vtkOpenGLPolyDataMapper::DrawPoints(int idx,
         {
         if (c)
           {
-          if (idx & 0x08)
+          if (idx & VTK_PDM_CELL_COLORS)
             {
             glColor4ubv(c->GetPointer(cellNum << 2));
             }
@@ -682,7 +682,7 @@ void vtkOpenGLPolyDataMapper::DrawPoints(int idx,
           }
         if (n)
           {
-          if (idx & 0x10)
+          if (idx & VTK_PDM_CELL_NORMALS)
             {
             glNormal3dv(n->GetTuple(cellNum));
             }
@@ -825,7 +825,7 @@ void vtkOpenGLPolyDataMapper::DrawLines(int idx,
         {
         if (c)
           {
-          if (idx & 0x08)
+          if (idx & VTK_PDM_CELL_COLORS)
             {
             glColor4ubv(c->GetPointer(cellNum << 2));
             }
@@ -847,7 +847,7 @@ void vtkOpenGLPolyDataMapper::DrawLines(int idx,
           }
         if (n)
           {
-          if (idx & 0x10)
+          if (idx & VTK_PDM_CELL_NORMALS)
             {
             glNormal3dv(n->GetTuple(cellNum));
             }
@@ -1923,16 +1923,3 @@ void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
-
-  
-
-
-
-
-
-
-
-
-
-
-
