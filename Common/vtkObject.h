@@ -164,8 +164,10 @@ public:
   // These methods allow a particular command to exclusively grab
   // all events. (This method is typically used by widgets to grab
   // events once an event sequence begins.)
+  //BTX
   void GrabFocus(vtkCommand *);
   void ReleaseFocus();
+  //ETX
 
 protected:
   vtkObject(); 
