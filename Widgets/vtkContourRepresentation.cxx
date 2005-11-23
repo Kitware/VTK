@@ -26,15 +26,13 @@
 #include "vtkCamera.h"
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
-#include "vtkMassProperties.h"
-#include "vtkTriangleFilter.h"
 
 #include <vtkstd/vector>
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.6");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -59,132 +57,6 @@ public:
   vtkstd::vector<vtkContourRepresentationNode*> Nodes;
 };
 
-// This is a helper class. It computes statistics on the contour.
-// Typical statistics may be area, perimeter, min-max values 
-// within the contour etc..
-//
-// This class is used internally by the contour representation. If the user
-// sets vtkContourRepresentation::ComputeContourStatisticsOn(), the contour
-// statistics will be calculated at the end of every interaction, provided 
-// it is closed.
-//
-class vtkContourStatistics
-{
-public:
-  vtkContourStatistics() 
-    {
-    this->MassProperties = vtkMassProperties::New();
-    this->TriangleFilter = vtkTriangleFilter::New();
-    this->PolyData = vtkPolyData::New();
-    this->TriangleFilter->SetInput( this->PolyData );
-    this->MassProperties->SetInput( this->TriangleFilter->GetOutput() );
-    this->Perimeter = 0.0;
-    this->LastBuildTime = 0;
-    this->LastPerimeterComputedTime = 0;
-    }
-   
-  ~vtkContourStatistics()
-    {
-    this->MassProperties = NULL;
-    this->TriangleFilter = NULL;
-    this->PolyData       = NULL;
-    }
-
-  // Description: 
-  // Set/Get methods for the Polydata
-  vtkPolyData * GetPolyData() { return this->PolyData ; }
-  
-  void SetPolyData(vtkPolyData *pd)
-    {
-    if( !pd || (pd == this->PolyData) ) 
-      {
-      return;
-      }
-    this->PolyData = NULL;
-    this->PolyData = pd;
-    }
-
-  // Description: 
-  // Compute the perimeter of the contour. It is assumed that the polydata has 
-  // been set.
-  double ComputePerimeter() 
-    {
-    double perimeter=0.0;
-    vtkCellArray *lines = this->PolyData->GetPolys();
-    const vtkIdType ncells = this->PolyData->GetNumberOfCells(); 
-                        // = 1 for the one and only contour
-    vtkIdType npts;
-    vtkIdType *pts;
-    lines->InitTraversal();
-    for ( int i=0; i< ncells; i++)
-      {
-      lines->GetNextCell(npts,pts); 
-      
-      // Get the points in each line segment of the cell 
-      // (polyline in the case of a contour)
-      
-      double p1[3], p2[3], p3[3];
-      this->PolyData->GetPoint( pts[0], p3 );
-      for ( int j=1; j < npts; j++ )
-        {
-        this->PolyData->GetPoint( pts[j-1], p1 );
-        this->PolyData->GetPoint( pts[j], p2 );
-        perimeter += sqrt((p2[0]-p1[0])*(p2[0]-p1[0]) 
-                        + (p2[1]-p1[1])*(p2[1]-p1[1])
-                        + (p2[2]-p1[2])*(p2[2]-p1[2]));
-        }
-      perimeter += sqrt((p2[0]-p3[0])*(p2[0]-p3[0]) 
-                      + (p2[1]-p3[1])*(p2[1]-p3[1])
-                      + (p2[2]-p3[2])*(p2[2]-p3[2]));
-      
-      }
-    this->Perimeter = perimeter;
-    this->LastPerimeterComputedTime = this->LastBuildTime;
-    return perimeter;
-    }
-
-  // Description: 
-  // Get the perimeter of the contour. It is assumed that ComputePerimeter
-  // has already been called.
-  double GetPerimeter() 
-    {
-    if( this->LastBuildTime > this->LastPerimeterComputedTime )
-      {
-      return this->ComputePerimeter();
-      }
-    return this->Perimeter;
-    }
-  
-  
-  // Description: 
-  // Get the area of the contour. It is assumed that the polydata has been set.
-  double GetArea()
-    {
-    return this->MassProperties->GetSurfaceArea();
-    }
-    
-  // Description: 
-  // Get the NSI of the contour. It is assumed that the polydata has been set.
-  double GetNormalizedShapeIndex()
-    {
-    return this->MassProperties->GetNormalizedShapeIndex();
-    }
-  
-  // Description: 
-  // Store the build times of the last assigned polydata, to avoid 
-  // recomputation.
-  void SetLastBuildTime( unsigned long t ) { this->LastBuildTime = t; }
-  unsigned long GetLastBuildTime() const { return this->LastBuildTime; }
-  
- private:
-  vtkMassProperties *MassProperties;
-  vtkTriangleFilter *TriangleFilter;
-  vtkPolyData       *PolyData;
-  double            Perimeter;
-  unsigned long     LastBuildTime;
-  unsigned long     LastPerimeterComputedTime;
-};
-
 
 //----------------------------------------------------------------------
 vtkContourRepresentation::vtkContourRepresentation()
@@ -199,8 +71,6 @@ vtkContourRepresentation::vtkContourRepresentation()
   this->NeedToRender             = 0;
   this->ClosedLoop               = 0;
   this->CurrentOperation         = vtkContourRepresentation::Inactive;
-  this->ContourStatistics        = NULL;
-  this->ComputeStatisticsOff();
 }
 
 //----------------------------------------------------------------------
@@ -220,11 +90,6 @@ vtkContourRepresentation::~vtkContourRepresentation()
     }
   this->Internal->Nodes.clear(); 
   delete this->Internal;
-
-  if ( this->ContourStatistics ) 
-    {
-    delete this->ContourStatistics;
-    }
 }
 
   
@@ -1087,96 +952,6 @@ void vtkContourRepresentation::UpdateLine( int idx1, int idx2 )
 int vtkContourRepresentation::ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modified))
 {
   return this->InteractionState;
-}
-
-//---------------------------------------------------------------------
-void vtkContourRepresentation::ComputeStatisticsOn()
-{
-  this->SetComputeStatistics( 1 );
-}
-
-//---------------------------------------------------------------------
-void vtkContourRepresentation::ComputeStatisticsOff()
-{
-  this->SetComputeStatistics( 0 );
-}
-
-//---------------------------------------------------------------------
-void vtkContourRepresentation::SetComputeStatistics( int i )
-{
-  if( i )
-    {
-    this->ComputeStatistics = 1;
-    if (!this->ContourStatistics)
-      {
-      // Create object
-      this->ContourStatistics = new vtkContourStatistics(); 
-      }
-    }
-  else
-    {
-    this->ComputeStatistics = 0;
-    }
-      
-  // Delete ContourStatistics if no statistics are going to be computed
-  if ( !this->ComputeStatistics )
-    {
-    delete this->ContourStatistics;
-    }
-    
-}
-
-//----------------------------------------------------------------------
-double vtkContourRepresentation::GetArea() 
-{
-  if( this->ComputeStatistics && this->ContourStatistics && this->ClosedLoop )
-    {
-    this->AssignPolyDataToStatisticsCalculator();
-    return this->ContourStatistics->GetArea();
-    }
-  
-  return 0.; // not a closed loop
-}
-  
-//----------------------------------------------------------------------
-double vtkContourRepresentation::GetNormalizedShapeIndex() 
-{
-  if( this->ComputeStatistics && this->ContourStatistics && this->ClosedLoop )
-    {
-    this->AssignPolyDataToStatisticsCalculator();
-    return this->ContourStatistics->GetNormalizedShapeIndex();
-    }
-  
-  return 0.;
-}
-
-//----------------------------------------------------------------------
-double vtkContourRepresentation::GetPerimeter() 
-{
-  if( this->ComputeStatistics && this->ContourStatistics && this->ClosedLoop )
-    {
-    this->AssignPolyDataToStatisticsCalculator();
-    return this->ContourStatistics->GetPerimeter();
-    }
-
-  return 0.;
-}
-
-//----------------------------------------------------------------------
-void vtkContourRepresentation::AssignPolyDataToStatisticsCalculator() 
-{
-  // Rebuild only if the polydata has changed.
-  if (const_cast< vtkPolyData * >(
-        this->GetContourRepresentationAsPolyData())->GetMTime() > 
-        this->ContourStatistics->GetLastBuildTime() ) 
-    {
-    vtkPolyData *pd = this->ContourStatistics->GetPolyData();
-    pd->DeepCopy( const_cast< vtkPolyData * >(this->GetContourRepresentationAsPolyData()));
-    pd->SetPolys( pd->GetLines() );
-    pd->SetLines( NULL );
-    this->ContourStatistics->SetLastBuildTime( 
-        this->ContourStatistics->GetPolyData()->GetMTime() );
-    }
 }
 
 //----------------------------------------------------------------------
