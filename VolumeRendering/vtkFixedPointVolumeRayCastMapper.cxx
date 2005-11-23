@@ -44,7 +44,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.23");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.24");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -384,7 +384,7 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
   me->InvokeEvent( vtkCommand::EndEvent, NULL );  
   
   timer->StopTimer();
-//  cout << "Time to compute is: " << timer->GetElapsedTime() << endl;
+  cout << "Time to compute is: " << timer->GetElapsedTime() << endl;
   timer->Delete();
 }
 
@@ -1507,8 +1507,8 @@ void vtkFixedPointVolumeRayCastMapper::CreateCanonicalView( vtkVolume *vol,
     {
     for ( i = 0; i < dim[0]; i++ )
       {
-      if ( j < origin[1] ||
-           i < origin[0] )
+      if ( j < origin[1] || (j-origin[1]) >= inUseSize[1] ||
+           i < origin[0] || (i-origin[0]) >= inUseSize[0] )
         {
         *(outPtr++) = 0;
         *(outPtr++) = 0;
