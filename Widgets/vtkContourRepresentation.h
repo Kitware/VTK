@@ -271,21 +271,6 @@ public:
   virtual const vtkPolyData * GetContourRepresentationAsPolyData() const = 0;
 //ETX
 
-  // Description::
-  // Get the area of the contour. A value of 0 is returned if the contour
-  // is not closed.
-  double GetArea();
-
-  // Description::
-  // Get the area of the contour. A value of 0 is returned if the contour
-  // is not closed.
-  double GetPerimeter();
-
-  // Description::
-  // Get the NSI of the contour. A value of 0 is returned if the contour
-  // is not closed. See vtkMassProperties for info on NSI.
-  double GetNormalizedShapeIndex();
-
 protected:
   vtkContourRepresentation();
   ~vtkContourRepresentation();
