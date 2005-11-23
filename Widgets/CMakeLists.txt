@@ -37,6 +37,7 @@ vtkEvent.cxx
 vtkFocalPlanePointPlacer.cxx
 vtkHandleRepresentation.cxx
 vtkHandleWidget.cxx
+vtkImageActorPointPlacer.cxx
 vtkImagePlaneWidget.cxx
 vtkImageTracerWidget.cxx
 vtkImplicitPlaneWidget.cxx

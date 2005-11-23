@@ -20,7 +20,7 @@
 #include "vtkPlaneCollection.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkBoundedPlanePointPlacer, "1.3");
+vtkCxxRevisionMacro(vtkBoundedPlanePointPlacer, "1.4");
 vtkStandardNewMacro(vtkBoundedPlanePointPlacer);
 
 vtkCxxSetObjectMacro(vtkBoundedPlanePointPlacer, ObliquePlane, vtkPlane);
@@ -163,6 +163,16 @@ int vtkBoundedPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
                                     normal, origin,
                                     distance, position ) )
     {
+    // Fill in the information now before validating it.
+    // This is because we should return the best information
+    // we can since this may be part of an UpdateWorldPosition
+    // call - we need to do the best at updating the position
+    // even if it is not valid.
+    this->GetCurrentOrientation( worldOrient );
+    worldPos[0] = position[0];
+    worldPos[1] = position[1];
+    worldPos[2] = position[2];
+    
     // Now check against the bounding planes
     if ( this->BoundingPlanes )
       {
@@ -178,13 +188,6 @@ int vtkBoundedPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
           }
         }
       }
-    
-    worldPos[0] = position[0];
-    worldPos[1] = position[1];
-    worldPos[2] = position[2];
-    
-    this->GetCurrentOrientation( worldOrient );
-    
     return 1;
     }
 
@@ -219,6 +222,29 @@ int vtkBoundedPlanePointPlacer::ValidateWorldPosition( double worldPos[3] )
   return 1;
 }
 
+//----------------------------------------------------------------------
+int vtkBoundedPlanePointPlacer::UpdateWorldPosition( vtkRenderer *ren,
+                                                     double worldPos[3],
+                                                     double worldOrient[9] )
+{
+  double displayPoint[2];
+  double tmp[4];
+  
+  tmp[0] = worldPos[0];
+  tmp[1] = worldPos[1];
+  tmp[2] = worldPos[2];
+  tmp[3] = 1.0;
+  
+  ren->SetWorldPoint( tmp );
+  ren->WorldToDisplay();
+  ren->GetDisplayPoint( tmp );
+  
+  displayPoint[0] = tmp[0];
+  displayPoint[1] = tmp[1];
+  
+  return this->ComputeWorldPosition( ren, displayPoint, 
+                                     worldPos, worldOrient );
+}
 //----------------------------------------------------------------------
 void vtkBoundedPlanePointPlacer::GetCurrentOrientation( double worldOrient[9] )
 {

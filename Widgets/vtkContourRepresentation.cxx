@@ -32,7 +32,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.7");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -952,6 +952,41 @@ void vtkContourRepresentation::UpdateLine( int idx1, int idx2 )
 int vtkContourRepresentation::ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modified))
 {
   return this->InteractionState;
+}
+
+//---------------------------------------------------------------------
+int vtkContourRepresentation::UpdateContour()
+{
+  this->PointPlacer->UpdateInternalState();
+  
+  if ( this->ContourBuildTime > this->PointPlacer->GetMTime() )
+    {
+    // Contour does not need to be rebuilt
+    return 0;
+    }
+  
+  for(unsigned int i=0;i<this->Internal->Nodes.size();i++)
+    {
+    this->PointPlacer->
+      UpdateWorldPosition( this->Renderer,
+                           this->Internal->Nodes[i]->WorldPosition,                               
+                           this->Internal->Nodes[i]->WorldOrientation );
+    }
+  
+  for(unsigned int i=0;(i+1)<this->Internal->Nodes.size();i++)
+    {
+    this->UpdateLine(i, i+1);
+    }
+  
+  if ( this->ClosedLoop )
+    {
+    this->UpdateLine( this->Internal->Nodes.size()-1, 0);
+    }
+  this->BuildLines();
+   
+  this->ContourBuildTime.Modified();
+  
+  return 1;
 }
 
 //----------------------------------------------------------------------

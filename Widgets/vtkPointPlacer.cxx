@@ -16,7 +16,7 @@
 
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkPointPlacer, "1.2");
+vtkCxxRevisionMacro(vtkPointPlacer, "1.3");
 
 //----------------------------------------------------------------------
 vtkPointPlacer::vtkPointPlacer()
@@ -28,6 +28,14 @@ vtkPointPlacer::vtkPointPlacer()
 //----------------------------------------------------------------------
 vtkPointPlacer::~vtkPointPlacer()
 {
+}
+
+//----------------------------------------------------------------------
+int vtkPointPlacer::UpdateWorldPosition( vtkRenderer *vtkNotUsed(ren),
+                                         double *vtkNotUsed(worldPos),
+                                         double *vtkNotUsed(worldOrient) )
+{
+  return 1;
 }
 
 //----------------------------------------------------------------------

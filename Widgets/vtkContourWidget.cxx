@@ -30,7 +30,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.7");
+vtkCxxRevisionMacro(vtkContourWidget, "1.8");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -225,8 +225,7 @@ void vtkContourWidget::AddNode()
       this->WidgetState = vtkContourWidget::Manipulate;
       reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep)->ClosedLoopOn();    
       this->EventCallbackCommand->SetAbortFlag(1);
-      this->InvokeEvent( vtkCommand::WidgetValueChangedEvent, NULL );
-      this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+      this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       return;
       }
     }
@@ -234,6 +233,11 @@ void vtkContourWidget::AddNode()
   if ( reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep)->
        AddNodeAtDisplayPosition( X, Y ) )
     {
+    if ( this->WidgetState == vtkContourWidget::Start )
+      {
+      this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+      }
+    
     this->WidgetState = vtkContourWidget::Define;
     reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep)->VisibilityOn();    
     this->EventCallbackCommand->SetAbortFlag(1);

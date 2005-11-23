@@ -40,7 +40,7 @@
 #include "vtkFocalPlanePointPlacer.h"
 #include "vtkBezierContourLineInterpolator.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.6");
 vtkStandardNewMacro(vtkOrientedGlyphContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -388,8 +388,6 @@ void vtkOrientedGlyphContourRepresentation::Translate(double eventPos[2])
 //----------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::Scale(double eventPos[2])
 {
-  cout << "SCALE!!!" << endl;
-  
   // Get the current scale factor
   double sf = this->Glypher->GetScaleFactor();
 
@@ -504,6 +502,9 @@ vtkOrientedGlyphContourRepresentation::GetContourRepresentationAsPolyData() cons
 //----------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::BuildRepresentation()
 {
+  // Make sure we are up to date with any changes made in the placer
+  this->UpdateContour();
+  
   double p1[4], p2[4];
   this->Renderer->GetActiveCamera()->GetFocalPoint(p1);
   p1[3] = 1.0;
@@ -624,7 +625,6 @@ void vtkOrientedGlyphContourRepresentation::ReleaseGraphicsResources(vtkWindow *
 int vtkOrientedGlyphContourRepresentation::RenderOverlay(vtkViewport *viewport)
 {
   int count=0;
-  this->BuildRepresentation();
   count += this->LinesActor->RenderOverlay(viewport);
   if ( this->Actor->GetVisibility() )
     {
@@ -640,8 +640,11 @@ int vtkOrientedGlyphContourRepresentation::RenderOverlay(vtkViewport *viewport)
 //----------------------------------------------------------------------
 int vtkOrientedGlyphContourRepresentation::RenderOpaqueGeometry(vtkViewport *viewport)
 {
-  int count=0;
+  // Since we know RenderOpaqueGeometry gets called first, will do the
+  // build here
   this->BuildRepresentation();
+  
+  int count=0;
   count += this->LinesActor->RenderOpaqueGeometry(viewport);
   if ( this->Actor->GetVisibility() )
     {
@@ -658,7 +661,6 @@ int vtkOrientedGlyphContourRepresentation::RenderOpaqueGeometry(vtkViewport *vie
 int vtkOrientedGlyphContourRepresentation::RenderTranslucentGeometry(vtkViewport *viewport)
 {
   int count=0;
-  this->BuildRepresentation();
   count += this->LinesActor->RenderTranslucentGeometry(viewport);
   if ( this->Actor->GetVisibility() )
     {
