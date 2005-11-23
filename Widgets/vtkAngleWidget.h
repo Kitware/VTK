@@ -18,7 +18,10 @@
 // by three points). The three points (two end points and a center)
 // can be positioned independently, and when they are released, a special
 // PlacePointEvent is invoked so that special operations may be take to
-// reposition the point (snap to grid, etc.)
+// reposition the point (snap to grid, etc.) The widget has two different
+// modes of interaction: when initially defined (i.e., placing the three
+// points) and then a manipulate mode (adjusting the position of the 
+// three points).
 // 
 // To use this widget, specify an instance of vtkAngleWidget and a
 // representation (a subclass of vtkAngleRepresentation). The widget is
@@ -40,9 +43,10 @@
 // into the vtkSliderWidget's widget events:
 // <pre>
 //   vtkWidgetEvent::AddPoint -- add one point; depending on the state
-//                               it may the first or second point added. Or,
-//                               if near handle, select handle.
-//   vtkWidgetEvent::Move -- move the second point or handle depending on the state.
+//                               it may the first, second or third point 
+//                               added. Or, if near a handle, select the handle.
+//   vtkWidgetEvent::Move -- position the second or third point, or move the
+//                           handle depending on the state.
 //   vtkWidgetEvent::EndSelect -- the handle manipulation process has completed.
 // </pre>
 //
@@ -51,13 +55,13 @@
 // <pre>
 //   vtkCommand::StartInteractionEvent (beginning to interact)
 //   vtkCommand::EndInteractionEvent (completing interaction)
-//   vtkCommand::InteractionEvent (moving after selecting something)
-//   vtkCommand::PlacePointEvent (after point is positioned; 
-//                                call data includes handle id (0,1))
+//   vtkCommand::InteractionEvent (moving a handle)
+//   vtkCommand::PlacePointEvent (after a point is positioned; 
+//                                call data includes handle id (0,1,2))
 // </pre>
 
 // .SECTION See Also
-// vtkHandleWidget 
+// vtkHandleWidget vtkDistanceWidget
 
 
 #ifndef __vtkAngleWidget_h

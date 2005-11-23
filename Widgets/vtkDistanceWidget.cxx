@@ -26,13 +26,13 @@
 #include "vtkAxisActor2D.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkDistanceWidget, "1.5");
+vtkCxxRevisionMacro(vtkDistanceWidget, "1.6");
 vtkStandardNewMacro(vtkDistanceWidget);
 
 
-// The checkerboard simply observes the behavior of four vtkSliderWidgets.
+// The distance widget observes its two handles.
 // Here we create the command/observer classes to respond to the 
-// slider widgets.
+// handle widgets.
 class vtkDistanceWidgetCallback : public vtkCommand
 {
 public:

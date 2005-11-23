@@ -17,7 +17,10 @@
 // The vtkDistanceWidget is used to measure the distance between two points.
 // The two end points can be positioned independently, and when they are
 // released, a special PlacePointEvent is invoked so that special operations
-// may be take to reposition the point (snap to grid, etc.)
+// may be take to reposition the point (snap to grid, etc.) The widget has
+// two different modes of interaction: when initially defined (i.e., placing
+// the two points) and then a manipulate mode (adjusting the position of
+// the two points).
 // 
 // To use this widget, specify an instance of vtkDistanceWidget and a
 // representation (a subclass of vtkDistanceRepresentation). The widget is
@@ -40,7 +43,7 @@
 // <pre>
 //   vtkWidgetEvent::AddPoint -- add one point; depending on the state
 //                               it may the first or second point added. Or,
-//                               if near handle, select handle.
+//                               if near a handle, select the handle.
 //   vtkWidgetEvent::Move -- move the second point or handle depending on the state.
 //   vtkWidgetEvent::EndSelect -- the handle manipulation process has completed.
 // </pre>
