@@ -25,11 +25,11 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAngleWidget, "1.8");
+vtkCxxRevisionMacro(vtkAngleWidget, "1.9");
 vtkStandardNewMacro(vtkAngleWidget);
 
 
-// The checkerboard simply observes the behavior of four vtkSliderWidgets.
+// The angle widget observes the handles.
 // Here we create the command/observer classes to respond to the 
 // slider widgets.
 class vtkAngleWidgetCallback : public vtkCommand
@@ -276,16 +276,18 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
   // If we are placing the first point it's easy
   if ( self->WidgetState == vtkAngleWidget::Start )
     {
+    self->Interactor->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkAngleWidget::Define;
+    self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
     double e[2];
     e[0] = static_cast<double>(X);
     e[1] = static_cast<double>(Y);
     reinterpret_cast<vtkAngleRepresentation*>(self->WidgetRep)->StartWidgetInteraction(e);
     self->CurrentHandle = 0;
     self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
-    self->CurrentHandle++;
     reinterpret_cast<vtkAngleRepresentation*>(self->WidgetRep)->Ray1VisibilityOn();
     self->Point1Widget->SetEnabled(1);
+    self->CurrentHandle++;
     }
 
   // If defining we are placing the second or third point
@@ -294,6 +296,7 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
     self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
     if ( self->CurrentHandle == 1 )
       {
+      self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
       double e[2];
       e[0] = static_cast<double>(X);
       e[1] = static_cast<double>(Y);
@@ -305,8 +308,12 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
       }
     else if ( self->CurrentHandle == 2 )
       {
+      self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
+      self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       self->WidgetState = vtkAngleWidget::Manipulate;
       self->Point2Widget->SetEnabled(1);
+      self->CurrentHandle = (-1);
+      self->Interactor->ReleaseFocus();
       }
     }
   
@@ -314,32 +321,29 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
   else //if ( self->WidgetState == vtkAngleWidget::Manipulate )
     {
     int state = self->WidgetRep->ComputeInteractionState(X,Y);
+    if ( state == vtkAngleRepresentation::Outside )
+      {
+      self->CurrentHandle = (-1);
+      return;
+      }
+
+    self->Interactor->GrabFocus(self->EventCallbackCommand);
     if ( state == vtkAngleRepresentation::NearP1 )
       {
-      self->Interactor->GrabFocus(self->EventCallbackCommand);
       self->CurrentHandle = 0;
-      self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
       }
     else if ( state == vtkAngleRepresentation::NearCenter )
       {
-      self->Interactor->GrabFocus(self->EventCallbackCommand);
       self->CurrentHandle = 1;
-      self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
       }
     else if ( state == vtkAngleRepresentation::NearP2 )
       {
-      self->Interactor->GrabFocus(self->EventCallbackCommand);
       self->CurrentHandle = 2;
-      self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
       }
-    else //if ( state == vtkAngleRepresentation::Outside )
-      {
-      return;
-      }
+    self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
     }
 
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   self->Render();
 }
 
@@ -351,18 +355,16 @@ void vtkAngleWidget::MoveAction(vtkAbstractWidget *w)
   // Do nothing if outside
   if ( self->WidgetState == vtkAngleWidget::Start || 
        (self->WidgetState == vtkAngleWidget::Manipulate &&
-        self->WidgetRep->GetInteractionState() == vtkAngleRepresentation::Outside) )
+        self->CurrentHandle < 0 ) )
     {
     return;
     }
 
-  // compute some info we need for all cases
-  int X = self->Interactor->GetEventPosition()[0];
-  int Y = self->Interactor->GetEventPosition()[1];
-
   // Delegate the event consistent with the state
   if ( self->WidgetState == vtkAngleWidget::Define )
     {
+    int X = self->Interactor->GetEventPosition()[0];
+    int Y = self->Interactor->GetEventPosition()[1];
     double e[2];
     e[0] = static_cast<double>(X);
     e[1] = static_cast<double>(Y);
@@ -376,6 +378,7 @@ void vtkAngleWidget::MoveAction(vtkAbstractWidget *w)
       reinterpret_cast<vtkAngleRepresentation*>(self->WidgetRep)->
         WidgetInteraction(e);
       }
+    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
 
   else //must be moving a handle, invoke a event for the handle widgets
@@ -385,7 +388,6 @@ void vtkAngleWidget::MoveAction(vtkAbstractWidget *w)
 
   self->WidgetRep->BuildRepresentation();
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   self->Render();
 }
 
@@ -395,17 +397,18 @@ void vtkAngleWidget::EndSelectAction(vtkAbstractWidget *w)
   vtkAngleWidget *self = reinterpret_cast<vtkAngleWidget*>(w);
 
   // Do nothing if outside
-  if ( self->WidgetState != vtkAngleWidget::Manipulate ||
-       self->WidgetRep->GetInteractionState() == vtkAngleRepresentation::Outside )
+  if ( self->WidgetState == vtkAngleWidget::Start ||
+       self->WidgetState == vtkAngleWidget::Define ||
+       self->CurrentHandle < 0 )
     {
     return;
     }
 
   self->Interactor->ReleaseFocus();
   self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+  self->CurrentHandle = (-1);
   self->WidgetRep->BuildRepresentation();
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   self->Render();
 }
 
