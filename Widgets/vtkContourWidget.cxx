@@ -30,7 +30,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.8");
+vtkCxxRevisionMacro(vtkContourWidget, "1.9");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -224,6 +224,7 @@ void vtkContourWidget::AddNode()
       // manipulate mode
       this->WidgetState = vtkContourWidget::Manipulate;
       reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep)->ClosedLoopOn();    
+      this->Render();
       this->EventCallbackCommand->SetAbortFlag(1);
       this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       return;
