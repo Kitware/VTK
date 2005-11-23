@@ -34,6 +34,11 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "could not be inlined"
   "ld: warning prebinding disabled because \\((__TEXT|__DATA|__LINKEDIT) segment \\(address = 0x[a-f0-9]+ size = 0x[a-f0-9]+\\) of (.*) overlaps with (__LINKEDIT|__TEXT|__DATA) segment \\(address = 0x[a-f0-9]+ size = 0x[a-f0-9]+\\) of (.*)"
   "ld: warning prebinding disabled because dependent library: (.*).dylib is not prebound"
+
+  # MPI uses c++ but may have been built with a different c++ compiler.
+  # It seems to work anyway so let's ignore it to make it easier to
+  # test more compilers.
+  "ld: warning: libstdc.*, needed by .*, may conflict with libstdc.*"
   )
 
 SET(CTEST_CUSTOM_COVERAGE_EXCLUDE
