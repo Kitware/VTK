@@ -83,11 +83,6 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkHandleRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  vtkHandleRepresentation *GetRepresentation()
-    {
-      this->CreateDefaultRepresentation();
-      return reinterpret_cast<vtkHandleRepresentation*>(this->WidgetRep);
-    }
   
   // Description:
   // Create the default widget representation if one is not set. 

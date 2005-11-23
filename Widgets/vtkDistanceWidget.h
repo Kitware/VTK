@@ -96,11 +96,6 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkDistanceRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  vtkDistanceRepresentation *GetRepresentation()
-    {
-      this->CreateDefaultRepresentation();
-      return reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep);
-    }
   
   // Description:
   // Create the default widget representation if one is not set. 

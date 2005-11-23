@@ -81,10 +81,14 @@ int TestRectilinearWipeWidget( int argc, char *argv[] )
   // (i.e., matters pertaining to geometry).
   vtkRectilinearWipeWidget *wipeWidget = vtkRectilinearWipeWidget::New();
   wipeWidget->SetInteractor(iren);
-  wipeWidget->GetRepresentation()->SetImageActor(wipeActor);
-  wipeWidget->GetRepresentation()->SetRectilinearWipe(wipe);
-  wipeWidget->GetRepresentation()->GetProperty()->SetLineWidth(2.0);
-  wipeWidget->GetRepresentation()->GetProperty()->SetOpacity(0.75);
+  
+  vtkRectilinearWipeWidgetRepresentation *wipeWidgetRep=
+    static_cast<vtkRectilinearWipeWidgetRepresentation *>(wipeWidget->GetRepresentation());
+  
+  wipeWidgetRep->SetImageActor(wipeActor);
+  wipeWidgetRep->SetRectilinearWipe(wipe);
+  wipeWidgetRep->GetProperty()->SetLineWidth(2.0);
+  wipeWidgetRep->GetProperty()->SetOpacity(0.75);
 
   // Add the actors to the renderer, set the background and size
   //

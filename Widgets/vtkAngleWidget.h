@@ -98,11 +98,6 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkAngleRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  vtkAngleRepresentation *GetRepresentation()
-    {
-      this->CreateDefaultRepresentation();
-      return reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep);
-    }
   
   // Description:
   // Create the default widget representation if one is not set. 

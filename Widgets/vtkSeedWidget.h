@@ -96,11 +96,6 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkSeedRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  vtkSeedRepresentation *GetRepresentation()
-    {
-      this->CreateDefaultRepresentation();
-      return reinterpret_cast<vtkSeedRepresentation*>(this->WidgetRep);
-    }
   
   // Description:
   // Create the default widget representation if one is not set. 

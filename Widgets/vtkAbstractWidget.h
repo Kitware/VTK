@@ -85,6 +85,16 @@ public:
   void SetParent(vtkAbstractWidget *parent) {this->Parent = parent;}
   vtkGetObjectMacro(Parent,vtkAbstractWidget);
 
+  // Description:
+  // Return an instance of vtkWidgetRepresentation used to represent this
+  // widget in the scene. Note that the representation is a subclass of vtkProp
+  // so it can be added to the renderer independent of the widget.
+  vtkWidgetRepresentation *GetRepresentation()
+    {
+      this->CreateDefaultRepresentation();
+      return this->WidgetRep;
+    }
+  
 protected:
   vtkAbstractWidget();
   ~vtkAbstractWidget();

@@ -98,11 +98,6 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkRectilinearWipeRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  vtkRectilinearWipeRepresentation *GetRepresentation()
-    {
-      this->CreateDefaultRepresentation();
-      return reinterpret_cast<vtkRectilinearWipeRepresentation*>(this->WidgetRep);
-    }
   
   // Description:
   // Create the default widget representation if one is not set. 

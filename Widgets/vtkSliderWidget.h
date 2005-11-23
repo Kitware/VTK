@@ -85,11 +85,6 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkSliderRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  vtkSliderRepresentation *GetRepresentation()
-    {
-      this->CreateDefaultRepresentation();
-      return reinterpret_cast<vtkSliderRepresentation*>(this->WidgetRep);
-    }
   
   // Description:
   // Control the behavior of the slider when selecting the tube or caps. If
