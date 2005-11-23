@@ -20,7 +20,7 @@
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageActorPointPlacer, "1.1");
+vtkCxxRevisionMacro(vtkImageActorPointPlacer, "1.2");
 vtkStandardNewMacro(vtkImageActorPointPlacer);
 
 vtkCxxSetObjectMacro(vtkImageActorPointPlacer, ImageActor, vtkImageActor);
@@ -42,6 +42,7 @@ vtkImageActorPointPlacer::vtkImageActorPointPlacer()
 vtkImageActorPointPlacer::~vtkImageActorPointPlacer()
 {
   this->Placer->Delete();
+  this->SetImageActor(NULL);
 }
 
 
