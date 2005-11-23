@@ -91,7 +91,7 @@ public:
   void ReleaseGraphicsResources(vtkWindow *) { }
   
   // Description:
-  // Get/Set the XMLShader reprentation for this shader.
+  // Get/Set the XMLShader representation for this shader.
   // A shader is not valid without a XMLShader.
   void SetXMLShader(vtkXMLShader*);
   vtkGetObjectMacro(XMLShader, vtkXMLShader);
@@ -113,19 +113,19 @@ public:
     const double *values);
 
   // Description:
-  // Get number of elements in a  Shader variable. return 0 if
+  // Get number of elements in a Shader variable. Return 0 if
   // failed to find the shader variable.
   int GetShaderVariableSize(const char* name);
 
   // Description:
-  // Rertuns the type of a Shader variable with the given name.
+  // Returns the type of a Shader variable with the given name.
   // Return 0 on error.
   int GetShaderVariableType(const char* name);
   
   // Description:
   // Methods to get the value of shader variables with the given name.
-  // values must be alteast the size of the shader variable (obtained
-  // by GetShaderVariableSize(). Returns if the operation was succesful.
+  // Values must be at least the size of the shader variable (obtained
+  // by GetShaderVariableSize(). Returns if the operation was successful.
   int GetShaderVariable(const char* name, int* values);
   int GetShaderVariable(const char* name, float* values);
   int GetShaderVariable(const char* name, double* values);
@@ -147,7 +147,8 @@ protected:
   // Description:
   // Runs throught the XML element children to locate uniform
   // variable elements and process them.
-  virtual void SetShaderParameters(vtkActor*, vtkRenderer*, vtkXMLDataElement*);
+  virtual void SetShaderParameters(vtkActor*, vtkRenderer*,
+                                   vtkXMLDataElement*);
   
   
   // Description:
@@ -199,7 +200,7 @@ protected:
     const char* transform_type)=0;
 
   // Description:
-  // Equivalen to cgGLSetTexture(), GLSL merely does a glUniform1v().
+  // Equivalent to cgGLSetTexture(), GLSL merely does a glUniform1v().
   // Subclass may have to cast the texture to vtkOpenGLTexture to obtain
   // the GLunint for texture this texture.
   // Subclasses must override these and perform GLSL or Cg calls.

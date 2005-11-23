@@ -27,7 +27,7 @@
 // It's main function is to 'Link' a vertex and a fragment shader together
 // and install them into the rendering pipeline by calling OpenGL2.0.
 //
-// Initization of shader parameters is delegated to instances of vtkShader
+// Initialization of shader parameters is delegated to instances of vtkShader
 // (vtkGLSLShader in this case).
 
 #ifndef __vtkGLSLShaderProgram_h
@@ -47,10 +47,10 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // .Description:
-  // Take shader from it's source (file and/or string) and load, compile, and
+  // Take shader from its source (file and/or string) and load, compile, and
   // install in hardware. Also, initialize uniform variables originating from
-  // the following sources: XML material file, vtkProperty, vtkLight, vtkCamera,
-  // and application-specified uniform variables.
+  // the following sources: XML material file, vtkProperty, vtkLight,
+  // vtkCamera, and application-specified uniform variables.
   virtual void Render(vtkActor *actor, vtkRenderer *renderer);
   
   // Description:

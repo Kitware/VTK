@@ -73,7 +73,7 @@ class vtkLight;
 class vtkCamera;
 class vtkRenderWindow;
 
-// manages all shaders defined in the XML file
+// Manages all shaders defined in the XML file
 // especially the part about sending things to the card
 class VTK_RENDERING_EXPORT vtkGLSLShader : public vtkShader
 {
@@ -91,8 +91,7 @@ public:
   virtual int Compile();
 
   // Description:
-  // The vtkGLSLShaderProgram needs the shader handle
-  // for attaching.
+  // The vtkGLSLShaderProgram needs the shader handle for attaching.
   unsigned int GetHandle() { return this->Shader; }
 
   // Description:
@@ -138,7 +137,7 @@ protected:
     const char* transform_type);
 
   // Description:
-  // Equivalen to cgGLSetTexture(), GLSL merely does a glUniform1v().
+  // Equivalent to cgGLSetTexture(), GLSL merely does a glUniform1v().
   // Subclass may have to cast the texture to vtkOpenGLTexture to obtain
   // the GLunint for texture this texture.
   virtual void SetSamplerParameter(const char* name, vtkTexture* texture);

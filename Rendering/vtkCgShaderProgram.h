@@ -31,7 +31,7 @@
 // Since the interface between Cg shaders is only resolved at runtime (shader
 // runtime that is, after they've been installed on the card), Cg does not
 // have the concept of a shader Program. This class simply delegates shader
-// program functions to it's delegate vtkCgShaders.
+// program functions to its delegate vtkCgShaders.
 //
 // .Section See Also:
 // vtkShaderBase, vtkShader, vtkCgShader, vtkShaderProgram
@@ -52,10 +52,10 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // .Description:
-  // Take shader from it's source (file and/or string) and load, compile, and
+  // Take shader from its source (file and/or string) and load, compile, and
   // install in hardware. Also, initialize uniform variables originating from
-  // the following sources: XML material file, vtkProperty, vtkLight, vtkCamera,
-  // and application-specified uniform variables.
+  // the following sources: XML material file, vtkProperty, vtkLight,
+  // vtkCamera, and application-specified uniform variables.
   //
   // Delegates to vtkShader.
   virtual void Render(vtkActor*, vtkRenderer*);
