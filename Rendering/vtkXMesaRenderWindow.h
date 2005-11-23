@@ -74,6 +74,10 @@ public:
   virtual void SetSize(int a[2]) {this->SetSize(a[0], a[1]);};
 
   // Description:
+  // Get the size of the window
+  virtual int* GetSize();
+
+  // Description:
   // Get the X properties of an ideal rendering window.
   virtual Colormap GetDesiredColormap();
   virtual Visual  *GetDesiredVisual();
