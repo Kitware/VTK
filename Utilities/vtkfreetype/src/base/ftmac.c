@@ -67,6 +67,7 @@
   /* This is for Mac OS X.  Without redefinition, OS_INLINE */
   /* expands to `static inline' which doesn't survive the   */
   /* -ansi compilation flag of GCC.                         */
+#undef OS_INLINE
 #define OS_INLINE  static __inline__
 #include <Carbon/Carbon.h>
 #else

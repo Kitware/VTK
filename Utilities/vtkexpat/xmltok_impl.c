@@ -1766,6 +1766,8 @@ void PREFIX(updatePosition)(const ENCODING *enc,
 
 #undef DO_LEAD_CASE
 #undef MULTIBYTE_CASES
+
+#undef INVALID_LEAD_CASE
 #undef INVALID_CASES
 #undef CHECK_NAME_CASE
 #undef CHECK_NAME_CASES
