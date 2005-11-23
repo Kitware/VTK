@@ -67,7 +67,7 @@ protected:
   virtual ~vtkGLSLShaderProgram();
 
   // Description:
-  // Creates and returns a new vtkCgShader.
+  // Creates and returns a new vtkGLSLShader.
   virtual vtkShader* NewShader();
 
   unsigned int Program;
