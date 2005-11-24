@@ -32,7 +32,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.8");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -965,7 +965,8 @@ int vtkContourRepresentation::UpdateContour()
     return 0;
     }
   
-  for(unsigned int i=0;i<this->Internal->Nodes.size();i++)
+  unsigned int i;
+  for(i=0; i<this->Internal->Nodes.size(); i++)
     {
     this->PointPlacer->
       UpdateWorldPosition( this->Renderer,
@@ -973,7 +974,7 @@ int vtkContourRepresentation::UpdateContour()
                            this->Internal->Nodes[i]->WorldOrientation );
     }
   
-  for(unsigned int i=0;(i+1)<this->Internal->Nodes.size();i++)
+  for(i=0; (i+1)<this->Internal->Nodes.size(); i++)
     {
     this->UpdateLine(i, i+1);
     }
