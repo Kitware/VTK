@@ -35,7 +35,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.63");
+vtkCxxRevisionMacro(vtkImageReslice, "1.63.6.1");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -1046,7 +1046,7 @@ inline  int vtkInterpolateBorder(int &inIdX0, int &inIdX1, int inExtX,
     inIdX0 = inIdX1 = 0;
     return 0;
     }
-  if (inIdX1 == inExtX && fx < 0.5)
+  if (inIdX1 == inExtX && inIdX0 < inExtX && fx < 0.5)
     {
     inIdX0 = inIdX1 = inExtX - 1;
     return 0;
@@ -1060,7 +1060,7 @@ inline  int vtkInterpolateBorderCheck(int inIdX0, int inIdX1, int inExtX,
 {
   if ((inIdX0 >= 0 && inIdX1 < inExtX) ||
       (inIdX0 == -1 && fx >= 0.5) ||
-      (inIdX1 == inExtX && fx < 0.5))
+      (inIdX1 == inExtX && inIdX0 < inExtX && fx < 0.5))
     {
     return 0;
     }
