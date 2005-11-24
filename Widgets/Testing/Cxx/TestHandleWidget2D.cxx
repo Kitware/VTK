@@ -43,7 +43,7 @@ public:
       vtkHandleWidget *handleWidget = 
         reinterpret_cast<vtkHandleWidget*>(caller);
       double pos[3];
-      static_cast<vtkHandleWidgetRepresentation *>(handleWidget->GetRepresentation())->GetDisplayPosition(pos);
+      static_cast<vtkHandleRepresentation *>(handleWidget->GetRepresentation())->GetDisplayPosition(pos);
       this->Actor->SetPosition(pos[0],pos[1]);
     }
   vtkHandle2Callback():Actor(0) {}

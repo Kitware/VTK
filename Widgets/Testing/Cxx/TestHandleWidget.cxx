@@ -42,7 +42,7 @@ public:
       vtkHandleWidget *handleWidget = 
         reinterpret_cast<vtkHandleWidget*>(caller);
           double pos[3];
-          static_cast<vtkHandleWidgetRepresentation *>(handleWidget->GetRepresentation())->GetWorldPosition(pos);
+          static_cast<vtkHandleRepresentation *>(handleWidget->GetRepresentation())->GetWorldPosition(pos);
       this->Sphere->SetCenter(pos);
     }
   vtkHandleCallback():Sphere(0) {}

@@ -82,8 +82,8 @@ int TestRectilinearWipeWidget( int argc, char *argv[] )
   vtkRectilinearWipeWidget *wipeWidget = vtkRectilinearWipeWidget::New();
   wipeWidget->SetInteractor(iren);
   
-  vtkRectilinearWipeWidgetRepresentation *wipeWidgetRep=
-    static_cast<vtkRectilinearWipeWidgetRepresentation *>(wipeWidget->GetRepresentation());
+  vtkRectilinearWipeRepresentation *wipeWidgetRep=
+    static_cast<vtkRectilinearWipeRepresentation *>(wipeWidget->GetRepresentation());
   
   wipeWidgetRep->SetImageActor(wipeActor);
   wipeWidgetRep->SetRectilinearWipe(wipe);

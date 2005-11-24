@@ -51,7 +51,7 @@ public:
     {
       vtkSliderWidget *sliderWidget = 
         reinterpret_cast<vtkSliderWidget*>(caller);
-      this->Glyph->SetScaleFactor(static_cast<vtkSliderWidgetRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
+      this->Glyph->SetScaleFactor(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
     }
   vtkSWCallback():Glyph(0) {}
   vtkGlyph3D *Glyph;
