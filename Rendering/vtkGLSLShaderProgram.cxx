@@ -59,7 +59,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.5");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.6");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -159,7 +159,7 @@ void vtkGLSLShaderProgram::GetProgramInfo()
     vtkgl::OBJECT_LINK_STATUS_ARB, &linked );
   infoString += "Linked Status: ";
   char linkedStr[256];
-  sprintf( linkedStr, "%d", linked );
+  sprintf( linkedStr, "%d", static_cast<int>(linked) );
   infoString += linkedStr;
   infoString += "\n";
   //<< linked << endl;
@@ -169,7 +169,7 @@ void vtkGLSLShaderProgram::GetProgramInfo()
   vtkgl::GetProgramiv( static_cast<GLuint>(this->Program), 
     vtkgl::OBJECT_ATTACHED_OBJECTS_ARB, &numObjects );
   char numStr[256];
-  sprintf( numStr, "%d", numObjects );
+  sprintf( numStr, "%d", static_cast<int>(numObjects) );
   infoString += "Number of attached objects: ";
   infoString += numStr;
   infoString += "\n";
