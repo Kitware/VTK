@@ -192,7 +192,8 @@ public:
   // Description:
   // Add/Remove/Query the window/level presets that may have been associated
   // to a medical image. Window is also known as 'width', level is also known
-  // as 'center'.
+  // as 'center'. The same window/level pair can not be added twice.
+  // As a convenience, a comment can be associated to a preset.
   // For ex: DICOM Window Center (0028,1050) = 00045\000470
   //         DICOM Window Width  (0028,1051) = 0106\03412
   virtual void AddWindowLevelPreset(double w, double l);
@@ -202,7 +203,9 @@ public:
   virtual int HasWindowLevelPreset(double w, double l);
   virtual int GetNthWindowLevelPreset(int idx, double *w, double *l);
   virtual double* GetNthWindowLevelPreset(int idx);
-  
+  virtual void SetNthWindowLevelPresetComment(int idx, const char *comment);
+  virtual const char* GetNthWindowLevelPresetComment(int idx);
+
 protected:
   vtkMedicalImageProperties();
   ~vtkMedicalImageProperties();

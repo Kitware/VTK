@@ -19,7 +19,7 @@
 #include <vtksys/stl/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.4");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.5");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -32,6 +32,7 @@ public:
   public:
     double Window;
     double Level;
+    vtksys_stl::string Comment;
   };
   
   typedef vtkstd::vector<WindowLevelPreset> WindowLevelPresetPoolType;
@@ -155,6 +156,9 @@ void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
     double w, l;
     p->GetNthWindowLevelPreset(i, &w, &l);
     this->AddWindowLevelPreset(w, l);
+    this->SetNthWindowLevelPresetComment(
+      this->GetNumberOfWindowLevelPresets() - 1,
+      p->GetNthWindowLevelPresetComment(i));
     }
 }
 
@@ -252,6 +256,30 @@ double* vtkMedicalImageProperties::GetNthWindowLevelPreset(int idx)
     return wl;
     }
   return NULL;
+}
+
+//----------------------------------------------------------------------------
+const char* vtkMedicalImageProperties::GetNthWindowLevelPresetComment(
+  int idx)
+{
+  if (this->Internals && 
+      idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
+    {
+    return this->Internals->WindowLevelPresetPool[idx].Comment.c_str();
+    }
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+void vtkMedicalImageProperties::SetNthWindowLevelPresetComment(
+  int idx, const char *comment)
+{
+  if (this->Internals && 
+      idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
+    {
+    this->Internals->WindowLevelPresetPool[idx].Comment = 
+      (comment ? comment : "");
+    }
 }
 
 //----------------------------------------------------------------------------
