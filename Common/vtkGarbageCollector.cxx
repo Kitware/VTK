@@ -35,7 +35,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.29");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.30");
 vtkStandardNewMacro(vtkGarbageCollector);
 
 #if VTK_GARBAGE_COLLECTOR_HASH
@@ -506,10 +506,6 @@ void vtkGarbageCollectorImpl::FindComponents(vtkObjectBase* root)
 }
 
 //----------------------------------------------------------------------------
-#if defined(_MSC_VER) && _MSC_VER < 1300
-# pragma warning (push)
-# pragma warning (disable: 4702) // bogus unreachable code warning
-#endif
 vtkGarbageCollectorImpl::Entry*
 vtkGarbageCollectorImpl::MaybeVisit(vtkObjectBase* obj)
 {
@@ -522,15 +518,9 @@ vtkGarbageCollectorImpl::MaybeVisit(vtkObjectBase* obj)
     // Visit the object to create the entry.
     return this->VisitTarjan(obj);
     }
-  else
-    {
-    // Return the existing entry.
-    return *i;
-    }
+  // else Return the existing entry.
+  return *i;
 }
-#if defined(_MSC_VER) && _MSC_VER < 1300
-# pragma warning (pop)
-#endif
 
 //----------------------------------------------------------------------------
 vtkGarbageCollectorImpl::Entry*
