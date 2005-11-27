@@ -35,7 +35,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.65");
+vtkCxxRevisionMacro(vtkImageReslice, "1.66");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -565,6 +565,11 @@ int vtkImageReslice::RequestUpdateExtent(
         {
         // didn't hit any of the input extent
         inExt[2*i] = wholeExtent[2*i+1];
+        // finally, check for null input extent
+        if (inExt[2*i] < wholeExtent[2*i])
+          {
+          inExt[2*i] = wholeExtent[2*i];
+          }
         this->HitInputExtent = 0;
         }
       }
