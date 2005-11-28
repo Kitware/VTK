@@ -61,6 +61,9 @@
 //
 // This class may be extended for better data  handling or may become a
 // Facade to a DOM parser should on become part of the VTK code base.
+// .SECTION Thanks
+// Shader support in VTK includes key contributions by Gary Templet at 
+// Sandia National Labs.
 
 #ifndef __vtkXMLMaterialParser_h
 #define __vtkXMLMaterialParser_h

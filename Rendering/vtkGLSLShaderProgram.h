@@ -29,6 +29,9 @@
 //
 // Initialization of shader parameters is delegated to instances of vtkShader
 // (vtkGLSLShader in this case).
+// .SECTION Thanks
+// Shader support in VTK includes key contributions by Gary Templet at 
+// Sandia National Labs.
 
 #ifndef __vtkGLSLShaderProgram_h
 #define __vtkGLSLShaderProgram_h

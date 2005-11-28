@@ -60,6 +60,9 @@
 //  function.
 //
 //
+// .SECTION Thanks
+// Shader support in VTK includes key contributions by Gary Templet at 
+// Sandia National Labs.
 
 #ifndef __vtkGLSLShader_h
 #define __vtkGLSLShader_h

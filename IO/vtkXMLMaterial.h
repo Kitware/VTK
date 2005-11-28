@@ -17,6 +17,9 @@
 // vtkXMLMaterial encapsulates VTK Material description. It keeps a pointer
 // to vtkXMLDataElement that defines the material and provides 
 // access to Shaders/Properties defined in it.
+// .SECTION Thanks
+// Shader support in VTK includes key contributions by Gary Templet at 
+// Sandia National Labs.
 
 #ifndef __vtkXMLMaterial_h
 #define __vtkXMLMaterial_h

@@ -76,6 +76,9 @@
 // See vtkSNL/Rendering/Shaders/vtkLight.cg
 // See vtkSNL/Rendering/Shaders/vtkCamera.cg
 //
+// .SECTION Thanks
+// Shader support in VTK includes key contributions by Gary Templet at 
+// Sandia National Labs.
 
 #ifndef __vtkCgShader_h
 #define __vtkCgShader_h

@@ -32,10 +32,11 @@
 // During each render, the vtkShaderProgram calls Compile(),
 // PassShaderVariables(), Bind() and after the actor has been rendered,
 // calls Unbind(), in that order.
-//
 // .SECTION See Also
 // vtkCgShader vtkGLSLShader
-//
+// .SECTION Thanks
+// Shader support in VTK includes key contributions by Gary Templet at 
+// Sandia National Labs.
 
 #ifndef __vtkShader_h
 #define __vtkShader_h

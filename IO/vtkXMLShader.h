@@ -17,6 +17,9 @@
 // vtkXMLShader encapsulates the XML description for a Shader.
 // It provides convenient access to various attributes/properties
 // of a shader.
+// .SECTION Thanks
+// Shader support in VTK includes key contributions by Gary Templet at 
+// Sandia National Labs.
 
 #ifndef __vtkXMLShader_h
 #define __vtkXMLShader_h

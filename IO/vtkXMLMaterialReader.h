@@ -34,6 +34,9 @@
 // vtkVertexShader - defines vertex shaders
 //
 // vtkFragmentShader - defines fragment shaders
+// .SECTION Thanks
+// Shader support in VTK includes key contributions by Gary Templet at 
+// Sandia National Labs.
 
 #ifndef __vtkXMLMaterialReader_h
 #define __vtkXMLMaterialReader_h

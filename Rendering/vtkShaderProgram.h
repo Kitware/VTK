@@ -44,6 +44,9 @@
 //
 // .SECTION See Also
 // vtkCgShaderProgram, vtkGLSLShaderProgram
+// .SECTION Thanks
+// Shader support in VTK includes key contributions by Gary Templet at 
+// Sandia National Labs.
 
 #ifndef __vtkShaderProgram_h
 #define __vtkShaderProgram_h
