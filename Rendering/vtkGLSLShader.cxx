@@ -163,12 +163,13 @@ static void printAttributeInfo(GLuint program, const char* vtkNotUsed(filename))
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLSLShader);
-vtkCxxRevisionMacro(vtkGLSLShader, "1.4");
+vtkCxxRevisionMacro(vtkGLSLShader, "1.5");
 
 //-----------------------------------------------------------------------------
 vtkGLSLShader::vtkGLSLShader()
 {
   this->Shader = 0;
+  this->Program = 0;
 }
 
 //-----------------------------------------------------------------------------
