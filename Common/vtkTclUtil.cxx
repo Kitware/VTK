@@ -18,6 +18,9 @@
 #include "vtkSetGet.h"
 #include "vtkCallbackCommand.h"
 
+#include <vtkstd/string>
+#include <vtksys/SystemTools.hxx>
+
 extern "C"
 {
 #if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
@@ -726,4 +729,105 @@ void vtkTclCommand::Execute(vtkObject *, unsigned long, void *)
     } 
 }
 
+void vtkTclApplicationInitExecutable(int vtkNotUsed(argc),
+                                     const char* const argv[])
+{
+  vtkstd::string av0 = vtksys::SystemTools::CollapseFullPath(argv[0]);
+  Tcl_FindExecutable(av0.c_str());
+}
 
+// We need two internal Tcl functions.  They usually are declared in
+// tclIntDecls.h, but UNIX builds do not have access to VTK's
+// tkInternals include path.  Since the signature has not changed for
+// years (at least since 8.2), let's just prototype them.
+EXTERN Tcl_Obj* TclGetLibraryPath _ANSI_ARGS_((void));
+EXTERN void TclSetLibraryPath _ANSI_ARGS_((Tcl_Obj * pathPtr));
+
+void vtkTclApplicationInitTclTk(Tcl_Interp* interp,
+                                const char* const relative_dirs[])
+{
+  /*
+    Tcl/Tk requires support files to work (set of tcl files).
+    When an app is linked against Tcl/Tk shared libraries, the path to
+    the libraries is used by Tcl/Tk to search for its support files.
+    For example, on Windows, if bin/tcl84.dll is the shared lib, support
+    files will be searched in bin/../lib/tcl8.4, which is where they are
+    usually installed.
+    If an app is linked against Tcl/Tk *static* libraries, there is no
+    way for Tcl/Tk to find its support files. In that case, it will
+    use the TCL_LIBRARY and TK_LIBRARY environment variable (those should
+    point to the support files dir, ex: c:/tcl/lib/tcl8.4, c:/tk/lib/tcl8.4).
+
+    The above code will also make Tcl/Tk search inside VTK's build/install
+    directory, more precisely inside a TclTk/lib sub dir.
+    ex: [path to vtk.exe]/TclTk/lib/tcl8.4, [path to vtk.exe]/TclTk/lib/tk8.4
+    Support files are copied to that location when
+    VTK_TCL_TK_COPY_SUPPORT_LIBRARY is ON.
+  */
+
+#ifdef VTK_TCL_TK_COPY_SUPPORT_LIBRARY
+  int has_tcllibpath_env = getenv("TCL_LIBRARY") ? 1 : 0;
+  int has_tklibpath_env = getenv("TK_LIBRARY") ? 1 : 0;
+  vtkstd::string selfdir;
+  if(!has_tcllibpath_env || !has_tklibpath_env)
+    {
+    const char* nameofexec = Tcl_GetNameOfExecutable();
+    if(nameofexec && vtksys::SystemTools::FileExists(nameofexec))
+      {
+      vtkstd::string name = nameofexec;
+      vtksys::SystemTools::ConvertToUnixSlashes(name);
+      selfdir = vtksys::SystemTools::GetFilenamePath(name);
+      }
+    }
+  if(selfdir.length() > 0)
+    {
+    if(!has_tcllibpath_env)
+      {
+      vtkstd::string tdir;
+      for(const char* const* p = relative_dirs; *p; ++p)
+        {
+        tdir = selfdir;
+        tdir += "/";
+        tdir += *p;
+        tdir += "/tcl" TCL_VERSION;
+        tdir = vtksys::SystemTools::CollapseFullPath(tdir.c_str());
+        if(vtksys::SystemTools::FileExists(tdir.c_str()) &&
+           vtksys::SystemTools::FileIsDirectory(tdir.c_str()))
+          {
+          // Set the tcl_library Tcl variable.
+          char tcl_library[1024];
+          strcpy(tcl_library, tdir.c_str());
+          Tcl_SetVar(interp, "tcl_library", tcl_library,
+                     TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+          break;
+          }
+        }
+      }
+    if(!has_tklibpath_env)
+      {
+      vtkstd::string tdir;
+      for(const char* const* p = relative_dirs; *p; ++p)
+        {
+        tdir = selfdir;
+        tdir += "/";
+        tdir += *p;
+        tdir += "/tk" TCL_VERSION;
+        tdir = vtksys::SystemTools::CollapseFullPath(tdir.c_str());
+        if(vtksys::SystemTools::FileExists(tdir.c_str()) &&
+           vtksys::SystemTools::FileIsDirectory(tdir.c_str()))
+          {
+          // Set the tk_library Tcl variable.
+          char tk_library[1024];
+          strcpy(tk_library, tdir.c_str());
+          Tcl_SetVar(interp, "tk_library", tk_library,
+                     TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+          break;
+          }
+        }
+      }
+    }
+#else
+  (void)interp;
+  (void)relative_dirs;
+#endif
+}
