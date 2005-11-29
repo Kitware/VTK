@@ -16,11 +16,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.98");
+vtkCxxRevisionMacro(vtkMath, "1.99");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
-static const double sqrt3 = sqrt( 3 );
+static const double sqrt3 = sqrt( (double)3. );
 static const double inv3 = 1 / 3.;
 
 //
@@ -376,8 +376,8 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 // if inverse not computed.
 int vtkMath::InvertMatrix(double **A, double **AI, int size)
 {
-  int *index=NULL, iScratch[10];
-  double *column=NULL, dScratch[10];
+  int *index, iScratch[10];
+  double *column, dScratch[10];
 
   // Check on allocation of working vectors
   //
@@ -807,7 +807,7 @@ int vtkMath::Jacobi(double **a, double *w, double **v)
 double vtkMath::EstimateMatrixCondition(double **A, int size)
 {
   int i;
-  int j = 0;
+  int j;
   double min=VTK_LARGE_FLOAT, max=(-VTK_LARGE_FLOAT);
 
   // find the maximum value
