@@ -34,6 +34,15 @@ import os
 import stat
 import string
 
+# Get the path to the directory containing this script.
+if __name__ == '__main__':
+    selfpath = os.path.abspath(sys.path[0] or os.curdir)
+else:
+    selfpath = os.path.abspath(os.path.dirname(__file__))
+
+# Load the list of names mangled by windows.h.
+execfile(os.path.join(selfpath, 'WindowsMangleList.py'))
+
 ## If tested from dart, make sure to fix all the output strings
 test_from_dart = 0
 if os.environ.has_key("DART_TEST_FROM_DART"):
@@ -370,6 +379,29 @@ class TestVTKFiles:
             self.Warning("No PrintSelf method")
         pass
 
+    def CheckWindowsMangling(self):
+        lines = []
+        regx1 = WindowsMangleRegEx
+        regx2 = re.compile("^.*VTK_LEGACY.*$")
+        # This version will leave out comment lines but we probably do
+        # not want to refer to mangled (hopefully deprecated) methods
+        # in comments.
+        # regx2 = re.compile("^(\s*//|\s*\*|.*VTK_LEGACY).*$")
+        cc = 1
+        for a in self.FileLines:
+            line = string.strip(a)
+            rm = regx1.match(line)
+            if rm:
+                arg = string.strip(rm.group(1))
+                if arg and not regx2.match(line):
+                    lines.append(" %4d: %s" % (cc, line))
+            cc = cc + 1
+        if len(lines) > 0:
+            self.Print( "File: %s has windows.h mangling violations:" % self.FileName )
+            for a in lines:
+                self.Print(a)
+            self.Error("Windows Mangling Violation")
+        pass
 
 ##
 test = TestVTKFiles()
@@ -413,6 +445,7 @@ for a in os.listdir(dirname):
         test.CheckForCopyAndAssignment()
         test.CheckWeirdConstructors()
         test.CheckPrintSelf()
+        test.CheckWindowsMangling()
 
 ## Summarize errors
 test.PrintWarnings()
