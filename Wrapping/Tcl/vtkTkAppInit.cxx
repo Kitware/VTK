@@ -65,8 +65,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkParallelInstantiator.h"
 #endif
 
-#include <vtkstd/string>
-#include <vtksys/SystemTools.hxx>
+#include "vtkTclUtil.h"
 
 static void vtkTkAppInitEnableMSVCDebugHook();
 
@@ -138,8 +137,7 @@ main(int argc, char **argv)
   // (like finding the encodings, setting variables depending on the value
   // of TCL_LIBRARY, TK_LIBRARY
 
-  vtkstd::string av0 = vtksys::SystemTools::CollapseFullPath(argv[0]);
-  Tcl_FindExecutable(av0.c_str());
+  vtkTclApplicationInitExecutable(argc, argv);
 
 #ifdef VTK_USE_TK
   Tk_Main(argc, argv, Tcl_AppInit);
@@ -197,185 +195,20 @@ void help()
 {
 }
 
-#ifdef VTK_TCL_TK_COPY_SUPPORT_LIBRARY
-int vtkTkAppInitFileExists(const char *filename)
-{
-  struct stat fs;
-  return (filename && !stat(filename, &fs)) ? 1 : 0;
-}
-
-const char* vtkTkAppInitGetFilenamePath(const char *filename, char *path)
-{
-  if (!path)
-    {
-    return path;
-    }
-
-  if (!filename || !strlen(filename))
-    {
-    path[0] = '\0';
-    return path;
-    }
-
-  const char *ptr = filename + strlen(filename) - 1;
-  while (ptr > filename && *ptr != '/' && *ptr != '\\')
-    {
-    ptr--;
-    }
-
-  size_t length = ptr - filename;
-  if (length)
-    {
-    strncpy(path, filename, length);
-    }
-  path[length] = '\0';
-
-  return path;
-}
-
-const char* vtkTkAppInitConvertToUnixSlashes(const char* path, char *unix_path)
-{
-  if (!unix_path)
-    {
-    return unix_path;
-    }
-
-  unix_path[0] = '\0';
-  if (!path)
-    {
-    return unix_path;
-    }
-
-  if (path[0] == '~')
-    {
-    const char* home = getenv("HOME");
-    if(home)
-      {
-      strcpy(unix_path, home);
-      }
-    }
-  strcat(unix_path, path);
-
-  size_t length = strlen(unix_path);
-  if (length < 1)
-    {
-    return unix_path;
-    }
-
-  size_t i;
-  for (i = 0; i < length; ++i)
-    {
-    if(unix_path[i] == '\\')
-      {
-      unix_path[i] = '/';
-      }
-    }
-
-  if (unix_path[length - 1] == '/')
-    {
-    unix_path[length - 1] = '\0';
-    }
-
-  return unix_path;
-}
-#endif
-
 int Tcl_AppInit(Tcl_Interp *interp)
 {
 #ifdef __CYGWIN__
   Tcl_SetVar(interp, "tclDefaultLibrary", "/usr/share/tcl" TCL_VERSION, TCL_GLOBAL_ONLY);
 #endif
 
-  /*
-    Tcl/Tk requires support files to work (set of tcl files).
-    When an app is linked against Tcl/Tk shared libraries, the path to
-    the libraries is used by Tcl/Tk to search for its support files.
-    For example, on Windows, if bin/tcl84.dll is the shared lib, support
-    files will be searched in bin/../lib/tcl8.4, which is where they are
-    usually installed.
-    If an app is linked against Tcl/Tk *static* libraries, there is no
-    way for Tcl/Tk to find its support files. In that case, it will
-    use the TCL_LIBRARY and TK_LIBRARY environment variable (those should
-    point to the support files dir, ex: c:/tcl/lib/tcl8.4, c:/tk/lib/tcl8.4).
-
-    The above code will also make Tcl/Tk search inside VTK's build/install
-    directory, more precisely inside a TclTk/lib sub dir.
-    ex: [path to vtk.exe]/TclTk/lib/tcl8.4, [path to vtk.exe]/TclTk/lib/tk8.4
-    Support files are copied to that location when
-    VTK_TCL_TK_COPY_SUPPORT_LIBRARY is ON.
-  */
-
-#ifdef VTK_TCL_TK_COPY_SUPPORT_LIBRARY
-  int has_tcllibpath_env = getenv("TCL_LIBRARY") ? 1 : 0;
-  int has_tklibpath_env = getenv("TK_LIBRARY") ? 1 : 0;
-  if (!has_tcllibpath_env || !has_tklibpath_env)
+  // Help Tcl find the Tcl/Tk helper files.
+  const char* relative_dirs[] =
     {
-    const char *nameofexec = Tcl_GetNameOfExecutable();
-    if (nameofexec && vtkTkAppInitFileExists(nameofexec))
-      {
-      char dir[1024], dir_unix[1024], buffer[1024];
-      vtkTkAppInitGetFilenamePath(nameofexec, dir);
-      vtkTkAppInitConvertToUnixSlashes(dir, dir_unix);
-
-      // Installed application, otherwise build tree/windows
-      sprintf(buffer, "%s/TclTk/lib", dir_unix);
-      int exists = vtkTkAppInitFileExists(buffer);
-      if (!exists)
-        {
-        char buffer2[1024];
-        vtkTkAppInitGetFilenamePath(dir_unix, buffer2);
-        sprintf(buffer, "%s" VTK_INSTALL_TCL_DIR, buffer2);
-        exists = vtkTkAppInitFileExists(buffer);
-        }
-      if (exists)
-        {
-        // Also prepend our Tcl Tk lib path to the library paths
-        // This *is* mandatory if we want encodings files to be found, as they
-        // are searched by browsing TclGetLibraryPath().
-        // (nope, updating the Tcl tcl_libPath var won't do the trick)
-
-        Tcl_Obj *new_libpath = Tcl_NewObj();
-
-        if (!has_tcllibpath_env)
-          {
-          char tcl_library[1024] = "";
-          sprintf(tcl_library, "%s/tcl" TCL_VERSION, buffer);
-          if (vtkTkAppInitFileExists(tcl_library))
-            {
-            // Setting TCL_LIBRARY won't do the trick, it's too late
-            Tcl_SetVar(interp, "tcl_library", tcl_library,
-                       TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
-            Tcl_Obj *obj = Tcl_NewStringObj(tcl_library, -1);
-            if (obj)
-              {
-              Tcl_ListObjAppendElement(interp, new_libpath, obj);
-              }
-            }
-          }
-
-#ifdef VTK_USE_RENDERING
-        if (!has_tklibpath_env)
-          {
-          char tk_library[1024] = "";
-          sprintf(tk_library, "%s/tk" TK_VERSION, buffer);
-          if (vtkTkAppInitFileExists(tk_library))
-            {
-            // Setting TK_LIBRARY won't do the trick, it's too late
-            Tcl_SetVar(interp, "tk_library", tk_library,
-                       TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
-            Tcl_Obj *obj = Tcl_NewStringObj(tk_library, -1);
-            if (obj)
-              {
-              Tcl_ListObjAppendElement(interp, new_libpath, obj);
-              }
-            }
-          }
-#endif
-        TclSetLibraryPath(new_libpath);
-        }
-      }
-    }
-#endif
+      "TclTk/lib",
+      ".." VTK_INSTALL_TCL_DIR,
+      0
+    };
+  vtkTclApplicationInitTclTk(interp, relative_dirs);
 
   if (Tcl_Init(interp) == TCL_ERROR)
     {
