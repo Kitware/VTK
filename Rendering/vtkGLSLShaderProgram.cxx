@@ -59,7 +59,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.6");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.7");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -93,6 +93,12 @@ void vtkGLSLShaderProgram::ReleaseGraphicsResources(vtkWindow* w)
   this->Superclass::ReleaseGraphicsResources(w);
 }
 
+//-----------------------------------------------------------------------------
+unsigned int vtkGLSLShaderProgram::GetProgram()
+{
+  return this->Program;
+}
+  
 //-----------------------------------------------------------------------------
 void vtkGLSLShaderProgram::Link()
 {

@@ -65,6 +65,11 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
+  
+  // Description:
+  // Return the OpenGL program id.
+  unsigned int GetProgram();
+  
 protected:
   vtkGLSLShaderProgram();
   virtual ~vtkGLSLShaderProgram();
