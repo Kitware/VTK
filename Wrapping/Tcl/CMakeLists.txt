@@ -33,7 +33,6 @@ INCLUDE(${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkDetermineTkResources.cmake)
 # Create the vtk Tcl wrapper executable.
 ADD_EXECUTABLE(vtk vtkTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
 TARGET_LINK_LIBRARIES (vtk
-  vtksys
   vtkCommonTCL
   vtkFilteringTCL
   vtkGraphicsTCL
@@ -93,7 +92,6 @@ IF (VTK_USE_PARALLEL)
     ENDIF(VTK_USE_CARBON)
 
     TARGET_LINK_LIBRARIES (pvtk
-      vtksys
       vtkCommonTCL
       vtkFilteringTCL
       vtkGraphicsTCL
