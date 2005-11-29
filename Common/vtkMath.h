@@ -25,6 +25,12 @@
 
 #include "vtkObject.h"
 
+#ifndef DBL_EPSILON
+#  define VTK_DBL_EPSILON    2.2204460492503131e-16
+#else  // DBL_EPSILON
+#  define VTK_DBL_EPSILON    DBL_EPSILON
+#endif  // DBL_EPSILON
+
 class vtkDataArray;
 
 class VTK_COMMON_EXPORT vtkMath : public vtkObject
@@ -55,6 +61,43 @@ public:
 
   static int Floor(double x);
   
+  // Description:
+  // Compute N factorial, N! = N*(N-1)*(N-2)...*3*2*1.
+  // 0! is taken to be 1.
+  static vtkTypeInt64 Factorial( int N );
+
+  // Description:
+  // The number of combinations of n objects from a pool of m objects (m>n).
+  // This is commonly known as "m choose n" and sometimes denoted \f$_mC_n\f$
+  // or \f$\left(\begin{array}{c}m \\ n\end{array}\right)\f$.
+  static vtkTypeInt64 Binomial( int m, int n );
+
+  // Description:
+  // Start iterating over "m choose n" objects.
+  // This function returns an array of n integers, each from 0 to m-1.
+  // These integers represent the n items chosen from the set [0,m[. 
+  //
+  // You are responsible for calling vtkMath::FreeCombination() once the iterator is no longer needed.
+  //
+  // Warning: this gets large very quickly, especially when n nears m/2!
+  // (Hint: think of Pascal's triangle.)
+  static int* BeginCombination( int m, int n );
+
+  // Description:
+  // Given \a m, \a n, and a valid \a combination of \a n integers in
+  // the range [0,m[, this function alters the integers into the next
+  // combination in a sequence of all combinations of \a n items from
+  // a pool of \a m.
+  //
+  // If the \a combination is the last item in the sequence on input,
+  // then \a combination is unaltered and 0 is returned.
+  // Otherwise, 1 is returned and \a combination is updated.
+  static int NextCombination( int m, int n, int* combination );
+
+  // Description:
+  // Free the "iterator" array created by vtkMath::BeginCombination.
+  static void FreeCombination( int* combination);
+
   // Description:
   // Dot product of two 3-vectors (float version).
   static float Dot(const float x[3], const float y[3]) {
@@ -395,6 +438,18 @@ public:
   static double* SolveLinear(double c0, double c1);
 
   // Description:
+  // Solves a \a d -th degree polynomial equation using Lin-Bairstow's
+  // method ( polynomial coefficients are REAL ) and stores the them 
+  // ( when they exist, and repeated for those that are not simple )
+  // in the \a r array of size \a nr.
+  // \a tolerance is the user-defined solver tolerance; this variable may be 
+  // relaxed by the iterative solver if needed.
+  // Returns the numer of roots.
+  // Warning: it is the user's responsibility to make sure the \a r
+  // array is large enough to contain the maximal number of expect roots.
+  static int LinBairstowSolve( double* c, int d, double* r, double& tolerance );
+
+  // Description:
   // Solves a cubic equation when c0, c1, c2, And c3 Are REAL.  Solution
   // is motivated by Numerical Recipes In C 2nd Ed.  Roots and number of
   // real roots are stored in user provided variables r1, r2, r3, and
@@ -410,6 +465,20 @@ public:
                         double *r1, double *r2, double *r3, int *num_roots);
 
   // Description:
+  // Algebraically extracts REAL roots of the cubic polynomial with 
+  // REAL coefficients X^3 + c[1] X^2 + c[2] X + c[3]
+  // and stores them (when they exist) and their respective multiplicities
+  // in the \a r and \a m arrays.
+  // The main differences with SolveCubic are that (1) the polynomial must have
+  // unit leading coefficient, (2) complex roots are discarded upfront, 
+  // (3) non-simple roots are stored only once, along with their respective
+  // multiplicities, and (4) some numerical noise is filtered by the use of 
+  // relative tolerance instead of equality with 0.
+  // Returns the number of roots.
+  // <i> In memoriam </i> Niccolo Tartaglia (1500 - 1559), unfairly forgotten.
+  static int TartagliaCardanSolve( double* c, double* r, int* m );
+
+  // Description:
   // Solves A Quadratic Equation c1*t^2  + c2*t  + c3 = 0 when 
   // c1, c2, and c3 are REAL.
   // Solution is motivated by Numerical Recipes In C 2nd Ed.
@@ -418,6 +487,14 @@ public:
   static int SolveQuadratic(double c0, double c1, double c2, 
                             double *r1, double *r2, int *num_roots);
   
+  // Description:
+  // Algebraically extracts REAL roots of the quadratic polynomial with 
+  // REAL coefficients c[0] X^2 + c[1] X + c[2]
+  // and stores them (when they exist) and their respective multiplicities
+  // in the \a r and \a m arrays.
+  // Returns either the number of roots, or -1 if ininite number of roots.
+  static int SolveQuadratic( double* c, double* r, int* m );
+
   // Description:
   // Solves a linear equation c2*t + c3 = 0 when c2 and c3 are REAL.
   // Solution is motivated by Numerical Recipes In C 2nd Ed.
@@ -565,6 +642,17 @@ private:
   vtkMath(const vtkMath&);  // Not implemented.
   void operator=(const vtkMath&);  // Not implemented.
 };
+
+//----------------------------------------------------------------------------
+inline vtkTypeInt64 vtkMath::Factorial( int N )
+{
+  vtkTypeInt64 r = 1;
+  while ( N > 1 )
+    {
+    r *= N--;
+    }
+  return r;
+}
 
 //----------------------------------------------------------------------------
 inline int vtkMath::Floor(double x)

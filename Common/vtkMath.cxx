@@ -16,18 +16,21 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.97");
+vtkCxxRevisionMacro(vtkMath, "1.98");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
+static const double sqrt3 = sqrt( 3 );
+static const double inv3 = 1 / 3.;
 
 //
 // some constants we need
 //
 #define VTK_K_A 16807
-#define VTK_K_M 2147483647                      /* Mersenne prime 2^31 -1 */
+#define VTK_K_M 2147483647              /* Mersenne prime 2^31 -1 */
 #define VTK_K_Q 127773                  /* VTK_K_M div VTK_K_A */
 #define VTK_K_R 2836                    /* VTK_K_M mod VTK_K_A */
+
 //
 // Some useful macros and functions
 //
@@ -68,6 +71,102 @@ void vtkMath::RandomSeed(long s)
   vtkMath::Random();
   vtkMath::Random();
   vtkMath::Random();
+}
+
+//----------------------------------------------------------------------------
+// The number of combinations of n objects from a pool of m objects (m>n).
+//
+vtkTypeInt64 vtkMath::Binomial( int m, int n )
+{
+  if ( m < n )
+    {
+    return -1;
+    }
+  else if ( m == n )
+    {
+    return 1;
+    }
+
+  int n1 = n;
+  int n2 = m - n;
+  if ( n2 > n1 )
+    {
+    n1 = n2;
+    n2 = n;
+    }
+  vtkTypeInt64 r = 1;
+  while ( m > n1 )
+    {
+    r *= m--;
+    }
+  while ( n2 > 1 )
+    {
+    r /= n2--;
+    }
+  return r;
+}
+
+//----------------------------------------------------------------------------
+// Start iterating over "m choose n" objects.
+// This function returns an array of n integers, each from 0 to m-1.
+// These integers represent the n items chosen from the set [0,m[. 
+//
+int* vtkMath::BeginCombination( int m, int n )
+{
+  if ( m < n )
+    {
+    return 0;
+    }
+
+  int* r = new int[ n ];
+  for ( int i=0; i<n; ++i )
+    {
+    r[i] = i;
+    }
+  return r;
+}
+
+//----------------------------------------------------------------------------
+// Given \a m, \a n, and a valid \a combination of \a n integers in
+// the range [0,m[, this function alters the integers into the next
+// combination in a sequence of all combinations of \a n items from
+// a pool of \a m.
+// If the \a combination is the last item in the sequence on input,
+// then \a combination is unaltered and 0 is returned.
+// Otherwise, 1 is returned and \a combination is updated.
+//
+int vtkMath::NextCombination( int m, int n, int* r )
+{
+  int a = n - 1;
+  if ( r[a] == m - 1 ) {
+    int i = 1;
+    while ( (a >= 0) && (r[a] == m - i) )
+      {
+      --a;
+      ++i;
+      }
+    if ( a < 0 )
+      {
+      // we're done
+      return 1;
+      }
+    r[a]++;
+    for ( i=a+1; i<=n-1; ++i )
+      {
+      r[i] = r[i-1] + 1;
+      }
+  } else {
+    r[a]++;
+  }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+// Free the "iterator" array created by vtkMath::BeginCombination.
+//
+void vtkMath::FreeCombination( int* r )
+{
+  delete [] r;
 }
 
 //----------------------------------------------------------------------------
@@ -764,6 +863,111 @@ double* vtkMath::SolveCubic( double c0, double c1, double c2, double c3 )
 }
 
 //----------------------------------------------------------------------------
+// Solves a \a d -th degree polynomial equation using Lin-Bairstow's method.
+//
+int vtkMath::LinBairstowSolve( double* c, int d, double* r, double& tolerance )
+{
+  if ( ! c[0] )
+    {
+    vtkGenericWarningMacro(<<"vtkMath::LinBairstowSolve: Zero leading coefficient");
+    return 0;
+    }
+
+  int i;
+  int dp1 = d + 1;
+  for ( i = 1 ; i < dp1; ++ i )
+    {
+    c[i] /= c[0];
+    }
+ 
+  double* div1 = new double[dp1];
+  double* div2 = new double[dp1];
+  div1[0] = div2[0] = 1;
+  for ( i = d ; i > 2; i -= 2 )
+    {
+    double det, detR, detS;
+    double R = 0.;
+    double S = 0.;
+    double dR = 1.;
+    double dS = 0.;
+    int nIterations = 1;
+
+    while ( ( fabs( dR ) + fabs( dS ) ) > tolerance )
+      {
+      if ( ! ( nIterations % 100 ) )
+        {
+        R = vtkMath::Random( 0., 2. );
+        if ( ! ( nIterations % 200 ) ) tolerance *= 10.;
+        }
+
+      div1[1] = c[1] - R;
+      div2[1] = div1[1] - R;
+
+      for ( int j = 2; j <= i; ++ j )
+        {
+        div1[j] = c[j] - R * div1[j - 1] - S * div1[j - 2];
+        div2[j] = div1[j] - R * div2[j - 1] - S * div2[j - 2];
+        }
+
+      det  = div2[i - 1] * div2[i -3]  - div2[i - 2] * div2[i - 2];
+      detR = div1[i]     * div2[i -3]  - div1[i - 1] * div2[i - 2];
+      detS = div1[i - 1] * div2[i - 1] - div1[i]     * div2[i - 2];
+
+      if ( fabs( det ) < VTK_DBL_EPSILON )
+        {
+        det = detR = detS = 1.;
+        }
+
+      dR = detR / det;
+      dS = detS / det;
+      R += dR;
+      S += dS;
+      ++ nIterations;
+      }
+
+    for ( int j = 0; j < i - 1; ++ j )
+      {
+        c[j] = div1[j];
+      }
+    c[i] = S;
+    c[i - 1] = R;
+    }
+
+  int nr = 0;  
+  for ( i = d; i >= 2; i -= 2 )
+    {
+    double delta = c[i - 1] * c[i - 1] - 4. * c[i];
+    if ( delta >= 0 )
+      {
+      // check whether there is 2 simple or 1 double root(s)
+      if ( delta )
+        {
+        delta = sqrt( delta );
+        // we have 2 simple real roots
+        r[nr ++] = ( - c[i - 1] - delta ) / 2.;
+        // insert 2nd simple real root
+        r[nr ++] = ( - c[i - 1] + delta ) / 2.;
+        }
+      else
+        {
+        // we have a double real root
+        r[nr ++] = - c[1];
+        r[nr ++] = - c[1];
+        }
+      }
+    }
+  if ( ( d % 2 ) == 1 )
+    {
+    // what's left when degree is odd
+    r[nr ++] = - c[1];
+    }
+
+  delete [] div1;
+  delete [] div2;
+  return nr;
+}
+
+//----------------------------------------------------------------------------
 // Solves a cubic equation when c0, c1, c2, And c3 Are REAL.  Solution
 // is motivated by Numerical Recipes In C 2nd Ed.  Roots and number of
 // real roots are stored in user provided variables r1, r2, r3, and
@@ -878,6 +1082,139 @@ int vtkMath::SolveCubic( double c0, double c1, double c2, double c3,
 }
 
 //----------------------------------------------------------------------------
+// Algebraically extracts REAL roots of the cubic polynomial with 
+// REAL coefficients X^3 + a[1] X^2 + a[2] X + a[3]
+// and stores them (when they exist) and their respective multiplicities.
+// The main differences with SolveCubic are that (1) the polynomial must have
+// unit leading coefficient, (2) no information is returned regarding complex
+// roots, and (3) non-simple roots are stored only once -- this is a
+// specialized solver.
+// Returns the number of roots.
+// 
+int vtkMath::TartagliaCardanSolve( double* c, double* r, int* m )
+{
+  // step 0: eliminate trivial cases up to numerical noise
+  if ( fabs( c[3] ) < VTK_DBL_EPSILON )
+    {
+    r[0] = 0.;
+    if ( fabs( c[2] ) < VTK_DBL_EPSILON )
+      {
+      if ( fabs( c[1] ) < VTK_DBL_EPSILON )
+        {
+        m[0] = 3;
+        return 1;
+        }
+      else
+        {
+        m[0] = 2;
+        r[1] = - c[1];
+        m[1] = 1;
+        return 2;
+        }
+      }
+    else
+      {
+      m[0] = 1;
+      double delta = c[1] * c[1] - 4. * c[2];
+      if ( delta > VTK_DBL_EPSILON )
+        {
+        delta = sqrt( delta );
+        r[1] = ( - delta - c[1] ) * 0.5;
+        m[1] = 1;
+        r[2] = ( delta - c[1] ) * 0.5;
+        m[2] = 1;
+        return 3;
+        }
+      else
+        {
+        if ( delta < - VTK_DBL_EPSILON ) return 1;
+        r[1] = - c[1] * 0.5;
+        m[1] = 2;
+        return 2;
+        }
+      }
+    }
+
+  // step 1: reduce to X^3 + pX + q
+  double shift = - c[1] / 3.;
+  double a2 = c[1] * c[1];
+  double p = c[2] - a2 / 3.;
+  double q = c[1] * ( 2. * a2 / 9. - c[2] ) / 3. + c[3];
+
+  // step 2: compute the trivial real roots if p or q are 0
+  // case 2.1: p = 0: 1 triple real root
+  if ( fabs( p ) < VTK_DBL_EPSILON )
+    {
+    if ( fabs( q ) < VTK_DBL_EPSILON )
+      {
+      r[0] = + shift;
+      m[0] = 3;
+      return 1;
+      }
+    double x;
+    x = q < 0 ? pow( - q, inv3 ) : - pow( q, inv3 );
+    r[0] = x + shift;
+    m[0] = 3;
+    return 1;
+    }
+
+  // case 2.2: q = 0: 1 ( p > 0 ) or 3 ( p < 0 ) simple real root(s) 
+  if ( fabs( q ) < VTK_DBL_EPSILON )
+    {
+    r[0] = + shift;
+    m[0] = 1;
+    if ( p < 0 )
+      {
+      double x = sqrt( - p );
+      r[1] =  x + shift;
+      r[2] =  - x + shift;
+      m[1] = m[2] = 1;
+      return 3;
+      }
+    return 1;
+    }
+
+  // step 3: compute discriminant
+  double p_3 = p * inv3;
+  double q_2 = q * 0.5;
+  double D = p_3 * p_3 * p_3 + q_2 * q_2;
+
+  // step 4: compute roots depending on the discriminant
+  double u;
+  // 4.1: case D = 0: 1 simple and 1 double real roots
+  if ( fabs( D ) < VTK_DBL_EPSILON )
+    {
+    u = q > 0 ? - pow( q_2, inv3 ) : pow( - q_2, inv3 );
+    r[0] =  2. * u + shift;
+    m[0] = 1;
+    r[1] =  - u + shift;
+    m[1] = 2;
+    return 2;
+    }
+  // 4.2: case D > 0: 1 simple real root
+  if ( D > 0 )
+    {
+    u = sqrt( D ) - q_2;
+    u = u < 0 ? - pow( - u, inv3 ) : pow( u, inv3 );
+    r[0] = u - p_3 / u + shift;
+    m[0] = 1;
+    return 1;
+    }
+  // 5.3: case D < 0: 3 simple real roots
+  double smp_3 = sqrt( - p_3 );
+  double argu  = acos( q_2 / ( p_3 * smp_3 ) ) * inv3;
+  double x1 = cos( argu );
+  double x2 = sqrt3 * sqrt( 1. - x1 * x1 );
+  x1 *= smp_3;
+  x2 *= smp_3;
+  r[0] = 2. * x1 + shift;
+  r[1] = x2 - x1 + shift;
+  r[2] = r[1]  - 2. * x2;
+  m[0] = m[1] = m[2] = 1;
+  return 3;
+}
+
+//----------------------------------------------------------------------------
 // Solves a quadratic equation c1*t^2 + c2*t + c3 = 0 when c1, c2, and
 // c3 are REAL.  Solution is motivated by Numerical Recipes In C 2nd
 // Ed.  Return array contains number of (real) roots (counting
@@ -952,6 +1289,59 @@ int vtkMath::SolveQuadratic( double c1, double c2, double c3,
     {
     // Okay this was not quadratic - lets try linear
     return vtkMath::SolveLinear( c2, c3, r1, num_roots );
+    }
+}
+
+//----------------------------------------------------------------------------
+// Algebraically extracts REAL roots of the quadratic polynomial with 
+// REAL coefficients c[0] X^2 + c[1] X + c[2]
+// and stores them (when they exist) and their respective multiplicities.
+// Returns either the number of roots, or -1 if ininite number of roots.
+int vtkMath::SolveQuadratic( double* c, double* r, int* m )
+{
+  if( ! c[0] )
+    {
+    if( c[1] )
+      {
+      r[0] = -c[2] / c[1];
+      m[0] = 1;
+      return 1;
+      }
+    else
+      {
+      if ( c[2] ) return 0;
+      else return -1;
+      }
+    }
+
+  double delta = c[1] * c[1] - 4. * c[0] * c[2];
+
+  if ( delta >= 0. )
+    {
+    double fac = 1. / ( 2. *  c[0] );
+    // check whether there are 2 simple or 1 double root(s)
+    if ( delta )
+      {
+      delta = sqrt( delta );
+      // insert 1st simple real root 
+      r[0] = ( - delta - c[1] ) * fac;
+      m[0] = 1;
+      // insert 2nd simple real root 
+      r[1] = ( delta - c[1] ) * fac ;
+      m[1] = 1;
+      return 2;
+      }
+    else
+      {
+      // insert single double real root 
+      r[0] = - c[1] * fac;
+      m[0] = 2;
+      return 1;
+      }
+    }
+  else
+    {
+    return 0;
     }
 }
 
@@ -2790,4 +3180,3 @@ void vtkMath::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Seed: " << this->Seed << "\n";
 }
-
