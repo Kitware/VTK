@@ -61,28 +61,28 @@ void vtkQtConnection::DoCallback(vtkObject* vtk_obj, unsigned long event,
     
       
 // callback from VTK to emit signal
-void vtkQtConnection::Execute(vtkObject* caller, unsigned long event, void* call_data)
+void vtkQtConnection::Execute(vtkObject* caller, unsigned long e, void* call_data)
 {
-  if(event != vtkCommand::DeleteEvent || 
-     event == vtkCommand::DeleteEvent && VTKEvent == vtkCommand::DeleteEvent)
+  if(e != vtkCommand::DeleteEvent || 
+     e == vtkCommand::DeleteEvent && VTKEvent == vtkCommand::DeleteEvent)
     {
-    emit EmitExecute(caller, event, ClientData, call_data, this->Callback);
+    emit EmitExecute(caller, e, ClientData, call_data, this->Callback);
     }
   
-  if(event == vtkCommand::DeleteEvent)
+  if(e == vtkCommand::DeleteEvent)
     {
     VTKObject->RemoveObserver(this->Callback);
     VTKObject = NULL;
     }
 }
 
-bool vtkQtConnection::IsConnection(vtkObject* vtk_obj, unsigned long event,
+bool vtkQtConnection::IsConnection(vtkObject* vtk_obj, unsigned long e,
                   QObject* qt_obj, const char* slot, void* client_data)
 {
   if(VTKObject != vtk_obj)
     return false;
 
-  if(event != vtkCommand::NoEvent && event != VTKEvent)
+  if(e != vtkCommand::NoEvent && e != VTKEvent)
     return false;
 
   if(qt_obj && qt_obj != QtObject)
@@ -98,20 +98,20 @@ bool vtkQtConnection::IsConnection(vtkObject* vtk_obj, unsigned long event,
 }
       
 // set the connection
-void vtkQtConnection::SetConnection(vtkObject* vtk_obj, unsigned long event,
+void vtkQtConnection::SetConnection(vtkObject* vtk_obj, unsigned long e,
                    QObject* qt_obj, const char* slot, void* client_data, float priority)
 {
   // keep track of what we connected
   VTKObject = vtk_obj;
   QtObject = qt_obj;
-  VTKEvent = event;
+  VTKEvent = e;
   ClientData = client_data;
   QtSlot = slot;
 
   // make a connection between this and the vtk object
-  vtk_obj->AddObserver(event, this->Callback, priority);
+  vtk_obj->AddObserver(e, this->Callback, priority);
 
-  if(event != vtkCommand::DeleteEvent)
+  if(e != vtkCommand::DeleteEvent)
     {
     vtk_obj->AddObserver(vtkCommand::DeleteEvent, this->Callback);
     }

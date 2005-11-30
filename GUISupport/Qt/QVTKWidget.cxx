@@ -98,8 +98,8 @@ QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
 
 #if QT_VERSION >= 0x040000
 /*! constructor */
-QVTKWidget::QVTKWidget(QWidget* parent, Qt::WFlags f)
-    : QWidget(parent, f | Qt::MSWindowsOwnDC), mRenWin(NULL),
+QVTKWidget::QVTKWidget(QWidget* p, Qt::WFlags f)
+    : QWidget(p, f | Qt::MSWindowsOwnDC), mRenWin(NULL),
           cachedImageCleanFlag(false),
           automaticImageCache(false), maxImageCacheRenderRate(1.0)
 
@@ -163,10 +163,10 @@ vtkRenderWindow* QVTKWidget::GetRenderWindow()
     this will bind a VTK window with the Qt window
     it'll also replace an existing VTK window
 */
-void QVTKWidget::SetRenderWindow(vtkRenderWindow* window)
+void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
 {
   // do nothing if we don't have to
-  if(window == this->mRenWin)
+  if(w == this->mRenWin)
     return;
 
   // unregister previous window
@@ -184,7 +184,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* window)
   }
 
   // now set the window
-  this->mRenWin = window;
+  this->mRenWin = w;
 
   if(this->mRenWin)
   {
@@ -250,11 +250,11 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* window)
       iren->Initialize();
         
       // now set the default style
-      vtkInteractorStyle* style = vtkInteractorStyleTrackballCamera::New();
-      iren->SetInteractorStyle(style);
+      vtkInteractorStyle* s = vtkInteractorStyleTrackballCamera::New();
+      iren->SetInteractorStyle(s);
       
       iren->Delete();
-      style->Delete();
+      s->Delete();
     }
     
     // tell the interactor the size of this window
@@ -400,9 +400,9 @@ bool QVTKWidget::event(QEvent* e)
 
 /*! handle resize event
  */
-void QVTKWidget::resizeEvent(QResizeEvent* event)
+void QVTKWidget::resizeEvent(QResizeEvent* e)
 {
-  QWidget::resizeEvent(event);
+  QWidget::resizeEvent(e);
 
   if(!this->mRenWin)
     return;
@@ -418,9 +418,9 @@ void QVTKWidget::resizeEvent(QResizeEvent* event)
 #endif
 }
 
-void QVTKWidget::moveEvent(QMoveEvent* event)
+void QVTKWidget::moveEvent(QMoveEvent* e)
 {
-  QWidget::moveEvent(event);
+  QWidget::moveEvent(e);
 
   if(!this->mRenWin)
     return;
@@ -464,11 +464,11 @@ void QVTKWidget::paintEvent(QPaintEvent* )
 
 /*! handle mouse press event
  */
-void QVTKWidget::mousePressEvent(QMouseEvent* event)
+void QVTKWidget::mousePressEvent(QMouseEvent* e)
 {
 
   // Emit a mouse press event for anyone who might be interested
-  emit mouseEvent(event);
+  emit mouseEvent(e);
 
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
@@ -479,32 +479,32 @@ void QVTKWidget::mousePressEvent(QMouseEvent* event)
 
   // give interactor the event information
 #if QT_VERSION < 0x040000
-  iren->SetEventInformationFlipY(event->x(), event->y(), 
-      (event->state() & Qt::ControlButton), 
-      (event->state() & Qt::ShiftButton ),
+  iren->SetEventInformationFlipY(e->x(), e->y(), 
+      (e->state() & Qt::ControlButton), 
+      (e->state() & Qt::ShiftButton ),
       0,
-      event->type() == QEvent::MouseButtonDblClick ? 1 : 0);
+      e->type() == QEvent::MouseButtonDblClick ? 1 : 0);
 #else
-  iren->SetEventInformationFlipY(event->x(), event->y(), 
-      (event->modifiers() & Qt::ControlModifier), 
-      (event->modifiers() & Qt::ShiftModifier ),
+  iren->SetEventInformationFlipY(e->x(), e->y(), 
+      (e->modifiers() & Qt::ControlModifier), 
+      (e->modifiers() & Qt::ShiftModifier ),
       0,
-      event->type() == QEvent::MouseButtonDblClick ? 1 : 0);
+      e->type() == QEvent::MouseButtonDblClick ? 1 : 0);
 #endif
 
   // invoke appropriate vtk event
-  switch(event->button())
+  switch(e->button())
   {
     case Qt::LeftButton:
-      iren->InvokeEvent(vtkCommand::LeftButtonPressEvent, event);
+      iren->InvokeEvent(vtkCommand::LeftButtonPressEvent, e);
       break;
 
     case Qt::MidButton:
-      iren->InvokeEvent(vtkCommand::MiddleButtonPressEvent, event);
+      iren->InvokeEvent(vtkCommand::MiddleButtonPressEvent, e);
       break;
 
     case Qt::RightButton:
-      iren->InvokeEvent(vtkCommand::RightButtonPressEvent, event);
+      iren->InvokeEvent(vtkCommand::RightButtonPressEvent, e);
       break;
 
     default:
@@ -514,7 +514,7 @@ void QVTKWidget::mousePressEvent(QMouseEvent* event)
 
 /*! handle mouse move event
  */
-void QVTKWidget::mouseMoveEvent(QMouseEvent* event)
+void QVTKWidget::mouseMoveEvent(QMouseEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
@@ -525,23 +525,23 @@ void QVTKWidget::mouseMoveEvent(QMouseEvent* event)
   
   // give interactor the event information
 #if QT_VERSION < 0x040000
-  iren->SetEventInformationFlipY(event->x(), event->y(), 
-      (event->state() & Qt::ControlButton), 
-      (event->state() & Qt::ShiftButton ));
+  iren->SetEventInformationFlipY(e->x(), e->y(), 
+      (e->state() & Qt::ControlButton), 
+      (e->state() & Qt::ShiftButton ));
 #else
-  iren->SetEventInformationFlipY(event->x(), event->y(), 
-      (event->modifiers() & Qt::ControlModifier), 
-      (event->modifiers() & Qt::ShiftModifier ));
+  iren->SetEventInformationFlipY(e->x(), e->y(), 
+      (e->modifiers() & Qt::ControlModifier), 
+      (e->modifiers() & Qt::ShiftModifier ));
 #endif
   
   // invoke vtk event
-  iren->InvokeEvent(vtkCommand::MouseMoveEvent, event);
+  iren->InvokeEvent(vtkCommand::MouseMoveEvent, e);
 }
 
 
 /*! handle enter event
  */
-void QVTKWidget::enterEvent(QEvent* event)
+void QVTKWidget::enterEvent(QEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
@@ -550,12 +550,12 @@ void QVTKWidget::enterEvent(QEvent* event)
   if(!iren || !iren->GetEnabled())
     return;
 
-  iren->InvokeEvent(vtkCommand::EnterEvent, event);
+  iren->InvokeEvent(vtkCommand::EnterEvent, e);
 }
 
 /*! handle leave event
  */
-void QVTKWidget::leaveEvent(QEvent* event)
+void QVTKWidget::leaveEvent(QEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
@@ -564,12 +564,12 @@ void QVTKWidget::leaveEvent(QEvent* event)
   if(!iren || !iren->GetEnabled())
     return;
   
-  iren->InvokeEvent(vtkCommand::LeaveEvent, event);
+  iren->InvokeEvent(vtkCommand::LeaveEvent, e);
 }
 
 /*! handle mouse release event
  */
-void QVTKWidget::mouseReleaseEvent(QMouseEvent* event)
+void QVTKWidget::mouseReleaseEvent(QMouseEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
@@ -580,28 +580,28 @@ void QVTKWidget::mouseReleaseEvent(QMouseEvent* event)
   
   // give vtk event information
 #if QT_VERSION < 0x040000
-  iren->SetEventInformationFlipY(event->x(), event->y(), 
-      (event->state() & Qt::ControlButton), 
-      (event->state() & Qt::ShiftButton ));
+  iren->SetEventInformationFlipY(e->x(), e->y(), 
+      (e->state() & Qt::ControlButton), 
+      (e->state() & Qt::ShiftButton ));
 #else
-  iren->SetEventInformationFlipY(event->x(), event->y(), 
-      (event->modifiers() & Qt::ControlModifier), 
-      (event->modifiers() & Qt::ShiftModifier ));
+  iren->SetEventInformationFlipY(e->x(), e->y(), 
+      (e->modifiers() & Qt::ControlModifier), 
+      (e->modifiers() & Qt::ShiftModifier ));
 #endif
   
   // invoke appropriate vtk event
-  switch(event->button())
+  switch(e->button())
   {
     case Qt::LeftButton:
-      iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, event);
+      iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, e);
       break;
 
     case Qt::MidButton:
-      iren->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, event);
+      iren->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, e);
       break;
 
     case Qt::RightButton:
-      iren->InvokeEvent(vtkCommand::RightButtonReleaseEvent, event);
+      iren->InvokeEvent(vtkCommand::RightButtonReleaseEvent, e);
       break;
 
     default:
@@ -611,7 +611,7 @@ void QVTKWidget::mouseReleaseEvent(QMouseEvent* event)
 
 /*! handle key press event
  */
-void QVTKWidget::keyPressEvent(QKeyEvent* event)
+void QVTKWidget::keyPressEvent(QKeyEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
@@ -622,15 +622,15 @@ void QVTKWidget::keyPressEvent(QKeyEvent* event)
   
   // get key and keysym information
 #if QT_VERSION < 0x040000
-  int ascii_key = event->text().length() ? event->text().unicode()->latin1() : 0;
+  int ascii_key = e->text().length() ? e->text().unicode()->latin1() : 0;
 #else
-  int ascii_key = event->text().length() ? event->text().unicode()->toLatin1() : 0;
+  int ascii_key = e->text().length() ? e->text().unicode()->toLatin1() : 0;
 #endif
   const char* keysym = ascii_to_key_sym(ascii_key);
   if(!keysym)
   {
     // get virtual keys
-    keysym = qt_key_to_key_sym(static_cast<Qt::Key>(event->key()));
+    keysym = qt_key_to_key_sym(static_cast<Qt::Key>(e->key()));
   }
 
   if(!keysym)
@@ -641,27 +641,27 @@ void QVTKWidget::keyPressEvent(QKeyEvent* event)
   // give interactor event information
 #if QT_VERSION < 0x040000
   iren->SetKeyEventInformation(
-      (event->state() & Qt::ControlButton),
-      (event->state() & Qt::ShiftButton),
-      ascii_key, event->count(), keysym);
+      (e->state() & Qt::ControlButton),
+      (e->state() & Qt::ShiftButton),
+      ascii_key, e->count(), keysym);
 #else
   iren->SetKeyEventInformation(
-      (event->modifiers() & Qt::ControlModifier),
-      (event->modifiers() & Qt::ShiftModifier),
-      ascii_key, event->count(), keysym);
+      (e->modifiers() & Qt::ControlModifier),
+      (e->modifiers() & Qt::ShiftModifier),
+      ascii_key, e->count(), keysym);
 #endif
   
   // invoke vtk event
-  iren->InvokeEvent(vtkCommand::KeyPressEvent, event);
+  iren->InvokeEvent(vtkCommand::KeyPressEvent, e);
   
   // invoke char event only for ascii characters
   if(ascii_key)
-    iren->InvokeEvent(vtkCommand::CharEvent, event);
+    iren->InvokeEvent(vtkCommand::CharEvent, e);
 }
 
 /*! handle key release event
  */
-void QVTKWidget::keyReleaseEvent(QKeyEvent* event)
+void QVTKWidget::keyReleaseEvent(QKeyEvent* e)
 {
 
   vtkRenderWindowInteractor* iren = NULL;
@@ -673,15 +673,15 @@ void QVTKWidget::keyReleaseEvent(QKeyEvent* event)
   
   // get key and keysym info
 #if QT_VERSION < 0x040000
-  int ascii_key = event->text().length() ? event->text().unicode()->latin1() : 0;
+  int ascii_key = e->text().length() ? e->text().unicode()->latin1() : 0;
 #else
-  int ascii_key = event->text().length() ? event->text().unicode()->toLatin1() : 0;
+  int ascii_key = e->text().length() ? e->text().unicode()->toLatin1() : 0;
 #endif
   const char* keysym = ascii_to_key_sym(ascii_key);
   if(!keysym)
   {
     // get virtual keys
-    keysym = qt_key_to_key_sym((Qt::Key)event->key());
+    keysym = qt_key_to_key_sym((Qt::Key)e->key());
   }
 
   if(!keysym)
@@ -692,22 +692,22 @@ void QVTKWidget::keyReleaseEvent(QKeyEvent* event)
   // give event information to interactor
 #if QT_VERSION < 0x040000
   iren->SetKeyEventInformation(
-      (event->state() & Qt::ControlButton),
-      (event->state() & Qt::ShiftButton),
-      ascii_key, event->count(), keysym);
+      (e->state() & Qt::ControlButton),
+      (e->state() & Qt::ShiftButton),
+      ascii_key, e->count(), keysym);
 #else
   iren->SetKeyEventInformation(
-      (event->modifiers() & Qt::ControlModifier),
-      (event->modifiers() & Qt::ShiftModifier),
-      ascii_key, event->count(), keysym);
+      (e->modifiers() & Qt::ControlModifier),
+      (e->modifiers() & Qt::ShiftModifier),
+      ascii_key, e->count(), keysym);
 #endif
 
   // invoke vtk event
-  iren->InvokeEvent(vtkCommand::KeyReleaseEvent, event);
+  iren->InvokeEvent(vtkCommand::KeyReleaseEvent, e);
 }
 
 #ifndef QT_NO_WHEELEVENT
-void QVTKWidget::wheelEvent(QWheelEvent* event)
+void QVTKWidget::wheelEvent(QWheelEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
@@ -721,24 +721,24 @@ void QVTKWidget::wheelEvent(QWheelEvent* event)
   
   // give event information to interactor
 #if QT_VERSION < 0x040000
-  iren->SetEventInformationFlipY(event->x(), event->y(), 
-      (event->state() & Qt::ControlButton), 
-      (event->state() & Qt::ShiftButton ));
+  iren->SetEventInformationFlipY(e->x(), e->y(), 
+      (e->state() & Qt::ControlButton), 
+      (e->state() & Qt::ShiftButton ));
 #else
-  iren->SetEventInformationFlipY(event->x(), event->y(), 
-      (event->modifiers() & Qt::ControlModifier), 
-      (event->modifiers() & Qt::ShiftModifier ));
+  iren->SetEventInformationFlipY(e->x(), e->y(), 
+      (e->modifiers() & Qt::ControlModifier), 
+      (e->modifiers() & Qt::ShiftModifier ));
 #endif
   
   // invoke vtk event
   // if delta is positive, it is a forward wheel event
-  if(event->delta() > 0)
-    iren->InvokeEvent(vtkCommand::MouseWheelForwardEvent, event);
+  if(e->delta() > 0)
+    iren->InvokeEvent(vtkCommand::MouseWheelForwardEvent, e);
   else
-    iren->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, event);
+    iren->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, e);
 
 #else
-  QWidget::wheelEvent(event);
+  QWidget::wheelEvent(e);
 #endif
 }
 #endif
@@ -762,7 +762,7 @@ void QVTKWidget::focusOutEvent(QFocusEvent*)
 }
 
 
-void QVTKWidget::contextMenuEvent(QContextMenuEvent* event)
+void QVTKWidget::contextMenuEvent(QContextMenuEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
@@ -773,21 +773,21 @@ void QVTKWidget::contextMenuEvent(QContextMenuEvent* event)
   
   // give interactor the event information
 #if QT_VERSION < 0x040000
-  iren->SetEventInformationFlipY(event->x(), event->y(), 
-      (event->state() & Qt::ControlButton), 
-      (event->state() & Qt::ShiftButton ));
+  iren->SetEventInformationFlipY(e->x(), e->y(), 
+      (e->state() & Qt::ControlButton), 
+      (e->state() & Qt::ShiftButton ));
 #else
-  iren->SetEventInformationFlipY(event->x(), event->y(), 
-      (event->modifiers() & Qt::ControlModifier), 
-      (event->modifiers() & Qt::ShiftModifier ));
+  iren->SetEventInformationFlipY(e->x(), e->y(), 
+      (e->modifiers() & Qt::ControlModifier), 
+      (e->modifiers() & Qt::ShiftModifier ));
 #endif
 
   // invoke event and pass qt event for additional data as well
-  iren->InvokeEvent(QVTKWidget::ContextMenuEvent, event);
+  iren->InvokeEvent(QVTKWidget::ContextMenuEvent, e);
   
 }
 
-void QVTKWidget::dragEnterEvent(QDragEnterEvent* event)
+void QVTKWidget::dragEnterEvent(QDragEnterEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
@@ -797,39 +797,10 @@ void QVTKWidget::dragEnterEvent(QDragEnterEvent* event)
     return;
   
   // invoke event and pass qt event for additional data as well
-  iren->InvokeEvent(QVTKWidget::DragEnterEvent, event);
+  iren->InvokeEvent(QVTKWidget::DragEnterEvent, e);
 }
 
-void QVTKWidget::dragMoveEvent(QDragMoveEvent* event)
-{
-  vtkRenderWindowInteractor* iren = NULL;
-  if(this->mRenWin)
-    iren = this->mRenWin->GetInteractor();
-  
-  if(!iren || !iren->GetEnabled())
-    return;
-  
-  // give interactor the event information
-  iren->SetEventInformationFlipY(event->pos().x(), event->pos().y());
-
-  // invoke event and pass qt event for additional data as well
-  iren->InvokeEvent(QVTKWidget::DragMoveEvent, event);
-}
-
-void QVTKWidget::dragLeaveEvent(QDragLeaveEvent* event)
-{
-  vtkRenderWindowInteractor* iren = NULL;
-  if(this->mRenWin)
-    iren = this->mRenWin->GetInteractor();
-  
-  if(!iren || !iren->GetEnabled())
-    return;
-  
-  // invoke event and pass qt event for additional data as well
-  iren->InvokeEvent(QVTKWidget::DragLeaveEvent, event);
-}
-
-void QVTKWidget::dropEvent(QDropEvent* event)
+void QVTKWidget::dragMoveEvent(QDragMoveEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
@@ -839,10 +810,39 @@ void QVTKWidget::dropEvent(QDropEvent* event)
     return;
   
   // give interactor the event information
-  iren->SetEventInformationFlipY(event->pos().x(), event->pos().y());
+  iren->SetEventInformationFlipY(e->pos().x(), e->pos().y());
 
   // invoke event and pass qt event for additional data as well
-  iren->InvokeEvent(QVTKWidget::DropEvent, event);
+  iren->InvokeEvent(QVTKWidget::DragMoveEvent, e);
+}
+
+void QVTKWidget::dragLeaveEvent(QDragLeaveEvent* e)
+{
+  vtkRenderWindowInteractor* iren = NULL;
+  if(this->mRenWin)
+    iren = this->mRenWin->GetInteractor();
+  
+  if(!iren || !iren->GetEnabled())
+    return;
+  
+  // invoke event and pass qt event for additional data as well
+  iren->InvokeEvent(QVTKWidget::DragLeaveEvent, e);
+}
+
+void QVTKWidget::dropEvent(QDropEvent* e)
+{
+  vtkRenderWindowInteractor* iren = NULL;
+  if(this->mRenWin)
+    iren = this->mRenWin->GetInteractor();
+  
+  if(!iren || !iren->GetEnabled())
+    return;
+  
+  // give interactor the event information
+  iren->SetEventInformationFlipY(e->pos().x(), e->pos().y());
+
+  // invoke event and pass qt event for additional data as well
+  iren->InvokeEvent(QVTKWidget::DropEvent, e);
 }
 
 
@@ -885,11 +885,11 @@ void QVTKWidget::reparent(QWidget* parent, Qt::WFlags f, const QPoint& p, bool s
 }
 #endif
 
-void QVTKWidget::showEvent(QShowEvent* event)
+void QVTKWidget::showEvent(QShowEvent* e)
 {
   this->markCachedImageAsDirty();
 
-  QWidget::showEvent(event);
+  QWidget::showEvent(e);
 }
 
 QPaintEngine* QVTKWidget::paintEngine() const
@@ -1192,14 +1192,14 @@ void QVTKWidget::x11_setup_window()
   attrib.colormap = cmap;
   attrib.border_pixel = BlackPixel(display, DefaultScreen(display));
 
-  Window parent = RootWindow(display, DefaultScreen(display));
+  Window p = RootWindow(display, DefaultScreen(display));
   if(parentWidget())
-    parent = parentWidget()->winId();
+    p = parentWidget()->winId();
 
   XWindowAttributes a;
   XGetWindowAttributes(display, this->winId(), &a);
 
-  Window win = XCreateWindow(display, parent, a.x, a.y, a.width, a.height,
+  Window win = XCreateWindow(display, p, a.x, a.y, a.width, a.height,
                              0, vi->depth, InputOutput, vi->visual,
                              CWBorderPixel|CWColormap, &attrib);
   
