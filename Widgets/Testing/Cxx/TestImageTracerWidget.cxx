@@ -528,7 +528,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
   // testing option fails.
   recorder->Off();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 11 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
