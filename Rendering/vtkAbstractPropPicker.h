@@ -38,7 +38,7 @@
 // vtkAssembly, and the returned vtkAssemblyPath has as a leaf a vtkActor,
 // then if you invoke GetActor(), you will get NULL, even though an actor was
 // indeed picked. (GetAssembly() will return something.) Note that the safest
-// thing to do is to do a GetProp(), which will always return something if
+// thing to do is to do a GetViewProp(), which will always return something if
 // something was picked. A better way to manage picking is to work with
 // vtkAssemblyPath, since this completely defines the pick path from top to
 // bottom in a assembly hierarchy, and avoids confusion when the same prop is
