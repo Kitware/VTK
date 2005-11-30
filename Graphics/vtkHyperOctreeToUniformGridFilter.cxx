@@ -25,7 +25,7 @@
 #include "vtkImageData.h"
 #include "vtkStreamingDemandDrivenPipeline.h" // WHOLE_EXTENT() key
 
-vtkCxxRevisionMacro(vtkHyperOctreeToUniformGridFilter, "1.1");
+vtkCxxRevisionMacro(vtkHyperOctreeToUniformGridFilter, "1.2");
 vtkStandardNewMacro(vtkHyperOctreeToUniformGridFilter);
 
 // merging: locator
@@ -239,7 +239,9 @@ void vtkHyperOctreeToUniformGridFilter::CopyCellData(int cellExtent[6])
     int ijk[3];
     ijk[2]=cellExtent[4];
     
-    int at_least_one=0;
+#ifndef NDEBUG
+    int atLeastOne=0;
+#endif
     
     while(ijk[2]<=cellExtent[5]) // k
       {
@@ -249,7 +251,9 @@ void vtkHyperOctreeToUniformGridFilter::CopyCellData(int cellExtent[6])
          ijk[0]=cellExtent[0];
          while(ijk[0]<=cellExtent[1]) // i
            {
-           at_least_one=1;
+#ifndef NDEBUG
+           atLeastOne=1;
+#endif 
            vtkIdType outId=this->Output->ComputeCellId(ijk);
            this->OutputCD->CopyData(this->InputCD,inId,outId);
            ++ijk[0];
@@ -258,7 +262,7 @@ void vtkHyperOctreeToUniformGridFilter::CopyCellData(int cellExtent[6])
          }
       ++ijk[2];
       }
-    assert("check: make sure we entered into the loop" && at_least_one);
+    assert("check: make sure we entered into the loop" && atLeastOne);
     }
   else
     {
