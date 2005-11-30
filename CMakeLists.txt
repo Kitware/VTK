@@ -29,6 +29,33 @@ IF(NOT VTK_NO_LIBRARY_VERSION)
 ENDIF(NOT VTK_NO_LIBRARY_VERSION)
 
 #-----------------------------------------------------------------------------
+# Determine whether we are being built by CTest and if so the version.
+# For CTest 2.2 and higher this will contain the version number.  For
+# earlier CTest versions this will contain just "1".  If not
+# configuring from CTest this should be empty, so set the result to a
+# literal "0" (helps with numerical comparisons).
+SET(VTK_TEST_FROM_CTEST "$ENV{DASHBOARD_TEST_FROM_CTEST}")
+IF(NOT VTK_TEST_FROM_CTEST)
+  SET(VTK_TEST_FROM_CTEST 0)
+ENDIF(NOT VTK_TEST_FROM_CTEST)
+
+# Determine whether tests requiring the configuration type to be known
+# can be run.  Start by assuming the configuration type is known.
+# This is the case when using a generator supporting only one
+# configuration type.
+SET(VTK_TEST_CONFIG_TYPE_KNOWN 1)
+IF(CMAKE_CONFIGURATION_TYPES)
+  # When there are multiple configuration types we must be running
+  # tests with a CTest that knows how to give the configuration type
+  # to the test when it runs.  This requires CTest 2.2 or higher.
+  IF(VTK_TEST_FROM_CTEST LESS "2.2")
+    # This is either a CTest older than 2.2 or not a CTest.
+    # The configuration type will not be known when running the tests.
+    SET(VTK_TEST_CONFIG_TYPE_KNOWN 0)
+  ENDIF(VTK_TEST_FROM_CTEST LESS "2.2")
+ENDIF(CMAKE_CONFIGURATION_TYPES)
+
+#-----------------------------------------------------------------------------
 # Load some macros.
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkDependentOption.cmake)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkThirdParty.cmake)

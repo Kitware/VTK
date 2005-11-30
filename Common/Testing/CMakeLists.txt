@@ -105,15 +105,11 @@ IF(VTK_USE_RPATH)
   SET(VTK_TEST_INSTALL 0)
 ENDIF(VTK_USE_RPATH)
 
-# We cannot safely implement the install test when there are multiple
-# configuration types unless tests are run by CTest 2.2 or higher.
-# See VTK/Examples/CMakeLists.txt where it adds the Example-vtkLocal
-# test for an explanation.
-IF(CMAKE_CONFIGURATION_TYPES)
-  IF(NOT VTK_TEST_WITH_CTEST)
-    SET(VTK_TEST_INSTALL 0)
-  ENDIF(NOT VTK_TEST_WITH_CTEST)
-ENDIF(CMAKE_CONFIGURATION_TYPES)
+# We cannot safely implement the install test unless the configuration
+# type is known when the test is run.
+IF(NOT VTK_TEST_CONFIG_TYPE_KNOWN)
+  SET(VTK_TEST_INSTALL 0)
+ENDIF(NOT VTK_TEST_CONFIG_TYPE_KNOWN)
 
 IF(VTK_TEST_INSTALL)
   IF(CMAKE_CONFIGURATION_TYPES)
