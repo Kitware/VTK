@@ -1,5 +1,4 @@
 .git*            export-ignore
 
-*.sh.in          crlf=input
 newalpha         crlf=input
 newversion       crlf=input
