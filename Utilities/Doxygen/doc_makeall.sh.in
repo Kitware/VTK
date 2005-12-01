@@ -175,7 +175,7 @@ export VTK_TAGFILE_DEST_DIR="$DOXTEMP"
 # Convert the VTK headers to the Doxygen format.
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
-    $PERL_PROG "$PATH_TO_VTK_DOX_SCRIPTS/doc_header2doxygen.pl" \
+    "$PERL_PROG" "$PATH_TO_VTK_DOX_SCRIPTS/doc_header2doxygen.pl" \
         --to "$INTERMEDIATE_DOX_DIR" \
         --relativeto "$SOURCE_DIR/$REL_PATH_TO_TOP" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
@@ -198,7 +198,7 @@ fi
 # Build the Events invocation list.
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
-    $PERL_PROG "$PATH_TO_VTK_DOX_SCRIPTS/doc_codematch.pl" \
+    "$PERL_PROG" "$PATH_TO_VTK_DOX_SCRIPTS/doc_codematch.pl" \
         --codematch "\w(?:->|\.)InvokeEvent\s*\(\s*(vtkCommand::\w+)[\s,]" \
         --label "Events" \
         --project "$PROJECT_NAME" \
@@ -231,7 +231,7 @@ fi
 # Build the full-text index.
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
-    $PERL_PROG "$PATH_TO_VTK_DOX_SCRIPTS/doc_index.pl" \
+    "$PERL_PROG" "$PATH_TO_VTK_DOX_SCRIPTS/doc_index.pl" \
         --project "$PROJECT_NAME" \
         --stop  "$PATH_TO_VTK_DOX_SCRIPTS/doc_index.stop" \
         --store "doc_""$PROJECT_NAME""_index.dox" \
@@ -256,7 +256,7 @@ fi
 # Build the contributors list.
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
-    $PERL_PROG "$PATH_TO_VTK_DOX_SCRIPTS/doc_contributors.pl" \
+    "$PERL_PROG" "$PATH_TO_VTK_DOX_SCRIPTS/doc_contributors.pl" \
         --authors  "$PATH_TO_VTK_DOX_SCRIPTS/authors.txt" \
         --cachedir "$DOXTEMP/cache" \
         --class_group '^(vtk[A-Z0-9][A-Za-z0-9]+)\.(?:c|cpp|cxx|h|mm|txx)$' \
@@ -286,14 +286,14 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
 fi
 
 if test "x$GNUPLOT_PROG" != "xNOTFOUND" ; then
-    $GNUPLOT_PROG "$DOXTEMP/contrib/history.plt"
+    "$GNUPLOT_PROG" "$DOXTEMP/contrib/history.plt"
 fi
 
 # ----------------------------------------------------------------------------
 # Extract the VTK version and create the main page.
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
-    $PERL_PROG "$PATH_TO_VTK_DOX_SCRIPTS/doc_version.pl" \
+    "$PERL_PROG" "$PATH_TO_VTK_DOX_SCRIPTS/doc_version.pl" \
         --version_file "$SOURCE_DIR/$REL_PATH_TO_TOP/CMakeLists.txt" \
         --revision_file "$SOURCE_DIR/$REL_PATH_TO_TOP/Common/vtkVersion.h" \
         --logo "$PATH_TO_VTK_DOX_SCRIPTS/vtk-logo.gif" \
@@ -306,7 +306,7 @@ fi
 # examples that use that class.
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
-    $PERL_PROG "$PATH_TO_VTK_DOX_SCRIPTS/doc_class2example.pl" \
+    "$PERL_PROG" "$PATH_TO_VTK_DOX_SCRIPTS/doc_class2example.pl" \
         --baselinedir "$DATA_ROOT/Baseline" \
         --baselineicon "pic.gif" \
         --baselinelink "$CVSWEB_DATA_CHECKOUT/Baseline" \
@@ -330,7 +330,7 @@ fi
 # tests that use that class.
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
-    $PERL_PROG "$PATH_TO_VTK_DOX_SCRIPTS/doc_class2example.pl" \
+    "$PERL_PROG" "$PATH_TO_VTK_DOX_SCRIPTS/doc_class2example.pl" \
         --baselinedir "$DATA_ROOT/Baseline" \
         --baselineicon "pic.gif" \
         --baselinelink "$CVSWEB_DATA_CHECKOUT/Baseline" \
@@ -355,7 +355,7 @@ fi
 if test "x$DOWNLOAD_VTK_TAGFILE" == "xON" ; then
   if test "x$VTK_TAGFILE" != "x" ; then
       if test "x$WGET_PROG" != "xNOTFOUND" ; then
-          $WGET_PROG -nd -nH \
+          "$WGET_PROG" -nd -nH \
               "$VTK_TAGFILE_REMOTE_DIR/$VTK_TAGFILE" \
               -O "$VTK_TAGFILE_DEST_DIR/$VTK_TAGFILE"
       fi        
@@ -368,17 +368,17 @@ fi
 if test "x$DOXYGEN_PROG" != "xNOTFOUND" ; then
 
     if test "x$RM_PROG" != "xNOTFOUND" ; then
-        $RM_PROG -fr "$OUTPUT_DIRECTORY"
+        "$RM_PROG" -fr "$OUTPUT_DIRECTORY"
     fi
 
-    $DOXYGEN_PROG "$DOXYFILE"
+    "$DOXYGEN_PROG" "$DOXYFILE"
 fi
 
 # ----------------------------------------------------------------------------
 # Clean the HTML pages to remove the path to the intermediate Doxygen dir.
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
-    $PERL_PROG "$PATH_TO_VTK_DOX_SCRIPTS/doc_rmpath.pl" \
+    "$PERL_PROG" "$PATH_TO_VTK_DOX_SCRIPTS/doc_rmpath.pl" \
         --to "$INTERMEDIATE_DOX_DIR" \
         --html "$OUTPUT_DIRECTORY/html"
 fi
@@ -387,7 +387,7 @@ fi
 # clean the HTML pages to remove layout pbs
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
-    $PERL_PROG "$PATH_TO_VTK_DOX_SCRIPTS/doc_cleanhtml.pl" \
+    "$PERL_PROG" "$PATH_TO_VTK_DOX_SCRIPTS/doc_cleanhtml.pl" \
         --html "$OUTPUT_DIRECTORY/html"
 fi
 
@@ -398,9 +398,9 @@ if test "x$COMPILE_HTML_HELP" == "xON" ; then
     if test "x$RESULTING_HTML_HELP_FILE" != "x" ; then
         cd "$OUTPUT_DIRECTORY/html"
         if test "x$HHC_PROG" != "xNOTFOUND" ; then
-            $HHC_PROG index.hhp
+            "$HHC_PROG" index.hhp
             if test "x$MV_PROG" != "xNOTFOUND" ; then
-                $MV_PROG -f index.chm "$RESULTING_HTML_HELP_FILE"
+                "$MV_PROG" -f index.chm "$RESULTING_HTML_HELP_FILE"
             fi
        fi
    fi
@@ -414,15 +414,15 @@ if test "x$CREATE_HTML_TARZ_ARCHIVE" == "xON" ; then
         cd "$OUTPUT_DIRECTORY"
         if test "x$TAR_PROG" != "xNOTFOUND" ; then
             if test "x$RM_PROG" != "xNOTFOUND" ; then
-                $RM_PROG -f html.tar
+                "$RM_PROG" -f html.tar
             fi
-            $TAR_PROG -cf html.tar html
+            "$TAR_PROG" -cf html.tar html
             if test "x$GZIP_PROG" != "xNOTFOUND" ; then
                 if test "x$RM_PROG" != "xNOTFOUND" ; then
-                    $RM_PROG -f html.tar.gz
+                    "$RM_PROG" -f html.tar.gz
                 fi
-                $GZIP_PROG html.tar
-                $MV_PROG -f html.tar.gz "$RESULTING_HTML_TARZ_ARCHIVE_FILE"
+                "$GZIP_PROG" html.tar
+                "$MV_PROG" -f html.tar.gz "$RESULTING_HTML_TARZ_ARCHIVE_FILE"
             fi
        fi
    fi
@@ -432,18 +432,18 @@ fi
 # Clean-up.
 
 if test "x$RM_PROG" != "xNOTFOUND" ; then
-    $RM_PROG -fr "$INTERMEDIATE_DOX_DIR"
+    "$RM_PROG" -fr "$INTERMEDIATE_DOX_DIR"
 
     if test "x$DOWNLOAD_VTK_TAGFILE" == "xON" ; then
         if test "x$VTK_TAGFILE" != "x" ; then
-            $RM_PROG -f "$VTK_TAGFILE_DEST_DIR/$VTK_TAGFILE"
+            "$RM_PROG" -f "$VTK_TAGFILE_DEST_DIR/$VTK_TAGFILE"
         fi
     fi
 
     if test "x$COMPILE_HTML_HELP" == "xON" ; then
         if test "x$RESULTING_HTML_HELP_FILE" != "x" ; then
             if test "x$ALLOW_ERASE_OUTPUT_DIRECTORY" == "xON" ; then
-                $RM_PROG -fr "$OUTPUT_DIRECTORY"
+                "$RM_PROG" -fr "$OUTPUT_DIRECTORY"
             fi
         fi
     fi
