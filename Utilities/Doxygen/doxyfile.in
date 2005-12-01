@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # doxyfile for VTK
-# modified by S. Barre (Time-stamp: <2002-10-28 15:58:53 barre>
+# modified by S. Barre (Time-stamp: <2005-12-01 12:31:16 barre>
 # -------------------------------------------------------------------------
 
 PROJECT_NAME         = VTK
@@ -113,9 +113,6 @@ FILE_PATTERNS        = *.h
 RECURSIVE            = NO
 
 HTML_ALIGN_MEMBERS   = YES
-HTML_HEADER          = "@VTK_SOURCE_DIR@/Utilities/Doxygen/header.html"
-HTML_FOOTER          = "@VTK_SOURCE_DIR@/Utilities/Doxygen/footer.html"
-HTML_STYLESHEET      = "@VTK_SOURCE_DIR@/Utilities/Doxygen/doxygen.css"
 
 ALPHABETICAL_INDEX   = YES
 COLS_IN_ALPHA_INDEX  = 3
