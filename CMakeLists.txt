@@ -1,6 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.0)
 PROJECT(VTK)
 
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${VTK_SOURCE_DIR}/CMake")
+
 # Don't build anything unless the version of CMake is high enough.
 # The matching ELSE/ENDIF should be the last lines in the file.
 IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
