@@ -1183,8 +1183,10 @@ ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 # Configure Python wrapping support.
 IF(VTK_WRAP_PYTHON)
   SET(VTK_WRAP_PYTHON3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
+
+  # Tell vtkWrapPython.cmake to set VTK_PYTHON_LIBRARIES for us.
+  SET(VTK_WRAP_PYTHON_FIND_LIBS 1)
   INCLUDE("${VTK_SOURCE_DIR}/CMake/vtkWrapPython.cmake")
-  INCLUDE(${CMAKE_ROOT}/Modules/FindPythonLibs.cmake)
 
   # Wrapping executables.
   UTILITY_SOURCE(VTK_WRAP_PYTHON_EXE vtkWrapPython Wrapping vtkWrapPython.c)
@@ -1199,43 +1201,6 @@ IF(VTK_WRAP_PYTHON)
     SET(PVTK_PYTHON_EXE ${EXECUTABLE_OUTPUT_PATH}/pvtkpython)
   ENDIF(VTK_USE_PARALLEL AND VTK_USE_MPI)
 
-  # Use separate debug/optimized libraries if they are different.
-  IF(PYTHON_DEBUG_LIBRARY)
-    STRING(COMPARE EQUAL "${PYTHON_DEBUG_LIBRARY}" "${PYTHON_LIBRARY}"
-      VTK_PYTHON_LIBRARIES_MATCH)
-    IF(VTK_PYTHON_LIBRARIES_MATCH)
-      SET(VTK_PYTHON_LIBRARIES ${PYTHON_LIBRARY})
-    ELSE(VTK_PYTHON_LIBRARIES_MATCH)
-      SET(VTK_PYTHON_LIBRARIES
-        optimized ${PYTHON_LIBRARY}
-        debug ${PYTHON_DEBUG_LIBRARY})
-    ENDIF(VTK_PYTHON_LIBRARIES_MATCH)
-    SET(VTK_WINDOWS_PYTHON_DEBUGGABLE 0)
-    IF(WIN32)
-      IF(PYTHON_DEBUG_LIBRARY MATCHES "_d")
-        SET(VTK_WINDOWS_PYTHON_DEBUGGABLE 1)
-      ENDIF(PYTHON_DEBUG_LIBRARY MATCHES "_d")
-    ENDIF(WIN32)
-  ELSE(PYTHON_DEBUG_LIBRARY)
-    SET(VTK_PYTHON_LIBRARIES ${PYTHON_LIBRARY})
-  ENDIF(PYTHON_DEBUG_LIBRARY)
-
-  # Some python installations on UNIX need to link to extra libraries
-  # such as zlib (-lz).  It is hard to automatically detect the needed
-  # libraries so instead just give the user an easy way to specify
-  # the libraries.  This should be needed only rarely.  It should
-  # also be moved to the CMake FindPython.cmake module at some point.
-  IF(UNIX)
-    IF(DEFINED PYTHON_EXTRA_LIBS)
-    ELSE(DEFINED PYTHON_EXTRA_LIBS)
-      SET(PYTHON_EXTRA_LIBS "" CACHE STRING
-        "Extra libraries to link when linking to python (such as \"z\" for zlib).  Separate multiple libraries with semicolons.")
-      MARK_AS_ADVANCED(PYTHON_EXTRA_LIBS)
-    ENDIF(DEFINED PYTHON_EXTRA_LIBS)
-  ENDIF(UNIX)
-
-  # Include any extra libraries for python.
-  SET(VTK_PYTHON_LIBRARIES ${VTK_PYTHON_LIBRARIES} ${PYTHON_EXTRA_LIBS})
 ENDIF(VTK_WRAP_PYTHON)
 
 #-----------------------------------------------------------------------------
