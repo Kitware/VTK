@@ -210,6 +210,17 @@ Modify lex.yy.c:
 "vtkTypeMacro"         return(TypeMacro);
 "vtkTypeRevisionMacro" return(TypeMacro);
 "VTK_LEGACY"           return(VTK_LEGACY);
+"vtkTypeInt8"          return(TypeInt8);
+"vtkTypeUInt8"         return(TypeUInt8);
+"vtkTypeInt16"         return(TypeInt16);
+"vtkTypeUInt16"        return(TypeUInt16);
+"vtkTypeInt32"         return(TypeInt32);
+"vtkTypeUInt32"        return(TypeUInt32);
+"vtkTypeInt64"         return(TypeInt64);
+"vtkTypeUInt64"        return(TypeUInt64);
+"vtkTypeFloat32"       return(TypeFloat32);
+"vtkTypeFloat64"       return(TypeFloat64);
+
 
 [0-9]+		{ sscanf(yytext,"%d",&yylval.integer); return(NUM);}
 

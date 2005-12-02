@@ -1,7 +1,7 @@
-/* A Bison parser, made by GNU Bison 1.875d.  */
+/* A Bison parser, made by GNU Bison 2.1.  */
 
 /* Skeleton parser for Yacc-like parsing with Bison,
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,8 +15,8 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   Foundation, Inc., 51 Franklin Street, Fifth Floor,
+   Boston, MA 02110-1301, USA.  */
 
 /* As a special exception, when this file is copied by Bison into a
    Bison output file, you may use that output file without restriction.
@@ -35,6 +35,9 @@
 
 /* Identify Bison output.  */
 #define YYBISON 1
+
+/* Bison version.  */
+#define YYBISON_VERSION "2.1"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -82,32 +85,43 @@
      VAR_FUNCTION = 284,
      ARRAY_NUM = 285,
      VTK_LEGACY = 286,
-     IdType = 287,
-     StdString = 288,
-     SetMacro = 289,
-     GetMacro = 290,
-     SetStringMacro = 291,
-     GetStringMacro = 292,
-     SetClampMacro = 293,
-     SetObjectMacro = 294,
-     SetReferenceCountedObjectMacro = 295,
-     GetObjectMacro = 296,
-     BooleanMacro = 297,
-     SetVector2Macro = 298,
-     SetVector3Macro = 299,
-     SetVector4Macro = 300,
-     SetVector6Macro = 301,
-     GetVector2Macro = 302,
-     GetVector3Macro = 303,
-     GetVector4Macro = 304,
-     GetVector6Macro = 305,
-     SetVectorMacro = 306,
-     GetVectorMacro = 307,
-     ViewportCoordinateMacro = 308,
-     WorldCoordinateMacro = 309,
-     TypeMacro = 310
+     TypeInt8 = 287,
+     TypeUInt8 = 288,
+     TypeInt16 = 289,
+     TypeUInt16 = 290,
+     TypeInt32 = 291,
+     TypeUInt32 = 292,
+     TypeInt64 = 293,
+     TypeUInt64 = 294,
+     TypeFloat32 = 295,
+     TypeFloat64 = 296,
+     IdType = 297,
+     StdString = 298,
+     SetMacro = 299,
+     GetMacro = 300,
+     SetStringMacro = 301,
+     GetStringMacro = 302,
+     SetClampMacro = 303,
+     SetObjectMacro = 304,
+     SetReferenceCountedObjectMacro = 305,
+     GetObjectMacro = 306,
+     BooleanMacro = 307,
+     SetVector2Macro = 308,
+     SetVector3Macro = 309,
+     SetVector4Macro = 310,
+     SetVector6Macro = 311,
+     GetVector2Macro = 312,
+     GetVector3Macro = 313,
+     GetVector4Macro = 314,
+     GetVector6Macro = 315,
+     SetVectorMacro = 316,
+     GetVectorMacro = 317,
+     ViewportCoordinateMacro = 318,
+     WorldCoordinateMacro = 319,
+     TypeMacro = 320
    };
 #endif
+/* Tokens.  */
 #define CLASS 258
 #define PUBLIC 259
 #define PRIVATE 260
@@ -137,30 +151,40 @@
 #define VAR_FUNCTION 284
 #define ARRAY_NUM 285
 #define VTK_LEGACY 286
-#define IdType 287
-#define StdString 288
-#define SetMacro 289
-#define GetMacro 290
-#define SetStringMacro 291
-#define GetStringMacro 292
-#define SetClampMacro 293
-#define SetObjectMacro 294
-#define SetReferenceCountedObjectMacro 295
-#define GetObjectMacro 296
-#define BooleanMacro 297
-#define SetVector2Macro 298
-#define SetVector3Macro 299
-#define SetVector4Macro 300
-#define SetVector6Macro 301
-#define GetVector2Macro 302
-#define GetVector3Macro 303
-#define GetVector4Macro 304
-#define GetVector6Macro 305
-#define SetVectorMacro 306
-#define GetVectorMacro 307
-#define ViewportCoordinateMacro 308
-#define WorldCoordinateMacro 309
-#define TypeMacro 310
+#define TypeInt8 287
+#define TypeUInt8 288
+#define TypeInt16 289
+#define TypeUInt16 290
+#define TypeInt32 291
+#define TypeUInt32 292
+#define TypeInt64 293
+#define TypeUInt64 294
+#define TypeFloat32 295
+#define TypeFloat64 296
+#define IdType 297
+#define StdString 298
+#define SetMacro 299
+#define GetMacro 300
+#define SetStringMacro 301
+#define GetStringMacro 302
+#define SetClampMacro 303
+#define SetObjectMacro 304
+#define SetReferenceCountedObjectMacro 305
+#define GetObjectMacro 306
+#define BooleanMacro 307
+#define SetVector2Macro 308
+#define SetVector3Macro 309
+#define SetVector4Macro 310
+#define SetVector6Macro 311
+#define GetVector2Macro 312
+#define GetVector3Macro 313
+#define GetVector4Macro 314
+#define GetVector6Macro 315
+#define SetVectorMacro 316
+#define GetVectorMacro 317
+#define ViewportCoordinateMacro 318
+#define WorldCoordinateMacro 319
+#define TypeMacro 320
 
 
 
@@ -179,7 +203,7 @@ Run yacc like this:
 
 Modify vtkParse.tab.c:
   - remove TABs
-  - comment out yyerrorlab stuff
+  - remove yyerrorlab stuff in range ["goto yyerrlab1;", "yyerrstatus = 3;")
 
 */
 
@@ -188,6 +212,49 @@ Modify vtkParse.tab.c:
 #include <string.h>
 #define yyerror(a) fprintf(stderr,"%s\n",a)
 #define yywrap() 1
+
+/* Map from the type enumeration in vtkType.h to the VTK wrapping type
+   system number for the type.  Note that the wrapping type system
+   does not enumerate its type values by name.  Look in the
+   type_primitive production rule in the grammar for the "official"
+   enumeration. */
+static int vtkParseTypeMap[] =
+  {
+   0x2,  /* VTK_VOID                0 */
+   0,    /* VTK_BIT                 1 */
+   0x3,  /* VTK_CHAR                2 */
+   0x13, /* VTK_UNSIGNED_CHAR       3 */
+   0x5,  /* VTK_SHORT               4 */
+   0x15, /* VTK_UNSIGNED_SHORT      5 */
+   0x4,  /* VTK_INT                 6 */
+   0x14, /* VTK_UNSIGNED_INT        7 */
+   0x6,  /* VTK_LONG                8 */
+   0x16, /* VTK_UNSIGNED_LONG       9 */
+   0x1,  /* VTK_FLOAT              10 */
+   0x7,  /* VTK_DOUBLE             11 */
+   0xA,  /* VTK_ID_TYPE            12 */
+   0,    /* VTK_STRING             13 */
+   0,    /* VTK_OPAQUE             14 */
+   0xD,  /* VTK_SIGNED_CHAR        15 */
+   0xB,  /* VTK_LONG_LONG          16 */
+   0x1B, /* VTK_UNSIGNED_LONG_LONG 17 */
+   0xC,  /* VTK___INT64            18 */
+   0x1C  /* VTK_UNSIGNED___INT64   19 */
+  };
+
+/* Define some constants to simplify references to the table lookup in
+   the type_primitive production rule code.  */
+#include "vtkType.h"
+#define VTK_PARSE_INT8 vtkParseTypeMap[VTK_TYPE_INT8]
+#define VTK_PARSE_UINT8 vtkParseTypeMap[VTK_TYPE_UINT8]
+#define VTK_PARSE_INT16 vtkParseTypeMap[VTK_TYPE_INT16]
+#define VTK_PARSE_UINT16 vtkParseTypeMap[VTK_TYPE_UINT16]
+#define VTK_PARSE_INT32 vtkParseTypeMap[VTK_TYPE_INT32]
+#define VTK_PARSE_UINT32 vtkParseTypeMap[VTK_TYPE_UINT32]
+#define VTK_PARSE_INT64 vtkParseTypeMap[VTK_TYPE_INT64]
+#define VTK_PARSE_UINT64 vtkParseTypeMap[VTK_TYPE_UINT64]
+#define VTK_PARSE_FLOAT32 vtkParseTypeMap[VTK_TYPE_FLOAT32]
+#define VTK_PARSE_FLOAT64 vtkParseTypeMap[VTK_TYPE_FLOAT64]
 
 static void vtkParseDebug(const char* s1, const char* s2);
 
@@ -309,14 +376,19 @@ char *vtkstrdup(const char *in)
 # define YYERROR_VERBOSE 0
 #endif
 
+/* Enabling the token table.  */
+#ifndef YYTOKEN_TABLE
+# define YYTOKEN_TABLE 0
+#endif
+
 #if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
-#line 144 "vtkParse.y"
+#line 187 "vtkParse.y"
 typedef union YYSTYPE {
   char *str;
   int   integer;
   } YYSTYPE;
-/* Line 191 of yacc.c.  */
-#line 320 "vtkParse.tab.c"
+/* Line 196 of yacc.c.  */
+#line 392 "vtkParse.tab.c"
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
@@ -327,30 +399,49 @@ typedef union YYSTYPE {
 /* Copy the second part of user declarations.  */
 
 
-/* Line 214 of yacc.c.  */
-#line 332 "vtkParse.tab.c"
+/* Line 219 of yacc.c.  */
+#line 404 "vtkParse.tab.c"
+
+#if ! defined (YYSIZE_T) && defined (__SIZE_TYPE__)
+# define YYSIZE_T __SIZE_TYPE__
+#endif
+#if ! defined (YYSIZE_T) && defined (size_t)
+# define YYSIZE_T size_t
+#endif
+#if ! defined (YYSIZE_T) && (defined (__STDC__) || defined (__cplusplus))
+# include <stddef.h> /* INFRINGES ON USER NAME SPACE */
+# define YYSIZE_T size_t
+#endif
+#if ! defined (YYSIZE_T)
+# define YYSIZE_T unsigned int
+#endif
+
+#ifndef YY_
+# if YYENABLE_NLS
+#  if ENABLE_NLS
+#   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
+#   define YY_(msgid) dgettext ("bison-runtime", msgid)
+#  endif
+# endif
+# ifndef YY_
+#  define YY_(msgid) msgid
+# endif
+#endif
 
 #if ! defined (yyoverflow) || YYERROR_VERBOSE
-
-# ifndef YYFREE
-#  define YYFREE free
-# endif
-# ifndef YYMALLOC
-#  define YYMALLOC malloc
-# endif
 
 /* The parser invokes alloca or malloc; define the necessary symbols.  */
 
 # ifdef YYSTACK_USE_ALLOCA
 #  if YYSTACK_USE_ALLOCA
-#   define YYSTACK_ALLOC alloca
-#  endif
-# else
-#  if defined (alloca) || defined (_ALLOCA_H)
-#   define YYSTACK_ALLOC alloca
-#  else
 #   ifdef __GNUC__
 #    define YYSTACK_ALLOC __builtin_alloca
+#   else
+#    define YYSTACK_ALLOC alloca
+#    if defined (__STDC__) || defined (__cplusplus)
+#     include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
+#     define YYINCLUDED_STDLIB_H
+#    endif
 #   endif
 #  endif
 # endif
@@ -358,13 +449,39 @@ typedef union YYSTYPE {
 # ifdef YYSTACK_ALLOC
    /* Pacify GCC's `empty if-body' warning. */
 #  define YYSTACK_FREE(Ptr) do { /* empty */; } while (0)
-# else
-#  if defined (__STDC__) || defined (__cplusplus)
-#   include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
-#   define YYSIZE_T size_t
+#  ifndef YYSTACK_ALLOC_MAXIMUM
+    /* The OS might guarantee only one guard page at the bottom of the stack,
+       and a page size can be as small as 4096 bytes.  So we cannot safely
+       invoke alloca (N) if N exceeds 4096.  Use a slightly smaller number
+       to allow for a few compiler-allocated temporary stack slots.  */
+#   define YYSTACK_ALLOC_MAXIMUM 4032 /* reasonable circa 2005 */
 #  endif
+# else
 #  define YYSTACK_ALLOC YYMALLOC
 #  define YYSTACK_FREE YYFREE
+#  ifndef YYSTACK_ALLOC_MAXIMUM
+#   define YYSTACK_ALLOC_MAXIMUM ((YYSIZE_T) -1)
+#  endif
+#  ifdef __cplusplus
+extern "C" {
+#  endif
+#  ifndef YYMALLOC
+#   define YYMALLOC malloc
+#   if (! defined (malloc) && ! defined (YYINCLUDED_STDLIB_H) \
+        && (defined (__STDC__) || defined (__cplusplus)))
+void *malloc (YYSIZE_T); /* INFRINGES ON USER NAME SPACE */
+#   endif
+#  endif
+#  ifndef YYFREE
+#   define YYFREE free
+#   if (! defined (free) && ! defined (YYINCLUDED_STDLIB_H) \
+        && (defined (__STDC__) || defined (__cplusplus)))
+void free (void *); /* INFRINGES ON USER NAME SPACE */
+#   endif
+#  endif
+#  ifdef __cplusplus
+}
+#  endif
 # endif
 #endif /* ! defined (yyoverflow) || YYERROR_VERBOSE */
 
@@ -399,7 +516,7 @@ union yyalloc
 #   define YYCOPY(To, From, Count)              \
       do                                        \
         {                                       \
-          register YYSIZE_T yyi;                \
+          YYSIZE_T yyi;                         \
           for (yyi = 0; yyi < (Count); yyi++)   \
             (To)[yyi] = (From)[yyi];            \
         }                                       \
@@ -432,22 +549,22 @@ union yyalloc
 #endif
 
 /* YYFINAL -- State number of the termination state. */
-#define YYFINAL  50
+#define YYFINAL  60
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   626
+#define YYLAST   820
 
 /* YYNTOKENS -- Number of terminals. */
-#define YYNTOKENS  71
+#define YYNTOKENS  81
 /* YYNNTS -- Number of nonterminals. */
 #define YYNNTS  74
 /* YYNRULES -- Number of rules. */
-#define YYNRULES  183
+#define YYNRULES  193
 /* YYNRULES -- Number of states. */
-#define YYNSTATES  355
+#define YYNSTATES  365
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   310
+#define YYMAXUTOK   320
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -458,16 +575,16 @@ static const unsigned char yytranslate[] =
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    67,     2,
-      60,    61,    68,     2,    64,    69,    70,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    58,    59,
-       2,    63,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,    77,     2,
+      70,    71,    78,     2,    74,    79,    80,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,    68,    69,
+       2,    73,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,    65,     2,    66,     2,     2,     2,     2,     2,     2,
+       2,    75,     2,    76,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,    56,     2,    57,    62,     2,     2,     2,
+       2,     2,     2,    66,     2,    67,    72,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -486,7 +603,8 @@ static const unsigned char yytranslate[] =
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
       35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
       45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
-      55
+      55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
+      65
 };
 
 #if YYDEBUG
@@ -503,107 +621,111 @@ static const unsigned short int yyprhs[] =
      177,   180,   183,   184,   185,   189,   194,   197,   199,   202,
      206,   208,   211,   213,   215,   218,   221,   223,   225,   227,
      230,   233,   234,   238,   240,   242,   244,   246,   248,   250,
-     252,   254,   256,   258,   260,   262,   264,   266,   267,   270,
-     273,   274,   280,   282,   284,   286,   289,   291,   293,   297,
-     299,   300,   308,   309,   310,   319,   320,   326,   327,   333,
-     334,   335,   346,   347,   355,   356,   364,   365,   366,   375,
-     376,   384,   385,   393,   394,   402,   403,   411,   412,   420,
-     421,   429,   430,   438,   439,   447,   448,   456,   457,   467,
-     468,   478,   483,   488,   495,   496,   499,   500,   503,   505,
-     507,   509,   511,   513,   515,   517,   519,   521,   523,   525,
+     252,   254,   256,   258,   260,   262,   264,   266,   268,   270,
+     272,   274,   276,   278,   280,   282,   284,   286,   287,   290,
+     293,   294,   300,   302,   304,   306,   309,   311,   313,   317,
+     319,   320,   328,   329,   330,   339,   340,   346,   347,   353,
+     354,   355,   366,   367,   375,   376,   384,   385,   386,   395,
+     396,   404,   405,   413,   414,   422,   423,   431,   432,   440,
+     441,   449,   450,   458,   459,   467,   468,   476,   477,   487,
+     488,   498,   503,   508,   515,   516,   519,   520,   523,   525,
      527,   529,   531,   533,   535,   537,   539,   541,   543,   545,
-     547,   549,   553,   557
+     547,   549,   551,   553,   555,   557,   559,   561,   563,   565,
+     567,   569,   573,   577
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS. */
 static const short int yyrhs[] =
 {
-      72,     0,    -1,   138,    73,   138,    -1,    -1,     3,    27,
-      74,   109,    56,    75,    57,    -1,    76,    -1,    76,    75,
-      -1,   112,    58,    -1,    97,    -1,    79,    -1,    26,    79,
-      -1,    78,    90,    -1,    26,    78,    90,    -1,    77,    90,
-      -1,   115,    59,    -1,   115,    -1,    31,    60,    78,    61,
-      -1,    62,    81,    -1,     7,    62,    81,    -1,    81,    -1,
-     101,    81,    -1,   101,    23,    81,    -1,     7,   101,    23,
-      81,    -1,     7,   101,    81,    -1,     7,    81,    -1,    80,
-      -1,   101,    80,    -1,   101,    23,    80,    -1,     7,   101,
-      23,    80,    -1,     7,   101,    80,    -1,     7,    80,    -1,
-      24,   139,    59,    -1,    -1,    -1,    85,    82,    84,    83,
-      -1,    85,    63,     9,    -1,    -1,    23,    -1,    -1,    89,
-      60,    86,    91,    61,    -1,    23,    -1,    28,    -1,    27,
-      -1,    10,    -1,    59,    -1,    56,   138,    57,    59,    -1,
-      56,   138,    57,    -1,    58,   139,    59,    -1,    -1,    92,
-      -1,    94,    -1,    -1,    94,    93,    64,    92,    -1,   101,
-      -1,    -1,   101,    98,    95,    96,    -1,    29,    -1,    -1,
-      63,   113,    -1,   101,    98,    59,    -1,    29,    59,    -1,
-      89,    99,    -1,    -1,    -1,    30,   100,    99,    -1,    65,
-     139,    66,    99,    -1,    87,   102,    -1,   102,    -1,    88,
-     102,    -1,    88,    87,   102,    -1,   106,    -1,   106,   105,
-      -1,   103,    -1,   104,    -1,   104,    67,    -1,   104,    68,
-      -1,    33,    -1,    67,    -1,    68,    -1,    67,   105,    -1,
-      68,   105,    -1,    -1,    25,   107,   108,    -1,   108,    -1,
+      82,     0,    -1,   148,    83,   148,    -1,    -1,     3,    27,
+      84,   119,    66,    85,    67,    -1,    86,    -1,    86,    85,
+      -1,   122,    68,    -1,   107,    -1,    89,    -1,    26,    89,
+      -1,    88,   100,    -1,    26,    88,   100,    -1,    87,   100,
+      -1,   125,    69,    -1,   125,    -1,    31,    70,    88,    71,
+      -1,    72,    91,    -1,     7,    72,    91,    -1,    91,    -1,
+     111,    91,    -1,   111,    23,    91,    -1,     7,   111,    23,
+      91,    -1,     7,   111,    91,    -1,     7,    91,    -1,    90,
+      -1,   111,    90,    -1,   111,    23,    90,    -1,     7,   111,
+      23,    90,    -1,     7,   111,    90,    -1,     7,    90,    -1,
+      24,   149,    69,    -1,    -1,    -1,    95,    92,    94,    93,
+      -1,    95,    73,     9,    -1,    -1,    23,    -1,    -1,    99,
+      70,    96,   101,    71,    -1,    23,    -1,    28,    -1,    27,
+      -1,    10,    -1,    69,    -1,    66,   148,    67,    69,    -1,
+      66,   148,    67,    -1,    68,   149,    69,    -1,    -1,   102,
+      -1,   104,    -1,    -1,   104,   103,    74,   102,    -1,   111,
+      -1,    -1,   111,   108,   105,   106,    -1,    29,    -1,    -1,
+      73,   123,    -1,   111,   108,    69,    -1,    29,    69,    -1,
+      99,   109,    -1,    -1,    -1,    30,   110,   109,    -1,    75,
+     149,    76,   109,    -1,    97,   112,    -1,   112,    -1,    98,
+     112,    -1,    98,    97,   112,    -1,   116,    -1,   116,   115,
+      -1,   113,    -1,   114,    -1,   114,    77,    -1,   114,    78,
+      -1,    43,    -1,    77,    -1,    78,    -1,    77,   115,    -1,
+      78,   115,    -1,    -1,    25,   117,   118,    -1,   118,    -1,
+      32,    -1,    33,    -1,    34,    -1,    35,    -1,    36,    -1,
+      37,    -1,    38,    -1,    39,    -1,    40,    -1,    41,    -1,
       12,    -1,    18,    -1,    19,    -1,    11,    -1,    13,    -1,
-      14,    -1,    17,    -1,    10,    -1,    27,    -1,    32,    -1,
-      15,    -1,    16,    -1,    20,    -1,    -1,    58,   110,    -1,
-     112,    27,    -1,    -1,   112,    27,   111,    64,   110,    -1,
-       4,    -1,     5,    -1,     6,    -1,    69,   114,    -1,   114,
-      -1,     9,    -1,     9,    70,     9,    -1,    89,    -1,    -1,
-      34,    60,    89,    64,   116,   106,    61,    -1,    -1,    -1,
-      35,    60,   117,    89,    64,   118,   106,    61,    -1,    -1,
-      36,    60,   119,    89,    61,    -1,    -1,    37,    60,   120,
-      89,    61,    -1,    -1,    -1,    38,    60,    89,    64,   121,
-     106,   122,    64,   139,    61,    -1,    -1,    39,    60,    89,
-      64,   123,   106,    61,    -1,    -1,    40,    60,    89,    64,
-     124,   106,    61,    -1,    -1,    -1,    41,    60,   125,    89,
-      64,   126,   106,    61,    -1,    -1,    42,    60,    89,   127,
-      64,   106,    61,    -1,    -1,    43,    60,    89,    64,   128,
-     106,    61,    -1,    -1,    47,    60,    89,    64,   129,   106,
-      61,    -1,    -1,    44,    60,    89,    64,   130,   106,    61,
-      -1,    -1,    48,    60,    89,    64,   131,   106,    61,    -1,
-      -1,    45,    60,    89,    64,   132,   106,    61,    -1,    -1,
-      49,    60,    89,    64,   133,   106,    61,    -1,    -1,    46,
-      60,    89,    64,   134,   106,    61,    -1,    -1,    50,    60,
-      89,    64,   135,   106,    61,    -1,    -1,    51,    60,    89,
-      64,   136,   106,    64,   113,    61,    -1,    -1,    52,    60,
-      89,    64,   137,   106,    64,   113,    61,    -1,    53,    60,
-      89,    61,    -1,    54,    60,    89,    61,    -1,    55,    60,
-      89,    64,    89,    61,    -1,    -1,   140,   138,    -1,    -1,
-     141,   139,    -1,    59,    -1,   141,    -1,    22,    -1,   142,
-      -1,   143,    -1,    68,    -1,    63,    -1,    58,    -1,    64,
-      -1,    70,    -1,     8,    -1,   106,    -1,   104,    -1,     9,
-      -1,    21,    -1,    67,    -1,   144,    -1,    23,    -1,    24,
-      -1,    69,    -1,    62,    -1,    28,    -1,    30,    -1,    56,
-     138,    57,    -1,    60,   138,    61,    -1,    65,   138,    66,
+      14,    -1,    17,    -1,    10,    -1,    27,    -1,    42,    -1,
+      15,    -1,    16,    -1,    20,    -1,    -1,    68,   120,    -1,
+     122,    27,    -1,    -1,   122,    27,   121,    74,   120,    -1,
+       4,    -1,     5,    -1,     6,    -1,    79,   124,    -1,   124,
+      -1,     9,    -1,     9,    80,     9,    -1,    99,    -1,    -1,
+      44,    70,    99,    74,   126,   116,    71,    -1,    -1,    -1,
+      45,    70,   127,    99,    74,   128,   116,    71,    -1,    -1,
+      46,    70,   129,    99,    71,    -1,    -1,    47,    70,   130,
+      99,    71,    -1,    -1,    -1,    48,    70,    99,    74,   131,
+     116,   132,    74,   149,    71,    -1,    -1,    49,    70,    99,
+      74,   133,   116,    71,    -1,    -1,    50,    70,    99,    74,
+     134,   116,    71,    -1,    -1,    -1,    51,    70,   135,    99,
+      74,   136,   116,    71,    -1,    -1,    52,    70,    99,   137,
+      74,   116,    71,    -1,    -1,    53,    70,    99,    74,   138,
+     116,    71,    -1,    -1,    57,    70,    99,    74,   139,   116,
+      71,    -1,    -1,    54,    70,    99,    74,   140,   116,    71,
+      -1,    -1,    58,    70,    99,    74,   141,   116,    71,    -1,
+      -1,    55,    70,    99,    74,   142,   116,    71,    -1,    -1,
+      59,    70,    99,    74,   143,   116,    71,    -1,    -1,    56,
+      70,    99,    74,   144,   116,    71,    -1,    -1,    60,    70,
+      99,    74,   145,   116,    71,    -1,    -1,    61,    70,    99,
+      74,   146,   116,    74,   123,    71,    -1,    -1,    62,    70,
+      99,    74,   147,   116,    74,   123,    71,    -1,    63,    70,
+      99,    71,    -1,    64,    70,    99,    71,    -1,    65,    70,
+      99,    74,    99,    71,    -1,    -1,   150,   148,    -1,    -1,
+     151,   149,    -1,    69,    -1,   151,    -1,    22,    -1,   152,
+      -1,   153,    -1,    78,    -1,    73,    -1,    68,    -1,    74,
+      -1,    80,    -1,     8,    -1,   116,    -1,   114,    -1,     9,
+      -1,    21,    -1,    77,    -1,   154,    -1,    23,    -1,    24,
+      -1,    79,    -1,    72,    -1,    28,    -1,    30,    -1,    66,
+     148,    67,    -1,    70,   148,    71,    -1,    75,   148,    76,
       -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const unsigned short int yyrline[] =
 {
-       0,   209,   209,   212,   211,   217,   217,   219,   219,   220,
-     221,   222,   223,   224,   225,   226,   228,   230,   231,   232,
-     233,   237,   241,   246,   251,   257,   261,   266,   271,   277,
-     283,   289,   295,   295,   295,   301,   310,   310,   312,   312,
-     314,   316,   318,   318,   320,   321,   322,   323,   325,   325,
-     327,   328,   328,   330,   336,   335,   342,   349,   349,   351,
-     351,   353,   361,   362,   362,   365,   368,   369,   370,   371,
-     373,   374,   376,   378,   379,   380,   382,   392,   393,   394,
-     395,   397,   397,   399,   402,   403,   404,   405,   406,   407,
-     408,   409,   414,   431,   432,   433,   434,   436,   436,   438,
-     444,   443,   449,   450,   451,   453,   453,   455,   456,   456,
-     460,   459,   471,   471,   471,   480,   480,   491,   491,   501,
-     502,   500,   533,   532,   545,   544,   556,   557,   556,   566,
-     565,   583,   582,   613,   612,   630,   629,   662,   661,   679,
-     678,   713,   712,   730,   729,   768,   767,   785,   784,   803,
-     802,   819,   866,   915,   971,   971,   972,   972,   974,   974,
-     976,   976,   976,   976,   976,   976,   976,   976,   977,   977,
-     977,   977,   977,   977,   977,   978,   978,   978,   978,   978,
-     978,   980,   981,   982
+       0,   262,   262,   265,   264,   270,   270,   272,   272,   273,
+     274,   275,   276,   277,   278,   279,   281,   283,   284,   285,
+     286,   290,   294,   299,   304,   310,   314,   319,   324,   330,
+     336,   342,   348,   348,   348,   354,   363,   363,   365,   365,
+     367,   369,   371,   371,   373,   374,   375,   376,   378,   378,
+     380,   381,   381,   383,   389,   388,   395,   402,   402,   404,
+     404,   406,   414,   415,   415,   418,   421,   422,   423,   424,
+     426,   427,   429,   431,   432,   433,   435,   445,   446,   447,
+     448,   450,   450,   452,   455,   456,   457,   458,   459,   460,
+     461,   462,   463,   464,   465,   466,   467,   468,   469,   470,
+     471,   472,   477,   494,   495,   496,   497,   499,   499,   501,
+     507,   506,   512,   513,   514,   516,   516,   518,   519,   519,
+     523,   522,   534,   534,   534,   543,   543,   554,   554,   564,
+     565,   563,   596,   595,   608,   607,   619,   620,   619,   629,
+     628,   646,   645,   676,   675,   693,   692,   725,   724,   742,
+     741,   776,   775,   793,   792,   831,   830,   848,   847,   866,
+     865,   882,   929,   978,  1034,  1034,  1035,  1035,  1037,  1037,
+    1039,  1039,  1039,  1039,  1039,  1039,  1039,  1039,  1040,  1040,
+    1040,  1040,  1040,  1040,  1040,  1041,  1041,  1041,  1041,  1041,
+    1041,  1043,  1044,  1045
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE
-/* YYTNME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
+#if YYDEBUG || YYERROR_VERBOSE || YYTOKEN_TABLE
+/* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals. */
 static const char *const yytname[] =
 {
@@ -611,27 +733,29 @@ static const char *const yytname[] =
   "PROTECTED", "VIRTUAL", "STRING", "NUM", "ID", "INT", "FLOAT", "SHORT",
   "LONG", "LONG_LONG", "INT64__", "DOUBLE", "VOID", "CHAR", "SIGNED_CHAR",
   "CLASS_REF", "OTHER", "CONST", "OPERATOR", "UNSIGNED", "FRIEND",
-  "VTK_ID", "STATIC", "VAR_FUNCTION", "ARRAY_NUM", "VTK_LEGACY", "IdType",
-  "StdString", "SetMacro", "GetMacro", "SetStringMacro", "GetStringMacro",
-  "SetClampMacro", "SetObjectMacro", "SetReferenceCountedObjectMacro",
-  "GetObjectMacro", "BooleanMacro", "SetVector2Macro", "SetVector3Macro",
-  "SetVector4Macro", "SetVector6Macro", "GetVector2Macro",
-  "GetVector3Macro", "GetVector4Macro", "GetVector6Macro",
-  "SetVectorMacro", "GetVectorMacro", "ViewportCoordinateMacro",
-  "WorldCoordinateMacro", "TypeMacro", "'{'", "'}'", "':'", "';'", "'('",
-  "')'", "'~'", "'='", "','", "'['", "']'", "'&'", "'*'", "'-'", "'.'",
-  "$accept", "strt", "class_def", "@1", "class_def_body", "class_def_item",
-  "legacy_function", "function", "operator", "operator_sig", "func", "@2",
-  "@3", "maybe_const", "func_sig", "@4", "const_mod", "static_mod",
-  "any_id", "func_body", "args_list", "more_args", "@5", "arg", "@6",
-  "opt_var_assign", "var", "var_id", "var_array", "@7", "type",
-  "type_red1", "type_string1", "type_string2", "type_indirection",
-  "type_red2", "@8", "type_primitive", "optional_scope", "scope_list",
-  "@9", "scope_type", "float_num", "float_prim", "macro", "@10", "@11",
-  "@12", "@13", "@14", "@15", "@16", "@17", "@18", "@19", "@20", "@21",
-  "@22", "@23", "@24", "@25", "@26", "@27", "@28", "@29", "@30", "@31",
-  "maybe_other", "maybe_other_no_semi", "other_stuff",
-  "other_stuff_no_semi", "braces", "parens", "brackets", 0
+  "VTK_ID", "STATIC", "VAR_FUNCTION", "ARRAY_NUM", "VTK_LEGACY",
+  "TypeInt8", "TypeUInt8", "TypeInt16", "TypeUInt16", "TypeInt32",
+  "TypeUInt32", "TypeInt64", "TypeUInt64", "TypeFloat32", "TypeFloat64",
+  "IdType", "StdString", "SetMacro", "GetMacro", "SetStringMacro",
+  "GetStringMacro", "SetClampMacro", "SetObjectMacro",
+  "SetReferenceCountedObjectMacro", "GetObjectMacro", "BooleanMacro",
+  "SetVector2Macro", "SetVector3Macro", "SetVector4Macro",
+  "SetVector6Macro", "GetVector2Macro", "GetVector3Macro",
+  "GetVector4Macro", "GetVector6Macro", "SetVectorMacro", "GetVectorMacro",
+  "ViewportCoordinateMacro", "WorldCoordinateMacro", "TypeMacro", "'{'",
+  "'}'", "':'", "';'", "'('", "')'", "'~'", "'='", "','", "'['", "']'",
+  "'&'", "'*'", "'-'", "'.'", "$accept", "strt", "class_def", "@1",
+  "class_def_body", "class_def_item", "legacy_function", "function",
+  "operator", "operator_sig", "func", "@2", "@3", "maybe_const",
+  "func_sig", "@4", "const_mod", "static_mod", "any_id", "func_body",
+  "args_list", "more_args", "@5", "arg", "@6", "opt_var_assign", "var",
+  "var_id", "var_array", "@7", "type", "type_red1", "type_string1",
+  "type_string2", "type_indirection", "type_red2", "@8", "type_primitive",
+  "optional_scope", "scope_list", "@9", "scope_type", "float_num",
+  "float_prim", "macro", "@10", "@11", "@12", "@13", "@14", "@15", "@16",
+  "@17", "@18", "@19", "@20", "@21", "@22", "@23", "@24", "@25", "@26",
+  "@27", "@28", "@29", "@30", "@31", "maybe_other", "maybe_other_no_semi",
+  "other_stuff", "other_stuff_no_semi", "braces", "parens", "brackets", 0
 };
 #endif
 
@@ -645,7 +769,8 @@ static const unsigned short int yytoknum[] =
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
      285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
      295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
-     305,   306,   307,   308,   309,   310,   123,   125,    58,    59,
+     305,   306,   307,   308,   309,   310,   311,   312,   313,   314,
+     315,   316,   317,   318,   319,   320,   123,   125,    58,    59,
       40,    41,   126,    61,    44,    91,    93,    38,    42,    45,
       46
 };
@@ -654,25 +779,26 @@ static const unsigned short int yytoknum[] =
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const unsigned char yyr1[] =
 {
-       0,    71,    72,    74,    73,    75,    75,    76,    76,    76,
-      76,    76,    76,    76,    76,    76,    77,    78,    78,    78,
-      78,    78,    78,    78,    78,    79,    79,    79,    79,    79,
-      79,    80,    82,    83,    81,    81,    84,    84,    86,    85,
-      87,    88,    89,    89,    90,    90,    90,    90,    91,    91,
-      92,    93,    92,    94,    95,    94,    94,    96,    96,    97,
-      97,    98,    99,   100,    99,    99,   101,   101,   101,   101,
-     102,   102,   102,   103,   103,   103,   104,   105,   105,   105,
-     105,   107,   106,   106,   108,   108,   108,   108,   108,   108,
-     108,   108,   108,   108,   108,   108,   108,   109,   109,   110,
-     111,   110,   112,   112,   112,   113,   113,   114,   114,   114,
-     116,   115,   117,   118,   115,   119,   115,   120,   115,   121,
-     122,   115,   123,   115,   124,   115,   125,   126,   115,   127,
-     115,   128,   115,   129,   115,   130,   115,   131,   115,   132,
-     115,   133,   115,   134,   115,   135,   115,   136,   115,   137,
-     115,   115,   115,   115,   138,   138,   139,   139,   140,   140,
-     141,   141,   141,   141,   141,   141,   141,   141,   141,   141,
-     141,   141,   141,   141,   141,   141,   141,   141,   141,   141,
-     141,   142,   143,   144
+       0,    81,    82,    84,    83,    85,    85,    86,    86,    86,
+      86,    86,    86,    86,    86,    86,    87,    88,    88,    88,
+      88,    88,    88,    88,    88,    89,    89,    89,    89,    89,
+      89,    90,    92,    93,    91,    91,    94,    94,    96,    95,
+      97,    98,    99,    99,   100,   100,   100,   100,   101,   101,
+     102,   103,   102,   104,   105,   104,   104,   106,   106,   107,
+     107,   108,   109,   110,   109,   109,   111,   111,   111,   111,
+     112,   112,   112,   113,   113,   113,   114,   115,   115,   115,
+     115,   117,   116,   116,   118,   118,   118,   118,   118,   118,
+     118,   118,   118,   118,   118,   118,   118,   118,   118,   118,
+     118,   118,   118,   118,   118,   118,   118,   119,   119,   120,
+     121,   120,   122,   122,   122,   123,   123,   124,   124,   124,
+     126,   125,   127,   128,   125,   129,   125,   130,   125,   131,
+     132,   125,   133,   125,   134,   125,   135,   136,   125,   137,
+     125,   138,   125,   139,   125,   140,   125,   141,   125,   142,
+     125,   143,   125,   144,   125,   145,   125,   146,   125,   147,
+     125,   125,   125,   125,   148,   148,   149,   149,   150,   150,
+     151,   151,   151,   151,   151,   151,   151,   151,   151,   151,
+     151,   151,   151,   151,   151,   151,   151,   151,   151,   151,
+     151,   152,   153,   154
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
@@ -687,6 +813,7 @@ static const unsigned char yyr2[] =
        2,     2,     0,     0,     3,     4,     2,     1,     2,     3,
        1,     2,     1,     1,     2,     2,     1,     1,     1,     2,
        2,     0,     3,     1,     1,     1,     1,     1,     1,     1,
+       1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     0,     2,     2,
        0,     5,     1,     1,     1,     2,     1,     1,     3,     1,
        0,     7,     0,     0,     8,     0,     5,     0,     5,     0,
@@ -704,250 +831,292 @@ static const unsigned char yyr2[] =
    means the default is an error.  */
 static const unsigned char yydefact[] =
 {
-     154,   168,   171,    91,    87,    84,    88,    89,    94,    95,
-      90,    85,    86,    96,   172,   160,   175,   176,    81,    92,
-     179,   180,    93,    76,   154,   165,   158,   154,   178,   164,
-     166,   154,   173,   163,   177,   167,     0,   170,   169,    83,
-       0,   154,   159,   161,   162,   174,     0,     0,     0,     0,
-       1,     0,   154,   155,    82,   181,   182,   183,     3,     2,
-      97,     0,     0,   102,   103,   104,    98,     0,     0,    99,
-       0,    91,    40,   156,     0,    92,    41,     0,     0,     0,
+     164,   178,   181,   101,    97,    94,    98,    99,   104,   105,
+     100,    95,    96,   106,   182,   170,   185,   186,    81,   102,
+     189,   190,    84,    85,    86,    87,    88,    89,    90,    91,
+      92,    93,   103,    76,   164,   175,   168,   164,   188,   174,
+     176,   164,   183,   173,   187,   177,     0,   180,   179,    83,
+       0,   164,   169,   171,   172,   184,     0,     0,     0,     0,
+       1,     0,   164,   165,    82,   191,   192,   193,     3,     2,
+     107,     0,     0,   112,   113,   114,   108,     0,     0,   109,
+       0,   101,    40,   166,     0,   102,    41,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     5,     0,     0,     9,    25,    19,    32,
        0,     0,     0,     8,     0,    67,    72,    73,    70,     0,
-      15,     0,     0,    30,    24,     0,     0,   156,     0,    10,
-       0,    60,     0,     0,   112,   115,   117,     0,     0,     0,
-     126,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+      15,     0,     0,    30,    24,     0,     0,   166,     0,    10,
+       0,    60,     0,     0,   122,   125,   127,     0,     0,     0,
+     136,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,    43,    42,    17,     4,     6,
-     154,   156,    44,    13,    11,     0,    36,    66,     0,    68,
+     164,   166,    44,    13,    11,     0,    36,    66,     0,    68,
       38,     0,    26,    20,    62,     0,    74,    75,    77,    78,
-      71,     7,    14,     0,    18,     0,    29,    23,    31,   157,
+      71,     7,    14,     0,    18,     0,    29,    23,    31,   167,
       12,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,   129,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,   139,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,    35,    37,
-      33,    69,    48,    27,    21,    63,   156,    61,    59,    79,
-      80,   101,    28,    22,     0,    16,     0,   110,     0,     0,
-       0,   119,   122,   124,     0,     0,   131,   135,   139,   143,
-     133,   137,   141,   145,   147,   149,   151,   152,     0,    46,
+      33,    69,    48,    27,    21,    63,   166,    61,    59,    79,
+      80,   111,    28,    22,     0,    16,     0,   120,     0,     0,
+       0,   129,   132,   134,     0,     0,   141,   145,   149,   153,
+     143,   147,   151,   155,   157,   159,   161,   162,     0,    46,
       47,    34,    56,     0,    49,    50,    53,    62,     0,     0,
-       0,   113,   116,   118,     0,     0,     0,   127,     0,     0,
+       0,   123,   126,   128,     0,     0,     0,   137,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-      45,    39,     0,    62,    54,    64,    62,     0,     0,   120,
+      45,    39,     0,    62,    54,    64,    62,     0,     0,   130,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,   153,     0,    57,    65,   111,     0,
-       0,   123,   125,     0,   130,   132,   136,   140,   144,   134,
-     138,   142,   146,     0,     0,    52,     0,    55,   114,   156,
-     128,   107,     0,   109,     0,   106,     0,    58,     0,     0,
-     105,   148,   150,   121,   108
+       0,     0,     0,     0,   163,     0,    57,    65,   121,     0,
+       0,   133,   135,     0,   140,   142,   146,   150,   154,   144,
+     148,   152,   156,     0,     0,    52,     0,    55,   124,   166,
+     138,   117,     0,   119,     0,   116,     0,    58,     0,     0,
+     115,   158,   160,   131,   118
 };
 
 /* YYDEFGOTO[NTERM-NUM]. */
 static const short int yydefgoto[] =
 {
-      -1,    36,    52,    60,   102,   103,   104,   105,   106,   107,
-     108,   166,   261,   220,   109,   222,   110,   111,   112,   163,
-     263,   264,   292,   265,   316,   337,   113,   175,   227,   267,
-     114,   115,   116,    37,   180,    38,    46,    39,    62,    66,
-     121,    67,   344,   345,   120,   270,   195,   298,   196,   197,
-     274,   320,   275,   276,   201,   302,   245,   279,   283,   280,
-     284,   281,   285,   282,   286,   287,   288,    40,   126,    41,
-      42,    43,    44,    45
+      -1,    46,    62,    70,   112,   113,   114,   115,   116,   117,
+     118,   176,   271,   230,   119,   232,   120,   121,   122,   173,
+     273,   274,   302,   275,   326,   347,   123,   185,   237,   277,
+     124,   125,   126,    47,   190,    48,    56,    49,    72,    76,
+     131,    77,   354,   355,   130,   280,   205,   308,   206,   207,
+     284,   330,   285,   286,   211,   312,   255,   289,   293,   290,
+     294,   291,   295,   292,   296,   297,   298,    50,   136,    51,
+      52,    53,    54,    55
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -254
+#define YYPACT_NINF -256
 static const short int yypact[] =
 {
-     276,  -254,  -254,  -254,  -254,  -254,  -254,  -254,  -254,  -254,
-    -254,  -254,  -254,  -254,  -254,  -254,  -254,  -254,  -254,  -254,
-    -254,  -254,  -254,  -254,   276,  -254,  -254,   276,  -254,  -254,
-    -254,   276,  -254,  -254,  -254,  -254,    27,  -254,  -254,  -254,
-      37,   276,  -254,  -254,  -254,  -254,   364,    21,    29,    16,
-    -254,    59,   276,  -254,  -254,  -254,  -254,  -254,  -254,  -254,
-      31,    53,    39,  -254,  -254,  -254,  -254,    69,   406,    34,
-     514,    40,  -254,   339,   459,    42,  -254,    44,    47,    48,
-      51,    54,    55,    58,    60,    62,    63,    65,    75,    91,
-      92,    94,    96,    99,   100,   101,   103,   115,   118,   120,
-     123,    28,    49,   406,   -30,   -30,  -254,  -254,  -254,    36,
-     593,   154,   125,  -254,    46,  -254,  -254,   -34,    -4,    61,
-      71,   124,    28,  -254,  -254,    70,   130,   339,   -30,  -254,
-      46,  -254,   483,    28,  -254,  -254,  -254,    28,    28,    28,
-    -254,    28,    28,    28,    28,    28,    28,    28,    28,    28,
-      28,    28,    28,    28,    28,  -254,  -254,  -254,  -254,  -254,
-     276,   339,  -254,  -254,  -254,   184,    89,  -254,   593,  -254,
-    -254,    25,  -254,  -254,   -28,   135,  -254,  -254,    -4,    -4,
-    -254,  -254,  -254,    53,  -254,    25,  -254,  -254,  -254,  -254,
-    -254,   538,    68,    52,   131,    28,    28,    28,   133,   134,
-     136,    28,  -254,   137,   138,   140,   141,   142,   146,   158,
-     160,   162,   164,   168,   169,   170,   175,   174,  -254,  -254,
-    -254,  -254,   569,  -254,  -254,  -254,   339,  -254,  -254,  -254,
-    -254,  -254,  -254,  -254,    64,  -254,    28,  -254,   172,   188,
-     194,  -254,  -254,  -254,   192,   193,  -254,  -254,  -254,  -254,
-    -254,  -254,  -254,  -254,  -254,  -254,  -254,  -254,    28,   199,
-    -254,  -254,  -254,   201,  -254,   200,    28,   -15,   197,    28,
-     227,  -254,  -254,  -254,   227,   227,   227,  -254,   227,   227,
-     227,   227,   227,   227,   227,   227,   227,   227,   227,   204,
-    -254,  -254,   203,   -15,  -254,  -254,   -15,   207,   227,  -254,
-     208,   209,   227,   210,   211,   212,   213,   214,   215,   216,
-     217,   218,   219,   238,  -254,   569,   242,  -254,  -254,   220,
-     243,  -254,  -254,   221,  -254,  -254,  -254,  -254,  -254,  -254,
-    -254,  -254,  -254,     3,     3,  -254,     3,  -254,  -254,   339,
-    -254,   129,    14,  -254,   249,  -254,   250,  -254,   251,   271,
-    -254,  -254,  -254,  -254,  -254
+     266,  -256,  -256,  -256,  -256,  -256,  -256,  -256,  -256,  -256,
+    -256,  -256,  -256,  -256,  -256,  -256,  -256,  -256,  -256,  -256,
+    -256,  -256,  -256,  -256,  -256,  -256,  -256,  -256,  -256,  -256,
+    -256,  -256,  -256,  -256,   266,  -256,  -256,   266,  -256,  -256,
+    -256,   266,  -256,  -256,  -256,  -256,    27,  -256,  -256,  -256,
+      30,   266,  -256,  -256,  -256,  -256,   778,   -29,   -30,   -28,
+    -256,    26,   266,  -256,  -256,  -256,  -256,  -256,  -256,  -256,
+      -9,    51,    -2,  -256,  -256,  -256,  -256,    63,   416,    19,
+     561,    29,  -256,   339,   479,    32,  -256,    31,    33,    36,
+      37,    38,    41,    42,    44,    45,    48,    49,    50,    53,
+      55,    59,    65,    81,    82,    84,    86,    89,    90,    91,
+      93,    22,    97,   416,   -40,   -40,  -256,  -256,  -256,    57,
+     711,   677,    95,  -256,    60,  -256,  -256,    -4,    20,    54,
+      98,    92,    22,  -256,  -256,    62,    99,   339,   -40,  -256,
+      60,  -256,   520,    22,  -256,  -256,  -256,    22,    22,    22,
+    -256,    22,    22,    22,    22,    22,    22,    22,    22,    22,
+      22,    22,    22,    22,    22,  -256,  -256,  -256,  -256,  -256,
+     266,   339,  -256,  -256,  -256,   160,   147,  -256,   711,  -256,
+    -256,    13,  -256,  -256,   -12,   102,  -256,  -256,    20,    20,
+    -256,  -256,  -256,    51,  -256,    13,  -256,  -256,  -256,  -256,
+    -256,   602,   101,    52,   100,    22,    22,    22,   103,   104,
+     105,    22,  -256,   106,   107,   109,   111,   112,   113,   114,
+     115,   119,   120,   124,   126,   125,   108,   129,  -256,  -256,
+    -256,  -256,   643,  -256,  -256,  -256,   339,  -256,  -256,  -256,
+    -256,  -256,  -256,  -256,    68,  -256,    22,  -256,   127,   131,
+     133,  -256,  -256,  -256,   132,   136,  -256,  -256,  -256,  -256,
+    -256,  -256,  -256,  -256,  -256,  -256,  -256,  -256,    22,   153,
+    -256,  -256,  -256,   134,  -256,   150,    22,    -6,   152,    22,
+     745,  -256,  -256,  -256,   745,   745,   745,  -256,   745,   745,
+     745,   745,   745,   745,   745,   745,   745,   745,   745,   155,
+    -256,  -256,   156,    -6,  -256,  -256,    -6,   158,   745,  -256,
+     161,   162,   745,   163,   165,   166,   167,   168,   169,   170,
+     171,   172,   173,   175,  -256,   643,   179,  -256,  -256,   174,
+     180,  -256,  -256,   184,  -256,  -256,  -256,  -256,  -256,  -256,
+    -256,  -256,  -256,     3,     3,  -256,     3,  -256,  -256,   339,
+    -256,   164,    25,  -256,   185,  -256,   186,  -256,   187,   191,
+    -256,  -256,  -256,  -256,  -256
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const short int yypgoto[] =
 {
-    -254,  -254,  -254,  -254,   222,  -254,  -254,   -66,   239,   -54,
-      -9,  -254,  -254,  -254,  -254,  -254,   205,  -254,    -5,   -80,
-    -254,    -1,  -254,  -254,  -254,  -254,  -254,    56,  -245,  -254,
-     -65,   -91,  -254,   -64,   -94,   -67,  -254,   269,  -254,   143,
-    -254,   -50,  -253,   -25,  -254,  -254,  -254,  -254,  -254,  -254,
-    -254,  -254,  -254,  -254,  -254,  -254,  -254,  -254,  -254,  -254,
-    -254,  -254,  -254,  -254,  -254,  -254,  -254,   -10,  -116,  -254,
-     -73,  -254,  -254,  -254
+    -256,  -256,  -256,  -256,   146,  -256,  -256,   -76,   178,   -64,
+     -19,  -256,  -256,  -256,  -256,  -256,   142,  -256,   -15,  -113,
+    -256,  -152,  -256,  -256,  -256,  -256,  -256,   -11,  -255,  -256,
+     -75,  -101,  -256,   -74,  -108,   -77,  -256,   190,  -256,    71,
+    -256,   -63,  -250,   -85,  -256,  -256,  -256,  -256,  -256,  -256,
+    -256,  -256,  -256,  -256,  -256,  -256,  -256,  -256,  -256,  -256,
+    -256,  -256,  -256,  -256,  -256,  -256,  -256,   -20,  -126,  -256,
+     -83,  -256,  -256,  -256
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
    positive, shift that token.  If negative, reduce the rule which
    number is the opposite.  If zero, do what YYDEFACT says.
    If YYTABLE_NINF, syntax error.  */
-#define YYTABLE_NINF -101
+#define YYTABLE_NINF -111
 static const short int yytable[] =
 {
-     127,   118,   225,   118,   117,   125,   117,   118,   128,   130,
-     117,   189,   341,   155,    47,   225,   123,    48,   119,   167,
-     169,    49,   295,   341,   155,   164,   160,    50,   161,   162,
-     156,    53,   170,   176,   177,   155,   118,   226,   155,   117,
-      51,   156,    59,   118,   118,   217,   117,   117,   190,    73,
-     226,   317,   156,   119,   127,   156,   155,    63,    64,    65,
-     172,   124,   155,   178,   179,   118,   192,   193,   117,   171,
-      73,   186,   342,   156,   155,   236,   172,   221,    55,   156,
-     155,   346,    57,   347,   229,   230,    58,   269,   127,    61,
-      56,   156,   157,   185,    73,    68,    69,   156,  -100,   165,
-     -43,   118,   -42,   131,   117,   173,   158,   132,   133,   174,
-     268,   134,   219,   184,   135,   136,   187,   223,   137,   181,
-     138,   173,   139,   140,   118,   141,   234,   117,   194,   235,
-     182,   232,   198,   199,   200,   142,   202,   203,   204,   205,
-     206,   207,   208,   209,   210,   211,   212,   213,   214,   215,
-     216,   143,   144,   127,   145,   118,   146,   266,   117,   147,
-     148,   149,   224,   150,     3,     4,     5,     6,     7,     8,
-       9,    10,    11,    12,    13,   151,   233,    72,   152,    18,
-     153,    19,   124,   154,   173,   170,    22,    23,   183,   188,
-     238,   239,   240,   218,   228,   237,   244,   241,   242,   349,
-     243,   246,   247,   297,   248,   249,   250,   299,   300,   301,
-     251,   303,   304,   305,   306,   307,   308,   309,   310,   311,
-     312,   313,   252,   348,   253,   187,   254,   224,   255,   256,
-     257,   319,   259,   260,   258,   323,   271,     3,     4,     5,
-       6,     7,     8,     9,    10,    11,    12,    13,   118,   272,
-     266,   117,    18,   289,    19,   273,   277,   278,   290,    22,
-     233,   293,   291,   296,   -51,   314,   127,   315,   318,   321,
-     322,   324,   325,   326,   327,   328,   329,   330,   331,   332,
-     354,   338,   340,   333,     1,     2,     3,     4,     5,     6,
+     137,   128,   174,   128,   127,   135,   127,   128,   138,   140,
+     127,   199,   351,   165,    57,   129,   133,    58,   235,   177,
+     179,    59,   305,   165,   235,   200,   170,    60,   171,   172,
+     166,    63,   165,    61,   351,   165,   128,    83,    65,   127,
+     166,    66,    69,   128,   128,   227,   127,   127,    67,   166,
+     129,   327,   166,    68,   137,    73,    74,    75,   180,    71,
+     182,   134,   165,   236,    78,   128,   202,   203,   127,   236,
+     165,   196,   165,   186,   187,   246,   182,   231,   165,   166,
+     239,   240,   352,   181,    83,   195,    83,   166,   137,   166,
+      79,   279,   167,  -110,   356,   166,   357,   188,   189,   -43,
+     141,   128,   -42,   142,   127,   183,   143,   144,   145,   184,
+     278,   146,   147,   194,   148,   149,   197,   233,   150,   151,
+     152,   183,   191,   153,   128,   154,   244,   127,   204,   155,
+     175,   242,   208,   209,   210,   156,   212,   213,   214,   215,
+     216,   217,   218,   219,   220,   221,   222,   223,   224,   225,
+     226,   157,   158,   137,   159,   128,   160,   276,   127,   161,
+     162,   163,   234,   164,   168,   180,   193,   192,   198,   228,
+     229,   238,   245,   345,   247,   269,   243,   251,   252,   253,
+     256,   257,   134,   258,   183,   259,   260,   261,   262,   263,
+     248,   249,   250,   264,   265,   266,   254,   267,   270,   268,
+     364,   281,   282,   307,   283,   301,   287,   309,   310,   311,
+     288,   313,   314,   315,   316,   317,   318,   319,   320,   321,
+     322,   323,   300,   358,   -51,   197,   324,   234,   306,   328,
+     325,   329,   331,   332,   334,   333,   335,   336,   337,   338,
+     339,   340,   341,   342,   359,   348,    64,   343,   128,   344,
+     276,   127,   346,   299,   349,   350,   361,   362,   363,   169,
+     243,   303,   139,   178,   241,   304,   137,   360,     0,     0,
+       0,     0,     0,     0,     1,     2,     3,     4,     5,     6,
        7,     8,     9,    10,    11,    12,    13,    14,    15,    16,
-      17,    18,   334,    19,    20,   336,    21,   339,    22,    23,
-     351,   352,   353,   129,   335,    54,   168,   350,     0,     0,
-       0,     0,   294,     0,     0,   159,   231,     0,   343,   343,
-       0,   343,    24,     0,    25,    26,    27,   343,    28,    29,
-      30,    31,     0,    32,    33,    34,    35,     1,     2,     3,
+      17,    18,     0,    19,    20,     0,    21,     0,    22,    23,
+      24,    25,    26,    27,    28,    29,    30,    31,    32,    33,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,   353,   353,
+       0,   353,    34,     0,    35,    36,    37,   353,    38,    39,
+      40,    41,     0,    42,    43,    44,    45,     1,     2,     3,
        4,     5,     6,     7,     8,     9,    10,    11,    12,    13,
       14,    15,    16,    17,    18,     0,    19,    20,     0,    21,
-       0,    22,    23,     0,     3,     4,     5,     6,     7,     8,
-       9,    10,    11,    12,    13,     0,     0,     0,     0,     0,
-       0,    19,     0,     0,     0,    24,    22,    25,     0,    27,
-       0,    28,    29,    30,    31,     0,    32,    33,    34,    35,
-      63,    64,    65,    70,     0,     0,    71,     4,     5,     6,
-       7,     8,     9,    10,    11,    12,    13,     0,     0,    72,
-      73,    18,    74,    75,    76,    77,     0,    78,    22,    23,
-      79,    80,    81,    82,    83,    84,    85,    86,    87,    88,
+       0,    22,    23,    24,    25,    26,    27,    28,    29,    30,
+      31,    32,    33,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,    34,     0,    35,     0,    37,
+       0,    38,    39,    40,    41,     0,    42,    43,    44,    45,
+      73,    74,    75,    80,     0,     0,    81,     4,     5,     6,
+       7,     8,     9,    10,    11,    12,    13,     0,     0,    82,
+      83,    18,    84,    85,    86,    87,     0,    88,    22,    23,
+      24,    25,    26,    27,    28,    29,    30,    31,    32,    33,
       89,    90,    91,    92,    93,    94,    95,    96,    97,    98,
-      99,   100,     0,     0,     0,     0,    70,     0,   101,    71,
+      99,   100,   101,   102,   103,   104,   105,   106,   107,   108,
+     109,   110,     0,     0,     0,     0,    80,     0,   111,    81,
        4,     5,     6,     7,     8,     9,    10,    11,    12,    13,
-       0,     0,    72,    73,    18,     0,    75,    76,     0,     0,
-     191,    22,    23,    71,     4,     5,     6,     7,     8,     9,
-      10,    11,    12,    13,     0,     0,    72,     0,    18,     0,
-      75,    76,     0,     0,     0,    22,    23,     0,     0,     0,
-       0,   101,     0,     0,    71,     4,     5,     6,     7,     8,
-       9,    10,    11,    12,    13,     0,     0,    72,    73,    18,
-       0,    75,    76,     0,     0,   101,    22,    23,    71,     4,
+       0,     0,    82,    83,    18,     0,    85,    86,     0,     0,
+       0,    22,    23,    24,    25,    26,    27,    28,    29,    30,
+      31,    32,    33,     0,     0,     0,     0,   201,     0,     0,
+      81,     4,     5,     6,     7,     8,     9,    10,    11,    12,
+      13,     0,     0,    82,     0,    18,     0,    85,    86,     0,
+       0,   111,    22,    23,    24,    25,    26,    27,    28,    29,
+      30,    31,    32,    33,     0,     0,     0,     0,     0,     0,
+       0,    81,     4,     5,     6,     7,     8,     9,    10,    11,
+      12,    13,     0,     0,    82,    83,    18,     0,    85,    86,
+       0,     0,   111,    22,    23,    24,    25,    26,    27,    28,
+      29,    30,    31,    32,    33,     0,     0,     0,     0,     0,
+       0,     0,    81,     4,     5,     6,     7,     8,     9,    10,
+      11,    12,    13,     0,     0,    82,     0,    18,     0,    85,
+      86,     0,     0,   132,    22,    23,    24,    25,    26,    27,
+      28,    29,    30,    31,    32,    33,     0,     0,     0,     0,
+       0,     0,     0,     3,     4,     5,     6,     7,     8,     9,
+      10,    11,    12,    13,     0,     0,    82,     0,    18,     0,
+      19,    86,   272,     0,   132,    22,    23,    24,    25,    26,
+      27,    28,    29,    30,    31,    32,    33,     3,     4,     5,
+       6,     7,     8,     9,    10,    11,    12,    13,     0,     0,
+      82,     0,    18,     0,    19,     0,     0,     0,     0,    22,
+      23,    24,    25,    26,    27,    28,    29,    30,    31,    32,
+      33,     3,     4,     5,     6,     7,     8,     9,    10,    11,
+      12,    13,     0,     0,     0,     0,    18,     0,    19,     0,
+       0,     0,     0,    22,    23,    24,    25,    26,    27,    28,
+      29,    30,    31,    32,    33,     3,     4,     5,     6,     7,
+       8,     9,    10,    11,    12,    13,     0,     0,     0,     0,
+      18,     0,    19,     0,     0,     0,     0,    22,    23,    24,
+      25,    26,    27,    28,    29,    30,    31,    32,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,     0,
-       0,    72,     0,    18,     0,    75,    76,     0,     0,     0,
-      22,    23,     0,     0,     0,     0,   122,     0,     0,     3,
-       4,     5,     6,     7,     8,     9,    10,    11,    12,    13,
-       0,     0,    72,     0,    18,     0,    19,    76,   262,     0,
-     122,    22,    23,     3,     4,     5,     6,     7,     8,     9,
-      10,    11,    12,    13,     0,     0,     0,     0,    18,     0,
-      19,     0,     0,     0,     0,    22,    23
+       0,     0,     0,     0,     0,    19,     0,     0,     0,     0,
+      22,    23,    24,    25,    26,    27,    28,    29,    30,    31,
+      32
 };
 
 static const short int yycheck[] =
 {
-      73,    68,    30,    70,    68,    70,    70,    74,    74,    74,
-      74,   127,     9,    10,    24,    30,    70,    27,    68,   110,
-     111,    31,   267,     9,    10,   105,    56,     0,    58,    59,
-      27,    41,    60,    67,    68,    10,   103,    65,    10,   103,
-       3,    27,    52,   110,   111,   161,   110,   111,   128,    24,
-      65,   296,    27,   103,   127,    27,    10,     4,     5,     6,
-     114,    70,    10,    67,    68,   132,   132,   132,   132,    23,
-      24,   125,    69,    27,    10,    23,   130,   168,    57,    27,
-      10,   334,    66,   336,   178,   179,    27,    23,   161,    58,
-      61,    27,   101,    23,    24,    56,    27,    27,    64,    63,
-      60,   168,    60,    59,   168,   114,    57,    60,    60,   114,
-     226,    60,    23,   122,    60,    60,   125,   171,    60,    58,
-      60,   130,    60,    60,   191,    60,   191,   191,   133,    61,
-      59,   185,   137,   138,   139,    60,   141,   142,   143,   144,
-     145,   146,   147,   148,   149,   150,   151,   152,   153,   154,
-     160,    60,    60,   226,    60,   222,    60,   222,   222,    60,
-      60,    60,   171,    60,    10,    11,    12,    13,    14,    15,
-      16,    17,    18,    19,    20,    60,   185,    23,    60,    25,
-      60,    27,   191,    60,   193,    60,    32,    33,    64,    59,
-     195,   196,   197,     9,    59,    64,   201,    64,    64,    70,
-      64,    64,    64,   270,    64,    64,    64,   274,   275,   276,
-      64,   278,   279,   280,   281,   282,   283,   284,   285,   286,
-     287,   288,    64,   339,    64,   234,    64,   236,    64,    61,
-      61,   298,    57,    59,    64,   302,    64,    10,    11,    12,
-      13,    14,    15,    16,    17,    18,    19,    20,   315,    61,
-     315,   315,    25,   258,    27,    61,    64,    64,    59,    32,
-     269,   266,    61,    66,    64,    61,   339,    64,    61,    61,
-      61,    61,    61,    61,    61,    61,    61,    61,    61,    61,
-       9,    61,    61,    64,     8,     9,    10,    11,    12,    13,
+      83,    78,   115,    80,    78,    80,    80,    84,    84,    84,
+      84,   137,     9,    10,    34,    78,    80,    37,    30,   120,
+     121,    41,   277,    10,    30,   138,    66,     0,    68,    69,
+      27,    51,    10,     3,     9,    10,   113,    24,    67,   113,
+      27,    71,    62,   120,   121,   171,   120,   121,    76,    27,
+     113,   306,    27,    27,   137,     4,     5,     6,    70,    68,
+     124,    80,    10,    75,    66,   142,   142,   142,   142,    75,
+      10,   135,    10,    77,    78,    23,   140,   178,    10,    27,
+     188,   189,    79,    23,    24,    23,    24,    27,   171,    27,
+      27,    23,   111,    74,   344,    27,   346,    77,    78,    70,
+      69,   178,    70,    70,   178,   124,    70,    70,    70,   124,
+     236,    70,    70,   132,    70,    70,   135,   181,    70,    70,
+      70,   140,    68,    70,   201,    70,   201,   201,   143,    70,
+      73,   195,   147,   148,   149,    70,   151,   152,   153,   154,
+     155,   156,   157,   158,   159,   160,   161,   162,   163,   164,
+     170,    70,    70,   236,    70,   232,    70,   232,   232,    70,
+      70,    70,   181,    70,    67,    70,    74,    69,    69,     9,
+      23,    69,    71,   325,    74,    67,   195,    74,    74,    74,
+      74,    74,   201,    74,   203,    74,    74,    74,    74,    74,
+     205,   206,   207,    74,    74,    71,   211,    71,    69,    74,
+       9,    74,    71,   280,    71,    71,    74,   284,   285,   286,
+      74,   288,   289,   290,   291,   292,   293,   294,   295,   296,
+     297,   298,    69,   349,    74,   244,    71,   246,    76,    71,
+      74,   308,    71,    71,    71,   312,    71,    71,    71,    71,
+      71,    71,    71,    71,    80,    71,    56,    74,   325,    74,
+     325,   325,    73,   268,    74,    71,    71,    71,    71,   113,
+     279,   276,    84,   121,   193,   276,   349,   352,    -1,    -1,
+      -1,    -1,    -1,    -1,     8,     9,    10,    11,    12,    13,
       14,    15,    16,    17,    18,    19,    20,    21,    22,    23,
-      24,    25,    64,    27,    28,    63,    30,    64,    32,    33,
-      61,    61,    61,    74,   315,    46,   111,   342,    -1,    -1,
-      -1,    -1,   266,    -1,    -1,   103,   183,    -1,   333,   334,
-      -1,   336,    56,    -1,    58,    59,    60,   342,    62,    63,
-      64,    65,    -1,    67,    68,    69,    70,     8,     9,    10,
+      24,    25,    -1,    27,    28,    -1,    30,    -1,    32,    33,
+      34,    35,    36,    37,    38,    39,    40,    41,    42,    43,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,   343,   344,
+      -1,   346,    66,    -1,    68,    69,    70,   352,    72,    73,
+      74,    75,    -1,    77,    78,    79,    80,     8,     9,    10,
       11,    12,    13,    14,    15,    16,    17,    18,    19,    20,
       21,    22,    23,    24,    25,    -1,    27,    28,    -1,    30,
-      -1,    32,    33,    -1,    10,    11,    12,    13,    14,    15,
-      16,    17,    18,    19,    20,    -1,    -1,    -1,    -1,    -1,
-      -1,    27,    -1,    -1,    -1,    56,    32,    58,    -1,    60,
-      -1,    62,    63,    64,    65,    -1,    67,    68,    69,    70,
+      -1,    32,    33,    34,    35,    36,    37,    38,    39,    40,
+      41,    42,    43,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    66,    -1,    68,    -1,    70,
+      -1,    72,    73,    74,    75,    -1,    77,    78,    79,    80,
        4,     5,     6,     7,    -1,    -1,    10,    11,    12,    13,
       14,    15,    16,    17,    18,    19,    20,    -1,    -1,    23,
       24,    25,    26,    27,    28,    29,    -1,    31,    32,    33,
       34,    35,    36,    37,    38,    39,    40,    41,    42,    43,
       44,    45,    46,    47,    48,    49,    50,    51,    52,    53,
-      54,    55,    -1,    -1,    -1,    -1,     7,    -1,    62,    10,
+      54,    55,    56,    57,    58,    59,    60,    61,    62,    63,
+      64,    65,    -1,    -1,    -1,    -1,     7,    -1,    72,    10,
       11,    12,    13,    14,    15,    16,    17,    18,    19,    20,
       -1,    -1,    23,    24,    25,    -1,    27,    28,    -1,    -1,
-       7,    32,    33,    10,    11,    12,    13,    14,    15,    16,
+      -1,    32,    33,    34,    35,    36,    37,    38,    39,    40,
+      41,    42,    43,    -1,    -1,    -1,    -1,     7,    -1,    -1,
+      10,    11,    12,    13,    14,    15,    16,    17,    18,    19,
+      20,    -1,    -1,    23,    -1,    25,    -1,    27,    28,    -1,
+      -1,    72,    32,    33,    34,    35,    36,    37,    38,    39,
+      40,    41,    42,    43,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    10,    11,    12,    13,    14,    15,    16,    17,    18,
+      19,    20,    -1,    -1,    23,    24,    25,    -1,    27,    28,
+      -1,    -1,    72,    32,    33,    34,    35,    36,    37,    38,
+      39,    40,    41,    42,    43,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    10,    11,    12,    13,    14,    15,    16,    17,
+      18,    19,    20,    -1,    -1,    23,    -1,    25,    -1,    27,
+      28,    -1,    -1,    72,    32,    33,    34,    35,    36,    37,
+      38,    39,    40,    41,    42,    43,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    10,    11,    12,    13,    14,    15,    16,
       17,    18,    19,    20,    -1,    -1,    23,    -1,    25,    -1,
-      27,    28,    -1,    -1,    -1,    32,    33,    -1,    -1,    -1,
-      -1,    62,    -1,    -1,    10,    11,    12,    13,    14,    15,
-      16,    17,    18,    19,    20,    -1,    -1,    23,    24,    25,
-      -1,    27,    28,    -1,    -1,    62,    32,    33,    10,    11,
+      27,    28,    29,    -1,    72,    32,    33,    34,    35,    36,
+      37,    38,    39,    40,    41,    42,    43,    10,    11,    12,
+      13,    14,    15,    16,    17,    18,    19,    20,    -1,    -1,
+      23,    -1,    25,    -1,    27,    -1,    -1,    -1,    -1,    32,
+      33,    34,    35,    36,    37,    38,    39,    40,    41,    42,
+      43,    10,    11,    12,    13,    14,    15,    16,    17,    18,
+      19,    20,    -1,    -1,    -1,    -1,    25,    -1,    27,    -1,
+      -1,    -1,    -1,    32,    33,    34,    35,    36,    37,    38,
+      39,    40,    41,    42,    43,    10,    11,    12,    13,    14,
+      15,    16,    17,    18,    19,    20,    -1,    -1,    -1,    -1,
+      25,    -1,    27,    -1,    -1,    -1,    -1,    32,    33,    34,
+      35,    36,    37,    38,    39,    40,    41,    42,    10,    11,
       12,    13,    14,    15,    16,    17,    18,    19,    20,    -1,
-      -1,    23,    -1,    25,    -1,    27,    28,    -1,    -1,    -1,
-      32,    33,    -1,    -1,    -1,    -1,    62,    -1,    -1,    10,
-      11,    12,    13,    14,    15,    16,    17,    18,    19,    20,
-      -1,    -1,    23,    -1,    25,    -1,    27,    28,    29,    -1,
-      62,    32,    33,    10,    11,    12,    13,    14,    15,    16,
-      17,    18,    19,    20,    -1,    -1,    -1,    -1,    25,    -1,
-      27,    -1,    -1,    -1,    -1,    32,    33
+      -1,    -1,    -1,    -1,    -1,    27,    -1,    -1,    -1,    -1,
+      32,    33,    34,    35,    36,    37,    38,    39,    40,    41,
+      42
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -956,57 +1125,42 @@ static const unsigned char yystos[] =
 {
        0,     8,     9,    10,    11,    12,    13,    14,    15,    16,
       17,    18,    19,    20,    21,    22,    23,    24,    25,    27,
-      28,    30,    32,    33,    56,    58,    59,    60,    62,    63,
-      64,    65,    67,    68,    69,    70,    72,   104,   106,   108,
-     138,   140,   141,   142,   143,   144,   107,   138,   138,   138,
-       0,     3,    73,   138,   108,    57,    61,    66,    27,   138,
-      74,    58,   109,     4,     5,     6,   110,   112,    56,    27,
-       7,    10,    23,    24,    26,    27,    28,    29,    31,    34,
-      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      28,    30,    32,    33,    34,    35,    36,    37,    38,    39,
+      40,    41,    42,    43,    66,    68,    69,    70,    72,    73,
+      74,    75,    77,    78,    79,    80,    82,   114,   116,   118,
+     148,   150,   151,   152,   153,   154,   117,   148,   148,   148,
+       0,     3,    83,   148,   118,    67,    71,    76,    27,   148,
+      84,    68,   119,     4,     5,     6,   120,   122,    66,    27,
+       7,    10,    23,    24,    26,    27,    28,    29,    31,    44,
       45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
-      55,    62,    75,    76,    77,    78,    79,    80,    81,    85,
-      87,    88,    89,    97,   101,   102,   103,   104,   106,   112,
-     115,   111,    62,    80,    81,   101,   139,   141,    78,    79,
-     101,    59,    60,    60,    60,    60,    60,    60,    60,    60,
-      60,    60,    60,    60,    60,    60,    60,    60,    60,    60,
-      60,    60,    60,    60,    60,    10,    27,    81,    57,    75,
-      56,    58,    59,    90,    90,    63,    82,   102,    87,   102,
-      60,    23,    80,    81,    89,    98,    67,    68,    67,    68,
-     105,    58,    59,    64,    81,    23,    80,    81,    59,   139,
-      90,     7,    78,   101,    89,   117,   119,   120,    89,    89,
-      89,   125,    89,    89,    89,    89,    89,    89,    89,    89,
-      89,    89,    89,    89,    89,    89,   138,   139,     9,    23,
-      84,   102,    86,    80,    81,    30,    65,    99,    59,   105,
-     105,   110,    80,    81,   101,    61,    23,    64,    89,    89,
-      89,    64,    64,    64,    89,   127,    64,    64,    64,    64,
-      64,    64,    64,    64,    64,    64,    61,    61,    64,    57,
-      59,    83,    29,    91,    92,    94,   101,   100,   139,    23,
-     116,    64,    61,    61,   121,   123,   124,    64,    64,   128,
-     130,   132,   134,   129,   131,   133,   135,   136,   137,    89,
-      59,    61,    93,    89,    98,    99,    66,   106,   118,   106,
-     106,   106,   126,   106,   106,   106,   106,   106,   106,   106,
-     106,   106,   106,   106,    61,    64,    95,    99,    61,   106,
-     122,    61,    61,   106,    61,    61,    61,    61,    61,    61,
-      61,    61,    61,    64,    64,    92,    63,    96,    61,    64,
-      61,     9,    69,    89,   113,   114,   113,   113,   139,    70,
-     114,    61,    61,    61,     9
+      55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
+      65,    72,    85,    86,    87,    88,    89,    90,    91,    95,
+      97,    98,    99,   107,   111,   112,   113,   114,   116,   122,
+     125,   121,    72,    90,    91,   111,   149,   151,    88,    89,
+     111,    69,    70,    70,    70,    70,    70,    70,    70,    70,
+      70,    70,    70,    70,    70,    70,    70,    70,    70,    70,
+      70,    70,    70,    70,    70,    10,    27,    91,    67,    85,
+      66,    68,    69,   100,   100,    73,    92,   112,    97,   112,
+      70,    23,    90,    91,    99,   108,    77,    78,    77,    78,
+     115,    68,    69,    74,    91,    23,    90,    91,    69,   149,
+     100,     7,    88,   111,    99,   127,   129,   130,    99,    99,
+      99,   135,    99,    99,    99,    99,    99,    99,    99,    99,
+      99,    99,    99,    99,    99,    99,   148,   149,     9,    23,
+      94,   112,    96,    90,    91,    30,    75,   109,    69,   115,
+     115,   120,    90,    91,   111,    71,    23,    74,    99,    99,
+      99,    74,    74,    74,    99,   137,    74,    74,    74,    74,
+      74,    74,    74,    74,    74,    74,    71,    71,    74,    67,
+      69,    93,    29,   101,   102,   104,   111,   110,   149,    23,
+     126,    74,    71,    71,   131,   133,   134,    74,    74,   138,
+     140,   142,   144,   139,   141,   143,   145,   146,   147,    99,
+      69,    71,   103,    99,   108,   109,    76,   116,   128,   116,
+     116,   116,   136,   116,   116,   116,   116,   116,   116,   116,
+     116,   116,   116,   116,    71,    74,   105,   109,    71,   116,
+     132,    71,    71,   116,    71,    71,    71,    71,    71,    71,
+      71,    71,    71,    74,    74,   102,    73,   106,    71,    74,
+      71,     9,    79,    99,   123,   124,   123,   123,   149,    80,
+     124,    71,    71,    71,     9
 };
-
-#if ! defined (YYSIZE_T) && defined (__SIZE_TYPE__)
-# define YYSIZE_T __SIZE_TYPE__
-#endif
-#if ! defined (YYSIZE_T) && defined (size_t)
-# define YYSIZE_T size_t
-#endif
-#if ! defined (YYSIZE_T)
-# if defined (__STDC__) || defined (__cplusplus)
-#  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
-#  define YYSIZE_T size_t
-# endif
-#endif
-#if ! defined (YYSIZE_T)
-# define YYSIZE_T unsigned int
-#endif
 
 #define yyerrok         (yyerrstatus = 0)
 #define yyclearin       (yychar = YYEMPTY)
@@ -1038,24 +1192,57 @@ do                                                              \
     }                                                           \
   else                                                          \
     {                                                           \
-      yyerror ("syntax error: cannot back up");\
+      yyerror (YY_("syntax error: cannot back up")); \
       YYERROR;                                                  \
     }                                                           \
 while (0)
 
+
 #define YYTERROR        1
 #define YYERRCODE       256
 
-/* YYLLOC_DEFAULT -- Compute the default location (before the actions
-   are run).  */
 
+/* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
+   If N is 0, then set CURRENT to the empty location which ends
+   the previous symbol: RHS[0] (always defined).  */
+
+#define YYRHSLOC(Rhs, K) ((Rhs)[K])
 #ifndef YYLLOC_DEFAULT
-# define YYLLOC_DEFAULT(Current, Rhs, N)                \
-   ((Current).first_line   = (Rhs)[1].first_line,       \
-    (Current).first_column = (Rhs)[1].first_column,     \
-    (Current).last_line    = (Rhs)[N].last_line,        \
-    (Current).last_column  = (Rhs)[N].last_column)
+# define YYLLOC_DEFAULT(Current, Rhs, N)                                \
+    do                                                                  \
+      if (N)                                                            \
+        {                                                               \
+          (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;        \
+          (Current).first_column = YYRHSLOC (Rhs, 1).first_column;      \
+          (Current).last_line    = YYRHSLOC (Rhs, N).last_line;         \
+          (Current).last_column  = YYRHSLOC (Rhs, N).last_column;       \
+        }                                                               \
+      else                                                              \
+        {                                                               \
+          (Current).first_line   = (Current).last_line   =              \
+            YYRHSLOC (Rhs, 0).last_line;                                \
+          (Current).first_column = (Current).last_column =              \
+            YYRHSLOC (Rhs, 0).last_column;                              \
+        }                                                               \
+    while (0)
 #endif
+
+
+/* YY_LOCATION_PRINT -- Print the location on the stream.
+   This macro was not mandated originally: define only if we know
+   we won't break user code: when these are the locations we know.  */
+
+#ifndef YY_LOCATION_PRINT
+# if YYLTYPE_IS_TRIVIAL
+#  define YY_LOCATION_PRINT(File, Loc)                  \
+     fprintf (File, "%d.%d-%d.%d",                      \
+              (Loc).first_line, (Loc).first_column,     \
+              (Loc).last_line,  (Loc).last_column)
+# else
+#  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
+# endif
+#endif
+
 
 /* YYLEX -- calling `yylex' with the right arguments.  */
 
@@ -1079,19 +1266,13 @@ do {                                            \
     YYFPRINTF Args;                             \
 } while (0)
 
-# define YYDSYMPRINT(Args)                      \
-do {                                            \
-  if (yydebug)                                  \
-    yysymprint Args;                            \
-} while (0)
-
-# define YYDSYMPRINTF(Title, Token, Value, Location)            \
+# define YY_SYMBOL_PRINT(Title, Type, Value, Location)          \
 do {                                                            \
   if (yydebug)                                                  \
     {                                                           \
       YYFPRINTF (stderr, "%s ", Title);                         \
       yysymprint (stderr,                                       \
-                  Token, Value);        \
+                  Type, Value); \
       YYFPRINTF (stderr, "\n");                                 \
     }                                                           \
 } while (0)
@@ -1138,13 +1319,13 @@ yy_reduce_print (yyrule)
 #endif
 {
   int yyi;
-  unsigned int yylno = yyrline[yyrule];
-  YYFPRINTF (stderr, "Reducing stack by rule %d (line %u), ",
+  unsigned long int yylno = yyrline[yyrule];
+  YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu), ",
              yyrule - 1, yylno);
   /* Print the symbols being reduced, and their result.  */
   for (yyi = yyprhs[yyrule]; 0 <= yyrhs[yyi]; yyi++)
-    YYFPRINTF (stderr, "%s ", yytname [yyrhs[yyi]]);
-  YYFPRINTF (stderr, "-> %s\n", yytname [yyr1[yyrule]]);
+    YYFPRINTF (stderr, "%s ", yytname[yyrhs[yyi]]);
+  YYFPRINTF (stderr, "-> %s\n", yytname[yyr1[yyrule]]);
 }
 
 # define YY_REDUCE_PRINT(Rule)          \
@@ -1158,8 +1339,7 @@ do {                                    \
 int yydebug;
 #else /* !YYDEBUG */
 # define YYDPRINTF(Args)
-# define YYDSYMPRINT(Args)
-# define YYDSYMPRINTF(Title, Token, Value, Location)
+# define YY_SYMBOL_PRINT(Title, Type, Value, Location)
 # define YY_STACK_PRINT(Bottom, Top)
 # define YY_REDUCE_PRINT(Rule)
 #endif /* !YYDEBUG */
@@ -1174,12 +1354,8 @@ int yydebug;
    if the built-in stack extension method is used).
 
    Do not make this value too large; the results are undefined if
-   SIZE_MAX < YYSTACK_BYTES (YYMAXDEPTH)
+   YYSTACK_ALLOC_MAXIMUM < YYSTACK_BYTES (YYMAXDEPTH)
    evaluated with infinite-precision integer arithmetic.  */
-
-#if defined (YYMAXDEPTH) && YYMAXDEPTH == 0
-# undef YYMAXDEPTH
-#endif
 
 #ifndef YYMAXDEPTH
 # define YYMAXDEPTH 10000
@@ -1202,7 +1378,7 @@ yystrlen (yystr)
      const char *yystr;
 #   endif
 {
-  register const char *yys = yystr;
+  const char *yys = yystr;
 
   while (*yys++ != '\0')
     continue;
@@ -1227,8 +1403,8 @@ yystpcpy (yydest, yysrc)
      const char *yysrc;
 #   endif
 {
-  register char *yyd = yydest;
-  register const char *yys = yysrc;
+  char *yyd = yydest;
+  const char *yys = yysrc;
 
   while ((*yyd++ = *yys++) != '\0')
     continue;
@@ -1238,7 +1414,55 @@ yystpcpy (yydest, yysrc)
 #  endif
 # endif
 
-#endif /* !YYERROR_VERBOSE */
+# ifndef yytnamerr
+/* Copy to YYRES the contents of YYSTR after stripping away unnecessary
+   quotes and backslashes, so that it's suitable for yyerror.  The
+   heuristic is that double-quoting is unnecessary unless the string
+   contains an apostrophe, a comma, or backslash (other than
+   backslash-backslash).  YYSTR is taken from yytname.  If YYRES is
+   null, do not copy; instead, return the length of what the result
+   would have been.  */
+static YYSIZE_T
+yytnamerr (char *yyres, const char *yystr)
+{
+  if (*yystr == '"')
+    {
+      size_t yyn = 0;
+      char const *yyp = yystr;
+
+      for (;;)
+        switch (*++yyp)
+          {
+          case '\'':
+          case ',':
+            goto do_not_strip_quotes;
+
+          case '\\':
+            if (*++yyp != '\\')
+              goto do_not_strip_quotes;
+            /* Fall through.  */
+          default:
+            if (yyres)
+              yyres[yyn] = *yyp;
+            yyn++;
+            break;
+
+          case '"':
+            if (yyres)
+              yyres[yyn] = '\0';
+            return yyn;
+          }
+    do_not_strip_quotes: ;
+    }
+
+  if (! yyres)
+    return yystrlen (yystr);
+
+  return yystpcpy (yyres, yystr) - yyres;
+}
+# endif
+
+#endif /* YYERROR_VERBOSE */
 
 
 
@@ -1262,15 +1486,15 @@ yysymprint (yyoutput, yytype, yyvaluep)
   (void) yyvaluep;
 
   if (yytype < YYNTOKENS)
-    {
-      YYFPRINTF (yyoutput, "token %s (", yytname[yytype]);
-# ifdef YYPRINT
-      YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
-# endif
-    }
+    YYFPRINTF (yyoutput, "token %s (", yytname[yytype]);
   else
     YYFPRINTF (yyoutput, "nterm %s (", yytname[yytype]);
 
+
+# ifdef YYPRINT
+  if (yytype < YYNTOKENS)
+    YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
+# endif
   switch (yytype)
     {
       default:
@@ -1286,16 +1510,21 @@ yysymprint (yyoutput, yytype, yyvaluep)
 
 #if defined (__STDC__) || defined (__cplusplus)
 static void
-yydestruct (int yytype, YYSTYPE *yyvaluep)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
 #else
 static void
-yydestruct (yytype, yyvaluep)
+yydestruct (yymsg, yytype, yyvaluep)
+    const char *yymsg;
     int yytype;
     YYSTYPE *yyvaluep;
 #endif
 {
   /* Pacify ``unused variable'' warnings.  */
   (void) yyvaluep;
+
+  if (!yymsg)
+    yymsg = "Deleting";
+  YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
 
   switch (yytype)
     {
@@ -1324,10 +1553,10 @@ int yyparse ();
 
 
 
-/* The lookahead symbol.  */
+/* The look-ahead symbol.  */
 int yychar;
 
-/* The semantic value of the lookahead symbol.  */
+/* The semantic value of the look-ahead symbol.  */
 YYSTYPE yylval;
 
 /* Number of syntax errors so far.  */
@@ -1353,17 +1582,17 @@ yyparse (void)
 #else
 int
 yyparse ()
-
+    ;
 #endif
 #endif
 {
   
-  register int yystate;
-  register int yyn;
+  int yystate;
+  int yyn;
   int yyresult;
   /* Number of tokens to shift before error messages enabled.  */
   int yyerrstatus;
-  /* Lookahead token as an internal (translated) token number.  */
+  /* Look-ahead token as an internal (translated) token number.  */
   int yytoken = 0;
 
   /* Three stacks and their tools:
@@ -1377,12 +1606,12 @@ yyparse ()
   /* The state stack.  */
   short int yyssa[YYINITDEPTH];
   short int *yyss = yyssa;
-  register short int *yyssp;
+  short int *yyssp;
 
   /* The semantic value stack.  */
   YYSTYPE yyvsa[YYINITDEPTH];
   YYSTYPE *yyvs = yyvsa;
-  register YYSTYPE *yyvsp;
+  YYSTYPE *yyvsp;
 
 
 
@@ -1413,7 +1642,6 @@ yyparse ()
 
   yyssp = yyss;
   yyvsp = yyvs;
-
 
   goto yysetstate;
 
@@ -1447,7 +1675,7 @@ yyparse ()
            data in use in that stack, in bytes.  This used to be a
            conditional around just the two extra args, but that might
            be undefined if yyoverflow is a macro.  */
-        yyoverflow ("parser stack overflow",
+        yyoverflow (YY_("memory exhausted"),
                     &yyss1, yysize * sizeof (*yyssp),
                     &yyvs1, yysize * sizeof (*yyvsp),
 
@@ -1458,11 +1686,11 @@ yyparse ()
       }
 #else /* no yyoverflow */
 # ifndef YYSTACK_RELOCATE
-      goto yyoverflowlab;
+      goto yyexhaustedlab;
 # else
       /* Extend the stack our own way.  */
       if (YYMAXDEPTH <= yystacksize)
-        goto yyoverflowlab;
+        goto yyexhaustedlab;
       yystacksize *= 2;
       if (YYMAXDEPTH < yystacksize)
         yystacksize = YYMAXDEPTH;
@@ -1472,7 +1700,7 @@ yyparse ()
         union yyalloc *yyptr =
           (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
         if (! yyptr)
-          goto yyoverflowlab;
+          goto yyexhaustedlab;
         YYSTACK_RELOCATE (yyss);
         YYSTACK_RELOCATE (yyvs);
 
@@ -1504,18 +1732,18 @@ yyparse ()
 yybackup:
 
 /* Do appropriate processing given the current state.  */
-/* Read a lookahead token if we need one and don't already have one.  */
+/* Read a look-ahead token if we need one and don't already have one.  */
 /* yyresume: */
 
-  /* First try to decide what to do without reference to lookahead token.  */
+  /* First try to decide what to do without reference to look-ahead token.  */
 
   yyn = yypact[yystate];
   if (yyn == YYPACT_NINF)
     goto yydefault;
 
-  /* Not known => get a lookahead token if don't already have one.  */
+  /* Not known => get a look-ahead token if don't already have one.  */
 
-  /* YYCHAR is either YYEMPTY or YYEOF or a valid lookahead symbol.  */
+  /* YYCHAR is either YYEMPTY or YYEOF or a valid look-ahead symbol.  */
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token: "));
@@ -1530,7 +1758,7 @@ yybackup:
   else
     {
       yytoken = YYTRANSLATE (yychar);
-      YYDSYMPRINTF ("Next token is", yytoken, &yylval, &yylloc);
+      YY_SYMBOL_PRINT ("Next token is", yytoken, &yylval, &yylloc);
     }
 
   /* If the proper action on seeing token YYTOKEN is to reduce or to
@@ -1550,8 +1778,8 @@ yybackup:
   if (yyn == YYFINAL)
     YYACCEPT;
 
-  /* Shift the lookahead token.  */
-  YYDPRINTF ((stderr, "Shifting token %s, ", yytname[yytoken]));
+  /* Shift the look-ahead token.  */
+  YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
 
   /* Discard the token being shifted unless it is eof.  */
   if (yychar != YYEOF)
@@ -1601,117 +1829,117 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 212 "vtkParse.y"
+#line 265 "vtkParse.y"
     {
-      data.ClassName = vtkstrdup(yyvsp[0].str);
+      data.ClassName = vtkstrdup((yyvsp[0].str));
       }
     break;
 
   case 11:
-#line 222 "vtkParse.y"
+#line 275 "vtkParse.y"
     { output_function(); }
     break;
 
   case 12:
-#line 223 "vtkParse.y"
+#line 276 "vtkParse.y"
     { output_function(); }
     break;
 
   case 13:
-#line 224 "vtkParse.y"
+#line 277 "vtkParse.y"
     { legacySig(); output_function(); }
     break;
 
   case 17:
-#line 230 "vtkParse.y"
+#line 283 "vtkParse.y"
     { preSig("~"); }
     break;
 
   case 18:
-#line 231 "vtkParse.y"
+#line 284 "vtkParse.y"
     { preSig("virtual ~"); }
     break;
 
   case 20:
-#line 234 "vtkParse.y"
+#line 287 "vtkParse.y"
     {
-         currentFunction->ReturnType = yyvsp[-1].integer;
+         currentFunction->ReturnType = (yyvsp[-1].integer);
          }
     break;
 
   case 21:
-#line 238 "vtkParse.y"
+#line 291 "vtkParse.y"
     {
-         currentFunction->ReturnType = yyvsp[-2].integer;
+         currentFunction->ReturnType = (yyvsp[-2].integer);
          }
     break;
 
   case 22:
-#line 242 "vtkParse.y"
+#line 295 "vtkParse.y"
     {
          preSig("virtual ");
-         currentFunction->ReturnType = yyvsp[-2].integer;
+         currentFunction->ReturnType = (yyvsp[-2].integer);
          }
     break;
 
   case 23:
-#line 247 "vtkParse.y"
+#line 300 "vtkParse.y"
     {
          preSig("virtual ");
-         currentFunction->ReturnType = yyvsp[-1].integer;
+         currentFunction->ReturnType = (yyvsp[-1].integer);
          }
     break;
 
   case 24:
-#line 252 "vtkParse.y"
+#line 305 "vtkParse.y"
     {
          preSig("virtual ");
          }
     break;
 
   case 25:
-#line 258 "vtkParse.y"
+#line 311 "vtkParse.y"
     {
          output_function();
          }
     break;
 
   case 26:
-#line 262 "vtkParse.y"
+#line 315 "vtkParse.y"
     {
-         currentFunction->ReturnType = yyvsp[-1].integer;
+         currentFunction->ReturnType = (yyvsp[-1].integer);
          output_function();
          }
     break;
 
   case 27:
-#line 267 "vtkParse.y"
+#line 320 "vtkParse.y"
     {
-         currentFunction->ReturnType = yyvsp[-2].integer;
+         currentFunction->ReturnType = (yyvsp[-2].integer);
          output_function();
          }
     break;
 
   case 28:
-#line 272 "vtkParse.y"
+#line 325 "vtkParse.y"
     {
          preSig("virtual ");
-         currentFunction->ReturnType = yyvsp[-2].integer;
+         currentFunction->ReturnType = (yyvsp[-2].integer);
          output_function();
          }
     break;
 
   case 29:
-#line 278 "vtkParse.y"
+#line 331 "vtkParse.y"
     {
          preSig("virtual ");
-         currentFunction->ReturnType = yyvsp[-1].integer;
+         currentFunction->ReturnType = (yyvsp[-1].integer);
          output_function();
          }
     break;
 
   case 30:
-#line 284 "vtkParse.y"
+#line 337 "vtkParse.y"
     {
          preSig("virtual ");
          output_function();
@@ -1719,7 +1947,7 @@ yyreduce:
     break;
 
   case 31:
-#line 290 "vtkParse.y"
+#line 343 "vtkParse.y"
     {
       currentFunction->IsOperator = 1;
       vtkParseDebug("Converted operator", 0);
@@ -1727,95 +1955,95 @@ yyreduce:
     break;
 
   case 32:
-#line 295 "vtkParse.y"
+#line 348 "vtkParse.y"
     { postSig(")"); }
     break;
 
   case 33:
-#line 295 "vtkParse.y"
+#line 348 "vtkParse.y"
     { postSig(";"); openSig = 0; }
     break;
 
   case 34:
-#line 296 "vtkParse.y"
+#line 349 "vtkParse.y"
     {
       openSig = 1;
-      currentFunction->Name = yyvsp[-3].str; 
-      vtkParseDebug("Parsed func", yyvsp[-3].str);
+      currentFunction->Name = (yyvsp[-3].str); 
+      vtkParseDebug("Parsed func", (yyvsp[-3].str));
     }
     break;
 
   case 35:
-#line 302 "vtkParse.y"
+#line 355 "vtkParse.y"
     { 
       postSig(") = 0;"); 
-      currentFunction->Name = yyvsp[-2].str; 
-      vtkParseDebug("Parsed func", yyvsp[-2].str);
+      currentFunction->Name = (yyvsp[-2].str); 
+      vtkParseDebug("Parsed func", (yyvsp[-2].str));
       currentFunction->IsPureVirtual = 1; 
       data.IsAbstract = 1;
     }
     break;
 
   case 37:
-#line 310 "vtkParse.y"
+#line 363 "vtkParse.y"
     {postSig(" const");}
     break;
 
   case 38:
-#line 312 "vtkParse.y"
+#line 365 "vtkParse.y"
     {postSig(" ("); }
     break;
 
   case 40:
-#line 314 "vtkParse.y"
+#line 367 "vtkParse.y"
     {postSig("const ");}
     break;
 
   case 41:
-#line 316 "vtkParse.y"
+#line 369 "vtkParse.y"
     {postSig("static ");}
     break;
 
   case 42:
-#line 318 "vtkParse.y"
-    {postSig(yyvsp[0].str);}
+#line 371 "vtkParse.y"
+    {postSig((yyvsp[0].str));}
     break;
 
   case 43:
-#line 318 "vtkParse.y"
-    {postSig(yyvsp[0].str);}
+#line 371 "vtkParse.y"
+    {postSig((yyvsp[0].str));}
     break;
 
   case 50:
-#line 327 "vtkParse.y"
+#line 380 "vtkParse.y"
     { currentFunction->NumberOfArguments++;}
     break;
 
   case 51:
-#line 328 "vtkParse.y"
+#line 381 "vtkParse.y"
     { currentFunction->NumberOfArguments++; postSig(", ");}
     break;
 
   case 53:
-#line 331 "vtkParse.y"
+#line 384 "vtkParse.y"
     {
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
-        yyvsp[0].integer;}
+        (yyvsp[0].integer);}
     break;
 
   case 54:
-#line 336 "vtkParse.y"
+#line 389 "vtkParse.y"
     {
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 
-        yyvsp[0].integer / 0x10000; 
+        (yyvsp[0].integer) / 0x10000; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
-        yyvsp[-1].integer + yyvsp[0].integer % 0x10000;
+        (yyvsp[-1].integer) + (yyvsp[0].integer) % 0x10000;
     }
     break;
 
   case 56:
-#line 343 "vtkParse.y"
+#line 396 "vtkParse.y"
     { 
       postSig("void (*func)(void *) ");
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
@@ -1824,311 +2052,361 @@ yyreduce:
     break;
 
   case 59:
-#line 351 "vtkParse.y"
+#line 404 "vtkParse.y"
     {delSig();}
     break;
 
   case 60:
-#line 351 "vtkParse.y"
+#line 404 "vtkParse.y"
     {delSig();}
     break;
 
   case 61:
-#line 353 "vtkParse.y"
-    { yyval.integer = yyvsp[0].integer; }
+#line 406 "vtkParse.y"
+    { (yyval.integer) = (yyvsp[0].integer); }
     break;
 
   case 62:
-#line 361 "vtkParse.y"
-    { yyval.integer = 0; }
+#line 414 "vtkParse.y"
+    { (yyval.integer) = 0; }
     break;
 
   case 63:
-#line 362 "vtkParse.y"
-    { char temp[100]; sprintf(temp,"[%i]",yyvsp[0].integer); 
+#line 415 "vtkParse.y"
+    { char temp[100]; sprintf(temp,"[%i]",(yyvsp[0].integer)); 
                    postSig(temp); }
     break;
 
   case 64:
-#line 364 "vtkParse.y"
-    { yyval.integer = 0x300 + 0x10000 * yyvsp[-2].integer + yyvsp[0].integer % 0x1000; }
+#line 417 "vtkParse.y"
+    { (yyval.integer) = 0x300 + 0x10000 * (yyvsp[-2].integer) + (yyvsp[0].integer) % 0x1000; }
     break;
 
   case 65:
-#line 366 "vtkParse.y"
-    { postSig("[]"); yyval.integer = 0x300 + yyvsp[0].integer % 0x1000; }
+#line 419 "vtkParse.y"
+    { postSig("[]"); (yyval.integer) = 0x300 + (yyvsp[0].integer) % 0x1000; }
     break;
 
   case 66:
-#line 368 "vtkParse.y"
-    {yyval.integer = 0x1000 + yyvsp[0].integer;}
+#line 421 "vtkParse.y"
+    {(yyval.integer) = 0x1000 + (yyvsp[0].integer);}
     break;
 
   case 67:
-#line 369 "vtkParse.y"
-    {yyval.integer = yyvsp[0].integer;}
+#line 422 "vtkParse.y"
+    {(yyval.integer) = (yyvsp[0].integer);}
     break;
 
   case 68:
-#line 370 "vtkParse.y"
-    {yyval.integer = 0x2000 + yyvsp[0].integer;}
+#line 423 "vtkParse.y"
+    {(yyval.integer) = 0x2000 + (yyvsp[0].integer);}
     break;
 
   case 69:
-#line 371 "vtkParse.y"
-    {yyval.integer = 0x3000 + yyvsp[0].integer;}
+#line 424 "vtkParse.y"
+    {(yyval.integer) = 0x3000 + (yyvsp[0].integer);}
     break;
 
   case 70:
-#line 373 "vtkParse.y"
-    {yyval.integer = yyvsp[0].integer;}
+#line 426 "vtkParse.y"
+    {(yyval.integer) = (yyvsp[0].integer);}
     break;
 
   case 71:
-#line 375 "vtkParse.y"
-    {yyval.integer = yyvsp[-1].integer + yyvsp[0].integer;}
+#line 428 "vtkParse.y"
+    {(yyval.integer) = (yyvsp[-1].integer) + (yyvsp[0].integer);}
     break;
 
   case 72:
-#line 376 "vtkParse.y"
-    {yyval.integer = yyvsp[0].integer;}
+#line 429 "vtkParse.y"
+    {(yyval.integer) = (yyvsp[0].integer);}
     break;
 
   case 73:
-#line 378 "vtkParse.y"
-    {yyval.integer = yyvsp[0].integer;}
+#line 431 "vtkParse.y"
+    {(yyval.integer) = (yyvsp[0].integer);}
     break;
 
   case 74:
-#line 379 "vtkParse.y"
-    { postSig("&"); yyval.integer = yyvsp[-1].integer;}
+#line 432 "vtkParse.y"
+    { postSig("&"); (yyval.integer) = (yyvsp[-1].integer);}
     break;
 
   case 75:
-#line 380 "vtkParse.y"
-    { postSig("*"); yyval.integer = 0x400 + yyvsp[-1].integer;}
+#line 433 "vtkParse.y"
+    { postSig("*"); (yyval.integer) = 0x400 + (yyvsp[-1].integer);}
     break;
 
   case 76:
-#line 382 "vtkParse.y"
-    { postSig("vtkStdString "); yyval.integer = 0x1303; }
+#line 435 "vtkParse.y"
+    { postSig("vtkStdString "); (yyval.integer) = 0x1303; }
     break;
 
   case 77:
-#line 392 "vtkParse.y"
-    { postSig("&"); yyval.integer = 0x100;}
+#line 445 "vtkParse.y"
+    { postSig("&"); (yyval.integer) = 0x100;}
     break;
 
   case 78:
-#line 393 "vtkParse.y"
-    { postSig("*"); yyval.integer = 0x300;}
+#line 446 "vtkParse.y"
+    { postSig("*"); (yyval.integer) = 0x300;}
     break;
 
   case 79:
-#line 394 "vtkParse.y"
-    { yyval.integer = 0x100 + yyvsp[0].integer;}
+#line 447 "vtkParse.y"
+    { (yyval.integer) = 0x100 + (yyvsp[0].integer);}
     break;
 
   case 80:
-#line 395 "vtkParse.y"
-    { yyval.integer = 0x400 + yyvsp[0].integer;}
+#line 448 "vtkParse.y"
+    { (yyval.integer) = 0x400 + (yyvsp[0].integer);}
     break;
 
   case 81:
-#line 397 "vtkParse.y"
+#line 450 "vtkParse.y"
     {postSig("unsigned ");}
     break;
 
   case 82:
-#line 398 "vtkParse.y"
-    { yyval.integer = 0x10 + yyvsp[0].integer;}
+#line 451 "vtkParse.y"
+    { (yyval.integer) = 0x10 + (yyvsp[0].integer);}
     break;
 
   case 83:
-#line 399 "vtkParse.y"
-    { yyval.integer = yyvsp[0].integer;}
+#line 452 "vtkParse.y"
+    { (yyval.integer) = (yyvsp[0].integer);}
     break;
 
   case 84:
-#line 402 "vtkParse.y"
-    { postSig("float "); yyval.integer = 0x1;}
+#line 455 "vtkParse.y"
+    { postSig("vtkTypeInt8 "); (yyval.integer) = VTK_PARSE_INT8; }
     break;
 
   case 85:
-#line 403 "vtkParse.y"
-    { postSig("void "); yyval.integer = 0x2;}
+#line 456 "vtkParse.y"
+    { postSig("vtkTypeUInt8 "); (yyval.integer) = VTK_PARSE_UINT8; }
     break;
 
   case 86:
-#line 404 "vtkParse.y"
-    { postSig("char "); yyval.integer = 0x3;}
+#line 457 "vtkParse.y"
+    { postSig("vtkTypeInt16 "); (yyval.integer) = VTK_PARSE_INT16; }
     break;
 
   case 87:
-#line 405 "vtkParse.y"
-    { postSig("int "); yyval.integer = 0x4;}
+#line 458 "vtkParse.y"
+    { postSig("vtkTypeUInt16 "); (yyval.integer) = VTK_PARSE_UINT16; }
     break;
 
   case 88:
-#line 406 "vtkParse.y"
-    { postSig("short "); yyval.integer = 0x5;}
+#line 459 "vtkParse.y"
+    { postSig("vtkTypeInt32 "); (yyval.integer) = VTK_PARSE_INT32; }
     break;
 
   case 89:
-#line 407 "vtkParse.y"
-    { postSig("long "); yyval.integer = 0x6;}
+#line 460 "vtkParse.y"
+    { postSig("vtkTypeUInt32 "); (yyval.integer) = VTK_PARSE_UINT32; }
     break;
 
   case 90:
-#line 408 "vtkParse.y"
-    { postSig("double "); yyval.integer = 0x7;}
+#line 461 "vtkParse.y"
+    { postSig("vtkTypeInt64 "); (yyval.integer) = VTK_PARSE_INT64; }
     break;
 
   case 91:
-#line 409 "vtkParse.y"
-    {       
-      char ctmpid[2048];
-      sprintf(ctmpid,"%s ",yyvsp[0].str);
-      postSig(ctmpid);
-      yyval.integer = 0x8;}
+#line 462 "vtkParse.y"
+    { postSig("vtkTypeUInt64 "); (yyval.integer) = VTK_PARSE_UINT64; }
     break;
 
   case 92:
-#line 415 "vtkParse.y"
+#line 463 "vtkParse.y"
+    { postSig("vtkTypeFloat32 "); (yyval.integer) = VTK_PARSE_FLOAT32; }
+    break;
+
+  case 93:
+#line 464 "vtkParse.y"
+    { postSig("vtkTypeFloat64 "); (yyval.integer) = VTK_PARSE_FLOAT64; }
+    break;
+
+  case 94:
+#line 465 "vtkParse.y"
+    { postSig("float "); (yyval.integer) = 0x1;}
+    break;
+
+  case 95:
+#line 466 "vtkParse.y"
+    { postSig("void "); (yyval.integer) = 0x2;}
+    break;
+
+  case 96:
+#line 467 "vtkParse.y"
+    { postSig("char "); (yyval.integer) = 0x3;}
+    break;
+
+  case 97:
+#line 468 "vtkParse.y"
+    { postSig("int "); (yyval.integer) = 0x4;}
+    break;
+
+  case 98:
+#line 469 "vtkParse.y"
+    { postSig("short "); (yyval.integer) = 0x5;}
+    break;
+
+  case 99:
+#line 470 "vtkParse.y"
+    { postSig("long "); (yyval.integer) = 0x6;}
+    break;
+
+  case 100:
+#line 471 "vtkParse.y"
+    { postSig("double "); (yyval.integer) = 0x7;}
+    break;
+
+  case 101:
+#line 472 "vtkParse.y"
+    {       
+      char ctmpid[2048];
+      sprintf(ctmpid,"%s ",(yyvsp[0].str));
+      postSig(ctmpid);
+      (yyval.integer) = 0x8;}
+    break;
+
+  case 102:
+#line 478 "vtkParse.y"
     { 
       char ctmpid[2048];
-      sprintf(ctmpid,"%s ",yyvsp[0].str);
+      sprintf(ctmpid,"%s ",(yyvsp[0].str));
       postSig(ctmpid);
-      yyval.integer = 0x9; 
+      (yyval.integer) = 0x9; 
       currentFunction->ArgClasses[currentFunction->NumberOfArguments] =
-        vtkstrdup(yyvsp[0].str); 
+        vtkstrdup((yyvsp[0].str)); 
       /* store the string into the return value just in case we need it */
       /* this is a parsing hack because the first "type" parser will */
       /* possibly be ht ereturn type of the first argument */
       if ((!currentFunction->ReturnClass) && 
           (!currentFunction->NumberOfArguments)) 
         { 
-        currentFunction->ReturnClass = vtkstrdup(yyvsp[0].str); 
+        currentFunction->ReturnClass = vtkstrdup((yyvsp[0].str)); 
         }
     }
     break;
 
-  case 93:
-#line 431 "vtkParse.y"
-    { postSig("vtkIdType "); yyval.integer = 0xA;}
-    break;
-
-  case 94:
-#line 432 "vtkParse.y"
-    { postSig("long long "); yyval.integer = 0xB;}
-    break;
-
-  case 95:
-#line 433 "vtkParse.y"
-    { postSig("__int64 "); yyval.integer = 0xC;}
-    break;
-
-  case 96:
-#line 434 "vtkParse.y"
-    { postSig("signed char "); yyval.integer = 0xD;}
-    break;
-
-  case 99:
-#line 439 "vtkParse.y"
-    { 
-      data.SuperClasses[data.NumberOfSuperClasses] = vtkstrdup(yyvsp[0].str); 
-      data.NumberOfSuperClasses++; 
-    }
-    break;
-
-  case 100:
-#line 444 "vtkParse.y"
-    { 
-      data.SuperClasses[data.NumberOfSuperClasses] = vtkstrdup(yyvsp[0].str); 
-      data.NumberOfSuperClasses++; 
-    }
-    break;
-
-  case 102:
-#line 449 "vtkParse.y"
-    {in_public = 1; in_protected = 0;}
-    break;
-
   case 103:
-#line 450 "vtkParse.y"
-    {in_public = 0; in_protected = 0;}
+#line 494 "vtkParse.y"
+    { postSig("vtkIdType "); (yyval.integer) = 0xA;}
     break;
 
   case 104:
-#line 451 "vtkParse.y"
-    {in_public = 0; in_protected = 1;}
+#line 495 "vtkParse.y"
+    { postSig("long long "); (yyval.integer) = 0xB;}
     break;
 
-  case 107:
-#line 455 "vtkParse.y"
-    {yyval.integer = yyvsp[0].integer;}
+  case 105:
+#line 496 "vtkParse.y"
+    { postSig("__int64 "); (yyval.integer) = 0xC;}
     break;
 
-  case 108:
-#line 456 "vtkParse.y"
-    {yyval.integer = -1;}
+  case 106:
+#line 497 "vtkParse.y"
+    { postSig("signed char "); (yyval.integer) = 0xD;}
     break;
 
   case 109:
-#line 456 "vtkParse.y"
-    {yyval.integer = -1;}
+#line 502 "vtkParse.y"
+    { 
+      data.SuperClasses[data.NumberOfSuperClasses] = vtkstrdup((yyvsp[0].str)); 
+      data.NumberOfSuperClasses++; 
+    }
     break;
 
   case 110:
-#line 460 "vtkParse.y"
+#line 507 "vtkParse.y"
+    { 
+      data.SuperClasses[data.NumberOfSuperClasses] = vtkstrdup((yyvsp[0].str)); 
+      data.NumberOfSuperClasses++; 
+    }
+    break;
+
+  case 112:
+#line 512 "vtkParse.y"
+    {in_public = 1; in_protected = 0;}
+    break;
+
+  case 113:
+#line 513 "vtkParse.y"
+    {in_public = 0; in_protected = 0;}
+    break;
+
+  case 114:
+#line 514 "vtkParse.y"
+    {in_public = 0; in_protected = 1;}
+    break;
+
+  case 117:
+#line 518 "vtkParse.y"
+    {(yyval.integer) = (yyvsp[0].integer);}
+    break;
+
+  case 118:
+#line 519 "vtkParse.y"
+    {(yyval.integer) = -1;}
+    break;
+
+  case 119:
+#line 519 "vtkParse.y"
+    {(yyval.integer) = -1;}
+    break;
+
+  case 120:
+#line 523 "vtkParse.y"
     {preSig("void Set"); postSig(" ("); }
     break;
 
-  case 111:
-#line 461 "vtkParse.y"
+  case 121:
+#line 524 "vtkParse.y"
     {
    postSig(");");
-   sprintf(temps,"Set%s",yyvsp[-4].str); 
+   sprintf(temps,"Set%s",(yyvsp[-4].str)); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = yyvsp[-1].integer;
+   currentFunction->ArgTypes[0] = (yyvsp[-1].integer);
    currentFunction->ArgCounts[0] = 0;
    currentFunction->ReturnType = 0x2;
    output_function();
    }
     break;
 
-  case 112:
-#line 471 "vtkParse.y"
+  case 122:
+#line 534 "vtkParse.y"
     {postSig("Get");}
     break;
 
-  case 113:
-#line 471 "vtkParse.y"
+  case 123:
+#line 534 "vtkParse.y"
     {postSig(" ();"); invertSig = 1;}
     break;
 
-  case 114:
-#line 473 "vtkParse.y"
+  case 124:
+#line 536 "vtkParse.y"
     { 
-   sprintf(temps,"Get%s",yyvsp[-4].str); 
+   sprintf(temps,"Get%s",(yyvsp[-4].str)); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = yyvsp[-1].integer;
+   currentFunction->ReturnType = (yyvsp[-1].integer);
    output_function();
    }
     break;
 
-  case 115:
-#line 480 "vtkParse.y"
+  case 125:
+#line 543 "vtkParse.y"
     {preSig("void Set");}
     break;
 
-  case 116:
-#line 481 "vtkParse.y"
+  case 126:
+#line 544 "vtkParse.y"
     {
    postSig(" (char *);"); 
-   sprintf(temps,"Set%s",yyvsp[-1].str); 
+   sprintf(temps,"Set%s",(yyvsp[-1].str)); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 0x303;
@@ -2138,16 +2416,16 @@ yyreduce:
    }
     break;
 
-  case 117:
-#line 491 "vtkParse.y"
+  case 127:
+#line 554 "vtkParse.y"
     {preSig("char *Get");}
     break;
 
-  case 118:
-#line 492 "vtkParse.y"
+  case 128:
+#line 555 "vtkParse.y"
     { 
    postSig(" ();");
-   sprintf(temps,"Get%s",yyvsp[-1].str); 
+   sprintf(temps,"Get%s",(yyvsp[-1].str)); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x303;
@@ -2155,59 +2433,59 @@ yyreduce:
    }
     break;
 
-  case 119:
-#line 501 "vtkParse.y"
+  case 129:
+#line 564 "vtkParse.y"
     {preSig("void Set"); postSig(" ("); }
     break;
 
-  case 120:
-#line 502 "vtkParse.y"
+  case 130:
+#line 565 "vtkParse.y"
     {postSig(");"); openSig = 0;}
     break;
 
-  case 121:
-#line 503 "vtkParse.y"
+  case 131:
+#line 566 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
    sscanf (currentFunction->Signature, "%*s %*s (%s);", local);
-   sprintf(temps,"Set%s",yyvsp[-7].str); 
+   sprintf(temps,"Set%s",(yyvsp[-7].str)); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = yyvsp[-4].integer;
+   currentFunction->ArgTypes[0] = (yyvsp[-4].integer);
    currentFunction->ArgCounts[0] = 0;
    currentFunction->ReturnType = 0x2;
    output_function();
 
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
-   sprintf(currentFunction->Signature,"%s Get%sMinValue ();",local,yyvsp[-7].str);
-   sprintf(temps,"Get%sMinValue",yyvsp[-7].str);
+   sprintf(currentFunction->Signature,"%s Get%sMinValue ();",local,(yyvsp[-7].str));
+   sprintf(temps,"Get%sMinValue",(yyvsp[-7].str));
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = yyvsp[-4].integer;
+   currentFunction->ReturnType = (yyvsp[-4].integer);
    output_function();
 
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
-   sprintf(currentFunction->Signature,"%s Get%sMaxValue ();",local,yyvsp[-7].str);
-   sprintf(temps,"Get%sMaxValue",yyvsp[-7].str);
+   sprintf(currentFunction->Signature,"%s Get%sMaxValue ();",local,(yyvsp[-7].str));
+   sprintf(temps,"Get%sMaxValue",(yyvsp[-7].str));
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = yyvsp[-4].integer;
+   currentFunction->ReturnType = (yyvsp[-4].integer);
    output_function();
    }
     break;
 
-  case 122:
-#line 533 "vtkParse.y"
+  case 132:
+#line 596 "vtkParse.y"
     {preSig("void Set"); postSig(" ("); }
     break;
 
-  case 123:
-#line 534 "vtkParse.y"
+  case 133:
+#line 597 "vtkParse.y"
     { 
    postSig("*);");
-   sprintf(temps,"Set%s",yyvsp[-4].str); 
+   sprintf(temps,"Set%s",(yyvsp[-4].str)); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 0x309;
@@ -2217,16 +2495,16 @@ yyreduce:
    }
     break;
 
-  case 124:
-#line 545 "vtkParse.y"
+  case 134:
+#line 608 "vtkParse.y"
     {preSig("void Set"); postSig(" ("); }
     break;
 
-  case 125:
-#line 546 "vtkParse.y"
+  case 135:
+#line 609 "vtkParse.y"
     { 
    postSig("*);");
-   sprintf(temps,"Set%s",yyvsp[-4].str); 
+   sprintf(temps,"Set%s",(yyvsp[-4].str)); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 0x309;
@@ -2236,20 +2514,20 @@ yyreduce:
    }
     break;
 
-  case 126:
-#line 556 "vtkParse.y"
+  case 136:
+#line 619 "vtkParse.y"
     {postSig("*Get");}
     break;
 
-  case 127:
-#line 557 "vtkParse.y"
+  case 137:
+#line 620 "vtkParse.y"
     {postSig(" ();"); invertSig = 1;}
     break;
 
-  case 128:
-#line 558 "vtkParse.y"
+  case 138:
+#line 621 "vtkParse.y"
     { 
-   sprintf(temps,"Get%s",yyvsp[-4].str); 
+   sprintf(temps,"Get%s",(yyvsp[-4].str)); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x309;
@@ -2257,191 +2535,31 @@ yyreduce:
    }
     break;
 
-  case 129:
-#line 566 "vtkParse.y"
+  case 139:
+#line 629 "vtkParse.y"
     {preSig("void "); postSig("On ();"); openSig = 0; }
     break;
 
-  case 130:
-#line 568 "vtkParse.y"
-    { 
-   sprintf(temps,"%sOn",yyvsp[-4].str); 
-   currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 0x2;
-   output_function();
-   currentFunction->Signature = (char *)malloc(2048);
-   sigAllocatedLength = 2048;
-   sprintf(currentFunction->Signature,"void %sOff ();",yyvsp[-4].str); 
-   sprintf(temps,"%sOff",yyvsp[-4].str); 
-   currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 0;
-   output_function();
-   }
-    break;
-
-  case 131:
-#line 583 "vtkParse.y"
-    {
-     free (currentFunction->Signature);
-     currentFunction->Signature = NULL;
-     }
-    break;
-
-  case 132:
-#line 588 "vtkParse.y"
-    { 
-   char *local = vtkstrdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"void Set%s (%s, %s);",yyvsp[-4].str,
-     local, local);
-   sprintf(temps,"Set%s",yyvsp[-4].str); 
-   currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 2;
-   currentFunction->ArgTypes[0] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[1] = 0;
-   currentFunction->ReturnType = 0x2;
-   output_function();
-
-   currentFunction->Signature = (char *)malloc(2048);
-   sigAllocatedLength = 2048;
-   sprintf(currentFunction->Signature,"void Set%s (%s a[2]);",yyvsp[-4].str,
-     local);
-   currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 0x300 + yyvsp[-1].integer;
-   currentFunction->ArgCounts[0] = 0x2;
-   output_function();
-   }
-    break;
-
-  case 133:
-#line 613 "vtkParse.y"
-    {
-     free (currentFunction->Signature);
-     currentFunction->Signature = NULL;
-     }
-    break;
-
-  case 134:
-#line 618 "vtkParse.y"
-    { 
-   char *local = vtkstrdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-4].str);
-   sprintf(temps,"Get%s",yyvsp[-4].str); 
-   currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 0x300 + yyvsp[-1].integer;
-   currentFunction->HaveHint = 1;
-   currentFunction->HintSize = 2;
-   output_function();
-   }
-    break;
-
-  case 135:
-#line 630 "vtkParse.y"
-    {
-     free (currentFunction->Signature);
-     currentFunction->Signature = NULL;
-     }
-    break;
-
-  case 136:
-#line 635 "vtkParse.y"
-    { 
-   char *local = vtkstrdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s);",
-     yyvsp[-4].str, local, local, local);
-   sprintf(temps,"Set%s",yyvsp[-4].str); 
-   currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 3;
-   currentFunction->ArgTypes[0] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[1] = 0;
-   currentFunction->ArgTypes[2] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[2] = 0;
-   currentFunction->ReturnType = 0x2;
-   output_function();
-
-   currentFunction->Signature = (char *)malloc(2048);
-   sigAllocatedLength = 2048;
-   sprintf(currentFunction->Signature,"void Set%s (%s a[3]);",yyvsp[-4].str,
-     local);
-   currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 0x300 + yyvsp[-1].integer;
-   currentFunction->ArgCounts[0] = 3;
-   output_function();
-   }
-    break;
-
-  case 137:
-#line 662 "vtkParse.y"
-    {
-     free (currentFunction->Signature);
-     currentFunction->Signature = NULL;
-     }
-    break;
-
-  case 138:
-#line 667 "vtkParse.y"
-    { 
-   char *local = vtkstrdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-4].str);
-   sprintf(temps,"Get%s",yyvsp[-4].str); 
-   currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 0x300 + yyvsp[-1].integer;
-   currentFunction->HaveHint = 1;
-   currentFunction->HintSize = 3;
-   output_function();
-   }
-    break;
-
-  case 139:
-#line 679 "vtkParse.y"
-    {
-     free (currentFunction->Signature);
-     currentFunction->Signature = NULL;
-     }
-    break;
-
   case 140:
-#line 684 "vtkParse.y"
+#line 631 "vtkParse.y"
     { 
-   char *local = vtkstrdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s, %s);",
-     yyvsp[-4].str, local, local, local, local);
-   sprintf(temps,"Set%s",yyvsp[-4].str); 
+   sprintf(temps,"%sOn",(yyvsp[-4].str)); 
    currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 4;
-   currentFunction->ArgTypes[0] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[1] = 0;
-   currentFunction->ArgTypes[2] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[2] = 0;
-   currentFunction->ArgTypes[3] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[3] = 0;
+   currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x2;
    output_function();
-
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
-   sprintf(currentFunction->Signature,"void Set%s (%s a[4]);",yyvsp[-4].str,
-     local);
+   sprintf(currentFunction->Signature,"void %sOff ();",(yyvsp[-4].str)); 
+   sprintf(temps,"%sOff",(yyvsp[-4].str)); 
    currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 0x300 + yyvsp[-1].integer;
-   currentFunction->ArgCounts[0] = 4;
+   currentFunction->NumberOfArguments = 0;
    output_function();
    }
     break;
 
   case 141:
-#line 713 "vtkParse.y"
+#line 646 "vtkParse.y"
     {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
@@ -2449,22 +2567,35 @@ yyreduce:
     break;
 
   case 142:
-#line 718 "vtkParse.y"
+#line 651 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-4].str);
-   sprintf(temps,"Get%s",yyvsp[-4].str); 
+   sprintf(currentFunction->Signature,"void Set%s (%s, %s);",(yyvsp[-4].str),
+     local, local);
+   sprintf(temps,"Set%s",(yyvsp[-4].str)); 
    currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 0x300 + yyvsp[-1].integer;
-   currentFunction->HaveHint = 1;
-   currentFunction->HintSize = 4;
+   currentFunction->NumberOfArguments = 2;
+   currentFunction->ArgTypes[0] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[0] = 0;
+   currentFunction->ArgTypes[1] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[1] = 0;
+   currentFunction->ReturnType = 0x2;
+   output_function();
+
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
+   sprintf(currentFunction->Signature,"void Set%s (%s a[2]);",(yyvsp[-4].str),
+     local);
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 1;
+   currentFunction->ArgTypes[0] = 0x300 + (yyvsp[-1].integer);
+   currentFunction->ArgCounts[0] = 0x2;
    output_function();
    }
     break;
 
   case 143:
-#line 730 "vtkParse.y"
+#line 676 "vtkParse.y"
     {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
@@ -2472,43 +2603,22 @@ yyreduce:
     break;
 
   case 144:
-#line 735 "vtkParse.y"
+#line 681 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s, %s, %s, %s);",
-     yyvsp[-4].str, local, local, local, local, local, local);
-   sprintf(temps,"Set%s",yyvsp[-4].str); 
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, (yyvsp[-4].str));
+   sprintf(temps,"Get%s",(yyvsp[-4].str)); 
    currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 6;
-   currentFunction->ArgTypes[0] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[1] = 0;
-   currentFunction->ArgTypes[2] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[2] = 0;
-   currentFunction->ArgTypes[3] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[3] = 0;
-   currentFunction->ArgTypes[4] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[4] = 0;
-   currentFunction->ArgTypes[5] = yyvsp[-1].integer;
-   currentFunction->ArgCounts[5] = 0;
-   currentFunction->ReturnType = 0x2;
-   output_function();
-
-   currentFunction->Signature = (char *)malloc(2048);
-   sigAllocatedLength = 2048;
-   sprintf(currentFunction->Signature,"void Set%s (%s a[6]);",yyvsp[-4].str,
-     local);
-   currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 0x300 + yyvsp[-1].integer;
-   currentFunction->ArgCounts[0] = 6;
+   currentFunction->NumberOfArguments = 0;
+   currentFunction->ReturnType = 0x300 + (yyvsp[-1].integer);
+   currentFunction->HaveHint = 1;
+   currentFunction->HintSize = 2;
    output_function();
    }
     break;
 
   case 145:
-#line 768 "vtkParse.y"
+#line 693 "vtkParse.y"
     {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
@@ -2516,46 +2626,60 @@ yyreduce:
     break;
 
   case 146:
-#line 773 "vtkParse.y"
+#line 698 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-4].str);
-   sprintf(temps,"Get%s",yyvsp[-4].str); 
+   sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s);",
+     (yyvsp[-4].str), local, local, local);
+   sprintf(temps,"Set%s",(yyvsp[-4].str)); 
    currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 0x300 + yyvsp[-1].integer;
-   currentFunction->HaveHint = 1;
-   currentFunction->HintSize = 6;
+   currentFunction->NumberOfArguments = 3;
+   currentFunction->ArgTypes[0] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[0] = 0;
+   currentFunction->ArgTypes[1] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[1] = 0;
+   currentFunction->ArgTypes[2] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[2] = 0;
+   currentFunction->ReturnType = 0x2;
+   output_function();
+
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
+   sprintf(currentFunction->Signature,"void Set%s (%s a[3]);",(yyvsp[-4].str),
+     local);
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 1;
+   currentFunction->ArgTypes[0] = 0x300 + (yyvsp[-1].integer);
+   currentFunction->ArgCounts[0] = 3;
    output_function();
    }
     break;
 
   case 147:
-#line 785 "vtkParse.y"
+#line 725 "vtkParse.y"
     {
-      free (currentFunction->Signature);
-      currentFunction->Signature = NULL;
-      }
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
     break;
 
   case 148:
-#line 790 "vtkParse.y"
-    {
+#line 730 "vtkParse.y"
+    { 
    char *local = vtkstrdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"void Set%s (%s [%i]);",yyvsp[-6].str,
-      local, yyvsp[-1].integer);
-     sprintf(temps,"Set%s",yyvsp[-6].str); 
-     currentFunction->Name = vtkstrdup(temps);
-     currentFunction->ReturnType = 0x2;
-     currentFunction->NumberOfArguments = 1;
-     currentFunction->ArgTypes[0] = 0x300 + yyvsp[-3].integer;
-     currentFunction->ArgCounts[0] = yyvsp[-1].integer;
-     output_function();
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, (yyvsp[-4].str));
+   sprintf(temps,"Get%s",(yyvsp[-4].str)); 
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 0;
+   currentFunction->ReturnType = 0x300 + (yyvsp[-1].integer);
+   currentFunction->HaveHint = 1;
+   currentFunction->HintSize = 3;
+   output_function();
    }
     break;
 
   case 149:
-#line 803 "vtkParse.y"
+#line 742 "vtkParse.y"
     {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
@@ -2563,27 +2687,181 @@ yyreduce:
     break;
 
   case 150:
-#line 808 "vtkParse.y"
+#line 747 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
-   sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-6].str);
-   sprintf(temps,"Get%s",yyvsp[-6].str); 
+   sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s, %s);",
+     (yyvsp[-4].str), local, local, local, local);
+   sprintf(temps,"Set%s",(yyvsp[-4].str)); 
    currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 0x300 + yyvsp[-3].integer;
-   currentFunction->HaveHint = 1;
-   currentFunction->HintSize = yyvsp[-1].integer;
+   currentFunction->NumberOfArguments = 4;
+   currentFunction->ArgTypes[0] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[0] = 0;
+   currentFunction->ArgTypes[1] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[1] = 0;
+   currentFunction->ArgTypes[2] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[2] = 0;
+   currentFunction->ArgTypes[3] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[3] = 0;
+   currentFunction->ReturnType = 0x2;
+   output_function();
+
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
+   sprintf(currentFunction->Signature,"void Set%s (%s a[4]);",(yyvsp[-4].str),
+     local);
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 1;
+   currentFunction->ArgTypes[0] = 0x300 + (yyvsp[-1].integer);
+   currentFunction->ArgCounts[0] = 4;
    output_function();
    }
     break;
 
   case 151:
-#line 820 "vtkParse.y"
+#line 776 "vtkParse.y"
+    {
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
+    break;
+
+  case 152:
+#line 781 "vtkParse.y"
+    { 
+   char *local = vtkstrdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, (yyvsp[-4].str));
+   sprintf(temps,"Get%s",(yyvsp[-4].str)); 
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 0;
+   currentFunction->ReturnType = 0x300 + (yyvsp[-1].integer);
+   currentFunction->HaveHint = 1;
+   currentFunction->HintSize = 4;
+   output_function();
+   }
+    break;
+
+  case 153:
+#line 793 "vtkParse.y"
+    {
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
+    break;
+
+  case 154:
+#line 798 "vtkParse.y"
+    { 
+   char *local = vtkstrdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s, %s, %s, %s);",
+     (yyvsp[-4].str), local, local, local, local, local, local);
+   sprintf(temps,"Set%s",(yyvsp[-4].str)); 
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 6;
+   currentFunction->ArgTypes[0] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[0] = 0;
+   currentFunction->ArgTypes[1] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[1] = 0;
+   currentFunction->ArgTypes[2] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[2] = 0;
+   currentFunction->ArgTypes[3] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[3] = 0;
+   currentFunction->ArgTypes[4] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[4] = 0;
+   currentFunction->ArgTypes[5] = (yyvsp[-1].integer);
+   currentFunction->ArgCounts[5] = 0;
+   currentFunction->ReturnType = 0x2;
+   output_function();
+
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
+   sprintf(currentFunction->Signature,"void Set%s (%s a[6]);",(yyvsp[-4].str),
+     local);
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 1;
+   currentFunction->ArgTypes[0] = 0x300 + (yyvsp[-1].integer);
+   currentFunction->ArgCounts[0] = 6;
+   output_function();
+   }
+    break;
+
+  case 155:
+#line 831 "vtkParse.y"
+    {
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
+    break;
+
+  case 156:
+#line 836 "vtkParse.y"
+    { 
+   char *local = vtkstrdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, (yyvsp[-4].str));
+   sprintf(temps,"Get%s",(yyvsp[-4].str)); 
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 0;
+   currentFunction->ReturnType = 0x300 + (yyvsp[-1].integer);
+   currentFunction->HaveHint = 1;
+   currentFunction->HintSize = 6;
+   output_function();
+   }
+    break;
+
+  case 157:
+#line 848 "vtkParse.y"
+    {
+      free (currentFunction->Signature);
+      currentFunction->Signature = NULL;
+      }
+    break;
+
+  case 158:
+#line 853 "vtkParse.y"
+    {
+   char *local = vtkstrdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"void Set%s (%s [%i]);",(yyvsp[-6].str),
+      local, (yyvsp[-1].integer));
+     sprintf(temps,"Set%s",(yyvsp[-6].str)); 
+     currentFunction->Name = vtkstrdup(temps);
+     currentFunction->ReturnType = 0x2;
+     currentFunction->NumberOfArguments = 1;
+     currentFunction->ArgTypes[0] = 0x300 + (yyvsp[-3].integer);
+     currentFunction->ArgCounts[0] = (yyvsp[-1].integer);
+     output_function();
+   }
+    break;
+
+  case 159:
+#line 866 "vtkParse.y"
+    {
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
+    break;
+
+  case 160:
+#line 871 "vtkParse.y"
+    { 
+   char *local = vtkstrdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, (yyvsp[-6].str));
+   sprintf(temps,"Get%s",(yyvsp[-6].str)); 
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 0;
+   currentFunction->ReturnType = 0x300 + (yyvsp[-3].integer);
+   currentFunction->HaveHint = 1;
+   currentFunction->HintSize = (yyvsp[-1].integer);
+   output_function();
+   }
+    break;
+
+  case 161:
+#line 883 "vtkParse.y"
     { 
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
-       yyvsp[-1].str);
+       (yyvsp[-1].str));
 
-     sprintf(temps,"Get%sCoordinate",yyvsp[-1].str); 
+     sprintf(temps,"Get%sCoordinate",(yyvsp[-1].str)); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = 0x309;
@@ -2593,8 +2871,8 @@ yyreduce:
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"void Set%s (double, double);",
-       yyvsp[-1].str);
-     sprintf(temps,"Set%s",yyvsp[-1].str); 
+       (yyvsp[-1].str));
+     sprintf(temps,"Set%s",(yyvsp[-1].str)); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 2;
      currentFunction->ArgTypes[0] = 0x7;
@@ -2607,7 +2885,7 @@ yyreduce:
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"void Set%s (double a[2]);",
-       yyvsp[-1].str);
+       (yyvsp[-1].str));
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = 0x307;
@@ -2616,8 +2894,8 @@ yyreduce:
      
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
-     sprintf(currentFunction->Signature,"double *Get%s ();", yyvsp[-1].str);
-     sprintf(temps,"Get%s",yyvsp[-1].str); 
+     sprintf(currentFunction->Signature,"double *Get%s ();", (yyvsp[-1].str));
+     sprintf(temps,"Get%s",(yyvsp[-1].str)); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = 0x307;
@@ -2627,13 +2905,13 @@ yyreduce:
    }
     break;
 
-  case 152:
-#line 867 "vtkParse.y"
+  case 162:
+#line 930 "vtkParse.y"
     { 
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
-       yyvsp[-1].str);
+       (yyvsp[-1].str));
 
-     sprintf(temps,"Get%sCoordinate",yyvsp[-1].str); 
+     sprintf(temps,"Get%sCoordinate",(yyvsp[-1].str)); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = 0x309;
@@ -2643,8 +2921,8 @@ yyreduce:
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"void Set%s (double, double, double);",
-       yyvsp[-1].str);
-     sprintf(temps,"Set%s",yyvsp[-1].str); 
+       (yyvsp[-1].str));
+     sprintf(temps,"Set%s",(yyvsp[-1].str)); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 3;
      currentFunction->ArgTypes[0] = 0x7;
@@ -2659,7 +2937,7 @@ yyreduce:
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"void Set%s (double a[3]);",
-       yyvsp[-1].str);
+       (yyvsp[-1].str));
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = 0x307;
@@ -2668,8 +2946,8 @@ yyreduce:
      
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
-     sprintf(currentFunction->Signature,"double *Get%s ();", yyvsp[-1].str);
-     sprintf(temps,"Get%s",yyvsp[-1].str); 
+     sprintf(currentFunction->Signature,"double *Get%s ();", (yyvsp[-1].str));
+     sprintf(temps,"Get%s",(yyvsp[-1].str)); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = 0x307;
@@ -2679,8 +2957,8 @@ yyreduce:
    }
     break;
 
-  case 153:
-#line 916 "vtkParse.y"
+  case 163:
+#line 979 "vtkParse.y"
     { 
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
@@ -2706,12 +2984,12 @@ yyreduce:
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature, "%s *NewInstance ();",
-           yyvsp[-3].str);
+           (yyvsp[-3].str));
    sprintf(temps,"NewInstance"); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x309;
-   currentFunction->ReturnClass = vtkstrdup(yyvsp[-3].str);
+   currentFunction->ReturnClass = vtkstrdup((yyvsp[-3].str));
    output_function();
 
    if ( data.IsConcrete )
@@ -2719,7 +2997,7 @@ yyreduce:
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature, "%s *SafeDownCast (vtkObject* o);",
-             yyvsp[-3].str);
+             (yyvsp[-3].str));
      sprintf(temps,"SafeDownCast"); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 1;
@@ -2727,17 +3005,18 @@ yyreduce:
      currentFunction->ArgCounts[0] = 1;
      currentFunction->ArgClasses[0] = vtkstrdup("vtkObject");
      currentFunction->ReturnType = 0x2309;
-     currentFunction->ReturnClass = vtkstrdup(yyvsp[-3].str);
+     currentFunction->ReturnClass = vtkstrdup((yyvsp[-3].str));
      output_function();
      }
    }
     break;
 
 
+      default: break;
     }
 
-/* Line 1010 of yacc.c.  */
-#line 2741 "vtkParse.tab.c"
+/* Line 1126 of yacc.c.  */
+#line 3020 "vtkParse.tab.c"
 
   yyvsp -= yylen;
   yyssp -= yylen;
@@ -2776,11 +3055,35 @@ yyerrlab:
 
       if (YYPACT_NINF < yyn && yyn < YYLAST)
         {
-          YYSIZE_T yysize = 0;
           int yytype = YYTRANSLATE (yychar);
-          const char* yyprefix;
-          char *yymsg;
+          YYSIZE_T yysize0 = yytnamerr (0, yytname[yytype]);
+          YYSIZE_T yysize = yysize0;
+          YYSIZE_T yysize1;
+          int yysize_overflow = 0;
+          char *yymsg = 0;
+#         define YYERROR_VERBOSE_ARGS_MAXIMUM 5
+          char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
           int yyx;
+
+#if 0
+          /* This is so xgettext sees the translatable formats that are
+             constructed on the fly.  */
+          YY_("syntax error, unexpected %s");
+          YY_("syntax error, unexpected %s, expecting %s");
+          YY_("syntax error, unexpected %s, expecting %s or %s");
+          YY_("syntax error, unexpected %s, expecting %s or %s or %s");
+          YY_("syntax error, unexpected %s, expecting %s or %s or %s or %s");
+#endif
+          char *yyfmt;
+          char const *yyf;
+          static char const yyunexpected[] = "syntax error, unexpected %s";
+          static char const yyexpecting[] = ", expecting %s";
+          static char const yyor[] = " or %s";
+          char yyformat[sizeof yyunexpected
+                        + sizeof yyexpecting - 1
+                        + ((YYERROR_VERBOSE_ARGS_MAXIMUM - 2)
+                           * (sizeof yyor - 1))];
+          char const *yyprefix = yyexpecting;
 
           /* Start YYX at -YYN if negative to avoid negative indexes in
              YYCHECK.  */
@@ -2789,81 +3092,91 @@ yyerrlab:
           /* Stay within bounds of both yycheck and yytname.  */
           int yychecklim = YYLAST - yyn;
           int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
-          int yycount = 0;
+          int yycount = 1;
 
-          yyprefix = ", expecting ";
+          yyarg[0] = yytname[yytype];
+          yyfmt = yystpcpy (yyformat, yyunexpected);
+
           for (yyx = yyxbegin; yyx < yyxend; ++yyx)
             if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
               {
-                yysize += yystrlen (yyprefix) + yystrlen (yytname [yyx]);
-                yycount += 1;
-                if (yycount == 5)
+                if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
                   {
-                    yysize = 0;
+                    yycount = 1;
+                    yysize = yysize0;
+                    yyformat[sizeof yyunexpected - 1] = '\0';
                     break;
                   }
+                yyarg[yycount++] = yytname[yyx];
+                yysize1 = yysize + yytnamerr (0, yytname[yyx]);
+                yysize_overflow |= yysize1 < yysize;
+                yysize = yysize1;
+                yyfmt = yystpcpy (yyfmt, yyprefix);
+                yyprefix = yyor;
               }
-          yysize += (sizeof ("syntax error, unexpected ")
-                     + yystrlen (yytname[yytype]));
-          yymsg = (char *) YYSTACK_ALLOC (yysize);
-          if (yymsg != 0)
-            {
-              char *yyp = yystpcpy (yymsg, "syntax error, unexpected ");
-              yyp = yystpcpy (yyp, yytname[yytype]);
 
-              if (yycount < 5)
+          yyf = YY_(yyformat);
+          yysize1 = yysize + yystrlen (yyf);
+          yysize_overflow |= yysize1 < yysize;
+          yysize = yysize1;
+
+          if (!yysize_overflow && yysize <= YYSTACK_ALLOC_MAXIMUM)
+            yymsg = (char *) YYSTACK_ALLOC (yysize);
+          if (yymsg)
+            {
+              /* Avoid sprintf, as that infringes on the user's name space.
+                 Don't have undefined behavior even if the translation
+                 produced a string with the wrong number of "%s"s.  */
+              char *yyp = yymsg;
+              int yyi = 0;
+              while ((*yyp = *yyf))
                 {
-                  yyprefix = ", expecting ";
-                  for (yyx = yyxbegin; yyx < yyxend; ++yyx)
-                    if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
-                      {
-                        yyp = yystpcpy (yyp, yyprefix);
-                        yyp = yystpcpy (yyp, yytname[yyx]);
-                        yyprefix = " or ";
-                      }
+                  if (*yyp == '%' && yyf[1] == 's' && yyi < yycount)
+                    {
+                      yyp += yytnamerr (yyp, yyarg[yyi++]);
+                      yyf += 2;
+                    }
+                  else
+                    {
+                      yyp++;
+                      yyf++;
+                    }
                 }
               yyerror (yymsg);
               YYSTACK_FREE (yymsg);
             }
           else
-            yyerror ("syntax error; also virtual memory exhausted");
+            {
+              yyerror (YY_("syntax error"));
+              goto yyexhaustedlab;
+            }
         }
       else
 #endif /* YYERROR_VERBOSE */
-        yyerror ("syntax error");
+        yyerror (YY_("syntax error"));
     }
 
 
 
   if (yyerrstatus == 3)
     {
-      /* If just tried and failed to reuse lookahead token after an
+      /* If just tried and failed to reuse look-ahead token after an
          error, discard it.  */
 
       if (yychar <= YYEOF)
         {
-          /* If at end of input, pop the error token,
-             then the rest of the stack, then return failure.  */
+          /* Return failure if at end of input.  */
           if (yychar == YYEOF)
-             for (;;)
-               {
-                 YYPOPSTACK;
-                 if (yyssp == yyss)
-                   YYABORT;
-                 YYDSYMPRINTF ("Error: popping", yystos[*yyssp], yyvsp, yylsp);
-                 yydestruct (yystos[*yyssp], yyvsp);
-               }
+            YYABORT;
         }
       else
         {
-          YYDSYMPRINTF ("Error: discarding", yytoken, &yylval, &yylloc);
-          yydestruct (yytoken, &yylval);
+          yydestruct ("Error: discarding", yytoken, &yylval);
           yychar = YYEMPTY;
-
         }
     }
 
-  /* Else will try to reuse lookahead token after shifting the error
+  /* Else will try to reuse look-ahead token after shifting the error
      token.  */
   yyerrstatus = 3;      /* Each real token shifted decrements this.  */
 
@@ -2885,8 +3198,8 @@ yyerrlab:
       if (yyssp == yyss)
         YYABORT;
 
-      YYDSYMPRINTF ("Error: popping", yystos[*yyssp], yyvsp, yylsp);
-      yydestruct (yystos[yystate], yyvsp);
+
+      yydestruct ("Error: popping", yystos[yystate], yyvsp);
       YYPOPSTACK;
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -2895,10 +3208,11 @@ yyerrlab:
   if (yyn == YYFINAL)
     YYACCEPT;
 
-  YYDPRINTF ((stderr, "Shifting error token, "));
-
   *++yyvsp = yylval;
 
+
+  /* Shift the error token. */
+  YY_SYMBOL_PRINT ("Shifting", yystos[yyn], yyvsp, yylsp);
 
   yystate = yyn;
   goto yynewstate;
@@ -2919,16 +3233,25 @@ yyabortlab:
   goto yyreturn;
 
 #ifndef yyoverflow
-/*----------------------------------------------.
-| yyoverflowlab -- parser overflow comes here.  |
-`----------------------------------------------*/
-yyoverflowlab:
-  yyerror ("parser stack overflow");
+/*-------------------------------------------------.
+| yyexhaustedlab -- memory exhaustion comes here.  |
+`-------------------------------------------------*/
+yyexhaustedlab:
+  yyerror (YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
 
 yyreturn:
+  if (yychar != YYEOF && yychar != YYEMPTY)
+     yydestruct ("Cleanup: discarding lookahead",
+                 yytoken, &yylval);
+  while (yyssp != yyss)
+    {
+      yydestruct ("Cleanup: popping",
+                  yystos[*yyssp], yyvsp);
+      YYPOPSTACK;
+    }
 #ifndef yyoverflow
   if (yyss != yyssa)
     YYSTACK_FREE (yyss);
@@ -2937,7 +3260,7 @@ yyreturn:
 }
 
 
-#line 984 "vtkParse.y"
+#line 1047 "vtkParse.y"
 
 #include <string.h>
 #include "lex.yy.c"

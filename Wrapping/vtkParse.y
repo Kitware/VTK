@@ -24,7 +24,7 @@ Run yacc like this:
 
 Modify vtkParse.tab.c:
   - remove TABs
-  - comment out yyerrorlab stuff
+  - remove yyerrorlab stuff in range ["goto yyerrlab1;", "yyerrstatus = 3;")
 
 */
 
@@ -33,6 +33,49 @@ Modify vtkParse.tab.c:
 #include <string.h>
 #define yyerror(a) fprintf(stderr,"%s\n",a)
 #define yywrap() 1
+
+/* Map from the type enumeration in vtkType.h to the VTK wrapping type
+   system number for the type.  Note that the wrapping type system
+   does not enumerate its type values by name.  Look in the
+   type_primitive production rule in the grammar for the "official"
+   enumeration. */
+static int vtkParseTypeMap[] =
+  {
+   0x2,  /* VTK_VOID                0 */
+   0,    /* VTK_BIT                 1 */
+   0x3,  /* VTK_CHAR                2 */
+   0x13, /* VTK_UNSIGNED_CHAR       3 */
+   0x5,  /* VTK_SHORT               4 */
+   0x15, /* VTK_UNSIGNED_SHORT      5 */
+   0x4,  /* VTK_INT                 6 */
+   0x14, /* VTK_UNSIGNED_INT        7 */
+   0x6,  /* VTK_LONG                8 */
+   0x16, /* VTK_UNSIGNED_LONG       9 */
+   0x1,  /* VTK_FLOAT              10 */
+   0x7,  /* VTK_DOUBLE             11 */
+   0xA,  /* VTK_ID_TYPE            12 */
+   0,    /* VTK_STRING             13 */
+   0,    /* VTK_OPAQUE             14 */
+   0xD,  /* VTK_SIGNED_CHAR        15 */
+   0xB,  /* VTK_LONG_LONG          16 */
+   0x1B, /* VTK_UNSIGNED_LONG_LONG 17 */
+   0xC,  /* VTK___INT64            18 */
+   0x1C  /* VTK_UNSIGNED___INT64   19 */
+  };
+
+/* Define some constants to simplify references to the table lookup in
+   the type_primitive production rule code.  */
+#include "vtkType.h"
+#define VTK_PARSE_INT8 vtkParseTypeMap[VTK_TYPE_INT8]
+#define VTK_PARSE_UINT8 vtkParseTypeMap[VTK_TYPE_UINT8]
+#define VTK_PARSE_INT16 vtkParseTypeMap[VTK_TYPE_INT16]
+#define VTK_PARSE_UINT16 vtkParseTypeMap[VTK_TYPE_UINT16]
+#define VTK_PARSE_INT32 vtkParseTypeMap[VTK_TYPE_INT32]
+#define VTK_PARSE_UINT32 vtkParseTypeMap[VTK_TYPE_UINT32]
+#define VTK_PARSE_INT64 vtkParseTypeMap[VTK_TYPE_INT64]
+#define VTK_PARSE_UINT64 vtkParseTypeMap[VTK_TYPE_UINT64]
+#define VTK_PARSE_FLOAT32 vtkParseTypeMap[VTK_TYPE_FLOAT32]
+#define VTK_PARSE_FLOAT64 vtkParseTypeMap[VTK_TYPE_FLOAT64]
 
 static void vtkParseDebug(const char* s1, const char* s2);
 
@@ -175,6 +218,16 @@ char *vtkstrdup(const char *in)
 %token VAR_FUNCTION
 %token ARRAY_NUM
 %token VTK_LEGACY
+%token TypeInt8
+%token TypeUInt8
+%token TypeInt16
+%token TypeUInt16
+%token TypeInt32
+%token TypeUInt32
+%token TypeInt64
+%token TypeUInt64
+%token TypeFloat32
+%token TypeFloat64
 
 /* macro tokens */
 %token IdType
@@ -399,6 +452,16 @@ type_red2: UNSIGNED {postSig("unsigned ");}
                   | type_primitive { $<integer>$ = $<integer>1;};
 
 type_primitive: 
+  TypeInt8 { postSig("vtkTypeInt8 "); $<integer>$ = VTK_PARSE_INT8; } |
+  TypeUInt8 { postSig("vtkTypeUInt8 "); $<integer>$ = VTK_PARSE_UINT8; } |
+  TypeInt16 { postSig("vtkTypeInt16 "); $<integer>$ = VTK_PARSE_INT16; } |
+  TypeUInt16 { postSig("vtkTypeUInt16 "); $<integer>$ = VTK_PARSE_UINT16; } |
+  TypeInt32 { postSig("vtkTypeInt32 "); $<integer>$ = VTK_PARSE_INT32; } |
+  TypeUInt32 { postSig("vtkTypeUInt32 "); $<integer>$ = VTK_PARSE_UINT32; } |
+  TypeInt64 { postSig("vtkTypeInt64 "); $<integer>$ = VTK_PARSE_INT64; } |
+  TypeUInt64 { postSig("vtkTypeUInt64 "); $<integer>$ = VTK_PARSE_UINT64; } |
+  TypeFloat32 { postSig("vtkTypeFloat32 "); $<integer>$ = VTK_PARSE_FLOAT32; } |
+  TypeFloat64 { postSig("vtkTypeFloat64 "); $<integer>$ = VTK_PARSE_FLOAT64; } |
   FLOAT  { postSig("float "); $<integer>$ = 0x1;} | 
   VOID   { postSig("void "); $<integer>$ = 0x2;} | 
   CHAR   { postSig("char "); $<integer>$ = 0x3;} | 
