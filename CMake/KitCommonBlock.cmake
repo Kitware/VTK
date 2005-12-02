@@ -31,7 +31,7 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  INCLUDE(KitCommonJavarapBlock)
+  INCLUDE(KitCommonJavaWrapBlock)
 ENDIF (VTK_WRAP_JAVA)
 
 TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS})
