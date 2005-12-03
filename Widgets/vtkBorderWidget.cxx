@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 
 
-vtkCxxRevisionMacro(vtkBorderWidget, "1.3");
+vtkCxxRevisionMacro(vtkBorderWidget, "1.4");
 vtkStandardNewMacro(vtkBorderWidget);
 
 
@@ -110,6 +110,7 @@ void vtkBorderWidget::SelectAction(vtkAbstractWidget *w)
     }
   
   // We are definitely selected
+  self->Interactor->GrabFocus(self->EventCallbackCommand);
   self->WidgetState = vtkBorderWidget::Selected;
 
   // Picked something inside the widget
@@ -250,6 +251,7 @@ void vtkBorderWidget::EndSelectAction(vtkAbstractWidget *w)
     }
 
   // Return state to not selected
+  self->Interactor->ReleaseFocus();
   self->WidgetState = vtkBorderWidget::Start;
   reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep)->MovingOff();
 
