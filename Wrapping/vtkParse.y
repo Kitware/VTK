@@ -34,6 +34,12 @@ Modify vtkParse.tab.c:
 #define yyerror(a) fprintf(stderr,"%s\n",a)
 #define yywrap() 1
 
+/* Make sure yacc-generated code knows we have included stdlib.h.  */
+#ifndef _STDLIB_H
+# define _STDLIB_H
+#endif
+#define YYINCLUDED_STDLIB_H
+
 /* Map from the type enumeration in vtkType.h to the VTK wrapping type
    system number for the type.  Note that the wrapping type system
    does not enumerate its type values by name.  Look in the
