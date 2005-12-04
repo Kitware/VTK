@@ -85,9 +85,11 @@ static int vtkParseTypeMap[] =
 
 static void vtkParseDebug(const char* s1, const char* s2);
 
-/* MSVC Does not define __STDC__ properly. */
-#if defined(_MSC_VER) && _MSC_VER >= 1200 && !defined(__STDC__)
-# define __STDC__ 1
+/* Borland and MSVC do not define __STDC__ properly. */
+#if !defined(__STDC__)
+# if (defined(_MSC_VER) && _MSC_VER >= 1200) || defined(__BORLANDC__)
+#  define __STDC__ 1
+# endif
 #endif
 
 /* Disable warnings in generated code. */
