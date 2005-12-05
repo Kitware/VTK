@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # doxyfile for VTK
-# modified by S. Barre (Time-stamp: <2005-12-01 12:31:16 barre>
+# modified by S. Barre (Time-stamp: <2005-12-05 12:59:07 barre>
 # -------------------------------------------------------------------------
 
 PROJECT_NAME         = VTK
@@ -52,7 +52,6 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Widgets" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/VolumeRendering" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_contributors.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_version.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2examples.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2tests.dox" \
