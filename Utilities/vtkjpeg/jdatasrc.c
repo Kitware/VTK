@@ -14,6 +14,10 @@
  * than 8 bits on your machine, you may need to do some tweaking.
  */
 
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#endif
+
 /* this is not a core library module, so it doesn't define JPEG_INTERNALS */
 #include "jinclude.h"
 #include "jpeglib.h"

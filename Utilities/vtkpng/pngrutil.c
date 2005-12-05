@@ -14,6 +14,10 @@
 #define PNG_INTERNAL
 #include "png.h"
 
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#endif
+
 #if defined(_WIN32_WCE)
 /* strtod() function is not supported on WindowsCE */
 #  ifdef PNG_FLOATING_POINT_SUPPORTED
@@ -1191,7 +1195,7 @@ png_handle_sPLT(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
 void /* PRIVATE */
 png_handle_tRNS(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
 {
-   png_byte	readbuf[PNG_MAX_PALETTE_LENGTH];
+   png_byte readbuf[PNG_MAX_PALETTE_LENGTH];
 
    png_debug(1, "in png_handle_tRNS\n");
 
@@ -1374,7 +1378,7 @@ void /* PRIVATE */
 png_handle_hIST(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
 {
    int num, i;
-   png_uint_16	readbuf[PNG_MAX_PALETTE_LENGTH];
+   png_uint_16 readbuf[PNG_MAX_PALETTE_LENGTH];
 
    png_debug(1, "in png_handle_hIST\n");
 

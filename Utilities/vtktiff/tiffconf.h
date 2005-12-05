@@ -159,4 +159,8 @@
 #pragma warning ( disable : 4312 )
 #endif
 
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#endif
+
 #endif /* _TIFFCONF_ */

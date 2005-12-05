@@ -186,8 +186,8 @@ int main(int argc, char* argv[])
 
     cout << "-- Generate module: " << moduleName << endl;
 
-    int num = 0;
-    if ( (num = ot.ProcessFile(fname.c_str(), moduleName.c_str())) == 0 )
+    int num = ot.ProcessFile(fname.c_str(), moduleName.c_str());
+    if ( num == 0 )
       {
       cout << "Problem generating header file from XML file: " << fname.c_str() << endl;
       return 1;

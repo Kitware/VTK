@@ -396,4 +396,8 @@ typedef int boolean;
 #pragma warning ( disable : 4505 )
 #endif
 
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#endif
+
 #endif /* JPEG_INTERNAL_OPTIONS */

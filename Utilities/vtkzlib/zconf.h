@@ -287,4 +287,8 @@ typedef uLong FAR uLongf;
 #pragma warning ( disable : 4267 )
 #endif
 
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#endif
+
 #endif /* _ZCONF_H */

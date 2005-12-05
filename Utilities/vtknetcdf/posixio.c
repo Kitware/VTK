@@ -5,6 +5,10 @@
 /* Id */
 /*#define USE_CWRITE 1 *//*define to use _cwrite instead of write*/
 
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#endif
+
 #ifdef SGI64
 #define lseek lseek64
 #endif

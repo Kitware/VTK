@@ -22,6 +22,10 @@
 #  pragma warning ( disable : 4130 )
 #endif
 
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#endif
+
 
 #ifndef NC_ARRAY_GROWBY
 #define NC_ARRAY_GROWBY 4
