@@ -19,7 +19,7 @@
 #include "vtkInformation.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkAbstractVolumeMapper, "1.7");
+vtkCxxRevisionMacro(vtkAbstractVolumeMapper, "1.8");
 
 // Construct a vtkAbstractVolumeMapper 
 vtkAbstractVolumeMapper::vtkAbstractVolumeMapper()
@@ -28,6 +28,7 @@ vtkAbstractVolumeMapper::vtkAbstractVolumeMapper()
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
   
   this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
+  
   this->ArrayName = new char[1];
   this->ArrayName[0] = '\0';
   this->ArrayId = -1;

@@ -181,11 +181,6 @@ protected:
   vtkVolume     *CurrentVolume;
   vtkRenderer   *CurrentRenderer;
 
-  int         ScalarMode;
-  char       *ArrayName;
-  int         ArrayId;
-  int         ArrayAccessMode;
-  
   vtkDataArray *Scalars;
   int           CellScalars;
   
