@@ -62,10 +62,11 @@ Examples:
 
 Created: September, 2002
 
-Prabhu Ramachandran <prabhu@aero.iitm.ernet.in>
+Prabhu Ramachandran <prabhu@aero.iitb.ac.in>
 """
 
 import sys, os, time
+import os.path
 import unittest, getopt
 import vtk
 import BlackBox
@@ -77,6 +78,10 @@ VTK_DATA_ROOT = ""
 # location of the VTK baseline images.  Set via command line args or
 # environment variable.
 VTK_BASELINE_ROOT = ""
+
+# location of the VTK difference images for failed tests.  Set via
+# command line args or environment variable.
+VTK_TEMP_DIR = ""
 
 # Verbosity of the test messages (used by unittest)
 _VERBOSE = 0
@@ -149,6 +154,10 @@ def getAbsImagePath(img_basename):
     global VTK_BASELINE_ROOT
     return os.path.join(VTK_BASELINE_ROOT, img_basename)
 
+def _getTempImagePath(img_fname):
+    x = os.path.join(VTK_TEMP_DIR, os.path.split(img_fname)[1])
+    return os.path.abspath(x)
+
 def compareImageWithSavedImage(src_img, img_fname, threshold=10):
     """Compares a source image (src_img, which is a vtkImageData) with
     the saved image file whose name is given in the second argument.
@@ -166,7 +175,7 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=10):
     if not os.path.isfile(img_fname):
         # generate the image
         pngw = vtk.vtkPNGWriter()
-        pngw.SetFileName(img_fname)
+        pngw.SetFileName(_getTempImagePath(img_fname))
         pngw.SetInput(src_img)
         pngw.Write()
         return 
@@ -248,6 +257,7 @@ def compareImage(renwin, img_fname, threshold=10):
 
 def _printDartImageError(img_err, err_index, img_base):
     """Prints the XML data necessary for Dart."""
+    img_base = _getTempImagePath(img_base)
     print "Failed image test with error: %f"%img_err
     print "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">",
     print "%f </DartMeasurement>"%img_err
@@ -284,7 +294,7 @@ def _handleFailedImage(idiff, pngr, img_fname):
 
     # write out the difference file in full.
     pngw = vtk.vtkPNGWriter()
-    pngw.SetFileName(f_base + ".diff.png")
+    pngw.SetFileName(_getTempImagePath(f_base + ".diff.png"))
     pngw.SetInput(idiff.GetOutput())
     pngw.Write()
     
@@ -308,7 +318,7 @@ def _handleFailedImage(idiff, pngr, img_fname):
     gamma.SetScale(10)
 
     jpegw = vtk.vtkJPEGWriter()
-    jpegw.SetFileName(f_base + ".diff.small.jpg")
+    jpegw.SetFileName(_getTempImagePath(f_base + ".diff.small.jpg"))
     jpegw.SetInput(gamma.GetOutput())
     jpegw.SetQuality(85)
     jpegw.Write()
@@ -316,13 +326,13 @@ def _handleFailedImage(idiff, pngr, img_fname):
     # write out the image that was generated.
     shrink.SetInput(idiff.GetInput())
     jpegw.SetInput(shrink.GetOutput())
-    jpegw.SetFileName(f_base + ".test.small.jpg")
+    jpegw.SetFileName(_getTempImagePath(f_base + ".test.small.jpg"))
     jpegw.Write()
 
     # write out the valid image that matched.
     shrink.SetInput(idiff.GetImage())
     jpegw.SetInput(shrink.GetOutput())
-    jpegw.SetFileName(f_base + ".small.jpg")
+    jpegw.SetFileName(_getTempImagePath(f_base + ".small.jpg"))
     jpegw.Write()
 
 
@@ -406,6 +416,15 @@ def usage():
           the environment variable is not set the value defaults to
           the same value set for -D (--data-dir).
 
+    -T /path/to/valid/temporary_dir/
+    --temp-dir /path/to/valid/temporary_dir/
+
+          This is a path to the directory where the image differences
+          are written.  If this option is not set via the command line
+          the environment variable VTK_TEMP_DIR is used.  If the
+          environment variable is not set the value defaults to
+          '../../../Testing/Temporary'.
+
     -v level
     --verbose level
     
@@ -439,9 +458,9 @@ def usage():
 def parseCmdLine():
     arguments = sys.argv[1:]
 
-    options = "B:D:v:hnI"
-    long_options = ['baseline-root=', 'data-dir=', 'verbose=', 'help',
-                    'no-image', 'interact']
+    options = "B:D:T:v:hnI"
+    long_options = ['baseline-root=', 'data-dir=', 'temp-dir=',
+                    'verbose=', 'help', 'no-image', 'interact']
 
     try:
         opts, args = getopt.getopt(arguments, options, long_options)
@@ -457,7 +476,7 @@ def parseCmdLine():
 def processCmdLine():
     opts, args = parseCmdLine()
 
-    global VTK_DATA_ROOT, VTK_BASELINE_ROOT
+    global VTK_DATA_ROOT, VTK_BASELINE_ROOT, VTK_TEMP_DIR
     global _VERBOSE, _NO_IMAGE, _INTERACT
 
     # setup defaults
@@ -471,11 +490,18 @@ def processCmdLine():
     except KeyError:
         pass
 
+    try:
+        VTK_TEMP_DIR = os.environ['VTK_TEMP_DIR']
+    except KeyError:
+        VTK_TEMP_DIR = os.path.normpath("../../../Testing/Temporary")
+
     for o, a in opts:
         if o in ('-D', '--data-dir'):
             VTK_DATA_ROOT = os.path.abspath(a)
         if o in ('-B', '--baseline-root'):
             VTK_BASELINE_ROOT = os.path.abspath(a)
+        if o in ('-T', '--temp-dir'):
+            VTK_TEMP_DIR = os.path.abspath(a)
         if o in ('-n', '--no-image'):
             _NO_IMAGE = 1
         if o in ('-I', '--interact'):
