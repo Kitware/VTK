@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.38");
+vtkCxxRevisionMacro(vtkImageBlend, "1.39");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
@@ -290,8 +290,8 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
   vtkIdType inIncX, inIncY, inIncZ;
   vtkIdType outIncX, outIncY, outIncZ;
   int inC, outC;
-  double minA,maxA;
-  double r,f;
+  double minA, maxA;
+  double r, f;
   unsigned long count = 0;
   unsigned long target;
 
@@ -310,7 +310,7 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
     }
 
   r = opacity;
-  f = 1.0-r;
+  f = 1.0 - r;
 
   opacity = opacity/(maxA-minA);
 
@@ -461,14 +461,18 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
   vtkIdType inIncX, inIncY, inIncZ;
   vtkIdType outIncX, outIncY, outIncZ;
   int inC, outC;
-  unsigned short r,f;
+  unsigned short r, f, o;
+  int v0, v1, v2;
   unsigned long count = 0;
   unsigned long target;
 
   vtkImageStencilData *stencil = self->GetStencil();
 
-  r = (unsigned short)(255*opacity);
-  f = 255-r;
+  // round opacity to a value in the range [0,256], because division
+  // by 256 can be efficiently achieved by bit-shifting by 8 bits
+  o = (unsigned short)(256*opacity + 0.5);
+  r = o;
+  f = 256 - o;
 
   inC = inData->GetNumberOfScalarComponents();
   outC = outData->GetNumberOfScalarComponents();
@@ -481,7 +485,7 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
   inData->GetContinuousIncrements(extent, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(extent, outIncX, outIncY, outIncZ);
 
-   // Loop through ouput pixels
+  // Loop through ouput pixels
   for (idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
     {
     for (idxY = extent[2]; !self->AbortExecute && idxY <= extent[3]; idxY++)
@@ -504,13 +508,20 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
           {
           for (idxX = minX; idxX <= maxX; idxX++)
             {
-            r = (unsigned short)(inPtr[3]*opacity);
-            f = 255-r;
-            outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
-            outPtr[1] = (outPtr[1]*f + inPtr[1]*r) >> 8;
-            outPtr[2] = (outPtr[2]*f + inPtr[2]*r) >> 8;
-            outPtr += outC; 
+            // multiply to get a number in the range [0,65280]
+            // where 65280 = 255*256 = range of inPtr[3] * range of o
+            r = inPtr[3]*o;
+            // do some math tricks to achieve division by 65280:
+            // this is not an approximation, it gives exactly the
+            // same result as an integer division by 65280
+            v0 = ((int)(inPtr[0]) - outPtr[0])*r;
+            v1 = ((int)(inPtr[1]) - outPtr[1])*r;
+            v2 = ((int)(inPtr[2]) - outPtr[2])*r;
+            outPtr[0] += (v0 + (v0 >> 8) + 255) >> 16;
+            outPtr[1] += (v1 + (v1 >> 8) + 255) >> 16;
+            outPtr[2] += (v2 + (v2 >> 8) + 255) >> 16;
             inPtr += inC;
+            outPtr += outC; 
             }
           }
         }
@@ -522,11 +533,12 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
           {
           for (idxX = minX; idxX <= maxX; idxX++)
             {
+            // the bit-shift achieves a division by 256
             outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
             outPtr[1] = (outPtr[1]*f + inPtr[1]*r) >> 8;
             outPtr[2] = (outPtr[2]*f + inPtr[2]*r) >> 8;
-            outPtr += outC; 
             inPtr += inC;
+            outPtr += outC; 
             }
           }
         }
@@ -538,13 +550,20 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
           {
           for (idxX = minX; idxX <= maxX; idxX++)
             {
-            r = (unsigned short)(inPtr[1]*opacity);
-            f = 255-r;
-            outPtr[0] = (outPtr[0]*f + (*inPtr)*r) >> 8;
-            outPtr[1] = (outPtr[1]*f + (*inPtr)*r) >> 8;
-            outPtr[2] = (outPtr[2]*f + (*inPtr)*r) >> 8;
-            outPtr += outC; 
+            // multiply to get a number in the range [0,65280]
+            // where 65280 = 255*256 = range of inPtr[1] * range of o
+            r = inPtr[1]*o;
+            // do some math tricks to achieve division by 65280:
+            // this is not an approximation, it gives exactly the
+            // same result as an integer division by 65280
+            v0 = ((int)(inPtr[0]) - outPtr[0])*r;
+            v1 = ((int)(inPtr[0]) - outPtr[1])*r;
+            v2 = ((int)(inPtr[0]) - outPtr[2])*r;
+            outPtr[0] += (v0 + (v0 >> 8) + 255) >> 16;
+            outPtr[1] += (v1 + (v1 >> 8) + 255) >> 16;
+            outPtr[2] += (v2 + (v2 >> 8) + 255) >> 16;
             inPtr += 2;
+            outPtr += outC; 
             }
           }
         }
@@ -556,11 +575,12 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
           {
           for (idxX = minX; idxX <= maxX; idxX++)
             {
-            outPtr[0] = (outPtr[0]*f + (*inPtr)*r) >> 8;
-            outPtr[1] = (outPtr[1]*f + (*inPtr)*r) >> 8;
-            outPtr[2] = (outPtr[2]*f + (*inPtr)*r) >> 8;
-            outPtr += outC; 
+            // the bit-shift achieves a division by 256
+            outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
+            outPtr[1] = (outPtr[1]*f + inPtr[0]*r) >> 8;
+            outPtr[2] = (outPtr[2]*f + inPtr[0]*r) >> 8;
             inPtr++;
+            outPtr += outC; 
             }
           }
         }
@@ -572,11 +592,16 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
           {
           for (idxX = minX; idxX <= maxX; idxX++)
             {
-            r = (unsigned short)(inPtr[1]*opacity);
-            f = 255-r;
-            *outPtr = ((*outPtr)*f + (*inPtr)*r) >> 8;
-            outPtr += outC; 
+            // multiply to get a number in the range [0,65280]
+            // where 65280 = 255*256 = range of inPtr[1] * range of o
+            r = inPtr[1]*o;
+            // do some math tricks to achieve division by 65280:
+            // this is not an approximation, it gives exactly the
+            // same result as an integer division by 65280
+            v0 = ((int)(inPtr[0]) - outPtr[0])*r;
+            outPtr[0] += (v0 + (v0 >> 8) + 255) >> 16;
             inPtr += 2;
+            outPtr += outC; 
             }
           }
         }
@@ -588,9 +613,10 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
           {
           for (idxX = minX; idxX <= maxX; idxX++)
             {
-            *outPtr = ((*outPtr)*f + (*inPtr)*r) >> 8;
-            outPtr += outC; 
+            // the bit-shift achieves a division by 256
+            outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
             inPtr++;
+            outPtr += outC; 
             }
           }
         }
@@ -852,16 +878,14 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
         {
         for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
           {
-          if (tmpPtr[3] != 0) 
+          double factor = 0.0;
+          if (tmpPtr[3] != 0)
             {
-            outPtr[0] = T(tmpPtr[0] / tmpPtr[3]);
-            outPtr[1] = T(tmpPtr[1] / tmpPtr[3]);
-            outPtr[2] = T(tmpPtr[2] / tmpPtr[3]);
-            } 
-          else 
-            {
-            outPtr[0] = outPtr[1] = outPtr[2] = T(0);
+            factor = 1.0/tmpPtr[3];
             }
+          outPtr[0] = T(tmpPtr[0]*factor);
+          outPtr[1] = T(tmpPtr[1]*factor);
+          outPtr[2] = T(tmpPtr[2]*factor);
           tmpPtr += 4; 
           outPtr += outC;
           }
@@ -870,14 +894,12 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
         {
         for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
           {
-          if (tmpPtr[1] != 0) 
+          double factor = 0.0;
+          if (tmpPtr[1] != 0)
             {
-            *outPtr = T(tmpPtr[0] / tmpPtr[1]);
+            factor = 1.0/tmpPtr[1];
             }
-          else
-            {
-            *outPtr = T(0);
-            }
+          outPtr[0] = T(tmpPtr[0]*factor);
           tmpPtr += 2;
           outPtr += outC;
           }
