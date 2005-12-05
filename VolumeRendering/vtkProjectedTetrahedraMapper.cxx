@@ -60,7 +60,7 @@ static int tet_edges[6][2] = { {0,1}, {1,2}, {2,0},
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.3");
+vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.4");
 vtkStandardNewMacro(vtkProjectedTetrahedraMapper);
 
 vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper,
@@ -71,12 +71,6 @@ vtkProjectedTetrahedraMapper::vtkProjectedTetrahedraMapper()
   this->TransformedPoints = vtkFloatArray::New();
   this->Colors = vtkUnsignedCharArray::New();
   this->VisibilitySort = vtkCellCenterDepthSort::New();
-
-  this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
-  this->ArrayName = new char[1];
-  this->ArrayName[0] = '\0';
-  this->ArrayId = -1;
-  this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
 
   this->LastVolume = NULL;
 
@@ -92,8 +86,6 @@ vtkProjectedTetrahedraMapper::~vtkProjectedTetrahedraMapper()
   this->TransformedPoints->Delete();
   this->Colors->Delete();
   if (this->VisibilitySort) this->VisibilitySort->UnRegister(this);
-
-  delete[] this->ArrayName;
 }
 
 void vtkProjectedTetrahedraMapper::PrintSelf(ostream &os, vtkIndent indent)
@@ -101,15 +93,6 @@ void vtkProjectedTetrahedraMapper::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "VisibilitySort: " << this->VisibilitySort << endl;
 
-  os << indent << "ScalarMode: " << this->GetScalarModeAsString() << endl;
-  if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
-    {
-    os << indent << "ArrayId: " << this->ArrayId << endl;
-    }
-  else
-    {
-    os << indent << "ArrayName: " << this->ArrayName << endl;
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -135,62 +118,6 @@ void vtkProjectedTetrahedraMapper::ReportReferences(vtkGarbageCollector *collect
 }
 
 //-----------------------------------------------------------------------------
-
-void vtkProjectedTetrahedraMapper::SelectScalarArray(int arrayNum)
-{
-  if (   (this->ArrayId == arrayNum)
-      && (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID) )
-    {
-    return;
-    }
-  this->Modified();
-
-  this->ArrayId = arrayNum;
-  this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
-}
-
-void vtkProjectedTetrahedraMapper::SelectScalarArray(const char *arrayName)
-{
-  if (   !arrayName
-      || (   (strcmp(this->ArrayName, arrayName) == 0)
-          && (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID) ) )
-    {
-    return;
-    }
-  this->Modified();
-
-  delete[] this->ArrayName;
-  this->ArrayName = new char[strlen(arrayName) + 1];
-  strcpy(this->ArrayName, arrayName);
-  this->ArrayAccessMode = VTK_GET_ARRAY_BY_NAME;
-}
-
-//-----------------------------------------------------------------------------
-
-// Return the method for obtaining scalar data.
-const char *vtkProjectedTetrahedraMapper::GetScalarModeAsString(void)
-{
-  if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
-    {
-    return "UseCellData";
-    }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_DATA ) 
-    {
-    return "UsePointData";
-    }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA )
-    {
-    return "UsePointFieldData";
-    }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
-    {
-    return "UseCellFieldData";
-    }
-  else 
-    {
-    return "Default";
-    }
-}
 
 //-----------------------------------------------------------------------------
 

@@ -43,7 +43,7 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.3");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.4");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayCastFunction,
@@ -86,12 +86,6 @@ vtkUnstructuredGridVolumeRayCastMapper::vtkUnstructuredGridVolumeRayCastMapper()
   this->RayCastFunction = vtkUnstructuredGridBunykRayCastFunction::New();
   this->RayIntegrator = NULL;
   this->RealRayIntegrator = NULL;
-
-  this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
-  this->ArrayName = new char[1];
-  this->ArrayName[0] = '\0';
-  this->ArrayId = -1;
-  this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
 }
 
 // Destruct a vtkUnstructuredGridVolumeRayCastMapper - clean up any memory used
@@ -119,8 +113,6 @@ vtkUnstructuredGridVolumeRayCastMapper::~vtkUnstructuredGridVolumeRayCastMapper(
     {
     this->RealRayIntegrator->UnRegister(this);
     }
-
-  delete[] this->ArrayName;
 }
 
 float vtkUnstructuredGridVolumeRayCastMapper::RetrieveRenderTime( vtkRenderer *ren, 
@@ -193,60 +185,6 @@ void vtkUnstructuredGridVolumeRayCastMapper::StoreRenderTime( vtkRenderer *ren,
   this->RenderRendererTable[this->RenderTableEntries] = ren;
   
   this->RenderTableEntries++;
-}
-
-void vtkUnstructuredGridVolumeRayCastMapper::SelectScalarArray(int arrayNum)
-{
-  if (   (this->ArrayId == arrayNum)
-      && (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID) )
-    {
-    return;
-    }
-  this->Modified();
-
-  this->ArrayId = arrayNum;
-  this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
-}
-
-void vtkUnstructuredGridVolumeRayCastMapper::SelectScalarArray(const char *arrayName)
-{
-  if (   !arrayName
-      || (   (strcmp(this->ArrayName, arrayName) == 0)
-          && (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID) ) )
-    {
-    return;
-    }
-  this->Modified();
-
-  delete[] this->ArrayName;
-  this->ArrayName = new char[strlen(arrayName) + 1];
-  strcpy(this->ArrayName, arrayName);
-  this->ArrayAccessMode = VTK_GET_ARRAY_BY_NAME;
-}
-
-// Return the method for obtaining scalar data.
-const char *vtkUnstructuredGridVolumeRayCastMapper::GetScalarModeAsString(void)
-{
-  if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
-    {
-    return "UseCellData";
-    }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_DATA ) 
-    {
-    return "UsePointData";
-    }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA )
-    {
-    return "UsePointFieldData";
-    }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
-    {
-    return "UseCellFieldData";
-    }
-  else 
-    {
-    return "Default";
-    }
 }
 
 void vtkUnstructuredGridVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow *)

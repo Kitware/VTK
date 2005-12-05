@@ -2293,7 +2293,7 @@ public:
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.6");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.7");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZSweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZSweepMapper, RayIntegrator,
@@ -2333,12 +2333,6 @@ vtkUnstructuredGridVolumeZSweepMapper::vtkUnstructuredGridVolumeZSweepMapper()
   this->IntermixIntersectingGeometry = 1;
 
   this->ImageDisplayHelper     = vtkRayCastImageDisplayHelper::New();
-  
-  this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
-  this->ArrayName = new char[1];
-  this->ArrayName[0] = '\0';
-  this->ArrayId = -1;
-  this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
   
   this->PixelListFrame=0;
   
@@ -2385,8 +2379,6 @@ vtkUnstructuredGridVolumeZSweepMapper::~vtkUnstructuredGridVolumeZSweepMapper()
   this->EventList->Delete();
   
   this->ImageDisplayHelper->Delete();
-  
-  delete[] this->ArrayName;
   
   if(this->UseSet!=0)
     {
@@ -2506,64 +2498,6 @@ void vtkUnstructuredGridVolumeZSweepMapper::StoreRenderTime(
 }
 
 //-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZSweepMapper::SelectScalarArray(int arrayNum)
-{
-  if (   (this->ArrayId == arrayNum)
-      && (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID) )
-    {
-    return;
-    }
-  this->Modified();
-
-  this->ArrayId = arrayNum;
-  this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
-}
-
-//-----------------------------------------------------------------------------
-void vtkUnstructuredGridVolumeZSweepMapper::SelectScalarArray(
-  const char *arrayName)
-{
-  if (   !arrayName
-      || (   (strcmp(this->ArrayName, arrayName) == 0)
-          && (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID) ) )
-    {
-    return;
-    }
-  this->Modified();
-
-  delete[] this->ArrayName;
-  this->ArrayName = new char[strlen(arrayName) + 1];
-  strcpy(this->ArrayName, arrayName);
-  this->ArrayAccessMode = VTK_GET_ARRAY_BY_NAME;
-}
-
-//-----------------------------------------------------------------------------
-// Return the method for obtaining scalar data.
-const char *vtkUnstructuredGridVolumeZSweepMapper::GetScalarModeAsString(void)
-{
-  if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
-    {
-    return "UseCellData";
-    }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_DATA ) 
-    {
-    return "UsePointData";
-    }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA )
-    {
-    return "UsePointFieldData";
-    }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
-    {
-    return "UseCellFieldData";
-    }
-  else 
-    {
-    return "Default";
-    }
-}
-
-//-----------------------------------------------------------------------------
 void vtkUnstructuredGridVolumeZSweepMapper::PrintSelf(ostream& os,
                                                       vtkIndent indent)
 {
@@ -2571,8 +2505,6 @@ void vtkUnstructuredGridVolumeZSweepMapper::PrintSelf(ostream& os,
 
   os << indent << "Max Pixel List Size: " << this->MaxPixelListSize << "\n";
 
-  os << indent << "ScalarMode: " << this->GetScalarModeAsString() << endl;
-  
   os << indent << "Image Sample Distance: " 
      << this->ImageSampleDistance << "\n";
   os << indent << "Minimum Image Sample Distance: " 
