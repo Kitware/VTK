@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.39");
+vtkCxxRevisionMacro(vtkImageBlend, "1.40");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
@@ -517,9 +517,9 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
             v0 = ((int)(inPtr[0]) - outPtr[0])*r;
             v1 = ((int)(inPtr[1]) - outPtr[1])*r;
             v2 = ((int)(inPtr[2]) - outPtr[2])*r;
-            outPtr[0] += (v0 + (v0 >> 8) + 255) >> 16;
-            outPtr[1] += (v1 + (v1 >> 8) + 255) >> 16;
-            outPtr[2] += (v2 + (v2 >> 8) + 255) >> 16;
+            outPtr[0] += (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+            outPtr[1] += (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
+            outPtr[2] += (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
             inPtr += inC;
             outPtr += outC; 
             }
@@ -559,9 +559,9 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
             v0 = ((int)(inPtr[0]) - outPtr[0])*r;
             v1 = ((int)(inPtr[0]) - outPtr[1])*r;
             v2 = ((int)(inPtr[0]) - outPtr[2])*r;
-            outPtr[0] += (v0 + (v0 >> 8) + 255) >> 16;
-            outPtr[1] += (v1 + (v1 >> 8) + 255) >> 16;
-            outPtr[2] += (v2 + (v2 >> 8) + 255) >> 16;
+            outPtr[0] += (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+            outPtr[1] += (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
+            outPtr[2] += (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
             inPtr += 2;
             outPtr += outC; 
             }
@@ -599,7 +599,7 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
             // this is not an approximation, it gives exactly the
             // same result as an integer division by 65280
             v0 = ((int)(inPtr[0]) - outPtr[0])*r;
-            outPtr[0] += (v0 + (v0 >> 8) + 255) >> 16;
+            outPtr[0] += (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
             inPtr += 2;
             outPtr += outC; 
             }
