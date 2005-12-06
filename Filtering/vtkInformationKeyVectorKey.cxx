@@ -17,7 +17,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/algorithm> // find()
 
-vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.10");
+vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.11");
 
 //----------------------------------------------------------------------------
 vtkInformationKeyVectorKey::vtkInformationKeyVectorKey(const char* name, const char* location):
@@ -55,6 +55,36 @@ void vtkInformationKeyVectorKey::Append(vtkInformation* info,
   if(v)
     {
     v->Value.push_back(value);
+    }
+  else
+    {
+    this->Set(info, &value, 1);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationKeyVectorKey::AppendUnique(vtkInformation* info,
+                                              vtkInformationKey* value)
+{
+  vtkInformationKeyVectorValue* v =
+    static_cast<vtkInformationKeyVectorValue *>
+    (this->GetAsObjectBase(info));
+  if(v)
+    {
+    int found = 0;
+    unsigned int len = v->Value.size();
+    for (unsigned int i=0; i<len; i++)
+      {
+      if (v->Value[i] == value)
+        {
+        found = 1;
+        break;
+        }
+      }
+    if (!found)
+      {
+      v->Value.push_back(value);
+      }
     }
   else
     {

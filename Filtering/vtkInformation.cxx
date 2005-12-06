@@ -40,7 +40,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkInformation, "1.25");
+vtkCxxRevisionMacro(vtkInformation, "1.26");
 vtkStandardNewMacro(vtkInformation);
 
 // Note: assumes long is at least 32 bits.
@@ -681,6 +681,90 @@ void vtkInformation::Append(vtkInformationKeyVectorKey* key,
                             vtkInformationObjectBaseKey* value)
 {
   key->Append(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
+                                  vtkInformationDataObjectKey* value)
+{
+  key->AppendUnique(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
+                                  vtkInformationKey* value)
+{
+  key->AppendUnique(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
+                                  vtkInformationDoubleKey* value)
+{
+  key->AppendUnique(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
+                                  vtkInformationDoubleVectorKey* value)
+{
+  key->AppendUnique(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
+                                  vtkInformationExecutivePortKey* value)
+{
+  key->AppendUnique(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
+                                  vtkInformationInformationKey* value)
+{
+  key->AppendUnique(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
+                                  vtkInformationInformationVectorKey* value)
+{
+  key->AppendUnique(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
+                                  vtkInformationIntegerKey* value)
+{
+  key->AppendUnique(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
+                                  vtkInformationIntegerVectorKey* value)
+{
+  key->AppendUnique(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
+                                  vtkInformationStringKey* value)
+{
+  key->AppendUnique(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
+                                  vtkInformationUnsignedLongKey* value)
+{
+  key->AppendUnique(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
+                                  vtkInformationObjectBaseKey* value)
+{
+  key->AppendUnique(this, value);
 }
 
 //----------------------------------------------------------------------------

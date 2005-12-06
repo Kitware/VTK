@@ -37,6 +37,7 @@ public:
   // Get/Set the value associated with this key in the given
   // information object.
   void Append(vtkInformation* info, vtkInformationKey* value);
+  void AppendUnique(vtkInformation* info, vtkInformationKey* value);
   void Set(vtkInformation* info, vtkInformationKey** value, int length);
   void RemoveItem(vtkInformation* info, vtkInformationKey* value);
   vtkInformationKey** Get(vtkInformation* info);

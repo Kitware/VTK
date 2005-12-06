@@ -170,6 +170,7 @@ public:
   static vtkInformationKeyVectorKey* KEYS_TO_COPY();
   //BTX
   enum { RequestUpstream, RequestDownstream };
+  enum { BeforeForward, AfterForward };
   //ETX
 
   // Description:

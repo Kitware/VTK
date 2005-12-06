@@ -169,6 +169,7 @@ public:
   // Description:
   // Get/Set an InformationKey-vector-valued entry.
   void Append(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
   void Set(vtkInformationKeyVectorKey* key, vtkInformationKey** value, int length);
   void Remove(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
   vtkInformationKey** Get(vtkInformationKeyVectorKey* key);
@@ -202,6 +203,29 @@ public:
               vtkInformationObjectBaseKey* value);
   void Append(vtkInformationKeyVectorKey* key,
               vtkInformationUnsignedLongKey* value);
+
+  void AppendUnique(vtkInformationKeyVectorKey* key,
+                    vtkInformationDataObjectKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, 
+                    vtkInformationDoubleKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key,
+                    vtkInformationDoubleVectorKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key,
+                    vtkInformationExecutivePortKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key,
+                    vtkInformationInformationKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key,
+                    vtkInformationInformationVectorKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key,
+                    vtkInformationIntegerKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key,
+                    vtkInformationIntegerVectorKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, 
+                    vtkInformationStringKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key,
+                    vtkInformationObjectBaseKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key,
+                    vtkInformationUnsignedLongKey* value);
   //ETX
 
   // Description:
