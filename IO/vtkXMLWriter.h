@@ -289,7 +289,16 @@ protected:
   virtual void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
   void StartAppendedData();
   void EndAppendedData();
-  OffsetType ReserveAttributeSpace(const char* attr=0);
+
+  // Write enough space to go back and write the given attribute with
+  // at most "length" characters in the value.  Returns the stream
+  // position at which attribute should be later written.  The default
+  // length of 20 is enough for a 64-bit integer written in decimal or
+  // a double-precision floating point value written to 13 digits of
+  // precision (the other 7 come from a minus sign, decimal place, and
+  // a big exponent like "e+300").
+  OffsetType ReserveAttributeSpace(const char* attr, int length=20);
+
   OffsetType GetAppendedDataOffset();
   OffsetType WriteAppendedDataOffset(OffsetType streamPos,
                                         OffsetType &lastoffset,
