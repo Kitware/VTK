@@ -106,7 +106,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.65");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.66");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -553,8 +553,12 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
         abort();
         }
       }
-    
-    this->Internal->ContextId = glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
+
+    if (!this->Internal->ContextId)
+      {
+      this->Internal->ContextId = 
+        glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
+      }
 
     if(!this->Internal->ContextId)
       {
@@ -606,7 +610,10 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
         this->Size[1] = height;      
         this->OwnWindow = 1;
         }    
-      this->Internal->OffScreenContextId = OSMesaCreateContext(GL_RGBA, NULL);
+      if (!this->Internal->OffScreenContextId)
+        {
+        this->Internal->OffScreenContextId = OSMesaCreateContext(GL_RGBA, NULL);
+        }
       this->MakeCurrent();
     }
     else
