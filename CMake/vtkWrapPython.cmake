@@ -86,12 +86,8 @@ MACRO(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
     ENDFOREACH(FILE)
     
     # finish the data file for the init file        
-    SET(dir ${CMAKE_CURRENT_SOURCE_DIR})
-    IF(VTK_WRAP_PYTHON3_INIT_DIR)
-      SET(dir ${VTK_WRAP_PYTHON3_INIT_DIR})
-    ENDIF(VTK_WRAP_PYTHON3_INIT_DIR)
     CONFIGURE_FILE(
-      ${dir}/vtkWrapperInit.data.in 
+      ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in 
       ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
       COPY_ONLY
       IMMEDIATE

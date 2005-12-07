@@ -28,5 +28,5 @@ SET(KIT_JAVA_DEPS)
 
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.
-INCLUDE(${VTK_SOURCE_DIR}/CMake/KitCommonBlock.cmake)
+INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 #-----------------------------------------------------------------------------

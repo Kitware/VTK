@@ -19,13 +19,13 @@ MACRO(VTK_EXPORT_KIT kit ukit sources)
   SET(VTK_EXPORT_UKIT ${ukit})
   SET(VTK_EXPORT_KIT_DOLLAR "$")
   SET(VTK_EXPORT_HEADER_DIR ${VTK_EXPORT_KIT_DOLLAR}{VTK_INSTALL_PREFIX}${VTK_INSTALL_INCLUDE_DIR})
-  CONFIGURE_FILE(${VTK_SOURCE_DIR}/CMake/vtkKit.cmake.in
+  CONFIGURE_FILE(${VTK_CMAKE_DIR}/vtkKit.cmake.in
                  ${VTK_BINARY_DIR}/Utilities/InstallOnly/vtk${kit}Kit.cmake
                  @ONLY IMMEDIATE)
   SET(VTK_EXPORT_HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
   # This file is also used when converting Tcl tests to python tests.
-  CONFIGURE_FILE(${VTK_SOURCE_DIR}/CMake/vtkKit.cmake.in
+  CONFIGURE_FILE(${VTK_CMAKE_DIR}/vtkKit.cmake.in
                  ${VTK_BINARY_DIR}/Utilities/vtk${kit}Kit.cmake
                  @ONLY IMMEDIATE)
   IF(NOT VTK_INSTALL_NO_DEVELOPMENT)

@@ -2,7 +2,7 @@ IF(NOT VTK_SHARED_LIBRARIES_SELECTED)
   SET(VTK_SHARED_LIBRARIES_SELECTED 1)
 
   # We need the VTK_DEPENDENT_OPTION macro.
-  INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkDependentOption.cmake)
+  INCLUDE(${VTK_CMAKE_DIR}/vtkDependentOption.cmake)
 
   # Choose static or shared libraries.
   OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
@@ -58,7 +58,7 @@ IF(NOT VTK_SHARED_LIBRARIES_SELECTED)
       # and produce a message explaining why installation is disabled.
       ADD_CUSTOM_TARGET(vtk_install_disabled)
       SET_TARGET_PROPERTIES(vtk_install_disabled PROPERTIES
-        PRE_INSTALL_SCRIPT ${VTK_SOURCE_DIR}/CMake/InstallDisabled.cmake)
+        PRE_INSTALL_SCRIPT ${VTK_CMAKE_DIR}/InstallDisabled.cmake)
     ELSE(VTK_USE_RPATH)
       # We will not use rpath support.  Tell CMake to skip it.
       SET(CMAKE_SKIP_RPATH 1 CACHE INTERNAL "Whether to build with rpath." FORCE)

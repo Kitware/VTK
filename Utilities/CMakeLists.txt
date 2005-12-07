@@ -41,7 +41,7 @@ IF(NOT CMAKE_COMPILER_IS_GNUCXX)
       MESSAGE(STATUS "Checking whether SGI MIPSpro 7.4 stdarg work-around is needed")
       TRY_COMPILE(VTK_COMPILER_NO_SGI_STDARG_WORKAROUND
         ${VTK_BINARY_DIR}/CMakeTmp
-        ${VTK_SOURCE_DIR}/CMake/vtkTestSGIstdarg.cxx
+        ${VTK_CMAKE_DIR}/vtkTestSGIstdarg.cxx
         OUTPUT_VARIABLE OUTPUT)
       IF(VTK_COMPILER_NO_SGI_STDARG_WORKAROUND)
         MESSAGE(STATUS "Checking whether SGI MIPSpro 7.4 stdarg work-around is needed -- no")

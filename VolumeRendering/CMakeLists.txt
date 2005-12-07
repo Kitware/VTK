@@ -134,7 +134,7 @@ SET(Kit_SRCS ${Kit_SRCS} ${KitOpenGL_SRCS})
 
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.
-INCLUDE(${VTK_SOURCE_DIR}/CMake/KitCommonBlock.cmake)
+INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 #-----------------------------------------------------------------------------
 
 # Make sure vtkRendering is built before vtkVolumeRendering builds.

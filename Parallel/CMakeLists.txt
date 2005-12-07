@@ -26,7 +26,7 @@ IF("VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T" MATCHES "^VTK_HAVE_GETSOCKNAME_WITH_SOC
   MESSAGE(STATUS "Checking for getsockname with socklen_t")
   TRY_COMPILE(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T
     ${VTK_BINARY_DIR}/CMakeTmp/SocklenT
-    ${VTK_SOURCE_DIR}/CMake/vtkTestSocklenT.cxx
+    ${VTK_CMAKE_DIR}/vtkTestSocklenT.cxx
     CMAKE_FLAGS "-DLINK_LIBRARIES:STRING=${VTK_GETSOCKNAME_LIBS}"
     OUTPUT_VARIABLE OUTPUT)
   IF(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T)
@@ -150,7 +150,7 @@ SET(KIT_JAVA_DEPS)
 
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.
-INCLUDE(${VTK_SOURCE_DIR}/CMake/KitCommonBlock.cmake)
+INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 #-----------------------------------------------------------------------------
 
 IF (VTK_USE_MPI)

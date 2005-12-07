@@ -29,7 +29,7 @@ MACRO(VTK_SELECT_STREAMS_LIBRARY var VTK_SOURCE_DIR)
           MESSAGE(STATUS "Checking if compiler is VC6")
           TRY_COMPILE(VTK_COMPILER_IS_VC6
             ${CMAKE_CURRENT_BINARY_DIR}/CMakeTmp
-            ${VTK_SOURCE_DIR}/CMake/vtkTestCompilerIsVC6.cxx
+            ${VTK_CMAKE_DIR}/vtkTestCompilerIsVC6.cxx
             OUTPUT_VARIABLE OUTPUT)
           IF(VTK_COMPILER_IS_VC6)
             MESSAGE(STATUS "Checking if compiler is VC6 -- yes")

@@ -1,7 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.0)
 PROJECT(VTK)
 
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${VTK_SOURCE_DIR}/CMake")
+SET(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${VTK_CMAKE_DIR}")
 
 # Don't build anything unless the version of CMake is high enough.
 # The matching ELSE/ENDIF should be the last lines in the file.
@@ -59,15 +60,15 @@ ENDIF(CMAKE_CONFIGURATION_TYPES)
 
 #-----------------------------------------------------------------------------
 # Load some macros.
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkDependentOption.cmake)
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkThirdParty.cmake)
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkExportKit.cmake)
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cmake)
+INCLUDE(${VTK_CMAKE_DIR}/vtkDependentOption.cmake)
+INCLUDE(${VTK_CMAKE_DIR}/vtkThirdParty.cmake)
+INCLUDE(${VTK_CMAKE_DIR}/vtkExportKit.cmake)
+INCLUDE(${VTK_CMAKE_DIR}/vtkMakeInstantiator.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
 
 #-----------------------------------------------------------------------------
 # Choose static or shared libraries.
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkSelectSharedLibraries.cmake)
+INCLUDE(${VTK_CMAKE_DIR}/vtkSelectSharedLibraries.cmake)
 
 # Disable the install targets if using the rpath feature.
 IF(NOT WIN32)
@@ -360,8 +361,8 @@ ENDIF(APPLE)
 
 IF(UNIX)
   IF(NOT CMAKE_COMPILER_IS_GNUCXX)
-    INCLUDE(${VTK_SOURCE_DIR}/CMake/TestNO_ICC_IDYNAMIC_NEEDED.cmake)
-    TESTNO_ICC_IDYNAMIC_NEEDED(NO_ICC_IDYNAMIC_NEEDED ${VTK_SOURCE_DIR}/CMake)
+    INCLUDE(${VTK_CMAKE_DIR}/TestNO_ICC_IDYNAMIC_NEEDED.cmake)
+    TESTNO_ICC_IDYNAMIC_NEEDED(NO_ICC_IDYNAMIC_NEEDED ${VTK_CMAKE_DIR})
     IF(NO_ICC_IDYNAMIC_NEEDED)
       SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS}")
     ELSE(NO_ICC_IDYNAMIC_NEEDED)
@@ -422,7 +423,7 @@ IF(VTK_SIZEOF___INT64)
     MESSAGE(STATUS "Checking whether long and __int64 are the same type")
     TRY_COMPILE(VTK_TYPE_SAME_LONG_AND___INT64
       ${VTK_BINARY_DIR}/CMakeTmp
-      ${VTK_SOURCE_DIR}/CMake/vtkTestCompareTypes.cxx
+      ${VTK_CMAKE_DIR}/vtkTestCompareTypes.cxx
       COMPILE_DEFINITIONS
       -DVTK_TEST_COMPARE_TYPE_1=long
       -DVTK_TEST_COMPARE_TYPE_2=__int64
@@ -448,7 +449,7 @@ IF(VTK_SIZEOF___INT64)
       MESSAGE(STATUS "Checking whether long long and __int64 are the same type")
       TRY_COMPILE(VTK_TYPE_SAME_LONG_LONG_AND___INT64
         ${VTK_BINARY_DIR}/CMakeTmp
-        ${VTK_SOURCE_DIR}/CMake/vtkTestCompareTypes.cxx
+        ${VTK_CMAKE_DIR}/vtkTestCompareTypes.cxx
         COMPILE_DEFINITIONS
         -DVTK_TEST_COMPARE_TYPE_1=TYPE_LONG_LONG
         -DVTK_TEST_COMPARE_TYPE_2=__int64
@@ -478,7 +479,7 @@ IF(VTK_SIZEOF___INT64)
         MESSAGE(STATUS "Checking whether unsigned __int64 can convert to double")
         TRY_COMPILE(VTK_TYPE_CONVERT_UI64_TO_DOUBLE
           ${VTK_BINARY_DIR}/CMakeTmp
-          ${VTK_SOURCE_DIR}/CMake/vtkTestConvertTypes.cxx
+          ${VTK_CMAKE_DIR}/vtkTestConvertTypes.cxx
           COMPILE_DEFINITIONS
           -DVTK_TEST_CONVERT_TYPE_FROM=TYPE_UNSIGNED___INT64
           -DVTK_TEST_CONVERT_TYPE_TO=double
@@ -525,7 +526,7 @@ IF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
   MESSAGE(STATUS "Checking support for C++ type bool")
   TRY_COMPILE(VTK_COMPILER_HAS_BOOL
               ${VTK_BINARY_DIR}/CMakeTmp/Bool
-              ${VTK_SOURCE_DIR}/CMake/vtkTestBoolType.cxx
+              ${VTK_CMAKE_DIR}/vtkTestBoolType.cxx
               OUTPUT_VARIABLE OUTPUT)
   IF(VTK_COMPILER_HAS_BOOL)
     MESSAGE(STATUS "Checking support for C++ type bool -- yes")
@@ -548,7 +549,7 @@ IF("VTK_COMPILER_HAS_FULL_SPECIALIZATION" MATCHES "^VTK_COMPILER_HAS_FULL_SPECIA
   MESSAGE(STATUS "Checking support for full template specialization syntax")
   TRY_COMPILE(VTK_COMPILER_HAS_FULL_SPECIALIZATION
               ${VTK_BINARY_DIR}/CMakeTmp
-              ${VTK_SOURCE_DIR}/CMake/vtkTestFullSpecialization.cxx
+              ${VTK_CMAKE_DIR}/vtkTestFullSpecialization.cxx
               OUTPUT_VARIABLE OUTPUT)
   IF(VTK_COMPILER_HAS_FULL_SPECIALIZATION)
     MESSAGE(STATUS "Checking support for full template specialization syntax -- yes")
@@ -571,7 +572,7 @@ IF("VTK_TYPE_CHAR_IS_SIGNED" MATCHES "^VTK_TYPE_CHAR_IS_SIGNED$")
   MESSAGE(STATUS "Checking signedness of char")
   TRY_RUN(VTK_TYPE_CHAR_IS_SIGNED VTK_TYPE_CHAR_IS_SIGNED_COMPILED
           ${VTK_BINARY_DIR}/CMakeTmp/Char
-          ${VTK_SOURCE_DIR}/CMake/vtkTestCharSignedness.cxx)
+          ${VTK_CMAKE_DIR}/vtkTestCharSignedness.cxx)
   IF(VTK_TYPE_CHAR_IS_SIGNED_COMPILED)
     IF(VTK_TYPE_CHAR_IS_SIGNED)
       MESSAGE(STATUS "Checking signedness of char -- signed")
@@ -586,7 +587,7 @@ IF("VTK_TYPE_CHAR_IS_SIGNED" MATCHES "^VTK_TYPE_CHAR_IS_SIGNED$")
 ENDIF("VTK_TYPE_CHAR_IS_SIGNED" MATCHES "^VTK_TYPE_CHAR_IS_SIGNED$")
 
 # Check for explicit template instantiation support by compiler.
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkTestExplicitInstantiation.cmake)
+INCLUDE(${VTK_CMAKE_DIR}/vtkTestExplicitInstantiation.cmake)
 
 # Setup clean configuration of vtkConfigure.h and vtkToolkits.h.
 MACRO(VTK_PREPARE_CMAKEDEFINE not invar outvar)
@@ -661,11 +662,11 @@ ENDIF(VTK_WRAP_JAVA)
 # wrapping language selection.
 
 # Import the VTK_COMPILE_CMAKE_EXTENSIONS and VTK_LOAD_CMAKE_EXTENSIONS macros
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkCompileCMakeExtensions.cmake)
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
+INCLUDE(${VTK_CMAKE_DIR}/vtkCompileCMakeExtensions.cmake)
+INCLUDE(${VTK_CMAKE_DIR}/vtkLoadCMakeExtensions.cmake)
 
 # Compile the extensions into the build tree and load them.
-VTK_COMPILE_CMAKE_EXTENSIONS(${VTK_SOURCE_DIR}/CMake ${VTK_BINARY_DIR}/CMake
+VTK_COMPILE_CMAKE_EXTENSIONS(${VTK_CMAKE_DIR} ${VTK_BINARY_DIR}/CMake
   VTK_CMAKE_EXTENSIONS_COMPILED)
 IF(VTK_CMAKE_EXTENSIONS_COMPILED)
   VTK_LOAD_CMAKE_EXTENSIONS(${VTK_BINARY_DIR}/CMake)
@@ -677,7 +678,7 @@ INCLUDE(${CMAKE_ROOT}/Modules/Dart.cmake)
 MARK_AS_ADVANCED(BUILD_TESTING DART_ROOT TCL_TCLSH)
 IF(BUILD_TESTING)
   ENABLE_TESTING()
-  CONFIGURE_FILE(${VTK_SOURCE_DIR}/CMake/CTestCustom.ctest.in
+  CONFIGURE_FILE(${VTK_CMAKE_DIR}/CTestCustom.ctest.in
     ${VTK_BINARY_DIR}/CMake/CTestCustom.ctest @ONLY)
   OPTION(VTK_USE_DISPLAY "Turn this option off and tests will not popup windows" ON)
   MARK_AS_ADVANCED(VTK_USE_DISPLAY)
@@ -694,12 +695,12 @@ SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN "    }
 #-----------------------------------------------------------------------------
 # Select a streams library.
 
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkSelectStreamsLibrary.cmake)
+INCLUDE(${VTK_CMAKE_DIR}/vtkSelectStreamsLibrary.cmake)
 VTK_SELECT_STREAMS_LIBRARY(VTK_USE_ANSI_STDLIB ${VTK_SOURCE_DIR})
 
 # Check the severity of EOF bugs in the streams library.
-SET(VTK_TEST_STREAM_EOF_CXX ${VTK_SOURCE_DIR}/CMake/vtkTestStreamEOF.cxx.in)
-CONFIGURE_FILE(${VTK_SOURCE_DIR}/CMake/vtkTestStreamEOF.cxx.in
+SET(VTK_TEST_STREAM_EOF_CXX ${VTK_CMAKE_DIR}/vtkTestStreamEOF.cxx.in)
+CONFIGURE_FILE(${VTK_CMAKE_DIR}/vtkTestStreamEOF.cxx.in
   ${VTK_BINARY_DIR}/CMake/vtkTestStreamEOF.cxx @ONLY IMMEDIATE)
 IF(VTK_USE_ANSI_STDLIB)
   IF("VTK_ANSI_STREAM_EOF_RESULT" MATCHES "^VTK_ANSI_STREAM_EOF_RESULT$")
@@ -732,7 +733,7 @@ ELSE(VTK_USE_ANSI_STDLIB)
 ENDIF(VTK_USE_ANSI_STDLIB)
 
 IF(VTK_SIZEOF_LONG_LONG)
-  CONFIGURE_FILE(${VTK_SOURCE_DIR}/CMake/vtkTestStreamLongLong.cxx.in
+  CONFIGURE_FILE(${VTK_CMAKE_DIR}/vtkTestStreamLongLong.cxx.in
     ${VTK_BINARY_DIR}/CMake/vtkTestStreamLongLong.cxx @ONLY IMMEDIATE)
   IF("VTK_OSTREAM_SUPPORTS_LONG_LONG" MATCHES "^VTK_OSTREAM_SUPPORTS_LONG_LONG$")
     MESSAGE(STATUS "Checking if ostream supports long long")
@@ -788,7 +789,7 @@ IF(VTK_USE_RENDERING AND WIN32)
     MESSAGE(STATUS "Checking if vfw32 is available")
     TRY_COMPILE(VTK_USE_VIDEO_FOR_WINDOWS_DEFAULT
       ${VTK_BINARY_DIR}/CMakeTmp
-      ${VTK_SOURCE_DIR}/CMake/vtkTestvfw32.cxx
+      ${VTK_CMAKE_DIR}/vtkTestvfw32.cxx
       CMAKE_FLAGS "-DLINK_LIBRARIES:STRING=vfw32"
       OUTPUT_VARIABLE OUTPUT)
     IF(VTK_USE_VIDEO_FOR_WINDOWS_DEFAULT)
@@ -815,7 +816,7 @@ IF(VTK_USE_RENDERING AND WIN32)
       MESSAGE(STATUS "Checking if vfw32 supports video capture")
       TRY_COMPILE(VTK_VFW_SUPPORTS_CAPTURE
         ${VTK_BINARY_DIR}/CMakeTmp
-        ${VTK_SOURCE_DIR}/CMake/vtkTestvfw32Capture.cxx
+        ${VTK_CMAKE_DIR}/vtkTestvfw32Capture.cxx
         CMAKE_FLAGS "-DLINK_LIBRARIES:STRING=vfw32"
         OUTPUT_VARIABLE OUTPUT)
       IF(VTK_VFW_SUPPORTS_CAPTURE)
@@ -1022,7 +1023,7 @@ VTK_PREPARE_CMAKEDEFINE("" OPENGL_LIBRARY VTK_USE_OPENGL_LIBRARY)
 #-----------------------------------------------------------------------------
 # Configure Mangled MESA support.
 IF(VTK_USE_MANGLED_MESA)
-  INCLUDE(${VTK_SOURCE_DIR}/CMake/FindMangledMesa.cmake)
+  INCLUDE(${VTK_CMAKE_DIR}/FindMangledMesa.cmake)
 
   MARK_AS_ADVANCED(MANGLED_MESA_INCLUDE_DIR MANGLED_MESA_LIBRARY
                    MANGLED_OSMESA_INCLUDE_DIR MANGLED_OSMESA_LIBRARY)
@@ -1036,7 +1037,7 @@ ENDIF(VTK_USE_MANGLED_MESA)
 #-----------------------------------------------------------------------------
 # Configure Off-Screen MESA support.
 IF(VTK_OPENGL_HAS_OSMESA)
-  INCLUDE(${VTK_SOURCE_DIR}/CMake/FindOSMesa.cmake)
+  INCLUDE(${VTK_CMAKE_DIR}/FindOSMesa.cmake)
   MARK_AS_ADVANCED(OSMESA_INCLUDE_DIR OSMESA_LIBRARY)
 ENDIF(VTK_OPENGL_HAS_OSMESA)
 
@@ -1050,7 +1051,7 @@ ENDIF(VTK_OPENGL_HAS_OSMESA AND VTK_USE_MANGLED_MESA)
 #-----------------------------------------------------------------------------
 # Configure CG-Shading support.
 IF(VTK_USE_CG_SHADERS)
-  INCLUDE(${VTK_SOURCE_DIR}/CMake/FindCg.cmake)
+  INCLUDE(${VTK_CMAKE_DIR}/FindCg.cmake)
   MARK_AS_ADVANCED(CG_COMPILER CG_INCLUDE_PATH CG_LIBRARY CG_GL_LIBRARY)
 ENDIF(VTK_USE_CG_SHADERS)
 
@@ -1129,7 +1130,7 @@ MACRO (VTK_INCLUDE_TCL_TK_MODULES)
   IF(VTK_USE_TK)
     SET(VTK_TK_LIBRARIES ${TK_LIBRARY} ${VTK_TCL_LIBRARIES})
   ENDIF(VTK_USE_TK)
-  INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake)
+  INCLUDE(${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake)
   # Hide useless settings provided by FindTCL.
   FOREACH(entry 
           TCL_LIBRARY_DEBUG
@@ -1144,8 +1145,7 @@ MACRO (VTK_INCLUDE_TCL_TK_MODULES)
 ENDMACRO (VTK_INCLUDE_TCL_TK_MODULES)
 
 IF(VTK_WRAP_TCL)
-  SET(VTK_WRAP_TCL3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
-  INCLUDE("${VTK_SOURCE_DIR}/CMake/vtkWrapTcl.cmake")
+  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapTcl.cmake")
 
   VTK_INCLUDE_TCL_TK_MODULES()
 
@@ -1172,21 +1172,20 @@ ENDIF(VTK_WRAP_TCL)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES
-    ${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake
-    ${VTK_SOURCE_DIR}/CMake/vtkWrapTcl.cmake
-    ${VTK_SOURCE_DIR}/CMake/vtkWrapJava.cmake
-    ${VTK_SOURCE_DIR}/CMake/vtkWrapPython.cmake
+    ${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake
+    ${VTK_CMAKE_DIR}/vtkWrapTcl.cmake
+    ${VTK_CMAKE_DIR}/vtkWrapJava.cmake
+    ${VTK_CMAKE_DIR}/vtkWrapPython.cmake
+    ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
     )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 #-----------------------------------------------------------------------------
 # Configure Python wrapping support.
 IF(VTK_WRAP_PYTHON)
-  SET(VTK_WRAP_PYTHON3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
-
   # Tell vtkWrapPython.cmake to set VTK_PYTHON_LIBRARIES for us.
   SET(VTK_WRAP_PYTHON_FIND_LIBS 1)
-  INCLUDE("${VTK_SOURCE_DIR}/CMake/vtkWrapPython.cmake")
+  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapPython.cmake")
 
   # Wrapping executables.
   UTILITY_SOURCE(VTK_WRAP_PYTHON_EXE vtkWrapPython Wrapping vtkWrapPython.c)
@@ -1207,7 +1206,7 @@ ENDIF(VTK_WRAP_PYTHON)
 # Configure Java wrapping support.
 IF(VTK_WRAP_JAVA)
   SET(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
-  INCLUDE("${VTK_SOURCE_DIR}/CMake/vtkWrapJava.cmake")
+  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapJava.cmake")
   INCLUDE(${CMAKE_ROOT}/Modules/FindJava.cmake)
   INCLUDE(${CMAKE_ROOT}/Modules/FindJNI.cmake)
 
@@ -1378,10 +1377,10 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
   # Install cmake extensions so user projects can load them.
   INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES
-    ${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake 
-    ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cmake
-    ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.h.in
-    ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cxx.in)
+    ${VTK_CMAKE_DIR}/vtkLoadCMakeExtensions.cmake 
+    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cmake
+    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.h.in
+    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cxx.in)
   IF (VTK_NEED_LOADED_COMMANDS)
     FOREACH(cmd VTK_WRAP_TCL2 VTK_WRAP_PYTHON2 VTK_WRAP_JAVA2
         VTK_GENERATE_JAVA_DEPENDENCIES)
