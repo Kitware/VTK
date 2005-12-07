@@ -42,7 +42,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.58.2.1");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.58.2.2");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -602,33 +602,29 @@ void vtkXMLWriter::EndAppendedData()
 }
 
 //----------------------------------------------------------------------------
-vtkXMLWriter::OffsetType
-vtkXMLWriter::ReserveAttributeSpace(const char* attr, int length)
+unsigned long vtkXMLWriter::ReserveAttributeSpace(const char* attr)
 {
-  // Save the starting stream position.
+  // Write enough space to go back and write the given attribute with
+  // an appended data offset value.  Returns the stream position at
+  // which attribute should be later written with
+  // WriteAppendedDataOffset(). If attr is 0, writes space only for
+  // the double quotes and value.
   ostream& os = *(this->Stream);
-  OffsetType startPosition = os.tellp();
-
-  // By default write an empty valid xml: attr="".  In most case it
-  // will be overwritten but we guarantee that the xml produced will
-  // be valid in case we stop writting too early.
-  os << " " << attr << "=\"\"";
-
-  // Now reserve space for the value.
-  for(int i=0; i < length; ++i)
+  unsigned long startPosition = os.tellp();
+  if(attr)
     {
-    os << " ";
+    os << " " << attr;
     }
+  // by default write an empty valid xml: "offset"=""
+  // in most case it will be overwritten but we are garantee that xml
+  // produced will be valid in case we stop writting too early
+  os << "=\"\"            ";
 
-  // Flush the stream to make sure the system tries to write now and
-  // test for a write error reported by the system.
   os.flush();
-  if(os.fail())
+  if (os.fail())
     {
     this->SetErrorCode(vtkErrorCode::GetLastSystemError());
     }
-
-  // Return the position at which to write the attribute later.
   return startPosition;
 }
 
