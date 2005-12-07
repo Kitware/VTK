@@ -22,6 +22,12 @@
  !!! license.
 =========================================================================*/
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#pragma warning(disable:4512)
+#endif
+
 #if !defined(_DEBUG)
 # if !defined(QT_NO_DEBUG)
 #  define QT_NO_DEBUG
