@@ -104,7 +104,7 @@ IF(BUILD_QVTK_PLUGIN)
     # a release build of this plugin to work properly
     # if the QtGui exists, a release build of the designer is assumed
     IF(QT_QTGUI_LIBRARY)
-      ADD_DEFINITIONS(-DQT_NO_DEBUG)
+     ADD_DEFINITIONS(-DQT_NO_DEBUG)
     ENDIF(QT_QTGUI_LIBRARY)
   ENDIF(DESIRED_QT_VERSION MATCHES 4)
   
@@ -118,7 +118,8 @@ IF(BUILD_QVTK_PLUGIN)
 
 # link with release version of Qt libs
   TARGET_LINK_LIBRARIES( QVTKWidgetPlugin 
-    ${QT_LIBS}
+    ${QT_QTCORE_LIBRARY}
+    ${QT_QTGUI_LIBRARY}
     vtkRendering
     vtkImaging
     vtkGraphics
