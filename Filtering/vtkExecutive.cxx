@@ -33,7 +33,7 @@
 
 #include "vtkCompositeDataPipeline.h"
 
-vtkCxxRevisionMacro(vtkExecutive, "1.30");
+vtkCxxRevisionMacro(vtkExecutive, "1.31");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -653,7 +653,7 @@ int vtkExecutive::ForwardUpstream(vtkInformation* request)
       }
     }
 
-  if (!this->Algorithm->ModifyRequest(request, BeforeForward))
+  if (!this->Algorithm->ModifyRequest(request, AfterForward))
     {
     return 0;
     }
