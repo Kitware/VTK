@@ -20,6 +20,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestImageIterator.cxx
   TestDataArray.cxx
   TestDirectory.cxx
+  TestMath.cxx
   TestSmartPointer.cxx
   SystemInformation.cxx
   EXTRA_INCLUDE vtkTestDriver.h
