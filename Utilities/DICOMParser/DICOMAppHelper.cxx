@@ -34,6 +34,9 @@
 #include <string>
 #include <math.h>
 #include <algorithm>
+#if defined(__BORLANDC__)
+#include <mem.h> // for memcpy
+#endif
 
 //#define DEBUG_DICOM_APP_HELPER
 
