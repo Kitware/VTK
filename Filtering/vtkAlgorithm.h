@@ -103,6 +103,14 @@ public:
                        unsigned long* mtime);
 
   // Description:
+  // This method gives the algorithm a chance to modify the contents of a
+  // request before or after (specified in the when argument) it is
+  // forwarded. The default implementation is empty. Returns 1 on success,
+  // 0 on failure. When can be either vtkExecutive::BeforeForward or
+  // vtkExecutive::AfterForward.
+  virtual int ModifyRequest(vtkInformation* request, int when);
+
+  // Description:
   // Get the information object associated with an input port.  There
   // is one input port per kind of input to the algorithm.  Each input
   // port tells executives what kind of data and downstream requests
@@ -178,10 +186,12 @@ public:
 
   
   // Description:
-  // Set the input data arrays that this algorithm will process. Specifically
-  // the idx array that this algorithm will process (starting from 0) is the
-  // array on port, connection with the specified association and name or
-  // attribute type (such as SCALARS)
+  // Set the input data arrays that this algorithm will
+  // process. Specifically the idx array that this algorithm will process
+  // (starting from 0) is the array on port, connection with the specified
+  // association and name or attribute type (such as SCALARS). The
+  // fieldAssociation refers to which field in the data object the array is
+  // stored. See vtkDataObject::FieldAssociations for detail.
   void SetInputArrayToProcess(int idx, int port, int connection, 
                               int fieldAssociation, 
                               const char *name);
