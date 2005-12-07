@@ -101,7 +101,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.61.2.1");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.61.2.2");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1198,6 +1198,7 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
       {
       vtkWarningMacro("failed call to OSMesaMakeCurrent");
       }
+    this->SetForceMakeCurrent();
     }
   else
 #endif
