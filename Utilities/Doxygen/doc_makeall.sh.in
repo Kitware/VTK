@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2004-06-09 11:01:17 barre>
+# modified by S. Barre (Time-stamp: <2005-12-05 12:58:52 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -250,43 +250,6 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Widgets" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Rendering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/VolumeRendering"
-fi
-
-# ----------------------------------------------------------------------------
-# Build the contributors list.
-
-if test "x$PERL_PROG" != "xNOTFOUND" ; then
-    "$PERL_PROG" "$PATH_TO_VTK_DOX_SCRIPTS/doc_contributors.pl" \
-        --authors  "$PATH_TO_VTK_DOX_SCRIPTS/authors.txt" \
-        --cachedir "$DOXTEMP/cache" \
-        --class_group '^(vtk[A-Z0-9][A-Za-z0-9]+)\.(?:c|cpp|cxx|h|mm|txx)$' \
-        --files_in '(?:^hints|^README|\.(?:c|cmake|cpp|cxx|h|html|in|java|mm|pl|py|tcl|txt|txx))$' \
-        --files_out '(?:^vtkVersion\.\w+|^pkgIndex\.tcl|^vtkParse\.tab\.c|\.yy\.c|^face_\w+\.cxx)$' \
-        --gnuplot_file "$DOXTEMP/contrib/history.plt" \
-        --history_img "|lines|$DOXTEMP/contrib/history.png" \
-        --history_img "730|lines|$DOXTEMP/contrib/history2y.png" \
-        --history_img "180|linespoints|$DOXTEMP/contrib/history6m.png" \
-        --history_dir "$DOXTEMP/contrib" \
-        --history_max_nb 12 \
-        --lines_add 1.0 \
-        --lines_rem 0.5 \
-        --massive 200 \
-        --max_class_nb 10 \
-        --max_file_nb 5 \
-        --min_class 0.02 \
-        --min_file 0.01 \
-        --min_contrib 0.05 \
-        --min_gcontrib 0.0001 \
-        --cvsweb "$CVSWEB" \
-        --cvsweb_suffix "$CVSWEB_SUFFIX" \
-        --store "doc_""$PROJECT_NAME""_contributors.dox" \
-        --relativeto "$SOURCE_DIR/$REL_PATH_TO_TOP" \
-        --to "$INTERMEDIATE_DOX_DIR" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP"
-fi
-
-if test "x$GNUPLOT_PROG" != "xNOTFOUND" ; then
-    "$GNUPLOT_PROG" "$DOXTEMP/contrib/history.plt"
 fi
 
 # ----------------------------------------------------------------------------
