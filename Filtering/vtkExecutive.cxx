@@ -16,6 +16,7 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkDataObject.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
@@ -30,7 +31,7 @@
 #include <vtkstd/vector>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.27.4.2");
+vtkCxxRevisionMacro(vtkExecutive, "1.27.4.3");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -616,6 +617,11 @@ int vtkExecutive::ForwardUpstream(vtkInformation* request)
     return 1;
     }
 
+  if (!this->Algorithm->ModifyRequest(request, BeforeForward))
+    {
+    return 0;
+    }
+
   // Forward the request upstream through all input connections.
   int result = 1;
   for(int i=0; i < this->GetNumberOfInputPorts(); ++i)
@@ -644,6 +650,12 @@ int vtkExecutive::ForwardUpstream(vtkInformation* request)
         }
       }
     }
+
+  if (!this->Algorithm->ModifyRequest(request, AfterForward))
+    {
+    return 0;
+    }
+
   return result;
 }
 
