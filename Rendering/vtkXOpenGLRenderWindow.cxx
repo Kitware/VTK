@@ -106,7 +106,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.68");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.69");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1779,7 +1779,7 @@ void vtkXOpenGLRenderWindow::SetOffScreenRendering(int i)
       this->Size[1] = a.height;
       }
     // force context switch as we might be going from osmesa to onscreen
-    this->ForceMakeCurrentOn();
+    this->SetForceMakeCurrent();
     }
 }
 
