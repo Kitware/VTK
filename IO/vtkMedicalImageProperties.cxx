@@ -19,7 +19,7 @@
 #include <vtksys/stl/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.5");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.6");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -280,6 +280,16 @@ void vtkMedicalImageProperties::SetNthWindowLevelPresetComment(
     this->Internals->WindowLevelPresetPool[idx].Comment = 
       (comment ? comment : "");
     }
+}
+
+//----------------------------------------------------------------------------
+double vtkMedicalImageProperties::GetSliceThicknessAsDouble()
+{
+  if (this->SliceThickness)
+    {
+    return atof(this->SliceThickness);
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------

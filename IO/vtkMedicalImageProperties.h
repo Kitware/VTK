@@ -152,6 +152,7 @@ public:
   // For ex: DICOM (0018,0050) = 0.273438
   vtkSetStringMacro(SliceThickness);
   vtkGetStringMacro(SliceThickness);
+  virtual double GetSliceThicknessAsDouble();
 
   // Description:
   // Peak kilo voltage output of the (x-ray) generator used
