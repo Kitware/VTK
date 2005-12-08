@@ -173,6 +173,7 @@ public:
   // For ex: DICOM (0018,1120) = 15
   vtkSetStringMacro(GantryTilt);
   vtkGetStringMacro(GantryTilt);
+  virtual double GetGantryTiltAsDouble();
 
   // Description:
   // Exposure time (time of x-ray exposure in msec)

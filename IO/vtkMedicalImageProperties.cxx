@@ -19,7 +19,7 @@
 #include <vtksys/stl/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.6");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.7");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -288,6 +288,16 @@ double vtkMedicalImageProperties::GetSliceThicknessAsDouble()
   if (this->SliceThickness)
     {
     return atof(this->SliceThickness);
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+double vtkMedicalImageProperties::GetGantryTiltAsDouble()
+{
+  if (this->GantryTilt)
+    {
+    return atof(this->GantryTilt);
     }
   return 0;
 }
