@@ -127,10 +127,6 @@ public:
   virtual int     *GetScreenSize();
   
   // Description:
-  // Get the size of the window
-  virtual int     *GetSize();
-
-  // Description:
   // Get the position in screen coordinates (pixels) of the window.
   virtual int     *GetPosition();
 
@@ -221,7 +217,7 @@ protected:
   ~vtkXOpenGLRenderWindow();
 
   vtkXOpenGLRenderWindowInternal *Internal;
-  
+
   Window   ParentId;
   Window   WindowId;
   Window   NextWindowId;
@@ -244,6 +240,14 @@ protected:
   Cursor XCSizeNW;
   Cursor XCSizeSE;
   Cursor XCSizeSW;
+
+
+  void CreateAWindow();
+  void DestroyWindow();
+  void CreateOffScreenWindow(int x, int y);
+  void DestroyOffScreenWindow();
+  void ResizeOffScreenWindow(int x, int y);
+
   
 private:
   vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&);  // Not implemented.

@@ -74,10 +74,6 @@ public:
   virtual void SetSize(int a[2]) {this->SetSize(a[0], a[1]);};
 
   // Description:
-  // Get the size of the window
-  virtual int* GetSize();
-
-  // Description:
   // Get the X properties of an ideal rendering window.
   virtual Colormap GetDesiredColormap();
   virtual Visual  *GetDesiredVisual();
@@ -230,6 +226,13 @@ protected:
   Cursor XCSizeNW;
   Cursor XCSizeSE;
   Cursor XCSizeSW;
+
+
+  void CreateAWindow();
+  void DestroyWindow();
+  void CreateOffScreenWindow(int x, int y);
+  void DestroyOffScreenWindow();
+  void ResizeOffScreenWindow(int x, int y);
   
 private:
   vtkXMesaRenderWindow(const vtkXMesaRenderWindow&);  // Not implemented.

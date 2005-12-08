@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.40");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.41");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -373,14 +373,26 @@ vtkCarbonRenderWindow::~vtkCarbonRenderWindow()
 }
 
 //--------------------------------------------------------------------------
-void vtkCarbonRenderWindow::Clean()
+void vtkCarbonRenderWindow::DestroyWindow()
 {
   GLuint txId;
+  
+  this->MakeCurrent();
+
+  // tell each of the renderers that this render window/graphics context
+  // is being removed (the RendererCollection is removed by vtkRenderWindow's
+  // destructor)
+  vtkCollectionSimpleIterator rsit;
+  vtkRenderer *ren;
+  for ( this->Renderers->InitTraversal(rsit);
+       (ren = this->Renderers->GetNextRenderer(rsit));)
+    {
+    ren->SetRenderWindow(NULL);
+    }
 
   /* finish OpenGL rendering */
-  if (this->ContextId || this->Internal->OffScreenContextId)
+  if (this->ContextId)
     {
-    this->MakeCurrent();
 
     /* now delete all textures */
     glDisable(GL_TEXTURE_2D);
@@ -400,31 +412,9 @@ void vtkCarbonRenderWindow::Clean()
 #endif
       }
 
-    // tell each of the renderers that this render window/graphics context
-    // is being removed (the RendererCollection is removed by vtkRenderWindow's
-    // destructor)
-    vtkCollectionSimpleIterator rsit;
-    vtkRenderer *ren;
-    for ( this->Renderers->InitTraversal(rsit);
-         (ren = this->Renderers->GetNextRenderer(rsit));)
-      {
-      ren->SetRenderWindow(NULL);
-      }
-
-    if(this->Internal->OffScreenContextId)
-      {
-      aglDestroyContext(this->Internal->OffScreenContextId);
-      this->Internal->OffScreenContextId = NULL;
-      vtkDestroyOSWindow(this->Internal->OffScreenWindow);
-      this->Internal->OffScreenWindow = NULL;
-      }
-
-    if(this->ContextId)
-      {
       aglSetCurrentContext(this->ContextId);
       aglDestroyContext(this->ContextId);
       this->ContextId = NULL;
-      }
     }
 }
 
@@ -463,10 +453,7 @@ void vtkCarbonRenderWindow::SetParentId(HIViewRef arg)
 void vtkCarbonRenderWindow::Start()
 {
   // if the renderer has not been initialized, do so now
-  if (!this->ContextId && !this->Internal->OffScreenContextId)
-    {
-    this->Initialize();
-    }
+  this->Initialize();
 
   // set the current window
   this->MakeCurrent();
@@ -629,28 +616,7 @@ void vtkCarbonRenderWindow::SetSize(int x, int y)
 
   if(this->OffScreenRendering && this->Internal->OffScreenWindow)
     {
-    vtkRenderer *ren;
-    // Disconnect renderers from this render window.
-    // Done to release graphic resources.
-    vtkCollectionSimpleIterator rit;
-    this->Renderers->InitTraversal(rit);
-    while ( (ren = this->Renderers->GetNextRenderer(rit)) )
-      {
-      ren->SetRenderWindow(NULL);
-      }
-    
-    aglDestroyContext(this->Internal->OffScreenContextId);
-    this->Internal->OffScreenContextId = NULL;
-    vtkDestroyOSWindow(this->Internal->OffScreenWindow);
-    this->Internal->OffScreenWindow = NULL;
-
-    this->WindowInitialize();
-    
-    this->Renderers->InitTraversal(rit);
-    while ( (ren = this->Renderers->GetNextRenderer(rit)) )
-      {
-      ren->SetRenderWindow(this);
-      }
+    this->ResizeOffScreenWindow(x,y);
     }
   else
     {
@@ -961,49 +927,10 @@ void vtkCarbonRenderWindow::WindowInitialize()
   width = ((this->Size[0] > 0) ? this->Size[0] : 300);
   
   // create our own window if not already set
-  if(!this->OffScreenRendering)
-    {
-    this->InitializeApplication();
-    this->OwnWindow = 0;
-    this->CreateAWindow(x,y,width,height);
-    }
-  else
-    {
-    
-    int i=0;
-    GLint attr[50];
-    attr [i++] = AGL_OFFSCREEN;
-    attr [i++] = AGL_RGBA;
-    attr [i++] = AGL_PIXEL_SIZE;
-    attr [i++] = 32;
-    attr [i++] = AGL_DEPTH_SIZE;
-    attr [i++] = 32;
-    if (this->AlphaBitPlanes)
-      {
-      attr [i++] = AGL_ALPHA_SIZE;
-      attr [i++] = 8;
-      }
-    attr [i] = AGL_NONE;
-
-    AGLPixelFormat fmt = aglChoosePixelFormat(NULL, 0, attr);
-    this->Internal->OffScreenContextId = aglCreateContext(fmt, 0);
-    aglDestroyPixelFormat(fmt);
-
-    this->Internal->OffScreenWindow = vtkCreateOSWindow(width, height, 4);
-    this->Size[0] = width;
-    this->Size[1] = height;
-    
-    aglSetOffScreen(this->Internal->OffScreenContextId, 
-                    width, height, width*4,
-                    this->Internal->OffScreenWindow);
-
-    aglSetCurrentContext(this->Internal->OffScreenContextId);
-    
-    this->Mapped = 0;
-    this->OpenGLInit();
-
-    }
-
+  this->InitializeApplication();
+  this->OwnWindow = 0;
+  this->CreateAWindow(x,y,width,height);
+  
   // tell our renderers about us
   vtkRenderer* ren;
   for (this->Renderers->InitTraversal(); 
@@ -1023,12 +950,17 @@ void vtkCarbonRenderWindow::Initialize ()
 {
   // make sure we havent already been initialized
 
-  if (this->ContextId || this->Internal->OffScreenContextId)
+  if(!this->OffScreenRendering && !this->ContextId)
     {
-    return;
+    this->WindowInitialize();
     }
-
-  this->WindowInitialize();
+  else if(this->OffScreenRendering && !this->Internal->OffScreenContextId)
+    {
+    // initialize offscreen window
+    int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
+    int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
+    CreateOffScreenWindow(width, height);
+    }
 }
 
 void vtkCarbonRenderWindow::Finalize(void)
@@ -1038,7 +970,9 @@ void vtkCarbonRenderWindow::Finalize(void)
       this->ShowCursor();
     }
 
-  this->Clean();
+  this->SetOffScreenRendering(0);
+
+  this->DestroyWindow();
 
   // remove event filters if we have them
   if(this->RegionEventHandler)
@@ -1061,6 +995,7 @@ void vtkCarbonRenderWindow::SetOffScreenRendering(int i)
     {
     return;
     }
+  
   Superclass::SetOffScreenRendering(i);
   
   // setup the offscreen area
@@ -1070,28 +1005,93 @@ void vtkCarbonRenderWindow::SetOffScreenRendering(int i)
     this->DoubleBuffer = 0;
     this->Internal->ScreenMapped = this->Mapped;
     this->Mapped = 0;
-    if(!this->Internal->OffScreenWindow)
-      {
-      this->WindowInitialize();
-      }
     }
   else
     {
-    if (this->Internal->OffScreenWindow)
-      {
-      aglDestroyContext(this->Internal->OffScreenContextId);
-      this->Internal->OffScreenContextId = NULL;
-      vtkDestroyOSWindow(this->Internal->OffScreenWindow);
-      this->Internal->OffScreenWindow = NULL;
-      }
+    this->DestroyOffScreenWindow();
+    
     this->DoubleBuffer = this->Internal->ScreenDoubleBuffer;
     this->Mapped = this->Internal->ScreenMapped;
-    this->MakeCurrent();
     // reset the size based on the screen window
     this->GetSize();
-    this->WindowInitialize();
     }
 }
+
+void vtkCarbonRenderWindow::CreateOffScreenWindow(int width, int height)
+{
+  int i=0;
+  GLint attr[50];
+  attr [i++] = AGL_OFFSCREEN;
+  attr [i++] = AGL_RGBA;
+  attr [i++] = AGL_PIXEL_SIZE;
+  attr [i++] = 32;
+  attr [i++] = AGL_DEPTH_SIZE;
+  attr [i++] = 32;
+  if (this->AlphaBitPlanes)
+    {
+    attr [i++] = AGL_ALPHA_SIZE;
+    attr [i++] = 8;
+    }
+  attr [i] = AGL_NONE;
+
+  AGLPixelFormat fmt = aglChoosePixelFormat(NULL, 0, attr);
+  this->Internal->OffScreenContextId = aglCreateContext(fmt, 0);
+  aglDestroyPixelFormat(fmt);
+
+  this->Internal->OffScreenWindow = vtkCreateOSWindow(width, height, 4);
+  this->Size[0] = width;
+  this->Size[1] = height;
+  
+  aglSetOffScreen(this->Internal->OffScreenContextId, 
+                  width, height, width*4,
+                  this->Internal->OffScreenWindow);
+
+  aglSetCurrentContext(this->Internal->OffScreenContextId);
+  
+  this->Mapped = 0;
+  this->OpenGLInit();
+}
+
+void vtkCarbonRenderWindow::DestroyOffScreenWindow()
+{
+  // release graphic resources.
+  vtkRenderer *ren;
+  vtkCollectionSimpleIterator rit;
+  this->Renderers->InitTraversal(rit);
+  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
+    {
+    ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(this);
+    }
+
+  if(this->Internal->OffScreenContextId)
+    {
+    aglDestroyContext(this->Internal->OffScreenContextId);
+    this->Internal->OffScreenContextId = NULL;
+    vtkDestroyOSWindow(this->Internal->OffScreenWindow);
+    this->Internal->OffScreenWindow = NULL;
+    }
+}
+
+void vtkCarbonRenderWindow::ResizeOffScreenWindow(int width, int height)
+{
+  if(!this->OffScreenRendering)
+    {
+    return;
+    }
+
+  if(this->Size[0] == width && this->Size[1] == height)
+    {
+    return;
+    }
+
+  if(this->Internal->OffScreenContextId)
+    {
+    this->DestroyOffScreenWindow();
+    this->CreateOffScreenWindow(width, height);
+    }
+}
+
 
 //--------------------------------------------------------------------------
 void vtkCarbonRenderWindow::UpdateSizeAndPosition(int xPos, int yPos, 
@@ -1108,13 +1108,7 @@ void vtkCarbonRenderWindow::UpdateSizeAndPosition(int xPos, int yPos,
 // Get the current size of the window.
 int *vtkCarbonRenderWindow::GetSize()
 {
-  // if we aren't mapped then just return the ivar
-  if (!this->Mapped)
-    {
-    return this->Superclass::GetSize();
-    }
-
-  if(this->WindowId)
+  if(this->WindowId && this->Mapped)
     {
     HIRect viewBounds;
     HIViewGetBounds(this->WindowId, &viewBounds);

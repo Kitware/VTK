@@ -194,10 +194,6 @@ public:
   virtual void SetupPalette(void *hDC);
   virtual void SetupPixelFormat(void *hDC, void *dwFlags, int debug, 
                                 int bpp=16, int zbpp=16);
-  
-  // Description:
-  // Clean up device contexts, rendering contexts, etc.
-  void Clean();
 
   // Description:
   // Get the size of the depth buffer.
@@ -247,8 +243,14 @@ protected:
   EventHandlerRef RegionEventHandler;
   static OSStatus RegionEventProcessor(EventHandlerCallRef er, EventRef event, void*);
 
-  void CreateAWindow(int x, int y, int width, int height);
   void InitializeApplication();
+
+  void CreateAWindow(int x, int y, int width, int height);
+  void DestroyWindow();
+  
+  void CreateOffScreenWindow(int x, int y);
+  void DestroyOffScreenWindow();
+  void ResizeOffScreenWindow(int x, int y);
 
 private:
   vtkCarbonRenderWindow(const vtkCarbonRenderWindow&);  // Not implemented.
