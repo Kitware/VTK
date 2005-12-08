@@ -53,7 +53,9 @@ public:
 
   // Description:
   // Patient age
-  // For ex: DICOM (0010,1010) = 31 year(s)
+  // Format: nnnD, nnW, nnnM or nnnY (eventually nnD, nnW, nnY)
+  //         with D (day), M (month), W (week), Y (year)
+  // For ex: DICOM (0010,1010) = 031Y
   vtkSetStringMacro(PatientAge);
   vtkGetStringMacro(PatientAge);
 
@@ -65,31 +67,36 @@ public:
 
   // Description:
   // Patient birth date
-  // For ex: DICOM (0010,0030) = 1968.04.27
+  // Format: yyyymmdd
+  // For ex: DICOM (0010,0030) = 19680427
   vtkSetStringMacro(PatientBirthDate);
   vtkGetStringMacro(PatientBirthDate);
 
   // Description:
   // Acquisition Date
-  // For ex: DICOM (0008,0022) = 2003.06.17
+  // Format: yyyymmdd
+  // For ex: DICOM (0008,0022) = 20030617
   vtkSetStringMacro(AcquisitionDate);
   vtkGetStringMacro(AcquisitionDate);
 
   // Description:
   // Acquisition time
-  // For ex: DICOM (0008,0032) = 16:25:52
+  // Format: hhmmss.frac (any trailing component(s) can be ommited)
+  // For ex: DICOM (0008,0032) = 162552.0705 or 230012, or 0012
   vtkSetStringMacro(AcquisitionTime);
   vtkGetStringMacro(AcquisitionTime);
 
   // Description:
   // Image Date
-  // For ex: DICOM (0008,0023) = 2003.06.17
+  // Format: yyyymmdd
+  // For ex: DICOM (0008,0023) = 20030617
   vtkSetStringMacro(ImageDate);
   vtkGetStringMacro(ImageDate);
 
   // Description:
   // Image Time
-  // For ex: DICOM (0008,0033) = 16:35:49
+  // Format: hhmmss.frac (any trailing component(s) can be ommited)
+  // For ex: DICOM (0008,0033) = 162552.0705 or 230012, or 0012
   vtkSetStringMacro(ImageTime);
   vtkGetStringMacro(ImageTime);
 
