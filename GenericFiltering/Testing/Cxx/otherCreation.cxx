@@ -30,12 +30,12 @@
 #include "vtkTriangle.h"
 #include "vtkLine.h"
 #include "vtkVertex.h"
-#include "vtkSystemIncludes.h" // vtkOStreamWrapper
 #include "vtkDoubleArray.h"
 #include "vtkPointData.h"
 #include "vtkGenericAttribute.h"
 #include <assert.h>
 #include <vtkstd/string>
+#include <vtksys/ios/sstream>
 
 //-----------------------------------------------------------------------------
 // Description:
@@ -604,40 +604,33 @@ int TestWithPointsAndCells(ostream &strm)
   int i;
   int count;
   vtkstd::string s;
-  vtkOStrStreamWrapper *ost;
+  vtksys_ios::ostringstream ost;
   vtkGenericAdaptorCell *cab=0;
   
   while(itNum<itCount)
     {
     vtkGenericCellIterator *it=ds->NewCellIterator(itNum);
-    ost=new vtkOStrStreamWrapper;
-    (*ost)<<"empty cell iterator "<<itNum<<" exists";
-    char *cstring=ost->str();
+    ost << "empty cell iterator " << itNum << " exists";
+    const char *cstring=ost.str().c_str();
     MacroTest(strm,indent,cstring,it!=0);
-    delete[] cstring;
-    delete ost;
     it->Begin();
     i=0;
     count=ds->GetNumberOfCells(itNum);
     while(i<count)
       {
-      ost=new vtkOStrStreamWrapper;
-      (*ost)<<"not finished cell iterator "<<itNum;
-      cstring=ost->str();
+      ost.str("");
+      ost<<"not finished cell iterator "<<itNum;
+      cstring=ost.str().c_str();
       MacroTest(strm,indent,cstring,!it->IsAtEnd());
-      delete[] cstring;
-      delete ost;
       ++i;
       cab=it->GetCell();
       MacroTest(strm,indent,"cell at iterator position is set",cab!=0);
       it->Next();
       }
-    ost=new vtkOStrStreamWrapper;
-    (*ost)<<"Finished cell iterator "<<itNum;
-    cstring=ost->str();
+    ost.str("");
+    ost<<"Finished cell iterator "<<itNum;
+    cstring=ost.str().c_str();
     MacroTest(strm,indent,cstring,it->IsAtEnd());
-    delete[] cstring;
-    delete ost;
     it->Delete();
     ++itNum;
     }
@@ -1130,40 +1123,33 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   int i;
   int count;
   vtkstd::string s;
-  vtkOStrStreamWrapper *ost;
+  vtksys_ios::ostringstream ost;
   vtkGenericAdaptorCell *cab;
   
   while(itNum<itCount)
     {
     vtkGenericCellIterator *it=ds->NewCellIterator(itNum);
-    ost=new vtkOStrStreamWrapper;
-    (*ost)<<"empty cell iterator "<<itNum<<" exists";
-    char *cstring=ost->str();
+    ost<<"empty cell iterator "<<itNum<<" exists";
+    const char *cstring=ost.str().c_str();
     MacroTest(strm,indent,cstring,it!=0);
-    delete[] cstring;
-    delete ost;
     it->Begin();
     i=0;
     count=ds->GetNumberOfCells(itNum);
     while(i<count)
       {
-      ost=new vtkOStrStreamWrapper;
-      (*ost)<<"not finished cell iterator "<<itNum;
-      cstring=ost->str();
+      ost.str("");
+      ost<<"not finished cell iterator "<<itNum;
+      cstring=ost.str().c_str();
       MacroTest(strm,indent,cstring,!it->IsAtEnd());
-      delete[] cstring;
-      delete ost;
       ++i;
       cab=it->GetCell();
       MacroTest(strm,indent,"cell at current position is set",cab!=0);
       it->Next();
       }
-    ost=new vtkOStrStreamWrapper;
-    (*ost)<<"Finished cell iterator "<<itNum;
-    cstring=ost->str();
+    ost.str("");
+    ost<<"Finished cell iterator "<<itNum;
+    cstring=ost.str().c_str();
     MacroTest(strm,indent,cstring,it->IsAtEnd());
-    delete[] cstring;
-    delete ost;
     it->Delete();
     ++itNum;
     }
