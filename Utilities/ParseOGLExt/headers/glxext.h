@@ -52,9 +52,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glxext.h last updated 2005/01/20 */
+/* glxext.h last updated 2005/04/28 */
 /* Current version at http://oss.sgi.com/projects/ogl-sample/registry/ */
-#define GLX_GLXEXT_VERSION 10
+#define GLX_GLXEXT_VERSION 11
 
 #ifndef GLX_VERSION_1_3
 #define GLX_WINDOW_BIT                     0x00000001
@@ -352,7 +352,7 @@ typedef struct {
 typedef long int int32_t;
 typedef long long int int64_t;
 #else
-#warn "int32_t and int64_t are undefined!"
+#include <inttypes.h>     /* Fallback option */
 #endif
 
 #ifndef GLX_VERSION_1_3
