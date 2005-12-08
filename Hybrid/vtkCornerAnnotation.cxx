@@ -27,7 +27,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCornerAnnotation);
-vtkCxxRevisionMacro(vtkCornerAnnotation, "1.9");
+vtkCxxRevisionMacro(vtkCornerAnnotation, "1.10");
 
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,ImageActor,vtkImageActor);
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,WindowLevel,
@@ -314,11 +314,11 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
           {
           if (input_type_is_float)
             {
-            sprintf(text2,"%sW/L: %g / %g%s",text,window,level,rpos+14);
+            sprintf(text2,"%sWW/WL: %g / %g%s",text,window,level,rpos+14);
             }
           else
             {
-            sprintf(text2,"%sW/L: %li / %li%s",text,windowi,leveli,rpos+14);
+            sprintf(text2,"%sWW/WL: %li / %li%s",text,windowi,leveli,rpos+14);
             }
           }
         else
