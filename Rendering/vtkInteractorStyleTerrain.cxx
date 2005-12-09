@@ -16,7 +16,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCommand.h"
+#include "vtkCallbackCommand.h"
 #include "vtkExtractEdges.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -27,7 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.9");
+vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.10");
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
 //----------------------------------------------------------------------------
@@ -105,6 +105,7 @@ void vtkInteractorStyleTerrain::OnLeftButtonDown ()
     return;
     }
   
+  this->Interactor->GrabFocus(this->EventCallbackCommand);
   this->StartRotate();
 }
 
@@ -115,6 +116,10 @@ void vtkInteractorStyleTerrain::OnLeftButtonUp ()
     {
     case VTKIS_ROTATE:
       this->EndRotate();
+      if ( this->Interactor )
+        {
+        this->Interactor->ReleaseFocus();
+        }
       break;
     }
 }
@@ -129,6 +134,7 @@ void vtkInteractorStyleTerrain::OnMiddleButtonDown ()
     return;
     }
   
+  this->Interactor->GrabFocus(this->EventCallbackCommand);
   this->StartPan();
 }
 
@@ -139,6 +145,10 @@ void vtkInteractorStyleTerrain::OnMiddleButtonUp ()
     {
     case VTKIS_PAN:
       this->EndPan();
+      if ( this->Interactor )
+        {
+        this->Interactor->ReleaseFocus();
+        }
       break;
     }
 }
@@ -153,6 +163,7 @@ void vtkInteractorStyleTerrain::OnRightButtonDown ()
     return;
     }
   
+  this->Interactor->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
 }
 
@@ -163,6 +174,10 @@ void vtkInteractorStyleTerrain::OnRightButtonUp ()
     {
     case VTKIS_DOLLY:
       this->EndDolly();
+      if ( this->Interactor )
+        {
+        this->Interactor->ReleaseFocus();
+        }
       break;
     }
 }

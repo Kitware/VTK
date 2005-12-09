@@ -15,13 +15,13 @@
 #include "vtkInteractorStyleJoystickCamera.h"
 
 #include "vtkCamera.h"
-#include "vtkCommand.h"
+#include "vtkCallbackCommand.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.30");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.31");
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
@@ -67,6 +67,7 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonDown()
     return;
     }
 
+  this->Interactor->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetShiftKey()) 
     {
     if (this->Interactor->GetControlKey()) 
@@ -112,6 +113,10 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonUp()
       this->EndRotate();
       break;
     }
+  if ( this->Interactor )
+    {
+    this->Interactor->ReleaseFocus();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -124,6 +129,7 @@ void vtkInteractorStyleJoystickCamera::OnMiddleButtonDown()
     return;
     }
   
+  this->Interactor->GrabFocus(this->EventCallbackCommand);
   this->StartPan();
 }
 
@@ -135,6 +141,10 @@ void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp()
     case VTKIS_PAN:
       this->EndPan();
       break;
+    }
+  if ( this->Interactor )
+    {
+    this->Interactor->ReleaseFocus();
     }
 }
 
@@ -148,6 +158,7 @@ void vtkInteractorStyleJoystickCamera::OnRightButtonDown()
     return;
     }
   
+  this->Interactor->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
 }
 
@@ -159,6 +170,10 @@ void vtkInteractorStyleJoystickCamera::OnRightButtonUp()
     case VTKIS_DOLLY:
       this->EndDolly();
       break;
+    }
+  if ( this->Interactor )
+    {
+    this->Interactor->ReleaseFocus();
     }
 }
 
@@ -172,10 +187,12 @@ void vtkInteractorStyleJoystickCamera::OnMouseWheelForward()
     return;
     }
   
+  this->Interactor->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
   double factor = 10.0 * 0.2 * this->MouseWheelMotionFactor;
   this->Dolly(pow((double)1.1, factor));
   this->EndDolly();
+  this->Interactor->ReleaseFocus();
 }
 
 //----------------------------------------------------------------------------
@@ -188,10 +205,12 @@ void vtkInteractorStyleJoystickCamera::OnMouseWheelBackward()
     return;
     }
   
+  this->Interactor->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
   double factor = 10.0 * -0.2 * this->MouseWheelMotionFactor;
   this->Dolly(pow((double)1.1, factor));
   this->EndDolly();
+  this->Interactor->ReleaseFocus();
 }
 
 //----------------------------------------------------------------------------

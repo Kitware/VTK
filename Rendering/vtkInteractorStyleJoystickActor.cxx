@@ -15,7 +15,7 @@
 #include "vtkInteractorStyleJoystickActor.h"
 
 #include "vtkCamera.h"
-#include "vtkCommand.h"
+#include "vtkCallbackCommand.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
@@ -25,7 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.31");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.32");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -78,6 +78,7 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonDown()
     return;
     }
 
+  this->Interactor->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetShiftKey())
     {
     this->StartPan();
@@ -109,7 +110,12 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonUp()
       this->EndRotate();
       break;
     }
+  if ( this->Interactor )
+    {
+    this->Interactor->ReleaseFocus();
+    }
 }
+
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::OnMiddleButtonDown() 
@@ -124,6 +130,7 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonDown()
     return;
     }
 
+  this->Interactor->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetControlKey())
     {
     this->StartDolly();
@@ -147,6 +154,11 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonUp()
       this->EndPan();
       break;
     }
+
+  if ( this->Interactor )
+    {
+    this->Interactor->ReleaseFocus();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -162,6 +174,7 @@ void vtkInteractorStyleJoystickActor::OnRightButtonDown()
     return;
     }
   
+  this->Interactor->GrabFocus(this->EventCallbackCommand);
   this->StartUniformScale();
 }
 
@@ -172,6 +185,10 @@ void vtkInteractorStyleJoystickActor::OnRightButtonUp()
     {
     case VTKIS_USCALE:
       this->EndUniformScale();
+      if ( this->Interactor )
+        {
+        this->Interactor->ReleaseFocus();
+        }
       break;
     }
 }

@@ -16,12 +16,12 @@
 
 #include "vtkAbstractPropPicker.h"
 #include "vtkAssemblyPath.h"
-#include "vtkCommand.h"
+#include "vtkCallbackCommand.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.25");
+vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.26");
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
 //----------------------------------------------------------------------------
@@ -122,7 +122,7 @@ void vtkInteractorStyleImage::OnLeftButtonDown()
     }
   
   // Redefine this button to handle window/level
-
+  this->Interactor->GrabFocus(this->EventCallbackCommand);
   if (!this->Interactor->GetShiftKey() && !this->Interactor->GetControlKey()) 
     {
     this->WindowLevelStartPosition[0] = x;
@@ -145,6 +145,10 @@ void vtkInteractorStyleImage::OnLeftButtonUp()
     {
     case VTKIS_WINDOW_LEVEL:
       this->EndWindowLevel();
+      if ( this->Interactor )
+        {
+        this->Interactor->ReleaseFocus();
+        }
       break;
     }
   
@@ -166,7 +170,7 @@ void vtkInteractorStyleImage::OnRightButtonDown()
     }
 
   // Redefine this button + shift to handle pick
-
+  this->Interactor->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetShiftKey())
     {
     this->StartPick();
@@ -187,6 +191,10 @@ void vtkInteractorStyleImage::OnRightButtonUp()
     {
     case VTKIS_PICK:
       this->EndPick();
+      if ( this->Interactor )
+        {
+        this->Interactor->ReleaseFocus();
+        }
       break;
     }
 
