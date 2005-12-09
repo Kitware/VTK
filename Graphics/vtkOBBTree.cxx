@@ -26,7 +26,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkOBBTree, "1.63");
+vtkCxxRevisionMacro(vtkOBBTree, "1.64");
 vtkStandardNewMacro(vtkOBBTree);
 
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
@@ -1795,7 +1795,7 @@ int vtkOBBTree::LineIntersectsNode( vtkOBBNode *pA,
     eps = this->Tolerance;
     if ( eps != 0 )
       { // avoid sqrt call if tolerance check isn't being done
-      eps *= sqrt(rangeAmax - rangeAmin);
+      eps *= sqrt(fabs(rangeAmax - rangeAmin));
       }
 
     if ( (rangeAmax+eps < rangeBmin) || (rangeBmax+eps < rangeAmin) )
