@@ -35,7 +35,7 @@ ENDIF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
 
 # Create the vtkmyUnsorted Python library.
 IF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
-  VTK_WRAP_PYTHON3 (vtkmyUnsortedPython UnsortedPython_SRCS ${Unsorted_SRCS})
+  VTK_WRAP_PYTHON3 (vtkmyUnsortedPython UnsortedPython_SRCS "${Unsorted_SRCS}")
   ADD_LIBRARY (vtkmyUnsortedPythonD ${UnsortedPython_SRCS})
   ADD_LIBRARY (vtkmyUnsortedPython MODULE vtkmyUnsortedPythonInit.cxx)
   TARGET_LINK_LIBRARIES(vtkmyUnsortedPythonD vtkmyUnsorted vtkmyCommonPythonD)
@@ -44,7 +44,7 @@ ENDIF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
 
 # Create the vtkmyUnsorted Java library.
 IF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
-  VTK_WRAP_JAVA3 (vtkmyUnsortedJava UnsortedJava_SRCS ${Unsorted_SRCS})
+  VTK_WRAP_JAVA3 (vtkmyUnsortedJava UnsortedJava_SRCS "${Unsorted_SRCS}")
   ADD_LIBRARY (vtkmyUnsortedJava SHARED ${UnsortedJava_SRCS})
   TARGET_LINK_LIBRARIES(vtkmyUnsortedJava vtkmyCommonJava vtkmyUnsorted)
 ENDIF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
