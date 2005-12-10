@@ -1131,6 +1131,7 @@ MACRO (VTK_INCLUDE_TCL_TK_MODULES)
     SET(VTK_TK_LIBRARIES ${TK_LIBRARY} ${VTK_TCL_LIBRARIES})
   ENDIF(VTK_USE_TK)
   INCLUDE(${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake)
+  INCLUDE(${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkDetermineTkResources.cmake)
   # Hide useless settings provided by FindTCL.
   FOREACH(entry 
           TCL_LIBRARY_DEBUG
