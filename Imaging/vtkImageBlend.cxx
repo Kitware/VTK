@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.40");
+vtkCxxRevisionMacro(vtkImageBlend, "1.41");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
@@ -511,15 +511,16 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
             // multiply to get a number in the range [0,65280]
             // where 65280 = 255*256 = range of inPtr[3] * range of o
             r = inPtr[3]*o;
+            f = 65280 - r;
+            v0 = outPtr[0]*f + inPtr[0]*r;
+            v1 = outPtr[1]*f + inPtr[1]*r;
+            v2 = outPtr[2]*f + inPtr[2]*r;
             // do some math tricks to achieve division by 65280:
             // this is not an approximation, it gives exactly the
             // same result as an integer division by 65280
-            v0 = ((int)(inPtr[0]) - outPtr[0])*r;
-            v1 = ((int)(inPtr[1]) - outPtr[1])*r;
-            v2 = ((int)(inPtr[2]) - outPtr[2])*r;
-            outPtr[0] += (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
-            outPtr[1] += (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
-            outPtr[2] += (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
+            outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+            outPtr[1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
+            outPtr[2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
             inPtr += inC;
             outPtr += outC; 
             }
@@ -537,7 +538,7 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
             outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
             outPtr[1] = (outPtr[1]*f + inPtr[1]*r) >> 8;
             outPtr[2] = (outPtr[2]*f + inPtr[2]*r) >> 8;
-            inPtr += inC;
+            inPtr += 3;
             outPtr += outC; 
             }
           }
@@ -553,15 +554,16 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
             // multiply to get a number in the range [0,65280]
             // where 65280 = 255*256 = range of inPtr[1] * range of o
             r = inPtr[1]*o;
+            f = 65280 - r;
+            v0 = outPtr[0]*f + inPtr[0]*r;
+            v1 = outPtr[1]*f + inPtr[0]*r;
+            v2 = outPtr[2]*f + inPtr[0]*r;
             // do some math tricks to achieve division by 65280:
             // this is not an approximation, it gives exactly the
             // same result as an integer division by 65280
-            v0 = ((int)(inPtr[0]) - outPtr[0])*r;
-            v1 = ((int)(inPtr[0]) - outPtr[1])*r;
-            v2 = ((int)(inPtr[0]) - outPtr[2])*r;
-            outPtr[0] += (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
-            outPtr[1] += (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
-            outPtr[2] += (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
+            outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+            outPtr[1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
+            outPtr[2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
             inPtr += 2;
             outPtr += outC; 
             }
@@ -595,11 +597,12 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
             // multiply to get a number in the range [0,65280]
             // where 65280 = 255*256 = range of inPtr[1] * range of o
             r = inPtr[1]*o;
+            f = 65280 - r;
+            v0 = outPtr[0]*f + inPtr[0]*r;
             // do some math tricks to achieve division by 65280:
             // this is not an approximation, it gives exactly the
             // same result as an integer division by 65280
-            v0 = ((int)(inPtr[0]) - outPtr[0])*r;
-            outPtr[0] += (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+            outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
             inPtr += 2;
             outPtr += outC; 
             }
