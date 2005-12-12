@@ -48,10 +48,6 @@ public:
       this->SetMaxGroup(max);
     }
 
-  // Description:
-  // Returns input min (always 0) and max groups.
-  vtkGetVector2Macro(InputGroups, int);
-
 protected:
   vtkMultiGroupDataExtractGroup();
   ~vtkMultiGroupDataExtractGroup();
@@ -68,7 +64,6 @@ protected:
 
   unsigned int MinGroup;
   unsigned int MaxGroup;
-  int InputGroups[2];
 
 private:
   vtkMultiGroupDataExtractGroup(const vtkMultiGroupDataExtractGroup&);  // Not implemented.

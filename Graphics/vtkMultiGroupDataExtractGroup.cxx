@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataExtractGroup, "1.2");
+vtkCxxRevisionMacro(vtkMultiGroupDataExtractGroup, "1.3");
 vtkStandardNewMacro(vtkMultiGroupDataExtractGroup);
 
 //----------------------------------------------------------------------------
@@ -33,8 +33,6 @@ vtkMultiGroupDataExtractGroup::vtkMultiGroupDataExtractGroup()
   this->MinGroup = 0;
   this->MaxGroup = 0;
 
-  this->InputGroups[0] = 0;
-  this->InputGroups[1] = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -91,7 +89,6 @@ int vtkMultiGroupDataExtractGroup::RequestInformation(
     }
 
   unsigned int numInputGroups = inCompInfo->GetNumberOfGroups();
-  this->InputGroups[1] = numInputGroups-1;
 
   unsigned int numGroups;
   vtkMultiGroupDataInformation* compInfo = 
@@ -232,7 +229,4 @@ void vtkMultiGroupDataExtractGroup::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MinGroup:" << this->MinGroup << endl;
   os << indent << "MaxGroup:" << this->MaxGroup << endl;
-  os << indent << "InputGroups: (" << this->InputGroups[0] << "," 
-                                   << this->InputGroups[1] << ")" << endl;
-
 }

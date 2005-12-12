@@ -61,21 +61,6 @@ public:
       this->SetMaxLevel(max);
     }
 
-  // Description:
-  // Returns input min (always 0) and max levels.
-  int* GetInputLevels()
-    {
-      return this->GetInputGroups();
-    }
-  void GetInputLevels(int& minLevel, int& maxLevel)
-    {
-      this->GetInputGroups(minLevel, maxLevel);
-    }
-  void GetInputLevels(int levels[2])
-    {
-      this->GetInputGroups(levels);
-    }
-
 protected:
   vtkHierarchicalDataExtractLevel();
   ~vtkHierarchicalDataExtractLevel();
