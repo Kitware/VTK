@@ -112,13 +112,23 @@
 
 #include "vtkDataSet.h"
 
+class vtkHyperOctreeLightWeightCursor;
 class vtkHyperOctreeCursor;
 class vtkHyperOctreeInternal;
 class vtkHyperOctreePointsGrabber;
 
 class vtkHyperOctreeIdSet; // Pimpl idiom
 class vtkPolygon;
+class vtkIntArray;
+class vtkIdTypeArray;
+class vtkPoints;
 class vtkOrderedTriangulator;
+class vtkDataSetAttributes;
+
+class vtkLine;
+class vtkPixel;
+class vtkVoxel;
+class vtkCellLinks;
 
 class VTK_FILTERING_EXPORT vtkHyperOctree : public vtkDataSet
 {
@@ -233,7 +243,7 @@ public:
   // the cell of an hyperoctree.
   // \post result_exists: result!=0
   vtkHyperOctreeCursor *NewCellCursor();
-  
+    
   // Description:
   // Subdivide node pointed by cursor, only if its a leaf.
   // At the end, cursor points on the node that used to be leaf.
@@ -435,6 +445,25 @@ public:
                                int level,
                                vtkHyperOctreePointsGrabber *grabber);
   
+  // Description:
+  // A generic way to set the leaf data attributes.
+  // This can be either point data for dual or cell data for normal grid.
+  vtkDataSetAttributes* GetLeafData();
+  
+  // Description:
+  // Switch between returning leaves as cells, or the dual grid.
+  void SetDualGridFlag(int flag);
+  vtkGetMacro(DualGridFlag,int);
+
+  // Description:
+  // Return the actual size of the data in kilobytes. This number
+  // is valid only after the pipeline has updated. The memory size
+  // returned is guaranteed to be greater than or equal to the
+  // memory required to represent the data (e.g., extra space in
+  // arrays, etc. are not included in the return value). THIS METHOD
+  // IS THREAD SAFE.
+  unsigned long GetActualMemorySize();
+  
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkHyperOctree();
@@ -448,13 +477,86 @@ protected:
   double Origin[3]; // position of corner (0,0,0) of the root.
   
   vtkHyperOctreeInternal *CellTree;
-  vtkHyperOctreeInternal *PointTree; // not used
 
   vtkHyperOctreeCursor *TmpChild; // to avoid allocation in the loop
+
+  //BTX
+  friend class vtkHyperOctreeLightWeightCursor;
+  //ETX
+  
+  // Initialize the arrays if necessary, then return it.
+  void UpdateDualArrays();
+  vtkPoints* GetLeafCenters();
+  vtkIntArray* GetCornerLeafIds();
+  vtkPoints *LeafCenters;
+  vtkIntArray *CornerLeafIds;
+  
+  void UpdateGridArrays();
+  vtkPoints* GetCornerPoints();
+  vtkIdTypeArray* GetLeafCornerIds();
+  vtkPoints* CornerPoints;
+  vtkIdTypeArray* LeafCornerIds;
+  
+  void DeleteInternalArrays();
+
+  void TraverseDualRecursively(vtkHyperOctreeLightWeightCursor* neighborhood, 
+                               unsigned short *xyzIds, int level);
+  void TraverseGridRecursively(vtkHyperOctreeLightWeightCursor* neighborhood, 
+                               unsigned char* visited,
+                               double* origin, double* size);
+  void EvaluateDualCorner(vtkHyperOctreeLightWeightCursor* neighborhood);
+  vtkIdType EvaluateGridCorner(int level,vtkHyperOctreeLightWeightCursor* neighborhood,
+                               unsigned char* visited, int* cornerNeighborIds);
+
+  // This is a table for traversing a neighborhood down an octree.
+  // 8 children x 27 cursors
+  // First three bits encode the child,  rest encode the cursor id.
+  // 8xCursorId + childId.
+  // This will be shorter when we get rid of the 3x3x3 neighborhood.
+  unsigned char NeighborhoodTraversalTable[216];
+  void GenerateGridNeighborhoodTraversalTable();  
+  void GenerateDualNeighborhoodTraversalTable();  
+
+  // for the GetCell method
+  vtkLine *Line;
+  vtkPixel *Pixel;
+  vtkVoxel *Voxel;
+
+  vtkCellLinks* Links;  
+  void vtkHyperOctree::BuildLinks();
+
+  // This toggles the data set API between the leaf cells and
+  // the dual grid (leaves are points, corners are cells). 
+  int DualGridFlag;
 
 private:
   vtkHyperOctree(const vtkHyperOctree&);  // Not implemented.
   void operator=(const vtkHyperOctree&);    // Not implemented.
 };
+
+
+
+
+class VTK_FILTERING_EXPORT vtkHyperOctreeLightWeightCursor
+{
+public:  
+  vtkHyperOctreeLightWeightCursor();
+  ~vtkHyperOctreeLightWeightCursor();
+
+  void Initialize(vtkHyperOctree* tree);
+  void ToRoot();
+  void ToChild(int child);
+  unsigned short GetIsLeaf();
+  int GetLeafIndex() {return this->Index;} // Only valid for leaves.
+  vtkHyperOctree* GetTree() { return this->Tree; }
+  unsigned short GetLevel() {return this->Level;}
+private:
+  vtkHyperOctree* Tree;
+  int Index;
+  unsigned short IsLeaf;
+  unsigned short Level;
+};
+
+
 
 #endif
