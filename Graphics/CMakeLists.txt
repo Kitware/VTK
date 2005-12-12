@@ -84,6 +84,8 @@ vtkHull.cxx
 vtkHyperOctreeContourFilter.cxx
 vtkHyperOctreeCutter.cxx
 vtkHyperOctreeClipCutPointsGrabber.cxx
+vtkHyperOctreeDualGridContourFilter.cxx
+vtkHyperOctreeFractalSource.cxx
 vtkHyperOctreeSampleFunction.cxx
 vtkHyperOctreeSurfaceFilter.cxx
 vtkHyperOctreeToUniformGridFilter.cxx
