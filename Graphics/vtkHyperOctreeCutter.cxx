@@ -43,7 +43,7 @@
 #include <assert.h>
 #include "vtkHyperOctreeClipCutPointsGrabber.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeCutter, "1.2");
+vtkCxxRevisionMacro(vtkHyperOctreeCutter, "1.3");
 vtkStandardNewMacro(vtkHyperOctreeCutter);
 vtkCxxSetObjectMacro(vtkHyperOctreeCutter,CutFunction,vtkImplicitFunction);
 
@@ -180,7 +180,7 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
   
   this->Locator->InitPointInsertion (newPoints, this->Input->GetBounds());
   
-  this->InCD=this->Input->GetCellData();
+  this->InCD=this->Input->GetPointData();
   this->OutCD=this->Output->GetCellData();
   this->OutCD->CopyAllocate(this->InCD,estimatedSize,estimatedSize/2);
   
@@ -479,7 +479,8 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
         cell->Contour(value, cellScalars, this->Locator, 
                       this->NewVerts, this->NewLines, this->NewPolys,
                       inPD, this->OutPD,
-                      this->InCD, cellId, this->OutCD);
+                      (vtkCellData*)(this->InCD), cellId, 
+                      (vtkCellData*)(this->OutCD));
         }
       else
         {
@@ -492,7 +493,8 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           cell->Contour(value, cellScalars, this->Locator, 
                         this->NewVerts, this->NewLines, this->NewPolys,
                         inPD, this->OutPD,
-                        this->InCD, cellId, this->OutCD);
+                        (vtkCellData*)(this->InCD), cellId, 
+                        (vtkCellData*)(this->OutCD));
           ++iter;
           }
         }
@@ -1082,8 +1084,9 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
             {
             this->Tetra->Contour(value, this->TetScalars, this->Locator, 
                                  this->NewVerts,this->NewLines,this->NewPolys,
-                                 inPD,this->OutPD,this->InCD,cellId,
-                                 this->OutCD);
+                                 inPD,(vtkPointData*)(this->OutPD),
+                                 (vtkCellData*)(this->InCD),cellId,
+                                 (vtkCellData*)(this->OutCD));
             done=this->Triangulator->GetNextTetra(0,this->Tetra,
                                                   this->CellScalars,
                                                   this->TetScalars)==0;
@@ -1104,8 +1107,10 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
               double value = this->ContourValues->GetValue(iter);
               this->Tetra->Contour(value, this->TetScalars, this->Locator, 
                                    this->NewVerts,this->NewLines,
-                                   this->NewPolys,inPD,this->OutPD,
-                                   this->InCD,cellId,this->OutCD);
+                                   this->NewPolys,inPD,
+                                   (vtkPointData*)(this->OutPD),
+                                   (vtkCellData*)(this->InCD),cellId,
+                                   (vtkCellData*)(this->OutCD));
               ++iter;
               }
             done=this->Triangulator->GetNextTetra(0,this->Tetra,
@@ -1143,8 +1148,9 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           double value = this->ContourValues->GetValue(this->Iter);
           this->Polygon->Contour(value, this->CellScalars, this->Locator, 
                                  this->NewVerts,this->NewLines,this->NewPolys,
-                                 inPD,this->OutPD,this->InCD,cellId,
-                                 this->OutCD);
+                                 inPD,(vtkPointData*)(this->OutPD),
+                                 (vtkCellData*)(this->InCD),cellId,
+                                 (vtkCellData*)(this->OutCD));
           }
         else
           {
@@ -1155,8 +1161,10 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
             double value = this->ContourValues->GetValue(iter);
             this->Polygon->Contour(value, this->CellScalars, this->Locator, 
                                    this->NewVerts,this->NewLines,
-                                   this->NewPolys,inPD,this->OutPD,
-                                   this->InCD,cellId,this->OutCD);
+                                   this->NewPolys,inPD,
+                                   (vtkPointData*)(this->OutPD),
+                                   (vtkCellData*)(this->InCD),
+                                   cellId,(vtkCellData*)(this->OutCD));
             
             ++iter;
             }

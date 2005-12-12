@@ -61,6 +61,7 @@ class vtkHyperOctree;
 class vtkOrderedTriangulator;
 class vtkHyperOctreeCursor;
 class vtkTetra;
+class vtkDataSetAttributes;
 class vtkHyperOctreeClipCutPointsGrabber;
 
 class VTK_GRAPHICS_EXPORT vtkHyperOctreeCutter : public vtkPolyDataAlgorithm
@@ -224,7 +225,7 @@ protected:
   vtkCellArray *NewLines;
   vtkCellArray *NewPolys;
   
-  vtkCellData *InCD;
+  vtkDataSetAttributes *InCD;
   vtkCellData *OutCD;
   vtkPointData *OutPD;
   vtkOrderedTriangulator *Triangulator;
