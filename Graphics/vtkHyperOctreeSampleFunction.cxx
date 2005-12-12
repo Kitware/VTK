@@ -21,12 +21,12 @@
 #include "vtkInformation.h"
 #include <assert.h>
 #include "vtkMath.h"
-#include "vtkCellData.h"
+#include "vtkPointData.h"
 #include "vtkDataArray.h"
 #include "vtkImplicitFunction.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeSampleFunction, "1.1");
+vtkCxxRevisionMacro(vtkHyperOctreeSampleFunction, "1.2");
 vtkStandardNewMacro(vtkHyperOctreeSampleFunction);
 vtkCxxSetObjectMacro(vtkHyperOctreeSampleFunction,ImplicitFunction,
                      vtkImplicitFunction);
@@ -300,7 +300,7 @@ int vtkHyperOctreeSampleFunction::RequestData(
   scalars->Allocate(maxNumberOfCells);
   scalars->SetNumberOfTuples(1); // the root
   scalars->SetName("ImplicitFunction");
-  output->GetCellData()->SetScalars(scalars);
+  output->GetLeafData()->SetScalars(scalars);
   scalars->UnRegister(this);
   
   vtkHyperOctreeCursor *cursor=output->NewCellCursor();
@@ -425,7 +425,7 @@ void vtkHyperOctreeSampleFunction::Subdivide(vtkHyperOctreeCursor *cursor,
   else
     {
     vtkIdType id=cursor->GetLeafId();
-    output->GetCellData()->GetScalars()->InsertTuple1(id,value);
+    output->GetLeafData()->GetScalars()->InsertTuple1(id,value);
     }
 }
 

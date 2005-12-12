@@ -30,6 +30,7 @@
 
 class vtkHyperOctreeCursor;
 class vtkCellData;
+class vtkDataSetAttributes;
 
 class VTK_GRAPHICS_EXPORT vtkHyperOctreeToUniformGridFilter : public vtkImageAlgorithm
 {
@@ -53,7 +54,7 @@ protected:
   
   // Variables used by generate recursively.
   // It avoids to pass to much argument.
-  vtkCellData *InputCD;
+  vtkDataSetAttributes *InputCD;
   vtkCellData *OutputCD;
   vtkHyperOctreeCursor *Cursor;
   int YExtent;

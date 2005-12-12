@@ -25,6 +25,7 @@
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkHyperOctreeCursor;
+class vtkDataSetAttributes;
 
 class VTK_GRAPHICS_EXPORT vtkHyperOctreeSurfaceFilter : public vtkPolyDataAlgorithm
 {
@@ -75,7 +76,7 @@ protected:
   
   // Variables used by generate recursively.
   // It avoids to pass to much argument.
-  vtkCellData *InputCD;
+  vtkDataSetAttributes *InputCD;
   
   vtkHyperOctreeCursor *Cursor;
   vtkPoints *OutPts;
