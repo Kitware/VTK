@@ -153,7 +153,7 @@ private:
   void operator=(const vtkHyperOctreeContourPointsGrabber&);    // Not implemented.
 };
   
-vtkCxxRevisionMacro(vtkHyperOctreeContourFilter, "1.1");
+vtkCxxRevisionMacro(vtkHyperOctreeContourFilter, "1.2");
 vtkStandardNewMacro(vtkHyperOctreeContourFilter);
 
 //----------------------------------------------------------------------------
@@ -168,7 +168,8 @@ vtkHyperOctreeContourFilter::vtkHyperOctreeContourFilter()
   this->SetNumberOfOutputPorts(1);
 
   // by default process active cell scalars
-  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_CELLS,
+  // This is points because octree returns dual grid.
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
   
   this->Input=0;
@@ -571,7 +572,9 @@ void vtkHyperOctreeContourFilter::ContourNode1D()
     this->CellScalars->SetValue(1,rightValue);
       
     vtkPointData *inPD=this->Input->GetPointData(); // void
-    inPD->SetScalars(this->PointScalars); // void
+
+    // Modifying the input is not a good idea.
+    //inPD->SetScalars(this->PointScalars); // void
     
     if ( this->SortBy == VTK_SORT_BY_CELL )
       {
@@ -1126,7 +1129,8 @@ void vtkHyperOctreeContourFilter::ContourNode()
         }
       
       vtkPointData *inPD=this->Input->GetPointData(); // void
-      inPD->SetScalars(this->PointScalars); // void
+      // It is a bad idea to modify the input.
+      //inPD->SetScalars(this->PointScalars); // void
       
       if ( this->SortBy == VTK_SORT_BY_CELL )
         {
@@ -1279,7 +1283,7 @@ int vtkHyperOctreeContourFilter::FillInputPortInformation(int,
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeContourPointsGrabber, "1.1");
+vtkCxxRevisionMacro(vtkHyperOctreeContourPointsGrabber, "1.2");
 vtkStandardNewMacro(vtkHyperOctreeContourPointsGrabber);
 
 //-----------------------------------------------------------------------------
