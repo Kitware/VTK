@@ -22,7 +22,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.25");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.26");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -91,22 +91,19 @@ int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
-    this->RequestData(request, inputVector, outputVector);
-    return 1;
+    return this->RequestData(request, inputVector, outputVector);
     }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    this->RequestInformation(request, inputVector, outputVector);
-    return 1;
+    return this->RequestInformation(request, inputVector, outputVector);
     }
 
   // propagate update extent
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
-    this->RequestUpdateExtent(request, inputVector, outputVector);
-    return 1;
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
     }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
