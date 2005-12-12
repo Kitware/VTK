@@ -27,7 +27,7 @@
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeFractalSource, "1.1");
+vtkCxxRevisionMacro(vtkHyperOctreeFractalSource, "1.2");
 vtkStandardNewMacro(vtkHyperOctreeFractalSource);
 
 //----------------------------------------------------------------------------
@@ -63,6 +63,21 @@ vtkHyperOctreeFractalSource::vtkHyperOctreeFractalSource()
 //----------------------------------------------------------------------------
 vtkHyperOctreeFractalSource::~vtkHyperOctreeFractalSource()
 {
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperOctreeFractalSource::SetProjectionAxes(int x, int y, int z)
+{
+  if (this->ProjectionAxes[0] != x ||
+      this->ProjectionAxes[1] != y ||
+      this->ProjectionAxes[2] != z )
+    {
+    this->ProjectionAxes[0] = x;
+    this->ProjectionAxes[1] = y;
+    this->ProjectionAxes[2] = z;
+    
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------

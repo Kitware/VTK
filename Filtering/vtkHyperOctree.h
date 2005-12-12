@@ -523,7 +523,7 @@ protected:
   vtkVoxel *Voxel;
 
   vtkCellLinks* Links;  
-  void vtkHyperOctree::BuildLinks();
+  void BuildLinks();
 
   // This toggles the data set API between the leaf cells and
   // the dual grid (leaves are points, corners are cells). 
@@ -535,7 +535,7 @@ private:
 };
 
 
-
+//BTX
 
 class VTK_FILTERING_EXPORT vtkHyperOctreeLightWeightCursor
 {
@@ -557,6 +557,6 @@ private:
   unsigned short Level;
 };
 
-
+//ETX
 
 #endif
