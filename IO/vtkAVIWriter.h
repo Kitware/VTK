@@ -39,6 +39,11 @@ public:
   void Start();
   void Write();
   void End();
+
+  // Description:
+  // Set/Get the frame rate, in frame/s.
+  vtkSetClampMacro(Rate, int, 1, 5000);
+  vtkGetMacro(Rate, int);
   
 protected:
   vtkAVIWriter();

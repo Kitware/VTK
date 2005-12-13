@@ -40,7 +40,7 @@ public:
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAVIWriter);
-vtkCxxRevisionMacro(vtkAVIWriter, "1.3");
+vtkCxxRevisionMacro(vtkAVIWriter, "1.4");
 
 //---------------------------------------------------------------------------
 vtkAVIWriter::vtkAVIWriter()
@@ -249,5 +249,6 @@ void vtkAVIWriter::End()
 void vtkAVIWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);  
+  os << indent << "Rate: " << this->Rate << endl;
 }
 
