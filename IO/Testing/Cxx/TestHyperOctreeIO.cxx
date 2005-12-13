@@ -308,10 +308,12 @@ int TestHyperOctreeIO(int argc, char* argv[])
   vtkPolyDataMapper *cmapper = vtkPolyDataMapper::New();
   cmapper->SetInputConnection(0, contour->GetOutputPort(0) );
   cmapper->SetLookupTable(lut);
+  cmapper->SetScalarModeToUseCellData();
 
   vtkHierarchicalPolyDataMapper *smapper=vtkHierarchicalPolyDataMapper::New();
   smapper->SetInputConnection(0,surface->GetOutputPort(0));
   smapper->SetLookupTable(lut);
+  smapper->SetScalarModeToUseCellData();
   
   if(contour->GetOutput()->GetCellData()!=0)
     {
