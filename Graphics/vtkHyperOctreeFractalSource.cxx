@@ -27,7 +27,7 @@
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeFractalSource, "1.2");
+vtkCxxRevisionMacro(vtkHyperOctreeFractalSource, "1.3");
 vtkStandardNewMacro(vtkHyperOctreeFractalSource);
 
 //----------------------------------------------------------------------------
@@ -55,7 +55,6 @@ vtkHyperOctreeFractalSource::vtkHyperOctreeFractalSource()
   this->MinimumLevel=3;
 
   this->MaximumNumberOfIterations = 100;
-  this->TargetContourValue = 12.5;
   
   this->SpanThreshold = 2.0;
 }
