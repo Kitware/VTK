@@ -191,6 +191,7 @@ protected:
   vtkCellArray *NewPolys;
   
   vtkCellData *InCD;
+  vtkPointData *InPD;
   vtkCellData *OutCD;
   vtkPointData *OutPD;
   vtkOrderedTriangulator *Triangulator;

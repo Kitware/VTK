@@ -153,7 +153,7 @@ private:
   void operator=(const vtkHyperOctreeContourPointsGrabber&);    // Not implemented.
 };
   
-vtkCxxRevisionMacro(vtkHyperOctreeContourFilter, "1.2");
+vtkCxxRevisionMacro(vtkHyperOctreeContourFilter, "1.3");
 vtkStandardNewMacro(vtkHyperOctreeContourFilter);
 
 //----------------------------------------------------------------------------
@@ -300,7 +300,7 @@ int vtkHyperOctreeContourFilter::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   vtkIdType numPts=this->Input->GetMaxNumberOfPoints(0);
-  vtkIdType numCells = this->Input->GetNumberOfCells();
+  vtkIdType numCells = this->Input->GetNumberOfLeaves();
   
   vtkPoints *newPoints = vtkPoints::New();
   newPoints->Allocate(numPts,numPts/2);
@@ -330,17 +330,18 @@ int vtkHyperOctreeContourFilter::RequestData(
   this->Locator->InitPointInsertion (newPoints, this->Input->GetBounds());
   
  
-  this->InCD=this->Input->GetCellData();
+  this->InCD=(vtkCellData*)(this->Input->GetLeafData());
+  // Scalars are added to this, so we need to make a copy.
+  this->InPD = vtkPointData::New();
+  // Since the dataset API returns the dual, cell and point data are switched.
+  this->InPD->ShallowCopy(this->Input->GetCellData());
+  
   this->OutCD=this->Output->GetCellData();
   this->OutCD->CopyAllocate(this->InCD,estimatedSize,estimatedSize/2);
-  
-  // the output cell data will be empty because we are doing coutouring
-  // on the dual mesh (it means point become cells and cells become points)
-  // this->OutCD->CopyAllocate(this->InCD,estimatedSize,estimatedSize/2);
-  
+    
   this->OutPD=this->Output->GetPointData();
   this->OutPD->CopyAllocate(this->Input->GetPointData(),estimatedSize,estimatedSize/2);
-//  this->OutPD->CopyScalarsOn();
+  this->OutPD->CopyScalarsOn();
   
   static double bounds[6]={0,1,0,1,0,1};
   
@@ -504,6 +505,8 @@ int vtkHyperOctreeContourFilter::RequestData(
   this->NewPolys=0;
   
   this->OutCD=0;
+  this->InPD->Delete();
+  this->InPD = 0;
   
   this->Locator->Initialize();//release any extra memory
   this->Output->Squeeze();
@@ -571,17 +574,17 @@ void vtkHyperOctreeContourFilter::ContourNode1D()
     this->CellScalars->SetValue(0,this->LeftValue);
     this->CellScalars->SetValue(1,rightValue);
       
-    vtkPointData *inPD=this->Input->GetPointData(); // void
-
-    // Modifying the input is not a good idea.
-    //inPD->SetScalars(this->PointScalars); // void
+    // It was a bad idea to modify the input PointData.
+    // We made a copy.
+    //vtkPointData *inPD=this->Input->GetPointData(); // void
+    this->InPD->SetScalars(this->PointScalars); // void
     
     if ( this->SortBy == VTK_SORT_BY_CELL )
       {
       double value = this->ContourValues->GetValue(this->Iter);
       this->Line->Contour(value, this->CellScalars, this->Locator, 
                           this->NewVerts,this->NewLines,this->NewPolys,
-                          inPD,this->OutPD,this->InCD,cellId,
+                          this->InPD,this->OutPD,this->InCD,cellId,
                           this->OutCD);
       }
     else
@@ -594,8 +597,8 @@ void vtkHyperOctreeContourFilter::ContourNode1D()
         double value = this->ContourValues->GetValue(iter);
         this->Line->Contour(value, this->CellScalars, this->Locator, 
                             this->NewVerts,this->NewLines,
-                              this->NewPolys,inPD,this->OutPD,
-                              this->InCD,cellId,this->OutCD);
+                            this->NewPolys,this->InPD,this->OutPD,
+                            this->InCD,cellId,this->OutCD);
           
           ++iter;
           }
@@ -1054,11 +1057,9 @@ void vtkHyperOctreeContourFilter::ContourNode()
       // perform contour
       
       vtkIdType cellId=this->Cursor->GetLeafId();
-     
-      vtkPointData *inPD=this->Input->GetPointData();
-      
-//        vtkPointData *inPD=vtkPointData::New(); // void
-//      inPD->SetScalars(this->PointScalars); // otherwise, it crashes
+           
+      // I made a copy of the input point data so it is ok modify.
+      this->InPD->SetScalars(this->PointScalars); // otherwise, it crashes
        
       if ( this->SortBy == VTK_SORT_BY_CELL )
         {
@@ -1073,7 +1074,7 @@ void vtkHyperOctreeContourFilter::ContourNode()
           ++numTetras;
           this->Tetra->Contour(value, this->TetScalars, this->Locator, 
                                this->NewVerts,this->NewLines,this->NewPolys,
-                               inPD,this->OutPD,this->InCD,cellId,
+                               this->InPD,this->OutPD,this->InCD,cellId,
                                this->OutCD);
           done=this->Triangulator->GetNextTetra(0,this->Tetra,
                                                 this->CellScalars,
@@ -1097,7 +1098,7 @@ void vtkHyperOctreeContourFilter::ContourNode()
             double value = this->ContourValues->GetValue(iter);
             this->Tetra->Contour(value, this->TetScalars, this->Locator, 
                                  this->NewVerts,this->NewLines,
-                                 this->NewPolys,inPD,this->OutPD,
+                                 this->NewPolys,this->InPD,this->OutPD,
                                  this->InCD,cellId,this->OutCD);
             ++iter;
             }
@@ -1128,16 +1129,15 @@ void vtkHyperOctreeContourFilter::ContourNode()
         ++i;
         }
       
-      vtkPointData *inPD=this->Input->GetPointData(); // void
-      // It is a bad idea to modify the input.
-      //inPD->SetScalars(this->PointScalars); // void
+      // I made a copy of the input point data, so it is OK to modify.
+      this->InPD->SetScalars(this->PointScalars); // void
       
       if ( this->SortBy == VTK_SORT_BY_CELL )
         {
         double value = this->ContourValues->GetValue(this->Iter);
         this->Polygon->Contour(value, this->CellScalars, this->Locator, 
                                this->NewVerts,this->NewLines,this->NewPolys,
-                               inPD,this->OutPD,this->InCD,cellId,
+                               this->InPD,this->OutPD,this->InCD,cellId,
                                this->OutCD);
         }
       else
@@ -1149,7 +1149,7 @@ void vtkHyperOctreeContourFilter::ContourNode()
           double value = this->ContourValues->GetValue(iter);
           this->Polygon->Contour(value, this->CellScalars, this->Locator, 
                                  this->NewVerts,this->NewLines,
-                                 this->NewPolys,inPD,this->OutPD,
+                                 this->NewPolys,this->InPD,this->OutPD,
                                  this->InCD,cellId,this->OutCD);
           
           ++iter;
@@ -1283,7 +1283,7 @@ int vtkHyperOctreeContourFilter::FillInputPortInformation(int,
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeContourPointsGrabber, "1.2");
+vtkCxxRevisionMacro(vtkHyperOctreeContourPointsGrabber, "1.3");
 vtkStandardNewMacro(vtkHyperOctreeContourPointsGrabber);
 
 //-----------------------------------------------------------------------------
