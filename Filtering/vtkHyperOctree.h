@@ -179,12 +179,16 @@ public:
   // Measurement: topology
   
   // Description:
-  // Return the number of leaves.
+  // Return the number of cells in the dual grid.
   // \post positive_result: result>=0
   vtkIdType GetNumberOfCells();
   
   // Description:
-  // Return the number of points.
+  // Get the number of leaves in the tree.
+  vtkIdType GetNumberOfLeaves();
+  
+  // Description:
+  // Return the number of points in the dual grid.
   // \post positive_result: result>=0
   vtkIdType GetNumberOfPoints();
   

@@ -112,7 +112,7 @@ void vtkHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.5");
+vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.6");
 
 template<unsigned int D> class vtkCompactHyperOctree;
 template<unsigned int D> class vtkCompactHyperOctreeNode;
@@ -515,13 +515,13 @@ private:
   void operator=(const vtkCompactHyperOctreeCursor<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.5");
+// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.6");
 template<unsigned int D>
 void vtkCompactHyperOctreeCursor<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.5" << '\n';
+  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.6" << '\n';
 }
   
 
@@ -653,7 +653,7 @@ protected:
   int Children[1<<D]; // indices
 };
 
-//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.5");
+//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.6");
 
 template<unsigned int D> class vtkCompactHyperOctree
   : public vtkHyperOctreeInternal
@@ -958,13 +958,13 @@ private:
   void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.5");
+// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.6");
 template<unsigned int D>
 void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctree<" << D <<"> " << "1.5" << '\n';
+  os << "vtkCompactHyperOctree<" << D <<"> " << "1.6" << '\n';
 }
   
 
@@ -972,7 +972,7 @@ void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 // quadtree: vtkHyperOctreeInternal<2>
 // bittree: vtkHyperOctreeInternal<1>
 
-vtkCxxRevisionMacro(vtkHyperOctree, "1.5");
+vtkCxxRevisionMacro(vtkHyperOctree, "1.6");
 vtkStandardNewMacro(vtkHyperOctree);
 
 //-----------------------------------------------------------------------------
@@ -2071,6 +2071,12 @@ void vtkHyperOctree::GetPointsOnParentEdge(
         }
       }
     }
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkHyperOctree::GetNumberOfLeaves()
+{
+  return this->CellTree->GetNumberOfLeaves();
 }
 
 //=============================================================================
