@@ -43,7 +43,7 @@
 #include <math.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkClipHyperOctree, "1.3");
+vtkCxxRevisionMacro(vtkClipHyperOctree, "1.4");
 vtkStandardNewMacro(vtkClipHyperOctree);
 vtkCxxSetObjectMacro(vtkClipHyperOctree,ClipFunction,vtkImplicitFunction);
 
@@ -220,7 +220,7 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
   
   this->Locator->InitPointInsertion (newPoints, this->Input->GetBounds());
   
-  this->InCD=this->Input->GetCellData();
+  this->InCD=(vtkCellData*)(this->Input->GetLeafData());
   this->OutCD[0] = this->Output->GetCellData();
   this->OutCD[0]->CopyAllocate(this->InCD,estimatedSize,estimatedSize/2);
   if ( this->GenerateClippedOutput )
