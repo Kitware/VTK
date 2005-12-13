@@ -72,7 +72,7 @@ public:
   vtkstd::set<vtkIdType> Set;
 };
 
-vtkCxxRevisionMacro(vtkHyperOctreeDualGridContourFilter, "1.1");
+vtkCxxRevisionMacro(vtkHyperOctreeDualGridContourFilter, "1.2");
 vtkStandardNewMacro(vtkHyperOctreeDualGridContourFilter);
 
 //----------------------------------------------------------------------------
@@ -387,7 +387,6 @@ void vtkHyperOctreeDualGridContourFilter::EvaluatePoint(
     vtkMarchingCubesTriangleCases *triCase;
     EDGE_LIST  *edge;
     int i, j, index, *vert;
-    int newCellId;
     vtkIdType pts[3];
     double t, x[3];
     double *x1;
@@ -429,7 +428,7 @@ void vtkHyperOctreeDualGridContourFilter::EvaluatePoint(
            pts[0] != pts[2] &&
            pts[1] != pts[2] )
         {
-        newCellId = this->NewPolys->InsertNextCell(3,pts);
+        this->NewPolys->InsertNextCell(3,pts);
         // We have no point data in the octree that would convert to cell data.
         //outCd->CopyData(inCd,cellId,newCellId);
         }
