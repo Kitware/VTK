@@ -84,11 +84,6 @@ public:
   vtkGetMacro(MaximumNumberOfIterations, unsigned char);
   
   // Description:
-  // Subdivide nodes that
-  vtkSetMacro(TargetContourValue, double);
-  vtkGetMacro(TargetContourValue, double);
-  
-  // Description:
   // Create a 2D or 3D fractal.
   vtkSetClampMacro(Dimension, int, 2, 3);
   vtkGetMacro(Dimension, int);
@@ -123,7 +118,6 @@ protected:
   int ProjectionAxes[3];
 
   unsigned char MaximumNumberOfIterations;
-  double TargetContourValue;
   
   // Complex constant/initial-value at origin.
   double OriginCX[4];
