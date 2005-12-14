@@ -24,7 +24,7 @@ ENDIF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
 
 # Create the vtkmyCommon Python library.
 IF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
-  VTK_WRAP_PYTHON3 (vtkmyCommonPython CommonPython_SRCS ${Common_SRCS})
+  VTK_WRAP_PYTHON3 (vtkmyCommonPython CommonPython_SRCS "${Common_SRCS}")
   ADD_LIBRARY (vtkmyCommonPythonD ${CommonPython_SRCS})
   ADD_LIBRARY (vtkmyCommonPython MODULE vtkmyCommonPythonInit.cxx)
   TARGET_LINK_LIBRARIES(vtkmyCommonPythonD vtkmyCommon vtkCommon vtkCommonPythonD)
@@ -33,7 +33,7 @@ ENDIF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
 
 # Create the vtkmyCommon Java library.
 IF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
-  VTK_WRAP_JAVA3 (vtkmyCommonJava CommonJava_SRCS ${Common_SRCS})
+  VTK_WRAP_JAVA3 (vtkmyCommonJava CommonJava_SRCS "${Common_SRCS}")
   ADD_LIBRARY (vtkmyCommonJava SHARED ${CommonJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkmyCommonJava vtkmyCommon vtkCommonJava)
 ENDIF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
