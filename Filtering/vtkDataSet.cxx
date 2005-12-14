@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.4");
+vtkCxxRevisionMacro(vtkDataSet, "1.5");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -362,63 +362,71 @@ int vtkDataSet::CheckAttributes()
   int numTuples;
   const char* name;
 
-  numPts = this->GetNumberOfPoints();
-  numCells = this->GetNumberOfCells();
-
   numArrays = this->GetPointData()->GetNumberOfArrays();
-  for (idx = 0; idx < numArrays; ++idx)
+  if (numArrays > 0)
     {
-    array = this->GetPointData()->GetArray(idx);
-    numTuples = array->GetNumberOfTuples();
-    name = array->GetName();
-    if (name == NULL)
+    // This call can be expensive.
+    numPts = this->GetNumberOfPoints();
+    for (idx = 0; idx < numArrays; ++idx)
       {
-      name = "";
-      }
-    if (numTuples < numPts)
-      {
-      vtkErrorMacro("Point array " << name << " with " 
-                    << array->GetNumberOfComponents()
-                    << " components, only has " << numTuples << " tuples but there are " 
-                    << numPts << " points");
-      return 1;
-      }
-    if (numTuples > numPts)
-      {
-      vtkWarningMacro("Point array " << name << " with " 
-                    << array->GetNumberOfComponents()
-                    << " components, has " << numTuples << " tuples but there are only " 
-                    << numPts << " points");
+      array = this->GetPointData()->GetArray(idx);
+      numTuples = array->GetNumberOfTuples();
+      name = array->GetName();
+      if (name == NULL)
+        {
+        name = "";
+        }
+      if (numTuples < numPts)
+        {
+        vtkErrorMacro("Point array " << name << " with " 
+                      << array->GetNumberOfComponents()
+                      << " components, only has " << numTuples << " tuples but there are " 
+                      << numPts << " points");
+        return 1;
+        }
+      if (numTuples > numPts)
+        {
+        vtkWarningMacro("Point array " << name << " with " 
+                        << array->GetNumberOfComponents()
+                        << " components, has " << numTuples << " tuples but there are only " 
+                        << numPts << " points");
+        }
       }
     }
-
+  
   numArrays = this->GetCellData()->GetNumberOfArrays();
-  for (idx = 0; idx < numArrays; ++idx)
+  if (numArrays > 0)
     {
-    array = this->GetCellData()->GetArray(idx);
-    numTuples = array->GetNumberOfTuples();
-    name = array->GetName();
-    if (name == NULL)
+    // This call can be expensive.  
+    numCells = this->GetNumberOfCells();
+    
+    for (idx = 0; idx < numArrays; ++idx)
       {
-      name = "";
-      }
-    if (numTuples < numCells)
-      {
-      vtkErrorMacro("Cell array " << name << " with " 
-                    << array->GetNumberOfComponents()
-                    << " components, has only " << numTuples << " tuples but there are "
-                    << numCells << " cells");
-      return 1;
-      }
-    if (numTuples > numCells)
-      {
-      vtkWarningMacro("Cell array " << name << " with " 
-                    << array->GetNumberOfComponents() 
-                    << " components, has " << numTuples << " tuples but there are only " 
-                    << numCells << " cells");
+      array = this->GetCellData()->GetArray(idx);
+      numTuples = array->GetNumberOfTuples();
+      name = array->GetName();
+      if (name == NULL)
+        {
+        name = "";
+        }
+      if (numTuples < numCells)
+        {
+        vtkErrorMacro("Cell array " << name << " with " 
+                      << array->GetNumberOfComponents()
+                      << " components, has only " << numTuples << " tuples but there are "
+                      << numCells << " cells");
+        return 1;
+        }
+      if (numTuples > numCells)
+        {
+        vtkWarningMacro("Cell array " << name << " with " 
+                        << array->GetNumberOfComponents() 
+                        << " components, has " << numTuples << " tuples but there are only " 
+                        << numCells << " cells");
+        }
       }
     }
-
+  
   return 0;
 }
 
