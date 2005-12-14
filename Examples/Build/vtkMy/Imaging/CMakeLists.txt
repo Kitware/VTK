@@ -24,7 +24,7 @@ ENDIF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
 
 # Create the vtkmyImaging Python library.
 IF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
-  VTK_WRAP_PYTHON3 (vtkmyImagingPython ImagingPython_SRCS ${Imaging_SRCS})
+  VTK_WRAP_PYTHON3 (vtkmyImagingPython ImagingPython_SRCS "${Imaging_SRCS}")
   ADD_LIBRARY (vtkmyImagingPythonD ${ImagingPython_SRCS})
   ADD_LIBRARY (vtkmyImagingPython MODULE vtkmyImagingPythonInit.cxx)
   TARGET_LINK_LIBRARIES(vtkmyImagingPythonD vtkmyImaging vtkmyCommonPythonD vtkImaging vtkImagingPythonD)
@@ -33,7 +33,7 @@ ENDIF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
 
 # Create the vtkmyImaging Java library.
 IF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
-  VTK_WRAP_JAVA3 (vtkmyImagingJava ImagingJava_SRCS ${Imaging_SRCS})
+  VTK_WRAP_JAVA3 (vtkmyImagingJava ImagingJava_SRCS "${Imaging_SRCS}")
   ADD_LIBRARY (vtkmyImagingJava SHARED ${ImagingJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkmyImagingJava vtkmyCommonJava vtkmyImaging vtkImagingJava)
 ENDIF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
