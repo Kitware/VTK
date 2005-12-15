@@ -13,6 +13,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestClipHyperOctree.cxx
     TestHyperOctreeContourFilter.cxx
     TestHyperOctreeCutter.cxx
+    TestHyperOctreeDual.cxx
     TestHyperOctreeSurfaceFilter.cxx
     TestHyperOctreeToUniformGrid.cxx
     TestSortDataArray.cxx
