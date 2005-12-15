@@ -28,7 +28,22 @@ IF (NOT TCL_LIBRARY)
   MESSAGE("VTK_WRAP_TCL is ON, but the Tcl library was not found.  Please set TCL_LIBRARY." "Error")
 ENDIF (NOT TCL_LIBRARY)
 
-INCLUDE(${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkDetermineTkResources.cmake)
+IF (WIN32)
+  IF (NOT BORLAND)
+    IF(NOT CYGWIN)
+      CONFIGURE_FILE(
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources/vtk.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/resources/vtk.rc)
+      INCLUDE_DIRECTORIES(
+        "${VTK_TK_RESOURCES_DIR}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources"
+        "${CMAKE_CURRENT_BINARY_DIR}/resources"
+        )
+      SET(VTK_EXE_RESOURCE_FILES 
+        "${CMAKE_CURRENT_BINARY_DIR}/resources/vtk.rc")
+    ENDIF(NOT CYGWIN)
+  ENDIF (NOT BORLAND)
+ENDIF (WIN32)
 
 # Create the vtk Tcl wrapper executable.
 ADD_EXECUTABLE(vtk vtkTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
