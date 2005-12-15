@@ -43,7 +43,7 @@
 #include <math.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkClipHyperOctree, "1.4");
+vtkCxxRevisionMacro(vtkClipHyperOctree, "1.5");
 vtkStandardNewMacro(vtkClipHyperOctree);
 vtkCxxSetObjectMacro(vtkClipHyperOctree,ClipFunction,vtkImplicitFunction);
 
@@ -171,7 +171,7 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
   this->ClippedOutput = this->GetClippedOutput();
   
   vtkIdType numPts=this->Input->GetMaxNumberOfPoints(0);
-  vtkIdType numCells = this->Input->GetNumberOfCells();
+  vtkIdType numCells = this->Input->GetNumberOfLeaves();
   
   vtkPoints *newPoints = vtkPoints::New();
   newPoints->Allocate(numPts,numPts/2);

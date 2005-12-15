@@ -43,7 +43,7 @@
 #include <assert.h>
 #include "vtkHyperOctreeClipCutPointsGrabber.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeCutter, "1.3");
+vtkCxxRevisionMacro(vtkHyperOctreeCutter, "1.4");
 vtkStandardNewMacro(vtkHyperOctreeCutter);
 vtkCxxSetObjectMacro(vtkHyperOctreeCutter,CutFunction,vtkImplicitFunction);
 
@@ -152,7 +152,7 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
   
   
   vtkIdType numPts=this->Input->GetMaxNumberOfPoints(0);
-  vtkIdType numCells = this->Input->GetNumberOfCells();
+  vtkIdType numCells = this->Input->GetNumberOfLeaves();
   
   vtkPoints *newPoints = vtkPoints::New();
   newPoints->Allocate(numPts,numPts/2);
