@@ -131,6 +131,7 @@ int TestHyperOctreeDual(int argc, char* argv[])
   
   vtkActor *actor2d = vtkActor::New();
   actor2d->SetPosition(2.5,0,0);
+  actor2d->SetOrientation(180,0,0);
   actor2d->SetMapper(mapper2d);
   actor2d->GetProperty()->SetRepresentationToWireframe();
   renderer->AddActor(actor2d);
