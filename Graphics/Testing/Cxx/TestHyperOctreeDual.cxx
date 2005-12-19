@@ -134,6 +134,8 @@ int TestHyperOctreeDual(int argc, char* argv[])
   actor2d->SetOrientation(180,0,0);
   actor2d->SetMapper(mapper2d);
   actor2d->GetProperty()->SetRepresentationToWireframe();
+  actor2d->GetProperty()->SetAmbient(1.0);
+  actor2d->GetProperty()->SetDiffuse(0.0);
   renderer->AddActor(actor2d);
   
 #ifdef WRITE_RESULT
