@@ -25,12 +25,7 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-#include <vtkstd/vector>
-#include <vtkstd/set>
-#include <vtkstd/algorithm>
-#include <vtkstd/iterator>
-
-vtkCxxRevisionMacro(vtkContourWidget, "1.9");
+vtkCxxRevisionMacro(vtkContourWidget, "1.10");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -40,7 +35,6 @@ vtkContourWidget::vtkContourWidget()
 
   this->WidgetState = vtkContourWidget::Start;
   this->CurrentHandle = 0;
-
 
   // These are the event callbacks supported by this widget
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
@@ -95,11 +89,6 @@ void vtkContourWidget::CreateDefaultRepresentation()
     rep->GetActiveProperty()->SetDiffuse(0.9);
     rep->GetActiveProperty()->SetSpecular(0.0);
     }
-}
-
-//----------------------------------------------------------------------
-void vtkContourWidget::ClearContour()
-{
 }
 
 //----------------------------------------------------------------------

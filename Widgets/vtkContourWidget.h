@@ -109,7 +109,6 @@
 #include "vtkAbstractWidget.h"
 
 class vtkContourRepresentation;
-class vtkContourWidgetInternals;
 
 class VTK_WIDGETS_EXPORT vtkContourWidget : public vtkAbstractWidget
 {
@@ -129,8 +128,6 @@ public:
   // its superclasses' vtkAbstractWidget::SetEnabled() method.
   virtual void SetEnabled(int);
 
-  virtual void ClearContour();
-  
   // Description:
   // Specify an instance of vtkWidgetRepresentation used to represent this
   // widget in the scene. Note that the representation is a subclass of vtkProp
@@ -145,9 +142,6 @@ public:
 protected:
   vtkContourWidget();
   ~vtkContourWidget();
-
-  // Internal STL structure
-  vtkContourWidgetInternals *Internal;
 
   // The state of the widget
 //BTX
