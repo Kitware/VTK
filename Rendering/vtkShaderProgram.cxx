@@ -45,7 +45,7 @@
 #include "vtkGLSLShaderProgram.h"
 #endif
 
-vtkCxxRevisionMacro(vtkShaderProgram, "1.5");
+vtkCxxRevisionMacro(vtkShaderProgram, "1.6");
 
 vtkCxxSetObjectMacro(vtkShaderProgram, Material, vtkXMLMaterial);
 
@@ -89,6 +89,8 @@ vtkShaderProgram* vtkShaderProgram::CreateShaderProgram(int shaderType)
     {
 #ifdef VTK_USE_CG_SHADERS
     return vtkCgShaderProgram::New();
+#else
+    vtkGenericWarningMacro("Cg shaders not supported.");
 #endif
     }
 
@@ -96,6 +98,8 @@ vtkShaderProgram* vtkShaderProgram::CreateShaderProgram(int shaderType)
     {
 #ifdef VTK_USE_GLSL_SHADERS 
     return vtkGLSLShaderProgram::New();
+#else
+    vtkGenericWarningMacro("GLSL shaders not supported.");
 #endif
     }
   return NULL;
