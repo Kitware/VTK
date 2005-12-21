@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.12");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.13");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -357,16 +357,23 @@ int vtkExtractCTHPart::RequestData(
     {
     arrayName=this->GetVolumeArrayName(idx);
     
-    // we have to update the output before get its point data.
-    appendSurface[idx]->Update();
-    clip->SetInput(appendSurface[idx]->GetOutput());
+    int inputConns = appendSurface[idx]->GetNumberOfInputConnections(0);
+
+
+    if (inputConns > 0)
+      {
+      // we have to update the output before get its point data.
+      appendSurface[idx]->Update();
 #ifndef NDEBUG
-    int checkIndex=appendSurface[idx]->GetOutput()->GetPointData()->SetActiveScalars(arrayName);
-    assert("check: SetActiveScalar succeeded" && checkIndex>=0);
+      int checkIndex=appendSurface[idx]->GetOutput()->GetPointData()->SetActiveScalars(arrayName);
+      assert("check: SetActiveScalar succeeded" && checkIndex>=0);
 #else
-    appendSurface[idx]->GetOutput()->GetPointData()->SetActiveScalars(arrayName);
+      appendSurface[idx]->GetOutput()->GetPointData()->SetActiveScalars(arrayName);
 #endif
-    clip2->Update();
+      clip->SetInput(appendSurface[idx]->GetOutput());
+      clip2->Update();
+      }
+
 #if 1
     tmps[idx]->AddInput(clip2->GetOutput());
 #else
@@ -374,11 +381,13 @@ int vtkExtractCTHPart::RequestData(
 #endif
     
     output = this->GetOutput(idx);
-    vtkTimerLog::MarkStartEvent("BlockAppend");
-    tmps[idx]->Update();
-    vtkTimerLog::MarkEndEvent("BlockAppend");     
-    
-    
+    if (inputConns > 0)
+      {
+      vtkTimerLog::MarkStartEvent("BlockAppend");
+      tmps[idx]->Update();
+      vtkTimerLog::MarkEndEvent("BlockAppend");     
+      }
+        
     vtkPolyData* tmpOut = tmps[idx]->GetOutput();
     output->CopyStructure(tmpOut);
     output->GetPointData()->PassData(tmpOut->GetPointData());
