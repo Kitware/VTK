@@ -151,7 +151,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCgShader, "1.4");
+vtkCxxRevisionMacro(vtkCgShader, "1.5");
 vtkStandardNewMacro(vtkCgShader);
 
 //-----------------------------------------------------------------------------
@@ -445,7 +445,7 @@ void vtkCgShader::SetMatrixParameter(const char* name, const char* state_matrix_
 }
 
 //-----------------------------------------------------------------------------
-void vtkCgShader::SetSamplerParameter(const char* name, vtkTexture* texture)
+void vtkCgShader::SetSamplerParameter(const char* name, vtkTexture* texture,int)
 {
   CGparameter param = this->Internals->GetUniformParameter(name);
   if (!param)

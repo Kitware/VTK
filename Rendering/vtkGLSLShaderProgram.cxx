@@ -28,7 +28,9 @@
 #include "vtkCollectionIterator.h"
 #include "vtkGLSLShader.h"
 #include "vtkObjectFactory.h"
+#include "vtkProperty.h"
 #include "vtkRenderer.h"
+#include "vtkTexture.h"
 #include "vtkXMLDataElement.h"
 
 #include <vtkstd/vector>
@@ -59,7 +61,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.7");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.8");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -346,15 +348,49 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
     shader->SetProgram(this->Program);
     shader->PassShaderVariables(actor, renderer);
     }
+
+  // establish any textures the shader might use
+  vtkProperty *property = actor->GetProperty();
+  vtkIdType numTextures = property->GetNumberOfTextures();
+
+  GLint numSupportedTextures;
+  glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
+  if (numTextures >= numSupportedTextures)
+    {
+    vtkErrorMacro("Hardware does not support the number of textures defined.");
+    }
+
+  for (vtkIdType i = 0; i < numTextures; i++)
+    {
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0 + i);
+    property->GetTexture(i)->Render(renderer);
+    }
+  vtkgl::ActiveTexture(vtkgl::TEXTURE0);
 }
 //-----------------------------------------------------------------------------
-void vtkGLSLShaderProgram::PostRender(vtkActor*, vtkRenderer*)
+void vtkGLSLShaderProgram::PostRender(vtkActor* actor, vtkRenderer*)
 {
   if (this->IsProgram())
     {
     // this unloads the shader program.
     vtkgl::UseProgram(0);
     }
+
+  // Disable any textures that may have been enabled.
+  vtkProperty *property = actor->GetProperty();
+  vtkIdType numTextures = property->GetNumberOfTextures();
+  for (vtkIdType i = 0; i < numTextures; i++)
+    {
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0 + i);
+    // Disable any possible texture.  Wouldn't having a PostRender on
+    // vtkTexture be better?
+    glDisable(GL_TEXTURE_1D);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(vtkgl::TEXTURE_3D);
+    glDisable(vtkgl::TEXTURE_RECTANGLE_ARB);
+    glDisable(vtkgl::TEXTURE_CUBE_MAP);
+    }
+  vtkgl::ActiveTexture(vtkgl::TEXTURE0);
 }
 
 //-----------------------------------------------------------------------------

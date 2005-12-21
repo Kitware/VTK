@@ -45,7 +45,7 @@
 #include "vtkGLSLShaderProgram.h"
 #endif
 
-vtkCxxRevisionMacro(vtkShaderProgram, "1.6");
+vtkCxxRevisionMacro(vtkShaderProgram, "1.7");
 
 vtkCxxSetObjectMacro(vtkShaderProgram, Material, vtkXMLMaterial);
 
@@ -180,9 +180,13 @@ void vtkShaderProgram::LoadExtensions( vtkRenderWindow* renWin )
   vtkOpenGLExtensionManager *extensions = vtkOpenGLExtensionManager::New();
   // How can I get access to the vtkRenderWindow from here?
   extensions->SetRenderWindow( renWin );
-  if( extensions->ExtensionSupported("GL_VERSION_2_0" ) )
+  // Shouldn't this check be in the subclasses?  GLSL requires GL 2.0, but
+  // Cg does not.
+  if(   extensions->ExtensionSupported("GL_VERSION_2_0")
+     && extensions->ExtensionSupported("GL_VERSION_1_3") )
     {
     extensions->LoadExtension("GL_VERSION_2_0");
+    extensions->LoadExtension("GL_VERSION_1_3");
     this->SetGLExtensionsLoaded(1);
     }
   else

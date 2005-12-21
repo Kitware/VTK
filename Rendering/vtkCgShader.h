@@ -148,11 +148,8 @@ protected:
   virtual void SetMatrixParameter(const char* name, const char* state_matix_type,
     const char* transform_type);
 
-  // Description:
-  // Equivalen to cgGLSetTexture(), GLSL merely does a glUniform1v().
-  // Subclass may have to cast the texture to vtkOpenGLTexture to obtain
-  // the GLunint for texture this texture.
-  virtual void SetSamplerParameter(const char* name, vtkTexture* texture);
+  virtual void SetSamplerParameter(const char* name, vtkTexture* texture,
+                                   int = 0);
 
 private:
   vtkCgShader(const vtkCgShader&); // Not Implemented

@@ -163,7 +163,7 @@ static void printAttributeInfo(GLuint program, const char* vtkNotUsed(filename))
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLSLShader);
-vtkCxxRevisionMacro(vtkGLSLShader, "1.5");
+vtkCxxRevisionMacro(vtkGLSLShader, "1.6");
 
 //-----------------------------------------------------------------------------
 vtkGLSLShader::vtkGLSLShader()
@@ -446,18 +446,14 @@ void vtkGLSLShader::SetMatrixParameter(const char*, const char*, const char*)
 }
 
 //-----------------------------------------------------------------------------
-void vtkGLSLShader::SetSamplerParameter(const char* name, vtkTexture* texture)
+void vtkGLSLShader::SetSamplerParameter(const char* name, vtkTexture* ,
+                                        int textureIndex)
 {
   if( !this->IsShader() )
     {
     return;
     }
-  vtkOpenGLTexture* glTexture = vtkOpenGLTexture::SafeDownCast(texture);
-  if (glTexture)
-    {
-    int id = static_cast<int>(glTexture->GetIndex());
-    this->SetUniformParameter(name, 1, &id);
-    }
+  this->SetUniformParameter(name, 1, &textureIndex);
 }
 
 //-----------------------------------------------------------------------------
