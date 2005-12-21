@@ -6,6 +6,9 @@
 # dollars but we have to support CMake 2.0.
 SET(DOLLAR "$")
 
+# Make sure all of the Tcl/Tk macros are loaded.
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake)
+
 #-----------------------------------------------------------------------------
 # Settings shared between the build tree and install tree.
 
