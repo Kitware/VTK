@@ -61,7 +61,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.8");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.9");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -129,9 +129,8 @@ int vtkGLSLShaderProgram::IsLinked()
     }
 
   GLint value = 0;
-  vtkgl::GetProgramiv( static_cast<GLuint>(this->Program),
-                  vtkgl::OBJECT_LINK_STATUS_ARB,
-                  &value );
+  vtkgl::GetProgramiv(static_cast<GLuint>(this->Program),
+                      vtkgl::LINK_STATUS, &value);
   if( value == 1 )
     {
     return true;
@@ -164,7 +163,7 @@ void vtkGLSLShaderProgram::GetProgramInfo()
   // is this Program linked?
   GLint linked = 0;
   vtkgl::GetProgramiv( static_cast<GLuint>(this->Program), 
-    vtkgl::OBJECT_LINK_STATUS_ARB, &linked );
+                       vtkgl::LINK_STATUS, &linked );
   infoString += "Linked Status: ";
   char linkedStr[256];
   sprintf( linkedStr, "%d", static_cast<int>(linked) );
@@ -186,7 +185,7 @@ void vtkGLSLShaderProgram::GetProgramInfo()
   // Anything in the info log?
   GLint maxLength = 0;
   vtkgl::GetProgramiv( static_cast<GLuint>(this->Program), 
-    vtkgl::OBJECT_INFO_LOG_LENGTH_ARB, &maxLength );
+                       vtkgl::ATTACHED_SHADERS, &maxLength );
   vtkgl::GLchar* info = new vtkgl::GLchar[maxLength];
 
   GLsizei charsWritten;
@@ -228,19 +227,13 @@ void vtkGLSLShaderProgram::GetInfoLog()
       }
     vtkgl::GetProgramInfoLog(static_cast<GLuint>(this->Program), infologLength, 
       reinterpret_cast<GLsizei*>(&charsWritten), infoLog);
-    }
-  if( !infoLog )
-    {
+
     this->SetInfo( infoLog );
+    delete [] infoLog;
     }
   else
     {
     this->SetInfo( "No Log Info." );
-    }
-
-  if( infoLog )
-    {
-    delete [] infoLog;
     }
 }
 
@@ -253,7 +246,7 @@ int vtkGLSLShaderProgram::IsAttached(vtkGLSLShader* glslshader)
   GLint numObjects = 0;
   GLint writtenObjects = 0;
   vtkgl::GetProgramiv(static_cast<GLuint>(this->Program), 
-    vtkgl::OBJECT_ATTACHED_OBJECTS_ARB, &numObjects);
+                      vtkgl::ATTACHED_SHADERS, &numObjects);
   vtkstd::vector<GLuint> attachedObjects(numObjects);
   if( numObjects > 0 )
     {
@@ -320,10 +313,16 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
     // link the program.
     GLint numObjects = 0;
     vtkgl::GetProgramiv( static_cast<GLuint>(this->Program),
-      vtkgl::OBJECT_ATTACHED_OBJECTS_ARB, &numObjects );
+                         vtkgl::ATTACHED_SHADERS, &numObjects );
     if (numObjects>0)
       {
       vtkgl::LinkProgram(static_cast<GLuint>(this->Program));
+      if (!this->IsLinked())
+        {
+        this->GetInfoLog();
+        vtkErrorMacro(<< "Failed to link GLSL program:\n"
+                      << this->Info);
+        }
       }
     }
 
