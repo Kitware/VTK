@@ -164,6 +164,8 @@ public:
     DomainModifiedEvent,
     PropertyModifiedEvent,
     UpdateEvent,
+    RegisterEvent,
+    UnRegisterEvent,
     UserEvent = 1000
   };
 //ETX

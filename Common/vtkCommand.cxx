@@ -84,6 +84,8 @@ static const char *vtkCommandEventStrings[] = {
   "DomainModifiedEvent",
   "PropertyModifiedEvent",
   "UpdateEvent",
+  "RegisterEvent",
+  "UnRegisterEvent",
   NULL
 };
 
