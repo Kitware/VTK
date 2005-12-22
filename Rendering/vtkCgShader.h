@@ -149,7 +149,7 @@ protected:
     const char* transform_type);
 
   virtual void SetSamplerParameter(const char* name, vtkTexture* texture,
-                                   int = 0);
+                                   int);
 
 private:
   vtkCgShader(const vtkCgShader&); // Not Implemented
