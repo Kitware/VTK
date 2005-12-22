@@ -2137,6 +2137,9 @@ public:
                vtkIdType cellIdx,
                int orientationChanged)
     {
+      // Ignore degenerate faces.
+      if ((faceIds[0] == faceIds[1]) || (faceIds[1] == faceIds[2])) return;
+
       assert("pre: ordered ids" && faceIds[0]<faceIds[1]
              && faceIds[1]<faceIds[2]);
 
@@ -2293,7 +2296,7 @@ public:
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.7");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.8");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZSweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZSweepMapper, RayIntegrator,
