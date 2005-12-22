@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.41");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.42");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -778,20 +778,20 @@ void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
         vtkErrorMacro("Could not create window, serious error!");
         return;
         }
-      
+
       // get the content view
       HIViewFindByID(HIViewGetRoot(this->RootWindow),
                      kHIViewWindowContentID,
                      &this->WindowId);
 
-      int len = (strlen("vtkX - Carbon #")
+      int len = (strlen("Visualization Toolkit - Carbon #")
                  + (int) ceil((double)log10((double)(count+1)))
                  + 1);
       windowName = new char [ len ];
-      sprintf(windowName,"vtkX - Carbon #%i",count++);
+      sprintf(windowName,"Visualization Toolkit - Carbon #%i",count++);
+      this->OwnWindow = 1;
       this->SetWindowName(windowName);
       delete [] windowName;
-      this->OwnWindow = 1;
 
       ShowWindow(this->RootWindow);
     }
