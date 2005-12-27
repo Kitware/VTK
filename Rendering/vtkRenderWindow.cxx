@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.145");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.146");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -73,6 +73,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->PainterDeviceAdapter = vtkPainterDeviceAdapter::New();
 }
 
+//----------------------------------------------------------------------------
 vtkRenderWindow::~vtkRenderWindow()
 {
   this->SetInteractor(NULL);
@@ -93,6 +94,7 @@ vtkRenderWindow::~vtkRenderWindow()
   this->PainterDeviceAdapter->Delete();
 }
 
+//----------------------------------------------------------------------------
 // return the correct type of RenderWindow 
 vtkRenderWindow *vtkRenderWindow::New()
 {
@@ -101,6 +103,7 @@ vtkRenderWindow *vtkRenderWindow::New()
   return (vtkRenderWindow*)ret;
 }
 
+//----------------------------------------------------------------------------
 // Create an interactor that will work with this renderer.
 vtkRenderWindowInteractor *vtkRenderWindow::MakeRenderWindowInteractor()
 {
@@ -109,6 +112,7 @@ vtkRenderWindowInteractor *vtkRenderWindow::MakeRenderWindowInteractor()
   return this->Interactor;
 }
 
+//----------------------------------------------------------------------------
 // Set the interactor that will work with this renderer.
 void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
 {
@@ -129,6 +133,7 @@ void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkRenderWindow::SetSubFrames(int subFrames)
 {
   if (this->SubFrames != subFrames)
@@ -143,6 +148,7 @@ void vtkRenderWindow::SetSubFrames(int subFrames)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkRenderWindow::SetDesiredUpdateRate(double rate)
 {
   vtkRenderer *aren;
@@ -162,6 +168,7 @@ void vtkRenderWindow::SetDesiredUpdateRate(double rate)
 }
 
 
+//----------------------------------------------------------------------------
 //
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.
@@ -175,6 +182,7 @@ void vtkRenderWindow::SetStereoCapableWindow(int capable)
     }
 }
 
+//----------------------------------------------------------------------------
 // Turn on stereo rendering
 void vtkRenderWindow::SetStereoRender(int stereo)
 {
@@ -201,8 +209,7 @@ void vtkRenderWindow::SetStereoRender(int stereo)
     }
 }
 
-
-
+//----------------------------------------------------------------------------
 // Ask each renderer owned by this RenderWindow to render its image and 
 // synchronize this process.
 void vtkRenderWindow::Render()
@@ -384,6 +391,7 @@ void vtkRenderWindow::Render()
   this->InvokeEvent(vtkCommand::EndEvent,NULL);  
 }
 
+//----------------------------------------------------------------------------
 // Handle rendering any antialiased frames.
 void vtkRenderWindow::DoAARender()
 {
@@ -514,6 +522,7 @@ void vtkRenderWindow::DoAARender()
 }
 
 
+//----------------------------------------------------------------------------
 // Handle rendering any focal depth frames.
 void vtkRenderWindow::DoFDRender()
 {
@@ -621,6 +630,7 @@ void vtkRenderWindow::DoFDRender()
 }
 
 
+//----------------------------------------------------------------------------
 // Handle rendering the two different views for stereo rendering.
 void vtkRenderWindow::DoStereoRender()
 {
@@ -642,6 +652,7 @@ void vtkRenderWindow::DoStereoRender()
     }
 }
 
+//----------------------------------------------------------------------------
 // Add a renderer to the list of renderers.
 void vtkRenderWindow::AddRenderer(vtkRenderer *ren)
 {
@@ -664,6 +675,7 @@ void vtkRenderWindow::AddRenderer(vtkRenderer *ren)
     }
 }
 
+//----------------------------------------------------------------------------
 // Remove a renderer from the list of renderers.
 void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
 {
@@ -676,6 +688,7 @@ int vtkRenderWindow::HasRenderer(vtkRenderer *ren)
   return (ren && this->Renderers->IsItemPresent(ren));
 }
 
+//----------------------------------------------------------------------------
 int vtkRenderWindow::CheckAbortStatus()
 {
   if (!this->InAbortCheck)
@@ -687,6 +700,7 @@ int vtkRenderWindow::CheckAbortStatus()
   return this->AbortRender;
 }
 
+//----------------------------------------------------------------------------
 void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -743,6 +757,7 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+//----------------------------------------------------------------------------
 // Update the system, if needed, due to stereo rendering. For some stereo 
 // methods, subclasses might need to switch some hardware settings here.
 void vtkRenderWindow::StereoUpdate(void)
@@ -785,6 +800,7 @@ void vtkRenderWindow::StereoUpdate(void)
     }
 }
 
+//----------------------------------------------------------------------------
 // Intermediate method performs operations required between the rendering
 // of the left and right eye.
 void vtkRenderWindow::StereoMidpoint(void)
@@ -808,6 +824,7 @@ void vtkRenderWindow::StereoMidpoint(void)
     }
 }
 
+//----------------------------------------------------------------------------
 // Handles work required once both views have been rendered when using
 // stereo rendering.
 void vtkRenderWindow::StereoRenderComplete(void)
@@ -1081,7 +1098,7 @@ void vtkRenderWindow::StereoRenderComplete(void)
     }
 }
 
-
+//----------------------------------------------------------------------------
 void vtkRenderWindow::CopyResultFrame(void)
 {
   if (this->ResultFrame)
@@ -1097,6 +1114,7 @@ void vtkRenderWindow::CopyResultFrame(void)
 }
 
 
+//----------------------------------------------------------------------------
 // treat renderWindow and interactor as one object.
 // it might be easier if the GetReference count method were redefined.
 void vtkRenderWindow::UnRegister(vtkObjectBase *o)
@@ -1118,7 +1136,9 @@ void vtkRenderWindow::UnRegister(vtkObjectBase *o)
   this->vtkObject::UnRegister(o);
 }
 
+//----------------------------------------------------------------------------
 const char *vtkRenderWindow::GetRenderLibrary() 
 {
   return vtkGraphicsFactory::GetRenderLibrary();
 }
+

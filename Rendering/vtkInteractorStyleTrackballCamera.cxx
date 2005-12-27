@@ -22,7 +22,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.33");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.34");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
@@ -80,7 +80,7 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonDown()
     return;
     }
   
-  this->Interactor->GrabFocus(this->EventCallbackCommand);
+  this->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetShiftKey()) 
     {
     if (this->Interactor->GetControlKey()) 
@@ -129,7 +129,7 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonUp()
 
   if ( this->Interactor )
     {
-    this->Interactor->ReleaseFocus();
+    this->ReleaseFocus();
     }
 }
 
@@ -143,7 +143,7 @@ void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown()
     return;
     }
   
-  this->Interactor->GrabFocus(this->EventCallbackCommand);
+  this->GrabFocus(this->EventCallbackCommand);
   this->StartPan();
 }
 
@@ -156,7 +156,7 @@ void vtkInteractorStyleTrackballCamera::OnMiddleButtonUp()
       this->EndPan();
       if ( this->Interactor )
         {
-        this->Interactor->ReleaseFocus();
+        this->ReleaseFocus();
         }
       break;
     }
@@ -172,7 +172,7 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonDown()
     return;
     }
   
-  this->Interactor->GrabFocus(this->EventCallbackCommand);
+  this->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
 }
 
@@ -186,7 +186,7 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonUp()
 
       if ( this->Interactor )
         {
-        this->Interactor->ReleaseFocus();
+        this->ReleaseFocus();
         }
       break;
     }
@@ -202,12 +202,12 @@ void vtkInteractorStyleTrackballCamera::OnMouseWheelForward()
     return;
     }
   
-  this->Interactor->GrabFocus(this->EventCallbackCommand);
+  this->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
   double factor = this->MotionFactor * 0.2 * this->MouseWheelMotionFactor;
   this->Dolly(pow((double)1.1, factor));
   this->EndDolly();
-  this->Interactor->ReleaseFocus();
+  this->ReleaseFocus();
 }
 
 //----------------------------------------------------------------------------
@@ -220,12 +220,12 @@ void vtkInteractorStyleTrackballCamera::OnMouseWheelBackward()
     return;
     }
   
-  this->Interactor->GrabFocus(this->EventCallbackCommand);
+  this->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
   double factor = this->MotionFactor * -0.2 * this->MouseWheelMotionFactor;
   this->Dolly(pow((double)1.1, factor));
   this->EndDolly();
-  this->Interactor->ReleaseFocus();
+  this->ReleaseFocus();
 }
 
 //----------------------------------------------------------------------------

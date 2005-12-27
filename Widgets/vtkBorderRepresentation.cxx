@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkBorderRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkBorderRepresentation, "1.3");
 vtkStandardNewMacro(vtkBorderRepresentation);
 
 
@@ -131,10 +131,10 @@ void vtkBorderRepresentation::WidgetInteraction(double eventPos[2])
   par2[0] = fpos1[0] + fpos2[0];  
   par2[1] = fpos1[1] + fpos2[1];  
     
-  // Based on the state, adjust the representation. Note that we force a uniform
-  // scaling of the widget when tugging on the corner points. This is done by
-  // finding the maximum movement in the x-y directions and using this to scale
-  // the widget.
+  // Based on the state, adjust the representation. Note that we force a
+  // uniform scaling of the widget when tugging on the corner points (and
+  // when proportional resize is on). This is done by finding the maximum
+  // movement in the x-y directions and using this to scale the widget.
   double delX = XF - this->StartEventPosition[0];
   double delY = YF - this->StartEventPosition[1];
   double delX2=0.0, delY2=0.0;
@@ -195,7 +195,6 @@ void vtkBorderRepresentation::WidgetInteraction(double eventPos[2])
     case vtkBorderRepresentation::Inside:
       if ( this->Moving )
         {
-        // first apply the move
         par1[0] = par1[0] + delX;
         par1[1] = par1[1] + delY;
         par2[0] = par2[0] + delX;

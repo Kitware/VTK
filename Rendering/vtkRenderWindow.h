@@ -138,7 +138,7 @@ public:
   virtual void SetCursorPosition(int , int ) {};
 
   // Description:
-  // Change the shape of the cursor
+  // Change the shape of the cursor.
   vtkSetMacro(CurrentCursor,int);
   vtkGetMacro(CurrentCursor,int);
 

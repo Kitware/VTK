@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 
 
-vtkCxxRevisionMacro(vtkBorderWidget, "1.4");
+vtkCxxRevisionMacro(vtkBorderWidget, "1.5");
 vtkStandardNewMacro(vtkBorderWidget);
 
 
@@ -64,37 +64,37 @@ void vtkBorderWidget::SetCursor(int cState)
   switch (cState)
     {
     case vtkBorderRepresentation::AdjustingP0:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZESW);
+      this->RequestCursorShape(VTK_CURSOR_SIZESW);
       break;
     case vtkBorderRepresentation::AdjustingP1:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZESE);
+      this->RequestCursorShape(VTK_CURSOR_SIZESE);
       break;
     case vtkBorderRepresentation::AdjustingP2:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENE);
+      this->RequestCursorShape(VTK_CURSOR_SIZENE);
       break;
     case vtkBorderRepresentation::AdjustingP3:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENW);
+      this->RequestCursorShape(VTK_CURSOR_SIZENW);
       break;
     case vtkBorderRepresentation::AdjustingE0:
     case vtkBorderRepresentation::AdjustingE2:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENS);
+      this->RequestCursorShape(VTK_CURSOR_SIZENS);
       break;
     case vtkBorderRepresentation::AdjustingE1:
     case vtkBorderRepresentation::AdjustingE3:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZEWE);
+      this->RequestCursorShape(VTK_CURSOR_SIZEWE);
       break;
     case vtkBorderRepresentation::Inside:
       if ( reinterpret_cast<vtkBorderRepresentation*>(this->WidgetRep)->GetMoving() )
         {
-        this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZEALL);
+        this->RequestCursorShape(VTK_CURSOR_SIZEALL);
         }
       else
         {
-        this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_HAND);
+        this->RequestCursorShape(VTK_CURSOR_HAND);
         }
       break;        
     default:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
+      this->RequestCursorShape(VTK_CURSOR_DEFAULT);
     }
 }
 
@@ -110,7 +110,7 @@ void vtkBorderWidget::SelectAction(vtkAbstractWidget *w)
     }
   
   // We are definitely selected
-  self->Interactor->GrabFocus(self->EventCallbackCommand);
+  self->GrabFocus(self->EventCallbackCommand);
   self->WidgetState = vtkBorderWidget::Selected;
 
   // Picked something inside the widget
@@ -162,6 +162,7 @@ void vtkBorderWidget::TranslateAction(vtkAbstractWidget *w)
     }
   
   // We are definitely selected
+  self->GrabFocus(self->EventCallbackCommand);
   self->WidgetState = vtkBorderWidget::Moving;
   reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep)->MovingOn();
   
@@ -207,7 +208,6 @@ void vtkBorderWidget::MoveAction(vtkAbstractWidget *w)
   // Set the cursor appropriately
   if ( self->WidgetState == vtkBorderWidget::Start )
     {
-    int state = self->WidgetRep->GetInteractionState();
     if ( self->WidgetRep->ComputeInteractionState(X, Y) == vtkBorderRepresentation::Inside )
       {
       if ( self->Selectable )
@@ -220,10 +220,6 @@ void vtkBorderWidget::MoveAction(vtkAbstractWidget *w)
         }
       }
     self->SetCursor(self->WidgetRep->GetInteractionState());
-    if ( state != self->WidgetRep->GetInteractionState() )
-      {
-      self->Render();
-      }
     return;
     }
 
@@ -251,7 +247,7 @@ void vtkBorderWidget::EndSelectAction(vtkAbstractWidget *w)
     }
 
   // Return state to not selected
-  self->Interactor->ReleaseFocus();
+  self->ReleaseFocus();
   self->WidgetState = vtkBorderWidget::Start;
   reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep)->MovingOff();
 

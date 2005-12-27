@@ -27,7 +27,7 @@
 #include "vtkWidgetEvent.h"
 
 
-vtkCxxRevisionMacro(vtkRectilinearWipeWidget, "1.4");
+vtkCxxRevisionMacro(vtkRectilinearWipeWidget, "1.5");
 vtkStandardNewMacro(vtkRectilinearWipeWidget);
 
 
@@ -60,16 +60,16 @@ void vtkRectilinearWipeWidget::SetCursor(int cState)
   switch (cState)
     {
     case vtkRectilinearWipeRepresentation::MovingHPane:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENS);
+      this->RequestCursorShape(VTK_CURSOR_SIZENS);
       break;
     case vtkRectilinearWipeRepresentation::MovingVPane:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZEWE);
+      this->RequestCursorShape(VTK_CURSOR_SIZEWE);
       break;
     case vtkRectilinearWipeRepresentation::MovingCenter:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZEALL);
+      this->RequestCursorShape(VTK_CURSOR_SIZEALL);
       break;
     default:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
+      this->RequestCursorShape(VTK_CURSOR_DEFAULT);
     }
 }
 
@@ -85,7 +85,7 @@ void vtkRectilinearWipeWidget::SelectAction(vtkAbstractWidget *w)
   
   // We are definitely selected
   self->WidgetState = vtkRectilinearWipeWidget::Selected;
-  self->Interactor->GrabFocus(self->EventCallbackCommand);
+  self->GrabFocus(self->EventCallbackCommand);
 
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
@@ -119,13 +119,8 @@ void vtkRectilinearWipeWidget::MoveAction(vtkAbstractWidget *w)
   // Set the cursor appropriately
   if ( self->WidgetState != vtkRectilinearWipeWidget::Selected )
     {
-    int state = self->WidgetRep->GetInteractionState();
     self->WidgetRep->ComputeInteractionState(X, Y);
     self->SetCursor(self->WidgetRep->GetInteractionState());
-    if ( state != self->WidgetRep->GetInteractionState() )
-      {
-      self->Render();
-      }
     return;
     }
   
@@ -154,7 +149,7 @@ void vtkRectilinearWipeWidget::EndSelectAction(vtkAbstractWidget *w)
   
   // Return state to not selected
   self->WidgetState = vtkRectilinearWipeWidget::Start;
-  self->Interactor->ReleaseFocus();
+  self->ReleaseFocus();
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();

@@ -25,7 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.34");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.35");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ void vtkInteractorStyleTrackballActor::OnLeftButtonDown()
     return;
     }
 
-  this->Interactor->GrabFocus(this->EventCallbackCommand);
+  this->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetShiftKey())
     {
     this->StartPan();
@@ -131,7 +131,7 @@ void vtkInteractorStyleTrackballActor::OnLeftButtonUp()
 
   if ( this->Interactor )
     {
-    this->Interactor->ReleaseFocus();
+    this->ReleaseFocus();
     }
 }
 
@@ -148,7 +148,7 @@ void vtkInteractorStyleTrackballActor::OnMiddleButtonDown()
     return;
     }
 
-  this->Interactor->GrabFocus(this->EventCallbackCommand);
+  this->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetControlKey())
     {
     this->StartDolly();
@@ -175,7 +175,7 @@ void vtkInteractorStyleTrackballActor::OnMiddleButtonUp()
 
   if ( this->Interactor )
     {
-    this->Interactor->ReleaseFocus();
+    this->ReleaseFocus();
     }
 }
 
@@ -192,7 +192,7 @@ void vtkInteractorStyleTrackballActor::OnRightButtonDown()
     return;
     }
   
-  this->Interactor->GrabFocus(this->EventCallbackCommand);
+  this->GrabFocus(this->EventCallbackCommand);
   this->StartUniformScale();
 }
 
@@ -208,7 +208,7 @@ void vtkInteractorStyleTrackballActor::OnRightButtonUp()
 
   if ( this->Interactor )
     {
-    this->Interactor->ReleaseFocus();
+    this->ReleaseFocus();
     }
 }
 

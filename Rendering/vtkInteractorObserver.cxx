@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.32");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.33");
 
 vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);
 
@@ -50,6 +50,8 @@ vtkInteractorObserver::vtkInteractorObserver()
 
   this->CharObserverTag = 0;
   this->DeleteObserverTag = 0;
+
+  this->ObserverMediator = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -277,6 +279,25 @@ void vtkInteractorObserver::OnChar()
       this->KeyPressCallbackCommand->SetAbortFlag(1);
       }
     }//if activation enabled
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorObserver::GrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents)
+{
+  if ( this->Interactor )
+    {
+    this->Interactor->GrabFocus(mouseEvents,keypressEvents);
+    }
+}
+
+
+//----------------------------------------------------------------------------
+void vtkInteractorObserver::ReleaseFocus()
+{
+  if ( this->Interactor )
+    {
+    this->Interactor->ReleaseFocus();
+    }
 }
 
 //----------------------------------------------------------------------------

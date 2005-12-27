@@ -26,7 +26,7 @@
 #include "vtkAxisActor2D.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkDistanceWidget, "1.6");
+vtkCxxRevisionMacro(vtkDistanceWidget, "1.7");
 vtkStandardNewMacro(vtkDistanceWidget);
 
 
@@ -43,18 +43,18 @@ public:
       switch (eventId)
         {
         case vtkCommand::StartInteractionEvent:
-          this->MeasureWidget->StartMeasureInteraction(this->HandleNumber);
+          this->DistanceWidget->StartDistanceInteraction(this->HandleNumber);
           break;
         case vtkCommand::InteractionEvent:
-          this->MeasureWidget->MeasureInteraction(this->HandleNumber);
+          this->DistanceWidget->DistanceInteraction(this->HandleNumber);
           break;
         case vtkCommand::EndInteractionEvent:
-          this->MeasureWidget->EndMeasureInteraction(this->HandleNumber);
+          this->DistanceWidget->EndDistanceInteraction(this->HandleNumber);
           break;
         }
     }
   int HandleNumber;
-  vtkDistanceWidget *MeasureWidget;
+  vtkDistanceWidget *DistanceWidget;
 };
 
 
@@ -74,24 +74,24 @@ vtkDistanceWidget::vtkDistanceWidget()
   this->Point2Widget->SetParent(this);
 
   // Set up the callbacks on the two handles
-  this->MeasureWidgetCallback1 = vtkDistanceWidgetCallback::New();
-  this->MeasureWidgetCallback1->HandleNumber = 0;
-  this->MeasureWidgetCallback1->MeasureWidget = this;
-  this->Point1Widget->AddObserver(vtkCommand::StartInteractionEvent, this->MeasureWidgetCallback1, 
+  this->DistanceWidgetCallback1 = vtkDistanceWidgetCallback::New();
+  this->DistanceWidgetCallback1->HandleNumber = 0;
+  this->DistanceWidgetCallback1->DistanceWidget = this;
+  this->Point1Widget->AddObserver(vtkCommand::StartInteractionEvent, this->DistanceWidgetCallback1, 
                                   this->Priority);
-  this->Point1Widget->AddObserver(vtkCommand::InteractionEvent, this->MeasureWidgetCallback1,
+  this->Point1Widget->AddObserver(vtkCommand::InteractionEvent, this->DistanceWidgetCallback1,
                                   this->Priority);
-  this->Point1Widget->AddObserver(vtkCommand::EndInteractionEvent, this->MeasureWidgetCallback1,
+  this->Point1Widget->AddObserver(vtkCommand::EndInteractionEvent, this->DistanceWidgetCallback1,
                                   this->Priority);
 
-  this->MeasureWidgetCallback2 = vtkDistanceWidgetCallback::New();
-  this->MeasureWidgetCallback2->HandleNumber = 1;
-  this->MeasureWidgetCallback2->MeasureWidget = this;
-  this->Point2Widget->AddObserver(vtkCommand::StartInteractionEvent, this->MeasureWidgetCallback2, 
+  this->DistanceWidgetCallback2 = vtkDistanceWidgetCallback::New();
+  this->DistanceWidgetCallback2->HandleNumber = 1;
+  this->DistanceWidgetCallback2->DistanceWidget = this;
+  this->Point2Widget->AddObserver(vtkCommand::StartInteractionEvent, this->DistanceWidgetCallback2, 
                                   this->Priority);
-  this->Point2Widget->AddObserver(vtkCommand::InteractionEvent, this->MeasureWidgetCallback2,
+  this->Point2Widget->AddObserver(vtkCommand::InteractionEvent, this->DistanceWidgetCallback2,
                                   this->Priority);
-  this->Point2Widget->AddObserver(vtkCommand::EndInteractionEvent, this->MeasureWidgetCallback2,
+  this->Point2Widget->AddObserver(vtkCommand::EndInteractionEvent, this->DistanceWidgetCallback2,
                                   this->Priority);
 
 
@@ -110,13 +110,13 @@ vtkDistanceWidget::vtkDistanceWidget()
 //----------------------------------------------------------------------
 vtkDistanceWidget::~vtkDistanceWidget()
 {
-  this->Point1Widget->RemoveObserver(this->MeasureWidgetCallback1);
+  this->Point1Widget->RemoveObserver(this->DistanceWidgetCallback1);
   this->Point1Widget->Delete();
-  this->MeasureWidgetCallback1->Delete();
+  this->DistanceWidgetCallback1->Delete();
 
-  this->Point2Widget->RemoveObserver(this->MeasureWidgetCallback2);
+  this->Point2Widget->RemoveObserver(this->DistanceWidgetCallback2);
   this->Point2Widget->Delete();
-  this->MeasureWidgetCallback2->Delete();
+  this->DistanceWidgetCallback2->Delete();
 }
 
 //----------------------------------------------------------------------
@@ -183,7 +183,7 @@ void vtkDistanceWidget::AddPointAction(vtkAbstractWidget *w)
   // Freshly enabled and placing the first point
   if ( self->WidgetState == vtkDistanceWidget::Start )
     {
-    self->Interactor->GrabFocus(self->EventCallbackCommand);
+    self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkDistanceWidget::Define;
     self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
     reinterpret_cast<vtkDistanceRepresentation*>(self->WidgetRep)->VisibilityOn();    
@@ -205,7 +205,7 @@ void vtkDistanceWidget::AddPointAction(vtkAbstractWidget *w)
     self->Point1Widget->SetEnabled(1);
     self->Point2Widget->SetEnabled(1);
     self->CurrentHandle = (-1);
-    self->Interactor->ReleaseFocus();
+    self->ReleaseFocus();
     }
   
   // Maybe we are trying to manipulate the widget handles
@@ -218,7 +218,7 @@ void vtkDistanceWidget::AddPointAction(vtkAbstractWidget *w)
       return;
       }
 
-    self->Interactor->GrabFocus(self->EventCallbackCommand);
+    self->GrabFocus(self->EventCallbackCommand);
     if ( state == vtkDistanceRepresentation::NearP1 )
       {
       self->CurrentHandle = 0;
@@ -241,8 +241,8 @@ void vtkDistanceWidget::MoveAction(vtkAbstractWidget *w)
   vtkDistanceWidget *self = reinterpret_cast<vtkDistanceWidget*>(w);
 
   // Do nothing if in start mode or valid handle not selected
-  if ( self->WidgetState == vtkDistanceWidget::Start ||
-       (self->WidgetState == vtkDistanceWidget::Manipulate && self->CurrentHandle < 0) )
+  if ( self->WidgetState == vtkDistanceWidget::Start )
+//       (self->WidgetState == vtkDistanceWidget::Manipulate && self->CurrentHandle < 0) )
     {
     return;
     }
@@ -257,6 +257,7 @@ void vtkDistanceWidget::MoveAction(vtkAbstractWidget *w)
     e[1] = static_cast<double>(Y);
     reinterpret_cast<vtkDistanceRepresentation*>(self->WidgetRep)->WidgetInteraction(e);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->EventCallbackCommand->SetAbortFlag(1);
     }
   else //must be moving a handle, invoke a event for the handle widgets
     {
@@ -264,7 +265,6 @@ void vtkDistanceWidget::MoveAction(vtkAbstractWidget *w)
     }
 
   self->WidgetRep->BuildRepresentation();
-  self->EventCallbackCommand->SetAbortFlag(1);
   self->Render();
 }
 
@@ -281,7 +281,7 @@ void vtkDistanceWidget::EndSelectAction(vtkAbstractWidget *w)
     return;
     }
 
-  self->Interactor->ReleaseFocus();
+  self->ReleaseFocus();
   self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
   self->CurrentHandle = (-1);
   self->WidgetRep->BuildRepresentation();
@@ -292,14 +292,14 @@ void vtkDistanceWidget::EndSelectAction(vtkAbstractWidget *w)
 // These are callbacks that are active when the user is manipulating the
 // handles of the measure widget.
 //----------------------------------------------------------------------
-void vtkDistanceWidget::StartMeasureInteraction(int)
+void vtkDistanceWidget::StartDistanceInteraction(int)
 {
   this->Superclass::StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
 }
 
 //----------------------------------------------------------------------
-void vtkDistanceWidget::MeasureInteraction(int handle)
+void vtkDistanceWidget::DistanceInteraction(int handle)
 {
   double pos[3];
   if ( handle == 0 )
@@ -320,7 +320,7 @@ void vtkDistanceWidget::MeasureInteraction(int handle)
 }
 
 //----------------------------------------------------------------------
-void vtkDistanceWidget::EndMeasureInteraction(int)
+void vtkDistanceWidget::EndDistanceInteraction(int)
 {
   this->Superclass::EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);

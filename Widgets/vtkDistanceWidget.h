@@ -121,14 +121,14 @@ protected:
   // The positioning handle widgets
   vtkHandleWidget *Point1Widget;
   vtkHandleWidget *Point2Widget;
-  vtkDistanceWidgetCallback *MeasureWidgetCallback1;
-  vtkDistanceWidgetCallback *MeasureWidgetCallback2;
+  vtkDistanceWidgetCallback *DistanceWidgetCallback1;
+  vtkDistanceWidgetCallback *DistanceWidgetCallback2;
   
   // Methods invoked when the handles at the
   // end points of the widget are manipulated
-  void StartMeasureInteraction(int handleNum);
-  void MeasureInteraction(int handleNum);
-  void EndMeasureInteraction(int handleNum);
+  void StartDistanceInteraction(int handleNum);
+  void DistanceInteraction(int handleNum);
+  void EndDistanceInteraction(int handleNum);
   
 //BTX
   friend class vtkDistanceWidgetCallback;

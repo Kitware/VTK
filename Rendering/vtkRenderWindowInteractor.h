@@ -41,9 +41,9 @@
 class vtkAbstractPicker;
 class vtkAbstractPropPicker;
 class vtkInteractorObserver;
-class vtkInteractorObserver;
 class vtkRenderWindow;
 class vtkRenderer;
+class vtkObserverMediator;
 
 class VTK_RENDERING_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
@@ -322,6 +322,14 @@ public:
   // renderers.
   virtual vtkRenderer *FindPokedRenderer(int,int);
 
+  // Description:
+  // Return the object used to mediate between vtkInteractorObservers
+  // contending for resources. Multiple interactor observers will often
+  // request different resources (e.g., cursor shape); the mediator uses a
+  // strategy to provide the resource based on priority of the observer plus
+  // the particular request (default versus non-default cursor shape).
+  vtkObserverMediator *GetObserverMediator();
+
 protected:
   vtkRenderWindowInteractor();
   ~vtkRenderWindowInteractor();
@@ -355,6 +363,25 @@ protected:
   int NumberOfFlyFrames;
   double Dolly;
   
+  // Description:
+  // These methods allow the interactor to control which events are
+  // processed.  When the GrabFocus() method is called, then only events that
+  // the supplied vtkCommands have registered are invoked. (This method is
+  // typically used by widgets, i.e., subclasses of vtkInteractorObserver, to
+  // grab events once an event sequence begins.) Note that the friend
+  // declaration is done here to avoid doing so in the superclass vtkObject.
+  //BTX
+  friend vtkInteractorObserver;
+  void GrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=NULL)
+    {this->Superclass::InternalGrabFocus(mouseEvents,keypressEvents);}
+  void ReleaseFocus()
+    {this->Superclass::InternalReleaseFocus();}
+  //ETX
+
+  // Description:
+  // Widget mediators are used to resolve contention for cursors and other resources.
+  vtkObserverMediator *ObserverMediator;
+
 private:
   vtkRenderWindowInteractor(const vtkRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkRenderWindowInteractor&);  // Not implemented.

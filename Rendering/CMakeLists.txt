@@ -79,6 +79,7 @@ vtkMapper.cxx
 vtkMapperCollection.cxx
 vtkMultiGroupPolyDataMapper.cxx
 vtkOBJExporter.cxx
+vtkObserverMediator.cxx
 vtkOOGLExporter.cxx
 vtkPainter.cxx
 vtkPainterDeviceAdapter.cxx

@@ -23,7 +23,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkWindows.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.31");
+vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.32");
 vtkStandardNewMacro(vtkInteractorStyleFlight);
 
 class CPIDControl
@@ -254,7 +254,7 @@ void vtkInteractorStyleFlight::OnLeftButtonDown()
     }
 
   //
-  this->Interactor->GrabFocus(this->EventCallbackCommand);
+  this->GrabFocus(this->EventCallbackCommand);
   vtkCamera* cam = this->CurrentRenderer->GetActiveCamera();
   switch (this->State)
     {
@@ -281,7 +281,7 @@ void vtkInteractorStyleFlight::OnLeftButtonUp()
     }
   if ( this->Interactor )
     {
-    this->Interactor->ReleaseFocus();
+    this->ReleaseFocus();
     }
 }
 
@@ -307,7 +307,7 @@ void vtkInteractorStyleFlight::OnRightButtonDown()
     }
 
   //
-  this->Interactor->GrabFocus(this->EventCallbackCommand);
+  this->GrabFocus(this->EventCallbackCommand);
   vtkCamera* cam = this->CurrentRenderer->GetActiveCamera();
   switch (this->State)
     {
@@ -334,7 +334,7 @@ void vtkInteractorStyleFlight::OnRightButtonUp()
     }
   if ( this->Interactor )
     {
-    this->Interactor->ReleaseFocus();
+    this->ReleaseFocus();
     }
 }
 

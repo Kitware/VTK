@@ -25,7 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.32");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.33");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -78,7 +78,7 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonDown()
     return;
     }
 
-  this->Interactor->GrabFocus(this->EventCallbackCommand);
+  this->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetShiftKey())
     {
     this->StartPan();
@@ -112,7 +112,7 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonUp()
     }
   if ( this->Interactor )
     {
-    this->Interactor->ReleaseFocus();
+    this->ReleaseFocus();
     }
 }
 
@@ -130,7 +130,7 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonDown()
     return;
     }
 
-  this->Interactor->GrabFocus(this->EventCallbackCommand);
+  this->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetControlKey())
     {
     this->StartDolly();
@@ -157,7 +157,7 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonUp()
 
   if ( this->Interactor )
     {
-    this->Interactor->ReleaseFocus();
+    this->ReleaseFocus();
     }
 }
 
@@ -174,7 +174,7 @@ void vtkInteractorStyleJoystickActor::OnRightButtonDown()
     return;
     }
   
-  this->Interactor->GrabFocus(this->EventCallbackCommand);
+  this->GrabFocus(this->EventCallbackCommand);
   this->StartUniformScale();
 }
 
@@ -187,7 +187,7 @@ void vtkInteractorStyleJoystickActor::OnRightButtonUp()
       this->EndUniformScale();
       if ( this->Interactor )
         {
-        this->Interactor->ReleaseFocus();
+        this->ReleaseFocus();
         }
       break;
     }

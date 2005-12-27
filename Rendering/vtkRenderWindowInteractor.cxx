@@ -24,8 +24,9 @@
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkDebugLeaks.h"
+#include "vtkObserverMediator.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.109");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.110");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -70,6 +71,8 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->KeyCode = 0;
   this->RepeatCount = 0;
   this->KeySym = 0;
+
+  this->ObserverMediator = 0;
 }
 
 vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
@@ -86,6 +89,11 @@ vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
     {
     delete [] this->KeySym;
     }
+  if ( this->ObserverMediator)
+    {
+    this->ObserverMediator->Delete();
+    }
+  
   this->SetRenderWindow(0);
 }
 
@@ -355,6 +363,14 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Picker: (none)\n";
     }
+  if ( this->ObserverMediator )
+    {
+    os << indent << "Observer Mediator: " << this->ObserverMediator << "\n";
+    }
+  else
+    {
+    os << indent << "Observer Mediator: (none)\n";
+    }
   os << indent << "LightFollowCamera: " << (this->LightFollowCamera ? "On\n" : "Off\n");
   os << indent << "DesiredUpdateRate: " << this->DesiredUpdateRate << "\n";
   os << indent << "StillUpdateRate: " << this->StillUpdateRate << "\n";
@@ -378,6 +394,7 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RepeatCount: " << this->RepeatCount << "\n";
 }
 
+//----------------------------------------------------------------------------
 void vtkRenderWindowInteractor::Initialize() 
 {
   this->Initialized=1; 
@@ -385,8 +402,27 @@ void vtkRenderWindowInteractor::Initialize()
   this->Render();
 }
 
+//----------------------------------------------------------------------------
 void vtkRenderWindowInteractor::HideCursor() 
-{ this->RenderWindow->HideCursor(); };
+{ 
+  this->RenderWindow->HideCursor(); 
+}
+
+//----------------------------------------------------------------------------
 void vtkRenderWindowInteractor::ShowCursor() 
-{ this->RenderWindow->ShowCursor(); };
+{ 
+  this->RenderWindow->ShowCursor(); 
+}
+
+//----------------------------------------------------------------------------
+vtkObserverMediator *vtkRenderWindowInteractor::GetObserverMediator()
+{
+  if ( !this->ObserverMediator )
+    {
+    this->ObserverMediator = vtkObserverMediator::New();
+    this->ObserverMediator->SetInteractor(this);
+    }
+
+  return this->ObserverMediator;
+}
 

@@ -25,7 +25,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAngleWidget, "1.9");
+vtkCxxRevisionMacro(vtkAngleWidget, "1.10");
 vtkStandardNewMacro(vtkAngleWidget);
 
 
@@ -276,7 +276,7 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
   // If we are placing the first point it's easy
   if ( self->WidgetState == vtkAngleWidget::Start )
     {
-    self->Interactor->GrabFocus(self->EventCallbackCommand);
+    self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkAngleWidget::Define;
     self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
     double e[2];
@@ -313,7 +313,7 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
       self->WidgetState = vtkAngleWidget::Manipulate;
       self->Point2Widget->SetEnabled(1);
       self->CurrentHandle = (-1);
-      self->Interactor->ReleaseFocus();
+      self->ReleaseFocus();
       }
     }
   
@@ -327,7 +327,7 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
       return;
       }
 
-    self->Interactor->GrabFocus(self->EventCallbackCommand);
+    self->GrabFocus(self->EventCallbackCommand);
     if ( state == vtkAngleRepresentation::NearP1 )
       {
       self->CurrentHandle = 0;
@@ -353,9 +353,7 @@ void vtkAngleWidget::MoveAction(vtkAbstractWidget *w)
   vtkAngleWidget *self = reinterpret_cast<vtkAngleWidget*>(w);
 
   // Do nothing if outside
-  if ( self->WidgetState == vtkAngleWidget::Start || 
-       (self->WidgetState == vtkAngleWidget::Manipulate &&
-        self->CurrentHandle < 0 ) )
+  if ( self->WidgetState == vtkAngleWidget::Start )
     {
     return;
     }
@@ -379,6 +377,7 @@ void vtkAngleWidget::MoveAction(vtkAbstractWidget *w)
         WidgetInteraction(e);
       }
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->EventCallbackCommand->SetAbortFlag(1);
     }
 
   else //must be moving a handle, invoke a event for the handle widgets
@@ -387,7 +386,6 @@ void vtkAngleWidget::MoveAction(vtkAbstractWidget *w)
     }
 
   self->WidgetRep->BuildRepresentation();
-  self->EventCallbackCommand->SetAbortFlag(1);
   self->Render();
 }
 
@@ -404,7 +402,7 @@ void vtkAngleWidget::EndSelectAction(vtkAbstractWidget *w)
     return;
     }
 
-  self->Interactor->ReleaseFocus();
+  self->ReleaseFocus();
   self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
   self->CurrentHandle = (-1);
   self->WidgetRep->BuildRepresentation();

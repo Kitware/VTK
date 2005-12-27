@@ -25,7 +25,8 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkHandleWidget, "1.3");
+
+vtkCxxRevisionMacro(vtkHandleWidget, "1.4");
 vtkStandardNewMacro(vtkHandleWidget);
 
 //----------------------------------------------------------------------------------
@@ -78,10 +79,10 @@ void vtkHandleWidget::SetCursor(int cState)
   switch (cState)
     {
     case vtkHandleRepresentation::Outside:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
+      this->RequestCursorShape(VTK_CURSOR_DEFAULT);
       break;
     default:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_HAND);
+      this->RequestCursorShape(VTK_CURSOR_HAND);
     }
 }
 
@@ -99,12 +100,16 @@ void vtkHandleWidget::SelectAction(vtkAbstractWidget *w)
     return;
     }
 
+  // We are definitely selected
+  if ( ! self->Parent )
+    {
+    self->GrabFocus(self->EventCallbackCommand);
+    }
   double eventPos[2];
   eventPos[0] = static_cast<double>(X);
   eventPos[1] = static_cast<double>(Y);
   self->WidgetRep->StartWidgetInteraction(eventPos);
 
-  // We are definitely selected
   self->WidgetState = vtkHandleWidget::Active;
   reinterpret_cast<vtkHandleRepresentation*>(self->WidgetRep)->
     SetInteractionState(vtkHandleRepresentation::Selecting);
@@ -202,6 +207,10 @@ void vtkHandleWidget::EndSelectAction(vtkAbstractWidget *w)
   self->WidgetRep->Highlight(0);
 
   // stop adjusting
+  if ( ! self->Parent )
+    {
+    self->ReleaseFocus();
+    }
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
   self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
@@ -224,7 +233,9 @@ void vtkHandleWidget::MoveAction(vtkAbstractWidget *w)
     int state = self->WidgetRep->GetInteractionState();
     self->WidgetRep->ComputeInteractionState(X, Y);
     self->SetCursor(self->WidgetRep->GetInteractionState());
-    if ( state != self->WidgetRep->GetInteractionState() )
+    // Must rerender if we change appearance
+    if ( reinterpret_cast<vtkHandleRepresentation*>(self->WidgetRep)->GetActiveRepresentation() &&
+         state != self->WidgetRep->GetInteractionState() )
       {
       self->Render();
       }

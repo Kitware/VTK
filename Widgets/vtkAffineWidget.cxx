@@ -25,7 +25,7 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAffineWidget, "1.3");
+vtkCxxRevisionMacro(vtkAffineWidget, "1.4");
 vtkStandardNewMacro(vtkAffineWidget);
 
 //----------------------------------------------------------------------------------
@@ -74,34 +74,34 @@ void vtkAffineWidget::SetCursor(int cState)
   switch (cState)
     {
     case vtkAffineRepresentation::ScaleNE: case vtkAffineRepresentation::ScaleSW:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZESW);
+      this->RequestCursorShape(VTK_CURSOR_SIZESW);
       break;
     case vtkAffineRepresentation::ScaleNW: case vtkAffineRepresentation::ScaleSE:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENW);
+      this->RequestCursorShape(VTK_CURSOR_SIZENW);
       break;
     case vtkAffineRepresentation::ScaleNEdge: case vtkAffineRepresentation::ScaleSEdge:
     case vtkAffineRepresentation::ShearWEdge: case vtkAffineRepresentation::ShearEEdge:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENS);
+      this->RequestCursorShape(VTK_CURSOR_SIZENS);
       break;
     case vtkAffineRepresentation::ScaleWEdge: case vtkAffineRepresentation::ScaleEEdge:
     case vtkAffineRepresentation::ShearNEdge: case vtkAffineRepresentation::ShearSEdge:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZEWE);
+      this->RequestCursorShape(VTK_CURSOR_SIZEWE);
       break;
     case vtkAffineRepresentation::Rotate:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_HAND);
+      this->RequestCursorShape(VTK_CURSOR_HAND);
       break;
     case vtkAffineRepresentation::TranslateX: case vtkAffineRepresentation::MoveOriginX:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZEWE);
+      this->RequestCursorShape(VTK_CURSOR_SIZEWE);
       break;
     case vtkAffineRepresentation::TranslateY: case vtkAffineRepresentation::MoveOriginY:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENS);
+      this->RequestCursorShape(VTK_CURSOR_SIZENS);
       break;
     case vtkAffineRepresentation::Translate: case vtkAffineRepresentation::MoveOrigin:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZEALL);
+      this->RequestCursorShape(VTK_CURSOR_SIZEALL);
       break;
     case vtkAffineRepresentation::Outside:
     default:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
+      this->RequestCursorShape(VTK_CURSOR_DEFAULT);
     }
 }
 
@@ -123,6 +123,7 @@ void vtkAffineWidget::SelectAction(vtkAbstractWidget *w)
     return;
     }
 
+  self->GrabFocus(self->EventCallbackCommand);
   double eventPos[2];
   eventPos[0] = static_cast<double>(X);
   eventPos[1] = static_cast<double>(Y);
@@ -204,6 +205,7 @@ void vtkAffineWidget::EndSelectAction(vtkAbstractWidget *w)
 
   // stop adjusting
   self->EventCallbackCommand->SetAbortFlag(1);
+  self->ReleaseFocus();
   self->EndInteraction();
   self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   self->WidgetState = vtkAffineWidget::Start;

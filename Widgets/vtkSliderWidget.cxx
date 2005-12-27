@@ -24,7 +24,7 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkSliderWidget, "1.5");
+vtkCxxRevisionMacro(vtkSliderWidget, "1.6");
 vtkStandardNewMacro(vtkSliderWidget);
 
 //----------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ void vtkSliderWidget::SelectAction(vtkAbstractWidget *w)
     }
   
   // We are definitely selected
-  self->Interactor->GrabFocus(self->EventCallbackCommand);
+  self->GrabFocus(self->EventCallbackCommand);
   if ( interactionState == vtkSliderRepresentation::Slider )
     {
     self->WidgetState = vtkSliderWidget::Sliding;
@@ -153,7 +153,7 @@ void vtkSliderWidget::EndSelectAction(vtkAbstractWidget *w)
 
   // The state returns to unselected
   self->WidgetState = vtkSliderWidget::Start;
-  self->Interactor->ReleaseFocus();
+  self->ReleaseFocus();
 
   // Complete interaction
   self->EventCallbackCommand->SetAbortFlag(1);
