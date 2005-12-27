@@ -19,7 +19,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.94");
+vtkCxxRevisionMacro(vtkObject, "1.95");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -93,7 +93,7 @@ void vtkObserver::PrintSelf(ostream& os, vtkIndent indent)
 class vtkSubjectHelper
 {
 public:
-  vtkSubjectHelper():ListModified(0),Focus(0),Start(0),Count(1) {}
+  vtkSubjectHelper():ListModified(0),Focus1(0),Focus2(0),Start(0),Count(1) {}
   ~vtkSubjectHelper();
   
   unsigned long AddObserver(unsigned long event, vtkCommand *cmd, float p);
@@ -105,12 +105,15 @@ public:
   unsigned long GetTag(vtkCommand*);
   int HasObserver(unsigned long event);
   int HasObserver(unsigned long event, vtkCommand *cmd);
-  void GrabFocus(vtkCommand *c) {this->Focus = c;}
-  void ReleaseFocus() {this->Focus = NULL;}
+  void GrabFocus(vtkCommand *c1, vtkCommand *c2) {this->Focus1 = c1; this->Focus2 = c2;}
+  void ReleaseFocus() {this->Focus1 = NULL; this->Focus2 = NULL;}
   void PrintSelf(ostream& os, vtkIndent indent);
   
   int         ListModified;
-  vtkCommand *Focus;
+
+  // This is to support the GrabFocus() methods found in vtkInteractorObserver.
+  vtkCommand *Focus1;
+  vtkCommand *Focus2;
 
 protected:
   vtkObserver  *Start;
@@ -243,7 +246,8 @@ vtkSubjectHelper::~vtkSubjectHelper()
     elem = next;
     }
   this->Start = NULL;
-  this->Focus = NULL;
+  this->Focus1 = NULL;
+  this->Focus2 = NULL;
 }
 
 
@@ -461,7 +465,8 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
     next = elem->Next;
     if (!elem->Visited &&
         (elem->Event == event || elem->Event == vtkCommand::AnyEvent) &&
-        (!this->Focus || this->Focus == elem->Command) )
+        (!this->Focus1 || this->Focus1 == elem->Command) && 
+        (!this->Focus2 || this->Focus2 == elem->Command) )
       {
       elem->Visited = 1;
       vtkCommand* command = elem->Command;
@@ -666,16 +671,16 @@ int vtkObject::HasObserver(const char *event, vtkCommand *cmd)
 }
 
 //----------------------------------------------------------------------------
-void vtkObject::GrabFocus(vtkCommand *c)
+void vtkObject::InternalGrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents)
 {
   if (this->SubjectHelper)
     {
-    this->SubjectHelper->GrabFocus(c);
+    this->SubjectHelper->GrabFocus(mouseEvents,keypressEvents);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkObject::ReleaseFocus()
+void vtkObject::InternalReleaseFocus()
 {
   if (this->SubjectHelper)
     {

@@ -160,15 +160,6 @@ public:
   int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, NULL); };
   int InvokeEvent(const char *event) { return this->InvokeEvent(event, NULL); };
   
-  // Description:
-  // These methods allow a particular command to exclusively grab
-  // all events. (This method is typically used by widgets to grab
-  // events once an event sequence begins.)
-  //BTX
-  void GrabFocus(vtkCommand *);
-  void ReleaseFocus();
-  //ETX
-
 protected:
   vtkObject(); 
   virtual ~vtkObject(); 
@@ -180,6 +171,18 @@ protected:
   unsigned char     Debug;      // Enable debug messages
   vtkTimeStamp      MTime;      // Keep track of modification time
   vtkSubjectHelper *SubjectHelper;
+
+  // Description:
+  // These methods allow a command to exclusively grab all events. (This
+  // method is typically used by widgets to grab events once an event
+  // sequence begins.)  These methods are provided in support of the 
+  // public methods found in the class vtkInteractorObserver. Note that
+  // these methods are designed to support vtkInteractorObservers since
+  // they use two separate vtkCommands to watch for mouse and keypress events.
+  //BTX
+  void InternalGrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=NULL);
+  void InternalReleaseFocus();
+  //ETX
 
 private:
   vtkObject(const vtkObject&);  // Not implemented.
