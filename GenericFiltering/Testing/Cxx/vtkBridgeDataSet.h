@@ -40,18 +40,19 @@ public:
   // Set the dataset that will be manipulated through the adaptor interface.
   // \pre ds_exists: ds!=0
   void SetDataSet(vtkDataSet *ds);
+
   // Description:
   // Number of points composing the dataset. See NewPointIterator for more
   // details.
   // \post positive_result: result>=0
-  vtkIdType GetNumberOfPoints();
+  virtual vtkIdType GetNumberOfPoints();
 
   // Description:
   // Number of cells that explicitly define the dataset. See NewCellIterator
   // for more details.
   // \pre valid_dim_range: (dim>=-1) && (dim<=3)
   // \post positive_result: result>=0
-  vtkIdType GetNumberOfCells(int dim=-1);
+  virtual vtkIdType GetNumberOfCells(int dim=-1);
 
   // Description:
   // Return -1 if the dataset is explicitly defined by cells of several
@@ -59,7 +60,7 @@ public:
   // cells of a unique
   // dimension, return this dimension.
   // \post valid_range: (result>=-1) && (result<=3)
-  int GetCellDimension();
+  virtual int GetCellDimension();
   
   // Description:
   // Get a list of types of cells in a dataset. The list consists of an array
