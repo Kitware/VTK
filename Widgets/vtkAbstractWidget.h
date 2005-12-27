@@ -60,7 +60,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Methods for activiating this widget. Note that the widget representation
+  // Methods for activating this widget. Note that the widget representation
   // must be specified or the widget will not appear.
   virtual void SetEnabled(int);
 
