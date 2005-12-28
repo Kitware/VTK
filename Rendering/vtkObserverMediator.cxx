@@ -20,12 +20,14 @@
 #include "vtkInteractorObserver.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkObserverMediator, "1.2");
+vtkCxxRevisionMacro(vtkObserverMediator, "1.3");
 vtkStandardNewMacro(vtkObserverMediator);
 
-// PIMPL the map containing the observer priorities. Note that only observers who are
-// requesting non-default cursors are placed into the map.
-// Comparison functor based on observer priorities.
+// PIMPL the map representing the observer (key) to cursor request
+// (data). Note that only observers who are requesting non-default cursors
+// are placed into the map.
+// Comparison functor based on observer priorities (for the purpose of sorting
+// the cursor request in the map).
 struct vtkObserverCompare
 {
   bool operator()(vtkInteractorObserver* w1, vtkInteractorObserver* w2) const
@@ -115,7 +117,7 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int reques
   if ( ! this->ObserverMap->empty() )
     {
     iter = this->ObserverMap->end();
-    --iter;
+    --iter; //this is the observer with the highest priority
     this->Interactor->GetRenderWindow()->SetCurrentCursor((*iter).second);
     this->CurrentObserver = w;
     this->CurrentCursorShape = (*iter).second;
