@@ -20,7 +20,7 @@
 #include "vtkInteractorObserver.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkObserverMediator, "1.1");
+vtkCxxRevisionMacro(vtkObserverMediator, "1.2");
 vtkStandardNewMacro(vtkObserverMediator);
 
 // PIMPL the map containing the observer priorities. Note that only observers who are
@@ -114,7 +114,7 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int reques
   // Get the item with the highest priority off of the queue
   if ( ! this->ObserverMap->empty() )
     {
-    ObserverMapIterator iter = this->ObserverMap->end();
+    iter = this->ObserverMap->end();
     --iter;
     this->Interactor->GetRenderWindow()->SetCurrentCursor((*iter).second);
     this->CurrentObserver = w;
