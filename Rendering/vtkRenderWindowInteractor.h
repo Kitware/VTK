@@ -371,7 +371,7 @@ protected:
   // grab events once an event sequence begins.) Note that the friend
   // declaration is done here to avoid doing so in the superclass vtkObject.
   //BTX
-  friend vtkInteractorObserver;
+  friend class vtkInteractorObserver;
   void GrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=NULL)
     {this->Superclass::InternalGrabFocus(mouseEvents,keypressEvents);}
   void ReleaseFocus()
