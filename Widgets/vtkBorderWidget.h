@@ -25,7 +25,7 @@
 // The class defines basic positioning functionality, including the ability
 // to size the widget with locked x/y proportions. The area within the border
 // may be made "selectable" as well, meaning that a selection event interior
-// to the widget invokes a virtual SelectRegion()method, which can be used
+// to the widget invokes a virtual SelectRegion() method, which can be used
 // to pick objects or otherwise manipulate data interior to the widget.
 //
 // .SECTION Event Bindings
@@ -38,7 +38,8 @@
 //   MouseMoveEvent - move/resize widget depending on which portion of the
 //                    boundary was selected.
 // On the interior of the widget:
-//   LeftButtonPressEvent - invoke SelectButton() callback
+//   LeftButtonPressEvent - invoke SelectButton() callback (if the ivar
+//                          Selectable is on)
 // Anywhere on the widget:
 //   MiddleButtonPressEvent - move the widget
 // </pre>
@@ -139,8 +140,7 @@ protected:
   enum _WidgetState
   {
     Start=0,
-    Selected,
-    Moving
+    Selected
   };
 //ETX
 

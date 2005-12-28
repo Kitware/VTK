@@ -51,6 +51,8 @@ int TestBorderWidget( int argc, char *argv[] )
   // Create the widget and its representation
   vtkBorderRepresentation *rep = vtkBorderRepresentation::New();
   rep->ProportionalResizeOn();
+  rep->SetShowBorderToOn();
+//  rep->SetShowBorderToActive();
   
   vtkBorderWidget *widget = vtkBorderWidget::New();
   widget->SetInteractor(iren);

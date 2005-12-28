@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkBorderRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkBorderRepresentation, "1.4");
 vtkStandardNewMacro(vtkBorderRepresentation);
 
 
@@ -131,15 +131,19 @@ void vtkBorderRepresentation::WidgetInteraction(double eventPos[2])
   par2[0] = fpos1[0] + fpos2[0];  
   par2[1] = fpos1[1] + fpos2[1];  
     
-  // Based on the state, adjust the representation. Note that we force a
-  // uniform scaling of the widget when tugging on the corner points (and
-  // when proportional resize is on). This is done by finding the maximum
-  // movement in the x-y directions and using this to scale the widget.
+  double c[2]; //the center of the box
+  c[0] = (par2[0] + par1[0]) / 2.0;
+  c[1] = (par2[1] + par1[1]) / 2.0;
+
   double delX = XF - this->StartEventPosition[0];
   double delY = YF - this->StartEventPosition[1];
   double delX2=0.0, delY2=0.0;
 
-  if ( this->ProportionalResize && ! this->Moving )
+  // Based on the state, adjust the representation. Note that we force a
+  // uniform scaling of the widget when tugging on the corner points (and
+  // when proportional resize is on). This is done by finding the maximum
+  // movement in the x-y directions and using this to scale the widget.
+  if ( this->ProportionalResize && !this->Moving )
     {
     double sx = fpos2[0]/fpos2[1];
     double sy = fpos2[1]/fpos2[0];
@@ -162,6 +166,9 @@ void vtkBorderRepresentation::WidgetInteraction(double eventPos[2])
     delY2 = delY;
     }
 
+  // The previous "if" statement has taken care of the proportional resize
+  // for the most part. However, tugging on edges has special behavior, which
+  // is to scale the box about its center.
   switch (this->InteractionState)
     {
     case vtkBorderRepresentation::AdjustingP0:
@@ -182,15 +189,39 @@ void vtkBorderRepresentation::WidgetInteraction(double eventPos[2])
       break;
     case vtkBorderRepresentation::AdjustingE0:
       par1[1] = par1[1] + delY;
+      if ( this->ProportionalResize )
+        {
+        par2[1] = par2[1] - delY;
+        par1[0] = par1[0] + delX;
+        par2[0] = par2[0] - delX;
+        }
       break;
     case vtkBorderRepresentation::AdjustingE1:
       par2[0] = par2[0] + delX;
+      if ( this->ProportionalResize )
+        {
+        par1[0] = par1[0] - delX;
+        par1[1] = par1[1] - delY;
+        par2[1] = par2[1] + delY;
+        }
       break;
     case vtkBorderRepresentation::AdjustingE2:
       par2[1] = par2[1] + delY;
+      if ( this->ProportionalResize )
+        {
+        par1[1] = par1[1] - delY;
+        par1[0] = par1[0] - delX;
+        par2[0] = par2[0] + delX;
+        }
       break;
     case vtkBorderRepresentation::AdjustingE3:
       par1[0] = par1[0] + delX;
+      if ( this->ProportionalResize )
+        {
+        par2[0] = par2[0] - delX;
+        par1[1] = par1[1] + delY;
+        par2[1] = par2[1] - delY;
+        }
       break;
     case vtkBorderRepresentation::Inside:
       if ( this->Moving )
@@ -240,7 +271,8 @@ int vtkBorderRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
     GetComputedDisplayValue(this->Renderer);
 
   // Figure out where we are in the widget. Exclude outside case first.
-  if ( X < pos1[0] || pos2[0] < X || Y < pos1[1] || pos2[1] < Y )
+  if ( X < (pos1[0]-this->Tolerance) || (pos2[0]+this->Tolerance) < X || 
+       Y < (pos1[1]-this->Tolerance) || (pos2[1]+this->Tolerance) < Y )
     {
     if ( this->ShowBorder != BORDER_ON )
       {
@@ -283,28 +315,21 @@ int vtkBorderRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
     // Edges
     else if ( e0 || e1 || e2 || e3 )
       {
-      if ( this->ProportionalResize )
+      if ( e0 )
         {
-        this->InteractionState = vtkBorderRepresentation::Moving;
+        this->InteractionState = vtkBorderRepresentation::AdjustingE0;
         }
-      else
+      else if ( e1 )
         {
-        if ( e0 )
-          {
-          this->InteractionState = vtkBorderRepresentation::AdjustingE0;
-          }
-        else if ( e1 )
-          {
-          this->InteractionState = vtkBorderRepresentation::AdjustingE1;
-          }
-        else if ( e2 )
-          {
-          this->InteractionState = vtkBorderRepresentation::AdjustingE2;
-          }
-        else if ( e3 )
-          {
-          this->InteractionState = vtkBorderRepresentation::AdjustingE3;
-          }
+        this->InteractionState = vtkBorderRepresentation::AdjustingE1;
+        }
+      else if ( e2 )
+        {
+        this->InteractionState = vtkBorderRepresentation::AdjustingE2;
+        }
+      else if ( e3 )
+        {
+        this->InteractionState = vtkBorderRepresentation::AdjustingE3;
         }
       }
 
@@ -377,6 +402,10 @@ void vtkBorderRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 int vtkBorderRepresentation::RenderOverlay(vtkViewport *w)
 {
   this->BuildRepresentation();
+  if ( ! this->BWActor->GetVisibility() )
+    {
+    return 0;
+    }
   return this->BWActor->RenderOverlay(w);
 }
 
@@ -384,6 +413,10 @@ int vtkBorderRepresentation::RenderOverlay(vtkViewport *w)
 int vtkBorderRepresentation::RenderOpaqueGeometry(vtkViewport *w)
 {
   this->BuildRepresentation();
+  if ( ! this->BWActor->GetVisibility() )
+    {
+    return 0;
+    }
   return this->BWActor->RenderOpaqueGeometry(w);
 }
 
@@ -391,6 +424,10 @@ int vtkBorderRepresentation::RenderOpaqueGeometry(vtkViewport *w)
 int vtkBorderRepresentation::RenderTranslucentGeometry(vtkViewport *w)
 {
   this->BuildRepresentation();
+  if ( ! this->BWActor->GetVisibility() )
+    {
+    return 0;
+    }
   return this->BWActor->RenderTranslucentGeometry(w);
 }
 

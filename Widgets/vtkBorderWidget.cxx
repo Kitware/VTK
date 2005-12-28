@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 
 
-vtkCxxRevisionMacro(vtkBorderWidget, "1.5");
+vtkCxxRevisionMacro(vtkBorderWidget, "1.6");
 vtkStandardNewMacro(vtkBorderWidget);
 
 
@@ -119,7 +119,8 @@ void vtkBorderWidget::SelectAction(vtkAbstractWidget *w)
 
   // This is redundant but necessary on some systems (windows) because the
   // cursor is switched during OS event processing and reverts to the default
-  // cursor.
+  // cursor (i.e., the MoveAction may have set the cursor previously, but this
+  // method is necessary to maintain the proper cursor shape)..
   self->SetCursor(self->WidgetRep->GetInteractionState());
 
   // convert to normalized viewport coordinates
@@ -133,7 +134,8 @@ void vtkBorderWidget::SelectAction(vtkAbstractWidget *w)
   eventPos[1] = YF;
   self->WidgetRep->StartWidgetInteraction(eventPos);
 
-  if ( self->WidgetRep->GetInteractionState() == vtkBorderRepresentation::Inside )
+  if ( self->Selectable &&
+       self->WidgetRep->GetInteractionState() == vtkBorderRepresentation::Inside )
     {
     vtkBorderRepresentation *rep = reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep);
     double *fpos1 = rep->GetPositionCoordinate()->GetValue();
@@ -163,7 +165,7 @@ void vtkBorderWidget::TranslateAction(vtkAbstractWidget *w)
   
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
-  self->WidgetState = vtkBorderWidget::Moving;
+  self->WidgetState = vtkBorderWidget::Selected;
   reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep)->MovingOn();
   
   // Picked something inside the widget
@@ -208,22 +210,30 @@ void vtkBorderWidget::MoveAction(vtkAbstractWidget *w)
   // Set the cursor appropriately
   if ( self->WidgetState == vtkBorderWidget::Start )
     {
-    if ( self->WidgetRep->ComputeInteractionState(X, Y) == vtkBorderRepresentation::Inside )
+    int stateBefore = self->WidgetRep->GetInteractionState();
+    self->WidgetRep->ComputeInteractionState(X, Y);
+    int stateAfter = self->WidgetRep->GetInteractionState();
+    self->SetCursor(stateAfter);
+
+    if ( self->Selectable || stateAfter != vtkBorderRepresentation::Inside )
       {
-      if ( self->Selectable )
-        {
-        reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep)->MovingOff();
-        }
-      else
-        {
-        reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep)->MovingOn();
-        }
+      reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep)->MovingOff();
       }
-    self->SetCursor(self->WidgetRep->GetInteractionState());
+    else
+      {
+      reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep)->MovingOn();
+      }
+
+    if ( reinterpret_cast<vtkBorderRepresentation*>(self->WidgetRep)->GetShowBorder() == vtkBorderRepresentation::BORDER_ACTIVE &&
+         stateBefore != stateAfter && 
+         (stateBefore == vtkBorderRepresentation::Outside || stateAfter == vtkBorderRepresentation::Outside) )
+      {
+      self->Render();
+      }
     return;
     }
 
-  // Okay, adjust the representation
+  // Okay, adjust the representation (the widget is currently selected)
   double newEventPosition[2];
   newEventPosition[0] = static_cast<double>(X);
   newEventPosition[1] = static_cast<double>(Y);
