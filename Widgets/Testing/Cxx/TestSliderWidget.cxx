@@ -42,18 +42,18 @@
 
 // This does the actual work: updates the probe.
 // Callback for the interaction
-class vtkSWCallback : public vtkCommand
+class vtkSliderCallback : public vtkCommand
 {
 public:
-  static vtkSWCallback *New() 
-    { return new vtkSWCallback; }
+  static vtkSliderCallback *New() 
+    { return new vtkSliderCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
       vtkSliderWidget *sliderWidget = 
         reinterpret_cast<vtkSliderWidget*>(caller);
       this->Glyph->SetScaleFactor(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
     }
-  vtkSWCallback():Glyph(0) {}
+  vtkSliderCallback():Glyph(0) {}
   vtkGlyph3D *Glyph;
 };
 
@@ -120,7 +120,7 @@ int TestSliderWidget( int argc, char *argv[] )
   sliderWidget->SetAnimationModeToAnimate();
 
 
-  vtkSWCallback *callback = vtkSWCallback::New();
+  vtkSliderCallback *callback = vtkSliderCallback::New();
   callback->Glyph = glyph;
   sliderWidget->AddObserver(vtkCommand::InteractionEvent,callback);
 
