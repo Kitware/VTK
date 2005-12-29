@@ -21,10 +21,11 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkXYPlotWidget, "1.1");
+vtkCxxRevisionMacro(vtkXYPlotWidget, "1.2");
 vtkStandardNewMacro(vtkXYPlotWidget);
 vtkCxxSetObjectMacro(vtkXYPlotWidget, XYPlotActor, vtkXYPlotActor);
 
+//-------------------------------------------------------------------------
 vtkXYPlotWidget::vtkXYPlotWidget()
 {
   this->XYPlotActor = vtkXYPlotActor::New();
@@ -33,6 +34,7 @@ vtkXYPlotWidget::vtkXYPlotWidget()
   this->Priority = 0.55;
 }
 
+//-------------------------------------------------------------------------
 vtkXYPlotWidget::~vtkXYPlotWidget()
 {
   if (this->XYPlotActor)
@@ -41,6 +43,7 @@ vtkXYPlotWidget::~vtkXYPlotWidget()
     }
 }
 
+//-------------------------------------------------------------------------
 void vtkXYPlotWidget::SetEnabled(int enabling)
 {
   if ( ! this->Interactor )
@@ -79,6 +82,8 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
     i->AddObserver(vtkCommand::LeftButtonReleaseEvent, 
                    this->EventCallbackCommand, this->Priority);
 
+    this->ObserverMediator = i->GetObserverMediator();
+
     // Add the xy plot
     this->CurrentRenderer->AddViewProp(this->XYPlotActor);
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
@@ -104,6 +109,7 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
+//-------------------------------------------------------------------------
 void vtkXYPlotWidget::ProcessEvents(vtkObject* vtkNotUsed(object), 
                                        unsigned long event,
                                        void* clientdata, 
@@ -126,7 +132,7 @@ void vtkXYPlotWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
     }
 }
 
-
+//-------------------------------------------------------------------------
 int vtkXYPlotWidget::ComputeStateBasedOnPosition(int X, int Y, 
                                                     int *pos1, int *pos2)
 {
@@ -195,37 +201,38 @@ int vtkXYPlotWidget::ComputeStateBasedOnPosition(int X, int Y,
   return Result;
 }
 
+//-------------------------------------------------------------------------
 void vtkXYPlotWidget::SetCursor(int cState)
 {
   switch (cState)
     {
     case vtkXYPlotWidget::AdjustingP1:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZESW);
+      this->RequestCursorShape(VTK_CURSOR_SIZESW);
       break;
     case vtkXYPlotWidget::AdjustingP3:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENE);
+      this->RequestCursorShape(VTK_CURSOR_SIZENE);
       break;
     case vtkXYPlotWidget::AdjustingP2:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZESE);
+      this->RequestCursorShape(VTK_CURSOR_SIZESE);
       break;
     case vtkXYPlotWidget::AdjustingP4:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENW);
+      this->RequestCursorShape(VTK_CURSOR_SIZENW);
       break;
     case vtkXYPlotWidget::AdjustingE1:
     case vtkXYPlotWidget::AdjustingE3:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZEWE);
+      this->RequestCursorShape(VTK_CURSOR_SIZEWE);
       break;
     case vtkXYPlotWidget::AdjustingE2:
     case vtkXYPlotWidget::AdjustingE4:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENS);
+      this->RequestCursorShape(VTK_CURSOR_SIZENS);
       break;
     case vtkXYPlotWidget::Moving:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZEALL);
+      this->RequestCursorShape(VTK_CURSOR_SIZEALL);
       break;        
     }
 }
 
-
+//-------------------------------------------------------------------------
 void vtkXYPlotWidget::OnLeftButtonDown()
 {
   // We're only here is we are enabled
@@ -263,6 +270,7 @@ void vtkXYPlotWidget::OnLeftButtonDown()
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
 }
 
+//-------------------------------------------------------------------------
 void vtkXYPlotWidget::OnMouseMove()
 {
   // compute some info we need for all cases
@@ -300,7 +308,7 @@ void vtkXYPlotWidget::OnMouseMove()
           Y < pos1[1] || Y > pos2[1])
         {
         this->State = vtkXYPlotWidget::Outside;
-        this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
+        this->RequestCursorShape(VTK_CURSOR_DEFAULT);
         return;
         }
       // adjust the cursor based on our position
@@ -423,6 +431,7 @@ void vtkXYPlotWidget::OnMouseMove()
   this->Interactor->Render();
 }
 
+//-------------------------------------------------------------------------
 void vtkXYPlotWidget::OnLeftButtonUp()
 {
   if (this->State == vtkXYPlotWidget::Outside)
@@ -433,14 +442,13 @@ void vtkXYPlotWidget::OnLeftButtonUp()
   // stop adjusting
   this->State = vtkXYPlotWidget::Outside;
   this->EventCallbackCommand->SetAbortFlag(1);
-  this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
+  this->RequestCursorShape(VTK_CURSOR_DEFAULT);
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   this->Interactor->Render();
 }
 
-
-
+//-------------------------------------------------------------------------
 void vtkXYPlotWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
