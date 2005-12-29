@@ -20,7 +20,7 @@
 #include "vtkInteractorObserver.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkObserverMediator, "1.3");
+vtkCxxRevisionMacro(vtkObserverMediator, "1.4");
 vtkStandardNewMacro(vtkObserverMediator);
 
 // PIMPL the map representing the observer (key) to cursor request
@@ -119,7 +119,7 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int reques
     iter = this->ObserverMap->end();
     --iter; //this is the observer with the highest priority
     this->Interactor->GetRenderWindow()->SetCurrentCursor((*iter).second);
-    this->CurrentObserver = w;
+    this->CurrentObserver = (*iter).first;
     this->CurrentCursorShape = (*iter).second;
     return 1;
     }
