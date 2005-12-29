@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkScalarBarWidget, "1.3");
+vtkCxxRevisionMacro(vtkScalarBarWidget, "1.4");
 vtkStandardNewMacro(vtkScalarBarWidget);
 vtkCxxSetObjectMacro(vtkScalarBarWidget, ScalarBarActor, vtkScalarBarActor);
 
@@ -88,9 +88,6 @@ void vtkScalarBarWidget::SetEnabled(int enabling)
     // Add the scalar bar
     this->CurrentRenderer->AddViewProp(this->ScalarBarActor);
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
-
-    // Get the cursor resource manager
-    this->ObserverMediator = this->Interactor->GetObserverMediator();
     }
   else //disabling------------------------------------------
     {

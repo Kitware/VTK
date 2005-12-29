@@ -42,11 +42,11 @@
 #define __vtkInteractorObserver_h
 
 #include "vtkObject.h"
-#include "vtkObserverMediator.h" //to do an inline method invocation on this class
 
 class vtkRenderWindowInteractor;
 class vtkRenderer;
 class vtkCallbackCommand;
+class vtkObserverMediator;
 
 
 class VTK_RENDERING_EXPORT vtkInteractorObserver : public vtkObject
@@ -208,10 +208,7 @@ protected:
 
   // The mediator used to request resources from the interactor.
   vtkObserverMediator *ObserverMediator;
-  int RequestCursorShape(int requestedShape)
-    {
-      return this->ObserverMediator->RequestCursorShape(this,requestedShape);
-    }
+  int RequestCursorShape(int requestedShape);
 
 private:
   vtkInteractorObserver(const vtkInteractorObserver&);  // Not implemented.
