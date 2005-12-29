@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkBorderRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkBorderRepresentation, "1.5");
 vtkStandardNewMacro(vtkBorderRepresentation);
 
 
@@ -131,10 +131,6 @@ void vtkBorderRepresentation::WidgetInteraction(double eventPos[2])
   par2[0] = fpos1[0] + fpos2[0];  
   par2[1] = fpos1[1] + fpos2[1];  
     
-  double c[2]; //the center of the box
-  c[0] = (par2[0] + par1[0]) / 2.0;
-  c[1] = (par2[1] + par1[1]) / 2.0;
-
   double delX = XF - this->StartEventPosition[0];
   double delY = YF - this->StartEventPosition[1];
   double delX2=0.0, delY2=0.0;
