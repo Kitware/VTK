@@ -21,10 +21,11 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkScalarBarWidget, "1.1");
+vtkCxxRevisionMacro(vtkScalarBarWidget, "1.2");
 vtkStandardNewMacro(vtkScalarBarWidget);
 vtkCxxSetObjectMacro(vtkScalarBarWidget, ScalarBarActor, vtkScalarBarActor);
 
+//-------------------------------------------------------------------------
 vtkScalarBarWidget::vtkScalarBarWidget()
 {
   this->ScalarBarActor = vtkScalarBarActor::New();
@@ -35,11 +36,13 @@ vtkScalarBarWidget::vtkScalarBarWidget()
   this->Priority = 0.55;
 }
 
+//-------------------------------------------------------------------------
 vtkScalarBarWidget::~vtkScalarBarWidget()
 {
   this->SetScalarBarActor(0);
 }
 
+//-------------------------------------------------------------------------
 void vtkScalarBarWidget::SetEnabled(int enabling)
 {
   if ( ! this->Interactor )
@@ -85,6 +88,9 @@ void vtkScalarBarWidget::SetEnabled(int enabling)
     // Add the scalar bar
     this->CurrentRenderer->AddViewProp(this->ScalarBarActor);
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+
+    // Get the cursor resource manager
+    this->ObserverMediator = this->Interactor->GetObserverMediator();
     }
   else //disabling------------------------------------------
     {
@@ -107,6 +113,7 @@ void vtkScalarBarWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
+//-------------------------------------------------------------------------
 void vtkScalarBarWidget::ProcessEvents(vtkObject* vtkNotUsed(object), 
                                        unsigned long event,
                                        void* clientdata, 
@@ -135,7 +142,7 @@ void vtkScalarBarWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
     }
 }
 
-
+//-------------------------------------------------------------------------
 int vtkScalarBarWidget::ComputeStateBasedOnPosition(int X, int Y, 
                                                     int *pos1, int *pos2)
 {
@@ -204,37 +211,38 @@ int vtkScalarBarWidget::ComputeStateBasedOnPosition(int X, int Y,
   return Result;
 }
 
+//-------------------------------------------------------------------------
 void vtkScalarBarWidget::SetCursor(int cState)
 {
   switch (cState)
     {
     case vtkScalarBarWidget::AdjustingP1:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZESW);
+      this->RequestCursorShape(VTK_CURSOR_SIZESW);
       break;
     case vtkScalarBarWidget::AdjustingP3:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENE);
+      this->RequestCursorShape(VTK_CURSOR_SIZENE);
       break;
     case vtkScalarBarWidget::AdjustingP2:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZESE);
+      this->RequestCursorShape(VTK_CURSOR_SIZESE);
       break;
     case vtkScalarBarWidget::AdjustingP4:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENW);
+      this->RequestCursorShape(VTK_CURSOR_SIZENW);
       break;
     case vtkScalarBarWidget::AdjustingE1:
     case vtkScalarBarWidget::AdjustingE3:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZEWE);
+      this->RequestCursorShape(VTK_CURSOR_SIZEWE);
       break;
     case vtkScalarBarWidget::AdjustingE2:
     case vtkScalarBarWidget::AdjustingE4:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENS);
+      this->RequestCursorShape(VTK_CURSOR_SIZENS);
       break;
     case vtkScalarBarWidget::Moving:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZEALL);
+      this->RequestCursorShape(VTK_CURSOR_SIZEALL);
       break;        
     }
 }
 
-
+//-------------------------------------------------------------------------
 void vtkScalarBarWidget::OnLeftButtonDown()
 {
   // We're only here is we are enabled
@@ -273,13 +281,13 @@ void vtkScalarBarWidget::OnLeftButtonDown()
   this->LeftButtonDown = 1;
 }
 
+//-------------------------------------------------------------------------
 void vtkScalarBarWidget::OnMouseMove()
 {
   // compute some info we need for all cases
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
-  
   // compute the display bounds of the scalar bar if we are inside or outside
   int *pos1, *pos2;
   if (this->State == vtkScalarBarWidget::Outside ||
@@ -296,6 +304,7 @@ void vtkScalarBarWidget::OnMouseMove()
       if (X < pos1[0] || X > pos2[0] ||
           Y < pos1[1] || Y > pos2[1])
         {
+        this->RequestCursorShape(VTK_CURSOR_DEFAULT);
         return;
         }
       // otherwise change our state to inside
@@ -310,11 +319,12 @@ void vtkScalarBarWidget::OnMouseMove()
           Y < pos1[1] || Y > pos2[1])
         {
         this->State = vtkScalarBarWidget::Outside;
-        this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
+        this->RequestCursorShape(VTK_CURSOR_DEFAULT);
         return;
         }
       // adjust the cursor based on our position
       this->SetCursor(this->ComputeStateBasedOnPosition(X,Y,pos1,pos2));
+      "bad return\n";
       return;
       }
     }
@@ -433,6 +443,7 @@ void vtkScalarBarWidget::OnMouseMove()
   this->Interactor->Render();
 }
 
+//-------------------------------------------------------------------------
 void vtkScalarBarWidget::OnLeftButtonUp()
 {
   if (this->State == vtkScalarBarWidget::Outside || this->LeftButtonDown == 0)
@@ -443,12 +454,13 @@ void vtkScalarBarWidget::OnLeftButtonUp()
   // stop adjusting
   this->State = vtkScalarBarWidget::Outside;
   this->EventCallbackCommand->SetAbortFlag(1);
-  this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
+  this->RequestCursorShape(VTK_CURSOR_DEFAULT);
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   this->LeftButtonDown = 0;
 }
 
+//-------------------------------------------------------------------------
 void vtkScalarBarWidget::OnRightButtonDown()
 {
 
@@ -466,11 +478,13 @@ void vtkScalarBarWidget::OnRightButtonDown()
   RightButtonDown = 1;
 }
 
+//-------------------------------------------------------------------------
 void vtkScalarBarWidget::OnRightButtonUp()
 {
-  if (RightButtonDown == 0) {
+  if ( this->RightButtonDown == 0 ) 
+    {
     return;
-  }
+    }
 
   if (this->HasObserver(vtkCommand::RightButtonReleaseEvent)) 
     {
@@ -480,6 +494,7 @@ void vtkScalarBarWidget::OnRightButtonUp()
   this->RightButtonDown = 0;
 }
 
+//-------------------------------------------------------------------------
 void vtkScalarBarWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
