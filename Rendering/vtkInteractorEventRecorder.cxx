@@ -17,11 +17,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.9");
+vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.10");
 vtkStandardNewMacro(vtkInteractorEventRecorder);
 
 float vtkInteractorEventRecorder::StreamVersion = 1.0;
 
+//----------------------------------------------------------------------------
 vtkInteractorEventRecorder::vtkInteractorEventRecorder()
 {
   //take over the processing of delete and keypress events from the superclass
@@ -42,6 +43,7 @@ vtkInteractorEventRecorder::vtkInteractorEventRecorder()
   this->InputString = NULL;
 }
 
+//----------------------------------------------------------------------------
 vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
 {
   this->SetInteractor(0);
@@ -70,6 +72,7 @@ vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::SetEnabled(int enabling)
 {
   if ( ! this->Interactor )
@@ -115,6 +118,7 @@ void vtkInteractorEventRecorder::SetEnabled(int enabling)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::Record()
 {
   if ( this->State == vtkInteractorEventRecorder::Start )
@@ -137,6 +141,7 @@ void vtkInteractorEventRecorder::Record()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::Play()
 {
   if ( this->State == vtkInteractorEventRecorder::Start )
@@ -239,6 +244,7 @@ void vtkInteractorEventRecorder::Play()
   this->State = vtkInteractorEventRecorder::Start;
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::Stop()
 {
   this->State = vtkInteractorEventRecorder::Start;
@@ -255,6 +261,7 @@ void vtkInteractorEventRecorder::Rewind()
  this->InputStream->seekg(0);
 }
 
+//----------------------------------------------------------------------------
 // This adds the keypress event observer and the delete event observer
 void vtkInteractorEventRecorder::SetInteractor(vtkRenderWindowInteractor* i)
 {
@@ -284,6 +291,7 @@ void vtkInteractorEventRecorder::SetInteractor(vtkRenderWindowInteractor* i)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::ProcessCharEvent(vtkObject* object, 
                                                   unsigned long event,
                                                   void* clientData, 
@@ -319,6 +327,7 @@ void vtkInteractorEventRecorder::ProcessCharEvent(vtkObject* object,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::ProcessEvents(vtkObject* object, 
                                                unsigned long event,
                                                void* clientData, 
@@ -347,6 +356,7 @@ void vtkInteractorEventRecorder::ProcessEvents(vtkObject* object,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::WriteEvent(const char* event, int pos[2], 
                                             int ctrlKey, int shiftKey, 
                                             int keyCode, int repeatCount,
@@ -365,10 +375,12 @@ void vtkInteractorEventRecorder::WriteEvent(const char* event, int pos[2],
     }
 }
   
+//----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::ReadEvent()
 {
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
