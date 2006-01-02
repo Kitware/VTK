@@ -25,7 +25,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeSurfaceFilter, "1.2");
+vtkCxxRevisionMacro(vtkHyperOctreeSurfaceFilter, "1.3");
 vtkStandardNewMacro(vtkHyperOctreeSurfaceFilter);
 
 // merging: locator
@@ -80,8 +80,8 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
     this->Locator->InitPointInsertion (this->OutPts, input->GetBounds());
     }
   
-  vtkIdType numCells=input->GetNumberOfCells();
-  this->InputCD = input->GetPointData();
+  vtkIdType numCells=input->GetNumberOfLeaves();
+  this->InputCD = input->GetLeafData();
   this->OutputCD = output->GetCellData();
   this->OutputCD->CopyAllocate(this->InputCD,numCells,numCells/2);
   

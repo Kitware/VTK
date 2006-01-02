@@ -31,7 +31,6 @@
 #include "vtkVoxel.h"
 #include "vtkGenericCell.h"
 #include "vtkPoints.h"
-#include "vtkIntArray.h"
 #include "vtkHyperOctreePointsGrabber.h"
 #include "vtkIdTypeArray.h"
 #include "vtkCellLinks.h"
@@ -112,7 +111,7 @@ void vtkHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.9");
+vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.10");
 
 template<unsigned int D> class vtkCompactHyperOctree;
 template<unsigned int D> class vtkCompactHyperOctreeNode;
@@ -515,13 +514,13 @@ private:
   void operator=(const vtkCompactHyperOctreeCursor<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.9");
+// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.10");
 template<unsigned int D>
 void vtkCompactHyperOctreeCursor<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.9" << '\n';
+  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.10" << '\n';
 }
   
 
@@ -653,7 +652,7 @@ protected:
   int Children[1<<D]; // indices
 };
 
-//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.9");
+//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.10");
 
 template<unsigned int D> class vtkCompactHyperOctree
   : public vtkHyperOctreeInternal
@@ -958,13 +957,13 @@ private:
   void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.9");
+// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.10");
 template<unsigned int D>
 void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctree<" << D <<"> " << "1.9" << '\n';
+  os << "vtkCompactHyperOctree<" << D <<"> " << "1.10" << '\n';
 }
   
 
@@ -972,7 +971,7 @@ void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 // quadtree: vtkHyperOctreeInternal<2>
 // bittree: vtkHyperOctreeInternal<1>
 
-vtkCxxRevisionMacro(vtkHyperOctree, "1.9");
+vtkCxxRevisionMacro(vtkHyperOctree, "1.10");
 vtkStandardNewMacro(vtkHyperOctree);
 
 //-----------------------------------------------------------------------------
@@ -2090,7 +2089,7 @@ vtkIdType vtkHyperOctree::GetNumberOfCells()
 {
   if (this->DualGridFlag)
     {
-    vtkIntArray* cornerLeafIds = this->GetCornerLeafIds();
+    vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
     return cornerLeafIds->GetNumberOfTuples();
     }
   else
@@ -2191,7 +2190,7 @@ vtkCell *vtkHyperOctree::GetCell(vtkIdType cellId)
 
   if (this->DualGridFlag)
     {
-    vtkIntArray* cornerLeafIds = this->GetCornerLeafIds();
+    vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
     assert("Index out of bounds." && 
            cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples());
     vtkPoints* leafCenters = this->GetLeafCenters();
@@ -2254,7 +2253,7 @@ void vtkHyperOctree::GetCell(vtkIdType cellId,
 
   if (this->DualGridFlag)
     {
-    vtkIntArray* cornerLeafIds = this->GetCornerLeafIds();
+    vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
     assert("Index out of bounds." && 
            cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples());
     vtkPoints* leafCenters = this->GetLeafCenters();
@@ -2326,7 +2325,7 @@ void vtkHyperOctree::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 
   if (this->DualGridFlag)
     {
-    vtkIntArray* cornerLeafIds = this->GetCornerLeafIds();
+    vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
     assert("Index out of bounds." && 
            cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples());
     int* ptr = cornerLeafIds->GetPointer(0) + cellId*numPts;  
@@ -2347,6 +2346,20 @@ void vtkHyperOctree::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
       }
     }
 }
+
+//----------------------------------------------------------------------------
+// Return a pointer to a list of point ids defining cell. (More efficient than alternative
+// method.)
+void vtkHyperOctree::GetCellPoints(vtkIdType cellId, vtkIdType& npts,
+                                        vtkIdType* &pts)
+{
+  vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
+  assert("Index out of bounds." && 
+         cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples());
+  npts = 1 << this->GetDimension();
+  pts = cornerLeafIds->GetPointer(0) + cellId*npts; 
+}
+
 
 //-----------------------------------------------------------------------------
 void vtkHyperOctree::GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
@@ -2383,73 +2396,197 @@ void vtkHyperOctree::BuildLinks()
 
   
 //-----------------------------------------------------------------------------
-// Description:
-// Topological inquiry to get all cells using list of points exclusive of
-// cell specified (e.g., cellId). Note that the list consists of only
-// cells that use ALL the points provided.
-// THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
-// THE DATASET IS NOT MODIFIED
-void vtkHyperOctree::GetCellNeighbors(vtkIdType vtkNotUsed(cellId),
-                                      vtkIdList *vtkNotUsed(ptIds), 
-                                      vtkIdList *vtkNotUsed(cellIds))
+// This is exactly the same as GetCellNeighbors in unstructured grid.
+void vtkHyperOctree::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
+                                           vtkIdList *cellIds)
 {
-  assert("check: TODO" && 0);
+  int i, j, k;
+  int numPts, minNumCells, numCells;
+  vtkIdType *pts, ptId, *cellPts, *cells;
+  vtkIdType *minCells = NULL;
+  int match;
+  vtkIdType minPtId = 0, npts;
+
+  if ( ! this->Links )
+    {
+    this->BuildLinks();
+    }
+
+  cellIds->Reset();
+
+  //Find the point used by the fewest number of cells
+  //
+  numPts = ptIds->GetNumberOfIds();
+  pts = ptIds->GetPointer(0);
+  for (minNumCells=VTK_LARGE_INTEGER,i=0; i<numPts; i++)
+    {
+    ptId = pts[i];
+    numCells = this->Links->GetNcells(ptId);
+    cells = this->Links->GetCells(ptId);
+    if ( numCells < minNumCells )
+      {
+      minNumCells = numCells;
+      minCells = cells;
+      minPtId = ptId;
+      }
+    }
+
+  if (minNumCells == VTK_LARGE_INTEGER && numPts == 0) {
+    vtkErrorMacro("input point ids empty.");
+    minNumCells = 0;
+  }
+  //Now for each cell, see if it contains all the points
+  //in the ptIds list.
+  for (i=0; i<minNumCells; i++)
+    {
+    if ( minCells[i] != cellId ) //don't include current cell
+      {
+      this->GetCellPoints(minCells[i],npts,cellPts);
+      for (match=1, j=0; j<numPts && match; j++) //for all pts in input cell
+        {
+        if ( pts[j] != minPtId ) //of course minPtId is contained by cell
+          {
+          for (match=k=0; k<npts; k++) //for all points in candidate cell
+            {
+            if ( pts[j] == cellPts[k] )
+              {
+              match = 1; //a match was found
+              break;
+              }
+            }//for all points in current cell
+          }//if not guaranteed match
+        }//for all points in input cell
+      if ( match )
+        {
+        cellIds->InsertNextId(minCells[i]);
+        }
+      }//if not the reference cell
+    }//for all candidate cells attached to point
 }
 
 
+//----------------------------------------------------------------------------
+// Note: This only works for dual grid.  I expecte to get rid of the
+// grid API, so it will not make a difference.
+// Note: This always returns the closest point, even if the point is outside
+// tree.
+// Since dual points are leaves, use the structure of the octree instead
+// of a point locator.
 vtkIdType vtkHyperOctree::FindPoint(double x[3])
 {
-  (void)x;
-  assert("check: TODO" && 0);
-  return 0;
+  vtkHyperOctreeLightWeightCursor cursor;
+  cursor.Initialize(this);
+  return this->RecursiveFindPoint(x, &cursor, this->Origin, this->Size);
+}
+  
+//----------------------------------------------------------------------------
+vtkIdType vtkHyperOctree::RecursiveFindPoint(double x[3], 
+  vtkHyperOctreeLightWeightCursor* cursor, 
+  double *origin, double *size)
+{
+  if ( cursor->GetIsLeaf())
+    {
+    return cursor->GetLeafIndex();
+    }
+  
+  vtkHyperOctreeLightWeightCursor newCursor;
+  newCursor = *cursor;
+  double newSize[3];
+  double newOrigin[3];
+  int ii;
+  unsigned char child = 0;
+  for (ii = 0; ii < 3; ++ii)
+    {
+    newSize[ii] = size[ii] * 0.5;
+    newOrigin[ii] = origin[ii];
+    if (x[ii] >= origin[ii] + newSize[ii])
+      {
+      child = child | (1 << ii);
+      newOrigin[ii] += newSize[ii];
+      }
+    }
+  newCursor.ToChild(child);
+
+  return this->RecursiveFindPoint(x, &newCursor, newOrigin, newSize); 
 }
 
-//-----------------------------------------------------------------------------
-// Description:
-// Locate cell based on global coordinate x and tolerance
-// squared. If cell and cellId is non-NULL, then search starts from
-// this cell and looks at immediate neighbors.  Returns cellId >= 0
-// if inside, < 0 otherwise.  The parametric coordinates are
-// provided in pcoords[3]. The interpolation weights are returned in
-// weights[]. (The number of weights is equal to the number of
-// points in the found cell). Tolerance is used to control how close
-// the point is to be considered "in" the cell.
-// THIS METHOD IS NOT THREAD SAFE.
-vtkIdType vtkHyperOctree::FindCell(double x[3],
-                                   vtkCell *vtkNotUsed(cell),
-                                   vtkIdType vtkNotUsed(cellId),
-                                   double vtkNotUsed(tol2),
-                                   int& vtkNotUsed(subId),
-                                   double pcoords[3],
-                                   double *vtkNotUsed(weights))
+//----------------------------------------------------------------------------
+// No need for a starting cell.  Just use the point.  
+// Octree is efficient enough.
+vtkIdType vtkHyperOctree::FindCell(double x[3], vtkCell* cell,
+                                vtkGenericCell *gencell, vtkIdType cellId,
+                                double tol2, int& subId, double pcoords[3],
+                                double *weights)
 {
-  (void)x;
-  (void)pcoords;
-  assert("check: TODO" && 0);
-  return 0;
+  vtkIdType       ptId;
+  double          closestPoint[3];
+  double          dist2;
+  vtkIdList       *cellIds;
+
+  ptId = this->FindPoint(x);
+  if ( ptId < 0 )
+    {
+    return (-1); //if point completely outside of data
+    }
+
+  cellIds = vtkIdList::New();
+  cellIds->Allocate(8,100);
+  this->GetPointCells(ptId, cellIds);
+  if ( cellIds->GetNumberOfIds() <= 0 )
+    {
+    cellIds->Delete();
+    return -1;
+    } 
+
+  int ii, num;
+  num = cellIds->GetNumberOfIds();
+  for (ii = 0; ii < num; ++ii)
+    { 
+    cellId = cellIds->GetId(ii);
+    if ( gencell )
+      {
+      this->GetCell(cellId, gencell);
+      }
+    else
+      {
+      cell = this->GetCell(cellId);
+      }
+
+    // See whether this cell contains the point      
+    double dx[3];
+    dx[0] = x[0];
+    dx[1] = x[1];
+    dx[2] = x[2];
+    if ( ( gencell && 
+           gencell->EvaluatePosition(dx,closestPoint,subId,
+                                     pcoords, dist2,weights) == 1
+           && dist2 <= tol2 )  ||
+         ( !gencell && 
+           cell->EvaluatePosition(dx,closestPoint,subId,
+                                  pcoords, dist2,weights) == 1
+           && dist2 <= tol2 ) )
+      {
+      cellIds->Delete();
+      return cellId;
+      }
+    }
+
+  // This should never happen.
+  vtkErrorMacro("Could not find cell.");
+  return -1;
 }
 
-//-----------------------------------------------------------------------------
-// Description:
-// This is a version of the above method that can be used with 
-// multithreaded applications. A vtkGenericCell must be passed in
-// to be used in internal calls that might be made to GetCell()
-// THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
-// THE DATASET IS NOT MODIFIED
-vtkIdType vtkHyperOctree::FindCell(double x[3],
-                                   vtkCell *vtkNotUsed(cell),
-                                   vtkGenericCell *vtkNotUsed(gencell),
-                                   vtkIdType vtkNotUsed(cellId),
-                                   double vtkNotUsed(tol2),
-                                   int& vtkNotUsed(subId),
-                                   double pcoords[3],
-                                   double *vtkNotUsed(weights))
+
+//----------------------------------------------------------------------------
+vtkIdType vtkHyperOctree::FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
+                               double tol2, int& subId,double pcoords[3],
+                               double *weights)
 {
-  (void)x;
-  (void)pcoords;
-  assert("check: TODO" && 0);
-  return 0;
+  return
+    this->FindCell( x, cell, NULL, cellId, tol2, subId, pcoords, weights );
 }
+
+
 
 //-----------------------------------------------------------------------------
 // Generic way to set the leaf data attributes.
@@ -2533,7 +2670,7 @@ vtkPoints* vtkHyperOctree::GetLeafCenters()
 }
 
 //-----------------------------------------------------------------------------
-vtkIntArray* vtkHyperOctree::GetCornerLeafIds()
+vtkIdTypeArray* vtkHyperOctree::GetCornerLeafIds()
 {
   this->UpdateDualArrays();
   return this->CornerLeafIds;
@@ -2560,7 +2697,7 @@ void vtkHyperOctree::UpdateDualArrays()
   this->LeafCenters = vtkPoints::New();
   this->LeafCenters->SetNumberOfPoints(this->CellTree->GetNumberOfLeaves());
 
-  this->CornerLeafIds = vtkIntArray::New();
+  this->CornerLeafIds = vtkIdTypeArray::New();
   int dim = this->GetDimension();
   int numComps = 1 << dim;
   this->CornerLeafIds->SetNumberOfComponents(numComps);

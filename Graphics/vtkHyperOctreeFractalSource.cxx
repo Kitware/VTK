@@ -27,7 +27,7 @@
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeFractalSource, "1.4");
+vtkCxxRevisionMacro(vtkHyperOctreeFractalSource, "1.5");
 vtkStandardNewMacro(vtkHyperOctreeFractalSource);
 
 //----------------------------------------------------------------------------
@@ -98,7 +98,17 @@ int vtkHyperOctreeFractalSource::GetMaximumLevel()
 // \post min_is_valid: this->GetMinLevels()<this->GetLevels()
 void vtkHyperOctreeFractalSource::SetMaximumLevel(int levels)
 {
-  assert("pre: positive_levels" && levels>=1);
+  if (levels < 1)
+    {
+    levels = 1;
+    }
+    
+  if (this->MaximumLevel == levels)
+    {
+    return;
+    }
+
+  this->Modified();
   this->MaximumLevel=levels;
   if(this->MinimumLevel>levels)
     {
@@ -127,9 +137,17 @@ int vtkHyperOctreeFractalSource::GetMinimumLevel()
 // \post is_set: this->GetMinLevels()==minLevels
 void vtkHyperOctreeFractalSource::SetMinimumLevel(int minLevels)
 {
-  // Could not set minimum first.
-  //assert("pre: positive_minLevels" && minLevels>=0 && 
-  //       minLevels<this->GetMaximumLevel());
+  if (minLevels < 1)
+    {
+    minLevels = 1;
+    }
+
+  if (this->MinimumLevel == minLevels)
+    {
+    return;
+    }
+
+  this->Modified();
   this->MinimumLevel = minLevels;
   assert("post: is_set" && this->GetMinimumLevel()==minLevels);
 }

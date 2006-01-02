@@ -119,9 +119,9 @@ class vtkHyperOctreePointsGrabber;
 
 class vtkHyperOctreeIdSet; // Pimpl idiom
 class vtkPolygon;
-class vtkIntArray;
 class vtkIdTypeArray;
 class vtkPoints;
+class vtkPointLocator;
 class vtkOrderedTriangulator;
 class vtkDataSetAttributes;
 
@@ -300,6 +300,8 @@ public:
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
   virtual void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds);
+  virtual void GetCellPoints(vtkIdType cellId, vtkIdType& npts,
+                             vtkIdType* &pts);
 
   // Description:
   // Topological inquiry to get cells using point.
@@ -491,9 +493,9 @@ protected:
   // Initialize the arrays if necessary, then return it.
   void UpdateDualArrays();
   vtkPoints* GetLeafCenters();
-  vtkIntArray* GetCornerLeafIds();
+  vtkIdTypeArray* GetCornerLeafIds();
   vtkPoints *LeafCenters;
-  vtkIntArray *CornerLeafIds;
+  vtkIdTypeArray *CornerLeafIds;
   
   void UpdateGridArrays();
   vtkPoints* GetCornerPoints();
@@ -528,6 +530,10 @@ protected:
 
   vtkCellLinks* Links;  
   void BuildLinks();
+
+  vtkIdType RecursiveFindPoint(double x[3], 
+    vtkHyperOctreeLightWeightCursor* cursor, 
+    double *origin, double *size);
 
   // This toggles the data set API between the leaf cells and
   // the dual grid (leaves are points, corners are cells). 
