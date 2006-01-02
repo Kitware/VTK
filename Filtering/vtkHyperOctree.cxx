@@ -111,7 +111,7 @@ void vtkHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.12");
+vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.13");
 
 template<unsigned int D> class vtkCompactHyperOctree;
 template<unsigned int D> class vtkCompactHyperOctreeNode;
@@ -514,13 +514,13 @@ private:
   void operator=(const vtkCompactHyperOctreeCursor<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.12");
+// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.13");
 template<unsigned int D>
 void vtkCompactHyperOctreeCursor<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.12" << '\n';
+  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.13" << '\n';
 }
   
 
@@ -652,7 +652,7 @@ protected:
   int Children[1<<D]; // indices
 };
 
-//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.12");
+//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.13");
 
 template<unsigned int D> class vtkCompactHyperOctree
   : public vtkHyperOctreeInternal
@@ -957,13 +957,13 @@ private:
   void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.12");
+// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.13");
 template<unsigned int D>
 void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctree<" << D <<"> " << "1.12" << '\n';
+  os << "vtkCompactHyperOctree<" << D <<"> " << "1.13" << '\n';
 }
   
 
@@ -971,7 +971,7 @@ void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 // quadtree: vtkHyperOctreeInternal<2>
 // bittree: vtkHyperOctreeInternal<1>
 
-vtkCxxRevisionMacro(vtkHyperOctree, "1.12");
+vtkCxxRevisionMacro(vtkHyperOctree, "1.13");
 vtkStandardNewMacro(vtkHyperOctree);
 
 //-----------------------------------------------------------------------------
@@ -3356,7 +3356,14 @@ void vtkHyperOctree::TraverseDualRecursively(
   unsigned char divide = 0;
   unsigned char childrenToTraverse[8];
   memset(childrenToTraverse,0,8);
-
+  static int debugStackOverflow = 0;
+  
+  if (debugStackOverflow < level)
+    {
+    debugStackOverflow = level;
+    cout << "Maximum recursion depth " << level << endl;
+    }
+  
   if ( ! neighborhood[0].GetIsLeaf())
     { // Main cursor is a node.  Traverse all children.
     divide = 1;
