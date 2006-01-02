@@ -111,7 +111,7 @@ void vtkHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.10");
+vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.11");
 
 template<unsigned int D> class vtkCompactHyperOctree;
 template<unsigned int D> class vtkCompactHyperOctreeNode;
@@ -514,13 +514,13 @@ private:
   void operator=(const vtkCompactHyperOctreeCursor<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.10");
+// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.11");
 template<unsigned int D>
 void vtkCompactHyperOctreeCursor<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.10" << '\n';
+  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.11" << '\n';
 }
   
 
@@ -652,7 +652,7 @@ protected:
   int Children[1<<D]; // indices
 };
 
-//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.10");
+//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.11");
 
 template<unsigned int D> class vtkCompactHyperOctree
   : public vtkHyperOctreeInternal
@@ -957,13 +957,13 @@ private:
   void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.10");
+// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.11");
 template<unsigned int D>
 void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctree<" << D <<"> " << "1.10" << '\n';
+  os << "vtkCompactHyperOctree<" << D <<"> " << "1.11" << '\n';
 }
   
 
@@ -971,7 +971,7 @@ void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 // quadtree: vtkHyperOctreeInternal<2>
 // bittree: vtkHyperOctreeInternal<1>
 
-vtkCxxRevisionMacro(vtkHyperOctree, "1.10");
+vtkCxxRevisionMacro(vtkHyperOctree, "1.11");
 vtkStandardNewMacro(vtkHyperOctree);
 
 //-----------------------------------------------------------------------------
@@ -2869,6 +2869,8 @@ void vtkHyperOctree::UpdateGridArrays()
   double size[3];
   this->GetOrigin(origin);
   this->GetSize(size);
+  // Normal grid API (leaves as hex cells) will be removed soon.
+  vtkErrorMacro("This should never happen because I am removing this code soon.\n");
   this->TraverseGridRecursively(neighborhood, leafMask, origin, size);
 
   delete [] leafMask;
@@ -3351,7 +3353,7 @@ void vtkHyperOctree::TraverseDualRecursively(
   vtkHyperOctreeLightWeightCursor* neighborhood,
   unsigned short *xyzIds, int level)
 {
-  int divide = 0;
+  unsigned char divide = 0;
   unsigned char childrenToTraverse[8];
   memset(childrenToTraverse,0,8);
 
@@ -3455,9 +3457,9 @@ void vtkHyperOctree::TraverseDualRecursively(
   
   if (divide)
     {    
-    int numChildren = 1 << this->Dimension;
-    int child;
-    int neighbor;
+    unsigned char numChildren = 1 << this->Dimension;
+    unsigned char child;
+    unsigned char neighbor;
     unsigned char tChild, tParent;
     unsigned char* traversalTable = this->NeighborhoodTraversalTable;
     vtkHyperOctreeLightWeightCursor newNeighborhood[8];
@@ -3519,10 +3521,10 @@ void vtkHyperOctree::TraverseDualRecursively(
 void vtkHyperOctree::EvaluateDualCorner(
   vtkHyperOctreeLightWeightCursor* neighborhood)
 {
-  int numCorners = 1 << this->GetDimension();
-  int corner;
+  unsigned char numCorners = 1 << this->GetDimension();
+  unsigned char corner;
   // We will not use all of these components if dim < 3.
-  int leaves[8];
+  vtkIdType leaves[8];
   
   for (corner = 0; corner < numCorners; ++corner)
     {
