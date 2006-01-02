@@ -15,8 +15,8 @@
 #include "vtkTIFFReader.h"
 
 #include "vtkImageData.h"
+#include "vtkPointData.h"
 #include "vtkObjectFactory.h"
-#include "vtkToolkits.h"
 
 #include <sys/stat.h>
 
@@ -26,7 +26,7 @@ extern "C" {
 
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader);
-vtkCxxRevisionMacro(vtkTIFFReader, "1.51");
+vtkCxxRevisionMacro(vtkTIFFReader, "1.52");
 
 class vtkTIFFReaderInternal
 {
@@ -303,6 +303,7 @@ void vtkTIFFReader::ExecuteData(vtkDataObject *output)
     default:
       vtkErrorMacro("UpdateFromFile: Unknown data type");
     }
+  data->GetPointData()->GetScalars()->SetName("Tiff Scalars");
 }
 
 //----------------------------------------------------------------------------
