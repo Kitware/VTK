@@ -111,7 +111,7 @@ void vtkHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.11");
+vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.12");
 
 template<unsigned int D> class vtkCompactHyperOctree;
 template<unsigned int D> class vtkCompactHyperOctreeNode;
@@ -514,13 +514,13 @@ private:
   void operator=(const vtkCompactHyperOctreeCursor<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.11");
+// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.12");
 template<unsigned int D>
 void vtkCompactHyperOctreeCursor<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.11" << '\n';
+  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.12" << '\n';
 }
   
 
@@ -652,7 +652,7 @@ protected:
   int Children[1<<D]; // indices
 };
 
-//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.11");
+//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.12");
 
 template<unsigned int D> class vtkCompactHyperOctree
   : public vtkHyperOctreeInternal
@@ -957,13 +957,13 @@ private:
   void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.11");
+// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.12");
 template<unsigned int D>
 void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctree<" << D <<"> " << "1.11" << '\n';
+  os << "vtkCompactHyperOctree<" << D <<"> " << "1.12" << '\n';
 }
   
 
@@ -971,7 +971,7 @@ void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 // quadtree: vtkHyperOctreeInternal<2>
 // bittree: vtkHyperOctreeInternal<1>
 
-vtkCxxRevisionMacro(vtkHyperOctree, "1.11");
+vtkCxxRevisionMacro(vtkHyperOctree, "1.12");
 vtkStandardNewMacro(vtkHyperOctree);
 
 //-----------------------------------------------------------------------------
@@ -2194,7 +2194,7 @@ vtkCell *vtkHyperOctree::GetCell(vtkIdType cellId)
     assert("Index out of bounds." && 
            cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples());
     vtkPoints* leafCenters = this->GetLeafCenters();
-    int* ptr = cornerLeafIds->GetPointer(0) + cellId*numPts;
+    vtkIdType* ptr = cornerLeafIds->GetPointer(0) + cellId*numPts;
     for (ptIdx = 0; ptIdx < numPts; ++ptIdx)
       {      
       cell->PointIds->SetId(ptIdx, *ptr);
@@ -2257,7 +2257,7 @@ void vtkHyperOctree::GetCell(vtkIdType cellId,
     assert("Index out of bounds." && 
            cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples());
     vtkPoints* leafCenters = this->GetLeafCenters();
-    int* ptr = cornerLeafIds->GetPointer(0) + cellId*numPts;
+    vtkIdType* ptr = cornerLeafIds->GetPointer(0) + cellId*numPts;
     for (ptIdx = 0; ptIdx < numPts; ++ptIdx)
       {      
       cell->PointIds->SetId(ptIdx, *ptr);
@@ -2328,7 +2328,7 @@ void vtkHyperOctree::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
     vtkIdTypeArray* cornerLeafIds = this->GetCornerLeafIds();
     assert("Index out of bounds." && 
            cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples());
-    int* ptr = cornerLeafIds->GetPointer(0) + cellId*numPts;  
+    vtkIdType* ptr = cornerLeafIds->GetPointer(0) + cellId*numPts;  
     for (ii = 0; ii < numPts; ++ii)
       {
       ptIds->InsertId(ii, *ptr++);
