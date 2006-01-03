@@ -39,7 +39,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.2");
+vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.3");
 vtkStandardNewMacro(vtkSliderRepresentation3D);
 
 //----------------------------------------------------------------------
@@ -233,6 +233,10 @@ vtkSliderRepresentation3D::~vtkSliderRepresentation3D()
 void vtkSliderRepresentation3D::SetTitleText(const char* label)
 {
   this->TitleText->SetText(label);
+  if ( this->TitleText->GetMTime() > this->GetMTime() )
+    {
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------
@@ -449,11 +453,9 @@ void vtkSliderRepresentation3D::BuildRepresentation()
 
     this->TubeActor->SetScale(this->TubeWidth, 1.0-(2.0*this->EndCapLength), this->TubeWidth);
     this->LeftCapActor->SetPosition(-0.5+(this->EndCapLength/2.0),0,0); 
-    this->LeftCapActor->SetScale(2.0*this->TubeWidth, this->EndCapLength, 
-                                 2.0*this->TubeWidth);
+    this->LeftCapActor->SetScale(this->EndCapWidth, this->EndCapLength, this->EndCapWidth);
     this->RightCapActor->SetPosition(0.5-(this->EndCapLength/2.0),0,0); 
-    this->RightCapActor->SetScale(2.0*this->TubeWidth, this->EndCapLength, 
-                                  2.0*this->TubeWidth);
+    this->RightCapActor->SetScale(this->EndCapWidth, this->EndCapLength, this->EndCapWidth);
     if ( this->EndCapLength <= 0.0 )
       {
       this->RightCapActor->VisibilityOff();

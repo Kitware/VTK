@@ -59,7 +59,7 @@ public:
   vtkGetMacro(MaximumValue,double);
   
   // Description: 
-  // Specify the length of the slider shape (in normalized coordinates
+  // Specify the length of the slider shape (in normalized display coordinates
   // [0.01,0.5]). The slider length by default is 0.05.
   vtkSetClampMacro(SliderLength,double,0.01,0.5);
   vtkGetMacro(SliderLength,double);
@@ -67,13 +67,13 @@ public:
   // Description:
   // Set the width of the slider in the directions orthogonal to the
   // slider axis. Using this it is possible to create ellipsoidal and hockey
-  // puck sliders. By default the width is 0.05.
+  // puck sliders (in some subclasses). By default the width is 0.05.
   vtkSetClampMacro(SliderWidth,double,0.0,1.0);
   vtkGetMacro(SliderWidth,double);
   
   // Description:
-  // Set the width of the tube on which the slider moves. By default the
-  // width is 0.05.
+  // Set the width of the tube (in normalized display coordinates) on which
+  // the slider moves. By default the width is 0.05.
   vtkSetClampMacro(TubeWidth,double,0.0,1.0);
   vtkGetMacro(TubeWidth,double);
   
@@ -83,6 +83,12 @@ public:
   // is set to 0.0, then the end cap will not display at all.
   vtkSetClampMacro(EndCapLength,double,0.0,0.25);
   vtkGetMacro(EndCapLength,double);
+  
+  // Description:
+  // Specify the width of each end cap (in normalized coordinates
+  // [0.0,0.25]). By default the width is twice the tube width. 
+  vtkSetClampMacro(EndCapWidth,double,0.0,0.25);
+  vtkGetMacro(EndCapWidth,double);
   
   // Description:
   // Specify the label text for this widget. If the value is not set, or set
@@ -142,6 +148,7 @@ protected:
   double SliderLength;
   double SliderWidth;
   double EndCapLength;
+  double EndCapWidth;
   double TubeWidth;
 
   // The current parametric coordinate
@@ -149,9 +156,9 @@ protected:
   double PickedT;
 
   // both the title and label
-  int               ShowSliderLabel;
-  double            LabelHeight;
-  double            TitleHeight;
+  int    ShowSliderLabel;
+  double LabelHeight;
+  double TitleHeight;
 
 private:
   vtkSliderRepresentation(const vtkSliderRepresentation&);  //Not implemented

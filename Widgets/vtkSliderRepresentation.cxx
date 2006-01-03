@@ -16,7 +16,7 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSliderRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkSliderRepresentation, "1.3");
 
 //----------------------------------------------------------------------
 vtkSliderRepresentation::vtkSliderRepresentation()
@@ -30,6 +30,7 @@ vtkSliderRepresentation::vtkSliderRepresentation()
   this->SliderLength = 0.05;
   this->SliderWidth = 0.05;
   this->EndCapLength = 0.025;
+  this->EndCapWidth = 0.05;
   this->TubeWidth = 0.025;
 
   // Labels and text
@@ -65,7 +66,10 @@ void vtkSliderRepresentation::SetMinimumValue(double minValue)
     }
 
   this->InvokeEvent(vtkCommand::WidgetValueChangedEvent,NULL);
-  this->BuildRepresentation();
+  if ( this->Renderer )
+    {
+    this->BuildRepresentation();
+    }
   this->Modified();
 }
 
@@ -96,7 +100,10 @@ void vtkSliderRepresentation::SetMaximumValue(double maxValue)
     }
 
   this->InvokeEvent(vtkCommand::WidgetValueChangedEvent,NULL);
-  this->BuildRepresentation();
+  if ( this->Renderer )
+    {
+    this->BuildRepresentation();
+    }
   this->Modified();
 }
 
@@ -122,7 +129,10 @@ void vtkSliderRepresentation::SetValue(double value)
   this->CurrentT = (value - this->MinimumValue) / (this->MaximumValue - this->MinimumValue);
 
   this->InvokeEvent(vtkCommand::WidgetValueChangedEvent,NULL);
-  this->BuildRepresentation();
+  if ( this->Renderer )
+    {
+    this->BuildRepresentation();
+    }
   this->Modified();
 }
 
@@ -139,6 +149,7 @@ void vtkSliderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Slider Length: " << this->SliderLength << "\n";
   os << indent << "Slider Width: " << this->SliderWidth << "\n";
   os << indent << "End Cap Length: " << this->EndCapLength << "\n";
+  os << indent << "End Cap Width: " << this->EndCapWidth << "\n";
   os << indent << "Tube Width: " << this->TubeWidth << "\n";
 
   os << indent << "Show Slider Label: " 

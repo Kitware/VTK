@@ -74,8 +74,8 @@ public:
   vtkCoordinate *GetPoint2Coordinate();
 
   // Description:
-  // Specify the label text for this widget. If the value is not set, or set
-  // to the empty string "", then the label text is not displayed.
+  // Specify the title text for this widget. If the value is not set, or set
+  // to the empty string "", then the title text is not displayed.
   virtual void SetTitleText(const char*);
   virtual const char* GetTitleText();
 
