@@ -33,7 +33,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.2");
+vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.3");
 vtkStandardNewMacro(vtkSliderRepresentation2D);
 
 //----------------------------------------------------------------------
@@ -298,7 +298,7 @@ vtkCoordinate *vtkSliderRepresentation2D::GetPoint2Coordinate()
 }
 
 //----------------------------------------------------------------------
-void vtkSliderRepresentation2D::PlaceWidget(double bds[6])
+void vtkSliderRepresentation2D::PlaceWidget(double *vtkNotUsed(bds[6]))
 {
   // Position the handles at the end of the lines
   this->BuildRepresentation();
