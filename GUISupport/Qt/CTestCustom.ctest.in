@@ -1,6 +1,6 @@
 SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
-  "QtCore\"
-  "QtGui/"
-  "Qt3Support/"
+  "QtCore"
+  "QtGui"
+  "Qt3Support"
   )
