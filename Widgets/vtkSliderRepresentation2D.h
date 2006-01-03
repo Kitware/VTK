@@ -99,6 +99,11 @@ public:
   vtkGetObjectMacro(SelectedProperty,vtkProperty2D);
   
   // Description:
+  // Set/Get the properties for the label and title text.
+  vtkGetObjectMacro(LabelProperty,vtkTextProperty);
+  vtkGetObjectMacro(TitleProperty,vtkTextProperty);
+
+  // Description:
   // Methods to interface with the vtkSliderWidget. The PlaceWidget() method
   // assumes that the parameter bounds[6] specifies the location in display space
   // where the widget should be placed.

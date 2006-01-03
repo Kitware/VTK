@@ -33,7 +33,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.1");
+vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.2");
 vtkStandardNewMacro(vtkSliderRepresentation2D);
 
 //----------------------------------------------------------------------
@@ -370,12 +370,15 @@ void vtkSliderRepresentation2D::BuildRepresentation()
     // the widget here.
     int *p1 = this->Point1Coordinate->GetComputedDisplayValue(this->Renderer);
     int *p2 = this->Point2Coordinate->GetComputedDisplayValue(this->Renderer);
-    double length = sqrt ( static_cast<double>((p1[0]-p2[0])*(p1[0]-p2[0]) + (p1[1]-p2[1])*(p1[1]-p2[1])) );
+    double delX = static_cast<double>(p2[0]-p1[0]);
+    double delY = static_cast<double>(p2[1]-p1[1]);
+    double length = sqrt ( delX*delX + delY*delY );
     length = (length <= 0.0 ? 1.0 : length);
-
     int *size = this->Renderer->GetSize();
     this->X = 0.5 * (length/size[0]);
-
+    double theta = atan2(delY,delX);
+    
+    // Generate the points
     double x[6], y[6];
     x[0] = -this->X;
     x[1] = -this->X + this->EndCapLength;
@@ -408,13 +411,41 @@ void vtkSliderRepresentation2D::BuildRepresentation()
     this->Points->SetPoint(14, x[5],y[5],0.0);
     this->Points->SetPoint(15, x[4],y[5],0.0);
 
-    // Specify the location of the text
+    // Specify the location of the text. Because the slider can rotate
+    // we have to take into account the text height and width.
+    int titleSize[2];
+    double textSize[2];
     double maxY = (this->SliderWidth > this->TubeWidth ? 
                    (this->SliderWidth > this->EndCapWidth ? this->SliderWidth : this->EndCapWidth) :
                    (this->TubeWidth > this->EndCapWidth ? this->TubeWidth : this->EndCapWidth) );
-    this->Points->SetPoint(16, (x[2]+x[3])/2.0,1.50*maxY,0); //label
-    this->Points->SetPoint(17, 0.0,-1.75*maxY,0); //title
 
+    if ( ! this->ShowSliderLabel )
+      {
+      this->LabelActor->VisibilityOff();
+      }
+    else
+      {
+      this->LabelActor->VisibilityOn();
+      int labelSize[2];
+      char label[256];
+      sprintf(label,"%0.3g",this->Value);
+      this->LabelMapper->SetInput(label);
+      this->LabelProperty->SetFontSize(this->LabelHeight*size[1]);
+      this->LabelMapper->GetSize(this->Renderer, labelSize);
+      textSize[0] = static_cast<double>(labelSize[0])/static_cast<double>(size[0]);
+      textSize[1] = static_cast<double>(labelSize[1])/static_cast<double>(size[1]);
+      double radius = maxY/2.0 + textSize[1]*cos(theta) + textSize[0]*sin(theta);
+      this->Points->SetPoint(16, (x[2]+x[3])/2.0, radius, 0.0); //label
+      }
+
+    this->TitleProperty->SetFontSize(this->TitleHeight*size[1]);
+    this->TitleMapper->GetSize(this->Renderer, titleSize);
+    textSize[0] = static_cast<double>(titleSize[0])/static_cast<double>(size[0]);
+    textSize[1] = static_cast<double>(titleSize[1])/static_cast<double>(size[1]);
+    double radius = maxY/2.0 + textSize[1]*cos(theta) + textSize[0]*sin(theta);
+    this->Points->SetPoint(17, 0.0,-radius,0.0); //title
+
+    // Begin transforming the slider
     double sx = static_cast<double>(size[0]);
     double sy = static_cast<double>(size[1]);
     
@@ -424,29 +455,15 @@ void vtkSliderRepresentation2D::BuildRepresentation()
     this->XForm->Identity();
     this->XForm->Translate(tx,ty,0.0);
     this->XForm->Scale(sx,sy,1.0);
-    this->SliderXForm->Update(); //want to get the points that were transformed
+    this->XForm->RotateZ(theta*vtkMath::RadiansToDegrees());
 
+    // The transform has done the work of finding the center point for the text.
+    // Put the title and label at these points.
     double p16[3], p17[3];
+    this->SliderXForm->Update(); //want to get the points that were transformed
     this->SliderXForm->GetOutput()->GetPoints()->GetPoint(16,p16);
     this->SliderXForm->GetOutput()->GetPoints()->GetPoint(17,p17);
-
-    // Place the slider label
-    if ( ! this->ShowSliderLabel )
-      {
-      this->LabelActor->VisibilityOff();
-      }
-    else
-      {
-      char label[256];
-      sprintf(label,"%0.3g",this->Value);
-      double bounds[6];
-      this->LabelProperty->SetFontSize(this->LabelHeight*size[1]);
-      this->LabelMapper->SetInput(label);
-      this->LabelActor->SetPosition(p16[0],p16[1]);
-      this->LabelActor->VisibilityOn();
-      }
-
-    this->TitleProperty->SetFontSize(this->TitleHeight*size[1]);
+    this->LabelActor->SetPosition(p16[0],p16[1]);
     this->TitleActor->SetPosition(p17[0],p17[1]);
 
     this->BuildTime.Modified();
@@ -565,5 +582,25 @@ void vtkSliderRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "SelectedProperty: (none)\n";
+    }
+
+  if ( this->LabelProperty )
+    {
+    os << indent << "LabelProperty:\n";
+    this->LabelProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "LabelProperty: (none)\n";
+    }
+
+  if ( this->TitleProperty )
+    {
+    os << indent << "TitleProperty:\n";
+    this->TitleProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "TitleProperty: (none)\n";
     }
 }
