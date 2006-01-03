@@ -56,7 +56,7 @@ vtkScalarBarWidget.cxx
 vtkSeedRepresentation.cxx
 vtkSeedWidget.cxx
 vtkSliderRepresentation.cxx
-#vtkSliderRepresentation2D.cxx
+vtkSliderRepresentation2D.cxx
 vtkSliderRepresentation3D.cxx
 vtkSliderWidget.cxx
 vtkSphereWidget.cxx
