@@ -111,7 +111,7 @@ void vtkHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.13");
+vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.14");
 
 template<unsigned int D> class vtkCompactHyperOctree;
 template<unsigned int D> class vtkCompactHyperOctreeNode;
@@ -514,13 +514,13 @@ private:
   void operator=(const vtkCompactHyperOctreeCursor<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.13");
+// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.14");
 template<unsigned int D>
 void vtkCompactHyperOctreeCursor<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.13" << '\n';
+  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.14" << '\n';
 }
   
 
@@ -652,7 +652,7 @@ protected:
   int Children[1<<D]; // indices
 };
 
-//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.13");
+//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.14");
 
 template<unsigned int D> class vtkCompactHyperOctree
   : public vtkHyperOctreeInternal
@@ -957,13 +957,13 @@ private:
   void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.13");
+// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.14");
 template<unsigned int D>
 void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctree<" << D <<"> " << "1.13" << '\n';
+  os << "vtkCompactHyperOctree<" << D <<"> " << "1.14" << '\n';
 }
   
 
@@ -971,7 +971,7 @@ void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 // quadtree: vtkHyperOctreeInternal<2>
 // bittree: vtkHyperOctreeInternal<1>
 
-vtkCxxRevisionMacro(vtkHyperOctree, "1.13");
+vtkCxxRevisionMacro(vtkHyperOctree, "1.14");
 vtkStandardNewMacro(vtkHyperOctree);
 
 //-----------------------------------------------------------------------------
@@ -3357,11 +3357,27 @@ void vtkHyperOctree::TraverseDualRecursively(
   unsigned char childrenToTraverse[8];
   memset(childrenToTraverse,0,8);
   static int debugStackOverflow = 0;
+  int debugFlag = 0;
+  
+  
+  //if (level > 15)
+  //  { // something went wrong
+  //  // After debugging, move this value up to 20 or 30.
+  //  cerr << "Maximum recursion level reached\n";
+  //  return;
+  //  }
+    
+  if (level == 0)
+    {
+    cout << "Tree has " << neighborhood[0].GetTree()->GetNumberOfLeaves() << " leaves\n";
+    }
   
   if (debugStackOverflow < level)
     {
     debugStackOverflow = level;
-    cout << "Maximum recursion depth " << level << endl;
+    cout << "Max depth " << level << ", ids: "
+         << xyzIds[0] << " " << xyzIds[1] << " " << xyzIds[2] << endl;
+    debugFlag = 1;
     }
   
   if ( ! neighborhood[0].GetIsLeaf())
@@ -3371,9 +3387,19 @@ void vtkHyperOctree::TraverseDualRecursively(
        = childrenToTraverse[2] = childrenToTraverse[3] 
        = childrenToTraverse[4] = childrenToTraverse[5] 
        = childrenToTraverse[6] = childrenToTraverse[7] = 1;
+    if (debugFlag) 
+      {
+      cout << "  Divide because 0 is a node with id " 
+           << neighborhood[0].GetLeafIndex() << ".\n";
+      }
     }
   else 
     {
+    if (debugFlag) 
+      {
+      cout << "  Neighbor 0 is a leaf with id " 
+           << neighborhood[0].GetLeafIndex() << ".\n";
+      }
     if (neighborhood[0].GetLevel() == level)
       {
       // Add the leaf center point.
@@ -3427,38 +3453,122 @@ void vtkHyperOctree::TraverseDualRecursively(
       divide = 1;
       childrenToTraverse[1] = childrenToTraverse[3]
          = childrenToTraverse[5] = childrenToTraverse[7] = 1;
+      if (debugFlag) 
+        {
+        if (neighborhood[1].GetTree())
+          {
+          cout << "  Divide because 1 is a node with id " 
+              << neighborhood[1].GetLeafIndex() << ".\n";
+          }
+        else
+          {
+          cout << "  Divide because 1 is a NULL node.\n"; 
+          }
+        }
       }
     if (! neighborhood[2].GetIsLeaf() )
       { // y face 
       divide = 1;
       childrenToTraverse[2] = childrenToTraverse[3]
          = childrenToTraverse[6] = childrenToTraverse[7] = 1;
+      if (debugFlag) 
+        {
+        if (neighborhood[2].GetTree())
+          {
+          cout << "  Divide because 2 is a node with id " 
+              << neighborhood[2].GetLeafIndex() << ".\n";
+          }
+        else
+          {
+          cout << "  Divide because 2 is a NULL node.\n"; 
+          }
+        }
       }
     if (! neighborhood[4].GetIsLeaf() )
       { // z face 
       divide = 1;
       childrenToTraverse[4] = childrenToTraverse[5]
          = childrenToTraverse[6] = childrenToTraverse[7] = 1;
+      if (debugFlag) 
+        {
+        if (neighborhood[4].GetTree())
+          {
+          cout << "  Divide because 4 is a node with id " 
+              << neighborhood[4].GetLeafIndex() << ".\n";
+          }
+        else
+          {
+          cout << "  Divide because 4 is a NULL node.\n"; 
+          }
+        }
       }
     if (! neighborhood[3].GetIsLeaf() )
       { // xy edge 
       divide = 1;
       childrenToTraverse[3] = childrenToTraverse[7] = 1;
+      if (debugFlag) 
+        {
+        if (neighborhood[3].GetTree())
+          {
+          cout << "  Divide because 3 is a node with id " 
+              << neighborhood[3].GetLeafIndex() << ".\n";
+          }
+        else
+          {
+          cout << "  Divide because 3 is a NULL node.\n"; 
+          }
+        }
       }
     if (! neighborhood[5].GetIsLeaf() )
       { // xz edge 
       divide = 1;
       childrenToTraverse[5] = childrenToTraverse[7] = 1;
+      if (debugFlag) 
+        {
+        if (neighborhood[5].GetTree())
+          {
+          cout << "  Divide because 5 is a node with id " 
+              << neighborhood[5].GetLeafIndex() << ".\n";
+          }
+        else
+          {
+          cout << "  Divide because 5 is a NULL node.\n"; 
+          }
+        }
       }
     if (! neighborhood[6].GetIsLeaf() )
       { // xz edge 
       divide = 1;
       childrenToTraverse[6] = childrenToTraverse[7] = 1;
+      if (debugFlag) 
+        {
+        if (neighborhood[6].GetTree())
+          {
+          cout << "  Divide because 6 is a node with id " 
+              << neighborhood[6].GetLeafIndex() << ".\n";
+          }
+        else
+          {
+          cout << "  Divide because 6 is a NULL node.\n"; 
+          }
+        }
       }
     if (! neighborhood[7].GetIsLeaf() )
       { // xyz corner 
       divide = 1;
       childrenToTraverse[7] = 1;
+      if (debugFlag) 
+        {
+        if (neighborhood[7].GetTree())
+          {
+          cout << "  Divide because 7 is a node with id " 
+              << neighborhood[7].GetLeafIndex() << ".\n";
+          }
+        else
+          {
+          cout << "  Divide because 7 is a NULL node.\n"; 
+          }
+        }
       }
     }
   
@@ -3478,13 +3588,21 @@ void vtkHyperOctree::TraverseDualRecursively(
       if (childrenToTraverse[child])
         {
         // Move the xyz index of the root neighbor down.
-        if ( ! neighborhood[0].GetIsLeaf())
+        if (! neighborhood[0].GetIsLeaf())
           {
           // Multiply parent index by two for new level.
           // Increment by 1 if child requires.
           newXYZIds[0] = (xyzIds[0] << 1) | (child&1);
           newXYZIds[1] = (xyzIds[1] << 1) | ((child>>1)&1);
           newXYZIds[2] = (xyzIds[2] << 1) | ((child>>2)&1);
+          }
+        else
+          { // This is not necessary because the indexes are not used
+          // when traversing into a leaf for neighbors.
+          // It is just for debugging.
+          newXYZIds[0] = (xyzIds[0] << 1) | (child&1);
+          newXYZIds[1] = (xyzIds[1] << 1) | ((child>>1)&1);
+          newXYZIds[2] = (xyzIds[2] << 1) | ((child>>2)&1);          
           }
         // Move each neighbor down to a child.
         for (neighbor = 0; neighbor < numChildren; ++neighbor)
@@ -3514,6 +3632,8 @@ void vtkHyperOctree::TraverseDualRecursively(
       }
     return;
     }
+  
+  if (debugFlag){cout << "  All neighbors are leaves. Terminate recursion.\n";}
   
   // All neighbors must be leaves.  
     
