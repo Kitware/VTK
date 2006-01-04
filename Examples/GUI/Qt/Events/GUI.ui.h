@@ -169,7 +169,7 @@ void Form1::updateCoords( vtkObject * obj)
 }
 
 
-void Form1::popup( vtkObject * obj, unsigned long , void * client_data, void* call_data, vtkCommand* command)
+void Form1::popup( vtkObject * obj, unsigned long , void * client_data, void* /*call_data*/, vtkCommand* command)
 {
 
   // A note about context menus in Qt and the QVTKWidget
