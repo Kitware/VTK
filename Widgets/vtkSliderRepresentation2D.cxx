@@ -33,7 +33,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.3");
+vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.4");
 vtkStandardNewMacro(vtkSliderRepresentation2D);
 
 //----------------------------------------------------------------------
@@ -430,7 +430,7 @@ void vtkSliderRepresentation2D::BuildRepresentation()
       char label[256];
       sprintf(label,"%0.3g",this->Value);
       this->LabelMapper->SetInput(label);
-      this->LabelProperty->SetFontSize(this->LabelHeight*size[1]);
+      this->LabelProperty->SetFontSize(static_cast<int>(this->LabelHeight*size[1]));
       this->LabelMapper->GetSize(this->Renderer, labelSize);
       textSize[0] = static_cast<double>(labelSize[0])/static_cast<double>(size[0]);
       textSize[1] = static_cast<double>(labelSize[1])/static_cast<double>(size[1]);
@@ -438,7 +438,7 @@ void vtkSliderRepresentation2D::BuildRepresentation()
       this->Points->SetPoint(16, (x[2]+x[3])/2.0, radius, 0.0); //label
       }
 
-    this->TitleProperty->SetFontSize(this->TitleHeight*size[1]);
+    this->TitleProperty->SetFontSize(static_cast<int>(this->TitleHeight*size[1]));
     this->TitleMapper->GetSize(this->Renderer, titleSize);
     textSize[0] = static_cast<double>(titleSize[0])/static_cast<double>(size[0]);
     textSize[1] = static_cast<double>(titleSize[1])/static_cast<double>(size[1]);
