@@ -28,7 +28,17 @@ class VTK_COMMON_EXPORT vtkArrayIteratorTemplate : public vtkArrayIterator
 {
 public:
   static vtkArrayIteratorTemplate<T>* New();
-  vtkTypeRevisionMacro(vtkArrayIteratorTemplate, vtkArrayIterator);
+  typedef vtkArrayIterator Superclass;
+private:
+  virtual const char* GetClassNameInternal() const { return "vtkArrayIteratorTemplate"; }
+public:
+  static vtkArrayIteratorTemplate<T>* SafeDownCast(vtkObjectBase* o)
+    {
+    return dynamic_cast<vtkArrayIteratorTemplate<T>*>(o);
+    }
+protected:
+  void CollectRevisions(ostream& os);
+public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
