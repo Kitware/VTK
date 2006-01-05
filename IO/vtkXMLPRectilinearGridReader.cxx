@@ -22,7 +22,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPRectilinearGridReader, "1.11");
+vtkCxxRevisionMacro(vtkXMLPRectilinearGridReader, "1.12");
 vtkStandardNewMacro(vtkXMLPRectilinearGridReader);
 
 //----------------------------------------------------------------------------
@@ -147,10 +147,14 @@ void vtkXMLPRectilinearGridReader::SetupOutputData()
   vtkXMLDataElement* yc = this->PCoordinatesElement->GetNestedElement(1);
   vtkXMLDataElement* zc = this->PCoordinatesElement->GetNestedElement(2);
   
-  // Create the coordinate arrays.
-  vtkDataArray* x = this->CreateDataArray(xc);
-  vtkDataArray* y = this->CreateDataArray(yc);
-  vtkDataArray* z = this->CreateDataArray(zc);
+  // Create the coordinate arrays (all are data arrays).
+  vtkAbstractArray* ax = this->CreateArray(xc); 
+  vtkAbstractArray* ay = this->CreateArray(yc);
+  vtkAbstractArray* az = this->CreateArray(zc);
+  
+  vtkDataArray* x = vtkDataArray::SafeDownCast(ax);
+  vtkDataArray* y = vtkDataArray::SafeDownCast(ay);
+  vtkDataArray* z = vtkDataArray::SafeDownCast(az);
   if(x && y && z)
     {
     x->SetNumberOfTuples(this->PointDimensions[0]);
@@ -165,9 +169,9 @@ void vtkXMLPRectilinearGridReader::SetupOutputData()
     }
   else
     {
-    if (x) { x->Delete(); }
-    if (y) { y->Delete(); }
-    if (z) { z->Delete(); }
+    if (ax) { ax->Delete(); }
+    if (ay) { ay->Delete(); }
+    if (az) { az->Delete(); }
     this->DataError = 1;
     }
 }

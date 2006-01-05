@@ -48,6 +48,24 @@ public:
   void SetNumberOfTuples(vtkIdType number);
 
   // Description:
+  // Set the tuple at the ith location using the jth tuple in the source array.
+  // This method assumes that the two arrays have the same type
+  // and structure. Note that range checking and memory allocation is not 
+  // performed; use in conjunction with SetNumberOfTuples() to allocate space.
+  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
+
+  // Description:
+  // Insert the jth tuple in the source array, at ith location in this array. 
+  // Note that memory allocation is performed as necessary to hold the data.
+  virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
+
+  // Description:
+  // Insert the jth tuple in the source array, at the end in this array. 
+  // Note that memory allocation is performed as necessary to hold the data.
+  // Returns the location at which the data was inserted.
+  virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source);
+  
+  // Description:
   // Get a pointer to a tuple at the ith location. This is a dangerous method
   // (it is not thread safe since a pointer is returned).
   double* GetTuple(vtkIdType i);
@@ -151,6 +169,8 @@ public:
   // Description:
   // Deep copy of another double array.
   void DeepCopy(vtkDataArray* da);
+  void DeepCopy(vtkAbstractArray* aa)
+    { this->Superclass::DeepCopy(aa); }
 
   // Description:
   // This method lets the user specify data to be held by the array.  The
@@ -172,6 +192,10 @@ public:
   // Description:
   // Do not call.  Use GetRange.
   virtual void ComputeRange(int comp);
+
+  // Description:
+  // Returns a vtkArrayIteratorTemplate<T>.
+  virtual vtkArrayIterator* NewIterator();
 protected:
   vtkDataArrayTemplate(vtkIdType numComp);
   ~vtkDataArrayTemplate();

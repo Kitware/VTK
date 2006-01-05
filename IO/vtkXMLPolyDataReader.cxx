@@ -24,7 +24,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLPolyDataReader, "1.9");
+vtkCxxRevisionMacro(vtkXMLPolyDataReader, "1.10");
 vtkStandardNewMacro(vtkXMLPolyDataReader);
 
 //----------------------------------------------------------------------------
@@ -440,7 +440,7 @@ int vtkXMLPolyDataReader::ReadPieceData()
 
 //----------------------------------------------------------------------------
 int vtkXMLPolyDataReader::ReadArrayForCells(vtkXMLDataElement* da,
-                                            vtkDataArray* outArray)
+                                            vtkAbstractArray* outArray)
 {
   // Split progress range according to the fraction of data that will
   // be read for each type of cell.
@@ -468,9 +468,8 @@ int vtkXMLPolyDataReader::ReadArrayForCells(vtkXMLDataElement* da,
   vtkIdType inStartCell = 0;
   vtkIdType outStartCell = this->StartVert;
   vtkIdType numCells = this->NumberOfVerts[this->Piece];  
-  if(!this->ReadData(da, outArray->GetVoidPointer(outStartCell*components),
-                     outArray->GetDataType(), inStartCell*components,
-                     numCells*components))
+  if(!this->ReadArrayValues(da, outStartCell*components, outArray,
+      inStartCell*components, numCells*components))
     {
     return 0;
     }
@@ -482,9 +481,8 @@ int vtkXMLPolyDataReader::ReadArrayForCells(vtkXMLDataElement* da,
   inStartCell += numCells;
   outStartCell = this->TotalNumberOfVerts + this->StartLine;
   numCells = this->NumberOfLines[this->Piece];  
-  if(!this->ReadData(da, outArray->GetVoidPointer(outStartCell*components),
-                     outArray->GetDataType(), inStartCell*components,
-                     numCells*components))
+  if(!this->ReadArrayValues(da, outStartCell*components, outArray,
+      inStartCell*components, numCells*components))
     {
     return 0;
     }
@@ -497,9 +495,8 @@ int vtkXMLPolyDataReader::ReadArrayForCells(vtkXMLDataElement* da,
   outStartCell = (this->TotalNumberOfVerts + this->TotalNumberOfLines +
                   this->StartStrip);
   numCells = this->NumberOfStrips[this->Piece];  
-  if(!this->ReadData(da, outArray->GetVoidPointer(outStartCell*components),
-                     outArray->GetDataType(), inStartCell*components,
-                     numCells*components))
+  if(!this->ReadArrayValues(da, outStartCell*components, outArray,
+      inStartCell*components, numCells*components))
     {
     return 0;
     }
@@ -512,9 +509,8 @@ int vtkXMLPolyDataReader::ReadArrayForCells(vtkXMLDataElement* da,
   outStartCell = (this->TotalNumberOfVerts + this->TotalNumberOfLines +
                   this->TotalNumberOfStrips + this->StartPoly);
   numCells = this->NumberOfPolys[this->Piece];  
-  if(!this->ReadData(da, outArray->GetVoidPointer(outStartCell*components),
-                     outArray->GetDataType(), inStartCell*components,
-                     numCells*components))
+  if(!this->ReadArrayValues(da, outStartCell*components, outArray,
+      inStartCell*components, numCells*components))
     {
     return 0;
     }

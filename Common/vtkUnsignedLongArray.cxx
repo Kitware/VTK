@@ -15,6 +15,8 @@
 // Instantiate superclass first to give the template a DLL interface.
 #include "vtkDataArrayTemplate.txx"
 VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned long);
+#include "vtkArrayIteratorTemplate.txx"
+VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(unsigned long);
 
 #define __vtkUnsignedLongArray_cxx
 #include "vtkUnsignedLongArray.h"
@@ -22,7 +24,7 @@ VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned long);
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkUnsignedLongArray, "1.35");
+vtkCxxRevisionMacro(vtkUnsignedLongArray, "1.36");
 vtkStandardNewMacro(vtkUnsignedLongArray);
 
 //----------------------------------------------------------------------------

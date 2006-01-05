@@ -65,11 +65,12 @@ int otherFieldData(int,char *[])
 
   int arrayComp;
   int a = fd->GetArrayContainingComponent(1, arrayComp);
-  if (a != 0)
+  if (a != 1)
     {
     return 1;
     }
   
+  /* Obsolete API.
   double tuple[10];
   // initialize tuple before using it to set something
   for (i = 0; i < 10; i++)
@@ -82,7 +83,7 @@ int otherFieldData(int,char *[])
   fd->InsertNextTuple(tuple);
   fd->SetComponent(0,0, 1.0);
   fd->InsertComponent(0,0, 1.0);
-
+  */
   fd2->Reset();
 
   fd->Delete();

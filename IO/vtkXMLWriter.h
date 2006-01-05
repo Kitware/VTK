@@ -24,6 +24,11 @@
 
 #include "vtkAlgorithm.h"
 
+class vtkAbstractArray;
+class vtkArrayIterator;
+//BTX
+template <class T> class vtkArrayIteratorTemplate;
+//ETX
 class vtkCellData;
 class vtkDataArray;
 class vtkDataCompressor;
@@ -34,6 +39,7 @@ class vtkPointData;
 class vtkPoints;
 class vtkFieldData;
 //BTX
+class vtkStdString;
 class OffsetsManager;      // one per piece/per time
 class OffsetsManagerGroup; // array of OffsetsManager
 class OffsetsManagerArray; // array of OffsetsManagerGroup
@@ -309,42 +315,7 @@ protected:
   OffsetType ForwardAppendedDataDouble(OffsetType streamPos,
                                           double value,
                                           const char* attr);
-  int WriteBinaryData(void* data, OffsetType numWords, int wordType);
-  
-  int WriteBinaryData(char* data)
-    { return this->WriteBinaryData(data, static_cast<int>(strlen(data)),
-                                   VTK_CHAR); }
-  int WriteBinaryData(char* data, OffsetType numWords)
-    { return this->WriteBinaryData(data, numWords, VTK_CHAR); }
-  int WriteBinaryData(unsigned char* data, OffsetType numWords)
-    { return this->WriteBinaryData(data, numWords, VTK_UNSIGNED_CHAR); }
-  int WriteBinaryData(short* data, OffsetType numWords)
-    { return this->WriteBinaryData(data, numWords, VTK_SHORT); }
-  int WriteBinaryData(unsigned short* data, OffsetType numWords)
-    { return this->WriteBinaryData(data, numWords, VTK_UNSIGNED_SHORT); }
-  int WriteBinaryData(int* data, OffsetType numWords)
-    { return this->WriteBinaryData(data, numWords, VTK_INT); }
-  int WriteBinaryData(unsigned int* data, OffsetType numWords)
-    { return this->WriteBinaryData(data, numWords, VTK_UNSIGNED_INT); }
-  
-  int WriteAsciiData(void* data, OffsetType numWords, int wordType, vtkIndent indent);
-  
-  int WriteAsciiData(char* data, vtkIndent indent)
-    { return this->WriteAsciiData(data, static_cast<int>(strlen(data)),
-                                  VTK_CHAR, indent); }
-  int WriteAsciiData(char* data, OffsetType numWords, vtkIndent indent)
-    { return this->WriteAsciiData(data, numWords, VTK_CHAR, indent); }
-  int WriteAsciiData(unsigned char* data, OffsetType numWords, vtkIndent indent)
-    { return this->WriteAsciiData(data, numWords, VTK_UNSIGNED_CHAR, indent); }
-  int WriteAsciiData(short* data, OffsetType numWords, vtkIndent indent)
-    { return this->WriteAsciiData(data, numWords, VTK_SHORT, indent); }
-  int WriteAsciiData(unsigned short* data, OffsetType numWords, vtkIndent indent)
-    { return this->WriteAsciiData(data, numWords, VTK_UNSIGNED_SHORT, indent); }
-  int WriteAsciiData(int* data, OffsetType numWords, vtkIndent indent)
-    { return this->WriteAsciiData(data, numWords, VTK_INT, indent); }
-  int WriteAsciiData(unsigned int* data, OffsetType numWords, vtkIndent indent)
-    { return this->WriteAsciiData(data, numWords, VTK_UNSIGNED_INT, indent); }
-  
+
   int WriteScalarAttribute(const char* name, int data);
   int WriteScalarAttribute(const char* name, float data);
   int WriteScalarAttribute(const char* name, double data);
@@ -363,20 +334,21 @@ protected:
   int WriteWordTypeAttribute(const char* name, int dataType);
   int WriteStringAttribute(const char* name, const char* value);
   
-  void WriteDataArrayAppended(vtkDataArray* a, vtkIndent indent,
-                              OffsetsManager &offs,
-                              const char* alternateName=0, 
-                              int writeNumTuples=0, int timestep=0);
-  void WriteDataArrayAppendedData(vtkDataArray* a, OffsetType pos, OffsetType &lastoffset);
-  void WriteDataArrayInline(vtkDataArray* a, vtkIndent indent,
-                            const char* alternateName=0, int writeNumTuples=0);
-  void WriteInlineData(void* data, OffsetType numWords, int wordType,
-                       vtkIndent indent);
+  void WriteArrayHeader(vtkAbstractArray* a, vtkIndent indent,
+    const char* alternateName, int writeNumTuples, int timestep);
+  void WriteArrayFooter(ostream &os, vtkIndent indent);
+  void WriteArrayInline(vtkAbstractArray* a, vtkIndent indent,
+    const char* alternateName=0, int writeNumTuples=0);
+  void WriteInlineData(vtkAbstractArray* a, vtkIndent indent);
   
-  void WriteDataArrayHeader(vtkDataArray* a, vtkIndent indent,
-                            const char* alternateName, 
-                            int writeNumTuples, int timestep);
-  void WriteDataArrayFooter(ostream &os, vtkIndent indent);
+  void WriteArrayAppended(vtkAbstractArray* a, vtkIndent indent,
+    OffsetsManager &offs, const char* alternateName=0,  int writeNumTuples=0, 
+    int timestep=0);
+  int WriteAsciiData(vtkAbstractArray* a, vtkIndent indent);
+  int WriteBinaryData(vtkAbstractArray* a);
+  int WriteBinaryDataInternal(vtkAbstractArray* a, OffsetType data_size);
+  void WriteArrayAppendedData(vtkAbstractArray* a, OffsetType pos, 
+    OffsetType &lastoffset);
   
   // Methods for writing points, point data, and cell data.
   void WriteFieldData(vtkIndent indent);
@@ -407,14 +379,14 @@ protected:
   void WriteCoordinatesAppendedData(vtkDataArray* xc, vtkDataArray* yc,
                                     vtkDataArray* zc, int timestep,
                                     OffsetsManagerGroup *coordManager);
-  virtual vtkDataArray* CreateArrayForPoints(vtkDataArray* inArray);
-  virtual vtkDataArray* CreateArrayForCells(vtkDataArray* inArray);
+  virtual vtkAbstractArray* CreateArrayForPoints(vtkAbstractArray* inArray);
+  virtual vtkAbstractArray* CreateArrayForCells(vtkAbstractArray* inArray);
   virtual vtkDataArray* CreateExactCoordinates(vtkDataArray* inArray, int xyz);
   void WritePPointData(vtkPointData* pd, vtkIndent indent);
   void WritePCellData(vtkCellData* cd, vtkIndent indent);
   void WritePPoints(vtkPoints* points, vtkIndent indent);
-  void WritePDataArray(vtkDataArray* a, vtkIndent indent,
-                       const char* alternateName=0);
+  void WritePArray(vtkAbstractArray* a, vtkIndent indent, 
+    const char* alternateName=0);
   void WritePCoordinates(vtkDataArray* xc, vtkDataArray* yc,
                          vtkDataArray* zc, vtkIndent indent);
   
@@ -458,6 +430,9 @@ protected:
   int UserContinueExecuting; //can only be -1 = invalid, 0 = stop, 1 = start
 
   unsigned long *NumberOfTimeValues; //one per piece / per timestep
+  //BTX
+  friend class vtkXMLWriterHelper;
+  //ETX
 
 private:
   vtkXMLWriter(const vtkXMLWriter&);  // Not implemented.

@@ -23,16 +23,20 @@
 # pragma warning (disable: 4661)
 #endif
 
-#include <vtkObjectFactory.h>
-
-#include "vtkStringArray.h"
 #include "vtkStdString.h"
 
+#include "vtkArrayIteratorTemplate.txx"
+VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkStdString);
+
+#include "vtkStringArray.h"
+
+#include "vtkArrayIteratorTemplate.h"
 #include "vtkCharArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
+#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStringArray, "1.5");
+vtkCxxRevisionMacro(vtkStringArray, "1.6");
 vtkStandardNewMacro(vtkStringArray);
 
 //----------------------------------------------------------------------------
@@ -52,6 +56,15 @@ vtkStringArray::~vtkStringArray()
     {
     delete [] this->Array;
     }
+}
+
+//----------------------------------------------------------------------------
+vtkArrayIterator* vtkStringArray::NewIterator()
+{
+  vtkArrayIteratorTemplate<vtkStdString>* iter = 
+    vtkArrayIteratorTemplate<vtkStdString>::New();
+  iter->Initialize(this);
+  return iter;
 }
 
 //----------------------------------------------------------------------------
@@ -175,7 +188,71 @@ void vtkStringArray::DeepCopy(vtkAbstractArray* aa)
 }
 
 //----------------------------------------------------------------------------
+// Interpolate array value from other array value given the
+// indices and associated interpolation weights.
+// This method assumes that the two arrays are of the same time.
+void vtkStringArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
+    vtkAbstractArray* source,  double* weights)
+{
+  if (this->GetDataType() != source->GetDataType())
+    {
+    vtkErrorMacro("Cannot CopyValue from array of type " 
+      << source->GetDataTypeAsString());
+    return;
+    }
+  
+  if (ptIndices->GetNumberOfIds() == 0)
+    {
+    // nothing to do.
+    return;
+    }
+  
+  // We use nearest neighbour for interpolating strings.
+  // First determine which is the nearest neighbour using the weights-
+  // it's the index with maximum weight.
+  vtkIdType nearest = ptIndices->GetId(0);
+  double max_weight = weights[0];
+  for (int k=1; k < ptIndices->GetNumberOfIds(); k++)
+    {
+    if (weights[k] > max_weight)
+      {
+      nearest = k;
+      }
+    }
 
+  this->InsertTuple(i, nearest, source);
+}
+
+//----------------------------------------------------------------------------
+// Interpolate value from the two values, p1 and p2, and an 
+// interpolation factor, t. The interpolation factor ranges from (0,1), 
+// with t=0 located at p1. This method assumes that the three arrays are of 
+// the same type. p1 is value at index id1 in fromArray1, while, p2 is
+// value at index id2 in fromArray2.
+void vtkStringArray::InterpolateTuple(vtkIdType i, vtkIdType id1, 
+  vtkAbstractArray* source1, vtkIdType id2, vtkAbstractArray* source2, 
+  double t)
+{
+  if (source1->GetDataType() != VTK_STRING || 
+    source2->GetDataType() != VTK_STRING)
+    {
+    vtkErrorMacro("All arrays to InterpolateValue() must be of same type.");
+    return;
+    }
+
+  if (t >= 0.5)
+    {
+    // Use p2
+    this->InsertTuple(i, id2, source2);
+    }
+  else
+    {
+    // Use p1.
+    this->InsertTuple(i, id1, source1); 
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkStringArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -378,21 +455,94 @@ vtkStringArray::GetActualMemorySize( void )
 }
 
 // ----------------------------------------------------------------------
+unsigned long vtkStringArray::GetDataSize()
+{
+  unsigned long size = 0;
+  unsigned long numStrs = this->GetSize();
+  for (unsigned long i=0; i < numStrs; i++)
+    {
+    size += this->Array[i].size() + 1; // (+1) for termination character.
+    }
+  return size;
+}
 
-vtkStdString &
-vtkStringArray::GetValue( vtkIdType id )
+// ----------------------------------------------------------------------
+// Set the tuple at the ith location using the jth tuple in the source array.
+// This method assumes that the two arrays have the same type
+// and structure. Note that range checking and memory allocation is not 
+// performed; use in conjunction with SetNumberOfTuples() to allocate space.
+void vtkStringArray::SetTuple(vtkIdType i, vtkIdType j, 
+  vtkAbstractArray* source)
+{
+  vtkStringArray* sa = vtkStringArray::SafeDownCast(source);
+  if (!sa)
+    {
+    vtkWarningMacro("Input and outputs array data types do not match.");
+    return ;
+    }
+
+  vtkIdType loci = i * this->NumberOfComponents;
+  vtkIdType locj = j * sa->GetNumberOfComponents();
+  for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
+    {
+    this->SetValue(loci + cur, sa->GetValue(locj + cur));
+    }
+}
+
+// ----------------------------------------------------------------------
+// Insert the jth tuple in the source array, at ith location in this array. 
+// Note that memory allocation is performed as necessary to hold the data.
+void vtkStringArray::InsertTuple(vtkIdType i, vtkIdType j, 
+  vtkAbstractArray* source)
+{
+  vtkStringArray* sa = vtkStringArray::SafeDownCast(source);
+  if (!sa)
+    {
+    vtkWarningMacro("Input and outputs array data types do not match.");
+    return ;
+    }
+
+  vtkIdType loci = i * this->NumberOfComponents;
+  vtkIdType locj = j * sa->GetNumberOfComponents();
+  for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
+    {
+    this->InsertValue(loci + cur, sa->GetValue(locj + cur));
+    }
+}
+
+// ----------------------------------------------------------------------
+// Insert the jth tuple in the source array, at the end in this array. 
+// Note that memory allocation is performed as necessary to hold the data.
+// Returns the location at which the data was inserted.
+vtkIdType vtkStringArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source)
+{
+  vtkStringArray* sa = vtkStringArray::SafeDownCast(source);
+  if (!sa)
+    {
+    vtkWarningMacro("Input and outputs array data types do not match.");
+    return -1;
+    }
+
+  vtkIdType locj = j * sa->GetNumberOfComponents();
+  for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
+    {
+    this->InsertNextValue(sa->GetValue(locj + cur));
+    }
+  return (this->GetNumberOfTuples()-1);
+}
+
+// ----------------------------------------------------------------------
+vtkStdString& vtkStringArray::GetValue( vtkIdType id )
 {
   return this->Array[id];
 }
 
 // ----------------------------------------------------------------------
-
-void
-vtkStringArray::GetValues(vtkIdList *indices, vtkAbstractArray *aa)
+void vtkStringArray::GetTuples(vtkIdList *indices, vtkAbstractArray *aa)
 {
   if (aa == NULL)
     {
-    vtkErrorMacro(<<"GetValues: Output array is null!");
+    vtkErrorMacro(<<"GetTuples: Output array is null!");
     return;
     }
 
@@ -413,15 +563,13 @@ vtkStringArray::GetValues(vtkIdList *indices, vtkAbstractArray *aa)
 }
 
 // ----------------------------------------------------------------------
-
-void
-vtkStringArray::GetValues(vtkIdType startIndex,
+void vtkStringArray::GetTuples(vtkIdType startIndex,
                           vtkIdType endIndex, 
                           vtkAbstractArray *aa)
 {
   if (aa == NULL)
     {
-    vtkErrorMacro(<<"GetValues: Output array is null!");
+    vtkErrorMacro(<<"GetTuples: Output array is null!");
     return;
     }
 
@@ -440,89 +588,6 @@ vtkStringArray::GetValues(vtkIdType startIndex,
     output->SetValue(i, this->GetValue(index));
     }
 }
-
-
-// ----------------------------------------------------------------------
-
-void
-vtkStringArray::CopyValue(int toIndex, int fromIndex,
-                          vtkAbstractArray *source)
-{
-  if (source == NULL)
-    {
-    vtkErrorMacro(<<"CopyValue: Input array is null!");
-    return;
-    }
-
-  vtkStringArray *realSource = vtkStringArray::SafeDownCast(source);
-
-  if (realSource == NULL)
-    {
-    vtkErrorMacro(<< "Can't copy values from an array of type " 
-                  << source->GetDataTypeAsString()
-                  << " into a string array!");
-    return;
-    }
-
-  this->SetValue(toIndex, realSource->GetValue(fromIndex));
-}
-
-// ----------------------------------------------------------------------
-
-void
-vtkStringArray::ConvertToContiguous(vtkDataArray **Data, 
-                                    vtkIdTypeArray **Offsets)
-{
-  vtkCharArray *data = vtkCharArray::New();
-  vtkIdTypeArray *offsets = vtkIdTypeArray::New();
-  int currentPosition = 0;
-
-  for (vtkIdType i = 0; i < this->GetNumberOfValues(); ++i)
-    {
-    vtkStdString thisString = this->Array[i];
-    for (unsigned int j = 0; j < this->Array[i].length(); ++j)
-      {
-      data->InsertNextValue(thisString[j]);
-      ++currentPosition;
-      }
-    offsets->InsertNextValue(currentPosition); 
-    }
-  
-  *Data = data;
-  *Offsets = offsets;
-}
-
-// ----------------------------------------------------------------------
-
-// This will work with any sort of data array, but if you call it with
-// anything other than a char array you might get strange results.
-// You have been warned...
-
-void
-vtkStringArray::ConvertFromContiguous(vtkDataArray *Data,
-                                      vtkIdTypeArray *Offsets)
-{
-  this->Reset();
-
-  vtkIdType currentStringStart = 0;
-
-  for (vtkIdType i = 0; i < Offsets->GetNumberOfTuples(); ++i)
-    {
-    // YOU ARE HERE
-    vtkStdString newString;
-    vtkIdType stringEnd = Offsets->GetValue(i);
-
-    for (vtkIdType here = currentStringStart; 
-         here < stringEnd;
-         ++here)
-      {
-      newString += static_cast<char>(Data->GetTuple1(here));
-      }
-    this->InsertNextValue(newString);
-    currentStringStart = stringEnd;
-    }
-}
-
 
 
 // ----------------------------------------------------------------------

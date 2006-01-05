@@ -35,14 +35,14 @@
 // faster, more efficient algorithms that do not lose information.
 
 // .SECTION See Also
-// vtkDataArray vtkDataSetAttributes vtkPointData vtkCellData
+// vtkAbstractArray vtkDataSetAttributes vtkPointData vtkCellData
 
 #ifndef __vtkFieldData_h
 #define __vtkFieldData_h
 
 #include "vtkObject.h"
 
-#include "vtkDataArray.h" // Needed for inline methods
+#include "vtkAbstractArray.h" // Needed for inline methods
 
 class vtkIdList;
 
@@ -72,7 +72,7 @@ public:
 
   // Description:
   // AllocateOfArrays actually sets the number of
-  // vtkDataArray pointers in the vtkFieldData object, not the
+  // vtkAbstractArray pointers in the vtkFieldData object, not the
   // number of used pointers (arrays). Adding more arrays will
   // cause the object to dynamically adjust the number of pointers
   // if it needs to extend. Although AllocateArrays can
@@ -93,7 +93,7 @@ public:
   // Description:
   // Add an array to the array list. If an array with the same name
   // already exists - then the added array will replace it.
-  int AddArray(vtkDataArray *array);
+  int AddArray(vtkAbstractArray *array);
 
   // Description:
   // Remove an array (with the given name) from the list of arrays.
@@ -106,16 +106,20 @@ public:
 
   // Description:
   // Return the ith array in the field. A NULL is returned if the
-  // index i is out of range.
+  // index i is out of range. A NULL is returned if the array at the given 
+  // index is not a vtkDataArray.
   vtkDataArray *GetArray(int i);
 
   // Description:
   // Return the array with the name given. Returns NULL is array not found.
-  // Also returns index of array if found, -1 otherwise
+  // A NULL is also returned if the array with the given name is not a 
+  // vtkDataArray. Also returns index of array if found, -1 otherwise.
   vtkDataArray *GetArray(const char *arrayName, int &index);
 
   // Description:
   // Return the array with the name given. Returns NULL is array not found.
+  // A NULL is also returned if the array with the given name is not a 
+  // vtkDataArray.
   vtkDataArray *GetArray(const char *arrayName)
     {
       int i;
@@ -123,11 +127,32 @@ public:
     }
 
   // Description:
+  // Returns the ith array in the field. Unlike GetArray(), this method returns
+  // a vtkAbstractArray. A NULL is returned only if the index i is 
+  // out of range.
+  vtkAbstractArray* GetAbstractArray(int i);
+
+  // Description:
+  // Return the array with the name given. Returns NULL is array not found.
+  // Unlike GetArray(), this method returns a vtkAbstractArray.
+  // Also returns index of array if found, -1 otherwise.
+  vtkAbstractArray* GetAbstractArray(const char* arrayName, int &index);
+
+  // Description:
+  // Return the array with the name given. Returns NULL is array not found.
+  // Unlike GetArray(), this method returns a vtkAbstractArray.
+  vtkAbstractArray* GetAbstractArray(const char* arrayName)
+    {
+    int i;
+    return this->GetAbstractArray(arrayName, i);
+    }
+  
+  // Description:
   // Return 1 if an array with the given name could be found. 0 otherwise.
   int HasArray(const char *name)
     {
       int i;
-      vtkDataArray *array = this->GetArray(name, i);
+      vtkAbstractArray *array = this->GetAbstractArray(name, i);
       // assert( i == -1);
       return array ? 1 : 0;
     }
@@ -135,10 +160,10 @@ public:
   // Description:
   // Get the name of ith array.
   // Note that this is equivalent to:
-  // GetArray(i)->GetName() if ith array pointer is not NULL
+  // GetAbstractArray(i)->GetName() if ith array pointer is not NULL
   const char* GetArrayName(int i)
     {
-    vtkDataArray* da = this->GetArray(i);
+    vtkAbstractArray* da = this->GetAbstractArray(i);
     return da ? da->GetName() : 0;
     }
 
@@ -222,11 +247,6 @@ public:
   // an integer value is returned indicating the component in the array
   // is returned. Method returns -1 if specified component is not
   // in the field.
-  // This method should not be used if the instance is from a
-  // subclass of vtkFieldData (vtkPointData or vtkCellData).
-  // This is because in those cases, the attribute data is 
-  // stored with the other fields and will cause the method
-  // to behave in an unexpected way.
   int GetArrayContainingComponent(int i, int& arrayComp);
 
   // Description:
@@ -260,88 +280,92 @@ public:
   void SetNumberOfTuples(const vtkIdType number);
 
   // Description:
+  // Set the jth tuple in source field data at the ith location. 
+  // Set operations mean that no range checking is performed, so 
+  // they're faster.
+  void SetTuple(const vtkIdType i, const vtkIdType j, vtkFieldData* source);
+
+  // Description:
+  // Insert the jth tuple in source field data at the ith location. 
+  // Range checking is performed and memory allocates as necessary.
+  void InsertTuple(const vtkIdType i, const vtkIdType j, vtkFieldData* source);
+
+  // Description:
+  // Insert the jth tuple in source field data  at the end of the 
+  // tuple matrix. Range checking is performed and memory is allocated 
+  // as necessary.
+  vtkIdType InsertNextTuple(const vtkIdType j, vtkFieldData* source);
+
+  // Following are LEGACY methods. Using these methods for FieldData
+  // having arrays that are not subclasses of vtkDataArray may
+  // yield unexpected results.
+  
+  // Description:
   // Return a tuple consisting of a concatenation of all data from all
   // the different arrays. Note that everything is converted to and from
   // double values.
-  // This method should not be used if the instance is from a
-  // subclass of vtkFieldData (vtkPointData or vtkCellData).
-  // This is because in those cases, the attribute data is 
-  // stored with the other fields and will cause the method
-  // to behave in an unexpected way.
-  double *GetTuple(const vtkIdType i);
+  // @deprecated as of VTK 5.2. Using this method for FieldData
+  // having arrays that are not subclasses of vtkDataArray may
+  // yield unexpected results.
+  VTK_LEGACY(double *GetTuple(const vtkIdType i));
 
   // Description:
   // Copy the ith tuple value into a user provided tuple array. Make
   // sure that you've allocated enough space for the copy.
-  // This method should not be used if the instance is from a
-  // subclass of vtkFieldData (vtkPointData or vtkCellData).
-  // This is because in those cases, the attribute data is 
-  // stored with the other fields and will cause the method
-  // to behave in an unexpected way.
-  void GetTuple(const vtkIdType i, double * tuple);
+  // @deprecated as of VTK 5.2. Using this method for FieldData
+  // having arrays that are not subclasses of vtkDataArray may
+  // yield unexpected results.
+  VTK_LEGACY(void GetTuple(const vtkIdType i, double * tuple));
 
   // Description:
   // Set the tuple value at the ith location. Set operations
   // mean that no range checking is performed, so they're faster.
-  // This method should not be used if the instance is from a
-  // subclass of vtkFieldData (vtkPointData or vtkCellData).
-  // This is because in those cases, the attribute data is 
-  // stored with the other fields and will cause the method
-  // to behave in an unexpected way.
-  void SetTuple(const vtkIdType i, const double * tuple);
+  // @deprecated as of VTK 5.2. Using this method for FieldData
+  // having arrays that are not subclasses of vtkDataArray may
+  // yield unexpected results.
+  VTK_LEGACY(void SetTuple(const vtkIdType i, const double * tuple));
 
   // Description:
   // Insert the tuple value at the ith location. Range checking is
   // performed and memory allocates as necessary.
-  // This method should not be used if the instance is from a
-  // subclass of vtkFieldData (vtkPointData or vtkCellData).
-  // This is because in those cases, the attribute data is 
-  // stored with the other fields and will cause the method
-  // to behave in an unexpected way.
-  void InsertTuple(const vtkIdType i, const double * tuple);
+  // @deprecated as of VTK 5.2. Using this method for FieldData
+  // having arrays that are not subclasses of vtkDataArray may
+  // yield unexpected results.
+  VTK_LEGACY(void InsertTuple(const vtkIdType i, const double * tuple));
 
   // Description:
   // Insert the tuple value at the end of the tuple matrix. Range
   // checking is performed and memory is allocated as necessary.
-  // This method should not be used if the instance is from a
-  // subclass of vtkFieldData (vtkPointData or vtkCellData).
-  // This is because in those cases, the attribute data is 
-  // stored with the other fields and will cause the method
-  // to behave in an unexpected way.
-  vtkIdType InsertNextTuple(const double * tuple);
-
+  // @deprecated as of VTK 5.2. Using this method for FieldData
+  // having arrays that are not subclasses of vtkDataArray may
+  // yield unexpected results.
+  VTK_LEGACY(vtkIdType InsertNextTuple(const double * tuple));
+  
   // Description:
   // Get the component value at the ith tuple (or row) and jth component (or
   // column).
-  // This method should not be used if the instance is from a
-  // subclass of vtkFieldData (vtkPointData or vtkCellData).
-  // This is because in those cases, the attribute data is 
-  // stored with the other fields and will cause the method
-  // to behave in an unexpected way.
-  double GetComponent(const vtkIdType i, const int j);
+  // @deprecated as of VTK 5.2. Using this method for FieldData
+  // having arrays that are not subclasses of vtkDataArray may
+  // yield unexpected results.
+  VTK_LEGACY(double GetComponent(const vtkIdType i, const int j));
 
   // Description:
   // Set the component value at the ith tuple (or row) and jth component (or
   // column).  Range checking is not performed, so set the object up properly
   // before invoking.
-  // This method should not be used if the instance is from a
-  // subclass of vtkFieldData (vtkPointData or vtkCellData).
-  // This is because in those cases, the attribute data is 
-  // stored with the other fields and will cause the method
-  // to behave in an unexpected way.
-  void SetComponent(const vtkIdType i, const int j, const double c);
+  // @deprecated as of VTK 5.2. Using this method for FieldData
+  // having arrays that are not subclasses of vtkDataArray may
+  // yield unexpected results.
+  VTK_LEGACY(void SetComponent(const vtkIdType i, const int j, const double c));
   
   // Description:
   // Insert the component value at the ith tuple (or row) and jth component
   // (or column).  Range checking is performed and memory allocated as
   // necessary o hold data.
-  // This method should not be used if the instance is from a
-  // subclass of vtkFieldData (vtkPointData or vtkCellData).
-  // This is because in those cases, the attribute data is 
-  // stored with the other fields and will cause the method
-  // to behave in an unexpected way.
-  void InsertComponent(const vtkIdType i, const int j, const double c);
-
+  // @deprecated as of VTK 5.2. Using this method for FieldData
+  // having arrays that are not subclasses of vtkDataArray may
+  // yield unexpected results.
+  VTK_LEGACY(void InsertComponent(const vtkIdType i, const int j, const double c));
 protected:
 
   vtkFieldData();
@@ -349,14 +373,11 @@ protected:
 
   int NumberOfArrays;
   int NumberOfActiveArrays;
-  vtkDataArray **Data;
-
-  int TupleSize; //used for type conversion
-  double *Tuple;
+  vtkAbstractArray **Data;
 
   // Description:
   // Set an array to define the field.
-  void SetArray(int i, vtkDataArray *array);
+  void SetArray(int i, vtkAbstractArray *array);
 
   virtual void RemoveArray(int index);
 
@@ -387,6 +408,11 @@ private:
   vtkFieldData(const vtkFieldData&);  // Not implemented.
   void operator=(const vtkFieldData&);  // Not implemented.
 
+#ifndef VTK_LEGACY_REMOVE
+  // Must be removed when support for Legacy GetTuple is removed.
+  int TupleSize; // used for type conversion in Legacy support.
+  double* Tuple;
+#endif
 public:
 
   class VTK_FILTERING_EXPORT BasicIterator
@@ -447,8 +473,16 @@ public:
     vtkDataArray* Next()
       {
         this->Position++;
-        return (this->End() ? 0 : 
-                Fields->GetArray(this->List[this->Position]));
+        if (this->End())
+          {
+          return 0;
+          }
+      
+        // vtkFieldData::GetArray() can return null, which implies that
+        // a the array at the given index in not a vtkDataArray subclass.
+        // This iterator skips such arrays.
+        vtkDataArray* cur =  Fields->GetArray(this->List[this->Position]);
+        return (cur? cur : this->Next());
       }
 
     void DetachFieldData();

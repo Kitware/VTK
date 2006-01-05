@@ -17,6 +17,7 @@
 
 #include "vtkDataArrayTemplate.h"
 
+#include "vtkArrayIteratorTemplate.h"
 #include <vtkstd/exception>
 
 // We do not provide a definition for the copy constructor or
@@ -291,6 +292,95 @@ template <class T>
 void vtkDataArrayTemplate<T>::SetNumberOfTuples(vtkIdType number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
+}
+
+//----------------------------------------------------------------------------
+// Set the tuple at the ith location using the jth tuple in the source array.
+// This method assumes that the two arrays have the same type
+// and structure. Note that range checking and memory allocation is not 
+// performed; use in conjunction with SetNumberOfTuples() to allocate space.
+template <class T>
+void vtkDataArrayTemplate<T>::SetTuple(vtkIdType i, vtkIdType j, 
+  vtkAbstractArray* source)
+{
+  if (source->GetDataType() != this->GetDataType())
+    {
+    vtkWarningMacro("Input and output array data types do not match.");
+    return;
+    }
+  if (this->NumberOfComponents != source->GetNumberOfComponents())
+    {
+    vtkWarningMacro("Input and output component sizes do not match.");
+    return;
+    }
+  
+  vtkIdType loci = i * this->NumberOfComponents;
+  vtkIdType locj = j * source->GetNumberOfComponents();
+
+  T* data = static_cast<T*>(source->GetVoidPointer(0));
+  
+  for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
+    {
+    this->Array[loci + cur] = data[locj + cur];
+    }
+}
+
+//----------------------------------------------------------------------------
+// Insert the jth tuple in the source array, at ith location in this array. 
+// Note that memory allocation is performed as necessary to hold the data.
+template<class T>  
+void vtkDataArrayTemplate<T>::InsertTuple(vtkIdType i, vtkIdType j, 
+  vtkAbstractArray* source)
+{
+  if (source->GetDataType() != this->GetDataType())
+    {
+    vtkWarningMacro("Input and output array data types do not match.");
+    return;
+    }
+  if (this->NumberOfComponents != source->GetNumberOfComponents())
+    {
+    vtkWarningMacro("Input and output component sizes do not match.");
+    return;
+    }
+  
+  T* data = static_cast<T*>(source->GetVoidPointer(0));
+  
+  vtkIdType loci = i * this->NumberOfComponents;
+  vtkIdType locj = j * source->GetNumberOfComponents();
+  
+  for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
+    {
+    this->InsertValue(loci + cur, data[locj + cur]);
+    }
+}
+
+//----------------------------------------------------------------------------
+// Insert the jth tuple in the source array, at the end in this array. 
+// Note that memory allocation is performed as necessary to hold the data.
+// Returns the location at which the data was inserted.
+template<class T>  
+vtkIdType vtkDataArrayTemplate<T>::InsertNextTuple(vtkIdType j, 
+  vtkAbstractArray* source)
+{
+   if (source->GetDataType() != this->GetDataType())
+    {
+    vtkWarningMacro("Input and output array data types do not match.");
+    return -1;
+    }
+  if (this->NumberOfComponents != source->GetNumberOfComponents())
+    {
+    vtkWarningMacro("Input and output component sizes do not match.");
+    return -1;
+    } 
+  
+  T* data = static_cast<T*>(source->GetVoidPointer(0));
+  vtkIdType locj = j * source->GetNumberOfComponents();
+  
+  for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
+    {
+    this->InsertNextValue(data[locj + cur]);
+    }
+  return (this->GetNumberOfTuples()-1);
 }
 
 //----------------------------------------------------------------------------
@@ -739,4 +829,12 @@ void vtkDataArrayTemplate<T>::ExportToVoidPointer(void *out_ptr)
     }
 }
 
+//----------------------------------------------------------------------------
+template <class T>
+vtkArrayIterator* vtkDataArrayTemplate<T>::NewIterator()
+{
+  vtkArrayIteratorTemplate<T>* iter = vtkArrayIteratorTemplate<T>::New();
+  iter->Initialize(this);
+  return iter;
+}
 #endif

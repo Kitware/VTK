@@ -30,7 +30,7 @@
 #include "vtkIntArray.h"
 #include "vtkFieldData.h"
 
-vtkCxxRevisionMacro(vtkXMLHyperOctreeReader, "1.3");
+vtkCxxRevisionMacro(vtkXMLHyperOctreeReader, "1.4");
 vtkStandardNewMacro(vtkXMLHyperOctreeReader);
 
 //----------------------------------------------------------------------------
@@ -107,26 +107,23 @@ vtkIdType vtkXMLHyperOctreeReader::GetNumberOfCells()
 
 //----------------------------------------------------------------------------
 int vtkXMLHyperOctreeReader::ReadArrayForPoints(vtkXMLDataElement* da,
-                                                vtkDataArray* outArray)
+                                                vtkAbstractArray* outArray)
 {
   vtkIdType components = outArray->GetNumberOfComponents();
   vtkIdType numberOfTuples = this->GetNumberOfPoints();
   outArray->SetNumberOfTuples(numberOfTuples);
-  return this->ReadData(da, outArray->GetVoidPointer(0),
-                        outArray->GetDataType(),
-                        0, numberOfTuples*components);
+  return this->ReadArrayValues(da, 0, outArray, 0, numberOfTuples*components);
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLHyperOctreeReader::ReadArrayForCells(vtkXMLDataElement* da,
-                                               vtkDataArray* outArray)
+                                               vtkAbstractArray* outArray)
 {
   vtkIdType components = outArray->GetNumberOfComponents();
   vtkIdType numberOfTuples = this->GetNumberOfCells();
   outArray->SetNumberOfTuples(numberOfTuples);
-  return this->ReadData(da, outArray->GetVoidPointer(0),
-                        outArray->GetDataType(),
-                        0, numberOfTuples*components);
+  return this->ReadArrayValues(da, 0, outArray, 0, numberOfTuples*components);
+  
 }
 
 //----------------------------------------------------------------------------
@@ -215,9 +212,15 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
 
   vtkXMLDataElement* tElem = elem->GetNestedElement(0);
 
-  vtkDataArray *tda = this->CreateDataArray(tElem);
+  // Since topology is a vtkIntArray.
+  vtkAbstractArray* a = this->CreateArray(tElem);
+  vtkDataArray *tda = vtkDataArray::SafeDownCast(a);
   if (!tda) 
     {
+    if (a)
+      {
+      a->Delete();
+      }
     return;
     }
   
@@ -229,8 +232,10 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
     }
   
   tda->SetNumberOfTuples(numTuples);
-  if (!this->ReadData(tElem, tda->GetVoidPointer(0), tda->GetDataType(), 
-                      0, numTuples*tda->GetNumberOfComponents()))    
+  if (!this->ReadArrayValues(tElem, 0, tda, 0, numTuples* tda->GetNumberOfComponents())
+    
+   /* this->ReadData(tElem, tda->GetVoidPointer(0), tda->GetDataType(), 
+                      0, numTuples*tda->GetNumberOfComponents())*/)
     {
     tda->Delete();
     return;

@@ -13,20 +13,21 @@
 
 =========================================================================*/
 #include "vtkVolumeTextureMapper3D.h"
-#include "vtkVolumeRenderingFactory.h"
 
+#include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkDataArray.h"
+#include "vtkImageData.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkPointData.h"
 #include "vtkRenderer.h"
 #include "vtkVolume.h"
-#include "vtkCamera.h"
-#include "vtkMath.h"
-#include "vtkPointData.h"
-#include "vtkImageData.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkPiecewiseFunction.h"
 #include "vtkVolumeProperty.h"
-#include "vtkMatrix4x4.h"
+#include "vtkVolumeRenderingFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.7");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.8");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

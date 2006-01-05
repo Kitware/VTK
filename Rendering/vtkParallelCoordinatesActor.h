@@ -37,6 +37,9 @@
 // Field data is not necessarily "rectangular" in shape. In these cases, some
 // of the data may not be plotted.
 //
+// Feidl data can contain non-numeric arrays (i.e. arrays not subclasses of
+// vtkDataArray). Such arrays are skipped.
+//
 // The early implementation lacks many features that could be added in the 
 // future.
 // This includes the ability to "brush" data (choose regions along an axis and

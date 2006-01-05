@@ -14,12 +14,13 @@
 =========================================================================*/
 #include "vtkPNGReader.h"
 
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtk_png.h"
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.25");
+vtkCxxRevisionMacro(vtkPNGReader, "1.26");
 vtkStandardNewMacro(vtkPNGReader);
 
 #ifdef _MSC_VER

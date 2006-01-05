@@ -26,6 +26,8 @@
 
 #include "vtkFieldData.h"
 
+class vtkLookupTable;
+
 class VTK_FILTERING_EXPORT vtkDataSetAttributes : public vtkFieldData
 {
 public:
@@ -288,7 +290,7 @@ public:
   // following ones) assume that the fromData and toData objects are of the
   // same type, and have the same number of components. This is true if you
   // invoke CopyAllocate() or InterpolateAllocate().
-  void CopyTuple(vtkDataArray *fromData, vtkDataArray *toData, 
+  void CopyTuple(vtkAbstractArray *fromData, vtkAbstractArray *toData, 
                  vtkIdType fromId, vtkIdType toId);
 
   // Description:
@@ -360,15 +362,6 @@ protected:
   vtkDataSetAttributes();
   ~vtkDataSetAttributes();
 
-  // special methods to support managing data
-  void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData,
-                        vtkIdType toId, vtkIdList *ptIds, double *weights);
-  void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData,
-                        vtkIdType toId, vtkIdType id1, vtkIdType id2, 
-                        double t);
-  void InterpolateTuple(vtkDataArray *fromData1, vtkDataArray *fromData2, 
-                        vtkDataArray *toData, vtkIdType id, double t);
-
   // Description:
   // Initialize all of the object's data to NULL
   virtual void InitializeFields();
@@ -427,7 +420,7 @@ public:
     void operator=(const FieldList&) {}
 
   private:
-    void SetField(int index, vtkDataArray *da);
+    void SetField(int index, vtkAbstractArray *da);
     void RemoveField(const char *name);
     void ClearFields();
     

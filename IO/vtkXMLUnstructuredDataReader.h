@@ -87,7 +87,7 @@ protected:
                     vtkXMLDataElement* eCells, vtkCellArray* outCells);
   
   // Read a data array whose tuples coorrespond to points.
-  int ReadArrayForPoints(vtkXMLDataElement* da, vtkDataArray* outArray);
+  virtual int ReadArrayForPoints(vtkXMLDataElement* da, vtkAbstractArray* outArray);
   
   // Get the number of points/cells in the given piece.  Valid after
   // UpdateInformation.

@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageToImageStencil.h"
 
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
 #include "vtkInformation.h"
@@ -24,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToImageStencil, "1.15");
+vtkCxxRevisionMacro(vtkImageToImageStencil, "1.16");
 vtkStandardNewMacro(vtkImageToImageStencil);
 
 //----------------------------------------------------------------------------

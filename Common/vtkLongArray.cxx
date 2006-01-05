@@ -16,13 +16,16 @@
 #include "vtkDataArrayTemplate.txx"
 VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(long);
 
+#include "vtkArrayIteratorTemplate.txx"
+VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(long);
+
 #define __vtkLongArray_cxx
 #include "vtkLongArray.h"
 
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkLongArray, "1.36");
+vtkCxxRevisionMacro(vtkLongArray, "1.37");
 vtkStandardNewMacro(vtkLongArray);
 
 //----------------------------------------------------------------------------

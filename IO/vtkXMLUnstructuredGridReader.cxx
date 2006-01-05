@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.12");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.13");
 vtkStandardNewMacro(vtkXMLUnstructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -303,18 +303,19 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
                   << " because the \"types\" array could not be found.");
     return 0;
     }
-  vtkDataArray* c2 = this->CreateDataArray(eTypes);
+  vtkAbstractArray* ac2 = this->CreateArray(eTypes);
+  vtkDataArray* c2 = vtkDataArray::SafeDownCast(ac2);
   if(!c2 || (c2->GetNumberOfComponents() != 1))
     {
     vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
                   << " in piece " << this->Piece
                   << " because the \"types\" array could not be created"
                   << " with one component.");
+    if (ac2) { ac2->Delete(); }
     return 0;
     }
   c2->SetNumberOfTuples(numberOfCells);
-  if(!this->ReadData(eTypes, c2->GetVoidPointer(0),
-                     c2->GetDataType(), 0, numberOfCells))
+  if(!this->ReadArrayValues(eTypes, 0, c2, 0, numberOfCells))
     {
     vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
                   << " in piece " << this->Piece
@@ -342,13 +343,13 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
 
 //----------------------------------------------------------------------------
 int vtkXMLUnstructuredGridReader::ReadArrayForCells(vtkXMLDataElement* da,
-                                                    vtkDataArray* outArray)
+                                                    vtkAbstractArray* outArray)
 {
   vtkIdType startCell = this->StartCell;
   vtkIdType numCells = this->NumberOfCells[this->Piece];  
   vtkIdType components = outArray->GetNumberOfComponents();
-  return this->ReadData(da, outArray->GetVoidPointer(startCell*components),
-                        outArray->GetDataType(), 0, numCells*components);
+  return this->ReadArrayValues(da, startCell*components, outArray,
+    0, numCells*components);
 }
 
 

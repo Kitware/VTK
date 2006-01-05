@@ -16,6 +16,7 @@ IF(PYTHON_EXECUTABLE)
     vtkAbstractIterator.h
     vtkAbstractList.h
     vtkAbstractMap.h
+    vtkArrayIteratorIncludes.h
     vtkArrayMap.h
     vtkArrayMapIterator.h
     vtkAssemblyPaths.h

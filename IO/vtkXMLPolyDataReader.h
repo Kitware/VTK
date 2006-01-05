@@ -66,7 +66,8 @@ protected:
   int ReadPieceData();
   
   // Read a data array whose tuples coorrespond to cells.
-  int ReadArrayForCells(vtkXMLDataElement* da, vtkDataArray* outArray);
+  virtual int ReadArrayForCells(vtkXMLDataElement* da, 
+    vtkAbstractArray* outArray);
   
   // Get the number of cells in the given piece.  Valid after
   // UpdateInformation.

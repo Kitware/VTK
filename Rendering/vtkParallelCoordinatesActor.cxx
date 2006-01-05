@@ -26,7 +26,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.32");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.33");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);
@@ -297,9 +297,29 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 }
 
 //----------------------------------------------------------------------------
+static inline int vtkParallelCoordinatesActorGetComponent(vtkFieldData* field,
+  vtkIdType tuple, int component, double* val)
+{
+  int array_comp;
+  int array_index = field->GetArrayContainingComponent(component, array_comp);
+  if (array_index < 0)
+    {
+    return 0;
+    }
+  vtkDataArray* da = field->GetArray(array_index);
+  if (!da)
+    {
+    // non-numeric array.
+    return 0;
+    }
+  *val = da->GetComponent(tuple, array_comp);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
 {
-  vtkIdType i, j, ptId;
+  vtkIdType i, j, k, ptId;
   vtkDataObject *input = this->GetInput();
   vtkFieldData *field = input->GetFieldData();
   double v;
@@ -312,13 +332,22 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
     }
   
   // Determine the shape of the field
-  int numColumns = field->GetNumberOfComponents(); //number of "columns"
+  int numComponents = field->GetNumberOfComponents(); //number of components
+    // Note: numComponents also includes the non-numeric arrays.
+
+  int numColumns = 0; //number of "columns" -- includes only numeric arrays.
   vtkIdType numRows = VTK_LARGE_ID; //figure out number of rows
   vtkIdType numTuples;
   vtkDataArray *array;
   for (i=0; i<field->GetNumberOfArrays(); i++)
     {
     array = field->GetArray(i);
+    if (!array)
+      {
+      // skip over non-numeric arrays.
+      continue;
+      }
+    numColumns += array->GetNumberOfComponents();
     numTuples = array->GetNumberOfTuples();
     if ( numTuples < numRows )
       {
@@ -355,29 +384,45 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
 
   if ( this->IndependentVariables == VTK_IV_COLUMN )
     {
-    for (j=0; j<numColumns; j++)
+    k = 0;
+    for (j=0; j<numComponents; j++)
       {
+      int array_comp, array_index;
+      array_index = field->GetArrayContainingComponent(j, array_comp);
+      if (array_index < 0 || !field->GetArray(array_index))
+        {
+        // non-numeric component, simply skip it.
+        continue;
+        }
       for (i=0; i<numRows; i++)
         {
-        v = field->GetComponent(i,j);
-        if ( v < this->Mins[j] )
+        //v = field->GetComponent(i,j);
+        ::vtkParallelCoordinatesActorGetComponent(field, i, j, &v);
+        if ( v < this->Mins[k] )
           {
-          this->Mins[j] = v;
+          this->Mins[k] = v;
           }
-        if ( v > this->Maxs[j] )
+        if ( v > this->Maxs[k] )
           {
-          this->Maxs[j] = v;
+          this->Maxs[k] = v;
           }
         }
+      k++;
       }
     }
   else //row
     {
     for (j=0; j<numRows; j++)
       {
-      for (i=0; i<numColumns; i++)
+      for (i=0; i<numComponents; i++)
         {
-        v = field->GetComponent(j,i);
+        //v = field->GetComponent(j,i);
+        if (::vtkParallelCoordinatesActorGetComponent(field,
+            j, i, &v) == 0)
+          {
+          // non-numeric component, simply skip.
+          continue;
+          }
         if ( v < this->Mins[j] )
           {
           this->Mins[j] = v;
@@ -448,10 +493,15 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
     for (j=0; j<numRows; j++)
       {
       lines->InsertNextCell(numColumns);
-      for (i=0; i<numColumns; i++)
+      for (i=0,k=0; i<numColumns && k < numComponents; k++)
         {
+        // v = field->GetComponent(j,i);
+        if (::vtkParallelCoordinatesActorGetComponent(field, j, k, &v) == 0)
+          {
+          // skip non-numeric components.
+          continue;
+          }
         x[0] = this->Xs[i];
-        v = field->GetComponent(j,i);
         if ( (this->Maxs[i]-this->Mins[i]) == 0.0 )
           {
           x[1] = 0.5 * (this->YMax - this->YMin);
@@ -464,19 +514,28 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
           }
         ptId = pts->InsertNextPoint(x);
         lines->InsertCellPoint(ptId);
+        i++;
         }
       }
     }
   else //row
     {
     lines->Allocate(lines->EstimateSize(numColumns,numRows));
-    for (j=0; j<numColumns; j++)
+    for (j=0; j<numComponents; j++)
       {
+      int array_comp;
+      int array_index = field->GetArrayContainingComponent(j, array_comp);
+      if (!field->GetArray(array_index))
+        {
+        // non-numeric component, skip it.
+        continue;
+        }
       lines->InsertNextCell(numColumns);
       for (i=0; i<numRows; i++)
         {
         x[0] = this->Xs[i];
-        v = field->GetComponent(i,j);
+        // v = field->GetComponent(i,j);
+        vtkParallelCoordinatesActorGetComponent(field, i, j, &v);
         if ( (this->Maxs[i]-this->Mins[i]) == 0.0 )
           {
           x[1] = 0.5 * (this->YMax - this->YMin);

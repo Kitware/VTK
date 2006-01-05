@@ -25,10 +25,12 @@ vtkAbstractTransform.cxx
 vtkAmoebaMinimizer.cxx
 vtkAnimationCue.cxx
 vtkAnimationScene.cxx
+vtkArrayIterator.cxx
 vtkAssemblyNode.cxx
 vtkAssemblyPath.cxx
 vtkAssemblyPaths.cxx
 vtkBitArray.cxx
+vtkBitArrayIterator.cxx
 vtkBox.cxx
 vtkByteSwap.cxx
 vtkCallbackCommand.cxx
@@ -213,6 +215,8 @@ ENDFOREACH(t)
 SET_SOURCE_FILES_PROPERTIES(
 # vtkObjectBase is marked ABSTRACT so that instantiators are happy.
 vtkAbstractArray
+vtkArrayIterator
+vtkArrayIteratorTemplate
 vtkAbstractTransform
 vtkCallbackCommand
 vtkCommand
@@ -238,6 +242,7 @@ ABSTRACT
 )
 
 SET_SOURCE_FILES_PROPERTIES(
+  vtkArrayIteratorTemplate.txx
   vtkCallbackCommand.cxx
   vtkCommand.cxx
   vtkDebugLeaksManager.cxx
@@ -283,6 +288,7 @@ INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
+    vtkArrayIteratorTemplate
     vtkDataArrayTemplate
     vtkIOStream
     vtkIOStreamFwd
@@ -325,6 +331,8 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   ENDIF(VTK_WRAP_JAVA)
 
   INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .txx
+    vtkArrayIteratorTemplate
+    vtkArrayIteratorTemplateImplicit
     vtkDataArrayTemplate
     vtkDataArrayTemplateImplicit
     )

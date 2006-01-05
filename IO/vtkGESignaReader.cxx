@@ -15,11 +15,12 @@
 #include "vtkGESignaReader.h"
 
 #include "vtkByteSwap.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkGESignaReader, "1.19");
+vtkCxxRevisionMacro(vtkGESignaReader, "1.20");
 vtkStandardNewMacro(vtkGESignaReader);
 
 

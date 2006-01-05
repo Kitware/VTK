@@ -22,7 +22,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.12");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.13");
 vtkStandardNewMacro(vtkXMLRectilinearGridReader);
 
 //----------------------------------------------------------------------------
@@ -152,9 +152,13 @@ void vtkXMLRectilinearGridReader::SetupOutputData()
   vtkXMLDataElement* zc = this->CoordinateElements[0]->GetNestedElement(2);
   
   // Create the coordinate arrays.
-  vtkDataArray* x = this->CreateDataArray(xc);
-  vtkDataArray* y = this->CreateDataArray(yc);
-  vtkDataArray* z = this->CreateDataArray(zc);
+  vtkAbstractArray* xa = this->CreateArray(xc); 
+  vtkAbstractArray* ya = this->CreateArray(yc); 
+  vtkAbstractArray* za = this->CreateArray(zc); 
+  
+  vtkDataArray* x = vtkDataArray::SafeDownCast(xa);
+  vtkDataArray* y = vtkDataArray::SafeDownCast(ya);
+  vtkDataArray* z = vtkDataArray::SafeDownCast(za);
   if(x && y && z)
     {
     x->SetNumberOfTuples(this->PointDimensions[0]);
@@ -169,17 +173,17 @@ void vtkXMLRectilinearGridReader::SetupOutputData()
     }
   else
     {
-    if (x)
+    if (xa)
       { 
-      x->Delete(); 
+      xa->Delete(); 
       }
-    if (y) 
+    if (ya) 
       { 
-      y->Delete(); 
+      ya->Delete(); 
       }
-    if (z) 
+    if (za) 
       { 
-      z->Delete(); 
+      za->Delete(); 
       }
     this->DataError = 1;
     }
@@ -274,8 +278,8 @@ int vtkXMLRectilinearGridReader::ReadSubCoordinates(int* inBounds,
   int sourceStartIndex = subBounds[0] - inBounds[0];
   int length = subBounds[1] - subBounds[0] + 1;
   
-  return this->ReadData(da, array->GetVoidPointer(destStartIndex*components),
-                        array->GetDataType(), sourceStartIndex, length);
+  return this->ReadArrayValues(da, destStartIndex*components, array,
+    sourceStartIndex, length);
 }
 
 

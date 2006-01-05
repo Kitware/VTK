@@ -23,8 +23,8 @@
 
 #include "vtkAlgorithm.h"
 
+class vtkAbstractArray;
 class vtkCallbackCommand;
-class vtkDataArray;
 class vtkDataArraySelection;
 class vtkDataSet;
 class vtkDataSetAttributes;
@@ -131,9 +131,9 @@ protected:
   // VTKFile element.
   int ReadVTKFile(vtkXMLDataElement* eVTKFile);  
   
-  // Create a vtkDataArray from its cooresponding XML representation.
+  // Create a vtkAbstractArray from its cooresponding XML representation.
   // Does not allocate.
-  vtkDataArray* CreateDataArray(vtkXMLDataElement* da);
+  vtkAbstractArray* CreateArray(vtkXMLDataElement* da);
   
   // Internal utility methods.
   int OpenVTKFile();

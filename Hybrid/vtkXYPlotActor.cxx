@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.61");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.62");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -1109,6 +1109,26 @@ void vtkXYPlotActor::ComputeYRange(double range[2])
 }
 
 //----------------------------------------------------------------------------
+static inline int vtkXYPlotActorGetComponent(vtkFieldData* field,
+  vtkIdType tuple, int component, double* val)
+{
+  int array_comp;
+  int array_index = field->GetArrayContainingComponent(component, array_comp);
+  if (array_index < 0)
+    {
+    return 0;
+    }
+  vtkDataArray* da = field->GetArray(array_index);
+  if (!da)
+    {
+    // non-numeric array.
+    return 0;
+    }
+  *val = da->GetComponent(tuple, array_comp);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::ComputeDORange(double xrange[2], double yrange[2], 
                                     double *lengths)
 {
@@ -1119,19 +1139,29 @@ void vtkXYPlotActor::ComputeDORange(double xrange[2], double yrange[2],
   vtkIdType numTuples, numRows, num, ptId, maxNum;
   double maxLength=0.0, x, y, xPrev = 0.0;
   vtkDataArray *array;
-
+  
+  // NOTE: FieldData can have non-numeric arrays. However, XY plot can only 
+  // work on numeric arrays (or vtkDataArray subclasses). 
+  
   xrange[0] = yrange[0] = VTK_DOUBLE_MAX;
   xrange[1] = yrange[1] = -VTK_DOUBLE_MAX;
   vtkCollectionSimpleIterator doit;
   for ( doNum=0, maxNum=0, this->DataObjectInputList->InitTraversal(doit); 
         (dobj = this->DataObjectInputList->GetNextDataObject(doit)); doNum++)
     {
+
     lengths[doNum] = 0.0;
     field = dobj->GetFieldData();
-    numColumns = field->GetNumberOfComponents(); //number of "columns"
+    numColumns = field->GetNumberOfComponents();  //number of "columns"
+      // numColumns includes the components for non-numeric arrays as well.
     for (numRows = VTK_LARGE_ID, i=0; i<field->GetNumberOfArrays(); i++)
       {
       array = field->GetArray(i);
+      if (!array)
+        {
+        // non-numeric array, skip.
+        continue;
+        }
       numTuples = array->GetNumberOfTuples();
       if ( numTuples < numRows )
         {
@@ -1147,13 +1177,24 @@ void vtkXYPlotActor::ComputeDORange(double xrange[2], double yrange[2],
       // gather the information to form a plot
       for ( ptId=0; ptId < num; ptId++ )
         {
+        int status = 0;
+      
         if ( this->DataObjectPlotMode == VTK_XYPLOT_ROW )
           {
-          x = field->GetComponent(this->XComponent->GetValue(doNum), ptId);
+          // x = field->GetComponent(this->XComponent->GetValue(doNum), ptId);
+          status = ::vtkXYPlotActorGetComponent(field,
+            this->XComponent->GetValue(doNum), ptId, &x);
           }
         else //if ( this->DataObjectPlotMode == VTK_XYPLOT_COLUMN )
           {
-          x = field->GetComponent(ptId, this->XComponent->GetValue(doNum));
+          // x = field->GetComponent(ptId, this->XComponent->GetValue(doNum));
+          status = ::vtkXYPlotActorGetComponent(field,
+            ptId, this->XComponent->GetValue(doNum), &x);
+          }
+        if (!status)
+          {
+          // requested component falls in a non-numeric array, skip it.
+          continue;
           }
         if ( ptId == 0 )
           {
@@ -1208,13 +1249,24 @@ void vtkXYPlotActor::ComputeDORange(double xrange[2], double yrange[2],
     // Get the y-values
     for ( ptId=0; ptId < num; ptId++ )
       {
+      int status = 0;
       if ( this->DataObjectPlotMode == VTK_XYPLOT_ROW )
         {
-        y = field->GetComponent(this->YComponent->GetValue(doNum), ptId);
+        //y = field->GetComponent(this->YComponent->GetValue(doNum), ptId);
+        status = ::vtkXYPlotActorGetComponent(field,
+          this->YComponent->GetValue(doNum), ptId, &y);
         }
       else //if ( this->DataObjectPlotMode == VTK_XYPLOT_COLUMN )
         {
-        y = field->GetComponent(ptId, this->YComponent->GetValue(doNum));
+        //y = field->GetComponent(ptId, this->YComponent->GetValue(doNum));
+        status = ::vtkXYPlotActorGetComponent(field,
+          ptId, this->YComponent->GetValue(doNum), &y);
+        }
+      if (!status)
+        {
+        // requested component falls in non-numeric array.
+        // skip.
+        continue;
         }
       if ( y < yrange[0] )
         {
@@ -1447,9 +1499,15 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
       // determine the shape of the field
       field = dobj->GetFieldData();
       numColumns = field->GetNumberOfComponents(); //number of "columns"
+      // numColumns also includes non-numeric array components.
       for (numRows = VTK_LARGE_ID, i=0; i<field->GetNumberOfArrays(); i++)
         {
         array = field->GetArray(i);
+        if (!array)
+          {
+          // skip non-numeric arrays.
+          continue;
+          }
         numTuples = array->GetNumberOfTuples();
         if ( numTuples < numRows )
           {
@@ -1467,15 +1525,42 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
       // gather the information to form a plot
       for ( numLinePts=0, length=0.0, ptId=0; ptId < numPts; ptId++ )
         {
+        int status1, status2;
         if ( this->DataObjectPlotMode == VTK_XYPLOT_ROW )
           {
-          x[0] = field->GetComponent(this->XComponent->GetValue(doNum),ptId);
-          xyz[1] = field->GetComponent(this->YComponent->GetValue(doNum),ptId);
+          //x[0] = field->GetComponent(this->XComponent->GetValue(doNum),ptId);
+          //xyz[1] = field->GetComponent(this->YComponent->GetValue(doNum),ptId);
+          status1 = ::vtkXYPlotActorGetComponent(field,
+            this->XComponent->GetValue(doNum), ptId, &x[0]);
+          status2 = ::vtkXYPlotActorGetComponent(field,
+            this->YComponent->GetValue(doNum), ptId, &xyz[1]);
           }
         else //if ( this->DataObjectPlotMode == VTK_XYPLOT_COLUMN )
           {
-          x[0] = field->GetComponent(ptId, this->XComponent->GetValue(doNum));
-          xyz[1] = field->GetComponent(ptId, this->YComponent->GetValue(doNum));
+          //x[0] = field->GetComponent(ptId, this->XComponent->GetValue(doNum));
+          //xyz[1] = field->GetComponent(ptId, this->YComponent->GetValue(doNum));
+
+          status1 = ::vtkXYPlotActorGetComponent(field,
+            ptId, this->XComponent->GetValue(doNum), &x[0]);
+
+          if (!status1)
+            {
+            vtkWarningMacro(<< this->XComponent->GetValue(doNum) << " is a non-numeric component.");
+            }
+          
+          status2 = ::vtkXYPlotActorGetComponent(field,
+            ptId, this->YComponent->GetValue(doNum), &xyz[1]);
+
+          if (!status2)
+            {
+            vtkWarningMacro(<< this->YComponent->GetValue(doNum) << " is a non-numeric component.");
+            }
+          }
+        if (!status1 || !status2)
+          {
+          // component is non-numeric.
+          // Skip it.
+          continue;
           }
 
         switch (this->XValues)

@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageAlgorithm.h"
 
+#include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
@@ -22,7 +23,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.26");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.27");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()

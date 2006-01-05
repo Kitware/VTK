@@ -15,6 +15,7 @@
 #include "vtkImageReader2.h"
 
 #include "vtkByteSwap.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -24,7 +25,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.38");
+vtkCxxRevisionMacro(vtkImageReader2, "1.39");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read

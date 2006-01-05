@@ -33,7 +33,7 @@
 #undef  vtkOffsetsManager_DoNotInclude
 
 
-vtkCxxRevisionMacro(vtkXMLHyperOctreeWriter, "1.5");
+vtkCxxRevisionMacro(vtkXMLHyperOctreeWriter, "1.6");
 vtkStandardNewMacro(vtkXMLHyperOctreeWriter);
 
 //----------------------------------------------------------------------------
@@ -144,7 +144,7 @@ int vtkXMLHyperOctreeWriter::WriteData()
     //write out the data arrays in the appended data block while going back
     //and filling in empty offset space in previously written entries
 
-    this->WriteDataArrayAppendedData
+    this->WriteArrayAppendedData
       (this->TopologyArray, 
        this->TopologyOM->GetElement(0).GetPosition(0), 
        this->TopologyOM->GetElement(0).GetOffsetValue(0));
@@ -248,14 +248,14 @@ int vtkXMLHyperOctreeWriter::WriteTopology(vtkIndent indent)
 
   if (this->GetDataMode() == vtkXMLWriter::Appended)
     {
-    this->WriteDataArrayAppended(this->TopologyArray, 
+    this->WriteArrayAppended(this->TopologyArray, 
                                  indent.GetNextIndent(),
                                  this->TopologyOM->GetElement(0),
                                  "Topology", 1, 0);
     }
   else
     {
-    this->WriteDataArrayInline(this->TopologyArray, 
+    this->WriteArrayInline(this->TopologyArray, 
                                indent.GetNextIndent(), "Topology", 1);
     }
 

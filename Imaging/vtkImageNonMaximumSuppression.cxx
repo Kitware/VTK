@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageNonMaximumSuppression.h"
 
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -23,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.55");
+vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.56");
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //----------------------------------------------------------------------------

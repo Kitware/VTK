@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkVolumeTextureMapper.h"
 
+#include "vtkDataArray.h"
 #include "vtkEncodedGradientShader.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
 #include "vtkGarbageCollector.h"
@@ -23,7 +24,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.2");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.3");
 
 vtkVolumeTextureMapper::vtkVolumeTextureMapper()
 {

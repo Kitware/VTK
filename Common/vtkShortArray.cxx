@@ -15,6 +15,8 @@
 // Instantiate superclass first to give the template a DLL interface.
 #include "vtkDataArrayTemplate.txx"
 VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(short);
+#include "vtkArrayIteratorTemplate.txx"
+VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(short);
 
 #define __vtkShortArray_cxx
 #include "vtkShortArray.h"
@@ -22,7 +24,7 @@ VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(short);
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShortArray, "1.54");
+vtkCxxRevisionMacro(vtkShortArray, "1.55");
 vtkStandardNewMacro(vtkShortArray);
 
 //----------------------------------------------------------------------------

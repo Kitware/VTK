@@ -118,7 +118,7 @@ int doStringArrayTest(ostream& strm, int size)
     strm << "FAILED" << endl;
     }
 
-  strm << "\tvtkAbstractArray::GetValues(vtkIdList)...";
+  strm << "\tvtkAbstractArray::GetTuples(vtkIdList)...";
   vtkIdList *indices = vtkIdList::New();
   indices->InsertNextId(10);
   indices->InsertNextId(20);
@@ -126,7 +126,7 @@ int doStringArrayTest(ostream& strm, int size)
 
   vtkStringArray *newValues = vtkStringArray::New();
   newValues->SetNumberOfValues(3);
-  ptr->GetValues(indices, newValues);
+  ptr->GetTuples(indices, newValues);
   
   if (newValues->GetValue(0) == "string entry 10" &&
       newValues->GetValue(1) == "string entry 20" &&
@@ -148,9 +148,9 @@ int doStringArrayTest(ostream& strm, int size)
 
   newValues->Reset();
 
-  strm << "\tvtkAbstractArray::GetValues(vtkIdType, vtkIdType)...";
+  strm << "\tvtkAbstractArray::GetTuples(vtkIdType, vtkIdType)...";
   newValues->SetNumberOfValues(3);
-  ptr->GetValues(30, 32, newValues);
+  ptr->GetTuples(30, 32, newValues);
   if (newValues->GetValue(0) == "string entry 30" &&
       newValues->GetValue(1) == "string entry 31" &&
       newValues->GetValue(2) == "string entry 32")
@@ -163,8 +163,8 @@ int doStringArrayTest(ostream& strm, int size)
     strm << "FAILED" << endl;
     }
 
-  strm << "\tvtkAbstractArray::CopyValue...";
-  ptr->CopyValue(150, 2, newValues);
+  strm << "\tvtkAbstractArray::InsertTuple...";
+  ptr->InsertTuple(150, 2, newValues);
   if (ptr->GetValue(150) == "string entry 32")
     {
     strm << "OK" << endl;
@@ -183,66 +183,6 @@ int doStringArrayTest(ostream& strm, int size)
 
   ptr->Delete();
   delete [] strings;
-
-  strm << "\tvtkAbstractArray::ConvertToContiguous...";
-  vtkStringArray *srcArray = vtkStringArray::New();
-  vtkStringArray *destArray = vtkStringArray::New();
-
-  srcArray->InsertNextValue("First");
-  srcArray->InsertNextValue("Second");
-  srcArray->InsertNextValue("Third");
-
-  vtkDataArray *data;
-  vtkIdTypeArray *offsets;
-  srcArray->ConvertToContiguous(&data, &offsets);
-
-  char combinedString[] = "FirstSecondThird";
-  vtkCharArray *charData = vtkCharArray::SafeDownCast(data);
-  if (charData == NULL)
-    {
-    ++errors;
-    strm << "FAILED: couldn't downcast data array" << endl;
-    }
-  else
-    {
-    for (int i = 0; i < static_cast<int>(strlen(combinedString)); ++i)
-      {
-      if (charData->GetValue(i) != combinedString[i])
-        {
-        strm << "FAILED: array element " << i << " is wrong.  Expected "
-             << combinedString[i] << ", got "
-             << charData->GetValue(i) << endl;
-        ++errors;
-        }
-      }
-    
-
-    destArray->ConvertFromContiguous(data, offsets);
-    
-    if (destArray->GetNumberOfValues() != srcArray->GetNumberOfValues())
-      {
-      ++errors;
-      strm << "FAILED: reconstructed lengths don't match" << endl;
-      }
-    else
-      {
-      for (int i = 0; i < srcArray->GetNumberOfValues(); ++i)
-        {
-        if (destArray->GetValue(i) != srcArray->GetValue(i))
-          {
-          strm << "FAILED: element " << i << " doesn't match" << endl;
-          ++errors;
-          }
-        }
-      }
-    }
-  
-
-  srcArray->Delete();
-  destArray->Delete();
-  data->Delete();
-  offsets->Delete();
-
   return errors;
 }
 

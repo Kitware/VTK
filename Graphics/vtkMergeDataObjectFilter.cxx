@@ -15,6 +15,7 @@
 #include "vtkMergeDataObjectFilter.h"
 
 #include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkExecutive.h"
 #include "vtkFieldData.h"
@@ -24,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkMergeDataObjectFilter, "1.21");
+vtkCxxRevisionMacro(vtkMergeDataObjectFilter, "1.22");
 vtkStandardNewMacro(vtkMergeDataObjectFilter);
 
 //----------------------------------------------------------------------------

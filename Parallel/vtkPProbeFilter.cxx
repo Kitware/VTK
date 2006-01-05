@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.12");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.13");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -117,7 +117,6 @@ int vtkPProbeFilter::RequestData(vtkInformation *vtkNotUsed(request),
     vtkPointData *pointData = output->GetPointData();
     vtkIdType i;
     vtkIdType j;
-    vtkIdType k;
     vtkIdType pointId;
     vtkIdType numComponents = pointData->GetNumberOfComponents();
     double *tuple = new double[numComponents];
@@ -133,13 +132,7 @@ int vtkPProbeFilter::RequestData(vtkInformation *vtkNotUsed(request),
         for (j = 0; j < numRemotePoints; j++)
           {
           pointId = validPoints->GetValue(j);
-        
-          remotePointData->GetTuple(pointId, tuple);
-        
-          for (k = 0; k < numComponents; k++)
-            {
-            output->GetPointData()->SetComponent(pointId, k, tuple[k]);
-            }
+          output->GetPointData()->SetTuple(pointId, pointId, remotePointData);
           }
         }
       }

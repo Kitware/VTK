@@ -63,9 +63,9 @@ protected:
 
   // Overriden here to do allocation.
   virtual int ReadArrayForPoints(vtkXMLDataElement* da,
-                                 vtkDataArray* outArray);
+                                 vtkAbstractArray* outArray);
   virtual int ReadArrayForCells(vtkXMLDataElement* da,
-                                vtkDataArray* outArray);
+                                vtkAbstractArray* outArray);
 
   
 

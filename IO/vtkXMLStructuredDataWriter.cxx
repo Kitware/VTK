@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkXMLStructuredDataWriter.h"
 
+#include "vtkArrayIteratorIncludes.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataCompressor.h"
@@ -29,7 +30,7 @@
 #include "vtkOffsetsManagerArray.h"
 #undef  vtkOffsetsManager_DoNotInclude
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.20");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.21");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -457,9 +458,40 @@ void vtkXMLStructuredDataWriter::SetupExtentTranslator()
 }
 
 //----------------------------------------------------------------------------
-vtkDataArray*
+template <class iterT>
+static inline void vtkXMLStructuredDataWriterCopyTuples(
+  iterT* destIter, vtkIdType destTuple,
+  iterT* srcIter, vtkIdType sourceTuple,
+  vtkIdType numTuples)
+{
+  // for all contiguous-fixed component size arrays (except Bit).
+  int tupleSize = (srcIter->GetDataTypeSize() *
+                   srcIter->GetNumberOfComponents());
+  
+  memcpy(destIter->GetTuple(destTuple), srcIter->GetTuple(sourceTuple),
+    numTuples*tupleSize);
+}
+
+//----------------------------------------------------------------------------
+static inline void vtkXMLStructuredDataWriterCopyTuples(
+  vtkArrayIteratorTemplate<vtkStdString>* destIter, vtkIdType destTuple,
+  vtkArrayIteratorTemplate<vtkStdString>* srcIter, vtkIdType sourceTuple,
+  vtkIdType numTuples)
+{
+  vtkIdType numValues = numTuples * srcIter->GetNumberOfComponents();
+  vtkIdType destIndex = destTuple * destIter->GetNumberOfComponents();
+  vtkIdType srcIndex = sourceTuple * srcIter->GetNumberOfComponents();
+  
+  for (vtkIdType cc=0; cc < numValues; cc++)
+    {
+    destIter->GetValue(destIndex++) = srcIter->GetValue(srcIndex++);
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkAbstractArray*
 vtkXMLStructuredDataWriter
-::CreateExactExtent(vtkDataArray* array, int* inExtent, int* outExtent,
+::CreateExactExtent(vtkAbstractArray* array, int* inExtent, int* outExtent,
                     int isPoint)
 {
   int outDimensions[3];
@@ -480,8 +512,6 @@ vtkXMLStructuredDataWriter
     return array;
     }
 
-  int tupleSize = (array->GetDataTypeSize() *
-                   array->GetNumberOfComponents());
   vtkIdType rowTuples = outDimensions[0];
   vtkIdType sliceTuples = rowTuples*outDimensions[1];
   vtkIdType volumeTuples = sliceTuples*outDimensions[2];
@@ -496,11 +526,10 @@ vtkXMLStructuredDataWriter
   outIncrements[1] = outDimensions[0]*outIncrements[0];
   outIncrements[2] = outDimensions[1]*outIncrements[1];
   
-  vtkDataArray* newArray = array->NewInstance();
+  vtkAbstractArray* newArray = array->NewInstance();
   newArray->SetName(array->GetName());
   newArray->SetNumberOfComponents(array->GetNumberOfComponents());
   newArray->SetNumberOfTuples(volumeTuples);
-  int components = newArray->GetNumberOfComponents();
   
   if((inDimensions[0] == outDimensions[0]) &&
      (inDimensions[1] == outDimensions[1]))
@@ -515,9 +544,22 @@ vtkXMLStructuredDataWriter
       vtkIdType destTuple =
         this->GetStartTuple(outExtent, outIncrements,
                             outExtent[0], outExtent[2], outExtent[4]+k);
-      memcpy(newArray->GetVoidPointer(destTuple*components),
-             array->GetVoidPointer(sourceTuple*components),
-             sliceTuples*tupleSize);
+      switch (newArray->GetDataType())
+        {
+        vtkArrayIteratorTemplateMacro(
+          vtkArrayIterator* iterS = array->NewIterator();
+          vtkArrayIterator* iterD = newArray->NewIterator();
+          vtkXMLStructuredDataWriterCopyTuples(
+            VTK_TT::SafeDownCast(iterD),
+            destTuple,
+            VTK_TT::SafeDownCast(iterS),
+            sourceTuple, sliceTuples);
+          iterD->Delete();
+          iterS->Delete());
+      default:
+        vtkWarningMacro("Unsupported array type: " 
+          << newArray->GetDataTypeAsString());
+        }
       }
     }
   else
@@ -534,9 +576,24 @@ vtkXMLStructuredDataWriter
         vtkIdType destTuple =
           this->GetStartTuple(outExtent, outIncrements,
                               outExtent[0], outExtent[2]+j, outExtent[4]+k);
-        memcpy(newArray->GetVoidPointer(destTuple*components),
-               array->GetVoidPointer(sourceTuple*components),
-               rowTuples*tupleSize);
+
+      switch (newArray->GetDataType())
+        {
+        vtkArrayIteratorTemplateMacro(
+          vtkArrayIterator* iterS = array->NewIterator();
+          vtkArrayIterator* iterD = newArray->NewIterator();
+          vtkXMLStructuredDataWriterCopyTuples(
+            VTK_TT::SafeDownCast(iterD), destTuple,
+            VTK_TT::SafeDownCast(iterS), sourceTuple, rowTuples);
+          iterD->Delete();
+          iterS->Delete());
+        /*
+         * XML Writers cannot handle Bit Arrays anyways.....
+         */
+      default:
+        vtkWarningMacro("Unsupported array type: " 
+          << newArray->GetDataTypeAsString());
+        }
         }
       }
     }
@@ -650,8 +707,8 @@ vtkIdType vtkXMLStructuredDataWriter::GetStartTuple(int* extent,
 }
 
 //----------------------------------------------------------------------------
-vtkDataArray*
-vtkXMLStructuredDataWriter::CreateArrayForPoints(vtkDataArray* inArray)
+vtkAbstractArray*
+vtkXMLStructuredDataWriter::CreateArrayForPoints(vtkAbstractArray* inArray)
 {
   int inExtent[6];
   int outExtent[6];
@@ -665,8 +722,8 @@ vtkXMLStructuredDataWriter::CreateArrayForPoints(vtkDataArray* inArray)
 }
 
 //----------------------------------------------------------------------------
-vtkDataArray*
-vtkXMLStructuredDataWriter::CreateArrayForCells(vtkDataArray* inArray)
+vtkAbstractArray*
+vtkXMLStructuredDataWriter::CreateArrayForCells(vtkAbstractArray* inArray)
 {
   int inExtent[6];
   int outExtent[6];

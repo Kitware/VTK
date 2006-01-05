@@ -14,12 +14,13 @@
 =========================================================================*/
 #include "vtkImageSource.h"
 
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageSource, "1.62");
+vtkCxxRevisionMacro(vtkImageSource, "1.63");
 
 //----------------------------------------------------------------------------
 vtkImageSource::vtkImageSource()

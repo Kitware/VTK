@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.27");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.28");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -377,7 +377,8 @@ void vtkXMLUnstructuredDataReader::SetupOutputData()
   if (ePoints)
     {
     // Non-zero volume.
-    vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
+    vtkAbstractArray* aa = this->CreateArray(ePoints->GetNestedElement(0));
+    vtkDataArray* a = vtkDataArray::SafeDownCast(aa);
     if (a)
       {
       // Allocate the points array.
@@ -387,6 +388,10 @@ void vtkXMLUnstructuredDataReader::SetupOutputData()
       }
     else
       {
+      if (aa)
+        {
+        aa->Delete();
+        }
       this->DataError = 1;
       }
     }
@@ -492,7 +497,13 @@ int vtkXMLUnstructuredDataReader::ReadPieceData()
              !this->AbortExecute);++i)
       {
       vtkXMLDataElement* eNested = ePoints->GetNestedElement(i);
-      assert( strcmp(eNested->GetName(), "DataArray") == 0 );
+      if( strcmp(eNested->GetName(), "DataArray") != 0  && 
+        strcmp(eNested->GetName(),"Array") != 0 )
+        {
+        vtkErrorMacro("Invalid Array.");
+        this->DataError = 1;
+        return 0;
+        }
       int needToRead = this->PointsNeedToReadTimeStep(eNested);
       if( needToRead )
         {
@@ -549,18 +560,23 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
                   << " because the \"offsets\" array could not be found.");
     return 0;
     }
-  vtkDataArray* c1 = this->CreateDataArray(eOffsets);
+  vtkAbstractArray* ac1 = this->CreateArray(eOffsets);
+  vtkDataArray* c1 = vtkDataArray::SafeDownCast(ac1);
   if(!c1 || (c1->GetNumberOfComponents() != 1))
     {
     vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
                   << " in piece " << this->Piece
                   << " because the \"offsets\" array could not be created"
                   << " with one component.");
+    if (ac1)
+      {
+      ac1->Delete();
+      }
     return 0;
     }
   c1->SetNumberOfTuples(numberOfCells);
-  if(!this->ReadData(eOffsets, c1->GetVoidPointer(0), c1->GetDataType(),
-                     0, numberOfCells))
+  if(!this->ReadArrayValues(eOffsets, 0, c1, 
+      0, numberOfCells))
     {
     vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
                   << " in piece " << this->Piece
@@ -610,7 +626,8 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     cellOffsets->Delete();
     return 0;
     }
-  vtkDataArray* c0 = this->CreateDataArray(eConn);
+  vtkAbstractArray* ac0 = this->CreateArray(eConn);
+  vtkDataArray* c0 = vtkDataArray::SafeDownCast(ac0);
   if(!c0 || (c0->GetNumberOfComponents() != 1))
     {
     vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
@@ -618,11 +635,11 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
                   << " because the \"connectivity\" array could not be created"
                   << " with one component.");
     cellOffsets->Delete();
+    if (ac0) { ac0->Delete(); }
     return 0;
     }
   c0->SetNumberOfTuples(cpLength);
-  if(!this->ReadData(eConn, c0->GetVoidPointer(0), c0->GetDataType(),
-                     0, cpLength))
+  if(!this->ReadArrayValues(eConn, 0, c0, 0, cpLength))
     {
     vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
                   << " in piece " << this->Piece
@@ -677,13 +694,13 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
 
 //----------------------------------------------------------------------------
 int vtkXMLUnstructuredDataReader::ReadArrayForPoints(vtkXMLDataElement* da,
-                                                     vtkDataArray* outArray)
+                                                     vtkAbstractArray* outArray)
 {
   vtkIdType startPoint = this->StartPoint;
   vtkIdType numPoints = this->NumberOfPoints[this->Piece];  
   vtkIdType components = outArray->GetNumberOfComponents();
-  return this->ReadData(da, outArray->GetVoidPointer(startPoint*components),
-                        outArray->GetDataType(), 0, numPoints*components);
+  return this->ReadArrayValues(da, startPoint*components,outArray,
+    0, numPoints*components);
 }
 
 //----------------------------------------------------------------------------

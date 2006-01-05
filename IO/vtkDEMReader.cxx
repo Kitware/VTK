@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkImageData.h"
 #include "vtkDEMReader.h"
+
+#include "vtkDataArray.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkDEMReader, "1.40");
+vtkCxxRevisionMacro(vtkDEMReader, "1.41");
 vtkStandardNewMacro(vtkDEMReader);
 
 #define VTK_SW  0

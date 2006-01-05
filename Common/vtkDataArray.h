@@ -12,27 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataArray - abstract superclass for arrays
+// .NAME vtkDataArray - abstract superclass for arrays of numeric data
 // .SECTION Description
-// vtkDataArray is an abstract superclass for data array objects. This class
-// defines an API that all array objects must support. Note that the concrete
-// subclasses of this class represent data in native form (char, int, etc.) and
-// often have specialized more efficient methods for operating on this data 
-// (for example, getting pointers to data or getting/inserting data in native
-// form). 
 //
-// The logical structure of this class is an array of tuples, where each
-// tuple is made up of n-components (also called a component group), and n is
-// the number of component values in a tuple(n >= 1).  Another view of this
-// class is a mxn matrix, where m is the number of tuples, and n is the
-// number of components in a tuple. Thus vtkDataArray can be used to
-// represent scalars (1-4 components), 3D vectors (3 components), texture
-// coordinates (1-3 components), tensors, (9 components) and so on.
-// 
-// Each data array is required to have a character-string name. The 
-// naming of the array occurs automatically when it is instantiated, but 
-// you are free to name arrays using the SetName() method. 
-// (The array name is used for data manipulation.)
+// vtkDataArray is an abstract superclass for data array objects
+// containing numeric data.  It extends the API defined in
+// vtkAbstractArray.  vtkDataArray is an abstract superclass for data
+// array objects. This class defines an API that all array objects
+// must support. Note that the concrete subclasses of this class
+// represent data in native form (char, int, etc.) and often have
+// specialized more efficient methods for operating on this data (for
+// example, getting pointers to data or getting/inserting data in
+// native form).  Subclasses of vtkDataArray are assumed to contain
+// data whose components are meaningful when cast to and from double.
 //
 // .SECTION See Also
 // vtkBitArray vtkCharArray vtkUnsignedCharArray vtkShortArray
@@ -42,7 +34,7 @@
 #ifndef __vtkDataArray_h
 #define __vtkDataArray_h
 
-#include "vtkObject.h"
+#include "vtkAbstractArray.h"
 
 class vtkDoubleArray;
 class vtkLookupTable;
@@ -50,47 +42,83 @@ class vtkIdList;
 
 #define VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES 11
 
-class VTK_COMMON_EXPORT vtkDataArray : public vtkObject 
+class VTK_COMMON_EXPORT vtkDataArray : public vtkAbstractArray
 {
 public:
-  vtkTypeRevisionMacro(vtkDataArray,vtkObject);
+  vtkTypeRevisionMacro(vtkDataArray,vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Allocate memory for this array. Delete old storage only if necessary.
-  // Note that ext is no longer used.
-  virtual int Allocate(vtkIdType sz, vtkIdType ext=1000) = 0;
+  // This method is here to make backward compatibility easier.  It
+  // must return true if and only if an array contains numeric data.
+  // All vtkDataArray subclasses contain numeric data, hence this method
+  // always returns 1(true).
+  virtual int IsNumeric() 
+    { return 1; }
 
   // Description:
-  // Release storage and reset array to initial state.
-  virtual void Initialize() = 0;
+  // Return the size, in bytes, of the lowest-level element of an
+  // array.  For vtkDataArray and subclasses this is the size of the
+  // data type. 
+  virtual int GetElementComponentSize() 
+    { return this->GetDataTypeSize(); }
 
   // Description:
-  // Return the underlying data type. An integer indicating data type is 
-  // returned as specified in vtkSetGet.h.
-  virtual int GetDataType() = 0;
+  // Set the tuple at the ith location using the jth tuple in the source array.
+  // This method assumes that the two arrays have the same type
+  // and structure. Note that range checking and memory allocation is not 
+  // performed; use in conjunction with SetNumberOfTuples() to allocate space.
+  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) = 0;
 
   // Description:
-  // Return the size of the underlying data type.  For a bit, 0 is returned.
-  virtual int GetDataTypeSize() = 0;
-  static unsigned long GetDataTypeSize(int type);
+  // Insert the jth tuple in the source array, at ith location in this array. 
+  // Note that memory allocation is performed as necessary to hold the data.
+  // This pure virtual function is redeclared here to avoid
+  // declaration hidden warnings. 
+  virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) = 0;
 
   // Description:
-  // Set/Get the dimension (n) of the components. Must be >= 1. Make sure that
-  // this is set before allocation.
-  vtkSetClampMacro(NumberOfComponents,int,1,VTK_LARGE_INTEGER);
-  int GetNumberOfComponents() {return this->NumberOfComponents;};
+  // Insert the jth tuple in the source array, at the end in this array. 
+  // Note that memory allocation is performed as necessary to hold the data.
+  // Returns the location at which the data was inserted.
+  // This pure virtual function is redeclared here to avoid
+  // declaration hidden warnings. 
+  virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) = 0;
 
   // Description:
-  // Set the number of tuples (a component group) in the array. Note that 
-  // this may allocate space depending on the number of components.
-  virtual void SetNumberOfTuples(vtkIdType number) = 0;
+  // Given a list of point ids, return an array of tuples.
+  // You must insure that the output array has been previously 
+  // allocated with enough space to hold the data.
+  virtual void GetTuples(vtkIdList *ptIds, vtkAbstractArray *output);
 
   // Description:
-  // Get the number of tuples (a component group) in the array.
-  vtkIdType GetNumberOfTuples() 
-    {return (this->MaxId + 1)/this->NumberOfComponents;}
+  // Get the tuples for the range of points ids specified 
+  // (i.e., p1->p2 inclusive). You must insure that the output array has 
+  // been previously allocated with enough space to hold the data.
+  virtual void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output);
 
+
+  // Description:
+  // Set the ith tuple in this array as the interpolated tuple value,
+  // given the ptIndices in the source array and associated 
+  // interpolation weights.
+  // This method assumes that the two arrays are of the same type
+  // and strcuture.
+  virtual void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
+    vtkAbstractArray* source,  double* weights);
+
+  // Description
+  // Insert the ith tuple in this array as interpolated from the two values, 
+  // p1 and p2, and an interpolation factor, t. 
+  // The interpolation factor ranges from (0,1), 
+  // with t=0 located at p1. This method assumes that the three arrays are of 
+  // the same type. p1 is value at index id1 in source1, while, p2 is
+  // value at index id2 in source2.
+  virtual void InterpolateTuple(vtkIdType i, 
+    vtkIdType id1, vtkAbstractArray* source1, 
+    vtkIdType id2, vtkAbstractArray* source2, double t);
+  
+  
   // Description:
   // Get the data tuple at ith location. Return it as a pointer to an array.
   // Note: this method is not thread-safe, and the pointer is only valid
@@ -112,18 +140,6 @@ public:
   double* GetTuple3(vtkIdType i);
   double* GetTuple4(vtkIdType i);
   double* GetTuple9(vtkIdType i);
-
-  // Description:
-  // Given a list of point ids, return an array of tuples.
-  // You must insure that the output array has been previously 
-  // allocated with enough space to hold the data.
-  void GetTuples(vtkIdList *ptIds, vtkDataArray *output);
-
-  // Description:
-  // Get the tuples for the range of points ids specified 
-  // (i.e., p1->p2 inclusive). You must insure that the output array has 
-  // been previously allocated with enough space to hold the data.
-  void GetTuples(vtkIdType p1, vtkIdType p2, vtkDataArray *output);
 
   // Description:
   // Set the data tuple at ith location. Note that range checking or
@@ -223,6 +239,7 @@ public:
   // Description:
   // Deep copy of data. Copies data from different data arrays even if
   // they are different types (using doubleing-point exchange).
+  virtual void DeepCopy(vtkAbstractArray *aa);
   virtual void DeepCopy(vtkDataArray *da);
 
   // Description:
@@ -241,58 +258,12 @@ public:
   // a component on this data array.
   virtual void CopyComponent(int j, vtkDataArray *from,
                              int fromComponent);
-
+ 
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of
   // data values requested.
   virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number) = 0;
-
-  // Description:
-  // Return a void pointer. For image pipeline interface and other 
-  // special pointer manipulation.
-  virtual void *GetVoidPointer(vtkIdType id) = 0;
-
-  // Description:
-  // Free any unnecessary memory.
-  virtual void Squeeze() = 0;
-
-  // Description:
-  // Resize the array while conserving the data.  Returns 1 if
-  // resizing succeeded and 0 otherwise.
-  virtual int Resize(vtkIdType numTuples) = 0;
-
-  // Description:
-  // Reset to an empty state, without freeing any memory.
-  void Reset() 
-    {this->MaxId = -1;}
-
-  // Description:
-  // Return the size of the data.
-  vtkIdType GetSize() 
-    {return this->Size;}
-  
-  // Description:
-  // What is the maximum id currently in the array.
-  vtkIdType GetMaxId() 
-    {return this->MaxId;}
-
-  // Description:
-  // This method lets the user specify data to be held by the array.  The 
-  // array argument is a pointer to the data.  size is the size of 
-  // the array supplied by the user.  Set save to 1 to keep the class
-  // from deleting the array when it cleans up or reallocates memory.
-  // The class uses the actual array provided; it does not copy the data 
-  // from the supplied array.
-  virtual void SetVoidArray(void *vtkNotUsed(array),
-                            vtkIdType vtkNotUsed(size),
-                            int vtkNotUsed(save)) {};
-
-  // Description:
-  // This method copies the array data to the void pointer specified
-  // by the user.  It is up to the user to allocate enough memory for
-  // the void pointer.
-  virtual void ExportToVoidPointer(void *vtkNotUsed(out_ptr)) {}
 
   // Description:
   // Return the memory in kilobytes consumed by this data array. Used to
@@ -301,7 +272,7 @@ public:
   // actually represent the data represented by this object. The 
   // information returned is valid only after the pipeline has 
   // been updated.
-  unsigned long GetActualMemorySize();
+  virtual unsigned long GetActualMemorySize();
   
   // Description:
   // Create default lookup table. Generally used to create one when none
@@ -312,11 +283,6 @@ public:
   // Set/get the lookup table associated with this scalar data, if any.
   void SetLookupTable(vtkLookupTable *lut);
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
-  
-  // Description:
-  // Set/get array's name
-  vtkSetStringMacro(Name);
-  vtkGetStringMacro(Name);
 
   // Description:
   // Return the range of the array values for the given component. 
@@ -380,13 +346,6 @@ protected:
   ~vtkDataArray();
 
   vtkLookupTable *LookupTable;
-
-  vtkIdType Size;      // allocated size of data
-  vtkIdType MaxId;     // maximum index inserted thus far
-  int NumberOfComponents; // the number of components per tuple
-
-  char* Name;
-
   double Range[2];
 
   // We can have arbitrary number of components, but 11 should

@@ -15,7 +15,6 @@
 #include "vtkXMLReader.h"
 
 #include "vtkCallbackCommand.h"
-#include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataCompressor.h"
 #include "vtkDataSet.h"
@@ -33,7 +32,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.41");
+vtkCxxRevisionMacro(vtkXMLReader, "1.42");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -602,7 +601,7 @@ void vtkXMLReader::SetupOutputData()
 }
 
 //----------------------------------------------------------------------------
-vtkDataArray* vtkXMLReader::CreateDataArray(vtkXMLDataElement* da)
+vtkAbstractArray* vtkXMLReader::CreateArray(vtkXMLDataElement* da)
 {
   int dataType = 0;
   if(!da->GetWordTypeAttribute("type", dataType))
@@ -610,7 +609,7 @@ vtkDataArray* vtkXMLReader::CreateDataArray(vtkXMLDataElement* da)
     return 0;
     }  
   
-  vtkDataArray* array = vtkDataArray::CreateDataArray(dataType);
+  vtkAbstractArray* array = vtkAbstractArray::CreateArray(dataType);
   
   array->SetName(da->GetAttribute("Name"));
   

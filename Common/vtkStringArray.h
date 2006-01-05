@@ -62,7 +62,7 @@ public:
   int GetDataType()
     { return VTK_STRING; }
 
-  bool IsNumeric() { return false; } 
+  int IsNumeric() { return 0; } 
 
   // Description:
   // Release storage and reset array to initial state.
@@ -85,11 +85,49 @@ public:
   int Resize(vtkIdType numTuples);
 
   // Description:
+  // Set the tuple at the ith location using the jth tuple in the source array.
+  // This method assumes that the two arrays have the same type
+  // and structure. Note that range checking and memory allocation is not 
+  // performed; use in conjunction with SetNumberOfTuples() to allocate space.
+  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
+
+  // Description:
+  // Insert the jth tuple in the source array, at ith location in this array. 
+  // Note that memory allocation is performed as necessary to hold the data.
+  virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
+
+  // Description:
+  // Insert the jth tuple in the source array, at the end in this array. 
+  // Note that memory allocation is performed as necessary to hold the data.
+  // Returns the location at which the data was inserted.
+  virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source);
+
+  // Description:
+  // Set the ith tuple in this array as the interpolated tuple value,
+  // given the ptIndices in the source array and associated 
+  // interpolation weights.
+  // This method assumes that the two arrays are of the same type
+  // and strcuture.
+  virtual void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
+    vtkAbstractArray* source,  double* weights);
+
+  // Description
+  // Insert the ith tuple in this array as interpolated from the two values, 
+  // p1 and p2, and an interpolation factor, t. 
+  // The interpolation factor ranges from (0,1), 
+  // with t=0 located at p1. This method assumes that the three arrays are of 
+  // the same type. p1 is value at index id1 in source1, while, p2 is
+  // value at index id2 in source2.
+  virtual void InterpolateTuple(vtkIdType i, 
+    vtkIdType id1, vtkAbstractArray* source1, 
+    vtkIdType id2, vtkAbstractArray* source2, double t);
+
+  // Description:
   // Given a list of indices, return an array of values.  You must
   // insure that the output array has been previously allocated with
   // enough space to hold the data and that the types match
   // sufficiently to allow conversion (if necessary).
-  void GetValues(vtkIdList *ptIds, vtkAbstractArray *output);
+  virtual void GetTuples(vtkIdList *ptIds, vtkAbstractArray *output);
 
   // Description:
   // Get the values for the range of indices specified (i.e.,
@@ -97,11 +135,7 @@ public:
   // previously allocated with enough space to hold the data and that
   // the type of the output array is compatible with the type of this
   // array.
-  void GetValues(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output);
-
-  // Description:
-  // Copy a value from a given source array into this array.
-  void CopyValue(int toIndex, int fromIndex, vtkAbstractArray *sourceArray);
+  virtual void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output);
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
@@ -121,6 +155,12 @@ public:
 //ETX
   void SetValue(vtkIdType id, const char *value);
 
+  // Description:
+  // Set the number of tuples (a component group) in the array. Note that 
+  // this may allocate space depending on the number of components.
+  virtual void SetNumberOfTuples(vtkIdType number)
+    { this->SetNumberOfValues(this->NumberOfComponents* number); }
+  
   // Description:
   // Specify the number of values for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
@@ -160,7 +200,7 @@ public:
   // to verify that the memory has been allocated etc.
   vtkStdString* GetPointer(vtkIdType id) { return this->Array + id; }
   void* GetVoidPointer(vtkIdType id) { return this->GetPointer(id); }
-//BTX
+//ETX
 
   // Description:
   // Deep copy of another string array.  Will complain and change nothing
@@ -193,9 +233,15 @@ public:
   // strings as well as the string containers themselves.
   unsigned long GetActualMemorySize();
 
-  void ConvertToContiguous(vtkDataArray **Data, vtkIdTypeArray **Offsets);
-  void ConvertFromContiguous(vtkDataArray *Data, vtkIdTypeArray *Offsets);
+  // Description:
+  // Returns a vtkArrayIteratorTemplate<vtkStdString>.
+  virtual vtkArrayIterator* NewIterator();
 
+  // Description:
+  // Returns the size of the data in DataTypeSize units. Thus, the number of bytes
+  // for the data can be computed by GetDataSize() * GetDataTypeSize().
+  // The size computation includes the string termination character for each string.
+  virtual unsigned long GetDataSize();
 protected:
   vtkStringArray(vtkIdType numComp=1);
   ~vtkStringArray();

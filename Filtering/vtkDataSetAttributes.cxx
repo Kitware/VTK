@@ -13,9 +13,10 @@
 
 =========================================================================*/
 #include "vtkDataSetAttributes.h"
+
+#include "vtkArrayIteratorIncludes.h"
 #include "vtkCell.h"
 #include "vtkMath.h"
-#include "vtkBitArray.h"
 #include "vtkCharArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkShortArray.h"
@@ -29,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.4");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.5");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -41,6 +42,7 @@ const char vtkDataSetAttributes
   "TCoords",
   "Tensors" };
 
+//--------------------------------------------------------------------------
 // Construct object with copying turned on for all data.
 vtkDataSetAttributes::vtkDataSetAttributes()
 {
@@ -52,6 +54,7 @@ vtkDataSetAttributes::vtkDataSetAttributes()
   this->TargetIndices=0;
 }
 
+//--------------------------------------------------------------------------
 // Destructor for the vtkDataSetAttributes objects.
 vtkDataSetAttributes::~vtkDataSetAttributes()
 {
@@ -60,6 +63,7 @@ vtkDataSetAttributes::~vtkDataSetAttributes()
   this->TargetIndices = 0;
 }
 
+//--------------------------------------------------------------------------
 // Turn on copying of all data.
 void vtkDataSetAttributes::CopyAllOn()
 {
@@ -71,6 +75,7 @@ void vtkDataSetAttributes::CopyAllOn()
   this->CopyTensorsOn();
 }
 
+//--------------------------------------------------------------------------
 // Turn off copying of all data.
 void vtkDataSetAttributes::CopyAllOff()
 {
@@ -82,6 +87,7 @@ void vtkDataSetAttributes::CopyAllOff()
   this->CopyTensorsOff();
 }
 
+//--------------------------------------------------------------------------
 // Deep copy of data (i.e., create new data arrays and
 // copy from input data). Note that attribute data is
 // not copied.
@@ -133,6 +139,7 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData *fd)
           
 }
 
+//--------------------------------------------------------------------------
 // Shallow copy of data (i.e., use reference counting).
 void vtkDataSetAttributes::ShallowCopy(vtkFieldData *fd)
 {
@@ -151,7 +158,7 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData *fd)
     for ( int i=0; i < numArrays; i++ )
       {
       this->NumberOfActiveArrays++;
-      this->SetArray(i, fd->GetArray(i));
+      this->SetArray(i, fd->GetAbstractArray(i));
       if ((attributeType=dsa->IsArrayAnAttribute(i)) != -1)
         {
         // If this array is an attribute in the source, make it so
@@ -174,6 +181,7 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData *fd)
     }
 }
 
+//--------------------------------------------------------------------------
 // Initialize all of the object's data to NULL
 void vtkDataSetAttributes::InitializeFields()
 {
@@ -184,6 +192,7 @@ void vtkDataSetAttributes::InitializeFields()
     }
 }
 
+//--------------------------------------------------------------------------
 // Initialize all of the object's data to NULL
 void vtkDataSetAttributes::Initialize()
 {
@@ -203,6 +212,7 @@ void vtkDataSetAttributes::Initialize()
     }
 }
 
+//--------------------------------------------------------------------------
 // This method is used to determine which arrays
 // will be copied to this object after PassData or PassNoReplaceData
 vtkFieldData::BasicIterator  vtkDataSetAttributes::ComputeRequiredArrays(
@@ -223,7 +233,7 @@ vtkFieldData::BasicIterator  vtkDataSetAttributes::ComputeRequiredArrays(
     // and both CopyAllOff and CopyOn for that array are not true
     if ( (this->GetFlag(arrayName) != 0) &&
          !(this->DoCopyAllOff && (this->GetFlag(arrayName) != 1)) &&
-         pd->GetArray(i))
+         pd->GetAbstractArray(i))
       {
       copyFlags[numArrays] = i;
       numArrays++;
@@ -242,6 +252,7 @@ vtkFieldData::BasicIterator  vtkDataSetAttributes::ComputeRequiredArrays(
     if (this->CopyAttributeFlags[attributeType] && flag)
       {
       // Find out if it is also in the list of fields to be copied
+      // Since attributes can only be vtkDataArray, we use GetArray() call.
       if (pd->GetArray(index))
         {
         alreadyCopied = 0;
@@ -283,6 +294,7 @@ vtkFieldData::BasicIterator  vtkDataSetAttributes::ComputeRequiredArrays(
   return it;
 }
 
+//--------------------------------------------------------------------------
 // Pass entire arrays of input data through to output. Obey the "copy"
 // flags.
 void vtkDataSetAttributes::PassData(vtkFieldData* fd)
@@ -326,7 +338,7 @@ void vtkDataSetAttributes::PassData(vtkFieldData* fd)
     int i, arrayIndex;
     for(i=it.BeginIndex(); !it.End(); i=it.NextIndex())
       {
-      arrayIndex = this->AddArray(dsa->GetArray(i));
+      arrayIndex = this->AddArray(dsa->GetAbstractArray(i));
       // If necessary, make the array an attribute
       if ( ((attributeType = dsa->IsArrayAnAttribute(i)) != -1 ) && 
            this->CopyAttributeFlags[attributeType] )
@@ -345,6 +357,79 @@ void vtkDataSetAttributes::PassData(vtkFieldData* fd)
 
 
 //----------------------------------------------------------------------------
+template <class iterT>
+static void vtkDataSetAttributesCopyValues(
+  iterT* destIter, const int* outExt, int outIncs[3], int rowLength,
+  iterT* srcIter, const int* vtkNotUsed(inExt), int inIncs[3])
+{
+  // For vtkDataArray subclasses.
+  int data_type_size = srcIter->GetArray()->GetDataTypeSize();
+  unsigned char *inPtr;
+  unsigned char *outPtr;
+  unsigned char *inZPtr;
+  unsigned char *outZPtr;
+  
+  // Get the starting input pointer.
+  inZPtr = (unsigned char*)(srcIter->GetArray()->GetVoidPointer(0));
+  // Shift to the start of the subextent.
+  inZPtr += (outExt[0]-outExt[0])*inIncs[0] * data_type_size +
+    (outExt[2] - outExt[2])*inIncs[1] * data_type_size +
+    (outExt[4] - outExt[4])*inIncs[2] * data_type_size;
+
+  // Get output pointer.
+  outZPtr = (unsigned char*)(destIter->GetArray()->GetVoidPointer(0));
+
+  // Loop over z axis.
+  for (int zIdx = outExt[4]; zIdx <= outExt[5]; ++zIdx)
+    {
+    inPtr = inZPtr;
+    outPtr = outZPtr;
+    for (int yIdx = outExt[2]; yIdx <= outExt[3]; ++yIdx)
+      {
+      memcpy(outPtr, inPtr, rowLength * data_type_size);
+      inPtr += inIncs[1] * data_type_size;
+      outPtr += outIncs[1] * data_type_size;
+      }
+    inZPtr += inIncs[2] * data_type_size;
+    outZPtr += outIncs[2] * data_type_size;
+    }
+}
+
+//----------------------------------------------------------------------------
+VTK_TEMPLATE_SPECIALIZE
+static void vtkDataSetAttributesCopyValues(
+  vtkArrayIteratorTemplate<vtkStdString>* destIter, const int* outExt, 
+  int outIncs[3], int rowLength,
+  vtkArrayIteratorTemplate<vtkStdString>* srcIter, 
+  const int* vtkNotUsed(inExt), int inIncs[3])
+{
+  int inZIndex =  (outExt[0]-outExt[0])*inIncs[0] +
+    (outExt[2] - outExt[2])*inIncs[1] +
+    (outExt[4] - outExt[4])*inIncs[2] ;
+
+  int outZIndex = 0;
+  int inIndex;
+  int outIndex;
+
+  for (int zIdx = outExt[4]; zIdx <= outExt[5]; ++zIdx)
+    {
+    inIndex = inZIndex;
+    outIndex = outZIndex;
+    for (int yIdx = outExt[2]; yIdx <= outExt[3]; ++yIdx)
+      {
+      for (int xIdx = 0; xIdx < rowLength; ++xIdx)
+        {
+        destIter->GetValue(outIndex + xIdx) = srcIter->GetValue(inIndex + xIdx);
+        }
+      inIndex += inIncs[1];
+      outIndex += outIncs[1];
+      }
+    inZIndex += inIncs[2];
+    outZIndex += outIncs[2];
+    }
+}
+
+//----------------------------------------------------------------------------
 // This is used in the imaging pipeline for copying arrays.
 // CopyAllocate needs to be called before this method. 
 void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
@@ -355,19 +440,15 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
   for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
       i=this->RequiredArrays.NextIndex())
     {
-    vtkDataArray *inArray = fromPd->Data[i];
-    vtkDataArray *outArray = this->Data[this->TargetIndices[i]];
-    unsigned char *inPtr;
-    unsigned char *outPtr;
-    unsigned char *inZPtr;
-    unsigned char *outZPtr;
+    vtkDataArray *inArray = vtkDataArray::SafeDownCast(fromPd->Data[i]);
+    vtkDataArray *outArray = vtkDataArray::SafeDownCast(this->Data[this->TargetIndices[i]]);
     int inIncs[3];
     int outIncs[3];
     int rowLength;
-    int yIdx, zIdx;
+    int zIdx;
 
     // Compute increments
-    inIncs[0] = inArray->GetDataTypeSize() * inArray->GetNumberOfComponents();
+    inIncs[0] = /*inArray->GetDataTypeSize() * */ inArray->GetNumberOfComponents();
     inIncs[1] = inIncs[0] * (inExt[1]-inExt[0]+1);
     inIncs[2] = inIncs[1] * (inExt[3]-inExt[2]+1);
     outIncs[0] = inIncs[0];
@@ -394,44 +475,29 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
       outArray->SetNumberOfTuples(zIdx);
       }
 
-    // Get the starting input pointer.
-    inZPtr = (unsigned char*)(inArray->GetVoidPointer(0));
-    // Shift to the start of the subextent.
-    inZPtr += (outExt[0]-outExt[0])*inIncs[0] +
-      (outExt[2] - outExt[2])*inIncs[1] +
-      (outExt[4] - outExt[4])*inIncs[2];
-
-    // Get output pointer.
-    outZPtr = (unsigned char*)(outArray->GetVoidPointer(0));
-
-    // Loop over z axis.
-    for (zIdx = outExt[4]; zIdx <= outExt[5]; ++zIdx)
+    vtkArrayIterator* srcIter = inArray->NewIterator();
+    vtkArrayIterator* destIter = outArray->NewIterator();
+    
+    switch (inArray->GetDataType())
       {
-      inPtr = inZPtr;
-      outPtr = outZPtr;
-      for (yIdx = outExt[2]; yIdx <= outExt[3]; ++yIdx)
-        {
-        memcpy(outPtr, inPtr, rowLength);
-        inPtr += inIncs[1];
-        outPtr += outIncs[1];
-        }
-      inZPtr += inIncs[2];
-      outZPtr += outIncs[2];
+      vtkArrayIteratorTemplateMacro(
+        vtkDataSetAttributesCopyValues(
+          VTK_TT::SafeDownCast(destIter), outExt, outIncs, rowLength,
+          VTK_TT::SafeDownCast(srcIter), inExt, inIncs));
       }
+    srcIter->Delete();
+    destIter->Delete();
     }
 }
 
-
-
-
-
+//--------------------------------------------------------------------------
 // Allocates point data for point-by-point (or cell-by-cell) copy operation.  
 // If sze=0, then use the input DataSetAttributes to create (i.e., find 
 // initial size of) new objects; otherwise use the sze variable.
 void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, 
                                         vtkIdType sze, vtkIdType ext)
 {
-  vtkDataArray* newDA;
+  vtkAbstractArray* newAA;
   int i;
 
   // Create various point data depending upon input
@@ -453,7 +519,7 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd,
     this->TargetIndices[i] = -1;
     }
 
-  vtkDataArray* da=0;
+  vtkAbstractArray* aa=0;
   // If we are not copying on self
   if ( pd != this )
     {
@@ -463,27 +529,32 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd,
         i=this->RequiredArrays.NextIndex())
       {
       // Create all required arrays
-      da = pd->GetArray(i);
-      newDA = da->NewInstance();
-      newDA->SetNumberOfComponents(da->GetNumberOfComponents());
-      newDA->SetName(da->GetName());
+      aa = pd->GetAbstractArray(i);
+      newAA = aa->NewInstance();
+      newAA->SetNumberOfComponents(aa->GetNumberOfComponents());
+      newAA->SetName(aa->GetName());
       if ( sze > 0 )
         {
-        newDA->Allocate(sze*da->GetNumberOfComponents(),ext);
+        newAA->Allocate(sze*aa->GetNumberOfComponents(),ext);
         }
       else
         {
-        newDA->Allocate(da->GetNumberOfTuples());
+        newAA->Allocate(aa->GetNumberOfTuples());
         }
-      newDA->SetLookupTable(da->GetLookupTable());
-      this->TargetIndices[i] = this->AddArray(newDA);
+      vtkDataArray* newDA = vtkDataArray::SafeDownCast(newAA);
+      if (newDA)
+        {
+        vtkDataArray* da = vtkDataArray::SafeDownCast(aa);
+        newDA->SetLookupTable(da->GetLookupTable());
+        }
+      this->TargetIndices[i] = this->AddArray(newAA);
       // If necessary, make the array an attribute
       if ( ((attributeType = pd->IsArrayAnAttribute(i)) != -1 ) && 
            this->CopyAttributeFlags[attributeType] )
         {
         this->SetActiveAttribute(this->TargetIndices[i], attributeType);
         }
-      newDA->Delete();
+      newAA->Delete();
       }
     }
   else
@@ -493,20 +564,21 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd,
     for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
         i=this->RequiredArrays.NextIndex())
       {
-      da = pd->GetArray(i);
-      da->Resize(sze);
+      aa = pd->GetAbstractArray(i);
+      aa->Resize(sze);
       this->TargetIndices[i] = i;
       }
     }
 }
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::RemoveArray(int index)
 {
   if ( (index<0) || (index>=this->NumberOfActiveArrays))
     {
     return;
     }
-  this->vtkFieldData::RemoveArray(index);
+  this->Superclass::RemoveArray(index);
   int attributeType;
   for(attributeType = 0; attributeType < NUM_ATTRIBUTES; attributeType++)
     {
@@ -521,6 +593,7 @@ void vtkDataSetAttributes::RemoveArray(int index)
     }
 }
 
+//--------------------------------------------------------------------------
 // Copy the attribute data from one id to another. Make sure CopyAllocate() has
 // been invoked before using this method.
 void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd,
@@ -535,6 +608,7 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd,
     }
 }
 
+//--------------------------------------------------------------------------
 // Initialize point interpolation method.
 void vtkDataSetAttributes::InterpolateAllocate(vtkDataSetAttributes* pd,
                                                vtkIdType sze, vtkIdType ext)
@@ -542,6 +616,7 @@ void vtkDataSetAttributes::InterpolateAllocate(vtkDataSetAttributes* pd,
   this->CopyAllocate(pd, sze, ext);
 }
 
+//--------------------------------------------------------------------------
 // Interpolate data from points and interpolation weights. Make sure that the 
 // method InterpolateAllocate() has been invoked before using this method.
 void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd, 
@@ -552,12 +627,12 @@ void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd,
   for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
       i=this->RequiredArrays.NextIndex())
     {
-    this->InterpolateTuple(fromPd->Data[i], 
-                           this->Data[this->TargetIndices[i]], 
-                           toId, ptIds, weights);
+    vtkAbstractArray* fromArray = this->Data[this->TargetIndices[i]];
+    fromArray->InterpolateTuple(toId, ptIds, fromPd->Data[i], weights);
     }
 }
 
+//--------------------------------------------------------------------------
 // Interpolate data from the two points p1,p2 (forming an edge) and an 
 // interpolation factor, t, along the edge. The weight ranges from (0,1), 
 // with t=0 located at p1. Make sure that the method InterpolateAllocate() 
@@ -570,12 +645,13 @@ void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd,
   for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
       i=this->RequiredArrays.NextIndex())
     {
-    this->InterpolateTuple(fromPd->Data[i], 
-                           this->Data[this->TargetIndices[i]], 
-                           toId, p1, p2, t);
+    vtkAbstractArray* fromArray = fromPd->Data[i];
+    vtkAbstractArray* toArray = this->Data[this->TargetIndices[i]];
+    toArray->InterpolateTuple(toId, p1, fromArray, p2, fromArray, t);
     }
 }
 
+//--------------------------------------------------------------------------
 // Interpolate data from the two points p1,p2 (forming an edge) and an 
 // interpolation factor, t, along the edge. The weight ranges from (0,1), 
 // with t=0 located at p1. Make sure that the method InterpolateAllocate() 
@@ -592,223 +668,39 @@ void vtkDataSetAttributes::InterpolateTime(vtkDataSetAttributes *from1,
       if (from1->GetAttribute(attributeType) && 
           from2->GetAttribute(attributeType))
         {
-        this->InterpolateTuple(from1->GetAttribute(attributeType), 
-                               from2->GetAttribute(attributeType),
-                               this->GetAttribute(attributeType), id, t);
+        vtkAbstractArray* toArray = this->GetAttribute(attributeType);
+        toArray->InterpolateTuple(id, id, from1->GetAttribute(attributeType),
+          id, from2->GetAttribute(attributeType), t);
         }
       }
     }
 }
 
-template <class T>
-void vtkDataSetAttributesCopyTuple(T* from, T* to, int numComp)
-{
-  for(int i=0; i < numComp; ++i)
-    {
-    *to++ = *from++;
-    }
-}
-
+//--------------------------------------------------------------------------
 // Copy a tuple of data from one data array to another. This method (and
 // following ones) assume that the fromData and toData objects are of the
 // same type, and have the same number of components. This is true if you
 // invoke CopyAllocate() or InterpolateAllocate().
-void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData,
-                                     vtkDataArray *toData, vtkIdType fromId,
+void vtkDataSetAttributes::CopyTuple(vtkAbstractArray *fromData,
+                                     vtkAbstractArray *toData, vtkIdType fromId,
                                      vtkIdType toId)
 {
-  int i;
-  int numComp=fromData->GetNumberOfComponents();
-  switch (fromData->GetDataType())
-    {
-    vtkTemplateMacro(
-      void* vto = toData->WriteVoidPointer(toId*numComp, numComp);
-      void* vfrom = fromData->GetVoidPointer(fromId*numComp);
-      vtkDataSetAttributesCopyTuple(static_cast<VTK_TT*>(vfrom),
-                                    static_cast<VTK_TT*>(vto), numComp)
-      );
-    case VTK_BIT:
-      {
-      vtkBitArray *from=(vtkBitArray *)fromData;
-      vtkBitArray *to=(vtkBitArray *)toData;
-      for (i=0; i<numComp; i++)
-        {
-        to->InsertValue(toId+i, from->GetValue(fromId+i));
-        }
-      }
-      break;
-    default:
-      vtkErrorMacro("Unsupported data type " << fromData->GetDataType()
-                    << " during copy!");
-    }
+  toData->InsertTuple(toId, fromId, fromData);
 }
 
-template <class T>
-void vtkDataSetAttributesInterpolateTuple(T* from, T* to, int numComp,
-                                          vtkIdType* ids, vtkIdType numIds,
-                                          double* weights)
-{
-  for(int i=0; i < numComp; ++i)
-    {
-    double c = 0;
-    for(vtkIdType j=0; j < numIds; ++j)
-      {
-      c += weights[j]*from[ids[j]*numComp+i];
-      }
-    *to++ = static_cast<T>(c);
-    }
-}
-
-// double versions
-void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData, 
-                                            vtkDataArray *toData, 
-                                            vtkIdType toId, vtkIdList *ptIds, 
-                                            double *weights)
-{
-  int numComp=fromData->GetNumberOfComponents(), i;
-  vtkIdType j, numIds=ptIds->GetNumberOfIds();
-  vtkIdType *ids=ptIds->GetPointer(0);
-  vtkIdType idx=toId*numComp;
-  double c;
-  
-  switch (fromData->GetDataType())
-    {
-    case VTK_BIT:
-      {
-      vtkBitArray *from=(vtkBitArray *)fromData;
-      vtkBitArray *to=(vtkBitArray *)toData;
-      for (i=0; i<numComp; i++)
-        {
-        for (c=0, j=0; j<numIds; j++)
-          {
-          c += weights[j]*from->GetValue(ids[j]*numComp+i);
-          }
-        to->InsertValue(idx+i, (int)c);
-        }
-      }
-      break;
-    vtkTemplateMacro(
-      void* vfrom = fromData->GetVoidPointer(0);
-      void* vto = toData->WriteVoidPointer(idx, numComp);
-      vtkDataSetAttributesInterpolateTuple(static_cast<VTK_TT*>(vfrom),
-                                           static_cast<VTK_TT*>(vto),
-                                           numComp, ids, numIds, weights)
-      );
-    default:
-      vtkErrorMacro("Unsupported data type " << fromData->GetDataType()
-                    << " during interpolation!");
-    }
-}
-
-template <class T>
-void vtkDataSetAttributesInterpolateTuple(T* from, T* to, int numComp,
-                                          vtkIdType idx1, vtkIdType idx2,
-                                          double t)
-{
-  for(int i=0; i < numComp; ++i)
-    {
-    double c = (1.0 - t) * from[idx1+i] + t * from[idx2+i];
-    *to++ = static_cast<T>(c);
-    }
-}
-
-void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
-                                            vtkDataArray *toData,
-                                            vtkIdType toId, vtkIdType id1,
-                                            vtkIdType id2, double t)
-{
-  int i, numComp=fromData->GetNumberOfComponents();
-  vtkIdType idx=toId*numComp;
-  vtkIdType idx1=id1*numComp, idx2=id2*numComp;
-  double c;
-  
-  switch (fromData->GetDataType())
-    {
-    case VTK_BIT:
-      {
-      vtkBitArray *from=(vtkBitArray *)fromData;
-      vtkBitArray *to=(vtkBitArray *)toData;
-      for (i=0; i<numComp; i++)
-        {
-        c = from->GetValue(idx1+i)+ t * (from->GetValue(idx2+i) - from->GetValue(idx1+i));
-        to->InsertValue(idx+i, (int)c);
-        }
-      }
-      break;
-    vtkTemplateMacro(
-      void* vfrom = fromData->GetVoidPointer(0);
-      void* vto = toData->WriteVoidPointer(idx, numComp);
-      vtkDataSetAttributesInterpolateTuple(static_cast<VTK_TT*>(vfrom),
-                                           static_cast<VTK_TT*>(vto),
-                                           numComp, idx1, idx2, t)
-      );
-    default:
-      vtkErrorMacro("Unsupported data type " << fromData->GetDataType()
-                    << " during interpolation!");
-    }
-}
-
-template <class T>
-void vtkDataSetAttributesInterpolateTuple(T* from1, T* from2, T* to,
-                                          int numComp, vtkIdType idx, double t)
-{
-  for(int i=0; i < numComp; ++i)
-    {
-    vtkIdType ii = idx + i;
-    double c = (1.0 - t) * from1[ii] + t * from2[ii];
-    *to++ = static_cast<T>(c);
-    }
-}
-
-void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData1,
-                                            vtkDataArray *fromData2, 
-                                            vtkDataArray *toData, vtkIdType id,
-                                            double t)
-{
-  int i, numComp=fromData1->GetNumberOfComponents();
-  vtkIdType idx=id*numComp, ii;
-  double c;
-
-  switch (fromData1->GetDataType())
-    {
-    case VTK_BIT:
-      {
-      vtkBitArray *from1=(vtkBitArray *)fromData1;
-      vtkBitArray *from2=(vtkBitArray *)fromData2;
-      vtkBitArray *to=(vtkBitArray *)toData;
-      for (i=0; i<numComp; i++)
-        {
-        ii = idx + i;
-        c = from1->GetValue(ii) + t * (from2->GetValue(ii) - from1->GetValue(ii));
-        to->InsertValue(ii, (int)c);
-        }
-      }
-      break;
-    vtkTemplateMacro(
-      void* vfrom1 = fromData1->GetVoidPointer(0);
-      void* vfrom2 = fromData2->GetVoidPointer(0);
-      void* vto = toData->WriteVoidPointer(idx, numComp);
-      vtkDataSetAttributesInterpolateTuple(static_cast<VTK_TT*>(vfrom1),
-                                           static_cast<VTK_TT*>(vfrom2),
-                                           static_cast<VTK_TT*>(vto),
-                                           numComp, idx, t)
-      );
-    default:
-      vtkErrorMacro("Unsupported data type " << fromData1->GetDataType()
-                    << " during interpolation!");
-    }
-}
-
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetScalars(vtkDataArray* da) 
 { 
   return this->SetAttribute(da, SCALARS); 
 }
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetActiveScalars(const char* name)
 { 
   return this->SetActiveAttribute(name, SCALARS); 
 }
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetActiveAttribute(const char* name,
                                              int attributeType)
 {
@@ -817,70 +709,84 @@ int vtkDataSetAttributes::SetActiveAttribute(const char* name,
   return this->SetActiveAttribute(index, attributeType);
 }
 
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetScalars() 
 { 
   return this->GetAttribute(SCALARS); 
 }
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetVectors(vtkDataArray* da) 
 { 
 return this->SetAttribute(da, VECTORS); 
 }
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetActiveVectors(const char* name)
 { 
   return this->SetActiveAttribute(name, VECTORS); 
 }
 
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetVectors() 
 { 
   return this->GetAttribute(VECTORS); 
 }
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetNormals(vtkDataArray* da) 
 { 
   return this->SetAttribute(da, NORMALS); 
 }
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetActiveNormals(const char* name)
 { 
   return this->SetActiveAttribute(name, NORMALS); 
 }
 
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetNormals() 
 { 
   return this->GetAttribute(NORMALS); 
 }
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetTCoords(vtkDataArray* da) 
 { 
   return this->SetAttribute(da, TCOORDS); 
 }
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetActiveTCoords(const char* name)
 { 
   return this->SetActiveAttribute(name, TCOORDS); 
 }
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetTCoords() 
 { 
   return this->GetAttribute(TCOORDS); 
 }
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetTensors(vtkDataArray* da) 
 { 
   return this->SetAttribute(da, TENSORS); 
 }
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetActiveTensors(const char* name)
 { 
   return this->SetActiveAttribute(name, TENSORS); 
 }
 
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetTensors() 
 { 
   return this->GetAttribute(TENSORS); 
 }
 
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetScalars(const char* name)
 {
   if (name == NULL || name[0] == '\0')
@@ -890,6 +796,7 @@ vtkDataArray* vtkDataSetAttributes::GetScalars(const char* name)
   return this->GetArray(name);
 }
 
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetVectors(const char* name)
 {
   if (name == NULL || name[0] == '\0')
@@ -899,6 +806,7 @@ vtkDataArray* vtkDataSetAttributes::GetVectors(const char* name)
   return this->GetArray(name);
 }
 
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetNormals(const char* name)
 {
   if (name == NULL || name[0] == '\0')
@@ -908,6 +816,7 @@ vtkDataArray* vtkDataSetAttributes::GetNormals(const char* name)
   return this->GetArray(name);
 }
 
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetTCoords(const char* name)
 {
   if (name == NULL || name[0] == '\0')
@@ -917,6 +826,7 @@ vtkDataArray* vtkDataSetAttributes::GetTCoords(const char* name)
   return this->GetArray(name);
 }
 
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetTensors(const char* name)
 {
   if (name == NULL || name[0] == '\0')
@@ -926,11 +836,22 @@ vtkDataArray* vtkDataSetAttributes::GetTensors(const char* name)
   return this->GetArray(name);
 }
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
 {
   if ( (index >= 0) && (index < this->GetNumberOfArrays()))
     {
-    if (!this->CheckNumberOfComponents(this->Data[index], attributeType))
+    vtkDataArray* darray = vtkDataArray::SafeDownCast(
+      this->Data[index]);
+    if (!darray)
+      {
+      vtkWarningMacro("Can not set attribute " 
+        << vtkDataSetAttributes::AttributeNames[attributeType]
+        << ".Only vtkDataArray subclasses can be set as active attributes.");
+      return -1;
+      }
+
+    if (!this->CheckNumberOfComponents(darray, attributeType))
       {
       vtkWarningMacro("Can not set attribute " 
                       << vtkDataSetAttributes::AttributeNames[attributeType]
@@ -950,6 +871,7 @@ int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
   return -1;
 }
 
+//--------------------------------------------------------------------------
 const int vtkDataSetAttributes
 ::NumberOfAttributeComponents[vtkDataSetAttributes::NUM_ATTRIBUTES] =
 { 0,
@@ -958,6 +880,7 @@ const int vtkDataSetAttributes
   3,
   9};
 
+//--------------------------------------------------------------------------
 // Scalars set to NOLIMIT 
 const int vtkDataSetAttributes
 ::AttributeLimits[vtkDataSetAttributes::NUM_ATTRIBUTES] =
@@ -967,6 +890,7 @@ const int vtkDataSetAttributes
   MAX,
   EXACT };
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::CheckNumberOfComponents(vtkDataArray* da,
                                                   int attributeType)
 {
@@ -1006,6 +930,7 @@ int vtkDataSetAttributes::CheckNumberOfComponents(vtkDataArray* da,
     }
 }
 
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetAttribute(int attributeType)
 {
   int index = this->AttributeIndices[attributeType];
@@ -1015,10 +940,11 @@ vtkDataArray* vtkDataSetAttributes::GetAttribute(int attributeType)
     }
   else
     {
-    return this->Data[index];
+    return vtkDataArray::SafeDownCast(this->Data[index]);
     }
 }
 
+//--------------------------------------------------------------------------
 // This method lets the user add an array and make it the current
 // scalars, vectors etc... (this is determined by the attribute type
 // which is an enum defined vtkDataSetAttributes)
@@ -1059,6 +985,7 @@ int vtkDataSetAttributes::SetAttribute(vtkDataArray* da, int attributeType)
   return this->AttributeIndices[attributeType];
 }
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -1091,6 +1018,7 @@ void vtkDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::GetAttributeIndices(int* indexArray)
 {
   for(int i=0; i<NUM_ATTRIBUTES; i++)
@@ -1099,6 +1027,7 @@ void vtkDataSetAttributes::GetAttributeIndices(int* indexArray)
     }
 }
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::IsArrayAnAttribute(int idx)
 {
   for (int i=0; i<NUM_ATTRIBUTES; i++)
@@ -1111,6 +1040,7 @@ int vtkDataSetAttributes::IsArrayAnAttribute(int idx)
   return -1;
 }
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::SetCopyAttribute (int index, int value) 
 { 
   if (this->CopyAttributeFlags[ index ] != value) 
@@ -1120,6 +1050,7 @@ void vtkDataSetAttributes::SetCopyAttribute (int index, int value)
     } 
 } 
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::SetCopyScalars(int i) 
 { 
   this->SetCopyAttribute(SCALARS, i); 
@@ -1128,41 +1059,51 @@ int vtkDataSetAttributes::GetCopyScalars() {
   return this->CopyAttributeFlags[SCALARS]; 
 }
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::SetCopyVectors(int i) 
 { 
   this->SetCopyAttribute(VECTORS, i); 
 }
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::GetCopyVectors() 
 { 
   return this->CopyAttributeFlags[VECTORS]; 
 }
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::SetCopyNormals(int i) 
 { 
   this->SetCopyAttribute(NORMALS, i); 
 }
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::GetCopyNormals() 
 { 
   return this->CopyAttributeFlags[NORMALS]; 
 }
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::SetCopyTCoords(int i) 
 { 
   this->SetCopyAttribute(TCOORDS, i); 
 }
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::GetCopyTCoords() 
 { 
   return this->CopyAttributeFlags[TCOORDS]; 
 }
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::SetCopyTensors(int i) 
 { 
   this->SetCopyAttribute(TENSORS, i); 
 }
-int vtkDataSetAttributes::GetCopyTensors() { 
+//--------------------------------------------------------------------------
+int vtkDataSetAttributes::GetCopyTensors() 
+{
   return this->CopyAttributeFlags[TENSORS]; 
 }
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::RemoveArray(const char *name)
 {
   int i;
@@ -1170,9 +1111,11 @@ void vtkDataSetAttributes::RemoveArray(const char *name)
   this->RemoveArray(i);
 }
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list, 
                                         vtkIdType sze, vtkIdType ext)
 {
+  vtkAbstractArray* newAA=0;
   vtkDataArray* newDA=0;
   int i;
 
@@ -1181,24 +1124,28 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list,
     {
     if ( list.FieldIndices[i] >= 0 )
       {
-      newDA = vtkDataArray::CreateDataArray(list.FieldTypes[i]);
-      newDA->SetName(list.Fields[i]);
-      newDA->SetNumberOfComponents(list.FieldComponents[i]);
+      newAA = vtkAbstractArray::CreateArray(list.FieldTypes[i]);
+      newAA->SetName(list.Fields[i]);
+      newAA->SetNumberOfComponents(list.FieldComponents[i]);
 
       if ( sze > 0 )
         {
-        newDA->Allocate(sze,ext);
+        newAA->Allocate(sze,ext);
         }
       else
         {
-        newDA->Allocate(list.NumberOfTuples,ext);
+        newAA->Allocate(list.NumberOfTuples,ext);
         }
-      newDA->SetLookupTable(list.LUT[i]);
+      if ( (newDA = vtkDataArray::SafeDownCast(newAA)) )
+        {
+        newDA->SetLookupTable(list.LUT[i]);
+        }
 
       // If attribute data, do something extra
       if ( i < NUM_ATTRIBUTES )
         {
-        if ( this->CopyAttributeFlags[i] )
+        // since attributes can only be DataArray, newDA must be non-null.
+        if ( this->CopyAttributeFlags[i] && newDA)
           {
           list.FieldIndices[i] = this->AddArray(newDA);
           this->SetActiveAttribute(list.FieldIndices[i], i);
@@ -1221,11 +1168,12 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list,
           }
         }
 
-      newDA->Delete(); //okay, reference counting
+      newAA->Delete(); //okay, reference counting
       }//data array defined
     }
 }
 
+//--------------------------------------------------------------------------
 // Description:
 // A special form of CopyData() to be used with FieldLists. Use it when you are
 // copying data from a set of vtkDataSetAttributes. Make sure that you have
@@ -1294,10 +1242,12 @@ void vtkDataSetAttributes::FieldList::InitializeFieldList(vtkDataSetAttributes* 
   this->IntersectFieldList(dsa);
 }
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::FieldList::IntersectFieldList(vtkDataSetAttributes* dsa)
 {
   int i;
   vtkDataArray *da;
+  vtkAbstractArray* aa;
   
   // Initialize the indices for this dataset
   this->DSAIndices[this->CurrentInput] = new int [this->NumberOfFields];
@@ -1338,9 +1288,9 @@ void vtkDataSetAttributes::FieldList::IntersectFieldList(vtkDataSetAttributes* d
     {
     if (this->FieldIndices[i] >= 0)
       {
-      da = dsa->GetArray(this->Fields[i], index);
-      if ((da) && (da->GetDataType() == this->FieldTypes[i]) &&
-          (da->GetNumberOfComponents() == this->FieldComponents[i]))
+      aa = dsa->GetAbstractArray(this->Fields[i], index);
+      if ((aa) && (aa->GetDataType() == this->FieldTypes[i]) &&
+          (aa->GetNumberOfComponents() == this->FieldComponents[i]))
         {
         this->DSAIndices[this->CurrentInput][i] = index;
         }
@@ -1355,12 +1305,14 @@ void vtkDataSetAttributes::FieldList::IntersectFieldList(vtkDataSetAttributes* d
   this->CurrentInput++;
 }
 
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::FieldList::IsAttributePresent(int attrType)
 {
   return this->FieldIndices[attrType];
 }
 
 
+//--------------------------------------------------------------------------
 vtkDataSetAttributes::FieldList::FieldList(int numInputs)
 {
   this->Fields = 0;
@@ -1377,6 +1329,7 @@ vtkDataSetAttributes::FieldList::FieldList(int numInputs)
     }
 }
 
+//--------------------------------------------------------------------------
 vtkDataSetAttributes::FieldList::~FieldList()
 {
   this->ClearFields();
@@ -1384,6 +1337,7 @@ vtkDataSetAttributes::FieldList::~FieldList()
   this->DSAIndices = 0;
 }
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::FieldList::ClearFields()
 {
   if ( this->Fields )
@@ -1417,11 +1371,18 @@ void vtkDataSetAttributes::FieldList::ClearFields()
   this->CurrentInput = 0;
 }
 
-void vtkDataSetAttributes::FieldList::SetField(int index, vtkDataArray *da)
+//--------------------------------------------------------------------------
+void vtkDataSetAttributes::FieldList::SetField(int index, 
+  vtkAbstractArray *aa)
 {
-  const char* name=da->GetName();
-  int dataType=da->GetDataType();
-  vtkLookupTable *lut=da->GetLookupTable();
+  const char* name=aa->GetName();
+  int dataType=aa->GetDataType();
+  vtkLookupTable *lut = 0;
+  
+  if (vtkDataArray::SafeDownCast(aa))
+    {
+    lut=vtkDataArray::SafeDownCast(aa)->GetLookupTable();
+    }
   
   if ( this->Fields[index] )
     {
@@ -1430,7 +1391,7 @@ void vtkDataSetAttributes::FieldList::SetField(int index, vtkDataArray *da)
     }
   
   this->FieldTypes[index] = dataType;
-  this->FieldComponents[index] = da->GetNumberOfComponents();
+  this->FieldComponents[index] = aa->GetNumberOfComponents();
   this->LUT[index] = lut;
   if (name)
     {
@@ -1448,6 +1409,7 @@ void vtkDataSetAttributes::FieldList::SetField(int index, vtkDataArray *da)
     
 }
 
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::FieldList::RemoveField(const char *name)
 {
   if ( !name )
@@ -1468,6 +1430,7 @@ void vtkDataSetAttributes::FieldList::RemoveField(const char *name)
 }
 
 
+//--------------------------------------------------------------------------
 const char* vtkDataSetAttributes::GetAttributeTypeAsString(int attributeType)
 {
   if (attributeType < 0 || attributeType >= NUM_ATTRIBUTES)

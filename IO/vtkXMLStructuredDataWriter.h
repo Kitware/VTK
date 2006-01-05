@@ -22,8 +22,8 @@
 
 #include "vtkXMLWriter.h"
 
+class vtkAbstractArray;
 class vtkExtentTranslator;
-class vtkDataArray;
 class vtkInformation;
 class vtkInformationVector;
 
@@ -70,7 +70,7 @@ protected:
   virtual void DeletePositionArrays();
 
   void SetupExtentTranslator();
-  vtkDataArray* CreateExactExtent(vtkDataArray* array, int* inExtent,
+  vtkAbstractArray* CreateExactExtent(vtkAbstractArray* array, int* inExtent,
                                   int* outExtent, int isPoint);
   virtual int WriteInlineMode(vtkIndent indent);
   vtkIdType GetStartTuple(int* extent, vtkIdType* increments,
@@ -78,8 +78,8 @@ protected:
   void CalculatePieceFractions(float* fractions);
   
   // Define utility methods required by vtkXMLWriter.
-  vtkDataArray* CreateArrayForPoints(vtkDataArray* inArray);
-  vtkDataArray* CreateArrayForCells(vtkDataArray* inArray);
+  virtual vtkAbstractArray* CreateArrayForPoints(vtkAbstractArray* inArray);
+  virtual vtkAbstractArray* CreateArrayForCells(vtkAbstractArray* inArray);
   
   void SetInputUpdateExtent(int piece);
   int ProcessRequest(vtkInformation* request,

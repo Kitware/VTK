@@ -15,6 +15,7 @@
 #include "vtkImageImport.h"
 
 #include "vtkByteSwap.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkImageImportExecutive.h"
 #include "vtkInformation.h"
@@ -26,7 +27,7 @@
 #include <ctype.h>
 #include <vtkstd/exception>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.48");
+vtkCxxRevisionMacro(vtkImageImport, "1.49");
 vtkStandardNewMacro(vtkImageImport);
 
 

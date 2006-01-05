@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageMagnitude.h"
 
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
 #include "vtkInformation.h"
@@ -24,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMagnitude, "1.42");
+vtkCxxRevisionMacro(vtkImageMagnitude, "1.43");
 vtkStandardNewMacro(vtkImageMagnitude);
 
 //----------------------------------------------------------------------------

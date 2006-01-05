@@ -56,7 +56,6 @@ vtkGenericAttributeCollection.cxx
 vtkGenericCell.cxx
 vtkGenericCellIterator.cxx
 vtkGenericCellTessellator.cxx
-vtkSimpleCellTessellator.cxx
 vtkGenericDataSet.cxx
 vtkGenericDataSetAlgorithm.cxx
 vtkGenericEdgeTable.cxx
@@ -162,6 +161,7 @@ vtkRectilinearGridAlgorithm.cxx
 vtkRectilinearGridSource.cxx
 vtkRectilinearGridToPolyDataFilter.cxx
 vtkScalarTree.cxx
+vtkSimpleCellTessellator.cxx
 vtkSimpleImageToImageFilter.cxx
 vtkSimpleScalarTree.cxx
 vtkSmoothErrorMetric.cxx

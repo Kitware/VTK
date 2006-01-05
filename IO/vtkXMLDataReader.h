@@ -76,13 +76,18 @@ protected:
 
   // Read a data array whose tuples coorrespond to points or cells.
   virtual int ReadArrayForPoints(vtkXMLDataElement* da,
-                                 vtkDataArray* outArray);
+                                 vtkAbstractArray* outArray);
   virtual int ReadArrayForCells(vtkXMLDataElement* da,
-                                vtkDataArray* outArray);
-  
-  // Read data from a given element.
-  int ReadData(vtkXMLDataElement* da, void* data, int wordType,
-               vtkIdType startWord, vtkIdType numWords);
+                                vtkAbstractArray* outArray);
+
+  // Read an Array values starting at the given index and up to numValues.
+  // This method assumes that the array is of correct size to 
+  // accomodate all numValues values. arrayIndex is the value index at which the read
+  // values will be put in the array.
+  int ReadArrayValues(vtkXMLDataElement* da, vtkIdType arrayIndex, vtkAbstractArray* array,
+    vtkIdType startIndex, vtkIdType numValues);
+    
+
   
   // Callback registered with the DataProgressObserver.
   static void DataProgressCallbackFunction(vtkObject*, unsigned long, void*,

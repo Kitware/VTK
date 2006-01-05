@@ -13,135 +13,105 @@
 
 =========================================================================*/
 #include "vtkAbstractArray.h"
-#include "vtkIdList.h"
-#include "vtkMath.h"
 
-#include "vtkDataArray.h"
 #include "vtkBitArray.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkIdList.h"
 #include "vtkIntArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkLongArray.h"
 #include "vtkShortArray.h"
+#include "vtkSignedCharArray.h"
+#include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkAbstractArray, "1.5");
+#if defined(VTK_TYPE_USE_LONG_LONG)
+# include "vtkLongLongArray.h"
+# include "vtkUnsignedLongLongArray.h"
+#endif
 
+#if defined(VTK_TYPE_USE___INT64)
+# include "vtk__Int64Array.h"
+# if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+#  include "vtkUnsigned__Int64Array.h"
+# endif
+#endif
+vtkCxxRevisionMacro(vtkAbstractArray, "1.6");
+//----------------------------------------------------------------------------
 // Construct object with sane defaults.
-
 vtkAbstractArray::vtkAbstractArray(vtkIdType vtkNotUsed(numComp))
 {
   this->Size = 0;
   this->MaxId = -1;
-
+  this->NumberOfComponents = 1;
   this->Name = NULL;
-  this->DataType = -1;
 }
 
+//----------------------------------------------------------------------------
 vtkAbstractArray::~vtkAbstractArray()
 {
-  if (this->Name != NULL)
-    {
-    delete [] this->Name;
-    }
-  this->Name = NULL;
+  this->SetName(NULL);
 }
 
-void vtkAbstractArray::SetName(const char* name)
+//----------------------------------------------------------------------------
+void vtkAbstractArray::GetTuples(vtkIdList* ptIds, vtkAbstractArray* aa)
 {
-  if (this->Name != NULL)
+  if (aa->GetNumberOfComponents() != this->GetNumberOfComponents())
     {
-    delete[] this->Name;
+    vtkWarningMacro("Number of components for input and output do not match.");
+    return;
     }
-
-  this->Name = NULL;
-  if (name)
+  // Here we give the slowest implementation. Subclasses can override
+  // to use the knowledge about the data.
+  vtkIdType num = ptIds->GetNumberOfIds();
+  for (vtkIdType i = 0; i < num; i++)
     {
-    int size = static_cast<int>(strlen(name));
-    this->Name = new char[size+1];
-    strcpy(this->Name, name);
+    aa->SetTuple(i, ptIds->GetId(i), this);
     }
 }
 
-const char* vtkAbstractArray::GetName()
+//----------------------------------------------------------------------------
+void vtkAbstractArray::GetTuples(vtkIdType p1, vtkIdType p2, 
+  vtkAbstractArray* aa)
 {
-  return this->Name;
+  if (aa->GetNumberOfComponents() != this->GetNumberOfComponents())
+    {
+    vtkWarningMacro("Number of components for input and output do not match.");
+    return;
+    }
+  
+  // Here we give the slowest implementation. Subclasses can override
+  // to use the knowledge about the data.
+  vtkIdType num = p2 - p1 + 1;
+  for (vtkIdType i = 0; i < num; i++)
+    {
+    aa->SetTuple(i, (p1+i), this);
+    }
 }
 
 
-void vtkAbstractArray::PrintSelf(ostream& os, vtkIndent indent)
+//----------------------------------------------------------------------------
+template <class T>
+unsigned long vtkAbstractArrayGetDataTypeSize(T*)
 {
-  this->Superclass::PrintSelf(os,indent);
-
-  const char* name = this->GetName();
-  if (name)
-    {
-    os << indent << "Name: " << name << "\n";
-    }
-  else
-    {
-    os << indent << "Name: (none)\n";
-    }
-  os << indent << "Data type: " << this->GetDataTypeAsString();
-  os << indent << "Size: " << this->Size << "\n";
-  os << indent << "MaxId: " << this->MaxId << "\n";
+  return sizeof(T);
 }
 
 unsigned long vtkAbstractArray::GetDataTypeSize(int type)
 {
   switch (type)
     {
+    vtkTemplateMacro(
+      return vtkAbstractArrayGetDataTypeSize(static_cast<VTK_TT*>(0))
+      );
+      
     case VTK_BIT:
-      return 1;
-      break;
-
-    case VTK_CHAR:
-      return sizeof(char);
-      break;
-
-    case VTK_UNSIGNED_CHAR:
-      return sizeof(unsigned char);
-      break;
-
-    case VTK_SHORT:
-      return sizeof(short);
-      break;
-
-    case VTK_UNSIGNED_SHORT:
-      return sizeof(unsigned short);
-      break;
-
-    case VTK_INT:
-      return sizeof(int);
-      break;
-
-    case VTK_UNSIGNED_INT:
-      return sizeof(unsigned int);
-      break;
-
-    case VTK_LONG:
-      return sizeof(long);
-      break;
-
-    case VTK_UNSIGNED_LONG:
-      return sizeof(unsigned long);
-      break;
-
-    case VTK_FLOAT:
-      return sizeof(float);
-      break;
-
-    case VTK_DOUBLE:
-      return sizeof(double);
-      break;
-
-    case VTK_ID_TYPE:
-      return sizeof(vtkIdType);
+      return 0;
       break;
 
     case VTK_STRING:
@@ -156,8 +126,6 @@ unsigned long vtkAbstractArray::GetDataTypeSize(int type)
 }
 
 // ----------------------------------------------------------------------
-
-#if 0
 vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
 {
   switch (dataType)
@@ -167,6 +135,9 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
 
     case VTK_CHAR:
       return vtkCharArray::New();
+
+    case VTK_SIGNED_CHAR:
+      return vtkSignedCharArray::New();
 
     case VTK_UNSIGNED_CHAR:
       return vtkUnsignedCharArray::New();
@@ -189,6 +160,26 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
     case VTK_UNSIGNED_LONG:
       return vtkUnsignedLongArray::New();
 
+#if defined(VTK_TYPE_USE_LONG_LONG)
+    case VTK_LONG_LONG:
+      return vtkLongLongArray::New();
+
+    case VTK_UNSIGNED_LONG_LONG:
+      return vtkUnsignedLongLongArray::New();
+#endif
+
+#if defined(VTK_TYPE_USE___INT64)
+    case VTK___INT64:
+      return vtk__Int64Array::New();
+      break;
+
+# if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+    case VTK_UNSIGNED___INT64:
+      return vtkUnsigned__Int64Array::New();
+      break;
+# endif
+#endif
+
     case VTK_FLOAT:
       return vtkFloatArray::New();
 
@@ -197,10 +188,33 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
 
     case VTK_ID_TYPE:
       return vtkIdTypeArray::New();
+   
+    case VTK_STRING:
+      return vtkStringArray::New();
 
     default:
-      vtkGenericWarningMacro(<<"Unsupported data type! Setting to VTK_DOUBLE");
+      vtkGenericWarningMacro("Unsupported data type " << dataType
+                             << "! Setting to VTK_DOUBLE");
       return vtkDoubleArray::New();
     }
 }
-#endif
+
+//----------------------------------------------------------------------------
+void vtkAbstractArray::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+
+  const char* name = this->GetName();
+  if (name)
+    {
+    os << indent << "Name: " << name << "\n";
+    }
+  else
+    {
+    os << indent << "Name: (none)\n";
+    }
+  os << indent << "Data type: " << this->GetDataTypeAsString();
+  os << indent << "Size: " << this->Size << "\n";
+  os << indent << "MaxId: " << this->MaxId << "\n";
+  os << indent << "NumberOfComponents: " << this->NumberOfComponents << endl;
+}
