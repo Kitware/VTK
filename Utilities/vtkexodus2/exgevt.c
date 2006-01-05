@@ -264,7 +264,7 @@ int ex_get_elem_var_time (int   exoid,
 
   /* inquire previously defined variable */
 
-  if((varid=ncvarid(exoid,VAR_ELEM_VAR(elem_var_index,i+1))) == -1) {
+  if((varid=ncvarid(exoid,VAR_ELEM_VAR(elem_var_index+1,i+1))) == -1) {
     exerrval = ncerr;
     sprintf(errmsg,
             "Error: failed to locate elem variable %d for elem block %d in file id %d",
