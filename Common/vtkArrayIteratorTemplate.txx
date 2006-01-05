@@ -32,7 +32,7 @@ vtkArrayIteratorTemplate<T>* vtkArrayIteratorTemplate<T>::New()
 }
 
 template <class T>
-vtkCxxRevisionMacro(vtkArrayIteratorTemplate<T>, "1.1");
+vtkCxxRevisionMacro(vtkArrayIteratorTemplate<T>, "1.2");
 
 template <class T>
 vtkCxxSetObjectMacro(vtkArrayIteratorTemplate<T>, Array, vtkAbstractArray);
@@ -88,7 +88,7 @@ vtkIdType vtkArrayIteratorTemplate<T>::GetNumberOfValues()
 
 //-----------------------------------------------------------------------------
 template <class T>
-vtkIdType vtkArrayIteratorTemplate<T>::GetNumberOfComponents()
+int vtkArrayIteratorTemplate<T>::GetNumberOfComponents()
 {
   if (this->Array)
     {
