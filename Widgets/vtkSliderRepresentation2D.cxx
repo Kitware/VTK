@@ -33,7 +33,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.4");
+vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.5");
 vtkStandardNewMacro(vtkSliderRepresentation2D);
 
 //----------------------------------------------------------------------
@@ -208,6 +208,8 @@ vtkSliderRepresentation2D::~vtkSliderRepresentation2D()
   this->CapActor->Delete();
   this->CapProperty->Delete();
   
+  this->SelectedProperty->Delete();
+
   this->LabelProperty->Delete();
   this->LabelMapper->Delete();
   this->LabelActor->Delete();
