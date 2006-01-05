@@ -71,7 +71,7 @@ public:
 
 //----------------------------------------------------------------------------
 template <class iterT>
-static int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
+int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
   iterT* iter,
   int wordType, vtkXMLWriter::OffsetType memWordSize, vtkXMLWriter::OffsetType outWordSize)
 {
@@ -113,7 +113,7 @@ static int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 
 //----------------------------------------------------------------------------
 VTK_TEMPLATE_SPECIALIZE
-static int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
+int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
   vtkArrayIteratorTemplate<vtkStdString>* iter,
   int wordType, vtkXMLWriter::OffsetType vtkNotUsed(memWordSize), vtkXMLWriter::OffsetType outWordSize)
 {
@@ -202,7 +202,7 @@ static int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 //*****************************************************************************
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.64");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.65");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 //----------------------------------------------------------------------------
 vtkXMLWriter::vtkXMLWriter()
@@ -1286,7 +1286,7 @@ vtkXMLWriter::OffsetType vtkXMLWriter::GetOutputWordTypeSize(int dataType)
 
 //----------------------------------------------------------------------------
 template <class T>
-static vtkXMLWriter::OffsetType vtkXMLWriterGetWordTypeSize(T*)
+vtkXMLWriter::OffsetType vtkXMLWriterGetWordTypeSize(T*)
 {
   return sizeof(T);
 }
@@ -1375,7 +1375,7 @@ const char* vtkXMLWriter::GetWordTypeName(int dataType)
 
 //----------------------------------------------------------------------------
 template <class T>
-static int vtkXMLWriterWriteVectorAttribute(ostream& os, const char* name,
+int vtkXMLWriterWriteVectorAttribute(ostream& os, const char* name,
                                      int length, T* data)
 {
   os << " " << name << "=\"";
@@ -1543,7 +1543,7 @@ int vtkXMLWriter::WriteStringAttribute(const char* name, const char* value)
 // This method is provided so that the specialization code for certain types
 // can be minimal.
 template <class T>
-static inline ostream& vtkXMLWriteAsciiValue(ostream& os, const T& value)
+inline ostream& vtkXMLWriteAsciiValue(ostream& os, const T& value)
 {
   os << value;
   return os;
@@ -1551,7 +1551,7 @@ static inline ostream& vtkXMLWriteAsciiValue(ostream& os, const T& value)
 
 //----------------------------------------------------------------------------
 VTK_TEMPLATE_SPECIALIZE
-static inline ostream& vtkXMLWriteAsciiValue(ostream& os, const char &c)
+inline ostream& vtkXMLWriteAsciiValue(ostream& os, const char &c)
 {
   os << short(c);
   return os;
@@ -1559,7 +1559,7 @@ static inline ostream& vtkXMLWriteAsciiValue(ostream& os, const char &c)
 
 //----------------------------------------------------------------------------
 VTK_TEMPLATE_SPECIALIZE
-static inline ostream& vtkXMLWriteAsciiValue(ostream& os, const unsigned char &c)
+inline ostream& vtkXMLWriteAsciiValue(ostream& os, const unsigned char &c)
 {
   os << static_cast<unsigned short>(c);
   return os;
@@ -1567,7 +1567,7 @@ static inline ostream& vtkXMLWriteAsciiValue(ostream& os, const unsigned char &c
 
 //----------------------------------------------------------------------------
 VTK_TEMPLATE_SPECIALIZE
-static inline ostream& vtkXMLWriteAsciiValue(ostream& os, const signed char &c)
+inline ostream& vtkXMLWriteAsciiValue(ostream& os, const signed char &c)
 {
   os << short(c);
   return os;
@@ -1575,7 +1575,7 @@ static inline ostream& vtkXMLWriteAsciiValue(ostream& os, const signed char &c)
 
 //----------------------------------------------------------------------------
 VTK_TEMPLATE_SPECIALIZE
-static inline ostream& vtkXMLWriteAsciiValue(ostream& os, const vtkStdString& str)
+inline ostream& vtkXMLWriteAsciiValue(ostream& os, const vtkStdString& str)
 {
   vtkStdString::const_iterator iter = str.begin();
   vtkXMLWriteAsciiValue(os, *iter);

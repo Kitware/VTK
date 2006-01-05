@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.21");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.22");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -342,7 +342,7 @@ int vtkXMLStructuredDataReader::ReadArrayForCells(vtkXMLDataElement* da,
 
 //----------------------------------------------------------------------------
 template <class iterT>
-static void vtkXMLStructuredDataReaderSubExtentCopyValues(
+void vtkXMLStructuredDataReaderSubExtentCopyValues(
   iterT* destIter, vtkIdType destIndex,
   iterT* srcIter, vtkIdType srcIndex,
   vtkIdType numValues)
@@ -354,7 +354,7 @@ static void vtkXMLStructuredDataReaderSubExtentCopyValues(
 }
 //----------------------------------------------------------------------------
 VTK_TEMPLATE_SPECIALIZE
-static void vtkXMLStructuredDataReaderSubExtentCopyValues(
+void vtkXMLStructuredDataReaderSubExtentCopyValues(
   vtkArrayIteratorTemplate<vtkStdString>* destIter, vtkIdType destIndex,
   vtkArrayIteratorTemplate<vtkStdString>* srcIter, vtkIdType srcIndex,
   vtkIdType numValues)
