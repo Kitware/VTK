@@ -202,7 +202,7 @@ static int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 //*****************************************************************************
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.62");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.63");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 //----------------------------------------------------------------------------
 vtkXMLWriter::vtkXMLWriter()
@@ -1561,7 +1561,7 @@ static inline ostream& vtkXMLWriteAsciiValue(ostream& os, const char &c)
 VTK_TEMPLATE_SPECIALIZE
 static inline ostream& vtkXMLWriteAsciiValue(ostream& os, const unsigned char &c)
 {
-  os << ushort(c);
+  os << unsigned short(c);
   return os;
 }
 
