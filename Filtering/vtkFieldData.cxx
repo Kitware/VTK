@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
 
-vtkCxxRevisionMacro(vtkFieldData, "1.3");
+vtkCxxRevisionMacro(vtkFieldData, "1.4");
 vtkStandardNewMacro(vtkFieldData);
 
 //----------------------------------------------------------------------------
@@ -894,7 +894,8 @@ void vtkFieldData::GetTuple(const vtkIdType i, double * tuple)
   // this->GetTuple(i); //side effect fills in this->Tuple
   // Unrolled to avoid warnings.
   int count=0;
-  for ( int j=0; j < this->GetNumberOfArrays(); j++ )
+  int j;
+  for ( j=0; j < this->GetNumberOfArrays(); j++ )
     {
     vtkDataArray* da = vtkDataArray::SafeDownCast(this->Data[j]);
     if (da)
@@ -912,7 +913,7 @@ void vtkFieldData::GetTuple(const vtkIdType i, double * tuple)
     count += this->Data[j]->GetNumberOfComponents();
     }
   
-  for (int j=0; j<this->TupleSize; j++)
+  for (j=0; j<this->TupleSize; j++)
     {
     tuple[j] = this->Tuple[j];
     }
