@@ -733,7 +733,7 @@ virtual double *Get##name() \
 # define vtkTemplateMacroCase_ui64(typeN, type, call) \
              vtkTemplateMacroCase(typeN, type, call);
 # define vtkArrayIteratorTemplateMacroCase_ui64(typeN, type, call) \
-             vtkTemplateMacroCase(typeN, type, call);
+             vtkArrayIteratorTemplateMacroCase(typeN, type, call);
 #else
 # define vtkTemplateMacroCase_ui64(typeN, type, call)
 # define vtkArrayIteratorTemplateMacroCase_ui64(typeN, type, call) 
