@@ -30,7 +30,7 @@
 #include "vtkOffsetsManagerArray.h"
 #undef  vtkOffsetsManager_DoNotInclude
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.21");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.22");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -459,7 +459,7 @@ void vtkXMLStructuredDataWriter::SetupExtentTranslator()
 
 //----------------------------------------------------------------------------
 template <class iterT>
-static inline void vtkXMLStructuredDataWriterCopyTuples(
+inline void vtkXMLStructuredDataWriterCopyTuples(
   iterT* destIter, vtkIdType destTuple,
   iterT* srcIter, vtkIdType sourceTuple,
   vtkIdType numTuples)
@@ -473,7 +473,7 @@ static inline void vtkXMLStructuredDataWriterCopyTuples(
 }
 
 //----------------------------------------------------------------------------
-static inline void vtkXMLStructuredDataWriterCopyTuples(
+inline void vtkXMLStructuredDataWriterCopyTuples(
   vtkArrayIteratorTemplate<vtkStdString>* destIter, vtkIdType destTuple,
   vtkArrayIteratorTemplate<vtkStdString>* srcIter, vtkIdType sourceTuple,
   vtkIdType numTuples)
