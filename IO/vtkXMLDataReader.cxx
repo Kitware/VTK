@@ -29,7 +29,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.29");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.30");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -588,8 +588,13 @@ int vtkXMLDataReader::ReadArrayForCells(vtkXMLDataElement* da,
 template <class iterT>
 int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da,
   vtkXMLDataParser* xmlparser, vtkIdType arrayIndex,
-  vtkAbstractArray* array, vtkIdType startIndex, vtkIdType numValues)
+  iterT* iter, vtkIdType startIndex, vtkIdType numValues)
 {
+  if (!iter)
+    {
+    return 0;
+    }
+  vtkAbstractArray* array = iter->GetArray();
   // For all contiguous arrays (except vtkBitArray).
   vtkIdType num = numValues;
   int result;
@@ -617,14 +622,11 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da,
 
 //----------------------------------------------------------------------------
 VTK_TEMPLATE_SPECIALIZE
-int vtkXMLDataReaderReadArrayValues<vtkArrayIteratorTemplate<vtkStdString> >(
+int vtkXMLDataReaderReadArrayValues(
   vtkXMLDataElement* da,
   vtkXMLDataParser* xmlparser, vtkIdType arrayIndex,
-  vtkAbstractArray* array, vtkIdType startIndex, vtkIdType numValues)
+  vtkArrayIteratorTemplate<vtkStdString>* iter, vtkIdType startIndex, vtkIdType numValues)
 {
-  vtkArrayIteratorTemplate<vtkStdString>* iter = 
-    vtkArrayIteratorTemplate<vtkStdString>::SafeDownCast(array->NewIterator());
-  
   // now, for strings, we have to read from the start, as we don't have 
   // support for index array yet.
   // So this specialization will read all strings starting from the beginning,
@@ -730,13 +732,18 @@ int vtkXMLDataReader::ReadArrayValues(vtkXMLDataElement* da, vtkIdType arrayInde
   this->InReadData = 1;
   int result;
   // All arrays types except vtkBitArray.
+  vtkArrayIterator* iter = array->NewIterator();
   switch (array->GetDataType())
     {
     vtkArrayIteratorTemplateMacro(
-      result = vtkXMLDataReaderReadArrayValues<VTK_TT>(da, this->XMLParser,
-        arrayIndex, array, startIndex, numValues));
+      result = vtkXMLDataReaderReadArrayValues(da, this->XMLParser,
+        arrayIndex, VTK_TT::SafeDownCast(iter), startIndex, numValues));
   default:
     result = 0;
+    }
+  if (iter)
+    {
+    iter->Delete();
     }
   this->InReadData = 0;
   return result;
