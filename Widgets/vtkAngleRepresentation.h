@@ -61,27 +61,29 @@ public:
   virtual void GetPoint2DisplayPosition(double pos[3]) = 0;
 
   // Description:
-  // This method is used to specify the type of handle representation to
-  // use for the three internal vtkHandleWidgets within vtkAngleWidget.
-  // To use this method, create a dummy vtkHandleWidget (or subclass),
-  // and then invoke this method with this dummy. Then the 
-  // vtkAngleRepresentation uses this dummy to clone three vtkHandleWidgets
-  // of the same type. Make sure you set the handle representation before
-  // the widget is enabled. (The method InstantiateHandleRepresentation()
-  // is invoked by the vtkAngle widget.)
+
+  // This method is used to specify the type of handle representation to use
+  // for the three internal vtkHandleWidgets within vtkAngleRepresentation.
+  // To use this method, create a dummy vtkHandleRepresentation (or
+  // subclass), and then invoke this method with this dummy. Then the
+  // vtkAngleRepresentation uses this dummy to clone three
+  // vtkHandleRepresentations of the same type. Make sure you set the handle
+  // representation before the widget is enabled. (The method
+  // InstantiateHandleRepresentation() is invoked by the vtkAngle widget.)
   void SetHandleRepresentation(vtkHandleRepresentation *handle);
   void InstantiateHandleRepresentation();
 
   // Description:
-  // Set/Get the handle representations used for the vtkAngleWidget.
+  // Set/Get the handle representations used for the vtkAngleRepresentation.
   vtkGetObjectMacro(Point1Representation,vtkHandleRepresentation);
   vtkGetObjectMacro(CenterRepresentation,vtkHandleRepresentation);
   vtkGetObjectMacro(Point2Representation,vtkHandleRepresentation);
 
   // Description:
-  // The tolerance representing the distance to the widget (in pixels) in
-  // which the cursor is considered near enough to the end points of
-  // thewidget to be active.
+
+  // The tolerance representing the distance to the representation (in
+  // pixels) in which the cursor is considered near enough to the end points
+  // of the representation to be active.
   vtkSetClampMacro(Tolerance,int,1,100);
   vtkGetMacro(Tolerance,int);
 

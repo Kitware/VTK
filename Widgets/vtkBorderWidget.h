@@ -87,15 +87,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Subclasses general implement these methods. The SelectRegion() method
-  // offers a subclass the chance to do something special if the interior
-  // of the widget is selected.
-  virtual void SelectRegion(double eventPos[2]);
-
-  // Description:
   // Indicate whether the interior region of the widget can be selected or
-  // not. If not, then positioning the mouse allows the user to "move" the
-  // widget, and no selection is possible.
+  // not. If not, then events (such as left mouse down) allow the user to
+  // "move" the widget, and no selection is possible. Otherwise the
+  // SelectRegion() method is invoked.
   vtkSetMacro(Selectable,int);
   vtkGetMacro(Selectable,int);
   vtkBooleanMacro(Selectable,int);
@@ -114,6 +109,12 @@ public:
 protected:
   vtkBorderWidget();
   ~vtkBorderWidget();
+
+  // Description:
+  // Subclasses generally implement this method. The SelectRegion() method
+  // offers a subclass the chance to do something special if the interior
+  // of the widget is selected.
+  virtual void SelectRegion(double eventPos[2]);
 
   //enable the selection of the region interior to the widget
   int Selectable;
