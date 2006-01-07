@@ -148,18 +148,12 @@ int TestHyperOctreeDual(int argc, char* argv[])
   writer2d->Delete();
 #endif // #ifdef WRITE_RESULT
 
-  // Contour using data set API.
-  vtkHyperOctreeFractalSource* source3dHack = vtkHyperOctreeFractalSource::New();
-  source3dHack->SetMaximumNumberOfIterations(17);
-  source3dHack->SetMaximumLevel(7);
-  source3dHack->SetMinimumLevel(3);
-
   vtkContourFilter *contourDS=vtkContourFilter::New();
   contourDS->SetNumberOfContours(2);
   contourDS->SetValue(0,4.5);
   contourDS->SetValue(1,10.5);
   
-  contourDS->SetInputConnection(0,source3dHack->GetOutputPort(0));
+  contourDS->SetInputConnection(0,source3d->GetOutputPort(0));
   cout<<"update contour data set..."<<endl;
   timer->StartTimer();
   contourDS->Update(); // Update now, make things easier with a debugger
@@ -217,7 +211,6 @@ int TestHyperOctreeDual(int argc, char* argv[])
   actorDS->Delete();
 
   source3d->Delete();
-  source3dHack->Delete();
   contour3d->Delete();
   mapper3d->Delete();
   actor3d->Delete();
