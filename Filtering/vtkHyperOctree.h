@@ -519,7 +519,8 @@ protected:
   // First three bits encode the child,  rest encode the cursor id.
   // 8xCursorId + childId.
   // This will be shorter when we get rid of the 3x3x3 neighborhood.
-  unsigned char NeighborhoodTraversalTable[216];
+  // I was using unsigned char, but VS60 optimized build had a problem.
+  int NeighborhoodTraversalTable[216];
   void GenerateGridNeighborhoodTraversalTable();  
   void GenerateDualNeighborhoodTraversalTable();  
 
