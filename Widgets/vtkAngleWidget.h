@@ -40,7 +40,7 @@
 //
 // Note that the event bindings described above can be changed using this
 // class's vtkWidgetEventTranslator. This class translates VTK events 
-// into the vtkSliderWidget's widget events:
+// into the vtkAngleWidget's widget events:
 // <pre>
 //   vtkWidgetEvent::AddPoint -- add one point; depending on the state
 //                               it may the first, second or third point 

@@ -25,7 +25,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAngleWidget, "1.10");
+vtkCxxRevisionMacro(vtkAngleWidget, "1.11");
 vtkStandardNewMacro(vtkAngleWidget);
 
 
@@ -197,33 +197,33 @@ void vtkAngleWidget::SetEnabled(int enabling)
 
   if ( enabling )
     {
-      if (this->Point1Widget)
-        {
-        this->Point1Widget->SetRepresentation(
-          reinterpret_cast<vtkAngleRepresentation*>
-          (this->WidgetRep)->GetPoint1Representation());
-        this->Point1Widget->SetInteractor(this->Interactor);
-        this->Point1Widget->GetRepresentation()->SetRenderer(
-          this->CurrentRenderer);
-        }
-      if (this->CenterWidget)
-        {
-        this->CenterWidget->SetRepresentation(
-          reinterpret_cast<vtkAngleRepresentation*>
-          (this->WidgetRep)->GetCenterRepresentation());
-        this->CenterWidget->SetInteractor(this->Interactor);
-        this->CenterWidget->GetRepresentation()->SetRenderer(
-          this->CurrentRenderer);
-        }
-      if (this->Point2Widget)
-        {
-        this->Point2Widget->SetRepresentation(
-          reinterpret_cast<vtkAngleRepresentation*>
-          (this->WidgetRep)->GetPoint2Representation());
-        this->Point2Widget->SetInteractor(this->Interactor);
-        this->Point2Widget->GetRepresentation()->SetRenderer(
-          this->CurrentRenderer);
-        }
+    if (this->Point1Widget)
+      {
+      this->Point1Widget->SetRepresentation(
+        reinterpret_cast<vtkAngleRepresentation*>
+        (this->WidgetRep)->GetPoint1Representation());
+      this->Point1Widget->SetInteractor(this->Interactor);
+      this->Point1Widget->GetRepresentation()->SetRenderer(
+        this->CurrentRenderer);
+      }
+    if (this->CenterWidget)
+      {
+      this->CenterWidget->SetRepresentation(
+        reinterpret_cast<vtkAngleRepresentation*>
+        (this->WidgetRep)->GetCenterRepresentation());
+      this->CenterWidget->SetInteractor(this->Interactor);
+      this->CenterWidget->GetRepresentation()->SetRenderer(
+        this->CurrentRenderer);
+      }
+    if (this->Point2Widget)
+      {
+      this->Point2Widget->SetRepresentation(
+        reinterpret_cast<vtkAngleRepresentation*>
+        (this->WidgetRep)->GetPoint2Representation());
+      this->Point2Widget->SetInteractor(this->Interactor);
+      this->Point2Widget->GetRepresentation()->SetRenderer(
+        this->CurrentRenderer);
+      }
     }
   else
     {
