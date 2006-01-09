@@ -32,7 +32,7 @@
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkStringArray, "1.4.6.1");
+vtkCxxRevisionMacro(vtkStringArray, "1.4.6.2");
 vtkStandardNewMacro(vtkStringArray);
 
 //----------------------------------------------------------------------------
@@ -480,7 +480,7 @@ vtkStringArray::ConvertToContiguous(vtkDataArray **Data,
   for (vtkIdType i = 0; i < this->GetNumberOfValues(); ++i)
     {
     vtkStdString thisString = this->Array[i];
-    for (unsigned int j = 0; j < this->Array[i].length(); ++j)
+    for (vtkStdString::size_type j = 0; j < this->Array[i].length(); ++j)
       {
       data->InsertNextValue(thisString[j]);
       ++currentPosition;
