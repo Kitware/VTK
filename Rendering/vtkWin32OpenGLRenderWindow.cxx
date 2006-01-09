@@ -36,7 +36,7 @@
 # include "vtkOpenGL.h"
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.131");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.132");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -667,7 +667,9 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(HWND hWnd, UINT message,
     case WM_ERASEBKGND:
       return TRUE;
     default:
+      this->Register(this);
       this->InvokeEvent(vtkCommand::RenderWindowMessageEvent, &message);
+      this->UnRegister(this);
       break;
     }
   return DefWindowProc(hWnd, message, wParam, lParam);
