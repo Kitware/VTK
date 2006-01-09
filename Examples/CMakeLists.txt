@@ -47,7 +47,7 @@ IF(VTK_BINARY_DIR)
       ${VTK_BINARY_DIR}/Examples/Build/vtkLocal
       --build-two-config
       --build-generator ${CMAKE_GENERATOR}
-      --build-makeprogram ${MAKEPROGRAM}
+      --build-makeprogram ${CMAKE_MAKE_PROGRAM}
       --build-project VTKLOCAL
       --build-run-dir ${VTK_EXAMPLE_TEST_RUN_DIR}
       --build-options -DVTK_DIR:PATH=${VTK_BINARY_DIR}
@@ -62,7 +62,7 @@ IF(VTK_BINARY_DIR)
       ${VTK_BINARY_DIR}/Examples/Build/vtkMy
       --build-two-config
       --build-generator ${CMAKE_GENERATOR}
-      --build-makeprogram ${MAKEPROGRAM}
+      --build-makeprogram ${CMAKE_MAKE_PROGRAM}
       --build-project VTKMY
       --build-run-dir ${VTK_EXAMPLE_TEST_RUN_DIR}
       --build-options -DVTK_DIR:PATH=${VTK_BINARY_DIR}
@@ -88,7 +88,7 @@ IF(VTK_BINARY_DIR)
          --build-two-config
          --build-project VTKExamples
          --build-generator ${CMAKE_GENERATOR}
-         --build-makeprogram ${MAKEPROGRAM}
+         --build-makeprogram ${CMAKE_MAKE_PROGRAM}
          --build-options -DVTK_DIR:PATH=${VTK_BINARY_DIR}
                          -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
                          -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
