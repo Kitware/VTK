@@ -722,8 +722,11 @@ virtual double *Get##name() \
 //   // @deprecated Replaced by MyOtherMethod() as of VTK 5.0.
 //   VTK_LEGACY(void MyMethod());
 #if defined(VTK_LEGACY_REMOVE)
-  // Remove legacy methods completely.
-# define VTK_LEGACY(method)
+  // Remove legacy methods completely.  Put a bogus declaration in
+  // place to avoid stray semicolons because this is an error for some
+  // compilers.  Using a class forward declaration allows any number
+  // of repeats in any context without generating unique names.
+# define VTK_LEGACY(method) class vtkLegacyMethodRemoved
 #elif defined(VTK_LEGACY_SILENT) || defined(VTK_WRAPPING_CXX)
   // Provide legacy methods with no warnings.
 # define VTK_LEGACY(method) method
