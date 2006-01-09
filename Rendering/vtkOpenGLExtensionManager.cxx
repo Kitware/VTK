@@ -50,7 +50,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.12");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.13");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 vtkOpenGLExtensionManager::vtkOpenGLExtensionManager()
@@ -157,7 +157,7 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
   vtkDebugMacro(<< "Trying to load OpenGL function " << fname);
 
 #ifdef VTK_USE_WGL_GET_PROC_ADDRESS
-  return wglGetProcAddress(fname);
+  return reinterpret_cast<vtkOpenGLExtensionManagerFunctionPointer>(wglGetProcAddress(fname));
 #endif //VTK_USE_WGL_GET_PROC_ADDRESS
 
 

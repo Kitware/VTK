@@ -49,7 +49,7 @@ public:
 // VFW compressed formats are listed at http://www.webartz.com/fourcc/
 #define VTK_BI_UYVY 0x59565955
 
-vtkCxxRevisionMacro(vtkWin32VideoSource, "1.27");
+vtkCxxRevisionMacro(vtkWin32VideoSource, "1.28");
 vtkStandardNewMacro(vtkWin32VideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
@@ -57,9 +57,11 @@ vtkStandardNewMacro(vtkWin32VideoSource);
 #pragma warning ( disable : 4312 )
 #  define vtkGetWindowLong GetWindowLongPtr
 #  define vtkSetWindowLong SetWindowLongPtr
+#  define vtkGWL_USERDATA GWLP_USERDATA
 #else // regular Visual studio 
 #  define vtkGetWindowLong GetWindowLong
 #  define vtkSetWindowLong SetWindowLong
+#  define vtkGWL_USERDATA GWL_USERDATA
 #endif // 
 
 //----------------------------------------------------------------------------
@@ -113,7 +115,7 @@ vtkWin32VideoSourceWinProc(HWND hwnd, UINT message,
                            WPARAM wParam, LPARAM lParam)
 {
   vtkWin32VideoSource *self = (vtkWin32VideoSource *)\
-    (vtkGetWindowLong(hwnd,GWL_USERDATA));
+    (vtkGetWindowLong(hwnd,vtkGWL_USERDATA));
 
   switch(message) {
   
@@ -228,7 +230,7 @@ void vtkWin32VideoSource::Initialize()
   WNDCLASS wc;
   wc.lpszClassName = this->WndClassName;
   wc.hInstance = hinstance;
-  wc.lpfnWndProc = &vtkWin32VideoSourceWinProc;
+  wc.lpfnWndProc = reinterpret_cast<WNDPROC>(&vtkWin32VideoSourceWinProc);
   wc.hCursor = LoadCursor(NULL,IDC_ARROW);
   wc.hIcon = NULL;
   wc.lpszMenuName = NULL;
@@ -285,7 +287,7 @@ void vtkWin32VideoSource::Initialize()
     }
 
   // set the user data to 'this'
-  vtkSetWindowLong(this->Internal->ParentWnd,GWL_USERDATA,(LONG)this);
+  vtkSetWindowLong(this->Internal->ParentWnd,vtkGWL_USERDATA,(LONG)this);
 
   // Create the capture window
   this->Internal->CapWnd = capCreateCaptureWindow("Capture",

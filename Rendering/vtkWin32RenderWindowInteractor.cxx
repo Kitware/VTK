@@ -51,14 +51,16 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 #pragma warning ( disable : 4312 )
 #  define vtkGetWindowLong GetWindowLongPtr
 #  define vtkSetWindowLong SetWindowLongPtr
+#  define vtkGWL_WNDPROC GWLP_WNDPROC
 #else // regular Visual studio 
 #  define vtkGetWindowLong GetWindowLong
 #  define vtkSetWindowLong SetWindowLong
+#  define vtkGWL_WNDPROC GWL_WNDPROC
 #endif // 
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.94");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.95");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -100,7 +102,7 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
       }
     else 
       {
-      vtkSetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)this->OldProc);
+      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(LONG)this->OldProc);
       }
     this->Enabled = 0;
     }
@@ -168,7 +170,7 @@ void vtkWin32RenderWindowInteractor::Enable()
     {
     // add our callback
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
-    this->OldProc = (WNDPROC)vtkGetWindowLong(this->WindowId,GWL_WNDPROC);
+    this->OldProc = (WNDPROC)vtkGetWindowLong(this->WindowId,vtkGWL_WNDPROC);
     tmp=(vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(this->WindowId,4);
     // watch for odd conditions
     if (tmp != ren) 
@@ -182,7 +184,7 @@ void vtkWin32RenderWindowInteractor::Enable()
       }
     else 
       {
-      vtkSetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)vtkHandleMessage);
+      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(LONG)vtkHandleMessage);
       }
     // in case the size of the window has changed while we were away
     int *size;
@@ -221,7 +223,7 @@ void vtkWin32RenderWindowInteractor::Disable()
       }
     else 
       {
-      vtkSetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)this->OldProc);
+      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(LONG)this->OldProc);
       }
     }
   this->Enabled = 0;
