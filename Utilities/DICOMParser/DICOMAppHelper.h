@@ -21,6 +21,7 @@
 
 #ifdef _MSC_VER
 #pragma warning ( disable : 4514 )
+#pragma warning ( disable : 4018 )
 #pragma warning ( push, 3 )
 #endif 
 
@@ -31,6 +32,9 @@
 #include "DICOMTypes.h"
 #include "DICOMCallback.h"
 
+#ifdef _MSC_VER
+#pragma warning ( enable : 4018 )
+#endif 
 class DICOMParser;
 
 // Function object for sorting strings
