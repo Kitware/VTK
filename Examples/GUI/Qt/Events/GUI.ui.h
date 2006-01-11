@@ -189,16 +189,16 @@ void Form1::popup( vtkObject * obj, unsigned long , void * client_data, void* /*
   // consume event so the interactor style doesn't get it
   command->AbortFlagOn();
   // get popup menu
-  QPopupMenu* popup = static_cast<QPopupMenu*>(client_data);
+  QPopupMenu* popupMenu = static_cast<QPopupMenu*>(client_data);
   // get event location
-  int* size = iren->GetSize();
-  int* pos = iren->GetEventPosition();
+  int* sz = iren->GetSize();
+  int* position = iren->GetEventPosition();
   // remember to flip y
-  QPoint pt = QPoint(pos[0], size[1]-pos[1]);
+  QPoint pt = QPoint(position[0], sz[1]-position[1]);
   // map to global
-  QPoint global_pt = popup->parentWidget()->mapToGlobal(pt);
+  QPoint global_pt = popupMenu->parentWidget()->mapToGlobal(pt);
   // show popup menu at global point
-  popup->popup(global_pt);
+  popupMenu->popup(global_pt);
 }
 
 

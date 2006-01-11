@@ -35,8 +35,8 @@
 
 
 // Constructor
-SimpleView::SimpleView(QWidget* parent) 
- : QMainWindow(parent)
+SimpleView::SimpleView(QWidget* p) 
+ : QMainWindow(p)
 {
   setupUi(this);
 
