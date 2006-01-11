@@ -33,7 +33,7 @@
 #include "DICOMCallback.h"
 
 #ifdef _MSC_VER
-#pragma warning ( enable : 4018 )
+#pragma warning ( default: 4018 )
 #endif 
 class DICOMParser;
 
