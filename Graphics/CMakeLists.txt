@@ -89,6 +89,8 @@ vtkHyperOctreeFractalSource.cxx
 vtkHyperOctreeSampleFunction.cxx
 vtkHyperOctreeSurfaceFilter.cxx
 vtkHyperOctreeToUniformGridFilter.cxx
+vtkHyperOctreeDepth.cxx
+vtkHyperOctreeLimiter.cxx
 vtkHyperStreamline.cxx
 vtkIdFilter.cxx
 vtkImageDataGeometryFilter.cxx
