@@ -111,7 +111,7 @@ void vtkHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.15");
+vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.16");
 
 template<unsigned int D> class vtkCompactHyperOctree;
 template<unsigned int D> class vtkCompactHyperOctreeNode;
@@ -514,13 +514,13 @@ private:
   void operator=(const vtkCompactHyperOctreeCursor<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.15");
+// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.16");
 template<unsigned int D>
 void vtkCompactHyperOctreeCursor<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.15" << '\n';
+  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.16" << '\n';
 }
   
 
@@ -652,7 +652,7 @@ protected:
   int Children[1<<D]; // indices
 };
 
-//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.15");
+//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.16");
 
 template<unsigned int D> class vtkCompactHyperOctree
   : public vtkHyperOctreeInternal
@@ -957,13 +957,13 @@ private:
   void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.15");
+// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.16");
 template<unsigned int D>
 void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctree<" << D <<"> " << "1.15" << '\n';
+  os << "vtkCompactHyperOctree<" << D <<"> " << "1.16" << '\n';
 }
   
 
@@ -971,7 +971,7 @@ void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 // quadtree: vtkHyperOctreeInternal<2>
 // bittree: vtkHyperOctreeInternal<1>
 
-vtkCxxRevisionMacro(vtkHyperOctree, "1.15");
+vtkCxxRevisionMacro(vtkHyperOctree, "1.16");
 vtkStandardNewMacro(vtkHyperOctree);
 
 //-----------------------------------------------------------------------------
@@ -2177,7 +2177,8 @@ vtkCell *vtkHyperOctree::GetCell(vtkIdType cellId)
     {
     case 1: 
       cell = this->Line;
-      return NULL;
+      //return NULL; ???
+      break;
 
     case 2:
       cell = this->Pixel;

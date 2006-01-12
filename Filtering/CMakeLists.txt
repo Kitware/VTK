@@ -74,6 +74,8 @@ vtkHyperOctree.cxx
 vtkHyperOctreeAlgorithm.cxx
 vtkHyperOctreeCursor.cxx
 vtkHyperOctreePointsGrabber.cxx
+vtkHyperOctreeDepth.cxx
+vtkHyperOctreeLimiter.cxx
 vtkImageAlgorithm.cxx
 vtkImageData.cxx
 vtkImageInPlaceFilter.cxx
