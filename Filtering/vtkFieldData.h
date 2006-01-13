@@ -43,7 +43,10 @@
 #include "vtkObject.h"
 
 #include "vtkAbstractArray.h" // Needed for inline methods.
-#include "vtkDataArray.h" // Needed for backwards compatibility.
+
+#ifndef VTK_LEGACY_REMOVE
+# include "vtkDataArray.h" // Needed for backwards compatibility.
+#endif
 
 class vtkIdList;
 
