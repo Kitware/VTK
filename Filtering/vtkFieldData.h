@@ -42,7 +42,8 @@
 
 #include "vtkObject.h"
 
-#include "vtkAbstractArray.h" // Needed for inline methods
+#include "vtkAbstractArray.h" // Needed for inline methods.
+#include "vtkDataArray.h" // Needed for backwards compatibility.
 
 class vtkIdList;
 
