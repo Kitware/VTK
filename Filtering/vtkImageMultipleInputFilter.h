@@ -15,7 +15,7 @@
 // .NAME vtkImageMultipleInputFilter - Generic filter that has N inputs.
 // .SECTION Description
 // vtkImageMultipleInputFilter is a super class for filters that 
-// have any number of inputs. Steaming is not available in this class yet.
+// have any number of inputs. Streaming is not available in this class yet.
 
 // .SECTION See Also
 // vtkImageToImageFilter vtkImageInPlaceFilter vtkImageTwoInputFilter
