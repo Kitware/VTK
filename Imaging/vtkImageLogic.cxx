@@ -16,11 +16,14 @@
 
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogic, "1.32");
+vtkCxxRevisionMacro(vtkImageLogic, "1.33");
 vtkStandardNewMacro(vtkImageLogic);
 
 //----------------------------------------------------------------------------
@@ -277,6 +280,16 @@ void vtkImageLogic::ThreadedRequestData (
         return;
       }
     }
+}
+
+int vtkImageLogic::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if (port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 void vtkImageLogic::PrintSelf(ostream& os, vtkIndent indent)

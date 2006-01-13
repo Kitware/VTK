@@ -24,7 +24,9 @@ foreach operator $logics {
 
     vtkImageLogic logic${operator}
       logic${operator} SetInput1 [sphere1${operator} GetOutput]
+   if {$operator != "Not"} {
       logic${operator} SetInput2 [sphere2${operator} GetOutput]
+   }
       logic${operator} SetOutputTrueValue 150
       logic${operator} SetOperationTo${operator}
     vtkImageMapper mapper${operator}

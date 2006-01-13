@@ -79,6 +79,7 @@ protected:
                             vtkInformationVector* outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
                             int ext[6], int id);
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
   vtkImageLogic(const vtkImageLogic&);  // Not implemented.
