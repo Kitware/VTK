@@ -26,6 +26,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       MeshQuality.cxx
       TestHierarchicalBoxPipeline.cxx
       TestMultiBlock.cxx
+      UnstructuredGridGradients.cxx
+      UnstructuredGridCellGradients.cxx
       )
   ENDIF (VTK_DATA_ROOT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
