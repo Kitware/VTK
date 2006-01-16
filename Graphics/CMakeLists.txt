@@ -72,6 +72,7 @@ vtkGeometryFilter.cxx
 vtkGlyph2D.cxx
 vtkGlyph3D.cxx
 vtkGlyphSource2D.cxx
+vtkGradientFilter.cxx
 vtkGraphLayoutFilter.cxx
 vtkGridSynchronizedTemplates3D.cxx
 vtkHierarchicalDataSetGeometryFilter.cxx
