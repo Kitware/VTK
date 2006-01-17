@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataExtractGroup, "1.3");
+vtkCxxRevisionMacro(vtkMultiGroupDataExtractGroup, "1.4");
 vtkStandardNewMacro(vtkMultiGroupDataExtractGroup);
 
 //----------------------------------------------------------------------------
@@ -100,6 +100,10 @@ int vtkMultiGroupDataExtractGroup::RequestInformation(
   else
     {
     numGroups = this->MaxGroup+1;
+    }
+  if (numGroups < this->MinGroup)
+    {
+    numGroups = this->MinGroup;
     }
   compInfo->SetNumberOfGroups(numGroups-this->MinGroup);
 
