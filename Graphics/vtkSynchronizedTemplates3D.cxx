@@ -38,7 +38,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.9");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.10");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -745,7 +745,7 @@ int vtkSynchronizedTemplates3D::RequestUpdateExtent(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  int piece, numPieces;
+  int piece, numPieces, ghostLevels;
   int *wholeExt;
   int ext[6];
 
@@ -759,6 +759,9 @@ int vtkSynchronizedTemplates3D::RequestUpdateExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   numPieces =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevels =
+    outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   // Start with the whole grid.
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
@@ -775,7 +778,8 @@ int vtkSynchronizedTemplates3D::RequestUpdateExtent(
     }
   else
     {    
-    translator->PieceToExtentThreadSafe(piece, numPieces, 0, wholeExt, ext, 
+    translator->PieceToExtentThreadSafe(piece, numPieces, ghostLevels, 
+                                        wholeExt, ext, 
                                         translator->GetSplitMode(),0);
     }
   
