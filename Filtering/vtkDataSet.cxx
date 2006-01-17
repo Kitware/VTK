@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.5");
+vtkCxxRevisionMacro(vtkDataSet, "1.6");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -446,6 +446,14 @@ void vtkDataSet::GenerateGhostLevelArray()
     return;
     }
 
+  // Only generate ghost call levels if zero levels are requested.
+  // (Although we still need ghost points.)
+  if (this->GetUpdateGhostLevel() == 0)
+    {
+    return;
+    }
+    
+
   // Avoid generating these if the producer has generated them.
   if(!this->PointData->GetArray("vtkGhostLevels"))
     { // Create ghost levels for cells and points.
@@ -536,13 +544,6 @@ void vtkDataSet::GenerateGhostLevelArray()
     this->PointData->AddArray(levels);
     levels->Delete();
   
-    // Only generate ghost call levels if zero levels are requested.
-    // (Although we still need ghost points.)
-    if (this->GetUpdateGhostLevel() == 0)
-      {
-      return;
-      }
-    
     // ---- CELLS ----
     // Allocate the appropriate number levels (number of cells).
     levels = vtkUnsignedCharArray::New();
