@@ -20,7 +20,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPCellDataToPointData, "1.5");
+vtkCxxRevisionMacro(vtkPCellDataToPointData, "1.6");
 vtkStandardNewMacro(vtkPCellDataToPointData);
 
 //----------------------------------------------------------------------------
@@ -67,8 +67,8 @@ int vtkPCellDataToPointData::RequestData(
 }
 
 //--------------------------------------------------------------------------
-int vtkPCellDataToPointData::ComputeInputUpdateExtent(
-  vtkInformation*,
+int vtkPCellDataToPointData::RequestUpdateExtent(
+  vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
