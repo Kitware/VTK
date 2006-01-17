@@ -130,7 +130,9 @@ int UnstructuredGridCellGradients(int argc, char *argv[])
 
   renderer->ResetCamera();
   vtkCamera *camera = renderer->GetActiveCamera();
-  camera->Elevation(-90.0);
+  camera->Elevation(-85.0);
+  camera->OrthogonalizeViewUp();
+  camera->Elevation(-5.0);
   camera->OrthogonalizeViewUp();
   camera->Elevation(-10.0);
   camera->Azimuth(55.0);
