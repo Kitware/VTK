@@ -38,22 +38,22 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkGradientFilter, "1.1");
+vtkCxxRevisionMacro(vtkGradientFilter, "1.2");
 vtkStandardNewMacro(vtkGradientFilter);
 
 template<class data_type>
-static void DoComputePointGradients(vtkDataSet *structure,
-                                    data_type *scalars,
-                                    data_type *gradients);
+void vtkGradientFilterDoComputePointGradients(vtkDataSet *structure,
+                                              data_type *scalars,
+                                              data_type *gradients);
 template<class data_type>
-static int AddCellContribution(vtkIdType pointId,
-                               double *pointCoord, vtkCell *cell,
-                               data_type *scalars, data_type *g);
+int vtkGradientFilterAddCellContribution(vtkIdType pointId,
+                                         double *pointCoord, vtkCell *cell,
+                                         data_type *scalars, data_type *g);
 
 template<class data_type>
-static void DoComputeCellGradients(vtkDataSet *structure,
-                                   data_type *scalars,
-                                   data_type *gradients);
+void vtkGradientFilterDoComputeCellGradients(vtkDataSet *structure,
+                                             data_type *scalars,
+                                             data_type *gradients);
 
 //-----------------------------------------------------------------------------
 
@@ -224,7 +224,7 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
     {
     switch (scalars->GetDataType())
       {
-      vtkTemplateMacro(DoComputePointGradients(
+      vtkTemplateMacro(vtkGradientFilterDoComputePointGradients(
                                        input,
                                        (VTK_TT *)scalars->GetVoidPointer(0),
                                        (VTK_TT *)gradients->GetVoidPointer(0)));
@@ -251,7 +251,7 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
     switch (pointScalars->GetDataType())
       {
-      vtkTemplateMacro(DoComputeCellGradients(
+      vtkTemplateMacro(vtkGradientFilterDoComputeCellGradients(
                                      input,
                                      (VTK_TT *)pointScalars->GetVoidPointer(0),
                                      (VTK_TT *)gradients->GetVoidPointer(0)));
@@ -282,9 +282,9 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
 //-----------------------------------------------------------------------------
 
 template<class data_type>
-static void DoComputePointGradients(vtkDataSet *structure,
-                                    data_type *scalars,
-                                    data_type *gradients)
+void vtkGradientFilterDoComputePointGradients(vtkDataSet *structure,
+                                              data_type *scalars,
+                                              data_type *gradients)
 {
   vtkIdType numpts;
   data_type *g;
@@ -317,8 +317,8 @@ static void DoComputePointGradients(vtkDataSet *structure,
       {
       vtkCell *cell = structure->GetCell(cellsOnPoint->GetId(neighbor));
 
-      numValidCellNeighbors
-        += AddCellContribution(point, pointcoords, cell, scalars, g);
+      numValidCellNeighbors += vtkGradientFilterAddCellContribution(
+                                          point, pointcoords, cell, scalars, g);
       }
 
     if (numCellNeighbors > 0)
@@ -337,9 +337,9 @@ static void DoComputePointGradients(vtkDataSet *structure,
 //-----------------------------------------------------------------------------
 
 template<class data_type>
-static int AddCellContribution(vtkIdType pointId,
-                               double *pointCoord, vtkCell *cell,
-                               data_type *scalars, data_type *g)
+int vtkGradientFilterAddCellContribution(vtkIdType pointId,
+                                         double *pointCoord, vtkCell *cell,
+                                         data_type *scalars, data_type *g)
 {
   double parametricCoord[3];
   int subId;
@@ -385,9 +385,9 @@ static int AddCellContribution(vtkIdType pointId,
 //-----------------------------------------------------------------------------
 
 template<class data_type>
-static void DoComputeCellGradients(vtkDataSet *structure,
-                                   data_type *scalars,
-                                   data_type *gradients)
+void vtkGradientFilterDoComputeCellGradients(vtkDataSet *structure,
+                                             data_type *scalars,
+                                             data_type *gradients)
 {
   vtkIdType numcells;
   data_type *g;
