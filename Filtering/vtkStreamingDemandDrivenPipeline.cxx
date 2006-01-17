@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.37");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.38");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -411,6 +411,7 @@ vtkStreamingDemandDrivenPipeline
             continue;
             }
 
+
           // Consider all combinations of extent types.
           if(inData->GetExtentType() == VTK_PIECES_EXTENT)
             {
@@ -435,8 +436,19 @@ vtkStreamingDemandDrivenPipeline
             }
           else if(inData->GetExtentType() == VTK_3D_EXTENT)
             {
+
             if(outData->GetExtentType() == VTK_PIECES_EXTENT)
               {
+              if (outInfo->Get(UPDATE_PIECE_NUMBER()) >= 0)
+                {
+                // Although only the extent is used when processing
+                // structured datasets, this is still passed to let
+                // algorithms know what the actual request was.
+                inInfo->CopyEntry(outInfo, UPDATE_PIECE_NUMBER());
+                inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
+                inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
+                }
+
               int piece = outInfo->Get(UPDATE_PIECE_NUMBER());
               int numPieces = outInfo->Get(UPDATE_NUMBER_OF_PIECES());
               int ghostLevel = outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
