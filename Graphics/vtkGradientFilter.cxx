@@ -38,7 +38,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkGradientFilter, "1.2");
+vtkCxxRevisionMacro(vtkGradientFilter, "1.3");
 vtkStandardNewMacro(vtkGradientFilter);
 
 template<class data_type>
@@ -317,7 +317,7 @@ void vtkGradientFilterDoComputePointGradients(vtkDataSet *structure,
       {
       vtkCell *cell = structure->GetCell(cellsOnPoint->GetId(neighbor));
 
-      numValidCellNeighbors += vtkGradientFilterAddCellContribution(
+      numValidCellNeighbors += ::vtkGradientFilterAddCellContribution(
                                           point, pointcoords, cell, scalars, g);
       }
 
