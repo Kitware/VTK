@@ -29,7 +29,7 @@
 #include "vtkCellType.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeLimiter, "1.1");
+vtkCxxRevisionMacro(vtkHyperOctreeLimiter, "1.2");
 vtkStandardNewMacro(vtkHyperOctreeLimiter);
 
 //----------------------------------------------------------------------------
@@ -81,12 +81,13 @@ int vtkHyperOctreeLimiter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkIdType fact=(1<<(aMaximumLevel-1));
   vtkIdType maxNumberOfCells=fact*fact;  
 
-  int pos = 0;
   //give the output the same number and type of attribute data arrays
+  int pos = 0;
+  int a;
   vtkPointData *ipd = this->Input->GetPointData();
   vtkPointData *opd = this->Output->GetPointData();
   int nparrays = ipd->GetNumberOfArrays();
-  for (int a = 0; a < nparrays; a++)
+  for (a = 0; a < nparrays; a++)
     {
     vtkDataArray *ida = ipd->GetArray(a);    
     vtkDataArray *oda = opd->GetArray(ida->GetName());
@@ -115,7 +116,7 @@ int vtkHyperOctreeLimiter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkCellData *icd = this->Input->GetCellData();
   vtkCellData *ocd = this->Output->GetCellData();
   int ncarrays = icd->GetNumberOfArrays();
-  for (int a = 0; a < ncarrays; a++)
+  for (a = 0; a < ncarrays; a++)
     {
     vtkDataArray *ida = icd->GetArray(a);
     vtkDataArray *oda = ocd->GetArray(ida->GetName());
@@ -154,12 +155,12 @@ int vtkHyperOctreeLimiter::RequestData(vtkInformation *vtkNotUsed(request),
   this->NumChildren = incursor->GetNumberOfChildren();
   this->BuildNextCell(incursor, outcursor, 0);
 
-  for (int a = 0; a < nparrays; a++)
+  for (a = 0; a < nparrays; a++)
     {
     vtkDataArray *oda = opd->GetArray(a);    
     oda->Squeeze();
     }
-  for (int a = 0; a < ncarrays; a++)
+  for (a = 0; a < ncarrays; a++)
     {
     vtkDataArray *oda = ocd->GetArray(a);
     oda->Squeeze();
@@ -223,20 +224,21 @@ void vtkHyperOctreeLimiter::BuildNextCell(vtkHyperOctreeCursor *incursor,
       vtkPointData *ipd = this->Input->GetPointData();
       vtkPointData *opd = this->Output->GetPointData();
       int nparrays = ipd->GetNumberOfArrays();
-      for (int i = 0; i < nparrays; i++)
+      int a;
+      for (a = 0; a < nparrays; a++)
         {
-        vtkDataArray *ida = ipd->GetArray(i);
-        vtkDataArray *oda = opd->GetArray(i);
+        vtkDataArray *ida = ipd->GetArray(a);
+        vtkDataArray *oda = opd->GetArray(a);
         oda->InsertTuple(oid, ida->GetTuple(iid));
         }
 
       vtkCellData *icd = this->Input->GetCellData();
       vtkCellData *ocd = this->Output->GetCellData();
       int ncarrays = icd->GetNumberOfArrays();
-      for (int i = 0; i < ncarrays; i++)
+      for (a = 0; a < ncarrays; a++)
         {
-        vtkDataArray *ida = icd->GetArray(i);
-        vtkDataArray *oda = ocd->GetArray(i);
+        vtkDataArray *ida = icd->GetArray(a);
+        vtkDataArray *oda = ocd->GetArray(a);
         oda->InsertTuple(oid, ida->GetTuple(iid));
         }
       }
@@ -274,9 +276,10 @@ void vtkHyperOctreeLimiter::BuildNextCell(vtkHyperOctreeCursor *incursor,
 
       //put the accumulated results back into this new leaf
       int pos = 0;
+      int a;
       vtkPointData *opd = this->Output->GetPointData();
       int nparrays = opd->GetNumberOfArrays();
-      for (int a = 0; a < nparrays; a++)
+      for (a = 0; a < nparrays; a++)
         {
         vtkDataArray *oda = opd->GetArray(a);
         int ncomp = oda->GetNumberOfComponents();
@@ -288,7 +291,7 @@ void vtkHyperOctreeLimiter::BuildNextCell(vtkHyperOctreeCursor *incursor,
         }
       vtkCellData *ocd = this->Output->GetCellData();
       int ncarrays = ocd->GetNumberOfArrays();
-      for (int a = 0; a < ncarrays; a++)
+      for (a = 0; a < ncarrays; a++)
         {
         vtkDataArray *oda = ocd->GetArray(a);
         int ncomp = oda->GetNumberOfComponents();
@@ -360,10 +363,11 @@ void vtkHyperOctreeLimiter::AddInteriorAttributes(vtkHyperOctreeCursor *incursor
     vtkIdType iid=incursor->GetLeafId();
 
     int pos = 0;
+    int a;
     vtkPointData *ipd = this->Input->GetPointData();
     vtkPointData *opd = this->Output->GetPointData();
     int nparrays = opd->GetNumberOfArrays();
-    for (int a = 0; a < nparrays; a++)
+    for (a = 0; a < nparrays; a++)
       {
       vtkDataArray *ida = ipd->GetArray(a);
       vtkDataArray *oda = opd->GetArray(a);
@@ -381,7 +385,7 @@ void vtkHyperOctreeLimiter::AddInteriorAttributes(vtkHyperOctreeCursor *incursor
     vtkCellData *icd = this->Input->GetCellData();
     vtkCellData *ocd = this->Output->GetCellData();
     int ncarrays = ocd->GetNumberOfArrays();
-    for (int a = 0; a < ncarrays; a++)
+    for (a = 0; a < ncarrays; a++)
       {
       vtkDataArray *ida = icd->GetArray(a);
       vtkDataArray *oda = ocd->GetArray(a);
