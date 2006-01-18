@@ -29,7 +29,7 @@
 // ExecuteInformation has to be overwritten. As an example of how this
 // can be done, you can look at vtkImageShrink3D::ExecuteInformation.
 // For a complete example which uses templates to support generic data
-// types, see  vtkSimpleFilterExample.
+// types, see vtkSimpleImageToImageFilter.
 
 // .SECTION See also
 // vtkImageAlgorithm vtkSimpleImageFilterExample
