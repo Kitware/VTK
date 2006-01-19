@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkContourRepresentation.h"
+#include "VtkContourRepresentation.h"
 #include "vtkHandleRepresentation.h"
 #include "vtkCoordinate.h"
 #include "vtkRenderer.h"
@@ -27,36 +27,13 @@
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
 
-#include <vtkstd/vector>
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.8");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.9");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
-
-class vtkContourRepresentationPoint
-{
-public:
-  double        WorldPosition[3];
-};
-
-
-class vtkContourRepresentationNode
-{
-public:
-  double        WorldPosition[3];
-  double        WorldOrientation[9];
-  vtkstd::vector<vtkContourRepresentationPoint*> Points;
-};
-
-class vtkContourRepresentationInternals
-{
-public:
-  vtkstd::vector<vtkContourRepresentationNode*> Nodes;
-};
-
 
 //----------------------------------------------------------------------
 vtkContourRepresentation::vtkContourRepresentation()
@@ -91,26 +68,39 @@ vtkContourRepresentation::~vtkContourRepresentation()
   this->Internal->Nodes.clear(); 
   delete this->Internal;
 }
-
   
 //----------------------------------------------------------------------
-void vtkContourRepresentation::AddNodeAtWorldPositionInternal( double worldPos[3],
-                                                               double worldOrient[9] )
+void vtkContourRepresentation::AddNodeAtPositionInternal( double worldPos[3],
+                                                          double worldOrient[9],
+                                                          int displayPos[2] )
 {
   // Add a new point at this position
   vtkContourRepresentationNode *node = new vtkContourRepresentationNode;
   node->WorldPosition[0] = worldPos[0];
   node->WorldPosition[1] = worldPos[1];
   node->WorldPosition[2] = worldPos[2];
+  node->DisplayPosition[0] = displayPos[0];
+  node->DisplayPosition[1] = displayPos[1];
   
   memcpy(node->WorldOrientation, worldOrient, 9*sizeof(double) );
-  
   
   this->Internal->Nodes.push_back(node);
   
   this->UpdateLines( this->Internal->Nodes.size()-1);
   this->NeedToRender = 1;
 }
+
+//----------------------------------------------------------------------
+void vtkContourRepresentation::AddNodeAtPositionInternal( double worldPos[3],
+                                                          double worldOrient[9],
+                                                          double displayPos[2] )
+{
+  int dispPos[2];
+  dispPos[0] = (int) displayPos[0];
+  dispPos[1] = (int) displayPos[1];
+  this->AddNodeAtPositionInternal( worldPos, worldOrient, dispPos );
+}
+
 //----------------------------------------------------------------------
 int vtkContourRepresentation::AddNodeAtWorldPosition( double worldPos[3],
                                                       double worldOrient[9] )
@@ -121,7 +111,10 @@ int vtkContourRepresentation::AddNodeAtWorldPosition( double worldPos[3],
     return 0;
     }
 
-  this->AddNodeAtWorldPositionInternal( worldPos, worldOrient );
+  int displayPos[2];
+  this->GetRendererComputedDisplayPositionFromWorldPosition( 
+                          worldPos, worldOrient, displayPos );
+  this->AddNodeAtPositionInternal( worldPos, worldOrient, displayPos );
   return 1;
 }
 
@@ -138,7 +131,10 @@ int vtkContourRepresentation::AddNodeAtWorldPosition( double worldPos[3] )
                            0.0,1.0,0.0,
                            0.0,0.0,1.0};
   
-  this->AddNodeAtWorldPositionInternal( worldPos, worldOrient );
+  int displayPos[2];
+  this->GetRendererComputedDisplayPositionFromWorldPosition( 
+                          worldPos, worldOrient, displayPos );
+  this->AddNodeAtPositionInternal( worldPos, worldOrient, displayPos );
   return 1;
 }
 
@@ -158,7 +154,7 @@ int vtkContourRepresentation::AddNodeAtDisplayPosition(double displayPos[2])
     return 0;
     }
   
-  this->AddNodeAtWorldPositionInternal( worldPos, worldOrient );  
+  this->AddNodeAtPositionInternal( worldPos, worldOrient, displayPos );  
   return 1;
 }
 //----------------------------------------------------------------------
@@ -393,6 +389,9 @@ int vtkContourRepresentation::GetIntermediatePointWorldPosition(int n,
 }
 
 //----------------------------------------------------------------------
+// The display position for a given world position must be re-computed
+// from the world positions... It should not be queried from the renderer
+// whose camera position may have changed
 int vtkContourRepresentation::GetNthNodeDisplayPosition( int n, double displayPos[2] )
 {
   if ( n < 0 ||
@@ -452,6 +451,9 @@ void vtkContourRepresentation::SetNthNodeWorldPositionInternal( int n, double wo
   this->Internal->Nodes[n]->WorldPosition[1] = worldPos[1];
   this->Internal->Nodes[n]->WorldPosition[2] = worldPos[2];
   
+  this->GetRendererComputedDisplayPositionFromWorldPosition( 
+        worldPos, worldOrient, this->Internal->Nodes[n]->DisplayPosition );
+
   memcpy(this->Internal->Nodes[n]->WorldOrientation, worldOrient, 9*sizeof(double) );
 
   this->UpdateLines( n );
@@ -742,6 +744,9 @@ int vtkContourRepresentation::AddNodeOnContour( int X, int Y )
   node->WorldPosition[1] = worldPos[1];
   node->WorldPosition[2] = worldPos[2];
   
+  this->GetRendererComputedDisplayPositionFromWorldPosition( 
+                          worldPos, worldOrient, node->DisplayPosition );
+  
   memcpy(node->WorldOrientation, worldOrient, 9*sizeof(double) );
   
   this->Internal->Nodes.insert(this->Internal->Nodes.begin() + idx, node);
@@ -874,6 +879,17 @@ int vtkContourRepresentation::AddIntermediatePointWorldPosition( int n,
   point->WorldPosition[0] = pos[0];
   point->WorldPosition[1] = pos[1];
   point->WorldPosition[2] = pos[2];
+  
+  double worldOrient[9] = {1.0,0.0,0.0,
+                           0.0,1.0,0.0,
+                           0.0,0.0,1.0};
+  
+  int displayPos[2];
+  this->GetRendererComputedDisplayPositionFromWorldPosition( 
+                          pos, worldOrient, displayPos );
+  point->DisplayPosition[0] = displayPos[0];
+  point->DisplayPosition[1] = displayPos[1];
+  
   this->Internal->Nodes[n]->Points.push_back(point);
   return 1;
 }
@@ -991,6 +1007,25 @@ int vtkContourRepresentation::UpdateContour()
 }
 
 //----------------------------------------------------------------------
+void vtkContourRepresentation
+::GetRendererComputedDisplayPositionFromWorldPosition( double worldPos[3],
+                                double worldOrient[9], int displayPos[2] )
+{
+  double pos[4];
+  pos[0] = worldPos[0];
+  pos[1] = worldPos[1];
+  pos[2] = worldPos[2];
+  pos[3] = 1.0;
+  
+  this->Renderer->SetWorldPoint( pos );
+  this->Renderer->WorldToDisplay();
+  this->Renderer->GetDisplayPoint( pos );
+  
+  displayPos[0] = (int)pos[0];
+  displayPos[1] = (int)pos[1];
+}
+
+//----------------------------------------------------------------------
 void vtkContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
@@ -999,3 +1034,4 @@ void vtkContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Pixel Tolerance: " << this->PixelTolerance <<"\n";
   os << indent << "World Tolerance: " << this->WorldTolerance <<"\n";
 }
+
