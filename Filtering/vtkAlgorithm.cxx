@@ -35,7 +35,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.31");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.32");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -206,9 +206,32 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
 
   this->Modified();
 }
+//----------------------------------------------------------------------------
+vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
+  int idx, vtkInformationVector **inputVector)
+{
+  return vtkDataArray::SafeDownCast(
+    this->GetInputAbstractArrayToProcess(idx, inputVector));
+}
 
 //----------------------------------------------------------------------------
 vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
+  int idx, int connection, vtkInformationVector **inputVector)
+{
+  return vtkDataArray::SafeDownCast(this->GetInputAbstractArrayToProcess(
+      idx, connection, inputVector));
+}
+
+//----------------------------------------------------------------------------
+vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
+  int idx, vtkDataObject* input)
+{
+  return vtkDataArray::SafeDownCast(this->GetInputAbstractArrayToProcess(idx,
+      input));
+}
+
+//----------------------------------------------------------------------------
+vtkAbstractArray *vtkAlgorithm::GetInputAbstractArrayToProcess(
   int idx, vtkInformationVector **inputVector)
 {
   vtkInformationVector *inArrayVec = 
@@ -228,11 +251,11 @@ vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
     }
 
   int connection = inArrayInfo->Get(INPUT_CONNECTION());
-  return this->GetInputArrayToProcess(idx, connection, inputVector);
+  return this->GetInputAbstractArrayToProcess(idx, connection, inputVector);
 }
 
 //----------------------------------------------------------------------------
-vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
+vtkAbstractArray* vtkAlgorithm::GetInputAbstractArrayToProcess(
   int idx, int connection, vtkInformationVector **inputVector)
 {
   vtkInformationVector *inArrayVec = 
@@ -255,11 +278,11 @@ vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
   vtkInformation *inInfo = inputVector[port]->GetInformationObject(connection);
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
-  return this->GetInputArrayToProcess(idx, input);
+  return this->GetInputAbstractArrayToProcess(idx, input);
 }
 
 //----------------------------------------------------------------------------
-vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
+vtkAbstractArray* vtkAlgorithm::GetInputAbstractArrayToProcess(
   int idx, vtkDataObject* input)
 {
   if (!input)
@@ -292,7 +315,7 @@ vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
     if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE)
       {
       vtkFieldData *fd = input->GetFieldData();
-      return fd->GetArray(name);
+      return fd->GetAbstractArray(name);
       }
     
     vtkDataSet *inputDS = vtkDataSet::SafeDownCast(input);
@@ -304,15 +327,15 @@ vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
 
     if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS)
       {
-      return inputDS->GetPointData()->GetArray(name);
+      return inputDS->GetPointData()->GetAbstractArray(name);
       }
     if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS
-        && inputDS->GetPointData()->GetArray(name))
+        && inputDS->GetPointData()->GetAbstractArray(name))
       {
-      return inputDS->GetPointData()->GetArray(name);
+      return inputDS->GetPointData()->GetAbstractArray(name);
       }
     
-    return inputDS->GetCellData()->GetArray(name);
+    return inputDS->GetCellData()->GetAbstractArray(name);
     }
   else
     {
