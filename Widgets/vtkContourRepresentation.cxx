@@ -31,7 +31,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.10");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.11");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -1009,7 +1009,7 @@ int vtkContourRepresentation::UpdateContour()
 //----------------------------------------------------------------------
 void vtkContourRepresentation
 ::GetRendererComputedDisplayPositionFromWorldPosition( double worldPos[3],
-                                double worldOrient[9], int displayPos[2] )
+                                double * vtkNotUsed(worldOrient[9]), int displayPos[2] )
 {
   double pos[4];
   pos[0] = worldPos[0];
