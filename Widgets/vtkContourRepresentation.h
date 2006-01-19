@@ -63,6 +63,7 @@ class vtkContourLineInterpolator;
 class vtkPolyData;
 
 //----------------------------------------------------------------------
+//BTX
 class vtkContourRepresentationPoint
 {
 public:
@@ -84,6 +85,7 @@ class vtkContourRepresentationInternals
 public:
   vtkstd::vector<vtkContourRepresentationNode*> Nodes;
 };
+//ETX
 
 class VTK_WIDGETS_EXPORT vtkContourRepresentation : public vtkWidgetRepresentation
 {
