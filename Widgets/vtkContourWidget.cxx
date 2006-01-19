@@ -22,10 +22,11 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkSphereSource.h"
 #include "vtkProperty.h"
+#include "vtkProperty2D.h"
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.10");
+vtkCxxRevisionMacro(vtkContourWidget, "1.11");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -84,10 +85,15 @@ void vtkContourWidget::CreateDefaultRepresentation()
     
     rep->GetProperty()->SetColor(.25,1.0,.25);
     
-    rep->GetActiveProperty()->SetRepresentationToSurface();
-    rep->GetActiveProperty()->SetAmbient(0.1);
-    rep->GetActiveProperty()->SetDiffuse(0.9);
-    rep->GetActiveProperty()->SetSpecular(0.0);
+    vtkProperty *property = 
+        dynamic_cast< vtkProperty * >(rep->GetActiveProperty());
+    if (property)
+      {
+      property->SetRepresentationToSurface();
+      property->SetAmbient(0.1);
+      property->SetDiffuse(0.9);
+      property->SetSpecular(0.0);
+      }
     }
 }
 
