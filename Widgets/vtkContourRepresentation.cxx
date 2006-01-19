@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "VtkContourRepresentation.h"
+#include "vtkContourRepresentation.h"
 #include "vtkHandleRepresentation.h"
 #include "vtkCoordinate.h"
 #include "vtkRenderer.h"
@@ -31,7 +31,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.10");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
