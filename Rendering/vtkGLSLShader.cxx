@@ -163,7 +163,7 @@ static void printAttributeInfo(GLuint program, const char* vtkNotUsed(filename))
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLSLShader);
-vtkCxxRevisionMacro(vtkGLSLShader, "1.6");
+vtkCxxRevisionMacro(vtkGLSLShader, "1.7");
 
 //-----------------------------------------------------------------------------
 vtkGLSLShader::vtkGLSLShader()
@@ -312,6 +312,10 @@ void vtkGLSLShader::SetUniformParameter(const char* name, int numValues,
     {
     return;
     }
+  while (glGetError() != GL_NO_ERROR)
+    {
+    vtkErrorMacro(<< "Found unchecked OpenGL error.");
+    }
   GLint loc = static_cast<GLint>(this->GetUniformLocation(name));
   if (loc == -1)
     {
@@ -334,6 +338,12 @@ void vtkGLSLShader::SetUniformParameter(const char* name, int numValues,
   default:
     vtkErrorMacro("Number of values not supported: " << numValues);
     }
+  while (glGetError() != GL_NO_ERROR)
+    {
+    vtkErrorMacro(<< "OpenGL error when setting uniform variable int["
+                  << numValues << "] " << name << ".\n"
+                  << "Perhaps there is a type mismatch.");
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -343,6 +353,10 @@ void vtkGLSLShader::SetUniformParameter(const char* name, int numValues,
   if( !this->IsShader() )
     {
     return;
+    }
+  while (glGetError() != GL_NO_ERROR)
+    {
+    vtkErrorMacro(<< "Found unchecked OpenGL error.");
     }
   GLint loc = static_cast<GLint>(this->GetUniformLocation(name));
   if (loc == -1)
@@ -365,6 +379,12 @@ void vtkGLSLShader::SetUniformParameter(const char* name, int numValues,
     break;
   default:
     vtkErrorMacro("Number of values not supported: " << numValues);
+    }
+  while (glGetError() != GL_NO_ERROR)
+    {
+    vtkErrorMacro(<< "OpenGL error when setting uniform variable int["
+                  << numValues << "] " << name << ".\n"
+                  << "Perhaps there is a type mismatch.");
     }
 }
 
