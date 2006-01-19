@@ -26,6 +26,7 @@ vtkCaptionRepresentation.cxx
 vtkCaptionWidget.cxx
 vtkContourLineInterpolator.cxx
 vtkContourRepresentation.cxx
+vtkFocalPlaneContourRepresentation.cxx
 vtkContourWidget.cxx
 vtkCheckerboardRepresentation.cxx
 vtkCheckerboardWidget.cxx
@@ -44,6 +45,7 @@ vtkImplicitPlaneWidget.cxx
 vtkLineWidget.cxx
 vtkOrientationMarkerWidget.cxx
 vtkOrientedGlyphContourRepresentation.cxx
+vtkOrientedGlyphFocalPlaneContourRepresentation.cxx
 vtkPlaneWidget.cxx
 vtkPointHandleRepresentation2D.cxx
 vtkPointHandleRepresentation3D.cxx
@@ -77,6 +79,7 @@ vtkAffineRepresentation
 vtkAngleRepresentation
 vtkContourLineInterpolator
 vtkContourRepresentation
+vtkFocalPlaneContourRepresentation
 vtkDistanceRepresentation
 vtkHandleRepresentation
 vtkPolyDataSourceWidget
