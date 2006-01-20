@@ -33,12 +33,12 @@ class vtkSubclassPlaybackRepresentation : public vtkPlaybackRepresentation
 {
 public:
   static vtkSubclassPlaybackRepresentation *New() {return new vtkSubclassPlaybackRepresentation;}
-  virtual Play() {cout << "play\n";}
-  virtual Stop() {cout << "stop\n";}
-  virtual ForwardOneFrame() {cout << "forward one frame\n";}
-  virtual BackwardOneFrame() {cout << "backward one frame\n";}
-  virtual JumpToBeginning() {cout << "jump to beginning\n";}
-  virtual JumpToEnd() {cout << "jump to end\n";}
+  virtual void Play() {cout << "play\n";}
+  virtual void Stop() {cout << "stop\n";}
+  virtual void ForwardOneFrame() {cout << "forward one frame\n";}
+  virtual void BackwardOneFrame() {cout << "backward one frame\n";}
+  virtual void JumpToBeginning() {cout << "jump to beginning\n";}
+  virtual void JumpToEnd() {cout << "jump to end\n";}
 };
 
 

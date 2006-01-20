@@ -55,12 +55,12 @@ public:
 
   // Description:
   // Virtual callbacks that subclasses should implement.
-  virtual Play() {}
-  virtual Stop() {}
-  virtual ForwardOneFrame() {}
-  virtual BackwardOneFrame() {}
-  virtual JumpToBeginning() {}
-  virtual JumpToEnd() {}
+  virtual void Play() {}
+  virtual void Stop() {}
+  virtual void ForwardOneFrame() {}
+  virtual void BackwardOneFrame() {}
+  virtual void JumpToBeginning() {}
+  virtual void JumpToEnd() {}
 
   // Description:
   // Satisfy the superclasses' API.
