@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.6");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.7");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -101,13 +101,13 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData *fd)
     {
     int numArrays = fd->GetNumberOfArrays();
     int attributeType;
-    vtkDataArray *data, *newData;
+    vtkAbstractArray *data, *newData;
 
     // Allocate space for numArrays
     this->AllocateArrays(numArrays);
     for ( int i=0; i < numArrays; i++ )
       {
-      data = fd->GetArray(i);
+      data = fd->GetAbstractArray(i);
       newData = data->NewInstance(); //instantiate same type of object
       newData->DeepCopy(data);
       newData->SetName(data->GetName());
@@ -115,7 +115,7 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData *fd)
         {
         // If this array is an attribute in the source, make it so
         // in the target as well.
-        this->SetAttribute(newData, attributeType);
+        this->SetAttribute(vtkDataArray::SafeDownCast(newData), attributeType);
         }
       else
         {
