@@ -61,7 +61,8 @@ public:
   void GetPoint2DisplayPosition(double pos[3]);
 
   // Description:
-  // Retrieve the vtkAxisActor2D used to draw the measurement axis. 
+  // Retrieve the vtkAxisActor2D used to draw the measurement axis. With this 
+  // properties can be set and so on.
   vtkAxisActor2D *GetAxis();
 
   // Description:
