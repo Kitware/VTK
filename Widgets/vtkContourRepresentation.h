@@ -54,7 +54,7 @@
 #define __vtkContourRepresentation_h
 
 #include "vtkWidgetRepresentation.h"
-#include <vtkstd/vector>
+#include <vtkstd/vector> // Required for vector
 
 class vtkHandleRepresentation;
 
