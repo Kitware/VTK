@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.6");
+vtkCxxRevisionMacro(vtkDataSet, "1.7");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -358,7 +358,7 @@ int vtkDataSet::CheckAttributes()
 {
   int numPts, numCells;
   int numArrays, idx;
-  vtkDataArray *array;
+  vtkAbstractArray *array;
   int numTuples;
   const char* name;
 
@@ -369,7 +369,7 @@ int vtkDataSet::CheckAttributes()
     numPts = this->GetNumberOfPoints();
     for (idx = 0; idx < numArrays; ++idx)
       {
-      array = this->GetPointData()->GetArray(idx);
+      array = this->GetPointData()->GetAbstractArray(idx);
       numTuples = array->GetNumberOfTuples();
       name = array->GetName();
       if (name == NULL)
@@ -402,7 +402,7 @@ int vtkDataSet::CheckAttributes()
     
     for (idx = 0; idx < numArrays; ++idx)
       {
-      array = this->GetCellData()->GetArray(idx);
+      array = this->GetCellData()->GetAbstractArray(idx);
       numTuples = array->GetNumberOfTuples();
       name = array->GetName();
       if (name == NULL)
