@@ -21,10 +21,11 @@
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStringArray.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.41");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.42");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
@@ -42,7 +43,8 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
 
   this->LabeledComponent = (-1);
   this->FieldDataArray = 0;
- 
+  this->FieldDataName = NULL;
+
   this->NumberOfLabels = 0;
   this->NumberOfLabelsAllocated = 50;
 
@@ -126,7 +128,7 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
 
   if ( ! input )
     {
-    vtkErrorMacro(<<"Need input data to render labels");
+    vtkErrorMacro(<<"Need input data to render labels (1)");
     return;
     }
   for (i=0; i<this->NumberOfLabels && i<numPts; i++)
@@ -145,12 +147,14 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   int i, j, numComp = 0, pointIdLabels, activeComp = 0;
   char string[1024], format[1024];
   double val, x[3];
-  vtkDataArray *data;
+  vtkAbstractArray *abstractData;
+  vtkDataArray *numericData;
+  vtkStringArray *stringData;
   vtkDataSet *input=this->GetInput();
 
   if ( ! input )
     {
-    vtkErrorMacro(<<"Need input data to render labels");
+    vtkErrorMacro(<<"Need input data to render labels (2)");
     return;
     }
 
@@ -176,7 +180,9 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
     // figure out what to label, and if we can label it
     pointIdLabels = 0;
-    data = NULL;
+    abstractData = NULL;
+    numericData = NULL;
+    stringData = NULL;
     switch (this->LabelMode)
       {
       case VTK_LABEL_IDS:
@@ -185,38 +191,49 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       case VTK_LABEL_SCALARS:
         if ( pd->GetScalars() )
           {
-          data = pd->GetScalars();
+          numericData = pd->GetScalars();
           }
         break;
       case VTK_LABEL_VECTORS:   
         if ( pd->GetVectors() )
           {
-          data = pd->GetVectors();
+          numericData = pd->GetVectors();
           }
         break;
       case VTK_LABEL_NORMALS:    
         if ( pd->GetNormals() )
           {
-          data = pd->GetNormals();
+          numericData = pd->GetNormals();
           }
         break;
       case VTK_LABEL_TCOORDS:    
         if ( pd->GetTCoords() )
           {
-          data = pd->GetTCoords();
+          numericData = pd->GetTCoords();
           }
         break;
       case VTK_LABEL_TENSORS:    
         if ( pd->GetTensors() )
           {
-          data = pd->GetTensors();
+          numericData = pd->GetTensors();
           }
         break;
       case VTK_LABEL_FIELD_DATA:
-        int arrayNum = (this->FieldDataArray < pd->GetNumberOfArrays() ?
-                        this->FieldDataArray : pd->GetNumberOfArrays() - 1);
-        data = pd->GetArray(arrayNum);
-        break;
+      {
+      int arrayNum;
+      if (this->FieldDataName != NULL)
+        {
+        abstractData = pd->GetAbstractArray(this->FieldDataName, arrayNum);
+        }
+      else
+        {
+        arrayNum = (this->FieldDataArray < pd->GetNumberOfArrays() ?
+                    this->FieldDataArray : pd->GetNumberOfArrays() - 1);
+        abstractData = pd->GetAbstractArray(arrayNum);
+        }
+      numericData = vtkDataArray::SafeDownCast(abstractData);
+      stringData = vtkStringArray::SafeDownCast(abstractData);
+      }; break;
       }
 
     // determine number of components and check input
@@ -224,9 +241,9 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       {
       ;
       }
-    else if ( data )
+    else if ( numericData )
       {
-      numComp = data->GetNumberOfComponents();
+      numComp = numericData->GetNumberOfComponents();
       activeComp = 0;
       if ( this->LabeledComponent >= 0 )
         {
@@ -235,9 +252,9 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         numComp = 1;
         }
       }
-    else
+    else if ( !stringData )
       {
-      vtkErrorMacro(<<"Need input data to render labels");
+      vtkErrorMacro(<<"Need input data to render labels (3)");
       return;
       }
 
@@ -268,37 +285,50 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         }
       else 
         {
-        if ( numComp == 1)
+        if ( numericData )
           {
-          if (data->GetDataType() == VTK_CHAR) 
+          if ( numComp == 1 )
             {
-            if (strcmp(this->LabelFormat,"%c") != 0) 
+            if (numericData->GetDataType() == VTK_CHAR) 
               {
-              vtkErrorMacro(<<"Label format must be %c to use with char");
-              return;
+              if (strcmp(this->LabelFormat,"%c") != 0) 
+                {
+                vtkErrorMacro(<<"Label format must be %c to use with char");
+                return;
+                }
+              sprintf(string, this->LabelFormat, 
+                      (char)numericData->GetComponent(i, activeComp));
+              } 
+            else 
+              {
+              sprintf(string, this->LabelFormat, 
+                      numericData->GetComponent(i, activeComp));
               }
-            sprintf(string, this->LabelFormat, 
-                    (char)data->GetComponent(i, activeComp));
-            } 
-          else 
+            }
+          else
             {
-            sprintf(string, this->LabelFormat, 
-                    data->GetComponent(i, activeComp));
+            strcpy(format, "("); strcat(format, this->LabelFormat);
+            for (j=0; j<(numComp-1); j++)
+              {
+              sprintf(string, format, numericData->GetComponent(i, j));
+              strcpy(format,string); strcat(format,", ");
+              strcat(format, this->LabelFormat);
+              }
+            sprintf(string, format, numericData->GetComponent(i, numComp-1));
+            strcat(string, ")");
             }
           }
-        else
+        else // rendering string data
           {
-          strcpy(format, "("); strcat(format, this->LabelFormat);
-          for (j=0; j<(numComp-1); j++)
+          if (strcmp(this->LabelFormat,"%s") != 0) 
             {
-            sprintf(string, format, data->GetComponent(i, j));
-            strcpy(format,string); strcat(format,", ");
-            strcat(format, this->LabelFormat);
+            vtkErrorMacro(<<"Label format must be %s to use with strings");
+            return;
             }
-          sprintf(string, format, data->GetComponent(i, numComp-1));
-          strcat(string, ")");
+          sprintf(string, this->LabelFormat, 
+                  stringData->GetValue(i).c_str());
           }
-        }
+        } // not point labels
       this->TextMappers[i]->SetInput(string);
       this->TextMappers[i]->SetTextProperty(tprop);
       }
@@ -390,4 +420,49 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Field Data Array: " << this->FieldDataArray << "\n";
+  os << indent << "Field Data Name: " << (this->FieldDataName ? this->FieldDataName : "Null") << "\n";
+}
+
+// ----------------------------------------------------------------------
+void
+vtkLabeledDataMapper::SetFieldDataArray(int arrayIndex)
+{
+  if (this->FieldDataName)
+    {
+    delete [] this->FieldDataName;
+    this->FieldDataName = NULL;
+    }
+
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting FieldDataArray to " << arrayIndex ); 
+
+  if (this->FieldDataArray != (arrayIndex < 0 ? 0 : 
+                               (arrayIndex > VTK_LARGE_INTEGER ? VTK_LARGE_INTEGER : arrayIndex)))
+    {
+    this->FieldDataArray = ( arrayIndex < 0 ? 0 : 
+                             (arrayIndex > VTK_LARGE_INTEGER ? VTK_LARGE_INTEGER : arrayIndex ));
+    this->Modified();
+    }
+}
+
+// ----------------------------------------------------------------------
+void
+vtkLabeledDataMapper::SetFieldDataName(const char *arrayName)
+{
+  vtkDebugMacro(<< this->GetClassName() 
+                << " (" << this << "): setting " << "FieldDataName" 
+                << " to " << (arrayName?arrayName:"(null)") ); 
+
+  if ( this->FieldDataName == NULL && arrayName == NULL) { return; } 
+  if ( this->FieldDataName && arrayName && (!strcmp(this->FieldDataName,arrayName))) { return;} 
+  if (this->FieldDataName) { delete [] this->FieldDataName; } 
+  if (arrayName) 
+    { 
+    this->FieldDataName = new char[strlen(arrayName)+1]; 
+    strcpy(this->FieldDataName,arrayName); 
+    } 
+   else 
+    { 
+    this->FieldDataName = NULL; 
+    } 
+  this->Modified(); 
 }

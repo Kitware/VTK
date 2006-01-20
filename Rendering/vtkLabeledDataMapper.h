@@ -89,9 +89,17 @@ public:
 
   // Description:
   // Set/Get the field data array to label. This instance variable is
-  // only applicable if field data is labeled.
-  vtkSetClampMacro(FieldDataArray,int,0,VTK_LARGE_INTEGER);
+  // only applicable if field data is labeled.  This will clear
+  // FieldDataName when set.
+  void SetFieldDataArray(int arrayIndex);
   vtkGetMacro(FieldDataArray,int);
+
+  // Description:
+  // Set/Get the name of the field data array to label.  This instance
+  // variable is only applicable if field data is labeled.  This will
+  // override FieldDataArray when set.
+  void SetFieldDataName(const char *arrayName);
+  vtkGetStringMacro(FieldDataName);
 
   // Description:
   // Set the input dataset to the mapper. This mapper handles any type of data.
@@ -138,6 +146,7 @@ protected:
   int   LabelMode;
   int   LabeledComponent;
   int   FieldDataArray;
+  char  *FieldDataName;
 
   vtkTimeStamp BuildTime;
 
