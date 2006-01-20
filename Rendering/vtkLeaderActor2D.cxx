@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkLeaderActor2D, "1.7");
+vtkCxxRevisionMacro(vtkLeaderActor2D, "1.8");
 vtkStandardNewMacro(vtkLeaderActor2D);
 
 vtkCxxSetObjectMacro(vtkLeaderActor2D,LabelTextProperty,vtkTextProperty);
@@ -54,8 +54,8 @@ vtkLeaderActor2D::vtkLeaderActor2D()
 
   this->ArrowPlacement = vtkLeaderActor2D::VTK_ARROW_BOTH;
   this->ArrowStyle = vtkLeaderActor2D::VTK_ARROW_FILLED;
-  this->ArrowLength = 0.01;
-  this->ArrowWidth = 0.0075;
+  this->ArrowLength = 0.04;
+  this->ArrowWidth = 0.02;
   this->MinimumArrowSize = 2;
   this->MaximumArrowSize = 25;
 
