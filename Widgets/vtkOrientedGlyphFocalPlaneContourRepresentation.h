@@ -48,7 +48,8 @@ public:
 
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkOrientedGlyphFocalPlaneContourRepresentation,vtkContourRepresentation);
+  vtkTypeRevisionMacro(vtkOrientedGlyphFocalPlaneContourRepresentation,
+                                    vtkFocalPlaneContourRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
