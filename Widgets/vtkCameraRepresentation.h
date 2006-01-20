@@ -38,6 +38,7 @@ class vtkPoints;
 class vtkPolyData;
 class vtkTransformPolyDataFilter;
 class vtkPolyDataMapper2D;
+class vtkProperty2D;
 class vtkActor2D;
 
 class VTK_WIDGETS_EXPORT vtkCameraRepresentation : public vtkBorderRepresentation
@@ -71,6 +72,11 @@ public:
   // Set the number of frames to generate when playback is initiated.
   vtkSetClampMacro(NumberOfFrames,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfFrames,int);
+
+  // Description:
+  // By obtaining this property you can specify the properties of the 
+  // representation.
+  vtkGetObjectMacro(Property,vtkProperty2D);
 
   // Description:
   // These methods are used to create interpolated camera paths.  The
@@ -112,6 +118,7 @@ protected:
   vtkPolyData                *PolyData;
   vtkTransformPolyDataFilter *TransformFilter;
   vtkPolyDataMapper2D        *Mapper;
+  vtkProperty2D              *Property;
   vtkActor2D                 *Actor;
 
 private:

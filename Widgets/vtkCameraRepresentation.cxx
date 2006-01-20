@@ -24,12 +24,13 @@
 #include "vtkCellArray.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
 #include "vtkActor2D.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
 
-vtkCxxRevisionMacro(vtkCameraRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkCameraRepresentation, "1.3");
 vtkStandardNewMacro(vtkCameraRepresentation);
 
 vtkCxxSetObjectMacro(vtkCameraRepresentation, Camera, vtkCamera);
@@ -118,8 +119,10 @@ vtkCameraRepresentation::vtkCameraRepresentation()
 
   this->Mapper = vtkPolyDataMapper2D::New();
   this->Mapper->SetInput(this->TransformFilter->GetOutput());
+  this->Property = vtkProperty2D::New();
   this->Actor = vtkActor2D::New();
   this->Actor->SetMapper(this->Mapper);
+  this->Actor->SetProperty(this->Property);
 }
 
 //-------------------------------------------------------------------------
@@ -132,6 +135,7 @@ vtkCameraRepresentation::~vtkCameraRepresentation()
   this->TransformFilter->Delete();
   this->PolyData->Delete();
   this->Mapper->Delete();
+  this->Property->Delete();
   this->Actor->Delete();
 }
 
@@ -239,6 +243,16 @@ void vtkCameraRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
+  if ( this->Property )
+    {
+    os << indent << "Property:\n";
+    this->Property->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Property: (none)\n";
+    }
+
   os << indent << "Camera Interpolator: " << this->Interpolator << "\n";
   os << indent << "Camera: " << this->Camera << "\n";
   
