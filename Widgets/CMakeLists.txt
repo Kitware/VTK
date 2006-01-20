@@ -47,6 +47,8 @@ vtkOrientationMarkerWidget.cxx
 vtkOrientedGlyphContourRepresentation.cxx
 vtkOrientedGlyphFocalPlaneContourRepresentation.cxx
 vtkPlaneWidget.cxx
+vtkPlaybackRepresentation.cxx
+vtkPlaybackWidget.cxx
 vtkPointHandleRepresentation2D.cxx
 vtkPointHandleRepresentation3D.cxx
 vtkPointPlacer.cxx

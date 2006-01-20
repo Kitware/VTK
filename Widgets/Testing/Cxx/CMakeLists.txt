@@ -13,6 +13,7 @@ SET(MyTests
 #  TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx
   TestOrientationMarkerWidget.cxx
+#  TestPlaybackWidget.cxx
 #  TestRectilinearWipeWidget.cxx
 #  TestSeedWidget.cxx
 #  TestSliderWidget.cxx
