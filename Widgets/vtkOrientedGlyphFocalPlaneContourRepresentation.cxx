@@ -40,7 +40,7 @@
 #include "vtkFocalPlanePointPlacer.h"
 #include "vtkBezierContourLineInterpolator.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphFocalPlaneContourRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkOrientedGlyphFocalPlaneContourRepresentation, "1.2");
 vtkStandardNewMacro(vtkOrientedGlyphFocalPlaneContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -54,7 +54,6 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
 
   this->HandleSize = 0.01;
   
-  this->PointPlacer = vtkFocalPlanePointPlacer::New();
   this->LineInterpolator = vtkBezierContourLineInterpolator::New();
   
   // Represent the position of the cursor
