@@ -28,7 +28,7 @@
 #include "vtkProp.h"
 #include <vtkstd/vector>
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkRenderLargeImage, "1.36");
+vtkCxxRevisionMacro(vtkRenderLargeImage, "1.37");
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage,Input,vtkRenderer);
@@ -221,8 +221,9 @@ void vtkRenderLargeImage::RequestData(
   cam->GetWindowCenter(windowCenter);
   viewAngle = cam->GetViewAngle();
   parallelScale = cam->GetParallelScale();
-  cam->SetViewAngle(asin(sin(viewAngle*3.1415926/360.0)/this->Magnification) 
-                    * 360.0 / 3.1415926);
+
+  cam->SetViewAngle(atan(tan(viewAngle*3.1415926/360.0)/this->Magnification)
+                    * 360.0 / 3.1415926); 
   cam->SetParallelScale(parallelScale/this->Magnification);
   
   // are we double buffering?  If so, read from back buffer ....
