@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataExtractGroup, "1.4");
+vtkCxxRevisionMacro(vtkMultiGroupDataExtractGroup, "1.5");
 vtkStandardNewMacro(vtkMultiGroupDataExtractGroup);
 
 //----------------------------------------------------------------------------
@@ -162,6 +162,9 @@ int vtkMultiGroupDataExtractGroup::RequestData(
   unsigned int numGroups = output->GetNumberOfGroups();
   unsigned int numInputGroups = input->GetNumberOfGroups();
 
+  float progress = 0;
+  int counter = 0;
+  float delProg = 1.0/numInputGroups;
   for (unsigned int group=0; group<numInputGroups; group++)
     {
     if (group < this->MinGroup)
@@ -175,8 +178,14 @@ int vtkMultiGroupDataExtractGroup::RequestData(
       }
     unsigned int numDataSets = input->GetNumberOfDataSets(group);
     output->SetNumberOfDataSets(group-this->MinGroup, numDataSets);
+    float delProg2 = delProg / numDataSets;
     for (unsigned int dataSet=0; dataSet<numDataSets; dataSet++)
       {
+      progress += delProg2;
+      if ( counter % 100 == 0 )
+        {
+        this->UpdateProgress(progress);
+        }
       vtkDataSet* dObj = vtkDataSet::SafeDownCast(
         input->GetDataSet(group, dataSet));
       if (dObj)
