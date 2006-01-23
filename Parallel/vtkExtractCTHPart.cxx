@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.10.2.3");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.10.2.4");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -301,6 +301,7 @@ int vtkExtractCTHPart::RequestData(
   vtkGarbageCollector::DeferredCollectionPush();
   this->CreateInternalPipeline();
   
+  float progress, nextProgress;
   if(input!=0)
     {
     for (idx = 0; idx < num; ++idx)
@@ -312,7 +313,10 @@ int vtkExtractCTHPart::RequestData(
         vtkErrorMacro(<<"No output.");
         return 0;
         }
-      this->ExecutePart(arrayName,input,appendSurface[idx],tmps[idx]);
+      progress = (1.0/num)*idx;
+      nextProgress = progress + 1.0/num;
+      this->ExecutePart(arrayName,input,appendSurface[idx],tmps[idx],
+                        progress,nextProgress);
       }
     }
   else // rg!=0
@@ -326,8 +330,10 @@ int vtkExtractCTHPart::RequestData(
         vtkErrorMacro(<<"No output.");
         return 0;
         }
+      progress = (1.0/num)*idx;
+      nextProgress = progress + 1.0/num;
       this->ExecutePartOnRectilinearGrid(arrayName,rg,appendSurface[idx],
-                                         tmps[idx]);
+                                         tmps[idx], progress, nextProgress);
       }
     }
 
@@ -764,16 +770,28 @@ void vtkExtractCTHPart::EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkMu
 void vtkExtractCTHPart::ExecutePart(const char *arrayName,
                                     vtkMultiGroupDataSet *input,
                                     vtkAppendPolyData *appendSurface,
-                                    vtkAppendPolyData *append)
+                                    vtkAppendPolyData *append,
+                                    float minProgress,
+                                    float maxProgress)
 {
+  int counter = 0;
   int numberOfGroups=input->GetNumberOfGroups();
   int group;
+  float delProg = (maxProgress-minProgress)/numberOfGroups;
   for ( group = 0; group < numberOfGroups; ++ group )
     {
+    float progress = minProgress + group*delProg;
     int numberOfDataSets=input->GetNumberOfDataSets(group);
     int dataset;
+    float delProg2 = delProg/numberOfDataSets;
     for ( dataset = 0; dataset < numberOfDataSets; ++ dataset )
       {
+      float progress2 = progress + delProg2*dataset;
+      if (counter % 30 == 0)
+        {
+        this->UpdateProgress(progress2);
+        }
+      counter++;
       vtkDataObject *dataObj=input->GetDataSet(group,dataset);
       if(dataObj!=0)// can be null if on another processor
         {
@@ -781,7 +799,9 @@ void vtkExtractCTHPart::ExecutePart(const char *arrayName,
         if(rg!=0)
           {
           this->ExecutePartOnRectilinearGrid(arrayName,rg,appendSurface,
-            append);
+                                             append, 
+                                             progress2, 
+                                             progress2+delProg2);
           }
         else
           {
@@ -793,7 +813,9 @@ void vtkExtractCTHPart::ExecutePart(const char *arrayName,
           if(ug!=0)
             {
             this->ExecutePartOnUniformGrid(arrayName,ug,appendSurface,
-              append);
+                                           append,
+                                           progress2, 
+                                           progress2+delProg2);
             }
           else
             {
@@ -814,11 +836,24 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
   vtkUniformGrid *input,
 #endif
   vtkAppendPolyData *appendSurface,
-  vtkAppendPolyData *append)
+  vtkAppendPolyData *append,
+  float minProgress,
+  float maxProgress)
 {
   vtkPolyData* tmp;
   vtkDataArray* cellVolumeFraction;
   int* dims;
+  float delProgress = maxProgress - minProgress;
+  int reportProgress = 0;
+  if (delProgress > 0.1)
+    {
+    reportProgress = 1;
+    }
+
+  if (reportProgress)
+    {
+    this->UpdateProgress(minProgress);
+    }
 
   vtkTimerLog::MarkStartEvent("Execute Part");
 
@@ -871,10 +906,17 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
   dims = input->GetDimensions();
   this->PointVolumeFraction->SetNumberOfTuples(dims[0]*dims[1]*dims[2]);
   this->ExecuteCellDataToPointData(cellVolumeFraction, 
-                                   this->PointVolumeFraction, dims);
+                                   this->PointVolumeFraction, dims,
+                                   minProgress, minProgress+delProgress/3, reportProgress);
+
   
 
   this->Data->GetPointData()->SetScalars(this->PointVolumeFraction);
+
+  if (reportProgress)
+    {
+    this->UpdateProgress(minProgress+2*delProgress/3);
+    }
   
   int isNotEmpty=this->ExtractUniformGridSurface(this->Data,this->SurfacePolyData);
   if(isNotEmpty)
@@ -901,6 +943,10 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
     }
 
   this->PolyData->Update();
+  if (reportProgress)
+    {
+    this->UpdateProgress(minProgress+delProgress);
+    }
   
   tmp=vtkPolyData::New();
   tmp->ShallowCopy(this->PolyData);
@@ -1081,13 +1127,22 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
   const char *arrayName,
   vtkRectilinearGrid *input,
   vtkAppendPolyData *appendSurface,
-  vtkAppendPolyData *append)
+  vtkAppendPolyData *append,
+  float minProgress,
+  float maxProgress)
 {
   assert("pre: valid_input" && input->CheckAttributes()==0);
   
   vtkPolyData* tmp;
   vtkDataArray* cellVolumeFraction;
   int* dims;
+
+  float delProgress = maxProgress - minProgress;
+  int reportProgress = 0;
+  if (delProgress > 0.1)
+    {
+    reportProgress = 1;
+    }
 
   vtkTimerLog::MarkStartEvent("Execute Part");
 
@@ -1140,7 +1195,8 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
   dims = input->GetDimensions();
   this->PointVolumeFraction->SetNumberOfTuples(dims[0]*dims[1]*dims[2]);
   this->ExecuteCellDataToPointData(cellVolumeFraction, 
-                                   this->PointVolumeFraction, dims);
+                                   this->PointVolumeFraction, dims,
+                                   minProgress, minProgress+delProgress/3, reportProgress);
   
 
   this->RData->GetPointData()->SetScalars(this->PointVolumeFraction);
@@ -1155,6 +1211,11 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
     assert("check: valid_copy" && tmp->CheckAttributes()==0);
     appendSurface->AddInput(tmp);
     tmp->Delete();
+    }
+
+  if (reportProgress)
+    {
+    this->UpdateProgress(minProgress+2*delProgress/3);
     }
   
   // All outside never has any polydata.
@@ -1173,6 +1234,12 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
     }
   
   this->RPolyData->Update();
+
+  if (reportProgress)
+    {
+    this->UpdateProgress(minProgress+delProgress);
+    }
+
   tmp=vtkPolyData::New();
   tmp->ShallowCopy(this->RPolyData);
   append->AddInput(tmp);
@@ -1842,7 +1909,10 @@ void vtkExtractCTHPart::ExecuteFaceQuads(vtkDataSet *input,
 void vtkExtractCTHPart::ExecuteCellDataToPointData(
   vtkDataArray *cellVolumeFraction, 
   vtkDoubleArray *pointVolumeFraction,
-  int *dims)
+  int *dims,
+  float minProgress,
+  float maxProgress,
+  int reportProgress)
 {
   int count;
   int i, j, k;
@@ -1883,6 +1953,9 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
   double *endPtr=pPoint+dims[0]*dims[1]*dims[2];
 #endif
   
+  float delProgress = (maxProgress - minProgress) / (kEnd*jEnd*iEnd) / 2;
+  vtkIdType counter = 0;
+
   int index=0;
   // Loop thorugh the cells.
   for (k = 0; k < kEnd; ++k)
@@ -1891,6 +1964,11 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
       {
       for (i = 0; i < iEnd; ++i)
         {
+        if (counter % 1000 == 0 && reportProgress)
+          {
+          this->UpdateProgress(minProgress + delProgress*(i+j*iEnd+k*iEnd*jEnd));
+          }
+        counter++;
         // Add cell value to all points of cell.
         double value=cellVolumeFraction->GetTuple1(index);
         
@@ -1939,6 +2017,7 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
   jEnd = dims[1]-1;
   kEnd = dims[2]-1;
   
+  counter = 0;
   for (k = 0; k <= kEnd; ++k)
     {
     // Just a fancy fast way to compute the number of cell neighbors of a
@@ -1967,6 +2046,11 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
         }
       for (i = 0; i <= iEnd; ++i)
         {
+        if (counter % 1000 == 0 && reportProgress)
+          {
+          this->UpdateProgress(minProgress + delProgress/2 + delProgress*(i+j*iEnd+k*iEnd*jEnd));
+          }
+        counter++;
         // Just a fancy fast way to compute the number of cell neighbors of a
         // point.
         if (i == 1)

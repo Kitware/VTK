@@ -119,7 +119,9 @@ protected:
   void ExecutePart(const char *arrayName,
                    vtkMultiGroupDataSet *input,
                    vtkAppendPolyData *appendSurface,
-                   vtkAppendPolyData *append);
+                   vtkAppendPolyData *append,
+                   float minProgress,
+                   float maxProgress);
   
   void ExecutePartOnUniformGrid(const char *arrayName,
 #ifdef EXTRACT_USE_IMAGE_DATA
@@ -128,16 +130,21 @@ protected:
                                 vtkUniformGrid *input,
 #endif
                                 vtkAppendPolyData *appendSurface,
-                                vtkAppendPolyData *append);
+                                vtkAppendPolyData *append,
+                                float minProgress,
+                                float maxProgress);
   
   void ExecutePartOnRectilinearGrid( const char *arrayName,
                                      vtkRectilinearGrid *input,
                                      vtkAppendPolyData *appendSurface,
-                                     vtkAppendPolyData *append);
+                                     vtkAppendPolyData *append,
+                                     float minProgress,
+                                     float maxProgress);
   
   void ExecuteCellDataToPointData(vtkDataArray *cellVolumeFraction, 
                                   vtkDoubleArray *pointVolumeFraction,
-                                  int *dims);
+                                  int *dims, float minProgress, float maxProgress,
+                                  int reportProgress);
   
   int FillInputPortInformation(int port,
                                vtkInformation *info);
