@@ -52,16 +52,14 @@ int TestCaptionWidget( int argc, char *argv[] )
   actor->SetMapper(mapper);
 
   // Create the widget
-  vtkCaptionRepresentation *rep = vtkCaptionRepresentation::New();
-  rep->GetCaptionActor()->SetCaption("This is a test\nAnd it has two lines");
-  rep->GetCaptionActor()->GetTextActor()->GetTextProperty()->
-    SetJustificationToCentered();
-  rep->GetCaptionActor()->GetTextActor()->GetTextProperty()->
-    SetVerticalJustificationToCentered();
+  vtkCaptionActor2D *rep = vtkCaptionActor2D::New();
+  rep->SetCaption("This is a test\nAnd it has two lines");
+  rep->GetTextActor()->GetTextProperty()->SetJustificationToCentered();
+  rep->GetTextActor()->GetTextProperty()->SetVerticalJustificationToCentered();
 
   vtkCaptionWidget *widget = vtkCaptionWidget::New();
   widget->SetInteractor(iren);
-  widget->SetRepresentation(rep);
+  widget->SetCaptionActor2D(rep);
 
   // Add the actors to the renderer, set the background and size
   //
