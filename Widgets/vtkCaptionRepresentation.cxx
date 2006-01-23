@@ -23,10 +23,8 @@
 #include "vtkPointWidget.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkCaptionRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkCaptionRepresentation, "1.3");
 vtkStandardNewMacro(vtkCaptionRepresentation);
-
-vtkCxxSetObjectMacro(vtkCaptionRepresentation,CaptionActor,vtkCaptionActor2D);
 
 //-------------------------------------------------------------------------
 vtkCaptionRepresentation::vtkCaptionRepresentation()
@@ -38,23 +36,23 @@ vtkCaptionRepresentation::vtkCaptionRepresentation()
   this->AnchorRepresentation->TranslationModeOn();
   this->AnchorRepresentation->ActiveRepresentationOn();
 
-  this->CaptionActor = vtkCaptionActor2D::New();
-  this->CaptionActor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
-  this->CaptionActor->GetPositionCoordinate()->SetReferenceCoordinate(0);
-  this->CaptionActor->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
-  this->CaptionActor->GetPosition2Coordinate()->SetReferenceCoordinate(0);
-  this->CaptionActor->GetPositionCoordinate()->SetValue(10,10);
-  this->CaptionActor->GetPosition2Coordinate()->SetValue(20,20);
-  this->CaptionActor->SetCaption("Caption Here");
-  this->CaptionActor->SetAttachmentPoint(0,0,0);
-  this->CaptionActor->BorderOn();
-  this->CaptionActor->LeaderOn();
-  this->CaptionActor->ThreeDimensionalLeaderOn();
+  this->CaptionActor2D = vtkCaptionActor2D::New();
+  this->CaptionActor2D->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
+  this->CaptionActor2D->GetPositionCoordinate()->SetReferenceCoordinate(0);
+  this->CaptionActor2D->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
+  this->CaptionActor2D->GetPosition2Coordinate()->SetReferenceCoordinate(0);
+  this->CaptionActor2D->GetPositionCoordinate()->SetValue(10,10);
+  this->CaptionActor2D->GetPosition2Coordinate()->SetValue(20,20);
+  this->CaptionActor2D->SetCaption("Caption Here");
+  this->CaptionActor2D->SetAttachmentPoint(0,0,0);
+  this->CaptionActor2D->BorderOn();
+  this->CaptionActor2D->LeaderOn();
+  this->CaptionActor2D->ThreeDimensionalLeaderOn();
   
   this->CaptionGlyph = vtkConeSource::New();
   this->CaptionGlyph->SetResolution(6);
   this->CaptionGlyph->SetCenter(-0.5,0,0);
-  this->CaptionActor->SetLeaderGlyph(this->CaptionGlyph->GetOutput());
+  this->CaptionActor2D->SetLeaderGlyph(this->CaptionGlyph->GetOutput());
 
   this->ShowBorder = vtkBorderRepresentation::BORDER_OFF;
 }
@@ -62,9 +60,38 @@ vtkCaptionRepresentation::vtkCaptionRepresentation()
 //-------------------------------------------------------------------------
 vtkCaptionRepresentation::~vtkCaptionRepresentation()
 {
-  this->SetCaptionActor(0);
+  this->SetCaptionActor2D(0);
   this->CaptionGlyph->Delete();
   this->SetAnchorRepresentation(0);
+}
+
+//-------------------------------------------------------------------------
+void vtkCaptionRepresentation::SetCaptionActor2D(vtkCaptionActor2D *capActor)
+{
+  if ( capActor != this->CaptionActor2D )
+    {
+    if ( this->CaptionActor2D )
+      {
+      this->CaptionActor2D->Delete();
+      }
+    this->CaptionActor2D = capActor;
+    if ( this->CaptionActor2D )
+      {
+      this->CaptionActor2D->Register(this);
+      this->CaptionActor2D->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
+      this->CaptionActor2D->GetPositionCoordinate()->SetReferenceCoordinate(0);
+      this->CaptionActor2D->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
+      this->CaptionActor2D->GetPosition2Coordinate()->SetReferenceCoordinate(0);
+      this->CaptionActor2D->GetPositionCoordinate()->SetValue(10,10);
+      this->CaptionActor2D->GetPosition2Coordinate()->SetValue(20,20);
+      this->CaptionActor2D->SetAttachmentPoint(0,0,0);
+      this->CaptionActor2D->BorderOn();
+      this->CaptionActor2D->LeaderOn();
+      this->CaptionActor2D->ThreeDimensionalLeaderOn();
+      this->CaptionActor2D->SetLeaderGlyph(this->CaptionGlyph->GetOutput());
+      }
+    this->Modified();
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -88,13 +115,13 @@ void vtkCaptionRepresentation::SetAnchorRepresentation(vtkPointHandleRepresentat
 //-------------------------------------------------------------------------
 void vtkCaptionRepresentation::SetAnchorPosition(double pos[3])
 {
-  this->CaptionActor->GetAttachmentPointCoordinate()->SetValue(pos);
+  this->CaptionActor2D->GetAttachmentPointCoordinate()->SetValue(pos);
 }
 
 //-------------------------------------------------------------------------
 void vtkCaptionRepresentation::GetAnchorPosition(double pos[3])
 {
-  this->CaptionActor->GetAttachmentPointCoordinate()->GetValue(pos);
+  this->CaptionActor2D->GetAttachmentPointCoordinate()->GetValue(pos);
 }
 
 //-------------------------------------------------------------------------
@@ -110,10 +137,10 @@ void vtkCaptionRepresentation::BuildRepresentation()
     int *pos2 = this->Position2Coordinate->
       GetComputedDisplayValue(this->Renderer);
 
-    if ( this->CaptionActor )
+    if ( this->CaptionActor2D )
       {
-      this->CaptionActor->GetPositionCoordinate()->SetValue(pos1[0],pos1[1]);
-      this->CaptionActor->GetPosition2Coordinate()->SetValue(pos2[0],pos2[1]);
+      this->CaptionActor2D->GetPositionCoordinate()->SetValue(pos1[0],pos1[1]);
+      this->CaptionActor2D->GetPosition2Coordinate()->SetValue(pos2[0],pos2[1]);
       }
 
     // Note that the transform is updated by the superclass
@@ -124,14 +151,14 @@ void vtkCaptionRepresentation::BuildRepresentation()
 //-------------------------------------------------------------------------
 void vtkCaptionRepresentation::GetActors2D(vtkPropCollection *pc)
 {
-  pc->AddItem(this->CaptionActor);
+  pc->AddItem(this->CaptionActor2D);
   this->Superclass::GetActors2D(pc);
 }
 
 //-------------------------------------------------------------------------
 void vtkCaptionRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 {
-  this->CaptionActor->ReleaseGraphicsResources(w);
+  this->CaptionActor2D->ReleaseGraphicsResources(w);
   this->Superclass::ReleaseGraphicsResources(w);
 }
 
@@ -140,7 +167,7 @@ int vtkCaptionRepresentation::RenderOverlay(vtkViewport *w)
 {
   this->BuildRepresentation();
   int count = this->Superclass::RenderOverlay(w);
-  count += this->CaptionActor->RenderOverlay(w);
+  count += this->CaptionActor2D->RenderOverlay(w);
   return count;
 }
 
@@ -149,7 +176,7 @@ int vtkCaptionRepresentation::RenderOpaqueGeometry(vtkViewport *w)
 {
   this->BuildRepresentation();
   int count = this->Superclass::RenderOpaqueGeometry(w);
-  count += this->CaptionActor->RenderOpaqueGeometry(w);
+  count += this->CaptionActor2D->RenderOpaqueGeometry(w);
   return count;
 }
 
@@ -158,7 +185,7 @@ int vtkCaptionRepresentation::RenderTranslucentGeometry(vtkViewport *w)
 {
   this->BuildRepresentation();
   int count = this->Superclass::RenderTranslucentGeometry(w);
-  count += this->CaptionActor->RenderTranslucentGeometry(w);
+  count += this->CaptionActor2D->RenderTranslucentGeometry(w);
   return count;
 }
 
@@ -167,6 +194,6 @@ void vtkCaptionRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
-  os << indent << "Caption Actor: " << this->CaptionActor << "\n";
+  os << indent << "Caption Actor: " << this->CaptionActor2D << "\n";
   
 }

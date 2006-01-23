@@ -63,8 +63,8 @@ public:
   // Description:
   // Specify the vtkCaptionActor to manage. If not specified, then one
   // is automatically created.
-  void SetCaptionActor(vtkCaptionActor2D *captionActor);
-  vtkGetObjectMacro(CaptionActor,vtkCaptionActor2D);
+  void SetCaptionActor2D(vtkCaptionActor2D *captionActor);
+  vtkGetObjectMacro(CaptionActor2D,vtkCaptionActor2D);
 
   // Description:
   // Set and get the instances of vtkPointHandleRepresention3D used to implement this
@@ -93,7 +93,7 @@ protected:
   ~vtkCaptionRepresentation();
 
   // the text to manage
-  vtkCaptionActor2D *CaptionActor;
+  vtkCaptionActor2D *CaptionActor2D;
   vtkConeSource     *CaptionGlyph;
   
   int PointWidgetState;

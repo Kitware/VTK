@@ -39,6 +39,7 @@
 #include "vtkBorderWidget.h"
 
 class vtkCaptionRepresentation;
+class vtkCaptionActor2D;
 class vtkHandleWidget;
 class vtkPointHandleRepresentation3D;
 class vtkCaptionAnchorCallback;
@@ -68,6 +69,13 @@ public:
   void SetRepresentation(vtkCaptionRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
+  // Description:
+  // Specify a vtkCaptionActor2D to manage. This is convenient, alternative
+  // method to SetRepresentation(). It internally create a vtkCaptionRepresentation
+  // and then invokes vtkCaptionRepresentation::SetCaptionActor2D().
+  void SetCaptionActor2D(vtkCaptionActor2D *capActor);
+  vtkCaptionActor2D *GetCaptionActor2D();
+
   // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
