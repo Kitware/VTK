@@ -1125,22 +1125,26 @@ ENDIF(VTK_USE_PARALLEL)
 MACRO (VTK_INCLUDE_TCL_TK_MODULES)
   INCLUDE(${CMAKE_ROOT}/Modules/FindTCL.cmake)
   SET(VTK_TCL_LIBRARIES ${TCL_LIBRARY})
+  IF(TCL_LIBRARY_DEBUG)
+    SET(VTK_TCL_LIBRARIES optimized ${TCL_LIBRARY} debug ${TCL_LIBRARY_DEBUG})
+  ENDIF(TCL_LIBRARY_DEBUG)
   IF(UNIX)
     # The tcl library needs the math library on unix.
     SET(VTK_TCL_LIBRARIES ${VTK_TCL_LIBRARIES} m)
   ENDIF(UNIX)
   IF(VTK_USE_TK)
     SET(VTK_TK_LIBRARIES ${TK_LIBRARY} ${VTK_TCL_LIBRARIES})
+    IF(TK_LIBRARY_DEBUG)
+      SET(VTK_TK_LIBRARIES optimized ${TK_LIBRARY} debug ${TK_LIBRARY_DEBUG} ${VTK_TCL_LIBRARIES})
+    ENDIF(TK_LIBRARY_DEBUG)
   ENDIF(VTK_USE_TK)
   INCLUDE(${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake)
   # Hide useless settings provided by FindTCL.
-  FOREACH(entry 
-          TCL_LIBRARY_DEBUG
-          TK_LIBRARY_DEBUG
-                  TCL_STUB_LIBRARY
-                  TCL_STUB_LIBRARY_DEBUG
-                  TK_STUB_LIBRARY
-                  TK_STUB_LIBRARY_DEBUG
+  FOREACH(entry
+          TCL_STUB_LIBRARY
+          TCL_STUB_LIBRARY_DEBUG
+          TK_STUB_LIBRARY
+          TK_STUB_LIBRARY_DEBUG
           TK_WISH)
     SET(${entry} "${${entry}}" CACHE INTERNAL "This value is not used by VTK.")
   ENDFOREACH(entry)
