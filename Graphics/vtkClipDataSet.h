@@ -59,8 +59,8 @@
 
 #include "vtkUnstructuredGridAlgorithm.h"
 
+class vtkCallbackCommand;
 class vtkImplicitFunction;
-
 class vtkPointLocator;
 
 class VTK_GRAPHICS_EXPORT vtkClipDataSet : public vtkUnstructuredGridAlgorithm
@@ -157,6 +157,13 @@ protected:
 
   int GenerateClippedOutput;
   double MergeTolerance;
+
+  // Callback registered with the InternalProgressObserver.
+  static void InternalProgressCallbackFunction(vtkObject*, unsigned long,
+                                               void* clientdata, void*);
+  void InternalProgressCallback(vtkAlgorithm *algorithm);
+  // The observer to report progress from the internal readers.
+  vtkCallbackCommand* InternalProgressObserver;
 
   //helper functions
   void ClipVolume(vtkDataSet *input, vtkUnstructuredGrid *output);

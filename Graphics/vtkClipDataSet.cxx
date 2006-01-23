@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkClipDataSet.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkClipVolume.h"
@@ -33,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.42");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.43");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -59,6 +60,13 @@ vtkClipDataSet::vtkClipDataSet(vtkImplicitFunction *cf)
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
+
+  // Setup a callback for the internal readers to report progress.
+  this->InternalProgressObserver = vtkCallbackCommand::New();
+  this->InternalProgressObserver->SetCallback(
+    &vtkClipDataSet::InternalProgressCallbackFunction);
+  this->InternalProgressObserver->SetClientData(this);
+
 }
 
 //----------------------------------------------------------------------------
@@ -70,7 +78,30 @@ vtkClipDataSet::~vtkClipDataSet()
     this->Locator = NULL;
     }
   this->SetClipFunction(NULL);
+  this->InternalProgressObserver->Delete();
 }
+
+//----------------------------------------------------------------------------
+void vtkClipDataSet::InternalProgressCallbackFunction(vtkObject* arg,
+                                                      unsigned long,
+                                                      void* clientdata,
+                                                      void*)
+{
+  reinterpret_cast<vtkClipDataSet*>(clientdata)
+    ->InternalProgressCallback(static_cast<vtkAlgorithm *>(arg));
+}
+
+//----------------------------------------------------------------------------
+void vtkClipDataSet::InternalProgressCallback(vtkAlgorithm *algorithm)
+{
+  float progress = algorithm->GetProgress();
+  this->UpdateProgress(progress);
+  if (this->AbortExecute)
+    {
+    algorithm->SetAbortExecute(1);
+    }
+}
+
 
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If Clip functions is modified,
@@ -521,7 +552,10 @@ void vtkClipDataSet::CreateDefaultLocator()
 void vtkClipDataSet::ClipVolume(vtkDataSet *input, vtkUnstructuredGrid *output)
 {
   vtkClipVolume *clipVolume = vtkClipVolume::New();
-  
+
+  clipVolume->AddObserver(vtkCommand::ProgressEvent, 
+                          this->InternalProgressObserver);
+
   // We cannot set the input directly.  This messes up the partitioning.
   // output->UpdateNumberOfPieces gets set to 1.
   vtkImageData* tmp = vtkImageData::New();
@@ -536,6 +570,8 @@ void vtkClipDataSet::ClipVolume(vtkDataSet *input, vtkUnstructuredGrid *output)
   clipVolume->SetMergeTolerance(this->MergeTolerance);
   clipVolume->SetDebug(this->Debug);
   clipVolume->Update();
+
+  clipVolume->RemoveObserver(this->InternalProgressObserver);
   vtkUnstructuredGrid *clipOutput = clipVolume->GetOutput();
 
   output->CopyStructure(clipOutput);
