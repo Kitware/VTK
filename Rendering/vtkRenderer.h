@@ -361,6 +361,13 @@ public:
   // tile may be diferent that the aspect ratio of the renderer when rendered
   // in it entirity
   double GetTiledAspectRatio();
+
+  // Description:
+  // This method returns 1 if the ActiveCamera has already been set or
+  // automatically created by the renderer. It returns 0 if the 
+  // ActiveCamera does not yet exist.
+  int IsActiveCameraCreated() 
+    { return (this->ActiveCamera != NULL); }
   
 protected:
   vtkRenderer();
@@ -466,10 +473,10 @@ protected:
   virtual int UpdateLights(void) {return 0;};
 
   // Description:
-  // Get the current camera and eventually reset it if it gets created
+  // Get the current camera and reset it only if it gets created
   // automatically (see GetActiveCamera).
-  // This is mainly used internally.
-  vtkCamera *GetActiveCameraAndEventuallyReset();
+  // This is only used internally.
+  vtkCamera *GetActiveCameraAndResetIfCreated();
   
 private:
   vtkRenderer(const vtkRenderer&);  // Not implemented.

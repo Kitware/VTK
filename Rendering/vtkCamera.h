@@ -333,6 +333,11 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   virtual void UpdateViewport(vtkRenderer *vtkNotUsed(ren)) {}
   
   virtual vtkTransform *GetViewTransformObject() {return this->ViewTransform;};
+ 
+  // Description:
+  // Set the Left Eye setting
+  vtkSetMacro(LeftEye,int);
+  vtkGetMacro(LeftEye,int);
   
 protected:
   vtkCamera();

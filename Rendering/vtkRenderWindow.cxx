@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.146");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.147");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -634,10 +634,28 @@ void vtkRenderWindow::DoFDRender()
 // Handle rendering the two different views for stereo rendering.
 void vtkRenderWindow::DoStereoRender()
 {
+  vtkCollectionSimpleIterator rsit;
+  
   this->Start();
   this->StereoUpdate();
+  
   if (this->StereoType != VTK_STEREO_RIGHT)
     { // render the left eye
+    vtkRenderer *aren;
+    for (this->Renderers->InitTraversal(rsit); 
+         (aren = this->Renderers->GetNextRenderer(rsit)); )
+      {
+      // Ugly piece of code - we need to know if the camera already
+      // exists or not. If it does not yet exist, we must reset the
+      // camera here - otherwise it will never be done (missing its
+      // oppportunity to be reset in the Render method of the 
+      // vtkRenderer because it will already exist by that point...)
+      if ( !aren->IsActiveCameraCreated() )
+        {
+        aren->ResetCamera();
+        }
+      aren->GetActiveCamera()->SetLeftEye(1);
+      }
     this->Renderers->Render();
     }
 
@@ -646,10 +664,26 @@ void vtkRenderWindow::DoStereoRender()
     this->StereoMidpoint();
     if (this->StereoType != VTK_STEREO_LEFT)
       { // render the right eye
+      vtkRenderer *aren;
+      for (this->Renderers->InitTraversal(rsit); 
+           (aren = this->Renderers->GetNextRenderer(rsit)); )
+        {
+        // Duplicate the ugly code here too. Of course, most
+        // times the left eye will have been rendered before
+        // the right eye, but it is possible that the user sets
+        // everything up and renders just the right eye - so we
+        // need this check here too.
+        if ( !aren->IsActiveCameraCreated() )
+          {
+          aren->ResetCamera();
+          }
+        aren->GetActiveCamera()->SetLeftEye(0);
+        }
       this->Renderers->Render();
       }
     this->StereoRenderComplete();
     }
+  
 }
 
 //----------------------------------------------------------------------------
