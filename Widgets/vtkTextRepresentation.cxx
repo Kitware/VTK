@@ -19,7 +19,7 @@
 #include "vtkRenderer.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkTextRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkTextRepresentation, "1.3");
 vtkStandardNewMacro(vtkTextRepresentation);
 
 //-------------------------------------------------------------------------
@@ -56,6 +56,7 @@ void vtkTextRepresentation::SetTextActor(vtkTextActor *textActor)
     this->TextActor = textActor;
     if ( this->TextActor )
       {
+      this->TextActor->Register(this);
       this->TextActor->ScaledTextOn();
       this->TextActor->SetMinimumSize(1,1);
       this->TextActor->SetMaximumLineHeight(1.0);

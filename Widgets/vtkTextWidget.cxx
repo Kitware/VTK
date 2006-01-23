@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkTextWidget, "1.2");
+vtkCxxRevisionMacro(vtkTextWidget, "1.3");
 vtkStandardNewMacro(vtkTextWidget);
 
 //-------------------------------------------------------------------------
@@ -28,6 +28,38 @@ vtkTextWidget::vtkTextWidget()
 //-------------------------------------------------------------------------
 vtkTextWidget::~vtkTextWidget()
 {
+}
+
+//-------------------------------------------------------------------------
+void vtkTextWidget::SetTextActor(vtkTextActor *textActor)
+{
+  vtkTextRepresentation *textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
+  if ( ! textRep )
+    {
+    this->CreateDefaultRepresentation();
+    textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
+    }
+
+  if ( textRep->GetTextActor() != textActor )
+    {
+    textRep->SetTextActor(textActor);
+    this->Modified();
+    }
+}
+
+
+//-------------------------------------------------------------------------
+vtkTextActor *vtkTextWidget::GetTextActor()
+{
+  vtkTextRepresentation *textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
+  if ( ! textRep )
+    {
+    return NULL;
+    }
+  else
+    {
+    return textRep->GetTextActor();
+    }
 }
 
 //----------------------------------------------------------------------

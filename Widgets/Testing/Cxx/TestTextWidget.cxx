@@ -17,7 +17,7 @@
 
 // First include the required header files for the VTK classes we are using.
 #include "vtkTextWidget.h"
-#include "vtkTextRepresentation.h"
+#include "vtkTextActor.h"
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
@@ -50,12 +50,12 @@ int TestTextWidget( int argc, char *argv[] )
   actor->SetMapper(mapper);
 
   // Create the widget
-  vtkTextRepresentation *rep = vtkTextRepresentation::New();
-  rep->GetTextActor()->SetInput("This is a test");
+  vtkTextActor *ta = vtkTextActor::New();
+  ta->SetInput("This is a test");
 
   vtkTextWidget *widget = vtkTextWidget::New();
   widget->SetInteractor(iren);
-  widget->SetRepresentation(rep);
+  widget->SetTextActor(ta);
   widget->SelectableOff();
 
   // Add the actors to the renderer, set the background and size
@@ -92,7 +92,7 @@ int TestTextWidget( int argc, char *argv[] )
   ss->Delete();
   mapper->Delete();
   actor->Delete();
-  rep->Delete();
+  ta->Delete();
   widget->Off();
   widget->Delete();
   iren->Delete();

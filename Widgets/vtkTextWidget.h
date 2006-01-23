@@ -30,6 +30,7 @@
 #define __vtkTextWidget_h
 
 class vtkTextRepresentation;
+class vtkTextActor;
 
 #include "vtkBorderWidget.h"
 
@@ -53,6 +54,13 @@ public:
     {this->Superclass::SetWidgetRepresentation(
       reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
+  // Description:
+  // Specify the vtkTextActor to manage. This is convenient, alternative
+  // method to SetRepresentation(). It internally create a vtkTextRepresentation
+  // and then invokes vtkTextRepresentation::SetTextActor().
+  void SetTextActor(vtkTextActor *textActor);
+  vtkTextActor *GetTextActor();
+
   // Description:
   // Create the default widget representation if one is not set. 
   virtual void CreateDefaultRepresentation();
