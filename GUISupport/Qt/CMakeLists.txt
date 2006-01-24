@@ -62,7 +62,7 @@ ELSE(DESIRED_QT_VERSION MATCHES 4)
   QT_WRAP_CPP ( QVTK QVTKLibMocSrcs ${QVTKMocHeaders} )
   QT_WRAP_CPP ( QVTKWidgetPlugin PluginMocSrcs ${PluginMocHeaders} )
   
-  SET(QT_LIBS ${QT_QT_LIBRARY} )
+  SET(QT_LIBS ${QT_QT_LIBRARY})
   
 ENDIF(DESIRED_QT_VERSION MATCHES 4)
 
@@ -120,6 +120,7 @@ IF(BUILD_QVTK_PLUGIN)
   TARGET_LINK_LIBRARIES( QVTKWidgetPlugin 
     ${QT_QTCORE_LIBRARY}
     ${QT_QTGUI_LIBRARY}
+    ${QT_QT_LIBRARY}
     vtkRendering
     vtkImaging
     vtkGraphics
