@@ -1391,7 +1391,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.15");
+vtkCxxRevisionMacro(vtkExodusReader, "1.16");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -2180,7 +2180,7 @@ int vtkExodusReader::RequestInformation(
       this->Parser=NULL;
       }
   
-    // If the xml file does not exist, try try again
+     // If the xml file does not exist, try try again
     if (!vtkExodusReaderFileExist(this->XMLFileName)) 
       {
       // Okay try to create an xml file using exodus file as basename
@@ -2189,11 +2189,13 @@ int vtkExodusReader::RequestInformation(
       char* fpt=strrchr(tempName,'.');
       if (fpt) strncpy(fpt,".xml\0",5);
       // Does the xml file exist?
+      int XMLfound=0;
       if (vtkExodusReaderFileExist(tempName)) 
         {
         SetXMLFileName(tempName);
+        XMLfound=1;
         } 
-      else 
+      if (!XMLfound) 
         {
         //try .dart
         fpt=strrchr(tempName,'.');
@@ -2201,11 +2203,23 @@ int vtkExodusReader::RequestInformation(
         if (vtkExodusReaderFileExist(tempName)) 
           {
           SetXMLFileName(tempName);
+          XMLfound=1;
           }
-        else
+        }
+      if (!XMLfound)
+        {
+        //try artifact.dta
+        fpt=strrchr(tempName,'/');
+        if (fpt) strncpy(fpt,"/artifact.dta\0",14);
+        if (vtkExodusReaderFileExist(tempName)) 
           {
-          SetXMLFileName(NULL);
+          SetXMLFileName(tempName);
+          XMLfound=1;
           }
+        }
+      if (!XMLfound)
+        {
+        SetXMLFileName(NULL);
         }
       }
     
