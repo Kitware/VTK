@@ -17,7 +17,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlaybackWidget, "1.1");
+vtkCxxRevisionMacro(vtkPlaybackWidget, "1.2");
 vtkStandardNewMacro(vtkPlaybackWidget);
 
 //-------------------------------------------------------------------------
@@ -70,7 +70,7 @@ void vtkPlaybackWidget::SelectRegion(double eventPos[2])
     }
   else if ( x <= 1.00000 )
     {
-    reinterpret_cast<vtkPlaybackRepresentation*>(this->WidgetRep)->JumpToBeginning();
+    reinterpret_cast<vtkPlaybackRepresentation*>(this->WidgetRep)->JumpToEnd();
     }
 }
 
