@@ -32,7 +32,7 @@ vtkArrayIteratorTemplate<T>* vtkArrayIteratorTemplate<T>::New()
 }
 
 template <class T>
-vtkCxxRevisionMacro(vtkArrayIteratorTemplate<T>, "1.2");
+vtkCxxRevisionMacro(vtkArrayIteratorTemplate<T>, "1.3");
 
 template <class T>
 vtkCxxSetObjectMacro(vtkArrayIteratorTemplate<T>, Array, vtkAbstractArray);
@@ -126,12 +126,12 @@ void vtkArrayIteratorTemplate<T>::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Array: " ;
   if (this->Array)
     {
-    os << endl;
+    os << "\n";
     this->Array->PrintSelf(os, indent.GetNextIndent());
     }
   else
     {
-    os << "(none)" << endl;
+    os << "(none)" << "\n";
     }
 }
 
