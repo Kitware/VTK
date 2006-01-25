@@ -155,6 +155,7 @@ public:
   vtkSetMacro(OutlineTranslation,int);
   vtkGetMacro(OutlineTranslation,int);
   vtkBooleanMacro(OutlineTranslation,int);
+
   // Description:
   // Turn on/off the ability to scale with the mouse 
   vtkSetMacro(ScaleEnabled,int);
