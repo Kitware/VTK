@@ -118,9 +118,7 @@ IF(BUILD_QVTK_PLUGIN)
 
 # link with release version of Qt libs
   TARGET_LINK_LIBRARIES( QVTKWidgetPlugin 
-    ${QT_QTCORE_LIBRARY}
-    ${QT_QTGUI_LIBRARY}
-    ${QT_QT_LIBRARY}
+    ${QT_LIBS}
     vtkRendering
     vtkImaging
     vtkGraphics
