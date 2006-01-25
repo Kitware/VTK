@@ -4,7 +4,14 @@ also allows one to use specific packages inside the vtk directory.."""
 import os
 import sys
 
-# AIX apparently does not have dl?
+
+# The dl module is used to force the symbols in the loaded VTK modules to
+# be global, that is, to force symbols to be shared between modules.  This
+# used to be necessary in VTK 4 but might not be with VTK 5 and later.
+
+# The first "except" is because systems like AIX don't have the dl module.
+# The second "except" is because the dl module raises a system error on
+# ia64 and x86_64 systems because "int" and addresses are different sizes.
 try:
     import dl
 except ImportError:
