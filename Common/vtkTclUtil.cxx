@@ -65,9 +65,14 @@ VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(vtkObject *obj,
   // lookup the objects name
   sprintf(temps,"%p",obj);
   entry = Tcl_FindHashEntry(&is->PointerLookup,temps); 
-  temp = (char *)(Tcl_GetHashValue(entry));
-
-  Tcl_DeleteCommand(as->Interp,temp);
+  if (entry)
+    {
+    temp = (char *)(Tcl_GetHashValue(entry));
+    if (temp)
+      {
+      Tcl_DeleteCommand(as->Interp,temp);
+      }
+    }
 }
 
 // we do no error checking in this.  We assume that if we were called
