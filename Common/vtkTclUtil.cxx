@@ -599,7 +599,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
 
   if (!strcmp("New",argv[1]))
     {
-    sprintf(name,"vtkTemp%i",is->Number);
+    sprintf(name,"vtkObj%i",is->Number);
     is->Number++;
     argv[1] = name;
     }
