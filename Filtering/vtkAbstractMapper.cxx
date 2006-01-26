@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAbstractMapper, "1.5");
+vtkCxxRevisionMacro(vtkAbstractMapper, "1.6");
 
 vtkCxxSetObjectMacro(vtkAbstractMapper,ClippingPlanes,vtkPlaneCollection);
 
@@ -73,6 +73,7 @@ void vtkAbstractMapper::AddClippingPlane(vtkPlane *plane)
     }
 
   this->ClippingPlanes->AddItem(plane);
+  this->Modified();
 }
 
 void vtkAbstractMapper::RemoveClippingPlane(vtkPlane *plane)
@@ -82,6 +83,7 @@ void vtkAbstractMapper::RemoveClippingPlane(vtkPlane *plane)
     vtkErrorMacro(<< "Cannot remove clipping plane: mapper has none");
     }
   this->ClippingPlanes->RemoveItem(plane);
+  this->Modified();
 }
 
 void vtkAbstractMapper::RemoveAllClippingPlanes()
