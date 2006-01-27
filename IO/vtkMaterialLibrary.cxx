@@ -24,7 +24,7 @@
 #endif
 
 vtkStandardNewMacro(vtkMaterialLibrary);
-vtkCxxRevisionMacro(vtkMaterialLibrary, "1.2");
+vtkCxxRevisionMacro(vtkMaterialLibrary, "1.3");
 //-----------------------------------------------------------------------------
 vtkMaterialLibrary::vtkMaterialLibrary()
 {
@@ -48,6 +48,13 @@ char* vtkMaterialLibrary::GetMaterial(const char* name)
   // call appropriate method from the vtk*ShaderLibrary.
   vtkMaterialLibraryMacro(name)
   return 0;
+}
+
+//-----------------------------------------------------------------------------
+const char** vtkMaterialLibrary::GetListOfMaterialNames()
+{
+  // defined in vtkMaterialLibraryMacro.h
+  return ::ListOfMaterialNames;
 }
 
 //-----------------------------------------------------------------------------

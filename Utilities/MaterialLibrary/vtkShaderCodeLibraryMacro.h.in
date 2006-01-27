@@ -14,3 +14,8 @@
 =========================================================================*/
 
 @VTK_SHADER_CODE_LIBRARY_MACRO@
+
+// Null terminated pointers to all shader code names.
+static const char* ListOfShaderNames[] = {
+  @VTK_SHADER_CODE_LIBRARY_LIST@
+  0};

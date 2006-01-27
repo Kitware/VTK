@@ -177,6 +177,7 @@ ENDIF (VTK_USE_GLSL_SHADERS)
 
 # Write the vtkShaderCodeLibraryMacro header file.
 SET (VTK_SHADER_CODE_LIBRARY_MACRO)
+SET (VTK_SHADER_CODE_LIBRARY_LIST)
 FOREACH(file ${ShaderLibraryHeaders})
   SET (VTK_SHADER_CODE_LIBRARY_MACRO 
     "${VTK_SHADER_CODE_LIBRARY_MACRO}#include \"${file}\"\n")
@@ -191,6 +192,9 @@ FOREACH (module ${ShaderLibraryModules})
         {\\
         return vtkShader${module}GetCode();\\
         }\\\n")
+  SET(VTK_SHADER_CODE_LIBRARY_LIST
+    "${VTK_SHADER_CODE_LIBRARY_LIST}
+    \"${module}\",")
 ENDFOREACH(module)
 
 CONFIGURE_FILE(${MaterialLibrary_SOURCE_DIR}/vtkShaderCodeLibraryMacro.h.in
@@ -261,6 +265,7 @@ IF (${materials_exist})
 ENDIF (${materials_exist})
 
 # Write the MaterialLibraryMacro header file.
+SET (VTK_MATERIAL_LIBRARY_LIST)
 SET (VTK_MATERIAL_LIBRARY_MACRO "${VTK_MATERIAL_LIBRARY_MACRO}
 #define vtkMaterialLibraryMacro(name) \\\n")
 
@@ -273,6 +278,9 @@ FOREACH(module ${MaterialModules})
       {\\
       return vtkMaterial${module}GetXML();\\
       }\\\n")
+  SET (VTK_MATERIAL_LIBRARY_LIST 
+    "${VTK_MATERIAL_LIBRARY_LIST} 
+    \"${module}\",")
 ENDFOREACH(module)
 
 CONFIGURE_FILE(

@@ -24,7 +24,7 @@
 #endif
 
 vtkStandardNewMacro(vtkShaderCodeLibrary);
-vtkCxxRevisionMacro(vtkShaderCodeLibrary, "1.2");
+vtkCxxRevisionMacro(vtkShaderCodeLibrary, "1.3");
 //-----------------------------------------------------------------------------
 vtkShaderCodeLibrary::vtkShaderCodeLibrary()
 {
@@ -48,6 +48,12 @@ char* vtkShaderCodeLibrary::GetShaderCode(const char* name)
   // call appropriate method from the vtk*ShaderLibrary.
   vtkShaderCodeLibraryMacro(name)
   return 0;
+}
+
+//-----------------------------------------------------------------------------
+const char** vtkShaderCodeLibrary::GetListOfShaderCodeNames()
+{
+  return ::ListOfShaderNames;
 }
 
 //-----------------------------------------------------------------------------

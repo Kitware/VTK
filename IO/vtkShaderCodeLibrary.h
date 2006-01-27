@@ -40,6 +40,11 @@ public:
   static char* GetShaderCode(const char* name);
 
 
+  // Description:
+  // Returns an array of pointers to char strings that are
+  // the names of the shader codes provided by the library.
+  // The end of the array is marked by a null pointer.
+  static const char** GetListOfShaderCodeNames();
 protected:
   vtkShaderCodeLibrary();
   ~vtkShaderCodeLibrary();

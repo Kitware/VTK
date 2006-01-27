@@ -14,3 +14,10 @@
 =========================================================================*/
 
 @VTK_MATERIAL_LIBRARY_MACRO@
+
+
+// Null terminated pointers to all materials available.
+static const char* ListOfMaterialNames[] = {
+  @VTK_MATERIAL_LIBRARY_LIST@
+  0};
+

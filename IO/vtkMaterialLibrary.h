@@ -38,6 +38,11 @@ public:
   // of the caller to free this memory.
   static char* GetMaterial(const char* name);
 
+  // Description:
+  // Returns an array of pointers to char strings that are
+  // the names of the materials provided by the library.
+  // The end of the array is marked by a null pointer.
+  static const char** GetListOfMaterialNames();
 protected:
   vtkMaterialLibrary();
   ~vtkMaterialLibrary();
