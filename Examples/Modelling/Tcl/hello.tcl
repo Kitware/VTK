@@ -18,7 +18,7 @@ vtkActor lineActor
 
 # Create implicit model with vtkImplicitModeller. This computes a scalar
 # field which is the distance from the generating geometry. The contour
-# filter then extracts the geoemtry at the distance value 0.25 from the
+# filter then extracts the geometry at the distance value 0.25 from the
 # generating geometry.
 #
 vtkImplicitModeller imp

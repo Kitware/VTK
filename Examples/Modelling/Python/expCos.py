@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # This example demonstrates how to use a programmable filter and how
-# to use the special vtkDataSetToDataSet::GetOutput() methods
+# to use the special vtkDataSetToDataSet::GetOutputPort() methods
 
 import vtk
 from math import *
@@ -19,7 +19,7 @@ transF.SetInputConnection(plane.GetOutputPort())
 transF.SetTransform(transform)
 
 # Compute Bessel function and derivatives. We'll use a programmable filter
-# for this. Note the unusual GetInput() & GetOutput() methods.
+# for this. Note the unusual GetPolyDataInput() & GetOutputPort() methods.
 besselF = vtk.vtkProgrammableFilter()
 besselF.SetInputConnection(transF.GetOutputPort())
 

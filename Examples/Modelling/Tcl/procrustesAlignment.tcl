@@ -55,19 +55,19 @@ vtkProcrustesAlignmentFilter procrustes1
 
 # map the aligned shapes into the second renderer
 vtkPolyDataMapper map2a
-    map2a SetInput [procrustes1 GetOutput 0]
+    map2a SetInputConnection [procrustes1 GetOutputPort 0]
 vtkActor Actor2a
     Actor2a SetMapper map2a
     [Actor2a GetProperty] SetDiffuseColor 1.0000 0.3882 0.2784
 
 vtkPolyDataMapper map2b
-    map2b SetInput [procrustes1 GetOutput 1]
+    map2b SetInputConnection [procrustes1 GetOutputPort 1]
 vtkActor Actor2b
     Actor2b SetMapper map2b
     [Actor2b GetProperty] SetDiffuseColor 0.3882 1.0000 0.2784
 
 vtkPolyDataMapper map2c
-    map2c SetInput [procrustes1 GetOutput 2]
+    map2c SetInputConnection [procrustes1 GetOutputPort 2]
 vtkActor Actor2c
     Actor2c SetMapper map2c
     [Actor2c GetProperty] SetDiffuseColor 0.3882 0.2784 1.0000
@@ -81,19 +81,19 @@ vtkProcrustesAlignmentFilter procrustes2
 
 # map the aligned shapes into the third renderer
 vtkPolyDataMapper map3a
-    map3a SetInput [procrustes2 GetOutput 0]
+    map3a SetInputConnection [procrustes2 GetOutputPort 0]
 vtkActor Actor3a
     Actor3a SetMapper map3a
     [Actor3a GetProperty] SetDiffuseColor 1.0000 0.3882 0.2784
 
 vtkPolyDataMapper map3b
-    map3b SetInput [procrustes2 GetOutput 1]
+    map3b SetInputConnection [procrustes2 GetOutputPort 1]
 vtkActor Actor3b
     Actor3b SetMapper map3b
     [Actor3b GetProperty] SetDiffuseColor 0.3882 1.0000 0.2784
 
 vtkPolyDataMapper map3c
-    map3c SetInput [procrustes2 GetOutput 2]
+    map3c SetInputConnection [procrustes2 GetOutputPort 2]
 vtkActor Actor3c
     Actor3c SetMapper map3c
     [Actor3c GetProperty] SetDiffuseColor 0.3882 0.2784 1.0000
@@ -108,19 +108,19 @@ vtkProcrustesAlignmentFilter procrustes3
 
 # map the aligned shapes into the fourth renderer
 vtkPolyDataMapper map4a
-    map4a SetInput [procrustes3 GetOutput 0]
+    map4a SetInputConnection [procrustes3 GetOutputPort 0]
 vtkActor Actor4a
     Actor4a SetMapper map4a
     [Actor4a GetProperty] SetDiffuseColor 1.0000 0.3882 0.2784
 
 vtkPolyDataMapper map4b
-    map4b SetInput [procrustes3 GetOutput 1]
+    map4b SetInputConnection [procrustes3 GetOutputPort 1]
 vtkActor Actor4b
     Actor4b SetMapper map4b
     [Actor4b GetProperty] SetDiffuseColor 0.3882 1.0000 0.2784
 
 vtkPolyDataMapper map4c
-    map4c SetInput [procrustes3 GetOutput 2]
+    map4c SetInputConnection [procrustes3 GetOutputPort 2]
 vtkActor Actor4c
     Actor4c SetMapper map4c
     [Actor4c GetProperty] SetDiffuseColor 0.3882 0.2784 1.0000

@@ -1,5 +1,5 @@
 # This example demonstrates how to use a programmable filter and how to use
-# the special vtkDataSetToDataSet::GetOutput() methods
+# the special vtkDataSetToDataSet::GetOutputPort() methods
 
 # first we load in the standard vtk packages into tcl
 package require vtk
@@ -24,7 +24,7 @@ vtkTransformPolyDataFilter transF
 
 #
 # Compute Bessel function and derivatives. We'll use a programmable filter
-# for this. Note the unusual GetInput() & GetOutput() methods.
+# for this. Note the unusual GetPolyDataInput() & GetOutputPort() methods.
 #
 vtkProgrammableFilter besselF
    besselF SetInputConnection [transF GetOutputPort]
