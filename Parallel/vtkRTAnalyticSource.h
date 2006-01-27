@@ -67,6 +67,9 @@ public:
   vtkSetMacro(ZMag, double);
   vtkGetMacro(ZMag, double);
 
+  vtkSetMacro(SubsampleRate, int);
+  vtkGetMacro(SubsampleRate, int);
+
 protected:
   vtkRTAnalyticSource();
   ~vtkRTAnalyticSource() {};
@@ -81,6 +84,7 @@ protected:
   int WholeExtent[6];
   double Center[3];
   double Maximum;
+  int SubsampleRate;
 
   virtual int RequestInformation (vtkInformation *, 
                                   vtkInformationVector **, 

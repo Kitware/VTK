@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.44");
+vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.45");
 vtkStandardNewMacro(vtkImageMandelbrotSource);
 
 //----------------------------------------------------------------------------
@@ -56,6 +56,8 @@ vtkImageMandelbrotSource::vtkImageMandelbrotSource()
   this->ProjectionAxes[0] = 0;
   this->ProjectionAxes[1] = 1;
   this->ProjectionAxes[2] = 2;
+
+  this->SubsampleRate = 1;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -246,16 +248,21 @@ int vtkImageMandelbrotSource::RequestInformation (
   int idx, axis;
   double origin[3];
   double spacing[3];
-  
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               this->WholeExtent,6);
+
+  int ext[6];
+  for (int i=0; i < 6; i++)
+    {
+    ext[i] = this->WholeExtent[i] / this->SubsampleRate;
+    }
+
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext ,6);
   for (idx = 0; idx < 3; ++idx)
     {
     axis = this->ProjectionAxes[idx];
     if (axis >= 0 && axis < 4)
       {
       origin[idx] = this->OriginCX[axis];
-      spacing[idx] = this->SampleCX[axis];
+      spacing[idx] = this->SampleCX[axis] * this->SubsampleRate;
       }
     else
       {
@@ -390,7 +397,7 @@ int vtkImageMandelbrotSource::RequestData(
     }
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
     {
-    p[a2] = (double)(origin[a2]) + (double)(idx2)*(sample[a2]);
+    p[a2] = (double)(origin[a2]) + (double)(idx2)*(sample[a2]*this->SubsampleRate);
     for (idx1 = ext[2]; !this->AbortExecute && idx1 <= ext[3]; ++idx1)
       {
       if (!(count%target))
@@ -398,10 +405,10 @@ int vtkImageMandelbrotSource::RequestData(
         this->UpdateProgress(count/(50.0*target));
         }
       count++;
-      p[a1] = (double)(origin[a1]) + (double)(idx1)*(sample[a1]);
+      p[a1] = (double)(origin[a1]) + (double)(idx1)*(sample[a1]*this->SubsampleRate);
       for (idx0 = min0; idx0 <= max0; ++idx0)
         {
-        p[a0] = (double)(origin[a0]) + (double)(idx0)*(sample[a0]);
+        p[a0] = (double)(origin[a0]) + (double)(idx0)*(sample[a0]*this->SubsampleRate);
 
         *ptr = (float)(this->EvaluateSet(p));
 

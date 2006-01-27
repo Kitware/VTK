@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.21");
+vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.22");
 vtkStandardNewMacro(vtkRTAnalyticSource);
 
 //----------------------------------------------------------------------------
@@ -48,6 +48,8 @@ vtkRTAnalyticSource::vtkRTAnalyticSource()
   this->ZMag = 5;
 
   this->SetNumberOfInputPorts(0);
+
+  this->SubsampleRate = 1;
 }
 
 
@@ -103,9 +105,18 @@ int vtkRTAnalyticSource::RequestInformation (
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               this->WholeExtent,6);
+  int tmpExt[6], i;
+  for (i = 0; i < 3; i++)
+    {
+    tmpExt[2*i] = this->WholeExtent[2*i] / this->SubsampleRate;
+    tmpExt[2*i+1] = this->WholeExtent[2*i+1] / this->SubsampleRate;
+    }
 
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               tmpExt,6);
+
+  outInfo->Set(vtkDataObject::SPACING(), this->SubsampleRate,
+               this->SubsampleRate, this->SubsampleRate);
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_FLOAT, 1);
   return 1;
 }
@@ -118,6 +129,7 @@ void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
   int maxX, maxY, maxZ;
   vtkIdType outIncX, outIncY, outIncZ;
   int *outExt, *whlExt;
+  int newOutExt[6];
   double sum;
   double yContrib, zContrib;
   double temp2;
@@ -135,14 +147,23 @@ void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
     return;
     }
 
+  data->SetSpacing(this->SubsampleRate, this->SubsampleRate,
+                   this->SubsampleRate);
+  
   outExt = data->GetExtent();
-  whlExt = data->GetWholeExtent();
+  int i;
+  for (i = 0; i < 3; i++)
+    {
+    newOutExt[2*i] = outExt[2*i] * this->SubsampleRate;
+    newOutExt[2*i+1] = outExt[2*i+1] * this->SubsampleRate;
+    }
+  whlExt = this->GetWholeExtent();
   data->GetPointData()->GetScalars()->SetName("RTData");
 
   // find the region to loop over
-  maxX = outExt[1] - outExt[0];
-  maxY = outExt[3] - outExt[2]; 
-  maxZ = outExt[5] - outExt[4];
+  maxX = newOutExt[1] - newOutExt[0];
+  maxY = newOutExt[3] - newOutExt[2]; 
+  maxZ = newOutExt[5] - newOutExt[4];
   
   // Get increments to march through data 
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
@@ -157,7 +178,11 @@ void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
   double x, y, z;
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    z = this->Center[2] - (idxZ + outExt[4]);
+    if (idxZ % this->SubsampleRate)
+      {
+      continue;
+      }
+    z = this->Center[2] - (idxZ + newOutExt[4]);
     if (whlExt[5] > whlExt[4])
       {
       z /= (whlExt[5] - whlExt[4]);
@@ -165,12 +190,16 @@ void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
     zContrib = z * z;
     for (idxY = 0; !this->AbortExecute && idxY <= maxY; idxY++)
       {
+      if (idxY % this->SubsampleRate)
+        {
+        continue;
+        }
       if (!(count%target))
         {
         this->UpdateProgress(count/(50.0*target));
         }
       count++;
-      y = this->Center[1] - (idxY + outExt[2]);
+      y = this->Center[1] - (idxY + newOutExt[2]);
       if (whlExt[3] > whlExt[2])
         {
         y /= (whlExt[3] - whlExt[2]);
@@ -178,9 +207,13 @@ void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
       yContrib = y * y;
       for (idxX = 0; idxX <= maxX; idxX++)
         {
+        if (idxX % this->SubsampleRate)
+          {
+          continue;
+          }
         // Pixel operation
         sum = zContrib + yContrib;
-        x = this->Center[0] - (idxX + outExt[0]);
+        x = this->Center[0] - (idxX + newOutExt[0]);
         if (whlExt[1] > whlExt[0])
           {
           x /= (whlExt[1] - whlExt[0]);
