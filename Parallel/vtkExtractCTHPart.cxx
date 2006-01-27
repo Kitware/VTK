@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.14");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.15");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -783,7 +783,11 @@ void vtkExtractCTHPart::ExecutePart(const char *arrayName,
     float progress = minProgress + group*delProg;
     int numberOfDataSets=input->GetNumberOfDataSets(group);
     int dataset;
-    float delProg2 = delProg/numberOfDataSets;
+    float delProg2=0;
+    if (numberOfDataSets > 0)
+      {
+      delProg2 = delProg/numberOfDataSets;
+      }
     for ( dataset = 0; dataset < numberOfDataSets; ++ dataset )
       {
       float progress2 = progress + delProg2*dataset;
