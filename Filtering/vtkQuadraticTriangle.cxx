@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.4");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.5");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 //----------------------------------------------------------------------------
@@ -385,7 +385,7 @@ void vtkQuadraticTriangle::InterpolationDerivs(double pcoords[3],
   derivs[7] = 0.0;
   derivs[8] = 4.0*s - 1.0;
   derivs[9] = -4.0*r;
-  derivs[10] = 4.0*s;
+  derivs[10] = 4.0*r;
   derivs[11] = 4.0 - 8.0*s - 4.0*r;
 }
 
