@@ -31,7 +31,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.12");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.13");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -392,7 +392,8 @@ int vtkContourRepresentation::GetIntermediatePointWorldPosition(int n,
 // The display position for a given world position must be re-computed
 // from the world positions... It should not be queried from the renderer
 // whose camera position may have changed
-int vtkContourRepresentation::GetNthNodeDisplayPosition( int n, double displayPos[2] )
+int vtkContourRepresentation::GetNthNodeDisplayPosition( 
+                           int n, double displayPos[2] ) const
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )

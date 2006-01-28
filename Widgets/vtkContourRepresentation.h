@@ -162,7 +162,7 @@ public:
   // Get the nth node's display position. Will return
   // 1 on success, or 0 if there are not at least 
   // (n+1) nodes (0 based counting).
-  virtual int GetNthNodeDisplayPosition( int n, double pos[2] );
+  virtual int GetNthNodeDisplayPosition( int n, double pos[2] ) const;
   
   // Description:
   // Get the nth node's world position. Will return
