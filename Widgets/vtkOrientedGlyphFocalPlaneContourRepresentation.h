@@ -102,6 +102,14 @@ public:
   // Get the points in this contour as a vtkPolyData. 
   virtual const vtkPolyData * GetContourRepresentationAsPolyData() const;
   
+  // Description:
+  // Direction cosines of the plane on which the contour lies
+  // on in world co-ordinates. This would be the same matrix that would be
+  // set in vtkImageReslice or vtkImagePlaneWidget if there were a plane
+  // passing through the contour points. The origin must be the origin of the 
+  // data under the contour.
+  const vtkMatrix4x4   *GetContourPlaneDirectionCosines(const double origin[3]) const;
+ 
 protected:
   vtkOrientedGlyphFocalPlaneContourRepresentation();
   ~vtkOrientedGlyphFocalPlaneContourRepresentation();
@@ -120,10 +128,16 @@ protected:
   vtkPolyData          *ActiveFocalData;
   vtkPoints            *ActiveFocalPoint;
 
+  // The polydata represents the contour in display co-ordinates.
   vtkPolyData          *Lines;
   vtkPolyDataMapper2D  *LinesMapper;
   vtkActor2D           *LinesActor;
-  
+
+  // The polydata represents the contour in world coordinates. It is updated
+  // (kept in sync with Lines) every time the GetContourRepresentationAsPolyData() 
+  // method is called. 
+  vtkPolyData          *LinesWorldCoordinates;
+
   // Support picking
   double LastPickPosition[3];
   double LastEventPosition[2];
@@ -137,6 +151,9 @@ protected:
   vtkProperty2D *Property;
   vtkProperty2D *ActiveProperty;
   vtkProperty2D *LinesProperty;
+
+  vtkMatrix4x4  *ContourPlaneDirectionCosines;
+
   void           CreateDefaultProperties();
   
   

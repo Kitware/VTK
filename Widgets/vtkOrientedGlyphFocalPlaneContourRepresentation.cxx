@@ -40,12 +40,13 @@
 #include "vtkFocalPlanePointPlacer.h"
 #include "vtkBezierContourLineInterpolator.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphFocalPlaneContourRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkOrientedGlyphFocalPlaneContourRepresentation, "1.3");
 vtkStandardNewMacro(vtkOrientedGlyphFocalPlaneContourRepresentation);
 
 //----------------------------------------------------------------------
 vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneContourRepresentation()
 {
+
   // Initialize state
   this->InteractionState = vtkContourRepresentation::Outside;
 
@@ -178,6 +179,9 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   
   this->InteractionOffset[0] = 0.0;
   this->InteractionOffset[1] = 0.0;
+
+  this->LinesWorldCoordinates        = vtkPolyData::New();
+  this->ContourPlaneDirectionCosines = vtkMatrix4x4::New();
 }
 
 //----------------------------------------------------------------------
@@ -207,6 +211,9 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::~vtkOrientedGlyphFocalPlaneCont
   this->Property->Delete();
   this->ActiveProperty->Delete();
   this->LinesProperty->Delete();
+
+  this->LinesWorldCoordinates->Delete();
+  this->ContourPlaneDirectionCosines->Delete();
 }
 
 //----------------------------------------------------------------------
@@ -488,16 +495,140 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
 }
 
 //----------------------------------------------------------------------
-const vtkPolyData * 
-vtkOrientedGlyphFocalPlaneContourRepresentation::GetContourRepresentationAsPolyData() const
+// Returns the direction cosines of the plane on which the contour lies
+// on in world co-ordinates. This would be the same matrix that would be
+// set in vtkImageReslice or vtkImagePlaneWidget if there were a plane
+// passing through the contour points. The origin passed here must be the 
+// origin on the image data under the contour. 
+const vtkMatrix4x4 * vtkOrientedGlyphFocalPlaneContourRepresentation
+::GetContourPlaneDirectionCosines( const double origin[3] ) const
 {
-  // TODO have a method that returns the contour world positions in a vtkPolyData.
-  // This method returns a contour with the vtkPolyData holding the display
-  // positions.. Not really useful for contour segmentation.. Should be easy cause
-  // the superclass has world contour points datastructure anyway.
+  if (this->ContourPlaneDirectionCosines->GetMTime() 
+                       >= this->Renderer->GetMTime() ||
+      this->ContourPlaneDirectionCosines->GetMTime() 
+                       >=    this->Lines->GetMTime() )
+    {
+    return this->ContourPlaneDirectionCosines;
+    }
+    
+  double pDisplay[3], pWorld[4];
+  double fp[4], z, xAxis[3];
   
+  this->Renderer->GetActiveCamera()->GetFocalPoint(fp);
+
+  double *vup = this->Renderer->GetActiveCamera()->GetViewUp();
+  double *directionOfProjection = this->Renderer->GetActiveCamera()->GetDirectionOfProjection();
+ 
+  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, 
+                                     fp[0], fp[1], fp[2], fp);
+  z = fp[2];
+
+  // This is the Y axis
+  this->ContourPlaneDirectionCosines->SetElement(0, 1, vup[0]);
+  this->ContourPlaneDirectionCosines->SetElement(1, 1, vup[1]);
+  this->ContourPlaneDirectionCosines->SetElement(2, 1, vup[2]);
+  this->ContourPlaneDirectionCosines->SetElement(3, 1, 0.0);
+
+  // The Z Axis
+  vtkMath::Cross( vup, directionOfProjection, xAxis );
+  this->ContourPlaneDirectionCosines->SetElement(0, 2, directionOfProjection[0]);
+  this->ContourPlaneDirectionCosines->SetElement(1, 2, directionOfProjection[1]);
+  this->ContourPlaneDirectionCosines->SetElement(2, 2, directionOfProjection[2]);
+  this->ContourPlaneDirectionCosines->SetElement(3, 2, 0.0);
+  
+  // X axis = Cross of y and z
+  this->ContourPlaneDirectionCosines->SetElement(0, 0, -xAxis[0]);
+  this->ContourPlaneDirectionCosines->SetElement(1, 0, -xAxis[1]);
+  this->ContourPlaneDirectionCosines->SetElement(2, 0, -xAxis[2]);
+  this->ContourPlaneDirectionCosines->SetElement(3, 0, 0.0);
+ 
+  // What point does the origin of the display co-ordinates map to in world
+  // co-ordinates with respect to the world co-ordinate origin ?
+  pDisplay[0] = 0.0; 
+  pDisplay[1] = 0.0;
+  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, 
+      pDisplay[0], pDisplay[1], z, pWorld);
+  this->ContourPlaneDirectionCosines->SetElement(0, 3, pWorld[0] - origin[0]);
+  this->ContourPlaneDirectionCosines->SetElement(1, 3, pWorld[1] - origin[1]);
+  this->ContourPlaneDirectionCosines->SetElement(2, 3, pWorld[2] - origin[2]);
+  this->ContourPlaneDirectionCosines->SetElement(3, 3, 1.0);
+
+  return this->ContourPlaneDirectionCosines;
+}
+
+//----------------------------------------------------------------------
+// Returns the contour representation as polydata in world co-ordinates
+// For this class, the contour is overlayed on the focal plane.
+//
+const vtkPolyData * vtkOrientedGlyphFocalPlaneContourRepresentation
+::GetContourRepresentationAsPolyData() const
+{
   // Get the points in this contour as a vtkPolyData. 
-  return this->Lines; 
+
+  vtkPoints *points = vtkPoints::New();
+  vtkCellArray *lines = vtkCellArray::New();
+  
+  int i, j;
+  vtkIdType index = 0;
+  
+  int count = this->GetNumberOfNodes();
+  for ( i = 0; i < this->GetNumberOfNodes(); i++ )
+    {
+    count += this->GetNumberOfIntermediatePoints(i);
+    }
+  
+  points->SetNumberOfPoints(count);
+  vtkIdType numLines;
+  
+  if ( this->ClosedLoop && count > 0 )
+    {
+    numLines = count+1;
+    }
+  else
+    {
+    numLines = count;
+    }
+
+  if ( numLines > 0 )
+    {
+    vtkIdType *lineIndices = new vtkIdType[numLines];
+    
+    double pos[3];
+    for ( i = 0; i < this->GetNumberOfNodes(); i++ )
+      {
+      // Add the node
+      this->GetNthNodeWorldPosition( i, pos );
+      points->InsertPoint( index, pos );
+      lineIndices[index] = index;
+      index++;
+      
+      int numIntermediatePoints = this->GetNumberOfIntermediatePoints(i);
+      
+      for ( j = 0; j < numIntermediatePoints; j++ )
+        {
+        this->GetIntermediatePointWorldPosition( i, j, pos );
+        points->InsertPoint( index, pos );
+        lineIndices[index] = index;
+        index++;
+        }
+      }
+    
+    if ( this->ClosedLoop )
+      {
+      lineIndices[index] = 0;
+      }
+    
+    lines->InsertNextCell( numLines, lineIndices );
+    delete [] lineIndices;
+    }
+  
+  this->LinesWorldCoordinates->SetPoints( points );
+  this->LinesWorldCoordinates->SetLines( lines );
+  
+  points->Delete();
+  lines->Delete();
+
+  return this->LinesWorldCoordinates; 
 }
 
 //----------------------------------------------------------------------
