@@ -48,7 +48,7 @@ public:
   // n is the last node and the loop is closed). Returns
   // 1 on success or 0 if n or idx are out of range.
   virtual int GetIntermediatePointWorldPosition( int n, 
-                                                 int idx, double point[3] );
+                                                 int idx, double point[3] ) const;
 
   // Description:
   // Get the world position of the intermediate point at
@@ -62,13 +62,13 @@ public:
   // Get the nth node's display position. Will return
   // 1 on success, or 0 if there are not at least 
   // (n+1) nodes (0 based counting).
-  virtual int GetNthNodeDisplayPosition( int n, double pos[2] );
+  virtual int GetNthNodeDisplayPosition( int n, double pos[2] ) const;
  
   // Description:
   // Get the nth node's world position. Will return
   // 1 on success, or 0 if there are not at least 
   // (n+1) nodes (0 based counting).
-  virtual int GetNthNodeWorldPosition( int n, double pos[3] );
+  virtual int GetNthNodeWorldPosition( int n, double pos[3] ) const;
 
   // Description:
   // The class maintains its true contour locations based on display co-ords

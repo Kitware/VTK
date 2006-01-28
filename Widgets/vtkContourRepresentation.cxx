@@ -31,7 +31,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.11");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.12");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -347,13 +347,13 @@ int vtkContourRepresentation::GetActiveNodeDisplayPosition( double pos[2] )
 }
 
 //----------------------------------------------------------------------
-int vtkContourRepresentation::GetNumberOfNodes()
+int vtkContourRepresentation::GetNumberOfNodes() const
 {
   return this->Internal->Nodes.size();
 }
 
 //----------------------------------------------------------------------
-int vtkContourRepresentation::GetNumberOfIntermediatePoints(int n)
+int vtkContourRepresentation::GetNumberOfIntermediatePoints(int n) const
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
@@ -367,7 +367,7 @@ int vtkContourRepresentation::GetNumberOfIntermediatePoints(int n)
 //----------------------------------------------------------------------
 int vtkContourRepresentation::GetIntermediatePointWorldPosition(int n, 
                                                                 int idx, 
-                                                                double point[3])
+                                                                double point[3]) const
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
@@ -416,7 +416,7 @@ int vtkContourRepresentation::GetNthNodeDisplayPosition( int n, double displayPo
 }
 
 //----------------------------------------------------------------------
-int vtkContourRepresentation::GetNthNodeWorldPosition( int n, double worldPos[3] )
+int vtkContourRepresentation::GetNthNodeWorldPosition( int n, double worldPos[3] ) const
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
@@ -743,7 +743,7 @@ int vtkContourRepresentation::AddNodeOnContour( int X, int Y )
   node->WorldPosition[0] = worldPos[0];
   node->WorldPosition[1] = worldPos[1];
   node->WorldPosition[2] = worldPos[2];
-  
+
   this->GetRendererComputedDisplayPositionFromWorldPosition( 
                           worldPos, worldOrient, node->DisplayPosition );
   
