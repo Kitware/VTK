@@ -92,6 +92,12 @@ public:
   // For ex: DICOM (0008,0023) = 20030617
   vtkSetStringMacro(ImageDate);
   vtkGetStringMacro(ImageDate);
+  
+  // Description:
+  // Take as input a string in ISO 8601 date (YYYY/MM/DD) and extract the different fields
+  // namely: year month day
+  // Return false on error, true on success
+  static bool GetDateAsFields(const char *date, int &year, int &month, int &day);
 
   // Description:
   // Image Time

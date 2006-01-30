@@ -19,7 +19,7 @@
 #include <vtksys/stl/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.7");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.8");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -300,6 +300,32 @@ double vtkMedicalImageProperties::GetGantryTiltAsDouble()
     return atof(this->GantryTilt);
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+bool vtkMedicalImageProperties::GetDateAsFields(const char *date, int &year, int &month, int &day)
+{
+  if( !date )
+    {
+    return false;
+    }
+
+  size_t len = strlen(date);
+  if( len != 10 )
+    {
+    return false;
+    }
+  if( date[4] != '/'
+   || date[7] != '/' )
+    {
+    return false;
+    }
+  if( sscanf(date, "%d/%d/%d", &year, &month, &day) != 3 )
+    {
+    return false;
+    }
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
