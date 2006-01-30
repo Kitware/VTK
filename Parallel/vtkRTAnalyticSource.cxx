@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.22");
+vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.23");
 vtkStandardNewMacro(vtkRTAnalyticSource);
 
 //----------------------------------------------------------------------------
@@ -253,6 +253,7 @@ void vtkRTAnalyticSource::PrintSelf(ostream& os, vtkIndent indent)
      << ", " << this->WholeExtent[3] << ", " << this->WholeExtent[4]
      << ", " << this->WholeExtent[5] << endl;
 
+  os << indent << "SubsampleRate: " << this->SubsampleRate << endl;
 }
 
 
