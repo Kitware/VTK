@@ -32,7 +32,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkFocalPlaneContourRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkFocalPlaneContourRepresentation, "1.3");
 
 //----------------------------------------------------------------------
 vtkFocalPlaneContourRepresentation::vtkFocalPlaneContourRepresentation()
@@ -64,15 +64,18 @@ int vtkFocalPlaneContourRepresentation::GetIntermediatePointWorldPosition(int n,
     return 0;
     }
   
-  double p[4], fp[4], z;
+  double p[4], fp[4], z, dispPos[2];
   this->Renderer->GetActiveCamera()->GetFocalPoint(fp);
   vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, 
                                       fp[0], fp[1], fp[2], fp);
   z = fp[2];
+  
+  dispPos[0] = this->Internal->Nodes[n]->Points[idx]->NormalizedDisplayPosition[0];
+  dispPos[1] = this->Internal->Nodes[n]->Points[idx]->NormalizedDisplayPosition[1];
+  this->Renderer->NormalizedDisplayToDisplay( dispPos[0], dispPos[1] );
+  
   vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, 
-      this->Internal->Nodes[n]->Points[idx]->DisplayPosition[0], 
-      this->Internal->Nodes[n]->Points[idx]->DisplayPosition[1], 
-                                               z, p);
+                                dispPos[0], dispPos[1], z, p);
   
   point[0] = p[0];
   point[1] = p[1];
@@ -100,8 +103,9 @@ int vtkFocalPlaneContourRepresentation::GetIntermediatePointDisplayPosition(int 
     return 0;
     }
   
-  point[0] = this->Internal->Nodes[n]->Points[idx]->DisplayPosition[0];
-  point[1] = this->Internal->Nodes[n]->Points[idx]->DisplayPosition[1];
+  point[0] = this->Internal->Nodes[n]->Points[idx]->NormalizedDisplayPosition[0];
+  point[1] = this->Internal->Nodes[n]->Points[idx]->NormalizedDisplayPosition[1];
+  this->Renderer->NormalizedDisplayToDisplay( point[0], point[1] );
   
   return 1;
 }  
@@ -116,8 +120,9 @@ int vtkFocalPlaneContourRepresentation::GetNthNodeDisplayPosition(
     return 0;
     }
   
-  displayPos[0] = this->Internal->Nodes[n]->DisplayPosition[0];
-  displayPos[1] = this->Internal->Nodes[n]->DisplayPosition[1];
+  displayPos[0] = this->Internal->Nodes[n]->NormalizedDisplayPosition[0];
+  displayPos[1] = this->Internal->Nodes[n]->NormalizedDisplayPosition[1];
+  this->Renderer->NormalizedDisplayToDisplay( displayPos[0], displayPos[1] );
 
   return 1;
 }
@@ -132,15 +137,16 @@ int vtkFocalPlaneContourRepresentation::GetNthNodeWorldPosition(
     return 0;
     }
   
-  double p[4], fp[4], z;
+  double p[4], fp[4], z, dispPos[2];
   this->Renderer->GetActiveCamera()->GetFocalPoint(fp);
   vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, 
                                       fp[0], fp[1], fp[2], fp);
   z = fp[2];
+  dispPos[0] = this->Internal->Nodes[n]->NormalizedDisplayPosition[0];
+  dispPos[1] = this->Internal->Nodes[n]->NormalizedDisplayPosition[1];
+  this->Renderer->NormalizedDisplayToDisplay( dispPos[0], dispPos[1] );
   vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, 
-      this->Internal->Nodes[n]->DisplayPosition[0], 
-      this->Internal->Nodes[n]->DisplayPosition[1], 
-                                               z, p);
+                                dispPos[0], dispPos[1], z, p);
   
   worldPos[0] = p[0];
   worldPos[1] = p[1];
@@ -153,7 +159,7 @@ int vtkFocalPlaneContourRepresentation::GetNthNodeWorldPosition(
 void vtkFocalPlaneContourRepresentation
 ::UpdateContourWorldPositionsBasedOnDisplayPositions()
 {
-  double p[4], fp[4], z;
+  double p[4], fp[4], z, dispPos[2];
   this->Renderer->GetActiveCamera()->GetFocalPoint(fp);
   vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, 
                                       fp[0], fp[1], fp[2], fp);
@@ -161,11 +167,13 @@ void vtkFocalPlaneContourRepresentation
   
   for(unsigned int i=0;i<this->Internal->Nodes.size();i++)
     {
+      
+    dispPos[0] = this->Internal->Nodes[i]->NormalizedDisplayPosition[0];
+    dispPos[1] = this->Internal->Nodes[i]->NormalizedDisplayPosition[1];
+    this->Renderer->NormalizedDisplayToDisplay( dispPos[0], dispPos[1] );
     
     vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, 
-        this->Internal->Nodes[i]->DisplayPosition[0], 
-        this->Internal->Nodes[i]->DisplayPosition[1], 
-                                                 z, p);
+                                    dispPos[0], dispPos[1], z, p);
     
     this->Internal->Nodes[i]->WorldPosition[0] = p[0];
     this->Internal->Nodes[i]->WorldPosition[1] = p[1];
@@ -173,10 +181,12 @@ void vtkFocalPlaneContourRepresentation
     
     for (unsigned int j=0;j<this->Internal->Nodes[i]->Points.size();j++)
       {
+      dispPos[0] = this->Internal->Nodes[i]->Points[j]->NormalizedDisplayPosition[0];
+      dispPos[1] = this->Internal->Nodes[i]->Points[j]->NormalizedDisplayPosition[1];
+      this->Renderer->NormalizedDisplayToDisplay( dispPos[0], dispPos[1] );
+      
       vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, 
-          this->Internal->Nodes[i]->Points[j]->DisplayPosition[0], 
-          this->Internal->Nodes[i]->Points[j]->DisplayPosition[1], 
-                                                   z, p);
+                                      dispPos[0], dispPos[1], z, p);
       
       this->Internal->Nodes[i]->Points[j]->WorldPosition[0] = p[0];
       this->Internal->Nodes[i]->Points[j]->WorldPosition[1] = p[1];
@@ -188,19 +198,27 @@ void vtkFocalPlaneContourRepresentation
 //---------------------------------------------------------------------
 int vtkFocalPlaneContourRepresentation::UpdateContour()
 {
-  // The representation maintains its true positions based on display positions.
-  // Sync the world positions in terms of the current display positions.
-  // The superclass will do the line interpolation etc from the world positions
-  // 
-  this->UpdateContourWorldPositionsBasedOnDisplayPositions();
-  
   this->PointPlacer->UpdateInternalState();
   
-  if ( this->ContourBuildTime > this->PointPlacer->GetMTime() )
+  if ( this->ContourBuildTime > this->Renderer->GetMTime() &&
+       this->ContourBuildTime > this->PointPlacer->GetMTime() )
     {
     // Contour does not need to be rebuilt
     return 0;
     }
+  
+  // The representation maintains its true positions based on display positions.
+  // Sync the world positions in terms of the current display positions.
+  // The superclass will do the line interpolation etc from the world positions
+  // 
+  // TODO:
+  // I don't want to rebuild the contour every time the renderer changes
+  // state. For instance there is no reason for me to re-do this when a W/L
+  // action is performed on the window. How do I know if relevant events have 
+  // transpired like zoom or scale changes ?
+  //   In the current state, the 'if' statement above is invariably true.
+  // 
+  this->UpdateContourWorldPositionsBasedOnDisplayPositions();
   
   unsigned int i;
   for(i=0; (i+1)<this->Internal->Nodes.size(); i++)
@@ -214,8 +232,8 @@ int vtkFocalPlaneContourRepresentation::UpdateContour()
     }
   this->BuildLines();
   
-  return  this->Superclass::UpdateContour();
- 
+  this->ContourBuildTime.Modified();
+  return 1;
 }
 
 //----------------------------------------------------------------------

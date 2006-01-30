@@ -68,7 +68,7 @@ class vtkContourRepresentationPoint
 {
 public:
   double        WorldPosition[3];
-  int           DisplayPosition[2];
+  double        NormalizedDisplayPosition[2];
 };
 
 class vtkContourRepresentationNode
@@ -76,7 +76,7 @@ class vtkContourRepresentationNode
 public:
   double        WorldPosition[3];
   double        WorldOrientation[9];
-  int           DisplayPosition[2];
+  double        NormalizedDisplayPosition[2];
   vtkstd::vector<vtkContourRepresentationPoint*> Points;
 };
 
@@ -359,6 +359,8 @@ protected:
   // using the renderer of this class. 
   void GetRendererComputedDisplayPositionFromWorldPosition( double worldPos[3],
                                     double worldOrient[9], int displayPos[2] );
+  void GetRendererComputedDisplayPositionFromWorldPosition( double worldPos[3],
+                                    double worldOrient[9], double displayPos[2] );
   
   void UpdateLines( int index );
   void UpdateLine( int idx1, int idx2 );

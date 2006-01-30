@@ -31,7 +31,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.13");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.14");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -72,15 +72,19 @@ vtkContourRepresentation::~vtkContourRepresentation()
 //----------------------------------------------------------------------
 void vtkContourRepresentation::AddNodeAtPositionInternal( double worldPos[3],
                                                           double worldOrient[9],
-                                                          int displayPos[2] )
+                                                          double displayPos[2] )
 {
   // Add a new point at this position
   vtkContourRepresentationNode *node = new vtkContourRepresentationNode;
   node->WorldPosition[0] = worldPos[0];
   node->WorldPosition[1] = worldPos[1];
   node->WorldPosition[2] = worldPos[2];
-  node->DisplayPosition[0] = displayPos[0];
-  node->DisplayPosition[1] = displayPos[1];
+
+  node->NormalizedDisplayPosition[0] = displayPos[0];
+  node->NormalizedDisplayPosition[1] = displayPos[1];
+  this->Renderer->DisplayToNormalizedDisplay( 
+      node->NormalizedDisplayPosition[0],
+      node->NormalizedDisplayPosition[1] );
   
   memcpy(node->WorldOrientation, worldOrient, 9*sizeof(double) );
   
@@ -93,11 +97,11 @@ void vtkContourRepresentation::AddNodeAtPositionInternal( double worldPos[3],
 //----------------------------------------------------------------------
 void vtkContourRepresentation::AddNodeAtPositionInternal( double worldPos[3],
                                                           double worldOrient[9],
-                                                          double displayPos[2] )
+                                                          int displayPos[2] )
 {
-  int dispPos[2];
-  dispPos[0] = (int) displayPos[0];
-  dispPos[1] = (int) displayPos[1];
+  double dispPos[2];
+  dispPos[0] = (double) displayPos[0];
+  dispPos[1] = (double) displayPos[1];
   this->AddNodeAtPositionInternal( worldPos, worldOrient, dispPos );
 }
 
@@ -111,10 +115,11 @@ int vtkContourRepresentation::AddNodeAtWorldPosition( double worldPos[3],
     return 0;
     }
 
-  int displayPos[2];
+  double displayPos[2];
   this->GetRendererComputedDisplayPositionFromWorldPosition( 
                           worldPos, worldOrient, displayPos );
   this->AddNodeAtPositionInternal( worldPos, worldOrient, displayPos );
+
   return 1;
 }
 
@@ -131,10 +136,11 @@ int vtkContourRepresentation::AddNodeAtWorldPosition( double worldPos[3] )
                            0.0,1.0,0.0,
                            0.0,0.0,1.0};
   
-  int displayPos[2];
+  double displayPos[2];
   this->GetRendererComputedDisplayPositionFromWorldPosition( 
                           worldPos, worldOrient, displayPos );
   this->AddNodeAtPositionInternal( worldPos, worldOrient, displayPos );
+
   return 1;
 }
 
@@ -453,7 +459,10 @@ void vtkContourRepresentation::SetNthNodeWorldPositionInternal( int n, double wo
   this->Internal->Nodes[n]->WorldPosition[2] = worldPos[2];
   
   this->GetRendererComputedDisplayPositionFromWorldPosition( 
-        worldPos, worldOrient, this->Internal->Nodes[n]->DisplayPosition );
+        worldPos, worldOrient, this->Internal->Nodes[n]->NormalizedDisplayPosition );
+  this->Renderer->DisplayToNormalizedDisplay( 
+      this->Internal->Nodes[n]->NormalizedDisplayPosition[0],
+      this->Internal->Nodes[n]->NormalizedDisplayPosition[1] );
 
   memcpy(this->Internal->Nodes[n]->WorldOrientation, worldOrient, 9*sizeof(double) );
 
@@ -745,8 +754,12 @@ int vtkContourRepresentation::AddNodeOnContour( int X, int Y )
   node->WorldPosition[1] = worldPos[1];
   node->WorldPosition[2] = worldPos[2];
 
+  
   this->GetRendererComputedDisplayPositionFromWorldPosition( 
-                          worldPos, worldOrient, node->DisplayPosition );
+          worldPos, worldOrient, node->NormalizedDisplayPosition );
+  this->Renderer->DisplayToNormalizedDisplay( 
+         node->NormalizedDisplayPosition[0],
+         node->NormalizedDisplayPosition[1] );
   
   memcpy(node->WorldOrientation, worldOrient, 9*sizeof(double) );
   
@@ -885,11 +898,11 @@ int vtkContourRepresentation::AddIntermediatePointWorldPosition( int n,
                            0.0,1.0,0.0,
                            0.0,0.0,1.0};
   
-  int displayPos[2];
   this->GetRendererComputedDisplayPositionFromWorldPosition( 
-                          pos, worldOrient, displayPos );
-  point->DisplayPosition[0] = displayPos[0];
-  point->DisplayPosition[1] = displayPos[1];
+                          pos, worldOrient, point->NormalizedDisplayPosition );
+  this->Renderer->DisplayToNormalizedDisplay( 
+      point->NormalizedDisplayPosition[0], 
+      point->NormalizedDisplayPosition[1] );
   
   this->Internal->Nodes[n]->Points.push_back(point);
   return 1;
@@ -1010,7 +1023,21 @@ int vtkContourRepresentation::UpdateContour()
 //----------------------------------------------------------------------
 void vtkContourRepresentation
 ::GetRendererComputedDisplayPositionFromWorldPosition( double worldPos[3],
-                                double * vtkNotUsed(worldOrient[9]), int displayPos[2] )
+                                double worldOrient[9], int displayPos[2] )
+{
+  double dispPos[2]; 
+  dispPos[0] = (double) displayPos[0]; 
+  dispPos[1] = (double) displayPos[1];
+  this->GetRendererComputedDisplayPositionFromWorldPosition( worldPos, 
+                                                worldOrient, dispPos );
+  displayPos[0] = (int) dispPos[0];
+  displayPos[1] = (int) dispPos[1];
+}
+
+//----------------------------------------------------------------------
+void vtkContourRepresentation
+::GetRendererComputedDisplayPositionFromWorldPosition( double worldPos[3],
+                                double * vtkNotUsed(worldOrient[9]), double displayPos[2] )
 {
   double pos[4];
   pos[0] = worldPos[0];
@@ -1022,8 +1049,8 @@ void vtkContourRepresentation
   this->Renderer->WorldToDisplay();
   this->Renderer->GetDisplayPoint( pos );
   
-  displayPos[0] = (int)pos[0];
-  displayPos[1] = (int)pos[1];
+  displayPos[0] = pos[0];
+  displayPos[1] = pos[1];
 }
 
 //----------------------------------------------------------------------
