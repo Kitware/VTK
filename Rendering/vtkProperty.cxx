@@ -37,7 +37,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.59");
+vtkCxxRevisionMacro(vtkProperty, "1.60");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -277,8 +277,9 @@ void vtkProperty::RemoveAllTextures()
 //----------------------------------------------------------------------------
 void vtkProperty::LoadMaterial(const char* name)
 {
-  if( !name )
+  if( !name || strlen(name) == 0)
     {
+    this->LoadMaterial(static_cast<vtkXMLMaterial*>(0));
     return;
     }
   this->SetMaterialName(name);
