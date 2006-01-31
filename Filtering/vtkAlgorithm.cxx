@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.33");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.34");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -708,6 +708,8 @@ void vtkAlgorithm::SetInputConnection(vtkAlgorithmOutput* input)
 {
   this->SetInputConnection(0,input);
 }
+
+//----------------------------------------------------------------------------
 void vtkAlgorithm::SetInputConnection(int port, vtkAlgorithmOutput* input)
 {
   if(!this->InputPortIndexInRange(port, "connect"))
