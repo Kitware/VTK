@@ -22,7 +22,6 @@ IF(PYTHON_EXECUTABLE)
     vtkgluPickMatrix.h
     vtkOpenGL.h
     vtkOpenGLStateCache.h
-    vtkVolumeRayCastStructures.h
     vtkVolumeShearWarpDataStructure.h
     vtkgl.h
     vtkOpenGLExtensionManagerConfigure.h
