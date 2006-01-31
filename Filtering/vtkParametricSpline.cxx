@@ -18,7 +18,7 @@
 #include "vtkPoints.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkParametricSpline, "1.6");
+vtkCxxRevisionMacro(vtkParametricSpline, "1.7");
 vtkStandardNewMacro(vtkParametricSpline);
 
 //----------------------------------------------------------------------------
@@ -267,6 +267,20 @@ int vtkParametricSpline::Initialize()
   this->YSpline->RemoveAllPoints();
   this->ZSpline->RemoveAllPoints();
 
+    // Specify the parametric range that the spline can take
+  if ( ! this->Closed )
+    {
+    this->XSpline->SetParametricRange(0.0,this->Length);
+    this->YSpline->SetParametricRange(0.0,this->Length);
+    this->ZSpline->SetParametricRange(0.0,this->Length);
+    }
+  else
+    {
+    this->XSpline->SetParametricRange(0.0,this->ClosedLength);
+    this->YSpline->SetParametricRange(0.0,this->ClosedLength);
+    this->ZSpline->SetParametricRange(0.0,this->ClosedLength);
+    }
+
   // Now we insert points into the splines with the parametric coordinate
   // based on (polyline) length. We keep track of the parametric coordinates
   // of the points for later point interpolation.
@@ -294,20 +308,6 @@ int vtkParametricSpline::Initialize()
       this->YSpline->AddPoint(i,x[1]);
       this->ZSpline->AddPoint(i,x[2]);
       }
-    }
-
-  // Specify the parametric range that the spline can take
-  if ( ! this->Closed )
-    {
-    this->XSpline->SetParametricRange(0.0,this->Length);
-    this->YSpline->SetParametricRange(0.0,this->Length);
-    this->ZSpline->SetParametricRange(0.0,this->Length);
-    }
-  else
-    {
-    this->XSpline->SetParametricRange(0.0,this->ClosedLength);
-    this->YSpline->SetParametricRange(0.0,this->ClosedLength);
-    this->ZSpline->SetParametricRange(0.0,this->ClosedLength);
     }
 
   this->InitializeTime = this->GetMTime();
