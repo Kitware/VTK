@@ -72,12 +72,24 @@ public:
   vtkSetStringMacro(PatientBirthDate);
   vtkGetStringMacro(PatientBirthDate);
 
+  // For Tcl:
+  // From C++ use GetPatientBirthDate + GetDateAsFields
+  int GetPatientBirthDateYear();
+  int GetPatientBirthDateMonth();
+  int GetPatientBirthDateDay();
+
   // Description:
   // Acquisition Date
   // Format: yyyymmdd
   // For ex: DICOM (0008,0022) = 20030617
   vtkSetStringMacro(AcquisitionDate);
   vtkGetStringMacro(AcquisitionDate);
+
+  // For Tcl:
+  // From C++ use GetAcquisitionDate + GetDateAsFields
+  int GetAcquisitionDateYear();
+  int GetAcquisitionDateMonth();
+  int GetAcquisitionDateDay();
 
   // Description:
   // Acquisition time
@@ -92,12 +104,18 @@ public:
   // For ex: DICOM (0008,0023) = 20030617
   vtkSetStringMacro(ImageDate);
   vtkGetStringMacro(ImageDate);
+
+  // For Tcl:
+  // From C++ use GetImageDate + GetDateAsFields
+  int GetImageDateYear();
+  int GetImageDateMonth();
+  int GetImageDateDay();
   
   // Description:
   // Take as input a string in ISO 8601 date (YYYY/MM/DD) and extract the different fields
   // namely: year month day
-  // Return false on error, true on success
-  static bool GetDateAsFields(const char *date, int &year, int &month, int &day);
+  // Return 0 on error, 1 on success
+  static int GetDateAsFields(const char *date, int &year, int &month, int &day);
 
   // Description:
   // Image Time

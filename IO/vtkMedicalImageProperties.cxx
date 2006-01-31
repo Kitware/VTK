@@ -19,7 +19,7 @@
 #include <vtksys/stl/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.8");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.9");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -303,29 +303,101 @@ double vtkMedicalImageProperties::GetGantryTiltAsDouble()
 }
 
 //----------------------------------------------------------------------------
-bool vtkMedicalImageProperties::GetDateAsFields(const char *date, int &year, int &month, int &day)
+int vtkMedicalImageProperties::GetDateAsFields(const char *date, int &year, int &month, int &day)
 {
   if( !date )
     {
-    return false;
+    return 0;
     }
 
   size_t len = strlen(date);
   if( len != 10 )
     {
-    return false;
+    return 0;
     }
   if( date[4] != '/'
    || date[7] != '/' )
     {
-    return false;
+    return 0;
     }
   if( sscanf(date, "%d/%d/%d", &year, &month, &day) != 3 )
     {
-    return false;
+    return 0;
     }
 
-  return true;
+  return 1;
+}
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetPatientBirthDateYear()
+{
+  const char *date = this->GetPatientBirthDate();
+  int year, month, day;
+  vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
+  return year;
+}
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetPatientBirthDateMonth()
+{
+  const char *date = this->GetPatientBirthDate();
+  int year, month, day;
+  vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
+  return month;
+}
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetPatientBirthDateDay()
+{
+  const char *date = this->GetPatientBirthDate();
+  int year, month, day;
+  vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
+  return day;
+}
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetAcquisitionDateYear()
+{
+  const char *date = this->GetAcquisitionDate();
+  int year, month, day;
+  vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
+  return year;
+}
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetAcquisitionDateMonth()
+{
+  const char *date = this->GetAcquisitionDate();
+  int year, month, day;
+  vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
+  return month;
+}
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetAcquisitionDateDay()
+{
+  const char *date = this->GetAcquisitionDate();
+  int year, month, day;
+  vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
+  return day;
+}
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetImageDateYear()
+{
+  const char *date = this->GetImageDate();
+  int year, month, day;
+  vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
+  return year;
+}
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetImageDateMonth()
+{
+  const char *date = this->GetImageDate();
+  int year, month, day;
+  vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
+  return month;
+}
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetImageDateDay()
+{
+  const char *date = this->GetImageDate();
+  int year, month, day;
+  vtkMedicalImageProperties::GetDateAsFields(date, year, month, day);
+  return day;
 }
 
 //----------------------------------------------------------------------------
