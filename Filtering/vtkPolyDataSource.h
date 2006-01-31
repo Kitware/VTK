@@ -51,14 +51,8 @@ protected:
   // just copy output->UpdateExtent  all Inputs.
   void ComputeInputUpdateExtents(vtkDataObject *output);
   
-  // Used by streaming: The extent of the output being processed
-  // by the execute method. Set in the ComputeInputUpdateExtents method.
-  int ExecutePiece;
-  int ExecuteNumberOfPieces;
-  
-  int ExecuteGhostLevel;
+  int FillOutputPortInformation(int, vtkInformation*);
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkPolyDataSource(const vtkPolyDataSource&);  // Not implemented.
   void operator=(const vtkPolyDataSource&);  // Not implemented.

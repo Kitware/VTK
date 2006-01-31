@@ -49,22 +49,17 @@ protected:
   vtkPolyDataReader();
   ~vtkPolyDataReader();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *);
 
   // Update extent of PolyData is specified in pieces.  
   // Since all DataObjects should be able to set UpdateExent as pieces,
   // just copy output->UpdateExtent  all Inputs.
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
   
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*);
 
-  // Used by streaming: The extent of the output being processed
-  // by the execute method. Set in the ComputeInputUpdateExtents method.
-  int ExecutePiece;
-  int ExecuteNumberOfPieces;
-  int ExecuteGhostLevel;
 private:
   vtkPolyDataReader(const vtkPolyDataReader&);  // Not implemented.
   void operator=(const vtkPolyDataReader&);  // Not implemented.
