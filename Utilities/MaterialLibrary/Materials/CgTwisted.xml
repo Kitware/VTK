@@ -7,7 +7,10 @@
   <Shader scope="Vertex" name="CGTwisted" location="Library" language="Cg" entry="main" args="-DVERTEX_PROGRAM">
     <MatrixUniform name="ModelViewProj" type="State" number_of_elements="2" value="CG_GL_MODELVIEW_PROJECTION_MATRIX CG_GL_MATRIX_IDENTITY"> </MatrixUniform>
     <MatrixUniform name="ModelViewIT" type="State" number_of_elements="2" value="CG_GL_MODELVIEW_MATRIX CG_GL_MATRIX_INVERSE_TRANSPOSE"> </MatrixUniform>
+    <!--
     <ApplicationUniform name="Rate" value="Rate"> </ApplicationUniform>
+    -->
+    <Uniform name="Rate" value="1.0" type="double" number_of_elements="1" />
     <PropertyUniform name="Ka" value="Ambient" />
     <PropertyUniform name="AmbientColor" value="AmbientColor" />
     <PropertyUniform name="Kd" value="Diffuse" />

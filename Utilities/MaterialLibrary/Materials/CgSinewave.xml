@@ -10,7 +10,7 @@
     </Member>
   </Property>
 
-  <Shader type="Vertex" name="CGcg_sinewave" 
+  <Shader scope="Vertex" name="CGcg_sinewave" 
     location="Library" 
     language="Cg" entry="main" args="-DVERTEX_PROGRAM">
 
@@ -23,7 +23,7 @@
 
     <PropertyUniform type="Member" value="MTime" name="SinTime" > 
     </PropertyUniform>
-    <Uniform type="Float" name="ShowNormals" number_of_elements="1" value="1.0"> 
+    <Uniform type="float" name="ShowNormals" number_of_elements="1" value="1.0"> 
     </Uniform>
 
   </Shader>

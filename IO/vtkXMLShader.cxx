@@ -22,7 +22,7 @@
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkXMLShader);
-vtkCxxRevisionMacro(vtkXMLShader, "1.5");
+vtkCxxRevisionMacro(vtkXMLShader, "1.6");
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
 //-----------------------------------------------------------------------------
 vtkXMLShader::vtkXMLShader()
@@ -191,7 +191,7 @@ int vtkXMLShader::GetScope()
     const char* scope = this->RootElement->GetAttribute("scope");
     if (!scope)
       {
-      vtkErrorMacro("Shader description missing Type attribute.");
+      vtkErrorMacro("Shader description missing \"scope\" attribute.");
       }
     else if (strcmp(scope, "Vertex") == 0)
       {
@@ -276,18 +276,18 @@ const char* vtkXMLShader::GetCode()
 {
   switch(this->GetLocation())
     {
-    case vtkXMLShader::LOCATION_INLINE:
-      return this->RootElement->GetCharacterData();
-      break;
-    case vtkXMLShader::LOCATION_LIBRARY:
-      // until the ShaderCode library starts providing XMLs, we just return the code.
-      return this->Code;
-      break;
-    case vtkXMLShader::LOCATION_FILE:
-      return this->Code;
-      break;
+  case vtkXMLShader::LOCATION_INLINE:
+    return this->RootElement->GetCharacterData();
+    break;
+  case vtkXMLShader::LOCATION_LIBRARY:
+    // until the ShaderCode library starts providing XMLs, we just return the code.
+    return this->Code;
+    break;
+  case vtkXMLShader::LOCATION_FILE:
+    return this->Code;
+    break;
     }
-    return 0;
+  return 0;
 }
 
 
@@ -313,7 +313,7 @@ void vtkXMLShader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Name: " << (this->GetName()? this->GetName() : "(none)")
                                                                     << endl;
-  os << indent << "Type: ";
+  os << indent << "Scope: ";
   switch(this->GetScope())
     {
   case SCOPE_NONE:

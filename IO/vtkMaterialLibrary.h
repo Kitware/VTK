@@ -43,6 +43,10 @@ public:
   // the names of the materials provided by the library.
   // The end of the array is marked by a null pointer.
   static const char** GetListOfMaterialNames();
+
+  // Description:
+  // Returns the number of materials provided by the library.
+  static unsigned int GetNumberOfMaterials();
 protected:
   vtkMaterialLibrary();
   ~vtkMaterialLibrary();

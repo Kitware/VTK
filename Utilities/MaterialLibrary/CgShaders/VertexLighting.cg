@@ -28,7 +28,7 @@ vertout main(vertin IN,
   uniform float3 lightSpecularColor
 )
 {
-  float3 N = invert(IN.Normal);
+  float3 N = IN.Normal; //invert(IN.Normal);
   vertout OUT;
   OUT.Position = mul(ModelViewProj, IN.Position);
 

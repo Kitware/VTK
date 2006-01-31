@@ -24,7 +24,7 @@
 #endif
 
 vtkStandardNewMacro(vtkMaterialLibrary);
-vtkCxxRevisionMacro(vtkMaterialLibrary, "1.3");
+vtkCxxRevisionMacro(vtkMaterialLibrary, "1.4");
 //-----------------------------------------------------------------------------
 vtkMaterialLibrary::vtkMaterialLibrary()
 {
@@ -55,6 +55,17 @@ const char** vtkMaterialLibrary::GetListOfMaterialNames()
 {
   // defined in vtkMaterialLibraryMacro.h
   return ::ListOfMaterialNames;
+}
+
+//-----------------------------------------------------------------------------
+unsigned int vtkMaterialLibrary::GetNumberOfMaterials()
+{
+  const char** names = vtkMaterialLibrary::GetListOfMaterialNames();
+  unsigned int cc ;
+  for (cc=0; names[cc]; cc++)
+    {
+    }
+  return cc;
 }
 
 //-----------------------------------------------------------------------------
