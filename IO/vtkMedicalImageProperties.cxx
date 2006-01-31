@@ -19,7 +19,7 @@
 #include <vtksys/stl/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.9");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.10");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -315,14 +315,14 @@ int vtkMedicalImageProperties::GetDateAsFields(const char *date, int &year, int 
     {
     return 0;
     }
-  if( date[4] != '/'
-   || date[7] != '/' )
+  // DICOM V3
+  if( sscanf(date, "%d%d%d", &year, &month, &day) != 3 )
     {
-    return 0;
-    }
-  if( sscanf(date, "%d/%d/%d", &year, &month, &day) != 3 )
-    {
-    return 0;
+    // Some *very* old ACR-NEMA
+    if( sscanf(date, "%d.%d.%d", &year, &month, &day) != 3 )
+      {
+      return 0;
+      }
     }
 
   return 1;
