@@ -18,6 +18,8 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
+#include "vtkErrorCode.h"
+
 #ifdef _MSC_VER
 #pragma warning (push, 3)
 #endif
@@ -40,7 +42,7 @@ public:
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAVIWriter);
-vtkCxxRevisionMacro(vtkAVIWriter, "1.5");
+vtkCxxRevisionMacro(vtkAVIWriter, "1.6");
 
 //---------------------------------------------------------------------------
 vtkAVIWriter::vtkAVIWriter()
