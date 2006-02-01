@@ -146,7 +146,7 @@ public:
   virtual int IsPrimary()=0;
 
   // Description:
-  // Return the number of points that compose the cell.
+  // Return the number of corner points that compose the cell.
   // \post positive_result: result>=0
   virtual int GetNumberOfPoints()=0;
 
@@ -448,12 +448,11 @@ public:
   virtual double GetParametricDistance(double pcoords[3])=0;
 
   // Description:
-  // Return a contiguous array of parametric coordinates of the points defining
-  // the current cell. In other words, (px,py,pz, px,py,pz, etc..) The
+  // Return a contiguous array of parametric coordinates of the corrner points
+  // defining the current cell. In other words, (px,py,pz, px,py,pz, etc..) The
   // coordinates are ordered consistent with the definition of the point
   // ordering for the cell. Note that 3D parametric coordinates are returned
-  // no matter what the topological dimension of the cell. It includes the DOF
-  // nodes.
+  // no matter what the topological dimension of the cell.
   // \post valid_result_exists: ((IsPrimary()) && (result!=0)) ||
   //                             ((!IsPrimary()) && (result==0))
   //                     result!=0 implies sizeof(result)==GetNumberOfPoints()
