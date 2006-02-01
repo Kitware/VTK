@@ -42,7 +42,7 @@ public:
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAVIWriter);
-vtkCxxRevisionMacro(vtkAVIWriter, "1.6");
+vtkCxxRevisionMacro(vtkAVIWriter, "1.7");
 
 //---------------------------------------------------------------------------
 vtkAVIWriter::vtkAVIWriter()
@@ -99,7 +99,7 @@ void vtkAVIWriter::Start()
   if (hr != 0)
     {         
     vtkErrorMacro("Unable to open " << this->FileName);         
-    this->SetErrorCode(vtkErrorMacro::CannotOpenFileError);
+    this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     return; 
     }  
 
