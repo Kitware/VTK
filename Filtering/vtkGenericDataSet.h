@@ -127,8 +127,8 @@ public:
   
   // Description:
   // Return an iterator to traverse the points composing the dataset; they
-  // can be points that define a cell or isolated. The user is responsible
-  // for deleting the iterator.
+  // can be points that define a cell (corner points) or isolated points.
+  // The user is responsible for deleting the iterator.
   // \post result_exists: result!=0
   virtual vtkGenericPointIterator *NewPointIterator()=0;
   
