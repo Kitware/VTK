@@ -101,7 +101,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.61.2.2");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.61.2.3");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -285,6 +285,7 @@ vtkglX::GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
 XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 {
   XVisualInfo   *v = NULL;
+  int           alpha;
   int           multi;
   int           stereo = 0;
   
@@ -300,45 +301,44 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
     }
 
   // try every possibility stoping when we find one that works
-  for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
+  for (alpha = this->AlphaBitPlanes; !v && alpha >= 0; alpha--)
     {
-    for (multi = this->MultiSamples; !v && multi >= 0; multi--)
+    for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
       {
-      if (v) 
+      for (multi = this->MultiSamples; !v && multi >= 0; multi--)
         {
-        XFree(v);
-        }
-      v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
-                                            this->DoubleBuffer, 
-                                            stereo, multi,
-                                            this->AlphaBitPlanes);
-      if (v && this->StereoCapableWindow && !stereo)
-        {
-        // requested a stereo capable window but we could not get one
-        this->StereoCapableWindow = 0;
+        if (v) 
+          {
+          XFree(v);
+          }
+        v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
+                                               this->DoubleBuffer, 
+                                               stereo, multi, alpha);
+        if (v)
+          {
+          this->StereoCapableWindow = stereo;
+          this->MultiSamples = multi;
+          this->AlphaBitPlanes = alpha;
+          }
         }
       }
     }
-  for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
+  for (alpha = this->AlphaBitPlanes; !v && alpha >= 0; alpha--)
     {
-    for (multi = this->MultiSamples; !v && multi >= 0; multi--)
+    for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
       {
-      if (v) 
+      for (multi = this->MultiSamples; !v && multi >= 0; multi--)
         {
-        XFree(v);
-        }
-      v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
-                                            !this->DoubleBuffer, 
-                                            stereo, multi,
-                                            this->AlphaBitPlanes);
-      if (v)
-        {
-        this->DoubleBuffer = !this->DoubleBuffer;
-        }
-      if (v && this->StereoCapableWindow && !stereo)
-        {
-        // requested a stereo capable window but we could not get one
-        this->StereoCapableWindow = 0;
+        v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
+                                               !this->DoubleBuffer, 
+                                               stereo, multi, alpha);
+        if (v)
+          {
+          this->DoubleBuffer = !this->DoubleBuffer;
+          this->StereoCapableWindow = stereo;
+          this->MultiSamples = multi;
+          this->AlphaBitPlanes = alpha;
+          }
         }
       }
     }
