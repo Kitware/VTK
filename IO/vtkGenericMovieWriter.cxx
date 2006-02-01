@@ -15,8 +15,9 @@
 #include "vtkGenericMovieWriter.h"
 
 #include "vtkImageData.h"
+#include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkGenericMovieWriter, "1.2");
+vtkCxxRevisionMacro(vtkGenericMovieWriter, "1.3");
 
 //---------------------------------------------------------------------------
 vtkGenericMovieWriter::vtkGenericMovieWriter()
@@ -48,6 +49,7 @@ vtkImageData *vtkGenericMovieWriter::GetInput()
   return (vtkImageData *)(this->Inputs[0]);
 }
 
+
 //----------------------------------------------------------------------------
 void vtkGenericMovieWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -57,3 +59,46 @@ void vtkGenericMovieWriter::PrintSelf(ostream& os, vtkIndent indent)
      << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "Error: " << this->Error << endl;
 }
+
+//----------------------------------------------------------------------------
+static const char *vtkMovieWriterErrorStrings[] = {
+  "Unassigned Error", 
+  "Initialize Error",
+  "No Input Error",
+  "Can Not Compress Error",
+  "Can Not Format Error",
+  "Changed Resolution Error",
+  NULL
+};
+
+const char *vtkGenericMovieWriter::GetStringFromErrorCode(unsigned long error)
+{
+  static unsigned long numerrors = 0;
+  if(error < UserError)
+    {
+    return vtkErrorCode::GetStringFromErrorCode(error);
+    }
+  else
+    {
+    error -= UserError;
+    }
+  
+  if (!numerrors)
+    {
+    while (vtkMovieWriterErrorStrings[numerrors] != NULL)
+      {
+      numerrors++;
+      }
+    }
+
+  if (error < numerrors)
+    {
+    return vtkMovieWriterErrorStrings[error];
+    }
+  else
+    {
+    return "Unknown Error";
+    }
+}
+
+

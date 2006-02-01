@@ -40,7 +40,7 @@ public:
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAVIWriter);
-vtkCxxRevisionMacro(vtkAVIWriter, "1.4");
+vtkCxxRevisionMacro(vtkAVIWriter, "1.5");
 
 //---------------------------------------------------------------------------
 vtkAVIWriter::vtkAVIWriter()
@@ -72,11 +72,13 @@ void vtkAVIWriter::Start()
   if ( this->GetInput() == NULL )
     {
     vtkErrorMacro(<<"Write:Please specify an input!");
+    this->SetErrorCode(vtkGenericMovieWriter::NoInputError);
     return;
     }
   if (!this->FileName)
     {
     vtkErrorMacro(<<"Write:Please specify a FileName");
+    this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return;
     }
   
@@ -95,6 +97,7 @@ void vtkAVIWriter::Start()
   if (hr != 0)
     {         
     vtkErrorMacro("Unable to open " << this->FileName);         
+    this->SetErrorCode(vtkErrorMacro::CannotOpenFileError);
     return; 
     }  
 
@@ -126,7 +129,7 @@ void vtkAVIWriter::Start()
   opts.fccHandler=mmioFOURCC('m','s','v','c');
   opts.dwQuality = 10000;
   opts.dwBytesPerSecond = 0;
-  opts.dwFlags = 8;
+  opts.dwFlags = AVICOMPRESSF_VALID;
 
 //  if (!AVISaveOptions(NULL, 0, 
 //                      1, &this->Internals->Stream, 
@@ -142,6 +145,7 @@ void vtkAVIWriter::Start()
                               &opts, NULL) != AVIERR_OK)
     {
     vtkErrorMacro("Unable to compress " << this->FileName);         
+    this->SetErrorCode(vtkGenericMovieWriter::CanNotCompress);
     return;
     }  
   
@@ -166,6 +170,7 @@ void vtkAVIWriter::Start()
                          this->Internals->lpbi, this->Internals->lpbi->biSize))
     {
     vtkErrorMacro("Unable to format " << this->FileName << " Most likely this means that the video compression scheme you seleted could not handle the data. Try selecting a different compression scheme." );         
+    this->SetErrorCode(vtkGenericMovieWriter::CanNotFormat);
     return;
     }
 
