@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAVIWriter.h
+  Module:    vtkFFMPEGWriter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,38 +12,35 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAVIWriter - Writes Windows AVI files.
+// .NAME vtkFFMPEGWriter - Uses the FFMPEG library to write video files.
 // .SECTION Description
-// vtkAVIWriter writes AVI files. The data type
-// of the file is unsigned char regardless of the input type.
-// .SECTION See Also
-// vtkGenericMovieWriter vtkMPEG2Writer
+// vtkFFMPEGWriter is an adapter that allows VTK to use the LGPL'd FFMPEG 
+// library to write movie files. FFMPEG can create a variety of multimedia
+// file formats and can use a variety of encoding algorithms (codecs). 
+// This class creates .avi files containing MP43 encoded video without audio.
+//
+// .SECTION See Also vtkGenericMovieWriter vtkAVIWriter vtkMPEG2Writer
 
-#ifndef __vtkAVIWriter_h
-#define __vtkAVIWriter_h
+#ifndef __vtkFFMPEGWriter_h
+#define __vtkFFMPEGWriter_h
 
 #include "vtkGenericMovieWriter.h"
 
-class vtkAVIWriterInternal;
+class vtkFFMPEGWriterInternal;
 
-class VTK_IO_EXPORT vtkAVIWriter : public vtkGenericMovieWriter
+class VTK_IO_EXPORT vtkFFMPEGWriter : public vtkGenericMovieWriter
 {
 public:
-  static vtkAVIWriter *New();
-  vtkTypeRevisionMacro(vtkAVIWriter,vtkGenericMovieWriter);
+  static vtkFFMPEGWriter *New();
+  vtkTypeRevisionMacro(vtkFFMPEGWriter,vtkGenericMovieWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // These methods start writing an AVI file, write a frame to the file
+  // These methods start writing an Movie file, write a frame to the file
   // and then end the writing process.
   void Start();
   void Write();
   void End();
-
-  // Description:
-  // Set/Get the frame rate, in frame/s.
-  vtkSetClampMacro(Rate, int, 1, 5000);
-  vtkGetMacro(Rate, int);
 
   // Description:
   // Set/Get the compression quality.
@@ -53,19 +50,17 @@ public:
   vtkGetMacro(Quality, int);
   
 protected:
-  vtkAVIWriter();
-  ~vtkAVIWriter();
-  
-  vtkAVIWriterInternal *Internals;
+  vtkFFMPEGWriter();
+  ~vtkFFMPEGWriter();
 
-  int Rate;
-  int Time;
+  vtkFFMPEGWriterInternal *Internals;
 
+  int Initialized;
   int Quality;
 
 private:
-  vtkAVIWriter(const vtkAVIWriter&); // Not implemented
-  void operator=(const vtkAVIWriter&); // Not implemented
+  vtkFFMPEGWriter(const vtkFFMPEGWriter&); // Not implemented
+  void operator=(const vtkFFMPEGWriter&); // Not implemented
 };
 
 #endif
