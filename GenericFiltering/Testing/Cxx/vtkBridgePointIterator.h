@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkBridgePointIterator - Implementation of vtkGenericPointIterator.
 // .SECTION Description
-// It is just an example that show how to implement the Generic. It is also
-// used for testing and evaluating the Generic.
+// It is just an example that show how to implement the Generic API. It is also
+// used for testing and evaluating the Generic framework.
 // .SECTION See Also
 // vtkGenericPointIterator, vtkBridgeDataSet
 

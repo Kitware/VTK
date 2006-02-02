@@ -14,8 +14,7 @@
 =========================================================================*/
 // .NAME vtkBridgePointIterator - Implementation of vtkGenericPointIterator.
 // .SECTION Description
-// It is just an example that show how to implement the Generic. It is also
-// used for testing and evaluating the Generic.
+// It iterates over the corner points of a cell.
 // .SECTION See Also
 // vtkGenericPointIterator, vtkBridgeDataSet
 

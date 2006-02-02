@@ -12,7 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBridgeCellIteratorOnCellBoundaries - Iterate over cells of a dataset.
+// .NAME vtkBridgeCellIteratorOnCellBoundaries - Iterate over boundary cells of
+// a cell.
+// 
 // .SECTION See Also
 // vtkBridgeCellIterator, vtkBridgeDataSet, vtkBridgeCellIteratorStrategy
 
