@@ -12,10 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBridgePointIteratorOne - Implementation of vtkGenericPointIterator.
-// .SECTION Description
-// It is just an example that show how to implement the Generic. It is also
-// used for testing and evaluating the Generic.
+// .NAME vtkBridgePointIteratorOne - Iterate over one point of a dataset.
 // .SECTION See Also
 // vtkGenericPointIterator, vtkBridgeDataSet
 
