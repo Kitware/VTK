@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkLookupTable, "1.103");
+vtkCxxRevisionMacro(vtkLookupTable, "1.104");
 vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -919,6 +919,7 @@ void vtkLookupTable::DeepCopy(vtkLookupTable *lut)
     return;
     }
   this->Alpha               = lut->Alpha;
+  this->UseMagnitude        = lut->UseMagnitude;
   this->VectorMode          = lut->VectorMode;
   this->VectorComponent     = lut->VectorComponent;
   this->Scale               = lut->Scale;
