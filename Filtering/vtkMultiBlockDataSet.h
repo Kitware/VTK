@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMultiBlockDataSet - abstract superclass for hierarchical datasets
+// .NAME vtkMultiBlockDataSet -  Composite dataset that organize datasets in blocks
 // .SECTION Description
 // vtkMultiBlockDataSet is a vtkCompositeDataSet that stores
 // a hierarchy of datasets. The dataset collection consists of

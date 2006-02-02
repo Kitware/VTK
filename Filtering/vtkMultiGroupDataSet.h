@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMultiGroupDataSet - abstract superclass for multigroup datasets
+// .NAME vtkMultiGroupDataSet -  Composite dataset that organize datasets in groups
 // .SECTION Description
 // vtkMultiGroupDataSet is a vtkCompositeDataSet that stores
 // a hierarchy of datasets. The dataset collection consists of

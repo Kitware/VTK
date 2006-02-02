@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalDataSet - abstract superclass for hierarchical datasets
+// .NAME vtkHierarchicalDataSet - Composite dataset that organize datasets in levels
 // .SECTION Description
 // vtkHierarchicalDataSet is a vtkCompositeDataSet that stores
 // a hierarchy of datasets. The dataset collection consists of
