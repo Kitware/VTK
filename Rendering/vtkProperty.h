@@ -229,6 +229,10 @@ public:
   void LoadMaterial(const char* name);
 
   // Description:
+  // Load the material given the contents of the material file.
+  void LoadMaterialFromString(const char* materialxml);
+
+  // Description:
   // Load the material given the material representation.
   void LoadMaterial(vtkXMLMaterial*);
   

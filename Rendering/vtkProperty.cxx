@@ -32,12 +32,11 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLMaterial.h"
 #include "vtkXMLMaterialParser.h"
-#include "vtkXMLMaterialReader.h"
 #include "vtkXMLShader.h"
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.60");
+vtkCxxRevisionMacro(vtkProperty, "1.61");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -297,6 +296,23 @@ void vtkProperty::LoadMaterial(const char* name)
     {
     vtkErrorMacro("Failed to create Material : " << name);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkProperty::LoadMaterialFromString(const char* materialxml)
+{
+  if (!materialxml)
+    {
+    this->LoadMaterial(static_cast<vtkXMLMaterial*>(0));
+    return;
+    }
+  vtkXMLMaterialParser* parser = vtkXMLMaterialParser::New();
+  vtkXMLMaterial* material = vtkXMLMaterial::New();
+  parser->SetMaterial(material);
+  parser->Parse(materialxml);
+  parser->Delete();
+  this->LoadMaterial(material);
+  material->Delete();
 }
 
 //----------------------------------------------------------------------------
