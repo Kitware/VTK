@@ -36,7 +36,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.61");
+vtkCxxRevisionMacro(vtkProperty, "1.62");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -44,6 +44,119 @@ vtkInstantiatorNewMacro(vtkProperty);
 //----------------------------------------------------------------------------
 
 // Construct object with object color, ambient color, diffuse color,
+
+enum IVarEnum {
+  IVarNone = 0,
+  IVarColor,
+  IVarAmbientColor,
+  IVarDiffuseColor,
+  IVarSpecularColor,
+  IVarEdgeColor,
+  IVarAmbient,
+  IVarDiffuse,
+  IVarSpecular,
+  IVarSpecularPower,
+  IVarOpacity,
+
+  IVarPointSize,
+  IVarLineWidth,
+
+  IVarLineStipplePattern,
+  IVarLineStippleRepeatFactor,
+  IVarInterpolation,
+  IVarRepresentation,
+  IVarEdgeVisibility,
+  IVarBackfaceCulling,
+  IVarFrontfaceCulling
+};
+
+static IVarEnum XMLMemberToIvar( const char* name )
+{
+  if ( (strcmp(name,"Color") == 0) )
+    {
+    return IVarColor;
+    }
+  else if (strcmp(name,"AmbientColor") == 0)
+    {
+    return IVarAmbientColor;
+    }
+  else if (strcmp(name,"DiffuseColor") == 0)
+    {
+    return IVarDiffuseColor;
+    }
+  else if (strcmp(name,"SpecularColor") == 0)
+    {
+    return IVarSpecularColor;
+    }
+  else if (strcmp(name,"EdgeColor") == 0)
+    {
+    return IVarEdgeColor;
+    }
+  else if (strcmp(name,"Ambient") == 0)
+    {
+    return IVarAmbient;
+    }
+  else if (strcmp(name,"Diffuse") == 0)
+    {
+    return IVarDiffuse;
+    }
+  else if (strcmp(name,"Specular") == 0)
+    {
+    return IVarSpecular;
+    }
+  else if (strcmp(name,"SpecularPower") == 0)
+    {
+    return IVarSpecularPower;
+    }
+  else if (strcmp(name,"Opacity") == 0)
+    {
+    return IVarOpacity;
+    }
+  else if (strcmp(name,"PointSize") == 0)
+    {
+    return IVarPointSize;
+    }
+  else if (strcmp(name,"LineWidth") == 0)
+    {
+    return IVarLineWidth;
+    }
+  else if (strcmp(name,"LineStipplePattern") == 0)
+    {
+    return IVarLineStipplePattern;
+    }
+  else if (strcmp(name,"LineStippleRepeatFactor") == 0)
+    {
+    return IVarLineStippleRepeatFactor;
+    }
+  else if (strcmp(name,"Interpolation") == 0)
+    {
+    return IVarInterpolation;
+    }
+  else if (strcmp(name,"Representation") == 0)
+    {
+    return IVarRepresentation;
+    }
+  else if (strcmp(name,"EdgeVisibility") == 0) 
+    {
+    return IVarEdgeVisibility;
+    }
+  else if (strcmp(name,"BackfaceCulling") == 0)
+    {
+    return IVarBackfaceCulling;
+    }
+  else if (strcmp(name,"FrontfaceCulling") == 0)
+    {
+    return IVarFrontfaceCulling;
+    }
+  else
+    {
+    return IVarNone;
+    }
+
+
+};
+
+
 // specular color, and edge color white; ambient coefficient=0; diffuse 
 // coefficient=0; specular coefficient=0; specular power=1; Gouraud shading;
 // and surface representation. Backface and frontface culling are off.
@@ -331,11 +444,12 @@ void vtkProperty::LoadMaterial(vtkXMLMaterial* material)
       this->ShaderProgram->SetMaterial(this->Material);
       this->ShaderProgram->ReadMaterial();
       }
-    else
+    // Some materials may have no shaders and only set ivars for vtkProperty.
+    else if( (material->GetNumberOfVertexShaders() != 0) ||
+             (material->GetNumberOfFragmentShaders() != 0) )
       {
       vtkErrorMacro("Failed to setup the shader.");
-      this->SetShaderProgram(0); // failed to read the material.
-      // dump the shader.
+      this->SetShaderProgram(0); // failed to create shaders.
       }
     }
   else
@@ -392,51 +506,90 @@ void vtkProperty::LoadMember(vtkXMLDataElement* elem)
     return;
     }
 
-  const char* type = elem->GetAttribute("type");
-  if (!type)
-    {
-    vtkErrorMacro("Element with name=" << name 
-      << " missing required attribute 'type'.");
-    return;
-    }
-
-  int number_of_elements;
-  if (!elem->GetScalarAttribute("number_of_elements", number_of_elements))
-    {
-    vtkErrorMacro("Element with name=" << name << " missing required attribute "
-      "'number_of_elements'");
-    return;
-    }
   if (!elem->GetAttribute("value"))
     {
     vtkErrorMacro("Element with name=" << name << " missing required attribute "
       "'value'");
     return;
     }
+  int number_of_elements;
 
   int* pint = 0;
   double* pdouble = 0;
   float* pfloat = 0;
   int success = 0;
 
-  if (strcmp(type,"Double") == 0)
+  IVarEnum member = XMLMemberToIvar( name );
+
+  // Sort to find the correct number of ivar values
+  if ( member == IVarColor ||
+       member == IVarAmbientColor||
+       member == IVarDiffuseColor||
+       member == IVarSpecular||
+       member == IVarEdgeColor )
+    {
+    number_of_elements = 3;
+    }
+  else if ( member == IVarAmbient ||
+            member == IVarDiffuse ||
+            member == IVarSpecular ||
+            member == IVarSpecularPower ||
+            member == IVarSpecularColor||
+            member == IVarOpacity ||
+            member == IVarPointSize ||
+            member == IVarLineWidth ||
+            member == IVarLineStipplePattern ||
+            member == IVarLineStippleRepeatFactor ||
+            member == IVarInterpolation ||
+            member == IVarRepresentation ||
+            member == IVarEdgeVisibility || 
+            member == IVarBackfaceCulling ||
+            member == IVarFrontfaceCulling )
+    {
+    number_of_elements = 1;
+    }
+  else
+    {
+    vtkErrorMacro("Invalid name='" << name);
+    return;
+    }
+
+
+
+  if ( (member == IVarColor) ||
+       (member == IVarAmbientColor) ||
+       (member == IVarDiffuseColor) ||
+       (member == IVarSpecularColor) ||
+       (member == IVarEdgeColor) ||
+       (member == IVarAmbient) ||
+       (member == IVarDiffuse) ||
+       (member == IVarSpecular) ||
+       (member == IVarSpecularPower) ||
+       (member == IVarOpacity) )
     {
     pdouble = new double[number_of_elements];
     success = elem->GetVectorAttribute("value", number_of_elements, pdouble);
     }
-  else if (strcmp(type, "Float") == 0)
+  else if( (member == IVarPointSize) ||
+           (member == IVarLineWidth) )
     {
     pfloat = new float[number_of_elements];
     success = elem->GetVectorAttribute("value", number_of_elements, pfloat);
     }
-  else if (strcmp(type,"Int") == 0)
+  else if ( (member == IVarLineStipplePattern) ||
+            (member == IVarLineStippleRepeatFactor) ||
+            (member == IVarInterpolation) ||
+            (member == IVarRepresentation) ||
+            (member == IVarEdgeVisibility) ||
+            (member == IVarBackfaceCulling) ||
+            (member == IVarFrontfaceCulling) )
     {
     pint = new int[number_of_elements];
     success = elem->GetVectorAttribute( "value", number_of_elements, pint);
     }
   else
     {
-    vtkErrorMacro("Invalid type='" << type << "' for name=" << name);
+    vtkErrorMacro("Invalid name='" << name);
     return;
     }
 
@@ -451,85 +604,85 @@ void vtkProperty::LoadMember(vtkXMLDataElement* elem)
 
   if (pdouble)
     {
-    if (strcmp(name,"Color") == 0)
+    if (member == IVarColor)
       {
       this->SetColor(pdouble);
       }
-    else if (strcmp(name, "AmbientColor") == 0)
+    else if (member == IVarAmbientColor)
       {
       this->SetAmbientColor(pdouble);
       }
-    else if (strcmp(name, "DiffuseColor") == 0)
+    else if (member == IVarDiffuseColor)
       {
       this->SetDiffuseColor(pdouble);
       }
-    else if (strcmp(name, "SpecularColor") == 0)
+    else if (member == IVarSpecularColor)
       {
       this->SetSpecularColor(pdouble);
       }
-    else if (strcmp(name, "EdgeColor") == 0)
+    else if (member == IVarEdgeColor)
       {
       this->SetEdgeColor(pdouble);
       }
-    else if (strcmp(name, "Ambient") == 0)
+    else if (member == IVarAmbient)
       {
       this->SetAmbient(*pdouble);
       }
-    else if (strcmp(name, "Diffuse") == 0)
+    else if (member == IVarDiffuse)
       {
       this->SetDiffuse(*pdouble);
       }
-    else if (strcmp(name, "Specular") == 0)
+    else if (member == IVarSpecular)
       {
       this->SetSpecular(*pdouble);
       }
-    else if (strcmp(name, "SpecularPower") == 0)
+    else if (member == IVarSpecularPower)
       {
       this->SetSpecularPower(*pdouble);
       }
-    else if (strcmp(name,"Opacity") == 0)
+    else if (member == IVarOpacity)
       {
       this->SetOpacity(*pdouble);
       }
     }
   else if (pfloat)
     {
-    if (strcmp(name, "PointSize") == 0)
+    if (member == IVarPointSize)
       {
       this->SetPointSize(*pfloat);
       }
-    else if (strcmp(name, "LineWidth") == 0)
+    else if (member == IVarLineWidth)
       {
       this->SetLineWidth(*pfloat);
       }
     }
   else if (pint)
     {
-    if (strcmp(name, "LineStipplePattern") == 0)
+    if (member == IVarLineStipplePattern)
       {
       this->SetLineStipplePattern(*pint);
       }
-    else if (strcmp(name, "LineStippleRepeatFactor") == 0)
+    else if (member == IVarLineStippleRepeatFactor)
       {
       this->SetLineStippleRepeatFactor(*pint);
       }
-    else if (strcmp(name, "Interpolation") == 0)
+    else if (member == IVarInterpolation)
       {
       this->SetInterpolation(*pint);
       }
-    else if (strcmp(name, "Representation") == 0)
+    else if (member == IVarRepresentation)
       {
       this->SetRepresentation(*pint);
       }
-    else if (strcmp(name, "EdgeVisibility") == 0)
+    else if (member == IVarEdgeVisibility)
       {
       this->SetEdgeVisibility(*pint);
       }
-    else if (strcmp(name, "BackfaceCulling") == 0)
+    else if (member == IVarBackfaceCulling)
       {
       this->SetBackfaceCulling(*pint);
       }
-    else if (strcmp(name, "FrontfaceCulling") == 0)
+    else if (member == IVarFrontfaceCulling)
       {
       this->SetFrontfaceCulling(*pint);
       }
