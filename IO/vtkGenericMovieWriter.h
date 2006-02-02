@@ -53,8 +53,23 @@ public:
   virtual void End() =0;
   
   // Description:
-  // Was there an error on the last read performed?
+  // Was there an error on the last write performed?
   vtkGetMacro(Error,int);
+
+  // Description:
+  // Converts vtkErrorCodes and vtkGenericMovieWriter errors to strings.
+  static const char *GetStringFromErrorCode(unsigned long event);
+
+  //BTX
+  enum MovieWriterErrorIds {
+    UserError = 40000, //must match vtkErrorCode::UserError
+    InitError,
+    NoInputError,
+    CanNotCompress,
+    CanNotFormat,
+    ChangedResolutionError
+  };
+  //ETX
 
 protected:
   vtkGenericMovieWriter();

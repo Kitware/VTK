@@ -20,6 +20,7 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtkErrorCode.h"
 
 #include <vtkstd/map>
 #include <vtkstd/string>
@@ -177,7 +178,7 @@ int vtkMPEG2WriterInternal::RemoveImage(const char* fname)
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMPEG2Writer);
-vtkCxxRevisionMacro(vtkMPEG2Writer, "1.3.8.2");
+vtkCxxRevisionMacro(vtkMPEG2Writer, "1.3.8.3");
 
 //---------------------------------------------------------------------------
 vtkMPEG2Writer::vtkMPEG2Writer()
@@ -202,16 +203,19 @@ void vtkMPEG2Writer::Start()
   if ( this->Internals )
     {
     vtkErrorMacro("Movie already started");
+    this->SetErrorCode(vtkGenericMovieWriter::InitError);
     return;
     }
   if ( this->GetInput() == NULL )
     {
     vtkErrorMacro(<<"Write:Please specify an input!");
+    this->SetErrorCode(vtkGenericMovieWriter::NoInputError);
     return;
     }
   if (!this->FileName)
     {
     vtkErrorMacro(<<"Write:Please specify a FileName");
+    this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return;
     }
 
@@ -231,6 +235,7 @@ void vtkMPEG2Writer::Write()
     {
     vtkErrorMacro("Movie not started");
     this->Error = 1;
+    this->SetErrorCode(vtkGenericMovieWriter::InitError);
     return;
     }
 
@@ -251,6 +256,7 @@ void vtkMPEG2Writer::Write()
   if ( this->Internals->Dim[0] != dim[0] || this->Internals->Dim[1] != dim[1] )
     {
     vtkErrorMacro("Image not of the same size");
+    this->SetErrorCode(vtkGenericMovieWriter::ChangedResolutionError);
     return;
     }
 
@@ -297,6 +303,7 @@ void vtkMPEG2Writer::Initialize()
     {
     sprintf(str->errortext,"Couldn't create output file %s",this->FileName);
     (*(str->report_error))(str->errortext);
+    this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     }
 
   this->Internals->Init();
