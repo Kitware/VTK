@@ -19,7 +19,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDirectory, "1.27");
+vtkCxxRevisionMacro(vtkDirectory, "1.28");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -127,7 +127,6 @@ int vtkDirectory::Open(const char* name)
   delete [] buf;
   
   // Loop through names
-  int i = 0;
   do 
     {
     this->Files->InsertNextValue(data.name);
