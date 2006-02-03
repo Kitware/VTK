@@ -32,9 +32,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.1");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.2");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
-vtkCxxSetObjectMacro(vtkBiDimensionalRepresentation2D,HandleRepresentation,vtkHandleRepresentation);
 
 
 //----------------------------------------------------------------------
@@ -42,11 +41,11 @@ vtkBiDimensionalRepresentation2D::vtkBiDimensionalRepresentation2D()
 {
   // By default, use one of these handles
   this->HandleRepresentation  = vtkPointHandleRepresentation2D::New();
-
   this->Point1Representation = NULL;
   this->Point2Representation = NULL;
   this->Point3Representation = NULL;
   this->Point4Representation = NULL;
+  this->InstantiateHandleRepresentation();
 
   this->Tolerance = 5;
   this->Placed = 0;
@@ -116,6 +115,33 @@ vtkBiDimensionalRepresentation2D::~vtkBiDimensionalRepresentation2D()
 }
 
 //----------------------------------------------------------------------
+void vtkBiDimensionalRepresentation2D
+::SetHandleRepresentation(vtkHandleRepresentation *handle)
+{
+  if ( handle == NULL || handle == this->HandleRepresentation )
+    {
+    return;
+    }
+  
+  this->Modified();
+  this->HandleRepresentation->Delete();
+  this->HandleRepresentation = handle;
+  this->HandleRepresentation->Register(this);
+  
+  this->Point1Representation->Delete();
+  this->Point2Representation->Delete();
+  this->Point3Representation->Delete();
+  this->Point4Representation->Delete();
+
+  this->Point1Representation = NULL;
+  this->Point2Representation = NULL;
+  this->Point3Representation = NULL;
+  this->Point4Representation = NULL;
+
+  this->InstantiateHandleRepresentation();
+}
+
+//----------------------------------------------------------------------
 void vtkBiDimensionalRepresentation2D::GetPoint1WorldPosition(double pos[3])
 {
   this->Point1Representation->GetWorldPosition(pos);
@@ -146,6 +172,7 @@ void vtkBiDimensionalRepresentation2D::SetPoint1DisplayPosition(double x[3])
   double p[3];
   this->Point1Representation->GetWorldPosition(p);
   this->Point1Representation->SetWorldPosition(p);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -155,6 +182,7 @@ void vtkBiDimensionalRepresentation2D::SetPoint2DisplayPosition(double x[3])
   double p[3];
   this->Point2Representation->GetWorldPosition(p);
   this->Point2Representation->SetWorldPosition(p);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -164,6 +192,7 @@ void vtkBiDimensionalRepresentation2D::SetPoint3DisplayPosition(double x[3])
   double p[3];
   this->Point3Representation->GetWorldPosition(p);
   this->Point3Representation->SetWorldPosition(p);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -173,6 +202,7 @@ void vtkBiDimensionalRepresentation2D::SetPoint4DisplayPosition(double x[3])
   double p[3];
   this->Point4Representation->GetWorldPosition(p);
   this->Point4Representation->SetWorldPosition(p);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -290,16 +320,21 @@ int vtkBiDimensionalRepresentation2D::ComputeInteractionState(int X, int Y, int 
 }
 
 //----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::StartWidgetInteraction(double e[2])
+void vtkBiDimensionalRepresentation2D::StartWidgetDefinition(double e[2])
 {
   double pos[3];
   pos[0] = e[0];
   pos[1] = e[1];
   pos[2] = 0.0;
+
   this->SetPoint1DisplayPosition(pos);
   this->SetPoint2DisplayPosition(pos);
   this->SetPoint3DisplayPosition(pos);
   this->SetPoint4DisplayPosition(pos);
+  
+  this->StartEventPosition[0] = pos[0];
+  this->StartEventPosition[1] = pos[1];
+  this->StartEventPosition[2] = pos[2];
 }
 
 //----------------------------------------------------------------------
@@ -310,6 +345,7 @@ void vtkBiDimensionalRepresentation2D::Point2WidgetInteraction(double e[2])
   pos[1] = e[1];
   pos[2] = 0.0;
   this->SetPoint2DisplayPosition(pos);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -348,6 +384,16 @@ void vtkBiDimensionalRepresentation2D::Point3WidgetInteraction(double e[2])
   p4[0] = closest[0] - dist*slope2[0];
   p4[1] = closest[1] - dist*slope2[1];
   this->SetPoint4DisplayPosition(p4);
+  
+  this->Modified();
+}
+
+//----------------------------------------------------------------------
+void vtkBiDimensionalRepresentation2D::StartWidgetManipulation(double e[2])
+{
+  this->StartEventPosition[0] = e[0];
+  this->StartEventPosition[1] = e[1];
+  this->StartEventPosition[2] = 0.0;
 }
 
 //----------------------------------------------------------------------
@@ -359,69 +405,103 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
   pos[0] = e[0];
   pos[1] = e[1];
   pos[2] = 0.0;
+
+  double p1[3], p2[3], p3[3], p4[3], de[3], t;
+  this->GetPoint1DisplayPosition(p1);
+  this->GetPoint2DisplayPosition(p2);
+  this->GetPoint1DisplayPosition(p3);
+  this->GetPoint2DisplayPosition(p4);
+  de[0] = pos[0] - this->StartEventPosition[0];
+  de[1] = pos[1] - this->StartEventPosition[1];
+  p1[2] = p2[2] = p3[2] = p4[2] = de[2] = 0.0;
+  vtkMath::Normalize(de);
+
+  // Depending on the state, different motions are allowed.
   if ( this->InteractionState == OnL1 )
     {
-    cout << "Moving L1\n";
+    // Start by getting the coordinates (P1,P2) defining Line1. Also get 
+    // characterisitics of Line1 including its slope, etc.
+    double p43[3];
+    p43[0] = p4[0] - p3[0];
+    p43[1] = p4[1] - p3[1];
+    p43[2] = 0.0;
+    vtkMath::Normalize(p43);
+  
+    // Project the motion on Line2
+    t = vtkMath::Dot(de,p43);
+    p1[0] += t*de[0];
+    p1[1] += t*de[1];
+    p2[0] += t*de[0];
+    p2[1] += t*de[1];
+
+    // Set the positions of P1 and P2.
+    this->SetPoint1DisplayPosition(p1);
+    this->SetPoint2DisplayPosition(p2);
+    this->Modified();
     }
   else if ( this->InteractionState == OnL2 )
     {
-    cout << "Moving L2\n";
     }
 }
 
 //----------------------------------------------------------------------
 void vtkBiDimensionalRepresentation2D::BuildRepresentation()
 {
-  // We don't worry about mtime 'cause the subclass deals with that
-  // Make sure the handles are up to date
-  this->Point1Representation->BuildRepresentation();
-  this->Point2Representation->BuildRepresentation();
-  this->Point3Representation->BuildRepresentation();
-  this->Point4Representation->BuildRepresentation();
-  
-  // Now bring the lines up to date
-  if ( ! this->Line1Visibility )
+  if ( this->GetMTime() > this->BuildTime || 
+       (this->Renderer && this->Renderer->GetVTKWindow() &&
+        this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
-    return;
-    }
-  
-  char str[256];
-  double p1[3], p2[3], p3[3], p4[3];
-  this->GetPoint1DisplayPosition(p1);
-  this->GetPoint2DisplayPosition(p2);
-  this->GetPoint3DisplayPosition(p3);
-  this->GetPoint4DisplayPosition(p4);
-  
-  double wp1[3], wp2[3], wp3[3], wp4[3];
-  this->GetPoint1WorldPosition(wp1);
-  this->GetPoint2WorldPosition(wp2);
-  this->GetPoint3WorldPosition(wp3);
-  this->GetPoint4WorldPosition(wp4);
-  
-  this->LinePoints->SetPoint(0,p1);
-  this->LinePoints->SetPoint(1,p2);
-  this->LinePoints->SetPoint(2,p3);
-  this->LinePoints->SetPoint(3,p4);
-  this->LinePoints->Modified();
-  
-  sprintf(str,"%0.3g",sqrt(vtkMath::Distance2BetweenPoints(wp1,wp2)));
-  this->L1TextMapper->SetInput(str);
-  this->L1TextActor->SetPosition(p2[0]+7,p2[1]+7);
+    this->BuildTime.Modified();
 
-  this->LineCells->Reset();
-  this->LineCells->InsertNextCell(2);
-  this->LineCells->InsertCellPoint(0);
-  this->LineCells->InsertCellPoint(1);
+    this->Point1Representation->BuildRepresentation();
+    this->Point2Representation->BuildRepresentation();
+    this->Point3Representation->BuildRepresentation();
+    this->Point4Representation->BuildRepresentation();
 
-  if ( this->Line2Visibility )
-    {
-    sprintf(str,"%0.3g",sqrt(vtkMath::Distance2BetweenPoints(wp3,wp4)));
-    this->L2TextMapper->SetInput(str);
-    this->L2TextActor->SetPosition(p4[0]+7,p4[1]+7);
+    // Now bring the lines up to date
+    if ( ! this->Line1Visibility )
+      {
+      return;
+      }
+
+    char str[256];
+    double p1[3], p2[3], p3[3], p4[3];
+    this->GetPoint1DisplayPosition(p1);
+    this->GetPoint2DisplayPosition(p2);
+    this->GetPoint3DisplayPosition(p3);
+    this->GetPoint4DisplayPosition(p4);
+
+    double wp1[3], wp2[3], wp3[3], wp4[3];
+    this->GetPoint1WorldPosition(wp1);
+    this->GetPoint2WorldPosition(wp2);
+    this->GetPoint3WorldPosition(wp3);
+    this->GetPoint4WorldPosition(wp4);
+
+    this->LinePoints->SetPoint(0,p1);
+    this->LinePoints->SetPoint(1,p2);
+    this->LinePoints->SetPoint(2,p3);
+    this->LinePoints->SetPoint(3,p4);
+    this->LinePoints->Modified();
+
+    sprintf(str,"%0.3g",sqrt(vtkMath::Distance2BetweenPoints(wp1,wp2)));
+    this->L1TextMapper->SetInput(str);
+    this->L1TextActor->SetPosition(p2[0]+7,p2[1]+7);
+
+    this->LineCells->Reset();
     this->LineCells->InsertNextCell(2);
-    this->LineCells->InsertCellPoint(2);
-    this->LineCells->InsertCellPoint(3);
-    }
+    this->LineCells->InsertCellPoint(0);
+    this->LineCells->InsertCellPoint(1);
+
+    if ( this->Line2Visibility )
+      {
+      sprintf(str,"%0.3g",sqrt(vtkMath::Distance2BetweenPoints(wp3,wp4)));
+      this->L2TextMapper->SetInput(str);
+      this->L2TextActor->SetPosition(p4[0]+7,p4[1]+7);
+      this->LineCells->InsertNextCell(2);
+      this->LineCells->InsertCellPoint(2);
+      this->LineCells->InsertCellPoint(3);
+      }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -461,6 +541,7 @@ void vtkBiDimensionalRepresentation2D::ReleaseGraphicsResources(vtkWindow *w)
 int vtkBiDimensionalRepresentation2D::RenderOverlay(vtkViewport *viewport)
 {
   this->BuildRepresentation();
+
   int count = this->LineActor->RenderOverlay(viewport);
   if ( this->Line1Visibility )
     {

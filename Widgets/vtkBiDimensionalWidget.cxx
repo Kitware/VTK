@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.1");
+vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.2");
 vtkStandardNewMacro(vtkBiDimensionalWidget);
 
 
@@ -301,6 +301,9 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
   vtkBiDimensionalWidget *self = reinterpret_cast<vtkBiDimensionalWidget*>(w);
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
+  double e[2];
+  e[0] = static_cast<double>(X);
+  e[1] = static_cast<double>(Y);
 
   // If we are placing the first point it's easy
   if ( self->WidgetState == vtkBiDimensionalWidget::Start )
@@ -308,10 +311,7 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
     self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkBiDimensionalWidget::Define;
     self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-    double e[2];
-    e[0] = static_cast<double>(X);
-    e[1] = static_cast<double>(Y);
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->StartWidgetInteraction(e);
+    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->StartWidgetDefinition(e);
     self->CurrentHandle = 0;
     self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
     reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->Line1VisibilityOn();
@@ -326,9 +326,6 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
     if ( self->CurrentHandle == 1 )
       {
       self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
-      double e[2];
-      e[0] = static_cast<double>(X);
-      e[1] = static_cast<double>(Y);
       reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->Point2WidgetInteraction(e);
       self->CurrentHandle++;
       self->Point2Widget->SetEnabled(1);
@@ -358,6 +355,7 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
       }
 
     self->GrabFocus(self->EventCallbackCommand);
+    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->StartWidgetManipulation(e);
     if ( state == vtkBiDimensionalRepresentation2D::NearP1 ||
          state == vtkBiDimensionalRepresentation2D::NearP2 ||
          state == vtkBiDimensionalRepresentation2D::NearP3 ||
@@ -410,17 +408,9 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
     self->EventCallbackCommand->SetAbortFlag(1);
     }
 
-  else //must be moving a handle or line, i.e., we are in manipulate state
+  else if ( self->LineSelected || self->HandleSelected )//must be moving a handle or line, i.e., we are in manipulate state
     {
-    int state = self->WidgetRep->ComputeInteractionState(X,Y);
-    if ( state != vtkBiDimensionalRepresentation2D::Outside )
-      {
-      self->RequestCursorShape(VTK_CURSOR_HAND);
-      }
-    else
-      {
-      self->RequestCursorShape(VTK_CURSOR_DEFAULT);
-      }
+    self->RequestCursorShape(VTK_CURSOR_HAND);
 
     // If moving a line, we deal with the events
     if ( self->LineSelected )
@@ -430,9 +420,21 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
       }
     else if ( self->HandleSelected )
       {
-      self->CurrentHandle = 0;
       // We invoke a mouse move and the handle(s) take care of it
       self->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+      }
+    }
+
+  else // just moving around, nothing yet selected
+    {
+    int state = self->WidgetRep->ComputeInteractionState(X,Y);
+    if ( state != vtkBiDimensionalRepresentation2D::Outside )
+      {
+      self->RequestCursorShape(VTK_CURSOR_HAND);
+      }
+    else
+      {
+      self->RequestCursorShape(VTK_CURSOR_DEFAULT);
       }
     }
 
@@ -453,6 +455,8 @@ void vtkBiDimensionalWidget::EndSelectAction(vtkAbstractWidget *w)
     return;
     }
 
+  self->LineSelected = 0;
+  self->HandleSelected = 0;
   self->ReleaseFocus();
   self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
   self->CurrentHandle = (-1);

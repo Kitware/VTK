@@ -143,9 +143,10 @@ public:
   // These are methods that satisfy vtkWidgetRepresentation's API.
   virtual void BuildRepresentation();
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
-  virtual void StartWidgetInteraction(double e[2]);
+  virtual void StartWidgetDefinition(double e[2]);
   virtual void Point2WidgetInteraction(double e[2]);
   virtual void Point3WidgetInteraction(double e[2]);
+  virtual void StartWidgetManipulation(double e[2]);
   virtual void WidgetInteraction(double e[2]);
   
   // Description:
@@ -186,7 +187,7 @@ protected:
 
   vtkTextMapper   *L2TextMapper;
   vtkActor2D      *L2TextActor;
-
+  
 private:
   vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&);  //Not implemented
   void operator=(const vtkBiDimensionalRepresentation2D&);  //Not implemented
