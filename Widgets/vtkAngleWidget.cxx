@@ -25,7 +25,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAngleWidget, "1.11");
+vtkCxxRevisionMacro(vtkAngleWidget, "1.12");
 vtkStandardNewMacro(vtkAngleWidget);
 
 
@@ -225,7 +225,7 @@ void vtkAngleWidget::SetEnabled(int enabling)
         this->CurrentRenderer);
       }
     }
-  else
+  else //disabling widget
     {
     if (this->WidgetRep)
       {

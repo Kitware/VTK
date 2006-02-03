@@ -67,7 +67,9 @@ public:
   void InstantiateHandleRepresentation();
 
   // Description:
-  // Set/Get the two handle representations used for the vtkDistanceWidget.
+  // Set/Get the two handle representations used for the vtkDistanceWidget. (Note:
+  // properties can be set by grabbing these representations and setting the
+  // properties appropriately.)
   vtkGetObjectMacro(Point1Representation,vtkHandleRepresentation);
   vtkGetObjectMacro(Point2Representation,vtkHandleRepresentation);
 
