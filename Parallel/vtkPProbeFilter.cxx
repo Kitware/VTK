@@ -18,7 +18,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiGroupDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.13");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.14");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -73,7 +73,7 @@ int vtkPProbeFilter::RequestData(vtkInformation *vtkNotUsed(request),
   if (!source || !source->GetNumberOfPoints())
     {
     int pieceNum = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-    vtkMultiBlockDataSet *tmpSource = vtkMultiBlockDataSet::SafeDownCast(
+    vtkMultiGroupDataSet *tmpSource = vtkMultiGroupDataSet::SafeDownCast(
       srcInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
     if (tmpSource)
       {
@@ -179,7 +179,7 @@ int vtkPProbeFilter::FillInputPortInformation(int port, vtkInformation *info)
     {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
     info->Set(vtkCompositeDataPipeline::INPUT_REQUIRED_COMPOSITE_DATA_TYPE(),
-              "vtkMultiBlockDataSet");
+              "vtkMultiGroupDataSet");
     }
   return 1;
 }
