@@ -16,6 +16,8 @@ vtkAngleRepresentation.cxx
 vtkAngleRepresentation2D.cxx
 vtkAngleWidget.cxx
 vtkBezierContourLineInterpolator.cxx
+vtkBiDimensionalRepresentation2D.cxx
+vtkBiDimensionalWidget.cxx
 vtkBorderRepresentation.cxx
 vtkBorderWidget.cxx
 vtkBoundedPlanePointPlacer.cxx
