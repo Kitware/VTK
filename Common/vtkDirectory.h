@@ -27,6 +27,8 @@
 
 #include "vtkObject.h"
 
+class vtkStringArray;
+
 class VTK_COMMON_EXPORT vtkDirectory : public vtkObject
 {
 public:
@@ -50,11 +52,15 @@ public:
 
   // Description:
   // Return the number of files in the current directory.
-  int GetNumberOfFiles() { return this->NumberOfFiles; }
+  int GetNumberOfFiles();
 
   // Description:
   // Return the file at the given index, the indexing is 0 based
   const char* GetFile(int index);
+
+  // Description:
+  // Get an array that contains all the file names.
+  vtkGetObjectMacro(Files, vtkStringArray);
 
   // Description:
   // Get the current working directory.
@@ -89,12 +95,13 @@ protected:
   void CleanUpFilesAndPath();
   vtkDirectory();
   ~vtkDirectory() ;
+
 private:
   char* Path;           // Path to Open'ed directory
-  char** Files;                 // Array of Files
-  int NumberOfFiles;            // Number if files in open directory
+  vtkStringArray *Files;    // VTK array of files
 
   static int CreateDirectoryInternal(const char* dir);
+
 private:
   vtkDirectory(const vtkDirectory&);  // Not implemented.
   void operator=(const vtkDirectory&);  // Not implemented.

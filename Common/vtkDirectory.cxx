@@ -13,12 +13,13 @@
 
 =========================================================================*/
 #include "vtkDirectory.h"
+#include "vtkStringArray.h"
 
 #include "vtkDebugLeaks.h"
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDirectory, "1.26");
+vtkCxxRevisionMacro(vtkDirectory, "1.27");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -34,27 +35,24 @@ vtkDirectory* vtkDirectory::New()
 }
 
 vtkDirectory::vtkDirectory() 
-  : Path(0), Files(0), NumberOfFiles(0)
+  : Path(0)
 {
+  this->Files = vtkStringArray::New();
 }
 
 
 void vtkDirectory::CleanUpFilesAndPath()
 {
-  for(int i =0; i < this->NumberOfFiles; i++)
-    {
-    delete [] this->Files[i];
-    }
-  delete [] this->Files;
+  this->Files->Reset();
   delete [] this->Path;
-  this->Files = 0;
   this->Path = 0;
-  this->NumberOfFiles = 0;
 }
 
 vtkDirectory::~vtkDirectory() 
 {
   this->CleanUpFilesAndPath();
+  this->Files->Delete();
+  this->Files = 0;
 }
 
 
@@ -62,6 +60,7 @@ vtkDirectory::~vtkDirectory()
 void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
 { 
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Files:  (" << this->Files << ")\n";
   if(!this->Path)
     {
     os << indent << "Directory not open\n";
@@ -71,9 +70,9 @@ void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Directory for: " <<  this->Path << "\n";
   os << indent << "Contains the following files:\n";
   indent = indent.GetNextIndent();
-  for(int i =0; i < this->NumberOfFiles; i++)
+  for(int i = 0; i < this->Files->GetNumberOfValues(); i++)
     {
-    os << indent << this->Files[i] << "\n";
+    os << indent << this->Files->GetValue(i) << "\n";
     }
 }
 
@@ -94,6 +93,7 @@ int vtkDirectory::Open(const char* name)
 {
   // clean up from any previous open
   this->CleanUpFilesAndPath();
+
   char* buf=0;
   int n = static_cast<int>(strlen(name));
   if (name[n - 1] == '/') 
@@ -114,44 +114,28 @@ int vtkDirectory::Open(const char* name)
 #else
   intptr_t srchHandle;
 #endif
+
   srchHandle = _findfirst(buf, &data);
+
   if (srchHandle == -1)
     {
-    this->NumberOfFiles = 0;
     _findclose(srchHandle);
     delete[] buf;
     return 0;
     }
   
-  this->NumberOfFiles = 1;
-  
-  while(_findnext(srchHandle, &data) != -1)
-    {
-    this->NumberOfFiles++;
-    }
-  this->Files = new char*[this->NumberOfFiles];
-  // close the handle 
-  _findclose(srchHandle);
-  // Now put them into the file array
-  srchHandle = _findfirst(buf, &data);
   delete [] buf;
-  
-  if (srchHandle == -1)
-    {
-    this->NumberOfFiles = 0;
-    _findclose(srchHandle);
-    return 0;
-    }
   
   // Loop through names
   int i = 0;
   do 
     {
-    this->Files[i] = strcpy(new char[strlen(data.name)+1], data.name);
-    i++;
-    } 
+    this->Files->InsertNextValue(data.name);
+    }
   while (_findnext(srchHandle, &data) != -1);
+
   this->Path = strcpy(new char[strlen(name)+1], name);
+
   return _findclose(srchHandle) != -1;
 }
 
@@ -175,33 +159,22 @@ int vtkDirectory::Open(const char* name)
   this->CleanUpFilesAndPath();
 
   DIR* dir = opendir(name);
+
   if (!dir) 
     {
     return 0;
     }
-  this->NumberOfFiles = 0;
+
   dirent* d =0;
   
   for (d = readdir(dir); d; d = readdir(dir))
     {
-    this->NumberOfFiles++;
-    }
-  this->Files = new char*[this->NumberOfFiles];
-  closedir(dir);
-  
-  dir = opendir(name);
-  if (!dir) 
-    {
-    return 0;
-    }
-  int i = 0;
-  for (d = readdir(dir); d; d = readdir(dir))
-    {
-    this->Files[i] = strcpy(new char[strlen(d->d_name)+1], d->d_name);
-    i++;
+    this->Files->InsertNextValue(d->d_name);
     }
   this->Path = strcpy(new char[strlen(name)+1], name);
+
   closedir(dir);
+
   return 1;
 }
 
@@ -227,13 +200,19 @@ int vtkDirectory::MakeDirectory(const char* dir)
 
 const char* vtkDirectory::GetFile(int index)
 {
-  if(index >= this->NumberOfFiles || index < 0)
+  if(index >= this->Files->GetNumberOfValues() || index < 0)
     {
     vtkErrorMacro( << "Bad index for GetFile on vtkDirectory\n");
     return 0;
     }
   
-  return this->Files[index];
+  return this->Files->GetValue(index).c_str();
+}
+
+
+int vtkDirectory::GetNumberOfFiles()
+{
+  return this->Files->GetNumberOfValues();
 }
 
 //----------------------------------------------------------------------------
