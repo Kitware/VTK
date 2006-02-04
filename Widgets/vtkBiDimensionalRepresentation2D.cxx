@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.2");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.3");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -394,6 +394,19 @@ void vtkBiDimensionalRepresentation2D::StartWidgetManipulation(double e[2])
   this->StartEventPosition[0] = e[0];
   this->StartEventPosition[1] = e[1];
   this->StartEventPosition[2] = 0.0;
+
+  this->GetPoint1DisplayPosition(this->P1);
+  this->GetPoint2DisplayPosition(this->P2);
+  this->GetPoint3DisplayPosition(this->P3);
+  this->GetPoint4DisplayPosition(this->P4);
+  this->P1[2] = this->P2[2] = this->P3[2] = this->P4[2] = 0.0;
+  for (int i=0; i<3; i++)
+    {
+    this->P21[i] = this->P2[i] - this->P1[i];
+    this->P43[i] = this->P4[i] - this->P3[i];
+    }
+  vtkMath::Normalize(this->P21);
+  vtkMath::Normalize(this->P43);
 }
 
 //----------------------------------------------------------------------
@@ -401,47 +414,98 @@ void vtkBiDimensionalRepresentation2D::StartWidgetManipulation(double e[2])
 // (This method is invoked after all four points have been placed.)
 void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
 {
-  double pos[3];
-  pos[0] = e[0];
-  pos[1] = e[1];
-  pos[2] = 0.0;
-
-  double p1[3], p2[3], p3[3], p4[3], de[3], t;
-  this->GetPoint1DisplayPosition(p1);
-  this->GetPoint2DisplayPosition(p2);
-  this->GetPoint1DisplayPosition(p3);
-  this->GetPoint2DisplayPosition(p4);
-  de[0] = pos[0] - this->StartEventPosition[0];
-  de[1] = pos[1] - this->StartEventPosition[1];
-  p1[2] = p2[2] = p3[2] = p4[2] = de[2] = 0.0;
-  vtkMath::Normalize(de);
+  double de[3], t;
+  de[0] = e[0] - this->StartEventPosition[0];
+  de[1] = e[1] - this->StartEventPosition[1];
+  de[2] = 0.0;
 
   // Depending on the state, different motions are allowed.
-  if ( this->InteractionState == OnL1 )
+  if ( this->InteractionState == NearP1 )
     {
-    // Start by getting the coordinates (P1,P2) defining Line1. Also get 
-    // characterisitics of Line1 including its slope, etc.
-    double p43[3];
-    p43[0] = p4[0] - p3[0];
-    p43[1] = p4[1] - p3[1];
-    p43[2] = 0.0;
-    vtkMath::Normalize(p43);
+    double p1[3];
+    // Project the motion along Line1
+    t = vtkMath::Dot(de,this->P21);
+    p1[0] = this->P1[0] + t*this->P21[0];
+    p1[1] = this->P1[1] + t*this->P21[1];
+    p1[2] = 0.0;
+
+    // Set the position of P1 
+    this->SetPoint1DisplayPosition(p1);
+    }
+  else if ( this->InteractionState == NearP2 )
+    {
+    double p2[3];
+    // Project the motion along Line1
+    t = vtkMath::Dot(de,this->P21);
+    p2[0] = this->P2[0] + t*this->P21[0];
+    p2[1] = this->P2[1] + t*this->P21[1];
+    p2[2] = 0.0;
+
+    // Set the position of P2
+    this->SetPoint2DisplayPosition(p2);
+    }
+  else if ( this->InteractionState == NearP3 )
+    {
+    double p3[3];
+    // Project the motion along Line2
+    t = vtkMath::Dot(de,this->P43);
+    p3[0] = this->P3[0] + t*this->P43[0];
+    p3[1] = this->P3[1] + t*this->P43[1];
+    p3[2] = 0.0;
+
+    // Set the position of P3 
+    this->SetPoint3DisplayPosition(p3);
+    }
+  else if ( this->InteractionState == NearP4 )
+    {
+    double p4[3];
+    // Project the motion along Line2
+    t = vtkMath::Dot(de,this->P43);
+    p4[0] = this->P4[0] + t*this->P43[0];
+    p4[1] = this->P4[1] + t*this->P43[1];
+    p4[2] = 0.0;
+
+    // Set the position of P4 
+    this->SetPoint4DisplayPosition(p4);
+    }
+  else if ( this->InteractionState == OnL1 )
+    {
+    double p1[3], p2[3];
   
     // Project the motion on Line2
-    t = vtkMath::Dot(de,p43);
-    p1[0] += t*de[0];
-    p1[1] += t*de[1];
-    p2[0] += t*de[0];
-    p2[1] += t*de[1];
+    t = vtkMath::Dot(de,this->P43);
+    p1[0] = this->P1[0] + t*this->P43[0];
+    p1[1] = this->P1[1] + t*this->P43[1];
+    p2[0] = this->P2[0] + t*this->P43[0];
+    p2[1] = this->P2[1] + t*this->P43[1];
+    p1[2] = p2[2] = 0.0;
 
     // Set the positions of P1 and P2.
     this->SetPoint1DisplayPosition(p1);
     this->SetPoint2DisplayPosition(p2);
-    this->Modified();
     }
   else if ( this->InteractionState == OnL2 )
     {
+    double p3[3], p4[3];
+  
+    // Project the motion on Line2
+    t = vtkMath::Dot(de,this->P21);
+    p3[0] = this->P3[0] + t*this->P21[0];
+    p3[1] = this->P3[1] + t*this->P21[1];
+    p4[0] = this->P4[0] + t*this->P21[0];
+    p4[1] = this->P4[1] + t*this->P21[1];
+    p3[2] = p4[2] = 0.0;
+
+    // Set the positions of P3 and P4.
+    this->SetPoint3DisplayPosition(p3);
+    this->SetPoint4DisplayPosition(p4);
     }
+  else
+    {
+    return;
+    }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------

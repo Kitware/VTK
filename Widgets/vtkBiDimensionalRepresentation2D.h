@@ -188,6 +188,14 @@ protected:
   vtkTextMapper   *L2TextMapper;
   vtkActor2D      *L2TextActor;
   
+  // Internal variables
+  double P1[3];
+  double P2[3];
+  double P3[3];
+  double P4[3];
+  double P21[3];
+  double P43[3];
+  
 private:
   vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&);  //Not implemented
   void operator=(const vtkBiDimensionalRepresentation2D&);  //Not implemented

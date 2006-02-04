@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.2");
+vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.3");
 vtkStandardNewMacro(vtkBiDimensionalWidget);
 
 
@@ -43,17 +43,13 @@ public:
       switch (eventId)
         {
         case vtkCommand::StartInteractionEvent:
-          this->BiDimensionalWidget->StartBiDimensionalInteraction(this->HandleNumber);
-          break;
-        case vtkCommand::InteractionEvent:
-          this->BiDimensionalWidget->BiDimensionalInteraction(this->HandleNumber);
+          this->BiDimensionalWidget->StartBiDimensionalInteraction();
           break;
         case vtkCommand::EndInteractionEvent:
-          this->BiDimensionalWidget->EndBiDimensionalInteraction(this->HandleNumber);
+          this->BiDimensionalWidget->EndBiDimensionalInteraction();
           break;
         }
     }
-  int HandleNumber;
   vtkBiDimensionalWidget *BiDimensionalWidget;
 };
 
@@ -79,7 +75,6 @@ vtkBiDimensionalWidget::vtkBiDimensionalWidget()
 
   // Set up the callbacks on the two handles
   this->BiDimensionalWidgetCallback1 = vtkBiDimensionalWidgetCallback::New();
-  this->BiDimensionalWidgetCallback1->HandleNumber = 0;
   this->BiDimensionalWidgetCallback1->BiDimensionalWidget = this;
   this->Point1Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback1, 
                                   this->Priority);
@@ -89,7 +84,6 @@ vtkBiDimensionalWidget::vtkBiDimensionalWidget()
                                   this->Priority);
 
   this->BiDimensionalWidgetCallback2 = vtkBiDimensionalWidgetCallback::New();
-  this->BiDimensionalWidgetCallback2->HandleNumber = 1;
   this->BiDimensionalWidgetCallback2->BiDimensionalWidget = this;
   this->Point2Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback2, 
                                   this->Priority);
@@ -100,7 +94,6 @@ vtkBiDimensionalWidget::vtkBiDimensionalWidget()
 
 
   this->BiDimensionalWidgetCallback3 = vtkBiDimensionalWidgetCallback::New();
-  this->BiDimensionalWidgetCallback3->HandleNumber = 2;
   this->BiDimensionalWidgetCallback3->BiDimensionalWidget = this;
   this->Point3Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback3, 
                                   this->Priority);
@@ -111,7 +104,6 @@ vtkBiDimensionalWidget::vtkBiDimensionalWidget()
 
 
   this->BiDimensionalWidgetCallback4 = vtkBiDimensionalWidgetCallback::New();
-  this->BiDimensionalWidgetCallback4->HandleNumber = 3;
   this->BiDimensionalWidgetCallback4->BiDimensionalWidget = this;
   this->Point4Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback4, 
                                   this->Priority);
@@ -411,18 +403,9 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
   else if ( self->LineSelected || self->HandleSelected )//must be moving a handle or line, i.e., we are in manipulate state
     {
     self->RequestCursorShape(VTK_CURSOR_HAND);
-
-    // If moving a line, we deal with the events
-    if ( self->LineSelected )
-      {
-      reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
-        WidgetInteraction(e);
-      }
-    else if ( self->HandleSelected )
-      {
-      // We invoke a mouse move and the handle(s) take care of it
-      self->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
-      }
+    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+      WidgetInteraction(e);
+    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
 
   else // just moving around, nothing yet selected
@@ -468,54 +451,16 @@ void vtkBiDimensionalWidget::EndSelectAction(vtkAbstractWidget *w)
 // These are callbacks that are active when the user is manipulating the
 // handles of the angle widget.
 //----------------------------------------------------------------------
-void vtkBiDimensionalWidget::StartBiDimensionalInteraction(int)
+void vtkBiDimensionalWidget::StartBiDimensionalInteraction()
 {
   this->Superclass::StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
 }
 
 //----------------------------------------------------------------------
-void vtkBiDimensionalWidget::BiDimensionalInteraction(int vtkNotUsed(handle))
-{
-  double pos[3];
-  int state = this->WidgetRep->GetInteractionState();
-  if ( state == vtkBiDimensionalRepresentation2D::NearP1 )
-    {
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(this->WidgetRep)->
-      GetPoint1Representation()->GetDisplayPosition(pos);
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(this->WidgetRep)->
-      SetPoint1DisplayPosition(pos);
-    }
-  else if ( state == vtkBiDimensionalRepresentation2D::NearP2 )
-    {
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(this->WidgetRep)->
-      GetPoint2Representation()->GetDisplayPosition(pos);
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(this->WidgetRep)->
-      SetPoint2DisplayPosition(pos);
-    }
-  else if ( state == vtkBiDimensionalRepresentation2D::NearP3 )
-    {
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(this->WidgetRep)->
-      GetPoint3Representation()->GetDisplayPosition(pos);
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(this->WidgetRep)->
-      SetPoint3DisplayPosition(pos);
-    }
-  else if ( state == vtkBiDimensionalRepresentation2D::NearP4 )
-    {
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(this->WidgetRep)->
-      GetPoint4Representation()->GetDisplayPosition(pos);
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(this->WidgetRep)->
-      SetPoint4DisplayPosition(pos);
-    }
-
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalWidget::EndBiDimensionalInteraction(int)
+void vtkBiDimensionalWidget::EndBiDimensionalInteraction()
 {
   this->Superclass::EndInteraction();
-
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
 }
 

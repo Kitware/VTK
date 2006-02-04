@@ -161,9 +161,8 @@ protected:
   
   // Methods invoked when the handles at the
   // end points of the widget are manipulated
-  void StartBiDimensionalInteraction(int handleNum);
-  void BiDimensionalInteraction(int handleNum);
-  void EndBiDimensionalInteraction(int handleNum);
+  void StartBiDimensionalInteraction();
+  void EndBiDimensionalInteraction();
   
 //BTX
   friend class vtkBiDimensionalWidgetCallback;
