@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.3");
+vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.4");
 vtkStandardNewMacro(vtkBiDimensionalWidget);
 
 
@@ -359,6 +359,7 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
     else if ( state == vtkBiDimensionalRepresentation2D::OnL1 ||
               state == vtkBiDimensionalRepresentation2D::OnL2 )
       {
+      self->WidgetRep->Highlight(1);
       self->LineSelected = 1;
       }
     }
@@ -440,6 +441,7 @@ void vtkBiDimensionalWidget::EndSelectAction(vtkAbstractWidget *w)
 
   self->LineSelected = 0;
   self->HandleSelected = 0;
+  self->WidgetRep->Highlight(0);
   self->ReleaseFocus();
   self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
   self->CurrentHandle = (-1);

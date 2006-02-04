@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.4");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.5");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -72,6 +72,9 @@ vtkBiDimensionalRepresentation2D::vtkBiDimensionalRepresentation2D()
   this->LineActor = vtkActor2D::New();
   this->LineActor->SetProperty(this->LineProperty);
   this->LineActor->SetMapper(this->LineMapper);
+  this->SelectedLineProperty = vtkProperty2D::New();
+  this->SelectedLineProperty->SetColor(0.0,1.0,0.0);
+  this->SelectedLineProperty->SetLineWidth(2.0);
 
   this->TextProperty = vtkTextProperty::New();
   this->L1TextMapper = vtkTextMapper::New();
@@ -112,6 +115,19 @@ vtkBiDimensionalRepresentation2D::~vtkBiDimensionalRepresentation2D()
     {
     this->Point4Representation->Delete();
     }
+
+  this->LineCells->Delete();
+  this->LinePoints->Delete();
+  this->LinePolyData->Delete();
+  this->LineMapper->Delete();
+  this->LineProperty->Delete();
+  this->LineActor->Delete();
+  this->SelectedLineProperty->Delete();
+  this->TextProperty->Delete();
+  this->L1TextMapper->Delete();
+  this->L2TextMapper->Delete();
+  this->L1TextActor->Delete();
+  this->L2TextActor->Delete();
 }
 
 //----------------------------------------------------------------------
@@ -420,10 +436,11 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
     {
     double p1[3];
     vtkLine::DistanceToLine(pos,this->P1,this->P2,t,closest);
+    t = (t > this->T21 ? this->T21 : t);
     p1[0] = this->P1[0] + t*this->P21[0];
     p1[1] = this->P1[1] + t*this->P21[1];
     p1[2] = 0.0;
-
+    
     // Set the positions of P1
     this->SetPoint1DisplayPosition(p1);
     }
@@ -431,6 +448,7 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
     {
     double p2[3];
     vtkLine::DistanceToLine(pos,this->P1,this->P2,t,closest);
+    t = (t < this->T21 ? this->T21 : t);
     p2[0] = this->P1[0] + t*this->P21[0];
     p2[1] = this->P1[1] + t*this->P21[1];
     p2[2] = 0.0;
@@ -442,6 +460,7 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
     {
     double p3[3];
     vtkLine::DistanceToLine(pos,this->P3,this->P4,t,closest);
+    t = (t > this->T43 ? this->T43 : t);
     p3[0] = this->P3[0] + t*this->P43[0];
     p3[1] = this->P3[1] + t*this->P43[1];
     p3[2] = 0.0;
@@ -453,6 +472,7 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
     {
     double p4[3];
     vtkLine::DistanceToLine(pos,this->P3,this->P4,t,closest);
+    t = (t < this->T43 ? this->T43 : t);
     p4[0] = this->P3[0] + t*this->P43[0];
     p4[1] = this->P3[1] + t*this->P43[1];
     p4[2] = 0.0;
@@ -610,14 +630,62 @@ int vtkBiDimensionalRepresentation2D::RenderOverlay(vtkViewport *viewport)
 
 
 //----------------------------------------------------------------------
+void vtkBiDimensionalRepresentation2D::Highlight(int highlightOn)
+{
+  if ( highlightOn )
+    {
+    this->LineActor->SetProperty(this->SelectedLineProperty);
+    }
+  else
+    {
+    this->LineActor->SetProperty(this->LineProperty);
+    }
+}
+
+//----------------------------------------------------------------------
 void vtkBiDimensionalRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
   
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
+
   os << indent << "Length1: " << this->GetLength1() << "\n";
   os << indent << "Length2: " << this->GetLength2() << "\n";
 
   os << indent << "Line1 Visibility: " << (this->Line1Visibility ? "On\n" : "Off\n");
   os << indent << "Line2 Visibility: " << (this->Line2Visibility ? "On\n" : "Off\n");
+
+  if ( this->TextProperty )
+    {
+    os << indent << "Text Property:\n";
+    this->TextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Property: (none)\n";
+    }
+
+  if ( this->LineProperty )
+    {
+    os << indent << "Line Property:\n";
+    this->LineProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Line Property: (none)\n";
+    }
+
+  if ( this->SelectedLineProperty )
+    {
+    os << indent << "Selected Line Property:\n";
+    this->SelectedLineProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Selected Line Property: (none)\n";
+    }
+
+
 }
+

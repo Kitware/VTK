@@ -112,6 +112,7 @@ public:
   // Retrieve the property used to control the appearance of the two
   // orthogonal lines.
   vtkGetObjectMacro(LineProperty,vtkProperty2D);
+  vtkGetObjectMacro(SelectedLineProperty,vtkProperty2D);
 
   // Description:
   // Retrieve the property used to control the appearance of the text
@@ -148,6 +149,7 @@ public:
   virtual void Point3WidgetInteraction(double e[2]);
   virtual void StartWidgetManipulation(double e[2]);
   virtual void WidgetInteraction(double e[2]);
+  virtual void Highlight(int highlightOn);
   
   // Description:
   // Methods required by vtkProp superclass.
@@ -179,6 +181,7 @@ protected:
   vtkPolyDataMapper2D *LineMapper;
   vtkActor2D          *LineActor;
   vtkProperty2D       *LineProperty;
+  vtkProperty2D       *SelectedLineProperty;
   
   // The labels for the line lengths
   vtkTextProperty *TextProperty;
