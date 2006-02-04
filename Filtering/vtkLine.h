@@ -79,8 +79,12 @@ public:
 
   
   // Description:
-  // Compute distance to finite line. Returns parametric coordinate t 
-  // and point location on line.
+  // Compute the distance of a point x to a finite line (p1,p2). The method
+  // computes the parametric coordinate t and the point location on the
+  // line. Note that t is unconstrained (i.e., it may lie outside the range
+  // [0,1]) but the closest point will lie within the finite line
+  // [p1,p2]. Also, the method returns the distance squared between x and the
+  // line (p1,p2).
   static double DistanceToLine(double x[3], double p1[3], double p2[3], 
                               double &t, double closestPoint[3]);
   
