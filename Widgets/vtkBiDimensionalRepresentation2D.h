@@ -195,6 +195,8 @@ protected:
   double P4[3];
   double P21[3];
   double P43[3];
+  double T21;
+  double T43;
   
 private:
   vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&);  //Not implemented

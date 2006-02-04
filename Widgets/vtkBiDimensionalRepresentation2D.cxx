@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.3");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.4");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -389,12 +389,8 @@ void vtkBiDimensionalRepresentation2D::Point3WidgetInteraction(double e[2])
 }
 
 //----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::StartWidgetManipulation(double e[2])
+void vtkBiDimensionalRepresentation2D::StartWidgetManipulation(double* vtkNotUsed(e[2]))
 {
-  this->StartEventPosition[0] = e[0];
-  this->StartEventPosition[1] = e[1];
-  this->StartEventPosition[2] = 0.0;
-
   this->GetPoint1DisplayPosition(this->P1);
   this->GetPoint2DisplayPosition(this->P2);
   this->GetPoint3DisplayPosition(this->P3);
@@ -405,8 +401,8 @@ void vtkBiDimensionalRepresentation2D::StartWidgetManipulation(double e[2])
     this->P21[i] = this->P2[i] - this->P1[i];
     this->P43[i] = this->P4[i] - this->P3[i];
     }
-  vtkMath::Normalize(this->P21);
-  vtkMath::Normalize(this->P43);
+
+  vtkLine::Intersection(this->P1,this->P2,this->P3,this->P4,this->T21,this->T43);
 }
 
 //----------------------------------------------------------------------
@@ -414,31 +410,29 @@ void vtkBiDimensionalRepresentation2D::StartWidgetManipulation(double e[2])
 // (This method is invoked after all four points have been placed.)
 void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
 {
-  double de[3], t;
-  de[0] = e[0] - this->StartEventPosition[0];
-  de[1] = e[1] - this->StartEventPosition[1];
-  de[2] = 0.0;
+  double pos[3], t, closest[3];
+  pos[0] = e[0];
+  pos[1] = e[1];
+  pos[2] = 0.0;
 
   // Depending on the state, different motions are allowed.
   if ( this->InteractionState == NearP1 )
     {
     double p1[3];
-    // Project the motion along Line1
-    t = vtkMath::Dot(de,this->P21);
+    vtkLine::DistanceToLine(pos,this->P1,this->P2,t,closest);
     p1[0] = this->P1[0] + t*this->P21[0];
     p1[1] = this->P1[1] + t*this->P21[1];
     p1[2] = 0.0;
 
-    // Set the position of P1 
+    // Set the positions of P1
     this->SetPoint1DisplayPosition(p1);
     }
   else if ( this->InteractionState == NearP2 )
     {
     double p2[3];
-    // Project the motion along Line1
-    t = vtkMath::Dot(de,this->P21);
-    p2[0] = this->P2[0] + t*this->P21[0];
-    p2[1] = this->P2[1] + t*this->P21[1];
+    vtkLine::DistanceToLine(pos,this->P1,this->P2,t,closest);
+    p2[0] = this->P1[0] + t*this->P21[0];
+    p2[1] = this->P1[1] + t*this->P21[1];
     p2[2] = 0.0;
 
     // Set the position of P2
@@ -447,8 +441,7 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
   else if ( this->InteractionState == NearP3 )
     {
     double p3[3];
-    // Project the motion along Line2
-    t = vtkMath::Dot(de,this->P43);
+    vtkLine::DistanceToLine(pos,this->P3,this->P4,t,closest);
     p3[0] = this->P3[0] + t*this->P43[0];
     p3[1] = this->P3[1] + t*this->P43[1];
     p3[2] = 0.0;
@@ -459,10 +452,9 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
   else if ( this->InteractionState == NearP4 )
     {
     double p4[3];
-    // Project the motion along Line2
-    t = vtkMath::Dot(de,this->P43);
-    p4[0] = this->P4[0] + t*this->P43[0];
-    p4[1] = this->P4[1] + t*this->P43[1];
+    vtkLine::DistanceToLine(pos,this->P3,this->P4,t,closest);
+    p4[0] = this->P3[0] + t*this->P43[0];
+    p4[1] = this->P3[1] + t*this->P43[1];
     p4[2] = 0.0;
 
     // Set the position of P4 
@@ -471,13 +463,12 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
   else if ( this->InteractionState == OnL1 )
     {
     double p1[3], p2[3];
-  
-    // Project the motion on Line2
-    t = vtkMath::Dot(de,this->P43);
-    p1[0] = this->P1[0] + t*this->P43[0];
-    p1[1] = this->P1[1] + t*this->P43[1];
-    p2[0] = this->P2[0] + t*this->P43[0];
-    p2[1] = this->P2[1] + t*this->P43[1];
+    vtkLine::DistanceToLine(pos,this->P3,this->P4,t,closest);
+    t = ( t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t) );
+    p1[0] = this->P1[0] + (t-this->T43)*this->P43[0];
+    p1[1] = this->P1[1] + (t-this->T43)*this->P43[1];
+    p2[0] = this->P2[0] + (t-this->T43)*this->P43[0];
+    p2[1] = this->P2[1] + (t-this->T43)*this->P43[1];
     p1[2] = p2[2] = 0.0;
 
     // Set the positions of P1 and P2.
@@ -487,13 +478,12 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
   else if ( this->InteractionState == OnL2 )
     {
     double p3[3], p4[3];
-  
-    // Project the motion on Line2
-    t = vtkMath::Dot(de,this->P21);
-    p3[0] = this->P3[0] + t*this->P21[0];
-    p3[1] = this->P3[1] + t*this->P21[1];
-    p4[0] = this->P4[0] + t*this->P21[0];
-    p4[1] = this->P4[1] + t*this->P21[1];
+    vtkLine::DistanceToLine(pos,this->P1,this->P2,t,closest);
+    t = ( t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t) );
+    p3[0] = this->P3[0] + (t-this->T21)*this->P21[0];
+    p3[1] = this->P3[1] + (t-this->T21)*this->P21[1];
+    p4[0] = this->P4[0] + (t-this->T21)*this->P21[0];
+    p4[1] = this->P4[1] + (t-this->T21)*this->P21[1];
     p3[2] = p4[2] = 0.0;
 
     // Set the positions of P3 and P4.
