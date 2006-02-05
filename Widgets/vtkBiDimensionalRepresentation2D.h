@@ -160,6 +160,9 @@ protected:
   vtkBiDimensionalRepresentation2D();
   ~vtkBiDimensionalRepresentation2D();
 
+  // Keep track if modifier is set
+  int Modifier;
+
   // The handle and the rep used to close the handles
   vtkHandleRepresentation *HandleRepresentation;
   vtkHandleRepresentation *Point1Representation;

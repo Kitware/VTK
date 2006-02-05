@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.4");
+vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.5");
 vtkStandardNewMacro(vtkBiDimensionalWidget);
 
 
@@ -340,7 +340,8 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
     {
     self->HandleSelected = 0;
     self->LineSelected = 0;
-    int state = self->WidgetRep->ComputeInteractionState(X,Y);
+    int modifier = self->Interactor->GetShiftKey() | self->Interactor->GetControlKey();
+    int state = self->WidgetRep->ComputeInteractionState(X,Y,modifier);
     if ( state == vtkBiDimensionalRepresentation2D::Outside )
       {
       return;
@@ -361,6 +362,7 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
       {
       self->WidgetRep->Highlight(1);
       self->LineSelected = 1;
+      self->StartBiDimensionalInteraction();
       }
     }
   
