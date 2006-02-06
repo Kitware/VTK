@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkTextActor can be used to place text annotation into a window.
 // When ScaledText is false, the text is fixed font and operation is
-// the same as a vtkTextMapper/vtkActor2D pair.
+// the same as a vtkImageMapper/vtkActor2D pair.
 // When ScaledText is true, the font resizes such that the text fits inside the
 // box defined by the position 1 & 2 coordinates. This class replaces the
 // deprecated vtkScaledTextActor and acts as a convenient wrapper for
@@ -25,18 +25,19 @@
 // this actor.
 //
 // .SECTION See Also
-// vtkActor2D vtkTextMapper vtkTextProperty
+// vtkActor2D vtkImageMapper vtkTextProperty vtkFreeTypeUtilities
 
 #ifndef __vtkTextActor_h
 #define __vtkTextActor_h
 
 #include "vtkActor2D.h"
+#include "vtkTextProperty.h"
 
-// We need to include vtkTextMapper here otherwise we have an ambiguous
-// case of vtkMapper2D or vtkTextMapper in SetMapper(vtkTextMapper *mapper);
-// - two members with identical prototypes!
 class vtkTextProperty;
-class vtkTextMapper;
+class vtkImageMapper;
+class vtkImageData;
+class vtkFreeTypeUtilities;
+class vtkTransform;
 
 class VTK_RENDERING_EXPORT vtkTextActor : public vtkActor2D
 {
@@ -55,9 +56,9 @@ public:
   void ShallowCopy(vtkProp *prop);
 
   // Description:
-  // Override the vtkTextMapper that defines the text to be drawn.
+  // Override the vtkImageMapper that defines the text to be drawn.
   // One will be created by default if none is supplied
-  void SetMapper(vtkTextMapper *mapper);
+  void SetMapper(vtkImageMapper *mapper);
 
   // Description:
   // Set the text string to be displayed. "\n" is recognized
@@ -94,6 +95,7 @@ public:
   // if zero (default), the text aligns itself to the bottom left corner
   // (which is defined by the PositionCoordinate)
   // otherwise the text aligns itself to corner/midpoint or centre
+  // Note that this is done independently of the text's orientation
   // @verbatim
   //      6   7   8    Otherwise the text aligns itself to corner/midpoint
   //      3   4   5    or centre of the box defined by the position 1 & 2
@@ -124,6 +126,16 @@ public:
   // typically exponent should be around 0.7 and target should be around 10
   virtual void SetNonLinearFontScale(double exponent, int target);
 
+  // Description:
+  // This is just a simple coordinate conversion method used in the render
+  // process.
+  void SpecifiedToDisplay(double *pos, vtkViewport *vport, int specified);
+
+  // Description:
+  // This is just a simple coordinate conversion method used in the render
+  // process.
+  void DisplayToSpecified(double *pos, vtkViewport *vport, int specified);
+
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -144,7 +156,7 @@ public:
 
 protected:
   // Description:
-  // Hide access methods which use superclass vtkMapper2D and not vtkTextMapper
+  // Hide access methods that use superclass vtkMapper2D and not vtkImageMapper
   void SetMapper(vtkMapper2D *mapper);
 
    vtkTextActor();
@@ -156,13 +168,23 @@ protected:
   double FontScaleTarget;
   int   ScaledText;
   int   AlignmentPoint;
+  int   FormerAlignmentPoint;
 
   vtkCoordinate *AdjustedPositionCoordinate;
   vtkTextProperty *TextProperty;
-
+  vtkImageData *ImageData;
+  vtkImageMapper *Mapper;
+  vtkFreeTypeUtilities *FreeTypeUtilities;
   vtkTimeStamp  BuildTime;
+  vtkTransform *Transform;
   int LastSize[2];
   int LastOrigin[2];
+  char *Input;
+  bool InputRendered;
+  int FormerJustification[2];
+  double FormerLineOffset;
+  int FormerCoordinateSystem;
+  double FormerOrientation;
 
 private:
   vtkTextActor(const vtkTextActor&);  // Not implemented.
