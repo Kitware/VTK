@@ -40,7 +40,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.13");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.14");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -860,8 +860,8 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
       transform->TransformPoint(newLineMovement, newLineMovement);
       newLineMovement[0] = floor(newLineMovement[0] + 0.5);
       newLineMovement[1] = floor(newLineMovement[1] + 0.5);
-      x += newLineMovement[0];
-      y += newLineMovement[1];
+      x += (int)newLineMovement[0];
+      y += (int)newLineMovement[1];
       //don't forget to start a new currentLine
       *currentLine = '\0';
       itr = currentLine;
@@ -1074,8 +1074,8 @@ int vtkFreeTypeUtilitiesRenderString(
       transform->TransformPoint(newLineMovement, newLineMovement);
       newLineMovement[0] = floor(newLineMovement[0] + 0.5);
       newLineMovement[1] = floor(newLineMovement[1] + 0.5);
-      x += newLineMovement[0];
-      y += newLineMovement[1];
+      x += (int)newLineMovement[0];
+      y += (int)newLineMovement[1];
       //don't forget to start a new currentLine
       *currentLine = '\0';
       itr = currentLine;
