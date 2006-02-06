@@ -28,7 +28,7 @@
 #include <limits.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.63");
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.64");
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 #endif
 
@@ -630,11 +630,11 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   
   glDisable( GL_LIGHTING);
 
-  // Get the position of the text actor
+  // Get the position of the image actor
   int* actorPos =
-    actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
+    actor->GetActualPositionCoordinate()->GetComputedViewportValue(viewport);
   int* actorPos2 =
-    actor->GetPosition2Coordinate()->GetComputedViewportValue(viewport);
+    actor->GetActualPosition2Coordinate()->GetComputedViewportValue(viewport);
   // negative positions will already be clipped to viewport
   actorPos[0] += this->PositionAdjustment[0]; 
   actorPos[1] += this->PositionAdjustment[1];

@@ -24,7 +24,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkImageMapper, "1.52");
+vtkCxxRevisionMacro(vtkImageMapper, "1.53");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -165,7 +165,7 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
 
     // get the position
     int *pos = 
-      actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
+      actor->GetActualPositionCoordinate()->GetComputedViewportValue(viewport);
 
     // Get the viewport coordinates
     double vCoords[4];
