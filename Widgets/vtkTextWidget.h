@@ -55,8 +55,9 @@ public:
       reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
   // Description:
-  // Specify the vtkTextActor to manage. This is convenient, alternative
-  // method to SetRepresentation(). It internally create a vtkTextRepresentation
+  // Specify a vtkTextActor to manage. This is a convenient, alternative
+  // method to specify the representation for the widget (i.e., used instead
+  // of SetRepresentation()). It internally creates a vtkTextRepresentation
   // and then invokes vtkTextRepresentation::SetTextActor().
   void SetTextActor(vtkTextActor *textActor);
   vtkTextActor *GetTextActor();
