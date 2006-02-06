@@ -137,7 +137,7 @@ public:
   virtual double GetLength2();
 
 //BTX -- used to communicate about the state of the representation
-  enum {Outside=0,NearP1,NearP2,NearP3,NearP4,OnL1,OnL2};
+  enum {Outside=0,NearP1,NearP2,NearP3,NearP4,OnL1,OnL2,OnCenter};
 //ETX
 
   // Description:

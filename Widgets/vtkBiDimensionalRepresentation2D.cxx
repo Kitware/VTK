@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.7");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.8");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -307,36 +307,49 @@ int vtkBiDimensionalRepresentation2D::ComputeInteractionState(int X, int Y, int 
   xyz[2] = p1[2] = p2[2] = p3[2] = p4[2] = 0.0;
 
   double tol2 = this->Tolerance*this->Tolerance;
+  // Check if we are on end points
   if ( vtkMath::Distance2BetweenPoints(xyz,p1) <= tol2 )
     {
     this->InteractionState = vtkBiDimensionalRepresentation2D::NearP1;
+    return this->InteractionState;
     }
   else if ( vtkMath::Distance2BetweenPoints(xyz,p2) <= tol2 )
     {
     this->InteractionState = vtkBiDimensionalRepresentation2D::NearP2;
+    return this->InteractionState;
     }
   else if ( vtkMath::Distance2BetweenPoints(xyz,p3) <= tol2 )
     {
     this->InteractionState = vtkBiDimensionalRepresentation2D::NearP3;
+    return this->InteractionState;
     }
   else if ( vtkMath::Distance2BetweenPoints(xyz,p4) <= tol2 )
     {
     this->InteractionState = vtkBiDimensionalRepresentation2D::NearP4;
+    return this->InteractionState;
     }
-  else if ( vtkLine::DistanceToLine(xyz,p1,p2,t,closest) <= tol2 )
+
+  // Check if we are on edges
+  int onL1 = (vtkLine::DistanceToLine(xyz,p1,p2,t,closest) <= tol2);
+  int onL2 = (vtkLine::DistanceToLine(xyz,p3,p4,t,closest) <= tol2);
+  if ( onL1 && onL2 )
+    {
+    this->InteractionState = vtkBiDimensionalRepresentation2D::OnCenter;
+    }
+  else if ( onL1 )
     {
     this->InteractionState = vtkBiDimensionalRepresentation2D::OnL1;
     }
-  else if ( vtkLine::DistanceToLine(xyz,p3,p4,t,closest) <= tol2 )
+  else if ( onL2 )
     {
     this->InteractionState = vtkBiDimensionalRepresentation2D::OnL2;
     }
-  else 
+  else
     {
     this->InteractionState = vtkBiDimensionalRepresentation2D::Outside;
     this->Modifier = 0;
     }
-
+  
   return this->InteractionState;
 }
 
@@ -444,6 +457,21 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
   if ( this->InteractionState == Outside )
     {
     return;
+    }
+  else if ( this->InteractionState == OnCenter )
+    {
+    double p1[3], p2[3], p3[3], p4[3];
+    for (int i=0; i<3; i++)
+      {
+      p1[i] = this->P1[i] + (pos[i]-this->StartEventPosition[i]);
+      p2[i] = this->P2[i] + (pos[i]-this->StartEventPosition[i]);
+      p3[i] = this->P3[i] + (pos[i]-this->StartEventPosition[i]);
+      p4[i] = this->P4[i] + (pos[i]-this->StartEventPosition[i]);
+      }
+    this->SetPoint1DisplayPosition(p1);
+    this->SetPoint2DisplayPosition(p2);
+    this->SetPoint3DisplayPosition(p3);
+    this->SetPoint4DisplayPosition(p4);
     }
   else if ( this->Modifier ) //rotate the representation
     {

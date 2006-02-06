@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.5");
+vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.6");
 vtkStandardNewMacro(vtkBiDimensionalWidget);
 
 
@@ -340,6 +340,7 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
     {
     self->HandleSelected = 0;
     self->LineSelected = 0;
+    self->CenterSelected = 0;
     int modifier = self->Interactor->GetShiftKey() | self->Interactor->GetControlKey();
     int state = self->WidgetRep->ComputeInteractionState(X,Y,modifier);
     if ( state == vtkBiDimensionalRepresentation2D::Outside )
@@ -362,6 +363,12 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
       {
       self->WidgetRep->Highlight(1);
       self->LineSelected = 1;
+      self->StartBiDimensionalInteraction();
+      }
+    else if ( state == vtkBiDimensionalRepresentation2D::OnCenter )
+      {
+      self->WidgetRep->Highlight(1);
+      self->CenterSelected = 1;
       self->StartBiDimensionalInteraction();
       }
     }
@@ -403,9 +410,17 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
     self->EventCallbackCommand->SetAbortFlag(1);
     }
 
-  else if ( self->LineSelected || self->HandleSelected )//must be moving a handle or line, i.e., we are in manipulate state
-    {
+  else if ( self->LineSelected || self->HandleSelected )
+    {//must be moving a handle or line, i.e., we are in manipulate state
     self->RequestCursorShape(VTK_CURSOR_HAND);
+    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+      WidgetInteraction(e);
+    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    }
+
+  else if ( self->CenterSelected )
+    {//grabbing center intersection point
+    self->RequestCursorShape(VTK_CURSOR_SIZEALL);
     reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
       WidgetInteraction(e);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
@@ -414,13 +429,17 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
   else // just moving around, nothing yet selected
     {
     int state = self->WidgetRep->ComputeInteractionState(X,Y);
-    if ( state != vtkBiDimensionalRepresentation2D::Outside )
+    if ( state == vtkBiDimensionalRepresentation2D::Outside )
       {
-      self->RequestCursorShape(VTK_CURSOR_HAND);
+      self->RequestCursorShape(VTK_CURSOR_DEFAULT);
+      }
+    else if ( state == vtkBiDimensionalRepresentation2D::OnCenter )
+      {
+      self->RequestCursorShape(VTK_CURSOR_SIZEALL);
       }
     else
       {
-      self->RequestCursorShape(VTK_CURSOR_DEFAULT);
+      self->RequestCursorShape(VTK_CURSOR_HAND);
       }
     }
 
@@ -436,13 +455,14 @@ void vtkBiDimensionalWidget::EndSelectAction(vtkAbstractWidget *w)
   // Do nothing if outside
   if ( self->WidgetState == vtkBiDimensionalWidget::Start ||
        self->WidgetState == vtkBiDimensionalWidget::Define ||
-       (!self->HandleSelected && !self->LineSelected) )
+       (!self->HandleSelected && !self->LineSelected && !self->CenterSelected) )
     {
     return;
     }
 
   self->LineSelected = 0;
   self->HandleSelected = 0;
+  self->CenterSelected = 0;
   self->WidgetRep->Highlight(0);
   self->ReleaseFocus();
   self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
