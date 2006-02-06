@@ -31,7 +31,6 @@
 #define __vtkTextActor_h
 
 #include "vtkActor2D.h"
-#include "vtkTextProperty.h"
 
 class vtkTextProperty;
 class vtkImageMapper;
