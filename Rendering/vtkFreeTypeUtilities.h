@@ -159,11 +159,15 @@ public:
   int IsBoundingBoxValid(int bbox[4]);
 
   // Description:
-  // Given a text property and a string, render it at coordinates (x, y) in
-  // an vtkImageData. 
+  // Given a text property and a string, this function initializes the
+  // vtkImageData *data and renders it in a vtkImageData. 
   // WARNING: writing to a L,A or RGB,A vtkImageData needs to be fixed.
-  // Also, *no* bounds checking are performed for the moment, i.e. no
-  // cropping, the text has to fit in the buffer (use GetBoundingBox()).
+  int RenderString(vtkTextProperty *tprop, 
+                   const char *str, 
+                   vtkImageData *data);
+
+  // Description:
+  // Deprecated function signature.  int x, y are ignored.
   int RenderString(vtkTextProperty *tprop, 
                    const char *str, 
                    int x, int y, 
@@ -193,6 +197,31 @@ public:
                FT_Glyph *glyph, 
                int request = GLYPH_REQUEST_DEFAULT);
 
+  // Description:
+  // Given a string and a TextProperty this function will calculate the height
+  // and width of a rectangle that can encompass the text.  Unlike
+  // GetBoundingBox this function does not consider the text's orientation.
+  // Calculated width, height, and greatest descender are stored in the last
+  // three parameters of the function signature
+  void GetWidthHeightDescender(const char *str,
+                               vtkTextProperty *tprop,
+                               int *width,
+                               int *height,
+                               float *descender);
+
+  // Description:
+  // This function initializes the extent of the ImageData to eventually
+  // receive the text stored in str
+  void PrepareImageData(vtkImageData *data,
+                        vtkTextProperty *tprop,
+                        const char *str,
+                        int *x, int *y);
+
+  // Description:
+  // This function returns the font size required to fit the string in the
+  // target rectangle
+  int GetConstrainedFontSize(const char *str, vtkTextProperty *tprop,
+                             int targetWidth, int targetHeight);
   // Old Code
   // Cache entry
 

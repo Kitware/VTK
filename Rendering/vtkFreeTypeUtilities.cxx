@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkImageData.h"
+#include "vtkTransform.h"
 //#include "vtkDebugLeaks.h"
 
 // FTGL
@@ -39,7 +40,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.12");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.13");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -796,7 +797,6 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
                                          int bbox[4])
 {
   // We need the tprop and bbox
-
   if (!tprop || !bbox)
     {
     vtkErrorMacro(<< "Wrong parameters, one of them is NULL or zero");
@@ -831,8 +831,6 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
 
   int face_has_kerning = FT_HAS_KERNING(face);
 
-  // Iterate char by char
-
   FT_Glyph glyph;
   FT_BitmapGlyph bitmap_glyph;
   FT_Bitmap *bitmap;
@@ -840,16 +838,43 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
   FT_Vector kerning_delta;
 
   int x = 0, y = 0;
+  char *currentLine = new char[strlen(str)];
+  char *itr = currentLine;
 
+  // Render char by char
   for (; *str; str++)
     {
-    // Get the glyph index
+  //boundingbox
+    if(*str == '\n')
+      {
+      *itr = '\0';
+      int currentHeight = 0;
+      int currentWidth = 0;
+      float notUsed;
+      this->GetWidthHeightDescender(
+        currentLine, tprop, &currentWidth, &currentHeight, &notUsed);
+      double newLineMovement[3] =
+        {-currentWidth, -currentHeight * tprop->GetLineSpacing(), 0};
+      vtkTransform *transform = vtkTransform::New();
+      transform->RotateZ(tprop->GetOrientation());
+      transform->TransformPoint(newLineMovement, newLineMovement);
+      newLineMovement[0] = floor(newLineMovement[0] + 0.5);
+      newLineMovement[1] = floor(newLineMovement[1] + 0.5);
+      x += newLineMovement[0];
+      y += newLineMovement[1];
+      //don't forget to start a new currentLine
+      *currentLine = '\0';
+      itr = currentLine;
+      transform->Delete();
+      continue;
+      }
 
+    // Get the glyph index
     if (!this->GetGlyphIndex(tprop_cache_id, *str, &gindex))
       {
       continue;
       }
-
+    *itr = *str;
     // Get the glyph as a bitmap
 
     if (!this->GetGlyph(tprop_cache_id, 
@@ -933,14 +958,17 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
 
     x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
+    itr++;
     }
 
-  // Margin for shadow (x + 1, y - 1)
+  // Margin for shadow
 
   if (tprop->GetShadow() && this->IsBoundingBoxValid(bbox))
     {
-    bbox[1]++;
-    bbox[2]--;
+    int shadowOffset[2];
+    tprop->GetShadowOffset(shadowOffset);
+    bbox[1] += shadowOffset[0];
+    bbox[2] += shadowOffset[1];
     }
 
   return 1;
@@ -1018,18 +1046,44 @@ int vtkFreeTypeUtilitiesRenderString(
     }
   double data_range = (data_max - data_min);
 
-  // Render char by char
-
   FT_Glyph glyph;
   FT_BitmapGlyph bitmap_glyph;
   FT_Bitmap *bitmap;
   FT_UInt gindex, previous_gindex = 0;
   FT_Vector kerning_delta;
 
+  char *currentLine = new char[strlen(str)];
+  char *itr = currentLine;
+
+  // Render char by char
   for (; *str; str++)
     {
-    // Get the glyph index
+  //renderstring
+    if(*str == '\n')
+      {
+      *itr = '\0';
+      int currentHeight = 0;
+      int currentWidth = 0;
+      float notUsed;
+      self->GetWidthHeightDescender(
+        currentLine, tprop, &currentWidth, &currentHeight, &notUsed);
+      double newLineMovement[3] =
+        {-currentWidth, -currentHeight * tprop->GetLineSpacing(), 0};
+      vtkTransform *transform = vtkTransform::New();
+      transform->RotateZ(tprop->GetOrientation());
+      transform->TransformPoint(newLineMovement, newLineMovement);
+      newLineMovement[0] = floor(newLineMovement[0] + 0.5);
+      newLineMovement[1] = floor(newLineMovement[1] + 0.5);
+      x += newLineMovement[0];
+      y += newLineMovement[1];
+      //don't forget to start a new currentLine
+      *currentLine = '\0';
+      itr = currentLine;
+      transform->Delete();
+      continue;
+      }
 
+    // Get the glyph index
     if (!self->GetGlyphIndex(tprop_cache_id, *str, &gindex))
       {
       continue;
@@ -1046,6 +1100,8 @@ int vtkFreeTypeUtilitiesRenderString(
       {
       continue;
       }
+    
+    *itr = *str;
 
     bitmap_glyph = reinterpret_cast<FT_BitmapGlyph>(glyph);
     bitmap = &bitmap_glyph->bitmap;
@@ -1070,7 +1126,6 @@ int vtkFreeTypeUtilitiesRenderString(
 
       int pen_x = x + bitmap_glyph->left;
       int pen_y = y + bitmap_glyph->top - 1;
-
       // Add the kerning
 
       if (face_has_kerning && previous_gindex && gindex)
@@ -1184,6 +1239,7 @@ int vtkFreeTypeUtilitiesRenderString(
 
     x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
+    itr++;
     }
 
   return 1;
@@ -1195,8 +1251,17 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
                                        int x, int y,
                                        vtkImageData *data)
 {
-  // Check
+  //just to avoid the warning...
+  x = y;
+  return this->RenderString(tprop, str, data);
+}
 
+//----------------------------------------------------------------------------
+int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop, 
+                                       const char *str,
+                                       vtkImageData *data)
+{
+  // Check
   if (!tprop || !str || !data)
     {
     vtkErrorMacro(<< "Wrong parameters, one of them is NULL or zero");
@@ -1209,19 +1274,26 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
     return 0;
     }
 
+  // Prepare the ImageData to receive the text
+  int x = 0;
+  int y = 0;
+  this->PrepareImageData(data, tprop, str, &x, &y);
+
   // Execute shadow
 
   int res = 1;
 
   if (tprop->GetShadow())
     {
+    int shadowOffset[2];
+    tprop->GetShadowOffset(shadowOffset);
     switch (data->GetScalarType())
       {
       vtkTemplateMacro(res &= vtkFreeTypeUtilitiesRenderString( 
                          this, 
                          tprop,
                          str,
-                         x + 1, y - 1,
+                         x + shadowOffset[0], y - shadowOffset[1],
                          data, 
                          (VTK_TT *)(NULL),
                          1));
@@ -1247,7 +1319,6 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 0;
     }
-
   return res;
 }
 
@@ -1619,4 +1690,196 @@ vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop,
 
   this->NumberOfEntries++;
   return tmp;
+}
+
+void vtkFreeTypeUtilities::GetWidthHeightDescender(const char *str,
+                                                   vtkTextProperty *tprop,
+                                                   int *width,
+                                                   int *height,
+                                                   float *descender)
+{
+  vtkFreeTypeUtilities::Entry *entry = this->GetFont(tprop);
+  FTFont *font = entry ? entry->Font : NULL;
+  if (!font) 
+    {
+    cerr << "No font" << endl;
+    *height = *width = -1;
+    return;
+    }
+  *height = 0;
+  *width = 0;
+  *descender = 0;
+  
+  // The font global ascender and descender might just be too high
+  // for given a face. Let's get a compromise by computing these values
+  // from some usual ascii chars.
+  
+  if (entry->LargestAscender < 0 || entry->LargestDescender < 0)
+    {
+    float llx, lly, llz, urx, ury, urz;
+    font->BBox("_/7Agfy", llx, lly, llz, urx, ury, urz);
+    entry->LargestAscender = ury;
+    entry->LargestDescender = lly;
+    }
+  
+  int strsize = strlen(str);
+  char *currstr = new char[strsize+1];
+  *currstr = '\0';
+  char *itr = currstr;
+  int currstrlen;
+  while(*str != '\0')
+    {
+    //when we reach a newline
+    if(*str == '\n')
+      {
+      //check the length of the line
+      *itr = '\0';
+      currstrlen = (int)font->Advance(currstr);
+      //if its greater than our current length it becomes our new width
+      if(currstrlen > *width)
+        {
+        *width = currstrlen;
+        }
+      //increment height by the vertical size of the text
+      *height += (int)(entry->LargestAscender - entry->LargestDescender);
+      //and start a new current string
+      *currstr = '\0';
+      itr = currstr;
+      }
+    //otherwise just keep copying
+    else
+      {
+      *itr = *str;
+      itr++;
+      }
+    str++;
+    }
+  *itr = '\0';
+
+  currstrlen = (int)font->Advance(currstr);
+  if(currstrlen > *width)
+    {
+    *width = currstrlen;
+    }
+  *height += (int)(entry->LargestAscender - entry->LargestDescender);
+  *descender = entry->LargestDescender;
+  delete [] currstr;
+}
+
+void vtkFreeTypeUtilities::PrepareImageData(vtkImageData *data,
+                                            vtkTextProperty *tprop,
+                                            const char *str,
+                                            int *x, int *y)
+{
+  int text_bbox[4];
+  this->GetBoundingBox(tprop, str, text_bbox);
+  if (!this->IsBoundingBoxValid(text_bbox))
+    {
+    cerr << "no text in input" << endl;
+    return;
+    }
+  // The bounding box was the area that is going to be filled with pixels
+  // given a text origin of (0, 0). Now get the real size we need, i.e.
+  // the full extent from the origin to the bounding box.
+
+  int text_size[2];
+  text_size[0] = (text_bbox[1] - text_bbox[0] + 1);// + abs(text_bbox[0]);
+  text_size[1] = (text_bbox[3] - text_bbox[2] + 1);// + abs(text_bbox[2]);
+
+  // If the RGBA image data is too small, resize it to the next power of 2
+  // WARNING: at this point, since this image is going to be a texture
+  // we should limit its size or query the hardware
+  data->SetScalarTypeToUnsignedChar();
+  data->SetNumberOfScalarComponents(4);
+  data->SetSpacing(1.0, 1.0, 1.0);
+
+  // If the current image data is too small to render the text,
+  // or more than twice as big (too hungry), then resize
+
+  int img_dims[3], new_img_dims[3];
+  data->GetDimensions(img_dims);
+
+  if (img_dims[0] < text_size[0] || img_dims[1] < text_size[1] ||
+      text_size[0] * 2 < img_dims[0] || text_size[1] * 2 < img_dims[0])
+    {
+    new_img_dims[0] = 1 << (int)ceil(log((double)text_size[0]) / log(2.0));
+    new_img_dims[1] = 1 << (int)ceil(log((double)text_size[1]) / log(2.0));
+    new_img_dims[2] = 1;
+    if (new_img_dims[0] != img_dims[0] || 
+        new_img_dims[1] != img_dims[1] ||
+        new_img_dims[2] != img_dims[2])
+      {
+      data->SetDimensions(new_img_dims);
+      data->AllocateScalars();
+      data->UpdateInformation();
+      data->SetUpdateExtent(data->GetWholeExtent());
+      data->PropagateUpdateExtent();
+      }
+    }
+
+  // Render inside the image data
+
+  *x = (text_bbox[0] < 0 ? -text_bbox[0] : 0);
+  *y = (text_bbox[2] < 0 ? -text_bbox[2] : 0);
+
+  memset(data->GetScalarPointer(), 0, 
+          (data->GetNumberOfPoints() *
+            data->GetNumberOfScalarComponents()));
+}
+
+//this code borrows liberally from vtkTextMapper::SetConstrainedFontSize
+int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
+                                                 vtkTextProperty *tprop,
+                                                 int targetWidth,
+                                                 int targetHeight)
+{
+  // If target "empty"
+  if (targetWidth == 0 && targetHeight == 0)
+    {
+    return 0;
+    }
+  int fontSize = tprop->GetFontSize();
+
+  // Use the given size as a first guess
+  int width = 0;
+  int height = 0;
+  float notUsed = 0;
+  this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
+  
+  // Now get an estimate of the target font size using bissection
+  // Based on experimentation with big and small font size increments,
+  // ceil() gives the best result.
+  // big:   floor: 10749, ceil: 10106, cast: 10749, vtkMath::Round: 10311
+  // small: floor: 12122, ceil: 11770, cast: 12122, vtkMath::Round: 11768
+  // I guess the best optim would be to have a look at the shape of the
+  // font size growth curve (probably not that linear)
+
+  if (width && height)
+    {
+    float fx = (float)targetWidth / (float)width;
+    float fy = (float)targetHeight / (float)height;
+    fontSize = (int)ceil((float)fontSize * ((fx <= fy) ? fx : fy));
+    tprop->SetFontSize(fontSize);
+    this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
+    }
+
+  // While the size is too small increase it
+  while (height <= targetHeight &&
+         width <= targetWidth && 
+         fontSize < 100)
+    {
+    fontSize++;
+    tprop->SetFontSize(fontSize);
+    this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
+    }
+
+  // While the size is too large decrease it
+  while ((height > targetHeight || width > targetWidth) 
+         && fontSize > 0)
+    {
+    fontSize--;
+    tprop->SetFontSize(fontSize);
+    this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
+    }
+  return fontSize;
 }
