@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.6");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.7");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -644,8 +644,8 @@ double vtkBiDimensionalRepresentation2D::GetLength2()
 {
   double x3[3], x4[3];
   
-  this->GetPoint1WorldPosition(x3);
-  this->GetPoint2WorldPosition(x4);
+  this->GetPoint3WorldPosition(x3);
+  this->GetPoint4WorldPosition(x4);
   
   return sqrt(vtkMath::Distance2BetweenPoints(x3,x4));
 }
