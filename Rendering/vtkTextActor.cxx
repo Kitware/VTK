@@ -22,7 +22,7 @@
 #include "vtkImageData.h"
 #include "vtkFreeTypeUtilities.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.23");
+vtkCxxRevisionMacro(vtkTextActor, "1.24");
 vtkStandardNewMacro(vtkTextActor);
 
 // ----------------------------------------------------------------------------
@@ -210,9 +210,8 @@ int vtkTextActor::RenderOverlay(vtkViewport *viewport)
 int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   //Make sure we have a string to render
-  if(!this->Input || strcmp(this->Input, "\0") == 0)
+  if(!this->Input)
     {
-    vtkErrorMacro(<<"No string to render");
     return 0;
     }
 
