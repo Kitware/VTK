@@ -38,7 +38,6 @@ vtkCaptionActor2D caption
 
 set tprop [caption GetCaptionTextProperty]
     eval $tprop SetColor [[caption GetProperty] GetColor]
-    $tprop SetJustificationToCentered
 
 vtkCaptionActor2D caption2
     caption2 SetCaption "Santa lives here"
