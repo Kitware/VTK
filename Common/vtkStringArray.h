@@ -215,9 +215,11 @@ public:
   // the array supplied by the user.  Set save to 1 to keep the class
   // from deleting the array when it cleans up or reallocates memory.
   // The class uses the actual array provided; it does not copy the data
-  // from the suppled array.
+  // from the suppled array. If save is 0, then this class is free to delete
+  // the array when it cleans up or reallocates. In that case, it is required 
+  // that the array was allocated using the C++ new operator (and not malloc).
   void SetArray(vtkStdString* array, vtkIdType size, int save);
-  void SetVoidArray(void* array, vtkIdType size, int save)
+  virtual void SetVoidArray(void* array, vtkIdType size, int save)
     { this->SetArray(static_cast<vtkStdString*>(array), size, save); }
 //ETX
 
