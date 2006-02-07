@@ -40,7 +40,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.15");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.16");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -1265,6 +1265,7 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
 {
   //just to avoid the warning...
   x = y;
+  y = x;
   return this->RenderString(tprop, str, data);
 }
 

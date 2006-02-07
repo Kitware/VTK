@@ -22,7 +22,7 @@
 #include "vtkImageData.h"
 #include "vtkFreeTypeUtilities.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.25");
+vtkCxxRevisionMacro(vtkTextActor, "1.26");
 vtkStandardNewMacro(vtkTextActor);
 
 // ----------------------------------------------------------------------------
@@ -176,7 +176,6 @@ void vtkTextActor::SetTextProperty(vtkTextProperty *p)
   this->Modified();
 }
 
-//todo
 // ----------------------------------------------------------------------------
 void vtkTextActor::ShallowCopy(vtkProp *prop)
 {
@@ -191,7 +190,6 @@ void vtkTextActor::ShallowCopy(vtkProp *prop)
     this->SetTextProperty(a->GetTextProperty());
     }
   // Now do superclass (mapper is handled by it as well).
-    // ^figure out if this comment is still true
   this->vtkActor2D::ShallowCopy(prop);
 }
 
@@ -456,11 +454,12 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       }
     else
       {
-      int size[2] = {-1, -1};
+      int textSize[2] = {-1, -1};
       float descender = -1;
       this->FreeTypeUtilities->GetWidthHeightDescender(this->Input,
                                                       this->TextProperty,
-                                                      &size[0], &size[1],
+                                                      &textSize[0],
+                                                      &textSize[1],
                                                       &descender);
       this->AdjustedPositionCoordinate->GetValue(adjustedPos);
       this->SpecifiedToDisplay(
@@ -475,7 +474,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       switch(this->TextProperty->GetJustification())
         {
         case VTK_TEXT_RIGHT:
-          changeVector[0] = size[0];
+          changeVector[0] = textSize[0];
           changeVector[1] = 0;
           changeVector[2] = 0;
           this->Transform->TransformPoint(changeVector, changeVector);
@@ -485,7 +484,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
           adjustedPos[1] -= changeVector[1];
           break;
         case VTK_TEXT_CENTERED:
-          changeVector[0] = size[0] / 2;
+          changeVector[0] = textSize[0] / 2;
           changeVector[1] =  0;
           changeVector[2] = 0;
           this->Transform->TransformPoint(changeVector, changeVector);
@@ -502,7 +501,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
         {
         case VTK_TEXT_TOP:
           changeVector[0] = 0;
-          changeVector[1] = size[1] - descender;
+          changeVector[1] = textSize[1] - descender;
           changeVector[2] = 0;
           this->Transform->TransformPoint(changeVector, changeVector);
           changeVector[0] = floor(changeVector[0] + 0.5);
@@ -512,7 +511,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
           break;
         case VTK_TEXT_CENTERED:
           changeVector[0] = 0;
-          changeVector[1] = size[1] / 2 - descender / 2;
+          changeVector[1] = textSize[1] / 2 - descender / 2;
           changeVector[2] = 0;
           this->Transform->TransformPoint(changeVector, changeVector);
           changeVector[0] = floor(changeVector[0] + 0.5);
@@ -633,7 +632,6 @@ void vtkTextActor::DisplayToSpecified(double *pos, vtkViewport *vport,
     }
 }
 
-// this guy needs to get redone a bit too...
 // ----------------------------------------------------------------------------
 void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
 {
