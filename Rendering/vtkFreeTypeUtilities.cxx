@@ -40,7 +40,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.14");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.15");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -844,7 +844,6 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
   // Render char by char
   for (; *str; str++)
     {
-  //boundingbox
     if(*str == '\n')
       {
       *itr = '\0';
@@ -967,8 +966,22 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
     {
     int shadowOffset[2];
     tprop->GetShadowOffset(shadowOffset);
-    bbox[1] += shadowOffset[0];
-    bbox[2] += shadowOffset[1];
+    if(shadowOffset[0] < 0)
+      {
+      bbox[0] += shadowOffset[0];
+      }
+    else
+      {
+      bbox[1] += shadowOffset[1];
+      }
+    if(shadowOffset[1] < 0)
+      {
+      bbox[2] += shadowOffset[1];
+      }
+    else
+      {
+      bbox[3] += shadowOffset[1];
+      }
     }
 
   return 1;
@@ -1058,7 +1071,6 @@ int vtkFreeTypeUtilitiesRenderString(
   // Render char by char
   for (; *str; str++)
     {
-  //renderstring
     if(*str == '\n')
       {
       *itr = '\0';
@@ -1261,7 +1273,7 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
                                        const char *str,
                                        vtkImageData *data)
 {
-  // Check
+  // Check parameters
   if (!tprop || !str || !data)
     {
     vtkErrorMacro(<< "Wrong parameters, one of them is NULL or zero");
@@ -1293,7 +1305,7 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
                          this, 
                          tprop,
                          str,
-                         x + shadowOffset[0], y - shadowOffset[1],
+                         x + shadowOffset[0], y + shadowOffset[1],
                          data, 
                          (VTK_TT *)(NULL),
                          1));
