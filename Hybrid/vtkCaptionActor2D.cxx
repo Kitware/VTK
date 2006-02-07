@@ -32,7 +32,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.32");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.33");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
@@ -73,7 +73,7 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->CaptionTextProperty->SetShadow(1);
   this->CaptionTextProperty->SetFontFamily(VTK_ARIAL);
   this->CaptionTextProperty->SetJustification(VTK_TEXT_LEFT);
-  this->CaptionTextProperty->SetVerticalJustification(VTK_TEXT_CENTERED);
+  this->CaptionTextProperty->SetVerticalJustification(VTK_TEXT_BOTTOM);
 
   // What is actually drawn
   this->TextActor = vtkTextActor::New();
