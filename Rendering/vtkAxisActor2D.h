@@ -193,6 +193,12 @@ public:
   vtkBooleanMacro(TitleVisibility, int);
 
   // Description:
+  // Set/Get position of the axis title. 0 is at the start of the
+  // axis whereas 1 is at the end.
+  vtkSetMacro(TitlePosition, double);
+  vtkGetMacro(TitlePosition, double);
+
+  // Description:
   // Set/Get the factor that controls the overall size of the fonts used
   // to label and title the axes. This ivar used in conjunction with
   // the LabelFactor can be used to control font sizes.
@@ -264,6 +270,7 @@ protected:
 
   char  *Title;
   double Range[2];
+  double TitlePosition;
   int   NumberOfLabels;
   char  *LabelFormat;
   int   AdjustLabels;

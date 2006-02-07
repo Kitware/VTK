@@ -328,7 +328,25 @@ public:
   vtkGetMacro(NumberOfYLabels, int);
   void SetNumberOfLabels(int num)
     {this->SetNumberOfXLabels(num); this->SetNumberOfYLabels(num);}
-  
+
+  // Description:
+  // Set/Get the flag that controls whether the labels and ticks are
+  // adjusted for "nice" numerical values to make it easier to read 
+  // the labels. The adjustment is based in the Range instance variable.
+  // Call GetAdjustedRange and GetAdjustedNumberOfLabels to get the adjusted
+  // range and number of labels.
+  void SetAdjustXLabels(int adjust);
+  int GetAdjustXLabels();
+  void SetAdjustYLabels(int adjust);
+  int GetAdjustYLabels();
+
+  // Description:
+  // Set/Get the position of the title of X or Y axis.
+  void SetXTitlePosition(double position);
+  double GetXTitlePosition();
+  void SetYTitlePosition(double position);
+  double GetYTitlePosition();
+
   // Description:
   // Enable/Disable the creation of a legend. If on, the legend labels will
   // be created automatically unless the per plot legend symbol has been
@@ -336,6 +354,19 @@ public:
   vtkSetMacro(Legend, int);
   vtkGetMacro(Legend, int);
   vtkBooleanMacro(Legend, int);
+
+  // Description: 
+  // Set/Get the position of the title. This has no effect if 
+  // AdjustTitlePosition is true.
+  vtkSetVector2Macro(TitlePosition,double);
+  vtkGetVector2Macro(TitlePosition,double);
+
+  // Description:
+  // If true, the xyplot actor will adjust the position of the title
+  // automatically to be upper-middle. Default is true.
+  vtkSetMacro(AdjustTitlePosition, int);
+  vtkGetMacro(AdjustTitlePosition, int);
+  vtkBooleanMacro(AdjustTitlePosition, int);
 
   // Description: 
   // Use these methods to control the position of the legend. The variables
@@ -373,10 +404,23 @@ public:
   vtkBooleanMacro(Logx, int);
 
   // Description:
-  // Set/Get the format with which to print the labels on the scalar
-  // bar.
+  // Set/Get the format with which to print the labels . This sets both X
+  // and Y label formats. GetLabelFormat() returns X label format.
   virtual void SetLabelFormat (const char* _arg);
-  vtkGetStringMacro(LabelFormat);
+  const char* GetLabelFormat()
+    {
+      return this->GetXLabelFormat();
+    }
+
+  // Description:
+  // Set/Get the format with which to print the X label.
+  virtual void SetXLabelFormat (const char* _arg);
+  vtkGetStringMacro(XLabelFormat);
+
+  // Description:
+  // Set/Get the format with which to print the Y label.
+  virtual void SetYLabelFormat (const char* _arg);
+  vtkGetStringMacro(YLabelFormat);
 
   // Description:
   // Set/Get the spacing between the plot window and the plot. The value
@@ -476,7 +520,8 @@ protected:
   int   NumberOfXLabels;
   int   NumberOfYLabels;
   int   Logx;
-  char  *LabelFormat;
+  char  *XLabelFormat;
+  char  *YLabelFormat;
   double XRange[2];
   double YRange[2];
   double XComputedRange[2];  //range actually used by plot
@@ -489,6 +534,8 @@ protected:
   int ExchangeAxes;
   int ReverseXAxis;
   int ReverseYAxis;
+  int AdjustTitlePosition;
+  double TitlePosition[2];
   
   vtkTextMapper   *TitleMapper;
   vtkActor2D      *TitleActor;

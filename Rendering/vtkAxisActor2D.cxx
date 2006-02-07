@@ -23,7 +23,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.41");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.42");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -43,6 +43,8 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->NumberOfLabels = 5;
 
   this->Title = NULL;
+
+  this->TitlePosition = 0.5;
 
   this->AdjustLabels = 1;
 
@@ -478,7 +480,8 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     for (i = 0; i < this->AdjustedNumberOfLabels; i++)
         {
         this->LabelActors[i]->SetProperty(this->GetProperty());
-        if (this->LabelTextProperty->GetMTime() > this->BuildTime)
+        if (this->LabelTextProperty->GetMTime() > this->BuildTime ||
+            this->AdjustedRangeBuildTime > this->BuildTime)
           {
           // Shallow copy here so that the size of the label prop is not
           // affected by the automatic adjustment of its text mapper's
@@ -559,8 +562,8 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
       this->TitleMapper->GetSize(viewport, stringSize);
       }
 
-    xTick[0] = p1[0] + (p2[0] - p1[0]) / 2.0;
-    xTick[1] = p1[1] + (p2[1] - p1[1]) / 2.0;
+    xTick[0] = p1[0] + (p2[0] - p1[0]) * this->TitlePosition;
+    xTick[1] = p1[1] + (p2[1] - p1[1]) * this->TitlePosition;
     xTick[0] = xTick[0] + (this->TickLength + this->TickOffset) * sin(theta);
     xTick[1] = xTick[1] - (this->TickLength + this->TickOffset) * cos(theta);
     
