@@ -32,8 +32,7 @@
 // can be moved along their constraint lines. Also, each line can be translated
 // along the other line (in an orthogonal direction), and the whole
 // bi-dimensional widget can be rotated about its center point (see the description
-// of the event bindings). Finally, selecting the point where the two orthogonal
-// axes intersect, the entire widget can be translated in any direction.
+// of the event bindings).
 //
 // Placement of any point results in a special PlacePointEvent invocation so
 // that special operations may be performed to reposition the point. Motion
@@ -54,9 +53,9 @@
 // By default, the widget responds to the following VTK events (i.e., it
 // watches the vtkRenderWindowInteractor for these events):
 // <pre>
-//   LeftButtonPressEvent - define a point or manipulate a handle, line,
-//                          perform rotation or translate the widget.
-//   MouseMoveEvent - position the points, move a line, rotate or translate the widget
+//   LeftButtonPressEvent - define a point or manipulate a handle, line or 
+//                          perform rotation
+//   MouseMoveEvent - position the points, move a line, rotate the widget
 //   LeftButtonReleaseEvent - release the selected handle and end interaction
 // </pre>
 //
@@ -143,7 +142,6 @@ protected:
   int CurrentHandle;
   int HandleSelected;
   int LineSelected;
-  int CenterSelected;
 
   // Callback interface to capture events when
   // placing the widget.
