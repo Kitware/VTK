@@ -27,7 +27,7 @@
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkDistanceRepresentation2D, "1.4");
+vtkCxxRevisionMacro(vtkDistanceRepresentation2D, "1.5");
 vtkStandardNewMacro(vtkDistanceRepresentation2D);
 
 //----------------------------------------------------------------------
@@ -47,8 +47,10 @@ vtkDistanceRepresentation2D::vtkDistanceRepresentation2D()
   this->AxisActor->AdjustLabelsOff();
   this->AxisActor->SetProperty(this->AxisProperty);
   this->AxisActor->SetTitle("Distance");
-  this->AxisActor->GetTitleTextProperty()->ShadowOff();
-  this->AxisActor->GetTitleTextProperty()->SetColor(0,1,0);
+  this->AxisActor->GetTitleTextProperty()->SetBold(1);
+  this->AxisActor->GetTitleTextProperty()->SetItalic(1);
+  this->AxisActor->GetTitleTextProperty()->SetShadow(1);
+  this->AxisActor->GetTitleTextProperty()->SetFontFamilyToArial();
   
   this->Distance = 0.0;
 }

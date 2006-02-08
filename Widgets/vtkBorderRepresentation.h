@@ -23,11 +23,12 @@
 // the vtkBorderRepresentation interacts with to render itself in the scene.
 
 // .SECTION Caveats
-// The separation of the widget event handling and representation enables
-// users and developers to create new appearances for the widget. It also
-// facilitates parallel processing, where the client application handles
-// events, and remote representations of the widget are slaves to the 
-// client (and do not handle events).
+// The separation of the widget event handling (e.g., vtkBorderWidget) from
+// the representation (vtkBorderRepresentation) enables users and developers
+// to create new appearances for the widget. It also facilitates parallel
+// processing, where the client application handles events, and remote
+// representations of the widget are slaves to the client (and do not handle
+// events).
 
 // .SECTION See Also
 // vtkBorderWidget
@@ -64,7 +65,11 @@ public:
   // Specify opposite corners of the box defining the boundary of the
   // widget. By default, these coordinates are in the normalized viewport
   // coordinate system, with Position the lower left of the outline, and
-  // Position2 relative to Position.
+  // Position2 relative to Position. Note that using these methods are
+  // affected by the ProportionalResize flag. That is, if the aspect ratio of
+  // the representation is to be preserved (e.g., ProportionalResize is on),
+  // then the rectangle (Position,Position2) is a bounding rectangle. Also,
+  // 
   vtkViewportCoordinateMacro(Position);
   vtkViewportCoordinateMacro(Position2);
 
@@ -89,10 +94,22 @@ public:
 
   // Description:
   // Indicate whether resizing operations should keep the x-y directions
-  // proportional to one another.
+  // proportional to one another. Also, if ProportionalResize is on, then
+  // the rectangle (Position,Position2) is a bounding rectangle, and the
+  // representation will be placed in the rectangle in such a way as to 
+  // preserve the aspect ratio of the representation.
   vtkSetMacro(ProportionalResize,int);
   vtkGetMacro(ProportionalResize,int);
   vtkBooleanMacro(ProportionalResize,int);
+
+  // Description:
+  // Specify a minimum and/or maximum size (in pixels) that this representation
+  // can take. These methods require two values: size values in the x and y
+  // directions, respectively.
+  vtkSetVector2Macro(MinimumSize,int);
+  vtkGetVector2Macro(MinimumSize,int);
+  vtkSetVector2Macro(MaximumSize,int);
+  vtkGetVector2Macro(MaximumSize,int);
 
   // Description:
   // The tolerance representing the distance to the widget (in pixels)
@@ -183,6 +200,11 @@ protected:
   vtkTransformPolyDataFilter *BWTransformFilter;
   vtkPolyDataMapper2D        *BWMapper;
   vtkActor2D                 *BWActor;
+
+  // Constraints on size
+  int MinimumSize[2];
+  int MaximumSize[2];
+  
 
 private:
   vtkBorderRepresentation(const vtkBorderRepresentation&);  //Not implemented

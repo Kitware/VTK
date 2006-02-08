@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkBorderRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkBorderRepresentation, "1.6");
 vtkStandardNewMacro(vtkBorderRepresentation);
 
 
@@ -84,6 +84,11 @@ vtkBorderRepresentation::vtkBorderRepresentation()
   
   this->BorderProperty = vtkProperty2D::New();
   this->BWActor->SetProperty(this->BorderProperty);
+
+  this->MinimumSize[0] = 1;
+  this->MinimumSize[1] = 1;
+  this->MaximumSize[0] = 100000;
+  this->MaximumSize[1] = 100000;
 
   this->Moving = 0;
 }
@@ -366,6 +371,12 @@ void vtkBorderRepresentation::BuildRepresentation()
     int *pos2 = this->Position2Coordinate->
       GetComputedDisplayValue(this->Renderer);
 
+    // If the widget's aspect ratio is to be preserved (ProportionalResizeOn),
+    // then (pos1,pos2) are a bounding rectangle.
+    if ( this->ProportionalResize )
+      {
+      }
+
     // Now transform the canonical widget into display coordinates
     double size[2];
     this->GetSize(size);
@@ -458,6 +469,9 @@ void vtkBorderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Proportional Resize: " 
      << (this->ProportionalResize ? "On\n" : "Off\n");
+  os << indent << "Minimum Size: " << this->MinimumSize[0] << " " << this->MinimumSize[1] << endl;
+  os << indent << "Maximum Size: " << this->MaximumSize[0] << " " << this->MaximumSize[1] << endl;
+
   os << indent << "Moving: " << (this->Moving ? "On\n" : "Off\n");
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   

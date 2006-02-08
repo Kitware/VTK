@@ -138,11 +138,7 @@ protected:
 //BTX
   //widget state
   int WidgetState;
-  enum _WidgetState
-  {
-    Start=0,
-    Selected
-  };
+  enum _WidgetState{Start=0,Selected};
 //ETX
 
 private:
