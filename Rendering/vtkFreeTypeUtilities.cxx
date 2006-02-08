@@ -40,7 +40,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.17");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.18");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -1153,6 +1153,10 @@ int vtkFreeTypeUtilitiesRenderString(
       // Render
 
       T *data_ptr = (T*)data->GetScalarPointer(pen_x, pen_y, 0);
+      if( !data_ptr )
+        {
+        return 0;
+        }
 
       int data_pitch = (-data->GetDimensions()[0] - bitmap->width) * data_inc_x;
 
