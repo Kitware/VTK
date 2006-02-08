@@ -160,6 +160,18 @@ public:
   // coordinates). 
   vtkSetClampMacro(TickLength, int, 0, 100);
   vtkGetMacro(TickLength, int);
+
+  // Description:
+  // Number of minor ticks to be displayed between each tick. Default
+  // is 0.
+  vtkSetClampMacro(NumberOfMinorTicks, int, 0, 20);
+  vtkGetMacro(NumberOfMinorTicks, int);
+
+  // Description:
+  // Set/Get the length of the minor tick marks (expressed in pixels or
+  // display coordinates).
+  vtkSetClampMacro(MinorTickLength, int, 0, 100);
+  vtkGetMacro(MinorTickLength, int);
   
   // Description:
   // Set/Get the offset of the labels (expressed in pixels or display
@@ -277,7 +289,9 @@ protected:
   double FontFactor;
   double LabelFactor;
   int   TickLength;
+  int   MinorTickLength;
   int   TickOffset;
+  int NumberOfMinorTicks;
 
   double AdjustedRange[2];
   int   AdjustedNumberOfLabels;

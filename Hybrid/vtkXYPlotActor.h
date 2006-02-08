@@ -348,6 +348,13 @@ public:
   double GetYTitlePosition();
 
   // Description:
+  // Set/Get the number of minor ticks in X or Y.
+  void SetNumberOfXMinorTicks(int num);
+  int GetNumberOfXMinorTicks();
+  void SetNumberOfYMinorTicks(int num);
+  int GetNumberOfYMinorTicks();
+
+  // Description:
   // Enable/Disable the creation of a legend. If on, the legend labels will
   // be created automatically unless the per plot legend symbol has been
   // set.

@@ -23,7 +23,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.42");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.43");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -49,7 +49,9 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->AdjustLabels = 1;
 
   this->TickLength = 5;
+  this->MinorTickLength = 3;
   this->TickOffset = 2;
+  this->NumberOfMinorTicks = 0;
 
   this->Range[0] = 0.0;
   this->Range[1] = 1.0;
@@ -267,6 +269,11 @@ void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Title Visibility: " 
      << (this->TitleVisibility ? "On\n" : "Off\n");
+
+  os << indent << "MinorTickLength: " << this->MinorTickLength << endl;
+  os << indent << "NumberOfMinorTicks: " << this->NumberOfMinorTicks
+     << endl;
+  os << indent << "TitlePosition: " << this->TitlePosition << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -407,13 +414,24 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   xTick[2] = 0.0;
 
   pts->InsertNextPoint(xTick);
-  for (i = 1; i < this->AdjustedNumberOfLabels - 1; i++)
+  int numTicks = (this->AdjustedNumberOfLabels-1)*(
+    this->NumberOfMinorTicks+1)+1;
+  for (i = 1; i < numTicks - 1; i++)
     {
-    xTick[0] = p1[0] + i * (p2[0] - p1[0]) / (this->AdjustedNumberOfLabels - 1);
-    xTick[1] = p1[1] + i * (p2[1] - p1[1]) / (this->AdjustedNumberOfLabels - 1);
+    int tickLength = 0;
+    if ( i % (this->NumberOfMinorTicks+1) == 0 )
+      {
+      tickLength = this->TickLength;
+      }
+    else
+      {
+      tickLength = this->MinorTickLength;
+      }
+    xTick[0] = p1[0] + i * (p2[0] - p1[0]) / (numTicks - 1);
+    xTick[1] = p1[1] + i * (p2[1] - p1[1]) / (numTicks - 1);
     pts->InsertNextPoint(xTick);
-    xTick[0] = xTick[0] + this->TickLength * sin(theta);
-    xTick[1] = xTick[1] - this->TickLength * cos(theta);
+    xTick[0] = xTick[0] + tickLength * sin(theta);
+    xTick[1] = xTick[1] - tickLength * cos(theta);
     pts->InsertNextPoint(xTick);
     }
 
@@ -433,7 +451,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
 
   if (this->TickVisibility) 
     {
-    for (i = 0; i < this->AdjustedNumberOfLabels; i++)
+    for (i = 0; i < numTicks; i++)
       {
       ptIds[0] = 2*i;
       ptIds[1] = 2*i + 1;
@@ -515,7 +533,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
 
     for (i = 0; i < this->AdjustedNumberOfLabels; i++)
       {
-      pts->GetPoint(2 * i + 1, xTick);
+      pts->GetPoint((this->NumberOfMinorTicks+1) * 2 * i + 1, xTick);
       this->LabelMappers[i]->GetSize(viewport, stringSize);
       this->SetOffsetPosition(xTick, 
                               theta, 
