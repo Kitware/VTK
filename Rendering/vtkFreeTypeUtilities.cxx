@@ -40,7 +40,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.16");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.17");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -983,7 +983,7 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
       bbox[3] += shadowOffset[1];
       }
     }
-
+  delete [] currentLine;
   return 1;
 }
 
@@ -1172,7 +1172,7 @@ int vtkFreeTypeUtilitiesRenderString(
           {
           t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
           t_1_m_alpha = 1.0 - t_alpha;
-
+ 
           switch (data_nb_comp)
             {
             // L
@@ -1253,7 +1253,7 @@ int vtkFreeTypeUtilitiesRenderString(
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
     itr++;
     }
-
+  delete [] currentLine;
   return 1;
 }
 
