@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.10");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.11");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -79,6 +79,10 @@ vtkBiDimensionalRepresentation2D::vtkBiDimensionalRepresentation2D()
   this->SelectedLineProperty->SetLineWidth(2.0);
 
   this->TextProperty = vtkTextProperty::New();
+  this->TextProperty->SetBold(1);
+  this->TextProperty->SetItalic(1);
+  this->TextProperty->SetShadow(1);
+  this->TextProperty->SetFontFamilyToArial();
   this->L1TextMapper = vtkTextMapper::New();
   this->L1TextMapper->SetTextProperty(this->TextProperty);
   this->L1TextMapper->SetInput("0.0");
@@ -190,7 +194,6 @@ void vtkBiDimensionalRepresentation2D::SetPoint1DisplayPosition(double x[3])
   double p[3];
   this->Point1Representation->GetWorldPosition(p);
   this->Point1Representation->SetWorldPosition(p);
-  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -200,7 +203,6 @@ void vtkBiDimensionalRepresentation2D::SetPoint2DisplayPosition(double x[3])
   double p[3];
   this->Point2Representation->GetWorldPosition(p);
   this->Point2Representation->SetWorldPosition(p);
-  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -210,7 +212,6 @@ void vtkBiDimensionalRepresentation2D::SetPoint3DisplayPosition(double x[3])
   double p[3];
   this->Point3Representation->GetWorldPosition(p);
   this->Point3Representation->SetWorldPosition(p);
-  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -220,7 +221,6 @@ void vtkBiDimensionalRepresentation2D::SetPoint4DisplayPosition(double x[3])
   double p[3];
   this->Point4Representation->GetWorldPosition(p);
   this->Point4Representation->SetWorldPosition(p);
-  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -379,7 +379,6 @@ void vtkBiDimensionalRepresentation2D::Point2WidgetInteraction(double e[2])
   pos[1] = e[1];
   pos[2] = 0.0;
   this->SetPoint2DisplayPosition(pos);
-  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -418,8 +417,6 @@ void vtkBiDimensionalRepresentation2D::Point3WidgetInteraction(double e[2])
   p4[0] = closest[0] - dist*slope2[0];
   p4[1] = closest[1] - dist*slope2[1];
   this->SetPoint4DisplayPosition(p4);
-  
-  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -591,14 +588,16 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
     this->SetPoint3DisplayPosition(p3);
     this->SetPoint4DisplayPosition(p4);
     }
-
-  this->Modified();
 }
 
 //----------------------------------------------------------------------
 void vtkBiDimensionalRepresentation2D::BuildRepresentation()
 {
   if ( this->GetMTime() > this->BuildTime || 
+       this->Point1Representation->GetMTime() > this->BuildTime ||
+       this->Point2Representation->GetMTime() > this->BuildTime ||
+       this->Point3Representation->GetMTime() > this->BuildTime ||
+       this->Point4Representation->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
