@@ -41,7 +41,7 @@ public:
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAVIWriter);
-vtkCxxRevisionMacro(vtkAVIWriter, "1.3.8.1");
+vtkCxxRevisionMacro(vtkAVIWriter, "1.3.8.2");
 
 //---------------------------------------------------------------------------
 vtkAVIWriter::vtkAVIWriter()
@@ -52,6 +52,7 @@ vtkAVIWriter::vtkAVIWriter()
   this->Internals->AVIFile = NULL;
   this->Time = 0;
   this->Rate = 15;
+  this->Quality = 2;
   this->Internals->hDIB = NULL;  // handle to DIB, temp handle
 }
 
@@ -128,7 +129,19 @@ void vtkAVIWriter::Start()
   // need to setup opts
   opts.fccType = 0;
   opts.fccHandler=mmioFOURCC('m','s','v','c');
-  opts.dwQuality = 10000;
+  switch (this->GetQuality()) 
+    {
+    case 0:
+      opts.dwQuality = 2500;
+      break;
+    case 1:
+      opts.dwQuality = 5000;
+      break;
+    default:
+      opts.dwQuality = 10000;
+      break;
+    }
+
   opts.dwBytesPerSecond = 0;
   opts.dwFlags = AVICOMPRESSF_VALID;
 
@@ -255,5 +268,8 @@ void vtkAVIWriter::End()
 void vtkAVIWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);  
+
+  os << indent << "Rate: " << this->Rate << endl;
+  os << indent << "Quality: " << this->Quality << endl;
 }
 
