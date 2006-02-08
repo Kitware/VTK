@@ -38,9 +38,10 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.2");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.3");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
+//----------------------------------------------------------------------------
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
 {
   this->State = vtkImplicitPlaneWidget::Start;
@@ -631,6 +632,7 @@ void vtkImplicitPlaneWidget::OnMiddleButtonUp()
   this->Interactor->Render();
 }
 
+//----------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::OnRightButtonDown()
 {
   if ( this->ScaleEnabled )
