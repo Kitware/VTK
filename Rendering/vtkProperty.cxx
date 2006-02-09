@@ -36,7 +36,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.62");
+vtkCxxRevisionMacro(vtkProperty, "1.63");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -525,7 +525,7 @@ void vtkProperty::LoadMember(vtkXMLDataElement* elem)
   if ( member == IVarColor ||
        member == IVarAmbientColor||
        member == IVarDiffuseColor||
-       member == IVarSpecular||
+       member == IVarSpecularColor||
        member == IVarEdgeColor )
     {
     number_of_elements = 3;
