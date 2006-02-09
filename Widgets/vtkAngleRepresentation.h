@@ -61,7 +61,6 @@ public:
   virtual void GetPoint2DisplayPosition(double pos[3]) = 0;
 
   // Description:
-
   // This method is used to specify the type of handle representation to use
   // for the three internal vtkHandleWidgets within vtkAngleRepresentation.
   // To use this method, create a dummy vtkHandleRepresentation (or
@@ -80,7 +79,6 @@ public:
   vtkGetObjectMacro(Point2Representation,vtkHandleRepresentation);
 
   // Description:
-
   // The tolerance representing the distance to the representation (in
   // pixels) in which the cursor is considered near enough to the end points
   // of the representation to be active.
