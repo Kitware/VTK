@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.7");
+vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.8");
 vtkStandardNewMacro(vtkAngleRepresentation2D);
 
 
@@ -50,7 +50,7 @@ vtkAngleRepresentation2D::vtkAngleRepresentation2D()
   this->Arc->SetArrowPlacementToNone();
   this->Arc->SetLabel("Angle");
   this->Arc->SetLabelFormat(this->LabelFormat);
-  this->Arc->AutoLabelOn();
+//  this->Arc->AutoLabelOn();
 }
 
 //----------------------------------------------------------------------
@@ -93,6 +93,7 @@ void vtkAngleRepresentation2D::SetPoint1DisplayPosition(double x[3])
   this->Point1Representation->GetWorldPosition(p);
   this->Point1Representation->SetWorldPosition(p);
   this->Ray1->GetPosition2Coordinate()->SetValue(p);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -104,6 +105,7 @@ void vtkAngleRepresentation2D::SetCenterDisplayPosition(double x[3])
   this->CenterRepresentation->SetWorldPosition(p);
   this->Ray1->GetPositionCoordinate()->SetValue(p);
   this->Ray2->GetPositionCoordinate()->SetValue(p);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -114,6 +116,7 @@ void vtkAngleRepresentation2D::SetPoint2DisplayPosition(double x[3])
   this->Point2Representation->GetWorldPosition(p);
   this->Point2Representation->SetWorldPosition(p);
   this->Ray2->GetPosition2Coordinate()->SetValue(p);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -154,6 +157,39 @@ void vtkAngleRepresentation2D::BuildRepresentation()
     this->CenterRepresentation->GetDisplayPosition(c);
     this->Point2Representation->GetDisplayPosition(p2);
 
+    // Compute the angle (only if necessary since we don't want 
+    // fluctuations in angle value as the camera moves, etc.)
+    if ( this->GetMTime() > this->BuildTime )
+      {
+      double theta1 = atan2(p1[1]-c[1],p1[0]-c[0]);
+      double theta2 = atan2(p2[1]-c[1],p2[0]-c[0]);
+      if ( (theta1 >= 0.0 && theta1 <= vtkMath::Pi() &&
+            theta2 >= 0.0 && theta2 <= vtkMath::Pi()) ||
+           (theta1 <= 0.0 && theta1 >= -vtkMath::Pi() &&
+            theta2 <= 0.0 && theta2 >= -vtkMath::Pi()) )
+        {
+        ; //do nothin angles are fine
+        }
+      else if ( theta1 >= 0.0 && theta2 <= 0.0 )
+        {
+        if ( (theta1 - theta2) >= vtkMath::Pi() )
+          {
+          theta2 = theta2 + 2.0*vtkMath::Pi();
+          }
+        }
+      else //if ( theta1 <= 0.0 && theta2 >= 0.0 )
+        {
+        if ( (theta2 - theta1) >= vtkMath::Pi() )
+          {
+          theta1 = theta1 + 2.0*vtkMath::Pi();
+          }
+        }
+      char string[512];
+      sprintf(string, this->LabelFormat, -(theta2-theta1)*vtkMath::RadiansToDegrees());
+      this->Arc->SetLabel(string);
+      }
+    
+    // Place the label and place the arc
     double l1 = sqrt(vtkMath::Distance2BetweenPoints(c,p1));
     double l2 = sqrt(vtkMath::Distance2BetweenPoints(c,p2));
 
