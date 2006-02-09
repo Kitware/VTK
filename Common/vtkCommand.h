@@ -154,7 +154,9 @@ public:
     StartAnimationCueEvent, // used by vtkAnimationCue
     AnimationCueTickEvent,
     EndAnimationCueEvent,
+    VolumeMapperRenderEndEvent,
     VolumeMapperRenderProgressEvent,
+    VolumeMapperRenderStartEvent,
     VolumeMapperComputeGradientsEndEvent,
     VolumeMapperComputeGradientsProgressEvent,
     VolumeMapperComputeGradientsStartEvent,

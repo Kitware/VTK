@@ -83,6 +83,7 @@ class vtkFixedPointRayCastImage;
 
 // Forward declaration needed for use by friend declaration below.
 VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg );
+VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg );
 
 class VTK_VOLUMERENDERING_EXPORT vtkFixedPointVolumeRayCastMapper : public vtkVolumeMapper
 {
@@ -300,6 +301,7 @@ protected:
   void CaptureZBuffer( vtkRenderer *ren );
   
   friend VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg );
+  friend VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg );
   
   vtkMultiThreader  *Threader;
   int                NumberOfThreads;

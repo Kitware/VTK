@@ -1173,15 +1173,15 @@
 //ETX
 
 //BTX
-#define VTKKWRCHelper_IncrementAndLoopEnd()                                     \
-      imagePtr+=4;                                                              \
-      }                                                                         \
-    if ( j%32 == 31 )                                                           \
-      {                                                                         \
-      float fargs[1];                                                           \
-      fargs[0] = static_cast<float>(j)/static_cast<float>(imageInUseSize[1]-1); \
-      mapper->InvokeEvent( vtkCommand::ProgressEvent, fargs );                  \
-      }                                                                         \
+#define VTKKWRCHelper_IncrementAndLoopEnd()                                             \
+      imagePtr+=4;                                                                      \
+      }                                                                                 \
+    if ( j%32 == 31 )                                                                   \
+      {                                                                                 \
+      double fargs[1];                                                                  \
+      fargs[0] = static_cast<double>(j)/static_cast<float>(imageInUseSize[1]-1);        \
+      mapper->InvokeEvent( vtkCommand::VolumeMapperRenderProgressEvent, fargs );        \
+      }                                                                                 \
     }
 //ETX
 
