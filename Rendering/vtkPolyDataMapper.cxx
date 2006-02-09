@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.38");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.39");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -134,7 +134,14 @@ double *vtkPolyDataMapper::GetBounds()
     {
     if (!this->Static)
       {
-      this->Update();
+      // For proper clipping, this would be this->Piece, this->NumberOfPieces ..
+      // But that removes all benefites of streaming.
+      // Update everything as a hack for paraview streaming.
+      // This should not affect anything else, because no one uses this.
+      // It should also render just the same.
+      // Just remove this lie if we no longer need streaming in paraview :)
+      this->GetInput()->SetUpdateExtent(0, 1, 0);
+      this->GetInput()->Update();
       this->GetInput()->GetBounds(this->Bounds);
       }  
     // if the bounds indicate NAN and subpieces are being used then 
