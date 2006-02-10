@@ -157,6 +157,12 @@ public:
   vtkBooleanMacro(OutlineTranslation,int);
 
   // Description:
+  // Turn on/off the ability to move the widget outside of the input's bound
+  vtkSetMacro(OutsideBounds,int);
+  vtkGetMacro(OutsideBounds,int);
+  vtkBooleanMacro(OutsideBounds,int);
+
+  // Description:
   // Turn on/off the ability to scale with the mouse 
   vtkSetMacro(ScaleEnabled,int);
   vtkGetMacro(ScaleEnabled,int);
@@ -258,6 +264,7 @@ protected:
   void HighlightOutline(int highlight);
   int OutlineTranslation; //whether the outline can be moved
   int ScaleEnabled; //whether the widget can be scaled 
+  int OutsideBounds; //whether the widget can be moved outside input's bounds
   
   // The cut plane is produced with a vtkCutter
   vtkCutter         *Cutter;

@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.3");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.4");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 //----------------------------------------------------------------------------
@@ -67,6 +67,7 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->OutlineActor->SetMapper(this->OutlineMapper);
   this->OutlineTranslation = 1;
   this->ScaleEnabled = 1;
+  this->OutsideBounds = 1;
   
   this->Cutter = vtkCutter::New();
   this->Cutter->SetInput(this->Box);
@@ -159,6 +160,7 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->CreateDefaultProperties();
 }
 
+//----------------------------------------------------------------------------
 vtkImplicitPlaneWidget::~vtkImplicitPlaneWidget()
 {  
   this->Plane->Delete();
@@ -436,6 +438,8 @@ void vtkImplicitPlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tubing: " << (this->Tubing ? "On" : "Off") << "\n";
   os << indent << "Outline Translation: " 
      << (this->OutlineTranslation ? "On" : "Off") << "\n";
+  os << indent << "Outside Bounds: " 
+     << (this->OutsideBounds ? "On" : "Off") << "\n";
   os << indent << "Scale Enabled: " 
      << (this->ScaleEnabled ? "On" : "Off") << "\n";
   os << indent << "Draw Plane: " << (this->DrawPlane ? "On" : "Off") << "\n";
@@ -1192,13 +1196,15 @@ void vtkImplicitPlaneWidget::GetPlane(vtkPlane *plane)
   plane->SetOrigin(this->Plane->GetOrigin());
 }
 
-void vtkImplicitPlaneWidget::UpdatePlacement(void)
+//----------------------------------------------------------------------------
+void vtkImplicitPlaneWidget::UpdatePlacement()
 {
   this->Outline->Update();
   this->Cutter->Update();
   this->Edges->Update();
 }
 
+//----------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::UpdateRepresentation()
 {
   if ( ! this->CurrentRenderer )
@@ -1209,6 +1215,21 @@ void vtkImplicitPlaneWidget::UpdateRepresentation()
   double *origin = this->Plane->GetOrigin();
   double *normal = this->Plane->GetNormal();
   double p2[3];
+  if( !this->OutsideBounds )
+    {
+    double *bounds = this->GetInput()->GetBounds();
+    for (int i=0; i<3; i++)
+      {
+      if ( origin[i] < bounds[2*i] )
+        {
+        origin[i] = bounds[2*i];
+        }
+      else if ( origin[i] > bounds[2*i+1] )
+        {
+        origin[i] = bounds[2*i+1];
+        }
+      }
+    }
 
   // Setup the plane normal
   double d = this->Outline->GetOutput()->GetLength();
@@ -1245,6 +1266,7 @@ void vtkImplicitPlaneWidget::UpdateRepresentation()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::SizeHandles()
 {
   double radius = this->vtk3DWidget::SizeHandles(1.35);
