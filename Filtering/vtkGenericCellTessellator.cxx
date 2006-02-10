@@ -33,7 +33,7 @@
 
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.12");
+vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.13");
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetrics, vtkCollection);
 
 //-----------------------------------------------------------------------------
@@ -241,7 +241,7 @@ void vtkGenericCellTessellator::GetMaxErrors(double *errors)
 // Description:
 // Send the current cell to error metrics. Should be called at the beginning
 // of the implementation of Tessellate(), Triangulate()
-// or TessellateTriangleFace()
+// or TessellateFace()
 // \pre cell_exists: cell!=0
 void vtkGenericCellTessellator::SetGenericCell(vtkGenericAdaptorCell *cell)
 {

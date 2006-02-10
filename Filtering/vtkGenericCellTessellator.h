@@ -184,7 +184,7 @@ protected:
   // Description:
   // Send the current cell to error metrics. Should be called at the beginning
   // of the implementation of Tessellate(), Triangulate()
-  // or TessellateTriangleFace()
+  // or TessellateFace()
   // \pre cell_exists: cell!=0
   void SetGenericCell(vtkGenericAdaptorCell *cell);
   
