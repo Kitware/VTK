@@ -1340,6 +1340,11 @@ FIND_PATH(VTK_DATA_ROOT VTKData.readme
   $ENV{VTK_DATA_ROOT})
 
 #-----------------------------------------------------------------------------
+# FFMPEG
+IF(FFMPEG_FOUND)
+  SET(VTK_USE_FFMPEG_ENCODER 1)
+ENDIF(FFMPEG_FOUND)
+#-----------------------------------------------------------------------------
 # Configure files with settings for use by the build.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/vtkConfigure.h.in
                ${VTK_BINARY_DIR}/vtkConfigure.h @ONLY IMMEDIATE)
