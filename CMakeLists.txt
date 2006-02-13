@@ -1106,7 +1106,7 @@ IF(VTK_WRAP_TCL)
   ENDIF(VTK_USE_PARALLEL AND VTK_USE_MPI)
 
   # Tcl package location.
-  SET(VTK_TCL_HOME ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+  SET(VTK_TCL_HOME ${VTK_BINARY_DIR}/Wrapping/Tcl)
 
   OPTION(VTK_TCL_TK_STATIC "Build with static Tcl/Tk support. TCL_LIBRARY and TK_LIBRARY must point to the corresponding Tcl/Tk static libraries (example, tcl84sx.lib, tk84sx.lib)." OFF)
   MARK_AS_ADVANCED(VTK_TCL_TK_STATIC)
