@@ -23,10 +23,9 @@
 #include "vtkCoordinate.h"
 #include "vtkHandleRepresentation.h"
 #include "vtkWidgetCallbackMapper.h"
-#include "vtkAxisActor2D.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkDistanceWidget, "1.7");
+vtkCxxRevisionMacro(vtkDistanceWidget, "1.8");
 vtkStandardNewMacro(vtkDistanceWidget);
 
 
