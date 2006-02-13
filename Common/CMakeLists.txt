@@ -339,6 +339,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
   INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/testing FILES
     ${VTK_SOURCE_DIR}/${KIT}/Testing/HeaderTesting.py
+    ${VTK_SOURCE_DIR}/${KIT}/Testing/WindowsMangleList.py
     ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/FindString.tcl
     ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/PrintSelfCheck.tcl
     ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/rtImageTest.tcl
