@@ -145,6 +145,10 @@ int TestDistanceWidget( int argc, char *argv[] )
   vtkDistanceRepresentation2D *rep = vtkDistanceRepresentation2D::New();
   rep->SetHandleRepresentation(handle);
 
+  rep->GetAxis()->SetNumberOfMinorTicks(4);
+  rep->GetAxis()->SetTickLength(9);
+  rep->GetAxis()->SetTitlePosition(0.2);
+
   vtkDistanceWidget *widget = vtkDistanceWidget::New();
   widget->SetInteractor(iren);
   widget->CreateDefaultRepresentation();
