@@ -450,6 +450,14 @@ public:
   static int LinBairstowSolve( double* c, int d, double* r, double& tolerance );
 
   // Description:
+  // Algebraically extracts REAL roots of the quartic polynomial with 
+  // REAL coefficients X^4 + c[0] X^3 + c[1] X^2 + c[2] X + c[3]
+  // and stores them (when they exist) and their respective multiplicities
+  // in the \a r and \a m arrays.
+  // Returns the number of roots.
+  static int FerrariSolve( double* c, double* r, int* m );
+
+  // Description:
   // Solves a cubic equation when c0, c1, c2, And c3 Are REAL.  Solution
   // is motivated by Numerical Recipes In C 2nd Ed.  Roots and number of
   // real roots are stored in user provided variables r1, r2, r3, and

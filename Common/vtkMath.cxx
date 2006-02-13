@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.99");
+vtkCxxRevisionMacro(vtkMath, "1.100");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -967,6 +967,130 @@ int vtkMath::LinBairstowSolve( double* c, int d, double* r, double& tolerance )
   return nr;
 }
 
+// Algebraically extracts REAL roots of the quartic polynomial with 
+// REAL coefficients X^4 + c[0] X^3 + c[1] X^2 + c[2] X + c[3]
+// and stores them (when they exist) and their respective multiplicities
+// in the \a r and \a m arrays.
+int vtkMath::FerrariSolve( double* c, double* r, int* m )
+{
+  // step 0: eliminate trivial cases up to numerical noise
+  if ( fabs( c[3] ) < VTK_DBL_EPSILON )
+    {
+    int nr = vtkMath::TartagliaCardanSolve( c - 1, r, m );
+    r[nr] = 0.;
+    m[nr] = 1;
+    return nr + 1;
+    }
+  if ( ( fabs( c[0] ) < VTK_DBL_EPSILON ) && ( fabs( c[2] ) < VTK_DBL_EPSILON ) )
+    {
+    if ( fabs( c[1] ) < VTK_DBL_EPSILON )
+      {
+      if ( c[3] < 0. ) return 0;
+      r[0] = sqrt( sqrt( c[3] ) );
+      m[0] = 4;
+      return 1;
+      }
+    double cc[2], cr[2];
+    int cm[2];
+    cc[0] = 1.;
+    cc[1] = c[1];
+    cc[2] = c[3];
+    int nr1 = vtkMath::SolveQuadratic( cc, cr, cm );
+    int nr = 0;
+    for ( int i = 0; i < nr1; ++ i )
+      {
+      if ( fabs( cr[i] ) < VTK_DBL_EPSILON )
+        {
+        r[nr] = 0.;
+        m[nr ++] = 2 * cm[i];
+        }
+      else 
+        {
+        if ( cr[i] > VTK_DBL_EPSILON )
+          {
+          r[nr] = sqrt( cr[i] );
+          m[nr ++] = cm[i];
+          r[nr] = - sqrt( cr[i] );
+          m[nr ++] = cm[i];
+          }
+        }
+      }
+    return nr;
+    }
+  
+  // step 1: reduce to X^4 + aX^2 + bX + d
+  double p2d8 = c[0] * c[0] * .125 ;
+  double qd2 = c[1] * .5;
+  double a = c[1] - 3 * p2d8;
+  double b = c[0] * ( p2d8 - qd2 ) + c[2];
+  double d = p2d8 * ( qd2 - .75 * p2d8 ) - c[0] * c[2] * .25 + c[3];
+  // expedite the case when the reduced equation is biquadratic
+  if ( fabs( b ) < VTK_DBL_EPSILON )
+    {
+    double cc[2], cr[2];
+    int cm[2];
+    cc[0] = 1.;
+    cc[1] = a;
+    cc[2] = d;
+    int nr1 = vtkMath::SolveQuadratic( cc, cr, cm );
+    int nr = 0;
+    double shift = - c[0] * .25;
+    for ( int i = 0; i < nr1; ++ i )
+      {
+      if ( fabs( cr[i] ) < VTK_DBL_EPSILON )
+        {
+        r[nr] = shift;
+        m[nr ++] = 2 * cm[i];
+        }
+      else 
+        {
+        if ( cr[i] > VTK_DBL_EPSILON )
+          {
+          r[nr] = sqrt( cr[i] ) + shift;
+          m[nr ++] = cm[i];
+          r[nr] = - sqrt( cr[i] ) + shift;
+          m[nr ++] = cm[i];
+          }
+        }
+      }
+    return nr;
+    }
+
+  // step 2: solve the companion cubic
+  double cc[4], cr[3];
+  int cm[3];
+  cc[1] = 2. * a;
+  cc[2] = a * a - 4. * d;
+  cc[3] = - b * b;
+  int nr = vtkMath::TartagliaCardanSolve( cc, cr, cm );
+
+  // step 3: figure alpha^2
+  double alpha2 = cr[-- nr];
+  while ( alpha2 < 0. && nr ) alpha2 = cr[-- nr];
+  if ( alpha2 < 0. ) 
+    {
+    vtkGenericWarningMacro(<<"vtkMath::FerrariSolve: the companion cubic has only negative roots");
+    return 0;
+    }
+
+  // step 4: solve the quadratics
+  cc[0] = 1.;
+  cc[1] = sqrt( alpha2 );
+  double rho = - b / cc[1];
+  cc[2] = ( a + alpha2 + rho ) * .5;
+  int nr1 = vtkMath::SolveQuadratic( cc, r, m );
+  cc[1] = - cc[1];
+  cc[2] -= rho;
+  nr = nr1 + vtkMath::SolveQuadratic( cc, r + nr1, m + nr1 );
+
+  // step 5: shift roots
+  // FIMXE: ideally, we would check for multiple roots
+  double shift = - c[0] * .25;
+  for ( int i = 0; i < nr; ++ i ) r[i] += shift;
+
+  return nr;
+}
+
 //----------------------------------------------------------------------------
 // Solves a cubic equation when c0, c1, c2, And c3 Are REAL.  Solution
 // is motivated by Numerical Recipes In C 2nd Ed.  Roots and number of
@@ -1083,7 +1207,7 @@ int vtkMath::SolveCubic( double c0, double c1, double c2, double c3,
 
 //----------------------------------------------------------------------------
 // Algebraically extracts REAL roots of the cubic polynomial with 
-// REAL coefficients X^3 + a[1] X^2 + a[2] X + a[3]
+// REAL coefficients X^3 + c[1] X^2 + c[2] X + c[3]
 // and stores them (when they exist) and their respective multiplicities.
 // The main differences with SolveCubic are that (1) the polynomial must have
 // unit leading coefficient, (2) no information is returned regarding complex
