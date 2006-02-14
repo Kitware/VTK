@@ -71,9 +71,12 @@ IF(FFMPEG_INCLUDE_DIR)
   IF(FFMPEG_avcodec_LIBRARY)
     IF(FFMPEG_avformat_LIBRARY)
       SET( FFMPEG_FOUND "YES" )
-      SET( FFMPEG_LIBRARIES 
+      SET( FFMPEG_BASIC_LIBRARIES 
         ${FFMPEG_avcodec_LIBRARY} 
-        ${FFMPEG_avformat_LIBRARY} 
+        ${FFMPEG_avformat_LIBRARY}
+        )
+      SET( FFMPEG_LIBRARIES 
+        ${FFMPEG_BASIC_LIBRARIES}
         ${FFMPEG_vorbis_LIBRARY} 
         ${FFMPEG_dc1394_LIBRARY} 
         ${FFMPEG_vorbisenc_LIBRARY} 

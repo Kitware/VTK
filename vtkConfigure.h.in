@@ -92,9 +92,6 @@
 /* Whether the Tcl/Tk support files are copied to the build dir */
 #cmakedefine VTK_TCL_TK_COPY_SUPPORT_LIBRARY
 
-/* Whether FFMPEG is found or not  */
-#cmakedefine VTK_USE_FFMPEG_ENCODER
-
 /* Configure internal Tk headers.  */
 #ifdef VTK_USE_CARBON
 # define USE_NON_CONST

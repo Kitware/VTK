@@ -1341,9 +1341,14 @@ FIND_PATH(VTK_DATA_ROOT VTKData.readme
 
 #-----------------------------------------------------------------------------
 # FFMPEG
-IF(FFMPEG_FOUND)
-  SET(VTK_USE_FFMPEG_ENCODER 1)
-ENDIF(FFMPEG_FOUND)
+# If the ffmpeg library is available, use it.
+IF (NOT VTK_USE_VIDEO_FOR_WINDOWS)
+  FIND_PACKAGE(FFMPEG)
+  IF(FFMPEG_FOUND)
+    SET(VTK_USE_FFMPEG_ENCODER 1)
+  ENDIF(FFMPEG_FOUND)
+ENDIF (NOT VTK_USE_VIDEO_FOR_WINDOWS)
+
 #-----------------------------------------------------------------------------
 # Configure files with settings for use by the build.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/vtkConfigure.h.in

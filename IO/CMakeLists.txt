@@ -184,6 +184,15 @@ IF(WIN32)
   ENDIF(VTK_USE_VIDEO_FOR_WINDOWS)
 ENDIF(WIN32)
 
+#-----------------------------------------------------------------------------
+# FFMPEG
+# If the ffmpeg library is available, compile vtkFFMPEGWriter.
+IF (VTK_USE_FFMPEG_ENCODER)
+  INCLUDE_DIRECTORIES(${FFMPEG_INCLUDE_DIR})
+  SET(Kit_SRCS ${Kit_SRCS} vtkFFMPEGWriter.cxx)
+  SET(KIT_LIBS ${KIT_LIBS} ${FFMPEG_BASIC_LIBRARIES})
+ENDIF (VTK_USE_FFMPEG_ENCODER)
+
 # Include mpeg2 writer if the mpeg2 lib has been defined
 
 IF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
@@ -191,18 +200,6 @@ IF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
   INCLUDE_DIRECTORIES(${vtkMPEG2Encode_INCLUDE_PATH})
   SET(KIT_LIBS ${KIT_LIBS} vtkMPEG2Encode)
 ENDIF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
-
-# If the ffmpeg library is available, compile vtkFFMPEGWriter.
-
-IF (NOT VTK_USE_VIDEO_FOR_WINDOWS)
-  FIND_PACKAGE(FFMPEG)
-  IF(FFMPEG_FOUND)
-    SET(Kit_SRCS ${Kit_SRCS} vtkFFMPEGWriter.cxx)
-    INCLUDE_DIRECTORIES(${FFMPEG_INCLUDE_PATH})
-    SET(KIT_LIBS ${KIT_LIBS} ${FFMPEG_LIBRARIES})
-  ENDIF(FFMPEG_FOUND)
-ENDIF (NOT VTK_USE_VIDEO_FOR_WINDOWS)
-
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkPLY

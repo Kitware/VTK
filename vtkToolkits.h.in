@@ -89,6 +89,9 @@
 /* Whether the real python debug library has been provided.  */
 #cmakedefine VTK_WINDOWS_PYTHON_DEBUGGABLE
 
+/* Whether FFMPEG is found or not  */
+#cmakedefine VTK_USE_FFMPEG_ENCODER
+
 /*--------------------------------------------------------------------------*/
 /* Setup VTK based on platform features and configuration.                  */
 
