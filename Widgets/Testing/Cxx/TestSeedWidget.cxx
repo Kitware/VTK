@@ -13,7 +13,7 @@
 
 =========================================================================*/
 //
-// This example tests the vtkBorderWidget.
+// This example tests the vtkSeedWidget
 
 // First include the required header files for the VTK classes we are using.
 #include "vtkSeedWidget.h"

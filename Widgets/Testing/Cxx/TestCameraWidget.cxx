@@ -13,7 +13,7 @@
 
 =========================================================================*/
 //
-// This example tests the vtkCheckerboardWidget.
+// This example tests the vtkCameraWidget.
 
 // First include the required header files for the VTK classes we are using.
 #include "vtkCameraWidget.h"
