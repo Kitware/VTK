@@ -1119,6 +1119,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTK_SOURCE_DIR}/CMake/vtkWrapTcl.cmake
     ${VTK_SOURCE_DIR}/CMake/vtkWrapJava.cmake
     ${VTK_SOURCE_DIR}/CMake/vtkWrapPython.cmake
+    ${VTK_SOURCE_DIR}/Wrapping/vtkWrapperInit.data.in
     )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
