@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.101");
+vtkCxxRevisionMacro(vtkMath, "1.102");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -977,6 +977,14 @@ int vtkMath::LinBairstowSolve( double* c, int d, double* r, double& tolerance )
   return nr;
 }
 
+static int vtkMathCompareRoots( const void* a, const void* b )
+{
+  double& x( *(double*) a );
+  double& y( *(double*) b );
+
+  return x < y ? -1 : 1;
+}
+
 // Algebraically extracts REAL roots of the quartic polynomial with 
 // REAL coefficients X^4 + c[0] X^3 + c[1] X^2 + c[2] X + c[3]
 // and stores them (when they exist) and their respective multiplicities
@@ -1068,6 +1076,7 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
 
   // step 2: solve the companion cubic
   double cc[4], cr[3];
+  double unsorted[8];
   int cm[3];
   cc[1] = 2. * a;
   cc[2] = a * a - 4. * d;
@@ -1092,13 +1101,32 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
   cc[1] = - cc[1];
   cc[2] -= rho;
   nr = nr1 + vtkMath::SolveQuadratic( cc, r + nr1, m + nr1 );
+  if ( ! nr ) return 0;
 
-  // step 5: shift roots
-  // FIMXE: ideally, we would check for multiple roots
+  // step 5: sort, filter and shift roots (if any)
+  for ( int i = 0; i < nr; ++ i )
+    {
+    unsorted[2*i] = r[i];
+    unsorted[2*i + 1] = m[i];
+    }
+  qsort( unsorted, nr, 2*sizeof( double ), vtkMathCompareRoots );
+  r[0] = unsorted[0];
+  m[0] = ( int ) unsorted[1];
+  nr1 = 1;
+  for ( int i = 1; i < nr; ++ i )
+    {
+    if ( unsorted[2*i] == unsorted[2*i - 2] )
+      {
+      m[i-1] += ( int ) unsorted[2*i + 1]; 
+      continue;
+      }
+    r[nr1] = unsorted[2*i];
+    m[nr1++] = ( int ) unsorted[2*i + 1];
+    }
   double shift = - c[0] * .25;
-  for ( int i = 0; i < nr; ++ i ) r[i] += shift;
+  for ( int i = 0; i < nr1; ++ i ) r[i] += shift;
 
-  return nr;
+  return nr1;
 }
 
 //----------------------------------------------------------------------------
