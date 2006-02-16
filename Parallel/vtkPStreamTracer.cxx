@@ -29,7 +29,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.20");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.21");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -171,12 +171,7 @@ void vtkPStreamTracer::ReceiveCellPoint(vtkPolyData* tomod,
   vtkPolyData* input = vtkPolyData::New();
 
   // Receive a polydata which contains one point.
-  if (this->Controller->GetLocalProcessId() == 0)
-    {
-    vtkCommunicator::Debug = 1;
-    }
   this->Controller->Receive(input, vtkMultiProcessController::ANY_SOURCE, 765);
-  vtkCommunicator::Debug = 0;
 
   int numCells = tomod->GetNumberOfCells();
   // Use the "Streamline Ids" array to locate the right cell.
@@ -262,12 +257,7 @@ void vtkPStreamTracer::SendCellPoint(vtkPolyData* togo,
   copyPD->CopyAllocate(togoPD, 1);
   copyPD->CopyData(togoPD, ptId, 0);
 
-  if (this->Controller->GetLocalProcessId() == 1)
-    {
-    vtkCommunicator::Debug = 1;
-    }
   this->Controller->Send(copy, sendToId, 765);
-  vtkCommunicator::Debug = 0;
 
   copy->Delete();
 }
