@@ -303,7 +303,9 @@ protected:
                  double lastPoint[3],
                  vtkInterpolatedVelocityField* func,
                  int maxCellSize,
-                 const char *vecFieldName);
+                 const char *vecFieldName,
+                 double& propagation,
+                 vtkIdType& numSteps);
   void SimpleIntegrate(double seed[3], 
                        double lastPoint[3], 
                        double delt,

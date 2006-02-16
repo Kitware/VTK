@@ -40,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.37");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.38");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkInterpolatedVelocityField);
@@ -596,11 +596,14 @@ int vtkStreamTracer::RequestData(
     if (vectors)
       {
       const char *vecName = vectors->GetName();
+      double propagation = 0;
+      vtkIdType numSteps = 0;
       this->Integrate(input0, output,
                       seeds, seedIds, 
                       integrationDirections, 
                       lastPoint, func,
-                      maxCellSize, vecName);
+                      maxCellSize, vecName,
+                      propagation, numSteps);
       }
     func->Delete();
     seeds->Delete();
@@ -692,7 +695,9 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
                                 double lastPoint[3],
                                 vtkInterpolatedVelocityField* func,
                                 int maxCellSize,
-                                const char *vecName)
+                                const char *vecName,
+                                double& propagation,
+                                vtkIdType& numSteps)
 {
   int i;
   vtkIdType numLines = seedIds->GetNumberOfIds();
@@ -822,7 +827,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     delT.Interval = 0;
     IntervalInformation aStep;
     aStep.Unit = this->MaximumPropagation.Unit;
-    double propagation = 0.0, step, minStep=0, maxStep=0;
+    double step, minStep=0, maxStep=0;
     double stepTaken, accumTime=0;
     double speed;
     double cellLength;
@@ -873,7 +878,6 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
       rotation->InsertNextValue(0.0);
       }
 
-    vtkIdType numSteps = 0;
     double error = 0;
     // Integrate until the maximum propagation length is reached, 
     // maximum number of steps is reached or until a boundary is encountered.

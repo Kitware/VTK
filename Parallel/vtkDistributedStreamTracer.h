@@ -47,14 +47,18 @@ protected:
                    int lastid, 
                    int lastCellId,
                    int currentLine,
-                   double* firstNormal);
+                   double* firstNormal,
+                   double propagation,
+                   vtkIdType numSteps);
   int ProcessTask(double seed[3], 
                   int direction, 
                   int isNewSeed, 
                   int lastid, 
                   int lastCellId,
                   int currentLine,
-                  double* firstNormal);
+                  double* firstNormal,
+                  double propagation,
+                  vtkIdType numSteps);
   int ProcessNextLine(int currentLine);
   int ReceiveAndProcessTask();
 

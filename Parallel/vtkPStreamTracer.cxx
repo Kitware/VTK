@@ -29,7 +29,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.19");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.20");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -49,6 +49,8 @@ vtkPStreamTracer::vtkPStreamTracer()
   this->IntegrationDirections = 0;
 
   this->GenerateNormalsInIntegrate = 0;
+
+  this->EmptyData = 0;
 }
 
 vtkPStreamTracer::~vtkPStreamTracer()
@@ -92,6 +94,7 @@ void vtkPStreamTracer::ReceiveLastPoints(vtkPolyData *output)
       {
       break;
       }
+
     this->ReceiveCellPoint(this->GetOutput(), streamId, -1);
     }
   // We were told that it is our turn to send first points.
@@ -168,7 +171,12 @@ void vtkPStreamTracer::ReceiveCellPoint(vtkPolyData* tomod,
   vtkPolyData* input = vtkPolyData::New();
 
   // Receive a polydata which contains one point.
+  if (this->Controller->GetLocalProcessId() == 0)
+    {
+    vtkCommunicator::Debug = 1;
+    }
   this->Controller->Receive(input, vtkMultiProcessController::ANY_SOURCE, 765);
+  vtkCommunicator::Debug = 0;
 
   int numCells = tomod->GetNumberOfCells();
   // Use the "Streamline Ids" array to locate the right cell.
@@ -254,7 +262,12 @@ void vtkPStreamTracer::SendCellPoint(vtkPolyData* togo,
   copyPD->CopyAllocate(togoPD, 1);
   copyPD->CopyData(togoPD, ptId, 0);
 
+  if (this->Controller->GetLocalProcessId() == 1)
+    {
+    vtkCommunicator::Debug = 1;
+    }
   this->Controller->Send(copy, sendToId, 765);
+  vtkCommunicator::Debug = 0;
 
   copy->Delete();
 }
@@ -351,21 +364,22 @@ int vtkPStreamTracer::RequestData(
   int maxCellSize = 0;
   if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
     {
-    vtkDebugMacro("No appropriate inputs have been found. Can not execute.");
+    vtkDebugMacro("No appropriate inputs have been found..");
+    this->EmptyData = 1;
     func->Delete();
-    // >>>>>>>>>> TODO: All should pass this test.
-    this->InputData->UnRegister(this);
-    return 1;
     }
-  func->SetCaching(0);
-  this->SetInterpolator(func);
-  func->Delete();
-
+  else
+    {
+    func->SetCaching(0);
+    this->SetInterpolator(func);
+    func->Delete();
+    }
+    
   this->InitializeSeeds(this->Seeds, 
                         this->SeedIds, 
                         this->IntegrationDirections,
                         source);
-
+  
   this->TmpOutputs.erase(this->TmpOutputs.begin(), this->TmpOutputs.end());
   this->ParallelIntegrate();
 

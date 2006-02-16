@@ -76,6 +76,8 @@ protected:
   vtkIdList* SeedIds;
   vtkIntArray* IntegrationDirections;
 
+  int EmptyData;
+
 //BTX
   typedef vtkstd::vector< vtkSmartPointer<vtkPolyData> > TmpOutputsType;
 //ETX
