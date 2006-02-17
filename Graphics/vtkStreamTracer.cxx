@@ -40,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.38");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.39");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkInterpolatedVelocityField);
@@ -696,11 +696,13 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
                                 vtkInterpolatedVelocityField* func,
                                 int maxCellSize,
                                 const char *vecName,
-                                double& propagation,
-                                vtkIdType& numSteps)
+                                double& inPropagation,
+                                vtkIdType& inNumSteps)
 {
   int i;
   vtkIdType numLines = seedIds->GetNumberOfIds();
+  double propagation = inPropagation;
+  vtkIdType numSteps = inNumSteps;
 
   // Useful pointers
   vtkDataSetAttributes* outputPD = output->GetPointData();
@@ -1071,6 +1073,15 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
         }
       retVals->InsertNextValue(retVal);
       }
+
+    // Initialize these to 0 before starting the next line.
+    // The values passed in the function call are only used
+    // for the first line.
+    inPropagation = propagation;
+    inNumSteps = numSteps;
+
+    propagation = 0;
+    numSteps = 0;
     }
 
   if (!shouldAbort)
