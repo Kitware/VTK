@@ -20,7 +20,7 @@
 #include "vtkErrorCode.h"
 
 extern "C" {
-#include <avformat.h>
+#include <ffmpeg/avformat.h>
 }
 
 //---------------------------------------------------------------------------
@@ -352,7 +352,7 @@ void vtkFFMPEGWriterInternal::End()
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFFMPEGWriter);
-vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.1.2.1");
+vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.1.2.2");
 
 //---------------------------------------------------------------------------
 vtkFFMPEGWriter::vtkFFMPEGWriter()

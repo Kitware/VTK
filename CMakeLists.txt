@@ -1340,6 +1340,16 @@ FIND_PATH(VTK_DATA_ROOT VTKData.readme
   $ENV{VTK_DATA_ROOT})
 
 #-----------------------------------------------------------------------------
+# FFMPEG
+# If the ffmpeg library is available, use it.
+IF (NOT VTK_USE_VIDEO_FOR_WINDOWS)
+  INCLUDE(${VTK_SOURCE_DIR}/CMake/FindFFMPEG.cmake OPTIONAL)
+  IF(FFMPEG_FOUND)
+    SET(VTK_USE_FFMPEG_ENCODER CACHE BOOL "If the FFMPEG library is available, should VTK use it for saving .avi animation files?")
+  ENDIF(FFMPEG_FOUND)
+ENDIF (NOT VTK_USE_VIDEO_FOR_WINDOWS)
+
+#-----------------------------------------------------------------------------
 # Configure files with settings for use by the build.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/vtkConfigure.h.in
                ${VTK_BINARY_DIR}/vtkConfigure.h @ONLY IMMEDIATE)
