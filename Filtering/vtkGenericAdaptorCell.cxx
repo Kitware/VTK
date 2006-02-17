@@ -35,7 +35,7 @@
 #include "vtkQuad.h"
 #include "vtkHexahedron.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.21");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.22");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -253,6 +253,9 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
   vtkCell *linearCell;
   vtkIdType ptsCount;
  
+  range[0]=0; // to fix warning
+  range[1]=0; // on some compilers
+  
   this->Reset();
   
   // for each cell-centered attribute: copy the value in the secondary
