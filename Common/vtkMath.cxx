@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.102");
+vtkCxxRevisionMacro(vtkMath, "1.103");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -979,10 +979,7 @@ int vtkMath::LinBairstowSolve( double* c, int d, double* r, double& tolerance )
 
 static int vtkMathCompareRoots( const void* a, const void* b )
 {
-  double& x( *(double*) a );
-  double& y( *(double*) b );
-
-  return x < y ? -1 : 1;
+  return (*((const double*)a)) < (*((const double*)b)) ? -1 : 1; 
 }
 
 // Algebraically extracts REAL roots of the quartic polynomial with 
