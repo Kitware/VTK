@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.103");
+vtkCxxRevisionMacro(vtkMath, "1.104");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -1083,11 +1083,6 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
   // step 3: figure alpha^2
   double alpha2 = cr[-- nr];
   while ( alpha2 < 0. && nr ) alpha2 = cr[-- nr];
-  if ( alpha2 < 0. ) 
-    {
-    vtkGenericWarningMacro(<<"vtkMath::FerrariSolve: the companion cubic has only negative roots");
-    return 0;
-    }
 
   // step 4: solve the quadratics
   cc[0] = 1.;
@@ -1110,7 +1105,8 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
   r[0] = unsorted[0];
   m[0] = ( int ) unsorted[1];
   nr1 = 1;
-  for ( int i = 1; i < nr; ++ i )
+  int i;
+  for ( i = 1; i < nr; ++ i )
     {
     if ( unsorted[2*i] == unsorted[2*i - 2] )
       {
@@ -1121,7 +1117,7 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
     m[nr1++] = ( int ) unsorted[2*i + 1];
     }
   double shift = - c[0] * .25;
-  for ( int i = 0; i < nr1; ++ i ) r[i] += shift;
+  for ( i = 0; i < nr1; ++ i ) r[i] += shift;
 
   return nr1;
 }
