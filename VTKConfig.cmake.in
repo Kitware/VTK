@@ -17,6 +17,10 @@ SET(VTK_LIBRARY_DIRS "@VTK_LIBRARY_DIRS_CONFIG@")
 # of runtime binaries for each configuration type.
 SET(VTK_RUNTIME_DIRS "@VTK_RUNTIME_DIRS_CONFIG@")
 
+# The runtime library path variable name e.g. LD_LIBRARY_PATH,
+# this environment variable should be set to VTK_RUNTIME_DIRS
+SET(VTK_RUNTIME_PATH_VAR_NAME "@SHARED_LIBRARY_PATH_VAR_NAME@")
+
 # The C and C++ flags added by VTK to the cmake-configured flags.
 SET(VTK_REQUIRED_C_FLAGS "@VTK_REQUIRED_C_FLAGS@")
 SET(VTK_REQUIRED_CXX_FLAGS "@VTK_REQUIRED_CXX_FLAGS@")

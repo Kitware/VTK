@@ -80,6 +80,14 @@ IF(NOT WIN32)
 ENDIF(NOT WIN32)
 
 #-----------------------------------------------------------------------------
+# Discover the name of the runtime library path environment variable
+# and put the result in SHARED_LIBRARY_PATH_VAR_NAME.
+# The result depends on the platform and on some platforms it depends on
+# the compiler options (32-bit vs. 64-bit).
+
+INCLUDE(${VTK_CMAKE_DIR}/SharedLibraryPathVarName.cmake)
+
+#-----------------------------------------------------------------------------
 # Output directories.
 IF(NOT LIBRARY_OUTPUT_PATH)
   SET(LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all libraries.")
