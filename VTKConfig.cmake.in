@@ -5,16 +5,23 @@
 # This file is configured by VTK and used by the UseVTK.cmake module
 # to load VTK's settings for an external project.
 @VTK_CONFIG_INSTALL_ONLY@
+
 # The VTK include file directories.
 SET(VTK_INCLUDE_DIRS "@VTK_INCLUDE_DIRS_CONFIG@")
 
 # The VTK library directories.
 SET(VTK_LIBRARY_DIRS "@VTK_LIBRARY_DIRS_CONFIG@")
 
-# The VTK runtime library directories.  Note that if
+# The VTK binary executable directories.  Note that if
 # VTK_CONFIGURATION_TYPES is set (see below) then these directories
 # will be the parent directories under which there will be a directory
 # of runtime binaries for each configuration type.
+SET(VTK_EXECUTABLE_DIRS "@VTK_EXECUTABLE_DIRS_CONFIG@")
+
+# The VTK runtime library directories.  Note that if
+# VTK_CONFIGURATION_TYPES is set (see below) then these directories
+# will be the parent directories under which there will be a directory
+# of runtime libraries for each configuration type.
 SET(VTK_RUNTIME_DIRS "@VTK_RUNTIME_DIRS_CONFIG@")
 
 # The runtime library path variable name e.g. LD_LIBRARY_PATH,
