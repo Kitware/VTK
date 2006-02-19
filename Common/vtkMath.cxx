@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.104");
+vtkCxxRevisionMacro(vtkMath, "1.105");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -991,10 +991,44 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
   // step 0: eliminate trivial cases up to numerical noise
   if ( fabs( c[3] ) < VTK_DBL_EPSILON )
     {
-    int nr = vtkMath::TartagliaCardanSolve( c - 1, r, m );
-    r[nr] = 0.;
-    m[nr] = 1;
-    return nr + 1;
+    if ( fabs( c[2] ) < VTK_DBL_EPSILON )
+      {
+      if ( fabs( c[1] ) < VTK_DBL_EPSILON )
+        {
+        if ( fabs( c[0] ) < VTK_DBL_EPSILON )
+          {
+          r[0] = 0.;
+          m[0] = 4;
+          return 1;
+          }
+        else
+          {
+          r[0] = - c[1];
+          m[0] = 1;
+          r[1] = 0.;
+          m[1] = 3;
+          return 2;
+          }
+        }
+      else
+        {
+        double cc[2];
+        cc[0] = 1.;
+        cc[1] = c[0];
+        cc[2] = c[1];
+        int nr = vtkMath::SolveQuadratic( cc, r, m );
+        r[nr] = 0.;
+        m[nr] = 2;
+        return nr + 1;
+        }
+      }
+    else
+      {
+      int nr = vtkMath::TartagliaCardanSolve( c - 1, r, m );
+      r[nr] = 0.;
+      m[nr] = 1;
+      return nr + 1;
+      }
     }
   if ( ( fabs( c[0] ) < VTK_DBL_EPSILON ) && ( fabs( c[2] ) < VTK_DBL_EPSILON ) )
     {
@@ -1012,7 +1046,8 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
     cc[2] = c[3];
     int nr1 = vtkMath::SolveQuadratic( cc, cr, cm );
     int nr = 0;
-    for ( int i = 0; i < nr1; ++ i )
+    int i;
+    for ( i = 0; i < nr1; ++ i )
       {
       if ( fabs( cr[i] ) < VTK_DBL_EPSILON )
         {
@@ -1050,7 +1085,8 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
     int nr1 = vtkMath::SolveQuadratic( cc, cr, cm );
     int nr = 0;
     double shift = - c[0] * .25;
-    for ( int i = 0; i < nr1; ++ i )
+    int i;
+    for ( i = 0; i < nr1; ++ i )
       {
       if ( fabs( cr[i] ) < VTK_DBL_EPSILON )
         {
@@ -1096,7 +1132,8 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
   if ( ! nr ) return 0;
 
   // step 5: sort, filter and shift roots (if any)
-  for ( int i = 0; i < nr; ++ i )
+  int i;
+  for ( i = 0; i < nr; ++ i )
     {
     unsorted[2*i] = r[i];
     unsorted[2*i + 1] = m[i];
@@ -1105,12 +1142,11 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
   r[0] = unsorted[0];
   m[0] = ( int ) unsorted[1];
   nr1 = 1;
-  int i;
   for ( i = 1; i < nr; ++ i )
     {
     if ( unsorted[2*i] == unsorted[2*i - 2] )
       {
-      m[i-1] += ( int ) unsorted[2*i + 1]; 
+      m[i - 1] += ( int ) unsorted[2*i + 1]; 
       continue;
       }
     r[nr1] = unsorted[2*i];
