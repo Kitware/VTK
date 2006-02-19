@@ -31,7 +31,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.31");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.32");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -512,6 +512,8 @@ int vtkOpenGLImageActor::TextureSizeOK( int size[2] )
 // a texture of this size rather than recursing further
 void vtkOpenGLImageActor::Render(vtkRenderer *ren)
 {
+  glPushAttrib( GL_ENABLE_BIT );
+  
   // Save the current display extent since we might change it
   int savedDisplayExtent[6];
   this->GetDisplayExtent( savedDisplayExtent );
@@ -616,6 +618,8 @@ void vtkOpenGLImageActor::Render(vtkRenderer *ren)
   
   // Restore the old display extent
   this->SetDisplayExtent( savedDisplayExtent ); 
+  
+  glPopAttrib();
 }
 
 // This is the non-recursive render that will not check the
