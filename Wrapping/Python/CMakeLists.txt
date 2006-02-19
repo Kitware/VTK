@@ -295,14 +295,68 @@ IF(PYTHON_EXECUTABLE)
   # Add a rule to use python distutils to install the python wrappers.
   IF(NOT VTK_INSTALL_NO_PYTHON)
     SET(DOLLAR "$")
-
+ 
     # Create default python setup arguments if they are not set.
     IF(DEFINED VTK_PYTHON_SETUP_ARGS)
     ELSE(DEFINED VTK_PYTHON_SETUP_ARGS)
       SET(VTK_PYTHON_SETUP_ARGS "--prefix=\"${DOLLAR}{CMAKE_INSTALL_PREFIX}\""
         CACHE STRING "Arguments passed to \"python setup.py install ...\" during installation.")
-      MARK_AS_ADVANCED(VTK_PYTHON_SETUP_ARGS)
     ENDIF(DEFINED VTK_PYTHON_SETUP_ARGS)
+
+    # extract the prefix from PYTHON_SETUP_ARGS
+    SET(VTK_PYTHON_INSTALL_PREFIX)
+    IF(VTK_PYTHON_SETUP_ARGS MATCHES "^.*--prefix=\"([^\"]*)\".*$")
+      STRING(REGEX REPLACE "^.*--prefix=\"([^\"]*)\".*$"
+        "\\1" VTK_PYTHON_INSTALL_PREFIX "${VTK_PYTHON_SETUP_ARGS}")
+    ELSE(VTK_PYTHON_SETUP_ARGS MATCHES "^.*--prefix=\"([^\"]*)\".*$")
+      IF(VTK_PYTHON_SETUP_ARGS MATCHES "^.*--prefix=([^ ]*).*$")
+        STRING(REGEX REPLACE "^.*--prefix=([^ ]*).*$"
+          "\\1" VTK_PYTHON_INSTALL_PREFIX "${VTK_PYTHON_SETUP_ARGS}")
+      ENDIF(VTK_PYTHON_SETUP_ARGS MATCHES "^.*--prefix=([^ ]*).*$")
+    ENDIF(VTK_PYTHON_SETUP_ARGS MATCHES "^.*--prefix=\"([^\"]*)\".*$")
+
+    # If set to ${CMAKE_INSTALL_PREFIX}, expand
+    IF(VTK_PYTHON_INSTALL_PREFIX STREQUAL "${DOLLAR}{CMAKE_INSTALL_PREFIX}")
+      SET(VTK_PYTHON_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+    ENDIF(VTK_PYTHON_INSTALL_PREFIX STREQUAL "${DOLLAR}{CMAKE_INSTALL_PREFIX}")
+
+    # Convert the prefix to a windows path if necessary.  The python
+    # distutils implementation seems sensitive to the slash direction.
+    IF(WIN32)
+      IF(NOT CYGWIN)
+        STRING(REGEX REPLACE "/" "\\\\" VTK_PYTHON_INSTALL_PREFIX
+          "${VTK_PYTHON_INSTALL_PREFIX}")
+      ENDIF(NOT CYGWIN)
+    ENDIF(WIN32)
+
+    # Depending on whether a prefix was set, send different arguments to
+    # the python command that finds the install directories
+    IF (VTK_PYTHON_INSTALL_PREFIX)
+      EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_BINARY_DIR}/Wrapping/Python"
+        ARGS "-c" "\"import distutils.sysconfig; print distutils.sysconfig.get_python_lib(0,0,\\\"${VTK_PYTHON_INSTALL_PREFIX}\\\")\""
+        OUTPUT_VARIABLE PYTHON_MODULE_INSTALL_DIR
+        )
+      EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_BINARY_DIR}/Wrapping/Python"
+        ARGS "-c" "\"import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1,0,\\\"${VTK_PYTHON_INSTALL_PREFIX}\\\")\""
+        OUTPUT_VARIABLE PYTHON_MODULE_PLATFORM_INSTALL_DIR
+        )
+    ELSE (VTK_PYTHON_INSTALL_PREFIX)
+      EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_BINARY_DIR}/Wrapping/Python"
+        ARGS "-c" "\"import distutils.sysconfig; print distutils.sysconfig.get_python_lib(0,0)\""
+        OUTPUT_VARIABLE PYTHON_MODULE_INSTALL_DIR
+        )
+      EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_BINARY_DIR}/Wrapping/Python"
+        ARGS "-c" "\"import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1,0)\""
+        OUTPUT_VARIABLE PYTHON_MODULE_PLATFORM_INSTALL_DIR
+        )
+    ENDIF (VTK_PYTHON_INSTALL_PREFIX)
+
+    SET(VTK_PYTHON_MODULE_INSTALL_DIR ${PYTHON_MODULE_INSTALL_DIR}
+      CACHE INTERNAL "Install directory for Python .py and .pyc files")
+
+    SET(VTK_PYTHON_MODULE_PLATFORM_INSTALL_DIR
+      ${PYTHON_MODULE_PLATFORM_INSTALL_DIR}
+      CACHE INTERNAL "Install directory for Python binary modules")
 
     # If there are multiple configurations then add a BUILD_TYPE=...
     # argument to the python setup.py call.  The build type to use is set
