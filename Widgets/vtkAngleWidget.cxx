@@ -25,7 +25,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAngleWidget, "1.12");
+vtkCxxRevisionMacro(vtkAngleWidget, "1.13");
 vtkStandardNewMacro(vtkAngleWidget);
 
 
@@ -296,7 +296,6 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
     self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
     if ( self->CurrentHandle == 1 )
       {
-      self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
       double e[2];
       e[0] = static_cast<double>(X);
       e[1] = static_cast<double>(Y);
@@ -308,7 +307,6 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
       }
     else if ( self->CurrentHandle == 2 )
       {
-      self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
       self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       self->WidgetState = vtkAngleWidget::Manipulate;
       self->Point2Widget->SetEnabled(1);
