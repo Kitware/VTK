@@ -1391,7 +1391,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.12.2.2");
+vtkCxxRevisionMacro(vtkExodusReader, "1.12.2.3");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -3746,9 +3746,9 @@ void vtkExodusReader::GenerateExtraArrays(vtkUnstructuredGrid* output)
   // Used by the ExodusIIWriter when writing back to the original file 
   // as a map between the used node ids and the actual ids in the file
   
-  this->ReversePointMap->SetNumberOfValues(this->NumberOfUsedNodes);
-  this->ReversePointMap->SetName( "InternalNodeId" );
-  output->GetPointData()->AddArray(this->ReversePointMap);
+  //this->ReversePointMap->SetNumberOfValues(this->NumberOfUsedNodes);
+  //this->ReversePointMap->SetName( "InternalNodeId" );
+  //output->GetPointData()->AddArray(this->ReversePointMap);
 
 }
 
