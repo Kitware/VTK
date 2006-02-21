@@ -379,7 +379,7 @@ IF(UNIX)
   ENDIF(NOT CMAKE_COMPILER_IS_GNUCXX)
 ENDIF(UNIX)
 
-IF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
+IF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake|VCExpress)")
   # Use the highest warning level for visual studio.
   SET(CMAKE_CXX_WARNING_LEVEL 4)
   IF(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
@@ -391,7 +391,7 @@ IF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
   IF(CMAKE_COMPILER_2005)
     ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
   ENDIF(CMAKE_COMPILER_2005) 
-ENDIF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
+ENDIF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake|VCExpress)")
 
 # Tell VTK source files they are being built inside VTK.
 ADD_DEFINITIONS(-DVTK_IN_VTK)
