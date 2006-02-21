@@ -339,7 +339,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.18")
+vtkCxxRevisionMacro(vtkShader, "1.19")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -1139,9 +1139,7 @@ void vtkShader::SetApplicationParameter(vtkXMLDataElement* elem)
   const char* value = elem->GetAttribute("value");
   if (!value)
     {
-    vtkErrorMacro("Missing required attribute 'value' on element "
-      "with name=" << name);
-    return;
+    value = name;
     }
 
   // check to see if the application has set a variable named 'value'
