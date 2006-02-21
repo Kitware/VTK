@@ -61,7 +61,7 @@ public:
   void GetAnchorPosition(double pos[3]);
 
   // Description:
-  // Specify the vtkCaptionActor to manage. If not specified, then one
+  // Specify the vtkCaptionActor2D to manage. If not specified, then one
   // is automatically created.
   void SetCaptionActor2D(vtkCaptionActor2D *captionActor);
   vtkGetObjectMacro(CaptionActor2D,vtkCaptionActor2D);
