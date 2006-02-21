@@ -190,7 +190,10 @@ ENDIF(WIN32)
 IF (VTK_USE_FFMPEG_ENCODER)
   INCLUDE_DIRECTORIES(${FFMPEG_INCLUDE_DIR})
   SET(Kit_SRCS ${Kit_SRCS} vtkFFMPEGWriter.cxx)
-  SET(KIT_LIBS ${KIT_LIBS} ${FFMPEG_BASIC_LIBRARIES})
+  SET(KIT_LIBS ${KIT_LIBS}  
+    ${FFMPEG_avcodec_LIBRARY} 
+    ${FFMPEG_avformat_LIBRARY}
+    ${FFMPEG_avutil_LIBRARY})
 ENDIF (VTK_USE_FFMPEG_ENCODER)
 
 # Include mpeg2 writer if the mpeg2 lib has been defined
