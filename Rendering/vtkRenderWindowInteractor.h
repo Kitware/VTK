@@ -18,16 +18,25 @@
 // vtkRenderWindowInteractor provides a platform-independent interaction
 // mechanism for mouse/key/time events. It serves as a base class for
 // platform-dependent implementations that handle routing of mouse/key/timer
-// messages to vtkInteractorStyle and its subclasses. 
-// vtkRenderWindowInteractor also provides controls for picking,
-// rendering frame rate, and headlights.
+// messages to vtkInteractorObserver and its subclasses. vtkRenderWindowInteractor 
+// also provides controls for picking, rendering frame rate, and headlights.
 //
 // vtkRenderWindowInteractor has changed from previous implementations and
 // now serves only as a shell to hold user preferences and route messages
-// to vtkInteractorStyle. Callbacks are available for many Events.
+// to vtkInteractorStyle. Callbacks are available for many events.
 // Platform specific subclasses should provide methods for
 // CreateTimer/DestroyTimer, TerminateApp, and an event loop if required
 // via Initialize/Start/Enable/Disable.
+
+// .SECTION Caveats
+// vtkRenderWindowInteractor routes events through VTK's command/observer
+// design pattern. That is, when vtkRenderWindowInteractor (actually, one of
+// its subclasses) sees a platform-dependent event, it translates this into
+// a VTK event using the InvokeEvent() method. Then any vtkInteractorObservers
+// registered for that event are expected to respond as appropriate.
+
+// .SECTION See Also
+// vtkInteractorObserver
 
 #ifndef __vtkRenderWindowInteractor_h
 #define __vtkRenderWindowInteractor_h
@@ -68,7 +77,7 @@ public:
   // Start the event loop. This is provided so that you do not have to
   // implement your own event loop. You still can use your own
   // event loop if you want. Initialize should be called before Start.
-  virtual void Start() {};
+  virtual void Start() {}
 
   // Description:
   // Enable/Disable interactions.  By default interactors are enabled when
@@ -78,8 +87,8 @@ public:
   // display where one interactor is active when its data is to be displayed
   // and all other interactors associated with the widget are disabled
   // when their data is not displayed.
-  virtual void Enable() { this->Enabled = 1; this->Modified();};
-  virtual void Disable() { this->Enabled = 0; this->Modified();};
+  virtual void Enable() { this->Enabled = 1; this->Modified();}
+  virtual void Disable() { this->Enabled = 0; this->Modified();}
   vtkGetMacro(Enabled, int);
 
   // Description:
@@ -88,17 +97,26 @@ public:
   vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
 
   // Description:
-  // Event loop notification member for Window size change
+  // Event loop notification member for window size change.
   virtual void UpdateSize(int x,int y);
 
   // Description:
-  // Timer methods must be overridden by platform dependent subclasses.
+  // Timer methods must be overridden by platform dependent subclasses.  A
   // flag is passed to indicate if this is first timer set or an update
-  // as Win32 uses repeating timers, whereas X uses One shot more timer
-  // if flag==VTKXI_TIMER_FIRST Win32 and X should createtimer
-  // otherwise Win32 should exit and X should perform AddTimeOut()
-  virtual int CreateTimer(int )  { return 1; };
-  virtual int DestroyTimer()    { return 1; };
+  // (i.e. reset) since Win32 uses repeating timers, whereas X uses a one
+  // shot timer. (Example: if flag==VTKXI_TIMER_FIRST then Win32 and X 
+  // create a new timer otherwise (VTKI_TIMER_UPDATE) Win32 should simply 
+  // return while X should reset the timer by invoking AddTimeOut().)
+  virtual int CreateTimer(int )  { return 1; }
+  virtual int DestroyTimer()    { return 1; }
+
+  // Description:
+  // Specify the timing interval (in milliseconds). (This is used in
+  // conjunction with CreateTimer() and DestroyTimer().) Care must
+  // be taken when adjusting the timer interval from the default 
+  // value of 10 milliseconds--it may adversely affect the interactors.
+  vtkSetClampMacro(TimerDuration,int,1,100000);
+  vtkGetMacro(TimerDuration,int);
 
   // Description:
   // This function is called on 'q','e' keypress if exitmethod is not
@@ -382,6 +400,9 @@ protected:
   // Widget mediators are used to resolve contention for cursors and other resources.
   vtkObserverMediator *ObserverMediator;
 
+  // Duration in milliseconds of the timers.
+  int TimerDuration;
+  
 private:
   vtkRenderWindowInteractor(const vtkRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkRenderWindowInteractor&);  // Not implemented.

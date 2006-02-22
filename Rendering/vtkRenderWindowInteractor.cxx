@@ -26,7 +26,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkObserverMediator.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.110");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.111");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -72,6 +72,7 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->RepeatCount = 0;
   this->KeySym = 0;
 
+  this->TimerDuration = 10;
   this->ObserverMediator = 0;
 }
 
@@ -392,6 +393,7 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "KeySym: " << (this->KeySym ? this->KeySym : "(null)") 
      << "\n";
   os << indent << "RepeatCount: " << this->RepeatCount << "\n";
+  os << indent << "Timer Duration: " << this->TimerDuration << "\n";
 }
 
 //----------------------------------------------------------------------------

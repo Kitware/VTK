@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.122");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.123");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Initialize static members:
@@ -418,7 +418,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
 
 int vtkXRenderWindowInteractor::CreateTimer(int vtkNotUsed(timertype)) 
 {
-  this->AddTimeOut(vtkXRenderWindowInteractor::App, 10,
+  this->AddTimeOut(vtkXRenderWindowInteractor::App, this->TimerDuration,
                    vtkXRenderWindowInteractorTimer,
                    (XtPointer)this);
   return 1;

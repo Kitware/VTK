@@ -60,7 +60,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.95");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.96");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -239,7 +239,7 @@ int vtkWin32RenderWindowInteractor::CreateTimer(int timertype)
 {
   if (timertype==VTKI_TIMER_FIRST) 
     {
-    return SetTimer(this->WindowId,this->TimerId,10,NULL);
+    return SetTimer(this->WindowId,this->TimerId,this->TimerDuration,NULL);
     }
   return 1;
 }

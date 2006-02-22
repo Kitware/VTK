@@ -26,7 +26,7 @@
 
 #import <Carbon/Carbon.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.15");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.16");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -390,8 +390,8 @@ int vtkCarbonRenderWindowInteractor::CreateTimer(int timertype)
   if (timertype == VTKI_TIMER_FIRST)
     {  
       InstallEventLoopTimer (mainLoop,
-                             10*kEventDurationMillisecond,
-                             10*kEventDurationMillisecond,
+                             this->TimerDuration*kEventDurationMillisecond,
+                             this->TimerDuration*kEventDurationMillisecond,
                              timerUPP,
                              this,
                              &this->TimerId);
