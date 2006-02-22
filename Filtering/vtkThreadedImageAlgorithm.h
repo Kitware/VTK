@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageToImageAlgorithm - Generic filter that has one input..
+// .NAME vtkThreadedImageAlgorithm - Generic filter that has one input..
 // .SECTION Description
-// vtkImageToImageAlgorithm is a filter superclass that hides much of the 
+// vtkThreadedImageAlgorithm is a filter superclass that hides much of the 
 // pipeline  complexity. It handles breaking the pipeline execution 
 // into smaller extents so that the vtkImageData limits are observed. It 
 // also provides support for multithreading. If you don't need any of this

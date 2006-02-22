@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkImageAlgorithm - Generic algorithm superclass for image algs
 // .SECTION Description
-// vtkImageToImageAlgorithm is a filter superclass that hides much of the 
+// vtkImageAlgorithm is a filter superclass that hides much of the 
 // pipeline  complexity. It handles breaking the pipeline execution 
 // into smaller extents so that the vtkImageData limits are observed. It 
 // also provides support for multithreading. If you don't need any of this
