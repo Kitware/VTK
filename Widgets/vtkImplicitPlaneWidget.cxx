@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.4");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.5");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 //----------------------------------------------------------------------------
@@ -1202,6 +1202,7 @@ void vtkImplicitPlaneWidget::UpdatePlacement()
   this->Outline->Update();
   this->Cutter->Update();
   this->Edges->Update();
+  this->UpdateRepresentation();
 }
 
 //----------------------------------------------------------------------------
