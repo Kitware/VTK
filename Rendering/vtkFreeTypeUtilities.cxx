@@ -40,7 +40,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.18");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.19");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -932,8 +932,8 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
         bbox[3] = pen_y;
         }
 
-      pen_x += (bitmap->width - 1);
-      pen_y -= (bitmap->rows - 1);
+      pen_x += bitmap->width;
+      pen_y -= bitmap->rows;
 
       if (pen_x < bbox[0])
         {
@@ -1719,7 +1719,7 @@ void vtkFreeTypeUtilities::GetWidthHeightDescender(const char *str,
   FTFont *font = entry ? entry->Font : NULL;
   if (!font) 
     {
-    cerr << "No font" << endl;
+    vtkErrorMacro(<<"No font");
     *height = *width = -1;
     return;
     }
@@ -1792,7 +1792,7 @@ void vtkFreeTypeUtilities::PrepareImageData(vtkImageData *data,
   this->GetBoundingBox(tprop, str, text_bbox);
   if (!this->IsBoundingBoxValid(text_bbox))
     {
-    cerr << "no text in input" << endl;
+    vtkErrorMacro(<<"no text in input");
     return;
     }
   // The bounding box was the area that is going to be filled with pixels
