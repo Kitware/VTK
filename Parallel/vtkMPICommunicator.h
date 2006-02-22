@@ -136,8 +136,6 @@ public:
   virtual int Receive(vtkIdType* data, int length, int remoteProcessId, 
                       int tag);
 #endif
-  virtual int Receive(vtkDataObject* data, int remoteProcessId, int tag)
-    { return this->vtkCommunicator::Receive(data, remoteProcessId, tag); }
   virtual int Receive(vtkDataArray* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Receive(data, remoteProcessId, tag); }
 
@@ -221,7 +219,7 @@ public:
   int AllGatherV(double* data, double* to, 
                  int sendlength, int* recvlengths, int* recvOffsets);
 
-// Description:
+  // Description:
   // Reduce an array to the given root process.  
   int ReduceMax(int* data, int* to, int size, int root);
   int ReduceMax(unsigned long* data, unsigned long* to, int size, int root);
@@ -241,6 +239,10 @@ public:
   int ReduceAnd(bool* data, bool* to, int size, int root);
   int ReduceOr(bool* data, bool* to, int size, int root);
 
+  // Description:
+  // This method receives a data object from a corresponding send. It blocks
+  // until the receive is finished. 
+  virtual int Receive(vtkDataObject* data, int remoteHandle, int tag);
 
 //BTX
 
@@ -302,6 +304,8 @@ protected:
 
   int Initialized;
   int KeepHandle;
+
+  int LastSenderId;
 
   static int CheckForMPIError(int err);
 

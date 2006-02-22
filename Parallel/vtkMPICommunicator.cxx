@@ -23,7 +23,7 @@
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.36");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.37");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -100,7 +100,7 @@ template <class T>
 int vtkMPICommunicatorReceiveData(T* data, int length, int sizeoftype, 
                                   int remoteProcessId, int tag, 
                                   MPI_Datatype datatype, MPI_Comm *Handle, 
-                                  int useCopy)
+                                  int useCopy, int& senderId)
 {
   MPI_Status status; 
   
@@ -109,21 +109,27 @@ int vtkMPICommunicatorReceiveData(T* data, int length, int sizeoftype,
     remoteProcessId = MPI_ANY_SOURCE;
     }
   
+  int retVal;
+
   if (useCopy)
     {
-    int retVal;
     char* tmpData = vtkMPICommunicator::Allocate(length*sizeoftype);
     retVal = MPI_Recv(tmpData, length, datatype, remoteProcessId, tag, 
                       *(Handle), &status);
     memcpy(data, tmpData, length*sizeoftype);
     vtkMPICommunicator::Free(tmpData);
-    return retVal;
     }
   else
     {
-    return MPI_Recv(data, length, datatype, remoteProcessId, tag, 
-                    *(Handle), &status);
+    retVal = MPI_Recv(data, length, datatype, remoteProcessId, tag, 
+                      *(Handle), &status);
     }
+
+  if (retVal == MPI_SUCCESS)
+    {
+    senderId = status.MPI_SOURCE;
+    }
+  return retVal;
 }
 //----------------------------------------------------------------------------
 template <class T>
@@ -302,6 +308,7 @@ vtkMPICommunicator::vtkMPICommunicator()
   this->Group = 0;
   this->Initialized = 0;
   this->KeepHandle = 0;
+  this->LastSenderId = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -672,7 +679,8 @@ int vtkMPICommunicator::Receive(int* data, int length,
     vtkMPICommunicatorReceiveData(data, length, 
                                   sizeof(int), remoteProcessId, tag, 
                                   MPI_INT, this->MPIComm->Handle, 
-                                  vtkCommunicator::UseCopy));
+                                  vtkCommunicator::UseCopy,
+                                  this->LastSenderId));
 
 }
 //----------------------------------------------------------------------------
@@ -685,7 +693,8 @@ int vtkMPICommunicator::Receive(unsigned long* data, int length,
                                   sizeof(unsigned long),
                                   remoteProcessId, tag, 
                                   MPI_UNSIGNED_LONG, this->MPIComm->Handle,
-                                  vtkCommunicator::UseCopy));
+                                  vtkCommunicator::UseCopy,
+                                  this->LastSenderId));
 
 }
 //----------------------------------------------------------------------------
@@ -697,7 +706,8 @@ int vtkMPICommunicator::Receive(char* data, int length,
     vtkMPICommunicatorReceiveData(data, length, 
                                   sizeof(char), remoteProcessId, tag, 
                                   MPI_CHAR, this->MPIComm->Handle, 
-                                  vtkCommunicator::UseCopy));
+                                  vtkCommunicator::UseCopy,
+                                  this->LastSenderId));
 
 }
 //----------------------------------------------------------------------------
@@ -709,7 +719,8 @@ int vtkMPICommunicator::Receive(unsigned char* data, int length,
     vtkMPICommunicatorReceiveData(data, length,
                                   sizeof(unsigned char), remoteProcessId, 
                                   tag, MPI_UNSIGNED_CHAR, this->MPIComm->Handle,
-                                  vtkCommunicator::UseCopy));
+                                  vtkCommunicator::UseCopy,
+                                  this->LastSenderId));
 
 }
 //----------------------------------------------------------------------------
@@ -721,7 +732,8 @@ int vtkMPICommunicator::Receive(float* data, int length,
     vtkMPICommunicatorReceiveData(data, length, 
                                   sizeof(float), remoteProcessId, tag, 
                                   MPI_FLOAT, this->MPIComm->Handle, 
-                                  vtkCommunicator::UseCopy));
+                                  vtkCommunicator::UseCopy,
+                                  this->LastSenderId));
 
 }
 
@@ -734,7 +746,8 @@ int vtkMPICommunicator::Receive(double* data, int length,
     vtkMPICommunicatorReceiveData(data, length,
                                   sizeof(double), remoteProcessId, tag, 
                                   MPI_DOUBLE, this->MPIComm->Handle, 
-                                  vtkCommunicator::UseCopy));
+                                  vtkCommunicator::UseCopy,
+                                  this->LastSenderId));
 
 }
 
@@ -748,7 +761,9 @@ int vtkMPICommunicator::Receive(vtkIdType* data, int length,
     vtkMPICommunicatorReceiveData(data, length, 
                                   sizeof(vtkIdType), remoteProcessId, tag, 
                                   vtkMPICommunicatorGetMPIType(), 
-                                  this->MPIComm->Handle, vtkCommunicator::UseCopy));
+                                  this->MPIComm->Handle, 
+                                  vtkCommunicator::UseCopy,
+                                  this->LastSenderId));
 }
 #endif
 
@@ -1294,4 +1309,53 @@ int vtkMPICommunicator::ReduceOr(bool* data, bool* to,
 
   return err;
 }
+
 //----------------------------------------------------------------------------
+int vtkMPICommunicator::Receive(vtkDataObject* data, 
+                                int remoteHandle, 
+                                int tag)
+{
+  int dataLength;
+
+  // First receive the data length.
+  if (!this->Receive( &dataLength, 1, remoteHandle, tag))
+    {
+    vtkErrorMacro("Could not receive data!");
+    return 0;
+    }
+  
+  int senderId = this->LastSenderId;
+
+  if (dataLength < 0)
+    {
+    vtkErrorMacro("Bad data length");
+    return 0;
+    }
+  
+  if (dataLength == 0)
+    { // This indicates a NULL object was sent. Do nothing.
+    return 1;   
+    }
+  
+  // if we cannot reuse the string, allocate a new one.
+  if (dataLength > this->MarshalStringLength)
+    {
+    char *str = new char[dataLength + 10]; // maybe a little extra?
+    this->DeleteAndSetMarshalString(str, dataLength + 10);
+    }
+  
+  // Receive the string from the same processor as the
+  // data length.
+  if (!this->Receive(this->MarshalString, dataLength, 
+                     senderId, tag))
+    {
+    return 0;
+    }
+
+  this->MarshalDataLength = dataLength;
+
+  this->ReadObject(data);
+
+  // we should really look at status to determine success
+  return 1;
+}

@@ -40,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.39");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.40");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkInterpolatedVelocityField);
@@ -812,6 +812,12 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     seedSource->GetTuple(seedIds->GetId(currentLine), point1);
     memcpy(point2, point1, 3*sizeof(double));
     if (!func->FunctionValues(point1, velocity))
+      {
+      continue;
+      }
+
+    if (propagation >= this->MaximumPropagation.Interval ||
+        numSteps > this->MaximumNumberOfSteps)
       {
       continue;
       }

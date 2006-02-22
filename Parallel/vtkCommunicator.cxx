@@ -28,7 +28,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.28");
+vtkCxxRevisionMacro(vtkCommunicator, "1.29");
 
 template <class T>
 int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -110,7 +110,6 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
     this->Send( &this->MarshalDataLength, 1,      
                 remoteHandle, tag);
     // then send the string.
-
     this->Send( this->MarshalString, this->MarshalDataLength, 
                 remoteHandle, tag);
     
@@ -233,10 +232,14 @@ int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle,
     }
   
   // Receive the string
-  this->Receive(this->MarshalString, dataLength, 
-                remoteHandle, tag);
+  if (!this->Receive(this->MarshalString, dataLength, 
+                     remoteHandle, tag))
+    {
+    return 0;
+    }
+
   this->MarshalDataLength = dataLength;
-  
+
   this->ReadObject(data);
 
   // we should really look at status to determine success
