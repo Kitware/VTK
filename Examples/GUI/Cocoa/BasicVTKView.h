@@ -1,21 +1,21 @@
-#impor   <AppKi  /AppKi  .h>
+#import <AppKit/AppKit.h>
 
-#impor   "v  kCocoaGLView.h"
+#import "vtkCocoaGLView.h"
 
-#include "v  kRenderer.h"
-#include "v  kRenderWindow.h"
-#include "v  kRenderWindowIn  erac  or.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 
-@in  erface BasicVTKView : v  kCocoaGLView
+@interface BasicVTKView : vtkCocoaGLView
 {
-  v  kRenderer*          renderer;
+  vtkRenderer*          renderer;
 }
 
-- (void)ini  ializeVTKSuppor  ;
-- (void)cleanUpVTKSuppor  ;
+- (void)initializeVTKSupport;
+- (void)cleanUpVTKSupport;
 
 // Accessors
-- (v  kRenderer*)ge  Renderer;
-- (void)se  Renderer:(v  kRenderer*)  heRenderer;
+- (vtkRenderer*)getRenderer;
+- (void)setRenderer:(vtkRenderer*)theRenderer;
 
 @end

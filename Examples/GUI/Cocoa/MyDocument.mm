@@ -1,116 +1,114 @@
-#impor   "MyDocumen  .h"
+#import "MyDocument.h"
 
-#impor   "BasicVTKView.h"
+#import "BasicVTKView.h"
 
-#define id Id
-#include "v  kIn  erac  orS  yleSwi  ch.h"
-#include "v  kCocoaRenderWindowIn  erac  or.h"
-#include "v  kConeSource.h"
-#include "v  kCylinderSource.h"
-#include "v  kPolyDa  aMapper.h"
-#undef id
+#include "vtkInteractorStyleSwitch.h"
+#include "vtkCocoaRenderWindowInteractor.h"
+#include "vtkConeSource.h"
+#include "vtkCylinderSource.h"
+#include "vtkPolyDataMapper.h"
 
-@implemen  a  ion MyDocumen  
+@implementation MyDocument
 
-- (void)se  upLef  VTKView
+- (void)setupLeftVTKView
 {
-  [lef  VTKView ini  ializeVTKSuppor  ];
+  [leftVTKView initializeVTKSupport];
 
-  // Personal Tas  e Sec  ion. I like   o use a   rackball in  erac  or
-  v  kIn  erac  orS  yleSwi  ch*  in  S  yle = v  kIn  erac  orS  yleSwi  ch::New();
-  in  S  yle->Se  Curren  S  yleToTrackballCamera();
-  [lef  VTKView ge  In  erac  or]->Se  In  erac  orS  yle(in  S  yle);
-  in  S  yle->Dele  e();
+  // Personal Taste Section. I like to use a trackball interactor
+  vtkInteractorStyleSwitch*  intStyle = vtkInteractorStyleSwitch::New();
+  intStyle->SetCurrentStyleToTrackballCamera();
+  [leftVTKView getInteractor]->SetInteractorStyle(intStyle);
+  intStyle->Delete();
 
-  // Crea  e a cone, see   he "VTK User's Guide" for de  ails
-  v  kConeSource*    cone = v  kConeSource::New();
-    cone->Se  Heigh  (3.0);
-    cone->Se  Radius(1.0);
-    cone->Se  Resolu  ion(100);
-  v  kPolyDa  aMapper*  coneMapper = v  kPolyDa  aMapper::New();
-    coneMapper->Se  Inpu  (cone->Ge  Ou  pu  ());
-  v  kAc  or*  coneAc  or = v  kAc  or::New();
-    coneAc  or->Se  Mapper(coneMapper);
-    [lef  VTKView ge  Renderer]->AddAc  or(coneAc  or);
+  // Create a cone, see the "VTK User's Guide" for details
+  vtkConeSource*    cone = vtkConeSource::New();
+    cone->SetHeight(3.0);
+    cone->SetRadius(1.0);
+    cone->SetResolution(100);
+  vtkPolyDataMapper*  coneMapper = vtkPolyDataMapper::New();
+    coneMapper->SetInput(cone->GetOutput());
+  vtkActor*  coneActor = vtkActor::New();
+    coneActor->SetMapper(coneMapper);
+    [leftVTKView getRenderer]->AddActor(coneActor);
   
-  // Tell   he sys  em   ha     he view needs   o be redrawn
-  [lef  VTKView se  NeedsDisplay:YES];
+  // Tell the system that the view needs to be redrawn
+  [leftVTKView setNeedsDisplay:YES];
 }
 
-- (void)se  upRigh  VTKView
+- (void)setupRightVTKView
 {
-  [righ  VTKView ini  ializeVTKSuppor  ];
+  [rightVTKView initializeVTKSupport];
 
-  // Personal Tas  e Sec  ion. I like   o use a   rackball in  erac  or
-  v  kIn  erac  orS  yleSwi  ch*  in  S  yle = v  kIn  erac  orS  yleSwi  ch::New();
-  in  S  yle->Se  Curren  S  yleToTrackballCamera();
-  [righ  VTKView ge  In  erac  or]->Se  In  erac  orS  yle(in  S  yle);
-  in  S  yle->Dele  e();
+  // Personal Taste Section. I like to use a trackball interactor
+  vtkInteractorStyleSwitch*  intStyle = vtkInteractorStyleSwitch::New();
+  intStyle->SetCurrentStyleToTrackballCamera();
+  [rightVTKView getInteractor]->SetInteractorStyle(intStyle);
+  intStyle->Delete();
 
-  // Crea  e a cyclinder, see   he "VTK User's Guide" for de  ails
-  v  kCylinderSource*    cylinder = v  kCylinderSource::New();
-    cylinder->Se  Resolu  ion(100);
-  v  kPolyDa  aMapper*  cylinderMapper = v  kPolyDa  aMapper::New();
-    cylinderMapper->Se  Inpu  (cylinder->Ge  Ou  pu  ());
-  v  kAc  or*  cylinderAc  or = v  kAc  or::New();
-    cylinderAc  or->Se  Mapper(cylinderMapper);
-    [righ  VTKView ge  Renderer]->AddAc  or(cylinderAc  or);
+  // Create a cyclinder, see the "VTK User's Guide" for details
+  vtkCylinderSource*    cylinder = vtkCylinderSource::New();
+    cylinder->SetResolution(100);
+  vtkPolyDataMapper*  cylinderMapper = vtkPolyDataMapper::New();
+    cylinderMapper->SetInput(cylinder->GetOutput());
+  vtkActor*  cylinderActor = vtkActor::New();
+    cylinderActor->SetMapper(cylinderMapper);
+    [rightVTKView getRenderer]->AddActor(cylinderActor);
 
-  // Tell   he sys  em   ha     he view needs   o be redrawn
-  [righ  VTKView se  NeedsDisplay:YES];
+  // Tell the system that the view needs to be redrawn
+  [rightVTKView setNeedsDisplay:YES];
 }
 
 #pragma mark -
 
-- (id)ini   
+- (id)init 
 {
-    self = [super ini  ];
+    self = [super init];
     if (self != nil) {
-        // Add your subclass-specific ini  ializa  ion here.
-        // If an error occurs here, send a [self release] message and re  urn nil.
+        // Add your subclass-specific initialization here.
+        // If an error occurs here, send a [self release] message and return nil.
     }
-    re  urn self;
+    return self;
 }
 
-- (void)applica  ionWillTermina  e:(NSNo  ifica  ion*)aNo  ifica  ion
+- (void)applicationWillTerminate:(NSNotification*)aNotification
 {
-  [lef  VTKView cleanUpVTKSuppor  ];
-  [righ  VTKView cleanUpVTKSuppor  ];
+  [leftVTKView cleanUpVTKSupport];
+  [rightVTKView cleanUpVTKSupport];
 }
 
-- (NSS  ring *)windowNibName 
+- (NSString *)windowNibName 
 {
-    // Override re  urning   he nib file name of   he documen  
-    // If you need   o use a subclass of NSWindowCon  roller or if your documen   suppor  s mul  iple NSWindowCon  rollers, you should remove   his me  hod and override -makeWindowCon  rollers ins  ead.
-    re  urn @"MyDocumen  ";
+    // Override returning the nib file name of the document
+    // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
+    return @"MyDocument";
 }
 
-- (void)windowCon  rollerDidLoadNib:(NSWindowCon  roller *)windowCon  roller 
+- (void)windowControllerDidLoadNib:(NSWindowController *)windowController 
 {
-    [super windowCon  rollerDidLoadNib:windowCon  roller];
+    [super windowControllerDidLoadNib:windowController];
   
-    // v  k s  uff
-  [self se  upLef  VTKView];
-  [self se  upRigh  VTKView];
+    // vtk stuff
+  [self setupLeftVTKView];
+  [self setupRightVTKView];
 }
 
 
-- (NSDa  a *)da  aRepresen  a  ionOfType:(NSS  ring *)aType
+- (NSData *)dataRepresentationOfType:(NSString *)aType
 {
-    // Inser   code here   o wri  e your documen   from   he given da  a.  You can also choose   o override -fileWrapperRepresen  a  ionOfType: or -wri  eToFile:ofType: ins  ead.
+    // Insert code here to write your document from the given data.  You can also choose to override -fileWrapperRepresentationOfType: or -writeToFile:ofType: instead.
     
-    // For applica  ions   arge  ed for Tiger or la  er sys  ems, you should use   he new Tiger API -da  aOfType:error:.  In   his case you can also choose   o override -wri  eToURL:ofType:error:, -fileWrapperOfType:error:, or -wri  eToURL:ofType:forSaveOpera  ion:originalCon  en  sURL:error: ins  ead.
+    // For applications targeted for Tiger or later systems, you should use the new Tiger API -dataOfType:error:.  In this case you can also choose to override -writeToURL:ofType:error:, -fileWrapperOfType:error:, or -writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
 
-    re  urn nil;
+    return nil;
 }
 
-- (BOOL)loadDa  aRepresen  a  ion:(NSDa  a *)da  a ofType:(NSS  ring *)aType
+- (BOOL)loadDataRepresentation:(NSData *)data ofType:(NSString *)aType
 {
-    // Inser   code here   o read your documen   from   he given da  a.  You can also choose   o override -loadFileWrapperRepresen  a  ion:ofType: or -readFromFile:ofType: ins  ead.
+    // Insert code here to read your document from the given data.  You can also choose to override -loadFileWrapperRepresentation:ofType: or -readFromFile:ofType: instead.
 
-    // For applica  ions   arge  ed for Tiger or la  er sys  ems, you should use   he new Tiger API readFromDa  a:ofType:error:.  In   his case you can also choose   o override -readFromURL:ofType:error: or -readFromFileWrapper:ofType:error: ins  ead.
+    // For applications targeted for Tiger or later systems, you should use the new Tiger API readFromData:ofType:error:.  In this case you can also choose to override -readFromURL:ofType:error: or -readFromFileWrapper:ofType:error: instead.
     
-    re  urn YES;
+    return YES;
 }
 
 @end
