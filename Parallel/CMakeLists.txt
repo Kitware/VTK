@@ -126,6 +126,8 @@ IF (VTK_USE_MPI)
     vtkMPICommunicator.cxx
     vtkMPIController.cxx 
     vtkMPIGroup.cxx)
+  # Needed for mpich 2
+  ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")
 ENDIF (VTK_USE_MPI)
 
 IF (VTK_USE_MPI) 
@@ -158,3 +160,4 @@ IF (VTK_USE_MPI)
     INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} "vtkMPI\\.h")
   ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 ENDIF (VTK_USE_MPI)
+
