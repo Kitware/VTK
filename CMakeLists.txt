@@ -559,6 +559,8 @@ IF("VTK_TYPE_CHAR_IS_SIGNED" MATCHES "^VTK_TYPE_CHAR_IS_SIGNED$")
   ENDIF(VTK_TYPE_CHAR_IS_SIGNED_COMPILED)
 ENDIF("VTK_TYPE_CHAR_IS_SIGNED" MATCHES "^VTK_TYPE_CHAR_IS_SIGNED$")
 
+INCLUDE(Parallel/VTKParallelCMakeTests.cmake)
+
 # Check for explicit template instantiation support by compiler.
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkTestExplicitInstantiation.cmake)
 
