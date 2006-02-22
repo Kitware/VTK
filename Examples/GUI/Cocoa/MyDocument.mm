@@ -2,11 +2,13 @@
 
 #import "BasicVTKView.h"
 
+#define id Id
 #include "vtkInteractorStyleSwitch.h"
 #include "vtkCocoaRenderWindowInteractor.h"
 #include "vtkConeSource.h"
 #include "vtkCylinderSource.h"
 #include "vtkPolyDataMapper.h"
+#undef id
 
 @implementation MyDocument
 
