@@ -333,20 +333,20 @@ IF(PYTHON_EXECUTABLE)
     # the python command that finds the install directories
     IF (VTK_PYTHON_INSTALL_PREFIX)
       EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_BINARY_DIR}/Wrapping/Python"
-        ARGS "-c" "\"import distutils.sysconfig; print distutils.sysconfig.get_python_lib(0,0,\\\"${VTK_PYTHON_INSTALL_PREFIX}\\\")\""
+        ARGS "-c" "\"import distutils.sysconfig; distutils.sysconfig.PREFIX=\\\"${VTK_PYTHON_INSTALL_PREFIX}\\\"; print distutils.sysconfig.get_python_lib(0)\""
         OUTPUT_VARIABLE PYTHON_MODULE_INSTALL_DIR
         )
       EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_BINARY_DIR}/Wrapping/Python"
-        ARGS "-c" "\"import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1,0,\\\"${VTK_PYTHON_INSTALL_PREFIX}\\\")\""
+        ARGS "-c" "\"import distutils.sysconfig; distutils.sysconfig.PREFIX=distutils.sysconfig.EXEC_PREFIX=\\\"${VTK_PYTHON_INSTALL_PREFIX}\\\"; print distutils.sysconfig.get_python_lib(1)\""
         OUTPUT_VARIABLE PYTHON_MODULE_PLATFORM_INSTALL_DIR
         )
     ELSE (VTK_PYTHON_INSTALL_PREFIX)
       EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_BINARY_DIR}/Wrapping/Python"
-        ARGS "-c" "\"import distutils.sysconfig; print distutils.sysconfig.get_python_lib(0,0)\""
+        ARGS "-c" "\"import distutils.sysconfig; print distutils.sysconfig.get_python_lib(0)\""
         OUTPUT_VARIABLE PYTHON_MODULE_INSTALL_DIR
         )
       EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_BINARY_DIR}/Wrapping/Python"
-        ARGS "-c" "\"import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1,0)\""
+        ARGS "-c" "\"import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1)\""
         OUTPUT_VARIABLE PYTHON_MODULE_PLATFORM_INSTALL_DIR
         )
     ENDIF (VTK_PYTHON_INSTALL_PREFIX)
