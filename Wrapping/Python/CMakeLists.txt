@@ -267,6 +267,22 @@ IF(PYTHON_EXECUTABLE)
     ENDFOREACH(file)
   ENDIF ("${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
 
+  # handle the different configuration types (each will have identical files)
+  SET(VTK_PYTHON_CONFIGURATION_TYPES ${CMAKE_CONFIGURATION_TYPES})
+  IF(VTK_PYTHON_CONFIGURATION_TYPES)
+    FOREACH(config ${VTK_PYTHON_CONFIGURATION_TYPES})
+      FOREACH(file ${VTK_PYTHON_FILES})
+        SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
+        SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${config}/${file}.py")
+        ADD_CUSTOM_COMMAND(DEPENDS ${src}
+                           COMMAND ${CMAKE_COMMAND}
+                           ARGS -E copy ${src} ${tgt}
+                           OUTPUT ${tgt}
+                           COMMENT "source copy")
+      ENDFOREACH(file)
+    ENDFOREACH(config)
+  ENDIF(VTK_PYTHON_CONFIGURATION_TYPES)
+
   # Byte compile the Python files.
   CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/compile_all_vtk.py.in
                  ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
