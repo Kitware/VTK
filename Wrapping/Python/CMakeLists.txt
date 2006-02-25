@@ -303,53 +303,25 @@ IF(PYTHON_EXECUTABLE)
         CACHE STRING "Arguments passed to \"python setup.py install ...\" during installation.")
     ENDIF(DEFINED VTK_PYTHON_SETUP_ARGS)
 
-    # extract the prefix from PYTHON_SETUP_ARGS
-    SET(VTK_PYTHON_INSTALL_PREFIX)
-    IF(VTK_PYTHON_SETUP_ARGS MATCHES "^.*--prefix=\"([^\"]*)\".*$")
-      STRING(REGEX REPLACE "^.*--prefix=\"([^\"]*)\".*$"
-        "\\1" VTK_PYTHON_INSTALL_PREFIX "${VTK_PYTHON_SETUP_ARGS}")
-    ELSE(VTK_PYTHON_SETUP_ARGS MATCHES "^.*--prefix=\"([^\"]*)\".*$")
-      IF(VTK_PYTHON_SETUP_ARGS MATCHES "^.*--prefix=([^ ]*).*$")
-        STRING(REGEX REPLACE "^.*--prefix=([^ ]*).*$"
-          "\\1" VTK_PYTHON_INSTALL_PREFIX "${VTK_PYTHON_SETUP_ARGS}")
-      ENDIF(VTK_PYTHON_SETUP_ARGS MATCHES "^.*--prefix=([^ ]*).*$")
-    ENDIF(VTK_PYTHON_SETUP_ARGS MATCHES "^.*--prefix=\"([^\"]*)\".*$")
+    # Change dollar sign to DOLLARSIGN
+    STRING(REGEX REPLACE "\\${DOLLAR}" "DOLLARSIGN"
+      PYTHON_SETUP_ARGS ${VTK_PYTHON_SETUP_ARGS})
 
-    # If set to ${CMAKE_INSTALL_PREFIX}, expand
-    IF(VTK_PYTHON_INSTALL_PREFIX STREQUAL "${DOLLAR}{CMAKE_INSTALL_PREFIX}")
-      SET(VTK_PYTHON_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-    ENDIF(VTK_PYTHON_INSTALL_PREFIX STREQUAL "${DOLLAR}{CMAKE_INSTALL_PREFIX}")
+    # Get the install path for python modules
+    EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_SOURCE_DIR}/Wrapping/Python"
+      ARGS "setup_install_paths.py" "purelib" ${PYTHON_SETUP_ARGS}
+      OUTPUT_VARIABLE PYTHON_MODULE_INSTALL_DIR)
 
-    # Convert the prefix to a windows path if necessary.  The python
-    # distutils implementation seems sensitive to the slash direction.
-    IF(WIN32)
-      IF(NOT CYGWIN)
-        STRING(REGEX REPLACE "/" "\\\\" VTK_PYTHON_INSTALL_PREFIX
-          "${VTK_PYTHON_INSTALL_PREFIX}")
-      ENDIF(NOT CYGWIN)
-    ENDIF(WIN32)
+    # Get the install path for binary python modules
+    EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_SOURCE_DIR}/Wrapping/Python"
+      ARGS "setup_install_paths.py" "platlib" ${PYTHON_SETUP_ARGS}
+      OUTPUT_VARIABLE PYTHON_MODULE_PLATFORM_INSTALL_DIR)
 
-    # Depending on whether a prefix was set, send different arguments to
-    # the python command that finds the install directories
-    IF (VTK_PYTHON_INSTALL_PREFIX)
-      EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_BINARY_DIR}/Wrapping/Python"
-        ARGS "-c" "\"import distutils.sysconfig; distutils.sysconfig.PREFIX=\\\"${VTK_PYTHON_INSTALL_PREFIX}\\\"; print distutils.sysconfig.get_python_lib(0)\""
-        OUTPUT_VARIABLE PYTHON_MODULE_INSTALL_DIR
-        )
-      EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_BINARY_DIR}/Wrapping/Python"
-        ARGS "-c" "\"import distutils.sysconfig; distutils.sysconfig.PREFIX=distutils.sysconfig.EXEC_PREFIX=\\\"${VTK_PYTHON_INSTALL_PREFIX}\\\"; print distutils.sysconfig.get_python_lib(1)\""
-        OUTPUT_VARIABLE PYTHON_MODULE_PLATFORM_INSTALL_DIR
-        )
-    ELSE (VTK_PYTHON_INSTALL_PREFIX)
-      EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_BINARY_DIR}/Wrapping/Python"
-        ARGS "-c" "\"import distutils.sysconfig; print distutils.sysconfig.get_python_lib(0)\""
-        OUTPUT_VARIABLE PYTHON_MODULE_INSTALL_DIR
-        )
-      EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_BINARY_DIR}/Wrapping/Python"
-        ARGS "-c" "\"import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1)\""
-        OUTPUT_VARIABLE PYTHON_MODULE_PLATFORM_INSTALL_DIR
-        )
-    ENDIF (VTK_PYTHON_INSTALL_PREFIX)
+    # Change DOLLARSIGN to dollar sign
+    STRING(REGEX REPLACE "DOLLARSIGN" "${DOLLAR}"
+      PYTHON_MODULE_INSTALL_DIR ${PYTHON_MODULE_INSTALL_DIR})
+    STRING(REGEX REPLACE "DOLLARSIGN" "${DOLLAR}"
+      PYTHON_MODULE_PLATFORM_INSTALL_DIR ${PYTHON_MODULE_PLATFORM_INSTALL_DIR})
 
     # Replace backslashes with forward slashes
     IF (WIN32)
