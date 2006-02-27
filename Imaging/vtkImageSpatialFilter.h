@@ -20,6 +20,13 @@
 // processing.  This superclass has some logic for handling boundaries.  It
 // can split regions into boundary and non-boundary pieces and call different
 // execute methods.
+// .SECTION Warning
+// This used to be the parent class for most imaging filter in VTK4.x, now 
+// this role has been replaced by vtkImageSpatialAlgorithm. You should consider
+// using this class instead, when writting filter for VTK5 and above.
+// This class was kept to ensure full backward compatibility.
+// .SECTION See also
+// vtkSimpleImageToImageFilter vtkImageToImageFilter vtkImageSpatialAlgorithm 
 
 
 #ifndef __vtkImageSpatialFilter_h
@@ -37,11 +44,11 @@ public:
 
   // Description:
   // Get the Kernel size.
-  int *GetKernelSize() {return this->KernelSize;}
+  vtkGetVector3Macro(KernelSize,int);
   
   // Description:
   // Get the Kernel middle.
-  int *GetKernelMiddle() {return this->KernelMiddle;}
+  vtkGetVector3Macro(KernelMiddle,int);
 
 protected:
   vtkImageSpatialFilter();
@@ -49,7 +56,6 @@ protected:
 
   int   KernelSize[3];
   int   KernelMiddle[3];      // Index of kernel origin
-  int   Strides[3];      // Shrink factor
   int   HandleBoundaries;     // Output shrinks if boundaries aren't handled
 
   // Called by the superclass

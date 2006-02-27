@@ -12,15 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageToImageFilter - Generic filter that has one input..
+// .NAME vtkImageToImageFilter - Generic filter that has one input of type vtkImageData
 // .SECTION Description
 // vtkImageToImageFilter is a filter superclass that hides much of the 
 // pipeline  complexity. It handles breaking the pipeline execution 
 // into smaller extents so that the vtkImageData limits are observed. It 
 // also provides support for multithreading. If you don't need any of this
 // functionality, consider using vtkSimpleImageToImageFilter instead.
+// .SECTION Warning
+// This used to be the parent class for most imaging filter in VTK4.x, now 
+// this role has been replaced by vtkImageAlgorithm. You should consider
+// using this class instead, when writting filter for VTK5 and above.
+// This class was kept to ensure full backward compatibility.
 // .SECTION See also
-// vtkSimpleImageToImageFilter
+// vtkSimpleImageToImageFilter vtkImageSpatialFilter vtkImageAlgorithm 
 
 #ifndef __vtkImageToImageFilter_h
 #define __vtkImageToImageFilter_h
