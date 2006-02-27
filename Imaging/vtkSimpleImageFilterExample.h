@@ -18,7 +18,7 @@
 // to it's output (point by point). It shows how templates can be used
 // to support various data types.
 // .SECTION See also
-// vtkSimpleImageFilterExample
+// vtkSimpleImageToImageFilter
 
 #ifndef __vtkSimpleImageFilterExample_h
 #define __vtkSimpleImageFilterExample_h
