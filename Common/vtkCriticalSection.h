@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCriticalSection - critical section locking class
+// .NAME vtkCriticalSection - Critical section locking class
 // .SECTION Description
 // vtkCriticalSection allows the locking of variables which are accessed 
 // through different threads.  This header file also defines 
@@ -64,35 +64,39 @@ typedef int vtkCritSecType;
 class VTK_COMMON_EXPORT vtkSimpleCriticalSection
 {
 public:
+  // Default cstor
   vtkSimpleCriticalSection()
     {
-      this->Init();
+    this->Init();
     }
-
+  // Construct object locked if isLocked is different from 0
   vtkSimpleCriticalSection(int isLocked)
     {
-      this->Init();
-      if(isLocked)
-        {
-        this->Lock();
-        }
+    this->Init();
+    if(isLocked)
+      {
+      this->Lock();
+      }
+    }
+  // Destructor
+  virtual ~vtkSimpleCriticalSection();
+
+  // Default vtkObject API
+  static vtkSimpleCriticalSection *New();
+  void Delete()
+    {
+    delete this;
     }
 
   void Init();
 
-  virtual ~vtkSimpleCriticalSection();
-
-  static vtkSimpleCriticalSection *New();
-
-  void Delete() {delete this;}
-  
   // Description:
   // Lock the vtkCriticalSection
-  void Lock( void );
+  void Lock();
 
   // Description:
   // Unlock the vtkCriticalSection
-  void Unlock( void );
+  void Unlock();
 
 protected:
   vtkCritSecType   CritSec;
@@ -110,27 +114,29 @@ public:
   
   // Description:
   // Lock the vtkCriticalSection
-  void Lock( void );
+  void Lock();
 
   // Description:
   // Unlock the vtkCriticalSection
-  void Unlock( void );
+  void Unlock();
 
 protected:
-  vtkSimpleCriticalSection   SimpleCriticalSection;
-  vtkCriticalSection() {};
+  vtkSimpleCriticalSection SimpleCriticalSection;
+  vtkCriticalSection() {}
+  ~vtkCriticalSection() {}
+
 private:
   vtkCriticalSection(const vtkCriticalSection&);  // Not implemented.
   void operator=(const vtkCriticalSection&);  // Not implemented.
 };
 
 
-inline void vtkCriticalSection::Lock( void )
+inline void vtkCriticalSection::Lock()
 {
   this->SimpleCriticalSection.Lock();
 }
 
-inline void vtkCriticalSection::Unlock( void )
+inline void vtkCriticalSection::Unlock()
 {
   this->SimpleCriticalSection.Unlock();
 }

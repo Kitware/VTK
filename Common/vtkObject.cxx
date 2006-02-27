@@ -19,7 +19,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.95");
+vtkCxxRevisionMacro(vtkObject, "1.96");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -189,7 +189,7 @@ void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Turn debugging output on.
-// The Modified() method is prposely not called since we do not want to affect
+// The Modified() method is purposely not called since we do not want to affect
 // the modification time when enabling debug output.
 void vtkObject::DebugOn()
 {
