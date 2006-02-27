@@ -37,11 +37,11 @@ public:
 
   // Description:
   // Get the Kernel size.
-  int *GetKernelSize() {return this->KernelSize;}
+  vtkGetVector3Macro(KernelSize,int);
   
   // Description:
   // Get the Kernel middle.
-  int *GetKernelMiddle() {return this->KernelMiddle;}
+  vtkGetVector3Macro(KernelMiddle,int);
 
 protected:
   vtkImageSpatialAlgorithm();
@@ -49,7 +49,6 @@ protected:
 
   int   KernelSize[3];
   int   KernelMiddle[3];      // Index of kernel origin
-  int   Strides[3];      // Shrink factor
   int   HandleBoundaries;     // Output shrinks if boundaries aren't handled
 
   virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
