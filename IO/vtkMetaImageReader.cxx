@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.18");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.19");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -427,6 +427,9 @@ int vtkMetaImageReader::GetFileInformation(const char* fname, int populate)
       else if ( vtkMetaImageReaderInternal::StringEquals(key, "ElementSpacing", keylen) )
         {
         sscanf(value, "%lf %lf %lf", spacing, spacing+1, spacing+2);
+        spacing[0] = fabs(spacing[0]);
+        spacing[1] = fabs(spacing[1]);
+        spacing[2] = fabs(spacing[2]);
         vtkDebugMacro(<< "* This image has spacing " 
           << spacing[0] << " " << spacing[1] << " " << spacing[2]);
         }
