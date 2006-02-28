@@ -28,7 +28,7 @@
 #include <string.h>
 #include <vtkTk.h>
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.50");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.51");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -608,7 +608,7 @@ void vtkXRenderWindowTclInteractorTimer(XtPointer client_data,
 
 int vtkXRenderWindowTclInteractor::CreateTimer(int vtkNotUsed(timertype)) 
 {
-  Tk_CreateTimerHandler(10,vtkXTclTimerProc,(ClientData)this);
+  Tk_CreateTimerHandler(this->TimerDuration,vtkXTclTimerProc,(ClientData)this);
   return 1;
 }
 
