@@ -40,7 +40,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.19");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.20");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -1036,11 +1036,9 @@ int vtkFreeTypeUtilitiesRenderString(
   float tprop_g = color[1];
   float tprop_b = color[2];
 
-  float tprop_l = 0.3 * tprop_r + 0.59 * tprop_g + 0.11 * tprop_b;
+  //float tprop_l = 0.3 * tprop_r + 0.59 * tprop_g + 0.11 * tprop_b;
 
-  // Image params (comps, increments, range)
-
-  int data_nb_comp = data->GetNumberOfScalarComponents();
+  // Image params (increments, range)
 
   vtkIdType data_inc_x, data_inc_y, data_inc_z;
   data->GetIncrements(data_inc_x, data_inc_y, data_inc_z);
@@ -1163,88 +1161,25 @@ int vtkFreeTypeUtilitiesRenderString(
       unsigned char *glyph_ptr_row = bitmap->buffer;
       unsigned char *glyph_ptr;
 
-      float t_alpha, t_1_m_alpha, data_alpha;
+      float t_alpha;
 
       int i, j;
       for (j = 0; j < bitmap->rows; j++)
         {
         glyph_ptr = glyph_ptr_row;
 
-        // That loop should probably be located inside the switch for efficency
-
         for (i = 0; i < bitmap->width; i++)
           {
-          t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
-          t_1_m_alpha = 1.0 - t_alpha;
- 
-          switch (data_nb_comp)
-            {
-            // L
-
-            case 1:
-              *data_ptr = (T)(
-                (data_min + data_range * tprop_l * t_alpha) + 
-                *data_ptr * t_1_m_alpha);
-              glyph_ptr++;
-              data_ptr++;
-              break;
-            
-              // L,A
-              // TOFIX: that code is so wrong (alpha)  
-
-            case 2:
-              data_alpha = (data_ptr[1] - data_min) / data_range;
-              *data_ptr = (T)(
-                (data_min + data_range * tprop_l * t_alpha) + 
-                (*data_ptr * data_alpha) * t_1_m_alpha);
-              data_ptr++;
-              *data_ptr = (T)(
-                data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
-              data_ptr++;
-              glyph_ptr++;
-              break;
-
-              // RGB
-
-            case 3:
-              *data_ptr = (T)(
-                (data_min + data_range * tprop_r * t_alpha) + 
-                *data_ptr * t_1_m_alpha);
-              data_ptr++;
-              *data_ptr = (T)(
-                (data_min + data_range * tprop_g * t_alpha) + 
-                *data_ptr * t_1_m_alpha);
-              data_ptr++;
-              *data_ptr = (T)(
-                (data_min + data_range * tprop_b * t_alpha) + 
-                *data_ptr * t_1_m_alpha);
-              data_ptr++;
-              glyph_ptr++;
-              break;
-
-              // RGB,A
-              // TOFIX: that code is so wrong (alpha)  
-
-            case 4:
-              data_alpha = (data_ptr[1] - data_min) / data_range;
-              *data_ptr = (T)(
-                (data_min + data_range * tprop_r * t_alpha) + 
-                (*data_ptr * data_alpha) * t_1_m_alpha);
-              data_ptr++;
-              *data_ptr = (T)(
-                (data_min + data_range * tprop_g * t_alpha) + 
-                (*data_ptr * data_alpha) * t_1_m_alpha);
-              data_ptr++;
-              *data_ptr = (T)(
-                (data_min + data_range * tprop_b * t_alpha) + 
-                (*data_ptr * data_alpha) * t_1_m_alpha);
-              data_ptr++;
-              *data_ptr = (T)(
-                data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
-              data_ptr++;
-              glyph_ptr++;
-              break;
-            }
+          t_alpha = tprop_opacity * (*glyph_ptr / 255.0); 
+          *data_ptr = (T)(data_min + data_range * tprop_r);
+          data_ptr++;
+          *data_ptr = (T)(data_min + data_range * tprop_g);
+          data_ptr++;
+          *data_ptr = (T)(data_min + data_range * tprop_b);
+          data_ptr++;
+          *data_ptr = (T)(data_min + data_range * t_alpha);
+          data_ptr++;
+          glyph_ptr++;
           }
         glyph_ptr_row += bitmap->pitch;
         data_ptr += data_pitch;
