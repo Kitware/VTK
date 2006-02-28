@@ -103,9 +103,12 @@ public:
   // of the screen is in the lower left corner. The y axis increases as
   // you go up the screen. So the storage of pixels is from left to right
   // and from bottom to top.
-  virtual unsigned char *GetPixelData(int, int, int, int, int) = 0;
-  virtual int GetPixelData(int ,int ,int ,int , int,
-                           vtkUnsignedCharArray*) = 0;
+  // (x,y) is any corner of the rectangle. (x2,y2) is its opposite corner on
+  // the diagonal.
+  virtual unsigned char *GetPixelData(int x, int y, int x2, int y2,
+                                      int front) = 0;
+  virtual int GetPixelData(int x, int y, int x2, int y2, int front,
+                           vtkUnsignedCharArray *data) = 0;
 
   // Description:
   // Return a best estimate to the dots per inch of the display

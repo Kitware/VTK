@@ -289,9 +289,12 @@ public:
   // of the screen is in the lower left corner. The y axis increases as
   // you go up the screen. So the storage of pixels is from left to right
   // and from bottom to top.
-  virtual int SetPixelData(int, int, int, int, unsigned char *,int) = 0;
-  virtual int SetPixelData(int, int, int, int, vtkUnsignedCharArray*,
-                           int ) = 0;
+  // (x,y) is any corner of the rectangle. (x2,y2) is its opposite corner on
+  // the diagonal.
+  virtual int SetPixelData(int x, int y, int x2, int y2, unsigned char *data,
+                           int front) = 0;
+  virtual int SetPixelData(int x, int y, int x2, int y2,
+                           vtkUnsignedCharArray *data, int front) = 0;
 
   // Description:
   // Same as Get/SetPixelData except that the image also contains an alpha
@@ -299,29 +302,36 @@ public:
   // float value. The "blend" parameter controls whether the SetRGBAPixelData
   // method blends the data with the previous contents of the frame buffer
   // or completely replaces the frame buffer data.
-  virtual float *GetRGBAPixelData(int ,int ,int ,int ,int ) = 0;
-  virtual int GetRGBAPixelData(int, int, int, int, int, vtkFloatArray* ) = 0;
-  virtual int SetRGBAPixelData(int ,int ,int ,int ,float *,int,
-                               int blend=0) = 0;
+  virtual float *GetRGBAPixelData(int x, int y, int x2, int y2, int front) = 0;
+  virtual int GetRGBAPixelData(int x, int y, int x2, int y2, int front,
+                               vtkFloatArray *data) = 0;
+  virtual int SetRGBAPixelData(int x, int y, int x2, int y2, float *,
+                               int front, int blend=0) = 0;
   virtual int SetRGBAPixelData(int, int, int, int, vtkFloatArray*,
                                int, int blend=0) = 0;
   virtual void ReleaseRGBAPixelData(float *data)=0;
-  virtual unsigned char *GetRGBACharPixelData(int ,int ,int ,int ,int ) = 0;
-  virtual int GetRGBACharPixelData(int ,int, int, int, int,
-                                   vtkUnsignedCharArray*) = 0;
-  virtual int SetRGBACharPixelData(int ,int ,int ,int ,unsigned char *, int,
+  virtual unsigned char *GetRGBACharPixelData(int x, int y, int x2, int y2,
+                                              int front) = 0;
+  virtual int GetRGBACharPixelData(int x, int y, int x2, int y2, int front,
+                                   vtkUnsignedCharArray *data) = 0;
+  virtual int SetRGBACharPixelData(int x,int y, int x2, int y2,
+                                   unsigned char *data, int front,
                                    int blend=0) = 0;
-  virtual int SetRGBACharPixelData(int, int, int, int,
-                                   vtkUnsignedCharArray *,
-                                   int, int blend=0) = 0;
+  virtual int SetRGBACharPixelData(int x, int y, int x2, int y2,
+                                   vtkUnsignedCharArray *data, int front,
+                                   int blend=0) = 0;
 
   // Description:
   // Set/Get the zbuffer data from the frame buffer.
-  virtual float *GetZbufferData(int, int, int, int ) = 0;
-  virtual int GetZbufferData( int, int, int, int, float*) = 0;
-  virtual int GetZbufferData( int, int, int, int, vtkFloatArray*) = 0;
-  virtual int SetZbufferData(int, int, int, int, float *) = 0;
-  virtual int SetZbufferData( int, int, int, int, vtkFloatArray * ) = 0;
+  // (x,y) is any corner of the rectangle. (x2,y2) is its opposite corner on
+  // the diagonal.
+  virtual float *GetZbufferData(int x, int y, int x2, int y2) = 0;
+  virtual int GetZbufferData(int x, int y, int x2, int y2, float *z) = 0;
+  virtual int GetZbufferData(int x, int y, int x2, int y2,
+                             vtkFloatArray *z) = 0;
+  virtual int SetZbufferData(int x, int y, int x2, int y2, float *z) = 0;
+  virtual int SetZbufferData(int x, int y, int x2, int y2,
+                             vtkFloatArray *z) = 0;
 
   // Description:
   // Set the number of frames for doing antialiasing. The default is

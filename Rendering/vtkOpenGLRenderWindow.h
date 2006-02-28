@@ -56,31 +56,32 @@ public:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
   virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
   virtual int GetPixelData(int x,int y,int x2,int y2, int front,
-                           vtkUnsignedCharArray*);
-  virtual int SetPixelData(int x,int y,int x2,int y2,unsigned char *,
+                           vtkUnsignedCharArray *data);
+  virtual int SetPixelData(int x,int y,int x2,int y2,unsigned char *data,
                            int front);
-  virtual int SetPixelData(int x,int y,int x2,int y2, vtkUnsignedCharArray*,
-                           int front);
+  virtual int SetPixelData(int x,int y,int x2,int y2,
+                           vtkUnsignedCharArray *data, int front);
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
   virtual float *GetRGBAPixelData(int x,int y,int x2,int y2,int front);
   virtual int GetRGBAPixelData(int x,int y,int x2,int y2, int front,
                                vtkFloatArray* data);
-  virtual int SetRGBAPixelData(int x,int y,int x2,int y2,float *,int front,
-                               int blend=0);
-  virtual int SetRGBAPixelData(int x,int y,int x2,int y2, vtkFloatArray*,
+  virtual int SetRGBAPixelData(int x,int y,int x2,int y2, float *data,
+                               int front, int blend=0);
+  virtual int SetRGBAPixelData(int x,int y,int x2,int y2, vtkFloatArray *data,
                                int front, int blend=0);
   virtual void ReleaseRGBAPixelData(float *data);
   virtual unsigned char *GetRGBACharPixelData(int x,int y,int x2,int y2,
                                               int front);
   virtual int GetRGBACharPixelData(int x,int y,int x2,int y2, int front,
-                                   vtkUnsignedCharArray* data);
-  virtual int SetRGBACharPixelData(int x,int y,int x2,int y2,unsigned char *,
-                                   int front, int blend=0);  
+                                   vtkUnsignedCharArray *data);
+  virtual int SetRGBACharPixelData(int x, int y, int x2, int y2,
+                                   unsigned char *data, int front,
+                                   int blend=0);  
   virtual int SetRGBACharPixelData(int x,int y,int x2,int y2,
-                                   vtkUnsignedCharArray *,
-                                   int front, int blend=0);  
+                                   vtkUnsignedCharArray *data, int front,
+                                   int blend=0);  
 
   // Description:
   // Set/Get the zbuffer data from an image
