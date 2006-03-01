@@ -15,8 +15,6 @@
 #include "vtkProperty.h"
 
 #include "vtkActor.h"
-#include "vtkCollection.h"
-#include "vtkCollectionIterator.h"
 #include "vtkBMPReader.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkImageData.h"
@@ -27,6 +25,8 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
+#include "vtkSmartPointer.h"
+#include "vtkStdString.h"
 #include "vtkTexture.h"
 #include "vtkTIFFReader.h"
 #include "vtkXMLDataElement.h"
@@ -36,7 +36,18 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.63");
+#include <vtkstd/map>
+#include <vtksys/SystemTools.hxx>
+
+class vtkPropertyInternals
+{
+public:
+  typedef vtkstd::map<vtkStdString, vtkSmartPointer<vtkTexture> > 
+    MapOfTextures;
+  MapOfTextures Textures;
+};
+
+vtkCxxRevisionMacro(vtkProperty, "1.64");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -197,7 +208,7 @@ vtkProperty::vtkProperty()
   this->ShaderProgram = 0;
   this->Material = 0;
   this->MaterialName = 0;
-  this->TextureCollection = vtkCollection::New();
+  this->Internals = new vtkPropertyInternals;
 }
 
 //----------------------------------------------------------------------------
@@ -209,7 +220,7 @@ vtkProperty::~vtkProperty()
     }
   this->SetShaderProgram(0); 
   this->SetMaterialName(0);
-  this->TextureCollection->Delete();
+  delete this->Internals;
 }
 
 
@@ -240,11 +251,13 @@ void vtkProperty::DeepCopy(vtkProperty *p)
     this->SetLineStippleRepeatFactor(p->GetLineStippleRepeatFactor());
     this->SetShading(p->GetShading());
     this->LoadMaterial(p->GetMaterial());
-    
-    this->TextureCollection->RemoveAllItems();
-    for (int i=0; i < p->GetNumberOfTextures(); i++)
+   
+    this->RemoveAllTextures();
+    vtkPropertyInternals::MapOfTextures::iterator iter =
+      p->Internals->Textures.begin();
+    for ( ;iter != p->Internals->Textures.end(); ++iter)
       {
-      this->AddTexture(p->GetTexture(i));
+      this->Internals->Textures[iter->first] = iter->second;
       }
 
     // TODO: need to pass shader variables.
@@ -317,74 +330,86 @@ void vtkProperty::GetColor(double &r, double &g, double &b)
 }
 
 //----------------------------------------------------------------------------
-void vtkProperty::SetTexture(vtkTexture* tex)
+void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
 {
-  if (this->GetNumberOfTextures() == 0)
+  vtkPropertyInternals::MapOfTextures::iterator iter = 
+    this->Internals->Textures.find(vtkStdString(name));
+  if (iter != this->Internals->Textures.end())
     {
-    this->AddTexture(tex);
+    vtkWarningMacro("Texture with name " << name 
+      << " exists. It will be replaced.");
     }
-  else
-    {
-    this->ReplaceTexture(0, tex);
-    }
+  this->Internals->Textures[name] = tex;
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkProperty::AddTexture(vtkTexture* tex)
+vtkTexture* vtkProperty::GetTexture(const char* name)
 {
-  if (!tex)
+  vtkPropertyInternals::MapOfTextures::iterator iter = 
+    this->Internals->Textures.find(vtkStdString(name));
+  if (iter != this->Internals->Textures.end())
     {
-    vtkErrorMacro("Cannot add NULL texture.");
-    return -1;
+    return iter->second.GetPointer();
     }
-  this->TextureCollection->AddItem(tex);
-  return (this->TextureCollection->GetNumberOfItems()-1);
-}
-
-//----------------------------------------------------------------------------
-void vtkProperty::ReplaceTexture(vtkIdType index, vtkTexture* newTex)
-{
-  if (this->GetNumberOfTextures() <= index)
-    {
-    vtkErrorMacro("Invalid texture index " << index);
-    return;
-    }
-  this->TextureCollection->ReplaceItem(index, newTex);
-}
-
-//----------------------------------------------------------------------------
-vtkTexture* vtkProperty::GetTexture(vtkIdType index)
-{
-  if (this->GetNumberOfTextures() <= index)
-    {
-    return 0;
-    }
-  return vtkTexture::SafeDownCast(
-    this->TextureCollection->GetItemAsObject(index));
+  vtkErrorMacro("No texture with name " << name << " exists.");
+  return NULL;
 }
 
 //----------------------------------------------------------------------------
 int vtkProperty::GetNumberOfTextures()
 {
-  return this->TextureCollection? this->TextureCollection->GetNumberOfItems()
-    : 0;
+  return static_cast<int>(this->Internals->Textures.size());
 }
 
 //----------------------------------------------------------------------------
-void vtkProperty::RemoveTexture(vtkIdType index)
+void vtkProperty::RemoveTexture(const char* name)
 {
-  if (index >= this->GetNumberOfTextures())
+  vtkPropertyInternals::MapOfTextures::iterator iter = 
+    this->Internals->Textures.find(vtkStdString(name));
+  if (iter != this->Internals->Textures.end())
     {
-    return;
+    this->Internals->Textures.erase(iter);
     }
-  this->TextureCollection->RemoveItem(index);
 }
 
 //----------------------------------------------------------------------------
 void vtkProperty::RemoveAllTextures()
 {
-  this->TextureCollection->RemoveAllItems();
+  this->Internals->Textures.clear();
 }
+
+//----------------------------------------------------------------------------
+vtkTexture* vtkProperty::GetTextureAtIndex(int index)
+{
+  vtkPropertyInternals::MapOfTextures::iterator iter = 
+    this->Internals->Textures.begin();
+  for (int id=0; iter != this->Internals->Textures.end(); ++iter, ++id)
+    {
+    if (id == index)
+      {
+      return iter->second.GetPointer();
+      }
+    }
+  vtkErrorMacro("No texture at index " << index );
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkProperty::GetTextureIndex(const char* name)
+{
+  vtkPropertyInternals::MapOfTextures::iterator iter = 
+    this->Internals->Textures.begin();
+  for (int id=0; iter != this->Internals->Textures.end(); ++iter, ++id)
+    {
+    if (iter->first == name)
+      {
+      return id;
+      }
+    }
+  vtkErrorMacro("No texture with name " << name);
+  return -1;
+}
+
 
 //----------------------------------------------------------------------------
 void vtkProperty::LoadMaterial(const char* name)
@@ -435,6 +460,7 @@ void vtkProperty::LoadMaterial(vtkXMLMaterial* material)
   if (this->Material)
     {
     this->LoadProperty();
+    this->LoadTextures();
     int lang = this->Material->GetShaderLanguage();
     vtkShaderProgram* shader = vtkShaderProgram::CreateShaderProgram(lang);
     if (shader)
@@ -476,16 +502,7 @@ void vtkProperty::LoadProperty()
     vtkXMLDataElement* currElement = elem->GetNestedElement(iElem);
     const char* tagname = currElement->GetName();
 
-    if (strcmp(tagname, "Texture") == 0)
-      {
-      // If texture, load it.
-      this->LoadTexture(currElement);
-      }
-    else if (strcmp(tagname, "PerlinNoise") == 0)
-      {
-      this->LoadPerlineNoise(currElement);
-      }
-    else if (strcmp(tagname, "Member") == 0)
+    if (strcmp(tagname, "Member") == 0)
       {
       this->LoadMember(currElement);
       }
@@ -493,6 +510,16 @@ void vtkProperty::LoadProperty()
       {
       vtkErrorMacro("Unknown tag name '" << tagname << "'");
       }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkProperty::LoadTextures()
+{
+  int numTextures = this->Material->GetNumberOfTextures();
+  for (int i=0; i < numTextures; i++)
+    {
+    this->LoadTexture(this->Material->GetTexture(i));
     }
 }
 
@@ -720,11 +747,13 @@ void vtkProperty::LoadTexture(vtkXMLDataElement* elem )
     }
 
   const char* format = elem->GetAttribute("format");
+  vtkStdString string_format;
+
   if (!format)
     {
-    vtkErrorMacro("Missing required attribute 'format'"
-      "for element with name=" << name);
-    return;
+    // determine format from file extension.
+    string_format = vtksys::SystemTools::GetFilenameLastExtension(location);
+    format = string_format.c_str();
     }
   
   vtkImageReader2* reader;
@@ -762,9 +791,7 @@ void vtkProperty::LoadTexture(vtkXMLDataElement* elem )
     vtkTexture* t = vtkTexture::New();
     t->SetInput(reader->GetOutput());
     t->InterpolateOn();
-    this->AddTexture(t);
-    // Eventually, we may want to assign names to the textures.
-    // but for now, the shaders will use them by their index.
+    this->SetTexture(name, t);
     t->Delete();
     }
   else
@@ -787,19 +814,19 @@ void vtkProperty::Render(vtkActor* actor, vtkRenderer* renderer)
 {
   // subclass would have renderer the property already.
   // this class, just handles the shading.
+  
+  // Render all the textures.
+  vtkPropertyInternals::MapOfTextures::iterator iter =
+    this->Internals->Textures.begin();
+  for ( ;iter != this->Internals->Textures.end(); ++iter)
+    {
+    iter->second.GetPointer()->Render(renderer);
+    }
+
   if (this->ShaderProgram && this->GetShading())
     {
     vtkDebugMacro("Attempting to use Shaders");
-    // Render all the textures.
-    vtkCollectionIterator* iter = this->TextureCollection->NewIterator();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
-      iter->GoToNextItem())
-      {
-      vtkTexture* tex = vtkTexture::SafeDownCast(
-        iter->GetCurrentObject());
-      tex->Render(renderer);
-      }
-    iter->Delete();
+
     this->ShaderProgram->Render(actor, renderer);
     }
 }
@@ -812,9 +839,6 @@ void vtkProperty::PostRender(vtkActor* actor, vtkRenderer* renderer)
     this->ShaderProgram->PostRender(actor, renderer);
     }
 }
-
-
-
 
 //----------------------------------------------------------------------------
 void vtkProperty::AddShaderVariable(const char* name, int numVars, int* x)

@@ -61,7 +61,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.9");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.10");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -362,7 +362,7 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
   for (vtkIdType i = 0; i < numTextures; i++)
     {
     vtkgl::ActiveTexture(vtkgl::TEXTURE0 + i);
-    property->GetTexture(i)->Render(renderer);
+    property->GetTextureAtIndex(i)->Render(renderer);
     }
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
 }

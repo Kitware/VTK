@@ -339,7 +339,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.19")
+vtkCxxRevisionMacro(vtkShader, "1.20")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -1106,23 +1106,17 @@ void vtkShader::SetSamplerParameter(vtkActor* act, vtkRenderer*,
     return;
     }
 
-  int texture_id;
-  if (!elem->GetScalarAttribute("value", texture_id))
-    {
-    vtkErrorMacro("Expected interger 'value' for element "
-      "with name=" << name);
-    return;
-    }
 
-  vtkTexture* texture = act->GetProperty()->GetTexture(texture_id);
+  vtkTexture* texture = act->GetProperty()->GetTexture(value);
   
   if (!texture)
     {
-    vtkErrorMacro("Property does have texture at index="<<texture_id);
+    vtkErrorMacro("Property does have texture with name=" << value);
     return;
     }
+  int texture_index = act->GetProperty()->GetTextureIndex(value);
   
-  this->SetSamplerParameter(name, texture, texture_id);
+  this->SetSamplerParameter(name, texture, texture_index);
 }
 //-----------------------------------------------------------------------------
 void vtkShader::SetApplicationParameter(vtkXMLDataElement* elem)

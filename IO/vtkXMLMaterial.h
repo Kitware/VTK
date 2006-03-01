@@ -46,8 +46,12 @@ public:
   static vtkXMLMaterial* CreateInstance(const char* name);
   
   // Description:
-  // Get number of elements of type vtkProperty.
+  // Get number of elements of type Property.
   int GetNumberOfProperties();
+
+  // Description:
+  // Get number of elements of type Texture.
+  int GetNumberOfTextures();
 
   // Description:
   // Get number of Vertex shaders.
@@ -58,15 +62,19 @@ public:
   int GetNumberOfFragmentShaders();
 
   // Description:
-  // Get the ith vtkXMLDataElement of type vtkProperty
+  // Get the ith vtkXMLDataElement of type <Property />.
   vtkXMLDataElement* GetProperty(int id=0);
 
   // Description:
-  // Get the ith vtkXMLDataElement of type vtkVertexShader
+  // Get the ith vtkXMLDataElement of type <Texture />.
+  vtkXMLDataElement* GetTexture(int id=0);
+
+  // Description:
+  // Get the ith vtkXMLDataElement of type <VertexShader />.
   vtkXMLShader* GetVertexShader(int id=0);
 
   // Description:
-  // Get the ith vtkXMLDataElement of type vtkFragmentShader
+  // Get the ith vtkXMLDataElement of type <FragmentShader />.
   vtkXMLShader* GetFragmentShader(int id=0);
 
   // Description:

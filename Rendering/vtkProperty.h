@@ -41,12 +41,13 @@
 #define VTK_SURFACE   2
 
 class vtkActor;
-class vtkCollection;
 class vtkRenderer;
 class vtkShaderProgram;
 class vtkTexture;
 class vtkXMLDataElement;
 class vtkXMLMaterial;
+
+class vtkPropertyInternals;
 
 class VTK_RENDERING_EXPORT vtkProperty : public vtkObject
 {
@@ -80,13 +81,13 @@ public:
   // such as Representation, Culling are specified by the Property.
   virtual void BackfaceRender(vtkActor *,vtkRenderer *) {};
 
-  // BTX
+  //BTX
   // Description:
   // This method is called after the actor has been rendered.
   // Don't call this directly. This method cleans up 
   // any shaders allocated.
   virtual void PostRender(vtkActor*, vtkRenderer*);
-  // ETX
+  //ETX
   
   // Description:
   // Set the shading interpolation method for an object.
@@ -322,32 +323,19 @@ public:
   // Description: 
   // Set/Get the texture object to control rendering texture maps.  This will
   // be a vtkTexture object. A property does not need to have an associated
-  // texture map and multiple properties can share one texture.
-  void SetTexture(vtkTexture* texture);
-  vtkTexture* GetTexture() { return this->GetTexture(0); }
-
-  // Description:
-  // Adds a texture to the collection of textures.
-  // Multiple textures can be used when using shading.
-  vtkIdType AddTexture(vtkTexture* texture);
-
-  // Description:
-  // Replace a texture. The index must be less than the
-  // number of textures.
-  void ReplaceTexture(vtkIdType index, vtkTexture* texture);
+  // texture map and multiple properties can share one texture. Textures
+  // must be assigned unique names.
+  void SetTexture(const char* name, vtkTexture* texture);
+  vtkTexture* GetTexture(const char* name); 
 
   // Description:
   // Remove a texture from the collection. Note that the
   // indices of all the subsquent textures, if any, will change.
-  void RemoveTexture(vtkIdType index);
+  void RemoveTexture(const char* name);
 
   // Description:
   // Remove all the textures.
   void RemoveAllTextures();
-
-  // Description:
-  // Get the texture at a given index.
-  vtkTexture* GetTexture(vtkIdType index);
 
   // Description:
   // Returns the number of textures in this property.
@@ -360,6 +348,7 @@ protected:
   // Description:
   // Load property iVar values from the Material XML.
   void LoadProperty();
+  void LoadTextures();
   void LoadTexture(vtkXMLDataElement* elem);
   void LoadPerlineNoise(vtkXMLDataElement* );
   void LoadMember(vtkXMLDataElement* elem);
@@ -393,11 +382,24 @@ protected:
   void SetShaderProgram(vtkShaderProgram*);
 
   vtkXMLMaterial* Material; // TODO: I wonder if this reference needs to be maintained.
-  vtkCollection* TextureCollection;
 
+//BTX
+private:
+  // These friends are provided only for the time being
+  // till we device a graceful way of loading texturing for GLSL.
+  friend class vtkGLSLShaderProgram;
+  friend class vtkShader;
+  // FIXME: 
+  // Don't use these methods. They will be removed. They are provided only 
+  // for the time-being.
+  vtkTexture* GetTextureAtIndex(int index);
+  int GetTextureIndex(const char* name);
+//ETX
 private:
   vtkProperty(const vtkProperty&);  // Not implemented.
   void operator=(const vtkProperty&);  // Not implemented.
+
+  vtkPropertyInternals* Internals;
 };
 
 // Description:
