@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.42.2.1");
+vtkCxxRevisionMacro(vtkBMPReader, "1.42.2.2");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read
@@ -504,11 +504,11 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
         outPtr0 += outIncr[0];
         }
       // move to the next row in the file and data
-      self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip0, ios::beg);
+      self->GetFile()->seekg(static_cast<long>(self->GetFile()->tellg()) + streamSkip0, ios::beg);
       outPtr1 += outIncr[1];
       }
     // move to the next image in the file and data
-    self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip1, ios::beg);
+    self->GetFile()->seekg(static_cast<long>(self->GetFile()->tellg()) + streamSkip1, ios::beg);
     outPtr2 += outIncr[2];
     }
 
