@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.106");
+vtkCxxRevisionMacro(vtkMath, "1.107");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -1012,7 +1012,7 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
         }
       else
         {
-        double cc[2];
+        double cc[3];
         cc[0] = 1.;
         cc[1] = c[0];
         cc[2] = c[1];
@@ -1039,7 +1039,7 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
       m[0] = 4;
       return 1;
       }
-    double cc[2], cr[2];
+    double cc[3], cr[2];
     int cm[2];
     cc[0] = 1.;
     cc[1] = c[1];
@@ -1077,7 +1077,7 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
   // expedite the case when the reduced equation is biquadratic
   if ( fabs( b ) < VTK_DBL_EPSILON )
     {
-    double cc[2], cr[2];
+    double cc[3], cr[2];
     int cm[2];
     cc[0] = 1.;
     cc[1] = a;
