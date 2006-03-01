@@ -40,7 +40,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.20");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.21");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -838,18 +838,35 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
   FT_Vector kerning_delta;
 
   int x = 0, y = 0;
+
   char *currentLine = new char[strlen(str)];
   char *itr = currentLine;
+  int totalWidth = 0;
+  int totalHeight = 0;
+  float notUsed;
+  this->GetWidthHeightDescender(
+    str, tprop, &totalWidth, &totalHeight, &notUsed);
+  int currentHeight = 0;
+  int currentWidth = 0;
+  int originalX = x;
+  int originalY = y;
+  int adjustedX = 0;
+  int adjustedY = 0;
 
+  //before we start, check if we need to offset the first line
+  if(tprop->GetJustification() != VTK_TEXT_LEFT)
+    {
+    this->JustifyLine(str, tprop, totalWidth, &x, &y);
+    adjustedX = x - originalX;
+    adjustedY = y - originalY;
+    }
+  itr = currentLine;
   // Render char by char
   for (; *str; str++)
     {
     if(*str == '\n')
       {
       *itr = '\0';
-      int currentHeight = 0;
-      int currentWidth = 0;
-      float notUsed;
       this->GetWidthHeightDescender(
         currentLine, tprop, &currentWidth, &currentHeight, &notUsed);
       double newLineMovement[3] =
@@ -857,14 +874,26 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
       vtkTransform *transform = vtkTransform::New();
       transform->RotateZ(tprop->GetOrientation());
       transform->TransformPoint(newLineMovement, newLineMovement);
+      transform->Delete();
+      newLineMovement[0] -= adjustedX;
+      newLineMovement[1] -= adjustedY;
       newLineMovement[0] = floor(newLineMovement[0] + 0.5);
       newLineMovement[1] = floor(newLineMovement[1] + 0.5);
       x += (int)newLineMovement[0];
       y += (int)newLineMovement[1];
+      originalX = x;
+      originalY = y;
       //don't forget to start a new currentLine
       *currentLine = '\0';
       itr = currentLine;
-      transform->Delete();
+      adjustedX = 0;
+      adjustedY = 0;
+      if(tprop->GetJustification() != VTK_TEXT_LEFT)
+        {
+        this->JustifyLine(str+1, tprop, totalWidth, &x, &y);
+        adjustedX = x - originalX;
+        adjustedY = y - originalY;
+        }
       continue;
       }
 
@@ -1065,7 +1094,21 @@ int vtkFreeTypeUtilitiesRenderString(
 
   char *currentLine = new char[strlen(str)];
   char *itr = currentLine;
-
+  int totalWidth = 0;
+  int totalHeight = 0;
+  float notUsed;
+  int originalX = x;
+  int originalY = y;
+  int adjustedX = 0;
+  int adjustedY = 0;
+  self->GetWidthHeightDescender(
+    str, tprop, &totalWidth, &totalHeight, &notUsed);
+  if(tprop->GetJustification() != VTK_TEXT_LEFT)
+    {
+    self->JustifyLine(str, tprop, totalWidth, &x, &y);
+    adjustedX = x - originalX;
+    adjustedY = y - originalY;
+    }
   // Render char by char
   for (; *str; str++)
     {
@@ -1074,7 +1117,6 @@ int vtkFreeTypeUtilitiesRenderString(
       *itr = '\0';
       int currentHeight = 0;
       int currentWidth = 0;
-      float notUsed;
       self->GetWidthHeightDescender(
         currentLine, tprop, &currentWidth, &currentHeight, &notUsed);
       double newLineMovement[3] =
@@ -1082,14 +1124,26 @@ int vtkFreeTypeUtilitiesRenderString(
       vtkTransform *transform = vtkTransform::New();
       transform->RotateZ(tprop->GetOrientation());
       transform->TransformPoint(newLineMovement, newLineMovement);
+      newLineMovement[0] -= adjustedX;
+      newLineMovement[1] -= adjustedY;
       newLineMovement[0] = floor(newLineMovement[0] + 0.5);
       newLineMovement[1] = floor(newLineMovement[1] + 0.5);
       x += (int)newLineMovement[0];
       y += (int)newLineMovement[1];
+      originalX = x;
+      originalY = y;
       //don't forget to start a new currentLine
+      adjustedX = 0;
+      adjustedY = 0;
       *currentLine = '\0';
       itr = currentLine;
       transform->Delete();
+      if(tprop->GetJustification() != VTK_TEXT_LEFT)
+        {
+        self->JustifyLine(str+1, tprop, totalWidth, &x, &y);
+        adjustedX = x - originalX;
+        adjustedY = y - originalY;
+        }
       continue;
       }
 
@@ -1171,13 +1225,16 @@ int vtkFreeTypeUtilitiesRenderString(
         for (i = 0; i < bitmap->width; i++)
           {
           t_alpha = tprop_opacity * (*glyph_ptr / 255.0); 
+          t_1_m_alpha = 1.0 - t_alpha;
+          data_alpha = (data_ptr[3] - data_min) / data_range;
           *data_ptr = (T)(data_min + data_range * tprop_r);
           data_ptr++;
           *data_ptr = (T)(data_min + data_range * tprop_g);
           data_ptr++;
           *data_ptr = (T)(data_min + data_range * tprop_b);
           data_ptr++;
-          *data_ptr = (T)(data_min + data_range * t_alpha);
+          *data_ptr = (T)(
+            data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
           data_ptr++;
           glyph_ptr++;
           }
@@ -1834,4 +1891,80 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
     this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
     }
   return fontSize;
+}
+
+
+void vtkFreeTypeUtilities::JustifyLine(const char *str, vtkTextProperty *tprop,
+                                       int totalWidth, int *x, int *y)
+{
+  int currentHeight = 0;
+  int currentWidth = 0;
+  int len = 0;
+  float notUsed = 0.0;
+  vtkTransform *transform = vtkTransform::New();
+  char *currentLine = new char[strlen(str)+1];
+  char *itr = new char[strlen(str)+1];
+  char *beginning = itr;
+  strcpy(itr, str);
+  bool lineFound = false;
+  while(*itr != '\0')
+    {
+    if(*itr == '\n')
+      {
+      strncpy(currentLine, str, len);
+      currentLine[len] = '\0';
+      this->GetWidthHeightDescender(
+        currentLine, tprop, &currentWidth, &currentHeight, &notUsed);
+      if(currentWidth < totalWidth)
+        {
+        double movement[3] = {0, 0, 0};
+        if(tprop->GetJustification() == VTK_TEXT_CENTERED)
+          {
+          movement[0] += ((totalWidth - currentWidth) / 2);
+          }
+        else if(tprop->GetJustification() == VTK_TEXT_RIGHT)
+          {
+          movement[0] += (totalWidth - currentWidth);
+          }
+
+        transform->RotateZ(tprop->GetOrientation());
+        transform->TransformPoint(movement, movement);
+        movement[0] = floor(movement[0] + 0.5);
+        *x += (int)movement[0];
+        movement[1] = floor(movement[1] + 0.5);
+        *y += (int)movement[1];
+        lineFound = true;
+        }
+      break;
+      }
+    itr++;
+    len++;
+    }
+  if(!lineFound)
+    {
+    this->GetWidthHeightDescender(
+      str, tprop, &currentWidth, &currentHeight, &notUsed);
+    if(currentWidth < totalWidth)
+      {
+      double movement[3] = {0, 0, 0};
+      if(tprop->GetJustification() == VTK_TEXT_CENTERED)
+        {
+        movement[0] += ((totalWidth - currentWidth) / 2);
+        }
+      else if(tprop->GetJustification() == VTK_TEXT_RIGHT)
+        {
+        movement[0] += (totalWidth - currentWidth);
+        }
+
+      transform->RotateZ(tprop->GetOrientation());
+      transform->TransformPoint(movement, movement);
+      movement[0] = floor(movement[0] + 0.5);
+      *x += (int)movement[0];
+      movement[1] = floor(movement[1] + 0.5);
+      *y += (int)movement[1];
+      }
+    }
+  transform->Delete();
+  delete [] currentLine;
+  delete [] beginning;
 }

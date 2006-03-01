@@ -161,7 +161,6 @@ public:
   // Description:
   // Given a text property and a string, this function initializes the
   // vtkImageData *data and renders it in a vtkImageData. 
-  // WARNING: writing to a L,A or RGB,A vtkImageData needs to be fixed.
   int RenderString(vtkTextProperty *tprop, 
                    const char *str, 
                    vtkImageData *data);
@@ -222,6 +221,12 @@ public:
   // target rectangle
   int GetConstrainedFontSize(const char *str, vtkTextProperty *tprop,
                              int targetWidth, int targetHeight);
+
+  // Description:
+  // Internal method that justifies individual lines of text
+  void JustifyLine(const char *str, vtkTextProperty *tprop,
+                   int totalWidth, int *x, int *y);
+
   // Old Code
   // Cache entry
 
