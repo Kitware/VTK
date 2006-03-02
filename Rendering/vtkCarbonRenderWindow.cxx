@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.42");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.43");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -1049,6 +1049,16 @@ void vtkCarbonRenderWindow::CreateOffScreenWindow(int width, int height)
   aglSetCurrentContext(this->Internal->OffScreenContextId);
   
   this->Mapped = 0;
+
+  vtkRenderer *ren;
+  vtkCollectionSimpleIterator rit;
+  this->Renderers->InitTraversal(rit);
+  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
+    {
+    ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(this);
+    }
+
   this->OpenGLInit();
 }
 
