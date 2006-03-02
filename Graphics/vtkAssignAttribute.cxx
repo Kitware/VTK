@@ -24,14 +24,14 @@
 #include "vtkPointData.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkAssignAttribute, "1.16");
+vtkCxxRevisionMacro(vtkAssignAttribute, "1.17");
 vtkStandardNewMacro(vtkAssignAttribute);
 
 char vtkAssignAttribute::AttributeLocationNames[2][12] 
 = { "POINT_DATA",
     "CELL_DATA" };
 
-char vtkAssignAttribute::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10]  = { 0 };
+char vtkAssignAttribute::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10]  = { {0} };
 
 vtkAssignAttribute::vtkAssignAttribute()
 {
