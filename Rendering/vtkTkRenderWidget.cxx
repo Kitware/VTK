@@ -623,7 +623,7 @@ extern "C"
         }
       self->RenderWindow->UnRegister(NULL);
       self->RenderWindow = NULL;
-      ckfree (self->RW);
+      free (self->RW);
       }
     ckfree((char *) memPtr);
   }
