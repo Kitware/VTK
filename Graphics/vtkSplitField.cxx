@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSplitField, "1.19");
+vtkCxxRevisionMacro(vtkSplitField, "1.20");
 vtkStandardNewMacro(vtkSplitField);
 
 char vtkSplitField::FieldLocationNames[3][12] 
@@ -31,12 +31,8 @@ char vtkSplitField::FieldLocationNames[3][12]
     "POINT_DATA",
     "CELL_DATA" };
 
-char vtkSplitField::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10] 
-=  { "SCALARS",
-     "VECTORS",
-     "NORMALS",
-     "TCOORDS",
-     "TENSORS" };
+char vtkSplitField::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10]  = { 0 };
+
 
 typedef vtkSplitField::Component Component;
 
@@ -49,6 +45,20 @@ vtkSplitField::vtkSplitField()
 
   this->Head = 0;
   this->Tail = 0;
+
+  //convert the attribute names to uppercase for local use
+  if (vtkSplitField::AttributeNames[0][0] == 0) 
+    {
+    for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
+      {
+      int l = strlen(vtkDataSetAttributes::GetAttributeTypeAsString(i));
+      for (int c = 0; c < l && c < 10; c++)
+        {
+        vtkSplitField::AttributeNames[i][c] = 
+          toupper(vtkDataSetAttributes::GetAttributeTypeAsString(i)[c]);
+        }
+      }
+    }
 }
 
 vtkSplitField::~vtkSplitField()

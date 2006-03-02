@@ -22,20 +22,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkMaskFields, "1.8");
+vtkCxxRevisionMacro(vtkMaskFields, "1.9");
 vtkStandardNewMacro(vtkMaskFields);
 
 char vtkMaskFields::FieldLocationNames[3][12] 
 = { "OBJECT_DATA",
     "POINT_DATA",
     "CELL_DATA" };
-
-char vtkMaskFields::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10] 
-=  { "SCALARS",
-     "VECTORS",
-     "NORMALS",
-     "TCOORDS",
-     "TENSORS" };
+char vtkMaskFields::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10]  = { 0 };
 
 vtkMaskFields::vtkMaskFields()
 {
@@ -44,6 +38,19 @@ vtkMaskFields::vtkMaskFields()
   this->NumberOfFieldFlags = 0;
   this->CopyAllOn();
 
+  //convert the attribute names to uppercase for local use
+  if (vtkMaskFields::AttributeNames[0][0] == 0) 
+    {
+    for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
+      {
+      int l = strlen(vtkDataSetAttributes::GetAttributeTypeAsString(i));
+      for (int c = 0; c < l && c < 10; c++)
+        {
+        vtkMaskFields::AttributeNames[i][c] = 
+          toupper(vtkDataSetAttributes::GetAttributeTypeAsString(i)[c]);
+        }
+      }
+    }
 }
 
 vtkMaskFields::~vtkMaskFields()
@@ -385,36 +392,26 @@ int vtkMaskFields::RequestData(
 
   } else if (!this->CopyFields && this->CopyAttributes) {
     vtkDebugMacro("Copying only attributes.");
-    output->GetPointData()->CopyAllOff();
-    output->GetPointData()->CopyScalarsOn();
-    output->GetPointData()->CopyVectorsOn();
-    output->GetPointData()->CopyTensorsOn();
-    output->GetPointData()->CopyNormalsOn();
-    output->GetPointData()->CopyTCoordsOn();
 
+    output->GetPointData()->CopyAllOff();
     output->GetCellData()->CopyAllOff();
-    output->GetCellData()->CopyScalarsOn();
-    output->GetCellData()->CopyVectorsOn();
-    output->GetCellData()->CopyTensorsOn();
-    output->GetCellData()->CopyNormalsOn();
-    output->GetCellData()->CopyTCoordsOn();
+    int ai;
+    for (ai = 0; ai < vtkDataSetAttributes::NUM_ATTRIBUTES; ai++)
+      {
+      output->GetPointData()->SetCopyAttribute(1, ai);
+      output->GetCellData()->SetCopyAttribute(1, ai);
+      }
 
   } else if (this->CopyFields && !this->CopyAttributes) {
     vtkDebugMacro("Copying only fields.");
     output->GetPointData()->CopyAllOn();
-    output->GetPointData()->CopyScalarsOff();
-    output->GetPointData()->CopyVectorsOff();
-    output->GetPointData()->CopyTensorsOff();
-    output->GetPointData()->CopyNormalsOff();
-    output->GetPointData()->CopyTCoordsOff();
-
     output->GetCellData()->CopyAllOn();
-    output->GetCellData()->CopyScalarsOff();
-    output->GetCellData()->CopyVectorsOff();
-    output->GetCellData()->CopyTensorsOff();
-    output->GetCellData()->CopyNormalsOff();
-    output->GetCellData()->CopyTCoordsOff();
-
+    int ai;
+    for (ai = 0; ai < vtkDataSetAttributes::NUM_ATTRIBUTES; ai++)
+      {
+      output->GetPointData()->SetCopyAttribute(0, ai);
+      output->GetCellData()->SetCopyAttribute(0, ai);
+      }
     output->GetFieldData()->CopyAllOn();
 
   } else if (!this->CopyFields && !this->CopyAttributes) {

@@ -23,19 +23,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkAssignAttribute, "1.14");
+vtkCxxRevisionMacro(vtkAssignAttribute, "1.15");
 vtkStandardNewMacro(vtkAssignAttribute);
 
 char vtkAssignAttribute::AttributeLocationNames[2][12] 
 = { "POINT_DATA",
     "CELL_DATA" };
 
-char vtkAssignAttribute::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10] 
-=  { "SCALARS",
-     "VECTORS",
-     "NORMALS",
-     "TCOORDS",
-     "TENSORS" };
+char vtkAssignAttribute::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10]  = { 0 };
 
 vtkAssignAttribute::vtkAssignAttribute()
 {
@@ -44,6 +39,20 @@ vtkAssignAttribute::vtkAssignAttribute()
   this->AttributeType = -1;
   this->InputAttributeType = -1;
   this->FieldType = -1;
+
+  //convert the attribute names to uppercase for local use
+  if (vtkAssignAttribute::AttributeNames[0][0] == 0) 
+    {
+    for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
+      {
+      int l = strlen(vtkDataSetAttributes::GetAttributeTypeAsString(i));
+      for (int c = 0; c < l && c < 10; c++)
+        {
+        vtkAssignAttribute::AttributeNames[i][c] = 
+          toupper(vtkDataSetAttributes::GetAttributeTypeAsString(i)[c]);
+        }
+      }
+    }
 }
 
 vtkAssignAttribute::~vtkAssignAttribute()

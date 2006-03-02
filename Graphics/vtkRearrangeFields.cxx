@@ -25,19 +25,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkRearrangeFields, "1.15");
+vtkCxxRevisionMacro(vtkRearrangeFields, "1.16");
 vtkStandardNewMacro(vtkRearrangeFields);
 
 typedef vtkRearrangeFields::Operation Operation;
 
 // Used by AddOperation() and RemoveOperation() designed to be used 
 // from other language bindings.
-char vtkRearrangeFields::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10] 
-=  { "SCALARS",
-     "VECTORS",
-     "NORMALS",
-     "TCOORDS",
-     "TENSORS" };
 char vtkRearrangeFields::OperationTypeNames[2][5] 
 = { "COPY",
     "MOVE" };
@@ -45,6 +39,8 @@ char vtkRearrangeFields::FieldLocationNames[3][12]
 = { "DATA_OBJECT",
     "POINT_DATA",
     "CELL_DATA" };
+char vtkRearrangeFields::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10]  = { 0 };
+
 
 
 //--------------------------------------------------------------------------
@@ -55,6 +51,19 @@ vtkRearrangeFields::vtkRearrangeFields()
   this->Head = 0;
   this->Tail = 0;
   this->LastId = 0;
+  //convert the attribute names to uppercase for local use
+  if (vtkRearrangeFields::AttributeNames[0][0] == 0) 
+    {
+    for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
+      {
+      int l = strlen(vtkDataSetAttributes::GetAttributeTypeAsString(i));
+      for (int c = 0; c < l && c < 10; c++)
+        {
+        vtkRearrangeFields::AttributeNames[i][c] = 
+          toupper(vtkDataSetAttributes::GetAttributeTypeAsString(i)[c]);
+        }
+      }
+    }
 }
 
 vtkRearrangeFields::~vtkRearrangeFields()
