@@ -143,8 +143,9 @@ extern "C" {
     // Usage: vtkImageDataToTkPhoto vtkImageData photo slice
     if ( argc < 4 || argc > 7 )
       {
-      const char* m = "wrong # args: should be \"vtkImageDataToTkPhoto vtkImageData photo slice [orientation] [window] [level]\"";
-      
+      const char m[] = 
+        "wrong # args: should be \"vtkImageDataToTkPhoto vtkImageData photo slice [orientation] [window] [level]\"";
+
       Tcl_SetResult ( interp, const_cast<char*>(m), TCL_VOLATILE );
       return TCL_ERROR;
       }
@@ -565,7 +566,7 @@ extern "C"
 
 
 //----------------------------------------------------------------------------
-char *vtkTkRenderWidget_RW(const struct vtkTkRenderWidget *self)
+const char *vtkTkRenderWidget_RW(const struct vtkTkRenderWidget *self)
 {
   return self->RW;
 }
@@ -602,12 +603,13 @@ int vtkTkRenderWidget_Height( const struct vtkTkRenderWidget *self)
  *
  *----------------------------------------------------------------------
  */
+
 extern "C"
 {
   void vtkTkRenderWidget_Destroy(char *memPtr)
   {
     struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)memPtr;
-    
+
     if (self->RenderWindow)
       {
       int netRefCount = self->RenderWindow->GetReferenceCount();
@@ -619,13 +621,16 @@ extern "C"
         }
       if (netRefCount > 1)
         {
-        vtkGenericWarningMacro("A TkRenderWidget is being destroyed before it associated vtkRenderWindow is destroyed. This is very bad and usually due to the order in which objects are being destroyed. Always destroy the vtkRenderWindow before destroying the user interface components.");
+        vtkGenericWarningMacro(
+          "A TkRenderWidget is being destroyed before it associated vtkRenderWindow is destroyed."
+          "This is very bad and usually due to the order in which objects are being destroyed."
+          "Always destroy the vtkRenderWindow before destroying the user interface components.");
         }
       self->RenderWindow->UnRegister(NULL);
       self->RenderWindow = NULL;
       free (self->RW);
       }
-    ckfree((char *) memPtr);
+    ckfree(memPtr);
   }
 }
 
@@ -1048,7 +1053,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     {
     // is RW an address ? big ole python hack here
     if (self->RW[0] == 'A' && self->RW[1] == 'd' && 
- self->RW[2] == 'd' && self->RW[3] == 'r')
+        self->RW[2] == 'd' && self->RW[3] == 'r')
       {
       void *tmp;
       sscanf(self->RW+5,"%p",&tmp);
@@ -1206,7 +1211,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     {
     // is RW an address ? big ole python hack here
     if (self->RW[0] == 'A' && self->RW[1] == 'd' && 
- self->RW[2] == 'd' && self->RW[3] == 'r')
+        self->RW[2] == 'd' && self->RW[3] == 'r')
       {
       void *tmp;
       sscanf(self->RW+5,"%p",&tmp);
@@ -1217,8 +1222,8 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 #ifndef VTK_PYTHON_BUILD
       int new_flag;
       renderWindow = (vtkXOpenGLRenderWindow *)
- vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
-       new_flag);
+        vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
+          new_flag);
 #endif
       }
     if (renderWindow != self->RenderWindow)
