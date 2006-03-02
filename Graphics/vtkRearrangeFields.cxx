@@ -24,8 +24,9 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include <ctype.h>
 
-vtkCxxRevisionMacro(vtkRearrangeFields, "1.16");
+vtkCxxRevisionMacro(vtkRearrangeFields, "1.17");
 vtkStandardNewMacro(vtkRearrangeFields);
 
 typedef vtkRearrangeFields::Operation Operation;

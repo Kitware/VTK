@@ -22,8 +22,9 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include <ctype.h>
 
-vtkCxxRevisionMacro(vtkAssignAttribute, "1.15");
+vtkCxxRevisionMacro(vtkAssignAttribute, "1.16");
 vtkStandardNewMacro(vtkAssignAttribute);
 
 char vtkAssignAttribute::AttributeLocationNames[2][12] 

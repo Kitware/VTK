@@ -21,8 +21,9 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include <ctype.h>
 
-vtkCxxRevisionMacro(vtkMaskFields, "1.9");
+vtkCxxRevisionMacro(vtkMaskFields, "1.10");
 vtkStandardNewMacro(vtkMaskFields);
 
 char vtkMaskFields::FieldLocationNames[3][12] 
