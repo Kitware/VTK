@@ -160,6 +160,18 @@ public:
   // coordinates). 
   vtkSetClampMacro(TickLength, int, 0, 100);
   vtkGetMacro(TickLength, int);
+
+  // Description:
+  // Number of minor ticks to be displayed between each tick. Default
+  // is 0.
+  vtkSetClampMacro(NumberOfMinorTicks, int, 0, 20);
+  vtkGetMacro(NumberOfMinorTicks, int);
+
+  // Description:
+  // Set/Get the length of the minor tick marks (expressed in pixels or
+  // display coordinates).
+  vtkSetClampMacro(MinorTickLength, int, 0, 100);
+  vtkGetMacro(MinorTickLength, int);
   
   // Description:
   // Set/Get the offset of the labels (expressed in pixels or display
@@ -191,6 +203,12 @@ public:
   vtkSetMacro(TitleVisibility, int);
   vtkGetMacro(TitleVisibility, int);
   vtkBooleanMacro(TitleVisibility, int);
+
+  // Description:
+  // Set/Get position of the axis title. 0 is at the start of the
+  // axis whereas 1 is at the end.
+  vtkSetMacro(TitlePosition, double);
+  vtkGetMacro(TitlePosition, double);
 
   // Description:
   // Set/Get the factor that controls the overall size of the fonts used
@@ -264,13 +282,16 @@ protected:
 
   char  *Title;
   double Range[2];
+  double TitlePosition;
   int   NumberOfLabels;
   char  *LabelFormat;
   int   AdjustLabels;
   double FontFactor;
   double LabelFactor;
   int   TickLength;
+  int   MinorTickLength;
   int   TickOffset;
+  int NumberOfMinorTicks;
 
   double AdjustedRange[2];
   int   AdjustedNumberOfLabels;
