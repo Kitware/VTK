@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.26");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.27");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -1702,6 +1702,7 @@ VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg )
 // creating thumbnail images
 void vtkFixedPointVolumeRayCastMapper::CreateCanonicalView( vtkVolume *vol,
                                                             vtkImageData *image,
+							    int blend_mode,
                                                             double direction[3],
                                                             double viewUp[3] )
 {
@@ -1753,6 +1754,9 @@ void vtkFixedPointVolumeRayCastMapper::CreateCanonicalView( vtkVolume *vol,
   light->SetFocalPoint( center );
   ren->AddLight(light);
   
+  int savedBlendMode = this->BlendMode;
+  this->BlendMode = blend_mode;
+
   // Do all the initialization. This is not a multipass image
   // so just pass in dummy origin, spacing, and extent here
   double dummyOrigin[3]  = {0.0, 0.0, 0.0};
@@ -1806,6 +1810,7 @@ void vtkFixedPointVolumeRayCastMapper::CreateCanonicalView( vtkVolume *vol,
   
   // Restore
   this->SampleDistance = this->OldSampleDistance;
+  this->BlendMode = savedBlendMode;
   
   //Clean up
   renWin->RemoveRenderer(ren);

@@ -251,7 +251,8 @@ public:
   void AbortRender();
 
   void CreateCanonicalView( vtkVolume *volume,
-                            vtkImageData *image, 
+                            vtkImageData *image,
+			    int blend_mode,
                             double viewDirection[3],
                             double viewUp[3] );
   
