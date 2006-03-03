@@ -629,6 +629,41 @@ extern "C"
       self->RenderWindow->UnRegister(NULL);
       self->RenderWindow = NULL;
 #ifdef _WIN32
+      /*
+        vtkTkRenderWidget crashes on exit when used with ActiveState Tcl, which
+        is thread enabled:
+
+          vtkTkRenderWidget .t
+          pack .t
+          destroy .t ;# crash in ckfree
+
+        The problem seems related to the way the vtkTkRenderWidget is 
+        destroyed and whether or not Tcl/Tk is built with thread enabled. 
+        A data structure (self->RW) was freed with 'ckfree' in 
+        vtkTkRenderWidget_Destroy and we noticed that:
+        - ckfree() works with all our Tcl/Tk non thread-enabled, but crashes 
+          with ActiveState thread-enabled,
+        - an attempt with free() works with ActiveState thread-enabled, but
+          crashes ParaView, VolView or KWWidgets with all our Tcl/Tk non 
+          thread-enabled (but seems to work with VTK, beats me).
+        As a workaround, the code below checks if Tcl/Tk is thread-enabled, 
+        and call one or the other. Now I'm obviously still fuzzy on this one, 
+        because it does not really explain what's going on. My suspicion is
+        this one: when you build Tcl/Tk with --enable-thread, the TCL_THREAD
+        definition flag is defined, and this actually triggers a lot of stuff 
+        in Tcl.h to make use of thread-safe functions. However, it does *NOT*
+        leave anything inside Tcl.h that says "I was compiled thread-safe". 
+        Now I think that maybe a project like VTK that uses Tcl/Tk C API 
+        should detect if it is about to be compiled against a thread-enabled 
+        Tcl/Tk, and define the TCL_THREAD flag accordingly, so that when it 
+        includes Tcl.h it uses the thread-safe API (this can be done from 
+        CMake at configuration time). I tried it by actually defining 
+        TCL_THREADS in VTK's vtkTcl.h, without success though. On the other 
+        hand, that would also contradicts the fact that you should be able to
+        use any 8.x Tcl/Tk DLL anyway at run-time (which is further confirmed 
+        by the fact that nothing in Tcl.h says "I was compiled thread-safe").
+      */
+
       if (Tcl_GetVar2(
             self->Interp, "tcl_platform", "threaded", TCL_GLOBAL_ONLY) == NULL)
         {
@@ -639,7 +674,18 @@ extern "C"
         free (self->RW);
         }
 #else
-      free (self->RW);
+      /* 
+         It would make sense to test for Tcl/Tk threaded too on Unix platform, 
+         but we haven't heard of any crash so far. On the other hand, the Mac
+         does complain if the above trick is used:
+
+            vtk(14269,0xa000ef98) malloc: ***  Deallocation of a pointer not 
+            malloced: 0x14f398d8; This could be a double free(), or free() 
+            called with the middle of an allocated block; Try setting 
+            environment variable MallocHelp to see tools to help debug
+         So let's stick to ckfree() for now.
+      */
+      ckfree (self->RW);
 #endif
       }
     ckfree(memPtr);
