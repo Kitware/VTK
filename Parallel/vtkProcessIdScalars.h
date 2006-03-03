@@ -12,11 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkProcessIdScalars - Sets all cell scalars from the update piece.
+// .NAME vtkProcessIdScalars - Sets cell or point scalars to the processor rank.
 //
 // .SECTION Description
-// vtkProcessIdScalars is meant to display which piece is being requested
-// as scalar values.  It is usefull for visualizing the partitioning for
+// vtkProcessIdScalars is meant to display which processor owns which cells
+// and points.  It is useful for visualizing the partitioning for
 // streaming or distributed pipelines.
 //
 // .SECTION See Also
@@ -40,7 +40,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Option to centerate cell scalars of poi9nts scalars.  Default is point
+  // Option to centerate cell scalars of points scalars.  Default is point
   // scalars.
   void SetScalarModeToCellData() {this->SetCellScalarsFlag(1);}
   void SetScalarModeToPointData() {this->SetCellScalarsFlag(0);}
