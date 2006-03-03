@@ -39,7 +39,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Option to centerate cell scalars of poi9nts scalars.  Default is point scalars.
+  // Option to centerate cell scalars of points scalars.  Default is point scalars.
   void SetScalarModeToCellData() {this->SetCellScalarsFlag(1);}
   void SetScalarModeToPointData() {this->SetCellScalarsFlag(0);}
   int GetScalarMode() {return this->CellScalarsFlag;}
