@@ -629,7 +629,15 @@ extern "C"
       self->RenderWindow->UnRegister(NULL);
       self->RenderWindow = NULL;
 #ifdef _WIN32
-      ckfree (self->RW);
+      if (Tcl_GetVar2(
+            self->Interp, "tcl_platform", "threaded", TCL_GLOBAL_ONLY) == NULL)
+        {
+        ckfree (self->RW);
+        }
+      else
+        {
+        free (self->RW);
+        }
 #else
       free (self->RW);
 #endif
