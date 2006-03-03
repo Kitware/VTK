@@ -26,6 +26,7 @@
 #else
 #ifdef VTK_USE_CARBON
 #include "vtkCarbonRenderWindow.h"
+#include "tkMacOSXInt.h"// Needed for XEvent.type == UnmapNotify
 #else
 #include "vtkXOpenGLRenderWindow.h"
 #endif
@@ -720,20 +721,49 @@ extern "C"
       //Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
       if (self->RenderWindow)
         {
+// VTK_USE_CARBON: Do not call SetSize or SetPosition until we're
+// mapped and if we aren't mapped, clear the AGL_BUFFER_RECT.
 #ifdef VTK_USE_CARBON
-        TkWindow *winPtr = (TkWindow *)self->TkWin;
-        self->RenderWindow->SetPosition(winPtr->privatePtr->xOff,
-                                        winPtr->privatePtr->yOff);
+  if (Tk_IsMapped(self->TkWin))
+    {
+    TkWindow *winPtr = (TkWindow *)self->TkWin;
+    self->RenderWindow->SetPosition(winPtr->privatePtr->xOff,
+            winPtr->privatePtr->yOff);
+    self->RenderWindow->SetSize(self->Width, self->Height);
+    }
+  else
+    {
+    self->RenderWindow->SetSize(0, 0);
+    }
 #else
         self->RenderWindow->SetPosition(Tk_X(self->TkWin),Tk_Y(self->TkWin));
-#endif
         self->RenderWindow->SetSize(self->Width, self->Height);
+#endif
         }
       //vtkTkRenderWidget_PostRedisplay(self);
       }
       break;
       case MapNotify:
-        break;
+      {
+// VTK_USE_CARBON: we need to update the current AGL_BUFFER_RECT by
+// calling vtkCarbonRenderWindow::SetSize and vtkCarbonRenderWindow::SetPosition
+#ifdef VTK_USE_CARBON
+      TkWindow *winPtr = (TkWindow *)self->TkWin;
+      self->RenderWindow->SetPosition(winPtr->privatePtr->xOff,
+                                      winPtr->privatePtr->yOff);
+      self->RenderWindow->SetSize(self->Width, self->Height);
+#endif
+      break;
+      }
+// VTK_USE_CARBON: we need to clear the current AGL_BUFFER_RECT by
+// calling vtkCarbonRenderWindow::SetSize(0,0).
+#ifdef VTK_USE_CARBON
+      case UnmapNotify:
+      {
+      self->RenderWindow->SetSize(0, 0);
+      break;
+      }
+#endif
       case DestroyNotify:
         Tcl_EventuallyFree((ClientData) self, vtkTkRenderWidget_Destroy );
         break;
@@ -1185,7 +1215,8 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   // Use the same display
   renderWindow->SetDisplayId(dpy);
 
-  self->RenderWindow->Render();
+  // Don't render yet, the widget isn't necessarily mapped
+  // self->RenderWindow->Render();
 
   XSelectInput(dpy, Tk_WindowId(self->TkWin), VTK_ALL_EVENTS_MASK);
   
@@ -1223,6 +1254,18 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
         }
       event.xconfigure.override_redirect = winPtr->atts.override_redirect;
       Tk_HandleEvent(&event);
+    }
+  else
+    {
+    // Assume that vtkTkRenderWidget will be packed after this
+    // method is called.  Reset the AGL_BUFFER_RECT to avoid getting the
+    // initial 'black square'.
+
+    // Cast to a vtkCarbonRenderWindow so we can access the necessary members.
+    vtkCarbonRenderWindow *carbonRW = (vtkCarbonRenderWindow *)self->RenderWindow;
+    carbonRW->Initialize();
+    carbonRW->UpdateSizeAndPosition(0, 0, 0, 0);
+    carbonRW->UpdateGLRegion();
     }
 
   return TCL_OK;
