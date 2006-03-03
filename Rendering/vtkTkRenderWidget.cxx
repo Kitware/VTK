@@ -628,7 +628,11 @@ extern "C"
         }
       self->RenderWindow->UnRegister(NULL);
       self->RenderWindow = NULL;
+#ifdef _WIN32
+      ckfree (self->RW);
+#else
       free (self->RW);
+#endif
       }
     ckfree(memPtr);
   }
