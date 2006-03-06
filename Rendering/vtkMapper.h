@@ -228,7 +228,7 @@ public:
     this->SetScalarMode(VTK_SCALAR_MODE_USE_FIELD_DATA); }
   
   // Description:
-  // When ScalarMode is set to UsePointFileData or UseCellFieldData,
+  // When ScalarMode is set to UsePointFieldData or UseCellFieldData,
   // you can specify which array to use for coloring using these methods.
   // The lookup table will decide how to convert vectors to colors.
   void SelectColorArray(int arrayNum); 
