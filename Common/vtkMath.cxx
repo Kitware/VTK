@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.108");
+vtkCxxRevisionMacro(vtkMath, "1.109");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -978,7 +978,7 @@ int vtkMath::LinBairstowSolve( double* c, int d, double* r, double& tolerance )
 }
 
 extern "C" {
-  static int vtkMathCompareRoots(const void* a, const void* b)
+  int vtkMathCompareRoots(const void* a, const void* b)
   {
     return (*((const double*)a)) < (*((const double*)b)) ? -1 : 1; 
   }
