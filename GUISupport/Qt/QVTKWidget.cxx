@@ -874,7 +874,9 @@ void QVTKWidget::reparent(QWidget* parent, Qt::WFlags f, const QPoint& p, bool s
  
     // connect to new window
 #if defined(Q_WS_MAC)
-    this->mRenWin->SetWindowId(reinterpret_cast<void*>(this->handle()));
+    static_cast<vtkCarbonRenderWindow*>(this->mRenWin)->SetRootWindow(
+                  reinterpret_cast<WindowPtr>(this->handle()));
+
 #else
     this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
 #endif
