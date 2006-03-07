@@ -26,6 +26,7 @@
 #else
 #ifdef VTK_USE_CARBON
 #include "vtkCarbonRenderWindow.h"
+#include "tkMacOSXInt.h"// Needed for XEvent.type == UnmapNotify
 #else
 #include "vtkXOpenGLRenderWindow.h"
 #endif
@@ -143,8 +144,9 @@ extern "C" {
     // Usage: vtkImageDataToTkPhoto vtkImageData photo slice
     if ( argc < 4 || argc > 7 )
       {
-      const char* m = "wrong # args: should be \"vtkImageDataToTkPhoto vtkImageData photo slice [orientation] [window] [level]\"";
-      
+      const char m[] = 
+        "wrong # args: should be \"vtkImageDataToTkPhoto vtkImageData photo slice [orientation] [window] [level]\"";
+
       Tcl_SetResult ( interp, const_cast<char*>(m), TCL_VOLATILE );
       return TCL_ERROR;
       }
@@ -565,7 +567,7 @@ extern "C"
 
 
 //----------------------------------------------------------------------------
-char *vtkTkRenderWidget_RW(const struct vtkTkRenderWidget *self)
+const char *vtkTkRenderWidget_RW(const struct vtkTkRenderWidget *self)
 {
   return self->RW;
 }
@@ -602,12 +604,13 @@ int vtkTkRenderWidget_Height( const struct vtkTkRenderWidget *self)
  *
  *----------------------------------------------------------------------
  */
+
 extern "C"
 {
   void vtkTkRenderWidget_Destroy(char *memPtr)
   {
     struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)memPtr;
-    
+
     if (self->RenderWindow)
       {
       int netRefCount = self->RenderWindow->GetReferenceCount();
@@ -619,13 +622,74 @@ extern "C"
         }
       if (netRefCount > 1)
         {
-        vtkGenericWarningMacro("A TkRenderWidget is being destroyed before it associated vtkRenderWindow is destroyed. This is very bad and usually due to the order in which objects are being destroyed. Always destroy the vtkRenderWindow before destroying the user interface components.");
+        vtkGenericWarningMacro(
+          "A TkRenderWidget is being destroyed before it associated vtkRenderWindow is destroyed."
+          "This is very bad and usually due to the order in which objects are being destroyed."
+          "Always destroy the vtkRenderWindow before destroying the user interface components.");
         }
       self->RenderWindow->UnRegister(NULL);
       self->RenderWindow = NULL;
+#ifdef _WIN32
+      /*
+        vtkTkRenderWidget crashes on exit when used with ActiveState Tcl, which
+        is thread enabled:
+
+          vtkTkRenderWidget .t
+          pack .t
+          destroy .t ;# crash in ckfree
+
+        The problem seems related to the way the vtkTkRenderWidget is 
+        destroyed and whether or not Tcl/Tk is built with thread enabled. 
+        A data structure (self->RW) was freed with 'ckfree' in 
+        vtkTkRenderWidget_Destroy and we noticed that:
+        - ckfree() works with all our Tcl/Tk non thread-enabled, but crashes 
+          with ActiveState thread-enabled,
+        - an attempt with free() works with ActiveState thread-enabled, but
+          crashes ParaView, VolView or KWWidgets with all our Tcl/Tk non 
+          thread-enabled (but seems to work with VTK, beats me).
+        As a workaround, the code below checks if Tcl/Tk is thread-enabled, 
+        and call one or the other. Now I'm obviously still fuzzy on this one, 
+        because it does not really explain what's going on. My suspicion is
+        this one: when you build Tcl/Tk with --enable-thread, the TCL_THREAD
+        definition flag is defined, and this actually triggers a lot of stuff 
+        in Tcl.h to make use of thread-safe functions. However, it does *NOT*
+        leave anything inside Tcl.h that says "I was compiled thread-safe". 
+        Now I think that maybe a project like VTK that uses Tcl/Tk C API 
+        should detect if it is about to be compiled against a thread-enabled 
+        Tcl/Tk, and define the TCL_THREAD flag accordingly, so that when it 
+        includes Tcl.h it uses the thread-safe API (this can be done from 
+        CMake at configuration time). I tried it by actually defining 
+        TCL_THREADS in VTK's vtkTcl.h, without success though. On the other 
+        hand, that would also contradicts the fact that you should be able to
+        use any 8.x Tcl/Tk DLL anyway at run-time (which is further confirmed 
+        by the fact that nothing in Tcl.h says "I was compiled thread-safe").
+      */
+
+      if (Tcl_GetVar2(
+            self->Interp, "tcl_platform", "threaded", TCL_GLOBAL_ONLY) == NULL)
+        {
+        ckfree (self->RW);
+        }
+      else
+        {
+        free (self->RW);
+        }
+#else
+      /* 
+         It would make sense to test for Tcl/Tk threaded too on Unix platform, 
+         but we haven't heard of any crash so far. On the other hand, the Mac
+         does complain if the above trick is used:
+
+            vtk(14269,0xa000ef98) malloc: ***  Deallocation of a pointer not 
+            malloced: 0x14f398d8; This could be a double free(), or free() 
+            called with the middle of an allocated block; Try setting 
+            environment variable MallocHelp to see tools to help debug
+         So let's stick to ckfree() for now.
+      */
       ckfree (self->RW);
+#endif
       }
-    ckfree((char *) memPtr);
+    ckfree(memPtr);
   }
 }
 
@@ -657,20 +721,49 @@ extern "C"
       //Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
       if (self->RenderWindow)
         {
+// VTK_USE_CARBON: Do not call SetSize or SetPosition until we're
+// mapped and if we aren't mapped, clear the AGL_BUFFER_RECT.
 #ifdef VTK_USE_CARBON
-        TkWindow *winPtr = (TkWindow *)self->TkWin;
-        self->RenderWindow->SetPosition(winPtr->privatePtr->xOff,
-                                        winPtr->privatePtr->yOff);
+  if (Tk_IsMapped(self->TkWin))
+    {
+    TkWindow *winPtr = (TkWindow *)self->TkWin;
+    self->RenderWindow->SetPosition(winPtr->privatePtr->xOff,
+            winPtr->privatePtr->yOff);
+    self->RenderWindow->SetSize(self->Width, self->Height);
+    }
+  else
+    {
+    self->RenderWindow->SetSize(0, 0);
+    }
 #else
         self->RenderWindow->SetPosition(Tk_X(self->TkWin),Tk_Y(self->TkWin));
-#endif
         self->RenderWindow->SetSize(self->Width, self->Height);
+#endif
         }
       //vtkTkRenderWidget_PostRedisplay(self);
       }
       break;
       case MapNotify:
-        break;
+      {
+// VTK_USE_CARBON: we need to update the current AGL_BUFFER_RECT by
+// calling vtkCarbonRenderWindow::SetSize and vtkCarbonRenderWindow::SetPosition
+#ifdef VTK_USE_CARBON
+      TkWindow *winPtr = (TkWindow *)self->TkWin;
+      self->RenderWindow->SetPosition(winPtr->privatePtr->xOff,
+                                      winPtr->privatePtr->yOff);
+      self->RenderWindow->SetSize(self->Width, self->Height);
+#endif
+      break;
+      }
+// VTK_USE_CARBON: we need to clear the current AGL_BUFFER_RECT by
+// calling vtkCarbonRenderWindow::SetSize(0,0).
+#ifdef VTK_USE_CARBON
+      case UnmapNotify:
+      {
+      self->RenderWindow->SetSize(0, 0);
+      break;
+      }
+#endif
       case DestroyNotify:
         Tcl_EventuallyFree((ClientData) self, vtkTkRenderWidget_Destroy );
         break;
@@ -1048,7 +1141,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     {
     // is RW an address ? big ole python hack here
     if (self->RW[0] == 'A' && self->RW[1] == 'd' && 
- self->RW[2] == 'd' && self->RW[3] == 'r')
+        self->RW[2] == 'd' && self->RW[3] == 'r')
       {
       void *tmp;
       sscanf(self->RW+5,"%p",&tmp);
@@ -1122,7 +1215,8 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   // Use the same display
   renderWindow->SetDisplayId(dpy);
 
-  self->RenderWindow->Render();
+  // Don't render yet, the widget isn't necessarily mapped
+  // self->RenderWindow->Render();
 
   XSelectInput(dpy, Tk_WindowId(self->TkWin), VTK_ALL_EVENTS_MASK);
   
@@ -1160,6 +1254,18 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
         }
       event.xconfigure.override_redirect = winPtr->atts.override_redirect;
       Tk_HandleEvent(&event);
+    }
+  else
+    {
+    // Assume that vtkTkRenderWidget will be packed after this
+    // method is called.  Reset the AGL_BUFFER_RECT to avoid getting the
+    // initial 'black square'.
+
+    // Cast to a vtkCarbonRenderWindow so we can access the necessary members.
+    vtkCarbonRenderWindow *carbonRW = (vtkCarbonRenderWindow *)self->RenderWindow;
+    carbonRW->Initialize();
+    carbonRW->UpdateSizeAndPosition(0, 0, 0, 0);
+    carbonRW->UpdateGLRegion();
     }
 
   return TCL_OK;
@@ -1206,7 +1312,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     {
     // is RW an address ? big ole python hack here
     if (self->RW[0] == 'A' && self->RW[1] == 'd' && 
- self->RW[2] == 'd' && self->RW[3] == 'r')
+        self->RW[2] == 'd' && self->RW[3] == 'r')
       {
       void *tmp;
       sscanf(self->RW+5,"%p",&tmp);
@@ -1217,8 +1323,8 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 #ifndef VTK_PYTHON_BUILD
       int new_flag;
       renderWindow = (vtkXOpenGLRenderWindow *)
- vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
-       new_flag);
+        vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
+          new_flag);
 #endif
       }
     if (renderWindow != self->RenderWindow)

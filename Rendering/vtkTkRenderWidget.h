@@ -33,8 +33,8 @@
 #include "vtkTcl.h"
 #include "vtkWindows.h"
 
-// For the moment, we are not compatable w/Photo compositing
-// By defining USE_COMPOSITELESS_PHOTO_PUT_BLOCK, we use the compatable
+// For the moment, we are not compatible w/Photo compositing
+// By defining USE_COMPOSITELESS_PHOTO_PUT_BLOCK, we use the compatible
 // call.
 #define USE_COMPOSITELESS_PHOTO_PUT_BLOCK
 #include "vtkTk.h"
