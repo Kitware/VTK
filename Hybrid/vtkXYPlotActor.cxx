@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.64");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.65");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -975,7 +975,10 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "AdjustTitlePosition: " 
      << this->AdjustTitlePosition << endl;
-  os << indent << "TitlePosition: " << this->TitlePosition << endl;
+  os << indent << "TitlePosition: " 
+     << this->TitlePosition[0] << " "
+     << this->TitlePosition[1] << " "
+     << endl;
 }
 
 //----------------------------------------------------------------------------
