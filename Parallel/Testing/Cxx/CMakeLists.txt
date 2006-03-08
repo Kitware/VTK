@@ -92,11 +92,11 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
             ${CXX_TEST_PATH}/TransmitStructuredGrid
             -D ${VTK_DATA_ROOT}
-            -T ${VTK_BINARY_DIR}/Testing/Temporary
+            -T ${VTK_BINARY_DIR}/Testing/Tempor2ary
             -V Baseline/Parallel/TransmitStructuredGrid.cxx.png
             ${VTK_MPI_POSTFLAGS})
         ENDIF(VTK_MPI_MAX_NUMPROCS GREATER 1)
-        IF (VTK_MPI_MAX_NUMPROCS GREATER 3)
+        IF (VTK_MPI_MAX_NUMPROCS EQUAL 4)
           ADD_TEST(MPIGroups-image 
             ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} ${VTK_MPI_PREFLAGS} 
             ${CXX_TEST_PATH}/MPIGroups
@@ -104,7 +104,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/MPIGroups.cxx.png
             ${VTK_MPI_POSTFLAGS})
-        ENDIF (VTK_MPI_MAX_NUMPROCS GREATER 3)
+        ENDIF (VTK_MPI_MAX_NUMPROCS EQUAL 4)
 
       ENDIF (VTK_MPIRUN_EXE)
       #
