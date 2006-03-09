@@ -15,14 +15,14 @@
 // .NAME vtkObjectBase - abstract base class for most VTK objects
 // .SECTION Description
 // vtkObjectBase is the base class for all reference counted classes
-// in the VTK. These classes include vtkCommand classes, vtkContainer
+// in the VTK. These classes include vtkCommand classes, vtkInformationKey
 // classes, and vtkObject classes.
 //
 // vtkObjectBase performs reference counting: objects that are
 // reference counted exist as long as another object uses them. Once
 // the last reference to a reference counted object is removed, the
 // object will spontaneously destruct.
-// 
+//
 // Constructor and destructor of the subclasses of vtkObjectBase
 // should be protected, so that only New() and UnRegister() actually
 // call them. Debug leaks can be used to see if there are any objects
@@ -35,7 +35,7 @@
 // objects) because the constructor is a protected method.
 //
 // .SECTION See also
-// vtkObject vtkCommand vtkContainer
+// vtkObject vtkCommand vtkInformationKey
 
 #ifndef __vtkObjectBase_h
 #define __vtkObjectBase_h
