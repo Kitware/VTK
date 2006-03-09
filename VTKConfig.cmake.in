@@ -22,10 +22,10 @@ SET(VTK_EXECUTABLE_DIRS "@VTK_EXECUTABLE_DIRS_CONFIG@")
 # VTK_CONFIGURATION_TYPES is set (see below) then these directories
 # will be the parent directories under which there will be a directory
 # of runtime libraries for each configuration type.
-SET(VTK_RUNTIME_DIRS "@VTK_RUNTIME_DIRS_CONFIG@")
+SET(VTK_RUNTIME_LIBRARY_DIRS "@VTK_RUNTIME_LIBRARY_DIRS_CONFIG@")
 
 # The runtime library path variable name e.g. LD_LIBRARY_PATH,
-# this environment variable should be set to VTK_RUNTIME_DIRS
+# this environment variable should be set to VTK_RUNTIME_LIBRARY_DIRS
 SET(VTK_RUNTIME_PATH_VAR_NAME "@SHARED_LIBRARY_PATH_VAR_NAME@")
 
 # The C and C++ flags added by VTK to the cmake-configured flags.
@@ -169,5 +169,9 @@ SET(VTK_BUILD_TYPE @VTK_BUILD_TYPE_CONFIG@)
 IF(NOT VTK_NO_LIBRARY_DEPENDS)
   INCLUDE("@VTK_LIBRARY_DEPENDS_FILE@")
 ENDIF(NOT VTK_NO_LIBRARY_DEPENDS)
+
+# The old, less clear name for VTK_RUNTIME_LIBRARY_DIRS.  Kept here
+# for compatibility.
+SET(VTK_RUNTIME_DIRS ${VTK_RUNTIME_LIBRARY_DIRS})
 
 @VTK_CONFIG_BACKWARD_COMPATIBILITY_HACK@
