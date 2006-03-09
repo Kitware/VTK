@@ -23,8 +23,9 @@
 #include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkDataArrayCollection.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.84");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.85");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -36,6 +37,7 @@ vtkPLOT3DReader::vtkPLOT3DReader()
 {
   this->XYZFileName = NULL;
   this->QFileName = NULL;
+  this->FunctionFileName = NULL;
   this->BinaryFile = 1;
   this->HasByteCount = 0;
   this->FileSize = 0;
@@ -67,6 +69,7 @@ vtkPLOT3DReader::~vtkPLOT3DReader()
 {
   delete [] this->XYZFileName;
   delete [] this->QFileName;
+  delete [] this->FunctionFileName;
   this->FunctionList->Delete();
   this->ClearGeometryCache();
 }
@@ -127,10 +130,21 @@ int vtkPLOT3DReader::CheckSolutionFile(FILE*& qFp)
   if ( this->QFileName == NULL || this->QFileName[0] == '\0' )
     {
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
-    vtkErrorMacro(<< "Must specify geometry file");
+    vtkErrorMacro(<< "Must specify solution (Q) file");
     return VTK_ERROR;
     }
   return this->CheckFile(qFp, this->QFileName);
+}
+
+int vtkPLOT3DReader::CheckFunctionFile(FILE*& fFp)
+{
+  if ( this->FunctionFileName == NULL || this->FunctionFileName[0] == '\0' )
+    {
+    this->SetErrorCode(vtkErrorCode::NoFileNameError);
+    vtkErrorMacro(<< "Must specify function file");
+    return VTK_ERROR;
+    }
+  return this->CheckFile(fFp, this->FunctionFileName);
 }
 
 // Skip Fortran style byte count.
@@ -588,6 +602,42 @@ int vtkPLOT3DReader::ReadQHeader(FILE* fp)
   return VTK_OK;
 }
 
+int vtkPLOT3DReader::ReadFunctionHeader(FILE* fp, vtkIdList*& counts)
+{
+  int numGrid = this->GetNumberOfOutputsInternal(fp, 0);
+  vtkDebugMacro("Function number of grids: " << numGrid);
+  if ( numGrid == 0 )
+    {
+    return VTK_ERROR;
+    }
+
+  this->SkipByteCount(fp);
+  counts = vtkIdList::New();
+  for(int i=0; i<numGrid; i++)
+    {
+    int ni, nj, nk, ns;
+    this->ReadIntBlock(fp, 1, &ni);
+    this->ReadIntBlock(fp, 1, &nj);
+    this->ReadIntBlock(fp, 1, &nk);
+    this->ReadIntBlock(fp, 1, &ns);
+    vtkDebugMacro("Function, block " << i << " dimensions: "
+                  << ni << " " << nj << " " << nk 
+                  << ", " << ns << "Scalars");
+    counts->InsertNextId(ns);
+    int extent[6];
+    this->GetOutput(i)->GetWholeExtent(extent);
+    if ( extent[1] != ni-1 || extent[3] != nj-1 || extent[5] != nk-1)
+      {
+      this->SetErrorCode(vtkErrorCode::FileFormatError);
+      vtkErrorMacro("Geometry and data dimensions do not match. "
+                    "Data file may be corrupt.");
+      return VTK_ERROR;
+      }
+    }
+  this->SkipByteCount(fp);
+  return VTK_OK;
+}
+
 void vtkPLOT3DReader::SetXYZFileName( const char* name )
 {
   if ( this->XYZFileName && ! strcmp( this->XYZFileName, name ) )
@@ -974,10 +1024,59 @@ void vtkPLOT3DReader::Execute()
                             vtkDataSetAttributes::SCALARS);
       this->AssignAttribute(this->VectorFunctionNumber, nthOutput,
                             vtkDataSetAttributes::VECTORS);
+      this->SkipByteCount(qFp);
       }
     fclose(qFp);
     }
 
+  if (this->FunctionFileName && this->FunctionFileName[0] != '\0') 
+    {
+    FILE* fFp;
+    vtkIdList *arrayCounts;
+    if ( this->CheckFunctionFile(fFp) != VTK_OK)
+      {
+      return;
+      }
+    
+    if ( this->ReadFunctionHeader(fFp, arrayCounts) != VTK_OK )
+      {
+      fclose(fFp);
+      return;
+      }
+    for(i=0; i<this->NumberOfOutputs; i++)
+      {
+      vtkStructuredGrid* nthOutput = this->GetOutput(i);
+
+      int dims[6];
+      int scalarId;
+      nthOutput->GetWholeExtent(dims);
+      nthOutput->SetExtent(dims);
+      nthOutput->GetDimensions(dims);
+
+      this->SkipByteCount(fFp);
+
+      for(scalarId=0; scalarId<arrayCounts->GetId(i); scalarId++) {
+        vtkFloatArray *scalars = vtkFloatArray::New();
+        char fName[12];
+        scalars->SetNumberOfComponents(1);      
+        scalars->SetNumberOfTuples(dims[0]*dims[1]*dims[2] );
+        sprintf(fName, "Function%i", scalarId);
+        scalars->SetName(fName);
+        float *sen = scalars->GetPointer(0);
+        if (this->ReadFloatBlock(fFp, dims[0]*dims[1]*dims[2], sen) == 0)
+          {
+          vtkErrorMacro("Encountered premature end-of-file while "
+                        "reading the Function file (or the file is corrupt).");
+          fclose(fFp);
+          return;
+          }
+        nthOutput->GetPointData()->AddArray(scalars);
+        scalars->Delete();
+        }
+      this->SkipByteCount(fFp);
+      }
+    fclose(fFp);
+    }
 }
 
 // Various PLOT3D functions.....................
@@ -2002,6 +2101,8 @@ void vtkPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
     (this->XYZFileName ? this->XYZFileName : "(none)") << "\n";
   os << indent << "Q File Name: " <<
     (this->QFileName ? this->QFileName : "(none)") << "\n";
+  os << indent << "Function File Name: " <<
+    (this->FunctionFileName ? this->FunctionFileName : "(none)") << "\n";
   os << indent << "BinaryFile: " << this->BinaryFile << endl;
   os << indent << "HasByteCount: " << this->HasByteCount << endl;
   os << indent << "Gamma: " << this->Gamma << endl;
