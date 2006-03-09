@@ -101,6 +101,14 @@ IF (VTK_USE_PARALLEL)
       )
 ENDIF (VTK_USE_PARALLEL)
 
+# Link to rt to prevent undefined symbol 'fdatasync'
+
+IF(CMAKE_SYSTEM MATCHES "SunOS.*")
+  IF(NOT CMAKE_COMPILER_IS_GNUCXX)
+    TARGET_LINK_LIBRARIES(vtkpython rt)
+  ENDIF(NOT CMAKE_COMPILER_IS_GNUCXX)
+ENDIF(CMAKE_SYSTEM MATCHES "SunOS.*")
+
 # Create the pvtkpython Python wrapper executable with MPI support.
 IF (VTK_USE_PARALLEL)
   IF (VTK_USE_MPI)
