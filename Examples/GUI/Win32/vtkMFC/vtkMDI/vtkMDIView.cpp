@@ -4,6 +4,9 @@
 #include "vtkMDIDoc.h"
 #include "vtkMDIView.h"
 
+#include "vtkCallbackCommand.h"
+
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -131,6 +134,16 @@ void CvtkMDIView::ExecutePipeline()
   }
 }
 
+static void handle_double_click(vtkObject* obj, unsigned long,
+                                void*, void*)
+{
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::SafeDownCast(obj);
+  if(iren && iren->GetRepeatCount())
+    {
+    AfxMessageBox("Double Click");
+    }
+}
+
 void CvtkMDIView::OnInitialUpdate()
 {
   CView::OnInitialUpdate();
@@ -138,6 +151,12 @@ void CvtkMDIView::OnInitialUpdate()
   this->pvtkMFCWindow = new vtkMFCWindow(this);
 
   this->pvtkMFCWindow->GetRenderWindow()->AddRenderer(this->pvtkRenderer);
+
+    // get double click events
+  vtkCallbackCommand* callback = vtkCallbackCommand::New();
+  callback->SetCallback(handle_double_click);
+  this->pvtkMFCWindow->GetInteractor()->AddObserver(vtkCommand::LeftButtonPressEvent, callback, 1.0);
+  callback->Delete();
 
   // execute object pipeline
   ExecutePipeline();
@@ -179,9 +198,3 @@ void CvtkMDIView::OnSize(UINT nType, int cx, int cy)
     this->pvtkMFCWindow->MoveWindow(0, 0, cx, cy);
 }
 
-void CvtkMDIView::OnLButtonDblClk(UINT nFlags, CPoint point)
-{
-  AfxMessageBox("You made a double click");
-
-  CView::OnLButtonDblClk(nFlags, point);
-}

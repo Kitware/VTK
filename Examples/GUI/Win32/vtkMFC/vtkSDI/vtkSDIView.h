@@ -24,7 +24,6 @@ public:
   afx_msg void OnDestroy();
   afx_msg BOOL OnEraseBkgnd(CDC* pDC);
   afx_msg void OnSize(UINT nType, int cx, int cy);
-  afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 
 private:
   vtkRenderer            *pvtkRenderer;

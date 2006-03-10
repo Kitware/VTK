@@ -38,8 +38,7 @@ public:
   virtual void OnInitialUpdate();
   afx_msg void OnDestroy();
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-  afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
-    afx_msg void OnSize(UINT nType, int cx, int cy);
+  afx_msg void OnSize(UINT nType, int cx, int cy);
 
 protected:
   BOOL OnEraseBkgnd(CDC* pDC);

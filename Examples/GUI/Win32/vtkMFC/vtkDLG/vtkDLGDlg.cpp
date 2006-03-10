@@ -157,6 +157,7 @@ BOOL CvtkDLGDlg::OnInitDialog()
   vtkCallbackCommand* callback = vtkCallbackCommand::New();
   callback->SetCallback(handle_double_click);
   this->pvtkMFCWindow->GetInteractor()->AddObserver(vtkCommand::LeftButtonPressEvent, callback, 1.0);
+  callback->Delete();
   
 
   CRect cRectVTK;
