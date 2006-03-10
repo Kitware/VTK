@@ -33,7 +33,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkDataArray, "1.71");
+vtkCxxRevisionMacro(vtkDataArray, "1.72");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -703,7 +703,7 @@ void vtkDataArray::InsertNextTuple9(double val0, double val1,
 unsigned long vtkDataArray::GetActualMemorySize()
 {
   unsigned long numPrims;
-  double size = 0.0;
+  double size;
   // The allocated array may be larger than the number of primatives used.
   //numPrims = this->GetNumberOfTuples() * this->GetNumberOfComponents();
   numPrims = this->GetSize();
@@ -722,7 +722,6 @@ vtkDataArray* vtkDataArray::CreateDataArray(int dataType)
     {
     // Requested array is not a vtkDataArray. Delete the allocated array.
     aa->Delete();
-    aa = NULL;
     }
   return da;
 }
