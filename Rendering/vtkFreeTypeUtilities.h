@@ -15,7 +15,9 @@
 // .NAME vtkFreeTypeUtilities - FreeType library support
 // .SECTION Description
 // vtkFreeTypeUtilities provides low-level interface to the FreeType library,
-// including font-cache, rasterizing and vectorizing. Internal use only.
+// including font-cache, rasterizing and vectorizing. FreeType cache-subsystem
+// is supported only when FreeType version is greater than 2.1.9. 
+// Internal use only.
 // EXPERIMENTAL for the moment. Also include the old cache.
 
 #ifndef __vtkFreeTypeUtilities_h
@@ -32,11 +34,11 @@ class vtkTextProperty;
 
 #include "vtk_freetype.h"  //since ft2build.h could be in the path
 #include FT_FREETYPE_H
-#include FT_CACHE_H
-#include FT_CACHE_IMAGE_H
-#include FT_CACHE_CHARMAP_H
-
-// FTGL
+#if (FREETYPE_MAJOR >=2 && FREETYPE_MINOR >= 1 && FREETYPE_PATCH >= 9)
+# include FT_CACHE_H
+// This flag will be used to check if Caching support is to be compiled.
+# define VTK_FREETYPE_CACHING_SUPPORTED
+#endif
 
 class FTFont;
 
@@ -92,18 +94,16 @@ public:
   vtkSetClampMacro(MaximumNumberOfBytes,unsigned long,1,VTK_UNSIGNED_LONG_MAX);
   vtkGetMacro(MaximumNumberOfBytes, unsigned long);
 
-  // Description:
-  // Get the FreeType cache manager, image cache and charmap cache
-  FTC_Manager* GetCacheManager();
-  FTC_ImageCache* GetImageCache();
-  FTC_CMapCache* GetCMapCache();
+
 
   // Description:
   // Given a text property, get the corresponding FreeType size object
   // (a structure storing both a face and a specific size metric).
   // The size setting of the text property is used to set the size's face
   // to the corresponding size.
-  // Return true on success, false otherwise
+  // Return true on success, false otherwise. 
+  // This method is successful
+  // only when FreeType version is >= 2.1.9
   int GetSize(vtkTextProperty *tprop, FT_Size *size);
 
   // Description:
@@ -111,12 +111,16 @@ public:
   // The size parameter of the text property is ignored and a face with 
   // unknown current size is returned. Use GetSize() to get a specific size.
   // Return true on success, false otherwise
+  // This method is successful
+  // only when FreeType version is >= 2.1.9
   int GetFace(vtkTextProperty *tprop, FT_Face *face);
 
   // Description:
   // Given a text property and a character, get the corresponding FreeType
   // glyph index.
   // Return true on success, false otherwise
+  // This method is successful
+  // only when FreeType version is >= 2.1.9
   int GetGlyphIndex(vtkTextProperty *tprop, char c, FT_UInt *gindex);
 
   // Description:
@@ -130,6 +134,8 @@ public:
   // pre-rendered "strike" is considered, the glyph is an outline and can be
   // safely cast to a FT_OutlineGlyph.
   // Return true on success, false otherwise
+  // This method is successful
+  // only when FreeType version is >= 2.1.9
   //BTX
   enum 
   {
@@ -187,6 +193,8 @@ public:
 
   // Description:
   // For internal use only.
+  // These methods are successful
+  // only when FreeType version is >= 2.1.9
   int GetSize(unsigned long tprop_cache_id, int font_size, FT_Size *size);
   int GetFace(unsigned long tprop_cache_id, FT_Face *face);
   int GetGlyphIndex(unsigned long tprop_cache_id, char c, FT_UInt *gindex);
@@ -256,9 +264,17 @@ private:
 
   // The cache manager, image cache and charmap cache
 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
   FTC_Manager *CacheManager;
   FTC_ImageCache *ImageCache;
   FTC_CMapCache  *CMapCache;
+
+  // Description:
+  // Get the FreeType cache manager, image cache and charmap cache
+  FTC_Manager* GetCacheManager();
+  FTC_ImageCache* GetImageCache();
+  FTC_CMapCache* GetCMapCache();
+#endif
 
   unsigned int MaximumNumberOfFaces;
   unsigned int MaximumNumberOfSizes;

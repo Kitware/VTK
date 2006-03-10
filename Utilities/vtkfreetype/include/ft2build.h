@@ -31,6 +31,8 @@
 #ifndef __FT2_BUILD_GENERIC_H__
 #define __FT2_BUILD_GENERIC_H__
 
+#include "vtk_freetype_mangle.h"
+
 #include <freetype/config/ftheader.h>
 
 #if defined(VTKFREETYPE)

@@ -16,14 +16,9 @@
 #define __vtk_freetype_h
 
 /* Use the freetype library configured for VTK.  */
-//#include "vtkToolkits.h"
+#include "vtkToolkits.h"
+
 #ifdef VTK_USE_SYSTEM_FREETYPE
-#ifndef FTC_Manager_LookupFace
-#define FTC_Manager_LookupFace FTC_Manager_Lookup_Face
-#endif //FTC_Manager_LookupFace
-#ifndef FTC_Manager_LookupSize
-#define FTC_Manager_LookupSize FTC_Manager_Lookup_Size
-#endif //FTC_Manager_LookupSize
 # include <ft2build.h>
 #else
 # include <vtkfreetype/include/ft2build.h>
@@ -32,4 +27,4 @@
 #  endif
 #endif
 
-#endif
+#endif // #ifndef __vtk_freetype_h

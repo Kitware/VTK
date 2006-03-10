@@ -1,7 +1,7 @@
 #ifndef    __FTFont__
 #define    __FTFont__
 
-#include <ft2build.h>
+#include <vtk_freetype.h>
 #include FT_FREETYPE_H
 
 #include "FTGL.h"

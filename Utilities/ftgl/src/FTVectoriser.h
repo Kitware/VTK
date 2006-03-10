@@ -1,7 +1,7 @@
 #ifndef    __FTVectoriser__
 #define    __FTVectoriser__
 
-#include <ft2build.h>
+#include <vtk_freetype.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 

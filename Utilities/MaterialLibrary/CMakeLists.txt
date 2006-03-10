@@ -99,6 +99,7 @@ SET (CgCodes
   ${MaterialLibrary_SOURCE_DIR}/CgShaders/cg_sinewave.cg
   ${MaterialLibrary_SOURCE_DIR}/CgShaders/VertexLighting.cg
   ${MaterialLibrary_SOURCE_DIR}/CgShaders/Twisted.cg
+  ${MaterialLibrary_SOURCE_DIR}/CgShaders/WaterWave.cg
   )
 
 SET (GLSLCodes
@@ -210,6 +211,7 @@ IF (VTK_USE_CG_SHADERS)
     ${MaterialLibrary_SOURCE_DIR}/Materials/CgSinewave.xml
     ${MaterialLibrary_SOURCE_DIR}/Materials/CgLighting.xml
     ${MaterialLibrary_SOURCE_DIR}/Materials/CgTwisted.xml
+    ${MaterialLibrary_SOURCE_DIR}/Materials/CgWaterWave.xml
     )
 ENDIF (VTK_USE_CG_SHADERS)
 

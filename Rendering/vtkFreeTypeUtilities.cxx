@@ -20,7 +20,6 @@
 #include "vtkMath.h"
 #include "vtkImageData.h"
 #include "vtkTransform.h"
-//#include "vtkDebugLeaks.h"
 
 // FTGL
 
@@ -40,7 +39,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.22");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.23");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -109,9 +108,6 @@ vtkFreeTypeUtilities* vtkFreeTypeUtilities::GetInstance()
       vtkObjectFactory::CreateInstance("vtkFreeTypeUtilities");
     if (!vtkFreeTypeUtilities::Instance)
       {
-#ifdef VTK_DEBUG_LEAKS
-      vtkDebugLeaks::DestructClass("vtkFreeTypeUtilities");
-#endif
       vtkFreeTypeUtilities::Instance = new vtkFreeTypeUtilities;
       }
     }
@@ -159,11 +155,11 @@ vtkFreeTypeUtilities::vtkFreeTypeUtilities()
   this->MaximumNumberOfFaces = 30; // combinations of family+bold+italic
   this->MaximumNumberOfSizes = this->MaximumNumberOfFaces * 20; // sizes
   this->MaximumNumberOfBytes = 300000UL * this->MaximumNumberOfSizes;
-
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
   this->CacheManager = NULL;
   this->ImageCache   = NULL;
   this->CMapCache    = NULL;
-
+#endif
   this->NumberOfEntries = 0;
   this->InitializeCache();
 }
@@ -196,6 +192,7 @@ FT_Library* vtkFreeTypeUtilities::GetLibrary()
 }
 
 //----------------------------------------------------------------------------
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
 FTC_Manager* vtkFreeTypeUtilities::GetCacheManager() 
 {
   if (!this->CacheManager)
@@ -205,8 +202,10 @@ FTC_Manager* vtkFreeTypeUtilities::GetCacheManager()
 
   return this->CacheManager;
 }
+#endif
 
 //----------------------------------------------------------------------------
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
 FTC_ImageCache* vtkFreeTypeUtilities::GetImageCache() 
 {
   if (!this->ImageCache)
@@ -216,8 +215,10 @@ FTC_ImageCache* vtkFreeTypeUtilities::GetImageCache()
 
   return this->ImageCache;
 }
+#endif
 
 //----------------------------------------------------------------------------
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
 FTC_CMapCache* vtkFreeTypeUtilities::GetCMapCache() 
 {
   if (!this->CMapCache)
@@ -227,6 +228,7 @@ FTC_CMapCache* vtkFreeTypeUtilities::GetCMapCache()
 
   return this->CMapCache;
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkFreeTypeUtilities::MapTextPropertyToId(vtkTextProperty *tprop, 
@@ -317,6 +319,7 @@ void vtkFreeTypeUtilities::MapIdToTextProperty(unsigned long id,
 }
 
 //----------------------------------------------------------------------------
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
 FT_CALLBACK_DEF(FT_Error)
 vtkFreeTypeUtilitiesFaceRequester(FTC_FaceID face_id,
                                   FT_Library lib,
@@ -444,6 +447,7 @@ vtkFreeTypeUtilitiesFaceRequester(FTC_FaceID face_id,
 
   return error;
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkFreeTypeUtilities::InitializeCacheManager() 
@@ -454,10 +458,11 @@ void vtkFreeTypeUtilities::InitializeCacheManager()
 
   this->ReleaseCacheManager();
 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
   FT_Error error;
 
   // Create the cache manager itself
-
+  
   this->CacheManager = new FTC_Manager;
 
   error = FTC_Manager_New(*this->GetLibrary(), 
@@ -494,6 +499,10 @@ void vtkFreeTypeUtilities::InitializeCacheManager()
     {
     vtkErrorMacro(<< "Failed allocating a new FreeType CMap Cache");
     }
+#else
+  vtkDebugMacro(<<"Not using FreeType cache since cache subsystem is "
+    "not available.");
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -503,6 +512,7 @@ void vtkFreeTypeUtilities::ReleaseCacheManager()
   printf("vtkFreeTypeUtilities::ReleaseCacheManager()\n");
 #endif
 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
   if (this->CacheManager)
     {
     FTC_Manager_Done(*this->CacheManager);
@@ -522,6 +532,7 @@ void vtkFreeTypeUtilities::ReleaseCacheManager()
     delete this->CMapCache;
     this->CMapCache = NULL;
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -539,6 +550,7 @@ int vtkFreeTypeUtilities::GetSize(unsigned long tprop_cache_id,
     return 0;
     }
 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
   FTC_Manager *manager = this->GetCacheManager();
   if (!manager)
     {
@@ -548,7 +560,6 @@ int vtkFreeTypeUtilities::GetSize(unsigned long tprop_cache_id,
 
   // Map the id of a text property in the cache to a FTC_FaceID
 
-#if (FREETYPE_MAJOR >=2 && FREETYPE_MINOR >= 1 && FREETYPE_PATCH >= 9)
   FTC_FaceID face_id = reinterpret_cast<FTC_FaceID>(tprop_cache_id);
 
   FTC_ScalerRec scaler_rec;
@@ -565,6 +576,10 @@ int vtkFreeTypeUtilities::GetSize(unsigned long tprop_cache_id,
 
   return error ? 0 : 1;
 #else
+  (void)tprop_cache_id;
+  vtkErrorMacro("GetSize only supported in FreeType 2.1.9 or higher. "
+    "Current version " << FREETYPE_MAJOR << "." << FREETYPE_MINOR
+    << "." << FREETYPE_PATCH);
   return 0;
 #endif
 }
@@ -601,6 +616,7 @@ int vtkFreeTypeUtilities::GetFace(unsigned long tprop_cache_id,
     return 0;
     }
 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
   FTC_Manager *manager = this->GetCacheManager();
   if (!manager)
     {
@@ -619,6 +635,13 @@ int vtkFreeTypeUtilities::GetFace(unsigned long tprop_cache_id,
     }
 
   return error ? 0 : 1;
+#else
+  (void)tprop_cache_id;
+  vtkErrorMacro("GetFace only supported in FreeType 2.1.9 or higher. "
+    "Current version " << FREETYPE_MAJOR << "." << FREETYPE_MINOR
+    << "." << FREETYPE_PATCH);
+  return 0;
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -654,6 +677,7 @@ int vtkFreeTypeUtilities::GetGlyphIndex(unsigned long tprop_cache_id,
     return 0;
     }
 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
   FTC_CMapCache *cmap_cache = this->GetCMapCache();
   if (!cmap_cache)
     {
@@ -667,11 +691,15 @@ int vtkFreeTypeUtilities::GetGlyphIndex(unsigned long tprop_cache_id,
 
   // Lookup the glyph index
 
-#if (FREETYPE_MAJOR >=2 && FREETYPE_MINOR >= 1 && FREETYPE_PATCH >= 9)
   *gindex = FTC_CMapCache_Lookup(*cmap_cache, face_id, 0, c);
 
   return *gindex ? 1 : 0;
 #else
+  vtkErrorMacro("GetGlyphIndex only supported in FreeType 2.1.9 or higher. "
+    "Current version " << FREETYPE_MAJOR << "." << FREETYPE_MINOR
+    << "." << FREETYPE_PATCH);
+  (void)tprop_cache_id;
+  (void)c; 
   return 0;
 #endif
 }
@@ -712,6 +740,7 @@ int vtkFreeTypeUtilities::GetGlyph(unsigned long tprop_cache_id,
     return 0;
     }
 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
   FTC_ImageCache *image_cache = this->GetImageCache();
   if (!image_cache)
     {
@@ -725,7 +754,6 @@ int vtkFreeTypeUtilities::GetGlyph(unsigned long tprop_cache_id,
 
   // Which font are we looking for
 
-#if (FREETYPE_MAJOR >=2 && FREETYPE_MINOR >= 1 && FREETYPE_PATCH >= 9)
   FTC_ImageTypeRec image_type_rec;
   image_type_rec.face_id = face_id;
   image_type_rec.width = font_size;
@@ -747,6 +775,13 @@ int vtkFreeTypeUtilities::GetGlyph(unsigned long tprop_cache_id,
 
   return error ? 0 : 1;
 #else
+  vtkErrorMacro("GetGlyph only supported in FreeType 2.1.9 or higher. "
+    "Current version " << FREETYPE_MAJOR << "." << FREETYPE_MINOR
+    << "." << FREETYPE_PATCH);
+  (void)tprop_cache_id;
+  (void)font_size;
+  (void)gindex;
+  (void)request;
   return 0;
 #endif
 }
