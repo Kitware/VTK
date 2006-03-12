@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCellDataToPointData, "1.32");
+vtkCxxRevisionMacro(vtkCellDataToPointData, "1.33");
 vtkStandardNewMacro(vtkCellDataToPointData);
 
 //----------------------------------------------------------------------------
@@ -80,7 +80,7 @@ int vtkCellDataToPointData::RequestData(
 
   // notice that inPD and outPD are vtkCellData and vtkPointData; respectively.
   // It's weird, but it works.
-  outPD->CopyAllocate(inPD,numPts);
+  outPD->InterpolateAllocate(inPD,numPts);
 
   int abort=0;
   vtkIdType progressInterval=numPts/20 + 1;
