@@ -33,18 +33,10 @@ ENDIF (${CMAKE_MAJOR_VERSION} LESS 2)
 SET(VTK_PARSEOGLEXT_EXE ${PARSEOGLEXT_EXE}
   CACHE INTERNAL "OpenGL extensions parser." FORCE)
 
-FIND_FILE(VTK_GLEXT_FILE "glext.h"
-  ${CMAKE_CURRENT_SOURCE_DIR}/headers
-  DOC "Location of the OpenGL extensions header file (glext.h)."
-  )
-FIND_FILE(VTK_GLXEXT_FILE "glxext.h"
-  ${CMAKE_CURRENT_SOURCE_DIR}/headers
-  DOC "Location of the GLX extensions header file (glxext.h)."
-  )
-FIND_FILE(VTK_WGLEXT_FILE "wglext.h"
-  ${CMAKE_CURRENT_SOURCE_DIR}/headers
-  DOC "Location of the WGL extensions header file (wglext.h)."
-  )
+SET(VTK_GLEXT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/headers/glext.h" CACHE FILEPATH 
+  "Location of the OpenGL extensions header file (glext.h).")
+SET(VTK_GLXEXT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/headers/glxext.h" CACHE FILEPATH
+  "Location of the GLX extensions header file (glxext.h).")
+SET(VTK_WGLEXT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/headers/wglext.h" CACHE FILEPATH
+  "Location of the WGL extensions header file (wglext.h).")
 MARK_AS_ADVANCED(VTK_GLEXT_FILE VTK_GLXEXT_FILE VTK_WGLEXT_FILE)
-
-
