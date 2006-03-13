@@ -195,7 +195,7 @@ public:
   //    This overrides rule 2.
   // 2. If CopyAllOn is set, copy the array.
   //    If CopyAllOff is set, do not copy the array
-  virtual void CopyAllOn();
+  virtual void CopyAllOn(int unused=0);
 
   // Description:
   // Turn off copying of all data.
@@ -205,7 +205,7 @@ public:
   //    This overrides rule 2.
   // 2. If CopyAllOn is set, copy the array.
   //    If CopyAllOff is set, do not copy the array
-  virtual void CopyAllOff();
+  virtual void CopyAllOff(int unused=0);
 
   // Description:
   // Copy a field by creating new data arrays (i.e., duplicate storage).
