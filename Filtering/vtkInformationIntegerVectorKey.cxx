@@ -19,7 +19,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.10");
+vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.11");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerVectorKey
@@ -118,7 +118,7 @@ int* vtkInformationIntegerVectorKey::Get(vtkInformation* info)
   vtkInformationIntegerVectorValue* v =
     static_cast<vtkInformationIntegerVectorValue *>
     (this->GetAsObjectBase(info));
-  return v?(&v->Value[0]):0;
+  return (v && !v->Value.empty())?(&v->Value[0]):0;
 }
 
 //----------------------------------------------------------------------------
@@ -180,11 +180,8 @@ void vtkInformationIntegerVectorKey::Print(ostream& os, vtkInformation* info)
 //----------------------------------------------------------------------------
 int* vtkInformationIntegerVectorKey::GetWatchAddress(vtkInformation* info)
 {
-  if(vtkInformationIntegerVectorValue* v =
-     static_cast<vtkInformationIntegerVectorValue *>
-     (this->GetAsObjectBase(info)))
-    {
-    return &v->Value[0];
-    }
-  return 0;
+  vtkInformationIntegerVectorValue* v =
+    static_cast<vtkInformationIntegerVectorValue*>
+    (this->GetAsObjectBase(info));
+  return (v && !v->Value.empty())?(&v->Value[0]):0;
 }
