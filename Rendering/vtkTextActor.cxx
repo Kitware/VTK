@@ -22,7 +22,7 @@
 #include "vtkImageData.h"
 #include "vtkFreeTypeUtilities.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.27");
+vtkCxxRevisionMacro(vtkTextActor, "1.28");
 vtkStandardNewMacro(vtkTextActor);
 
 // ----------------------------------------------------------------------------
@@ -218,6 +218,19 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   //Make sure we have a string to render
   if(!this->Input)
+    {
+    return 0;
+    }
+
+  int *vSize = viewport->GetSize();
+  //vSize == (0,0) means that we're not ready to render yet
+  if(vSize[0] == 0 && vSize[1] == 0)
+    {
+    return 0;
+    }
+  //not sure what vSize == 1 means, but it can cause divide-by-zero errors
+  //in some of the coordinate conversion methods used below
+  if(vSize[0] == 1 || vSize[1] == 1)
     {
     return 0;
     }
