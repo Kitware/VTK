@@ -39,7 +39,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.23");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.24");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -1052,27 +1052,23 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-template <class T>
-int vtkFreeTypeUtilitiesRenderString(
-  vtkFreeTypeUtilities *self, 
-  vtkTextProperty *tprop, 
-  const char *str,
-  int x, int y,
-  vtkImageData *data,
-  T *vtkNotUsed(ptr),
-  int use_shadow_color)
+int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop, 
+                                            const char *str,
+                                            int x, int y,
+                                            vtkImageData *data,
+                                            int use_shadow_color)
 {
   // Map the text property to a unique id that will be used as face id
 
   unsigned long tprop_cache_id;
-  self->MapTextPropertyToId(tprop, &tprop_cache_id);
+  this->MapTextPropertyToId(tprop, &tprop_cache_id);
 
   // Get the face
 
   FT_Face face;
-  if (!self->GetFace(tprop_cache_id, &face))
+  if (!this->GetFace(tprop_cache_id, &face))
     {
-    vtkErrorWithObjectMacro(self, << "Failed retrieving the face");
+    vtkErrorWithObjectMacro(this, << "Failed retrieving the face");
     return 0;
     }
 
@@ -1136,11 +1132,11 @@ int vtkFreeTypeUtilitiesRenderString(
   int originalY = y;
   int adjustedX = 0;
   int adjustedY = 0;
-  self->GetWidthHeightDescender(
+  this->GetWidthHeightDescender(
     str, tprop, &totalWidth, &totalHeight, &notUsed);
   if(tprop->GetJustification() != VTK_TEXT_LEFT)
     {
-    self->JustifyLine(str, tprop, totalWidth, &x, &y);
+    this->JustifyLine(str, tprop, totalWidth, &x, &y);
     adjustedX = x - originalX;
     adjustedY = y - originalY;
     }
@@ -1152,7 +1148,7 @@ int vtkFreeTypeUtilitiesRenderString(
       *itr = '\0';
       int currentHeight = 0;
       int currentWidth = 0;
-      self->GetWidthHeightDescender(
+      this->GetWidthHeightDescender(
         currentLine, tprop, &currentWidth, &currentHeight, &notUsed);
       double newLineMovement[3] =
         {-currentWidth, -currentHeight * tprop->GetLineSpacing(), 0};
@@ -1175,7 +1171,7 @@ int vtkFreeTypeUtilitiesRenderString(
       transform->Delete();
       if(tprop->GetJustification() != VTK_TEXT_LEFT)
         {
-        self->JustifyLine(str+1, tprop, totalWidth, &x, &y);
+        this->JustifyLine(str+1, tprop, totalWidth, &x, &y);
         adjustedX = x - originalX;
         adjustedY = y - originalY;
         }
@@ -1183,14 +1179,14 @@ int vtkFreeTypeUtilitiesRenderString(
       }
 
     // Get the glyph index
-    if (!self->GetGlyphIndex(tprop_cache_id, *str, &gindex))
+    if (!this->GetGlyphIndex(tprop_cache_id, *str, &gindex))
       {
       continue;
       }
 
     // Get the glyph as a bitmap
 
-    if (!self->GetGlyph(tprop_cache_id, 
+    if (!this->GetGlyph(tprop_cache_id, 
                         tprop_font_size, 
                         gindex, 
                         &glyph, 
@@ -1239,7 +1235,8 @@ int vtkFreeTypeUtilitiesRenderString(
 
       // Render
 
-      T *data_ptr = (T*)data->GetScalarPointer(pen_x, pen_y, 0);
+      unsigned char *data_ptr =
+        (unsigned char *)data->GetScalarPointer(pen_x, pen_y, 0);
       if( !data_ptr )
         {
         return 0;
@@ -1262,13 +1259,13 @@ int vtkFreeTypeUtilitiesRenderString(
           t_alpha = tprop_opacity * (*glyph_ptr / 255.0); 
           t_1_m_alpha = 1.0 - t_alpha;
           data_alpha = (data_ptr[3] - data_min) / data_range;
-          *data_ptr = (T)(data_min + data_range * tprop_r);
+          *data_ptr = (unsigned char)(data_min + data_range * tprop_r);
           data_ptr++;
-          *data_ptr = (T)(data_min + data_range * tprop_g);
+          *data_ptr = (unsigned char)(data_min + data_range * tprop_g);
           data_ptr++;
-          *data_ptr = (T)(data_min + data_range * tprop_b);
+          *data_ptr = (unsigned char)(data_min + data_range * tprop_b);
           data_ptr++;
-          *data_ptr = (T)(
+          *data_ptr = (unsigned char)(
             data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
           data_ptr++;
           glyph_ptr++;
@@ -1331,38 +1328,12 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
     {
     int shadowOffset[2];
     tprop->GetShadowOffset(shadowOffset);
-    switch (data->GetScalarType())
-      {
-      vtkTemplateMacro(res &= vtkFreeTypeUtilitiesRenderString( 
-                         this, 
-                         tprop,
-                         str,
-                         x + shadowOffset[0], y + shadowOffset[1],
-                         data, 
-                         (VTK_TT *)(NULL),
-                         1));
-      default:
-        vtkErrorMacro(<< "Execute: Unknown ScalarType");
-        return 0;
-      }
+    res &= this->PopulateImageData(tprop, str, x + shadowOffset[0],
+                                   y + shadowOffset[1], data, 1);
     }
 
   // Execute text
-
-  switch (data->GetScalarType())
-    {
-    vtkTemplateMacro(res &= vtkFreeTypeUtilitiesRenderString( 
-                       this, 
-                       tprop,
-                       str,
-                       x, y,
-                       data, 
-                       (VTK_TT *)(NULL),
-                       0));
-    default:
-      vtkErrorMacro(<< "Execute: Unknown ScalarType");
-      return 0;
-    }
+  res &= this->PopulateImageData(tprop, str, x, y, data, 0);
   return res;
 }
 

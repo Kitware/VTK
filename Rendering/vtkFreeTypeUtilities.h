@@ -250,6 +250,9 @@ public:
                                        double override_color[3] = NULL);
 
 protected:
+  //Internal helper method called by RenderString
+  int PopulateImageData(vtkTextProperty *tprop, const char *str,
+                        int x, int y, vtkImageData *data, int use_shadow_color);
   vtkFreeTypeUtilities();
   virtual ~vtkFreeTypeUtilities();
 
