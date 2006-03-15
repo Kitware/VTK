@@ -176,7 +176,7 @@ bool DICOMParser::ReadHeader() {
   this->Implementation->Datatypes.clear();
 
   long fileSize = DataFile->GetSize();
-  do 
+  do
     {
     this->ReadNextRecord(group, element, datatype);
 
@@ -195,15 +195,15 @@ bool DICOMParser::ReadHeader() {
 // return true if this is your image type, false if it is not
 //
 bool DICOMParser::IsDICOMFile(DICOMFile* file) {
-  char magic_number[4];    
+  char magic_number[4];
   file->SkipToStart();
   file->Read((void*)magic_number,4);
-  if (CheckMagic(magic_number)) 
+  if (CheckMagic(magic_number))
     {
     return(true);
-    } 
+    }
   // try with optional skip
-  else 
+  else
     {
     file->Skip(OPTIONAL_SKIP-4);
     file->Read((void*)magic_number,4);
@@ -227,8 +227,11 @@ bool DICOMParser::IsDICOMFile(DICOMFile* file) {
       bool dicom;
       if (group == 0x0002 || group == 0x0008)
         {
-        dicom_stream::cerr << "No DICOM magic number found, but file appears to be DICOM." << dicom_stream::endl;
-        dicom_stream::cerr << "Proceeding without caution."  << dicom_stream::endl;
+        dicom_stream::cerr
+          << "No DICOM magic number found, but file appears to be DICOM."
+          << dicom_stream::endl;
+        dicom_stream::cerr << "Proceeding without caution."
+          << dicom_stream::endl;
         dicom = true;
         }
       else
@@ -249,9 +252,9 @@ bool DICOMParser::IsValidRepresentation(doublebyte rep, quadbyte& len, VRTypes &
 {
   switch (rep)
     {
-    case DICOMParser::VR_AW: 
-    case DICOMParser::VR_AE: 
-    case DICOMParser::VR_AS: 
+    case DICOMParser::VR_AW:
+    case DICOMParser::VR_AE:
+    case DICOMParser::VR_AS:
     case DICOMParser::VR_CS:
     case DICOMParser::VR_UI:
     case DICOMParser::VR_DA:
@@ -264,11 +267,11 @@ bool DICOMParser::IsValidRepresentation(doublebyte rep, quadbyte& len, VRTypes &
     case DICOMParser::VR_ST:
     case DICOMParser::VR_TM:
     case DICOMParser::VR_UT: // new
-    case DICOMParser::VR_SH: 
+    case DICOMParser::VR_SH:
     case DICOMParser::VR_FL:
     case DICOMParser::VR_SL:
-    case DICOMParser::VR_AT: 
-    case DICOMParser::VR_UL: 
+    case DICOMParser::VR_AT:
+    case DICOMParser::VR_UL:
     case DICOMParser::VR_US:
     case DICOMParser::VR_SS:
     case DICOMParser::VR_FD:
@@ -278,7 +281,7 @@ bool DICOMParser::IsValidRepresentation(doublebyte rep, quadbyte& len, VRTypes &
 
     case DICOMParser::VR_OB: // OB - LE
     case DICOMParser::VR_OW:
-    case DICOMParser::VR_UN:      
+    case DICOMParser::VR_UN:
     case DICOMParser::VR_SQ:
       DataFile->ReadDoubleByte();
       len = DataFile->ReadQuadByte();
@@ -293,7 +296,7 @@ bool DICOMParser::IsValidRepresentation(doublebyte rep, quadbyte& len, VRTypes &
       DataFile->Skip(-2);
       len = DataFile->ReadQuadByte();
       mytype = DICOMParser::VR_UNKNOWN;
-      return false;  
+      return false;
     }
 }
 
@@ -304,7 +307,7 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
   //
   // FIND A WAY TO STOP IF THERE ARE NO MORE CALLBACKS.
   //
-  // DO WE NEED TO ENSURE THAT WHEN A CALLBACK IS ADDED THAT 
+  // DO WE NEED TO ENSURE THAT WHEN A CALLBACK IS ADDED THAT
   // THE IMPLICIT TYPE MAP IS UPDATED?  ONLY IF THERE ISN'T
   // A VALUE IN THE IMPLICIT TYPE MAP.
   //
@@ -331,7 +334,7 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
   mytype = DICOMParser::VR_UNKNOWN;
   this->IsValidRepresentation(representation, length, mytype);
 
-  DICOMParserMap::iterator iter = 
+  DICOMParserMap::iterator iter =
     Implementation->Map.find(DICOMMapKey(group,element));
 
   VRTypes callbackType;
@@ -345,7 +348,7 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
 
     DICOMMapKey ge = (*iter).first;
     callbackType = VRTypes(((*iter).second.first));
-  
+
     if (callbackType != mytype &&
         mytype != VR_UNKNOWN)
       {
@@ -354,7 +357,7 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
       //
       callbackType = mytype;
       }
- 
+
 #ifdef DEBUG_DICOM
     this->DumpTag(this->ParserOutputFile, group, element, callbackType, tempdata, length);
 #endif
@@ -405,8 +408,8 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
       }
     else
       {
-      if (this->DataFile->GetPlatformIsBigEndian() == true)  
-        { 
+      if (this->DataFile->GetPlatformIsBigEndian() == true)
+        {
         switch (callbackType)
           {
           case DICOMParser::VR_OW:

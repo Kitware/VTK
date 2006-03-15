@@ -220,7 +220,7 @@ void DICOMAppHelper::RegisterCallbacks(DICOMParser* parser)
 
   ImageOrientationPatientCB->SetCallbackFunction(this, &DICOMAppHelper::ImageOrientationPatientCallback);
   parser->AddDICOMTagCallback(0x0020, 0x0037, DICOMParser::VR_SH, ImageOrientationPatientCB);
-  
+
   TransferSyntaxCB->SetCallbackFunction(this, &DICOMAppHelper::TransferSyntaxCallback);
   parser->AddDICOMTagCallback(0x0002, 0x0010, DICOMParser::VR_UI, TransferSyntaxCB);
 
@@ -377,7 +377,6 @@ void DICOMAppHelper::OutputSeries()
         }
       dicom_stream::cout << "\t" << (*v_iter).c_str() << " [" << slice << "]" <<  dicom_stream::endl;
       }
-                
     }
 }
 
@@ -387,10 +386,10 @@ void DICOMAppHelper::ArrayCallback(DICOMParser *parser,
                                    doublebyte element,
                                    DICOMParser::VRTypes datatype,
                                    unsigned char* val,
-                                   quadbyte len) 
+                                   quadbyte len)
 {
   const char* desc = "No description";
-  
+
   TagMapType::iterator iter = this->Implementation->TagMap.find(dicom_stl::pair<doublebyte, doublebyte> (group, element));
   if (iter != this->Implementation->TagMap.end())
     {
@@ -403,7 +402,7 @@ void DICOMAppHelper::ArrayCallback(DICOMParser *parser,
   char ct2(t2);
   char ct1(t1);
 
-    
+
   HeaderFile << "(0x";
 
   HeaderFile.width(4);
@@ -414,7 +413,7 @@ void DICOMAppHelper::ArrayCallback(DICOMParser *parser,
 
   HeaderFile.width(4);
   HeaderFile.fill('0');
-    
+
   HeaderFile << dicom_stream::hex << element;
   HeaderFile << ") ";
 
@@ -422,9 +421,9 @@ void DICOMAppHelper::ArrayCallback(DICOMParser *parser,
   HeaderFile << dicom_stream::dec;
   HeaderFile << " " << ct1 << ct2 << " ";
   HeaderFile << "[" << len << " bytes] ";
-  
+
   HeaderFile << desc << " : ";
-  
+
   unsigned int uival = 0;
   float fval = 0;
   double dval = 0;
@@ -489,19 +488,19 @@ void DICOMAppHelper::ArrayCallback(DICOMParser *parser,
     {
     HeaderFile << "NULL";
     }
-  
+
   HeaderFile << dicom_stream::dec << dicom_stream::endl;
   HeaderFile.fill(prev);
 
   delete [] val;
 }
-    
+
 void DICOMAppHelper::SliceNumberCallback(DICOMParser *parser,
                                          doublebyte,
                                          doublebyte,
                                          DICOMParser::VRTypes,
                                          unsigned char* val,
-                                         quadbyte) 
+                                         quadbyte)
 {
   // Look for the current file in the map of slice ordering data
   dicom_stl::map<dicom_stl::string, DICOMOrderingElements, ltstdstr>::iterator it;
@@ -510,19 +509,42 @@ void DICOMAppHelper::SliceNumberCallback(DICOMParser *parser,
     {
     // file not found, create a new entry
     DICOMOrderingElements ord;
-    ord.SliceNumber = atoi( (char *) val);
+    if( val )
+      {
+      ord.SliceNumber = atoi( (char *) val);
+      }
+    else // Slice Number present but empty
+      {
+      ord.SliceNumber = 0;
+      }
 
     // insert into the map
-    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<const dicom_stl::string, DICOMOrderingElements>(parser->GetFileName(), ord));
+    this->Implementation->SliceOrderingMap.insert(
+      dicom_stl::pair<const dicom_stl::string,
+      DICOMOrderingElements>(parser->GetFileName(), ord));
     }
   else
     {
     // file found, add new values
-    (*it).second.SliceNumber = atoi( (char *)val );
+    if( val )
+      {
+      (*it).second.SliceNumber = atoi( (char *)val );
+      }
+    else // Slice Number present but empty
+      {
+      (*it).second.SliceNumber = 0;
+      }
     }
 
   // cache the slice number
-  this->SliceNumber = atoi( (char *) val);
+  if( val )
+    {
+    this->SliceNumber = atoi( (char *) val);
+    }
+  else // Slice Number present but empty
+    {
+    this->SliceNumber = 0;
+    }
 }
 
 
@@ -581,7 +603,7 @@ void DICOMAppHelper::ImagePositionPatientCallback(DICOMParser *parser,
       ord.ImagePositionPatient[1] = 0.0;
       ord.ImagePositionPatient[2] = 0.0;
       }
-    
+
     // insert into the map
     this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<const dicom_stl::string, DICOMOrderingElements>(parser->GetFileName(), ord));
 
@@ -606,7 +628,7 @@ void DICOMAppHelper::ImagePositionPatientCallback(DICOMParser *parser,
       (*it).second.ImagePositionPatient[1] = 0.0;
       (*it).second.ImagePositionPatient[2] = 0.0;
       }
-    
+
     // cache the value
     memcpy( this->ImagePositionPatient, (*it).second.ImagePositionPatient,
             3*sizeof(float) );
