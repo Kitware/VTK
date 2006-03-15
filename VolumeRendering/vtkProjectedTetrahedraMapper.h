@@ -41,9 +41,10 @@
 
 #include "vtkUnstructuredGridVolumeMapper.h"
 
-class vtkVisibilitySort;
-class vtkUnsignedCharArray;
 class vtkFloatArray;
+class vtkPoints;
+class vtkUnsignedCharArray;
+class vtkVisibilitySort;
 
 class VTK_VOLUMERENDERING_EXPORT vtkProjectedTetrahedraMapper : public vtkUnstructuredGridVolumeMapper
 {
@@ -56,36 +57,18 @@ public:
   virtual void SetVisibilitySort(vtkVisibilitySort *sort);
   vtkGetObjectMacro(VisibilitySort, vtkVisibilitySort);
 
-  virtual void Render(vtkRenderer *renderer, vtkVolume *volume);
-
-  virtual void ReleaseGraphicsResources(vtkWindow *window);
-
   static void MapScalarsToColors(vtkDataArray *colors, vtkVolume *volume,
                                  vtkDataArray *scalars);
+  static void TransformPoints(vtkPoints *inPoints,
+                              const float projection_mat[16],
+                              const float modelview_mat[16],
+                              vtkFloatArray *outPoints);
 
 protected:
   vtkProjectedTetrahedraMapper();
   ~vtkProjectedTetrahedraMapper();
 
-  vtkUnsignedCharArray *Colors;
-  int UsingCellColors;
-
-  vtkFloatArray *TransformedPoints;
-
-  float MaxCellSize;
-  vtkTimeStamp InputAnalyzedTime;
-  vtkTimeStamp OpacityTextureTime;
-  vtkTimeStamp ColorsMappedTime;
-
-  unsigned int OpacityTexture;
-
   vtkVisibilitySort *VisibilitySort;
-
-  int GaveError;
-
-  vtkVolume *LastVolume;
-
-  virtual void ProjectTetrahedra(vtkRenderer *renderer, vtkVolume *volume);
 
   // Description:
   // The visibility sort will probably make a reference loop by holding a

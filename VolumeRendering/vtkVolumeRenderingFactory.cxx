@@ -22,6 +22,7 @@
 
 // if using some sort of opengl, then include these files
 #if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
+#include "vtkOpenGLProjectedTetrahedraMapper.h"
 #include "vtkOpenGLRayCastImageDisplayHelper.h"
 #include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkOpenGLVolumeTextureMapper3D.h"
@@ -36,7 +37,7 @@
 
 #include "stdlib.h"
 
-vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.7");
+vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.8");
 vtkStandardNewMacro(vtkVolumeRenderingFactory);
 
 
@@ -60,6 +61,18 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
 #if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
   if (!strcmp("OpenGL",rl) || !strcmp("Win32OpenGL",rl) || !strcmp("CarbonOpenGL",rl) || !strcmp("CocoaOpenGL",rl))
     {
+    // Projected Tetrahedra Mapper
+    if(strcmp(vtkclassname, "vtkProjectedTetrahedraMapper") == 0)
+      {
+// #if defined(VTK_USE_MANGLED_MESA)
+//       if (vtkGraphicsFactory::GetUseMesaClasses())
+//         {
+//         return vtkMesaProjectedTetrahedraMapper::New();
+//         }
+// #endif
+      return vtkOpenGLProjectedTetrahedraMapper::New();
+      }
+
     // 2D Volume Texture Mapper
     if(strcmp(vtkclassname, "vtkVolumeTextureMapper2D") == 0)
       {
