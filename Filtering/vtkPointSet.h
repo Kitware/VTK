@@ -90,10 +90,12 @@ public:
   void ShallowCopy(vtkDataObject *src);  
   void DeepCopy(vtkDataObject *src);
 
+  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkPointSet* GetData(vtkInformation* info);
   static vtkPointSet* GetData(vtkInformationVector* v, int i=0);
+  //ETX
 
 protected:
   vtkPointSet();

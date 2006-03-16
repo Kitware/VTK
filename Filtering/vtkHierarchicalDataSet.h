@@ -82,10 +82,12 @@ public:
 
   static vtkInformationIntegerKey* LEVEL();
 
+  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkHierarchicalDataSet* GetData(vtkInformation* info);
   static vtkHierarchicalDataSet* GetData(vtkInformationVector* v, int i=0);
+  //ETX
 
 protected:
   vtkHierarchicalDataSet();

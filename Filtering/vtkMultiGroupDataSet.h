@@ -161,10 +161,12 @@ public:
 
   static vtkInformationIntegerKey* GROUP();
 
+  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkMultiGroupDataSet* GetData(vtkInformation* info);
   static vtkMultiGroupDataSet* GetData(vtkInformationVector* v, int i=0);
+  //ETX
 
 protected:
   vtkMultiGroupDataSet();

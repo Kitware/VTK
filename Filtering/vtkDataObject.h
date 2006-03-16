@@ -461,10 +461,12 @@ public:
   static vtkInformationDoubleVectorKey* ORIGIN();
   static vtkInformationDoubleVectorKey* SPACING();
 
+  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkDataObject* GetData(vtkInformation* info);
   static vtkDataObject* GetData(vtkInformationVector* v, int i=0);
+  //ETX
 
 protected:
 

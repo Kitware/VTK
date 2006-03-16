@@ -389,10 +389,12 @@ public:
   // greater or equal to level.  It does not remove unused points (yet).
   void RemoveGhostCells(int level);
 
+  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkPolyData* GetData(vtkInformation* info);
   static vtkPolyData* GetData(vtkInformationVector* v, int i=0);
+  //ETX
 
 protected:
   vtkPolyData();
