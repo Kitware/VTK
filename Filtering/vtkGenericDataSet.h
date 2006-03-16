@@ -217,7 +217,12 @@ public:
   // Description:
   // Estimated size needed after tessellation (or special operation)
   virtual vtkIdType GetEstimatedSize() = 0;
-  
+
+  // Description:
+  // Retrieve an instance of this class from an information object.
+  static vtkGenericDataSet* GetData(vtkInformation* info);
+  static vtkGenericDataSet* GetData(vtkInformationVector* v, int i=0);
+
 protected:
   // Description:
   // Constructor with uninitialized bounds (1,-1, 1,-1, 1,-1),

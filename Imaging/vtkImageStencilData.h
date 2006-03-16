@@ -134,6 +134,11 @@ public:
   // This propagation may early terminate based on the PipelineMTime.
   void TriggerAsynchronousUpdate();
 
+  // Description:
+  // Retrieve an instance of this class from an information object.
+  static vtkImageStencilData* GetData(vtkInformation* info);
+  static vtkImageStencilData* GetData(vtkInformationVector* v, int i=0);
+
 protected:
   vtkImageStencilData();
   ~vtkImageStencilData();

@@ -74,6 +74,11 @@ public:
   static vtkInformationIntegerKey* INDEX();
   static vtkInformationDataObjectKey* COMPOSITE_DATA_SET();
 
+  // Description:
+  // Retrieve an instance of this class from an information object.
+  static vtkCompositeDataSet* GetData(vtkInformation* info);
+  static vtkCompositeDataSet* GetData(vtkInformationVector* v, int i=0);
+
 protected:
   vtkCompositeDataSet();
   ~vtkCompositeDataSet();

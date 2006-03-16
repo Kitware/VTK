@@ -317,6 +317,11 @@ public:
   // computes the ghost arrays for a given dataset.
   virtual void GenerateGhostLevelArray();
 
+  // Description:
+  // Retrieve an instance of this class from an information object.
+  static vtkDataSet* GetData(vtkInformation* info);
+  static vtkDataSet* GetData(vtkInformationVector* v, int i=0);
+
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();

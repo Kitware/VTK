@@ -149,7 +149,12 @@ public:
   // is alreay initialized, so there is no need to call this method which
   // in turn simply calls RemoveAllPoints() 
   void Initialize();
-  
+
+  // Description:
+  // Retrieve an instance of this class from an information object.
+  static vtkPiecewiseFunction* GetData(vtkInformation* info);
+  static vtkPiecewiseFunction* GetData(vtkInformationVector* v, int i=0);
+
 protected:
   vtkPiecewiseFunction();
   ~vtkPiecewiseFunction();

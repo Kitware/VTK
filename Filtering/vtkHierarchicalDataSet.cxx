@@ -17,11 +17,12 @@
 #include "vtkDataSet.h"
 #include "vtkHierarchicalDataInformation.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkInformationIntegerKey.h"
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.8");
+vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.9");
 vtkStandardNewMacro(vtkHierarchicalDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalDataSet,LEVEL,Integer);
@@ -72,6 +73,20 @@ vtkDataObject* vtkHierarchicalDataSet::GetDataSet(vtkInformation* index)
     return this->GetDataSet(index->Get(LEVEL()), index->Get(INDEX()));
     }
   return this->Superclass::GetDataSet(index);
+}
+
+//----------------------------------------------------------------------------
+vtkHierarchicalDataSet* vtkHierarchicalDataSet::GetData(vtkInformation* info)
+{
+  return
+    info? vtkHierarchicalDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkHierarchicalDataSet*
+vtkHierarchicalDataSet::GetData(vtkInformationVector* v, int i)
+{
+  return vtkHierarchicalDataSet::GetData(v->GetInformationObject(i));
 }
 
 //----------------------------------------------------------------------------

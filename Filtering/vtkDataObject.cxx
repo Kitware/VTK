@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.28");
+vtkCxxRevisionMacro(vtkDataObject, "1.29");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -1364,4 +1364,16 @@ int vtkDataObject::GetRequestExactExtent()
     return sddp->GetRequestExactExtent(this->GetPortNumber());
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkDataObject::GetData(vtkInformation* info)
+{
+  return info? info->Get(DATA_OBJECT()) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkDataObject::GetData(vtkInformationVector* v, int i)
+{
+  return vtkDataObject::GetData(v->GetInformationObject(i));
 }

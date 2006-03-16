@@ -21,13 +21,14 @@
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkPointData.h"
 #include "vtkSource.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.7");
+vtkCxxRevisionMacro(vtkDataSet, "1.8");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -623,6 +624,18 @@ void vtkDataSet::GenerateGhostLevelArray()
     levels->Delete();
     }
 
+}
+
+//----------------------------------------------------------------------------
+vtkDataSet* vtkDataSet::GetData(vtkInformation* info)
+{
+  return info? vtkDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkDataSet* vtkDataSet::GetData(vtkInformationVector* v, int i)
+{
+  return vtkDataSet::GetData(v->GetInformationObject(i));
 }
 
 //----------------------------------------------------------------------------

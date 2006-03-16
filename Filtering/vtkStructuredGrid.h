@@ -194,6 +194,11 @@ public:
   // and the source generated more than the update extent. 
   virtual void Crop();
 
+  // Description:
+  // Retrieve an instance of this class from an information object.
+  static vtkStructuredGrid* GetData(vtkInformation* info);
+  static vtkStructuredGrid* GetData(vtkInformationVector* v, int i=0);
+
 protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid();

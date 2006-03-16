@@ -14,30 +14,33 @@
 =========================================================================*/
 #include "vtkHyperOctree.h"
 
-#include "vtkHyperOctreeCursor.h"
-#include <vtkstd/vector>
-#include "vtkDataSetAttributes.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
-#include <assert.h>
-#include "vtkObjectFactory.h"
+#include "vtkCellLinks.h"
 #include "vtkCellType.h"
-#include <vtkstd/deque>
-//#include <vtkstd/set>
-#include "vtkOrderedTriangulator.h"
-#include "vtkPolygon.h"
-#include "vtkLine.h"
-#include "vtkPixel.h"
-#include "vtkVoxel.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkGenericCell.h"
-#include "vtkPoints.h"
+#include "vtkHyperOctreeCursor.h"
 #include "vtkHyperOctreePointsGrabber.h"
 #include "vtkIdTypeArray.h"
-#include "vtkCellLinks.h"
-#include "vtkTimerLog.h"
-
-#include "vtkInformationIntegerKey.h"
+#include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationVector.h"
+#include "vtkLine.h"
+#include "vtkObjectFactory.h"
+#include "vtkOrderedTriangulator.h"
+#include "vtkPixel.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolygon.h"
+#include "vtkTimerLog.h"
+#include "vtkVoxel.h"
+
+#include <vtkstd/deque>
+//#include <vtkstd/set>
+#include <vtkstd/vector>
+
+#include <assert.h>
 
 vtkInformationKeyMacro(vtkHyperOctree, LEVELS, Integer);
 vtkInformationKeyMacro(vtkHyperOctree, DIMENSION, Integer);
@@ -111,7 +114,7 @@ void vtkHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.16");
+vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.17");
 
 template<unsigned int D> class vtkCompactHyperOctree;
 template<unsigned int D> class vtkCompactHyperOctreeNode;
@@ -514,13 +517,13 @@ private:
   void operator=(const vtkCompactHyperOctreeCursor<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.16");
+// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.17");
 template<unsigned int D>
 void vtkCompactHyperOctreeCursor<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.16" << '\n';
+  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.17" << '\n';
 }
   
 
@@ -652,7 +655,7 @@ protected:
   int Children[1<<D]; // indices
 };
 
-//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.16");
+//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.17");
 
 template<unsigned int D> class vtkCompactHyperOctree
   : public vtkHyperOctreeInternal
@@ -957,13 +960,13 @@ private:
   void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.16");
+// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.17");
 template<unsigned int D>
 void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctree<" << D <<"> " << "1.16" << '\n';
+  os << "vtkCompactHyperOctree<" << D <<"> " << "1.17" << '\n';
 }
   
 
@@ -971,7 +974,7 @@ void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 // quadtree: vtkHyperOctreeInternal<2>
 // bittree: vtkHyperOctreeInternal<1>
 
-vtkCxxRevisionMacro(vtkHyperOctree, "1.16");
+vtkCxxRevisionMacro(vtkHyperOctree, "1.17");
 vtkStandardNewMacro(vtkHyperOctree);
 
 //-----------------------------------------------------------------------------
@@ -3671,7 +3674,14 @@ void vtkHyperOctree::EvaluateDualCorner(
   this->CornerLeafIds->InsertNextTupleValue(leaves);
 }
 
+//----------------------------------------------------------------------------
+vtkHyperOctree* vtkHyperOctree::GetData(vtkInformation* info)
+{
+  return info? vtkHyperOctree::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
 
-
-
-
+//----------------------------------------------------------------------------
+vtkHyperOctree* vtkHyperOctree::GetData(vtkInformationVector* v, int i)
+{
+  return vtkHyperOctree::GetData(v->GetInformationObject(i));
+}

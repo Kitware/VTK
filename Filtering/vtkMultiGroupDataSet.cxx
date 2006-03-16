@@ -19,11 +19,12 @@
 #include "vtkMultiGroupDataIterator.h"
 #include "vtkMultiGroupDataSetInternal.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkInformationIntegerKey.h"
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataSet, "1.1");
+vtkCxxRevisionMacro(vtkMultiGroupDataSet, "1.2");
 vtkStandardNewMacro(vtkMultiGroupDataSet);
 
 vtkCxxSetObjectMacro(vtkMultiGroupDataSet,MultiGroupDataInformation,vtkMultiGroupDataInformation);
@@ -333,6 +334,20 @@ vtkIdType vtkMultiGroupDataSet::GetNumberOfPoints()
   iterator->Delete();
 
   return numPts;
+}
+
+//----------------------------------------------------------------------------
+vtkMultiGroupDataSet* vtkMultiGroupDataSet::GetData(vtkInformation* info)
+{
+  return
+    info? vtkMultiGroupDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkMultiGroupDataSet* vtkMultiGroupDataSet::GetData(vtkInformationVector* v,
+                                                    int i)
+{
+  return vtkMultiGroupDataSet::GetData(v->GetInformationObject(i));
 }
 
 //----------------------------------------------------------------------------

@@ -166,6 +166,11 @@ public:
   // greater or equal to level.
   void RemoveGhostCells(int level);
 
+  // Description:
+  // Retrieve an instance of this class from an information object.
+  static vtkUnstructuredGrid* GetData(vtkInformation* info);
+  static vtkUnstructuredGrid* GetData(vtkInformationVector* v, int i=0);
+
 protected:
   vtkUnstructuredGrid();
   ~vtkUnstructuredGrid();

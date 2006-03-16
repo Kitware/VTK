@@ -20,6 +20,7 @@
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -29,7 +30,7 @@
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.5");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.6");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,
@@ -1203,4 +1204,16 @@ unsigned char vtkStructuredGrid::GetCellBlanking()
 {
   return this->PointVisibility->IsConstrained() || 
     this->CellVisibility->IsConstrained();
+}
+
+//----------------------------------------------------------------------------
+vtkStructuredGrid* vtkStructuredGrid::GetData(vtkInformation* info)
+{
+  return info? vtkStructuredGrid::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkStructuredGrid* vtkStructuredGrid::GetData(vtkInformationVector* v, int i)
+{
+  return vtkStructuredGrid::GetData(v->GetInformationObject(i));
 }

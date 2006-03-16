@@ -13,13 +13,17 @@
 
 =========================================================================*/
 #include "vtkPiecewiseFunction.h"
+
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+
 #include <vtkstd/vector>
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.46");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.47");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // The Node structure
@@ -882,6 +886,20 @@ void vtkPiecewiseFunction::FillFromDataPointer(int nb, double *ptr)
     }
   
   this->SortAndUpdateRange();
+}
+
+//----------------------------------------------------------------------------
+vtkPiecewiseFunction* vtkPiecewiseFunction::GetData(vtkInformation* info)
+{
+  return
+    info? vtkPiecewiseFunction::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkPiecewiseFunction* vtkPiecewiseFunction::GetData(vtkInformationVector* v,
+                                                    int i)
+{
+  return vtkPiecewiseFunction::GetData(v->GetInformationObject(i));
 }
 
 // Print method for tkPiecewiseFunction

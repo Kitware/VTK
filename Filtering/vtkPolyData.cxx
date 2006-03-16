@@ -20,6 +20,7 @@
 #include "vtkEmptyCell.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -32,7 +33,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.5");
+vtkCxxRevisionMacro(vtkPolyData, "1.6");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -2032,9 +2033,19 @@ void vtkPolyData::RemoveGhostCells(int level)
   this->Squeeze();
 }
 
+//----------------------------------------------------------------------------
+vtkPolyData* vtkPolyData::GetData(vtkInformation* info)
+{
+  return info? vtkPolyData::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
 
+//----------------------------------------------------------------------------
+vtkPolyData* vtkPolyData::GetData(vtkInformationVector* v, int i)
+{
+  return vtkPolyData::GetData(v->GetInformationObject(i));
+}
 
-
+//----------------------------------------------------------------------------
 void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

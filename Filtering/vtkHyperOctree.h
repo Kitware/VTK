@@ -469,7 +469,12 @@ public:
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
   unsigned long GetActualMemorySize();
-  
+
+  // Description:
+  // Retrieve an instance of this class from an information object.
+  static vtkHyperOctree* GetData(vtkInformation* info);
+  static vtkHyperOctree* GetData(vtkInformationVector* v, int i=0);
+
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkHyperOctree();
