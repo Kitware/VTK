@@ -98,6 +98,14 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 # pragma warning ( disable : 4702 ) /* Unreachable code.  */
 #endif
 
+#if defined(__BORLANDC__)
+  // Disable Borland compiler warning messages that often occur in valid code.
+# if !defined(VTK_DISPLAY_WIN32_WARNINGS)
+#  pragma warn -8008 /* condition is always false */
+#  pragma warn -8072 /* suspicious pointer arithmetic */
+# endif
+#endif
+
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
  #define VTK_EXPORT __declspec( dllexport )
 
