@@ -24,14 +24,34 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkShrinkFilter, "1.65");
+vtkCxxRevisionMacro(vtkShrinkFilter, "1.66");
 vtkStandardNewMacro(vtkShrinkFilter);
 
 //----------------------------------------------------------------------------
-vtkShrinkFilter::vtkShrinkFilter(double sf)
+vtkShrinkFilter::vtkShrinkFilter()
 {
-  sf = ( sf < 0.0 ? 0.0 : (sf > 1.0 ? 1.0 : sf));
-  this->ShrinkFactor = sf;
+  this->ShrinkFactor = 0.5;
+}
+
+//----------------------------------------------------------------------------
+vtkShrinkFilter::~vtkShrinkFilter()
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkShrinkFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  os << indent << "Shrink Factor: " << this->ShrinkFactor << "\n";
+}
+
+//----------------------------------------------------------------------------
+int vtkShrinkFilter::FillInputPortInformation(int, vtkInformation* info)
+{
+  // This filter uses the vtkDataSet cell traversal methods so it
+  // suppors any data set type as input.
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -40,7 +60,7 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
                                  vtkInformationVector* outputVector)
 {
   // Get input and output data.
-  vtkDataSet* input = vtkDataSet::GetData(inputVector[0], 0);
+  vtkDataSet* input = vtkDataSet::GetData(inputVector[0]);
   vtkUnstructuredGrid* output = vtkUnstructuredGrid::GetData(outputVector);
 
   // We are now executing this filter.
@@ -147,20 +167,4 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
   output->Squeeze();
 
   return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkShrinkFilter::FillInputPortInformation(int, vtkInformation* info)
-{
-  // This filter uses the vtkDataSet cell traversal methods so it
-  // suppors any data set type as input.
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkShrinkFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os,indent);
-  os << indent << "Shrink Factor: " << this->ShrinkFactor << "\n";
 }
