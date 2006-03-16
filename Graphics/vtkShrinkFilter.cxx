@@ -21,140 +21,146 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkShrinkFilter, "1.64");
+vtkCxxRevisionMacro(vtkShrinkFilter, "1.65");
 vtkStandardNewMacro(vtkShrinkFilter);
 
+//----------------------------------------------------------------------------
 vtkShrinkFilter::vtkShrinkFilter(double sf)
 {
   sf = ( sf < 0.0 ? 0.0 : (sf > 1.0 ? 1.0 : sf));
   this->ShrinkFactor = sf;
 }
 
-int vtkShrinkFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+//----------------------------------------------------------------------------
+int vtkShrinkFilter::RequestData(vtkInformation*,
+                                 vtkInformationVector** inputVector,
+                                 vtkInformationVector* outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  // Get input and output data.
+  vtkDataSet* input = vtkDataSet::GetData(inputVector[0], 0);
+  vtkUnstructuredGrid* output = vtkUnstructuredGrid::GetData(outputVector);
 
-  // get the input and ouptut
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  // We are now executing this filter.
+  vtkDebugMacro("Shrinking cells");
 
-  vtkPoints *newPts;
-  int i, j, numIds, abort=0;
-  vtkIdType cellId, numCells, numPts;
-  vtkIdType oldId, newId;
-  double center[3], p[3], pt[3];
-  vtkPointData *pd, *outPD;;
-  vtkIdList *ptIds, *newPtIds;
-  vtkIdType tenth;
-  double decimal;
-
-  vtkDebugMacro(<<"Shrinking cells");
-
-  numCells=input->GetNumberOfCells();
-  numPts = input->GetNumberOfPoints();
-  if (numCells < 1 || numPts < 1)
+  // Skip execution if there is no input geometry.
+  vtkIdType numCells = input->GetNumberOfCells();
+  vtkIdType numPts = input->GetNumberOfPoints();
+  if(numCells < 1 || numPts < 1)
     {
     vtkDebugMacro("No data to shrink!");
     return 1;
     }
 
-  ptIds = vtkIdList::New();
+  // Allocate working space for new and old cell point lists.
+  vtkSmartPointer<vtkIdList> ptIds = vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> newPtIds = vtkSmartPointer<vtkIdList>::New();
   ptIds->Allocate(VTK_CELL_SIZE);
-  newPtIds = vtkIdList::New();
   newPtIds->Allocate(VTK_CELL_SIZE);
 
+  // Allocate approximately the space needed for the output cells.
   output->Allocate(numCells);
-  newPts = vtkPoints::New();
-  newPts->Allocate(numPts*8,numPts);
-  pd = input->GetPointData();
-  outPD = output->GetPointData();
-  outPD->CopyAllocate(pd,numPts*8,numPts);
 
-  // Traverse all cells, obtaining node coordinates.  Compute "center" of cell,
-  // then create new vertices shrunk towards center.
-  //
-  tenth   = numCells/10 + 1;
-  decimal = 0.0;
+  // Allocate space for a new set of points.
+  vtkSmartPointer<vtkPoints> newPts = vtkSmartPointer<vtkPoints>::New();
+  newPts->Allocate(numPts*8, numPts);
 
-  for (cellId=0; cellId < numCells && !abort; cellId++)
+  // Allocate space for data associated with the new set of points.
+  vtkPointData* inPD = input->GetPointData();
+  vtkPointData* outPD = output->GetPointData();
+  outPD->CopyAllocate(inPD, numPts*8, numPts);
+
+  // Support progress and abort.
+  vtkIdType tenth = (numCells >= 10? numCells/10 : 1);
+  int abort = 0;
+
+  // Traverse all cells, obtaining node coordinates.  Compute "center"
+  // of cell, then create new vertices shrunk towards center.
+  for(vtkIdType cellId = 0; cellId < numCells && !abort; ++cellId)
     {
+    // Get the list of points for this cell.
     input->GetCellPoints(cellId, ptIds);
-    numIds = ptIds->GetNumberOfIds();
+    vtkIdType numIds = ptIds->GetNumberOfIds();
 
-    //abort/progress methods
-    if (cellId % tenth == 0) 
+    // Periodically update progress and check for an abort request.
+    if(cellId % tenth == 0)
       {
-      decimal += 0.1;
-      this->UpdateProgress (decimal);
+      this->UpdateProgress((cellId+1)/numCells);
       abort = this->GetAbortExecute();
       }
 
-    // get the center of the cell
-    center[0] = center[1] = center[2] = 0.0;
-    for (i=0; i < numIds; i++)
+    // Compute the center of mass of the cell points.
+    double center[3] = {0,0,0};
+    for(vtkIdType i=0; i < numIds; ++i)
       {
+      double p[3];
       input->GetPoint(ptIds->GetId(i), p);
-      for (j=0; j < 3; j++)
+      for(int j=0; j < 3; ++j)
         {
         center[j] += p[j];
         }
       }
-    for (j=0; j<3; j++)
+    for(int j=0; j < 3; ++j)
       {
       center[j] /= numIds;
       }
 
-    // Create new points and cells
+    // Create new points for this cell.
     newPtIds->Reset();
-    for (i=0; i < numIds; i++)
+    for(vtkIdType i=0; i < numIds; ++i)
       {
+      // Get the old point location.
+      double p[3];
       input->GetPoint(ptIds->GetId(i), p);
-      for (j=0; j < 3; j++)
+
+      // Compute the new point location.
+      double newPt[3];
+      for(int j=0; j < 3; ++j)
         {
-        pt[j] = center[j] + this->ShrinkFactor*(p[j] - center[j]);
+        newPt[j] = center[j] + this->ShrinkFactor*(p[j] - center[j]);
         }
 
-      oldId = ptIds->GetId(i);
-      newId = newPts->InsertNextPoint(pt);
-      newPtIds->InsertId(i,newId);
+      // Create the new point for this cell.
+      vtkIdType newId = newPts->InsertNextPoint(newPt);
+      newPtIds->InsertId(i, newId);
 
-      outPD->CopyData(pd, oldId, newId);
+      // Copy point data from the old point.
+      vtkIdType oldId = ptIds->GetId(i);
+      outPD->CopyData(inPD, oldId, newId);
       }
-    output->InsertNextCell(input->GetCellType(cellId), newPtIds);
-    }//for all cells
 
-  // Update ourselves and release memory
-  //
+    // Store the new cell in the output.
+    output->InsertNextCell(input->GetCellType(cellId), newPtIds);
+    }
+
+  // Store the new set of points in the output.
+  output->SetPoints(newPts);
+
+  // Just pass cell data through because we still have the same number
+  // and type of cells.
   output->GetCellData()->PassData(input->GetCellData());
 
-  output->SetPoints(newPts);
+  // Avoid keeping extra memory around.
   output->Squeeze();
-
-  ptIds->Delete();
-  newPtIds->Delete();
-  newPts->Delete();
 
   return 1;
 }
 
-int vtkShrinkFilter::FillInputPortInformation(int, vtkInformation *info)
+//----------------------------------------------------------------------------
+int vtkShrinkFilter::FillInputPortInformation(int, vtkInformation* info)
 {
+  // This filter uses the vtkDataSet cell traversal methods so it
+  // suppors any data set type as input.
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkShrinkFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
   os << indent << "Shrink Factor: " << this->ShrinkFactor << "\n";
 }
