@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCollection, "1.45");
+vtkCxxRevisionMacro(vtkCollection, "1.46");
 vtkStandardNewMacro(vtkCollection);
 
 // Construct with empty list.
@@ -33,7 +33,7 @@ vtkCollection::vtkCollection()
   this->Current = NULL;
 }
 
-// Desctructor for the vtkCollection class. This removes all 
+// Destructor for the vtkCollection class. This removes all
 // objects from the collection.
 vtkCollection::~vtkCollection()
 {
@@ -44,7 +44,7 @@ vtkCollection::~vtkCollection()
     elem = this->Top;
     this->Top = elem->Next;
     this->Current = elem->Next;
-    this->NumberOfItems--;    
+    this->NumberOfItems--;
     this->DeleteElement(elem);
     }
 }
@@ -54,7 +54,7 @@ void vtkCollection::DeleteElement(vtkCollectionElement *e)
 {
   if (e->Item != NULL)
     {
-    e->Item->UnRegister(this); 
+    e->Item->UnRegister(this);
     }
   delete e;
 }
@@ -65,7 +65,7 @@ void vtkCollection::AddItem(vtkObject *a)
   vtkCollectionElement *elem;
 
   elem = new vtkCollectionElement;
-  
+
   if (!this->Top)
     {
     this->Top = elem;
@@ -92,7 +92,7 @@ void vtkCollection::RemoveItem(vtkObject *a)
 {
   int i;
   vtkCollectionElement *elem;
-  
+
   if (!this->Top)
     {
     return;
@@ -124,10 +124,10 @@ void vtkCollection::RemoveAllItems()
     elem = this->Top;
     this->Top = elem->Next;
     this->Current = elem->Next;
-    this->NumberOfItems--;    
+    this->NumberOfItems--;
     this->DeleteElement(elem);
     }
-  
+
   this->Modified();
 }
 
@@ -137,7 +137,7 @@ int vtkCollection::IsItemPresent(vtkObject *a)
 {
   int i;
   vtkCollectionElement *elem;
-  
+
   if (!this->Top)
     {
     return 0;
@@ -219,7 +219,7 @@ void vtkCollection::ReplaceItem(int i, vtkObject *a)
     {
     return;
     }
-  
+
   elem = this->Top;
   if (i == this->NumberOfItems - 1)
     {
@@ -227,7 +227,7 @@ void vtkCollection::ReplaceItem(int i, vtkObject *a)
     }
   else
     {
-    for (int j = 0; j < i; j++, elem = elem->Next ) 
+    for (int j = 0; j < i; j++, elem = elem->Next )
       {}
     }
 
@@ -237,7 +237,7 @@ void vtkCollection::ReplaceItem(int i, vtkObject *a)
     elem->Item->UnRegister(this);
     }
   a->Register(this);
-  
+
   // j == i
   elem->Item = a;
 
@@ -246,7 +246,7 @@ void vtkCollection::ReplaceItem(int i, vtkObject *a)
 
 
 // Remove the i'th item in the list.
-// Be careful if using this function during traversal of the list using 
+// Be careful if using this function during traversal of the list using
 // GetNextItemAsObject (or GetNextItem in derived class).  The list WILL
 // be shortened if a valid index is given!  If this->Current is equal to the
 // element being removed, have it point to then next element in the list.
@@ -258,7 +258,7 @@ void vtkCollection::RemoveItem(int i)
     {
     return;
     }
-  
+
   this->Modified();
 
   elem = this->Top;
@@ -267,7 +267,7 @@ void vtkCollection::RemoveItem(int i)
     {
     prev = elem;
     elem = elem->Next;
-    }  
+    }
 
   // j == i
   if (prev)
@@ -283,7 +283,7 @@ void vtkCollection::RemoveItem(int i)
     {
     this->Bottom = prev;
     }
-      
+
   if ( this->Current == elem )
     {
     this->Current = elem->Next;

@@ -84,11 +84,11 @@ public:
   //BTX
   // Description:
   // This method is called after the actor has been rendered.
-  // Don't call this directly. This method cleans up 
+  // Don't call this directly. This method cleans up
   // any shaders allocated.
   virtual void PostRender(vtkActor*, vtkRenderer*);
   //ETX
-  
+
   // Description:
   // Set the shading interpolation method for an object.
   vtkSetClampMacro(Interpolation,int,VTK_FLAT,VTK_PHONG);
@@ -96,7 +96,7 @@ public:
   void SetInterpolationToFlat() {this->SetInterpolation(VTK_FLAT);};
   void SetInterpolationToGouraud() {this->SetInterpolation(VTK_GOURAUD);};
   void SetInterpolationToPhong() {this->SetInterpolation(VTK_PHONG);};
-  char *GetInterpolationAsString();
+  const char *GetInterpolationAsString();
 
   // Description:
   // Control the surface geometry representation for the object.
@@ -106,7 +106,7 @@ public:
   void SetRepresentationToWireframe() {
     this->SetRepresentation(VTK_WIREFRAME);};
   void SetRepresentationToSurface() {this->SetRepresentation(VTK_SURFACE);};
-  char *GetRepresentationAsString();
+  const char *GetRepresentationAsString();
 
   // Description:
   // Set the color of the object. Has the side effect of setting the
@@ -202,7 +202,7 @@ public:
   vtkGetMacro(PointSize,float);
 
   // Description:
-  // Turn on/off fast culling of polygons based on orientation of normal 
+  // Turn on/off fast culling of polygons based on orientation of normal
   // with respect to camera. If backface culling is on, polygons facing
   // away from camera are not drawn.
   vtkGetMacro(BackfaceCulling,int);
@@ -210,7 +210,7 @@ public:
   vtkBooleanMacro(BackfaceCulling,int);
 
   // Description:
-  // Turn on/off fast culling of polygons based on orientation of normal 
+  // Turn on/off fast culling of polygons based on orientation of normal
   // with respect to camera. If frontface culling is on, polygons facing
   // towards camera are not drawn.
   vtkGetMacro(FrontfaceCulling,int);
@@ -219,11 +219,11 @@ public:
 
   // Description:
   // Get the material representation used for shading. The material will be used
-  // only when shading is enabled. 
+  // only when shading is enabled.
   vtkGetObjectMacro(Material, vtkXMLMaterial);
 
   // TODO: GetMaterialName().
-  
+
   // Description:
   // Load the material. The material can be the name of a
   // built-on material or the filename for a VTK material XML description.
@@ -236,7 +236,7 @@ public:
   // Description:
   // Load the material given the material representation.
   void LoadMaterial(vtkXMLMaterial*);
-  
+
   // Description:
   // Enable/Disable shading. When shading is enabled, the
   // Material must be set.
@@ -259,7 +259,7 @@ public:
   virtual void AddShaderVariable(const char* name, int numVars, int* x);
   virtual void AddShaderVariable(const char* name, int numVars, float* x);
   virtual void AddShaderVariable(const char* name, int numVars, double* x);
- 
+
   // Description:
   // Methods to provide to add shader variables from tcl.
   void AddShaderVariable(const char* name, int v)
@@ -287,7 +287,7 @@ public:
     v[0] = v1;
     v[1] = v2;
     this->AddShaderVariable(name, 2, v);
-    } 
+    }
   void AddShaderVariable(const char* name, double v1, double v2)
     {
     double v[2];
@@ -310,7 +310,7 @@ public:
     v[1] = v2;
     v[2] = v3;
     this->AddShaderVariable(name, 3, v);
-    } 
+    }
   void AddShaderVariable(const char* name, double v1, double v2, double v3)
     {
     double v[3];
@@ -318,15 +318,15 @@ public:
     v[1] = v2;
     v[2] = v3;
     this->AddShaderVariable(name, 3, v);
-    } 
+    }
 
-  // Description: 
+  // Description:
   // Set/Get the texture object to control rendering texture maps.  This will
   // be a vtkTexture object. A property does not need to have an associated
   // texture map and multiple properties can share one texture. Textures
   // must be assigned unique names.
   void SetTexture(const char* name, vtkTexture* texture);
-  vtkTexture* GetTexture(const char* name); 
+  vtkTexture* GetTexture(const char* name);
 
   // Description:
   // Remove a texture from the collection. Note that the
@@ -367,7 +367,7 @@ protected:
   float LineWidth;
   int   LineStipplePattern;
   int   LineStippleRepeatFactor;
-  int   Interpolation; 
+  int   Interpolation;
   int   Representation;
   int   EdgeVisibility;
   int   BackfaceCulling;
@@ -389,8 +389,8 @@ private:
   // till we device a graceful way of loading texturing for GLSL.
   friend class vtkGLSLShaderProgram;
   friend class vtkShader;
-  // FIXME: 
-  // Don't use these methods. They will be removed. They are provided only 
+  // FIXME:
+  // Don't use these methods. They will be removed. They are provided only
   // for the time-being.
   vtkTexture* GetTextureAtIndex(int index);
   int GetTextureIndex(const char* name);
@@ -404,38 +404,38 @@ private:
 
 // Description:
 // Return the method of shading as a descriptive character string.
-inline char *vtkProperty::GetInterpolationAsString(void)
+inline const char *vtkProperty::GetInterpolationAsString(void)
 {
   if ( this->Interpolation == VTK_FLAT )
     {
-    return (char *)"Flat";
+    return "Flat";
     }
-  else if ( this->Interpolation == VTK_GOURAUD ) 
+  else if ( this->Interpolation == VTK_GOURAUD )
     {
-    return (char *)"Gouraud";
+    return "Gouraud";
     }
-  else 
+  else
     {
-    return (char *)"Phong";
+    return "Phong";
     }
 }
 
 
 // Description:
 // Return the method of shading as a descriptive character string.
-inline char *vtkProperty::GetRepresentationAsString(void)
+inline const char *vtkProperty::GetRepresentationAsString(void)
 {
   if ( this->Representation == VTK_POINTS )
     {
-    return (char *)"Points";
+    return "Points";
     }
-  else if ( this->Representation == VTK_WIREFRAME ) 
+  else if ( this->Representation == VTK_WIREFRAME )
     {
-    return (char *)"Wireframe";
+    return "Wireframe";
     }
-  else 
+  else
     {
-    return (char *)"Surface";
+    return "Surface";
     }
 }
 

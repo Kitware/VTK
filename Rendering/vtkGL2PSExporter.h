@@ -122,7 +122,7 @@ public:
     {this->SetFileFormat(PDF_FILE);};
   void SetFileFormatToTeX()
     {this->SetFileFormat(TEX_FILE);};
-  char *GetFileFormatAsString();
+  const char *GetFileFormatAsString();
 
 //BTX
   enum SortScheme
@@ -141,11 +141,11 @@ public:
   vtkGetMacro(Sort,int);
   void SetSortToOff()
     {this->SetSort(NO_SORT);};
-  void SetSortToSimple() 
+  void SetSortToSimple()
     {this->SetSort(SIMPLE_SORT);};
-  void SetSortToBSP() 
+  void SetSortToBSP()
     {this->SetSort(BSP_SORT);};
-  char *GetSortAsString();
+  const char *GetSortAsString();
 
   // Description:
   // Turn on/off compression when generating PostScript or PDF
@@ -258,45 +258,45 @@ protected:
   int PS3Shading;
   int OcclusionCull;
   int Write3DPropsAsRasterImage;
-  
+
 private:
   vtkGL2PSExporter(const vtkGL2PSExporter&); // Not implemented
   void operator=(const vtkGL2PSExporter&); // Not implemented
 };
 
-inline char *vtkGL2PSExporter::GetSortAsString(void)
+inline const char *vtkGL2PSExporter::GetSortAsString(void)
 {
   if ( this->Sort == NO_SORT )
     {
-    return (char *)"Off";
+    return "Off";
     }
   else if ( this->Sort == SIMPLE_SORT )
     {
-    return (char *)"Simple";
+    return "Simple";
     }
   else
     {
-    return (char *)"BSP";
+    return "BSP";
     }
 }
 
-inline char *vtkGL2PSExporter::GetFileFormatAsString(void)
+inline const char *vtkGL2PSExporter::GetFileFormatAsString(void)
 {
   if ( this->FileFormat == PS_FILE )
     {
-    return (char *)"PS";
+    return "PS";
     }
   else if ( this->FileFormat == EPS_FILE )
     {
-    return (char *)"EPS";
+    return "EPS";
     }
   else if ( this->FileFormat == PDF_FILE )
     {
-    return (char *)"PDF";
+    return "PDF";
     }
   else
     {
-    return (char *)"TeX";
+    return "TeX";
     }
 }
 

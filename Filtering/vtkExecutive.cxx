@@ -33,7 +33,7 @@
 
 #include "vtkCompositeDataPipeline.h"
 
-vtkCxxRevisionMacro(vtkExecutive, "1.31");
+vtkCxxRevisionMacro(vtkExecutive, "1.32");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -448,7 +448,7 @@ vtkDataObject* vtkExecutive::GetOutputData(int port)
     {
     return 0;
     }
-  
+
   // for backward compatibility we bring Outputs up to date if they do not
   // already exist
   if (!this->InAlgorithm && !info->Has(vtkDataObject::DATA_OBJECT()))
@@ -456,7 +456,7 @@ vtkDataObject* vtkExecutive::GetOutputData(int port)
     // Bring the data object up to date only if it isn't already there
     this->UpdateDataObject();
     }
-  
+
   // Return the data object.
   return info->Get(vtkDataObject::DATA_OBJECT());
 }
@@ -666,7 +666,6 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
                                           int direction,
                                           vtkInformationVector** inInfoVec,
                                           vtkInformationVector* outInfoVec)
-                                          
 {
   if(direction == vtkExecutive::RequestDownstream)
     {
@@ -685,7 +684,7 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
           {
           // Copy the entry.
           outInfo->CopyEntry(inInfo, keys[j]);
-          
+
           // If the entry is a key vector, copy all the keys listed.
           if(vtkInformationKeyVectorKey* vkey =
              vtkInformationKeyVectorKey::SafeDownCast(keys[j]))
@@ -707,7 +706,7 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
       }
 
     // Copy information from the requesting output to all inputs.
-    if(outputPort >= 0 && 
+    if(outputPort >= 0 &&
        outputPort < outInfoVec->GetNumberOfInformationObjects())
       {
       vtkInformationKey** keys = request->Get(KEYS_TO_COPY());
@@ -743,7 +742,7 @@ int vtkExecutive::CallAlgorithm(vtkInformation* request, int direction,
 {
   // Copy default information in the direction of information flow.
   this->CopyDefaultInformation(request, direction, inInfo, outInfo);
-  
+
   // Invoke the request on the algorithm.
   this->InAlgorithm = 1;
   int result = this->Algorithm->ProcessRequest(request, inInfo, outInfo);

@@ -15,8 +15,8 @@
 // .NAME vtkTextProperty - represent text properties.
 // .SECTION Description
 // vtkTextProperty is an object that represents text properties.
-// The primary properties that can be set are color, opacity, font size, 
-// font family horizontal and vertical justification, bold/italic/shadow 
+// The primary properties that can be set are color, opacity, font size,
+// font family horizontal and vertical justification, bold/italic/shadow
 // styles.
 // .SECTION See Also
 // vtkTextMapper vtkTextActor vtkLegendBoxActor vtkCaptionActor2D
@@ -56,8 +56,8 @@ public:
   void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
   void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
   void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
-  char *GetFontFamilyAsString();
-  static char *GetFontFamilyAsString( int f );
+  const char *GetFontFamilyAsString();
+  static const char *GetFontFamilyAsString( int f );
 
   // Description:
   // Set/Get the font size (in points).
@@ -91,53 +91,53 @@ public:
   // Description:
   // Get the shadow color. It is computed from the Color ivar
   void GetShadowColor(double color[3]);
-  
+
   // Description:
   // Set/Get the horizontal justification to left (default), centered,
   // or right.
   vtkSetClampMacro(Justification,int,VTK_TEXT_LEFT,VTK_TEXT_RIGHT);
   vtkGetMacro(Justification,int);
-  void SetJustificationToLeft()     
+  void SetJustificationToLeft()
     { this->SetJustification(VTK_TEXT_LEFT);};
-  void SetJustificationToCentered() 
+  void SetJustificationToCentered()
     { this->SetJustification(VTK_TEXT_CENTERED);};
-  void SetJustificationToRight()    
+  void SetJustificationToRight()
     { this->SetJustification(VTK_TEXT_RIGHT);};
-  char *GetJustificationAsString();
-    
+  const char *GetJustificationAsString();
+
   // Description:
   // Set/Get the vertical justification to bottom (default), middle,
   // or top.
   vtkSetClampMacro(VerticalJustification,int,VTK_TEXT_BOTTOM,VTK_TEXT_TOP);
   vtkGetMacro(VerticalJustification,int);
-  void SetVerticalJustificationToBottom() 
+  void SetVerticalJustificationToBottom()
     {this->SetVerticalJustification(VTK_TEXT_BOTTOM);};
-  void SetVerticalJustificationToCentered() 
+  void SetVerticalJustificationToCentered()
     {this->SetVerticalJustification(VTK_TEXT_CENTERED);};
-  void SetVerticalJustificationToTop() 
+  void SetVerticalJustificationToTop()
     {this->SetVerticalJustification(VTK_TEXT_TOP);};
-  char *GetVerticalJustificationAsString();
-    
+  const char *GetVerticalJustificationAsString();
+
   // Description:
   // Set/Get the text's orientation (in degrees).
   vtkSetMacro(Orientation,double);
   vtkGetMacro(Orientation,double);
 
   // Description:
-  // Set/Get the (extra) spacing between lines, 
+  // Set/Get the (extra) spacing between lines,
   // expressed as a text height multiplication factor.
   vtkSetMacro(LineSpacing, double);
   vtkGetMacro(LineSpacing, double);
-  
+
   // Description:
   // Set/Get the vertical offset (measured in pixels).
   vtkSetMacro(LineOffset, double);
   vtkGetMacro(LineOffset, double);
-  
+
   // Description:
   // Shallow copy of a text property.
   void ShallowCopy(vtkTextProperty *tprop);
-  
+
 protected:
   vtkTextProperty();
   ~vtkTextProperty() {};
@@ -155,66 +155,66 @@ protected:
   double Orientation;
   double LineOffset;
   double LineSpacing;
-  
+
 private:
   vtkTextProperty(const vtkTextProperty&);  // Not implemented.
   void operator=(const vtkTextProperty&);  // Not implemented.
 };
 
-inline char *vtkTextProperty::GetFontFamilyAsString( int f )
+inline const char *vtkTextProperty::GetFontFamilyAsString( int f )
 {
   if ( f == VTK_ARIAL )
     {
-    return (char *)"Arial";
+    return "Arial";
     }
-  else if ( f == VTK_COURIER ) 
+  else if ( f == VTK_COURIER )
     {
-    return (char *)"Courier";
+    return "Courier";
     }
-  else if ( f == VTK_TIMES ) 
+  else if ( f == VTK_TIMES )
     {
-    return (char *)"Times";
+    return "Times";
     }
-  return (char *)"Unknown";
+  return "Unknown";
 }
 
-inline char *vtkTextProperty::GetFontFamilyAsString(void)
+inline const char *vtkTextProperty::GetFontFamilyAsString(void)
 {
   return vtkTextProperty::GetFontFamilyAsString( this->GetFontFamily() );
 }
 
-inline char *vtkTextProperty::GetJustificationAsString(void)
+inline const char *vtkTextProperty::GetJustificationAsString(void)
 {
   if (this->Justification == VTK_TEXT_LEFT)
     {
-    return (char *)"Left";
+    return "Left";
     }
-  else if (this->Justification == VTK_TEXT_CENTERED) 
+  else if (this->Justification == VTK_TEXT_CENTERED)
     {
-    return (char *)"Centered";
+    return "Centered";
     }
-  else if (this->Justification == VTK_TEXT_RIGHT) 
+  else if (this->Justification == VTK_TEXT_RIGHT)
     {
-    return (char *)"Right";
+    return "Right";
     }
-  return (char *)"Unknown";
+  return "Unknown";
 }
 
-inline char *vtkTextProperty::GetVerticalJustificationAsString(void)
+inline const char *vtkTextProperty::GetVerticalJustificationAsString(void)
 {
   if (this->VerticalJustification == VTK_TEXT_BOTTOM)
     {
-    return (char *)"Bottom";
+    return "Bottom";
     }
-  else if (this->VerticalJustification == VTK_TEXT_CENTERED) 
+  else if (this->VerticalJustification == VTK_TEXT_CENTERED)
     {
-    return (char *)"Centered";
+    return "Centered";
     }
-  else if (this->VerticalJustification == VTK_TEXT_TOP) 
+  else if (this->VerticalJustification == VTK_TEXT_TOP)
     {
-    return (char *)"Top";
+    return "Top";
     }
-  return (char *)"Unknown";
+  return "Unknown";
 }
 
 #endif
