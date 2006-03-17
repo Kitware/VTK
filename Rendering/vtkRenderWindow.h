@@ -387,7 +387,7 @@ public:
   // will pick the correct resolution to meet your desired update rate
   // in frames per second. A value of zero indicates that they can use
   // all the time they want to.
-  void SetDesiredUpdateRate(double);
+  virtual void SetDesiredUpdateRate(double);
   vtkGetMacro(DesiredUpdateRate,double);
 
   // Description:
