@@ -24,7 +24,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkShrinkFilter, "1.66");
+vtkCxxRevisionMacro(vtkShrinkFilter, "1.67");
 vtkStandardNewMacro(vtkShrinkFilter);
 
 //----------------------------------------------------------------------------
@@ -114,7 +114,8 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
 
     // Compute the center of mass of the cell points.
     double center[3] = {0,0,0};
-    for(vtkIdType i=0; i < numIds; ++i)
+    vtkIdType i;
+    for(i=0; i < numIds; ++i)
       {
       double p[3];
       input->GetPoint(ptIds->GetId(i), p);
@@ -130,7 +131,7 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
 
     // Create new points for this cell.
     newPtIds->Reset();
-    for(vtkIdType i=0; i < numIds; ++i)
+    for(i=0; i < numIds; ++i)
       {
       // Get the old point location.
       double p[3];
