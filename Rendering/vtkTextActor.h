@@ -90,17 +90,18 @@ public:
   vtkBooleanMacro(ScaledText,int);
 
   // Description:
-  // Set/Get the Alignment point for unscaled (fixed fontsize) text
+  // Set/Get the Alignment point
   // if zero (default), the text aligns itself to the bottom left corner
   // (which is defined by the PositionCoordinate)
   // otherwise the text aligns itself to corner/midpoint or centre
-  // Note that this is done independently of the text's orientation
   // @verbatim
-  //      6   7   8    Otherwise the text aligns itself to corner/midpoint
-  //      3   4   5    or centre of the box defined by the position 1 & 2
-  //      0   1   2    coordinates according to the diagram on the left.
+  //      6   7   8
+  //      3   4   5
+  //      0   1   2
   // @endverbatim
-  vtkSetClampMacro(AlignmentPoint,int,0,8)
+  // This is the same as setting the TextProperty's justification.
+  // Currently TextActor is not oriented around its AlignmentPoint.
+  void SetAlignmentPoint(int point);
   vtkGetMacro(AlignmentPoint,int);
 
   // Description:
@@ -161,13 +162,12 @@ protected:
    vtkTextActor();
   ~vtkTextActor();
 
-  int   MinimumSize[2];
-  float MaximumLineHeight;
-  double FontScaleExponent;
-  double FontScaleTarget;
-  int   ScaledText;
-  int   AlignmentPoint;
-  int   FormerAlignmentPoint;
+  int     MinimumSize[2];
+  float   MaximumLineHeight;
+  double  FontScaleExponent;
+  double  FontScaleTarget;
+  int     ScaledText;
+  int     AlignmentPoint;
 
   vtkCoordinate *AdjustedPositionCoordinate;
   vtkTextProperty *TextProperty;
@@ -184,6 +184,7 @@ protected:
   double FormerLineOffset;
   int FormerCoordinateSystem;
   double FormerOrientation;
+  bool AlignmentPointSet;
 
 private:
   vtkTextActor(const vtkTextActor&);  // Not implemented.

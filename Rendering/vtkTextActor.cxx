@@ -22,7 +22,7 @@
 #include "vtkImageData.h"
 #include "vtkFreeTypeUtilities.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.28");
+vtkCxxRevisionMacro(vtkTextActor, "1.29");
 vtkStandardNewMacro(vtkTextActor);
 
 // ----------------------------------------------------------------------------
@@ -65,7 +65,6 @@ vtkTextActor::vtkTextActor()
   this->Input = 0;
   this->InputRendered = false;
 
-  this->FormerAlignmentPoint = 0;
   this->FormerJustification[0] = VTK_TEXT_LEFT;
   this->FormerJustification[1] = VTK_TEXT_BOTTOM;
   this->FormerCoordinateSystem = VTK_VIEWPORT;
@@ -75,8 +74,9 @@ vtkTextActor::vtkTextActor()
   this->FreeTypeUtilities = vtkFreeTypeUtilities::GetInstance();
   if (!this->FreeTypeUtilities)
     {
-    vtkErrorMacro("Failed getting the FreeType utilities instance");
+    vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
     }
+  this->AlignmentPointSet = false;
   // since we're not using a vtkTextMapper anymore, the code/warning below
   // seems obsolete.
   //
@@ -128,7 +128,7 @@ void vtkTextActor::SetMapper(vtkMapper2D *mapper)
     }
   else
     {
-    vtkErrorMacro("Must use a vtkImageMapper with this class");
+    vtkErrorMacro(<<"Must use a vtkImageMapper with this class");
     }
   }
 
@@ -244,7 +244,10 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->PositionCoordinate->GetValue());
     //this has the side-effect of causing us to re-calculate any movements made
     //due to justification, alignmentpoint, or lineoffset.
-    this->FormerAlignmentPoint = 0;
+    if(this->AlignmentPoint != 0)
+      {
+      this->AlignmentPointSet = true;
+      }
     this->FormerJustification[0] = VTK_TEXT_LEFT;
     this->FormerJustification[1] = VTK_TEXT_BOTTOM;
     this->FormerLineOffset = 0.0;
@@ -278,109 +281,55 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
   double adjustedPos[3];
 
   //check if we need to adjust our position based on AlignmentPoint
-  if (!this->ScaledText && this->AlignmentPoint != this->FormerAlignmentPoint)
+  if (this->AlignmentPointSet)
     {
-    // if we're using world or view coordinates we need to keep track of
-    // the third term
-    if(this->FormerCoordinateSystem == VTK_WORLD)
-      {
-      this->AdjustedPositionCoordinate->GetValue(adjustedPos);
-      viewport->WorldToView(adjustedPos[0], adjustedPos[1], adjustedPos[2]);
-      viewport->ViewToNormalizedViewport(
-        adjustedPos[0], adjustedPos[1], adjustedPos[2]);
-      }
-    else if(this->FormerCoordinateSystem == VTK_VIEW)
-      {
-      this->AdjustedPositionCoordinate->GetValue(adjustedPos);
-      viewport->ViewToNormalizedViewport(
-        adjustedPos[0], adjustedPos[1], adjustedPos[2]);
-      }
-
-    //actually adjust the position based on AlignmentPoint
     switch (this->AlignmentPoint)
       {
       case 0:
-        adjustedPos[0] = point1[0];
-        adjustedPos[1] = point1[1];
+        this->TextProperty->SetJustificationToLeft();
+        this->TextProperty->SetVerticalJustificationToBottom();
         break;
       case 1:
-        adjustedPos[0] = point1[0] + size[0]/2;
-        adjustedPos[1] = point1[1];
+        this->TextProperty->SetJustificationToCentered();
+        this->TextProperty->SetVerticalJustificationToBottom();
         break;
       case 2:
-        adjustedPos[0] = point2[0];
-        adjustedPos[1] = point1[1];
+        this->TextProperty->SetJustificationToRight();
+        this->TextProperty->SetVerticalJustificationToBottom();
         break;
       case 3:
-        adjustedPos[0] = point1[0];
-        adjustedPos[1] = point1[1] + size[1]/2;
+        this->TextProperty->SetJustificationToLeft();
+        this->TextProperty->SetVerticalJustificationToCentered();
         break;
       case 4:
-        adjustedPos[0] = point1[0] + size[0]/2;
-        adjustedPos[1] = point1[1] + size[1]/2;
+        this->TextProperty->SetJustificationToCentered();
+        this->TextProperty->SetVerticalJustificationToCentered();
         break;
       case 5:
-        adjustedPos[0] = point2[0];
-        adjustedPos[1] = point1[1] + size[1]/2;
+        this->TextProperty->SetJustificationToRight();
+        this->TextProperty->SetVerticalJustificationToCentered();
         break;
       case 6:
-        adjustedPos[0] = point1[0];
-        adjustedPos[1] = point2[1];
+        this->TextProperty->SetJustificationToLeft();
+        this->TextProperty->SetVerticalJustificationToTop();
         break;
       case 7:
-        adjustedPos[0] = point1[0] + size[0]/2;
-        adjustedPos[1] = point2[1];
+        this->TextProperty->SetJustificationToCentered();
+        this->TextProperty->SetVerticalJustificationToTop();
         break;
       case 8:
-        adjustedPos[0] = point2[0];
-        adjustedPos[1] = point2[1];
+        this->TextProperty->SetJustificationToRight();
+        this->TextProperty->SetVerticalJustificationToTop();
         break;
       }
-
-    //convert adjustedPos to the coordinate system being used
-    //and set it as AdjustedPositionCoordinate's new value
-    switch(this->FormerCoordinateSystem)
-      {
-      case VTK_WORLD:
-        viewport->ViewportToNormalizedViewport(
-          adjustedPos[0], adjustedPos[1]);
-        viewport->NormalizedViewportToView(
-          adjustedPos[0], adjustedPos[1], adjustedPos[2]);
-        viewport->ViewToWorld(
-          adjustedPos[0], adjustedPos[1], adjustedPos[2]);
-        break;
-      case VTK_VIEW:
-        viewport->ViewportToNormalizedViewport(
-          adjustedPos[0], adjustedPos[1]);
-        viewport->NormalizedViewportToView(
-          adjustedPos[0], adjustedPos[1], adjustedPos[2]);
-        break;
-      case VTK_NORMALIZED_VIEWPORT:;
-        viewport->ViewportToNormalizedViewport(
-          adjustedPos[0], adjustedPos[1]);
-        break;
-      case VTK_VIEWPORT:
-        break;
-      case VTK_NORMALIZED_DISPLAY:
-        viewport->ViewportToNormalizedDisplay(
-          adjustedPos[0], adjustedPos[1]);
-        break;
-      case VTK_DISPLAY:
-        viewport->ViewportToNormalizedDisplay(
-          adjustedPos[0], adjustedPos[1]);
-        viewport->NormalizedDisplayToDisplay(
-          adjustedPos[0], adjustedPos[1]);
-        break;
-      }
-    this->FormerAlignmentPoint = this->AlignmentPoint;
-    this->AdjustedPositionCoordinate->SetValue(adjustedPos);
+    this->AlignmentPointSet = false;
     this->BuildTime.Modified();
     //end of handle AlignmentPoint case
     }
   
   //Scaled text case.  We need to be sure that our text will fit
   //inside the specified boundaries
-  else if(this->ScaledText)
+  if(this->ScaledText)
     {
     // Check to see whether we have to rebuild everything
     int positionsHaveChanged = 0;
@@ -647,6 +596,23 @@ void vtkTextActor::DisplayToSpecified(double *pos, vtkViewport *vport,
     case VTK_DISPLAY:
       break;
     }
+}
+
+// ----------------------------------------------------------------------------
+void vtkTextActor::SetAlignmentPoint(int point)
+{
+  if(point > 8)
+    {
+    vtkErrorMacro(<<"Attempting to set AlignmentPoint greater than 8");
+    point = 8;
+    }
+  else if(point < 0)
+    {
+    vtkErrorMacro(<<"Attempting to set AlignmentPoint less than 0");
+    point = 0;
+    }
+  this->AlignmentPoint = point;
+  this->AlignmentPointSet = true;
 }
 
 // ----------------------------------------------------------------------------
