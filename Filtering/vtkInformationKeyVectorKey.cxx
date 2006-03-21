@@ -17,7 +17,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/algorithm> // find()
 
-vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.10.6.1");
+vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.10.6.2");
 
 //----------------------------------------------------------------------------
 vtkInformationKeyVectorKey::vtkInformationKeyVectorKey(const char* name, const char* location):
@@ -135,7 +135,7 @@ vtkInformationKey** vtkInformationKeyVectorKey::Get(vtkInformation* info)
   vtkInformationKeyVectorValue* v =
     static_cast<vtkInformationKeyVectorValue *>
     (this->GetAsObjectBase(info));
-  return v?(&v->Value[0]):0;
+  return (v && !v->Value.empty())?(&v->Value[0]):0;
 }
 
 //----------------------------------------------------------------------------
