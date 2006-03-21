@@ -33,14 +33,15 @@ vtkActor rakeActor
   rakeActor SetMapper rakeMapper 
 
 vtkRungeKutta4 integ
-vtkStreamLine sl
+vtkStreamTracer sl
   sl SetInputConnection [pl3d GetOutputPort]
-  sl SetSource [rake GetOutput] 
+  sl SetSourceConnection [rake GetOutputPort] 
   sl SetIntegrator integ 
-  sl SetMaximumPropagationTime 0.1 
-  sl SetIntegrationStepLength 0.1 
+  sl SetMaximumPropagation 0.1
+  sl SetMaximumPropagationUnitToTimeUnit
+  sl SetInitialIntegrationStep 0.1
+  sl SetInitialIntegrationStepUnitToCellLengthUnit
   sl SetIntegrationDirectionToBackward
-  sl SetStepLength 0.001 
 
 #
 # The ruled surface stiches together lines with triangle strips.

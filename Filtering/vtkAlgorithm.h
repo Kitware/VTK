@@ -202,6 +202,32 @@ public:
   void SetInputArrayToProcess(int idx, vtkInformation *info);
 
   // Description:
+  // String based versions of SetInputArrayToProcess(). Because
+  // fieldAssociation and fieldAttributeType are enums, they cannot be
+  // easily accessed from scripting language. These methods provides an
+  // easy and safe way of passing association and attribute type
+  // information. Field association is one of the following:
+  // @verbatim
+  // vtkDataObject::FIELD_ASSOCIATION_POINTS
+  // vtkDataObject::FIELD_ASSOCIATION_CELLS
+  // vtkDataObject::FIELD_ASSOCIATION_NONE
+  // vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS
+  // @endverbatim
+  // Attribute type is one of the following:
+  // @verbatim
+  // vtkDataSetAttributes::SCALARS
+  // vtkDataSetAttributes::VECTORS
+  // vtkDataSetAttributes::NORMALS
+  // vtkDataSetAttributes::TCOORDS
+  // vtkDataSetAttributes::TENSORS
+  // @endverbatim
+  // If the last argument is not an attribute type, it is assumed to
+  // be an array name.
+  void SetInputArrayToProcess(int idx, int port, int connection, 
+                              const char* fieldAssociation, 
+                              const char* attributeTypeorName);
+
+  // Description:
   // Get the info object for the specified input array to this algorithm
   vtkInformation *GetInputArrayInformation(int idx);
   
@@ -234,7 +260,6 @@ public:
   virtual void SetInputConnection(vtkAlgorithmOutput* input);
 
   // Description:
-
   // Add a connection to the given input port index.  See
   // SetInputConnection() for details on input connections.  This
   // method is the complement to RemoveInputConnection() in that it
@@ -243,9 +268,9 @@ public:
   //
   //   filter2->AddInputConnection(0, filter1->GetOutputPort(0)).
   virtual void AddInputConnection(int port, vtkAlgorithmOutput* input);
+  virtual void AddInputConnection(vtkAlgorithmOutput* input);
 
   // Description:
-
   // Remove a connection from the given input port index.  See
   // SetInputConnection() for details on input connection.  This
   // method is the complement to AddInputConnection() in that it

@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.12");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.13");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -42,6 +42,15 @@ const char vtkDataSetAttributes
   "TCoords",
   "Tensors",
   "GlobalIds" };
+
+const char vtkDataSetAttributes
+::LongAttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][35] =
+{ "vtkDataSetAttributes::SCALARS",
+  "vtkDataSetAttributes::VECTORS",
+  "vtkDataSetAttributes::NORMALS",
+  "vtkDataSetAttributes::TCOORDS",
+  "vtkDataSetAttributes::TENSORS",
+  "vtkDataSetAttributes::GLOBALIDS" };
 
 //--------------------------------------------------------------------------
 // Construct object with copying turned on for all data.
@@ -1701,4 +1710,14 @@ const char* vtkDataSetAttributes::GetAttributeTypeAsString(int attributeType)
   return vtkDataSetAttributes::AttributeNames[attributeType];
 }
 
+//--------------------------------------------------------------------------
+const char* vtkDataSetAttributes::GetLongAttributeTypeAsString(int attributeType)
+{
+  if (attributeType < 0 || attributeType >= NUM_ATTRIBUTES)
+    {
+    vtkGenericWarningMacro("Bad attribute type.");
+    return NULL;
+    }
+  return vtkDataSetAttributes::LongAttributeNames[attributeType];
+}
 

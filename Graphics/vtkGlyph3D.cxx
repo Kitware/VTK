@@ -29,7 +29,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.123");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.124");
 vtkStandardNewMacro(vtkGlyph3D);
 
 //----------------------------------------------------------------------------
@@ -643,6 +643,33 @@ int vtkGlyph3D::RequestData(
   pts->Delete();
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+// Specify a source object at a specified table location.
+void vtkGlyph3D::SetSourceConnection(int id, vtkAlgorithmOutput* algOutput)
+{
+  if (id < 0)
+    {
+    vtkErrorMacro("Bad index " << id << " for source.");
+    return;
+    }
+
+  int numConnections = this->GetNumberOfInputConnections(1);
+  if (id < numConnections)
+    {
+    this->SetNthInputConnection(1, id, algOutput);
+    }
+  else if (id == numConnections && algOutput)
+    {
+    this->AddInputConnection(1, algOutput);
+    }
+  else if (algOutput)
+    {
+    vtkWarningMacro("The source id provided is larger than the maximum "
+                    "source id, using " << numConnections << " instead.");
+    this->AddInputConnection(1, algOutput);
+    }
 }
 
 //----------------------------------------------------------------------------

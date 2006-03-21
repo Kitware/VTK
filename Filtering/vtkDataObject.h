@@ -422,7 +422,8 @@ public:
     FIELD_ASSOCIATION_POINTS,
     FIELD_ASSOCIATION_CELLS,
     FIELD_ASSOCIATION_NONE,
-    FIELD_ASSOCIATION_POINTS_THEN_CELLS
+    FIELD_ASSOCIATION_POINTS_THEN_CELLS,
+    NUMBER_OF_ASSOCIATIONS
   };
   //ETX
 
@@ -437,6 +438,11 @@ public:
     FIELD_OPERATION_REMOVED
   };
   //ETX
+
+  // Description:
+  // Given an integer association type, this static method returns a string type
+  // for the attribute (i.e. type = 0: returns "Points").
+  static const char* GetAssociationTypeAsString(int associationType);
 
   static vtkInformationStringKey* DATA_TYPE_NAME();
   static vtkInformationDataObjectKey* DATA_OBJECT();
@@ -509,6 +515,9 @@ protected:
   //BTX
   friend class vtkStreamingDemandDrivenPipelineToDataObjectFriendship;
   //ETX
+
+  static const char AssociationNames[NUMBER_OF_ASSOCIATIONS][55];
+
 private:
   // Helper method for the ShallowCopy and DeepCopy methods.
   void InternalDataObjectCopy(vtkDataObject *src);

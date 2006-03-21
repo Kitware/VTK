@@ -149,6 +149,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       nacaBinary
       officeStreamPoints
       polyConn
+      probe
       probeComb
       progGlyphs
       progGlyphsBySource

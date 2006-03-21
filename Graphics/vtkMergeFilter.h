@@ -35,38 +35,94 @@ public:
 
   // Description:
   // Specify object from which to extract geometry information.
+  // Old style. Use SetGeometryConnection() instead.
   void SetGeometry(vtkDataSet *input) {this->SetInput(input);};
   vtkDataSet *GetGeometry();
 
   // Description:
+  // Specify object from which to extract geometry information.
+  // Equivalent to SetInputConnection(0, algOutput)
+  void SetGeometryConnection(vtkAlgorithmOutput* algOutput) 
+    {
+      this->SetInputConnection(algOutput);
+    }
+
+  // Description:
   // Specify object from which to extract scalar information.
+  // Old style. Use SetScalarsConnection() instead.
   void SetScalars(vtkDataSet *);
   vtkDataSet *GetScalars();
 
   // Description:
+  // Specify object from which to extract scalar information.
+  // Equivalent to SetInputConnection(1, algOutput)
+  void SetScalarsConnection(vtkAlgorithmOutput* algOutput)
+    {
+      this->SetInputConnection(1, algOutput);
+    }
+
+  // Description:
   // Set / get the object from which to extract vector information.
+  // Old style. Use SetVectorsConnection() instead.
   void SetVectors(vtkDataSet *);
   vtkDataSet *GetVectors();
-  
+
+  // Description:
+  // Set the connection from which to extract vector information.
+  // Equivalent to SetInputConnection(2, algOutput)
+  void SetVectorsConnection(vtkAlgorithmOutput* algOutput)
+    {
+      this->SetInputConnection(2, algOutput);
+    }
+
   // Description:
   // Set / get the object from which to extract normal information.
+  // Old style. Use SetNormalsConnection() instead.
   void SetNormals(vtkDataSet *);
   vtkDataSet *GetNormals();
-  
+
+  // Description:
+  // Set  the connection from which to extract normal information.
+  // Equivalent to SetInputConnection(3, algOutput)
+  void SetNormalsConnection(vtkAlgorithmOutput* algOutput)
+    {
+      this->SetInputConnection(3, algOutput);
+    }
+
   // Description:
   // Set / get the object from which to extract texture coordinates
   // information.
+  // Old style. Use SetTCoordsConnection() instead.
   void SetTCoords(vtkDataSet *);
   vtkDataSet *GetTCoords();
 
   // Description:
+  // Set the connection from which to extract texture coordinates
+  // information.
+  // Equivalent to SetInputConnection(4, algOutput)
+  void SetTCoordsConnection(vtkAlgorithmOutput* algOutput)
+    {
+      this->SetInputConnection(4, algOutput);
+    }
+
+  // Description:
   // Set / get the object from which to extract tensor data.
+  // Old style. Use SetTensorsConnection() instead.
   void SetTensors(vtkDataSet *);
   vtkDataSet *GetTensors();
 
   // Description:
+  // Set the connection from which to extract tensor data.
+  // Equivalent to SetInputConnection(5, algOutput)
+  void SetTensorsConnection(vtkAlgorithmOutput* algOutput)
+    {
+      this->SetInputConnection(5, algOutput);
+    }
+
+  // Description:
   // Set the object from which to extract a field and the name
-  // of the field
+  // of the field. Note that this does not create pipeline
+  // connectivity.
   void AddField(const char* name, vtkDataSet* input);
 
 protected:

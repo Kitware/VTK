@@ -34,13 +34,14 @@ set maxTime [expr 35.0 * $length / $maxVelocity]
 # IntegrationStepLength specifies the integration step length as a 
 # fraction of the cell size that the streamline is in.
 vtkRungeKutta4 integ
-vtkStreamLine streamer
+vtkStreamTracer streamer
     streamer SetInputConnection [reader GetOutputPort]
     streamer SetStartPosition 0.1 2.1 0.5
-    streamer SetMaximumPropagationTime 500
-    streamer SetStepLength 0.5
-    streamer SetIntegrationStepLength 0.05
-    streamer SetIntegrationDirectionToIntegrateBothDirections
+    streamer SetMaximumPropagation 500
+    streamer SetMaximumPropagationUnitToTimeUnit
+    streamer SetInitialIntegrationStep 0.05
+    streamer SetInitialIntegrationStepUnitToCellLengthUnit
+    streamer SetIntegrationDirectionToBoth
     streamer SetIntegrator integ
 
 # The tube is wrapped around the generated streamline. By varying the radius
@@ -48,6 +49,7 @@ vtkStreamLine streamer
 # proportional to mass flux (in incompressible flow).
 vtkTubeFilter streamTube
     streamTube SetInputConnection [streamer GetOutputPort]
+    streamTube SetInputArrayToProcess 1 0 0 vtkDataObject::FIELD_ASSOCIATION_POINTS vectors
     streamTube SetRadius 0.02
     streamTube SetNumberOfSides 12
     streamTube SetVaryRadiusToVaryRadiusByVector

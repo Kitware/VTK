@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.84");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.85");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -41,6 +41,12 @@ vtkProbeFilter::~vtkProbeFilter()
   this->ValidPoints = NULL;
 }
 
+//----------------------------------------------------------------------------
+void vtkProbeFilter::SetSourceConnection(vtkAlgorithmOutput* algOutput)
+{
+  this->SetInputConnection(1, algOutput);
+}
+ 
 //----------------------------------------------------------------------------
 void vtkProbeFilter::SetSource(vtkDataObject *input)
 {

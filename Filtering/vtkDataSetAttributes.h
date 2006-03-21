@@ -189,6 +189,7 @@ public:
   // Given an integer attribute type, this static method returns a string type
   // for the attribute (i.e. type = 0: returns "Scalars").
   static const char* GetAttributeTypeAsString(int attributeType);
+  static const char* GetLongAttributeTypeAsString(int attributeType);
 
   // -- attribute copy properties ------------------------------------------
 
@@ -505,6 +506,7 @@ protected:
   static const int NumberOfAttributeComponents[NUM_ATTRIBUTES];
   static const int AttributeLimits[NUM_ATTRIBUTES];
   static const char AttributeNames[NUM_ATTRIBUTES][10];
+  static const char LongAttributeNames[NUM_ATTRIBUTES][35];
 
 private:
   int SetAttribute(vtkDataArray* da, int attributeType);

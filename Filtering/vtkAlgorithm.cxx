@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.34");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.35");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -182,6 +182,65 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
   info->Remove(vtkDataObject::FIELD_NAME());  
 
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::SetInputArrayToProcess(
+  int idx, int port, int connection, 
+  const char* fieldAssociation, 
+  const char* fieldAttributeTypeOrName)
+{
+  if (!fieldAssociation)
+    {
+    vtkErrorMacro("Association is requied");
+    return;
+    }
+  if (!fieldAttributeTypeOrName)
+    {
+    vtkErrorMacro("Attribute type or array name is required");
+    return ;
+    }
+
+  int i;
+
+  // Try to convert the string argument to an enum value
+  int association = -1;
+  for (i=0; i<vtkDataObject::NUMBER_OF_ASSOCIATIONS; i++)
+    {
+    if (strcmp(fieldAssociation, 
+               vtkDataObject::GetAssociationTypeAsString(i)) == 0)
+      {
+      association = i;
+      break;
+      }
+    }
+  if (association == -1)
+    {
+    vtkErrorMacro("Unrecognized association type: " << fieldAssociation);
+    return;
+    }
+                 
+  int attributeType = -1;
+  for (i=0; i<vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
+    {
+    if (strcmp(fieldAttributeTypeOrName, 
+               vtkDataSetAttributes::GetLongAttributeTypeAsString(i)) == 0)
+      {
+      attributeType = i;
+      break;
+      }
+    }
+  if (attributeType == -1)
+    {
+    // Set by association and array name
+    this->SetInputArrayToProcess(
+      idx, port, connection, association, fieldAttributeTypeOrName);
+    return;
+    }
+
+  // Set by association and attribute type
+  this->SetInputArrayToProcess(
+    idx, port, connection, association, attributeType);
 }
 
 //----------------------------------------------------------------------------
@@ -780,6 +839,10 @@ void vtkAlgorithm::SetInputConnection(int port, vtkAlgorithmOutput* input)
 }
 
 //----------------------------------------------------------------------------
+void vtkAlgorithm::AddInputConnection(vtkAlgorithmOutput* input)
+{
+  this->AddInputConnection(0, input);
+}
 void vtkAlgorithm::AddInputConnection(int port, vtkAlgorithmOutput* input)
 {
   if(!this->InputPortIndexInRange(port, "connect"))

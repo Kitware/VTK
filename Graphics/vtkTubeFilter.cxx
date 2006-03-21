@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.87");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.88");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -48,6 +48,14 @@ vtkTubeFilter::vtkTubeFilter()
 
   this->GenerateTCoords = VTK_TCOORDS_OFF;
   this->TextureLength = 1.0;
+
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
+
+  // by default process active point vectors
+  this->SetInputArrayToProcess(1,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::VECTORS);
 }
 
 int vtkTubeFilter::RequestData(
@@ -71,8 +79,8 @@ int vtkTubeFilter::RequestData(
   vtkCellData *outCD=output->GetCellData();
   vtkCellArray *inLines;
   vtkDataArray *inNormals;
-  vtkDataArray *inScalars=pd->GetScalars();
-  vtkDataArray *inVectors=pd->GetVectors();
+  vtkDataArray *inScalars=this->GetInputArrayToProcess(0,inputVector);
+  vtkDataArray *inVectors=this->GetInputArrayToProcess(1,inputVector);
 
   vtkPoints *inPts;
   vtkIdType numPts;
