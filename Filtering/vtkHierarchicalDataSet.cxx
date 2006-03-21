@@ -19,11 +19,12 @@
 #include "vtkHierarchicalDataIterator.h"
 #include "vtkHierarchicalDataSetInternal.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkInformationIntegerKey.h"
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.7");
+vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.7.6.1");
 vtkStandardNewMacro(vtkHierarchicalDataSet);
 
 vtkCxxSetObjectMacro(vtkHierarchicalDataSet,HierarchicalDataInformation,vtkHierarchicalDataInformation);
@@ -333,6 +334,20 @@ vtkIdType vtkHierarchicalDataSet::GetNumberOfPoints()
   iterator->Delete();
 
   return numPts;
+}
+
+//----------------------------------------------------------------------------
+vtkHierarchicalDataSet* vtkHierarchicalDataSet::GetData(vtkInformation* info)
+{
+  return
+    info? vtkHierarchicalDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkHierarchicalDataSet*
+vtkHierarchicalDataSet::GetData(vtkInformationVector* v, int i)
+{
+  return vtkHierarchicalDataSet::GetData(v->GetInformationObject(i));
 }
 
 //----------------------------------------------------------------------------
