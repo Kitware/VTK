@@ -339,6 +339,11 @@ public:
   // The extent type is a 3D extent
   virtual int GetExtentType() { return VTK_3D_EXTENT; };
 
+  // Description:
+  // Retrieve an instance of this class from an information object.
+  static vtkImageData* GetData(vtkInformation* info);
+  static vtkImageData* GetData(vtkInformationVector* v, int i=0);
+
 protected:
   vtkImageData();
   ~vtkImageData();
