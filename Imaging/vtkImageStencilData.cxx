@@ -16,11 +16,12 @@
 
 #include "vtkImageStencilSource.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.15");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.15.6.1");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -474,4 +475,17 @@ void vtkImageStencilData::InsertNextExtent(int r1, int r2, int yIdx, int zIdx)
 
   clist[clistlen++] = r1;
   clist[clistlen++] = r2 + 1;
+}
+
+//----------------------------------------------------------------------------
+vtkImageStencilData* vtkImageStencilData::GetData(vtkInformation* info)
+{
+  return info? vtkImageStencilData::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkImageStencilData* vtkImageStencilData::GetData(vtkInformationVector* v,
+                                                  int i)
+{
+  return vtkImageStencilData::GetData(v->GetInformationObject(i));
 }
