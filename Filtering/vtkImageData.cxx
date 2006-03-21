@@ -20,6 +20,7 @@
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationVector.h"
 #include "vtkLargeInteger.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
@@ -30,9 +31,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
-#include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.15");
+vtkCxxRevisionMacro(vtkImageData, "1.15.4.1");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -2107,4 +2107,14 @@ void vtkImageData::ComputeInternalExtent(int *intExt, int *tgtExt, int *bnds)
     }
 }
 
+//----------------------------------------------------------------------------
+vtkImageData* vtkImageData::GetData(vtkInformation* info)
+{
+  return info? vtkImageData::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
 
+//----------------------------------------------------------------------------
+vtkImageData* vtkImageData::GetData(vtkInformationVector* v, int i)
+{
+  return vtkImageData::GetData(v->GetInformationObject(i));
+}
