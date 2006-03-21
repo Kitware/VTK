@@ -169,6 +169,11 @@ public:
   // and the source generated more than the update extent. 
   virtual void Crop();
 
+  // Description:
+  // Retrieve an instance of this class from an information object.
+  static vtkRectilinearGrid* GetData(vtkInformation* info);
+  static vtkRectilinearGrid* GetData(vtkInformationVector* v, int i=0);
+
 protected:
   vtkRectilinearGrid();
   ~vtkRectilinearGrid();
