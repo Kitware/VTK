@@ -18,7 +18,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationDoubleVectorKey, "1.8");
+vtkCxxRevisionMacro(vtkInformationDoubleVectorKey, "1.8.6.1");
 
 //----------------------------------------------------------------------------
 vtkInformationDoubleVectorKey
@@ -100,7 +100,7 @@ double* vtkInformationDoubleVectorKey::Get(vtkInformation* info)
   vtkInformationDoubleVectorValue* v =
     static_cast<vtkInformationDoubleVectorValue *>(
       this->GetAsObjectBase(info));
-  return v?(&v->Value[0]):0;
+  return (v && !v->Value.empty())?(&v->Value[0]):0;
 }
 
 //----------------------------------------------------------------------------
