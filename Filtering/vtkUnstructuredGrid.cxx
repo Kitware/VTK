@@ -23,6 +23,7 @@
 #include "vtkHexahedron.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
 #include "vtkPixel.h"
@@ -49,7 +50,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.8");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.8.6.1");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -1423,6 +1424,19 @@ void vtkUnstructuredGrid::RemoveGhostCells(int level)
   newGrid = NULL;
 
   this->Squeeze();
+}
+
+//----------------------------------------------------------------------------
+vtkUnstructuredGrid* vtkUnstructuredGrid::GetData(vtkInformation* info)
+{
+  return info? vtkUnstructuredGrid::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkUnstructuredGrid* vtkUnstructuredGrid::GetData(vtkInformationVector* v,
+                                                  int i)
+{
+  return vtkUnstructuredGrid::GetData(v->GetInformationObject(i));
 }
 
 //----------------------------------------------------------------------------
