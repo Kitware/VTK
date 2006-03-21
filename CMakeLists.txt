@@ -424,7 +424,10 @@ ENDIF(BORLAND)
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
 INCLUDE(${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityC.cmake)
-INCLUDE(${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityCXX.cmake)
+INCLUDE(${CMAKE_ROOT}/Modules/TestForANSIStreamHeaders.cmake)
+INCLUDE(${CMAKE_ROOT}/Modules/TestForSTDNamespace.cmake)
+INCLUDE(${CMAKE_ROOT}/Modules/TestForANSIForScope.cmake)
+INCLUDE(${CMAKE_ROOT}/Modules/TestForSSTREAM.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
 
 SET(VTK_SIZEOF_CHAR   ${CMAKE_SIZEOF_CHAR})
