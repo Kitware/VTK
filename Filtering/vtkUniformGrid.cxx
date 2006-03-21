@@ -20,6 +20,7 @@
 #include "vtkGenericCell.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -30,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkUniformGrid, "1.10");
+vtkCxxRevisionMacro(vtkUniformGrid, "1.10.6.1");
 vtkStandardNewMacro(vtkUniformGrid);
 
 vtkCxxSetObjectMacro(vtkUniformGrid,
@@ -834,4 +835,16 @@ unsigned char vtkUniformGrid::GetCellBlanking()
 {
   return this->PointVisibility->IsConstrained() || 
     this->CellVisibility->IsConstrained();
+}
+
+//----------------------------------------------------------------------------
+vtkUniformGrid* vtkUniformGrid::GetData(vtkInformation* info)
+{
+  return info? vtkUniformGrid::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkUniformGrid* vtkUniformGrid::GetData(vtkInformationVector* v, int i)
+{
+  return vtkUniformGrid::GetData(v->GetInformationObject(i));
 }
