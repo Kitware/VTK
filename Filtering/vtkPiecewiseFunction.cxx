@@ -13,9 +13,12 @@
 
 =========================================================================*/
 #include "vtkPiecewiseFunction.h"
+
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.41");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.41.8.1");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // Construct a new vtkPiecewiseFunction with default values
@@ -866,6 +869,20 @@ void vtkPiecewiseFunction::FillFromDataPointer(int nb, double *ptr)
     ptr += 2;
     nb--;
     }
+}
+
+//----------------------------------------------------------------------------
+vtkPiecewiseFunction* vtkPiecewiseFunction::GetData(vtkInformation* info)
+{
+  return
+    info? vtkPiecewiseFunction::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkPiecewiseFunction* vtkPiecewiseFunction::GetData(vtkInformationVector* v,
+                                                    int i)
+{
+  return vtkPiecewiseFunction::GetData(v->GetInformationObject(i));
 }
 
 // Print method for tkPiecewiseFunction
