@@ -26,7 +26,7 @@
 // make garbage collecting easier but results in a weak reference.
 #define VTK_USE_SINGLE_REF 1
 
-vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.7");
+vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.7.4.1");
 
 //----------------------------------------------------------------------------
 vtkInformationExecutivePortVectorKey::vtkInformationExecutivePortVectorKey(const char* name, const char* location):
@@ -192,7 +192,7 @@ vtkInformationExecutivePortVectorKey::GetExecutives(vtkInformation* info)
   vtkInformationExecutivePortVectorValue* v =
     static_cast<vtkInformationExecutivePortVectorValue *>
     (this->GetAsObjectBase(info));
-  return v?(&v->Executives[0]):0;
+  return (v && !v->Executives.empty())?(&v->Executives[0]):0;
 }
 
 //----------------------------------------------------------------------------
@@ -201,7 +201,7 @@ int* vtkInformationExecutivePortVectorKey::GetPorts(vtkInformation* info)
   vtkInformationExecutivePortVectorValue* v =
     static_cast<vtkInformationExecutivePortVectorValue *>
     (this->GetAsObjectBase(info));
-  return v?(&v->Ports[0]):0;
+  return (v && !v->Ports.empty())?(&v->Ports[0]):0;
 }
 
 //----------------------------------------------------------------------------
@@ -302,13 +302,10 @@ vtkExecutive**
 vtkInformationExecutivePortVectorKey
 ::GetExecutivesWatchAddress(vtkInformation* info)
 {
-  if(vtkInformationExecutivePortVectorValue* v =
-     static_cast<vtkInformationExecutivePortVectorValue *>
-     (this->GetAsObjectBase(info)))
-    {
-    return &v->Executives[0];
-    }
-  return 0;
+  vtkInformationExecutivePortVectorValue* v =
+    static_cast<vtkInformationExecutivePortVectorValue*>
+    (this->GetAsObjectBase(info));
+  return (v && !v->Executives.empty())?(&v->Executives[0]):0;
 }
 
 //----------------------------------------------------------------------------
@@ -316,11 +313,8 @@ int*
 vtkInformationExecutivePortVectorKey
 ::GetPortsWatchAddress(vtkInformation* info)
 {
-  if(vtkInformationExecutivePortVectorValue* v =
-     static_cast<vtkInformationExecutivePortVectorValue *>
-     (this->GetAsObjectBase(info)))
-    {
-    return &v->Ports[0];
-    }
-  return 0;
+  vtkInformationExecutivePortVectorValue* v =
+    static_cast<vtkInformationExecutivePortVectorValue*>
+    (this->GetAsObjectBase(info));
+  return (v && !v->Ports.empty())?(&v->Ports[0]):0;
 }
