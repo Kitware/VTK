@@ -97,9 +97,13 @@ static void vtkParseDebug(const char* s1, const char* s2);
 # pragma warning (disable: 4127) /* conditional expression is constant */
 # pragma warning (disable: 4244) /* conversion to smaller integer type */
 #endif
+#if defined(__BORLANDC__)
+# pragma warn -8008 /* conditional is always true */
+# pragma warn -8066 /* unreachable code */
+#endif
 
 int yylex(void);
-void output_function();
+void output_function(void);
 
 /* vtkstrdup is not part of POSIX so we create our own */
 char *vtkstrdup(const char *in)
@@ -1091,7 +1095,7 @@ void InitFunction(FunctionInfo *func)
 }
 
 /* when the cpp file doesn't have enough info use the hint file */
-void look_for_hint()
+void look_for_hint(void)
 {
   char h_cls[80];
   char h_func[80];
