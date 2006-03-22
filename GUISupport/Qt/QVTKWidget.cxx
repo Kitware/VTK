@@ -39,6 +39,7 @@
 
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkRenderWindow.h"
+#include "vtkRendererCollection.h"
 #if defined(Q_WS_MAC)
 #  include "vtkCarbonRenderWindow.h"
 #endif
@@ -98,6 +99,7 @@ QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
        );
 
   this->mCachedImage = vtkUnsignedCharArray::New();
+  this->StereoCapable = false;
 }
 #endif
 
@@ -156,6 +158,7 @@ vtkRenderWindow* QVTKWidget::GetRenderWindow()
     {
     // create a default vtk window
     vtkRenderWindow* win = vtkRenderWindow::New();
+    win->SetStereoCapableWindow(this->StereoCapable);
     this->SetRenderWindow(win);
     win->Delete();
     }
@@ -298,7 +301,39 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
 #endif
 }
 
-
+void QVTKWidget::SetStereoCapable(bool stereo)
+{
+  // make sure our flag agrees with actual window flag 
+  // in case the user set one manually
+  if (this->mRenWin && (bool)(this->mRenWin->GetStereoCapableWindow())==stereo)
+    {
+    this->StereoCapable=stereo;
+    return;
+    }
+  // if a renderwindow exists and it's different, recreate it.
+  else if (this->mRenWin)
+    {
+    this->StereoCapable = stereo;
+    vtkRenderWindow* newwin = vtkRenderWindow::New();
+    newwin->SetStereoCapableWindow(this->StereoCapable);
+    //
+    vtkRendererCollection *oldrens = this->mRenWin->GetRenderers();
+    vtkRendererCollection *newrens = newwin->GetRenderers();
+    vtkRenderer *ren;
+    vtkCollectionSimpleIterator rsit;
+    for (oldrens->InitTraversal(rsit); (ren = oldrens->GetNextRenderer(rsit)); )
+      {
+        newrens->AddItem(ren);
+      }
+    oldrens->RemoveAllItems();
+    this->SetRenderWindow(newwin);
+    newwin->Delete();
+    }
+  else
+    {
+    this->StereoCapable=stereo;
+    }
+}
 
 /*! get the Qt/VTK interactor
 */
