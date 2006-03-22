@@ -286,6 +286,19 @@ ENDIF (WIN32)
 INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 #-----------------------------------------------------------------------------
 
+IF(CMAKE_COMPILER_IS_GNUCXX AND MINGW)
+  # MinGW fails to dllexport the explicit instantiations of
+  # vtkDataArrayTemplate, so we must export all symbols.
+  GET_TARGET_PROPERTY(VTK_COMMON_LINK_FLAGS vtkCommon LINK_FLAGS)
+  IF(VTK_COMMON_LINK_FLAGS)
+    SET(VTK_COMMON_LINK_FLAGS "${VTK_COMMON_LINK_FLAGS} ")
+  ELSE(VTK_COMMON_LINK_FLAGS)
+    SET(VTK_COMMON_LINK_FLAGS)
+  ENDIF(VTK_COMMON_LINK_FLAGS)
+  SET_TARGET_PROPERTIES(vtkCommon PROPERTIES
+    LINK_FLAGS "${VTK_COMMON_LINK_FLAGS}-Wl,--export-all-symbols")
+ENDIF(CMAKE_COMPILER_IS_GNUCXX AND MINGW)
+
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
     vtkArrayIteratorTemplate
