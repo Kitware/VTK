@@ -22,7 +22,7 @@
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkXMLShader);
-vtkCxxRevisionMacro(vtkXMLShader, "1.6");
+vtkCxxRevisionMacro(vtkXMLShader, "1.7");
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
 //-----------------------------------------------------------------------------
 vtkXMLShader::vtkXMLShader()
@@ -103,10 +103,19 @@ char* vtkXMLShader::LocateFile(const char* filename)
     return vtksys::SystemTools::DuplicateString(filename);
     }
 
+  // Fetch any runtime defined user paths for materials
+  vtkstd::vector<vtkstd::string> paths;
+  vtkstd::string userpaths;
+  vtksys::SystemTools::GetEnv("USER_MATERIALS_DIRS", userpaths);
+  if (userpaths.size()>0)
+    {
+    vtksys::SystemTools::Split(userpaths.c_str(), paths, ';');
+    }
+
 #ifdef VTK_MATERIALS_DIRS
   // search thru default paths to locate file.
-  vtkstd::vector<vtkstd::string> paths;
   vtksys::SystemTools::Split(VTK_MATERIALS_DIRS, paths, ';');
+#endif
   for (unsigned int i =0; i < paths.size(); i++)
     {
     vtkstd::string path = paths[i];
@@ -125,7 +134,6 @@ char* vtkXMLShader::LocateFile(const char* filename)
       return vtksys::SystemTools::DuplicateString(path.c_str()); 
       }
     }
-#endif
   return NULL;
 }
 
