@@ -218,7 +218,7 @@ protected:
   virtual void AllocateMILDigitizer();
   virtual void AllocateMILBuffer();
 
-  virtual void *MILInterpreterForSystem(const char *system);
+  virtual char *MILInterpreterForSystem(const char *system);
   char *MILInterpreterDLL;
 
   int VideoChannel;
