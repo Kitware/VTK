@@ -15,7 +15,7 @@ SET(VTK_LIBRARY_DIRS "@VTK_LIBRARY_DIRS_CONFIG@")
 # VTK_CONFIGURATION_TYPES is set (see below) then these directories
 # will be the parent directories under which there will be a directory
 # of runtime binaries for each configuration type.
-SET(VTK_RUNTIME_DIRS "@VTK_RUNTIME_DIRS_CONFIG@")
+SET(VTK_RUNTIME_LIBRARY_DIRS "@VTK_RUNTIME_LIBRARY_DIRS_CONFIG@")
 
 # The C and C++ flags added by VTK to the cmake-configured flags.
 SET(VTK_REQUIRED_C_FLAGS "@VTK_REQUIRED_C_FLAGS@")
@@ -153,5 +153,9 @@ SET(VTK_BUILD_TYPE @VTK_BUILD_TYPE_CONFIG@)
 IF(NOT VTK_NO_LIBRARY_DEPENDS)
   INCLUDE("@VTK_LIBRARY_DEPENDS_FILE@")
 ENDIF(NOT VTK_NO_LIBRARY_DEPENDS)
+
+# The old, less clear name for VTK_RUNTIME_LIBRARY_DIRS.  Kept here
+# for compatibility.
+SET(VTK_RUNTIME_DIRS ${VTK_RUNTIME_LIBRARY_DIRS})
 
 @VTK_CONFIG_BACKWARD_COMPATIBILITY_HACK@
