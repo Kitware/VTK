@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkDICOMImageReader.h"
 
-#include "DICOMParser.h"
 #include "vtkDirectory.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
@@ -27,8 +26,9 @@
 #include <sys/stat.h>
 
 #include "DICOMAppHelper.h"
+#include "DICOMParser.h"
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.35");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.36");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
