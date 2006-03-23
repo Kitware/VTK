@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkMILVideoSource, "1.22.26.1");
+vtkCxxRevisionMacro(vtkMILVideoSource, "1.22.26.2");
 vtkStandardNewMacro(vtkMILVideoSource);
 
 //----------------------------------------------------------------------------
@@ -177,7 +177,7 @@ void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // load the DLL for the specified Matrox digitizer, for MIL 5 and MIL 6
-void *vtkMILVideoSource::MILInterpreterForSystem(const char *system)
+char *vtkMILVideoSource::MILInterpreterForSystem(const char *system)
 {
   char *dll_name;
   char *func_name;
@@ -245,7 +245,7 @@ void *vtkMILVideoSource::MILInterpreterForSystem(const char *system)
     return NULL;
     }
 
-  return (void *)GetProcAddress(mil_lib,func_name);
+  return (char *)GetProcAddress(mil_lib,func_name);
 }
 
 //----------------------------------------------------------------------------
@@ -373,7 +373,7 @@ void vtkMILVideoSource::Initialize()
 
   if (this->MILSysID == 0)
     {
-    void *systemType;
+    char *systemType;
     if (this->MILSystemType != VTK_MIL_DEFAULT)
       { // asked for a particular system by name
       if (version >= 7)
@@ -732,7 +732,7 @@ void vtkMILVideoSource::Stop()
   MdigHalt(this->MILDigID);
   MdigHookFunction(this->MILDigID,M_GRAB_FRAME_END,
                    (MDIGHOOKFCTPTR)this->OldHookFunction,
-                   OldUserDataPtr);
+                   this->OldUserDataPtr);
   this->OldHookFunction = 0;
   MdigGrabWait(this->MILDigID,M_GRAB_END);
 
