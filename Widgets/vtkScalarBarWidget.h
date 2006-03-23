@@ -52,6 +52,17 @@ public:
   // Methods for turning the interactor observer on and off.
   virtual void SetEnabled(int);
 
+  // Description:
+  // Can the widget be moved. On by default. If off, the widget cannot be moved
+  // around. 
+  //
+  // (PS: This should really be a flag in a superclass, say vtk3DWidget
+  // and/or vtkAbstractWidget and/or vtkInteractorObserver. Widgets in VTK
+  // subclass randomly from all three... )
+  vtkSetMacro( Repositionable, int );
+  vtkGetMacro( Repositionable, int );
+  vtkBooleanMacro( Repositionable, int );
+
 protected:
   vtkScalarBarWidget();
   ~vtkScalarBarWidget();
@@ -103,6 +114,8 @@ protected:
 
   // set the cursor to the correct shape based on State argument
   void SetCursor(int State);
+
+  int Repositionable;
 
 private:
   vtkScalarBarWidget(const vtkScalarBarWidget&);  //Not implemented

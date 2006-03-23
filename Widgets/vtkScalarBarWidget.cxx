@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkScalarBarWidget, "1.4");
+vtkCxxRevisionMacro(vtkScalarBarWidget, "1.5");
 vtkStandardNewMacro(vtkScalarBarWidget);
 vtkCxxSetObjectMacro(vtkScalarBarWidget, ScalarBarActor, vtkScalarBarActor);
 
@@ -34,6 +34,7 @@ vtkScalarBarWidget::vtkScalarBarWidget()
   this->LeftButtonDown = 0;
   this->RightButtonDown = 0;
   this->Priority = 0.55;
+  this->Repositionable = 1;
 }
 
 //-------------------------------------------------------------------------
@@ -234,8 +235,11 @@ void vtkScalarBarWidget::SetCursor(int cState)
       this->RequestCursorShape(VTK_CURSOR_SIZENS);
       break;
     case vtkScalarBarWidget::Moving:
-      this->RequestCursorShape(VTK_CURSOR_SIZEALL);
-      break;        
+      if (this->Repositionable)
+        { 
+        this->RequestCursorShape(VTK_CURSOR_SIZEALL);
+        break;        
+        }
     }
 }
 
@@ -374,48 +378,51 @@ void vtkScalarBarWidget::OnMouseMove()
       par2[1] = par2[1] + YF - this->StartPosition[1];
       break;
     case vtkScalarBarWidget::Moving:
-      // first apply the move
-      par1[0] = par1[0] + XF - this->StartPosition[0];
-      par1[1] = par1[1] + YF - this->StartPosition[1];
-      par2[0] = par2[0] + XF - this->StartPosition[0];
-      par2[1] = par2[1] + YF - this->StartPosition[1];
-      // then check for an orientation change if the scalar bar moves so that
-      // its center is closer to a different edge that its current edge by
-      // 0.2 then swap orientation
-      double centerX = (par1[0] + par2[0])/2.0;
-      double centerY = (par1[1] + par2[1])/2.0;
-      // what edge is it closest to
-      if (fabs(centerX - 0.5) > fabs(centerY - 0.5))
-        {
-        // is it far enough in to consider a change in orientation?
-        if (fabs(centerX - 0.5) > 0.2+fabs(centerY - 0.5))
+      if (this->Repositionable)
+        { 
+        // first apply the move
+        par1[0] = par1[0] + XF - this->StartPosition[0];
+        par1[1] = par1[1] + YF - this->StartPosition[1];
+        par2[0] = par2[0] + XF - this->StartPosition[0];
+        par2[1] = par2[1] + YF - this->StartPosition[1];
+        // then check for an orientation change if the scalar bar moves so that
+        // its center is closer to a different edge that its current edge by
+        // 0.2 then swap orientation
+        double centerX = (par1[0] + par2[0])/2.0;
+        double centerY = (par1[1] + par2[1])/2.0;
+        // what edge is it closest to
+        if (fabs(centerX - 0.5) > fabs(centerY - 0.5))
           {
-          // do we need to change orientation
-          if (this->ScalarBarActor->GetOrientation() == VTK_ORIENT_HORIZONTAL)
+          // is it far enough in to consider a change in orientation?
+          if (fabs(centerX - 0.5) > 0.2+fabs(centerY - 0.5))
             {
-            this->ScalarBarActor->SetOrientation(VTK_ORIENT_VERTICAL);
-            // also change the corners
-            par2[0] = centerX + centerY - par1[1];
-            par2[1] = centerY + centerX - par1[0];
-            par1[0] = 2*centerX - par2[0];
-            par1[1] = 2*centerY - par2[1];
+            // do we need to change orientation
+            if (this->ScalarBarActor->GetOrientation() == VTK_ORIENT_HORIZONTAL)
+              {
+              this->ScalarBarActor->SetOrientation(VTK_ORIENT_VERTICAL);
+              // also change the corners
+              par2[0] = centerX + centerY - par1[1];
+              par2[1] = centerY + centerX - par1[0];
+              par1[0] = 2*centerX - par2[0];
+              par1[1] = 2*centerY - par2[1];
+              }
             }
           }
-        }
-      else
-        {
-        // is it far enough in to consider a change in orientation?
-        if (fabs(centerY - 0.5) > 0.2+fabs(centerX - 0.5))
+        else
           {
-          // do we need to change orientation
-          if (this->ScalarBarActor->GetOrientation() != VTK_ORIENT_HORIZONTAL)
+          // is it far enough in to consider a change in orientation?
+          if (fabs(centerY - 0.5) > 0.2+fabs(centerX - 0.5))
             {
-            this->ScalarBarActor->SetOrientation(VTK_ORIENT_HORIZONTAL);
-            // also change the corners
-            par2[0] = centerX + centerY - par1[1];
-            par2[1] = centerY + centerX - par1[0];
-            par1[0] = 2*centerX - par2[0];
-            par1[1] = 2*centerY - par2[1];
+            // do we need to change orientation
+            if (this->ScalarBarActor->GetOrientation() != VTK_ORIENT_HORIZONTAL)
+              {
+              this->ScalarBarActor->SetOrientation(VTK_ORIENT_HORIZONTAL);
+              // also change the corners
+              par2[0] = centerX + centerY - par1[1];
+              par2[1] = centerY + centerX - par1[0];
+              par1[0] = 2*centerX - par2[0];
+              par1[1] = 2*centerY - par2[1];
+              }
             }
           }
         }
