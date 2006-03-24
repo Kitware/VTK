@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkScalarBarWidget, "1.5");
+vtkCxxRevisionMacro(vtkScalarBarWidget, "1.6");
 vtkStandardNewMacro(vtkScalarBarWidget);
 vtkCxxSetObjectMacro(vtkScalarBarWidget, ScalarBarActor, vtkScalarBarActor);
 
@@ -238,8 +238,8 @@ void vtkScalarBarWidget::SetCursor(int cState)
       if (this->Repositionable)
         { 
         this->RequestCursorShape(VTK_CURSOR_SIZEALL);
-        break;        
         }
+      break;        
     }
 }
 
