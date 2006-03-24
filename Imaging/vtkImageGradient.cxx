@@ -19,25 +19,21 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradient, "1.54");
+vtkCxxRevisionMacro(vtkImageGradient, "1.55");
 vtkStandardNewMacro(vtkImageGradient);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageGradient fitler.
 vtkImageGradient::vtkImageGradient()
 {
-  this->SetNumberOfInputPorts(1);
-  this->SetNumberOfOutputPorts(1);
-  this->HandleBoundaries = 0;
-  this->HandleBoundariesOn();
+  this->HandleBoundaries = 1;
   this->Dimensionality = 2;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkImageGradient::PrintSelf(ostream& os, vtkIndent indent)
@@ -47,69 +43,70 @@ void vtkImageGradient::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
 }
 
-
 //----------------------------------------------------------------------------
-int vtkImageGradient::RequestInformation (
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkImageGradient::RequestInformation(vtkInformation*,
+                                         vtkInformationVector** inputVector,
+                                         vtkInformationVector* outputVector)
 {
-  int extent[6];
-  int idx;
-
-  // get the info objects
+  // Get input and output pipeline information.
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
-  // invalid setting, it has not been set, so default to whole Extent
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 
-              extent);
+  // Get the input whole extent.
+  int extent[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
 
-  if ( ! this->HandleBoundaries)
+  // Shrink output image extent by one pixel if not handling boundaries.
+  if(!this->HandleBoundaries)
     {
-    // shrink output image extent.
-    for (idx = 0; idx < this->Dimensionality; ++idx)
+    for(int idx = 0; idx < this->Dimensionality; ++idx)
       {
       extent[idx*2] += 1;
       extent[idx*2 + 1] -= 1;
       }
     }
-  
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 
-               extent, 6);
 
-  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_DOUBLE, this->Dimensionality);
+  // Store the new whole extent for the output.
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
+
+  // Set the number of point data componets to the number of
+  // components in the gradient vector.
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_DOUBLE,
+                                              this->Dimensionality);
+
   return 1;
 }
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
-int vtkImageGradient::RequestUpdateExtent (
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkImageGradient::RequestUpdateExtent(vtkInformation*,
+                                          vtkInformationVector** inputVector,
+                                          vtkInformationVector* outputVector)
 {
-  int wholeExtent[6];
-  int idx;
-
-  // get the info objects
+  // Get input and output pipeline information.
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
-  // invalid setting, it has not been set, so default to whole Extent
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 
-              wholeExtent);
-  int inUExt[6]; 
+  // Get the input whole extent.
+  int wholeExtent[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
+
+  // Get the requested update extent from the output.
+  int inUExt[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt);
 
-  // grow input whole extent.
-  for (idx = 0; idx < this->Dimensionality; ++idx)
+  // In order to do central differencing we need one more layer of
+  // input pixels than we are producing output pixels.
+  for(int idx = 0; idx < this->Dimensionality; ++idx)
     {
     inUExt[idx*2] -= 1;
     inUExt[idx*2+1] += 1;
+
+    // If handling boundaries instead of shrinking the image then we
+    // must clip the needed extent within the whole extent of the
+    // input.
     if (this->HandleBoundaries)
       {
-      // we must clip extent with whole extent is we hanlde boundaries.
       if (inUExt[idx*2] < wholeExtent[idx*2])
         {
         inUExt[idx*2] = wholeExtent[idx*2];
@@ -120,14 +117,16 @@ int vtkImageGradient::RequestUpdateExtent (
         }
       }
     }
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);  
+
+  // Store the update extent needed from the intput.
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
 // This execute method handles boundaries.
-// it handles boundaries. Pixels are just replicated to get values 
+// it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
 void vtkImageGradientExecute(vtkImageGradient *self,
@@ -147,18 +146,18 @@ void vtkImageGradientExecute(vtkImageGradient *self,
   vtkIdType *inIncs;
   double r[3], d;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
-  
+
   // find the region to loop over
   maxX = outExt[1] - outExt[0];
-  maxY = outExt[3] - outExt[2]; 
+  maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
   target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
   target++;
 
   // Get the dimensionality of the gradient.
   axesNum = self->GetDimensionality();
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
@@ -171,13 +170,13 @@ void vtkImageGradientExecute(vtkImageGradient *self,
   r[2] = -0.5 / r[2];
 
   // get some other info we need
-  inIncs = inData->GetIncrements(); 
-  wholeExtent = inData->GetExtent(); 
+  inIncs = inData->GetIncrements();
+  wholeExtent = inData->GetExtent();
 
   // Move the pointer to the correct starting position.
-  inPtr += (outExt[0]-inExt[0])*inIncs[0] + 
-           (outExt[2]-inExt[2])*inIncs[1] + 
-           (outExt[4]-inExt[4])*inIncs[2]; 
+  inPtr += (outExt[0]-inExt[0])*inIncs[0] +
+           (outExt[2]-inExt[2])*inIncs[1] +
+           (outExt[4]-inExt[4])*inIncs[2];
 
   // Loop through ouput pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
@@ -186,7 +185,7 @@ void vtkImageGradientExecute(vtkImageGradient *self,
     useZMax = ((idxZ + outExt[4]) >= wholeExtent[5]) ? 0 : inIncs[2];
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -207,7 +206,7 @@ void vtkImageGradientExecute(vtkImageGradient *self,
         d *= r[0]; // multiply by the data spacing
         *outPtr = d;
         outPtr++;
-        
+
         // do y axis
         d = (double)(inPtr[useYMin]);
         d -= (double)(inPtr[useYMax]);
@@ -233,45 +232,54 @@ void vtkImageGradientExecute(vtkImageGradient *self,
     }
 }
 
-
 //----------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
-// templated function for the input data type.  The output data
-// must match input type.  This method does handle boundary conditions.
-void vtkImageGradient::ThreadedExecute (vtkImageData *inData, 
-                                       vtkImageData *outData,
-                                       int outExt[6], int id)
+// templated function for the input data type.  This method does handle
+// boundary conditions.
+void vtkImageGradient::ThreadedRequestData(vtkInformation*,
+                                           vtkInformationVector**,
+                                           vtkInformationVector*,
+                                           vtkImageData*** inData,
+                                           vtkImageData** outData,
+                                           int outExt[6],
+                                           int threadId)
 {
-  void *inPtr;
-  double *outPtr = (double *)(outData->GetScalarPointerForExtent(outExt));
-  inPtr = inData->GetScalarPointer();
+  // Get the input and output data objects.
+  vtkImageData* input = inData[0][0];
+  vtkImageData* output = outData[0];
 
-  // this filter expects that input is the same type as output.
-  if (outData->GetScalarType() != VTK_DOUBLE)
+  // The ouptut scalar type must be double to store proper gradients.
+  if(output->GetScalarType() != VTK_DOUBLE)
     {
-    vtkErrorMacro(<< "Execute: output ScalarType, " << outData->GetScalarType()
-                  << ", must be double\n");
+    vtkErrorMacro("Execute: output ScalarType is "
+                  << output->GetScalarType() << "but must be double.");
     return;
     }
-  
-  if (inData->GetNumberOfScalarComponents() != 1)
+
+  // Gradient makes sense only with one input component.  This is not
+  // a Jacobian filter.
+  if(input->GetNumberOfScalarComponents() != 1)
     {
-    vtkErrorMacro(<< "Execute: input has more than one components. The input to gradient should be a single component image. Think about it. If you insist on using a color image then run it though RGBToHSV then ExtractComponents to get the V components. That's probably what you want anyhow.");
+    vtkErrorMacro(
+      "Execute: input has more than one component. "
+      "The input to gradient should be a single component image. "
+      "Think about it. If you insist on using a color image then "
+      "run it though RGBToHSV then ExtractComponents to get the V "
+      "components. That's probably what you want anyhow.");
     return;
     }
-  
-  switch (inData->GetScalarType())
+
+  // Dispatch computation for the input scalar type.
+  void* inPtr = input->GetScalarPointer();
+  double* outPtr = (double*)(output->GetScalarPointerForExtent(outExt));
+  switch(input->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageGradientExecute(this, inData, 
-                              (VTK_TT *)(inPtr), outData, outPtr, 
-                              outExt, id));
+      vtkImageGradientExecute(this, input, static_cast<VTK_TT*>(inPtr),
+                              output, outPtr, outExt, threadId)
+      );
     default:
-      vtkErrorMacro(<< "Execute: Unknown ScalarType");
+      vtkErrorMacro("Execute: Unknown ScalarType " << input->GetScalarType());
       return;
     }
 }
-
-
-
-
