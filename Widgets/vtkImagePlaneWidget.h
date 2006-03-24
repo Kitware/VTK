@@ -332,6 +332,14 @@ public:
   vtkGetObjectMacro(MarginProperty,vtkProperty);
 
   // Description:
+  // Set the size of the margins based on a percentage of the
+  // plane's width and height, limited between 0 and 50%.
+  vtkSetClampMacro(MarginSizeX,double, 0.0, 0.5);
+  vtkGetMacro(MarginSizeX, double);
+  vtkSetClampMacro(MarginSizeY,double, 0.0, 0.5);
+  vtkGetMacro(MarginSizeY, double);
+
+  // Description:
   // Set/Get the text property for the image data and window-level annotation.
   void SetTextProperty(vtkTextProperty* tprop);
   vtkTextProperty* GetTextProperty();
@@ -368,13 +376,13 @@ public:
   // be used in conjunction with GetCursorDataStatus.  The value is
   // VTK_DOUBLE_MAX when the data is invalid.
   vtkGetMacro(CurrentImageValue,double);
-  
+
   // Description:
   // Choose between voxel centered or continuous cursor probing.  With voxel
   // centered probing, the cursor snaps to the nearest voxel and the reported
   // cursor coordinates are extent based.  With continuous probing, voxel data
   // is interpolated using vtkDataSetAttributes' InterpolatePoint method and
-  // the reported coordinates are 3D spacial continuous.  
+  // the reported coordinates are 3D spacial continuous.
   vtkSetMacro(UseContinuousCursor,int);
   vtkGetMacro(UseContinuousCursor,int);
   vtkBooleanMacro(UseContinuousCursor,int);
@@ -582,6 +590,8 @@ protected:
   void               GenerateMargins();
   void               UpdateMargins();
   void               ActivateMargins(int);
+  double             MarginSizeX;
+  double             MarginSizeY;
 
 private:
   vtkImagePlaneWidget(const vtkImagePlaneWidget&);  //Not implemented

@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.5");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.6");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -74,6 +74,9 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->CurrentImageValue        = VTK_DOUBLE_MAX;
   this->MarginSelectMode         = 8;
   this->UseContinuousCursor      = 0;
+  this->MarginSizeX              = 0.05;
+  this->MarginSizeY              = 0.05;
+
 
   // Represent the plane's outline
   //
@@ -580,6 +583,11 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
     this->RightButtonAutoModifier << endl;
   os << indent << "UseContinuousCursor: "
      << (this->UseContinuousCursor ? "On\n" : "Off\n") ;
+
+  os << indent << "MarginSizeX: "
+     << this->MarginSizeX << "\n";
+  os << indent << "MarginSizeY: "
+     << this->MarginSizeY << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -2268,13 +2276,18 @@ void vtkImagePlaneWidget::AdjustState()
   double x2D = vtkMath::Dot(ppo,v1);
   double y2D = vtkMath::Dot(ppo,v2);
 
+  if ( x2D > planeSize1 ) { x2D = planeSize1; }
+  else if ( x2D < 0.0 ) { x2D = 0.0; }
+  if ( y2D > planeSize2 ) { y2D = planeSize2; }
+  else if ( y2D < 0.0 ) { y2D = 0.0; }
+
   // Divide plane into three zones for different user interactions:
   // four corners -- spin around the plane's normal at its center
   // four edges   -- rotate around one of the plane's axes at its center
   // center area  -- push
   //
-  double marginX = planeSize1 * 0.05;
-  double marginY = planeSize2 * 0.05;
+  double marginX = planeSize1 * this->MarginSizeX;
+  double marginY = planeSize2 * this->MarginSizeY;
 
   double x0 = marginX;
   double y0 = marginY;
@@ -2311,7 +2324,7 @@ void vtkImagePlaneWidget::AdjustState()
       this->MarginSelectMode =  5;
       }
     }
-  else                   // middle
+  else                   // middle or on the very edge
     {
     if (y2D < y0)        // bottom edge
       {
@@ -2661,8 +2674,8 @@ void vtkImagePlaneWidget::UpdateMargins()
   double c[3];
   double d[3];
 
-  double s = 0.05;
-  double t = 0.05;
+  double s = this->MarginSizeX;
+  double t = this->MarginSizeY;
 
   int i;
   for ( i = 0; i < 3; i++)
