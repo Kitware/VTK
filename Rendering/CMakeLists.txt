@@ -468,6 +468,10 @@ ENDIF (VTK_WRAP_TCL)
 # Include CMake code common to all kits.
 INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 #-----------------------------------------------------------------------------
+# Add target dependency to ensure the vtkParseOGLExt is built before
+# Rendering is.
+ADD_DEPENDENCIES(vtk${KIT}
+  vtkParseOGLExt)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
