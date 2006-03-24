@@ -1391,7 +1391,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.17");
+vtkCxxRevisionMacro(vtkExodusReader, "1.18");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -4300,6 +4300,7 @@ int vtkExodusReader::GetTimeSeriesData( int itemID, const char *vName,
     if ((strcmp(vType, "CELL") == 0) || (strcmp(vType, "cell") == 0) ) 
       {
       int varid = GetCellArrayID( vName );
+      // ex_get_elem_var_time assumes zero-based index for varid
       ex_get_elem_var_time( this->CurrentHandle, varid, itemID, 1, 
                                   numTimesteps, memory );
       retVal = 1;
@@ -4307,7 +4308,8 @@ int vtkExodusReader::GetTimeSeriesData( int itemID, const char *vName,
     else if ((strcmp(vType, "POINT") == 0) || (strcmp(vType, "point") == 0) ) 
       {
       int varid = GetPointArrayID( vName );
-      ex_get_nodal_var_time( this->CurrentHandle, varid, itemID, 1, 
+      // ex_get_nodal_var_time assumes one-based index for varid
+      ex_get_nodal_var_time( this->CurrentHandle, varid + 1, itemID, 1, 
                                    numTimesteps, memory );
       retVal = 1;
       }
