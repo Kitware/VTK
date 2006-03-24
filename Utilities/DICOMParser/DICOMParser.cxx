@@ -37,7 +37,6 @@
 #endif
 
 #include <string>
-#include <map>
 
 #include "DICOMConfig.h"
 #include "DICOMParser.h"
