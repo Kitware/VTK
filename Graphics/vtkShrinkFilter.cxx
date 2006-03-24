@@ -24,7 +24,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkShrinkFilter, "1.68");
+vtkCxxRevisionMacro(vtkShrinkFilter, "1.69");
 vtkStandardNewMacro(vtkShrinkFilter);
 
 //----------------------------------------------------------------------------
@@ -95,6 +95,7 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
 
   // Support progress and abort.
   vtkIdType tenth = (numCells >= 10? numCells/10 : 1);
+  double numCellsInv = 1.0/numCells;
   int abort = 0;
 
   // Traverse all cells, obtaining node coordinates.  Compute "center"
@@ -108,7 +109,7 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
     // Periodically update progress and check for an abort request.
     if(cellId % tenth == 0)
       {
-      this->UpdateProgress((cellId+1)/numCells);
+      this->UpdateProgress((cellId+1)*numCellsInv);
       abort = this->GetAbortExecute();
       }
 
