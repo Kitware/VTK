@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkScalarBarWidget, "1.6");
+vtkCxxRevisionMacro(vtkScalarBarWidget, "1.7");
 vtkStandardNewMacro(vtkScalarBarWidget);
 vtkCxxSetObjectMacro(vtkScalarBarWidget, ScalarBarActor, vtkScalarBarActor);
 
@@ -503,4 +503,5 @@ void vtkScalarBarWidget::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   
   os << indent << "ScalarBarActor: " << this->ScalarBarActor << "\n";
+  os << indent << "Repositionable: " << this->Repositionable << "\n";
 }
