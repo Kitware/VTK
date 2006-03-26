@@ -38,7 +38,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.55");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.56");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -61,6 +61,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   vtkPlane           *plane;
   int                 i,numClipPlanes;
   double              planeEquation[4];
+  vtkDataArray*  t = 0;
 
   vtkDebugMacro (<< "vtkOpenGLPolyDataMapper2D::Render");
 
@@ -84,6 +85,18 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if ( this->LookupTable == NULL )
     {
     this->CreateDefaultLookupTable();
+    }
+
+  // Texture and color by texture
+  t = input->GetPointData()->GetTCoords();
+  if ( t ) 
+    {
+    int tDim = t->GetNumberOfComponents();
+    if (tDim != 2)
+      {
+      vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
+      t = 0;
+      }
     }
 
   // if something has changed regenrate colors and display lists
@@ -180,9 +193,13 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   glPushMatrix();
   glLoadIdentity();
 
-  glDisable( GL_TEXTURE_2D );
+  if ( ! t)
+    {
+    glDisable( GL_TEXTURE_2D );
+    }
   glDisable( GL_LIGHTING );
-  
+   
+    
   // Assume we want to do Zbuffering for now.
   // we may turn this off later
   glDepthMask(GL_TRUE);
@@ -262,6 +279,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
           }
         glColor4ubv(rgba);
         }
+      if (t)
+        {
+        glTexCoord2dv(t->GetTuple(pts[j]));
+        }  
       // this is done to work around an OpenGL bug, otherwise we could just
       // call glVertex2dv
       dptr = p->GetPoint(pts[j]);
@@ -317,6 +338,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
           }
         glColor4ubv(rgba);
         }
+      if (t)
+        {
+        glTexCoord2dv(t->GetTuple(pts[j]));
+        }  
       // this is done to work around an OpenGL bug, otherwise we could just
       // call glVertex2dv
       dptr = p->GetPoint(pts[j]);
@@ -343,6 +368,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
           }
         glColor4ubv(rgba);
         }
+      if (t)
+        {
+        glTexCoord2dv(t->GetTuple(pts[j]));
+        }  
       // this is done to work around an OpenGL bug, otherwise we could just
       // call glVertex2dv
       dptr = p->GetPoint(pts[j]);
