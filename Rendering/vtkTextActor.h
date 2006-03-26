@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkTextActor can be used to place text annotation into a window.
 // When ScaledText is false, the text is fixed font and operation is
-// the same as a vtkImageMapper/vtkActor2D pair.
+// the same as a vtkPolyDataMapper2D/vtkActor2D pair.
 // When ScaledText is true, the font resizes such that the text fits inside the
 // box defined by the position 1 & 2 coordinates. This class replaces the
 // deprecated vtkScaledTextActor and acts as a convenient wrapper for
@@ -25,7 +25,7 @@
 // this actor.
 //
 // .SECTION See Also
-// vtkActor2D vtkImageMapper vtkTextProperty vtkFreeTypeUtilities
+// vtkActor2D vtkPolyDataMapper vtkTextProperty vtkFreeTypeUtilities
 
 #ifndef __vtkTextActor_h
 #define __vtkTextActor_h
@@ -33,10 +33,12 @@
 #include "vtkActor2D.h"
 
 class vtkTextProperty;
-class vtkImageMapper;
+class vtkPolyDataMapper2D;
 class vtkImageData;
 class vtkFreeTypeUtilities;
 class vtkTransform;
+class vtkPolyData;
+class vtkPoints;
 
 class VTK_RENDERING_EXPORT vtkTextActor : public vtkActor2D
 {
@@ -55,9 +57,9 @@ public:
   void ShallowCopy(vtkProp *prop);
 
   // Description:
-  // Override the vtkImageMapper that defines the text to be drawn.
+  // Override the vtkPolyDataMapper2D that defines the text to be drawn.
   // One will be created by default if none is supplied
-  void SetMapper(vtkImageMapper *mapper);
+  void SetMapper(vtkPolyDataMapper2D *mapper);
 
   // Description:
   // Set the text string to be displayed. "\n" is recognized
@@ -103,6 +105,15 @@ public:
   // Currently TextActor is not oriented around its AlignmentPoint.
   void SetAlignmentPoint(int point);
   vtkGetMacro(AlignmentPoint,int);
+  
+  // Description:
+  // Counterclockwise rotation around the Alignment point.  
+  // Units are in degrees and defaults to 0.
+  // The orientation in the text property rotates the text in the 
+  // texture map.  It will proba ly not give you the effect you
+  // desire.
+  void SetOrientation(float orientation);
+  vtkGetMacro(Orientation,float);
 
   // Description:
   // Return the actual vtkCoordinate reference that the mapper should use
@@ -168,11 +179,14 @@ protected:
   double  FontScaleTarget;
   int     ScaledText;
   int     AlignmentPoint;
+  float   Orientation;
 
   vtkCoordinate *AdjustedPositionCoordinate;
   vtkTextProperty *TextProperty;
   vtkImageData *ImageData;
-  vtkImageMapper *Mapper;
+  // This used to be "Mapper" but I changed it to PDMapper because
+  // Mapper is an ivar in Actor2D (bad form).
+  vtkPolyDataMapper2D *PDMapper;
   vtkFreeTypeUtilities *FreeTypeUtilities;
   vtkTimeStamp  BuildTime;
   vtkTransform *Transform;
@@ -185,6 +199,12 @@ protected:
   int FormerCoordinateSystem;
   double FormerOrientation;
   bool AlignmentPointSet;
+
+  // Stuff needed to display the image text as a texture map.
+  vtkPolyData* Rectangle;
+  vtkPoints*   RectanglePoints;
+
+  void ComputeRectangle(); 
 
 private:
   vtkTextActor(const vtkTextActor&);  // Not implemented.

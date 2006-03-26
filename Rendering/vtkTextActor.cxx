@@ -14,15 +14,23 @@
 =========================================================================*/
 #include "vtkTextActor.h"
 #include "vtkObjectFactory.h"
-#include "vtkImageMapper.h"
+#include "vtkPolyDataMapper2D.h"
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkTransform.h"
 #include "vtkImageData.h"
 #include "vtkFreeTypeUtilities.h"
+#include "vtkXMLImageDataWriter.h"
+#include "vtkPoints.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkCellArray.h"
+#include "vtkFloatArray.h"
+#include "vtkTexture.h"
+#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.29");
+vtkCxxRevisionMacro(vtkTextActor, "1.30");
 vtkStandardNewMacro(vtkTextActor);
 
 // ----------------------------------------------------------------------------
@@ -36,14 +44,45 @@ vtkTextActor::vtkTextActor()
   this->AdjustedPositionCoordinate = vtkCoordinate::New();
   this->AdjustedPositionCoordinate->SetCoordinateSystemToViewport();
 
-  vtkImageMapper *mapper = vtkImageMapper::New();
-  mapper->SetColorWindow(255);
-  mapper->SetColorLevel(127);
+  // This intializes the rectangle structure.
+  // It will be used to display the text image as a texture map.
+  this->Rectangle = vtkPolyData::New();
+  this->RectanglePoints = vtkPoints::New();
+  // The actual corner points of the rectangle will be computed later.
+  this->Rectangle->SetPoints(this->RectanglePoints);
+  vtkCellArray* polys = vtkCellArray::New();
+  polys->InsertNextCell(4);
+  polys->InsertCellPoint(0);
+  polys->InsertCellPoint(1);
+  polys->InsertCellPoint(2);
+  polys->InsertCellPoint(3);
+  this->Rectangle->SetPolys(polys);
+  polys->Delete();
+  vtkFloatArray* tc = vtkFloatArray::New();
+  tc->SetNumberOfComponents(2);
+  tc->SetNumberOfTuples(4);
+  tc->InsertComponent(0,0, 0.0);  tc->InsertComponent(0,1, 0.0);
+  tc->InsertComponent(1,0, 0.0);  tc->InsertComponent(1,1, 1.0);
+  tc->InsertComponent(2,0, 1.0);  tc->InsertComponent(2,1, 1.0);
+  tc->InsertComponent(3,0, 1.0);  tc->InsertComponent(3,1, 0.0);  
+  this->Rectangle->GetPointData()->SetTCoords(tc);
+  tc->Delete();  
+  
+  this->ImageData = vtkImageData::New();
+  vtkTexture* texture = vtkTexture::New();
+  texture->SetInput(this->ImageData);
+  this->SetTexture(texture);
+  texture->Delete();
+
+
+  vtkPolyDataMapper2D *mapper = vtkPolyDataMapper2D::New();
+  this->PDMapper = 0;
   this->SetMapper(mapper);
   mapper->Delete();
+  // Done already in SetMapper.
+  //this->PDMapper->SetInput(this->Rectangle);
 
   this->TextProperty = vtkTextProperty::New();
-  this->ImageData = vtkImageData::New();
   this->Transform = vtkTransform::New();
 
   this->LastOrigin[0]     = 0;
@@ -58,6 +97,7 @@ vtkTextActor::vtkTextActor()
   this->MaximumLineHeight = 1.0;
   this->ScaledText        = 0;
   this->AlignmentPoint    = 0;
+  this->Orientation       = 0.0;
 
   this->FontScaleExponent = 1;
   this->FontScaleTarget   = 10;
@@ -98,6 +138,11 @@ vtkTextActor::~vtkTextActor()
     {
     delete [] this->Input;
     }
+  this->Rectangle->Delete();
+  this->Rectangle = 0;
+  this->RectanglePoints->Delete();
+  this->RectanglePoints = 0;
+  this->SetTexture(0);
 }
 
 // ----------------------------------------------------------------------------
@@ -113,22 +158,25 @@ void vtkTextActor::SetNonLinearFontScale(double exp, int tgt)
 }
 
 // ----------------------------------------------------------------------------
-void vtkTextActor::SetMapper(vtkImageMapper *mapper)
+void vtkTextActor::SetMapper(vtkPolyDataMapper2D *mapper)
 {
-  this->Mapper = mapper;
+  // I will not reference count this because the superclass does.
+  this->PDMapper = mapper; // So what is the point of have the ivar PDMapper?
   this->vtkActor2D::SetMapper( mapper );
+  
+  mapper->SetInput(this->Rectangle);
 }
 
 // ----------------------------------------------------------------------------
 void vtkTextActor::SetMapper(vtkMapper2D *mapper)
 {
-  if (mapper->IsA("vtkImageMapper"))
+  if (mapper->IsA("vtkPolyDataMapper2D"))
     {
-    this->SetMapper( (vtkImageMapper *)mapper );
+    this->SetMapper( (vtkPolyDataMapper2D *)mapper );
     }
   else
     {
-    vtkErrorMacro(<<"Must use a vtkImageMapper with this class");
+    vtkErrorMacro(<<"Must use a vtkPolyDataMapper2D with this class");
     }
   }
 
@@ -402,8 +450,10 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       vtkErrorMacro(<<"Failed rendering text to buffer");
       return 0;
       }
-    this->Mapper->SetCustomDisplayExtents(this->ImageData->GetWholeExtent());
-    this->Mapper->SetInput(this->ImageData);
+    
+    this->ComputeRectangle();
+
+    this->Texture->SetInput(this->ImageData);
     this->InputRendered = true;
     this->BuildTime.Modified();
     }
@@ -541,6 +591,106 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
   return this->vtkActor2D::RenderOpaqueGeometry(viewport);
 }
 
+
+// ----------------------------------------------------------------------------
+void vtkTextActor::SetOrientation(float orientation) 
+{
+  if (this->Orientation == orientation)
+    {
+    return;
+    }
+  this->Modified();
+  this->Orientation = orientation;
+  this->ComputeRectangle();
+}
+
+// ----------------------------------------------------------------------------
+void vtkTextActor::SetAlignmentPoint(int val) 
+{
+  if (this->AlignmentPoint == val)
+    {
+    return;
+    }
+  if (this->AlignmentPoint < 0 || this->AlignmentPoint > 8)
+    {
+    vtkErrorMacro("Bad alignment code " << val);
+    return;
+    }
+  this->AlignmentPoint = val;
+  this->AlignmentPointSet = true;
+  this->ComputeRectangle();
+  this->Modified();
+}
+  
+// ----------------------------------------------------------------------------
+void vtkTextActor::ComputeRectangle() 
+{
+  int dims[3];
+  this->RectanglePoints->Reset();
+  if (this->ImageData)
+    {
+    this->ImageData->GetDimensions(dims);
+    }
+  else
+    {
+    dims[0] = dims[1] = 0;
+    }
+    
+  // I could do this with a transform, but it is simple enough
+  // to rotate the four corners in 2D ...
+  double radians = this->Orientation * vtkMath::DegreesToRadians();
+  double c = cos(radians);      
+  double s = sin(radians);
+  double xo, yo;
+  double x, y;
+  xo = yo = 0.0;
+  switch (this->AlignmentPoint)
+    {
+    case 0:
+      break;
+    case 1:
+      xo = -(double)(dims[0]) * 0.5;
+      break;
+    case 2:
+      xo = -(double)(dims[0]);
+      break;
+    case 3:
+      yo = -(double)(dims[1]) * 0.5;
+      break;
+    case 4:
+      yo = -(double)(dims[1]) * 0.5;
+      xo = -(double)(dims[0]) * 0.5;
+      break;
+    case 5:
+      yo = -(double)(dims[1]) * 0.5;
+      xo = -(double)(dims[0]);
+      break;
+    case 6:
+      yo = -(double)(dims[1]);
+      break;
+    case 7:
+      yo = -(double)(dims[1]);
+      xo = -(double)(dims[0]) * 0.5;
+      break;
+    case 8:
+      yo = -(double)(dims[1]);
+      xo = -(double)(dims[0]);
+      break;
+    default:
+      vtkErrorMacro(<< "Bad alignment point value " << this->AlignmentPoint);
+    }
+  
+  x = xo; y = yo;      
+  this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
+  x = xo; y = yo + (double)(dims[1]);      
+  this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
+  x = xo + (double)(dims[0]); y = yo + (double)(dims[1]);      
+  this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
+  x = xo + (double)(dims[0]); y = yo;      
+  this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
+}
+
+
 // ----------------------------------------------------------------------------
 void vtkTextActor::SpecifiedToDisplay(double *pos, vtkViewport *vport,
                                       int specified) 
@@ -598,22 +748,6 @@ void vtkTextActor::DisplayToSpecified(double *pos, vtkViewport *vport,
     }
 }
 
-// ----------------------------------------------------------------------------
-void vtkTextActor::SetAlignmentPoint(int point)
-{
-  if(point > 8)
-    {
-    vtkErrorMacro(<<"Attempting to set AlignmentPoint greater than 8");
-    point = 8;
-    }
-  else if(point < 0)
-    {
-    vtkErrorMacro(<<"Attempting to set AlignmentPoint less than 0");
-    point = 0;
-    }
-  this->AlignmentPoint = point;
-  this->AlignmentPointSet = true;
-}
 
 // ----------------------------------------------------------------------------
 void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
@@ -634,6 +768,7 @@ void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MinimumSize: " << this->MinimumSize[0] << " " << this->MinimumSize[1] << endl;
   os << indent << "ScaledText: " << this->ScaledText << endl;
   os << indent << "AlignmentPoint: " << this->AlignmentPoint << endl;
+  os << indent << "Orientation: " << this->Orientation << endl;
   os << indent << "FontScaleExponent: " << this->FontScaleExponent << endl;
   os << indent << "FontScaleTarget: " << this->FontScaleTarget << endl;
 }
