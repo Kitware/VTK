@@ -39,7 +39,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.24");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.25");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -1817,8 +1817,12 @@ void vtkFreeTypeUtilities::PrepareImageData(vtkImageData *data,
   if (img_dims[0] < text_size[0] || img_dims[1] < text_size[1] ||
       text_size[0] * 2 < img_dims[0] || text_size[1] * 2 < img_dims[0])
     {
-    new_img_dims[0] = 1 << (int)ceil(log((double)text_size[0]) / log(2.0));
-    new_img_dims[1] = 1 << (int)ceil(log((double)text_size[1]) / log(2.0));
+    //new_img_dims[0] = 1 << (int)ceil(log((double)text_size[0]) / log(2.0));
+    //new_img_dims[1] = 1 << (int)ceil(log((double)text_size[1]) / log(2.0));
+    // I am going to let the texture map change the dimensions to power of 2.
+    // I need the actual dimensions for alignment position.
+    new_img_dims[0] = text_size[0]+1; // Had memory problems so increase by one.
+    new_img_dims[1] = text_size[1]+1;
     new_img_dims[2] = 1;
     if (new_img_dims[0] != img_dims[0] || 
         new_img_dims[1] != img_dims[1] ||
