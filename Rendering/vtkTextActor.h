@@ -92,6 +92,8 @@ public:
   vtkBooleanMacro(ScaledText,int);
 
   // Description:
+  // This method is being depricated.  Use SetJustification and
+  // SetVerticalJustification in text property instead.
   // Set/Get the Alignment point
   // if zero (default), the text aligns itself to the bottom left corner
   // (which is defined by the PositionCoordinate)
@@ -104,7 +106,7 @@ public:
   // This is the same as setting the TextProperty's justification.
   // Currently TextActor is not oriented around its AlignmentPoint.
   void SetAlignmentPoint(int point);
-  vtkGetMacro(AlignmentPoint,int);
+  int GetAlignmentPoint();
   
   // Description:
   // Counterclockwise rotation around the Alignment point.  
@@ -178,7 +180,6 @@ protected:
   double  FontScaleExponent;
   double  FontScaleTarget;
   int     ScaledText;
-  int     AlignmentPoint;
   float   Orientation;
 
   vtkCoordinate *AdjustedPositionCoordinate;
@@ -198,7 +199,6 @@ protected:
   double FormerLineOffset;
   int FormerCoordinateSystem;
   double FormerOrientation;
-  bool AlignmentPointSet;
 
   // Stuff needed to display the image text as a texture map.
   vtkPolyData* Rectangle;

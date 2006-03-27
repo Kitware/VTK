@@ -30,7 +30,7 @@
 #include "vtkTexture.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.30");
+vtkCxxRevisionMacro(vtkTextActor, "1.31");
 vtkStandardNewMacro(vtkTextActor);
 
 // ----------------------------------------------------------------------------
@@ -96,7 +96,6 @@ vtkTextActor::vtkTextActor()
 
   this->MaximumLineHeight = 1.0;
   this->ScaledText        = 0;
-  this->AlignmentPoint    = 0;
   this->Orientation       = 0.0;
 
   this->FontScaleExponent = 1;
@@ -116,15 +115,6 @@ vtkTextActor::vtkTextActor()
     {
     vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
     }
-  this->AlignmentPointSet = false;
-  // since we're not using a vtkTextMapper anymore, the code/warning below
-  // seems obsolete.
-  //
-  // IMPORTANT: backward compat: the buildtime is updated here so that the 
-  // TextProperty->GetMTime() is lower than BuildTime. In that case, this
-  // will prevent the TextProperty to override the mapper's TextProperty
-  // when the actor is created after the mapper.
-  //this->BuildTime.Modified();
 }
 
 // ----------------------------------------------------------------------------
@@ -238,7 +228,6 @@ void vtkTextActor::ShallowCopy(vtkProp *prop)
     this->SetMinimumSize(a->GetMinimumSize());
     this->SetMaximumLineHeight(a->GetMaximumLineHeight());
     this->SetScaledText(a->GetScaledText());
-    this->SetAlignmentPoint(a->GetAlignmentPoint());
     this->SetTextProperty(a->GetTextProperty());
     }
   // Now do superclass (mapper is handled by it as well).
@@ -290,12 +279,6 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     {
     this->AdjustedPositionCoordinate->SetValue(
       this->PositionCoordinate->GetValue());
-    //this has the side-effect of causing us to re-calculate any movements made
-    //due to justification, alignmentpoint, or lineoffset.
-    if(this->AlignmentPoint != 0)
-      {
-      this->AlignmentPointSet = true;
-      }
     this->FormerJustification[0] = VTK_TEXT_LEFT;
     this->FormerJustification[1] = VTK_TEXT_BOTTOM;
     this->FormerLineOffset = 0.0;
@@ -327,53 +310,6 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
   size[0] = point2[0] - point1[0];
   size[1] = point2[1] - point1[1];
   double adjustedPos[3];
-
-  //check if we need to adjust our position based on AlignmentPoint
-  if (this->AlignmentPointSet)
-    {
-    switch (this->AlignmentPoint)
-      {
-      case 0:
-        this->TextProperty->SetJustificationToLeft();
-        this->TextProperty->SetVerticalJustificationToBottom();
-        break;
-      case 1:
-        this->TextProperty->SetJustificationToCentered();
-        this->TextProperty->SetVerticalJustificationToBottom();
-        break;
-      case 2:
-        this->TextProperty->SetJustificationToRight();
-        this->TextProperty->SetVerticalJustificationToBottom();
-        break;
-      case 3:
-        this->TextProperty->SetJustificationToLeft();
-        this->TextProperty->SetVerticalJustificationToCentered();
-        break;
-      case 4:
-        this->TextProperty->SetJustificationToCentered();
-        this->TextProperty->SetVerticalJustificationToCentered();
-        break;
-      case 5:
-        this->TextProperty->SetJustificationToRight();
-        this->TextProperty->SetVerticalJustificationToCentered();
-        break;
-      case 6:
-        this->TextProperty->SetJustificationToLeft();
-        this->TextProperty->SetVerticalJustificationToTop();
-        break;
-      case 7:
-        this->TextProperty->SetJustificationToCentered();
-        this->TextProperty->SetVerticalJustificationToTop();
-        break;
-      case 8:
-        this->TextProperty->SetJustificationToRight();
-        this->TextProperty->SetVerticalJustificationToTop();
-        break;
-      }
-    this->AlignmentPointSet = false;
-    this->BuildTime.Modified();
-    //end of handle AlignmentPoint case
-    }
   
   //Scaled text case.  We need to be sure that our text will fit
   //inside the specified boundaries
@@ -451,11 +387,17 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       return 0;
       }
     
-    this->ComputeRectangle();
-
     this->Texture->SetInput(this->ImageData);
     this->InputRendered = true;
     this->BuildTime.Modified();
+    }
+    
+  // Check if we need to create a new rectangle.  
+  // Need to check if angle has changed.
+  if(this->TextProperty->GetMTime() > this->BuildTime || 
+     !this->InputRendered || this->GetMTime() > this->BuildTime)
+    {
+    this->ComputeRectangle();
     }
 
   //handle justification & vertical justification
@@ -601,25 +543,95 @@ void vtkTextActor::SetOrientation(float orientation)
     }
   this->Modified();
   this->Orientation = orientation;
-  this->ComputeRectangle();
 }
 
+
+// ----------------------------------------------------------------------------
+int vtkTextActor::GetAlignmentPoint() 
+{
+  int alignmentCode;
+  
+  if ( ! this->TextProperty)
+    {
+    return 0;
+    }
+  switch (this->TextProperty->GetJustification())
+    {
+    case VTK_TEXT_LEFT:
+      alignmentCode = 0;
+      break;
+    case VTK_TEXT_CENTERED:
+      alignmentCode = 1;
+      break;
+    case VTK_TEXT_RIGHT:
+      alignmentCode = 2;
+      break;
+    default:
+      vtkErrorMacro(<<"Unknown justifaction code.");
+    }
+   switch (this->TextProperty->GetVerticalJustification())
+    {
+    case VTK_TEXT_BOTTOM:
+      alignmentCode += 0;
+      break;
+    case VTK_TEXT_CENTERED:
+      alignmentCode += 3;
+      break;
+    case VTK_TEXT_TOP: 
+      alignmentCode += 6;
+      break;
+    default:
+      vtkErrorMacro(<<"Unknown justifaction code.");
+    }
+  return alignmentCode;
+}    
+    
+    
 // ----------------------------------------------------------------------------
 void vtkTextActor::SetAlignmentPoint(int val) 
 {
-  if (this->AlignmentPoint == val)
+  vtkWarningMacro(<< "Alignment point is being depricated.  You should use "
+                  << "SetJustification and SetVerticalJustification in the text property.");
+
+  switch (val)
     {
-    return;
+    case 0:
+      this->TextProperty->SetJustificationToLeft();
+      this->TextProperty->SetVerticalJustificationToBottom();
+      break;
+    case 1:
+      this->TextProperty->SetJustificationToCentered();
+      this->TextProperty->SetVerticalJustificationToBottom();
+      break;
+    case 2:
+      this->TextProperty->SetJustificationToRight();
+      this->TextProperty->SetVerticalJustificationToBottom();
+      break;
+    case 3:
+      this->TextProperty->SetJustificationToLeft();
+      this->TextProperty->SetVerticalJustificationToCentered();
+      break;
+    case 4:
+      this->TextProperty->SetJustificationToCentered();
+      this->TextProperty->SetVerticalJustificationToCentered();
+      break;
+    case 5:
+      this->TextProperty->SetJustificationToRight();
+      this->TextProperty->SetVerticalJustificationToCentered();
+      break;
+    case 6:
+      this->TextProperty->SetJustificationToLeft();
+      this->TextProperty->SetVerticalJustificationToTop();
+      break;
+    case 7:
+      this->TextProperty->SetJustificationToCentered();
+      this->TextProperty->SetVerticalJustificationToTop();
+      break;
+    case 8:
+      this->TextProperty->SetJustificationToRight();
+      this->TextProperty->SetVerticalJustificationToTop();
+      break;
     }
-  if (this->AlignmentPoint < 0 || this->AlignmentPoint > 8)
-    {
-    vtkErrorMacro("Bad alignment code " << val);
-    return;
-    }
-  this->AlignmentPoint = val;
-  this->AlignmentPointSet = true;
-  this->ComputeRectangle();
-  this->Modified();
 }
   
 // ----------------------------------------------------------------------------
@@ -644,7 +656,8 @@ void vtkTextActor::ComputeRectangle()
   double xo, yo;
   double x, y;
   xo = yo = 0.0;
-  switch (this->AlignmentPoint)
+  // I could get rid of "GetAlignmentPoint" and use justification directly.
+  switch (this->GetAlignmentPoint())
     {
     case 0:
       break;
@@ -677,7 +690,7 @@ void vtkTextActor::ComputeRectangle()
       xo = -(double)(dims[0]);
       break;
     default:
-      vtkErrorMacro(<< "Bad alignment point value " << this->AlignmentPoint);
+      vtkErrorMacro(<< "Bad alignment point value.");
     }
   
   x = xo; y = yo;      
@@ -767,7 +780,6 @@ void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaximumLineHeight: " << this->MaximumLineHeight << endl;
   os << indent << "MinimumSize: " << this->MinimumSize[0] << " " << this->MinimumSize[1] << endl;
   os << indent << "ScaledText: " << this->ScaledText << endl;
-  os << indent << "AlignmentPoint: " << this->AlignmentPoint << endl;
   os << indent << "Orientation: " << this->Orientation << endl;
   os << indent << "FontScaleExponent: " << this->FontScaleExponent << endl;
   os << indent << "FontScaleTarget: " << this->FontScaleTarget << endl;
