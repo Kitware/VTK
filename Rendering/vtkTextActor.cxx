@@ -30,7 +30,7 @@
 #include "vtkTexture.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.31");
+vtkCxxRevisionMacro(vtkTextActor, "1.32");
 vtkStandardNewMacro(vtkTextActor);
 
 // ----------------------------------------------------------------------------
@@ -375,6 +375,14 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
         }
       }
     }
+
+  // Check if we need to create a new rectangle.  
+  // Need to check if angle has changed.
+  if(this->TextProperty->GetMTime() > this->BuildTime || 
+     !this->InputRendered || this->GetMTime() > this->BuildTime)
+    {
+    this->ComputeRectangle();
+    }
     
   //check if we need to render the string
   if(this->TextProperty->GetMTime() > this->BuildTime || !this->InputRendered)
@@ -390,15 +398,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     this->Texture->SetInput(this->ImageData);
     this->InputRendered = true;
     this->BuildTime.Modified();
-    }
-    
-  // Check if we need to create a new rectangle.  
-  // Need to check if angle has changed.
-  if(this->TextProperty->GetMTime() > this->BuildTime || 
-     !this->InputRendered || this->GetMTime() > this->BuildTime)
-    {
-    this->ComputeRectangle();
-    }
+    }    
 
   //handle justification & vertical justification
   if(this->FormerJustification[0] !=
