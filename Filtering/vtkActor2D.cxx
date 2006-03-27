@@ -18,14 +18,11 @@
 #include "vtkMapper2D.h"
 #include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
-#include "vtkTexture.h"
-#include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkActor2D, "1.2");
+vtkCxxRevisionMacro(vtkActor2D, "1.3");
 vtkStandardNewMacro(vtkActor2D);
 
 vtkCxxSetObjectMacro(vtkActor2D,Property, vtkProperty2D);
-vtkCxxSetObjectMacro(vtkActor2D,Texture,vtkTexture);
 
 // Creates an actor2D with the following defaults:
 // position -1, -1 (view coordinates)
@@ -35,7 +32,6 @@ vtkActor2D::vtkActor2D()
   this->Mapper = (vtkMapper2D*) NULL;
   this->LayerNumber = 0;
   this->Property = (vtkProperty2D*) NULL;
-  this->Texture = NULL;
   //
   this->PositionCoordinate = vtkCoordinate::New();
   this->PositionCoordinate->SetCoordinateSystem(VTK_VIEWPORT);
@@ -69,7 +65,6 @@ vtkActor2D::~vtkActor2D()
     this->Mapper->UnRegister(this);
     this->Mapper = NULL;
     }
-  this->SetTexture(NULL);
 }
 
 void vtkActor2D::ReleaseGraphicsResources(vtkWindow *win)
@@ -101,16 +96,6 @@ int vtkActor2D::RenderOverlay(vtkViewport* viewport)
     return 0;
     }
 
-  // render the texture 
-  if (this->Texture)
-    {
-    vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
-    if (ren)
-      {
-      this->Texture->Render(ren);
-      }
-    }
-    
   this->Mapper->RenderOverlay(viewport, this); 
 
   return 1;
@@ -267,7 +252,6 @@ void vtkActor2D::ShallowCopy(vtkProp *prop)
     this->SetProperty(a->GetProperty());
     this->SetPosition(a->GetPosition());
     this->SetPosition2(a->GetPosition2());
-    this->SetTexture(a->GetTexture());
     }
 
   // Now do superclass
@@ -295,13 +279,5 @@ void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->Mapper->PrintSelf(os, indent.GetNextIndent());
     }
-  
-  os << indent << "Texture: " << this->Texture << "\n";
-  if (this->Texture)
-    {
-    this->Texture->PrintSelf(os, indent.GetNextIndent());
-    }
-  
-  
 }
 

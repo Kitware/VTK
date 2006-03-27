@@ -29,9 +29,12 @@
 #include "vtkFloatArray.h"
 #include "vtkTexture.h"
 #include "vtkMath.h"
+#include "vtkTexture.h"
+#include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.32");
+vtkCxxRevisionMacro(vtkTextActor, "1.33");
 vtkStandardNewMacro(vtkTextActor);
+vtkCxxSetObjectMacro(vtkTextActor,Texture,vtkTexture);
 
 // ----------------------------------------------------------------------------
 vtkTextActor::vtkTextActor()
@@ -69,6 +72,7 @@ vtkTextActor::vtkTextActor()
   tc->Delete();  
   
   this->ImageData = vtkImageData::New();
+  this->Texture = NULL;
   vtkTexture* texture = vtkTexture::New();
   texture->SetInput(this->ImageData);
   this->SetTexture(texture);
@@ -246,6 +250,16 @@ void vtkTextActor::ReleaseGraphicsResources(vtkWindow *win)
 // ----------------------------------------------------------------------------
 int vtkTextActor::RenderOverlay(vtkViewport *viewport)
 {
+  // render the texture 
+  if (this->Texture)
+    {
+    vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
+    if (ren)
+      {
+      this->Texture->Render(ren);
+      }
+    }
+  
   // Everything is built in RenderOpaqueGeometry, just have to render
   return this->vtkActor2D::RenderOverlay(viewport);
 }
@@ -549,7 +563,7 @@ void vtkTextActor::SetOrientation(float orientation)
 // ----------------------------------------------------------------------------
 int vtkTextActor::GetAlignmentPoint() 
 {
-  int alignmentCode;
+  int alignmentCode = 0;
   
   if ( ! this->TextProperty)
     {
@@ -783,4 +797,9 @@ void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Orientation: " << this->Orientation << endl;
   os << indent << "FontScaleExponent: " << this->FontScaleExponent << endl;
   os << indent << "FontScaleTarget: " << this->FontScaleTarget << endl;
+  os << indent << "Texture: " << this->Texture << "\n";
+  if (this->Texture)
+    {
+    this->Texture->PrintSelf(os, indent.GetNextIndent());
+    }
 }

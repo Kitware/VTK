@@ -31,7 +31,6 @@
 
 class vtkMapper2D;
 class vtkProperty2D;
-class vtkTexture;
 
 class VTK_FILTERING_EXPORT vtkActor2D : public vtkProp
 {
@@ -130,15 +129,6 @@ public:
   virtual vtkCoordinate *GetActualPosition2Coordinate(void)
     { return this->Position2Coordinate; }
 
-  // Description: 
-  // Set/Get the texture object to control rendering texture maps.  This will
-  // be a vtkTexture object. An actor does not need to have an associated
-  // texture map and multiple actors can share one texture.
-  // This was added for orienated text which is rendered with a 
-  // vtkPolyDataMaper2D and a texture.
-  virtual void SetTexture(vtkTexture*);
-  vtkGetObjectMacro(Texture,vtkTexture);
-
 protected:
   vtkActor2D();
   ~vtkActor2D();
@@ -148,7 +138,7 @@ protected:
   vtkProperty2D *Property;
   vtkCoordinate *PositionCoordinate;
   vtkCoordinate *Position2Coordinate;
-  vtkTexture *Texture; 
+
 private:
   vtkActor2D(const vtkActor2D&);  // Not implemented.
   void operator=(const vtkActor2D&);  // Not implemented.
