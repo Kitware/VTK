@@ -122,7 +122,7 @@ public:
   virtual int DestroyTimer(); //first group, for backward compatibility
   int CreateRepeatingTimer(unsigned long duration);
   int CreateOneShotTimer(unsigned long duration); 
-  int IsSingleShotTimer(int timerId);
+  int IsOneShotTimer(int timerId);
   int GetTimerDuration(int timerId);
   int ResetTimer(int timerId); 
   int DestroyTimer(int timerId); 
@@ -142,7 +142,7 @@ public:
   // This function is called on 'q','e' keypress if exitmethod is not
   // specified and should be overridden by platform dependent subclasses
   // to provide a termination procedure if one is required.
-  virtual void TerminateApp(void) {};
+  virtual void TerminateApp(void) {}
 
   // Description:
   // External switching between joystick/trackball/new? modes.
@@ -252,7 +252,7 @@ public:
       this->EventPosition[1] = y;
       this->Modified();
       }
-  };
+  }
   virtual void SetEventPosition(int pos[2])
   {
     this->SetEventPosition(pos[0], pos[1]);
