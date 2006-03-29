@@ -51,7 +51,7 @@
 #include "vtkFrustumExtractor.h"
 #include <vtkstd/map> 
 
-vtkCxxRevisionMacro(vtkAreaPicker, "1.1");
+vtkCxxRevisionMacro(vtkAreaPicker, "1.2");
 vtkStandardNewMacro(vtkAreaPicker);
 
 typedef vtkstd::map< vtkProp *, vtkFrustumExtractor * > vtkPropExtractorMapBase;
@@ -161,7 +161,7 @@ int vtkAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
 
   this->DefineFrustum(x0, y0, x1, y1, renderer);
 
-  return this->PickProps(x0, y0, x1, y1, renderer);  
+  return this->PickProps(renderer);  
 }
 
 //--------------------------------------------------------------------------
@@ -261,15 +261,12 @@ void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1,
 //Decides which props are within the frustum.
 //Adds each to the prop3d list and fires pick events.
 //Remembers the dataset, mapper, and assembly path for the nearest.
-int vtkAreaPicker::PickProps(double x0, double y0, double x1, double y1, 
-                              vtkRenderer *renderer)
+int vtkAreaPicker::PickProps(vtkRenderer *renderer)
 {
 //cerr << "AP PickProps" << endl;
-  int i;
   vtkProp *prop;
   vtkAbstractMapper3D *mapper = NULL;
   int picked=0;
-  double x, y, t;
   int pickable;
   int LODId;
   double bounds[6];
@@ -310,7 +307,6 @@ int vtkAreaPicker::PickProps(double x0, double y0, double x1, double y1,
   double mindist = VTK_DOUBLE_MAX;
 
   vtkCollectionSimpleIterator pit;
-  double scale[3];
   for ( props->InitTraversal(pit); (prop=props->GetNextProp(pit)); )
     {
     //if the prop is watched by a FrustumExtractor tell the FrustumExtractor

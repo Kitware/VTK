@@ -96,7 +96,7 @@ public:
   // Perform pick operation in volume behind the given screen coordinate.
   // This makes a thin frustum around the selected pixel.
   // Note: this ignores Z in order to pick everying in a volume from z=0 to z=1.
-  virtual int Pick(double x0, double y0, double z0, vtkRenderer *renderer)
+  virtual int Pick(double x0, double y0, double vtkNotUsed(z0), vtkRenderer *renderer)
     {return this->AreaPick(x0-0.5, y0-0.5, x0+0.5, y0+0.5, renderer);};
 
   // Description:
@@ -114,7 +114,7 @@ protected:
   void ComputePlane(int idx, int p0, int p1, int p2);
   void DefineFrustum(double x0, double y0, double x1, double y1, vtkRenderer *renderer);
 
-  int PickProps(double x0, double y0, double x1, double y1, vtkRenderer *renderer);  
+  int PickProps(vtkRenderer *renderer);  
   int ABoxFrustumIsect(double bounds[], double &mindist);
   int FrustumClipPolygon(int nverts, double vlist[][3]);
   void PlaneClipPolygon(int nverts, double vlist[][3], int pid, int &noverts, double overts[][3]);
