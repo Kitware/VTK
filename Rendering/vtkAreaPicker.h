@@ -16,10 +16,11 @@
 //
 // .SECTION Description
 // The vtkAreaPicker picks all vtkProp3Ds that lie behind the screen space 
-// rectangle from x0,y0 and x1,y1. 
+// rectangle from x0,y0 and x1,y1. The selection is based upon the bounding
+// box of the prop and is thus not exact.
 //
 // Like vtkPicker, a pick results in a list of Prop3Ds because many props may 
-// lie within the pick frustum. You can also get an AssemblyPath, which in this 
+// lie within the pick frustum. You can also get an AssemblyPath, which in this
 // case is defined to be the path to the one particular prop in the Prop3D list
 // that lies nearest to the near plane. 
 //
@@ -34,7 +35,9 @@
 // of all props in the prop list.
 //
 // .SECTION See Also
-// vtkInteractorStyleRubberBandPick, vtkExtractGeometry, vtkClipDataSet, vtkCutter.
+// vtkInteractorStyleRubberBandPick, 
+// vtkExtractGeometry, vtkClipDataSet, vtkCutter.
+// vtkFrustumExtractor.
 
 #ifndef __vtkAreaPicker_h
 #define __vtkAreaPicker_h
@@ -48,8 +51,11 @@ class vtkDoubleArray;
 class vtkProp3DCollection;
 class vtkAbstractMapper3D;
 class vtkDataSet;
+class vtkProp;
+class vtkFrustumExtractor;
+class vtkPropFrustumExtractorMapType;
 
-class VTK_HYBRID_EXPORT vtkAreaPicker : public vtkAbstractPropPicker
+class VTK_RENDERING_EXPORT vtkAreaPicker : public vtkAbstractPropPicker
 {
 public:
   static vtkAreaPicker *New();
@@ -91,7 +97,13 @@ public:
   // This makes a thin frustum around the selected pixel.
   // Note: this ignores Z in order to pick everying in a volume from z=0 to z=1.
   virtual int Pick(double x0, double y0, double z0, vtkRenderer *renderer)
-    {return this->AreaPick(x0-1, y0-1, x0+1, y0+1, renderer);};
+    {return this->AreaPick(x0-0.5, y0-0.5, x0+0.5, y0+0.5, renderer);};
+
+  // Description:
+  // When a prop/culler combination is added, this picker will only let the
+  // FrustumExtractor execute if the prop is picked. See 
+  // vtkFrustumExtractor::AllowExectuteOff.
+  void AddPropWatcher(vtkProp *toWatch, vtkFrustumExtractor *toRun);
 
 protected:
   vtkAreaPicker();
@@ -104,16 +116,20 @@ protected:
 
   int PickProps(double x0, double y0, double x1, double y1, vtkRenderer *renderer);  
   int ABoxFrustumIsect(double bounds[], double &mindist);
+  int FrustumClipPolygon(int nverts, double vlist[][3]);
+  void PlaneClipPolygon(int nverts, double vlist[][3], int pid, int &noverts, double overts[][3]);
+  void PlaneClipEdge(double V0[3], double V1[3], int pid, int &noverts, double overts[][3]);
 
   vtkPoints *ClipPoints;
   vtkPlanes *Planes;
-  vtkPoints *Pts;
+  vtkPoints *Points;
   vtkDoubleArray *Norms;
-
 
   vtkProp3DCollection *Prop3Ds; //candidate actors (based on bounding box)
   vtkAbstractMapper3D *Mapper; //selected mapper (if the prop has a mapper)
   vtkDataSet *DataSet; //selected dataset (if there is one)
+
+  vtkPropFrustumExtractorMapType *WatchList;
 
 private:
   vtkAreaPicker(const vtkAreaPicker&);  // Not implemented.

@@ -20,7 +20,7 @@
 // When the mouse button is released, the attached picker operates on the pixel
 // in the center of the selection rectangle. If the picker happens to be a 
 // vtkAreaPicker it will operate on the entire selection rectangle.
-// Then the 'p' key is hit the above pick operation occurs on a 3x3 rectangle.
+// When the 'p' key is hit the above pick operation occurs on a 1x1 rectangle.
 // In other respects it behaves the same as its parent class.
 //
 // .SECTION See Also
@@ -31,12 +31,9 @@
 
 #include "vtkInteractorStyleTrackballCamera.h"
 
-#define VTKISRBP_ORIENT 0
-#define VTKISRBP_SELECT 1
-
 class vtkUnsignedCharArray;
 
-class VTK_HYBRID_EXPORT vtkInteractorStyleRubberBandPick : public vtkInteractorStyleTrackballCamera
+class VTK_RENDERING_EXPORT vtkInteractorStyleRubberBandPick : public vtkInteractorStyleTrackballCamera
 {
 public:
   static vtkInteractorStyleRubberBandPick *New();

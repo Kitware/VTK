@@ -215,6 +215,7 @@ vtkWarpScalar.cxx
 vtkWarpTo.cxx
 vtkWarpVector.cxx
 vtkWindowedSincPolyDataFilter.cxx
+vtkFrustumExtractor.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(

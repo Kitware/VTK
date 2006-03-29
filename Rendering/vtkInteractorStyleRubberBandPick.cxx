@@ -26,6 +26,10 @@
 vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.1");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandPick);
 
+#define VTKISRBP_ORIENT 0
+#define VTKISRBP_SELECT 1
+
+//--------------------------------------------------------------------------
 vtkInteractorStyleRubberBandPick::vtkInteractorStyleRubberBandPick()
 {
   this->CurrentMode = VTKISRBP_ORIENT;
@@ -35,11 +39,13 @@ vtkInteractorStyleRubberBandPick::vtkInteractorStyleRubberBandPick()
   this->PixelArray = vtkUnsignedCharArray::New();
 }
 
+//--------------------------------------------------------------------------
 vtkInteractorStyleRubberBandPick::~vtkInteractorStyleRubberBandPick()
 {
   this->PixelArray->Delete();
 }
 
+//--------------------------------------------------------------------------
 void vtkInteractorStyleRubberBandPick::OnChar()
 {
   switch (this->Interactor->GetKeyCode())
@@ -75,6 +81,7 @@ void vtkInteractorStyleRubberBandPick::OnChar()
     }
 }
 
+//--------------------------------------------------------------------------
 void vtkInteractorStyleRubberBandPick::OnLeftButtonDown()
 {
   if (this->CurrentMode != VTKISRBP_SELECT)
@@ -110,6 +117,7 @@ void vtkInteractorStyleRubberBandPick::OnLeftButtonDown()
   this->FindPokedRenderer(this->StartPosition[0], this->StartPosition[1]);
 }
 
+//--------------------------------------------------------------------------
 void vtkInteractorStyleRubberBandPick::OnMouseMove()
 {
   if (this->CurrentMode != VTKISRBP_SELECT)
@@ -171,6 +179,7 @@ void vtkInteractorStyleRubberBandPick::OnMouseMove()
   tmpPixelArray->Delete();
 }
 
+//--------------------------------------------------------------------------
 void vtkInteractorStyleRubberBandPick::OnLeftButtonUp()
 {
   if (this->CurrentMode != VTKISRBP_SELECT)
@@ -195,6 +204,7 @@ void vtkInteractorStyleRubberBandPick::OnLeftButtonUp()
   this->CurrentMode = VTKISRBP_ORIENT;
 }
 
+//--------------------------------------------------------------------------
 void vtkInteractorStyleRubberBandPick::Pick()
 {
   //find rubber band lower left, upper right and center
@@ -259,6 +269,7 @@ void vtkInteractorStyleRubberBandPick::Pick()
   this->Interactor->Render();
 }
 
+//--------------------------------------------------------------------------
 void vtkInteractorStyleRubberBandPick::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

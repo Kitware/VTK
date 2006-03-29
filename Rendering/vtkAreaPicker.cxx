@@ -48,10 +48,30 @@
 #include "vtkCommand.h"
 #include "vtkPlane.h"
 #include "vtkProp3DCollection.h"
+#include "vtkFrustumExtractor.h"
+#include <vtkstd/map> 
 
 vtkCxxRevisionMacro(vtkAreaPicker, "1.1");
 vtkStandardNewMacro(vtkAreaPicker);
 
+typedef vtkstd::map< vtkProp *, vtkFrustumExtractor * > vtkPropExtractorMapBase;
+class vtkPropFrustumExtractorMapType : public vtkPropExtractorMapBase {};
+
+#define VTK_AP_FILLVLIST(volist,vilist,v0,v1,v2,v3) \
+  volist[0][0] = vilist[v0][0];\
+  volist[0][1] = vilist[v0][1];\
+  volist[0][2] = vilist[v0][2];\
+  volist[1][0] = vilist[v1][0];\
+  volist[1][1] = vilist[v1][1];\
+  volist[1][2] = vilist[v1][2];\
+  volist[2][0] = vilist[v2][0];\
+  volist[2][1] = vilist[v2][1];\
+  volist[2][2] = vilist[v2][2];\
+  volist[3][0] = vilist[v3][0];\
+  volist[3][1] = vilist[v3][1];\
+  volist[3][2] = vilist[v3][2];
+
+//--------------------------------------------------------------------------
 vtkAreaPicker::vtkAreaPicker()
 {
   this->ClipPoints = vtkPoints::New();
@@ -67,8 +87,8 @@ vtkAreaPicker::vtkAreaPicker()
   this->ClipPoints->SetPoint(6, 1.0, 1.0, 1.0);
   this->ClipPoints->SetPoint(7, 1.0, 1.0, 0.0);
 
-  this->Pts = vtkPoints::New();
-  this->Pts->SetNumberOfPoints(6);
+  this->Points = vtkPoints::New();
+  this->Points->SetNumberOfPoints(6);
   this->Norms = vtkDoubleArray::New();
   this->Norms->SetNumberOfComponents(3);
   this->Norms->SetNumberOfTuples(6);
@@ -86,24 +106,30 @@ vtkAreaPicker::vtkAreaPicker()
   this->ComputePlane(4, 5, 4, 0);
   //top
   this->ComputePlane(5, 2, 6, 7);
-  this->Planes->SetPoints(this->Pts);
+  this->Planes->SetPoints(this->Points);
   this->Planes->SetNormals(this->Norms);
   this->Planes->Modified();
 
   this->Prop3Ds = vtkProp3DCollection::New();
   this->Mapper = NULL;
   this->DataSet = NULL;
+
+  this->WatchList = new vtkPropFrustumExtractorMapType;
 }
 
+//--------------------------------------------------------------------------
 vtkAreaPicker::~vtkAreaPicker()
 {
   this->Prop3Ds->Delete();
   this->Planes->Delete();
   this->Norms->Delete();
-  this->Pts->Delete();
+  this->Points->Delete();
   this->ClipPoints->Delete();
+  
+  delete this->WatchList;
 }
 
+//--------------------------------------------------------------------------
 // Initialize the picking process.
 void vtkAreaPicker::Initialize()
 {
@@ -113,7 +139,8 @@ void vtkAreaPicker::Initialize()
   this->Mapper = NULL;
 }
 
-// Does what this class is for.
+//--------------------------------------------------------------------------
+// Does what this class is meant to do.
 int vtkAreaPicker::AreaPick(double x0, double y0, double x1, double y1, 
                             vtkRenderer *renderer)
 {
@@ -137,6 +164,7 @@ int vtkAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
   return this->PickProps(x0, y0, x1, y1, renderer);  
 }
 
+//--------------------------------------------------------------------------
 //Converts the given screen rectangle into a selection frustum.
 //Saves the results in ClipPoints and Planes.
 void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1, 
@@ -183,10 +211,9 @@ void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1,
   
   renderer->SetDisplayPoint(x1, y1, 1);
   renderer->DisplayToWorld();
-  renderer->GetWorldPoint(wp111);
+  renderer->GetWorldPoint(wp111);    
     
-    
-  //save the points ----------------------------------------------------------
+  //save the points --------------------------------------------------------
   this->ClipPoints->SetPoint(0, wp000);
   this->ClipPoints->SetPoint(1, wp001);
   this->ClipPoints->SetPoint(2, wp010);
@@ -214,7 +241,7 @@ void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1,
 
   //update the implicit function with six planes defined by the points ------
   //planes lie on each side of the frustum and point outward
-  //for every plane, evaluating a world point inside the frustum comes out < 0
+  //for plane, evaluating a world point inside the frustum comes out < 0
   //near
   this->ComputePlane(0, 6, 2, 0);
   //far
@@ -230,12 +257,14 @@ void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1,
   this->Planes->Modified();
 }
 
+//--------------------------------------------------------------------------
 //Decides which props are within the frustum.
 //Adds each to the prop3d list and fires pick events.
 //Remembers the dataset, mapper, and assembly path for the nearest.
 int vtkAreaPicker::PickProps(double x0, double y0, double x1, double y1, 
                               vtkRenderer *renderer)
 {
+//cerr << "AP PickProps" << endl;
   int i;
   vtkProp *prop;
   vtkAbstractMapper3D *mapper = NULL;
@@ -284,6 +313,13 @@ int vtkAreaPicker::PickProps(double x0, double y0, double x1, double y1,
   double scale[3];
   for ( props->InitTraversal(pit); (prop=props->GetNextProp(pit)); )
     {
+    //if the prop is watched by a FrustumExtractor tell the FrustumExtractor
+    //not to execute unless it is necessary
+    if ((*this->WatchList)[prop])
+      {
+      (*this->WatchList)[prop]->AllowExecuteOff();
+      }
+
     for ( prop->InitPathTraversal(); (path=prop->GetNextPath()); )
       {
       pickable = 0;
@@ -335,12 +371,19 @@ int vtkAreaPicker::PickProps(double x0, double y0, double x1, double y1,
         {
         mapper->GetBounds(bounds);   
         double dist;
+        //cerr << "mapper ABFISECT" << endl;
         if (this->ABoxFrustumIsect(bounds, dist))
           {
           picked = 1;
           if ( ! this->Prop3Ds->IsItemPresent(prop) )
             {
             this->Prop3Ds->AddItem((vtkProp3D *)prop);
+            //if the prop is watched by a FrustumExtractor tell the 
+            //FrustumExtractor that it needs to execute
+            if ((*this->WatchList)[prop])
+              {
+              (*this->WatchList)[prop]->AllowExecuteOn();
+              }
             if (dist < mindist) //new nearest, remember it
               {
               mindist = dist;
@@ -372,12 +415,19 @@ int vtkAreaPicker::PickProps(double x0, double y0, double x1, double y1,
         {
         imageActor->GetBounds(bounds);
         double dist;
+        //cerr << "imageA ABFISECT" << endl;
         if (this->ABoxFrustumIsect(bounds, dist))
           {
           picked = 1;          
           if ( ! this->Prop3Ds->IsItemPresent(prop) )
             {
             this->Prop3Ds->AddItem(imageActor);
+            //if the prop is watched by a FrustumExtractor tell the
+            //FrustumExtractor that it needs to execute
+            if ((*this->WatchList)[prop])
+              {
+              (*this->WatchList)[prop]->AllowExecuteOn();
+              }
             if (dist < mindist) //new nearest, remember it
               {
               mindist = dist;
@@ -400,11 +450,14 @@ int vtkAreaPicker::PickProps(double x0, double y0, double x1, double y1,
   return picked;
 }
 
+//--------------------------------------------------------------------------
 //Intersect the bbox represented by the bounds with the clipping frustum.
 //Return true if partially inside.
 //Also return a distance to the near plane.
 int vtkAreaPicker::ABoxFrustumIsect(double *bounds, double &mindist)
 {
+//cerr << "FrustISECT" << endl;
+
   if (bounds[0] > bounds[1] ||
       bounds[2] > bounds[3] ||
       bounds[4] > bounds[5]) 
@@ -430,52 +483,185 @@ int vtkAreaPicker::ABoxFrustumIsect(double *bounds, double &mindist)
       }
     }
 
-  //do box/frustum intersect, reject only if all verts are behind any one plane
+  //do box/frustum intersect, reject if all verts are behind any one plane
   mindist = -VTK_DOUBLE_MAX;
-  int pid;
+  int pid, vid;
   vtkPlane *plane;
+  int allinfront[8] = {0,0,0,0,0,0,0};
   for (pid = 0; pid < 6; pid++)
     {
     plane = this->Planes->GetPlane(pid);
     int allbehind = true;
-    for (id = 0; id < 8; id++)
+    for (vid = 0; vid < 8; vid++)
       {
-      double dist = plane->EvaluateFunction(verts[id]);
+      double dist = plane->EvaluateFunction(verts[vid]);
       if (dist < 0)
         {
         //at least part of the bbox is in front of this plane
         allbehind = false; 
         if (pid == 0)
           {
-          //for near plane, evaluate all verts
-          //so that we can get a nearest prop ranking out of distance to front
+          //for near plane, get a nearest prop ranking by distance to front
           if (dist > mindist) //closer to 0 = on the plane 
             {
             mindist = dist;
             }                
           }
-        else
-          {
-          //for other planes, if any vert is in front, jump to next plane
-          break;
-          }
+        allinfront[vid] = allinfront[vid] | (0x1<<pid);
         }
       }
     if (allbehind)
       {
+      //cerr << "trivial reject pid " << pid << endl;
+      //early exit for trivial reject
       //the entire bbox is behind this plane, reject the prop
       mindist = -1.0; // a negative distance to signify and error
       return 0;
       }
     }
 
+  for (vid = 0; vid < 8; vid++)
+    {
+    if (allinfront[vid] == 0x3F)
+      {
+      //cerr << " trivial accep vid " << vid << endl;
+      //early exit for trivial accept
+      //one of the bbox's vertices is entirely within the frustum
+
+      //switch from operating behind (inside) plane to a distance from plane
+      mindist = -mindist; 
+      return 1;
+      }
+    }
+
   //switch from operating behind (inside) plane to a distance from plane
   mindist = -mindist; 
 
-  //this prop is picked
+  //the bbox could not be trivially accepted or rejected, so this step
+  //has to determine if the bbox really does intersect the frustum
+  //cerr << "Need full clip" << endl;
+
+  //clip each side of the bbox to the frustum
+  //if any vertices of a side survive then that side intersects
+  //+Z
+  double vlist[4][3];
+  VTK_AP_FILLVLIST(vlist,verts,1,5,7,3);
+  if (this->FrustumClipPolygon(4, vlist))
+    {
+    //cerr << "accept +Z" << endl;
+    return 1;
+    }
+  //-Z
+  VTK_AP_FILLVLIST(vlist,verts,0,4,6,2);
+  if (this->FrustumClipPolygon(4, vlist))
+    {
+    //cerr << "accept -Z" << endl;
+    return 1;
+    }
+  //-X
+  VTK_AP_FILLVLIST(vlist,verts,0,1,3,2);
+  if (this->FrustumClipPolygon(4, vlist))
+    {
+    //cerr << "accept -X" << endl;
+    return 1;
+    }
+  //+X
+  VTK_AP_FILLVLIST(vlist,verts,4,5,7,6);
+  if (this->FrustumClipPolygon(4, vlist))
+    {
+    //cerr << "accept +X" << endl;
+    return 1;
+    }
+  //-Y
+  VTK_AP_FILLVLIST(vlist,verts,0,4,5,1);
+  if (this->FrustumClipPolygon(4, vlist))
+    {
+    //cerr << "accept -Y" << endl;
+    return 1;
+    }
+  //+Y
+  VTK_AP_FILLVLIST(vlist,verts,2,6,7,3);
+  if (this->FrustumClipPolygon(4, vlist))
+    {
+    //cerr << "accept +Y" << endl;
+    return 1;
+    }
+
+  //cerr << "reject clip failure" << endl;
+  //none of the vertices survived, return false
+  return 0;
+}
+
+//--------------------------------------------------------------------------
+//clips the polygon against the frustum
+//if there is no intersection, returns 0
+//if there is an intersection, returns 1
+int vtkAreaPicker::FrustumClipPolygon(int nverts, double ivlist[][3])
+{
+  int nwverts = nverts;
+  double wvlist[20][3];
+  memcpy((void*)wvlist, (void*)ivlist, sizeof(double)*nverts*3);
+
+  int noverts = 0;
+  double ovlist[20][3];
+
+  int pid;
+  for (pid = 0; pid < 6; pid++)
+    {
+    noverts = 0;
+    this->PlaneClipPolygon(nwverts, wvlist, pid, noverts, ovlist);    
+    if (noverts == 0)
+      {
+      return 0;
+      }
+    memcpy((void*)wvlist, (void*)ovlist, noverts*sizeof(double)*3);
+    nwverts = noverts;
+    }
+
   return 1;
 }
 
+//--------------------------------------------------------------------------
+//clips a polygon against the numberd plane, resulting vertices are stored
+//in ovlist, noverts
+void vtkAreaPicker::PlaneClipPolygon(int nverts, double ivlist[][3], int pid, int &noverts, double ovlist[][3])
+{
+  int vid;  
+  //run around the polygon and clip to this edge
+  for (vid = 0; vid < nverts-1; vid++)
+    {
+    this->PlaneClipEdge(ivlist[vid], ivlist[vid+1], pid, noverts, ovlist);
+    }
+  this->PlaneClipEdge(ivlist[nverts-1], ivlist[0], pid, noverts, ovlist);
+}
+
+//--------------------------------------------------------------------------
+//clips a line segment against the numbered plane.
+//the intersection point and the second vertex are added to overts if applicable
+void vtkAreaPicker::PlaneClipEdge(double V0[3], double V1[3], int pid, int &noverts, double overts[][3])
+{
+  double t = 0.0;
+  double ISECT[3];
+  int rc = vtkPlane::IntersectWithLine(V0, V1, this->Norms->GetTuple(pid), this->Points->GetPoint(pid), t, ISECT);
+  if (rc && t != 0 && t != 1.0)
+    {
+    overts[noverts][0] = ISECT[0];
+    overts[noverts][1] = ISECT[1];
+    overts[noverts][2] = ISECT[2];
+    noverts++;
+    }
+  vtkPlane *plane = this->Planes->GetPlane(pid);
+  if (plane->EvaluateFunction(V1) < 0)
+    {
+    overts[noverts][0] = V1[0];
+    overts[noverts][1] = V1[1];
+    overts[noverts][2] = V1[2];
+    noverts++;
+    }
+  return;
+}
+
+//--------------------------------------------------------------------------
 //Takes indices to three points in the ClipPoints list, saves the resulting 
 //plane in the Plane list.
 void vtkAreaPicker::ComputePlane(int idx, int p0, int p1, int p2)
@@ -487,7 +673,7 @@ void vtkAreaPicker::ComputePlane(int idx, int p0, int p1, int p2)
   double v2[3];  
   this->ClipPoints->GetPoint(p2, v2);
 
-  this->Pts->SetPoint(idx, v0[0], v0[1], v0[2]);
+  this->Points->SetPoint(idx, v0[0], v0[1], v0[2]);
 
   double e0[3];
   e0[0] = v1[0]-v0[0];
@@ -506,6 +692,14 @@ void vtkAreaPicker::ComputePlane(int idx, int p0, int p1, int p2)
   this->Norms->SetTuple(idx, n);
 }
 
+//--------------------------------------------------------------------------
+//tells this picker that the FrustumExtractor fc wants to know when p is picked
+void vtkAreaPicker::AddPropWatcher(vtkProp *p, vtkFrustumExtractor *fc)
+{
+  (*this->WatchList)[p] = fc;
+}
+
+//--------------------------------------------------------------------------
 void vtkAreaPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

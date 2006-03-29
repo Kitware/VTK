@@ -129,6 +129,8 @@ vtkVolumeCollection.cxx
 vtkVolumeProperty.cxx
 vtkWindowToImageFilter.cxx
 vtkWorldPointPicker.cxx
+vtkInteractorStyleRubberBandPick.cxx
+vtkAreaPicker.cxx
 )
 
 IF(VTK_USE_GL2PS)
