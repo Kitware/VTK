@@ -29,6 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkWindows.h" // For windows API.
 
+
 class VTK_RENDERING_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor 
 {
 public:
@@ -75,11 +76,6 @@ public:
   // ExitMethod for alternative behavior (i.e. suppression of keyboard exit)
   void TerminateApp(void);
 
-  // Description:
-  // Win32 timer methods
-  int CreateTimer(int timertype);
-  int DestroyTimer(void);
-
   //BTX
   friend VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l);
   friend VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l, vtkWin32RenderWindowInteractor *me);
@@ -122,10 +118,8 @@ protected:
   ~vtkWin32RenderWindowInteractor();
 
   HWND    WindowId;
-  UINT    TimerId;
   WNDPROC OldProc;
   int     InstallMessageProc;
-
   int     MouseInWindow;
 
   //BTX
@@ -137,6 +131,12 @@ protected:
   static void (*ClassExitMethodArgDelete)(void *);
   static void *ClassExitMethodArg;
   //ETX
+
+  // Description: 
+  // Win32-specific internal timer methods. See the superclass for detailed
+  // documentation.
+  virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
+  virtual int InternalDestroyTimer(int platformTimerId);
 
 private:
   vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&);  // Not implemented.
