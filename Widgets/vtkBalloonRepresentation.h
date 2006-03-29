@@ -14,7 +14,9 @@
 =========================================================================*/
 // .NAME vtkBalloonRepresentation - represent the vtkBalloonWidget
 // .SECTION Description
-// The vtkBalloonRepresentation is used to represent the
+// The vtkBalloonRepresentation is used to represent the vtkBalloonWidget.
+// The class provides methods to control the appearance of the text within a 
+// rectangular frame.
 
 // .SECTION See Also
 // vtkBalloonWidget
@@ -59,9 +61,9 @@ public:
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
     
   // Description:
-  // Set/Get the border property.
-  virtual void SetBorderProperty(vtkProperty2D *p);
-  vtkGetObjectMacro(BorderProperty,vtkProperty2D);
+  // Set/Get the frame property.
+  virtual void SetFrameProperty(vtkProperty2D *p);
+  vtkGetObjectMacro(FrameProperty,vtkProperty2D);
     
   // Description:
   // Set/Get the offset from the mouse pointer from which to place the
@@ -72,7 +74,7 @@ public:
 
   // Description:
   // Set/Get the padding (in pixels) that whould be used around the text
-  // (i.e., between the border and the text).
+  // (i.e., between the frame and the text).
   vtkSetClampMacro(Padding,int,0,100);
   vtkGetMacro(Padding,int);
 
@@ -103,13 +105,13 @@ protected:
   vtkActor2D      *TextActor;
   vtkTextProperty *TextProperty;
   
-  // The border
-  vtkPoints           *BorderPoints;
-  vtkCellArray        *BorderPolygon;
-  vtkPolyData         *BorderPolyData;
-  vtkPolyDataMapper2D *BorderMapper;
-  vtkActor2D          *BorderActor;
-  vtkProperty2D       *BorderProperty;
+  // The frame
+  vtkPoints           *FramePoints;
+  vtkCellArray        *FramePolygon;
+  vtkPolyData         *FramePolyData;
+  vtkPolyDataMapper2D *FrameMapper;
+  vtkActor2D          *FrameActor;
+  vtkProperty2D       *FrameProperty;
   
 private:
   vtkBalloonRepresentation(const vtkBalloonRepresentation&);  //Not implemented
