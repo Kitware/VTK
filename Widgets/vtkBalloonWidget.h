@@ -129,7 +129,7 @@ protected:
   // Support for picking
   vtkAbstractPropPicker *Picker;
 
-  // The vtkProp that is being hovered over
+  // The vtkProp that is being hovered over (which may be NULL)
   vtkProp *CurrentProp;
   
 private:

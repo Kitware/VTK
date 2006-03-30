@@ -28,7 +28,7 @@
 #include "vtkCommand.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkBalloonWidget, "1.1");
+vtkCxxRevisionMacro(vtkBalloonWidget, "1.2");
 vtkStandardNewMacro(vtkBalloonWidget);
 
 //-- Define the PIMPLd array of vtkProp and vtkString --
@@ -163,6 +163,11 @@ int vtkBalloonWidget::SubclassHoverAction()
   e[1] = static_cast<double>(this->Interactor->GetEventPosition()[1]);
   vtkRenderer *ren = 
     this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
+  if ( this->CurrentProp )
+    {
+    this->CurrentProp->UnRegister(this);
+    this->CurrentProp = NULL;
+    }
   this->Picker->Pick(e[0],e[1],0.0,ren);
   vtkAssemblyPath *path = this->Picker->GetPath();
   if ( path != NULL )
