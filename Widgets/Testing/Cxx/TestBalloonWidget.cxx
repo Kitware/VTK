@@ -32,6 +32,21 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 
+class vtkBalloonCallback : public vtkCommand
+{
+public:
+  static vtkBalloonCallback *New() 
+    { return new vtkBalloonCallback; }
+  virtual void Execute(vtkObject *caller, unsigned long, void*)
+    {
+      vtkBalloonWidget *balloonWidget = reinterpret_cast<vtkBalloonWidget*>(caller);
+      if ( balloonWidget->GetCurrentProp() != NULL )
+        {
+        cout << "Prop selected\n";
+        }
+    }
+};
+
 int TestBalloonWidget( int argc, char *argv[] )
 {
   // Create the RenderWindow, Renderer and both Actors
@@ -77,6 +92,9 @@ int TestBalloonWidget( int argc, char *argv[] )
   widget->AddBalloonText(cyl,"This is a\ncylinder");
   widget->AddBalloonText(cone,"This is a cone");
 
+  vtkBalloonCallback *cbk = vtkBalloonCallback::New();
+  widget->AddObserver(vtkCommand::WidgetActivateEvent,cbk);
+
   // Add the actors to the renderer, set the background and size
   //
   ren1->AddActor(sph);
@@ -114,6 +132,8 @@ int TestBalloonWidget( int argc, char *argv[] )
   mapper->Delete();
   sph->Delete();
 //  ta->Delete();
+  widget->RemoveObserver(cbk);
+  cbk->Delete();
   widget->Off();
   widget->Delete();
   iren->Delete();
