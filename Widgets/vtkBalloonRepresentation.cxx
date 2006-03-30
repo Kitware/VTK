@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBalloonRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkBalloonRepresentation, "1.3");
 vtkStandardNewMacro(vtkBalloonRepresentation);
 
 vtkCxxSetObjectMacro(vtkBalloonRepresentation, TextProperty, vtkTextProperty);
@@ -182,5 +182,7 @@ void vtkBalloonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     }
   
   os << indent << "Padding: " << this->Padding << "\n";
+  os << indent << "Offset: (" << this->Offset[0] << ","
+     << this->Offset[1] << ")\n";
 }
 
