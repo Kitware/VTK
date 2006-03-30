@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBalloonRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkBalloonRepresentation, "1.4");
 vtkStandardNewMacro(vtkBalloonRepresentation);
 
 vtkCxxSetObjectMacro(vtkBalloonRepresentation, TextProperty, vtkTextProperty);
@@ -43,8 +43,8 @@ vtkBalloonRepresentation::vtkBalloonRepresentation()
   // Balloon text
   this->BalloonText = NULL;
   this->Padding = 5;
-  this->Offset[0] =  15.0;
-  this->Offset[1] = -30.0;
+  this->Offset[0] =  15;
+  this->Offset[1] = -30;
 
   // The text actor
   this->TextMapper = vtkTextMapper::New();
