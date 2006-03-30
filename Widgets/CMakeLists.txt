@@ -15,6 +15,8 @@ vtkAffineWidget.cxx
 vtkAngleRepresentation.cxx
 vtkAngleRepresentation2D.cxx
 vtkAngleWidget.cxx
+vtkBalloonRepresentation.cxx
+vtkBalloonWidget.cxx
 vtkBezierContourLineInterpolator.cxx
 vtkBiDimensionalRepresentation2D.cxx
 vtkBiDimensionalWidget.cxx
@@ -40,6 +42,7 @@ vtkEvent.cxx
 vtkFocalPlanePointPlacer.cxx
 vtkHandleRepresentation.cxx
 vtkHandleWidget.cxx
+vtkHoverWidget.cxx
 vtkImageActorPointPlacer.cxx
 vtkImagePlaneWidget.cxx
 vtkImageTracerWidget.cxx
