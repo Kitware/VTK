@@ -19,8 +19,9 @@
 #include "vtkWidgetEventTranslator.h"
 #include "vtkObjectFactory.h"
 #include "vtkCallbackCommand.h"
+#include "vtkEvent.h"
 
-vtkCxxRevisionMacro(vtkHoverWidget, "1.2");
+vtkCxxRevisionMacro(vtkHoverWidget, "1.3");
 vtkStandardNewMacro(vtkHoverWidget);
 
 //-------------------------------------------------------------------------
@@ -36,6 +37,10 @@ vtkHoverWidget::vtkHoverWidget()
   this->CallbackMapper->SetCallbackMethod(vtkCommand::TimerEvent,
                                           vtkWidgetEvent::TimedOut,
                                           this, vtkHoverWidget::HoverAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent,
+                                          vtkEvent::AnyModifier, 13, 1, NULL,
+                                          vtkWidgetEvent::Select,
+                                          this, vtkHoverWidget::SelectAction);
 }
 
 //-------------------------------------------------------------------------
@@ -123,6 +128,20 @@ void vtkHoverWidget::HoverAction(vtkAbstractWidget *w)
     self->SubclassHoverAction();
     self->InvokeEvent(vtkCommand::TimerEvent,NULL);
     self->EventCallbackCommand->SetAbortFlag(1); //no one else gets this timer
+    }
+}
+
+//-------------------------------------------------------------------------
+void vtkHoverWidget::SelectAction(vtkAbstractWidget *w)
+{
+  vtkHoverWidget *self = reinterpret_cast<vtkHoverWidget*>(w);
+
+  // If widget is hovering we grab the selection event
+  if ( self->WidgetState == vtkHoverWidget::TimedOut )
+    {
+    self->SubclassSelectAction();
+    self->InvokeEvent(vtkCommand::WidgetActivateEvent,NULL);
+    self->EventCallbackCommand->SetAbortFlag(1); //no one else gets this event
     }
 }
 

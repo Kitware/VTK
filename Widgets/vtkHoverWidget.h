@@ -110,11 +110,13 @@ protected:
   // Callback interface to execute events
   static void MoveAction(vtkAbstractWidget*);
   static void HoverAction(vtkAbstractWidget*);
+  static void SelectAction(vtkAbstractWidget*);
   
   // Subclasses of this class invoke these methods. If a non-zero
   // value is returned, a subclass is handling the event.
   virtual int SubclassHoverAction() {return 0;}
   virtual int SubclassEndHoverAction() {return 0;}
+  virtual int SubclassSelectAction() {return 0;}
   
   // Description:
   // Helper methods for creating and destroying timers.
