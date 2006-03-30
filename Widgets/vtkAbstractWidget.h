@@ -121,6 +121,9 @@ protected:
   // The parent, if any, for this widget
   vtkAbstractWidget *Parent;
 
+  // Call data which can be retrieved by the widget
+  void *CallData;
+
 private:
   vtkAbstractWidget(const vtkAbstractWidget&);  //Not implemented
   void operator=(const vtkAbstractWidget&);  //Not implemented

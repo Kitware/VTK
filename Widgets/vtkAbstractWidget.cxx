@@ -23,7 +23,7 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAbstractWidget, "1.6");
+vtkCxxRevisionMacro(vtkAbstractWidget, "1.7");
 
 
 //----------------------------------------------------------------------
@@ -186,7 +186,7 @@ void vtkAbstractWidget::SetEnabled(int enabling)
 void vtkAbstractWidget::ProcessEvents(vtkObject* vtkNotUsed(object), 
                                        unsigned long vtkEvent,
                                        void* clientdata, 
-                                       void* vtkNotUsed(calldata))
+                                       void* calldata)
 {
   vtkAbstractWidget* self = 
     reinterpret_cast<vtkAbstractWidget *>( clientdata );
@@ -198,6 +198,10 @@ void vtkAbstractWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
                                           self->Interactor->GetRepeatCount(),
                                           self->Interactor->GetKeySym());
 
+  // Save the call data for widgets if needed
+  self->CallData = calldata;
+
+  // Invoke the widget callback
   if ( widgetEvent != vtkWidgetEvent::NoEvent)
     {
     self->CallbackMapper->InvokeCallback(widgetEvent);
