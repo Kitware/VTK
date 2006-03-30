@@ -32,7 +32,7 @@
 #include "vtkTexture.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.33");
+vtkCxxRevisionMacro(vtkTextActor, "1.34");
 vtkStandardNewMacro(vtkTextActor);
 vtkCxxSetObjectMacro(vtkTextActor,Texture,vtkTexture);
 
@@ -251,7 +251,7 @@ void vtkTextActor::ReleaseGraphicsResources(vtkWindow *win)
 int vtkTextActor::RenderOverlay(vtkViewport *viewport)
 {
   // render the texture 
-  if (this->Texture)
+  if (this->Texture && this->Input)
     {
     vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
     if (ren)
