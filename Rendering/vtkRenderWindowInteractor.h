@@ -121,11 +121,12 @@ public:
   virtual int CreateTimer(int timerType); //first group, for backward compatibility
   virtual int DestroyTimer(); //first group, for backward compatibility
   int CreateRepeatingTimer(unsigned long duration);
-  int CreateOneShotTimer(unsigned long duration); 
+  int CreateOneShotTimer(unsigned long duration);
   int IsOneShotTimer(int timerId);
-  int GetTimerDuration(int timerId);
-  int ResetTimer(int timerId); 
-  int DestroyTimer(int timerId); 
+  unsigned long GetTimerDuration(int timerId);
+  int ResetTimer(int timerId);
+  int DestroyTimer(int timerId);
+  virtual int GetVTKTimerId(int platformTimerId);
 
   // Description:
   // Specify the default timer interval (in milliseconds). (This is used in

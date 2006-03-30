@@ -25,7 +25,7 @@
 #endif
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.9");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.10");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 }
 
 - (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor;
-- (void)startTimer;
+- (void)startTimer:(NSTimeInterval)interval repeating:(BOOL)repeating;
 - (void)stopTimer;
 - (void)timerFired:(NSTimer *)myTimer;
 
@@ -64,16 +64,17 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 - (void)timerFired:(NSTimer *)myTimer
 {
   (void)myTimer;
-  interactor->InvokeEvent(vtkCommand::TimerEvent,NULL);
+  int vtkTimerId = interactor->GetVTKTimerId((int) self);
+  interactor->InvokeEvent(vtkCommand::TimerEvent, (void *) &vtkTimerId);
 }
 
-- (void)startTimer
+- (void)startTimer:(NSTimeInterval)interval repeating:(BOOL)repeating
 {
-  timer = [NSTimer timerWithTimeInterval:0.01
-  target:self
-  selector:@selector(timerFired:)
-  userInfo:nil
-  repeats:YES];
+  timer = [NSTimer timerWithTimeInterval:interval
+    target:self
+    selector:@selector(timerFired:)
+    userInfo:nil
+    repeats:repeating];
   [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
   [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSEventTrackingRunLoopMode];
 }
@@ -85,10 +86,7 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 
 @end
 
-
-
 //----------------------------------------------------------------------------
-// Construct object so that light follows camera motion.
 vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor() 
 {
   this->InstallMessageProc = 1;
@@ -111,7 +109,7 @@ void vtkCocoaRenderWindowInteractor::Start()
     }
 
   // No need to do anything if this is a 'mapped' interactor
-  if (!this->Enabled || !this->InstallMessageProc) 
+  if (!this->Enabled || !this->InstallMessageProc)
     {
     return;
     }
@@ -133,7 +131,7 @@ void vtkCocoaRenderWindowInteractor::Initialize()
     vtkErrorMacro(<<"No renderer defined!");
     return;
     }
-  if (this->Initialized) 
+  if (this->Initialized)
     {
     return;
     }
@@ -189,22 +187,29 @@ void vtkCocoaRenderWindowInteractor::TerminateApp()
 }
 
 //----------------------------------------------------------------------------
-int vtkCocoaRenderWindowInteractor::CreateTimer(int timertype) 
+int vtkCocoaRenderWindowInteractor::InternalCreateTimer(int timerId,
+  int timerType, unsigned long duration)
 {
-  if (timertype==VTKI_TIMER_FIRST)
+  BOOL repeating = NO;
+
+  if (RepeatingTimer == timerType)
     {
-    this->Timer = (void*)[[vtkCocoaTimer alloc] initWithInteractor:this];
-    [(vtkCocoaTimer*)this->Timer startTimer];
+    repeating = YES;
     }
-  return 1;
+
+  int platformTimerId = (int)[[vtkCocoaTimer alloc] initWithInteractor:this];
+  [(vtkCocoaTimer*)platformTimerId startTimer:((NSTimeInterval)duration/1000.0)
+    repeating:repeating];
+
+  return platformTimerId;
 }
 
 //----------------------------------------------------------------------------
-int vtkCocoaRenderWindowInteractor::DestroyTimer()
+int vtkCocoaRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
-  [(vtkCocoaTimer*)this->Timer stopTimer];
-  [(vtkCocoaTimer*)this->Timer release];
-  this->Timer = 0;
+  [(vtkCocoaTimer*)platformTimerId stopTimer];
+  [(vtkCocoaTimer*)platformTimerId release];
+
   return 1;
 }
 
@@ -229,7 +234,6 @@ void vtkCocoaRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *
     // no call to this->Modified() since this is a class member function
     }
 }
-
 
 //----------------------------------------------------------------------------
 // Set the arg delete method.  This is used to free user memory.
@@ -263,4 +267,3 @@ void vtkCocoaRenderWindowInteractor::ExitCallback()
     }
   this->TerminateApp();
 }
-

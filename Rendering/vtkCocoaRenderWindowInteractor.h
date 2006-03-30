@@ -76,11 +76,6 @@ public:
   void TerminateApp();
 
   // Description:
-  // Cocoa timer methods
-  int CreateTimer(int timertype);
-  int DestroyTimer();
-
-  // Description:
   // Methods to set the default exit method for the class. This method is
   // only used if no instance level ExitMethod has been defined.  It is
   // provided as a means to control how an interactor is exited given
@@ -101,7 +96,6 @@ protected:
   ~vtkCocoaRenderWindowInteractor();
 
   int     InstallMessageProc;
-  void*   Timer;  // really a vtkCocoaTimer*
 
   //BTX
   // Description:
@@ -112,7 +106,13 @@ protected:
   static void (*ClassExitMethodArgDelete)(void *);
   static void *ClassExitMethodArg;
   //ETX
-  
+
+  // Description:
+  // Cocoa-specific internal timer methods. See the superclass for detailed
+  // documentation.
+  virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
+  virtual int InternalDestroyTimer(int platformTimerId);
+
 private:
   vtkCocoaRenderWindowInteractor(const vtkCocoaRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkCocoaRenderWindowInteractor&);  // Not implemented.

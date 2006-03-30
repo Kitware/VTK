@@ -73,11 +73,6 @@ public:
   void TerminateApp(void);
 
   // Description:
-  // Carbon timer methods
-  int CreateTimer(int timertype);
-  int DestroyTimer(void);
-
-  // Description:
   // Methods to set the default exit method for the class. This method is
   // only used if no instance level ExitMethod has been defined.  It is
   // provided as a means to control how an interactor is exited given
@@ -89,12 +84,11 @@ public:
   // These methods correspond to the the Exit, User and Pick
   // callbacks. They allow for the Style to invoke them.
   virtual void ExitCallback();
-  
+
 protected:
   vtkCarbonRenderWindowInteractor();
   ~vtkCarbonRenderWindowInteractor();
 
-  EventLoopTimerRef TimerId;
   EventHandlerUPP   ViewProcUPP;
   EventHandlerUPP   WindowProcUPP;
   int               InstallMessageProc;
@@ -108,12 +102,16 @@ protected:
   static void (*ClassExitMethodArgDelete)(void *);
   static void *ClassExitMethodArg;
   //ETX
-  
+
+  // Description: 
+  // Carbon-specific internal timer methods. See the superclass for detailed
+  // documentation.
+  virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
+  virtual int InternalDestroyTimer(int platformTimerId);
+
 private:
   vtkCarbonRenderWindowInteractor(const vtkCarbonRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkCarbonRenderWindowInteractor&);  // Not implemented.
 };
 
 #endif
-
-

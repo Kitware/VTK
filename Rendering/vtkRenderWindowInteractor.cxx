@@ -27,7 +27,7 @@
 #include "vtkObserverMediator.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.113");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.114");
 
 // PIMPL'd class to keep track of timers. It maps the ids returned by CreateTimer()
 // to the platform-specific representation for timer ids.
@@ -411,7 +411,7 @@ int vtkRenderWindowInteractor::CreateTimer(int timerType)
     unsigned long duration = this->TimerDuration;
     timerId = vtkTimerId; //just use current id, assume we don't have mutliple timers
     platformTimerId = this->InternalCreateTimer(timerId,RepeatingTimer,duration);
-    if ( platformTimerId <= 0 )
+    if ( 0 == platformTimerId )
       {
       return 0;
       }
@@ -446,7 +446,7 @@ int vtkRenderWindowInteractor::CreateRepeatingTimer(unsigned long duration)
 {
   int timerId = ++vtkTimerId;
   int platformTimerId = this->InternalCreateTimer(timerId,RepeatingTimer,duration);
-  if ( platformTimerId <= 0 )
+  if ( 0 == platformTimerId )
     {
     return 0;
     }
@@ -459,7 +459,7 @@ int vtkRenderWindowInteractor::CreateOneShotTimer(unsigned long duration)
 {
   int timerId = ++vtkTimerId;
   int platformTimerId = this->InternalCreateTimer(timerId,OneShotTimer,duration);
-  if ( platformTimerId <= 0 )
+  if ( 0 == platformTimerId )
     {
     return 0;
     }
@@ -479,7 +479,7 @@ int vtkRenderWindowInteractor::IsOneShotTimer(int timerId)
 } 
 
 //new-style group #2 returns duration (non-zero unless bad timerId)
-int vtkRenderWindowInteractor::GetTimerDuration(int timerId)
+unsigned long vtkRenderWindowInteractor::GetTimerDuration(int timerId)
 {
   vtkTimerIdMapIterator iter = this->TimerMap->find(timerId);
   if ( iter != this->TimerMap->end() )
@@ -498,7 +498,7 @@ int vtkRenderWindowInteractor::ResetTimer(int timerId)
     this->InternalDestroyTimer((*iter).second.Id);
     int platformTimerId = this->InternalCreateTimer(timerId, (*iter).second.Type,
                                                     (*iter).second.Duration);
-    if ( platformTimerId > 0 )
+    if ( platformTimerId != 0 )
       {
       (*iter).second.Id = platformTimerId;
       return 1;
@@ -534,6 +534,28 @@ int vtkRenderWindowInteractor::InternalCreateTimer(int vtkNotUsed(timerId), int 
 int vtkRenderWindowInteractor::InternalDestroyTimer(int vtkNotUsed(platformTimerId))
 {
   return 0;
+}
+
+// Translate from platformTimerId to the corresponding (VTK) timerId.
+// Returns 0 (invalid VTK timerId) if platformTimerId is not found in the map.
+// This first stab at an implementation just iterates the map until it finds
+// the sought platformTimerId. If performance becomes an issue (lots of timers,
+// all firing frequently...) we could speed this up by making a reverse map so
+// this method is a quick map lookup.
+int vtkRenderWindowInteractor::GetVTKTimerId(int platformTimerId)
+{
+  int timerId = 0;
+  vtkTimerIdMapIterator iter = this->TimerMap->begin();
+  for ( ; iter != this->TimerMap->end(); ++iter )
+    {
+    if ((*iter).second.Id == platformTimerId)
+      {
+      timerId = (*iter).first;
+      break;
+      }
+    }
+
+  return timerId;
 }
 
 // Access to the static variable
@@ -620,4 +642,3 @@ vtkObserverMediator *vtkRenderWindowInteractor::GetObserverMediator()
 
   return this->ObserverMediator;
 }
-

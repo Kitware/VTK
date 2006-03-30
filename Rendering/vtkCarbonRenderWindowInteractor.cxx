@@ -26,7 +26,7 @@
 
 #import <Carbon/Carbon.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.16");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.17");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -251,7 +251,6 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
 // Construct object so that light follows camera motion.
 vtkCarbonRenderWindowInteractor::vtkCarbonRenderWindowInteractor()
 {
-  this->TimerId            = 0;
   this->InstallMessageProc = 1;
   this->ViewProcUPP        = NULL;
   this->WindowProcUPP      = NULL;
@@ -372,37 +371,48 @@ void vtkCarbonRenderWindowInteractor::TerminateApp(void)
 }
 
 //--------------------------------------------------------------------------
-pascal void TimerAction (EventLoopTimerRef, void* userData)
+pascal void TimerAction(EventLoopTimerRef platformTimerId, void* userData)
 {
   if (NULL != userData)
     {
-    ((vtkCarbonRenderWindowInteractor *)userData)->
-      InvokeEvent(vtkCommand::TimerEvent,NULL);
+    vtkCarbonRenderWindowInteractor *rwi =
+      static_cast<vtkCarbonRenderWindowInteractor *>(userData);
+    int vtkTimerId = rwi->GetVTKTimerId((int) platformTimerId);
+    rwi->InvokeEvent(vtkCommand::TimerEvent, (void *) &vtkTimerId);
     }
 }
 
 //--------------------------------------------------------------------------
-int vtkCarbonRenderWindowInteractor::CreateTimer(int timertype)
+int vtkCarbonRenderWindowInteractor::InternalCreateTimer(int timerId,
+  int timerType, unsigned long duration)
 {
+  EventLoopTimerRef  platformTimerId;
   EventLoopRef       mainLoop = GetMainEventLoop();
   EventLoopTimerUPP  timerUPP = NewEventLoopTimerUPP(TimerAction);
-  
-  if (timertype == VTKI_TIMER_FIRST)
-    {  
-      InstallEventLoopTimer (mainLoop,
-                             this->TimerDuration*kEventDurationMillisecond,
-                             this->TimerDuration*kEventDurationMillisecond,
-                             timerUPP,
-                             this,
-                             &this->TimerId);
+  EventTimerInterval interval = 0;
+
+  // Carbon's InstallEventLoopTimer can create either one-shot or repeating
+  // timers... interval == 0 indicates a one-shot timer.
+
+  if (RepeatingTimer == timerType)
+    {
+    interval = duration*kEventDurationMillisecond;
     }
-  return 1;
+
+  InstallEventLoopTimer(mainLoop,
+                        duration*kEventDurationMillisecond,
+                        interval,
+                        timerUPP,
+                        this,
+                        &platformTimerId);
+
+  return (int) platformTimerId;
 }
 
 //--------------------------------------------------------------------------
-int vtkCarbonRenderWindowInteractor::DestroyTimer(void)
+int vtkCarbonRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
-  RemoveEventLoopTimer(this->TimerId);
+  RemoveEventLoopTimer((EventLoopTimerRef) platformTimerId);
   return 1;
 }
 
