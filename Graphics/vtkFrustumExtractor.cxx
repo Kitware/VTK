@@ -25,12 +25,11 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkPlane.h"
 #include "vtkPlanes.h"
-#include "vtkCharArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkCellArray.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkFrustumExtractor, "1.1");
+vtkCxxRevisionMacro(vtkFrustumExtractor, "1.2");
 vtkStandardNewMacro(vtkFrustumExtractor);
 vtkCxxSetObjectMacro(vtkFrustumExtractor,Frustum,vtkPlanes);
 
@@ -114,7 +113,7 @@ int vtkFrustumExtractor::ExecutePassThrough(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-//cerr << "PASSTHROUGH {" << endl;
+cerr << "PASSTHROUGH {" << endl;
 
 vtkTimerLog *timer = vtkTimerLog::New();
 timer->StartTimer();
@@ -137,19 +136,19 @@ timer->StartTimer();
   numCells = input->GetNumberOfCells();
 
   vtkPointData *outputPD = output->GetPointData();
-  vtkCharArray *pointInArray = vtkCharArray::New();
+  vtkUnsignedCharArray *pointInArray = vtkUnsignedCharArray::New();
   pointInArray->SetNumberOfComponents(1);
   pointInArray->SetNumberOfTuples(numPts);
   for (i=0; i < numPts; i++)
     {
-    pointInArray->SetValue(i, -1);
+    pointInArray->SetValue(i, 0);
     }
   pointInArray->SetName("vtkInsidedness");
   outputPD->AddArray(pointInArray);
   outputPD->SetScalars(pointInArray);
 
   vtkCellData *outputCD = output->GetCellData();
-  vtkCharArray *cellInArray = vtkCharArray::New();
+  vtkUnsignedCharArray *cellInArray = vtkUnsignedCharArray::New();
   cellInArray->SetNumberOfComponents(1);
   cellInArray->SetNumberOfTuples(numCells);
   cellInArray->SetName("vtkInsidedness");
@@ -218,10 +217,10 @@ timer->StartTimer();
     }
 
   timer->StopTimer();
-  //cerr << "  " << timer->GetElapsedTime() << endl;
+  cerr << "  " << timer->GetElapsedTime() << endl;
   timer->StartTimer();
 
-  //cerr << "  @MID NUMPTS = " << NUMPTS << endl;
+  cerr << "  @MID NUMPTS = " << NUMPTS << endl;
 
   // Now loop over all cells to see whether they are inside.
   for (cellId=0; cellId < numCells; cellId++)
@@ -232,7 +231,7 @@ timer->StartTimer();
 
     if (planeTests != NULL)
       {
-      cellInArray->SetValue(cellId,-1);
+      cellInArray->SetValue(cellId,0);
       unsigned char cellresults = 0;
       for (i=0; i < numCellPts; i++)
         {
@@ -257,7 +256,7 @@ timer->StartTimer();
         for (i=0; i < numCellPts; i++)
           {
           ptId = cellPts->GetId(i);
-          if (pointInArray->GetValue(ptId) < 0)
+          if (pointInArray->GetValue(ptId) == 0)
             {      
             NUMPTS++;
             pointInArray->SetValue(ptId,1);
@@ -273,18 +272,18 @@ timer->StartTimer();
       for (i=0; i < numCellPts; i++)
         {
         ptId = cellPts->GetId(i);
-        if ( pointInArray->GetValue(ptId) < 0 )
+        if ( pointInArray->GetValue(ptId) == 0 )
           {
           NUMCELLS--;
-          cellInArray->SetValue(cellId,-1);
-          break; //this cell won't be inserted
+          cellInArray->SetValue(cellId,0);
+          break; //this cell is outside
           }
         }
       }      
     }//for all cells
 
-  //cerr << "  @END NUMPTS = " << NUMPTS << endl;
-  //cerr << "  @END NUMCELLS = " << NUMCELLS << endl;
+  cerr << "  @END NUMPTS = " << NUMPTS << endl;
+  cerr << "  @END NUMCELLS = " << NUMCELLS << endl;
   
   // Update ourselves and release memory
   //
@@ -297,10 +296,10 @@ timer->StartTimer();
   cellInArray->Delete();
 
 timer->StopTimer();
-//cerr << "  " << timer->GetElapsedTime() << endl;
+cerr << "  " << timer->GetElapsedTime() << endl;
 timer->Delete();
 
-//cerr << " } PASSTHROUGH" << endl;
+cerr << " } PASSTHROUGH" << endl;
 
   return 1;
 }
@@ -311,7 +310,7 @@ int vtkFrustumExtractor::ExecuteCreateUGrid(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-//cerr << "CREATE {" << endl;
+cerr << "CREATE {" << endl;
 vtkTimerLog *timer = vtkTimerLog::New();
 timer->StartTimer();
 
@@ -416,10 +415,10 @@ timer->StartTimer();
     }
 
   timer->StopTimer();
-  //cerr << "  " << timer->GetElapsedTime() << endl;
+  cerr << "  " << timer->GetElapsedTime() << endl;
   timer->StartTimer();
 
-  //cerr << "  @MID NUMPTS = " << NUMPTS << endl;
+  cerr << "  @MID NUMPTS = " << NUMPTS << endl;
 
   // Now loop over all cells to see whether they are inside.
   for (cellId=0; cellId < numCells; cellId++)
@@ -499,8 +498,8 @@ timer->StartTimer();
 
     }//for all cells
   
-  //cerr << "  @END NUMPTS = " << NUMPTS << endl;
-  //cerr << "  @END NUMCELLS = " << NUMCELLS << endl;
+  cerr << "  @END NUMPTS = " << NUMPTS << endl;
+  cerr << "  @END NUMCELLS = " << NUMCELLS << endl;
   
   // Update ourselves and release memory
   //
@@ -516,9 +515,9 @@ timer->StartTimer();
   output->Squeeze();
 
 timer->StopTimer();
-//cerr << "  " << timer->GetElapsedTime() << endl;
+cerr << "  " << timer->GetElapsedTime() << endl;
 timer->Delete();
-//cerr << "} CREATE" << endl;
+cerr << "} CREATE" << endl;
   return 1;
 }
 

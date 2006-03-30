@@ -19,7 +19,7 @@
 // This class intersects the input DataSet with a frustum and determines which
 // cells and points lie within the frustum. The frustum is defined with a 
 // vtkPlanes containing six cutting planes. The output is a DataSet, that is 
-// either a shallow copy of the input dataset with two new "insidedness" 
+// either a shallow copy of the input dataset with two new "vtkInsidedness" 
 // attribute arrays, or a completely new UnstructuredGrid that contains only 
 // the cells and points of the input that are inside the frustum. The 
 // PassThrough Flag controls which occurs.
