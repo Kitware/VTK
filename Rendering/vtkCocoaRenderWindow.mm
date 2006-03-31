@@ -25,7 +25,7 @@
 #define MAC_OS_X_VERSION_10_4 1040
 #endif
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.32");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.33");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -661,7 +661,7 @@ void vtkCocoaRenderWindow::SetFullScreen(int arg)
 //
 void vtkCocoaRenderWindow::SetStereoCapableWindow(int capable)
 {
-  if (this->WindowId == 0)
+  if (this->ContextId == 0)
     {
     vtkRenderWindow::SetStereoCapableWindow(capable);
     }

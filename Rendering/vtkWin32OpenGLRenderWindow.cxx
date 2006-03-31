@@ -36,7 +36,7 @@
 # include "vtkOpenGL.h"
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.132");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.133");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -1020,7 +1020,7 @@ void vtkWin32OpenGLRenderWindow::SetFullScreen(int arg)
 //
 void vtkWin32OpenGLRenderWindow::SetStereoCapableWindow(int capable)
 {
-  if (this->WindowId == 0)
+  if (this->ContextId == 0)
     {
       vtkRenderWindow::SetStereoCapableWindow(capable);
     }

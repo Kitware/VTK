@@ -92,12 +92,6 @@ class QVTK_EXPORT QVTKWidget : public QWidget
     QVTKInteractor* GetInteractor();
     
     // Description:
-    // Turn on/off stereo rendering capability. Internally, the renderwindow is
-    // destroyed and recreated when this flag is toggled, all renderers are
-    // saved from the old and copied to the new window
-    void SetStereoCapable(bool stereo);
-    
-    // Description:
     // Enum for additional event types supported.
     // These events can be picked up by command observers on the interactor
     enum vtkCustomEvents
@@ -242,10 +236,9 @@ class QVTK_EXPORT QVTKWidget : public QWidget
   protected:
     
     vtkUnsignedCharArray* mCachedImage;
-    bool   cachedImageCleanFlag;
-    bool   automaticImageCache;
+    bool cachedImageCleanFlag;
+    bool automaticImageCache;
     double maxImageCacheRenderRate;
-    bool   StereoCapable;
   
   private:
     //! unimplemented operator=

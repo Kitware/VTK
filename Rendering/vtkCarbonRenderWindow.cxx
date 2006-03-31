@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.43");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.44");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -1224,7 +1224,7 @@ void vtkCarbonRenderWindow::SetFullScreen(int arg)
 // be created. This method can only be called before a window is realized.
 void vtkCarbonRenderWindow::SetStereoCapableWindow(int capable)
 {
-  if (this->WindowId == 0)
+  if (!this->ContextId && !this->Internal->OffScreenContextId)
     {
     vtkRenderWindow::SetStereoCapableWindow(capable);
     }
