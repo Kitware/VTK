@@ -916,7 +916,22 @@ void QVTKWidget::reparent(QWidget* parent, Qt::WFlags f, const QPoint& p, bool s
     QWidget::reparent(parent, f, p, false);
 
     x11_setup_window();
- 
+
+#if defined(WIN32)
+    // If this widget has a parent, we must set the parent Id for the render
+    // window, otherwise SetSize on renderwindow produces incorrect
+    // results.
+    if (this->parentWidget())
+      {
+      this->mRenWin->SetParentId(reinterpret_cast<void*>(
+        this->parentWidget()->winId()));
+      }
+    else
+      {
+      this->mRenWin->SetParentId(0);
+      }
+#endif // defined (WIN32)
+
     // connect to new window
 #if defined(Q_WS_MAC)
     static_cast<vtkCarbonRenderWindow*>(this->mRenWin)->SetRootWindow(
