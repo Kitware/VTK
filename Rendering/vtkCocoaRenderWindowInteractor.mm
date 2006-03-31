@@ -25,7 +25,7 @@
 #endif
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.10");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.11");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -187,7 +187,7 @@ void vtkCocoaRenderWindowInteractor::TerminateApp()
 }
 
 //----------------------------------------------------------------------------
-int vtkCocoaRenderWindowInteractor::InternalCreateTimer(int timerId,
+int vtkCocoaRenderWindowInteractor::InternalCreateTimer(int vtkNotUsed(timerId),
   int timerType, unsigned long duration)
 {
   BOOL repeating = NO;
