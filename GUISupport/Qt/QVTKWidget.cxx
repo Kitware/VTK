@@ -220,7 +220,17 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
     
     // give the qt window id to the vtk window
     this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
-    
+
+#if defined(WIN32)
+    // If this widget has a parent, we must set the parent Id for the render
+    // window, otherwise SetSize on renderwindow produces incorrect
+    // results.
+    if (this->parentWidget())
+      {
+      this->mRenWin->SetParentId(reinterpret_cast<void*>(
+        this->parentWidget()->winId()));
+      }
+#endif // defined (WIN32)
     // mac compatibility issues
 #ifdef Q_WS_MAC
 # ifdef QVTK_HAVE_VTK_4_5
