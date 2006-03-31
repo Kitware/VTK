@@ -33,7 +33,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.5");
+vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.6");
 vtkStandardNewMacro(vtkSliderRepresentation2D);
 
 //----------------------------------------------------------------------
@@ -430,7 +430,7 @@ void vtkSliderRepresentation2D::BuildRepresentation()
       this->LabelActor->VisibilityOn();
       int labelSize[2];
       char label[256];
-      sprintf(label,"%0.3g",this->Value);
+      sprintf(label, this->LabelFormat, this->Value);
       this->LabelMapper->SetInput(label);
       this->LabelProperty->SetFontSize(static_cast<int>(this->LabelHeight*size[1]));
       this->LabelMapper->GetSize(this->Renderer, labelSize);

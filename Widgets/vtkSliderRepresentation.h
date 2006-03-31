@@ -97,6 +97,11 @@ public:
   virtual const char* GetTitleText() {return NULL;}
 
   // Description:
+  // Set/Get the format with which to print the slider value.
+  vtkSetStringMacro(LabelFormat);
+  vtkGetStringMacro(LabelFormat);
+
+  // Description:
   // Specify the relative height of the label as compared to the length of the
   // slider. 
   vtkSetClampMacro(LabelHeight,double,0.0,2.0);
@@ -137,7 +142,7 @@ public:
 
 protected:
   vtkSliderRepresentation();
-  ~vtkSliderRepresentation() {}
+  ~vtkSliderRepresentation();
 
   // Values
   double Value;  
@@ -157,6 +162,7 @@ protected:
 
   // both the title and label
   int    ShowSliderLabel;
+  char  *LabelFormat;
   double LabelHeight;
   double TitleHeight;
 

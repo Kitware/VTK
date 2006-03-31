@@ -16,7 +16,7 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSliderRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkSliderRepresentation, "1.4");
 
 //----------------------------------------------------------------------
 vtkSliderRepresentation::vtkSliderRepresentation()
@@ -35,8 +35,23 @@ vtkSliderRepresentation::vtkSliderRepresentation()
 
   // Labels and text
   this->ShowSliderLabel = 1;
+
+  this->LabelFormat = new char[8]; 
+  sprintf( this->LabelFormat,"%s","%0.3g" );
+
   this->LabelHeight = 0.05;
   this->TitleHeight = 0.15;
+}
+
+
+//----------------------------------------------------------------------
+vtkSliderRepresentation::~vtkSliderRepresentation()
+{
+  if (this->LabelFormat) 
+    {
+    delete [] this->LabelFormat;
+    this->LabelFormat = NULL;
+    }
 }
 
 //----------------------------------------------------------------------
@@ -154,7 +169,7 @@ void vtkSliderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Show Slider Label: " 
      << (this->ShowSliderLabel ? "On\n" : "Off\n");
+  os << indent << "Label Format: " << this->LabelFormat << "\n";
   os << indent << "Label Height: " << this->LabelHeight << "\n";
-
   os << indent << "Title Height: " << this->TitleHeight << "\n";
 }

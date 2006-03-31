@@ -39,7 +39,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.3");
+vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.4");
 vtkStandardNewMacro(vtkSliderRepresentation3D);
 
 //----------------------------------------------------------------------
@@ -520,7 +520,7 @@ void vtkSliderRepresentation3D::BuildRepresentation()
     else
       {
       char label[256];
-      sprintf(label,"%0.3g",this->Value);
+      sprintf(label, this->LabelFormat, this->Value);
       double bounds[6];
       this->LabelActor->VisibilityOn();
       this->LabelText->SetText(label);
