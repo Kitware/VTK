@@ -31,6 +31,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         TestAllMaskBits
         TestAllMathematics
         TestAllShrinks
+        TestBlendStencil
         TestButterworthLowPass
         TestButterworthHighPass
         TestCache

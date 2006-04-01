@@ -87,6 +87,17 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Set an Input of this filter. Overrides vtkImageAlgorithm so that
+  // all inputs go on the first port.
+  void SetInput(int num, vtkImageData *input);
+  void SetInput(vtkImageData *input);
+
+  // Description:
+  // Get one input to this filter.
+  vtkImageData *GetInput(int num);
+  vtkImageData *GetInput();
+
+  // Description:
   // Set the opacity of an input image: the alpha values of the image are
   // multiplied by the opacity.  The opacity of image idx=0 is ignored.
   void SetOpacity(int idx, double opacity);
@@ -94,8 +105,6 @@ public:
 
   // Description:
   // Set a stencil to apply when blending the data.
-  // Description:
-  // Use a stencil to specify which voxels to accumulate.
   void SetStencil(vtkImageStencilData *stencil);
   vtkImageStencilData *GetStencil();
 
