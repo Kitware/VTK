@@ -51,7 +51,7 @@
 #include "vtkFrustumExtractor.h"
 #include <vtkstd/map> 
 
-vtkCxxRevisionMacro(vtkAreaPicker, "1.2");
+vtkCxxRevisionMacro(vtkAreaPicker, "1.3");
 vtkStandardNewMacro(vtkAreaPicker);
 
 typedef vtkstd::map< vtkProp *, vtkFrustumExtractor * > vtkPropExtractorMapBase;
@@ -94,18 +94,18 @@ vtkAreaPicker::vtkAreaPicker()
   this->Norms->SetNumberOfTuples(6);
 
   this->Planes = vtkPlanes::New();
-  //near
-  this->ComputePlane(0, 6, 2, 0);
-  //far
-  this->ComputePlane(1, 1, 3, 7);
   //left
-  this->ComputePlane(2, 0, 2, 3);
+  this->ComputePlane(0, 0, 2, 3);
   //right
-  this->ComputePlane(3, 7, 6, 4);
+  this->ComputePlane(1, 7, 6, 4);
   //bottom
-  this->ComputePlane(4, 5, 4, 0);
+  this->ComputePlane(2, 5, 4, 0);
   //top
-  this->ComputePlane(5, 2, 6, 7);
+  this->ComputePlane(3, 2, 6, 7);
+  //near
+  this->ComputePlane(4, 6, 2, 0);
+  //far
+  this->ComputePlane(5, 1, 3, 7);
   this->Planes->SetPoints(this->Points);
   this->Planes->SetNormals(this->Norms);
   this->Planes->Modified();
@@ -242,18 +242,18 @@ void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1,
   //update the implicit function with six planes defined by the points ------
   //planes lie on each side of the frustum and point outward
   //for plane, evaluating a world point inside the frustum comes out < 0
-  //near
-  this->ComputePlane(0, 6, 2, 0);
-  //far
-  this->ComputePlane(1, 1, 3, 7);
   //left
-  this->ComputePlane(2, 0, 2, 3);
+  this->ComputePlane(0, 0, 2, 3);
   //right
-  this->ComputePlane(3, 7, 6, 4);
+  this->ComputePlane(1, 7, 6, 4);
   //bottom
-  this->ComputePlane(4, 5, 4, 0);
+  this->ComputePlane(2, 5, 4, 0);
   //top
-  this->ComputePlane(5, 2, 6, 7);
+  this->ComputePlane(3, 2, 6, 7);
+  //near
+  this->ComputePlane(4, 6, 2, 0);
+  //far
+  this->ComputePlane(5, 1, 3, 7);
   this->Planes->Modified();
 }
 
@@ -495,7 +495,7 @@ int vtkAreaPicker::ABoxFrustumIsect(double *bounds, double &mindist)
         {
         //at least part of the bbox is in front of this plane
         allbehind = false; 
-        if (pid == 0)
+        if (pid == 4)
           {
           //for near plane, get a nearest prop ranking by distance to front
           if (dist > mindist) //closer to 0 = on the plane 

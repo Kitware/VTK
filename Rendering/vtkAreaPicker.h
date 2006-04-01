@@ -27,7 +27,8 @@
 // This picker also returns the selection frustum, defined as either a
 // vtkPlanes, or a set of eight corner vertices in world space. The vtkPlanes 
 // version is an ImplicitFunction, which is suitable for use with the
-// vtkExtractGeometry, vtkClipDataSet and vtkCutter.
+// vtkExtractGeometry. The six frustum planes are in order: left, right, 
+// bottom, top, near, far
 //
 // Because this picker picks everything within a volume, the world pick point 
 // result is ill-defined. Therefore if you ask this class for the world pick 
@@ -36,8 +37,7 @@
 //
 // .SECTION See Also
 // vtkInteractorStyleRubberBandPick, 
-// vtkExtractGeometry, vtkClipDataSet, vtkCutter.
-// vtkFrustumExtractor.
+// vtkExtractGeometry, vtkClipDataSet, vtkCutter, vtkFrustumExtractor.
 
 #ifndef __vtkAreaPicker_h
 #define __vtkAreaPicker_h

@@ -43,6 +43,7 @@
 class vtkPlanes;
 class vtkInformation;
 class vtkInformationVector;
+class vtkCell;
 
 class VTK_GRAPHICS_EXPORT vtkFrustumExtractor : public vtkDataSetAlgorithm
 {
@@ -94,22 +95,35 @@ protected:
   vtkFrustumExtractor(vtkPlanes *f=NULL);
   ~vtkFrustumExtractor();
 
-  //execution
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int ExecutePassThrough(vtkInformationVector **, vtkInformationVector *);
-  virtual int ExecuteCreateUGrid(vtkInformationVector **, vtkInformationVector *);
-
   //sets up output data type
   virtual int RequestDataObject(vtkInformation* request, 
                                 vtkInformationVector** inputVector, 
                                 vtkInformationVector* outputVector);
 
+  //execution
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int ABoxFrustumIsect(double bounds[], vtkCell *cell);
+  int IsectDegenerateCell(vtkCell *cell);
+  int FrustumClipPolygon(int nverts, double ivlist[][3], double wvlist[][3], double ovlist[][3]);
+  void PlaneClipPolygon(int nverts, double ivlist[][3], 
+                        int pid, int &noverts, double ovlist[][3]);
+  void PlaneClipEdge(double V0[3], double V1[3], 
+                     int pid, int &noverts, double overts[][3]);
 
-  vtkPlanes *Frustum;
+
+  //modes
   int PassThrough;
   int IncludePartial;
   int AllowExecute;
 
+  //needed execution
+  vtkPlanes *Frustum;
+  int np_vertids[6][2];
+
+  //just for debugging
+  int NumRejects;
+  int NumIsects;
+  int NumAccepts;
 private:
   vtkFrustumExtractor(const vtkFrustumExtractor&);  // Not implemented.
   void operator=(const vtkFrustumExtractor&);  // Not implemented.
