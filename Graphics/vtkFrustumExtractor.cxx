@@ -29,7 +29,7 @@
 #include "vtkCellArray.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkFrustumExtractor, "1.3");
+vtkCxxRevisionMacro(vtkFrustumExtractor, "1.4");
 vtkStandardNewMacro(vtkFrustumExtractor);
 vtkCxxSetObjectMacro(vtkFrustumExtractor,Frustum,vtkPlanes);
 
@@ -516,7 +516,7 @@ int vtkFrustumExtractor::ABoxFrustumIsect(double *bounds, vtkCell *cell)
   verts[7][1] = bounds[3];
   verts[7][2] = bounds[5];
 
-  int pid, vid;
+  int pid;
   vtkPlane *plane;
   int intersect = 0;
   double dist;
