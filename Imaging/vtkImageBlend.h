@@ -87,8 +87,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set an Input of this filter. Overrides vtkImageAlgorithm so that
-  // all inputs go on the first port.
+  // Set an Input of this filter. All inputs go on the first port.
   void SetInput(int num, vtkImageData *input);
   void SetInput(vtkImageData *input);
 
@@ -96,6 +95,10 @@ public:
   // Get one input to this filter.
   vtkImageData *GetInput(int num);
   vtkImageData *GetInput();
+
+  // Description:
+  // Get the number of inputs to this filter.
+  int GetNumberOfInputs();
 
   // Description:
   // Set the opacity of an input image: the alpha values of the image are

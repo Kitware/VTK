@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.42");
+vtkCxxRevisionMacro(vtkImageBlend, "1.43");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
@@ -79,6 +79,12 @@ vtkImageData *vtkImageBlend::GetInput(int idx)
 vtkImageData *vtkImageBlend::GetInput()
 {
   return this->GetInput(0);
+}
+
+//----------------------------------------------------------------------------
+int vtkImageBlend::GetNumberOfInputs()
+{
+  return this->GetNumberOfInputConnections(0);
 }
 
 //----------------------------------------------------------------------------
