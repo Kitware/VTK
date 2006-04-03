@@ -29,7 +29,7 @@
 #include "vtkCellArray.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkFrustumExtractor, "1.4");
+vtkCxxRevisionMacro(vtkFrustumExtractor, "1.5");
 vtkStandardNewMacro(vtkFrustumExtractor);
 vtkCxxSetObjectMacro(vtkFrustumExtractor,Frustum,vtkPlanes);
 
@@ -163,7 +163,6 @@ int vtkFrustumExtractor::RequestData(
   vtkIdType ptId, numPts, newPointId;
   vtkIdType numCells, cellId, newCellId, numCellPts;
   vtkIdType *pointMap;
-  vtkPoints *newPts; 
   vtkCell *cell;
   vtkIdList *cellPts;
   vtkIdList *newCellPts;
@@ -171,8 +170,10 @@ int vtkFrustumExtractor::RequestData(
   double bounds[6];
   int isect;
 
-  vtkSignedCharArray *pointInArray;
-  vtkSignedCharArray *cellInArray;
+  vtkSignedCharArray *pointInArray = vtkSignedCharArray::New();
+  vtkSignedCharArray *cellInArray = vtkSignedCharArray::New();
+  vtkPoints *newPts = vtkPoints::New();
+
 
   /*
   int NUMCELLS = 0;
@@ -209,7 +210,6 @@ int vtkFrustumExtractor::RequestData(
     //the output is a copy of the input, with two new arrays defined
     outputDS->ShallowCopy(input);
 
-    pointInArray = vtkSignedCharArray::New();
     pointInArray->SetNumberOfComponents(1);
     pointInArray->SetNumberOfTuples(numPts);
     for (i=0; i < numPts; i++)
@@ -220,7 +220,6 @@ int vtkFrustumExtractor::RequestData(
     outputPD->AddArray(pointInArray);
     outputPD->SetScalars(pointInArray);
 
-    cellInArray = vtkSignedCharArray::New();
     cellInArray->SetNumberOfComponents(1);
     cellInArray->SetNumberOfTuples(numCells);
     for (i=0; i < numCells; i++)
@@ -234,7 +233,6 @@ int vtkFrustumExtractor::RequestData(
   else 
     {
     outputUG->Allocate(numCells/4); //allocate storage for geometry/topology
-    newPts = vtkPoints::New();
     newPts->Allocate(numPts/4,numPts);
     outputPD->CopyAllocate(pd);
     outputCD->CopyAllocate(cd);
@@ -460,16 +458,13 @@ int vtkFrustumExtractor::RequestData(
   //
   delete [] pointMap;
   newCellPts->Delete();
-  if (this->PassThrough)
-    {
-    pointInArray->Delete();
-    cellInArray->Delete();
-    }
-  else
+  pointInArray->Delete();
+  cellInArray->Delete();
+  if (!this->PassThrough)
     {
     outputUG->SetPoints(newPts);
-    newPts->Delete();  
     }
+  newPts->Delete();  
   outputDS->Squeeze();
 
 
