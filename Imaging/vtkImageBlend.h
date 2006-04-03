@@ -88,13 +88,13 @@ public:
 
   // Description:
   // Set an Input of this filter. All inputs go on the first port.
-  void SetInput(int num, vtkImageData *input);
-  void SetInput(vtkImageData *input);
+  void SetInput(int num, vtkDataObject *input);
+  void SetInput(vtkDataObject *input);
 
   // Description:
   // Get one input to this filter.
-  vtkImageData *GetInput(int num);
-  vtkImageData *GetInput();
+  vtkDataObject *GetInput(int num);
+  vtkDataObject *GetInput();
 
   // Description:
   // Get the number of inputs to this filter.

@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.43");
+vtkCxxRevisionMacro(vtkImageBlend, "1.44");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
@@ -52,20 +52,20 @@ vtkImageBlend::~vtkImageBlend()
 // The default vtkImageAlgorithm semantics are that SetInput() puts
 // each input on a different port, we want all the image inputs to
 // go on the first port.
-void vtkImageBlend::SetInput(int idx, vtkImageData *input)
+void vtkImageBlend::SetInput(int idx, vtkDataObject *input)
 {
   // Ask the superclass to connect the input.
   this->SetNthInputConnection(0, idx, (input ? input->GetProducerPort() : 0));
 }
 
 //----------------------------------------------------------------------------
-void vtkImageBlend::SetInput(vtkImageData *input)
+void vtkImageBlend::SetInput(vtkDataObject *input)
 {
   this->SetInput(0, input);
 }
 
 //----------------------------------------------------------------------------
-vtkImageData *vtkImageBlend::GetInput(int idx)
+vtkDataObject *vtkImageBlend::GetInput(int idx)
 {
   if (this->GetNumberOfInputConnections(0) <= idx)
     {
@@ -76,7 +76,7 @@ vtkImageData *vtkImageBlend::GetInput(int idx)
 }
 
 //----------------------------------------------------------------------------
-vtkImageData *vtkImageBlend::GetInput()
+vtkDataObject *vtkImageBlend::GetInput()
 {
   return this->GetInput(0);
 }
