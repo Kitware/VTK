@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.76");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.77");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -1232,6 +1232,8 @@ void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "PointDataArraySelection: " << this->PointDataArraySelection 
      << endl;
+  os << indent << "GeometryFileName: " << 
+     (this->GeometryFileName ? this->GeometryFileName : "(none)") << endl;
 }
 
 //----------------------------------------------------------------------------
