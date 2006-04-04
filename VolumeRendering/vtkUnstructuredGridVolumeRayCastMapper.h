@@ -25,14 +25,16 @@
 
 #include "vtkUnstructuredGridVolumeMapper.h"
 
+class vtkDoubleArray;
+class vtkIdList;
 class vtkMultiThreader;
+class vtkRayCastImageDisplayHelper;
 class vtkRenderer;
 class vtkTimerLog;
-class vtkVolume;
 class vtkUnstructuredGridVolumeRayCastFunction;
 class vtkUnstructuredGridVolumeRayCastIterator;
 class vtkUnstructuredGridVolumeRayIntegrator;
-class vtkRayCastImageDisplayHelper;
+class vtkVolume;
 
 class VTK_VOLUMERENDERING_EXPORT vtkUnstructuredGridVolumeRayCastMapper : public vtkUnstructuredGridVolumeMapper
 {
@@ -177,6 +179,11 @@ protected:
   vtkUnstructuredGridVolumeRayCastIterator **RayCastIterators;
   vtkUnstructuredGridVolumeRayIntegrator    *RayIntegrator;
   vtkUnstructuredGridVolumeRayIntegrator    *RealRayIntegrator;
+
+  vtkIdList      **IntersectedCellsBuffer;
+  vtkDoubleArray **IntersectionLengthsBuffer;
+  vtkDataArray   **NearIntersectionsBuffer;
+  vtkDataArray   **FarIntersectionsBuffer;
 
   vtkVolume     *CurrentVolume;
   vtkRenderer   *CurrentRenderer;

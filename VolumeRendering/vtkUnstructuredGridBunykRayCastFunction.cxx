@@ -33,7 +33,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkUnstructuredGridVolumeRayCastIterator.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -96,7 +96,7 @@ private:
   void operator=(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastIterator);
 
 vtkUnstructuredGridBunykRayCastIterator::vtkUnstructuredGridBunykRayCastIterator()
@@ -1014,14 +1014,12 @@ vtkIdType TemplateCastRay(
         }
       }
 
-    if (farZ > farClipZ)
-      {
-      // Exit happened after point of interest.  Bail out now (in case
-      // we wish to restart).
-      return numIntersections;
-      }
-
-    if (minIdx == -1)
+    // Now, the code above should ensure that farZ > nearZ, but I have
+    // seen the case where we reach here with farZ == nearZ.  This is very
+    // bad as we need ensure we always move forward so that we do not get
+    // into loops.  I think there is something with GCC 3.2.3 that makes
+    // the optimizer be too ambitous and turn the > into >=.
+    if ((minIdx == -1) || (farZ <= nearZ))
       {
       // The ray never exited the cell?  Perhaps numerical inaccuracies
       // got us here.  Just bail out as if we exited the mesh.
@@ -1030,6 +1028,13 @@ vtkIdType TemplateCastRay(
       }
     else
       {
+      if (farZ > farClipZ)
+        {
+        // Exit happened after point of interest.  Bail out now (in case
+        // we wish to restart).
+        return numIntersections;
+        }
+
       if (intersectedCells)
         {
         intersectedCells[numIntersections] = currentTetra;

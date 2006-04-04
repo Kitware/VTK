@@ -45,12 +45,13 @@ int TestDataArray(int,char *[])
     fc[0] = ca[cc] + .1;
     fc[1] = ca[cc] + .2;
     fc[2] = ca[cc] + .3;
-    if ( fa[0] != fc[0] || fa[1] != fc[1] || fa[2] != fc[2] )
+    for (int i = 0; i < 3; i++)
       {
-      cerr << "Problem with array: "
-        << fa[0] << "," << fa[1] << "," << fa[2] << " <> "
-        << fc[0] << "," << fc[1] << "," << fc[2] << endl;
-      return 1;
+      if (fa[i] != fc[i])
+        {
+        cerr << "Problem with array: " << fa[i] << " <> " << fc[i] << endl;
+        return 1;
+        }
       }
     cout << " " << fa[0] << "," << fa[1] << "," << fa[2];
     }
