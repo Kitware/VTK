@@ -611,7 +611,8 @@ int TestWithPointsAndCells(ostream &strm)
     {
     vtkGenericCellIterator *it=ds->NewCellIterator(itNum);
     ost << "empty cell iterator " << itNum << " exists";
-    const char *cstring=ost.str().c_str();
+    s=ost.str();
+    const char *cstring=s.c_str();
     MacroTest(strm,indent,cstring,it!=0);
     it->Begin();
     i=0;
@@ -620,7 +621,8 @@ int TestWithPointsAndCells(ostream &strm)
       {
       ost.str("");
       ost<<"not finished cell iterator "<<itNum;
-      cstring=ost.str().c_str();
+      s=ost.str();
+      cstring=s.c_str();
       MacroTest(strm,indent,cstring,!it->IsAtEnd());
       ++i;
       cab=it->GetCell();
@@ -629,7 +631,8 @@ int TestWithPointsAndCells(ostream &strm)
       }
     ost.str("");
     ost<<"Finished cell iterator "<<itNum;
-    cstring=ost.str().c_str();
+    s=ost.str();
+    cstring=s.c_str();
     MacroTest(strm,indent,cstring,it->IsAtEnd());
     it->Delete();
     ++itNum;
@@ -1130,7 +1133,8 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
     {
     vtkGenericCellIterator *it=ds->NewCellIterator(itNum);
     ost<<"empty cell iterator "<<itNum<<" exists";
-    const char *cstring=ost.str().c_str();
+    s=ost.str();
+    const char *cstring=s.c_str();
     MacroTest(strm,indent,cstring,it!=0);
     it->Begin();
     i=0;
@@ -1139,7 +1143,8 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
       {
       ost.str("");
       ost<<"not finished cell iterator "<<itNum;
-      cstring=ost.str().c_str();
+      s=ost.str();
+      cstring=s.c_str();
       MacroTest(strm,indent,cstring,!it->IsAtEnd());
       ++i;
       cab=it->GetCell();
@@ -1148,7 +1153,8 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
       }
     ost.str("");
     ost<<"Finished cell iterator "<<itNum;
-    cstring=ost.str().c_str();
+    s=ost.str();
+    cstring=s.c_str();
     MacroTest(strm,indent,cstring,it->IsAtEnd());
     it->Delete();
     ++itNum;
