@@ -27,7 +27,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.57");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.58");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -82,7 +82,8 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       input->GetMTime() > this->LoadTime.GetMTime() ||
       (this->GetLookupTable() && this->GetLookupTable()->GetMTime () >  
        this->LoadTime.GetMTime()) || 
-       ren->GetRenderWindow() != this->RenderWindow)
+       ren->GetRenderWindow() != this->RenderWindow ||
+       ren->GetRenderWindow()->GetMTime() > this->LoadTime.GetMTime())
     {
     int bytesPerPixel;
     int *size;
