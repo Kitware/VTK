@@ -75,6 +75,16 @@ public:
   };
   //ETX
 
+  // Description:
+  // Get the Measured file name. Made public to allow access from 
+  // apps requiring detailed info about the Data contents
+  vtkGetStringMacro(MeasuredFileName);
+
+  // Description:
+  // Get the Match file name. Made public to allow access from 
+  // apps requiring detailed info about the Data contents
+  vtkGetStringMacro(MatchFileName);
+
 protected:
   vtkEnSightReader();
   ~vtkEnSightReader();
@@ -85,6 +95,14 @@ protected:
   virtual int RequestData(vtkInformation*, 
                           vtkInformationVector**, 
                           vtkInformationVector*);
+
+  // Description:
+  // Set the Measured file name.
+  vtkSetStringMacro(MeasuredFileName);
+
+  // Description:
+  // Set the Match file name.
+  vtkSetStringMacro(MatchFileName);
 
   // Description:
   // Read the case file.  If an error occurred, 0 is returned; otherwise 1.
@@ -164,17 +182,7 @@ protected:
                                          char line[80],
                                          const char* name,
                                          vtkMultiBlockDataSet *output) = 0;
-  
-  // Description:
-  // Set/Get the Measured file name.
-  vtkSetStringMacro(MeasuredFileName);
-  vtkGetStringMacro(MeasuredFileName);
-
-  // Description:
-  // Set/Get the Match file name.
-  vtkSetStringMacro(MatchFileName);
-  vtkGetStringMacro(MatchFileName);
-  
+    
   // Description:
   // Add another file name to the list for a particular variable type.
   void AddVariableFileName(const char* fileName1, const char* fileName2 = NULL);

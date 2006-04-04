@@ -174,6 +174,11 @@ public:
   };
 //ETX
 
+  // Description:
+  // Get the Geometry file name. Made public to allow access from 
+  // apps requiring detailed info about the Data contents
+  vtkGetStringMacro(GeometryFileName);
+
 protected:
   vtkGenericEnSightReader();
   ~vtkGenericEnSightReader();
@@ -202,9 +207,8 @@ protected:
   int ReadNextDataLine(char result[256]);
 
   // Description:
-  // Set/Get the geometry file name.
+  // Set the geometry file name.
   vtkSetStringMacro(GeometryFileName);
-  vtkGetStringMacro(GeometryFileName);
   
   // Description:
   // Add a variable description to the appropriate array.
