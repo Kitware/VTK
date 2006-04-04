@@ -38,7 +38,7 @@
 
 int vtkSocketController::Initialized = 0;
 
-vtkCxxRevisionMacro(vtkSocketController, "1.9");
+vtkCxxRevisionMacro(vtkSocketController, "1.10");
 vtkStandardNewMacro(vtkSocketController);
 
 //----------------------------------------------------------------------------
@@ -56,6 +56,7 @@ vtkSocketController::~vtkSocketController()
   this->Communicator = this->RMICommunicator = 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkSocketController::Initialize(int* , char***)
 {
   if (vtkSocketController::Initialized)
@@ -75,12 +76,14 @@ void vtkSocketController::Initialize(int* , char***)
 
 }
 
+//----------------------------------------------------------------------------
 void vtkSocketController::SetNumberOfProcesses(int vtkNotUsed(num))
 {
   vtkErrorMacro("Can not change the number of processes.");
   return;
 }
 
+//----------------------------------------------------------------------------
 void vtkSocketController::SetCommunicator(vtkSocketCommunicator* comm)
 {
   if (comm == this->Communicator)
@@ -106,24 +109,28 @@ void vtkSocketController::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+//----------------------------------------------------------------------------
 int vtkSocketController::WaitForConnection(int port)
 { 
   return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
     WaitForConnection(port); 
 }
 
+//----------------------------------------------------------------------------
 void vtkSocketController::CloseConnection()
 { 
   vtkSocketCommunicator::SafeDownCast(this->Communicator)->
     CloseConnection(); 
 }
 
+//----------------------------------------------------------------------------
 int vtkSocketController::ConnectTo( char* hostName, int port )
 { 
   return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
     ConnectTo(hostName, port); 
 }
 
+//----------------------------------------------------------------------------
 int vtkSocketController::GetSwapBytesInReceivedData()
 {
   return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
