@@ -32,7 +32,6 @@
 #define Q_VTK_WIDGET_H
 
 #include <qwidget.h>
-#include <qtimer.h>
 class QPaintEngine;
 
 class vtkRenderWindow;
@@ -248,6 +247,8 @@ class QVTK_EXPORT QVTKWidget : public QWidget
 
 };
 
+class QVTKInteractorInternal;
+
 // .NAME QVTKInteractor - An interactor for the QVTKWidget.
 // .SECTION Description
 // QVTKInteractor is an interactor for a QVTKWiget.
@@ -269,28 +270,25 @@ public:
   // Use qApp->exec() instead.
   virtual void Start();
  
-  // Description:
-  // Overloaded create timer method for creating Qt timers.
-  virtual int CreateTimer(int);
-  
-  // Description:
-  // Overloaded destroy timer method for destroying Qt timers.
-  virtual int DestroyTimer();
-
 public slots:
   // timer event slot
-  virtual void TimerEvent();
+  virtual void TimerEvent(int timerId);
 
 protected:
   // constructor
   QVTKInteractor();
   // destructor
   ~QVTKInteractor();
+
+  // create a Qt Timer
+  virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
+  // destroy a Qt Timer
+  virtual int InternalDestroyTimer(int platformTimerId);
+
 private:
 
-  // the timer
-  QTimer mTimer;
-  
+  QVTKInteractorInternal* Internal;
+
   // unimplemented copy
   QVTKInteractor(const QVTKInteractor&);
   // unimplemented operator=

@@ -33,6 +33,8 @@
 #include "qevent.h"
 #include "qapplication.h"
 #include "qpainter.h"
+#include "qsignalmapper.h"
+#include "qtimer.h"
 #if QT_VERSION >= 0x040000 && defined(Q_WS_X11)
 #include "qx11info_x11.h"
 #endif
@@ -50,15 +52,6 @@
 #include "vtkToolkits.h"
 #include "vtkUnsignedCharArray.h"
 
-
-// VTK 4.5 added some major functionality, so we'll make a short define to use
-#if (VTK_MAJOR_VERSION > 4) || (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION >=5)
-#define QVTK_HAVE_VTK_4_5
-#endif
-
-#if QT_VERSION >= 0x040000 && !defined(QVTK_HAVE_VTK_4_5)
-#error "Qt4 and VTK < 4.5 is not supported"
-#endif
 
 // function to get VTK keysyms from ascii characters
 static const char* ascii_to_key_sym(int);
@@ -173,16 +166,18 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
 {
   // do nothing if we don't have to
   if(w == this->mRenWin)
+    {
     return;
+    }
 
   // unregister previous window
   if(this->mRenWin)
   {
-#if defined(QVTK_HAVE_VTK_4_5)
     //clean up window as one could remap it
     if(this->mRenWin->GetMapped())
+      {
       this->mRenWin->Finalize();
-#endif
+      }
     this->mRenWin->SetDisplayId(NULL);
     this->mRenWin->SetParentId(NULL);
     this->mRenWin->SetWindowId(NULL);
@@ -197,11 +192,11 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
     // register new window
     this->mRenWin->Register(NULL);
      
-#if defined(QVTK_HAVE_VTK_4_5)
     // if it is mapped somewhere else, unmap it
     if(this->mRenWin->GetMapped())
+      {
       this->mRenWin->Finalize();
-#endif
+      }
 
 #ifdef Q_WS_X11
     // give the qt display id to the vtk window
@@ -219,19 +214,11 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
     this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
 
     // mac compatibility issues
-#ifdef Q_WS_MAC
-# ifdef QVTK_HAVE_VTK_4_5
-#  if QT_VERSION < 0x040000
+#if defined(Q_WS_MAC) && (QT_VERSION < 0x040000)
     this->mRenWin->SetWindowId( NULL );
     static_cast<vtkCarbonRenderWindow*>(this->mRenWin)->SetRootWindow(
                   reinterpret_cast<WindowPtr>(this->handle()));
-#  endif
-# else
-    // give the Qt/Mac window handle to VTK and flag whether we have a parent
-    this->mRenWin->SetWindowId(reinterpret_cast<void*>(this->handle()));
-    this->mRenWin->SetParentId(reinterpret_cast<void*>(0x1));
-# endif
-# endif
+#endif
 
 
     // tell the vtk window what the size of this window is
@@ -319,7 +306,10 @@ void QVTKWidget::markCachedImageAsDirty()
 
 void QVTKWidget::saveImageToCache()
 {
-  if (this->cachedImageCleanFlag) return;
+  if (this->cachedImageCleanFlag) 
+    {
+    return;
+    }
 
   this->mRenWin->GetPixelData(0, 0, this->width()-1, this->height()-1, 1,
                               this->mCachedImage);
@@ -363,7 +353,7 @@ vtkUnsignedCharArray* QVTKWidget::cachedImage()
 */
 bool QVTKWidget::event(QEvent* e)
 {
-#if QT_VERSION >= 0x040000 && defined(QVTK_HAVE_VTK_4_5)
+#if QT_VERSION >= 0x040000
   if(e->type() == QEvent::ParentAboutToChange)
     {
     this->markCachedImageAsDirty();
@@ -391,7 +381,9 @@ bool QVTKWidget::event(QEvent* e)
 #endif
   
   if(QObject::event(e))
+    {
     return TRUE;
+    }
 
   if(e->type() == QEvent::KeyPress)
   {
@@ -411,12 +403,16 @@ void QVTKWidget::resizeEvent(QResizeEvent* e)
   QWidget::resizeEvent(e);
 
   if(!this->mRenWin)
+    {
     return;
+    }
 
   // give the size to the interactor and vtk window
   this->mRenWin->vtkRenderWindow::SetSize(this->width(), this->height());
   if(this->mRenWin->GetInteractor())
+    {
     this->mRenWin->GetInteractor()->SetSize(this->width(), this->height());
+    }
   this->markCachedImageAsDirty();
   
 #if defined (Q_WS_MAC) && (QT_VERSION < 0x040000)
@@ -429,7 +425,9 @@ void QVTKWidget::moveEvent(QMoveEvent* e)
   QWidget::moveEvent(e);
 
   if(!this->mRenWin)
+    {
     return;
+    }
     
   // give the size to the interactor and vtk window
   this->mRenWin->vtkRenderWindow::SetPosition(this->x(), this->y());
@@ -445,10 +443,14 @@ void QVTKWidget::paintEvent(QPaintEvent* )
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
 
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
 
   
   // if we have a saved image, use it
@@ -478,10 +480,14 @@ void QVTKWidget::mousePressEvent(QMouseEvent* e)
 
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
   
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
 
   // give interactor the event information
 #if QT_VERSION < 0x040000
@@ -524,10 +530,14 @@ void QVTKWidget::mouseMoveEvent(QMouseEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
   
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
   
   // give interactor the event information
 #if QT_VERSION < 0x040000
@@ -551,10 +561,14 @@ void QVTKWidget::enterEvent(QEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
   
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
 
   iren->InvokeEvent(vtkCommand::EnterEvent, e);
 }
@@ -565,10 +579,14 @@ void QVTKWidget::leaveEvent(QEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
   
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
   
   iren->InvokeEvent(vtkCommand::LeaveEvent, e);
 }
@@ -579,10 +597,14 @@ void QVTKWidget::mouseReleaseEvent(QMouseEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
   
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
   
   // give vtk event information
 #if QT_VERSION < 0x040000
@@ -621,10 +643,14 @@ void QVTKWidget::keyPressEvent(QKeyEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
   
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
   
   // get key and keysym information
 #if QT_VERSION < 0x040000
@@ -662,7 +688,9 @@ void QVTKWidget::keyPressEvent(QKeyEvent* e)
   
   // invoke char event only for ascii characters
   if(ascii_key)
+    {
     iren->InvokeEvent(vtkCommand::CharEvent, e);
+    }
 }
 
 /*! handle key release event
@@ -672,10 +700,14 @@ void QVTKWidget::keyReleaseEvent(QKeyEvent* e)
 
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
   
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
   
   // get key and keysym info
 #if QT_VERSION < 0x040000
@@ -717,14 +749,16 @@ void QVTKWidget::wheelEvent(QWheelEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
   
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
 
 // VTK supports wheel mouse events only in version 4.5 or greater
-#if defined(QVTK_HAVE_VTK_4_5)
-  
   // give event information to interactor
 #if QT_VERSION < 0x040000
   iren->SetEventInformationFlipY(e->x(), e->y(), 
@@ -739,13 +773,13 @@ void QVTKWidget::wheelEvent(QWheelEvent* e)
   // invoke vtk event
   // if delta is positive, it is a forward wheel event
   if(e->delta() > 0)
+    {
     iren->InvokeEvent(vtkCommand::MouseWheelForwardEvent, e);
+    }
   else
+    {
     iren->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, e);
-
-#else
-  QWidget::wheelEvent(e);
-#endif
+    }
 }
 #endif
 
@@ -772,10 +806,14 @@ void QVTKWidget::contextMenuEvent(QContextMenuEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
   
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
   
   // give interactor the event information
 #if QT_VERSION < 0x040000
@@ -797,10 +835,14 @@ void QVTKWidget::dragEnterEvent(QDragEnterEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
   
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
   
   // invoke event and pass qt event for additional data as well
   iren->InvokeEvent(QVTKWidget::DragEnterEvent, e);
@@ -810,10 +852,14 @@ void QVTKWidget::dragMoveEvent(QDragMoveEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
   
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
   
   // give interactor the event information
   iren->SetEventInformationFlipY(e->pos().x(), e->pos().y());
@@ -826,10 +872,14 @@ void QVTKWidget::dragLeaveEvent(QDragLeaveEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
   
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
   
   // invoke event and pass qt event for additional data as well
   iren->InvokeEvent(QVTKWidget::DragLeaveEvent, e);
@@ -839,10 +889,14 @@ void QVTKWidget::dropEvent(QDropEvent* e)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
+    {
     iren = this->mRenWin->GetInteractor();
+    }
   
   if(!iren || !iren->GetEnabled())
+    {
     return;
+    }
   
   // give interactor the event information
   iren->SetEventInformationFlipY(e->pos().x(), e->pos().y());
@@ -859,13 +913,14 @@ void QVTKWidget::reparent(QWidget* parent, Qt::WFlags f, const QPoint& p, bool s
 {
   this->markCachedImageAsDirty();
 
-#if defined(QVTK_HAVE_VTK_4_5)
   if (this->mRenWin)
     {
     // Finalize the window to remove graphics resources associated with
     // this window
     if(this->mRenWin->GetMapped())
+      {
       this->mRenWin->Finalize();
+      }
 
     // have QWidget reparent as normal, but don't show
     QWidget::reparent(parent, f, p, false);
@@ -883,13 +938,16 @@ void QVTKWidget::reparent(QWidget* parent, Qt::WFlags f, const QPoint& p, bool s
 
     // start up the window to create graphics resources for this window
     if(isVisible())
+      {
       this->mRenWin->Start();
+      }
     }
   
   // show if requested
   if(showit)
+    {
     show();
-#endif
+    }
 }
 #endif
 
@@ -905,6 +963,29 @@ QPaintEngine* QVTKWidget::paintEngine() const
   return NULL;
 }
 
+
+
+
+
+
+
+class QVTKInteractorInternal : public QObject
+{
+public:
+  QVTKInteractorInternal(QObject* p)
+    : QObject(p)
+  {
+    this->SignalMapper = new QSignalMapper(this);
+  }
+  ~QVTKInteractorInternal()
+  {
+  }
+  QSignalMapper* SignalMapper;
+  typedef vtkstd::map<int, QTimer*> TimerMap;
+  TimerMap Timers;
+};
+
+
 /*! allocation method for Qt/VTK interactor
 */
 vtkStandardNewMacro(QVTKInteractor);
@@ -913,7 +994,8 @@ vtkStandardNewMacro(QVTKInteractor);
 */
 QVTKInteractor::QVTKInteractor()
 {
-  QObject::connect(&mTimer, SIGNAL(timeout()), this, SLOT(TimerEvent()) );
+  this->Internal = new QVTKInteractorInternal(this);
+  QObject::connect(this->Internal->SignalMapper, SIGNAL(mapped(int)), this, SLOT(TimerEvent(int)) );
 }
 
 /*! start method for interactor
@@ -934,13 +1016,18 @@ void QVTKInteractor::TerminateApp()
 
 /*! handle timer event
 */
-void QVTKInteractor::TimerEvent()
+void QVTKInteractor::TimerEvent(int timerId)
 {
   if ( !this->GetEnabled() ) 
     {
       return;
     }
-  this->InvokeEvent(vtkCommand::TimerEvent, NULL);
+  this->InvokeEvent(vtkCommand::TimerEvent, (void*)&timerId);
+
+  if(this->IsOneShotTimer(timerId))
+    {
+    this->DestroyTimer(timerId);  // 'cause our Qt timers are always repeating
+    }
 }
 
 /*! constructor
@@ -951,21 +1038,30 @@ QVTKInteractor::~QVTKInteractor()
 
 /*! create Qt timer with an interval of 10 msec.
 */
-int QVTKInteractor::CreateTimer(int timer_type)
+int QVTKInteractor::InternalCreateTimer(int timerId, int timerType, unsigned long duration)
 {
-  if(timer_type == VTKI_TIMER_FIRST)
-  {
-    mTimer.start(10);
-  }
-  return 1;
+  QTimer* timer = new QTimer(this);
+  timer->start(duration);
+  this->Internal->SignalMapper->setMapping(timer, timerId);
+  QObject::connect(timer, SIGNAL(timeout()), this->Internal->SignalMapper, SLOT(map()));
+  int platformTimerId = timer->timerId();
+  this->Internal->Timers.insert(QVTKInteractorInternal::TimerMap::value_type(platformTimerId, timer));
+  return platformTimerId;
 }
 
 /*! destroy timer
 */
-int QVTKInteractor::DestroyTimer()
+int QVTKInteractor::InternalDestroyTimer(int platformTimerId)
 {
-  mTimer.stop();
-  return 1;
+  QVTKInteractorInternal::TimerMap::iterator iter = this->Internal->Timers.find(platformTimerId);
+  if(iter != this->Internal->Timers.end())
+    {
+    iter->second->stop();
+    delete iter->second;
+    this->Internal->Timers.erase(iter);
+    return 1;
+    }
+  return 0;
 }
 
 
@@ -1129,7 +1225,7 @@ const char* qt_key_to_key_sym(Qt::Key i)
 // to prevent namespace collisions with Qt headers
 
 #if defined Q_WS_X11
-#if defined(VTK_USE_OPENGL_LIBRARY) || (!defined(QVTK_HAVE_VTK_4_5) && defined(OPENGL_LIBRARY))
+#if defined(VTK_USE_OPENGL_LIBRARY)
 #include "vtkXOpenGLRenderWindow.h"
 #endif
 #ifdef VTK_USE_MANGLED_MESA
@@ -1157,7 +1253,9 @@ void QVTKWidget::x11_setup_window()
 #endif
   bool visible = isVisible();
   if(visible)
+    {
     hide();
+    }
 
   
   // get visual and colormap from VTK
@@ -1166,7 +1264,7 @@ void QVTKWidget::x11_setup_window()
   Display* display = reinterpret_cast<Display*>(mRenWin->GetGenericDisplayId());
 
   // check ogl and mesa and get information we need to create a decent window
-#if defined(VTK_USE_OPENGL_LIBRARY) || (!defined(QVTK_HAVE_VTK_4_5) && defined(OPENGL_LIBRARY))
+#if defined(VTK_USE_OPENGL_LIBRARY)
   vtkXOpenGLRenderWindow* ogl_win = vtkXOpenGLRenderWindow::SafeDownCast(mRenWin);
   if(ogl_win)
     {
@@ -1191,7 +1289,9 @@ void QVTKWidget::x11_setup_window()
   if(!vi)
   {
     if(visible)
+      {
       show();
+      }
     return;
   }
 
@@ -1202,7 +1302,9 @@ void QVTKWidget::x11_setup_window()
 
   Window p = RootWindow(display, DefaultScreen(display));
   if(parentWidget())
+    {
     p = parentWidget()->winId();
+    }
 
   XWindowAttributes a;
   XGetWindowAttributes(display, this->winId(), &a);
@@ -1230,7 +1332,9 @@ void QVTKWidget::x11_setup_window()
         }
       }
     if ( i >= count )
+      {
       cmw[count++] = win;
+      }
     } 
   else 
     {
@@ -1260,7 +1364,9 @@ void QVTKWidget::x11_setup_window()
 #endif
   setFocusPolicy(focus_policy);
   if(visible)
+    {
     show();
+    }
 
 #endif
 }
@@ -1272,7 +1378,9 @@ OSStatus QVTKWidget::DirtyRegionProcessor(EventHandlerCallRef, EventRef event, v
   UInt32 event_kind = GetEventKind(event);
   UInt32 event_class = GetEventClass(event);
   if(event_class == 'cute' && event_kind == 20)
+    {
     static_cast<vtkCarbonRenderWindow*>(widget->GetRenderWindow())->UpdateGLRegion();
+    }
   return eventNotHandledErr;
 }
 
@@ -1381,3 +1489,4 @@ static void dirty_cache(vtkObject *caller, unsigned long,
       }
     }
 }
+
