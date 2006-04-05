@@ -39,6 +39,7 @@
 #include "qx11info_x11.h"
 #endif
 
+#include "vtkstd/map"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkRenderWindow.h"
 #if defined(Q_WS_MAC)
