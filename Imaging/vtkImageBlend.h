@@ -87,18 +87,24 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set an Input of this filter. All inputs go on the first port.
+  // Set an Input of this filter.  This method is only for support of
+  // old-style pipeline connections.  When writing new code you should
+  // use vtkAlgorithm::AddInputConnection(0, data).
   void SetInput(int num, vtkDataObject *input);
-  void SetInput(vtkDataObject *input);
+  void SetInput(vtkDataObject *input) { this->SetInput(0, input); };
 
   // Description:
-  // Get one input to this filter.
+  // Get one input to this filter. This method is only for support of
+  // old-style pipeline connections.  When writing new code you should
+  // use vtkAlgorithm::GetInputConnection(0, num).
   vtkDataObject *GetInput(int num);
-  vtkDataObject *GetInput();
+  vtkDataObject *GetInput() { return this->GetInput(0); };
 
   // Description:
-  // Get the number of inputs to this filter.
-  int GetNumberOfInputs();
+  // Get the number of inputs to this filter. This method is only for
+  // support of old-style pipeline connections.  When writing new code
+  // you should use vtkAlgorithm::GetNumberOfInputConnections(0).
+  int GetNumberOfInputs() { return this->GetNumberOfInputConnections(0); };
 
   // Description:
   // Set the opacity of an input image: the alpha values of the image are
