@@ -200,6 +200,28 @@ public:
   virtual double GetGantryTiltAsDouble();
 
   // Description:
+  // Echo Time
+  // (Time in ms between the middle of the excitation pulse and the peak of the echo produced)
+  // For ex: DICOM (0018,0081) = 105
+  vtkSetStringMacro(EchoTime);
+  vtkGetStringMacro(EchoTime);
+
+  // Description:
+  // Echo Train Length
+  // (Number of lines in k-space acquired per excitation per image)
+  // For ex: DICOM (0018,0091) = 35
+  vtkSetStringMacro(EchoTrainLength);
+  vtkGetStringMacro(EchoTrainLength);
+
+  // Description:
+  // Repetition Time
+  // The period of time in msec between the beginning of a pulse sequence and the 
+  // beginning of the succeeding (essentially identical) pulse sequence.
+  // For ex: DICOM (0018,0080) = 2040
+  vtkSetStringMacro(RepetitionTime);
+  vtkGetStringMacro(RepetitionTime);
+
+  // Description:
   // Exposure time (time of x-ray exposure in msec)
   // For ex: DICOM (0018,1150) = 5
   vtkSetStringMacro(ExposureTime);
@@ -246,6 +268,8 @@ protected:
   char *AcquisitionDate;
   char *AcquisitionTime;
   char *ConvolutionKernel;
+  char *EchoTime;
+  char *EchoTrainLength;
   char *Exposure;
   char *ExposureTime;
   char *GantryTilt;
@@ -261,6 +285,7 @@ protected:
   char *PatientID;
   char *PatientName;
   char *PatientSex;
+  char *RepetitionTime;
   char *SeriesNumber;
   char *SliceThickness;
   char *StationName;

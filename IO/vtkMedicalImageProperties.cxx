@@ -19,7 +19,7 @@
 #include <vtksys/stl/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.13");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.14");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -48,6 +48,8 @@ vtkMedicalImageProperties::vtkMedicalImageProperties()
   this->AcquisitionDate        = NULL;
   this->AcquisitionTime        = NULL;
   this->ConvolutionKernel      = NULL;
+  this->EchoTime               = NULL;
+  this->EchoTrainLength        = NULL;
   this->Exposure               = NULL;
   this->ExposureTime           = NULL;
   this->GantryTilt             = NULL;
@@ -63,6 +65,7 @@ vtkMedicalImageProperties::vtkMedicalImageProperties()
   this->PatientID              = NULL;
   this->PatientName            = NULL;
   this->PatientSex             = NULL;
+  this->RepetitionTime         = NULL;
   this->SeriesNumber           = NULL;
   this->SliceThickness         = NULL;
   this->StationName            = NULL;
@@ -89,6 +92,8 @@ void vtkMedicalImageProperties::Clear()
   this->SetAcquisitionDate(NULL);
   this->SetAcquisitionTime(NULL);
   this->SetConvolutionKernel(NULL);
+  this->SetEchoTime(NULL);
+  this->SetEchoTrainLength(NULL);
   this->SetExposure(NULL);
   this->SetExposureTime(NULL);
   this->SetGantryTilt(NULL);
@@ -104,6 +109,7 @@ void vtkMedicalImageProperties::Clear()
   this->SetPatientID(NULL);
   this->SetPatientName(NULL);
   this->SetPatientSex(NULL);
+  this->SetRepetitionTime(NULL);
   this->SetSeriesNumber(NULL);
   this->SetSliceThickness(NULL);
   this->SetStationName(NULL);
@@ -127,6 +133,8 @@ void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
   this->SetAcquisitionDate(p->GetAcquisitionDate());
   this->SetAcquisitionTime(p->GetAcquisitionTime());
   this->SetConvolutionKernel(p->GetConvolutionKernel());
+  this->SetEchoTime(p->GetEchoTime());
+  this->SetEchoTrainLength(p->GetEchoTrainLength());
   this->SetExposure(p->GetExposure());
   this->SetExposureTime(p->GetExposureTime());
   this->SetGantryTilt(p->GetGantryTilt());
@@ -142,6 +150,7 @@ void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
   this->SetPatientID(p->GetPatientID());
   this->SetPatientName(p->GetPatientName());
   this->SetPatientSex(p->GetPatientSex());
+  this->SetRepetitionTime(p->GetRepetitionTime());
   this->SetSeriesNumber(p->GetSeriesNumber());
   this->SetSliceThickness(p->GetSliceThickness());
   this->SetStationName(p->GetStationName());
@@ -536,6 +545,24 @@ void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
   if (this->GantryTilt)
     {
     os << this->GantryTilt;
+    }
+
+  os << "\n" << indent << "EchoTime: ";
+  if (this->EchoTime)
+    {
+    os << this->EchoTime;
+    }
+
+  os << "\n" << indent << "EchoTrainLength: ";
+  if (this->EchoTrainLength)
+    {
+    os << this->EchoTrainLength;
+    }
+
+  os << "\n" << indent << "RepetitionTime: ";
+  if (this->RepetitionTime)
+    {
+    os << this->RepetitionTime;
     }
 
   os << "\n" << indent << "ExposureTime: ";
