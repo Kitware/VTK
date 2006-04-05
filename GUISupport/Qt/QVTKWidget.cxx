@@ -1038,7 +1038,7 @@ QVTKInteractor::~QVTKInteractor()
 
 /*! create Qt timer with an interval of 10 msec.
 */
-int QVTKInteractor::InternalCreateTimer(int timerId, int timerType, unsigned long duration)
+int QVTKInteractor::InternalCreateTimer(int timerId, int vtkNotUsed(timerType), unsigned long duration)
 {
   QTimer* timer = new QTimer(this);
   timer->start(duration);
