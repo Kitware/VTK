@@ -19,14 +19,13 @@
 #include <vtksys/stl/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.11");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.12");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
 class vtkMedicalImagePropertiesInternals
 {
 public:
-
   class WindowLevelPreset
   {
   public:
@@ -34,7 +33,7 @@ public:
     double Level;
     vtksys_stl::string Comment;
   };
-  
+
   typedef vtkstd::vector<WindowLevelPreset> WindowLevelPresetPoolType;
   typedef vtkstd::vector<WindowLevelPreset>::iterator WindowLevelPresetPoolIterator;
 
@@ -182,9 +181,9 @@ int vtkMedicalImageProperties::HasWindowLevelPreset(double w, double l)
 {
   if (this->Internals)
     {
-    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator it = 
+    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator it =
       this->Internals->WindowLevelPresetPool.begin();
-    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator end = 
+    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator end =
       this->Internals->WindowLevelPresetPool.end();
     for (; it != end; ++it)
       {
@@ -202,9 +201,9 @@ void vtkMedicalImageProperties::RemoveWindowLevelPreset(double w, double l)
 {
   if (this->Internals)
     {
-    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator it = 
+    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator it =
       this->Internals->WindowLevelPresetPool.begin();
-    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator end = 
+    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator end =
       this->Internals->WindowLevelPresetPool.end();
     for (; it != end; ++it)
       {
@@ -236,7 +235,7 @@ int vtkMedicalImageProperties::GetNumberOfWindowLevelPresets()
 int vtkMedicalImageProperties::GetNthWindowLevelPreset(
   int idx, double *w, double *l)
 {
-  if (this->Internals && 
+  if (this->Internals &&
       idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
     {
     *w = this->Internals->WindowLevelPresetPool[idx].Window;
@@ -262,7 +261,7 @@ double* vtkMedicalImageProperties::GetNthWindowLevelPreset(int idx)
 const char* vtkMedicalImageProperties::GetNthWindowLevelPresetComment(
   int idx)
 {
-  if (this->Internals && 
+  if (this->Internals &&
       idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
     {
     return this->Internals->WindowLevelPresetPool[idx].Comment.c_str();
@@ -274,10 +273,10 @@ const char* vtkMedicalImageProperties::GetNthWindowLevelPresetComment(
 void vtkMedicalImageProperties::SetNthWindowLevelPresetComment(
   int idx, const char *comment)
 {
-  if (this->Internals && 
+  if (this->Internals &&
       idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
     {
-    this->Internals->WindowLevelPresetPool[idx].Comment = 
+    this->Internals->WindowLevelPresetPool[idx].Comment =
       (comment ? comment : "");
     }
 }
@@ -303,7 +302,8 @@ double vtkMedicalImageProperties::GetGantryTiltAsDouble()
 }
 
 //----------------------------------------------------------------------------
-int vtkMedicalImageProperties::GetDateAsFields(const char *date, int &year, int &month, int &day)
+int vtkMedicalImageProperties::GetDateAsFields(const char *date, int &year,
+  int &month, int &day)
 {
   if( !date )
     {
@@ -319,13 +319,18 @@ int vtkMedicalImageProperties::GetDateAsFields(const char *date, int &year, int 
       return 0;
       }
     }
-  if( len == 10 )
+  else if( len == 10 )
     {
     // Some *very* old ACR-NEMA
     if( sscanf(date, "%04d.%02d.%02d", &year, &month, &day) != 3 )
       {
       return 0;
       }
+    }
+  else
+    {
+    vtkErrorMacro( << "Wrong length for VR=DA" );
+    return 0;
     }
 
   return 1;

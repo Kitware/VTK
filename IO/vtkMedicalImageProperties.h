@@ -33,7 +33,7 @@ class VTK_IO_EXPORT vtkMedicalImageProperties : public vtkObject
 public:
   static vtkMedicalImageProperties *New();
   vtkTypeRevisionMacro(vtkMedicalImageProperties,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Convenience method to reset all fields to an emptry string/value
@@ -110,7 +110,7 @@ public:
   int GetImageDateYear();
   int GetImageDateMonth();
   int GetImageDateDay();
-  
+
   // Description:
   // Take as input a string in ISO 8601 date (YYYY/MM/DD) and extract the different fields
   // namely: year month day
@@ -212,14 +212,14 @@ public:
   vtkGetStringMacro(XRayTubeCurrent);
 
   // Description:
-  // Exposure (The exposure expressed in mAs, for example calculated 
+  // Exposure (The exposure expressed in mAs, for example calculated
   // from Exposure Time and X-ray Tube Current)
   // For ex: DICOM (0018,1152) = 114
   vtkSetStringMacro(Exposure);
   vtkGetStringMacro(Exposure);
 
   // Description:
-  // Copy the contents of p to this instance. 
+  // Copy the contents of p to this instance.
   virtual void DeepCopy(vtkMedicalImageProperties *p);
 
   // Description:
@@ -273,7 +273,7 @@ protected:
   //BTX
   vtkMedicalImagePropertiesInternals *Internals;
   //ETX
-  
+
 private:
   vtkMedicalImageProperties(const vtkMedicalImageProperties&); // Not implemented.
   void operator=(const vtkMedicalImageProperties&); // Not implemented.
