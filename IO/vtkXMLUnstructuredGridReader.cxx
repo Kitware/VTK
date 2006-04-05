@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.13");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.14");
 vtkStandardNewMacro(vtkXMLUnstructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -35,10 +35,10 @@ vtkXMLUnstructuredGridReader::vtkXMLUnstructuredGridReader()
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::New();
   this->SetOutput(output);
   // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
+  // Filters will know it is empty.
   output->ReleaseData();
   output->Delete();
-  
+
   this->CellElements = 0;
   this->NumberOfCells = 0;
   this->CellsTimeStep = -1;
@@ -103,7 +103,7 @@ void vtkXMLUnstructuredGridReader::SetupOutputTotals()
     {
     this->TotalNumberOfCells += this->NumberOfCells[i];
     }
-  
+
   // Data reading will start at the beginning of the output.
   this->StartCell = 0;
 }
@@ -138,19 +138,19 @@ vtkIdType vtkXMLUnstructuredGridReader::GetNumberOfCellsInPiece(int piece)
 void vtkXMLUnstructuredGridReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
-  
+
   vtkUnstructuredGrid* output = this->GetOutput();
-  
+
   // Setup the output's cell arrays.
   vtkUnsignedCharArray* cellTypes = vtkUnsignedCharArray::New();
   cellTypes->SetNumberOfTuples(this->GetNumberOfCells());
   vtkCellArray* outCells = vtkCellArray::New();
-  
+
   vtkIdTypeArray* locations = vtkIdTypeArray::New();
   locations->SetNumberOfTuples(this->GetNumberOfCells());
-  
+
   output->SetCells(cellTypes, locations, outCells);
-  
+
   locations->Delete();
   outCells->Delete();
   cellTypes->Delete();
@@ -164,7 +164,7 @@ int vtkXMLUnstructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
     return 0;
     }
   int i;
-  
+
   if(!ePiece->GetScalarAttribute("NumberOfCells",
                                  this->NumberOfCells[this->Piece]))
     {
@@ -172,8 +172,8 @@ int vtkXMLUnstructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
                   << " is missing its NumberOfCells attribute.");
     this->NumberOfCells[this->Piece] = 0;
     return 0;
-    }  
-  
+    }
+
   // Find the Cells element in the piece.
   this->CellElements[this->Piece] = 0;
   for(i=0; i < ePiece->GetNumberOfNestedElements(); ++i)
@@ -185,20 +185,20 @@ int vtkXMLUnstructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
       this->CellElements[this->Piece] = eNested;
       }
     }
-  
+
   if(!this->CellElements[this->Piece])
     {
     vtkErrorMacro("A piece is missing its Cells element.");
     return 0;
     }
-  
+
   return 1;
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredGridReader::SetupNextPiece()
 {
-  this->Superclass::SetupNextPiece();  
+  this->Superclass::SetupNextPiece();
   this->StartCell += this->NumberOfCells[this->Piece];
 }
 
@@ -211,7 +211,7 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
   vtkIdType superclassPieceSize =
     ((this->NumberOfPointArrays+1)*this->GetNumberOfPointsInPiece(this->Piece)+
      this->NumberOfCellArrays*this->GetNumberOfCellsInPiece(this->Piece));
-  
+
   // Total amount of data in this piece comes from point/cell data
   // arrays and the point/cell specifications themselves (cell
   // specifications for vtkUnstructuredGrid take three data arrays).
@@ -236,18 +236,18 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
         2*this->GetNumberOfCellsInPiece(this->Piece)) / totalPieceSize),
       1
     };
-  
+
   // Set the range of progress for the superclass.
   this->SetProgressRange(progressRange, 0, fractions);
-  
+
   // Let the superclass read its data.
   if(!this->Superclass::ReadPieceData())
     {
     return 0;
     }
-  
+
   vtkUnstructuredGrid* output = this->GetOutput();
-  
+
   // Save the start location where the new cell connectivity will be
   // appended.
   vtkIdType startLoc = 0;
@@ -255,15 +255,15 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
     {
     startLoc = output->GetCells()->GetData()->GetNumberOfTuples();
     }
-  
+
   // Set the range of progress for the cell specifications.
   this->SetProgressRange(progressRange, 1, fractions);
-  
+
   // Read the Cells.
   vtkXMLDataElement* eCells = this->CellElements[this->Piece];
   if(eCells)
     {
-//    int needToRead = this->CellsNeedToReadTimeStep(eNested, 
+//    int needToRead = this->CellsNeedToReadTimeStep(eNested,
 //      this->CellsTimeStep, this->CellsOffset);
 //    if( needToRead )
       {
@@ -277,7 +277,7 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
         }
       }
     }
-  
+
   // Construct the cell locations.
   vtkIdTypeArray* locations = output->GetCellLocationsArray();
   vtkIdType* locs = locations->GetPointer(this->StartCell);
@@ -289,10 +289,10 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
     locs[i] = startLoc + cur - begin;
     cur += *cur + 1;
     }
-  
+
   // Set the range of progress for the cell types.
   this->SetProgressRange(progressRange, 2, fractions);
-  
+
   // Read the corresponding cell types.
   vtkIdType numberOfCells = this->NumberOfCells[this->Piece];
   vtkXMLDataElement* eTypes = this->FindDataArrayWithName(eCells, "types");
@@ -331,13 +331,13 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
                   << " to a vtkUnsignedCharArray.");
     return 0;
     }
-  
+
   // Copy the cell type data.
   memcpy(output->GetCellTypesArray()->GetPointer(this->StartCell),
          cellTypes->GetPointer(0), numberOfCells);
-  
+
   cellTypes->Delete();
-    
+
   return 1;
 }
 
@@ -346,7 +346,7 @@ int vtkXMLUnstructuredGridReader::ReadArrayForCells(vtkXMLDataElement* da,
                                                     vtkAbstractArray* outArray)
 {
   vtkIdType startCell = this->StartCell;
-  vtkIdType numCells = this->NumberOfCells[this->Piece];  
+  vtkIdType numCells = this->NumberOfCells[this->Piece];
   vtkIdType components = outArray->GetNumberOfComponents();
   return this->ReadArrayValues(da, startCell*components, outArray,
     0, numCells*components);

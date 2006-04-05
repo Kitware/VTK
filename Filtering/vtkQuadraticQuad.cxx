@@ -24,7 +24,7 @@
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.5");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.6");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 //----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ vtkCell *vtkQuadraticQuad::GetEdge(int edgeId)
 }
 
 //----------------------------------------------------------------------------
-static int LinearQuads[4][4] = { {0,4,8,7}, {8,4,1,5}, 
+static int LinearQuads[4][4] = { {0,4,8,7}, {8,4,1,5},
                                  {8,5,2,6}, {7,8,6,3} };
 
 void vtkQuadraticQuad::Subdivide(double *weights)

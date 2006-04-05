@@ -25,7 +25,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.2");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.3");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -391,7 +391,7 @@ int vtkQuadraticHexahedron::IntersectWithLine(double* p1, double* p2,
       if ( tTemp < t )
         {
         t = tTemp;
-        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2];
         switch (faceNum)
           {
           case 0:
@@ -425,7 +425,7 @@ int vtkQuadraticHexahedron::IntersectWithLine(double* p1, double* p2,
 }
 
 //----------------------------------------------------------------------------
-int vtkQuadraticHexahedron::Triangulate(int vtkNotUsed(index), 
+int vtkQuadraticHexahedron::Triangulate(int vtkNotUsed(index),
                                         vtkIdList *ptIds, vtkPoints *pts)
 {
   pts->Reset();
@@ -482,8 +482,8 @@ void vtkQuadraticHexahedron::JacobianInverse(double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId), 
-                                         double pcoords[3], double *values, 
+void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId),
+                                         double pcoords[3], double *values,
                                          int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
@@ -500,7 +500,7 @@ void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId),
     sum[0] = sum[1] = sum[2] = 0.0;
     for ( i=0; i < 20; i++) //loop over interp. function derivatives
       {
-      sum[0] += functionDerivs[i] * values[dim*i + k]; 
+      sum[0] += functionDerivs[i] * values[dim*i + k];
       sum[1] += functionDerivs[20 + i] * values[dim*i + k];
       sum[2] += functionDerivs[40 + i] * values[dim*i + k];
       }
@@ -513,10 +513,10 @@ void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId),
 
 
 //----------------------------------------------------------------------------
-// Clip this quadratic hex using scalar value provided. Like contouring, 
+// Clip this quadratic hex using scalar value provided. Like contouring,
 // except that it cuts the hex to produce tetrahedra.
-void vtkQuadraticHexahedron::Clip(double value, 
-                                  vtkDataArray* cellScalars, 
+void vtkQuadraticHexahedron::Clip(double value,
+                                  vtkDataArray* cellScalars,
                                   vtkPointLocator* locator, vtkCellArray* tets,
                                   vtkPointData* inPd, vtkPointData* outPd,
                                   vtkCellData* inCd, vtkIdType cellId, 
@@ -570,7 +570,7 @@ void vtkQuadraticHexahedron::InterpolationFunctions(double pcoords[3],
   weights[5] = 0.125 * rp * sm * tp * ( r - s + t - 2.0);
   weights[6] = 0.125 * rp * sp * tp * ( r + s + t - 2.0);
   weights[7] = 0.125 * rm * sp * tp * (-r + s + t - 2.0);
-  
+
   //The mid-edge nodes
   weights[8] =  0.25 * r2 * sm * tm;
   weights[9] =  0.25 * s2 * rp * tm;
@@ -673,7 +673,7 @@ void vtkQuadraticHexahedron::InterpolationDerivs(double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-static double vtkQHexCellPCoords[60] = {0.0,0.0,0.0, 1.0,0.0,0.0, 1.0,1.0,0.0, 
+static double vtkQHexCellPCoords[60] = {0.0,0.0,0.0, 1.0,0.0,0.0, 1.0,1.0,0.0,
                                        0.0,1.0,0.0, 0.0,0.0,1.0, 1.0,0.0,1.0,
                                        1.0,1.0,1.0, 0.0,1.0,1.0, 0.5,0.0,0.0,
                                        1.0,0.5,0.0, 0.5,1.0,0.0, 0.0,0.5,0.0,
@@ -689,7 +689,7 @@ double *vtkQuadraticHexahedron::GetParametricCoords()
 void vtkQuadraticHexahedron::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Edge:\n";
   this->Edge->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Face:\n";
