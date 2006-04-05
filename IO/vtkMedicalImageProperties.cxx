@@ -19,7 +19,7 @@
 #include <vtksys/stl/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.12");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.13");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -329,7 +329,6 @@ int vtkMedicalImageProperties::GetDateAsFields(const char *date, int &year,
     }
   else
     {
-    vtkErrorMacro( << "Wrong length for VR=DA" );
     return 0;
     }
 
