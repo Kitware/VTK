@@ -19,7 +19,7 @@
 #include <vtksys/stl/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.14");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.15");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -66,6 +66,7 @@ vtkMedicalImageProperties::vtkMedicalImageProperties()
   this->PatientName            = NULL;
   this->PatientSex             = NULL;
   this->RepetitionTime         = NULL;
+  this->SeriesDescription      = NULL;
   this->SeriesNumber           = NULL;
   this->SliceThickness         = NULL;
   this->StationName            = NULL;
@@ -110,6 +111,7 @@ void vtkMedicalImageProperties::Clear()
   this->SetPatientName(NULL);
   this->SetPatientSex(NULL);
   this->SetRepetitionTime(NULL);
+  this->SetSeriesDescription(NULL);
   this->SetSeriesNumber(NULL);
   this->SetSliceThickness(NULL);
   this->SetStationName(NULL);
@@ -151,6 +153,7 @@ void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
   this->SetPatientName(p->GetPatientName());
   this->SetPatientSex(p->GetPatientSex());
   this->SetRepetitionTime(p->GetRepetitionTime());
+  this->SetSeriesDescription(p->GetSeriesDescription());
   this->SetSeriesNumber(p->GetSeriesNumber());
   this->SetSliceThickness(p->GetSliceThickness());
   this->SetStationName(p->GetStationName());
@@ -485,6 +488,12 @@ void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
   if (this->SeriesNumber)
     {
     os << this->SeriesNumber;
+    }
+
+  os << "\n" << indent << "SeriesDescription: ";
+  if (this->SeriesDescription)
+    {
+    os << this->SeriesDescription;
     }
 
   os << "\n" << indent << "StudyDescription: ";

@@ -137,6 +137,13 @@ public:
   vtkGetStringMacro(SeriesNumber);
 
   // Description:
+  // Series Description
+  // User provided description of the Series
+  // For ex: DICOM (0008,103e) = SCOUT
+  vtkSetStringMacro(SeriesDescription);
+  vtkGetStringMacro(SeriesDescription);
+
+  // Description:
   // Study ID
   // For ex: DICOM (0020,0010) = 37481
   vtkSetStringMacro(StudyID);
@@ -179,7 +186,7 @@ public:
   vtkGetStringMacro(ConvolutionKernel);
 
   // Description:
-  // Slice Thickness
+  // Slice Thickness (Nominal reconstructed slice thickness, in mm)
   // For ex: DICOM (0018,0050) = 0.273438
   vtkSetStringMacro(SliceThickness);
   vtkGetStringMacro(SliceThickness);
@@ -286,6 +293,7 @@ protected:
   char *PatientName;
   char *PatientSex;
   char *RepetitionTime;
+  char *SeriesDescription;
   char *SeriesNumber;
   char *SliceThickness;
   char *StationName;
