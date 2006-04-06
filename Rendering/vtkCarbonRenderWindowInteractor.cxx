@@ -26,7 +26,7 @@
 
 #import <Carbon/Carbon.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.17");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.18");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -383,8 +383,8 @@ pascal void TimerAction(EventLoopTimerRef platformTimerId, void* userData)
 }
 
 //--------------------------------------------------------------------------
-int vtkCarbonRenderWindowInteractor::InternalCreateTimer(int timerId,
-  int timerType, unsigned long duration)
+int vtkCarbonRenderWindowInteractor::InternalCreateTimer(
+  int vtkNotUsed(timerId), int timerType, unsigned long duration)
 {
   EventLoopTimerRef  platformTimerId;
   EventLoopRef       mainLoop = GetMainEventLoop();
