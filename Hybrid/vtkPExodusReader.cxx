@@ -52,7 +52,7 @@
 #define DEBUG 0
 #define vtkPExodusReaderMAXPATHLEN 2048
 
-vtkCxxRevisionMacro(vtkPExodusReader, "1.5");
+vtkCxxRevisionMacro(vtkPExodusReader, "1.6");
 vtkStandardNewMacro(vtkPExodusReader);
 
 class vtkPExodusReaderUpdateProgress : public vtkCommand
@@ -968,3 +968,23 @@ void vtkPExodusReader::GetDSPOutputArrays(int exoid, vtkUnstructuredGrid* output
 //end USE_EXO_DSP_FILTERS
 
 
+
+int vtkPExodusReader::GetTotalNumberOfElements()
+{
+  int total = 0;
+  for(int id=readerList.size()-1; id >= 0; --id)
+    {
+    total += this->readerList[id]->GetTotalNumberOfElements();
+    }
+  return total;
+}
+
+int vtkPExodusReader::GetTotalNumberOfNodes()
+{
+  int total = 0;
+  for(int id=readerList.size()-1; id >= 0; --id)
+    {
+    total += this->readerList[id]->GetTotalNumberOfNodes();
+    }
+  return total;
+}

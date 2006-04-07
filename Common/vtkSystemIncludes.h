@@ -75,9 +75,11 @@
 #define VTK_ERROR              2
 
 // These types define different text properties
-#define VTK_ARIAL     0
-#define VTK_COURIER   1
-#define VTK_TIMES     2
+#define VTK_UNKNOWN_FONT 0
+#define VTK_ARIAL        1
+#define VTK_COURIER      2
+#define VTK_TIMES        3
+
 
 #define VTK_TEXT_LEFT     0
 #define VTK_TEXT_CENTERED 1

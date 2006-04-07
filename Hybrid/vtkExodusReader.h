@@ -150,6 +150,7 @@ public:
   int GetNumberOfNodes() { return this->NumberOfUsedNodes; }
   int GetNumberOfElementsInBlock(int block_idx);
   int GetBlockId(int block_idx);
+  virtual int GetTotalNumberOfNodes() { return this->NumberOfNodesInFile; }
   
   
   // Descriptions:
@@ -174,6 +175,8 @@ public:
   void SetCellArrayStatus(const char*, int flag);
   int GetCellArrayStatus(int index);
   int GetCellArrayStatus(const char*);
+  virtual int GetTotalNumberOfElements() 
+      { return this->NumberOfElementsInFile; }
 
   // Descriptions:
   // By default all blocks are loaded. These methods allow the user to select
@@ -418,7 +421,6 @@ protected:
       int searchType );
   static int GetGlobalID( const char *arrayName, vtkDataSet *data, int localID, 
       int searchType );
-  
   
   // This method is a helper for determining the
   // number of additional cell scalar field

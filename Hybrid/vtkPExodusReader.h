@@ -100,6 +100,8 @@ public:
   void SetGenerateFileIdArray(int flag);
   vtkGetMacro(GenerateFileIdArray, int);
   vtkBooleanMacro(GenerateFileIdArray, int); 
+  virtual int GetTotalNumberOfElements();
+  virtual int GetTotalNumberOfNodes();
 
 
 //begin USE_EXO_DSP_FILTERS

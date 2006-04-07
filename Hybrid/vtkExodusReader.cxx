@@ -1391,7 +1391,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.18");
+vtkCxxRevisionMacro(vtkExodusReader, "1.19");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -2735,8 +2735,8 @@ void vtkExodusReader::ReadNodeAndSideSets(int handle, vtkUnstructuredGrid* outpu
       nodeIndexes->SetNumberOfValues(this->MetaData->GetNodeSetSize(i)); 
       
       // Get the node indexes
-      ex_get_node_set(handle, this->MetaData->GetNodeSetId(i), nodeIndexes->GetPointer(0));
-      
+      ex_get_node_set(handle, this->MetaData->GetNodeSetId(i), 
+          nodeIndexes->GetPointer(0));
       
       // Okay now loop though the nodes indexes and insert into the output
       for(j=0; j < this->MetaData->GetNodeSetSize(i); ++j) 
@@ -2756,7 +2756,8 @@ void vtkExodusReader::ReadNodeAndSideSets(int handle, vtkUnstructuredGrid* outpu
     if (this->MetaData->GetSideSetStatus(i)) 
       {
    
-      // Allocate storage for 'counts' (element size) array and node indexes (connectivity) 
+      // Allocate storage for 'counts' (element size) array and 
+      // node indexes (connectivity) 
       // Assumption: Side set elements will not be more than 4 nodes :)
       counts->Reset();
       counts->SetNumberOfValues(this->MetaData->GetSideSetSize(i));
@@ -2764,7 +2765,8 @@ void vtkExodusReader::ReadNodeAndSideSets(int handle, vtkUnstructuredGrid* outpu
       nodeIndexes->SetNumberOfValues(this->MetaData->GetSideSetSize(i)*4); 
         
       // Get the counts (element size) array and the node indexes
-      ex_get_side_set_node_list(handle, this->MetaData->GetSideSetId(i), counts->GetPointer(0), nodeIndexes->GetPointer(0));
+      ex_get_side_set_node_list(handle, this->MetaData->GetSideSetId(i), 
+          counts->GetPointer(0), nodeIndexes->GetPointer(0));
       
       indexPtr = nodeIndexes->GetPointer(0);
       
@@ -2789,31 +2791,29 @@ void vtkExodusReader::ReadNodeAndSideSets(int handle, vtkUnstructuredGrid* outpu
             cellType=VTK_QUAD;
             break;
           default:
-            vtkErrorMacro("Unknown side side element with: " << counts->GetValue(j) << " nodes");
+            vtkErrorMacro("Unknown side side element with: " << 
+                counts->GetValue(j) << " nodes");
             return;
           }
           
-          // Now set up connectivity for cell
-          cellIds->Reset();
-          for (k=0; k<cellNumPoints; ++k)
-            {
-            cellIds->InsertNextId(GetPointMapIndex(indexPtr[k]-1));
-            }
-          indexPtr+=cellNumPoints;
-          
-          // Now insert the cell
-          output->InsertNextCell(cellType, cellIds);
+        // Now set up connectivity for cell
+        cellIds->Reset();
+        for (k=0; k<cellNumPoints; ++k)
+          {
+          cellIds->InsertNextId(GetPointMapIndex(indexPtr[k]-1));
+          }
+        indexPtr+=cellNumPoints;
+        
+        // Now insert the cell
+        output->InsertNextCell(cellType, cellIds);
         } 
       }
     }  
-       
        
   // Delete any allocated stuff   
   cellIds->Delete();
   counts->Delete();
   nodeIndexes->Delete();   
-    
-
 }
 
 // Read in connectivity information
