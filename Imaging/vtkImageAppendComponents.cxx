@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageAppendComponents.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
 #include "vtkInformation.h"
@@ -22,8 +23,32 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAppendComponents, "1.31");
+vtkCxxRevisionMacro(vtkImageAppendComponents, "1.32");
 vtkStandardNewMacro(vtkImageAppendComponents);
+
+//----------------------------------------------------------------------------
+void vtkImageAppendComponents::ReplaceNthInputConnection(int idx,
+                                                vtkAlgorithmOutput *input)
+{
+  if (idx < 0 || idx > this->GetNumberOfInputConnections(0))
+    {
+    vtkErrorMacro("Attempt to replace connection idx " << idx
+                  << " of input port " << 0 << ", which has only "
+                  << this->GetNumberOfInputConnections(0)
+                  << " connections.");
+    return;
+    }
+
+  if (!input || !input->GetProducer())
+    {
+    vtkErrorMacro("Attempt to replace connection index " << idx
+                  << " for input port " << 0 << " with " <<
+                  (!input ? "a null input." : "an input with no producer."));
+    return;
+    }
+
+  this->SetNthInputConnection(0, idx, input);
+}
 
 //----------------------------------------------------------------------------
 // The default vtkImageAlgorithm semantics are that SetInput() puts

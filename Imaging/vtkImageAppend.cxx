@@ -14,13 +14,14 @@
 =========================================================================*/
 #include "vtkImageAppend.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAppend, "1.31");
+vtkCxxRevisionMacro(vtkImageAppend, "1.32");
 vtkStandardNewMacro(vtkImageAppend);
 
 //----------------------------------------------------------------------------
@@ -38,6 +39,30 @@ vtkImageAppend::~vtkImageAppend()
     {
     delete [] this->Shifts;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageAppend::ReplaceNthInputConnection(int idx,
+                                               vtkAlgorithmOutput *input)
+{
+  if (idx < 0 || idx > this->GetNumberOfInputConnections(0))
+    {
+    vtkErrorMacro("Attempt to replace connection idx " << idx
+                  << " of input port " << 0 << ", which has only "
+                  << this->GetNumberOfInputConnections(0)
+                  << " connections.");
+    return;
+    }
+
+  if (!input || !input->GetProducer())
+    {
+    vtkErrorMacro("Attempt to replace connection index " << idx
+                  << " for input port " << 0 << " with " <<
+                  (!input ? "a null input." : "an input with no producer."));
+    return;
+    }
+
+  this->SetNthInputConnection(0, idx, input);
 }
 
 //----------------------------------------------------------------------------

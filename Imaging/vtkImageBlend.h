@@ -87,9 +87,17 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Replace one of the input connections with a new input.  You can
+  // only replace input connections that you previously created with
+  // AddInputConnection() or, in the case of the first input,
+  // with SetInputConnection().
+  virtual void ReplaceNthInputConnection(int idx, vtkAlgorithmOutput* input);
+
+  // Description:
   // Set an Input of this filter.  This method is only for support of
   // old-style pipeline connections.  When writing new code you should
-  // use vtkAlgorithm::AddInputConnection(0, data).
+  // use SetInputConnection(), AddInputConnection(), and
+  // ReplaceNthInputConnection() instead.
   void SetInput(int num, vtkDataObject *input);
   void SetInput(vtkDataObject *input) { this->SetInput(0, input); };
 

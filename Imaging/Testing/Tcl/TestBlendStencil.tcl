@@ -30,8 +30,11 @@ functionToStencil SetInput sphere
 [functionToStencil GetOutput] Update
 
 vtkImageBlend blend
-blend SetInput 0 [reader1 GetOutput]
-blend SetInput 1 [translate GetOutput]
+blend SetInputConnection [reader1 GetOutputPort]
+blend AddInputConnection [translate GetOutputPort]
+# excercise the ReplaceNthInputConnection method
+blend ReplaceNthInputConnection 1 [reader1 GetOutputPort]
+blend ReplaceNthInputConnection 1 [translate GetOutputPort]
 blend SetOpacity 1 0.8
 blend SetStencil [functionToStencil GetOutput]
 
