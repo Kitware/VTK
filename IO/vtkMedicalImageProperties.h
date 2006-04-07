@@ -112,14 +112,15 @@ public:
   int GetImageDateDay();
 
   // Description:
-  // Take as input a string in ISO 8601 date (YYYY/MM/DD) and extract the different fields
-  // namely: year month day
+  // Take as input a string in ISO 8601 date (YYYY/MM/DD) and extract the
+  // different fields namely: year month day
   // Return 0 on error, 1 on success
   static int GetDateAsFields(const char *date, int &year, int &month, int &day);
 
   // Description:
-  // Take as input a string in ISO 8601 date (YYYY/MM/DD) and construct a locale date
-  // based on the different fields (see GetDateAsFields to extract different fields)
+  // Take as input a string in ISO 8601 date (YYYY/MM/DD) and construct a
+  // locale date based on the different fields (see GetDateAsFields to extract
+  // different fields)
   // Return 0 on error, 1 on success
   static int GetDateAsLocale(const char *date, char *locale);
 
@@ -168,6 +169,12 @@ public:
   vtkGetStringMacro(Modality);
 
   // Description:
+  // Manufacturer
+  // For ex: DICOM (0008,0070) = Siemens
+  vtkSetStringMacro(Manufacturer);
+  vtkGetStringMacro(Manufacturer);
+
+  // Description:
   // Manufacturer's Model Name
   // For ex: DICOM (0008,1090) = LightSpeed QX/i
   vtkSetStringMacro(ManufacturerModelName);
@@ -214,7 +221,8 @@ public:
 
   // Description:
   // Echo Time
-  // (Time in ms between the middle of the excitation pulse and the peak of the echo produced)
+  // (Time in ms between the middle of the excitation pulse and the peak of
+  // the echo produced)
   // For ex: DICOM (0018,0081) = 105
   vtkSetStringMacro(EchoTime);
   vtkGetStringMacro(EchoTime);
@@ -228,8 +236,8 @@ public:
 
   // Description:
   // Repetition Time
-  // The period of time in msec between the beginning of a pulse sequence and the 
-  // beginning of the succeeding (essentially identical) pulse sequence.
+  // The period of time in msec between the beginning of a pulse sequence and
+  // the beginning of the succeeding (essentially identical) pulse sequence.
   // For ex: DICOM (0018,0080) = 2040
   vtkSetStringMacro(RepetitionTime);
   vtkGetStringMacro(RepetitionTime);
@@ -292,6 +300,7 @@ protected:
   char *InstitutionName;
   char *KVP;
   char *ManufacturerModelName;
+  char *Manufacturer;
   char *Modality;
   char *PatientAge;
   char *PatientBirthDate;

@@ -20,7 +20,7 @@
 #include <time.h> // for strftime
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.17");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.18");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -60,6 +60,7 @@ vtkMedicalImageProperties::vtkMedicalImageProperties()
   this->InstitutionName        = NULL;
   this->KVP                    = NULL;
   this->ManufacturerModelName  = NULL;
+  this->Manufacturer  = NULL;
   this->Modality               = NULL;
   this->PatientAge             = NULL;
   this->PatientBirthDate       = NULL;
@@ -105,6 +106,7 @@ void vtkMedicalImageProperties::Clear()
   this->SetInstitutionName(NULL);
   this->SetKVP(NULL);
   this->SetManufacturerModelName(NULL);
+  this->SetManufacturer(NULL);
   this->SetModality(NULL);
   this->SetPatientAge(NULL);
   this->SetPatientBirthDate(NULL);
@@ -147,6 +149,7 @@ void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
   this->SetInstitutionName(p->GetInstitutionName());
   this->SetKVP(p->GetKVP());
   this->SetManufacturerModelName(p->GetManufacturerModelName());
+  this->SetManufacturer(p->GetManufacturer());
   this->SetModality(p->GetModality());
   this->SetPatientAge(p->GetPatientAge());
   this->SetPatientBirthDate(p->GetPatientBirthDate());
@@ -552,6 +555,12 @@ void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
   if (this->ManufacturerModelName)
     {
     os << this->ManufacturerModelName;
+    }
+
+  os << "\n" << indent << "Manufacturer: ";
+  if (this->Manufacturer)
+    {
+    os << this->Manufacturer;
     }
 
   os << "\n" << indent << "StationName: ";
