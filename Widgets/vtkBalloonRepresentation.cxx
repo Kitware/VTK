@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBalloonRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkBalloonRepresentation, "1.5");
 vtkStandardNewMacro(vtkBalloonRepresentation);
 
 vtkCxxSetObjectMacro(vtkBalloonRepresentation, TextProperty, vtkTextProperty);
@@ -92,6 +92,7 @@ vtkBalloonRepresentation::~vtkBalloonRepresentation()
   this->FramePolyData->Delete();
   this->FrameMapper->Delete();
   this->FrameActor->Delete();
+  this->FrameProperty->Delete();
 }
 
 //----------------------------------------------------------------------
