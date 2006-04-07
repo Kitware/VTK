@@ -23,14 +23,14 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAppendComponents, "1.32");
+vtkCxxRevisionMacro(vtkImageAppendComponents, "1.33");
 vtkStandardNewMacro(vtkImageAppendComponents);
 
 //----------------------------------------------------------------------------
 void vtkImageAppendComponents::ReplaceNthInputConnection(int idx,
                                                 vtkAlgorithmOutput *input)
 {
-  if (idx < 0 || idx > this->GetNumberOfInputConnections(0))
+  if (idx < 0 || idx >= this->GetNumberOfInputConnections(0))
     {
     vtkErrorMacro("Attempt to replace connection idx " << idx
                   << " of input port " << 0 << ", which has only "

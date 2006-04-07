@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAppend, "1.32");
+vtkCxxRevisionMacro(vtkImageAppend, "1.33");
 vtkStandardNewMacro(vtkImageAppend);
 
 //----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ vtkImageAppend::~vtkImageAppend()
 void vtkImageAppend::ReplaceNthInputConnection(int idx,
                                                vtkAlgorithmOutput *input)
 {
-  if (idx < 0 || idx > this->GetNumberOfInputConnections(0))
+  if (idx < 0 || idx >= this->GetNumberOfInputConnections(0))
     {
     vtkErrorMacro("Attempt to replace connection idx " << idx
                   << " of input port " << 0 << ", which has only "

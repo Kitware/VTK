@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.46");
+vtkCxxRevisionMacro(vtkImageBlend, "1.47");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
@@ -53,7 +53,7 @@ vtkImageBlend::~vtkImageBlend()
 void vtkImageBlend::ReplaceNthInputConnection(int idx,
                                               vtkAlgorithmOutput *input)
 {
-  if (idx < 0 || idx > this->GetNumberOfInputConnections(0))
+  if (idx < 0 || idx >= this->GetNumberOfInputConnections(0))
     {
     vtkErrorMacro("Attempt to replace connection idx " << idx
                   << " of input port " << 0 << ", which has only "
