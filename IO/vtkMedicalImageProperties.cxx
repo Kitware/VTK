@@ -20,7 +20,7 @@
 #include <time.h> // for strftime
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.16");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.17");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -349,6 +349,18 @@ int vtkMedicalImageProperties::GetDateAsFields(const char *date, int &year,
 }
 
 //----------------------------------------------------------------------------
+// Some  buggy versions of gcc complain about the use of %c: warning: `%c'
+// yields only last 2 digits of year in some locales.  Of course  program-
+// mers  are  encouraged  to  use %c, it gives the preferred date and time
+// representation. One meets all kinds of strange obfuscations to  circum-
+// vent this gcc problem. A relatively clean one is to add an intermediate
+// function. This is described as bug #3190 in gcc bugzilla:
+// [-Wformat-y2k doesn't belong to -Wall - it's hard to avoid]
+inline size_t
+my_strftime(char *s, size_t max, const char *fmt, const struct tm *tm)
+{
+  return strftime(s, max, fmt, tm);
+}
 // Helper function to convert a DICOM iso date format into a locale one
 // locale buffer should be typically char locale[200]
 int vtkMedicalImageProperties::GetDateAsLocale(const char *iso, char *locale)
@@ -363,7 +375,7 @@ int vtkMedicalImageProperties::GetDateAsLocale(const char *iso, char *locale)
     date.tm_mon = month - 1;
     // structure is date starting at 1900
     date.tm_year = year - 1900;
-    strftime(locale, 200, "%x", &date);
+    my_strftime(locale, 200, "%x", &date);
     return 1;
     }
   return 0;
