@@ -118,6 +118,12 @@ public:
   static int GetDateAsFields(const char *date, int &year, int &month, int &day);
 
   // Description:
+  // Take as input a string in ISO 8601 date (YYYY/MM/DD) and construct a locale date
+  // based on the different fields (see GetDateAsFields to extract different fields)
+  // Return 0 on error, 1 on success
+  static int GetDateAsLocale(const char *date, char *locale);
+
+  // Description:
   // Image Time
   // Format: hhmmss.frac (any trailing component(s) can be ommited)
   // For ex: DICOM (0008,0033) = 162552.0705 or 230012, or 0012
