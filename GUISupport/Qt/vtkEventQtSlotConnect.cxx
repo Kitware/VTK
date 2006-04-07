@@ -77,7 +77,7 @@ void vtkQtConnection::Execute(vtkObject* caller, unsigned long e, void* call_dat
 }
 
 bool vtkQtConnection::IsConnection(vtkObject* vtk_obj, unsigned long e,
-                  QObject* qt_obj, const char* slot, void* client_data)
+                  const QObject* qt_obj, const char* slot, void* client_data)
 {
   if(VTKObject != vtk_obj)
     return false;
@@ -99,7 +99,7 @@ bool vtkQtConnection::IsConnection(vtkObject* vtk_obj, unsigned long e,
       
 // set the connection
 void vtkQtConnection::SetConnection(vtkObject* vtk_obj, unsigned long e,
-                   QObject* qt_obj, const char* slot, void* client_data, float priority)
+                   const QObject* qt_obj, const char* slot, void* client_data, float priority)
 {
   // keep track of what we connected
   VTKObject = vtk_obj;
@@ -159,7 +159,7 @@ vtkEventQtSlotConnect::~vtkEventQtSlotConnect()
 }
 
 void vtkEventQtSlotConnect::Connect(vtkObject* vtk_obj, unsigned long event,
-                 QObject* qt_obj, const char* slot, void* client_data, float priority)
+                 const QObject* qt_obj, const char* slot, void* client_data, float priority)
 {
   vtkQtConnection* connection = new vtkQtConnection;
   connection->SetConnection(vtk_obj, event, qt_obj, slot, client_data, priority);
@@ -168,7 +168,7 @@ void vtkEventQtSlotConnect::Connect(vtkObject* vtk_obj, unsigned long event,
 
 
 void vtkEventQtSlotConnect::Disconnect(vtkObject* vtk_obj, unsigned long event,
-                 QObject* qt_obj, const char* slot, void* client_data)
+                 const QObject* qt_obj, const char* slot, void* client_data)
 {
   bool all_info = true;
   if(slot == NULL || qt_obj == NULL || event == vtkCommand::NoEvent)

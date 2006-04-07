@@ -73,7 +73,7 @@ class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
     // Connect a vtk object's event with a Qt object's slot.
     // Multiple connections which are identical are treated as separate connections.
     virtual void Connect(vtkObject* vtk_obj, unsigned long event, 
-                 QObject* qt_obj, const char* slot, void* client_data=NULL, float priority=0.0);
+                 const QObject* qt_obj, const char* slot, void* client_data=NULL, float priority=0.0);
     
     // Description:
     // Disconnect a vtk object from a qt object.
@@ -81,7 +81,7 @@ class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
     // Passing only a vtk object and event, will disconnect all slots matching the vtk object and event.
     // Passing all information in will match all information.
     virtual void Disconnect(vtkObject* vtk_obj, unsigned long event=vtkCommand::NoEvent, 
-                 QObject* qt_obj=NULL, const char* slot = 0, void* client_data=NULL);
+                 const QObject* qt_obj=NULL, const char* slot = 0, void* client_data=NULL);
 
   protected:
     vtkQtConnections* Connections;
@@ -120,11 +120,11 @@ class vtkQtConnection : public QObject
     
     // set the connection
     void SetConnection(vtkObject* vtk_obj, unsigned long event,
-                       QObject* qt_obj, const char* slot, void* client_data, float priority=0.0);
+                       const QObject* qt_obj, const char* slot, void* client_data, float priority=0.0);
     
     // check if a connection matches input parameters
     bool IsConnection(vtkObject* vtk_obj, unsigned long event,
-                      QObject* qt_obj, const char* slot,
+                      const QObject* qt_obj, const char* slot,
                       void* client_data);
 
     static void DoCallback(vtkObject* vtk_obj, unsigned long event,
@@ -139,7 +139,7 @@ class vtkQtConnection : public QObject
     // the connection information
     vtkObject* VTKObject;
     vtkCallbackCommand* Callback;
-    QObject* QtObject;
+    const QObject* QtObject;
     void* ClientData;
     unsigned long VTKEvent;
     QString QtSlot;
