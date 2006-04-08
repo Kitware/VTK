@@ -29,8 +29,8 @@
 // inside. This is equivalent to the inside only mode of vtkExtractGeometry 
 // filter. IncludePartialOn treats a cell as inside if any part of it is 
 // inside. Points are considered to be inside if they are part of an inside 
-// cell. An example is a line segment that crosses the frustum but has both
-// vertices outside.
+// cell. An example of a cell that is treated differently in the two modes 
+// is a line segment that crosses the frustum but has both vertices outside.
 //
 // .SECTION See Also
 // vtkExtractGeometry
