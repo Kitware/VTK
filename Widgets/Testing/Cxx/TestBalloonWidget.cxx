@@ -31,6 +31,8 @@
 #include "vtkInteractorEventRecorder.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
+#include "vtkTestUtilities.h"
+#include "vtkTIFFReader.h"
 
 class vtkBalloonCallback : public vtkCommand
 {
@@ -60,6 +62,11 @@ int TestBalloonWidget( int argc, char *argv[] )
   iren->SetRenderWindow(renWin);
 //  iren->SetInteractorStyle(style);
 
+  // Create an image for the balloon widget
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.tif");
+  vtkTIFFReader *image1 = vtkTIFFReader::New();
+  image1->SetFileName(fname);
+
   // Create a test pipeline
   //
   vtkSphereSource *ss = vtkSphereSource::New();
@@ -84,13 +91,14 @@ int TestBalloonWidget( int argc, char *argv[] )
 
   // Create the widget
   vtkBalloonRepresentation *rep = vtkBalloonRepresentation::New();
+  rep->SetBalloonLayoutToImageRight();
 
   vtkBalloonWidget *widget = vtkBalloonWidget::New();
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
-  widget->AddBalloonText(sph,"This is a sphere");
-  widget->AddBalloonText(cyl,"This is a\ncylinder");
-  widget->AddBalloonText(cone,"This is a cone");
+  widget->AddBalloon(sph,"This is a sphere",NULL);
+  widget->AddBalloon(cyl,"This is a\ncylinder",image1->GetOutput());
+  widget->AddBalloon(cone,"This is a\ncone,\na really big cone,\nyou wouldn't believe how big",image1->GetOutput());
 
   vtkBalloonCallback *cbk = vtkBalloonCallback::New();
   widget->AddObserver(vtkCommand::WidgetActivateEvent,cbk);

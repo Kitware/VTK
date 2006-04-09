@@ -21,7 +21,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkEvent.h"
 
-vtkCxxRevisionMacro(vtkHoverWidget, "1.3");
+vtkCxxRevisionMacro(vtkHoverWidget, "1.4");
 vtkStandardNewMacro(vtkHoverWidget);
 
 //-------------------------------------------------------------------------
@@ -90,9 +90,7 @@ void vtkHoverWidget::SetEnabled(int enabling)
       }
     
     this->Enabled = 0;
-
     this->Interactor->RemoveObserver(this->EventCallbackCommand);
-
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     }
 }

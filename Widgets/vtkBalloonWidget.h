@@ -14,17 +14,20 @@
 =========================================================================*/
 // .NAME vtkBalloonWidget - popup text balloons above instance of vtkProp when hovering occurs
 // .SECTION Description 
-// The vtkBalloonWidget is used to popup text when the mouse hovers over
-// an instance of vtkProp. The widget keeps track of (vtkProp,vtkStdString)
-// pairs, and when the mouse stops moving for a user-specified period of time
-// over the vtkProp, then the text string (represented by vtkStdString) is 
-// rendered over the vtkProp. Note that an instance of vtkBalloonRepresentation
-// is used to draw the text.
+// The vtkBalloonWidget is used to popup text and/or an image when the mouse
+// hovers over an instance of vtkProp. The widget keeps track of
+// (vtkProp,vtkBalloon) pairs (where the internal vtkBalloon class is defined
+// by a pair of vtkStdString and vtkImageData), and when the mouse stops
+// moving for a user-specified period of time over the vtkProp, then the
+// vtkBalloon is drawn nearby the vtkProp. Note that an instance of
+// vtkBalloonRepresentation is used to draw the balloon.
 // 
 // To use this widget, specify an instance of vtkBalloonWidget and a
 // representation (e.g., vtkBalloonRepresentation). Then list all instances
-// of vtkProp and a text string to go along with each vtkProp. You may also
-// wish to specify the hover delay (i.e., set in the superclass).
+// of vtkProp, a text string, and/or an instance of vtkImageData to go along
+// with each vtkProp. (Note that you can specify both text and an image, or
+// just one or the other.) You may also wish to specify the hover delay
+// (i.e., set in the superclass).
 //
 // .SECTION Event Bindings
 // By default, the widget observes the following VTK events (i.e., it
@@ -65,6 +68,7 @@ class vtkProp;
 class vtkAbstractPropPicker;
 class vtkStdString;
 class vtkPropMap;
+class vtkImageData;
 
 
 class VTK_WIDGETS_EXPORT vtkBalloonWidget : public vtkHoverWidget
@@ -96,10 +100,11 @@ public:
   void CreateDefaultRepresentation();
 
   // Description:
-  // Add and remove vtkProp/vtkStdString pairs over which balloons can appear.
-  void AddBalloonText(vtkProp *prop, vtkStdString *str);
-  void AddBalloonText(vtkProp *prop, const char *str);
-  void RemoveBalloonText(vtkProp *prop);
+  // Add and remove text and/or an image to be associated with a vtkProp. You
+  // may add one or both of them. 
+  void AddBalloon(vtkProp *prop, vtkStdString *str, vtkImageData *img);
+  void AddBalloon(vtkProp *prop, const char *str, vtkImageData *img);
+  void RemoveBalloon(vtkProp *prop);
   
   // Description:
   // Return the current vtkProp that is being hovered over. Note that the
