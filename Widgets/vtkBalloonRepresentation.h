@@ -21,24 +21,29 @@
 // are specified, then methods are available for positioning the text and
 // image with respect to each other. 
 //
+// The balloon representation consists of three parts: text, a rectangular
+// frame behind the text, and an image placed next to the frame and sized
+// to match the frame.
+//
 // The size of the balloon is ultimately controlled by the text properties
 // (i.e., font size). This representation uses a layout policy as follows.
 // 
-// If there is just text and no image, then the text properties are used to
-// control the size of the balloon.
+// If there is just text and no image, then the text properties and padding
+// are used to control the size of the balloon.
 //
 // If there is just an image and no text, then the ImageSize[2] member is
 // used to control the image size. (The image will fit into this rectangle,
 // but will not necessarily fill the whole rectangle, i.e., the image is not
 // stretched).
 //
-// If there is text and an image, use the following approach. First, based on
-// the font size and other text properties, get the size of the text. Second,
-// depending on the layout of the image and text, use the text size to
-// control the size of the neighboring image (since both the text and image have
-// to share a common rectangular frame). However, if this results in an image
+// If there is text and an image, the following approach ia used. First,
+// based on the font size and other related properties (e.g., padding),
+// determine the size of the frame. Second, depending on the layout of the
+// image and text frame, control the size of the neighboring image (since the
+// frame and image share a common edge). However, if this results in an image
 // that is smaller than ImageSize[2], then the image size will be set to
-// ImageSize[2] and the frame will be adjusted accordingly.
+// ImageSize[2] and the frame will be adjusted accordingly. The text is
+// always placed in the center of the frame if the frame is resized.
 
 // .SECTION See Also
 // vtkBalloonWidget
@@ -96,17 +101,18 @@ public:
   vtkGetVector2Macro(ImageSize,int);
 
   // Description:
-  // Set/get the text property (relevant only if text shown).
+  // Set/get the text property (relevant only if text is shown).
   virtual void SetTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
     
   // Description:
-  // Set/get the frame property (relevant only if text shown).
+  // Set/get the frame property (relevant only if text is shown).
+  // The frame lies behind the text.
   virtual void SetFrameProperty(vtkProperty2D *p);
   vtkGetObjectMacro(FrameProperty,vtkProperty2D);
     
   // Description:
-  // Set/get the image property (relevant only if image shown).
+  // Set/get the image property (relevant only if an image is shown).
   virtual void SetImageProperty(vtkProperty2D *p);
   vtkGetObjectMacro(ImageProperty,vtkProperty2D);
     
@@ -139,8 +145,8 @@ public:
   vtkGetVector2Macro(Offset,int);
 
   // Description:
-  // Set/Get the padding (in pixels) that whould be used around the text
-  // and/or image (i.e., between the frame, the text and the image).
+  // Set/Get the padding (in pixels) that is used between the text and the
+  // frame.
   vtkSetClampMacro(Padding,int,0,100);
   vtkGetMacro(Padding,int);
 
