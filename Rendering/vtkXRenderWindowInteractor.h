@@ -71,11 +71,6 @@ public:
   vtkGetMacro(BreakLoopFlag, int);
   vtkBooleanMacro(BreakLoopFlag, int);
 
-  // Description:
-  // X timer methods
-  int CreateTimer(int timertype);
-  int DestroyTimer(void);
-
   // Description: 
   // Initializes the event handlers using an XtAppContext that you have
   // provided.  This assumes that you want to own the event loop.
@@ -174,6 +169,13 @@ protected:
   int OwnApp;
   int PositionBeforeStereo[2];
   Widget TopLevelShell;
+  int TimerId;
+
+  // Description: 
+  // X-specific internal timer methods. See the superclass for detailed
+  // documentation.
+  virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
+  virtual int InternalDestroyTimer(int platformTimerId);
 
   int BreakLoopFlag;
   XtIntervalId AddTimeOut(XtAppContext app_context, unsigned long interval,
@@ -189,6 +191,8 @@ private:
 };
 
 #endif
+
+
 
 
 
