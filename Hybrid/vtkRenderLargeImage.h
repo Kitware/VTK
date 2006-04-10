@@ -80,7 +80,7 @@ protected:
   void Restore2DActors();
   // 2D Actors need to be rescaled and shifted about for each tile
   // use this helper class to make life easier.
-  vtkRenderLargeImage2DHelperClass *storedData;
+  vtkRenderLargeImage2DHelperClass *StoredData;
 
 private:
   vtkRenderLargeImage(const vtkRenderLargeImage&);  // Not implemented.
