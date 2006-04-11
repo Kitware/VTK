@@ -28,7 +28,7 @@
 #include "vtkActor2DCollection.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.42");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.43");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 class vtkWTI2DHelperClass
@@ -43,13 +43,13 @@ public:
   vtkstd::vector< vtkstd::pair<int, int> > Coords1;
   vtkstd::vector< vtkstd::pair<int, int> > Coords2;
   //
-  vtkWTI2DHelperClass() 
+  vtkWTI2DHelperClass()
     {
     this->StoredActors = vtkActor2DCollection::New();
     this->Coord1s = vtkCollection::New();
     this->Coord2s = vtkCollection::New();
     }
-  ~vtkWTI2DHelperClass() 
+  ~vtkWTI2DHelperClass()
     {
     this->Coord1s->RemoveAllItems();
     this->Coord2s->RemoveAllItems();
@@ -236,7 +236,7 @@ void vtkWindowToImageFilter::RequestData(
   int size[2],winsize[2];
   int idxY, rowSize;
   int i;
-  
+
   if (! ((out->GetScalarType() == VTK_UNSIGNED_CHAR &&
         (this->InputBufferType == VTK_RGB || this->InputBufferType == VTK_RGBA)) ||
         (out->GetScalarType() == VTK_FLOAT && this->InputBufferType == VTK_ZBUFFER)))
@@ -300,7 +300,7 @@ void vtkWindowToImageFilter::RequestData(
   // render each of the tiles required to fill this request
   this->Input->SetTileScale(this->Magnification);
   this->Input->GetSize();
-  
+
   this->Rescale2DActors();
   int x, y;
   for (y = 0; y < this->Magnification; y++)
@@ -351,7 +351,7 @@ void vtkWindowToImageFilter::RequestData(
                           * 360.0 / 3.1415926);
         cam->SetParallelScale(parallelScale[i]*mag);
         }
-      
+
       // Shift 2d actors just before rendering
       this->Shift2DActors(size[0]*x, size[1]*y);
       // now render the tile and get the data
@@ -463,7 +463,7 @@ void vtkWindowToImageFilter::Restore2DActors()
   int i;
   //
   for (this->StoredData->StoredActors->InitTraversal(), i=0;
-    (actor = this->StoredData->StoredActors->GetNextItem()); i++) 
+    (actor = this->StoredData->StoredActors->GetNextItem()); i++)
     {
     c1 = actor->GetPositionCoordinate();
     c2 = actor->GetPosition2Coordinate();
@@ -498,13 +498,13 @@ void vtkWindowToImageFilter::Rescale2DActors()
   //
   vtkRenderWindow *renWin = vtkRenderWindow::SafeDownCast(this->Input);
   rc = renWin->GetRenderers();
-  for (rc->InitTraversal(); (aren = rc->GetNextItem()); ) 
+  for (rc->InitTraversal(); (aren = rc->GetNextItem()); )
     {
     pc = aren->GetViewProps();
     viewport = aren->GetViewport();
-    if (pc) 
+    if (pc)
       {
-      for ( pc->InitTraversal(); (aProp = pc->GetNextProp()); ) 
+      for ( pc->InitTraversal(); (aProp = pc->GetNextProp()); )
         {
         actor = vtkActor2D::SafeDownCast((aProp));
         if (actor)
@@ -530,15 +530,15 @@ void vtkWindowToImageFilter::Rescale2DActors()
           // work out the position in new magnified pixels
           p1 = n1->GetComputedDisplayValue(aren);
           p2 = n2->GetComputedDisplayValue(aren);
-          d1[0] = p1[0]*this->Magnification*(1.-viewport[0]);
-          d1[1] = p1[1]*this->Magnification*(1.-viewport[1]);
+          d1[0] = p1[0]*this->Magnification; //*(1.-viewport[0]);
+          d1[1] = p1[1]*this->Magnification; //*(1.-viewport[1]);
           d1[2] = 0.0;
-          d2[0] = p2[0]*this->Magnification*(1.-viewport[0]);
-          d2[1] = p2[1]*this->Magnification*(1.-viewport[1]);
+          d2[0] = p2[0]*this->Magnification; //*(1.-viewport[0]);
+          d2[1] = p2[1]*this->Magnification; //*(1.-viewport[1]);
           d2[2] = 0.0;
-          this->StoredData->Coords1.push_back( 
+          this->StoredData->Coords1.push_back(
             vtkstd::pair<int, int>(static_cast<int>(d1[0]), static_cast<int>(d1[1])) );
-          this->StoredData->Coords2.push_back( 
+          this->StoredData->Coords2.push_back(
             vtkstd::pair<int, int>(static_cast<int>(d2[0]), static_cast<int>(d2[1])) );
           // Make sure they have no dodgy offsets
           n1->SetCoordinateSystemToDisplay();
@@ -563,8 +563,8 @@ void vtkWindowToImageFilter::Shift2DActors(int x, int y)
   double        d1[3], d2[3];
   int           i;
   //
-  for (this->StoredData->StoredActors->InitTraversal(), i=0; 
-    (actor = this->StoredData->StoredActors->GetNextItem()); i++) 
+  for (this->StoredData->StoredActors->InitTraversal(), i=0;
+    (actor = this->StoredData->StoredActors->GetNextItem()); i++)
     {
     c1 = actor->GetPositionCoordinate();
     c2 = actor->GetPosition2Coordinate();
