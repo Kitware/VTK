@@ -19,19 +19,21 @@
 #include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkActor2D, "1.3");
+vtkCxxRevisionMacro(vtkActor2D, "1.4");
 vtkStandardNewMacro(vtkActor2D);
 
 vtkCxxSetObjectMacro(vtkActor2D,Property, vtkProperty2D);
+vtkCxxSetObjectMacro(vtkActor2D,Mapper, vtkMapper2D);
 
+//----------------------------------------------------------------------------
 // Creates an actor2D with the following defaults:
 // position -1, -1 (view coordinates)
 // orientation 0, scale (1,1), layer 0, visibility on
 vtkActor2D::vtkActor2D()
 {
-  this->Mapper = (vtkMapper2D*) NULL;
+  this->Mapper = NULL;
   this->LayerNumber = 0;
-  this->Property = (vtkProperty2D*) NULL;
+  this->Property = NULL;
   //
   this->PositionCoordinate = vtkCoordinate::New();
   this->PositionCoordinate->SetCoordinateSystem(VTK_VIEWPORT);
@@ -42,6 +44,7 @@ vtkActor2D::vtkActor2D()
   this->Position2Coordinate->SetReferenceCoordinate(this->PositionCoordinate);
 }
 
+//----------------------------------------------------------------------------
 // Destroy an actor2D.
 vtkActor2D::~vtkActor2D()
 {
@@ -67,6 +70,7 @@ vtkActor2D::~vtkActor2D()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkActor2D::ReleaseGraphicsResources(vtkWindow *win)
 {
   // pass this information onto the mapper
@@ -76,6 +80,7 @@ void vtkActor2D::ReleaseGraphicsResources(vtkWindow *win)
     }
 }
 
+//----------------------------------------------------------------------------
 // Renders an actor2D's property and then it's mapper.
 int vtkActor2D::RenderOverlay(vtkViewport* viewport)
 {
@@ -101,6 +106,7 @@ int vtkActor2D::RenderOverlay(vtkViewport* viewport)
   return 1;
 }
 
+//----------------------------------------------------------------------------
 // Renders an actor2D's property and then it's mapper.
 int vtkActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 {
@@ -126,6 +132,7 @@ int vtkActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
   return 1;
 }
 
+//----------------------------------------------------------------------------
 // Renders an actor2D's property and then it's mapper.
 int vtkActor2D::RenderTranslucentGeometry(vtkViewport* viewport)
 {
@@ -151,27 +158,10 @@ int vtkActor2D::RenderTranslucentGeometry(vtkViewport* viewport)
   return 1;
 }
 
-void vtkActor2D::SetMapper(vtkMapper2D *mapper)
-{
-  if (this->Mapper != mapper)
-    {
-    if (this->Mapper != NULL) 
-      {
-      this->Mapper->UnRegister(this);
-      }
-    this->Mapper = mapper;
-    if (this->Mapper != NULL) 
-      {
-      this->Mapper->Register(this);
-      }
-    this->Modified();
-    }
-}
-
-
+//----------------------------------------------------------------------------
 unsigned long int vtkActor2D::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  unsigned long mTime = this->Superclass::GetMTime();
   unsigned long time;
 
   time  = this->PositionCoordinate->GetMTime();
@@ -188,6 +178,7 @@ unsigned long int vtkActor2D::GetMTime()
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 // Set the Prop2D's position in display coordinates.
 void vtkActor2D::SetDisplayPosition(int XPos, int YPos)
 {
@@ -195,6 +186,7 @@ void vtkActor2D::SetDisplayPosition(int XPos, int YPos)
   this->PositionCoordinate->SetValue((float)XPos,(float)YPos,0.0);
 }
 
+//----------------------------------------------------------------------------
 void vtkActor2D::SetWidth(double w)
 {
   double *pos;
@@ -204,6 +196,7 @@ void vtkActor2D::SetWidth(double w)
   this->Position2Coordinate->SetValue(w,pos[1]);
 }
 
+//----------------------------------------------------------------------------
 void vtkActor2D::SetHeight(double w)
 {
   double *pos;
@@ -213,16 +206,19 @@ void vtkActor2D::SetHeight(double w)
   this->Position2Coordinate->SetValue(pos[0],w);
 }
     
+//----------------------------------------------------------------------------
 double vtkActor2D::GetWidth()
 {
   return this->Position2Coordinate->GetValue()[0];
 }
 
+//----------------------------------------------------------------------------
 double vtkActor2D::GetHeight()
 {
   return this->Position2Coordinate->GetValue()[1];
 }
 
+//----------------------------------------------------------------------------
 // Returns an Prop2D's property2D.  Creates a property if one
 // doesn't already exist.
 vtkProperty2D *vtkActor2D::GetProperty()
@@ -237,11 +233,13 @@ vtkProperty2D *vtkActor2D::GetProperty()
   return this->Property;
 }
 
+//----------------------------------------------------------------------------
 void vtkActor2D::GetActors2D(vtkPropCollection *ac)
 {
   ac->AddItem(this);
 }
 
+//----------------------------------------------------------------------------
 void vtkActor2D::ShallowCopy(vtkProp *prop)
 {
   vtkActor2D *a = vtkActor2D::SafeDownCast(prop);
@@ -258,6 +256,7 @@ void vtkActor2D::ShallowCopy(vtkProp *prop)
   this->vtkProp::ShallowCopy(prop);
 }
 
+//----------------------------------------------------------------------------
 void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
