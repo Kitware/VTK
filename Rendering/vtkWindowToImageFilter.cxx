@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.39");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.40");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ void vtkWindowToImageFilter::SetInput(vtkWindow *input)
 void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   if ( this->Input )
     {
     os << indent << "Input:\n";
@@ -88,7 +88,7 @@ void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReadFrontBuffer: " << this->ReadFrontBuffer << "\n";
   os << indent << "Magnification: " << this->Magnification << "\n";
   os << indent << "ShouldRerender: " << this->ShouldRerender << "\n";
-  os << indent << "Viewport: " << this->Viewport[0] << "," << this->Viewport[1] 
+  os << indent << "Viewport: " << this->Viewport[0] << "," << this->Viewport[1]
      << "," << this->Viewport[2] << "," << this->Viewport[3] << "\n";
   os << indent << "InputBufferType: " << this->InputBufferType << "\n";
 }
@@ -106,19 +106,19 @@ void vtkWindowToImageFilter::RequestInformation (
     vtkErrorMacro(<<"Please specify a renderer as input!");
     return;
     }
-  
+
   if(this->Magnification > 1 &&
-     (this->Viewport[0] != 0 || this->Viewport[1] != 0 || 
+     (this->Viewport[0] != 0 || this->Viewport[1] != 0 ||
       this->Viewport[2] != 1 || this->Viewport[3] != 1))
     {
     vtkWarningMacro(<<"Viewport extents are not used when Magnification > 1");
     this->Viewport[0] = 0;
     this->Viewport[1] = 0;
     this->Viewport[2] = 1;
-    this->Viewport[3] = 1; 
+    this->Viewport[3] = 1;
     }
-  
- 
+
+
   // set the extent
   int *size = this->Input->GetSize();
   int wExtent[6];
@@ -185,9 +185,10 @@ void vtkWindowToImageFilter::RequestData(
   vtkInformationVector* outputVector)
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkImageData *out = 
+  vtkImageData *out =
     vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  out->SetExtent(out->GetUpdateExtent());
+  out->SetExtent(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
   out->AllocateScalars();
 
   if (!this->Input)
@@ -199,7 +200,7 @@ void vtkWindowToImageFilter::RequestData(
   int size[2],winsize[2];
   int idxY, rowSize;
   int i;
-  
+
   if (!  ((out->GetScalarType() == VTK_UNSIGNED_CHAR &&
            (this->InputBufferType == VTK_RGB || this->InputBufferType == VTK_RGBA)) ||
           (out->GetScalarType() == VTK_FLOAT && this->InputBufferType == VTK_ZBUFFER)))
@@ -207,26 +208,27 @@ void vtkWindowToImageFilter::RequestData(
     vtkErrorMacro("mismatch in scalar types!");
     return;
     }
-  
+
   // get the size of the render window
   winsize[0] = this->Input->GetSize()[0];
   winsize[1] = this->Input->GetSize()[1];
 
   size[0] = int(winsize[0]*(this->Viewport[2]-this->Viewport[0]) + 0.5);
   size[1] = int(winsize[1]*(this->Viewport[3]-this->Viewport[1]) + 0.5);
-  
+
   rowSize = size[0]*out->GetNumberOfScalarComponents();
   outIncrY = size[0]*this->Magnification*out->GetNumberOfScalarComponents();
-    
+
   float *viewAngles;
   double *windowCenters;
   vtkRenderWindow *renWin = vtkRenderWindow::SafeDownCast(this->Input);
   if (!renWin)
     {
-    vtkWarningMacro("The window passed to window to image should be a RenderWIndow or one of its subclasses");
+    vtkWarningMacro(
+      "The window passed to window to image should be a RenderWindow or one of its subclasses");
     return;
     }
-  
+
   vtkRendererCollection *rc = renWin->GetRenderers();
   vtkRenderer *aren;
   vtkCamera *cam;
@@ -249,7 +251,7 @@ void vtkWindowToImageFilter::RequestData(
     parallelScale[i] = cams[i]->GetParallelScale();
     cam = cams[i]->NewInstance();
     cam->SetPosition(cams[i]->GetPosition());
-    cam->SetFocalPoint(cams[i]->GetFocalPoint());    
+    cam->SetFocalPoint(cams[i]->GetFocalPoint());
     cam->SetViewUp(cams[i]->GetViewUp());
     cam->SetClippingRange(cams[i]->GetClippingRange());
     cam->SetParallelProjection(cams[i]->GetParallelProjection());
@@ -258,11 +260,11 @@ void vtkWindowToImageFilter::RequestData(
     cam->SetViewShear(cams[i]->GetViewShear());
     aren->SetActiveCamera(cam);
     }
-  
+
   // render each of the tiles required to fill this request
   this->Input->SetTileScale(this->Magnification);
   this->Input->GetSize();
-  
+
   int x, y;
   for (y = 0; y < this->Magnification; y++)
     {
@@ -274,7 +276,7 @@ void vtkWindowToImageFilter::RequestData(
                                    (x+1.0)/this->Magnification,
                                    (y+1.0)/this->Magnification);
       double *tvp = this->Input->GetTileViewport();
-      
+
       // for each renderer, setup camera
       rc->InitTraversal(rsit);
       for (i = 0; i < numRenderers; ++i)
@@ -306,12 +308,12 @@ void vtkWindowToImageFilter::RequestData(
           {
           deltay = 2.0*deltay/(visVP[3] - visVP[1]);
           }
-        cam->SetWindowCenter(deltax,deltay);        
-        cam->SetViewAngle(asin(sin(viewAngles[i]*3.1415926/360.0)*mag) 
+        cam->SetWindowCenter(deltax,deltay);
+        cam->SetViewAngle(atan(tan(viewAngles[i]*3.1415926/360.0)*mag)
                           * 360.0 / 3.1415926);
         cam->SetParallelScale(parallelScale[i]*mag);
         }
-      
+
       // now render the tile and get the data
       if (this->ShouldRerender || this->Magnification > 1)
         {
@@ -322,30 +324,32 @@ void vtkWindowToImageFilter::RequestData(
       if(!this->Input->GetDoubleBuffer())
         {
         buffer = 1;
-        }      
+        }
       if (this->InputBufferType == VTK_RGB || this->InputBufferType == VTK_RGBA)
         {
         unsigned char *pixels, *pixels1, *outPtr;
         if (this->InputBufferType == VTK_RGB)
           {
-          pixels = this->Input->GetPixelData(int(this->Viewport[0]* winsize[0]),
-                                             int(this->Viewport[1]* winsize[1]),
-                                             int(this->Viewport[2]* winsize[0] + 0.5) - 1,  
-                                             int(this->Viewport[3]* winsize[1] + 0.5) - 1, buffer);
-          } 
-        else 
+          pixels =
+            this->Input->GetPixelData(int(this->Viewport[0]* winsize[0]),
+                                      int(this->Viewport[1]* winsize[1]),
+                                      int(this->Viewport[2]* winsize[0] + 0.5) - 1,  
+                                      int(this->Viewport[3]* winsize[1] + 0.5) - 1, buffer);
+          }
+        else
           {
-          pixels = renWin->GetRGBACharPixelData(int(this->Viewport[0]* winsize[0]),
-                                                int(this->Viewport[1]* winsize[1]),
-                                                int(this->Viewport[2]* winsize[0] + 0.5) - 1,  
-                                                int(this->Viewport[3]* winsize[1] + 0.5) - 1, buffer);
+          pixels =
+            renWin->GetRGBACharPixelData(int(this->Viewport[0]* winsize[0]),
+                                         int(this->Viewport[1]* winsize[1]),
+                                         int(this->Viewport[2]* winsize[0] + 0.5) - 1,  
+                                         int(this->Viewport[3]* winsize[1] + 0.5) - 1, buffer);
 
           }
 
         pixels1 = pixels;
 
         // now write the data to the output image
-        outPtr = 
+        outPtr =
           (unsigned char *)out->GetScalarPointer(x*size[0],y*size[1], 0);
         for (idxY = 0; idxY < size[1]; idxY++)
           {
@@ -353,11 +357,11 @@ void vtkWindowToImageFilter::RequestData(
           outPtr += outIncrY;
           pixels1 += rowSize;
           }
-      
+
         // free the memory
         delete [] pixels;
         }
-      else 
+      else
         { // VTK_ZBUFFER
         float *pixels, *pixels1, *outPtr;
         pixels = renWin->GetZbufferData(int(this->Viewport[0]* winsize[0]),
@@ -368,7 +372,7 @@ void vtkWindowToImageFilter::RequestData(
         pixels1 = pixels;
 
         // now write the data to the output image
-        outPtr = 
+        outPtr =
           (float *)out->GetScalarPointer(x*size[0],y*size[1], 0);
         for (idxY = 0; idxY < size[1]; idxY++)
           {
@@ -376,7 +380,7 @@ void vtkWindowToImageFilter::RequestData(
           outPtr += outIncrY;
           pixels1 += rowSize;
           }
-      
+
         // free the memory
         delete [] pixels;
         }
@@ -399,15 +403,14 @@ void vtkWindowToImageFilter::RequestData(
   delete [] windowCenters;
   delete [] parallelScale;
   delete [] cams;
-  
+
   // render each of the tiles required to fill this request
   this->Input->SetTileScale(1);
   this->Input->SetTileViewport(0.0,0.0,1.0,1.0);
   this->Input->GetSize();
 }
 
-
-
+//----------------------------------------------------------------------------
 int vtkWindowToImageFilter::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
