@@ -59,6 +59,7 @@
 
 class vtkWindow;
 
+class vtkWTI2DHelperClass;
 class VTK_RENDERING_EXPORT vtkWindowToImageFilter : public vtkAlgorithm
 {
 public:
@@ -94,17 +95,17 @@ public:
   vtkSetMacro(ShouldRerender, int);
   vtkGetMacro(ShouldRerender, int);
   
-  //Description:
-  //Set/get the extents to be used to generate the image. (This option
-  //does not work if Magnification > 1.)
+  // Description:
+  // Set/get the extents to be used to generate the image. (This option
+  // does not work if Magnification > 1.)
   vtkSetVector4Macro(Viewport,double);
   vtkGetVectorMacro(Viewport,double,4);
 
-  //Description:
-  //Set/get the window buffer from which data will be read.  Choices
-  //include VTK_RGB (read the color image from the window), VTK_RGBA 
-  //(same, but include the alpha channel), and VTK_ZBUFFER (depth
-  //buffer, returned as a float array).
+  // Description:
+  // Set/get the window buffer from which data will be read.  Choices
+  // include VTK_RGB (read the color image from the window), VTK_RGBA 
+  // (same, but include the alpha channel), and VTK_ZBUFFER (depth
+  // buffer, returned as a float array).
   vtkSetMacro(InputBufferType, int);
   vtkGetMacro(InputBufferType, int);
   void SetInputBufferTypeToRGB() {this->SetInputBufferType(VTK_RGB);};
@@ -143,6 +144,12 @@ protected:
 
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
+
+  // The following was extracted from vtkRenderLargeImage, and patch to handle viewports
+  void Rescale2DActors();
+  void Shift2DActors(int x, int y);
+  void Restore2DActors();
+  vtkWTI2DHelperClass *StoredData;
 
 private:
   vtkWindowToImageFilter(const vtkWindowToImageFilter&);  // Not implemented.

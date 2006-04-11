@@ -23,8 +23,42 @@
 #include "vtkRendererCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.41");
+#include "vtkCoordinate.h"
+#include "vtkActor2D.h"
+#include "vtkActor2DCollection.h"
+#include <vtkstd/vector>
+
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.42");
 vtkStandardNewMacro(vtkWindowToImageFilter);
+
+class vtkWTI2DHelperClass
+{
+public:
+  // maintain a list of 2D actors
+  vtkActor2DCollection *StoredActors;
+  // maintain lists of their vtkCoordinate objects
+  vtkCollection        *Coord1s;
+  vtkCollection        *Coord2s;
+  // Store the display coords for adjustment during tiling
+  vtkstd::vector< vtkstd::pair<int, int> > Coords1;
+  vtkstd::vector< vtkstd::pair<int, int> > Coords2;
+  //
+  vtkWTI2DHelperClass() 
+    {
+    this->StoredActors = vtkActor2DCollection::New();
+    this->Coord1s = vtkCollection::New();
+    this->Coord2s = vtkCollection::New();
+    }
+  ~vtkWTI2DHelperClass() 
+    {
+    this->Coord1s->RemoveAllItems();
+    this->Coord2s->RemoveAllItems();
+    this->StoredActors->RemoveAllItems();
+    this->Coord1s->Delete();
+    this->Coord2s->Delete();
+    this->StoredActors->Delete();
+    }
+};
 
 //----------------------------------------------------------------------------
 vtkWindowToImageFilter::vtkWindowToImageFilter()
@@ -41,6 +75,7 @@ vtkWindowToImageFilter::vtkWindowToImageFilter()
 
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
+  this->StoredData = new vtkWTI2DHelperClass;
 }
 
 //----------------------------------------------------------------------------
@@ -51,6 +86,7 @@ vtkWindowToImageFilter::~vtkWindowToImageFilter()
     this->Input->UnRegister(this);
     this->Input = NULL;
     }
+  delete this->StoredData;
 }
 
 //----------------------------------------------------------------------------
@@ -200,10 +236,10 @@ void vtkWindowToImageFilter::RequestData(
   int size[2],winsize[2];
   int idxY, rowSize;
   int i;
-
-  if (!  ((out->GetScalarType() == VTK_UNSIGNED_CHAR &&
-           (this->InputBufferType == VTK_RGB || this->InputBufferType == VTK_RGBA)) ||
-          (out->GetScalarType() == VTK_FLOAT && this->InputBufferType == VTK_ZBUFFER)))
+  
+  if (! ((out->GetScalarType() == VTK_UNSIGNED_CHAR &&
+        (this->InputBufferType == VTK_RGB || this->InputBufferType == VTK_RGBA)) ||
+        (out->GetScalarType() == VTK_FLOAT && this->InputBufferType == VTK_ZBUFFER)))
     {
     vtkErrorMacro("mismatch in scalar types!");
     return;
@@ -264,7 +300,8 @@ void vtkWindowToImageFilter::RequestData(
   // render each of the tiles required to fill this request
   this->Input->SetTileScale(this->Magnification);
   this->Input->GetSize();
-
+  
+  this->Rescale2DActors();
   int x, y;
   for (y = 0; y < this->Magnification; y++)
     {
@@ -309,11 +346,14 @@ void vtkWindowToImageFilter::RequestData(
           deltay = 2.0*deltay/(visVP[3] - visVP[1]);
           }
         cam->SetWindowCenter(deltax,deltay);
+        //cam->SetViewAngle(atan(tan(viewAngles[i]*3.1415926/360.0)*mag)  //FIXME
         cam->SetViewAngle(asin(sin(viewAngles[i]*3.1415926/360.0)*mag)
                           * 360.0 / 3.1415926);
         cam->SetParallelScale(parallelScale[i]*mag);
         }
-
+      
+      // Shift 2d actors just before rendering
+      this->Shift2DActors(size[0]*x, size[1]*y);
       // now render the tile and get the data
       if (this->ShouldRerender || this->Magnification > 1)
         {
@@ -408,6 +448,135 @@ void vtkWindowToImageFilter::RequestData(
   this->Input->SetTileScale(1);
   this->Input->SetTileViewport(0.0,0.0,1.0,1.0);
   this->Input->GetSize();
+  // restore every 2d actors
+  this->Restore2DActors();
+}
+
+//----------------------------------------------------------------------------
+// On each tile we must subtract the origin of each actor to ensure
+// it appears in the corrrect relative location
+void vtkWindowToImageFilter::Restore2DActors()
+{
+  vtkActor2D            *actor;
+  vtkCoordinate         *c1, *c2;
+  vtkCoordinate         *n1, *n2;
+  int i;
+  //
+  for (this->StoredData->StoredActors->InitTraversal(), i=0;
+    (actor = this->StoredData->StoredActors->GetNextItem()); i++) 
+    {
+    c1 = actor->GetPositionCoordinate();
+    c2 = actor->GetPosition2Coordinate();
+    n1 = vtkCoordinate::SafeDownCast(this->StoredData->Coord1s->GetItemAsObject(i));
+    n2 = vtkCoordinate::SafeDownCast(this->StoredData->Coord2s->GetItemAsObject(i));
+    c1->SetCoordinateSystem(n1->GetCoordinateSystem());
+    c1->SetReferenceCoordinate(n1->GetReferenceCoordinate());
+    c1->SetReferenceCoordinate(n1->GetReferenceCoordinate());
+    c1->SetValue(n1->GetValue());
+    c2->SetCoordinateSystem(n2->GetCoordinateSystem());
+    c2->SetReferenceCoordinate(n2->GetReferenceCoordinate());
+    c2->SetValue(n2->GetValue());
+    }
+  this->StoredData->Coord1s->RemoveAllItems();
+  this->StoredData->Coord2s->RemoveAllItems();
+  this->StoredData->StoredActors->RemoveAllItems();
+}
+
+//----------------------------------------------------------------------------
+void vtkWindowToImageFilter::Rescale2DActors()
+{
+  vtkActor2D            *actor;
+  vtkProp               *aProp;
+  vtkRenderer           *aren;
+  vtkPropCollection     *pc;
+  vtkRendererCollection *rc;
+  vtkCoordinate         *c1, *c2;
+  vtkCoordinate         *n1, *n2;
+  int                   *p1, *p2;
+  double                d1[3], d2[3];
+  double                *viewport;
+  //
+  vtkRenderWindow *renWin = vtkRenderWindow::SafeDownCast(this->Input);
+  rc = renWin->GetRenderers();
+  for (rc->InitTraversal(); (aren = rc->GetNextItem()); ) 
+    {
+    pc = aren->GetViewProps();
+    viewport = aren->GetViewport();
+    if (pc) 
+      {
+      for ( pc->InitTraversal(); (aProp = pc->GetNextProp()); ) 
+        {
+        actor = vtkActor2D::SafeDownCast((aProp));
+        if (actor)
+          {
+          // put the actor in our list for retrieval later
+          this->StoredData->StoredActors->AddItem(actor);
+          // Copy all existing coordinate stuff
+          n1 = actor->GetPositionCoordinate();
+          n2 = actor->GetPosition2Coordinate();
+          c1 = vtkCoordinate::New();
+          c2 = vtkCoordinate::New();
+          c1->SetCoordinateSystem(n1->GetCoordinateSystem());
+          c1->SetReferenceCoordinate(n1->GetReferenceCoordinate());
+          c1->SetReferenceCoordinate(n1->GetReferenceCoordinate());
+          c1->SetValue(n1->GetValue());
+          c2->SetCoordinateSystem(n2->GetCoordinateSystem());
+          c2->SetReferenceCoordinate(n2->GetReferenceCoordinate());
+          c2->SetValue(n2->GetValue());
+          this->StoredData->Coord1s->AddItem(c1);
+          this->StoredData->Coord2s->AddItem(c2);
+          c1->Delete();
+          c2->Delete();
+          // work out the position in new magnified pixels
+          p1 = n1->GetComputedDisplayValue(aren);
+          p2 = n2->GetComputedDisplayValue(aren);
+          d1[0] = p1[0]*this->Magnification*(1.-viewport[0]);
+          d1[1] = p1[1]*this->Magnification*(1.-viewport[1]);
+          d1[2] = 0.0;
+          d2[0] = p2[0]*this->Magnification*(1.-viewport[0]);
+          d2[1] = p2[1]*this->Magnification*(1.-viewport[1]);
+          d2[2] = 0.0;
+          this->StoredData->Coords1.push_back( 
+            vtkstd::pair<int, int>(static_cast<int>(d1[0]), static_cast<int>(d1[1])) );
+          this->StoredData->Coords2.push_back( 
+            vtkstd::pair<int, int>(static_cast<int>(d2[0]), static_cast<int>(d2[1])) );
+          // Make sure they have no dodgy offsets
+          n1->SetCoordinateSystemToDisplay();
+          n2->SetCoordinateSystemToDisplay();
+          n1->SetReferenceCoordinate(NULL);
+          n2->SetReferenceCoordinate(NULL);
+          n1->SetValue(d1[0], d1[1]);
+          n2->SetValue(d2[0], d2[1]);
+          //
+          }
+        }
+      }
+    }
+}
+//----------------------------------------------------------------------------
+// On each tile we must subtract the origin of each actor to ensure
+// it appears in the correct relative location
+void vtkWindowToImageFilter::Shift2DActors(int x, int y)
+{
+  vtkActor2D    *actor;
+  vtkCoordinate *c1, *c2;
+  double        d1[3], d2[3];
+  int           i;
+  //
+  for (this->StoredData->StoredActors->InitTraversal(), i=0; 
+    (actor = this->StoredData->StoredActors->GetNextItem()); i++) 
+    {
+    c1 = actor->GetPositionCoordinate();
+    c2 = actor->GetPosition2Coordinate();
+    c1->GetValue(d1);
+    c2->GetValue(d2);
+    d1[0] = this->StoredData->Coords1[i].first  - x;
+    d1[1] = this->StoredData->Coords1[i].second - y;
+    d2[0] = this->StoredData->Coords2[i].first  - x;
+    d2[1] = this->StoredData->Coords2[i].second - y;
+    c1->SetValue(d1);
+    c2->SetValue(d2);
+    }
 }
 
 //----------------------------------------------------------------------------
