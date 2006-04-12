@@ -16,13 +16,16 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkGenericRenderWindowInteractor, "1.6");
+vtkCxxRevisionMacro(vtkGenericRenderWindowInteractor, "1.7");
 vtkStandardNewMacro(vtkGenericRenderWindowInteractor);
+
+//------------------------------------------------------------------
 // Construct object so that light follows camera motion.
 vtkGenericRenderWindowInteractor::vtkGenericRenderWindowInteractor()
 {
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::MouseMoveEvent()
 {
   if (!this->Enabled) 
@@ -32,6 +35,7 @@ void vtkGenericRenderWindowInteractor::MouseMoveEvent()
   this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::RightButtonPressEvent()
 {
   if (!this->Enabled) 
@@ -41,6 +45,7 @@ void vtkGenericRenderWindowInteractor::RightButtonPressEvent()
   this->InvokeEvent(vtkCommand::RightButtonPressEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::RightButtonReleaseEvent()
 {
   if (!this->Enabled) 
@@ -51,6 +56,7 @@ void vtkGenericRenderWindowInteractor::RightButtonReleaseEvent()
   this->InvokeEvent(vtkCommand::RightButtonReleaseEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::LeftButtonPressEvent()
 {
   if (!this->Enabled) 
@@ -60,6 +66,7 @@ void vtkGenericRenderWindowInteractor::LeftButtonPressEvent()
   this->InvokeEvent(vtkCommand::LeftButtonPressEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::LeftButtonReleaseEvent()
 {
   if (!this->Enabled) 
@@ -69,6 +76,7 @@ void vtkGenericRenderWindowInteractor::LeftButtonReleaseEvent()
   this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::MiddleButtonPressEvent()
 {
   if (!this->Enabled) 
@@ -78,6 +86,7 @@ void vtkGenericRenderWindowInteractor::MiddleButtonPressEvent()
   this->InvokeEvent(vtkCommand::MiddleButtonPressEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::MiddleButtonReleaseEvent()
 {
   if (!this->Enabled) 
@@ -87,6 +96,7 @@ void vtkGenericRenderWindowInteractor::MiddleButtonReleaseEvent()
   this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::MouseWheelForwardEvent()
 {
   if (!this->Enabled) 
@@ -96,6 +106,7 @@ void vtkGenericRenderWindowInteractor::MouseWheelForwardEvent()
   this->InvokeEvent(vtkCommand::MouseWheelForwardEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::MouseWheelBackwardEvent()
 {
   if (!this->Enabled) 
@@ -105,6 +116,7 @@ void vtkGenericRenderWindowInteractor::MouseWheelBackwardEvent()
   this->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::ExposeEvent()
 {
   if (!this->Enabled) 
@@ -114,6 +126,7 @@ void vtkGenericRenderWindowInteractor::ExposeEvent()
   this->InvokeEvent(vtkCommand::ExposeEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::ConfigureEvent()
 {
   if (!this->Enabled) 
@@ -123,6 +136,7 @@ void vtkGenericRenderWindowInteractor::ConfigureEvent()
   this->InvokeEvent(vtkCommand::ConfigureEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::EnterEvent()
 {
   if (!this->Enabled) 
@@ -132,6 +146,7 @@ void vtkGenericRenderWindowInteractor::EnterEvent()
   this->InvokeEvent(vtkCommand::EnterEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::LeaveEvent()
 {
   if (!this->Enabled) 
@@ -141,15 +156,18 @@ void vtkGenericRenderWindowInteractor::LeaveEvent()
   this->InvokeEvent(vtkCommand::LeaveEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::TimerEvent()
 {
   if (!this->Enabled) 
     {
     return;
     }
-  this->InvokeEvent(vtkCommand::TimerEvent, NULL);
+  int timerId = 1;
+  this->InvokeEvent(vtkCommand::TimerEvent, (void*)&timerId);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::KeyPressEvent()
 {
   if (!this->Enabled) 
@@ -159,6 +177,7 @@ void vtkGenericRenderWindowInteractor::KeyPressEvent()
   this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::KeyReleaseEvent()
 {
   if (!this->Enabled) 
@@ -168,6 +187,7 @@ void vtkGenericRenderWindowInteractor::KeyReleaseEvent()
   this->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::CharEvent()
 {
   if (!this->Enabled) 
@@ -177,6 +197,7 @@ void vtkGenericRenderWindowInteractor::CharEvent()
   this->InvokeEvent(vtkCommand::CharEvent, NULL);
 }
 
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::ExitEvent()
 {
   if (!this->Enabled) 
@@ -187,32 +208,37 @@ void vtkGenericRenderWindowInteractor::ExitEvent()
 }
 
   
+//------------------------------------------------------------------
 vtkGenericRenderWindowInteractor::~vtkGenericRenderWindowInteractor()
 {
 }
 
-
-
+//------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
 
-int vtkGenericRenderWindowInteractor::CreateTimer(int )
+//------------------------------------------------------------------
+int vtkGenericRenderWindowInteractor::InternalCreateTimer(int, int,
+                                                          unsigned long)
 {
   if(this->HasObserver(vtkCommand::CreateTimerEvent))
     {
-    this->InvokeEvent(vtkCommand::CreateTimerEvent, NULL);
+    int timerId = 1;
+    this->InvokeEvent(vtkCommand::CreateTimerEvent, (void*)&timerId);
     return 1;
     }
   return 0;
 }
 
-int vtkGenericRenderWindowInteractor::DestroyTimer()
+//------------------------------------------------------------------
+int vtkGenericRenderWindowInteractor::DestroyTimer(int)
 {
   if(this->HasObserver(vtkCommand::DestroyTimerEvent))
     {
-    this->InvokeEvent(vtkCommand::DestroyTimerEvent, NULL);
+    int timerId = 1;
+    this->InvokeEvent(vtkCommand::DestroyTimerEvent, (void*)&timerId);
     return 1;
     }
   return 0;

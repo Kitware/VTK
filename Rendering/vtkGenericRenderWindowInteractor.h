@@ -57,15 +57,16 @@ public:
   virtual void CharEvent();
   virtual void ExitEvent();
   
-  // Description:
-  // Allow users of the class to add callbacks to handle the creation and 
-  // destruction of timers.   CreateTimer should create a timer event of 10 milliseconds,
-  // and at the end of that time, it should call TimerEvent on this class.
-  virtual int CreateTimer(int );
-  virtual int DestroyTimer();
 protected:
   vtkGenericRenderWindowInteractor();
   ~vtkGenericRenderWindowInteractor();
+
+  // Description: 
+  // Generic internal timer methods. See the superclass for detailed
+  // documentation.
+  virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
+  virtual int InternalDestroyTimer(int platformTimerId);
+
 private:
   vtkGenericRenderWindowInteractor(const vtkGenericRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkGenericRenderWindowInteractor&);  // Not implemented.
