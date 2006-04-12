@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkGenericRenderWindowInteractor, "1.7");
+vtkCxxRevisionMacro(vtkGenericRenderWindowInteractor, "1.8");
 vtkStandardNewMacro(vtkGenericRenderWindowInteractor);
 
 //------------------------------------------------------------------
@@ -233,7 +233,7 @@ int vtkGenericRenderWindowInteractor::InternalCreateTimer(int, int,
 }
 
 //------------------------------------------------------------------
-int vtkGenericRenderWindowInteractor::DestroyTimer(int)
+int vtkGenericRenderWindowInteractor::InternalDestroyTimer(int)
 {
   if(this->HasObserver(vtkCommand::DestroyTimerEvent))
     {
