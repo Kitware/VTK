@@ -20,7 +20,7 @@
 #include "vtkCommand.h"
 
 
-vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.32");
+vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.33");
 vtkStandardNewMacro(vtkInteractorStyleUser);
 
 //----------------------------------------------------------------------------
@@ -65,7 +65,7 @@ void vtkInteractorStyleUser::OnTimer()
 {
   if (this->HasObserver(vtkCommand::TimerEvent)) 
     {
-    this->InvokeEvent(vtkCommand::TimerEvent,NULL);
+    this->InvokeEvent(vtkCommand::TimerEvent,(void*)&(this->TimerId));
     }
 
   if (this->State == VTKIS_USERINTERACTION)
@@ -77,7 +77,7 @@ void vtkInteractorStyleUser::OnTimer()
       this->OldPos[1] = this->LastPos[1];
       if (this->UseTimers) 
         {
-        this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
+        this->Interactor->ResetTimer(this->TimerId);
         }
       }
     }
@@ -93,7 +93,7 @@ void vtkInteractorStyleUser::OnTimer()
     {
     if (this->UseTimers) 
       {
-      this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
+      this->Interactor->ResetTimer(this->TimerId);
       }
     }
 }

@@ -23,7 +23,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkWindows.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.32");
+vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.33");
 vtkStandardNewMacro(vtkInteractorStyleFlight);
 
 class CPIDControl
@@ -198,24 +198,14 @@ void vtkInteractorStyleFlight::EndReverseFly()
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnTimer()
 {
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-
   switch (this->State) 
     {
     case VTKIS_FORWARDFLY:
       this->ForwardFly();
-      if (this->UseTimers)
-        {
-        rwi->CreateTimer(VTKI_TIMER_UPDATE);
-        }
       break;
 
     case VTKIS_REVERSEFLY:
       this->ReverseFly();
-      if (this->UseTimers)
-        {
-        rwi->CreateTimer(VTKI_TIMER_UPDATE);
-        }
       break;
 
     default:

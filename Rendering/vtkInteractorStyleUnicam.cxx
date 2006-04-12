@@ -36,7 +36,7 @@
 #include "vtkWorldPointPicker.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.38");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.39");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 // define 'TheTime()' function-- returns time in elapsed seconds
@@ -105,14 +105,7 @@ void vtkInteractorStyleUnicam::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkInteractorStyleUnicam::OnTimer() 
 {
-  if (this->ButtonDown != VTK_UNICAM_NONE) 
-    {
-    // restart timer-- we want to keep getting 'OnMouseMove' events
-    if (this->UseTimers) 
-      {
-      this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
-      }
-    }
+  ; //timer just keeps ticking since we are using repeating timers
 }
 
 void vtkInteractorStyleUnicam::SetWorldUpVector(double x, double y, double z) 
@@ -131,10 +124,6 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown()
   int y = this->Interactor->GetEventPosition()[1];
 
   this->ButtonDown = VTK_UNICAM_BUTTON_LEFT;
-  if (this->UseTimers) 
-    {
-    this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
-    }
 
   this->DTime    = TheTime();
   this->Dist     = 0;
@@ -283,7 +272,7 @@ void vtkInteractorStyleUnicam::OnLeftButtonUp()
   rwi->Render();
   if (this->UseTimers)
     {
-    rwi->DestroyTimer();
+    rwi->DestroyTimer(this->TimerId);
     }
 
   this->ReleaseFocus();
