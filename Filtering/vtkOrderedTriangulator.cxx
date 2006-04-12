@@ -33,7 +33,7 @@
 #include <vtkstd/map>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.3");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.4");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -351,7 +351,7 @@ void vtkOrderedTriangulator::InitTriangulation(double bounds[6], int numPts)
   this->Mesh->Reset();
   this->NumberOfPoints = 0;
   this->MaximumNumberOfPoints = numPts;
-  this->Mesh->Points.reserve(numPts+6);
+  this->Mesh->Points.resize(numPts+6);
 
   for (int i=0; i<6; i++)
     {
