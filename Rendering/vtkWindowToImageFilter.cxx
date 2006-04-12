@@ -28,7 +28,7 @@
 #include "vtkActor2DCollection.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.44");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.45");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 class vtkWTI2DHelperClass
@@ -301,7 +301,7 @@ void vtkWindowToImageFilter::RequestData(
   this->Input->SetTileScale(this->Magnification);
   this->Input->GetSize();
 
-  //this->Rescale2DActors();
+  this->Rescale2DActors();
   int x, y;
   for (y = 0; y < this->Magnification; y++)
     {
@@ -353,7 +353,7 @@ void vtkWindowToImageFilter::RequestData(
         }
 
       // Shift 2d actors just before rendering
-      //this->Shift2DActors(size[0]*x, size[1]*y);
+      this->Shift2DActors(size[0]*x, size[1]*y);
       // now render the tile and get the data
       if (this->ShouldRerender || this->Magnification > 1)
         {
@@ -530,11 +530,11 @@ void vtkWindowToImageFilter::Rescale2DActors()
           // work out the position in new magnified pixels
           p1 = n1->GetComputedDisplayValue(aren);
           p2 = n2->GetComputedDisplayValue(aren);
-          d1[0] = p1[0]*this->Magnification; //*(1.-viewport[0]);
-          d1[1] = p1[1]*this->Magnification; //*(1.-viewport[1]);
+          d1[0] = p1[0]*this->Magnification;
+          d1[1] = p1[1]*this->Magnification;
           d1[2] = 0.0;
-          d2[0] = p2[0]*this->Magnification; //*(1.-viewport[0]);
-          d2[1] = p2[1]*this->Magnification; //*(1.-viewport[1]);
+          d2[0] = p2[0]*this->Magnification;
+          d2[1] = p2[1]*this->Magnification;
           d2[2] = 0.0;
           this->StoredData->Coords1.push_back(
             vtkstd::pair<int, int>(static_cast<int>(d1[0]), static_cast<int>(d1[1])) );
@@ -571,9 +571,9 @@ void vtkWindowToImageFilter::Shift2DActors(int x, int y)
     c1->GetValue(d1);
     c2->GetValue(d2);
     d1[0] = this->StoredData->Coords1[i].first  - x;
-    d1[1] = this->StoredData->Coords1[i].second - y;
+    d1[1] = this->StoredData->Coords1[i].second - y + 1;
     d2[0] = this->StoredData->Coords2[i].first  - x;
-    d2[1] = this->StoredData->Coords2[i].second - y;
+    d2[1] = this->StoredData->Coords2[i].second - y + 1;
     c1->SetValue(d1);
     c2->SetValue(d2);
     }
