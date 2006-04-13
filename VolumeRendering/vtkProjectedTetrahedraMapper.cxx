@@ -48,7 +48,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.6");
+vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.7");
 
 vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper,
                      VisibilitySort, vtkVisibilitySort);
@@ -201,8 +201,10 @@ void vtkProjectedTetrahedraMapper::MapScalarsToColors(vtkDataArray *colors,
   int castColors;
 
   if (   (colors->GetDataType() == VTK_UNSIGNED_CHAR)
-      && (   (scalars->GetDataType() != VTK_UNSIGNED_CHAR)
-          || (volume->GetProperty()->GetIndependentComponents()) ) )
+         && ((   (scalars->GetDataType() != VTK_UNSIGNED_CHAR)
+                 || (volume->GetProperty()->GetIndependentComponents()) )
+             || ((!volume->GetProperty()->GetIndependentComponents())
+                 && (scalars->GetNumberOfComponents() == 2))) )
     {
     // Special case.  Need to convert from range [0,1] to [0,255].
     tmpColors = vtkDoubleArray::New();
@@ -283,7 +285,7 @@ namespace vtkProjectedTetrahedraMapperNamespace
       switch (num_scalar_components)
         {
         case 2:
-          Map2DependentComponents(colors, scalars, num_scalars);
+          Map2DependentComponents(colors, property, scalars, num_scalars);
           break;
         case 4:
           Map4DependentComponents(colors, scalars, num_scalars);
@@ -341,13 +343,20 @@ namespace vtkProjectedTetrahedraMapperNamespace
   }
 
   template<class ColorType, class ScalarType>
-  void Map2DependentComponents(ColorType *colors, ScalarType *scalars,
-                               vtkIdType num_scalars)
+  void Map2DependentComponents(ColorType *colors, vtkVolumeProperty *property,
+                               ScalarType *scalars, vtkIdType num_scalars)
   {
+    vtkColorTransferFunction *rgb = property->GetRGBTransferFunction();
+    vtkPiecewiseFunction *alpha = property->GetScalarOpacity();
+    double rgbColor[3];
+
     for (vtkIdType i = 0; i < num_scalars; i++)
       {
-      colors[0] = colors[1] = colors[2] = static_cast<ColorType>(scalars[0]);
-      colors[3] = static_cast<ColorType>(scalars[3]);
+      rgb->GetColor(scalars[0], rgbColor);
+      colors[0] = rgbColor[0];
+      colors[1] = rgbColor[1];
+      colors[2] = rgbColor[2];
+      colors[3] = alpha->GetValue(scalars[1]);
 
       colors += 4;
       scalars += 2;
