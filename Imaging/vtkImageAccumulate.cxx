@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.65");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.66");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -130,10 +130,10 @@ template <class T>
 void vtkImageAccumulateExecute(vtkImageAccumulate *self,
                                vtkImageData *inData, T *inPtr,
                                vtkImageData *outData, int *outPtr,
-                               double Min[3], double Max[3],
-                               double Mean[3],
-                               double StandardDeviation[3],
-                               long int *VoxelCount,
+                               double min[3], double max[3],
+                               double mean[3],
+                               double standardDeviation[3],
+                               long int *voxelCount,
                                int* updateExtent)
 {
   int idX, idY, idZ, idxC;
@@ -151,11 +151,11 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
   // variables used to compute statistics (filter handles max 3 components)
   double sum[3];
   sum[0] = sum[1] = sum[2] = 0.0;
-  Min[0] = Min[1] = Min[2] = VTK_DOUBLE_MAX;
-  Max[0] = Max[1] = Max[2] = VTK_DOUBLE_MIN;
+  min[0] = min[1] = min[2] = VTK_DOUBLE_MAX;
+  max[0] = max[1] = max[2] = VTK_DOUBLE_MIN;
   sumSqr[0] = sumSqr[1] = sumSqr[2] = 0.0;
-  StandardDeviation[0] = StandardDeviation[1] = StandardDeviation[2] = 0.0;
-  *VoxelCount = 0;
+  standardDeviation[0] = standardDeviation[1] = standardDeviation[2] = 0.0;
+  *voxelCount = 0;
   
   vtkImageStencilData *stencil = self->GetStencil();
 
@@ -219,15 +219,15 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
             // Gather statistics
             sum[idxC]+= *tempPtr;
             sumSqr[idxC]+= (*tempPtr * *tempPtr);
-            if (*tempPtr > Max[idxC])
+            if (*tempPtr > max[idxC])
               {
-              Max[idxC] = *tempPtr;
+              max[idxC] = *tempPtr;
               }
-            else if (*tempPtr < Min[idxC])
+            else if (*tempPtr < min[idxC])
               {
-              Min[idxC] = *tempPtr;
+              min[idxC] = *tempPtr;
               }
-            (*VoxelCount)++;
+            (*voxelCount)++;
             // compute the index
             outIdx = (int) floor((((double)*tempPtr++ - origin[idxC]) 
                                   / spacing[idxC]));
@@ -248,23 +248,23 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
       }
     }
   
-  if (*VoxelCount) // avoid the div0
+  if (*voxelCount) // avoid the div0
     {
-    Mean[0] = sum[0] / (double)*VoxelCount;    
-    Mean[1] = sum[1] / (double)*VoxelCount;    
-    Mean[2] = sum[2] / (double)*VoxelCount;    
+    mean[0] = sum[0] / (double)*voxelCount;    
+    mean[1] = sum[1] / (double)*voxelCount;    
+    mean[2] = sum[2] / (double)*voxelCount;    
 
-    variance = sumSqr[0] / (double)(*VoxelCount-1) - ((double) *VoxelCount * Mean[0] * Mean[0] / (double) (*VoxelCount - 1));
-    StandardDeviation[0] = sqrt(variance);
-    variance = sumSqr[1] / (double)(*VoxelCount-1) - ((double) *VoxelCount * Mean[1] * Mean[1] / (double) (*VoxelCount - 1));
-    StandardDeviation[1] = sqrt(variance);
-    variance = sumSqr[2] / (double)(*VoxelCount-1) - ((double) *VoxelCount * Mean[2] * Mean[2] / (double) (*VoxelCount - 1));
-    StandardDeviation[2] = sqrt(variance);
+    variance = sumSqr[0] / (double)(*voxelCount-1) - ((double) *voxelCount * mean[0] * mean[0] / (double) (*voxelCount - 1));
+    standardDeviation[0] = sqrt(variance);
+    variance = sumSqr[1] / (double)(*voxelCount-1) - ((double) *voxelCount * mean[1] * mean[1] / (double) (*voxelCount - 1));
+    standardDeviation[1] = sqrt(variance);
+    variance = sumSqr[2] / (double)(*voxelCount-1) - ((double) *voxelCount * mean[2] * mean[2] / (double) (*voxelCount - 1));
+    standardDeviation[2] = sqrt(variance);
     }
   else
     {
-    Mean[0] = Mean[1] = Mean[2] = 0.0;
-    StandardDeviation[0] = StandardDeviation[1] = StandardDeviation[2] = 0.0;
+    mean[0] = mean[1] = mean[2] = 0.0;
+    standardDeviation[0] = standardDeviation[1] = standardDeviation[2] = 0.0;
     }
   
 }
