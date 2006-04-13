@@ -29,6 +29,7 @@
 #endif
 
 #if defined(VTK_USE_MANGLED_MESA)
+#include "vtkMesaProjectedTetrahedraMapper.h"
 #include "vtkMesaRayCastImageDisplayHelper.h"
 #include "vtkMesaVolumeTextureMapper2D.h"
 #endif
@@ -37,7 +38,7 @@
 
 #include "stdlib.h"
 
-vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.8");
+vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.9");
 vtkStandardNewMacro(vtkVolumeRenderingFactory);
 
 
@@ -64,12 +65,12 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
     // Projected Tetrahedra Mapper
     if(strcmp(vtkclassname, "vtkProjectedTetrahedraMapper") == 0)
       {
-// #if defined(VTK_USE_MANGLED_MESA)
-//       if (vtkGraphicsFactory::GetUseMesaClasses())
-//         {
-//         return vtkMesaProjectedTetrahedraMapper::New();
-//         }
-// #endif
+#if defined(VTK_USE_MANGLED_MESA)
+      if (vtkGraphicsFactory::GetUseMesaClasses())
+        {
+        return vtkMesaProjectedTetrahedraMapper::New();
+        }
+#endif
       return vtkOpenGLProjectedTetrahedraMapper::New();
       }
 

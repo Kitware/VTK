@@ -116,6 +116,7 @@ ABSTRACT
 IF (VTK_USE_MANGLED_MESA)
   IF (MANGLED_MESA_LIBRARY)
     SET ( KitOpenGL_SRCS ${KitOpenGL_SRCS}
+                 vtkMesaProjectedTetrahedraMapper.cxx
                  vtkMesaRayCastImageDisplayHelper.cxx
                  vtkMesaVolumeTextureMapper2D.cxx
     )
