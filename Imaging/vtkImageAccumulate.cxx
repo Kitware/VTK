@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.66");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.67");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ void vtkImageAccumulate::SetComponentExtent(int extent[6])
     if (this->ComponentExtent[idx] != extent[idx])
       {
       this->ComponentExtent[idx] = extent[idx];
-      this->Modified();
+      modified = 1;
       }
     }
   if (modified)
@@ -398,6 +398,7 @@ int vtkImageAccumulate::RequestUpdateExtent (
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkImageAccumulate::FillInputPortInformation(
   int port, vtkInformation* info)
 {
@@ -414,6 +415,7 @@ int vtkImageAccumulate::FillInputPortInformation(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
