@@ -21,7 +21,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkEvent.h"
 
-vtkCxxRevisionMacro(vtkHoverWidget, "1.4");
+vtkCxxRevisionMacro(vtkHoverWidget, "1.5");
 vtkStandardNewMacro(vtkHoverWidget);
 
 //-------------------------------------------------------------------------
@@ -30,7 +30,24 @@ vtkHoverWidget::vtkHoverWidget()
   this->WidgetState = Start;
   this->TimerDuration = 250;
 
-  // Okay, define the events for this widget
+  // Okay, define the events for this widget. Note that we look for extra events
+  // (like button press) because without it the hover widget thinks nothing has changed
+  // and doesn't begin retiming.
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
+                                          vtkWidgetEvent::Move,
+                                          this, vtkHoverWidget::MoveAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::MiddleButtonPressEvent,
+                                          vtkWidgetEvent::Move,
+                                          this, vtkHoverWidget::MoveAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::RightButtonPressEvent,
+                                          vtkWidgetEvent::Move,
+                                          this, vtkHoverWidget::MoveAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseWheelForwardEvent,
+                                          vtkWidgetEvent::Move,
+                                          this, vtkHoverWidget::MoveAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseWheelBackwardEvent,
+                                          vtkWidgetEvent::Move,
+                                          this, vtkHoverWidget::MoveAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
                                           vtkWidgetEvent::Move,
                                           this, vtkHoverWidget::MoveAction);
@@ -103,7 +120,7 @@ void vtkHoverWidget::MoveAction(vtkAbstractWidget *w)
     {
     self->Interactor->DestroyTimer(self->TimerId);
     }
-  else //we have timed out, on this move we restart the timer
+  else //we have already timed out, on this move we begin retiming
     {
     self->WidgetState = vtkHoverWidget::Timing;
     self->SubclassEndHoverAction();
