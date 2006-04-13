@@ -152,8 +152,8 @@ public:
   // Specify whether to transform the spacing, origin and extent
   // of the Input (or the InformationInput) according to the
   // direction cosines and origin of the ResliceAxes before applying
-  // them as the default output spacing, origin and extent. 
-  // Default: On.
+  // them as the default output spacing, origin and extent 
+  // (default: On).
   vtkSetMacro(TransformInputSampling, int);
   vtkBooleanMacro(TransformInputSampling, int);
   vtkGetMacro(TransformInputSampling, int);
@@ -161,26 +161,26 @@ public:
   // Description:
   // Turn this on if you want to guarantee that the extent of the
   // output will be large enough to ensure that none of the 
-  // data will be cropped.
+  // data will be cropped (default: Off).
   vtkSetMacro(AutoCropOutput, int);
   vtkBooleanMacro(AutoCropOutput, int);
   vtkGetMacro(AutoCropOutput, int);
 
   // Description:
-  // Turn on wrap-pad feature (default: off). 
+  // Turn on wrap-pad feature (default: Off).
   vtkSetMacro(Wrap, int);
   vtkGetMacro(Wrap, int);
   vtkBooleanMacro(Wrap, int);
 
   // Description:
-  // Turn on mirror-pad feature (default: off). 
-  // This will override the wrap-pad.
+  // Turn on mirror-pad feature (default: Off).
+  // This will override the wrap-pad. 
   vtkSetMacro(Mirror, int);
   vtkGetMacro(Mirror, int);
   vtkBooleanMacro(Mirror, int);
 
   // Description:
-  // Extend the apparent input border by a half voxel (default: on).
+  // Extend the apparent input border by a half voxel (default: On).
   // This changes how interpolation is handled at the borders of the
   // input image: if the center of an output voxel is beyond the edge
   // of the input image, but is within a half voxel width of the edge
@@ -255,7 +255,7 @@ public:
   // extent is confined to the xy plane).  If the dimensionality
   // is 1D, the output extent is confined to the x axis.  
   // For 0D, the output extent consists of a single voxel at 
-  // (0,0,0).  
+  // (0,0,0).
   vtkSetMacro(OutputDimensionality, int);
   vtkGetMacro(OutputDimensionality, int);
 
@@ -311,28 +311,28 @@ protected:
   int OutputDimensionality;
   int TransformInputSampling;
   int AutoCropOutput;
+  int HitInputExtent;
 
   vtkMatrix4x4 *IndexMatrix;
   vtkAbstractTransform *OptimizedTransform;
 
   void GetAutoCroppedOutputBounds(vtkInformation *inInfo, double bounds[6]);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                                  vtkInformationVector *);
   virtual void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
                                    vtkImageData **outData, int ext[6], int id);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
-  vtkMatrix4x4 *GetIndexMatrix(vtkInformation *inInfo, vtkInformation *outInfo);
+  vtkMatrix4x4 *GetIndexMatrix(vtkInformation *inInfo,
+                               vtkInformation *outInfo);
   vtkAbstractTransform *GetOptimizedTransform() { 
     return this->OptimizedTransform; };
-  void OptimizedComputeInputUpdateExtent(int inExt[6], int outExt[6],
-                                         vtkInformation *inInfo,
-                                         vtkInformation *outInfo);
-  void OptimizedThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-                                int ext[6], int id);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 private:
   vtkImageReslice(const vtkImageReslice&);  // Not implemented.
   void operator=(const vtkImageReslice&);  // Not implemented.
