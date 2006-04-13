@@ -17,40 +17,42 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStructuredData, "1.60");
+vtkCxxRevisionMacro(vtkStructuredData, "1.61");
 
 // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
 int vtkStructuredData::GetDataDimension(int dataDescription)
 {
   switch (dataDescription)
     {
-    case VTK_EMPTY: return 0;  // Should I put -1?
-
-    case VTK_SINGLE_POINT: return 0;
-
-    case VTK_X_LINE: case VTK_Y_LINE: case VTK_Z_LINE: return 1;
-
-    case VTK_XY_PLANE: case VTK_YZ_PLANE: case VTK_XZ_PLANE: return 2;
-
-    case VTK_XYZ_GRID: return 3;
-
+    case VTK_EMPTY:
+      return 0;  // Should I put -1?
+    case VTK_SINGLE_POINT:
+      return 0;
+    case VTK_X_LINE:
+    case VTK_Y_LINE:
+    case VTK_Z_LINE:
+      return 1;
+    case VTK_XY_PLANE:
+    case VTK_YZ_PLANE:
+    case VTK_XZ_PLANE:
+      return 2;
+    case VTK_XYZ_GRID:
+      return 3;
     default:
-      return -1;                       
+      return -1;
     }
 }
 
 // Specify the dimensions of a regular, rectangular dataset. The input is
-// the new dimensions (inDim) and the current dimensions (dim). The function 
-// returns the dimension of the dataset (0-3D). If the dimensions are 
+// the new dimensions (inDim) and the current dimensions (dim). The function
+// returns the dimension of the dataset (0-3D). If the dimensions are
 // improperly specified a -1 is returned. If the dimensions are unchanged, a
 // value of 100 is returned.
 int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
 {
   int dataDim, i;
-  int dataDescription=VTK_UNCHANGED;
+  int dataDescription = VTK_UNCHANGED;
 
-  
-  
   if ( inDim[0] != dim[0] || inDim[1] != dim[1] || inDim[2] != dim[2] )
     {
     for (dataDim=0, i=0; i<3 ; i++)
@@ -111,8 +113,8 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
 }
 
 // Specify the extent of a regular, rectangular dataset. The input is
-// the new extent (inExt) and the current extent (ext). The function 
-// returns the dimension of the dataset (0-3D). If the extents are 
+// the new extent (inExt) and the current extent (ext). The function
+// returns the dimension of the dataset (0-3D). If the extents are
 // improperly specified a -1 is returned. If the dimensions are unchanged, a
 // value of 100 is returned.
 int vtkStructuredData::SetExtent(int inExt[6], int ext[6])
@@ -126,7 +128,7 @@ int vtkStructuredData::SetExtent(int inExt[6], int ext[6])
     {
     return VTK_UNCHANGED;
     }
-  
+
   dataDim = 0;
   for (i=0; i<3 ; ++i)
     {
@@ -137,7 +139,7 @@ int vtkStructuredData::SetExtent(int inExt[6], int ext[6])
       dataDim++;
       }
     }
-  
+
   if ( inExt[0]>inExt[1] || inExt[2]>inExt[3] || inExt[4]>inExt[5] )
     {
     return VTK_EMPTY;
@@ -193,13 +195,13 @@ void vtkStructuredData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds,
   vtkIdType idx, npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = dim[0]*dim[1];
- 
+
   ptIds->Reset();
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
 
   switch (dataDescription)
     {
-    case VTK_EMPTY: 
+    case VTK_EMPTY:
       return;
 
     case VTK_SINGLE_POINT: // cellId can only be = 0
@@ -276,7 +278,7 @@ void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds,
   static int offset[8][3] = {{-1,0,0}, {-1,-1,0}, {-1,-1,-1}, {-1,0,-1},
                              {0,0,0},  {0,-1,0},  {0,-1,-1},  {0,0,-1}};
 
-  for (i=0; i<3; i++) 
+  for (i=0; i<3; i++)
     {
     cellDim[i] = dim[i] - 1;
     if (cellDim[i] == 0)
@@ -296,19 +298,19 @@ void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds,
   //
   cellIds->Reset();
 
-  for (j=0; j<8; j++) 
+  for (j=0; j<8; j++)
     {
-    for (i=0; i<3; i++) 
+    for (i=0; i<3; i++)
       {
       cellLoc[i] = ptLoc[i] + offset[j][i];
-      if ( cellLoc[i] < 0 || cellLoc[i] >= cellDim[i] ) 
+      if ( cellLoc[i] < 0 || cellLoc[i] >= cellDim[i] )
         {
         break;
         }
       }
     if ( i >= 3 ) //add cell
       {
-      cellId = cellLoc[0] + cellLoc[1]*cellDim[0] + 
+      cellId = cellLoc[0] + cellLoc[1]*cellDim[0] +
                             cellLoc[2]*cellDim[0]*cellDim[1];
       cellIds->InsertNextId(cellId);
       }
@@ -317,15 +319,15 @@ void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds,
   return;
 }
 
-void vtkStructuredData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds, 
+void vtkStructuredData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                         vtkIdList *cellIds, int dim[3])
 {
   int j, seedLoc[3], ptLoc[3], cellLoc[3], cellDim[3];
   int offset[8][3];
-  vtkIdType numPts=ptIds->GetNumberOfIds(), id, i;
-  
+  vtkIdType numPts = ptIds->GetNumberOfIds(), id, i;
+
   cellIds->Reset();
-  
+
   // Start by finding the "space" of the points in i-j-k space.
   // The points define a point, line, or plane in topological space,
   // which results in degrees of freedom in three, two or one direction.
@@ -400,8 +402,8 @@ void vtkStructuredData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       offset[7][2] = -10;
       }
     }
-  
-  // Load the non-trimmed cells 
+
+  // Load the non-trimmed cells
   cellDim[0] = dim[0] - 1;
   cellDim[1] = dim[1] - 1;
   cellDim[2] = dim[2] - 1;
@@ -414,14 +416,14 @@ void vtkStructuredData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       }
     }
 
-  for (j=0; j<8; j++) 
+  for (j=0; j<8; j++)
     {
-    for (i=0; i<3; i++) 
+    for (i=0; i<3; i++)
       {
       if ( offset[j][i] != -10 )
         {
         cellLoc[i] = seedLoc[i] + offset[j][i];
-        if ( cellLoc[i] < 0 || cellLoc[i] >= cellDim[i] ) 
+        if ( cellLoc[i] < 0 || cellLoc[i] >= cellDim[i] )
           {
           break;
           }
@@ -433,8 +435,8 @@ void vtkStructuredData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       }
     if ( i >= 3 ) //add cell
       {
-      id = cellLoc[0] + cellLoc[1]*cellDim[0] + 
-                            cellLoc[2]*cellDim[0]*cellDim[1];
+      id = cellLoc[0] + cellLoc[1]*cellDim[0] +
+                        cellLoc[2]*cellDim[0]*cellDim[1];
       if (id != cellId )
         {
         cellIds->InsertNextId(id);
