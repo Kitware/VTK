@@ -87,8 +87,11 @@ virtual void Set##name (const char* _arg) \
   if (this->name) { delete [] this->name; } \
   if (_arg) \
     { \
-    this->name = new char[strlen(_arg)+1]; \
-    strcpy(this->name,_arg); \
+    size_t n = strlen(_arg) + 1; \
+    char *cp1 =  new char[n]; \
+    const char *cp2 = (_arg); \
+    this->name = cp1; \
+    do { *cp1++ = *cp2++; } while ( --n ); \
     } \
    else \
     { \
