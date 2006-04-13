@@ -7,6 +7,10 @@
 package require vtk
 package require vtkinteraction
 
+# Turn on the use of the Mesa classes in the graphics factory.
+vtkGraphicsFactory gf
+gf SetUseMesaClasses 1
+
 # Create Mesa specific render window and renderer
 # When using Mesa, you should always create Mesa specific renderers,
 # render windows, mappers, actors, lights, cameras etc...

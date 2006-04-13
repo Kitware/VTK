@@ -12,6 +12,10 @@ package require vtkinteraction
 # Note that an equivalent Mesa object has to be created for each
 # OpenGL object.
 
+# Turn on the use of the Mesa classes in the graphics factory.
+vtkGraphicsFactory gf
+gf SetUseMesaClasses 1
+
 # The OpenGL render window
 vtkRenderWindow rw
 # The Mesa equivalent
