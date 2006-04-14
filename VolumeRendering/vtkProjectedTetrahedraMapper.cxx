@@ -48,7 +48,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.7");
+vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.8");
 
 vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper,
                      VisibilitySort, vtkVisibilitySort);
@@ -353,10 +353,10 @@ namespace vtkProjectedTetrahedraMapperNamespace
     for (vtkIdType i = 0; i < num_scalars; i++)
       {
       rgb->GetColor(scalars[0], rgbColor);
-      colors[0] = rgbColor[0];
-      colors[1] = rgbColor[1];
-      colors[2] = rgbColor[2];
-      colors[3] = alpha->GetValue(scalars[1]);
+      colors[0] = static_cast<ColorType>(rgbColor[0]);
+      colors[1] = static_cast<ColorType>(rgbColor[1]);
+      colors[2] = static_cast<ColorType>(rgbColor[2]);
+      colors[3] = static_cast<ColorType>(alpha->GetValue(scalars[1]));
 
       colors += 4;
       scalars += 2;
