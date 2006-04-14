@@ -48,7 +48,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.8");
+vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.9");
 
 vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper,
                      VisibilitySort, vtkVisibilitySort);
@@ -184,7 +184,9 @@ namespace vtkProjectedTetrahedraMapperNamespace
                                 int num_scalar_components,
                                 vtkIdType num_scalars);
   template<class ColorType, class ScalarType>
-  void Map2DependentComponents(ColorType *colors, ScalarType *scalars,
+  void Map2DependentComponents(ColorType *colors,
+                               vtkVolumeProperty *property,
+                               ScalarType *scalars,
                                vtkIdType num_scalars);
   template<class ColorType, class ScalarType>
   void Map4DependentComponents(ColorType *colors, ScalarType *scalars,
