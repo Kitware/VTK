@@ -15,11 +15,11 @@
 // .NAME vtkBalloonRepresentation - represent the vtkBalloonWidget
 // .SECTION Description
 // The vtkBalloonRepresentation is used to represent the vtkBalloonWidget.
-// This representation consists of two parts: a text string and an image.  At
-// least one of these two parts must be defined, but it is allowable to
+// This representation is defined by two items: a text string and an image.
+// At least one of these two items must be defined, but it is allowable to
 // specify both, or just an image or just text. If both the text and image
 // are specified, then methods are available for positioning the text and
-// image with respect to each other. 
+// image with respect to each other.
 //
 // The balloon representation consists of three parts: text, a rectangular
 // frame behind the text, and an image placed next to the frame and sized
