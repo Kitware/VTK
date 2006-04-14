@@ -33,6 +33,8 @@
 //                    is hovering.
 //   TimerEvent - when the time between events (e.g., mouse move), then a
 //                timer event is invoked.
+//   KeyPressEvent - when the "Enter" key is pressed after the balloon appears,
+//                   a callback is activited (e.g., WidgetActivateEvent).
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
@@ -42,6 +44,8 @@
 //   vtkWidgetEvent::Move -- start (or reset) the timer
 //   vtkWidgetEvent::TimedOut -- when enough time is elapsed between defined
 //                               VTK events the hover event is invoked.
+//   vtkWidgetEvent::SelectAction -- activate any callbacks associated 
+//                                   with the balloon.
 // </pre>
 //
 // This widget invokes the following VTK events on itself when the widget 
@@ -51,6 +55,8 @@
 //   vtkCommand::TimerEvent (when hovering is determined to occur)
 //   vtkCommand::EndInteractionEvent (after a hover has occured and the
 //                                    mouse begins moving again).
+//   vtkCommand::WidgetActivateEvent (when the balloon is selected with a
+//                                    keypress).
 // </pre>
 
 // .SECTION See Also

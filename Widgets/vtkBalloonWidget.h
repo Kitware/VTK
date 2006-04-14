@@ -24,10 +24,10 @@
 // 
 // To use this widget, specify an instance of vtkBalloonWidget and a
 // representation (e.g., vtkBalloonRepresentation). Then list all instances
-// of vtkProp, a text string, and/or an instance of vtkImageData to go along
-// with each vtkProp. (Note that you can specify both text and an image, or
-// just one or the other.) You may also wish to specify the hover delay
-// (i.e., set in the superclass).
+// of vtkProp, a text string, and/or an instance of vtkImageData to be
+// associated with each vtkProp. (Note that you can specify both text and an
+// image, or just one or the other.) You may also wish to specify the hover
+// delay (i.e., set in the superclass vtkHoverWidget).
 //
 // .SECTION Event Bindings
 // By default, the widget observes the following VTK events (i.e., it
@@ -36,6 +36,8 @@
 //   MouseMoveEvent - occurs when mouse is moved in render window.
 //   TimerEvent - occurs when the time between events (e.g., mouse move)
 //                is greater than TimerDuration.
+//   KeyPressEvent - when the "Enter" key is pressed after the balloon appears,
+//                   a callback is activited (e.g., WidgetActivateEvent).
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
@@ -44,6 +46,8 @@
 // <pre>
 //   vtkWidgetEvent::Move -- start the timer
 //   vtkWidgetEvent::TimedOut -- when hovering occurs,
+//   vtkWidgetEvent::SelectAction -- activate any callbacks associated 
+//                                   with the balloon.
 // </pre>
 //
 // This widget invokes the following VTK events on itself (which observers
@@ -52,6 +56,8 @@
 //   vtkCommand::TimerEvent (when hovering is determined to occur)
 //   vtkCommand::EndInteractionEvent (after a hover has occured and the
 //                                    mouse begins moving again).
+//   vtkCommand::WidgetActivateEvent (when the balloon is selected with a
+//                                    keypress).
 // </pre>
 
 // .SECTION See Also
@@ -104,8 +110,18 @@ public:
   // may add one or both of them. 
   void AddBalloon(vtkProp *prop, vtkStdString *str, vtkImageData *img);
   void AddBalloon(vtkProp *prop, const char *str, vtkImageData *img);
+  void AddBalloon(vtkProp *prop, const char *str) //for wrapping
+    {this->AddBalloon(prop,str,NULL);}
   void RemoveBalloon(vtkProp *prop);
   
+  // Description:
+  // Methods to retrieve the information associated with each vtkProp (i.e.,
+  // the information that makes up each balloon). A NULL will be returned if
+  // the vtkProp does not exist, or if a string or image have not been
+  // associated with the specified vtkProp.
+  const char *GetBalloonString(vtkProp *prop);
+  vtkImageData *GetBalloonImage(vtkProp *prop);
+
   // Description:
   // Return the current vtkProp that is being hovered over. Note that the
   // value may be NULL (if hovering over nothing or the mouse is moving).
