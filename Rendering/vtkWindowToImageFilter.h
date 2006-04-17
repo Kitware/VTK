@@ -46,7 +46,7 @@
 // assured because of these dependencies.
 
 // .SECTION see also
-// vtkWindow
+// vtkWindow vtkRenderLargeImage
 
 #ifndef __vtkWindowToImageFilter_h
 #define __vtkWindowToImageFilter_h
