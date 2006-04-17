@@ -38,7 +38,7 @@
 #include "vtkGenericEdgeTable.h"
 #include "vtkSimpleCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkBridgeDataSet, "1.7");
+vtkCxxRevisionMacro(vtkBridgeDataSet, "1.8");
 vtkStandardNewMacro(vtkBridgeDataSet);
 
 //----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ vtkIdType vtkBridgeDataSet::GetNumberOfPoints()
   vtkIdType result = 0;
   if(this->Implementation)
     {
-    result = Implementation->GetNumberOfPoints();
+    result = this->Implementation->GetNumberOfPoints();
     }
   assert("post: positive_result" && result>=0);
   return result;
@@ -191,9 +191,9 @@ void vtkBridgeDataSet::ComputeNumberOfCellsAndTypes()
              break;
            }
          type=c->GetCellType();
-         if(!Types->IsType(type))
+         if(!this->Types->IsType(type))
            {
-           Types->InsertNextType(type);
+           this->Types->InsertNextType(type);
            }
          cellId++;
          }

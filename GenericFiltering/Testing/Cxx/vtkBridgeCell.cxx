@@ -67,7 +67,7 @@
 # include "vtkQuadraticPyramid.h"
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.14");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.15");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -1375,10 +1375,7 @@ void vtkBridgeCell::InterpolationFunctions(double pcoords[3])
 {
   // unfortunately InterpolationFunctions are static in all
   // cells, here is a huge switch >:-(
-  
-  double rm=0;
-  double sm=0;
-  
+
   switch(this->Cell->GetCellType())
     {
     case VTK_EMPTY_CELL:
