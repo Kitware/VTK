@@ -17,19 +17,18 @@
 
 // vtkGenericDataSetTessellator is a filter that subdivides a
 // vtkGenericDataSet into linear elements (i.e., linear VTK
-// cells). Tetrahedra are produced from 3D cells; triangles from 2D cells;
+// cells). Tetrahedras are produced from 3D cells; triangles from 2D cells;
 // and lines from 1D cells. The subdivision process depends on the cell
 // tessellator associated with the input generic dataset, and its associated
 // error metric. (These can be specified by the user if necessary.)
 //
 // This filter is typically used to convert a higher-order, complex dataset
-// represented vtkGenericDataSet into a conventional vtkDataSet that can
-// be operated on by linear VTK graphics filters.
+// represented by a vtkGenericDataSet into a conventional vtkDataSet that can
+// be operated on by linear VTK graphics filters (end of pipeline for
+// rendering).
 
 // .SECTION See Also
-// vtkGenericDataSetTessellator vtkGenericCellTessellator 
-// vtkGenericSubdivisionErrorMetric
-
+// vtkGenericCellTessellator vtkGenericSubdivisionErrorMetric
 
 #ifndef __vtkGenericDataSetTessellator_h
 #define __vtkGenericDataSetTessellator_h
@@ -93,7 +92,7 @@ protected:
   int KeepCellIds;
   
   // Used internal by vtkGenericAdaptorCell::Tessellate()
-  vtkPointData *internalPD;
+  vtkPointData *InternalPD;
   
   int Merging;
   vtkPointLocator *Locator;

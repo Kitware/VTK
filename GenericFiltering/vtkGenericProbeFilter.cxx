@@ -30,7 +30,7 @@
 #include "vtkGenericAttributeCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkGenericProbeFilter, "1.5");
+vtkCxxRevisionMacro(vtkGenericProbeFilter, "1.6");
 vtkStandardNewMacro(vtkGenericProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -121,10 +121,9 @@ int vtkGenericProbeFilter::RequestData(
 
   int attributeType;
   
-  double *tuples=new double[attributes->GetMaxNumberOfComponents()];
+  double *tuples = new double[attributes->GetMaxNumberOfComponents()];
   
-  int i=0;
-  while(i<c)
+  for(int i = 0; i<c; ++i)
     {
     attribute=attributes->GetAttribute(i);
     attributeType=attribute->GetType();
@@ -146,7 +145,6 @@ int vtkGenericProbeFilter::RequestData(
       {
       dsAttributes->SetActiveAttribute(dsAttributes->GetNumberOfArrays()-1,attributeType);
       }
-    ++i;
     }
   
   
@@ -180,8 +178,7 @@ int vtkGenericProbeFilter::RequestData(
       vtkGenericAdaptorCell *cellProbe = cellIt->GetCell();
       
       // for each cell-centered attribute: copy the value
-      int attrib=0;
-      while(attrib<c)
+      for(int attrib = 0; attrib<c; ++attrib)
         {
         if(attributes->GetAttribute(attrib)->GetCentering()==vtkCellCentered)
           {
@@ -189,13 +186,11 @@ int vtkGenericProbeFilter::RequestData(
           double *values=attributes->GetAttribute(attrib)->GetTuple(cellProbe);
           array->InsertNextTuple(values);  
           }
-        attrib++;
         }
       
       // for each point-centered attribute: interpolate the value
-      int attribute_idx=0;
       int j=0;
-      while(attribute_idx<c)
+      for(int attribute_idx = 0; attribute_idx<c; ++attribute_idx)
         {
         vtkGenericAttribute *a = attributes->GetAttribute(attribute_idx);
         if(a->GetCentering()==vtkPointCentered)
@@ -204,7 +199,6 @@ int vtkGenericProbeFilter::RequestData(
           outputPD->GetArray(j)->InsertTuple(ptId,tuples);
           ++j;
           }
-        ++attribute_idx;
         }
       this->ValidPoints->InsertNextValue(ptId);
       }

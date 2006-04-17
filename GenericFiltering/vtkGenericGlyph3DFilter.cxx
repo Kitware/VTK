@@ -18,7 +18,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkGenericAttribute.h"
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericPointIterator.h"
-//#include "vtkGenericCell.h"
 
 #include "vtkCell.h"
 #include "vtkDoubleArray.h"
@@ -36,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGenericGlyph3DFilter, "1.6");
+vtkCxxRevisionMacro(vtkGenericGlyph3DFilter, "1.7");
 vtkStandardNewMacro(vtkGenericGlyph3DFilter);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -65,17 +64,19 @@ vtkGenericGlyph3DFilter::vtkGenericGlyph3DFilter()
   this->SetNumberOfInputPorts(2);
 }
 
+//-----------------------------------------------------------------------------
 vtkGenericGlyph3DFilter::~vtkGenericGlyph3DFilter()
 {
   if (this->PointIdsName)
     {
-    delete []PointIdsName;
+    delete[] this->PointIdsName;
     }
   this->SetInputScalarsSelection(NULL);
   this->SetInputVectorsSelection(NULL);
   this->SetInputNormalsSelection(NULL);
 }
 
+//-----------------------------------------------------------------------------
 int vtkGenericGlyph3DFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -720,6 +721,7 @@ int vtkGenericGlyph3DFilter::RequestInformation(
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 // Specify a source object at a specified table location.
 void vtkGenericGlyph3DFilter::SetSource(int id, vtkPolyData *pd)
 {
@@ -754,6 +756,7 @@ void vtkGenericGlyph3DFilter::SetSource(int id, vtkPolyData *pd)
     }
 }
 
+//-----------------------------------------------------------------------------
 // Get a pointer to a source object at a specified table location.
 vtkPolyData *vtkGenericGlyph3DFilter::GetSource(int id)
 {
@@ -768,6 +771,7 @@ vtkPolyData *vtkGenericGlyph3DFilter::GetSource(int id)
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkGenericGlyph3DFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -839,6 +843,7 @@ void vtkGenericGlyph3DFilter::PrintSelf(ostream& os, vtkIndent indent)
      << (this->InputNormalsSelection ? this->InputNormalsSelection : "(none)") << "\n";
 }
 
+//-----------------------------------------------------------------------------
 int vtkGenericGlyph3DFilter::RequestUpdateExtent(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,

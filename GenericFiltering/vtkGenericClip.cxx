@@ -39,9 +39,10 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericClip, "1.6");
+vtkCxxRevisionMacro(vtkGenericClip, "1.7");
 vtkStandardNewMacro(vtkGenericClip);
 vtkCxxSetObjectMacro(vtkGenericClip,ClipFunction,vtkImplicitFunction);
+vtkCxxSetObjectMacro(vtkGenericClip,Locator,vtkPointLocator);
 
 //----------------------------------------------------------------------------
 // Construct with user-specified implicit function; InsideOut turned off; value
@@ -64,9 +65,9 @@ vtkGenericClip::vtkGenericClip(vtkImplicitFunction *cf)
   
   this->InputScalarsSelection = NULL;
   
-  this->internalPD=vtkPointData::New();
-  this->secondaryPD=vtkPointData::New();
-  this->secondaryCD=vtkCellData::New();
+  this->InternalPD = vtkPointData::New();
+  this->SecondaryPD = vtkPointData::New();
+  this->SecondaryCD = vtkCellData::New();
 }
 
 //----------------------------------------------------------------------------
@@ -79,9 +80,9 @@ vtkGenericClip::~vtkGenericClip()
     }
   this->SetClipFunction(NULL);
   this->SetInputScalarsSelection(NULL);
-  this->internalPD->Delete();
-  this->secondaryPD->Delete();
-  this->secondaryCD->Delete();
+  this->InternalPD->Delete();
+  this->SecondaryPD->Delete();
+  this->SecondaryCD->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -234,31 +235,32 @@ int vtkGenericClip::RequestData(
 
   int attributeType;
   
-  vtkIdType i=0;
-  while(i<c)
+  vtkIdType i;
+  for(i = 0; i<c; ++i)
     {
     attribute=attributes->GetAttribute(i);
     attributeType=attribute->GetType();
     if(attribute->GetCentering()==vtkPointCentered)
       {
-      secondaryAttributes=this->secondaryPD;
+      secondaryAttributes=this->SecondaryPD;
       
       attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
       attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
       attributeArray->SetName(attribute->GetName());
-      this->internalPD->AddArray(attributeArray);
+      this->InternalPD->AddArray(attributeArray);
       attributeArray->Delete();
-      if(this->internalPD->GetAttribute(attributeType)==0)
+      if(this->InternalPD->GetAttribute(attributeType)==0)
         {
-        this->internalPD->SetActiveAttribute(this->internalPD->GetNumberOfArrays()-1,attributeType);
+        this->InternalPD->SetActiveAttribute(
+          this->InternalPD->GetNumberOfArrays()-1,attributeType);
         }
       }
     else // vtkCellCentered
       {
-      secondaryAttributes=this->secondaryCD;
+      secondaryAttributes = this->SecondaryCD;
       }
     
-    attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
+    attributeArray = vtkDataArray::CreateDataArray(attribute->GetComponentType());
     attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
     attributeArray->SetName(attribute->GetName());
     secondaryAttributes->AddArray(attributeArray);
@@ -269,16 +271,15 @@ int vtkGenericClip::RequestData(
       secondaryAttributes->SetActiveAttribute(secondaryAttributes->GetNumberOfArrays()-1,
                                               attributeType);
       }
-    ++i;
     }
-  outPD->InterpolateAllocate(this->secondaryPD,estimatedSize,estimatedSize/2);
+  outPD->InterpolateAllocate(this->SecondaryPD,estimatedSize,estimatedSize/2);
   
   outCD[0] = output->GetCellData();
-  outCD[0]->CopyAllocate(this->secondaryCD,estimatedSize,estimatedSize/2);
+  outCD[0]->CopyAllocate(this->SecondaryCD,estimatedSize,estimatedSize/2);
   if ( this->GenerateClippedOutput )
     {
     outCD[1] = clippedOutput->GetCellData();
-    outCD[1]->CopyAllocate(this->secondaryCD,estimatedSize,estimatedSize/2);
+    outCD[1]->CopyAllocate(this->SecondaryCD,estimatedSize,estimatedSize/2);
     }
   
   //vtkGenericPointIterator *pointIt = input->GetPoints();
@@ -286,11 +287,11 @@ int vtkGenericClip::RequestData(
   
   //Process all cells and clip each in turn
   //
-  int abort=0;
+  int abort = 0;
   vtkIdType updateTime = numCells/20 + 1;  // update roughly every 5%
 
-  int num[2]; num[0]=num[1]=0;
-  int numNew[2]; numNew[0]=numNew[1]=0;
+  int num[2]; num[0] = num[1] = 0;
+  int numNew[2]; numNew[0] = numNew[1] = 0;
   vtkIdType cellId;
 
   
@@ -309,8 +310,8 @@ int vtkGenericClip::RequestData(
     
     cell->Clip(this->Value, this->ClipFunction, input->GetAttributes(),
                input->GetTessellator(),this->InsideOut,this->Locator,conn[0],
-               outPD,outCD[0],this->internalPD,this->secondaryPD,
-               this->secondaryCD);
+               outPD,outCD[0],this->InternalPD,this->SecondaryPD,
+               this->SecondaryCD);
     numNew[0] = conn[0]->GetNumberOfCells() - num[0];
     num[0] = conn[0]->GetNumberOfCells();
  
@@ -318,8 +319,8 @@ int vtkGenericClip::RequestData(
       {
       cell->Clip(this->Value, this->ClipFunction, input->GetAttributes(),
                  input->GetTessellator(),this->InsideOut,this->Locator,conn[1],
-                 outPD,outCD[1],this->internalPD,this->secondaryPD,
-                 this->secondaryCD);
+                 outPD,outCD[1],this->InternalPD,this->SecondaryPD,
+                 this->SecondaryCD);
       
       numNew[1] = conn[1]->GetNumberOfCells() - num[1];
       num[1] = conn[1]->GetNumberOfCells();
@@ -383,29 +384,6 @@ int vtkGenericClip::RequestData(
 //----------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
-void vtkGenericClip::SetLocator(vtkPointLocator *locator)
-{
-  if ( this->Locator == locator)
-    {
-    return;
-    }
-  
-  if ( this->Locator )
-    {
-    this->Locator->UnRegister(this);
-    this->Locator = NULL;
-    }
-
-  if ( locator )
-    {
-    locator->Register(this);
-    }
-
-  this->Locator = locator;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
 void vtkGenericClip::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )

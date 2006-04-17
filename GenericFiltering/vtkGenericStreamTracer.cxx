@@ -36,7 +36,7 @@
 #include "vtkExecutive.h" // for GetExecutive()
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkGenericStreamTracer, "1.3");
+vtkCxxRevisionMacro(vtkGenericStreamTracer, "1.4");
 vtkStandardNewMacro(vtkGenericStreamTracer);
 vtkCxxSetObjectMacro(vtkGenericStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkGenericStreamTracer,InterpolatorPrototype,vtkGenericInterpolatedVelocityField);
@@ -161,7 +161,7 @@ int vtkGenericStreamTracer::GetIntegratorType()
 //-----------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetIntegratorType(int type)
 {
-  vtkInitialValueProblemSolver* ivp=0;
+  vtkInitialValueProblemSolver* ivp = 0;
   switch (type)
     {
     case RUNGE_KUTTA2:
@@ -684,7 +684,12 @@ int vtkGenericStreamTracer::CheckInputs(
         int c=inp->GetAttributes()->GetNumberOfAttributes();
         while(attrib<c&&!attributeFound)
           {
-          attributeFound=(inp->GetAttributes()->GetAttribute(attrib)->GetType()==vtkDataSetAttributes::VECTORS)&&(inp->GetAttributes()->GetAttribute(attrib)->GetCentering()==vtkPointCentered);
+          attributeFound = 
+            (inp->GetAttributes()->GetAttribute(attrib)->GetType() ==
+             vtkDataSetAttributes::VECTORS)
+            &&
+            (inp->GetAttributes()->GetAttribute(attrib)->GetCentering() ==
+             vtkPointCentered);
           ++attrib;
           }
         if(attributeFound)
@@ -789,14 +794,13 @@ void vtkGenericStreamTracer::Integrate(
   vtkGenericAttribute *attribute;
   vtkDataArray *attributeArray;
   
-  int c=attributes->GetNumberOfAttributes();
+  int c = attributes->GetNumberOfAttributes();
   int attributeType;
   
   // Only point centered attributes will be interpolated.
   // Cell centered attributes are not ignored and not copied in output:
   // is a missing part in vtkStreamTracer? Need to ask to the Berk.
-  i=0;
-  while(i<c)
+  for(i=0; i<c; ++i)
     {
     attribute=attributes->GetAttribute(i);
     attributeType=attribute->GetType();
@@ -814,9 +818,8 @@ void vtkGenericStreamTracer::Integrate(
                                      attributeType);
         }
       }
-    ++i;
     }
-  double *values=new double[outputPD->GetNumberOfComponents()]; // point centered attributes at some point.
+  double *values = new double[outputPD->GetNumberOfComponents()]; // point centered attributes at some point.
   
   
   // Note:  It is an overestimation to have the estimate the same number of
@@ -877,7 +880,7 @@ void vtkGenericStreamTracer::Integrate(
     double stepTaken, accumTime=0;
     double speed;
     double cellLength;
-    int retVal=OUT_OF_TIME, tmp;
+    int retVal = OUT_OF_TIME, tmp;
 
     // Make sure we use the dataset found
     // by the vtkGenericInterpolatedVelocityField
@@ -902,16 +905,15 @@ void vtkGenericStreamTracer::Integrate(
     cell->InterpolateTuple(input->GetAttributes(),pcoords,
                            values);
     
-    double *p=values;
+    double *p = values;
     vtkDataArray *dataArray;
-    c=outputPD->GetNumberOfArrays();
-    int j=0;
-    while(j<c)
+    c = outputPD->GetNumberOfArrays();
+    int j;
+    for(j = 0; j<c; ++j)
       {
       dataArray=outputPD->GetArray(j);
       dataArray->InsertTuple(nextPoint,p);
-      ++j;
-      p=p+dataArray->GetNumberOfComponents();
+      p += dataArray->GetNumberOfComponents();
       }
     
     // Compute vorticity if required
@@ -1056,15 +1058,13 @@ void vtkGenericStreamTracer::Integrate(
       cell->InterpolateTuple(input->GetAttributes(),pcoords,
                              values);
       
-      p=values;
-      c=outputPD->GetNumberOfArrays();
-      j=0;
-      while(j<c)
+      p = values;
+      c = outputPD->GetNumberOfArrays();
+      for(j = 0; j<c; ++j)
         {
-        dataArray=outputPD->GetArray(j);
+        dataArray = outputPD->GetArray(j);
         dataArray->InsertTuple(nextPoint,p);
-        ++j;
-        p=p+dataArray->GetNumberOfComponents();
+        p += dataArray->GetNumberOfComponents();
         }
 
       // Compute vorticity if required

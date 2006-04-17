@@ -25,23 +25,14 @@
 // To use this filter you must specify one or more contour values.
 // You can either use the method SetValue() to specify each contour
 // value, or use GenerateValues() to generate a series of evenly
-// spaced contours. It is also possible to accelerate the operation of
-// this filter (at the cost of extra memory) by using a
-// vtkScalarTree. A scalar tree is used to quickly locate cells that
-// contain a contour surface. This is especially effective if multiple
-// contours are being extracted. If you want to use a scalar tree,
-// invoke the method UseScalarTreeOn().
+// spaced contours. You can use ComputeNormalsOn to compute the normals
+// without the need of a vtkPolyDataNormals
 //
 // This filter has been implemented to operate on generic datasets, rather
 // than the typical vtkDataSet (and subclasses). vtkGenericDataSet is a more
 // complex cousin of vtkDataSet, typically consisting of nonlinear,
 // higher-order cells. To process this type of data, generic cells are
 // automatically tessellated into linear cells prior to isocontouring.
-
-// .SECTION Caveats
-// For unstructured data or structured grids, normals and gradients
-// are not computed. Use vtkPolyDataNormals to compute the surface
-// normals.
 
 // .SECTION See Also
 // vtkContourFilter vtkGenericDataSet
@@ -150,9 +141,9 @@ protected:
   vtkSetStringMacro(InputScalarsSelection);
   
   // Used internal by vtkGenericAdaptorCell::Contour()
-  vtkPointData *internalPD;
-  vtkPointData *secondaryPD;
-  vtkCellData *secondaryCD;
+  vtkPointData *InternalPD;
+  vtkPointData *SecondaryPD;
+  vtkCellData  *SecondaryCD;
   
 private:
   vtkGenericContourFilter(const vtkGenericContourFilter&);  // Not implemented.

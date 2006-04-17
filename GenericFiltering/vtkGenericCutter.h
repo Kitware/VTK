@@ -148,9 +148,9 @@ protected:
   int                 GenerateCutScalars;
   
   // Used internal by vtkGenericAdaptorCell::Contour()
-  vtkPointData *internalPD;
-  vtkPointData *secondaryPD;
-  vtkCellData *secondaryCD;
+  vtkPointData *InternalPD;
+  vtkPointData *SecondaryPD;
+  vtkCellData  *SecondaryCD;
 
 private:
   vtkGenericCutter(const vtkGenericCutter&);  // Not implemented.

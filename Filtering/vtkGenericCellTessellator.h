@@ -27,7 +27,7 @@
 // repeats until the error metric is satisfied. 
 //
 // A significant issue addressed by this algorithm is to insure face
-// compatibility across neigboring cells. That is, diagaonals due to face
+// compatibility across neigboring cells. That is, diagonals due to face
 // triangulation must match to insure that the mesh is compatible. The
 // algorithm employs a precomputed table to accelerate the tessellation
 // process. The table was generated with the help of vtkOrderedTriangulator;
@@ -124,8 +124,8 @@ public:
   
   // Description:
   // If true, measure the quality of the fixed subdivision.
-  int GetMeasurement();
-  void SetMeasurement(int flag);
+  vtkGetMacro(Measurement,int);
+  vtkSetMacro(Measurement,int);
   
   // Description:
   // Get the maximum error measured after the fixed subdivision.

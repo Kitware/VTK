@@ -104,7 +104,7 @@ public:
   static vtkGenericGlyph3DFilter *New();
 
   // Description:
-  // Set the source to use for he glyph.
+  // Set the source to use for the glyph.
   void SetSource(vtkPolyData *pd) {this->SetSource(0,pd);};
 
   // Description:
@@ -263,7 +263,7 @@ private:
 
 // Description:
 // Return the method of scaling as a descriptive character string.
-inline const char *vtkGenericGlyph3DFilter::GetScaleModeAsString(void)
+inline const char *vtkGenericGlyph3DFilter::GetScaleModeAsString()
 {
   if ( this->ScaleMode == VTK_SCALE_BY_SCALAR )
     {
@@ -281,7 +281,7 @@ inline const char *vtkGenericGlyph3DFilter::GetScaleModeAsString(void)
 
 // Description:
 // Return the method of coloring as a descriptive character string.
-inline const char *vtkGenericGlyph3DFilter::GetColorModeAsString(void)
+inline const char *vtkGenericGlyph3DFilter::GetColorModeAsString()
 {
   if ( this->ColorMode == VTK_COLOR_BY_SCALAR )
     {
@@ -299,7 +299,7 @@ inline const char *vtkGenericGlyph3DFilter::GetColorModeAsString(void)
 
 // Description:
 // Return the vector mode as a character string.
-inline const char *vtkGenericGlyph3DFilter::GetVectorModeAsString(void)
+inline const char *vtkGenericGlyph3DFilter::GetVectorModeAsString()
 {
   if ( this->VectorMode == VTK_USE_VECTOR) 
     {
@@ -317,7 +317,7 @@ inline const char *vtkGenericGlyph3DFilter::GetVectorModeAsString(void)
 
 // Description:
 // Return the index mode as a character string.
-inline const char *vtkGenericGlyph3DFilter::GetIndexModeAsString(void)
+inline const char *vtkGenericGlyph3DFilter::GetIndexModeAsString()
 {
   if ( this->IndexMode == VTK_INDEXING_OFF) 
     {

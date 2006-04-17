@@ -174,9 +174,9 @@ protected:
   vtkSetStringMacro(InputScalarsSelection);
 
   // Used internal by vtkGenericAdaptorCell::Clip()
-  vtkPointData *internalPD;
-  vtkPointData *secondaryPD;
-  vtkCellData *secondaryCD;
+  vtkPointData *InternalPD;
+  vtkPointData *SecondaryPD;
+  vtkCellData  *SecondaryCD;
   
 private:
   vtkGenericClip(const vtkGenericClip&);  // Not implemented.

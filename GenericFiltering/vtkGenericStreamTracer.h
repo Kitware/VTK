@@ -101,11 +101,9 @@ public:
   void SetSource(vtkDataSet *source);
   vtkDataSet *GetSource();
   
-//BTX
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
   int FillInputPortInformation(int port, vtkInformation* info);
-#endif
   
+//BTX
   enum Units
   {
     TIME_UNIT,
@@ -299,7 +297,6 @@ public:
   void SetInterpolatorPrototype(vtkGenericInterpolatedVelocityField* ivf);
 
 protected:
-
   vtkGenericStreamTracer();
   ~vtkGenericStreamTracer();
 

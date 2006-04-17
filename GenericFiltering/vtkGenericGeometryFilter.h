@@ -152,7 +152,7 @@ protected:
   vtkPointLocator *Locator;
   
   // Used internal by vtkGenericAdaptorCell::Tessellate()
-  vtkPointData *internalPD;
+  vtkPointData *InternalPD;
   
 private:
   vtkGenericGeometryFilter(const vtkGenericGeometryFilter&);  // Not implemented.

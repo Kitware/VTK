@@ -21,23 +21,22 @@
 #include "vtkOutlineSource.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkGenericOutlineFilter, "1.2");
+vtkCxxRevisionMacro(vtkGenericOutlineFilter, "1.3");
 vtkStandardNewMacro(vtkGenericOutlineFilter);
 
+//-----------------------------------------------------------------------------
 vtkGenericOutlineFilter::vtkGenericOutlineFilter ()
 {
   this->OutlineSource = vtkOutlineSource::New();
 }
 
+//-----------------------------------------------------------------------------
 vtkGenericOutlineFilter::~vtkGenericOutlineFilter ()
 {
-  if (this->OutlineSource != NULL)
-    {
-    this->OutlineSource->Delete ();
-    this->OutlineSource = NULL;
-    }
+  this->OutlineSource->Delete ();
 }
 
+//-----------------------------------------------------------------------------
 int vtkGenericOutlineFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -69,6 +68,7 @@ int vtkGenericOutlineFilter::RequestData(
 }
 
 
+//-----------------------------------------------------------------------------
 int vtkGenericOutlineFilter::RequestInformation(
   vtkInformation *request,
   vtkInformationVector **inputVector,
@@ -85,8 +85,8 @@ int vtkGenericOutlineFilter::RequestInformation(
   // Let OutlineSource do all the work
   //
   
-  int result=this->Superclass::RequestInformation(request,inputVector,
-                                                  outputVector);
+  int result = this->Superclass::RequestInformation(request,inputVector,
+                                                    outputVector);
 
   this->OutlineSource->UpdateInformation();
   
