@@ -163,6 +163,8 @@ public:
     WidgetModifiedEvent,
     WidgetValueChangedEvent,
     WidgetActivateEvent,
+    ConnectionCreatedEvent, 
+    ConnectionClosedEvent,
     DomainModifiedEvent,
     PropertyModifiedEvent,
     UpdateEvent,
