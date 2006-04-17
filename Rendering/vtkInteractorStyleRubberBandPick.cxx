@@ -23,7 +23,7 @@
 #include "vtkAssemblyPath.h"
 #include "vtkAreaPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.1");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.2");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandPick);
 
 #define VTKISRBP_ORIENT 0
@@ -43,6 +43,12 @@ vtkInteractorStyleRubberBandPick::vtkInteractorStyleRubberBandPick()
 vtkInteractorStyleRubberBandPick::~vtkInteractorStyleRubberBandPick()
 {
   this->PixelArray->Delete();
+}
+
+//--------------------------------------------------------------------------
+void vtkInteractorStyleRubberBandPick::StartSelect()
+{
+  this->CurrentMode = VTKISRBP_SELECT;
 }
 
 //--------------------------------------------------------------------------

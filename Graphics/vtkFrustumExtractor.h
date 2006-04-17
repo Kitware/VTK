@@ -18,22 +18,22 @@
 // .SECTION Description
 // This class intersects the input DataSet with a frustum and determines which
 // cells and points lie within the frustum. The frustum is defined with a 
-// vtkPlanes containing six cutting planes. The output is a DataSet, that is 
+// vtkPlanes containing six cutting planes. The output is a DataSet that is 
 // either a shallow copy of the input dataset with two new "vtkInsidedness" 
 // attribute arrays, or a completely new UnstructuredGrid that contains only 
 // the cells and points of the input that are inside the frustum. The 
-// PassThrough Flag controls which occurs.
+// PassThrough flag controls which occurs.
 //
 // You have two choices for what cells are considered to be inside.
-// IncludePartialOff treats a cell as inside only if all of its points are 
+// ExactTestOff treats a cell as inside only if all of its points are 
 // inside. This is equivalent to the inside only mode of vtkExtractGeometry 
-// filter. IncludePartialOn treats a cell as inside if any part of it is 
+// filter. ExactTestOn treats a cell as inside if any part of it is 
 // inside. Points are considered to be inside if they are part of an inside 
 // cell. An example of a cell that is treated differently in the two modes 
 // is a line segment that crosses the frustum but has both vertices outside.
 //
 // .SECTION See Also
-// vtkExtractGeometry
+// vtkExtractGeometry, vtkAreaPicker
 
 #ifndef __vtkFrustumExtractor_h
 #define __vtkFrustumExtractor_h
@@ -44,6 +44,8 @@ class vtkPlanes;
 class vtkInformation;
 class vtkInformationVector;
 class vtkCell;
+class vtkPoints;
+class vtkDoubleArray;
 
 class VTK_GRAPHICS_EXPORT vtkFrustumExtractor : public vtkDataSetAlgorithm
 {
@@ -60,6 +62,15 @@ public:
   // Set the selection frustum. The planes object must contain six planes.
   virtual void SetFrustum(vtkPlanes*);
   vtkGetObjectMacro(Frustum,vtkPlanes);
+
+  // Description:
+  // Given eight vertices, creates a frustum.
+  void CreateFrustum(double vertices[24]);
+
+  // Description:
+  // Return eight points that define the selection frustum. Valid if
+  // create Frustum was used, invalid if SetFrustum was.
+  vtkGetObjectMacro(ClipPoints, vtkPoints);
   
   // Description:
   // Sets/Gets the output data type.
@@ -77,19 +88,13 @@ public:
   // frustum. On extracts all of the above as well as those cells that cross 
   // the frustum along with all of their points.
   // On is the default.
-  vtkSetMacro(IncludePartial,int);
-  vtkGetMacro(IncludePartial,int);
-  vtkBooleanMacro(IncludePartial,int);
+  vtkSetMacro(ExactTest,int);
+  vtkGetMacro(ExactTest,int);
+  vtkBooleanMacro(ExactTest,int);
 
   // Description:
-  // Sets/Gets the conditional execution flag.
-  // If On (the default) this filter is allowed to process its input.
-  // If Off this filter is not allowed to update.
-  // The purpose is to allow this possibly expensive algorithm to run only when
-  // the faster bounding box test passes. See vtkAreaPicker::AddPropWatcher.
-  vtkSetMacro(AllowExecute,int);
-  vtkGetMacro(AllowExecute,int);
-  vtkBooleanMacro(AllowExecute,int);
+  // Does a quick test on the AABBox defined by the bounds.
+  int OverallBoundsTest(double *bounds);
   
 protected:
   vtkFrustumExtractor(vtkPlanes *f=NULL);
@@ -103,27 +108,31 @@ protected:
   //execution
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int ABoxFrustumIsect(double bounds[], vtkCell *cell);
+  int FrustumClipPolygon(int nverts, double *ivlist, double *wvlist, double *ovlist);
+  void PlaneClipPolygon(int nverts, double *ivlist, 
+                        int pid, int &noverts, double *ovlist);
+  void PlaneClipEdge(double *V0, double *V1, 
+                     int pid, int &noverts, double *overts);
   int IsectDegenerateCell(vtkCell *cell);
-  int FrustumClipPolygon(int nverts, double ivlist[][3], double wvlist[][3], double ovlist[][3]);
-  void PlaneClipPolygon(int nverts, double ivlist[][3], 
-                        int pid, int &noverts, double ovlist[][3]);
-  void PlaneClipEdge(double V0[3], double V1[3], 
-                     int pid, int &noverts, double overts[][3]);
 
+
+  //used in CreateFrustum
+  void ComputePlane(int idx, double v0[3], double v1[2], double v2[3], vtkPoints *points, vtkDoubleArray *norms);
 
   //modes
   int PassThrough;
-  int IncludePartial;
-  int AllowExecute;
+  int ExactTest;
 
-  //needed execution
+  //used internally
   vtkPlanes *Frustum;
   int np_vertids[6][2];
 
-  //just for debugging
+  //for debugging
+  vtkPoints *ClipPoints;
   int NumRejects;
   int NumIsects;
   int NumAccepts;
+
 private:
   vtkFrustumExtractor(const vtkFrustumExtractor&);  // Not implemented.
   void operator=(const vtkFrustumExtractor&);  // Not implemented.

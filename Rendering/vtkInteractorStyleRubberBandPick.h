@@ -39,7 +39,9 @@ public:
   static vtkInteractorStyleRubberBandPick *New();
   vtkTypeRevisionMacro(vtkInteractorStyleRubberBandPick, vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
+  void StartSelect();
+
   // Description:
   // Event bindings
   virtual void OnMouseMove();
