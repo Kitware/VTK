@@ -61,16 +61,13 @@
 #include "vtkQuadraticTetra.h"
 #include "vtkQuadraticHexahedron.h"
 #include "vtkConvexPointSet.h"
-
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
 # include "vtkPentagonalPrism.h"
 # include "vtkHexagonalPrism.h"
 # include "vtkQuadraticWedge.h"
 # include "vtkQuadraticPyramid.h"
-#endif
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.13");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.14");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -133,14 +130,12 @@ int vtkBridgeCell::GetType()
     case VTK_QUADRATIC_PYRAMID:
       result=VTK_HIGHER_ORDER_PYRAMID;
       break;
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
     case VTK_PENTAGONAL_PRISM:
       assert("check: TODO" && 0);
       break;
     case VTK_HEXAGONAL_PRISM:
       assert("check: TODO" && 0);
       break;
-#endif
     default:
       assert("check: impossible case" && 0);
       break;
@@ -1077,14 +1072,12 @@ int *vtkBridgeCell::GetFaceArray(int faceId)
     case VTK_HIGHER_ORDER_PYRAMID:
       result=vtkPyramid::GetFaceArray(faceId);
       break;
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
     case VTK_PENTAGONAL_PRISM:
       assert("check: TODO" && 0);
       break;
     case VTK_HEXAGONAL_PRISM:
       assert("check: TODO" && 0);
       break;
-#endif
     default:
       assert("check: impossible case" && 0);
       break;
@@ -1133,7 +1126,6 @@ int vtkBridgeCell::GetNumberOfVerticesOnFace(int faceId)
         result=3;
         }
       break;
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
 #if 0 // TODO
     case VTK_PENTAGONAL_PRISM:
       if(faceId<=1)
@@ -1155,7 +1147,6 @@ int vtkBridgeCell::GetNumberOfVerticesOnFace(int faceId)
         result=4;
         }
       break;
-#endif
 #endif
     default:
       assert("check: impossible case" && 0);
@@ -1212,7 +1203,6 @@ int *vtkBridgeCell::GetEdgeArray(int edgeId)
     case VTK_HIGHER_ORDER_PYRAMID:
       result=vtkPyramid::GetEdgeArray(edgeId);
       break;
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
     case VTK_PENTAGONAL_PRISM:
       assert("check: TODO" && 0);
       result=0; // just to fix warning of some compilers
@@ -1221,7 +1211,6 @@ int *vtkBridgeCell::GetEdgeArray(int edgeId)
       assert("check: TODO" && 0);
       result=0; // just to fix warning of some compilers
       break;
-#endif
     default:
       assert("check: impossible case" && 0);
       result=0; // just to fix warning of some compilers
@@ -1384,13 +1373,11 @@ void vtkBridgeCell::AllocateWeights()
 // Compute the weights for parametric coordinates `pcoords'.
 void vtkBridgeCell::InterpolationFunctions(double pcoords[3])
 {
-  // Thanks to the stupid idea to make InterpolationFunctions static in all
+  // unfortunately InterpolationFunctions are static in all
   // cells, here is a huge switch >:-(
   
-#if !(VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4))
   double rm=0;
   double sm=0;
-#endif
   
   switch(this->Cell->GetCellType())
     {
@@ -1410,15 +1397,7 @@ void vtkBridgeCell::InterpolationFunctions(double pcoords[3])
       vtkLine::InterpolationFunctions(pcoords,this->Weights);
       break;
     case VTK_TRIANGLE:
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
       vtkTriangle::InterpolationFunctions(pcoords,this->Weights);
-#else
-      rm = 1. - pcoords[0];
-      sm = 1. - pcoords[1];
-      this->Weights[0]=rm*sm;
-      this->Weights[1]=pcoords[0] * sm;
-      this->Weights[1]=rm * pcoords[1];
-#endif
       break;
     case VTK_TRIANGLE_STRIP:
       // I dont know what do with that
@@ -1462,7 +1441,6 @@ void vtkBridgeCell::InterpolationFunctions(double pcoords[3])
     case VTK_QUADRATIC_HEXAHEDRON:
       vtkQuadraticHexahedron::InterpolationFunctions(pcoords,this->Weights);
       break;
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
     case VTK_PENTAGONAL_PRISM:
       vtkPentagonalPrism::InterpolationFunctions(pcoords,this->Weights);
       break;
@@ -1475,7 +1453,6 @@ void vtkBridgeCell::InterpolationFunctions(double pcoords[3])
     case VTK_QUADRATIC_PYRAMID:
       vtkQuadraticPyramid::InterpolationFunctions(pcoords,this->Weights);
       break;
-#endif
     case VTK_CONVEX_POINT_SET:
       // I dont know what do with that
       break;
