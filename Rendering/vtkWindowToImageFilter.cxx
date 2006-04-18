@@ -28,7 +28,7 @@
 #include "vtkActor2DCollection.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.46");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.47");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 class vtkWTI2DHelperClass
@@ -494,14 +494,12 @@ void vtkWindowToImageFilter::Rescale2DActors()
   vtkCoordinate         *n1, *n2;
   int                   *p1, *p2;
   double                d1[3], d2[3];
-  double                *viewport;
   //
   vtkRenderWindow *renWin = vtkRenderWindow::SafeDownCast(this->Input);
   rc = renWin->GetRenderers();
   for (rc->InitTraversal(); (aren = rc->GetNextItem()); )
     {
     pc = aren->GetViewProps();
-    viewport = aren->GetViewport();
     if (pc)
       {
       for ( pc->InitTraversal(); (aProp = pc->GetNextProp()); )
