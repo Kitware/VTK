@@ -37,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.3");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.4");
 vtkStandardNewMacro(vtkVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkVolumeRayCastMapper,VolumeRayCastFunction,
@@ -92,7 +92,6 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
   this->ImageMemorySize[1]     = 0;
 
   this->Threader               = vtkMultiThreader::New();
-  this->NumberOfThreads        = this->Threader->GetNumberOfThreads();
 
   this->Image                  = NULL;
   this->RowBounds              = NULL;
@@ -239,6 +238,15 @@ void vtkVolumeRayCastMapper::StoreRenderTime( vtkRenderer *ren,
 void vtkVolumeRayCastMapper::SetNumberOfThreads( int num )
 {
   this->Threader->SetNumberOfThreads( num );
+}
+
+int vtkVolumeRayCastMapper::GetNumberOfThreads()
+{
+  if (this->Threader)
+    {
+    return this->Threader->GetNumberOfThreads();
+    }
+  return 0;
 }
 
 void vtkVolumeRayCastMapper::SetGradientEstimator( 
@@ -510,7 +518,6 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     
     // Set the number of threads to use for ray casting,
     // then set the execution method and do it.
-    this->Threader->SetNumberOfThreads( this->NumberOfThreads );
     this->Threader->SetSingleMethod( VolumeRayCastMapper_CastRays, 
                                      (void *)staticInfo);
     this->Threader->SingleMethodExecute();
@@ -1982,8 +1989,6 @@ void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Intermix Intersecting Geometry: "
     << (this->IntermixIntersectingGeometry ? "On\n" : "Off\n");
   
-  os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
-
   if ( this->VolumeRayCastFunction )
     {
     os << indent << "Ray Cast Function: " << this->VolumeRayCastFunction<<"\n";

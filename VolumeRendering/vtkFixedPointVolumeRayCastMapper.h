@@ -147,7 +147,7 @@ public:
   // Set/Get the number of threads to use. This by default is equal to
   // the number of available processors detected.
   void SetNumberOfThreads( int num );
-  vtkGetMacro( NumberOfThreads, int );
+  int GetNumberOfThreads();
 
   // Description:
   // If IntermixIntersectingGeometry is turned on, the zbuffer will be
@@ -307,7 +307,6 @@ protected:
   friend VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg );
   
   vtkMultiThreader  *Threader;
-  int                NumberOfThreads;
 
   vtkMatrix4x4   *PerspectiveMatrix;
   vtkMatrix4x4   *ViewToWorldMatrix;
