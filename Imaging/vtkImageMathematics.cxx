@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.53");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.54");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -81,6 +81,7 @@ int vtkImageMathematics::RequestInformation (
   return 1;
 }
 
+//----------------------------------------------------------------------------
 template <class TValue, class TIvar>
 void vtkImageMathematicsClamp(TValue &value, TIvar ivar, vtkImageData *data)
 {
@@ -132,7 +133,7 @@ void vtkImageMathematicsExecute1(vtkImageMathematics *self,
   in1Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  int DivideByZeroToC = self->GetDivideByZeroToC();
+  int divideByZeroToC = self->GetDivideByZeroToC();
   double doubleConstantk = self->GetConstantK();
 
   // Avoid casts by making constants the same type as input/output
@@ -165,7 +166,7 @@ void vtkImageMathematicsExecute1(vtkImageMathematics *self,
               }
             else
               {
-              if ( DivideByZeroToC )
+              if ( divideByZeroToC )
                 {
                 *outPtr = constantc;
                 }
@@ -248,7 +249,7 @@ void vtkImageMathematicsExecute2(vtkImageMathematics *self,
   unsigned long count = 0;
   unsigned long target;
   int op = self->GetOperation();
-  int DivideByZeroToC = self->GetDivideByZeroToC();
+  int divideByZeroToC = self->GetDivideByZeroToC();
   double constantc = self->GetConstantC();
   
   // find the region to loop over
@@ -303,7 +304,7 @@ void vtkImageMathematicsExecute2(vtkImageMathematics *self,
               }
             else
               {
-              if ( DivideByZeroToC )
+              if ( divideByZeroToC )
                 {
                 *outPtr = (T) constantc;
                 }
@@ -347,7 +348,7 @@ void vtkImageMathematicsExecute2(vtkImageMathematics *self,
           case VTK_COMPLEX_MULTIPLY:
             outPtr[0] = in1Ptr[0] * in2Ptr[0] - in1Ptr[1] * in2Ptr[1];
             outPtr[1] = in1Ptr[1] * in2Ptr[0] + in1Ptr[0] * in2Ptr[1];
-            // Why bother trtying to figure out the continuous increments.
+            // Why bother trying to figure out the continuous increments.
             outPtr++;
             in1Ptr++;
             in2Ptr++;
@@ -485,6 +486,7 @@ void vtkImageMathematics::ThreadedRequestData(
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkImageMathematics::FillInputPortInformation(
   int port, vtkInformation* info)
 {
@@ -496,6 +498,7 @@ int vtkImageMathematics::FillInputPortInformation(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkImageMathematics::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -503,14 +506,7 @@ void vtkImageMathematics::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Operation: " << this->Operation << "\n";
   os << indent << "ConstantK: " << this->ConstantK << "\n";
   os << indent << "ConstantC: " << this->ConstantC << "\n";
-  os << indent << "DivideByZeroToC: ";
-  if ( this->DivideByZeroToC )
-    {
-    os << "On\n";
-    }
-  else
-    {
-    os << "Off\n";
-    }
+  os << indent << "DivideByZeroToC: " <<
+    (this->DivideByZeroToC ? "On" : "Off") << "\n";
 }
 
