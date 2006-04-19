@@ -200,7 +200,7 @@ $menubar add cascade -label "Model" -menu $model_menu
 set texture_menu [menu $menubar.texture]
 
 set gui_vars(texture_reader,filename) \
-        [[[texture GetInput] GetSource] GetFileName]
+        [[[texture GetInputConnection 0 0] GetProducer] GetFileName]
 
 foreach texture $textures {
     set filename "$VTK_DATA_ROOT/Data/$texture"
@@ -228,7 +228,7 @@ $menubar add cascade -label "Texture" -menu $texture_menu
 set texture_mapper_type_menu [menu $menubar.texture_mapper_type]
 
 set gui_vars(texture_mapper_type) \
-        [[[transform_texture GetInput] GetSource] GetClassName]
+        [[[transform_texture GetInputConnection 0 0] GetProducer] GetClassName]
 
 foreach texture_mapper_type $texture_mapper_types {
     $texture_mapper_type_menu add radio \
@@ -239,8 +239,8 @@ foreach texture_mapper_type $texture_mapper_types {
 }
 
 proc use_texture_mapper_type {texture_mapper_type} {
-    transform_texture SetInput \
-            [[string tolower $texture_mapper_type] GetOutput]
+    transform_texture SetInputConnection \
+            [[string tolower $texture_mapper_type] GetOutputPort]
     renWin Render
 }
 
