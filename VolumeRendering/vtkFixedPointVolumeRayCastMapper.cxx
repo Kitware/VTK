@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.20");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.20.4.1");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -409,7 +409,6 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
   this->VoxelsToViewTransform  = vtkTransform::New();
   
   this->Threader               = vtkMultiThreader::New();
-  this->NumberOfThreads        = this->Threader->GetNumberOfThreads();
   
   this->RayCastImage           = vtkFixedPointRayCastImage::New();
   
@@ -723,6 +722,15 @@ void vtkFixedPointVolumeRayCastMapper::StoreRenderTime( vtkRenderer *ren,
 void vtkFixedPointVolumeRayCastMapper::SetNumberOfThreads( int num )
 {
   this->Threader->SetNumberOfThreads( num );
+}
+
+int vtkFixedPointVolumeRayCastMapper::GetNumberOfThreads()
+{
+  if (this->Threader)
+    {
+    return this->Threader->GetNumberOfThreads();
+    }
+  return 0;
 }
 
 void vtkFixedPointVolumeRayCastMapper::FillInMaxGradientMagnitudes( int fullDim[3],
@@ -1203,7 +1211,6 @@ void vtkFixedPointVolumeRayCastMapper::RenderSubVolume()
 {
   // Set the number of threads to use for ray casting,
   // then set the execution method and do it.
-  this->Threader->SetNumberOfThreads( this->NumberOfThreads );
   this->Threader->SetSingleMethod( FixedPointVolumeRayCastMapper_CastRays,
                                    (void *)this);
   this->Threader->SingleMethodExecute();
@@ -3025,8 +3032,6 @@ void vtkFixedPointVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
      << this->AutoAdjustSampleDistances << endl;
   os << indent << "Intermix Intersecting Geometry: "
     << (this->IntermixIntersectingGeometry ? "On\n" : "Off\n");
-  
-  os << indent << "Number Of Threads: " << this->NumberOfThreads << endl;
   
   os << indent << "ShadingRequired: " << this->ShadingRequired << endl;
   os << indent << "GradientOpacityRequired: " << this->GradientOpacityRequired
