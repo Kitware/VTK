@@ -105,12 +105,23 @@ public:
   static vtkGlyph3D *New();
 
   // Description:
-  // Set the source to use for he glyph.
+  // Set the source to use for he glyph. Old style. See SetSourceConnection.
   void SetSource(vtkPolyData *pd) {this->SetSource(0,pd);};
 
   // Description:
   // Specify a source object at a specified table location.
+  // Old style. See SetSourceConnection.
   void SetSource(int id, vtkPolyData *pd);
+
+  // Description:
+  // Specify a source object at a specified table location. New style.
+  // Source connection is stored in port 1. This method is equivalent
+  // to SetInputConnection(1, id, outputPort).
+  void SetSourceConnection(int id, vtkAlgorithmOutput* algOutput);
+  void SetSourceConnection(vtkAlgorithmOutput* algOutput)
+    {
+      this->SetSourceConnection(0, algOutput);
+    }
 
   // Description:
   // Get a pointer to a source object at a specified table location.
