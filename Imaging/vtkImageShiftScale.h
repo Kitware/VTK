@@ -79,23 +79,27 @@ public:
   
 protected:
   vtkImageShiftScale();
-  ~vtkImageShiftScale() {};
+  ~vtkImageShiftScale();
 
   double Shift;
   double Scale;
   int OutputScalarType;
   int ClampOverflow;
-  
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
-  
-  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int extent[6], int id);
+
+  virtual int RequestInformation(vtkInformation*,
+                                 vtkInformationVector**,
+                                 vtkInformationVector*);
+
+  virtual void ThreadedRequestData(vtkInformation*,
+                                   vtkInformationVector**,
+                                   vtkInformationVector*,
+                                   vtkImageData*** inData,
+                                   vtkImageData** outData,
+                                   int outExt[6],
+                                   int threadId);
 private:
   vtkImageShiftScale(const vtkImageShiftScale&);  // Not implemented.
   void operator=(const vtkImageShiftScale&);  // Not implemented.
 };
 
 #endif
-
-
-
