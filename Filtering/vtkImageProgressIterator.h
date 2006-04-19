@@ -29,7 +29,8 @@ class vtkAlgorithm;
 template<class DType>
 class vtkImageProgressIterator : public vtkImageIterator<DType> 
 {
-public:        
+public:
+  typedef vtkImageIterator<DType> Superclass;
 
   // Description:
   // Create a progress iterator for the provided image data
@@ -42,7 +43,12 @@ public:
   // Move the iterator to the next span, may call UpdateProgress on the
   // filter (vtkAlgorithm)
   void NextSpan();
-  
+
+  // Description:
+  // Overridden from vtkImageIterator to check AbortExecute on the
+  // filter (vtkAlgorithm).
+  int IsAtEnd();
+
 protected:
   vtkAlgorithm     *Algorithm;
   unsigned long     Count;
