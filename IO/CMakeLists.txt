@@ -77,6 +77,7 @@ vtkRectilinearGridWriter.cxx
 vtkSLCReader.cxx
 vtkSTLReader.cxx
 vtkSTLWriter.cxx
+vtkSimplePointsReader.cxx
 vtkStructuredGridReader.cxx
 vtkStructuredGridWriter.cxx
 vtkStructuredPointsReader.cxx
