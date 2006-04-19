@@ -73,7 +73,7 @@ vtkActor cutActor
 
 # The clipped part of the cow is rendered wireframe.
 vtkPolyDataMapper restMapper
-  restMapper SetInput [clipper GetClippedOutput]
+  restMapper SetInputConnection [clipper GetClippedOutputPort]
   restMapper ScalarVisibilityOff
 vtkActor restActor
   restActor SetMapper restMapper
