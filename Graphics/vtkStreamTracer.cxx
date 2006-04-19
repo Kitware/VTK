@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.35");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.35.6.1");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkInterpolatedVelocityField);
@@ -88,6 +88,11 @@ vtkStreamTracer::~vtkStreamTracer()
 {
   this->SetIntegrator(0);
   this->SetInterpolatorPrototype(0);
+}
+
+void vtkStreamTracer::SetSourceConnection(vtkAlgorithmOutput* algOutput)
+{
+  this->SetInputConnection(1, algOutput);
 }
 
 void vtkStreamTracer::SetSource(vtkDataSet *source)
