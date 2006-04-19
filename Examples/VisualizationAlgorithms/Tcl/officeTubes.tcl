@@ -40,13 +40,14 @@ vtkPointSource seeds
     eval seeds SetCenter 0.1 2.1 0.5
     seeds SetNumberOfPoints 6
 vtkRungeKutta4 integ
-vtkStreamLine streamer
-    streamer SetInputConnection [reader GetOutputPort]
-    streamer SetSource [seeds GetOutput]
-    streamer SetMaximumPropagationTime 500
-    streamer SetStepLength 0.5
-    streamer SetIntegrationStepLength 0.05
-    streamer SetIntegrationDirectionToIntegrateBothDirections
+vtkStreamTracer streamer
+    streamer SetInputConnection  [reader GetOutputPort]
+    streamer SetSourceConnection [seeds GetOutputPort]
+    streamer SetMaximumPropagation 500
+    streamer SetMaximumPropagationUnitToTimeUnit
+    streamer SetInitialIntegrationStep 0.05
+    streamer SetInitialIntegrationStepUnitToCellLengthUnit
+    streamer SetIntegrationDirectionToBoth
     streamer SetIntegrator integ
 
 # The tube is wrapped around the generated streamline. By varying the radius
@@ -54,6 +55,7 @@ vtkStreamLine streamer
 # proportional to mass flux (in incompressible flow).
 vtkTubeFilter streamTube
     streamTube SetInputConnection [streamer GetOutputPort]
+    streamTube SetInputArrayToProcess 1 0 0 vtkDataObject::FIELD_ASSOCIATION_POINTS vectors
     streamTube SetRadius 0.02
     streamTube SetNumberOfSides 12
     streamTube SetVaryRadiusToVaryRadiusByVector
