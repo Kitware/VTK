@@ -38,6 +38,26 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
+  // Set an Input of this filter.  This method is only for support of
+  // old-style pipeline connections.  When writing new code you should
+  // use vtkAlgorithm::AddInputConnection(0, data).
+  void SetInput(int num, vtkDataObject *input);
+  void SetInput(vtkDataObject *input) { this->SetInput(0, input); };
+
+  // Description:
+  // Get one input to this filter. This method is only for support of
+  // old-style pipeline connections.  When writing new code you should
+  // use vtkAlgorithm::GetInputConnection(0, num).
+  vtkDataObject *GetInput(int num);
+  vtkDataObject *GetInput() { return this->GetInput(0); };
+
+  // Description:
+  // Get the number of inputs to this filter. This method is only for
+  // support of old-style pipeline connections.  When writing new code
+  // you should use vtkAlgorithm::GetNumberOfInputConnections(0).
+  int GetNumberOfInputs() { return this->GetNumberOfInputConnections(0); };
+
+  // Description:
   // This axis is expanded to hold the multiple images.  
   // The default AppendAxis is the X axis.
   // If you want to create a volue from a series of XY images, then you should
