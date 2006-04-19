@@ -47,11 +47,11 @@ public:
   // Attempt to detach a dynamic library from the
   // process.  A value of true is returned if it is successful.
   static int CloseLibrary(vtkLibHandle);
-  //ETX
 
   // Description:
   // Find the address of the symbol in the given library
   static vtkSymbolPointer GetSymbolAddress(vtkLibHandle, const char*);
+  //ETX
 
   // Description:
   // Return the library prefix for the given architecture
