@@ -14,28 +14,21 @@
 =========================================================================*/
 // .NAME vtkDynamicLoader - class interface to system dynamic libraries
 // .SECTION Description
-// vtkDynamicLoader provides a portable interface to loading dynamic 
-// libraries into a process.  
-
+// vtkDynamicLoader provides a portable interface to loading dynamic
+// libraries into a process.
+// .SECTION See Also
+// A more portable and lightweight solution is kwsys::DynamicLoader
 
 #ifndef __vtkDynamicLoader_h
 #define __vtkDynamicLoader_h
+
 #include "vtkObject.h"
+#include <vtksys/DynamicLoader.hxx>
 
 //BTX
-// Ugly stuff for library handles
-// They are different on several different OS's
-#if defined(__hpux)
-# include <dl.h> // Needed for special dynamic loading on hp
-  typedef shl_t vtkLibHandle;
-#elif defined(_WIN32)
-  typedef void* vtkLibHandle;
-#else
-  typedef void* vtkLibHandle;
-#endif
+typedef vtksys::DynamicLoader::LibraryHandle vtkLibHandle;
+typedef vtksys::DynamicLoader::SymbolPointer vtkSymbolPointer;
 //ETX
-
-
 
 class VTK_COMMON_EXPORT vtkDynamicLoader : public vtkObject
 {
@@ -46,7 +39,7 @@ public:
   //BTX
   // Description:
   // Load a dynamic library into the current process.
-  // The returned vtkLibHandle can be used to access the symbols in the 
+  // The returned vtkLibHandle can be used to access the symbols in the
   // library.
   static vtkLibHandle OpenLibrary(const char*);
 
@@ -55,10 +48,10 @@ public:
   // process.  A value of true is returned if it is successful.
   static int CloseLibrary(vtkLibHandle);
   //ETX
-  
+
   // Description:
   // Find the address of the symbol in the given library
-  static void* GetSymbolAddress(vtkLibHandle, const char*);
+  static vtkSymbolPointer GetSymbolAddress(vtkLibHandle, const char*);
 
   // Description:
   // Return the library prefix for the given architecture
@@ -71,12 +64,11 @@ public:
   // Description:
   // Return the last error produced from a calls made on this class.
   static const char* LastError();
-  
+
 protected:
   vtkDynamicLoader() {};
   ~vtkDynamicLoader() {};
 
-  
 private:
   vtkDynamicLoader(const vtkDynamicLoader&);  // Not implemented.
   void operator=(const vtkDynamicLoader&);  // Not implemented.
