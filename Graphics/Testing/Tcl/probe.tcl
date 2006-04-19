@@ -24,7 +24,7 @@ vtkCutter planeCut
     planeCut SetCutFunction plane
 vtkProbeFilter probe
     probe SetInputConnection [planeCut GetOutputPort]
-    probe SetSource [pl3d GetOutput]
+    probe SetSourceConnection [pl3d GetOutputPort]
 vtkDataSetMapper cutMapper
     cutMapper SetInputConnection [probe GetOutputPort]
     eval cutMapper SetScalarRange \
