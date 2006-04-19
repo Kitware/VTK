@@ -119,6 +119,21 @@ public:
     return (x[0]*y[0] + x[1]*y[1] + x[2]*y[2]);};
   
   // Description:
+  // Outer product of two 3-vectors (float version).
+  static void Outer(const float x[3], const float y[3], float A[3][3]) {
+    for (int i=0; i < 3; i++)
+      for (int j=0; j < 3; j++)
+        A[i][j] = x[i]*y[j];
+  }
+  // Description:
+  // Outer product of two 3-vectors (float version).
+  static void Outer(const double x[3], const double y[3], double A[3][3]) {
+    for (int i=0; i < 3; i++)
+      for (int j=0; j < 3; j++)
+        A[i][j] = x[i]*y[j];
+  }
+
+  // Description:
   // Cross product of two 3-vectors. Result vector in z[3].
   static void Cross(const float x[3], const float y[3], float z[3]);
 
@@ -180,6 +195,21 @@ public:
   // ignored (double-precision version).
   static double Dot2D(const double x[3], const double y[3]) {
     return (x[0]*y[0] + x[1]*y[1]);};
+
+  // Description:
+  // Outer product of two 2-vectors (float version). z-comp is ignored
+  static void Outer2D(const float x[3], const float y[3], float A[3][3]) {
+    for (int i=0; i < 2; i++)
+      for (int j=0; j < 2; j++)
+        A[i][j] = x[i]*y[j];
+  }
+  // Description:
+  // Outer product of two 2-vectors (float version). z-comp is ignored
+  static void Outer2D(const double x[3], const double y[3], double A[3][3]) {
+    for (int i=0; i < 2; i++)
+      for (int j=0; j < 2; j++)
+        A[i][j] = x[i]*y[j];
+  }
 
   // Description:
   // Compute the norm of a 2-vector. Ignores z-component.
@@ -244,11 +274,20 @@ public:
                           double out[3]);
   
   // Description:
-  // Mutltiply one 3x3 matrix by another according to C = AB.
+  // Multiply one 3x3 matrix by another according to C = AB.
   static void Multiply3x3(const float A[3][3], const float B[3][3], 
                           float C[3][3]);
   static void Multiply3x3(const double A[3][3], const double B[3][3], 
                           double C[3][3]);
+
+  // Description:
+  // General matrix multiplication.  You must allocate output storage.
+  // colA == rowB
+  // and matrix C is rowA x colB
+  static void MultiplyMatrix(const double **A, const double **B,
+                             unsigned int rowA, unsigned int colA, 
+                             unsigned int rowB, unsigned int colB,
+                             double **C);
 
   // Description:
   // Transpose a 3x3 matrix.

@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.109");
+vtkCxxRevisionMacro(vtkMath, "1.110");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2283,6 +2283,37 @@ void vtkMath::Multiply3x3(const double A[3][3],
                           const double B[3][3], double C[3][3])
 {
   vtkMultiplyMatrix3x3(A,B,C);
+}
+
+//----------------------------------------------------------------------------
+void MultiplyMatrix(const double **A, const double **B,
+                    unsigned int rowA, unsigned int colA, 
+                    unsigned int rowB, unsigned int colB,
+                    double **C)
+{
+  // we need colA == rowB 
+  if (colA != rowB)
+    {
+    vtkGenericWarningMacro(
+      "Number of columns of A must match number of rows of B.");
+    }
+  
+  // output matrix is rowA*colB
+
+  // output row 
+  for (unsigned int i=0; i < rowA; i++)
+    {
+    // output col
+    for (unsigned int j=0; j < colB; j++)
+      {
+      C[i][j] = 0;
+      // sum for this point
+      for (unsigned int k=0; k < colA; k++)
+        {
+        C[i][j] += A[i][k]*B[k][j];
+        }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
