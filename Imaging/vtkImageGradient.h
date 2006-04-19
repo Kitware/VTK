@@ -14,36 +14,34 @@
 =========================================================================*/
 // .NAME vtkImageGradient - Computes the gradient vector.
 // .SECTION Description
-// vtkImageGradient computes the gradient vector of an image.  The vector
-// results are stored as scalar components. The Dimensionality determines
-// whether to perform a 2d or 3d gradient. The default is two dimensional 
-// XY gradient.  OutputScalarType is always double. Gradient is computed using
-// central differences.
-
-
+// vtkImageGradient computes the gradient vector of an image.  The
+// vector results are stored as scalar components. The Dimensionality
+// determines whether to perform a 2d or 3d gradient. The default is
+// two dimensional XY gradient.  OutputScalarType is always
+// double. Gradient is computed using central differences.
 
 #ifndef __vtkImageGradient_h
 #define __vtkImageGradient_h
 
-
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageGradient : 
-  public vtkThreadedImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageGradient : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageGradient *New();
   vtkTypeRevisionMacro(vtkImageGradient,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Determines how the input is interpreted (set of 2d slices ...)
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
-  
+
   // Description:
-  // If "HandleBoundariesOn" then boundary pixels are duplicated
-  // So central differences can get values.
+  // Get/Set whether to handle boundaries.  If enabled, boundary
+  // pixels are treated as duplicated so that central differencing
+  // works for the boundary pixels.  If disabled, the output whole
+  // extent of the image is reduced by one pixel.
   vtkSetMacro(HandleBoundaries, int);
   vtkGetMacro(HandleBoundaries, int);
   vtkBooleanMacro(HandleBoundaries, int);
@@ -62,8 +60,13 @@ protected:
                                   vtkInformationVector**,
                                   vtkInformationVector*);
 
-  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int extent[6], int id);
+  void ThreadedRequestData(vtkInformation*,
+                           vtkInformationVector**,
+                           vtkInformationVector*,
+                           vtkImageData*** inData,
+                           vtkImageData** outData,
+                           int outExt[6],
+                           int threadId);
 private:
   vtkImageGradient(const vtkImageGradient&);  // Not implemented.
   void operator=(const vtkImageGradient&);  // Not implemented.
