@@ -96,8 +96,14 @@ public:
 
   // Description:
   // Specify the source object used to generate starting points.
+  // Old style. Do not use.
   void SetSource(vtkDataSet *source);
   vtkDataSet *GetSource();
+
+  // Description:
+  // Specify the source object used to generate starting points.
+  // New style.
+  void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
 //BTX
   enum Units
