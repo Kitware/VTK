@@ -75,6 +75,10 @@ public:
     this->vtkAlgorithm::SetInputConnection(input); }
   virtual void SetInputConnection(int port, vtkAlgorithmOutput* input);
   virtual void AddInputConnection(int port, vtkAlgorithmOutput* input);
+  virtual void AddInputConnection(vtkAlgorithmOutput* input)
+    {
+      this->AddInputConnection(0, input);
+    }
   virtual void RemoveInputConnection(int port, vtkAlgorithmOutput* input);
   virtual void SetNthInputConnection(int port, int index,
                                      vtkAlgorithmOutput* input);
