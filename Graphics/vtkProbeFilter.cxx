@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.82.12.1");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.82.12.2");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -54,15 +54,14 @@ void vtkProbeFilter::SetSource(vtkDataObject *input)
 }
 
 //----------------------------------------------------------------------------
-vtkDataSet *vtkProbeFilter::GetSource()
+vtkDataObject *vtkProbeFilter::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
     {
     return NULL;
     }
   
-  return vtkDataSet::SafeDownCast(
-    this->GetExecutive()->GetInputData(1, 0));
+  return this->GetExecutive()->GetInputData(1, 0);
 }
 
 //----------------------------------------------------------------------------
@@ -84,6 +83,18 @@ int vtkProbeFilter::RequestData(
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  if (!source)
+    {
+    return 0;
+    }
+
+  this->Probe(input, source, output);
+  return 1;
+}
+
+void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
+                           vtkDataSet *output)
+{
   vtkIdType ptId, numPts;
   double x[3], tol2;
   vtkCell *cell;
@@ -166,8 +177,6 @@ int vtkProbeFilter::RequestData(
     {
     delete [] weights;
     }
-
-  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -181,23 +190,32 @@ int vtkProbeFilter::RequestInformation(
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
+  outInfo->CopyEntry(sourceInfo, 
+                     vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
                6);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-               inInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
+               inInfo->Get(
+                 vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
 
   // Special case for ParaView.
   if (this->SpatialMatch == 2)
     {
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-                 sourceInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
+    outInfo->Set(
+      vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+      sourceInfo->Get(
+        vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
     }
   
   if (this->SpatialMatch == 1)
     {
-    int m1 = inInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
-    int m2 = sourceInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
+    int m1 = 
+      inInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
+    int m2 = 
+      sourceInfo->Get(
+        vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
     if (m1 < 0 && m2 < 0)
       {
       outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
@@ -317,7 +335,7 @@ int vtkProbeFilter::RequestUpdateExtent(
 //----------------------------------------------------------------------------
 void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSet *source = this->GetSource();
+  vtkDataObject *source = this->GetSource();
 
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Source: " << source << "\n";
