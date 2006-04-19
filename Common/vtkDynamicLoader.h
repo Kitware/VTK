@@ -27,6 +27,7 @@
 
 //BTX
 typedef vtksys::DynamicLoader::LibraryHandle vtkLibHandle;
+// Cannot use this as this is a void (*)() but VTK old API used to be void*
 typedef vtksys::DynamicLoader::SymbolPointer vtkSymbolPointer;
 //ETX
 
@@ -50,7 +51,8 @@ public:
 
   // Description:
   // Find the address of the symbol in the given library
-  static vtkSymbolPointer GetSymbolAddress(vtkLibHandle, const char*);
+  //static vtkSymbolPointer GetSymbolAddress(vtkLibHandle, const char*);
+  static void* GetSymbolAddress(vtkLibHandle, const char*);
   //ETX
 
   // Description:
