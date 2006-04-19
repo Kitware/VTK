@@ -60,4 +60,17 @@ void vtkImageProgressIterator<DType>::NextSpan()
     }
 }
 
+template <class DType>
+int vtkImageProgressIterator<DType>::IsAtEnd()
+{
+  if(this->Algorithm->GetAbortExecute())
+    {
+    return 1;
+    }
+  else
+    {
+    return this->Superclass::IsAtEnd();
+    }
+}
+
 #endif
