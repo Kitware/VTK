@@ -310,9 +310,9 @@ public:
       }
     }
 
-  char* GetName() const
+  const char* GetName() const
     {
-    return vtksys::SystemTools::DuplicateString(this->Name.c_str());
+    return this->Name.c_str();
     }
   void SetName(const char* name)
     {
@@ -339,7 +339,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.20")
+vtkCxxRevisionMacro(vtkShader, "1.21")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
