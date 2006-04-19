@@ -22,8 +22,8 @@ vtkWarpScalar warp
 # Use vtkMergeFilter to combine the original image with the warped geometry.
 #
 vtkMergeFilter merge
-  merge SetGeometry [warp GetOutput]
-  merge SetScalars  [reader GetOutput]
+  merge SetGeometryConnection [warp GetOutputPort]
+  merge SetScalarsConnection  [reader GetOutputPort]
 vtkDataSetMapper mapper
   mapper SetInputConnection [merge GetOutputPort]
   mapper SetScalarRange 0 255
