@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.26.4.1");
+vtkCxxRevisionMacro(vtkDataObject, "1.26.4.2");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -93,6 +93,15 @@ public:
 // Initialize static member that controls global data release 
 // after use by filter
 static int vtkDataObjectGlobalReleaseDataFlag = 0;
+
+const char vtkDataObject
+::AssociationNames[vtkDataObject::NUMBER_OF_ASSOCIATIONS][55] =
+{
+  "vtkDataObject::FIELD_ASSOCIATION_POINTS",
+  "vtkDataObject::FIELD_ASSOCIATION_CELLS",
+  "vtkDataObject::FIELD_ASSOCIATION_NONE",
+  "vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS"
+};
 
 //----------------------------------------------------------------------------
 vtkDataObject::vtkDataObject()
@@ -1374,4 +1383,15 @@ vtkDataObject* vtkDataObject::GetData(vtkInformation* info)
 vtkDataObject* vtkDataObject::GetData(vtkInformationVector* v, int i)
 {
   return vtkDataObject::GetData(v->GetInformationObject(i));
+}
+
+//----------------------------------------------------------------------------
+const char* vtkDataObject::GetAssociationTypeAsString(int associationType)
+{
+  if (associationType < 0 || associationType >= NUMBER_OF_ASSOCIATIONS)
+    {
+    vtkGenericWarningMacro("Bad association type.");
+    return NULL;
+    }
+  return vtkDataObject::AssociationNames[associationType];
 }
