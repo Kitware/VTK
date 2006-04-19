@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.38.4.1");
+vtkCxxRevisionMacro(vtkImageBlend, "1.38.4.2");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
@@ -49,9 +49,32 @@ vtkImageBlend::~vtkImageBlend()
 }
 
 //----------------------------------------------------------------------------
+// The default vtkImageAlgorithm semantics are that SetInput() puts
+// each input on a different port, we want all the image inputs to
+// go on the first port.
+void vtkImageBlend::SetInput(int idx, vtkDataObject *input)
+{
+  // Ask the superclass to connect the input.
+  this->SetNthInputConnection(0, idx, (input ? input->GetProducerPort() : 0));
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject *vtkImageBlend::GetInput(int idx)
+{
+  if (this->GetNumberOfInputConnections(0) <= idx)
+    {
+    return 0;
+    }
+  return vtkImageData::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, idx));
+}
+
+//----------------------------------------------------------------------------
 void vtkImageBlend::SetStencil(vtkImageStencilData *stencil)
 {
-  this->SetInput(1, stencil); 
+  // if stencil is null, then set the input port to null
+  this->SetNthInputConnection(1, 0, 
+    (stencil ? stencil->GetProducerPort() : 0));
 }
 
 
@@ -1124,8 +1147,8 @@ void vtkImageBlend::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Opacity(" << i << "): " << this->GetOpacity(i) << endl; 
     }
   os << indent << "Stencil: " << this->GetStencil() << endl;
-  os << indent << "Blend Mode: " << this->GetBlendModeAsString() << endl
-     << indent << "Compound threshold: " << this->CompoundThreshold << endl;
+  os << indent << "BlendMode: " << this->GetBlendModeAsString() << endl
+     << indent << "CompoundThreshold: " << this->CompoundThreshold << endl;
 }
 
 //----------------------------------------------------------------------------
