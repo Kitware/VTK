@@ -43,16 +43,16 @@ vtkStructuredGridGeometryFilter plane3
 # using a single pipeline and actor.
 #
 vtkAppendPolyData appendF
-    appendF AddInput [plane GetOutput]
-    appendF AddInput [plane2 GetOutput]
-    appendF AddInput [plane3 GetOutput]
+    appendF AddInputConnection [plane GetOutputPort]
+    appendF AddInputConnection [plane2 GetOutputPort]
+    appendF AddInputConnection [plane3 GetOutputPort]
 vtkWarpScalar warp
     warp SetInputConnection [appendF GetOutputPort]
     warp UseNormalOn
     warp SetNormal 1.0 0.0 0.0
     warp SetScaleFactor 2.5
 vtkPolyDataNormals normals
-    normals SetInput [warp GetPolyDataOutput]
+    normals SetInputConnection [warp GetOutputPort]
     normals SetFeatureAngle 60
 vtkPolyDataMapper planeMapper
     planeMapper SetInputConnection [normals GetOutputPort]
