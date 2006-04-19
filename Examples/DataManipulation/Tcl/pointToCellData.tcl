@@ -23,7 +23,7 @@ vtkPointDataToCellData p2c
     p2c SetInputConnection [reader GetOutputPort]
     p2c PassPointDataOn
 vtkWarpVector warp
-    warp SetInput [p2c GetUnstructuredGridOutput]
+    warp SetInputConnection [p2c GetOutputPort]
 vtkThreshold thresh
     thresh SetInputConnection [warp GetOutputPort]
     thresh ThresholdBetween 0.25 0.75
