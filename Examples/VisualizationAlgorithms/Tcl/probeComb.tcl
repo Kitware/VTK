@@ -64,18 +64,18 @@ vtkActor tpd3Actor
     [tpd3Actor GetProperty] SetColor 0 0 0
 
 vtkAppendPolyData appendF
-    appendF AddInput [tpd1 GetOutput]
-    appendF AddInput [tpd2 GetOutput]
-    appendF AddInput [tpd3 GetOutput]
+    appendF AddInputConnection [tpd1 GetOutputPort]
+    appendF AddInputConnection [tpd2 GetOutputPort]
+    appendF AddInputConnection [tpd3 GetOutputPort]
 
 # The vtkProbeFilter takes two inputs. One is a dataset to use as the probe
-# geometry (SetInput); the other is the data to probe (SetSource). The output
-# dataset structure (geometry and topology) of the probe is the same as the
-# structure of the input. The probing process generates new data values 
-# resampled from the source.
+# geometry (SetInputConnection); the other is the data to probe
+# (SetSourceConnection). The output dataset structure (geometry and
+# topology) of the probe is the same as the structure of the input. The
+# probing process generates new data values resampled from the source.
 vtkProbeFilter probe
-    probe SetInputConnection [appendF GetOutputPort]
-    probe SetSource [pl3d GetOutput]
+    probe SetInputConnection  [appendF GetOutputPort]
+    probe SetSourceConnection [pl3d GetOutputPort]
 
 vtkContourFilter contour
     contour SetInputConnection [probe GetOutputPort]
