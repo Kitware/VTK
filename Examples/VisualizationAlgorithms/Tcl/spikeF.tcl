@@ -46,13 +46,13 @@ vtkTransformPolyDataFilter transformF
     transformF SetInputConnection [cone GetOutputPort]
     transformF SetTransform transform
 
-# vtkGlyph3D takes two inputs: the input point set (SetInput) which can be
-# any vtkDataSet; and the glyph (SetSource) which must be a vtkPolyData.
-# We are interested in orienting the glyphs by the surface normals that
-# we previosuly generated.
+# vtkGlyph3D takes two inputs: the input point set (SetInputConnection)
+# which can be any vtkDataSet; and the glyph (SetSourceConnection) which
+# must be a vtkPolyData.  We are interested in orienting the glyphs by the
+# surface normals that we previosuly generated.
 vtkGlyph3D glyph
-    glyph SetInputConnection [ptMask GetOutputPort]
-    glyph SetSource [transformF GetOutput]
+    glyph SetInputConnection  [ptMask GetOutputPort]
+    glyph SetSourceConnection [transformF GetOutputPort]
     glyph SetVectorModeToUseNormal
     glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.004
