@@ -22,7 +22,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMapToColors, "1.28");
+vtkCxxRevisionMacro(vtkImageMapToColors, "1.29");
 vtkStandardNewMacro(vtkImageMapToColors);
 vtkCxxSetObjectMacro(vtkImageMapToColors,LookupTable,vtkScalarsToColors);
 
@@ -37,9 +37,10 @@ vtkImageMapToColors::vtkImageMapToColors()
   this->DataWasPassed = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkImageMapToColors::~vtkImageMapToColors()
 {
-  if (this->LookupTable != NULL) 
+  if (this->LookupTable != NULL)
     {
     this->LookupTable->UnRegister(this);
     }
@@ -79,7 +80,7 @@ int vtkImageMapToColors::RequestData(vtkInformation *request,
   // If LookupTable is null, just pass the data
   if (this->LookupTable == NULL)
     {
-    vtkDebugMacro("ExecuteData: LookupTable not set, "\
+    vtkDebugMacro("RequestData: LookupTable not set, "\
                   "passing input to output.");
 
     outData->SetExtent(inData->GetExtent());
@@ -95,7 +96,7 @@ int vtkImageMapToColors::RequestData(vtkInformation *request,
       outData->GetPointData()->SetScalars(NULL);
       this->DataWasPassed = 0;
       }
-    
+
     return this->Superclass::RequestData(request, inputVector, outputVector);
     }
 
@@ -129,7 +130,7 @@ int vtkImageMapToColors::RequestInformation (
       numComponents = 1;
       break;
     default:
-      vtkErrorMacro("ExecuteInformation: Unrecognized color format.");
+      vtkErrorMacro("RequestInformation: Unrecognized color format.");
       break;
     }
 
@@ -139,17 +140,24 @@ int vtkImageMapToColors::RequestInformation (
       vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
     if ( scalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != VTK_UNSIGNED_CHAR )
       {
-      vtkErrorMacro("ExecuteInformation: No LookupTable was set but input data is not VTK_UNSIGNED_CHAR, therefore input can't be passed through!");
+      vtkErrorMacro(
+        "RequestInformation: No LookupTable was set but input data is not "
+        "VTK_UNSIGNED_CHAR, therefore input can't be passed through!");
       return 1;
       }
-    else if ( numComponents != scalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) )
+    else if ( numComponents !=
+      scalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) )
       {
-      vtkErrorMacro("ExecuteInformation: No LookupTable was set but number of components in input doesn't match OutputFormat, therefore input can't be passed through!");
+      vtkErrorMacro(
+        "RequestInformation: No LookupTable was set but number of components "
+        "in input doesn't match OutputFormat, therefore input can't be passed"
+        " through!");
       return 1;
       }
     }
 
-  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, numComponents);
+  vtkDataObject::
+    SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, numComponents);
   return 1;
 }
 
@@ -158,7 +166,7 @@ int vtkImageMapToColors::RequestInformation (
 
 void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
                                 vtkImageData *inData, void *inPtr,
-                                vtkImageData *outData, 
+                                vtkImageData *outData,
                                 unsigned char *outPtr,
                                 int outExt[6], int id)
 {
@@ -178,13 +186,13 @@ void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
 
   // find the region to loop over
   extX = outExt[1] - outExt[0] + 1;
-  extY = outExt[3] - outExt[2] + 1; 
+  extY = outExt[3] - outExt[2] + 1;
   extZ = outExt[5] - outExt[4] + 1;
 
   target = (unsigned long)(extZ*extY/50.0);
   target++;
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   // because we are using void * and char * we must take care
   // of the scalar size in the increments
@@ -203,7 +211,7 @@ void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
     {
     for (idxY = 0; !self->AbortExecute && idxY < extY; idxY++)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -214,7 +222,7 @@ void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
       lookupTable->MapScalarsThroughTable2(inPtr1,outPtr1,
                                            dataType,extX,numberOfComponents,
                                            outputFormat);
-      if (self->GetPassAlphaToOutput() && 
+      if (self->GetPassAlphaToOutput() &&
           dataType == VTK_UNSIGNED_CHAR && numberOfComponents > 1 &&
           (outputFormat == VTK_RGBA || outputFormat == VTK_LUMINANCE_ALPHA))
         {
@@ -251,27 +259,32 @@ void vtkImageMapToColors::ThreadedRequestData(
 {
   void *inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
-  
-  vtkImageMapToColorsExecute(this, inData[0][0], inPtr, 
+
+  vtkImageMapToColorsExecute(this, inData[0][0], inPtr,
                              outData[0], (unsigned char *)outPtr, outExt, id);
 }
 
+//----------------------------------------------------------------------------
 void vtkImageMapToColors::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "OutputFormat: " << 
-    (this->OutputFormat == VTK_RGBA ? "RGBA" : 
+  os << indent << "OutputFormat: " <<
+    (this->OutputFormat == VTK_RGBA ? "RGBA" :
      (this->OutputFormat == VTK_RGB ? "RGB" :
       (this->OutputFormat == VTK_LUMINANCE_ALPHA ? "LuminanceAlpha" :
        (this->OutputFormat == VTK_LUMINANCE ? "Luminance" : "Unknown"))))
-     << "\n";
+    << "\n";
   os << indent << "ActiveComponent: " << this->ActiveComponent << "\n";
   os << indent << "PassAlphaToOutput: " << this->PassAlphaToOutput << "\n";
-  os << indent << "LookupTable: " << this->LookupTable << "\n";
+  os << indent << "LookupTable: ";
   if (this->LookupTable)
     {
-    this->LookupTable->PrintSelf(os,indent.GetNextIndent());
+    this->LookupTable->PrintSelf(os << endl,indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
     }
 }
 
