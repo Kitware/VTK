@@ -81,6 +81,8 @@ protected:
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
+  void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output);
+
   vtkIdTypeArray *ValidPoints;
 private:
   vtkProbeFilter(const vtkProbeFilter&);  // Not implemented.
