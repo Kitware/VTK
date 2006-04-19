@@ -118,6 +118,13 @@ public:
   vtkPolyData *GetClippedOutput();
 
   // Description:
+  // Return the output port (a vtkAlgorithmOutput) of the clipped output.
+  vtkAlgorithmOutput* GetClippedOutputPort() 
+    {
+      return this->GetOutputPort(1);
+    }
+
+  // Description:
   // Specify a spatial locator for merging points. By default, an
   // instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
