@@ -57,7 +57,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.32")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.33")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -765,7 +765,7 @@ int vtkDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set)
 
   this->Kdtree->SetController(this->Controller);
   this->Kdtree->SetNumberOfRegionsOrMore(this->NumProcesses);
-  this->Kdtree->SetMinCells(2);
+  this->Kdtree->SetMinCells(0);
 
   this->Kdtree->SetDataSet(set); 
 
