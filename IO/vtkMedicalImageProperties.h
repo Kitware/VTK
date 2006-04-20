@@ -61,7 +61,7 @@ public:
 
   // Description:
   // Take as input a string in VR=AS (DICOM PS3.5) and extract either
-  // different fields namely: year month day
+  // different fields namely: year month week day
   // Return 0 on error, 1 on success
   static int GetAgeAsFields(const char *age, int &year, int &month, int &week, int &day);
 
