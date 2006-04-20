@@ -20,7 +20,7 @@
 #include <time.h> // for strftime
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.18");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.19");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -60,7 +60,7 @@ vtkMedicalImageProperties::vtkMedicalImageProperties()
   this->InstitutionName        = NULL;
   this->KVP                    = NULL;
   this->ManufacturerModelName  = NULL;
-  this->Manufacturer  = NULL;
+  this->Manufacturer           = NULL;
   this->Modality               = NULL;
   this->PatientAge             = NULL;
   this->PatientBirthDate       = NULL;
@@ -315,6 +315,84 @@ double vtkMedicalImageProperties::GetGantryTiltAsDouble()
     return atof(this->GantryTilt);
     }
   return 0;
+}
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetAgeAsFields(const char *age, int &year,
+  int &month, int &week, int &day)
+{
+  year = month = week = day = 0;
+  if( !age )
+    {
+    return 0;
+    }
+
+  size_t len = strlen(age);
+  if( len == 4 )
+    {
+    // DICOM V3
+    int val;
+    char type;
+    if( sscanf(age, "%03d%c", &val, &type) != 2 )
+      {
+      return 0;
+      }
+    switch(type)
+      {
+    case 'Y':
+      year = val;
+      break;
+    case 'M':
+      month = val;
+      break;
+    case 'W':
+      week = val;
+      break;
+    case 'D':
+      day = val;
+      break;
+    default:
+      return 0;
+      }
+    }
+  else
+    {
+    return 0;
+    }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetPatientAgeYear()
+{
+  const char *age = this->GetPatientAge();
+  int year, month, week, day;
+  vtkMedicalImageProperties::GetAgeAsFields(age, year, month, week, day);
+  return year;
+}
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetPatientAgeMonth()
+{
+  const char *age = this->GetPatientAge();
+  int year, month, week, day;
+  vtkMedicalImageProperties::GetAgeAsFields(age, year, month, week, day);
+  return month;
+}
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetPatientAgeWeek()
+{
+  const char *age = this->GetPatientAge();
+  int year, month, week, day;
+  vtkMedicalImageProperties::GetAgeAsFields(age, year, month, week, day);
+  return week;
+}
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetPatientAgeDay()
+{
+  const char *age = this->GetPatientAge();
+  int year, month, week, day;
+  vtkMedicalImageProperties::GetAgeAsFields(age, year, month, week, day);
+  return day;
 }
 
 //----------------------------------------------------------------------------

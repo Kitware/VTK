@@ -60,6 +60,22 @@ public:
   vtkGetStringMacro(PatientAge);
 
   // Description:
+  // Take as input a string in VR=AS (DICOM PS3.5) and extract either
+  // different fields namely: year month day
+  // Return 0 on error, 1 on success
+  static int GetAgeAsFields(const char *age, int &year, int &month, int &week, int &day);
+
+  // For Tcl:
+  // From C++ use GetPatientAge + GetAgeAsField
+  // Those function parse a DICOM string, and return the value of the number expressed
+  // this is either expressed in year, month or days. Thus if a string is expressed in years
+  // GetPatientAgeDay/GetPatientAgeWeek/GetPatientAgeMonth will return 0 
+  int GetPatientAgeYear();
+  int GetPatientAgeMonth();
+  int GetPatientAgeWeek();
+  int GetPatientAgeDay();
+
+  // Description:
   // Patient sex
   // For ex: DICOM (0010,0040) = M
   vtkSetStringMacro(PatientSex);
