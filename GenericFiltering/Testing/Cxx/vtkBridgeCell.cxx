@@ -67,7 +67,7 @@
 # include "vtkQuadraticPyramid.h"
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.15");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.16");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -491,38 +491,25 @@ void vtkBridgeCell::InterpolateTuple(vtkGenericAttribute *a, double pcoords[3],
                                   && pcoords[2]<=1));
   assert("pre: val_exists" && val!=0);
 
-  vtkBridgeAttribute *ba=static_cast<vtkBridgeAttribute *>(a);
-  
-  int pt;
-  int component;
-  int ptCount;
-  int componentCount;
-  
-  componentCount=a->GetNumberOfComponents();
-  ptCount=this->GetNumberOfPoints();
-  
-  if(a->GetCentering()==vtkPointCentered)
+  vtkBridgeAttribute *ba = static_cast<vtkBridgeAttribute *>(a);
+
+  int componentCount = a->GetNumberOfComponents();
+  int ptCount = this->GetNumberOfPoints();
+
+  if(a->GetCentering() == vtkPointCentered)
     {
     this->AllocateWeights();
     this->InterpolationFunctions(pcoords);
-    
-    pt=0;
-    component=0;
-    while(component<componentCount)
+
+    memset(val,0, sizeof(double)*componentCount);
+    for(int pt = 0; pt<ptCount; ++pt)
       {
-      val[component]=0;
-      ++component;
-      }
-    while(pt<ptCount)
-      {
-      ba->Data->GetArray(ba->AttributeNumber)->GetTuple(this->Cell->GetPointId(pt),ba->InternalTuple);
-      component=0;
-      while(component<componentCount)
+      ba->Data->GetArray(ba->AttributeNumber)->
+        GetTuple(this->Cell->GetPointId(pt),ba->InternalTuple);
+      for(int component = 0; component<componentCount; ++component)
         {
-        val[component]=val[component]+ba->InternalTuple[component]*this->Weights[pt];
-        ++component;
+        val[component] += ba->InternalTuple[component]*this->Weights[pt];
         }
-      ++pt;
       }
     }
   else // cell centered
@@ -551,9 +538,9 @@ void vtkBridgeCell::InterpolateTuple(vtkGenericAttributeCollection *c,
              && pcoords[1]>=0 && pcoords[1]<=1 && pcoords[2]>=0
                                   && pcoords[2]<=1));
   assert("pre: val_exists" && val!=0);
-  
+
 ///  assert("check: used!" && 0);
-  
+
   double *p=val;
   int i=0;
   int count=c->GetNumberOfAttributes();
@@ -567,177 +554,7 @@ void vtkBridgeCell::InterpolateTuple(vtkGenericAttributeCollection *c,
     ++i;
     }
 }
- #if 0 
-//-----------------------------------------------------------------------------
-// Description:
-// Generate a contour (contouring primitives) for each `values' or with
-// respect to an implicit function `f'. Contouring
-// is performed on the scalar attribute (`attributes->GetActiveAttribute()',
-// `attributes->GetActiveComponent()').
-// Contouring interpolates the
-// `attributes->GetNumberOfattributesToInterpolate()' attributes
-// `attributes->GetAttributesToInterpolate()'.
-// `locator', `verts', `lines', `polys', `outPd' and `outCd' are cumulative
-// data arrays over cell iterations: they store the result of each call
-// to Contour():
-// - `locator' is points list that merges points as they are inserted (i.e.,
-// prevents duplicates).
-// - `verts' is an array of generated vertices
-// - `lines' is an array of generated lines
-// - `polys' is an array of generated polygons
-// - `outPd' is an array of interpolated point data along the edge (if
-// not-NULL)
-// - `outCd' is an array of copied cell data of the current cell (if 
-// not-NULL)
-// Note: the CopyAllocate() method must be invoked on both the output cell
-// and point data.
-//
-// NOTE: `vtkGenericAttributeCollection *attributes' will be replaced by a
-//       `vtkInformation'.
-//
-// \pre values_exist: (values!=0 && f==0) || (values==0 && f!=0)
-// \pre attributes_exist: attributes!=0
-// \pre locator_exists: locator!=0
-// \pre verts_exist: verts!=0
-// \pre lines_exist: lines!=0
-// \pre polys_exist: polys!=0
-void vtkBridgeCell::Contour(vtkContourValues *values,
-                            vtkImplicitFunction *f,
-                            vtkGenericAttributeCollection *attributes,
-                            vtkPointLocator *locator,
-                            vtkCellArray *verts,
-                            vtkCellArray *lines,
-                            vtkCellArray *polys,
-                            vtkPointData *outPd,
-                            vtkCellData *outCd)
-{
-  int i=0;
-  int c=0;
-  vtkGenericAttribute *a=0;
-  int comp=0;
-  
-  vtkDoubleArray *cellScalars=vtkDoubleArray::New();
-  double *buffer=new double[this->GetNumberOfPoints()];
-  cellScalars->SetArray(buffer,this->GetNumberOfPoints(),0);
-  
-  vtkPointData *inPd=0;
-  vtkCellData *inCd=0;
-  
-//  if(attributes->GetNumberOfAttributesToInterpolate()>0)
-//    {
-    inPd=this->DataSet->Implementation->GetPointData();
-    inCd=this->DataSet->Implementation->GetCellData();
-//  }
-  
-  // init cellScalars
-  a=attributes->GetAttribute(attributes->GetActiveAttribute());
-  comp=attributes->GetActiveComponent();
- 
-  a->GetComponent(comp,this->InternalIterator,buffer);  
-  
-  if(values!=0) // values mode
-    {
-    i=0;
-    c=values->GetNumberOfContours();
-    while(i<c)
-      {
-      this->Cell->Contour(values->GetValue(i),cellScalars,locator,verts,lines,
-                          polys,inPd,outPd,inCd,this->Id,outCd);
-      ++i;
-      }
-    }
-  else // implicit function mode
-    {
-    // not supported: do nothing, silently ignored.
-    (void)f;
-    }
-  
-  cellScalars->Delete(); // buffer is deleting automatically
-}
-#endif
-#if 0
-slkvjbdfkjvbdsflkvbj
-//-----------------------------------------------------------------------------
-// Description:
-// Cut (or clip) the current cell with respect to the contour defined by the
-// `value' or the implicit function `f' of the scalar attribute
-// (`attributes->GetActiveAttribute()',`attributes->GetActiveComponent()').
-// If `f' exists, `value' is not used. The output is the part
-// of the current cell which is inside the contour. 
-// The output is a set of zero, one or more cells of the same topological
-// dimension as the current cell. Normally, cell points whose scalar value
-// is greater than "value" are considered inside. If `insideOut' is on, this
-// is reversed.
-//  Clipping interpolates the
-// `attributes->GetNumberOfattributesToInterpolate()' attributes
-// `attributes->GetAttributesToInterpolate()'.
-// `locator', `connectivity', `outPd' and `outCd' are cumulative
-// data arrays over cell iterations: they store the result of each call
-// to Clip():
-// - `locator' is points list that merges points as they are inserted (i.e.,
-// prevents duplicates).
-// - `connectivity' is an array of generated cells
-// - `outPd' is an array of interpolated point data along the edge (if
-// not-NULL)
-// - `outCd' is an array of copied cell data of the current cell (if
-// not-NULL)
-// Note: the CopyAllocate() method must be invoked on both the output cell
-// and point data.
-// Also, if the output cell data is
-// non-NULL, the cell data from the clipped cell is passed to the generated
-// contouring primitives. (Note: the CopyAllocate() method must be invoked on
-// both the output cell and point data.)
-//
-// NOTE: `vtkGenericAttributeCollection *attributes' will be replaced by a
-//       `vtkInformation'.
-//
-// \pre attributes_exist: attributes!=0
-// \pre locator_exists: locator!=0
-// \pre connectivity_exists: connectivity!=0
-void vtkBridgeCell::Clip(double value,
-                         vtkImplicitFunction *f,
-                         vtkGenericAttributeCollection *attributes,
-                         vtkGenericCellTessellator *vtkNotUsed(tess),
-                         int insideOut,
-                         vtkPointLocator *locator,
-                         vtkCellArray *connectivity,
-                         vtkPointData *outPd,
-                         vtkCellData *outCd)
-{
-  vtkGenericAttribute *a=0;
-  int comp=0;
-  
-  vtkDoubleArray *cellScalars=vtkDoubleArray::New();
-  double *buffer=new double[this->GetNumberOfPoints()];
-  cellScalars->SetArray(buffer,this->GetNumberOfPoints(),0);
-  
-  vtkPointData *inPd=0;
-  vtkCellData *inCd=0;
-  
-  if(attributes->GetNumberOfAttributesToInterpolate()>0)
-    {
-    inPd=this->DataSet->Implementation->GetPointData();
-    inCd=this->DataSet->Implementation->GetCellData();
-    }
-  
-  // init cellScalars
-  a=attributes->GetAttribute(attributes->GetActiveAttribute());
-  comp=attributes->GetActiveComponent();
 
-  a->GetComponent(comp,this->InternalIterator,buffer);  
-  
-  if(f==0) // values mode
-    {
-    this->Cell->Clip(value,cellScalars,locator,connectivity,inPd,outPd,
-                     inCd,this->Id,outCd,insideOut);
-    }
-  else // implicit function mode
-    {
-    // not supported: do nothing, silently ignored.
-    }
-  cellScalars->Delete(); // buffer is deleting automatically
-}
-#endif
 //-----------------------------------------------------------------------------
 // Description:
 // Is there an intersection between the current cell and the ray (`p1',`p2')
@@ -747,10 +564,10 @@ void vtkBridgeCell::Clip(double value,
 // the intersection occurs.
 // \pre positive_tolerance: tol>0
 int vtkBridgeCell::IntersectWithLine(double p1[3],
-                                     double p2[3], 
+                                     double p2[3],
                                      double tol,
                                      double &t,
-                                     double x[3], 
+                                     double x[3],
                                      double pcoords[3],
                                      int &subId)
 {
@@ -774,14 +591,15 @@ void vtkBridgeCell::Derivatives(int subId,
                                 vtkGenericAttribute *attribute,
                                 double *derivs)
 {
-  double *tuples=new double[attribute->GetNumberOfComponents()*this->GetNumberOfPoints()];
+  double *tuples =
+    new double[attribute->GetNumberOfComponents()*this->GetNumberOfPoints()];
   attribute->GetTuple(this->InternalIterator,tuples);
   this->Cell->Derivatives(subId,pcoords,tuples,
                           attribute->GetNumberOfComponents(),derivs);
   delete [] tuples;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Compute the bounding box of the current cell in `bounds' in global
 // coordinates.
@@ -791,7 +609,7 @@ void vtkBridgeCell::GetBounds(double bounds[6])
   this->Cell->GetBounds(bounds);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Return the bounding box of the current cell in global coordinates.
 // NOT THREAD SAFE
@@ -802,7 +620,7 @@ double *vtkBridgeCell::GetBounds()
   return this->Cell->GetBounds();
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Bounding box diagonal squared of the current cell.
 // \post positive_result: result>=0
@@ -811,7 +629,7 @@ double vtkBridgeCell::GetLength2()
   return this->Cell->GetLength2();
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Center of the current cell in parametric coordinates `pcoords'.
 // If the current cell is a composite, the return value is the sub-cell id
@@ -822,7 +640,7 @@ int vtkBridgeCell::GetParametricCenter(double pcoords[3])
   return this->Cell->GetParametricCenter(pcoords);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Distance of the parametric coordinate `pcoords' to the current cell.
 // If inside the cell, a distance of zero is returned. This is used during
@@ -835,7 +653,7 @@ double vtkBridgeCell::GetParametricDistance(double pcoords[3])
   return this->Cell->GetParametricDistance(pcoords);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Return a contiguous array of parametric coordinates of the points defining
 // the current cell. In other words, (px,py,pz, px,py,pz, etc..) The
@@ -850,131 +668,26 @@ double *vtkBridgeCell::GetParametricCoords()
 {
   return this->Cell->GetParametricCoords();
 }
-#if 0
-//-----------------------------------------------------------------------------
-// Description:
-// Tessellate the cell if it is not linear or if at least one attribute of
-// `attributes' is not linear. The output are linear cells of the same
-// dimension than than cell. If the cell is linear and all attributes are
-// linear, the output is just a copy of the current cell.
-// `points', `cellArray', `pd' and `cd' are cumulative output data arrays
-// over cell iterations: they store the result of each call to Tessellate().
-// \pre attributes_exist: attributes!=0
-// \pre points_exist: points!=0
-// \pre cellArray_exists: cellArray!=0
-// \pre pd_exist: pd!=0
-// \pre cd_exists: cd!=0
-void vtkBridgeCell::Tessellate(vtkGenericAttributeCollection *attributes, 
-                               vtkPoints *points, vtkCellArray* cellArray,  
-                               vtkPointData *pd, vtkCellData* cd)
-{
-  (void)pd;
-  (void)cd;
-  
-  int i=0;
-  int j=0;
-  int c=0;
-  vtkIdList *ptIds=0;
-  vtkIdList *buffer=0;
-  vtkPoints *pts=0;
-  vtkCell *gc=0;
-  vtkGenericAttribute *a=0;
-  double pcoords[3];
-  double *values=new double[attributes->GetMaxNumberOfComponents()];
-  int dim=this->GetDimension();
- 
-  if(this->IsGeometryLinear())
-    {
-    // geometry: points
-    c=this->GetNumberOfPoints();
-    i=0;
-    while(i<c)
-      {
-      points->InsertNextPoint(this->Cell->GetPoints()->GetPoint(i));
-        ++i;
-      }
-    // geometry: cell
-    gc=this->Cell->NewInstance();
-    gc->DeepCopy(this->Cell);
-    cellArray->InsertNextCell(gc);
-    gc->Delete();
-    
-    // copy attributes
-    c=attributes->GetNumberOfAttributes();
-    i=0;
-    while(i<c)
-      {
-      a=attributes->GetAttribute(i);
-      if (a->GetCentering()==vtkCenteringCells)
-        {
-        // pcoords is not used when centering is on cells.
-        this->InterpolateTuple(a,pcoords,values);
-        assert("check: TODO" && 0);
-          //cd->;
-        }
-      ++i;
-      }
-    }
-  else
-    {
-    // geometry: points
-    ptIds=vtkIdList::New();
-    buffer=vtkIdList::New();
-    pts=vtkPoints::New();
-    this->Cell->Triangulate(0,ptIds,pts);
-    
-    c=pts->GetNumberOfPoints();
-    i=0;
-    while(i<c)
-      {
-      points->InsertNextPoint(pts->GetPoint(i));
-      ++i;
-      }
-    
-    // geometry: cells
-    c=ptIds->GetNumberOfIds();
-    i=0;
-    j=0;
-    buffer->Reset();
-    while(i<c)
-      {
-      buffer->InsertNextId(ptIds->GetId(i));
-      ++i;
-      ++j;
-      if (j>dim)
-        {
-        cellArray->InsertNextCell(buffer);
-        j=0;
-        buffer->Reset();
-        }
-      }
-    
-    // interpolate attributes
-    ptIds->Delete();
-    buffer->Delete();
-    pts->Delete();
-    }
-  
-}
-#endif
+
 // For the internals of the tesselation algorithm (the hash table in particular)
 // Is the face `faceId' of the current cell on a exterior boundary of the
 // dataset or not?
 // \pre 3d: GetDimension()==3
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 int vtkBridgeCell::IsFaceOnBoundary(vtkIdType faceId)
 {
   assert("pre: 3d" && this->GetDimension()==3);
-  
+
   // result=CountNeighbors(boundary(faceId))==0;
-  
-  vtkCell *face=this->Cell->GetFace(faceId);
-  vtkIdList *cells=vtkIdList::New(); // expensive
-  this->DataSet->Implementation->GetCellNeighbors(this->Id,face->GetPointIds(),cells);
+
+  vtkCell *face = this->Cell->GetFace(faceId);
+  vtkIdList *cells = vtkIdList::New(); // expensive
+  this->DataSet->Implementation->
+    GetCellNeighbors(this->Id,face->GetPointIds(),cells);
 
   int result=cells->GetNumberOfIds()==0;
   cells->Delete(); // expensive
-#if 0 
+#if 0
   if(this->GetType()==VTK_QUADRATIC_TETRA)
     {
     if(result)
@@ -993,7 +706,7 @@ int vtkBridgeCell::IsFaceOnBoundary(vtkIdType faceId)
 
 // Is the cell on the exterior boundary of the dataset?
 // \pre 2d: GetDimension()==2
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 int vtkBridgeCell::IsOnBoundary()
 {
   assert("pre: 2d" && this->GetDimension()==2);
@@ -1001,7 +714,7 @@ int vtkBridgeCell::IsOnBoundary()
   return 1;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Put into `id' the list of ids the point of the cell.
 // \pre id_exists: id!=0
@@ -1017,27 +730,7 @@ void vtkBridgeCell::GetPointIds(vtkIdType *id)
     ++i;
     }
 }
-#if 0
-//-----------------------------------------------------------------------------
-void vtkBridgeCell::TriangulateFace(vtkGenericAttributeCollection *attributes,
-                                    vtkGenericCellTessellator *tess,
-                                    int index,
-                                    vtkPoints *pts, vtkCellArray *cellArray, 
-                                    vtkPointData *pd,
-                                    vtkCellData *cd )
-{
-  (void)attributes;
-  (void)tess;
-  (void)index;
-  (void)pts;
-  (void)cellArray;
-  (void)pd;
-  (void)cd;
-  assert("check: TODO" && 0);
-}
-#endif
-
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Return the ids of the vertices defining face `faceId'.
 // \pre is_3d: this->GetDimension()==3
@@ -1047,30 +740,31 @@ void vtkBridgeCell::TriangulateFace(vtkGenericAttributeCollection *attributes,
 int *vtkBridgeCell::GetFaceArray(int faceId)
 {
   assert("pre: is_3d" && this->GetDimension()==3);
-  assert("pre: valid_faceId_range" && faceId>=0 && faceId<this->GetNumberOfBoundaries(2));
- 
-  int *result=0;
-  
+  assert("pre: valid_faceId_range" && faceId>=0
+    && faceId<this->GetNumberOfBoundaries(2));
+
+  int *result = 0;
+
   switch(this->GetType())
     {
     case VTK_HIGHER_ORDER_TETRAHEDRON:
-      result=vtkTetra::GetFaceArray(faceId);
+      result = vtkTetra::GetFaceArray(faceId);
       break;
     case VTK_HIGHER_ORDER_HEXAHEDRON:
       if(this->Cell->GetCellType()==VTK_VOXEL)
         {
-        result=vtkVoxel::GetFaceArray(faceId);
+        result = vtkVoxel::GetFaceArray(faceId);
         }
       else
         {
-        result=vtkHexahedron::GetFaceArray(faceId);
+        result = vtkHexahedron::GetFaceArray(faceId);
         }
       break;
     case VTK_HIGHER_ORDER_WEDGE:
-      result=vtkWedge::GetFaceArray(faceId);
+      result = vtkWedge::GetFaceArray(faceId);
       break;
     case VTK_HIGHER_ORDER_PYRAMID:
-      result=vtkPyramid::GetFaceArray(faceId);
+      result = vtkPyramid::GetFaceArray(faceId);
       break;
     case VTK_PENTAGONAL_PRISM:
       assert("check: TODO" && 0);
@@ -1085,7 +779,7 @@ int *vtkBridgeCell::GetFaceArray(int faceId)
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Return the number of vertices defining face `faceId'
 // \pre is_3d: this->GetDimension()==3
@@ -1094,36 +788,37 @@ int *vtkBridgeCell::GetFaceArray(int faceId)
 int vtkBridgeCell::GetNumberOfVerticesOnFace(int faceId)
 {
   assert("pre: is_3d" && this->GetDimension()==3);
-  assert("pre: valid_faceId_range" && faceId>=0 && faceId<this->GetNumberOfBoundaries(2));
-  
-  int result;
-  
+  assert("pre: valid_faceId_range" && faceId>=0
+    && faceId<this->GetNumberOfBoundaries(2));
+
+  int result = 0;
+
   switch(this->GetType())
     {
     case VTK_HIGHER_ORDER_TETRAHEDRON:
-      result=3;
+      result = 3;
       break;
     case VTK_HIGHER_ORDER_HEXAHEDRON:
-      result=4;
+      result = 4;
       break;
     case  VTK_HIGHER_ORDER_WEDGE:
-      if(faceId<=1)
+      if(faceId <= 1) // triangle face
         {
-        result=3;
+        result = 3;
         }
-      else
+      else // quad face
         {
-        result=4;
+        result = 4;
         }
       break;
     case VTK_HIGHER_ORDER_PYRAMID:
-      if(faceId==0)
+      if( faceId == 0)  // base
         {
-        result=4;
+        result = 4;
         }
-      else
+      else // side
         {
-        result=3;
+        result = 3;
         }
       break;
 #if 0 // TODO
@@ -1150,10 +845,9 @@ int vtkBridgeCell::GetNumberOfVerticesOnFace(int faceId)
 #endif
     default:
       assert("check: impossible case" && 0);
-      result=0; // just to fix warning of some compilers
       break;
     }
-  
+
   assert("post: positive_result" && result>0);
   return result;
 }
@@ -1162,7 +856,7 @@ int vtkBridgeCell::GetNumberOfVerticesOnFace(int faceId)
 static int triangleEdges[3][2] = { {0,1}, {1,2}, {2,0} };
 static int quadEdges[4][2] = { {0,1}, {1,2}, {3,2}, {0,3} };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Return the ids of the vertices defining edge `edgeId'.
 // \pre valid_dimension: this->GetDimension()>=2
@@ -1172,55 +866,53 @@ static int quadEdges[4][2] = { {0,1}, {1,2}, {3,2}, {0,3} };
 int *vtkBridgeCell::GetEdgeArray(int edgeId)
 {
   assert("pre: valid_dimension" && this->GetDimension()>=2);
-  assert("pre: valid_faceId_range" && edgeId>=0 && edgeId<this->GetNumberOfBoundaries(1));
-  
-  int *result;
-  
+  assert("pre: valid_faceId_range" && edgeId>=0
+    && edgeId<this->GetNumberOfBoundaries(1));
+
+  int *result = 0;
+
   switch(this->GetType())
     {
     case VTK_HIGHER_ORDER_TRIANGLE:
-      result=triangleEdges[edgeId];
+      result = triangleEdges[edgeId];
       break;
     case VTK_HIGHER_ORDER_QUAD:
-      result=quadEdges[edgeId];
+      result = quadEdges[edgeId];
       break;
     case VTK_HIGHER_ORDER_TETRAHEDRON:
-      result=vtkTetra::GetEdgeArray(edgeId);
+      result = vtkTetra::GetEdgeArray(edgeId);
       break;
     case VTK_HIGHER_ORDER_HEXAHEDRON:
       if(this->Cell->GetCellType()==VTK_VOXEL)
         {
-        result=vtkVoxel::GetEdgeArray(edgeId);
+        result = vtkVoxel::GetEdgeArray(edgeId);
         }
       else
         {
-        result=vtkHexahedron::GetEdgeArray(edgeId);
+        result = vtkHexahedron::GetEdgeArray(edgeId);
         }
       break;
     case VTK_HIGHER_ORDER_WEDGE:
-      result=vtkWedge::GetEdgeArray(edgeId);
+      result = vtkWedge::GetEdgeArray(edgeId);
       break;
     case VTK_HIGHER_ORDER_PYRAMID:
-      result=vtkPyramid::GetEdgeArray(edgeId);
+      result = vtkPyramid::GetEdgeArray(edgeId);
       break;
     case VTK_PENTAGONAL_PRISM:
       assert("check: TODO" && 0);
-      result=0; // just to fix warning of some compilers
       break;
     case VTK_HEXAGONAL_PRISM:
       assert("check: TODO" && 0);
-      result=0; // just to fix warning of some compilers
       break;
     default:
       assert("check: impossible case" && 0);
-      result=0; // just to fix warning of some compilers
       break;
     }
-  
+
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Used internally for the Bridge.
 // Initialize the cell from a dataset `ds' and `cellid'.
@@ -1232,47 +924,46 @@ void vtkBridgeCell::Init(vtkBridgeDataSet *ds,
   assert("pre: ds_exists" && ds!=0);
   assert("pre: valid_cellid" && (cellid>=0)
          && (cellid<ds->GetNumberOfCells()));
-  
+
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,ds);
-  vtkCell *tmp=ds->Implementation->GetCell(cellid);
+  vtkCell *tmp = ds->Implementation->GetCell(cellid);
   vtkSetObjectBodyMacro(Cell,vtkCell,tmp);
-  this->Id=cellid;
-  this->BoolIsInDataSet=1;
-  if(this->InternalIterator==0)
+  this->Id = cellid;
+  this->BoolIsInDataSet = 1;
+  if(this->InternalIterator == 0)
     {
-    this->InternalIterator=vtkBridgeCellIterator::New();
+    this->InternalIterator = vtkBridgeCellIterator::New();
     }
   this->InternalIterator->InitWithOneCell(this);
-  
+
   this->InternalIterator->Begin();
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Used internally for the Bridge.
 // Initialize the cell from a cell `c' and an `id'.
 // \pre c_exists: c!=0
-void vtkBridgeCell::InitWithCell(vtkCell *c,
-                                 vtkIdType id)
+void vtkBridgeCell::InitWithCell(vtkCell *c, vtkIdType id)
 {
   assert("pre: c_exists" && c!=0);
-  
+
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,0);
-  this->Id=id;
-  
+  this->Id = id;
+
   // warning: do directly vtkSetObjectBodyMacro(Cell,vtkCell,c->NewInstance())
   // add memory leak because the text "c->NewInstance()" is copied several
   // time in the macro...
-  
-  if(this->Cell!=0)
+
+  if(this->Cell)
     {
     this->Cell->Delete();
     }
-  this->Cell=c->NewInstance();
- 
+  this->Cell = c->NewInstance();
+
   this->Cell->DeepCopy(c);
   this->BoolIsInDataSet=0;
-  
+
   if(this->InternalIterator==0)
     {
     this->InternalIterator=vtkBridgeCellIterator::New();
@@ -1281,7 +972,7 @@ void vtkBridgeCell::InitWithCell(vtkCell *c,
   this->InternalIterator->Begin();
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Recursive copy of `other' into `this'.
 // \pre other_exists: other!=0
@@ -1290,19 +981,19 @@ void vtkBridgeCell::DeepCopy(vtkBridgeCell *other)
 {
   assert("pre: other_exists" && other!=0);
   assert("pre: other_differ" && this!=other);
-  
+
   vtkCell *tmp;
-  
+
   if(this->InternalIterator==0)
     {
     this->InternalIterator=vtkBridgeCellIterator::New();
     }
-  this->Id=other->Id;
-  this->BoolIsInDataSet=other->BoolIsInDataSet;
+  this->Id = other->Id;
+  this->BoolIsInDataSet = other->BoolIsInDataSet;
   if(other->BoolIsInDataSet)
     {
     vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,other->DataSet);
-    tmp=this->DataSet->Implementation->GetCell(this->Id);
+    tmp = this->DataSet->Implementation->GetCell(this->Id);
     vtkSetObjectBodyMacro(Cell,vtkCell,tmp);
     this->InternalIterator->InitWithOneCell(this);
     this->InternalIterator->Begin();
@@ -1310,7 +1001,7 @@ void vtkBridgeCell::DeepCopy(vtkBridgeCell *other)
   else
     {
     vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,0);
-    tmp=other->Cell->NewInstance();
+    tmp = other->Cell->NewInstance();
     vtkSetObjectBodyMacro(Cell,vtkCell,tmp);
     this->Cell->Delete(); // because newinstance+macro=2 ref
     this->Cell->DeepCopy(other->Cell);
@@ -1320,55 +1011,54 @@ void vtkBridgeCell::DeepCopy(vtkBridgeCell *other)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkBridgeCell::vtkBridgeCell()
 {
-  this->DataSet=0;
-  this->InternalIterator=0; // we cannot create the cell iterator here
+  this->DataSet = 0;
+  this->InternalIterator = 0; // we cannot create the cell iterator here
   // because we will have an infinite recursion: a cell creates a
   // celliterator which creates a cell, which creates a celliterator ...
-  this->Cell=0;
-  this->BoolIsInDataSet=0;
-  this->Id=-1000;
-  
-  this->Weights=0;
-  this->WeightsCapacity=0;
-//  this->DebugOn();
+  this->Cell = 0;
+  this->BoolIsInDataSet = 0;
+  this->Id = -1000; // magic ?
+
+  this->Weights = 0;
+  this->WeightsCapacity = 0;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkBridgeCell::~vtkBridgeCell()
 {
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,0);
   vtkSetObjectBodyMacro(InternalIterator,vtkBridgeCellIterator,0);
   vtkSetObjectBodyMacro(Cell,vtkCell,0);
- 
-  if(this->Weights!=0)
+
+  if(this->Weights)
     {
     delete[] this->Weights;
-    this->Weights=0;
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Allocate an array for the weights, only if it does not exist yet or if
 // the capacity is too small.
 void vtkBridgeCell::AllocateWeights()
 {
-  if((this->Weights!=0)&&(this->WeightsCapacity<this->GetNumberOfPoints()))
+  if( this->Weights != 0
+    && this->WeightsCapacity < this->GetNumberOfPoints() )
     {
     delete[] this->Weights;
-    this->Weights=0;
+    this->Weights = 0;
     }
-  if(this->Weights==0)
+  if(this->Weights == 0)
     {
-    this->Weights=new double[this->GetNumberOfPoints()];
-    this->WeightsCapacity=this->GetNumberOfPoints();
+    this->Weights = new double[this->GetNumberOfPoints()];
+    this->WeightsCapacity = this->GetNumberOfPoints();
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Compute the weights for parametric coordinates `pcoords'.
 void vtkBridgeCell::InterpolationFunctions(double pcoords[3])
@@ -1455,3 +1145,4 @@ void vtkBridgeCell::InterpolationFunctions(double pcoords[3])
       break;
     }
 }
+
