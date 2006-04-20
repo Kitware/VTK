@@ -65,7 +65,7 @@ public:
 
   // Description:
   // Given eight vertices, creates a frustum.
-  void CreateFrustum(double vertices[24]);
+  void CreateFrustum(double vertices[32]);
 
   // Description:
   // Return eight points that define the selection frustum. Valid if
@@ -95,6 +95,13 @@ public:
   // Description:
   // Does a quick test on the AABBox defined by the bounds.
   int OverallBoundsTest(double *bounds);
+
+  // Description:
+  // When On, this returns an unstructured grid that outlines selection area.
+  // Off is the default.
+  vtkSetMacro(ShowBounds,int);
+  vtkGetMacro(ShowBounds,int);
+  vtkBooleanMacro(ShowBounds,int);
   
 protected:
   vtkFrustumExtractor(vtkPlanes *f=NULL);
@@ -106,9 +113,11 @@ protected:
                                 vtkInformationVector* outputVector);
 
   //execution
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, 
+                          vtkInformationVector **, vtkInformationVector *);
   int ABoxFrustumIsect(double bounds[], vtkCell *cell);
-  int FrustumClipPolygon(int nverts, double *ivlist, double *wvlist, double *ovlist);
+  int FrustumClipPolygon(int nverts, 
+                         double *ivlist, double *wvlist, double *ovlist);
   void PlaneClipPolygon(int nverts, double *ivlist, 
                         int pid, int &noverts, double *ovlist);
   void PlaneClipEdge(double *V0, double *V1, 
@@ -117,7 +126,9 @@ protected:
 
 
   //used in CreateFrustum
-  void ComputePlane(int idx, double v0[3], double v1[2], double v2[3], vtkPoints *points, vtkDoubleArray *norms);
+  void ComputePlane(int idx, 
+                    double v0[3], double v1[2], double v2[3], 
+                    vtkPoints *points, vtkDoubleArray *norms);
 
   //modes
   int PassThrough;
@@ -132,7 +143,8 @@ protected:
   int NumRejects;
   int NumIsects;
   int NumAccepts;
-
+  int ShowBounds;
+  
 private:
   vtkFrustumExtractor(const vtkFrustumExtractor&);  // Not implemented.
   void operator=(const vtkFrustumExtractor&);  // Not implemented.

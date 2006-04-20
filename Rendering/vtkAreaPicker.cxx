@@ -36,7 +36,7 @@
 #include "vtkPoints.h"
 #include "vtkFrustumExtractor.h"
 
-vtkCxxRevisionMacro(vtkAreaPicker, "1.4");
+vtkCxxRevisionMacro(vtkAreaPicker, "1.5");
 vtkStandardNewMacro(vtkAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -120,38 +120,38 @@ void vtkAreaPicker::DefineFrustum(double X0, double Y0, double X1, double Y1,
     }
 
   //compute world coordinates of the pick volume 
-  double verts[24];
+  double verts[32];
   renderer->SetDisplayPoint(x0, y0, 0);
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(&verts[0]);
 
   renderer->SetDisplayPoint(x0, y0, 1);
   renderer->DisplayToWorld();
-  renderer->GetWorldPoint(&verts[3]);
+  renderer->GetWorldPoint(&verts[4]);
 
   renderer->SetDisplayPoint(x0, y1, 0);
   renderer->DisplayToWorld();
-  renderer->GetWorldPoint(&verts[6]);
+  renderer->GetWorldPoint(&verts[8]);
 
   renderer->SetDisplayPoint(x0, y1, 1);
   renderer->DisplayToWorld();
-  renderer->GetWorldPoint(&verts[9]);
+  renderer->GetWorldPoint(&verts[12]);
 
   renderer->SetDisplayPoint(x1, y0, 0);
   renderer->DisplayToWorld();
-  renderer->GetWorldPoint(&verts[12]);
+  renderer->GetWorldPoint(&verts[16]);
 
   renderer->SetDisplayPoint(x1, y0, 1);
   renderer->DisplayToWorld();
-  renderer->GetWorldPoint(&verts[15]);
+  renderer->GetWorldPoint(&verts[20]);
 
   renderer->SetDisplayPoint(x1, y1, 0);
   renderer->DisplayToWorld();
-  renderer->GetWorldPoint(&verts[18]);
+  renderer->GetWorldPoint(&verts[24]);
   
   renderer->SetDisplayPoint(x1, y1, 1);
   renderer->DisplayToWorld();
-  renderer->GetWorldPoint(&verts[21]);    
+  renderer->GetWorldPoint(&verts[28]);    
     
   //a pick point is required by vtkAbstractPicker
   //return center for now until a better meaning is desired
