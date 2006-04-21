@@ -34,7 +34,7 @@
 #include "vtkHexahedron.h"
 #include "vtkLine.h"
 
-vtkCxxRevisionMacro(vtkFrustumExtractor, "1.7");
+vtkCxxRevisionMacro(vtkFrustumExtractor, "1.8");
 vtkStandardNewMacro(vtkFrustumExtractor);
 vtkCxxSetObjectMacro(vtkFrustumExtractor,Frustum,vtkPlanes);
 
@@ -183,7 +183,6 @@ int vtkFrustumExtractor::RequestDataObject(
   
   if (input)
     {
-    // for each output
     for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
       {
       vtkInformation* info = outputVector->GetInformationObject(i);
@@ -191,14 +190,13 @@ int vtkFrustumExtractor::RequestDataObject(
         info->Get(vtkDataObject::DATA_OBJECT()));
     
       if (!output || 
-          (this->PassThrough && !output->IsA(input->GetClassName())) ||
-          (!this->PassThrough && !output->IsA("vtkUnstructuredGrid"))
+          ((this->ShowBounds || !this->PassThrough) && !output->IsA("vtkUnstructuredGrid")) ||
+          (this->PassThrough && !output->IsA(input->GetClassName()))
         ) 
         {
-        if (this->PassThrough && !this->ShowBounds)
+        if (this->ShowBounds || !this->PassThrough)
           { 
-          vtkDataSet* newOutput;
-          newOutput = input->NewInstance();
+          vtkUnstructuredGrid* newOutput = vtkUnstructuredGrid::New();
           newOutput->SetPipelineInformation(info);
           newOutput->Delete();
           this->GetOutputPortInformation(0)->Set(
@@ -206,7 +204,8 @@ int vtkFrustumExtractor::RequestDataObject(
           }
         else
           {
-          vtkUnstructuredGrid* newOutput = vtkUnstructuredGrid::New();
+          vtkDataSet* newOutput;
+          newOutput = input->NewInstance();
           newOutput->SetPipelineInformation(info);
           newOutput->Delete();
           this->GetOutputPortInformation(0)->Set(
