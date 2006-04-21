@@ -39,7 +39,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.4");
+vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.5");
 vtkStandardNewMacro(vtkSliderRepresentation3D);
 
 //----------------------------------------------------------------------
@@ -597,6 +597,13 @@ void vtkSliderRepresentation3D::GetActors(vtkPropCollection *pc)
 }
 
 //----------------------------------------------------------------------
+double *vtkSliderRepresentation3D::GetBounds()
+{
+  this->BuildRepresentation();
+  return this->WidgetAssembly->GetBounds();
+}
+
+//----------------------------------------------------------------------
 void vtkSliderRepresentation3D::ReleaseGraphicsResources(vtkWindow *w)
 {
   this->WidgetAssembly->ReleaseGraphicsResources(w);
@@ -616,6 +623,21 @@ int vtkSliderRepresentation3D::RenderTranslucentGeometry(vtkViewport *viewport)
   return this->WidgetAssembly->RenderTranslucentGeometry(viewport);
 }
 
+//----------------------------------------------------------------------
+void vtkSliderRepresentation3D::SetPoint1InWorldCoordinates(
+  double x, double y, double z)
+{
+  this->GetPoint1Coordinate()->SetCoordinateSystemToWorld();
+  this->GetPoint1Coordinate()->SetValue(x,y,z);
+}
+
+//----------------------------------------------------------------------
+void vtkSliderRepresentation3D::SetPoint2InWorldCoordinates(
+  double x, double y, double z)
+{
+  this->GetPoint2Coordinate()->SetCoordinateSystemToWorld();
+  this->GetPoint2Coordinate()->SetValue(x,y,z);
+}
 
 //----------------------------------------------------------------------
 void vtkSliderRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)

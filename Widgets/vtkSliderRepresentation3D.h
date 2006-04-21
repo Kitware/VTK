@@ -63,6 +63,7 @@ public:
   // then invoke the necessary methods to put it into the correct coordinate
   // system and set the correct initial value.
   vtkCoordinate *GetPoint1Coordinate();
+  void SetPoint1InWorldCoordinates(double x, double y, double z);
 
   // Description:
   // Position the second end point of the slider. Note that this point is an
@@ -72,6 +73,7 @@ public:
   // then invoke the necessary methods to put it into the correct coordinate
   // system and set the correct initial value.
   vtkCoordinate *GetPoint2Coordinate();
+  void SetPoint2InWorldCoordinates(double x, double y, double z);
 
   // Description:
   // Specify the title text for this widget. If the value is not set, or set
@@ -123,6 +125,11 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentGeometry(vtkViewport*);
+
+  // Description:
+  // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  // in world coordinates. NULL means that the bounds are not defined.
+  virtual double *GetBounds();
 
 protected:
   vtkSliderRepresentation3D();
