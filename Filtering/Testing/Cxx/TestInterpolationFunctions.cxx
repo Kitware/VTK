@@ -32,34 +32,36 @@ int TestOneInterpolationFunction()
   double *sf = new double[numPts];
   double *coords = cell->GetParametricCoords();
   cell->Delete();
+  int r = 0;
   for(int i=0;i<numPts;)
     {
-      double point[3];
-      point[0] = coords[i++];
-      point[1] = coords[i++];
-      point[2] = coords[i];
-      TCell::InterpolationFunctions(point, sf); // static function
-      for(int j=0;j<numPts/3;j++)
+    double point[3];
+    point[0] = coords[i++];
+    point[1] = coords[i++];
+    point[2] = coords[i];
+    TCell::InterpolationFunctions(point, sf); // static function
+    for(int j=0;j<numPts/3;j++)
       {
-        if(j == (i/3))
+      if(j == (i/3))
+        {
+        if( fabs(sf[j] - 1) > VTK_DBL_EPSILON)
           {
-          if( fabs(sf[j] - 1) > VTK_DBL_EPSILON)
-            {
-            return 1;
-            }
+          ++r;
           }
-        else
+        }
+      else
+        {
+        if( fabs(sf[j] - 0) > VTK_DBL_EPSILON )
           {
-          if( fabs(sf[j] - 0) > VTK_DBL_EPSILON )
-            {
-            return 1;
-            }
+          ++r;
           }
+        }
       }
-      ++i;
+    ++i;
     }
+
   delete[] sf;
-  return 0;
+  return r;
 }
 
 int TestInterpolationFunctions(int, char *[])

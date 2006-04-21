@@ -4,6 +4,7 @@ SET(KIT Filtering)
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   quadCellConsistency.cxx
   otherColorTransferFunction.cxx
+  TestInterpolationFunctions.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
@@ -14,9 +15,9 @@ SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx)
 
 #
-# Add all the executables 
+# Add all the executables
 FOREACH (test ${TestsToRun})
   GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
   ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
-ENDFOREACH (test) 
+ENDFOREACH (test)
 
