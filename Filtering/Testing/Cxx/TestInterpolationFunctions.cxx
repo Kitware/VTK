@@ -14,6 +14,19 @@
 =========================================================================*/
 #include "vtkMath.h" // for VTK_DBL_EPSILON
 
+// Subclass of vtkCell
+//#include "vtkEmptyCell.h"
+#include "vtkGenericCell.h"
+#include "vtkLine.h"
+#include "vtkPixel.h"
+//#include "vtkPolygon.h"
+//#include "vtkPolyLine.h"
+//#include "vtkPolyVertex.h"
+#include "vtkQuad.h"
+#include "vtkTriangle.h"
+//#include "vtkTriangleStrip.h"
+#include "vtkVertex.h"
+
 // Subclass of vtkCell3D
 //#include "vtkConvexPointSet.h"
 #include "vtkHexagonalPrism.h"
@@ -23,6 +36,16 @@
 #include "vtkTetra.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
+
+// Subclass of vtkNonLinearCell
+//#include "vtkExplicitCell.h"
+#include "vtkQuadraticEdge.h"
+#include "vtkQuadraticHexahedron.h"
+#include "vtkQuadraticPyramid.h"
+#include "vtkQuadraticQuad.h"
+#include "vtkQuadraticTetra.h"
+#include "vtkQuadraticTriangle.h"
+#include "vtkQuadraticWedge.h"
 
 template <class TCell>
 int TestOneInterpolationFunction()
@@ -67,6 +90,18 @@ int TestOneInterpolationFunction()
 int TestInterpolationFunctions(int, char *[])
 {
   int r = 0;
+  // Subclass of vtkCell3D
+  //r += TestOneInterpolationFunction<vtkEmptyCell>(); // not implemented
+  //r += TestOneInterpolationFunction<vtkGenericCell>(); // not implemented
+  r += TestOneInterpolationFunction<vtkLine>();
+  r += TestOneInterpolationFunction<vtkPixel>();
+  //r += TestOneInterpolationFunction<vtkPolygon>(); // not implemented
+  //r += TestOneInterpolationFunction<vtkPolyLine>(); // not implemented
+  //r += TestOneInterpolationFunction<vtkPolyVertex>(); // not implemented
+  r += TestOneInterpolationFunction<vtkQuad>();
+  r += TestOneInterpolationFunction<vtkTriangle>();
+  //r += TestOneInterpolationFunction<vtkTriangleStrip>(); // not implemented
+  r += TestOneInterpolationFunction<vtkVertex>();
 
   // Subclass of vtkCell3D
   //r += TestOneInterpolationFunction<vtkConvexPointSet>(); // not implemented
@@ -77,6 +112,16 @@ int TestInterpolationFunctions(int, char *[])
   r += TestOneInterpolationFunction<vtkTetra>();
   r += TestOneInterpolationFunction<vtkVoxel>();
   r += TestOneInterpolationFunction<vtkWedge>();
+
+  // Subclass of vtkNonLinearCell
+  //r += TestOneInterpolationFunction<vtkExplicitCell>(); // not implemented
+  r += TestOneInterpolationFunction<vtkQuadraticEdge>();
+  r += TestOneInterpolationFunction<vtkQuadraticHexahedron>();
+  r += TestOneInterpolationFunction<vtkQuadraticPyramid>();
+  r += TestOneInterpolationFunction<vtkQuadraticQuad>();
+  r += TestOneInterpolationFunction<vtkQuadraticTetra>();
+  r += TestOneInterpolationFunction<vtkQuadraticTriangle>();
+  r += TestOneInterpolationFunction<vtkQuadraticWedge>();
 
   return r;
 }
