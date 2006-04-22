@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkMath.h" // for VTK_DBL_EPSILON
+#define VTK_EPSILON 1e-10
 
 // Subclass of vtkCell
 //#include "vtkEmptyCell.h"
@@ -68,20 +68,20 @@ int TestOneInterpolationFunction()
       sum += sf[j];
       if(j == (i/3))
         {
-        if( fabs(sf[j] - 1) > VTK_DBL_EPSILON)
+        if( fabs(sf[j] - 1) > VTK_EPSILON)
           {
           ++r;
           }
         }
       else
         {
-        if( fabs(sf[j] - 0) > VTK_DBL_EPSILON )
+        if( fabs(sf[j] - 0) > VTK_EPSILON )
           {
           ++r;
           }
         }
       }
-    if( fabs(sum - 1) > VTK_DBL_EPSILON )
+    if( fabs(sum - 1) > VTK_EPSILON )
       {
       ++r;
       }
@@ -99,7 +99,7 @@ int TestOneInterpolationFunction()
     }
   if( !cell->IsA( "vtkPentagonalPrism" ) )
     {
-    if( fabs(sum - 1) > VTK_DBL_EPSILON )
+    if( fabs(sum - 1) > VTK_EPSILON )
       {
       ++r;
       }
