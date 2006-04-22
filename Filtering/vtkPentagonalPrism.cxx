@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.7");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.8");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -210,24 +210,22 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
 // Compute iso-parametric interpolation functions
 //
 
-// These values are precomputed using:
-// A:
-// ( sqrt(10.0) - sqrt( 5 + sqrt(5.0) ) + sqrt( 5.0 - sqrt( 5 ) ) ) / 8.0
-// B:
-// ( sqrt(10.0) - sqrt( 5 - sqrt(5.0) ) + sqrt( 5.0 + sqrt( 5 ) ) ) / 8.0
-// C:
-// sqrt(10.0)*(sqrt(10+2*sqrt(5.0)))+(sqrt(2.0)+8.0)*(sqrt(10-2*sqrt(5.0)))
-// D:
-// sqrt( 5 - sqrt(5.0)) / 4.0
-// E:
-// sqrt( 5 - sqrt(5.0))(sqrt(10.0)+sqrt(2.0)+8.0)/32
-// F:
-// (2*sqrt(sqrt(5.0) + 5) + sqrt(2.0)*(sqrt(5.0)-5))/16
-// G:
-// (2*sqrt(sqrt(5.0) + 5) - sqrt(2.0)*(sqrt(5.0)-5))/16
-// H:
-// (2 - sqrt(2.0))*sqrt(sqrt(5.0) + 5 ) / 16
-
+// see vtkPentagonalPrismCellPCoords for V#i values:
+// The general idea is that for Point #0 (V1,V1,0) the shape function should be 
+// 0 on the 4 other node. So expr of the line passing through points 
+// (x1,y1) and (x2,y2) is as follow:
+// (x1-x2)*y - (y1-y2)*x - (x1*y2 - x2*y1) = 0
+// x(i):=1/2+1/2*Cos( Pi + Pi/4 + i*2*Pi/5)
+// y(i):=1/2+1/2*Sin( Pi + Pi/4 + i*2*Pi/5)
+// For instance EXPRA is x(2)-x(1)
+//              EXPRB is y(2)-y(1) (== x(4)-x(3))
+//              EXPRC is x(1)*y(2)-x(2)*y(1)
+//              EXPRD is x(2)-x(3) (because of sign)
+//              EXPRE is x(2)*y(3)-x(3)*y(2)
+//              EXPRF is x(0)-x(4)
+//              EXPRG is y(4)-y(0)
+//              EXPRH is x(0)*y(4)-x(4)*y(0)
+// EXPRN was deducted to normalize the function
 #define EXPRA 0.26684892042779546;
 #define EXPRB 0.52372049461429937;
 #define EXPRC 0.36619991616704034;
