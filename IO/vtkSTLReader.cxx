@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkSTLReader.h"
 
+#include "vtkObjectFactory.h"
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -21,17 +22,19 @@
 #include "vtkMergePoints.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <ctype.h>
+#include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.71");
+vtkCxxRevisionMacro(vtkSTLReader, "1.72");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
 #define VTK_BINARY 1
+
+vtkCxxSetObjectMacro(vtkSTLReader,Locator,vtkPointLocator);
 
 // Construct object with merging set to true.
 vtkSTLReader::vtkSTLReader()
@@ -46,24 +49,17 @@ vtkSTLReader::vtkSTLReader()
 
 vtkSTLReader::~vtkSTLReader()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if ( this->Locator )
-    {
-    this->Locator->UnRegister(this);
-    this->Locator = NULL;
-    }
+  this->SetFileName(0);
+  this->SetLocator(0);
 }
 
 // Overload standard modified time function. If locator is modified,
 // then this object is modified as well.
 unsigned long vtkSTLReader::GetMTime()
 {
-  unsigned long mTime1=this->Superclass::GetMTime();
+  unsigned long mTime1 = this->Superclass::GetMTime();
   unsigned long mTime2;
-  
+
   if (this->Locator)
     {
     mTime2 = this->Locator->GetMTime();
@@ -89,13 +85,13 @@ int vtkSTLReader::RequestData(
   vtkPoints *newPts, *mergedPts;
   vtkCellArray *newPolys, *mergedPolys;
   vtkFloatArray *newScalars=0, *mergedScalars=0;
-  
+
   // All of the data in the first piece.
   if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
     {
     return 0;
     }
-  
+
   if (!this->FileName)
     {
     vtkErrorMacro(<<"A FileName must be specified.");
@@ -117,9 +113,9 @@ int vtkSTLReader::RequestData(
 
   // Depending upon file type, read differently
   //
-  if ( this->GetSTLFileType(fp) == VTK_ASCII )
+  if ( this->GetSTLFileType(this->FileName) == VTK_ASCII )
     {
-    if (ScalarTags) 
+    if (this->ScalarTags)
       {
       newScalars = vtkFloatArray::New();
       newScalars->Allocate(5000,10000);
@@ -139,7 +135,7 @@ int vtkSTLReader::RequestData(
       }
     }
 
-  vtkDebugMacro(<< "Read: " 
+  vtkDebugMacro(<< "Read: "
                 << newPts->GetNumberOfPoints() << " points, "
                 << newPolys->GetNumberOfCells() << " triangles");
 
@@ -147,7 +143,7 @@ int vtkSTLReader::RequestData(
   //
   // If merging is on, create hash table and merge points/triangles.
   //
-  if ( this->Merging )  
+  if ( this->Merging )
     {
     int i;
     vtkIdType *pts = 0;
@@ -160,12 +156,12 @@ int vtkSTLReader::RequestData(
     mergedPts->Allocate(newPts->GetNumberOfPoints()/2);
     mergedPolys = vtkCellArray::New();
     mergedPolys->Allocate(newPolys->GetSize());
-    if (newScalars) 
+    if (newScalars)
       {
       mergedScalars = vtkFloatArray::New();
       mergedScalars->Allocate(newPolys->GetSize());
       }
-    
+
     if ( this->Locator == NULL )
       {
       this->CreateDefaultLocator();
@@ -174,20 +170,20 @@ int vtkSTLReader::RequestData(
 
     for (newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); )
       {
-      for (i=0; i < 3; i++) 
+      for (i=0; i < 3; i++)
         {
         newPts->GetPoint(pts[i],x);
         this->Locator->InsertUniquePoint(x, nodes[i]);
         }
 
       if ( nodes[0] != nodes[1] &&
-           nodes[0] != nodes[2] && 
+           nodes[0] != nodes[2] &&
            nodes[1] != nodes[2] )
         {
         mergedPolys->InsertNextCell(3,nodes);
-        if (newScalars) 
+        if (newScalars)
           {
-          mergedScalars->InsertNextValue(newScalars->GetValue(nextCell));       
+          mergedScalars->InsertNextValue(newScalars->GetValue(nextCell));
           }
         }
       nextCell++;
@@ -199,9 +195,9 @@ int vtkSTLReader::RequestData(
       {
       newScalars->Delete();
       }
-      
-    vtkDebugMacro(<< "Merged to: " 
-    << mergedPts->GetNumberOfPoints() << " points, " 
+
+    vtkDebugMacro(<< "Merged to: "
+    << mergedPts->GetNumberOfPoints() << " points, "
     << mergedPolys->GetNumberOfCells() << " triangles");
     }
   else
@@ -235,7 +231,7 @@ int vtkSTLReader::RequestData(
   return 1;
 }
 
-int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts, 
+int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
                                 vtkCellArray *newPolys)
 {
   int i, numTris;
@@ -298,7 +294,7 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
   return 0;
 }
 
-int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts, 
+int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
                                vtkCellArray *newPolys, vtkFloatArray *scalars)
 {
   char line[256];
@@ -317,10 +313,10 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
 
   //  Go into loop, reading  facet normal and vertices
   //
-//  while (fscanf(fp,"%*s %*s %f %f %f\n", x, x+1, x+2)!=EOF) 
+//  while (fscanf(fp,"%*s %*s %f %f %f\n", x, x+1, x+2)!=EOF)
   while (!done)
     {
-//if (ctr>=253840) { 
+//if (ctr>=253840) {
 //    fprintf(stdout, "Reading record %d\n", ctr);
 //}
 //ctr += 7;
@@ -367,51 +363,31 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
   return 0;
 }
 
-int vtkSTLReader::GetSTLFileType(FILE *fp)
+int vtkSTLReader::GetSTLFileType(const char *filename)
 {
-  unsigned char header[256];
-  int type, i;
-  int numChars;
-
-  //  Read a little from the file to figure what type it is.
-  //
-  // skip 255 characters so we are past any first line comment */
-  numChars = static_cast<int>(fread ((unsigned char *)header, 1, 255, fp));
-  for (i = 0, type=VTK_ASCII; i< numChars && type == VTK_ASCII; i++) // don't test \0
+  int type;
+  vtksys::SystemTools::FileTypeEnum ft =
+    vtksys::SystemTools::DetectFileType(filename);
+  switch(ft)
     {
-    if (header[i] > 127)
-      {
-      type = VTK_BINARY;
-      }
+  case vtksys::SystemTools::FileTypeBinary:
+    type = VTK_BINARY;
+    break;
+  case vtksys::SystemTools::FileTypeText:
+    type = VTK_ASCII;
+    break;
+  case vtksys::SystemTools::FileTypeUnknown:
+    vtkWarningMacro( "File type not recognized attempting binary" );
+    type = VTK_BINARY;
+    break;
+  default:
+    vtkErrorMacro( "Case not handled" );
     }
-
-  // Reset file for reading
-  //
-  rewind (fp);
   return type;
 }
 
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
-void vtkSTLReader::SetLocator(vtkPointLocator *locator)
-{
-  if ( this->Locator == locator ) 
-    {
-    return;
-    }
-  if ( this->Locator )
-    {
-    this->Locator->UnRegister(this);
-    this->Locator = NULL;
-    }
-  if ( locator )
-    {
-    locator->Register(this);
-    }
-  this->Locator = locator;
-  this->Modified();
-}
-
 void vtkSTLReader::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
@@ -426,17 +402,18 @@ void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
   os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
   os << indent << "ScalarTags: " << (this->ScalarTags ? "On\n" : "Off\n");
+  os << indent << "Locator: ";
   if ( this->Locator )
     {
-    os << indent << "Locator: " << this->Locator << "\n";
+    this->Locator->PrintSelf(os<<endl, indent.GetNextIndent());
     }
   else
     {
-    os << indent << "Locator: (none)\n";
+    os << "(none)\n";
     }
 }
