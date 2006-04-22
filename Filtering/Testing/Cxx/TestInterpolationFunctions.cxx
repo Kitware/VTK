@@ -83,19 +83,7 @@ int TestOneInterpolationFunction()
       }
     if( fabs(sum - 1) > VTK_DBL_EPSILON )
       {
-      // vtkPentagonalPrism has a poor convergence due to the hardcoded
-      // constants (in particular EXPRN should be recomputed)
-      if( cell->IsA( "vtkPentagonalPrism" ) )
-        {
-        if( fabs(sum - 1) > 2*VTK_DBL_EPSILON )
-          {
-          ++r;
-          }
-        }
-      else // all other cells works properly
-        {
-        ++r;
-        }
+      ++r;
       }
     ++i;
     }
