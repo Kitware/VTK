@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.6");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.7");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -745,9 +745,9 @@ void vtkPentagonalPrism::GetFacePoints (int faceId, int *&pts)
 // Vi_x = CenterOfCircle + 1/2 ( cos( pi + pi/4 + i*2*pi/5) )
 // Vi_y = CenterOfCircle + 1/2 ( sin( pi + pi/4 + i*2*pi/5) )
 
-#define V1 0.14644660940672621
+#define V1 0.14644660940672624
 #define V2 0.72699524986977337
-#define V3 0.054496737905816051
+#define V3 0.054496737905816071
 #define V4 0.99384417029756889
 #define V5 0.57821723252011548
 
