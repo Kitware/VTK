@@ -107,7 +107,7 @@ protected:
   vtkRectilinearWipeWidget();
   ~vtkRectilinearWipeWidget();
   
-  // These are the events that are handled
+  // These methods handle events
   static void SelectAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
