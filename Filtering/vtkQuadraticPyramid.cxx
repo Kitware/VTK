@@ -27,7 +27,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.7");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.8");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -653,9 +653,9 @@ void vtkQuadraticPyramid::InterpolationFunctions(double pcoords[3],
 
 
   // midsides of triangles
-  weights[9] = 0.25 * ( 1 - r ) * (1 - s ) * (1 - t*t );
-  weights[11] = 0.25 * ( 1 + r ) * (1 + s ) * (1 - t*t );
+  weights[9]  = 0.25 * ( 1 - r ) * (1 - s ) * (1 - t*t );
   weights[10] = 0.25 * ( 1 + r ) * (1 - s ) * (1 - t*t );
+  weights[11] = 0.25 * ( 1 + r ) * (1 + s ) * (1 - t*t );
   weights[12] = 0.25 * ( 1 - r ) * (1 + s ) * (1 - t*t );
 }
 
@@ -681,10 +681,10 @@ void vtkQuadraticPyramid::InterpolationDerivs(double pcoords[3],
   derivs[4] = 0.0;
 
   // midsides of rectangles
-  derivs[5] =  -0.25 * r * (1 - s ) * (1 - t )*(2 + s + s*t);
-  derivs[6] =   0.125 * r * (1 - s*s ) * (1 - t )*(1 - 2*r - t - 2*r*t);
-  derivs[7] =  -0.25 * r * (1 + s ) * (1 - t )*(2 - s - s*t);
-  derivs[8] =  -0.125 * r * (1 - s*s ) * (1 - t )*(1 + 2*r - t + 2*r*t);
+  derivs[5] =  -0.25  * r * (1 - s ) * (1 - t )*(2 + s + s*t);
+  derivs[6] =   0.125 *     (1 - s*s ) * (1 - t )*(1 - 2*r - t - 2*r*t);
+  derivs[7] =  -0.25  * r * (1 + s ) * (1 - t )*(2 - s - s*t);
+  derivs[8] =  -0.125 *     (1 - s*s ) * (1 - t )*(1 + 2*r - t + 2*r*t);
 
   // midsides of triangles
   derivs[9] = -0.25 * (1 - s ) * (1 - t*t );
@@ -715,9 +715,9 @@ void vtkQuadraticPyramid::InterpolationDerivs(double pcoords[3],
   //t-derivatives
   // corners
   derivs[26] =  0.125 * (1 - r) * ( 1 - s ) * (1 + r + s + 2*t + r*t + s*t + 2*r*s*t);
-  derivs[27] =  0.125 * (1 + r) * ( 1 - s ) * (1 + r + s + 2*t + r*t + s*t + 2*r*s*t);
-  derivs[28] =  0.125 * (1 + r) * ( 1 + s ) * (1 + r + s + 2*t + r*t + s*t + 2*r*s*t);
-  derivs[29] =  0.125 * (1 - r) * ( 1 + s ) * (1 + r + s + 2*t + r*t + s*t + 2*r*s*t);
+  derivs[27] =  0.125 * (1 + r) * ( 1 - s ) * (1 - r + s + 2*t - r*t + s*t - 2*r*s*t);
+  derivs[28] =  0.125 * (1 + r) * ( 1 + s ) * (1 - r - s + 2*t - r*t - s*t + 2*r*s*t);
+  derivs[29] =  0.125 * (1 - r) * ( 1 + s ) * (1 + r - s + 2*t + r*t - s*t - 2*r*s*t);
   derivs[30] =  0.5 + t;
 
   // midsides of rectangles
