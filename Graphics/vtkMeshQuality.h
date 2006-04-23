@@ -6,7 +6,7 @@
   Date:      $Date$ 
   Version:   $Revision$
 
-  Copyright 2003 Sandia Corporation.
+  Copyright 2003-2006 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
   license for use of this work by or on behalf of the
   U.S. Government. Redistribution and use in source and binary forms, with
@@ -37,11 +37,16 @@
 // this filter will have an entry of 0. Use SaveCellQualityOff() to
 // store only the final statistics.
 //
-// This version of the filter overtakes an older version written by
-// Leila Baghdadi, Hanif Ladak, and David Steinman at the Imaging Research
-// Labs, Robarts Research Institute. That version focused solely on
-// tetrahedra. See the CompatibilityModeOn() member for information on
-// how to make this filter behave like the previous implementation.
+// This version of the filter written by Philippe Pebay and David Thompson
+// overtakes an older version written by Leila Baghdadi, Hanif Ladak, and 
+// David Steinman at the Imaging Research Labs, Robarts Research Institute.
+// That version only supported tetrahedral radius ratio. See the 
+// CompatibilityModeOn() member for information on how to make this filter 
+// behave like the previous implementation.
+// For more information on the triangle quality measures of this class, cf.
+// Pebay & Baker 2003, Analysis of triangle quality measures, Math Comp 72:244.
+// For more information on the quadrangle quality measures of this class, cf.
+// Pebay 2004, Planar Quadrangle Quality Measures, Eng Comp 20:2.
 //
 // .SECTION Caveats
 // While more general than before, this class does not address many
@@ -173,13 +178,21 @@ public:
 
   // Description:
   // Set/Get the particular estimator used to measure the quality of hexahedra.
-  // The default is VTK_QUALITY_RADIUS_RATIO and valid values also include
-  // VTK_QUALITY_ASPECT_RATIO.
+  // The default is VTK_QUALITY_MAX_FROBENIUS_NORM and valid values also include
+  // VTK_QUALITY_EDGE_RATIO and VTK_QUALITY_MAX_FROBENIUS_NORM.
   vtkSetMacro(HexQualityMeasure,int);
   vtkGetMacro(HexQualityMeasure,int);
   void SetHexQualityMeasureToEdgeRatio()
     {
     this->SetHexQualityMeasure( VTK_QUALITY_EDGE_RATIO );
+    }
+  void SetHexQualityMeasureToMedFrobeniusNorm()
+    {
+    this->SetHexQualityMeasure( VTK_QUALITY_MED_FROBENIUS_NORM );
+    }
+  void SetHexQualityMeasureToMaxFrobeniusNorm()
+    {
+    this->SetHexQualityMeasure( VTK_QUALITY_MAX_FROBENIUS_NORM );
     }
 
   // Description:
@@ -375,6 +388,24 @@ public:
   // where \f$|H|_\infty\f$ and \f$|H|_0\f$ respectively denote the greatest and
   // the smallest edge lengths of \f$H\f$.
   static double HexEdgeRatio( vtkCell* cell );
+
+  // Description:
+  // This is a static function used to calculate the average Frobenius norm of the
+  // 8 tetrahedra extractable from a planar quadrilateral, when the reference 
+  // tetrahedral elements are right isosceles at the hexahedron vertices.
+  // It assumes that you pass the correct type of cell -- no type checking is
+  // performed because this method is called from the inner loop of the Execute()
+  // member function.
+  static double HexMedFrobeniusNorm( vtkCell* cell );
+
+  // Description:
+  // This is a static function used to calculate the maximal Frobenius norm of the
+  // 8 tetrahedra extractable from a planar quadrilateral, when the reference 
+  // tetrahedral elements are right isosceles at the hexahedron vertices.
+  // It assumes that you pass the correct type of cell -- no type checking is
+  // performed because this method is called from the inner loop of the Execute()
+  // member function.
+  static double HexMaxFrobeniusNorm( vtkCell* cell );
 
   // Description:
   // These methods are deprecated. Use Get/SetSaveCellQuality() instead.
