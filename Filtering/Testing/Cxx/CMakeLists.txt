@@ -5,6 +5,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   quadCellConsistency.cxx
   otherColorTransferFunction.cxx
   TestInterpolationFunctions.cxx
+  TestInterpolationDerivs.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
