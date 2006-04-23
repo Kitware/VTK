@@ -28,7 +28,7 @@
 #include <ctype.h>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.72");
+vtkCxxRevisionMacro(vtkSTLReader, "1.73");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
@@ -382,6 +382,7 @@ int vtkSTLReader::GetSTLFileType(const char *filename)
     break;
   default:
     vtkErrorMacro( "Case not handled" );
+    type = VTK_BINARY; // should not happen
     }
   return type;
 }
