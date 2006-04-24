@@ -14,9 +14,11 @@
 =========================================================================*/
 #include "vtkWidgetRepresentation.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkInteractorObserver.h"
 
 
-vtkCxxRevisionMacro(vtkWidgetRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkWidgetRepresentation, "1.3");
 
 
 //----------------------------------------------------------------------
@@ -31,6 +33,8 @@ vtkWidgetRepresentation::vtkWidgetRepresentation()
   this->PlaceFactor = 0.5;
   this->Placed = 0;
   this->HandleSize = 0.05;
+  this->ValidPick = 0;
+  this->HandleSize = 0.01;
   
   this->InitialBounds[0] = this->InitialBounds[2] = this->InitialBounds[4] = 0.0;
   this->InitialBounds[1] = this->InitialBounds[3] = this->InitialBounds[5] = 1.0;
@@ -97,6 +101,50 @@ void vtkWidgetRepresentation::ShallowCopy(vtkProp *prop)
 int vtkWidgetRepresentation::ComputeInteractionState(int, int, int)
 {
   return 0;
+}
+
+//----------------------------------------------------------------------
+double vtkWidgetRepresentation::SizeHandles(double factor)
+{
+  int i;
+  vtkRenderer *renderer;
+
+  if ( !this->ValidPick || !(renderer=this->Renderer) || 
+       !renderer->GetActiveCamera() )
+    {
+    return (this->HandleSize * factor * this->InitialLength);
+    }
+  else
+    {
+    double radius, z;
+    double windowLowerLeft[4], windowUpperRight[4];
+    double *viewport = renderer->GetViewport();
+    int *winSize = renderer->GetRenderWindow()->GetSize();
+    double focalPoint[4];
+
+    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, 
+                                                 this->LastPickPosition[0], 
+                                                 this->LastPickPosition[1],
+                                                 this->LastPickPosition[2], 
+                                                 focalPoint);
+    z = focalPoint[2];
+
+    double x = winSize[0] * viewport[0];
+    double y = winSize[1] * viewport[1];
+    vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,x,y,z,windowLowerLeft);
+
+    x = winSize[0] * viewport[2];
+    y = winSize[1] * viewport[3];
+    vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,x,y,z,windowUpperRight);
+
+    for (radius=0.0, i=0; i<3; i++) 
+      {
+      radius += (windowUpperRight[i] - windowLowerLeft[i]) *
+        (windowUpperRight[i] - windowLowerLeft[i]);
+      }
+
+    return (sqrt(radius) * factor * this->HandleSize);
+    }
 }
 
 //----------------------------------------------------------------------

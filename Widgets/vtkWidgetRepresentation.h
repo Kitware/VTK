@@ -143,16 +143,18 @@ protected:
   // It's dimensioned [3] because some events re processed in 3D
   double StartEventPosition[3];
 
-  // Instance variable supporting suclasses
+  // Instance variable and members supporting suclasses
   double PlaceFactor;
   int Placed; 
   void AdjustBounds(double bounds[6], double newBounds[6], double center[3]);
+  int    ValidPick; //keep track when valid picks are made
+  double LastPickPosition[3]; //keep track of the last pick coordinates
+  double InitialBounds[6]; //initial bounds on place widget
+  double InitialLength; //initial length on place widget
+  double HandleSize; //controlling relative size of widget handles
+  double SizeHandles(double factor);
   
-  // Convenience members to support widget representations
-  double InitialBounds[6];
-  double InitialLength;
-  double HandleSize;
-  
+  // Try and reduce multiple renders
   int NeedToRender;
   
   // This is the time that the representation was built.
