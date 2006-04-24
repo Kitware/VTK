@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.5");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.6");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 //----------------------------------------------------------------------------
@@ -887,7 +887,6 @@ void vtkImplicitPlaneWidget::Scale(double *p1, double *p2,
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
-  //int res = this->PlaneSource->GetXResolution();
   double *o = this->Plane->GetOrigin();
 
   // Compute the scale factor
