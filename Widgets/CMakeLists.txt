@@ -46,7 +46,9 @@ vtkHoverWidget.cxx
 vtkImageActorPointPlacer.cxx
 vtkImagePlaneWidget.cxx
 vtkImageTracerWidget.cxx
+vtkImplicitPlaneRepresentation.cxx
 vtkImplicitPlaneWidget.cxx
+vtkImplicitPlaneWidget2.cxx
 vtkLineWidget.cxx
 vtkOrientationMarkerWidget.cxx
 vtkOrientedGlyphContourRepresentation.cxx
