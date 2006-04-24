@@ -121,15 +121,11 @@ public:
 
   // Decsription:
   // Methods supporting the rendering process.
+  virtual double *GetBounds();
   virtual void GetActors(vtkPropCollection*);
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentGeometry(vtkViewport*);
-
-  // Description:
-  // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-  // in world coordinates. NULL means that the bounds are not defined.
-  virtual double *GetBounds();
 
 protected:
   vtkSliderRepresentation3D();
