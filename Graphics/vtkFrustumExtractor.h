@@ -107,7 +107,7 @@ protected:
   vtkFrustumExtractor(vtkPlanes *f=NULL);
   ~vtkFrustumExtractor();
 
-  //sets up output data type
+  //sets up output dataset
   virtual int RequestDataObject(vtkInformation* request, 
                                 vtkInformationVector** inputVector, 
                                 vtkInformationVector* outputVector);
