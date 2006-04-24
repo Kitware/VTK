@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.4");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.5");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -86,7 +86,7 @@ static const double VTK_HEX_CONVERGED=1.e-03;
 
 //----------------------------------------------------------------------------
 int vtkHexagonalPrism::EvaluatePosition(double x[3], double* closestPoint,
-                                        int& subId, double pcoords[3], 
+                                        int& subId, double pcoords[3],
                                         double& dist2, double *weights)
 {
   int iteration, converged;
@@ -102,14 +102,14 @@ int vtkHexagonalPrism::EvaluatePosition(double x[3], double* closestPoint,
 
   //  enter iteration loop
   for (iteration=converged=0;
-       !converged && (iteration < VTK_HEX_MAX_ITERATION);  iteration++) 
+       !converged && (iteration < VTK_HEX_MAX_ITERATION);  iteration++)
     {
     //  calculate element interpolation functions and derivatives
     this->InterpolationFunctions(pcoords, weights);
     this->InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
-    for (i=0; i<3; i++) 
+    for (i=0; i<3; i++)
       {
       fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
       }
@@ -132,7 +132,7 @@ int vtkHexagonalPrism::EvaluatePosition(double x[3], double* closestPoint,
 
     //  compute determinants and generate improvements
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
-    if ( fabs(d) < 1.e-20) 
+    if ( fabs(d) < 1.e-20)
       {
       return -1;
       }
@@ -150,15 +150,15 @@ int vtkHexagonalPrism::EvaluatePosition(double x[3], double* closestPoint,
       }
 
     // Test for bad divergence (S.Hirschberg 11.12.2001)
-    else if ((fabs(pcoords[0]) > VTK_DIVERGED) || 
-             (fabs(pcoords[1]) > VTK_DIVERGED) || 
+    else if ((fabs(pcoords[0]) > VTK_DIVERGED) ||
+             (fabs(pcoords[1]) > VTK_DIVERGED) ||
              (fabs(pcoords[2]) > VTK_DIVERGED))
       {
       return -1;
       }
 
     //  if not converged, repeat
-    else 
+    else
       {
       params[0] = pcoords[0];
       params[1] = pcoords[1];
@@ -324,16 +324,16 @@ void vtkHexagonalPrism::EvaluateLocation(int& vtkNotUsed(subId),
     }
 }
 //----------------------------------------------------------------------------
-static int edges[18][2] = {  {0,1}, {1, 2}, {2, 3}, 
-                             {3,4}, {4, 5}, {5, 0}, 
+static int edges[18][2] = {  {0,1}, {1, 2}, {2, 3},
+                             {3,4}, {4, 5}, {5, 0},
                              {6,7}, {7, 8}, {8, 9},
-                             {9,10}, {10,11}, {11, 6}, 
-                             {0,6}, {1, 7}, {2, 8}, 
+                             {9,10}, {10,11}, {11, 6},
+                             {0,6}, {1, 7}, {2, 8},
                              {3,9}, {4, 10}, {5, 11} };
 
-static int faces[8][6] = { {0,5,4,3,2,1}, {6,7,8,9,10,11}, 
-                           {0,1,7,6,-1,-1}, {1,2,8,7,-1,-1}, 
-                           {2,3,9,8,-1,-1}, {3,4,10,9,-1,-1}, 
+static int faces[8][6] = { {0,5,4,3,2,1}, {6,7,8,9,10,11},
+                           {0,1,7,6,-1,-1}, {1,2,8,7,-1,-1},
+                           {2,3,9,8,-1,-1}, {3,4,10,9,-1,-1},
                            {4,5,11,10,-1,-1}, {5,0,6,11,-1,-1} };
 
 #define VTK_MAX(a,b)    (((a)>(b))?(a):(b))
@@ -342,7 +342,7 @@ static int faces[8][6] = { {0,5,4,3,2,1}, {6,7,8,9,10,11},
 //----------------------------------------------------------------------------
 // Returns the closest face to the point specified. Closeness is measured
 // parametrically.
-int vtkHexagonalPrism::CellBoundary(int subId, double pcoords[3], 
+int vtkHexagonalPrism::CellBoundary(int subId, double pcoords[3],
                                     vtkIdList *pts)
 {
   // load coordinates
@@ -376,7 +376,7 @@ int vtkHexagonalPrism::CellBoundary(int subId, double pcoords[3],
   u[1] = b[1] - a[1];
   v[0] = pcoords[0] - a[0];
   v[1] = pcoords[1] - a[1];
-  
+
   double dot = vtkMath::Dot2D(v, u);
   double uNorm = vtkMath::Norm2D( u );
   if (uNorm)
@@ -445,7 +445,7 @@ int vtkHexagonalPrism::CellBoundary(int subId, double pcoords[3],
 
   // determine whether point is inside of hexagon
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
-       pcoords[1] < 0.0 || pcoords[1] > 1.0 || 
+       pcoords[1] < 0.0 || pcoords[1] > 1.0 ||
        pcoords[2] < 0.0 || pcoords[2] > 1.0 )
     {
     return 0;
@@ -465,7 +465,7 @@ int *vtkHexagonalPrism::GetEdgeArray(int edgeId)
 vtkCell *vtkHexagonalPrism::GetEdge(int edgeId)
 {
   int *verts;
-  
+
   verts = edges[edgeId];
 
   // load point id's
@@ -528,7 +528,7 @@ vtkCell *vtkHexagonalPrism::GetFace(int faceId)
     }
 }
 //----------------------------------------------------------------------------
-// 
+//
 // Intersect prism faces against line. Each prism face is a quadrilateral.
 //
 int vtkHexagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol,
@@ -560,14 +560,14 @@ int vtkHexagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol,
     this->Polygon->Points->SetPoint(4,pt5);
     this->Polygon->Points->SetPoint(5,pt6);
 
-    if ( this->Polygon->IntersectWithLine(p1, p2, tol, tTemp, xTemp, 
+    if ( this->Polygon->IntersectWithLine(p1, p2, tol, tTemp, xTemp,
                                           pc, subId) )
       {
       intersection = 1;
       if ( tTemp < t )
         {
         t = tTemp;
-        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2];
         switch (faceNum)
           {
           case 0:
@@ -601,7 +601,7 @@ int vtkHexagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol,
       if ( tTemp < t )
         {
         t = tTemp;
-        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2];
         this->EvaluatePosition(x, xTemp, subId, pcoords, dist2, weights);
         }
       }
@@ -614,7 +614,7 @@ int vtkHexagonalPrism::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkP
 {
   ptIds->Reset();
   pts->Reset();
-    
+
   for ( int i=0; i < 4; i++ )
     {
     ptIds->InsertId(i,this->PointIds->GetId(i));
@@ -628,7 +628,7 @@ int vtkHexagonalPrism::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkP
 // Compute derivatives in x-y-z directions. Use chain rule in combination
 // with interpolation function derivatives.
 //
-void vtkHexagonalPrism::Derivatives(int vtkNotUsed(subId), double pcoords[3], 
+void vtkHexagonalPrism::Derivatives(int vtkNotUsed(subId), double pcoords[3],
                                     double *values, int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];

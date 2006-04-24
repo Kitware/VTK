@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.8");
+vtkCxxRevisionMacro(vtkDataSet, "1.9");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -73,12 +73,9 @@ void vtkDataSet::ComputeBounds()
     if (this->GetNumberOfPoints())
       {
       x = this->GetPoint(0);
-      this->Bounds[0] = x[0];
-      this->Bounds[2] = x[1];
-      this->Bounds[4] = x[2];
-      this->Bounds[1] = x[0];
-      this->Bounds[3] = x[1];
-      this->Bounds[5] = x[2];
+      this->Bounds[0] = this->Bounds[1] = x[0];
+      this->Bounds[2] = this->Bounds[3] = x[1];
+      this->Bounds[4] = this->Bounds[5] = x[2];
       for (i=1; i<this->GetNumberOfPoints(); i++)
         {
         x = this->GetPoint(i);
@@ -300,7 +297,7 @@ void vtkDataSet::Squeeze()
 //----------------------------------------------------------------------------
 unsigned long vtkDataSet::GetActualMemorySize()
 {
-  unsigned long size=this->vtkDataObject::GetActualMemorySize();
+  unsigned long size = this->vtkDataObject::GetActualMemorySize();
   size += this->PointData->GetActualMemorySize();
   size += this->CellData->GetActualMemorySize();
   return size;
@@ -478,13 +475,6 @@ void vtkDataSet::GenerateGhostLevelArray()
     levels->Allocate((extent[1]-extent[0] + 1) *
                      (extent[3]-extent[2] + 1) *
                      (extent[5]-extent[4] + 1));
-    
-    //cerr << "max: " << extent[0] << ", " << extent[1] << ", " 
-    //   << extent[2] << ", " << extent[3] << ", " 
-    //   << extent[4] << ", " << extent[5] << endl;
-    //cerr << "zero: " << zeroExt[0] << ", " << zeroExt[1] << ", " 
-    //   << zeroExt[2] << ", " << zeroExt[3] << ", "
-    //   << zeroExt[4] << ", " << zeroExt[5] << endl;
     
     int wholeExtent[6] = {0,-1,0,-1,0,-1};
     this->GetWholeExtent(wholeExtent);

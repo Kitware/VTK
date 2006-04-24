@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.13");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.14");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -236,16 +236,16 @@ void vtkDataSetAttributes::InitializeFields()
 // Initialize all of the object's data to NULL
 void vtkDataSetAttributes::Initialize()
 {
-//
-// We don't modify ourselves because the "ReleaseData" methods depend upon
-// no modification when initialized.
-//
+  //
+  // We don't modify ourselves because the "ReleaseData" methods depend upon
+  // no modification when initialized.
+  //
 
-// Call superclass' Initialize()
+  // Call superclass' Initialize()
   this->vtkFieldData::Initialize();
-//
-// Free up any memory
-// And don't forget to reset the attribute copy flags.
+  //
+  // Free up any memory
+  // And don't forget to reset the attribute copy flags.
   int attributeType;
   for(attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
     {
