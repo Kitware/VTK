@@ -16,10 +16,11 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBox, "1.5");
+vtkCxxRevisionMacro(vtkBox, "1.6");
 vtkStandardNewMacro(vtkBox);
 
 // Construct the box centered at the origin and each side length 1.0.
+//----------------------------------------------------------------------------
 vtkBox::vtkBox()
 {
   this->XMin[0] = -0.5;
@@ -31,6 +32,7 @@ vtkBox::vtkBox()
   this->XMax[2] =  0.5;
 }
 
+//----------------------------------------------------------------------------
 // Set the bounds in various ways
 void vtkBox::SetBounds(double xMin, double xMax,
                        double yMin, double yMax,
@@ -57,12 +59,14 @@ void vtkBox::SetBounds(double xMin, double xMax,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkBox::SetBounds(double bounds[6])
 {
   this->SetBounds(bounds[0],bounds[1], bounds[2],bounds[3], 
                   bounds[4],bounds[5]);
 }
 
+//----------------------------------------------------------------------------
 void vtkBox::GetBounds(double &xMin, double &xMax,
                        double &yMin, double &yMax,
                        double &zMin, double &zMax)
@@ -75,6 +79,7 @@ void vtkBox::GetBounds(double &xMin, double &xMax,
   zMax = this->XMax[2];
 }
 
+//----------------------------------------------------------------------------
 void vtkBox::GetBounds(double bounds[6])
 {
   for (int i=0; i<3; i++)
@@ -84,6 +89,33 @@ void vtkBox::GetBounds(double bounds[6])
     }
 }
 
+//----------------------------------------------------------------------------
+double* vtkBox::GetBounds()
+{
+  this->GetBounds(this->Bounds);
+  return this->Bounds;
+}
+
+//----------------------------------------------------------------------------
+void vtkBox::AddBounds(double bounds[6])
+{
+  int i, idx;
+  for (i=0; i<3; i++)
+    {
+    idx = 2*i;
+    if ( bounds[idx] < this->XMin[i] )
+      {
+      this->XMin[i] = bounds[idx];
+      }
+    if ( bounds[idx+1] > this->XMax[i] )
+      {
+      this->XMax[i] = bounds[idx+1];
+      }
+    }
+}
+
+
+//----------------------------------------------------------------------------
 // Evaluate box equation. This differs from the similar vtkPlanes
 // (with six planes) because of the "rounded" nature of the corners.
 double vtkBox::EvaluateFunction(double x[3])
@@ -147,6 +179,7 @@ double vtkBox::EvaluateFunction(double x[3])
     }
 }
 
+//----------------------------------------------------------------------------
 // Evaluate box gradient.
 void vtkBox::EvaluateGradient(double x[3], double n[3])
 {
@@ -245,6 +278,7 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
 #define VTK_LEFT 1
 #define VTK_MIDDLE 2
 
+//----------------------------------------------------------------------------
 // Bounding box intersection modified from Graphics Gems Vol I. The method
 // returns a non-zero value if the bounding box is hit. Origin[3] starts
 // the ray, dir[3] is the vector components of the ray in the x-y-z
@@ -352,6 +386,7 @@ char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3],
 #undef VTK_MIDDLE
 
 
+//----------------------------------------------------------------------------
 void vtkBox::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

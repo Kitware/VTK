@@ -64,6 +64,14 @@ public:
                  double &yMin, double &yMax,
                  double &zMin, double &zMax);
   void GetBounds(double bounds[6]);
+  double *GetBounds();
+
+  // Description:
+  // A special method that allows union set operation on bounding boxes.
+  // Start with a SetBounds(). Subsequent AddBounds() methods are union set
+  // operations on the original bounds. Retrieve the final bounds with a 
+  // GetBounds() method.
+  void AddBounds(double bounds[6]);
 
   // Description:
   // Bounding box intersection modified from Graphics Gems Vol I. The method
@@ -81,6 +89,7 @@ protected:
 
   double XMin[3];
   double XMax[3];
+  double Bounds[6]; //supports the GetBounds() method
 
 private:
   vtkBox(const vtkBox&);  // Not implemented.
