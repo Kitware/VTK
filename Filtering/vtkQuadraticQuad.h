@@ -33,13 +33,8 @@
 
 #include "vtkNonLinearCell.h"
 
-class vtkPolyData;
 class vtkQuadraticEdge;
 class vtkQuad;
-class vtkPointData;
-class vtkCellData;
-class vtkDataArray;
-class vtkDoubleArray;
 
 class VTK_FILTERING_EXPORT vtkQuadraticQuad : public vtkNonLinearCell
 {

@@ -32,7 +32,6 @@
 
 #include "vtkNonLinearCell.h"
 
-class vtkPolyData;
 class vtkQuadraticEdge;
 class vtkQuadraticTriangle;
 class vtkTetra;

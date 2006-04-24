@@ -33,11 +33,9 @@
 
 #include "vtkNonLinearCell.h"
 
-class vtkPolyData;
 class vtkQuadraticEdge;
 class vtkQuadraticQuad;
 class vtkHexahedron;
-class vtkDoubleArray;
 
 class VTK_FILTERING_EXPORT vtkQuadraticHexahedron : public vtkNonLinearCell
 {

@@ -30,7 +30,6 @@
 
 #include "vtkNonLinearCell.h"
 
-class vtkPolyData;
 class vtkLine;
 
 class VTK_FILTERING_EXPORT vtkQuadraticEdge : public vtkNonLinearCell
