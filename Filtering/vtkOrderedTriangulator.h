@@ -90,7 +90,9 @@ class  vtkDataArray;
 class  vtkDoubleArray;
 struct vtkOTMesh;
 struct vtkOTTemplates;
-
+class vtkPointLocator;
+class vtkPointData;
+class vtkCellData;
 
 // Template ID's must be 32-bits. See .cxx file for more information.
 #if VTK_SIZEOF_SHORT == 4
@@ -117,6 +119,7 @@ public:
   // triangulation is performed using parametric coordinates (see
   // InsertPoint()) the bounds should be represent the range of the
   // parametric coordinates inserted.
+  // \post no_point_inserted: GetNumberOfPoints()==0
   void InitTriangulation(double xmin, double xmax, double ymin, double ymax,
                          double zmin, double zmax, int numPts);
   void InitTriangulation(double bounds[6], int numPts);
@@ -152,9 +155,36 @@ public:
   // coincident points is performed. The id is the internal id returned
   // from InsertPoint(). The method should be invoked prior to the
   // Triangulate method. The type is specified as inside (type=0), 
-  // outside (type=1), or on the boundary (type=2). 
+  // outside (type=1), or on the boundary (type=2).
+  // \pre valid_range: internalId>=0 && internalId<this->GetNumberOfPoints()
   void UpdatePointType(vtkIdType internalId, int type);
+  
+  // Description:
+  // Return the parametric coordinates of point `internalId'.
+  // It assumes that the point has already been inserted.
+  // The method should be invoked prior to the Triangulate method.
+  // \pre valid_range: internalId>=0 && internalId<this->GetNumberOfPoints()
+  double *GetPointPosition(vtkIdType internalId);
 
+  // Description:
+  // Return the global coordinates of point `internalId'.
+  // It assumes that the point has already been inserted.
+  // The method should be invoked prior to the Triangulate method.
+  // \pre valid_range: internalId>=0 && internalId<this->GetNumberOfPoints()
+  double *GetPointLocation(vtkIdType internalId);
+  
+  // Description:
+  // Return the Id of point `internalId'. This id is the one passed in
+  // argument of InsertPoint.
+  // It assumes that the point has already been inserted.
+  // The method should be invoked prior to the Triangulate method.
+  // \pre valid_range: internalId>=0 && internalId<this->GetNumberOfPoints()
+  vtkIdType GetPointId(vtkIdType internalId);
+
+  // Description:
+  // Return the number of inserted points.
+  vtkGetMacro(NumberOfPoints,int);
+  
   // Description:
   // If this flag is set, then the ordered triangulator will create
   // and use templates for the triangulation. To use templates, the
@@ -212,6 +242,25 @@ public:
   // of the type requested.    
   vtkIdType AddTetras(int classification, vtkCellArray *connectivity);
   
+  // Description:
+  // Assuming that all the inserted points come from a cell `cellId' to
+  // triangulate, get the tetrahedra in outConnectivity, the points in locator
+  // and copy point data and cell data. Return the number of added tetras.
+  // \pre locator_exists: locator!=0
+  // \pre outConnectivity: outConnectivity!=0
+  // \pre inPD_exists: inPD!=0
+  // \pre outPD_exists:  outPD!=0
+  // \pre inCD_exists: inCD!=0
+  // \pre outCD_exists: outCD!=0
+  vtkIdType AddTetras(int classification,
+                      vtkPointLocator *locator,
+                      vtkCellArray *outConnectivity,
+                      vtkPointData *inPD,
+                      vtkPointData *outPD,
+                      vtkCellData *inCD,
+                      vtkIdType cellId,
+                      vtkCellData *outCD);
+
   // Description:
   // Add the tetrahedra classified (0=inside,1=outside) to the list
   // of ids and coordinates provided. These assume that the first four points
