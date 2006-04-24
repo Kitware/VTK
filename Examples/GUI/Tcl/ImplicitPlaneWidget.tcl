@@ -11,7 +11,7 @@ vtkSphereSource sphere
 vtkConeSource cone
 vtkGlyph3D glyph
     glyph SetInputConnection [sphere GetOutputPort]
-    glyph SetSourceConnection [cone GetOutput]
+    glyph SetSourceConnection [cone GetOutputPort]
     glyph SetVectorModeToUseNormal
     glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.25
@@ -19,8 +19,8 @@ vtkGlyph3D glyph
 # The sphere and spikes are appended into a single polydata. 
 # This just makes things simpler to manage.
 vtkAppendPolyData apd
-    apd AddInputConnection [glyph GetOutput]
-    apd AddInputConnection [sphere GetOutput]
+    apd AddInputConnection [glyph GetOutputPort]
+    apd AddInputConnection [sphere GetOutputPort]
 
 vtkPolyDataMapper maceMapper
 maceMapper SetInputConnection [apd GetOutputPort]
