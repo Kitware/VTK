@@ -38,8 +38,9 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 #include "vtkInteractorObserver.h"
+#include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.2");
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //----------------------------------------------------------------------------
@@ -156,6 +157,9 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   
   // Set up the initial properties
   this->CreateDefaultProperties();
+  
+  // The bounding box
+  this->BoundingBox = vtkBox::New();
 }
 
 //----------------------------------------------------------------------------
@@ -207,6 +211,7 @@ vtkImplicitPlaneRepresentation::~vtkImplicitPlaneRepresentation()
   this->OutlineProperty->Delete();
   this->SelectedOutlineProperty->Delete();
   this->EdgesProperty->Delete();
+  this->BoundingBox->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -395,6 +400,22 @@ void vtkImplicitPlaneRepresentation::EndWidgetInteraction(double* vtkNotUsed(e[2
   this->HighlightOutline(0);
   this->HighlightNormal(0);
   this->SizeHandles();
+}
+
+//----------------------------------------------------------------------
+double *vtkImplicitPlaneRepresentation::GetBounds()
+{
+  this->BuildRepresentation();
+  this->BoundingBox->SetBounds(this->OutlineActor->GetBounds());
+  this->BoundingBox->AddBounds(this->CutActor->GetBounds());
+  this->BoundingBox->AddBounds(this->EdgesActor->GetBounds());
+  this->BoundingBox->AddBounds(this->ConeActor->GetBounds());
+  this->BoundingBox->AddBounds(this->LineActor->GetBounds());
+  this->BoundingBox->AddBounds(this->ConeActor2->GetBounds());
+  this->BoundingBox->AddBounds(this->LineActor2->GetBounds());
+  this->BoundingBox->AddBounds(this->SphereActor->GetBounds());
+
+  return this->BoundingBox->GetBounds();
 }
 
 //----------------------------------------------------------------------------
