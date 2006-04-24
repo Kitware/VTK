@@ -24,23 +24,18 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.5");
+vtkCxxRevisionMacro(vtkTetra, "1.6");
 vtkStandardNewMacro(vtkTetra);
 
 //----------------------------------------------------------------------------
 // Construct the tetra with four points.
 vtkTetra::vtkTetra()
 {
-  int i;
-  
   this->Points->SetNumberOfPoints(4);
   this->PointIds->SetNumberOfIds(4);
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
-    }
-  for (i = 0; i < 4; i++)
-    {
     this->PointIds->SetId(i,0);
     }
   this->Line = vtkLine::New();
@@ -56,7 +51,7 @@ vtkTetra::~vtkTetra()
 
 //----------------------------------------------------------------------------
 int vtkTetra::EvaluatePosition(double x[3], double* closestPoint,
-                              int& subId, double pcoords[3], 
+                              int& subId, double pcoords[3],
                               double& minDist2, double *weights)
 {
   double pt1[3], pt2[3], pt3[3], pt4[3];
@@ -73,7 +68,7 @@ int vtkTetra::EvaluatePosition(double x[3], double* closestPoint,
   this->Points->GetPoint(0, pt4);
 
   for (i=0; i<3; i++)
-    {  
+    {
     rhs[i] = x[i] - pt4[i];
     c1[i] = pt1[i] - pt4[i];
     c2[i] = pt2[i] - pt4[i];
@@ -101,12 +96,12 @@ int vtkTetra::EvaluatePosition(double x[3], double* closestPoint,
     {
     if (closestPoint)
       {
-      closestPoint[0] = x[0]; 
-      closestPoint[1] = x[1]; 
+      closestPoint[0] = x[0];
+      closestPoint[1] = x[1];
       closestPoint[2] = x[2];
       minDist2 = 0.0; //inside tetra
       }
-    return 1; 
+    return 1;
     }
   else
     { //could easily be sped up using parametric localization - next release
@@ -120,11 +115,11 @@ int vtkTetra::EvaluatePosition(double x[3], double* closestPoint,
         {
         triangle = (vtkTriangle *) this->GetFace (i);
         triangle->EvaluatePosition(x,closest,sub,pc,dist2,(double *)w);
-        
+
         if ( dist2 < minDist2 )
           {
-          closestPoint[0] = closest[0]; 
-          closestPoint[1] = closest[1]; 
+          closestPoint[0] = closest[0];
+          closestPoint[1] = closest[1];
           closestPoint[2] = closest[2];
           minDist2 = dist2;
           }
@@ -135,7 +130,7 @@ int vtkTetra::EvaluatePosition(double x[3], double* closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3], 
+void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
                                 double x[3], double *weights)
 {
   double u4;
@@ -165,12 +160,12 @@ void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 // Returns the set of points that are on the boundary of the tetrahedron that
 // are closest parametrically to the point specified. This may include faces,
 // edges, or vertices.
-int vtkTetra::CellBoundary(int vtkNotUsed(subId), double pcoords[3], 
+int vtkTetra::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
                            vtkIdList *pts)
 {
   double minPCoord = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
   int i, idx=3;
-  
+
   for ( i=0; i < 3; i++ )
     {
     if ( pcoords[i] < minPCoord )
@@ -179,7 +174,7 @@ int vtkTetra::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
       idx = i;
       }
     }
-  
+
   pts->SetNumberOfIds(3);
   switch (idx) //find the face closest to the point
     {
@@ -188,19 +183,19 @@ int vtkTetra::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
       pts->SetId(1,this->PointIds->GetId(2));
       pts->SetId(2,this->PointIds->GetId(3));
       break;
-      
+
     case 1:
       pts->SetId(0,this->PointIds->GetId(0));
       pts->SetId(1,this->PointIds->GetId(1));
       pts->SetId(2,this->PointIds->GetId(3));
       break;
-      
+
     case 2:
       pts->SetId(0,this->PointIds->GetId(0));
       pts->SetId(1,this->PointIds->GetId(1));
       pts->SetId(2,this->PointIds->GetId(2));
       break;
-      
+
     case 3:
       pts->SetId(0,this->PointIds->GetId(1));
       pts->SetId(1,this->PointIds->GetId(2));
@@ -223,7 +218,7 @@ int vtkTetra::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
 //----------------------------------------------------------------------------
 // Marching tetrahedron
 //
-static int edges[6][2] = { {0,1}, {1,2}, {2,0}, 
+static int edges[6][2] = { {0,1}, {1,2}, {2,0},
                            {0,3}, {1,3}, {2,3} };
 static int faces[4][3] = { {0,1,3}, {1,2,3}, {2,0,3}, {0,2,1} };
 
@@ -232,7 +227,7 @@ typedef struct {
        EDGE_LIST edges[7];
 } TRIANGLE_CASES;
 
-static TRIANGLE_CASES triCases[] = { 
+static TRIANGLE_CASES triCases[] = {
   {{-1, -1, -1, -1, -1, -1, -1}},
   {{ 0, 3, 2, -1, -1, -1, -1}},
   {{ 0, 1, 4, -1, -1, -1, -1}},
@@ -441,7 +436,7 @@ int vtkTetra::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pt
 {
   ptIds->Reset();
   pts->Reset();
-    
+
   for ( int i=0; i < 4; i++ )
     {
     ptIds->InsertId(i,this->PointIds->GetId(i));
@@ -501,7 +496,7 @@ double vtkTetra::ComputeVolume(double  p1[3], double p2[3], double p3[3],
                                   p2[1]-p1[1], p3[1]-p1[1], p4[1]-p1[1],
                                   p2[2]-p1[2], p3[2]-p1[2], p4[2]-p1[2])/6.0);
 }
-                               
+
 //----------------------------------------------------------------------------
 // Compute the circumcenter (center[3]) and radius squared (method
 // return value) of a tetrahedron defined by the four points x1, x2,
@@ -586,25 +581,25 @@ double vtkTetra::Insphere(double  p1[3], double p2[3], double p3[3],
   double p[3], q[3], r[3];
   double O1[3],O2[3];
   double y[3], s[3], t;
-  
+
   u[0] = p2[0]-p1[0];
   u[1] = p2[1]-p1[1];
   u[2] = p2[2]-p1[2];
-  
+
   v[0] = p3[0]-p1[0];
   v[1] = p3[1]-p1[1];
   v[2] = p3[2]-p1[2];
-  
+
   w[0] = p4[0]-p1[0];
   w[1] = p4[1]-p1[1];
   w[2] = p4[2]-p1[2];
-  
+
   vtkMath::Cross(u,v,p);
   vtkMath::Normalize(p);
-  
+
   vtkMath::Cross(v,w,q);
   vtkMath::Normalize(q);
-  
+
   vtkMath::Cross(w,u,r);
   vtkMath::Normalize(r);
 
@@ -617,7 +612,7 @@ double vtkTetra::Insphere(double  p1[3], double p2[3], double p3[3],
   O2[2] = q[2]-r[2];
 
   vtkMath::Cross(O1,O2,y);
-  
+
   O1[0] = u[0]-w[0];
   O1[1] = u[1]-w[1];
   O1[2] = u[2]-w[2];
@@ -625,18 +620,18 @@ double vtkTetra::Insphere(double  p1[3], double p2[3], double p3[3],
   O2[0] = v[0]-w[0];
   O2[1] = v[1]-w[1];
   O2[2] = v[2]-w[2];
-  
+
   vtkMath::Cross(O1,O2,s);
   vtkMath::Normalize(s);
-  
+
   s[0] = -1 * s[0];
   s[1] = -1 * s[1];
   s[2] = -1 * s[2];
-  
+
   O1[0] = s[0]-p[0];
   O1[1] = s[1]-p[1];
   O1[2] = s[2]-p[2];
-  
+
   t = vtkMath::Dot(w,s)/vtkMath::Dot(y,O1);
   center[0] = p1[0] + (t * y[0]);
   center[1] = p1[1] + (t * y[1]);
@@ -759,14 +754,14 @@ int vtkTetra::JacobianInverse(double **inverse, double derivs[12])
   // now find the inverse
   if ( vtkMath::InvertMatrix(m,inverse,3) == 0 )
     {
-#define VTK_MAX_WARNS 3    
+#define VTK_MAX_WARNS 3
     static int numWarns=0;
     if ( numWarns++ < VTK_MAX_WARNS )
       {
       vtkErrorMacro(<<"Jacobian inverse not found");
       vtkErrorMacro(<<"Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2]
-      << m[1][0] << " " << m[1][1] << " " << m[1][2] 
-      << m[2][0] << " " << m[2][1] << " " << m[2][2] );
+        << m[1][0] << " " << m[1][1] << " " << m[1][2]
+        << m[2][0] << " " << m[2][1] << " " << m[2][2] );
       return 0;
       }
     }
@@ -797,8 +792,8 @@ typedef int TETRA_EDGE_LIST;
 typedef struct {
        TETRA_EDGE_LIST edges[7];
 } TETRA_CASES;
- 
-static TETRA_CASES tetraCases[] = { 
+
+static TETRA_CASES tetraCases[] = {
   {{ 0,   0,   0,   0,   0,   0,   0}},   // 0
   {{ 4,   0,   3,   2, 100,   0,   0}},   // 1
   {{ 4,   0,   1,   4, 101,   0,   0}},   // 2
@@ -822,8 +817,8 @@ static TETRA_CASES tetraCases[] = {
 // it cuts the tetra to produce other 3D cells (note that this method will
 // produce a single tetrahedra or a single wedge). The table has been
 // carefully designed to insure that face neighbors--after clipping--are
-// remain compatible. 
-void vtkTetra::Clip(double value, vtkDataArray *cellScalars, 
+// remain compatible.
+void vtkTetra::Clip(double value, vtkDataArray *cellScalars,
                     vtkPointLocator *locator, vtkCellArray *tets,
                     vtkPointData *inPD, vtkPointData *outPD,
                     vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
@@ -839,7 +834,7 @@ void vtkTetra::Clip(double value, vtkDataArray *cellScalars,
 
   // Build the case table
   if ( insideOut )
-    {    
+    {
     for ( i=0, index=0; i < 4; i++)
       {
       if (cellScalars->GetComponent(i,0) <= value)
@@ -847,7 +842,7 @@ void vtkTetra::Clip(double value, vtkDataArray *cellScalars,
         index |= CASE_MASK[i];
         }
       }
-    }    
+    }
   else
     {
     for ( i=0, index=0; i < 4; i++)
@@ -883,7 +878,7 @@ void vtkTetra::Clip(double value, vtkDataArray *cellScalars,
       vert = edges[edge[i]];
 
       // calculate a preferred interpolation direction
-      double deltaScalar = (cellScalars->GetComponent(vert[1],0) 
+      double deltaScalar = (cellScalars->GetComponent(vert[1],0)
                            - cellScalars->GetComponent(vert[0],0));
       if (deltaScalar > 0)
         {
@@ -960,11 +955,11 @@ double vtkTetra::GetParametricDistance(double pcoords[3])
 
   for (i=0; i<4; i++)
     {
-    if ( pc[i] < 0.0 ) 
+    if ( pc[i] < 0.0 )
       {
       pDist = -pc[i];
       }
-    else if ( pc[i] > 1.0 ) 
+    else if ( pc[i] > 1.0 )
       {
       pDist = pc[i] - 1.0;
       }
@@ -977,7 +972,7 @@ double vtkTetra::GetParametricDistance(double pcoords[3])
       pDistMax = pDist;
       }
     }
-  
+
   return pDistMax;
 }
 
@@ -985,7 +980,7 @@ double vtkTetra::GetParametricDistance(double pcoords[3])
 void vtkTetra::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Line:\n";
   this->Line->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Triangle:\n";

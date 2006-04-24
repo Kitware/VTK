@@ -25,8 +25,8 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericDataSet, "1.7");
-vtkCxxSetObjectMacro(vtkGenericDataSet, Tessellator,vtkGenericCellTessellator);
+vtkCxxRevisionMacro(vtkGenericDataSet, "1.8");
+vtkCxxSetObjectMacro(vtkGenericDataSet,Tessellator,vtkGenericCellTessellator);
 
 //----------------------------------------------------------------------------
 vtkGenericDataSet::vtkGenericDataSet()
@@ -79,11 +79,11 @@ void vtkGenericDataSet::PrintSelf(ostream& os, vtkIndent indent)
 void vtkGenericDataSet::GetCellTypes(vtkCellTypes *types)
 {
   assert("pre: types_exist" && types!=0);
-  
+
   unsigned char type;
-  vtkGenericCellIterator *it=this->NewCellIterator(-1);
-  vtkGenericAdaptorCell *c=it->NewCell();
-  
+  vtkGenericCellIterator *it = this->NewCellIterator(-1);
+  vtkGenericAdaptorCell *c = it->NewCell();
+
   types->Reset();
   it->Begin();
   while(!it->IsAtEnd())
@@ -110,7 +110,7 @@ double *vtkGenericDataSet::GetBounds()
   this->ComputeBounds();
   return this->Bounds;
 }
-  
+
 //----------------------------------------------------------------------------
  // Description:
 // Return the geometry bounding box in global coordinates in
@@ -120,7 +120,7 @@ void vtkGenericDataSet::GetBounds(double bounds[6])
   this->ComputeBounds();
   memcpy(bounds,this->Bounds,sizeof(double)*6);
 }
-  
+
 //----------------------------------------------------------------------------
 // Description:
 // Get the center of the bounding box in global coordinates.
@@ -147,7 +147,7 @@ void vtkGenericDataSet::GetCenter(double center[3])
     center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) * 0.5;
     }
 }
-  
+
 //----------------------------------------------------------------------------
 // Description:
 // Length of the diagonal of the bounding box.
@@ -172,18 +172,18 @@ unsigned long int vtkGenericDataSet::GetMTime()
 {
   unsigned long result;
   unsigned long mtime;
-  
-  result = vtkDataObject::GetMTime();
-  
+
+  result = this->Superclass::GetMTime();
+
   mtime = this->Attributes->GetMTime();
   result = ( mtime > result ? mtime : result );
 
-  if(this->Tessellator!=0)
+  if(this->Tessellator)
     {
-     mtime = this->Tessellator->GetMTime();
-     result = ( mtime > result ? mtime : result );
+    mtime = this->Tessellator->GetMTime();
+    result = ( mtime > result ? mtime : result );
     }
-  
+
   return result;
 }
 
@@ -194,7 +194,7 @@ unsigned long int vtkGenericDataSet::GetMTime()
 // required to represent the data.
 unsigned long vtkGenericDataSet::GetActualMemorySize()
 {
-  unsigned long result=this->vtkDataObject::GetActualMemorySize();
+  unsigned long result = this->Superclass::GetActualMemorySize();
   result += this->Attributes->GetActualMemorySize();
   return result;
 }
@@ -202,7 +202,7 @@ unsigned long vtkGenericDataSet::GetActualMemorySize()
 //----------------------------------------------------------------------------
 // Description:
 // Return the type of data object.
-int vtkGenericDataSet::GetDataObjectType() 
+int vtkGenericDataSet::GetDataObjectType()
 {
   return VTK_GENERIC_DATA_SET;
 }
@@ -210,7 +210,7 @@ int vtkGenericDataSet::GetDataObjectType()
 //----------------------------------------------------------------------------
 vtkGenericDataSet* vtkGenericDataSet::GetData(vtkInformation* info)
 {
-  return info? vtkGenericDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info ? vtkGenericDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
 }
 
 //----------------------------------------------------------------------------

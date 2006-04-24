@@ -61,7 +61,6 @@ class vtkGenericCellIterator;
 class vtkGenericAttributeCollection;
 class vtkGenericCellTessellator;
 class vtkGenericPointIterator;
-class vtkRenderer;
 
 class VTK_FILTERING_EXPORT vtkGenericDataSet : public vtkDataObject
 {
@@ -78,7 +77,7 @@ public:
   virtual vtkIdType GetNumberOfPoints() = 0;
 
   // Description:
-  // Return the number of cells that explicitly define the dataset. See 
+  // Return the number of cells that explicitly define the dataset. See
   // NewCellIterator() for more details.
   // \pre valid_dim_range: (dim>=-1) && (dim<=3)
   // \post positive_result: result>=0
@@ -90,7 +89,7 @@ public:
   // defined by cells of a unique dimension, return this dimension.
   // \post valid_range: (result>=-1) && (result<=3)
   virtual int GetCellDimension() = 0;
-  
+
   // Description:
   // Get a list of types of cells in a dataset. The list consists of an array
   // of types (not necessarily in any order), with a single entry per type.
@@ -113,7 +112,7 @@ public:
   // \pre valid_dim_range: (dim>=-1) && (dim<=3)
   // \post result_exists: result!=0
   virtual vtkGenericCellIterator *NewCellIterator(int dim=-1) = 0;
-  
+
   // Description:
   // Return an iterator to traverse cell boundaries of dimension `dim' (or
   // all dimensions if -1) of the dataset.  If `exteriorOnly' is true, only
@@ -124,14 +123,14 @@ public:
   // \post result_exists: result!=0
   virtual vtkGenericCellIterator *NewBoundaryIterator(int dim=-1,
                                                       int exteriorOnly=0) = 0;
-  
+
   // Description:
   // Return an iterator to traverse the points composing the dataset; they
   // can be points that define a cell (corner points) or isolated points.
   // The user is responsible for deleting the iterator.
   // \post result_exists: result!=0
   virtual vtkGenericPointIterator *NewPointIterator()=0;
-  
+
   // Description:
   // Locate the closest cell to position `x' (global coordinates) with
   // respect to a tolerance squared `tol2' and an initial guess `cell' (if
@@ -149,23 +148,23 @@ public:
                        double tol2,
                        int &subId,
                        double pcoords[3]) = 0;
-  
+
   // Description:
   // Locate the closest point `p' to position `x' (global coordinates).
   // \pre not_empty: GetNumberOfPoints()>0
   // \pre p_exists: p!=0
   virtual void FindPoint(double x[3],
                          vtkGenericPointIterator *p)=0;
-  
+
   // Description:
   // Datasets are composite objects and need to check each part for their
   // modified time.
   virtual unsigned long int GetMTime();
-  
+
   // Description:
   // Compute the geometry bounding box.
   virtual void ComputeBounds()=0;
-  
+
   // Description:
   // Return a pointer to the geometry bounding box in the form
   // (xmin,xmax, ymin,ymax, zmin,zmax).
@@ -177,7 +176,7 @@ public:
   // Return the geometry bounding box in global coordinates in
   // the form (xmin,xmax, ymin,ymax, zmin,zmax) in the `bounds' array.
   virtual void GetBounds(double bounds[6]);
-  
+
   // Description:
   // Get the center of the bounding box in global coordinates.
   // The return value is VOLATILE.
@@ -192,11 +191,11 @@ public:
   // Return the length of the diagonal of the bounding box.
   // \post positive_result: result>=0
   virtual double GetLength();
-  
+
   // Description:
   // Get the collection of attributes associated with this dataset.
   vtkGetObjectMacro(Attributes, vtkGenericAttributeCollection);
-  
+
   // Description:
   // Set/Get a cell tessellator if cells must be tessellated during
   // processing.
@@ -209,11 +208,11 @@ public:
   // updated. It is guaranteed to be greater than or equal to the memory
   // required to represent the data.
   virtual unsigned long GetActualMemorySize();
-  
+
   // Description:
   // Return the type of data object.
   int GetDataObjectType();
-  
+
   // Description:
   // Estimated size needed after tessellation (or special operation)
   virtual vtkIdType GetEstimatedSize() = 0;
@@ -230,7 +229,7 @@ protected:
   // Constructor with uninitialized bounds (1,-1, 1,-1, 1,-1),
   // empty attribute collection and default tessellator.
   vtkGenericDataSet();
-  
+
   virtual ~vtkGenericDataSet();
 
   vtkGenericAttributeCollection *Attributes;
@@ -241,7 +240,7 @@ protected:
   double Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
   double Center[3]; // Center of the geometric bounding box
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
-  
+
 private:
   vtkGenericDataSet(const vtkGenericDataSet&);  // Not implemented.
   void operator=(const vtkGenericDataSet&);    // Not implemented.
