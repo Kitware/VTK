@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.5");
+vtkCxxRevisionMacro(vtkTriangle, "1.6");
 vtkStandardNewMacro(vtkTriangle);
 
 //----------------------------------------------------------------------------
@@ -609,12 +609,7 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), double vtkNotUsed(pcoords)[
   v2[1] = vtkMath::Dot(v,v20);
 
   // Compute interpolation function derivatives
-  functionDerivs[0] = -1; //r derivatives
-  functionDerivs[1] = 1;
-  functionDerivs[2] = 0;
-  functionDerivs[3] = -1; //s derivatives
-  functionDerivs[4] = 0;
-  functionDerivs[5] = 1;
+  vtkTriangle::InterpolationDerivs(NULL,functionDerivs);
 
   // Compute Jacobian: Jacobian is constant for a triangle.
   J[0] = J0; J[1] = J1;
