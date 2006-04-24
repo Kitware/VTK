@@ -48,6 +48,7 @@ public:
   // Description:
   // Subclasses of vtkWidgetRepresentation must implement these methods. This is
   // considered the minimum API for a widget representation.
+  // <pre>
   // SetRenderer() - the renderer in which the widget is to appear must be set.
   // BuildRepresentation() - update the geometry of the widget based on its
   //                         current state.
@@ -120,6 +121,7 @@ public:
   // Description:
   // Methods to make this class behave as a vtkProp. They are repeated here (from the
   // vtkProp superclass) as a reminder to the widget implementor.
+  virtual double *GetBounds() {return NULL;}
   virtual void ShallowCopy(vtkProp *prop);
   virtual void GetActors(vtkPropCollection *) {}
   virtual void GetActors2D(vtkPropCollection *) {}
