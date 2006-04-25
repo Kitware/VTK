@@ -21,69 +21,49 @@
 // of the four edges. The ordering of the six points defining
 // the cell are point ids (0-3,4-5) where ids 0-3 define the four corner
 // vertices of the quad; ids 4-7 define the midedge nodes (0,1) and (2,3) .
-
+//
 // .SECTION See Also
 // vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra vtkQuadraticQuad
 // vtkQuadraticHexahedron vtkQuadraticWedge vtkQuadraticPyramid
-
-//.SECTION Thanks
-//Thanks to Soeren Gebbert  who developed this class and
-//integrated it into VTK 5.0.
-
+//
+// .SECTION Thanks
+// Thanks to Soeren Gebbert  who developed this class and
+// integrated it into VTK 5.0.
 
 #ifndef __vtkQuadraticLinearQuad_h
 #define __vtkQuadraticLinearQuad_h
 
 #include "vtkNonLinearCell.h"
 
-class vtkPolyData;
 class vtkQuadraticEdge;
 class vtkLine;
 class vtkQuad;
-class vtkPointData;
-class vtkCellData;
-class vtkDataArray;
-class vtkDoubleArray;
 
-class VTK_FILTERING_EXPORT vtkQuadraticLinearQuad:public vtkNonLinearCell
+class VTK_FILTERING_EXPORT vtkQuadraticLinearQuad : public vtkNonLinearCell
 {
 public:
-  static vtkQuadraticLinearQuad *New ();
-    vtkTypeRevisionMacro (vtkQuadraticLinearQuad, vtkNonLinearCell);
-  void PrintSelf (ostream & os, vtkIndent indent);
+  static vtkQuadraticLinearQuad *New();
+  vtkTypeRevisionMacro(vtkQuadraticLinearQuad, vtkNonLinearCell);
+  void PrintSelf(ostream & os, vtkIndent indent);
 
   // Description:
-  // Implement the vtkCell API. See the vtkCell API for descriptions 
+  // Implement the vtkCell API. See the vtkCell API for descriptions
   // of these methods.
-  int GetCellType ()
-  {
-    return VTK_QUADRATIC_LINEAR_QUAD;
-  };
-  int GetCellDimension ()
-  {
-    return 2;
-  }
-  int GetNumberOfEdges ()
-  {
-    return 4;
-  }
-  int GetNumberOfFaces ()
-  {
-    return 0;
-  }
+  int GetCellType () { return VTK_QUADRATIC_LINEAR_QUAD; };
+  int GetCellDimension () { return 2; }
+  int GetNumberOfEdges () { return 4; }
+  int GetNumberOfFaces () { return 0; }
   vtkCell *GetEdge (int);
-  vtkCell *GetFace (int)
-  {
-    return 0;
-  }
+  vtkCell *GetFace (int) { return 0; }
 
   int CellBoundary (int subId, double pcoords[3], vtkIdList * pts);
   void Contour (double value, vtkDataArray * cellScalars,
     vtkPointLocator * locator, vtkCellArray * verts,
     vtkCellArray * lines, vtkCellArray * polys,
-    vtkPointData * inPd, vtkPointData * outPd, vtkCellData * inCd, vtkIdType cellId, vtkCellData * outCd);
+    vtkPointData * inPd, vtkPointData * outPd, vtkCellData * inCd,
+    vtkIdType cellId, vtkCellData * outCd);
   int EvaluatePosition (double x[3], double *closestPoint,
-      int &subId, double pcoords[3], double &dist2, double *weights);
+    int &subId, double pcoords[3], double &dist2, double *weights);
   void EvaluateLocation (int &subId, double pcoords[3], double x[3], double *weights);
   int Triangulate (int index, vtkIdList * ptIds, vtkPoints * pts);
   void Derivatives (int subId, double pcoords[3], double *values, int dim, double *derivs);
@@ -100,11 +80,11 @@ public:
   // Description:
   // Line-edge intersection. Intersection has to occur within [0,1] parametric
   // coordinates and with specified tolerance.
-  int IntersectWithLine (double p1[3], double p2[3], double tol, double &t, double x[3], double pcoords[3], int &subId);
-
+  int IntersectWithLine (double p1[3], double p2[3], double tol, double &t,
+    double x[3], double pcoords[3], int &subId);
 
   // Description:
-  // Quadratic linear Quad specific methods. 
+  // Quadratic linear Quad specific methods.
   static void InterpolationFunctions (double pcoords[3], double weights[6]);
   static void InterpolationDerivs (double pcoords[3], double derivs[12]);
 

@@ -17,22 +17,23 @@
 // vtkBiQuadraticQuadraticWedge is a concrete implementation of vtkNonLinearCell to
 // represent a three-dimensional, 18-node isoparametric biquadratic
 // wedge. The interpolation is the standard finite element,
-// biquadratic-quadratic isoparametric shape function plus the linear funktions. 
+// biquadratic-quadratic isoparametric shape function plus the linear funktions.
 // The cell includes a mid-edge node. The
 // ordering of the 18 points defining the cell is point ids (0-5,6-15, 16-18)
 // where point ids 0-5 are the six corner vertices of the wedge; followed by
-// nine midedge nodes (6-15) and 3 center-face nodes. Note that these midedge nodes correspond lie
+// nine midedge nodes (6-15) and 3 center-face nodes. Note that these midedge
+// nodes correspond lie
 // on the edges defined by (0,1), (1,2), (2,0), (3,4), (4,5), (5,3), (0,3),
 // (1,4), (2,5), and the center-face nodes are lieing in quads 16-(0,1,4,3),
 // 17-(1,2,5,4) and (2,0,3,5).
-
+//
 // .SECTION See Also
 // vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra
 // vtkQuadraticHexahedron vtkQuadraticQuad vtkQuadraticPyramid
-
-//.SECTION Thanks
-//Thanks to Soeren Gebbert  who developed this class and
-//integrated it into VTK 5.0.
+//
+// .SECTION Thanks
+// Thanks to Soeren Gebbert  who developed this class and
+// integrated it into VTK 5.0.
 
 
 #ifndef __vtkBiQuadraticQuadraticWedge_h
@@ -40,40 +41,25 @@
 
 #include "vtkNonLinearCell.h"
 
-class vtkPolyData;
 class vtkQuadraticEdge;
-class vtkLine;
 class vtkBiQuadraticQuad;
 class vtkQuadraticTriangle;
 class vtkWedge;
-class vtkDoubleArray;
 
-class VTK_FILTERING_EXPORT vtkBiQuadraticQuadraticWedge:public vtkNonLinearCell
+class VTK_FILTERING_EXPORT vtkBiQuadraticQuadraticWedge : public vtkNonLinearCell
 {
 public:
   static vtkBiQuadraticQuadraticWedge *New ();
-    vtkTypeRevisionMacro (vtkBiQuadraticQuadraticWedge, vtkNonLinearCell);
+  vtkTypeRevisionMacro (vtkBiQuadraticQuadraticWedge, vtkNonLinearCell);
   void PrintSelf (ostream & os, vtkIndent indent);
 
   // Description:
-  // Implement the vtkCell API. See the vtkCell API for descriptions 
+  // Implement the vtkCell API. See the vtkCell API for descriptions
   // of these methods.
-  int GetCellType ()
-  {
-    return VTK_BIQUADRATIC_QUADRATIC_WEDGE;
-  }
-  int GetCellDimension ()
-  {
-    return 3;
-  }
-  int GetNumberOfEdges ()
-  {
-    return 9;
-  }
-  int GetNumberOfFaces ()
-  {
-    return 5;
-  }
+  int GetCellType () { return VTK_BIQUADRATIC_QUADRATIC_WEDGE; }
+  int GetCellDimension () { return 3; }
+  int GetNumberOfEdges () { return 9; }
+  int GetNumberOfFaces () { return 5; }
   vtkCell *GetEdge (int edgeId);
   vtkCell *GetFace (int faceId);
 
@@ -90,8 +76,8 @@ public:
   virtual double *GetParametricCoords ();
 
   // Description:
-  // Clip this quadratic Wedge using scalar value provided. Like 
-  // contouring, except that it cuts the hex to produce linear 
+  // Clip this quadratic Wedge using scalar value provided. Like
+  // contouring, except that it cuts the hex to produce linear
   // tetrahedron.
   void Clip (double value, vtkDataArray * cellScalars,
        vtkPointLocator * locator, vtkCellArray * tetras,
@@ -109,7 +95,7 @@ public:
   int GetParametricCenter (double pcoords[3]);
 
   // Description:
-  // Quadratic hexahedron specific methods. 
+  // Quadratic hexahedron specific methods.
   static void InterpolationFunctions (double pcoords[3], double weights[15]);
   static void InterpolationDerivs (double pcoords[3], double derivs[45]);
 

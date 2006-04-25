@@ -17,10 +17,9 @@
 // vtkTriQuadraticHexahedron is a concrete implementation of vtkNonLinearCell to
 // represent a three-dimensional, 27-node isoparametric triquadratic
 // hexahedron. The interpolation is the standard finite element, triquadratic
-// isoparametric shape function. The cell includes 8 edge nodes, 12 mid-edge nodes, 6 mid-face nodes
-// and one mid-volume node. The
-// ordering of the 27 points defining the cell is point ids (0-7,8-19, 20-25,
-// 26)
+// isoparametric shape function. The cell includes 8 edge nodes, 12 mid-edge nodes, 
+// 6 mid-face nodes and one mid-volume node. The ordering of the 27 points defining the 
+// cell is point ids (0-7,8-19, 20-25, 26)
 // where point ids 0-7 are the eight corner vertices of the cube; followed by
 // twelve midedge nodes (8-19); followed by 6 mid-face nodes (20-25) and the last node (26) 
 // is the mid-volume node. Note that these midedge nodes correspond lie
@@ -30,54 +29,39 @@
 // (0,1,5,4;8,17,12,16), (1,2,6,5;9,18,13,17), (2,3,7,6,10,19,14,18),
 // (3,0,4,7;11,16,15,19), (0,1,2,3;8,9,10,11), (4,5,6,7;12,13,14,15).
 // The last point lies in the center of the cell (0,1,2,3,4,5,6,7).
-
+//
 // .SECTION See Also
 // vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra
 // vtkQuadraticQuad vtkQuadraticPyramid vtkQuadraticWedge
 // vtkBiQuadraticQuad
-
-//.SECTION Thanks
-//Thanks to Soeren Gebbert  who developed this class and
-//integrated it into VTK 5.0.
-
+//
+// .SECTION Thanks
+// Thanks to Soeren Gebbert  who developed this class and
+// integrated it into VTK 5.0.
 
 #ifndef __vtkTriQuadraticHexahedron_h
 #define __vtkTriQuadraticHexahedron_h
 
 #include "vtkNonLinearCell.h"
 
-class vtkPolyData;
 class vtkQuadraticEdge;
 class vtkBiQuadraticQuad;
 class vtkHexahedron;
-class vtkDoubleArray;
 
-class VTK_FILTERING_EXPORT vtkTriQuadraticHexahedron:public vtkNonLinearCell
+class VTK_FILTERING_EXPORT vtkTriQuadraticHexahedron : public vtkNonLinearCell
 {
 public:
   static vtkTriQuadraticHexahedron *New ();
-    vtkTypeRevisionMacro (vtkTriQuadraticHexahedron, vtkNonLinearCell);
+  vtkTypeRevisionMacro (vtkTriQuadraticHexahedron, vtkNonLinearCell);
   void PrintSelf (ostream & os, vtkIndent indent);
 
   // Description:
-  // Implement the vtkCell API. See the vtkCell API for descriptions 
+  // Implement the vtkCell API. See the vtkCell API for descriptions
   // of these methods.
-  int GetCellType ()
-  {
-    return VTK_TRIQUADRATIC_HEXAHEDRON;
-  }
-  int GetCellDimension ()
-  {
-    return 3;
-  }
-  int GetNumberOfEdges ()
-  {
-    return 12;
-  }
-  int GetNumberOfFaces ()
-  {
-    return 6;
-  }
+  int GetCellType () { return VTK_TRIQUADRATIC_HEXAHEDRON; }
+  int GetCellDimension () { return 3; }
+  int GetNumberOfEdges () { return 12; }
+  int GetNumberOfFaces () { return 6; }
   vtkCell *GetEdge (int);
   vtkCell *GetFace (int);
 
@@ -85,17 +69,18 @@ public:
   void Contour (double value, vtkDataArray * cellScalars,
     vtkPointLocator * locator, vtkCellArray * verts,
     vtkCellArray * lines, vtkCellArray * polys,
-    vtkPointData * inPd, vtkPointData * outPd, vtkCellData * inCd, vtkIdType cellId, vtkCellData * outCd);
+    vtkPointData * inPd, vtkPointData * outPd, vtkCellData * inCd,
+    vtkIdType cellId, vtkCellData * outCd);
   int EvaluatePosition (double x[3], double *closestPoint,
-      int &subId, double pcoords[3], double &dist2, double *weights);
+    int &subId, double pcoords[3], double &dist2, double *weights);
   void EvaluateLocation (int &subId, double pcoords[3], double x[3], double *weights);
   int Triangulate (int index, vtkIdList * ptIds, vtkPoints * pts);
   void Derivatives (int subId, double pcoords[3], double *values, int dim, double *derivs);
   virtual double *GetParametricCoords ();
 
   // Description:
-  // Clip this triquadratic hexahedron using scalar value provided. Like 
-  // contouring, except that it cuts the hex to produce linear 
+  // Clip this triquadratic hexahedron using scalar value provided. Like
+  // contouring, except that it cuts the hex to produce linear
   // tetrahedron.
   void Clip (double value, vtkDataArray * cellScalars,
        vtkPointLocator * locator, vtkCellArray * tetras,
@@ -105,11 +90,11 @@ public:
   // Description:
   // Line-edge intersection. Intersection has to occur within [0,1] parametric
   // coordinates and with specified tolerance.
-  int IntersectWithLine (double p1[3], double p2[3], double tol, double &t, double x[3], double pcoords[3], int &subId);
-
+  int IntersectWithLine (double p1[3], double p2[3], double tol, double &t,
+    double x[3], double pcoords[3], int &subId);
 
   // Description:
-  // Triquadratic hexahedron specific methods. 
+  // Triquadratic hexahedron specific methods.
   static void InterpolationFunctions (double pcoords[3], double weights[27]);
   static void InterpolationDerivs (double pcoords[3], double derivs[71]);
 
@@ -127,7 +112,7 @@ protected:
   vtkBiQuadraticQuad *Face;
   vtkHexahedron *Hex;
   vtkDoubleArray *Scalars;
-  
+
 private:
   vtkTriQuadraticHexahedron (const vtkTriQuadraticHexahedron &);  // Not implemented.
   void operator = (const vtkTriQuadraticHexahedron &);  // Not implemented.

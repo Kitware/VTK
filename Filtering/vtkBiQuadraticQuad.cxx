@@ -18,152 +18,147 @@
 
 #include "vtkBiQuadraticQuad.h"
 
-#include "vtkCellData.h"
+#include "vtkObjectFactory.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
-#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPointLocator.h"
-#include "vtkPolyData.h"
 #include "vtkQuad.h"
-#include "vtkTriangle.h"
 #include "vtkQuadraticEdge.h"
 
-vtkCxxRevisionMacro (vtkBiQuadraticQuad, "1.1");
-vtkStandardNewMacro (vtkBiQuadraticQuad);
+vtkCxxRevisionMacro(vtkBiQuadraticQuad, "1.2");
+vtkStandardNewMacro(vtkBiQuadraticQuad);
 
 //----------------------------------------------------------------------------
 // Construct the quad with nine points.
-vtkBiQuadraticQuad::vtkBiQuadraticQuad ()
+vtkBiQuadraticQuad::vtkBiQuadraticQuad()
 {
-  this->Points->SetNumberOfPoints (9);
-  this->PointIds->SetNumberOfIds (9);
-  this->Edge = vtkQuadraticEdge::New ();
-  this->Quad = vtkQuad::New ();
-  this->Scalars = vtkDoubleArray::New ();
-  this->Scalars->SetNumberOfTuples (4); 
-
+  this->Edge = vtkQuadraticEdge::New();
+  this->Quad = vtkQuad::New();
+  this->Points->SetNumberOfPoints(9);
+  this->PointIds->SetNumberOfIds(9);
+  this->Scalars = vtkDoubleArray::New();
+  this->Scalars->SetNumberOfTuples(4);
 }
 
 //----------------------------------------------------------------------------
-vtkBiQuadraticQuad::~vtkBiQuadraticQuad ()
+vtkBiQuadraticQuad::~vtkBiQuadraticQuad()
 {
-  this->Edge->Delete ();
-  this->Quad->Delete ();
-  this->Scalars->Delete ();
+  this->Edge->Delete();
+  this->Quad->Delete();
+
+  this->Scalars->Delete();
 }
 
 //----------------------------------------------------------------------------
-vtkCell *
-vtkBiQuadraticQuad::GetEdge (int edgeId)
+vtkCell *vtkBiQuadraticQuad::GetEdge(int edgeId)
 {
   edgeId = (edgeId < 0 ? 0 : (edgeId > 3 ? 3 : edgeId));
   int p = (edgeId + 1) % 4;
 
   // load point id's
-  this->Edge->PointIds->SetId (0, this->PointIds->GetId (edgeId));
-  this->Edge->PointIds->SetId (1, this->PointIds->GetId (p));
-  this->Edge->PointIds->SetId (2, this->PointIds->GetId (edgeId + 4));
+  this->Edge->PointIds->SetId (0, this->PointIds->GetId(edgeId));
+  this->Edge->PointIds->SetId (1, this->PointIds->GetId(p));
+  this->Edge->PointIds->SetId (2, this->PointIds->GetId(edgeId + 4));
 
   // load coordinates
-  this->Edge->Points->SetPoint (0, this->Points->GetPoint (edgeId));
-  this->Edge->Points->SetPoint (1, this->Points->GetPoint (p));
-  this->Edge->Points->SetPoint (2, this->Points->GetPoint (edgeId + 4));
+  this->Edge->Points->SetPoint (0, this->Points->GetPoint(edgeId));
+  this->Edge->Points->SetPoint (1, this->Points->GetPoint(p));
+  this->Edge->Points->SetPoint (2, this->Points->GetPoint(edgeId + 4));
 
   return this->Edge;
 }
 
 //----------------------------------------------------------------------------
 static int LinearQuads[4][4] = { {0, 4, 8, 7}, {8, 4, 1, 5},
-{8, 5, 2, 6}, {7, 8, 6, 3}
-};
+                                 {8, 5, 2, 6}, {7, 8, 6, 3} };
 
 //----------------------------------------------------------------------------
-int
-vtkBiQuadraticQuad::EvaluatePosition (double *x,
-              double *closestPoint,
-              int &subId, double pcoords[3], double &minDist2, double *weights)
+int vtkBiQuadraticQuad::EvaluatePosition (double *x,
+                                          double *closestPoint,
+                                          int &subId, double pcoords[3],
+                                          double &minDist2, double *weights)
 {
   double pc[3], dist2;
   int ignoreId, i, returnStatus = 0, status;
   double tempWeights[4];
   double closest[3];
 
-  
   //four linear quads are used
   for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < 4; i++)
     {
-      this->Quad->Points->SetPoint (0, this->Points->GetPoint (LinearQuads[i][0]));
-      this->Quad->Points->SetPoint (1, this->Points->GetPoint (LinearQuads[i][1]));
-      this->Quad->Points->SetPoint (2, this->Points->GetPoint (LinearQuads[i][2]));
-      this->Quad->Points->SetPoint (3, this->Points->GetPoint (LinearQuads[i][3]));
+    this->Quad->Points->SetPoint (0,
+      this->Points->GetPoint (LinearQuads[i][0]));
+    this->Quad->Points->SetPoint (1,
+      this->Points->GetPoint (LinearQuads[i][1]));
+    this->Quad->Points->SetPoint (2,
+      this->Points->GetPoint (LinearQuads[i][2]));
+    this->Quad->Points->SetPoint (3,
+      this->Points->GetPoint (LinearQuads[i][3]));
 
-      status = this->Quad->EvaluatePosition (x, closest, ignoreId, pc, dist2, tempWeights);
-      if (status != -1 && dist2 < minDist2)
-  {
-    returnStatus = status;
-    minDist2 = dist2;
-    subId = i;
-    pcoords[0] = pc[0];
-    pcoords[1] = pc[1];
-  }
+    status = this->Quad->EvaluatePosition (x, closest, ignoreId, pc, dist2,
+      tempWeights);
+    if (status != -1 && dist2 < minDist2)
+      {
+      returnStatus = status;
+      minDist2 = dist2;
+      subId = i;
+      pcoords[0] = pc[0];
+      pcoords[1] = pc[1];
+      }
     }
 
   // adjust parametric coordinates
   if (returnStatus != -1)
     {
-      if (subId == 0)
-  {
-    pcoords[0] /= 2.0;
-    pcoords[1] /= 2.0;
-  }
-      else if (subId == 1)
-  {
-    pcoords[0] = 0.5 + (pcoords[0] / 2.0);
-    pcoords[1] /= 2.0;
-  }
-      else if (subId == 2)
-  {
-    pcoords[0] = 0.5 + (pcoords[0] / 2.0);
-    pcoords[1] = 0.5 + (pcoords[1] / 2.0);
-  }
-      else
-  {
-    pcoords[0] /= 2.0;
-    pcoords[1] = 0.5 + (pcoords[1] / 2.0);
-  }
-      pcoords[2] = 0.0;
-      this->EvaluateLocation (subId, pcoords, closestPoint, weights);
+    if (subId == 0)
+      {
+      pcoords[0] /= 2.0;
+      pcoords[1] /= 2.0;
+      }
+    else if (subId == 1)
+      {
+      pcoords[0] = 0.5 + (pcoords[0] / 2.0);
+      pcoords[1] /= 2.0;
+      }
+    else if (subId == 2)
+      {
+      pcoords[0] = 0.5 + (pcoords[0] / 2.0);
+      pcoords[1] = 0.5 + (pcoords[1] / 2.0);
+      }
+    else
+      {
+      pcoords[0] /= 2.0;
+      pcoords[1] = 0.5 + (pcoords[1] / 2.0);
+      }
+    pcoords[2] = 0.0;
+    this->EvaluateLocation (subId, pcoords, closestPoint, weights);
     }
 
   return returnStatus;
 }
 
 //----------------------------------------------------------------------------
-void
-vtkBiQuadraticQuad::EvaluateLocation (int &vtkNotUsed (subId), double pcoords[3], double x[3], double *weights)
+void vtkBiQuadraticQuad::EvaluateLocation (int& vtkNotUsed(subId),
+                                           double pcoords[3],
+                                           double x[3], double *weights)
 {
   int i, j;
-  double pt[3];
+  double *p = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
 
-  this->InterpolationFunctions (pcoords, weights);
+  this->InterpolationFunctions(pcoords,weights);
 
-  x[0] = x[1] = x[2] = 0.0;
-
-  for (i = 0; i < 9; i++)
+  for (j=0; j<3; j++)
     {
-      this->Points->GetPoint (i, pt);
-      for (j = 0; j < 3; j++)
-  {
-    x[j] += pt[j] * weights[i];
-  }
+    x[j] = 0.0;
+    for (i = 0; i < 8; i++)
+      {
+      x[j] += p[3*i+j] * weights[i];
+      }
     }
-    
 }
 
 //----------------------------------------------------------------------------
-int
-vtkBiQuadraticQuad::CellBoundary (int subId, double pcoords[3], vtkIdList * pts)
+int vtkBiQuadraticQuad::CellBoundary (int subId, double pcoords[3], vtkIdList * pts)
 {
   return this->Quad->CellBoundary (subId, pcoords, pts);
 }
@@ -189,7 +184,7 @@ vtkBiQuadraticQuad::Contour (double value,
       this->Quad->PointIds->SetId(j,LinearQuads[i][j]);
       this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearQuads[i][j]));
       }
-    
+
     this->Quad->Contour(value,this->Scalars,locator,verts,lines,polys,
                         inPd,outPd,inCd,cellId,outCd);
     }
@@ -204,6 +199,7 @@ vtkBiQuadraticQuad::Clip (double value, vtkDataArray * cellScalars,
         vtkPointData * inPd, vtkPointData * outPd,
         vtkCellData * inCd, vtkIdType cellId, vtkCellData * outCd, int insideOut)
 {
+  //contour each linear quad separately
   for (int i=0; i<4; i++)
     {
     for ( int j=0; j<4; j++) //for each of the four vertices of the linear quad
@@ -231,15 +227,19 @@ vtkBiQuadraticQuad::IntersectWithLine (double *p1,
   //intersect the four linear quads
   for (i = 0; i < 4; i++)
     {
-      this->Quad->Points->SetPoint (0, this->Points->GetPoint (LinearQuads[i][0]));
-      this->Quad->Points->SetPoint (1, this->Points->GetPoint (LinearQuads[i][1]));
-      this->Quad->Points->SetPoint (2, this->Points->GetPoint (LinearQuads[i][2]));
-      this->Quad->Points->SetPoint (3, this->Points->GetPoint (LinearQuads[i][3]));
+    this->Quad->Points->SetPoint (0,
+      this->Points->GetPoint(LinearQuads[i][0]));
+    this->Quad->Points->SetPoint (1,
+      this->Points->GetPoint(LinearQuads[i][1]));
+    this->Quad->Points->SetPoint (2,
+      this->Points->GetPoint(LinearQuads[i][2]));
+    this->Quad->Points->SetPoint (3,
+      this->Points->GetPoint(LinearQuads[i][3]));
 
-      if (this->Quad->IntersectWithLine (p1, p2, tol, t, x, pcoords, subTest))
-  {
-    return 1;
-  }
+    if (this->Quad->IntersectWithLine (p1, p2, tol, t, x, pcoords, subTest))
+      {
+      return 1;
+      }
     }
 
   return 0;
@@ -251,7 +251,7 @@ vtkBiQuadraticQuad::Triangulate (int vtkNotUsed (index), vtkIdList * ptIds, vtkP
 {
   pts->Reset ();
   ptIds->Reset ();
-  
+
   // First the corner vertices
   ptIds->InsertId(0,this->PointIds->GetId(0));
   ptIds->InsertId(1,this->PointIds->GetId(4));
@@ -315,12 +315,14 @@ vtkBiQuadraticQuad::Triangulate (int vtkNotUsed (index), vtkIdList * ptIds, vtkP
 
 //----------------------------------------------------------------------------
 void
-vtkBiQuadraticQuad::Derivatives (int vtkNotUsed (subId), double pcoords[3], double *values, int dim, double *derivs)
+vtkBiQuadraticQuad::Derivatives (int vtkNotUsed (subId),
+                                 double pcoords[3], double *values,
+                                 int dim, double *derivs)
 {
   double x0[3], x1[3], x2[3], deltaX[3], weights[9];
   int i, j;
   double functionDerivs[18];
-  
+
   this->Points->GetPoint (0, x0);
   this->Points->GetPoint (1, x1);
   this->Points->GetPoint (2, x2);
@@ -330,21 +332,21 @@ vtkBiQuadraticQuad::Derivatives (int vtkNotUsed (subId), double pcoords[3], doub
 
   for (i = 0; i < 3; i++)
     {
-      deltaX[i] = x1[i] - x0[i] - x2[i];
+    deltaX[i] = x1[i] - x0[i] - x2[i];
     }
   for (i = 0; i < dim; i++)
     {
-      for (j = 0; j < 3; j++)
-  {
-    if (deltaX[j] != 0)
+    for (j = 0; j < 3; j++)
       {
+      if (deltaX[j] != 0)
+        {
         derivs[3 * i + j] = (values[2 * i + 1] - values[2 * i]) / deltaX[j];
-      }
-    else
-      {
+        }
+      else
+        {
         derivs[3 * i + j] = 0;
+        }
       }
-  }
     }
 }
 
@@ -354,16 +356,15 @@ vtkBiQuadraticQuad::Derivatives (int vtkNotUsed (subId), double pcoords[3], doub
 // Compute interpolation functions. The first four nodes are the corner
 // vertices; the others are mid-edge nodes, the last one is the mid-center
 // node.
-void
-vtkBiQuadraticQuad::InterpolationFunctions (double pcoords[3], double weights[9])
+void vtkBiQuadraticQuad::InterpolationFunctions (double pcoords[3],
+                                                 double weights[9])
 {
   //VTK needs parametric coordinates to be between (0,1). Isoparametric
   //shape functions are normaly formulated between (-1,1). But because we need
-  //to derivate these functions in x and y direction, we are formulating the shape functions in
-  //parametric coordinates. Normaly these coordinates are named r and s, but i
-  //choosed x and y, because you can easily mark and paste these functions to
-  //the gnuplot splot function. :D
-
+  //to derivate these functions in x and y direction, we are formulating the
+  //shape functions in parametric coordinates. Normaly these coordinates are
+  //named r and s, but i choosed x and y, because you can easily mark and
+  //paste these functions to the gnuplot splot function. :D
   double x = pcoords[0];
   double y = pcoords[1];
 
@@ -383,8 +384,7 @@ vtkBiQuadraticQuad::InterpolationFunctions (double pcoords[3], double weights[9]
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void
-vtkBiQuadraticQuad::InterpolationDerivs (double pcoords[3], double derivs[18])
+void vtkBiQuadraticQuad::InterpolationDerivs (double pcoords[3], double derivs[18])
 {
   // Coordinate conversion
   double x = pcoords[0];
@@ -393,7 +393,7 @@ vtkBiQuadraticQuad::InterpolationDerivs (double pcoords[3], double derivs[18])
   // Derivatives in the x-direction
   // edge
   derivs[0] = 4.0 * (1.5 - 2.0 * x) * (1.0 - y) * (y - 0.5);
-  derivs[1] =-4.0 * (2.0 * x - 0.5) * (1.0 - y) * (y - 0.5); 
+  derivs[1] =-4.0 * (2.0 * x - 0.5) * (1.0 - y) * (y - 0.5);
   derivs[2] = 4.0 * (2.0 * x - 0.5) *       (y) * (y - 0.5);
   derivs[3] =-4.0 * (1.5 - 2.0 * x) *       (y) * (y - 0.5);
   // midedge
@@ -410,35 +410,32 @@ vtkBiQuadraticQuad::InterpolationDerivs (double pcoords[3], double derivs[18])
   derivs[10]=-4.0 *       (x) * (x - 0.5) * (1.5 - 2.0 * y);
   derivs[11]= 4.0 *       (x) * (x - 0.5) * (2.0 * y - 0.5);
   derivs[12]=-4.0 * (1.0 - x) * (x - 0.5) * (2.0 * y - 0.5);
-  // midedge                                
+  // midedge
   derivs[13]= 8.0 *       (x) * (1.0 - x) * (1.5 + 2.0 * y);
   derivs[14]=-8.0 *       (x) * (0.5 - x) * (1.0 - 2.0 * y);
   derivs[15]=-8.0 *       (x) * (1.0 - x) * (0.5 - 2.0 * y);
   derivs[16]= 8.0 * (1.0 - x) * (0.5 - x) * (1.0 - 2.0 * y);
-  // center        
+  // center
   derivs[17]=16.0 *       (x) * (1.0 - x) * (1.0 - 2.0 * y);
 
 }
 
 //----------------------------------------------------------------------------
-static double vtkBiQQuadCellPCoords[27] = { 
-0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-1.0, 1.0, 0.0, 0.0, 1.0, 0.0,
-0.5, 0.0, 0.0, 1.0, 0.5, 0.0,
-0.5, 1.0, 0.0, 0.0, 0.5, 0.0,
-0.5, 0.5, 0.0
-};
-double *
-vtkBiQuadraticQuad::GetParametricCoords ()
+static double vtkQQuadCellPCoords[27] = { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+                                          1.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+                                          0.5, 0.0, 0.0, 1.0, 0.5, 0.0,
+                                          0.5, 1.0, 0.0, 0.0, 0.5, 0.0,
+                                          0.5, 0.5, 0.0 };
+
+double * vtkBiQuadraticQuad::GetParametricCoords ()
 {
-  return vtkBiQQuadCellPCoords;
+  return vtkQQuadCellPCoords;
 }
 
 //----------------------------------------------------------------------------
-void
-vtkBiQuadraticQuad::PrintSelf (ostream & os, vtkIndent indent)
+void vtkBiQuadraticQuad::PrintSelf(ostream & os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf (os, indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Edge:\n";
   this->Edge->PrintSelf (os, indent.GetNextIndent ());
