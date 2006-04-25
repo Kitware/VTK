@@ -11,6 +11,9 @@ vtkActor2D.cxx
 vtkActor2DCollection.cxx
 vtkAlgorithm.cxx
 vtkAlgorithmOutput.cxx
+vtkBiQuadraticQuad.cxx
+vtkBiQuadraticQuadraticHexahedron.cxx
+vtkBiQuadraticQuadraticWedge.cxx
 vtkCachedStreamingDemandDrivenPipeline.cxx
 vtkCardinalSpline.cxx
 vtkCastToConcrete.cxx
@@ -152,9 +155,11 @@ vtkQuad.cxx
 vtkQuadraticEdge.cxx
 vtkQuadraticHexahedron.cxx
 vtkQuadraticPyramid.cxx
+vtkQuadraticLinearQuad.cxx
 vtkQuadraticQuad.cxx
 vtkQuadraticTetra.cxx
 vtkQuadraticTriangle.cxx
+vtkQuadraticLinearWedge.cxx
 vtkQuadraticWedge.cxx
 vtkRectilinearGrid.cxx
 vtkRectilinearGridAlgorithm.cxx
@@ -185,6 +190,7 @@ vtkTetra.cxx
 vtkThreadedImageAlgorithm.cxx
 vtkTriangle.cxx
 vtkTriangleStrip.cxx
+vtkTriQuadraticHexahedron.cxx
 vtkTrivialProducer.cxx
 vtkUniformGrid.cxx
 vtkUnstructuredGrid.cxx
@@ -333,3 +339,4 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtkImageProgressIterator
     )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+
