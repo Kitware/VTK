@@ -40,7 +40,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.3");
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //----------------------------------------------------------------------------
@@ -607,7 +607,8 @@ void vtkImplicitPlaneRepresentation::HighlightOutline(int highlight)
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
+void vtkImplicitPlaneRepresentation::Rotate(double X, double Y, 
+                                            double *p1, double *p2, double *vpn)
 {
   double v[3]; //vector of motion
   double axis[3]; //axis of rotation
@@ -720,7 +721,7 @@ void vtkImplicitPlaneRepresentation::TranslateOrigin(double *p1, double *p2)
 
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::Scale(double *p1, double *p2, 
-                                   int vtkNotUsed(X), int Y)
+                                           double vtkNotUsed(X), double Y)
 {
   //Get the motion vector
   double v[3];

@@ -285,12 +285,12 @@ protected:
   
   // Methods to manipulate the plane
   void ConstrainOrigin(double x[3]);
-  void Rotate(int X, int Y, double *p1, double *p2, double *vpn);
+  void Rotate(double X, double Y, double *p1, double *p2, double *vpn);
   void TranslatePlane(double *p1, double *p2);
   void TranslateOutline(double *p1, double *p2);
   void TranslateOrigin(double *p1, double *p2);
   void Push(double *p1, double *p2);
-  void Scale(double *p1, double *p2, int X, int Y);
+  void Scale(double *p1, double *p2, double X, double Y);
   
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
