@@ -47,6 +47,14 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticWedge.h"
 
+// Bi/Tri linear quadratic cells
+#include "vtkBiQuadraticQuad.h"
+#include "vtkBiQuadraticQuadraticHexahedron.h"
+#include "vtkBiQuadraticQuadraticWedge.h"
+#include "vtkQuadraticLinearQuad.h"
+#include "vtkQuadraticLinearWedge.h"
+#include "vtkTriQuadraticHexahedron.h"
+
 template <class TCell>
 int TestOneInterpolationFunction()
 {
@@ -145,6 +153,14 @@ int TestInterpolationFunctions(int, char *[])
   r += TestOneInterpolationFunction<vtkQuadraticTetra>();
   r += TestOneInterpolationFunction<vtkQuadraticTriangle>();
   r += TestOneInterpolationFunction<vtkQuadraticWedge>();
+
+  // Bi/Tri linear quadratic cells
+  r += TestOneInterpolationFunction<vtkBiQuadraticQuad>();
+  r += TestOneInterpolationFunction<vtkBiQuadraticQuadraticHexahedron>();
+  r += TestOneInterpolationFunction<vtkBiQuadraticQuadraticWedge>();
+  r += TestOneInterpolationFunction<vtkQuadraticLinearQuad>();
+  r += TestOneInterpolationFunction<vtkQuadraticLinearWedge>();
+  r += TestOneInterpolationFunction<vtkTriQuadraticHexahedron>();
 
   return r;
 }
