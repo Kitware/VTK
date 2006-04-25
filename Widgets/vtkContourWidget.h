@@ -28,7 +28,7 @@
 // watches the vtkRenderWindowInteractor for these events):
 // <pre>
 //   LeftButtonPressEvent - triggers a Select event
-//   RightButtonPressEvent - triggers a FinalAddPoint event
+//   RightButtonPressEvent - triggers a AddFinalPoint event
 //   MouseMoveEvent - triggers a Move event
 //   LeftButtonReleaseEvent - triggers an EndSelect event
 //   Delete key event - triggers a Delete event
@@ -66,8 +66,8 @@
 //        widget state is: 
 //            Start or
 //            Define: Do nothing.
-//            Manipulate: If our operation is Translate, then call
-//                  WidgetInteration on the representation. If our 
+//            Manipulate: If our operation is Translate, then invoke
+//                  WidgetInteraction() on the representation. If our 
 //                  operation is Inactive, then just attempt to activate
 //                  a node at this (X,Y) location.
 //
