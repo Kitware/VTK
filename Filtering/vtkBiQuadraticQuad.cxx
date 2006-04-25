@@ -25,7 +25,7 @@
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
 
-vtkCxxRevisionMacro(vtkBiQuadraticQuad, "1.2");
+vtkCxxRevisionMacro(vtkBiQuadraticQuad, "1.3");
 vtkStandardNewMacro(vtkBiQuadraticQuad);
 
 //----------------------------------------------------------------------------
@@ -150,7 +150,7 @@ void vtkBiQuadraticQuad::EvaluateLocation (int& vtkNotUsed(subId),
   for (j=0; j<3; j++)
     {
     x[j] = 0.0;
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < 9; i++)
       {
       x[j] += p[3*i+j] * weights[i];
       }
