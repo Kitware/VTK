@@ -40,7 +40,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.4");
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //----------------------------------------------------------------------------
@@ -324,7 +324,8 @@ void vtkImplicitPlaneRepresentation::StartWidgetInteraction(double e[2])
     this->HighlightNormal(1);
     this->HighlightPlane(1);
     }
-  else if ( this->InteractionState == vtkImplicitPlaneRepresentation::Scaling )
+  else if ( this->InteractionState == vtkImplicitPlaneRepresentation::Scaling &&
+    this->ScaleEnabled )
     {
     this->HighlightNormal(1);
     this->HighlightPlane(1);
@@ -378,7 +379,8 @@ void vtkImplicitPlaneRepresentation::WidgetInteraction(double e[2])
     {
     this->Push(prevPickPoint, pickPoint);
     }
-  else if ( this->InteractionState == vtkImplicitPlaneRepresentation::Scaling )
+  else if ( this->InteractionState == vtkImplicitPlaneRepresentation::Scaling &&
+    this->ScaleEnabled )
     {
     this->Scale(prevPickPoint, pickPoint, e[0], e[1]);
     }

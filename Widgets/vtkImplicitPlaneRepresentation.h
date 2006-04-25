@@ -19,6 +19,10 @@
 // normal and point in the context of a bounding box. Through interaction
 // with the widget, the plane can be manipulated by adjusting the plane
 // normal or moving the origin point.
+//
+// To use this representation, you normal define a (plane) origin and (plane)
+// normal. The PlaceWidget() method is also used to intially position the 
+// representation.
 
 // .SECTION Caveats
 // This class, and vtkImplicitPlaneWidget2, are next generation VTK
@@ -118,13 +122,14 @@ public:
   vtkBooleanMacro(OutlineTranslation,int);
 
   // Description:
-  // Turn on/off the ability to move the widget outside of the input's bound
+  // Turn on/off the ability to move the widget outside of the bounds
+  // specified in the initial PlaceWidget() invocation.
   vtkSetMacro(OutsideBounds,int);
   vtkGetMacro(OutsideBounds,int);
   vtkBooleanMacro(OutsideBounds,int);
 
   // Description:
-  // Turn on/off the ability to scale with the mouse 
+  // Turn on/off the ability to scale the widget with the mouse.
   vtkSetMacro(ScaleEnabled,int);
   vtkGetMacro(ScaleEnabled,int);
   vtkBooleanMacro(ScaleEnabled,int);
