@@ -84,6 +84,8 @@ vtkImageVectorConvolve  GetKernel               301 3
 vtkImageViewer          GetPosition             304 2
 vtkImageViewer          GetSize                 304 2
 vtkImplicitFunction     FunctionGradient        307 3
+vtkImplicitPlaneRepresentation	GetNormal		307 3
+vtkImplicitPlaneRepresentation	GetOrigin		307 3
 vtkImplicitPlaneWidget	GetNormal		307 3
 vtkImplicitPlaneWidget	GetOrigin		307 3
 vtkLegendBoxActor       GetEntryColor           307 3
