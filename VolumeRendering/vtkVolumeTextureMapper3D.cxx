@@ -27,7 +27,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRenderingFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.8");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.9");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -668,6 +668,7 @@ vtkVolumeTextureMapper3D::vtkVolumeTextureMapper3D()
   this->Volume3                       = NULL;
   this->VolumeSize                    = 0;
   this->VolumeComponents              = 0;
+  this->VolumeSpacing[0] = this->VolumeSpacing[1] = this->VolumeSpacing[2] = 0;
   
   this->SampleDistance                = 1.0;
   this->ActualSampleDistance          = 1.0;

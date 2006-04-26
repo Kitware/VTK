@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.8");
+vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.9");
 vtkStandardNewMacro(vtkAngleRepresentation2D);
 
 
@@ -37,7 +37,7 @@ vtkAngleRepresentation2D::vtkAngleRepresentation2D()
   this->Ray1->GetPosition2Coordinate()->SetCoordinateSystemToWorld();
   this->Ray1->SetArrowStyleToOpen();
   this->Ray1->SetArrowPlacementToPoint2();
-  
+
   this->Ray2 = vtkLeaderActor2D::New();
   this->Ray2->GetPositionCoordinate()->SetCoordinateSystemToWorld();
   this->Ray2->GetPosition2Coordinate()->SetCoordinateSystemToWorld();
@@ -143,7 +143,7 @@ void vtkAngleRepresentation2D::GetPoint2DisplayPosition(double pos[3])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation2D::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
        this->Point1Representation->GetMTime() > this->BuildTime ||
        this->CenterRepresentation->GetMTime() > this->BuildTime ||
        this->Point2Representation->GetMTime() > this->BuildTime ||
@@ -157,7 +157,7 @@ void vtkAngleRepresentation2D::BuildRepresentation()
     this->CenterRepresentation->GetDisplayPosition(c);
     this->Point2Representation->GetDisplayPosition(p2);
 
-    // Compute the angle (only if necessary since we don't want 
+    // Compute the angle (only if necessary since we don't want
     // fluctuations in angle value as the camera moves, etc.)
     if ( this->GetMTime() > this->BuildTime )
       {
@@ -185,10 +185,11 @@ void vtkAngleRepresentation2D::BuildRepresentation()
           }
         }
       char string[512];
-      sprintf(string, this->LabelFormat, -(theta2-theta1)*vtkMath::RadiansToDegrees());
+      sprintf(string, this->LabelFormat,
+        (theta1-theta2)*vtkMath::RadiansToDegrees());
       this->Arc->SetLabel(string);
       }
-    
+
     // Place the label and place the arc
     double l1 = sqrt(vtkMath::Distance2BetweenPoints(c,p1));
     double l2 = sqrt(vtkMath::Distance2BetweenPoints(c,p2));
@@ -201,7 +202,7 @@ void vtkAngleRepresentation2D::BuildRepresentation()
       }
 
     // Place the end points for the arc away from the tip of the two rays
-    this->ArcVisibility = 1;  
+    this->ArcVisibility = 1;
     this->Arc->SetLabelFormat(this->LabelFormat);
     const double rayPosition = 0.80;
     int i;
@@ -264,7 +265,7 @@ void vtkAngleRepresentation2D::ReleaseGraphicsResources(vtkWindow *w)
 int vtkAngleRepresentation2D::RenderOverlay(vtkViewport *v)
 {
   this->BuildRepresentation();
-  
+
   int count=0;
   if ( this->Ray1Visibility )
     {

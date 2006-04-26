@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkEvent, "1.2");
+vtkCxxRevisionMacro(vtkEvent, "1.3");
 vtkStandardNewMacro(vtkEvent);
 
 
@@ -27,6 +27,7 @@ vtkEvent::vtkEvent()
   this->KeyCode = 0;
   this->RepeatCount = 0;
   this->KeySym = 0;
+  this->EventId = vtkCommand::NoEvent;
 }
 
 vtkEvent::~vtkEvent()

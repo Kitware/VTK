@@ -26,7 +26,7 @@
 #include "vtkBiQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro (vtkBiQuadraticQuadraticWedge, "1.2");
+vtkCxxRevisionMacro (vtkBiQuadraticQuadraticWedge, "1.3");
 vtkStandardNewMacro (vtkBiQuadraticQuadraticWedge);
 
 //----------------------------------------------------------------------------
@@ -36,6 +36,11 @@ vtkBiQuadraticQuadraticWedge::vtkBiQuadraticQuadraticWedge ()
 {
   this->Points->SetNumberOfPoints (18);
   this->PointIds->SetNumberOfIds (18);
+  for (int i = 0; i < 18; i++)
+    {
+    this->Points->SetPoint(i, 0.0, 0.0, 0.0);
+    this->PointIds->SetId(i,0);
+    }
 
   this->Edge = vtkQuadraticEdge::New ();
   this->Face = vtkBiQuadraticQuad::New ();

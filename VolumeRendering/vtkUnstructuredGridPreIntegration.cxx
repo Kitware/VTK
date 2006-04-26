@@ -37,7 +37,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.5");
+vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.6");
 vtkStandardNewMacro(vtkUnstructuredGridPreIntegration);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridPreIntegration, Integrator,
@@ -59,6 +59,7 @@ vtkUnstructuredGridPreIntegration::vtkUnstructuredGridPreIntegration()
   this->IntegrationTableLengthResolution = 256;
 
   this->IncrementalPreIntegration = 1;
+  this->IntegrationTableLengthScale = 0;
 }
 
 vtkUnstructuredGridPreIntegration::~vtkUnstructuredGridPreIntegration()

@@ -27,7 +27,7 @@
 #include "vtkQuadraticLinearQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro (vtkQuadraticLinearWedge, "1.2");
+vtkCxxRevisionMacro (vtkQuadraticLinearWedge, "1.3");
 vtkStandardNewMacro (vtkQuadraticLinearWedge);
 
 //----------------------------------------------------------------------------
@@ -37,6 +37,11 @@ vtkQuadraticLinearWedge::vtkQuadraticLinearWedge ()
 {
   this->Points->SetNumberOfPoints (12);
   this->PointIds->SetNumberOfIds (12);
+  for (int i = 0; i < 12; i++)
+    {
+    this->Points->SetPoint(i, 0.0, 0.0, 0.0);
+    this->PointIds->SetId(i,0);
+    }
 
   this->QuadEdge = vtkQuadraticEdge::New ();
   this->Edge = vtkLine::New ();

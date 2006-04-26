@@ -25,7 +25,7 @@
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
 
-vtkCxxRevisionMacro(vtkBiQuadraticQuad, "1.3");
+vtkCxxRevisionMacro(vtkBiQuadraticQuad, "1.4");
 vtkStandardNewMacro(vtkBiQuadraticQuad);
 
 //----------------------------------------------------------------------------
@@ -36,6 +36,11 @@ vtkBiQuadraticQuad::vtkBiQuadraticQuad()
   this->Quad = vtkQuad::New();
   this->Points->SetNumberOfPoints(9);
   this->PointIds->SetNumberOfIds(9);
+  for (int i = 0; i < 9; i++)
+    {
+    this->Points->SetPoint(i, 0.0, 0.0, 0.0);
+    this->PointIds->SetId(i,0);
+    }
   this->Scalars = vtkDoubleArray::New();
   this->Scalars->SetNumberOfTuples(4);
 }

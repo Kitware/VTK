@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.8");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.9");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -211,8 +211,8 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
 //
 
 // see vtkPentagonalPrismCellPCoords for V#i values:
-// The general idea is that for Point #0 (V1,V1,0) the shape function should be 
-// 0 on the 4 other node. So expr of the line passing through points 
+// The general idea is that for Point #0 (V1,V1,0) the shape function should be
+// 0 on the 4 other node. So expr of the line passing through points
 // (x1,y1) and (x2,y2) is as follow:
 // (x1-x2)*y - (y1-y2)*x - (x1*y2 - x2*y1) = 0
 // x(i):=1/2+1/2*Cos( Pi + Pi/4 + i*2*Pi/5)
