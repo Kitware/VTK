@@ -37,7 +37,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.51");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.52");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -359,7 +359,6 @@ int vtkOpenGLRenderer::GetPickedIds(unsigned int atMost, unsigned int *callerBuf
     }  
 
   unsigned int max = (atMost < this->PickInfo->NumPicked) ? atMost : this->PickInfo->NumPicked;
-  unsigned int depth = (unsigned int)-1;
   GLuint* iptr = this->PickInfo->PickBuffer;
   unsigned int *optr = callerBuffer;
   unsigned int k;
