@@ -114,6 +114,9 @@ public:
   vtkSetClampMacro(HandleSize,double,0.001,0.5);
   vtkGetMacro(HandleSize,double);
 
+  // Description:
+  // Some subclasses use this data member to keep track of whether to render
+  // or not (i.e., to minimize the total number of renders).
   vtkGetMacro( NeedToRender, int );
   vtkSetClampMacro( NeedToRender, int, 0, 1 );
   vtkBooleanMacro( NeedToRender, int );
