@@ -36,7 +36,7 @@
 #include "vtkPoints.h"
 #include "vtkFrustumExtractor.h"
 
-vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.2");
+vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.3");
 vtkStandardNewMacro(vtkRenderedAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -124,7 +124,7 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
 
     vtkProp *prop;
     vtkAssemblyPath *path;
-    while (prop = pProps->GetNextProp())
+    while ((prop = pProps->GetNextProp()))
       {
       for ( prop->InitPathTraversal(); (path=prop->GetNextPath()); )
         {
