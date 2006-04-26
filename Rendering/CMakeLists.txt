@@ -131,6 +131,7 @@ vtkWindowToImageFilter.cxx
 vtkWorldPointPicker.cxx
 vtkInteractorStyleRubberBandPick.cxx
 vtkAreaPicker.cxx
+vtkRenderedAreaPicker.cxx
 )
 
 IF(VTK_USE_GL2PS)
