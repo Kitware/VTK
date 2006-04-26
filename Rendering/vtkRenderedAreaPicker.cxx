@@ -36,7 +36,7 @@
 #include "vtkPoints.h"
 #include "vtkFrustumExtractor.h"
 
-vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.1");
+vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.2");
 vtkStandardNewMacro(vtkRenderedAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -54,6 +54,12 @@ vtkRenderedAreaPicker::~vtkRenderedAreaPicker()
 int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1, 
                                     vtkRenderer *renderer)
 {
+ int rc = 0;
+ vtkProp *propCandidate;
+ vtkImageActor *imageActor = NULL;
+ vtkAbstractMapper3D *mapper = NULL;
+ int pickable;
+
   //  Initialize picking process
   this->Initialize();
   this->Renderer = renderer;
@@ -70,25 +76,17 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
   // Have the renderer do the hardware pick
   this->SetPath(renderer->PickProp(x0, y0, x1, y1));
 
-  // If there was a pick then invoke its pick method.
-  if ( this->Path )
-    {
-    this->Path->GetLastNode()->GetViewProp()->Pick();
-    this->InvokeEvent(vtkCommand::PickEvent,NULL);
-    } 
-
-  this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
-
   // Hardware pick resulted in a hit.
   if ( this->Path )
     {
-    vtkProp *propCandidate;
-    vtkImageActor *imageActor = NULL;
-    vtkAbstractMapper3D *mapper = NULL;
-    int pickable;
+    rc = 1;
 
-    //find the mapper and dataset corresponding the the picked prop    
+    //invoke the pick event
     propCandidate = this->Path->GetLastNode()->GetViewProp();
+    propCandidate->Pick();
+    this->InvokeEvent(vtkCommand::PickEvent,NULL);
+
+    //find the mapper and dataset corresponding to the picked prop        
     pickable = this->TypeDecipher(propCandidate, &imageActor, &mapper);
     if ( pickable )
       { 
@@ -145,12 +143,10 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
           }
         }
       }
+    }
 
-    return 1;
-    }
-  else
-    {
-    return 0;
-    }
+  this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
+
+  return rc;
 }
 
