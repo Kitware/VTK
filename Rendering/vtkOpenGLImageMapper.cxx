@@ -28,7 +28,7 @@
 #include <limits.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.64");
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.65");
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 #endif
 
@@ -617,7 +617,9 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   if(viewport->GetIsPicking())
     {
     vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
-                     1, 1, viewport->GetOrigin(), vsize);
+                     viewport->GetPickWidth(),
+                     viewport->GetPickHeight(),
+                     viewport->GetOrigin(), vsize);
     }
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();

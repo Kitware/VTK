@@ -28,12 +28,14 @@
 #include "vtkMatrix4x4.h"
 #include "vtkOutputWindow.h"
 #include "vtkPicker.h"
+#include "vtkAreaPicker.h"
 #include "vtkProp3DCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
+#include "vtkPropCollection.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.221");
+vtkCxxRevisionMacro(vtkRenderer, "1.222");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -1261,12 +1263,15 @@ unsigned long int vtkRenderer::GetMTime()
 }
 
 
-vtkAssemblyPath* vtkRenderer::PickProp(double selectionX, double selectionY)
+vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
+                                       double selectionX2, double selectionY2)
 {
   // initialize picking information
   this->CurrentPickId = 1; // start at 1, so 0 can be a no pick
-  this->PickX = selectionX;
-  this->PickY = selectionY;
+  this->PickX1 = (selectionX1 < selectionX2) ? selectionX1 : selectionX2;
+  this->PickY1 = (selectionY1 < selectionY2) ? selectionY1 : selectionY2;
+  this->PickX2 = (selectionX1 > selectionX2) ? selectionX1 : selectionX2;
+  this->PickY2 = (selectionY1 > selectionY2) ? selectionY1 : selectionY2;
   int numberPickFrom;
   vtkPropCollection *props;
 
@@ -1290,6 +1295,7 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX, double selectionY)
 
   // Actually perform the pick
   this->PickRender(props);  // do the pick render
+
   this->IsPicking = 0; // turn off picking
   this->DonePick();
   vtkDebugMacro(<< "z value for pick " << this->GetPickedZ() << "\n");
@@ -1314,7 +1320,27 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX, double selectionY)
     this->PickedProp->Register(this);
     }
 
+  //convert the list of picked props from integers to prop pointers
+  if (this->PickResultProps != NULL)
+    {
+    this->PickResultProps->Delete();
+    this->PickResultProps = NULL;
+    }
+  this->PickResultProps = vtkPropCollection::New();
+  unsigned int numPicked = this->GetNumPickedIds();
+  unsigned int *idBuff = new unsigned int[numPicked];
+  this->GetPickedIds(numPicked, idBuff);
+  unsigned int nextId;
+  for (unsigned int pIdx = 0; pIdx < numPicked; pIdx++)
+    {
+    nextId = idBuff[pIdx] - 1; // pick ids start at 1, so move back one
+    nextId = nextId % this->PathArrayCount;
+    vtkProp *propCandidate = this->PathArray[nextId]->GetLastNode()->GetViewProp();
+    this->PickResultProps->AddItem(propCandidate);
+    }
+
   // Clean up stuff from picking after we use it
+  delete [] idBuff;
   delete [] this->PathArray;
   this->PathArray = NULL;
 
@@ -1366,20 +1392,49 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
   // reduce the number of polygons that the hardware has to pick from, and
   // speeds things up substantially.
   //
-  // Create a picker to do the culling process
-  vtkPicker* cullPicker = vtkPicker::New();
-  // Add each of the Actors from the pickFrom list into the picker
-  for ( pickFrom->InitTraversal(pit); (aProp = pickFrom->GetNextProp(pit)); )
+
+  vtkPicker* pCullPicker = NULL;
+  vtkAreaPicker *aCullPicker = NULL;
+  vtkProp3DCollection* cullPicked;
+  if (this->GetPickWidth()==1 && this->GetPickHeight()==1)
     {
-    cullPicker->AddPickList(aProp);
+    // Create a picker to do the culling process
+    pCullPicker = vtkPicker::New();
+
+    // Add each of the Actors from the pickFrom list into the picker
+    for ( pickFrom->InitTraversal(pit); (aProp = pickFrom->GetNextProp(pit)); )
+      {
+      pCullPicker->AddPickList(aProp);
+      }
+
+    // make sure this selects from the pickers list and not the renderers list
+    pCullPicker->PickFromListOn();
+
+    // do the pick
+    pCullPicker->Pick(this->GetPickX(), this->GetPickY(), 0, this);
+
+    cullPicked = pCullPicker->GetProp3Ds();
     }
+  else
+    {
+    aCullPicker = vtkAreaPicker::New();
 
-  // make sure this selects from the pickers list and not the renderers list
-  cullPicker->PickFromListOn();
+    // Add each of the Actors from the pickFrom list into the picker
+    for ( pickFrom->InitTraversal(pit); (aProp = pickFrom->GetNextProp(pit)); )
+      {
+      aCullPicker->AddPickList(aProp);
+      }
 
-  // do the pick
-  cullPicker->Pick(this->PickX, this->PickY, 0, this);
-  vtkProp3DCollection* cullPicked = cullPicker->GetProp3Ds();
+    // make sure this selects from the pickers list and not the renderers list
+    aCullPicker->PickFromListOn();
+
+    // do the pick
+    aCullPicker->AreaPick(this->PickX1, this->PickY1, 
+                         this->PickX2, this->PickY2, 
+                         this);
+
+    cullPicked = aCullPicker->GetProp3Ds();
+    }  
 
   // Put all the ones that were picked by the cull process
   // into the PathArray to be picked from
@@ -1398,7 +1453,14 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
 
   // Clean picking support objects up
   pickFrom->Delete();
-  cullPicker->Delete();
+  if (pCullPicker)
+    {
+    pCullPicker->Delete();
+    }
+  if (aCullPicker)
+    {
+    aCullPicker->Delete();
+    }
   
   if ( this->PathArrayCount == 0 )
     {

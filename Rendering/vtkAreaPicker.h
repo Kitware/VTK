@@ -101,7 +101,7 @@ protected:
 
   virtual void Initialize();
   void DefineFrustum(double x0, double y0, double x1, double y1, vtkRenderer *renderer);
-  int PickProps(vtkRenderer *renderer);  
+  virtual int PickProps(vtkRenderer *renderer);  
   int ABoxFrustumIsect(double bounds[], double &mindist);
 
   vtkPoints *ClipPoints;

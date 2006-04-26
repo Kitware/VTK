@@ -20,7 +20,7 @@
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.6");
+vtkCxxRevisionMacro(vtkViewport, "1.7");
 
 //----------------------------------------------------------------------------
 // Create a vtkViewport with a black background, a white ambient light, 
@@ -65,10 +65,13 @@ vtkViewport::vtkViewport()
 
   this->PickedProp = NULL;
   this->PickFromProps = NULL;
+  this->PickResultProps = NULL;
   this->IsPicking = 0;
   this->CurrentPickId = 0;
-  this->PickX = -1;
-  this->PickY = -1;
+  this->PickX1 = -1;
+  this->PickY1 = -1;
+  this->PickX2 = -1;
+  this->PickY2 = -1;
 
 
   this->Props = vtkPropCollection::New();
@@ -96,6 +99,10 @@ vtkViewport::~vtkViewport()
   if ( this->PickedProp != NULL )
     {
     this->PickedProp->UnRegister(this);
+    }
+  if ( this->PickResultProps != NULL )
+    {
+    this->PickResultProps->Delete();
     }
 }
 
@@ -364,8 +371,10 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
     << this->WorldPoint[1] << ", " << this->WorldPoint[2] << ", " 
       << this->WorldPoint[3] << ")\n";
 
-  os << indent << "Pick Position X Y: " << this->PickX 
-     << " " << this->PickY << endl;
+  os << indent << "Pick Position X1 Y1: " << this->PickX1 
+     << " " << this->PickY1 << endl;
+  os << indent << "Pick Position X2 Y2: " << this->PickX2 
+     << " " << this->PickY2 << endl;
   os << indent << "IsPicking boolean: " << this->IsPicking << endl;
   os << indent << "Props:\n";
   this->Props->PrintSelf(os,indent.GetNextIndent());

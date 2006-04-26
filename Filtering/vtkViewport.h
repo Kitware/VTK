@@ -204,9 +204,12 @@ public:
   // Description:
   // Methods used to return the pick (x,y) in local display coordinates (i.e.,
   // it's that same as selectionX and selectionY).
-  vtkGetMacro(PickX, double);
-  vtkGetMacro(PickY, double);
+  double GetPickX() const {return (this->PickX1 + this->PickX2)*0.5;}
+  double GetPickY() const {return (this->PickY1 + this->PickY2)*0.5;}
+  double GetPickWidth() const {return this->PickX2 - this->PickX1 + 1;};
+  double GetPickHeight() const {return this->PickY2 - this->PickY1 + 1;};
   vtkGetMacro(IsPicking, int);
+  vtkGetObjectMacro(PickResultProps, vtkPropCollection);
 
   // Description: 
   // Return the Z value for the last picked Prop.
@@ -265,17 +268,25 @@ protected:
   virtual void DonePick() = 0; 
   // Return the id of the picked object, only valid after a call to DonePick
   virtual unsigned int GetPickedId() = 0;
+  // Return the number of objects picked, only valid after a call to DonePick
+  virtual unsigned int GetNumPickedIds() = 0;
+  // Put no more than atMost picked object ids into the callerBuffer and
+  // return the number of picked objects returned.
+  virtual int GetPickedIds(unsigned int atMost, unsigned int *callerBuffer) = 0;
   //ETX
 
   // Ivars for picking
   // Store a picked Prop (contained in an assembly path)
   vtkAssemblyPath* PickedProp;
   vtkPropCollection* PickFromProps;
+  vtkPropCollection* PickResultProps;
   // Boolean flag to determine if picking is enabled for this render
   int IsPicking;
   unsigned int CurrentPickId;
-  double PickX;
-  double PickY;
+  double PickX1;
+  double PickY1;
+  double PickX2;
+  double PickY2;
   // End Ivars for picking
   
   vtkPropCollection *Props;

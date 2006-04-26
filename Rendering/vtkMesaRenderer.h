@@ -69,6 +69,8 @@ protected:
   virtual void UpdatePickId();
   virtual void DonePick();
   virtual unsigned int GetPickedId();
+  virtual unsigned int GetNumPickedIds();
+  virtual int GetPickedIds(unsigned int atMost, unsigned int *callerBuffer);
   virtual double GetPickedZ();
   // Ivars used in picking
   class vtkGLPickInfo* PickInfo;

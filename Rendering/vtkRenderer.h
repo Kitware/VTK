@@ -347,7 +347,12 @@ public:
   // prop that renders the pixel at selectionX, selectionY will be returned.
   // If nothing was picked then NULL is returned.  This method selects from 
   // the renderers Prop list.
-  vtkAssemblyPath* PickProp(double selectionX, double selectionY);
+  vtkAssemblyPath* PickProp(double selectionX, double selectionY)
+    {
+      return this->PickProp(selectionX, selectionY, selectionX, selectionY);
+    }
+  vtkAssemblyPath* PickProp(double selectionX1, double selectionY1,
+                            double selectionX2, double selectionY2);
 
   // Description:
   // Do anything necessary between rendering the left and right viewpoints

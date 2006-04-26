@@ -33,10 +33,11 @@ class vtkGLPickInfo
 public:
   GLuint* PickBuffer;
   GLuint PickedId;
+  GLuint NumPicked;
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.50");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.51");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -48,6 +49,7 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->NumberOfLightsBound = 0;
   this->PickInfo->PickBuffer = 0;
   this->PickInfo->PickedId = 0;
+  this->PickInfo->NumPicked = 0;
   this->PickedZ = 0;
 }
 
@@ -183,6 +185,7 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
     this->NumberOfLightsBound << "\n";
   os << indent << "PickBuffer " << this->PickInfo->PickBuffer << "\n";
   os << indent << "PickedId" << this->PickInfo->PickedId<< "\n";
+  os << indent << "NumPicked" << this->PickInfo->NumPicked<< "\n";
   os << indent << "PickedZ " << this->PickedZ << "\n";
 }
 
@@ -218,6 +221,11 @@ void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
   // a MakeCurrent was called.
   this->RenderWindow->MakeCurrent();
   this->RenderWindow->IsPickingOn();
+  if (this->PickInfo->PickBuffer)
+    {
+    delete [] this->PickInfo->PickBuffer;
+    this->PickInfo->PickBuffer = 0;
+    }
   this->PickInfo->PickBuffer = new GLuint[bufferSize];
   glSelectBuffer(bufferSize, this->PickInfo->PickBuffer);
   // change to selection mode
@@ -265,6 +273,8 @@ void vtkOpenGLRenderer::DonePick()
 {
   glFlush();
   GLuint hits = glRenderMode(GL_RENDER); 
+  this->PickInfo->NumPicked = hits;
+
   unsigned int depth = (unsigned int)-1;
   GLuint* ptr = this->PickInfo->PickBuffer;
   this->PickInfo->PickedId = 0;
@@ -307,8 +317,12 @@ void vtkOpenGLRenderer::DonePick()
     this->PickedZ = (this->PickedZ < 0.0) ? 0.0 : this->PickedZ;
     this->PickedZ = (this->PickedZ > 1.0) ? 1.0: this->PickedZ;
     }
-  delete [] this->PickInfo->PickBuffer;
-  this->PickInfo->PickBuffer = 0;
+
+  //Don't delete the list, keep it around in case caller wants all
+  //of the hits. Delete it elsewhere when needed.
+  //delete [] this->PickInfo->PickBuffer;
+  //this->PickInfo->PickBuffer = 0;
+
   this->RenderWindow->IsPickingOff();
 }
 
@@ -332,3 +346,33 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
   delete this->PickInfo;
 }
 
+unsigned int vtkOpenGLRenderer::GetNumPickedIds()
+{
+  return (unsigned int)this->PickInfo->NumPicked;
+}
+
+int vtkOpenGLRenderer::GetPickedIds(unsigned int atMost, unsigned int *callerBuffer)
+{
+  if (!this->PickInfo->PickBuffer)
+    {
+    return 0;
+    }  
+
+  unsigned int max = (atMost < this->PickInfo->NumPicked) ? atMost : this->PickInfo->NumPicked;
+  unsigned int depth = (unsigned int)-1;
+  GLuint* iptr = this->PickInfo->PickBuffer;
+  unsigned int *optr = callerBuffer;
+  unsigned int k;
+  for(k =0; k < max; k++)
+    {
+    int num_names = *iptr;
+    iptr++; // move to first depth value
+    iptr++; // move to next depth value
+    iptr++; // move to first name picked
+    *optr = (unsigned int)*iptr;
+    optr++;
+    // skip additonal names
+    iptr += num_names;
+    }
+  return k;
+}
