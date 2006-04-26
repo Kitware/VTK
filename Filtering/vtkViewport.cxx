@@ -20,7 +20,7 @@
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.7");
+vtkCxxRevisionMacro(vtkViewport, "1.8");
 
 //----------------------------------------------------------------------------
 // Create a vtkViewport with a black background, a white ambient light, 
@@ -378,6 +378,15 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IsPicking boolean: " << this->IsPicking << endl;
   os << indent << "Props:\n";
   this->Props->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "PickResultProps:\n";
+  if ( this->PickResultProps != NULL )
+    {
+    this->PickResultProps->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "NULL\n";
+    }
 
 }
 

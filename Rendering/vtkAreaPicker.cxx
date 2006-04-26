@@ -36,7 +36,7 @@
 #include "vtkPoints.h"
 #include "vtkFrustumExtractor.h"
 
-vtkCxxRevisionMacro(vtkAreaPicker, "1.6");
+vtkCxxRevisionMacro(vtkAreaPicker, "1.7");
 vtkStandardNewMacro(vtkAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -179,7 +179,6 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
   vtkAbstractMapper3D *mapper = NULL;
   int picked=0;
   int pickable;
-  int LODId;
   double bounds[6];
   
   //  Initialize picking process
@@ -209,11 +208,8 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
     }
 
   vtkActor *actor;
-  vtkLODProp3D *prop3D;
-  vtkVolume *volume;
   vtkImageActor *imageActor = NULL;
   vtkAssemblyPath *path;
-  vtkProperty *tempProperty;
 
   double mindist = VTK_DOUBLE_MAX;
 
