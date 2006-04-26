@@ -124,6 +124,7 @@ public:
   vtkCgShaderInternals()
     {
     this->LastError = CG_NO_ERROR;
+    this->Context = 0;
     }
   
   CGparameter GetUniformParameter(const char* name)
@@ -151,7 +152,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCgShader, "1.5");
+vtkCxxRevisionMacro(vtkCgShader, "1.6");
 vtkStandardNewMacro(vtkCgShader);
 
 //-----------------------------------------------------------------------------
