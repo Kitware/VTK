@@ -34,7 +34,7 @@
 #include "vtkHexahedron.h"
 #include "vtkLine.h"
 
-vtkCxxRevisionMacro(vtkFrustumExtractor, "1.8");
+vtkCxxRevisionMacro(vtkFrustumExtractor, "1.9");
 vtkStandardNewMacro(vtkFrustumExtractor);
 vtkCxxSetObjectMacro(vtkFrustumExtractor,Frustum,vtkPlanes);
 
@@ -110,6 +110,7 @@ void vtkFrustumExtractor::CreateFrustum(double verts[32])
     {    
     this->ClipPoints->SetPoint(i, &verts[i*4]);
     }
+  this->ClipPoints->Modified();
 
   vtkPoints *points = vtkPoints::New();
   points->SetNumberOfPoints(6);
