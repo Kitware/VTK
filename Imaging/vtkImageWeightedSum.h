@@ -43,29 +43,30 @@ public:
   vtkGetObjectMacro(Weights, vtkDoubleArray);
 
   // Description:
-  // Change a specific weight
+  // Change a specific weight. Reallocation is done
   virtual void SetWeight(vtkIdType id, double weight);
 
   // Description:
-  // When calculating the function and gradient values of the
-  // composite function, setting NormalizeByWeight on will divide the
+  // Setting NormalizeByWeight on will divide the
   // final result by the total weight of the component functions.
-  // This process does not otherwise normalize the gradient vector.
-  // By default, NormalizeByWeight is off.
+  // This process does not otherwise normalize the weighted sum
+  // By default, NormalizeByWeight is on.
   vtkGetMacro(NormalizeByWeight, int);
   vtkSetClampMacro(NormalizeByWeight, int, 0, 1);
   vtkBooleanMacro(NormalizeByWeight, int);
 
   // Description:
+  // Compute the total value of all the weight
   double CalculateTotalWeight();
 
 protected:
   vtkImageWeightedSum();
   ~vtkImageWeightedSum();
 
+  // Array to hold all the weights
   vtkDoubleArray *Weights;
 
-  // Description:
+  // Boolean flag to divide by sum or not
   int NormalizeByWeight;
 
   void ThreadedRequestData (vtkInformation* request,

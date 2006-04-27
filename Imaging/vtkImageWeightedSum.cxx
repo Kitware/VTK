@@ -23,7 +23,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageWeightedSum, "1.1");
+vtkCxxRevisionMacro(vtkImageWeightedSum, "1.2");
 vtkStandardNewMacro(vtkImageWeightedSum);
 
 vtkCxxSetObjectMacro(vtkImageWeightedSum,Weights,vtkDoubleArray);
@@ -76,52 +76,72 @@ void vtkImageWeightedSumExecute(vtkImageWeightedSum *self,
                           vtkImageData **inDatas, int numInputs, vtkImageData *outData,
                           int outExt[6], int id, T*)
 {
-  vtkImageIterator<T> inIts[256];
-  T* inSI[256];
+  const int fastpath = 256;
+  vtkImageIterator<T> inItsFast[fastpath];
+  T* inSIFast[fastpath];
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
+
   double *weights = ((vtkDoubleArray *)self->GetWeights())->GetPointer(0);
   double totalWeight = self->CalculateTotalWeight();
   bool normalize = self->GetNormalizeByWeight();
+  vtkImageIterator<T> *inIts;
+  T* *inSI;
+  if( numInputs < fastpath )
+    {
+    inIts = inItsFast;
+    inSI = inSIFast;
+    }
+  else
+    {
+    inIts = new vtkImageIterator<T>[numInputs];
+    inSI = new T*[numInputs];
+    }
 
-  // Loop through all input ImageData
+  // Loop through all input ImageData to initialize iterators
   for(int i=0; i < numInputs; ++i)
     {
     inIts[i].Initialize(inDatas[i], outExt);
-    // Loop through ouput pixels
-    while (!outIt.IsAtEnd())
+    }
+  // Loop through ouput pixels
+  while (!outIt.IsAtEnd())
+    {
+    for(int j=0; j < numInputs; ++j)
       {
-      for(int j=0; j < numInputs; ++j)
-        {
-        inSI[j] = inIts[i].BeginSpan();
-        }
-      T* outSI = outIt.BeginSpan();
-      T* outSIEnd = outIt.EndSpan();
-      // Pixel operation
-      while (outSI != outSIEnd)
-        {
-        double sum = 0.;
-        for(int k=0; k < numInputs; ++k)
-          {
-          sum += weights[k] * *inSI[k];
-          }
-        // Divide only if needed and different from 0
-        if (normalize && totalWeight != 0.0)
-          {
-          sum /= totalWeight;
-          }
-        *outSI = static_cast<T>(sum); // do the cast only at the end
-        outSI++;
-        for(int l=0; l < numInputs; ++l)
-          {
-          inSI[l]++;
-          }
-        }
-      for(int j=0; j < numInputs; ++j)
-        {
-        inIts[j].NextSpan();
-        }
-      outIt.NextSpan();
+      inSI[j] = inIts[j].BeginSpan();
       }
+    T* outSI = outIt.BeginSpan();
+    T* outSIEnd = outIt.EndSpan();
+    // Pixel operation
+    while (outSI != outSIEnd)
+      {
+      double sum = 0.;
+      for(int k=0; k < numInputs; ++k)
+        {
+        sum += weights[k] * *inSI[k];
+        }
+      // Divide only if needed and different from 0
+      if (normalize && totalWeight != 0.0)
+        {
+        sum /= totalWeight;
+        }
+      *outSI = static_cast<T>(sum); // do the cast only at the end
+      outSI++;
+      for(int l=0; l < numInputs; ++l)
+        {
+        inSI[l]++;
+        }
+      }
+    for(int j=0; j < numInputs; ++j)
+      {
+      inIts[j].NextSpan();
+      }
+    outIt.NextSpan();
+    }
+
+  if( numInputs >= fastpath )
+    {
+    delete[] inIts;
+    delete[] inSI;
     }
 }
 
