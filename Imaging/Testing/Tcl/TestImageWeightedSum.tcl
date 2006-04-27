@@ -10,11 +10,11 @@ vtkImageReader reader
   reader SetDataMask 0x7fff
 
 vtkImageMagnify mag
-  mag SetInput [reader GetOutput]
+  mag SetInputConnection [reader GetOutputPort]
   mag SetMagnificationFactors 4 4 1
 
 vtkImageThreshold th
-  th SetInput [mag GetOutput]
+  th SetInputConnection [mag GetOutputPort]
   th SetReplaceIn 1
   th SetReplaceOut 1
   th ThresholdBetween -1000 1000
@@ -22,27 +22,28 @@ vtkImageThreshold th
   th SetInValue 2000
 
 vtkImageCast cast
-  cast SetInput [mag GetOutput]
+  cast SetInputConnection [mag GetOutputPort]
   cast SetOutputScalarTypeToFloat
 
 vtkImageCast cast2
-  cast2 SetInput [th GetOutput]
+  cast2 SetInputConnection [th GetOutputPort]
   cast2 SetOutputScalarTypeToFloat
 
 vtkImageWeightedSum sum
-  sum AddInput [cast GetOutput]
-  sum AddInput [cast2 GetOutput]
+  sum AddInputConnection [cast GetOutputPort]
+  sum AddInputConnection [cast2 GetOutputPort]
   sum SetWeight 0 10
   sum SetWeight 1 4
 
 vtkImageViewer viewer
-  viewer SetInput [sum GetOutput]
+  viewer SetInputConnection [sum GetOutputPort]
   viewer SetZSlice 22
   viewer SetColorWindow 1819
   viewer SetColorLevel 939
 
 sum SetWeight 0 1
 
+#make interface
 viewer Render
 
 wm withdraw .
