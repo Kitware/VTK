@@ -36,7 +36,7 @@
 #include "vtkPoints.h"
 #include "vtkFrustumExtractor.h"
 
-vtkCxxRevisionMacro(vtkAreaPicker, "1.7");
+vtkCxxRevisionMacro(vtkAreaPicker, "1.8");
 vtkStandardNewMacro(vtkAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -176,7 +176,6 @@ void vtkAreaPicker::DefineFrustum(double X0, double Y0, double X1, double Y1,
 int vtkAreaPicker::PickProps(vtkRenderer *renderer)
 {
   vtkProp *prop;
-  vtkAbstractMapper3D *mapper = NULL;
   int picked=0;
   int pickable;
   double bounds[6];
@@ -207,8 +206,8 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
     props = renderer->GetViewProps();
     }
 
-  vtkActor *actor;
   vtkImageActor *imageActor = NULL;
+  vtkAbstractMapper3D *mapper = NULL;
   vtkAssemblyPath *path;
 
   double mindist = VTK_DOUBLE_MAX;
@@ -218,7 +217,6 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
     {
     for ( prop->InitPathTraversal(); (path=prop->GetNextPath()); )
       {
-      actor = NULL;
       propCandidate = path->GetLastNode()->GetViewProp();
       pickable = this->TypeDecipher(propCandidate, &imageActor, &mapper);
 
@@ -305,8 +303,8 @@ int vtkAreaPicker::TypeDecipher(vtkProp *propCandidate,
                                 vtkAbstractMapper3D **mapper)
 {
   int pickable = 0;
-  *imageActor = 0;
-  *mapper = 0;
+  *imageActor = NULL;
+  *mapper = NULL;
 
   vtkActor *actor;
   vtkLODProp3D *prop3D;
