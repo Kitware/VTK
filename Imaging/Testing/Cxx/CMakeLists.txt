@@ -2,6 +2,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(KIT Imaging)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
     ImportExport.cxx
+    TestImageWeightedSum.cxx
     EXTRA_INCLUDE vtkTestDriver.h
     )
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})

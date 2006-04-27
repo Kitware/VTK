@@ -106,6 +106,7 @@ vtkImageToImageStencil.cxx
 vtkImageTranslateExtent.cxx
 vtkImageVariance3D.cxx
 vtkImageWrapPad.cxx
+vtkImageWeightedSum.cxx
 vtkImplicitFunctionToImageStencil.cxx
 vtkPointLoad.cxx
 vtkSampleFunction.cxx
