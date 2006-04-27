@@ -42,14 +42,14 @@ MACRO (VTK_GET_TCL_TK_VERSION tcl_tk_major_version tcl_tk_minor_version)
 
   FOREACH(dir ${TCL_INCLUDE_PATH})
     IF(EXISTS "${dir}/tcl.h")
-      FILE(READ "${TCL_INCLUDE_PATH}/tcl.h" tcl_include_file)
+      FILE(READ "${dir}/tcl.h" tcl_include_file)
       STRING(REGEX REPLACE
         ".*#define TCL_VERSION[ \t]*\"([0-9][0-9]*\\.[0-9][0-9]*)\".*" "\\1"
         tcl_include_file "${tcl_include_file}")
       IF(${tcl_include_file} MATCHES "^[0-9]*\\.[0-9]*$")
-        STRING(REGEX REPLACE "^([0-9]*)\\.([0-9]*)$" "\\1" "${tcl_tk_major_version}"
+        STRING(REGEX REPLACE "^([0-9]*)\\.([0-9]*)$" "\\1" ${tcl_tk_major_version}
           "${tcl_include_file}")
-        STRING(REGEX REPLACE "^([0-9]*)\\.([0-9]*)$" "\\2" "${tcl_tk_minor_version}"
+        STRING(REGEX REPLACE "^([0-9]*)\\.([0-9]*)$" "\\2" ${tcl_tk_minor_version}
           "${tcl_include_file}")
       ENDIF(${tcl_include_file} MATCHES "^[0-9]*\\.[0-9]*$")
     ENDIF(EXISTS "${dir}/tcl.h")
