@@ -31,10 +31,10 @@
 #include "vtkPoints.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
-#include "vtkHexahedron.h"
+#include "vtkVoxel.h"
 #include "vtkLine.h"
 
-vtkCxxRevisionMacro(vtkFrustumExtractor, "1.9");
+vtkCxxRevisionMacro(vtkFrustumExtractor, "1.10");
 vtkStandardNewMacro(vtkFrustumExtractor);
 vtkCxxSetObjectMacro(vtkFrustumExtractor,Frustum,vtkPlanes);
 
@@ -643,24 +643,15 @@ int vtkFrustumExtractor::OverallBoundsTest(double *bounds)
     this->np_vertids[i][1] = xside*4+yside*2+zside;
     }
 
-  vtkHexahedron *vox = vtkHexahedron::New();
-  vox->GetPointIds()->SetId(0, 0); 
-  vox->GetPointIds()->SetId(1, 1); 
-  vox->GetPointIds()->SetId(2, 3); 
-  vox->GetPointIds()->SetId(3, 2); 
-  vox->GetPointIds()->SetId(4, 4); 
-  vox->GetPointIds()->SetId(5, 5); 
-  vox->GetPointIds()->SetId(6, 7); 
-  vox->GetPointIds()->SetId(7, 6); 
-
+  vtkVoxel *vox = vtkVoxel::New();
   vtkPoints *p = vox->GetPoints();
   p->SetPoint(0, bounds[0], bounds[2], bounds[4]);
-  p->SetPoint(1, bounds[0], bounds[2], bounds[5]);
+  p->SetPoint(1, bounds[1], bounds[2], bounds[4]);
   p->SetPoint(2, bounds[0], bounds[3], bounds[4]);
-  p->SetPoint(3, bounds[0], bounds[3], bounds[5]);
-  p->SetPoint(4, bounds[1], bounds[2], bounds[4]);
+  p->SetPoint(3, bounds[1], bounds[3], bounds[4]);
+  p->SetPoint(4, bounds[0], bounds[2], bounds[5]);
   p->SetPoint(5, bounds[1], bounds[2], bounds[5]);
-  p->SetPoint(6, bounds[1], bounds[3], bounds[4]);
+  p->SetPoint(6, bounds[0], bounds[3], bounds[5]);
   p->SetPoint(7, bounds[1], bounds[3], bounds[5]);
 
   int rc;
@@ -754,7 +745,7 @@ int vtkFrustumExtractor::ABoxFrustumIsect(double *bounds, vtkCell *cell)
   vtkCell *edge;
   vtkPoints *pts;
   double *vertbuffer;
-  int maxedges = 24;
+  int maxedges = 16;
   //be ready to resize if we hit a polygon with many vertices
   vertbuffer = new double[3*maxedges*3];
   double *vlist = &vertbuffer[0*maxedges*3];
@@ -764,7 +755,7 @@ int vtkFrustumExtractor::ABoxFrustumIsect(double *bounds, vtkCell *cell)
   int nfaces = cell->GetNumberOfFaces();
   if (nfaces < 1) 
     {
-    //some 2D cells have no faces, only edges 
+    //some 2D cells have no faces, only edges
     int nedges = cell->GetNumberOfEdges();
     if (nedges < 1)
       {
@@ -780,18 +771,42 @@ int vtkFrustumExtractor::ABoxFrustumIsect(double *bounds, vtkCell *cell)
       wvlist = &vertbuffer[1*maxedges*3];
       ovlist = &vertbuffer[2*maxedges*3];
       }
-
     edge = cell->GetEdge(0);
     pts = edge->GetPoints();
     pts->GetPoint(0, &vlist[0*3]);
     pts->GetPoint(1, &vlist[1*3]);
-
-    for (int e = 1; e < nedges-1; e++)
+    switch (cell->GetCellType())
       {
-      edge = cell->GetEdge(e);
-      pts = edge->GetPoints();
-      pts->GetPoint(1, &vlist[(e+1)*3]); //get second point of the edge
-      }      
+      case VTK_PIXEL:
+      case VTK_QUAD:
+        {
+        edge = cell->GetEdge(2);
+        pts = edge->GetPoints();
+        pts->GetPoint(1, &vlist[2*3]);
+        pts->GetPoint(0, &vlist[3*3]);
+        break;
+        }
+      case VTK_TRIANGLE:
+        {
+        edge = cell->GetEdge(1);
+        pts->GetPoint(1, &vlist[2*3]);
+        break;
+        }
+      case VTK_LINE:
+        {
+        break;
+        }
+      default:
+        {
+        for (int e = 1; e < nedges-1; e++)
+          {
+          edge = cell->GetEdge(e);
+          pts = edge->GetPoints();
+          pts->GetPoint(1, &vlist[(e+1)*3]); //get second point of the edge
+          }      
+        break;
+        }
+      }
     if (this->FrustumClipPolygon(nedges, vlist, wvlist, ovlist))
       {
       delete vertbuffer;
@@ -806,6 +821,7 @@ int vtkFrustumExtractor::ABoxFrustumIsect(double *bounds, vtkCell *cell)
     for (int f = 0; f < nfaces; f++)
       {
       face = cell->GetFace(f);    
+
       int nedges = face->GetNumberOfEdges();
       if (nedges < 1) 
         {
@@ -829,13 +845,38 @@ int vtkFrustumExtractor::ABoxFrustumIsect(double *bounds, vtkCell *cell)
       pts = edge->GetPoints();
       pts->GetPoint(0, &vlist[0*3]);
       pts->GetPoint(1, &vlist[1*3]); 
-      for (int e = 1; e < nedges-1; e++)
+      switch (face->GetCellType())
         {
-        edge = face->GetEdge(e);
-        pts = edge->GetPoints();
-        pts->GetPoint(1, &vlist[(e+1)*3]); //get second point of the edge
-        }
-      
+        case VTK_PIXEL:
+        case VTK_QUAD:
+          {
+          edge = face->GetEdge(2);
+          pts = edge->GetPoints();
+          pts->GetPoint(1, &vlist[2*3]);
+          pts->GetPoint(0, &vlist[3*3]);
+          break;
+          }
+        case VTK_TRIANGLE:
+          {
+          edge = face->GetEdge(1);
+          pts->GetPoint(1, &vlist[2*3]);
+          break;
+          }
+        case VTK_LINE:
+          {
+          break;
+          }
+        default:
+          {
+          for (int e = 1; e < nedges-1; e++)
+            {
+            edge = cell->GetEdge(e);
+            pts = edge->GetPoints();
+            pts->GetPoint(1, &vlist[(e+1)*3]); //get second point of the edge
+            }      
+          break;
+          }
+        }     
       if (this->FrustumClipPolygon(nedges, vlist, wvlist, ovlist))
         {
         delete vertbuffer;
