@@ -53,6 +53,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         TestHybridMedian2D
         TestIdealLowPass
         TestImageCanvas
+        TestImageWeightedSum
         TestInPlaceFilter
         TestIslandRemoval2D
         TestMapToRGBABlockStreaming
