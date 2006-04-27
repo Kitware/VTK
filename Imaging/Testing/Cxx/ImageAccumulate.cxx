@@ -43,7 +43,7 @@ int ImageAccumulate(int , char *[])
   vtkImageAccumulate *acc = vtkImageAccumulate::New();
   acc->SetInputConnection( sinus->GetOutputPort() );
   //acc->IgnoreZeroOn();
-  //acc->Update();
+  acc->Update();
 
   acc->Print(cout);
   double min[3], max[3];
@@ -60,7 +60,8 @@ int ImageAccumulate(int , char *[])
     rval++;
     }
   double mean[3];
-  long int voxcount = acc->GetVoxelCount();
+  long int voxcount;
+  voxcount = acc->GetVoxelCount();
   acc->GetMean(mean);
   double m = double(1+2+3+4+5)/voxcount;
   if( fabs(mean[0] - m) > 1e-10 )
@@ -70,9 +71,30 @@ int ImageAccumulate(int , char *[])
     }
 
 
+  // Test IgnoreZero option
   acc->IgnoreZeroOn();
   acc->Update();
   acc->Print( cout );
+
+  // Simple test
+  acc->GetMin(min);
+  acc->GetMax(max);
+  if( min[0] != 1 )
+    {
+    cerr << "Min: " << min[0] << endl;
+    rval++;
+    }
+  if( max[0] != 5 )
+    {
+    cerr << "Max: " << max[0] << endl;
+    rval++;
+    }
+  acc->GetMean(mean);
+  if( mean[0] != double(1+2+3+4+5)/5  )
+    {
+    cerr << "Mean: " << mean[0] << endl;
+    rval++;
+    }
 
   sinus->Delete();
   acc->Delete();
