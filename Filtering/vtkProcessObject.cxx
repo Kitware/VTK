@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.6");
+vtkCxxRevisionMacro(vtkProcessObject, "1.6.12.1");
 
 //----------------------------------------------------------------------------
 vtkProcessObject::vtkProcessObject()
@@ -205,11 +205,6 @@ void vtkProcessObject::RemoveInputInternal(vtkDataObject* input)
 //----------------------------------------------------------------------------
 void vtkProcessObject::SetupInputs()
 {
-  int cbp = 0;
-  if(this->IsA("vtkColorByPart"))
-    {
-    cbp = 1;
-    }
   // Construct a new array of input data objects using connections
   // from input port 0.
   typedef vtkDataObject* vtkDataObjectPointer;
@@ -252,10 +247,6 @@ void vtkProcessObject::SetupInputs()
       ++count;
       }
     newNumberOfInputs = count;
-    if(cbp && count == 3)
-      {
-      cout << "Tada" << endl;
-      }
     }
 
   // Remove the old array of input data objects.
