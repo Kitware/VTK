@@ -17,7 +17,7 @@
 // vtkImageAccumulate - This filter divides component space into
 // discrete bins.  It then counts the number of pixels associated
 // with each bin.  The output is this "scatter plot" (histogram values for 1D).
-// The dimensionality of the output depends on how many components the 
+// The dimensionality of the output depends on how many components the
 // input pixels have.  Input pixels with one component generate a 1D histogram.
 // This filter can only handle images with 1 to 3 scalar components.
 // The input can be any type, but the output is always int.
@@ -27,10 +27,8 @@
 // portion of the input data.
 // See the documentation for vtkImageStencil for more information.
 
-
 #ifndef __vtkImageAccumulate_h
 #define __vtkImageAccumulate_h
-
 
 #include "vtkImageAlgorithm.h"
 
@@ -67,7 +65,7 @@ public:
   // Set/Get - The component extent sets the number/extent of the bins.
   // For a 1D histogram with 10 bins spanning the values 1000 to 2000,
   // this extent should be set to 0, 9, 0, 0, 0, 0.
-  // The extent specifies inclusive min/max values.  
+  // The extent specifies inclusive min/max values.
   // This implies the the top extent should be set to the number of bins - 1.
   void SetComponentExtent(int extent[6]);
   void SetComponentExtent(int minX, int maxX, int minY, int maxY,
@@ -83,7 +81,7 @@ public:
 
   // Description:
   // Reverse the stencil.
-  vtkSetMacro(ReverseStencil, int);
+  vtkSetClampMacro(ReverseStencil, int, 0, 1);
   vtkBooleanMacro(ReverseStencil, int);
   vtkGetMacro(ReverseStencil, int);
 
@@ -94,8 +92,13 @@ public:
   vtkGetVector3Macro(Mean, double);
   vtkGetVector3Macro(StandardDeviation, double);
   vtkGetMacro(VoxelCount, long int);
- 
-  
+
+  // Description:
+  // Should the data with value 0 be ignored?
+  vtkSetClampMacro(IgnoreZero, int, 0, 1);
+  vtkGetMacro(IgnoreZero, int);
+  vtkBooleanMacro(IgnoreZero, int);
+
 protected:
   vtkImageAccumulate();
   ~vtkImageAccumulate();
@@ -114,6 +117,7 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
+  int    IgnoreZero;
   double Min[3];
   double Max[3];
   double Mean[3];
