@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestImageWeightedSum.cxx
+  Module:    ImageWeightedSum.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -22,10 +22,11 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
-int TestImageWeightedSum(int argc, char *argv[])
+int ImageWeightedSum(int argc, char *argv[])
 {
   int rval = 0;
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
+  char* fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
   vtkImageReader *reader = vtkImageReader::New();
   reader->SetDataByteOrderToLittleEndian();
