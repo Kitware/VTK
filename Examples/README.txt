@@ -1,5 +1,5 @@
-VTK 4.0 Examples Directory
---------------------------
+VTK Examples Directory
+----------------------
 The following directory contains many well-commented examples showing how to
 use VTK. Examples are available in the C++, Tcl, Python and Java programming
 languages. In no way should these examples be considered comprehensive; VTK
