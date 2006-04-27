@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 
 
-vtkCxxRevisionMacro(vtkHandleRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkHandleRepresentation, "1.6");
 
 //----------------------------------------------------------------------
 vtkHandleRepresentation::vtkHandleRepresentation()
@@ -124,6 +124,18 @@ void vtkHandleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
   
+  double p[3];
+  this->GetDisplayPosition(p);
+  os << indent << "Display Position: (" << p[0] << ", "
+               << p[1] << ", " << p[2] << ")\n";
+
+  this->GetWorldPosition(p);
+  os << indent << "World Position: (" << p[0] << ", "
+               << p[1] << ", " << p[2] << ")\n";
+
+  os << indent << "Constrained: " 
+     << (this->Constrained ? "On" : "Off") << "\n";
+
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 
   os << indent << "Active Representation: " 

@@ -101,16 +101,14 @@ public:
 
   // Description:
   // If translation mode is on, as the widget is moved the bounding box,
-  // shadows, and cursor are all translated simultaneously as the point
-  // moves.
-  void SetTranslationMode(int mode)
-    { this->Cursor3D->SetTranslationMode(mode); this->Cursor3D->Update(); }
-  int GetTranslationMode()
-    { return this->Cursor3D->GetTranslationMode(); }
-  void TranslationModeOn()
-    { this->SetTranslationMode(1); }
-  void TranslationModeOff()
-    { this->SetTranslationMode(0); }
+  // shadows, and cursor are all translated simultaneously as the point moves
+  // (i.e., the left and middle mouse buttons act the same).  Otherwise, only
+  // the cursor focal point moves, which is constrained by the bounds of the
+  // point representation. (Note that the bounds can be scaled up using the
+  // right mouse button.)
+  vtkSetMacro(TranslationMode,int);
+  vtkGetMacro(TranslationMode,int);
+  vtkBooleanMacro(TranslationMode,int);
   
   // Description:
   // Convenience methods to turn outline and shadows on and off.
@@ -144,6 +142,10 @@ public:
   vtkSetClampMacro(HotSpotSize,double,0.0,1.0);
   vtkGetMacro(HotSpotSize,double);
   
+  // Description:
+  // Overload the superclasses SetHandleSize() method to update internal variables.
+  virtual void SetHandleSize(double size);
+
   // Description:
   // Methods to make this class properly act like a vtkWidgetRepresentation.
   virtual void BuildRepresentation();
@@ -180,7 +182,7 @@ protected:
   void Translate(double *p1, double *p2);
   void Scale(double *p1, double *p2, double eventPos[2]);
   void MoveFocus(double *p1, double *p2);
-  int  TranslationMode;
+  void SizeBounds(double *bounds);
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
@@ -194,6 +196,12 @@ protected:
   int    WaitingForMotion;
   int    WaitCount;
   
+  // Current handle sized (may reflect scaling)
+  double CurrentHandleSize;
+
+  // Control how translation works
+  int TranslationMode;
+
 private:
   vtkPointHandleRepresentation3D(const vtkPointHandleRepresentation3D&);  //Not implemented
   void operator=(const vtkPointHandleRepresentation3D&);  //Not implemented

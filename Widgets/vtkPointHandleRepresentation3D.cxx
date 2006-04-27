@@ -27,7 +27,7 @@
 #include "vtkCoordinate.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.2");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.3");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -68,6 +68,12 @@ vtkPointHandleRepresentation3D::vtkPointHandleRepresentation3D()
   this->HotSpotSize = 0.05;
   this->WaitingForMotion = 0;
   this->ConstraintAxis = -1;
+  
+  // Current handle size
+  this->CurrentHandleSize = this->HandleSize;
+  
+  // Translation control
+  this->TranslationMode = 1;
 }
 
 //----------------------------------------------------------------------
@@ -91,7 +97,6 @@ void vtkPointHandleRepresentation3D::PlaceWidget(double bds[6])
   
   this->Cursor3D->SetModelBounds(bounds);
   this->SetWorldPosition(center);
-  this->Cursor3D->Update();
 
   for (i=0; i<6; i++)
     {
@@ -114,6 +119,13 @@ void vtkPointHandleRepresentation3D::SetDisplayPosition(double p[3])
 {
   this->Superclass::SetDisplayPosition(p);
   this->SetWorldPosition(this->WorldPosition->GetValue());
+}
+
+//-------------------------------------------------------------------------
+void vtkPointHandleRepresentation3D::SetHandleSize(double size)
+{
+  this->Superclass::SetHandleSize(size);
+  this->CurrentHandleSize = this->HandleSize;
 }
 
 //-------------------------------------------------------------------------
@@ -238,29 +250,27 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
   vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, eventPos[0], eventPos[1], z, pickPoint);
 
   // Process the motion
-  if ( this->InteractionState == vtkHandleRepresentation::Selecting )
+  if ( this->InteractionState == vtkHandleRepresentation::Selecting ||
+       this->InteractionState == vtkHandleRepresentation::Translating )
     {
     if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
       {
       this->ConstraintAxis = 
         this->DetermineConstraintAxis(this->ConstraintAxis,pickPoint);
-      this->MoveFocus(prevPickPoint, pickPoint);
+      if ( this->InteractionState == vtkHandleRepresentation::Selecting && !this->TranslationMode )
+        {
+        this->MoveFocus(prevPickPoint, pickPoint);
+        }
+      else
+        {
+        this->Translate(prevPickPoint, pickPoint);
+        }
       }
     }
 
   else if ( this->InteractionState == vtkHandleRepresentation::Scaling )
     {
     this->Scale(prevPickPoint, pickPoint, eventPos);
-    }
-
-  else if ( this->InteractionState == vtkHandleRepresentation::Translating )
-    {
-    if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
-      {
-      this->ConstraintAxis = 
-        this->DetermineConstraintAxis(this->ConstraintAxis,pickPoint);
-      this->Translate(prevPickPoint, pickPoint);
-      }
     }
 
   // Book keeping
@@ -333,6 +343,46 @@ void vtkPointHandleRepresentation3D::Translate(double *p1, double *p2)
 }
 
 //----------------------------------------------------------------------
+void vtkPointHandleRepresentation3D::SizeBounds(double *bounds)
+{
+  if ( ! this->Renderer )
+    {
+    return;
+    }
+
+  // The hardest part is to determine the bounding box for the handle
+  double radius;
+  double windowLowerLeft[4], windowUpperRight[4];
+  double *viewport = this->Renderer->GetViewport();
+  int *winSize = this->Renderer->GetRenderWindow()->GetSize();
+
+  double x = winSize[0] * viewport[0];
+  double y = winSize[1] * viewport[1];
+  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, x,y,0.0, windowLowerLeft);
+
+  x = winSize[0] * viewport[2];
+  y = winSize[1] * viewport[3];
+  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, x,y,0.0, windowUpperRight);
+
+  int i;
+  for (radius=0.0, i=0; i<3; i++) 
+    {
+    radius += (windowUpperRight[i] - windowLowerLeft[i]) *
+      (windowUpperRight[i] - windowLowerLeft[i]);
+    }
+  radius = this->CurrentHandleSize*sqrt(radius);
+
+  double center[3], newBounds[6];
+  for (i=0; i<3; i++)
+    {
+    center[i] = (bounds[2*i] + bounds[2*i+1])/2.0;
+    newBounds[2*i] = center[i] - radius;
+    newBounds[2*i+1] = center[i] + radius;
+    }
+  this->Cursor3D->SetModelBounds(newBounds);
+}
+
+//----------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::Scale(double *p1, double *p2, double eventPos[2])
 {
   //Get the motion vector
@@ -341,9 +391,7 @@ void vtkPointHandleRepresentation3D::Scale(double *p1, double *p2, double eventP
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
-  //int res = this->Cursor3D->GetResolution();
   double *bounds = this->Cursor3D->GetModelBounds();
-  double *focus = this->Cursor3D->GetFocalPoint();
 
   // Compute the scale factor
   double sf = vtkMath::Norm(v) / 
@@ -360,16 +408,10 @@ void vtkPointHandleRepresentation3D::Scale(double *p1, double *p2, double eventP
     sf = 1.0 - sf;
     }
   
-  // Move the end points
-  double newBounds[6];
-  for (int i=0; i<3; i++)
-    {
-    newBounds[2*i] = sf * (bounds[2*i] - focus[i]) + focus[i];
-    newBounds[2*i+1] = sf * (bounds[2*i+1] - focus[i]) + focus[i];
-    }
-
-  this->Cursor3D->SetModelBounds(newBounds);
-  this->Cursor3D->Update();
+  this->CurrentHandleSize *= sf;
+  this->CurrentHandleSize = (this->CurrentHandleSize < 0.001 ? 0.001 : this->CurrentHandleSize);
+  
+  this->SizeBounds(bounds);
 }
 
 //----------------------------------------------------------------------
@@ -407,38 +449,14 @@ void vtkPointHandleRepresentation3D::BuildRepresentation()
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
-    // The hardest part is to determine the bounding box for the handle
-    double radius, bounds[6];
-    double windowLowerLeft[4], windowUpperRight[4];
-    double *viewport = this->Renderer->GetViewport();
-    int *winSize = this->Renderer->GetRenderWindow()->GetSize();
-
-    double x = winSize[0] * viewport[0];
-    double y = winSize[1] * viewport[1];
-    vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, x,y,0.0, windowLowerLeft);
-
-    x = winSize[0] * viewport[2];
-    y = winSize[1] * viewport[3];
-    vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, x,y,0.0, windowUpperRight);
-
-    int i;
-    for (radius=0.0, i=0; i<3; i++) 
+    if ( ! this->Placed )
       {
-      radius += (windowUpperRight[i] - windowLowerLeft[i]) *
-        (windowUpperRight[i] - windowLowerLeft[i]);
+      double *bounds = this->Cursor3D->GetModelBounds();
+      this->SizeBounds(bounds);
+      this->Placed = 1;
       }
 
-    double apt[3];
-    this->GetWorldPosition(apt);
-    radius = this->HandleSize*sqrt(radius);
-    bounds[0] = apt[0] - radius;
-    bounds[1] = apt[0] + radius;
-    bounds[2] = apt[1] - radius;
-    bounds[3] = apt[1] + radius;
-    bounds[4] = apt[2] - radius;
-    bounds[5] = apt[2] + radius;
-
-    this->PlaceWidget(bounds);
+    this->Cursor3D->Update();
     this->BuildTime.Modified();
     }
 }
@@ -495,4 +513,28 @@ void vtkPointHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
   
+  os << indent << "Hot Spot Size: " << this->HotSpotSize << "\n";
+  if ( this->Property )
+    {
+    os << indent << "Property: " << this->Property << "\n";
+    }
+  else
+    {
+    os << indent << "Property: (none)\n";
+    }
+  if ( this->SelectedProperty )
+    {
+    os << indent << "Selected Property: " << this->SelectedProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Selected Property: (none)\n";
+    }
+
+  os << indent << "Outline: " << (this->GetOutline() ? "On\n" : "Off\n");
+  os << indent << "XShadows: " << (this->GetXShadows() ? "On\n" : "Off\n");
+  os << indent << "YShadows: " << (this->GetYShadows() ? "On\n" : "Off\n");
+  os << indent << "ZShadows: " << (this->GetZShadows() ? "On\n" : "Off\n");
+
+  os << indent << "Translation Mode: " << this->TranslationMode ? "On\n" : "Off\n";
 }

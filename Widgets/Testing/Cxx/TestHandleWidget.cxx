@@ -83,6 +83,7 @@ int TestHandleWidget( int argc, char *argv[] )
   handleRep->SetPlaceFactor(2.5);
   handleRep->PlaceWidget(sphereActor->GetBounds());
   handleRep->ActiveRepresentationOn();
+  handleRep->TranslationModeOff();
 
   vtkHandleWidget *handleWidget = vtkHandleWidget::New();
   handleWidget->SetInteractor(iren);
