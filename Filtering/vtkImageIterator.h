@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkImageIterator - a simple image iterator
 // .SECTION Description
-// This is a simple image iterator that can be used to iterate over an 
+// This is a simple image iterator that can be used to iterate over an
 // image. This should be used internally by Filter writers.
 
 // .SECTION See also
@@ -27,14 +27,23 @@
 class vtkImageData;
 
 template<class DType>
-class vtkImageIterator 
+class vtkImageIterator
 {
-public:        
+public:
   typedef DType *SpanIterator;
-  
+
   // Description:
-  // Create an image iterator fora given image data and a given extent
+  // Default empty constructor, usefull only when creating an array of iterators
+  // You need to call Initialize afterward
+  vtkImageIterator();
+
+  // Description:
+  // Create an image iterator for a given image data and a given extent
   vtkImageIterator(vtkImageData *id, int *ext);
+
+  // Description:
+  // Initialize the image iterator for a given image data, and given extent
+  void Initialize(vtkImageData *id, int *ext);
 
   // Description:
   // Move the iterator to the next span
@@ -44,18 +53,18 @@ public:
   // Return an iterator (pointer) for the span
   SpanIterator BeginSpan()
     {
-      return this->Pointer;
+    return this->Pointer;
     }
 
   // Description:
   // Return an iterator (pointer) for the end of the span
   SpanIterator EndSpan()
     {
-      return this->SpanEndPointer;
+    return this->SpanEndPointer;
     }
-    
+
   // Description:
-  // tets if the end of the extent has been reached
+  // Test if the end of the extent has been reached
   int IsAtEnd()
     {
     return (this->Pointer >= this->EndPointer);
@@ -72,6 +81,6 @@ protected:
 
 #ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #include "vtkImageIterator.txx"
-#endif 
+#endif
 
 #endif

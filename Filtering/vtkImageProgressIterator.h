@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkImageProgressIterator - a simple image iterator with progress
 // .SECTION Description
-// This is a simple image iterator that can be used to iterate over an 
+// This is a simple image iterator that can be used to iterate over an
 // image. Typically used to iterate over the output image
 
 // .SECTION See also
@@ -27,7 +27,7 @@
 class vtkAlgorithm;
 
 template<class DType>
-class vtkImageProgressIterator : public vtkImageIterator<DType> 
+class vtkImageProgressIterator : public vtkImageIterator<DType>
 {
 public:
   typedef vtkImageIterator<DType> Superclass;
@@ -36,7 +36,7 @@ public:
   // Create a progress iterator for the provided image data
   // and extent to iterate over. The passes progress object will
   // receive any UpdateProgress calls if the thread id is zero
-  vtkImageProgressIterator(vtkImageData *imgd, int *ext, 
+  vtkImageProgressIterator(vtkImageData *imgd, int *ext,
                            vtkAlgorithm *po, int id);
 
   // Description:
