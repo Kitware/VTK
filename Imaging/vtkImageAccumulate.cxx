@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.68");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.69");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -217,7 +217,7 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
           outPtrC = outPtr;
           for (idxC = 0; idxC < numC; ++idxC)
             {
-            if( !ignoreZero || *subPtr != 0. )
+            if( !ignoreZero || double(*subPtr) != 0. )
               {
               // Gather statistics
               sum[idxC] += *subPtr;
@@ -226,12 +226,12 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
                 {
                 max[idxC] = *subPtr;
                 }
-              else if (*subPtr < min[idxC])
+              if (*subPtr < min[idxC])
                 {
                 min[idxC] = *subPtr;
                 }
+              (*voxelCount)++;
               }
-            (*voxelCount)++;
             // compute the index
             outIdx = (int) (((double)*subPtr++ - origin[idxC]) / spacing[idxC]);
             if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
@@ -257,15 +257,22 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
     mean[1] = sum[1] / (double)*voxelCount;
     mean[2] = sum[2] / (double)*voxelCount;
 
-    variance = sumSqr[0] / (double)(*voxelCount-1) -
-      ((double) *voxelCount * mean[0] * mean[0] / (double) (*voxelCount - 1));
-    standardDeviation[0] = sqrt(variance);
-    variance = sumSqr[1] / (double)(*voxelCount-1) -
-      ((double) *voxelCount * mean[1] * mean[1] / (double) (*voxelCount - 1));
-    standardDeviation[1] = sqrt(variance);
-    variance = sumSqr[2] / (double)(*voxelCount-1) -
-      ((double) *voxelCount * mean[2] * mean[2] / (double) (*voxelCount - 1));
-    standardDeviation[2] = sqrt(variance);
+    if (*voxelCount - 1) // avoid the div0
+      {
+      variance = sumSqr[0] / (double)(*voxelCount-1) -
+        ((double) *voxelCount * mean[0] * mean[0] / (double) (*voxelCount - 1));
+      standardDeviation[0] = sqrt(variance);
+      variance = sumSqr[1] / (double)(*voxelCount-1) -
+        ((double) *voxelCount * mean[1] * mean[1] / (double) (*voxelCount - 1));
+      standardDeviation[1] = sqrt(variance);
+      variance = sumSqr[2] / (double)(*voxelCount-1) -
+        ((double) *voxelCount * mean[2] * mean[2] / (double) (*voxelCount - 1));
+      standardDeviation[2] = sqrt(variance);
+      }
+    else
+      {
+      standardDeviation[0] = standardDeviation[1] = standardDeviation[2] = 0.0;
+      }
     }
   else
     {
