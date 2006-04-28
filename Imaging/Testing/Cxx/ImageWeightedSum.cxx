@@ -101,14 +101,14 @@ int ImageWeightedSum(int argc, char *argv[])
 
   math->SetInput1( shift->GetOutput() );
   math->SetInput2( sum->GetOutput() );
-  math->Update();
+  //math->Update();
 
-  math->GetOutput()->GetScalarRange( range );
-  if( range[0] != 0 || range[1] != 0 )
-    {
-    cerr << "Range2: " << range[0] << "," << range[1] << endl;
-    rval++;
-    }
+  //math->GetOutput()->GetScalarRange( range );
+  //if( range[0] != 0 || range[1] != 0 )
+  //  {
+  //  cerr << "Range2: " << range[0] << "," << range[1] << endl;
+  //  rval++;
+  //  }
 
   // Cleanup
   reader->Delete();
