@@ -47,7 +47,7 @@
 // using their display positions intead of world positions.
 //
 // .SECTION See Also
-// vtkContourWidget vtkHandleRepresentation 
+// vtkContourWidget
 
 
 #ifndef __vtkContourRepresentation_h
@@ -55,8 +55,6 @@
 
 #include "vtkWidgetRepresentation.h"
 #include <vtkstd/vector> // Required for vector
-
-class vtkHandleRepresentation;
 
 class vtkPointPlacer;
 class vtkContourLineInterpolator;
@@ -105,7 +103,7 @@ public:
   // Description:
   // Add a node at a specific display position. This will be
   // converted into a world position according to the current
-  // constrains of the point placer. Return 0 if a point could
+  // constraints of the point placer. Return 0 if a point could
   // not be added, 1 otherwise.
   virtual int AddNodeAtDisplayPosition( double displayPos[2] );
   virtual int AddNodeAtDisplayPosition( int displayPos[2] );
@@ -293,7 +291,7 @@ public:
   
   // Description:
   // Set / Get the Line Interpolator. The line interpolator
-  // is repsonsible for generating the line segments connecting
+  // is responsible for generating the line segments connecting
   // nodes.
   void SetLineInterpolator( vtkContourLineInterpolator *);
   vtkGetObjectMacro( LineInterpolator, vtkContourLineInterpolator );

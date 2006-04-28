@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME 
+// .NAME vtkPointPlacer
 // .SECTION Description
 // 
 //
@@ -63,7 +63,7 @@ public:
   
   // Description:
   // Given a world position and a world orientation,
-  // validate it according to the constraints of the placer
+  // validate it according to the constraints of the placer.
   virtual int ValidateWorldPosition( double worldPos[3],
                                      double worldOrient[9] )=0;
 
@@ -89,13 +89,13 @@ public:
   
   // Description:
   // Set/get the tolerance used when performing computations
-  // in display coordinates
+  // in display coordinates.
   vtkSetClampMacro(PixelTolerance,int,1,100);
   vtkGetMacro(PixelTolerance,int);
 
   // Description:
   // Set/get the tolerance used when performing computations
-  // in world coordinates
+  // in world coordinates.
   vtkSetClampMacro(WorldTolerance, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(WorldTolerance, double);
 

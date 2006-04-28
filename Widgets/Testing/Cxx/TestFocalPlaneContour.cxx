@@ -34,8 +34,6 @@
 #include "vtkImageData.h"
 #include "vtkProperty2D.h"
 #include "vtkCamera.h"
-#include "vtkPlane.h"
-#include "vtkFocalPlanePointPlacer.h"
 
 int TestFocalPlaneContour( int argc, char *argv[] )
 {
@@ -92,25 +90,6 @@ int TestFocalPlaneContour( int argc, char *argv[] )
   ren1->ResetCamera();
   renWin->Render();
 
-  double bounds[6];
-  imageActor->GetBounds( bounds );
-  
-  vtkPlane *p1 = vtkPlane::New();
-  p1->SetOrigin( bounds[0], bounds[2], bounds[4] );
-  p1->SetNormal( 1.0, 0.0, 0.0 );
-
-  vtkPlane *p2 = vtkPlane::New();
-  p2->SetOrigin( bounds[0], bounds[2], bounds[4] );
-  p2->SetNormal( 0.0, 1.0, 0.0 );
-
-  vtkPlane *p3 = vtkPlane::New();
-  p3->SetOrigin( bounds[1], bounds[3], bounds[5] );
-  p3->SetNormal( -1.0, 0.0, 0.0 );
-
-  vtkPlane *p4 = vtkPlane::New();
-  p4->SetOrigin( bounds[1], bounds[3], bounds[5] );
-  p4->SetNormal( 0.0, -1.0, 0.0 );
-  
   vtkContourWidget *contourWidget = vtkContourWidget::New();  
   contourWidget->SetInteractor(iren);
   contourWidget->On();
@@ -133,11 +112,6 @@ int TestFocalPlaneContour( int argc, char *argv[] )
   ren1->Delete();
   renWin->Delete();
   iren->Delete();
-  
-  p1->Delete();
-  p2->Delete();
-  p3->Delete();
-  p4->Delete();
   
   return !retVal;
 

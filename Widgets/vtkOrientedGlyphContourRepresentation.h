@@ -14,22 +14,9 @@
 =========================================================================*/
 // .NAME vtkOrientedGlyphContourHandleRepresentation - point representation constrained to a 2D plane
 // .SECTION Description
-// This class is used to represent a vtkHandleWidget. It represents a
-// position in 3D world coordinates that is constrained to a specified plane.
-// The default look is to draw a white point when this widget is not selected
-// or active, a thin green circle when it is highlighted, and a thicker cyan
-// circle when it is active (being positioned). Defaults can be adjusted - but
-// take care to define cursor geometry that makes sense for this widget.
-// The geometry will be aligned on the constraining plane, with the plane
-// normal aligned with the X axis of the geometry (similar behavior to
-// vtkGlyph3D). 
-//
-// TODO: still need to work on 
-// 1) translation when mouse is outside bounding planes
-// 2) size of the widget
 //
 // .SECTION See Also
-// vtkHandleRepresentation vtkHandleWidget
+// vtkContourRepresentation vtkContourWidget
 
 
 #ifndef __vtkOrientedGlyphContourRepresentation_h
