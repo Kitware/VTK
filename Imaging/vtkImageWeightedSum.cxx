@@ -24,7 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkImageWeightedSum, "1.5");
+vtkCxxRevisionMacro(vtkImageWeightedSum, "1.6");
 vtkStandardNewMacro(vtkImageWeightedSum);
 
 vtkCxxSetObjectMacro(vtkImageWeightedSum,Weights,vtkDoubleArray);
@@ -158,7 +158,7 @@ int vtkImageWeightedSum::RequestInformation (
     {
     return 0;
     }
-  int outputType;
+  int outputType = VTK_DOUBLE;
   vtkInformation *info = inputVector[0]->GetInformationObject(0);
   vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(info,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
