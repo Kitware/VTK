@@ -69,6 +69,10 @@ protected:
   // Boolean flag to divide by sum or not
   int NormalizeByWeight;
 
+  int RequestInformation (vtkInformation * vtkNotUsed(request),
+    vtkInformationVector** vtkNotUsed( inputVector ),
+    vtkInformationVector *outputVector);
+
   void ThreadedRequestData (vtkInformation* request,
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,

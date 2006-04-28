@@ -22,8 +22,9 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkImageWeightedSum, "1.4");
+vtkCxxRevisionMacro(vtkImageWeightedSum, "1.5");
 vtkStandardNewMacro(vtkImageWeightedSum);
 
 vtkCxxSetObjectMacro(vtkImageWeightedSum,Weights,vtkDoubleArray);
@@ -144,6 +145,49 @@ void vtkImageWeightedSumExecute(vtkImageWeightedSum *self,
 }
 
 //----------------------------------------------------------------------------
+int vtkImageWeightedSum::RequestInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  int numInputs = this->GetNumberOfInputConnections(0);
+  if(!numInputs)
+    {
+    return 0;
+    }
+  int outputType;
+  vtkInformation *info = inputVector[0]->GetInformationObject(0);
+  vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(info,
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  if (scalarInfo)
+    {
+    outputType = scalarInfo->Get( vtkDataObject::FIELD_ARRAY_TYPE() );
+    }
+  int type;
+  for (int whichInput = 1; whichInput < numInputs; whichInput++)
+    {
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(whichInput);
+    vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
+      vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+    if (inScalarInfo)
+      {
+      type = inScalarInfo->Get( vtkDataObject::FIELD_ARRAY_TYPE() );
+      // Should we also check weight[whichInput] != 0
+      if( type != outputType )
+        {
+        // Could be more fancy
+        outputType = VTK_DOUBLE;
+        }
+      }
+    }
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, outputType, 1);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 // Description:
 // This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
@@ -163,16 +207,6 @@ void vtkImageWeightedSum::ThreadedRequestData (
     return;
     }
 
-  // this filter expects that input is the same type as output.
-  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
-    {
-    vtkErrorMacro(<< "Execute: input ScalarType, " 
-                  << inData[0][0]->GetScalarType()
-                  << ", must match out ScalarType " 
-                  << outData[0]->GetScalarType());
-    return;
-    }
-  
   int numInputs = this->GetNumberOfInputConnections(0);
   int numWeights = this->Weights->GetNumberOfTuples();
   if( numWeights != numInputs )
