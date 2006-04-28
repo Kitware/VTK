@@ -23,7 +23,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageWeightedSum, "1.3");
+vtkCxxRevisionMacro(vtkImageWeightedSum, "1.4");
 vtkStandardNewMacro(vtkImageWeightedSum);
 
 vtkCxxSetObjectMacro(vtkImageWeightedSum,Weights,vtkDoubleArray);
@@ -50,10 +50,8 @@ vtkImageWeightedSum::~vtkImageWeightedSum()
 //----------------------------------------------------------------------------
 void vtkImageWeightedSum::SetWeight(vtkIdType id, double weight)
 {
-  // Reallocate if needed:
-  this->Weights->SetNumberOfTuples(id+1);
-  // Pass the new weight
-  this->Weights->SetValue(id, weight);
+  // Reallocate if needed and pass the new weight
+  this->Weights->InsertValue(id, weight);
 }
 
 //----------------------------------------------------------------------------
