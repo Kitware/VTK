@@ -17,6 +17,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkImageMathematics.h"
 #include "vtkImageData.h"
+#include "vtkImageShiftScale.h"
 #include "vtkStructuredPointsWriter.h"
 
 #include "vtkTestUtilities.h"
@@ -82,12 +83,39 @@ int ImageWeightedSum(int argc, char *argv[])
     rval++;
     }
 
+  // Get scalar range:
+  reader->GetOutput()->GetScalarRange( range );
+  vtkImageShiftScale *shift = vtkImageShiftScale::New();
+  shift->SetInputConnection( reader->GetOutputPort() );
+  shift->SetScale( 1./(range[1]-range[0]));
+  shift->SetShift( -range[0] );
+  shift->SetOutputScalarTypeToDouble ();
+
+  // Test multiple scalar type inputs
+  sum->RemoveAllInputs();
+  weights->SetNumberOfTuples(2);
+  weights->SetValue(0, 0.0);
+  weights->SetValue(1, 1.0);
+  sum->AddInputConnection( reader->GetOutputPort() );
+  sum->AddInputConnection( shift->GetOutputPort() );
+
+  math->SetInput1( shift->GetOutput() );
+  math->SetInput2( sum->GetOutput() );
+  math->Update();
+
+  math->GetOutput()->GetScalarRange( range );
+  if( range[0] != 0 || range[1] != 0 )
+    {
+    cerr << "Range2: " << range[0] << "," << range[1] << endl;
+    rval++;
+    }
 
   // Cleanup
   reader->Delete();
   weights->Delete();
   sum->Delete();
   math->Delete();
+  shift->Delete();
 
   return rval;
 }
