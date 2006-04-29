@@ -27,7 +27,7 @@
 #include "vtkCoordinate.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.3");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.4");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -536,5 +536,5 @@ void vtkPointHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "YShadows: " << (this->GetYShadows() ? "On\n" : "Off\n");
   os << indent << "ZShadows: " << (this->GetZShadows() ? "On\n" : "Off\n");
 
-  os << indent << "Translation Mode: " << this->TranslationMode ? "On\n" : "Off\n";
+  os << indent << "Translation Mode: " << (this->TranslationMode ? "On\n" : "Off\n");
 }
