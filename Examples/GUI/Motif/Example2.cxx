@@ -29,7 +29,7 @@
 
 void quit_cb(Widget,XtPointer,XtPointer);
 
-main (int argc, char *argv[])
+int main (int argc, char *argv[])
 {
   // X window stuff
   XtAppContext app;
@@ -123,6 +123,8 @@ main (int argc, char *argv[])
   iren->SetWidget(vtkpw);
   iren->Initialize(app);
   XtAppMainLoop(app);
+
+  return 0;
 }
 
 // quit when the Exit button is clicked

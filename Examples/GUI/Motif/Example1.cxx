@@ -28,7 +28,7 @@
 
 void quit_cb(Widget,XtPointer,XtPointer);
 
-main (int argc, char *argv[])
+int main (int argc, char *argv[])
 {
   // X window stuff
   XtAppContext app;
@@ -93,6 +93,8 @@ main (int argc, char *argv[])
   XtRealizeWidget(toplevel);
   XtAddCallback(button,XmNactivateCallback,quit_cb,NULL);
   XtAppMainLoop(app);
+
+  return 0;
 }
 
 // simple quit callback
