@@ -148,6 +148,7 @@ ELSE(VTK_BINARY_DIR)
     SUBDIRS(
       AMR/Cxx
       MultiBlock/Cxx
+      GUI/Motif
       DataManipulation/Cxx
       Medical/Cxx
       Modelling/Cxx
