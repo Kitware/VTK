@@ -13,6 +13,7 @@
 
 =========================================================================*/
 // include OS specific include file to mix in X code
+
 #include "vtkActor.h"
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
@@ -25,12 +26,14 @@
 
 #include <Xm/PushB.h>
 #include <Xm/Form.h>
+
 void quit_cb(Widget,XtPointer,XtPointer);
+
 main (int argc, char *argv[])
 {
   // X window stuff
   XtAppContext app;
-  Widget toplevel, form, toplevel2, vtk;
+  Widget toplevel, form, toplevel2, vtkpw;
   Widget button;
   int depth;
   Visual *vis;
@@ -59,7 +62,7 @@ main (int argc, char *argv[])
   cone = vtkConeSource::New();
   glyph = vtkGlyph3D::New();
   glyph->SetInputConnection(sphere->GetOutputPort());
-  glyph->SetSource(cone->GetOutput());
+  glyph->SetSourceConnection(cone->GetOutputPort());
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
@@ -70,11 +73,11 @@ main (int argc, char *argv[])
   ren1->AddActor(sphereActor1);
   ren1->AddActor(spikeActor1);
   ren1->SetBackground(0.4,0.1,0.2);
+
   // do the xwindow ui stuff
   XtSetLanguageProc(NULL,NULL,NULL);
   toplevel = XtVaAppInitialize(&app,"Sample",NULL,0,
-                               &argc,argv,NULL, NULL);
-
+                               &argc,argv,NULL,NULL);
 
   // get the display connection and give it to the renderer
   display = XtDisplay(toplevel);
@@ -84,44 +87,45 @@ main (int argc, char *argv[])
   col = renWin->GetDesiredColormap();
   
   toplevel2 = XtVaCreateWidget("top2",
-       topLevelShellWidgetClass,toplevel,
-                               XmNdepth, depth,
-                               XmNvisual, vis,
-                               XmNcolormap, col,
-                               NULL);
+    topLevelShellWidgetClass, toplevel,
+    XmNdepth, depth,
+    XmNvisual, vis,
+    XmNcolormap, col,
+    NULL);
 
+  form = XtVaCreateWidget("form",xmFormWidgetClass, toplevel2, NULL);
+  vtkpw = XtVaCreateManagedWidget("vtkpw",
+    xmPrimitiveWidgetClass, form, 
+    XmNwidth, 300, XmNheight, 300,
+    XmNleftAttachment, XmATTACH_FORM,
+    XmNrightAttachment, XmATTACH_FORM,
+    XmNtopAttachment, XmATTACH_FORM,
+    NULL);
+  button = XtVaCreateManagedWidget("Exit",
+    xmPushButtonWidgetClass, form,
+    XmNheight, 40,
+    XmNbottomAttachment, XmATTACH_FORM,
+    XmNtopAttachment, XmATTACH_WIDGET,
+    XmNtopWidget, vtkpw,
+    XmNleftAttachment, XmATTACH_FORM,
+    XmNrightAttachment, XmATTACH_FORM,
+    NULL);
 
-  form     = XtVaCreateWidget("form",xmFormWidgetClass, toplevel2, NULL);
-  vtk      = XtVaCreateManagedWidget("vtk",
-     xmPrimitiveWidgetClass, form, 
-                                     XmNwidth, 300, XmNheight, 300,
-                                     XmNleftAttachment, XmATTACH_FORM,
-                                     XmNrightAttachment, XmATTACH_FORM,
-                                     XmNtopAttachment, XmATTACH_FORM,
-                                     NULL);
-  button    = XtVaCreateManagedWidget("Exit",
-      xmPushButtonWidgetClass, form,
-                                      XmNheight, 40,
-                                      XmNbottomAttachment, XmATTACH_FORM,
-                                      XmNtopAttachment, XmATTACH_WIDGET,
-                                      XmNtopWidget, vtk,
-                                      XmNleftAttachment, XmATTACH_FORM,
-                                      XmNrightAttachment, XmATTACH_FORM,
-                                      NULL);
   XtAddCallback(button,XmNactivateCallback,quit_cb,NULL);
   XtManageChild(form);
   XtRealizeWidget(toplevel2);
   XtMapWidget(toplevel2);
   
-  // we typecast to an X specific interactor
-  // Since we have decided to make this an X program
+  // We use an X specific interactor
+  // since we have decided to make this an X program
   iren = vtkXRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  iren->SetWidget(vtk);
+  iren->SetWidget(vtkpw);
   iren->Initialize(app);
   XtAppMainLoop(app);
 }
-/* quit when the arrow */
+
+// quit when the Exit button is clicked
 void quit_cb(Widget w,XtPointer client_data, XtPointer call_data)
 {
   exit(0);
