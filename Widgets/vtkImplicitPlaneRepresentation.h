@@ -20,14 +20,14 @@
 // with the widget, the plane can be manipulated by adjusting the plane
 // normal or moving the origin point.
 //
-// To use this representation, you normal define a (plane) origin and (plane)
-// normal. The PlaceWidget() method is also used to intially position the 
+// To use this representation, you normally define a (plane) origin and (plane)
+// normal. The PlaceWidget() method is also used to intially position the
 // representation.
 
 // .SECTION Caveats
 // This class, and vtkImplicitPlaneWidget2, are next generation VTK
 // widgets. An earlier version of this functionality was defined in the
-// class vtkImplicitPlaneWidget,
+// class vtkImplicitPlaneWidget.
 
 // .SECTION See Also
 // vtkImplicitPlaneWidget2 vtkImplicitPlaneWidget

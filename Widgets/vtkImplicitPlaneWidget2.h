@@ -55,14 +55,14 @@
 //
 // Note that the event bindings described above can be changed using this
 // class's vtkWidgetEventTranslator. This class translates VTK events 
-// into the vtkSliderWidget's widget events:
+// into the vtkImplicitPlaneWidget2's widget events:
 // <pre>
 //   vtkWidgetEvent::Select -- some part of the widget has been selected
 //   vtkWidgetEvent::EndSelect -- the selection process has completed
 //   vtkWidgetEvent::Move -- a request for slider motion has been invoked
 // </pre>
 //
-// In turn, when these widget events are processed, the vtkSliderWidget
+// In turn, when these widget events are processed, the vtkImplicitPlaneWidget2
 // invokes the following VTK events on itself (which observers can listen for):
 // <pre>
 //   vtkCommand::StartInteractionEvent (on vtkWidgetEvent::Select)
@@ -77,7 +77,7 @@
 // 
 // This class, and vtkImplicitPlaneRepresentation, are next generation VTK
 // widgets. An earlier version of this functionality was defined in the class
-// vtkImplicitPlaneWidget,
+// vtkImplicitPlaneWidget.
 
 // .SECTION See Also
 // vtk3DWidget vtkBoxWidget vtkPlaneWidget vtkLineWidget vtkPointWidget
