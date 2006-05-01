@@ -80,12 +80,9 @@ int TestOneInterpolationDerivs()
     {
     sum += derivs[j];
     }
-//  if( !cell->IsA( "vtkPentagonalPrism" ) )
+  if( fabs(sum) > VTK_EPSILON )
     {
-    if( fabs(sum) > VTK_EPSILON )
-      {
-      ++r;
-      }
+    ++r;
     }
 
   cell->Delete();
@@ -113,7 +110,7 @@ int TestInterpolationDerivs(int, char *[])
   //r += TestOneInterpolationDerivs<vtkConvexPointSet>(); // not implemented
   r += TestOneInterpolationDerivs<vtkHexagonalPrism>();
   r += TestOneInterpolationDerivs<vtkHexahedron>();
-  //r += TestOneInterpolationDerivs<vtkPentagonalPrism>();
+  r += TestOneInterpolationDerivs<vtkPentagonalPrism>();
   r += TestOneInterpolationDerivs<vtkPyramid>();
   //r += TestOneInterpolationDerivs<vtkTetra>();
   r += TestOneInterpolationDerivs<vtkVoxel>();

@@ -105,12 +105,9 @@ int TestOneInterpolationFunction()
     {
     sum += sf[j];
     }
-  if( !cell->IsA( "vtkPentagonalPrism" ) )
+  if( fabs(sum - 1) > VTK_EPSILON )
     {
-    if( fabs(sum - 1) > VTK_EPSILON )
-      {
-      ++r;
-      }
+    ++r;
     }
 
   cell->Delete();
