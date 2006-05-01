@@ -47,6 +47,15 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticWedge.h"
 
+// New bi-class from gebbert
+#include "vtkBiQuadraticQuad.h"
+#include "vtkBiQuadraticQuadraticHexahedron.h"
+#include "vtkBiQuadraticQuadraticWedge.h"
+#include "vtkQuadraticLinearQuad.h"
+#include "vtkQuadraticLinearWedge.h"
+#include "vtkTriQuadraticHexahedron.h"
+
+
 template <class TCell>
 int TestOneInterpolationDerivs()
 {
@@ -125,6 +134,15 @@ int TestInterpolationDerivs(int, char *[])
   r += TestOneInterpolationDerivs<vtkQuadraticTetra>();
   r += TestOneInterpolationDerivs<vtkQuadraticTriangle>();
   r += TestOneInterpolationDerivs<vtkQuadraticWedge>();
+
+  // New bi-class
+//  r += TestOneInterpolationDerivs<vtkBiQuadraticQuad>();
+//  r += TestOneInterpolationDerivs<vtkBiQuadraticQuadraticHexahedron>();
+//  r += TestOneInterpolationDerivs<vtkBiQuadraticQuadraticWedge>();
+//  r += TestOneInterpolationDerivs<vtkQuadraticLinearQuad>();
+//  r += TestOneInterpolationDerivs<vtkQuadraticLinearWedge>();
+//  r += TestOneInterpolationDerivs<vtkTriQuadraticHexahedron>();
+
 
   return r;
 }
