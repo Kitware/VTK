@@ -50,6 +50,10 @@ public:
   double GetVolume() {this->Update(); return this->Volume;}
 
   // Description:
+  // Compute and return the projected volume.
+  double GetVolumeProjected() {this->Update(); return this->VolumeProjected;}
+
+  // Description:
   // Compute and return the volume projected on to each axis aligned plane.
   double GetVolumeX() {this->Update(); return this->VolumeX;}
   double GetVolumeY() {this->Update(); return this->VolumeY;}
@@ -93,6 +97,7 @@ protected:
   double  MinCellArea;
   double  MaxCellArea;
   double  Volume;
+  double  VolumeProjected; // == Projected area of triangles * average z values
   double  VolumeX;
   double  VolumeY;
   double  VolumeZ;

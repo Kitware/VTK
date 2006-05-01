@@ -14,14 +14,15 @@
 =========================================================================*/
 #include "vtkMassProperties.h"
 
+#include "vtkObjectFactory.h"
 #include "vtkCell.h"
 #include "vtkDataObject.h"
 #include "vtkIdList.h"
+#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMassProperties, "1.29");
+vtkCxxRevisionMacro(vtkMassProperties, "1.30");
 vtkStandardNewMacro(vtkMassProperties);
 
 #define  VTK_CUBE_ROOT(x) \
@@ -35,6 +36,7 @@ vtkMassProperties::vtkMassProperties()
   this->MinCellArea = 0.0;
   this->MaxCellArea = 0.0;
   this->Volume  = 0.0;
+  this->VolumeProjected = 0.0;
   this->VolumeX = 0.0;
   this->VolumeY = 0.0;
   this->VolumeZ = 0.0;
@@ -87,8 +89,10 @@ int vtkMassProperties::RequestData(
   // Traverse all cells, obtaining node coordinates.
   //
   double    vol[3],kxyz[3];
+  double    xp[3]; // to compute volumeproj
   double    munc[3],wxyz,wxy,wxz,wyz;
   double    area,surfacearea;
+  double    volumeproj;
   double    mincellarea, maxcellarea;
   double    a,b,c,s;
   double    x[3],y[3],z[3];
@@ -100,6 +104,7 @@ int vtkMassProperties::RequestData(
   // Initialize variables ...
   //
   surfacearea = 0.0;
+  volumeproj = 0.0;
   mincellarea = VTK_DOUBLE_MAX; maxcellarea = 0.0;
   wxyz = 0; wxy = 0.0; wxz = 0.0; wyz = 0.0;
   for ( idx = 0; idx < 3 ; idx++ )
@@ -224,6 +229,12 @@ int vtkMassProperties::RequestData(
     vol[2] += (area * u[2] * zavg);
     vol[1] += (area * u[1] * yavg);
     vol[0] += (area * u[0] * xavg);
+
+    // V  =  (z1+z2+z3)(x1y2-x2y1+x2y3-x3y2+x3y1-x1y3)/6
+    // Volume under triangle is projected area of the triangle times
+    // the average of the three z values
+    vtkMath::Cross(x,y,xp);
+    volumeproj += zavg * (xp[0]+xp[1]+xp[2]) / 2;
     }
 
   // Surface Area ...
@@ -245,6 +256,7 @@ int vtkMassProperties::RequestData(
   this->Kz = kxyz[2];
   this->Volume =  (kxyz[0] * vol[0] + kxyz[1] * vol[1] + kxyz[2]  * vol[2]);
   this->Volume =  fabs(this->Volume);
+  this->VolumeProjected = volumeproj;
   this->NormalizedShapeIndex =
     (sqrt(surfacearea)/VTK_CUBE_ROOT(this->Volume))/2.199085233;
   ptIds->Delete();
@@ -269,6 +281,9 @@ void vtkMassProperties::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Ky: " << this->GetKy () << "\n";
   os << indent << "Kz: " << this->GetKz () << "\n";
   os << indent << "Volume:  " << this->GetVolume  () << "\n";
+  //os << indent << "Volume Projected:  " << this->GetVolumeProjected  () << "\n";
+  //os << indent << "Volume Error:  " <<
+  //  fabs(this->GetVolume() - this->GetVolumeProjected())   << "\n";
   os << indent << "Surface Area: " << this->GetSurfaceArea () << "\n";
   os << indent << "Min Cell Area: " << this->GetMinCellArea () << "\n";
   os << indent << "Max Cell Area: " << this->GetMaxCellArea () << "\n";
