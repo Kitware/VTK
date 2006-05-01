@@ -56,6 +56,7 @@ public:
   void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
   void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
   void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
+  static int GetFontFamilyFromString( const char *f ); 
   const char *GetFontFamilyAsString();
   static const char *GetFontFamilyAsString( int f );
 
@@ -176,6 +177,23 @@ inline const char *vtkTextProperty::GetFontFamilyAsString( int f )
     return "Times";
     }
   return "Unknown";
+}
+
+inline int vtkTextProperty::GetFontFamilyFromString( const char *f )
+{
+  if ( strcmp( f, GetFontFamilyAsString( VTK_ARIAL ) ) == 0 ) 
+    {
+    return VTK_ARIAL; 
+    }
+  else if ( strcmp( f, GetFontFamilyAsString( VTK_COURIER ) ) == 0 ) 
+    {
+    return VTK_COURIER; 
+    }
+  else if ( strcmp( f, GetFontFamilyAsString( VTK_TIMES ) ) == 0 ) 
+    {
+    return VTK_TIMES; 
+    }
+  return VTK_UNKNOWN_FONT; 
 }
 
 inline const char *vtkTextProperty::GetFontFamilyAsString(void)
