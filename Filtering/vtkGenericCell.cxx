@@ -13,6 +13,8 @@
 
 =========================================================================*/
 #include "vtkGenericCell.h"
+
+#include "vtkObjectFactory.h"
 #include "vtkEmptyCell.h"
 #include "vtkVertex.h"
 #include "vtkPolyVertex.h"
@@ -38,9 +40,14 @@
 #include "vtkQuadraticWedge.h"
 #include "vtkQuadraticPyramid.h"
 #include "vtkConvexPointSet.h"
-#include "vtkObjectFactory.h"
+#include "vtkQuadraticLinearQuad.h"
+#include "vtkBiQuadraticQuad.h"
+#include "vtkTriQuadraticHexahedron.h"
+#include "vtkQuadraticLinearWedge.h"
+#include "vtkBiQuadraticQuadraticWedge.h"
+#include "vtkBiQuadraticQuadraticHexahedron.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.1");
+vtkCxxRevisionMacro(vtkGenericCell, "1.2");
 vtkStandardNewMacro(vtkGenericCell);
 
 //----------------------------------------------------------------------------
@@ -292,6 +299,25 @@ void vtkGenericCell::SetCellType(int cellType)
       case VTK_QUADRATIC_PYRAMID:
         this->Cell = vtkQuadraticPyramid::New();
         break;
+      case VTK_QUADRATIC_LINEAR_QUAD:
+        this->Cell = vtkQuadraticLinearQuad::New ();
+        break;
+      case VTK_BIQUADRATIC_QUAD:
+        this->Cell = vtkBiQuadraticQuad::New ();
+        break;
+      case VTK_TRIQUADRATIC_HEXAHEDRON:
+        this->Cell = vtkTriQuadraticHexahedron::New ();
+        break;
+      case VTK_QUADRATIC_LINEAR_WEDGE:
+        this->Cell = vtkQuadraticLinearWedge::New ();
+        break;
+      case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
+        this->Cell = vtkBiQuadraticQuadraticWedge::New ();
+        break;
+      case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
+        this->Cell = vtkBiQuadraticQuadraticHexahedron::New ();
+        break;
+
       case VTK_CONVEX_POINT_SET:
         this->Cell = vtkConvexPointSet::New();
         break;

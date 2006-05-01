@@ -109,6 +109,15 @@ public:
   void SetCellTypeToQuadraticHexahedron() {this->SetCellType(VTK_QUADRATIC_HEXAHEDRON);}
   void SetCellTypeToQuadraticWedge() {this->SetCellType(VTK_QUADRATIC_WEDGE);}
   void SetCellTypeToQuadraticPyramid() {this->SetCellType(VTK_QUADRATIC_PYRAMID);}
+  void SetCellTypeToQuadraticLinearQuad() {this->SetCellType(VTK_QUADRATIC_LINEAR_QUAD);}
+  void SetCellTypeToBiQuadraticQuad() {this->SetCellType(VTK_BIQUADRATIC_QUAD);}
+  void SetCellTypeToQuadraticLinearWedge() {this->SetCellType(VTK_QUADRATIC_LINEAR_WEDGE);}
+  void SetCellTypeToBiQuadraticQuadraticWedge() {
+    this->SetCellType(VTK_BIQUADRATIC_QUADRATIC_WEDGE);}
+  void SetCellTypeToTriQuadraticHexahedron() {
+    this->SetCellType(VTK_TRIQUADRATIC_HEXAHEDRON);}
+  void SetCellTypeToBiQuadraticQuadraticHexahedron() {
+    this->SetCellType(VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON);}
 
 protected:
   vtkGenericCell();

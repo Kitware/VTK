@@ -18,7 +18,7 @@
 #include "vtkMarchingSquaresCases.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkCell, "1.1");
+vtkCxxRevisionMacro(vtkCell, "1.2");
 
 // Construct cell.
 vtkCell::vtkCell()
@@ -237,5 +237,5 @@ vtkMarchingSquaresLineCases* vtkMarchingSquaresLineCases::GetCases()
 // Usually overridden. Only composite cells do not override this.
 double *vtkCell::GetParametricCoords()
 {
-  return static_cast<double*>(NULL);
+  return NULL;
 }

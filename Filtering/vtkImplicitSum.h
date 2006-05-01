@@ -14,11 +14,11 @@
 =========================================================================*/
 // .NAME vtkImplicitSum - implicit sum of other implicit functions
 // .SECTION Description
-//  vtkImplicitSum produces a linear combination of other implicit functions.
-//  The contribution of each function is weighted by a scalar coefficient.
-//  The NormalizeByWeight option normalizes the output so that the 
-//  scalar weights add up to 1.  Note that this function gives accurate
-//  sums and gradients only if the input functions are linear.
+// vtkImplicitSum produces a linear combination of other implicit functions.
+// The contribution of each function is weighted by a scalar coefficient.
+// The NormalizeByWeight option normalizes the output so that the
+// scalar weights add up to 1. Note that this function gives accurate
+// sums and gradients only if the input functions are linear.
 
 #ifndef __vtkImplicitSum_h
 #define __vtkImplicitSum_h
@@ -52,7 +52,7 @@ public:
   unsigned long GetMTime();
 
   // Description:
-  // Add another implicit function to the list of functions, along with a 
+  // Add another implicit function to the list of functions, along with a
   // weighting factor.
   void AddFunction(vtkImplicitFunction *in, double weight);
 
@@ -69,7 +69,7 @@ public:
   // Set the weight (coefficient) of the given function to be weight.
   void SetFunctionWeight(vtkImplicitFunction *f, double weight);
 
-  // Description: 
+  // Description:
   // When calculating the function and gradient values of the
   // composite function, setting NormalizeByWeight on will divide the
   // final result by the total weight of the component functions.

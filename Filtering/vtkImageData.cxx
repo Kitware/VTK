@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.20");
+vtkCxxRevisionMacro(vtkImageData, "1.21");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1069,7 +1069,7 @@ void vtkImageData::SetDimensions(int i, int j, int k)
 
 //----------------------------------------------------------------------------
 // Set dimensions of structured points dataset.
-void vtkImageData::SetDimensions(int dim[3])
+void vtkImageData::SetDimensions(const int dim[3])
 {
   this->SetExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
 }

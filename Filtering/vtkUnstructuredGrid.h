@@ -54,6 +54,13 @@ class vtkUnsignedCharArray;
 class vtkVertex;
 class vtkVoxel;
 class vtkWedge;
+class vtkTriQuadraticHexahedron;
+class vtkQuadraticLinearWedge;
+class vtkQuadraticLinearQuad;
+class vtkBiQuadraticQuad;
+class vtkBiQuadraticQuadraticWedge;
+class vtkBiQuadraticQuadraticHexahedron;
+
 
 class VTK_FILTERING_EXPORT vtkUnstructuredGrid : public vtkPointSet 
 {
@@ -178,31 +185,37 @@ protected:
   ~vtkUnstructuredGrid();
 
   // used by GetCell method
-  vtkVertex              *Vertex;
-  vtkPolyVertex          *PolyVertex;
-  vtkLine                *Line;
-  vtkPolyLine            *PolyLine;
-  vtkTriangle            *Triangle;
-  vtkTriangleStrip       *TriangleStrip;
-  vtkPixel               *Pixel;
-  vtkQuad                *Quad;
-  vtkPolygon             *Polygon;
-  vtkTetra               *Tetra;
-  vtkVoxel               *Voxel;
-  vtkHexahedron          *Hexahedron;
-  vtkWedge               *Wedge;
-  vtkPyramid             *Pyramid;
-  vtkPentagonalPrism     *PentagonalPrism;
-  vtkHexagonalPrism      *HexagonalPrism;
-  vtkQuadraticEdge       *QuadraticEdge;
-  vtkQuadraticTriangle   *QuadraticTriangle;
-  vtkQuadraticQuad       *QuadraticQuad;
-  vtkQuadraticTetra      *QuadraticTetra;
-  vtkQuadraticHexahedron *QuadraticHexahedron;
-  vtkQuadraticWedge      *QuadraticWedge;
-  vtkQuadraticPyramid    *QuadraticPyramid;
-  vtkConvexPointSet      *ConvexPointSet;
-  vtkEmptyCell           *EmptyCell;
+  vtkVertex                         *Vertex;
+  vtkPolyVertex                     *PolyVertex;
+  vtkLine                           *Line;
+  vtkPolyLine                       *PolyLine;
+  vtkTriangle                       *Triangle;
+  vtkTriangleStrip                  *TriangleStrip;
+  vtkPixel                          *Pixel;
+  vtkQuad                           *Quad;
+  vtkPolygon                        *Polygon;
+  vtkTetra                          *Tetra;
+  vtkVoxel                          *Voxel;
+  vtkHexahedron                     *Hexahedron;
+  vtkWedge                          *Wedge;
+  vtkPyramid                        *Pyramid;
+  vtkPentagonalPrism                *PentagonalPrism;
+  vtkHexagonalPrism                 *HexagonalPrism;
+  vtkQuadraticEdge                  *QuadraticEdge;
+  vtkQuadraticTriangle              *QuadraticTriangle;
+  vtkQuadraticQuad                  *QuadraticQuad;
+  vtkQuadraticTetra                 *QuadraticTetra;
+  vtkQuadraticHexahedron            *QuadraticHexahedron;
+  vtkQuadraticWedge                 *QuadraticWedge;
+  vtkQuadraticPyramid               *QuadraticPyramid;
+  vtkQuadraticLinearQuad            *QuadraticLinearQuad;
+  vtkBiQuadraticQuad                *BiQuadraticQuad;
+  vtkTriQuadraticHexahedron         *TriQuadraticHexahedron;
+  vtkQuadraticLinearWedge           *QuadraticLinearWedge;
+  vtkBiQuadraticQuadraticWedge      *BiQuadraticQuadraticWedge;
+  vtkBiQuadraticQuadraticHexahedron *BiQuadraticQuadraticHexahedron;
+  vtkConvexPointSet                 *ConvexPointSet;
+  vtkEmptyCell                      *EmptyCell;
   
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited

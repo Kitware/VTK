@@ -49,8 +49,14 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
+#include "vtkTriQuadraticHexahedron.h"
+#include "vtkQuadraticLinearWedge.h"
+#include "vtkQuadraticLinearQuad.h"
+#include "vtkBiQuadraticQuad.h"
+#include "vtkBiQuadraticQuadraticWedge.h"
+#include "vtkBiQuadraticQuadraticHexahedron.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.9");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.10");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -78,6 +84,13 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->QuadraticHexahedron = NULL;
   this->QuadraticWedge = NULL;
   this->QuadraticPyramid = NULL;
+  this->QuadraticLinearQuad = vtkQuadraticLinearQuad::New ();
+  this->BiQuadraticQuad = vtkBiQuadraticQuad::New ();
+  this->TriQuadraticHexahedron = vtkTriQuadraticHexahedron::New ();
+  this->QuadraticLinearWedge = vtkQuadraticLinearWedge::New ();
+  this->BiQuadraticQuadraticWedge = vtkBiQuadraticQuadraticWedge::New ();
+  this->BiQuadraticQuadraticHexahedron = vtkBiQuadraticQuadraticHexahedron::New ();
+  
   this->ConvexPointSet = NULL;
   this->EmptyCell = NULL;
 
@@ -232,6 +245,31 @@ vtkUnstructuredGrid::~vtkUnstructuredGrid()
     {
     this->QuadraticPyramid->Delete();
     }
+  if(this->QuadraticLinearQuad)
+    {
+    this->QuadraticLinearQuad->Delete ();
+    }
+  if(this->BiQuadraticQuad)
+    {
+    this->BiQuadraticQuad->Delete ();
+    }
+  if(this->TriQuadraticHexahedron)
+    {
+    this->TriQuadraticHexahedron->Delete ();
+    }
+  if(this->QuadraticLinearWedge)
+    {
+    this->QuadraticLinearWedge->Delete ();
+    }
+  if(this->BiQuadraticQuadraticWedge)
+    {
+    this->BiQuadraticQuadraticWedge->Delete ();
+    }
+  if(this->BiQuadraticQuadraticHexahedron)
+    {
+    this->BiQuadraticQuadraticHexahedron->Delete ();
+    }
+
   if(this->ConvexPointSet)
     {
     this->ConvexPointSet->Delete();
@@ -564,6 +602,54 @@ vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
         this->QuadraticPyramid = vtkQuadraticPyramid::New();
         }
       cell = this->QuadraticPyramid;
+      break;
+
+    case VTK_QUADRATIC_LINEAR_QUAD:
+      if(!this->QuadraticLinearQuad)
+        {
+        this->QuadraticLinearQuad = vtkQuadraticLinearQuad::New();
+        }
+      cell = this->QuadraticLinearQuad;
+      break;
+
+    case VTK_BIQUADRATIC_QUAD:
+      if(!this->BiQuadraticQuad)
+        {
+        this ->BiQuadraticQuad = vtkBiQuadraticQuad::New();
+        }
+      cell = this->BiQuadraticQuad;
+      break;
+
+    case VTK_TRIQUADRATIC_HEXAHEDRON:
+      if(!this->TriQuadraticHexahedron)
+        {
+        this->TriQuadraticHexahedron = vtkTriQuadraticHexahedron::New();
+        }
+      cell = this->TriQuadraticHexahedron;
+      break;
+
+    case VTK_QUADRATIC_LINEAR_WEDGE:
+      if(!this->QuadraticLinearWedge)
+        {
+        this->QuadraticLinearWedge = vtkQuadraticLinearWedge::New();
+        }
+      cell = this->QuadraticLinearWedge;
+      break;
+
+    case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
+      if(!this->BiQuadraticQuadraticWedge)
+        {
+        this->BiQuadraticQuadraticWedge = vtkBiQuadraticQuadraticWedge::New();
+        }
+      cell = this->BiQuadraticQuadraticWedge;
+      break;
+
+    case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
+      if(!this->BiQuadraticQuadraticHexahedron)
+        {
+        this->BiQuadraticQuadraticHexahedron = vtkBiQuadraticQuadraticHexahedron::New();
+        }
+      cell = this->BiQuadraticQuadraticHexahedron;
       break;
 
     case VTK_CONVEX_POINT_SET:

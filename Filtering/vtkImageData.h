@@ -92,7 +92,7 @@ public:
 
   // Description:
   // Set dimensions of structured points dataset.
-  virtual void SetDimensions(int dims[3]);
+  virtual void SetDimensions(const int dims[3]);
 
   // Description:
   // Get dimensions of this structured points dataset.
