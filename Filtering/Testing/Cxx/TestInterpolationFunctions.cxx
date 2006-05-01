@@ -63,12 +63,9 @@ int TestOneInterpolationFunction()
   double *sf = new double[numPts];
   double *coords = cell->GetParametricCoords();
   int r = 0;
-  for(int i=0;i<numPts*3;)
+  for(int i=0;i<numPts;++i)
     {
-    double point[3];
-    point[0] = coords[i++];
-    point[1] = coords[i++];
-    point[2] = coords[i];
+    double *point = coords + 3*i;
     double sum = 0.;
     TCell::InterpolationFunctions(point, sf); // static function
     for(int j=0;j<numPts;j++)
@@ -93,7 +90,6 @@ int TestOneInterpolationFunction()
       {
       ++r;
       }
-    ++i;
     }
 
   // Let's test unity condition on the center point:
