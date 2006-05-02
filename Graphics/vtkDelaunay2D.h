@@ -148,7 +148,20 @@ public:
   // triangulation is created. The lines/polygons are assumed to reference
   // points in the input point set (i.e. point ids are identical in the
   // input and source).
+  // Old style. See SetSourceConnection.
   void SetSource(vtkPolyData *);
+
+  // Description:
+  // Specify the source object used to specify constrained edges and loops.
+  // (This is optional.) If set, and lines/polygons are defined, a constrained
+  // triangulation is created. The lines/polygons are assumed to reference
+  // points in the input point set (i.e. point ids are identical in the
+  // input and source).
+  // New style. This method is equivalent to SetInputConnection(1, algOutput).
+  void SetSourceConnection(vtkAlgorithmOutput *algOutput);
+
+  // Description:
+  // Get a pointer to the source object.
   vtkPolyData *GetSource();
   
   // Description:
