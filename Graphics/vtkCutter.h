@@ -48,9 +48,6 @@
 
 #define VTK_SORT_BY_VALUE 0
 #define VTK_SORT_BY_CELL 1
-// This does not really belong here,  ut it is for a temporary
-// fix until this filter can be converted to geernate unstructured grids.
-#define VTK_NUMBER_OF_CELL_TYPES 68
 
 class vtkImplicitFunction;
 class vtkPointLocator;

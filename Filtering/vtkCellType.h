@@ -27,63 +27,66 @@
 // create a subclass of vtkCell to implement the proper behavior. You 
 // may have to modify the following methods: vtkDataSet (and subclasses) 
 // GetCell() and vtkGenericCell::SetCellType(). Also, to do the job right,
-// you'll also have to modify the readers/writers and regression tests
-// (example scripts) to reflect the new cell addition.
+// you'll also have to modify some filters (vtkGeometryFilter...) and
+// regression tests (example scripts) to reflect the new cell addition.
 
-// Linear cells
-#define VTK_EMPTY_CELL     0
-#define VTK_VERTEX         1
-#define VTK_POLY_VERTEX    2
-#define VTK_LINE           3
-#define VTK_POLY_LINE      4
-#define VTK_TRIANGLE       5
-#define VTK_TRIANGLE_STRIP 6
-#define VTK_POLYGON        7
-#define VTK_PIXEL          8
-#define VTK_QUAD           9
-#define VTK_TETRA         10
-#define VTK_VOXEL         11
-#define VTK_HEXAHEDRON    12
-#define VTK_WEDGE         13
-#define VTK_PYRAMID       14
-#define VTK_PENTAGONAL_PRISM 15
-#define VTK_HEXAGONAL_PRISM  16
+typedef enum {
+  // Linear cells
+  VTK_EMPTY_CELL       = 0,
+  VTK_VERTEX           = 1,
+  VTK_POLY_VERTEX      = 2,
+  VTK_LINE             = 3,
+  VTK_POLY_LINE        = 4,
+  VTK_TRIANGLE         = 5,
+  VTK_TRIANGLE_STRIP   = 6,
+  VTK_POLYGON          = 7,
+  VTK_PIXEL            = 8,
+  VTK_QUAD             = 9,
+  VTK_TETRA            = 10,
+  VTK_VOXEL            = 11,
+  VTK_HEXAHEDRON       = 12,
+  VTK_WEDGE            = 13,
+  VTK_PYRAMID          = 14,
+  VTK_PENTAGONAL_PRISM = 15,
+  VTK_HEXAGONAL_PRISM  = 16,
 
-// Quadratic, isoparametric cells
-#define VTK_QUADRATIC_EDGE       21
-#define VTK_QUADRATIC_TRIANGLE   22
-#define VTK_QUADRATIC_QUAD       23
-#define VTK_QUADRATIC_TETRA      24
-#define VTK_QUADRATIC_HEXAHEDRON 25
-#define VTK_QUADRATIC_WEDGE      26
-#define VTK_QUADRATIC_PYRAMID    27
+  // Quadratic, isoparametric cells
+  VTK_QUADRATIC_EDGE                   = 21,
+  VTK_QUADRATIC_TRIANGLE               = 22,
+  VTK_QUADRATIC_QUAD                   = 23,
+  VTK_QUADRATIC_TETRA                  = 24,
+  VTK_QUADRATIC_HEXAHEDRON             = 25,
+  VTK_QUADRATIC_WEDGE                  = 26,
+  VTK_QUADRATIC_PYRAMID                = 27,
+  VTK_BIQUADRATIC_QUAD                 = 28,
+  VTK_TRIQUADRATIC_HEXAHEDRON          = 29,
+  VTK_QUADRATIC_LINEAR_QUAD            = 30,
+  VTK_QUADRATIC_LINEAR_WEDGE           = 31,
+  VTK_BIQUADRATIC_QUADRATIC_WEDGE      = 32,
+  VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON = 33,
 
-#define VTK_BIQUADRATIC_QUAD                 28
-#define VTK_TRIQUADRATIC_HEXAHEDRON          29
-#define VTK_QUADRATIC_LINEAR_QUAD            30
-#define VTK_QUADRATIC_LINEAR_WEDGE           31
-#define VTK_BIQUADRATIC_QUADRATIC_WEDGE      32
-#define VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON 33
+  // Special class of cells formed by convex group of points
+  VTK_CONVEX_POINT_SET = 41,
 
-// Special class of cells formed by convex group of points
-#define VTK_CONVEX_POINT_SET 41
+  // Higher order cells in parametric form
+  VTK_PARAMETRIC_CURVE        = 51,
+  VTK_PARAMETRIC_SURFACE      = 52,
+  VTK_PARAMETRIC_TRI_SURFACE  = 53,
+  VTK_PARAMETRIC_QUAD_SURFACE = 54,
+  VTK_PARAMETRIC_TETRA_REGION = 55,
+  VTK_PARAMETRIC_HEX_REGION   = 56,
 
-// Higher order cells in parametric form
-#define VTK_PARAMETRIC_CURVE        51
-#define VTK_PARAMETRIC_SURFACE      52
-#define VTK_PARAMETRIC_TRI_SURFACE  53
-#define VTK_PARAMETRIC_QUAD_SURFACE 54
-#define VTK_PARAMETRIC_TETRA_REGION 55
-#define VTK_PARAMETRIC_HEX_REGION   56
+  // Higher order cells
+  VTK_HIGHER_ORDER_EDGE        = 60,
+  VTK_HIGHER_ORDER_TRIANGLE    = 61,
+  VTK_HIGHER_ORDER_QUAD        = 62,
+  VTK_HIGHER_ORDER_POLYGON     = 63,
+  VTK_HIGHER_ORDER_TETRAHEDRON = 64,
+  VTK_HIGHER_ORDER_WEDGE       = 65,
+  VTK_HIGHER_ORDER_PYRAMID     = 66,
+  VTK_HIGHER_ORDER_HEXAHEDRON  = 67,
 
-// Higher order cells
-#define VTK_HIGHER_ORDER_EDGE        60
-#define VTK_HIGHER_ORDER_TRIANGLE    61
-#define VTK_HIGHER_ORDER_QUAD        62
-#define VTK_HIGHER_ORDER_POLYGON     63
-#define VTK_HIGHER_ORDER_TETRAHEDRON 64
-#define VTK_HIGHER_ORDER_WEDGE       65
-#define VTK_HIGHER_ORDER_PYRAMID     66 
-#define VTK_HIGHER_ORDER_HEXAHEDRON  67
+  VTK_NUMBER_OF_CELL_TYPES
+} VTKCellType;
 
 #endif

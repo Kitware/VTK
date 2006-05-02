@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// .NAME 
+// .NAME
 // .SECTION Description
 // this program tests the CellTypes
 
@@ -76,5 +76,11 @@ int otherCellTypes(int, char *[])
 {
   TestOCT();
 
+  // Might need to be ajusted if vtkCellTypes changes
+  if( VTK_NUMBER_OF_CELL_TYPES <= VTK_HIGHER_ORDER_HEXAHEDRON)
+    {
+    return 1;
+    }
+
   return 0;
-} 
+}
