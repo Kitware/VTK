@@ -16,7 +16,7 @@ vtkPolyDataReader reader
 #
 vtkDelaunay2D del
     del SetInputConnection [reader GetOutputPort]
-    del SetSource [reader GetOutput]
+    del SetSourceConnection [reader GetOutputPort]
     del SetTolerance 0.00001
 vtkPolyDataNormals normals
     normals SetInputConnection [del GetOutputPort]
