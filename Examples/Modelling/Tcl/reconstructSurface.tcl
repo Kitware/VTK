@@ -31,7 +31,7 @@ global VTK_DATA_ROOT
 # Construct the surface and create isosurface.
 #
 vtkSurfaceReconstructionFilter surf
-    surf SetInput [pointSource GetPolyDataOutput]
+    surf SetInputConnection [pointSource GetOutputPort]
 
 vtkContourFilter cf
     cf SetInputConnection [surf GetOutputPort]
