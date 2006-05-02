@@ -35,7 +35,7 @@ pointSource.SetExecuteMethod(readPoints)
 
 # Construct the surface and create isosurface.
 surf = vtk.vtkSurfaceReconstructionFilter()
-surf.SetInput(pointSource.GetPolyDataOutput())
+surf.SetInputConnection(pointSource.GetOutputPort())
 
 cf = vtk.vtkContourFilter()
 cf.SetInputConnection(surf.GetOutputPort())
