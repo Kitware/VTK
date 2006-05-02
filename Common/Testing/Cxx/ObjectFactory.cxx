@@ -20,48 +20,48 @@
 #include "vtkOverrideInformation.h"
 #include "vtkOverrideInformationCollection.h"
 #include "vtkVersion.h"
-#include "vtkVertex.h"
+#include "vtkPoints.h"
 
 int failed = 0;
 
-class vtkTestVertex : public vtkVertex
+class vtkTestPoints : public vtkPoints
 {
 public:
   // Methods from vtkObject
-  ~vtkTestVertex() 
+  ~vtkTestPoints()
     {
     }
-  
-  vtkTypeRevisionMacro(vtkTestVertex,vtkVertex);
-  static vtkTestVertex* New() { return new vtkTestVertex; }
-  vtkTestVertex() {  }
+
+  vtkTypeRevisionMacro(vtkTestPoints,vtkPoints);
+  static vtkTestPoints* New() { return new vtkTestPoints; }
+  vtkTestPoints() {  }
 private:
-  vtkTestVertex(const vtkTestVertex&);
-  void operator=(const vtkTestVertex&);
+  vtkTestPoints(const vtkTestPoints&);
+  void operator=(const vtkTestPoints&);
 };
 
-vtkCxxRevisionMacro(vtkTestVertex, "1.23");
+vtkCxxRevisionMacro(vtkTestPoints, "1.24");
 
-class vtkTestVertex2 : public vtkVertex
+class vtkTestPoints2 : public vtkPoints
 {
 public:
-  ~vtkTestVertex2() 
+  ~vtkTestPoints2()
     {
     }
 
   // Methods from vtkObject
-  vtkTypeRevisionMacro(vtkTestVertex2,vtkVertex);
-  static vtkTestVertex2* New() { return new vtkTestVertex2; }
-  vtkTestVertex2() { }
+  vtkTypeRevisionMacro(vtkTestPoints2,vtkPoints);
+  static vtkTestPoints2* New() { return new vtkTestPoints2; }
+  vtkTestPoints2() { }
 private:
-  vtkTestVertex2(const vtkTestVertex2&);
-  void operator=(const vtkTestVertex2&);
+  vtkTestPoints2(const vtkTestPoints2&);
+  void operator=(const vtkTestPoints2&);
 };
 
-vtkCxxRevisionMacro(vtkTestVertex2, "1.23");
+vtkCxxRevisionMacro(vtkTestPoints2, "1.24");
 
-VTK_CREATE_CREATE_FUNCTION(vtkTestVertex);
-VTK_CREATE_CREATE_FUNCTION(vtkTestVertex2);
+VTK_CREATE_CREATE_FUNCTION(vtkTestPoints);
+VTK_CREATE_CREATE_FUNCTION(vtkTestPoints2);
 
 class VTK_EXPORT TestFactory : public vtkObjectFactory
 {
@@ -70,7 +70,7 @@ public:
   static TestFactory* New() { return new TestFactory;}
   virtual const char* GetVTKSourceVersion() { return VTK_SOURCE_VERSION; }
   const char* GetDescription() { return "A fine Test Factory"; }
-  
+
 protected:
   TestFactory(const TestFactory&);
   void operator=(const TestFactory&);
@@ -83,18 +83,18 @@ protected:
 
 TestFactory::TestFactory()
 {
-  this->RegisterOverride("vtkVertex",
-                         "vtkTestVertex",
+  this->RegisterOverride("vtkPoints",
+                         "vtkTestPoints",
                          "test vertex factory override",
                          1,
-                         vtkObjectFactoryCreatevtkTestVertex);
-  this->RegisterOverride("vtkVertex", "vtkTestVertex2",
+                         vtkObjectFactoryCreatevtkTestPoints);
+  this->RegisterOverride("vtkPoints", "vtkTestPoints2",
                          "test vertex factory override 2",
                          0,
-                         vtkObjectFactoryCreatevtkTestVertex2);
+                         vtkObjectFactoryCreatevtkTestPoints2);
 }
 
-void TestNewVertex(vtkVertex* v, const char* expectedClassName)
+void TestNewPoints(vtkPoints* v, const char* expectedClassName)
 {
   if(strcmp(v->GetClassName(), expectedClassName) != 0)
     {
@@ -111,33 +111,33 @@ int ObjectFactory(int, char *[])
   TestFactory* factory = TestFactory::New();
   vtkObjectFactory::RegisterFactory(factory);
   factory->Delete();
-  vtkVertex* v = vtkVertex::New();
-  TestNewVertex(v, "vtkTestVertex");
+  vtkPoints* v = vtkPoints::New();
+  TestNewPoints(v, "vtkTestPoints");
   v->Delete();
 
-  // disable all vtkVertex creation with the
-  factory->Disable("vtkVertex");
-  v = vtkVertex::New();
-  TestNewVertex(v, "vtkVertex");
-  
-  factory->SetEnableFlag(1, "vtkVertex", "vtkTestVertex2");
+  // disable all vtkPoints creation with the
+  factory->Disable("vtkPoints");
+  v = vtkPoints::New();
+  TestNewPoints(v, "vtkPoints");
+
+  factory->SetEnableFlag(1, "vtkPoints", "vtkTestPoints2");
   v->Delete();
-  v = vtkVertex::New();
-  TestNewVertex(v, "vtkTestVertex2");
-  
-  factory->SetEnableFlag(0, "vtkVertex", "vtkTestVertex2");
-  factory->SetEnableFlag(1, "vtkVertex", "vtkTestVertex");
+  v = vtkPoints::New();
+  TestNewPoints(v, "vtkTestPoints2");
+
+  factory->SetEnableFlag(0, "vtkPoints", "vtkTestPoints2");
+  factory->SetEnableFlag(1, "vtkPoints", "vtkTestPoints");
   v->Delete();
-  v = vtkVertex::New();
-  TestNewVertex(v, "vtkTestVertex");
+  v = vtkPoints::New();
+  TestNewPoints(v, "vtkTestPoints");
   v->Delete();
-  vtkOverrideInformationCollection* oic = 
+  vtkOverrideInformationCollection* oic =
     vtkOverrideInformationCollection::New();
-  vtkObjectFactory::GetOverrideInformation("vtkVertex", oic);
+  vtkObjectFactory::GetOverrideInformation("vtkPoints", oic);
   vtkOverrideInformation* oi;
   if(oic->GetNumberOfItems() != 2)
     {
-    cout << "Incorrect number of overrides for vtkVertex, expected 2, got: "
+    cout << "Incorrect number of overrides for vtkPoints, expected 2, got: "
         << oic->GetNumberOfItems() << "\n";
     failed = 1;
     if(oic->GetNumberOfItems() < 2)
@@ -150,15 +150,15 @@ int ObjectFactory(int, char *[])
   oi = oic->GetNextOverrideInformation(oicit);
   oi->GetObjectFactory();
 
-  if(strcmp(oi->GetClassOverrideName(), "vtkVertex"))
+  if(strcmp(oi->GetClassOverrideName(), "vtkPoints"))
     {
-    cout << "failed: GetClassOverrideName should be vtkVertex, is: "
+    cout << "failed: GetClassOverrideName should be vtkPoints, is: "
         << oi->GetClassOverrideName() << "\n";
     failed = 1;
     }
-  if(strcmp(oi->GetClassOverrideWithName(), "vtkTestVertex"))
+  if(strcmp(oi->GetClassOverrideWithName(), "vtkTestPoints"))
     {
-    cout << "failed: GetClassOverrideWithName should be vtkTestVertex, is: "
+    cout << "failed: GetClassOverrideWithName should be vtkTestPoints, is: "
         << oi->GetClassOverrideWithName() << "\n";
     failed = 1;
     }
@@ -170,15 +170,15 @@ int ObjectFactory(int, char *[])
     }
 
   oi = oic->GetNextOverrideInformation(oicit);
-  if(strcmp(oi->GetClassOverrideName(), "vtkVertex"))
+  if(strcmp(oi->GetClassOverrideName(), "vtkPoints"))
     {
-    cout << "failed: GetClassOverrideName should be vtkVertex, is: "
+    cout << "failed: GetClassOverrideName should be vtkPoints, is: "
         << oi->GetClassOverrideName() << "\n";
     failed = 1;
     }
-  if(strcmp(oi->GetClassOverrideWithName(), "vtkTestVertex2"))
+  if(strcmp(oi->GetClassOverrideWithName(), "vtkTestPoints2"))
     {
-    cout << "failed: GetClassOverrideWithName should be vtkTestVertex2, is: "
+    cout << "failed: GetClassOverrideWithName should be vtkTestPoints2, is: "
         << oi->GetClassOverrideWithName() << "\n";
     failed = 1;
     }

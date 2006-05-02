@@ -6,6 +6,16 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   otherColorTransferFunction.cxx
   TestInterpolationFunctions.cxx
   TestInterpolationDerivs.cxx
+  TestImageIterator.cxx
+  otherCellArray.cxx
+  otherCellBoundaries.cxx
+  otherCellPosition.cxx
+  otherCellTypes.cxx
+  otherEmptyCell.cxx
+  otherFieldData.cxx
+  otherRectilinearGrid.cxx
+  otherStructuredGrid.cxx
+  quadraticEvaluation.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
