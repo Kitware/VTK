@@ -25,7 +25,7 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.2");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.3");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 //----------------------------------------------------------------------------
@@ -55,6 +55,10 @@ vtkConvexPointSet::~vtkConvexPointSet()
   this->TetraScalars->Delete();
   this->BoundaryTris->Delete();
   this->Triangle->Delete();
+  if( this->ParametricCoords )
+    {
+    this->ParametricCoords->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
