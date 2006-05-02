@@ -35,9 +35,11 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.103");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.104");
 vtkStandardNewMacro(vtkGeometryFilter);
+vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkPointLocator)
 
+//----------------------------------------------------------------------------
 // Construct with all types of clipping turned off.
 vtkGeometryFilter::vtkGeometryFilter()
 {
@@ -62,15 +64,13 @@ vtkGeometryFilter::vtkGeometryFilter()
   this->Locator = NULL;
 }
 
+//----------------------------------------------------------------------------
 vtkGeometryFilter::~vtkGeometryFilter()
 {
-  if ( this->Locator )
-    {
-    this->Locator->UnRegister(this);
-    this->Locator = NULL;
-    }
+  this->SetLocator(NULL);
 }
 
+//----------------------------------------------------------------------------
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
 void vtkGeometryFilter::SetExtent(double xMin, double xMax, double yMin,
                                      double yMax, double zMin, double zMax)
@@ -87,6 +87,7 @@ void vtkGeometryFilter::SetExtent(double xMin, double xMax, double yMin,
   this->SetExtent(extent);
 }
 
+//----------------------------------------------------------------------------
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
 void vtkGeometryFilter::SetExtent(double extent[6])
 {
@@ -109,6 +110,7 @@ void vtkGeometryFilter::SetExtent(double extent[6])
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkGeometryFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -370,41 +372,27 @@ int vtkGeometryFilter::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
-void vtkGeometryFilter::SetLocator(vtkPointLocator *locator)
-{
-  if ( this->Locator == locator ) 
-    {
-    return;
-    }
-  if ( this->Locator )
-    {
-    this->Locator->UnRegister(this);
-    this->Locator = NULL;
-    }    
-  if ( locator )
-    {
-    locator->Register(this);
-    }
-  this->Locator = locator;
-  this->Modified();
-}
-
 void vtkGeometryFilter::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
     {
     this->Locator = vtkMergePoints::New();
+    this->Locator->Register(this);
+    this->Locator->Delete();
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkGeometryFilter::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -435,6 +423,7 @@ void vtkGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+//----------------------------------------------------------------------------
 unsigned long int vtkGeometryFilter::GetMTime()
 {
   unsigned long mTime=this->Superclass::GetMTime();
@@ -448,6 +437,7 @@ unsigned long int vtkGeometryFilter::GetMTime()
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 void vtkGeometryFilter::PolyDataExecute(vtkDataSet *dataSetInput,
                                         vtkPolyData *output,
                                         vtkInformation *outInfo)
@@ -581,6 +571,7 @@ void vtkGeometryFilter::PolyDataExecute(vtkDataSet *dataSetInput,
                 << output->GetNumberOfCells() << " cells.");
 }
 
+//----------------------------------------------------------------------------
 void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                                                 vtkPolyData *output,
                                                 vtkInformation *outInfo)
@@ -731,6 +722,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       {
       //special code for nonlinear cells - rarely occurs, so right now it
       //is slow.
+      //VTKCellType t = input->GetCellType(cellId); // Debug
       switch (input->GetCellType(cellId))
         {
         case VTK_EMPTY_CELL:
@@ -963,6 +955,12 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
         case VTK_QUADRATIC_HEXAHEDRON:
         case VTK_QUADRATIC_WEDGE:
         case VTK_QUADRATIC_PYRAMID:
+        case VTK_QUADRATIC_LINEAR_QUAD:
+        case VTK_BIQUADRATIC_QUAD:
+        case VTK_TRIQUADRATIC_HEXAHEDRON:
+        case VTK_QUADRATIC_LINEAR_WEDGE:
+        case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
+        case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
           {
           vtkGenericCell *cell = vtkGenericCell::New();
           input->GetCell(cellId,cell);
@@ -993,7 +991,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
               polys->InsertCellPoint(ipts->GetId(i+2));
               outputCD->CopyData(cd,cellId,inewCellId);
               }
-            } 
+            }
           else //3D nonlinear cell
             {
             vtkCell *face;
@@ -1021,11 +1019,10 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
           cell->Delete();
           }
           break; //done with quadratic cells
-          
         } //switch
       } //if visible
     } //for all cells
-  
+
   // Update ourselves and release memory
   //
   output->SetVerts(verts);
@@ -1050,6 +1047,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
                                               vtkPolyData *output,
                                               vtkInformation *outInfo)
@@ -1244,6 +1242,7 @@ void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkGeometryFilter::RequestUpdateExtent(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,

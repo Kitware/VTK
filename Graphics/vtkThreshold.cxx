@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkThreshold, "1.68");
+vtkCxxRevisionMacro(vtkThreshold, "1.69");
 vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -58,7 +58,7 @@ void vtkThreshold::ThresholdByLower(double lower)
     this->Modified();
     }
 }
-                           
+
 // Criterion is cells whose scalars are greater or equal to upper threshold.
 void vtkThreshold::ThresholdByUpper(double upper)
 {
@@ -70,7 +70,7 @@ void vtkThreshold::ThresholdByUpper(double upper)
     this->Modified();
     }
 }
-                           
+
 // Criterion is cells whose scalars are between lower and upper thresholds.
 void vtkThreshold::ThresholdBetween(double lower, double upper)
 {

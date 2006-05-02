@@ -36,8 +36,10 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.19");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.20");
 vtkStandardNewMacro(vtkBoxClipDataSet);
+
+vtkCxxSetObjectMacro(vtkBoxClipDataSet, Locator, vtkPointLocator)
 
 //----------------------------------------------------------------------------
 vtkBoxClipDataSet::vtkBoxClipDataSet()
@@ -63,15 +65,11 @@ vtkBoxClipDataSet::vtkBoxClipDataSet()
 //----------------------------------------------------------------------------
 vtkBoxClipDataSet::~vtkBoxClipDataSet()
 {
-  if ( this->Locator )
-    {
-    this->Locator->UnRegister(this);
-    this->Locator = NULL;
-    }
+  this->SetLocator(NULL);
 }
 
 //----------------------------------------------------------------------------
-// Do not say we have two outputs unless we are generating the clipped output. 
+// Do not say we have two outputs unless we are generating the clipped output.
 int vtkBoxClipDataSet::GetNumberOfOutputs()
 {
   if (this->GenerateClippedOutput)
@@ -86,7 +84,7 @@ int vtkBoxClipDataSet::GetNumberOfOutputs()
 // then this object is modified as well.
 unsigned long vtkBoxClipDataSet::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  unsigned long mTime = this->Superclass::GetMTime();
   unsigned long time;
 
   if ( this->Locator != NULL )
@@ -105,7 +103,7 @@ vtkUnstructuredGrid *vtkBoxClipDataSet::GetClippedOutput()
     {
     return NULL;
     }
-  
+
   return vtkUnstructuredGrid::SafeDownCast(
     this->GetExecutive()->GetOutputData(1));
 }
@@ -150,9 +148,9 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
   int   cellType = 0;
   int   numOutputs = 1;
   int   inputObjectType = input->GetDataObjectType();
-  
+
   // if we have volumes
-  if (inputObjectType == VTK_STRUCTURED_POINTS || 
+  if (inputObjectType == VTK_STRUCTURED_POINTS ||
       inputObjectType == VTK_IMAGE_DATA)
     {
     int dimension;
@@ -165,7 +163,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
         }
       }
     }
-  
+
   // Initialize self; create output objects
   //
   if ( numPts < 1 )
@@ -173,7 +171,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
     vtkDebugMacro(<<"No data to clip");
     return 1;
     }
-  
+
   // allocate the output and associated helper classes
   estimatedSize = numCells;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
@@ -204,15 +202,15 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts,numPts/2);
-  
+
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL )
     {
     this->CreateDefaultLocator();
     }
   this->Locator->InitPointInsertion (newPoints, input->GetBounds());
-  
-  
+
+
   vtkDataArray *scalars = this->GetInputArrayToProcess(0,inputVector);
   if ( !this->GenerateClipScalars && !scalars)
     {
@@ -239,8 +237,8 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
 
   int abort = 0;
   int num[2];
-  int numNew[2]; 
-  
+  int numNew[2];
+
   num[0]    = num[1]      = 0;
   numNew[0] = numNew[1]   = 0;
 
@@ -254,12 +252,12 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
       this->UpdateProgress((float)cellId / numCells);
       abort = this->GetAbortExecute();
       }
-    
+
     input->GetCell(cellId,cell);
     cellPts = cell->GetPoints();
     npts = cellPts->GetNumberOfPoints();
-                
-    if (this->GenerateClippedOutput) 
+
+    if (this->GenerateClippedOutput)
       {
       if((cell->GetCellDimension())==3 )
         {
@@ -286,7 +284,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
           this->ClipHexahedronInOut2D(newPoints,cell,this->Locator, conn,
                                       inPD, outPD, inCD, cellId, outCD);
           }
-        else 
+        else
           {
           this->ClipBoxInOut2D(newPoints,cell, this->Locator, conn,
                                inPD, outPD, inCD, cellId, outCD);
@@ -336,7 +334,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
                       << cell->GetCellDimension());
         }
       }
-    else 
+    else
       {
       if((cell->GetCellDimension())==3 )
         {
@@ -350,16 +348,16 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
           this->ClipBox(newPoints,cell, this->Locator, conn[0],
                         inPD, outPD, inCD, cellId, outCD[0]);
           }
-    
+
         numNew[0] = conn[0]->GetNumberOfCells() - num[0];
         num[0]    = conn[0]->GetNumberOfCells();
-        }  
+        }
       else if((cell->GetCellDimension())==2 )
         {
         if (orientation)
           {
           this->ClipHexahedron2D(newPoints,cell,this->Locator, conn[0],
-                                 inPD, outPD, inCD, cellId, outCD[0]); 
+                                 inPD, outPD, inCD, cellId, outCD[0]);
           }
         else
           {
@@ -404,51 +402,51 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
         vtkErrorMacro(<< "Do not support cells of dimension "
                       << cell->GetCellDimension());
         }
-      }  
+      }
 
     for (i=0 ; i<numOutputs; i++)  // for both outputs
       {
-      for (j=0; j < numNew[i]; j++) 
+      for (j=0; j < numNew[i]; j++)
         {
         locs[i]->InsertNextValue(conn[i]->GetTraversalLocation());
         conn[i]->GetNextCell(npts,pts);
-        
+
         //For each new cell added, got to set the type of the cell
         switch ( cell->GetCellDimension() )
           {
           case 0: //points are generated-------------------------------
             cellType = (npts > 1 ? VTK_POLY_VERTEX : VTK_VERTEX);
             break;
-          
+
           case 1: //lines are generated----------------------------------
             cellType = (npts > 2 ? VTK_POLY_LINE : VTK_LINE);
             break;
-          
+
           case 2: //polygons are generated------------------------------
-            cellType = (npts == 3 ? VTK_TRIANGLE : 
+            cellType = (npts == 3 ? VTK_TRIANGLE :
                  (npts == 4 ? VTK_QUAD : VTK_POLYGON));
             break;
-          
+
           case 3: //tetrahedra are generated------------------------------
             cellType = VTK_TETRA;
             break;
            } //switch
-        
+
         newCellId = types[i]->InsertNextValue(cellType);
         outCD[i]->CopyData(inCD, cellId, newCellId);
         } //for each new cell
       } // for both outputs
     } //for each cell
-       
+
   cell->Delete();
-  
+
   output->SetPoints(newPoints);
   output->SetCells(types[0], locs[0], conn[0]);
 
   conn[0]->Delete();
   types[0]->Delete();
   locs[0]->Delete();
-  
+
   if ( this->GenerateClippedOutput )
     {
     clippedOutput->SetPoints(newPoints);
@@ -465,31 +463,8 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
 }
 
 //----------------------------------------------------------------------------
-// Specify a spatial locator for merging points. By default, 
+// Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
-void vtkBoxClipDataSet::SetLocator(vtkPointLocator *locator)
-{
-  if ( this->Locator == locator)
-    {
-    return;
-    }
-  
-  if ( this->Locator )
-    {
-    this->Locator->UnRegister(this);
-    this->Locator = NULL;
-    }
-
-  if ( locator )
-    {
-    locator->Register(this);
-    }
-
-  this->Locator = locator;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
 void vtkBoxClipDataSet::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
@@ -502,7 +477,7 @@ void vtkBoxClipDataSet::CreateDefaultLocator()
 
 //----------------------------------------------------------------------------
 // Set the box for clipping
-// for each plane, specify the normal and one vertex on the plane. 
+// for each plane, specify the normal and one vertex on the plane.
 //
 void vtkBoxClipDataSet::SetBoxClip(const double *n0, const double *o0,
                                    const double *n1, const double *o1,
@@ -511,35 +486,23 @@ void vtkBoxClipDataSet::SetBoxClip(const double *n0, const double *o0,
                                    const double *n4, const double *o4,
                                    const double *n5, const double *o5)
 {
-  int i;
-
-  for ( i=0;i<3;i++) 
+  for (int i=0;i<3;i++)
     {
     this->PlaneNormal[0][i] = n0[i];
     this->PlanePoint[0][i] = o0[i];
-    }
-  for ( i=0;i<3;i++) 
-    {
+
     this->PlaneNormal[1][i] = n1[i];
     this->PlanePoint[1][i] = o1[i];
-    }
-  for ( i=0;i<3;i++) 
-    {
+
     this->PlaneNormal[2][i] = n2[i];
     this->PlanePoint[2][i] = o2[i];
-    }
-  for ( i=0;i<3;i++) 
-    {
+
     this->PlaneNormal[3][i] = n3[i];
     this->PlanePoint[3][i] = o3[i];
-    }
-  for ( i=0;i<3;i++) 
-    {
+
     this->PlaneNormal[4][i] = n4[i];
     this->PlanePoint[4][i] = o4[i];
-    }
-  for ( i=0;i<3;i++) 
-    {
+
     this->PlaneNormal[5][i] = n5[i];
     this->PlanePoint[5][i] = o5[i];
     }
@@ -575,7 +538,7 @@ void vtkBoxClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
 
   //os << indent << "Merge Tolerance: " << this->MergeTolerance << "\n";
   os << indent << "Orientation: " << this->Orientation << "\n";
-  
+
   if ( this->Locator )
     {
     os << indent << "Locator: " << this->Locator << "\n";
@@ -587,7 +550,7 @@ void vtkBoxClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Clipped Output: "
      << (this->GenerateClippedOutput ? "Yes\n" : "Off\n");
-  os << indent << "Generate Clip Scalars: " 
+  os << indent << "Generate Clip Scalars: "
      << (this->GenerateClipScalars ? "On\n" : "Off\n");
 }
 
@@ -601,14 +564,14 @@ void vtkBoxClipDataSet::MinEdgeF(const unsigned int *id_v,
                                  const vtkIdType *cellIds,
                                  unsigned int *edgF)
 {
-    
+
   int i;
   unsigned int id;
   int ids;
-  int min_f; 
+  int min_f;
 
   ids   = 0;
-  id    = id_v[0];   //Face index     
+  id    = id_v[0];   //Face index
   min_f = cellIds[id_v[0]];
 
   for(i=1; i<4; i++)
@@ -616,9 +579,9 @@ void vtkBoxClipDataSet::MinEdgeF(const unsigned int *id_v,
     if(min_f > cellIds[id_v[i]])
       {
       min_f = cellIds[id_v[i]];
-      id = id_v[i];            
+      id = id_v[i];
       ids= i;
-      }  
+      }
     }
 
   switch(ids)
@@ -677,19 +640,19 @@ void vtkBoxClipDataSet::MinEdgeF(const unsigned int *id_v,
 //----------------------------------------------------------------------------
 // CellGrid: Subdivide cells in consistent tetrahedra.
 //
-// Case : Voxel or Hexahedron: 
+// Case : Voxel or Hexahedron:
 //       if ( subdivide voxel  in 6 tetrahedra)
 //           voxel : 2 wedges (*)
-//       else 
-//           voxel : 5 tetrahedra 
-// 
+//       else
+//           voxel : 5 tetrahedra
+//
 // Case : Wedge (*)
-// 
+//
 // ------------------------------------------------
 //
 //(*) WedgeToTetra: subdivide one wedge in  3 tetrahedra
 //
-//        wedge : 1 tetrahedron + 1 pyramid = 3 tetrahedra. 
+//        wedge : 1 tetrahedron + 1 pyramid = 3 tetrahedra.
 //
 void vtkBoxClipDataSet::WedgeToTetra(const vtkIdType *wedgeId,
                                      const vtkIdType *cellIds,
@@ -703,10 +666,10 @@ void vtkBoxClipDataSet::WedgeToTetra(const vtkIdType *wedgeId,
 
   const vtkIdType vwedge[6][4]={ {0, 4, 3, 5}, {1, 4, 3, 5}, {2, 4, 3, 5},
                                  {3, 0, 1, 2}, {4, 0, 1, 2}, {5, 0, 1, 2} };
-        
-  // the table 'vwedge' set 6 possibilities of the smallest index 
+
+  // the table 'vwedge' set 6 possibilities of the smallest index
   //
-  //             v5       
+  //             v5
   //             /\       .
   //         v3 /..\ v4
   //           /   /
@@ -718,24 +681,24 @@ void vtkBoxClipDataSet::WedgeToTetra(const vtkIdType *wedgeId,
   //     and 1 pyramid    -> vert[0]  : {v1,v2,v5,v4,v0}
   //
 
-  id = 0;     
+  id = 0;
   xmin = cellIds[wedgeId[0]];
-  for(i=1;i<6;i++) 
+  for(i=1;i<6;i++)
     {
     if(xmin > cellIds[wedgeId[i]])
       {
       xmin = cellIds[wedgeId[i]];// the smallest global index
-      id = i;                    // local index 
-      }  
+      id = i;                    // local index
+      }
     }
   for (i =0;i<4;i++)
     {
     tab[i] = wedgeId[vwedge[id][i]];
     }
   newCellArray->InsertNextCell(4,tab);
-  
+
   // Pyramid :create 2 tetrahedra
-  const vtkIdType vert[6][5]={ {1, 2, 5, 4, 0}, {2, 0, 3, 5, 1}, 
+  const vtkIdType vert[6][5]={ {1, 2, 5, 4, 0}, {2, 0, 3, 5, 1},
                                {3, 0, 1, 4, 2}, {1, 2, 5, 4, 3},
                                {2, 0, 3, 5, 4}, {3, 0, 1, 4, 5} };
   for(i=0;i<5;i++)
@@ -759,52 +722,52 @@ void  vtkBoxClipDataSet::PyramidToTetra(const vtkIdType *pyramId,
   unsigned int i,j,idpy;
   vtkIdType tab[4];
 
-  // the table 'vpy' set  3  possibilities of the smallest index 
+  // the table 'vpy' set  3  possibilities of the smallest index
   // vertices{v0,v1,v2,v3,v4}. {v0,v1,v2,v3} is a square face of pyramid
   //
-  //                v4      
-  //                ^                
-  //                                  
-  //                       
-  //           v3 _ _ __ _  v2     
-  //           /         /     
-  //        v0/_ _ _ _ _/v1         
-  //                                  
+  //                v4
+  //                ^
+  //
+  //
+  //           v3 _ _ __ _  v2
+  //           /         /
+  //        v0/_ _ _ _ _/v1
+  //
   //   if(v0 index ) is the smallest index:
   //   the pyramid is subdivided in:
   //         2 tetrahedra-> vpy[0]: {v0,v1,v2,v4}
   //                        vpy[1]: {v0,v2,v3,v4}
-  //    
+  //
   const vtkIdType vpy[8][4] ={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
-                              {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}}; 
-  
+                              {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
+
   xmin = cellIds[pyramId[0]];
   idpy = 0;
-  for(i=1;i<4;i++) 
+  for(i=1;i<4;i++)
     {
     if(xmin > cellIds[pyramId[i]])
       {
-      xmin = cellIds[pyramId[i]];  // global index 
+      xmin = cellIds[pyramId[i]];  // global index
       idpy = i;                    // local index
       }
     }
-  for(j = 0; j < 4 ; j++) 
+  for(j = 0; j < 4 ; j++)
     {
     tab[j] = pyramId[vpy[2*idpy][j]];
     }
   newCellArray->InsertNextCell(4,tab);
-  
-  for(j = 0; j < 4 ; j++) 
+
+  for(j = 0; j < 4 ; j++)
     {
     tab[j] = pyramId[vpy[2*idpy+1][j]];
     }
-  newCellArray->InsertNextCell(4,tab);  
+  newCellArray->InsertNextCell(4,tab);
 }
 
 
 //----------------------------------------------------------------------------
 //Tetra Grid : Subdivide cells in  consistent tetrahedra.
-//             For each cell, search the smallest global index. 
+//             For each cell, search the smallest global index.
 //
 //  Case Tetrahedron(10): Just insert this cell in the newCellArray
 //
@@ -934,7 +897,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
       break;
 
     case VTK_TRIANGLE_STRIP: // 6
-      for (idt=0 ; idt < npts-2; idt++) 
+      for (idt=0 ; idt < npts-2; idt++)
         {
         if (idt%2 == 0)
           {
@@ -954,7 +917,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
 
     case VTK_POLYGON: // 7 (Convex case)
       tri[0] = 0;
-      for (idt=2 ; idt < npts; idt++) 
+      for (idt=2 ; idt < npts; idt++)
         {
         tri[1] = idt-1;
         tri[2] = idt;
@@ -972,7 +935,8 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
 
     case VTK_QUAD: // 9
     case VTK_QUADRATIC_QUAD:
-
+    case VTK_BIQUADRATIC_QUAD:
+    case VTK_QUADRATIC_LINEAR_QUAD:
       {
       const vtkIdType vtriq[2][3] = {{0,1,2},{0,2,3}};
       newCellArray->InsertNextCell(3,vtriq[0]);
@@ -986,17 +950,17 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
       const vtkIdType tetra[4]={0,1,2,3};
       newCellArray->InsertNextCell(ptstetra,tetra);
       }
-      break;  
+      break;
 
     case VTK_VOXEL: // 11
-      // each face: search edge with smallest global index  
+      // each face: search edge with smallest global index
       // face 0 (0,1,5,4)
       idv[0]= 0;
       idv[1]= 1;
       idv[2]= 5;
       idv[3]= 4;
       this->MinEdgeF(idv,cellIds,Edg_f[0]);
-      
+
       // face 1 (0,1,3,2)
       idv[0]= 0;
       idv[1]= 1;
@@ -1027,44 +991,44 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
       idv[2]= 7;
       idv[3]= 5;
       this->MinEdgeF(idv,cellIds,Edg_f[5]);
-  
-      //search the smallest global index of voxel 
+
+      //search the smallest global index of voxel
       xmin = cellIds[0];
       id = 0;
-      for(i=1;i<8;i++) 
+      for(i=1;i<8;i++)
         {
         if(xmin > cellIds[i])
           {
           xmin = cellIds[i];// the smallest global index
-          id = i;           // local index 
-          }  
+          id = i;           // local index
+          }
         }
-      //two cases: 
+      //two cases:
       idopos      = 7 - id;
       numbertetra = 5;
-      for(i=0;i<6;i++) 
+      for(i=0;i<6;i++)
         {
         j=0;
-        if (idopos == Edg_f[i][j]) 
+        if (idopos == Edg_f[i][j])
           {
           numbertetra = 6;
           break;
           }
         j=1;
-        if (idopos == Edg_f[i][j]) 
+        if (idopos == Edg_f[i][j])
           {
           numbertetra = 6;
           break;
           }
         }
-  
-      if(numbertetra == 5) 
+
+      if(numbertetra == 5)
         {
-        // case 1: create  5 tetraedra 
+        // case 1: create  5 tetraedra
         if((id == 0)||(id == 3)||(id == 5)||(id == 6))
           {
           const vtkIdType vtetra[5][4]={{0,5,3,6},{0,4,5,6},
-                                        {0,1,3,5},{5,3,6,7},{0,3,2,6}}; 
+                                        {0,1,3,5},{5,3,6,7},{0,3,2,6}};
           for(i=0; i<5; i++)
             {
             newCellArray->InsertNextCell(4,vtetra[i]);
@@ -1073,15 +1037,15 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
         else
           {
           const vtkIdType vtetra[5][4]={{1,2,4,7},{0,1,2,4},
-                                        {1,4,5,7},{1,3,2,7},{2,6,4,7}};   
-          
+                                        {1,4,5,7},{1,3,2,7},{2,6,4,7}};
+
           for(i=0; i<5; i++)
             {
             newCellArray->InsertNextCell(4,vtetra[i]);
             }
           }
         }
-      else 
+      else
         {
         //case 2: create 2 wedges-> 6 tetrahedra
         const vtkIdType vwedge[12][6]={{0,5,4,2,7,6},{0,1,5,2,3,7},
@@ -1089,9 +1053,9 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
                                        {1,7,5,0,6,4},{1,3,7,0,2,6},
                                        {4,5,6,0,1,2},{6,5,7,2,1,3},
                                        {3,7,5,2,6,4},{1,3,5,0,2,4},
-                                       {0,1,4,2,3,6},{1,5,4,3,7,6}}; 
+                                       {0,1,4,2,3,6},{1,5,4,3,7,6}};
         unsigned int edgeId = 10*Edg_f[i][0]+ Edg_f[i][1];
-        switch(edgeId)     
+        switch(edgeId)
           {
           case 5:   // edge(v0,v5):10*0 + 5
           case 27:  // edge(v2,v7):10*2 + 7
@@ -1128,16 +1092,18 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
         break;
 
     case VTK_HEXAHEDRON: // 12
-    case VTK_QUADRATIC_HEXAHEDRON: 
+    case VTK_QUADRATIC_HEXAHEDRON:
+    case VTK_TRIQUADRATIC_HEXAHEDRON:
+    case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
       {
-      // each face: search edge with smallest global index  
+      // each face: search edge with smallest global index
       // face 0 (0,1,5,4)
       idv[0]= 0;
       idv[1]= 1;
       idv[2]= 5;
       idv[3]= 4;
       this->MinEdgeF(idv,cellIds,Edg_f[0]);
-      
+
       // face 1 (0,1,2,3)
       idv[0]= 0;
       idv[1]= 1;
@@ -1168,46 +1134,46 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
       idv[2]= 6;
       idv[3]= 5;
       this->MinEdgeF(idv,cellIds,Edg_f[5]);
-  
-      //search the smallest global index of voxel 
+
+      //search the smallest global index of voxel
       xmin = cellIds[0];
       id = 0;
-      for(i=1;i<8;i++) 
+      for(i=1;i<8;i++)
         {
         if(xmin > cellIds[i])
           {
           xmin = cellIds[i];// the smallest global index
-          id = i;           // local index 
-          }  
+          id = i;           // local index
+          }
         }
-  
-      //two cases: 
+
+      //two cases:
       const unsigned int tabopos[8] = {6,7,4,5,2,3,0,1};
       idopos      = tabopos[id];
       numbertetra = 5;
-      for(i=0;i<6;i++) 
+      for(i=0;i<6;i++)
         {
         j = 0;
-        if (idopos == Edg_f[i][j]) 
+        if (idopos == Edg_f[i][j])
           {
           numbertetra = 6;
           break;
           }
         j=1;
-        if (idopos == Edg_f[i][j]) 
+        if (idopos == Edg_f[i][j])
           {
           numbertetra = 6;
           break;
           }
         }
-  
-      if(numbertetra == 5) 
+
+      if(numbertetra == 5)
         {
-        // case 1: create  5 tetraedra 
+        // case 1: create  5 tetraedra
         if((id == 0)||(id == 2)||(id == 5)||(id == 7))
           {
           const vtkIdType vtetra[5][4]={{0,5,2,7},{0,4,5,7},
-                                        {0,1,2,5},{5,2,7,6},{0,2,3,7}}; 
+                                        {0,1,2,5},{5,2,7,6},{0,2,3,7}};
           for(i=0; i<5; i++)
             {
             newCellArray->InsertNextCell(4,vtetra[i]);
@@ -1216,15 +1182,15 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
         else
           {
           const vtkIdType vtetra[5][4]={{1,3,4,6},{0,1,3,4},
-                                        {1,4,5,6},{1,2,3,6},{3,7,4,6}};   
-          
+                                        {1,4,5,6},{1,2,3,6},{3,7,4,6}};
+
           for(i=0; i<5; i++)
             {
             newCellArray->InsertNextCell(4,vtetra[i]);
             }
           }
-        } 
-      else 
+        }
+      else
         {
         //case 2: create 2 wedges-> 6 tetrahedra
         const vtkIdType vwedge[12][6]={{0,5,4,3,6,7},{0,1,5,3,2,6},
@@ -1232,7 +1198,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
                                        {1,6,5,0,7,4},{1,2,6,0,3,7},
                                        {4,5,7,0,1,3},{7,5,6,3,1,2},
                                        {2,6,5,3,7,4},{1,2,5,0,3,4},
-                                       {0,1,4,3,2,7},{1,5,4,2,6,7}}; 
+                                       {0,1,4,3,2,7},{1,5,4,2,6,7}};
         unsigned int edgeId = 10*Edg_f[i][0]+ Edg_f[i][1];
 
         switch(edgeId)
@@ -1270,58 +1236,60 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
           }
         }
       }
-      break;      
+      break;
 
     case VTK_WEDGE:
     case VTK_QUADRATIC_WEDGE:
+    case VTK_QUADRATIC_LINEAR_WEDGE:
+    case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
       if(npts == 6) //create 3 tetrahedra
         {
-        //first tetrahedron 
+        //first tetrahedron
         const vtkIdType vwedge[6][4]={{0,4,3,5},{1,4,3,5},{2,4,3,5},
                                       {3,0,1,2},{4,0,1,2},{5,0,1,2}};
         xmin = cellIds[0];
         id = 0;
-        for(i=1;i<6;i++) 
+        for(i=1;i<6;i++)
           {
           if(xmin > cellIds[i])
             {
             xmin = cellIds[i];  // the smallest global index
-            id = i;             // local index 
-            }  
+            id = i;             // local index
+            }
           }
         newCellArray->InsertNextCell(4, vwedge[id]);
-        
+
         //Pyramid :create 2 tetrahedra
-           
+
         const vtkIdType vert[6][5]={{1,2,5,4,0},{2,0,3,5,1},{3,0,1,4,2},
-                                    {1,2,5,4,3},{2,0,3,5,4},{3,0,1,4,5}};  
+                                    {1,2,5,4,3},{2,0,3,5,4},{3,0,1,4,5}};
         const vtkIdType vpy[8][4] ={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
                                     {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
         xmin    = cellIds[vert[id][0]];
         tabp[0] = vert[id][0];
         idpy = 0;
-        for(i=1;i<4;i++) 
+        for(i=1;i<4;i++)
           {
           tabp[i] = vert[id][i];
           if(xmin > cellIds[vert[id][i]])
             {
-            xmin = cellIds[vert[id][i]]; // global index 
+            xmin = cellIds[vert[id][i]]; // global index
             idpy = i;                    // local index
             }
           }
         tabp[4] = vert[id][4];
-        for(j = 0; j < 4 ; j++) 
+        for(j = 0; j < 4 ; j++)
           {
           tab[j] = tabp[vpy[2*idpy][j]];
           }
         newCellArray->InsertNextCell(4,tab);
-        
-        for(j = 0; j < 4 ; j++) 
+
+        for(j = 0; j < 4 ; j++)
           {
           tab[j] = tabp[vpy[2*idpy+1][j]];
           }
         newCellArray->InsertNextCell(4,tab);
-        
+
         }
       else
         {
@@ -1329,7 +1297,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
         return;
         }
       break;
-  
+
     case VTK_PYRAMID: //Create 2 tetrahedra
     case VTK_QUADRATIC_PYRAMID:
       if(npts == 5)
@@ -1339,13 +1307,13 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
                                       {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
         xmin = cellIds[0];
         id   = 0;
-        for(i=1;i<4;i++) 
+        for(i=1;i<4;i++)
           {
           if(xmin > cellIds[i])
             {
-            xmin = cellIds[i]; // the smallest global index of square face 
+            xmin = cellIds[i]; // the smallest global index of square face
             id = i;            // local index
-            }          
+            }
           }
         newCellArray->InsertNextCell(4,vpyram[2*id]);
         newCellArray->InsertNextCell(4,vpyram[2*id+1]);
@@ -1367,51 +1335,51 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
 // proper vertex ordering for wedges and pyramids can be found in "The
 // Visualization Toolkit."  In the third edition, they are in Figure 5-2 on page
 // 115 in section 5.4 ("Cell Types") in the "Basic Data Representation" chapter.
-//  
+//
 void vtkBoxClipDataSet::CreateTetra(vtkIdType npts, const vtkIdType *cellIds,
                                     vtkCellArray *newCellArray)
 {
   vtkIdType tabp[5];
   vtkIdType tab[3][4];
-  
+
   unsigned int i,j;
   unsigned int id =0;
   unsigned int idpy;
 
   vtkIdType xmin;
-        
-  if (npts == 6) 
-    { 
+
+  if (npts == 6)
+    {
     //VTK_WEDGE: Create 3 tetrahedra
-    //first tetrahedron 
+    //first tetrahedron
     const vtkIdType vwedge[6][4]={{0,4,3,5},{1,4,3,5},{2,4,3,5},
-                                  {3,0,1,2},{4,0,1,2},{5,0,1,2}};             
+                                  {3,0,1,2},{4,0,1,2},{5,0,1,2}};
     xmin = cellIds[0];
     id = 0;
-    for(i=1;i<6;i++) 
+    for(i=1;i<6;i++)
       {
       if(xmin > cellIds[i])
         {
         xmin = cellIds[i];// the smallest global index
-        id = i;           // local index 
-        }  
-      }     
-    for(j = 0; j < 4 ; j++) 
+        id = i;           // local index
+        }
+      }
+    for(j = 0; j < 4 ; j++)
       {
       tab[0][j] = cellIds[vwedge[id][j]];
-      }  
+      }
     newCellArray->InsertNextCell(4,tab[0]);
-      
+
     //Pyramid: create 2 tetrahedra
-  
+
     const vtkIdType vert[6][5]= {{1,2,5,4,0},{2,0,3,5,1},{3,0,1,4,2},
-                                 {1,2,5,4,3},{2,0,3,5,4},{3,0,1,4,5}};  
+                                 {1,2,5,4,3},{2,0,3,5,4},{3,0,1,4,5}};
     const vtkIdType vpy[8][4] = {{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
                                  {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
     xmin    = cellIds[vert[id][0]];
     tabp[0] = vert[id][0];
     idpy = 0;
-    for(i=1;i<4;i++) 
+    for(i=1;i<4;i++)
       {
       tabp[i] = vert[id][i];
       if(xmin > cellIds[vert[id][i]])
@@ -1421,67 +1389,67 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts, const vtkIdType *cellIds,
         }
       }
     tabp[4] = vert[id][4];
-    for(j = 0; j < 4 ; j++) 
+    for(j = 0; j < 4 ; j++)
       {
       tab[1][j] = cellIds[tabp[vpy[2*idpy][j]]];
       }
     newCellArray->InsertNextCell(4,tab[1]);
-      
-    for(j = 0; j < 4 ; j++) 
+
+    for(j = 0; j < 4 ; j++)
       {
-      tab[2][j] = cellIds[tabp[vpy[2*idpy+1][j]]];    
+      tab[2][j] = cellIds[tabp[vpy[2*idpy+1][j]]];
       }
     newCellArray->InsertNextCell(4,tab[2]);
     }
-  else 
-    {  
+  else
+    {
     //VTK_PYRAMID: Create 2 tetrahedra
     //The first element in each set is the smallest index of pyramid
     const vtkIdType vpyram[8][4]={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
                                   {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
     xmin = cellIds[0];
     id   = 0;
-    for(i=1;i<4;i++) 
+    for(i=1;i<4;i++)
       {
       if(xmin > cellIds[i])
         {
-        xmin = cellIds[i]; // the smallest global index of face with 4 vertices 
+        xmin = cellIds[i]; // the smallest global index of face with 4 vertices
         id = i;            // local index
-        }          
+        }
       }
-    for(j = 0; j < 4 ; j++) 
+    for(j = 0; j < 4 ; j++)
       {
       tab[0][j] = cellIds[vpyram[2*id][j]];
       }
     newCellArray->InsertNextCell(4,tab[0]);
-    
-    for(j = 0; j < 4 ; j++) 
+
+    for(j = 0; j < 4 ; j++)
       {
       tab[1][j] = cellIds[vpyram[2*id+1][j]];
       }
     newCellArray->InsertNextCell(4,tab[1]);
-    } 
+    }
 }
 
 //----------------------------------------------------------------------------
 // Clip each cell of an unstructured grid.
-// 
-//----------------------------------------------------------------------------   
+//
+//----------------------------------------------------------------------------
 //(1) How decide when the cell is NOT outside
 //
-//    Explaining with an example in 2D. 
+//    Explaining with an example in 2D.
 //    Look at 9 region in the picture and the triangle represented there.
 //    v0,v1,v2 are vertices of triangle T.
 //
-//              |         |        
-//        1     |   2     |     3       
+//              |         |
+//        1     |   2     |     3
 //     _ _ _ _ _ _ _ _ _  _ _ _ _ _ ymax
-//              |         | v1        
-//        4     |   5     |/\   6      
+//              |         | v1
+//        4     |   5     |/\   6
 //              |         /  \             .
 //     _ _ _ _ _ _ _ _ _ /| _ \_ _ _ymin
-//              |     v2/_|_ _ \v0        
-//        7     |   8     |     9  
+//              |     v2/_|_ _ \v0
+//        7     |   8     |     9
 //            xmin       xmax
 //
 // set test={1,1,1,1} (one test for each plane: test={xmin,xmax,ymin,ymax} )
@@ -1497,72 +1465,72 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts, const vtkIdType *cellIds,
 //    In general, look at the possibilities of each region
 //
 //    (1,0,0,1)  | (0,0,0,1)  | (0,1,0,1)
-//    - - - - - - - - - - - - - - - - - - 
+//    - - - - - - - - - - - - - - - - - -
 //    (1,0,0,0)  | (0,0,0,0)  | (0,1,0,0)
-//    - - - - - - - - - - - - - - - - - - 
+//    - - - - - - - - - - - - - - - - - -
 //    (1,0,1,0)  | (0,0,1,0)  | (0,1,1,0)
 //
 //    In the case above we have:(v0,v1,v2)
 //    (1,1,1,1)->(0,1,1,0)->(0,1,0,0)->(0,0,0,0)
 //
 //    If you have one vertex in region 5, this triangle is NOT outside
-//    The triangle IS outside if (v0,v1,v2) are in region like 
+//    The triangle IS outside if (v0,v1,v2) are in region like
 //    (1,2,3): (1,0,0,1)->(0,0,0,1)->(0,0,0,1)
 //    (1,4,7): (1,0,0,1)->(1,0,0,0)->(1,0,0,0)
 //    (7,8,9): (1,0,1,0)->(0,0,1,0)->(0,0,1,0)
-//    (9,6,3): (0,1,1,0)->(0,1,0,0)->(0,1,0,0) 
+//    (9,6,3): (0,1,1,0)->(0,1,0,0)->(0,1,0,0)
 //
 //    Note that if the triangle T is on the region 5, T is NOT outside
-//    In fact, T is inside 
+//    In fact, T is inside
 //
 //    You can extend this idea to 3D.
 //
-//    Note: xmin = this->BoundBoxClip[0][0], xmax=  this->BoundBoxClip[0][1],... 
-// 
-//----------------------------------------------------------------------------  
+//    Note: xmin = this->BoundBoxClip[0][0], xmax=  this->BoundBoxClip[0][1],...
+//
+//----------------------------------------------------------------------------
 // (2) Intersection between Tetrahedron and Plane:
-//     Description: 
+//     Description:
 //         vertices of tetrahedron {v0,v1,v2,v3}
 //         edge e1 : (v0,v1),   edge e2 : (v1,v2)
 //         edge e3 : (v2,v0),   edge e4 : (v0,v3)
 //         edge e5 : (v1,v3),   edge e6 : (v2,v3)
-//         
-//         interseting points p0, pi, ...
+//
+//         intersecting points p0, pi, ...
 //
 //         Note: The algorithm search intersection
 //               points with these edge order.
 //
 //          v3                        v3
-//       e6/|\ e5                     | 
-//        / | \            e2         | 
-//     v2/_ |_ \ v1    v2 - - -v1     |e4 
+//       e6/|\ e5                     |
+//        / | \            e2         |
+//     v2/_ |_ \ v1    v2 - - -v1     |e4
 //       \  |  /                      |
 //      e3\ | /e1                     |
 //         \|/                        |
 //          v0                        v0
 //
-//    (a) Intersecting  4 edges: see tab4[] 
+//    (a) Intersecting  4 edges: see tab4[]
 //                    -> create: 2 wedges
 //                    -> 3 cases
 //                    ------------------------------------------
-//        case 1246:   
+//        case 1246:
 //                   if (plane intersecting  edges {e1,e2,e4,e6})
 //                   then  p0 belongs to e1, p1 belongs to e2,
 //                         p2 belongs to e4, p3 belongs to e6.
 //
 //                                    v3
-//                                     |            v3 
+//                                     |            v3
 //                                     |            /
 //                v1    v2 - *- -v1    |           * p3
 //              /            p1        * p2       /
 //             *p0                     |       v2/
 //           /                         |
 //          v0                        v0
-//          (e1)          (e2)       (e4)        (e6) 
+//          (e1)          (e2)       (e4)        (e6)
 //
 //                   So, there are two wedges:
 //                   {p0,v1,p1,p2,v3,p3}  {p2,v0,p0,p3,v2,p1}
-// 
+//
 //                   Note: if e1 and e2 are intersected by plane,
 //                         and the plane intersects 4 edges,
 //                         the edge e5 could not be intersected
@@ -1570,13 +1538,13 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts, const vtkIdType *cellIds,
 //                         neither the edge e3((e1,e2,e3) is a face)
 //
 //                    ------------------------------------------
-//        case 2345:   
+//        case 2345:
 //                   if (plane intersecting  edges {e2,e3,e4,e5})
 //                   The two wedges are:
 //                   {p3,v3,p2,p0,v2,p1}, {p1,v0,p2,p0,v1,p3}
-//                         
+//
 //                    ------------------------------------------
-//        case 1356:   
+//        case 1356:
 //                   if (plane intersecting  edges {e1,e3,e5,e6})
 //                   The two wedges are:
 //                   {p0,v0,p1,p2,v3,p3}, {p0,v1,p2,p1,v2,p3}
@@ -1593,19 +1561,19 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts, const vtkIdType *cellIds,
 //                         p2 belongs to e4.
 //
 //                           v3
-//                           |             
-//                           |            
-//                     v2   *p2   v1      
-//                       \   |   /  
-//                      p1*  |  *p0     
+//                           |
+//                           |
+//                     v2   *p2   v1
+//                       \   |   /
+//                      p1*  |  *p0
 //                          \|/
 //                          v0
-//                 
+//
 //
 //                   So, there are:
 //                       1 tetrahedron {v0,p0,p2,p1)
-//                       and 1 wedge:  {p0,p2,p1,v1,v3,v2}: tab3[0] 
-//                   
+//                       and 1 wedge:  {p0,p2,p1,v1,v3,v2}: tab3[0]
+//
 //                   Note:(a)if e1 and e3 are intersected by plane,
 //                            and the plane intersects 3 edges,
 //                            the edges e5 could not be intersected,
@@ -1689,19 +1657,19 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts, const vtkIdType *cellIds,
 //
 void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
                                 vtkGenericCell *cell,
-                                vtkPointLocator *locator, 
+                                vtkPointLocator *locator,
                                 vtkCellArray *tets,
-                                vtkPointData *inPD, 
+                                vtkPointData *inPD,
                                 vtkPointData *outPD,
                                 vtkCellData *inCD,
                                 vtkIdType cellId,
                                 vtkCellData *outCD)
-{  
+{
   vtkIdType     cellType   = cell->GetCellType();
   vtkIdList    *cellIds    = cell->GetPointIds();
   vtkCellArray *arraytetra = vtkCellArray::New();
   vtkPoints    *cellPts    = cell->GetPoints();
-  vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
+  vtkIdType     npts       = cellPts->GetNumberOfPoints();
   vtkIdType     cellptId[VTK_CELL_SIZE];
   vtkIdType     iid[4];
   vtkIdType    *v_id = NULL;
@@ -1728,12 +1696,12 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
     cellptId[i] = cellIds->GetId(i);
     }
 
-  // Convert all volume cells to tetrahedra       
-  this->CellGrid(cellType,npts,cellptId,arraytetra);   
+  // Convert all volume cells to tetrahedra
+  this->CellGrid(cellType,npts,cellptId,arraytetra);
   unsigned int totalnewtetra = arraytetra->GetNumberOfCells();
   unsigned int idtetranew;
 
-  for (idtetranew = 0 ; idtetranew < totalnewtetra; idtetranew++) 
+  for (idtetranew = 0 ; idtetranew < totalnewtetra; idtetranew++)
     {
     arraytetra->GetNextCell(ptstetra,v_id);
 
@@ -1744,9 +1712,9 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
       if (!(((v[0] >= this->BoundBoxClip[0][0])&&(v[0] <= this->BoundBoxClip[0][1]) &&
              (v[1] >= this->BoundBoxClip[1][0])&&(v[1] <= this->BoundBoxClip[1][1])&& 
              (v[2] >= this->BoundBoxClip[2][0])&&(v[2] <= this->BoundBoxClip[2][1]))))
-        { 
+        {
         //outside,its type might change later (nearby intersection)
-        allInside = 0;      
+        allInside = 0;
         }
       }//for all points of the tetrahedron.
 
@@ -1755,7 +1723,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
       {
       unsigned int test[6] = {1,1,1,1,1,1};
       for (i=0; i<4; i++)
-        {       
+        {
         cellPts->GetPoint(v_id[i],v);
 
         if (v[0] > this->BoundBoxClip[0][0])
@@ -1792,22 +1760,22 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
         continue;                         // Tetrahedron is outside.
         }
       }//if not all inside.
-    
+
     for (i=0; i<4; i++)
       {
       ptId = cellIds->GetId(v_id[i]);
       cellPts->GetPoint(v_id[i],v);
-      // Currently all points are injected because of the possibility 
+      // Currently all points are injected because of the possibility
       // of intersection point merging.
       if ( locator->InsertUniquePoint(v, iid[i]) )
         {
         outPD->CopyData(inPD,ptId, iid[i]);
         }
-        
+
       }//for all points of the tetrahedron.
 
     if ( allInside )
-      {   
+      {
       // Tetrahedron inside.
       vtkIdType newCellId = tets->InsertNextCell(4,iid);
       outCD->CopyData(inCD,cellId,newCellId);
@@ -1816,7 +1784,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
 
     double *pedg1,*pedg2;
 
-    
+
     // Tetrahedron Intersection Cases
     const unsigned int tab4[6][6] = { {1,1,0,3,3,2},
                                       {2,0,0,3,2,1},
@@ -1839,7 +1807,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
                                        {0,0,1,3,1},
                                        {1,0,1,3,2},
                                        {3,1,0,0,2},
-                                       {0,0,1,1,2}}; 
+                                       {0,0,1,1,2}};
     const unsigned int tab1[12][3] = { {2,3,1},
                                        {3,2,0},
                                        {3,0,1},
@@ -1851,50 +1819,50 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
                                        {2,0,3},
                                        {0,2,1},
                                        {0,1,3},
-                                       {1,0,2}}; 
-      
+                                       {1,0,2}};
+
     vtkCellArray *cellarray = vtkCellArray::New();
     vtkIdType newCellId = cellarray->InsertNextCell(4,iid);
     unsigned int planes;
 
     // Test Cell intersection with each plane of box
-    for (planes = 0; planes < 6; planes++) 
+    for (planes = 0; planes < 6; planes++)
       {
       // The index of the dimension of the cut plane (x == 0, y == 1, z == 2).
       cutInd = planes/2;
-        
-      // The plane is always parallel to unitary cube. 
+
+      // The plane is always parallel to unitary cube.
       value = this->BoundBoxClip[cutInd][planes%2];
-        
+
       unsigned int totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
       int edgeNum;
-        
-      for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
+
+      for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++)
         {
         unsigned int num_inter = 0;
         unsigned int edges_inter = 0;
         unsigned int i0,i1;
         vtkIdType p_id[4];
         cellarray->GetNextCell(npts,v_id);
-        
-        newPoints->GetPoint(v_id[0],v_tetra[0]); //coord (x,y,z) 
-        newPoints->GetPoint(v_id[1],v_tetra[1]); 
-        newPoints->GetPoint(v_id[2],v_tetra[2]); 
-        newPoints->GetPoint(v_id[3],v_tetra[3]); 
+
+        newPoints->GetPoint(v_id[0],v_tetra[0]); //coord (x,y,z)
+        newPoints->GetPoint(v_id[1],v_tetra[1]);
+        newPoints->GetPoint(v_id[2],v_tetra[2]);
+        newPoints->GetPoint(v_id[3],v_tetra[3]);
 
         for (edgeNum=0; edgeNum < 6; edgeNum++)
           {
-          verts = edges[edgeNum]; 
-          
+          verts = edges[edgeNum];
+
           p1 = v_tetra[verts[0]];
           p2 = v_tetra[verts[1]];
-  
-          if ( (p1[cutInd] <= value && value <= p2[cutInd]) || 
+
+          if ( (p1[cutInd] <= value && value <= p2[cutInd]) ||
                (p2[cutInd] <= value && value <= p1[cutInd]) )
             {
             deltaScalar = p2[cutInd] - p1[cutInd];
-      
+
             if (deltaScalar > 0)
               {
               pedg1 = p1;   pedg2 = p2;
@@ -1906,21 +1874,21 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
               v1 = verts[1]; v2 = verts[0];
               deltaScalar = -deltaScalar;
               }
-      
+
             // linear interpolation
             t = ( deltaScalar == 0.0 ? 0.0 :
             (value - pedg1[cutInd]) / deltaScalar );
-      
+
             if ( t == 0.0 || t == 1.0 )
               {
               continue;
               }
-      
+
             for (j=0; j<3; j++)
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
               }
-      
+
             // Incorporate point into output and interpolate edge data as necessary
             edges_inter = edges_inter * 10 + (edgeNum+1);
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )

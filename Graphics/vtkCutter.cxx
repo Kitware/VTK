@@ -40,10 +40,12 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.85");
+vtkCxxRevisionMacro(vtkCutter, "1.86");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
+vtkCxxSetObjectMacro(vtkCutter,Locator,vtkPointLocator)
 
+//----------------------------------------------------------------------------
 // Construct with user-specified implicit function; initial value of 0.0; and
 // generating cut scalars turned off.
 vtkCutter::vtkCutter(vtkImplicitFunction *cf)
@@ -60,15 +62,12 @@ vtkCutter::vtkCutter(vtkImplicitFunction *cf)
   this->RectilinearSynchronizedTemplates = vtkRectilinearSynchronizedTemplates::New();
 }
 
+//----------------------------------------------------------------------------
 vtkCutter::~vtkCutter()
 {
   this->ContourValues->Delete();
   this->SetCutFunction(NULL);
-  if ( this->Locator )
-    {
-    this->Locator->UnRegister(this);
-    this->Locator = NULL;
-    }
+  this->SetLocator(NULL);
 
   this->SynchronizedTemplates3D->Delete();
   this->SynchronizedTemplatesCutter3D->Delete();
@@ -76,6 +75,7 @@ vtkCutter::~vtkCutter()
   this->RectilinearSynchronizedTemplates->Delete();
 }
 
+//----------------------------------------------------------------------------
 // Overload standard modified time function. If cut functions is modified,
 // or contour values modified, then this object is modified as well.
 unsigned long vtkCutter::GetMTime()
@@ -101,6 +101,7 @@ unsigned long vtkCutter::GetMTime()
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
                                        vtkPolyData *thisOutput,
                                        vtkInformation *request,
@@ -189,6 +190,7 @@ void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
   contourData->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
                                      vtkPolyData *thisOutput)
 {
@@ -245,6 +247,7 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
   contourData->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
                                       vtkPolyData *thisOutput)
 {
@@ -301,6 +304,7 @@ void vtkCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
   contourData->Delete();
 }
 
+//----------------------------------------------------------------------------
 // Cut through data generating surface.
 //
 int vtkCutter::RequestData(
@@ -356,7 +360,7 @@ int vtkCutter::RequestData(
   if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID)
     {
     int dim = ((vtkRectilinearGrid*)input)->GetDataDimension();
-    if ( dim == 3 ) 
+    if ( dim == 3 )
       {
       this->RectilinearGridCutter(input, output);
       return 1;
@@ -364,8 +368,8 @@ int vtkCutter::RequestData(
     }
 
   if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
-    { 
-    vtkDebugMacro(<< "Executing Unstructured Grid Cutter");   
+    {
+    vtkDebugMacro(<< "Executing Unstructured Grid Cutter");
     this->UnstructuredGridCutter(input, output);
     }
   else
@@ -377,6 +381,7 @@ int vtkCutter::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
 {
   // Assume most cells will be 3d.
@@ -396,6 +401,8 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
   cellTypeDimensions[VTK_QUAD] = 2;
   cellTypeDimensions[VTK_QUADRATIC_TRIANGLE] = 2;
   cellTypeDimensions[VTK_QUADRATIC_QUAD] = 2;
+  cellTypeDimensions[VTK_QUADRATIC_LINEAR_QUAD] = 2;
+  cellTypeDimensions[VTK_BIQUADRATIC_QUAD] = 2;
   cellTypeDimensions[VTK_PARAMETRIC_SURFACE] = 2;
   cellTypeDimensions[VTK_PARAMETRIC_TRI_SURFACE] = 2;
   cellTypeDimensions[VTK_PARAMETRIC_QUAD_SURFACE] = 2;
@@ -405,6 +412,7 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
 {
   vtkIdType cellId, i;
@@ -424,7 +432,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   vtkIdList *cellIds;
   int numContours=this->ContourValues->GetNumberOfContours();
   int abortExecute=0;
-  
+
   cellScalars=vtkDoubleArray::New();
 
   // Create objects to hold output of contour operation
@@ -454,14 +462,14 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
     inPD->ShallowCopy(input->GetPointData());//copies original attributes
     inPD->SetScalars(cutScalars);
     }
-  else 
+  else
     {
     inPD = input->GetPointData();
     }
   outPD = output->GetPointData();
   outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
   outCD->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
-    
+
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL )
     {
@@ -483,14 +491,14 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   vtkIdType numCuts = numContours*numCells;
   vtkIdType progressInterval = numCuts/20 + 1;
   int cut=0;
-  
+
   if ( this->SortBy == VTK_SORT_BY_CELL )
     {
-    // Loop over all contour values.  Then for each contour value, 
+    // Loop over all contour values.  Then for each contour value,
     // loop over all cells.
     //
     // This is going to have a problem if the input has 2D and 3D cells.
-    // I am fixing a bug where cell data is scrambled becauses with 
+    // I am fixing a bug where cell data is scrambled becauses with
     // vtkPolyData output, verts and lines have lower cell ids than triangles.
     for (iter=0; iter < numContours && !abortExecute; iter++)
       {
@@ -633,6 +641,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   output->Squeeze();
 }
 
+//----------------------------------------------------------------------------
 void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
 {
   vtkIdType cellId, i;
@@ -881,19 +890,19 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
               abortExecute = this->GetAbortExecute();
               }
             value = this->ContourValues->GetValue(iter);
-                  
+
             cell->Contour(value, cellScalars, this->Locator, 
                           newVerts, newLines, newPolys, inPD, outPD,
                           inCD, cellId, outCD);
             } // for all contour values
-              
+
           } // if need cell
         } // for all cells
       } // for all dimensions (1,2,3).
     } // sort by value
-  
+
   // Update ourselves.  Because we don't know upfront how many verts, lines,
-  // polys we've created, take care to reclaim memory. 
+  // polys we've created, take care to reclaim memory.
   //
   cellScalars->Delete();
   cutScalars->Delete();
@@ -928,27 +937,9 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
   output->Squeeze();
 }
 
+//----------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
-void vtkCutter::SetLocator(vtkPointLocator *locator)
-{
-  if ( this->Locator == locator ) 
-    {
-    return;
-    }
-  if ( this->Locator )
-    {
-    this->Locator->UnRegister(this);
-    this->Locator = NULL;
-    }
-  if ( locator )
-    {
-    locator->Register(this);
-    }
-  this->Locator = locator;
-  this->Modified();
-}
-
 void vtkCutter::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
@@ -959,6 +950,7 @@ void vtkCutter::CreateDefaultLocator()
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkCutter::RequestUpdateExtent(
   vtkInformation *,
   vtkInformationVector **inputVector,
@@ -969,18 +961,19 @@ int vtkCutter::RequestUpdateExtent(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkCutter::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Cut Function: " << this->CutFunction << "\n";
-
   os << indent << "Sort By: " << this->GetSortByAsString() << "\n";
 
   if ( this->Locator )
@@ -994,6 +987,6 @@ void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
 
   this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
-  os << indent << "Generate Cut Scalars: " 
+  os << indent << "Generate Cut Scalars: "
      << (this->GenerateCutScalars ? "On\n" : "Off\n");
 }

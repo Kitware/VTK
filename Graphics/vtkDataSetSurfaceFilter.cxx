@@ -50,7 +50,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.49");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.50");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -828,7 +828,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       progressCount = 0;
       }
     progressCount++;
-  
+
     // Direct access to cells.
     cellType = cellTypes[cellId];
     numCellPts = cellPointer[0];
@@ -847,7 +847,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       for (i = 0; i < numCellPts; ++i)
         {
         inPtId = ids[i];
-        outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
+        outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD);
         newLines->InsertCellPoint(outPtId);
         }
       outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
@@ -900,11 +900,13 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       this->InsertHexInHash (ids[0], ids[1], ids[2], ids[3], ids[4], ids[5], cellId);
       this->InsertHexInHash (ids[6], ids[7], ids[8], ids[9], ids[10], ids[11], cellId);
       }
-    else if (cellType == VTK_PIXEL || cellType == VTK_QUAD || 
-             cellType == VTK_TRIANGLE || cellType == VTK_POLYGON || 
-             cellType == VTK_TRIANGLE_STRIP || 
+    else if (cellType == VTK_PIXEL || cellType == VTK_QUAD ||
+             cellType == VTK_TRIANGLE || cellType == VTK_POLYGON ||
+             cellType == VTK_TRIANGLE_STRIP ||
              cellType == VTK_QUADRATIC_TRIANGLE ||
-             cellType == VTK_QUADRATIC_QUAD )
+             cellType == VTK_QUADRATIC_QUAD ||
+             cellType == VTK_QUADRATIC_LINEAR_QUAD ||
+             cellType == VTK_BIQUADRATIC_QUAD )
       { // save 2D cells for second pass
       flag2D = 1;
       }
@@ -1042,11 +1044,11 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       // This check is not really necessary.  It was put here because of another (now fixed) bug.
       if (numCellPts > 1)
         {
-        ptIds[0] = this->GetOutputPointId(ids[0], input, newPts, outputPD); 
-        ptIds[1] = this->GetOutputPointId(ids[1], input, newPts, outputPD); 
+        ptIds[0] = this->GetOutputPointId(ids[0], input, newPts, outputPD);
+        ptIds[1] = this->GetOutputPointId(ids[1], input, newPts, outputPD);
         for (i = 2; i < numCellPts; ++i)
           {
-          ptIds[2] = this->GetOutputPointId(ids[i], input, newPts, outputPD); 
+          ptIds[2] = this->GetOutputPointId(ids[i], input, newPts, outputPD);
           newPolys->InsertNextCell(3, ptIds);
           outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
           ptIds[toggle] = ptIds[2];
@@ -1054,7 +1056,10 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
           }
         }
       }
-    else if ( cellType == VTK_QUADRATIC_TRIANGLE || cellType == VTK_QUADRATIC_QUAD )
+    else if ( cellType == VTK_QUADRATIC_TRIANGLE
+           || cellType == VTK_QUADRATIC_QUAD
+           || cellType == VTK_BIQUADRATIC_QUAD
+           || cellType == VTK_QUADRATIC_LINEAR_QUAD)
       {
       input->GetCell( cellId, cell );
       cell->Triangulate( 0, pts, coords );
@@ -1120,7 +1125,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
         }
       }
     }
-  
+
   // Update ourselves and release memory
   //
   cell->Delete();
