@@ -56,7 +56,7 @@ vtkSphereSource ball
     ball SetPhiResolution 12
 vtkGlyph3D balls
     balls SetInputConnection [del GetOutputPort]
-    balls SetSource [ball GetOutput]
+    balls SetSourceConnection [ball GetOutputPort]
 vtkPolyDataMapper mapBalls
     mapBalls SetInputConnection [balls GetOutputPort]
 vtkActor ballActor
