@@ -47,7 +47,7 @@
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.2");
+vtkCxxRevisionMacro(vtkGenericCell, "1.3");
 vtkStandardNewMacro(vtkGenericCell);
 
 //----------------------------------------------------------------------------
@@ -317,13 +317,12 @@ void vtkGenericCell::SetCellType(int cellType)
       case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
         this->Cell = vtkBiQuadraticQuadraticHexahedron::New ();
         break;
-
       case VTK_CONVEX_POINT_SET:
         this->Cell = vtkConvexPointSet::New();
         break;
       default:
         vtkErrorMacro(<<"Unsupported cell type! Setting to vtkEmptyCell");
-        this->SetCellType(VTK_EMPTY_CELL);
+        this->Cell = vtkEmptyCell::New();
       }
     this->Points = this->Cell->Points;
     this->Points->Register(this);
