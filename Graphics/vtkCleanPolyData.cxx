@@ -24,8 +24,13 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkCleanPolyData, "1.77");
+vtkCxxRevisionMacro(vtkCleanPolyData, "1.78");
 vtkStandardNewMacro(vtkCleanPolyData);
+
+//---------------------------------------------------------------------------
+// Specify a spatial locator for speeding the search process. By
+// default an instance of vtkPointLocator is used.
+vtkCxxSetObjectMacro(vtkCleanPolyData,Locator,vtkPointLocator);
 
 //---------------------------------------------------------------------------
 // Construct object with initial Tolerance of 0.0
@@ -45,7 +50,7 @@ vtkCleanPolyData::vtkCleanPolyData()
 //--------------------------------------------------------------------------
 vtkCleanPolyData::~vtkCleanPolyData()
 {
-  this->ReleaseLocator();
+  this->SetLocator(NULL);
 }
 
 //--------------------------------------------------------------------------
@@ -596,40 +601,17 @@ int vtkCleanPolyData::RequestData(
   return 1;
 }
 
-//------------------------------------------------------------------------
-// Specify a spatial locator for speeding the search process. By
-// default an instance of vtkLocator is used.
-void vtkCleanPolyData::SetLocator(vtkPointLocator *locator)
-{
-  if ( this->Locator == locator)
-    {
-    return;
-    }
-  if ( this->Locator )
-    {
-    this->Locator->UnRegister(this);
-    this->Locator = NULL;
-    }
-  if ( locator )
-    {
-    locator->Register(this);
-    }
-
-    this->Locator = locator;
-    this->Modified();
-}
-
 //--------------------------------------------------------------------------
 // Method manages creation of locators. It takes into account the potential
 // change of tolerance (zero to non-zero).
-void vtkCleanPolyData::CreateDefaultLocator(vtkPolyData *input) 
+void vtkCleanPolyData::CreateDefaultLocator(vtkPolyData *input)
 {
   double tol;
-  if (this->ToleranceIsAbsolute) 
+  if (this->ToleranceIsAbsolute)
     {
     tol = this->AbsoluteTolerance;
-    } 
-  else 
+    }
+  else
     {
     if (input)
       {
@@ -641,27 +623,27 @@ void vtkCleanPolyData::CreateDefaultLocator(vtkPolyData *input)
       }
     }
 
-  if ( this->Locator == NULL) 
+  if ( this->Locator == NULL)
     {
-    if (tol==0.0) 
+    if (tol==0.0)
       {
       this->Locator = vtkMergePoints::New();
       this->Locator->Register(this);
       this->Locator->Delete();
-      } 
-    else 
+      }
+    else
       {
       this->Locator = vtkPointLocator::New();
       this->Locator->Register(this);
       this->Locator->Delete();
       }
-    } 
-  else 
+    }
+  else
     {
     // check that the tolerance wasn't changed from zero to non-zero
-    if ((tol>0.0) && (this->GetLocator()->GetTolerance()==0.0)) 
+    if ((tol>0.0) && (this->GetLocator()->GetTolerance()==0.0))
       {
-      this->ReleaseLocator();
+      this->SetLocator(NULL);
       this->Locator = vtkPointLocator::New();
       this->Locator->Register(this);
       this->Locator->Delete();
@@ -670,17 +652,7 @@ void vtkCleanPolyData::CreateDefaultLocator(vtkPolyData *input)
 }
 
 //--------------------------------------------------------------------------
-void vtkCleanPolyData::ReleaseLocator(void) 
-{
-  if ( this->Locator ) 
-    {
-    this->Locator->UnRegister(this);
-    this->Locator = NULL;
-    }
-}
-
-//--------------------------------------------------------------------------
-void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent) 
+void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
@@ -698,11 +670,11 @@ void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
      << (this->ConvertLinesToPoints ? "On\n" : "Off\n");
   os << indent << "ConvertStripsToPolys: "
      << (this->ConvertStripsToPolys ? "On\n" : "Off\n");
-  if ( this->Locator ) 
+  if ( this->Locator )
     {
     os << indent << "Locator: " << this->Locator << "\n";
     }
-  else 
+  else
     {
     os << indent << "Locator: (none)\n";
     }
@@ -711,11 +683,11 @@ void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //--------------------------------------------------------------------------
-unsigned long int vtkCleanPolyData::GetMTime() 
+unsigned long int vtkCleanPolyData::GetMTime()
 {
   unsigned long mTime=this->vtkObject::GetMTime();
   unsigned long time;
-  if ( this->Locator != NULL ) 
+  if ( this->Locator != NULL )
     {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );

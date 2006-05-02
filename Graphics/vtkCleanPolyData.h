@@ -16,10 +16,10 @@
 // .SECTION Description
 // vtkCleanPolyData is a filter that takes polygonal data as input and
 // generates polygonal data as output. vtkCleanPolyData can merge duplicate
-// points (within specified tolerance and if enabled), eliminate points 
-// that are not used, and if enabled, transform degenerate cells into 
-// appropriate forms (for example, a triangle is converted into a line 
-// if two points of triangle are merged). 
+// points (within specified tolerance and if enabled), eliminate points
+// that are not used, and if enabled, transform degenerate cells into
+// appropriate forms (for example, a triangle is converted into a line
+// if two points of triangle are merged).
 //
 // Conversion of degenerate cells is controlled by the flags
 // ConvertLinesToPoints, ConvertPolysToLines, ConvertStripsToPolys which act
@@ -41,14 +41,14 @@
 // vtkQuantizePolyDataPoints.
 //
 // Note that merging of points can be disabled. In this case, a point locator
-// will not be used, and points that are not used by any cells will be 
+// will not be used, and points that are not used by any cells will be
 // eliminated, but never merged.
 
 // .SECTION Caveats
 // Merging points can alter topology, including introducing non-manifold
 // forms. The tolerance should be chosen carefully to avoid these problems.
 // Subclasses should handle OperateOnBounds as well as OperateOnPoint
-// to ensure that the locator is correctly initialized (i.e. all modified 
+// to ensure that the locator is correctly initialized (i.e. all modified
 // points must lie inside modified bounds).
 //
 // .SECTION See Also
@@ -106,7 +106,7 @@ public:
 
   // Description:
   // Set/Get a boolean value that controls whether point merging is
-  // performed. If on, a locator will be used, and points laying within 
+  // performed. If on, a locator will be used, and points laying within
   // the appropriate tolerance may be merged. If off, points are never
   // merged. By default, merging is on.
   vtkSetMacro(PointMerging,int);
@@ -116,7 +116,7 @@ public:
   // Description:
   // Set/Get a spatial locator for speeding the search process. By
   // default an instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
+  virtual void SetLocator(vtkPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
   // Description:
@@ -125,7 +125,7 @@ public:
 
   // Description:
   // Release locator
-  void ReleaseLocator(void);
+  void ReleaseLocator() { this->SetLocator(NULL); }
 
   // Description:
   // Get the MTime of this object also considering the locator.
