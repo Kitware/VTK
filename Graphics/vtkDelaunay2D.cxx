@@ -29,7 +29,7 @@
 #include "vtkTriangle.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.68");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.68.10.1");
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
@@ -57,14 +57,19 @@ vtkDelaunay2D::~vtkDelaunay2D()
 }
 
 //----------------------------------------------------------------------------
-// Specify the input data or filter.
+// Specify the input data or filter. Old style.
 void vtkDelaunay2D::SetSource(vtkPolyData *input)
 {
   this->Superclass::SetInput(1, input);
 }
 
 //----------------------------------------------------------------------------
-// Specify the input data or filter.
+// Specify the input data or filter. New style.
+void vtkDelaunay2D::SetSourceConnection(vtkAlgorithmOutput *algOutput)
+{
+  this->Superclass::SetInputConnection(1, algOutput);
+}
+
 vtkPolyData *vtkDelaunay2D::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
