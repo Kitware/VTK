@@ -17,7 +17,7 @@ reader.SetFileName(VTK_DATA_ROOT + "/Data/faults.vtk")
 # Perform a 2D triangulation with constraint edges.
 delny = vtk.vtkDelaunay2D()
 delny.SetInputConnection(reader.GetOutputPort())
-delny.SetSource(reader.GetOutput())
+delny.SetSourceConnection(reader.GetOutputPort())
 delny.SetTolerance(0.00001)
 normals = vtk.vtkPolyDataNormals()
 normals.SetInputConnection(delny.GetOutputPort())
