@@ -71,7 +71,7 @@ int TestOneInterpolationFunction()
     for(int j=0;j<numPts;j++)
       {
       sum += sf[j];
-      if(j == (i/3))
+      if(j == i)
         {
         if( fabs(sf[j] - 1) > VTK_EPSILON)
           {
