@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzle, "1.19");
+vtkCxxRevisionMacro(vtkSpherePuzzle, "1.20");
 vtkStandardNewMacro(vtkSpherePuzzle);
 
 //----------------------------------------------------------------------------
@@ -212,7 +212,7 @@ void vtkSpherePuzzle::MarkHorizontal(int section)
   section = section * 8;
   for (i = 0; i < 8; ++i)
     {
-    this->PieceMask[i+section] = 1; 
+    this->PieceMask[i+section] = 1;
     }
 }
 

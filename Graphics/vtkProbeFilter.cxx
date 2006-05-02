@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.85");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.86");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -92,6 +92,7 @@ int vtkProbeFilter::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
                            vtkDataSet *output)
 {
@@ -107,7 +108,7 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
 
   pd = source->GetPointData();
   int size = input->GetNumberOfPoints();
-  
+
   // lets use a stack allocated array if possible for performance reasons
   int mcs = source->GetMaxCellSize();
   if (mcs<=256)
@@ -339,13 +340,6 @@ void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Source: " << source << "\n";
-  if (this->SpatialMatch)
-    {
-    os << indent << "SpatialMatchOn\n";
-    }
-  else
-    {
-    os << indent << "SpatialMatchOff\n";
-    }
+  os << indent << "SpatialMatch: " << ( this->SpatialMatch ? "On" : "Off" ) << "\n";
   os << indent << "ValidPoints: " << this->ValidPoints << "\n";
 }

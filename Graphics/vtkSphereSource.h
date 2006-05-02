@@ -104,7 +104,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   double Radius;
   double Center[3];
   int ThetaResolution;
@@ -114,7 +114,7 @@ protected:
   double StartPhi;
   double EndPhi;
   int LatLongTessellation;
-  
+
 private:
   vtkSphereSource(const vtkSphereSource&);  // Not implemented.
   void operator=(const vtkSphereSource&);  // Not implemented.

@@ -32,17 +32,17 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSuperquadricSource, "1.23");
+vtkCxxRevisionMacro(vtkSuperquadricSource, "1.24");
 vtkStandardNewMacro(vtkSuperquadricSource);
 
-static void evalSuperquadric(double u, double v, 
+static void evalSuperquadric(double u, double v,
                              double du, double dv,
-                             double n, double e, 
+                             double n, double e,
                              double dims[3],
-                             double alpha,  
-                             double xyz[3], 
+                             double alpha,
+                             double xyz[3],
                              double nrm[3]);
-  
+
 // Description:
 vtkSuperquadricSource::vtkSuperquadricSource(int res)
 {
@@ -103,7 +103,7 @@ void vtkSuperquadricSource::SetThetaResolution(int i)
     }
 }
 
-void vtkSuperquadricSource::SetThetaRoundness(double e) 
+void vtkSuperquadricSource::SetThetaRoundness(double e)
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
     {
@@ -117,7 +117,7 @@ void vtkSuperquadricSource::SetThetaRoundness(double e)
     }
 }
 
-void vtkSuperquadricSource::SetPhiRoundness(double e) 
+void vtkSuperquadricSource::SetPhiRoundness(double e)
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
     {
@@ -147,7 +147,7 @@ int vtkSuperquadricSource::RequestData(
 
   int i, j;
   vtkIdType numPts;
-  vtkPoints *newPoints; 
+  vtkPoints *newPoints;
   vtkFloatArray *newNormals;
   vtkFloatArray *newTCoords;
   vtkCellArray *newPolys;
@@ -184,7 +184,7 @@ int vtkSuperquadricSource::RequestData(
     dims[2] /= (alpha + 1.0);    
     }
   else
-    { 
+    {
     //Ellipsoidal
     phiLim[0] = -vtkMath::Pi() / 2.0;
     phiLim[1] =  vtkMath::Pi() / 2.0;
@@ -199,7 +199,7 @@ int vtkSuperquadricSource::RequestData(
   deltaPhiTex = 1.0 / this->PhiResolution;
   deltaTheta = (thetaLim[1] - thetaLim[0]) / this->ThetaResolution;
   deltaThetaTex = 1.0 / this->ThetaResolution;
-  
+
   phiSegs = 4;
   thetaSegs = 8;
 
@@ -251,14 +251,14 @@ int vtkSuperquadricSource::RequestData(
         {
         phiOffset =  0.0;
         }
-      
+
       for(jq = 0; jq < thetaSegs; jq++)
         {
         for(j = 0; j <= thetaSubsegs; j++)
           {
           theta = thetaLim[0] + deltaTheta*(j + jq*thetaSubsegs);
           texCoord[0] = deltaThetaTex*(j + jq*thetaSubsegs);
-          
+
           if(j == 0)
             {
             thetaOffset =  SQ_SMALL_OFFSET*deltaTheta;
@@ -272,8 +272,8 @@ int vtkSuperquadricSource::RequestData(
             thetaOffset =  0.0;
             }
 
-          evalSuperquadric(theta, phi, 
-                           thetaOffset, phiOffset, 
+          evalSuperquadric(theta, phi,
+                           thetaOffset, phiOffset,
                            this->PhiRoundness, this->ThetaRoundness,
                            dims, alpha, pt, nv);
           
@@ -284,7 +284,8 @@ int vtkSuperquadricSource::RequestData(
           nv[0] /= len; nv[1] /= len; nv[2] /= len;
 
           if(!this->Toroidal && 
-             ((iq == 0 && i == 0) || (iq == (phiSegs-1) && i == phiSubsegs))) {
+             ((iq == 0 && i == 0) || (iq == (phiSegs-1) && i == phiSubsegs)))
+            {
 
             // we're at a pole:
             // make sure the pole is at the same location for all evals
@@ -293,11 +294,11 @@ int vtkSuperquadricSource::RequestData(
 
             pt[0] = pt[2] = 0.0;
           }
-          
+
           pt[0] += this->Center[0];
           pt[1] += this->Center[1];
           pt[2] += this->Center[2];
-          
+
           newPoints->InsertNextPoint(pt);
           newNormals->InsertNextTuple(nv);
           newTCoords->InsertNextTuple(texCoord);
@@ -309,7 +310,7 @@ int vtkSuperquadricSource::RequestData(
   // mesh!
   // build triangle strips for efficiency....
   ptidx = new vtkIdType[ptsPerStrip];
-  
+
   rowOffset = this->ThetaResolution+thetaSegs;
   
   for(iq = 0; iq < phiSegs; iq++)
@@ -357,13 +358,13 @@ void vtkSuperquadricSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Theta Roundness: " << this->ThetaRoundness << "\n";
   os << indent << "Phi Resolution: " << this->PhiResolution << "\n";
   os << indent << "Phi Roundness: " << this->PhiRoundness << "\n";
-  os << indent << "Center: (" << this->Center[0] << ", " 
+  os << indent << "Center: (" << this->Center[0] << ", "
      << this->Center[1] << ", " << this->Center[2] << ")\n";
-  os << indent << "Scale: (" << this->Scale[0] << ", " 
+  os << indent << "Scale: (" << this->Scale[0] << ", "
      << this->Scale[1] << ", " << this->Scale[2] << ")\n";
 }
 
-static double cf(double w, double m, double a) 
+static double cf(double w, double m, double a)
 {
   double c;
   double sgn;
@@ -373,7 +374,7 @@ static double cf(double w, double m, double a)
   return a + sgn*pow(sgn*c, m);
 }
 
-static double sf(double w, double m) 
+static double sf(double w, double m)
 {
   double s;
   double sgn;
@@ -390,7 +391,6 @@ static void evalSuperquadric(double u, double v,  // parametric coords
                              double alpha,       // hole size
                              double xyz[3],      // output coords
                              double nrm[3])      // output normals
-  
 {
   double cf1, cf2;
 

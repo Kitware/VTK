@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSphereSource, "1.69");
+vtkCxxRevisionMacro(vtkSphereSource, "1.70");
 vtkStandardNewMacro(vtkSphereSource);
 
 //----------------------------------------------------------------------------
@@ -68,7 +68,7 @@ int vtkSphereSource::RequestData(
   int i, j;
   int jStart, jEnd, numOffset;
   int numPts, numPolys;
-  vtkPoints *newPoints; 
+  vtkPoints *newPoints;
   vtkFloatArray *newNormals;
   vtkCellArray *newPolys;
   double x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
@@ -91,8 +91,8 @@ int vtkSphereSource::RequestData(
     return 1;
     }
 
-  // I want to modify the ivars resoultion start theta and end theta, 
-  // so I will make local copies of them.  THese might be able to be merged 
+  // I want to modify the ivars resoultion start theta and end theta,
+  // so I will make local copies of them.  THese might be able to be merged
   // with the other copies of them, ...
   int localThetaResolution = this->ThetaResolution;
   double localStartTheta = this->StartTheta;
@@ -180,7 +180,7 @@ int vtkSphereSource::RequestData(
   deltaTheta = (endTheta - startTheta) / thetaResolution;
 
   jStart = (this->StartPhi <= 0.0 ? 1 : 0);
-  jEnd = (this->EndPhi >= 180.0 ? this->PhiResolution - 1 
+  jEnd = (this->EndPhi >= 180.0 ? this->PhiResolution - 1
         : this->PhiResolution);
 
   this->UpdateProgress(0.1);
@@ -189,7 +189,7 @@ int vtkSphereSource::RequestData(
   for (i=0; i < localThetaResolution; i++)
     {
     theta = localStartTheta * vtkMath::Pi() / 180.0 + i*deltaTheta;
-    
+
     for (j=jStart; j<jEnd; j++)
       {
       phi = startPhi + j*deltaPhi;
@@ -206,7 +206,7 @@ int vtkSphereSource::RequestData(
         {
         norm = 1.0;
         }
-      n[0] /= norm; n[1] /= norm; n[2] /= norm; 
+      n[0] /= norm; n[1] /= norm; n[2] /= norm;
       newNormals->InsertNextTuple(n);
       }
     this->UpdateProgress (0.10 + 0.50*i/static_cast<float>(localThetaResolution));
@@ -214,7 +214,7 @@ int vtkSphereSource::RequestData(
 
   // Generate mesh connectivity
   base = phiResolution * localThetaResolution;
-  
+
   if (fabs(localStartTheta - localEndTheta) < 360.0)
     {
     --localThetaResolution;
@@ -300,7 +300,7 @@ void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Center: (" << this->Center[0] << ", " 
      << this->Center[1] << ", " << this->Center[2] << ")\n";
-  os << indent 
+  os << indent
      << "LatLong Tessellation: " << this->LatLongTessellation << "\n";
 }
 
@@ -312,17 +312,17 @@ int vtkSphereSource::RequestInformation(
 {
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
                -1);
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
-               this->Center[0] - this->Radius, 
+               this->Center[0] - this->Radius,
                this->Center[0] + this->Radius,
-               this->Center[1] - this->Radius, 
+               this->Center[1] - this->Radius,
                this->Center[1] + this->Radius,
-               this->Center[2] - this->Radius, 
+               this->Center[2] - this->Radius,
                this->Center[2] + this->Radius);
-  
+
   return 1;
 }
