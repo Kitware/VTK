@@ -35,7 +35,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.104");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.105");
 vtkStandardNewMacro(vtkGeometryFilter);
 vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkPointLocator)
 
@@ -722,7 +722,6 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       {
       //special code for nonlinear cells - rarely occurs, so right now it
       //is slow.
-      //VTKCellType t = input->GetCellType(cellId); // Debug
       switch (input->GetCellType(cellId))
         {
         case VTK_EMPTY_CELL:
