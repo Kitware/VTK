@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.6");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.6.6.1");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -210,24 +210,22 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
 // Compute iso-parametric interpolation functions
 //
 
-// These values are precomputed using:
-// A:
-// ( sqrt(10.0) - sqrt( 5 + sqrt(5.0) ) + sqrt( 5.0 - sqrt( 5 ) ) ) / 8.0
-// B:
-// ( sqrt(10.0) - sqrt( 5 - sqrt(5.0) ) + sqrt( 5.0 + sqrt( 5 ) ) ) / 8.0
-// C:
-// sqrt(10.0)*(sqrt(10+2*sqrt(5.0)))+(sqrt(2.0)+8.0)*(sqrt(10-2*sqrt(5.0)))
-// D:
-// sqrt( 5 - sqrt(5.0)) / 4.0
-// E:
-// sqrt( 5 - sqrt(5.0))(sqrt(10.0)+sqrt(2.0)+8.0)/32
-// F:
-// (2*sqrt(sqrt(5.0) + 5) + sqrt(2.0)*(sqrt(5.0)-5))/16
-// G:
-// (2*sqrt(sqrt(5.0) + 5) - sqrt(2.0)*(sqrt(5.0)-5))/16
-// H:
-// (2 - sqrt(2.0))*sqrt(sqrt(5.0) + 5 ) / 16
-
+// see vtkPentagonalPrismCellPCoords for V#i values:
+// The general idea is that for Point #0 (V1,V1,0) the shape function should be
+// 0 on the 4 other node. So expr of the line passing through points
+// (x1,y1) and (x2,y2) is as follow:
+// (x1-x2)*y - (y1-y2)*x - (x1*y2 - x2*y1) = 0
+// x(i):=1/2+1/2*Cos( Pi + Pi/4 + i*2*Pi/5)
+// y(i):=1/2+1/2*Sin( Pi + Pi/4 + i*2*Pi/5)
+// For instance EXPRA is x(2)-x(1)
+//              EXPRB is y(2)-y(1) (== x(4)-x(3))
+//              EXPRC is x(1)*y(2)-x(2)*y(1)
+//              EXPRD is x(2)-x(3) (because of sign)
+//              EXPRE is x(2)*y(3)-x(3)*y(2)
+//              EXPRF is x(0)-x(4)
+//              EXPRG is y(4)-y(0)
+//              EXPRH is x(0)*y(4)-x(4)*y(0)
+// EXPRN was deducted to normalize the function
 #define EXPRA 0.26684892042779546;
 #define EXPRB 0.52372049461429937;
 #define EXPRC 0.36619991616704034;
@@ -267,7 +265,8 @@ void vtkPentagonalPrism::InterpolationFunctions(double pcoords[3], double sf[10]
   sf[6] = -n*( d*s + d*r - e)*( f*s + g*r - h)*(t - 0.0);
   sf[7] =  n*( b*s - a*r - c)*(-g*s - f*r + h)*(t - 0.0);
   sf[8] = -n*(-a*s + b*r - c)*( f*s + g*r - h)*(t - 0.0);
-  sf[9] =  n*(-g*s - f*r + h)*( d*s + d*r - e)*(t - 0.0);
+  //sf[9] =  n*(-g*s - f*r + h)*( d*s + d*r - e)*(t - 0.0);
+  sf[9] = 1. - (sf[0]+sf[1]+sf[2]+sf[3]+sf[4]+sf[5]+sf[6]+sf[7]+sf[8]);
 }
 
 //----------------------------------------------------------------------------
@@ -303,7 +302,9 @@ void vtkPentagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[30
   derivs[6] = -n*( 2*d*g*r + d*(f + g)*s - d*h - e*g)*(t - 0.0);
   derivs[7] =  n*( 2*a*f*r + (a*g - b*f)*s - a*h + c*f)*(t - 0.0);
   derivs[8] = -n*( 2*b*g*r + (b*f - a*g)*s - b*h - c*g)*(t - 0.0);
-  derivs[9] =  n*(-2*d*f*r - d*(f + g)*s + d*h + e*f)*(t - 0.0);
+  //derivs[9] =  n*(-2*d*f*r - d*(f + g)*s + d*h + e*f)*(t - 0.0);
+  derivs[9] = -(derivs[0]+derivs[1]+derivs[2]+derivs[3]+derivs[4]+derivs[5]
+    +derivs[6]+derivs[7]+derivs[8]);
 
   // s-derivatives
   //First pentagon
@@ -317,7 +318,9 @@ void vtkPentagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[30
   derivs[16] = -n*( 2*d*f*s + d*(f + g)*r - d*h - e*f)*(t - 0.0);
   derivs[17] =  n*(-2*b*g*s + (a*g - b*f)*r + b*h + c*g)*(t - 0.0);
   derivs[18] = -n*(-2*a*f*s + (b*f - a*g)*r + a*h - c*f)*(t - 0.0);
-  derivs[19] =  n*(-2*d*g*s - d*(f + g)*r + d*h + e*g)*(t - 0.0);
+  //derivs[19] =  n*(-2*d*g*s - d*(f + g)*r + d*h + e*g)*(t - 0.0);
+  derivs[19] = -(derivs[10]+derivs[11]+derivs[12]+derivs[13]+derivs[14]+derivs[15]
+    +derivs[16]+derivs[17]+derivs[18]);
 
   // t-derivatives
   //First pentagon
@@ -331,7 +334,9 @@ void vtkPentagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[30
   derivs[26] = -n*( d*s + d*r - e)*( f*s + g*r - h);
   derivs[27] =  n*( b*s - a*r - c)*(-g*s - f*r + h);
   derivs[28] = -n*(-a*s + b*r - c)*( f*s + g*r - h);
-  derivs[29] =  n*(-g*s - f*r + h)*( d*s + d*r - e);
+  //derivs[29] =  n*(-g*s - f*r + h)*( d*s + d*r - e);
+  derivs[29] = -(derivs[20]+derivs[21]+derivs[22]+derivs[23]+derivs[24]+derivs[25]
+    +derivs[26]+derivs[27]+derivs[28]);
 }
 
 //----------------------------------------------------------------------------
@@ -745,9 +750,9 @@ void vtkPentagonalPrism::GetFacePoints (int faceId, int *&pts)
 // Vi_x = CenterOfCircle + 1/2 ( cos( pi + pi/4 + i*2*pi/5) )
 // Vi_y = CenterOfCircle + 1/2 ( sin( pi + pi/4 + i*2*pi/5) )
 
-#define V1 0.14644660940672621
+#define V1 0.14644660940672624
 #define V2 0.72699524986977337
-#define V3 0.054496737905816051
+#define V3 0.054496737905816071
 #define V4 0.99384417029756889
 #define V5 0.57821723252011548
 
