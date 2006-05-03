@@ -47,7 +47,7 @@
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.3");
+vtkCxxRevisionMacro(vtkGenericCell, "1.4");
 vtkStandardNewMacro(vtkGenericCell);
 
 //----------------------------------------------------------------------------
@@ -214,6 +214,109 @@ int vtkGenericCell::IsPrimaryCell()
 }
 
 //----------------------------------------------------------------------------
+vtkCell *vtkGenericCell::InstantiateCell(int cellType)
+{
+  vtkCell *cell = NULL;
+  switch (cellType)
+    {
+  case VTK_EMPTY_CELL:
+    cell = vtkEmptyCell::New();
+    break;
+  case VTK_VERTEX:
+    cell = vtkVertex::New();
+    break;
+  case VTK_POLY_VERTEX:
+    cell = vtkPolyVertex::New();
+    break;
+  case VTK_LINE:
+    cell = vtkLine::New();
+    break;
+  case VTK_POLY_LINE:
+    cell = vtkPolyLine::New();
+    break;
+  case VTK_TRIANGLE:
+    cell = vtkTriangle::New();
+    break;
+  case VTK_TRIANGLE_STRIP:
+    cell = vtkTriangleStrip::New();
+    break;
+  case VTK_POLYGON:
+    cell = vtkPolygon::New();
+    break;
+  case VTK_PIXEL:
+    cell = vtkPixel::New();
+    break;
+  case VTK_QUAD:
+    cell = vtkQuad::New();
+    break;
+  case VTK_TETRA:
+    cell = vtkTetra::New();
+    break;
+  case VTK_VOXEL:
+    cell = vtkVoxel::New();
+    break;
+  case VTK_HEXAHEDRON:
+    cell = vtkHexahedron::New();
+    break;
+  case VTK_WEDGE:
+    cell = vtkWedge::New();
+    break;
+  case VTK_PYRAMID:
+    cell = vtkPyramid::New();
+    break;
+  case VTK_PENTAGONAL_PRISM:
+    cell = vtkPentagonalPrism::New();
+    break;
+  case VTK_HEXAGONAL_PRISM:
+    cell = vtkHexagonalPrism::New();
+    break;
+  case VTK_QUADRATIC_EDGE:
+    cell = vtkQuadraticEdge::New();
+    break;
+  case VTK_QUADRATIC_TRIANGLE:
+    cell = vtkQuadraticTriangle::New();
+    break;
+  case VTK_QUADRATIC_QUAD:
+    cell = vtkQuadraticQuad::New();
+    break;
+  case VTK_QUADRATIC_TETRA:
+    cell = vtkQuadraticTetra::New();
+    break;
+  case VTK_QUADRATIC_HEXAHEDRON:
+    cell = vtkQuadraticHexahedron::New();
+    break;
+  case VTK_QUADRATIC_WEDGE:
+    cell = vtkQuadraticWedge::New();
+    break;
+  case VTK_QUADRATIC_PYRAMID:
+    cell = vtkQuadraticPyramid::New();
+    break;
+  case VTK_QUADRATIC_LINEAR_QUAD:
+    cell = vtkQuadraticLinearQuad::New ();
+    break;
+  case VTK_BIQUADRATIC_QUAD:
+    cell = vtkBiQuadraticQuad::New ();
+    break;
+  case VTK_TRIQUADRATIC_HEXAHEDRON:
+    cell = vtkTriQuadraticHexahedron::New ();
+    break;
+  case VTK_QUADRATIC_LINEAR_WEDGE:
+    cell = vtkQuadraticLinearWedge::New ();
+    break;
+  case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
+    cell = vtkBiQuadraticQuadraticWedge::New ();
+    break;
+  case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
+    cell = vtkBiQuadraticQuadraticHexahedron::New ();
+    break;
+  case VTK_CONVEX_POINT_SET:
+    cell = vtkConvexPointSet::New();
+    break;
+    }
+  return cell;
+}
+
+//----------------------------------------------------------------------------
 // Set the type of dereferenced cell. Checks to see whether cell type
 // has changed and creates a new cell only if necessary.
 void vtkGenericCell::SetCellType(int cellType)
@@ -225,105 +328,15 @@ void vtkGenericCell::SetCellType(int cellType)
     this->PointIds = NULL;
     this->Cell->Delete();
 
-    switch (cellType)
+    vtkCell *cell = vtkGenericCell::InstantiateCell(cellType);
+
+    if( !cell )
       {
-      case VTK_EMPTY_CELL:
-        this->Cell = vtkEmptyCell::New();
-        break;
-      case VTK_VERTEX:
-        this->Cell = vtkVertex::New();
-        break;
-      case VTK_POLY_VERTEX:
-        this->Cell = vtkPolyVertex::New();
-        break;
-      case VTK_LINE:
-        this->Cell = vtkLine::New();
-        break;
-      case VTK_POLY_LINE:
-        this->Cell = vtkPolyLine::New();
-        break;
-      case VTK_TRIANGLE:
-        this->Cell = vtkTriangle::New();
-        break;
-      case VTK_TRIANGLE_STRIP:
-        this->Cell = vtkTriangleStrip::New();
-        break;
-      case VTK_POLYGON:
-        this->Cell = vtkPolygon::New();
-        break;
-      case VTK_PIXEL:
-        this->Cell = vtkPixel::New();
-        break;
-      case VTK_QUAD:
-        this->Cell = vtkQuad::New();
-        break;
-      case VTK_TETRA:
-        this->Cell = vtkTetra::New();
-        break;
-      case VTK_VOXEL:
-        this->Cell = vtkVoxel::New();
-        break;
-      case VTK_HEXAHEDRON:
-        this->Cell = vtkHexahedron::New();
-        break;
-      case VTK_WEDGE:
-        this->Cell = vtkWedge::New();
-        break;
-      case VTK_PYRAMID:
-        this->Cell = vtkPyramid::New();
-        break;
-      case VTK_PENTAGONAL_PRISM:
-        this->Cell = vtkPentagonalPrism::New();
-        break;
-      case VTK_HEXAGONAL_PRISM:
-        this->Cell = vtkHexagonalPrism::New();
-        break;
-      case VTK_QUADRATIC_EDGE:
-        this->Cell = vtkQuadraticEdge::New();
-        break;
-      case VTK_QUADRATIC_TRIANGLE:
-        this->Cell = vtkQuadraticTriangle::New();
-        break;
-      case VTK_QUADRATIC_QUAD:
-        this->Cell = vtkQuadraticQuad::New();
-        break;
-      case VTK_QUADRATIC_TETRA:
-        this->Cell = vtkQuadraticTetra::New();
-        break;
-      case VTK_QUADRATIC_HEXAHEDRON:
-        this->Cell = vtkQuadraticHexahedron::New();
-        break;
-      case VTK_QUADRATIC_WEDGE:
-        this->Cell = vtkQuadraticWedge::New();
-        break;
-      case VTK_QUADRATIC_PYRAMID:
-        this->Cell = vtkQuadraticPyramid::New();
-        break;
-      case VTK_QUADRATIC_LINEAR_QUAD:
-        this->Cell = vtkQuadraticLinearQuad::New ();
-        break;
-      case VTK_BIQUADRATIC_QUAD:
-        this->Cell = vtkBiQuadraticQuad::New ();
-        break;
-      case VTK_TRIQUADRATIC_HEXAHEDRON:
-        this->Cell = vtkTriQuadraticHexahedron::New ();
-        break;
-      case VTK_QUADRATIC_LINEAR_WEDGE:
-        this->Cell = vtkQuadraticLinearWedge::New ();
-        break;
-      case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
-        this->Cell = vtkBiQuadraticQuadraticWedge::New ();
-        break;
-      case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
-        this->Cell = vtkBiQuadraticQuadraticHexahedron::New ();
-        break;
-      case VTK_CONVEX_POINT_SET:
-        this->Cell = vtkConvexPointSet::New();
-        break;
-      default:
-        vtkErrorMacro(<<"Unsupported cell type! Setting to vtkEmptyCell");
-        this->Cell = vtkEmptyCell::New();
+      vtkErrorMacro( << "Unsupported cell type! Setting to vtkEmptyCell" );
+      cell = vtkEmptyCell::New();
       }
+
+    this->Cell = cell;
     this->Points = this->Cell->Points;
     this->Points->Register(this);
     this->PointIds = this->Cell->PointIds;

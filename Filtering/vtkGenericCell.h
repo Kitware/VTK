@@ -53,25 +53,25 @@ public:
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int faceId);
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
-  int EvaluatePosition(double x[3], double* closestPoint, 
-                       int& subId, double pcoords[3], 
+  int EvaluatePosition(double x[3], double* closestPoint,
+                       int& subId, double pcoords[3],
                        double& dist2, double *weights);
-  void EvaluateLocation(int& subId, double pcoords[3], 
+  void EvaluateLocation(int& subId, double pcoords[3],
                         double x[3], double *weights);
-  void Contour(double value, vtkDataArray *cellScalars, 
-               vtkPointLocator *locator, vtkCellArray *verts, 
-               vtkCellArray *lines, vtkCellArray *polys, 
+  void Contour(double value, vtkDataArray *cellScalars,
+               vtkPointLocator *locator, vtkCellArray *verts,
+               vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
-  void Clip(double value, vtkDataArray *cellScalars, 
+  void Clip(double value, vtkDataArray *cellScalars,
             vtkPointLocator *locator, vtkCellArray *connectivity,
             vtkPointData *inPd, vtkPointData *outPd,
-            vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
+            vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut);
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values, 
+  void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs);
   int GetParametricCenter(double pcoords[3]);
   double *GetParametricCoords();
@@ -119,12 +119,16 @@ public:
   void SetCellTypeToBiQuadraticQuadraticHexahedron() {
     this->SetCellType(VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON);}
 
+  // Description:
+  // Instantiate a new vtkCell based on it's cell type value
+  static vtkCell* InstantiateCell(int cellType);
+
 protected:
   vtkGenericCell();
   ~vtkGenericCell();
 
   vtkCell *Cell;
-  
+
 private:
   vtkGenericCell(const vtkGenericCell&);  // Not implemented.
   void operator=(const vtkGenericCell&);  // Not implemented.
