@@ -38,13 +38,11 @@
 
 #include "vtkNonLinearCell.h"
 
-class vtkPolyData;
 class vtkQuadraticEdge;
 class vtkQuadraticQuad;
 class vtkQuadraticTriangle;
 class vtkTetra;
 class vtkPyramid;
-class vtkDoubleArray;
 
 class VTK_FILTERING_EXPORT vtkQuadraticPyramid : public vtkNonLinearCell
 {
@@ -131,5 +129,15 @@ private:
   vtkQuadraticPyramid(const vtkQuadraticPyramid&);  // Not implemented.
   void operator=(const vtkQuadraticPyramid&);  // Not implemented.
 };
+//----------------------------------------------------------------------------
+// Return the center of the quadratic pyramid in parametric coordinates.
+//
+inline int vtkQuadraticPyramid::GetParametricCenter(double pcoords[3])
+{
+  pcoords[0] = pcoords[1] = 6./13;
+  pcoords[2] = 3./13;
+  return 0;
+}
+
 
 #endif

@@ -30,7 +30,6 @@
 
 #include "vtkNonLinearCell.h"
 
-class vtkPolyData;
 class vtkLine;
 
 class VTK_FILTERING_EXPORT vtkQuadraticEdge : public vtkNonLinearCell
@@ -81,6 +80,9 @@ public:
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId);
 
+  // Description:
+  // Return the center of the quadratic tetra in parametric coordinates.
+  int GetParametricCenter(double pcoords[3]);
   
   // Description:
   // Quadratic edge specific methods. 
@@ -98,6 +100,13 @@ private:
   vtkQuadraticEdge(const vtkQuadraticEdge&);  // Not implemented.
   void operator=(const vtkQuadraticEdge&);  // Not implemented.
 };
+//----------------------------------------------------------------------------
+inline int vtkQuadraticEdge::GetParametricCenter(double pcoords[3])
+{
+  pcoords[0] = 0.5;
+  pcoords[1] = pcoords[2] = 0.;
+  return 0;
+}
 
 #endif
 

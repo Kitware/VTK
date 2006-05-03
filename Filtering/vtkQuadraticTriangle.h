@@ -32,7 +32,6 @@
 
 #include "vtkNonLinearCell.h"
 
-class vtkPolyData;
 class vtkQuadraticEdge;
 class vtkTriangle;
 class vtkDoubleArray;
@@ -113,6 +112,14 @@ private:
   vtkQuadraticTriangle(const vtkQuadraticTriangle&);  // Not implemented.
   void operator=(const vtkQuadraticTriangle&);  // Not implemented.
 };
+//----------------------------------------------------------------------------
+inline int vtkQuadraticTriangle::GetParametricCenter(double pcoords[3])
+{
+  pcoords[0] = pcoords[1] = 1./3;
+  pcoords[2] = 0.0;
+  return 0;
+}
+
 
 #endif
 

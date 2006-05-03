@@ -33,13 +33,8 @@
 
 #include "vtkNonLinearCell.h"
 
-class vtkPolyData;
 class vtkQuadraticEdge;
 class vtkQuad;
-class vtkPointData;
-class vtkCellData;
-class vtkDataArray;
-class vtkDoubleArray;
 
 class VTK_FILTERING_EXPORT vtkQuadraticQuad : public vtkNonLinearCell
 {
@@ -91,6 +86,10 @@ public:
 
   
   // Description:
+  // Return the center of the pyramid in parametric coordinates.
+  int GetParametricCenter(double pcoords[3]);
+
+  // Description:
   // Quadratic quad specific methods. 
   static void InterpolationFunctions(double pcoords[3], double weights[8]);
   static void InterpolationDerivs(double pcoords[3], double derivs[16]);
@@ -102,17 +101,28 @@ protected:
   vtkQuadraticEdge *Edge;
   vtkQuad          *Quad;
   vtkPointData     *PointData;
-  vtkCellData      *CellData;
-  vtkDoubleArray   *CellScalars;
   vtkDoubleArray   *Scalars;
 
+  // In order to achieve some functionality we introduce a fake center point
+  // which require to have some extra functionalities compare to other non-linar
+  // cells
+  vtkCellData      *CellData;
+  vtkDoubleArray   *CellScalars;
   void Subdivide(double *weights);
-  void InterpolateAttributes(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId, vtkDataArray *cellScalars);
+  void InterpolateAttributes(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId,
+    vtkDataArray *cellScalars);
 
 private:
   vtkQuadraticQuad(const vtkQuadraticQuad&);  // Not implemented.
   void operator=(const vtkQuadraticQuad&);  // Not implemented.
 };
+//----------------------------------------------------------------------------
+inline int vtkQuadraticQuad::GetParametricCenter(double pcoords[3])
+{
+  pcoords[0] = pcoords[1] = 0.5;
+  pcoords[2] = 0.;
+  return 0;
+}
 
 #endif
 

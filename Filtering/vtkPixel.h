@@ -57,6 +57,11 @@ public:
                        double& dist2, double *weights);
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
                         double *weights);
+
+  // Description:
+  // Return the center of the triangle in parametric coordinates.
+  int GetParametricCenter(double pcoords[3]);
+
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
@@ -80,6 +85,14 @@ private:
   vtkPixel(const vtkPixel&);  // Not implemented.
   void operator=(const vtkPixel&);  // Not implemented.
 };
+
+//----------------------------------------------------------------------------
+inline int vtkPixel::GetParametricCenter(double pcoords[3])
+{
+  pcoords[0] = pcoords[1] = 0.5;
+  pcoords[2] = 0.0;
+  return 0;
+}
 
 #endif
 

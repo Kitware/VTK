@@ -33,7 +33,6 @@
 
 #include "vtkNonLinearCell.h"
 
-class vtkPolyData;
 class vtkQuadraticEdge;
 class vtkQuadraticQuad;
 class vtkQuadraticTriangle;
@@ -124,6 +123,15 @@ private:
   vtkQuadraticWedge(const vtkQuadraticWedge&);  // Not implemented.
   void operator=(const vtkQuadraticWedge&);  // Not implemented.
 };
+//----------------------------------------------------------------------------
+// Return the center of the quadratic wedge in parametric coordinates.
+inline int vtkQuadraticWedge::GetParametricCenter(double pcoords[3])
+{
+  pcoords[0] = pcoords[1] = 1./3;
+  pcoords[2] = 0.5;
+  return 0;
+}
+
 
 #endif
 
