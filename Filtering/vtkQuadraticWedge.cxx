@@ -25,7 +25,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.7");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.8");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
 //----------------------------------------------------------------------------
@@ -567,14 +567,6 @@ void vtkQuadraticWedge::Clip(double value, vtkDataArray* cellScalars,
                     this->CellData,cellId,outCd,insideOut);
     }
 
-}
-
-//----------------------------------------------------------------------------
-// Return the center of the quadratic wedge in parametric coordinates.
-int vtkQuadraticWedge::GetParametricCenter(double pcoords[3])
-{
-  pcoords[0] = pcoords[1] = 0.333; pcoords[2] = 0.5;
-  return 0;
 }
 
 //----------------------------------------------------------------------------

@@ -93,6 +93,10 @@ public:
                          double x[3], double pcoords[3], int &subId);
 
   // Description:
+  // Return the center of the pyramid in parametric coordinates.
+  int GetParametricCenter(double pcoords[3]);
+
+  // Description:
   // BiQuadratic quad specific methods.
   static void InterpolationFunctions (double pcoords[3], double weights[9]);
   static void InterpolationDerivs (double pcoords[3], double derivs[18]);
@@ -107,8 +111,15 @@ protected:
   vtkDoubleArray   *Scalars;
 
 private:
-  vtkBiQuadraticQuad (const vtkBiQuadraticQuad &);  // Not implemented.
-  void operator = (const vtkBiQuadraticQuad &);  // Not implemented.
+  vtkBiQuadraticQuad(const vtkBiQuadraticQuad&);  // Not implemented.
+  void operator=(const vtkBiQuadraticQuad&);  // Not implemented.
 };
+//----------------------------------------------------------------------------
+inline int vtkBiQuadraticQuad::GetParametricCenter(double pcoords[3])
+{
+  pcoords[0] = pcoords[1] = 0.5;
+  pcoords[2] = 0.;
+  return 0;
+}
 
 #endif

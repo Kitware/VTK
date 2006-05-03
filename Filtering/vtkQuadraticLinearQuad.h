@@ -84,6 +84,10 @@ public:
     double x[3], double pcoords[3], int &subId);
 
   // Description:
+  // Return the center of the pyramid in parametric coordinates.
+  int GetParametricCenter(double pcoords[3]);
+
+  // Description:
   // Quadratic linear Quad specific methods.
   static void InterpolationFunctions (double pcoords[3], double weights[6]);
   static void InterpolationDerivs (double pcoords[3], double derivs[12]);
@@ -101,5 +105,12 @@ private:
   vtkQuadraticLinearQuad (const vtkQuadraticLinearQuad &);  // Not implemented.
   void operator = (const vtkQuadraticLinearQuad &);  // Not implemented.
 };
+//----------------------------------------------------------------------------
+inline int vtkQuadraticLinearQuad::GetParametricCenter(double pcoords[3])
+{
+  pcoords[0] = pcoords[1] = 0.5;
+  pcoords[2] = 0.;
+  return 0;
+}
 
 #endif

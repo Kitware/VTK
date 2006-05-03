@@ -21,7 +21,7 @@
 #include "vtkTriangle.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.6");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.7");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 //----------------------------------------------------------------------------
@@ -301,13 +301,6 @@ void vtkQuadraticTriangle::Clip(double value,
     this->Face->Clip(value, this->Scalars, locator, polys, inPd, outPd, 
                      inCd, cellId, outCd, insideOut);
     }
-}
-
-//----------------------------------------------------------------------------
-int vtkQuadraticTriangle::GetParametricCenter(double pcoords[3])
-{
-  pcoords[0] = pcoords[1] = 0.333; pcoords[2] = 0.0;
-  return 0;
 }
 
 //----------------------------------------------------------------------------

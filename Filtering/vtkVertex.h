@@ -71,6 +71,10 @@ public:
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
 
   // Description:
+  // Return the center of the triangle in parametric coordinates.
+  int GetParametricCenter(double pcoords[3]);
+
+  // Description:
   // Intersect with a ray. Return parametric coordinates (both line and cell)
   // and global intersection coordinates, given ray definition and tolerance. 
   // The method returns non-zero value if intersection occurs.
@@ -100,6 +104,13 @@ private:
   vtkVertex(const vtkVertex&);  // Not implemented.
   void operator=(const vtkVertex&);  // Not implemented.
 };
+
+//----------------------------------------------------------------------------
+inline int vtkVertex::GetParametricCenter(double pcoords[3])
+{
+  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
+  return 0;
+}
 
 #endif
 

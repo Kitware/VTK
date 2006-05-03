@@ -62,6 +62,10 @@ public:
             int insideOut);
 
   // Description:
+  // Return the center of the triangle in parametric coordinates.
+  int GetParametricCenter(double pcoords[3]);
+
+  // Description:
   // Line-line intersection. Intersection has to occur within [0,1] parametric
   // coordinates and with specified tolerance.
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
@@ -107,6 +111,14 @@ private:
   vtkLine(const vtkLine&);  // Not implemented.
   void operator=(const vtkLine&);  // Not implemented.
 };
+
+//----------------------------------------------------------------------------
+inline int vtkLine::GetParametricCenter(double pcoords[3])
+{
+  pcoords[0] = 0.5;
+  pcoords[1] = pcoords[2] = 0.0;
+  return 0;
+}
 
 #endif
 

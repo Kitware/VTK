@@ -119,5 +119,14 @@ private:
   vtkBiQuadraticQuadraticWedge (const vtkBiQuadraticQuadraticWedge &);  // Not implemented.
   void operator = (const vtkBiQuadraticQuadraticWedge &);  // Not implemented.
 };
+//----------------------------------------------------------------------------
+// Return the center of the quadratic wedge in parametric coordinates.
+inline int vtkBiQuadraticQuadraticWedge::GetParametricCenter(double pcoords[3])
+{
+  pcoords[0] = pcoords[1] = 1./3;
+  pcoords[2] = 0.5;
+  return 0;
+}
+
 
 #endif

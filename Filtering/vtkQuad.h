@@ -61,6 +61,10 @@ public:
   virtual double *GetParametricCoords();
 
   // Description:
+  // Return the center of the triangle in parametric coordinates.
+  int GetParametricCenter(double pcoords[3]);
+
+  // Description:
   // Clip this quad using scalar value provided. Like contouring, except
   // that it cuts the quad to produce other quads and/or triangles.
   void Clip(double value, vtkDataArray *cellScalars, 
@@ -85,6 +89,14 @@ private:
   vtkQuad(const vtkQuad&);  // Not implemented.
   void operator=(const vtkQuad&);  // Not implemented.
 };
+//----------------------------------------------------------------------------
+inline int vtkQuad::GetParametricCenter(double pcoords[3])
+{
+  pcoords[0] = pcoords[1] = 0.5;
+  pcoords[2] = 0.0;
+  return 0;
+}
+
 
 #endif
 

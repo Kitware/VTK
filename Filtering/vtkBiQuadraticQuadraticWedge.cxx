@@ -26,7 +26,7 @@
 #include "vtkBiQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro (vtkBiQuadraticQuadraticWedge, "1.3");
+vtkCxxRevisionMacro (vtkBiQuadraticQuadraticWedge, "1.4");
 vtkStandardNewMacro (vtkBiQuadraticQuadraticWedge);
 
 //----------------------------------------------------------------------------
@@ -515,15 +515,6 @@ void vtkBiQuadraticQuadraticWedge::Derivatives (int vtkNotUsed (subId),
       derivs[3 * k + j] = sum[0] * jI[j][0] + sum[1] * jI[j][1] + sum[2] * jI[j][2];
       }
     }
-}
-
-//----------------------------------------------------------------------------
-// Return the center of the quadratic wedge in parametric coordinates.
-int vtkBiQuadraticQuadraticWedge::GetParametricCenter(double pcoords[3])
-{
-  pcoords[0] = pcoords[1] = 0.333;
-  pcoords[2] = 0.5;
-  return 0;
 }
 
 //----------------------------------------------------------------------------
