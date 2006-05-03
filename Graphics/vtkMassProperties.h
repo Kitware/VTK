@@ -51,6 +51,11 @@ public:
 
   // Description:
   // Compute and return the projected volume.
+  // Typically you should compare this volume to the value returned by GetVolume
+  // if you get an error (GetVolume()-GetVolumeProjected())*10000 that is greater
+  // than GetVolume() this should identify a problem:
+  // * Either the polydata is not closed
+  // * Or the polydata contains triangle that are flipped
   double GetVolumeProjected() {this->Update(); return this->VolumeProjected;}
 
   // Description:
