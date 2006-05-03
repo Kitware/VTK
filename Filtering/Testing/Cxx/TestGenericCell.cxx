@@ -40,9 +40,16 @@ int TestGenericCell(int , char *[])
      && cell->GetCellType() != VTK_POLY_LINE // FIXME
      && cell->GetCellType() != VTK_TRIANGLE_STRIP // FIXME
      && cell->GetCellType() != VTK_POLYGON // FIXME
-     && cell->GetCellType() != VTK_CONVEX_POINT_SET) // FIXME
+     && cell->GetCellType() != VTK_CONVEX_POINT_SET // FIXME
+     && cell->GetCellType() != VTK_PYRAMID // FIXME
+     && cell->GetCellType() != VTK_QUADRATIC_PYRAMID) // FIXME
       {
       double m[3] = {0., 0., 0.};
+      // We add all the points since
+      // Those on the corner points indeed define the parametric center
+      // The dof node (center mid points) by definition have the same parametric center
+      // and taking into account the center point only add a 0 vector to the sum
+      // therefore we do not need to differenciate corner from the rest in this sum:
       for(int j=0; j<numPts; ++j)
         {
         double *point = pcoords + 3*j;

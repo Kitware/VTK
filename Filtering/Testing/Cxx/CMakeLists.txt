@@ -16,6 +16,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   otherRectilinearGrid.cxx
   otherStructuredGrid.cxx
   quadraticEvaluation.cxx
+  TestGenericCell.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )
 

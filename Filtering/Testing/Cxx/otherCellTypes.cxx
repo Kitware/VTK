@@ -81,6 +81,11 @@ int otherCellTypes(int, char *[])
     {
     return 1;
     }
+  // vtkUnstructuredGrid uses uchar to store cellId
+  if( VTK_NUMBER_OF_CELL_TYPES > 255 )
+    {
+    return 1;
+    }
 
   return 0;
 }
