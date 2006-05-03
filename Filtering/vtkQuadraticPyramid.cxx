@@ -25,7 +25,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.9");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.10");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -612,15 +612,6 @@ void vtkQuadraticPyramid::Clip(double value, vtkDataArray* cellScalars,
     this->Tetra->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
                     this->CellData,cellId,outCd,insideOut);
     }
-}
-
-//----------------------------------------------------------------------------
-// Return the center of the quadratic pyramid in parametric coordinates.
-//
-int vtkQuadraticPyramid::GetParametricCenter(double pcoords[3])
-{
-  pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
-  return 0;
 }
 
 //----------------------------------------------------------------------------

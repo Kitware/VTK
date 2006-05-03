@@ -40,9 +40,7 @@ int TestGenericCell(int , char *[])
      && cell->GetCellType() != VTK_POLY_LINE // FIXME
      && cell->GetCellType() != VTK_TRIANGLE_STRIP // FIXME
      && cell->GetCellType() != VTK_POLYGON // FIXME
-     && cell->GetCellType() != VTK_CONVEX_POINT_SET // FIXME
-     && cell->GetCellType() != VTK_PYRAMID // FIXME
-     && cell->GetCellType() != VTK_QUADRATIC_PYRAMID) // FIXME
+     && cell->GetCellType() != VTK_CONVEX_POINT_SET) // FIXME
       {
       double m[3] = {0., 0., 0.};
       // We add all the points since
