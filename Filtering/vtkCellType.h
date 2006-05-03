@@ -30,6 +30,11 @@
 // you'll also have to modify some filters (vtkGeometryFilter...) and
 // regression tests (example scripts) to reflect the new cell addition.
 
+// .SECTION Caveats
+// An unstructured grid stores the types of its cells as a
+// unsigned char array. Therefore, the maximum encoding number for a cell type
+// is 255.
+
 typedef enum {
   // Linear cells
   VTK_EMPTY_CELL       = 0,
