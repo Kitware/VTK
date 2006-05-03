@@ -32,6 +32,46 @@ static unsigned char HigherOrderCell[][depth] = {
       VTK_NUMBER_OF_CELL_TYPES, VTK_NUMBER_OF_CELL_TYPES }
     };
 
+//----------------------------------------------------------------------------
+// Simply set the points to the pcoords coordinate
+// and the point id to the natural order
+void InitializeACell(vtkCell *cell)
+{
+  if( cell )
+    {
+    int numPts = cell->GetNumberOfPoints();
+    for(int i = 0; i < numPts; ++i)
+      {
+      cell->GetPointIds()->SetId(i,i);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+// c1 is the reference cell. In the test this is the linear cell
+// and thus c2 is the higher order one. We need to check that result on c1
+// are consistant with result on c2 (but we cannot say anything after that)
+int CompareHigherOrderCell(vtkCell *c1, vtkCell *c2)
+{
+  int rval = 0;
+  //c1->Print( cout );
+  //c2->Print( cout );
+  int c1numPts = c1->GetNumberOfPoints();
+  for( int p = 0; p < c1numPts; ++p)
+    {
+    vtkIdType pid1 = c1->GetPointId(p);
+    vtkIdType pid2 = c2->GetPointId(p);
+    if( pid1 != pid2 )
+      {
+      cerr << "Problem with pid:" << pid1 << " != " << pid2 << " in cell #" <<
+        c1->GetCellType() << " and #" << c2->GetCellType() << endl;
+      ++rval;
+      }
+    }
+  return rval;
+}
+
+//----------------------------------------------------------------------------
 int TestHigherOrderCell(int , char *[])
 {
   int rval = 0;
@@ -42,7 +82,7 @@ int TestHigherOrderCell(int , char *[])
     return 1;
     }
 
-  unsigned char *orderCell;
+  const unsigned char *orderCell;
   const unsigned int nCells = sizeof(HigherOrderCell)/depth;
   vtkCell* cellArray[depth];
   for( unsigned int i = 0; i < nCells; ++i)
@@ -52,14 +92,15 @@ int TestHigherOrderCell(int , char *[])
     //  << (int)orderCell[2] << "," << (int)orderCell[3] << "," << (int)orderCell[4] << endl;
     for( unsigned int c = 0; c < depth; ++c)
       {
-      int cellType = orderCell[c];
+      const int cellType = orderCell[c];
       cellArray[c] = vtkGenericCell::InstantiateCell(cellType);
+      InitializeACell( cellArray[c] );
       }
     vtkCell *linCell = cellArray[0]; // this is the reference linear cell
-    int numPts   = linCell->GetNumberOfPoints();
-    int numEdges = linCell->GetNumberOfEdges();
-    int numFaces = linCell->GetNumberOfFaces();
-    int dim      = linCell->GetCellDimension();
+    //const int numPts   = linCell->GetNumberOfPoints();
+    const int numEdges = linCell->GetNumberOfEdges();
+    const int numFaces = linCell->GetNumberOfFaces();
+    const int dim      = linCell->GetCellDimension();
     // First check consistancy across cell of higher dimension:
     for( unsigned int c = 0; c < depth; ++c)
       {
@@ -91,8 +132,16 @@ int TestHigherOrderCell(int , char *[])
           {
           vtkCell *c1 = linCell->GetEdge(e);
           vtkCell *c2 = cell->GetEdge(e);
-          c1->Print( cout );
-          c2->Print( cout );
+          cerr << "Doing: #" << linCell->GetCellType() << " vs "
+            << cell->GetCellType() << endl;
+          rval += CompareHigherOrderCell(c1, c2);
+          }
+        // Make sure that face across all different cell are identical
+        for(int f=0; f<numFaces; ++f)
+          {
+          vtkCell *f1 = linCell->GetFace(f);
+          vtkCell *f2 = cell->GetFace(f);
+          rval += CompareHigherOrderCell(f1, f2);
           }
         }
       }
