@@ -1,12 +1,12 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.0)
 PROJECT(VTK)
 
-SET(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${VTK_CMAKE_DIR}")
-
 # Don't build anything unless the version of CMake is high enough.
 # The matching ELSE/ENDIF should be the last lines in the file.
 IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
+
+SET(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${VTK_CMAKE_DIR}")
 
 # Tell the CMake makefile generator to not have rules depend on
 # themselves.  This causes extra rebuilds when the include path
@@ -692,21 +692,6 @@ IF(VTK_WRAP_JAVA)
 ENDIF(VTK_WRAP_JAVA)
 
 #-----------------------------------------------------------------------------
-# Load the VTK CMake extension modules.  This must be done after the
-# wrapping language selection.
-
-# Import the VTK_COMPILE_CMAKE_EXTENSIONS and VTK_LOAD_CMAKE_EXTENSIONS macros
-INCLUDE(${VTK_CMAKE_DIR}/vtkCompileCMakeExtensions.cmake)
-INCLUDE(${VTK_CMAKE_DIR}/vtkLoadCMakeExtensions.cmake)
-
-# Compile the extensions into the build tree and load them.
-VTK_COMPILE_CMAKE_EXTENSIONS(${VTK_CMAKE_DIR} ${VTK_BINARY_DIR}/CMake
-  VTK_CMAKE_EXTENSIONS_COMPILED)
-IF(VTK_CMAKE_EXTENSIONS_COMPILED)
-  VTK_LOAD_CMAKE_EXTENSIONS(${VTK_BINARY_DIR}/CMake)
-ENDIF(VTK_CMAKE_EXTENSIONS_COMPILED)
-
-#-----------------------------------------------------------------------------
 # Configure Dart testing support.
 INCLUDE(${CMAKE_ROOT}/Modules/Dart.cmake)
 MARK_AS_ADVANCED(BUILD_TESTING DART_ROOT TCL_TCLSH)
@@ -900,11 +885,7 @@ ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 
 SET(VTK_HAS_EXODUS)
-IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.8)
-  SET(VTK_HAS_EXODUS 1)
-ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.8)
-  MESSAGE(STATUS "CMake older than 2.0 detected. NetCDF will be disabled")
-ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.8)
+SET(VTK_HAS_EXODUS 1)
 
 # Utility libraries and executables.
 SUBDIRS(Wrapping Utilities)
@@ -970,18 +951,16 @@ ENDIF(BUILD_TESTING)
 IF(BUILD_EXAMPLES)
   SET(VTK_CMAKE_VERSION_FOR_EXAMPLES)
   # The examples tree now requires CMake 2.0.4 or higher.
-  IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
-    IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
-      # Have version 2.0.  Check for the Modules/CMakeTestForFreeVC.cxx
-      # file which was added in 2.0.4 (this is a nasty hack).
-      IF(EXISTS ${CMAKE_ROOT}/Modules/CMakeTestForFreeVC.cxx)
-        SET(VTK_CMAKE_VERSION_FOR_EXAMPLES 1)
-      ENDIF(EXISTS ${CMAKE_ROOT}/Modules/CMakeTestForFreeVC.cxx)
-    ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
-      # Have version 2.1 or higher.
+  IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
+    # Have version 2.0.  Check for the Modules/CMakeTestForFreeVC.cxx
+    # file which was added in 2.0.4 (this is a nasty hack).
+    IF(EXISTS ${CMAKE_ROOT}/Modules/CMakeTestForFreeVC.cxx)
       SET(VTK_CMAKE_VERSION_FOR_EXAMPLES 1)
-    ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
-  ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
+    ENDIF(EXISTS ${CMAKE_ROOT}/Modules/CMakeTestForFreeVC.cxx)
+  ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
+    # Have version 2.1 or higher.
+    SET(VTK_CMAKE_VERSION_FOR_EXAMPLES 1)
+  ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
   IF(VTK_CMAKE_VERSION_FOR_EXAMPLES)
     SUBDIRS(Examples)
   ELSE(VTK_CMAKE_VERSION_FOR_EXAMPLES)
@@ -1432,28 +1411,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cmake
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.h.in
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cxx.in)
-  IF (VTK_NEED_LOADED_COMMANDS)
-    FOREACH(cmd VTK_WRAP_TCL2 VTK_WRAP_PYTHON2 VTK_WRAP_JAVA2
-        VTK_GENERATE_JAVA_DEPENDENCIES)
-      IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
-        # CMake 2.2 and above will set CMAKE_LOADED_COMMAND_<command-name>
-        # to the full path to the actual module that was loaded.  Use
-        # this variable to find the module to install.
-        INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES ${CMAKE_LOADED_COMMAND_${cmd}})
-      ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
-        # CMake 2.0 will not tell us what module was loaded.  Construct the
-        # name of the module for this platform.  If using a generator with
-        # multiple configurations the loaded commands are always built Debug.
-        IF(CMAKE_CONFIGURATION_TYPES)
-          INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES
-            "${VTK_BINARY_DIR}/CMake/Debug/${CMAKE_SHARED_MODULE_PREFIX}cm${cmd}${CMAKE_SHARED_MODULE_SUFFIX}")
-        ELSE(CMAKE_CONFIGURATION_TYPES)
-          INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES
-            "${VTK_BINARY_DIR}/CMake/${CMAKE_SHARED_MODULE_PREFIX}cm${cmd}${CMAKE_SHARED_MODULE_SUFFIX}")
-        ENDIF(CMAKE_CONFIGURATION_TYPES)
-      ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
-    ENDFOREACH(cmd)
-  ENDIF (VTK_NEED_LOADED_COMMANDS)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 # Save library dependencies.
@@ -1484,5 +1441,5 @@ SUBDIRS(Utilities/LastConfigureStep)
 ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
   MESSAGE(SEND_ERROR
           "This version of CMake is too old to build VTK.  "
-          "Please upgrade to CMake 2.0.")
+          "Please upgrade to CMake 2.0 or later.")
 ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
