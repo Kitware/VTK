@@ -20,7 +20,7 @@
 #include "vtkInteractorObserver.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkObserverMediator, "1.4");
+vtkCxxRevisionMacro(vtkObserverMediator, "1.5");
 vtkStandardNewMacro(vtkObserverMediator);
 
 // PIMPL the map representing the observer (key) to cursor request
@@ -45,7 +45,7 @@ public:
 typedef vtkObserverMap::iterator ObserverMapIterator;
 
 
-//----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkObserverMediator::vtkObserverMediator()
 {
   this->Interactor = NULL;
@@ -56,20 +56,21 @@ vtkObserverMediator::vtkObserverMediator()
 }
 
 
-//----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkObserverMediator::~vtkObserverMediator()
 {
   delete this->ObserverMap;
 }
 
-//----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void vtkObserverMediator::SetInteractor(vtkRenderWindowInteractor* i)
 {
   this->Interactor = i;
 }
 
-//----------------------------------------------------------------------------------
-// This  mediation process works by keeping track of non-default cursor requests.
+//----------------------------------------------------------------------------
+// This  mediation process works by keeping track of non-default cursor 
+// requests. 
 // Ties are broken based on widget priority (hence the priority queue).
 int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int requestedShape)
 {
@@ -127,8 +128,20 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int reques
   return 0;
 }
 
+//----------------------------------------------------------------------------
+void vtkObserverMediator::RemoveAllCursorShapeRequests(vtkInteractorObserver *w)
+{
+  if (w)
+    {
+    ObserverMapIterator iter = this->ObserverMap->find(w);
+    if (iter != this->ObserverMap->end())
+      {
+      this->ObserverMap->erase(iter);
+      }
+    }
+}
   
-//----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void vtkObserverMediator::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

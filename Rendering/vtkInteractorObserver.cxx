@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObserverMediator.h" 
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.34");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.35");
 
 vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);
 
@@ -118,6 +118,17 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
   if (i == this->Interactor)
     {
     return;
+    }
+
+  // Since the observer mediator is bound to the interactor, reset it to
+  // 0 so that the next time it is requested, it is queried from the
+  // new interactor.
+  // Furthermore, remove ourself from the mediator queue.
+
+  if (this->ObserverMediator)
+    {
+    this->ObserverMediator->RemoveAllCursorShapeRequests(this);
+    this->ObserverMediator = 0;
     }
 
   // if we already have an Interactor then stop observing it

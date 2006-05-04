@@ -59,6 +59,10 @@ public:
   // using one of the integral values determined in vtkRenderWindow.h. The 
   // method returns a non-zero value if the shape was successfully changed.
   int RequestCursorShape(vtkInteractorObserver*, int cursorShape);
+
+  // Description:
+  // Remove all requests for cursor shape from a given interactor.
+  void RemoveAllCursorShapeRequests(vtkInteractorObserver*);
   
 protected:
   vtkObserverMediator();
