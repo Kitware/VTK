@@ -51,11 +51,11 @@
 #define VTK_MIN_SUPERQUADRIC_THICKNESS  1e-4
 #define VTK_MIN_SUPERQUADRIC_ROUNDNESS  1e-24
 
-class VTK_GRAPHICS_EXPORT vtkSuperquadricSource : public vtkPolyDataAlgorithm 
+class VTK_GRAPHICS_EXPORT vtkSuperquadricSource : public vtkPolyDataAlgorithm
 {
 public:
   // Description:
-  // Create a default superquadric with a radius of 0.5, non-toroidal, 
+  // Create a default superquadric with a radius of 0.5, non-toroidal,
   // spherical, and centered at the origin.
   static vtkSuperquadricSource *New();
 
@@ -116,6 +116,7 @@ protected:
   ~vtkSuperquadricSource() {};
 
   int Toroidal;
+  int AxisOfSymmetry;
   double Thickness;
   double Size;
   double PhiRoundness;
@@ -132,3 +133,4 @@ private:
 };
 
 #endif
+

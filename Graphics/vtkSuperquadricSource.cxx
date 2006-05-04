@@ -32,12 +32,12 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSuperquadricSource, "1.24");
+vtkCxxRevisionMacro(vtkSuperquadricSource, "1.25");
 vtkStandardNewMacro(vtkSuperquadricSource);
 
 static void evalSuperquadric(double u, double v,
                              double du, double dv,
-                             double n, double e,
+                             double e, double n,
                              double dims[3],
                              double alpha,
                              double xyz[3],
@@ -48,6 +48,7 @@ vtkSuperquadricSource::vtkSuperquadricSource(int res)
 {
   res = res < 4 ? 4 : res;
 
+  this->AxisOfSymmetry = 2; //z-axis symmetry
   this->Toroidal = 0;
   this->Thickness = 0.3333;
   this->PhiRoundness = 0.0;
@@ -165,6 +166,8 @@ int vtkSuperquadricSource::RequestData(
   int iq, jq, rowOffset;
   double thetaOffset, phiOffset;
   double texCoord[2];
+  double tmp;
+
 
   dims[0] = this->Scale[0] * this->Size;
   dims[1] = this->Scale[1] * this->Size;
@@ -236,8 +239,8 @@ int vtkSuperquadricSource::RequestData(
       phi = phiLim[0] + deltaPhi*(i + iq*phiSubsegs);
       texCoord[1] = deltaPhiTex*(i + iq*phiSubsegs);
 
-      // SQ_SMALL_OFFSET makes sure that the normal vector isn't 
-      // evaluated exactly on a crease;  if that were to happen, 
+      // SQ_SMALL_OFFSET makes sure that the normal vector isn't
+      // evaluated exactly on a crease;  if that were to happen,
       // large shading errors can occur.
       if(i == 0)
         {
@@ -272,18 +275,39 @@ int vtkSuperquadricSource::RequestData(
             thetaOffset =  0.0;
             }
 
+          //This give you superquadric with axis of symmetry: z
           evalSuperquadric(theta, phi,
                            thetaOffset, phiOffset,
-                           this->PhiRoundness, this->ThetaRoundness,
+                           this->ThetaRoundness, this->PhiRoundness,
                            dims, alpha, pt, nv);
-          
+          switch (this->AxisOfSymmetry)
+            {
+            case 0:
+              //x-axis
+              tmp = pt[0];
+              pt[0] = pt[2];
+              pt[2] = tmp;
+              pt[1] = -pt[1];
+
+              tmp = nv[0];
+              nv[0]=nv[2];
+              nv[2]=tmp;
+              nv[1]=-nv[1];
+              break;
+            case 1:
+              //y-axis
+              //PENDING
+
+              break;
+          }
+
           if((len = vtkMath::Norm(nv)) == 0.0)
             {
             len = 1.0;
             }
           nv[0] /= len; nv[1] /= len; nv[2] /= len;
 
-          if(!this->Toroidal && 
+          if(!this->Toroidal &&
              ((iq == 0 && i == 0) || (iq == (phiSegs-1) && i == phiSubsegs)))
             {
 
@@ -312,7 +336,7 @@ int vtkSuperquadricSource::RequestData(
   ptidx = new vtkIdType[ptsPerStrip];
 
   rowOffset = this->ThetaResolution+thetaSegs;
-  
+
   for(iq = 0; iq < phiSegs; iq++)
     {
     for(i = 0; i < phiSubsegs; i++)
@@ -352,6 +376,7 @@ void vtkSuperquadricSource::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Toroidal: " << (this->Toroidal ? "On\n" : "Off\n");
+  os << indent << "Axis Of Symmetry: " << this->AxisOfSymmetry << "\n";
   os << indent << "Size: " << this->Size << "\n";
   os << indent << "Thickness: " << this->Thickness << "\n";
   os << indent << "Theta Resolution: " << this->ThetaResolution << "\n";
@@ -364,7 +389,7 @@ void vtkSuperquadricSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->Scale[1] << ", " << this->Scale[2] << ")\n";
 }
 
-static double cf(double w, double m, double a)
+static double cf(double w, double m, double a = 0)
 {
   double c;
   double sgn;
@@ -384,9 +409,9 @@ static double sf(double w, double m)
   return sgn*pow(sgn*s, m);
 }
 
-static void evalSuperquadric(double u, double v,  // parametric coords
-                             double du, double dv, // offsets for normals
-                             double n, double e,  // roundness params
+static void evalSuperquadric(double theta, double phi,  // parametric coords
+                             double dtheta, double dphi, // offsets for normals
+                             double rtheta, double rphi,  // roundness params
                              double dims[3],     // x, y, z dimensions
                              double alpha,       // hole size
                              double xyz[3],      // output coords
@@ -394,13 +419,14 @@ static void evalSuperquadric(double u, double v,  // parametric coords
 {
   double cf1, cf2;
 
-  cf1 = cf(v, n, alpha);
-  xyz[0] = dims[0] * cf1 * sf(u, e);
-  xyz[1] = dims[1]       * sf(v, n);
-  xyz[2] = dims[2] * cf1 * cf(u, e, 0.0);
+  cf1 = cf(phi, rphi, alpha);
+  xyz[0] = dims[0] * cf1 * sf(theta, rtheta);
+  xyz[1] = dims[1]       * sf(phi, rphi);
+  xyz[2] = dims[2] * cf1 * cf(theta, rtheta);
 
-  cf2 = cf(v+dv, 2.0-n, 0.0);
-  nrm[0] = 1.0/dims[0] * cf2 * sf(u+du, 2.0-e);
-  nrm[1] = 1.0/dims[1]       * sf(v+dv, 2.0-n);
-  nrm[2] = 1.0/dims[2] * cf2 * cf(u+du, 2.0-e, 0.0);
+  cf2 = cf(phi+dphi, 2.0-rphi);
+  nrm[0] = 1.0/dims[0] * cf2 * sf(theta+dtheta, 2.0-rtheta);
+  nrm[1] = 1.0/dims[1]       * sf(phi+dphi, 2.0-rphi);
+  nrm[2] = 1.0/dims[2] * cf2 * cf(theta+dtheta, 2.0-rtheta);
 }
+
