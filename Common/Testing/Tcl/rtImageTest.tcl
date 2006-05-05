@@ -50,6 +50,7 @@ if {[info commands iren] == "iren"} {renWin Render}
 update
 
 # current directory
+set rtResult 0
 if {[rtTester IsValidImageSpecified] != 0} {
    # look for a renderWindow ImageWindow or ImageViewer
    # first check for some common names
