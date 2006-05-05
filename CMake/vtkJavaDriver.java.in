@@ -3,7 +3,7 @@
 package vtk;
 import vtk.*;
 
-public class vtk${TARGET}Driver
+public class vtk@TARGET_NAME@Driver
 {
   public static void Initialize(String[] args)
     {
