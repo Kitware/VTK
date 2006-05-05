@@ -8,7 +8,7 @@ public class vtk@TARGET_NAME@Driver
   public static void Initialize(String[] args)
     {
     Object dummy;
-@OUT_TEXT@
+@OUT_TEXT@;
 
     }
 }
