@@ -1061,7 +1061,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 {
   Display *dpy;
   TkWindow *winPtr = (TkWindow *)self->TkWin;
-  vtkCarbonRenderWindow *renderWindow;
+  vtkCarbonRenderWindow *renderWindow = NULL;
   WindowPtr parentWin;
 
   if (self->RenderWindow)
