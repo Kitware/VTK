@@ -123,6 +123,7 @@ typedef struct {
  */
 
 #define TK_WIN_TOPLEVEL_CLASS_NAME "TkTopLevel"
+#define TK_WIN_TOPLEVEL_NOCDC_CLASS_NAME "TkTopLevelNoCDC"
 #define TK_WIN_CHILD_CLASS_NAME "TkChild"
 
 /*
@@ -166,6 +167,16 @@ EXTERN LRESULT CALLBACK  TkWinChildProc _ANSI_ARGS_((HWND hwnd, UINT message,
 EXTERN void  TkWinUpdatingClipboard(int mode);
 
 /*
+ * Used by tkWinDialog.c to associate the right icon with tk_messageBox
+ */
+EXTERN HICON  TkWinGetIcon(Tk_Window tkw, DWORD iconsize);
+
+/*
+ * Used by tkWinX.c on for certain system display change messages
+ */
+EXTERN void  TkWinDisplayChanged(Display *display);
+
+/*
  * The following structure keeps track of whether we are using the 
  * multi-byte or the wide-character interfaces to the operating system.
  * System calls should be made through the following function table.
@@ -187,6 +198,8 @@ typedef struct TkWinProcs {
       LPCTSTR lpWindowName, DWORD dwStyle, int x, int y,
       int nWidth, int nHeight, HWND hWndParent, HMENU hMenu,
       HINSTANCE hInstance, LPVOID lpParam);
+    BOOL (WINAPI *insertMenu)(HMENU hMenu, UINT uPosition, UINT uFlags,
+      UINT uIDNewItem, LPCTSTR lpNewItem);
 } TkWinProcs;
 
 EXTERN TkWinProcs *tkWinProcs;
@@ -201,6 +214,12 @@ EXTERN TkWinProcs *tkWinProcs;
 
 extern Tcl_Encoding TkWinGetKeyInputEncoding _ANSI_ARGS_((void));
 extern Tcl_Encoding TkWinGetUnicodeEncoding _ANSI_ARGS_((void));
+
+/*
+ * Values returned by TkWinGetPlatformTheme.
+ */
+#define TK_THEME_WIN_CLASSIC    1
+#define TK_THEME_WIN_XP         2
 
 #endif /* _TKWININT */
 

@@ -51,6 +51,45 @@
 #include <string.h>
 #endif
 
+/*
+ * Ensure WORDS_BIGENDIAN is defined correcly:
+ * Needs to happen here in addition to configure to work with fat compiles on
+ * Darwin (where configure runs only once for multiple architectures).
+ */
+
+#ifdef HAVE_SYS_TYPES_H
+#    include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_PARAM_H
+#    include <sys/param.h>
+#endif
+#ifdef BYTE_ORDER
+#    ifdef BIG_ENDIAN
+#        if BYTE_ORDER == BIG_ENDIAN
+#            undef WORDS_BIGENDIAN
+#            define WORDS_BIGENDIAN
+#        endif
+#    endif
+#    ifdef LITTLE_ENDIAN
+#        if BYTE_ORDER == LITTLE_ENDIAN
+#            undef WORDS_BIGENDIAN
+#        endif
+#    endif
+#endif
+
+/*
+ * Used to tag functions that are only to be visible within the module being
+ * built and not outside it (where this is supported by the linker).
+ */
+
+#ifndef MODULE_SCOPE
+#   ifdef __cplusplus
+#  define MODULE_SCOPE extern "C"
+#   else
+#  define MODULE_SCOPE extern
+#   endif
+#endif
+
 #undef TCL_STORAGE_CLASS
 #ifdef BUILD_tcl
 # define TCL_STORAGE_CLASS DLLEXPORT
@@ -231,10 +270,13 @@ typedef struct Namespace {
  *    in any byte code code unit that refers to the namespace has
  *    been freed (i.e., when the namespace's refCount is 0), the
  *    namespace's storage will be freed.
+ * NS_KILLED    1 means that TclTeardownNamespace has already been called on
+ *              this namespace and it should not be called again [Bug 1355942]
  */
 
 #define NS_DYING  0x01
 #define NS_DEAD    0x02
+#define NS_KILLED       0x04
 
 /*
  * Flag passed to TclGetNamespaceForQualName to have it create all namespace
@@ -311,6 +353,8 @@ typedef struct ActiveCommandTrace {
          * trace procedure returns;  if this
          * trace gets deleted, must update pointer
          * to avoid using free'd memory. */
+    int reverseScan;    /* Boolean set true when the traces
+         * are scanning in reverse order. */
 } ActiveCommandTrace;
 
 /*
@@ -684,6 +728,8 @@ typedef struct ActiveInterpTrace {
          * trace procedure returns;  if this
          * trace gets deleted, must update pointer
          * to avoid using free'd memory. */
+    int reverseScan;    /* Boolean set true when the traces
+         * are scanning in reverse order. */
 } ActiveInterpTrace;
 
 /*
@@ -1609,6 +1655,7 @@ EXTERN int    TclArraySet _ANSI_ARGS_((Tcl_Interp *interp,
           Tcl_Obj *arrayNameObj, Tcl_Obj *arrayElemObj));
 EXTERN int    TclCheckBadOctal _ANSI_ARGS_((Tcl_Interp *interp,
           CONST char *value));
+EXTERN void    TclDeleteNamespaceVars _ANSI_ARGS_((Namespace *nsPtr));
 EXTERN void    TclExpandTokenArray _ANSI_ARGS_((
           Tcl_Parse *parsePtr));
 EXTERN int    TclFileAttrsCmd _ANSI_ARGS_((Tcl_Interp *interp,
@@ -1622,7 +1669,7 @@ EXTERN int    TclFileMakeDirsCmd _ANSI_ARGS_((Tcl_Interp *interp,
 EXTERN int    TclFileRenameCmd _ANSI_ARGS_((Tcl_Interp *interp,
           int objc, Tcl_Obj *CONST objv[])) ;
 EXTERN void    TclFinalizeAllocSubsystem _ANSI_ARGS_((void));
-EXTERN void    TclFinalizeCompExecEnv _ANSI_ARGS_((void));
+EXTERN void    TclFinalizeAsync _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeCompilation _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeEncodingSubsystem _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeEnvironment _ANSI_ARGS_((void));
@@ -1631,12 +1678,15 @@ EXTERN void    TclFinalizeIOSubsystem _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeFilesystem _ANSI_ARGS_((void));
 EXTERN void    TclResetFilesystem _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeLoad _ANSI_ARGS_((void));
+EXTERN void    TclFinalizeLock _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeMemorySubsystem _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeNotifier _ANSI_ARGS_((void));
-EXTERN void    TclFinalizeAsync _ANSI_ARGS_((void));
+EXTERN void    TclFinalizeObjects _ANSI_ARGS_((void));
+EXTERN void    TclFinalizePreserve _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeSynchronization _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeThreadData _ANSI_ARGS_((void));
-EXTERN void    TclFindEncodings _ANSI_ARGS_((CONST char *argv0));
+EXTERN int    TclGetEncodingFromObj _ANSI_ARGS_((Tcl_Interp *interp,
+          Tcl_Obj *objPtr, Tcl_Encoding *encodingPtr));
 EXTERN int    TclGlob _ANSI_ARGS_((Tcl_Interp *interp,
           char *pattern, Tcl_Obj *unquotedPrefix, 
           int globFlags, Tcl_GlobTypeData* types));
@@ -1691,6 +1741,8 @@ EXTERN int              TclpDeleteFile _ANSI_ARGS_((CONST char *path));
 EXTERN void    TclpFinalizeCondition _ANSI_ARGS_((
           Tcl_Condition *condPtr));
 EXTERN void    TclpFinalizeMutex _ANSI_ARGS_((Tcl_Mutex *mutexPtr));
+EXTERN void    TclpFinalizePipes _ANSI_ARGS_((void));
+EXTERN void    TclpFinalizeSockets _ANSI_ARGS_((void));
 EXTERN void    TclpFinalizeThreadData _ANSI_ARGS_((
           Tcl_ThreadDataKey *keyPtr));
 EXTERN void    TclpFinalizeThreadDataKey _ANSI_ARGS_((
@@ -1699,7 +1751,7 @@ EXTERN char *    TclpFindExecutable _ANSI_ARGS_((
           CONST char *argv0));
 EXTERN int    TclpFindVariable _ANSI_ARGS_((CONST char *name,
           int *lengthPtr));
-EXTERN void    TclpInitLibraryPath _ANSI_ARGS_((CONST char *argv0));
+EXTERN int    TclpInitLibraryPath _ANSI_ARGS_((CONST char *argv0));
 EXTERN void    TclpInitLock _ANSI_ARGS_((void));
 EXTERN void    TclpInitPlatform _ANSI_ARGS_((void));
 EXTERN void    TclpInitUnlock _ANSI_ARGS_((void));
@@ -1749,8 +1801,6 @@ EXTERN int    TclpObjStat _ANSI_ARGS_((Tcl_Obj *pathPtr, Tcl_StatBuf *buf));
 EXTERN Tcl_Channel  TclpOpenFileChannel _ANSI_ARGS_((Tcl_Interp *interp,
           Tcl_Obj *pathPtr, int mode,
           int permissions));
-EXTERN void    TclpCutFileChannel _ANSI_ARGS_((Tcl_Channel chan));
-EXTERN void    TclpSpliceFileChannel _ANSI_ARGS_((Tcl_Channel chan));
 EXTERN void    TclpPanic _ANSI_ARGS_(TCL_VARARGS(CONST char *,
           format));
 EXTERN char *    TclpReadlink _ANSI_ARGS_((CONST char *fileName,
@@ -1764,6 +1814,11 @@ EXTERN void    TclpThreadDataKeyInit _ANSI_ARGS_((
           Tcl_ThreadDataKey *keyPtr));
 EXTERN void    TclpThreadDataKeySet _ANSI_ARGS_((
           Tcl_ThreadDataKey *keyPtr, VOID *data));
+EXTERN int    TclpThreadCreate _ANSI_ARGS_((
+          Tcl_ThreadId *idPtr,
+          Tcl_ThreadCreateProc proc,
+          ClientData clientData,
+          int stackSize, int flags));
 EXTERN void    TclpThreadExit _ANSI_ARGS_((int status));
 EXTERN void    TclRememberCondition _ANSI_ARGS_((Tcl_Condition *mutex));
 EXTERN void    TclRememberDataKey _ANSI_ARGS_((Tcl_ThreadDataKey *mutex));
@@ -1785,6 +1840,15 @@ EXTERN int              TclpDlopen _ANSI_ARGS_((Tcl_Interp *interp,
                 Tcl_FSUnloadFileProc **unloadProcPtr));
 EXTERN int              TclpUtime _ANSI_ARGS_((Tcl_Obj *pathPtr,
                  struct utimbuf *tval));
+
+#ifdef TCL_LOAD_FROM_MEMORY
+EXTERN void*          TclpLoadMemoryGetBuffer _ANSI_ARGS_((
+          Tcl_Interp *interp, int size));
+EXTERN int          TclpLoadMemory _ANSI_ARGS_((Tcl_Interp *interp, 
+          void *buffer, int size, int codeSize, 
+          Tcl_LoadHandle *loadHandle, 
+          Tcl_FSUnloadFileProc **unloadProcPtr));
+#endif
 
 /*
  *----------------------------------------------------------------
@@ -2133,6 +2197,11 @@ EXTERN Tcl_Obj *TclPtrIncrVar _ANSI_ARGS_((Tcl_Interp *interp, Var *varPtr,
 
 EXTERN Tcl_Obj *TclThreadAllocObj _ANSI_ARGS_((void));
 EXTERN void TclThreadFreeObj _ANSI_ARGS_((Tcl_Obj *));
+EXTERN void TclFreeAllocCache _ANSI_ARGS_((void *));
+EXTERN void TclFinalizeThreadAlloc _ANSI_ARGS_((void));
+EXTERN void TclpFreeAllocMutex _ANSI_ARGS_((Tcl_Mutex* mutex));
+EXTERN void TclpFreeAllocCache _ANSI_ARGS_((void *));
+
 
 #  define TclAllocObjStorage(objPtr) \
        (objPtr) = TclThreadAllocObj()

@@ -104,7 +104,7 @@ EXTERN void    TkGenWMConfigureEvent _ANSI_ARGS_((Tk_Window tkwin,
         int x, int y, int width, int height, 
         int flags));
 /* 6 */
-EXTERN void    TkMacOSXInvalClipRgns _ANSI_ARGS_((TkWindow * winPtr));
+EXTERN void    TkMacOSXInvalClipRgns _ANSI_ARGS_((Tk_Window tkwin));
 /* 7 */
 EXTERN GWorldPtr  TkMacOSXGetDrawablePort _ANSI_ARGS_((
         Drawable drawable));
@@ -149,7 +149,7 @@ typedef struct TkPlatStubs {
     void (*tkMacOSXInitMenus) _ANSI_ARGS_((Tcl_Interp * interp)); /* 3 */
     void (*tkMacOSXInitAppleEvents) _ANSI_ARGS_((Tcl_Interp * interp)); /* 4 */
     void (*tkGenWMConfigureEvent) _ANSI_ARGS_((Tk_Window tkwin, int x, int y, int width, int height, int flags)); /* 5 */
-    void (*tkMacOSXInvalClipRgns) _ANSI_ARGS_((TkWindow * winPtr)); /* 6 */
+    void (*tkMacOSXInvalClipRgns) _ANSI_ARGS_((Tk_Window tkwin)); /* 6 */
     GWorldPtr (*tkMacOSXGetDrawablePort) _ANSI_ARGS_((Drawable drawable)); /* 7 */
     ControlRef (*tkMacOSXGetRootControl) _ANSI_ARGS_((Drawable drawable)); /* 8 */
     void (*tk_MacOSXSetupTkNotifier) _ANSI_ARGS_((void)); /* 9 */

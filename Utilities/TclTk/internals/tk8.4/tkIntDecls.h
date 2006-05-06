@@ -562,6 +562,12 @@ EXTERN Tk_Window  TkToplevelWindowForCommand _ANSI_ARGS_((
 /* 149 */
 EXTERN CONST Tk_OptionSpec * TkGetOptionSpec _ANSI_ARGS_((CONST char * name, 
         Tk_OptionTable optionTable));
+/* Slot 150 is reserved */
+/* Slot 151 is reserved */
+/* 152 */
+EXTERN void    TkpDrawFrame _ANSI_ARGS_((Tk_Window tkwin, 
+        Tk_3DBorder border, int highlightWidth, 
+        int borderWidth, int relief));
 
 typedef struct TkIntStubs {
     int magic;
@@ -838,6 +844,9 @@ typedef struct TkIntStubs {
     void (*tkStylePkgFree) _ANSI_ARGS_((TkMainInfo * mainPtr)); /* 147 */
     Tk_Window (*tkToplevelWindowForCommand) _ANSI_ARGS_((Tcl_Interp * interp, CONST char * cmdName)); /* 148 */
     CONST Tk_OptionSpec * (*tkGetOptionSpec) _ANSI_ARGS_((CONST char * name, Tk_OptionTable optionTable)); /* 149 */
+    void *reserved150;
+    void *reserved151;
+    void (*tkpDrawFrame) _ANSI_ARGS_((Tk_Window tkwin, Tk_3DBorder border, int highlightWidth, int borderWidth, int relief)); /* 152 */
 } TkIntStubs;
 
 #ifdef __cplusplus
@@ -1550,6 +1559,12 @@ extern TkIntStubs *tkIntStubsPtr;
 #ifndef TkGetOptionSpec
 #define TkGetOptionSpec \
   (tkIntStubsPtr->tkGetOptionSpec) /* 149 */
+#endif
+/* Slot 150 is reserved */
+/* Slot 151 is reserved */
+#ifndef TkpDrawFrame
+#define TkpDrawFrame \
+  (tkIntStubsPtr->tkpDrawFrame) /* 152 */
 #endif
 
 #endif /* defined(USE_TK_STUBS) && !defined(USE_TK_STUB_PROCS) */

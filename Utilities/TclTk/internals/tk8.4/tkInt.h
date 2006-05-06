@@ -24,7 +24,46 @@
 #include "tcl.h"
 #endif
 #ifndef _TKPORT
-#include <tkPort.h>
+#include "tkPort.h"
+#endif
+
+/*
+ * Ensure WORDS_BIGENDIAN is defined correcly:
+ * Needs to happen here in addition to configure to work with fat compiles on
+ * Darwin (where configure runs only once for multiple architectures).
+ */
+
+#ifdef HAVE_SYS_TYPES_H
+#    include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_PARAM_H
+#    include <sys/param.h>
+#endif
+#ifdef BYTE_ORDER
+#    ifdef BIG_ENDIAN
+#   if BYTE_ORDER == BIG_ENDIAN
+#       undef WORDS_BIGENDIAN
+#       define WORDS_BIGENDIAN
+#   endif
+#    endif
+#    ifdef LITTLE_ENDIAN
+#   if BYTE_ORDER == LITTLE_ENDIAN
+#       undef WORDS_BIGENDIAN
+#   endif
+#    endif
+#endif
+
+/*
+ * Used to tag functions that are only to be visible within the module being
+ * built and not outside it (where this is supported by the linker).
+ */
+
+#ifndef MODULE_SCOPE
+#   ifdef __cplusplus
+#  define MODULE_SCOPE extern "C"
+#   else
+#  define MODULE_SCOPE extern
+#   endif
 #endif
 
 /*
@@ -506,6 +545,9 @@ typedef struct TkDisplay {
          * defined in below. */
     TkCaret caret;    /* information about the caret for this
          * display.  This is not a pointer. */
+
+    int iconDataSize;    /* size of default iconphoto image data */
+    unsigned char *iconDataPtr;  /* default iconphoto image data, if set */
 } TkDisplay;
 
 /*
@@ -1163,12 +1205,23 @@ EXTERN char *    TkTilePrintProc _ANSI_ARGS_((
           ClientData clientData, Tk_Window tkwin,
           char *widgRec, int offset,
           Tcl_FreeProc **freeProcPtr));
+EXTERN void    TkCreateExitHandler _ANSI_ARGS_((Tcl_ExitProc *proc,
+          ClientData clientData));
+EXTERN void    TkDeleteExitHandler _ANSI_ARGS_((Tcl_ExitProc *proc,
+          ClientData clientData));
+EXTERN Tcl_ExitProc  TkFinalize;
+EXTERN void    TkPrintPadAmount _ANSI_ARGS_((Tcl_Interp *interp,
+          char *buffer, int pad1, int pad2));
+EXTERN int    TkParsePadAmount _ANSI_ARGS_((Tcl_Interp *interp,
+          Tk_Window tkwin, Tcl_Obj *objPtr,
+          int *pad1Ptr, int *pad2Ptr));
 
-/* 
+/*
  * Unsupported commands.
  */
-EXTERN int    TkUnsupported1Cmd _ANSI_ARGS_((ClientData clientData,
-          Tcl_Interp *interp, int argc, CONST char **argv));
+EXTERN int    TkUnsupported1ObjCmd _ANSI_ARGS_((
+          ClientData clientData, Tcl_Interp *interp,
+          int objc, Tcl_Obj *CONST objv[]));
 
 # undef TCL_STORAGE_CLASS
 # define TCL_STORAGE_CLASS DLLIMPORT

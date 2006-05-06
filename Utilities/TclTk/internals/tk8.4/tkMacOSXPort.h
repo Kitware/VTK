@@ -35,18 +35,10 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <fcntl.h>
-#ifdef HAVE_LIMITS_H
-#   include <limits.h>
-#else
-#   include "../compat/limits.h"
-#endif
+#include <limits.h>
 #include <math.h>
 #include <pwd.h>
-#ifdef NO_STDLIB_H
-#   include "../compat/stdlib.h"
-#else
-#   include <stdlib.h>
-#endif
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/file.h>
@@ -67,11 +59,7 @@
 #       include <time.h>
 #   endif
 #endif
-#ifdef HAVE_UNISTD_H
-#   include <unistd.h>
-#else
-#   include "../compat/unistd.h"
-#endif
+#include <unistd.h>
 #include <X11/Xlib.h>
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
@@ -118,13 +106,6 @@
 #define MASK_SIZE howmany(FD_SETSIZE, NFDBITS)
 
 /*
- * Not all systems declare the errno variable in errno.h. so this
- * file does it explicitly.
- */
-
-extern int errno;
-
-/*
  * Define "NBBY" (number of bits per byte) if it's not already defined.
  */
 
@@ -137,9 +118,6 @@ extern int errno;
  * in any other header file.
  */
 
-#ifndef panic  /* In a stubs-aware setting, this could confuse the #define */
-extern void     panic  _ANSI_ARGS_(TCL_VARARGS(char *, string));
-#endif
 #ifndef strcasecmp
 extern int    strcasecmp _ANSI_ARGS_((CONST char *s1,
           CONST char *s2));
@@ -148,6 +126,13 @@ extern int    strcasecmp _ANSI_ARGS_((CONST char *s1,
 extern int    strncasecmp _ANSI_ARGS_((CONST char *s1,
           CONST char *s2, size_t n));
 #endif
+
+/*
+ * The following define causes Tk to use its internal keysym hash table
+ */
+
+#define REDO_KEYSYM_LOOKUP
+
 /*
  * Defines for X functions that are used by Tk but are treated as
  * no-op functions on the Macintosh.
@@ -159,7 +144,6 @@ extern int    strncasecmp _ANSI_ARGS_((CONST char *s1,
 #define XNoOp(display) {display->request++;}
 #define XUngrabServer(display)
 #define XSynchronize(display, bool) {display->request++;}
-#define XSync(display, bool) {display->request++;}
 #define XVisualIDFromVisual(visual) (visual->visualid)
 
 /*
