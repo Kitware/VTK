@@ -419,10 +419,10 @@ vtkPoints TQhexPoints
   TQhexPoints InsertPoint 17 1 0 0.5
   TQhexPoints InsertPoint 18 1 1 0.5
   TQhexPoints InsertPoint 19 0 1 0.5
-  TQhexPoints InsertPoint 20 0.5 0 0.5
+  TQhexPoints InsertPoint 22 0.5 0 0.5
   TQhexPoints InsertPoint 21 1 0.5 0.5
-  TQhexPoints InsertPoint 22 0.5 1 0.5
-  TQhexPoints InsertPoint 23 0 0.5 0.5
+  TQhexPoints InsertPoint 23 0.5 1 0.5
+  TQhexPoints InsertPoint 20 0 0.5 0.5
   TQhexPoints InsertPoint 24 0.5 0.5 0.0
   TQhexPoints InsertPoint 25 0.5 0.5 1
   TQhexPoints InsertPoint 26 0.5 0.5 0.5
@@ -529,10 +529,10 @@ vtkPoints BQhexPoints
   BQhexPoints InsertPoint 17 1   0   0.5
   BQhexPoints InsertPoint 18 1   1   0.5
   BQhexPoints InsertPoint 19 0   1   0.5
-  BQhexPoints InsertPoint 20 0.5 0   0.5
+  BQhexPoints InsertPoint 22 0.5 0   0.5
   BQhexPoints InsertPoint 21 1   0.5 0.5
-  BQhexPoints InsertPoint 22 0.5 1   0.5
-  BQhexPoints InsertPoint 23 0   0.5 0.5
+  BQhexPoints InsertPoint 23 0.5 1   0.5
+  BQhexPoints InsertPoint 20 0   0.5 0.5
 vtkFloatArray BQhexScalars
   BQhexScalars SetNumberOfTuples 24
   BQhexScalars InsertValue 0 1.0
