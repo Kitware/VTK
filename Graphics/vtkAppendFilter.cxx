@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkAppendFilter, "1.74");
+vtkCxxRevisionMacro(vtkAppendFilter, "1.75");
 vtkStandardNewMacro(vtkAppendFilter);
 
 //----------------------------------------------------------------------------
@@ -186,7 +186,9 @@ int vtkAppendFilter::RequestData(
   
   // Now can allocate memory
   output->Allocate(numCells); //allocate storage for geometry/topology
+  outputPD->CopyGlobalIdsOn();
   outputPD->CopyAllocate(ptList,numPts);
+  outputCD->CopyGlobalIdsOn();
   outputCD->CopyAllocate(cellList,numCells);
 
   newPts = vtkPoints::New();

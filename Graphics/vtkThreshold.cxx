@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkThreshold, "1.69");
+vtkCxxRevisionMacro(vtkThreshold, "1.70");
 vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -127,7 +127,9 @@ int vtkThreshold::RequestData(
     return 1;
     }
 
+  outPD->CopyGlobalIdsOn();
   outPD->CopyAllocate(pd);
+  outCD->CopyGlobalIdsOn();
   outCD->CopyAllocate(cd);
 
   numPts = input->GetNumberOfPoints();
