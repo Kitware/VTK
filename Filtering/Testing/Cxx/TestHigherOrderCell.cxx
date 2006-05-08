@@ -160,9 +160,9 @@ int TestHigherOrderCell(int , char *[])
           cerr << "Doing Edge: #" << e << " comp:" << linCell->GetCellType() << " vs "
             << cell->GetCellType() << endl;
           rval += CompareHigherOrderCell(c1, c2);
-          vtkCell *qc1 = quadCell->GetEdge(e);
-          cerr << "Doing Edge: #" << e << " comp:" << quadCell->GetCellType() << " vs "
-            << cell->GetCellType() << endl;
+          //vtkCell *qc1 = quadCell->GetEdge(e);
+          //cerr << "Doing Edge: #" << e << " comp:" << quadCell->GetCellType() << " vs "
+          //  << cell->GetCellType() << endl;
           //rval += CompareHigherOrderCell(qc1, c2);
           }
         // Make sure that face across all different cell are identical
@@ -173,9 +173,9 @@ int TestHigherOrderCell(int , char *[])
           cerr << "Doing Face: #" << f << " comp:" << linCell->GetCellType() << " vs "
             << cell->GetCellType() << endl;
           rval += CompareHigherOrderCell(f1, f2);
-          vtkCell *qf1 = quadCell->GetFace(f);
-          cerr << "Doing Face: #" << f << " comp:" << quadCell->GetCellType() << " vs "
-            << cell->GetCellType() << endl;
+          //vtkCell *qf1 = quadCell->GetFace(f);
+          //cerr << "Doing Face: #" << f << " comp:" << quadCell->GetCellType() << " vs "
+          //  << cell->GetCellType() << endl;
           //rval += CompareHigherOrderCell(qf1, f2);
           }
         }
