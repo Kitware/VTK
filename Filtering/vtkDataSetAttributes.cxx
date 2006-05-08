@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.14");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.15");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -288,8 +288,13 @@ vtkFieldData::BasicIterator  vtkDataSetAttributes::ComputeRequiredArrays(
          !(this->DoCopyAllOff && (this->GetFlag(arrayName) != 1)) &&
          pd->GetAbstractArray(i))
       {
-      copyFlags[numArrays] = i;
-      numArrays++;
+      // Cannot interpolate idtype arrays
+      if (ctype != INTERPOLATE ||
+          !pd->GetAbstractArray(i)->IsA("vtkIdTypeArray"))
+        {
+        copyFlags[numArrays] = i;
+        numArrays++;
+        }
       }
     }
 
@@ -320,8 +325,13 @@ vtkFieldData::BasicIterator  vtkDataSetAttributes::ComputeRequiredArrays(
         // If not, increment the number of arrays to be copied.
         if (!alreadyCopied)
           {
-          copyFlags[numArrays] = index;
-          numArrays++;
+          // Cannot interpolate idtype arrays
+          if (ctype != INTERPOLATE ||
+              !pd->GetArray(index)->IsA("vtkIdTypeArray"))
+            {
+            copyFlags[numArrays] = index;
+            numArrays++;
+            }
           }
         }
       }
@@ -1034,7 +1044,7 @@ const int vtkDataSetAttributes
   3,
   3,
   9,
-  0};
+  1};
 
 //--------------------------------------------------------------------------
 // Scalars set to NOLIMIT 
@@ -1045,7 +1055,7 @@ const int vtkDataSetAttributes
   EXACT,
   MAX,
   EXACT,
-  NOLIMIT};
+  EXACT};
 
 //--------------------------------------------------------------------------
 int vtkDataSetAttributes::CheckNumberOfComponents(vtkDataArray* da,
