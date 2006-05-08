@@ -22,6 +22,7 @@
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -41,7 +42,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDataReader, "1.134");
+vtkCxxRevisionMacro(vtkDataReader, "1.135");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -622,6 +623,16 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
         }
       }
     //
+    // read the global id data
+    //
+    else if ( ! strncmp(line, "global_ids", 10) )
+      {
+      if ( ! this->ReadGlobalIds(a, numCells) )
+        {
+        return 0;
+        }
+      }
+    //
     // read color scalars data
     //
     else if ( ! strncmp(line, "color_scalars", 13) )
@@ -746,6 +757,16 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     else if ( ! strncmp(line, "texture_coordinates", 19) )
       {
       if ( ! this->ReadTCoordsData(a, numPts) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read the global id data
+    //
+    else if ( ! strncmp(line, "global_ids", 10) )
+      {
+      if ( ! this->ReadGlobalIds(a, numPts) )
         {
         return 0;
         }
@@ -963,6 +984,30 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
       }
     }
   
+  else if ( ! strncmp(type, "vtkidtype", 9) )
+    {
+    // currently writing vtkIdType as int.
+    array = vtkIdTypeArray::New();
+    array->SetNumberOfComponents(numComp);
+    int *ptr = new int [numTuples*numComp];
+    if ( this->FileType == VTK_BINARY )
+      {
+      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
+      vtkByteSwap::Swap4BERange(ptr,numTuples*numComp);
+      }
+    else 
+      {
+      vtkReadASCIIData(this, ptr, numTuples, numComp);
+      }
+    vtkIdType *ptr2 = ((vtkIdTypeArray *)array)->WritePointer(
+      0,numTuples*numComp);
+    for(vtkIdType idx=0; idx<numTuples*numComp; idx++)
+      {
+      ptr2[idx] = ptr[idx];
+      }
+    delete[] ptr;
+    }
+
   else if ( ! strncmp(type, "int", 3) )
     {
     array = vtkIntArray::New();
@@ -1520,6 +1565,50 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
     else if ( this->ReadAllTCoords )
       {
       a->AddArray(data);
+      }
+    data->Delete();
+    }
+  else
+    {
+    return 0;
+    }
+
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+
+  return 1;
+}
+
+// Read texture coordinates point attributes. Return 0 if error.
+int vtkDataReader::ReadGlobalIds(vtkDataSetAttributes *a, int numPts)
+{
+  int skipGlobalIds = 0;
+  char line[256], name[256];
+  vtkDataArray *data;
+  char buffer[1024];
+
+  if (!(this->ReadString(buffer) && this->ReadString(line)))
+    {
+    vtkErrorMacro(<<"Cannot read global id data" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+    return 0;
+    }
+  this->DecodeArrayName(name, buffer);
+
+  //
+  // See whether global ids have been already read
+  //
+  if ( a->GetGlobalIds() != NULL )
+    {
+    skipGlobalIds = 1;
+    }
+
+  data = this->ReadArray(line, numPts, 1);
+  if ( data != NULL )
+    {
+    data->SetName(name);
+    if ( ! skipGlobalIds )
+      {
+      a->SetGlobalIds(data);
       }
     data->Delete();
     }

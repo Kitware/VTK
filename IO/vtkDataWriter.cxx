@@ -36,7 +36,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.109");
+vtkCxxRevisionMacro(vtkDataWriter, "1.110");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -61,6 +61,7 @@ vtkDataWriter::vtkDataWriter()
   this->TensorsName = 0;
   this->NormalsName = 0;
   this->TCoordsName = 0;
+  this->GlobalIdsName = 0;
 
   this->LookupTableName = new char[13];
   strcpy(this->LookupTableName,"lookup_table");
@@ -103,6 +104,10 @@ vtkDataWriter::~vtkDataWriter()
   if ( this->TCoordsName )
     {
     delete [] this->TCoordsName;
+    }
+  if ( this->GlobalIdsName )
+    {
+    delete [] this->GlobalIdsName;
     }
   if ( this->LookupTableName )
     {
@@ -226,6 +231,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   vtkDataArray *normals;
   vtkDataArray *tcoords;
   vtkDataArray *tensors;
+  vtkDataArray *globalIds;
   vtkFieldData *field;
   vtkCellData *cd=ds->GetCellData();
 
@@ -237,6 +243,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   normals = cd->GetNormals();
   tcoords = cd->GetTCoords();
   tensors = cd->GetTensors();
+  globalIds = cd->GetGlobalIds();
   field = cd;
 
   if ( numCells <= 0 || !(scalars || vectors || normals || tcoords || 
@@ -298,6 +305,16 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
       }
     }
   //
+  // Write global ids
+  //
+  if ( globalIds && globalIds->GetNumberOfTuples() > 0 )
+    {
+    if ( ! this->WriteGlobalIdData(fp, globalIds, numCells) )
+      {
+      return 0;
+      }
+    }
+  //
   // Write field
   //
   if ( field && field->GetNumberOfTuples() > 0 )
@@ -321,6 +338,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   vtkDataArray *normals;
   vtkDataArray *tcoords;
   vtkDataArray *tensors;
+  vtkDataArray *globalIds;
   vtkFieldData *field;
   vtkPointData *pd=ds->GetPointData();
 
@@ -332,6 +350,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   normals = pd->GetNormals();
   tcoords = pd->GetTCoords();
   tensors = pd->GetTensors();
+  globalIds = pd->GetGlobalIds();
   field = pd;
 
   if ( numPts <= 0 || !(scalars || vectors || normals || tcoords || 
@@ -388,6 +407,16 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   if ( tensors && tensors->GetNumberOfTuples() > 0 )
     {
     if ( ! this->WriteTensorData(fp, tensors, numPts) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write global ids
+  //
+  if ( globalIds && globalIds->GetNumberOfTuples() > 0 )
+    {
+    if ( ! this->WriteGlobalIdData(fp, globalIds, numPts) )
       {
       return 0;
       }
@@ -588,7 +617,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data,
       // currently writing vtkIdType as int.
       int size = data->GetNumberOfTuples();
       int *intArray = new int[size*numComp];
-      sprintf (str, format, "int"); *fp << str; 
+      sprintf (str, format, "vtkIdType"); *fp << str; 
       vtkIdType *s=((vtkIdTypeArray *)data)->GetPointer(0);
       for (i = 0; i < size*numComp; i++)
         {
@@ -917,6 +946,41 @@ int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
   delete[] tensorsName;
 
   return this->WriteArray(fp, tensors->GetDataType(), tensors, format, num, 9);
+}
+
+int vtkDataWriter::WriteGlobalIdData(ostream *fp, vtkDataArray *globalIds, int num)
+{
+  char format[1024];
+
+  *fp << "GLOBAL_IDS ";
+
+  char* globalIdsName;
+  // Buffer size is size of array name times four because 
+  // in theory there could be array name consisting of only
+  // weird symbols.
+  if (!this->GlobalIdsName)
+    {
+    if (globalIds->GetName() && strlen(globalIds->GetName()))
+      {
+      globalIdsName = new char[ strlen(globalIds->GetName()) * 4 + 1];
+      this->EncodeArrayName(globalIdsName, globalIds->GetName());
+      }
+    else
+      {
+      globalIdsName = new char[ strlen("global_ids") + 1];
+      strcpy(globalIdsName, "global_ids");
+      }
+    }
+  else
+    {
+    globalIdsName = new char[ strlen(this->GlobalIdsName) * 4 + 1];
+    this->EncodeArrayName(globalIdsName, this->GlobalIdsName);
+    }
+
+  sprintf(format, "%s %s\n", globalIdsName, "%s");
+  delete[] globalIdsName;
+
+  return this->WriteArray(fp, globalIds->GetDataType(), globalIds, format, num, 1);
 }
 
 int vtkIsInTheList(int index, int* list, int numElem)

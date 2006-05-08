@@ -114,6 +114,12 @@ public:
   vtkGetStringMacro(TCoordsName);
 
   // Description:
+  // Give a name to the global ids data. If not specified, uses 
+  // default name "globalids".
+  vtkSetStringMacro(GlobalIdsName);
+  vtkGetStringMacro(GlobalIdsName);
+
+  // Description:
   // Give a name to the lookup table. If not specified, uses default
   // name "lookupTable".
   vtkSetStringMacro(LookupTableName);
@@ -191,6 +197,7 @@ protected:
   char *NormalsName;
   char *LookupTableName;
   char *FieldDataName;
+  char* GlobalIdsName;
 
   int WriteArray(ostream *fp, int dataType, vtkDataArray *data, const char *format, 
                  int num, int numComp);
@@ -199,6 +206,7 @@ protected:
   int WriteNormalData(ostream *fp, vtkDataArray *n, int num);
   int WriteTCoordData(ostream *fp, vtkDataArray *tc, int num);
   int WriteTensorData(ostream *fp, vtkDataArray *t, int num);
+  int WriteGlobalIdData(ostream *fp, vtkDataArray *g, int num);
 
 private:
   vtkDataWriter(const vtkDataWriter&);  // Not implemented.

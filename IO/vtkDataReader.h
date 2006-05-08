@@ -336,6 +336,7 @@ protected:
   int ReadCoScalarData(vtkDataSetAttributes *a, int num);
   int ReadLutData(vtkDataSetAttributes *a);
   int ReadTCoordsData(vtkDataSetAttributes *a, int num);
+  int ReadGlobalIds(vtkDataSetAttributes *a, int num);
 
   int ReadDataSetData(vtkDataSet *ds);
 
