@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// .NAME 
+// .NAME
 // .SECTION Description
 // this program tests the consistency of face/edge ids between linear and quadratic cells
 
@@ -130,7 +130,7 @@ int quadCellConsistency(int, char *[])
 
   quad->Delete();
   qquad->Delete();
-  
+
   // Tetra
   vtkTetra *tetra = vtkTetra::New();
   vtkQuadraticTetra *qtetra = vtkQuadraticTetra::New();
@@ -142,7 +142,7 @@ int quadCellConsistency(int, char *[])
 
   tetra->Delete();
   qtetra->Delete();
-  
+
   // Hexhedron
   vtkHexahedron *hex = vtkHexahedron::New();
   vtkQuadraticHexahedron *qhex = vtkQuadraticHexahedron::New();
@@ -154,7 +154,7 @@ int quadCellConsistency(int, char *[])
 
   hex->Delete();
   qhex->Delete();
-  
+
   // Pyramid
   vtkPyramid *pyr= vtkPyramid::New();
   vtkQuadraticPyramid *qpyr = vtkQuadraticPyramid::New();

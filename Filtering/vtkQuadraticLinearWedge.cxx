@@ -27,7 +27,7 @@
 #include "vtkQuadraticLinearQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro (vtkQuadraticLinearWedge, "1.4");
+vtkCxxRevisionMacro (vtkQuadraticLinearWedge, "1.5");
 vtkStandardNewMacro (vtkQuadraticLinearWedge);
 
 //----------------------------------------------------------------------------
@@ -77,16 +77,16 @@ static int LinearWedges[4][6] = {
 // We use 2 quadratic triangles and 3 quadratic-linear quads
 static int WedgeFaces[5][6] = {
     {0, 1, 2, 6,  7,  8},   // first quad triangle
-    {3, 4, 5, 9, 10, 11},   // second quad triangle
-    {0, 1, 4, 3,  6,  9},   // 1. quad-linear quad
-    {1, 2, 5, 4,  7, 10},   // 2. quad-linear quad
-    {2, 0, 3, 5,  8, 11}    // 3. quad-linear quad
+    {3, 5, 4, 11, 10, 9},   // second quad triangle
+    {0, 3, 4, 1,  9,  6},   // 1. quad-linear quad
+    {1, 4, 5, 2, 10,  7},   // 2. quad-linear quad
+    {2, 5, 3, 0, 11,  8}    // 3. quad-linear quad
 };
 
 // We have 6 quadratic and 3 linear edges
 static int WedgeEdges[9][3] = {
-    {0, 1, 6}, {1, 2,  7}, {0, 2,  8}, // quadratic edges
-    {3, 4, 9}, {4, 5, 10}, {3, 5, 11},
+    {0, 1, 6}, {1, 2,  7}, {2, 0,  8}, // quadratic edges
+    {3, 4, 9}, {4, 5, 10}, {5, 3, 11},
     {0, 3, 0}, {1, 4,  0}, {2, 5,  0} // linear edges
 };
 

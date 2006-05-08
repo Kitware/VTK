@@ -26,7 +26,7 @@
 #include "vtkBiQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro (vtkBiQuadraticQuadraticWedge, "1.4");
+vtkCxxRevisionMacro (vtkBiQuadraticQuadraticWedge, "1.5");
 vtkStandardNewMacro (vtkBiQuadraticQuadraticWedge);
 
 //----------------------------------------------------------------------------
@@ -75,17 +75,17 @@ static int LinearWedges[8][6] = { {0,6,8,12,15,17},
 
 // We use 2 quadratic triangles and 3 quadratic-linear quads
 static int WedgeFaces[5][9] = {
-    {0, 1, 2, 6,  7,  8,  0,  0,  0},  // first quad triangle
-    {3, 4, 5, 9, 10, 11,  0,  0,  0},  // second quad triangle
-    {0, 1, 4, 3,  6, 13,  9, 12, 15},  // 1. biquad quad
-    {1, 2, 5, 4,  7, 14, 10, 13, 16},  // 2. biquad quad
-    {2, 0, 3, 5,  8, 12, 11, 14, 17}   // 3. biquad quad
+    {0, 1, 2,  6,  7,  8,  0,  0,  0},  // first quad triangle
+    {3, 5, 4, 11, 10,  9,  0,  0,  0},  // second quad triangle
+    {0, 3, 4,  1, 12,  9, 13,  6, 15},  // 1. biquad quad
+    {1, 4, 5,  2, 13, 10, 14,  7, 16},  // 2. biquad quad
+    {2, 5, 3,  0, 14, 11, 12,  8, 17}   // 3. biquad quad
 };
 
 // We have 9 quadratic edges
 static int WedgeEdges[9][3] = {
-    {0, 1,  6}, {1, 2,  7}, {0, 2,  8},
-    {3, 4,  9}, {4, 5, 10}, {3, 5, 11},
+    {0, 1,  6}, {1, 2,  7}, {2, 0,  8},
+    {3, 4,  9}, {4, 5, 10}, {5, 3, 11},
     {0, 3, 12}, {1, 4, 13}, {2, 5, 14}
 };
 
@@ -642,12 +642,12 @@ void vtkBiQuadraticQuadraticWedge::InterpolationDerivs (double pcoords[3], doubl
 
 //----------------------------------------------------------------------------
 static double vtkQWedgeCellPCoords[54] = {
-  0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0,
-  0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0,
-  0.5, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.5, 0.0,
-  0.5, 0.0, 1.0, 0.5, 0.5, 1.0, 0.0, 0.5, 1.0,
-  0.0, 0.0, 0.5, 1.0, 0.0, 0.5, 0.0, 1.0, 0.5,
-  0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, 0.5, 0.5
+  0.0,0.0,0.0, 1.0,0.0,0.0, 0.0,1.0,0.0,
+  0.0,0.0,1.0, 1.0,0.0,1.0, 0.0,1.0,1.0,
+  0.5,0.0,0.0, 0.5,0.5,0.0, 0.0,0.5,0.0,
+  0.5,0.0,1.0, 0.5,0.5,1.0, 0.0,0.5,1.0,
+  0.0,0.0,0.5, 1.0,0.0,0.5, 0.0,1.0,0.5,
+  0.5,0.0,0.5, 0.5,0.5,0.5, 0.0,0.5,0.5
 };
 
 double *vtkBiQuadraticQuadraticWedge::GetParametricCoords()
