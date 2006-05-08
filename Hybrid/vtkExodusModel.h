@@ -57,6 +57,7 @@
 #include "vtkModelMetadata.h"  // So those who include vtkExodusModel don't
                                // need to know anything about ModelMetadata
 
+class vtkIdTypeArray;
 class vtkUnstructuredGrid;
 
 class VTK_HYBRID_EXPORT vtkExodusModel : public vtkObject
@@ -169,9 +170,8 @@ public:
   //    with each cell), and the name of the grid's global cell ID array,
   //    and the name of the grid's global node ID array.
 
-  vtkExodusModel *ExtractExodusModel(vtkIntArray *globalCellIdList, 
-        vtkUnstructuredGrid *grid, const char *globalCellIdArrayName,
-        const char *globalNodeIdArrayName);
+  vtkExodusModel *ExtractExodusModel(vtkIdTypeArray *globalCellIdList, 
+                                     vtkUnstructuredGrid *grid);
 
   // Description:
   //    The metadata encapsulated in a vtkExodusModel object can be

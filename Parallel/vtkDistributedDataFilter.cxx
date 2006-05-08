@@ -38,6 +38,7 @@
 #include "vtkCellData.h"
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkCharArray.h"
 #include "vtkFloatArray.h"
@@ -57,7 +58,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.33")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.34")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -91,9 +92,6 @@ vtkDistributedDataFilter::vtkDistributedDataFilter()
   this->ConvexSubRegionBounds = NULL;
 
   this->GhostLevel = 0;
-
-  this->GlobalNodeIdArrayName = NULL;
-  this->GlobalElementIdArrayName = NULL;
 
   this->RetainKdtree = 1;
   this->IncludeAllIntersectingCells = 0;
@@ -132,93 +130,19 @@ vtkDistributedDataFilter::~vtkDistributedDataFilter()
     delete [] this->ConvexSubRegionBounds;
     this->ConvexSubRegionBounds = NULL;
     } 
-  
-  if (this->GlobalNodeIdArrayName) 
-    {
-    delete [] this->GlobalNodeIdArrayName;
-    }
-
-  if (this->GlobalElementIdArrayName) 
-    {
-    delete [] this->GlobalElementIdArrayName;
-    }
-}
-
-//=========================================================================
-
-// Global element and node IDs:
-//   Either the user gives us the names of these arrays, or we find them
-//   in the input (using the Exodus reader names for them), or we created
-//   these arrays.
-
-//-------------------------------------------------------------------------
-const char *vtkDistributedDataFilter::GetGlobalElementIdArrayName(vtkDataSet *set)
-{
-  //------------------------------------------------
-  // list common names for global element id arrays here
-  //
-  int nnames = 1;
-  const char *arrayNames[1] = {
-     "GlobalElementId"  // vtkExodusReader name
-     };
-  //------------------------------------------------
-
-  // ParaView does this... we need to fix it.
-  if (this->GlobalElementIdArrayName && (!this->GlobalElementIdArrayName[0]))
-    {
-    delete [] this->GlobalElementIdArrayName;
-    this->GlobalElementIdArrayName = NULL;
-    }
-
-  const char *gidArrayName = NULL;
-
-  if (this->GlobalElementIdArrayName)
-    {
-    vtkDataArray *da = set->GetCellData()->GetArray(this->GlobalElementIdArrayName);
-
-    if (da)
-      {
-      gidArrayName = this->GlobalElementIdArrayName;
-      }
-    else
-      {
-      this->SetGlobalElementIdArrayName(NULL);
-      }
-    }
-
-  if (!gidArrayName)
-    {
-    // Maybe we can find a global element ID array
-
-    for (int nameId=0; nameId < nnames; nameId++)
-      {
-      vtkDataArray *da = set->GetCellData()->GetArray(arrayNames[nameId]);
-
-      if (da)
-        {
-        this->SetGlobalElementIdArrayName(arrayNames[nameId]);
-        gidArrayName = arrayNames[nameId];
-        break;
-        }
-      }
-    }
-
-  return gidArrayName;
 }
 
 //----------------------------------------------------------------------------
-int *vtkDistributedDataFilter::GetGlobalElementIds(vtkDataSet *set)
+vtkIdTypeArray *vtkDistributedDataFilter::GetGlobalElementIdArray(vtkDataSet *set)
 {
-  const char *geidName = this->GetGlobalElementIdArrayName(set);
+  vtkDataArray *da = set->GetCellData()->GetGlobalIds();
+  return vtkIdTypeArray::SafeDownCast(da);
+}
 
-  if (!geidName)
-    {
-    return NULL;
-    }
-
-  vtkDataArray *da = set->GetCellData()->GetArray(geidName);
-  vtkIntArray *ia = vtkIntArray::SafeDownCast(da);
-
+//----------------------------------------------------------------------------
+vtkIdType *vtkDistributedDataFilter::GetGlobalElementIds(vtkDataSet *set)
+{
+  vtkIdTypeArray *ia = GetGlobalElementIdArray(set);
   if (!ia)
     {
     return NULL;
@@ -228,72 +152,16 @@ int *vtkDistributedDataFilter::GetGlobalElementIds(vtkDataSet *set)
 }
 
 //----------------------------------------------------------------------------
-const char *vtkDistributedDataFilter::GetGlobalNodeIdArrayName(vtkDataSet *set)
+vtkIdTypeArray *vtkDistributedDataFilter::GetGlobalNodeIdArray(vtkDataSet *set)
 {
-  //------------------------------------------------
-  // list common names for global node id arrays here
-  //
-  int nnames = 1;
-  const char *arrayNames[1] = {
-     "GlobalNodeId"  // vtkExodusReader name
-     };
-  //------------------------------------------------
-
-  // ParaView does this... we need to fix it.
-  if (this->GlobalNodeIdArrayName && (!this->GlobalNodeIdArrayName[0]))
-    {
-    delete [] this->GlobalNodeIdArrayName;
-    this->GlobalNodeIdArrayName = NULL;
-    }
-
-  const char *gidArrayName = NULL;
-
-  if (this->GlobalNodeIdArrayName)
-    {
-    vtkDataArray *da = set->GetPointData()->GetArray(this->GlobalNodeIdArrayName);
-
-    if (da)
-      {
-      gidArrayName = this->GlobalNodeIdArrayName;
-      }
-    else
-      {
-      this->SetGlobalNodeIdArrayName(NULL);
-      }
-    }
-
-  if (!gidArrayName)
-    {
-    // Maybe we can find a global node ID array
-
-    for (int nameId=0; nameId < nnames; nameId++)
-      {
-      vtkDataArray *da = set->GetPointData()->GetArray(arrayNames[nameId]);
-
-      if (da)
-        {
-        this->SetGlobalNodeIdArrayName(arrayNames[nameId]);
-        gidArrayName = arrayNames[nameId];
-        break;
-        }
-      }
-    }
-
-  return gidArrayName;
+  vtkDataArray *da = set->GetPointData()->GetGlobalIds();
+  return vtkIdTypeArray::SafeDownCast(da);
 }
 
 //----------------------------------------------------------------------------
-int *vtkDistributedDataFilter::GetGlobalNodeIds(vtkDataSet *set)
+vtkIdType *vtkDistributedDataFilter::GetGlobalNodeIds(vtkDataSet *set)
 {
-  const char *gnidName = this->GetGlobalNodeIdArrayName(set);
-
-  if (!gnidName)
-    {
-    return NULL;
-    }
-
-  vtkDataArray *da = set->GetPointData()->GetArray(gnidName);
-  vtkIntArray *ia = vtkIntArray::SafeDownCast(da);
+  vtkIdTypeArray *ia = this->GetGlobalNodeIdArray(set);
 
   if (!ia)
     {
@@ -660,7 +528,7 @@ int vtkDistributedDataFilter::RequestData(
     {
     // Create global nodes IDs if we don't have them
         
-    if (this->GetGlobalNodeIdArrayName(redistributedInput) == NULL)
+    if (this->GetGlobalNodeIdArray(redistributedInput) == NULL)
       {
       this->SetProgressText("Assign global point IDs");
       int rc = this->AssignGlobalNodeIds(redistributedInput);
@@ -735,7 +603,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::RedistributeDataSet(
 
   vtkDataSet *inputPlus = set;
 
-  if ((this->GhostLevel > 0) && (this->GetGlobalElementIdArrayName(set) == NULL))
+  if ((this->GhostLevel > 0) && (this->GetGlobalElementIdArray(set) == NULL))
     {
     if (set == input)
       {
@@ -809,12 +677,9 @@ int vtkDistributedDataFilter::ClipGridCells(vtkUnstructuredGrid *grid)
   // clipping, since this tetrahedralizes the whole data set.
   // We remove that array.
 
-  const char *nodeIds = this->GetGlobalNodeIdArrayName(grid);
-
-  if (nodeIds)
+  if (this->GetGlobalNodeIdArray(grid))
     {
-    grid->GetPointData()->RemoveArray(nodeIds);
-    this->GlobalNodeIdArrayName = NULL;
+    grid->GetPointData()->SetGlobalIds(0);
     }
 
   this->ClipCellsToSpatialRegion(grid);
@@ -835,7 +700,7 @@ vtkUnstructuredGrid *
 
   vtkIdType numPoints = grid->GetNumberOfPoints();
 
-  int *gnids = NULL;
+  vtkIdType *gnids = NULL;
 
   if (numPoints > 0)
     {
@@ -908,7 +773,7 @@ void vtkDistributedDataFilter::SingleProcessExecute(vtkDataSet *input,
 
   vtkUnstructuredGrid *clean = 
     vtkDistributedDataFilter::MergeGrids(&tmp, 1, DeleteYes,
-        this->GetGlobalNodeIdArrayName(input), tolerance, NULL);
+                                         1, tolerance, 0);
 
   output->ShallowCopy(clean);
   clean->Delete();
@@ -1916,14 +1781,6 @@ vtkUnstructuredGrid *
     {
     // Merge received grids
   
-    const char *globalNodeIds = this->GetGlobalNodeIdArrayName(myGrid);
-    const char *globalElementIds = NULL;
-  
-    if (filterOutDuplicateCells)
-      {
-      globalElementIds = this->GetGlobalElementIdArrayName(myGrid);
-      }
-  
     // this call will merge the grids and then delete them
 
     float tolerance = 0.0;
@@ -1935,7 +1792,7 @@ vtkUnstructuredGrid *
 
     mergedGrid = 
       vtkDistributedDataFilter::MergeGrids(grids, numReceivedGrids, DeleteYes,
-                     globalNodeIds, tolerance, globalElementIds);
+                                           1, tolerance, filterOutDuplicateCells);
 
     }
   else if (numReceivedGrids == 1)
@@ -2543,17 +2400,13 @@ vtkUnstructuredGrid *
 
   if (numReceivedGrids > 1)
     {
-    const char *globalNodeIds = this->GetGlobalNodeIdArrayName(ds[0]);
-    const char *globalCellIds = NULL;
-    if (filterOutDuplicateCells)
-      {
-      globalCellIds = this->GetGlobalElementIdArrayName(ds[0]);
-      }
+    int useGlobalNodeIds = (this->GetGlobalNodeIds(ds[0])?1:0);
 
     // this call will merge the grids and then delete them
     mergedGrid = 
       vtkDistributedDataFilter::MergeGrids(ds, numReceivedGrids, DeleteYes,
-                     globalNodeIds, tolerance, globalCellIds);
+                                           useGlobalNodeIds, tolerance, 
+                                           filterOutDuplicateCells);
 
     }
   else if (numReceivedGrids == 1)
@@ -2597,19 +2450,13 @@ vtkUnstructuredGrid *
 void vtkDistributedDataFilter::AddMetadata(vtkUnstructuredGrid *grid, 
                                            vtkModelMetadata *mmd)
 {
-  const char *eltIdName = this->GetGlobalElementIdArrayName(grid);
-  vtkDataArray *da = grid->GetCellData()->GetArray(eltIdName);
-  vtkIntArray *ia = vtkIntArray::SafeDownCast(da);
-
-  const char *nodeIdName = this->GetGlobalNodeIdArrayName(grid);
+  vtkIdTypeArray* ia = this->GetGlobalElementIdArray(grid);
 
   // Extract the metadata for all cells in this grid
 
   vtkModelMetadata *submmd = 
-    mmd->ExtractModelMetadata(ia,   // extract metadata for these cells
-                              grid, // in this grid
-                              eltIdName,    // global cell ID array name
-                              nodeIdName);  // global node ID array name
+    mmd->ExtractModelMetadata(ia,     // extract metadata for these cells
+                              grid);  // in this grid
 
   // Pack that metadata into field arrays of the grid
 
@@ -3077,8 +2924,8 @@ void vtkDistributedDataFilter::ClipCellsToSpatialRegion(vtkUnstructuredGrid *gri
     grids[1] = outside;
 
     vtkUnstructuredGrid *combined = 
-      vtkDistributedDataFilter::MergeGrids(grids, 2,  DeleteYes, NULL,
-                         (float)this->Kdtree->GetFudgeFactor(), NULL);
+      vtkDistributedDataFilter::MergeGrids(grids, 2,  DeleteYes, 0,
+                                           (float)this->Kdtree->GetFudgeFactor(), 0);
 
     // Extract the piece inside the box (level 0) and the requested
     // number of levels of ghost cells.
@@ -3369,10 +3216,8 @@ int vtkDistributedDataFilter::AssignGlobalNodeIds(vtkUnstructuredGrid *grid)
   delete [] idarrayIn;
   delete [] missingId;
 
-  grid->GetPointData()->AddArray(globalIds);
+  grid->GetPointData()->SetGlobalIds(globalIds);
   globalIds->Delete();
-
-  this->SetGlobalNodeIdArrayName(TEMP_NODE_ID_NAME);
 
   return 0;
 }
@@ -3516,11 +3361,9 @@ int vtkDistributedDataFilter::AssignGlobalElementIds(vtkDataSet *in)
     globalCellIds->SetValue(i, StartId++);
     }
 
-  in->GetCellData()->AddArray(globalCellIds);
+  in->GetCellData()->SetGlobalIds(globalCellIds);
 
   globalCellIds->Delete();
-
-  this->SetGlobalElementIdArrayName(TEMP_ELEMENT_ID_NAME);
 
   return 0;
 }
@@ -3708,8 +3551,8 @@ vtkIntArray **vtkDistributedDataFilter::GetGhostPointIds(
 
   vtkPoints *pts = grid->GetPoints();
 
-  int *gidsPoint = this->GetGlobalNodeIds(grid);
-  int *gidsCell = this->GetGlobalElementIds(grid);
+  vtkIdType *gidsPoint = this->GetGlobalNodeIds(grid);
+  vtkIdType *gidsCell = this->GetGlobalElementIds(grid);
 
 
   vtkDataArray *da = grid->GetPointData()->GetArray("vtkGhostLevels");
@@ -4127,10 +3970,10 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
     grids[0] = myGrid;
     grids[1] = newGhostCellGrid;
 
-    const char *nodeIds = this->GetGlobalNodeIdArrayName(myGrid);
-   
+    int useGlobalNodeIds = (this->GetGlobalNodeIds(myGrid)?1:0);
+
     newGrid = 
-      vtkDistributedDataFilter::MergeGrids(grids, 2, DeleteYes, nodeIds, 0, NULL);
+      vtkDistributedDataFilter::MergeGrids(grids, 2, DeleteYes, useGlobalNodeIds, 0, 0);
     }
   else
     {
@@ -4206,7 +4049,7 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
 
     if (gl == 1)
       {
-      int *gidsCell = this->GetGlobalElementIds(myGrid);
+      vtkIdType *gidsCell = this->GetGlobalElementIds(myGrid);
 
       extraGhostPointIds = new vtkIntArray * [nprocs];
 
@@ -4320,10 +4163,10 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
     grids[0] = myGrid;
     grids[1] = newGhostCellGrid;
 
-    const char *nodeIds = this->GetGlobalNodeIdArrayName(myGrid);
-
+    int useGlobalNodeIds = (this->GetGlobalNodeIds(myGrid)?1:0);
     newGrid = 
-      vtkDistributedDataFilter::MergeGrids(grids, 2, DeleteYes, nodeIds, 0, NULL);
+      vtkDistributedDataFilter::MergeGrids(grids, 2, DeleteYes, 
+                                           useGlobalNodeIds, 0, 0);
     }
   else
     {
@@ -4408,7 +4251,7 @@ vtkIdList **vtkDistributedDataFilter::BuildRequestedGrids(
         // the receive side.
 
         int *remoteCells = ptarray + id + 2;
-        int *gidCells = this->GetGlobalElementIds(grid);
+        vtkIdType *gidCells = this->GetGlobalElementIds(grid);
 
         vtkDistributedDataFilter::RemoveRemoteCellsFromList(cellList, 
                                      gidCells, remoteCells, nYourCells);
@@ -4547,10 +4390,9 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
     sets[0] = ghostCellGrid;     // both sets will be deleted by MergeGrids
     sets[1] = incomingGhostCells;
 
-    const char *nodeIds = this->GetGlobalNodeIdArrayName(ghostCellGrid);
-
+    int useGlobalNodeIds = (this->GetGlobalNodeIds(ghostCellGrid)?1:0);
     mergedGrid = 
-      vtkDistributedDataFilter::MergeGrids(sets, 2, DeleteYes, nodeIds, 0.0, NULL);
+      vtkDistributedDataFilter::MergeGrids(sets, 2, DeleteYes, useGlobalNodeIds, 0.0, 0);
     }
 
   // If this is ghost level 1, mark any points from our original grid
@@ -4561,7 +4403,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
     da = mergedGrid->GetPointData()->GetArray("vtkGhostLevels");
     ptGL = vtkUnsignedCharArray::SafeDownCast(da);
 
-    int *gidPoints = this->GetGlobalNodeIds(mergedGrid);
+    vtkIdType *gidPoints = this->GetGlobalNodeIds(mergedGrid);
     int npoints = mergedGrid->GetNumberOfPoints();
 
     vtkstd::map<int, int>::iterator imap;
@@ -4582,9 +4424,9 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
 
 //-----------------------------------------------------------------------
 vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
-         vtkDataSet **sets, int nsets, int deleteDataSets,
-         const char *globalNodeIdArrayName, float pointMergeTolerance, 
-         const char *globalCellIdArrayName)
+  vtkDataSet **sets, int nsets, int deleteDataSets,
+  int useGlobalNodeIds, float pointMergeTolerance, 
+  int useGlobalCellIds)
 { 
   int i;
 
@@ -4640,19 +4482,16 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
   mc->SetTotalNumberOfPoints(totalPoints);
   mc->SetTotalNumberOfCells(totalCells);
 
-  if (globalNodeIdArrayName)
+  if (useGlobalNodeIds)
     {
-    mc->SetGlobalIdArrayName(globalNodeIdArrayName);
+    mc->SetUseGlobalIds(useGlobalNodeIds);
     }
   else
     {
+    mc->SetUseGlobalIds(0);
     mc->SetPointMergeTolerance(pointMergeTolerance);
     }
-
-  if (globalCellIdArrayName)
-    {
-    mc->SetGlobalCellIdArrayName(globalCellIdArrayName);
-    }
+  mc->SetUseGlobalCellIds(useGlobalCellIds);
 
   for (i=0; i<nsets; i++)
     {
@@ -4702,14 +4541,6 @@ void vtkDistributedDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MyId: " << this->MyId << endl;
   os << indent << "Target: " << this->Target << endl;
   os << indent << "Source: " << this->Source << endl;
-  if (this->GlobalNodeIdArrayName)
-    {
-    os << indent << "GlobalNodeIdArrayName: " << this->GlobalNodeIdArrayName << endl;
-    }
-  if (this->GlobalElementIdArrayName)
-    {
-    os << indent << "GlobalElementIdArrayName: " << this->GlobalElementIdArrayName << endl;
-    }
   os << indent << "RetainKdtree: " << this->RetainKdtree << endl;
   os << indent << "IncludeAllIntersectingCells: " << this->IncludeAllIntersectingCells << endl;
   os << indent << "ClipCells: " << this->ClipCells << endl;

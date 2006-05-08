@@ -79,6 +79,7 @@
 
 class vtkDataSet;
 class vtkCharArray;
+class vtkIdTypeArray;
 class vtkIntArray;
 class vtkFloatArray;
 class vtkIntArray;
@@ -635,10 +636,8 @@ public:
   //   We need the grid containing the cells so we can find point
   //   Ids as well, and also the name of the global cell ID array
   //   and the name of the global point ID array.
-  vtkModelMetadata *ExtractModelMetadata(vtkIntArray *globalCellIdList,
-                                     vtkDataSet *grid,
-                                     const char *globalCellIdArrayName,
-                                     const char *globalNodeIdArrayName);
+  vtkModelMetadata *ExtractModelMetadata(vtkIdTypeArray *globalCellIdList,
+                                         vtkDataSet *grid);
 
   // Description:
   //   Create and return a new metadata object containing only the

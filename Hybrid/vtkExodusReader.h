@@ -107,6 +107,7 @@ public:
   };
 //ETX
   static const char *GetGlobalElementIdArrayName() { return "GlobalElementId"; }
+  static const char *GetPedigreeElementIdArrayName() { return "PedigreeElementId"; }
   static int GetGlobalElementID( vtkDataSet *data, int localID );
   static int GetGlobalElementID ( vtkDataSet *data, int localID, 
       int searchType );
@@ -120,6 +121,7 @@ public:
   vtkGetMacro(GenerateGlobalNodeIdArray, int);
   vtkBooleanMacro(GenerateGlobalNodeIdArray, int);
   static const char *GetGlobalNodeIdArrayName() { return "GlobalNodeId"; }  
+  static const char *GetPedigreeNodeIdArrayName() { return "PedigreeNodeId"; }  
   static int GetGlobalNodeID( vtkDataSet *data, int localID );
   static int GetGlobalNodeID( vtkDataSet *data, int localID, 
       int searchType );

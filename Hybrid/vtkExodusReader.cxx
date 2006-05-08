@@ -24,6 +24,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationVector.h"
@@ -1391,7 +1392,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.19");
+vtkCxxRevisionMacro(vtkExodusReader, "1.20");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -3634,8 +3635,8 @@ void vtkExodusReader::GenerateExtraArrays(vtkUnstructuredGrid* output)
     exo_array_data = new int[this->NumberOfNodesInFile];
   
     // Temp vtk array
-    array = vtkIntArray::New();
-    array->SetNumberOfValues(this->NumberOfUsedNodes);
+    vtkIdTypeArray* idarray = vtkIdTypeArray::New();
+    idarray->SetNumberOfValues(this->NumberOfUsedNodes);
 
     // Get the data into the temp int array
     ex_get_node_num_map(this->CurrentHandle, exo_array_data);
@@ -3645,19 +3646,27 @@ void vtkExodusReader::GenerateExtraArrays(vtkUnstructuredGrid* output)
     for (i=0; i<this->NumberOfUsedNodes; i++)
       {
       point_index = this->ReversePointMap->GetValue(i);
-      array->SetValue(i, exo_array_data[point_index]);
+      idarray->SetValue(i, exo_array_data[point_index]);
       }
 
     // Clean up temp int array
     delete [] exo_array_data;
 
     // Set up array and 'give' to output
-    array->SetName( this->GetGlobalNodeIdArrayName() );
-    output->GetPointData()->AddArray(array);
+    idarray->SetName( this->GetGlobalNodeIdArrayName() );
+
+    vtkIdTypeArray* pedigree = vtkIdTypeArray::New();
+    pedigree->DeepCopy(idarray);
+    pedigree->SetName(this->GetPedigreeNodeIdArrayName());
+    
+    output->GetPointData()->AddArray(pedigree);
+    output->GetPointData()->SetGlobalIds(idarray);
 
     // Delete my copy of the array
-    array->Delete();
-    array = NULL;
+    pedigree->Delete();
+    pedigree = NULL;
+    idarray->Delete();
+    idarray = NULL;
     }
 
   ///////////////////////////////////////
@@ -3731,20 +3740,27 @@ void vtkExodusReader::GenerateExtraArrays(vtkUnstructuredGrid* output)
              this->NumberOfUsedElements * sizeof(int));
       }
 
-    array = vtkIntArray::New();
-    array->SetArray(idList, this->NumberOfUsedElements, 0);
-    array->SetName( this->GetGlobalElementIdArrayName() );
+    vtkIdTypeArray* idarray = vtkIdTypeArray::New();
+    idarray->SetArray(idList, this->NumberOfUsedElements, 0);
+    idarray->SetName( this->GetGlobalElementIdArrayName() );
     
     // Padding cell arrays to have 'some' value for the addition 
     // of nodesets and sidesets
     for(i=0;i<GetExtraCellCountForNodeSideSets();++i)
       {
-      array->InsertNextValue(0);
+      idarray->InsertNextValue(0);
       }
 
-    output->GetCellData()->AddArray(array);
-    array->Delete();
-    array = NULL;
+    vtkIdTypeArray* pedigree = vtkIdTypeArray::New();
+    pedigree->DeepCopy(idarray);
+    pedigree->SetName(this->GetPedigreeElementIdArrayName());
+
+    output->GetCellData()->AddArray(pedigree);
+    output->GetCellData()->SetGlobalIds(idarray);
+    pedigree->Delete();
+    pedigree = NULL;
+    idarray->Delete();
+    idarray = NULL;
     }
   // **KEN** I think we should be done with the ReversePointMap.  Should we
   // delete it here?

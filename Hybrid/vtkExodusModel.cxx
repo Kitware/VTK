@@ -33,7 +33,7 @@
 #include <ctype.h>
 
 
-vtkCxxRevisionMacro(vtkExodusModel, "1.2");
+vtkCxxRevisionMacro(vtkExodusModel, "1.3");
 vtkStandardNewMacro(vtkExodusModel);
 
 vtkExodusModel::vtkExodusModel()
@@ -1151,14 +1151,13 @@ int vtkExodusModel::MergeExodusModel(vtkExodusModel *em)
 
   return (fail != 0);
 }
-vtkExodusModel *vtkExodusModel::ExtractExodusModel(vtkIntArray *globalCellIdList,
-   vtkUnstructuredGrid *grid, const char *globalCellIdArrayName,
-   const char *globalNodeIdArrayName)
+vtkExodusModel *vtkExodusModel::ExtractExodusModel(vtkIdTypeArray *globalCellIdList,
+                                                   vtkUnstructuredGrid *grid)
 {
   vtkExodusModel *em = vtkExodusModel::New();
 
   vtkModelMetadata *mmd = this->GetModelMetadata()->ExtractModelMetadata(
-        globalCellIdList, grid, globalCellIdArrayName, globalNodeIdArrayName);
+    globalCellIdList, grid);
 
   if (mmd == NULL)
     {

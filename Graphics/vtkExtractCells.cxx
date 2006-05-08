@@ -20,6 +20,7 @@
 #include "vtkExtractCells.h"
 
 #include "vtkCellArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -33,7 +34,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractCells, "1.2");
+vtkCxxRevisionMacro(vtkExtractCells, "1.3");
 vtkStandardNewMacro(vtkExtractCells);
 
 #include <vtkstd/set>
@@ -153,7 +154,9 @@ int vtkExtractCells::RequestData(
 
     output->Allocate(1);
 
+    output->GetPointData()->CopyGlobalIdsOn();
     output->GetPointData()->CopyAllocate(PD, VTK_CELL_SIZE);
+    output->GetCellData()->CopyGlobalIdsOn();
     output->GetCellData()->CopyAllocate(CD, 1);
 
     vtkPoints *pts = vtkPoints::New();
@@ -179,8 +182,10 @@ int vtkExtractCells::RequestData(
 
   vtkIdType numPoints = ptIdMap->GetNumberOfIds();
 
+  newPD->CopyGlobalIdsOn();
   newPD->CopyAllocate(PD, numPoints);
 
+  newCD->CopyGlobalIdsOn();
   newCD->CopyAllocate(CD, numCells);
 
   vtkPoints *pts = vtkPoints::New();
@@ -234,18 +239,18 @@ vtkModelMetadata *vtkExtractCells::ExtractMetadata(vtkDataSet *input)
       }
     else
       {
-      vtkDataArray *c = input->GetCellData()->GetArray("GlobalElementId");
-      vtkDataArray *p = input->GetPointData()->GetArray("GlobalNodeId");
+      vtkDataArray *c = input->GetCellData()->GetGlobalIds();
+      vtkDataArray *p = input->GetPointData()->GetGlobalIds();
 
       if (c && p)
         {
-        vtkIntArray *cgids = vtkIntArray::SafeDownCast(c);
+        vtkIdTypeArray *cgids = vtkIdTypeArray::SafeDownCast(c);
 
         if (cgids)
           {
-          int *cids = cgids->GetPointer(0);
+          vtkIdType *cids = cgids->GetPointer(0);
 
-          vtkIntArray *gids = vtkIntArray::New();
+          vtkIdTypeArray *gids = vtkIdTypeArray::New();
           gids->SetNumberOfValues(numCells);
         
           int next = 0;
@@ -261,8 +266,7 @@ vtkModelMetadata *vtkExtractCells::ExtractMetadata(vtkDataSet *input)
           vtkModelMetadata *mmd = vtkModelMetadata::New();
           mmd->Unpack(input, 0);
         
-          extractedMD = mmd->ExtractModelMetadata(gids,
-               input, "GlobalElementId", "GlobalNodeId");
+          extractedMD = mmd->ExtractModelMetadata(gids, input);
         
           gids->Delete();
           mmd->Delete();

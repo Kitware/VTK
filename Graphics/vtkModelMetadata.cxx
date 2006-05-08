@@ -25,13 +25,14 @@
 #include "vtkCharArray.h"
 #include "vtkFloatArray.h"
 #include "vtkDataArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkIdList.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.4");
+vtkCxxRevisionMacro(vtkModelMetadata, "1.5");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #include <vtkstd/set>
@@ -3600,16 +3601,14 @@ vtkModelMetadata *vtkModelMetadata::ExtractGlobalMetadata()
 }
 
 vtkModelMetadata *vtkModelMetadata::ExtractModelMetadata(
-                                     vtkIntArray *globalCellIdList,
-                                     vtkDataSet *grid,
-                                     const char *globalCellIdArrayName,
-                                     const char *globalNodeIdArrayName)
+  vtkIdTypeArray *globalCellIdList,
+  vtkDataSet *grid)
 {
   int i;
 
   vtkModelMetadata *em = this->ExtractGlobalMetadata();
 
-  int ncells = globalCellIdList->GetNumberOfTuples();
+  vtkIdType ncells = globalCellIdList->GetNumberOfTuples();
 
   if (ncells < 1)
     {
@@ -3621,7 +3620,7 @@ vtkModelMetadata *vtkModelMetadata::ExtractModelMetadata(
   vtkModelMetadataSTLCloak *nodeIds = 
     new vtkModelMetadataSTLCloak;     // the nodes they include
 
-  int *ids = globalCellIdList->GetPointer(0);
+  vtkIdType *ids = globalCellIdList->GetPointer(0);
 
   for (i=0; i<ncells; i++)
     {
@@ -3630,8 +3629,8 @@ vtkModelMetadata *vtkModelMetadata::ExtractModelMetadata(
 
   ncells = cellIds->IntSet.size();
 
-  vtkDataArray *ca = grid->GetCellData()->GetArray(globalCellIdArrayName);
-  vtkDataArray *pa = grid->GetPointData()->GetArray(globalNodeIdArrayName);
+  vtkDataArray *ca = grid->GetCellData()->GetGlobalIds();
+  vtkDataArray *pa = grid->GetPointData()->GetGlobalIds();
 
   if (!ca || !pa)
     {
@@ -3640,18 +3639,18 @@ vtkModelMetadata *vtkModelMetadata::ExtractModelMetadata(
     return NULL;
     }
 
-  vtkIntArray *ica  = vtkIntArray::SafeDownCast(ca);
-  vtkIntArray *ipa  = vtkIntArray::SafeDownCast(pa);
+  vtkIdTypeArray *ica  = vtkIdTypeArray::SafeDownCast(ca);
+  vtkIdTypeArray *ipa  = vtkIdTypeArray::SafeDownCast(pa);
 
   if (!ica || !ipa)
     {
-    vtkErrorMacro(<< "vtkModelMetadata::ExtractModelMetadata id arrays not ints");
+    vtkErrorMacro(<< "vtkModelMetadata::ExtractModelMetadata id arrays not vtkIdType");
     em->Delete();
     return NULL;
     }
 
-  int *gcids = ica->GetPointer(0);  // global cell ids
-  int *gpids = ipa->GetPointer(0);  // global point ids
+  vtkIdType *gcids = ica->GetPointer(0);  // global cell ids
+  vtkIdType *gpids = ipa->GetPointer(0);  // global point ids
 
   int gridCells = grid->GetNumberOfCells();
   vtkIdList *ptIds = vtkIdList::New();

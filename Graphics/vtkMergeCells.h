@@ -88,8 +88,8 @@ public:
   //   field array is available.  Set the name of the point array if you
   //   have one. 
 
-  vtkSetStringMacro(GlobalIdArrayName);
-  vtkGetStringMacro(GlobalIdArrayName);
+  vtkSetMacro(UseGlobalIds, int);
+  vtkGetMacro(UseGlobalIds, int);
 
   // Description:
   //   vtkMergeCells attempts eliminate duplicate points when merging
@@ -105,8 +105,8 @@ public:
   //   vtkMergeCells will detect and filter out duplicate cells if you
   //   provide it the name of a global cell ID array.
 
-  vtkSetStringMacro(GlobalCellIdArrayName);
-  vtkGetStringMacro(GlobalCellIdArrayName);
+  vtkSetMacro(UseGlobalCellIds, int);
+  vtkGetMacro(UseGlobalCellIds, int);
 
   // Description:
   //   vtkMergeCells attempts eliminate duplicate points when merging
@@ -167,11 +167,11 @@ private:
   vtkIdType NumberOfCells;     // so far
   vtkIdType NumberOfPoints;
 
-  char *GlobalIdArrayName;       // point, or node, IDs
+  int UseGlobalIds;       // point, or node, IDs
   int GlobalIdArrayType;
   void* GlobalIdArray;
 
-  char *GlobalCellIdArrayName;   // cell IDs
+  int UseGlobalCellIds;   // cell IDs
   int GlobalCellIdArrayType;
   void* GlobalCellIdArray;
 

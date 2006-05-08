@@ -44,6 +44,36 @@
 //
 //    D3Object2->GetKdtree()->SetCuts(cuts) 
 //
+//    It is desirable to have a field array of global node IDs
+//    for two reasons:
+//
+//    1. When merging together sub grids that were distributed
+//    across processors, global node IDs can be used to remove
+//    duplicate points and significantly reduce the size of the
+//    resulting output grid.  If no such array is available,
+//    D3 will use a tolerance to merge points, which is much
+//    slower.
+//
+//    2. If ghost cells have been requested, D3 requires a
+//    global node ID array in order to request and transfer
+//    ghost cells in parallel among the processors.  If there
+//    is no global node ID array, D3 will in parallel create
+//    a global node ID array, and the time to do this can be
+//    significant.
+//    
+//    If you know the name of a global node ID array in the input
+//    dataset, set that name with this method.  If you leave
+//    it unset, D3 will search the input data set for certain
+//    common names of global node ID arrays.  If none is found,
+//    and ghost cells have been requested, D3 will create a
+//    temporary global node ID array before aquiring ghost cells.
+//   It is also desirable to have global element IDs.  However,
+//   if they don't exist D3 can create them relatively quickly.
+//   Set the name of the global element ID array if you have it.
+//   If it is not set, D3 will search for it using common names.
+//   If still not found, D3 will create a temporary array of
+//   global element IDs.
+//
 // .SECTION Caveats
 // The Execute() method must be called by all processes in the
 // parallel application, or it will hang.  If you are not certain
@@ -62,6 +92,7 @@ class vtkUnstructuredGrid;
 class vtkPKdTree;
 class vtkMultiProcessController;
 class vtkDataArray;
+class vtkIdTypeArray;
 class vtkIntArray;
 class vtkFloatArray;
 class vtkIdList;
@@ -84,43 +115,6 @@ public:
   void SetController(vtkMultiProcessController *c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
-  // Description:
-  //    It is desirable to have a field array of global node IDs
-  //    for two reasons:
-  //
-  //    1. When merging together sub grids that were distributed
-  //    across processors, global node IDs can be used to remove
-  //    duplicate points and significantly reduce the size of the
-  //    resulting output grid.  If no such array is available,
-  //    D3 will use a tolerance to merge points, which is much
-  //    slower.
-  //
-  //    2. If ghost cells have been requested, D3 requires a
-  //    global node ID array in order to request and transfer
-  //    ghost cells in parallel among the processors.  If there
-  //    is no global node ID array, D3 will in parallel create
-  //    a global node ID array, and the time to do this can be
-  //    significant.
-  //    
-  //    If you know the name of a global node ID array in the input
-  //    dataset, set that name with this method.  If you leave
-  //    it unset, D3 will search the input data set for certain
-  //    common names of global node ID arrays.  If none is found,
-  //    and ghost cells have been requested, D3 will create a
-  //    temporary global node ID array before aquiring ghost cells.
-
-  vtkSetStringMacro(GlobalNodeIdArrayName);
-
-  // Description:
-  //   It is also desirable to have global element IDs.  However,
-  //   if they don't exist D3 can create them relatively quickly.
-  //   Set the name of the global element ID array if you have it.
-  //   If it is not set, D3 will search for it using common names.
-  //   If still not found, D3 will create a temporary array of
-  //   global element IDs.
-
-  vtkSetStringMacro(GlobalElementIdArrayName);
-  
   // Description:
   //    When this filter executes, it creates a vtkPKdTree (K-d tree)
   //    data structure in parallel which divides the total distributed 
@@ -352,11 +346,10 @@ private:
   void ClipWithBoxClipDataSet(vtkUnstructuredGrid *grid, double *bounds,
            vtkUnstructuredGrid **outside, vtkUnstructuredGrid **inside);
 
-  const char *GetGlobalNodeIdArrayName(vtkDataSet *set);
-  int *GetGlobalNodeIds(vtkDataSet *set);
-
-  const char *GetGlobalElementIdArrayName(vtkDataSet *set);
-  int *GetGlobalElementIds(vtkDataSet *set);
+  vtkIdTypeArray *GetGlobalNodeIdArray(vtkDataSet *set);
+  vtkIdType *GetGlobalNodeIds(vtkDataSet *set);
+  vtkIdTypeArray *GetGlobalElementIdArray(vtkDataSet *set);
+  vtkIdType *GetGlobalElementIds(vtkDataSet *set);
 
   int AssignGlobalNodeIds(vtkUnstructuredGrid *grid);
   int AssignGlobalElementIds(vtkDataSet *in);
@@ -411,9 +404,9 @@ private:
   static void RemoveRemoteCellsFromList(vtkIdList *cellList, int *gidCells, 
                                  int *remoteCells, int nRemoteCells);
   static vtkUnstructuredGrid *MergeGrids(vtkDataSet **sets, int nsets,
-         int deleteDataSets,
-         const char *globalNodeIdArrayName, float pointMergeTolerance,
-         const char *globalCellIdArrayName);
+                                         int deleteDataSets,
+                                         int useGlobalNodeIds, float pointMergeTolerance,
+                                         int useGlobalCellIds);
 
   static void FreeIdLists(vtkIdList**lists, int nlists);
   static vtkIdType GetIdListSize(vtkIdList**lists, int nlists);
@@ -432,9 +425,6 @@ private:
   double *ConvexSubRegionBounds;
 
   int GhostLevel;
-
-  char *GlobalElementIdArrayName;
-  char *GlobalNodeIdArrayName; 
 
   int RetainKdtree;
   int IncludeAllIntersectingCells;
