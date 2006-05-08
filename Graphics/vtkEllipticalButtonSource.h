@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkEllipticalButtonSource creates a ellipsoidal shaped button with
 // texture coordinates suitable for application of a texture map. This
-// provides a way to make nice looking 3D buttons. The buttons are 
+// provides a way to make nice looking 3D buttons. The buttons are
 // represented as vtkPolyData that includes texture coordinates and
 // normals. The button lies in the x-y plane.
 //
@@ -30,6 +30,9 @@
 // location of the texture map.) The resolution in the radial direction, the
 // texture region, and the shoulder region must also be set. The button can
 // be moved by specifying an origin.
+//
+// .SECTION See Also
+// vtkButtonSource vtkRectangularButtonSource
 
 #ifndef __vtkEllipticalButtonSource_h
 #define __vtkEllipticalButtonSource_h
@@ -40,7 +43,7 @@ class vtkCellArray;
 class vtkFloatArray;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkEllipticalButtonSource : public vtkButtonSource 
+class VTK_GRAPHICS_EXPORT vtkEllipticalButtonSource : public vtkButtonSource
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -108,9 +111,6 @@ protected:
   double RadialRatio;
 
 private:
-  vtkEllipticalButtonSource(const vtkEllipticalButtonSource&);  // Not implemented.
-  void operator=(const vtkEllipticalButtonSource&);  // Not implemented.
-
   //internal variable related to axes of ellipsoid
   double A;
   double A2;
@@ -118,17 +118,18 @@ private:
   double B2;
   double C;
   double C2;
-  
+
   double ComputeDepth(int inTextureRegion, double x, double y, double n[3]);
   void InterpolateCurve(int inTextureRegion, vtkPoints *newPts, int numPts,
-                        vtkFloatArray *normals, vtkFloatArray *tcoords, 
+                        vtkFloatArray *normals, vtkFloatArray *tcoords,
                         int res, int c1StartPoint,int c1Incr,
                         int c2StartPoint,int s2Incr, int startPoint,int incr);
   void CreatePolygons(vtkCellArray *newPolys, int num, int res, int startIdx);
-  void IntersectEllipseWithLine(double a2, double b2, double dX, double dY, 
+  void IntersectEllipseWithLine(double a2, double b2, double dX, double dY,
                                 double& xe, double& ye);
-  
-    
+
+  vtkEllipticalButtonSource(const vtkEllipticalButtonSource&);  // Not implemented.
+  void operator=(const vtkEllipticalButtonSource&);  // Not implemented.
 };
 
 #endif

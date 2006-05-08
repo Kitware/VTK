@@ -25,9 +25,10 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRectangularButtonSource, "1.3");
+vtkCxxRevisionMacro(vtkRectangularButtonSource, "1.4");
 vtkStandardNewMacro(vtkRectangularButtonSource);
 
+//----------------------------------------------------------------------------
 // Construct 
 vtkRectangularButtonSource::vtkRectangularButtonSource()
 {
@@ -40,6 +41,7 @@ vtkRectangularButtonSource::vtkRectangularButtonSource()
   this->TextureHeightRatio = 0.95;
 }
 
+//----------------------------------------------------------------------------
 // One half of the button is made up of nine (quad) polygons. 
 // 
 static vtkIdType vtkRButtonPolys[72] = {
@@ -48,6 +50,7 @@ static vtkIdType vtkRButtonPolys[72] = {
      1,0,16,17,   2,1,17,18,   3,2,18,19,   0,3,19,16,
    17,16,20,21, 18,17,21,22, 19,18,22,23, 16,19,23,20, 25,24,27,26};
 
+//----------------------------------------------------------------------------
 // Generate the button.
 //
 int vtkRectangularButtonSource::RequestData(
@@ -150,7 +153,7 @@ int vtkRectangularButtonSource::RequestData(
   newPts->SetPoint(13, this->Center[0]+textureX, this->Center[1]-textureY, this->Center[2]+textureZ); 
   newPts->SetPoint(14, this->Center[0]+textureX, this->Center[1]+textureY, this->Center[2]+textureZ); 
   newPts->SetPoint(15, this->Center[0]-textureX, this->Center[1]+textureY, this->Center[2]+textureZ); 
-  
+
   if ( this->TwoSided )
     {
     // The next four points are around the shoulder
@@ -206,7 +209,7 @@ int vtkRectangularButtonSource::RequestData(
     {
     newPolys->InsertNextCell(4,buttonPtr);
     }
-  
+
   // If two sided, create the opposite side.
   // Make sure that faces ordering is reversed.
   if ( this->TwoSided )
@@ -229,6 +232,7 @@ int vtkRectangularButtonSource::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkRectangularButtonSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

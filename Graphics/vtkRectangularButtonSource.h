@@ -32,7 +32,7 @@
 // compared to the shoulder. The texture height ratio controls this.
 
 // .SECTION See Also
-// vtkButtonSource vtkRectangularButtonSource
+// vtkButtonSource vtkEllipticalButtonSource
 
 // .SECTION Caveats
 // The button is defined in the x-y plane. Use vtkTransformPolyDataFilter
@@ -117,7 +117,6 @@ protected:
 private:
   vtkRectangularButtonSource(const vtkRectangularButtonSource&);  // Not implemented.
   void operator=(const vtkRectangularButtonSource&);  // Not implemented.
-
 };
 
 #endif
