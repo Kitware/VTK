@@ -25,7 +25,7 @@
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
 
-vtkCxxRevisionMacro(vtkBiQuadraticQuad, "1.4");
+vtkCxxRevisionMacro(vtkBiQuadraticQuad, "1.5");
 vtkStandardNewMacro(vtkBiQuadraticQuad);
 
 //----------------------------------------------------------------------------
@@ -251,69 +251,70 @@ vtkBiQuadraticQuad::IntersectWithLine (double *p1,
 }
 
 //----------------------------------------------------------------------------
-int
-vtkBiQuadraticQuad::Triangulate (int vtkNotUsed (index), vtkIdList * ptIds, vtkPoints * pts)
+int vtkBiQuadraticQuad::Triangulate (int vtkNotUsed(index),
+                                     vtkIdList *ptIds,
+                                     vtkPoints *pts)
 {
-  pts->Reset ();
-  ptIds->Reset ();
+  pts->SetNumberOfPoints(24);
+  ptIds->SetNumberOfIds(24);
 
   // First the corner vertices
-  ptIds->InsertId(0,this->PointIds->GetId(0));
-  ptIds->InsertId(1,this->PointIds->GetId(4));
-  ptIds->InsertId(2,this->PointIds->GetId(7));
-  pts->InsertPoint(0,this->Points->GetPoint(0));
-  pts->InsertPoint(1,this->Points->GetPoint(4));
-  pts->InsertPoint(2,this->Points->GetPoint(7));
+  ptIds->SetId(0,this->PointIds->GetId(0));
+  ptIds->SetId(1,this->PointIds->GetId(4));
+  ptIds->SetId(2,this->PointIds->GetId(7));
+  pts->SetPoint(0,this->Points->GetPoint(0));
+  pts->SetPoint(1,this->Points->GetPoint(4));
+  pts->SetPoint(2,this->Points->GetPoint(7));
 
-  ptIds->InsertId(3,this->PointIds->GetId(4));
-  ptIds->InsertId(4,this->PointIds->GetId(1));
-  ptIds->InsertId(5,this->PointIds->GetId(5));
-  pts->InsertPoint(3,this->Points->GetPoint(4));
-  pts->InsertPoint(4,this->Points->GetPoint(1));
-  pts->InsertPoint(5,this->Points->GetPoint(5));
+  ptIds->SetId(3,this->PointIds->GetId(4));
+  ptIds->SetId(4,this->PointIds->GetId(1));
+  ptIds->SetId(5,this->PointIds->GetId(5));
+  pts->SetPoint(3,this->Points->GetPoint(4));
+  pts->SetPoint(4,this->Points->GetPoint(1));
+  pts->SetPoint(5,this->Points->GetPoint(5));
 
-  ptIds->InsertId(6,this->PointIds->GetId(5));
-  ptIds->InsertId(7,this->PointIds->GetId(2));
-  ptIds->InsertId(8,this->PointIds->GetId(6));
-  pts->InsertPoint(6,this->Points->GetPoint(5));
-  pts->InsertPoint(7,this->Points->GetPoint(2));
-  pts->InsertPoint(8,this->Points->GetPoint(6));
+  ptIds->SetId(6,this->PointIds->GetId(5));
+  ptIds->SetId(7,this->PointIds->GetId(2));
+  ptIds->SetId(8,this->PointIds->GetId(6));
+  pts->SetPoint(6,this->Points->GetPoint(5));
+  pts->SetPoint(7,this->Points->GetPoint(2));
+  pts->SetPoint(8,this->Points->GetPoint(6));
 
-  ptIds->InsertId(9,this->PointIds->GetId(6));
-  ptIds->InsertId(10,this->PointIds->GetId(3));
-  ptIds->InsertId(11,this->PointIds->GetId(7));
-  pts->InsertPoint(9,this->Points->GetPoint(6));
-  pts->InsertPoint(10,this->Points->GetPoint(3));
-  pts->InsertPoint(11,this->Points->GetPoint(7));
+  ptIds->SetId(9,this->PointIds->GetId(6));
+  ptIds->SetId(10,this->PointIds->GetId(3));
+  ptIds->SetId(11,this->PointIds->GetId(7));
+  pts->SetPoint(9,this->Points->GetPoint(6));
+  pts->SetPoint(10,this->Points->GetPoint(3));
+  pts->SetPoint(11,this->Points->GetPoint(7));
 
   //Now the triangles in the middle
-  ptIds->InsertId(12,this->PointIds->GetId(8));
-  ptIds->InsertId(13,this->PointIds->GetId(4));
-  ptIds->InsertId(14,this->PointIds->GetId(7));
-  pts->InsertPoint(12,this->Points->GetPoint(8));
-  pts->InsertPoint(13,this->Points->GetPoint(4));
-  pts->InsertPoint(14,this->Points->GetPoint(7));
+  ptIds->SetId(12,this->PointIds->GetId(4));
+  ptIds->SetId(13,this->PointIds->GetId(8));
+  ptIds->SetId(14,this->PointIds->GetId(7));
+  pts->SetPoint(12,this->Points->GetPoint(4));
+  pts->SetPoint(13,this->Points->GetPoint(8));
+  pts->SetPoint(14,this->Points->GetPoint(7));
 
-  ptIds->InsertId(15,this->PointIds->GetId(4));
-  ptIds->InsertId(16,this->PointIds->GetId(8));
-  ptIds->InsertId(17,this->PointIds->GetId(5));
-  pts->InsertPoint(15,this->Points->GetPoint(4));
-  pts->InsertPoint(16,this->Points->GetPoint(8));
-  pts->InsertPoint(17,this->Points->GetPoint(5));
+  ptIds->SetId(15,this->PointIds->GetId(4));
+  ptIds->SetId(16,this->PointIds->GetId(5));
+  ptIds->SetId(17,this->PointIds->GetId(8));
+  pts->SetPoint(15,this->Points->GetPoint(4));
+  pts->SetPoint(16,this->Points->GetPoint(5));
+  pts->SetPoint(17,this->Points->GetPoint(8));
 
-  ptIds->InsertId(18,this->PointIds->GetId(5));
-  ptIds->InsertId(19,this->PointIds->GetId(8));
-  ptIds->InsertId(20,this->PointIds->GetId(6));
-  pts->InsertPoint(18,this->Points->GetPoint(5));
-  pts->InsertPoint(19,this->Points->GetPoint(8));
-  pts->InsertPoint(20,this->Points->GetPoint(6));
+  ptIds->SetId(18,this->PointIds->GetId(5));
+  ptIds->SetId(19,this->PointIds->GetId(6));
+  ptIds->SetId(20,this->PointIds->GetId(8));
+  pts->SetPoint(18,this->Points->GetPoint(5));
+  pts->SetPoint(19,this->Points->GetPoint(6));
+  pts->SetPoint(20,this->Points->GetPoint(8));
 
-  ptIds->InsertId(21,this->PointIds->GetId(6));
-  ptIds->InsertId(22,this->PointIds->GetId(8));
-  ptIds->InsertId(23,this->PointIds->GetId(7));
-  pts->InsertPoint(21,this->Points->GetPoint(6));
-  pts->InsertPoint(22,this->Points->GetPoint(8));
-  pts->InsertPoint(23,this->Points->GetPoint(7));
+  ptIds->SetId(21,this->PointIds->GetId(6));
+  ptIds->SetId(22,this->PointIds->GetId(7));
+  ptIds->SetId(23,this->PointIds->GetId(8));
+  pts->SetPoint(21,this->Points->GetPoint(6));
+  pts->SetPoint(22,this->Points->GetPoint(7));
+  pts->SetPoint(23,this->Points->GetPoint(8));
 
   return 1;
 }
