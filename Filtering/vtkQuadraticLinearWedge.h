@@ -99,6 +99,10 @@ public:
 
   // Description:
   // Quadratic linear wedge specific methods.
+  static int *GetFaceArray(int faceId);
+  
+  // Description:
+  // Quadratic linear wedge specific methods.
   static void InterpolationFunctions (double pcoords[3], double weights[15]);
 
   // Description:

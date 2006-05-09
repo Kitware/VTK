@@ -27,7 +27,7 @@
 #include "vtkQuadraticLinearQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro (vtkQuadraticLinearWedge, "1.5");
+vtkCxxRevisionMacro (vtkQuadraticLinearWedge, "1.6");
 vtkStandardNewMacro (vtkQuadraticLinearWedge);
 
 //----------------------------------------------------------------------------
@@ -78,9 +78,9 @@ static int LinearWedges[4][6] = {
 static int WedgeFaces[5][6] = {
     {0, 1, 2, 6,  7,  8},   // first quad triangle
     {3, 5, 4, 11, 10, 9},   // second quad triangle
-    {0, 3, 4, 1,  9,  6},   // 1. quad-linear quad
-    {1, 4, 5, 2, 10,  7},   // 2. quad-linear quad
-    {2, 5, 3, 0, 11,  8}    // 3. quad-linear quad
+    {1, 0, 3, 4, 6, 9},   // 1. quad-linear quad
+    {2, 1, 4, 5, 7,10},   // 2. quad-linear quad
+    {0, 2, 5, 3, 8,11}    // 3. quad-linear quad
 };
 
 // We have 6 quadratic and 3 linear edges
@@ -141,6 +141,12 @@ vtkCell * vtkQuadraticLinearWedge::GetFace (int faceId)
       }
     return this->Face;
     }
+}
+
+//----------------------------------------------------------------------------
+int *vtkQuadraticLinearWedge::GetFaceArray(int faceId)
+{
+  return WedgeFaces[faceId];
 }
 
 //----------------------------------------------------------------------------
