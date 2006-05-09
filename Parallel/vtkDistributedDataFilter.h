@@ -394,15 +394,20 @@ private:
 
   static int LocalPointIdIsUsed(vtkUnstructuredGrid *grid, int ptId);
   static int FindId(vtkIntArray *ids, int gid, int startLoc);
-  static vtkIntArray *AddPointAndCells(int gid, int localId, 
-                        vtkUnstructuredGrid *grid, int *gidCells, vtkIntArray *ids);
+  static vtkIntArray *AddPointAndCells(int gid, 
+                                       int localId, 
+                                       vtkUnstructuredGrid *grid, 
+                                       vtkIdType *gidCells, 
+                                       vtkIntArray *ids);
 
   static void AddConstantUnsignedCharPointArray(vtkUnstructuredGrid *grid, 
                                  const char *arrayName, unsigned char val);
   static void AddConstantUnsignedCharCellArray(vtkUnstructuredGrid *grid, 
                                  const char *arrayName, unsigned char val);
-  static void RemoveRemoteCellsFromList(vtkIdList *cellList, int *gidCells, 
-                                 int *remoteCells, int nRemoteCells);
+  static void RemoveRemoteCellsFromList(vtkIdList *cellList, 
+                                        vtkIdType *gidCells, 
+                                        int *remoteCells, 
+                                        int nRemoteCells);
   static vtkUnstructuredGrid *MergeGrids(vtkDataSet **sets, int nsets,
                                          int deleteDataSets,
                                          int useGlobalNodeIds, float pointMergeTolerance,

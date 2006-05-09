@@ -1392,7 +1392,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.20");
+vtkCxxRevisionMacro(vtkExodusReader, "1.21");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -3741,7 +3741,15 @@ void vtkExodusReader::GenerateExtraArrays(vtkUnstructuredGrid* output)
       }
 
     vtkIdTypeArray* idarray = vtkIdTypeArray::New();
+#ifdef VTK_USE_64BIT_IDS
+    idarray->SetNumberOfValues(this->NumberOfUsedElements);
+    for (int idIdx=0; idIdx < this->NumberOfUsedElements; idIdx++)
+      {
+      idarray->SetValue(idIdx, idList[idIdx]);
+      }
+#else
     idarray->SetArray(idList, this->NumberOfUsedElements, 0);
+#endif
     idarray->SetName( this->GetGlobalElementIdArrayName() );
     
     // Padding cell arrays to have 'some' value for the addition 

@@ -58,7 +58,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.34")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.35")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -3499,7 +3499,7 @@ vtkIntArray **vtkDistributedDataFilter::MakeProcessLists(
 //-----------------------------------------------------------------------
 vtkIntArray *vtkDistributedDataFilter::AddPointAndCells(
                         int gid, int localId, vtkUnstructuredGrid *grid, 
-                        int *gidCells, vtkIntArray *ids)
+                        vtkIdType *gidCells, vtkIntArray *ids)
 {
   if (ids == NULL)
     {
@@ -3518,7 +3518,7 @@ vtkIntArray *vtkDistributedDataFilter::AddPointAndCells(
 
   for (int j=0; j<numCells; j++)
     {
-    int globalCellId = gidCells[cellList->GetId(j)];
+    vtkIdType globalCellId = gidCells[cellList->GetId(j)];
     ids->InsertNextValue(globalCellId);
     }
 
@@ -4299,7 +4299,7 @@ vtkIdList **vtkDistributedDataFilter::BuildRequestedGrids(
 
 //-----------------------------------------------------------------------
 void vtkDistributedDataFilter::RemoveRemoteCellsFromList(
-     vtkIdList *cellList, int *gidCells, int *remoteCells, int nRemoteCells)
+  vtkIdList *cellList, vtkIdType *gidCells, int *remoteCells, int nRemoteCells)
 {
   vtkIdType id, nextId;
   int id2;
@@ -4310,7 +4310,7 @@ void vtkDistributedDataFilter::RemoveRemoteCellsFromList(
   for (id = 0, nextId = 0; id < nLocalCells; id++)
     {
     vtkIdType localCellId  = cellList->GetId(id);
-    int globalCellId = gidCells[localCellId];
+    vtkIdType globalCellId = gidCells[localCellId];
 
     int found = 0;
 
