@@ -98,6 +98,7 @@ public:
 
   // Description:
   // Biquadratic hexahedron specific methods.
+  static int *GetFaceArray(int faceId);
   static void InterpolationFunctions(double pcoords[3], double weights[20]);
   static void InterpolationDerivs(double pcoords[3], double derivs[72]);
 

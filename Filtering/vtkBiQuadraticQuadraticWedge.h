@@ -95,7 +95,8 @@ public:
   int GetParametricCenter (double pcoords[3]);
 
   // Description:
-  // Quadratic hexahedron specific methods.
+  // Biquadratic quadratic wedge specific methods.
+  static int *GetFaceArray(int faceId);
   static void InterpolationFunctions (double pcoords[3], double weights[15]);
   static void InterpolationDerivs (double pcoords[3], double derivs[45]);
 

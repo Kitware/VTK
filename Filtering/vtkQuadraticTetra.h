@@ -96,7 +96,8 @@ public:
   double GetParametricDistance(double pcoords[3]);
 
   // Description:
-  // Quadratic tetra specific methods. 
+  // Quadratic tetra specific methods.
+  static int *GetFaceArray(int faceId);
   static void InterpolationFunctions(double pcoords[3], double weights[10]);
   static void InterpolationDerivs(double pcoords[3], double derivs[30]);
 

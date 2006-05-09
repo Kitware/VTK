@@ -25,7 +25,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.10");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.11");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -138,6 +138,12 @@ vtkCell *vtkQuadraticPyramid::GetFace(int faceId)
       }
     return this->Face;
     }
+}
+
+//----------------------------------------------------------------------------
+int *vtkQuadraticPyramid::GetFaceArray(int faceId)
+{
+  return PyramidFaces[faceId];
 }
 
 //----------------------------------------------------------------------------
