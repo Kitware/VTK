@@ -118,7 +118,7 @@ int TestHigherOrderCell(int , char *[])
       InitializeACell( cellArray[c] );
       }
     vtkCell *linCell = cellArray[0]; // this is the reference linear cell
-    vtkCell *quadCell = cellArray[1]; // this is the reference quadratic cell (serendipity)
+    //vtkCell *quadCell = cellArray[1]; // this is the reference quadratic cell (serendipity)
     //const int numPts   = linCell->GetNumberOfPoints();
     const int numEdges = linCell->GetNumberOfEdges();
     const int numFaces = linCell->GetNumberOfFaces();
