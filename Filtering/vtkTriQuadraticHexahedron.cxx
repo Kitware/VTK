@@ -25,7 +25,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkBiQuadraticQuad.h"
 
-vtkCxxRevisionMacro (vtkTriQuadraticHexahedron, "1.4");
+vtkCxxRevisionMacro (vtkTriQuadraticHexahedron, "1.5");
 vtkStandardNewMacro (vtkTriQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -540,10 +540,10 @@ void vtkTriQuadraticHexahedron::InterpolationFunctions (double pcoords[3], doubl
   weights[19] = g1r * g3s * g2t;
 
   //face center nodes
-  weights[20] = g2r * g1s * g2t;
+  weights[22] = g2r * g1s * g2t;
   weights[21] = g3r * g2s * g2t;
-  weights[22] = g2r * g3s * g2t;
-  weights[23] = g1r * g2s * g2t;
+  weights[23] = g2r * g3s * g2t;
+  weights[20] = g1r * g2s * g2t;
   weights[24] = g2r * g2s * g1t;
   weights[25] = g2r * g2s * g3t;
 

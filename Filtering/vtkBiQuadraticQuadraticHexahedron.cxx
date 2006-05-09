@@ -28,7 +28,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkBiQuadraticQuad.h"
 
-vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.3");
+vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.4");
 vtkStandardNewMacro(vtkBiQuadraticQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -608,10 +608,10 @@ void vtkBiQuadraticQuadraticHexahedron::InterpolationFunctions(double pcoords[3]
   weights[19] =(-0.25*(x*(1-x))*(y*(1+y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y)) *((1+z)*(1-z));
 
   //Face center Nodes in xz and yz direction
-  weights[20] = 0.5*((1+x)*(1-x))*(1-y)  *((1+z)*(1-z));
+  weights[22] = 0.5*((1+x)*(1-x))*(1-y)  *((1+z)*(1-z));
   weights[21] = 0.5*((1+y)*(1-y))*(1+x)  *((1+z)*(1-z));
-  weights[22] = 0.5*((1+x)*(1-x))*(1+y)  *((1+z)*(1-z));
-  weights[23] = 0.5*((1+y)*(1-y))*(1-x)  *((1+z)*(1-z));
+  weights[23] = 0.5*((1+x)*(1-x))*(1+y)  *((1+z)*(1-z));
+  weights[20] = 0.5*((1+y)*(1-y))*(1-x)  *((1+z)*(1-z));
 }
 
 //----------------------------------------------------------------------------
