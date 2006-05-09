@@ -20,7 +20,7 @@
 #include <time.h> // for strftime
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.19");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.20");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -320,7 +320,7 @@ double vtkMedicalImageProperties::GetGantryTiltAsDouble()
 int vtkMedicalImageProperties::GetAgeAsFields(const char *age, int &year,
   int &month, int &week, int &day)
 {
-  year = month = week = day = 0;
+  year = month = week = day = -1;
   if( !age )
     {
     return 0;
@@ -330,25 +330,25 @@ int vtkMedicalImageProperties::GetAgeAsFields(const char *age, int &year,
   if( len == 4 )
     {
     // DICOM V3
-    int val;
+    unsigned int val;
     char type;
-    if( sscanf(age, "%03d%c", &val, &type) != 2 )
+    if( sscanf(age, "%03u%c", &val, &type) != 2 )
       {
       return 0;
       }
     switch(type)
       {
     case 'Y':
-      year = val;
+      year = (int)val;
       break;
     case 'M':
-      month = val;
+      month = (int)val;
       break;
     case 'W':
-      week = val;
+      week = (int)val;
       break;
     case 'D':
-      day = val;
+      day = (int)val;
       break;
     default:
       return 0;
