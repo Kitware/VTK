@@ -48,7 +48,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkUnstructuredGridGeometryFilter, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridGeometryFilter, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGridGeometryFilter);
 
 #if 0
@@ -292,7 +292,7 @@ public:
   // Set the chunk size.
   // \pre not_yet_initialized: !IsInitialized()
   // \pre positive_size: size>0.
-  // \post is_set: value==GetChunkSize()
+  // \post is_set: size==GetChunkSize()
   void SetChunkSize(unsigned int size)
     {
       // Pre-conditions.
@@ -302,7 +302,7 @@ public:
       this->ChunkSize=size;
       
       // Post-conditions.
-      assert("post: is_set" && value==this->GetChunkSize());
+      assert("post: is_set" && size==this->GetChunkSize());
     }
 protected:
   vtkstd::vector<vtkstd::vector<G> *> *Chunks;
