@@ -27,7 +27,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCornerAnnotation);
-vtkCxxRevisionMacro(vtkCornerAnnotation, "1.10");
+vtkCxxRevisionMacro(vtkCornerAnnotation, "1.11");
 
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,ImageActor,vtkImageActor);
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,WindowLevel,
@@ -107,7 +107,7 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
   char *text, *text2;
   int slice = 0, slice_max = 0;
   char *rpos, *tmp;
-  float window = 0, level = 0;
+  double window = 0, level = 0;
   long int windowi = 0, leveli = 0;
   vtkImageData *wl_input = NULL, *ia_input = NULL;
   int input_type_is_float = 0;
@@ -441,27 +441,21 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
         {
         vtkTextProperty *tprop = this->TextMapper[0]->GetTextProperty();
         tprop->ShallowCopy(this->TextProperty);
-        tprop->SetJustificationToLeft();
-        tprop->SetVerticalJustificationToBottom();
         tprop->SetFontSize(fontSize);
 
         tprop = this->TextMapper[1]->GetTextProperty();
         tprop->ShallowCopy(this->TextProperty);
-        tprop->SetJustificationToRight();
-        tprop->SetVerticalJustificationToBottom();
         tprop->SetFontSize(fontSize);
         
         tprop = this->TextMapper[2]->GetTextProperty();
         tprop->ShallowCopy(this->TextProperty);
-        tprop->SetJustificationToLeft();
-        tprop->SetVerticalJustificationToTop();
         tprop->SetFontSize(fontSize);
         
         tprop = this->TextMapper[3]->GetTextProperty();
         tprop->ShallowCopy(this->TextProperty);
-        tprop->SetJustificationToRight();
-        tprop->SetVerticalJustificationToTop();
         tprop->SetFontSize(fontSize);
+
+        this->SetTextActorsJustification();
         }
 
       // Update all the composing objects to find the best size for the font
@@ -564,7 +558,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
         max_width = (width_01 > width_23) ? width_01 : width_23;
         }
 
-      fontSize = static_cast<int>(pow((float)fontSize,
+      fontSize = static_cast<int>(pow((double)fontSize,
               NonlinearFontScaleFactor)*LinearFontScaleFactor);
       this->FontSize = fontSize;
       for (i = 0; i < 4; i++)
@@ -574,11 +568,8 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 
       // Now set the position of the TextActors
 
-      this->TextActor[0]->SetPosition(5,5);
-      this->TextActor[1]->SetPosition(vSize[0] - 5,5);
-      this->TextActor[2]->SetPosition(5, vSize[1] - 5);
-      this->TextActor[3]->SetPosition(vSize[0] - 5, vSize[1] - 5);
-      
+      this->SetTextActorsPosition(vSize);
+
       for (i = 0; i < 4; i++)
         {
         this->TextActor[i]->SetProperty(this->GetProperty());
@@ -599,6 +590,35 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkCornerAnnotation::SetTextActorsPosition(int vsize[2])
+{
+  this->TextActor[0]->SetPosition(5, 5);
+  this->TextActor[1]->SetPosition(vsize[0] - 5, 5);
+  this->TextActor[2]->SetPosition(5, vsize[1] - 5);
+  this->TextActor[3]->SetPosition(vsize[0] - 5, vsize[1] - 5);
+}
+      
+//----------------------------------------------------------------------------
+void vtkCornerAnnotation::SetTextActorsJustification()
+{
+  vtkTextProperty *tprop = this->TextMapper[0]->GetTextProperty();
+  tprop->SetJustificationToLeft();
+  tprop->SetVerticalJustificationToBottom();
+
+  tprop = this->TextMapper[1]->GetTextProperty();
+  tprop->SetJustificationToRight();
+  tprop->SetVerticalJustificationToBottom();
+        
+  tprop = this->TextMapper[2]->GetTextProperty();
+  tprop->SetJustificationToLeft();
+  tprop->SetVerticalJustificationToTop();
+        
+  tprop = this->TextMapper[3]->GetTextProperty();
+  tprop->SetJustificationToRight();
+  tprop->SetVerticalJustificationToTop();
 }
 
 //----------------------------------------------------------------------------
