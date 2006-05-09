@@ -26,7 +26,8 @@ static unsigned char HigherOrderCell[][depth] = {
     { VTK_TETRA, VTK_QUADRATIC_TETRA, VTK_NUMBER_OF_CELL_TYPES,
       VTK_NUMBER_OF_CELL_TYPES, VTK_NUMBER_OF_CELL_TYPES },
     { VTK_HEXAHEDRON, VTK_QUADRATIC_HEXAHEDRON,
-      VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON, VTK_TRIQUADRATIC_HEXAHEDRON, VTK_NUMBER_OF_CELL_TYPES },
+      VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON, VTK_TRIQUADRATIC_HEXAHEDRON,
+      VTK_NUMBER_OF_CELL_TYPES },
     { VTK_WEDGE, VTK_QUADRATIC_WEDGE, VTK_QUADRATIC_LINEAR_WEDGE,
       VTK_BIQUADRATIC_QUADRATIC_WEDGE, VTK_NUMBER_OF_CELL_TYPES },
     { VTK_PYRAMID, VTK_QUADRATIC_PYRAMID, VTK_NUMBER_OF_CELL_TYPES,
@@ -80,7 +81,7 @@ int CompareHigherOrderCell(vtkCell *c1, vtkCell *c2)
      || pt1[1] != pt2[1]
      || pt1[2] != pt2[2])
       {
-      cerr << "Problem with points coord:" << 
+      cerr << "Problem with points coord:" <<
         pt1[0] << "," << pt1[1] << "," << pt1[2]
         << " != " <<
         pt2[0] << "," << pt2[1] << "," << pt2[2]
@@ -109,8 +110,9 @@ int TestHigherOrderCell(int , char *[])
   for( unsigned int i = 0; i < nCells; ++i)
     {
     orderCell = HigherOrderCell[i];
-    //cerr << "Higher : " << (int)orderCell[0] << "," << (int)orderCell[1] << ","
-    //  << (int)orderCell[2] << "," << (int)orderCell[3] << "," << (int)orderCell[4] << endl;
+    //cerr << "Higher : " << (int)orderCell[0] << "," << (int)orderCell[1]
+    // << "," << (int)orderCell[2] << "," << (int)orderCell[3] << ","
+    // << (int)orderCell[4] << endl;
     for( unsigned int c = 0; c < depth; ++c)
       {
       const int cellType = orderCell[c];
@@ -118,7 +120,7 @@ int TestHigherOrderCell(int , char *[])
       InitializeACell( cellArray[c] );
       }
     vtkCell *linCell = cellArray[0]; // this is the reference linear cell
-    //vtkCell *quadCell = cellArray[1]; // this is the reference quadratic cell (serendipity)
+    vtkCell *quadCell = cellArray[1]; // this is the reference quadratic cell (serendipity)
     //const int numPts   = linCell->GetNumberOfPoints();
     const int numEdges = linCell->GetNumberOfEdges();
     const int numFaces = linCell->GetNumberOfFaces();
@@ -160,10 +162,14 @@ int TestHigherOrderCell(int , char *[])
           cerr << "Doing Edge: #" << e << " comp:" << linCell->GetCellType() << " vs "
             << cell->GetCellType() << endl;
           rval += CompareHigherOrderCell(c1, c2);
-          //vtkCell *qc1 = quadCell->GetEdge(e);
-          //cerr << "Doing Edge: #" << e << " comp:" << quadCell->GetCellType() << " vs "
-          //  << cell->GetCellType() << endl;
-          //rval += CompareHigherOrderCell(qc1, c2);
+          vtkCell *qc1 = quadCell->GetEdge(e);
+          cerr << "Doing Edge: #" << e << " comp:" << quadCell->GetCellType() << " vs "
+            << cell->GetCellType() << endl;
+          if( cell->GetCellType() != VTK_QUADRATIC_LINEAR_QUAD
+           && cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE)
+            {
+            rval += CompareHigherOrderCell(qc1, c2);
+            }
           }
         // Make sure that face across all different cell are identical
         for(int f=0; f<numFaces; ++f)
@@ -173,10 +179,14 @@ int TestHigherOrderCell(int , char *[])
           cerr << "Doing Face: #" << f << " comp:" << linCell->GetCellType() << " vs "
             << cell->GetCellType() << endl;
           rval += CompareHigherOrderCell(f1, f2);
-          //vtkCell *qf1 = quadCell->GetFace(f);
-          //cerr << "Doing Face: #" << f << " comp:" << quadCell->GetCellType() << " vs "
-          //  << cell->GetCellType() << endl;
-          //rval += CompareHigherOrderCell(qf1, f2);
+          vtkCell *qf1 = quadCell->GetFace(f);
+          cerr << "Doing Face: #" << f << " comp:" << quadCell->GetCellType() << " vs "
+            << cell->GetCellType() << endl;
+          if( cell->GetCellType() != VTK_QUADRATIC_LINEAR_QUAD
+           && cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE)
+            {
+            rval += CompareHigherOrderCell(qf1, f2);
+            }
           }
         }
       }
