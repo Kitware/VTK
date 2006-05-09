@@ -166,7 +166,7 @@ int TestHigherOrderCell(int , char *[])
           cerr << "Doing Edge: #" << e << " comp:" << quadCell->GetCellType() << " vs "
             << cell->GetCellType() << endl;
           if( cell->GetCellType() != VTK_QUADRATIC_LINEAR_QUAD
-           && cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE)
+              && cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE)
             {
             rval += CompareHigherOrderCell(qc1, c2);
             }
@@ -178,7 +178,10 @@ int TestHigherOrderCell(int , char *[])
           vtkCell *f2 = cell->GetFace(f);
           cerr << "Doing Face: #" << f << " comp:" << linCell->GetCellType() << " vs "
             << cell->GetCellType() << endl;
-          rval += CompareHigherOrderCell(f1, f2);
+          if( cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE)
+            {
+            rval += CompareHigherOrderCell(f1, f2);
+            }
           vtkCell *qf1 = quadCell->GetFace(f);
           cerr << "Doing Face: #" << f << " comp:" << quadCell->GetCellType() << " vs "
             << cell->GetCellType() << endl;
