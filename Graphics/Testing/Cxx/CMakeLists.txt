@@ -26,6 +26,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       MeshQuality.cxx
       TestHierarchicalBoxPipeline.cxx
       TestMultiBlock.cxx
+      TestUnstructuredGridGeometryFilter.cxx
       UnstructuredGridGradients.cxx
       UnstructuredGridCellGradients.cxx
       )
