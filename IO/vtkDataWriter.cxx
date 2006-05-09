@@ -36,7 +36,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.110");
+vtkCxxRevisionMacro(vtkDataWriter, "1.111");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -1256,6 +1256,15 @@ void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Texture Coordinates Name: (None)\n";
+    }
+
+  if ( this->GlobalIdsName )
+    {
+    os << indent << "Global Ids Name: " << this->GlobalIdsName << "\n";
+    }
+  else
+    {
+    os << indent << "Global Ids Name: (None)\n";
     }
 
   if ( this->LookupTableName )

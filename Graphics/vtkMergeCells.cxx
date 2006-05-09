@@ -41,7 +41,7 @@
 #include <vtkstd/map>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkMergeCells, "1.4");
+vtkCxxRevisionMacro(vtkMergeCells, "1.5");
 vtkStandardNewMacro(vtkMergeCells);
 
 vtkCxxSetObjectMacro(vtkMergeCells, UnstructuredGrid, vtkUnstructuredGrid);
@@ -944,5 +944,7 @@ void vtkMergeCells::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UnstructuredGrid: " << this->UnstructuredGrid << endl;
   os << indent << "ptList: " << this->ptList << endl;
   os << indent << "cellList: " << this->cellList << endl;
+  os << indent << "UseGlobalIds: " << this->UseGlobalIds << endl;
+  os << indent << "UseGlobalCellIds: " << this->UseGlobalCellIds << endl;
 }
 
