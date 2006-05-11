@@ -26,7 +26,7 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.11");
+vtkCxxRevisionMacro(vtkContourWidget, "1.12");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -256,7 +256,10 @@ void vtkContourWidget::DeleteAction(vtkAbstractWidget *w)
   
   if ( self->WidgetState == vtkContourWidget::Define )
     {
-    rep->DeleteLastNode();
+    if (rep->DeleteLastNode())
+      {
+      self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+      }
     }
   else
     {
