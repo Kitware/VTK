@@ -20,7 +20,7 @@
 #include "vtkInteractorObserver.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkObserverMediator, "1.5");
+vtkCxxRevisionMacro(vtkObserverMediator, "1.6");
 vtkStandardNewMacro(vtkObserverMediator);
 
 // PIMPL the map representing the observer (key) to cursor request
@@ -79,50 +79,40 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int reques
     return 0;
     }
 
-  // Cull out the trivial cases when setting to default cursor
-  if ( requestedShape == VTK_CURSOR_DEFAULT )
+  // First remove previous requests from the map. Note we have to use our own
+  // special version of find() because the sorting of the map using the function
+  // vtkObserverCompare() screws up the usual find().
+  ObserverMapIterator iter = this->ObserverMap->begin();
+  for ( ; iter != this->ObserverMap->end(); ++iter )
     {
-    if ( !this->CurrentObserver || this->CurrentCursorShape == VTK_CURSOR_DEFAULT )
-      {
-      return 0; //nothing has changed
-      }
-    if ( w == this->CurrentObserver && requestedShape != this->CurrentCursorShape )
-      {
-      this->CurrentCursorShape = VTK_CURSOR_DEFAULT;
-      this->ObserverMap->erase(w);
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
-      return 1;
-      }
-    return 0;
-    }
-
-  // For some strange reason this code causes problems. The SetCurrentCursor() method
-  // must be called for every move or the cursor reverts back to default.
-//   if ( w == this->CurrentObserver && requestedShape == this->CurrentCursorShape )
-//     {
-//     return 0;
-//     }
-
-  // Place request in map if non-default
-  ObserverMapIterator iter = this->ObserverMap->find(w);
-  if ( iter != this->ObserverMap->end() )
-    {//found something, see if request has changed. If so, erase it and reinsert into map.
-    if ( (*iter).second != requestedShape )
+    if ( (*iter).first == w )
       {
       this->ObserverMap->erase(iter);
+      break;
       }
     }
-  (*this->ObserverMap)[w] = requestedShape;
 
-  // Get the item with the highest priority off of the queue
-  if ( ! this->ObserverMap->empty() )
+  // Now see whether we have to set to the default cursor, or add the latest request.
+  if ( this->ObserverMap->empty() && requestedShape == VTK_CURSOR_DEFAULT &&
+       this->CurrentCursorShape != VTK_CURSOR_DEFAULT )
     {
-    iter = this->ObserverMap->end();
-    --iter; //this is the observer with the highest priority
-    this->Interactor->GetRenderWindow()->SetCurrentCursor((*iter).second);
-    this->CurrentObserver = (*iter).first;
-    this->CurrentCursorShape = (*iter).second;
+    this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
+    this->CurrentCursorShape = VTK_CURSOR_DEFAULT;
     return 1;
+    }
+  else if ( requestedShape != VTK_CURSOR_DEFAULT )
+    {
+    (*this->ObserverMap)[w] = requestedShape;
+  
+    // Find the highest priority and set that
+    if ( ! this->ObserverMap->empty() )
+      {
+      iter = this->ObserverMap->end();
+      --iter; //this is the observer with the highest priority
+      this->Interactor->GetRenderWindow()->SetCurrentCursor((*iter).second);
+      this->CurrentCursorShape = (*iter).second;
+      return 1;
+      }
     }
   
   return 0;
@@ -133,10 +123,14 @@ void vtkObserverMediator::RemoveAllCursorShapeRequests(vtkInteractorObserver *w)
 {
   if (w)
     {
-    ObserverMapIterator iter = this->ObserverMap->find(w);
-    if (iter != this->ObserverMap->end())
+    ObserverMapIterator iter = this->ObserverMap->begin();
+    for ( ; iter != this->ObserverMap->end(); ++iter )
       {
-      this->ObserverMap->erase(iter);
+      if ( (*iter).first == w )
+        {
+        this->ObserverMap->erase(iter);
+        break;
+        }
       }
     }
 }
