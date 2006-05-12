@@ -169,6 +169,13 @@ public:
   vtkBooleanMacro(ScaleEnabled,int);
 
   // Description:
+  // Turn on/off the ability to translate the bounding box by grabbing it
+  // with the left mouse button.
+  vtkSetMacro(OriginTranslation,int);
+  vtkGetMacro(OriginTranslation,int);
+  vtkBooleanMacro(OriginTranslation,int);
+
+  // Description:
   // By default the arrow is 30% of the diagonal length. DiagonalRatio control
   // this ratio in the interval [0-2]
   vtkSetClampMacro(DiagonalRatio,double,0,2);
@@ -194,7 +201,7 @@ public:
   // Description:
   // Satisfies the superclass API.  This will change the state of the widget
   // to match changes that have been made to the underlying PolyDataSource
-  void UpdatePlacement(void);
+  void UpdatePlacement();
 
   // Description:
   // Control widget appearance
@@ -314,6 +321,7 @@ protected:
   vtkSphereSource   *Sphere;
   vtkPolyDataMapper *SphereMapper;
   vtkActor          *SphereActor;
+  int OriginTranslation; //whether the origin (sphere) can be moved
 
   // Do the picking
   vtkCellPicker *Picker;

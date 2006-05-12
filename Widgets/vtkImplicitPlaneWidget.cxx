@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.7");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.8");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 //----------------------------------------------------------------------------
@@ -130,6 +130,7 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->SphereMapper->SetInput(this->Sphere->GetOutput());
   this->SphereActor = vtkActor::New();
   this->SphereActor->SetMapper(this->SphereMapper);
+  this->OriginTranslation = 1;
 
   this->Transform = vtkTransform::New();
 
@@ -438,6 +439,8 @@ void vtkImplicitPlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
      << (this->NormalToZAxis ? "On" : "Off") << "\n";
 
   os << indent << "Tubing: " << (this->Tubing ? "On" : "Off") << "\n";
+  os << indent << "Origin Translation: "
+     << (this->OriginTranslation ? "On" : "Off") << "\n";
   os << indent << "Outline Translation: "
      << (this->OutlineTranslation ? "On" : "Off") << "\n";
   os << indent << "Outside Bounds: "
@@ -543,8 +546,11 @@ void vtkImplicitPlaneWidget::OnLeftButtonDown()
     }
   else if ( prop == this->SphereActor )
     {
-    this->HighlightNormal(1);
-    this->State = vtkImplicitPlaneWidget::MovingOrigin;
+    if ( this->OriginTranslation )
+      {
+      this->HighlightNormal(1);
+      this->State = vtkImplicitPlaneWidget::MovingOrigin;
+      }
     }
   else
     {
