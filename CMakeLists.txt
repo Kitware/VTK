@@ -1407,7 +1407,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
   # Install cmake extensions so user projects can load them.
   INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES
-    ${VTK_CMAKE_DIR}/vtkLoadCMakeExtensions.cmake 
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cmake
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.h.in
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cxx.in)
