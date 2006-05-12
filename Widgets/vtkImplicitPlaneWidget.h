@@ -169,7 +169,7 @@ public:
   vtkBooleanMacro(ScaleEnabled,int);
 
   // Description:
-  // Turn on/off the ability to translate the bounding box by grabbing it
+  // Turn on/off the ability to translate the origin (sphere)
   // with the left mouse button.
   vtkSetMacro(OriginTranslation,int);
   vtkGetMacro(OriginTranslation,int);
