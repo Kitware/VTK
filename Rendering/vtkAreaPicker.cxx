@@ -36,28 +36,8 @@
 #include "vtkPoints.h"
 #include "vtkFrustumExtractor.h"
 
-vtkCxxRevisionMacro(vtkAreaPicker, "1.10");
+vtkCxxRevisionMacro(vtkAreaPicker, "1.11");
 vtkStandardNewMacro(vtkAreaPicker);
-
-//--------------------------------------------------------------------------
-void vtkAreaPicker::SetRenderer(vtkRenderer *renderer)
-{
-  this->Renderer = renderer;
-}
-//--------------------------------------------------------------------------
-void vtkAreaPicker::SetPickCoords(double x0, double y0, double x1, double y1)
-{
-  this->X0 = x0;
-  this->Y0 = y0;
-  this->X1 = x1;
-  this->Y1 = y1;
-}
-//--------------------------------------------------------------------------
-int vtkAreaPicker::Pick()
-{
-  return 
-    this->AreaPick(this->X0, this->Y0, this->X1, this->Y1, this->Renderer);
-}
 
 //--------------------------------------------------------------------------
 vtkAreaPicker::vtkAreaPicker()
@@ -98,6 +78,26 @@ void vtkAreaPicker::Initialize()
 }
 
 //--------------------------------------------------------------------------
+void vtkAreaPicker::SetRenderer(vtkRenderer *renderer)
+{
+  this->Renderer = renderer;
+}
+//--------------------------------------------------------------------------
+void vtkAreaPicker::SetPickCoords(double x0, double y0, double x1, double y1)
+{
+  this->X0 = x0;
+  this->Y0 = y0;
+  this->X1 = x1;
+  this->Y1 = y1;
+}
+//--------------------------------------------------------------------------
+int vtkAreaPicker::Pick()
+{
+  return 
+    this->AreaPick(this->X0, this->Y0, this->X1, this->Y1, this->Renderer);
+}
+
+//--------------------------------------------------------------------------
 // Does what this class is meant to do.
 int vtkAreaPicker::AreaPick(double x0, double y0, double x1, double y1, 
                             vtkRenderer *renderer)
@@ -132,56 +132,56 @@ int vtkAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
 //--------------------------------------------------------------------------
 //Converts the given screen rectangle into a selection frustum.
 //Saves the results in ClipPoints and Frustum.
-void vtkAreaPicker::DefineFrustum(double X0, double Y0, double X1, double Y1, 
+void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1, 
                                   vtkRenderer *renderer)
 {
-  double x0 = (X0 < X1) ? X0 : X1;
-  double y0 = (Y0 < Y1) ? Y0 : Y1;
-  double x1 = (X0 > X1) ? X0 : X1;
-  double y1 = (Y0 > Y1) ? Y0 : Y1;
+  this->X0 = (x0 < x1) ? x0 : x1;
+  this->Y0 = (y0 < y1) ? y0 : y1;
+  this->X1 = (x0 > x1) ? x0 : x1;
+  this->Y1 = (y0 > y1) ? y0 : y1;
 
-  if (x0 == x1)
+  if (this->X0 == this->X1)
     {
-    x0 -= 0.5;
-    x1 += 0.5;
+    this->X0 -= 0.5;
+    this->X1 += 0.5;
     }
-  if (y0 == y1)
+  if (this->Y0 == this->Y1)
     {
-    y0 -= 0.5;
-    y1 += 0.5;
+    this->Y0 -= 0.5;
+    this->Y1 += 0.5;
     }
 
   //compute world coordinates of the pick volume 
   double verts[32];
-  renderer->SetDisplayPoint(x0, y0, 0);
+  renderer->SetDisplayPoint(this->X0, this->Y0, 0);
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(&verts[0]);
 
-  renderer->SetDisplayPoint(x0, y0, 1);
+  renderer->SetDisplayPoint(this->X0, this->Y0, 1);
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(&verts[4]);
 
-  renderer->SetDisplayPoint(x0, y1, 0);
+  renderer->SetDisplayPoint(this->X0, this->Y1, 0);
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(&verts[8]);
 
-  renderer->SetDisplayPoint(x0, y1, 1);
+  renderer->SetDisplayPoint(this->X0, this->Y1, 1);
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(&verts[12]);
 
-  renderer->SetDisplayPoint(x1, y0, 0);
+  renderer->SetDisplayPoint(this->X1, this->Y0, 0);
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(&verts[16]);
 
-  renderer->SetDisplayPoint(x1, y0, 1);
+  renderer->SetDisplayPoint(this->X1, this->Y0, 1);
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(&verts[20]);
 
-  renderer->SetDisplayPoint(x1, y1, 0);
+  renderer->SetDisplayPoint(this->X1, this->Y1, 0);
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(&verts[24]);
   
-  renderer->SetDisplayPoint(x1, y1, 1);
+  renderer->SetDisplayPoint(this->X1, this->Y1, 1);
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(&verts[28]);    
     
