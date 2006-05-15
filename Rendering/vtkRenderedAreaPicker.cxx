@@ -36,7 +36,7 @@
 #include "vtkPoints.h"
 #include "vtkFrustumExtractor.h"
 
-vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.3");
+vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.4");
 vtkStandardNewMacro(vtkRenderedAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -54,11 +54,11 @@ vtkRenderedAreaPicker::~vtkRenderedAreaPicker()
 int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1, 
                                     vtkRenderer *renderer)
 {
- int rc = 0;
- vtkProp *propCandidate;
- vtkImageActor *imageActor = NULL;
- vtkAbstractMapper3D *mapper = NULL;
- int pickable;
+  int rc = 0;
+  vtkProp *propCandidate;
+  vtkImageActor *imageActor = NULL;
+  vtkAbstractMapper3D *mapper = NULL;
+  int pickable;
 
   //  Initialize picking process
   this->Initialize();

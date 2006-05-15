@@ -61,16 +61,28 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Set the default screen rectangle to pick in.
+  void SetPickCoords(double x0, double y0, double x1, double y1);
+  
+  // Description:
+  // Set the default renderer to pick on.
+  void SetRenderer(vtkRenderer *);
+
+  // Description:
+  // Perform an AreaPick within the default screen rectangle and renderer.
+  virtual int Pick();
+
+  // Description:
   // Perform pick operation in volume behind the given screen coordinates.
   // Props intersecting the selection frustum will be accesible via GetProp3D.
   // GetPlanes returns a vtkImplicitFunciton suitable for vtkExtractGeometry.
-  virtual int AreaPick(double x0, double y0, double x1, double y1, vtkRenderer *renderer);
+  virtual int AreaPick(double x0, double y0, double x1, double y1, vtkRenderer *renderer = NULL);
 
   // Description:
   // Perform pick operation in volume behind the given screen coordinate.
   // This makes a thin frustum around the selected pixel.
   // Note: this ignores Z in order to pick everying in a volume from z=0 to z=1.
-  virtual int Pick(double x0, double y0, double vtkNotUsed(z0), vtkRenderer *renderer)
+  virtual int Pick(double x0, double y0, double vtkNotUsed(z0), vtkRenderer *renderer = NULL)
     {return this->AreaPick(x0-0.5, y0-0.5, x0+0.5, y0+0.5, renderer);};
 
   // Description:
@@ -117,6 +129,12 @@ protected:
 
   //used internally to do prop intersection tests
   vtkFrustumExtractor *FrustumExtractor;
+
+  double X0;
+  double Y0;
+  double X1;
+  double Y1;
+
 private:
   vtkAreaPicker(const vtkAreaPicker&);  // Not implemented.
   void operator=(const vtkAreaPicker&);  // Not implemented.

@@ -36,8 +36,28 @@
 #include "vtkPoints.h"
 #include "vtkFrustumExtractor.h"
 
-vtkCxxRevisionMacro(vtkAreaPicker, "1.8");
+vtkCxxRevisionMacro(vtkAreaPicker, "1.9");
 vtkStandardNewMacro(vtkAreaPicker);
+
+//--------------------------------------------------------------------------
+void vtkAreaPicker::SetRenderer(vtkRenderer *renderer)
+{
+  this->Renderer = renderer;
+}
+//--------------------------------------------------------------------------
+void vtkAreaPicker::SetPickCoords(double x0, double y0, double x1, double y1)
+{
+  this->X0 = x0;
+  this->Y0 = y0;
+  this->X1 = x1;
+  this->Y1 = y1;
+}
+//--------------------------------------------------------------------------
+int vtkAreaPicker::Pick()
+{
+  return 
+    this->AreaPick(this->X0, this->Y0, this->X1, this->Y1, this->Renderer);
+}
 
 //--------------------------------------------------------------------------
 vtkAreaPicker::vtkAreaPicker()
@@ -52,6 +72,11 @@ vtkAreaPicker::vtkAreaPicker()
   this->Prop3Ds = vtkProp3DCollection::New();
   this->Mapper = NULL;
   this->DataSet = NULL;
+
+  this->X0 = 0.0;
+  this->Y0 = 0.0;
+  this->X1 = 0.0;
+  this->Y1 = 0.0;
 }
 
 //--------------------------------------------------------------------------
@@ -78,23 +103,30 @@ int vtkAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
                             vtkRenderer *renderer)
 {
   this->Initialize();
-  this->Renderer = renderer;
+  this->X0 = x0;
+  this->Y0 = y0;
+  this->X1 = x1;
+  this->Y1 = y1;
+  if (renderer)
+    {
+    this->Renderer = renderer;
+    }
 
-  this->SelectionPoint[0] = (x0+x1)*0.5;
-  this->SelectionPoint[1] = (x0+x1)*0.5;
+  this->SelectionPoint[0] = (this->X0+this->X1)*0.5;
+  this->SelectionPoint[1] = (this->Y0+this->Y1)*0.5;
   this->SelectionPoint[2] = 0.0;
 
   this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
 
-  if ( renderer == NULL )
+  if ( this->Renderer == NULL )
     {
     vtkErrorMacro(<<"Must specify renderer!");
     return 0;
     }
 
-  this->DefineFrustum(x0, y0, x1, y1, renderer);
+  this->DefineFrustum(this->X0, this->Y0, this->X1, this->Y1, this->Renderer);
 
-  return this->PickProps(renderer);  
+  return this->PickProps(this->Renderer);  
 }
 
 //--------------------------------------------------------------------------
@@ -234,6 +266,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
             if ( ! this->Prop3Ds->IsItemPresent(prop) )
               {
               this->Prop3Ds->AddItem((vtkProp3D *)prop);
+              cerr << "picked a mapper" << endl;
               if (dist < mindist) //new nearest, remember it
                 {
                 mindist = dist;
@@ -272,6 +305,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
             if ( ! this->Prop3Ds->IsItemPresent(prop) )
               {
               this->Prop3Ds->AddItem(imageActor);
+              cerr << "picked an imageactor" << endl;
               if (dist < mindist) //new nearest, remember it
                 {
                 mindist = dist;
