@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.8");
+vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.9");
 vtkStandardNewMacro(vtkBiDimensionalWidget);
 
 
@@ -62,15 +62,25 @@ vtkBiDimensionalWidget::vtkBiDimensionalWidget()
   this->WidgetState = vtkBiDimensionalWidget::Start;
   this->CurrentHandle = 0;
 
+  // Manage priorities, we want the handles to be lower priority
+  if ( this->Priority <= 0.0 )
+    {
+    this->Priority = 0.01;
+    }
+
   // The widgets for moving the end points. They observe this widget (i.e.,
   // this widget is the parent to the handles).
   this->Point1Widget = vtkHandleWidget::New();
+  this->Point1Widget->SetPriority(this->Priority-0.01);
   this->Point1Widget->SetParent(this);
   this->Point2Widget = vtkHandleWidget::New();
+  this->Point2Widget->SetPriority(this->Priority-0.01);
   this->Point2Widget->SetParent(this);
   this->Point3Widget = vtkHandleWidget::New();
+  this->Point3Widget->SetPriority(this->Priority-0.01);
   this->Point3Widget->SetParent(this);
   this->Point4Widget = vtkHandleWidget::New();
+  this->Point4Widget->SetPriority(this->Priority-0.01);
   this->Point4Widget->SetParent(this);
 
   // Set up the callbacks on the two handles
