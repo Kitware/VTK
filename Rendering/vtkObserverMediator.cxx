@@ -20,7 +20,7 @@
 #include "vtkInteractorObserver.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkObserverMediator, "1.6");
+vtkCxxRevisionMacro(vtkObserverMediator, "1.7");
 vtkStandardNewMacro(vtkObserverMediator);
 
 // PIMPL the map representing the observer (key) to cursor request
@@ -32,7 +32,28 @@ struct vtkObserverCompare
 {
   bool operator()(vtkInteractorObserver* w1, vtkInteractorObserver* w2) const
   {
-    return (w1->GetPriority() < w2->GetPriority());
+    float p1 = w1->GetPriority();
+    float p2 = w2->GetPriority();
+    
+    if ( p1 < p2 )
+      {
+      return true;
+      }
+    else if ( p1 == p2 )
+      {
+      if ( w1 < w2 )
+        {
+        return true;
+        }
+      else
+        {
+        return false;
+        }
+      }
+    else
+      {
+      return false;
+      }
   }
 };
 
@@ -78,7 +99,7 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int reques
     {
     return 0;
     }
-
+  
   // First remove previous requests from the map. Note we have to use our own
   // special version of find() because the sorting of the map using the function
   // vtkObserverCompare() screws up the usual find().
