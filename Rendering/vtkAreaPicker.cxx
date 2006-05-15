@@ -36,7 +36,7 @@
 #include "vtkPoints.h"
 #include "vtkFrustumExtractor.h"
 
-vtkCxxRevisionMacro(vtkAreaPicker, "1.9");
+vtkCxxRevisionMacro(vtkAreaPicker, "1.10");
 vtkStandardNewMacro(vtkAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -266,7 +266,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
             if ( ! this->Prop3Ds->IsItemPresent(prop) )
               {
               this->Prop3Ds->AddItem((vtkProp3D *)prop);
-              cerr << "picked a mapper" << endl;
+              //cerr << "picked a mapper" << endl;
               if (dist < mindist) //new nearest, remember it
                 {
                 mindist = dist;
@@ -305,7 +305,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
             if ( ! this->Prop3Ds->IsItemPresent(prop) )
               {
               this->Prop3Ds->AddItem(imageActor);
-              cerr << "picked an imageactor" << endl;
+              //cerr << "picked an imageactor" << endl;
               if (dist < mindist) //new nearest, remember it
                 {
                 mindist = dist;
