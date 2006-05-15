@@ -35,7 +35,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.4");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -56,8 +56,12 @@ void vtkOpenGLPainterDeviceAdapter::PrintSelf(ostream &os, vtkIndent indent)
 
 //-----------------------------------------------------------------------------
 
+// This array is a map from VTK primitive identifiers (VTK_VERTEX, VTK_LINE,
+// etc.) to OpenGL polygon primitive identifiers (GL_POINTS, GL_LINES, etc.)
+// Note that some VTK polygon types (e.g. VTK_EMPTY_CELL and VTK_PIXEL) have no
+// analogue in OpenGL.  Using them will undoubtedly result in an OpenGL error.
 static const GLenum VTK2OpenGLPrimitive[] = {
-  0xFFFF,               // 0 - VTK_EMPTY_CELL
+  (GLenum)0xFFFF,       // 0 - VTK_EMPTY_CELL
   GL_POINTS,            // 1 - VTK_VERTEX
   GL_POINTS,            // 2 - VTK_POLY_VERTEX
   GL_LINES,             // 3 - VTK_LINE
@@ -65,10 +69,9 @@ static const GLenum VTK2OpenGLPrimitive[] = {
   GL_TRIANGLES,         // 5 - VTK_TRIANGLE
   GL_TRIANGLE_STRIP,    // 6 - VTK_TRIANGLE_STRIP
   GL_POLYGON,           // 7 - VTK_POLYGON
-  0xFFFF,               // 8 - VTK_PIXEL
+  (GLenum)0xFFFF,       // 8 - VTK_PIXEL
   GL_QUADS,             // 9 - VTK_QUAD
   GL_LINE_LOOP          // 10 - VTK_TETRA
-    // Hack: Ask Ken about this.....
 };
 
 static inline GLenum VTK2OpenGLType(int type)
