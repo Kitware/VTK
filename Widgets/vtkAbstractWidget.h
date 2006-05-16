@@ -95,6 +95,14 @@ public:
       return this->WidgetRep;
     }
   
+  // Description:
+  // Turn on or off the management of the cursor. Some classes (like
+  // handles) the managing of the cursor may be taken over by an
+  // owning superclass.
+  vtkSetMacro(ManagesCursor,int);
+  vtkGetMacro(ManagesCursor,int);
+  vtkBooleanMacro(ManagesCursor,int);
+
 protected:
   vtkAbstractWidget();
   ~vtkAbstractWidget();
