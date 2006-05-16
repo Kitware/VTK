@@ -737,7 +737,12 @@ void vtkTclCommand::Execute(vtkObject *, unsigned long, void *)
 void vtkTclApplicationInitExecutable(int vtkNotUsed(argc),
                                      const char* const argv[])
 {
-  vtkstd::string av0 = vtksys::SystemTools::CollapseFullPath(argv[0]);
+  vtkstd::string av0 = argv[0];
+
+  if (vtksys::SystemTools::FileIsFullPath(argv[0]))
+    {
+    av0 = vtksys::SystemTools::CollapseFullPath(argv[0]);
+    }
   Tcl_FindExecutable(av0.c_str());
 }
 
