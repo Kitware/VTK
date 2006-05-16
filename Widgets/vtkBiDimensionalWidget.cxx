@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.9");
+vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.10");
 vtkStandardNewMacro(vtkBiDimensionalWidget);
 
 
@@ -57,7 +57,7 @@ public:
 //----------------------------------------------------------------------
 vtkBiDimensionalWidget::vtkBiDimensionalWidget()
 {
-  this->ManagesCursor = 0;
+  this->ManagesCursor = 1;
 
   this->WidgetState = vtkBiDimensionalWidget::Start;
   this->CurrentHandle = 0;
@@ -73,22 +73,28 @@ vtkBiDimensionalWidget::vtkBiDimensionalWidget()
   this->Point1Widget = vtkHandleWidget::New();
   this->Point1Widget->SetPriority(this->Priority-0.01);
   this->Point1Widget->SetParent(this);
+  this->Point1Widget->ManagesCursorOff();
+
   this->Point2Widget = vtkHandleWidget::New();
   this->Point2Widget->SetPriority(this->Priority-0.01);
   this->Point2Widget->SetParent(this);
+  this->Point2Widget->ManagesCursorOff();
+
   this->Point3Widget = vtkHandleWidget::New();
   this->Point3Widget->SetPriority(this->Priority-0.01);
   this->Point3Widget->SetParent(this);
+  this->Point3Widget->ManagesCursorOff();
+
   this->Point4Widget = vtkHandleWidget::New();
   this->Point4Widget->SetPriority(this->Priority-0.01);
   this->Point4Widget->SetParent(this);
+  this->Point4Widget->ManagesCursorOff();
+
 
   // Set up the callbacks on the two handles
   this->BiDimensionalWidgetCallback1 = vtkBiDimensionalWidgetCallback::New();
   this->BiDimensionalWidgetCallback1->BiDimensionalWidget = this;
   this->Point1Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback1, 
-                                  this->Priority);
-  this->Point1Widget->AddObserver(vtkCommand::InteractionEvent, this->BiDimensionalWidgetCallback1,
                                   this->Priority);
   this->Point1Widget->AddObserver(vtkCommand::EndInteractionEvent, this->BiDimensionalWidgetCallback1,
                                   this->Priority);
@@ -96,8 +102,6 @@ vtkBiDimensionalWidget::vtkBiDimensionalWidget()
   this->BiDimensionalWidgetCallback2 = vtkBiDimensionalWidgetCallback::New();
   this->BiDimensionalWidgetCallback2->BiDimensionalWidget = this;
   this->Point2Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback2, 
-                                  this->Priority);
-  this->Point2Widget->AddObserver(vtkCommand::InteractionEvent, this->BiDimensionalWidgetCallback2,
                                   this->Priority);
   this->Point2Widget->AddObserver(vtkCommand::EndInteractionEvent, this->BiDimensionalWidgetCallback2,
                                   this->Priority);
@@ -107,8 +111,6 @@ vtkBiDimensionalWidget::vtkBiDimensionalWidget()
   this->BiDimensionalWidgetCallback3->BiDimensionalWidget = this;
   this->Point3Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback3, 
                                   this->Priority);
-  this->Point3Widget->AddObserver(vtkCommand::InteractionEvent, this->BiDimensionalWidgetCallback3,
-                                  this->Priority);
   this->Point3Widget->AddObserver(vtkCommand::EndInteractionEvent, this->BiDimensionalWidgetCallback3,
                                   this->Priority);
 
@@ -116,8 +118,6 @@ vtkBiDimensionalWidget::vtkBiDimensionalWidget()
   this->BiDimensionalWidgetCallback4 = vtkBiDimensionalWidgetCallback::New();
   this->BiDimensionalWidgetCallback4->BiDimensionalWidget = this;
   this->Point4Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback4, 
-                                  this->Priority);
-  this->Point4Widget->AddObserver(vtkCommand::InteractionEvent, this->BiDimensionalWidgetCallback4,
                                   this->Priority);
   this->Point4Widget->AddObserver(vtkCommand::EndInteractionEvent, this->BiDimensionalWidgetCallback4,
                                   this->Priority);
