@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 
 
-vtkCxxRevisionMacro(vtkHandleWidget, "1.4");
+vtkCxxRevisionMacro(vtkHandleWidget, "1.5");
 vtkStandardNewMacro(vtkHandleWidget);
 
 //----------------------------------------------------------------------------------
@@ -76,13 +76,16 @@ void vtkHandleWidget::CreateDefaultRepresentation()
 //-------------------------------------------------------------------------
 void vtkHandleWidget::SetCursor(int cState)
 {
-  switch (cState)
+  if ( this->ManagesCursor )
     {
-    case vtkHandleRepresentation::Outside:
-      this->RequestCursorShape(VTK_CURSOR_DEFAULT);
-      break;
-    default:
-      this->RequestCursorShape(VTK_CURSOR_HAND);
+    switch (cState)
+      {
+      case vtkHandleRepresentation::Outside:
+        this->RequestCursorShape(VTK_CURSOR_DEFAULT);
+        break;
+      default:
+        this->RequestCursorShape(VTK_CURSOR_HAND);
+      }
     }
 }
 
