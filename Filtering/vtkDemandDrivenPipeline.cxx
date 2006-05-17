@@ -45,7 +45,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.43");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.44");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -516,6 +516,8 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request,
                                                vtkInformationVector** inInfo,
                                                vtkInformationVector* outputs)
 {
+  int i;
+
   // Ask the algorithm to mark outputs that it will not generate.
   request->Remove(REQUEST_DATA());
   request->Set(REQUEST_DATA_NOT_GENERATED());
@@ -525,7 +527,7 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request,
   request->Set(REQUEST_DATA());
 
   // Prepare outputs that will be generated to receive new data.
-  for(int i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
+  for(i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
     {
     vtkInformation* outInfo = outputs->GetInformationObject(i);
     vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
@@ -533,6 +535,25 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request,
       {
       data->PrepareForNewData();
       data->CopyInformationFromPipeline(request);
+      }
+    }
+
+  // Pass the vtkDataObject's field data from the first input to all
+  // outputs.
+  if (this->GetNumberOfInputPorts() > 0)
+    {
+    vtkDataObject* input = this->GetInputData(0, 0);
+    if (input && input->GetFieldData())
+      {
+      for(i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
+        {
+        vtkInformation* outInfo = outputs->GetInformationObject(i);
+        vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+        if(output)
+          {
+          output->GetFieldData()->PassData(input->GetFieldData());
+          }
+        }
       }
     }
 
