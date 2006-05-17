@@ -127,6 +127,10 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentGeometry(vtkViewport*);
 
+  // Description:
+  // Override GetMTime to include point coordinates
+  virtual unsigned long GetMTime();
+
 protected:
   vtkSliderRepresentation3D();
   ~vtkSliderRepresentation3D();

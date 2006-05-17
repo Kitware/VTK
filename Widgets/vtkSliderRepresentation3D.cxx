@@ -39,7 +39,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.5");
+vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.6");
 vtkStandardNewMacro(vtkSliderRepresentation3D);
 
 //----------------------------------------------------------------------
@@ -413,6 +413,22 @@ void vtkSliderRepresentation3D::Highlight(int highlight)
     }
 }
 
+
+//----------------------------------------------------------------------
+// Description:
+// Override GetMTime to include point coordinates
+unsigned long vtkSliderRepresentation3D::GetMTime()
+{
+  unsigned long mTime = this->Superclass::GetMTime();
+  unsigned long p1Time, p2Time;
+
+  p1Time = this->Point1Coordinate->GetMTime();
+  mTime = ( p1Time > mTime ? p1Time : mTime );
+  p2Time = this->Point1Coordinate->GetMTime();
+  mTime = ( p2Time > mTime ? p2Time : mTime );
+
+  return mTime;
+}
 
 //----------------------------------------------------------------------
 void vtkSliderRepresentation3D::BuildRepresentation()
