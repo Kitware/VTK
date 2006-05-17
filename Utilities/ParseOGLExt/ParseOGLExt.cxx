@@ -526,18 +526,14 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
        iextension != extensions.end(); iextension++)
     {
     if (iextension->type != type) continue;
-    hfile << "  //Definitions for " << iextension->name.c_str() << endl;
+    hfile << endl << "  //Definitions for " << iextension->name.c_str() << endl;
     vtkstd::map<Extension, vtkstd::list<Constant> >::iterator cExts
       = consts.find(*iextension);
     if (cExts != consts.end())
       {
-      hfile << "  enum " << cExts->first.name.c_str() << "_consts {" << endl;
-      bool wroteFirst = false;
-
       for (vtkstd::list<Constant>::iterator iconst = cExts->second.begin();
            iconst != cExts->second.end(); iconst++)
         {
-
         // New versions of the NVIDIA OpenGL headers for Linux can
         // #define the same constant with the same value in multiple
         // sections.  This utility will happily parse those and write
@@ -549,16 +545,8 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
                                                               iconst->value ) )
              == ConstantsAlreadyWritten.end() )
           {
-          if (wroteFirst)
-            {
-            hfile << "," << endl;
-            }
-          else
-            {
-            wroteFirst = true;
-            }
-          hfile << "    " << iconst->name.c_str() << " = "
-                << iconst->value.c_str();
+          hfile << "  const GLenum " << iconst->name.c_str()
+                << " = (GLenum) " << iconst->value.c_str() << ";" << endl;
 
           ConstantsAlreadyWritten.insert( vtkstd::make_pair( iconst->name, 
                                                              iconst->value ) );
@@ -566,11 +554,10 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
           }
         else
           {
-          hfile << "/* skipping duplicate " << iconst->name.c_str()
+          hfile << "  /* skipping duplicate " << iconst->name.c_str()
                 << " = " << iconst->value.c_str() << " */" << endl;
           }
         }
-      hfile << endl << "  };" << endl;
       }
     vtkstd::map<Extension, vtkstd::list<Typedef> >::iterator tExts
       = types.find(*iextension);
