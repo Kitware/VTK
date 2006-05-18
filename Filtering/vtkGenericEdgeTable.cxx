@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.10");
+vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.11");
 vtkStandardNewMacro(vtkGenericEdgeTable);
 
 static int PRIME_NUMBERS[] = {1, 3, 7, 13, 31, 61, 127,  251,  509,  1021,
@@ -31,7 +31,7 @@ vtkGenericEdgeTable::PointEntry::PointEntry(int size)
 {
   assert("pre: positive_number_of_components" && size>0);
   this->Reference = -10;
-  
+
   this->Coord[0]  = -100;
   this->Coord[1]  = -100;
   this->Coord[2]  = -100;
@@ -71,6 +71,7 @@ void vtkEdgeTablePoints::Resize(vtkIdType newSize)
   // For now you are not supposed to use this method
   assert( 0 );
 }
+
 //-----------------------------------------------------------------------------
 void vtkEdgeTablePoints::LoadFactor()
 {
@@ -284,10 +285,6 @@ void vtkGenericEdgeTable::InsertEdge(vtkIdType e1, vtkIdType e2,
   vect.push_back( newEntry );
 }
 
-// A special care was done to try if there was any speed issue with
-// using a const iterator vs a direct access
-#define USE_CONST_ITERATOR 1
-
 //-----------------------------------------------------------------------------
 // Try to remove an edge, in fact decrement the ref count
 int vtkGenericEdgeTable::RemoveEdge(vtkIdType e1, vtkIdType e2)
@@ -303,21 +300,17 @@ int vtkGenericEdgeTable::RemoveEdge(vtkIdType e1, vtkIdType e2)
 
   //Need to check size first
   vtkEdgeTableEdge::VectorEdgeTableType &vect = this->EdgeTable->Vector[pos];
-  
-  //Need to check size again
-  //v.erase(v.begin() + index);
+
   int found = 0;
-  
-#if !USE_CONST_ITERATOR
+
   vtkEdgeTableEdge::VectorEdgeTableType::iterator it;
-  for(it = vect.begin(); it != vect.end(); ++it)
+  for(it = vect.begin(); it != vect.end(); )
   {
-    //EdgeEntry &ent = *it;
     if( it->E1 == e1 && it->E2 == e2 )
       {
       if( --it->Reference == 0 )
         {
-        // Ok this edge is about to be physically remove, remove also the point
+        // Ok this edge is about to be physically removed, remove also the point
         // is contained, if one:
         if( it->ToSplit )
           {
@@ -325,37 +318,20 @@ int vtkGenericEdgeTable::RemoveEdge(vtkIdType e1, vtkIdType e2)
 
           this->RemovePoint( it->PtId );
           }
-        //vect.erase(vect.begin() + index);
-        vect.erase( it );
         }
       found = 1;
       ref = it->Reference;
       }
-  }
-#else
-  int vectsize = vect.size();
-  for (int index=0; index<vectsize; index++) 
-    {
-    EdgeEntry &ent = vect[index];
-    if( (ent.E1 == e1) && (ent.E2 == e2))
-      {
-      if(--ent.Reference == 0) 
-        {
-        // Ok this edge is about to be physically remove, remove also the point
-        // is contained, if one:
-        if(ent.ToSplit)
-          {
-          assert("check: positive id" && ent.PtId >= 0 );
 
-          this->RemovePoint(ent.PtId);
-          }
-        vect.erase(vect.begin() + index);
-        }
-      found = 1;
-      ref = ent.Reference;
+    if( it->E1 == e1 && it->E2 == e2 && it->Reference == 0 )
+      {
+      it = vect.erase( it );
       }
-    }
-#endif
+    else
+      {
+      ++it;
+      }
+  }
 
   if( !found )
     {
@@ -664,7 +640,6 @@ void vtkGenericEdgeTable::InsertPoint(vtkIdType ptId, double point[3])
 //-----------------------------------------------------------------------------
 void vtkGenericEdgeTable::RemovePoint(vtkIdType ptId)
 {
-  unsigned int index;
   int found = 0;
   vtkIdType pos = this->HashFunction(ptId);
 
@@ -678,16 +653,24 @@ void vtkGenericEdgeTable::RemovePoint(vtkIdType ptId)
 
   //vtkDebugMacro( << "Remove Point:" << ptId << ":" << vect.size() );
 
-  for (index=0; index<vect.size(); index++) 
+  vtkEdgeTablePoints::VectorPointTableType::iterator it;
+  for (it= vect.begin(); it!= vect.end(); ) 
     {
-    PointEntry &ent = vect[index];
+    PointEntry &ent = *it;
+
     if( ent.PointId == ptId )
       {
-      if(--ent.Reference == 0 )
-        {
-        vect.erase(vect.begin() + index);
-        }
+      --ent.Reference;
       found = 1;
+      }
+
+    if( ent.PointId == ptId && ent.Reference == 0 )
+      {
+      it = vect.erase(it);
+      }
+    else
+      {
+      ++it;
       }
     }
 
@@ -805,4 +788,3 @@ void vtkGenericEdgeTable::LoadFactor()
   this->EdgeTable->LoadFactor();
   this->HashPoints->LoadFactor();
 }
-
