@@ -1255,10 +1255,6 @@ IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
   ENDIF(VTK_USE_RENDERING)
 ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
 
-IF(VTK_USE_TK)
-  INCLUDE(${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkDetermineTkResources.cmake)
-ENDIF(VTK_USE_TK)
-
 IF(VTK_INCLUDE_NEED_TK)
   # Need Tk headers and libraries for python TK widgets
   IF(NOT VTK_WRAP_TCL)
@@ -1273,6 +1269,11 @@ IF(VTK_INCLUDE_NEED_TK)
     MARK_AS_ADVANCED(TK_XLIB_PATH)
   ENDIF(WIN32)
 ENDIF(VTK_INCLUDE_NEED_TK)
+
+IF(VTK_USE_TK)
+  INCLUDE(${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkDetermineTkResources.cmake)
+ENDIF(VTK_USE_TK)
+
 
 # Need Tk internal headers for Tk initialization.
 
