@@ -230,7 +230,8 @@ public:
   // This function returns the font size required to fit the string in the
   // target rectangle
   int GetConstrainedFontSize(const char *str, vtkTextProperty *tprop,
-                             int targetWidth, int targetHeight);
+                             double orientation, int targetWidth,
+                             int targetHeight);
 
   // Description:
   // Internal method that justifies individual lines of text

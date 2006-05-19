@@ -32,7 +32,7 @@
 #include "vtkTexture.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.34");
+vtkCxxRevisionMacro(vtkTextActor, "1.35");
 vtkStandardNewMacro(vtkTextActor);
 vtkCxxSetObjectMacro(vtkTextActor,Texture,vtkTexture);
 
@@ -43,10 +43,7 @@ vtkTextActor::vtkTextActor()
   // position coord to Viewport, not Normalized Viewport
   // so...compute equivalent coords for initial position
   this->PositionCoordinate->SetCoordinateSystemToViewport();
-  
-  this->AdjustedPositionCoordinate = vtkCoordinate::New();
-  this->AdjustedPositionCoordinate->SetCoordinateSystemToViewport();
-
+    
   // This intializes the rectangle structure.
   // It will be used to display the text image as a texture map.
   this->Rectangle = vtkPolyData::New();
@@ -108,10 +105,6 @@ vtkTextActor::vtkTextActor()
   this->Input = 0;
   this->InputRendered = false;
 
-  this->FormerJustification[0] = VTK_TEXT_LEFT;
-  this->FormerJustification[1] = VTK_TEXT_BOTTOM;
-  this->FormerCoordinateSystem = VTK_VIEWPORT;
-  this->FormerLineOffset = 0.0;
   this->FormerOrientation = 0.0;
 
   this->FreeTypeUtilities = vtkFreeTypeUtilities::GetInstance();
@@ -125,7 +118,6 @@ vtkTextActor::vtkTextActor()
 vtkTextActor::~vtkTextActor()
 {
   this->ImageData->Delete();
-  this->AdjustedPositionCoordinate->Delete();
   this->Transform->Delete();
   this->SetTextProperty(NULL);
   if(this->Input)
@@ -285,52 +277,20 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     {
     return 0;
     }
-
-  //if PositionCoordinate has changed use its new value in
-  //AdjustedPositionCoordinate.
-  if(this->PositionCoordinate->GetMTime() >
-     this->AdjustedPositionCoordinate->GetMTime())
-    {
-    this->AdjustedPositionCoordinate->SetValue(
-      this->PositionCoordinate->GetValue());
-    this->FormerJustification[0] = VTK_TEXT_LEFT;
-    this->FormerJustification[1] = VTK_TEXT_BOTTOM;
-    this->FormerLineOffset = 0.0;
-    }
-
-  //Check that PositionCoordinate and AdjustedPositionCoordinate are
-  //using the same CoordinateSystem
-  int positionSystem = this->PositionCoordinate->GetCoordinateSystem();
-  int adjustedSystem = this->AdjustedPositionCoordinate->GetCoordinateSystem();
-  if(positionSystem != adjustedSystem)
-    {
-    if(adjustedSystem == this->FormerCoordinateSystem)
-      {
-      this->AdjustedPositionCoordinate->SetCoordinateSystem(positionSystem);
-      this->FormerCoordinateSystem = positionSystem;
-      }
-    else
-      {
-      this->PositionCoordinate->SetCoordinateSystem(adjustedSystem);
-      this->FormerCoordinateSystem = adjustedSystem;
-      }
-    //at this point FormerCoordinateSystem is also the current CoordinateSystem
-    }
-
-  int size[2];
-  int *point1, *point2;
-  point1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
-  point2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
-  size[0] = point2[0] - point1[0];
-  size[1] = point2[1] - point1[1];
-  double adjustedPos[3];
   
   //Scaled text case.  We need to be sure that our text will fit
   //inside the specified boundaries
   if(this->ScaledText)
     {
+    int size[2], *point1, *point2;
+    point1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
+    point2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
+    size[0] = point2[0] - point1[0];
+    size[1] = point2[1] - point1[1];
+
     // Check to see whether we have to rebuild everything
     int positionsHaveChanged = 0;
+    int orientationHasChanged = 0;
     if (viewport->GetMTime() > this->BuildTime ||
         (viewport->GetVTKWindow() &&
          viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
@@ -343,9 +303,19 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
         positionsHaveChanged = 1;
         }
       }
+
+    // If the orientation has changed then we'll probably need to change our
+    // constrained font size as well
+    if(this->FormerOrientation != this->Orientation)
+      {
+      this->Transform->Identity();
+      this->Transform->RotateZ(this->Orientation);
+      this->FormerOrientation = this->Orientation;
+      orientationHasChanged = 1;
+      }
     
     // Check to see whether we have to rebuild everything
-    if (positionsHaveChanged ||
+    if (positionsHaveChanged || orientationHasChanged ||
         this->GetMTime() > this->BuildTime ||
         this->Mapper->GetMTime() > this->BuildTime ||
         this->TextProperty->GetMTime() > this->BuildTime)
@@ -361,7 +331,8 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       if (this->Mapper->GetMTime() > this->BuildTime ||
           this->TextProperty->GetMTime() > this->BuildTime ||
           this->LastSize[0] < size[0] - 1 || this->LastSize[1] < size[1] - 1 ||
-          this->LastSize[0] > size[0] + 1 || this->LastSize[1] > size[1] + 1)
+          this->LastSize[0] > size[0] + 1 || this->LastSize[1] > size[1] + 1 ||
+          orientationHasChanged)
         {
         this->LastSize[0] = size[0];
         this->LastSize[1] = size[1];
@@ -378,7 +349,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
         int max_height = (int)(this->MaximumLineHeight * (float)size[1]);
 
         int fsize = this->FreeTypeUtilities->GetConstrainedFontSize(
-          this->Input, this->TextProperty, size[0],
+          this->Input, this->TextProperty, this->Orientation, size[0],
           (size[1] < max_height ? size[1] : max_height));
           
         // apply non-linear scaling
@@ -395,7 +366,9 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
   if(this->TextProperty->GetMTime() > this->BuildTime || 
      !this->InputRendered || this->GetMTime() > this->BuildTime)
     {
-    this->ComputeRectangle();
+    //justification and line offset are handled in ComputeRectangle
+    this->ComputeRectangle(viewport);
+    this->BuildTime.Modified();
     }
     
   //check if we need to render the string
@@ -408,140 +381,10 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       vtkErrorMacro(<<"Failed rendering text to buffer");
       return 0;
       }
-    
     this->Texture->SetInput(this->ImageData);
     this->InputRendered = true;
     this->BuildTime.Modified();
     }    
-
-  //handle justification & vertical justification
-  if(this->FormerJustification[0] !=
-      this->TextProperty->GetJustification() ||
-      this->FormerJustification[1] !=
-      this->TextProperty->GetVerticalJustification())
-    {
-    if(this->FormerCoordinateSystem == VTK_USERDEFINED)
-      {
-      vtkErrorMacro(<<"user defined system, cannot handle justification");
-      }
-    else
-      {
-      int textSize[2] = {-1, -1};
-      float descender = -1;
-      this->FreeTypeUtilities->GetWidthHeightDescender(this->Input,
-                                                      this->TextProperty,
-                                                      &textSize[0],
-                                                      &textSize[1],
-                                                      &descender);
-      this->AdjustedPositionCoordinate->GetValue(adjustedPos);
-      this->SpecifiedToDisplay(
-        adjustedPos, viewport, this->FormerCoordinateSystem);
-      if(this->FormerOrientation != this->TextProperty->GetOrientation())
-        {
-        this->Transform->Identity();
-        this->Transform->RotateZ(this->TextProperty->GetOrientation());
-        this->FormerOrientation = this->TextProperty->GetOrientation();
-        }
-      double changeVector[3];
-      switch(this->TextProperty->GetJustification())
-        {
-        case VTK_TEXT_RIGHT:
-          changeVector[0] = textSize[0];
-          changeVector[1] = 0;
-          changeVector[2] = 0;
-          this->Transform->TransformPoint(changeVector, changeVector);
-          changeVector[0] = floor(changeVector[0] + 0.5);
-          changeVector[1] = floor(changeVector[1] + 0.5);
-          adjustedPos[0] -= changeVector[0];
-          adjustedPos[1] -= changeVector[1];
-          break;
-        case VTK_TEXT_CENTERED:
-          changeVector[0] = textSize[0] / 2;
-          changeVector[1] =  0;
-          changeVector[2] = 0;
-          this->Transform->TransformPoint(changeVector, changeVector);
-          changeVector[0] = floor(changeVector[0] + 0.5);
-          changeVector[1] = floor(changeVector[1] + 0.5);
-          adjustedPos[0] -= changeVector[0];
-          adjustedPos[1] -= changeVector[1];
-          break;
-        case VTK_TEXT_LEFT:
-          break;
-        }
-      
-      switch(this->TextProperty->GetVerticalJustification())
-        {
-        case VTK_TEXT_TOP:
-          changeVector[0] = 0;
-          changeVector[1] = textSize[1] - descender;
-          changeVector[2] = 0;
-          this->Transform->TransformPoint(changeVector, changeVector);
-          changeVector[0] = floor(changeVector[0] + 0.5);
-          changeVector[1] = floor(changeVector[1] + 0.5);
-          adjustedPos[0] -= changeVector[0];
-          adjustedPos[1] -= changeVector[1];
-          break;
-        case VTK_TEXT_CENTERED:
-          changeVector[0] = 0;
-          changeVector[1] = textSize[1] / 2 - descender / 2;
-          changeVector[2] = 0;
-          this->Transform->TransformPoint(changeVector, changeVector);
-          changeVector[0] = floor(changeVector[0] + 0.5);
-          changeVector[1] = floor(changeVector[1] + 0.5);
-          adjustedPos[0] -= changeVector[0];
-          adjustedPos[1] -= changeVector[1];
-          break;
-        case VTK_TEXT_BOTTOM:
-          break;
-        }
-      
-      this->DisplayToSpecified(adjustedPos,
-                                viewport,
-                                this->FormerCoordinateSystem);
-      this->AdjustedPositionCoordinate->SetValue(adjustedPos);
-      this->FormerJustification[0] =
-        this->TextProperty->GetJustification();
-      this->FormerJustification[1] =
-        this->TextProperty->GetVerticalJustification();
-      }
-    this->BuildTime.Modified();
-    }
-
-  //handle line offset
-  if(this->FormerLineOffset != this->TextProperty->GetLineOffset())
-    {
-    if(this->FormerCoordinateSystem == VTK_USERDEFINED)
-      {
-      vtkErrorMacro(<<"user defined system, cannot handle lineoffset");
-      }
-    else
-      {
-      this->GetActualPositionCoordinate()->GetValue(adjustedPos);
-      this->SpecifiedToDisplay(adjustedPos,
-                                viewport,
-                                this->FormerCoordinateSystem);
-      double changeVector[3] = {0, this->TextProperty->GetLineOffset(), 0};
-      if(this->FormerOrientation != this->TextProperty->GetOrientation())
-        {
-        this->Transform->Identity();
-        this->Transform->RotateZ(this->TextProperty->GetOrientation());
-        this->FormerOrientation = this->TextProperty->GetOrientation();
-        }
-      this->Transform->TransformPoint(changeVector, changeVector);
-      changeVector[0] = floor(changeVector[0] + 0.5);
-      changeVector[1] = floor(changeVector[1] + 0.5);
-
-      adjustedPos[0] -= changeVector[0];
-      adjustedPos[1] -= changeVector[1];
-
-      this->DisplayToSpecified(adjustedPos,
-                                viewport,
-                                this->FormerCoordinateSystem);
-      this->GetActualPositionCoordinate()->SetValue(adjustedPos);
-      this->FormerLineOffset = this->TextProperty->GetLineOffset();
-      }
-    this->BuildTime.Modified();
-    }
 
   // Everything is built, just have to render
   return this->vtkActor2D::RenderOpaqueGeometry(viewport);
@@ -649,7 +492,7 @@ void vtkTextActor::SetAlignmentPoint(int val)
 }
   
 // ----------------------------------------------------------------------------
-void vtkTextActor::ComputeRectangle() 
+void vtkTextActor::ComputeRectangle(vtkViewport *viewport) 
 {
   int dims[3];
   this->RectanglePoints->Reset();
@@ -669,51 +512,122 @@ void vtkTextActor::ComputeRectangle()
   double s = sin(radians);
   double xo, yo;
   double x, y;
+  double maxWidth, maxHeight;
   xo = yo = 0.0;
-  // I could get rid of "GetAlignmentPoint" and use justification directly.
-  switch (this->GetAlignmentPoint())
+  maxWidth = maxHeight = 0;
+  // In ScaledText mode we justify text based on the rectangle formed by
+  // Position & Position2 coordinates
+  if(this->ScaledText)
     {
-    case 0:
-      break;
-    case 1:
-      xo = -(double)(dims[0]) * 0.5;
-      break;
-    case 2:
-      xo = -(double)(dims[0]);
-      break;
-    case 3:
-      yo = -(double)(dims[1]) * 0.5;
-      break;
-    case 4:
-      yo = -(double)(dims[1]) * 0.5;
-      xo = -(double)(dims[0]) * 0.5;
-      break;
-    case 5:
-      yo = -(double)(dims[1]) * 0.5;
-      xo = -(double)(dims[0]);
-      break;
-    case 6:
-      yo = -(double)(dims[1]);
-      break;
-    case 7:
-      yo = -(double)(dims[1]);
-      xo = -(double)(dims[0]) * 0.5;
-      break;
-    case 8:
-      yo = -(double)(dims[1]);
-      xo = -(double)(dims[0]);
-      break;
-    default:
-      vtkErrorMacro(<< "Bad alignment point value.");
+    double position1[3], position2[3];
+    this->PositionCoordinate->GetValue(position1);
+    this->Position2Coordinate->GetValue(position2);
+    this->SpecifiedToDisplay(position1, viewport,
+                             this->PositionCoordinate->GetCoordinateSystem());
+    this->SpecifiedToDisplay(position2, viewport,
+                             this->Position2Coordinate->GetCoordinateSystem());
+    maxWidth = position2[0] - position1[0];
+    maxHeight = position2[1] - position1[1];
+    // I could get rid of "GetAlignmentPoint" and use justification directly.
+    switch(this->GetAlignmentPoint())
+      {
+      case 0:
+        break;
+      case 1:
+        xo = (double)(maxWidth - dims[0]) * 0.5;
+        break;
+      case 2:
+        xo = (double)(maxWidth - dims[0]);
+        break;
+      case 3:
+        yo = (double)(maxHeight - dims[1]) * 0.5;
+        break;
+      case 4:
+        xo = (double)(maxWidth - dims[0]) * 0.5;
+        yo = (double)(maxHeight - dims[1]) * 0.5;
+        break;
+      case 5:
+        xo = (double)(maxWidth - dims[0]);
+        yo = (double)(maxHeight - dims[1]) * 0.5;
+        break;
+      case 6:
+        yo = (double)(maxHeight - dims[1]);
+        break;
+      case 7:
+        xo = (double)(maxWidth - dims[0]) * 0.5;
+        yo = (double)(maxHeight - dims[1]);
+        break;
+      case 8:
+        xo = (double)(maxWidth - dims[0]);
+        yo = (double)(maxHeight - dims[1]);
+        break;
+      default:
+        vtkErrorMacro(<< "Bad alignment point value.");
+      }
+    //handle line offset.  make sure we stay within the bounds defined by
+    //position1 & position2
+    double offset = this->TextProperty->GetLineOffset();
+    if( (yo + offset + dims[1]) > maxHeight)
+      {
+      yo = maxHeight - dims[1];
+      }
+    else if( (yo + offset ) < 0)
+      {
+      yo = 0;
+      } 
+    else
+      {
+      yo += offset;
+      }
     }
-  
+  else
+    {
+    // I could get rid of "GetAlignmentPoint" and use justification directly.
+    switch (this->GetAlignmentPoint())
+      {
+      case 0:
+        break;
+      case 1:
+        xo = -(double)(dims[0]) * 0.5;
+        break;
+      case 2:
+        xo = -(double)(dims[0]);
+        break;
+      case 3:
+        yo = -(double)(dims[1]) * 0.5;
+        break;
+      case 4:
+        yo = -(double)(dims[1]) * 0.5;
+        xo = -(double)(dims[0]) * 0.5;
+        break;
+      case 5:
+        yo = -(double)(dims[1]) * 0.5;
+        xo = -(double)(dims[0]);
+        break;
+      case 6:
+        yo = -(double)(dims[1]);
+        break;
+      case 7:
+        yo = -(double)(dims[1]);
+        xo = -(double)(dims[0]) * 0.5;
+        break;
+      case 8:
+        yo = -(double)(dims[1]);
+        xo = -(double)(dims[0]);
+        break;
+      default:
+        vtkErrorMacro(<< "Bad alignment point value.");
+      }
+    // handle line offset
+    yo += this->TextProperty->GetLineOffset();
+    } //end unscaled text case  
   x = xo; y = yo;      
   this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
   x = xo; y = yo + (double)(dims[1]);      
   this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
   x = xo + (double)(dims[0]); y = yo + (double)(dims[1]);      
   this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
-  x = xo + (double)(dims[0]); y = yo;      
+  x = xo + (double)(dims[0]); y = yo;
   this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
 }
 

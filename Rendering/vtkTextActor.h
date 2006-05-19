@@ -119,13 +119,6 @@ public:
   vtkGetMacro(Orientation,float);
 
   // Description:
-  // Return the actual vtkCoordinate reference that the mapper should use
-  // to position the actor. This is used internally by the mappers and should
-  // be overridden in specialized subclasses and otherwise ignored.
-  vtkCoordinate *GetActualPositionCoordinate(void)
-    { return this->AdjustedPositionCoordinate; }
-
-  // Description:
   // Set/Get the text property.
   virtual void SetTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
@@ -183,7 +176,6 @@ protected:
   int     ScaledText;
   float   Orientation;
 
-  vtkCoordinate *AdjustedPositionCoordinate;
   vtkTextProperty *TextProperty;
   vtkImageData *ImageData;
   // This used to be "Mapper" but I changed it to PDMapper because
@@ -196,9 +188,6 @@ protected:
   int LastOrigin[2];
   char *Input;
   bool InputRendered;
-  int FormerJustification[2];
-  double FormerLineOffset;
-  int FormerCoordinateSystem;
   double FormerOrientation;
 
   // Stuff needed to display the image text as a texture map.
@@ -206,7 +195,7 @@ protected:
   vtkPoints*   RectanglePoints;
   vtkTexture *Texture; 
   
-  void ComputeRectangle(); 
+  void ComputeRectangle(vtkViewport *viewport); 
 
   // Set/Get the texture object to control rendering texture maps.  This will
   // be a vtkTexture object. An actor does not need to have an associated

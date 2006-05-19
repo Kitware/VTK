@@ -39,7 +39,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.25");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.26");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -839,24 +839,20 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
     }
   
   // Initialize bbox to some large values
-
   bbox[0] = bbox[2] = VTK_INT_MAX;
   bbox[1] = bbox[3] = VTK_INT_MIN;
 
   // No string to render, bail out now
-
   if (!str)
     {
     return 1;
     }
 
   // Map the text property to a unique id that will be used as face id
-
   unsigned long tprop_cache_id;
   this->MapTextPropertyToId(tprop, &tprop_cache_id);
 
   // Get the face
-
   FT_Face face;
   if (!this->GetFace(tprop_cache_id, &face))
     {
@@ -938,8 +934,8 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
       continue;
       }
     *itr = *str;
-    // Get the glyph as a bitmap
 
+    // Get the glyph as a bitmap
     if (!this->GetGlyph(tprop_cache_id, 
                         tprop->GetFontSize(), 
                         gindex, 
@@ -955,7 +951,8 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
 
     if (bitmap->width && bitmap->rows)
       {
-      // Starting position given the bearings
+      // Starting position given the bearings.  Move the pen to the upper-left
+      // extent of this character.
 
       // Substract 1 to the bearing Y, because this is the vertical distance
       // from the glyph origin (0,0) to the topmost pixel of the glyph bitmap
@@ -983,26 +980,15 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
         {
         bbox[0] = pen_x;
         }
-      if (pen_x > bbox[1])
-        {
-        bbox[1] = pen_x;
-        }
-      if (pen_y < bbox[2])
-        {
-        bbox[2] = pen_y;
-        }
       if (pen_y > bbox[3])
         {
         bbox[3] = pen_y;
         }
-
+      // now move the pen to the lower-right corner of this character and
+      // update the bounding box if appropriate
       pen_x += bitmap->width;
       pen_y -= bitmap->rows;
 
-      if (pen_x < bbox[0])
-        {
-        bbox[0] = pen_x;
-        }
       if (pen_x > bbox[1])
         {
         bbox[1] = pen_x;
@@ -1010,22 +996,16 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
       if (pen_y < bbox[2])
         {
         bbox[2] = pen_y;
-        }
-      if (pen_y > bbox[3])
-        {
-        bbox[3] = pen_y;
         }
       }
 
     // Advance to next char
-
     x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
     itr++;
     }
 
   // Margin for shadow
-
   if (tprop->GetShadow() && this->IsBoundingBoxValid(bbox))
     {
     int shadowOffset[2];
@@ -1849,6 +1829,7 @@ void vtkFreeTypeUtilities::PrepareImageData(vtkImageData *data,
 //this code borrows liberally from vtkTextMapper::SetConstrainedFontSize
 int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
                                                  vtkTextProperty *tprop,
+                                                 double orientation,
                                                  int targetWidth,
                                                  int targetHeight)
 {
@@ -1857,13 +1838,25 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
     {
     return 0;
     }
+
   int fontSize = tprop->GetFontSize();
 
+  vtkTransform *transform = vtkTransform::New();
+  transform->Identity();
+  transform->RotateZ(orientation);
+
   // Use the given size as a first guess
-  int width = 0;
+  double size[3];
+  size[2] = 0.0;
   int height = 0;
+  int width = 0;
   float notUsed = 0;
   this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
+  size[0] = (double)width;
+  size[1] = (double)height;
+  transform->TransformPoint(size, size);
+  size[0] = floor(size[0] + 0.5);
+  size[1] = floor(size[1] + 0.5);
   
   // Now get an estimate of the target font size using bissection
   // Based on experimentation with big and small font size increments,
@@ -1873,33 +1866,49 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
   // I guess the best optim would be to have a look at the shape of the
   // font size growth curve (probably not that linear)
 
-  if (width && height)
+  if (size[0] != 0 && size[1] != 0)
     {
-    float fx = (float)targetWidth / (float)width;
-    float fy = (float)targetHeight / (float)height;
+    float fx = (float)targetWidth / (float)size[0];
+    float fy = (float)targetHeight / (float)size[1];
     fontSize = (int)ceil((float)fontSize * ((fx <= fy) ? fx : fy));
     tprop->SetFontSize(fontSize);
     this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
+    size[0] = (double)width;
+    size[1] = (double)height;
+    transform->TransformPoint(size, size);
+    size[0] = floor(size[0] + 0.5);
+    size[1] = floor(size[1] + 0.5);
     }
 
   // While the size is too small increase it
-  while (height <= targetHeight &&
-         width <= targetWidth && 
+  while (size[1] <= targetHeight &&
+         size[0] <= targetWidth && 
          fontSize < 100)
     {
     fontSize++;
     tprop->SetFontSize(fontSize);
     this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
+    size[0] = (double)width;
+    size[1] = (double)height;
+    transform->TransformPoint(size, size);
+    size[0] = floor(size[0] + 0.5);
+    size[1] = floor(size[1] + 0.5);
     }
 
   // While the size is too large decrease it
-  while ((height > targetHeight || width > targetWidth) 
+  while ((size[1] > targetHeight || size[0] > targetWidth) 
          && fontSize > 0)
     {
     fontSize--;
     tprop->SetFontSize(fontSize);
     this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
+    size[0] = (double)width;
+    size[1] = (double)height;
+    transform->TransformPoint(size, size);
+    size[0] = floor(size[0] + 0.5);
+    size[1] = floor(size[1] + 0.5);
     }
+  transform->Delete();
   return fontSize;
 }
 
