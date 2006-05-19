@@ -46,7 +46,7 @@ public:
 
   // Description:
   // Satisfy the superclasses API.
-  virtual double GetDistance() 
+  virtual double GetDistance()
     {return this->Distance;}
 
   // Description:
@@ -61,7 +61,7 @@ public:
   void GetPoint2DisplayPosition(double pos[3]);
 
   // Description:
-  // Retrieve the vtkAxisActor2D used to draw the measurement axis. With this 
+  // Retrieve the vtkAxisActor2D used to draw the measurement axis. With this
   // properties can be set and so on.
   vtkAxisActor2D *GetAxis();
 
@@ -82,7 +82,7 @@ protected:
   // Add a line to the mix
   vtkAxisActor2D *AxisActor;
   vtkProperty2D  *AxisProperty;
-  
+
   // The distance between the two points
   double Distance;
 

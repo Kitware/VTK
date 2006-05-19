@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkDistanceRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkDistanceRepresentation, "1.3");
 vtkCxxSetObjectMacro(vtkDistanceRepresentation,HandleRepresentation,vtkHandleRepresentation);
 
 
@@ -36,7 +36,7 @@ vtkDistanceRepresentation::vtkDistanceRepresentation()
   this->Tolerance = 5;
   this->Placed = 0;
   
-  this->LabelFormat = new char[8]; 
+  this->LabelFormat = new char[8];
   sprintf(this->LabelFormat,"%s","%-#6.3g");
 }
 

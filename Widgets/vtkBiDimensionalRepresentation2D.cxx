@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.11");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.12");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -51,10 +51,10 @@ vtkBiDimensionalRepresentation2D::vtkBiDimensionalRepresentation2D()
 
   this->Tolerance = 5;
   this->Placed = 0;
-  
+
   this->Line1Visibility = 1;
   this->Line2Visibility = 1;
-  
+
   // Create the geometry for the two axes
   this->LineCells = vtkCellArray::New();
   this->LineCells->InsertNextCell(2);
@@ -96,6 +96,9 @@ vtkBiDimensionalRepresentation2D::vtkBiDimensionalRepresentation2D()
   this->L2TextActor = vtkActor2D::New();
   this->L2TextActor->SetMapper(this->L2TextMapper);
   this->L2TextActor->VisibilityOff();
+
+  this->LabelFormat = new char[6];
+  sprintf(this->LabelFormat,"%s","%0.3g");
 }
 
 //----------------------------------------------------------------------
@@ -134,6 +137,7 @@ vtkBiDimensionalRepresentation2D::~vtkBiDimensionalRepresentation2D()
   this->L2TextMapper->Delete();
   this->L1TextActor->Delete();
   this->L2TextActor->Delete();
+  this->SetLabelFormat(0);
 }
 
 //----------------------------------------------------------------------
@@ -633,7 +637,8 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
     this->LinePoints->SetPoint(3,p4);
     this->LinePoints->Modified();
 
-    sprintf(str,"%0.3g",sqrt(vtkMath::Distance2BetweenPoints(wp1,wp2)));
+    sprintf(str,this->LabelFormat,
+      sqrt(vtkMath::Distance2BetweenPoints(wp1,wp2)));
     this->L1TextMapper->SetInput(str);
     this->L1TextActor->SetPosition(p2[0]+7,p2[1]+7);
 
@@ -644,7 +649,8 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
 
     if ( this->Line2Visibility )
       {
-      sprintf(str,"%0.3g",sqrt(vtkMath::Distance2BetweenPoints(wp3,wp4)));
+      sprintf(str,this->LabelFormat,
+        sqrt(vtkMath::Distance2BetweenPoints(wp3,wp4)));
       this->L2TextMapper->SetInput(str);
       this->L2TextActor->SetPosition(p4[0]+7,p4[1]+7);
       this->LineCells->InsertNextCell(2);

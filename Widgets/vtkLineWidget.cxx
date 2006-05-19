@@ -35,9 +35,10 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.1");
+vtkCxxRevisionMacro(vtkLineWidget, "1.2");
 vtkStandardNewMacro(vtkLineWidget);
 
+//----------------------------------------------------------------------------
 // This class is used to coordinate the interaction between the point widget
 // at the center of the line and the line widget. When the line is selected
 // (as compared to the handles), a point widget appears at the selection
@@ -45,7 +46,7 @@ vtkStandardNewMacro(vtkLineWidget);
 class vtkPWCallback : public vtkCommand
 {
 public:
-  static vtkPWCallback *New() 
+  static vtkPWCallback *New()
     { return new vtkPWCallback; }
   virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
     {
@@ -58,12 +59,13 @@ public:
   vtkPointWidget *PointWidget;
 };
 
+//----------------------------------------------------------------------------
 // This class is used to coordinate the interaction between the point widget
 // (point 1) and the line widget.
 class vtkPW1Callback : public vtkCommand
 {
 public:
-  static vtkPW1Callback *New() 
+  static vtkPW1Callback *New()
     { return new vtkPW1Callback; }
   virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
     {
@@ -76,12 +78,13 @@ public:
   vtkPointWidget *PointWidget;
 };
 
+//----------------------------------------------------------------------------
 // This class is used to coordinate the interaction between the point widget
 // (point 2) and the line widget.
 class vtkPW2Callback : public vtkCommand
 {
 public:
-  static vtkPW2Callback *New() 
+  static vtkPW2Callback *New()
     { return new vtkPW2Callback; }
   virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
     {
@@ -94,13 +97,14 @@ public:
   vtkPointWidget *PointWidget;
 };
 
+//----------------------------------------------------------------------------
 // Begin the definition of the vtkLineWidget methods
 //
 vtkLineWidget::vtkLineWidget()
 {
   this->State = vtkLineWidget::Start;
   this->EventCallbackCommand->SetCallback(vtkLineWidget::ProcessEvents);
-  
+
   this->Align = vtkLineWidget::XAxis;
 
   //Build the representation of the widget
@@ -127,7 +131,7 @@ vtkLineWidget::vtkLineWidget()
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(this->HandleMapper[i]);
     }
-  
+
   // Define the point coordinates
   double bounds[6];
   bounds[0] = -0.5;
@@ -155,12 +159,12 @@ vtkLineWidget::vtkLineWidget()
   this->LinePicker->SetTolerance(0.005); //need some fluff
   this->LinePicker->AddPickList(this->LineActor);
   this->LinePicker->PickFromListOn();
-  
+
   this->CurrentHandle = NULL;
 
   // Set up the initial properties
   this->CreateDefaultProperties();
-  
+
   // Create the point widgets and associated callbacks
   this->PointWidget  = vtkPointWidget::New();
   this->PointWidget->AllOff();
@@ -182,7 +186,7 @@ vtkLineWidget::vtkLineWidget()
   this->PW1Callback->PointWidget = this->PointWidget1;
   this->PW2Callback = vtkPW2Callback::New();
   this->PW2Callback->LineWidget = this;
-  this->PW2Callback->PointWidget = this->PointWidget2;  
+  this->PW2Callback->PointWidget = this->PointWidget2;
 
   // Very tricky, the point widgets watch for their own
   // interaction events.
@@ -210,7 +214,7 @@ vtkLineWidget::~vtkLineWidget()
   delete [] this->Handle;
   delete [] this->HandleMapper;
   delete [] this->HandleGeometry;
-  
+
   this->HandlePicker->Delete();
   this->LinePicker->Delete();
 
@@ -230,6 +234,7 @@ vtkLineWidget::~vtkLineWidget()
   this->PW2Callback->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::SetEnabled(int enabling)
 {
   if ( ! this->Interactor )
@@ -246,7 +251,7 @@ void vtkLineWidget::SetEnabled(int enabling)
       {
       return;
       }
-    
+
     if ( ! this->CurrentRenderer )
       {
       this->SetCurrentRenderer(
@@ -258,28 +263,28 @@ void vtkLineWidget::SetEnabled(int enabling)
         return;
         }
       }
-    
+
     this->PointWidget->SetCurrentRenderer(this->CurrentRenderer);
     this->PointWidget1->SetCurrentRenderer(this->CurrentRenderer);
     this->PointWidget2->SetCurrentRenderer(this->CurrentRenderer);
-    
+
     this->Enabled = 1;
 
     // listen for the following events
     vtkRenderWindowInteractor *i = this->Interactor;
-    i->AddObserver(vtkCommand::MouseMoveEvent, 
+    i->AddObserver(vtkCommand::MouseMoveEvent,
                    this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonPressEvent, 
+    i->AddObserver(vtkCommand::LeftButtonPressEvent,
                    this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, 
+    i->AddObserver(vtkCommand::LeftButtonReleaseEvent,
                    this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::MiddleButtonPressEvent, 
+    i->AddObserver(vtkCommand::MiddleButtonPressEvent,
                    this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, 
+    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent,
                    this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::RightButtonPressEvent, 
+    i->AddObserver(vtkCommand::RightButtonPressEvent,
                    this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::RightButtonReleaseEvent, 
+    i->AddObserver(vtkCommand::RightButtonReleaseEvent,
                    this->EventCallbackCommand, this->Priority);
 
     // Add the line
@@ -292,13 +297,13 @@ void vtkLineWidget::SetEnabled(int enabling)
       this->CurrentRenderer->AddActor(this->Handle[j]);
       this->Handle[j]->SetProperty(this->HandleProperty);
       }
-    
+
     this->BuildRepresentation();
     this->SizeHandles();
 
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
-  
+
   else //disabling----------------------------------------------------------
     {
     vtkDebugMacro(<<"Disabling line widget");
@@ -307,7 +312,7 @@ void vtkLineWidget::SetEnabled(int enabling)
       {
       return;
       }
-    
+
     this->Enabled = 0;
 
     // don't listen for events any more
@@ -326,7 +331,7 @@ void vtkLineWidget::SetEnabled(int enabling)
       {
       this->CurrentPointWidget->EnabledOff();
       }
-    
+
     this->CurrentHandle = NULL;
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     this->SetCurrentRenderer(NULL);
@@ -335,9 +340,10 @@ void vtkLineWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
-void vtkLineWidget::ProcessEvents(vtkObject* vtkNotUsed(object), 
+//----------------------------------------------------------------------------
+void vtkLineWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
                                   unsigned long event,
-                                  void* clientdata, 
+                                  void* clientdata,
                                   void* vtkNotUsed(calldata))
 {
   vtkLineWidget* self = reinterpret_cast<vtkLineWidget *>( clientdata );
@@ -369,6 +375,7 @@ void vtkLineWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
     }
 }
 
+//----------------------------------------------------------------------
 void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -383,7 +390,7 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
     }
   if ( this->SelectedHandleProperty )
     {
-    os << indent << "Selected Handle Property: " 
+    os << indent << "Selected Handle Property: "
        << this->SelectedHandleProperty << "\n";
     }
   else
@@ -401,7 +408,7 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
     }
   if ( this->SelectedLineProperty )
     {
-    os << indent << "Selected Line Property: " 
+    os << indent << "Selected Line Property: "
        << this->SelectedLineProperty << "\n";
     }
   else
@@ -409,11 +416,11 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Line Property: (none)\n";
     }
 
-  os << indent << "Constrain To Bounds: " 
+  os << indent << "Constrain To Bounds: "
      << (this->ClampToBounds ? "On\n" : "Off\n");
 
   os << indent << "Align with: ";
-  switch ( this->Align ) 
+  switch ( this->Align )
     {
     case XAxis:
       os << "X Axis";
@@ -440,6 +447,7 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
                                << pt2[2] << ")\n";
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::BuildRepresentation()
 {
   //int res = this->LineSource->GetResolution();
@@ -450,6 +458,7 @@ void vtkLineWidget::BuildRepresentation()
   this->HandleGeometry[1]->SetCenter(pt2);
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::SizeHandles()
 {
   double radius = this->vtk3DWidget::SizeHandles(1.0);
@@ -457,6 +466,7 @@ void vtkLineWidget::SizeHandles()
   this->HandleGeometry[1]->SetRadius(radius);
 }
 
+//----------------------------------------------------------------------------
 int vtkLineWidget::HighlightHandle(vtkProp *prop)
 {
   // first unhighlight anything picked
@@ -476,25 +486,24 @@ int vtkLineWidget::HighlightHandle(vtkProp *prop)
     this->CurrentHandle->SetProperty(this->SelectedHandleProperty);
     return (this->CurrentHandle == this->Handle[0] ? 0 : 1);
     }
-  else
-    {
-    return -1;
-    }
+  return -1;
 }
 
+//----------------------------------------------------------------------------
 int vtkLineWidget::ForwardEvent(unsigned long event)
 {
   if ( ! this->CurrentPointWidget )
     {
     return 0;
     }
-  
+
   this->CurrentPointWidget->ProcessEvents(this,event,
                                           this->CurrentPointWidget,NULL);
-  
+
   return 1;
 }
 
+//----------------------------------------------------------------------------
 // assumed current handle is set
 void vtkLineWidget::EnablePointWidget()
 {
@@ -521,7 +530,7 @@ void vtkLineWidget::EnablePointWidget()
     this->LastPosition[1] = x[1];
     this->LastPosition[2] = x[2];
     }
-  
+
   double bounds[6];
   for (int i=0; i<3; i++)
     {
@@ -541,6 +550,7 @@ void vtkLineWidget::EnablePointWidget()
   this->CurrentPointWidget->On();
 }
 
+//----------------------------------------------------------------------------
 // assumed current handle is set
 void vtkLineWidget::DisablePointWidget()
 {
@@ -551,6 +561,7 @@ void vtkLineWidget::DisablePointWidget()
   this->CurrentPointWidget = NULL;
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::HighlightHandles(int highlight)
 {
   if ( highlight )
@@ -567,6 +578,7 @@ void vtkLineWidget::HighlightHandles(int highlight)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::HighlightLine(int highlight)
 {
   if ( highlight )
@@ -581,6 +593,7 @@ void vtkLineWidget::HighlightLine(int highlight)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::OnLeftButtonDown()
 {
   int forward=0;
@@ -594,7 +607,7 @@ void vtkLineWidget::OnLeftButtonDown()
     this->State = vtkLineWidget::Outside;
     return;
     }
-  
+
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then try to pick the line.
   vtkAssemblyPath *path;
@@ -631,13 +644,14 @@ void vtkLineWidget::OnLeftButtonDown()
       return;
       }
     }
-  
+
   if ( ! forward )
     {
     this->Interactor->Render();
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::OnLeftButtonUp()
 {
   if ( this->State == vtkLineWidget::Outside ||
@@ -654,7 +668,7 @@ void vtkLineWidget::OnLeftButtonUp()
 
   int forward = this->ForwardEvent(vtkCommand::LeftButtonReleaseEvent);
   this->DisablePointWidget();
-  
+
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
@@ -664,6 +678,7 @@ void vtkLineWidget::OnLeftButtonUp()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::OnMiddleButtonDown()
 {
   int forward=0;
@@ -677,7 +692,7 @@ void vtkLineWidget::OnMiddleButtonDown()
     this->State = vtkLineWidget::Outside;
     return;
     }
-  
+
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
   vtkAssemblyPath *path;
@@ -716,13 +731,14 @@ void vtkLineWidget::OnMiddleButtonDown()
       return;
       }
     }
-  
+
   if ( ! forward )
     {
     this->Interactor->Render();
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::OnMiddleButtonUp()
 {
   if ( this->State == vtkLineWidget::Outside ||
@@ -734,7 +750,7 @@ void vtkLineWidget::OnMiddleButtonUp()
   this->State = vtkLineWidget::Start;
   this->HighlightLine(0);
   this->HighlightHandles(0);
-  
+
   this->SizeHandles();
 
   int forward = this->ForwardEvent(vtkCommand::LeftButtonReleaseEvent);
@@ -749,6 +765,7 @@ void vtkLineWidget::OnMiddleButtonUp()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::OnRightButtonDown()
 {
   int X = this->Interactor->GetEventPosition()[0];
@@ -760,7 +777,7 @@ void vtkLineWidget::OnRightButtonDown()
     this->State = vtkLineWidget::Outside;
     return;
     }
-  
+
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
   vtkAssemblyPath *path;
@@ -789,13 +806,14 @@ void vtkLineWidget::OnRightButtonDown()
       return;
       }
     }
-  
+
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::OnRightButtonUp()
 {
   if ( this->State == vtkLineWidget::Outside ||
@@ -807,7 +825,7 @@ void vtkLineWidget::OnRightButtonUp()
   this->State = vtkLineWidget::Start;
   this->HighlightLine(0);
   this->HighlightHandles(0);
-  
+
   this->SizeHandles();
 
   this->EventCallbackCommand->SetAbortFlag(1);
@@ -816,15 +834,16 @@ void vtkLineWidget::OnRightButtonUp()
   this->Interactor->Render();
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::OnMouseMove()
 {
   // See whether we're active
-  if ( this->State == vtkLineWidget::Outside || 
+  if ( this->State == vtkLineWidget::Outside ||
        this->State == vtkLineWidget::Start )
     {
     return;
     }
-  
+
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -840,7 +859,7 @@ void vtkLineWidget::OnMouseMove()
     }
 
   // Compute the two points defining the motion vector
-  this->ComputeWorldToDisplay(this->LastPickPosition[0], 
+  this->ComputeWorldToDisplay(this->LastPickPosition[0],
                               this->LastPickPosition[1],
                               this->LastPickPosition[2], focalPoint);
   z = focalPoint[2];
@@ -874,6 +893,7 @@ void vtkLineWidget::OnMouseMove()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
 {
   //Get the motion vector
@@ -892,7 +912,7 @@ void vtkLineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
   center[2] = (pt1[2]+pt2[2]) / 2.0;
 
   // Compute the scale factor
-  double sf = 
+  double sf =
     vtkMath::Norm(v) / sqrt(vtkMath::Distance2BetweenPoints(pt1,pt2));
   if ( Y > this->Interactor->GetLastEventPosition()[1] )
     {
@@ -902,7 +922,7 @@ void vtkLineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
     {
     sf = 1.0 - sf;
     }
-  
+
   // Move the end points
   double point1[3], point2[3];
   for (int i=0; i<3; i++)
@@ -918,6 +938,7 @@ void vtkLineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
   this->BuildRepresentation();
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::CreateDefaultProperties()
 {
   // Handle properties
@@ -926,7 +947,7 @@ void vtkLineWidget::CreateDefaultProperties()
 
   this->SelectedHandleProperty = vtkProperty::New();
   this->SelectedHandleProperty->SetColor(1,0,0);
-  
+
   // Line properties
   this->LineProperty = vtkProperty::New();
   this->LineProperty->SetRepresentationToWireframe();
@@ -941,13 +962,14 @@ void vtkLineWidget::CreateDefaultProperties()
   this->SelectedLineProperty->SetLineWidth(2.0);
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::PlaceWidget(double bds[6])
 {
   int i;
   double bounds[6], center[3];
 
   this->AdjustBounds(bds, bounds, center);
-  
+
   if ( this->Align == vtkLineWidget::YAxis )
     {
     this->LineSource->SetPoint1(center[0],bounds[2],center[2]);
@@ -978,35 +1000,38 @@ void vtkLineWidget::PlaceWidget(double bds[6])
   this->SizeHandles();
 }
 
-void vtkLineWidget::SetPoint1(double x, double y, double z) 
+//----------------------------------------------------------------------------
+void vtkLineWidget::SetPoint1(double x, double y, double z)
 {
   double xyz[3];
   xyz[0] = x; xyz[1] = y; xyz[2] = z;
-  
+
   if ( this->ClampToBounds )
     {
     this->ClampPosition(xyz);
     this->PointWidget1->SetPosition(xyz);
     }
-  this->LineSource->SetPoint1(xyz); 
+  this->LineSource->SetPoint1(xyz);
   this->BuildRepresentation();
 }
 
-void vtkLineWidget::SetPoint2(double x, double y, double z) 
+//----------------------------------------------------------------------------
+void vtkLineWidget::SetPoint2(double x, double y, double z)
 {
   double xyz[3];
   xyz[0] = x; xyz[1] = y; xyz[2] = z;
-  
+
   if ( this->ClampToBounds )
     {
     this->ClampPosition(xyz);
     this->PointWidget2->SetPosition(xyz);
     }
-  this->LineSource->SetPoint2(xyz); 
+  this->LineSource->SetPoint2(xyz);
   this->BuildRepresentation();
 }
 
-void vtkLineWidget::SetLinePosition(double x[3]) 
+//----------------------------------------------------------------------------
+void vtkLineWidget::SetLinePosition(double x[3])
 {
   double p1[3], p2[3], v[3];
 
@@ -1041,6 +1066,7 @@ void vtkLineWidget::SetLinePosition(double x[3])
 }
 
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::ClampPosition(double x[3])
 {
   for (int i=0; i<3; i++)
@@ -1056,6 +1082,7 @@ void vtkLineWidget::ClampPosition(double x[3])
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkLineWidget::InBounds(double x[3])
 {
   for (int i=0; i<3; i++)
@@ -1069,7 +1096,8 @@ int vtkLineWidget::InBounds(double x[3])
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkLineWidget::GetPolyData(vtkPolyData *pd)
-{ 
-  pd->ShallowCopy(this->LineSource->GetOutput()); 
+{
+  pd->ShallowCopy(this->LineSource->GetOutput());
 }

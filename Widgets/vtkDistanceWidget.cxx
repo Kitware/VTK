@@ -25,7 +25,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkDistanceWidget, "1.8");
+vtkCxxRevisionMacro(vtkDistanceWidget, "1.9");
 vtkStandardNewMacro(vtkDistanceWidget);
 
 
@@ -133,12 +133,14 @@ void vtkDistanceWidget::CreateDefaultRepresentation()
 void vtkDistanceWidget::SetEnabled(int enabling)
 {
   // The handle widgets are not actually enabled until they are placed.
-  // The handle widgets take their representation from the vtkDistanceRepresentation.
+  // The handle widgets take their representation from the
+  // vtkDistanceRepresentation.
   if ( enabling )
     {
     if ( this->WidgetState == vtkDistanceWidget::Start )
       {
-      reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->VisibilityOff();    
+      reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
+        VisibilityOff();
       }
     else
       {
@@ -147,22 +149,23 @@ void vtkDistanceWidget::SetEnabled(int enabling)
       }
     }
 
-  // Done in this weird order to get everything to work right. This invocation creates the
-  // default representation.
+  // Done in this weird order to get everything to work right. This invocation
+  // creates the default representation.
   this->Superclass::SetEnabled(enabling);
 
   if ( enabling )
     {
-    this->Point1Widget->SetRepresentation(reinterpret_cast<vtkDistanceRepresentation*>
-                                          (this->WidgetRep)->GetPoint1Representation());
+    this->Point1Widget->SetRepresentation(
+      reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
+      GetPoint1Representation());
     this->Point1Widget->SetInteractor(this->Interactor);
     this->Point1Widget->GetRepresentation()->SetRenderer(this->CurrentRenderer);
-    
-    this->Point2Widget->SetRepresentation(reinterpret_cast<vtkDistanceRepresentation*>
-                                          (this->WidgetRep)->GetPoint2Representation());
+
+    this->Point2Widget->SetRepresentation(
+      reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
+      GetPoint2Representation());
     this->Point2Widget->SetInteractor(this->Interactor);
     this->Point2Widget->GetRepresentation()->SetRenderer(this->CurrentRenderer);
-
     }
   else
     {
@@ -171,7 +174,7 @@ void vtkDistanceWidget::SetEnabled(int enabling)
     }
 }
 
-// The following methods are the callbacks that the measure widget responds to. 
+// The following methods are the callbacks that the measure widget responds to
 //-------------------------------------------------------------------------
 void vtkDistanceWidget::AddPointAction(vtkAbstractWidget *w)
 {
@@ -185,7 +188,7 @@ void vtkDistanceWidget::AddPointAction(vtkAbstractWidget *w)
     self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkDistanceWidget::Define;
     self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-    reinterpret_cast<vtkDistanceRepresentation*>(self->WidgetRep)->VisibilityOn();    
+    reinterpret_cast<vtkDistanceRepresentation*>(self->WidgetRep)->VisibilityOn();
     double e[2];
     e[0] = static_cast<double>(X);
     e[1] = static_cast<double>(Y);
@@ -193,7 +196,7 @@ void vtkDistanceWidget::AddPointAction(vtkAbstractWidget *w)
     self->CurrentHandle = 0;
     self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
     }
-  
+
   // Placing the second point is easy
   else if ( self->WidgetState == vtkDistanceWidget::Define )
     {
@@ -203,17 +206,17 @@ void vtkDistanceWidget::AddPointAction(vtkAbstractWidget *w)
     self->WidgetState = vtkDistanceWidget::Manipulate;
     self->Point1Widget->SetEnabled(1);
     self->Point2Widget->SetEnabled(1);
-    self->CurrentHandle = (-1);
+    self->CurrentHandle = -1;
     self->ReleaseFocus();
     }
-  
+
   // Maybe we are trying to manipulate the widget handles
   else //if ( self->WidgetState == vtkDistanceWidget::Manipulate )
     {
     int state = self->WidgetRep->ComputeInteractionState(X,Y);
     if ( state == vtkDistanceRepresentation::Outside )
       {
-      self->CurrentHandle = (-1);
+      self->CurrentHandle = -1;
       return;
       }
 
@@ -282,7 +285,7 @@ void vtkDistanceWidget::EndSelectAction(vtkAbstractWidget *w)
 
   self->ReleaseFocus();
   self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
-  self->CurrentHandle = (-1);
+  self->CurrentHandle = -1;
   self->WidgetRep->BuildRepresentation();
   self->EventCallbackCommand->SetAbortFlag(1);
   self->Render();
@@ -330,5 +333,4 @@ void vtkDistanceWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
 }

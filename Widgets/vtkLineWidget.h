@@ -101,7 +101,7 @@ public:
   virtual void PlaceWidget(double bounds[6]);
   void PlaceWidget()
     {this->Superclass::PlaceWidget();}
-  void PlaceWidget(double xmin, double xmax, double ymin, double ymax, 
+  void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
                    double zmin, double zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
@@ -115,21 +115,21 @@ public:
   // Description:
   // Set/Get the position of first end point.
   void SetPoint1(double x, double y, double z);
-  void SetPoint1(double x[3]) 
+  void SetPoint1(double x[3])
     {this->SetPoint1(x[0], x[1], x[2]); }
-  double* GetPoint1() 
+  double* GetPoint1()
     {return this->LineSource->GetPoint1();}
-  void GetPoint1(double xyz[3]) 
+  void GetPoint1(double xyz[3])
     {this->LineSource->GetPoint1(xyz);}
 
   // Description:
   // Set position of other end point.
   void SetPoint2(double x, double y, double z);
-  void SetPoint2(double x[3]) 
+  void SetPoint2(double x[3])
     {this->SetPoint2(x[0], x[1], x[2]);}
-  double* GetPoint2() 
+  double* GetPoint2()
     {return this->LineSource->GetPoint2();}
-  void GetPoint2(double xyz[3]) 
+  void GetPoint2(double xyz[3])
     {this->LineSource->GetPoint2(xyz);}
 
   // Description:
@@ -162,18 +162,18 @@ public:
   void GetPolyData(vtkPolyData *pd);
 
   // Description:
-  // Get the handle properties (the little balls are the handles). The 
-  // properties of the handles when selected and normal can be 
+  // Get the handle properties (the little balls are the handles). The
+  // properties of the handles when selected and normal can be
   // manipulated.
   vtkGetObjectMacro(HandleProperty,vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty,vtkProperty);
-  
+
   // Description:
-  // Get the line properties. The properties of the line when selected 
+  // Get the line properties. The properties of the line when selected
   // and unselected can be manipulated.
   vtkGetObjectMacro(LineProperty,vtkProperty);
   vtkGetObjectMacro(SelectedLineProperty,vtkProperty);
-  
+
 protected:
   vtkLineWidget();
   ~vtkLineWidget();
@@ -191,11 +191,11 @@ protected:
     Outside
   };
 //ETX
-    
+
   //handles the events
-  static void ProcessEvents(vtkObject* object, 
+  static void ProcessEvents(vtkObject* object,
                             unsigned long event,
-                            void* clientdata, 
+                            void* clientdata,
                             void* calldata);
 
   // ProcessEvents() dispatches to these methods.
@@ -211,7 +211,7 @@ protected:
   int Align;
 
 //BTX
-  enum AlignmentState {    
+  enum AlignmentState {
     XAxis,
     YAxis,
     ZAxis,
@@ -236,17 +236,17 @@ protected:
   void HandlesOff();
   int HighlightHandle(vtkProp *prop); //returns cell id
   void HighlightHandles(int highlight);
-  
+
   // Do the picking
   vtkCellPicker *HandlePicker;
   vtkCellPicker *LinePicker;
   vtkActor *CurrentHandle;
   double LastPosition[3];
   void  SetLinePosition(double x[3]);
-  
+
   // Methods to manipulate the hexahedron.
   void Scale(double *p1, double *p2, int X, int Y);
-  
+
   // Initial bounds
   int   ClampToBounds;
   void  ClampPosition(double x[3]);
@@ -259,9 +259,9 @@ protected:
   vtkProperty *LineProperty;
   vtkProperty *SelectedLineProperty;
   void CreateDefaultProperties();
-  
+
   void GenerateLine();
-  
+
   // Methods for managing the point widgets used to control the endpoints
   vtkPointWidget *PointWidget;
   vtkPointWidget *PointWidget1;
@@ -273,7 +273,7 @@ protected:
   void EnablePointWidget();
   void DisablePointWidget();
   int ForwardEvent(unsigned long event);
-  
+
 private:
   vtkLineWidget(const vtkLineWidget&);  //Not implemented
   void operator=(const vtkLineWidget&);  //Not implemented

@@ -27,7 +27,7 @@
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkDistanceRepresentation2D, "1.5");
+vtkCxxRevisionMacro(vtkDistanceRepresentation2D, "1.6");
 vtkStandardNewMacro(vtkDistanceRepresentation2D);
 
 //----------------------------------------------------------------------
@@ -51,7 +51,7 @@ vtkDistanceRepresentation2D::vtkDistanceRepresentation2D()
   this->AxisActor->GetTitleTextProperty()->SetItalic(1);
   this->AxisActor->GetTitleTextProperty()->SetShadow(1);
   this->AxisActor->GetTitleTextProperty()->SetFontFamilyToArial();
-  
+
   this->Distance = 0.0;
 }
 
@@ -62,7 +62,6 @@ vtkDistanceRepresentation2D::~vtkDistanceRepresentation2D()
   this->AxisActor->Delete();
 }
 
-  
 //----------------------------------------------------------------------
 void vtkDistanceRepresentation2D::GetPoint1WorldPosition(double pos[3])
 {
@@ -118,14 +117,14 @@ vtkAxisActor2D *vtkDistanceRepresentation2D::GetAxis()
 //----------------------------------------------------------------------
 void vtkDistanceRepresentation2D::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
        this->Point1Representation->GetMTime() > this->BuildTime ||
        this->Point2Representation->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
     this->Superclass::BuildRepresentation();
-    
+
     // Okay, compute the distance and set the label
     double p1[3], p2[3];
     this->Point1Representation->GetWorldPosition(p1);
@@ -134,7 +133,7 @@ void vtkDistanceRepresentation2D::BuildRepresentation()
     char string[512];
     sprintf(string, this->LabelFormat, this->Distance);
     this->AxisActor->SetTitle(string);
-    
+
     this->BuildTime.Modified();
     }
 }
@@ -149,7 +148,7 @@ void vtkDistanceRepresentation2D::ReleaseGraphicsResources(vtkWindow *w)
 int vtkDistanceRepresentation2D::RenderOverlay(vtkViewport *v)
 {
   this->BuildRepresentation();
-  
+
   if ( this->AxisActor->GetVisibility() )
     {
     return this->AxisActor->RenderOverlay(v);
@@ -164,7 +163,7 @@ int vtkDistanceRepresentation2D::RenderOverlay(vtkViewport *v)
 int vtkDistanceRepresentation2D::RenderOpaqueGeometry(vtkViewport *v)
 {
   this->BuildRepresentation();
-  
+
   if ( this->AxisActor->GetVisibility() )
     {
     return this->AxisActor->RenderOpaqueGeometry(v);

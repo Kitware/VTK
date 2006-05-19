@@ -136,6 +136,13 @@ public:
   // distance in the world coordinate system.
   virtual double GetLength2();
 
+  // Description:
+  // Specify the format to use for labelling the distance. Note that an empty
+  // string results in no label, or a format string without a "%" character
+  // will not print the distance value.
+  vtkSetStringMacro(LabelFormat);
+  vtkGetStringMacro(LabelFormat);
+
 //BTX -- used to communicate about the state of the representation
   enum {Outside=0,NearP1,NearP2,NearP3,NearP4,OnL1,OnL2,OnCenter};
 //ETX
@@ -150,7 +157,7 @@ public:
   virtual void StartWidgetManipulation(double e[2]);
   virtual void WidgetInteraction(double e[2]);
   virtual void Highlight(int highlightOn);
-  
+
   // Description:
   // Methods required by vtkProp superclass.
   virtual void ReleaseGraphicsResources(vtkWindow *w);
@@ -176,7 +183,7 @@ protected:
   // Visibility of the lines
   int Line1Visibility;
   int Line2Visibility;
-  
+
   // Geometry of the lines
   vtkCellArray        *LineCells;
   vtkPoints           *LinePoints;
@@ -185,7 +192,7 @@ protected:
   vtkActor2D          *LineActor;
   vtkProperty2D       *LineProperty;
   vtkProperty2D       *SelectedLineProperty;
-  
+
   // The labels for the line lengths
   vtkTextProperty *TextProperty;
   vtkTextMapper   *L1TextMapper;
@@ -193,7 +200,7 @@ protected:
 
   vtkTextMapper   *L2TextMapper;
   vtkActor2D      *L2TextActor;
-  
+
   // Internal variables
   double P1[3];
   double P2[3];
@@ -203,7 +210,10 @@ protected:
   double P43[3];
   double T21;
   double T43;
-  
+
+  // Format for printing the distance
+  char *LabelFormat;
+
 private:
   vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&);  //Not implemented
   void operator=(const vtkBiDimensionalRepresentation2D&);  //Not implemented

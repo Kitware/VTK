@@ -21,7 +21,7 @@
 // two different modes of interaction: when initially defined (i.e., placing
 // the two points) and then a manipulate mode (adjusting the position of
 // the two points).
-// 
+//
 // To use this widget, specify an instance of vtkDistanceWidget and a
 // representation (a subclass of vtkDistanceRepresentation). The widget is
 // implemented using two instances of vtkHandleWidget which are used to
@@ -32,13 +32,13 @@
 // By default, the widget responds to the following VTK events (i.e., it
 // watches the vtkRenderWindowInteractor for these events):
 // <pre>
-//   LeftButtonPressEvent - add a point or select a handle 
+//   LeftButtonPressEvent - add a point or select a handle
 //   MouseMoveEvent - position the second point or move a handle
 //   LeftButtonReleaseEvent - release the handle
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events 
+// class's vtkWidgetEventTranslator. This class translates VTK events
 // into the vtkDistanceWidget's widget events:
 // <pre>
 //   vtkWidgetEvent::AddPoint -- add one point; depending on the state
@@ -54,12 +54,12 @@
 //   vtkCommand::StartInteractionEvent (beginning to interact)
 //   vtkCommand::EndInteractionEvent (completing interaction)
 //   vtkCommand::InteractionEvent (moving after selecting something)
-//   vtkCommand::PlacePointEvent (after point is positioned; 
+//   vtkCommand::PlacePointEvent (after point is positioned;
 //                                call data includes handle id (0,1))
 // </pre>
 
 // .SECTION See Also
-// vtkHandleWidget 
+// vtkHandleWidget
 
 
 #ifndef __vtkDistanceWidget_h
@@ -95,10 +95,11 @@ public:
   // widget in the scene. Note that the representation is a subclass of vtkProp
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkDistanceRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+    {this->Superclass::SetWidgetRepresentation(
+      reinterpret_cast<vtkWidgetRepresentation*>(r));}
+
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
 protected:
@@ -117,22 +118,22 @@ protected:
   static void AddPointAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
-  
+
   // The positioning handle widgets
   vtkHandleWidget *Point1Widget;
   vtkHandleWidget *Point2Widget;
   vtkDistanceWidgetCallback *DistanceWidgetCallback1;
   vtkDistanceWidgetCallback *DistanceWidgetCallback2;
-  
+
   // Methods invoked when the handles at the
   // end points of the widget are manipulated
   void StartDistanceInteraction(int handleNum);
   void DistanceInteraction(int handleNum);
   void EndDistanceInteraction(int handleNum);
-  
+
 //BTX
   friend class vtkDistanceWidgetCallback;
-//ETX  
+//ETX
 
 private:
   vtkDistanceWidget(const vtkDistanceWidget&);  //Not implemented
