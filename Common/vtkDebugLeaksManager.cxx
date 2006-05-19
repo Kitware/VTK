@@ -15,6 +15,13 @@
 #include "vtkDebugLeaksManager.h"
 #include "vtkDebugLeaks.h"
 
+// Global optimization performed by MSVC breaks the initialization
+// order across translation units enforced by this manager.  Disable
+// them for this object file.
+#if defined(_MSC_VER)
+# pragma optimize("g", off)
+#endif
+
 // Must NOT be initialized.  Default initialization to zero is
 // necessary.
 unsigned int vtkDebugLeaksManagerCount;
@@ -34,3 +41,7 @@ vtkDebugLeaksManager::~vtkDebugLeaksManager()
     vtkDebugLeaks::ClassFinalize();
     }
 }
+
+#if defined(_MSC_VER)
+# pragma optimize("g", on)
+#endif
