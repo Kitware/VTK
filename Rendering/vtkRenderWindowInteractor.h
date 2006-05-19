@@ -128,6 +128,12 @@ public:
   int DestroyTimer(int timerId);
   virtual int GetVTKTimerId(int platformTimerId);
 
+  //BTX
+  // Moved into the public section of the class so that classless timer procs
+  // can access these enum members without being "friends"...
+  enum {OneShotTimer=1,RepeatingTimer};
+  //ETX
+
   // Description:
   // Specify the default timer interval (in milliseconds). (This is used in
   // conjunction with the timer methods described previously, e.g.,
@@ -138,6 +144,26 @@ public:
   // milliseconds--it may adversely affect the interactors.
   vtkSetClampMacro(TimerDuration,unsigned long,1,100000);
   vtkGetMacro(TimerDuration,unsigned long);
+
+  // Description:
+  // These methods are used to communicate information about the currently
+  // firing CreateTimerEvent or DestroyTimerEvent. The caller of
+  // CreateTimerEvent sets up TimerEventId, TimerEventType and
+  // TimerEventDuration. The observer of CreateTimerEvent should set up an
+  // appropriate platform specific timer based on those values and set the
+  // TimerEventPlatformId before returning. The caller of DestroyTimerEvent
+  // sets up TimerEventPlatformId. The observer of DestroyTimerEvent should
+  // simply destroy the platform specific timer created by CreateTimerEvent.
+  // See vtkGenericRenderWindowInteractor's InternalCreateTimer and
+  // InternalDestroyTimer for an example.
+  vtkSetMacro(TimerEventId, int);
+  vtkGetMacro(TimerEventId, int);
+  vtkSetMacro(TimerEventType, int);
+  vtkGetMacro(TimerEventType, int);
+  vtkSetMacro(TimerEventDuration, int);
+  vtkGetMacro(TimerEventDuration, int);
+  vtkSetMacro(TimerEventPlatformId, int);
+  vtkGetMacro(TimerEventPlatformId, int);
 
   // Description:
   // This function is called on 'q','e' keypress if exitmethod is not
@@ -397,11 +423,15 @@ protected:
   int   LastEventPosition[2];
   int   EventSize[2];
   int   Size[2];
-  
+  int   TimerEventId;
+  int   TimerEventType;
+  int   TimerEventDuration;
+  int   TimerEventPlatformId;
+
   // control the fly to
   int NumberOfFlyFrames;
   double Dolly;
-  
+
   // Description:
   // These methods allow the interactor to control which events are
   // processed.  When the GrabFocus() method is called, then only events that
@@ -424,7 +454,6 @@ protected:
   // Timer related members
   //BTX
   friend struct vtkTimerStruct;
-  enum {OneShotTimer=1,RepeatingTimer};
   vtkTimerIdMap *TimerMap; // An internal, PIMPLd map of timers and associated attributes
   unsigned long  TimerDuration; //in milliseconds
   // Description

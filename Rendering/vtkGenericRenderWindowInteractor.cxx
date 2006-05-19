@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkGenericRenderWindowInteractor, "1.8");
+vtkCxxRevisionMacro(vtkGenericRenderWindowInteractor, "1.9");
 vtkStandardNewMacro(vtkGenericRenderWindowInteractor);
 
 //------------------------------------------------------------------
@@ -163,8 +163,14 @@ void vtkGenericRenderWindowInteractor::TimerEvent()
     {
     return;
     }
-  int timerId = 1;
+
+  int timerId = this->GetCurrentTimerId();
   this->InvokeEvent(vtkCommand::TimerEvent, (void*)&timerId);
+
+  if (!this->IsOneShotTimer(timerId))
+    {
+    this->ResetTimer(timerId);
+    }
 }
 
 //------------------------------------------------------------------
@@ -180,7 +186,7 @@ void vtkGenericRenderWindowInteractor::KeyPressEvent()
 //------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::KeyReleaseEvent()
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
@@ -207,7 +213,6 @@ void vtkGenericRenderWindowInteractor::ExitEvent()
   this->InvokeEvent(vtkCommand::ExitEvent, NULL);
 }
 
-  
 //------------------------------------------------------------------
 vtkGenericRenderWindowInteractor::~vtkGenericRenderWindowInteractor()
 {
@@ -220,25 +225,28 @@ void vtkGenericRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------
-int vtkGenericRenderWindowInteractor::InternalCreateTimer(int, int,
-                                                          unsigned long)
+int vtkGenericRenderWindowInteractor::InternalCreateTimer(int timerId, int timerType,
+                                                          unsigned long duration)
 {
   if(this->HasObserver(vtkCommand::CreateTimerEvent))
     {
-    int timerId = 1;
+    this->SetTimerEventId(timerId);
+    this->SetTimerEventType(timerType);
+    this->SetTimerEventDuration(duration);
+    this->SetTimerEventPlatformId(timerId);
     this->InvokeEvent(vtkCommand::CreateTimerEvent, (void*)&timerId);
-    return 1;
+    return this->GetTimerEventPlatformId();
     }
   return 0;
 }
 
 //------------------------------------------------------------------
-int vtkGenericRenderWindowInteractor::InternalDestroyTimer(int)
+int vtkGenericRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
   if(this->HasObserver(vtkCommand::DestroyTimerEvent))
     {
-    int timerId = 1;
-    this->InvokeEvent(vtkCommand::DestroyTimerEvent, (void*)&timerId);
+    this->SetTimerEventPlatformId(platformTimerId);
+    this->InvokeEvent(vtkCommand::DestroyTimerEvent, (void*)&platformTimerId);
     return 1;
     }
   return 0;

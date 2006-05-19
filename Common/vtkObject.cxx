@@ -19,7 +19,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.96");
+vtkCxxRevisionMacro(vtkObject, "1.97");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -95,7 +95,7 @@ class vtkSubjectHelper
 public:
   vtkSubjectHelper():ListModified(0),Focus1(0),Focus2(0),Start(0),Count(1) {}
   ~vtkSubjectHelper();
-  
+
   unsigned long AddObserver(unsigned long event, vtkCommand *cmd, float p);
   void RemoveObserver(unsigned long tag);
   void RemoveObservers(unsigned long event);
@@ -448,50 +448,109 @@ int vtkSubjectHelper::HasObserver(unsigned long event, vtkCommand *cmd)
 int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
                                    vtkObject *self)
 {
+  int focusHandled = 0;
+
   this->ListModified = 0;
-  
+
   vtkObserver *elem = this->Start;
   while (elem)
     {
     elem->Visited = 0;
     elem=elem->Next;
     }
-  
-  elem = this->Start;
-  vtkObserver *next;
-  while (elem)
+
+  // Loop once or twice, giving preference to focus holders, if any.
+  //
+  // 1. Focus loop
+  //   If there is a focus holder, loop over all observers and execute
+  //   those associated with either focus holder. Set focusHandled to
+  //   indicate that a focus holder handled the event.
+  //
+  // 2. Remainder loop
+  //   If no focus holder handled the event already, loop over the
+  //   remaining observers. This loop will always get executed when there
+  //   is no focus holder.
+
+  // 1. Focus loop
+  //
+  if (this->Focus1 || this->Focus2)
     {
-    // store the next pointer because elem could disappear due to Command
-    next = elem->Next;
-    if (!elem->Visited &&
-        (elem->Event == event || elem->Event == vtkCommand::AnyEvent) &&
-        (!this->Focus1 || this->Focus1 == elem->Command) && 
-        (!this->Focus2 || this->Focus2 == elem->Command) )
+    elem = this->Start;
+    vtkObserver *next;
+    while (elem)
       {
-      elem->Visited = 1;
-      vtkCommand* command = elem->Command;
-      command->Register(command);
-      command->SetAbortFlag(0);
-      elem->Command->Execute(self,event,callData);
-      // if the command set the abort flag, then stop firing events
-      // and return
-      if(command->GetAbortFlag())
+      // store the next pointer because elem could disappear due to Command
+      next = elem->Next;
+      if (!elem->Visited &&
+          ((this->Focus1 == elem->Command) || (this->Focus2 == elem->Command)) &&
+          (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
         {
+        focusHandled = 1;
+        elem->Visited = 1;
+        vtkCommand* command = elem->Command;
+        command->Register(command);
+        command->SetAbortFlag(0);
+        elem->Command->Execute(self,event,callData);
+        // if the command set the abort flag, then stop firing events
+        // and return
+        if(command->GetAbortFlag())
+          {
+          command->UnRegister();
+          return 1;
+          }
         command->UnRegister();
-        return 1;
         }
-      command->UnRegister();
-      }
-    if (this->ListModified)
-      {
-      elem = this->Start;
-      this->ListModified = 0;
-      }
-    else
-      {
-      elem = next;
+      if (this->ListModified)
+        {
+        elem = this->Start;
+        this->ListModified = 0;
+        }
+      else
+        {
+        elem = next;
+        }
       }
     }
+
+  // 2. Remainder loop
+  //
+  if (!focusHandled)
+    {
+    elem = this->Start;
+    vtkObserver *next;
+    while (elem)
+      {
+      // store the next pointer because elem could disappear due to Command
+      next = elem->Next;
+      if (!elem->Visited &&
+          (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
+        {
+        elem->Visited = 1;
+        vtkCommand* command = elem->Command;
+        command->Register(command);
+        command->SetAbortFlag(0);
+        elem->Command->Execute(self,event,callData);
+        // if the command set the abort flag, then stop firing events
+        // and return
+        if(command->GetAbortFlag())
+          {
+          command->UnRegister();
+          return 1;
+          }
+        command->UnRegister();
+        }
+      if (this->ListModified)
+        {
+        elem = this->Start;
+        this->ListModified = 0;
+        }
+      else
+        {
+        elem = next;
+        }
+      }
+    }
+
   return 0;
 }
 
