@@ -39,6 +39,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # It seems to work anyway so let's ignore it to make it easier to
   # test more compilers.
   "ld: warning: libstdc.*, needed by .*, may conflict with libstdc.*"
+
+  # Does *anyone* have an STL implementation that compiles without warnings...?
+  "cc-1116 CC: WARNING File = /usr/include/CC/stl_alloc.h, Line = 175"
   )
 
 SET(CTEST_CUSTOM_COVERAGE_EXCLUDE
