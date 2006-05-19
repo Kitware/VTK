@@ -21,14 +21,16 @@
 #include "vtkOutlineSource.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkOutlineFilter, "1.33");
+vtkCxxRevisionMacro(vtkOutlineFilter, "1.34");
 vtkStandardNewMacro(vtkOutlineFilter);
 
+//----------------------------------------------------------------------------
 vtkOutlineFilter::vtkOutlineFilter ()
 {
   this->OutlineSource = vtkOutlineSource::New();
 }
 
+//----------------------------------------------------------------------------
 vtkOutlineFilter::~vtkOutlineFilter ()
 {
   if (this->OutlineSource != NULL)
@@ -38,6 +40,7 @@ vtkOutlineFilter::~vtkOutlineFilter ()
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkOutlineFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -67,6 +70,7 @@ int vtkOutlineFilter::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkOutlineFilter::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");

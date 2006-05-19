@@ -38,7 +38,7 @@
 #endif
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTimerLog, "1.43");
+vtkCxxRevisionMacro(vtkTimerLog, "1.44");
 vtkStandardNewMacro(vtkTimerLog);
 
 // Create a singleton to cleanup the table.  No other singletons
@@ -553,9 +553,10 @@ double vtkTimerLog::GetUniversalTime()
   currentTimeInSeconds = CurrentTime.tv_sec + scale * CurrentTime.tv_usec;
 #endif
 
-  return (currentTimeInSeconds);
+  return currentTimeInSeconds;
 }
 
+//----------------------------------------------------------------------------
 double vtkTimerLog::GetCPUTime()
 {
   double   currentCPUTime = 1.0;
