@@ -27,7 +27,7 @@
 #include "vtkObserverMediator.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.116");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.117");
 
 // PIMPL'd class to keep track of timers. It maps the ids returned by CreateTimer()
 // to the platform-specific representation for timer ids.
@@ -610,6 +610,10 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "RepeatCount: " << this->RepeatCount << "\n";
   os << indent << "Timer Duration: " << this->TimerDuration << "\n";
+  os << indent << "TimerEventId: " << this->TimerEventId << "\n";
+  os << indent << "TimerEventType: " << this->TimerEventType << "\n";
+  os << indent << "TimerEventDuration: " << this->TimerEventDuration << "\n";
+  os << indent << "TimerEventPlatformId: " << this->TimerEventPlatformId << "\n";
 }
 
 //----------------------------------------------------------------------------
