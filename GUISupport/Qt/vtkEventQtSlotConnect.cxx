@@ -170,6 +170,16 @@ void vtkEventQtSlotConnect::Connect(vtkObject* vtk_obj, unsigned long event,
 void vtkEventQtSlotConnect::Disconnect(vtkObject* vtk_obj, unsigned long event,
                  const QObject* qt_obj, const char* slot, void* client_data)
 {
+  if (!vtk_obj)
+    {
+    vtkQtConnections::iterator iter;
+    for(iter=this->Connections->begin(); iter!=this->Connections->end(); ++iter)
+      {
+      delete (*iter);
+      }
+    this->Connections->clear();
+    return;
+    }
   bool all_info = true;
   if(slot == NULL || qt_obj == NULL || event == vtkCommand::NoEvent)
     all_info = false;

@@ -77,10 +77,11 @@ class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
     
     // Description:
     // Disconnect a vtk object from a qt object.
+    // Passing no arguments will disconnect all slots maintained by this object.
     // Passing in only a vtk object will disconnect all slots from it.
     // Passing only a vtk object and event, will disconnect all slots matching the vtk object and event.
     // Passing all information in will match all information.
-    virtual void Disconnect(vtkObject* vtk_obj, unsigned long event=vtkCommand::NoEvent, 
+    virtual void Disconnect(vtkObject* vtk_obj=NULL, unsigned long event=vtkCommand::NoEvent, 
                  const QObject* qt_obj=NULL, const char* slot = 0, void* client_data=NULL);
 
   protected:
