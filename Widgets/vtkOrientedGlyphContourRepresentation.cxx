@@ -40,7 +40,7 @@
 #include "vtkFocalPlanePointPlacer.h"
 #include "vtkBezierContourLineInterpolator.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.8");
 vtkStandardNewMacro(vtkOrientedGlyphContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -630,7 +630,6 @@ void vtkOrientedGlyphContourRepresentation
     }
   this->Internal->Nodes.clear();
 
-  vtkIdType index = 0;
   vtkIdList *pointIds = pd->GetCell(0)->GetPointIds();
 
   // Get the worldOrient from the point placer
