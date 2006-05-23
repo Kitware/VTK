@@ -83,6 +83,13 @@ public:
   virtual int ComputeInteractionState(int X, int Y, int modified=0);
 
   // Description:
+  // Build a contour representation from externally supplied PolyData. This
+  // is very useful when you use an external program to compute a set of
+  // contour nodes, let's say based on image features. Subsequently, you want
+  // to build and display a contour that runs through those points.
+  virtual void BuildRepresentationFromUserSuppliedPolydata( vtkPolyData * );
+
+  // Description:
   // Methods to make this class behave as a vtkProp.
   virtual void GetActors(vtkPropCollection *);
   virtual void ReleaseGraphicsResources(vtkWindow *);
