@@ -40,7 +40,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.5");
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //----------------------------------------------------------------------------
@@ -160,6 +160,8 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   
   // The bounding box
   this->BoundingBox = vtkBox::New();
+
+  this->RepresentationState = vtkImplicitPlaneRepresentation::Outside;
 }
 
 //----------------------------------------------------------------------------
@@ -225,9 +227,7 @@ int vtkImplicitPlaneRepresentation::ComputeInteractionState(int X, int Y,
 
   if ( path == NULL ) //not picking this widget
     {
-    this->HighlightPlane(0);
-    this->HighlightNormal(0);
-    this->HighlightOutline(0);
+    this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
     this->InteractionState = vtkImplicitPlaneRepresentation::Outside;
     return this->InteractionState;
     }
@@ -244,30 +244,30 @@ int vtkImplicitPlaneRepresentation::ComputeInteractionState(int X, int Y,
     if ( prop == this->ConeActor || prop == this->LineActor ||
          prop == this->ConeActor2 || prop == this->LineActor2 )
       {
-      this->HighlightPlane(1);
-      this->HighlightNormal(1);
       this->InteractionState = vtkImplicitPlaneRepresentation::Rotating;
+      this->SetRepresentationState(vtkImplicitPlaneRepresentation::Rotating);
       }
     else if ( prop == this->CutActor )
       {
-      this->HighlightPlane(1);
       this->InteractionState = vtkImplicitPlaneRepresentation::Pushing;
+      this->SetRepresentationState(vtkImplicitPlaneRepresentation::Pushing);
       }
     else if ( prop == this->SphereActor )
       {
-      this->HighlightNormal(1);
       this->InteractionState = vtkImplicitPlaneRepresentation::MovingOrigin;
+      this->SetRepresentationState(vtkImplicitPlaneRepresentation::MovingOrigin);
       }
     else
       {
       if ( this->OutlineTranslation )
         {
-        this->HighlightOutline(1);
         this->InteractionState = vtkImplicitPlaneRepresentation::MovingOutline;
+        this->SetRepresentationState(vtkImplicitPlaneRepresentation::MovingOutline);
         }
       else
         {
         this->InteractionState = vtkImplicitPlaneRepresentation::Outside;
+        this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
         }
       }
     }
@@ -290,42 +290,40 @@ int vtkImplicitPlaneRepresentation::ComputeInteractionState(int X, int Y,
   return this->InteractionState;
 }
 
-
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::StartWidgetInteraction(double e[2])
+void vtkImplicitPlaneRepresentation::SetRepresentationState(int state)
 {
-  this->StartEventPosition[0] = e[0];
-  this->StartEventPosition[1] = e[1];
-  this->StartEventPosition[2] = 0.0;
-  
-  this->LastEventPosition[0] = e[0];
-  this->LastEventPosition[1] = e[1];
-  this->LastEventPosition[2] = 0.0;
-  
-  if ( this->InteractionState == vtkImplicitPlaneRepresentation::Rotating )
+  if (this->RepresentationState == state)
+    {
+    return;
+    }
+  this->RepresentationState = state;
+  this->Modified();
+
+  if ( state == vtkImplicitPlaneRepresentation::Rotating )
     {
     this->HighlightNormal(1);
     this->HighlightPlane(1);
     }
-  else if ( this->InteractionState == vtkImplicitPlaneRepresentation::Pushing )
+  else if ( state == vtkImplicitPlaneRepresentation::Pushing )
     {
     this->HighlightPlane(1);
     }
-  else if ( this->InteractionState == vtkImplicitPlaneRepresentation::MovingOrigin )
+  else if ( state == vtkImplicitPlaneRepresentation::MovingOrigin )
     {
     this->HighlightNormal(1);
     }
-  else if ( this->InteractionState == vtkImplicitPlaneRepresentation::MovingOutline )
+  else if ( state == vtkImplicitPlaneRepresentation::MovingOutline )
     {
     this->HighlightOutline(1);
     }
-  else if ( this->InteractionState == vtkImplicitPlaneRepresentation::MovingPlane )
+  else if ( state == vtkImplicitPlaneRepresentation::MovingPlane )
     {
     this->HighlightNormal(1);
     this->HighlightPlane(1);
     }
-  else if ( this->InteractionState == vtkImplicitPlaneRepresentation::Scaling &&
-    this->ScaleEnabled )
+  else if ( state == vtkImplicitPlaneRepresentation::Scaling &&
+            this->ScaleEnabled )
     {
     this->HighlightNormal(1);
     this->HighlightPlane(1);
@@ -337,6 +335,18 @@ void vtkImplicitPlaneRepresentation::StartWidgetInteraction(double e[2])
     this->HighlightPlane(0);
     this->HighlightOutline(0);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkImplicitPlaneRepresentation::StartWidgetInteraction(double e[2])
+{
+  this->StartEventPosition[0] = e[0];
+  this->StartEventPosition[1] = e[1];
+  this->StartEventPosition[2] = 0.0;
+  
+  this->LastEventPosition[0] = e[0];
+  this->LastEventPosition[1] = e[1];
+  this->LastEventPosition[2] = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -398,9 +408,7 @@ void vtkImplicitPlaneRepresentation::WidgetInteraction(double e[2])
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::EndWidgetInteraction(double* vtkNotUsed(e[2]))
 {
-  this->HighlightPlane(0);
-  this->HighlightOutline(0);
-  this->HighlightNormal(0);
+  this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
   this->SizeHandles();
 }
 
@@ -797,6 +805,8 @@ void vtkImplicitPlaneRepresentation::CreateDefaultProperties()
   this->PlaneProperty = vtkProperty::New();
   this->PlaneProperty->SetAmbient(1.0);
   this->PlaneProperty->SetAmbientColor(1.0,1.0,1.0);
+  this->PlaneProperty->SetOpacity(0.5);
+  this->CutActor->SetProperty(this->PlaneProperty);
 
   this->SelectedPlaneProperty = vtkProperty::New();
   this->SelectedPlaneProperty->SetAmbient(1.0);

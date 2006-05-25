@@ -217,9 +217,17 @@ public:
   // interaction with the widget proceeds.
   vtkSetMacro(InteractionState,int);
 
+  // Description:
+  // Sets the visual appearance of the representation based on the
+  // state it is in. This state is usually the same as InteractionState
+  virtual void SetRepresentationState(int);
+  vtkGetMacro(RepresentationState, int);
+
 protected:
   vtkImplicitPlaneRepresentation();
   ~vtkImplicitPlaneRepresentation();
+
+  int RepresentationState;
 
   // Keep track of event positions
   double LastEventPosition[3];
