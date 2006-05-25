@@ -775,7 +775,6 @@ void vtkTclApplicationInitTclTk(Tcl_Interp* interp,
     VTK_TCL_TK_COPY_SUPPORT_LIBRARY is ON.
   */
 
-#ifdef VTK_TCL_TK_COPY_SUPPORT_LIBRARY
   int has_tcllibpath_env = getenv("TCL_LIBRARY") ? 1 : 0;
   int has_tklibpath_env = getenv("TK_LIBRARY") ? 1 : 0;
   vtkstd::string selfdir;
@@ -836,8 +835,4 @@ void vtkTclApplicationInitTclTk(Tcl_Interp* interp,
         }
       }
     }
-#else
-  (void)interp;
-  (void)relative_dirs;
-#endif
 }
