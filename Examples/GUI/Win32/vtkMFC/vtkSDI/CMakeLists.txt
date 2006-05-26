@@ -5,10 +5,7 @@ SET( vtkSDI_SRCS
  vtkSDI.rc
  vtkSDIDoc
  vtkSDIView
- res/vtkSDI.ico
  res/vtkSDI.rc2
- res/vtkSDIDoc.ico
- res/Toolbar.bmp
 ) 
 
 LINK_LIBRARIES( 

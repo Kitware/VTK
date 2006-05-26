@@ -6,10 +6,7 @@ SET( vtkMDI_SRCS
  vtkMDI.rc
  vtkMDIDoc
  vtkMDIView
- res/vtkMDI.ico
  res/vtkMDI.rc2
- res/vtkMDIDoc.ico
- res/Toolbar.bmp
 ) 
 
 LINK_LIBRARIES(
