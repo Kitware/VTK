@@ -26,7 +26,7 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.12");
+vtkCxxRevisionMacro(vtkContourWidget, "1.13");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -51,11 +51,11 @@ vtkContourWidget::vtkContourWidget()
                                           vtkWidgetEvent::EndSelect,
                                           this, vtkContourWidget::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent,
-                                          vtkEvent::NoModifier, 46, 1, NULL,
+                                          vtkEvent::NoModifier, 47, 1, NULL,
                                           vtkWidgetEvent::Delete,
                                           this, vtkContourWidget::DeleteAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::CharEvent,
-                                          vtkEvent::NoModifier, 46, 1, NULL,
+                                          vtkEvent::NoModifier, 47, 1, NULL,
                                           vtkWidgetEvent::Delete,
                                           this, vtkContourWidget::DeleteAction);
   
