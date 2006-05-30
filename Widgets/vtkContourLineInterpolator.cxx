@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkContourLineInterpolator.h"
 
-vtkCxxRevisionMacro(vtkContourLineInterpolator, "1.2");
+vtkCxxRevisionMacro(vtkContourLineInterpolator, "1.3");
 
 //----------------------------------------------------------------------
 vtkContourLineInterpolator::vtkContourLineInterpolator()
@@ -24,6 +24,14 @@ vtkContourLineInterpolator::vtkContourLineInterpolator()
 //----------------------------------------------------------------------
 vtkContourLineInterpolator::~vtkContourLineInterpolator()
 {
+}
+
+//----------------------------------------------------------------------
+int vtkContourLineInterpolator::UpdateNode( vtkRenderer *ren, 
+                                            vtkContourRepresentation *rep,
+                                            double *node, int idx )
+{
+  return 0;
 }
 
 //----------------------------------------------------------------------
