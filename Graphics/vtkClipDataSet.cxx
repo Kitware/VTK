@@ -29,12 +29,13 @@
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.43");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.44");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -149,8 +150,21 @@ int vtkClipDataSet::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and ouptut
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
+  vtkDataSet *realInput = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  // We have to create a copy of the input because clip requires being
+  // able to InterpolateAllocate point data from the input that is
+  // exactly the same as output. If the input arrays and output arrays
+  // are different vtkCell3D's Clip will fail. By calling InterpolateAllocate
+  // here, we make sure that the output will look exactly like the output
+  // (unwanted arrays will be eliminated in InterpolateAllocate). The
+  // last argument of InterpolateAllocate makes sure that arrays are shallow
+  // copied from realInput to input.
+  vtkSmartPointer<vtkDataSet> input(realInput->NewInstance());
+  input->CopyStructure(realInput);
+  input->GetCellData()->PassData(realInput->GetCellData());
+  input->GetPointData()->InterpolateAllocate(realInput->GetPointData(), 0, 0, 1);
+
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -317,7 +331,10 @@ int vtkClipDataSet::RequestData(
     {
     outPD->CopyScalarsOn();
     }
+  vtkDataSetAttributes* tempDSA = vtkDataSetAttributes::New();
+  tempDSA->InterpolateAllocate(inPD, 1, 2);
   outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
+  tempDSA->Delete();
   outCD[0] = output->GetCellData();
   outCD[0]->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
   if ( this->GenerateClippedOutput )
