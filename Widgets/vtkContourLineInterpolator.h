@@ -58,9 +58,9 @@ public:
   // so it automatically sticks to edges in the vicinity as the user 
   // constructs the contour. 
   // Returns 0 if the node (world position) is unchanged.
-  virtual int UpdateNode( vtkRenderer *ren, 
-                          vtkContourRepresentation *rep,
-                          double *node, int idx );
+  virtual int UpdateNode( vtkRenderer *, 
+                          vtkContourRepresentation *,
+                          double * vtkNotUsed(node), int vtkNotUsed(idx) );
   
  protected:
   vtkContourLineInterpolator();
