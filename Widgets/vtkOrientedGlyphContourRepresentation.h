@@ -30,7 +30,6 @@ class vtkPolyDataMapper;
 class vtkPolyData;
 class vtkGlyph3D;
 class vtkPoints;
-class vtkPolyData;
 
 class VTK_WIDGETS_EXPORT vtkOrientedGlyphContourRepresentation : public vtkContourRepresentation
 {
