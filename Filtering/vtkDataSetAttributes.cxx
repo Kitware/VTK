@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.15");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.16");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -563,7 +563,8 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
 // initial size of) new objects; otherwise use the sze variable.
 void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd, 
                                                 int ctype,
-                                                vtkIdType sze, vtkIdType ext)
+                                                vtkIdType sze, vtkIdType ext,
+                                                int shallowCopyArrays)
 {
   vtkAbstractArray* newAA;
   int i;
@@ -603,22 +604,29 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd,
       {
       // Create all required arrays
       aa = pd->GetAbstractArray(i);
-      newAA = aa->NewInstance();
-      newAA->SetNumberOfComponents(aa->GetNumberOfComponents());
-      newAA->SetName(aa->GetName());
-      if ( sze > 0 )
+      if (shallowCopyArrays)
         {
-        newAA->Allocate(sze*aa->GetNumberOfComponents(),ext);
+        newAA = aa;
         }
       else
         {
-        newAA->Allocate(aa->GetNumberOfTuples());
-        }
-      vtkDataArray* newDA = vtkDataArray::SafeDownCast(newAA);
-      if (newDA)
-        {
-        vtkDataArray* da = vtkDataArray::SafeDownCast(aa);
-        newDA->SetLookupTable(da->GetLookupTable());
+        newAA = aa->NewInstance();
+        newAA->SetNumberOfComponents(aa->GetNumberOfComponents());
+        newAA->SetName(aa->GetName());
+        if ( sze > 0 )
+          {
+          newAA->Allocate(sze*aa->GetNumberOfComponents(),ext);
+          }
+        else
+          {
+          newAA->Allocate(aa->GetNumberOfTuples());
+          }
+        vtkDataArray* newDA = vtkDataArray::SafeDownCast(newAA);
+        if (newDA)
+          {
+          vtkDataArray* da = vtkDataArray::SafeDownCast(aa);
+          newDA->SetLookupTable(da->GetLookupTable());
+          }
         }
       this->TargetIndices[i] = this->AddArray(newAA);
       // If necessary, make the array an attribute
@@ -627,7 +635,10 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd,
         {
         this->SetActiveAttribute(this->TargetIndices[i], attributeType);
         }
-      newAA->Delete();
+      if (!shallowCopyArrays)
+        {
+        newAA->Delete();
+        }
       }
     }
   else
@@ -683,16 +694,18 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd,
 
 //--------------------------------------------------------------------------
 void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd,
-                                        vtkIdType sze, vtkIdType ext)
+                                        vtkIdType sze, vtkIdType ext,
+                                        int shallowCopyArrays)
 {
-  this->InternalCopyAllocate(pd, COPYTUPLE, sze, ext);
+  this->InternalCopyAllocate(pd, COPYTUPLE, sze, ext, shallowCopyArrays);
 }
 
 // Initialize point interpolation method.
 void vtkDataSetAttributes::InterpolateAllocate(vtkDataSetAttributes* pd,
-                                               vtkIdType sze, vtkIdType ext)
+                                               vtkIdType sze, vtkIdType ext,
+                                               int shallowCopyArrays)
 {
-  this->InternalCopyAllocate(pd, INTERPOLATE, sze, ext);
+  this->InternalCopyAllocate(pd, INTERPOLATE, sze, ext, shallowCopyArrays);
 }
 
 //--------------------------------------------------------------------------

@@ -381,8 +381,15 @@ public:
   // will later be used with CopyData. If this is not the case,
   // consider using the alternative forms of CopyAllocate and CopyData.
   // ext is no longer used.
+  // If shallowCopyArrays is true, input arrays are copied to the output
+  // instead of new ones being allocated.
   void CopyAllocate(vtkDataSetAttributes* pd, vtkIdType sze=0,
-                    vtkIdType ext=1000);
+                    vtkIdType ext=1000)
+    {
+      this->CopyAllocate(pd, sze, ext, 0);
+    }
+  void CopyAllocate(vtkDataSetAttributes* pd, vtkIdType sze,
+                    vtkIdType ext, int shallowCopyArrays);
 
   // Description:
   // This method is used to copy data arrays in images.
@@ -418,8 +425,15 @@ public:
   // Note that pd HAS to be the vtkDataSetAttributes object which
   // will later be used with InterpolatePoint or InterpolateEdge.
   // ext is no longer used.
+  // If shallowCopyArrays is true, input arrays are copied to the output
+  // instead of new ones being allocated.
   void InterpolateAllocate(vtkDataSetAttributes* pd, vtkIdType sze=0,
-                           vtkIdType ext=1000);
+                           vtkIdType ext=1000)
+    {
+      this->InterpolateAllocate(pd, sze, ext, 0);
+    }
+  void InterpolateAllocate(vtkDataSetAttributes* pd, vtkIdType sze,
+                           vtkIdType ext, int shallowCopyArrays);
   
   // Description:
   // Interpolate data set attributes from other data set attributes
@@ -486,7 +500,8 @@ protected:
   void InternalCopyAllocate(vtkDataSetAttributes* pd, 
                             int ctype,
                             vtkIdType sze=0,
-                            vtkIdType ext=1000);
+                            vtkIdType ext=1000,
+                            int shallowCopyArrays=0);
 
   // Description:
   // Initialize all of the object's data to NULL
