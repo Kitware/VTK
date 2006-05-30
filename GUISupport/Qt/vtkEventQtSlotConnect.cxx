@@ -98,8 +98,11 @@ bool vtkQtConnection::IsConnection(vtkObject* vtk_obj, unsigned long e,
 }
       
 // set the connection
-void vtkQtConnection::SetConnection(vtkObject* vtk_obj, unsigned long e,
-                   const QObject* qt_obj, const char* slot, void* client_data, float priority)
+void vtkQtConnection::SetConnection(
+  vtkObject* vtk_obj, unsigned long e,
+  const QObject* qt_obj, const char* slot, 
+  void* client_data, float priority,
+  Qt::ConnectionType type)
 {
   // keep track of what we connected
   VTKObject = vtk_obj;
@@ -117,7 +120,10 @@ void vtkQtConnection::SetConnection(vtkObject* vtk_obj, unsigned long e,
     }
 
   // make a connection between this and the Qt object
-  qt_obj->connect(this, SIGNAL(EmitExecute(vtkObject*,unsigned long,void*,void*,vtkCommand*)), slot);
+  qt_obj->connect(
+    this, SIGNAL(EmitExecute(vtkObject*,unsigned long,void*,void*,vtkCommand*)),
+    slot,
+    type);
 }
 
 void vtkQtConnection::PrintSelf(ostream& os, vtkIndent indent)
@@ -158,11 +164,15 @@ vtkEventQtSlotConnect::~vtkEventQtSlotConnect()
   delete Connections;
 }
 
-void vtkEventQtSlotConnect::Connect(vtkObject* vtk_obj, unsigned long event,
-                 const QObject* qt_obj, const char* slot, void* client_data, float priority)
+void vtkEventQtSlotConnect::Connect(
+  vtkObject* vtk_obj, unsigned long event,
+  const QObject* qt_obj, const char* slot, 
+  void* client_data, float priority,
+  Qt::ConnectionType type)
 {
   vtkQtConnection* connection = new vtkQtConnection;
-  connection->SetConnection(vtk_obj, event, qt_obj, slot, client_data, priority);
+  connection->SetConnection(
+    vtk_obj, event, qt_obj, slot, client_data, priority, type);
   Connections->push_back(connection);
 }
 
