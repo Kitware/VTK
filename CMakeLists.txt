@@ -270,28 +270,19 @@ ENDIF(VTK_USE_MFC)
 
 #-----------------------------------------------------------------------------
 # Determine GUI.
-FIND_PACKAGE(X11)
-SET(VTK_USE_X_OPTIONAL 0)
-SET(VTK_USE_X_FORCE 0)
-IF(X11_FOUND)
-  IF(CYGWIN)
-    SET(VTK_USE_X_OPTIONAL 1)
-  ENDIF(CYGWIN)
-  IF(APPLE)
-    SET(VTK_USE_X_OPTIONAL 1)
-  ELSE(APPLE)
-    SET(VTK_USE_X_FORCE ${VTK_USE_RENDERING})
-  ENDIF(APPLE)
-ENDIF(X11_FOUND)
+
+IF (NOT VTK_DONT_INCLUDE_USE_X)
+  # We moved VTK_USE_X option code into a separate file so that
+  # projects including VTK can include this cmake script and use
+  # the option themselves, in which case, they set the VTK_DONT_INCLUDE_USE_X
+  # variable to ensure that VTK doesn't set up the option again.
+  INCLUDE(${VTK_CMAKE_DIR}/vtkUseX.cmake)
+ENDIF (NOT VTK_DONT_INCLUDE_USE_X)
 
 VTK_DEPENDENT_OPTION(VTK_USE_CARBON "Build classes using Carbon API." ON
                      "APPLE;VTK_USE_RENDERING" OFF)
 VTK_DEPENDENT_OPTION(VTK_USE_COCOA "Build classes using Cocoa API." OFF
                      "APPLE;VTK_USE_RENDERING" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_X
-                     "Build classes for the X11 window system." OFF
-                     "X11_FOUND;VTK_USE_RENDERING;VTK_USE_X_OPTIONAL"
-                     "${VTK_USE_X_FORCE}")
 
 IF(VTK_USE_CARBON AND VTK_USE_COCOA)
   MESSAGE(SEND_ERROR "Only one of VTK_USE_CARBON and VTK_USE_COCOA may be ON.")
