@@ -38,7 +38,7 @@ public:
   void AddItem(vtkImageReader2 *);
 
   // Description:
-  // Get the next vtkImageReader2 in the list.
+  // Get the next image reader in the list.
   vtkImageReader2 *GetNextItem();
   
   //BTX
