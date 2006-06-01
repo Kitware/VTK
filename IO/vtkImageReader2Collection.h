@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageReader2Collection - maintain a list of implicit functions
+// .NAME vtkImageReader2Collection - maintain a list of image readers 
 // .SECTION Description
 // vtkImageReader2Collection is an object that creates and manipulates
-// lists of objects of type vtkImplicitFunction. 
+// lists of objects of type vtkImageReader2 and its subclasses. 
 // .SECTION See Also
 // vtkCollection vtkPlaneCollection
 
@@ -34,11 +34,11 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Add an implicit function to the list.
+  // Add an image reader to the list.
   void AddItem(vtkImageReader2 *);
 
   // Description:
-  // Get the next implicit function in the list.
+  // Get the next vtkImageReader2 in the list.
   vtkImageReader2 *GetNextItem();
   
   //BTX
