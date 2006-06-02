@@ -35,7 +35,7 @@
 #include "vtkVolume.h"
 #include "vtkPropCollection.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.222");
+vtkCxxRevisionMacro(vtkRenderer, "1.223");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -449,11 +449,11 @@ void vtkRenderer::AllocateTime()
     this->GetActiveCameraAndResetIfCreated();
     }
 
-  vtkCollectionSimpleIterator sit;    
-  for (this->Cullers->InitTraversal(sit); 
+  vtkCollectionSimpleIterator sit;
+  for (this->Cullers->InitTraversal(sit);
        (aCuller=this->Cullers->GetNextCuller(sit));)
     {
-    totalTime = 
+    totalTime =
       aCuller->Cull((vtkRenderer *)this, 
                     this->PropArray, this->PropArrayCount,
                     initialized );
@@ -831,7 +831,7 @@ void vtkRenderer::ResetCameraClippingRange()
 // (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
 // that its focal point is the center of the bounding box, and adjust its
 // distance and position to preserve its initial view plane normal 
-// (i.e., vector defined from camera position to focal point). Note: is 
+// (i.e., vector defined from camera position to focal point). Note: if 
 // the view plane is parallel to the view up axis, the view up axis will
 // be reset to one of the three coordinate axes.
 void vtkRenderer::ResetCamera(double bounds[6])
@@ -839,7 +839,7 @@ void vtkRenderer::ResetCamera(double bounds[6])
   double center[3];
   double distance;
   double vn[3], *vup;
-  
+
   this->GetActiveCamera();
   if ( this->ActiveCamera != NULL )
     {
@@ -904,9 +904,10 @@ void vtkRenderer::ResetCamera(double bounds[6])
   // setup default parallel scale
   this->ActiveCamera->SetParallelScale(radius);
 }
-  
+
 // Alternative version of ResetCamera(bounds[6]);
-void vtkRenderer::ResetCamera(double xmin, double xmax, double ymin, double ymax, 
+void vtkRenderer::ResetCamera(double xmin, double xmax,
+                              double ymin, double ymax,
                               double zmin, double zmax)
 {
   double bounds[6];

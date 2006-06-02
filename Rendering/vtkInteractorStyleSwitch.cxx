@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.24");
+vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.25");
 vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
 //----------------------------------------------------------------------------
@@ -126,7 +126,7 @@ void vtkInteractorStyleSwitch::OnChar()
       this->EventCallbackCommand->SetAbortFlag(1);
       break;
     case 'c':
-    case 'C':  
+    case 'C':
       this->CameraOrActor = VTKIS_CAMERA;
       this->EventCallbackCommand->SetAbortFlag(1);
       break;
@@ -167,7 +167,7 @@ void vtkInteractorStyleSwitch::SetCurrentStyle()
     }
   else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
            this->CameraOrActor == VTKIS_ACTOR)
-    { 
+    {
     if(this->CurrentStyle != this->JoystickActor)
       {
       if(this->CurrentStyle)
@@ -191,7 +191,7 @@ void vtkInteractorStyleSwitch::SetCurrentStyle()
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
            this->CameraOrActor == VTKIS_ACTOR)
-    { 
+    {
       if(this->CurrentStyle != this->TrackballActor)
         {
         if(this->CurrentStyle)

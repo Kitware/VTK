@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.110");
+vtkCxxRevisionMacro(vtkCamera, "1.111");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -581,7 +581,7 @@ void vtkCamera::Zoom(double amount)
     {
     return;
     }
-  
+
   if (this->ParallelProjection)
     {
     this->SetParallelScale(this->ParallelScale/amount);
@@ -596,7 +596,7 @@ void vtkCamera::Zoom(double amount)
 void vtkCamera::SetClippingRange(double nearz, double farz)
 {
   double thickness;
-  
+
   // check the order
   if ( nearz > farz )
     {
@@ -605,47 +605,48 @@ void vtkCamera::SetClippingRange(double nearz, double farz)
     nearz = farz;
     farz = temp;
     }
-  
+
   // front should be greater than 0.0001
-  if (nearz < 0.0001) 
+  if (nearz < 0.0001)
     {
     farz += 0.0001 - nearz;
     nearz = 0.0001;
     vtkDebugMacro(<< " Front clipping range is set to minimum.");
     }
-  
+
   thickness = farz - nearz;
-  
+
   // thickness should be greater than 0.0001
-  if (thickness < 0.0001) 
+  if (thickness < 0.0001)
     {
     thickness = 0.0001;
     vtkDebugMacro(<< " ClippingRange thickness is set to minimum.");
-    
+
     // set back plane
     farz = nearz + thickness;
     }
-  
-  if (nearz == this->ClippingRange[0] && 
-      farz == this->ClippingRange[1] && 
+
+  if (nearz == this->ClippingRange[0] &&
+      farz == this->ClippingRange[1] &&
       this->Thickness == thickness)
     {
     return;
     }
 
-  this->ClippingRange[0] = nearz; 
-  this->ClippingRange[1] = farz; 
+  this->ClippingRange[0] = nearz;
+  this->ClippingRange[1] = farz;
   this->Thickness = thickness;
-  
-  vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", "  << this->ClippingRange[1] << ")");
+
+  vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0]
+    << ", "  << this->ClippingRange[1] << ")");
 
   this->Modified();
-}  
+}
 
 //----------------------------------------------------------------------------
-// Set the distance between clipping planes. 
+// Set the distance between clipping planes.
 // This method adjusts the back clipping plane to the specified thickness
-// behind the front clipping plane 
+// behind the front clipping plane
 void vtkCamera::SetThickness(double s)
 {
   if (this->Thickness == s)
@@ -653,22 +654,23 @@ void vtkCamera::SetThickness(double s)
     return;
     }
 
-  this->Thickness = s; 
+  this->Thickness = s;
 
   // thickness should be greater than 0.0001
-  if (this->Thickness < 0.0001) 
+  if (this->Thickness < 0.0001)
     {
     this->Thickness = 0.0001;
     vtkDebugMacro(<< " ClippingRange thickness is set to minimum.");
     }
-  
+
   // set back plane
   this->ClippingRange[1] = this->ClippingRange[0] + this->Thickness;
 
-  vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", " << this->ClippingRange[1] << ")");
+  vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0]
+    << ", " << this->ClippingRange[1] << ")");
 
   this->Modified();
-}  
+}
 
 //----------------------------------------------------------------------------
 void vtkCamera::SetWindowCenter(double x, double y)
@@ -703,36 +705,36 @@ void vtkCamera::SetObliqueAngles(double alpha, double beta)
 //
 void vtkCamera::SetViewShear(double dxdz, double dydz, double center)
 {
-  if(dxdz != this->ViewShear[0] || 
-     dydz != this->ViewShear[1] ||
+  if(dxdz   != this->ViewShear[0] ||
+     dydz   != this->ViewShear[1] ||
      center != this->ViewShear[2])
     {
-      this->Modified();
-      this->ViewingRaysModified();
+    this->Modified();
+    this->ViewingRaysModified();
 
-      this->ViewShear[0] = dxdz;
-      this->ViewShear[1] = dydz;
-      this->ViewShear[2] = center;
-      
-      this->ComputeViewPlaneNormal();
+    this->ViewShear[0] = dxdz;
+    this->ViewShear[1] = dydz;
+    this->ViewShear[2] = center;
+
+    this->ComputeViewPlaneNormal();
     }
 }
 //----------------------------------------------------------------------------
 
-void vtkCamera::SetViewShear(double d[3]) 
+void vtkCamera::SetViewShear(double d[3])
 {
   this->SetViewShear(d[0], d[1], d[2]);
 }
 
 //----------------------------------------------------------------------------
-// Compute the perspective transform matrix. This is used in converting 
+// Compute the perspective transform matrix. This is used in converting
 // between view and world coordinates.
-void vtkCamera::ComputePerspectiveTransform(double aspect, 
+void vtkCamera::ComputePerspectiveTransform(double aspect,
                                             double nearz, double farz)
 {
   this->PerspectiveTransform->Identity();
 
-  // apply user defined transform last if there is one 
+  // apply user defined transform last if there is one
   if (this->UserTransform)
     {
     this->PerspectiveTransform->Concatenate(this->UserTransform->GetMatrix());
@@ -800,13 +802,13 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
       }
     }
 
-  if (this->ViewShear[0] != 0.0 || this->ViewShear[1] != 0.0) 
+  if (this->ViewShear[0] != 0.0 || this->ViewShear[1] != 0.0)
     {
     this->PerspectiveTransform->Shear(this->ViewShear[0],
                                       this->ViewShear[1],
                                       this->ViewShear[2]*this->Distance);
     }
-  
+
 }
 
 //----------------------------------------------------------------------------
@@ -816,8 +818,8 @@ vtkMatrix4x4 *vtkCamera::GetPerspectiveTransformMatrix(double aspect,
                                                        double farz)
 {
   this->ComputePerspectiveTransform(aspect, nearz, farz);
-  
-  // return the transform 
+
+  // return the transform
   return this->PerspectiveTransform->GetMatrix();
 }
 
@@ -839,8 +841,8 @@ vtkMatrix4x4 *vtkCamera::GetCompositePerspectiveTransformMatrix(double aspect,
   this->Transform->Concatenate(this->GetViewTransformMatrix());
 
   this->Stereo = stereo;
-  
-  // return the transform 
+
+  // return the transform
   return this->Transform->GetMatrix();
 }
 
@@ -848,7 +850,7 @@ vtkMatrix4x4 *vtkCamera::GetCompositePerspectiveTransformMatrix(double aspect,
 // Return the attached light transform matrix.
 vtkMatrix4x4 *vtkCamera::GetCameraLightTransformMatrix()
 {
-  // return the transform 
+  // return the transform
   return this->CameraLightTransform->GetMatrix();
 }
 
@@ -877,16 +879,26 @@ void vtkCamera::ComputeViewPlaneNormal()
 }
 
 //----------------------------------------------------------------------------
-void vtkCamera::SetViewPlaneNormal(double vtkNotUsed(x), 
+#ifndef VTK_LEGACY_REMOVE
+void vtkCamera::SetViewPlaneNormal(double vtkNotUsed(x),
                                    double vtkNotUsed(y),
                                    double vtkNotUsed(z))
 {
-  vtkWarningMacro(<< "SetViewPlaneNormal:  This method is deprecated, the view plane normal is calculated automatically.");
+  vtkWarningMacro(<< "SetViewPlaneNormal:  This method is deprecated, "
+    "the view plane normal is calculated automatically.");
 }
 
 //----------------------------------------------------------------------------
+void vtkCamera::SetViewPlaneNormal(const double [3])
+{
+  vtkWarningMacro(<< "SetViewPlaneNormal:  This method is deprecated, "
+    "the view plane normal is calculated automatically.");
+}
+#endif
+
+//----------------------------------------------------------------------------
 // Return the 6 planes (Ax + By + Cz + D = 0) that bound
-// the view frustum. 
+// the view frustum.
 void vtkCamera::GetFrustumPlanes(double aspect, double planes[24])
 {
   int i;
@@ -944,52 +956,53 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "ClippingRange: (" << this->ClippingRange[0] << ", " 
+  os << indent << "ClippingRange: (" << this->ClippingRange[0] << ", "
      << this->ClippingRange[1] << ")\n";
   os << indent << "DirectionOfProjection: (" << this->DirectionOfProjection[0]
-     << ", " << this->DirectionOfProjection[1] 
+     << ", " << this->DirectionOfProjection[1]
      << ", " << this->DirectionOfProjection[2] << ")\n";
   os << indent << "Distance: " << this->Distance << "\n";
   os << indent << "EyeAngle: " << this->EyeAngle << "\n";
   os << indent << "FocalDisk: " << this->FocalDisk << "\n";
-  os << indent << "FocalPoint: (" << this->FocalPoint[0] << ", " 
+  os << indent << "FocalPoint: (" << this->FocalPoint[0] << ", "
      << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
   os << indent << "ViewShear: (" << this->ViewShear[0]
-     << ", " << this->ViewShear[1] 
+     << ", " << this->ViewShear[1]
      << ", " << this->ViewShear[2] << ")\n";
-  os << indent << "ParallelProjection: " << 
+  os << indent << "ParallelProjection: " <<
     (this->ParallelProjection ? "On\n" : "Off\n");
   os << indent << "ParallelScale: " << this->ParallelScale << "\n";
-  os << indent << "Position: (" << this->Position[0] << ", " 
+  os << indent << "Position: (" << this->Position[0] << ", "
      << this->Position[1] << ", " << this->Position[2] << ")\n";
   os << indent << "Stereo: " << (this->Stereo ? "On\n" : "Off\n");
   os << indent << "Left Eye: " << this->LeftEye << endl;
   os << indent << "Thickness: " << this->Thickness << "\n";
   os << indent << "ViewAngle: " << this->ViewAngle << "\n";
-  os << indent << "UseHorizontalViewAngle: " << this->UseHorizontalViewAngle << "\n";
+  os << indent << "UseHorizontalViewAngle: " << this->UseHorizontalViewAngle
+     << "\n";
   os << indent << "UserTransform: ";
   if (this->UserTransform)
     {
-    os << this->UserTransform << "\n"; 
+    os << this->UserTransform << "\n";
     }
   else
     {
     os << "(none)\n";
     }
   os << indent << "ViewPlaneNormal: (" << this->ViewPlaneNormal[0]
-     << ", " << this->ViewPlaneNormal[1] 
+     << ", " << this->ViewPlaneNormal[1]
      << ", " << this->ViewPlaneNormal[2] << ")\n";
-  os << indent << "ViewUp: (" << this->ViewUp[0] << ", " 
+  os << indent << "ViewUp: (" << this->ViewUp[0] << ", "
      << this->ViewUp[1] << ", " << this->ViewUp[2] << ")\n";
-  os << indent << "WindowCenter: (" << this->WindowCenter[0] << ", " 
+  os << indent << "WindowCenter: (" << this->WindowCenter[0] << ", "
      << this->WindowCenter[1] << ")\n";
 }
 
-vtkMatrix4x4 *vtkCamera::GetViewTransformMatrix() 
+vtkMatrix4x4 *vtkCamera::GetViewTransformMatrix()
 { return this->ViewTransform->GetMatrix(); }
 
-double *vtkCamera::GetOrientation() 
+double *vtkCamera::GetOrientation()
 { return this->ViewTransform->GetOrientation(); };
 
-double *vtkCamera::GetOrientationWXYZ() 
+double *vtkCamera::GetOrientationWXYZ()
 { return this->ViewTransform->GetOrientationWXYZ(); };

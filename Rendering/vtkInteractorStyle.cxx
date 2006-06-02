@@ -32,28 +32,28 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.100");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.101");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
-vtkInteractorStyle::vtkInteractorStyle() 
+vtkInteractorStyle::vtkInteractorStyle()
 {
   this->State               = VTKIS_NONE;
-  this->AnimState           = VTKIS_ANIM_OFF; 
+  this->AnimState           = VTKIS_ANIM_OFF;
 
   this->HandleObservers     = 1;
   this->UseTimers           = 0;
   this->TimerId             = 1;
 
   this->AutoAdjustCameraClippingRange = 1;
-  
+
   this->Interactor          = NULL;
 
   this->EventCallbackCommand->SetCallback(vtkInteractorStyle::ProcessEvents);
 
   // These widgets are not activated with a key
 
-  this->KeyPressActivation  = 0; 
+  this->KeyPressActivation  = 0;
 
   this->Outline             = vtkOutlineSource::New();
   this->OutlineActor        = NULL;
