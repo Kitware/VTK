@@ -91,7 +91,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.7");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.8");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -738,7 +738,10 @@ int vtkExodusIIWriter::CheckParameters()
       this->GlobalNodeIdList = 0;
       HaveGlobalNodeIdArray = 0;
       }
-    this->GlobalNodeIdList = ia->GetPointer(0);
+    else
+      {
+      this->GlobalNodeIdList = ia->GetPointer(0);
+      }
     }
 
   if (this->GetModelMetadata())
