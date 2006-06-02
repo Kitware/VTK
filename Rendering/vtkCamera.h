@@ -313,8 +313,8 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // These methods have been deprecated.  The view plane normal is
   // automatically set from the DirectionOfProjection according to
   // the ViewShear.
-  void VTK_LEGACY(SetViewPlaneNormal(double x, double y, double z));
-  void VTK_LEGACY(SetViewPlaneNormal(const double a[3]));
+  VTK_LEGACY(void SetViewPlaneNormal(double x, double y, double z));
+  VTK_LEGACY(void SetViewPlaneNormal(const double a[3]));
 
   // Description:
   // This method is called automatically whenever necessary, it
