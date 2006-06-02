@@ -226,7 +226,7 @@ SET(VTK_MATERIALS_DIRS
   CACHE STRING
   "; separated directories to search for materials/shaders")
 
-MARK_AS_ADVANCED(VTK_MATERIALS_DIRS)
+MARK_AS_ADVANCED(VTK_USE_CG_SHADERS VTK_USE_GLSL_SHADERS VTK_MATERIALS_DIRS)
 
   
 # Determine GUI Support.
