@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSource, "1.32");
+vtkCxxRevisionMacro(vtkImageGaussianSource, "1.33");
 vtkStandardNewMacro(vtkImageGaussianSource);
 
 //----------------------------------------------------------------------------
@@ -99,7 +99,11 @@ int vtkImageGaussianSource::RequestInformation (
   return 1;
 }
 
-void vtkImageGaussianSource::ExecuteData(vtkDataObject *output)
+//----------------------------------------------------------------------------
+int vtkImageGaussianSource::RequestData(
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
 {
   double *outPtr;
   int idxX, idxY, idxZ;
@@ -112,6 +116,9 @@ void vtkImageGaussianSource::ExecuteData(vtkDataObject *output)
   unsigned long count = 0;
   unsigned long target;
   
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);  
+  vtkImageData *output = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkImageData *data = this->AllocateOutputData(output);
 
   if (data->GetScalarType() != VTK_DOUBLE)
@@ -162,6 +169,8 @@ void vtkImageGaussianSource::ExecuteData(vtkDataObject *output)
       }
     outPtr += outIncZ;
     }
+
+  return 1;
 }
 
 void vtkImageGaussianSource::PrintSelf(ostream& os, vtkIndent indent)
