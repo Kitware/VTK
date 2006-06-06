@@ -60,7 +60,7 @@ protected:
   double Maximum;
 
   virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
-  virtual void ExecuteData(vtkDataObject *data);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkImageGaussianSource(const vtkImageGaussianSource&);  // Not implemented.
   void operator=(const vtkImageGaussianSource&);  // Not implemented.
