@@ -35,7 +35,7 @@
 #include "vtkVolume.h"
 #include "vtkPropCollection.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.223");
+vtkCxxRevisionMacro(vtkRenderer, "1.224");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -870,7 +870,7 @@ void vtkRenderer::ResetCamera(double bounds[6])
   radius = sqrt(radius)*0.5;
 
   // default so that the bounding sphere fits within the view fustrum
-  
+
   // compute the distance from the intersection of the view frustum with the
   // bounding sphere. Basically in 2D draw a circle representing the bounding
   // sphere in 2D then draw a horizontal line going out from the center of
@@ -882,7 +882,7 @@ void vtkRenderer::ResetCamera(double bounds[6])
   // this forms a right triangle with one side being the radius, another being
   // the target distance for the camera, then just find the target dist using
   // a sin.
-  distance = 
+  distance =
     radius/sin(this->ActiveCamera->GetViewAngle()*vtkMath::Pi()/360.0);
 
   // check view-up vector against view plane normal
@@ -934,14 +934,14 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
     {
     return;
     }
-  
+
   this->GetActiveCameraAndResetIfCreated();
   if ( this->ActiveCamera == NULL )
     {
     vtkErrorMacro(<< "Trying to reset clipping range of non-existant camera");
     return;
     }
-  
+
   // Find the plane equation for the camera view plane
   this->ActiveCamera->GetViewPlaneNormal(vn);
   this->ActiveCamera->GetPosition(position);

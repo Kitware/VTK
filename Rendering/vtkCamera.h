@@ -61,10 +61,10 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   void SetFocalPoint(const double a[3]) {
     this->SetFocalPoint(a[0], a[1], a[2]);};
   vtkGetVector3Macro(FocalPoint,double);
-  
+
   // Description:
   // Set/Get the view up direction for the camera.  The default
-  // is (0,1,0).  
+  // is (0,1,0).
   void SetViewUp(double vx, double vy, double vz);
   void SetViewUp(const double a[3]) {
     this->SetViewUp(a[0], a[1], a[2]); }
@@ -94,7 +94,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Move the position of the camera along the direction of projection. Moving
-  // towards the focal point (e.g., greater than 1) is a dolly-in, moving away 
+  // towards the focal point (e.g., greater than 1) is a dolly-in, moving away
   // from the focal point (e.g., less than 1) is a dolly-out.
   void Dolly(double distance);
 
@@ -114,8 +114,8 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   void Azimuth(double angle);
 
   // Description:
-  // Rotate the focal point about the view up vector centered at the camera's 
-  // position.  Note that the view up vector is not necessarily perpendicular
+  // Rotate the focal point about the view up vector centered at the camera's
+  // position. Note that the view up vector is not necessarily perpendicular
   // to the direction of projection.
   void Yaw(double angle);
 
@@ -125,11 +125,11 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   void Elevation(double angle);
 
   // Description:
-  // Rotate the focal point about the cross product of the view up vector 
+  // Rotate the focal point about the cross product of the view up vector
   // and the direction of projection, centered at the camera's position.
   void Pitch(double angle);
 
-  // Description: 
+  // Description:
   // Set/Get the value of the ParallelProjection instance variable. This
   // determines if the camera should do a perspective or parallel projection.
   void SetParallelProjection(int flag);
@@ -149,12 +149,12 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Set/Get the camera view angle, which is the angular height of the
-  // camera view measured in degrees.  The default angle is 30 degrees.  
+  // camera view measured in degrees.  The default angle is 30 degrees.
   // This method has no effect in parallel projection mode.
-  // The formula for setting the angle up for perfect perspective viewing 
-  // is: angle = 2*atan((h/2)/d) where h is the height of the RenderWindow 
+  // The formula for setting the angle up for perfect perspective viewing
+  // is: angle = 2*atan((h/2)/d) where h is the height of the RenderWindow
   // (measured in mm by holding a ruler up to your screen) and d is the
-  // distance from your eyes to the screen. 
+  // distance from your eyes to the screen.
   void SetViewAngle(double angle);
   vtkGetMacro(ViewAngle,double);
 
@@ -170,7 +170,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Description:
   // In perspective mode, decrease the view angle by the specified factor.
   // In parallel mode, decrease the parallel scale by the specified factor.
-  // A value greater than 1 is a zoom-in, a  value less than 1 is a zoom-out.
+  // A value greater than 1 is a zoom-in, a value less than 1 is a zoom-out.
   void Zoom(double factor);
 
   // Description:

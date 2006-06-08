@@ -100,26 +100,26 @@ public:
   // Description:
   // Set/Get the scale of the actor. Scaling in performed independently on the
   // X, Y and Z axis. A scale of zero is illegal and will be replaced with one.
-  virtual void SetScale(double _arg1, double _arg2, double _arg3) 
-    { 
-      vtkDebugMacro(<< this->GetClassName() << " (" << this << 
-      "): setting Scale to (" << _arg1 << "," << _arg2 << "," << 
-      _arg3 << ")"); 
-      if ((this->Scale[0] != _arg1)||
-          (this->Scale[1] != _arg2)||
-          (this->Scale[2] != _arg3)) 
-        { 
-        this->Scale[0] = _arg1; 
-        this->Scale[1] = _arg2; 
-        this->Scale[2] = _arg3; 
-        this->Modified(); 
-        this->IsIdentity = 0;
-        } 
-    }; 
-  virtual void SetScale (double _arg[3]) 
-    { 
-      this->SetScale (_arg[0], _arg[1], _arg[2]);
-    } 
+  virtual void SetScale(double _arg1, double _arg2, double _arg3)
+    {
+    vtkDebugMacro(<< this->GetClassName() << " (" << this <<
+      "): setting Scale to (" << _arg1 << "," << _arg2 << "," <<
+      _arg3 << ")");
+    if (this->Scale[0] != _arg1 ||
+        this->Scale[1] != _arg2 ||
+        this->Scale[2] != _arg3 )
+      {
+      this->Scale[0] = _arg1;
+      this->Scale[1] = _arg2;
+      this->Scale[2] = _arg3;
+      this->Modified();
+      this->IsIdentity = 0;
+      }
+    };
+  virtual void SetScale (double _arg[3])
+    {
+    this->SetScale (_arg[0], _arg[1], _arg[2]);
+    }
   vtkGetVectorMacro(Scale,double,3);
 
   // Description:
@@ -128,12 +128,12 @@ public:
 
   // Description:
   // In addition to the instance variables such as position and orientation,
-  // you can add an additional transformation for your own use.  This 
+  // you can add an additional transformation for your own use.  This
   // transformation is concatenated with the actor's internal transformation,
-  // which you implicitly create through the use of SetPosition(), 
-  // SetOrigin() and SetOrientation().  
+  // which you implicitly create through the use of SetPosition(),
+  // SetOrigin() and SetOrientation().
   // <p>If the internal transformation
-  // is identity (i.e. if you don't set the Position, Origin, or 
+  // is identity (i.e. if you don't set the Position, Origin, or
   // Orientation) then the actors final transformation will be the
   // UserTransform, concatenated with the UserMatrix if the UserMatrix
   // is present.
