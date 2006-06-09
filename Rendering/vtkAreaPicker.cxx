@@ -36,7 +36,7 @@
 #include "vtkPoints.h"
 #include "vtkFrustumExtractor.h"
 
-vtkCxxRevisionMacro(vtkAreaPicker, "1.11");
+vtkCxxRevisionMacro(vtkAreaPicker, "1.12");
 vtkStandardNewMacro(vtkAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -399,18 +399,18 @@ int vtkAreaPicker::ABoxFrustumIsect(double *bounds, double &mindist)
     }
     
   double verts[8][3];
-  int x, y, z, id;
-  id = 0;
+  int x, y, z;
+  int vid = 0;
   for (x = 0; x < 2; x++)
     {
     for (y = 0; y < 2; y++)
       {
       for (z = 0; z < 2; z++)
         {
-        verts[id][0] = bounds[0+x];
-        verts[id][1] = bounds[2+y];
-        verts[id][2] = bounds[4+z];
-        id++;
+        verts[vid][0] = bounds[0+x];
+        verts[vid][1] = bounds[2+y];
+        verts[vid][2] = bounds[4+z];
+        vid++;
         }
       }
     }
@@ -418,7 +418,6 @@ int vtkAreaPicker::ABoxFrustumIsect(double *bounds, double &mindist)
   //find distance to the corner nearest the near plane for 'closest' prop
   mindist = -VTK_DOUBLE_MAX;
   vtkPlane *plane = this->Frustum->GetPlane(4); //near plane
-  int vid;
   for (vid = 0; vid < 8; vid++)
     {
     double dist = plane->EvaluateFunction(verts[vid]);
