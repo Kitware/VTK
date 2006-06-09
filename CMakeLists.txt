@@ -70,6 +70,15 @@ INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
 # Choose static or shared libraries.
 INCLUDE(${VTK_CMAKE_DIR}/vtkSelectSharedLibraries.cmake)
 
+#-----------------------------------------------------------------------------
+# Does VTK require support for 64 bit file systems
+INCLUDE(${VTK_CMAKE_DIR}/CheckCXXSourceRuns.cmake)
+FILE(READ "${VTK_CMAKE_DIR}/vtkRequireLargeFilesSupport.cxx"
+  VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE)
+CHECK_CXX_SOURCE_RUNS("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
+  VTK_REQUIRE_LARGE_FILE_SUPPORT "Support for 64 bit file systems")
+
+#-----------------------------------------------------------------------------
 # Disable the install targets if using the rpath feature.
 IF(NOT WIN32)
   IF(VTK_USE_RPATH)
