@@ -16,8 +16,9 @@
 
 #include "vtkToolkits.h"
 
-vtkCxxRevisionMacro(vtkWindow, "1.27");
+vtkCxxRevisionMacro(vtkWindow, "1.28");
 
+//-----------------------------------------------------------------------------
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
 // buffering turned on.
@@ -31,8 +32,9 @@ vtkWindow::vtkWindow()
   this->Size[0] = this->Size[1] = 0;
   this->Position[0] = this->Position[1] = 0;
   this->Mapped = 0;
-  this->WindowName = new char[strlen("Visualization Toolkit")+1];
-    strcpy( this->WindowName, "Visualization Toolkit" );
+  const char windowname[] = "Visualization Toolkit";
+  this->WindowName = new char[strlen(windowname)+1];
+  strcpy( this->WindowName, windowname );
   this->Erase = 1;
   this->DoubleBuffer = 0;
   this->DPI = 120;
@@ -46,35 +48,14 @@ vtkWindow::vtkWindow()
   this->TileScale[1] = 1;
 }
 
+//-----------------------------------------------------------------------------
 // Destructor for the vtkWindow object.
 vtkWindow::~vtkWindow()
 {
-  if( this->WindowName )
-    {
-    delete [] this->WindowName;
-        this->WindowName = NULL;
-    }
+  this->SetWindowName( NULL );
 }
 
-void vtkWindow::SetWindowName( const char * _arg )
-{
-  vtkDebugMacro("Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 
-         << this->GetClassName() << " (" << this << "): setting " 
-         << this->WindowName  << " to " << _arg << "\n\n");
-
-  if ( this->WindowName && _arg && (!strcmp(this->WindowName,_arg)))
-    {
-    return;
-    }
-  if (this->WindowName)
-    {
-    delete [] this->WindowName;
-    }
-  this->WindowName = new char[strlen(_arg) + 1];
-  strcpy(this->WindowName, _arg);
-  this->Modified();
-}
-
+//-----------------------------------------------------------------------------
 int *vtkWindow::GetSize()
 {
   this->TileSize[0] = this->Size[0]*this->TileScale[0];
@@ -83,14 +64,17 @@ int *vtkWindow::GetSize()
   return this->TileSize;
 }
 
+//-----------------------------------------------------------------------------
 void vtkWindow::SetSize(int a[2])
 {
   this->SetSize(a[0],a[1]);
 }
 
+//-----------------------------------------------------------------------------
 void vtkWindow::SetSize(int x, int y)
 {
-  if ((this->Size[0] != x)||(this->Size[1] != y))
+  if ( this->Size[0] != x
+    || this->Size[1] != y )
     {
     this->Modified();
     this->Size[0] = x;
@@ -98,18 +82,23 @@ void vtkWindow::SetSize(int x, int y)
     }
 }
 
+//-----------------------------------------------------------------------------
 int *vtkWindow::GetPosition()
 {
   return this->Position;
 }
 
+//-----------------------------------------------------------------------------
 void vtkWindow::SetPosition(int a[2])
 {
   this->SetPosition(a[0],a[1]);
 }
+
+//-----------------------------------------------------------------------------
 void vtkWindow::SetPosition(int x, int y)
 {
-  if ((this->Position[0] != x)||(this->Position[1] != y))
+  if ( this->Position[0] != x
+    || this->Position[1] != y )
     {
     this->Modified();
     this->Position[0] = x;
@@ -117,6 +106,7 @@ void vtkWindow::SetPosition(int x, int y)
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

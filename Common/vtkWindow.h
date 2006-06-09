@@ -87,7 +87,7 @@ public:
   // Description:
   // Get name of rendering window
   vtkGetStringMacro(WindowName);
-  virtual void SetWindowName(const char *);
+  vtkSetStringMacro(WindowName);
 
   // Description:
   // Ask each viewport owned by this Window to render its image and 
