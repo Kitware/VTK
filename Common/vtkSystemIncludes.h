@@ -25,22 +25,6 @@
 #ifndef __vtkSystemIncludes_h
 #define __vtkSystemIncludes_h
 
-/*
- * This is a support for files on the disk that are larger than 2GB.
- * Since this is the first place that any include should happen, do this here.
- */
-#ifdef VTK_REQUIRE_LARGE_FILE_SUPPORT
-#  ifndef _LARGEFILE_SOURCE
-#    define _LARGEFILE_SOURCE
-#  endif
-#  ifndef _LARGE_FILES
-#    define _LARGE_FILES
-#  endif
-#  ifndef _FILE_OFFSET_BITS
-#    define _FILE_OFFSET_BITS 64
-#  endif
-#endif
-
 /* first include the local configuration for this machine */
 #define __VTK_SYSTEM_INCLUDES__INSIDE
 #include "vtkWin32Header.h"
