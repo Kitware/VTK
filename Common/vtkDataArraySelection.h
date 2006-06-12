@@ -84,6 +84,10 @@ public:
 
   // Description:
   // Get whether the array at the given index is enabled.
+  int GetArraySetting(const char* name)
+    {
+    return this->GetArraySetting(this->GetArrayIndex(name));
+    }
   int GetArraySetting(int index);
 
   // Description:
