@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkImageMask.h"
 
+#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMask, "1.39");
+vtkCxxRevisionMacro(vtkImageMask, "1.40");
 vtkStandardNewMacro(vtkImageMask);
 
 //----------------------------------------------------------------------------
@@ -29,7 +29,7 @@ vtkImageMask::vtkImageMask()
   this->NotMask = 0;
   this->MaskedOutputValue = new double[3];
   this->MaskedOutputValueLength = 3;
-  this->MaskedOutputValue[0] = this->MaskedOutputValue[1] 
+  this->MaskedOutputValue[0] = this->MaskedOutputValue[1]
     = this->MaskedOutputValue[2] = 0.0;
   this->MaskAlpha = 1.0;
   this->SetNumberOfInputPorts(2);
@@ -47,7 +47,7 @@ void vtkImageMask::SetImageInput(vtkImageData *in)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMask::SetMaskInput(vtkImageData *in) 
+void vtkImageMask::SetMaskInput(vtkImageData *in)
 {
   this->SetInput2(in);
 }
@@ -106,7 +106,7 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
   double maskAlpha, oneMinusMaskAlpha;
   unsigned long count = 0;
   unsigned long target;
-  
+
   // create a masked output value with the correct length by cycling
   numC = outData->GetNumberOfScalarComponents();
   maskedValue = new T[numC];
@@ -124,15 +124,15 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
   maskState = self->GetNotMask();
   maskAlpha = self->GetMaskAlpha();
   oneMinusMaskAlpha = 1.0 - maskAlpha;
-  
-  // Get information to march through data 
+
+  // Get information to march through data
   in1Data->GetContinuousIncrements(ext, in1Inc0, in1Inc1, in1Inc2);
   in2Data->GetContinuousIncrements(ext, in2Inc0, in2Inc1, in2Inc2);
   outData->GetContinuousIncrements(ext, outInc0, outInc1, outInc2);
   num0 = ext[1] - ext[0] + 1;
   num1 = ext[3] - ext[2] + 1;
   num2 = ext[5] - ext[4] + 1;
-  
+
   target = (unsigned long)(num2*num1/50.0);
   target++;
 
@@ -141,7 +141,7 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
     {
     for (idx1 = 0; !self->AbortExecute && idx1 < num1; ++idx1)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -248,22 +248,22 @@ void vtkImageMask::ThreadedRequestData(
     vtkErrorMacro("Mask extent not large enough");
     return;
     }
-  
+
   if (inData[1][0]->GetNumberOfScalarComponents() != 1)
     {
-    vtkErrorMacro("Maks can have one comenent");
+    vtkErrorMacro("Masks can have one component");
     }
-    
+
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType() ||
       inData[1][0]->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
-    vtkErrorMacro(<< "Execute: image ScalarType (" 
-      << inData[0][0]->GetScalarType() << ") must match out ScalarType (" 
-      << outData[0]->GetScalarType() << "), and mask scalar type (" 
+    vtkErrorMacro(<< "Execute: image ScalarType ("
+      << inData[0][0]->GetScalarType() << ") must match out ScalarType ("
+      << outData[0]->GetScalarType() << "), and mask scalar type ("
       << inData[1][0]->GetScalarType() << ") must be unsigned char.");
     return;
     }
-  
+
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
@@ -315,7 +315,7 @@ void vtkImageMask::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   int idx;
-  
+
   os << indent << "MaskedOutputValue: " << this->MaskedOutputValue[0];
   for (idx = 1; idx < this->MaskedOutputValueLength; ++idx)
     {
