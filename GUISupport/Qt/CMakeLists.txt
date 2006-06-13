@@ -1,4 +1,5 @@
 
+INCLUDE_REGULAR_EXPRESSION("^(vtk|Q).*$")
 # we need Qt3 or Qt4
 INCLUDE( ${CMAKE_ROOT}/Modules/FindQt.cmake )
 
