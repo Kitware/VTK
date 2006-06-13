@@ -84,7 +84,7 @@ class QVTK_EXPORT QVTKWidget : public QWidget
     
     // Description:
     // Get the vtk render window.
-    vtkRenderWindow* GetRenderWindow();
+    virtual vtkRenderWindow* GetRenderWindow();
     
     // Description:
     // Get the Qt/vtk interactor that was either created by default or set by the user
