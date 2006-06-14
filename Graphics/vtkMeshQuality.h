@@ -71,6 +71,7 @@ class vtkCell;
 #define VTK_QUALITY_MED_FROBENIUS_NORM 4
 #define VTK_QUALITY_MAX_FROBENIUS_NORM 5
 #define VTK_QUALITY_MIN_ANGLE 6
+#define VTK_QUALITY_COLLAPSE_RATIO 7
 
 class VTK_GRAPHICS_EXPORT vtkMeshQuality : public vtkDataSetAlgorithm
 {
@@ -152,7 +153,7 @@ public:
   // Description:
   // Set/Get the particular estimator used to measure the quality of tetrahedra.
   // The default is VTK_QUALITY_RADIUS_RATIO and valid values also include
-  // VTK_QUALITY_ASPECT_RATIO, VTK_QUALITY_FROBENIUS_NORM, and VTK_QUALITY_EDGE_RATIO.
+  // VTK_QUALITY_ASPECT_RATIO, VTK_QUALITY_FROBENIUS_NORM, VTK_QUALITY_EDGE_RATIO, and VTK_QUALITY_COLLAPSE_RATIO.
   vtkSetMacro(TetQualityMeasure,int);
   vtkGetMacro(TetQualityMeasure,int);
   void SetTetQualityMeasureToEdgeRatio()
@@ -174,6 +175,10 @@ public:
   void SetTetQualityMeasureToMinAngle()
     {
     this->SetTetQualityMeasure( VTK_QUALITY_MIN_ANGLE );
+    }
+  void SetTetQualityMeasureToCollapseRatio()
+    {
+    this->SetTetQualityMeasure( VTK_QUALITY_COLLAPSE_RATIO );
     }
 
   // Description:
@@ -377,6 +382,16 @@ public:
   // performed because this method is called from the inner loop of the Execute()
   // member function.
   static double TetMinAngle( vtkCell* cell );
+
+  // Description:
+  // This is a static function used to calculate the collapse ratio of a tetrahedron.
+  // The collapse ratio is a dimensionless number defined as the smallest ratio of the
+  // height of a vertex above its opposing triangle to the longest edge of that opposing
+  // triangle across all vertices of the tetrahedron.
+  // It assumes that you pass the correct type of cell -- no type checking is
+  // performed because this method is called from the inner loop of the Execute()
+  // member function.
+  static double TetCollapseRatio( vtkCell* cell );
 
   // Description:
   // This is a static function used to calculate the edge ratio of a hexahedron.

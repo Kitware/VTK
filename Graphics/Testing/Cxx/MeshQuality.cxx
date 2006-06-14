@@ -157,6 +157,12 @@ int MeshQuality( int argc, char* argv[] )
     cout << " Minimal Dihedral Angle:"
          << endl;
     DumpQualityStats( iq, "Mesh Tetrahedron Quality" );
+
+    iq->SetTetQualityMeasureToCollapseRatio();
+    iq->Update();
+    cout << " Collapse Ratio:"
+         << endl;
+    DumpQualityStats( iq, "Mesh Tetrahedron Quality" );
     cout << endl; 
 
     cout << "Hexahedral quality of mesh" << endl;
