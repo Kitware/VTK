@@ -23,7 +23,7 @@
 #include "vtkAssemblyPath.h"
 #include "vtkAreaPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.2");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.3");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandPick);
 
 #define VTKISRBP_ORIENT 0
@@ -207,7 +207,7 @@ void vtkInteractorStyleRubberBandPick::OnLeftButtonUp()
     this->Pick();
     }
   this->Moving = 0;
-  this->CurrentMode = VTKISRBP_ORIENT;
+  //this->CurrentMode = VTKISRBP_ORIENT;
 }
 
 //--------------------------------------------------------------------------
@@ -266,7 +266,7 @@ void vtkInteractorStyleRubberBandPick::Pick()
     else
       {
       //highlight the one prop that the picker saved in the path
-      this->HighlightProp(path->GetFirstNode()->GetViewProp());
+      //this->HighlightProp(path->GetFirstNode()->GetViewProp());
       this->PropPicked = 1;
       }
     rwi->EndPickCallback();
