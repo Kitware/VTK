@@ -74,8 +74,12 @@ class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
     // connections which are identical are treated as separate connections.
     virtual void Connect(vtkObject* vtk_obj, unsigned long event, 
                          const QObject* qt_obj, const char* slot, 
-                         void* client_data=NULL, float priority=0.0,
-                         Qt::ConnectionType type = Qt::AutoConnection);
+                         void* client_data=NULL, float priority=0.0
+#if QT_VERSION >= 0x04000
+                         ,Qt::ConnectionType type = Qt::AutoConnection);
+#else
+                         );
+#endif
     
     // Description:
     // Disconnect a vtk object from a qt object.
@@ -126,8 +130,12 @@ class vtkQtConnection : public QObject
     // set the connection
     void SetConnection(vtkObject* vtk_obj, unsigned long event,
                        const QObject* qt_obj, const char* slot, 
-                       void* client_data, float priority=0.0, 
-                       Qt::ConnectionType type = Qt::AutoConnection);
+                       void* client_data, float priority=0.0
+#if QT_VERSION >= 0x04000
+                         ,Qt::ConnectionType type = Qt::AutoConnection);
+#else
+                         );
+#endif
     
     // check if a connection matches input parameters
     bool IsConnection(vtkObject* vtk_obj, unsigned long event,
