@@ -104,7 +104,7 @@ public:
   virtual void RemoveArray(const char *name)
     {
       int i;
-      this->GetArray(name, i);
+      this->GetAbstractArray(name, i);
       this->RemoveArray(i);
     }
 
