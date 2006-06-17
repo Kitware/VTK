@@ -186,9 +186,4 @@
     <function access="private" specifier="non virtual">init()</function>
     <function access="private" specifier="non virtual">destroy()</function>
 </functions>
-<layoutdefaults spacing="6" margin="11"/>
-<includehints>
-    <includehint>qvtkwidget.h</includehint>
-    <includehint>qvtkwidget.h</includehint>
-</includehints>
 </UI>
