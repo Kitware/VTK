@@ -68,18 +68,18 @@ static void dirty_cache(vtkObject *, unsigned long, void *, void *);
 /*! constructor */
 QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
 #if QT_VERSION < 0x030000
-    : QWidget(parent, name, f | 0x10000000)  // WWinOwnDC
+  : QWidget(parent, name, f | 0x10000000)  // WWinOwnDC
 #else
     : QWidget(parent, name, f | Qt::WWinOwnDC )
 #endif
-     , mRenWin(NULL), 
-     cachedImageCleanFlag(false),
-     automaticImageCache(false), maxImageCacheRenderRate(1.0)
+    , mRenWin(NULL), 
+      cachedImageCleanFlag(false),
+      automaticImageCache(false), maxImageCacheRenderRate(1.0)
 {
   // no background
-  setBackgroundMode( Qt::NoBackground );
+  this->setBackgroundMode( Qt::NoBackground );
 
-   // default to strong focus
+  // default to strong focus
   this->setFocusPolicy(QWidget::StrongFocus);
 
   // default to enable mouse events when a mouse button isn't down
@@ -88,8 +88,8 @@ QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
   
   // set expanding to take up space for better default layouts
   this->setSizePolicy( 
-       QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
-       );
+    QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
+    );
 
   this->mCachedImage = vtkUnsignedCharArray::New();
 }
@@ -99,9 +99,9 @@ QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
 #if QT_VERSION >= 0x040000
 /*! constructor */
 QVTKWidget::QVTKWidget(QWidget* p, Qt::WFlags f)
-    : QWidget(p, f | Qt::MSWindowsOwnDC), mRenWin(NULL),
-          cachedImageCleanFlag(false),
-          automaticImageCache(false), maxImageCacheRenderRate(1.0)
+  : QWidget(p, f | Qt::MSWindowsOwnDC), mRenWin(NULL),
+    cachedImageCleanFlag(false),
+    automaticImageCache(false), maxImageCacheRenderRate(1.0)
 
 {
   // no background
@@ -109,7 +109,7 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WFlags f)
   // no double buffering
   this->setAttribute(Qt::WA_PaintOnScreen);
 
-   // default to strong focus
+  // default to strong focus
   this->setFocusPolicy(Qt::StrongFocus);
 
   // default to enable mouse events when a mouse button isn't down
@@ -118,8 +118,8 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WFlags f)
   
   // set expanding to take up space for better default layouts
   this->setSizePolicy( 
-       QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
-       );
+    QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
+    );
 
   this->mCachedImage = vtkUnsignedCharArray::New();
 
@@ -160,8 +160,8 @@ vtkRenderWindow* QVTKWidget::GetRenderWindow()
 
 
 /*! set the render window
-    this will bind a VTK window with the Qt window
-    it'll also replace an existing VTK window
+  this will bind a VTK window with the Qt window
+  it'll also replace an existing VTK window
 */
 void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
 {
@@ -173,7 +173,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
 
   // unregister previous window
   if(this->mRenWin)
-  {
+    {
     //clean up window as one could remap it
     if(this->mRenWin->GetMapped())
       {
@@ -183,13 +183,13 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
     this->mRenWin->SetParentId(NULL);
     this->mRenWin->SetWindowId(NULL);
     this->mRenWin->UnRegister(NULL);
-  }
+    }
 
   // now set the window
   this->mRenWin = w;
 
   if(this->mRenWin)
-  {
+    {
     // register new window
     this->mRenWin->Register(NULL);
      
@@ -218,7 +218,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
 #if defined(Q_WS_MAC) && (QT_VERSION < 0x040000)
     this->mRenWin->SetWindowId( NULL );
     static_cast<vtkCarbonRenderWindow*>(this->mRenWin)->SetRootWindow(
-                  reinterpret_cast<WindowPtr>(this->handle()));
+      reinterpret_cast<WindowPtr>(this->handle()));
 #endif
 
 
@@ -237,7 +237,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
     
     // if an interactor wasn't provided, we'll make one by default
     if(!this->mRenWin->GetInteractor())
-    {
+      {
       // create a default interactor
       QVTKInteractor* iren = QVTKInteractor::New();
       this->mRenWin->SetInteractor(iren);
@@ -249,7 +249,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
       
       iren->Delete();
       s->Delete();
-    }
+      }
     
     // tell the interactor the size of this window
     this->mRenWin->GetInteractor()->SetSize(this->width(), this->height());
@@ -262,16 +262,16 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
     cbc->SetCallback(dirty_cache);
     this->mRenWin->AddObserver(vtkCommand::EndEvent, cbc);
     cbc->Delete();
-  }
+    }
 
 #if defined(Q_WS_MAC) && QT_VERSION >= 0x040000
   if(mRenWin && !this->DirtyRegionHandlerUPP)
     {
     this->DirtyRegionHandlerUPP = NewEventHandlerUPP(QVTKWidget::DirtyRegionProcessor);
     static EventTypeSpec events[] = { {'cute', 20} };  
-       // kEventClassQt, kEventQtRequestWindowChange from qt_mac_p.h
-       // Suggested by Sam Magnuson at Trolltech as best portabile hack 
-       // around Apple's missing functionality in HI Toolbox.
+    // kEventClassQt, kEventQtRequestWindowChange from qt_mac_p.h
+    // Suggested by Sam Magnuson at Trolltech as best portabile hack 
+    // around Apple's missing functionality in HI Toolbox.
     InstallEventHandler(GetApplicationEventTarget(), this->DirtyRegionHandlerUPP, 
                         GetEventTypeCount(events), events, 
                         reinterpret_cast<void*>(this), &this->DirtyRegionHandler);
@@ -289,7 +289,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
 
 
 /*! get the Qt/VTK interactor
-*/
+ */
 QVTKInteractor* QVTKWidget::GetInteractor()
 {
   return QVTKInteractor
@@ -350,7 +350,7 @@ vtkUnsignedCharArray* QVTKWidget::cachedImage()
 }
 
 /*! overloaded Qt's event handler to capture additional keys that Qt has
-    default behavior for (for example the Tab and Shift-Tab key)
+  default behavior for (for example the Tab and Shift-Tab key)
 */
 bool QVTKWidget::event(QEvent* e)
 {
@@ -363,7 +363,9 @@ bool QVTKWidget::event(QEvent* e)
       // Finalize the window to remove graphics resources associated with
       // this window
       if(this->mRenWin->GetMapped())
+        {
         this->mRenWin->Finalize();
+        }
       }
     }
   else if(e->type() == QEvent::ParentChange)
@@ -376,7 +378,9 @@ bool QVTKWidget::event(QEvent* e)
 
       // start up the window to create graphics resources for this window
       if(isVisible())
+        {
         this->mRenWin->Start();
+        }
       }
     }
 #endif
@@ -387,11 +391,11 @@ bool QVTKWidget::event(QEvent* e)
     }
 
   if(e->type() == QEvent::KeyPress)
-  {
+    {
     QKeyEvent* ke = static_cast<QKeyEvent*>(e);
-    keyPressEvent(ke);
+    this->keyPressEvent(ke);
     return ke->isAccepted();
-  }
+    }
 
   return QWidget::event(e);
 }
@@ -493,21 +497,21 @@ void QVTKWidget::mousePressEvent(QMouseEvent* e)
   // give interactor the event information
 #if QT_VERSION < 0x040000
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-      (e->state() & Qt::ControlButton), 
-      (e->state() & Qt::ShiftButton ),
-      0,
-      e->type() == QEvent::MouseButtonDblClick ? 1 : 0);
+                                 (e->state() & Qt::ControlButton), 
+                                 (e->state() & Qt::ShiftButton ),
+                                 0,
+                                 e->type() == QEvent::MouseButtonDblClick ? 1 : 0);
 #else
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-      (e->modifiers() & Qt::ControlModifier), 
-      (e->modifiers() & Qt::ShiftModifier ),
-      0,
-      e->type() == QEvent::MouseButtonDblClick ? 1 : 0);
+                                 (e->modifiers() & Qt::ControlModifier), 
+                                 (e->modifiers() & Qt::ShiftModifier ),
+                                 0,
+                                 e->type() == QEvent::MouseButtonDblClick ? 1 : 0);
 #endif
 
   // invoke appropriate vtk event
   switch(e->button())
-  {
+    {
     case Qt::LeftButton:
       iren->InvokeEvent(vtkCommand::LeftButtonPressEvent, e);
       break;
@@ -522,7 +526,7 @@ void QVTKWidget::mousePressEvent(QMouseEvent* e)
 
     default:
       break;
-  }
+    }
 }
 
 /*! handle mouse move event
@@ -543,12 +547,12 @@ void QVTKWidget::mouseMoveEvent(QMouseEvent* e)
   // give interactor the event information
 #if QT_VERSION < 0x040000
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-      (e->state() & Qt::ControlButton), 
-      (e->state() & Qt::ShiftButton ));
+                                 (e->state() & Qt::ControlButton), 
+                                 (e->state() & Qt::ShiftButton ));
 #else
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-      (e->modifiers() & Qt::ControlModifier), 
-      (e->modifiers() & Qt::ShiftModifier ));
+                                 (e->modifiers() & Qt::ControlModifier), 
+                                 (e->modifiers() & Qt::ShiftModifier ));
 #endif
   
   // invoke vtk event
@@ -610,17 +614,17 @@ void QVTKWidget::mouseReleaseEvent(QMouseEvent* e)
   // give vtk event information
 #if QT_VERSION < 0x040000
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-      (e->state() & Qt::ControlButton), 
-      (e->state() & Qt::ShiftButton ));
+                                 (e->state() & Qt::ControlButton), 
+                                 (e->state() & Qt::ShiftButton ));
 #else
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-      (e->modifiers() & Qt::ControlModifier), 
-      (e->modifiers() & Qt::ShiftModifier ));
+                                 (e->modifiers() & Qt::ControlModifier), 
+                                 (e->modifiers() & Qt::ShiftModifier ));
 #endif
   
   // invoke appropriate vtk event
   switch(e->button())
-  {
+    {
     case Qt::LeftButton:
       iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, e);
       break;
@@ -635,7 +639,7 @@ void QVTKWidget::mouseReleaseEvent(QMouseEvent* e)
 
     default:
       break;
-  }
+    }
 }
 
 /*! handle key press event
@@ -661,27 +665,27 @@ void QVTKWidget::keyPressEvent(QKeyEvent* e)
 #endif
   const char* keysym = ascii_to_key_sym(ascii_key);
   if(!keysym)
-  {
+    {
     // get virtual keys
     keysym = qt_key_to_key_sym(static_cast<Qt::Key>(e->key()));
-  }
+    }
 
   if(!keysym)
-  {
+    {
     keysym = "None";
-  }
+    }
   
   // give interactor event information
 #if QT_VERSION < 0x040000
   iren->SetKeyEventInformation(
-      (e->state() & Qt::ControlButton),
-      (e->state() & Qt::ShiftButton),
-      ascii_key, e->count(), keysym);
+    (e->state() & Qt::ControlButton),
+    (e->state() & Qt::ShiftButton),
+    ascii_key, e->count(), keysym);
 #else
   iren->SetKeyEventInformation(
-      (e->modifiers() & Qt::ControlModifier),
-      (e->modifiers() & Qt::ShiftModifier),
-      ascii_key, e->count(), keysym);
+    (e->modifiers() & Qt::ControlModifier),
+    (e->modifiers() & Qt::ShiftModifier),
+    ascii_key, e->count(), keysym);
 #endif
   
   // invoke vtk event
@@ -718,27 +722,27 @@ void QVTKWidget::keyReleaseEvent(QKeyEvent* e)
 #endif
   const char* keysym = ascii_to_key_sym(ascii_key);
   if(!keysym)
-  {
+    {
     // get virtual keys
     keysym = qt_key_to_key_sym((Qt::Key)e->key());
-  }
+    }
 
   if(!keysym)
-  {
+    {
     keysym = "None";
-  }
+    }
 
   // give event information to interactor
 #if QT_VERSION < 0x040000
   iren->SetKeyEventInformation(
-      (e->state() & Qt::ControlButton),
-      (e->state() & Qt::ShiftButton),
-      ascii_key, e->count(), keysym);
+    (e->state() & Qt::ControlButton),
+    (e->state() & Qt::ShiftButton),
+    ascii_key, e->count(), keysym);
 #else
   iren->SetKeyEventInformation(
-      (e->modifiers() & Qt::ControlModifier),
-      (e->modifiers() & Qt::ShiftModifier),
-      ascii_key, e->count(), keysym);
+    (e->modifiers() & Qt::ControlModifier),
+    (e->modifiers() & Qt::ShiftModifier),
+    ascii_key, e->count(), keysym);
 #endif
 
   // invoke vtk event
@@ -763,12 +767,12 @@ void QVTKWidget::wheelEvent(QWheelEvent* e)
   // give event information to interactor
 #if QT_VERSION < 0x040000
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-      (e->state() & Qt::ControlButton), 
-      (e->state() & Qt::ShiftButton ));
+                                 (e->state() & Qt::ControlButton), 
+                                 (e->state() & Qt::ShiftButton ));
 #else
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-      (e->modifiers() & Qt::ControlModifier), 
-      (e->modifiers() & Qt::ShiftModifier ));
+                                 (e->modifiers() & Qt::ControlModifier), 
+                                 (e->modifiers() & Qt::ShiftModifier ));
 #endif
   
   // invoke vtk event
@@ -786,20 +790,20 @@ void QVTKWidget::wheelEvent(QWheelEvent* e)
 
 void QVTKWidget::focusInEvent(QFocusEvent*)
 {
-    // These prevent updates when the window 
-    // gains or loses focus.  By default, Qt
-    // does an update because the color group's 
-    // active status changes.  We don't even use
-    // color groups so we do nothing here.
+  // These prevent updates when the window 
+  // gains or loses focus.  By default, Qt
+  // does an update because the color group's 
+  // active status changes.  We don't even use
+  // color groups so we do nothing here.
 }
 
 void QVTKWidget::focusOutEvent(QFocusEvent*)
 {
-    // These prevent updates when the window 
-    // gains or loses focus.  By default, Qt
-    // does an update because the color group's 
-    // active status changes.  We don't even use
-    // color groups so we do nothing here.
+  // These prevent updates when the window 
+  // gains or loses focus.  By default, Qt
+  // does an update because the color group's 
+  // active status changes.  We don't even use
+  // color groups so we do nothing here.
 }
 
 
@@ -819,12 +823,12 @@ void QVTKWidget::contextMenuEvent(QContextMenuEvent* e)
   // give interactor the event information
 #if QT_VERSION < 0x040000
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-      (e->state() & Qt::ControlButton), 
-      (e->state() & Qt::ShiftButton ));
+                                 (e->state() & Qt::ControlButton), 
+                                 (e->state() & Qt::ShiftButton ));
 #else
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-      (e->modifiers() & Qt::ControlModifier), 
-      (e->modifiers() & Qt::ShiftModifier ));
+                                 (e->modifiers() & Qt::ControlModifier), 
+                                 (e->modifiers() & Qt::ShiftModifier ));
 #endif
 
   // invoke event and pass qt event for additional data as well
@@ -931,7 +935,7 @@ void QVTKWidget::reparent(QWidget* parent, Qt::WFlags f, const QPoint& p, bool s
     // connect to new window
 #if defined(Q_WS_MAC)
     static_cast<vtkCarbonRenderWindow*>(this->mRenWin)->SetRootWindow(
-                  reinterpret_cast<WindowPtr>(this->handle()));
+      reinterpret_cast<WindowPtr>(this->handle()));
 
 #else
     this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
@@ -964,23 +968,17 @@ QPaintEngine* QVTKWidget::paintEngine() const
   return NULL;
 }
 
-
-
-
-
-
-
 class QVTKInteractorInternal : public QObject
 {
 public:
   QVTKInteractorInternal(QObject* p)
     : QObject(p)
-  {
-    this->SignalMapper = new QSignalMapper(this);
-  }
+    {
+      this->SignalMapper = new QSignalMapper(this);
+    }
   ~QVTKInteractorInternal()
-  {
-  }
+    {
+    }
   QSignalMapper* SignalMapper;
   typedef vtkstd::map<int, QTimer*> TimerMap;
   TimerMap Timers;
@@ -988,11 +986,11 @@ public:
 
 
 /*! allocation method for Qt/VTK interactor
-*/
+ */
 vtkStandardNewMacro(QVTKInteractor);
 
 /*! constructor for Qt/VTK interactor
-*/
+ */
 QVTKInteractor::QVTKInteractor()
 {
   this->Internal = new QVTKInteractorInternal(this);
@@ -1000,14 +998,14 @@ QVTKInteractor::QVTKInteractor()
 }
 
 /*! start method for interactor
-*/
+ */
 void QVTKInteractor::Start()
 {
   vtkErrorMacro(<<"QVTKInteractor cannot control the event loop.");
 }
 
 /*! terminate the application
-*/
+ */
 void QVTKInteractor::TerminateApp()
 {
   // we are in a GUI so let's terminate the GUI the normal way
@@ -1016,12 +1014,12 @@ void QVTKInteractor::TerminateApp()
 
 
 /*! handle timer event
-*/
+ */
 void QVTKInteractor::TimerEvent(int timerId)
 {
   if ( !this->GetEnabled() ) 
     {
-      return;
+    return;
     }
   this->InvokeEvent(vtkCommand::TimerEvent, (void*)&timerId);
 
@@ -1038,7 +1036,7 @@ QVTKInteractor::~QVTKInteractor()
 }
 
 /*! create Qt timer with an interval of 10 msec.
-*/
+ */
 int QVTKInteractor::InternalCreateTimer(int timerId, int vtkNotUsed(timerType), unsigned long duration)
 {
   QTimer* timer = new QTimer(this);
@@ -1051,7 +1049,7 @@ int QVTKInteractor::InternalCreateTimer(int timerId, int vtkNotUsed(timerType), 
 }
 
 /*! destroy timer
-*/
+ */
 int QVTKInteractor::InternalDestroyTimer(int platformTimerId)
 {
   QVTKInteractorInternal::TimerMap::iterator iter = this->Internal->Timers.find(platformTimerId);
@@ -1109,113 +1107,113 @@ const char* qt_key_to_key_sym(Qt::Key i)
 {
   const char* ret = 0;
   switch(i)
-  {
+    {
     // Cancel
     QVTK_HANDLE(Qt::Key_Backspace, "BackSpace")
-    QVTK_HANDLE(Qt::Key_Tab, "Tab")
+      QVTK_HANDLE(Qt::Key_Tab, "Tab")
 #if QT_VERSION < 0x040000
-    QVTK_HANDLE(Qt::Key_BackTab, "Tab")
+      QVTK_HANDLE(Qt::Key_BackTab, "Tab")
 #else
-    QVTK_HANDLE(Qt::Key_Backtab, "Tab")
+      QVTK_HANDLE(Qt::Key_Backtab, "Tab")
 #endif
-    //QVTK_HANDLE(Qt::Key_Clear, "Clear")
-    QVTK_HANDLE(Qt::Key_Return, "Return")
-    QVTK_HANDLE(Qt::Key_Enter, "Return")
-    QVTK_HANDLE(Qt::Key_Shift, "Shift_L")
-    QVTK_HANDLE(Qt::Key_Control, "Control_L")
-    QVTK_HANDLE(Qt::Key_Alt, "Alt_L")
-    QVTK_HANDLE(Qt::Key_Pause, "Pause")
-    QVTK_HANDLE(Qt::Key_CapsLock, "Caps_Lock")
-    QVTK_HANDLE(Qt::Key_Escape, "Escape")
-    QVTK_HANDLE(Qt::Key_Space, "space")
-    //QVTK_HANDLE(Qt::Key_Prior, "Prior")
-    //QVTK_HANDLE(Qt::Key_Next, "Next")
-    QVTK_HANDLE(Qt::Key_End, "End")
-    QVTK_HANDLE(Qt::Key_Home, "Home")
-    QVTK_HANDLE(Qt::Key_Left, "Left")
-    QVTK_HANDLE(Qt::Key_Up, "Up")
-    QVTK_HANDLE(Qt::Key_Right, "Right")
-    QVTK_HANDLE(Qt::Key_Down, "Down")
+      //QVTK_HANDLE(Qt::Key_Clear, "Clear")
+      QVTK_HANDLE(Qt::Key_Return, "Return")
+      QVTK_HANDLE(Qt::Key_Enter, "Return")
+      QVTK_HANDLE(Qt::Key_Shift, "Shift_L")
+      QVTK_HANDLE(Qt::Key_Control, "Control_L")
+      QVTK_HANDLE(Qt::Key_Alt, "Alt_L")
+      QVTK_HANDLE(Qt::Key_Pause, "Pause")
+      QVTK_HANDLE(Qt::Key_CapsLock, "Caps_Lock")
+      QVTK_HANDLE(Qt::Key_Escape, "Escape")
+      QVTK_HANDLE(Qt::Key_Space, "space")
+      //QVTK_HANDLE(Qt::Key_Prior, "Prior")
+      //QVTK_HANDLE(Qt::Key_Next, "Next")
+      QVTK_HANDLE(Qt::Key_End, "End")
+      QVTK_HANDLE(Qt::Key_Home, "Home")
+      QVTK_HANDLE(Qt::Key_Left, "Left")
+      QVTK_HANDLE(Qt::Key_Up, "Up")
+      QVTK_HANDLE(Qt::Key_Right, "Right")
+      QVTK_HANDLE(Qt::Key_Down, "Down")
 
-    // Select
-    // Execute
-    QVTK_HANDLE(Qt::Key_SysReq, "Snapshot")
-    QVTK_HANDLE(Qt::Key_Insert, "Insert")
-    QVTK_HANDLE(Qt::Key_Delete, "Delete")
-    QVTK_HANDLE(Qt::Key_Help, "Help")
-    QVTK_HANDLE(Qt::Key_0, "0")
-    QVTK_HANDLE(Qt::Key_1, "1")
-    QVTK_HANDLE(Qt::Key_2, "2")
-    QVTK_HANDLE(Qt::Key_3, "3")
-    QVTK_HANDLE(Qt::Key_4, "4")
-    QVTK_HANDLE(Qt::Key_5, "5")
-    QVTK_HANDLE(Qt::Key_6, "6")
-    QVTK_HANDLE(Qt::Key_7, "7")
-    QVTK_HANDLE(Qt::Key_8, "8")
-    QVTK_HANDLE(Qt::Key_9, "9")
-    QVTK_HANDLE(Qt::Key_A, "a")
-    QVTK_HANDLE(Qt::Key_B, "b")
-    QVTK_HANDLE(Qt::Key_C, "c")
-    QVTK_HANDLE(Qt::Key_D, "d")
-    QVTK_HANDLE(Qt::Key_E, "e")
-    QVTK_HANDLE(Qt::Key_F, "f")
-    QVTK_HANDLE(Qt::Key_G, "g")
-    QVTK_HANDLE(Qt::Key_H, "h")
-    QVTK_HANDLE(Qt::Key_I, "i")
-    QVTK_HANDLE(Qt::Key_J, "h")
-    QVTK_HANDLE(Qt::Key_K, "k")
-    QVTK_HANDLE(Qt::Key_L, "l")
-    QVTK_HANDLE(Qt::Key_M, "m")
-    QVTK_HANDLE(Qt::Key_N, "n")
-    QVTK_HANDLE(Qt::Key_O, "o")
-    QVTK_HANDLE(Qt::Key_P, "p")
-    QVTK_HANDLE(Qt::Key_Q, "q")
-    QVTK_HANDLE(Qt::Key_R, "r")
-    QVTK_HANDLE(Qt::Key_S, "s")
-    QVTK_HANDLE(Qt::Key_T, "t")
-    QVTK_HANDLE(Qt::Key_U, "u")
-    QVTK_HANDLE(Qt::Key_V, "v")
-    QVTK_HANDLE(Qt::Key_W, "w")
-    QVTK_HANDLE(Qt::Key_X, "x")
-    QVTK_HANDLE(Qt::Key_Y, "y")
-    QVTK_HANDLE(Qt::Key_Z, "z")
-    // KP_0 - KP_9
-    QVTK_HANDLE(Qt::Key_Asterisk, "asterisk")
-    QVTK_HANDLE(Qt::Key_Plus, "plus")
-    // bar
-    QVTK_HANDLE(Qt::Key_Minus, "minus")
-    QVTK_HANDLE(Qt::Key_Period, "period")
-    QVTK_HANDLE(Qt::Key_Slash, "slash")
-    QVTK_HANDLE(Qt::Key_F1, "F1")
-    QVTK_HANDLE(Qt::Key_F2, "F2")
-    QVTK_HANDLE(Qt::Key_F3, "F3")
-    QVTK_HANDLE(Qt::Key_F4, "F4")
-    QVTK_HANDLE(Qt::Key_F5, "F5")
-    QVTK_HANDLE(Qt::Key_F6, "F6")
-    QVTK_HANDLE(Qt::Key_F7, "F7")
-    QVTK_HANDLE(Qt::Key_F8, "F8")
-    QVTK_HANDLE(Qt::Key_F9, "F9")
-    QVTK_HANDLE(Qt::Key_F10, "F10")
-    QVTK_HANDLE(Qt::Key_F11, "F11")
-    QVTK_HANDLE(Qt::Key_F12, "F12")
-    QVTK_HANDLE(Qt::Key_F13, "F13")
-    QVTK_HANDLE(Qt::Key_F14, "F14")
-    QVTK_HANDLE(Qt::Key_F15, "F15")
-    QVTK_HANDLE(Qt::Key_F16, "F16")
-    QVTK_HANDLE(Qt::Key_F17, "F17")
-    QVTK_HANDLE(Qt::Key_F18, "F18")
-    QVTK_HANDLE(Qt::Key_F19, "F19")
-    QVTK_HANDLE(Qt::Key_F20, "F20")
-    QVTK_HANDLE(Qt::Key_F21, "F21")
-    QVTK_HANDLE(Qt::Key_F22, "F22")
-    QVTK_HANDLE(Qt::Key_F23, "F23")
-    QVTK_HANDLE(Qt::Key_F24, "F24")
-    QVTK_HANDLE(Qt::Key_NumLock, "Num_Lock")
-    QVTK_HANDLE(Qt::Key_ScrollLock, "Scroll_Lock")
+      // Select
+      // Execute
+      QVTK_HANDLE(Qt::Key_SysReq, "Snapshot")
+      QVTK_HANDLE(Qt::Key_Insert, "Insert")
+      QVTK_HANDLE(Qt::Key_Delete, "Delete")
+      QVTK_HANDLE(Qt::Key_Help, "Help")
+      QVTK_HANDLE(Qt::Key_0, "0")
+      QVTK_HANDLE(Qt::Key_1, "1")
+      QVTK_HANDLE(Qt::Key_2, "2")
+      QVTK_HANDLE(Qt::Key_3, "3")
+      QVTK_HANDLE(Qt::Key_4, "4")
+      QVTK_HANDLE(Qt::Key_5, "5")
+      QVTK_HANDLE(Qt::Key_6, "6")
+      QVTK_HANDLE(Qt::Key_7, "7")
+      QVTK_HANDLE(Qt::Key_8, "8")
+      QVTK_HANDLE(Qt::Key_9, "9")
+      QVTK_HANDLE(Qt::Key_A, "a")
+      QVTK_HANDLE(Qt::Key_B, "b")
+      QVTK_HANDLE(Qt::Key_C, "c")
+      QVTK_HANDLE(Qt::Key_D, "d")
+      QVTK_HANDLE(Qt::Key_E, "e")
+      QVTK_HANDLE(Qt::Key_F, "f")
+      QVTK_HANDLE(Qt::Key_G, "g")
+      QVTK_HANDLE(Qt::Key_H, "h")
+      QVTK_HANDLE(Qt::Key_I, "i")
+      QVTK_HANDLE(Qt::Key_J, "h")
+      QVTK_HANDLE(Qt::Key_K, "k")
+      QVTK_HANDLE(Qt::Key_L, "l")
+      QVTK_HANDLE(Qt::Key_M, "m")
+      QVTK_HANDLE(Qt::Key_N, "n")
+      QVTK_HANDLE(Qt::Key_O, "o")
+      QVTK_HANDLE(Qt::Key_P, "p")
+      QVTK_HANDLE(Qt::Key_Q, "q")
+      QVTK_HANDLE(Qt::Key_R, "r")
+      QVTK_HANDLE(Qt::Key_S, "s")
+      QVTK_HANDLE(Qt::Key_T, "t")
+      QVTK_HANDLE(Qt::Key_U, "u")
+      QVTK_HANDLE(Qt::Key_V, "v")
+      QVTK_HANDLE(Qt::Key_W, "w")
+      QVTK_HANDLE(Qt::Key_X, "x")
+      QVTK_HANDLE(Qt::Key_Y, "y")
+      QVTK_HANDLE(Qt::Key_Z, "z")
+      // KP_0 - KP_9
+      QVTK_HANDLE(Qt::Key_Asterisk, "asterisk")
+      QVTK_HANDLE(Qt::Key_Plus, "plus")
+      // bar
+      QVTK_HANDLE(Qt::Key_Minus, "minus")
+      QVTK_HANDLE(Qt::Key_Period, "period")
+      QVTK_HANDLE(Qt::Key_Slash, "slash")
+      QVTK_HANDLE(Qt::Key_F1, "F1")
+      QVTK_HANDLE(Qt::Key_F2, "F2")
+      QVTK_HANDLE(Qt::Key_F3, "F3")
+      QVTK_HANDLE(Qt::Key_F4, "F4")
+      QVTK_HANDLE(Qt::Key_F5, "F5")
+      QVTK_HANDLE(Qt::Key_F6, "F6")
+      QVTK_HANDLE(Qt::Key_F7, "F7")
+      QVTK_HANDLE(Qt::Key_F8, "F8")
+      QVTK_HANDLE(Qt::Key_F9, "F9")
+      QVTK_HANDLE(Qt::Key_F10, "F10")
+      QVTK_HANDLE(Qt::Key_F11, "F11")
+      QVTK_HANDLE(Qt::Key_F12, "F12")
+      QVTK_HANDLE(Qt::Key_F13, "F13")
+      QVTK_HANDLE(Qt::Key_F14, "F14")
+      QVTK_HANDLE(Qt::Key_F15, "F15")
+      QVTK_HANDLE(Qt::Key_F16, "F16")
+      QVTK_HANDLE(Qt::Key_F17, "F17")
+      QVTK_HANDLE(Qt::Key_F18, "F18")
+      QVTK_HANDLE(Qt::Key_F19, "F19")
+      QVTK_HANDLE(Qt::Key_F20, "F20")
+      QVTK_HANDLE(Qt::Key_F21, "F21")
+      QVTK_HANDLE(Qt::Key_F22, "F22")
+      QVTK_HANDLE(Qt::Key_F23, "F23")
+      QVTK_HANDLE(Qt::Key_F24, "F24")
+      QVTK_HANDLE(Qt::Key_NumLock, "Num_Lock")
+      QVTK_HANDLE(Qt::Key_ScrollLock, "Scroll_Lock")
 
-    default:
-      break;
-  }
+      default:
+    break;
+    }
   return ret;
 }
 
@@ -1288,13 +1286,13 @@ void QVTKWidget::x11_setup_window()
   // can't get visual, oh well.
   // continue with Qt's default visual as it usually works
   if(!vi)
-  {
+    {
     if(visible)
       {
       show();
       }
     return;
-  }
+    }
 
   // create the X window based on information VTK gave us
   XSetWindowAttributes attrib;
@@ -1358,12 +1356,12 @@ void QVTKWidget::x11_setup_window()
   // restore widget states
   this->setMouseTracking(tracking);
 #if QT_VERSION < 0x040000
-  setBackgroundMode( Qt::NoBackground );
+  this->setBackgroundMode( Qt::NoBackground );
 #else
   this->setAttribute(Qt::WA_NoBackground);
   this->setAttribute(Qt::WA_PaintOnScreen);
 #endif
-  setFocusPolicy(focus_policy);
+  this->setFocusPolicy(focus_policy);
   if(visible)
     {
     show();
@@ -1399,7 +1397,7 @@ void QVTKWidget::macFixRect()
   AGLContext context = static_cast<vtkCarbonRenderWindow*>(this->GetRenderWindow())->GetContextId();
   
   if(!this->isTopLevel())
-  {
+    {
     GLint bufRect[4];
 
     // always do AGL_BUFFER_RECT if we have a parent
@@ -1423,7 +1421,7 @@ void QVTKWidget::macFixRect()
     aglSetInteger(context, AGL_BUFFER_RECT, bufRect);
 
     if(clip_rect.isEmpty())
-    {
+      {
       // no clipping, disable it
       if(!aglIsEnabled(context, AGL_CLIP_REGION))
         aglDisable(context, AGL_CLIP_REGION);
@@ -1433,17 +1431,17 @@ void QVTKWidget::macFixRect()
       bufRect[2] = 0;
       bufRect[3] = 0;
       aglSetInteger(context, AGL_BUFFER_RECT, bufRect);
-    }
+      }
     else
-    {
+      {
       // we are clipping, so lets enable it
       if(!aglIsEnabled(context, AGL_CLIP_REGION))
         aglEnable(context, AGL_CLIP_REGION);
 
       // give agl the clip region
       aglSetInteger(context, AGL_CLIP_REGION, (const GLint*)clip.handle(TRUE));
+      }
     }
-  }
   
   // update the context
   aglUpdateContext(context);
@@ -1483,8 +1481,8 @@ static void dirty_cache(vtkObject *caller, unsigned long,
   if (renwin)
     {
     if (   widget->isAutomaticImageCacheEnabled()
-        && (  renwin->GetDesiredUpdateRate()
-            < widget->maxRenderRateForImageCache() ) )
+           && (  renwin->GetDesiredUpdateRate()
+                 < widget->maxRenderRateForImageCache() ) )
       {
       widget->saveImageToCache();
       }
