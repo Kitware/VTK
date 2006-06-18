@@ -23,7 +23,7 @@
 #include "vtkAssemblyPath.h"
 #include "vtkAreaPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.3");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.4");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandPick);
 
 #define VTKISRBP_ORIENT 0
@@ -138,6 +138,8 @@ void vtkInteractorStyleRubberBandPick::OnMouseMove()
     return;
     }
 
+  int *size = this->Interactor->GetRenderWindow()->GetSize();
+  
   //otherwise update the rubber band on the screen
   
   this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
@@ -151,15 +153,21 @@ void vtkInteractorStyleRubberBandPick::OnMouseMove()
   int min[2], max[2];
   min[0] = this->StartPosition[0] <= this->EndPosition[0] ?
     this->StartPosition[0] : this->EndPosition[0];
+  if (min[0] < 0) { min[0] = 0; }
+  if (min[0] >= size[0]) { min[0] = size[0] - 1; }
   min[1] = this->StartPosition[1] <= this->EndPosition[1] ?
     this->StartPosition[1] : this->EndPosition[1];
+  if (min[1] < 0) { min[1] = 0; }
+  if (min[1] >= size[1]) { min[1] = size[1] - 1; }
   max[0] = this->EndPosition[0] > this->StartPosition[0] ?
     this->EndPosition[0] : this->StartPosition[0];
+  if (max[0] < 0) { max[0] = 0; }
+  if (max[0] >= size[0]) { max[0] = size[0] - 1; }
   max[1] = this->EndPosition[1] > this->StartPosition[1] ?
     this->EndPosition[1] : this->StartPosition[1];
+  if (max[1] < 0) { max[1] = 0; }
+  if (max[1] >= size[1]) { max[1] = size[1] - 1; }
 
-  int *size = this->Interactor->GetRenderWindow()->GetSize();
-  
   int i;
   for (i = min[0]; i <= max[0]; i++)
     {
