@@ -45,10 +45,10 @@ vtkQtConnection::vtkQtConnection()
 vtkQtConnection::~vtkQtConnection() 
 {
   if(VTKObject)
-  {
+    {
     VTKObject->RemoveObserver(this->Callback);
     //Qt takes care of disconnecting slots
-  }
+    }
   Callback->Delete();
 }
 
@@ -77,7 +77,7 @@ void vtkQtConnection::Execute(vtkObject* caller, unsigned long e, void* call_dat
 }
 
 bool vtkQtConnection::IsConnection(vtkObject* vtk_obj, unsigned long e,
-                  const QObject* qt_obj, const char* slot, void* client_data)
+                                   const QObject* qt_obj, const char* slot, void* client_data)
 {
   if(VTKObject != vtk_obj)
     return false;
