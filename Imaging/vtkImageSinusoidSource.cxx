@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSinusoidSource, "1.41");
+vtkCxxRevisionMacro(vtkImageSinusoidSource, "1.42");
 vtkStandardNewMacro(vtkImageSinusoidSource);
 
 //----------------------------------------------------------------------------
@@ -137,6 +137,7 @@ int vtkImageSinusoidSource::RequestInformation (
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkImageSinusoidSource::ExecuteData(vtkDataObject *output)
 {
   vtkImageData *data = this->AllocateOutputData(output);
@@ -197,6 +198,7 @@ void vtkImageSinusoidSource::ExecuteData(vtkDataObject *output)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkImageSinusoidSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogic, "1.33");
+vtkCxxRevisionMacro(vtkImageLogic, "1.34");
 vtkStandardNewMacro(vtkImageLogic);
 
 //----------------------------------------------------------------------------
@@ -41,14 +41,14 @@ vtkImageLogic::vtkImageLogic()
 // This templated function executes the filter for any type of data.
 // Handles the one input operations
 template <class T>
-void vtkImageLogicExecute1(vtkImageLogic *self, vtkImageData *inData, 
+void vtkImageLogicExecute1(vtkImageLogic *self, vtkImageData *inData,
                            vtkImageData *outData, int outExt[6], int id, T *)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
   T trueValue = (T)(self->GetOutputTrueValue());
   int op = self->GetOperation();
-  
+
   // Loop through ouput pixels
   while (!outIt.IsAtEnd())
     {
@@ -100,7 +100,7 @@ void vtkImageLogicExecute1(vtkImageLogic *self, vtkImageData *inData,
 // Handles the two input operations
 template <class T>
 void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
-                           vtkImageData *in2Data, vtkImageData *outData, 
+                           vtkImageData *in2Data, vtkImageData *outData,
                            int outExt[6], int id, T *)
 {
   vtkImageIterator<T> inIt1(in1Data, outExt);
@@ -214,10 +214,10 @@ void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageLogic::ThreadedRequestData (
-  vtkInformation * vtkNotUsed( request ), 
+  vtkInformation * vtkNotUsed( request ),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector * vtkNotUsed( outputVector ),
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
@@ -226,7 +226,7 @@ void vtkImageLogic::ThreadedRequestData (
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
     return;
     }
-  
+
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
@@ -282,6 +282,7 @@ void vtkImageLogic::ThreadedRequestData (
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkImageLogic::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 1)
@@ -292,12 +293,12 @@ int vtkImageLogic::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkImageLogic::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Operation: " << this->Operation << "\n";
-
   os << indent << "OutputTrueValue: " << this->OutputTrueValue << "\n";
 }
 

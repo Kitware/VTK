@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkImageThreshold, "1.50");
+vtkCxxRevisionMacro(vtkImageThreshold, "1.51");
 vtkStandardNewMacro(vtkImageThreshold);
 
 //----------------------------------------------------------------------------
@@ -302,6 +302,7 @@ void vtkImageThreshold::ThreadedRequestData(
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkImageThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

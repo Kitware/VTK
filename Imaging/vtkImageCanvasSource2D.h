@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkImageCanvasSource2D is a source that starts as a blank image.
 // you may add to the image with two-dimensional drawing routines.
-// It can paint multi-spectral images.  
+// It can paint multi-spectral images.
 
 
 #ifndef __vtkImageCanvasSource2D_h
@@ -43,7 +43,7 @@ public:
   void SetDrawColor(double a,double b) {this->SetDrawColor(a, b, 0.0, 0.0);}
   void SetDrawColor(double a, double b, double c) {
     this->SetDrawColor(a, b, c, 0.0);}
-    
+
   void FillBox(int min0, int max0, int min1, int max1);
   void FillTube(int x0, int y0, int x1, int y1, double radius);
   void FillTriangle(int x0, int y0, int x1, int y1, int x2, int y2);
@@ -51,9 +51,9 @@ public:
   void DrawPoint(int p0, int p1);
   void DrawSegment(int x0, int y0, int x1, int y1);
   void DrawSegment3D(double *p0, double *p1);
-  void DrawSegment3D(double x1, double y1, double z1, 
-                     double x2, double y2, double z2) 
-    { double p1[3], p2[3]; 
+  void DrawSegment3D(double x1, double y1, double z1,
+                     double x2, double y2, double z2)
+    { double p1[3], p2[3];
     p1[0] = x1; p1[1] = y1; p1[2] = z1; p2[0] = x2; p2[1] = y2; p2[2] = z2;
     this->DrawSegment3D(p1, p2);}
 
@@ -67,7 +67,7 @@ public:
 
   // Description:
   // Fill a colored area with another color. (like connectivity)
-  // All pixels connected (and with the same value) to pixel (x, y) 
+  // All pixels connected (and with the same value) to pixel (x, y)
   // get replaced by the current "DrawColor".
   void FillPixel(int x, int y);
 
@@ -77,7 +77,7 @@ public:
   // Extent is a min max 3D box.  Minimums and maximums are inclusive.
   void SetExtent(int *extent);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
-  
+
   // Description:
   // The drawing operations can only draw into one 2D XY plane at a time.
   // If the canvas is a 3D volume, then this z value is used
@@ -94,7 +94,7 @@ public:
   // Description:
   // Set the number of scalar components
   virtual void SetNumberOfScalarComponents(int i);
-  
+
   // Description:
   // Set/Get the data scalar type (i.e VTK_DOUBLE). Note that these methods
   // are setting and getting the pipeline scalar type. i.e. they are setting
@@ -110,14 +110,14 @@ public:
   void SetScalarTypeToUnsignedLong()
     {this->SetScalarType(VTK_UNSIGNED_LONG);};
   void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);};
-  void SetScalarTypeToUnsignedShort()   
+  void SetScalarTypeToUnsignedShort()
     {this->SetScalarType(VTK_UNSIGNED_SHORT);};
   void SetScalarTypeToUnsignedChar()
     {this->SetScalarType(VTK_UNSIGNED_CHAR);};
   void SetScalarTypeToChar()
     {this->SetScalarType(VTK_CHAR);};
-  void SetScalarType(int);  
-  
+  void SetScalarType(int);
+
 protected:
   vtkImageCanvasSource2D();
   // Destructor: Deleting a vtkImageCanvasSource2D automatically deletes the
@@ -130,14 +130,14 @@ protected:
   double DrawColor[4];
   int DefaultZ;
   double Ratio[3];
-  
+
   int ClipSegment(int &a0, int &a1, int &b0, int &b1);
-  
-  virtual int RequestInformation (vtkInformation *, 
-                                  vtkInformationVector**, 
+
+  virtual int RequestInformation (vtkInformation *,
+                                  vtkInformationVector**,
                                   vtkInformationVector *);
-  virtual int RequestData (vtkInformation *, 
-                           vtkInformationVector**, 
+  virtual int RequestData (vtkInformation *,
+                           vtkInformationVector**,
                            vtkInformationVector *);
 
 private:

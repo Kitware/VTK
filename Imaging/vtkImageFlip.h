@@ -50,7 +50,7 @@ public:
   // the output data: the actual pixel values are the same whether or not
   // this method is used.  Also note that the Origin in this method name
   // refers to (0,0,0) in the coordinate system associated with the image,
-  // it does not refer to the Origin ivar that is associated with a 
+  // it does not refer to the Origin ivar that is associated with a
   // vtkImageData.
   vtkSetMacro(FlipAboutOrigin, int);
   vtkGetMacro(FlipAboutOrigin, int);
@@ -59,7 +59,7 @@ public:
   // Description:
   // For compatibility with old scripts.
   void SetFilteredAxes(int axis) { this->SetFilteredAxis(axis); };
-  
+
   // Description:
   // PreserveImageExtentOff wasn't covered by test scripts and its
   // implementation was broken.  It is deprecated now and it has
@@ -67,7 +67,7 @@ public:
   vtkSetMacro(PreserveImageExtent, int);
   vtkGetMacro(PreserveImageExtent, int);
   vtkBooleanMacro(PreserveImageExtent, int);
-  
+
 protected:
   vtkImageFlip();
   ~vtkImageFlip() {};
@@ -77,7 +77,7 @@ protected:
   int FilteredAxis;
   int FlipAboutOrigin;
   int PreserveImageExtent;
-  
+
 private:
   vtkImageFlip(const vtkImageFlip&);  // Not implemented.
   void operator=(const vtkImageFlip&);  // Not implemented.

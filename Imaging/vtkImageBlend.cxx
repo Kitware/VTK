@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.47");
+vtkCxxRevisionMacro(vtkImageBlend, "1.48");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
@@ -132,7 +132,7 @@ void vtkImageBlend::SetOpacity(int idx, double opacity)
 
   if (idx >= this->OpacityArrayLength)
     {
-    newLength = idx + 1; 
+    newLength = idx + 1;
     newArray = new double[newLength];
     for (i = 0; i < this->OpacityArrayLength; i++)
       {
@@ -156,7 +156,7 @@ void vtkImageBlend::SetOpacity(int idx, double opacity)
     this->Modified();
     }
 }
-    
+
 //----------------------------------------------------------------------------
 double vtkImageBlend::GetOpacity(int idx)
 {
@@ -165,7 +165,7 @@ double vtkImageBlend::GetOpacity(int idx)
     return 1.0;
     }
   return this->Opacity[idx];
-}    
+}
 
 //----------------------------------------------------------------------------
 int vtkImageBlend::RequestInformation (
@@ -224,14 +224,14 @@ int vtkImageBlend::RequestUpdateExtent(
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  
+
   // default input extent will be that of output extent
   int inExt[6];
-  int *outExt = 
+  int *outExt =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
   int whichInput;
-  for (whichInput = 0; whichInput < this->GetNumberOfInputConnections(0); 
+  for (whichInput = 0; whichInput < this->GetNumberOfInputConnections(0);
        whichInput++)
     {
     int *inWextent;
@@ -244,6 +244,7 @@ int vtkImageBlend::RequestUpdateExtent(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkImageBlend::RequestData(
   vtkInformation* request,
   vtkInformationVector** inputVector,
@@ -258,9 +259,9 @@ int vtkImageBlend::RequestData(
     vtkImageData *outData = static_cast<vtkImageData *>(
       info->Get(vtkDataObject::DATA_OBJECT()));
     info = inputVector[0]->GetInformationObject(0);
-    vtkImageData *inData = 
+    vtkImageData *inData =
       static_cast<vtkImageData*>(info->Get(vtkDataObject::DATA_OBJECT()));
-    
+
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
     this->DataWasPassed = 1;
@@ -286,8 +287,8 @@ int vtkImageBlend::RequestData(
 template <class T>
 inline int vtkBlendGetNextExtent(vtkImageStencilData *stencil,
                                  int &r1, int &r2, int rmin, int rmax,
-                                 int yIdx, int zIdx, 
-                                 T *&outPtr, T *&inPtr, 
+                                 int yIdx, int zIdx,
+                                 T *&outPtr, T *&inPtr,
                                  int outScalars, int inScalars,
                                  int &iter)
 {
@@ -326,7 +327,7 @@ inline int vtkBlendGetNextExtent(vtkImageStencilData *stencil,
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageBlendExecute(vtkImageBlend *self, int extent[6], 
+void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
                           vtkImageData *inData, T *inPtr,
                           vtkImageData *outData, T *outPtr,
                           double opacity, int id)
@@ -368,8 +369,8 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
   target = (unsigned long)((extent[3] - extent[2] + 1)*
                            (extent[5] - extent[4] + 1)/50.0);
   target++;
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
   inData->GetContinuousIncrements(extent, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(extent, outIncX, outIncY, outIncZ);
 
@@ -378,7 +379,7 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
     {
     for (idxY = extent[2]; !self->AbortExecute && idxY <= extent[3]; idxY++)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -401,7 +402,7 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
             outPtr[0] = T(outPtr[0]*f + inPtr[0]*r);
             outPtr[1] = T(outPtr[1]*f + inPtr[1]*r);
             outPtr[2] = T(outPtr[2]*f + inPtr[2]*r);
-            outPtr += outC; 
+            outPtr += outC;
             inPtr += inC;
             }
           }
@@ -417,7 +418,7 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
             outPtr[0] = T(outPtr[0]*f + inPtr[0]*r);
             outPtr[1] = T(outPtr[1]*f + inPtr[1]*r);
             outPtr[2] = T(outPtr[2]*f + inPtr[2]*r);
-            outPtr += outC; 
+            outPtr += outC;
             inPtr += inC;
             }
           }
@@ -435,7 +436,7 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
             outPtr[0] = T(outPtr[0]*f + (*inPtr)*r);
             outPtr[1] = T(outPtr[1]*f + (*inPtr)*r);
             outPtr[2] = T(outPtr[2]*f + (*inPtr)*r);
-            outPtr += outC; 
+            outPtr += outC;
             inPtr += 2;
             }
           }
@@ -451,7 +452,7 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
             outPtr[0] = T(outPtr[0]*f + (*inPtr)*r);
             outPtr[1] = T(outPtr[1]*f + (*inPtr)*r);
             outPtr[2] = T(outPtr[2]*f + (*inPtr)*r);
-            outPtr += outC; 
+            outPtr += outC;
             inPtr++;
             }
           }
@@ -467,7 +468,7 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
             r = opacity*(inPtr[1]-minA);
             f = 1.0-r;
             *outPtr = T((*outPtr)*f + (*inPtr)*r);
-            outPtr += outC; 
+            outPtr += outC;
             inPtr += 2;
             }
           }
@@ -1169,7 +1170,7 @@ void vtkImageBlend::PrintSelf(ostream& os, vtkIndent indent)
   int i;
   for (i = 0; i < this->OpacityArrayLength; i++)
     {
-    os << indent << "Opacity(" << i << "): " << this->GetOpacity(i) << endl; 
+    os << indent << "Opacity(" << i << "): " << this->GetOpacity(i) << endl;
     }
   os << indent << "Stencil: " << this->GetStencil() << endl;
   os << indent << "BlendMode: " << this->GetBlendModeAsString() << endl

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkImageBlend - blend images together using alpha or opacity
 // .SECTION Description
-// vtkImageBlend takes L, LA, RGB, or RGBA images as input and blends them 
+// vtkImageBlend takes L, LA, RGB, or RGBA images as input and blends them
 // according to the alpha values and/or the opacity setting for each input.
 //
 // The spacing, origin, extent, and number of components of the output are
@@ -26,7 +26,7 @@
 //
 // Different blending modes are available:
 //
-// \em Normal (default) : 
+// \em Normal (default) :
 // This is the standard blending mode used by OpenGL and other graphics
 // packages.  The output always has the same number of components
 // and the same extent as the first input.  The alpha value of the first
@@ -44,12 +44,12 @@
 // }
 // \endcode
 //
-// \em Compound : 
+// \em Compound :
 // Images are compounded together and each component is scaled by the sum of
-// the alpha/opacity values. Use the CompoundThreshold method to set 
+// the alpha/opacity values. Use the CompoundThreshold method to set
 // specify a threshold in compound mode. Pixels with opacity*alpha less
 // or equal than this threshold are ignored.
-// The alpha value of the first input, if present, is NOT copied to the alpha 
+// The alpha value of the first input, if present, is NOT copied to the alpha
 // value of the output.  The output always has the same number of components
 // and the same extent as the first input.
 //
@@ -76,7 +76,7 @@
 
 class vtkImageStencilData;
 
-#define VTK_IMAGE_BLEND_MODE_NORMAL    0
+#define VTK_IMAGE_BLEND_MODE_NORMAL   0
 #define VTK_IMAGE_BLEND_MODE_COMPOUND 1
 
 class VTK_IMAGING_EXPORT vtkImageBlend : public vtkThreadedImageAlgorithm

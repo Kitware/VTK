@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCast, "1.51");
+vtkCxxRevisionMacro(vtkImageCast, "1.52");
 vtkStandardNewMacro(vtkImageCast);
 
 //----------------------------------------------------------------------------
@@ -151,6 +151,7 @@ void vtkImageCast::ThreadedExecute (vtkImageData *inData,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkImageCast::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

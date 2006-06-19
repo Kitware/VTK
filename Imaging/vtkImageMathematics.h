@@ -12,7 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageMathematics - Add, subtract, multiply, divide, invert, sin, cos, exp, log.
+// .NAME vtkImageMathematics - Add, subtract, multiply, divide, invert, sin,
+// cos, exp, log.
 // .SECTION Description
 // vtkImageMathematics implements basic mathematic operations SetOperation is
 // used to select the filters behavior.  The filter can take two or one
@@ -28,7 +29,7 @@
 #define VTK_SUBTRACT           1
 #define VTK_MULTIPLY           2
 #define VTK_DIVIDE             3
-#define VTK_INVERT             4  
+#define VTK_INVERT             4
 #define VTK_SIN                5
 #define VTK_COS                6
 #define VTK_EXP                7
@@ -64,7 +65,7 @@ public:
   void SetOperationToMultiply() {this->SetOperation(VTK_MULTIPLY);};
   void SetOperationToDivide() {this->SetOperation(VTK_DIVIDE);};
   void SetOperationToConjugate() {this->SetOperation(VTK_CONJUGATE);};
-  void SetOperationToComplexMultiply() 
+  void SetOperationToComplexMultiply()
     {this->SetOperation(VTK_COMPLEX_MULTIPLY);};
 
   void SetOperationToInvert() {this->SetOperation(VTK_INVERT);};
@@ -106,15 +107,15 @@ protected:
   double ConstantK;
   double ConstantC;
   int DivideByZeroToC;
-  
-  virtual int RequestInformation (vtkInformation *, 
+
+  virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
-  
-  virtual void ThreadedRequestData(vtkInformation *request, 
-                                   vtkInformationVector **inputVector, 
+
+  virtual void ThreadedRequestData(vtkInformation *request,
+                                   vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
-                                   vtkImageData ***inData, 
+                                   vtkImageData ***inData,
                                    vtkImageData **outData,
                                    int extent[6], int threadId);
 

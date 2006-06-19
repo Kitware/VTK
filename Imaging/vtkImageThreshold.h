@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkImageThreshold -  Flexible threshold
 // .SECTION Description
-// vtkImageThreshold Can do binary or continuous thresholding for lower, upper
+// vtkImageThreshold can do binary or continuous thresholding for lower, upper
 // or a range of data.  The output data type may be different than the
 // output, but defaults to the same type.
 

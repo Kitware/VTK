@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFFT, "1.40");
+vtkCxxRevisionMacro(vtkImageFFT, "1.41");
 vtkStandardNewMacro(vtkImageFFT);
 
 //----------------------------------------------------------------------------
@@ -33,12 +33,13 @@ int vtkImageFFT::IterativeRequestInformation(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkImageFFTInternalRequestUpdateExtent(int *inExt, int *outExt, int *wExt,
                                             int iteration)
 {
   memcpy(inExt, outExt, 6 * sizeof(int));
   inExt[iteration*2] = wExt[iteration*2];
-  inExt[iteration*2 + 1] = wExt[iteration*2 + 1];  
+  inExt[iteration*2 + 1] = wExt[iteration*2 + 1];
 }
 
 //----------------------------------------------------------------------------
