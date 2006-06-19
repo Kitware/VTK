@@ -67,7 +67,7 @@
 # include "vtkQuadraticPyramid.h"
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.17");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.18");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -1063,6 +1063,6 @@ void vtkBridgeCell::AllocateWeights()
 // Compute the weights for parametric coordinates `pcoords'.
 void vtkBridgeCell::InterpolationFunctions(double pcoords[3], double *weights)
 {
-  this->InterpolationFunctions(pcoords, weights);
+  this->Cell->InterpolateFunctions(pcoords, weights);
 }
 
