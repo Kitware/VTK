@@ -75,6 +75,14 @@ public:
   // vtkTriangle specific methods.
   static void InterpolationFunctions(double pcoords[3], double sf[3]);
   static void InterpolationDerivs(double pcoords[3], double derivs[6]);
+  virtual void InterpolateFunctions(double pcoords[3], double sf[3])
+    {
+    vtkTriangle::InterpolationFunctions(pcoords,sf);
+    }
+  virtual void InterpolateDerivs(double pcoords[3], double derivs[6])
+    {
+    vtkTriangle::InterpolationDerivs(pcoords,derivs);
+    }
 
   // Description:
   // Plane intersection plus in/out test on triangle. The in/out test is 

@@ -40,7 +40,7 @@ protected:
   ~vtkWin32ProcessOutputWindow();
 
   int Initialize();
-  void Write(const char* data, int length);
+  void Write(const char* data, size_t length);
 
   // The write end of the pipe to the child process.
   vtkWindowsHANDLE OutputPipe;

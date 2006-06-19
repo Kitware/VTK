@@ -22,7 +22,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkVertex, "1.1");
+vtkCxxRevisionMacro(vtkVertex, "1.2");
 vtkStandardNewMacro(vtkVertex);
 
 //----------------------------------------------------------------------------
@@ -243,11 +243,17 @@ void vtkVertex::Clip(double value, vtkDataArray *cellScalars,
 
 //----------------------------------------------------------------------------
 // Compute interpolation functions
-//
-void vtkVertex::InterpolationFunctions(double vtkNotUsed(pcoords)[3], 
-                                       double weights[1])
+void vtkVertex::InterpolationFunctions(double [3], double weights[1])
 {
   weights[0] = 1.0;
+}
+
+//----------------------------------------------------------------------------
+void vtkVertex::InterpolationDerivs(double [3], double derivs[3])
+{
+  derivs[0] = 0.0;
+  derivs[1] = 0.0;
+  derivs[2] = 0.0;
 }
 
 //----------------------------------------------------------------------------

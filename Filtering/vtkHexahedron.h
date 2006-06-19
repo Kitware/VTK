@@ -75,6 +75,14 @@ public:
   // Hexahedron specific.
   static void InterpolationFunctions(double pcoords[3], double weights[8]);
   static void InterpolationDerivs(double pcoords[3], double derivs[24]);
+  virtual void InterpolateFunctions(double pcoords[3], double weights[8])
+    {
+    vtkHexahedron::InterpolationFunctions(pcoords,weights);
+    }
+  virtual void InterpolateDerivs(double pcoords[3], double derivs[24])
+    {
+    vtkHexahedron::InterpolationDerivs(pcoords,derivs);
+    }
   static int *GetEdgeArray(int edgeId);
   static int *GetFaceArray(int faceId);
 

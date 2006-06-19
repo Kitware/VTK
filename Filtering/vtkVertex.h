@@ -95,6 +95,15 @@ public:
   // Description:
   // Vertex specific methods.
   static void InterpolationFunctions(double pcoords[3], double weights[1]);
+  static void InterpolationDerivs(double pcoords[3], double derivs[3]);
+  virtual void InterpolateFunctions(double pcoords[3], double weights[1])
+    {
+    vtkVertex::InterpolationFunctions(pcoords,weights);
+    }
+  virtual void InterpolateDerivs(double pcoords[3], double derivs[3])
+    {
+    vtkVertex::InterpolationDerivs(pcoords,derivs);
+    }
 
 protected:
   vtkVertex();

@@ -288,6 +288,10 @@ public:
   // dimension of the cell.
   virtual double *GetParametricCoords();
 
+  // Description:
+  virtual void InterpolateFunctions(double pcoords[3], double *weights) = 0;
+  virtual void InterpolateDerivs(double pcoords[3], double *derivs) = 0;
+
   // left public for quick computational access
   vtkPoints *Points;
   vtkIdList *PointIds;

@@ -73,8 +73,15 @@ public:
   // Pixel specific methods.
   static void InterpolationFunctions(double pcoords[3], double weights[4]);
   static void InterpolationDerivs(double pcoords[3], double derivs[8]);
+  virtual void InterpolateFunctions(double pcoords[3], double weights[4])
+    {
+    vtkPixel::InterpolationFunctions(pcoords,weights);
+    }
+  virtual void InterpolateDerivs(double pcoords[3], double derivs[8])
+    {
+    vtkPixel::InterpolationDerivs(pcoords,derivs);
+    }
 
-  
 protected:
   vtkPixel();
   ~vtkPixel();

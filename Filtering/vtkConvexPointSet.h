@@ -138,6 +138,10 @@ public:
   // it is not a primary cell, it is a composite cell.
   int IsPrimaryCell() {return 0;}
 
+  // Description:
+  virtual void InterpolateFunctions(double pcoords[3], double *sf);
+  virtual void InterpolateDerivs(double pcoords[3], double *derivs);
+
 protected:
   vtkConvexPointSet();
   ~vtkConvexPointSet();

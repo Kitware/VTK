@@ -101,6 +101,14 @@ public:
   static int *GetFaceArray(int faceId);
   static void InterpolationFunctions(double pcoords[3], double weights[20]);
   static void InterpolationDerivs(double pcoords[3], double derivs[72]);
+  virtual void InterpolateFunctions(double pcoords[3], double weights[20])
+    {
+    vtkBiQuadraticQuadraticHexahedron::InterpolationFunctions(pcoords,weights);
+    }
+  virtual void InterpolateDerivs(double pcoords[3], double derivs[72])
+    {
+    vtkBiQuadraticQuadraticHexahedron::InterpolationDerivs(pcoords,derivs);
+    }
 
   // Description:
   // Given parametric coordinates compute inverse Jacobian transformation

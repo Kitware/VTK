@@ -65,13 +65,21 @@ public:
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values, 
+  void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs);
 
   // Description:
   // Voxel specific methods for interpolation and derivatives.
   static void InterpolationFunctions(double pcoords[3], double weights[8]);
   static void InterpolationDerivs(double pcoords[3], double derivs[24]);
+  virtual void InterpolateFunctions(double pcoords[3], double weights[8])
+    {
+    vtkVoxel::InterpolationFunctions(pcoords,weights);
+    }
+  virtual void InterpolateDerivs(double pcoords[3], double derivs[24])
+    {
+    vtkVoxel::InterpolationDerivs(pcoords,derivs);
+    }
   static int *GetEdgeArray(int edgeId);
   static int *GetFaceArray(int faceId);
 
@@ -81,7 +89,7 @@ protected:
 
   vtkLine *Line;
   vtkPixel *Pixel;
-  
+
 private:
   vtkVoxel(const vtkVoxel&);  // Not implemented.
   void operator=(const vtkVoxel&);  // Not implemented.

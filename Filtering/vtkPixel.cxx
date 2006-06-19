@@ -26,7 +26,7 @@
 #include "vtkCellData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPixel, "1.2");
+vtkCxxRevisionMacro(vtkPixel, "1.3");
 vtkStandardNewMacro(vtkPixel);
 
 //----------------------------------------------------------------------------
@@ -148,7 +148,7 @@ void vtkPixel::EvaluateLocation(int& subId, double pcoords[3], double x[3],
   int i;
 
   subId = 0;
-  
+
   this->Points->GetPoint(0, pt1);
   this->Points->GetPoint(1, pt2);
   this->Points->GetPoint(2, pt3);
@@ -259,7 +259,7 @@ void vtkPixel::Contour(double value, vtkDataArray *cellScalars,
         }
       if ( locator->InsertUniquePoint(x, pts[i]) )
         {
-        if ( outPd ) 
+        if ( outPd )
           {
           int p1 = this->PointIds->GetId(vert[0]);
           int p2 = this->PointIds->GetId(vert[1]);
@@ -296,7 +296,7 @@ vtkCell *vtkPixel::GetEdge(int edgeId)
 
 //----------------------------------------------------------------------------
 //
-// Compute interpolation functions (similar but different than Quad interpolation 
+// Compute interpolation functions (similar but different than Quad interpolation
 // functions)
 //
 void vtkPixel::InterpolationFunctions(double pcoords[3], double sf[4])
@@ -311,7 +311,6 @@ void vtkPixel::InterpolationFunctions(double pcoords[3], double sf[4])
   sf[2] = rm * pcoords[1];
   sf[3] = pcoords[0] * pcoords[1];
 }
-
 //----------------------------------------------------------------------------
 //
 // Compute derivatives of interpolation functions.
@@ -337,7 +336,7 @@ void vtkPixel::InterpolationDerivs(double pcoords[3], double derivs[8])
 }
 
 //----------------------------------------------------------------------------
-// 
+//
 // Intersect plane; see whether point is inside.
 //
 int vtkPixel::IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
@@ -376,7 +375,7 @@ int vtkPixel::IntersectWithLine(double p1[3], double p2[3], double tol, double& 
   //
   // Use evaluate position
   //
-  if (this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) )
+  if (this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights))
     {
     if ( dist2 <= tol2 )
       {
@@ -430,9 +429,9 @@ int vtkPixel::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 }
 
 //----------------------------------------------------------------------------
-void vtkPixel::Derivatives(int vtkNotUsed(subId), 
-                           double pcoords[3], 
-                           double *values, 
+void vtkPixel::Derivatives(int vtkNotUsed(subId),
+                           double pcoords[3],
+                           double *values,
                            int dim, double *derivs)
 {
   double functionDerivs[8], sum;
@@ -501,8 +500,8 @@ typedef int PIXEL_EDGE_LIST;
 typedef struct {
        PIXEL_EDGE_LIST edges[14];
 } PIXEL_CASES;
- 
-static PIXEL_CASES pixelCases[] = { 
+
+static PIXEL_CASES pixelCases[] = {
 {{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 0
 {{   3, 100,   0,   3,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 1
 {{   3, 101,   1,   0,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 2
@@ -521,7 +520,7 @@ static PIXEL_CASES pixelCases[] = {
 {{   4, 100, 101, 103, 102,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 15
 };
 
-static PIXEL_CASES pixelCasesComplement[] = { 
+static PIXEL_CASES pixelCasesComplement[] = {
 {{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 0
 {{   3, 100,   0,   3,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 1
 {{   3, 101,   1,   0,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 2
@@ -544,7 +543,7 @@ static PIXEL_CASES pixelCasesComplement[] = {
 //----------------------------------------------------------------------------
 // Clip this pixel using scalar value provided. Like contouring, except
 // that it cuts the pixel to produce quads and/or triangles.
-void vtkPixel::Clip(double value, vtkDataArray *cellScalars, 
+void vtkPixel::Clip(double value, vtkDataArray *cellScalars,
                    vtkPointLocator *locator, vtkCellArray *polys,
                    vtkPointData *inPd, vtkPointData *outPd,
                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -563,7 +562,7 @@ void vtkPixel::Clip(double value, vtkDataArray *cellScalars,
 
   // Build the index into the case table
   if ( insideOut )
-    {    
+    {
     for ( i=0, index = 0; i < 4; i++)
       {
       if (cellScalars->GetComponent(i,0) <= value)
@@ -573,7 +572,7 @@ void vtkPixel::Clip(double value, vtkDataArray *cellScalars,
       }
     // Select case based on the index and get the list of edges for this case
     pixelCase = pixelCases + index;
-    }    
+    }
   else
     {
     for ( i=0, index = 0; i < 4; i++)
@@ -662,7 +661,7 @@ void vtkPixel::Clip(double value, vtkDataArray *cellScalars,
       }
     else // a pixel
       {
-      if ((pts[0] == pts[3] && pts[1] == pts[2]) || 
+      if ((pts[0] == pts[3] && pts[1] == pts[2]) ||
           (pts[0] == pts[1] && pts[3] == pts[2]) )
         {
         continue;
@@ -687,7 +686,7 @@ double *vtkPixel::GetParametricCoords()
 void vtkPixel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Line:\n";
   this->Line->PrintSelf(os,indent.GetNextIndent());
 }

@@ -91,6 +91,14 @@ public:
   // Quadratic linear Quad specific methods.
   static void InterpolationFunctions (double pcoords[3], double weights[6]);
   static void InterpolationDerivs (double pcoords[3], double derivs[12]);
+  virtual void InterpolateFunctions (double pcoords[3], double weights[6])
+    {
+    vtkQuadraticLinearQuad::InterpolationFunctions(pcoords,weights);
+    }
+  virtual void InterpolateDerivs (double pcoords[3], double derivs[12])
+    {
+    vtkQuadraticLinearQuad::InterpolationDerivs(pcoords,derivs);
+    }
 
 protected:
   vtkQuadraticLinearQuad ();

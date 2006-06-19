@@ -88,6 +88,14 @@ public:
   // Quadratic edge specific methods. 
   static void InterpolationFunctions(double pcoords[3], double weights[3]);
   static void InterpolationDerivs(double pcoords[3], double derivs[3]);
+  virtual void InterpolateFunctions(double pcoords[3], double weights[3])
+    {
+    vtkQuadraticEdge::InterpolationFunctions(pcoords,weights);
+    }
+  virtual void InterpolateDerivs(double pcoords[3], double derivs[3])
+    {
+    vtkQuadraticEdge::InterpolationDerivs(pcoords,derivs);
+    }
 
 protected:
   vtkQuadraticEdge();

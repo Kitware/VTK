@@ -22,7 +22,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkLine, "1.1");
+vtkCxxRevisionMacro(vtkLine, "1.2");
 vtkStandardNewMacro(vtkLine);
 
 //----------------------------------------------------------------------------
@@ -590,6 +590,14 @@ void vtkLine::InterpolationFunctions(double pcoords[3], double weights[2])
 {
   weights[0] = 1.0 - pcoords[0];
   weights[1] = pcoords[0];
+}
+
+//----------------------------------------------------------------------------
+void vtkLine::InterpolationDerivs(double pcoords[3], double derivs[2])
+{
+  (void)pcoords;
+  derivs[0] = -1.0;
+  derivs[1] = 1;
 }
 
 //----------------------------------------------------------------------------

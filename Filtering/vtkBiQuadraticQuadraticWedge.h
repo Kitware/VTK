@@ -87,7 +87,8 @@ public:
   // Description:
   // Line-edge intersection. Intersection has to occur within [0,1] parametric
   // coordinates and with specified tolerance.
-  int IntersectWithLine (double p1[3], double p2[3], double tol, double &t, double x[3], double pcoords[3], int &subId);
+  int IntersectWithLine (double p1[3], double p2[3], double tol, double &t,
+    double x[3], double pcoords[3], int &subId);
 
 
   // Description:
@@ -99,6 +100,14 @@ public:
   static int *GetFaceArray(int faceId);
   static void InterpolationFunctions (double pcoords[3], double weights[15]);
   static void InterpolationDerivs (double pcoords[3], double derivs[45]);
+  virtual void InterpolateFunctions (double pcoords[3], double weights[15])
+    {
+    vtkBiQuadraticQuadraticWedge::InterpolationFunctions(pcoords,weights);
+    }
+  virtual void InterpolateDerivs (double pcoords[3], double derivs[45])
+    {
+    vtkBiQuadraticQuadraticWedge::InterpolationDerivs(pcoords,derivs);
+    }
 
   // Description:
   // Given parametric coordinates compute inverse Jacobian transformation

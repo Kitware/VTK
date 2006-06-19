@@ -20,7 +20,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkEmptyCell, "1.1");
+vtkCxxRevisionMacro(vtkEmptyCell, "1.2");
 vtkStandardNewMacro(vtkEmptyCell);
 
 //----------------------------------------------------------------------------
@@ -111,6 +111,20 @@ void vtkEmptyCell::Clip(double vtkNotUsed(value),
                         vtkCellData *vtkNotUsed(outCD),
                         int vtkNotUsed(insideOut))
 {
+}
+
+//----------------------------------------------------------------------------
+void vtkEmptyCell::InterpolateFunctions(double pcoords[3], double *weights)
+{
+  (void)pcoords;
+  (void)weights;
+}
+
+//----------------------------------------------------------------------------
+void vtkEmptyCell::InterpolateDerivs(double pcoords[3], double *derivs)
+{
+  (void)pcoords;
+  (void)derivs;
 }
 
 //----------------------------------------------------------------------------

@@ -60,6 +60,10 @@ public:
   void Derivatives(int subId, double pcoords[3], double *values, 
                    int dim, double *derivs);
 
+  // Description:
+  virtual void InterpolateFunctions(double pcoords[3], double *weights);
+  virtual void InterpolateDerivs(double pcoords[3], double *derivs);
+
 protected:
   vtkEmptyCell() {};
   ~vtkEmptyCell() {};

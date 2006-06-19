@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.21");
+vtkCxxRevisionMacro(vtkImageData, "1.22");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -740,7 +740,7 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
                                   double *weights)
 {
   return
-    this->FindCell( x, (vtkCell *)NULL, 0, 0.0, subId, pcoords, weights );
+    this->FindCell( x, NULL, 0, 0.0, subId, pcoords, weights );
 }
 
 //----------------------------------------------------------------------------
@@ -757,7 +757,7 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
     return -1;
     }
 
-  vtkVoxel::InterpolationFunctions(pcoords,weights);
+  this->Voxel->InterpolateFunctions(pcoords,weights);
 
   //
   //  From this location get the cell id
@@ -805,7 +805,6 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
       return NULL;
 
     case VTK_SINGLE_POINT: // cellId can only be = 0
-      vtkVertex::InterpolationFunctions(pcoords,weights);
       iMax = loc[0];
       jMax = loc[1];
       kMax = loc[2];
@@ -813,7 +812,6 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
       break;
 
     case VTK_X_LINE:
-      vtkLine::InterpolationFunctions(pcoords,weights);
       iMax = loc[0] + 1;
       jMax = loc[1];
       kMax = loc[2];
@@ -821,7 +819,6 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
       break;
 
     case VTK_Y_LINE:
-      vtkLine::InterpolationFunctions(pcoords,weights);
       iMax = loc[0];
       jMax = loc[1] + 1;
       kMax = loc[2];
@@ -829,7 +826,6 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
       break;
 
     case VTK_Z_LINE:
-      vtkLine::InterpolationFunctions(pcoords,weights);
       iMax = loc[0];
       jMax = loc[1];
       kMax = loc[2] + 1;
@@ -837,7 +833,6 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
       break;
 
     case VTK_XY_PLANE:
-      vtkPixel::InterpolationFunctions(pcoords,weights);
       iMax = loc[0] + 1;
       jMax = loc[1] + 1;
       kMax = loc[2];
@@ -845,7 +840,6 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
       break;
 
     case VTK_YZ_PLANE:
-      vtkPixel::InterpolationFunctions(pcoords,weights);
       iMax = loc[0];
       jMax = loc[1] + 1;
       kMax = loc[2] + 1;
@@ -853,7 +847,6 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
       break;
 
     case VTK_XZ_PLANE:
-      vtkPixel::InterpolationFunctions(pcoords,weights);
       iMax = loc[0] + 1;
       jMax = loc[1];
       kMax = loc[2] + 1;
@@ -861,13 +854,13 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
       break;
 
     case VTK_XYZ_GRID:
-      vtkVoxel::InterpolationFunctions(pcoords,weights);
       iMax = loc[0] + 1;
       jMax = loc[1] + 1;
       kMax = loc[2] + 1;
       cell = this->Voxel;
       break;
     }
+  cell->InterpolateFunctions(pcoords, weights);
 
   npts = 0;
   for (k = loc[2]; k <= kMax; k++)
@@ -979,7 +972,7 @@ void vtkImageData::GetVoxelGradient(int i, int j, int k, vtkDataArray *s,
 // dataset, compute the gradient vector from the scalar data at that point.
 // The scalars s are the scalars from which the gradient is to be computed.
 // This method will treat structured point datasets of any dimension.
-void vtkImageData::GetPointGradient(int i,int j,int k, vtkDataArray *s,
+void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray *s,
                                     double g[3])
 {
   int *dims=this->GetDimensions();
@@ -1102,7 +1095,7 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
     {
     d = x[i] - origin[i];
     doubleLoc = d / spacing[i];
-    // Floor for negtive indexes.
+    // Floor for negative indexes.
     ijk[i] = (int) (floor(doubleLoc));
     if ( ijk[i] >= extent[i*2] && ijk[i] < extent[i*2 + 1] )
       {

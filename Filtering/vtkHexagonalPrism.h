@@ -81,6 +81,14 @@ public:
   // Hexagonal prism specific
   static void InterpolationFunctions(double pcoords[3], double weights[12]);
   static void InterpolationDerivs(double pcoords[3], double derivs[36]);
+  virtual void InterpolateFunctions(double pcoords[3], double weights[12])
+    {
+    vtkHexagonalPrism::InterpolationFunctions(pcoords,weights);
+    }
+  virtual void InterpolateDerivs(double pcoords[3], double derivs[36])
+    {
+    vtkHexagonalPrism::InterpolationDerivs(pcoords,derivs);
+    }
   static int *GetEdgeArray(int edgeId);
   static int *GetFaceArray(int faceId);
 

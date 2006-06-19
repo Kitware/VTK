@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkVoxel, "1.2");
+vtkCxxRevisionMacro(vtkVoxel, "1.3");
 vtkStandardNewMacro(vtkVoxel);
 
 //----------------------------------------------------------------------------
@@ -135,7 +135,7 @@ void vtkVoxel::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
                     pcoords[1]*(pt3[i] - pt1[i]) +
                     pcoords[2]*(pt4[i] - pt1[i]);
     }
-  
+
   this->InterpolationFunctions(pcoords,weights);
 }
 

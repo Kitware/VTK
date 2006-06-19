@@ -25,7 +25,7 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.3");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.4");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 //----------------------------------------------------------------------------
@@ -393,6 +393,20 @@ double *vtkConvexPointSet::GetParametricCoords()
     }
 
   return this->ParametricCoords->GetPointer(0);
+}
+
+//----------------------------------------------------------------------------
+void vtkConvexPointSet::InterpolateFunctions(double pcoords[3], double *sf)
+{
+  (void)pcoords;
+  (void)sf;
+}
+
+//----------------------------------------------------------------------------
+void vtkConvexPointSet::InterpolateDerivs(double pcoords[3], double *derivs)
+{
+  (void)pcoords;
+  (void)derivs;
 }
 
 //----------------------------------------------------------------------------

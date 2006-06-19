@@ -100,6 +100,14 @@ public:
   // BiQuadratic quad specific methods.
   static void InterpolationFunctions (double pcoords[3], double weights[9]);
   static void InterpolationDerivs (double pcoords[3], double derivs[18]);
+  virtual void InterpolateFunctions (double pcoords[3], double weights[9])
+    {
+    vtkBiQuadraticQuad::InterpolationFunctions(pcoords,weights);
+    }
+  virtual void InterpolateDerivs (double pcoords[3], double derivs[18])
+    {
+    vtkBiQuadraticQuad::InterpolationDerivs(pcoords,derivs);
+    }
 
 protected:
   vtkBiQuadraticQuad();

@@ -21,7 +21,7 @@
 #include "vtkLine.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPolyLine, "1.1");
+vtkCxxRevisionMacro(vtkPolyLine, "1.2");
 vtkStandardNewMacro(vtkPolyLine);
 
 //----------------------------------------------------------------------------
@@ -484,6 +484,20 @@ int vtkPolyLine::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = 0.5; pcoords[1] = pcoords[2] = 0.0;
   return ((this->Points->GetNumberOfPoints() - 1) / 2);
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyLine::InterpolateFunctions(double pcoords[3], double *weights)
+{
+  (void)pcoords;
+  (void)weights;
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyLine::InterpolateDerivs(double pcoords[3], double *derivs)
+{
+  (void)pcoords;
+  (void)derivs;
 }
 
 //----------------------------------------------------------------------------

@@ -78,6 +78,10 @@ public:
   int IsPrimaryCell();
 
   // Description:
+  virtual void InterpolateFunctions(double pcoords[3], double *weights);
+  virtual void InterpolateDerivs(double pcoords[3], double *derivs);
+
+  // Description:
   // This method is used to support the vtkDataSet::GetCell(vtkGenericCell *)
   // method. It allows vtkGenericCell to act like any cell type by
   // dereferencing an internal instance of a concrete cell type. When

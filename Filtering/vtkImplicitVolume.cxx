@@ -20,10 +20,11 @@
 #include "vtkPointData.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImplicitVolume, "1.32");
+vtkCxxRevisionMacro(vtkImplicitVolume, "1.33");
 vtkStandardNewMacro(vtkImplicitVolume);
 vtkCxxSetObjectMacro(vtkImplicitVolume,Volume,vtkImageData);
 
+//----------------------------------------------------------------------------
 // Construct an vtkImplicitVolume with no initial volume; the OutValue
 // set to a large negative number; and the OutGradient set to (0,0,1).
 vtkImplicitVolume::vtkImplicitVolume()
@@ -39,6 +40,7 @@ vtkImplicitVolume::vtkImplicitVolume()
   this->PointIds->Allocate(8);
 }
 
+//----------------------------------------------------------------------------
 vtkImplicitVolume::~vtkImplicitVolume()
 {
   if (this->Volume)
@@ -49,6 +51,7 @@ vtkImplicitVolume::~vtkImplicitVolume()
   this->PointIds->Delete();
 }
 
+//----------------------------------------------------------------------------
 // Evaluate the ImplicitVolume. This returns the interpolated scalar value
 // at x[3].
 double vtkImplicitVolume::EvaluateFunction(double x[3])
@@ -85,6 +88,7 @@ double vtkImplicitVolume::EvaluateFunction(double x[3])
     }
 }
 
+//----------------------------------------------------------------------------
 unsigned long vtkImplicitVolume::GetMTime()
 {
   unsigned long mTime = this->vtkImplicitFunction::GetMTime();
@@ -104,6 +108,7 @@ unsigned long vtkImplicitVolume::GetMTime()
 }
 
 
+//----------------------------------------------------------------------------
 // Evaluate ImplicitVolume gradient.
 void vtkImplicitVolume::EvaluateGradient(double x[3], double n[3])
 {
@@ -150,6 +155,7 @@ void vtkImplicitVolume::EvaluateGradient(double x[3], double n[3])
   gradient->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

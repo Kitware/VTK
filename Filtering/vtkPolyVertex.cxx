@@ -23,7 +23,7 @@
 #include "vtkPoints.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyVertex, "1.1");
+vtkCxxRevisionMacro(vtkPolyVertex, "1.2");
 vtkStandardNewMacro(vtkPolyVertex);
 
 //----------------------------------------------------------------------------
@@ -229,6 +229,20 @@ int vtkPolyVertex::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
   return (this->Points->GetNumberOfPoints() / 2);
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyVertex::InterpolateFunctions(double pcoords[3], double *weights)
+{
+  (void)pcoords;
+  (void)weights;
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyVertex::InterpolateDerivs(double pcoords[3], double *derivs)
+{
+  (void)pcoords;
+  (void)derivs;
 }
 
 //----------------------------------------------------------------------------

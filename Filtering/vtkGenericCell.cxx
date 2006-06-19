@@ -47,7 +47,7 @@
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.4");
+vtkCxxRevisionMacro(vtkGenericCell, "1.5");
 vtkStandardNewMacro(vtkGenericCell);
 
 //----------------------------------------------------------------------------
@@ -342,6 +342,18 @@ void vtkGenericCell::SetCellType(int cellType)
     this->PointIds = this->Cell->PointIds;
     this->PointIds->Register(this);
     }//need to change cell type
+}
+
+//----------------------------------------------------------------------------
+void vtkGenericCell::InterpolateFunctions(double pcoords[3], double *weights)
+{
+  this->Cell->InterpolateFunctions(pcoords,weights);
+}
+
+//----------------------------------------------------------------------------
+void vtkGenericCell::InterpolateDerivs(double pcoords[3], double *derivs)
+{
+  this->Cell->InterpolateDerivs(pcoords,derivs);
 }
 
 //----------------------------------------------------------------------------

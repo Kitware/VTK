@@ -100,14 +100,16 @@ public:
   // Description:
   // Quadratic linear wedge specific methods.
   static int *GetFaceArray(int faceId);
-  
-  // Description:
-  // Quadratic linear wedge specific methods.
   static void InterpolationFunctions (double pcoords[3], double weights[15]);
-
-  // Description:
-  // Quadratic linear wedge specific methods.
   static void InterpolationDerivs (double pcoords[3], double derivs[45]);
+  virtual void InterpolateFunctions (double pcoords[3], double weights[15])
+    {
+    vtkQuadraticLinearWedge::InterpolationFunctions(pcoords,weights);
+    }
+  virtual void InterpolateDerivs (double pcoords[3], double derivs[45])
+    {
+    vtkQuadraticLinearWedge::InterpolationDerivs(pcoords,derivs);
+    }
 
   // Description:
   // Given parametric coordinates compute inverse Jacobian transformation

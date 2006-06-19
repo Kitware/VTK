@@ -67,7 +67,7 @@
 # include "vtkQuadraticPyramid.h"
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.16");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.17");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -419,15 +419,15 @@ int vtkBridgeCell::FindClosestBoundary(int subId,
 // \post positive_distance: result!=-1 implies (closestPoint!=0 implies
 //                                               dist2>=0)
 int vtkBridgeCell::EvaluatePosition(double x[3],
-                                    double *closestPoint, 
+                                    double *closestPoint,
                                     int &subId,
-                                    double pcoords[3], 
+                                    double pcoords[3],
                                     double &dist2)
 {
   this->AllocateWeights();
   int result=this->Cell->EvaluatePosition(x,closestPoint,subId,pcoords,dist2,
                                           this->Weights);
-  
+
   if(result)
     {
     // clamp pcoords
@@ -445,13 +445,13 @@ int vtkBridgeCell::EvaluatePosition(double x[3],
       ++i;
       }
     }
-  
+
   assert("post: valid_result" && result==-1 || result==0 || result==1);
   assert("post: positive_distance" && (!(result!=-1) || (!(closestPoint!=0)||dist2>=0))); // A=>B: !A || B
   return result;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Determine global coordinates `x' from sub-cell `subId' and parametric
 // coordinates `pcoords' in the cell.
@@ -466,12 +466,12 @@ void vtkBridgeCell::EvaluateLocation(int subId,
   assert("pre: clamped_pcoords" && (0<=pcoords[0])&&(pcoords[0]<=1)
              &&(0<=pcoords[1])&&(pcoords[1]<=1)&&(0<=pcoords[2])
              &&(pcoords[2]<=1));
-  
+
   this->AllocateWeights();
   this->Cell->EvaluateLocation(subId,pcoords,x,this->Weights);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Interpolate the attribute `a' at local position `pcoords' of the cell into
 // `val'.
@@ -499,7 +499,7 @@ void vtkBridgeCell::InterpolateTuple(vtkGenericAttribute *a, double pcoords[3],
   if(a->GetCentering() == vtkPointCentered)
     {
     this->AllocateWeights();
-    this->InterpolationFunctions(pcoords);
+    this->InterpolationFunctions(pcoords, this->Weights);
 
     memset(val,0, sizeof(double)*componentCount);
     for(int pt = 0; pt<ptCount; ++pt)
@@ -519,7 +519,7 @@ void vtkBridgeCell::InterpolateTuple(vtkGenericAttribute *a, double pcoords[3],
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Description:
 // Interpolate the whole collection of attributes `c' at local position
 // `pcoords' of the cell into `val'. Only point centered attributes are
@@ -1061,88 +1061,8 @@ void vtkBridgeCell::AllocateWeights()
 //----------------------------------------------------------------------------
 // Description:
 // Compute the weights for parametric coordinates `pcoords'.
-void vtkBridgeCell::InterpolationFunctions(double pcoords[3])
+void vtkBridgeCell::InterpolationFunctions(double pcoords[3], double *weights)
 {
-  // unfortunately InterpolationFunctions are static in all
-  // cells, here is a huge switch >:-(
-
-  switch(this->Cell->GetCellType())
-    {
-    case VTK_EMPTY_CELL:
-      // I dont know what do with that
-      break;
-    case VTK_VERTEX:
-      vtkVertex::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_POLY_VERTEX:
-      // I dont know what do with that
-      break;
-    case VTK_LINE:
-      vtkLine::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_POLY_LINE:
-      vtkLine::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_TRIANGLE:
-      vtkTriangle::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_TRIANGLE_STRIP:
-      // I dont know what do with that
-      break;
-    case VTK_POLYGON:
-      static_cast<vtkPolygon *>(this->Cell)->ComputeWeights(pcoords,this->Weights);
-      break;
-    case VTK_PIXEL:
-      vtkPixel::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_QUAD:
-      vtkQuad::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_TETRA:
-      vtkTetra::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_VOXEL:
-      vtkVoxel::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_HEXAHEDRON:
-      vtkHexahedron::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_WEDGE:
-      vtkWedge::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_PYRAMID:
-      vtkPyramid::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_QUADRATIC_EDGE:
-      vtkQuadraticEdge::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_QUADRATIC_TRIANGLE:
-      vtkQuadraticTriangle::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_QUADRATIC_QUAD:
-      vtkQuadraticQuad::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_QUADRATIC_TETRA:
-      vtkQuadraticTetra::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_QUADRATIC_HEXAHEDRON:
-      vtkQuadraticHexahedron::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_PENTAGONAL_PRISM:
-      vtkPentagonalPrism::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_HEXAGONAL_PRISM:
-      vtkHexagonalPrism::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_QUADRATIC_WEDGE:
-         vtkQuadraticWedge::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_QUADRATIC_PYRAMID:
-      vtkQuadraticPyramid::InterpolationFunctions(pcoords,this->Weights);
-      break;
-    case VTK_CONVEX_POINT_SET:
-      // I dont know what do with that
-      break;
-    }
+  this->InterpolationFunctions(pcoords, weights);
 }
 

@@ -22,9 +22,6 @@
 
 #include "vtkCell.h"
 
-//#include "vtkPoints.h"
-//#include "vtkCellArray.h"
-//#include "vtkLine.h"
 class vtkPoints;
 class vtkCellArray;
 class vtkLine;
@@ -83,7 +80,10 @@ public:
   // Return the center of the point cloud in parametric coordinates.
   int GetParametricCenter(double pcoords[3]);
 
-  
+  // Description:
+  virtual void InterpolateFunctions(double pcoords[3], double *weights);
+  virtual void InterpolateDerivs(double pcoords[3], double *derivs);
+
 protected:
   vtkPolyLine();
   ~vtkPolyLine();

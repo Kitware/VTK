@@ -77,6 +77,14 @@ public:
   // vtkQuad specific methods.
   static void InterpolationFunctions(double pcoords[3], double sf[4]);
   static void InterpolationDerivs(double pcoords[3], double derivs[8]);
+  virtual void InterpolateFunctions(double pcoords[3], double sf[4])
+    {
+    vtkQuad::InterpolationFunctions(pcoords,sf);
+    }
+  virtual void InterpolateDerivs(double pcoords[3], double derivs[8])
+    {
+    vtkQuad::InterpolationDerivs(pcoords,derivs);
+    }
 
 protected:
   vtkQuad();

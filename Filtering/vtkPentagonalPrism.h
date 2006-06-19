@@ -80,6 +80,14 @@ public:
   // Pentagonal prism specific
   static void InterpolationFunctions(double pcoords[3], double weights[10]);
   static void InterpolationDerivs(double pcoords[3], double derivs[30]);
+  virtual void InterpolateFunctions(double pcoords[3], double weights[10])
+    {
+    vtkPentagonalPrism::InterpolationFunctions(pcoords, weights);
+    }
+  virtual void InterpolateDerivs(double pcoords[3], double derivs[30])
+    {
+    vtkPentagonalPrism::InterpolationDerivs(pcoords, derivs);
+    }
   static int *GetEdgeArray(int edgeId);
   static int *GetFaceArray(int faceId);
 

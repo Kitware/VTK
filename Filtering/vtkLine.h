@@ -102,6 +102,15 @@ public:
   // Description:
   // Line specific methods.
   static void InterpolationFunctions(double pcoords[3], double weights[2]);
+  static void InterpolationDerivs(double pcoords[3], double derivs[2]);
+  virtual void InterpolateFunctions(double pcoords[3], double weights[2])
+    {
+    vtkLine::InterpolationFunctions(pcoords,weights);
+    }
+  virtual void InterpolateDerivs(double pcoords[3], double derivs[2])
+    {
+    vtkLine::InterpolationDerivs(pcoords,derivs);
+    }
 
 protected:
   vtkLine();

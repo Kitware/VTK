@@ -24,7 +24,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.6");
+vtkCxxRevisionMacro(vtkTetra, "1.7");
 vtkStandardNewMacro(vtkTetra);
 
 //----------------------------------------------------------------------------
@@ -699,8 +699,9 @@ void vtkTetra::InterpolationFunctions(double pcoords[3], double sf[4])
 }
 
 //----------------------------------------------------------------------------
-void vtkTetra::InterpolationDerivs(double derivs[12])
+void vtkTetra::InterpolationDerivs(double pcoords[3], double derivs[12])
 {
+  (void)pcoords;
   // r-derivatives
   derivs[0] = -1.0;
   derivs[1] = 1.0;
@@ -731,7 +732,7 @@ int vtkTetra::JacobianInverse(double **inverse, double derivs[12])
   double x[3];
 
   // compute interpolation function derivatives
-  this->InterpolationDerivs(derivs);
+  this->InterpolationDerivs(NULL, derivs);
 
   // create Jacobian matrix
   m[0] = m0; m[1] = m1; m[2] = m2;

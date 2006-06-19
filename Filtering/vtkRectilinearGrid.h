@@ -201,16 +201,13 @@ protected:
 private:
   // Description:
   // For legacy compatibility. Do not use.
-  void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
-    {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
+  VTK_LEGACY(void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds));
 private:
   vtkRectilinearGrid(const vtkRectilinearGrid&);  // Not implemented.
   void operator=(const vtkRectilinearGrid&);  // Not implemented.
 };
 
-
-
-
+//----------------------------------------------------------------------------
 inline vtkIdType vtkRectilinearGrid::GetNumberOfCells() 
 {
   vtkIdType nCells=1;
@@ -231,24 +228,37 @@ inline vtkIdType vtkRectilinearGrid::GetNumberOfCells()
   return nCells;
 }
 
+//----------------------------------------------------------------------------
 inline vtkIdType vtkRectilinearGrid::GetNumberOfPoints()
 {
   return this->Dimensions[0]*this->Dimensions[1]*this->Dimensions[2];
 }
 
+//----------------------------------------------------------------------------
 inline int vtkRectilinearGrid::GetDataDimension()
 {
   return vtkStructuredData::GetDataDimension(this->DataDescription);
 }
 
+//----------------------------------------------------------------------------
 inline vtkIdType vtkRectilinearGrid::ComputePointId(int ijk[3])
 {
   return vtkStructuredData::ComputePointId(this->Dimensions,ijk);
 }
 
+//----------------------------------------------------------------------------
 inline vtkIdType vtkRectilinearGrid::ComputeCellId(int ijk[3])
 {
   return vtkStructuredData::ComputeCellId(this->Dimensions,ijk);
 }
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+inline void vtkRectilinearGrid::GetCellNeighbors(vtkIdType cellId, 
+  vtkIdList& ptIds, vtkIdList& cellIds)
+{
+  this->GetCellNeighbors(cellId, &ptIds, &cellIds);
+}
+#endif
 
 #endif

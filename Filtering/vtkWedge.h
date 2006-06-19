@@ -83,6 +83,14 @@ public:
   // derivatives.
   static void InterpolationFunctions(double pcoords[3], double weights[6]);
   static void InterpolationDerivs(double pcoords[3], double derivs[18]);
+  virtual void InterpolateFunctions(double pcoords[3], double weights[6])
+    {
+    vtkWedge::InterpolationFunctions(pcoords,weights);
+    }
+  virtual void InterpolateDerivs(double pcoords[3], double derivs[18])
+    {
+    vtkWedge::InterpolationDerivs(pcoords,derivs);
+    }
   int JacobianInverse(double pcoords[3], double **inverse, double derivs[18]);
   static int *GetEdgeArray(int edgeId);
   static int *GetFaceArray(int faceId);

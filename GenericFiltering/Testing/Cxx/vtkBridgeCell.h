@@ -437,7 +437,7 @@ public:
   // \post result_exists: result!=0
   // \post valid_size: sizeof(result)==2
   int *GetEdgeArray(int edgeId);
-  
+
   // Description:
   // Used internally for the Bridge.
   // Initialize the cell from a dataset `ds' and `cellid'.
@@ -452,13 +452,13 @@ public:
   // \pre c_exists: c!=0
   void InitWithCell(vtkCell *c,
                     vtkIdType id);
-  
+
   // Description:
   // Recursive copy of `other' into `this'.
   // \pre other_exists: other!=0
   // \pre other_differ: this!=other
   void DeepCopy(vtkBridgeCell *other);
-  
+
 protected:
   vtkBridgeCell();
   virtual ~vtkBridgeCell();
@@ -470,8 +470,8 @@ protected:
 
   // Description:
   // Compute the weights for parametric coordinates `pcoords'.
-  void InterpolationFunctions(double pcoords[3]);
-  
+  void InterpolationFunctions(double pcoords[3], double *weights);
+
   friend class vtkBridgeDataSet;
   friend class vtkBridgeAttribute;
   friend class vtkBridgeCellIterator;
@@ -479,16 +479,16 @@ protected:
   friend class vtkBridgeCellIteratorOne;
   friend class vtkBridgeCellIteratorOnCellBoundaries;
   friend class vtkBridgePointIteratorOnCell;
-  
+
   vtkCell *Cell;
   vtkBridgeDataSet *DataSet;
   vtkIdType Id; // what does it mean for boundary cells?
-  int BoolIsInDataSet; 
+  int BoolIsInDataSet;
   vtkBridgeCellIterator *InternalIterator; // used in Contour
-  
+
   double *Weights; // interpolation functions
   int WeightsCapacity;
-  
+
 private:
   vtkBridgeCell(const vtkBridgeCell&);  // Not implemented.
   void operator=(const vtkBridgeCell&);  // Not implemented.
