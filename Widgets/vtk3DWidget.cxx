@@ -22,10 +22,12 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.1");
+vtkCxxRevisionMacro(vtk3DWidget, "1.2");
 
 vtkCxxSetObjectMacro(vtk3DWidget,Prop3D,vtkProp3D);
 vtkCxxSetObjectMacro(vtk3DWidget,Input,vtkDataSet);
+
+//----------------------------------------------------------------------------
 vtk3DWidget::vtk3DWidget()
 {
   this->Placed = 0;
@@ -39,6 +41,7 @@ vtk3DWidget::vtk3DWidget()
   this->ValidPick = 0;
 }
 
+//----------------------------------------------------------------------------
 vtk3DWidget::~vtk3DWidget()
 {
   if ( this->Input )
@@ -53,6 +56,7 @@ vtk3DWidget::~vtk3DWidget()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtk3DWidget::PlaceWidget()
 {
   double bounds[6];
@@ -80,6 +84,7 @@ void vtk3DWidget::PlaceWidget()
   this->PlaceWidget(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
+//----------------------------------------------------------------------------
 void vtk3DWidget::PlaceWidget(double xmin, double xmax, 
                               double ymin, double ymax, 
                               double zmin, double zmax)
@@ -98,6 +103,7 @@ void vtk3DWidget::PlaceWidget(double xmin, double xmax,
   this->Placed = 1;
 }
 
+//----------------------------------------------------------------------------
 void vtk3DWidget::AdjustBounds(double bounds[6], 
                                double newBounds[6], double center[3])
 {
@@ -113,6 +119,7 @@ void vtk3DWidget::AdjustBounds(double bounds[6],
   newBounds[5] = center[2] + this->PlaceFactor*(bounds[5]-center[2]);
 }
 
+//----------------------------------------------------------------------------
 double vtk3DWidget::SizeHandles(double factor)
 {
   int i;
@@ -155,6 +162,7 @@ double vtk3DWidget::SizeHandles(double factor)
 }
 
 
+//----------------------------------------------------------------------------
 void vtk3DWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
