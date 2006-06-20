@@ -41,8 +41,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Return class name of data type (see vtkType.h for
-  // definitions).
+  // Return class name of data type (see vtkType.h for definitions).
   virtual int GetDataObjectType() {return VTK_HIERARCHICAL_BOX_DATA_SET;}
 
 //BTX
@@ -50,17 +49,15 @@ public:
   // Set the dataset pointer for a given node. This method does
   // not remove the existing parent/child links. It only replaces
   // the dataset pointer.
-  void SetDataSet(unsigned int level, 
-                  unsigned int id, 
-                  vtkAMRBox& box,
-                  vtkUniformGrid* dataSet);
+  void SetDataSet(unsigned int level, unsigned int id, 
+                  vtkAMRBox& box, vtkUniformGrid* dataSet);
   void SetDataSet(unsigned int level, unsigned int id, vtkDataObject* dataSet)
     {
     this->Superclass::SetDataSet(level, id, dataSet);
     }
 
   // Description:
-  // Get a dataset give a level and an id.
+  // Get a dataset given a level and an id.
   vtkUniformGrid* GetDataSet(unsigned int level, 
                              unsigned int id, 
                              vtkAMRBox& box);
@@ -95,7 +92,7 @@ public:
   // Description:
   // Returns the total number of points of all blocks. This will
   // iterate over all blocks and call GetNumberOfPoints() so it
-  // might be expansive. Does not include the number of blanked
+  // might be expensive. Does not include the number of blanked
   // points.
   virtual vtkIdType GetNumberOfPoints();
 

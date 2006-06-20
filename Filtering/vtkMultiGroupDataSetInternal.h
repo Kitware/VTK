@@ -51,7 +51,7 @@ struct vtkMGDSNodeRef
     {
       return (this->Group != rhs.Group) || (this->Index != rhs.Index);
     }
-  
+
   int Group;
   int Index;
 };
