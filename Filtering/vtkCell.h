@@ -289,8 +289,8 @@ public:
   virtual double *GetParametricCoords();
 
   // Description:
-  virtual void InterpolateFunctions(double pcoords[3], double *weights) = 0;
-  virtual void InterpolateDerivs(double pcoords[3], double *derivs) = 0;
+  virtual void InterpolateFunctions(double [3], double *) {}
+  virtual void InterpolateDerivs(double [3], double *) {}
 
   // left public for quick computational access
   vtkPoints *Points;
