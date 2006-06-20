@@ -425,7 +425,7 @@ ENDIF(BORLAND)
 
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
-INCLUDE(${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityC.cmake)
+INCLUDE(${VTK_CMAKE_DIR}/CMakeBackwardCompatibilityC.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/TestForANSIStreamHeaders.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/TestForSTDNamespace.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/TestForANSIForScope.cmake)
