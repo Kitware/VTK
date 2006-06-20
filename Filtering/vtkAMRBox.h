@@ -23,6 +23,23 @@
 
 #include "vtkObject.h"
 
+// Helper to unroll the loop
+template<int dimension>
+void vtkAMRBoxInitialize(int *LoCorner, int *HiCorner, // member
+                         int *loCorner, int *hiCorner) // local
+  {
+  for(int i=0; i<dimension; ++i)
+    {
+    LoCorner[i] = loCorner[i];
+    HiCorner[i] = hiCorner[i];
+    }
+  for(int i=dimension; i<(3-dimension); ++i)
+    {
+    LoCorner[i] = 0;
+    HiCorner[i] = 0;
+    }
+  }
+
 class VTK_FILTERING_EXPORT vtkAMRBox
 {
 public:
@@ -30,33 +47,41 @@ public:
   int LoCorner[3];
   int HiCorner[3];
 
-  vtkAMRBox() 
+  vtkAMRBox()
     {
-      for(int i=0; i<3; i++)
-        {
-        this->LoCorner[i] = this->HiCorner[i] = 0;
-        }
+    vtkAMRBoxInitialize<0>(this->LoCorner, this->HiCorner, 0, 0);
     }
 
-  vtkAMRBox(int dimensionality, int* loCorner, int* hiCorner) 
+  // \precondition dimensionality >= 2 && dimensionality <= 3
+  vtkAMRBox(int dimensionality, int* loCorner, int* hiCorner)
     {
-      this->LoCorner[2] = this->HiCorner[2] = 0;
-      memcpy(this->LoCorner, loCorner, dimensionality*sizeof(int));
-      memcpy(this->HiCorner, hiCorner, dimensionality*sizeof(int));
+    switch(dimensionality)
+      {
+    case 2:
+      vtkAMRBoxInitialize<2>(this->LoCorner, this->HiCorner,
+                             loCorner, hiCorner);
+      break;
+    case 3:
+      vtkAMRBoxInitialize<3>(this->LoCorner, this->HiCorner,
+                             loCorner, hiCorner);
+      break;
+    default:
+      vtkGenericWarningMacro( "Wrong dimensionality" );
+      }
     }
-    
+
   // Description:
   // Returns the number of cells (aka elements, zones etc.) in
   // the given region (for the specified refinement, see Coarsen()
   // and Refine() ).
   vtkIdType GetNumberOfCells()
     {
-      vtkIdType numCells=1;
-      for(int i=0; i<3; i++)
-        {
-        numCells *= HiCorner[i] - LoCorner[i] + 1;
-        }
-      return numCells;
+    vtkIdType numCells=1;
+    for(int i=0; i<3; i++)
+      {
+      numCells *= HiCorner[i] - LoCorner[i] + 1;
+      }
+    return numCells;
     }
 
   // Description:
@@ -64,17 +89,17 @@ public:
   // refinement ratio.
   void Coarsen(int refinement)
     {
-      for (int i=0; i<3; i++)
-        {
-        this->LoCorner[i] = 
-          ( this->LoCorner[i] < 0 ? 
-            -abs(this->LoCorner[i]+1)/refinement - 1 :
-            this->LoCorner[i]/refinement );
-        this->HiCorner[i] = 
-          ( this->HiCorner[i] < 0 ? 
-            -abs(this->HiCorner[i]+1)/refinement - 1 :
-            this->HiCorner[i]/refinement );
-        }
+    for (int i=0; i<3; i++)
+      {
+      this->LoCorner[i] =
+        ( this->LoCorner[i] < 0 ?
+          -abs(this->LoCorner[i]+1)/refinement - 1 :
+          this->LoCorner[i]/refinement );
+      this->HiCorner[i] =
+        ( this->HiCorner[i] < 0 ?
+          -abs(this->HiCorner[i]+1)/refinement - 1 :
+          this->HiCorner[i]/refinement );
+      }
     }
 
   // Description:
@@ -82,11 +107,11 @@ public:
   // refinement ratio.
   void Refine(int refinement)
     {
-      for (int i=0; i<3; i++)
-        {
-        this->LoCorner[i] = this->LoCorner[i]*refinement;
-        this->HiCorner[i] = this->HiCorner[i]*refinement;
-        }
+    for (int i=0; i<3; i++)
+      {
+      this->LoCorner[i] = this->LoCorner[i]*refinement;
+      this->HiCorner[i] = this->HiCorner[i]*refinement;
+      }
     }
 
   // Description:
@@ -94,10 +119,10 @@ public:
   // given indices.
   int DoesContainCell(int i, int j, int k)
     {
-      return 
-        i >= this->LoCorner[0] && i <= this->HiCorner[0] &&
-        j >= this->LoCorner[1] && j <= this->HiCorner[1] &&
-        k >= this->LoCorner[2] && k <= this->HiCorner[2];
+    return
+      i >= this->LoCorner[0] && i <= this->HiCorner[0] &&
+      j >= this->LoCorner[1] && j <= this->HiCorner[1] &&
+      k >= this->LoCorner[2] && k <= this->HiCorner[2];
     }
 
 };

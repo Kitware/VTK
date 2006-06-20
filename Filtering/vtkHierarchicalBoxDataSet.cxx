@@ -25,7 +25,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.12");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.13");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
@@ -88,8 +88,8 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level,
     int* boxVec = info->Get(BOX());
     if (boxVec)
       {
-      memcpy(box.LoCorner, boxVec  , 3*sizeof(int));
-      memcpy(box.HiCorner, boxVec+3, 3*sizeof(int));
+      vtkAMRBoxInitialize<3>(box.LoCorner, box.HiCorner,
+                             boxVec      , boxVec+3);
       }
     }
   return static_cast<vtkUniformGrid*>(ldataSets[id].GetPointer());

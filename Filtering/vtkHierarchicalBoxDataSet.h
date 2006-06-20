@@ -56,7 +56,7 @@ public:
                   vtkUniformGrid* dataSet);
   void SetDataSet(unsigned int level, unsigned int id, vtkDataObject* dataSet)
     {
-      this->Superclass::SetDataSet(level, id, dataSet);
+    this->Superclass::SetDataSet(level, id, dataSet);
     }
 
   // Description:
