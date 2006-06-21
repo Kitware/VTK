@@ -182,7 +182,7 @@ protected:
   void Translate(double *p1, double *p2);
   void Scale(double *p1, double *p2, double eventPos[2]);
   void MoveFocus(double *p1, double *p2);
-  void SizeBounds(double *bounds);
+  void SizeBounds();
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.

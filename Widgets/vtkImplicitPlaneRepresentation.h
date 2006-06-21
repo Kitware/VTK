@@ -157,10 +157,6 @@ public:
   void UpdatePlacement(void);
 
   // Description:
-  // Control widget appearance
-  virtual void SizeHandles();
-
-  // Description:
   // Get the properties on the normal (line and cone).
   vtkGetObjectMacro(NormalProperty,vtkProperty);
   vtkGetObjectMacro(SelectedNormalProperty,vtkProperty);
@@ -246,15 +242,15 @@ protected:
   vtkPolyDataMapper *OutlineMapper;
   vtkActor          *OutlineActor;
   void HighlightOutline(int highlight);
-  int OutlineTranslation; //whether the outline can be moved
-  int ScaleEnabled; //whether the widget can be scaled 
-  int OutsideBounds; //whether the widget can be moved outside input's bounds
+  int  OutlineTranslation; //whether the outline can be moved
+  int  ScaleEnabled; //whether the widget can be scaled 
+  int  OutsideBounds; //whether the widget can be moved outside input's bounds
   
   // The cut plane is produced with a vtkCutter
   vtkCutter         *Cutter;
   vtkPolyDataMapper *CutMapper;
   vtkActor          *CutActor;
-  int               DrawPlane;
+  int                DrawPlane;
   void HighlightPlane(int highlight);
   
   // Optional tubes are represented by extracting boundary edges and tubing
@@ -262,7 +258,7 @@ protected:
   vtkTubeFilter     *EdgesTuber;
   vtkPolyDataMapper *EdgesMapper;
   vtkActor          *EdgesActor;
-  int               Tubing; //control whether tubing is on
+  int                Tubing; //control whether tubing is on
 
   // The + normal cone
   vtkConeSource     *ConeSource;
@@ -304,7 +300,8 @@ protected:
   void TranslateOrigin(double *p1, double *p2);
   void Push(double *p1, double *p2);
   void Scale(double *p1, double *p2, double X, double Y);
-  
+  void SizeHandles();
+
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
   vtkProperty *NormalProperty;

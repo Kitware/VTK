@@ -40,7 +40,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.6");
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //----------------------------------------------------------------------------
@@ -234,7 +234,6 @@ int vtkImplicitPlaneRepresentation::ComputeInteractionState(int X, int Y,
     
   // Something picked, continue
   this->ValidPick = 1;
-  this->Picker->GetPickPosition(this->LastPickPosition);
 
   // Depending on the interaction state (set by the widget) we modify
   // this state based on what is picked.
@@ -364,9 +363,11 @@ void vtkImplicitPlaneRepresentation::WidgetInteraction(double e[2])
     }
 
   // Compute the two points defining the motion vector
-  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer,this->LastPickPosition[0], 
-                                               this->LastPickPosition[1],
-                                               this->LastPickPosition[2], focalPoint);
+  double pos[3];
+  this->Picker->GetPickPosition(pos);
+  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer,
+                                               pos[0], pos[1], pos[2],
+                                               focalPoint);
   z = focalPoint[2];
   vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,this->LastEventPosition[0],
                                                this->LastEventPosition[1], z, prevPickPoint);
@@ -1112,7 +1113,8 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::SizeHandles()
 {
-  double radius = this->vtkWidgetRepresentation::SizeHandles(1.35);
+  double radius = 
+    this->vtkWidgetRepresentation::SizeHandlesRelativeToViewport(1.35,this->Sphere->GetCenter());
 
   this->ConeSource->SetHeight(2.0*radius);
   this->ConeSource->SetRadius(radius);

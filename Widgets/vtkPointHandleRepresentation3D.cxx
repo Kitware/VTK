@@ -27,7 +27,7 @@
 #include "vtkCoordinate.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.4");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.5");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -44,6 +44,7 @@ vtkPointHandleRepresentation3D::vtkPointHandleRepresentation3D()
   this->Cursor3D = vtkCursor3D::New();
   this->Cursor3D->AllOff();
   this->Cursor3D->AxesOn();
+  this->Cursor3D->TranslationModeOn();
   
   this->Mapper = vtkPolyDataMapper::New();
   this->Mapper->SetInput(this->Cursor3D->GetOutput());
@@ -70,6 +71,7 @@ vtkPointHandleRepresentation3D::vtkPointHandleRepresentation3D()
   this->ConstraintAxis = -1;
   
   // Current handle size
+  this->HandleSize = 15.0; //in pixels
   this->CurrentHandleSize = this->HandleSize;
   
   // Translation control
@@ -343,39 +345,15 @@ void vtkPointHandleRepresentation3D::Translate(double *p1, double *p2)
 }
 
 //----------------------------------------------------------------------
-void vtkPointHandleRepresentation3D::SizeBounds(double *bounds)
+void vtkPointHandleRepresentation3D::SizeBounds()
 {
-  if ( ! this->Renderer )
-    {
-    return;
-    }
-
-  // The hardest part is to determine the bounding box for the handle
-  double radius;
-  double windowLowerLeft[4], windowUpperRight[4];
-  double *viewport = this->Renderer->GetViewport();
-  int *winSize = this->Renderer->GetRenderWindow()->GetSize();
-
-  double x = winSize[0] * viewport[0];
-  double y = winSize[1] * viewport[1];
-  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, x,y,0.0, windowLowerLeft);
-
-  x = winSize[0] * viewport[2];
-  y = winSize[1] * viewport[3];
-  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, x,y,0.0, windowUpperRight);
-
-  int i;
-  for (radius=0.0, i=0; i<3; i++) 
-    {
-    radius += (windowUpperRight[i] - windowLowerLeft[i]) *
-      (windowUpperRight[i] - windowLowerLeft[i]);
-    }
-  radius = this->CurrentHandleSize*sqrt(radius);
-
   double center[3], newBounds[6];
-  for (i=0; i<3; i++)
+  this->Cursor3D->GetFocalPoint(center);
+  double radius = this->SizeHandlesInPixels(1.0,center);
+  radius *= this->CurrentHandleSize / this->HandleSize;
+
+  for (int i=0; i<3; i++)
     {
-    center[i] = (bounds[2*i] + bounds[2*i+1])/2.0;
     newBounds[2*i] = center[i] - radius;
     newBounds[2*i+1] = center[i] + radius;
     }
@@ -411,7 +389,7 @@ void vtkPointHandleRepresentation3D::Scale(double *p1, double *p2, double eventP
   this->CurrentHandleSize *= sf;
   this->CurrentHandleSize = (this->CurrentHandleSize < 0.001 ? 0.001 : this->CurrentHandleSize);
   
-  this->SizeBounds(bounds);
+  this->SizeBounds();
 }
 
 //----------------------------------------------------------------------
@@ -451,11 +429,11 @@ void vtkPointHandleRepresentation3D::BuildRepresentation()
     {
     if ( ! this->Placed )
       {
-      double *bounds = this->Cursor3D->GetModelBounds();
-      this->SizeBounds(bounds);
+      this->ValidPick = 1;
       this->Placed = 1;
       }
 
+    this->SizeBounds();
     this->Cursor3D->Update();
     this->BuildTime.Modified();
     }

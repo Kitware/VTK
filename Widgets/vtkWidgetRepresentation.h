@@ -109,9 +109,12 @@ public:
   // Description:
   // Set/Get the factor that controls the size of the handles that appear as
   // part of the widget (if any). These handles (like spheres, etc.)  are
-  // used to manipulate the widget, and are sized as a fraction of the screen
-  // diagonal.
-  vtkSetClampMacro(HandleSize,double,0.001,0.5);
+  // used to manipulate the widget. The HandleSize data member allows you
+  // to change the relative size of the handles. Note that while the handle
+  // size is typically expressed in pixels, some subclasses may use a relative size
+  // with respect to the viewport. (As a corollary, the value of this ivar is often
+  // set by subclasses of this class during instance instantiation.)
+  vtkSetClampMacro(HandleSize,double,0.001,1000);
   vtkGetMacro(HandleSize,double);
 
   // Description:
@@ -153,11 +156,14 @@ protected:
   int Placed; 
   void AdjustBounds(double bounds[6], double newBounds[6], double center[3]);
   int    ValidPick; //keep track when valid picks are made
-  double LastPickPosition[3]; //keep track of the last pick coordinates
   double InitialBounds[6]; //initial bounds on place widget
   double InitialLength; //initial length on place widget
+
+  // Members use to control handle size. The two methods return a "radius"
+  // in world coordinates.
   double HandleSize; //controlling relative size of widget handles
-  double SizeHandles(double factor);
+  double SizeHandlesRelativeToViewport(double factor, double pos[3]);
+  double SizeHandlesInPixels(double factor,double pos[3]);
   
   // Try and reduce multiple renders
   int NeedToRender;

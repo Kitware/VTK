@@ -18,7 +18,7 @@
 #include "vtkInteractorObserver.h"
 
 
-vtkCxxRevisionMacro(vtkWidgetRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkWidgetRepresentation, "1.5");
 
 
 //----------------------------------------------------------------------
@@ -106,7 +106,49 @@ int vtkWidgetRepresentation::ComputeInteractionState(int, int, int)
 }
 
 //----------------------------------------------------------------------
-double vtkWidgetRepresentation::SizeHandles(double factor)
+double vtkWidgetRepresentation::SizeHandlesInPixels(double factor,
+                                                    double pos[3])
+{
+  // 
+  int i;
+  vtkRenderer *renderer;
+
+  if ( !this->ValidPick || !(renderer=this->Renderer) || 
+       !renderer->GetActiveCamera() )
+    {
+    return (this->HandleSize * factor * this->InitialLength);
+    }
+  else
+    {
+    double radius, z;
+    double lowerLeft[4], upperRight[4];
+    double focalPoint[4];
+
+    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, 
+                                                 pos[0], pos[1], pos[2], 
+                                                 focalPoint);
+    z = focalPoint[2];
+
+    double x = focalPoint[0] - this->HandleSize/2.0;
+    double y = focalPoint[1] - this->HandleSize/2.0;
+    vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,x,y,z,lowerLeft);
+
+    x = focalPoint[0] + this->HandleSize/2.0;
+    y = focalPoint[1] + this->HandleSize/2.0;
+    vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,x,y,z,upperRight);
+
+    for (radius=0.0, i=0; i<3; i++) 
+      {
+      radius += (upperRight[i] - lowerLeft[i]) *
+        (upperRight[i] - lowerLeft[i]);
+      }
+    return (factor * (sqrt(radius) / 2.0));
+    }
+}
+
+//----------------------------------------------------------------------
+double vtkWidgetRepresentation::SizeHandlesRelativeToViewport(double factor,
+                                                              double pos[3])
 {
   int i;
   vtkRenderer *renderer;
@@ -125,9 +167,7 @@ double vtkWidgetRepresentation::SizeHandles(double factor)
     double focalPoint[4];
 
     vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, 
-                                                 this->LastPickPosition[0], 
-                                                 this->LastPickPosition[1],
-                                                 this->LastPickPosition[2], 
+                                                 pos[0], pos[1], pos[2], 
                                                  focalPoint);
     z = focalPoint[2];
 
