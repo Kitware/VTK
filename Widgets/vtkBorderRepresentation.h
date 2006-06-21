@@ -18,7 +18,7 @@
 // use this class, you need to specify the two corners of a rectangular
 // region.
 //
-// The class may be subclassed so that alternative representations can
+// The class is typically subclassed so that specialized representations can
 // be created.  The class defines an API and a default implementation that
 // the vtkBorderRepresentation interacts with to render itself in the scene.
 
@@ -31,7 +31,7 @@
 // events).
 
 // .SECTION See Also
-// vtkBorderWidget
+// vtkBorderWidget vtkTextWidget
 
 
 #ifndef __vtkBorderRepresentation_h
@@ -69,7 +69,6 @@ public:
   // affected by the ProportionalResize flag. That is, if the aspect ratio of
   // the representation is to be preserved (e.g., ProportionalResize is on),
   // then the rectangle (Position,Position2) is a bounding rectangle. Also,
-  // 
   vtkViewportCoordinateMacro(Position);
   vtkViewportCoordinateMacro(Position2);
 
@@ -180,7 +179,7 @@ protected:
   int           Moving;
   double        SelectionPoint[2];
   
-  // Layout
+  // Layout (position of lower left and upper right corners of border)
   vtkCoordinate *PositionCoordinate;
   vtkCoordinate *Position2Coordinate;
 
@@ -205,7 +204,6 @@ protected:
   int MinimumSize[2];
   int MaximumSize[2];
   
-
 private:
   vtkBorderRepresentation(const vtkBorderRepresentation&);  //Not implemented
   void operator=(const vtkBorderRepresentation&);  //Not implemented
