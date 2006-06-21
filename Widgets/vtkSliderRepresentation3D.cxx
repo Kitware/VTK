@@ -39,7 +39,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.6");
+vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.7");
 vtkStandardNewMacro(vtkSliderRepresentation3D);
 
 //----------------------------------------------------------------------
@@ -325,7 +325,7 @@ void vtkSliderRepresentation3D::PlaceWidget(double bds[6])
 
   // When PlaceWidget is invoked, the widget orientation is preserved, but it
   // is allowed to translate and scale. This means it is centered in the
-  // bounding box, and the scalar widget scales itself to intersect the sides
+  // bounding box, and the representation scales itself to intersect the sides
   // of the bounding box. Thus we have to determine where Point1 and Point2
   // intersect the bounding box.
   double *p1, *p2, r[3], o[3], t, placedP1[3], placedP2[3];
