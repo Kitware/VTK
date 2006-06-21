@@ -27,7 +27,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.58");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.59");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -234,9 +234,14 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     glDeleteLists ((GLuint) this->Index, (GLsizei) 0);
     glNewList ((GLuint) this->Index, GL_COMPILE);
 #endif
+    //seg fault protection for those wackos that don't use an
+    //opengl render window
+    if(this->RenderWindow->IsA("vtkOpenGLRenderWindow"))
+      {
+      ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->
+        RegisterTextureResource( this->Index );
+      }
 
-    ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->RegisterTextureResource( this->Index );
-    
     if (this->Interpolate)
       {
       glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
