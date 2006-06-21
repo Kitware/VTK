@@ -69,7 +69,7 @@
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
-vtkCxxRevisionMacro(vtkVideoSource, "1.43");
+vtkCxxRevisionMacro(vtkVideoSource, "1.44");
 vtkStandardNewMacro(vtkVideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
@@ -485,6 +485,7 @@ static inline void vtkSleep(double duration)
 // If '0' is returned, then the thread was aborted before or during the wait.
 static int vtkThreadSleep(vtkMultiThreader::ThreadInfo *data, double time)
 {
+  // loop either until the time has arrived or until the thread is ended
   for (int i = 0;; i++)
     {
     double remaining = time - vtkTimerLog::GetUniversalTime();
@@ -511,11 +512,13 @@ static int vtkThreadSleep(vtkMultiThreader::ThreadInfo *data, double time)
 
     if (activeFlag == 0)
       {
-      return 0;
+      break;
       }
 
     vtkSleep(remaining);
     }
+
+  return 0;
 }
 
 //----------------------------------------------------------------------------
