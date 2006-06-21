@@ -49,7 +49,9 @@ vtkImageTracerWidget.cxx
 vtkImplicitPlaneRepresentation.cxx
 vtkImplicitPlaneWidget.cxx
 vtkImplicitPlaneWidget2.cxx
+vtkLineRepresentation.cxx
 vtkLineWidget.cxx
+vtkLineWidget2.cxx
 vtkOrientationMarkerWidget.cxx
 vtkOrientedGlyphContourRepresentation.cxx
 vtkOrientedGlyphFocalPlaneContourRepresentation.cxx

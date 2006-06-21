@@ -28,6 +28,7 @@ IF (VTK_DATA_ROOT)
 #    TestOrientedGlyphContour.cxx
     TestImageTracerWidget.cxx
     TestLineWidget.cxx
+#    TestLineWidget2.cxx
     TestPlaneWidget.cxx
     TestPointWidget.cxx
     TestScalarBarWidget.cxx
