@@ -76,7 +76,7 @@ public:
   // Description:
   // The tolerance representing the distance to the widget (in pixels) in
   // which the cursor is considered near enough to the end points of
-  // thewidget to be active.
+  // the widget to be active.
   vtkSetClampMacro(Tolerance,int,1,100);
   vtkGetMacro(Tolerance,int);
 
