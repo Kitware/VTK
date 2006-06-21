@@ -35,7 +35,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.2");
+vtkCxxRevisionMacro(vtkLineWidget, "1.3");
 vtkStandardNewMacro(vtkLineWidget);
 
 //----------------------------------------------------------------------------
@@ -199,6 +199,7 @@ vtkLineWidget::vtkLineWidget()
   this->CurrentPointWidget = NULL;
 }
 
+//----------------------------------------------------------------------------
 vtkLineWidget::~vtkLineWidget()
 {
   this->LineActor->Delete();
