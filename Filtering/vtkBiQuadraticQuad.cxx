@@ -25,7 +25,7 @@
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
 
-vtkCxxRevisionMacro(vtkBiQuadraticQuad, "1.5");
+vtkCxxRevisionMacro(vtkBiQuadraticQuad, "1.6");
 vtkStandardNewMacro(vtkBiQuadraticQuad);
 
 //----------------------------------------------------------------------------
@@ -379,12 +379,12 @@ void vtkBiQuadraticQuad::InterpolationFunctions (double pcoords[3],
   weights[1] = -4.0 *       (x) * (x - 0.5) * (1.0 - y) * (y - 0.5);
   weights[2] =  4.0 *       (x) * (x - 0.5) *       (y) * (y - 0.5);
   weights[3] = -4.0 * (1.0 - x) * (x - 0.5) *       (y) * (y - 0.5);
-  //corner
+  //corner weights
   weights[4] =  8.0 *       (x) * (1.0 - x) * (1.0 - y) * (0.5 - y);
   weights[5] = -8.0 *       (x) * (0.5 - x) * (1.0 - y) * (y);
   weights[6] = -8.0 *       (x) * (1.0 - x) *       (y) * (0.5 - y);
   weights[7] =  8.0 * (1.0 - x) * (0.5 - x) * (1.0 - y) * (y);
-  //surface center weights
+  //surface center weight
   weights[8] = 16.0 *       (x) * (1.0 - x) * (1.0 - y) * (y);
 }
 
@@ -417,7 +417,7 @@ void vtkBiQuadraticQuad::InterpolationDerivs (double pcoords[3], double derivs[1
   derivs[11]= 4.0 *       (x) * (x - 0.5) * (2.0 * y - 0.5);
   derivs[12]=-4.0 * (1.0 - x) * (x - 0.5) * (2.0 * y - 0.5);
   // midedge
-  derivs[13]= 8.0 *       (x) * (1.0 - x) * (1.5 + 2.0 * y);
+  derivs[13]= 8.0 *       (x) * (1.0 - x) * (2.0 * y - 1.5);
   derivs[14]=-8.0 *       (x) * (0.5 - x) * (1.0 - 2.0 * y);
   derivs[15]=-8.0 *       (x) * (1.0 - x) * (0.5 - 2.0 * y);
   derivs[16]= 8.0 * (1.0 - x) * (0.5 - x) * (1.0 - 2.0 * y);

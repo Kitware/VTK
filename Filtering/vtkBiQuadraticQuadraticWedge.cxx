@@ -26,7 +26,7 @@
 #include "vtkBiQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro (vtkBiQuadraticQuadraticWedge, "1.6");
+vtkCxxRevisionMacro (vtkBiQuadraticQuadraticWedge, "1.7");
 vtkStandardNewMacro (vtkBiQuadraticQuadraticWedge);
 
 //----------------------------------------------------------------------------
@@ -598,10 +598,10 @@ void vtkBiQuadraticQuadraticWedge::InterpolationDerivs (double pcoords[3], doubl
 
   //Derivatives in y-direction
   // corners
-  derivs[18] = -0.25 * (2 * y + 2 * x + 1)   * (x + y + 1) * z * (1 - z);
+  derivs[18] = -0.25 * (2 * y + 2 * x + 1)   * z * (1 - z);
   derivs[19] =  0;
   derivs[20] = -0.25 * (2 * y + 1)           * z * (1 - z);
-  derivs[21] =  0.25 * (x + y) * (x + y + 1) * z * (1 + z);
+  derivs[21] =  0.25 * (2 * y + 2 * x + 1)   * z * (1 + z);
   derivs[22] =  0;
   derivs[23] =  0.25 * (2 * y + 1)           * z * (1 + z);
   // midsides of quadratic triangles

@@ -28,7 +28,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkBiQuadraticQuad.h"
 
-vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.5");
+vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.6");
 vtkStandardNewMacro(vtkBiQuadraticQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -578,7 +578,7 @@ void vtkBiQuadraticQuadraticHexahedron::Clip(double value,
 }
 
 //----------------------------------------------------------------------------
-// Compute interpolation functions for the twenty nodes.
+// Compute interpolation functions for the twenty four nodes.
 void vtkBiQuadraticQuadraticHexahedron::InterpolationFunctions(double pcoords[3],
                                                     double weights[24])
 {
@@ -632,6 +632,7 @@ void vtkBiQuadraticQuadraticHexahedron::InterpolationDerivs(double pcoords[3],
   double y = 2.0*(pcoords[1]-0.5);
   double z = 2.0*(pcoords[2]-0.5);
 
+  //x-direction 
   //The eight corner points
   derivs[0]  =( 0.25*(1-2*x)*(y*(1-y)) - 0.25*(-2*x)*(1+y)*(1-y))*(-0.5*z*(1-z));
   derivs[1]  =(-0.25*(1+2*x)*(y*(1-y)) - 0.25*(-2*x)*(1+y)*(1-y))*(-0.5*z*(1-z));
@@ -642,14 +643,14 @@ void vtkBiQuadraticQuadraticHexahedron::InterpolationDerivs(double pcoords[3],
   derivs[6]  =( 0.25*(1+2*x)*(y*(1+y)) - 0.25*(-2*x)*(1+y)*(1-y))*( 0.5*z*(1+z));
   derivs[7]  =(-0.25*(1-2*x)*(y*(1+y)) - 0.25*(-2*x)*(1+y)*(1-y))*( 0.5*z*(1+z));
   //The mid-edge nodes
-  derivs[8]  = 0.5*((-2*x))*(1-y) *(-0.5*z*(1-z));
-  derivs[9]  = 0.5*((1+y)*(1-y))*(1+x) *(-0.5*z*(1-z));
-  derivs[10] = 0.5*((-2*x))*(1+y) *(-0.5*z*(1-z));
-  derivs[11] = 0.5*((1+y)*(1-y))*(1-x) *(-0.5*z*(1-z));
-  derivs[12] = 0.5*((-2*x))*(1-y) *( 0.5*z*(1+z));
-  derivs[13] = 0.5*((1+y)*(1-y))*(1+x) *( 0.5*z*(1+z));
-  derivs[14] = 0.5*((-2*x))*(1+y) *( 0.5*z*(1+z));
-  derivs[15] = 0.5*((1+y)*(1-y))*(1-x) *( 0.5*z*(1+z));
+  derivs[8]  = 0.5*((-2*x))*(1-y) *      (-0.5*z*(1-z));
+  derivs[9]  = 0.5*((1+y)*(1-y))       * (-0.5*z*(1-z));
+  derivs[10] = 0.5*((-2*x))*(1+y) *      (-0.5*z*(1-z));
+  derivs[11] =-0.5*((1+y)*(1-y))       * (-0.5*z*(1-z));
+  derivs[12] = 0.5*((-2*x))*(1-y) *      ( 0.5*z*(1+z));
+  derivs[13] = 0.5*((1+y)*(1-y))       * ( 0.5*z*(1+z));
+  derivs[14] = 0.5*((-2*x))*(1+y) *      ( 0.5*z*(1+z));
+  derivs[15] =-0.5*((1+y)*(1-y))       * ( 0.5*z*(1+z));
   derivs[16] =( 0.25*(1-2*x)*(y*(1-y)) - 0.25*(-2*x)*(1+y)*(1-y)) *((1+z)*(1-z));
   derivs[17] =(-0.25*(1+2*x)*(y*(1-y)) - 0.25*(-2*x)*(1+y)*(1-y)) *((1+z)*(1-z));
   derivs[18] =( 0.25*(1+2*x)*(y*(1+y)) - 0.25*(-2*x)*(1+y)*(1-y)) *((1+z)*(1-z));
@@ -659,6 +660,8 @@ void vtkBiQuadraticQuadraticHexahedron::InterpolationDerivs(double pcoords[3],
   derivs[21] = 0.5*((1+y)*(1-y))   *((1+z)*(1-z));
   derivs[22] = 0.5*((-2*x))*(1+y)  *((1+z)*(1-z));
   derivs[23] =-0.5*((1+y)*(1-y))   *((1+z)*(1-z));
+  
+  //y-direction
   //The eight Corner points
   derivs[24] =( 0.25*(x*(1-x))*(1-2*y) - 0.25*(1+x)*(1-x)*(-2*y))*(-0.5*z*(1-z));
   derivs[25] =(-0.25*(x*(1+x))*(1-2*y) - 0.25*(1+x)*(1-x)*(-2*y))*(-0.5*z*(1-z));
@@ -682,10 +685,12 @@ void vtkBiQuadraticQuadraticHexahedron::InterpolationDerivs(double pcoords[3],
   derivs[42] =( 0.25*(x*(1+x))*(1+2*y) - 0.25*(1+x)*(1-x)*(-2*y)) *((1+z)*(1-z));
   derivs[43] =(-0.25*(x*(1-x))*(1+2*y) - 0.25*(1+x)*(1-x)*(-2*y)) *((1+z)*(1-z));
   //Face center Nodes in xz and yz direction
-  derivs[44] =0.5*((1+x)*(1-x))*(1-y)  *((1+z)*(1-z));
-  derivs[45] =0.5*((-2*y))*(1+x)  *((1+z)*(1-z));
-  derivs[46] =0.5*((1+x)*(1-x))*(1+y)  *((1+z)*(1-z));
-  derivs[47] =0.5*((-2*y))*(1-x)  *((1+z)*(1-z));
+  derivs[44] =-0.5*((1+x)*(1-x))        * ((1+z)*(1-z));
+  derivs[45] = 0.5*((-2*y))*(1+x)  *      ((1+z)*(1-z));
+  derivs[46] = 0.5*((1+x)*(1-x))        * ((1+z)*(1-z));
+  derivs[47] = 0.5*((-2*y))*(1-x)  *      ((1+z)*(1-z));
+  
+  //z-direction
   //The eight corner points
   derivs[48] =( 0.25*(x*(1-x))*(y*(1-y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y))*(-0.5*(1-2*z));
   derivs[49] =(-0.25*(x*(1+x))*(y*(1-y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y))*(-0.5*(1-2*z));

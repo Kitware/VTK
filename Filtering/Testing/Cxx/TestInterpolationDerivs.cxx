@@ -102,7 +102,8 @@ int TestOneInterpolationDerivs()
 int TestInterpolationDerivs(int, char *[])
 {
   int r = 0;
-  // Subclass of vtkCell3D
+  
+  // Subclasses of vtkCell3D
   //r += TestOneInterpolationDerivs<vtkEmptyCell>(); // not implemented
   //r += TestOneInterpolationDerivs<vtkGenericCell>(); // not implemented
   //r += TestOneInterpolationDerivs<vtkLine>();
@@ -115,7 +116,7 @@ int TestInterpolationDerivs(int, char *[])
   //r += TestOneInterpolationDerivs<vtkTriangleStrip>(); // not implemented
   //r += TestOneInterpolationDerivs<vtkVertex>();
 
-  // Subclass of vtkCell3D
+  // Subclasses of vtkCell3D
   //r += TestOneInterpolationDerivs<vtkConvexPointSet>(); // not implemented
   r += TestOneInterpolationDerivs<vtkHexagonalPrism>();
   r += TestOneInterpolationDerivs<vtkHexahedron>();
@@ -125,7 +126,7 @@ int TestInterpolationDerivs(int, char *[])
   r += TestOneInterpolationDerivs<vtkVoxel>();
   r += TestOneInterpolationDerivs<vtkWedge>();
 
-  // Subclass of vtkNonLinearCell
+  // Subclasses of vtkNonLinearCell
   //r += TestOneInterpolationDerivs<vtkExplicitCell>(); // not implemented
   r += TestOneInterpolationDerivs<vtkQuadraticEdge>();
   r += TestOneInterpolationDerivs<vtkQuadraticHexahedron>();
@@ -135,13 +136,14 @@ int TestInterpolationDerivs(int, char *[])
   r += TestOneInterpolationDerivs<vtkQuadraticTriangle>();
   r += TestOneInterpolationDerivs<vtkQuadraticWedge>();
 
+
   // New bi-class
-//  r += TestOneInterpolationDerivs<vtkBiQuadraticQuad>();
-//  r += TestOneInterpolationDerivs<vtkBiQuadraticQuadraticHexahedron>();
-//  r += TestOneInterpolationDerivs<vtkBiQuadraticQuadraticWedge>();
-//  r += TestOneInterpolationDerivs<vtkQuadraticLinearQuad>();
-//  r += TestOneInterpolationDerivs<vtkQuadraticLinearWedge>();
-//  r += TestOneInterpolationDerivs<vtkTriQuadraticHexahedron>();
+  r += TestOneInterpolationDerivs<vtkBiQuadraticQuad>();
+  r += TestOneInterpolationDerivs<vtkBiQuadraticQuadraticHexahedron>();
+  r += TestOneInterpolationDerivs<vtkBiQuadraticQuadraticWedge>();
+  r += TestOneInterpolationDerivs<vtkQuadraticLinearQuad>();
+  r += TestOneInterpolationDerivs<vtkQuadraticLinearWedge>();
+  r += TestOneInterpolationDerivs<vtkTriQuadraticHexahedron>();
 
 
   return r;

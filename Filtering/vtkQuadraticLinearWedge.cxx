@@ -27,7 +27,7 @@
 #include "vtkQuadraticLinearQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro (vtkQuadraticLinearWedge, "1.6");
+vtkCxxRevisionMacro (vtkQuadraticLinearWedge, "1.7");
 vtkStandardNewMacro (vtkQuadraticLinearWedge);
 
 //----------------------------------------------------------------------------
@@ -552,12 +552,12 @@ void vtkQuadraticLinearWedge::InterpolationFunctions (double pcoords[3],
   double z = 2*(pcoords[2]- 0.5);
 
   // corners
-  weights[0] =(x + y)* 0.5 * (x + y + 1) * (1 - z) * 0.5;
-  weights[1] = x        * (x + 1) * 0.5   * (1 - z) * 0.5;
-  weights[2] =     y    * (1 + y) * 0.5   * (1 - z) * 0.5;
-  weights[3] =(x + y) * 0.5 * (x + y + 1) * (1 + z) * 0.5;
-  weights[4] = x        * (x + 1) * 0.5   * (1 + z) * 0.5;
-  weights[5] =     y    * (1 + y) * 0.5   * (1 + z) * 0.5;
+  weights[0] =(x + y) * 0.5 * (x + y + 1.0) * (1 - z) * 0.5;
+  weights[1] = x        * (x + 1.0) * 0.5   * (1 - z) * 0.5;
+  weights[2] =     y    * (1.0 + y) * 0.5   * (1 - z) * 0.5;
+  weights[3] =(x + y) * 0.5 * (x + y + 1.0) * (1 + z) * 0.5;
+  weights[4] = x        * (x + 1.0) * 0.5   * (1 + z) * 0.5;
+  weights[5] =     y    * (1.0 + y) * 0.5   * (1 + z) * 0.5;
 
   // midsides of triangles
   weights[6] = -(x + 1)*(x + y) * (1 - z) * 0.5;
@@ -583,54 +583,55 @@ void vtkQuadraticLinearWedge::InterpolationDerivs (double pcoords[3],
 
   //Derivatives in x-direction
   // corners
-  derivs[0] = (2*x + 2*y  + 1)*(1 - z)/4;
-  derivs[1] = (1 + 2*x) * 0.5*(1 - z) * 0.5;
+  derivs[0] = (2.0 * x + 2.0 * y + 1.0) * 0.5 * (1.0 - z) * 0.5;
+  derivs[1] = (1.0 + 2.0 * x) *           0.5 * (1.0 - z) * 0.5;
   derivs[2] = 0;
-  derivs[3] = (2*x + 2*y + 1)*(1 + z)/4;
-  derivs[4] = (1 + 2*x) * 0.5*(1 + z) * 0.5;
+  derivs[3] = (2.0 * x + 2.0 * y + 1.0) * 0.5 * (1.0 + z) * 0.5;
+  derivs[4] = (1.0 + 2.0 * x) *           0.5 * (1.0 + z) * 0.5;
   derivs[5] = 0;
 
   // midsides of triangles
-  derivs[6] = -(2 * x + y + 1) * (1 - z) * 0.5;
-  derivs[7] =  (y + 1)*(1 - z) * 0.5;
-  derivs[8] = -(y + 1)*(1 - z) * 0.5;
-  derivs[9] = -(2 * x + y + 1)*(1 + z) * 0.5;
-  derivs[10] = (y + 1)*(1 + z) * 0.5;
-  derivs[11] = -(y + 1)*(1 + z) * 0.5;
+  derivs[6] = -(2.0 * x + y + 1.0) * (1.0 - z) * 0.5;
+  derivs[7] =  (y + 1.0) *           (1.0 - z) * 0.5;
+  derivs[8] = -(y + 1.0) *           (1.0 - z) * 0.5;
+  derivs[9] = -(2.0 * x + y + 1.0) * (1.0 + z) * 0.5;
+  derivs[10] = (y + 1.0) *           (1.0 + z) * 0.5;
+  derivs[11] =-(y + 1.0) *           (1.0 + z) * 0.5;
 
   //Derivatives in y-direction
   // corners
-  derivs[12] = (2*x + 2*y + 1) * (1 - z)/4;
+  derivs[12] = (2.0 * x + 2.0 * y + 1.0) * 0.5 * (1.0 - z) * 0.5;
   derivs[13] = 0;
-  derivs[14] = (1 + 2*y) * 0.5 * (1 - z) * 0.5;
-  derivs[12] = (2*x + 2*y + 1) * (1 + z)/4;
+  derivs[14] = (1.0 + 2.0 * y) *           0.5 * (1.0 - z) * 0.5;
+  derivs[15] = (2.0 * x + 2.0 * y + 1.0) * 0.5 * (1.0 + z) * 0.5;
   derivs[16] = 0;
-  derivs[17] = (1 + 2*y) * 0.5 * (1 + z) * 0.5;
+  derivs[17] = (1.0 + 2.0 * y) *           0.5 * (1.0 + z) * 0.5;
 
   // midsides of triangles
-  derivs[18] = -(x + 1) * (1 - z) * 0.5;
-  derivs[19] =  (x + 1) * (1 - z) * 0.5;
-  derivs[20] = -(x + 2*y + 1)*(1 - z) * 0.5;
-  derivs[21] = -(x + 1) * (1 + z) * 0.5;
-  derivs[22] =  (x + 1)* (1 + z) * 0.5;
-  derivs[23] = -(x + 2*y + 1)*(1 + z) * 0.5;
+  derivs[18] = -(x + 1.0) *           (1.0 - z) * 0.5;
+  derivs[19] =  (x + 1.0) *           (1.0 - z) * 0.5;
+  derivs[20] = -(x + 2.0 * y + 1.0) * (1.0 - z) * 0.5;
+  derivs[21] = -(x + 1.0) *           (1.0 + z) * 0.5;
+  derivs[22] =  (x + 1.0) *           (1.0 + z) * 0.5;
+  derivs[23] = -(x + 2.0 * y + 1.0) * (1.0 + z) * 0.5;
 
   //Derivatives in z-direction
   // corners
-  derivs[24] = (x + y) * 0.5 * (x + y + 1) * 0.5;
-  derivs[25] =  x        * (x + 1)/4;
-  derivs[26] =  y        * (1 + y)/4;
-  derivs[27] = (x + y) * 0.5 * (x + y + 1);
-  derivs[28] =  x*(1 + x)/4;
-  derivs[29] =  y*(1 + y)/4;
+  derivs[24] =(x + y) * 0.5 * (x + y + 1.0) * -0.5;
+  derivs[25] = x        * (x + 1.0) * 0.5   * -0.5;
+  derivs[26] =     y    * (1.0 + y) * 0.5   * -0.5;
+  derivs[27] =(x + y) * 0.5 * (x + y + 1.0) *  0.5;
+  derivs[28] = x        * (x + 1.0) * 0.5   *  0.5;
+  derivs[29] =     y    * (1.0 + y) * 0.5   *  0.5;
 
   // midsides of triangles
-  derivs[30] = -(x + 1)*(x + y) * 0.5;
-  derivs[31] =  (x + 1)*(y + 1) * 0.5;
-  derivs[32] = -(y + 1)*(x + y) * 0.5;
-  derivs[33] = -(x + 1)*(x + y) * 0.5;
-  derivs[34] =  (x + 1)*(y + 1) * 0.5;
-  derivs[35] = -(y + 1)*(x + y) * 0.5;
+  derivs[30] = -(x + 1.0) * (x + y)   * -0.5;
+  derivs[31] =  (x + 1.0) * (y + 1.0) * -0.5;
+  derivs[32] = -(y + 1.0) * (x + y)   * -0.5;
+  derivs[33] = -(x + 1.0) * (x + y)   *  0.5;
+  derivs[34] =  (x + 1.0) * (y + 1.0) *  0.5;
+  derivs[35] = -(y + 1.0) * (x + y)   *  0.5;
+  
 }
 
 //----------------------------------------------------------------------------
