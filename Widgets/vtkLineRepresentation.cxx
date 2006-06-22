@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.2");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -255,13 +255,28 @@ void vtkLineRepresentation::SetPoint2DisplayPosition(double x[3])
 //----------------------------------------------------------------------
 void vtkLineRepresentation::StartWidgetInteraction(double e[2])
 {
+  // Store the start position
   this->StartEventPosition[0] = e[0];
   this->StartEventPosition[1] = e[1];
   this->StartEventPosition[2] = 0.0;
-  
+
+  // Store the start position
   this->LastEventPosition[0] = e[0];
   this->LastEventPosition[1] = e[1];
   this->LastEventPosition[2] = 0.0;
+
+  // Get the coordinates of the three handles
+  this->Point1Representation->GetWorldPosition(this->StartP1);
+  this->Point2Representation->GetWorldPosition(this->StartP2);
+  this->LineHandleRepresentation->GetWorldPosition(this->StartLineHandle);
+
+  if ( this->InteractionState == vtkLineRepresentation::Scaling )
+    {
+    double dp1[3], dp2[3];
+    this->Point1Representation->GetDisplayPosition(dp1);
+    this->Point2Representation->GetDisplayPosition(dp2);
+    this->Length = sqrt((dp1[0]-dp2[0])*(dp1[0]-dp2[0]) + (dp1[1]-dp2[1])*(dp1[1]-dp2[1]));
+    }
 }
 
 //----------------------------------------------------------------------
@@ -270,36 +285,81 @@ void vtkLineRepresentation::WidgetInteraction(double e[2])
   // Process the motion
   if ( this->InteractionState == vtkLineRepresentation::OnLine )
     {
-    double x[3], center[3], p1[3], p2[3], delta[3];
+    double x[3], p1[3], p2[3], delta[3];
 
     // Get the new position
     this->LineHandleRepresentation->GetWorldPosition(x);
 
-    // Compute the previous position
-    this->Point1Representation->GetWorldPosition(p1);
-    this->Point2Representation->GetWorldPosition(p2);
-    center[0] = (p1[0]+p2[0]) / 2.0;
-    center[1] = (p1[1]+p2[1]) / 2.0;
-    center[2] = (p1[2]+p2[2]) / 2.0;
+    // Compute the delta from the previous position
+    delta[0] = x[0] - this->StartLineHandle[0];
+    delta[1] = x[1] - this->StartLineHandle[1];
+    delta[2] = x[2] - this->StartLineHandle[2];
 
-    delta[0] = x[0] - center[0];
-    delta[1] = x[1] - center[1];
-    delta[2] = x[2] - center[2];
-
-    p1[0] += delta[0];
-    p1[1] += delta[1];
-    p1[2] += delta[2];
-
-    p2[0] += delta[0];
-    p2[1] += delta[1];
-    p2[2] += delta[2];
+    for (int i=0; i<3; i++)
+      {
+      p1[i] = this->StartP1[i] + delta[i];
+      p2[i] = this->StartP2[i] + delta[i];
+      }
 
     this->Point1Representation->SetWorldPosition(p1);
     this->Point2Representation->SetWorldPosition(p2);
-    this->LineSource->SetPoint2(p1);
-    this->LineSource->SetPoint2(p2);
     }
 
+  else if ( this->InteractionState == vtkLineRepresentation::Scaling )
+    {//scale about the center of the widget
+    double p1[3], p2[3], center[3];
+    
+    this->Point1Representation->GetWorldPosition(p1);
+    this->Point2Representation->GetWorldPosition(p2);
+    
+    double delta = sqrt((this->StartEventPosition[0]-e[0])*(this->StartEventPosition[0]-e[0])+
+                        (this->StartEventPosition[1]-e[1])*(this->StartEventPosition[1]-e[1]));
+
+    double sf=1.0;
+    if ( this->Length != 0.0 )
+      {
+      sf = 1.0 + delta/this->Length;
+      }
+    if ( (e[1]-this->LastEventPosition[1]) < 0.0 )
+      {
+      sf = 1/sf;
+      }
+
+    for (int i=0; i<3; i++)
+      {
+      center[i] = (p1[i]+p2[i]) / 2.0;
+      p1[i] = center[i] + (p1[i]-center[i])*sf;
+      p2[i] = center[i] + (p2[i]-center[i])*sf;
+      }
+    this->Point1Representation->SetWorldPosition(p1);
+    this->Point2Representation->SetWorldPosition(p2);
+    }
+
+  else if ( this->InteractionState == vtkLineRepresentation::TranslatingP1 )
+    {
+    double x[3], p2[3];
+    // Get the new position
+    this->Point1Representation->GetWorldPosition(x);
+    for (int i=0; i<3; i++)
+      {
+      p2[i] = this->StartP2[i] + (x[i] - this->StartP1[i]);
+      }
+    this->Point2Representation->SetWorldPosition(p2);
+    }
+
+  else if ( this->InteractionState == vtkLineRepresentation::TranslatingP2 )
+    {
+    double x[3], p1[3];
+    // Get the new position
+    this->Point2Representation->GetWorldPosition(x);
+    for (int i=0; i<3; i++)
+      {
+      p1[i] = this->StartP1[i] + (x[i] - this->StartP2[i]);
+      }
+    this->Point1Representation->SetWorldPosition(p1);
+    }
+
+  // Store the start position
   this->LastEventPosition[0] = e[0];
   this->LastEventPosition[1] = e[1];
   this->LastEventPosition[2] = 0.0;
@@ -386,14 +446,14 @@ int vtkLineRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(
   // Check if we are on end points
   if ( vtkMath::Distance2BetweenPoints(xyz,p1) <= tol2 )
     {
-    this->InteractionState = vtkLineRepresentation::NearP1;
-    this->SetRepresentationState(vtkLineRepresentation::NearP1);
+    this->InteractionState = vtkLineRepresentation::OnP1;
+    this->SetRepresentationState(vtkLineRepresentation::OnP1);
     return this->InteractionState;
     }
   else if ( vtkMath::Distance2BetweenPoints(xyz,p2) <= tol2 )
     {
-    this->InteractionState = vtkLineRepresentation::NearP2;
-    this->SetRepresentationState(vtkLineRepresentation::NearP2);
+    this->InteractionState = vtkLineRepresentation::OnP2;
+    this->SetRepresentationState(vtkLineRepresentation::OnP2);
     return this->InteractionState;
     }
 
@@ -426,16 +486,28 @@ void vtkLineRepresentation::SetRepresentationState(int state)
     {
     return;
     }
+
+  state = (state < vtkLineRepresentation::Outside ?
+           vtkLineRepresentation::Outside : 
+           (state > vtkLineRepresentation::Scaling ?
+            vtkLineRepresentation::Scaling : state));
+  
   this->RepresentationState = state;
   this->Modified();
   
-  if ( state == vtkLineRepresentation::NearP1 )
+  if ( state == vtkLineRepresentation::Outside )
+    {
+    this->HighlightPoint(0,0);
+    this->HighlightPoint(1,0);
+    this->HighlightLine(0);
+    }
+  else if ( state == vtkLineRepresentation::OnP1 )
     {
     this->HighlightPoint(0,1);
     this->HighlightPoint(1,0);
     this->HighlightLine(0);
     }
-  else if ( state == vtkLineRepresentation::NearP2 )
+  else if ( state == vtkLineRepresentation::OnP2 )
     {
     this->HighlightPoint(0,0);
     this->HighlightPoint(1,1);
@@ -447,11 +519,11 @@ void vtkLineRepresentation::SetRepresentationState(int state)
     this->HighlightPoint(1,0);
     this->HighlightLine(1);
     }
-  else
+  else 
     {
-    this->HighlightPoint(0,0);
-    this->HighlightPoint(1,0);
-    this->HighlightLine(0);
+    this->HighlightPoint(0,1);
+    this->HighlightPoint(1,1);
+    this->HighlightLine(1);
     }
 }
 
@@ -502,7 +574,7 @@ void vtkLineRepresentation::SizeHandles()
 //----------------------------------------------------------------------------
 void vtkLineRepresentation::BuildRepresentation()
 {
-  // The net effect is to resize the handle
+  // Rebuild only if necessary
   if ( this->GetMTime() > this->BuildTime ||
        this->Point1Representation->GetMTime() > this->BuildTime ||
        this->Point2Representation->GetMTime() > this->BuildTime ||
@@ -521,11 +593,11 @@ void vtkLineRepresentation::BuildRepresentation()
     double x[3];
     this->GetPoint1WorldPosition(x);
     this->LineSource->SetPoint1(x);
+    this->HandleGeometry[0]->SetCenter(x);
+
     this->GetPoint2WorldPosition(x);
     this->LineSource->SetPoint2(x);
-
-    this->HandleGeometry[0]->SetCenter(this->LineSource->GetPoint1());
-    this->HandleGeometry[1]->SetCenter(this->LineSource->GetPoint2());
+    this->HandleGeometry[1]->SetCenter(x);
 
     this->SizeHandles();
     this->BuildTime.Modified();

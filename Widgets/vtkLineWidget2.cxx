@@ -27,7 +27,7 @@
 #include "vtkRenderWindow.h"
 
 
-vtkCxxRevisionMacro(vtkLineWidget2, "1.1");
+vtkCxxRevisionMacro(vtkLineWidget2, "1.2");
 vtkStandardNewMacro(vtkLineWidget2);
 
 //----------------------------------------------------------------------------
@@ -151,27 +151,42 @@ void vtkLineWidget2::SelectAction(vtkAbstractWidget *w)
 void vtkLineWidget2::TranslateAction(vtkAbstractWidget *w)
 {
   vtkLineWidget2 *self = reinterpret_cast<vtkLineWidget2*>(w);
-
   if ( self->WidgetRep->GetInteractionState() == vtkLineRepresentation::Outside )
     {
     return;
     }
   
   // Modify the state, we are selected
-//  reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
-//    SetInteractionState(vtkLineRepresentation::Moving);
+  int state = self->WidgetRep->GetInteractionState();
+  if ( state == vtkLineRepresentation::OnP1 )
+    {
+    reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
+      SetInteractionState(vtkLineRepresentation::TranslatingP1);
+    }
+  else if ( state == vtkLineRepresentation::OnP2 )
+    {
+    reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
+      SetInteractionState(vtkLineRepresentation::TranslatingP2);
+    }
+  else 
+    {
+    reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
+      SetInteractionState(vtkLineRepresentation::OnLine);
+    }
 
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
   
   // We are definitely selected
+  self->WidgetState = vtkLineWidget2::Active;
   self->GrabFocus(self->EventCallbackCommand);
   double eventPos[2];
   eventPos[0] = static_cast<double>(X);
   eventPos[1] = static_cast<double>(Y);
-  self->WidgetState = vtkLineWidget2::Active;
-
+  reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
+    StartWidgetInteraction(eventPos);
+  self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL); //for the handles
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
   self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
@@ -181,17 +196,29 @@ void vtkLineWidget2::TranslateAction(vtkAbstractWidget *w)
 void vtkLineWidget2::ScaleAction(vtkAbstractWidget *w)
 {
   vtkLineWidget2 *self = reinterpret_cast<vtkLineWidget2*>(w);
-
-  // The state should have been previously set during a move
   if ( self->WidgetRep->GetInteractionState() == vtkLineRepresentation::Outside )
     {
     return;
     }
   
+  reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
+    SetInteractionState(vtkLineRepresentation::Scaling);
+  self->Interactor->Disable();
+  self->LineHandle->SetEnabled(0);
+  self->Interactor->Enable();
+  
+  // Get the event position
+  int X = self->Interactor->GetEventPosition()[0];
+  int Y = self->Interactor->GetEventPosition()[1];
+  
   // We are definitely selected
-  self->GrabFocus(self->EventCallbackCommand);
   self->WidgetState = vtkLineWidget2::Active;
-
+  self->GrabFocus(self->EventCallbackCommand);
+  double eventPos[2];
+  eventPos[0] = static_cast<double>(X);
+  eventPos[1] = static_cast<double>(Y);
+  reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
+    StartWidgetInteraction(eventPos);
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
   self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
@@ -216,7 +243,6 @@ void vtkLineWidget2::MoveAction(vtkAbstractWidget *w)
     int oldState = self->WidgetRep->GetInteractionState();
     int state = self->WidgetRep->ComputeInteractionState(X,Y);
     int changed;
-
     // Determine if we are near the end points or the line
     if ( state == vtkLineRepresentation::Outside )
       {
@@ -225,11 +251,11 @@ void vtkLineWidget2::MoveAction(vtkAbstractWidget *w)
     else //must be near something
       {
       changed = self->RequestCursorShape(VTK_CURSOR_HAND);
-      if ( state == vtkLineRepresentation::NearP1 )
+      if ( state == vtkLineRepresentation::OnP1 )
         {
         self->Point1Widget->SetEnabled(1);
         }
-      else if ( state == vtkLineRepresentation::NearP2 )
+      else if ( state == vtkLineRepresentation::OnP2 )
         {
         self->Point2Widget->SetEnabled(1);
         }
@@ -250,9 +276,9 @@ void vtkLineWidget2::MoveAction(vtkAbstractWidget *w)
     double e[2];
     e[0] = static_cast<double>(X);
     e[1] = static_cast<double>(Y);
+    self->InvokeEvent(vtkCommand::MouseMoveEvent,NULL); //handles observe this
     reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
       WidgetInteraction(e);
-    self->InvokeEvent(vtkCommand::MouseMoveEvent,NULL); //handles observe this
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     self->EventCallbackCommand->SetAbortFlag(1);
     self->Render();

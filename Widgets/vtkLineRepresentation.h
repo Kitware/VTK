@@ -144,8 +144,18 @@ public:
   virtual int RenderTranslucentGeometry(vtkViewport*);
 
 //BTX - manage the state of the widget
-  enum {Outside=0,NearP1,NearP2,OnLine};
+  enum {Outside=0,OnP1,OnP2,TranslatingP1,TranslatingP2,OnLine,Scaling};
 //ETX
+
+  // Description:
+  // The interaction state may be set from a widget (e.g., vtkLineWidget2) or
+  // other object. This controls how the interaction with the widget
+  // proceeds. Normally this method is used as part of a handshaking
+  // process with the widget: First ComputeInteractionState() is invoked that
+  // returns a state based on geometric considerations (i.e., cursor near a
+  // widget feature), then based on events, the widget may modify this
+  // further.
+  vtkSetClampMacro(InteractionState,int,Outside,Scaling);
 
   // Description:
   // Sets the visual appearance of the representation based on the
@@ -171,9 +181,6 @@ protected:
   // Manage how the representation appears
   int RepresentationState;
 
-  // Keep track of event positions
-  double LastEventPosition[3];
-
   // the line
   vtkActor          *LineActor;
   vtkPolyDataMapper *LineMapper;
@@ -193,7 +200,7 @@ protected:
   void         CreateDefaultProperties();
 
   // Selection tolerance for the handles and the line
-  int       Tolerance;
+  int Tolerance;
 
   // Helper members
   int  ClampToBounds;
@@ -202,6 +209,13 @@ protected:
   void HighlightLine(int highlight);
   int  InBounds(double x[3]);
   void SizeHandles();
+
+  // Ivars used during widget interaction to hold initial positions
+  double StartP1[3];
+  double StartP2[3];
+  double StartLineHandle[3];
+  double Length;
+  double LastEventPosition[3];
 
   // Support GetBounds() method
   vtkBox *BoundingBox;
