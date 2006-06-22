@@ -54,7 +54,11 @@ public:
   // 2 means best quality and largest file size
   vtkSetClampMacro(Quality, int, 0, 2);
   vtkGetMacro(Quality, int);
-  
+ 
+  // Description:
+  // Set/Get the frame rate, in frame/s.
+  vtkSetClampMacro(Rate, int , 1, 5000);
+  vtkGetMacro(Rate, int);
 protected:
   vtkFFMPEGWriter();
   ~vtkFFMPEGWriter();
@@ -63,6 +67,7 @@ protected:
 
   int Initialized;
   int Quality;
+  int Rate;
 
 private:
   vtkFFMPEGWriter(const vtkFFMPEGWriter&); // Not implemented

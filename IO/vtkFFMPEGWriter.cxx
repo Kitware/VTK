@@ -35,6 +35,7 @@ public:
   void End();
 
   int Dim[2];
+  int FrameRate;
 
 private:
 
@@ -54,7 +55,6 @@ private:
 
   int openedFile;
   int closedFile;
-
 };
 
 //---------------------------------------------------------------------------
@@ -76,6 +76,8 @@ vtkFFMPEGWriterInternal::vtkFFMPEGWriterInternal(vtkFFMPEGWriter *creator)
 
   this->openedFile = 0;
   this->closedFile = 1;
+
+  this->FrameRate = 25;
 }
 
 //---------------------------------------------------------------------------
@@ -138,10 +140,10 @@ int vtkFFMPEGWriterInternal::Start()
   //change DIV3 to MP43 fourCC to be easily playable on windows
   c->codec_tag = ('3'<<24) + ('4'<<16) + ('P'<<8) + 'M';
   //to do playback at actual recorded rate, this will need more work see also below
-  c->time_base.den = 25; 
+  c->time_base.den = this->FrameRate; 
   c->time_base.num = 1;
   //about one full frame per second
-  c->gop_size = 25; 
+  c->gop_size = this->FrameRate; 
   
   //allow a variable quality/size tradeoff
   switch (this->Writer->GetQuality()) 
@@ -352,13 +354,14 @@ void vtkFFMPEGWriterInternal::End()
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFFMPEGWriter);
-vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.2");
+vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.3");
 
 //---------------------------------------------------------------------------
 vtkFFMPEGWriter::vtkFFMPEGWriter()
 {
   this->Internals = 0;
   this->Quality = 2;
+  this->Rate = 25;
 }
 
 //---------------------------------------------------------------------------
@@ -438,6 +441,7 @@ void vtkFFMPEGWriter::Write()
 
   if ( !this->Initialized )
     {
+    this->Internals->FrameRate = this->Rate;
     if (!this->Internals->Start())
       {
       vtkErrorMacro("Error initializing video stream.");
@@ -470,4 +474,5 @@ void vtkFFMPEGWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Quality: " << this->Quality << endl;
+  os << indent << "Rate: " << this->Rate << endl;
 }
