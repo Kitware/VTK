@@ -40,7 +40,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.7");
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //----------------------------------------------------------------------------
@@ -296,6 +296,13 @@ void vtkImplicitPlaneRepresentation::SetRepresentationState(int state)
     {
     return;
     }
+
+  // Clamp the state
+  state = (state < vtkImplicitPlaneRepresentation::Outside ?
+           vtkImplicitPlaneRepresentation::Outside : 
+           (state > vtkImplicitPlaneRepresentation::Scaling ?
+            vtkImplicitPlaneRepresentation::Scaling : state));
+  
   this->RepresentationState = state;
   this->Modified();
 

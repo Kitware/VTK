@@ -210,12 +210,16 @@ public:
   // Description:
   // The interaction state may be set from a widget (e.g.,
   // vtkImplicitPlaneWidget2) or other object. This controls how the
-  // interaction with the widget proceeds.
-  vtkSetMacro(InteractionState,int);
+  // interaction with the widget proceeds. Normally this method is used as
+  // part of a handshaking process with the widget: First
+  // ComputeInteractionState() is invoked that returns a state based on
+  // geometric considerations (i.e., cursor near a widget feature), then
+  // based on events, the widget may modify this further.
+  vtkSetClampMacro(InteractionState,int,Outside,Scaling);
 
   // Description:
   // Sets the visual appearance of the representation based on the
-  // state it is in. This state is usually the same as InteractionState
+  // state it is in. This state is usually the same as InteractionState.
   virtual void SetRepresentationState(int);
   vtkGetMacro(RepresentationState, int);
 

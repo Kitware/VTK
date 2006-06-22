@@ -91,10 +91,14 @@ public:
 //ETX
   
   // Description:
-  // The interaction state may be set from a widget (e.g., HandleWidget) 
-  // or other object. This controls how the interaction with the
-  // widget proceeds.
-  vtkSetMacro(InteractionState,int);
+  // The interaction state may be set from a widget (e.g., HandleWidget) or
+  // other object. This controls how the interaction with the widget
+  // proceeds. Normally this method is used as part of a handshaking
+  // processwith the widget: First ComputeInteractionState() is invoked that
+  // returns a state based on geometric considerations (i.e., cursor near a
+  // widget feature), then based on events, the widget may modify this
+  // further.
+  vtkSetClampMacro(InteractionState,int,Outside,Scaling);
 
   // Description:
   // Specify whether any motions (such as scale, translate, etc.) are
