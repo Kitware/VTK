@@ -3,6 +3,9 @@
 SET (NIGHTLY_START_TIME "23:00:00 EDT")
 
 # Dart server to submit results (used by client)
+IF(NOT DROP_METHOD)
+  SET(DROP_METHOD http)
+ENDIF(NOT DROP_METHOD)
 IF(DROP_METHOD MATCHES http)
   SET (DROP_SITE "public.kitware.com")
   SET (DROP_LOCATION "/cgi-bin/HTTPUploadDartFile.cgi")
@@ -21,7 +24,7 @@ SET (PROJECT_URL "http://www.vtk.org")
 
 # Dart server configuration 
 SET (ROLLUP_URL "http://${DROP_SITE}/cgi-bin/vtk-rollup-dashboard.sh")
-SET (CVS_WEB_URL "http://${DROP_SITE}/cgi-bin/cvsweb.cgi/VTK/")
+SET (CVS_WEB_URL "http://${DROP_SITE}/cgi-bin/viewcvs.cgi/")
 SET (CVS_WEB_CVSROOT "VTK")
 SET (USE_DOXYGEN "On")
 SET (DOXYGEN_URL "http://www.vtk.org/doc/nightly/html/" )
