@@ -281,6 +281,10 @@ class wxVTKRenderWindowInteractor(baseClass):
             # wx returns None on platforms where wxGetXDisplay is not relevant
             if d:
                 d = hex(d)
+                # On wxPython-2.6.3.2 and above there is no leading '0x'.
+                if not d.startswith('0x'):
+                    d = '0x' + d
+                
                 # we now have 0xdeadbeef
                 # VTK wants it as: _deadbeef_void_p (pre-SWIG-1.3 style)
                 d = '_%s_%s' % (d[2:], 'void_p')
