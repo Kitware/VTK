@@ -67,6 +67,9 @@
 #define VTK_STREAM_EOF_SEVERITY @VTK_STREAM_EOF_SEVERITY@
 #cmakedefine VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T
 
+/* Whether we require large files support.  */
+#cmakedefine VTK_REQUIRE_LARGE_FILE_SUPPORT
+
 /*--------------------------------------------------------------------------*/
 /* VTK Platform Configuration                                               */
 

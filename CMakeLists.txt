@@ -5,6 +5,9 @@ PROJECT(VTK)
 # The matching ELSE/ENDIF should be the last lines in the file.
 IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
 
+SET(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${VTK_CMAKE_DIR}")
+
 # Tell the CMake makefile generator to not have rules depend on
 # themselves.  This causes extra rebuilds when the include path
 # changes from turning a kit on or off.
@@ -40,6 +43,15 @@ INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
 # Choose static or shared libraries.
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkSelectSharedLibraries.cmake)
 
+#-----------------------------------------------------------------------------
+# Does VTK require support for 64 bit file systems
+INCLUDE(${VTK_CMAKE_DIR}/CheckCXXSourceRuns.cmake)
+FILE(READ "${VTK_CMAKE_DIR}/vtkRequireLargeFilesSupport.cxx"
+  VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE)
+CHECK_CXX_SOURCE_RUNS("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
+  VTK_REQUIRE_LARGE_FILE_SUPPORT "Support for 64 bit file systems")
+
+#-----------------------------------------------------------------------------
 # Disable the install targets if using the rpath feature.
 IF(NOT WIN32)
   IF(VTK_USE_RPATH)
