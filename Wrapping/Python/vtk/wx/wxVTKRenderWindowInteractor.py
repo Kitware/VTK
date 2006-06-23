@@ -149,14 +149,15 @@ class wxVTKRenderWindowInteractor(baseClass):
 
         # the enclosing frame must be shown under GTK or the windows
         #  don't connect together properly
-        l = []
-        p = parent
-        while p: # make a list of all parents
-            l.append(p)
-            p = p.GetParent()
-        l.reverse() # sort list into descending order
-        for p in l:
-            p.Show(1)
+        if wxPlatform != '__WXMSW__':
+            l = []
+            p = parent
+            while p: # make a list of all parents
+                l.append(p)
+                p = p.GetParent()
+            l.reverse() # sort list into descending order
+            for p in l:
+                p.Show(1)
 
         # code added by cpbotha to enable stereo correctly where the user
         # requests this; remember that the glXContext in this case is NOT
@@ -206,6 +207,9 @@ class wxVTKRenderWindowInteractor(baseClass):
         # successfully been run (and set up the VTK/WX display links)
         self.__has_painted = False
 
+        # set when we have captured the mouse.
+        self._own_mouse = False
+        
     def BindEvents(self):
         # refresh window by doing a Render
         EVT_PAINT(self, self.OnPaint)
@@ -371,6 +375,7 @@ class wxVTKRenderWindowInteractor(baseClass):
 
         # save the button and capture mouse until the button is released
         if self._ActiveButton and WX_USE_X_CAPTURE:
+            self._own_mouse = True
             self.CaptureMouse()
 
         # allow wx event processing to continue
@@ -392,8 +397,9 @@ class wxVTKRenderWindowInteractor(baseClass):
             self._Iren.MiddleButtonReleaseEvent()
 
         # if the ActiveButton is realeased, then release mouse capture
-        if self._ActiveButton and WX_USE_X_CAPTURE:
+        if self._own_mouse and self._ActiveButton and WX_USE_X_CAPTURE:
             self.ReleaseMouse()
+            self._own_mouse = False
 
         # event processing should continue
         event.Skip()
