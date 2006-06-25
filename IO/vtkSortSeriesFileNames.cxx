@@ -17,6 +17,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 
 #include <vtkstd/string>
 #include <vtkstd/vector>
@@ -27,7 +28,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSortSeriesFileNames, "1.2");
+vtkCxxRevisionMacro(vtkSortSeriesFileNames, "1.3");
 vtkStandardNewMacro(vtkSortSeriesFileNames);
 
 // a container for holding string arrays
@@ -110,6 +111,11 @@ void vtkSortSeriesFileNames::PrintSelf(ostream& os, vtkIndent indent)
     os << indent.GetNextIndent() << "FileNames:  ("
        << this->GetFileNames() << ")\n";
     }
+}
+
+void vtkSortSeriesFileNames::SetInputFileNames(vtkStringArray *input)
+{
+  vtkSetObjectBodyMacro(InputFileNames, vtkStringArray, input);
 }
 
 int vtkSortSeriesFileNames::GetNumberOfGroups()

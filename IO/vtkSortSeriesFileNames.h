@@ -27,8 +27,8 @@
 #define __vtkSortSeriesFileNames_h
 
 #include "vtkObject.h"
-#include "vtkTimeStamp.h"
-#include "vtkStringArray.h"
+
+class vtkStringArray;
 
 //BTX
 // this is a helper class defined in the .cxx file
@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Set a list of file names to group and sort.
-  vtkSetObjectMacro(InputFileNames, vtkStringArray);
+  void SetInputFileNames(vtkStringArray *input);
   vtkGetObjectMacro(InputFileNames, vtkStringArray);
   
   // Description:
