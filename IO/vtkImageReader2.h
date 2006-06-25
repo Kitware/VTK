@@ -29,7 +29,6 @@
 #include "vtkImageAlgorithm.h"
 
 class vtkStringArray;
-class vtkGlobFileNames;
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
@@ -213,7 +212,6 @@ protected:
   ~vtkImageReader2();
 
   vtkStringArray *FileNames;
-  vtkGlobFileNames *GlobFileNames;
 
   char *InternalFileName;
   char *FileName;
