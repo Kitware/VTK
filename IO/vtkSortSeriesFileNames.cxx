@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSortSeriesFileNames, "1.1");
+vtkCxxRevisionMacro(vtkSortSeriesFileNames, "1.2");
 vtkStandardNewMacro(vtkSortSeriesFileNames);
 
 // a container for holding string arrays
@@ -425,7 +425,7 @@ void vtkSortSeriesFileNames::SortFileNames(vtkStringArray *input,
           if (segment[0] >= '0' && segment[0] <= '9')
             {
             unsigned int n = l - segment.length();
-            segment.insert(0, n, '0');
+            segment.insert(0u, n, '0');
             decompList->GetStringArray(r)->SetValue(p, segment);
             }  
           }
