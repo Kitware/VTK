@@ -40,6 +40,7 @@ vtkGAMBITReader.cxx
 vtkGaussianCubeReader.cxx
 vtkGenericEnSightReader.cxx
 vtkGenericMovieWriter.cxx
+vtkGlobFileNames.cxx
 vtkIVWriter.cxx
 vtkImageReader.cxx
 vtkImageReader2.cxx
@@ -80,6 +81,7 @@ vtkSLCReader.cxx
 vtkSTLReader.cxx
 vtkSTLWriter.cxx
 vtkSimplePointsReader.cxx
+vtkSortSeriesFileNames.cxx
 vtkStructuredGridReader.cxx
 vtkStructuredGridWriter.cxx
 vtkStructuredPointsReader.cxx

@@ -21,6 +21,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       caffeine
       TestXYZMol
       TestMHD
+      TestSetFileNames
       TestSimplePointsReader
       TestXMLRectilinearGridIO
       TestXMLStructuredGridIO
@@ -48,6 +49,14 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
       ENDFOREACH( tfile )
     ENDIF (VTK_USE_PARALLEL)
+    # tests that don't produce images
+    FOREACH ( tfile
+      TestGlobFileNames
+      TestSortSeriesFileNames
+      )
+      ADD_TEST(${tfile} ${VTK_EXECUTABLE}
+               ${VTK_SOURCE_DIR}/IO/Testing/Tcl/${tfile}.tcl)
+    ENDFOREACH( tfile )
   #
   # If we do not have the data, still run the tests that we can
   #
