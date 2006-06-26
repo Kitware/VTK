@@ -41,7 +41,7 @@
 #include <vtkstd/map>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkMergeCells, "1.5");
+vtkCxxRevisionMacro(vtkMergeCells, "1.6");
 vtkStandardNewMacro(vtkMergeCells);
 
 vtkCxxSetObjectMacro(vtkMergeCells, UnstructuredGrid, vtkUnstructuredGrid);
@@ -590,7 +590,15 @@ void vtkMergeCells::StartUGrid(vtkDataSet *set)
   this->ptList->InitializeFieldList(PD);
   this->cellList->InitializeFieldList(CD);
 
+  if (this->UseGlobalIds)
+    {
+    ugrid->GetPointData()->CopyGlobalIdsOn();
+    }
   ugrid->GetPointData()->CopyAllocate(*ptList, this->TotalNumberOfPoints);
+  if (this->UseGlobalCellIds)
+    {
+    ugrid->GetCellData()->CopyGlobalIdsOn();
+    }
   ugrid->GetCellData()->CopyAllocate(*cellList, this->TotalNumberOfCells);
 
   return;
