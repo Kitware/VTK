@@ -28,7 +28,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSortSeriesFileNames, "1.3");
+vtkCxxRevisionMacro(vtkSortSeriesFileNames, "1.4");
 vtkStandardNewMacro(vtkSortSeriesFileNames);
 
 // a container for holding string arrays
@@ -42,7 +42,6 @@ public:
     return new vtkStringArrayVector; }; 
 
   void Delete() {
-    this->Clear();
     delete this; };
 
   void Clear() {
@@ -59,6 +58,8 @@ public:
 
 
 private:
+  vtkStringArrayVector() : Container() {};
+  ~vtkStringArrayVector() { this->Container.clear(); };
 
   VectorType Container;
 };
@@ -431,7 +432,8 @@ void vtkSortSeriesFileNames::SortFileNames(vtkStringArray *input,
           if (segment[0] >= '0' && segment[0] <= '9')
             {
             unsigned int n = l - segment.length();
-            segment.insert(0u, n, '0');
+            // cast zero to size_type to avoid ambiguity
+            segment.insert(static_cast<vtkstd::string::size_type>(0), n, '0');
             decompList->GetStringArray(r)->SetValue(p, segment);
             }  
           }
@@ -446,9 +448,9 @@ void vtkSortSeriesFileNames::SortFileNames(vtkStringArray *input,
   for (unsigned int t = 0; t < numberOfStringArrays; t++)
     {
     vtkstd::string newName = "";
-    unsigned int decompListLength = 
+    unsigned int numberOfSegments = 
       decompList->GetStringArray(t)->GetNumberOfValues();
-    for (unsigned int q = 0; q < decompListLength; q++)
+    for (unsigned int q = 0; q < numberOfSegments; q++)
       {
       newName.append(decompList->GetStringArray(t)->GetValue(q));
       }
