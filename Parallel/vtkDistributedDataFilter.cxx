@@ -58,7 +58,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.35")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.36")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -2400,7 +2400,14 @@ vtkUnstructuredGrid *
 
   if (numReceivedGrids > 1)
     {
-    int useGlobalNodeIds = (this->GetGlobalNodeIds(ds[0])?1:0);
+    // Normally, using this->GetGlobalNodeIds is the right thing.  However,
+    // there is a bit of a bug here that this filter only works with ids
+    // that are vtkIdType.  Otherwise, it will return NULL as the global ids.
+    // That is bad because then the global node ids will be stripped in the
+    // MergeGrids method, and the number of point arrays will not match,
+    // causing a crash latter on.
+    //int useGlobalNodeIds = (this->GetGlobalNodeIds(ds[0]) != NULL);
+    int useGlobalNodeIds = (ds[0]->GetPointData()->GetGlobalIds() != NULL);
 
     // this call will merge the grids and then delete them
     mergedGrid = 
