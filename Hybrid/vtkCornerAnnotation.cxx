@@ -27,7 +27,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCornerAnnotation);
-vtkCxxRevisionMacro(vtkCornerAnnotation, "1.11");
+vtkCxxRevisionMacro(vtkCornerAnnotation, "1.12");
 
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,ImageActor,vtkImageActor);
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,WindowLevel,
@@ -45,6 +45,7 @@ vtkCornerAnnotation::vtkCornerAnnotation()
 
   this->MaximumLineHeight = 1.0;
   this->MinimumFontSize = 6;
+  this->MaximumFontSize = 200;
   this->LinearFontScaleFactor    = 5.0;
   this->NonlinearFontScaleFactor = 0.35;
   this->FontSize = 15;
@@ -560,6 +561,10 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 
       fontSize = static_cast<int>(pow((double)fontSize,
               NonlinearFontScaleFactor)*LinearFontScaleFactor);
+      if (fontSize > this->MaximumFontSize)
+        {
+        fontSize = this->MaximumFontSize;
+        }
       this->FontSize = fontSize;
       for (i = 0; i < 4; i++)
         {

@@ -55,10 +55,12 @@ public:
   vtkGetMacro(MaximumLineHeight,double);
   
   // Description:
-  // Set/Get the minimum size font that will be shown.
-  // If the font drops below this size it will not be rendered.
+  // Set/Get the minimum/maximum size font that will be shown.
+  // If the font drops below the minimum size it will not be rendered.
   vtkSetMacro(MinimumFontSize,int);
   vtkGetMacro(MinimumFontSize,int);
+  vtkSetMacro(MaximumFontSize,int);
+  vtkGetMacro(MaximumFontSize,int);
 
   // Description:
   // Set/Get font scaling factors
@@ -140,7 +142,9 @@ protected:
   int            LastSize[2];
   vtkTextMapper *TextMapper[4];
 
-  int   MinimumFontSize;
+  int MinimumFontSize;
+  int MaximumFontSize;
+
   double LinearFontScaleFactor;
   double NonlinearFontScaleFactor;
   
