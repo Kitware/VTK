@@ -35,7 +35,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.105");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.106");
 vtkStandardNewMacro(vtkGeometryFilter);
 vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkPointLocator)
 
@@ -246,7 +246,9 @@ int vtkGeometryFilter::RequestData(
   newPts = vtkPoints::New();
   newPts->Allocate(numPts,numPts/2);
   output->Allocate(4*numCells,numCells/2);
+  outputPD->CopyGlobalIdsOn();
   outputPD->CopyAllocate(pd,numPts,numPts/2);
+  outputPD->CopyGlobalIdsOn();
   outputCD->CopyAllocate(cd,numCells,numCells/2);
 
   if ( this->Merging )
@@ -654,6 +656,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   output->SetPoints(input->GetPoints());
   outputPD->PassData(pd);
 
+  outputCD->CopyGlobalIdsOn();
   outputCD->CopyAllocate(cd,numCells,numCells/2);
 
   verts = vtkCellArray::New();
@@ -1150,6 +1153,7 @@ void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
   //
   output->SetPoints(input->GetPoints());
   outputPD->PassData(pd);
+  outputCD->CopyGlobalIdsOn();
   outputCD->CopyAllocate(cd,numCells,numCells/2);
 
   cells = vtkCellArray::New();

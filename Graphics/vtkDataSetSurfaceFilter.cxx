@@ -50,7 +50,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.50");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.51");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -241,7 +241,9 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
   outPoints->Delete();
 
   // Allocate attributes for copying.
+  output->GetPointData()->CopyGlobalIdsOn();
   output->GetPointData()->CopyAllocate(input->GetPointData());
+  output->GetCellData()->CopyGlobalIdsOn();
   output->GetCellData()->CopyAllocate(input->GetCellData());
 
   if (this->UseStrips)
@@ -576,7 +578,9 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
   newPts = vtkPoints::New();
   newPts->Allocate(numPts,numPts/2);
   output->Allocate(4*numCells,numCells/2);
+  outputPD->CopyGlobalIdsOn();
   outputPD->CopyAllocate(pd,numPts,numPts/2);
+  outputCD->CopyGlobalIdsOn();
   outputCD->CopyAllocate(cd,numCells,numCells/2);
 
   // Traverse cells to extract geometry
@@ -778,7 +782,9 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   newVerts = vtkCellArray::New();
   newLines = vtkCellArray::New();
 
+  outputPD->CopyGlobalIdsOn();
   outputPD->CopyAllocate(inputPD, numPts, numPts/2);
+  outputCD->CopyGlobalIdsOn();
   outputCD->CopyAllocate(inputCD, numCells, numCells/2);
 
 
