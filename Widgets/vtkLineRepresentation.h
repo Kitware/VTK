@@ -67,11 +67,15 @@ public:
   // this representation. Note that methods are available for both
   // display and world coordinates.
   void GetPoint1WorldPosition(double pos[3]);
+  double* GetPoint1WorldPosition();
   void GetPoint1DisplayPosition(double pos[3]);
+  double* GetPoint1DisplayPosition();
   void SetPoint1WorldPosition(double pos[3]);
   void SetPoint1DisplayPosition(double pos[3]);
   void GetPoint2DisplayPosition(double pos[3]);
+  double* GetPoint2DisplayPosition();
   void GetPoint2WorldPosition(double pos[3]);
+  double* GetPoint2WorldPosition();
   void SetPoint2WorldPosition(double pos[3]);
   void SetPoint2DisplayPosition(double pos[3]);
 

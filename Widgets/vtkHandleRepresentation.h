@@ -64,8 +64,10 @@ public:
   // be used to control the actual positioning.
   virtual void SetDisplayPosition(double pos[3]);
   virtual void GetDisplayPosition(double pos[3]);
+  virtual double* GetDisplayPosition();
   virtual void SetWorldPosition(double pos[3]);
   virtual void GetWorldPosition(double pos[3]);
+  virtual double* GetWorldPosition();
 
   // Description:
   // The tolerance representing the distance to the widget (in pixels)

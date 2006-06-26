@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.3");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -196,10 +196,20 @@ void vtkLineRepresentation::GetPoint1WorldPosition(double pos[3])
   this->Point1Representation->GetWorldPosition(pos);
 }
 
+double* vtkLineRepresentation::GetPoint1WorldPosition()
+{
+  return this->Point1Representation->GetWorldPosition();
+}
+
 //----------------------------------------------------------------------
 void vtkLineRepresentation::GetPoint1DisplayPosition(double pos[3])
 {
   this->Point1Representation->GetDisplayPosition(pos);
+}
+
+double* vtkLineRepresentation::GetPoint1DisplayPosition()
+{
+  return this->Point1Representation->GetDisplayPosition();
 }
 
 //----------------------------------------------------------------------
@@ -228,10 +238,20 @@ void vtkLineRepresentation::GetPoint2WorldPosition(double pos[3])
   this->Point2Representation->GetWorldPosition(pos);
 }
 
+double* vtkLineRepresentation::GetPoint2WorldPosition()
+{
+  return this->Point2Representation->GetWorldPosition();
+}
+
 //----------------------------------------------------------------------
 void vtkLineRepresentation::GetPoint2DisplayPosition(double pos[3])
 {
   this->Point2Representation->GetDisplayPosition(pos);
+}
+
+double* vtkLineRepresentation::GetPoint2DisplayPosition()
+{
+  return this->Point2Representation->GetDisplayPosition();
 }
 
 //----------------------------------------------------------------------

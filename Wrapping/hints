@@ -44,6 +44,8 @@ vtkFunctionParser       GetVectorVariableValue  307 3
 vtkFunctionParser       GetVectorVariableValue  307 3
 vtkGeometryFilter       GetExtent               307 6
 vtkGridSynchronizedTemplates3D GetExecuteExtent 304 6
+vtkHandleRepresentation	GetWorldPosition		307 3
+vtkHandleRepresentation	GetDisplayPosition		307 3
 vtkHexahedron           GetEdgeArray            304 2
 vtkHexahedron           GetFaceArray            304 4
 vtkHyperStreamline      GetStartPosition        307 3
@@ -104,6 +106,10 @@ vtkLinearTransform      TransformNormal         307 3
 vtkLinearTransform      TransformNormal         307 3
 vtkLinearTransform      TransformVector         307 3
 vtkLinearTransform      TransformVector         307 3
+vtkLineRepresentation	GetPoint1WorldPosition		307 3
+vtkLineRepresentation	GetPoint2WorldPosition		307 3
+vtkLineRepresentation	GetPoint1DisplayPosition		307 3
+vtkLineRepresentation	GetPoint2DisplayPosition		307 3
 vtkLODProp3D            GetBounds               307 6
 vtkLookupTable          GetColor                307 3
 vtkLookupTable          GetTableValue           307 4
