@@ -27,7 +27,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCornerAnnotation);
-vtkCxxRevisionMacro(vtkCornerAnnotation, "1.3");
+vtkCxxRevisionMacro(vtkCornerAnnotation, "1.3.4.1");
 
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,ImageActor,vtkImageActor);
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,WindowLevel,
@@ -45,6 +45,9 @@ vtkCornerAnnotation::vtkCornerAnnotation()
 
   this->MaximumLineHeight = 1.0;
   this->MinimumFontSize = 6;
+  this->MaximumFontSize = 200;
+  this->LinearFontScaleFactor    = 5.0;
+  this->NonlinearFontScaleFactor = 0.35;
   this->FontSize = 15;
 
   this->TextProperty = vtkTextProperty::New();
@@ -103,21 +106,40 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
 {
   int i;
   char *text, *text2;
-  int image=0;
+  int slice = 0, slice_max = 0;
   char *rpos, *tmp;
-  float window=0, level=0;
-    
-  if (ia)
-    {
-    image = ia->GetSliceNumber();
-    }
+  double window = 0, level = 0;
+  long int windowi = 0, leveli = 0;
+  vtkImageData *wl_input = NULL, *ia_input = NULL;
+  int input_type_is_float = 0;
+
   if (wl)
     {
     window = wl->GetWindow();
     window *= this->LevelScale;
     level = wl->GetLevel();    
     level = level * this->LevelScale + this->LevelShift;
+    windowi = (long int)window;
+    leveli = (long int)level;
+    wl_input = vtkImageData::SafeDownCast(wl->GetInput());
+    if (wl_input)
+      {
+      input_type_is_float = (wl_input->GetScalarType() == VTK_FLOAT || 
+                             wl_input->GetScalarType() == VTK_DOUBLE);
+      }
     }
+  if (ia)
+    {
+    slice = ia->GetSliceNumber() + 1;
+    slice_max = ia->GetSliceNumberMax() + 1;
+    ia_input = ia->GetInput();
+    if (!wl_input && ia_input)
+      {
+      input_type_is_float = (ia_input->GetScalarType() == VTK_FLOAT || 
+                             ia_input->GetScalarType() == VTK_DOUBLE);
+      }
+    }
+
   
   // search for tokens, replace and then assign to TextMappers
   for (i = 0; i < 4; i++)
@@ -127,14 +149,16 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
       text = new char [strlen(this->CornerText[i])+1000];
       text2 = new char [strlen(this->CornerText[i])+1000];
       strcpy(text,this->CornerText[i]);
+
       // now do the replacements
+
       rpos = strstr(text,"<image>");
       while (rpos)
         {
         *rpos = '\0';
         if (ia && this->ShowSliceAndImage)
           {
-          sprintf(text2,"%sImage: %i%s",text,image,rpos+7);
+          sprintf(text2,"%sImage: %i%s",text,slice,rpos+7);
           }
         else
           {
@@ -145,13 +169,32 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         text2 = tmp;
         rpos = strstr(text,"<image>");
         }
+
+      rpos = strstr(text,"<image_and_max>");
+      while (rpos)
+        {
+        *rpos = '\0';
+        if (ia && this->ShowSliceAndImage)
+          {
+          sprintf(text2,"%sImage: %i / %i%s",text,slice,slice_max,rpos+15);
+          }
+        else
+          {
+          sprintf(text2,"%s%s",text,rpos+15);
+          }
+        tmp = text;
+        text = text2;
+        text2 = tmp;
+        rpos = strstr(text,"<image_and_max>");
+        }
+
       rpos = strstr(text,"<slice>");
       while (rpos)
         {
         *rpos = '\0';
         if (ia && this->ShowSliceAndImage)
           {
-          sprintf(text2,"%sSlice: %i%s",text,image,rpos+7);
+          sprintf(text2,"%sSlice: %i%s",text,slice,rpos+7);
           }
         else
           {
@@ -162,13 +205,72 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         text2 = tmp;
         rpos = strstr(text,"<slice>");
         }
+
+      rpos = strstr(text,"<slice_and_max>");
+      while (rpos)
+        {
+        *rpos = '\0';
+        if (ia && this->ShowSliceAndImage)
+          {
+          sprintf(text2,"%sSlice: %i / %i%s",text,slice,slice_max,rpos+15);
+          }
+        else
+          {
+          sprintf(text2,"%s%s",text,rpos+15);
+          }
+        tmp = text;
+        text = text2;
+        text2 = tmp;
+        rpos = strstr(text,"<slice_and_max>");
+        }
+
+      rpos = strstr(text,"<slice_pos>");
+      while (rpos)
+        {
+        *rpos = '\0';
+        if (ia && this->ShowSliceAndImage)
+          {
+          double *dbounds = ia->GetDisplayBounds();
+          int *dext = ia->GetDisplayExtent();
+          double pos;
+          if (dext[0] == dext[1])
+            {
+            pos = dbounds[0];
+            }
+          else if (dext[2] == dext[3])
+            {
+            pos = dbounds[2];
+            }
+          else
+            {
+            pos = dbounds[4];
+            }
+          sprintf(text2,"%s%g%s",text,pos,rpos+11);
+          }
+        else
+          {
+          sprintf(text2,"%s%s",text,rpos+11);
+          }
+        tmp = text;
+        text = text2;
+        text2 = tmp;
+        rpos = strstr(text,"<slice_pos>");
+        }
+
       rpos = strstr(text,"<window>");
       while (rpos)
         {
         *rpos = '\0';
         if (wl)
           {
-          sprintf(text2,"%sWindow: %g%s",text,window,rpos+8);
+          if (input_type_is_float)
+            {
+            sprintf(text2,"%sWindow: %g%s",text,window,rpos+8);
+            }
+          else
+            {
+            sprintf(text2,"%sWindow: %li%s",text,windowi,rpos+8);
+            }
           }
         else
           {
@@ -179,13 +281,21 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         text2 = tmp;
         rpos = strstr(text,"<window>");
         }
+
       rpos = strstr(text,"<level>");
       while (rpos)
         {
         *rpos = '\0';
         if (wl)
           {
-          sprintf(text2,"%sLevel: %g%s",text,level,rpos+7);
+          if (input_type_is_float)
+            {
+            sprintf(text2,"%sLevel: %g%s",text,level,rpos+7);
+            }
+          else
+            {
+            sprintf(text2,"%sLevel: %li%s",text,leveli,rpos+7);
+            }
           }
         else
           {
@@ -196,6 +306,32 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         text2 = tmp;
         rpos = strstr(text,"<level>");
         }
+
+      rpos = strstr(text,"<window_level>");
+      while (rpos)
+        {
+        *rpos = '\0';
+        if (wl)
+          {
+          if (input_type_is_float)
+            {
+            sprintf(text2,"%sWW/WL: %g / %g%s",text,window,level,rpos+14);
+            }
+          else
+            {
+            sprintf(text2,"%sWW/WL: %li / %li%s",text,windowi,leveli,rpos+14);
+            }
+          }
+        else
+          {
+          sprintf(text2,"%s%s",text,rpos+14);
+          }
+        tmp = text;
+        text = text2;
+        text2 = tmp;
+        rpos = strstr(text,"<window_level>");
+        }
+
       this->TextMapper[i]->SetInput(text);
       delete [] text;
       delete [] text2;
@@ -306,27 +442,21 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
         {
         vtkTextProperty *tprop = this->TextMapper[0]->GetTextProperty();
         tprop->ShallowCopy(this->TextProperty);
-        tprop->SetJustificationToLeft();
-        tprop->SetVerticalJustificationToBottom();
         tprop->SetFontSize(fontSize);
 
         tprop = this->TextMapper[1]->GetTextProperty();
         tprop->ShallowCopy(this->TextProperty);
-        tprop->SetJustificationToRight();
-        tprop->SetVerticalJustificationToBottom();
         tprop->SetFontSize(fontSize);
         
         tprop = this->TextMapper[2]->GetTextProperty();
         tprop->ShallowCopy(this->TextProperty);
-        tprop->SetJustificationToLeft();
-        tprop->SetVerticalJustificationToTop();
         tprop->SetFontSize(fontSize);
         
         tprop = this->TextMapper[3]->GetTextProperty();
         tprop->ShallowCopy(this->TextProperty);
-        tprop->SetJustificationToRight();
-        tprop->SetVerticalJustificationToTop();
         tprop->SetFontSize(fontSize);
+
+        this->SetTextActorsJustification();
         }
 
       // Update all the composing objects to find the best size for the font
@@ -429,7 +559,12 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
         max_width = (width_01 > width_23) ? width_01 : width_23;
         }
 
-      fontSize = static_cast<int>(pow((float)fontSize,0.7f)*pow(10.0f,0.3f));
+      fontSize = static_cast<int>(pow((double)fontSize,
+              NonlinearFontScaleFactor)*LinearFontScaleFactor);
+      if (fontSize > this->MaximumFontSize)
+        {
+        fontSize = this->MaximumFontSize;
+        }
       this->FontSize = fontSize;
       for (i = 0; i < 4; i++)
         {
@@ -438,11 +573,8 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 
       // Now set the position of the TextActors
 
-      this->TextActor[0]->SetPosition(5,5);
-      this->TextActor[1]->SetPosition(vSize[0] - 5,5);
-      this->TextActor[2]->SetPosition(5, vSize[1] - 5);
-      this->TextActor[3]->SetPosition(vSize[0] - 5, vSize[1] - 5);
-      
+      this->SetTextActorsPosition(vSize);
+
       for (i = 0; i < 4; i++)
         {
         this->TextActor[i]->SetProperty(this->GetProperty());
@@ -463,6 +595,35 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkCornerAnnotation::SetTextActorsPosition(int vsize[2])
+{
+  this->TextActor[0]->SetPosition(5, 5);
+  this->TextActor[1]->SetPosition(vsize[0] - 5, 5);
+  this->TextActor[2]->SetPosition(5, vsize[1] - 5);
+  this->TextActor[3]->SetPosition(vsize[0] - 5, vsize[1] - 5);
+}
+      
+//----------------------------------------------------------------------------
+void vtkCornerAnnotation::SetTextActorsJustification()
+{
+  vtkTextProperty *tprop = this->TextMapper[0]->GetTextProperty();
+  tprop->SetJustificationToLeft();
+  tprop->SetVerticalJustificationToBottom();
+
+  tprop = this->TextMapper[1]->GetTextProperty();
+  tprop->SetJustificationToRight();
+  tprop->SetVerticalJustificationToBottom();
+        
+  tprop = this->TextMapper[2]->GetTextProperty();
+  tprop->SetJustificationToLeft();
+  tprop->SetVerticalJustificationToTop();
+        
+  tprop = this->TextMapper[3]->GetTextProperty();
+  tprop->SetJustificationToRight();
+  tprop->SetVerticalJustificationToTop();
 }
 
 //----------------------------------------------------------------------------
@@ -521,6 +682,8 @@ void vtkCornerAnnotation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "ImageActor: " << this->GetImageActor() << endl;
   os << indent << "MinimumFontSize: " << this->GetMinimumFontSize() << endl;
+  os << indent << "LinearFontScaleFactor: " << this->GetLinearFontScaleFactor() << endl;
+  os << indent << "NonlinearFontScaleFactor: " << this->GetNonlinearFontScaleFactor() << endl;
   os << indent << "WindowLevel: " << this->GetWindowLevel() << endl;
   os << indent << "Mapper: " << this->GetMapper() << endl;
   os << indent << "MaximumLineHeight: " << this->MaximumLineHeight << endl;

@@ -51,14 +51,29 @@ public:
   // Set/Get the maximum height of a line of text as a 
   // percentage of the vertical area allocated to this
   // scaled text actor. Defaults to 1.0
-  vtkSetMacro(MaximumLineHeight,float);
-  vtkGetMacro(MaximumLineHeight,float);
+  vtkSetMacro(MaximumLineHeight,double);
+  vtkGetMacro(MaximumLineHeight,double);
   
   // Description:
-  // Set/Get the minimum size font that will be shown.
-  // If the font drops below this size it will not be rendered.
+  // Set/Get the minimum/maximum size font that will be shown.
+  // If the font drops below the minimum size it will not be rendered.
   vtkSetMacro(MinimumFontSize,int);
   vtkGetMacro(MinimumFontSize,int);
+  vtkSetMacro(MaximumFontSize,int);
+  vtkGetMacro(MaximumFontSize,int);
+
+  // Description:
+  // Set/Get font scaling factors
+  // The font size, f, is calculated as the largest possible value
+  // such that the annotations for the given viewport do not overlap. 
+  // This font size is scaled non-linearly with the viewport size,
+  // to maintain an acceptable readable size at larger viewport sizes, 
+  // without being too big.
+  // f' = linearScale * pow(f,nonlinearScale)
+  vtkSetMacro( LinearFontScaleFactor, double );
+  vtkGetMacro( LinearFontScaleFactor, double );
+  vtkSetMacro( NonlinearFontScaleFactor, double );
+  vtkGetMacro( NonlinearFontScaleFactor, double );
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -86,13 +101,13 @@ public:
 
   // Description:
   // Set the value to shift the level by.
-  vtkSetMacro(LevelShift, float);
-  vtkGetMacro(LevelShift, float);
+  vtkSetMacro(LevelShift, double);
+  vtkGetMacro(LevelShift, double);
   
   // Description:
   // Set the value to scale the level by.
-  vtkSetMacro(LevelScale, float);
-  vtkGetMacro(LevelScale, float);
+  vtkSetMacro(LevelScale, double);
+  vtkGetMacro(LevelScale, double);
   
   // Description:
   // Set/Get the text property of all corners.
@@ -109,13 +124,13 @@ protected:
   vtkCornerAnnotation();
   ~vtkCornerAnnotation();
 
-  float MaximumLineHeight;
+  double MaximumLineHeight;
 
   vtkTextProperty *TextProperty;
 
   vtkImageMapToWindowLevelColors *WindowLevel;
-  float LevelShift;
-  float LevelScale;
+  double LevelShift;
+  double LevelScale;
   vtkImageActor *ImageActor;
   vtkImageActor *LastImageActor;
 
@@ -126,12 +141,25 @@ protected:
   vtkTimeStamp   BuildTime;
   int            LastSize[2];
   vtkTextMapper *TextMapper[4];
+
   int MinimumFontSize;
+  int MaximumFontSize;
+
+  double LinearFontScaleFactor;
+  double NonlinearFontScaleFactor;
   
   int ShowSliceAndImage;
   
-  // search for replacable tokens and replace
-  void TextReplace(vtkImageActor *ia,  vtkImageMapToWindowLevelColors *wl);
+  // Description:
+  // Search for replacable tokens and replace
+  virtual void TextReplace(
+    vtkImageActor *ia, vtkImageMapToWindowLevelColors *wl);
+
+  // Description:
+  // Set text actor positions given a viewport size and justification
+  virtual void SetTextActorsPosition(int vsize[2]);
+  virtual void SetTextActorsJustification();
+
 private:
   vtkCornerAnnotation(const vtkCornerAnnotation&);  // Not implemented.
   void operator=(const vtkCornerAnnotation&);  // Not implemented.
