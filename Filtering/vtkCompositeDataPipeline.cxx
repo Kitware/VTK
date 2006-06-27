@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.34");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.35");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -387,6 +387,9 @@ int vtkCompositeDataPipeline::ExecuteDataObject(
 }
 
 //----------------------------------------------------------------------------
+// Used only when there are intermediate executive objects that are not
+// vtkCompositeDataPipeline.
+// ExecuteInformationForBlock provides information for the current block
 int vtkCompositeDataPipeline::ExecuteDataObjectForBlock(vtkInformation* request)
 {
   int result = 1;
@@ -471,6 +474,9 @@ int vtkCompositeDataPipeline::ExecuteDataObjectForBlock(vtkInformation* request)
 }
 
 //----------------------------------------------------------------------------
+// Used only when there are intermediate executive objects that are not
+// vtkCompositeDataPipeline.
+// ExecuteInformationForBlock provides information for the current block
 int vtkCompositeDataPipeline::ExecuteInformationForBlock(vtkInformation* request)
 {
   vtkInformationVector* outputVector = this->GetOutputInformation();
@@ -694,6 +700,12 @@ void vtkCompositeDataPipeline::CheckInputPorts(int& inputPortIsComposite,
 }
 
 //----------------------------------------------------------------------------
+// Used only when there are intermediate executive objects that are not
+// vtkCompositeDataPipeline.
+// Updates the input pipeline multiple times, once per block. The 
+// vtkCompositeDataPipeline of this algorithm has to work with another 
+// vtkCompositeDataPipeline upstream to force the intermediate 
+// non-composite-aware filters to execute in each pass.
 int vtkCompositeDataPipeline::UpdateBlocks(
   int i, int j, int outputPort, 
   vtkMultiGroupDataSet* updateInfo, 
@@ -877,6 +889,9 @@ int vtkCompositeDataPipeline::SendEndLoop(int i, int j)
 }
 
 //----------------------------------------------------------------------------
+// Execute a simple (non-composite-aware) filter multiple times, once per
+// block. Collect the result in a composite dataset that is of the same
+// structure as the input.
 void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
   vtkInformation* request,
   vtkInformationVector** inInfoVec,
@@ -1067,6 +1082,10 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
 }
 
 //----------------------------------------------------------------------------
+// Used only when there are intermediate executive objects that are not
+// vtkCompositeDataPipeline.
+// Copy the current block to the pipeline so that it can be processed
+// by non-vtkCompositeDataPipeline filters.
 int vtkCompositeDataPipeline::ExecuteDataForBlock(vtkInformation* request)
 {
   vtkInformationVector* outputVector = this->GetOutputInformation();
