@@ -71,7 +71,7 @@ public:
   // Description:
   // The tolerance representing the distance to the widget (in pixels) in
   // which the cursor is considered near enough to the end points of
-  // thewidget to be active.
+  // the widget to be active.
   vtkSetClampMacro(Tolerance,int,1,100);
   vtkGetMacro(Tolerance,int);
 
@@ -80,11 +80,15 @@ public:
 //ETX
 
   // Description:
+  // These are methods specific to vtkSeedRepresentation and which are
+  // invoked from vtkSeedWidget.
+  virtual int GetActiveHandle();
+  virtual int CreateHandle(double e[2]); //returns the id of the seed created
+
+  // Description:
   // These are methods that satisfy vtkWidgetRepresentation's API.
   virtual void BuildRepresentation();
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
-  virtual int GetActiveHandle();
-  virtual int CreateHandle(double e[2]); //returns the id of the seed created
   
 protected:
   vtkSeedRepresentation();

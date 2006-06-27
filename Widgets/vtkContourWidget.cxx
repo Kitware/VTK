@@ -26,7 +26,7 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.13");
+vtkCxxRevisionMacro(vtkContourWidget, "1.14");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -141,6 +141,8 @@ void vtkContourWidget::SelectAction(vtkAbstractWidget *w)
     case vtkContourWidget::Manipulate:
       if ( rep->ActivateNode(X,Y) )
         {
+        self->Superclass::StartInteraction();
+        self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
         self->StartInteraction();
         rep->SetCurrentOperationToTranslate();
         rep->StartWidgetInteraction(pos);
@@ -315,7 +317,7 @@ void vtkContourWidget::MoveAction(vtkAbstractWidget *w)
     pos[0] = X;
     pos[1] = Y;
     self->WidgetRep->WidgetInteraction(pos);
-    self->Interaction();
+    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
   
   if ( self->WidgetRep->GetNeedToRender() )
@@ -340,35 +342,14 @@ void vtkContourWidget::EndSelectAction(vtkAbstractWidget *w)
 
   rep->SetCurrentOperationToInactive();
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->EndInteraction();
+  self->Superclass::EndInteraction();
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   
   if ( self->WidgetRep->GetNeedToRender() )
     {
     self->Render();
     self->WidgetRep->NeedToRenderOff();
     }
-}
-
-// These are callbacks that are active when the user is manipulating the
-// handles of the measure widget.
-//----------------------------------------------------------------------
-void vtkContourWidget::StartInteraction()
-{
-  this->Superclass::StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-}
-
-//----------------------------------------------------------------------
-void vtkContourWidget::Interaction()
-{
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-}
-
-//----------------------------------------------------------------------
-void vtkContourWidget::EndInteraction()
-{
-  this->Superclass::EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
 }
 
 //----------------------------------------------------------------------

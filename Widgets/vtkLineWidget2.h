@@ -83,7 +83,6 @@
 
 class vtkLineRepresentation;
 class vtkHandleWidget;
-class vtkLineWidget2Callback;
 
 
 class VTK_WIDGETS_EXPORT vtkLineWidget2 : public vtkAbstractWidget
@@ -135,19 +134,6 @@ protected:
   vtkHandleWidget *Point1Widget; //first end point
   vtkHandleWidget *Point2Widget; //second end point
   vtkHandleWidget *LineHandle; //used when selecting the line
-  vtkLineWidget2Callback *LineWidgetCallback1;
-  vtkLineWidget2Callback *LineWidgetCallback2;
-  vtkLineWidget2Callback *LineWidgetCallback3;
-
-  // Methods invoked when the handles at the
-  // widget end points, or the widget line, are manipulated
-  void StartLineInteraction(int handleNum);
-  void LineInteraction(int handleNum);
-  void EndLineInteraction(int handleNum);
-
-//BTX
-  friend class vtkLineWidget2Callback;
-//ETX
 
 private:
   vtkLineWidget2(const vtkLineWidget2&);  //Not implemented

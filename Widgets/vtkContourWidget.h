@@ -159,12 +159,7 @@ protected:
   static void EndSelectAction(vtkAbstractWidget*);
   static void DeleteAction(vtkAbstractWidget*);
   
-  // Methods invoked when the handles at the
-  // end points of the widget are manipulated
-  void StartInteraction();
-  void Interaction();
-  void EndInteraction();
-
+  // Internal helper methods
   void SelectNode();
   void AddNode();
   

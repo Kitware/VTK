@@ -26,41 +26,13 @@
 #include "vtkWidgetEvent.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSeedWidget, "1.3");
+vtkCxxRevisionMacro(vtkSeedWidget, "1.4");
 vtkStandardNewMacro(vtkSeedWidget);
 
 
 // The vtkSeedList is a PIMPLed vector<T>.
 class vtkSeedList : public vtkstd::vector<vtkHandleWidget*> {};
 typedef vtkstd::vector<vtkHandleWidget*>::iterator vtkSeedListIterator;
-
-
-// The checkerboard simply observes the behavior of four vtkSliderWidgets.
-// Here we create the command/observer classes to respond to the 
-// slider widgets.
-class vtkSeedWidgetCallback : public vtkCommand
-{
-public:
-  static vtkSeedWidgetCallback *New() 
-    { return new vtkSeedWidgetCallback; }
-  virtual void Execute(vtkObject*, unsigned long eventId, void*)
-    {
-      switch (eventId)
-        {
-        case vtkCommand::StartInteractionEvent:
-          this->SeedWidget->StartSeedInteraction(this->SeedNumber);
-          break;
-        case vtkCommand::InteractionEvent:
-          this->SeedWidget->SeedInteraction(this->SeedNumber);
-          break;
-        case vtkCommand::EndInteractionEvent:
-          this->SeedWidget->EndSeedInteraction(this->SeedNumber);
-          break;
-        }
-    }
-  int SeedNumber;
-  vtkSeedWidget *SeedWidget;
-};
 
 
 //----------------------------------------------------------------------
@@ -154,14 +126,6 @@ vtkHandleWidget *vtkSeedWidget::CreateHandleWidget(vtkSeedWidget *self,
   handleRep->SetRenderer(self->CurrentRenderer);
   widget->SetRepresentation(handleRep);
 
-  vtkSeedWidgetCallback *cbk = vtkSeedWidgetCallback::New();
-  cbk->SeedNumber = self->CurrentHandleNumber;
-  cbk->SeedWidget = self;
-  widget->AddObserver(vtkCommand::StartInteractionEvent, cbk, self->Priority);
-  widget->AddObserver(vtkCommand::InteractionEvent, cbk, self->Priority);
-  widget->AddObserver(vtkCommand::EndInteractionEvent, cbk, self->Priority);
-  cbk->Delete(); //okay reference counting
-  
   // Now place the widget into the list of handle widgets (if not already there)
   if ( self->CurrentHandleNumber >= self->Seeds->size() )
     {
@@ -199,6 +163,8 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
 
     // Invoke an event on ourself for the handles 
     self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+    self->Superclass::StartInteraction();
+    self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
     }
 
   else //we are placing a new seed
@@ -213,10 +179,10 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
     rep->SetSeedDisplayPosition(self->CurrentHandleNumber,e);
     self->CurrentHandleWidget->SetEnabled(1);
     self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandleNumber));
+    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
 
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   self->Render();
 }
 
@@ -253,7 +219,6 @@ void vtkSeedWidget::MoveAction(vtkAbstractWidget *w)
   // else we are moving a seed
   self->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
 
-  self->WidgetRep->BuildRepresentation();
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   self->Render();
@@ -273,39 +238,10 @@ void vtkSeedWidget::EndSelectAction(vtkAbstractWidget *w)
   self->WidgetState = vtkSeedWidget::Placed;
   self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
 
-  self->WidgetRep->BuildRepresentation();
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  self->Superclass::EndInteraction();
   self->Render();
-}
-
-// These are callbacks that are active when the user is manipulating the
-// handles of the seed widget.
-//----------------------------------------------------------------------
-void vtkSeedWidget::StartSeedInteraction(int)
-{
-  this->Superclass::StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-}
-
-//----------------------------------------------------------------------
-void vtkSeedWidget::SeedInteraction(int)
-{
-//  double pos[3];
-//  reinterpret_cast<vtkSeedRepresentation*>(this->WidgetRep)->
-//    GetHandleRepresentation(handle)->GetDisplayPosition(pos);
-//  reinterpret_cast<vtkSeedRepresentation*>(this->WidgetRep)->
-//    SetSeedDisplayPosition(handle,pos);
-
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-}
-
-//----------------------------------------------------------------------
-void vtkSeedWidget::EndSeedInteraction(int)
-{
-  this->Superclass::EndInteraction();
-
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
 }
 
 //----------------------------------------------------------------------

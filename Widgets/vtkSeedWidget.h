@@ -123,18 +123,8 @@ protected:
   // The positioning handle widgets
   vtkSeedList *Seeds;
   
-  // Methods invoked when the handles at the
-  // end points of the widget are manipulated
-  void StartSeedInteraction(int handleNum);
-  void SeedInteraction(int handleNum);
-  void EndSeedInteraction(int handleNum);
-  
   // Helper method for creating widgets
   static vtkHandleWidget *CreateHandleWidget(vtkSeedWidget *self, vtkSeedRepresentation *rep);
-
-//BTX
-  friend class vtkSeedWidgetCallback;
-//ETX  
 
 private:
   vtkSeedWidget(const vtkSeedWidget&);  //Not implemented
