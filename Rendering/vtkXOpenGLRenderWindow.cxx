@@ -106,7 +106,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.71");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.72");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1754,8 +1754,6 @@ void vtkXOpenGLRenderWindow::SetOffScreenRendering(int i)
     return;
     }
 
-  // invoke super
-  this->vtkRenderWindow::SetOffScreenRendering(i);
 
   if(this->OffScreenRendering)
     {
@@ -1763,12 +1761,16 @@ void vtkXOpenGLRenderWindow::SetOffScreenRendering(int i)
     this->DoubleBuffer = 0;
     this->Internal->ScreenMapped = this->Mapped;
     this->Mapped = 0;
+    // invoke super
+    this->vtkRenderWindow::SetOffScreenRendering(i);
 
     // delay initialization until Render
     }
   else
     {
+    // invoke super
     this->DestroyOffScreenWindow();
+    this->vtkRenderWindow::SetOffScreenRendering(i);
     
     this->DoubleBuffer = this->Internal->ScreenDoubleBuffer;
     this->Mapped = this->Internal->ScreenMapped;
