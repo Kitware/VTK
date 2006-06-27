@@ -28,7 +28,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSortFileNames, "1.1");
+vtkCxxRevisionMacro(vtkSortFileNames, "1.2");
 vtkStandardNewMacro(vtkSortFileNames);
 
 // a container for holding string arrays
@@ -171,7 +171,7 @@ vtkStringArray *vtkSortFileNames::GetFileNames()
 }
 
 void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
-                                            vtkStringArrayVector *output)
+                                      vtkStringArrayVector *output)
 {
   vtkstd::string baseName;
   vtkstd::string extension;
@@ -297,17 +297,17 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
 
 
 void vtkSortFileNames::SortFileNames(vtkStringArray *input,
-                                           vtkStringArray *output)
+                                     vtkStringArray *output)
 {
   vtkstd::string baseName;
   vtkstd::string extension;
   vtkstd::string fileNamePath;
 
   // list of true files (i.e. reject paths that are directories)
-  vtkStringArray *fileNames = vtkStringArray::New();
+  vtkstd::vector<vtkstd::string> fileNames;
 
   // list of filenames decomposed into digit vs. non-digit segments
-  vtkStringArrayVector *decompList = vtkStringArrayVector::New();
+  vtkstd::vector<vtkstd::vector<vtkstd::string> > decompList;
 
   // perform the decomposition of each of the filenames
   unsigned int numberOfStrings = input->GetNumberOfValues();
@@ -323,9 +323,9 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
       }
 
     // build a new list
-    fileNames->InsertNextValue(fileName);
+    fileNames.push_back(fileName);
 
-    vtkStringArray *decomp = vtkStringArray::New();
+    vtkstd::vector<vtkstd::string> decomp;
     vtkstd::string characters = "";
     vtkstd::string digits = "";
     
@@ -342,7 +342,7 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
       }
 
     // the directory is the first segment
-    decomp->InsertNextValue(fileNamePath + "/");
+    decomp.push_back(fileNamePath + "/");
 
     // the filename is broken into digit and character segments
     unsigned int m = baseName.length();
@@ -354,7 +354,7 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
         {
         if (!characters.empty())
           {
-          decomp->InsertNextValue(characters);
+          decomp.push_back(characters);
           characters = "";
           }
         digits.append(1, c);
@@ -363,7 +363,7 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
         {
         if (!digits.empty())
           {
-          decomp->InsertNextValue(digits);
+          decomp.push_back(digits);
           digits = "";
           }
         if (this->IgnoreCase)
@@ -375,25 +375,23 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
       }
     if (!digits.empty())
       {
-      decomp->InsertNextValue(digits);
+      decomp.push_back(digits);
       }
     else
       {
-      decomp->InsertNextValue(characters);
+      decomp.push_back(characters);
       }
-    decompList->InsertNextStringArray(decomp);
-    decomp->Delete();
+    decompList.push_back(decomp);
     }// end of internal loop j
     
   // find the maximum number of segments that any file was broken into
   unsigned int maxSegments = 0;
-  unsigned int decompListLength =  decompList->GetNumberOfStringArrays();
+  unsigned int decompListLength = decompList.size();
   for(unsigned int j = 0; j < decompListLength; j++)
     {
-    unsigned int maxId = decompList->GetStringArray(j)->GetMaxId();
-    if(maxId + 1 > maxSegments)
+    if(decompList[j].size() > maxSegments)
       {
-      maxSegments = decompList->GetStringArray(j)->GetMaxId() + 1;
+      maxSegments = decompList[j].size();
       }
     }
 
@@ -409,11 +407,9 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
       unsigned int l = 0;
       for (unsigned int q = 0; q < decompListLength; q++)
         {
-        unsigned int maxId = decompList->GetStringArray(q)->GetMaxId();
-        if (maxId >= p)
+        if (decompList[q].size() > p)
           {
-          vtkstd::string& segment =
-            decompList->GetStringArray(q)->GetValue(p);
+          vtkstd::string& segment = decompList[q][p];
           
           if (segment[0] >= '0' && segment[0] <= '9')
             {
@@ -429,18 +425,15 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
       // that will make lexicographic sort equivalent to numeric sort
       for (unsigned int r = 0; r < decompListLength; r++)
         {
-        unsigned int maxId = decompList->GetStringArray(r)->GetMaxId();
-        if (maxId >= p)
+        if (decompList[r].size() > p)
           {
-          vtkstd::string segment = 
-            decompList->GetStringArray(r)->GetValue(p);
+          vtkstd::string& segment = decompList[r][p];
 
           if (segment[0] >= '0' && segment[0] <= '9')
             {
             unsigned int n = l - segment.length();
             // cast zero to size_type to avoid ambiguity
             segment.insert(static_cast<vtkstd::string::size_type>(0), n, '0');
-            decompList->GetStringArray(r)->SetValue(p, segment);
             }  
           }
         }//end of r
@@ -450,17 +443,16 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
   // create a dict to map filtered filenames to the original filenames
   vtkstd::map<vtkstd::string, vtkstd::string>  newFileNameDict;
   vtkstd::vector<vtkstd::string> newFileNameList;
-  unsigned int numberOfStringArrays = decompList->GetNumberOfStringArrays();
+  unsigned int numberOfStringArrays = decompList.size();
   for (unsigned int t = 0; t < numberOfStringArrays; t++)
     {
     vtkstd::string newName = "";
-    unsigned int numberOfSegments = 
-      decompList->GetStringArray(t)->GetNumberOfValues();
+    unsigned int numberOfSegments = decompList[t].size();
     for (unsigned int q = 0; q < numberOfSegments; q++)
       {
-      newName.append(decompList->GetStringArray(t)->GetValue(q));
+      newName.append(decompList[t][q]);
       }
-    newFileNameDict[newName] = fileNames->GetValue(t);
+    newFileNameDict[newName] = fileNames[t];
     newFileNameList.push_back(newName);
     }
 
@@ -475,9 +467,6 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
     {
     output->InsertNextValue(newFileNameDict.find(*lit)->second);
     }
-   
-  decompList->Delete();
-  fileNames->Delete();
 }
 
 
