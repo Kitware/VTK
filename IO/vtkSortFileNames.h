@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSortSeriesFileNames.h
+  Module:    vtkSortFileNames.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSortSeriesFileNames - Group and sort a set of filenames
+// .NAME vtkSortFileNames - Group and sort a set of filenames
 // .SECTION Description
-// vtkSortSeriesFileNames will take a list of filenames (e.g. from
+// vtkSortFileNames will take a list of filenames (e.g. from
 // a file load dialog) and sort them into one or more series.  If
 // the input list of filenames contains any directories, these are
 // removed before sorting. This class should be specilized for file
@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkImageReader2
 
-#ifndef __vtkSortSeriesFileNames_h
-#define __vtkSortSeriesFileNames_h
+#ifndef __vtkSortFileNames_h
+#define __vtkSortFileNames_h
 
 #include "vtkObject.h"
 
@@ -35,13 +35,13 @@ class vtkStringArray;
 class vtkStringArrayVector;
 //ETX
 
-class VTK_IO_EXPORT vtkSortSeriesFileNames : public vtkObject
+class VTK_IO_EXPORT vtkSortFileNames : public vtkObject
 {
 public:
   
-  vtkTypeRevisionMacro(vtkSortSeriesFileNames,vtkObject);
+  vtkTypeRevisionMacro(vtkSortFileNames,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);   
-  static vtkSortSeriesFileNames *New();
+  static vtkSortFileNames *New();
 
   // Description:
   // Sort the file names into groups, according to similarity in
@@ -103,8 +103,8 @@ public:
   virtual void Update();
 
 protected:
-  vtkSortSeriesFileNames();
-  ~vtkSortSeriesFileNames();
+  vtkSortFileNames();
+  ~vtkSortFileNames();
 
   int NumericSort;
   int IgnoreCase;
@@ -132,8 +132,8 @@ protected:
   
   
 private:
-  vtkSortSeriesFileNames(const vtkSortSeriesFileNames&);  // Not implemented.
-  void operator=(const vtkSortSeriesFileNames&);  // Not implemented.
+  vtkSortFileNames(const vtkSortFileNames&);  // Not implemented.
+  void operator=(const vtkSortFileNames&);  // Not implemented.
 };
 
 #endif

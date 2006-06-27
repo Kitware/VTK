@@ -52,7 +52,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     # tests that don't produce images
     FOREACH ( tfile
       TestGlobFileNames
-      TestSortSeriesFileNames
+      TestSortFileNames
       )
       ADD_TEST(${tfile} ${VTK_EXECUTABLE}
                ${VTK_SOURCE_DIR}/IO/Testing/Tcl/${tfile}.tcl)

@@ -3,7 +3,7 @@ package require vtk
 vtkGlobFileNames globFileNames
 globFileNames AddFileNames "$VTK_DATA_ROOT/Data/headsq/quarter.*"
 
-vtkSortSeriesFileNames sortFileNames
+vtkSortFileNames sortFileNames
 sortFileNames SetInputFileNames [globFileNames GetFileNames]
 sortFileNames NumericSortOn
 

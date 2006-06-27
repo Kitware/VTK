@@ -4,7 +4,7 @@ vtkGlobFileNames globFileNames
 globFileNames AddFileNames "$VTK_DATA_ROOT/Data/headsq/quarter.*"
 globFileNames AddFileNames "$VTK_DATA_ROOT/Data/track*.binary.vtk"
 
-vtkSortSeriesFileNames sortFileNames
+vtkSortFileNames sortFileNames
 sortFileNames SetInputFileNames [globFileNames GetFileNames]
 sortFileNames NumericSortOn
 sortFileNames SkipDirectoriesOn

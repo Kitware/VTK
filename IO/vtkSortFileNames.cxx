@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSortSeriesFileNames.cxx
+  Module:    vtkSortFileNames.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkSortSeriesFileNames.h"
+#include "vtkSortFileNames.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
@@ -28,8 +28,8 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSortSeriesFileNames, "1.5");
-vtkStandardNewMacro(vtkSortSeriesFileNames);
+vtkCxxRevisionMacro(vtkSortFileNames, "1.1");
+vtkStandardNewMacro(vtkSortFileNames);
 
 // a container for holding string arrays
 
@@ -66,7 +66,7 @@ private:
 
 
 //----------------------------------------------------------------------------
-vtkSortSeriesFileNames::vtkSortSeriesFileNames()
+vtkSortFileNames::vtkSortFileNames()
 {
   this->InputFileNames = 0;
   this->NumericSort = 0;
@@ -76,7 +76,7 @@ vtkSortSeriesFileNames::vtkSortSeriesFileNames()
   this->FileNames = vtkStringArrayVector::New();
 }
 
-vtkSortSeriesFileNames::~vtkSortSeriesFileNames() 
+vtkSortFileNames::~vtkSortFileNames() 
 {
   if (this->InputFileNames)
     {
@@ -90,7 +90,7 @@ vtkSortSeriesFileNames::~vtkSortSeriesFileNames()
     }
 }
 
-void vtkSortSeriesFileNames::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSortFileNames::PrintSelf(ostream& os, vtkIndent indent)
 { 
   this->Superclass::PrintSelf(os, indent);
   os << indent << "InputFileNames:  (" << this->GetInputFileNames() << ")\n";
@@ -120,19 +120,19 @@ void vtkSortSeriesFileNames::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-void vtkSortSeriesFileNames::SetInputFileNames(vtkStringArray *input)
+void vtkSortFileNames::SetInputFileNames(vtkStringArray *input)
 {
   vtkSetObjectBodyMacro(InputFileNames, vtkStringArray, input);
 }
 
-int vtkSortSeriesFileNames::GetNumberOfGroups()
+int vtkSortFileNames::GetNumberOfGroups()
 {
   this->Update();
 
   return this->FileNames->GetNumberOfStringArrays();
 }
 
-vtkStringArray *vtkSortSeriesFileNames::GetFileNames(int i)
+vtkStringArray *vtkSortFileNames::GetFileNames(int i)
 {
   this->Update();
 
@@ -149,7 +149,7 @@ vtkStringArray *vtkSortSeriesFileNames::GetFileNames(int i)
     }
 }
 
-vtkStringArray *vtkSortSeriesFileNames::GetFileNames()
+vtkStringArray *vtkSortFileNames::GetFileNames()
 {
   this->Update();
 
@@ -170,7 +170,7 @@ vtkStringArray *vtkSortSeriesFileNames::GetFileNames()
     }
 }
 
-void vtkSortSeriesFileNames::GroupFileNames(vtkStringArray *input,
+void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
                                             vtkStringArrayVector *output)
 {
   vtkstd::string baseName;
@@ -296,7 +296,7 @@ void vtkSortSeriesFileNames::GroupFileNames(vtkStringArray *input,
 }
 
 
-void vtkSortSeriesFileNames::SortFileNames(vtkStringArray *input,
+void vtkSortFileNames::SortFileNames(vtkStringArray *input,
                                            vtkStringArray *output)
 {
   vtkstd::string baseName;
@@ -481,7 +481,7 @@ void vtkSortSeriesFileNames::SortFileNames(vtkStringArray *input,
 }
 
 
-void vtkSortSeriesFileNames::Execute()
+void vtkSortFileNames::Execute()
 {
   // create a new string array
   vtkStringArray *sortedInputStringArray = vtkStringArray::New();
@@ -504,7 +504,7 @@ void vtkSortSeriesFileNames::Execute()
 }
 
 
-void vtkSortSeriesFileNames::Update()
+void vtkSortFileNames::Update()
 {
   if (this->InputFileNames != 0)
     {
