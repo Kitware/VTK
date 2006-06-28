@@ -23,7 +23,7 @@
 #include "vtkAssemblyPath.h"
 #include "vtkAreaPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.4");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.5");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandPick);
 
 #define VTKISRBP_ORIENT 0
@@ -83,7 +83,10 @@ void vtkInteractorStyleRubberBandPick::OnChar()
       break;
     }
     default:
-      this->Superclass::OnChar();
+      if (this->CurrentMode == VTKISRBP_ORIENT)
+        {
+        this->Superclass::OnChar();
+        }
     }
 }
 
