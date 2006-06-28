@@ -11,7 +11,7 @@ if { $n != 93 } {
 }
 
 for { set i 0 } { $i < $n } { incr i } {
-    if { [$fileNames GetValue $i] != [globFileNames GetFileName $i] } {
+    if { [$fileNames GetValue $i] != [globFileNames GetNthFileName $i] } {
         puts "mismatched filename for pattern quarter.*"
         puts [$fileNames GetValue $i]
         exit 1
@@ -30,7 +30,7 @@ set fileNames [globFileNames GetFileNames]
 
 set n [$fileNames GetNumberOfValues]
 for { set i 0 } { $i < $n } { incr i } {
-    if { [$fileNames GetValue $i] != [globFileNames GetFileName $i] } {
+    if { [$fileNames GetValue $i] != [globFileNames GetNthFileName $i] } {
         puts "mismatched filename for pattern financial.*"
         puts [$fileNames GetValue $i]
         exit 1

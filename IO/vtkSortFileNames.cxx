@@ -28,7 +28,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSortFileNames, "1.2");
+vtkCxxRevisionMacro(vtkSortFileNames, "1.3");
 vtkStandardNewMacro(vtkSortFileNames);
 
 // a container for holding string arrays
@@ -44,7 +44,7 @@ public:
   void Delete() {
     delete this; };
 
-  void Clear() {
+  void Reset() {
     this->Container.clear(); };
 
   void InsertNextStringArray(vtkStringArray *stringArray) {
@@ -73,7 +73,8 @@ vtkSortFileNames::vtkSortFileNames()
   this->IgnoreCase = 0;
   this->Grouping = 0;
   this->SkipDirectories = 0;
-  this->FileNames = vtkStringArrayVector::New();
+  this->FileNames = vtkStringArray::New();
+  this->Groups = vtkStringArrayVector::New();
 }
 
 vtkSortFileNames::~vtkSortFileNames() 
@@ -87,6 +88,11 @@ vtkSortFileNames::~vtkSortFileNames()
     {
     this->FileNames->Delete();
     this->FileNames = 0;
+    }
+  if (this->Groups)
+    {
+    this->Groups->Delete();
+    this->Groups = 0;
     }
 }
 
@@ -109,8 +115,8 @@ void vtkSortFileNames::PrintSelf(ostream& os, vtkIndent indent)
     {
     for (int i = 0; i < this->GetNumberOfGroups(); i++)
       {
-      os << indent.GetNextIndent() << "FileNames[" << i << "]:  (" << 
-        this->GetFileNames(i) << ")\n";
+      os << indent.GetNextIndent() << "Group[" << i << "]:  (" << 
+        this->GetNthGroup(i) << ")\n";
       }
     }
   else
@@ -129,22 +135,28 @@ int vtkSortFileNames::GetNumberOfGroups()
 {
   this->Update();
 
-  return this->FileNames->GetNumberOfStringArrays();
+  return this->Groups->GetNumberOfStringArrays();
 }
 
-vtkStringArray *vtkSortFileNames::GetFileNames(int i)
+vtkStringArray *vtkSortFileNames::GetNthGroup(int i)
 {
   this->Update();
 
-  int n = this->FileNames->GetNumberOfStringArrays();
+  if (!this->GetGrouping())
+    {
+    vtkErrorMacro(<< "GetNthGroup(): Grouping not on.");
+    return 0;
+    }
+
+  int n = this->Groups->GetNumberOfStringArrays();
 
   if (i >= 0 && i < n)
     {
-    return this->FileNames->GetStringArray(i);
+    return this->Groups->GetStringArray(i);
     }
   else
     {
-    vtkErrorMacro(<< "GetFileNames(i): index " << i << " is out of range");
+    vtkErrorMacro(<< "GetNthGroup(i): index " << i << " is out of range");
     return 0;
     }
 }
@@ -153,21 +165,7 @@ vtkStringArray *vtkSortFileNames::GetFileNames()
 {
   this->Update();
 
-  if (this->GetGrouping())
-    {
-    vtkErrorMacro(<< "GetFileNames(): Grouping is on, please specify"
-                  " an integer to identify the group");
-    return 0;
-    }
-
-  if (this->FileNames->GetNumberOfStringArrays() > 0)
-    {
-    return this->FileNames->GetStringArray(0);
-    }
-  else
-    {
-    return 0;
-    }
+  return this->FileNames;
 }
 
 void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
@@ -259,9 +257,6 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
     // push the index onto the "ungrouped" list
     ungroupedFiles.push_back(i);
     }
-
-  // prepare the output for new data
-  output->Clear();
 
   // now loop through all files and find all matches
   while (!ungroupedFiles.empty())
@@ -425,9 +420,10 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
       // that will make lexicographic sort equivalent to numeric sort
       for (unsigned int r = 0; r < decompListLength; r++)
         {
-        if (decompList[r].size() > p)
+        vtkstd::vector<vtkstd::string>& decomp = decompList[r];
+        if (decomp.size() > p)
           {
-          vtkstd::string& segment = decompList[r][p];
+          vtkstd::string& segment = decomp[p];
 
           if (segment[0] >= '0' && segment[0] <= '9')
             {
@@ -440,19 +436,19 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
       }// end of p
     }
 
-  // create a dict to map filtered filenames to the original filenames
-  vtkstd::map<vtkstd::string, vtkstd::string>  newFileNameDict;
+  // create a map to map filtered filenames to the original filenames
+  vtkstd::map<vtkstd::string, vtkstd::string>  newFileNameMap;
   vtkstd::vector<vtkstd::string> newFileNameList;
-  unsigned int numberOfStringArrays = decompList.size();
-  for (unsigned int t = 0; t < numberOfStringArrays; t++)
+  for (unsigned int t = 0; t < decompList.size(); t++)
     {
     vtkstd::string newName = "";
-    unsigned int numberOfSegments = decompList[t].size();
+    vtkstd::vector<vtkstd::string>& decomp = decompList[t];
+    unsigned int numberOfSegments = decomp.size();
     for (unsigned int q = 0; q < numberOfSegments; q++)
       {
-      newName.append(decompList[t][q]);
+      newName.append(decomp[q]);
       }
-    newFileNameDict[newName] = fileNames[t];
+    newFileNameMap[newName] = fileNames[t];
     newFileNameList.push_back(newName);
     }
 
@@ -465,31 +461,23 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
       lit != newFileNameList.end();
       lit++)
     {
-    output->InsertNextValue(newFileNameDict.find(*lit)->second);
+    output->InsertNextValue(newFileNameMap.find(*lit)->second);
     }
 }
 
 
 void vtkSortFileNames::Execute()
 {
-  // create a new string array
-  vtkStringArray *sortedInputStringArray = vtkStringArray::New();
-
   // sort the input file names
-  this->SortFileNames(this->InputFileNames, sortedInputStringArray);
+  this->FileNames->Reset();
+  this->SortFileNames(this->InputFileNames, this->FileNames);
 
   // group the sorted files if grouping is on
+  this->Groups->Reset();
   if (this->Grouping)
     {
-    this->GroupFileNames(sortedInputStringArray, this->FileNames);
+    this->GroupFileNames(this->FileNames, this->Groups);
     }
-  else
-    {
-    this->FileNames->Clear();
-    this->FileNames->InsertNextStringArray(sortedInputStringArray);
-    }
-  
-  sortedInputStringArray->Delete();
 }
 
 

@@ -22,7 +22,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkGlobFileNames, "1.1");
+vtkCxxRevisionMacro(vtkGlobFileNames, "1.2");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -126,7 +126,7 @@ int vtkGlobFileNames::AddFileNames(const char* pattern)
 
 
 //----------------------------------------------------------------------------
-const char* vtkGlobFileNames::GetFileName(int index)
+const char* vtkGlobFileNames::GetNthFileName(int index)
 {
   if(index >= this->FileNames->GetNumberOfValues() || index < 0)
     {

@@ -16,14 +16,17 @@ if { [sortFileNames GetNumberOfGroups] != 2 } {
     exit 1
 }
 
-set fileNames1 [sortFileNames GetFileNames 0]
-set fileNames2 [sortFileNames GetFileNames 1]
+set fileNames1 [sortFileNames GetNthGroup 0]
+set fileNames2 [sortFileNames GetNthGroup 1]
 
 set numberOfFiles1 93
 set numberOfFiles2 3
 
 set n [$fileNames1 GetNumberOfValues]
 if { $n != $numberOfFiles1 } {
+    for { set i 0 } { $i < $n } { incr i } {
+        puts [$fileNames1 GetValue $i]
+    } 
     puts "GetNumberOfValues should return $numberOfFiles1, not $n"
     exit 1
 }
@@ -41,6 +44,9 @@ for { set i 0 } { $i < $numberOfFiles1 } { incr i } {
 
 set n [$fileNames2 GetNumberOfValues]
 if { $n != $numberOfFiles2} {
+    for { set i 0 } { $i < $n } { incr i } {
+        puts [$fileNames2 GetValue $i]
+    } 
     puts "GetNumberOfValues should return $numberOfFiles2, not $n"
     exit 1
 }

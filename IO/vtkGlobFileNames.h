@@ -75,7 +75,7 @@ public:
 
   // Description:
   // Return the file at the given index, the indexing is 0 based.
-  const char* GetFileName(int index);
+  const char* GetNthFileName(int index);
 
   // Description:
   // Get an array that contains all the file names.

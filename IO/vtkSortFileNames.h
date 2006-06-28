@@ -85,16 +85,20 @@ public:
   vtkGetObjectMacro(InputFileNames, vtkStringArray);
   
   // Description:
-  // Get the sorted names.  If Grouping is on, you must supply
-  // an integer that specifies which group of names to get.
+  // Get the sorted names.  
   virtual vtkStringArray *GetFileNames();
-  virtual vtkStringArray *GetFileNames(int i);
 
   // Description:
   // Get the number of groups that the names were split into.
   // The filenames are automatically split into groups according
-  // to file type, or according to series numbering.
+  // to file type, or according to series numbering.  If grouping
+  // is not on, this method will return zero.
   virtual int GetNumberOfGroups();
+
+  // Description:
+  // Get the Nth group of file names.  This method is only
+  // to be used if grouping is on.
+  virtual vtkStringArray *GetNthGroup(int i);
 
   // Description:
   // Update the output filenames from the input filenames.
@@ -114,7 +118,8 @@ protected:
   vtkTimeStamp UpdateTime;
 
   vtkStringArray *InputFileNames;
-  vtkStringArrayVector *FileNames;
+  vtkStringArray *FileNames;
+  vtkStringArrayVector *Groups;
 
   // Description:
   // Fill the output.
