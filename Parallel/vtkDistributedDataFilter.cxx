@@ -58,7 +58,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.36")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.37")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -4471,6 +4471,9 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
     }
 
   vtkUnstructuredGrid *newGrid = vtkUnstructuredGrid::New();
+  // Any global ids should be consistent, so make sure they are passed.
+  newGrid->GetPointData()->CopyGlobalIdsOn();
+  newGrid->GetCellData()->CopyGlobalIdsOn();
   
   vtkMergeCells *mc = vtkMergeCells::New();
   mc->SetUnstructuredGrid(newGrid);
