@@ -27,7 +27,7 @@
 #include "vtkObserverMediator.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.117");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.118");
 
 // PIMPL'd class to keep track of timers. It maps the ids returned by CreateTimer()
 // to the platform-specific representation for timer ids.
@@ -92,6 +92,7 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->NumberOfFlyFrames = 15;
   this->Dolly = 0.30;
   
+  this->AltKey = 0;
   this->ControlKey = 0;
   this->ShiftKey = 0;
   this->KeyCode = 0;
@@ -604,6 +605,7 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Fly Frames: " << this->NumberOfFlyFrames <<"\n";
   os << indent << "Dolly: " << this->Dolly <<"\n";
   os << indent << "ControlKey: " << this->ControlKey << "\n";
+  os << indent << "AltKey: " << this->AltKey << "\n";
   os << indent << "ShiftKey: " << this->ShiftKey << "\n";
   os << indent << "KeyCode: " << this->KeyCode << "\n";
   os << indent << "KeySym: " << (this->KeySym ? this->KeySym : "(null)") 

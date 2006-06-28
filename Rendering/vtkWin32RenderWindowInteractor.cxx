@@ -60,7 +60,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.97");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.98");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -333,6 +333,7 @@ void vtkWin32RenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags,
                                  Y, 
                                  nFlags & MK_CONTROL, 
                                  nFlags & MK_SHIFT);
+  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   if (!this->MouseInWindow && 
       (X >= 0 && X < this->Size[0] && Y >= 0 && Y < this->Size[1]))
     {
@@ -365,6 +366,7 @@ void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags,
                                    Y - pos[1],
                                    nFlags & MK_CONTROL, 
                                    nFlags & MK_SHIFT);
+    this->SetAltKey(GetKeyState(VK_MENU) & (~1));
     this->InvokeEvent(vtkCommand::LeaveEvent, NULL);
     this->MouseInWindow = 0;
     }
@@ -382,6 +384,7 @@ void vtkWin32RenderWindowInteractor::OnMouseWheelForward(HWND,UINT nFlags,
                                  Y, 
                                  nFlags & MK_CONTROL, 
                                  nFlags & MK_SHIFT);
+  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   this->InvokeEvent(vtkCommand::MouseWheelForwardEvent,NULL);
 }
 
@@ -397,6 +400,7 @@ void vtkWin32RenderWindowInteractor::OnMouseWheelBackward(HWND,UINT nFlags,
                                  Y, 
                                  nFlags & MK_CONTROL, 
                                  nFlags & MK_SHIFT);
+  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   this->InvokeEvent(vtkCommand::MouseWheelBackwardEvent,NULL);
 }
 
@@ -414,6 +418,7 @@ void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags,
                                  nFlags & MK_CONTROL, 
                                  nFlags & MK_SHIFT,
                                  0, repeat);
+  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
 }
 
@@ -429,6 +434,7 @@ void vtkWin32RenderWindowInteractor::OnLButtonUp(HWND,UINT nFlags,
                                  Y, 
                                  nFlags & MK_CONTROL, 
                                  nFlags & MK_SHIFT);
+  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
   ReleaseCapture( );
 }
@@ -447,6 +453,7 @@ void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags,
                                  nFlags & MK_CONTROL, 
                                  nFlags & MK_SHIFT,
                                  0, repeat);
+  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   this->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
 }
 
@@ -462,6 +469,7 @@ void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND,UINT nFlags,
                                  Y, 
                                  nFlags & MK_CONTROL, 
                                  nFlags & MK_SHIFT);
+  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,NULL);
   ReleaseCapture( );
 }
@@ -480,6 +488,7 @@ void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags,
                                  nFlags & MK_CONTROL, 
                                  nFlags & MK_SHIFT,
                                  0, repeat);
+  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   this->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
 }
 
@@ -495,6 +504,7 @@ void vtkWin32RenderWindowInteractor::OnRButtonUp(HWND,UINT nFlags,
                                  Y, 
                                  nFlags & MK_CONTROL, 
                                  nFlags & MK_SHIFT);
+  this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   this->InvokeEvent(vtkCommand::RightButtonReleaseEvent,NULL);
   ReleaseCapture( );
 }
@@ -534,6 +544,7 @@ void vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, U
     }
   int ctrl  = GetKeyState(VK_CONTROL) & (~1);
   int shift = GetKeyState(VK_SHIFT) & (~1);
+  int alt = GetKeyState(VK_MENU) & (~1);
   WORD nChar = 0;
   {
 #ifndef _WIN32_WCE
@@ -559,6 +570,7 @@ void vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, U
                                nChar, 
                                nRepCnt, 
                                keysym);
+  this->SetAltKey(alt);
   this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
 }
 
@@ -571,6 +583,7 @@ void vtkWin32RenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCnt, UIN
     }
   int ctrl  = GetKeyState(VK_CONTROL) & (~1);
   int shift = GetKeyState(VK_SHIFT) & (~1);
+  int alt = GetKeyState(VK_MENU) & (~1);
   WORD nChar = 0;
   {
     BYTE keyState[256];
@@ -596,6 +609,7 @@ void vtkWin32RenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCnt, UIN
                                nChar, 
                                nRepCnt, 
                                keysym);
+  this->SetAltKey(alt);
   this->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
 }
 
@@ -609,10 +623,12 @@ void vtkWin32RenderWindowInteractor::OnChar(HWND,UINT nChar,
     }
   int ctrl  = GetKeyState(VK_CONTROL) & (~1);
   int shift = GetKeyState(VK_SHIFT) & (~1); 
+  int alt = GetKeyState(VK_MENU) & (~1);
   this->SetKeyEventInformation(ctrl, 
                                shift, 
                                nChar, 
                                nRepCnt);
+  this->SetAltKey(alt);
   this->InvokeEvent(vtkCommand::CharEvent, NULL);
 }
 

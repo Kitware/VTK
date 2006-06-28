@@ -292,6 +292,8 @@ public:
   {
     this->SetEventPositionFlipY(pos[0], pos[1]);
   } 
+  vtkSetMacro(AltKey, int);
+  vtkGetMacro(AltKey, int);
   vtkSetMacro(ControlKey, int);
   vtkGetMacro(ControlKey, int);
   vtkSetMacro(ShiftKey, int);
@@ -414,6 +416,7 @@ protected:
   double StillUpdateRate;  
 
   // Event information
+  int   AltKey;
   int   ControlKey;
   int   ShiftKey;
   char  KeyCode;
