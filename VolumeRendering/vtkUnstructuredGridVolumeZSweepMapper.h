@@ -48,16 +48,21 @@ class vtkDoubleArray;
 class vtkUnstructuredGridVolumeRayIntegrator;
 class vtkRenderWindow;
 
+//BTX
 // Internal classes
-class vtkScreenEdge;
-class vtkSpan;
-class vtkPixelListFrame;
-class vtkUseSet;
-class vtkVertices;
-class vtkSimpleScreenEdge;
-class vtkDoubleScreenEdge;
-class vtkVertexEntry;
-class vtkPixelListEntryMemory;
+namespace vtkUnstructuredGridVolumeZSweepMapperNamespace
+{
+  class vtkScreenEdge;
+  class vtkSpan;
+  class vtkPixelListFrame;
+  class vtkUseSet;
+  class vtkVertices;
+  class vtkSimpleScreenEdge;
+  class vtkDoubleScreenEdge;
+  class vtkVertexEntry;
+  class vtkPixelListEntryMemory;
+};
+//ETX
 
 class VTK_VOLUMERENDERING_EXPORT vtkUnstructuredGridVolumeZSweepMapper : public vtkUnstructuredGridVolumeMapper
 {
@@ -178,14 +183,17 @@ protected:
   // Description:
   // Perform scan conversion of a triangle face.
   void RasterizeFace(vtkIdType faceIds[3]);
-  
+
+//BTX
   // Description:
   // Perform scan conversion of a triangle defined by its vertices.
   // \pre ve0_exists: ve0!=0
   // \pre ve1_exists: ve1!=0
   // \pre ve2_exists: ve2!=0
-  void RasterizeTriangle(vtkVertexEntry *ve0,vtkVertexEntry *ve1,
-                         vtkVertexEntry *ve2);
+  void RasterizeTriangle(
+           vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve0,
+           vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve1,
+           vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve2);
   
   // Description:
   // Perform scan conversion of an horizontal span from left ro right at line
@@ -193,16 +201,18 @@ protected:
   // \pre left_exists: left!=0
   // \pre right_exists: right!=0
   void RasterizeSpan(int y,
-                     vtkScreenEdge *left,
-                     vtkScreenEdge *right);
+          vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkScreenEdge *left,
+          vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkScreenEdge *right);
   
   // Description:
   // Scan conversion of a straight line defined by endpoints v0 and v1.
   // \pre v0_exists: v0!=0
   // \pre v1_exists: v1!=0
   // \pre y_ordered v0->GetScreenY()<=v1->GetScreenY()
-  void RasterizeLine(vtkVertexEntry *v0,
-                     vtkVertexEntry *v1);
+  void RasterizeLine(
+            vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *v0,
+            vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *v1);
+//ETX
   
   void StoreRenderTime(vtkRenderer *ren,
                        vtkVolume *vol,
@@ -287,17 +297,18 @@ protected:
   // if the face is used by two cells (twosided) or one cell.
   double FaceScalars[2];
   int FaceSide;
-  
-  vtkSpan *Span;
-  vtkPixelListFrame *PixelListFrame;
+
+//BTX
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkSpan *Span;
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkPixelListFrame *PixelListFrame;
   
   // Used by BuildUseSets().
   vtkGenericCell *Cell;
   
-  vtkUseSet *UseSet;
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkUseSet *UseSet;
   
   vtkPriorityQueue *EventList;
-  vtkVertices *Vertices;
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertices *Vertices;
   
   vtkTransform *PerspectiveTransform;
   vtkMatrix4x4 *PerspectiveMatrix;
@@ -307,8 +318,8 @@ protected:
   int XBounds[2];
   int YBounds[2];
   
-  vtkSimpleScreenEdge *SimpleEdge;
-  vtkDoubleScreenEdge *DoubleEdge;
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkSimpleScreenEdge *SimpleEdge;
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkDoubleScreenEdge *DoubleEdge;
   
   vtkUnstructuredGridVolumeRayIntegrator *RayIntegrator;
   vtkUnstructuredGridVolumeRayIntegrator *RealRayIntegrator;
@@ -322,9 +333,10 @@ protected:
   
   // Benchmark
   vtkIdType MaxRecordedPixelListSize;
+
   
-  
-  vtkPixelListEntryMemory *MemoryManager;
+  vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkPixelListEntryMemory *MemoryManager;
+//ETX
 private:
   vtkUnstructuredGridVolumeZSweepMapper(const vtkUnstructuredGridVolumeZSweepMapper&);  // Not implemented.
   void operator=(const vtkUnstructuredGridVolumeZSweepMapper&);  // Not implemented.

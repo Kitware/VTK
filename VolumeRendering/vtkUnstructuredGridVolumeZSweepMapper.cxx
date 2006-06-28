@@ -48,6 +48,10 @@
 // do not remove the following line:
 //#define BACK_TO_FRONT
 
+// Put the internal classes in a namespace to avoid potential naming conflicts.
+namespace vtkUnstructuredGridVolumeZSweepMapperNamespace
+{
+
 enum
 {
   VTK_VALUES_X_INDEX=0, //  world coordinate
@@ -2293,10 +2297,14 @@ public:
     }
 };
 
+};
+
+using namespace vtkUnstructuredGridVolumeZSweepMapperNamespace;
+
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.8");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.9");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZSweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZSweepMapper, RayIntegrator,
