@@ -33,7 +33,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkThreshold.h"
-#include "vtkUnstructuredGridVolumeZsweepMapper.h"
+#include "vtkUnstructuredGridVolumeZSweepMapper.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
