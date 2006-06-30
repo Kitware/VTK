@@ -119,7 +119,7 @@ public:
   // Description:
   // Change the maximum size allowed for a pixel list. It is an advanced
   // parameter.
-  // \pre positive_size: size>0
+  // \pre positive_size: size>1
   void SetMaxPixelListSize(int size);
   
   // Description:
@@ -182,7 +182,7 @@ protected:
   
   // Description:
   // Perform scan conversion of a triangle face.
-  void RasterizeFace(vtkIdType faceIds[3]);
+  void RasterizeFace(vtkIdType faceIds[3], int externalSide);
 
 //BTX
   // Description:
@@ -191,9 +191,10 @@ protected:
   // \pre ve1_exists: ve1!=0
   // \pre ve2_exists: ve2!=0
   void RasterizeTriangle(
-           vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve0,
-           vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve1,
-           vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve2);
+            vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve0,
+            vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve1,
+            vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *ve2,
+            bool exitFace);
   
   // Description:
   // Perform scan conversion of an horizontal span from left ro right at line
@@ -201,8 +202,9 @@ protected:
   // \pre left_exists: left!=0
   // \pre right_exists: right!=0
   void RasterizeSpan(int y,
-          vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkScreenEdge *left,
-          vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkScreenEdge *right);
+           vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkScreenEdge *left,
+           vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkScreenEdge *right,
+           bool exitFace);
   
   // Description:
   // Scan conversion of a straight line defined by endpoints v0 and v1.
@@ -210,8 +212,9 @@ protected:
   // \pre v1_exists: v1!=0
   // \pre y_ordered v0->GetScreenY()<=v1->GetScreenY()
   void RasterizeLine(
-            vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *v0,
-            vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *v1);
+             vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *v0,
+             vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *v1,
+             bool exitFace);
 //ETX
   
   void StoreRenderTime(vtkRenderer *ren,
