@@ -4,6 +4,7 @@ SET(MyTests
   BoxWidget.cxx
 #  TestAffineWidget.cxx
 #  TestAngleWidget.cxx
+#  TestBalloonWidget.cxx
 #  TestBorderWidget.cxx
 #  TestCameraWidget.cxx
 #  TestCaptionWidget.cxx
@@ -12,6 +13,7 @@ SET(MyTests
 #  TestHandleWidget.cxx
 #  TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx
+#  TestLogoWidget.cxx
   TestOrientationMarkerWidget.cxx
 #  TestPlaybackWidget.cxx
 #  TestRectilinearWipeWidget.cxx
