@@ -13,7 +13,7 @@
 
 =========================================================================*/
 //
-// This example tests the vtkHoverWidget and vtkLogoWidget.
+// This example tests the vtkLogoWidget.
 
 // First include the required header files for the VTK classes we are using.
 #include "vtkLogoWidget.h"
