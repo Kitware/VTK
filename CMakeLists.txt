@@ -114,6 +114,10 @@ SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
 # single VTK_INSTALL_ROOT which basically adds to its install prefix
 # for VTK only.
 
+IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.3)
+  SET(VTK_INSTALL_HAS_CMAKE_24 1)
+ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.3)
+
 # The location in which to install VTK executables.
 IF(NOT VTK_INSTALL_BIN_DIR)
   SET(VTK_INSTALL_BIN_DIR ${VTK_INSTALL_ROOT}/bin)
@@ -199,6 +203,16 @@ ELSE(BUILD_SHARED_LIBS)
     SET(VTK_INSTALL_NO_LIBRARIES 1)
   ENDIF(VTK_INSTALL_NO_DEVELOPMENT)
 ENDIF(BUILD_SHARED_LIBS)
+
+# Because INSTALL_* commands require a leading / and because INSTALL (cmake 2.4
+# and newer) requires no leading / to install under INSTALL_PREFIX, we
+# are stripping the leading /. In the future, there should be no leading
+# / in any install directory variables
+IF(VTK_INSTALL_HAS_CMAKE_24)
+  STRING(REGEX REPLACE "^/" "" VTK_INSTALL_LIB_DIR_CM24 "${VTK_INSTALL_LIB_DIR}")
+  STRING(REGEX REPLACE "^/" "" VTK_INSTALL_BIN_DIR_CM24 "${VTK_INSTALL_BIN_DIR}")
+  STRING(REGEX REPLACE "^/" "" VTK_INSTALL_INCLUDE_DIR_CM24 "${VTK_INSTALL_INCLUDE_DIR}")
+ENDIF(VTK_INSTALL_HAS_CMAKE_24)
 
 #-----------------------------------------------------------------------------
 # Save the compiler settings so another project can import them.
