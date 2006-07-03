@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkLeaderActor2D, "1.8");
+vtkCxxRevisionMacro(vtkLeaderActor2D, "1.9");
 vtkStandardNewMacro(vtkLeaderActor2D);
 
 vtkCxxSetObjectMacro(vtkLeaderActor2D,LabelTextProperty,vtkTextProperty);
@@ -410,11 +410,11 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
 //----------------------------------------------------------------------------
 #define VTK_LA2D_FACTOR 0.015
 int vtkLeaderActor2D::SetFontSize(vtkViewport *viewport, vtkTextMapper *textMapper, 
-                                int *targetSize, double factor, int *stringSize)
+                                  int *targetSize, double factor, int *stringSize)
 {
   int fontSize, targetWidth, targetHeight;
 
-  targetWidth = targetSize [0] > targetSize[1] ? targetSize[0] : targetSize[1];
+  targetWidth = targetSize[0] > targetSize[1] ? targetSize[0] : targetSize[1];
   targetHeight = (int)(VTK_LA2D_FACTOR * factor * targetSize[0] + 
                        VTK_LA2D_FACTOR * factor * targetSize[1]);
 
@@ -423,6 +423,8 @@ int vtkLeaderActor2D::SetFontSize(vtkViewport *viewport, vtkTextMapper *textMapp
 
   return fontSize;
 }
+#undef VTK_LA2D_FACTOR
+
 
 //----------------------------------------------------------------------------
 int vtkLeaderActor2D::ClipLeader(double center[3], int box[2], double p1[3], 

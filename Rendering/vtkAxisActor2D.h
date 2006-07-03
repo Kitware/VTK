@@ -257,11 +257,6 @@ public:
   // instance of vtkTextMapper provided. The factor is used when you're trying
   // to create text of different size-factor (it is usually = 1 but you can
   // adjust the font size by making factor larger or smaller).
-  static int SetFontSize(vtkViewport *viewport, 
-                         vtkTextMapper *textMapper, 
-                         int *targetSize, 
-                         double factor, 
-                         int *stringSize);
   static int SetMultipleFontSize(vtkViewport *viewport, 
                                  vtkTextMapper **textMappers, 
                                  int nbOfMappers, 

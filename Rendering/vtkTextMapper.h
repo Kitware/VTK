@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkTextMapper - 2D text annotation
 // .SECTION Description
-// vtkTextMapper provides 2D text annotation support for vtk.  It is a
+// vtkTextMapper provides 2D text annotation support for VTK.  It is a
 // vtkMapper2D that can be associated with a vtkActor2D and placed into a
 // vtkRenderer.
 //
@@ -45,7 +45,7 @@ public:
   // Description:
   // Return the size[2]/width/height of the rectangle required to draw this
   // mapper (in pixels).
-  virtual void GetSize(vtkViewport*, int size[2]) {size[0]=size[0];};
+  virtual void GetSize(vtkViewport*, int size[2]) {size[0]=size[0];}
   virtual int GetWidth(vtkViewport*v);
   virtual int GetHeight(vtkViewport*v);
   
@@ -60,28 +60,31 @@ public:
   virtual void SetTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
   
-  vtkGetMacro(NumberOfLines,int);
-  
   // Description:
   // Shallow copy of an actor.
   void ShallowCopy(vtkTextMapper *tm);
   
   // Description:
-  // Determine the number of lines in the Input string (delimited by "\n").
+  // Determine the number of lines in the input string (delimited by "\n").
   int  GetNumberOfLines(const char *input);
 
   // Description:
+  // Get the number of lines in the input string (the method GetNumberOfLines(char*)
+  // must have been previously called for the return value to be valid).
+  vtkGetMacro(NumberOfLines,int);
+  
+  // Description:
   // Set and return the font size required to make this mapper fit in a given 
-  // target rectangle (width * height, in pixels).
-  virtual int SetConstrainedFontSize(vtkViewport*, 
-                                     int targetWidth, int targetHeight);
+  // target rectangle (width x height, in pixels). A static version of the method
+  // is also available for convenience to other classes (e.g., widgets).  
+  virtual int SetConstrainedFontSize(vtkViewport*, int targetWidth, int targetHeight);
+  static int SetConstrainedFontSize(vtkTextMapper*, vtkViewport*, int targetWidth, int targetHeight);
 
   // Description:
-  // Set and return the font size required to make each element of an array of
-  // mappers fit in a given rectangle (width * height, in pixels). 
-  // This font size is the smallest size that was required to fit the largest 
+  // Set and return the font size required to make each element of an array
+  // of mappers fit in a given rectangle (width x height, in pixels).  This
+  // font size is the smallest size that was required to fit the largest
   // mapper in this constraint. 
-  // The resulting maximum area of the mappers is also returned.
   static int SetMultipleConstrainedFontSize(vtkViewport*, 
                                             int targetWidth, int targetHeight,
                                             vtkTextMapper** mappers, 
@@ -89,9 +92,19 @@ public:
                                             int* maxResultingSize);
 
   // Description:
+  // Use these methods when setting font size relative to the renderer's size. These
+  // methods are static so that external classes (e.g., widgets) can easily use them.
+  static int SetRelativeFontSize(vtkTextMapper*, vtkViewport*, int *winSize, 
+                                 int *stringSize, float sizeFactor=0.0);
+  static int SetMultipleRelativeFontSize(vtkViewport *viewport, 
+                                         vtkTextMapper **textMappers, 
+                                         int nbOfMappers, int *winSize, 
+                                         int *stringSize, float sizeFactor);
+
+  // Description:
   // Get the available system font size matching a font size.
   virtual int GetSystemFontSize(int size) 
-    { return size; };
+    { return size; }
 
 protected:
   vtkTextMapper();
@@ -107,7 +120,6 @@ protected:
   vtkTextMapper **TextLines;
 
   // These functions are used to parse, process, and render multiple lines 
-
   char *NextLine(const char *input, int lineNum);
   void GetMultiLineSize(vtkViewport* viewport, int size[2]);
   void RenderOverlayMultipleLines(vtkViewport *viewport, vtkActor2D *actor);

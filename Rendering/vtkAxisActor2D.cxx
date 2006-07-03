@@ -23,7 +23,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.43");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.44");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -521,12 +521,12 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
         this->LabelTextProperty->GetMTime() > this->BuildTime ||
         labeltime > this->BuildTime)
       {
-      this->SetMultipleFontSize(viewport, 
-                                this->LabelMappers, 
-                                this->AdjustedNumberOfLabels,
-                                size,
-                                this->FontFactor * this->LabelFactor,
-                                this->LastMaxLabelSize);
+      vtkTextMapper::SetMultipleRelativeFontSize(viewport, 
+                                                 this->LabelMappers, 
+                                                 this->AdjustedNumberOfLabels,
+                                                 size,
+                                                 this->LastMaxLabelSize,
+                                                 0.015*this->FontFactor*this->LabelFactor);
       }
     
     // Position the mappers
@@ -569,11 +569,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     if (viewportSizeHasChanged ||
         this->TitleTextProperty->GetMTime() > this->BuildTime)
       {
-      this->SetFontSize(viewport, 
-                        this->TitleMapper,
-                        size,
-                        this->FontFactor,
-                        stringSize);
+      vtkTextMapper::SetRelativeFontSize(this->TitleMapper, viewport, size, stringSize, 0.015*this->FontFactor);
       }
     else
       {
@@ -604,63 +600,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   this->BuildTime.Modified();
 }
 
-//----------------------------------------------------------------------------
-#define VTK_AA2D_FACTOR 0.015
-
-int vtkAxisActor2D::SetFontSize(vtkViewport *viewport, 
-                                vtkTextMapper *textMapper, 
-                                int *targetSize,
-                                double factor, 
-                                int *stringSize)
-{
-  int fontSize, targetWidth, targetHeight;
-
-  // Find the best size for the font
-  // WARNING: check that the above values are in sync with the above
-  // similar function.
-
-  targetWidth = targetSize [0] > targetSize[1] ? targetSize[0] : targetSize[1];
-
-  targetHeight = (int)(VTK_AA2D_FACTOR * factor * targetSize[0] + 
-                       VTK_AA2D_FACTOR * factor * targetSize[1]);
-
-  fontSize = textMapper->SetConstrainedFontSize(viewport, 
-                                                targetWidth, targetHeight);
-
-  textMapper->GetSize(viewport, stringSize);
-
-  return fontSize;
-}
-
-//----------------------------------------------------------------------------
-int vtkAxisActor2D::SetMultipleFontSize(vtkViewport *viewport, 
-                                        vtkTextMapper **textMappers, 
-                                        int nbOfMappers, 
-                                        int *targetSize,
-                                        double factor, 
-                                        int *stringSize)
-{
-  int fontSize, targetWidth, targetHeight;
-
-  // Find the best size for the font
-  // WARNING: check that the below values are in sync with the above
-  // similar function.
-
-  targetWidth = targetSize [0] > targetSize[1] ? targetSize[0] : targetSize[1];
-
-  targetHeight = (int)(VTK_AA2D_FACTOR * factor * targetSize[0] + 
-                       VTK_AA2D_FACTOR * factor * targetSize[1]);
-
-  fontSize = 
-    vtkTextMapper::SetMultipleConstrainedFontSize(viewport, 
-                                                  targetWidth, targetHeight,
-                                                  textMappers,
-                                                  nbOfMappers,
-                                                  stringSize);
-
-  return fontSize;
-}
-#undef VTK_AA2D_FACTOR
 
 //----------------------------------------------------------------------------
 void vtkAxisActor2D::UpdateAdjustedRange()
