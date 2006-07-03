@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.12");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.13");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -605,8 +605,6 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
-    this->BuildTime.Modified();
-
     this->Point1Representation->BuildRepresentation();
     this->Point2Representation->BuildRepresentation();
     this->Point3Representation->BuildRepresentation();
@@ -642,6 +640,11 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
     this->L1TextMapper->SetInput(str);
     this->L1TextActor->SetPosition(p2[0]+7,p2[1]+7);
 
+    // Adjust the font size
+    int stringSize[2], *winSize = this->Renderer->GetSize();
+    vtkTextMapper::SetRelativeFontSize(this->L1TextMapper, this->Renderer, winSize, 
+                                       stringSize, 0.015);
+
     this->LineCells->Reset();
     this->LineCells->InsertNextCell(2);
     this->LineCells->InsertCellPoint(0);
@@ -657,7 +660,9 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
       this->LineCells->InsertCellPoint(2);
       this->LineCells->InsertCellPoint(3);
       }
-  }
+
+    this->BuildTime.Modified();
+    }
 }
 
 //----------------------------------------------------------------------
