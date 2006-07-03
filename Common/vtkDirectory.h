@@ -59,6 +59,13 @@ public:
   const char* GetFile(int index);
 
   // Description:
+  // Return true if the file is a directory.  If the file is not an
+  // absolute path, it is assumed to be relative to the opened
+  // directory. If no directory has been opened, it is assumed to
+  // be relative to the current working directory.
+  int FileIsDirectory(const char *name);
+
+  // Description:
   // Get an array that contains all the file names.
   vtkGetObjectMacro(Files, vtkStringArray);
 

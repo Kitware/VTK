@@ -19,7 +19,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDirectory, "1.28");
+vtkCxxRevisionMacro(vtkDirectory, "1.29");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -212,6 +212,93 @@ const char* vtkDirectory::GetFile(int index)
 int vtkDirectory::GetNumberOfFiles()
 {
   return this->Files->GetNumberOfValues();
+}
+
+//----------------------------------------------------------------------------
+int vtkDirectory::FileIsDirectory(const char *name)
+{
+  if (name == 0)
+    {
+    return 0;
+    }
+
+  int absolutePath = 0;
+#if defined(_WIN32)
+  if (name[0] == '/' || name[0] == '\\')
+    {
+    absolutePath = 1;
+    }
+  else
+    {
+    for (int i = 0; name[i] != '\0'; i++)
+      {
+      if (name[i] == ':')
+        {
+        absolutePath = 1;
+        break;
+        }
+      else if (name[i] == '/' || name[i] == '\\')
+        {
+        break;
+        }
+      }
+    }
+#else
+  if (name[0] == '/')
+    {
+    absolutePath = 1;
+    }
+#endif
+
+  char *fullPath;
+
+  int n = 0;
+  if (!absolutePath && this->Path)
+    {
+    n = strlen(this->Path);
+    }
+
+  int m = strlen(name);
+
+  fullPath = new char[n+m+2];
+    
+  if (!absolutePath && this->Path)
+    {
+    strcpy(fullPath, this->Path);
+#if defined(_WIN32)
+    if (fullPath[n-1] != '/'
+        && fullPath[n-1] != '\\')
+      {
+#if !defined(__CYGWIN__)
+      fullPath[n++] = '\\';
+#else
+      fullPath[n++] = '/';
+#endif
+      }
+#else
+    if (fullPath[n-1] != '/')
+      {
+      fullPath[n++] = '/';
+      }
+#endif
+    }
+
+  strcpy(&fullPath[n], name);
+
+  int result = 0;
+  struct stat fs;
+  if(stat(fullPath, &fs) == 0)
+    {
+#if _WIN32
+    result = ((fs.st_mode & _S_IFDIR) != 0);
+#else
+    result = S_ISDIR(fs.st_mode);
+#endif
+    }
+
+  delete [] fullPath;
+
+  return result;
 }
 
 //----------------------------------------------------------------------------
