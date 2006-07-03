@@ -23,7 +23,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.44");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.45");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -277,8 +277,6 @@ void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-#define VTK_AA2D_DEBUG 0
-
 void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
 {
   int i, *x, viewportSizeHasChanged, positionsHaveChanged;
@@ -347,14 +345,9 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     return;
     }
   
-#if VTK_AA2D_DEBUG
-  printf ("vtkAxisActor2D::BuildAxis: Rebuilding axis\n");
-#endif
-
   vtkDebugMacro(<<"Rebuilding axis");
 
   // Initialize and get important info
-
   this->Axis->Initialize();
   this->AxisActor->SetProperty(this->GetProperty());
   this->TitleActor->SetProperty(this->GetProperty());
@@ -463,11 +456,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
 
   if (this->LabelVisibility)
     {
-
-#if VTK_AA2D_DEBUG
-    printf ("vtkAxisActor2D::BuildAxis: Rebuilding axis => labels\n");
-#endif
-
     // Update the labels text. Do it only if the range has been adjusted,
     // i.e. if we think that new labels must be created.
     // WARNING: if LabelFormat has changed, they should be recreated too
@@ -548,10 +536,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
 
   if (this->Title != NULL && this->Title[0] != 0 && this->TitleVisibility)
     {
-#if VTK_AA2D_DEBUG
-    printf ("vtkAxisActor2D::BuildAxis: Rebuilding axis => title\n");
-#endif
-
     this->TitleMapper->SetInput(this->Title);
 
     if (this->TitleTextProperty->GetMTime() > this->BuildTime)
