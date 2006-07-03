@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSortFileNames, "1.4");
+vtkCxxRevisionMacro(vtkSortFileNames, "1.5");
 vtkStandardNewMacro(vtkSortFileNames);
 
 // a container for holding string arrays
@@ -559,7 +559,7 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
   vtkstd::vector<vtkstd::string>::iterator iter = fileNames.begin();
   while (iter < fileNames.end())
     {
-    this->FileNames->InsertNextValue(*iter++);
+    output->InsertNextValue(*iter++);
     }
 }
 
