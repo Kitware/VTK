@@ -21,14 +21,13 @@
 
 #include <vtkstd/string>
 #include <vtkstd/vector>
-#include <vtkstd/map>
 #include <vtkstd/list>
 #include <vtkstd/algorithm>
 #include <vtksys/SystemTools.hxx>
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSortFileNames, "1.3");
+vtkCxxRevisionMacro(vtkSortFileNames, "1.4");
 vtkStandardNewMacro(vtkSortFileNames);
 
 // a container for holding string arrays
@@ -174,8 +173,7 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
   vtkstd::string baseName;
   vtkstd::string extension;
   vtkstd::string fileNamePath;
-  vtkstd::string prefix;
-  vtkstd::string postfix;
+  vtkstd::string reducedName;
 
   vtkstd::list<unsigned int> ungroupedFiles;
   vtkstd::vector<vtkstd::string> reducedFileNames;
@@ -185,7 +183,7 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
     {
     vtkstd::string& fileName = input->GetValue(i);
     extension = vtksys::SystemTools::GetFilenameLastExtension(fileName);
-    fileNamePath = vtksys::SystemTools::GetFilenamePath(fileName); 
+    fileNamePath = vtksys::SystemTools::GetFilenamePath(fileName);
     baseName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
     
     // If extension is all digits, it is not a true extension, so
@@ -205,54 +203,55 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
       extension = "";
       }
 
-    // Find the last block of digits in the filename.
-    // Set 'postfix' to the portion of the string after the digits,
-    // and set 'prefix' to the portion of the string before the digits.
+    // Create a reduced filename that replaces all digit sequences
+    // in the filename with a single digit "0". We begin by setting
+    // the reduced filename to the path.
+    reducedName = fileNamePath + "/";
     int inDigitBlock = 0;
-    for (unsigned int k = baseName.length(); k > 0; k--)
+    unsigned int charBlockStart = 0;
+    unsigned int stringLength = baseName.length();
+    for (unsigned int k = 0; k < stringLength; k++)
       {
-      if (!inDigitBlock)
+      if (baseName[k] >= '0' && baseName[k] <= '9')
         {
-        if (baseName[k-1] >= '0' && baseName[k-1] <= '9')
+        if (!inDigitBlock && k != 0)
           {
-          postfix = baseName.substr(k);
-          inDigitBlock = 1;
+          reducedName.append(baseName.substr(charBlockStart,
+                                             k-charBlockStart));
+          reducedName.append("0");
           }
+        inDigitBlock = 1;
         }
       else
         {
-        if (!(baseName[k-1] >= '0' && baseName[k-1] <='9'))
+        if (inDigitBlock)
           {
-          prefix = baseName.substr(0,k);
-          break;
+          charBlockStart = k;
+          inDigitBlock = 0;
           }
         }
       }
-
-    // If no digits were found
     if (!inDigitBlock)
       {
-      prefix = "";
-      postfix = baseName;
+      reducedName.append(baseName.substr(charBlockStart,
+                                         stringLength-charBlockStart));
       }
+      
+    // Add extension back to the filename.
+    reducedName.append(extension);
 
+    // If IgnoreCase is set, change to uppercase.
     if (this->IgnoreCase)
       {
-      unsigned int n = prefix.length();
+      unsigned int n = reducedName.length();
       for (unsigned int j = 0; j < n; j++)
         {
-        prefix[j] = toupper(prefix[j]);
-        }
-      unsigned int m = postfix.length();
-      for (unsigned int k = 0; k < m; k++)
-        {
-        postfix[k] = toupper(postfix[k]);
+        reducedName[j] = toupper(reducedName[j]);
         }
       }
 
-    // the reduced filename has the block of digits replaced with "0"
-    reducedFileNames.push_back(fileNamePath + "/" +
-                               prefix + "0" + postfix + extension);
+    // The reduced filename has each block of digits replaced with "0".
+    reducedFileNames.push_back(reducedName);
 
     // push the index onto the "ungrouped" list
     ungroupedFiles.push_back(i);
@@ -290,21 +289,225 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
     }
 }
 
+// Sort filenames lexicographically, ignoring case.
+bool vtkCompareFileNamesIgnoreCase(const vtkstd::string s1,
+                                   const vtkstd::string s2)
+{
+  unsigned int n1 = s1.length();
+  unsigned int n2 = s2.length();
+
+  // find the minimum of the two lengths
+  unsigned int n = n1;
+  if (n > n2)
+    {
+    n = n2;
+    }
+
+  // compare the strings with no case
+  for (unsigned int i = 0; i < n; i++)
+    {
+    char c1 = toupper(s1[i]);
+    char c2 = toupper(s2[i]);
+
+    if (c1 < c2)
+      {
+      return 1;
+      }
+    if (c1 > c2)
+      {
+      return 0;
+      }
+    }
+  
+  // if it is a tie, then the short string is "less"
+  if (n1 < n2)
+    {
+    return 1;
+    }
+
+  // if strings are equal, use case-sensitive comparison to break tie 
+  if (n1 == n2)
+    {
+    return (s1 < s2);
+    }
+
+  // otherwise, if n1 > n2, then n1 wins
+  return 0;
+}
+
+// Sort filenames numerically
+bool vtkCompareFileNamesNumeric(const vtkstd::string s1,
+                                const vtkstd::string s2)
+{
+  unsigned int n1 = s1.length();
+  unsigned int n2 = s2.length();
+
+  // compare the strings numerically
+  unsigned int i1 = 0;
+  unsigned int i2 = 0;
+  while (i1 < n1 && i2 < n2)
+    {
+    char c1 = s1[i1++];
+    char c2 = s2[i2++];
+
+    if (0 && (c1 >= '0' && c1 <= '9') && (c2 >= '0' && c2 <= '9'))
+      {
+      // convert decimal numeric sequence into an integer
+      unsigned int j1 = 0;
+      while (c1 >= '0' && c1 <= '9')
+        {
+        j1 = (j1 << 3) + (j1 << 1) + (c1 - '0');
+        if (i1 == n1)
+          {
+          break;
+          }
+        c1 = s1[i1++];
+        }
+    
+      // convert decimal numeric sequence into an integer
+      unsigned int j2 = 0;
+      while (c2 >= '0' && c2 <= '9')
+        {
+        j2 = (j2 << 3) + (j2 << 1) + (c2 - '0');
+        if (i2 == n2)
+          {
+          break;
+          }
+        c2 = s2[i2++];
+        }
+
+      // perform the numeric comparison
+      if (j1 < j2)
+        {
+        return 1;
+        }
+      if (j1 > j2)
+        {
+        return 0;
+        }
+      }
+
+    // case-insensitive lexicographic comparison of non-digits
+    if ((c1 < '0' || c1 > '9') || (c2 < '0' || c2 > '9'))
+      {
+      if (c1 < c2)
+        {
+        return 1;
+        }
+      if (c1 > c2)
+        {
+        return 0;
+        }
+      }
+    }
+  
+  // if it is a tie, then the shorter string is "less"
+  if ((n1 - i1) < (n2 - i2))
+    {
+    return 1;
+    }
+
+  // if strings are otherwise equal, fall back to default to break tie 
+  if ((i1 == n1) && (i2 == n2))
+    {
+    return (s1 < s2);
+    }
+
+  // otherwise, return false
+  return 0;
+}
+
+// Sort filenames numerically
+bool vtkCompareFileNamesNumericIgnoreCase(const vtkstd::string s1,
+                                          const vtkstd::string s2)
+{
+  unsigned int n1 = s1.length();
+  unsigned int n2 = s2.length();
+
+  // compare the strings numerically
+  unsigned int i1 = 0;
+  unsigned int i2 = 0;
+  while (i1 < n1 && i2 < n2)
+    {
+    char c1 = s1[i1++];
+    char c2 = s2[i2++];
+
+    if (0 && (c1 >= '0' && c1 <= '9') && (c2 >= '0' && c2 <= '9'))
+      {
+      // convert decimal numeric sequence into an integer
+      unsigned int j1 = 0;
+      while (c1 >= '0' && c1 <= '9')
+        {
+        j1 = (j1 << 3) + (j1 << 1) + (c1 - '0');
+        if (i1 == n1)
+          {
+          break;
+          }
+        c1 = s1[i1++];
+        }
+    
+      // convert decimal numeric sequence into an integer
+      unsigned int j2 = 0;
+      while (c2 >= '0' && c2 <= '9')
+        {
+        j2 = (j2 << 3) + (j2 << 1) + (c2 - '0');
+        if (i2 == n2)
+          {
+          break;
+          }
+        c2 = s2[i2++];
+        }
+
+      // perform the numeric comparison
+      if (j1 < j2)
+        {
+        return 1;
+        }
+      if (j1 > j2)
+        {
+        return 0;
+        }
+      }
+
+    // case-insensitive lexicographic comparison of non-digits
+    if ((c1 < '0' || c1 > '9') || (c2 < '0' || c2 > '9'))
+      {
+      c1 = toupper(c1);
+      c2 = toupper(c2);
+
+      if (c1 < c2)
+        {
+        return 1;
+        }
+      if (c1 > c2)
+        {
+        return 0;
+        }
+      }
+    }
+  
+  // if it is a tie, then the shorter string is "less"
+  if ((n1 - i1) < (n2 - i2))
+    {
+    return 1;
+    }
+
+  // if strings are otherwise equal, fall back to default to break tie 
+  if ((i1 == n1) && (i2 == n2))
+    {
+    return vtkCompareFileNamesNumeric(s1, s2);
+    }
+
+  // otherwise, return false
+  return 0;
+}
+
 
 void vtkSortFileNames::SortFileNames(vtkStringArray *input,
                                      vtkStringArray *output)
 {
-  vtkstd::string baseName;
-  vtkstd::string extension;
-  vtkstd::string fileNamePath;
-
-  // list of true files (i.e. reject paths that are directories)
+  // convert vtkStringArray into an STL vector
   vtkstd::vector<vtkstd::string> fileNames;
-
-  // list of filenames decomposed into digit vs. non-digit segments
-  vtkstd::vector<vtkstd::vector<vtkstd::string> > decompList;
-
-  // perform the decomposition of each of the filenames
   unsigned int numberOfStrings = input->GetNumberOfValues();
   for (unsigned int j = 0; j < numberOfStrings; j++)
     {
@@ -319,149 +522,44 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
 
     // build a new list
     fileNames.push_back(fileName);
+    }
 
-    vtkstd::vector<vtkstd::string> decomp;
-    vtkstd::string characters = "";
-    vtkstd::string digits = "";
-    
-    fileNamePath = vtksys::SystemTools::GetFilenamePath(fileName); 
-    baseName = vtksys::SystemTools::GetFilenameName(fileName);
-
-    if (this->IgnoreCase)
+  // perform the sort according to the options that are set
+  if (this->IgnoreCase)
+    {
+    if (this->NumericSort)
       {
-      unsigned int n = fileNamePath.length();
-      for (unsigned int i = 0; i < n; i++)
-        {
-        fileNamePath[i] = toupper(fileNamePath[i]);
-        }
-      }
-
-    // the directory is the first segment
-    decomp.push_back(fileNamePath + "/");
-
-    // the filename is broken into digit and character segments
-    unsigned int m = baseName.length();
-    for (unsigned int k = 0; k < m; k++)
-      {
-      char c = baseName[k];
-
-      if (c >= '0' && c <= '9')
-        {
-        if (!characters.empty())
-          {
-          decomp.push_back(characters);
-          characters = "";
-          }
-        digits.append(1, c);
-        }
-      else
-        {
-        if (!digits.empty())
-          {
-          decomp.push_back(digits);
-          digits = "";
-          }
-        if (this->IgnoreCase)
-          {
-          c = toupper(c);
-          }
-        characters.append(1, c);
-        }
-      }
-    if (!digits.empty())
-      {
-      decomp.push_back(digits);
+      // numeric sort without case sensitivity
+      vtkstd::sort(fileNames.begin(), fileNames.end(),
+                   vtkCompareFileNamesNumericIgnoreCase);
       }
     else
       {
-      decomp.push_back(characters);
+      // lexicographic sort without case sensitivity
+      vtkstd::sort(fileNames.begin(), fileNames.end(),
+                   vtkCompareFileNamesIgnoreCase);
       }
-    decompList.push_back(decomp);
-    }// end of internal loop j
-    
-  // find the maximum number of segments that any file was broken into
-  unsigned int maxSegments = 0;
-  unsigned int decompListLength = decompList.size();
-  for(unsigned int j = 0; j < decompListLength; j++)
+    }
+  else
     {
-    if(decompList[j].size() > maxSegments)
+    if (this->NumericSort)
       {
-      maxSegments = decompList[j].size();
+      // numeric sort
+      vtkstd::sort(fileNames.begin(), fileNames.end(),
+                   vtkCompareFileNamesNumeric);
+      }
+    else
+      {
+      // lexicographic sort (the default)
+      vtkstd::sort(fileNames.begin(), fileNames.end());
       }
     }
 
-  // if numeric sort, pad integer segments with zeros to make them
-  // the same length before we sort
-  if (this->NumericSort)
+  // build the output
+  vtkstd::vector<vtkstd::string>::iterator iter = fileNames.begin();
+  while (iter < fileNames.end())
     {
-    // loop over the segments, skipping the first because it is
-    // the directory
-    for(unsigned int p = 1; p < maxSegments; p++)
-      {
-      // find the maximum segment length over all filenames
-      unsigned int l = 0;
-      for (unsigned int q = 0; q < decompListLength; q++)
-        {
-        if (decompList[q].size() > p)
-          {
-          vtkstd::string& segment = decompList[q][p];
-          
-          if (segment[0] >= '0' && segment[0] <= '9')
-            {
-            if (segment.length() > l)
-              {
-              l = segment.length();
-              }
-            } 
-          }
-        }// end of q
-
-      // pad all numeric segments out to the same length with zeros,
-      // that will make lexicographic sort equivalent to numeric sort
-      for (unsigned int r = 0; r < decompListLength; r++)
-        {
-        vtkstd::vector<vtkstd::string>& decomp = decompList[r];
-        if (decomp.size() > p)
-          {
-          vtkstd::string& segment = decomp[p];
-
-          if (segment[0] >= '0' && segment[0] <= '9')
-            {
-            unsigned int n = l - segment.length();
-            // cast zero to size_type to avoid ambiguity
-            segment.insert(static_cast<vtkstd::string::size_type>(0), n, '0');
-            }  
-          }
-        }//end of r
-      }// end of p
-    }
-
-  // create a map to map filtered filenames to the original filenames
-  vtkstd::map<vtkstd::string, vtkstd::string>  newFileNameMap;
-  vtkstd::vector<vtkstd::string> newFileNameList;
-  for (unsigned int t = 0; t < decompList.size(); t++)
-    {
-    vtkstd::string newName = "";
-    vtkstd::vector<vtkstd::string>& decomp = decompList[t];
-    unsigned int numberOfSegments = decomp.size();
-    for (unsigned int q = 0; q < numberOfSegments; q++)
-      {
-      newName.append(decomp[q]);
-      }
-    newFileNameMap[newName] = fileNames[t];
-    newFileNameList.push_back(newName);
-    }
-
-  // sort the filtered filenames
-  vtkstd::sort(newFileNameList.begin(), newFileNameList.end());
-    
-  // create a sorted list of original filenames
-  output->Initialize();
-  for(vtkstd::vector<vtkstd::string>::iterator lit = newFileNameList.begin();
-      lit != newFileNameList.end();
-      lit++)
-    {
-    output->InsertNextValue(newFileNameMap.find(*lit)->second);
+    this->FileNames->InsertNextValue(*iter++);
     }
 }
 

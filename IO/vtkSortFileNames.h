@@ -16,10 +16,12 @@
 // .SECTION Description
 // vtkSortFileNames will take a list of filenames (e.g. from
 // a file load dialog) and sort them into one or more series.  If
-// the input list of filenames contains any directories, these are
-// removed before sorting. This class should be specilized for file
-// types where information about the groupings is stored in the files
-// themselves, e.g for DICOM.
+// the input list of filenames contains any directories, these can
+// be removed before sorting using the SkipDirectories flag.  This
+// class should be used where information about the series groupings
+// can be determined by the filenames, but it might not be successful
+// in cases where the information about the series groupings is
+// stored in the files themselves (e.g DICOM).
 // .SECTION See Also
 // vtkImageReader2
 
@@ -72,8 +74,8 @@ public:
   vtkBooleanMacro(IgnoreCase, int);
 
   // Description:
-  // Skip directories. If this flag is set, any path that is
-  // a directory rather than a file will not be included in
+  // Skip directories. If this flag is set, any input item that
+  // is a directory rather than a file will not be included in
   // the output.  This is off by default.
   vtkSetMacro(SkipDirectories, int);
   vtkGetMacro(SkipDirectories, int);
@@ -85,19 +87,21 @@ public:
   vtkGetObjectMacro(InputFileNames, vtkStringArray);
   
   // Description:
-  // Get the sorted names.  
+  // Get the full list of sorted filenames.
   virtual vtkStringArray *GetFileNames();
 
   // Description:
-  // Get the number of groups that the names were split into.
-  // The filenames are automatically split into groups according
-  // to file type, or according to series numbering.  If grouping
-  // is not on, this method will return zero.
+  // Get the number of groups that the names were split into, if
+  // grouping is on.  The filenames are automatically split into
+  // groups, where the filenames in each group will be identical
+  // except for their series numbers.  If grouping is not on, this
+  // method will return zero.
   virtual int GetNumberOfGroups();
 
   // Description:
-  // Get the Nth group of file names.  This method is only
-  // to be used if grouping is on.
+  // Get the Nth group of file names.  This method should only
+  // be used if grouping is on.  If grouping is off, it will always
+  // return null.
   virtual vtkStringArray *GetNthGroup(int i);
 
   // Description:
@@ -126,14 +130,13 @@ protected:
   virtual void Execute();
 
   // Description:
-  // Sort the input string array, put the results in the output, where
-  // the input and output can be the same.
+  // Sort the input string array, and append the results to the output.
   virtual void SortFileNames(vtkStringArray *input, vtkStringArray *output);
 
   // Description:
-  // Separate a string array into several groups of string arrays.
-  virtual void GroupFileNames(vtkStringArray *arglist,
-                              vtkStringArrayVector *groupedFiles);
+  // Separate a string array into groups and append them to the output. 
+  virtual void GroupFileNames(vtkStringArray *input,
+                              vtkStringArrayVector *output);
   
   
 private:
