@@ -47,7 +47,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.8");
+vtkCxxRevisionMacro(vtkKdTree, "1.9");
 
 // Timing data ---------------------------------------------
 
@@ -685,6 +685,7 @@ void vtkKdTree::BuildLocator()
     }
 
   vtkDebugMacro( << "Creating Kdtree" );
+  this->InvokeEvent(vtkCommand::StartEvent);
 
   if ((this->Timing) && (this->TimerLog == NULL))
     {
@@ -826,6 +827,8 @@ void vtkKdTree::BuildLocator()
 
   this->SetActualLevel();
   this->BuildRegionList();
+
+  this->InvokeEvent(vtkCommand::EndEvent);
 
   this->UpdateBuildTime();
 
@@ -1797,8 +1800,8 @@ vtkIdTypeArray *vtkKdTree::BuildMapForDuplicatePoints(float tolerance = 0.0)
 
   if ((tolerance < 0.0) || (tolerance >= this->MaxWidth))
     {
-    vtkErrorMacro(<< "vtkKdTree::BuildMapForDuplicatePoints - invalid tolerance");
-    return NULL;
+    vtkWarningMacro(<< "vtkKdTree::BuildMapForDuplicatePoints - invalid tolerance");
+    tolerance = this->MaxWidth;
     }
 
   TIMER("Find duplicate points");

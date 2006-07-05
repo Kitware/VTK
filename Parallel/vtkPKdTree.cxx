@@ -32,6 +32,7 @@
 #include "vtkIntArray.h"
 #include "vtkIdList.h"
 #include "vtkSubGroup.h"
+#include "vtkCommand.h"
 #include <vtkstd/queue>
 #include <vtkstd/algorithm>
 
@@ -76,7 +77,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.23");
+vtkCxxRevisionMacro(vtkPKdTree, "1.24");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -390,6 +391,7 @@ void vtkPKdTree::BuildLocator()
   if (rebuildLocator)
     {
     TIMER("Build k-d tree");
+    this->InvokeEvent(vtkCommand::StartEvent);
 
     this->FreeSearchStructure();
     this->ReleaseTables();
@@ -426,6 +428,7 @@ void vtkPKdTree::BuildLocator()
     this->BuildRegionList();
 
     TIMERDONE("Build k-d tree");
+    this->InvokeEvent(vtkCommand::EndEvent);
     }
 
   // Even if locator is not rebuilt, we should update
