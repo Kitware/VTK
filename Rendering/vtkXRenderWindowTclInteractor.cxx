@@ -28,7 +28,7 @@
 #include <string.h>
 #include <vtkTk.h>
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.51");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.52");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -381,12 +381,15 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
         (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
       int shift =
         (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
+      int alt =
+        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
       xp = (reinterpret_cast<XButtonEvent*>(event))->x;
       yp = (reinterpret_cast<XButtonEvent*>(event))->y;
       me->SetEventInformationFlipY(xp, 
                                    yp,
                                    ctrl, 
                                    shift);
+      me->SetAltKey(alt);
       switch ((reinterpret_cast<XButtonEvent *>(event))->button)
         {
         case Button1: 
@@ -418,6 +421,8 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
         (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
       int shift =
         (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
+      int alt =
+        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
       xp = (reinterpret_cast<XButtonEvent*>(event))->x;
       yp = (reinterpret_cast<XButtonEvent*>(event))->y; 
       
@@ -441,6 +446,7 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
                                    shift,
                                    0,
                                    repeat);
+      me->SetAltKey(alt);
       switch ((reinterpret_cast<XButtonEvent *>(event))->button)
         {
         case Button1: 
@@ -470,6 +476,8 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
                                      e->y,
                                      (e->state & ControlMask) != 0, 
                                      (e->state & ShiftMask) != 0);
+        me->SetAltKey(
+          (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0);
         me->InvokeEvent(vtkCommand::EnterEvent, NULL);
         }
       }
@@ -484,6 +492,8 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
                                      e->y,
                                      (e->state & ControlMask) != 0, 
                                      (e->state & ShiftMask) != 0); 
+        me->SetAltKey(
+          (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0);
         me->InvokeEvent(vtkCommand::LeaveEvent, NULL);
         }
       }
@@ -499,6 +509,8 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
         (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
       int shift =
         (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
+      int alt =
+        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
       KeySym ks;
       static char buffer[20];
       buffer[0] = '\0';
@@ -512,6 +524,7 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
                                    buffer[0], 
                                    1, 
                                    XKeysymToString(ks));
+      me->SetAltKey(alt);
       me->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
       me->InvokeEvent(vtkCommand::CharEvent, NULL);
       }
@@ -527,6 +540,8 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
         (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
       int shift =
         (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
+      int alt =
+        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
       KeySym ks;
       static char buffer[20];
       buffer[0] = '\0';
@@ -540,6 +555,7 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
                                    buffer[0], 
                                    1, 
                                    XKeysymToString(ks));
+      me->SetAltKey(alt);
       me->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
       }
       break;      
@@ -554,12 +570,15 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
         (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
       int shift =
         (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
+      int alt =
+        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
       xp = (reinterpret_cast<XMotionEvent*>(event))->x;
       yp = (reinterpret_cast<XMotionEvent*>(event))->y;
       me->SetEventInformationFlipY(xp, 
                                    yp,
                                    ctrl, 
                                    shift);
+      me->SetAltKey(alt);
       me->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
       }
       break;
