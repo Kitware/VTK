@@ -26,7 +26,7 @@
 
 #import <Carbon/Carbon.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.18");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.19");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -66,7 +66,13 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
                     sizeof(modifierKeys), NULL, &modifierKeys);
   int controlDown = (modifierKeys & controlKey);
   int shiftDown = (modifierKeys & shiftKey);
-
+ 
+  // Even though the option key is the one with a small 'alt' label on top
+  // of it, VNC (as well as some Mac users) uses the command key as 'alt'.
+  // Let's use both then. 
+  UInt32 altKey = cmdKey | optionKey;
+  int altDown = (modifierKeys & altKey);
+  
   switch (eventClass)
     {
     case kEventClassControl:
@@ -109,6 +115,7 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
             {
             me->SetKeyEventInformation(controlDown, shiftDown,
                                        (int)charCode,1,(char*)&charCode);
+            me->SetAltKey(altDown);
             me->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
             me->InvokeEvent(vtkCommand::CharEvent, NULL);
             result = noErr;
@@ -118,6 +125,7 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
             {
             me->SetKeyEventInformation(controlDown, shiftDown,
                                        (int)charCode,1,(char*)&charCode);
+            me->SetAltKey(altDown);
             me->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
             me->InvokeEvent(vtkCommand::CharEvent, NULL);
             result = noErr;
@@ -127,6 +135,7 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
             {
             me->SetKeyEventInformation(controlDown, shiftDown,
                                        (int)charCode,1,(char*)&charCode);
+            me->SetAltKey(altDown);
             me->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
             result = noErr;
             break;
@@ -155,6 +164,7 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
       me->SetEventInformationFlipY(mouseLoc.h, mouseLoc.v,
                                    (modifierKeys & controlKey),
                                    (modifierKeys & shiftKey));
+      me->SetAltKey(modifierKeys & altKey);
       switch (GetEventKind(event))
         {
         case kEventMouseDown:
