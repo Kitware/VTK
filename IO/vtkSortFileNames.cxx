@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSortFileNames, "1.5");
+vtkCxxRevisionMacro(vtkSortFileNames, "1.6");
 vtkStandardNewMacro(vtkSortFileNames);
 
 // a container for holding string arrays
@@ -432,7 +432,7 @@ bool vtkCompareFileNamesNumericIgnoreCase(const vtkstd::string s1,
     char c1 = s1[i1++];
     char c2 = s2[i2++];
 
-    if (0 && (c1 >= '0' && c1 <= '9') && (c2 >= '0' && c2 <= '9'))
+    if ((c1 >= '0' && c1 <= '9') && (c2 >= '0' && c2 <= '9'))
       {
       // convert decimal numeric sequence into an integer
       unsigned int j1 = 0;
@@ -495,7 +495,7 @@ bool vtkCompareFileNamesNumericIgnoreCase(const vtkstd::string s1,
   // if strings are otherwise equal, fall back to default to break tie 
   if ((i1 == n1) && (i2 == n2))
     {
-    return vtkCompareFileNamesNumeric(s1, s2);
+    return vtkCompareFileNamesIgnoreCase(s1, s2);
     }
 
   // otherwise, return false
