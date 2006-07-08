@@ -20,7 +20,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPCellDataToPointData, "1.8");
+vtkCxxRevisionMacro(vtkPCellDataToPointData, "1.9");
 vtkStandardNewMacro(vtkPCellDataToPointData);
 
 //----------------------------------------------------------------------------
@@ -110,7 +110,6 @@ int vtkPCellDataToPointData::RequestUpdateExtent(
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 
       ghostLevel);
-    return 1;
     }
   else
     {
@@ -134,9 +133,8 @@ int vtkPCellDataToPointData::RequestUpdateExtent(
       }
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
-    return 1;
     }
-  return 0;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
