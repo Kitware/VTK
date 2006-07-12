@@ -15,7 +15,7 @@
 #include "vtkAmoebaMinimizer.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAmoebaMinimizer, "1.4");
+vtkCxxRevisionMacro(vtkAmoebaMinimizer, "1.5");
 vtkStandardNewMacro(vtkAmoebaMinimizer);
 
 //----------------------------------------------------------------------------
@@ -499,7 +499,13 @@ void  vtkAmoebaMinimizer::InitializeAmoeba()
         }
       this->AmoebaSum[j] += this->ParameterValues[j];
       }
-
+    }
+  for( i = 0 ; i < n_parameters+1 ; i++ )
+    {
+    for( j = 0; j < n_parameters; j++ )
+      {
+      this->ParameterValues[j] = this->AmoebaVertices[i][j];
+      }
     this->EvaluateFunction();
     this->AmoebaValues[i] = this->FunctionValue;
     }
@@ -636,7 +642,8 @@ double  vtkAmoebaMinimizer::TryAmoeba(double  sum[],
 @NAME       : PerformAmoeba
 @INPUT      : 
 @OUTPUT     : 
-@RETURNS    : true if numerically significant improvement
+          
+ZRETURNS    : true if numerically significant improvement
 @DESCRIPTION: Performs one iteration of an amoeba, returning true if a
               numerically significant improvement has been found recently.
               Even if it returns 0, you can keep calling this function,
