@@ -45,7 +45,7 @@ int Mace( int argc, char *argv[] )
 
   vtkGlyph3D *glyph = vtkGlyph3D::New();
     glyph->SetInputConnection(sphere->GetOutputPort());
-    glyph->SetSource(cone->GetOutput());
+    glyph->SetSourceConnection(cone->GetOutputPort());
     glyph->SetVectorModeToUseNormal();
     glyph->SetScaleModeToScaleByVector();
     glyph->SetScaleFactor(0.25);
