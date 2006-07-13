@@ -23,7 +23,7 @@
 // .SECTION Caveats
 // This filter is an abstract filter, that is, the output is an abstract type
 // (i.e., vtkDataSet). Use the convenience methods (e.g.,
-// vtkGetPolyDataOutput(), GetStructuredPointsOutput(), etc.) to get the type
+// GetPolyDataOutput(), GetStructuredPointsOutput(), etc.) to get the type
 // of output you want.
 
 // .SECTION See Also
