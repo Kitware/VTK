@@ -38,9 +38,8 @@
 // normals.
 
 // .SECTION See Also
-// vtkMarchingContourFilter vtkKitwareContourFilter
-// vtkMarchingCubes vtkSliceCubes vtkDividingCubes vtkMarchingSquares
-// vtkImageMarchingCubes
+// vtkMarchingContourFilter vtkMarchingCubes vtkSliceCubes
+// vtkMarchingSquares vtkImageMarchingCubes
 
 #ifndef __vtkContourFilter_h
 #define __vtkContourFilter_h
