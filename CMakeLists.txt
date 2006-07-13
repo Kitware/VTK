@@ -1051,6 +1051,21 @@ VTK_THIRD_PARTY_OPTION(FREETYPE freetype)
 #-----------------------------------------------------------------------------
 # Configure OpenGL support.
 IF(VTK_USE_RENDERING)
+  # At the moment CMake's FindOpenGL considers OpenGL should be found
+  # in the framework version on OSX. This is a reasonable assumption for
+  # few people are going to use X. The module warns that if X is to be
+  # used, one has to set the libs and include dir manually, which is
+  # exactly what we are going to do below.
+  IF(APPLE AND VTK_USE_X)
+    FIND_PATH(OPENGL_INCLUDE_DIR GL/gl.h 
+      /usr/X11R6/include)
+    FIND_PATH(OPENGL_xmesa_INCLUDE_DIR GL/xmesa.h 
+      /usr/X11R6/include)
+    FIND_LIBRARY(OPENGL_gl_LIBRARY NAMES GL MesaGL 
+      PATHS /usr/lib /usr/local/lib /usr/X11R6/lib)
+    FIND_LIBRARY(OPENGL_glu_LIBRARY NAMES GLU MesaGLU 
+      PATHS ${OPENGL_gl_LIBRARY} /usr/lib /usr/local/lib /usr/X11R6/lib)
+  ENDIF(APPLE AND VTK_USE_X)
   INCLUDE(${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 ENDIF(VTK_USE_RENDERING)
 
