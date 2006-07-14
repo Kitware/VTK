@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.22");
+vtkCxxRevisionMacro(vtkImageData, "1.23");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -2085,7 +2085,7 @@ void *vtkImageData::GetArrayPointer(vtkDataArray* array, int coordinate[3])
          + (coordinate[1] - extent[2]) * incs[1]
          + (coordinate[2] - extent[4]) * incs[2]);
   // I could check to see if the array has the correct number
-  // of tupples for the extent, but that would be an extra multiply.
+  // of tuples for the extent, but that would be an extra multiply.
   if (idx < 0 || idx > array->GetMaxId())
     {
     vtkErrorMacro("Coordinate (" << coordinate[0] << ", " << coordinate[1]

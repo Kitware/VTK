@@ -61,7 +61,7 @@ public:
   virtual vtkIdType FindPoint(double x, double y, double z)
     {
     return this->vtkDataSet::FindPoint(x, y, z);
-    };
+    }
   virtual vtkIdType FindPoint(double x[3]);
   virtual vtkIdType FindCell(
     double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
@@ -277,6 +277,8 @@ public:
     {this->SetScalarType(VTK_UNSIGNED_SHORT);};
   void SetScalarTypeToUnsignedChar()
     {this->SetScalarType(VTK_UNSIGNED_CHAR);};
+  void SetScalarTypeToSignedChar()
+    {this->SetScalarType(VTK_SIGNED_CHAR);};
   void SetScalarTypeToChar()
     {this->SetScalarType(VTK_CHAR);};
   void SetScalarType(int);
