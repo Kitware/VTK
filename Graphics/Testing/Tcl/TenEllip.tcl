@@ -31,7 +31,7 @@ vtkSphereSource sphere
     sphere SetPhiResolution 8
 vtkTensorGlyph ellipsoids
     ellipsoids SetInputConnection [ptLoad GetOutputPort]
-    ellipsoids SetSource [sphere GetOutput]
+    ellipsoids SetSourceConnection [sphere GetOutputPort]
     ellipsoids SetScaleFactor 10
     ellipsoids ClampScalingOn
   

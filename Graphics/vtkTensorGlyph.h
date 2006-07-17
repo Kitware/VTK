@@ -91,9 +91,20 @@ public:
   static vtkTensorGlyph *New();
 
   // Description:
-  // Specify the geometry to copy to each point.
+  // Specify the geometry to copy to each point. Old style. See
+  // SetSourceConnection.
   void SetSource(vtkPolyData *source);
   vtkPolyData *GetSource();
+
+  // Description:
+  // Specify a source object at a specified table location. New style.
+  // Source connection is stored in port 1. This method is equivalent
+  // to SetInputConnection(1, id, outputPort).
+  void SetSourceConnection(int id, vtkAlgorithmOutput* algOutput);
+  void SetSourceConnection(vtkAlgorithmOutput* algOutput)
+    {
+      this->SetSourceConnection(0, algOutput);
+    }
 
   // Description:
   // Turn on/off scaling of glyph with eigenvalues.
