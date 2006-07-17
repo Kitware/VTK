@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.13");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.14");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -773,6 +773,6 @@ void vtkBiDimensionalRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Line Property: (none)\n";
     }
 
-
+  os << indent << "Handle Representation: " << this->HandleRepresentation << "\n";
 }
 
