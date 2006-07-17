@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkDistanceRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkDistanceRepresentation, "1.4");
 vtkCxxSetObjectMacro(vtkDistanceRepresentation,HandleRepresentation,vtkHandleRepresentation);
 
 
@@ -165,4 +165,5 @@ void vtkDistanceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Distance: " << this->GetDistance() <<"\n";
   os << indent << "Tolerance: " << this->Tolerance <<"\n";
+  os << indent << "Handle Representation: " << this->HandleRepresentation << "\n";
 }
