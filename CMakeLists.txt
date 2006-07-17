@@ -1232,6 +1232,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTK_CMAKE_DIR}/vtkWrapJava.cmake
     ${VTK_CMAKE_DIR}/vtkWrapPython.cmake
     ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
+    ${VTK_CMAKE_DIR}/VTKVersionMacros.cmake
     )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
