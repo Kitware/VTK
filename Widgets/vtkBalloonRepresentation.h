@@ -202,7 +202,7 @@ protected:
   int TextVisible;
   int ImageVisible;
   
-  // Helper method
+  // Helper methods
   void AdjustImageSize(double imageSize[2]);
   void ScaleImage(double imageSize[2],double scale);
 
