@@ -27,7 +27,7 @@
 #include "vtkCoordinate.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.5");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.6");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -107,6 +107,12 @@ void vtkPointHandleRepresentation3D::PlaceWidget(double bds[6])
   this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
+}
+
+//-------------------------------------------------------------------------
+double* vtkPointHandleRepresentation3D::GetBounds()
+{
+  return this->Cursor3D->GetModelBounds();
 }
 
 //-------------------------------------------------------------------------

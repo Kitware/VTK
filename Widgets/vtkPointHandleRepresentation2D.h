@@ -69,9 +69,10 @@ public:
   vtkGetObjectMacro(SelectedProperty,vtkProperty2D);
   
   // Description:
-  // Subclasses of vtkPointHandleRepresentation2D must implement these methods. These
-  // are the methods that the widget and its representation use to
-  // communicate with each other.
+  // Subclasses of vtkPointHandleRepresentation2D must implement these
+  // methods. These are the methods that the widget and its representation
+  // use to communicate with each other.
+  virtual double *GetBounds();
   virtual void BuildRepresentation();
   virtual void StartWidgetInteraction(double eventPos[2]);
   virtual void WidgetInteraction(double eventPos[2]);

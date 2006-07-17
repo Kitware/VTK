@@ -30,7 +30,7 @@
 #include "vtkWindow.h"
 #include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation2D, "1.4");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation2D, "1.5");
 vtkStandardNewMacro(vtkPointHandleRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D,Property,vtkProperty2D);
@@ -122,6 +122,13 @@ void vtkPointHandleRepresentation2D::SetCursorShape(vtkPolyData *shape)
 vtkPolyData *vtkPointHandleRepresentation2D::GetCursorShape()
 {
   return this->CursorShape;
+}
+
+//-------------------------------------------------------------------------
+double* vtkPointHandleRepresentation2D::GetBounds()
+{
+  this->Glypher->Update();
+  return this->Glypher->GetOutput()->GetBounds();
 }
 
 //-------------------------------------------------------------------------
