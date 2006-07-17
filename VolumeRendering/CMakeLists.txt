@@ -32,6 +32,7 @@ vtkRayCastImageDisplayHelper.cxx
 vtkRecursiveSphereDirectionEncoder.cxx
 vtkSphericalDirectionEncoder.cxx
 vtkVolumeMapper.cxx
+vtkVolumeProMapper.cxx
 vtkVolumeRayCastCompositeFunction.cxx
 vtkVolumeRayCastFunction.cxx
 vtkVolumeRayCastIsosurfaceFunction.cxx
@@ -132,6 +133,32 @@ ELSE (VTK_USE_MANGLED_MESA)
     ENDIF (OSMESA_LIBRARY)
   ENDIF(VTK_OPENGL_HAS_OSMESA)
 ENDIF(VTK_USE_MANGLED_MESA)
+
+INCLUDE(${VTK_SOURCE_DIR}/CMake/FindVLI.cmake)
+
+IF (VLI_LIBRARY_FOR_VP1000 AND VLI_INCLUDE_PATH_FOR_VP1000)
+  OPTION (VTK_USE_VOLUMEPRO_1000 "Enable support for VolumePro 1000." ON)
+ELSE (VLI_LIBRARY_FOR_VP1000 AND VLI_INCLUDE_PATH_FOR_VP1000)
+  OPTION (VTK_USE_VOLUMEPRO_1000 "Enable support for VolumePro 1000." OFF)
+ENDIF (VLI_LIBRARY_FOR_VP1000 AND VLI_INCLUDE_PATH_FOR_VP1000)
+
+IF (VTK_USE_VOLUMEPRO_1000)
+  SET (Kit_SRCS ${Kit_SRCS}
+    vtkVolumeProVP1000Mapper.cxx
+    )
+  SET (KitOpenGL_SRCS ${KitOpenGL_SRCS}
+    vtkOpenGLVolumeProVP1000Mapper.cxx
+    )
+  INCLUDE_DIRECTORIES (${VLI_INCLUDE_PATH_FOR_VP1000})
+  SET (KIT_LIBS ${KIT_LIBS} ${VLI_LIBRARY_FOR_VP1000})
+ENDIF (VTK_USE_VOLUMEPRO_1000)
+
+MARK_AS_ADVANCED (
+  VTK_USE_VOLUMEPRO_1000
+  VLI_LIBRARY_FOR_VP1000
+  VLI_INCLUDE_PATH_FOR_VP1000
+  )
+
 SET(Kit_SRCS ${Kit_SRCS} ${KitOpenGL_SRCS})
 
 #-----------------------------------------------------------------------------

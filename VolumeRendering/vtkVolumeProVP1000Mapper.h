@@ -25,12 +25,14 @@
 // want to add this class to your vtk build, you need to have the vli header
 // and library files, and you will need to perform the following steps:
 //
-// 1. Run cmake, and set the VTK_USE_VOLUMEPRO flag to true.
-// 2. If the libary file (VLI_LIBRARY_FOR_VP1000) is not found by cmake, set
+// 1. Run cmake; if VLI_LIBRARY_FOR_VP1000 and VLI_INCLUDE_PATH_FOR_VP1000
+//    are set by cmake, then VTK_USE_VOLUMEPRO_1000 will be set to ON.
+// 2. If the VTK_USE_VOLUMEPRO_1000 is OFF, set it to ON in cmake.
+// 3. If the libary file (VLI_LIBRARY_FOR_VP1000) is not found by cmake, set
 //    the path to that file, and rerun cmake.
-// 3. If the header file (VLI_INCLUDE_PATH_FOR_VP1000) is not found by cmake,
+// 4. If the header file (VLI_INCLUDE_PATH_FOR_VP1000) is not found by cmake,
 //    set the path to that file, and rerun cmake.
-// 4. Rebuild VTK.
+// 5. Rebuild VTK.
 //
 // For more information on the VolumePRO hardware, please see:
 //
@@ -39,6 +41,11 @@
 // If you encounter any problems with this class, please inform Kitware, Inc.
 // at kitware@kitware.com.
 //
+// .SECTION Caveats
+// If BlendMode is set to VTK_BLEND_MODE_MIN_INTENSITY, vli requires
+// that the border of the image buffer be set to all 1s (white and opaque),
+// resulting in a white background regardless of the color to which the
+// renderer's background has been set.
 //
 // .SECTION See Also
 // vtkVolumeMapper vtkVolumeProMapper vtkOpenGLVolumeProVP1000Mapper
@@ -73,7 +80,9 @@ public:
                                           unsigned int *xSize,
                                           unsigned int *ySize,
                                           unsigned int *zSize);
-  
+
+  virtual void SetSuperSamplingFactor(double x, double y, double z);
+
 protected:
   vtkVolumeProVP1000Mapper();
   ~vtkVolumeProVP1000Mapper();
@@ -116,10 +125,12 @@ protected:
     {(void)vol;}
 
   // Get the depth buffer values
+//BTX
   virtual void GetDepthBufferValues( vtkRenderer *vtkNotUsed(ren),
-                                     int size[2],
+                                     int vtkNotUsed(size)[2],
                                      unsigned int *outData )
     { (void)outData; }
+//ETX
 
 #if ((VTK_MAJOR_VERSION == 3)&&(VTK_MINOR_VERSION == 2))
   vtkGetVectorMacro( VoxelCroppingRegionPlanes, float, 6 );
@@ -136,10 +147,12 @@ protected:
   VLIImageBuffer *ImageBuffer;
   VLIDepthBuffer *DepthBuffer;
   
+//BTX
   VLIStatus CheckSubSampling(const VLIVolume *inVolume,
                              const VLIContext *inContext,
                              int &outImageWidth, int &outImageHeight);
-  
+//ETX
+
   int DrawBoundingBox;
 
 private:

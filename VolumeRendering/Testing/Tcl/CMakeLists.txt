@@ -36,7 +36,42 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         -T ${VTK_BINARY_DIR}/Testing/Temporary
         -V Baseline/VolumeRendering/cursor3D.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+      IF (VTK_USE_VOLUMEPRO_1000)
+        ADD_TEST(imageCursor3DVP-image ${VTK_EXECUTABLE}
+          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+          ${VTK_SOURCE_DIR}/VolumeRendering/Testing/Tcl/cursor3DVP.tcl
+          -D ${VTK_DATA_ROOT}
+          -T ${VTK_BINARY_DIR}/Testing/Temporary
+          -V Baseline/VolumeRendering/cursor3D.png
+          -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+      ENDIF (VTK_USE_VOLUMEPRO_1000)
     ENDIF(VTK_USE_TK)
+    IF (VTK_USE_VOLUMEPRO_1000)
+      ADD_TEST(gaussianVP-image ${VTK_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/VolumeRendering/Testing/Tcl/gaussianVP.tcl
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/VolumeRendering/gaussianVP.png
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+      ADD_TEST(volVPClipPlanes-image ${VTK_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/VolumeRendering/Testing/Tcl/volVPClipPlanes.tcl
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/VolumeRendering/volVPClipPlanes.png
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+      ADD_TEST(volVPCropRegions-image ${VTK_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/VolumeRendering/Testing/Tcl/volVPCropRegions.tcl
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/VolumeRendering/volVPCropRegions.png
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+      ADD_TEST(volVPGradientOpacity-image ${VTK_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/VolumeRendering/Testing/Tcl/volVPGradientOpacity.tcl
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/VolumeRendering/volVPGradientOpacity.png
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+    ENDIF (VTK_USE_VOLUMEPRO_1000)
   #
   # If we do not have the data, still run the tests that we can
   #

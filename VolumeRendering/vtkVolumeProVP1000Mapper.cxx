@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.1");
+vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.2");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -952,7 +952,7 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
     {
     if (width < 2000 && height < 2000)
       {
-      float aspectRatio = (float)imageWidth / (float)imageHeight;
+//      float aspectRatio = (float)imageWidth / (float)imageHeight;
       int widthDiff, heightDiff, newWidth, newHeight;
       float increase;
       
@@ -989,7 +989,16 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
       this->DrawBoundingBox = 1;
       }
     }
-  
+
+  if (this->BlendMode == VTK_BLEND_MODE_MIN_INTENSITY)
+    {
+    this->ImageBuffer->SetBorderValue(1, 1, 1, 1);
+    }
+  else
+    {
+    this->ImageBuffer->SetBorderValue(0, 0, 0, 0);
+    }
+
   if ( ! this->DrawBoundingBox)
     {
     if ( ! this->IntermixIntersectingGeometry )
@@ -1387,6 +1396,23 @@ VLIStatus vtkVolumeProVP1000Mapper::CheckSubSampling(const VLIVolume *inVolume,
     outMinImageHeight = (int)ceil( double (viewportHeight-1)*viewportScale +1);
     
     return status;
+}
+
+void vtkVolumeProVP1000Mapper::SetSuperSamplingFactor( double x, double y, double z )
+{
+  if ( z < 0.0625 || z > 16  )
+    {
+    vtkErrorMacro(
+      << "Invalid supersampling factor" << endl <<
+      "Only the Z value is considered, and it must be in the range [0.0625...16].");
+    return;
+    }
+
+  this->SuperSamplingFactor[0] = x;
+  this->SuperSamplingFactor[1] = y;
+  this->SuperSamplingFactor[2] = z;
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------

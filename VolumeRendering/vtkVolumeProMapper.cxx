@@ -17,7 +17,7 @@
 #include "vtkRenderer.h"
 #include "vtkToolkits.h"
 
-#if defined (VTK_HAVE_VP1000) || defined (VTK_FORCE_COMPILE_VP1000)
+#if defined (VTK_USE_VOLUMEPRO_1000) || defined (VTK_FORCE_COMPILE_VP1000)
 #include "vtkVolumeProVP1000Mapper.h"
 #endif
 
@@ -26,7 +26,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeProMapper, "1.1");
+vtkCxxRevisionMacro(vtkVolumeProMapper, "1.2");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -118,7 +118,7 @@ vtkVolumeProMapper *vtkVolumeProMapper::New()
     return (vtkVolumeProMapper*)ret;
     }
   
-#if defined (VTK_HAVE_VP1000) || defined (VTK_FORCE_COMPILE_VP1000)
+#if defined (VTK_USE_VOLUMEPRO_1000) || defined (VTK_FORCE_COMPILE_VP1000)
   vtkDebugLeaks::DestructClass("vtkVolumeProMapper");
   return vtkVolumeProVP1000Mapper::New();
 #else

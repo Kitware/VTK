@@ -48,6 +48,8 @@
 #  define VTK_MATERIALS_DIRS "@VTK_MATERIALS_DIRS@"
 #endif
 
+#cmakedefine VTK_USE_VOLUMEPRO_1000
+
 /*--------------------------------------------------------------------------*/
 /* Wrapping Configuration                                                   */
 

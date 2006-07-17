@@ -46,11 +46,11 @@
 #define __vtkVolumeProMapper_h
 
 #include "vtkVolumeMapper.h"
-#include "vtkToolkits.h" // Needed for VTK_HAVE_VP1000
+#include "vtkToolkits.h" // Needed for VTK_USE_VOLUMEPRO_1000
 #include "vtkVersion.h" // Needed for VTK_*_VERSION
 
 //BTX
-#if defined (VTK_HAVE_VP1000) || defined (VTK_FORCE_COMPILE_VP1000)
+#if defined (VTK_USE_VOLUMEPRO_1000) || defined (VTK_FORCE_COMPILE_VP1000)
 namespace vli3 {
 #endif
 class VLIContext;
@@ -58,7 +58,7 @@ class VLIVolume;
 class VLILookupTable;
 class VLILight;
 class VLICutPlane;
-#if defined (VTK_HAVE_VP1000) || defined (VTK_FORCE_COMPILE_VP1000)
+#if defined (VTK_USE_VOLUMEPRO_1000) || defined (VTK_FORCE_COMPILE_VP1000)
 }
 using namespace vli3;
 #endif
@@ -153,7 +153,7 @@ public:
 
   // Description:
   // Set the supersampling factors
-  void SetSuperSamplingFactor( double x, double y, double z );
+  virtual void SetSuperSamplingFactor( double x, double y, double z );
   void SetSuperSamplingFactor( double f[3] )
     { this->SetSuperSamplingFactor( f[0], f[1], f[2] ); };
   vtkGetVectorMacro( SuperSamplingFactor, double, 3 );
