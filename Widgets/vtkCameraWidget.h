@@ -58,14 +58,15 @@ public:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
 
-  // Description:
-  // When selecting the interior of this widget, special operations occur 
-  // (i.e., adding a camera view, deleting a path, animating a path).
-  virtual void SelectRegion(double eventPos[2]);
-
 protected:
   vtkCameraWidget();
   ~vtkCameraWidget();
+
+  // Description:
+  // When selecting the interior of this widget, special operations occur 
+  // (i.e., adding a camera view, deleting a path, animating a path). Thus
+  // this methods overrides the superclasses' method.
+  virtual void SelectRegion(double eventPos[2]);
 
 private:
   vtkCameraWidget(const vtkCameraWidget&);  //Not implemented
