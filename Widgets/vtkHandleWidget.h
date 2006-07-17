@@ -14,13 +14,12 @@
 =========================================================================*/
 // .NAME vtkHandleWidget - a general widget for moving handles
 // .SECTION Description
-// The vtkHandleWidget is used to position a handle.
-// A handle is essentially an object with a position and various
-// representations (depending on the type of the associated representation).
-// 
-// To use this widget, set the widget representation. The representation 
-// maintains a position (the particular coordinate system may vary depending
-// on the representation). 
+// The vtkHandleWidget is used to position a handle.  A handle is a widget
+// with a position (in display and world space). Various appearances are
+// available depending on its associated representation. The widget provides
+// methods for translation, including constrained translation along
+// coordinate axes. To use this widget, create and associate a representation
+// with the widget.
 //
 // .SECTION Event Bindings
 // By default, the widget responds to the following VTK events (i.e., it
@@ -85,7 +84,8 @@ public:
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set. By default
+  // an instance of vtkPointHandleRepresenation3D is created.
   void CreateDefaultRepresentation();
 
 protected:
