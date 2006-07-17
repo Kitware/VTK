@@ -68,9 +68,6 @@
 
 #include "vtkAbstractWidget.h"
 
-class vtkProp;
-class vtkAbstractPropPicker;
-
 
 class VTK_WIDGETS_EXPORT vtkHoverWidget : public vtkAbstractWidget
 {
