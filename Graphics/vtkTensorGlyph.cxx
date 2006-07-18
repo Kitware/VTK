@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTensorGlyph, "1.57");
+vtkCxxRevisionMacro(vtkTensorGlyph, "1.57.12.1");
 vtkStandardNewMacro(vtkTensorGlyph);
 
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
@@ -426,6 +426,31 @@ int vtkTensorGlyph::RequestData(
   matrix->Delete();
 
   return 1;
+}
+
+void vtkTensorGlyph::SetSourceConnection(int id, vtkAlgorithmOutput* algOutput)
+{
+  if (id < 0)
+    {
+    vtkErrorMacro("Bad index " << id << " for source.");
+    return;
+    }
+
+  int numConnections = this->GetNumberOfInputConnections(1);
+  if (id < numConnections)
+    {
+    this->SetNthInputConnection(1, id, algOutput);
+    }
+  else if (id == numConnections && algOutput)
+    {
+    this->AddInputConnection(1, algOutput);
+    }
+  else if (algOutput)
+    {
+    vtkWarningMacro("The source id provided is larger than the maximum "
+                    "source id, using " << numConnections << " instead.");
+    this->AddInputConnection(1, algOutput);
+    }
 }
 
 void vtkTensorGlyph::SetSource(vtkPolyData *source)
