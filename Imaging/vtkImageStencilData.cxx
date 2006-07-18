@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.16");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.17");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -476,6 +476,74 @@ void vtkImageStencilData::InsertNextExtent(int r1, int r2, int yIdx, int zIdx)
   clist[clistlen++] = r1;
   clist[clistlen++] = r2 + 1;
 }
+
+//----------------------------------------------------------------------------
+void vtkImageStencilData::InsertAndMergeExtent(int r1, int r2, int yIdx, int zIdx)
+{
+  // calculate the index into the extent array
+  int extent[6];
+  this->GetExtent(extent);
+  int yExt = extent[3] - extent[2] + 1;
+  int incr = (zIdx - extent[4])*yExt + (yIdx - extent[2]);
+
+  int &clistlen = this->ExtentListLengths[incr];
+  int *&clist = this->ExtentLists[incr];
+
+  if (clistlen == 0)
+    { // no space has been allocated yet
+    clist = new int[2];
+    clist[clistlen++] = r1;
+    clist[clistlen++] = r2 + 1;
+    return;
+    }
+  else
+    { 
+    for (int k = 0; k < clistlen; k+=2)
+      {
+      if ((r1 >= clist[k] && r1 <= clist[k+1]) || 
+          (r2 >= clist[k] && r2 <= clist[k+1]))
+        {
+        // An intersecting extent is already present. Merge with that one.
+        if (r1 < clist[k])
+          {
+          clist[k]   = r1;
+          }
+        if (r2 > clist[k+1])
+          {
+          clist[k+1] = r2;
+          }
+        return;
+        }
+      }
+
+    // We will be inserting a unique extent...
+      
+    // check whether more space is needed
+    // the allocated space is always the smallest power of two
+    // that is not less than the number of stored items, therefore
+    // we need to allocate space when clistlen is a power of two
+    int clistmaxlen = 2;
+    while (clistlen > clistmaxlen)
+      {
+      clistmaxlen *= 2;
+      }
+    if (clistmaxlen == clistlen)
+      { // need to allocate more space
+      clistmaxlen *= 2;
+      int *newclist = new int[clistmaxlen];
+      for (int k = 0; k < clistlen; k++)
+        {
+        newclist[k] = clist[k];
+        }
+      delete [] clist;
+      clist = newclist;
+      }
+    }
+
+  clist[clistlen++] = r1;
+  clist[clistlen++] = r2 + 1;
+}
+
 
 //----------------------------------------------------------------------------
 vtkImageStencilData* vtkImageStencilData::GetData(vtkInformation* info)

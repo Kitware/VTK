@@ -66,6 +66,15 @@ public:
   // As well, r1 and r2 must both be within the total x extent
   // [Extent[0],Extent[1]].
   void InsertNextExtent(int r1, int r2, int yIdx, int zIdx);
+  
+  // Description:
+  // Similar to InsertNextExtent, except that the extent (r1,r2) at yIdx, 
+  // zIdx is merged with other extents, (if any) on that row. So a 
+  // unique extent may not necessarily be added. For instance, if an extent 
+  // [5,11] already exists adding an extent, [7,9] will not affect the 
+  // stencil. Likewise adding [10, 13] will replace the existing extent 
+  // with [5,13].
+  void InsertAndMergeExtent(int r1, int r2, int yIdx, int zIdx);
 
   // Description:
   // Set the desired spacing for the stencil.
