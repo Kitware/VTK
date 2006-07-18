@@ -18,7 +18,7 @@ vtkWarpVector warp
     warp SetInputConnection [plate GetOutputPort]
     warp SetScaleFactor 0.5
 vtkPolyDataNormals normals
-    normals SetInput [warp GetPolyDataOutput]
+    normals SetInputConnection [warp GetOutputPort]
 vtkVectorDot color
     color SetInputConnection [normals GetOutputPort]
 vtkLookupTable lut
