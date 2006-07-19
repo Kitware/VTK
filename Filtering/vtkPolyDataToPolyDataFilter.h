@@ -16,6 +16,11 @@
 // .SECTION Description
 // vtkPolyDataToPolyDataFilter is an abstract filter class whose subclasses
 // take as input polygonal data and generate polygonal data on output.
+// .SECTION Warning
+// This used to be the parent class for most polydata filter in VTK4.x, now 
+// this role has been replaced by vtkPolyDataAlgorithm. You should consider
+// using this class instead, when writing filter for VTK5 and above.
+// This class was kept to ensure full backward compatibility.
 
 // .SECTION See Also
 // vtkCleanPolyData vtkDecimate vtkFeatureEdges 
@@ -23,6 +28,7 @@
 // vtkTransformPolyDataFilter vtkTriangleFilter vtkTubeFilter
 // vtkLinearExtrusionFilter vtkRibbonFilter vtkRotationalExtrusionFilter
 // vtkShrinkPolyData
+// vtkPolyDataAlgorithm
 
 #ifndef __vtkPolyDataToPolyDataFilter_h
 #define __vtkPolyDataToPolyDataFilter_h
