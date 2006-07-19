@@ -52,7 +52,7 @@ class VTK_FILTERING_EXPORT vtkDataSet : public vtkDataObject
 public:
   vtkTypeRevisionMacro(vtkDataSet,vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Copy the geometric and topological structure of an object. Note that
   // the invoking object and the object pointed to by the parameter ds must
@@ -283,31 +283,31 @@ public:
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
   unsigned long GetActualMemorySize();
-  
+
   // Description:
   // Return the type of data object.
-  int GetDataObjectType() 
+  int GetDataObjectType()
     {return VTK_DATA_SET;}
-  
+
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy(vtkDataObject *src);  
+  void ShallowCopy(vtkDataObject *src);
   void DeepCopy(vtkDataObject *src);
 
 //BTX
-  enum FieldDataType 
+  enum FieldDataType
   {
     DATA_OBJECT_FIELD=0,
     POINT_DATA_FIELD=1,
     CELL_DATA_FIELD=2
   };
 //ETX
-  
+
   // Description:
   // This method checks to see if the cell and point attributes
-  // match the geometry.  Many filters will crash if the number of 
+  // match the geometry.  Many filters will crash if the number of
   // tupples in an array is less than the number of points/cells.
-  // This method returns 1 if there is a mismatch, 
+  // This method returns 1 if there is a mismatch,
   // and 0 if everything is ok.  It prints an error if an
   // array is too short, and a warning if an array is too long.
   int CheckAttributes();
@@ -327,7 +327,7 @@ public:
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();
-  ~vtkDataSet();  
+  ~vtkDataSet();
 
   vtkCellData *CellData;   // Scalars, vectors, etc. associated w/ each cell
   vtkPointData *PointData;   // Scalars, vectors, etc. associated w/ each point
@@ -337,7 +337,7 @@ protected:
   double Center[3];
 
 private:
-  void InternalDataSetCopy(vtkDataSet *src);  
+  void InternalDataSetCopy(vtkDataSet *src);
   //BTX
   friend class vtkSourceToDataSetFriendship;
   friend class vtkImageAlgorithmToDataSetFriendship;
@@ -350,7 +350,7 @@ private:
 inline void vtkDataSet::GetPoint(vtkIdType id, double x[3])
 {
   double *pt = this->GetPoint(id);
-  x[0] = pt[0]; x[1] = pt[1]; x[2] = pt[2]; 
+  x[0] = pt[0]; x[1] = pt[1]; x[2] = pt[2];
 }
 
 #endif

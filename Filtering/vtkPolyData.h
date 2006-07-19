@@ -69,7 +69,7 @@ class vtkPolygon;
 class vtkTriangleStrip;
 class vtkEmptyCell;
 
-class VTK_FILTERING_EXPORT vtkPolyData : public vtkPointSet 
+class VTK_FILTERING_EXPORT vtkPolyData : public vtkPointSet
 {
 public:
   static vtkPolyData *New();
@@ -94,7 +94,7 @@ public:
   void GetCellBounds(vtkIdType cellId, double bounds[6]);
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                         vtkIdList *cellIds);
-  
+
   // Description:
   // Copy cells listed in idList from pd, including points, point data,
   // and cell data.  This method assumes that point and cell data have

@@ -26,7 +26,7 @@
 // Helper to unroll the loop
 template<int dimension>
 void vtkAMRBoxInitialize(int *LoCorner, int *HiCorner, // member
-                         int *loCorner, int *hiCorner) // local
+                         const int *loCorner, const int *hiCorner) // local
   {
   for(int i=0; i<dimension; ++i)
     {
@@ -53,7 +53,7 @@ public:
     }
 
   // \precondition dimensionality >= 2 && dimensionality <= 3
-  vtkAMRBox(int dimensionality, int* loCorner, int* hiCorner)
+  vtkAMRBox(int dimensionality, const int* loCorner, const int* hiCorner)
     {
     switch(dimensionality)
       {
@@ -125,12 +125,47 @@ public:
       k >= this->LoCorner[2] && k <= this->HiCorner[2];
     }
 
+  // Description:
+  // Returns non-zero if the box contains `box`
+  int DoesContainBox(vtkAMRBox const & box) const
+    {
+    // return DoesContainCell(box.LoCorner) && DoesContainCell(box.HiCorner);
+    return box.LoCorner[0] >= this->LoCorner[0]
+        && box.LoCorner[1] >= this->LoCorner[1]
+        && box.LoCorner[2] >= this->LoCorner[2]
+        && box.HiCorner[0] <= this->HiCorner[0]
+        && box.HiCorner[1] <= this->HiCorner[1]
+        && box.HiCorner[2] <= this->HiCorner[2];
+    }
+
+  // Description:
+  // Print LoCorner and HiCorner
+  void Print(ostream &os)
+    {
+    os << "LoCorner: " << this->LoCorner[0] << "," << this->LoCorner[1]
+      << "," << this->LoCorner[2] << "\n";
+    os << "HiCorner: " << this->HiCorner[0] << "," << this->HiCorner[1]
+      << "," << this->HiCorner[2] << "\n";
+    }
+
+  // Description:
+  // Check is point pos is HiCorner
+  bool IsHiCorner(const int pos[3]) const
+    {
+    return this->HiCorner[0] == pos[0]
+        && this->HiCorner[1] == pos[1]
+        && this->HiCorner[2] == pos[2];
+    }
+
+  // Description:
+  // Check is point pos is LoCorner
+  bool IsLoCorner(const int pos[3]) const
+    {
+    return this->LoCorner[0] == pos[0]
+        && this->LoCorner[1] == pos[1]
+        && this->LoCorner[2] == pos[2];
+    }
 };
 
 #endif
-
-
-
-
-
 

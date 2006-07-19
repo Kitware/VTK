@@ -25,12 +25,13 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.13");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.14");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,NUMBER_OF_BLANKED_POINTS,IdType);
 
+typedef vtkstd::vector<vtkAMRBox> vtkAMRBoxList;
 //----------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
 {
@@ -49,18 +50,18 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
 {
   this->Superclass::SetDataSet(level, id, dataSet);
 
-  vtkInformation* info = 
+  vtkInformation* info =
     this->MultiGroupDataInformation->GetInformation(level, id);
   if (info)
     {
-    info->Set(BOX(), 
+    info->Set(BOX(),
               box.LoCorner[0], box.LoCorner[1], box.LoCorner[2],
               box.HiCorner[0], box.HiCorner[1], box.HiCorner[2]);
     }
 }
 
 //----------------------------------------------------------------------------
-vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level, 
+vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level,
                                                       unsigned int id,
                                                       vtkAMRBox& box)
 {
@@ -69,7 +70,7 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level,
     return 0;
     }
 
-  vtkMultiGroupDataSetInternal::GroupDataSetsType& ldataSets = 
+  vtkMultiGroupDataSetInternal::GroupDataSetsType& ldataSets =
     this->Internal->DataSets[level];
   if (ldataSets.size() <= id)
     {
@@ -81,7 +82,7 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level,
     return 0;
     }
 
-  vtkInformation* info = 
+  vtkInformation* info =
     this->MultiGroupDataInformation->GetInformation(level, id);
   if (info)
     {
@@ -96,7 +97,7 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level,
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::SetRefinementRatio(unsigned int level, 
+void vtkHierarchicalBoxDataSet::SetRefinementRatio(unsigned int level,
                                                    int ratio)
 {
   if (level >= this->BoxInternal->RefinementRatios.size())
@@ -117,10 +118,10 @@ int vtkHierarchicalBoxDataSet::GetRefinementRatio(unsigned int level)
 }
 
 //----------------------------------------------------------------------------
-int vtkHierarchicalBoxDataSetIsInBoxes(vtkstd::vector<vtkAMRBox>& boxes,
+int vtkHierarchicalBoxDataSetIsInBoxes(vtkAMRBoxList& boxes,
                                        int i, int j, int k)
 {
-  vtkstd::vector<vtkAMRBox>::iterator it;
+  vtkAMRBoxList::iterator it;
   for(it = boxes.begin(); it != boxes.end(); it++)
     {
     if (it->DoesContainCell(i, j, k))
@@ -146,7 +147,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
   for (unsigned int levelIdx=0; levelIdx<numLevels; levelIdx++)
     {
     // Copy boxes of higher level and coarsen to this level
-    vtkstd::vector<vtkAMRBox> boxes;
+    vtkAMRBoxList boxes;
     unsigned int numDataSets = this->GetNumberOfDataSets(levelIdx+1);
     unsigned int dataSetIdx;
     if (levelIdx < numLevels - 1)
@@ -158,7 +159,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
           {
           continue;
           }
-        vtkInformation* info = 
+        vtkInformation* info =
           this->MultiGroupDataInformation->GetInformation(
             levelIdx+1,dataSetIdx);
         int* boxVec = info->Get(BOX());
@@ -203,7 +204,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
               // Blank if cell is covered by a box of higher level
               if (vtkHierarchicalBoxDataSetIsInBoxes(boxes, ix, iy, iz))
                 {
-                vtkIdType id = 
+                vtkIdType id =
                   (iz-box.LoCorner[2])*cellDims[0]*cellDims[1] +
                   (iy-box.LoCorner[1])*cellDims[0] +
                   (ix-box.LoCorner[0]);
@@ -218,7 +219,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
         if (this->MultiGroupDataInformation->HasInformation(
               levelIdx, dataSetIdx))
           {
-          vtkInformation* infotmp = 
+          vtkInformation* infotmp =
             this->MultiGroupDataInformation->GetInformation(
               levelIdx,dataSetIdx);
           infotmp->Set(NUMBER_OF_BLANKED_POINTS(), numBlankedPts);
@@ -240,7 +241,7 @@ vtkIdType vtkHierarchicalBoxDataSet::GetNumberOfPoints()
     for (unsigned int dataIdx=0; dataIdx<numDataSets; dataIdx++)
       {
       vtkIdType numBlankedPts = 0;
-      vtkInformation* blockInfo = 
+      vtkInformation* blockInfo =
         this->MultiGroupDataInformation->GetInformation(level, dataIdx);
       if (blockInfo)
         {
@@ -272,7 +273,7 @@ void vtkHierarchicalBoxDataSet::ShallowCopy(vtkDataObject *src)
   this->InitializeDataSets();
   this->Modified();
 
-  vtkHierarchicalBoxDataSet* from = 
+  vtkHierarchicalBoxDataSet* from =
     vtkHierarchicalBoxDataSet::SafeDownCast(src);
   if (from)
     {
@@ -311,7 +312,7 @@ void vtkHierarchicalBoxDataSet::DeepCopy(vtkDataObject *src)
   this->InitializeDataSets();
   this->Modified();
 
-  vtkHierarchicalBoxDataSet* from = 
+  vtkHierarchicalBoxDataSet* from =
     vtkHierarchicalBoxDataSet::SafeDownCast(src);
   if (from)
     {
@@ -350,7 +351,7 @@ void vtkHierarchicalBoxDataSet::PrintSelf(ostream& os, vtkIndent indent)
   for (unsigned int i=0; i<numLevels; i++)
     {
     unsigned int numDataSets = this->GetNumberOfDataSets(i);
-    os << indent << "Level " << i << " number of datasets: " << numDataSets 
+    os << indent << "Level " << i << " number of datasets: " << numDataSets
        << endl;
     for (unsigned j=0; j<numDataSets; j++)
       {

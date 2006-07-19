@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkPointSet - abstract class for specifying dataset behavior
 // .SECTION Description
-// vtkPointSet is an abstract class that specifies the interface for 
+// vtkPointSet is an abstract class that specifies the interface for
 // datasets that explicitly use "point" arrays to represent geometry.
 // For example, vtkPolyData and vtkUnstructuredGrid require point arrays
 // to specify point position, while vtkStructuredPoints generates point
@@ -52,11 +52,12 @@ public:
   double *GetPoint(vtkIdType ptId) {return this->Points->GetPoint(ptId);};
   void GetPoint(vtkIdType ptId, double x[3]) {this->Points->GetPoint(ptId,x);};
   vtkIdType FindPoint(double x[3]);
-  vtkIdType FindPoint(double x, double y, double z) { return this->vtkDataSet::FindPoint(x, y, z);};
+  vtkIdType FindPoint(double x, double y, double z) {
+    return this->vtkDataSet::FindPoint(x, y, z);};
   vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
                int& subId, double pcoords[3], double *weights);
   vtkIdType FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
-               vtkIdType cellId, double tol2, int& subId, 
+               vtkIdType cellId, double tol2, int& subId,
                double pcoords[3], double *weights);
 
   // Description:
@@ -66,7 +67,7 @@ public:
   // Description:
   // Compute the (X, Y, Z)  bounds of the data.
   void ComputeBounds();
-  
+
   // Description:
   // Reclaim any unused memory.
   void Squeeze();
@@ -87,7 +88,7 @@ public:
 
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy(vtkDataObject *src);  
+  void ShallowCopy(vtkDataObject *src);
   void DeepCopy(vtkDataObject *src);
 
   //BTX
