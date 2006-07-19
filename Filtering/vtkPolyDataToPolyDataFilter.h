@@ -19,7 +19,8 @@
 // .SECTION Warning
 // This used to be the parent class for most polydata filter in VTK4.x, now 
 // this role has been replaced by vtkPolyDataAlgorithm. You should consider
-// using this class instead, when writing filter for VTK5 and above.
+// using vtkPolyDataAlgorithm instead of this class, 
+// when writing filter for VTK5 and above.
 // This class was kept to ensure full backward compatibility.
 
 // .SECTION See Also
