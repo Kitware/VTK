@@ -22,7 +22,7 @@
 // .SECTION Warning
 // This used to be the parent class for most imaging filter in VTK4.x, now
 // this role has been replaced by vtkImageAlgorithm. You should consider
-// using this class instead, when writing filter for VTK5 and above.
+// using vtkImageAlgorithm instead, when writing filter for VTK5 and above.
 // This class was kept to ensure full backward compatibility.
 // .SECTION See also
 // vtkSimpleImageToImageFilter vtkImageSpatialFilter vtkImageAlgorithm
