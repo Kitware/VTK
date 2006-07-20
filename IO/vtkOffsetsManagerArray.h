@@ -16,7 +16,7 @@
 // .SECTION Description
 // This class is deisgned to work within vtkXMLWriter. It store a position
 // in a file (unsigned long) and associate a offset in the file. This is
-// usefull when writting TimeStep XML file when you want to forward the 
+// usefull when writing TimeStep XML file when you want to forward the 
 // same offset from the AppendData section on every entry in let say
 // <Points> definition
 // Example:

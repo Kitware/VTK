@@ -202,7 +202,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 //*****************************************************************************
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.65");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.66");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 //----------------------------------------------------------------------------
 vtkXMLWriter::vtkXMLWriter()
@@ -770,7 +770,7 @@ vtkXMLWriter::ReserveAttributeSpace(const char* attr, int length)
 
   // By default write an empty valid xml: attr="".  In most case it
   // will be overwritten but we guarantee that the xml produced will
-  // be valid in case we stop writting too early.
+  // be valid in case we stop writing too early.
   os << " " << attr << "=\"\"";
 
   // Now reserve space for the value.

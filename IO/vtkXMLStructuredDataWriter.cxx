@@ -30,7 +30,7 @@
 #include "vtkOffsetsManagerArray.h"
 #undef  vtkOffsetsManager_DoNotInclude
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.22");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.23");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -187,7 +187,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
       {
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->CurrentPiece = 0;
-       // We are done writting all the pieces, lets loop over time now:
+       // We are done writing all the pieces, lets loop over time now:
       this->CurrentTimeIndex++;
  
       if( this->UserContinueExecuting != 1)

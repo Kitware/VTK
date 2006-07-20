@@ -24,7 +24,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkPolyDataWriter, "1.26");
+vtkCxxRevisionMacro(vtkPolyDataWriter, "1.27");
 vtkStandardNewMacro(vtkPolyDataWriter);
 
 void vtkPolyDataWriter::WriteData()
@@ -118,7 +118,7 @@ void vtkPolyDataWriter::WriteData()
       }
     else
       {
-      vtkErrorMacro("Error writting data set to memory");
+      vtkErrorMacro("Error writing data set to memory");
       this->CloseVTKFile(fp);
       }
     return;
