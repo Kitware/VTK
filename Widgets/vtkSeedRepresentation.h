@@ -54,6 +54,10 @@ public:
   virtual void GetSeedDisplayPosition(unsigned int seedNum, double pos[3]);
 
   // Description:
+  // Return the number of seeds (or handles) that have been created.
+  int GetNumberOfSeeds();
+
+  // Description:
   // This method is used to specify the type of handle representation to use
   // for the internal vtkHandleWidgets within vtkSeedWidget.  To use this
   // method, create a dummy vtkHandleWidget (or subclass), and then invoke
