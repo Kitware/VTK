@@ -44,8 +44,10 @@ public:
     { return new vtkSeedCallback; }
   virtual void Execute(vtkObject*, unsigned long, void*)
     {
-      cout << "point placed\n";
+      cout << "Point placed, total of:" << this->SeedRepresentation->GetNumberOfSeeds() << "\n";
     }
+  vtkSeedCallback() : SeedRepresentation(0) {}
+  vtkSeedRepresentation *SeedRepresentation;
 };
 
 
@@ -79,8 +81,9 @@ int TestSeedWidget( int argc, char *argv[] )
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
 
-  vtkSeedCallback *mcbk = vtkSeedCallback::New();
-  widget->AddObserver(vtkCommand::PlacePointEvent,mcbk);
+  vtkSeedCallback *scbk = vtkSeedCallback::New();
+  scbk->SeedRepresentation = rep;
+  widget->AddObserver(vtkCommand::PlacePointEvent,scbk);
 
   // Add the actors to the renderer, set the background and size
   //
@@ -118,8 +121,8 @@ int TestSeedWidget( int argc, char *argv[] )
   actor->Delete();
   handle->Delete();
   rep->Delete();
-  widget->RemoveObserver(mcbk);
-  mcbk->Delete();
+  widget->RemoveObserver(scbk);
+  scbk->Delete();
   widget->Off();
   widget->Delete();
   iren->Delete();

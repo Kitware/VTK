@@ -46,9 +46,16 @@ class vtkSeedCallback : public vtkCommand
 public:
   static vtkSeedCallback *New() 
     { return new vtkSeedCallback; }
-  virtual void Execute(vtkObject*, unsigned long, void*)
+  virtual void Execute(vtkObject*, unsigned long eid, void*)
     {
-      cout << "point placed\n";
+      if ( eid == vtkCommand::CursorChangedEvent )
+        {
+        cout << "cursor changed\n";
+        }
+      else
+        {
+        cout << "point placed\n";
+        }
     }
 };
 
@@ -101,6 +108,7 @@ int TestSeedWidget2( int argc, char *argv[] )
 
   vtkSeedCallback *mcbk = vtkSeedCallback::New();
   widget->AddObserver(vtkCommand::PlacePointEvent,mcbk);
+  widget->AddObserver(vtkCommand::CursorChangedEvent,mcbk);
 
   // Add the actors to the renderer, set the background and size
   //
