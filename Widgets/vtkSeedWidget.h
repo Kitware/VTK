@@ -110,8 +110,6 @@ protected:
   enum {Start=0,PlacingSeeds,PlacedSeeds,MovingSeed};
 //ETX
   int WidgetState;
-  unsigned int CurrentHandleNumber;
-  vtkHandleWidget *CurrentHandleWidget;
 
   // Callback interface to capture events when
   // placing the widget.
@@ -119,9 +117,11 @@ protected:
   static void CompletedAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
+  static void DeleteAction(vtkAbstractWidget*);
   
   // The positioning handle widgets
   vtkSeedList *Seeds;
+  void DeleteSeed(int i);
   
   // Helper method for creating widgets
   static vtkHandleWidget *CreateHandleWidget(vtkSeedWidget *self, vtkSeedRepresentation *rep);
