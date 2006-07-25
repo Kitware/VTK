@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
 
-vtkCxxRevisionMacro(vtkFieldData, "1.2");
+vtkCxxRevisionMacro(vtkFieldData, "1.2.6.1");
 vtkStandardNewMacro(vtkFieldData);
 
 //----------------------------------------------------------------------------
@@ -471,7 +471,7 @@ int vtkFieldData::GetArrayContainingComponent(int i, int& arrayComp)
     if ( this->Data[j] != NULL )
       {
       numComp = this->Data[j]->GetNumberOfComponents();
-      if ( j < (numComp + count) )
+      if ( i < (numComp + count) )
         {
         arrayComp = i - count;
         return j;
