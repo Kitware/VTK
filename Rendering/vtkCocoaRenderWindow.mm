@@ -18,14 +18,13 @@
 #import "vtkIdList.h"
 #import "vtkObjectFactory.h"
 #import "vtkRendererCollection.h"
-#import "vtkCocoaWindow.h"
 #import "vtkCocoaGLView.h"
 
 #ifndef MAC_OS_X_VERSION_10_4
 #define MAC_OS_X_VERSION_10_4 1040
 #endif
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.33");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.34");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -464,7 +463,7 @@ void vtkCocoaRenderWindow::WindowInitialize ()
                                (float)this->Size[0],
                                (float)this->Size[1]);
 
-    vtkCocoaWindow* theWindow = [[vtkCocoaWindow alloc]
+    NSWindow* theWindow = [[NSWindow alloc]
       initWithContentRect:ctRect
       styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask
       backing:NSBackingStoreBuffered
