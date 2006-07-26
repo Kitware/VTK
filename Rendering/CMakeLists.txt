@@ -349,9 +349,8 @@ ELSE (WIN32)
       SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
                    vtkCocoaRenderWindowInteractor.mm
                    vtkCocoaRenderWindow.mm
-                   vtkCocoaWindow.mm
                    vtkCocoaGLView.mm)
-      SET_SOURCE_FILES_PROPERTIES(vtkCocoaGLView vtkCocoaWindow WRAP_EXCLUDE)
+      SET_SOURCE_FILES_PROPERTIES(vtkCocoaGLView WRAP_EXCLUDE)
       SET (KIT_LIBS ${KIT_LIBS} ${OPENGL_gl_LIBRARY} "-framework Cocoa")
     ENDIF(VTK_USE_COCOA)
     IF(VTK_USE_CARBON)
