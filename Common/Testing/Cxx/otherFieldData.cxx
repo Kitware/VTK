@@ -65,7 +65,7 @@ int otherFieldData(int,char *[])
 
   int arrayComp;
   int a = fd->GetArrayContainingComponent(1, arrayComp);
-  if (a != 0)
+  if (a != 1)
     {
     return 1;
     }
