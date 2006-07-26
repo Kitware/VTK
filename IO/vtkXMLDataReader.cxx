@@ -29,7 +29,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.30");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.31");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -61,9 +61,9 @@ vtkXMLDataReader::~vtkXMLDataReader()
     {
     this->DestroyXMLParser();
     }
-  if(this->NumberOfPieces) 
-    { 
-    this->DestroyPieces(); 
+  if(this->NumberOfPieces)
+    {
+    this->DestroyPieces();
     }
   this->DataProgressObserver->Delete();
   if( this->NumberOfPointArrays )
@@ -388,6 +388,14 @@ void vtkXMLDataReader::SetupOutputData()
     }
   if( this->NumberOfCellArrays )
     {
+    if( this->CellDataTimeStep != NULL )
+      {
+      delete[] this->CellDataTimeStep;
+      }
+    if( this->CellDataOffset != NULL )
+      {
+      delete[] this->CellDataOffset;
+      }
     this->CellDataTimeStep = new int[this->NumberOfCellArrays];
     this->CellDataOffset = new unsigned long[this->NumberOfCellArrays];
     for(int i=0; i<this->NumberOfCellArrays;i++)
