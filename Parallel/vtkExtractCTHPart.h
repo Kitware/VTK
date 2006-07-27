@@ -81,9 +81,22 @@ public:
   // Set the controller used to coordinate parallel processing.
   void SetController(vtkMultiProcessController* controller);
   
+  // Description:
   // Return the controller used to coordinate parallel processing. By default,
   // it is the global controller.
   vtkGetObjectMacro(Controller,vtkMultiProcessController);
+
+  // Description:
+  // Set and get the volume fraction surface value
+  vtkSetMacro(VolumeFractionSurfaceValue, double);
+  vtkGetMacro(VolumeFractionSurfaceValue, double);
+ 
+  // Description:
+  // Set and get the OverwriteVolumeFractionSurfaceValue. If this is set, then
+  // VolumeFractionSurfaceValue will be used.
+  vtkSetClampMacro(OverwriteVolumeFractionSurfaceValue, int, 0, 1);
+  vtkBooleanMacro(OverwriteVolumeFractionSurfaceValue, int);
+  vtkGetMacro(OverwriteVolumeFractionSurfaceValue, int);
   
 protected:
   vtkExtractCTHPart();
@@ -221,6 +234,8 @@ protected:
   void EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkMultiGroupDataSet* input);
   int VolumeFractionType;
   double VolumeFractionSurfaceValue;
+  double VolumeFractionSurfaceValueInternal;
+  int OverwriteVolumeFractionSurfaceValue;
   
   double Bounds[6]; // Whole bounds (dataset over all the processors)
   

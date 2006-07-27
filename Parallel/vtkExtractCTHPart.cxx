@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.15");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.16");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -97,10 +97,12 @@ vtkExtractCTHPart::vtkExtractCTHPart()
   this->RCut=0;
   this->RClip2=0;
   this->VolumeFractionType = -1;
+  this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_FLOAT;
   this->VolumeFractionSurfaceValue = CTH_AMR_SURFACE_VALUE_FLOAT;
   
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
+  this->OverwriteVolumeFractionSurfaceValue = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -348,7 +350,7 @@ int vtkExtractCTHPart::RequestData(
   //cout << "@@@@ Range: " << range[0] << " " range[1] << " midpoint: " << ((range[0] + range[1]) * .5) << endl;
 
   vtkClipPolyData* clip = vtkClipPolyData::New();
-  clip->SetValue(this->VolumeFractionSurfaceValue);
+  clip->SetValue(this->VolumeFractionSurfaceValueInternal);
   vtkClipPolyData *clip2=clip;
   if (this->ClipPlane)
     {
@@ -712,13 +714,20 @@ void vtkExtractCTHPart::EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkMu
             if ( this->VolumeFractionType < 0 )
               {
               this->VolumeFractionType = cellVolumeFraction->GetDataType();
-              switch ( this->VolumeFractionType )
+              if ( this->OverwriteVolumeFractionSurfaceValue )
                 {
-              case VTK_UNSIGNED_CHAR:
-                this->VolumeFractionSurfaceValue = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR;
-                break;
-              default:
-                this->VolumeFractionSurfaceValue = CTH_AMR_SURFACE_VALUE_FLOAT;
+                this->VolumeFractionSurfaceValueInternal = this->VolumeFractionSurfaceValue;
+                }
+              else
+                {
+                switch ( this->VolumeFractionType )
+                  {
+                case VTK_UNSIGNED_CHAR:
+                  this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR;
+                  break;
+                default:
+                  this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_FLOAT;
+                  }
                 }
               }
             }
@@ -751,13 +760,20 @@ void vtkExtractCTHPart::EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkMu
       if ( this->VolumeFractionType < 0 )
         {
         this->VolumeFractionType = cellVolumeFraction->GetDataType();
-        switch ( this->VolumeFractionType )
+        if ( this->OverwriteVolumeFractionSurfaceValue )
           {
-        case VTK_UNSIGNED_CHAR:
-          this->VolumeFractionSurfaceValue = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR;
-          break;
-        default:
-          this->VolumeFractionSurfaceValue = CTH_AMR_SURFACE_VALUE_FLOAT;
+          this->VolumeFractionSurfaceValueInternal = this->VolumeFractionSurfaceValue;
+          }
+        else
+          {
+          switch ( this->VolumeFractionType )
+            {
+          case VTK_UNSIGNED_CHAR:
+            this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR;
+            break;
+          default:
+            this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_FLOAT;
+            }
           }
         }
       }
@@ -888,13 +904,20 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
   if ( this->VolumeFractionType < 0 )
     {
     this->VolumeFractionType = cellVolumeFraction->GetDataType();
-    switch ( this->VolumeFractionType )
+    if ( this->OverwriteVolumeFractionSurfaceValue )
       {
-    case VTK_UNSIGNED_CHAR:
-      this->VolumeFractionSurfaceValue = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR;
-      break;
-    default:
-      this->VolumeFractionSurfaceValue = CTH_AMR_SURFACE_VALUE_FLOAT;
+      this->VolumeFractionSurfaceValueInternal = this->VolumeFractionSurfaceValue;
+      }
+    else
+      {
+      switch ( this->VolumeFractionType )
+        {
+      case VTK_UNSIGNED_CHAR:
+        this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR;
+        break;
+      default:
+        this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_FLOAT;
+        }
       }
     }
   
@@ -935,12 +958,12 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
   // Be sure to to that only after the surface filter. 
   double range[2];
   cellVolumeFraction->GetRange(range);
-  if (range[1] < this->VolumeFractionSurfaceValue)
+  if (range[1] < this->VolumeFractionSurfaceValueInternal)
     {
     vtkTimerLog::MarkEndEvent("Execute Part");
     return;
     }
-  if (this->ClipPlane == 0 && range[0] > this->VolumeFractionSurfaceValue)
+  if (this->ClipPlane == 0 && range[0] > this->VolumeFractionSurfaceValueInternal)
     {
     vtkTimerLog::MarkEndEvent("Execute Part");
     return;
@@ -977,7 +1000,7 @@ void vtkExtractCTHPart::CreateInternalPipeline()
 
   this->Contour=vtkContourFilter::New();
   this->Contour->SetInput(this->Data);
-  this->Contour->SetValue(0, this->VolumeFractionSurfaceValue);
+  this->Contour->SetValue(0, this->VolumeFractionSurfaceValueInternal);
   
  
   if(this->ClipPlane)
@@ -997,7 +1020,7 @@ void vtkExtractCTHPart::CreateInternalPipeline()
     this->Cut->SetInput(this->Data);
     this->Clip2 = vtkClipPolyData::New();
     this->Clip2->SetInput(this->Cut->GetOutput());
-    this->Clip2->SetValue(this->VolumeFractionSurfaceValue);
+    this->Clip2->SetValue(this->VolumeFractionSurfaceValueInternal);
     this->Append2->AddInput(this->Clip2->GetOutput());
     this->PolyData = this->Append2->GetOutput();
     }
@@ -1012,7 +1035,7 @@ void vtkExtractCTHPart::CreateInternalPipeline()
   
   this->RContour=vtkContourFilter::New();
   this->RContour->SetInput(this->RData);
-  this->RContour->SetValue(0,this->VolumeFractionSurfaceValue);
+  this->RContour->SetValue(0,this->VolumeFractionSurfaceValueInternal);
   
   if(this->ClipPlane)
     {
@@ -1031,7 +1054,7 @@ void vtkExtractCTHPart::CreateInternalPipeline()
     this->RCut->SetValue(0, 0.0);
     this->RClip2 = vtkClipPolyData::New();
     this->RClip2->SetInput(this->RCut->GetOutput());
-    this->RClip2->SetValue(this->VolumeFractionSurfaceValue);
+    this->RClip2->SetValue(this->VolumeFractionSurfaceValueInternal);
     this->RAppend2->AddInput(this->RClip2->GetOutput());
     this->RPolyData = this->RAppend2->GetOutput();
     }
@@ -1177,13 +1200,20 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
   if ( this->VolumeFractionType < 0 )
     {
     this->VolumeFractionType = cellVolumeFraction->GetDataType();
-    switch ( this->VolumeFractionType )
+    if ( this->OverwriteVolumeFractionSurfaceValue )
       {
-    case VTK_UNSIGNED_CHAR:
-      this->VolumeFractionSurfaceValue = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR;
-      break;
-    default:
-      this->VolumeFractionSurfaceValue = CTH_AMR_SURFACE_VALUE_FLOAT;
+      this->VolumeFractionSurfaceValueInternal = this->VolumeFractionSurfaceValue;
+      }
+    else
+      {
+      switch ( this->VolumeFractionType )
+        {
+      case VTK_UNSIGNED_CHAR:
+        this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR;
+        break;
+      default:
+        this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_FLOAT;
+        }
       }
     }
  
@@ -1226,12 +1256,12 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
   // Be sure to to that only after the surface filter. 
   double range[2];
   cellVolumeFraction->GetRange(range);
-  if (range[1] < this->VolumeFractionSurfaceValue)
+  if (range[1] < this->VolumeFractionSurfaceValueInternal)
     {
     vtkTimerLog::MarkEndEvent("Execute Part");
     return;
     }
-  if (this->ClipPlane == 0 && range[0] > this->VolumeFractionSurfaceValue)
+  if (this->ClipPlane == 0 && range[0] > this->VolumeFractionSurfaceValueInternal)
     {
     vtkTimerLog::MarkEndEvent("Execute Part");
     return;
