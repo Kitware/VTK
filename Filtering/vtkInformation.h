@@ -338,6 +338,7 @@ protected:
 private:
   //BTX
   friend class vtkInformationKeyToInformationFriendship;
+  friend class vtkInformationIterator;
   //ETX
 private:
   vtkInformation(const vtkInformation&);  // Not implemented.
