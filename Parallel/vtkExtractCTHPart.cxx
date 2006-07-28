@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.16");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.17");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -2118,6 +2118,13 @@ void vtkExtractCTHPart::PrintSelf(ostream& os, vtkIndent indent)
     ++ it )
     {
     os << i2 << it->c_str() << endl;
+    }
+  os << indent << "OverwriteVolumeFractionSurfaceValue: "
+    << this->OverwriteVolumeFractionSurfaceValue << endl;
+  if (this->OverwriteVolumeFractionSurfaceValue)
+    {
+    os << indent << "VolumeFractionSurfaceValue: "
+      << this->VolumeFractionSurfaceValue << endl;
     }
   if (this->ClipPlane)
     {
