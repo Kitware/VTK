@@ -106,6 +106,7 @@ vtkInformationInformationVectorKey.cxx
 vtkInformationIntegerKey.cxx
 vtkInformationIntegerPointerKey.cxx
 vtkInformationIntegerVectorKey.cxx
+vtkInformationIterator.cxx
 vtkInformationKey.cxx
 vtkInformationKeyVectorKey.cxx
 vtkInformationObjectBaseKey.cxx
@@ -166,6 +167,8 @@ vtkRectilinearGridAlgorithm.cxx
 vtkRectilinearGridSource.cxx
 vtkRectilinearGridToPolyDataFilter.cxx
 vtkScalarTree.cxx
+vtkSelection.cxx
+vtkSelectionNode.cxx
 vtkSimpleCellTessellator.cxx
 vtkSimpleImageToImageFilter.cxx
 vtkSimpleScalarTree.cxx
