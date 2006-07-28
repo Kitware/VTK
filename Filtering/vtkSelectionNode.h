@@ -18,7 +18,7 @@
 // vtkSelectionNode is a node of a tree data structured used to store
 // selection results. Each node in this tree stores a list of properties
 // (as a vtkInformation map) and a list of selection values (as a
-// vtkDataArray). The properties provide information about what the
+// vtkAbstractArray). The properties provide information about what the
 // selection values mean. For example, if the CONTENT_TYPE properties gives
 // information about what is stored by the node. If the CONTENT_TYPE is
 // SELECTIONS, the node is used as a parent node that contains other
@@ -44,7 +44,7 @@
 #include "vtkObject.h"
 
 //BTX
-class vtkDataArray;
+class vtkAbstractArray;
 class vtkInformation;
 class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
@@ -60,11 +60,11 @@ public:
 
   // Description:
   // Sets the selection list.
-  virtual void SetSelectionList(vtkDataArray*);
+  virtual void SetSelectionList(vtkAbstractArray*);
 
   // Description:
   // Returns the selection list.
-  vtkGetObjectMacro(SelectionList, vtkDataArray);
+  vtkGetObjectMacro(SelectionList, vtkAbstractArray);
 
   // Description:
   // Returns the property map.
@@ -179,7 +179,7 @@ protected:
   ~vtkSelectionNode();
 
   vtkInformation* Properties;
-  vtkDataArray* SelectionList;
+  vtkAbstractArray* SelectionList;
   vtkSelectionNode* ParentNode;
 
 private:

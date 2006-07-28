@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkSelectionNode.h"
 
-#include "vtkDataArray.h"
+#include "vtkAbstractArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIterator.h"
@@ -25,10 +25,10 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelectionNode, "1.1");
+vtkCxxRevisionMacro(vtkSelectionNode, "1.2");
 vtkStandardNewMacro(vtkSelectionNode);
 
-vtkCxxSetObjectMacro(vtkSelectionNode, SelectionList, vtkDataArray);
+vtkCxxSetObjectMacro(vtkSelectionNode, SelectionList, vtkAbstractArray);
 
 vtkInformationKeyMacro(vtkSelectionNode,CONTENT_TYPE,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,SOURCE,ObjectBase);
