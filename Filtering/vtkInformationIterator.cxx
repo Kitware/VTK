@@ -19,7 +19,7 @@
 #include "vtkInformationKey.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInformationIterator, "1.1");
+vtkCxxRevisionMacro(vtkInformationIterator, "1.2");
 vtkStandardNewMacro(vtkInformationIterator);
 
 vtkCxxSetObjectMacro(vtkInformationIterator, Information, vtkInformation);
@@ -90,10 +90,7 @@ int vtkInformationIterator::IsDoneWithTraversal()
     return 1;
     }
 
-  vtkInformationKey** keys = this->Information->Internal->Keys;
-  unsigned short tableSize = this->Information->Internal->TableSize;
-
-  if (this->Index >= tableSize)
+  if (this->Index >= this->Information->Internal->TableSize)
     {
     return 1;
     }
