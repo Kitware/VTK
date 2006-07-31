@@ -13,27 +13,27 @@
 
 =========================================================================*/
 
-#include <string.h>
-#include <ctype.h>
 #include "vtkCallbackCommand.h"
 
 //----------------------------------------------------------------
-vtkCallbackCommand::vtkCallbackCommand() 
-{ 
+vtkCallbackCommand::vtkCallbackCommand()
+{
   this->ClientData = NULL;
-  this->Callback = NULL; 
+  this->Callback = NULL;
   this->ClientDataDeleteCallback = NULL;
   this->AbortFlagOnExecute = 0;
 }
 
-vtkCallbackCommand::~vtkCallbackCommand() 
-{ 
+//----------------------------------------------------------------
+vtkCallbackCommand::~vtkCallbackCommand()
+{
   if (this->ClientDataDeleteCallback)
     {
     this->ClientDataDeleteCallback(this->ClientData);
     }
 }
 
+//----------------------------------------------------------------
 void vtkCallbackCommand::Execute(vtkObject *caller, unsigned long event,
                                  void *callData)
 {

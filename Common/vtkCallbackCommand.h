@@ -16,7 +16,7 @@
 // .SECTION Description
 // Use vtkCallbackCommand for generic function callbacks. That is, this class
 // can be used when you wish to execute a function (of the signature
-// described below) using the Command/Observer design pattern in VTK. 
+// described below) using the Command/Observer design pattern in VTK.
 // The callback function should have the form
 // <pre>
 // void func(vtkObject*, unsigned long eid, void* clientdata, void *calldata)
@@ -27,7 +27,7 @@
 // data that the vtkObject::InvokeEvent() may send with the callback. For
 // example, the invocation of the ProgressEvent sends along the progress
 // value as calldata.
-// 
+//
 
 // .SECTION See Also
 // vtkCommand vtkOldStyleCallbackCommand
@@ -40,12 +40,12 @@
 class VTK_COMMON_EXPORT vtkCallbackCommand : public vtkCommand
 {
 public:
-  static vtkCallbackCommand *New() 
+  static vtkCallbackCommand *New()
     {return new vtkCallbackCommand;};
 
   // Description:
   // Satisfy the superclass API for callbacks. Recall that the caller is
-  // the instance invoking the event; eid is the event id (see 
+  // the instance invoking the event; eid is the event id (see
   // vtkCommand.h); and calldata is information sent when the callback
   // was invoked (e.g., progress value in the vtkCommand::ProgressEvent).
   virtual void Execute(vtkObject *caller, unsigned long eid, void *callData);
@@ -53,27 +53,27 @@ public:
   // Description:
   // Methods to set and get client and callback information, and the callback
   // function.
-  virtual void SetClientData(void *cd) 
+  virtual void SetClientData(void *cd)
     { this->ClientData = cd; }
   virtual void* GetClientData()
     { return this->ClientData; }
-  virtual void SetCallback(void (*f)(vtkObject *caller, unsigned long eid, 
-                                     void *clientdata, void *calldata)) 
+  virtual void SetCallback(void (*f)(vtkObject *caller, unsigned long eid,
+                                     void *clientdata, void *calldata))
     { this->Callback = f; }
   virtual void SetClientDataDeleteCallback(void (*f)(void *))
     { this->ClientDataDeleteCallback = f; }
-  
+
   // Description:
   // Set/Get the abort flag on execute. If this is set to true the AbortFlag
   // will be set to On automatically when the Execute method is triggered *and*
   // a callback is set.
-  void SetAbortFlagOnExecute(int f)  
+  void SetAbortFlagOnExecute(int f)
     { this->AbortFlagOnExecute = f; }
-  int GetAbortFlagOnExecute() 
+  int GetAbortFlagOnExecute()
     { return this->AbortFlagOnExecute; }
-  void AbortFlagOnExecuteOn() 
+  void AbortFlagOnExecuteOn()
     { this->SetAbortFlagOnExecute(1); }
-  void AbortFlagOnExecuteOff() 
+  void AbortFlagOnExecuteOff()
     { this->SetAbortFlagOnExecute(0); }
 
   void (*Callback)(vtkObject *, unsigned long, void *, void *);
@@ -88,7 +88,5 @@ protected:
   ~vtkCallbackCommand();
 };
 
+#endif
 
-
-#endif /* __vtkCallbackCommand_h */
- 
