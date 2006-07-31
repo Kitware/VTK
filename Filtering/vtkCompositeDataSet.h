@@ -20,7 +20,7 @@
 // only provides an interface to access the datasets through iterators.
 
 // .SECTION See Also
-// vtkCompositeDataIterator 
+// vtkCompositeDataIterator
 
 #ifndef __vtkCompositeDataSet_h
 #define __vtkCompositeDataSet_h
@@ -38,7 +38,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Return a new (forward) iterator 
+  // Return a new (forward) iterator
   // (the iterator has to be deleted by user)
   virtual vtkCompositeDataIterator* NewIterator() = 0;
 
@@ -57,7 +57,7 @@ public:
   // depends on the actual subclass.
   virtual void AddDataSet(vtkInformation* index, vtkDataObject* dobj) = 0;
 
-  // Description: 
+  // Description:
   // Returns a dataset pointed by appropriate keys in the index information
   // object.  Which keys are used depends on the actual subclass.
   virtual vtkDataObject* GetDataSet(vtkInformation* index) = 0;

@@ -18,6 +18,19 @@
 // vtkHierarchicalDataSet. The dataset type is restricted to
 // vtkUniformGrid. Each dataset has an associated vtkAMRBox
 // that represents it's region (similar to extent) in space.
+// .SECTION Warning
+// To compute the cellId of a cell within a vtkUniformGrid with AMRBox=box, 
+// you should not use vtkUniformGrid::ComputeCellId( {x,y,z} ) but instead
+// use the following pseudo code:
+// for (int i=0; i<3; i++)
+//   {
+//   cellDims[i] = box.HiCorner[i] - box.LoCorner[i] + 1;
+//   }
+// vtkIdType cellId =
+//   (z-box.LoCorner[2])*cellDims[0]*cellDims[1] +
+//   (y-box.LoCorner[1])*cellDims[0] +
+//   (x-box.LoCorner[0]);
+
 
 #ifndef __vtkHierarchicalBoxDataSet_h
 #define __vtkHierarchicalBoxDataSet_h
@@ -58,8 +71,8 @@ public:
 
   // Description:
   // Get a dataset given a level and an id.
-  vtkUniformGrid* GetDataSet(unsigned int level, 
-                             unsigned int id, 
+  vtkUniformGrid* GetDataSet(unsigned int level,
+                             unsigned int id,
                              vtkAMRBox& box);
 //ETX
   vtkDataObject* GetDataSet(unsigned int level, unsigned int id)
@@ -83,7 +96,7 @@ public:
 
   // Description:
   // Shallow and Deep copy.
-  virtual void ShallowCopy(vtkDataObject *src);  
+  virtual void ShallowCopy(vtkDataObject *src);
   virtual void DeepCopy(vtkDataObject *src);
 
   static vtkInformationIntegerVectorKey* BOX();

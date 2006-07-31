@@ -73,7 +73,7 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Return a new (forward) iterator 
+  // Return a new (forward) iterator
   // (the iterator has to be deleted by user)
   virtual vtkCompositeDataIterator* NewIterator();
 
@@ -112,7 +112,7 @@ public:
   void InitializeNode(unsigned int group, unsigned int id);
 
   // Description:
-  // Set the dataset pointer for a given group id and position. 
+  // Set the dataset pointer for a given group id and position.
   // NULL pointer is an accepted assignment and will replace
   // the dataset. Use NULL pointer to mark a dataset as existant, possibly
   // on another processor. Metadata can still be associated with
@@ -133,7 +133,7 @@ public:
 
   // Description:
   // Shallow and Deep copy.
-  virtual void ShallowCopy(vtkDataObject *src);  
+  virtual void ShallowCopy(vtkDataObject *src);
   virtual void DeepCopy(vtkDataObject *src);
 
   // Description:
@@ -144,7 +144,7 @@ public:
   vtkGetObjectMacro(MultiGroupDataInformation,vtkMultiGroupDataInformation);
 
   // Description:
-  // Set the information about the datasets. 
+  // Set the information about the datasets.
   // This is an information object containing the meta-data associated with
   // this dataset. This may include things like datatypes, extents...
   void SetMultiGroupDataInformation(vtkMultiGroupDataInformation* info);
