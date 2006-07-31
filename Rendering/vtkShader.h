@@ -70,7 +70,7 @@ public:
 
   // Description:
   // Called to pass VTK actor/property/light values and other
-  // Shader variables over to the shader. This by the ShaderProgram
+  // Shader variables over to the shader. This is called by the ShaderProgram
   // during each render.
   virtual void PassShaderVariables(vtkActor* actor, vtkRenderer* ren);
 

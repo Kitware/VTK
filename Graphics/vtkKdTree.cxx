@@ -47,7 +47,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.9");
+vtkCxxRevisionMacro(vtkKdTree, "1.10");
 
 // Timing data ---------------------------------------------
 
@@ -784,7 +784,7 @@ void vtkKdTree::BuildLocator()
     }
   else
     {
-    // cell centers - basis of spacial decomposition
+    // cell centers - basis of spatial decomposition
   
     TIMER("Create centroid list");
   

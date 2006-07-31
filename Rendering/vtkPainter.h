@@ -102,7 +102,7 @@ public:
    
   // Description:
   // Generates rendering primitives of appropriate type(s). Multiple types 
-  // of preimitives can be requested by or-ring the primitive flags. 
+  // of primitives can be requested by or-ring the primitive flags. 
   // Default implementation calls UpdateDelegatePainter() to update the 
   // deletagate painter and then calls RenderInternal().
   virtual void Render(vtkRenderer* renderer, vtkActor* actor, 
