@@ -27,6 +27,7 @@
 #include "vtkQuadraticTetra.h"
 #include "vtkQuadraticWedge.h"
 #include "vtkQuadraticPyramid.h"
+#include "vtkPoints.h"
 
 void  ComputeDataValues(vtkPoints *pts, double *edgeValues)
 {
