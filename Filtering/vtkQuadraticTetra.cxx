@@ -20,8 +20,9 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkTetra.h"
 #include "vtkDoubleArray.h"
+#include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.8");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.9");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 //----------------------------------------------------------------------------

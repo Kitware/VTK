@@ -24,8 +24,9 @@
 #include "vtkMath.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkBiQuadraticQuad.h"
+#include "vtkPoints.h"
 
-vtkCxxRevisionMacro (vtkTriQuadraticHexahedron, "1.7");
+vtkCxxRevisionMacro (vtkTriQuadraticHexahedron, "1.8");
 vtkStandardNewMacro (vtkTriQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -292,15 +293,10 @@ void vtkTriQuadraticHexahedron::Contour (double value,
             vtkPointData * outPd,
             vtkCellData * inCd, vtkIdType cellId, vtkCellData * outCd)
 {
-  int i, j;
-
-  for (i = 0; i < 27; i++)
-    cout << cellScalars->GetTuple1(i) << endl;
-
   //contour each linear hex separately
-  for (i = 0; i < 8; i++)
+  for (int i = 0; i < 8; i++)
     {
-    for (j = 0; j < 8; j++)
+    for (int j = 0; j < 8; j++)
       {
       this->Hex->Points->SetPoint (j, this->Points->GetPoint (LinearHexs[i][j]));
       this->Hex->PointIds->SetId (j, LinearHexs[i][j]);
@@ -323,12 +319,10 @@ void vtkTriQuadraticHexahedron::Clip (double value,
          vtkCellData * inCd, vtkIdType cellId,
          vtkCellData * outCd, int insideOut)
 {
-  int i, j;
-
   //clip each linear hex separately
-  for (i = 0; i < 8; i++)
+  for (int i = 0; i < 8; i++)
     {
-    for (j = 0; j < 8; j++)
+    for (int j = 0; j < 8; j++)
       {
       this->Hex->Points->SetPoint (j, this->Points->GetPoint (LinearHexs[i][j]));
       this->Hex->PointIds->SetId (j, LinearHexs[i][j]);

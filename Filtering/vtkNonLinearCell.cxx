@@ -13,38 +13,18 @@
 
 =========================================================================*/
 #include "vtkNonLinearCell.h"
-#include "vtkPolyData.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkNonLinearCell, "1.1");
+vtkCxxRevisionMacro(vtkNonLinearCell, "1.2");
 
+//----------------------------------------------------------------------------
 vtkNonLinearCell::vtkNonLinearCell()
 {
-  this->Error = 0.10;
 }
 
-void vtkNonLinearCell::Tessellate(vtkIdType vtkNotUsed(cellId), 
-                                  vtkDataSet* vtkNotUsed(input), 
-                                  vtkPolyData* vtkNotUsed(output), 
-                                  vtkPointLocator* vtkNotUsed(locator))
-{
-  vtkWarningMacro(<<"This method should be implemented by a subclass");
-}
-
-void vtkNonLinearCell::Tessellate(vtkIdType vtkNotUsed(cellId), 
-                                  vtkDataSet* vtkNotUsed(input), 
-                                  vtkUnstructuredGrid* vtkNotUsed(output), 
-                                  vtkPointLocator* vtkNotUsed(locator))
-{
-  vtkWarningMacro(<<"This method should be implemented by a subclass");
-}
-  
+//----------------------------------------------------------------------------
 void vtkNonLinearCell::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
-  os << indent << "Error: " << this->Error << "\n";
 }
 

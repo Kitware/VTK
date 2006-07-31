@@ -43,6 +43,7 @@ class vtkQuadraticQuad;
 class vtkQuadraticTriangle;
 class vtkTetra;
 class vtkPyramid;
+class vtkDoubleArray;
 
 class VTK_FILTERING_EXPORT vtkQuadraticPyramid : public vtkNonLinearCell
 {

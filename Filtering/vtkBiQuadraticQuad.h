@@ -42,6 +42,7 @@
 class vtkQuadraticEdge;
 class vtkQuad;
 class vtkTriangle;
+class vtkDoubleArray;
 
 class VTK_FILTERING_EXPORT vtkBiQuadraticQuad : public vtkNonLinearCell
 {

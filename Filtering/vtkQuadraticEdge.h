@@ -31,6 +31,7 @@
 #include "vtkNonLinearCell.h"
 
 class vtkLine;
+class vtkDoubleArray;
 
 class VTK_FILTERING_EXPORT vtkQuadraticEdge : public vtkNonLinearCell
 {

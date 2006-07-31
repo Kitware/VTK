@@ -24,8 +24,9 @@
 #include "vtkQuad.h"
 #include "vtkLine.h"
 #include "vtkQuadraticEdge.h"
+#include "vtkPoints.h"
 
-vtkCxxRevisionMacro (vtkQuadraticLinearQuad, "1.5");
+vtkCxxRevisionMacro (vtkQuadraticLinearQuad, "1.6");
 vtkStandardNewMacro (vtkQuadraticLinearQuad);
 
 //----------------------------------------------------------------------------

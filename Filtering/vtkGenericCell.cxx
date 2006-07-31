@@ -15,6 +15,7 @@
 #include "vtkGenericCell.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkEmptyCell.h"
 #include "vtkVertex.h"
 #include "vtkPolyVertex.h"
@@ -47,7 +48,7 @@
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.5");
+vtkCxxRevisionMacro(vtkGenericCell, "1.6");
 vtkStandardNewMacro(vtkGenericCell);
 
 //----------------------------------------------------------------------------
