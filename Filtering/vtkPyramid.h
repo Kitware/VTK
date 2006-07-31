@@ -96,6 +96,10 @@ public:
     }
 
   int JacobianInverse(double pcoords[3], double **inverse, double derivs[15]);
+
+  // Description:
+  // Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
+  // Ids are related to the cell, not to the dataset.
   static int *GetEdgeArray(int edgeId);
   static int *GetFaceArray(int faceId);
 

@@ -100,9 +100,6 @@ public:
   int GetParametricCenter (double pcoords[3]);
 
   // Description:
-  // Biquadratic quadratic wedge specific methods.
-  static int *GetFaceArray(int faceId);
-  // Description:
   // @deprecated Replaced by vtkLine::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions (double pcoords[3], double weights[15]);
   // Description:
@@ -119,6 +116,11 @@ public:
     {
     vtkBiQuadraticQuadraticWedge::InterpolationDerivs(pcoords,derivs);
     }
+  // Description:
+  // Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
+  // Ids are related to the cell, not to the dataset.
+  static int *GetEdgeArray(int edgeId);
+  static int *GetFaceArray(int faceId);
 
   // Description:
   // Given parametric coordinates compute inverse Jacobian transformation

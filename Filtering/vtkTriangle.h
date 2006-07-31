@@ -88,6 +88,10 @@ public:
     {
     vtkTriangle::InterpolationDerivs(pcoords,derivs);
     }
+  // Description:
+  // Return the ids of the vertices defining edge (`edgeId`).
+  // Ids are related to the cell, not to the dataset.
+  int *GetEdgeArray(int edgeId);
 
   // Description:
   // Plane intersection plus in/out test on triangle. The in/out test is

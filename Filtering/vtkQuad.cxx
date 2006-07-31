@@ -25,7 +25,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuad, "1.4");
+vtkCxxRevisionMacro(vtkQuad, "1.5");
 vtkStandardNewMacro(vtkQuad);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -399,6 +399,12 @@ static LINE_CASES lineCases[] = {
   {{3, 0, -1, -1, -1}},
   {{-1, -1, -1, -1, -1}}
 };
+
+//----------------------------------------------------------------------------
+int *vtkQuad::GetEdgeArray(int edgeId)
+{
+  return edges[edgeId];
+}
 
 //----------------------------------------------------------------------------
 void vtkQuad::Contour(double value, vtkDataArray *cellScalars, 

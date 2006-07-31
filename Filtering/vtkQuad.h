@@ -91,6 +91,11 @@ public:
     vtkQuad::InterpolationDerivs(pcoords,derivs);
     }
 
+  // Description:
+  // Return the ids of the vertices defining edge (`edgeId`).
+  // Ids are related to the cell, not to the dataset.
+  int *GetEdgeArray(int edgeId);
+
 protected:
   vtkQuad();
   ~vtkQuad();

@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.6");
+vtkCxxRevisionMacro(vtkTriangle, "1.7");
 vtkStandardNewMacro(vtkTriangle);
 
 //----------------------------------------------------------------------------
@@ -356,6 +356,12 @@ static LINE_CASES lineCases[] = {
 };
 
 static int edges[3][2] = { {0,1}, {1,2}, {2,0} };
+
+//----------------------------------------------------------------------------
+int *vtkTriangle::GetEdgeArray(int edgeId)
+{
+  return edges[edgeId];
+}
 
 //----------------------------------------------------------------------------
 void vtkTriangle::Contour(double value, vtkDataArray *cellScalars, 

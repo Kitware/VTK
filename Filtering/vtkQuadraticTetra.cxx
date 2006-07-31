@@ -21,7 +21,7 @@
 #include "vtkTetra.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.7");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.8");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 //----------------------------------------------------------------------------
@@ -64,6 +64,16 @@ static int TetraFaces[4][6] = { {0,1,3,4,8,7}, {1,2,3,5,9,8},
 static int TetraEdges[6][3] = { {0,1,4}, {1,2,5}, {2,0,6},
                                 {0,3,7}, {1,3,8}, {2,3,9} };
 
+//----------------------------------------------------------------------------
+int *vtkQuadraticTetra::GetEdgeArray(int edgeId)
+{
+  return TetraEdges[edgeId];
+}
+//----------------------------------------------------------------------------
+int *vtkQuadraticTetra::GetFaceArray(int faceId)
+{
+  return TetraFaces[faceId];
+}
 
 //----------------------------------------------------------------------------
 vtkCell *vtkQuadraticTetra::GetEdge(int edgeId)
@@ -98,12 +108,6 @@ vtkCell *vtkQuadraticTetra::GetFace(int faceId)
     }
 
   return this->Face;
-}
-
-//----------------------------------------------------------------------------
-int *vtkQuadraticTetra::GetFaceArray(int faceId)
-{
-  return TetraFaces[faceId];
 }
 
 //----------------------------------------------------------------------------

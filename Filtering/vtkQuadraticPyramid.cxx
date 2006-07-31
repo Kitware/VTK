@@ -25,7 +25,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.11");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.12");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -98,6 +98,16 @@ static int PyramidEdges[8][3] = { {0,1,5}, {1,2,6}, {2,3,7},
                                   {2,4,11}, {3,4,12} };
 
 static double MidPoints[1][3] = { {0.5,0.5,0.0} };
+//----------------------------------------------------------------------------
+int *vtkQuadraticPyramid::GetEdgeArray(int edgeId)
+{
+  return PyramidEdges[edgeId];
+}
+//----------------------------------------------------------------------------
+int *vtkQuadraticPyramid::GetFaceArray(int faceId)
+{
+  return PyramidFaces[faceId];
+}
 
 //----------------------------------------------------------------------------
 vtkCell *vtkQuadraticPyramid::GetEdge(int edgeId)
@@ -138,12 +148,6 @@ vtkCell *vtkQuadraticPyramid::GetFace(int faceId)
       }
     return this->Face;
     }
-}
-
-//----------------------------------------------------------------------------
-int *vtkQuadraticPyramid::GetFaceArray(int faceId)
-{
-  return PyramidFaces[faceId];
 }
 
 //----------------------------------------------------------------------------

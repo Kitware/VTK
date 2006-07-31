@@ -152,6 +152,9 @@ public:
     vtkTetra::InterpolationDerivs(pcoords,derivs);
     }
 
+  // Description:
+  // Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
+  // Ids are related to the cell, not to the dataset.
   static int *GetEdgeArray(int edgeId);
   static int *GetFaceArray(int faceId);
 

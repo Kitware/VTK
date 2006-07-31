@@ -28,7 +28,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkBiQuadraticQuad.h"
 
-vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.6");
+vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.7");
 vtkStandardNewMacro(vtkBiQuadraticQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -100,6 +100,17 @@ static int HexEdges[12][3] = { {0,1,8}, {1,2,9}, {3,2,10}, {0,3,11},
 
 static double MidPoints[3][3] = { {0.5,0.5,0.0}, {0.5,0.5,1.0}, {0.5,0.5,0.5} };
 
+//----------------------------------------------------------------------------
+int *vtkBiQuadraticQuadraticHexahedron::GetEdgeArray(int edgeId)
+{
+  return HexEdges[edgeId];
+}
+//----------------------------------------------------------------------------
+int *vtkBiQuadraticQuadraticHexahedron::GetFaceArray(int faceId)
+{
+  return HexFaces[faceId];
+}
+
 
 //----------------------------------------------------------------------------
 vtkCell *vtkBiQuadraticQuadraticHexahedron::GetEdge(int edgeId)
@@ -139,12 +150,6 @@ vtkCell *vtkBiQuadraticQuadraticHexahedron::GetFace(int faceId)
       }
     return this->Face;
     }
-}
-
-//----------------------------------------------------------------------------
-int *vtkBiQuadraticQuadraticHexahedron::GetFaceArray(int faceId)
-{
-  return HexFaces[faceId];
 }
 
 //----------------------------------------------------------------------------
