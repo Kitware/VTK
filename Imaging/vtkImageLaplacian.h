@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkImageLaplacian - Computes divergence of gradient.
 // .SECTION Description
-// vtkimageLaplacian computes the Laplacian (like a second derivative)
+// vtkImageLaplacian computes the Laplacian (like a second derivative)
 // of a scalar image.  The operation is the same as taking the
 // divergence after a gradient.  Boundaries are handled, so the input
 // is the same as the output.
@@ -35,24 +35,26 @@ public:
   static vtkImageLaplacian *New();
   vtkTypeRevisionMacro(vtkImageLaplacian,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Determines how the input is interpreted (set of 2d slices ...)
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
-  
+
 protected:
   vtkImageLaplacian();
   ~vtkImageLaplacian() {};
 
   int Dimensionality;
 
-  virtual int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent (vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *);
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
                            int outExt[6], int id);
+
 private:
   vtkImageLaplacian(const vtkImageLaplacian&);  // Not implemented.
   void operator=(const vtkImageLaplacian&);  // Not implemented.

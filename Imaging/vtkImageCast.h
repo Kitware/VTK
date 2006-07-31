@@ -48,7 +48,7 @@ public:
   void SetOutputScalarTypeToUnsignedLong()
     {this->SetOutputScalarType(VTK_UNSIGNED_LONG);};
   void SetOutputScalarTypeToShort(){this->SetOutputScalarType(VTK_SHORT);};
-  void SetOutputScalarTypeToUnsignedShort()   
+  void SetOutputScalarTypeToUnsignedShort()
     {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);};
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);};

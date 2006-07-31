@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLaplacian, "1.33");
+vtkCxxRevisionMacro(vtkImageLaplacian, "1.34");
 vtkStandardNewMacro(vtkImageLaplacian);
 
 //----------------------------------------------------------------------------
@@ -32,14 +32,12 @@ vtkImageLaplacian::vtkImageLaplacian()
   this->Dimensionality = 2;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkImageLaplacian::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Dimensionality: " << this->Dimensionality;
 }
-
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
@@ -54,7 +52,7 @@ int vtkImageLaplacian::RequestUpdateExtent (
 
   int idx;
   int wholeExtent[6], inUExt[6];
-  
+
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt);
 
@@ -87,7 +85,7 @@ int vtkImageLaplacian::RequestUpdateExtent (
 
 //----------------------------------------------------------------------------
 // This execute method handles boundaries.
-// it handles boundaries. Pixels are just replicated to get values 
+// it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
 void vtkImageLaplacianExecute(vtkImageLaplacian *self,
@@ -106,19 +104,19 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
   vtkIdType *inIncs;
   double r[3], d, sum;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
-  
+
   // find the region to loop over
   maxC = inData->GetNumberOfScalarComponents();
   maxX = outExt[1] - outExt[0];
-  maxY = outExt[3] - outExt[2]; 
+  maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
   target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
   target++;
 
   // Get the dimensionality of the gradient.
   axesNum = self->GetDimensionality();
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
@@ -130,8 +128,8 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
   r[2] = 1.0 / (r[2] * r[2]);
 
   // get some other info we need
-  inIncs = inData->GetIncrements(); 
-  wholeExtent = inData->GetExtent(); 
+  inIncs = inData->GetIncrements();
+  wholeExtent = inData->GetExtent();
 
   // Loop through ouput pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
@@ -140,7 +138,7 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
     useZMax = ((idxZ + outExt[4]) >= wholeExtent[5]) ? 0 : inIncs[2];
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -188,7 +186,6 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
     }
 }
 
-  
 //----------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
@@ -197,7 +194,7 @@ void vtkImageLaplacian::ThreadedRequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *vtkNotUsed(outputVector),
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
@@ -209,8 +206,8 @@ void vtkImageLaplacian::ThreadedRequestData(
       outData[0]->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, "
-    << inData[0][0]->GetScalarType() << ", must match out ScalarType "
-    << outData[0]->GetScalarType());
+      << inData[0][0]->GetScalarType() << ", must match out ScalarType "
+      << outData[0]->GetScalarType());
     return;
     }
 
@@ -218,22 +215,12 @@ void vtkImageLaplacian::ThreadedRequestData(
     {
     vtkTemplateMacro(
       vtkImageLaplacianExecute( this, inData[0][0],
-                                (VTK_TT *)(inPtr), outData[0], 
-                                (VTK_TT *)(outPtr), 
+                                (VTK_TT *)(inPtr), outData[0],
+                                (VTK_TT *)(outPtr),
                                 outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
-
-
-
-
-
-
-
-
-
-
 
