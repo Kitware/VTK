@@ -170,7 +170,7 @@ public:
     CELL_IDS,
     CELL_ID_RANGE,
     GLOBAL_CELL_IDS,
-    GLOBAL_CELL_ID_RANGE,
+    GLOBAL_CELL_ID_RANGE
   };
 //ETX
 
