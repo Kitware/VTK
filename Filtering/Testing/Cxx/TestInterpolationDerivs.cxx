@@ -69,7 +69,7 @@ int TestOneInterpolationDerivs()
     {
     double *point = coords + 3*i;
     double sum = 0.;
-    TCell::InterpolationDerivs(point, derivs); // static function
+    cell->InterpolateDerivs(point, derivs); // static function
     for(int j=0;j<dim*numPts;j++)
       {
       sum += derivs[j];
@@ -83,7 +83,7 @@ int TestOneInterpolationDerivs()
   // Let's test zero condition on the center point:
   double center[3];
   cell->GetParametricCenter(center);
-  TCell::InterpolationDerivs(center, derivs); // static function
+  cell->InterpolateDerivs(center, derivs); // static function
   double sum = 0.;
   for(int j=0;j<dim*numPts;j++)
     {

@@ -68,6 +68,9 @@ public:
                    int dim, double *derivs);
   int IsPrimaryCell() {return 0;}
 
+  // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double *sf);
   virtual void InterpolateDerivs(double pcoords[3], double *derivs);
 
@@ -84,6 +87,7 @@ public:
 
   // Description:
   // Compute interpolation weights using 1/r**2 normalized sum.
+  // @deprecated Replaced by vtkPolygon::InterpolateFunctions as of VTK 5.2
   VTK_LEGACY(void ComputeWeights(double x[3], double *weights));
 
 

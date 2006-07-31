@@ -18,7 +18,7 @@
 // defined by a convex set of points. An example of such a cell is an octant
 // (from an octree). vtkConvexPointSet uses the ordered triangulations
 // approach (vtkOrderedTriangulator) to create triangulations guaranteed to
-// be compatible across shared faces. This allows a general approach to 
+// be compatible across shared faces. This allows a general approach to
 // processing complex, convex cell types.
 
 // .SECTION See Also
@@ -68,7 +68,7 @@ public:
   // the number of boundary triangles of the triangulation of the convex
   // point set. The method GetNumberOfFaces() triggers a triangulation of the
   // convex point set; repeated calls to GetFace() then return the boundary
-  // faces. (Note: GetNumberOfEdges() currently returns 0 because it is a 
+  // faces. (Note: GetNumberOfEdges() currently returns 0 because it is a
   // rarely used method and hard to implement. It can be changed in the future.
   virtual int GetNumberOfEdges() {return 0;}
   virtual vtkCell *GetEdge(int) {return NULL;}
@@ -78,8 +78,8 @@ public:
   // Description:
   // Satisfy the vtkCell API. This method contours by triangulating the
   // cell and then contouring the resulting tetrahedra.
-  virtual void Contour(double value, vtkDataArray *cellScalars, 
-                       vtkPointLocator *locator, vtkCellArray *verts, 
+  virtual void Contour(double value, vtkDataArray *cellScalars,
+                       vtkPointLocator *locator, vtkCellArray *verts,
                        vtkCellArray *lines, vtkCellArray *polys,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
@@ -88,15 +88,15 @@ public:
   // Satisfy the vtkCell API. This method contours by triangulating the
   // cell and then adding clip-edge intersection points into the
   // triangulation; extracting the clipped region.
-  virtual void Clip(double value, vtkDataArray *cellScalars, 
+  virtual void Clip(double value, vtkDataArray *cellScalars,
                     vtkPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd,
-                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
+                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                     int insideOut);
 
   // Description:
   // Satisfy the vtkCell API. This method determines the subId, pcoords,
-  // and weights by triangulating the convex point set, and then 
+  // and weights by triangulating the convex point set, and then
   // determining which tetrahedron the point lies in.
   virtual int EvaluatePosition(double x[3], double* closestPoint,
                                int& subId, double pcoords[3],
@@ -106,7 +106,7 @@ public:
   // The inverse of EvaluatePosition.
   virtual void EvaluateLocation(int& subId, double pcoords[3], double x[3],
                                 double *weights);
-  
+
   // Description:
   // Triangulates the cells and then intersects them to determine the
   // intersection point.
@@ -116,21 +116,21 @@ public:
   // Description:
   // Triangulate using methods of vtkOrderedTriangulator.
   virtual int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  
+
   // Description:
   // Computes derivatives by triangulating and from subId and pcoords,
   // evaluating derivatives on the resulting tetrahedron.
-  virtual void Derivatives(int subId, double pcoords[3], double *values, 
+  virtual void Derivatives(int subId, double pcoords[3], double *values,
                            int dim, double *derivs);
 
   // Description:
   // Returns the set of points forming a face of the triangulation of these
-  // points that are on the boundary of the cell that are closest 
+  // points that are on the boundary of the cell that are closest
   // parametrically to the point specified.
   virtual int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
-  
+
   // Description:
-  // Return the center of the cell in parametric coordinates. 
+  // Return the center of the cell in parametric coordinates.
   virtual int GetParametricCenter(double pcoords[3]);
 
   // Description:
@@ -139,6 +139,8 @@ public:
   int IsPrimaryCell() {return 0;}
 
   // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double *sf);
   virtual void InterpolateDerivs(double pcoords[3], double *derivs);
 

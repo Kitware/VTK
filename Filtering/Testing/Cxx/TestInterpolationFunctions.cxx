@@ -15,20 +15,20 @@
 #define VTK_EPSILON 1e-10
 
 // Subclass of vtkCell
-//#include "vtkEmptyCell.h"
+#include "vtkEmptyCell.h"
 #include "vtkGenericCell.h"
 #include "vtkLine.h"
 #include "vtkPixel.h"
-//#include "vtkPolygon.h"
-//#include "vtkPolyLine.h"
-//#include "vtkPolyVertex.h"
+#include "vtkPolygon.h"
+#include "vtkPolyLine.h"
+#include "vtkPolyVertex.h"
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
-//#include "vtkTriangleStrip.h"
+#include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
 // Subclass of vtkCell3D
-//#include "vtkConvexPointSet.h"
+#include "vtkConvexPointSet.h"
 #include "vtkHexagonalPrism.h"
 #include "vtkHexahedron.h"
 #include "vtkPentagonalPrism.h"
@@ -67,7 +67,7 @@ int TestOneInterpolationFunction()
     {
     double *point = coords + 3*i;
     double sum = 0.;
-    TCell::InterpolationFunctions(point, sf); // static function
+    cell->InterpolateFunctions(point, sf); // virtual function
     for(int j=0;j<numPts;j++)
       {
       sum += sf[j];
@@ -95,7 +95,7 @@ int TestOneInterpolationFunction()
   // Let's test unity condition on the center point:
   double center[3];
   cell->GetParametricCenter(center);
-  TCell::InterpolationFunctions(center, sf); // static function
+  cell->InterpolateFunctions(center, sf); // virtual function
   double sum = 0.;
   for(int j=0;j<numPts;j++)
     {
@@ -119,7 +119,7 @@ int TestInterpolationFunctions(int, char *[])
   //r += TestOneInterpolationFunction<vtkGenericCell>(); // not implemented
   r += TestOneInterpolationFunction<vtkLine>();
   r += TestOneInterpolationFunction<vtkPixel>();
-  //r += TestOneInterpolationFunction<vtkPolygon>(); // not implemented
+  //r += TestOneInterpolationFunction<vtkPolygon>();
   //r += TestOneInterpolationFunction<vtkPolyLine>(); // not implemented
   //r += TestOneInterpolationFunction<vtkPolyVertex>(); // not implemented
   r += TestOneInterpolationFunction<vtkQuad>();

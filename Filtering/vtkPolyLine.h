@@ -37,12 +37,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Given points and lines, compute normals to lines. These are not true 
-  // normals, they are "orientation" normals used by classes like vtkTubeFilter
+  // Given points and lines, compute normals to lines. These are not true
+  // normals, they are "orientation" normals used by classes like vtkTubeFilte
   // that control the rotation around the line. The normals try to stay pointing
   // in the same direction as much as possible (i.e., minimal rotation).
   int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *);
-  int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *, 
+  int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *,
                              double* firstNormal);
 
   // Description:
@@ -54,12 +54,12 @@ public:
   vtkCell *GetEdge(int vtkNotUsed(edgeId)) {return 0;};
   vtkCell *GetFace(int vtkNotUsed(faceId)) {return 0;};
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
-  void Contour(double value, vtkDataArray *cellScalars, 
-               vtkPointLocator *locator, vtkCellArray *verts, 
-               vtkCellArray *lines, vtkCellArray *polys, 
+  void Contour(double value, vtkDataArray *cellScalars,
+               vtkPointLocator *locator, vtkCellArray *verts,
+               vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
-  void Clip(double value, vtkDataArray *cellScalars, 
+  void Clip(double value, vtkDataArray *cellScalars,
             vtkPointLocator *locator, vtkCellArray *lines,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -72,7 +72,7 @@ public:
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values, 
+  void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs);
   int IsPrimaryCell() {return 0;}
 
@@ -81,6 +81,8 @@ public:
   int GetParametricCenter(double pcoords[3]);
 
   // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double *weights);
   virtual void InterpolateDerivs(double pcoords[3], double *derivs);
 

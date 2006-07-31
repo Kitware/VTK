@@ -20,22 +20,22 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkEmptyCell, "1.2");
+vtkCxxRevisionMacro(vtkEmptyCell, "1.3");
 vtkStandardNewMacro(vtkEmptyCell);
 
 //----------------------------------------------------------------------------
-int vtkEmptyCell::EvaluatePosition(double  vtkNotUsed(x)[3], 
+int vtkEmptyCell::EvaluatePosition(double  vtkNotUsed(x)[3],
                                   double  vtkNotUsed(closestPoint)[3],
-                                  int&   vtkNotUsed(subId), 
-                                  double  vtkNotUsed(pcoords)[3], 
-                                  double& vtkNotUsed(dist2), 
+                                  int&   vtkNotUsed(subId),
+                                  double  vtkNotUsed(pcoords)[3],
+                                  double& vtkNotUsed(dist2),
                                   double  *vtkNotUsed(weights))
 {
   return 0;
 }
 
 //----------------------------------------------------------------------------
-void vtkEmptyCell::EvaluateLocation(int&  vtkNotUsed(subId), 
+void vtkEmptyCell::EvaluateLocation(int&  vtkNotUsed(subId),
                                    double vtkNotUsed(pcoords)[3],
                                    double vtkNotUsed(x)[3],
                                    double *vtkNotUsed(weights))
@@ -43,24 +43,24 @@ void vtkEmptyCell::EvaluateLocation(int&  vtkNotUsed(subId),
 }
 
 //----------------------------------------------------------------------------
-int vtkEmptyCell::CellBoundary(int vtkNotUsed(subId), 
-                            double vtkNotUsed(pcoords)[3], 
+int vtkEmptyCell::CellBoundary(int vtkNotUsed(subId),
+                            double vtkNotUsed(pcoords)[3],
                             vtkIdList *vtkNotUsed(pts))
 {
   return 0;
 }
 
 //----------------------------------------------------------------------------
-void vtkEmptyCell::Contour(double vtkNotUsed(value), 
-                           vtkDataArray *vtkNotUsed(cellScalars), 
+void vtkEmptyCell::Contour(double vtkNotUsed(value),
+                           vtkDataArray *vtkNotUsed(cellScalars),
                            vtkPointLocator *vtkNotUsed(locator),
-                           vtkCellArray *vtkNotUsed(verts), 
-                           vtkCellArray *vtkNotUsed(lines), 
-                           vtkCellArray *vtkNotUsed(polys), 
+                           vtkCellArray *vtkNotUsed(verts),
+                           vtkCellArray *vtkNotUsed(lines),
+                           vtkCellArray *vtkNotUsed(polys),
                            vtkPointData *vtkNotUsed(inPd),
                            vtkPointData *vtkNotUsed(outPd),
                            vtkCellData *vtkNotUsed(inCd),
-                           vtkIdType vtkNotUsed(cellId), 
+                           vtkIdType vtkNotUsed(cellId),
                            vtkCellData *vtkNotUsed(outCd))
 {
 }
@@ -68,12 +68,12 @@ void vtkEmptyCell::Contour(double vtkNotUsed(value),
 //----------------------------------------------------------------------------
 // Project point on line. If it lies between 0<=t<=1 and distance off line
 // is less than tolerance, intersection detected.
-int vtkEmptyCell::IntersectWithLine(double vtkNotUsed(p1)[3], 
-                                   double vtkNotUsed(p2)[3], 
-                                   double vtkNotUsed(tol), 
+int vtkEmptyCell::IntersectWithLine(double vtkNotUsed(p1)[3],
+                                   double vtkNotUsed(p2)[3],
+                                   double vtkNotUsed(tol),
                                    double& vtkNotUsed(t),
-                                   double vtkNotUsed(x)[3], 
-                                   double pcoords[3], 
+                                   double vtkNotUsed(x)[3],
+                                   double pcoords[3],
                                    int& vtkNotUsed(subId))
 {
   pcoords[0] = -10.0;
@@ -91,22 +91,22 @@ int vtkEmptyCell::Triangulate(int vtkNotUsed(index),
 }
 
 //----------------------------------------------------------------------------
-void vtkEmptyCell::Derivatives(int vtkNotUsed(subId), 
-                            double vtkNotUsed(pcoords)[3], 
-                            double *vtkNotUsed(values), 
-                            int vtkNotUsed(dim), 
+void vtkEmptyCell::Derivatives(int vtkNotUsed(subId),
+                            double vtkNotUsed(pcoords)[3],
+                            double *vtkNotUsed(values),
+                            int vtkNotUsed(dim),
                             double *vtkNotUsed(derivs))
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkEmptyCell::Clip(double vtkNotUsed(value), 
-                        vtkDataArray *vtkNotUsed(cellScalars), 
-                        vtkPointLocator *vtkNotUsed(locator), 
-                        vtkCellArray *vtkNotUsed(verts),    
+void vtkEmptyCell::Clip(double vtkNotUsed(value),
+                        vtkDataArray *vtkNotUsed(cellScalars),
+                        vtkPointLocator *vtkNotUsed(locator),
+                        vtkCellArray *vtkNotUsed(verts),
                         vtkPointData *vtkNotUsed(inPD),
                         vtkPointData *vtkNotUsed(outPD),
-                        vtkCellData *vtkNotUsed(inCD), 
+                        vtkCellData *vtkNotUsed(inCD),
                         vtkIdType vtkNotUsed(cellId),
                         vtkCellData *vtkNotUsed(outCD),
                         int vtkNotUsed(insideOut))

@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkPixel is a concrete implementation of vtkCell to represent a 2D
 // orthogonal quadrilateral. Unlike vtkQuad, the corners are at right angles,
-// and aligned along x-y-z coordinate axes leading to large increases in 
-// computational efficiency. 
+// and aligned along x-y-z coordinate axes leading to large increases in
+// computational efficiency.
 
 #ifndef __vtkPixel_h
 #define __vtkPixel_h
@@ -42,12 +42,12 @@ public:
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int) {return 0;};
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
-  void Contour(double value, vtkDataArray *cellScalars, 
-               vtkPointLocator *locator, vtkCellArray *verts, 
+  void Contour(double value, vtkDataArray *cellScalars,
+               vtkPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
-  void Clip(double value, vtkDataArray *cellScalars, 
+  void Clip(double value, vtkDataArray *cellScalars,
             vtkPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -65,14 +65,19 @@ public:
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values, 
+  void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs);
   virtual double *GetParametricCoords();
 
   // Description:
-  // Pixel specific methods.
+  // @deprecated Replaced by vtkPixel::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[4]);
+  // Description:
+  // @deprecated Replaced by vtkPixel::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[8]);
+  // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double weights[4])
     {
     vtkPixel::InterpolationFunctions(pcoords,weights);

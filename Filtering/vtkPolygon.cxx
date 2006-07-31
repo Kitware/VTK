@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkPolygon, "1.3");
+vtkCxxRevisionMacro(vtkPolygon, "1.4");
 vtkStandardNewMacro(vtkPolygon);
 
 //----------------------------------------------------------------------------
@@ -173,7 +173,7 @@ void vtkPolygon::ComputeNormal (int numPts, double *pts, double n[3])
   v2 = pts + 3;
   v3 = pts + 6;
 
-  for (i=0; i<numPts-2; i++) 
+  for (i=0; i<numPts-2; i++)
     {
     ax = v2[0] - v1[0]; ay = v2[1] - v1[1]; az = v2[2] - v1[2];
     bx = v3[0] - v1[0]; by = v3[1] - v1[1]; bz = v3[2] - v1[2];
@@ -183,13 +183,13 @@ void vtkPolygon::ComputeNormal (int numPts, double *pts, double n[3])
     n[2] = (ax * by - ay * bx);
 
     length = sqrt (n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
-    if (length != 0.0) 
+    if (length != 0.0)
       {
       n[0] /= length;
       n[1] /= length;
       n[2] /= length;
       return;
-      } 
+      }
     else
       {
       v1 = v2;
@@ -255,8 +255,8 @@ int vtkPolygon::EvaluatePosition(double x[3], double* closestPoint,
         dist2 = vtkLine::DistanceToLine(x, pt1, pt2, t, closest);
         if ( dist2 < minDist2 )
           {
-          closestPoint[0] = closest[0]; 
-          closestPoint[1] = closest[1]; 
+          closestPoint[0] = closest[0];
+          closestPoint[1] = closest[1];
           closestPoint[2] = closest[2];
           minDist2 = dist2;
           }
@@ -1451,6 +1451,8 @@ void vtkPolygon::PrintSelf(ostream& os, vtkIndent indent)
 #ifndef VTK_LEGACY_REMOVE
 void vtkPolygon::ComputeWeights(double x[3], double *weights)
 {
+  VTK_LEGACY_REPLACED_BODY(vtkPolygon::ComputeWeights, "VTK 5.2",
+                           vtkPolygon::InterpolateFunctions);
   this->InterpolateFunctions(x, weights);
 }
 #endif

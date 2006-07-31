@@ -96,8 +96,15 @@ public:
   // Description:
   // Quadratic hexahedron specific methods.
   static int *GetFaceArray(int faceId);
+  // Description:
+  // @deprecated Replaced by vtkLine::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[15]);
+  // Description:
+  // @deprecated Replaced by vtkLine::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[45]);
+  // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double weights[15])
     {
     vtkQuadraticWedge::InterpolationFunctions(pcoords,weights);

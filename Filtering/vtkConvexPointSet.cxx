@@ -25,7 +25,7 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.4");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.5");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 //----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ vtkConvexPointSet::~vtkConvexPointSet()
 void vtkConvexPointSet::Initialize()
 {
   // Initialize
-  vtkIdType numPts=this->GetNumberOfPoints();
+  vtkIdType numPts = this->GetNumberOfPoints();
   if ( numPts < 1 ) return;
 
   this->Triangulate(0, this->TetraIds,this->TetraPoints);
@@ -111,14 +111,17 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   // Initialize
   ptIds->Reset();
   pts->Reset();
-  if ( numPts < 1 ) return 0;
-  
+  if ( numPts < 1 )
+    {
+    return 0;
+    }
+
   // Initialize Delaunay insertion process.
   // No more than numPts points can be inserted.
   this->Triangulator->InitTriangulation(this->GetBounds(), numPts);
 
-  // Inject cell points into triangulation. Recall that the PreSortedOff() 
-  // flag was set which means that the triangulator will order the points 
+  // Inject cell points into triangulation. Recall that the PreSortedOff()
+  // flag was set which means that the triangulator will order the points
   // according to point id. We insert points with id == the index into the
   // vtkConvexPointSet::PointIds and Points; but sort on the global point
   // id.
@@ -128,13 +131,13 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
     this->Points->GetPoint(i, x);
     this->Triangulator->InsertPoint(i, ptId, x, x, 0);
     }//for all points
-  
+
   // triangulate the points
   this->Triangulator->Triangulate();
 
   // Add the triangulation to the mesh
   this->Triangulator->AddTetras(0,ptIds,pts);
-  
+
   return 1;
 }
 
@@ -142,8 +145,8 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 void vtkConvexPointSet::Contour(double value,
                                 vtkDataArray *cellScalars,
                                 vtkPointLocator *locator,
-                                vtkCellArray *verts, vtkCellArray *lines, 
-                                vtkCellArray *polys, 
+                                vtkCellArray *verts, vtkCellArray *lines,
+                                vtkCellArray *polys,
                                 vtkPointData *inPd, vtkPointData *outPd,
                                 vtkCellData *inCd, vtkIdType cellId,
                                 vtkCellData *outCd)
@@ -166,12 +169,11 @@ void vtkConvexPointSet::Contour(double value,
                          inPd,outPd,inCd,cellId,outCd);
     }
 }
-    
 
 
 //----------------------------------------------------------------------------
-void vtkConvexPointSet::Clip(double value, 
-                             vtkDataArray *cellScalars, 
+void vtkConvexPointSet::Clip(double value,
+                             vtkDataArray *cellScalars,
                              vtkPointLocator *locator, vtkCellArray *tets,
                              vtkPointData *inPD, vtkPointData *outPD,
                              vtkCellData *inCD, vtkIdType cellId,
@@ -197,7 +199,7 @@ void vtkConvexPointSet::Clip(double value,
 }
 
 //----------------------------------------------------------------------------
-int vtkConvexPointSet::CellBoundary(int subId, double pcoords[3], 
+int vtkConvexPointSet::CellBoundary(int subId, double pcoords[3],
                                     vtkIdList *pts)
 {
   int i, status, returnStatus=(-1);
@@ -228,7 +230,7 @@ int vtkConvexPointSet::CellBoundary(int subId, double pcoords[3],
   this->Triangulator->AddTriangles(this->BoundaryTris);
 
   vtkIdType npts, *tpts=0;
-  for ( minDist2=VTK_DOUBLE_MAX, this->BoundaryTris->InitTraversal(); 
+  for ( minDist2=VTK_DOUBLE_MAX, this->BoundaryTris->InitTraversal();
         this->BoundaryTris->GetNextCell(npts,tpts); )
     {
     this->Triangle->PointIds->SetId(0,tpts[0]);
@@ -321,11 +323,11 @@ int vtkConvexPointSet::IntersectWithLine(double p1[3], double p2[3], double tol,
   int subTest, i, j;
   vtkIdType ptId;
   double t, pc[3], xTemp[3];
-  
+
 
   int numTets = this->TetraIds->GetNumberOfIds() / 4;
   int status = 0;
-  
+
   for (minT=VTK_DOUBLE_MAX, i=0; i<numTets; i++)
     {
     for (j=0; j<4; j++)
@@ -349,12 +351,12 @@ int vtkConvexPointSet::IntersectWithLine(double p1[3], double p2[3], double tol,
       pcoords[2] = pc[2];
       }
     }
-  
+
   return status;
 }
 
 //----------------------------------------------------------------------------
-void vtkConvexPointSet::Derivatives(int subId, double pcoords[3], 
+void vtkConvexPointSet::Derivatives(int subId, double pcoords[3],
                                     double *values, int dim, double *derivs)
 {
   vtkIdType ptId;
@@ -413,7 +415,7 @@ void vtkConvexPointSet::InterpolateDerivs(double pcoords[3], double *derivs)
 void vtkConvexPointSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Tetra:\n";
   this->Tetra->PrintSelf(os,indent.GetNextIndent());
   os << indent << "TetraIds:\n";

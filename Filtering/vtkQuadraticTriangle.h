@@ -44,7 +44,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Implement the vtkCell API. See the vtkCell API for descriptions 
+  // Implement the vtkCell API. See the vtkCell API for descriptions
   // of these methods.
   int GetCellType() {return VTK_QUADRATIC_TRIANGLE;};
   int GetCellDimension() {return 2;}
@@ -54,26 +54,26 @@ public:
   vtkCell *GetFace(int) {return 0;}
 
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
-  void Contour(double value, vtkDataArray *cellScalars, 
-               vtkPointLocator *locator, vtkCellArray *verts, 
-               vtkCellArray *lines, vtkCellArray *polys, 
+  void Contour(double value, vtkDataArray *cellScalars,
+               vtkPointLocator *locator, vtkCellArray *verts,
+               vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
   int EvaluatePosition(double x[3], double* closestPoint,
-                       int& subId, double pcoords[3], 
+                       int& subId, double pcoords[3],
                        double& dist2, double *weights);
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
                         double *weights);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values, 
+  void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs);
   virtual double *GetParametricCoords();
 
   // Description:
-  // Clip this quadratic triangle using scalar value provided. Like 
-  // contouring, except that it cuts the triangle to produce linear 
+  // Clip this quadratic triangle using scalar value provided. Like
+  // contouring, except that it cuts the triangle to produce linear
   // triangles.
-  void Clip(double value, vtkDataArray *cellScalars, 
+  void Clip(double value, vtkDataArray *cellScalars,
             vtkPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -85,20 +85,25 @@ public:
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId);
 
-  
+
   // Description:
   // Return the center of the quadratic triangle in parametric coordinates.
   int GetParametricCenter(double pcoords[3]);
 
   // Description:
   // Return the distance of the parametric coordinate provided to the
-  // cell. If inside the cell, a distance of zero is returned. 
+  // cell. If inside the cell, a distance of zero is returned.
   double GetParametricDistance(double pcoords[3]);
 
   // Description:
-  // Quadratic triangle specific methods. 
+  // @deprecated Replaced by vtkLine::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[6]);
+  // Description:
+  // @deprecated Replaced by vtkLine::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[12]);
+  // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double weights[6])
     {
     vtkQuadraticTriangle::InterpolationFunctions(pcoords,weights);

@@ -13,12 +13,12 @@
 
 =========================================================================*/
 // .NAME vtkHexagonalPrism - a 3D cell that represents a prism with
-// hexagonal base 
+// hexagonal base
 // .SECTION Description
 // vtkHexagonalPrism is a concrete implementation of vtkCell to represent a
 // linear 3D prism with hexagonal base. Such prism is defined by the twelve points 
-// (0-12) where (0,1,2,3,4,5) is the base of the prism which, using the right 
-// hand rule, forms a hexagon whose normal points is in the direction of the 
+// (0-12) where (0,1,2,3,4,5) is the base of the prism which, using the right
+// hand rule, forms a hexagon whose normal points is in the direction of the
 // opposite face (6,7,8,9,10,11).
 
 // .SECTION Thanks
@@ -69,7 +69,7 @@ public:
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values, 
+  void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs);
   double *GetParametricCoords();
 
@@ -78,9 +78,14 @@ public:
   int GetParametricCenter(double pcoords[3]);
 
   // Description:
-  // Hexagonal prism specific
+  // @deprecated Replaced by vtkHexagonalPrism::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[12]);
+  // Description:
+  // @deprecated Replaced by vtkHexagonalPrism::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[36]);
+  // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double weights[12])
     {
     vtkHexagonalPrism::InterpolationFunctions(pcoords,weights);

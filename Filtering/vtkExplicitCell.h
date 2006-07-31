@@ -18,7 +18,7 @@
 // represented implicitly. An implicit representation requires only a
 // cell type and connectivity list (e.g., triangle). Explicit cells
 // require information beyond this; e.g., a NURBS surface or cells that
-// require explicit face/edge descriptions. Most cells in VTK are 
+// require explicit face/edge descriptions. Most cells in VTK are
 // implicitly represented.
 
 #ifndef __vtkExplicitCell_h
@@ -31,7 +31,7 @@ class vtkDataSet;
 class VTK_FILTERING_EXPORT vtkExplicitCell : public vtkNonLinearCell
 {
 public:
-  vtkTypeRevisionMacro(vtkExplicitCell,vtkNonLinearCell);  
+  vtkTypeRevisionMacro(vtkExplicitCell,vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -63,7 +63,7 @@ protected:
 
   vtkIdType  CellId; //used to index into other arrays
   vtkDataSet *DataSet; //dataset from which this cell came
-  
+
 private:
   vtkExplicitCell(const vtkExplicitCell&);  // Not implemented.
   void operator=(const vtkExplicitCell&);  // Not implemented.

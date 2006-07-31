@@ -37,25 +37,25 @@ public:
   vtkCell *GetEdge(int) {return 0;};
   vtkCell *GetFace(int) {return 0;};
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
-  void Contour(double value, vtkDataArray *cellScalars, 
-               vtkPointLocator *locator, vtkCellArray *verts, 
-               vtkCellArray *lines, vtkCellArray *polys, 
+  void Contour(double value, vtkDataArray *cellScalars,
+               vtkPointLocator *locator, vtkCellArray *verts,
+               vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
   int EvaluatePosition(double x[3], double* closestPoint,
-                       int& subId, double pcoords[3], 
+                       int& subId, double pcoords[3],
                        double& dist2, double *weights);
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
                         double *weights);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values, 
+  void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs);
   virtual double *GetParametricCoords();
 
   // Description:
   // Clip this line using scalar value provided. Like contouring, except
   // that it cuts the line to produce other lines.
-  void Clip(double value, vtkDataArray *cellScalars, 
+  void Clip(double value, vtkDataArray *cellScalars,
             vtkPointLocator *locator, vtkCellArray *lines,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -75,13 +75,13 @@ public:
   // Description:
   // Performs intersection of two finite 3D lines. An intersection is found if
   // the projection of the two lines onto the plane perpendicular to the cross
-  // product of the two lines intersect. The parameters (u,v) are the 
+  // product of the two lines intersect. The parameters (u,v) are the
   // parametric coordinates of the lines at the position of closest approach.
-  static int Intersection(double p1[3], double p2[3], 
+  static int Intersection(double p1[3], double p2[3],
                           double x1[3], double x2[3],
                           double& u, double& v);
 
-  
+
   // Description:
   // Compute the distance of a point x to a finite line (p1,p2). The method
   // computes the parametric coordinate t and the point location on the
@@ -89,10 +89,10 @@ public:
   // [0,1]) but the closest point will lie within the finite line
   // [p1,p2]. Also, the method returns the distance squared between x and the
   // line (p1,p2).
-  static double DistanceToLine(double x[3], double p1[3], double p2[3], 
+  static double DistanceToLine(double x[3], double p1[3], double p2[3],
                               double &t, double closestPoint[3]);
-  
-  
+
+
   // Description:
   // Determine the distance of the current vertex to the edge defined by
   // the vertices provided.  Returns distance squared. Note: line is assumed
@@ -100,9 +100,14 @@ public:
   static double DistanceToLine(double x[3], double p1[3], double p2[3]);
 
   // Description:
-  // Line specific methods.
+  // @deprecated Replaced by vtkLine::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[2]);
+  // Description:
+  // @deprecated Replaced by vtkLine::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[2]);
+  // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double weights[2])
     {
     vtkLine::InterpolationFunctions(pcoords,weights);

@@ -17,7 +17,7 @@
 // vtkBiQuadraticQuadraticWedge is a concrete implementation of vtkNonLinearCell to
 // represent a three-dimensional, 18-node isoparametric biquadratic
 // wedge. The interpolation is the standard finite element,
-// biquadratic-quadratic isoparametric shape function plus the linear funktions.
+// biquadratic-quadratic isoparametric shape function plus the linear functions.
 // The cell includes a mid-edge node. The
 // ordering of the 18 points defining the cell is point ids (0-5,6-15, 16-18)
 // where point ids 0-5 are the six corner vertices of the wedge; followed by
@@ -67,12 +67,15 @@ public:
   void Contour (double value, vtkDataArray * cellScalars,
     vtkPointLocator * locator, vtkCellArray * verts,
     vtkCellArray * lines, vtkCellArray * polys,
-    vtkPointData * inPd, vtkPointData * outPd, vtkCellData * inCd, vtkIdType cellId, vtkCellData * outCd);
+    vtkPointData * inPd, vtkPointData * outPd, vtkCellData * inCd,
+    vtkIdType cellId, vtkCellData * outCd);
   int EvaluatePosition (double x[3], double *closestPoint,
       int &subId, double pcoords[3], double &dist2, double *weights);
-  void EvaluateLocation (int &subId, double pcoords[3], double x[3], double *weights);
+  void EvaluateLocation (int &subId, double pcoords[3], double x[3],
+    double *weights);
   int Triangulate (int index, vtkIdList * ptIds, vtkPoints * pts);
-  void Derivatives (int subId, double pcoords[3], double *values, int dim, double *derivs);
+  void Derivatives (int subId, double pcoords[3], double *values, int dim,
+    double *derivs);
   virtual double *GetParametricCoords ();
 
   // Description:
@@ -82,7 +85,8 @@ public:
   void Clip (double value, vtkDataArray * cellScalars,
        vtkPointLocator * locator, vtkCellArray * tetras,
        vtkPointData * inPd, vtkPointData * outPd,
-       vtkCellData * inCd, vtkIdType cellId, vtkCellData * outCd, int insideOut);
+       vtkCellData * inCd, vtkIdType cellId, vtkCellData * outCd,
+       int insideOut);
 
   // Description:
   // Line-edge intersection. Intersection has to occur within [0,1] parametric
@@ -98,8 +102,15 @@ public:
   // Description:
   // Biquadratic quadratic wedge specific methods.
   static int *GetFaceArray(int faceId);
+  // Description:
+  // @deprecated Replaced by vtkLine::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions (double pcoords[3], double weights[15]);
+  // Description:
+  // @deprecated Replaced by vtkLine::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs (double pcoords[3], double derivs[45]);
+  // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions (double pcoords[3], double weights[15])
     {
     vtkBiQuadraticQuadraticWedge::InterpolationFunctions(pcoords,weights);

@@ -52,15 +52,15 @@ public:
   int GetNumberOfFaces() {return 4;}
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int faceId);
-  void Contour(double value, vtkDataArray *cellScalars, 
-               vtkPointLocator *locator, vtkCellArray *verts, 
+  void Contour(double value, vtkDataArray *cellScalars,
+               vtkPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
-  void Clip(double value, vtkDataArray *cellScalars, 
+  void Clip(double value, vtkDataArray *cellScalars,
             vtkPointLocator *locator, vtkCellArray *connectivity,
             vtkPointData *inPd, vtkPointData *outPd,
-            vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
+            vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut);
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
@@ -70,7 +70,7 @@ public:
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values, 
+  void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs);
   virtual double *GetParametricCoords();
 
@@ -79,53 +79,53 @@ public:
   // are closest parametrically to the point specified. This may include faces,
   // edges, or vertices.
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
-  
+
   // Description:
   // Return the center of the tetrahedron in parametric coordinates.
   int GetParametricCenter(double pcoords[3]);
 
   // Description:
   // Return the distance of the parametric coordinate provided to the
-  // cell. If inside the cell, a distance of zero is returned. 
+  // cell. If inside the cell, a distance of zero is returned.
   double GetParametricDistance(double pcoords[3]);
 
   // Description:
   // Compute the center of the tetrahedron,
-  static void TetraCenter(double p1[3], double p2[3], double p3[3], double p4[3], 
+  static void TetraCenter(double p1[3], double p2[3], double p3[3], double p4[3],
                           double center[3]);
 
   // Description:
   // Compute the circumcenter (center[3]) and radius squared (method
   // return value) of a tetrahedron defined by the four points x1, x2,
   // x3, and x4.
-  static double Circumsphere(double  p1[3], double p2[3], double p3[3], 
+  static double Circumsphere(double  p1[3], double p2[3], double p3[3],
                              double p4[3], double center[3]);
 
   // Description:
   // Compute the center (center[3]) and radius (method return value) of
   // a sphere that just fits inside the faces of a tetrahedron defined
   // by the four points x1, x2, x3, and x4.
-  static double Insphere(double  p1[3], double p2[3], double p3[3], 
+  static double Insphere(double  p1[3], double p2[3], double p3[3],
                          double p4[3], double center[3]);
 
   // Description:
   // Given a 3D point x[3], determine the barycentric coordinates of the point.
   // Barycentric coordinates are a natural coordinate system for simplices that
-  // express a position as a linear combination of the vertices. For a 
+  // express a position as a linear combination of the vertices. For a
   // tetrahedron, there are four barycentric coordinates (because there are
-  // four vertices), and the sum of the coordinates must equal 1. If a 
-  // point x is inside a simplex, then all four coordinates will be strictly 
-  // positive.  If three coordinates are zero (so the fourth =1), then the 
-  // point x is on a vertex. If two coordinates are zero, the point x is on an 
+  // four vertices), and the sum of the coordinates must equal 1. If a
+  // point x is inside a simplex, then all four coordinates will be strictly
+  // positive.  If three coordinates are zero (so the fourth =1), then the
+  // point x is on a vertex. If two coordinates are zero, the point x is on an
   // edge (and so on). In this method, you must specify the vertex coordinates
   // x1->x4. Returns 0 if tetrahedron is degenerate.
-  static int BarycentricCoords(double x[3], double  x1[3], double x2[3], 
+  static int BarycentricCoords(double x[3], double  x1[3], double x2[3],
                                double x3[3], double x4[3], double bcoords[4]);
-  
+
   // Description:
   // Compute the volume of a tetrahedron defined by the four points
   // p1, p2, p3, and p4.
-  static double ComputeVolume(double  p1[3], double p2[3], double p3[3], 
+  static double ComputeVolume(double  p1[3], double p2[3], double p3[3],
                               double p4[3]);
 
   // Description:
@@ -135,9 +135,14 @@ public:
   int JacobianInverse(double **inverse, double derivs[12]);
 
   // Description:
-  // Tetra specific methods.
+  // @deprecated Replaced by vtkLine::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[4]);
+  // Description:
+  // @deprecated Replaced by vtkLine::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[12]);
+  // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double weights[4])
     {
     vtkTetra::InterpolationFunctions(pcoords,weights);

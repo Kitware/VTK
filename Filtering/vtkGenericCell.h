@@ -78,6 +78,8 @@ public:
   int IsPrimaryCell();
 
   // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double *weights);
   virtual void InterpolateDerivs(double pcoords[3], double *derivs);
 

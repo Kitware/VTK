@@ -47,9 +47,9 @@ public:
   int GetNumberOfFaces() {return 0;};
   vtkCell *GetFace(int) {return 0;};
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
-  void Contour(double value, vtkDataArray *cellScalars, 
+  void Contour(double value, vtkDataArray *cellScalars,
                vtkPointLocator *locator, vtkCellArray *verts,
-               vtkCellArray *lines, vtkCellArray *polys, 
+               vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
   int EvaluatePosition(double x[3], double* closestPoint,
@@ -58,23 +58,28 @@ public:
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
                         double *weights);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values, 
+  void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs);
   virtual double *GetParametricCoords();
 
   // Description:
   // Clip this triangle using scalar value provided. Like contouring, except
   // that it cuts the triangle to produce other triangles.
-  void Clip(double value, vtkDataArray *cellScalars, 
+  void Clip(double value, vtkDataArray *cellScalars,
             vtkPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut);
 
   // Description:
-  // vtkTriangle specific methods.
+  // @deprecated Replaced by vtkTriangle::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double sf[3]);
+  // Description:
+  // @deprecated Replaced by vtkTriangle::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[6]);
+  // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double sf[3])
     {
     vtkTriangle::InterpolationFunctions(pcoords,sf);
@@ -85,7 +90,7 @@ public:
     }
 
   // Description:
-  // Plane intersection plus in/out test on triangle. The in/out test is 
+  // Plane intersection plus in/out test on triangle. The in/out test is
   // performed using tol as the tolerance.
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId);
@@ -96,41 +101,41 @@ public:
 
   // Description:
   // Return the distance of the parametric coordinate provided to the
-  // cell. If inside the cell, a distance of zero is returned. 
+  // cell. If inside the cell, a distance of zero is returned.
   double GetParametricDistance(double pcoords[3]);
 
   // Description:
   // Compute the center of the triangle.
-  static void TriangleCenter(double p1[3], double p2[3], double p3[3], 
+  static void TriangleCenter(double p1[3], double p2[3], double p3[3],
                              double center[3]);
 
   // Description:
   // Compute the area of a triangle in 3D.
   static double TriangleArea(double p1[3], double p2[3], double p3[3]);
-  
+
   // Description:
   // Compute the circumcenter (center[3]) and radius squared (method
   // return value) of a triangle defined by the three points x1, x2,
   // and x3. (Note that the coordinates are 2D. 3D points can be used
   // but the z-component will be ignored.)
-  static double Circumcircle(double  p1[2], double p2[2], double p3[2], 
+  static double Circumcircle(double  p1[2], double p2[2], double p3[2],
                             double center[2]);
 
   // Description:
   // Given a 2D point x[2], determine the barycentric coordinates of the point.
   // Barycentric coordinates are a natural coordinate system for simplices that
-  // express a position as a linear combination of the vertices. For a 
+  // express a position as a linear combination of the vertices. For a
   // triangle, there are three barycentric coordinates (because there are
-  // three vertices), and the sum of the coordinates must equal 1. If a 
-  // point x is inside a simplex, then all three coordinates will be strictly 
-  // positive.  If two coordinates are zero (so the third =1), then the 
-  // point x is on a vertex. If one coordinates are zero, the point x is on an 
-  // edge. In this method, you must specify the vertex coordinates x1->x3. 
+  // three vertices), and the sum of the coordinates must equal 1. If a
+  // point x is inside a simplex, then all three coordinates will be strictly
+  // positive.  If two coordinates are zero (so the third =1), then the
+  // point x is on a vertex. If one coordinates are zero, the point x is on an
+  // edge. In this method, you must specify the vertex coordinates x1->x3.
   // Returns 0 if triangle is degenerate.
-  static int BarycentricCoords(double x[2], double  x1[2], double x2[2], 
+  static int BarycentricCoords(double x[2], double  x1[2], double x2[2],
                                double x3[2], double bcoords[3]);
-  
-  
+
+
   // Description:
   // Project triangle defined in 3D to 2D coordinates. Returns 0 if
   // degenerate triangle; non-zero value otherwise. Input points are x1->x3;
@@ -152,15 +157,15 @@ public:
   // Compute the (unnormalized) triangle normal direction from three points.
   static void ComputeNormalDirection(double v1[3], double v2[3], double v3[3],
                                      double n[3]);
-  
+
   // Description:
   // Given a point x, determine whether it is inside (within the
-  // tolerance squared, tol2) the triangle defined by the three 
+  // tolerance squared, tol2) the triangle defined by the three
   // coordinate values p1, p2, p3. Method is via comparing dot products.
   // (Note: in current implementation the tolerance only works in the
   // neighborhood of the three vertices of the triangle.
-  static int PointInTriangle(double x[3], double x1[3], 
-                             double x2[3], double x3[3], 
+  static int PointInTriangle(double x[3], double x1[3],
+                             double x2[3], double x3[3],
                              double tol2);
 
   // Description:
@@ -172,7 +177,7 @@ public:
                              double quadric[4][4]);
   static void ComputeQuadric(double x1[3], double x2[3], double x3[3],
                              vtkQuadric *quadric);
-  
+
 
 protected:
   vtkTriangle();
@@ -193,12 +198,12 @@ inline int vtkTriangle::GetParametricCenter(double pcoords[3])
 }
 
 //----------------------------------------------------------------------------
-inline void vtkTriangle::ComputeNormalDirection(double v1[3], double v2[3], 
+inline void vtkTriangle::ComputeNormalDirection(double v1[3], double v2[3],
                                        double v3[3], double n[3])
 {
   double ax, ay, az, bx, by, bz;
 
-  // order is important!!! maintain consistency with triangle vertex order 
+  // order is important!!! maintain consistency with triangle vertex order
   ax = v3[0] - v2[0]; ay = v3[1] - v2[1]; az = v3[2] - v2[2];
   bx = v1[0] - v2[0]; by = v1[1] - v2[1]; bz = v1[2] - v2[2];
 
@@ -208,7 +213,7 @@ inline void vtkTriangle::ComputeNormalDirection(double v1[3], double v2[3],
 }
 
 //----------------------------------------------------------------------------
-inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3], 
+inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3],
                                        double v3[3], double n[3])
 {
   double length;
@@ -224,7 +229,7 @@ inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3],
 }
 
 //----------------------------------------------------------------------------
-inline void vtkTriangle::TriangleCenter(double p1[3], double p2[3], 
+inline void vtkTriangle::TriangleCenter(double p1[3], double p2[3],
                                         double p3[3], double center[3])
 {
   center[0] = (p1[0]+p2[0]+p3[0]) / 3.0;
@@ -240,7 +245,7 @@ inline double vtkTriangle::TriangleArea(double p1[3], double p2[3], double p3[3]
   b = vtkMath::Distance2BetweenPoints(p2,p3);
   c = vtkMath::Distance2BetweenPoints(p3,p1);
   return (0.25* sqrt(fabs(4.0*a*c - (a-b+c)*(a-b+c))));
-} 
+}
 
 #endif
 

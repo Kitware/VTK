@@ -13,12 +13,12 @@
 
 =========================================================================*/
 // .NAME vtkPentagonalPrism - a 3D cell that represents a prism with
-// pentagonal base 
+// pentagonal base
 // .SECTION Description
 // vtkPentagonalPrism is a concrete implementation of vtkCell to represent a
 // linear 3D prism with pentagonal base. Such prism is defined by the ten points (0-9)
-// where (0,1,2,3,4) is the base of the prism which, using the right hand 
-// rule, forms a pentagon whose normal points is in the direction of the 
+// where (0,1,2,3,4) is the base of the prism which, using the right hand
+// rule, forms a pentagon whose normal points is in the direction of the
 // opposite face (5,6,7,8,9).
 
 // .SECTION Thanks
@@ -68,7 +68,7 @@ public:
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values, 
+  void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs);
   double *GetParametricCoords();
 
@@ -77,9 +77,14 @@ public:
   int GetParametricCenter(double pcoords[3]);
 
   // Description:
-  // Pentagonal prism specific
+  // @deprecated Replaced by vtkPentagonalPrism::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[10]);
+  // Description:
+  // @deprecated Replaced by vtkPentagonalPrism::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[30]);
+  // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double weights[10])
     {
     vtkPentagonalPrism::InterpolationFunctions(pcoords, weights);

@@ -19,7 +19,7 @@
 // uses the standard isoparametric shape functions for a linear
 // hexahedron. The hexahedron is defined by the eight points (0-7) where
 // (0,1,2,3) is the base of the hexahedron which, using the right hand rule,
-// forms a quadrilaterial whose normal points in the direction of the 
+// forms a quadrilaterial whose normal points in the direction of the
 // opposite face (4,5,6,7).
 
 // .SECTION See Also
@@ -53,8 +53,8 @@ public:
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int faceId);
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
-  void Contour(double value, vtkDataArray *cellScalars, 
-               vtkPointLocator *locator, vtkCellArray *verts, 
+  void Contour(double value, vtkDataArray *cellScalars,
+               vtkPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
@@ -67,14 +67,19 @@ public:
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, double pcoords[3], double *values, 
+  void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs);
   virtual double *GetParametricCoords();
 
   // Description:
-  // Hexahedron specific.
+  // @deprecated Replaced by vtkHexahedron::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[8]);
+  // Description:
+  // @deprecated Replaced by vtkHexahedron::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[24]);
+  // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double weights[8])
     {
     vtkHexahedron::InterpolationFunctions(pcoords,weights);

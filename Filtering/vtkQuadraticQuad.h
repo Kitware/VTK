@@ -90,9 +90,14 @@ public:
   int GetParametricCenter(double pcoords[3]);
 
   // Description:
-  // Quadratic quad specific methods.
+  // @deprecated Replaced by vtkLine::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[8]);
+  // Description:
+  // @deprecated Replaced by vtkLine::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[16]);
+  // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
   virtual void InterpolateFunctions(double pcoords[3], double weights[8])
     {
     vtkQuadraticQuad::InterpolationFunctions(pcoords,weights);
