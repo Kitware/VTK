@@ -1,6 +1,6 @@
 package require vtk
 
-# This script calculates the luminanace of an image
+# This script calculates the luminance of an image
 
 vtkRenderWindow imgWin
 

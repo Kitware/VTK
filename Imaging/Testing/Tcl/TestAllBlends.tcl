@@ -1,6 +1,6 @@
 package require vtk
 
-# This script calculates the luminanace of an image
+# This script calculates the luminance of an image
 
 vtkRenderWindow imgWin
 imgWin SetSize 512 256
@@ -75,10 +75,10 @@ foreach background $backgrounds {
 	mapper${row}${column} SetInputConnection [blend${row}${column} GetOutputPort]
 	mapper${row}${column} SetColorWindow 255
 	mapper${row}${column} SetColorLevel 127.5
-	
+
 	vtkActor2D actor${row}${column}
 	actor${row}${column} SetMapper mapper${row}${column}
-	
+
 	vtkRenderer imager${row}${column}
 	imager${row}${column} AddActor2D actor${row}${column}
 
