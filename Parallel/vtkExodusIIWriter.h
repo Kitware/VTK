@@ -251,7 +251,9 @@ public:
   vtkGetMacro(EditorFlag,int);
   vtkSetStringMacro(EditedVariableName);
   vtkGetStringMacro(EditedVariableName);
-
+  vtkSetMacro(WritingToOriginalFile,int);
+  vtkGetMacro(WritingToOriginalFile,int);
+  vtkBooleanMacro(WritingToOriginalFile, int);
 
 protected:
 
@@ -439,6 +441,7 @@ private:
   int ExtractComponentForEditorD(vtkDataArray *da, vtkDoubleArray *dba, vtkIntArray *ids, int comp, int *idx);
   char *EditedVariableName;
   int EditorFlag;
+  int WritingToOriginalFile;
 };
 
 #endif
