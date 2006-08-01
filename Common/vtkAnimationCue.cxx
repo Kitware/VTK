@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkAnimationCue, "1.4");
+vtkCxxRevisionMacro(vtkAnimationCue, "1.5");
 vtkStandardNewMacro(vtkAnimationCue);
 
 //----------------------------------------------------------------------------
@@ -26,6 +26,8 @@ vtkAnimationCue::vtkAnimationCue()
   this->StartTime = this->EndTime = 0.0;
   this->CueState = vtkAnimationCue::UNINITIALIZED;
   this->TimeMode = TIMEMODE_RELATIVE;
+  this->AnimationTime = 0;
+  this->DeltaTime = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -64,7 +66,13 @@ void vtkAnimationCue::TickInternal(double currenttime, double deltatime)
   info.DeltaTime = deltatime; 
   info.AnimationTime = currenttime;
 
+  this->AnimationTime = currenttime;
+  this->DeltaTime = deltatime;
+
   this->InvokeEvent(vtkCommand::AnimationCueTickEvent, &info);
+
+  this->AnimationTime = 0;
+  this->DeltaTime = 0;
 }
 
 
@@ -125,4 +133,6 @@ void vtkAnimationCue::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EndTime: " << this->EndTime << endl;
   os << indent << "CueState: " << this->CueState << endl;
   os << indent << "TimeMode: " << this->TimeMode << endl;
+  os << indent << "AnimationTime: " << this->AnimationTime << endl;
+  os << indent << "DeltaTime: " << this->DeltaTime << endl;
 }

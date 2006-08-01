@@ -49,6 +49,9 @@ public:
   // Structure passed on every event invocation.
   // Depending upon the cue time mode, these times are either
   // normalized [0,1] or relative to the scene that contains the cue.
+  // All this information is also available by asking the cue
+  // directly for it within the handler. Thus, this information can 
+  // be accessed in wrapped languages.
   class AnimationCueInfo
     {
   public:
@@ -123,6 +126,17 @@ public:
   // trigger a EndAnimationCueEvent.
   virtual void Finalize();
 
+  // Description:
+  // This is valid only in a AnimationCueTickEvent handler. 
+  // Before firing the event the animation cue sets the AnimationTime to
+  // the time of the tick.
+  vtkGetMacro(AnimationTime, double);
+
+  // Description:
+  // This is valid only in a AnimationCueTickEvent handler.
+  // Before firing the event the animation cue sets the DeltaTime
+  // to the difference in time between the current tick and the last tick.
+  vtkGetMacro(DeltaTime, double);
 //BTX
   enum TimeCodes
   {
@@ -143,6 +157,12 @@ protected:
   double StartTime;
   double EndTime;
   int TimeMode;
+
+  // These are set when the AnimationCueTickEvent event 
+  // is fired. Thus giving access to the information in
+  // the AnimationCueInfo struct in wrapped languages.
+  double AnimationTime;
+  double DeltaTime;
   
   // Description:
   // Current state of the Cue.
