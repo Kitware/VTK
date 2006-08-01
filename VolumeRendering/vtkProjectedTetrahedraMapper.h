@@ -45,6 +45,7 @@ class vtkFloatArray;
 class vtkPoints;
 class vtkUnsignedCharArray;
 class vtkVisibilitySort;
+class vtkVolumeProperty;
 
 class VTK_VOLUMERENDERING_EXPORT vtkProjectedTetrahedraMapper : public vtkUnstructuredGridVolumeMapper
 {
@@ -57,7 +58,8 @@ public:
   virtual void SetVisibilitySort(vtkVisibilitySort *sort);
   vtkGetObjectMacro(VisibilitySort, vtkVisibilitySort);
 
-  static void MapScalarsToColors(vtkDataArray *colors, vtkVolume *volume,
+  static void MapScalarsToColors(vtkDataArray *colors,
+                                 vtkVolumeProperty *property,
                                  vtkDataArray *scalars);
   static void TransformPoints(vtkPoints *inPoints,
                               const float projection_mat[16],

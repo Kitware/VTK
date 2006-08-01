@@ -48,7 +48,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.9");
+vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.10");
 
 vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper,
                      VisibilitySort, vtkVisibilitySort);
@@ -193,9 +193,10 @@ namespace vtkProjectedTetrahedraMapperNamespace
                                vtkIdType num_scalars);
 }
 
-void vtkProjectedTetrahedraMapper::MapScalarsToColors(vtkDataArray *colors,
-                                                      vtkVolume *volume,
-                                                      vtkDataArray *scalars)
+void vtkProjectedTetrahedraMapper::MapScalarsToColors(
+                                                    vtkDataArray *colors,
+                                                    vtkVolumeProperty *property,
+                                                    vtkDataArray *scalars)
 {
   using namespace vtkProjectedTetrahedraMapperNamespace;
 
@@ -204,8 +205,8 @@ void vtkProjectedTetrahedraMapper::MapScalarsToColors(vtkDataArray *colors,
 
   if (   (colors->GetDataType() == VTK_UNSIGNED_CHAR)
          && ((   (scalars->GetDataType() != VTK_UNSIGNED_CHAR)
-                 || (volume->GetProperty()->GetIndependentComponents()) )
-             || ((!volume->GetProperty()->GetIndependentComponents())
+                 || (property->GetIndependentComponents()) )
+             || ((!property->GetIndependentComponents())
                  && (scalars->GetNumberOfComponents() == 2))) )
     {
     // Special case.  Need to convert from range [0,1] to [0,255].
@@ -228,7 +229,7 @@ void vtkProjectedTetrahedraMapper::MapScalarsToColors(vtkDataArray *colors,
   switch (tmpColors->GetDataType())
     {
     vtkTemplateMacro(MapScalarsToColors1(static_cast<VTK_TT *>(colorpointer),
-                                         volume->GetProperty(), scalars));
+                                         property, scalars));
     }
 
   if (castColors)

@@ -55,7 +55,7 @@ static int tet_edges[6][2] = { {0,1}, {1,2}, {2,0},
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkOpenGLProjectedTetrahedraMapper, "1.1");
+vtkCxxRevisionMacro(vtkOpenGLProjectedTetrahedraMapper, "1.2");
 vtkStandardNewMacro(vtkOpenGLProjectedTetrahedraMapper);
 
 vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
@@ -63,7 +63,7 @@ vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
   this->TransformedPoints = vtkFloatArray::New();
   this->Colors = vtkUnsignedCharArray::New();
 
-  this->LastVolume = NULL;
+  this->LastProperty = NULL;
 
   this->OpacityTexture = 0;
   this->MaxCellSize = 0;
@@ -87,7 +87,8 @@ void vtkOpenGLProjectedTetrahedraMapper::PrintSelf(ostream &os, vtkIndent indent
 
 //-----------------------------------------------------------------------------
 
-void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow *win)
+void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(
+                                                                 vtkWindow *win)
 {
   if (this->OpacityTexture)
     {
@@ -101,9 +102,10 @@ void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow *win
 //-----------------------------------------------------------------------------
 
 void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
-                                          vtkVolume *volume)
+                                                vtkVolume *volume)
 {
   vtkUnstructuredGrid *input = this->GetInput();
+  vtkVolumeProperty *property = volume->GetProperty();
 
   float last_max_cell_size = this->MaxCellSize;
 
@@ -158,9 +160,8 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
   // Check to see if we need to rebuild opacity texture.
   if (   !this->OpacityTexture
       || (last_max_cell_size != this->MaxCellSize)
-      || (this->LastVolume != volume)
-      || (this->OpacityTextureTime < volume->GetMTime())
-      || (this->OpacityTextureTime < volume->GetProperty()->GetMTime()) )
+      || (this->LastProperty != property)
+      || (this->OpacityTextureTime < property->GetMTime()) )
     {
     if (!this->OpacityTexture)
       {
@@ -170,7 +171,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
       }
     glBindTexture(GL_TEXTURE_2D, this->OpacityTexture);
 
-    float unit_distance = volume->GetProperty()->GetScalarOpacityUnitDistance();
+    float unit_distance = property->GetScalarOpacityUnitDistance();
 
 #define TEXRES  258
     float *texture = new float[TEXRES*TEXRES];
@@ -210,9 +211,8 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
   // Check to see if we need to remap colors.
   if (   (this->ColorsMappedTime < this->MTime)
       || (this->ColorsMappedTime < input->GetMTime())
-      || (this->LastVolume != volume)
-      || (this->ColorsMappedTime < volume->GetMTime())
-      || (this->ColorsMappedTime < volume->GetProperty()->GetMTime()) )
+      || (this->LastProperty != property)
+      || (this->ColorsMappedTime < property->GetMTime()) )
     {
     vtkDataArray *scalars = this->GetScalars(input, this->ScalarMode,
                                              this->ArrayAccessMode,
@@ -224,11 +224,11 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
       return;
       }
 
-    vtkOpenGLProjectedTetrahedraMapper::MapScalarsToColors(this->Colors, volume,
+    vtkProjectedTetrahedraMapper::MapScalarsToColors(this->Colors, property,
                                                      scalars);
 
     this->ColorsMappedTime.Modified();
-    this->LastVolume = volume;
+    this->LastProperty = property;
     }
   if (renderer->GetRenderWindow()->CheckAbortStatus())
     {
@@ -299,8 +299,9 @@ static inline float GetCorrectedDepth(float x, float y, float z1, float z2,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer,
-                                                     vtkVolume *volume)
+void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
+                                                          vtkRenderer *renderer,
+                                                          vtkVolume *volume)
 {
   vtkUnstructuredGrid *input = this->GetInput();
 

@@ -69,7 +69,7 @@ protected:
 
   int GaveError;
 
-  vtkVolume *LastVolume;
+  vtkVolumeProperty *LastProperty;
 
   virtual void ProjectTetrahedra(vtkRenderer *renderer, vtkVolume *volume);
 
