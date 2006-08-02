@@ -87,17 +87,10 @@ public:
   vtkGetObjectMacro(Controller,vtkMultiProcessController);
 
   // Description:
-  // Set and get the volume fraction surface value
-  vtkSetMacro(VolumeFractionSurfaceValue, double);
+  // Set and get the volume fraction surface value. This value should be between 0 and 1
+  vtkSetClampMacro(VolumeFractionSurfaceValue, double, 0.0, 1.0);
   vtkGetMacro(VolumeFractionSurfaceValue, double);
  
-  // Description:
-  // Set and get the OverwriteVolumeFractionSurfaceValue. If this is set, then
-  // VolumeFractionSurfaceValue will be used.
-  vtkSetClampMacro(OverwriteVolumeFractionSurfaceValue, int, 0, 1);
-  vtkBooleanMacro(OverwriteVolumeFractionSurfaceValue, int);
-  vtkGetMacro(OverwriteVolumeFractionSurfaceValue, int);
-  
 protected:
   vtkExtractCTHPart();
   ~vtkExtractCTHPart();

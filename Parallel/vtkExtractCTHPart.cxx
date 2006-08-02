@@ -49,15 +49,16 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.17");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.18");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
 
 vtkInformationKeyMacro(vtkExtractCTHPart,BOUNDS, DoubleVector);
 
-const double CTH_AMR_SURFACE_VALUE_FLOAT=0.499;
-const double CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR=127;
+const double CTH_AMR_SURFACE_VALUE=0.499;
+const double CTH_AMR_SURFACE_VALUE_FLOAT=1;
+const double CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR=255;
 
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -97,12 +98,11 @@ vtkExtractCTHPart::vtkExtractCTHPart()
   this->RCut=0;
   this->RClip2=0;
   this->VolumeFractionType = -1;
-  this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_FLOAT;
-  this->VolumeFractionSurfaceValue = CTH_AMR_SURFACE_VALUE_FLOAT;
+  this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE;
+  this->VolumeFractionSurfaceValue = CTH_AMR_SURFACE_VALUE;
   
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  this->OverwriteVolumeFractionSurfaceValue = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -714,20 +714,15 @@ void vtkExtractCTHPart::EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkMu
             if ( this->VolumeFractionType < 0 )
               {
               this->VolumeFractionType = cellVolumeFraction->GetDataType();
-              if ( this->OverwriteVolumeFractionSurfaceValue )
+              switch ( this->VolumeFractionType )
                 {
-                this->VolumeFractionSurfaceValueInternal = this->VolumeFractionSurfaceValue;
-                }
-              else
-                {
-                switch ( this->VolumeFractionType )
-                  {
-                case VTK_UNSIGNED_CHAR:
-                  this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR;
-                  break;
-                default:
-                  this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_FLOAT;
-                  }
+              case VTK_UNSIGNED_CHAR:
+                this->VolumeFractionSurfaceValueInternal
+                  = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR * this->VolumeFractionSurfaceValue;
+                break;
+              default:
+                this->VolumeFractionSurfaceValueInternal
+                  = CTH_AMR_SURFACE_VALUE_FLOAT * this->VolumeFractionSurfaceValue;
                 }
               }
             }
@@ -760,20 +755,15 @@ void vtkExtractCTHPart::EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkMu
       if ( this->VolumeFractionType < 0 )
         {
         this->VolumeFractionType = cellVolumeFraction->GetDataType();
-        if ( this->OverwriteVolumeFractionSurfaceValue )
+        switch ( this->VolumeFractionType )
           {
-          this->VolumeFractionSurfaceValueInternal = this->VolumeFractionSurfaceValue;
-          }
-        else
-          {
-          switch ( this->VolumeFractionType )
-            {
-          case VTK_UNSIGNED_CHAR:
-            this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR;
-            break;
-          default:
-            this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_FLOAT;
-            }
+        case VTK_UNSIGNED_CHAR:
+          this->VolumeFractionSurfaceValueInternal
+            = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR * this->VolumeFractionSurfaceValue;
+          break;
+        default:
+          this->VolumeFractionSurfaceValueInternal
+            = CTH_AMR_SURFACE_VALUE_FLOAT * this->VolumeFractionSurfaceValue;
           }
         }
       }
@@ -904,20 +894,15 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
   if ( this->VolumeFractionType < 0 )
     {
     this->VolumeFractionType = cellVolumeFraction->GetDataType();
-    if ( this->OverwriteVolumeFractionSurfaceValue )
+    switch ( this->VolumeFractionType )
       {
-      this->VolumeFractionSurfaceValueInternal = this->VolumeFractionSurfaceValue;
-      }
-    else
-      {
-      switch ( this->VolumeFractionType )
-        {
-      case VTK_UNSIGNED_CHAR:
-        this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR;
-        break;
-      default:
-        this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_FLOAT;
-        }
+    case VTK_UNSIGNED_CHAR:
+      this->VolumeFractionSurfaceValueInternal
+        = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR * this->VolumeFractionSurfaceValue;
+      break;
+    default:
+      this->VolumeFractionSurfaceValueInternal
+        = CTH_AMR_SURFACE_VALUE_FLOAT * this->VolumeFractionSurfaceValue;
       }
     }
   
@@ -1200,20 +1185,15 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
   if ( this->VolumeFractionType < 0 )
     {
     this->VolumeFractionType = cellVolumeFraction->GetDataType();
-    if ( this->OverwriteVolumeFractionSurfaceValue )
+    switch ( this->VolumeFractionType )
       {
-      this->VolumeFractionSurfaceValueInternal = this->VolumeFractionSurfaceValue;
-      }
-    else
-      {
-      switch ( this->VolumeFractionType )
-        {
-      case VTK_UNSIGNED_CHAR:
-        this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR;
-        break;
-      default:
-        this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE_FLOAT;
-        }
+    case VTK_UNSIGNED_CHAR:
+      this->VolumeFractionSurfaceValueInternal
+        = CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR * this->VolumeFractionSurfaceValue;
+      break;
+    default:
+      this->VolumeFractionSurfaceValueInternal
+        = CTH_AMR_SURFACE_VALUE_FLOAT * this->VolumeFractionSurfaceValue;
       }
     }
  
@@ -2119,13 +2099,8 @@ void vtkExtractCTHPart::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << i2 << it->c_str() << endl;
     }
-  os << indent << "OverwriteVolumeFractionSurfaceValue: "
-    << this->OverwriteVolumeFractionSurfaceValue << endl;
-  if (this->OverwriteVolumeFractionSurfaceValue)
-    {
-    os << indent << "VolumeFractionSurfaceValue: "
-      << this->VolumeFractionSurfaceValue << endl;
-    }
+  os << indent << "VolumeFractionSurfaceValue: "
+    << this->VolumeFractionSurfaceValue << endl;
   if (this->ClipPlane)
     {
     os << indent << "ClipPlane:\n";
