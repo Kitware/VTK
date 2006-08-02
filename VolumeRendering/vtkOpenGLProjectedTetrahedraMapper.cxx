@@ -53,9 +53,11 @@
 static int tet_edges[6][2] = { {0,1}, {1,2}, {2,0}, 
                                {0,3}, {1,3}, {2,3} };
 
+const int SqrtTableSize = 2048;
+
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkOpenGLProjectedTetrahedraMapper, "1.2");
+vtkCxxRevisionMacro(vtkOpenGLProjectedTetrahedraMapper, "1.3");
 vtkStandardNewMacro(vtkOpenGLProjectedTetrahedraMapper);
 
 vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
@@ -69,6 +71,9 @@ vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
   this->MaxCellSize = 0;
 
   this->GaveError = 0;
+
+  this->SqrtTable = new float[SqrtTableSize];
+  this->SqrtTableBias = 0.0;
 }
 
 vtkOpenGLProjectedTetrahedraMapper::~vtkOpenGLProjectedTetrahedraMapper()
@@ -76,6 +81,8 @@ vtkOpenGLProjectedTetrahedraMapper::~vtkOpenGLProjectedTetrahedraMapper()
   this->ReleaseGraphicsResources(NULL);
   this->TransformedPoints->Delete();
   this->Colors->Delete();
+
+  delete[] this->SqrtTable;
 }
 
 void vtkOpenGLProjectedTetrahedraMapper::PrintSelf(ostream &os, vtkIndent indent)
@@ -87,8 +94,7 @@ void vtkOpenGLProjectedTetrahedraMapper::PrintSelf(ostream &os, vtkIndent indent
 
 //-----------------------------------------------------------------------------
 
-void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(
-                                                                 vtkWindow *win)
+void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow *win)
 {
   if (this->OpacityTexture)
     {
@@ -123,9 +129,9 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
       return;
       }
 
-    vtkIdType npts, *pts;
+    vtkIdType npts, *pts, i;
     cells->InitTraversal();
-    for (vtkIdType i = 0; cells->GetNextCell(npts, pts); i++)
+    for (i = 0; cells->GetNextCell(npts, pts); i++)
       {
       int j;
       if (npts != 4)
@@ -148,6 +154,15 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
       }
 
     this->MaxCellSize = (float)sqrt(max_cell_size2);
+
+    // Build a sqrt lookup table for measuring distances.  During perspective
+    // modes we have to take a lot of square roots, and a table is much faster
+    // than calling the sqrt function.
+    this->SqrtTableBias = (SqrtTableSize-1)/max_cell_size2;
+    for (i = 0; i < SqrtTableSize; i++)
+      {
+      this->SqrtTable[i] = (float)sqrt(i/this->SqrtTableBias);
+      }
 
     this->InputAnalyzedTime.Modified();
     }
@@ -245,10 +260,11 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
 
 //-----------------------------------------------------------------------------
 
-static inline float GetCorrectedDepth(float x, float y, float z1, float z2,
-                                      const float inverse_projection_mat[16],
-                                      int use_linear_depth_correction,
-                                      float linear_depth_correction)
+inline float vtkOpenGLProjectedTetrahedraMapper::GetCorrectedDepth(
+                                         float x, float y, float z1, float z2,
+                                         const float inverse_projection_mat[16],
+                                         int use_linear_depth_correction,
+                                         float linear_depth_correction)
 {
   if (use_linear_depth_correction)
     {
@@ -260,6 +276,7 @@ static inline float GetCorrectedDepth(float x, float y, float z1, float z2,
     {
     float eye1[3], eye2[3], invw;
 
+#if 0
     invw = 1/(  inverse_projection_mat[ 3]*x
               + inverse_projection_mat[ 7]*y
               + inverse_projection_mat[11]*z1
@@ -293,15 +310,45 @@ static inline float GetCorrectedDepth(float x, float y, float z1, float z2,
                     + inverse_projection_mat[ 6]*y
                     + inverse_projection_mat[10]*z2
                     + inverse_projection_mat[14] );
+#else
+    // This code does the same as the commented code above, but also collects
+    // common arithmetic between the two matrix x vector operations.  An
+    // optimizing compiler may or may not pick up on that.
+    float common[4];
 
-    return (float)sqrt(vtkMath::Distance2BetweenPoints(eye1, eye2));
+    common[0] = (  inverse_projection_mat[ 0]*x
+                 + inverse_projection_mat[ 4]*y
+                 + inverse_projection_mat[12] );
+    common[1] = (  inverse_projection_mat[ 1]*x
+                 + inverse_projection_mat[ 5]*y
+                 + inverse_projection_mat[13] );
+    common[2] = (  inverse_projection_mat[ 2]*x
+                 + inverse_projection_mat[ 6]*y
+                 + inverse_projection_mat[10]*z1
+                 + inverse_projection_mat[14] );
+    common[3] = (  inverse_projection_mat[ 3]*x
+                 + inverse_projection_mat[ 7]*y
+                 + inverse_projection_mat[15] );
+
+    invw = 1/(common[3] + inverse_projection_mat[11]*z1);
+    eye1[0] = invw*(common[0] + inverse_projection_mat[ 8]*z1);
+    eye1[1] = invw*(common[1] + inverse_projection_mat[ 9]*z1);
+    eye1[2] = invw*(common[2] + inverse_projection_mat[10]*z1);
+
+    invw = 1/(common[3] + inverse_projection_mat[11]*z2);
+    eye2[0] = invw*(common[0] + inverse_projection_mat[ 8]*z2);
+    eye2[1] = invw*(common[1] + inverse_projection_mat[ 9]*z2);
+    eye2[2] = invw*(common[2] + inverse_projection_mat[10]*z2);
+#endif
+
+    float dist2 = vtkMath::Distance2BetweenPoints(eye1, eye2);
+    return this->SqrtTable[(int)(dist2*this->SqrtTableBias)];
     }
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
-                                                          vtkRenderer *renderer,
-                                                          vtkVolume *volume)
+void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer,
+                                                     vtkVolume *volume)
 {
   vtkUnstructuredGrid *input = this->GetInput();
 
