@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMultiGroupPolyDataMapper, "1.1");
+vtkCxxRevisionMacro(vtkMultiGroupPolyDataMapper, "1.2");
 vtkStandardNewMacro(vtkMultiGroupPolyDataMapper);
 
 class vtkMultiGroupPolyDataMapperInternals
@@ -85,7 +85,7 @@ void vtkMultiGroupPolyDataMapper::BuildPolyDataMapper()
   //Get the MultiGroupDataSet from the input
   vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0,0);
   vtkMultiGroupDataSet *input = vtkMultiGroupDataSet::SafeDownCast(
-    inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   // If it isn't hierarchical, maybe it is just a plain vtkPolyData
   if(!input) 
@@ -211,7 +211,7 @@ void vtkMultiGroupPolyDataMapper::ComputeBounds()
   
   vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0,0);
   vtkMultiGroupDataSet *input = vtkMultiGroupDataSet::SafeDownCast(
-    inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // If we don't have hierarchical data, test to see if we have
   // plain old polydata. In this case, the bounds are simply
@@ -272,7 +272,7 @@ double* vtkMultiGroupPolyDataMapper::GetBounds()
 {
   static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
   
-  if ( ! this->GetInput() ) 
+  if ( ! this->GetExecutive()->GetInputData(0, 0) ) 
     {
     return bounds;
     }
