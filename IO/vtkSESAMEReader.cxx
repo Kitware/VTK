@@ -17,7 +17,7 @@
 #include <vtkstd/string>
 
 vtkStandardNewMacro(vtkSESAMEReader);
-vtkCxxRevisionMacro(vtkSESAMEReader, "1.1");
+vtkCxxRevisionMacro(vtkSESAMEReader, "1.2");
 
 static const int SESAME_NUM_CHARS = 512;
 static const char* TableLineFormat = "%2i%6i%6i";
@@ -63,7 +63,7 @@ public:
 static const int MaxTableArrays = 10;
 struct vtkSESAMETableDef
 {
-  const int TableId;
+  int TableId;
   const char* Arrays[MaxTableArrays];
 };
 
