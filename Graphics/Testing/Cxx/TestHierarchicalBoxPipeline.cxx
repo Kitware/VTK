@@ -40,6 +40,10 @@
 
 int TestHierarchicalBoxPipeline(int argc, char* argv[])
 {
+  vtkCompositeDataPipeline* prototype = vtkCompositeDataPipeline::New();
+  vtkAlgorithm::SetDefaultExecutivePrototype(prototype);
+  prototype->Delete();
+
   // Standard rendering classes
   vtkRenderer *ren = vtkRenderer::New();
   vtkCamera* cam = ren->GetActiveCamera();
@@ -141,6 +145,7 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
   iren->Delete();
   reader->Delete();
   shrink->Delete();
-  
+ 
+  vtkAlgorithm::SetDefaultExecutivePrototype(0);
   return !retVal;
 }

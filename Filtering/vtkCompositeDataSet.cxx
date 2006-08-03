@@ -24,10 +24,9 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataSet, "1.8");
+vtkCxxRevisionMacro(vtkCompositeDataSet, "1.9");
 
 vtkInformationKeyMacro(vtkCompositeDataSet,INDEX,Integer);
-vtkInformationKeyMacro(vtkCompositeDataSet,COMPOSITE_DATA_SET,DataObject);
 
 //----------------------------------------------------------------------------
 vtkCompositeDataSet::vtkCompositeDataSet()
@@ -43,44 +42,6 @@ vtkCompositeDataSet::~vtkCompositeDataSet()
 void vtkCompositeDataSet::Initialize()
 {
   this->Superclass::Initialize();
-}
-
-//----------------------------------------------------------------------------
-void vtkCompositeDataSet::SetPipelineInformation(vtkInformation* newInfo)
-{
-  vtkInformation* oldInfo = this->PipelineInformation;
-  if(newInfo != oldInfo)
-    {
-    if(newInfo)
-      {
-      // Reference the new information.
-      newInfo->Register(this);
-
-      // Detach the output that used to be held by the new information.
-      if(vtkDataObject* oldData = 
-         newInfo->Get(COMPOSITE_DATA_SET()))
-        {
-        oldData->Register(this);
-        oldData->SetPipelineInformation(0);
-        oldData->UnRegister(this);
-        }
-
-      // Tell the new information about this object.
-      newInfo->Set(COMPOSITE_DATA_SET(), this);
-      }
-
-    // Save the pointer to the new information.
-    this->PipelineInformation = newInfo;
-
-    if(oldInfo)
-      {
-      // Remove the old information's reference to us.
-      oldInfo->Set(COMPOSITE_DATA_SET(), 0);
-
-      // Remove our reference to the old information.
-      oldInfo->UnRegister(this);
-      }
-    }
 }
 
 //----------------------------------------------------------------------------

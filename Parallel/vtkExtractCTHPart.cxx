@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.18");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.19");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -233,7 +233,7 @@ int vtkExtractCTHPart::RequestData(
 
   // get the input and output
   vtkMultiGroupDataSet *input=vtkMultiGroupDataSet::SafeDownCast(
-    inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   vtkRectilinearGrid *rg=0;
   

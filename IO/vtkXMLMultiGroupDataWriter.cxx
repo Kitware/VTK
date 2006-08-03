@@ -51,7 +51,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLMultiGroupDataWriter);
-vtkCxxRevisionMacro(vtkXMLMultiGroupDataWriter, "1.2");
+vtkCxxRevisionMacro(vtkXMLMultiGroupDataWriter, "1.3");
 
 class vtkXMLMultiGroupDataWriterInternals
 {
@@ -161,7 +161,7 @@ int vtkXMLMultiGroupDataWriter::RequestData(vtkInformation*,
   this->InputInformation = inInfo;
 
   vtkMultiGroupDataSet *hdInput = vtkMultiGroupDataSet::SafeDownCast(
-    inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!hdInput) 
     {
     vtkErrorMacro("No hierarchical input has been provided. Cannot write");
@@ -412,7 +412,7 @@ const char* vtkXMLMultiGroupDataWriter::GetDataSetName()
     return "MultiGroupDataSet";
     }
   vtkDataObject *hdInput = vtkDataObject::SafeDownCast(
-    this->InputInformation->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    this->InputInformation->Get(vtkDataObject::DATA_OBJECT()));
   if (!hdInput) 
     {
     return 0;

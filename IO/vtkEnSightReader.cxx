@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.62");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.63");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -173,7 +173,7 @@ int vtkEnSightReader::RequestData(
 
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
-    outInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int i, timeSet, fileSet, timeStep, timeStepInFile, fileNum;
   vtkDataArray *times;

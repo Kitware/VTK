@@ -25,7 +25,7 @@
 #include "vtkMultiGroupDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataGeometryFilter, "1.1");
+vtkCxxRevisionMacro(vtkMultiGroupDataGeometryFilter, "1.2");
 vtkStandardNewMacro(vtkMultiGroupDataGeometryFilter);
 
 vtkMultiGroupDataGeometryFilter::vtkMultiGroupDataGeometryFilter()
@@ -68,7 +68,7 @@ int vtkMultiGroupDataGeometryFilter::RequestCompositeData(
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkMultiGroupDataSet *input = vtkMultiGroupDataSet::SafeDownCast(
-    inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!input) 
     {
     vtkErrorMacro("No input composite dataset provided.");

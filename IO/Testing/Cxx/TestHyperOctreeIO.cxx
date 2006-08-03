@@ -323,14 +323,6 @@ int TestHyperOctreeIO(int argc, char* argv[])
                                GetScalars()->GetRange());
       }
     }
-  if(surface->GetOutput()->GetCellData()!=0)
-    {
-    if(surface->GetOutput()->GetCellData()->GetScalars()!=0)
-      {
-      smapper->SetScalarRange( surface->GetOutput()->GetCellData()->
-                               GetScalars()->GetRange());
-      }
-    }
   surface->Delete();
   contour->Delete();
 

@@ -22,6 +22,7 @@
 
 #include "vtkCamera.h"
 #include "vtkCellDataToPointData.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
 #include "vtkHierarchicalDataExtractDataSets.h"
@@ -39,6 +40,10 @@
 
 int TestMultiBlock(int argc, char* argv[])
 {
+  vtkCompositeDataPipeline* prototype = vtkCompositeDataPipeline::New();
+  vtkAlgorithm::SetDefaultExecutivePrototype(prototype);
+  prototype->Delete();
+
   // Standard rendering classes
   vtkRenderer *ren = vtkRenderer::New();
   vtkCamera* cam = ren->GetActiveCamera();
@@ -151,5 +156,6 @@ int TestMultiBlock(int argc, char* argv[])
   reader->Delete();
   shrink->Delete();
   
+  vtkAlgorithm::SetDefaultExecutivePrototype(0);
   return !retVal;
 }

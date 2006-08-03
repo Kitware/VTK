@@ -33,7 +33,7 @@
 #include "vtkSmartPointer.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.7");
+vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.8");
 vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -766,7 +766,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
   vtkInformation* info = outputVector->GetInformationObject(0);
 
   vtkDataObject* doOutput = 
-    info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
+    info->Get(vtkDataObject::DATA_OBJECT());
   vtkMultiBlockDataSet* mb = 
     vtkMultiBlockDataSet::SafeDownCast(doOutput);
   if (!mb)

@@ -35,11 +35,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.35");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.36");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
-vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
-vtkInformationKeyMacro(vtkCompositeDataPipeline,END_LOOP,Integer);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_TYPE_NAME,String);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,MARKED_FOR_UPDATE,Integer);
@@ -50,7 +48,6 @@ vtkInformationKeyMacro(vtkCompositeDataPipeline,UPDATE_BLOCKS, ObjectBase);
 vtkCompositeDataPipeline::vtkCompositeDataPipeline()
 {
   this->InLocalLoop = 0;
-  this->InSubPass = 0;
   this->InformationCache = vtkInformation::New();
 
   this->GenericRequest = vtkInformation::New();
@@ -104,121 +101,37 @@ vtkCompositeDataPipeline::~vtkCompositeDataPipeline()
 }
 
 //----------------------------------------------------------------------------
-int
-vtkCompositeDataPipeline::ComputePipelineMTime(vtkInformation* request,
-                                               vtkInformationVector** inInfoVec,
-                                               vtkInformationVector* outInfoVec,
-                                               int requestFromOutputPort,
-                                               unsigned long* mtime)
-{
-  // if not a subpass then just do normal stuff
-  if (!this->InSubPass)
-    {
-    return this->Superclass::ComputePipelineMTime(request,
-                                                  inInfoVec, outInfoVec,
-                                                  requestFromOutputPort,
-                                                  mtime);
-    }
-
-  // if in subpass then Update the time only if it is the beginning of the
-  // next pass in the loop.
-  if (request->Has(vtkCompositeDataSet::INDEX()))
-    {
-    this->SubPassTime.Modified();
-    }
-  *mtime = this->SubPassTime;
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request,
                                              vtkInformationVector** inInfoVec,
                                              vtkInformationVector* outInfoVec)
 {
-
-  if(this->Algorithm && request->Has(BEGIN_LOOP()))
-    {
-    this->InSubPass = 1;
-    return 1;
-    }
-
-  if(this->Algorithm && request->Has(END_LOOP()))
-    {
-    this->InSubPass = 0;
-    return 1;
-    }
-
-
-  if(this->Algorithm && request->Has(REQUEST_DATA_OBJECT()))
-    {
-    if (this->InSubPass)
-      {
-      int result = 1;
-      if (this->SubPassTime > this->DataObjectTime.GetMTime())
-        {
-        // Request information from the algorithm.
-        result = this->ExecuteDataObjectForBlock(request);
-        }
-      return result;
-      }
-    }
-
   if(this->Algorithm && request->Has(REQUEST_INFORMATION()))
     {
-    // Make sure our output information is up-to-date.
-    int result = 1;
-    if (this->InSubPass)
+    int appendKey = 1;
+    vtkInformationKey** keys = request->Get(vtkExecutive::KEYS_TO_COPY());
+    if (keys)
       {
-      if(this->SubPassTime > this->InformationTime.GetMTime())
+      int len = request->Length(vtkExecutive::KEYS_TO_COPY());
+      for (int i=0; i<len; i++)
         {
-        result = this->ExecuteInformationForBlock(request);
-        
-        // Information is now up to date.
-        this->InformationTime.Modified();
-        }
-      }
-    else
-      {
-      int appendKey = 1;
-      vtkInformationKey** keys = request->Get(vtkExecutive::KEYS_TO_COPY());
-      if (keys)
-        {
-        int len = request->Length(vtkExecutive::KEYS_TO_COPY());
-        for (int i=0; i<len; i++)
+        if (keys[i] == vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION())
           {
-          if (keys[i] == vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION())
-            {
-            appendKey = 0;
-            break;
-            }
+          appendKey = 0;
+          break;
           }
         }
-      if (appendKey)
-        {
-        request->Append(vtkExecutive::KEYS_TO_COPY(), 
-                        vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION());
-        }
-      
-      result = this->Superclass::ProcessRequest(request, inInfoVec,outInfoVec);
       }
-    return result;
-    }
-
-  if(request->Has(REQUEST_UPDATE_EXTENT()))
-    {
-    if (this->InSubPass)
+    if (appendKey)
       {
-      return 1;
+      request->Append(vtkExecutive::KEYS_TO_COPY(), 
+                      vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION());
       }
+      
+    return this->Superclass::ProcessRequest(request, inInfoVec,outInfoVec);
     }
 
   if(this->Algorithm && request->Has(REQUEST_DATA()))
     {
-    if (this->InSubPass)
-      {
-      return this->ExecuteDataForBlock(request);
-      }
-
     // Get the output port from which the request was made.
     int outputPort = -1;
     if(request->Has(FROM_OUTPUT_PORT()))
@@ -356,28 +269,29 @@ int vtkCompositeDataPipeline::ExecuteDataObject(
   vtkInformationVector** inInfoVec,
   vtkInformationVector* outInfoVec)
 {
-  // Invoke the request on the algorithm.
-  int result = this->CallAlgorithm(request, vtkExecutive::RequestDownstream,
-                                   inInfoVec, outInfoVec);
-  if (!result)
-    {
-    return result;
-    }
+  int result=1;
 
-  result = this->ExecuteDataObjectForBlock(request);
-  if (!result)
+  // If the input is composite, allow algorithm to handle
+  // REQUEST_DATA_OBJECT only if it can handle composite
+  // datasets. Otherwise, the algorithm will get a chance to handle
+  // REQUEST_DATA_OBJECT when it is being iterated over.
+  int inputPortIsComposite;
+  int inputIsComposite;
+  int compositePort;
+  this->CheckInputPorts(inputPortIsComposite, inputIsComposite, compositePort);
+  if (inputPortIsComposite || !inputIsComposite)
     {
-    return result;
+    // Invoke the request on the algorithm.
+    result = this->CallAlgorithm(request, vtkExecutive::RequestDownstream,
+                                 inInfoVec, outInfoVec);
+    if (!result)
+      {
+      return result;
+      }
     }
 
   int i; 
   // Make sure a valid data object exists for all output ports.
-  for(i=0; result && i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
-    {
-    result = this->CheckDataObject(i, outInfoVec);
-    }
-
-  // Make sure a valid composite data object exists for all output ports.
   for(i=0; result && i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
     {
     result = this->CheckCompositeData(i, outInfoVec);
@@ -385,126 +299,6 @@ int vtkCompositeDataPipeline::ExecuteDataObject(
 
   return result;
 }
-
-//----------------------------------------------------------------------------
-// Used only when there are intermediate executive objects that are not
-// vtkCompositeDataPipeline.
-// ExecuteInformationForBlock provides information for the current block
-int vtkCompositeDataPipeline::ExecuteDataObjectForBlock(vtkInformation* request)
-{
-  int result = 1;
-
-  vtkInformationVector* outputVector = this->GetOutputInformation();
-  int numOut = outputVector->GetNumberOfInformationObjects();
-  for (int i=0; i<numOut; i++)
-    {
-    vtkInformation* portInfo = 
-      this->Algorithm->GetOutputPortInformation(0);
-    if (portInfo->Has(COMPOSITE_DATA_TYPE_NAME()))
-      {
-      vtkInformation* info = outputVector->GetInformationObject(i);
-    
-      vtkDataObject* doOutput = 
-        info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
-      vtkCompositeDataSet* output = vtkCompositeDataSet::SafeDownCast(doOutput);
-
-      vtkDataObject* simpleOutput = 0;
-
-      if (output)
-        {
-        vtkDataObject* dobj;
-
-        // If the index is specified, use it. Otherwise, use (0,0)
-        if (request->Has(vtkCompositeDataSet::INDEX()))
-          {
-          dobj = output->GetDataSet(request);
-          }
-        else
-          {
-          vtkSmartPointer<vtkInformation> r = 
-            vtkSmartPointer<vtkInformation>::New();
-          r->Set(vtkMultiGroupDataSet::GROUP(), 0);
-          r->Set(vtkCompositeDataSet::INDEX(),    0);
-          dobj = output->GetDataSet(r);
-          }
-        
-        if (dobj)
-          {
-          this->DataObjectTime.Modified();
-
-          vtkDataObject* currDObj = info->Get(vtkDataObject::DATA_OBJECT());
-
-          if (currDObj && 
-              strcmp(currDObj->GetClassName(), dobj->GetClassName()) == 0)
-            {
-            continue;
-            }
-          
-          simpleOutput = dobj->NewInstance();
-          if (!simpleOutput)
-            {
-            vtkErrorMacro("Could not create a copy of " << dobj->GetClassName()
-                          << ".");
-            return 0;
-            }
-          }
-        }
-
-      if (!simpleOutput)
-        {
-        // If there was no current data object in the composite data object
-        // and there is already any data object in the output, move to the
-        // next port
-        if(info->Get(vtkDataObject::DATA_OBJECT()))
-          {
-          continue;
-          }
-        // Otherwise, simply create a polydata so that filters that
-        // must have a data object (such as datasettodataset filters)
-        // have a dummy dataset
-        simpleOutput = vtkPolyData::New();
-        }
-      
-      simpleOutput->SetPipelineInformation(info);
-      simpleOutput->Delete();
-      }
-    }
-
-  return result;
-}
-
-//----------------------------------------------------------------------------
-// Used only when there are intermediate executive objects that are not
-// vtkCompositeDataPipeline.
-// ExecuteInformationForBlock provides information for the current block
-int vtkCompositeDataPipeline::ExecuteInformationForBlock(vtkInformation* request)
-{
-  vtkInformationVector* outputVector = this->GetOutputInformation();
-  int numOut = outputVector->GetNumberOfInformationObjects();
-  for (int i=0; i<numOut; i++)
-    {
-    vtkInformation* info = outputVector->GetInformationObject(i);
-    
-    vtkDataObject* doOutput = 
-      info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
-    vtkCompositeDataSet* output = vtkCompositeDataSet::SafeDownCast(doOutput);
-
-    if (output)
-      {
-      vtkDataObject* dobj = output->GetDataSet(request);
-      vtkDataObject* dobjCopy = 
-        info->Get(vtkDataObject::DATA_OBJECT());
-      if (dobj && dobjCopy)
-        {
-        dobjCopy->ShallowCopy(dobj);
-        dobjCopy->CopyInformation(dobj);
-        }
-      }
-    }
-
-  return 1;
-}
-
 
 //----------------------------------------------------------------------------
 void vtkCompositeDataPipeline::ExecuteDataStart(
@@ -523,8 +317,7 @@ void vtkCompositeDataPipeline::ExecuteDataStart(
     for(int i=0; i < outInfoVec->GetNumberOfInformationObjects(); ++i)
       {
       vtkInformation* outInfo = outInfoVec->GetInformationObject(i);
-      vtkDataObject* data = 
-        outInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
+      vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
       if(data && !outInfo->Get(DATA_NOT_GENERATED()))
         {
         data->PrepareForNewData();
@@ -541,62 +334,11 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request,
                                           vtkInformationVector* outInfoVec)
 {
   int result = 1;
-  int outputPort = request->Get(FROM_OUTPUT_PORT());
-  int i, j;
 
-  for(i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+  for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
     {
     vtkInformation* info = outInfoVec->GetInformationObject(i);
     info->Remove(UPDATE_BLOCKS());
-    }
-
-  // Loop over all input ports.
-  for(i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
-    {
-    // Loop over all connections on this input port.
-    int numInConnections = inInfoVec[i]->GetNumberOfInformationObjects();
-    for (j=0; j<numInConnections; j++)
-      {
-      // If the algorithm connected to the input port did not provide
-      // a composite dataset, it is a "simple" algorithm. Every block
-      // that consists of a group of simple algorithms has to be executed
-      // in a loop to process composite datasets. This is done by a
-      // collaboration of the composite source and algorithm that surround
-      // this simple algorithm block.
-      vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
-      vtkCompositeDataSet* input = vtkCompositeDataSet::SafeDownCast(
-        inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
-
-      // There is a composite input, no need to loop
-      if (input)
-        {
-        continue;
-        }
-
-      vtkMultiGroupDataSet* updateInfo = 
-        vtkMultiGroupDataSet::SafeDownCast(
-          inInfo->Get(vtkCompositeDataPipeline::UPDATE_BLOCKS()));
-
-      // Tell the producer upstream that looping is about to start
-      int retVal = this->SendBeginLoop(i, j, inInfo, updateInfo);
-      if (retVal == vtkCompositeDataPipeline::EXECUTE_BLOCK_CONTINUE)
-        {
-        continue;
-        }
-      if (retVal == vtkCompositeDataPipeline::EXECUTE_BLOCK_ERROR)
-        {
-        return 0;
-        }
-
-      input = this->CreateInputCompositeData(i, inInfo);
-
-      this->UpdateBlocks(i, j, outputPort, updateInfo, input, inInfo);
-
-      if (!this->SendEndLoop(i, j))
-        {
-        return 0;
-        }
-      }
     }
 
   int inputPortIsComposite;
@@ -613,10 +355,10 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request,
     result = this->Superclass::ExecuteData(request,inInfoVec,outInfoVec);
     }
 
-  for(int jj=0; jj < this->Algorithm->GetNumberOfOutputPorts(); ++jj)
+  for(int j=0; j < this->Algorithm->GetNumberOfOutputPorts(); ++j)
     {
-    vtkInformation* info = this->GetOutputInformation(jj);
-    vtkObject* dobj= info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
+    vtkInformation* info = this->GetOutputInformation(j);
+    vtkObject* dobj= info->Get(vtkCompositeDataSet::DATA_OBJECT());
     if (dobj)
       {
       info->Set(UPDATE_BLOCKS(), dobj);
@@ -630,7 +372,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request,
 int vtkCompositeDataPipeline::InputTypeIsValid(
   int port, int index,vtkInformationVector **inInfoVec)
 {
-  if (this->InLocalLoop || this->InSubPass)
+  if (this->InLocalLoop)
     {
     return this->Superclass::InputTypeIsValid(port, index, inInfoVec);
     }
@@ -638,8 +380,8 @@ int vtkCompositeDataPipeline::InputTypeIsValid(
     {
     return 0;
     }  
-  vtkDataObject* input = this->GetCompositeInputData(port, index, inInfoVec);
-  if (!input)
+  vtkDataObject* input = this->GetInputData(port, index, inInfoVec);
+  if (!vtkCompositeDataSet::SafeDownCast(input))
     {
     return this->Superclass::InputTypeIsValid(port, index, inInfoVec);
     }
@@ -690,202 +432,14 @@ void vtkCompositeDataPipeline::CheckInputPorts(int& inputPortIsComposite,
     if (numInConnections > 0)
       {
       vtkInformation* inInfo = this->GetInputInformation(i, 0);
-      if (inInfo->Has(vtkCompositeDataSet::COMPOSITE_DATA_SET()))
+      vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+      if (vtkCompositeDataSet::SafeDownCast(input))
         {
         inputIsComposite = 1;
         compositePort = i;
         }
       }
     }
-}
-
-//----------------------------------------------------------------------------
-// Used only when there are intermediate executive objects that are not
-// vtkCompositeDataPipeline.
-// Updates the input pipeline multiple times, once per block. The 
-// vtkCompositeDataPipeline of this algorithm has to work with another 
-// vtkCompositeDataPipeline upstream to force the intermediate 
-// non-composite-aware filters to execute in each pass.
-int vtkCompositeDataPipeline::UpdateBlocks(
-  int i, int j, int outputPort, 
-  vtkMultiGroupDataSet* updateInfo, 
-  vtkCompositeDataSet* input,
-  vtkInformation* inInfo)
-{
-  // Get the producer and its output port for input connection i,j.
-  vtkExecutive* producer = 0;
-  int producerPort = -1;
-  if(vtkInformation* info = this->GetInputInformation(i, j))
-    {
-    // Get the executive producing this input.  If there is none, then
-    // it is a NULL input.
-    info->Get(vtkExecutive::PRODUCER(), producer, producerPort);
-    }
-  if(!producer)
-    {
-    this->SendEndLoop(i,j);
-    return EXECUTE_BLOCK_ERROR;
-    }
-
-  // Execute the streaming demand driven pipeline for each block
-  unsigned int numGroups = updateInfo->GetNumberOfGroups();
-  for (unsigned int k=0; k<numGroups; k++)
-    {
-    unsigned int numDataSets = updateInfo->GetNumberOfDataSets(k);
-    for (unsigned l=0; l<numDataSets; l++)
-      {
-      if (!updateInfo->GetDataSet(k,l))
-        {
-        vtkDebugMacro(<< k << "," << l << "  not marked for update");
-        continue;
-        }
-      // First pipeline mtime
-              
-      // Setup the request for pipeline modification time.
-      this->GenericRequest->Set(vtkMultiGroupDataSet::GROUP(), k);
-      this->GenericRequest->Set(vtkCompositeDataSet::INDEX(), l);
-      unsigned long mtime;
-      producer->ComputePipelineMTime(this->GenericRequest,
-                                     producer->GetInputInformation(),
-                                     producer->GetOutputInformation(),
-                                     producerPort, &mtime);
-
-      // Do the data-object creation pass before the information pass.
-              
-      // Send the request for data object creation.
-      this->DataObjectRequest->Set(vtkMultiGroupDataSet::GROUP(), k);
-      this->DataObjectRequest->Set(vtkCompositeDataSet::INDEX(), l);
-      if (!this->ForwardUpstream(i, j, this->DataObjectRequest))
-        {
-        this->SendEndLoop(i,j);
-        return EXECUTE_BLOCK_ERROR;
-        }
-              
-      // Send the request for information.
-      this->InformationRequest->Set(vtkMultiGroupDataSet::GROUP(), k);
-      this->InformationRequest->Set(vtkCompositeDataSet::INDEX(), l);
-      if (!this->ForwardUpstream(i, j, this->InformationRequest))
-        {
-        this->SendEndLoop(i,j);
-        return EXECUTE_BLOCK_ERROR;
-        }
-            
-      // Update the whole thing
-      // TODO: This might change
-      if (inInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
-        {
-        int extent[6] = {0,-1,0,-1,0,-1};
-        inInfo->Get(
-          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
-        inInfo->Set(
-          vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
-        inInfo->Set(
-          vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
-        inInfo->Set(
-          vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
-        inInfo->Set(
-          vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
-        }
-            
-      // Send the request for update extent propagation.
-      this->UpdateExtentRequest->Set(vtkMultiGroupDataSet::GROUP(), k);
-      this->UpdateExtentRequest->Set(vtkCompositeDataSet::INDEX(), l);
-      this->UpdateExtentRequest->Set(
-        vtkExecutive::FROM_OUTPUT_PORT(), outputPort);
-      if (!this->ForwardUpstream(i, j, this->UpdateExtentRequest))
-        {
-        this->SendEndLoop(i,j);
-        return EXECUTE_BLOCK_ERROR;
-        }
-            
-      // Send the request for data.
-      this->DataRequest->Set(vtkMultiGroupDataSet::GROUP(), k);
-      this->DataRequest->Set(vtkCompositeDataSet::INDEX(), l);
-      this->DataRequest->Set(FROM_OUTPUT_PORT(), outputPort);
-              
-      // Send the request.
-      if (!this->ForwardUpstream(i, j, this->DataRequest))
-        {
-        this->SendEndLoop(i,j);
-        return EXECUTE_BLOCK_ERROR;
-        }
-              
-      vtkDataObject* block = inInfo->Get(vtkDataObject::DATA_OBJECT());
-      if (block && input)
-        {
-        vtkDataObject* blockCopy = block->NewInstance();
-        blockCopy->ShallowCopy(block);
-        input->AddDataSet(this->DataRequest, blockCopy);
-        blockCopy->Delete();
-        }
-      }
-    }
-  return EXECUTE_BLOCK_OK;
-}
-
-//----------------------------------------------------------------------------
-int vtkCompositeDataPipeline::SendBeginLoop(
-  int i, int j, vtkInformation* inInfo, vtkMultiGroupDataSet* updateInfo)
-{
-
-  // Tell the producer upstream that looping is about to start
-  this->GenericRequest->Set(BEGIN_LOOP(), 1);
-        
-  // The request is forwarded upstream through the pipeline.
-  this->GenericRequest->Set(
-    vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
-  
-  this->GenericRequest->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
-        
-  // Send the request.
-  if (!this->ForwardUpstream(i, j, this->GenericRequest))
-    {
-    this->GenericRequest->Remove(BEGIN_LOOP());
-    return vtkCompositeDataPipeline::EXECUTE_BLOCK_ERROR;
-    }
-
-  if (!updateInfo)
-    {
-    // This means no composite data producer was found upstream.
-    vtkDebugMacro(<< "No UPDATE_BLOCKS() for input " << i << "," << j
-                  << " was provided. Skipping.");
-    this->SendEndLoop(i,j);
-    this->GenericRequest->Remove(BEGIN_LOOP());
-    return vtkCompositeDataPipeline::EXECUTE_BLOCK_CONTINUE;
-    }
-
-  // If the input is up-to-date (not MARKED_FOR_UPDATE() by ProcessRequest ->
-  // REQUEST_DATA()), there is no need to loop the input. If the input is
-  // looped, it will cause unnecessary execution(s)
-  if (!inInfo->Has(MARKED_FOR_UPDATE()))
-    {
-    this->SendEndLoop(i,j);
-    this->GenericRequest->Remove(BEGIN_LOOP());
-    return vtkCompositeDataPipeline::EXECUTE_BLOCK_CONTINUE;
-    }
-  this->GenericRequest->Remove(BEGIN_LOOP());
-
-  return vtkCompositeDataPipeline::EXECUTE_BLOCK_OK;
-}
-
-//----------------------------------------------------------------------------
-int vtkCompositeDataPipeline::SendEndLoop(int i, int j)
-{
-  // Tell the producer upstream that looping is over
-  vtkSmartPointer<vtkInformation> re = 
-    vtkSmartPointer<vtkInformation>::New();
-  re->Set(END_LOOP(), 1);
-  
-  // The request is forwarded upstream through the pipeline.
-  re->Set(vtkExecutive::FORWARD_DIRECTION(), 
-          vtkExecutive::RequestUpstream);
-  
-  // Send the request.
-  if (!this->ForwardUpstream(i, j, re))
-    {
-    return 0;
-    }
-  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -922,7 +476,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
   // TODO: Loop over all inputs
   vtkInformation* inInfo = this->GetInputInformation(compositePort, 0);
   vtkCompositeDataSet* input = vtkCompositeDataSet::SafeDownCast(
-    inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    inInfo->Get(vtkCompositeDataSet::DATA_OBJECT()));
 
   vtkMultiGroupDataSet* updateInfo = 
     vtkMultiGroupDataSet::SafeDownCast(
@@ -930,7 +484,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
 
   vtkCompositeDataSet* output = 
     vtkCompositeDataSet::SafeDownCast(
-      outInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+      outInfo->Get(vtkCompositeDataSet::DATA_OBJECT()));
 
   prevOutput = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (input && updateInfo)
@@ -1082,63 +636,6 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
 }
 
 //----------------------------------------------------------------------------
-// Used only when there are intermediate executive objects that are not
-// vtkCompositeDataPipeline.
-// Copy the current block to the pipeline so that it can be processed
-// by non-vtkCompositeDataPipeline filters.
-int vtkCompositeDataPipeline::ExecuteDataForBlock(vtkInformation* request)
-{
-  vtkInformationVector* outputVector = this->GetOutputInformation();
-  int numOut = outputVector->GetNumberOfInformationObjects();
-  for (int i=0; i<numOut; i++)
-    {
-    vtkInformation* info = outputVector->GetInformationObject(i);
-    
-    vtkDataObject* doOutput = 
-      info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
-    vtkCompositeDataSet* output = vtkCompositeDataSet::SafeDownCast(doOutput);
-    
-    if (output)
-      {
-      vtkDataObject* dobj = output->GetDataSet(request);
-      if (dobj)
-        {
-        vtkDataObject* dobjCopy = 
-          info->Get(vtkDataObject::DATA_OBJECT());
-        
-        if (dobj && dobjCopy)
-          {
-          dobjCopy->ShallowCopy(dobj);
-          }
-        }
-      }
-    }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkCompositeDataPipeline::MarkOutputsGenerated
-(vtkInformation* request,
- vtkInformationVector** inInfoVec,
- vtkInformationVector* outputs)                    
-{
-  this->Superclass::MarkOutputsGenerated(request, inInfoVec, outputs);
-
-  // Tell all generated outputs that they have been generated.
-  for(int i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
-    {
-    vtkInformation* outInfo = outputs->GetInformationObject(i);
-    vtkDataObject* data = outInfo->Get(
-      vtkCompositeDataSet::COMPOSITE_DATA_SET());
-    if(data && !outInfo->Get(DATA_NOT_GENERATED()))
-      {
-      data->DataHasBeenGenerated();
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
 int vtkCompositeDataPipeline::NeedToExecuteData(
   int outputPort,
   vtkInformationVector** inInfoVec,
@@ -1170,9 +667,8 @@ int vtkCompositeDataPipeline::NeedToExecuteData(
   // existence of values because it has already been verified by
   // VerifyOutputInformation.
   vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
-  vtkDataObject* dataObject = outInfo->Get(
-    vtkCompositeDataSet::COMPOSITE_DATA_SET());
-  if (!dataObject)
+  vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  if (!vtkCompositeDataSet::SafeDownCast(dataObject))
     {
     return this->Superclass::NeedToExecuteData(outputPort,
                                                inInfoVec,outInfoVec);
@@ -1385,113 +881,14 @@ void vtkCompositeDataPipeline::PopInformation(vtkInformation* inInfo)
 }
 
 //----------------------------------------------------------------------------
-vtkCompositeDataSet* vtkCompositeDataPipeline::CreateInputCompositeData(
-  int i, vtkInformation* inInfo)
-{
-  vtkCompositeDataSet* input = 0;
-
-  // If the input requires a composite dataset and one is not available,
-  // create it. This means that there are "simple" filters between the
-  // composite data producer and this filter
-  vtkInformation* inPortInfo = 
-    this->Algorithm->GetInputPortInformation(i);
-  const char* dt = 
-    inPortInfo->Get(INPUT_REQUIRED_COMPOSITE_DATA_TYPE());
-  if (dt)
-    {
-    if (strcmp(dt, "vtkCompositeDataSet") == 0)
-      {
-      // If vtkCompositeDataSet is specified, the algorithm
-      // will work with all sub-classes. Create a vtkMultiGroupDataSet
-      dt = "vtkMultiGroupDataSet";
-      }
-    // If the composite data input to the algorithm is not
-    // set, create and assign it. This happens when the producer
-    // of the input data actually produces a simple data object
-    // (in a loop)
-    vtkDataObject* dobj = this->NewDataObject(dt);
-    if (dobj)
-      {
-      dobj->SetPipelineInformation(inInfo);
-      input = vtkCompositeDataSet::SafeDownCast(dobj);
-      dobj->Delete();
-      }
-    else
-      {
-      vtkErrorMacro("Cannot instantiate " << dt
-                    << ". The INPUT_REQUIRED_COMPOSITE_DATA_TYPE() of "
-                    << this->Algorithm->GetClassName()
-                    << " is not set properly.");
-      
-      }
-    }
-  return input;
-}
-            
-
-//----------------------------------------------------------------------------
-int vtkCompositeDataPipeline::CheckDataObject(
-  int port, vtkInformationVector *outInfoVec)
-{
-  // Check that the given output port has a valid data object.
-  vtkInformation* outInfo =
-    outInfoVec->GetInformationObject(port);
-  vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkInformation* portInfo = this->Algorithm->GetOutputPortInformation(port);
-  if(const char* dt = portInfo->Get(vtkDataObject::DATA_TYPE_NAME()))
-    {
-    // The output port specifies a data type.  Make sure the data
-    // object exists and is of the right type.
-    if(!data || !data->IsA(dt))
-      {
-      // Try to create an instance of the correct type.
-      data = this->NewDataObject(dt);
-      this->SetOutputData(port, data, outInfo);
-      if(data)
-        {
-        data->Delete();
-        }
-      }
-    if(!data)
-      {
-      // The algorithm has a bug and did not create the data object.
-      vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "("
-                    << this->Algorithm
-                    << ") did not create output for port " << port
-                    << " when asked by REQUEST_DATA_OBJECT and does not"
-                    << " specify a concrete DATA_TYPE_NAME.");
-      return 0;
-      }
-    return 1;
-    }
-  else if(data || outInfo->Has(vtkCompositeDataSet::COMPOSITE_DATA_SET()))
-    {
-    // The algorithm did not specify its output data type.  Just assume
-    // the data object is of the correct type.
-    return 1;
-    }
-  else
-    {
-    // The algorithm did not specify its output data type and no
-    // object exists.
-    vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "("
-                  << this->Algorithm
-                  << ") did not create output for port " << port
-                  << " when asked by REQUEST_DATA_OBJECT and does not"
-                  << " specify any DATA_TYPE_NAME.");
-    return 0;
-    }
-}
-
-//----------------------------------------------------------------------------
 int vtkCompositeDataPipeline::CheckCompositeData(
   int port, vtkInformationVector* outInfoVec)
 {
   // Check that the given output port has a valid data object.
   vtkInformation* outInfo = outInfoVec->GetInformationObject(port);
-  vtkDataObject* data = 
-    outInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
+  vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkInformation* portInfo = this->Algorithm->GetOutputPortInformation(port);
+
   if (const char* dt = portInfo->Get(COMPOSITE_DATA_TYPE_NAME()))
     {
     if(!data || !data->IsA(dt))
@@ -1501,9 +898,20 @@ int vtkCompositeDataPipeline::CheckCompositeData(
       data->SetPipelineInformation(outInfo);
       if(data)
         {
-        data->Delete();
+        data->FastDelete();
         }
       }
+    if (!data)
+      {
+      // The algorithm has a bug and did not create the data object.
+      vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "("
+                    << this->Algorithm
+                    << ") did not create output for port " << port
+                    << " when asked by REQUEST_DATA_OBJECT and does not"
+                    << " specify a concrete COMPOSITE_DATA_TYPE_NAME.");
+      return 0;
+      }
+    return 1;
     }
 
   // If this is a simple filter but has composite input, create a composite
@@ -1516,7 +924,7 @@ int vtkCompositeDataPipeline::CheckCompositeData(
     {
     // This assumes that the filter has one output.
     vtkDataObject* doOutput = 
-      outInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
+      outInfo->Get(vtkDataObject::DATA_OBJECT());
     vtkCompositeDataSet* output = vtkCompositeDataSet::SafeDownCast(doOutput);
     if (!output)
       {
@@ -1524,9 +932,15 @@ int vtkCompositeDataPipeline::CheckCompositeData(
       output->SetPipelineInformation(outInfo);
       output->Delete();
       }
+    return 1;
+    }
+  // Otherwise, create a simple output
+  else
+    {
+    return this->Superclass::CheckDataObject(port, outInfoVec);
     }
 
-  return 1;
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -1542,7 +956,7 @@ vtkDataObject* vtkCompositeDataPipeline::GetCompositeInputData(
     {
     return 0;
     }
-  return info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
+  return info->Get(vtkDataObject::DATA_OBJECT());
 }
 
 //----------------------------------------------------------------------------
@@ -1559,7 +973,7 @@ vtkDataObject* vtkCompositeDataPipeline::GetCompositeOutputData(int port)
   // Return the data object.
   if(vtkInformation* info = this->GetOutputInformation(port))
     {
-    return info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
+    return info->Get(vtkDataObject::DATA_OBJECT());
     }
   return 0;
 }

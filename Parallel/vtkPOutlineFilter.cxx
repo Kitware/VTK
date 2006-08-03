@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPOutlineFilter, "1.9");
+vtkCxxRevisionMacro(vtkPOutlineFilter, "1.10");
 vtkStandardNewMacro(vtkPOutlineFilter);
 vtkCxxSetObjectMacro(vtkPOutlineFilter, Controller, vtkMultiProcessController);
 
@@ -77,7 +77,7 @@ int vtkPOutlineFilter::RequestData(
   // coming from a vtkCompositeDataPipeline and interprocess communication
   // is not necessary (simple datasets are not broken into pieces)
   vtkCompositeDataSet* cds = vtkCompositeDataSet::SafeDownCast(
-    inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (cds)
     {
     doCommunicate = 0;

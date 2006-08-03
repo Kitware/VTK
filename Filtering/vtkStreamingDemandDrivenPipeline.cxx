@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.38");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.39");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -760,7 +760,7 @@ int vtkStreamingDemandDrivenPipeline
       }
     int dataGhostLevel = dataInfo->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS());
     int updateGhostLevel = outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
-    if(dataGhostLevel != updateGhostLevel)
+    if(dataGhostLevel < updateGhostLevel)
       {
       return 1;
       }
@@ -816,6 +816,13 @@ int vtkStreamingDemandDrivenPipeline
 
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
+::SetMaximumNumberOfPieces(int port, int n)
+{
+  return this->SetMaximumNumberOfPieces(this->GetOutputInformation(port), n);
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline
 ::SetMaximumNumberOfPieces(vtkInformation *info, int n)
 {
   if(!info)
@@ -829,6 +836,13 @@ int vtkStreamingDemandDrivenPipeline
     return 1;
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline
+::GetMaximumNumberOfPieces(int port)
+{
+  return this->GetMaximumNumberOfPieces(this->GetOutputInformation(port));
 }
 
 //----------------------------------------------------------------------------
@@ -903,8 +917,21 @@ int* vtkStreamingDemandDrivenPipeline::GetWholeExtent(vtkInformation* info)
 
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
+::SetUpdateExtentToWholeExtent(int port)
+{
+  return this->SetUpdateExtentToWholeExtent(this->GetOutputInformation(port));
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline
 ::SetUpdateExtentToWholeExtent(vtkInformation *info)
 {
+  if (!info)
+    {
+    vtkErrorMacro("SetUpdateExtentToWholeExtent on invalid output");
+    return 0;
+    }
+
   // Request all data.
   int modified = 0;
   if(vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT()))
@@ -936,6 +963,14 @@ int vtkStreamingDemandDrivenPipeline
 
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
+::SetUpdateExtent(int port, int extent[6])
+{
+  return this->SetUpdateExtent(
+    this->GetOutputInformation(port), extent);
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline
 ::SetUpdateExtent(vtkInformation *info, int extent[6])
 {
   if(!info)
@@ -955,6 +990,15 @@ int vtkStreamingDemandDrivenPipeline
     }
   info->Set(UPDATE_EXTENT_INITIALIZED(), 1);
   return modified;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline
+::SetUpdateExtent(int port, int piece,int numPieces, int ghostLevel)
+{
+  return this->SetUpdateExtent(
+    this->GetOutputInformation(port), piece, numPieces, ghostLevel);
 }
 
 //----------------------------------------------------------------------------
@@ -1173,6 +1217,15 @@ int vtkStreamingDemandDrivenPipeline::GetRequestExactExtent(int port)
 //----------------------------------------------------------------------------
 int
 vtkStreamingDemandDrivenPipeline
+::SetExtentTranslator(int port, vtkExtentTranslator* translator)
+{
+  return this->SetExtentTranslator(
+    this->GetOutputInformation(port), translator);
+}
+
+//----------------------------------------------------------------------------
+int
+vtkStreamingDemandDrivenPipeline
 ::SetExtentTranslator(vtkInformation *info, vtkExtentTranslator* translator)
 {
   if(!info)
@@ -1188,6 +1241,13 @@ vtkStreamingDemandDrivenPipeline
     return 1;
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkExtentTranslator*
+vtkStreamingDemandDrivenPipeline::GetExtentTranslator(int port)
+{
+  return this->GetExtentTranslator(this->GetOutputInformation(port));
 }
 
 //----------------------------------------------------------------------------

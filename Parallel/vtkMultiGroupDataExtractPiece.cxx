@@ -31,7 +31,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataExtractPiece, "1.4");
+vtkCxxRevisionMacro(vtkMultiGroupDataExtractPiece, "1.5");
 vtkStandardNewMacro(vtkMultiGroupDataExtractPiece);
 
 int vtkMultiGroupDataExtractPiece::RequestData(
@@ -45,13 +45,13 @@ int vtkMultiGroupDataExtractPiece::RequestData(
 
   // get the input and ouptut
   vtkMultiGroupDataSet *input = vtkMultiGroupDataSet::SafeDownCast(
-    inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!input)
     {
     return 0;
     }
   vtkMultiGroupDataSet *output = vtkMultiGroupDataSet::SafeDownCast(
-    outInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!output)
     {
     return 0;

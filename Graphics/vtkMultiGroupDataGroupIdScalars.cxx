@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataGroupIdScalars, "1.1");
+vtkCxxRevisionMacro(vtkMultiGroupDataGroupIdScalars, "1.2");
 vtkStandardNewMacro(vtkMultiGroupDataGroupIdScalars);
 
 // Construct object with PointIds and CellIds on; and ids being generated
@@ -46,12 +46,12 @@ int vtkMultiGroupDataGroupIdScalars::RequestData(
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkMultiGroupDataSet *input = vtkMultiGroupDataSet::SafeDownCast(
-    inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!input) {return 0;}
 
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkMultiGroupDataSet *output = vtkMultiGroupDataSet::SafeDownCast(
-    info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    info->Get(vtkDataObject::DATA_OBJECT()));
   if (!output) {return 0;}
 
   unsigned int numGroups = input->GetNumberOfGroups();

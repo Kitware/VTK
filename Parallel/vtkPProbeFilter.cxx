@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.14");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.15");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -74,7 +74,7 @@ int vtkPProbeFilter::RequestData(vtkInformation *vtkNotUsed(request),
     {
     int pieceNum = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
     vtkMultiGroupDataSet *tmpSource = vtkMultiGroupDataSet::SafeDownCast(
-      srcInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+      srcInfo->Get(vtkDataObject::DATA_OBJECT()));
     if (tmpSource)
       {
       source = vtkDataSet::SafeDownCast(tmpSource->GetDataSet(0, pieceNum));

@@ -26,7 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkMultiGroupDataExtractDataSets, "1.2");
+vtkCxxRevisionMacro(vtkMultiGroupDataExtractDataSets, "1.3");
 vtkStandardNewMacro(vtkMultiGroupDataExtractDataSets);
 
 struct vtkMultiGroupDataExtractDataSetsInternals
@@ -98,13 +98,13 @@ int vtkMultiGroupDataExtractDataSets::RequestDataObject(
     return 0;
     }
   vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
-    inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   if (input)
     {
     vtkInformation* info = outputVector->GetInformationObject(0);
     vtkCompositeDataSet *output = vtkCompositeDataSet::SafeDownCast(
-      info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+      info->Get(vtkDataObject::DATA_OBJECT()));
     
     if (!output || !output->IsA(input->GetClassName())) 
       {
@@ -187,12 +187,12 @@ int vtkMultiGroupDataExtractDataSets::RequestData(
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkMultiGroupDataSet *input = vtkMultiGroupDataSet::SafeDownCast(
-    inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!input) {return 0;}
 
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkMultiGroupDataSet *output = vtkMultiGroupDataSet::SafeDownCast(
-    info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+    info->Get(vtkDataObject::DATA_OBJECT()));
   if (!output) {return 0;}
 
   unsigned int numInputGroups = input->GetNumberOfGroups();

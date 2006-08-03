@@ -63,16 +63,10 @@ public:
   virtual vtkDataObject* GetDataSet(vtkInformation* index) = 0;
 
   // Description:
-  // Set the pipeline information object that owns this data
-  // object.
-  virtual void SetPipelineInformation(vtkInformation*);
-
-  // Description:
   // Get the port currently producing this object.
   virtual vtkAlgorithmOutput* GetProducerPort();
 
   static vtkInformationIntegerKey* INDEX();
-  static vtkInformationDataObjectKey* COMPOSITE_DATA_SET();
 
   //BTX
   // Description:

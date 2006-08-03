@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkXMLMultiGroupDataReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLMultiGroupDataReader, "1.3");
 vtkStandardNewMacro(vtkXMLMultiGroupDataReader);
 
 struct vtkXMLMultiGroupDataReaderEntry
@@ -81,7 +81,7 @@ void vtkXMLMultiGroupDataReader::SetupEmptyOutput()
   vtkInformation* info = exec->GetOutputInformation(0);
 
   vtkDataObject* doOutput = 
-    info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
+    info->Get(vtkDataObject::DATA_OBJECT());
   vtkMultiGroupDataSet* hb = 
     vtkMultiGroupDataSet::SafeDownCast(doOutput);
   if (!hb)
@@ -198,7 +198,7 @@ void vtkXMLMultiGroupDataReader::ReadXMLData()
     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
 
   vtkDataObject* doOutput = 
-    info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
+    info->Get(vtkDataObject::DATA_OBJECT());
   vtkMultiGroupDataSet* hb = 
     vtkMultiGroupDataSet::SafeDownCast(doOutput);
   if (!hb)

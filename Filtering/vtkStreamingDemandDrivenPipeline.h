@@ -64,7 +64,9 @@ public:
   // unstructured data sets.  It gets set by the source during the
   // update information call.  A value of -1 indicates that there is
   // no maximum.
+  int SetMaximumNumberOfPieces(int port, int n);
   int SetMaximumNumberOfPieces(vtkInformation *, int n);
+  int GetMaximumNumberOfPieces(int port);
   int GetMaximumNumberOfPieces(vtkInformation *);
 
   // Description:
@@ -80,10 +82,12 @@ public:
   // extent, this method can be called to set the input update extent to the
   // whole input extent. This method assumes that the whole extent is known
   // (that UpdateInformation has been called)
+  int SetUpdateExtentToWholeExtent(int port);
   int SetUpdateExtentToWholeExtent(vtkInformation *);
   
   // Description:
   // Get/Set the update extent for output ports that use 3D extents.
+  int SetUpdateExtent(int port, int extent[6]);
   int SetUpdateExtent(vtkInformation *, int extent[6]);
   void GetUpdateExtent(vtkInformation *, int extent[6]);
   int* GetUpdateExtent(vtkInformation *);
@@ -92,6 +96,8 @@ public:
   // Set/Get the update piece, update number of pieces, and update
   // number of ghost levels for an output port.  Similar to update
   // extent in 3D.
+  int SetUpdateExtent(int port, 
+                      int piece, int numPieces, int ghostLevel);
   int SetUpdateExtent(vtkInformation *, 
                       int piece, int numPieces, int ghostLevel);
   int SetUpdatePiece(vtkInformation *, int piece);
@@ -114,7 +120,9 @@ public:
   // Description:
   // Get/Set the object that will translate pieces into structured
   // extents for an output port.
+  int SetExtentTranslator(int port, vtkExtentTranslator* translator);
   int SetExtentTranslator(vtkInformation *, vtkExtentTranslator* translator);
+  vtkExtentTranslator* GetExtentTranslator(int port);
   vtkExtentTranslator* GetExtentTranslator(vtkInformation *info);
 
   // Description:

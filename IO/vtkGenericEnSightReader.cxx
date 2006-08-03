@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.77");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.78");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -218,7 +218,7 @@ int vtkGenericEnSightReader::RequestData(
 
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
-    outInfo->Get(vtkMultiBlockDataSet::COMPOSITE_DATA_SET()));
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   output->ShallowCopy(this->Reader->GetOutput());
 
   for (i = 0; i < this->Reader->GetNumberOfVariables(); i++)
