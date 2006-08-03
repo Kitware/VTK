@@ -10,6 +10,9 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkEnSightMasterServerReader reader1
+# Make sure all algorithms use the composite data pipeline
+vtkCompositeDataPipeline cdp
+reader1 SetDefaultExecutivePrototype cdp
     reader1 SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/mandelbrot.sos"
     reader1 SetCurrentPiece 0
 
@@ -54,3 +57,4 @@ iren Initialize
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
+reader1 SetDefaultExecutivePrototype {}

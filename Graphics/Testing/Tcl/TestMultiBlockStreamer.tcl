@@ -1,5 +1,12 @@
 package require vtk
 package require vtkinteraction
+
+# we need to use composite data pipeline with multiblock datasets
+vtkAlgorithm alg
+vtkCompositeDataPipeline pip
+alg SetDefaultExecutivePrototype pip
+pip Delete
+
 vtkRenderer Ren1
 Ren1 SetBackground 0.33 0.35 0.43
 
@@ -137,3 +144,6 @@ iren Initialize
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
+
+alg SetDefaultExecutivePrototype {}
+alg Delete

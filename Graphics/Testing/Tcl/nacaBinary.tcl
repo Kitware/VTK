@@ -1,6 +1,12 @@
 package require vtk
 package require vtkinteraction
 
+# we need to use composite data pipeline with multiblock datasets
+vtkAlgorithm alg
+vtkCompositeDataPipeline pip
+alg SetDefaultExecutivePrototype pip
+pip Delete
+
 vtkRenderer ren1
 vtkRenderWindow renWin
     renWin AddRenderer ren1
@@ -38,3 +44,5 @@ renWin SetSize 400 400
 iren Initialize
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 wm withdraw .
+
+alg SetDefaultExecutivePrototype {}

@@ -10,6 +10,9 @@ vtkRenderWindowInteractor iren
 # read data
 #
 vtkGenericEnSightReader reader
+# Make sure all algorithms use the composite data pipeline
+vtkCompositeDataPipeline cdp
+reader SetDefaultExecutivePrototype cdp
 reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/office_bin.case"
 reader Update
  
@@ -61,3 +64,4 @@ iren Initialize
 # interact with data
 wm withdraw .
 
+reader SetDefaultExecutivePrototype {}

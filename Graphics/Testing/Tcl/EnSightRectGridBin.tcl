@@ -7,6 +7,9 @@ set VTK_VARY_RADIUS_BY_VECTOR 2
 # create pipeline
 #
 vtkGenericEnSightReader reader
+# Make sure all algorithms use the composite data pipeline
+vtkCompositeDataPipeline cdp
+reader SetDefaultExecutivePrototype cdp
     reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/RectGrid_bin.case"
     reader Update
 vtkCastToConcrete toRectilinearGrid
@@ -121,5 +124,4 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
-
-
+reader SetDefaultExecutivePrototype {}
