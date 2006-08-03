@@ -76,6 +76,7 @@ vtkPolyDataWriter.cxx
 vtkPostScriptWriter.cxx
 vtkRectilinearGridReader.cxx
 vtkRectilinearGridWriter.cxx
+vtkSESAMEReader.cxx
 vtkShaderCodeLibrary.cxx
 vtkSLCReader.cxx
 vtkSTLReader.cxx
