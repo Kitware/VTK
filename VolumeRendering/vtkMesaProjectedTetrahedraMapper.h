@@ -69,9 +69,17 @@ protected:
 
   int GaveError;
 
-  vtkVolume *LastVolume;
+  vtkVolumeProperty *LastProperty;
+
+  float *SqrtTable;
+  float SqrtTableBias;
 
   virtual void ProjectTetrahedra(vtkRenderer *renderer, vtkVolume *volume);
+
+  float GetCorrectedDepth(float x, float y, float z1, float z2,
+                          const float inverse_projection_mat[16],
+                          int use_linear_depth_correction,
+                          float linear_depth_correction);
 
 private:
   vtkMesaProjectedTetrahedraMapper(const vtkMesaProjectedTetrahedraMapper &);  // Not Implemented.
