@@ -106,8 +106,8 @@ protected:
   void ReadTable(); 
 
 private:
-  vtkSESAMEReader(const vtkSESAMEReader &);
-  void operator=(const vtkSESAMEReader &);
+  vtkSESAMEReader(const vtkSESAMEReader&);  // Not implemented.
+  void operator=(const vtkSESAMEReader&);  // Not implemented.
 
 };
 
