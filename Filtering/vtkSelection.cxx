@@ -14,24 +14,270 @@
 =========================================================================*/
 #include "vtkSelection.h"
 
+#include "vtkAbstractArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationIterator.h"
+#include "vtkInformationObjectBaseKey.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkSelection, "1.1");
+#include <vtkstd/map>
+#include <vtkstd/vector>
+
+vtkCxxRevisionMacro(vtkSelection, "1.2");
 vtkStandardNewMacro(vtkSelection);
+
+vtkCxxSetObjectMacro(vtkSelection, SelectionList, vtkAbstractArray);
+
+vtkInformationKeyMacro(vtkSelection,CONTENT_TYPE,Integer);
+vtkInformationKeyMacro(vtkSelection,SOURCE,ObjectBase);
+vtkInformationKeyMacro(vtkSelection,SOURCE_ID,Integer);
+vtkInformationKeyMacro(vtkSelection,PROP,ObjectBase);
+vtkInformationKeyMacro(vtkSelection,PROP_ID,Integer);
+vtkInformationKeyMacro(vtkSelection,PROCESS_ID,Integer);
+vtkInformationKeyMacro(vtkSelection,GROUP,Integer);
+vtkInformationKeyMacro(vtkSelection,BLOCK,Integer);
+
+struct vtkSelectionInternals
+{
+  vtkstd::vector<vtkSmartPointer<vtkSelection> > Children;
+};
+
 
 //----------------------------------------------------------------------------
 vtkSelection::vtkSelection()
 {
+  this->Internal = new vtkSelectionInternals;
+  this->SelectionList = 0;
+  this->ParentNode = 0;
+  this->Properties = vtkInformation::New();
 }
 
 //----------------------------------------------------------------------------
 vtkSelection::~vtkSelection()
 {
+  delete this->Internal;
+  if (this->SelectionList)
+    {
+    this->SelectionList->Delete();
+    }
+  this->ParentNode = 0;
+  this->Properties->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::Clear()
+{
+  delete this->Internal;
+  this->Internal = new vtkSelectionInternals;
+  if (this->SelectionList)
+    {
+    this->SelectionList->Delete();
+    }
+  this->SelectionList = 0;
+  this->Properties->Clear();
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+unsigned int vtkSelection::GetNumberOfChildren()
+{
+  return this->Internal->Children.size();
+}
+
+//----------------------------------------------------------------------------
+vtkSelection* vtkSelection::GetChild(unsigned int idx)
+{
+  if (idx >= this->GetNumberOfChildren())
+    {
+    return 0;
+    }
+  return this->Internal->Children[idx];
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::AddChild(vtkSelection* child)
+{
+  if (!child)
+    {
+    return;
+    }
+
+  // Make sure that child is not already added
+  unsigned int numChildren = this->GetNumberOfChildren();
+  for (unsigned int i=0; i<numChildren; i++)
+    {
+    if (this->GetChild(i) == child)
+      {
+      return;
+      }
+    }
+  this->Internal->Children.push_back(child);
+  child->ParentNode = this;
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::RemoveChild(unsigned int idx)
+{
+  if (idx >= this->GetNumberOfChildren())
+    {
+    return;
+    }
+  vtkstd::vector<vtkSmartPointer<vtkSelection> >::iterator iter =
+    this->Internal->Children.begin();
+  iter->GetPointer()->ParentNode = 0;
+  this->Internal->Children.erase(iter+idx);
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::RemoveChild(vtkSelection* child)
+{
+  if (!child)
+    {
+    return;
+    }
+
+  unsigned int numChildren = this->GetNumberOfChildren();
+  for (unsigned int i=0; i<numChildren; i++)
+    {
+    if (this->GetChild(i) == child)
+      {
+      child->ParentNode = 0;
+      this->RemoveChild(i);
+      return;
+      }
+    }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkSelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "SelectionList:";
+  if (this->SelectionList)
+    {
+    this->SelectionList->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+
+  os << indent << "Properties:";
+  if (this->Properties)
+    {
+    this->Properties->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+
+  os << indent << "ParentNode: ";
+  if (this->ParentNode)
+    {
+    os << this->ParentNode;
+    }
+  else
+    {
+    os << "(none)";
+    }
+  os << endl;
+
+  unsigned int numChildren = this->GetNumberOfChildren();
+  os << indent << "Number of children: " << numChildren << endl;
+  os << indent << "Children: " << endl;
+  for (unsigned int i=0; i<numChildren; i++)
+    {
+    this->GetChild(i)->PrintSelf(os, indent.GetNextIndent());
+    }
 }
 
+//----------------------------------------------------------------------------
+void vtkSelection::DeepCopy(vtkSelection* input)
+{
+  if (!input)
+    {
+    return;
+    }
+
+  this->Properties->Copy(input->Properties, 1);
+  if (input->SelectionList)
+    {
+    this->SelectionList = input->SelectionList->NewInstance();
+    this->SelectionList->DeepCopy(input->SelectionList);
+    }
+
+  unsigned int numChildren = input->GetNumberOfChildren();
+  for (unsigned int i=0; i<numChildren; i++)
+    {
+    vtkSelection* newChild = vtkSelection::New();
+    newChild->DeepCopy(input->GetChild(i));
+    this->AddChild(newChild);
+    newChild->Delete();
+    }
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::CopyChildren(vtkSelection* input)
+{
+  if (!this->Properties->Has(CONTENT_TYPE()) ||
+      this->Properties->Get(CONTENT_TYPE()) != SELECTIONS)
+    {
+    return;
+    }
+  if (!input->Properties->Has(CONTENT_TYPE()) ||
+      input->Properties->Get(CONTENT_TYPE()) != SELECTIONS)
+    {
+    return;
+    }
+
+  unsigned int numChildren = input->GetNumberOfChildren();
+  for (unsigned int i=0; i<numChildren; i++)
+    {
+    vtkSelection* child = input->GetChild(i);
+    if (child->Properties->Has(CONTENT_TYPE()) && 
+        child->Properties->Get(CONTENT_TYPE()) == SELECTIONS)
+      {
+      // TODO: Handle trees
+      }
+    else
+      {
+      vtkSelection* newChild = vtkSelection::New();
+      newChild->DeepCopy(child);
+      this->AddChild(newChild);
+      newChild->Delete();
+      }
+    }
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// Overload standard modified time function. If properties is modified,
+// then this object is modified as well.
+unsigned long vtkSelection::GetMTime()
+{
+  unsigned long mTime=this->MTime.GetMTime();
+  unsigned long propMTime;
+
+  if ( this->Properties != NULL )
+    {
+    propMTime = this->Properties->GetMTime();
+    mTime = ( propMTime > mTime ? propMTime : mTime );
+    }
+
+  return mTime;
+}
