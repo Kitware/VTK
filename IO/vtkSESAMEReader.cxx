@@ -17,7 +17,7 @@
 #include <vtkstd/string>
 
 vtkStandardNewMacro(vtkSESAMEReader);
-vtkCxxRevisionMacro(vtkSESAMEReader, "1.2");
+vtkCxxRevisionMacro(vtkSESAMEReader, "1.3");
 
 static const int SESAME_NUM_CHARS = 512;
 static const char* TableLineFormat = "%2i%6i%6i";
@@ -549,7 +549,7 @@ void vtkSESAMEReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "FileName: " << this->Internal->FileName << "\n";
-  os << indent << "Table: " << this->Internal->TableId << "\n";
+  os << indent << "FileName: " << this->GetFileName() << "\n";
+  os << indent << "Table: " << this->GetTable() << "\n";
 }
 
