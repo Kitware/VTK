@@ -138,6 +138,7 @@ vtkPointDataToCellData.cxx
 vtkPointsProjectedHull.cxx
 vtkPointSource.cxx
 vtkPolyDataConnectivityFilter.cxx
+vtkPolyDataExtractSelection.cxx
 vtkPolyDataNormals.cxx
 vtkPolyDataStreamer.cxx
 vtkProbeFilter.cxx
