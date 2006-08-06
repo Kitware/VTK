@@ -63,6 +63,7 @@ vtkExtractGeometry.cxx
 vtkExtractGrid.cxx
 vtkExtractPolyDataGeometry.cxx
 vtkExtractRectilinearGrid.cxx
+vtkExtractSelection.cxx
 vtkExtractTensorComponents.cxx
 vtkExtractUnstructuredGrid.cxx
 vtkExtractVectorComponents.cxx
