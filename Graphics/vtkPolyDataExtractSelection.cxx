@@ -25,12 +25,11 @@
 #include "vtkPolyData.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkPolyDataExtractSelection, "1.1");
+vtkCxxRevisionMacro(vtkPolyDataExtractSelection, "1.2");
 vtkStandardNewMacro(vtkPolyDataExtractSelection);
 vtkCxxSetObjectMacro(vtkPolyDataExtractSelection,
                      Selection,vtkSelection);
 
-// Construct object with ExtractInside turned on.
 vtkPolyDataExtractSelection::vtkPolyDataExtractSelection()
 {
   this->Selection = 0;
@@ -41,17 +40,17 @@ vtkPolyDataExtractSelection::~vtkPolyDataExtractSelection()
   this->SetSelection(NULL);
 }
 
-// Overload standard modified time function. If implicit function is modified,
+// Overload standard modified time function. If selection is modified,
 // then this object is modified as well.
 unsigned long vtkPolyDataExtractSelection::GetMTime()
 {
   unsigned long mTime=this->MTime.GetMTime();
-  unsigned long impFuncMTime;
+  unsigned long selTime;
 
   if ( this->Selection != NULL )
     {
-    impFuncMTime = this->Selection->GetMTime();
-    mTime = ( impFuncMTime > mTime ? impFuncMTime : mTime );
+    selTime = this->Selection->GetMTime();
+    mTime = ( selTime > mTime ? selTime : mTime );
     }
 
   return mTime;
