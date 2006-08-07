@@ -208,6 +208,10 @@ public:
   double GetPickY() const {return (this->PickY1 + this->PickY2)*0.5;}
   double GetPickWidth() const {return this->PickX2 - this->PickX1 + 1;};
   double GetPickHeight() const {return this->PickY2 - this->PickY1 + 1;};
+  double GetPickX1() const {return this->PickX1;}
+  double GetPickY1() const {return this->PickY1;}
+  double GetPickX2() const {return this->PickX2;}
+  double GetPickY2() const {return this->PickY2;}
   vtkGetMacro(IsPicking, int);
   vtkGetObjectMacro(PickResultProps, vtkPropCollection);
 
@@ -288,7 +292,7 @@ protected:
   double PickX2;
   double PickY2;
   // End Ivars for picking
-  
+
   vtkPropCollection *Props;
   vtkActor2DCollection *Actors2D;
   vtkWindow *VTKWindow;
@@ -303,6 +307,12 @@ protected:
   double DisplayPoint[3];
   double ViewPoint[3];
   double WorldPoint[4];
+
+  // Ivars for visible cell selecting
+  int SelectMode;
+  unsigned int SelectConst;
+  unsigned int SelectColorPlane;
+  // End Ivars for visible cell selecting.
 
 private:
   vtkViewport(const vtkViewport&);  // Not implemented.

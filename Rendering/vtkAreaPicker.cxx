@@ -36,7 +36,7 @@
 #include "vtkPoints.h"
 #include "vtkFrustumExtractor.h"
 
-vtkCxxRevisionMacro(vtkAreaPicker, "1.12");
+vtkCxxRevisionMacro(vtkAreaPicker, "1.13");
 vtkStandardNewMacro(vtkAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -142,13 +142,11 @@ void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1,
 
   if (this->X0 == this->X1)
     {
-    this->X0 -= 0.5;
-    this->X1 += 0.5;
+    this->X1 += 1.0;
     }
   if (this->Y0 == this->Y1)
     {
-    this->Y0 -= 0.5;
-    this->Y1 += 0.5;
+    this->Y1 += 1.0;
     }
 
   //compute world coordinates of the pick volume 

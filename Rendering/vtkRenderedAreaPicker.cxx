@@ -36,7 +36,7 @@
 #include "vtkPoints.h"
 #include "vtkFrustumExtractor.h"
 
-vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.5");
+vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.6");
 vtkStandardNewMacro(vtkRenderedAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -73,7 +73,7 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
 
   this->DefineFrustum(x0, y0, x1, y1, renderer);
 
-  // Have the renderer do the hardware pick
+  // Ask the renderer do the hardware pick
   this->SetPath(renderer->PickProp(x0, y0, x1, y1));
 
   // Software pick resulted in a hit.

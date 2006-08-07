@@ -83,7 +83,7 @@ public:
   // This makes a thin frustum around the selected pixel.
   // Note: this ignores Z in order to pick everying in a volume from z=0 to z=1.
   virtual int Pick(double x0, double y0, double vtkNotUsed(z0), vtkRenderer *renderer = NULL)
-    {return this->AreaPick(x0-0.5, y0-0.5, x0+0.5, y0+0.5, renderer);};
+    {return this->AreaPick(x0, y0, x0+1.0, y0+1.0, renderer);};
 
   // Description:
   // Return mapper that was picked (if any).

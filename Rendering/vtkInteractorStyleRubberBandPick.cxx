@@ -23,7 +23,7 @@
 #include "vtkAssemblyPath.h"
 #include "vtkAreaPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.5");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.6");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandPick);
 
 #define VTKISRBP_ORIENT 0
@@ -71,14 +71,13 @@ void vtkInteractorStyleRubberBandPick::OnChar()
     case 'p' :
     case 'P' :
     {
-      // p fires a pick event for the 3x3 window around the current mouse coords
       vtkRenderWindowInteractor *rwi = this->Interactor;
       int *eventPos = rwi->GetEventPosition();
       this->FindPokedRenderer(eventPos[0], eventPos[1]);
-      this->StartPosition[0] = eventPos[0]-1;
-      this->StartPosition[1] = eventPos[1]-1;
-      this->EndPosition[0] = eventPos[0]+1;
-      this->EndPosition[1] = eventPos[1]+1;
+      this->StartPosition[0] = eventPos[0];
+      this->StartPosition[1] = eventPos[1];
+      this->EndPosition[0] = eventPos[0];
+      this->EndPosition[1] = eventPos[1];
       this->Pick();
       break;
     }
