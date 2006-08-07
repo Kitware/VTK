@@ -308,12 +308,6 @@ protected:
   double ViewPoint[3];
   double WorldPoint[4];
 
-  // Ivars for visible cell selecting
-  int SelectMode;
-  unsigned int SelectConst;
-  unsigned int SelectColorPlane;
-  // End Ivars for visible cell selecting.
-
 private:
   vtkViewport(const vtkViewport&);  // Not implemented.
   void operator=(const vtkViewport&);  // Not implemented.
