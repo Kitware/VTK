@@ -26,6 +26,7 @@
 
 class vtkHyperOctreeCursor;
 class vtkDataSetAttributes;
+class vtkIdTypeArray;
 
 class VTK_GRAPHICS_EXPORT vtkHyperOctreeSurfaceFilter : public vtkPolyDataAlgorithm
 {
@@ -51,7 +52,16 @@ public:
   // Description:
   // Return the MTime also considering the locator.
   unsigned long GetMTime();
-  
+
+  // Description:
+  // If on, the output polygonal dataset will have a celldata array that
+  // holds the cell index of the original 3D cell that produced each output
+  // cell. This is useful for cell picking. The default is off to conserve
+  // memory.
+  vtkSetMacro(PassThroughCellIds,int);
+  vtkGetMacro(PassThroughCellIds,int);
+  vtkBooleanMacro(PassThroughCellIds,int);
+
 protected:
   vtkHyperOctreeSurfaceFilter();
   ~vtkHyperOctreeSurfaceFilter();
@@ -82,7 +92,11 @@ protected:
   vtkPoints *OutPts;
   vtkCellArray *OutCells;
   vtkCellData *OutputCD;
-  
+
+  int PassThroughCellIds;
+  void RecordOrigCellId(vtkIdType destIndex, vtkIdType originalId);
+  vtkIdTypeArray *OriginalCellIds;
+
 private:
   vtkHyperOctreeSurfaceFilter(const vtkHyperOctreeSurfaceFilter&);  // Not implemented.
   void operator=(const vtkHyperOctreeSurfaceFilter&);  // Not implemented.

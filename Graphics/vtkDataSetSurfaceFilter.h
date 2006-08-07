@@ -30,6 +30,8 @@
 
 class vtkPointData;
 class vtkPoints;
+class vtkIdTypeArray;
+
 //BTX
 struct vtkFastGeomQuadStruct;
 typedef struct vtkFastGeomQuadStruct vtkFastGeomQuad;
@@ -56,6 +58,15 @@ public:
   // that are between processes. False by default.
   vtkSetMacro(PieceInvariant, int);
   vtkGetMacro(PieceInvariant, int);
+
+  // Description:
+  // If on, the output polygonal dataset will have a celldata array that 
+  // holds the cell index of the original 3D cell that produced each output
+  // cell. This is useful for cell picking. The default is off to conserve 
+  // memory.
+  vtkSetMacro(PassThroughCellIds,int);
+  vtkGetMacro(PassThroughCellIds,int);
+  vtkBooleanMacro(PassThroughCellIds,int);
 
 protected:
   vtkDataSetSurfaceFilter();
@@ -124,6 +135,9 @@ protected:
 
   int PieceInvariant;
 
+  int PassThroughCellIds;
+  void RecordOrigCellId(vtkIdType newIndex, vtkIdType origId);
+  vtkIdTypeArray *OriginalCellIds;
 private:
   vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&);  // Not implemented.
   void operator=(const vtkDataSetSurfaceFilter&);  // Not implemented.

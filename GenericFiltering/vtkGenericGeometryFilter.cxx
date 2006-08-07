@@ -39,7 +39,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.10");
+vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.11");
 vtkStandardNewMacro(vtkGenericGeometryFilter);
 
 vtkCxxSetObjectMacro(vtkGenericGeometryFilter,Locator,vtkPointLocator);
@@ -67,6 +67,8 @@ vtkGenericGeometryFilter::vtkGenericGeometryFilter()
   this->Merging = 1;
   this->Locator = NULL;
   this->InternalPD = vtkPointData::New();
+
+  this->PassThroughCellIds = 0;
 }
 //----------------------------------------------------------------------------
 vtkGenericGeometryFilter::~vtkGenericGeometryFilter()
@@ -301,6 +303,14 @@ int vtkGenericGeometryFilter::RequestData(
 
   input->GetTessellator()->InitErrorMetrics(input);
   
+  vtkIdTypeArray *OriginalCellIds = NULL;
+  if (this->PassThroughCellIds)
+    {
+    OriginalCellIds = vtkIdTypeArray::New();
+    OriginalCellIds->SetName("vtkOriginalCellIds");
+    OriginalCellIds->SetNumberOfComponents(1);
+    }        
+        
   for (cellId = 0, cellIt->Begin(); !cellIt->IsAtEnd() && !abort; 
     cellIt->Next(), cellId++)
     {
@@ -313,6 +323,7 @@ int vtkGenericGeometryFilter::RequestData(
       abort = this->GetAbortExecute();
       }
 
+    vtkIdType BeginTopOutCId = outputCD->GetNumberOfTuples();
     if ( allVisible || cellVis[cellId] )
       {
       switch ( cell->GetDimension() )
@@ -327,6 +338,7 @@ int vtkGenericGeometryFilter::RequestData(
               cell->Tessellate(input->GetAttributes(), input->GetTessellator(),
                                newPts, locator,cellArray, this->InternalPD,
                                outputPD, outputCD,0); //newScalars );
+
               }
           break;
         case 3:
@@ -346,7 +358,25 @@ int vtkGenericGeometryFilter::RequestData(
 
         } //switch
       } //if visible
+
+    vtkIdType EndTopOutCId = outputCD->GetNumberOfTuples();
+    if (this->PassThroughCellIds)
+      {
+      for (vtkIdType cId = BeginTopOutCId; cId < EndTopOutCId; cId++)
+        {
+        OriginalCellIds->SetValue(cId, cellId);
+        }
+      }
+
     } //for all cells
+
+  if (this->PassThroughCellIds)
+    {
+    outputCD->AddArray(OriginalCellIds);
+    OriginalCellIds->Delete();
+    OriginalCellIds = NULL;
+    }
+
   cellIt->Delete();
   vtkDebugMacro(<<"Extracted " << newPts->GetNumberOfPoints() << " points,"
                 << output->GetNumberOfCells() << " cells.");
@@ -429,6 +459,9 @@ void vtkGenericGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
+
+  os << indent << "PassThroughCellIds: " << (this->PassThroughCellIds ? "On\n" : "Off\n");
+
 }
 
 //----------------------------------------------------------------------------

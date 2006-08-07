@@ -25,7 +25,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeSurfaceFilter, "1.3");
+vtkCxxRevisionMacro(vtkHyperOctreeSurfaceFilter, "1.4");
 vtkStandardNewMacro(vtkHyperOctreeSurfaceFilter);
 
 // merging: locator
@@ -41,6 +41,9 @@ vtkHyperOctreeSurfaceFilter::vtkHyperOctreeSurfaceFilter()
   this->InputCD=0;
   this->OutputCD=0;
   this->Cursor=0;
+
+  this->PassThroughCellIds = 0;
+  this->OriginalCellIds = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -50,6 +53,11 @@ vtkHyperOctreeSurfaceFilter::~vtkHyperOctreeSurfaceFilter()
     {
     this->Locator->UnRegister(this);
     this->Locator=0;
+    }
+  if (this->OriginalCellIds != NULL)
+    {
+    this->OriginalCellIds->Delete();
+    this->OriginalCellIds = NULL;
     }
 }
 
@@ -93,6 +101,15 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
   int dim=input->GetDimension();
   assert("check: valid_dim" && dim>=1 && dim<=3);
   
+
+  if (this->PassThroughCellIds)
+    {
+    this->OriginalCellIds = vtkIdTypeArray::New();
+    this->OriginalCellIds->SetName("vtkOriginalCellIds");
+    this->OriginalCellIds->SetNumberOfComponents(1);
+    this->OutputCD->AddArray(this->OriginalCellIds);
+    }
+
   double pt[3];
   
   vtkIdType ptIds[8];
@@ -192,6 +209,12 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
   this->OutputCD=0;
   this->Cursor->UnRegister(this);
   
+  if (this->OriginalCellIds != NULL)
+    {
+    this->OriginalCellIds->Delete();
+    this->OriginalCellIds = NULL;
+    }
+
   output->Squeeze();
   
   return 1;
@@ -211,6 +234,7 @@ void vtkHyperOctreeSurfaceFilter::GenerateLines(double bounds[2],
     this->OutCells->InsertCellPoint(ptIds[1]);
     // Copy cell data.
     this->OutputCD->CopyData(this->InputCD,inId,outId);
+    this->RecordOrigCellId(outId, inId);
     }
   else
     {
@@ -260,6 +284,7 @@ void vtkHyperOctreeSurfaceFilter::GenerateQuads(double bounds[4],
     this->OutCells->InsertCellPoint(ptIds[2]);
     // Copy cell data.
     this->OutputCD->CopyData(this->InputCD,inId,outId);
+    this->RecordOrigCellId(outId, inId);
     }
   else
     {
@@ -386,6 +411,7 @@ void vtkHyperOctreeSurfaceFilter::GenerateFaces(double bounds[6],
           }
         // Copy cell data.
         this->OutputCD->CopyData(this->InputCD,inId,outId);
+        this->RecordOrigCellId(outId, inId);
         }
       ++face;
       }
@@ -717,6 +743,7 @@ void vtkHyperOctreeSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
+  os << indent << "PassThroughCellIds: " << (this->PassThroughCellIds ? "On\n" : "Off\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -734,4 +761,14 @@ unsigned long int vtkHyperOctreeSurfaceFilter::GetMTime()
       }
     }
   return mTime;
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperOctreeSurfaceFilter::RecordOrigCellId(vtkIdType destIndex, 
+                                                   vtkIdType originalId)
+{
+  if (this->OriginalCellIds != NULL)
+    {
+    this->OriginalCellIds->InsertValue(destIndex, originalId);
+    }
 }
