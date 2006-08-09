@@ -11,6 +11,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       PartialPreIntegration.cxx
       PreIntegrationIncremental.cxx
       PreIntegrationNonIncremental.cxx
+      TestHAVSVolumeMapper.cxx
       TestProjectedTetrahedra.cxx
       volProt.cxx
       )

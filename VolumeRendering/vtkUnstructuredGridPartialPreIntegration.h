@@ -80,7 +80,7 @@ public:
   // created first, which happens on the first instantiation of this class
   // or when BuildPsiTable is first called.
   static float Psi(float taufD, float taubD);
-
+  static float *GetPsiTable(int &size);
   static void BuildPsiTable();
 
 protected:
@@ -88,7 +88,7 @@ protected:
   ~vtkUnstructuredGridPartialPreIntegration();
 
   vtkVolumeProperty *Property;
-
+ 
   vtkPartialPreIntegrationTransferFunction *TransferFunctions;
   vtkTimeStamp TransferFunctionsModified;
   int NumIndependentComponents;
@@ -112,6 +112,12 @@ inline float vtkUnstructuredGridPartialPreIntegration::Psi(float taufD,
   int gammafi = vtkMath::Floor(gammaf*PSI_TABLE_SIZE);
   int gammabi = vtkMath::Floor(gammab*PSI_TABLE_SIZE);
   return PsiTable[gammafi*PSI_TABLE_SIZE + gammabi];
+}
+
+inline float *vtkUnstructuredGridPartialPreIntegration::GetPsiTable(int &size)
+{
+  size = PSI_TABLE_SIZE;
+  return PsiTable;
 }
 
 inline void vtkUnstructuredGridPartialPreIntegration::IntegrateRay(

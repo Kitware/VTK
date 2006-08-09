@@ -27,6 +27,7 @@ vtkFixedPointVolumeRayCastCompositeShadeHelper.cxx
 vtkFixedPointVolumeRayCastHelper.cxx
 vtkFixedPointVolumeRayCastMIPHelper.cxx
 vtkFixedPointVolumeRayCastMapper.cxx
+vtkHAVSVolumeMapper.cxx
 vtkProjectedTetrahedraMapper.cxx
 vtkRayCastImageDisplayHelper.cxx
 vtkRecursiveSphereDirectionEncoder.cxx
@@ -56,6 +57,7 @@ vtkUnstructuredGridVolumeZSweepMapper.cxx
 )
 
 SET( KitOpenGL_SRCS
+  vtkOpenGLHAVSVolumeMapper.cxx   
   vtkOpenGLProjectedTetrahedraMapper.cxx
   vtkOpenGLRayCastImageDisplayHelper.cxx
   vtkOpenGLVolumeTextureMapper2D.cxx
@@ -74,6 +76,13 @@ GET_TARGET_PROPERTY(ENCODE_EXE vtkVREncodeString LOCATION)
 
 # The set of source files to be encoded.
 SET(asm_files
+  vtkHAVSVolumeMapper_kbufferVP
+  vtkHAVSVolumeMapper_k2FP
+  vtkHAVSVolumeMapper_k2BeginFP
+  vtkHAVSVolumeMapper_k2EndFP
+  vtkHAVSVolumeMapper_k6FP
+  vtkHAVSVolumeMapper_k6BeginFP
+  vtkHAVSVolumeMapper_k6EndFP
   vtkVolumeTextureMapper3D_FourDependentNoShadeFP
   vtkVolumeTextureMapper3D_FourDependentShadeFP
   vtkVolumeTextureMapper3D_OneComponentNoShadeFP
