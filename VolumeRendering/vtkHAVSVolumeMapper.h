@@ -116,8 +116,7 @@ class vtkUnstructuredGrid;
 class vtkDepthRadixSortUnstructuredGrid;
 class vtkHAVSSortedFace;
 
-class VTK_VOLUMERENDERING_EXPORT vtkHAVSVolumeMapper 
-  : public vtkUnstructuredGridVolumeMapper 
+class VTK_VOLUMERENDERING_EXPORT vtkHAVSVolumeMapper : public vtkUnstructuredGridVolumeMapper 
 {
 public:
   static vtkHAVSVolumeMapper *New();

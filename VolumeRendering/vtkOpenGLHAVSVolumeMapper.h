@@ -110,8 +110,7 @@ PURPOSE.  See the above copyright notice for more information.
 class vtkRenderer;
 
 
-class VTK_VOLUMERENDERING_EXPORT vtkOpenGLHAVSVolumeMapper 
-  : public vtkHAVSVolumeMapper
+class VTK_VOLUMERENDERING_EXPORT vtkOpenGLHAVSVolumeMapper : public vtkHAVSVolumeMapper
 {
 public:
   static vtkOpenGLHAVSVolumeMapper *New();
