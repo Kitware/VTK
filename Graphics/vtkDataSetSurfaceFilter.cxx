@@ -51,7 +51,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.52");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.53");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -533,9 +533,10 @@ void vtkDataSetSurfaceFilter::ExecuteFaceQuads(vtkDataSet *input,
   // Assuming no ghost cells ...
   inStartPtId = inStartCellId = 0;
   // I put this confusing conditional to fix a regression test.
-  // If we are creating a maximum face, then we indeed have to offset the input cell Ids.
-  // However, vtkGeometryFilter created a 2d image as a max face, but the cells are copied
-  // as a min face (no offset).  Hence maxFlag = 1 and there should be no offset.
+  // If we are creating a maximum face, then we indeed have to offset
+  // the input cell Ids.  However, vtkGeometryFilter created a 2d
+  // image as a max face, but the cells are copied as a min face (no
+  // offset).  Hence maxFlag = 1 and there should be no offset.
   if (maxFlag && ext[aA2] < ext[1+aA2])
     {
     inStartPtId = pInc[aAxis]*(ext[aA2+1]-ext[aA2]);
