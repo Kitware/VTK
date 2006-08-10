@@ -171,7 +171,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.2");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.3");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 
 //-----------------------------------------------------------------------------
@@ -243,6 +243,7 @@ void vtkVisibleCellSelector::SetArea(unsigned int x0, unsigned int y0,
 void vtkVisibleCellSelector::SetProcessorId(int pid)
 {
   this->ProcessorId = pid + 1; //account for 0 reserved for miss
+  this->SetSelectConst(this->ProcessorId);
 }
 
 //----------------------------------------------------------------------------
