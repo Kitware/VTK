@@ -36,7 +36,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.1");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.2");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -163,7 +163,6 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
   renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SetLighting(0);
 
   vtkIdType startCell = 0;
-  int interpolation = VTK_FLAT;
   startCell += this->PolyData->GetNumberOfVerts();
   startCell += this->PolyData->GetNumberOfLines();
 
@@ -216,9 +215,6 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
   vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
     GetPainterDeviceAdapter();
 
-  vtkCellData* cellData = this->PolyData->GetCellData();
-  vtkPointData* pointData = this->PolyData->GetPointData();
-
   vtkPoints* p = this->PolyData->GetPoints();
   vtkIdType npts, *pts;
   vtkIdType cellId = startCellId;
@@ -226,8 +222,6 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
   int pointtype = p->GetDataType();
   void* voidpoints = p->GetVoidPointer(0);
   int count = 0;
-  double polyNorm[3];
-  vtkIdType normIdx[3];
 
   unsigned char color[3];
   for (connectivity->InitTraversal(); connectivity->GetNextCell(npts, pts); count++)

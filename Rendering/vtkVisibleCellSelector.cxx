@@ -171,7 +171,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.1");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.2");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 
 //-----------------------------------------------------------------------------
@@ -413,7 +413,6 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
 
   //save the hits into a vtkDataArray for external use
   this->SelectedIds->SetNumberOfTuples(hitcnt);
-  unsigned int lactorid = INT_MAX;
   if (hitcnt != 0)
     {
     //traversing the set will result in a sorted list, because vtkstd::set 
