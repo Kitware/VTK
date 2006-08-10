@@ -86,6 +86,10 @@ public:
   // Returns true if renderer is a vtkOpenGLRenderer.
   virtual int Compatible(vtkRenderer *renderer);
 
+  // Description:
+  // Turns lighting on and off.
+  virtual void SetLighting(int mode);
+
 protected:
   vtkOpenGLPainterDeviceAdapter();
   ~vtkOpenGLPainterDeviceAdapter();

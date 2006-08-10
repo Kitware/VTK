@@ -147,6 +147,10 @@ public:
   // vtkRenderer.
   virtual int Compatible(vtkRenderer *renderer) = 0;
 
+  // Description:
+  // Turns lighting on and off.
+  virtual void SetLighting(int mode) = 0;
+
 protected:
   vtkPainterDeviceAdapter();
   ~vtkPainterDeviceAdapter();

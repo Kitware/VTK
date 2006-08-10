@@ -34,8 +34,11 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkPropCollection.h"
+#include "vtkIdentColoredPainter.h"
+#include "vtkPainterPolyDataMapper.h"
+#include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.224");
+vtkCxxRevisionMacro(vtkRenderer, "1.225");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -102,6 +105,11 @@ vtkRenderer::vtkRenderer()
 
   this->Erase = 1;
   this->Draw = 1;
+
+  this->SelectMode = vtkRenderer::NOT_SELECTING;
+  this->SelectConst = 1;
+  this->PropsSelectedFrom = NULL;
+  this->PropsSelectedFromCount = 0;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -133,6 +141,13 @@ vtkRenderer::~vtkRenderer()
   this->Lights = NULL;
   this->Cullers->Delete();
   this->Cullers = NULL;
+
+  if ( this->PropsSelectedFrom)
+    {
+    delete [] this->PropsSelectedFrom;
+    this->PropsSelectedFrom = NULL;
+    }
+  this->PropsSelectedFromCount = 0;
 }
 
 // return the correct type of Renderer 
@@ -492,21 +507,26 @@ int vtkRenderer::UpdateGeometry()
     return 0;
     }
 
+  if (this->SelectMode != vtkRenderer::NOT_SELECTING)
+    {
+    //we are doing a visible polygon selection instead of a normal render
+    return this->UpdateGeometryForSelection();
+    }
+
   // We can render everything because if it was
   // not visible it would not have been put in the
   // list in the first place, and if it was allocated
   // no time (culled) it would have been removed from
   // the list
-  
+
   // loop through props and give them a chance to 
   // render themselves as opaque geometry
   for ( i = 0; i < this->PropArrayCount; i++ )
-    {    
+    { 
     this->NumberOfPropsRendered += 
       this->PropArray[i]->RenderOpaqueGeometry(this);
     }
  
-  
   // loop through props and give them a chance to 
   // render themselves as translucent geometry
   for ( i = 0; i < this->PropArrayCount; i++ )
@@ -514,7 +534,7 @@ int vtkRenderer::UpdateGeometry()
     this->NumberOfPropsRendered += 
       this->PropArray[i]->RenderTranslucentGeometry(this);
     }
-
+    
   // loop through props and give them a chance to 
   // render themselves as an overlay (or underlay)
   for ( i = 0; i < this->PropArrayCount; i++ )
@@ -1288,7 +1308,7 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
     }
   // number determined from number of rendering passes plus reserved "0" slot
   numberPickFrom = 2*props->GetNumberOfPaths()*3 + 1;
-  
+
   this->IsPicking = 1; // turn on picking
   this->StartPick(numberPickFrom);
   this->PathArray = new vtkAssemblyPath *[numberPickFrom];
@@ -1313,9 +1333,9 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
     {
     pickedId--; // pick ids start at 1, so move back one
 
-    // wrap around, as there are twice as many pickid's as PropArrayCount,
-    // because each Prop has both RenderOpaqueGeometry and 
-    // RenderTranslucentGeometry called on it
+    // wrap around, as there are thrice as many pickid's as PathArrayCount,
+    // because each Prop has RenderOpaqueGeometry,
+    // RenderTranslucentGeometry and RenderOverlay called on it.
     pickedId = pickedId % this->PathArrayCount;
     this->PickedProp = this->PathArray[pickedId];
     this->PickedProp->Register(this);
@@ -1349,8 +1369,9 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
   return this->PickedProp; //returns an assembly path
 }
 
-// Do a render in pick mode.  This is normally done with rendering turned off.
-// Before each Prop is rendered the pick id is incremented
+// Do a render in pick or select mode.  This is normally done with 
+// rendering turned off. Before each Prop is rendered the pick id is 
+// incremented
 void vtkRenderer::PickRender(vtkPropCollection *props)
 {
   vtkProp  *aProp;
@@ -1431,8 +1452,8 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
 
     // do the pick
     aCullPicker->AreaPick(this->PickX1, this->PickY1, 
-                         this->PickX2, this->PickY2, 
-                         this);
+                          this->PickX2, this->PickY2, 
+                          this);
 
     cullPicked = aCullPicker->GetProp3Ds();
     }  
@@ -1503,7 +1524,7 @@ void vtkRenderer::PickGeometry()
     this->NumberOfPropsRendered += prop->RenderOpaqueGeometry(this);
     prop->PokeMatrix(NULL);
     }
- 
+
   // loop through props and give them a chance to 
   // render themselves as translucent geometry
   for ( i = 0; i < this->PathArrayCount; i++ )
@@ -1532,7 +1553,6 @@ void vtkRenderer::PickGeometry()
                     this->NumberOfPropsRendered << " actors" );
 
 }
-
 
 int  vtkRenderer::Transparent()
 {
@@ -1563,4 +1583,169 @@ double vtkRenderer::GetTiledAspectRatio()
     finalAspect = aspectModification*usize/vsize;
     }
   return finalAspect;
+}
+
+//----------------------------------------------------------------------------
+int vtkRenderer::UpdateGeometryForSelection()
+{
+
+  int        i;
+  if ( this->PropsSelectedFrom)
+    {
+    delete [] this->PropsSelectedFrom;
+    this->PropsSelectedFrom = NULL;
+    }
+  this->PropsSelectedFromCount = this->PropArrayCount;
+  this->PropsSelectedFrom = new vtkProp *[this->PropsSelectedFromCount];
+
+  //change the renderer's background to black, which will indicate a miss
+  double origBG[3];
+  this->GetBackground(origBG);
+  this->SetBackground(0.0,0.0,0.0);
+  this->Clear();
+
+  //todo: save off and swap in other renderer/renderwindow settings that
+  //could affect colors
+
+  //create holders for prop's original rendering settings
+  int orig_visibility;
+  vtkPolyDataPainter *orig_painter = NULL;
+
+  //create a painter that will color each cell with an index
+  vtkIdentColoredPainter *ident_painter = vtkIdentColoredPainter::New();
+
+  switch (this->SelectMode)
+    {
+    case COLOR_BY_PROCESSOR:
+      //SelectConst should have been set to this node's rank
+      ident_painter->SetToColorByConstant(this->SelectConst);
+      break;
+    case COLOR_BY_ACTOR:
+      //SelectConst will be incremented with each prop
+      break;
+    case COLOR_BY_CELL_ID_HIGH:
+      //Each polygon will gets its own color
+      ident_painter->SetToColorByIncreasingIdent(2);
+      break;
+    case COLOR_BY_CELL_ID_MID:
+      //Each polygon will gets its own color
+      ident_painter->SetToColorByIncreasingIdent(1);
+      break;
+    case COLOR_BY_CELL_ID_LOW:
+      //Each polygon will gets its own color
+      ident_painter->SetToColorByIncreasingIdent(0);
+      break;
+    default:
+      //should never get here
+      return 0; 
+    }        
+
+  // loop through props and give them a chance to 
+  // render themselves as opaque geometry
+  for ( i = 0; i < this->PropArrayCount; i++ )
+    { 
+    this->PropsSelectedFrom[i] = this->PropArray[i];
+
+    if (this->SelectMode == vtkRenderer::COLOR_BY_ACTOR)
+      {
+      ident_painter->SetToColorByConstant(i+1);
+      }
+    else if (this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_HIGH ||
+             this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_MID ||
+             this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_LOW)
+      {
+      //each actor starts it's cell count at 0
+      ident_painter->ResetCurrentId();
+      }        
+
+    //try to swap the ident color painter for the original one
+    //if this prop can not be selected, its visibility is turned off
+    orig_painter = this->SwapInSelectablePainter(this->PropArray[i], ident_painter, orig_visibility);
+
+    //render the prop
+    this->NumberOfPropsRendered += 
+      this->PropArray[i]->RenderOpaqueGeometry(this);
+
+    //restore the prop's original settings
+    this->SwapOutSelectablePainter(this->PropArray[i], orig_painter, orig_visibility);      
+    }
+
+  //restore original background
+  this->SetBackground(origBG);
+
+  ident_painter->Delete();
+
+  this->InvokeEvent(vtkCommand::EndEvent,NULL);
+  this->RenderTime.Modified();
+
+  vtkDebugMacro( << "Rendered " << 
+                    this->NumberOfPropsRendered << " actors" );
+
+  return this->NumberOfPropsRendered;
+}
+
+//----------------------------------------------------------------------------
+vtkPolyDataPainter* vtkRenderer::SwapInSelectablePainter(
+  vtkProp *prop,
+  vtkIdentColoredPainter *ident_painter,
+  int &orig_visibility)
+{
+  vtkPolyDataPainter* orig_painter = NULL;
+  vtkPainterPolyDataMapper *orig_mapper = NULL;
+  
+  //try to find a polydatapainter that we can swap out
+  vtkActor *actor = vtkActor::SafeDownCast(prop);
+  if (actor && !(actor->IsA("vtkFollower") || actor->IsA("vtkLODActor")))
+    {
+    orig_mapper = 
+      vtkPainterPolyDataMapper::SafeDownCast(actor->GetMapper());
+
+    if (orig_mapper)
+      {
+      //found it, now swap it out
+      orig_painter = orig_mapper->GetPainter();
+
+      //Register this to prevent orig_painter from being deleted
+      //while we momentarily swap in a different painter
+      orig_painter->Register(this); 
+          
+      //ident painter colors each polygon based on the current selectmode.
+      orig_mapper->SetPainter(ident_painter);
+      }
+    }
+  if (!orig_painter)
+    {
+    //if we couldn't find it, don't render the prop
+    orig_visibility = prop->GetVisibility();
+    prop->VisibilityOff();
+    }
+  return orig_painter;
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderer::SwapOutSelectablePainter(
+  vtkProp *prop,
+  vtkPolyDataPainter* orig_painter,
+  int orig_visibility) 
+{
+  vtkPainterPolyDataMapper *orig_mapper = NULL;
+  //try to restore the swapped out painter
+  vtkActor *actor = vtkActor::SafeDownCast(prop);
+  if (actor && !(actor->IsA("vtkFollower") || actor->IsA("vtkLODActor")))
+    {
+    orig_mapper = 
+      vtkPainterPolyDataMapper::SafeDownCast(actor->GetMapper());
+
+    if (orig_painter)
+      {
+      orig_mapper->SetPainter(orig_painter);
+      orig_painter->UnRegister(this);
+      }
+    }
+  if (!orig_painter)
+    {
+    //if we never swapped in the ident painter, restore the prop's original
+    //visibility setting
+    prop->SetVisibility(orig_visibility);
+    }
 }

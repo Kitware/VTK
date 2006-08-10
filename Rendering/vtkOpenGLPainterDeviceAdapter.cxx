@@ -35,7 +35,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.4");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.5");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -613,4 +613,17 @@ void vtkOpenGLPainterDeviceAdapter::DrawElements(int mode, vtkIdType count,
 int vtkOpenGLPainterDeviceAdapter::Compatible(vtkRenderer *renderer)
 {
   return renderer->IsA("vtkOpenGLRenderer");
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPainterDeviceAdapter::SetLighting(int mode)
+{
+  if (mode)
+    {
+    glEnable(GL_LIGHTING);
+    }
+  else
+    {
+    glDisable(GL_LIGHTING);
+    }
 }

@@ -132,6 +132,8 @@ vtkWorldPointPicker.cxx
 vtkInteractorStyleRubberBandPick.cxx
 vtkAreaPicker.cxx
 vtkRenderedAreaPicker.cxx
+vtkIdentColoredPainter.cxx
+vtkVisibleCellSelector.cxx
 )
 
 IF(VTK_USE_GL2PS)

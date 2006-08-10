@@ -77,6 +77,10 @@ public:
   // Returns true if renderer is a vtkMesaRenderer.
   virtual int Compatible(vtkRenderer *renderer);
 
+  // Description:
+  // Turns lighting on and off.
+  virtual void SetLighting(int mode);
+
 protected:
   vtkMesaPainterDeviceAdapter();
   ~vtkMesaPainterDeviceAdapter();

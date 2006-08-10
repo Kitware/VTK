@@ -43,6 +43,9 @@ class vtkCamera;
 class vtkLightCollection;
 class vtkCullerCollection;
 class vtkLight;
+class vtkPolyDataPainter;
+class vtkIdentColoredPainter;
+class vtkVisibleCellSelector;
 
 class VTK_RENDERING_EXPORT vtkRenderer : public vtkViewport
 {
@@ -482,7 +485,50 @@ protected:
   // automatically (see GetActiveCamera).
   // This is only used internally.
   vtkCamera *GetActiveCameraAndResetIfCreated();
+
+  // VISIBLE CELL SELECTION ----------------------------------------
+  //BTX  
+  friend class vtkVisibleCellSelector;
+
+  //Description:
+  // Call to put the Renderer into a mode in which it will color visible 
+  // polygons with an enoded index. Later the pixel colors can be retrieved to
+  // determine what objects lie behind each pixel.  
+  enum {NOT_SELECTING = 0, COLOR_BY_PROCESSOR, COLOR_BY_ACTOR, 
+        COLOR_BY_CELL_ID_HIGH, COLOR_BY_CELL_ID_MID, COLOR_BY_CELL_ID_LOW};  
+  //ETX
+  vtkSetMacro(SelectMode, int);
+  vtkSetMacro(SelectConst, unsigned int);
   
+  // Description:
+  // Renders each polygon with a color that represents an selection index.
+  virtual int UpdateGeometryForSelection(void);
+
+  // Description:
+  // Called by UpdateGeometryForSelection to temporarily swap in a mapper to 
+  // render a prop in selection mode.
+  vtkPolyDataPainter* SwapInSelectablePainter(vtkProp *, 
+                                              vtkIdentColoredPainter *,
+                                              int &);
+
+  // Description:
+  // Called by UpdateGeometryForSelection to restore a prop's original mapper.
+  void SwapOutSelectablePainter(vtkProp *,
+                                vtkPolyDataPainter*, 
+                                int );
+
+  // Description:
+  // Used in Selection to recover a selected prop from an index.
+  vtkProp            **PropsSelectedFrom;
+  int                PropsSelectedFromCount;
+
+  // Ivars for visible cell selecting
+  int SelectMode;
+  unsigned int SelectConst;
+  // End Ivars for visible cell selecting.
+
+  //---------------------------------------------------------------
+
 private:
   vtkRenderer(const vtkRenderer&);  // Not implemented.
   void operator=(const vtkRenderer&);  // Not implemented.
