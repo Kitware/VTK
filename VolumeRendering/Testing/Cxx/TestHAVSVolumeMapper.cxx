@@ -161,7 +161,7 @@ int TestHAVSVolumeMapper(int argc, char *argv[])
   textActor->SetInput("Required Extensions\nNot Supported");
   textActor->SetDisplayPosition( 150, 150 );
   textActor->GetTextProperty()->SetJustificationToCentered();
-  textActor->GetTextProperty()->SetFontSize(30.0);
+  textActor->GetTextProperty()->SetFontSize(30);
   
   
   if ( !supported )

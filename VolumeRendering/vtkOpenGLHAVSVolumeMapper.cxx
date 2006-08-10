@@ -41,7 +41,7 @@ extern const char *vtkHAVSVolumeMapper_k6BeginFP;
 extern const char *vtkHAVSVolumeMapper_k6FP;
 extern const char *vtkHAVSVolumeMapper_k6EndFP;
 
-vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.1");
+vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.2");
 vtkStandardNewMacro(vtkOpenGLHAVSVolumeMapper);
 
 //----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ vtkOpenGLHAVSVolumeMapper::~vtkOpenGLHAVSVolumeMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLHAVSVolumeMapper::CheckOpenGLError(char * str)
+void vtkOpenGLHAVSVolumeMapper::CheckOpenGLError(const char * str)
 {
   int err = glGetError();
   if ( err != GL_NO_ERROR && this->GetDebug() )

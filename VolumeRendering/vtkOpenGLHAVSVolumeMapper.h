@@ -155,7 +155,7 @@ protected:
   void DrawFBOFlush(int screenWidth, int screenHeight, float depthNear, float depthFar);
   void DrawBlend(int screenWidth, int screenHeight, float depthNear, float depthFar);
 
-  void CheckOpenGLError(char *str);
+  void CheckOpenGLError(const char *str);
 
   // GPU
   unsigned int VBOVertexName;
