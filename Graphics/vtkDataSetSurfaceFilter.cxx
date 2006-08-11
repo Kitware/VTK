@@ -51,7 +51,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.53");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.54");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -166,19 +166,18 @@ int vtkDataSetSurfaceFilter::RequestData(
       output->ShallowCopy(inPd);
       if (this->PassThroughCellIds)
         {
+        //make a 1:1 mapping
         this->OriginalCellIds = vtkIdTypeArray::New();
         this->OriginalCellIds->SetName("vtkOriginalCellIds");
         this->OriginalCellIds->SetNumberOfComponents(1);
         vtkCellData *outputCD = output->GetCellData();
-        outputCD->AddArray(this->OriginalCellIds);
-        
+        outputCD->AddArray(this->OriginalCellIds);        
         vtkIdType numTup = output->GetNumberOfCells();
         this->OriginalCellIds->SetNumberOfValues(numTup);
         for (vtkIdType cId = 0; cId < numTup; cId++)
           {
           this->OriginalCellIds->SetValue(cId, cId);
           }
-        
         this->OriginalCellIds->Delete();
         this->OriginalCellIds = NULL;
         }
@@ -274,12 +273,22 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
   output->GetCellData()->CopyGlobalIdsOn();
   output->GetCellData()->CopyAllocate(input->GetCellData());
 
-  if (this->PassThroughCellIds && !this->UseStrips)
+  if (this->PassThroughCellIds)
     {
     this->OriginalCellIds = vtkIdTypeArray::New();
     this->OriginalCellIds->SetName("vtkOriginalCellIds");
     this->OriginalCellIds->SetNumberOfComponents(1);
-    output->GetCellData()->AddArray(this->OriginalCellIds);
+    if (this->UseStrips)
+      {
+      //We use Field data because we need to remember more values than there
+      //are output cells. Each strip (an output cell) has to point to multiple 
+      //input cells we can not use the DataSet's CellData.
+      output->GetFieldData()->AddArray(this->OriginalCellIds);
+      }
+    else
+      {
+      output->GetCellData()->AddArray(this->OriginalCellIds);
+      }
     }
 
   if (this->UseStrips)
@@ -335,6 +344,7 @@ void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
   int          *wholeExt;
   int          pInc[3];
   int          qInc[3];
+  int          ptCInc[3];
   int          cOutInc;
   double        pt[3];
   vtkIdType    inStartPtId;
@@ -359,6 +369,18 @@ void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
   qInc[0] = 1;
   qInc[1] = ext[1]-ext[0];
   qInc[2] = (ext[3]-ext[2]) * qInc[1];
+  ptCInc[0] = 1;
+  ptCInc[1] = ext[1]-ext[0];
+  if (ptCInc[1] == 0)
+    {
+    ptCInc[1] = 1;
+    }
+  ptCInc[2] = (ext[3]-ext[2]);
+  if (ptCInc[2] == 0)
+    {
+    ptCInc[2] = 1;
+    }
+  ptCInc[2] = ptCInc[2] * ptCInc[1];
 
   // Tempoprary variables to avoid many multiplications.
   aA2 = aAxis * 2;
@@ -401,9 +423,21 @@ void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
   
   // Assuming no ghost cells ...
   inStartPtId = 0;
-  if (maxFlag)
+  if( maxFlag)
     {
     inStartPtId = pInc[aAxis]*(ext[aA2+1]-ext[aA2]);
+    }
+
+  vtkIdType outCellId = 0;
+  vtkIdType inStartCellId = 0;
+  vtkIdType inCellId = 0;
+  if (this->PassThroughCellIds)
+    {
+    outCellId = this->OriginalCellIds->GetNumberOfTuples();
+    if (maxFlag && ext[aA2] < ext[1+aA2])
+      {
+      inStartCellId = qInc[aAxis]*(ext[aA2+1]-ext[aA2]-1);
+      }
     }
 
   outStartPtId = outPts->GetNumberOfPoints();
@@ -429,11 +463,13 @@ void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
   stripArray = new vtkIdType[2*(ext[bA2+1]-ext[bA2]+1)];
   // Make the cells for this face.
   outStrips = output->GetStrips();
+
   for (ic = ext[cA2]; ic < ext[cA2+1]; ++ic)
     {
     // Fill in the array describing the strips.
     stripArrayIdx = 0;
     outPtId = outStartPtId + (ic-ext[cA2])*cOutInc;
+
     if (rotatedFlag)
       {
       for (ib = ext[bA2]; ib <= ext[bA2+1]; ++ib)
@@ -441,6 +477,17 @@ void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
         stripArray[stripArrayIdx++] = outPtId+cOutInc;
         stripArray[stripArrayIdx++] = outPtId;
         ++outPtId;
+        if (this->PassThroughCellIds && ib != ext[bA2])
+          {
+          //Record the two triangular output cells just defined
+          //both belong to the same input quad cell
+          inCellId = 
+            inStartCellId + 
+            (ib-ext[bA2]-1)*ptCInc[bAxis] + 
+            (ic-ext[cA2])*ptCInc[cAxis];    
+          this->RecordOrigCellId(outCellId++, inCellId);  
+          this->RecordOrigCellId(outCellId++, inCellId);  
+          }
         }
       }
     else
@@ -450,6 +497,17 @@ void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
         stripArray[stripArrayIdx++] = outPtId;
         stripArray[stripArrayIdx++] = outPtId+cOutInc;
         ++outPtId;
+        if (this->PassThroughCellIds && ib != ext[bA2])
+          {
+          //Record the two triangular output cells just defined
+          //both belong to the same input quad cell
+          inCellId = 
+            inStartCellId + 
+            (ib-ext[bA2]-1)*ptCInc[bAxis] + 
+            (ic-ext[cA2])*ptCInc[cAxis];
+          this->RecordOrigCellId(outCellId++, inCellId);  
+          this->RecordOrigCellId(outCellId++, inCellId);  
+          }
         }
       }
     outStrips->InsertNextCell(stripArrayIdx, stripArray);

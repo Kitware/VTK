@@ -22,8 +22,9 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkPolyData.h"
+#include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkStripper, "1.71");
+vtkCxxRevisionMacro(vtkStripper, "1.72");
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
@@ -31,6 +32,7 @@ vtkStripper::vtkStripper()
 {
   this->MaximumLength = 1000;
   this->PassCellDataAsFieldData = 0;
+  this->PassThroughCellIds = 0;
 }
 
 int vtkStripper::RequestData(
@@ -129,6 +131,30 @@ int vtkStripper::RequestData(
     newfdStrips->Allocate(3*inNumPolys + 3);
     }
 
+  vtkIdTypeArray* OriginalCellIds = NULL;
+  vtkIdTypeArray* origPolyIds = NULL;
+  vtkIdTypeArray* origLineIds = NULL;
+  vtkIdTypeArray* origStripIds = NULL;
+  if (this->PassThroughCellIds)
+    {
+    OriginalCellIds = vtkIdTypeArray::New();
+    OriginalCellIds->SetName("vtkOriginalCellIds");
+    OriginalCellIds->SetNumberOfComponents(1);
+    OriginalCellIds->Allocate(3*numCells + 3);
+
+    origPolyIds = vtkIdTypeArray::New();
+    origPolyIds->SetNumberOfComponents(1);
+    origPolyIds->Allocate(inNumPolys + 1);
+
+    origLineIds = vtkIdTypeArray::New();
+    origLineIds->SetNumberOfComponents(1);
+    origLineIds->Allocate(inNumLines + 1);
+
+    origStripIds = vtkIdTypeArray::New();
+    origStripIds->SetNumberOfComponents(1);
+    origStripIds->Allocate(3*inNumPolys + 3);
+    }
+
   // pre-load existing strips
   if ( inStrips->GetNumberOfCells() > 0 || inPolys->GetNumberOfCells() > 0 )
     {
@@ -144,6 +170,14 @@ int vtkStripper::RequestData(
         for (i=2; i < numStripPts; i++)
           {
           newfdStrips->InsertNextTuple(cellId, cd);
+          }
+        }
+      if (this->PassThroughCellIds)
+        {
+        origStripIds->InsertNextValue(cellId);
+        for (i=2; i < numStripPts; i++)
+          {
+          origStripIds->InsertNextValue(cellId);
           }
         }
       cellId++;
@@ -167,6 +201,10 @@ int vtkStripper::RequestData(
         if (this->PassCellDataAsFieldData)
           {
           newfdLines->InsertNextTuple(cellId, cd);
+          }
+        if (this->PassThroughCellIds)
+          {
+          origLineIds->InsertNextValue(cellId);
           }
         }
       }
@@ -236,6 +274,10 @@ int vtkStripper::RequestData(
             {
             newfdStrips->InsertNextTuple(cellId, cd);
             }
+          if (this->PassThroughCellIds)
+            {
+            origStripIds->InsertNextValue(cellId);
+            }
           } 
         else // continue strip 
           { 
@@ -245,6 +287,10 @@ int vtkStripper::RequestData(
             {
             newfdStrips->InsertNextTuple(cellId, cd);
             }
+          if (this->PassThroughCellIds)
+            {
+            origStripIds->InsertNextValue(cellId);
+            }
           while ( neighbor >= 0 )
             {
             visited[neighbor] = 1;
@@ -253,7 +299,10 @@ int vtkStripper::RequestData(
               {
               newfdStrips->InsertNextTuple(neighbor, cd);
               }
-
+            if (this->PassThroughCellIds)
+              {
+              origStripIds->InsertNextValue(neighbor);
+              }
             for (i=0; i<3; i++)
               {
               if ( triPts[i] != pts[numPts-2] && 
@@ -329,13 +378,15 @@ int vtkStripper::RequestData(
           {
           newfdLines->InsertNextTuple(cellId, cd);
           }
-        
+        if (this->PassThroughCellIds)
+          {
+          origLineIds->InsertNextValue(cellId);
+          }
         //  If no unvisited neighbor, just create the poly-line from one line.
         //
         if ( !foundOne ) 
           {
-          newLines->InsertNextCell(2,linePts);
-          
+          newLines->InsertNextCell(2,linePts);          
           } 
         else // continue poly-line
           { 
@@ -389,6 +440,10 @@ int vtkStripper::RequestData(
         if (this->PassCellDataAsFieldData)
           {
           newfdPolys->InsertNextTuple(cellId, cd);
+          }
+        if (this->PassThroughCellIds)
+          {
+          origPolyIds->InsertNextValue(cellId);
           }
         }
 
@@ -482,6 +537,48 @@ int vtkStripper::RequestData(
     output->SetFieldData(newfd);
     newfd->Delete();
     }
+
+  if (this->PassThroughCellIds)
+    {
+    int cidcnt = 0;
+    cellId = 0;
+    int max;
+    for (i=0; i < inNumVerts; i++, cellId++)
+      {
+      OriginalCellIds->InsertNextValue(cellId);
+      }
+    if (origLineIds)
+      {
+      max = origLineIds->GetNumberOfTuples();
+      for (i=0; i < max; i++)
+        {
+        OriginalCellIds->InsertNextTuple(i, origLineIds);
+        }
+      origLineIds->Delete();
+      }
+    if (origPolyIds)
+      {
+      max = origPolyIds->GetNumberOfTuples();
+      for (i=0; i < max; i++)
+        {
+        OriginalCellIds->InsertNextTuple(i, origPolyIds);
+        }
+      origPolyIds->Delete();
+      }
+    if (origStripIds)
+      {
+      max = origStripIds->GetNumberOfTuples();
+      for (i=0; i < max; i++)
+        {
+        OriginalCellIds->InsertNextTuple(i, origStripIds);
+        }
+      origStripIds->Delete();
+      }
+    OriginalCellIds->Squeeze();
+    output->GetFieldData()->AddArray(OriginalCellIds);
+    OriginalCellIds->Delete();
+    }
+
   
   return 1;
 }
@@ -492,4 +589,5 @@ void vtkStripper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Maximum Length: " << this->MaximumLength << "\n";
   os << indent << "PassCellDataAsFieldData: " << this->PassCellDataAsFieldData << endl;
+  os << indent << "PassThroughCellIds: " << this->PassThroughCellIds << endl;
 }
