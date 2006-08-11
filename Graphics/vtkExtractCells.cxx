@@ -34,7 +34,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractCells, "1.3");
+vtkCxxRevisionMacro(vtkExtractCells, "1.4");
 vtkStandardNewMacro(vtkExtractCells);
 
 #include <vtkstd/set>
@@ -54,7 +54,7 @@ vtkExtractCells::vtkExtractCells()
 }
 vtkExtractCells::~vtkExtractCells()
 {
-  this->SetCellList(NULL);
+  delete this->CellList;
 }
 
 void vtkExtractCells::SetCellList(vtkIdList *l)
