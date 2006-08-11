@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.36");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.37");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_TYPE_NAME,String);
@@ -939,8 +939,6 @@ int vtkCompositeDataPipeline::CheckCompositeData(
     {
     return this->Superclass::CheckDataObject(port, outInfoVec);
     }
-
-  return 0;
 }
 
 //----------------------------------------------------------------------------
