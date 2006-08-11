@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkStripper, "1.72");
+vtkCxxRevisionMacro(vtkStripper, "1.73");
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
@@ -540,7 +540,6 @@ int vtkStripper::RequestData(
 
   if (this->PassThroughCellIds)
     {
-    int cidcnt = 0;
     cellId = 0;
     int max;
     for (i=0; i < inNumVerts; i++, cellId++)
