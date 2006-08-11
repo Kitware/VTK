@@ -34,7 +34,7 @@
 #include "vtkVoxel.h"
 #include "vtkLine.h"
 
-vtkCxxRevisionMacro(vtkFrustumExtractor, "1.10");
+vtkCxxRevisionMacro(vtkFrustumExtractor, "1.11");
 vtkStandardNewMacro(vtkFrustumExtractor);
 vtkCxxSetObjectMacro(vtkFrustumExtractor,Frustum,vtkPlanes);
 
@@ -759,12 +759,12 @@ int vtkFrustumExtractor::ABoxFrustumIsect(double *bounds, vtkCell *cell)
     int nedges = cell->GetNumberOfEdges();
     if (nedges < 1)
       {
-      delete vertbuffer;
+      delete[] vertbuffer;
       return this->IsectDegenerateCell(cell);
       }
     if (nedges+4 > maxedges)
       {
-      delete vertbuffer;
+      delete[] vertbuffer;
       maxedges=(nedges+4)*2;
       vertbuffer = new double[3*maxedges*3];
       vlist = &vertbuffer[0*maxedges*3];
@@ -809,7 +809,7 @@ int vtkFrustumExtractor::ABoxFrustumIsect(double *bounds, vtkCell *cell)
       }
     if (this->FrustumClipPolygon(nedges, vlist, wvlist, ovlist))
       {
-      delete vertbuffer;
+      delete[] vertbuffer;
       return 1;
       }
     }
@@ -827,14 +827,14 @@ int vtkFrustumExtractor::ABoxFrustumIsect(double *bounds, vtkCell *cell)
         {
         if (this->IsectDegenerateCell(face))
           {
-          delete vertbuffer;
+          delete[] vertbuffer;
           return 1;
           }
         continue;
         }
       if (nedges+4 > maxedges)
         {
-        delete vertbuffer;
+        delete[] vertbuffer;
         maxedges=(nedges+4)*2;
         vertbuffer = new double[3*maxedges*3];
         vlist = &vertbuffer[0*maxedges*3];
@@ -879,13 +879,13 @@ int vtkFrustumExtractor::ABoxFrustumIsect(double *bounds, vtkCell *cell)
         }     
       if (this->FrustumClipPolygon(nedges, vlist, wvlist, ovlist))
         {
-        delete vertbuffer;
+        delete[] vertbuffer;
         return 1;
         }
       }
     }
 
-  delete vertbuffer;
+  delete[] vertbuffer;
   return 0;
 }
 
