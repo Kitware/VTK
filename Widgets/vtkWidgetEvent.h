@@ -55,11 +55,6 @@ public:
     AddPoint,
     AddFinalPoint,
     Completed,
-    PaintbrushDrawBegin,
-    PaintbrushEraseBegin,
-    PaintbrushSequenceEnd,
-    Undo,
-    Redo,
     TimedOut
   };
 //ETX
