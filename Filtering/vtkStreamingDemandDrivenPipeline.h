@@ -182,8 +182,16 @@ public:
   static vtkInformationDoubleVectorKey* TIME_STEPS();
 
   // Description:
+  // Key to store available time range for continuous sources.
+  static vtkInformationDoubleVectorKey* TIME_RANGE();
+
+  // Description:
   // Update time requested by the pipeline.
   static vtkInformationIntegerKey* UPDATE_TIME_INDEX();
+
+  // Description:
+  // Update time steps requested by the pipeline.
+  static vtkInformationDoubleVectorKey* UPDATE_TIME_STEPS();
 
   // Description:
   // Key to specify from 0 to 1 the priority of this update extent

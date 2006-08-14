@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.39");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.40");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -50,6 +50,8 @@ vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline,
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_BOUNDING_BOX, DoubleVector, 6);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_STEPS, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_TIME_INDEX, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_TIME_STEPS, DoubleVector);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_RANGE, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PRIORITY, Double);
 
 //----------------------------------------------------------------------------
@@ -307,6 +309,7 @@ vtkStreamingDemandDrivenPipeline
           outInfo->CopyEntry(inInfo, MAXIMUM_NUMBER_OF_PIECES());
           outInfo->CopyEntry(inInfo, EXTENT_TRANSLATOR());
           outInfo->CopyEntry(inInfo, TIME_STEPS());
+          outInfo->CopyEntry(inInfo, TIME_RANGE());
           }
         }
       }
