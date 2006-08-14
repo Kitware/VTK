@@ -17,7 +17,7 @@
 #include <vtkstd/string>
 
 vtkStandardNewMacro(vtkSESAMEReader);
-vtkCxxRevisionMacro(vtkSESAMEReader, "1.3");
+vtkCxxRevisionMacro(vtkSESAMEReader, "1.4");
 
 static const int SESAME_NUM_CHARS = 512;
 static const char* TableLineFormat = "%2i%6i%6i";
@@ -142,7 +142,7 @@ int vtkSESAMEReader::IsValidFile()
     }
 
   // open the file
-  FILE* f = fopen(this->GetFileName(), "r");
+  FILE* f = fopen(this->GetFileName(), "rb");
   if(!f)
     {
     return 0;
@@ -192,7 +192,7 @@ int vtkSESAMEReader::OpenFile()
     }
 
   // open the file
-  this->Internal->File = fopen(this->GetFileName(), "r");
+  this->Internal->File = fopen(this->GetFileName(), "rb");
   if(!this->Internal->File)
     {
     vtkErrorMacro(<<"Unable to open file " << this->GetFileName());
