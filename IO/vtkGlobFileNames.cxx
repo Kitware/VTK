@@ -22,7 +22,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkGlobFileNames, "1.2");
+vtkCxxRevisionMacro(vtkGlobFileNames, "1.3");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -60,7 +60,8 @@ vtkGlobFileNames::~vtkGlobFileNames()
 void vtkGlobFileNames::PrintSelf(ostream& os, vtkIndent indent)
 { 
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Pattern: " <<  this->GetPattern() << "\n";
+  os << indent << "Pattern: " <<  
+    (this->GetPattern() ? this->GetPattern() : " none") << "\n";
   os << indent << "Recurse: " << (this->GetRecurse() ? "On\n" : "Off\n");
   os << indent << "FileNames:  (" << this->GetFileNames() << ")\n";
   indent = indent.GetNextIndent();
