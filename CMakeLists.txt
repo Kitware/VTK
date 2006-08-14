@@ -658,6 +658,8 @@ IF(BUILD_TESTING)
   ENABLE_TESTING()
   CONFIGURE_FILE(${VTK_SOURCE_DIR}/CMake/CTestCustom.ctest.in
     ${VTK_BINARY_DIR}/CMake/CTestCustom.ctest @ONLY)
+  FILE(WRITE ${VTK_BINARY_DIR}/CTestCustom.cmake
+    "INCLUDE(\"${VTK_BINARY_DIR}/CMake/CTestCustom.ctest\")\n")
   OPTION(VTK_USE_DISPLAY "Turn this option off and tests will not popup windows" ON)
   MARK_AS_ADVANCED(VTK_USE_DISPLAY)
 ENDIF(BUILD_TESTING)
