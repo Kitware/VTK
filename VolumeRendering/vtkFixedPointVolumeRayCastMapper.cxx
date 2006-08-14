@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.28");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.29");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -375,9 +375,9 @@ VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg )
     (((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
 
   vtkImageData *input = mapper->GetInput();
-  void *dataPtr = input->GetScalarPointer();
- 
-  int scalarType   = input->GetScalarType();
+  
+  void *dataPtr = mapper->GetCurrentScalars()->GetVoidPointer(0);
+  int scalarType   = mapper->GetCurrentScalars()->GetDataType();
  
   int dim[3];
   double spacing[3];
@@ -386,7 +386,7 @@ VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg )
  
   // Find the scalar range
   double scalarRange[2];
-  input->GetPointData()->GetScalars()->GetRange(scalarRange, 0);
+  mapper->GetCurrentScalars()->GetRange(scalarRange, 0);
   
   if ( scalarType == VTK_UNSIGNED_CHAR )
     {
@@ -759,6 +759,11 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
   this->NumTransformedClippingPlanes = 0;
   this->TransformedClippingPlanes    = NULL;
 
+  // Which scalar field are we rendering this time, and which
+  // did we render last time (so we can check if it is changing)
+  this->CurrentScalars = NULL;
+  this->PreviousScalars = NULL;
+  
   this->ImageDisplayHelper  = vtkRayCastImageDisplayHelper::New();
   this->ImageDisplayHelper->PreMultipliedColorsOn();
   this->ImageDisplayHelper->SetPixelScale( 2.0 );
@@ -1095,14 +1100,15 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
   vtkImageData *input = this->GetInput();
 
   // We'll need this info later
-  int components   = input->GetPointData()->GetScalars()->GetNumberOfComponents();
+  int components   = this->CurrentScalars->GetNumberOfComponents();
   int independent  = vol->GetProperty()->GetIndependentComponents();
   int dim[3];    
   input->GetDimensions( dim );  
 
   // Has the data itself changed?
   if ( input != this->SavedMinMaxInput ||
-       input->GetMTime() > this->SavedMinMaxBuildTime.GetMTime() )
+       input->GetMTime() > this->SavedMinMaxBuildTime.GetMTime() ||
+       this->CurrentScalars != this->PreviousScalars )
     {
     needToUpdate |= 0x03;
     }
@@ -1196,8 +1202,8 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
         }
       
       // Now put the scalar data values into the structure
-      int scalarType   = input->GetScalarType();
-      void *dataPtr = input->GetScalarPointer();
+      int scalarType   = this->CurrentScalars->GetDataType();
+      void *dataPtr = this->CurrentScalars->GetVoidPointer(0);
       
       switch ( scalarType )
         {
@@ -1422,7 +1428,9 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
 {
   // This is the input of this mapper
   vtkImageData *input = this->GetInput();
-  
+  this->PreviousScalars = this->CurrentScalars;
+
+
   // make sure that we have scalar input and update the scalar input
   if ( input == NULL ) 
     {
@@ -1435,6 +1443,20 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
     input->SetUpdateExtentToWholeExtent();
     input->Update();
     } 
+
+  int usingCellColors;
+  this->CurrentScalars = 
+    this->GetScalars( input, this->ScalarMode,
+                      this->ArrayAccessMode, 
+                      this->ArrayId,
+                      this->ArrayName,
+                      usingCellColors );
+
+  if ( usingCellColors )
+    {
+    vtkErrorMacro("Cell Scalars not supported");
+    return;
+    }
   
   // Compute some matrices from voxels to view and vice versa based 
   // on the whole input
@@ -1709,7 +1731,7 @@ VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg )
 // creating thumbnail images
 void vtkFixedPointVolumeRayCastMapper::CreateCanonicalView( vtkVolume *vol,
                                                             vtkImageData *image,
-							    int blend_mode,
+                                                            int blend_mode,
                                                             double direction[3],
                                                             double viewUp[3] )
 {
@@ -2844,10 +2866,10 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
 {
   vtkImageData *input = this->GetInput();
   
-  void *dataPtr = input->GetScalarPointer();
+  void *dataPtr = this->CurrentScalars->GetVoidPointer(0);
  
- int scalarType   = input->GetScalarType();
- int components   = input->GetPointData()->GetScalars()->GetNumberOfComponents();
+ int scalarType   = this->CurrentScalars->GetDataType();
+ int components   = this->CurrentScalars->GetNumberOfComponents();
  int independent  = vol->GetProperty()->GetIndependentComponents();
  
  int dim[3];
@@ -2860,7 +2882,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
  int c;
  for ( c = 0; c < components; c++ )
    {
-   input->GetPointData()->GetScalars()->GetRange(scalarRange[c], c);
+   this->CurrentScalars->GetRange(scalarRange[c], c);
    }
  
  int sliceSize = dim[0]*dim[1]*((independent)?(components):(1));
@@ -2996,7 +3018,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateShadingTable( vtkRenderer *ren,
     }
 
   // How many components?
-  int components = this->GetInput()->GetPointData()->GetScalars()->GetNumberOfComponents();
+  int components = this->CurrentScalars->GetNumberOfComponents();
   
   int c;
   for ( c = 0; c < ((vol->GetProperty()->GetIndependentComponents())?(components):(1)); c++ )
@@ -3060,7 +3082,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateGradients( vtkVolume *vol )
     this->ShadingRequired = 1;
     }
   
-  for ( int c = 0; c < input->GetPointData()->GetScalars()->GetNumberOfComponents(); c++ )
+  for ( int c = 0; c < this->CurrentScalars->GetNumberOfComponents(); c++ )
     {
     vtkPiecewiseFunction *f = vol->GetProperty()->GetGradientOpacity(c);
     if ( strcmp(f->GetType(), "Constant") || f->GetValue(0.0) != 1.0 )
@@ -3077,6 +3099,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateGradients( vtkVolume *vol )
 
   // Check if the input has changed 
   if ( input == this->SavedGradientsInput &&
+       this->CurrentScalars == this->PreviousScalars &&
        input->GetMTime() < this->SavedGradientsMTime.GetMTime() )
     {
     return 0;
@@ -3100,6 +3123,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
 
   // Has the data itself changed?
   if ( input != this->SavedParametersInput ||
+       this->CurrentScalars != this->PreviousScalars ||
        input->GetMTime() > this->SavedParametersMTime.GetMTime() )
     {
     needToUpdate = 1;
@@ -3113,7 +3137,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
     }
   
   // How many components?
-  int components = input->GetPointData()->GetScalars()->GetNumberOfComponents();
+  int components = this->CurrentScalars->GetNumberOfComponents();
 
   // Has the sample distance changed?
   if ( this->SavedSampleDistance != this->SampleDistance )
@@ -3219,7 +3243,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
   
   this->SavedParametersMTime.Modified();
 
-  int scalarType = input->GetScalarType();
+  int scalarType = this->CurrentScalars->GetDataType();
   
   int i;
   float tmpArray[3*32768];
@@ -3228,7 +3252,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
   double scalarRange[4][2];
   for ( c = 0; c < components; c++ )
     {
-    input->GetPointData()->GetScalars()->GetRange(scalarRange[c], c);
+    this->CurrentScalars->GetRange(scalarRange[c], c);
     
     // Is the difference between max and min less than 32768? If so, and if
     // the data is not of float or double type, use a simple offset mapping.

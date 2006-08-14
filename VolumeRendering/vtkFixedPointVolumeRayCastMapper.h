@@ -80,6 +80,7 @@ class vtkEncodedGradientShader;
 class vtkFiniteDifferenceGradientEstimator;
 class vtkRayCastImageDisplayHelper;
 class vtkFixedPointRayCastImage;
+class vtkDataArray;
 
 //BTX
 // Forward declaration needed for use by friend declaration below.
@@ -216,6 +217,10 @@ public:
   vtkGetMacro( ShadingRequired, int );
   vtkGetMacro( GradientOpacityRequired, int );
   
+  vtkGetObjectMacro( CurrentScalars, vtkDataArray );
+  vtkGetObjectMacro( PreviousScalars, vtkDataArray );
+  
+  
   int             *GetRowBounds()                 {return this->RowBounds;}
   unsigned short  *GetColorTable(int c)           {return this->ColorTable[c];}
   unsigned short  *GetScalarOpacityTable(int c)   {return this->ScalarOpacityTable[c];}
@@ -252,7 +257,7 @@ public:
 
   void CreateCanonicalView( vtkVolume *volume,
                             vtkImageData *image,
-			    int blend_mode,
+                            int blend_mode,
                             double viewDirection[3],
                             double viewUp[3] );
   
@@ -267,6 +272,7 @@ public:
   float GetEstimatedRenderTime( vtkRenderer *ren )
     { return this->RetrieveRenderTime( ren ); }
   
+
   
 protected:
   vtkFixedPointVolumeRayCastMapper();
@@ -385,6 +391,9 @@ protected:
   
   int                        ShadingRequired;
   int                        GradientOpacityRequired;
+
+  vtkDataArray              *CurrentScalars;
+  vtkDataArray              *PreviousScalars;
   
   vtkRenderWindow           *RenderWindow;
   vtkVolume                 *Volume; 
