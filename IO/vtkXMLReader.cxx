@@ -32,7 +32,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.42");
+vtkCxxRevisionMacro(vtkXMLReader, "1.43");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -360,6 +360,11 @@ int vtkXMLReader
       outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
                    timeSteps, 
                    numTimesteps);
+      double timeRange[2];
+      timeRange[0] = timeSteps[0];
+      timeRange[1] = timeSteps[numTimesteps-1];
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), 
+                   timeRange, 2);
       }
     }
   else

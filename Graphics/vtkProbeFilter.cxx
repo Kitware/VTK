@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.86");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.87");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -193,6 +193,8 @@ int vtkProbeFilter::RequestInformation(
 
   outInfo->CopyEntry(sourceInfo, 
                      vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  outInfo->CopyEntry(sourceInfo, 
+                     vtkStreamingDemandDrivenPipeline::TIME_RANGE());
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),

@@ -1392,7 +1392,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.21");
+vtkCxxRevisionMacro(vtkExodusReader, "1.22");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -4373,6 +4373,11 @@ void vtkExodusReader::GetAllTimes(vtkInformationVector *outputVector)
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
                timeSteps, 
                numTimesteps);
+  double timeRange[2];
+  timeRange[0] = timeSteps[0];
+  timeRange[1] = timeSteps[numTimesteps-1];
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), 
+               timeRange, 2);
   delete[] timeSteps;
   delete[] ftimeSteps;
 }
