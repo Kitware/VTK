@@ -37,9 +37,8 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.4");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.5");
 vtkStandardNewMacro(vtkIdentColoredPainter);
-vtkCxxSetObjectMacro(vtkIdentColoredPainter, ActorLookupTable, vtkIdTypeArray);
 
 //-----------------------------------------------------------------------------
 static inline int vtkIdentColoredPainterGetTotalCells(vtkPolyData* pd,
@@ -58,16 +57,20 @@ vtkIdentColoredPainter::vtkIdentColoredPainter()
 {
   this->ColorMode = COLORBYIDENT;
   this->ResetCurrentId();
-  this->ActorLookupTable = NULL;
+
+  this->ActorIds = NULL;
+  this->PropAddrs = NULL;
 }
 
 //-----------------------------------------------------------------------------
 vtkIdentColoredPainter::~vtkIdentColoredPainter()
 {
-  if (this->ActorLookupTable != NULL)
+  if (this->ActorIds != NULL)
     {
-    this->ActorLookupTable->Delete();
-    this->ActorLookupTable = NULL;
+    this->ActorIds->Delete();
+    this->ActorIds = NULL;
+    delete[] this->PropAddrs;
+    this->PropAddrs = NULL;
     }
 }
 
@@ -77,6 +80,57 @@ void vtkIdentColoredPainter::SetToColorByConstant(unsigned int constant)
   this->ColorMode = COLORBYCONST;
   this->ResetCurrentId();
   this->CurrentIdPlane0 = constant;
+}
+
+
+//-----------------------------------------------------------------------------
+void vtkIdentColoredPainter::SetActorLookupTable(vtkProp **props, vtkIdTypeArray *ids)
+{
+  //free whatever we were given before this
+  if (this->ActorIds != NULL)
+    {
+    this->ActorIds->Delete();
+    this->ActorIds = NULL;
+    delete[] this->PropAddrs;
+    this->PropAddrs = NULL;
+    }
+
+  //sanity checking
+  if (props==NULL || 
+      ids == NULL || 
+      (ids->GetNumberOfComponents() != 1) ||
+      (ids->GetNumberOfTuples() > 0))
+    {
+    return;
+    }
+
+  //copy over the new lookup table
+  this->ActorIds = ids;
+  this->ActorIds->Register(this);
+  this->PropAddrs = new vtkProp*[ids->GetNumberOfTuples()];
+  for (int i = 0; i < ids->GetNumberOfTuples(); i++)
+    {
+    this->PropAddrs[i] = props[i];
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkIdentColoredPainter::SetToColorByActorId(vtkProp *actorId)
+{
+  this->ColorMode = COLORBYCONST;
+  this->ResetCurrentId();
+  if (this->ActorIds != NULL)
+    {
+    for (int i = 0; i< this->ActorIds->GetNumberOfTuples(); i++)
+      {
+      if (actorId == this->PropAddrs[i])
+        {
+        this->CurrentIdPlane0 = this->ActorIds->GetValue(i) + 1;        
+        return;
+        }
+      }
+    }
+  this->CurrentIdPlane0 = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -282,27 +336,6 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
         }
       }
     }
-}
-
-//-----------------------------------------------------------------------------
-void vtkIdentColoredPainter::SetToColorByActorId(unsigned int actorId)
-{
-  this->ColorMode = COLORBYCONST;
-  this->ResetCurrentId();
-  if (this->ActorLookupTable != NULL)
-    {
-    vtkIdType aTuple[2];
-    for (int i = 0; i< this->ActorLookupTable->GetNumberOfTuples(); i++)
-      {
-      this->ActorLookupTable->GetTupleValue(i, aTuple);
-      if (aTuple[0] == (int)actorId)
-        {
-        this->CurrentIdPlane0 = aTuple[1]+1;        
-        return;
-        }
-      }
-    }
-  this->CurrentIdPlane0 = 0;
 }
  
 //-----------------------------------------------------------------------------

@@ -38,7 +38,7 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.228");
+vtkCxxRevisionMacro(vtkRenderer, "1.229");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
@@ -1668,7 +1668,7 @@ int vtkRenderer::UpdateGeometryForSelection()
 
     if (this->SelectMode == vtkRenderer::COLOR_BY_ACTOR)
       {
-      this->IdentPainter->SetToColorByActorId((int)this->PropArray[i]);
+      this->IdentPainter->SetToColorByActorId(this->PropArray[i]);
       }
     else if (this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_HIGH ||
              this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_MID ||

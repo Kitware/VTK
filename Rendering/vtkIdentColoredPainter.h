@@ -46,6 +46,7 @@
 
 class vtkCellArray;
 class vtkIdTypeArray;
+class vtkProp;
 
 class VTK_RENDERING_EXPORT vtkIdentColoredPainter : public vtkPolyDataPainter
 {
@@ -71,11 +72,11 @@ public:
 
   //Description:
   //Allows you to specify a mapping for selected actor ids.
-  void SetActorLookupTable(vtkIdTypeArray *);
+  void SetActorLookupTable(vtkProp **Props, vtkIdTypeArray *IdsForProps);
 
   //Description:
   //Use the actor lookup table to lookup a color to render with.
-  void SetToColorByActorId(unsigned int actorId);
+  void SetToColorByActorId(vtkProp *ActorId);
 
 protected:
   vtkIdentColoredPainter();
@@ -103,7 +104,8 @@ protected:
   void IncrementCurrentId();
   void GetCurrentColor(unsigned char *RGB);
 
-  vtkIdTypeArray *ActorLookupTable;
+  vtkIdTypeArray *ActorIds;
+  vtkProp **PropAddrs;
 
 private:
   vtkIdentColoredPainter(const vtkIdentColoredPainter&); // Not implemented.
