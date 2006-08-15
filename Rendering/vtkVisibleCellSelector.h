@@ -56,6 +56,7 @@ class vtkRenderer;
 class vtkIdTypeArray;
 class vtkSelection;
 class vtkProp;
+class vtkIdentColoredPainter;
 
 class VTK_RENDERING_EXPORT vtkVisibleCellSelector  : public vtkObject
 {
@@ -66,7 +67,7 @@ public:
 
   // Description:
   // Call to let this know where to select within.
-  void SetRenderer(vtkRenderer *);
+  virtual void SetRenderer(vtkRenderer *);
 
   // Description:
   // Call to set the selection area region.
@@ -133,9 +134,7 @@ protected:
   void SetSelectConst(unsigned int constant);
 
   // Description:
-  // Subclasses can override this to map from selection ids to any other 
-  // indexing scheme.
-  virtual vtkIdType MapActorIdToActorId(vtkIdType id) { return id; }
+  void SetIdentPainter(vtkIdentColoredPainter *);
 
   vtkRenderer *Renderer;
 
@@ -159,6 +158,7 @@ protected:
   // The results of the selection: processorIds, ActorIds, CellIds.
   vtkIdTypeArray *SelectedIds;
 
+  vtkIdentColoredPainter *IdentPainter;
 private:
   vtkVisibleCellSelector(const vtkVisibleCellSelector&); //Not implemented
   void operator=(const vtkVisibleCellSelector&); //Not implemented

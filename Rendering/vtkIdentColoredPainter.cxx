@@ -30,14 +30,16 @@
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
+#include "vtkIdTypeArray.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #  include "vtkOpenGL.h"
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.2");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.3");
 vtkStandardNewMacro(vtkIdentColoredPainter);
+vtkCxxSetObjectMacro(vtkIdentColoredPainter, ActorLookupTable, vtkIdTypeArray);
 
 //-----------------------------------------------------------------------------
 static inline int vtkIdentColoredPainterGetTotalCells(vtkPolyData* pd,
@@ -56,11 +58,17 @@ vtkIdentColoredPainter::vtkIdentColoredPainter()
 {
   this->ColorMode = COLORBYIDENT;
   this->ResetCurrentId();
+  this->ActorLookupTable = NULL;
 }
 
 //-----------------------------------------------------------------------------
 vtkIdentColoredPainter::~vtkIdentColoredPainter()
 {
+  if (this->ActorLookupTable != NULL)
+    {
+    this->ActorLookupTable->Delete();
+    this->ActorLookupTable = NULL;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -274,6 +282,27 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
         }
       }
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkIdentColoredPainter::SetToColorByActorId(unsigned int actorId)
+{
+  this->ColorMode = COLORBYCONST;
+  this->ResetCurrentId();
+  if (this->ActorLookupTable != NULL)
+    {
+    vtkIdType aTuple[2];
+    for (int i = 0; i< this->ActorLookupTable->GetNumberOfTuples(); i++)
+      {
+      this->ActorLookupTable->GetTupleValue(i, aTuple);
+      if (aTuple[0] == actorId)
+        {
+        this->CurrentIdPlane0 = aTuple[1]+1;        
+        return;
+        }
+      }
+    }
+  this->CurrentIdPlane0 = 0;
 }
  
 //-----------------------------------------------------------------------------

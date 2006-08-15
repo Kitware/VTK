@@ -499,6 +499,12 @@ protected:
   //ETX
   vtkSetMacro(SelectMode, int);
   vtkSetMacro(SelectConst, unsigned int);
+
+   // Description:
+  // Allows the use of customized Painters for selection.
+  // If none is supplied with this method, a default will be created 
+  // automatically.
+  void SetIdentPainter(vtkIdentColoredPainter*);
   
   // Description:
   // Renders each polygon with a color that represents an selection index.
@@ -508,7 +514,6 @@ protected:
   // Called by UpdateGeometryForSelection to temporarily swap in a mapper to 
   // render a prop in selection mode.
   vtkPolyDataPainter* SwapInSelectablePainter(vtkProp *, 
-                                              vtkIdentColoredPainter *,
                                               int &);
 
   // Description:
@@ -525,6 +530,7 @@ protected:
   // Ivars for visible cell selecting
   int SelectMode;
   unsigned int SelectConst;
+  vtkIdentColoredPainter *IdentPainter;
   // End Ivars for visible cell selecting.
 
   //---------------------------------------------------------------

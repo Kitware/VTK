@@ -6,6 +6,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkSelection.h"
 #include "vtkInformation.h"
+#include "vtkIdentColoredPainter.h"
 
 //----------------------------------------------------------------------------
 class vtkVisibleCellSelectorInternals
@@ -171,8 +172,9 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.4");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.5");
 vtkStandardNewMacro(vtkVisibleCellSelector);
+vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
 //-----------------------------------------------------------------------------
 vtkVisibleCellSelector::vtkVisibleCellSelector()
@@ -215,18 +217,6 @@ vtkVisibleCellSelector::~vtkVisibleCellSelector()
     this->Renderer->UnRegister(this);
     this->Renderer = NULL;
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkVisibleCellSelector::SetRenderer(vtkRenderer *r)
-{
-  if (this->Renderer)
-    {
-    this->Renderer->UnRegister(this);
-    this->Renderer = NULL;
-    }
-  this->Renderer = r;
-  this->Renderer->Register(this);
 }
 
 //----------------------------------------------------------------------------
@@ -526,9 +516,7 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
         vtkSelection::PROCESS_ID(), lProcId);
       //record the prop we have hits from
       selection->GetProperties()->Set(
-        //vtkSelection::PROP(), this->GetActorFromId(aTuple[1]));
-        //vtkSelection::PROP_ID(), aTuple[1]);
-        vtkSelection::PROP_ID(), this->MapActorIdToActorId(aTuple[1]));
+        vtkSelection::PROP_ID(), aTuple[1]);
       //start a new holder for cell ids
       cellids = vtkIdTypeArray::New();
       cellids->SetNumberOfComponents(1);      
@@ -573,7 +561,6 @@ void vtkVisibleCellSelector::PrintSelectedIds(vtkIdTypeArray *lists)
 {
   if ((lists == NULL) || (lists->GetNumberOfComponents() != 4))
     {
-    cerr << "Invalid ID array" << endl;
     return;
     }
 
@@ -588,12 +575,18 @@ void vtkVisibleCellSelector::PrintSelectedIds(vtkIdTypeArray *lists)
   for (vtkIdType id = 0; id < lists->GetNumberOfTuples(); id++)
     {
     lists->GetTupleValue(id, rec);    
-//    cerr << rec[0] << '\t' << rec[1] << "\t\t" << rec[2] << ' ' << rec[3] << endl; 
-//    cerr << rec[0] << '\t' << this->GetActorFromId(rec[1]) << "\t\t" << rec[2] << ' ' << rec[3] << endl; 
-    cerr << rec[0] << '\t' << this->MapActorIdToActorId(rec[1]) << "\t\t" << rec[2] << ' ' << rec[3] << endl; 
+    cerr << rec[0] << '\t' << rec[1] << "\t\t" << rec[2] << ' ' << rec[3] << endl; 
     }
 }
 
+//---------------------------------------------------------------------------
+void vtkVisibleCellSelector::SetIdentPainter(vtkIdentColoredPainter *ip)
+{
+  if (this->Renderer != NULL)
+    {
+    this->Renderer->SetIdentPainter(ip);
+    }
+}
 
 //-----------------------------------------------------------------------------
 void vtkVisibleCellSelector::PrintSelf(ostream& os, vtkIndent indent)

@@ -38,7 +38,9 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.226");
+vtkCxxRevisionMacro(vtkRenderer, "1.227");
+
+vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -110,6 +112,7 @@ vtkRenderer::vtkRenderer()
   this->SelectConst = 1;
   this->PropsSelectedFrom = NULL;
   this->PropsSelectedFromCount = 0;
+  this->IdentPainter = NULL;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -148,6 +151,12 @@ vtkRenderer::~vtkRenderer()
     this->PropsSelectedFrom = NULL;
     }
   this->PropsSelectedFromCount = 0;
+  if (this->IdentPainter)
+    {
+    this->IdentPainter->Delete();
+    this->IdentPainter == NULL;
+    }
+
 }
 
 // return the correct type of Renderer 
@@ -1620,28 +1629,31 @@ int vtkRenderer::UpdateGeometryForSelection()
   vtkPolyDataPainter *orig_painter = NULL;
 
   //create a painter that will color each cell with an index
-  vtkIdentColoredPainter *ident_painter = vtkIdentColoredPainter::New();
+  if (this->IdentPainter==NULL)
+    {
+    this->IdentPainter = vtkIdentColoredPainter::New();
+    }
 
   switch (this->SelectMode)
     {
     case COLOR_BY_PROCESSOR:
       //SelectConst should have been set to this node's rank
-      ident_painter->SetToColorByConstant(this->SelectConst);
+      this->IdentPainter->SetToColorByConstant(this->SelectConst);
       break;
     case COLOR_BY_ACTOR:
       //SelectConst will be incremented with each prop
       break;
     case COLOR_BY_CELL_ID_HIGH:
       //Each polygon will gets its own color
-      ident_painter->SetToColorByIncreasingIdent(2);
+      this->IdentPainter->SetToColorByIncreasingIdent(2);
       break;
     case COLOR_BY_CELL_ID_MID:
       //Each polygon will gets its own color
-      ident_painter->SetToColorByIncreasingIdent(1);
+      this->IdentPainter->SetToColorByIncreasingIdent(1);
       break;
     case COLOR_BY_CELL_ID_LOW:
       //Each polygon will gets its own color
-      ident_painter->SetToColorByIncreasingIdent(0);
+      this->IdentPainter->SetToColorByIncreasingIdent(0);
       break;
     default:
       //should never get here
@@ -1656,19 +1668,19 @@ int vtkRenderer::UpdateGeometryForSelection()
 
     if (this->SelectMode == vtkRenderer::COLOR_BY_ACTOR)
       {
-      ident_painter->SetToColorByConstant(i+1);
+      this->IdentPainter->SetToColorByActorId((int)this->PropArray[i]);
       }
     else if (this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_HIGH ||
              this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_MID ||
              this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_LOW)
       {
       //each actor starts it's cell count at 0
-      ident_painter->ResetCurrentId();
+      this->IdentPainter->ResetCurrentId();
       }        
 
     //try to swap the ident color painter for the original one
     //if this prop can not be selected, its visibility is turned off
-    orig_painter = this->SwapInSelectablePainter(this->PropArray[i], ident_painter, orig_visibility);
+    orig_painter = this->SwapInSelectablePainter(this->PropArray[i], orig_visibility);
 
     //render the prop
     this->NumberOfPropsRendered += 
@@ -1681,15 +1693,12 @@ int vtkRenderer::UpdateGeometryForSelection()
   //restore original background
   this->SetBackground(origBG);
 
-  ident_painter->Delete();
-
   return this->NumberOfPropsRendered;
 }
 
 //----------------------------------------------------------------------------
 vtkPolyDataPainter* vtkRenderer::SwapInSelectablePainter(
   vtkProp *prop,
-  vtkIdentColoredPainter *ident_painter,
   int &orig_visibility)
 {
   vtkPolyDataPainter* orig_painter = NULL;
@@ -1712,7 +1721,7 @@ vtkPolyDataPainter* vtkRenderer::SwapInSelectablePainter(
       orig_painter->Register(this); 
           
       //ident painter colors each polygon based on the current selectmode.
-      orig_mapper->SetPainter(ident_painter);
+      orig_mapper->SetPainter(this->IdentPainter);
       }
     }
   if (!orig_painter)

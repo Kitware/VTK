@@ -45,6 +45,7 @@
 #include "vtkPolyDataPainter.h"
 
 class vtkCellArray;
+class vtkIdTypeArray;
 
 class VTK_RENDERING_EXPORT vtkIdentColoredPainter : public vtkPolyDataPainter
 {
@@ -67,6 +68,14 @@ public:
   //Description:
   //resets the current id to "first".
   void ResetCurrentId();
+
+  //Description:
+  //Allows you to specify a mapping for selected actor ids.
+  void SetActorLookupTable(vtkIdTypeArray *);
+
+  //Description:
+  //Use the actor lookup table to lookup a color to render with.
+  void SetToColorByActorId(unsigned int actorId);
 
 protected:
   vtkIdentColoredPainter();
@@ -93,6 +102,8 @@ protected:
 
   void IncrementCurrentId();
   void GetCurrentColor(unsigned char *RGB);
+
+  vtkIdTypeArray *ActorLookupTable;
 
 private:
   vtkIdentColoredPainter(const vtkIdentColoredPainter&); // Not implemented.
