@@ -16,7 +16,7 @@
 #include <memory.h>
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkByteSwap, "1.53");
+vtkCxxRevisionMacro(vtkByteSwap, "1.54");
 vtkStandardNewMacro(vtkByteSwap);
 
 //----------------------------------------------------------------------------
@@ -102,9 +102,10 @@ inline void vtkByteSwapRangeWrite(const T* first, vtkIdType num, FILE* f, long)
   const T* last = first + num;
   for(const T* p=first; p != last; ++p)
     {
-    T temp = *p;
-    vtkByteSwapper<sizeof(T)>::Swap(reinterpret_cast<char*>(&temp));
-    fwrite(&temp, sizeof(temp), 1, f);
+    // Use a union to avoid breaking C++ aliasing rules.
+    union { T value; char data[sizeof(T)]; } temp = {*p};
+    vtkByteSwapper<sizeof(T)>::Swap(temp.data);
+    fwrite(temp.data, sizeof(T), 1, f);
     }
 }
 inline void vtkByteSwapRangeWrite(const char* first, vtkIdType num,
@@ -134,9 +135,10 @@ inline void vtkByteSwapRangeWrite(const T* first, vtkIdType num,
   const T* last = first + num;
   for(const T* p=first; p != last; ++p)
     {
-    T temp = *p;
-    vtkByteSwapper<sizeof(T)>::Swap(reinterpret_cast<char*>(&temp));
-    os->write(reinterpret_cast<char*>(&temp), sizeof(temp));
+    // Use a union to avoid breaking C++ aliasing rules.
+    union { T value; char data[sizeof(T)]; } temp = {*p};
+    vtkByteSwapper<sizeof(T)>::Swap(temp.data);
+    os->write(temp.data, sizeof(T));
     }
 }
 
