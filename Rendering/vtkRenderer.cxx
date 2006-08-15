@@ -38,7 +38,7 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.227");
+vtkCxxRevisionMacro(vtkRenderer, "1.228");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
@@ -154,7 +154,7 @@ vtkRenderer::~vtkRenderer()
   if (this->IdentPainter)
     {
     this->IdentPainter->Delete();
-    this->IdentPainter == NULL;
+    this->IdentPainter = NULL;
     }
 
 }

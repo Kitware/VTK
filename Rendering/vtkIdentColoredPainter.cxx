@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.3");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.4");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 vtkCxxSetObjectMacro(vtkIdentColoredPainter, ActorLookupTable, vtkIdTypeArray);
 
@@ -295,7 +295,7 @@ void vtkIdentColoredPainter::SetToColorByActorId(unsigned int actorId)
     for (int i = 0; i< this->ActorLookupTable->GetNumberOfTuples(); i++)
       {
       this->ActorLookupTable->GetTupleValue(i, aTuple);
-      if (aTuple[0] == actorId)
+      if (aTuple[0] == (int)actorId)
         {
         this->CurrentIdPlane0 = aTuple[1]+1;        
         return;
