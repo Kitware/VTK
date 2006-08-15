@@ -38,7 +38,7 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.225");
+vtkCxxRevisionMacro(vtkRenderer, "1.226");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -510,7 +510,15 @@ int vtkRenderer::UpdateGeometry()
   if (this->SelectMode != vtkRenderer::NOT_SELECTING)
     {
     //we are doing a visible polygon selection instead of a normal render
-    return this->UpdateGeometryForSelection();
+    int ret = this->UpdateGeometryForSelection();
+
+    this->InvokeEvent(vtkCommand::EndEvent,NULL);
+    this->RenderTime.Modified();
+
+    vtkDebugMacro( << "Rendered " << 
+                   this->NumberOfPropsRendered << " actors" );
+
+    return ret;
     }
 
   // We can render everything because if it was
@@ -1674,12 +1682,6 @@ int vtkRenderer::UpdateGeometryForSelection()
   this->SetBackground(origBG);
 
   ident_painter->Delete();
-
-  this->InvokeEvent(vtkCommand::EndEvent,NULL);
-  this->RenderTime.Modified();
-
-  vtkDebugMacro( << "Rendered " << 
-                    this->NumberOfPropsRendered << " actors" );
 
   return this->NumberOfPropsRendered;
 }

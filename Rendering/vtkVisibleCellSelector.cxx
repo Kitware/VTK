@@ -171,7 +171,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.3");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.4");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 
 //-----------------------------------------------------------------------------
@@ -309,7 +309,7 @@ void vtkVisibleCellSelector::Select()
       {
       continue;
       }
-    this->SetSelectMode(i);
+    this->SetSelectMode(i+1);
     if (i==0)
       {
       this->SetSelectConst(this->ProcessorId);
@@ -320,6 +320,8 @@ void vtkVisibleCellSelector::Select()
     }
 
   this->ComputeSelectedIds();
+  this->SetSelectMode(0);
+  rwin->Render();
 }
 
 //----------------------------------------------------------------------------
@@ -385,7 +387,7 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
           else
             {
             //a new item behind this pixel, remember it
-            //cerr << "NEW HIT ";
+            //cerr << "NEW HIT @" << this->X0+x << "," << this->Y0+y << " ";
             //nhit.print();
 
             hitrecords.insert(nhit);
@@ -558,7 +560,7 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
 vtkProp* vtkVisibleCellSelector::GetActorFromId(vtkIdType id)
 {
   if ( (this->Renderer == NULL) || 
-       (id > this->Renderer->PropsSelectedFromCount) )
+       (id >= this->Renderer->PropsSelectedFromCount) )
     {
     return NULL;
     }
