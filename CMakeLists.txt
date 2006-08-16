@@ -1,10 +1,9 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 PROJECT(VTK)
 
 # We will require CMake 2.4 as of August 15th 2006
 IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.4)
-  MESSAGE("VTK Will require CMake 2.4 as of August 15th 2006. Please update your CMake and this message will go away.")
-  ADD_TEST(Require.CMake.2.4 "VTK will require CMake 2.4. Update CMake and this failed test will go away")
+  MESSAGE(FATAL_ERROR "VTK requires CMake 2.4 as of August 15th 2006. Please update your CMake and this message will go away.")
 ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.4)
 
 # Don't build anything unless the version of CMake is high enough.
