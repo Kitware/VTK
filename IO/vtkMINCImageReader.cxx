@@ -62,7 +62,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageReader, "1.1");
+vtkCxxRevisionMacro(vtkMINCImageReader, "1.2");
 vtkStandardNewMacro(vtkMINCImageReader);
 
 //-------------------------------------------------------------------------
@@ -833,6 +833,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
       switch (atttype)
         {
         case NC_BYTE:
+          {
           // NetCDF leaves it up to us to decide whether NC_BYTE
           // should be signed.
           vtkUnsignedCharArray *ucharArray = vtkUnsignedCharArray::New();
@@ -840,8 +841,10 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
           nc_get_att_uchar(ncid, varid, attname, 
                            ucharArray->GetPointer(0));
           dataArray = ucharArray;
+          }
           break;
         case NC_CHAR:
+          {
           // The NC_CHAR type is for text.
           vtkCharArray *charArray = vtkCharArray::New();
           // The netcdf standard doesn't enforce null-termination
@@ -852,34 +855,43 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
           nc_get_att_text(ncid, varid, attname,
                           charArray->GetPointer(0));
           dataArray = charArray;
+          }
           break;
         case NC_SHORT:
+          {
           vtkShortArray *shortArray = vtkShortArray::New();
           shortArray->SetNumberOfValues(attlength);
           nc_get_att_short(ncid, varid, attname,
                            shortArray->GetPointer(0));
           dataArray = shortArray;
+          }
           break;
         case NC_INT:
+          {
           vtkIntArray *intArray = vtkIntArray::New();
           intArray->SetNumberOfValues(attlength);
           nc_get_att_int(ncid, varid, attname,
                          intArray->GetPointer(0));
           dataArray = intArray;
+          }
           break;
         case NC_FLOAT:
+          {
           vtkFloatArray *floatArray = vtkFloatArray::New();
           floatArray->SetNumberOfValues(attlength);
           nc_get_att_float(ncid, varid, attname,
                            floatArray->GetPointer(0));
           dataArray = floatArray;
+          }
           break;
         case NC_DOUBLE:
+          {
           vtkDoubleArray *doubleArray = vtkDoubleArray::New();
           doubleArray->SetNumberOfValues(attlength);
           nc_get_att_double(ncid, varid, attname,
                             doubleArray->GetPointer(0));
           dataArray = doubleArray;
+          }
           break;
         default:
           break;
