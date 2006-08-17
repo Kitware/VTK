@@ -3,7 +3,7 @@ SET(UKIT IO)
 SET(KIT_TCL_LIBS vtkFilteringTCL)
 SET(KIT_PYTHON_LIBS vtkFilteringPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
-SET(KIT_LIBS vtkFiltering vtkDICOMParser
+SET(KIT_LIBS vtkFiltering vtkDICOMParser vtkNetCDF
   ${VTK_PNG_LIBRARIES} ${VTK_ZLIB_LIBRARIES} ${VTK_JPEG_LIBRARIES}
   ${VTK_TIFF_LIBRARIES} ${VTK_EXPAT_LIBRARIES}
   ${KWSYS_NAMESPACE})
@@ -57,6 +57,7 @@ vtkMedicalImageProperties.cxx
 vtkMedicalImageReader2.cxx
 vtkMetaImageReader.cxx
 vtkMetaImageWriter.cxx
+vtkMINCImageReader.cxx
 vtkMultiBlockPLOT3DReader.cxx
 vtkMoleculeReaderBase.cxx
 vtkOBJReader.cxx

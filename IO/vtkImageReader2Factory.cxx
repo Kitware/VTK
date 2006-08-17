@@ -19,6 +19,7 @@
 #include "vtkImageReader2.h"
 #include "vtkImageReader2Collection.h"
 #include "vtkJPEGReader.h"
+#include "vtkMINCImageReader.h"
 #include "vtkObjectFactory.h"
 #include "vtkObjectFactoryCollection.h"
 #include "vtkPNGReader.h"
@@ -31,7 +32,7 @@
 // until after the AvailableReaders singleton has been destroyed.
 #include "vtkFilteringInformationKeyManager.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Factory, "1.19");
+vtkCxxRevisionMacro(vtkImageReader2Factory, "1.20");
 vtkStandardNewMacro(vtkImageReader2Factory);
 
 class vtkImageReader2FactoryCleanup
@@ -149,6 +150,9 @@ void vtkImageReader2Factory::InitializeReaders()
   reader->Delete();
   vtkImageReader2Factory::AvailableReaders->
     AddItem((reader = vtkGESignaReader::New()));
+  reader->Delete();
+  vtkImageReader2Factory::AvailableReaders->
+    AddItem((reader = vtkMINCImageReader::New()));
   reader->Delete();
 }
 
