@@ -339,7 +339,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.21")
+vtkCxxRevisionMacro(vtkShader, "1.22")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -910,8 +910,16 @@ void vtkShader::SetLightParameter(vtkActor* , vtkRenderer* renderer,
     }
 
   vtkLightCollection* lights = renderer->GetLights();
-  vtkLight* light = 0;
 
+  // If number of lights is requested then we don;t need to locate the light
+  if (strcmp(value, "NumberOfLights") == 0)
+    {
+    int v = lights->GetNumberOfItems();
+    this->SetUniformParameter(name, 1, &v);
+    return;
+    }
+
+  vtkLight* light = 0;
   vtkCollectionIterator *iter = lights->NewIterator();
   int id = 0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), id++)
