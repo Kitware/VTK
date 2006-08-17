@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.5");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.6");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -94,13 +94,14 @@ void vtkIdentColoredPainter::SetActorLookupTable(vtkProp **props, vtkIdTypeArray
     delete[] this->PropAddrs;
     this->PropAddrs = NULL;
     }
-
+  
   //sanity checking
-  if (props==NULL || 
+  if (props == NULL || 
       ids == NULL || 
       (ids->GetNumberOfComponents() != 1) ||
-      (ids->GetNumberOfTuples() > 0))
+      (ids->GetNumberOfTuples() == 0))
     {
+    vtkErrorMacro("Invalid actor lookup table");
     return;
     }
 
@@ -126,10 +127,12 @@ void vtkIdentColoredPainter::SetToColorByActorId(vtkProp *actorId)
       if (actorId == this->PropAddrs[i])
         {
         this->CurrentIdPlane0 = this->ActorIds->GetValue(i) + 1;        
+        //cerr << "Saved Id for actor " << actorId << " is " << this->ActorIds->GetValue(i) << endl;
         return;
         }
       }
     }
+  vtkErrorMacro("No saved id for actor " << actorId);
   this->CurrentIdPlane0 = 0;
 }
 
@@ -189,7 +192,8 @@ void vtkIdentColoredPainter::GetCurrentColor(unsigned char *RGB)
       }
     }
 
-  //cerr << "Curr Color is << " 
+  //cerr << "Curr Color is " 
+  //     << this->ColorMode << " "
   //     << this->CurrentIdPlane2 << ":"
   //     << this->CurrentIdPlane1 << ":"
   //     << this->CurrentIdPlane0 << endl;
