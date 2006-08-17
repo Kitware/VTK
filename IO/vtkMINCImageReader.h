@@ -55,7 +55,7 @@ class vtkMatrix4x4;
 // A special class that holds the attributes
 class vtkMINCImageReaderAttributeMap;
 
-class VTK_EXPORT vtkMINCImageReader : public vtkImageReader2
+class VTK_IO_EXPORT vtkMINCImageReader : public vtkImageReader2
 {
 public:
   vtkTypeRevisionMacro(vtkMINCImageReader,vtkImageReader2);
@@ -195,8 +195,8 @@ protected:
   virtual void ExecuteData(vtkDataObject *out);
 
 private:
-  vtkMINCImageReader(const vtkMINCImageReader&) {}; // Not implemented
-  void operator=(const vtkMINCImageReader&) {};  // Not implemented
+  vtkMINCImageReader(const vtkMINCImageReader&); // Not implemented
+  void operator=(const vtkMINCImageReader&);  // Not implemented
 
 };
 
