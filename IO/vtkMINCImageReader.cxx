@@ -54,6 +54,7 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkType.h"
 
+#include <ctype.h>
 #include <float.h>
 #include <vtknetcdf/netcdf.h>
 #include <vtkstd/string>
@@ -62,7 +63,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageReader, "1.2");
+vtkCxxRevisionMacro(vtkMINCImageReader, "1.3");
 vtkStandardNewMacro(vtkMINCImageReader);
 
 //-------------------------------------------------------------------------
@@ -245,26 +246,26 @@ void vtkMINCImageReader::PrintFileHeader()
     }
 
   // Get the data type
-  const char *dataType;
+  const char *imageDataType;
   switch (this->MINCImageType)
     {
     case NC_BYTE:
-      dataType = "byte";
+      imageDataType = "byte";
       break;
     case NC_SHORT:
-      dataType = "short";
+      imageDataType = "short";
       break;
     case NC_INT:
-      dataType = "int";
+      imageDataType = "int";
       break;
     case NC_FLOAT:
-      dataType = "float";
+      imageDataType = "float";
       break;
     case NC_DOUBLE:
-      dataType = "double";
+      imageDataType = "double";
       break;
     default:
-      dataType = "void";
+      imageDataType = "void";
     }
 
   os << "netcdf " << name << " {\n";
@@ -303,7 +304,7 @@ void vtkMINCImageReader::PrintFileHeader()
           strcmp(varname, "image-max") == 0 ||
           strcmp(varname, "image-min") == 0)
         {
-        os << "\t" << dataType << " " << varname;
+        os << "\t" << imageDataType << " " << varname;
         int nvardim = this->DimensionNames->GetNumberOfValues();
         if (varname[5] == '-')
           {
@@ -785,7 +786,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
     {
     char varname[NC_MAX_NAME+1];
     int dimids[VTK_MINC_MAX_DIMS];
-    nc_type vartype;
+    nc_type vartype = NC_SHORT;
     int nvardims = 0;
     int nvaratts = 0;
 
