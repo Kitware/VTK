@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.29");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.30");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -3492,6 +3492,9 @@ void vtkFixedPointVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GradientOpacityRequired: " << this->GradientOpacityRequired
      << endl;
   
+  os << indent << "CurrentScalars: " << this->CurrentScalars << endl;
+  os << indent << "PreviousScalars: " << this->PreviousScalars << endl;
+
   if ( this->RayCastImage )
     {
     os << indent << "Ray Cast Image:\n";
