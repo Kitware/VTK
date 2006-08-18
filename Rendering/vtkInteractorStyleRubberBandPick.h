@@ -54,6 +54,7 @@ protected:
   ~vtkInteractorStyleRubberBandPick();
   
   virtual void Pick();
+  void RedrawRubberBand();
   
   int StartPosition[2];
   int EndPosition[2];
