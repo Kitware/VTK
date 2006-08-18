@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.40");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.41");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -49,7 +49,6 @@ vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline,
                                  "vtkExtentTranslator");
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_BOUNDING_BOX, DoubleVector, 6);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_STEPS, DoubleVector);
-vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_TIME_INDEX, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_TIME_STEPS, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_RANGE, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PRIORITY, Double);
@@ -390,9 +389,9 @@ vtkStreamingDemandDrivenPipeline
           vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
 
           // Copy the time request
-          if ( outInfo->Has(UPDATE_TIME_INDEX()) )
+          if ( outInfo->Has(UPDATE_TIME_STEPS()) )
             {
-            inInfo->CopyEntry(outInfo, UPDATE_TIME_INDEX());
+            inInfo->CopyEntry(outInfo, UPDATE_TIME_STEPS());
             }
 
           // If an algorithm wants an exact extent it must explicitly
@@ -803,13 +802,27 @@ int vtkStreamingDemandDrivenPipeline
 
   // if we are requesting a particular update time index, check
   // if we have the desired time index
-  if ( outInfo->Has(UPDATE_TIME_INDEX()) )
+  if ( outInfo->Has(UPDATE_TIME_STEPS()) )
     {
-    if (!dataInfo->Has(vtkDataObject::DATA_TIME_INDEX()) ||
-      dataInfo->Get(vtkDataObject::DATA_TIME_INDEX()) !=
-      outInfo->Get(UPDATE_TIME_INDEX()))
+    if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEPS()))
       {
       return 1;
+      }
+    int dlength = dataInfo->Length(vtkDataObject::DATA_TIME_STEPS());
+    int ulength = outInfo->Length(UPDATE_TIME_STEPS());
+    if (dlength != ulength)
+      {
+      return 1;
+      }
+    int cnt = 0;
+    double *dsteps = dataInfo->Get(vtkDataObject::DATA_TIME_STEPS());
+    double *usteps = outInfo->Get(UPDATE_TIME_STEPS());
+    for (;cnt < dlength; ++cnt)
+      {
+      if (dsteps[cnt] != usteps[cnt])
+        {
+        return 1;
+        }
       }
     }
 

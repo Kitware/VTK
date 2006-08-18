@@ -1392,7 +1392,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.22");
+vtkCxxRevisionMacro(vtkExodusReader, "1.23");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -2536,30 +2536,29 @@ int vtkExodusReader::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Check if a particular time was requested.
-  if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX()))
+  if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
     {
-    // Get the requested time step.
-    this->ActualTimeStep =
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX());
-
+    // Get the requested time step. We only supprt requests of a single time
+    // step in this reader right now
+    double *requestedTimeSteps = 
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    
     // Save the time value in the output data information.
     int length =
       outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    if(this->ActualTimeStep >= 0 && this->ActualTimeStep < length)
+    
+    double* steps =
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    
+    // find the closest time step
+    int cnt = 0;
+    while (cnt < length-1 && steps[cnt] < requestedTimeSteps[0])
       {
-      double* steps =
-        outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-      output->GetInformation()->Set(vtkDataObject::DATA_TIME(),
-                                    steps[this->ActualTimeStep]);
+      cnt++;
       }
-    else
-      {
-      vtkErrorMacro("Time index " << this->ActualTimeStep
-                    << " requested but there are "
-                    << length << " time steps.");
-      }
-    output->GetInformation()->Set(vtkDataObject::DATA_TIME_INDEX(),
-                                  this->ActualTimeStep);
+    this->ActualTimeStep = cnt;
+    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
+                                  steps+this->ActualTimeStep,1);
     }
   // Force TimeStep into the "known good" range. Although this
   // could be accomplished inside SetTimeStep(),
