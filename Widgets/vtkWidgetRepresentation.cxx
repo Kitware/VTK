@@ -18,7 +18,7 @@
 #include "vtkInteractorObserver.h"
 
 
-vtkCxxRevisionMacro(vtkWidgetRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkWidgetRepresentation, "1.7");
 
 
 //----------------------------------------------------------------------
@@ -48,10 +48,6 @@ vtkWidgetRepresentation::vtkWidgetRepresentation()
 //----------------------------------------------------------------------
 vtkWidgetRepresentation::~vtkWidgetRepresentation()
 {
-  if ( this->Renderer )
-    {
-    this->Renderer->Delete();
-    }
 }
 
 //----------------------------------------------------------------------
@@ -59,15 +55,7 @@ void vtkWidgetRepresentation::SetRenderer(vtkRenderer *ren)
 {
   if ( ren != this->Renderer )
     {
-    if ( this->Renderer )
-      {
-      this->Renderer->Delete();
-      }
     this->Renderer = ren;
-    if ( this->Renderer )
-      {
-      this->Renderer->Register(this);
-      }
     this->Modified();
     }
 }

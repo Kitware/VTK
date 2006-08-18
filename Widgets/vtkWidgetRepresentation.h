@@ -53,6 +53,9 @@ public:
   // BuildRepresentation() - update the geometry of the widget based on its
   //                         current state.
   // </pre>
+  // WARNING: The renderer is NOT reference counted by the representation,
+  // in order to avoid reference loops.  Be sure that the representation
+  // lifetime does not extend beyond the renderer lifetime.
   virtual void SetRenderer(vtkRenderer *ren);
   vtkGetObjectMacro(Renderer,vtkRenderer);
   virtual void BuildRepresentation() = 0;
