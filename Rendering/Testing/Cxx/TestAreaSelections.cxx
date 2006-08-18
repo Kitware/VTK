@@ -125,7 +125,6 @@ int TestAreaSelections(int argc, char* argv[])
   vtkDataSetReader *reader = vtkDataSetReader::New();
   char *cfname=vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SampleStructGrid.vtk");
   reader->SetFileName(cfname);
-  reader->SetFileName("/home/demarle/Kitware/vtk/devel/VTKData/Data/SampleStructGrid.vtk");
   
   vtkDataSetMapper *map1 = vtkDataSetMapper::New();
   map1->SetInput(reader->GetOutput());
