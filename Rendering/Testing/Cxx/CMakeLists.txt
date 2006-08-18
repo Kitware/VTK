@@ -14,6 +14,17 @@ IF(VTK_USE_DISPLAY)
     LoadOpenGLExtension.cxx
     TestOrderedTriangulator.cxx
     )
+
+  IF(VTK_USE_PARALLEL AND VTK_USE_MPI)
+    # This odd condition is here because of antialiasing
+    # if antialising is on compositing won't work
+    # and neither will visible cell selection.
+    SET(RenderingTestsWithArguments
+      ${RenderingTestsWithArguments}
+      TestAreaSelections.cxx
+      )
+  ENDIF(VTK_USE_PARALLEL AND VTK_USE_MPI)
+
 ENDIF(VTK_USE_DISPLAY)
 
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx

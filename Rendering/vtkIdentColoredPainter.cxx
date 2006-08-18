@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.6");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.7");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ void vtkIdentColoredPainter::SetActorLookupTable(vtkProp **props, vtkIdTypeArray
       (ids->GetNumberOfComponents() != 1) ||
       (ids->GetNumberOfTuples() == 0))
     {
-    vtkErrorMacro("Invalid actor lookup table");
+    vtkWarningMacro("Invalid actor-id lookup table supplied.");
     return;
     }
 
@@ -116,24 +116,52 @@ void vtkIdentColoredPainter::SetActorLookupTable(vtkProp **props, vtkIdTypeArray
 }
 
 //-----------------------------------------------------------------------------
-void vtkIdentColoredPainter::SetToColorByActorId(vtkProp *actorId)
+void vtkIdentColoredPainter::SetToColorByActorId(vtkProp *actorAddr)
 {
   this->ColorMode = COLORBYCONST;
   this->ResetCurrentId();
+
+  vtkIdType maxId = 0;
+  int numIds = 0;
   if (this->ActorIds != NULL)
     {
-    for (int i = 0; i< this->ActorIds->GetNumberOfTuples(); i++)
+    numIds = this->ActorIds->GetNumberOfTuples();
+    for (int i = 0; i< numIds; i++)
       {
-      if (actorId == this->PropAddrs[i])
+      vtkIdType nextId = this->ActorIds->GetValue(i);
+      if (actorAddr == this->PropAddrs[i])
         {
-        this->CurrentIdPlane0 = this->ActorIds->GetValue(i) + 1;        
-        //cerr << "Saved Id for actor " << actorId << " is " << this->ActorIds->GetValue(i) << endl;
+        this->CurrentIdPlane0 = nextId + 1;        
         return;
+        }
+      if (nextId > maxId)
+        {
+        maxId = nextId;
         }
       }
     }
-  vtkErrorMacro("No saved id for actor " << actorId);
-  this->CurrentIdPlane0 = 0;
+
+  //we didn't find the actor in the table, make up an ID and add it
+  //cerr << "ID not found for actor " << actorAddr 
+  //     << " using " << maxId+1 << endl;
+  vtkIdTypeArray *arr = vtkIdTypeArray::New();
+  arr->SetNumberOfComponents(1);
+  arr->SetNumberOfTuples(numIds+1);
+  vtkProp **SaveProps = new vtkProp*[numIds+1];
+  if (this->ActorIds != NULL)
+    {
+    for (int i = 0; i< numIds; i++)
+      {
+      arr->SetValue(i, this->ActorIds->GetValue(i));
+      SaveProps[i] = this->PropAddrs[i];
+      }
+    }
+  arr->SetValue(numIds, maxId+1);
+  SaveProps[numIds] = actorAddr;
+  this->SetActorLookupTable(SaveProps, arr);
+  arr->Delete();
+
+  this->CurrentIdPlane0 = maxId+1;
 }
 
 //-----------------------------------------------------------------------------

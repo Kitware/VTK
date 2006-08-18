@@ -38,7 +38,7 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.229");
+vtkCxxRevisionMacro(vtkRenderer, "1.230");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
@@ -1665,7 +1665,6 @@ int vtkRenderer::UpdateGeometryForSelection()
   for ( i = 0; i < this->PropArrayCount; i++ )
     { 
     this->PropsSelectedFrom[i] = this->PropArray[i];
-
     if (this->SelectMode == vtkRenderer::COLOR_BY_ACTOR)
       {
       this->IdentPainter->SetToColorByActorId(this->PropArray[i]);
@@ -1683,8 +1682,11 @@ int vtkRenderer::UpdateGeometryForSelection()
     orig_painter = this->SwapInSelectablePainter(this->PropArray[i], orig_visibility);
 
     //render the prop
-    this->NumberOfPropsRendered += 
-      this->PropArray[i]->RenderOpaqueGeometry(this);
+    if (this->PropArray[i]->GetVisibility())
+      {
+      this->NumberOfPropsRendered += 
+        this->PropArray[i]->RenderOpaqueGeometry(this);
+      }
 
     //restore the prop's original settings
     this->SwapOutSelectablePainter(this->PropArray[i], orig_painter, orig_visibility);      
@@ -1706,7 +1708,12 @@ vtkPolyDataPainter* vtkRenderer::SwapInSelectablePainter(
   
   //try to find a polydatapainter that we can swap out
   vtkActor *actor = vtkActor::SafeDownCast(prop);
-  if (actor && !(actor->IsA("vtkFollower") || actor->IsA("vtkLODActor")))
+  if (actor && 
+      !
+      (actor->IsA("vtkFollower") || 
+       actor->IsA("vtkLODActor") ||
+       !actor->GetPickable())
+    )
     {
     orig_mapper = 
       vtkPainterPolyDataMapper::SafeDownCast(actor->GetMapper());
@@ -1742,7 +1749,11 @@ void vtkRenderer::SwapOutSelectablePainter(
   vtkPainterPolyDataMapper *orig_mapper = NULL;
   //try to restore the swapped out painter
   vtkActor *actor = vtkActor::SafeDownCast(prop);
-  if (actor && !(actor->IsA("vtkFollower") || actor->IsA("vtkLODActor")))
+  if (actor && 
+      !
+      (actor->IsA("vtkFollower") || 
+       actor->IsA("vtkLODActor")  ||
+       !actor->GetPickable()))
     {
     orig_mapper = 
       vtkPainterPolyDataMapper::SafeDownCast(actor->GetMapper());
