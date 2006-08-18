@@ -31,7 +31,6 @@ vtkExtractCTHPart.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
 vtkExtractUserDefinedPiece.cxx
-vtkHierarchicalFractal.cxx
 vtkMultiGroupDataExtractPiece.cxx
 vtkPKdTree.cxx
 vtkMemoryLimitImageDataStreamer.cxx
