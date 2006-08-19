@@ -172,7 +172,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.5");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.6");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -275,6 +275,7 @@ void vtkVisibleCellSelector::Select()
     }
 
   vtkRenderWindow *rwin = this->Renderer->GetRenderWindow();
+  rwin->SwapBuffersOff();
   
   unsigned char *buf;
   for (int i = 0; i < 5; i++)
@@ -305,13 +306,13 @@ void vtkVisibleCellSelector::Select()
       this->SetSelectConst(this->ProcessorId);
       }
     rwin->Render();
-    buf = rwin->GetRGBACharPixelData(this->X0,this->Y0,this->X1,this->Y1,1); 
+    buf = rwin->GetRGBACharPixelData(this->X0,this->Y0,this->X1,this->Y1,0); 
     this->SavePixelBuffer(i, buf);
     }
 
   this->ComputeSelectedIds();
   this->SetSelectMode(0);
-  rwin->Render();
+  rwin->SwapBuffersOn();
 }
 
 //----------------------------------------------------------------------------
