@@ -25,6 +25,7 @@ vtkCoordinate           GetComputedViewportValue 304 2
 vtkCoordinate           GetComputedWorldValue   307 3
 vtkCubeAxesActor2D      GetBounds               307 6
 vtkCubeAxesActor2D      GetRanges               307 6
+vtkDataObject		GetWholeBoundingBox	307 6
 vtkDataObject		GetWholeExtent		304 6
 vtkDataObject		GetUpdateExtent		304 6
 vtkDataArray		GetRange		307 2
