@@ -15,7 +15,7 @@
 // .NAME vtkSelection - A node in a selection tree. Used to store selection results
 // .SECTION Description
 
-// vtkSelection is a node of a tree data structured used to store
+// vtkSelection is a node of a tree data structure used to store
 // selection results. Each node in this tree stores a list of properties
 // (as a vtkInformation map) and a list of selection values (as a
 // vtkAbstractArray). The properties provide information about what the
