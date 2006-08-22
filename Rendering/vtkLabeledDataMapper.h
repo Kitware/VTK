@@ -150,7 +150,6 @@ protected:
 
   vtkTimeStamp BuildTime;
 
-private:
   int NumberOfLabels;
   int NumberOfLabelsAllocated;
   vtkTextMapper **TextMappers;
