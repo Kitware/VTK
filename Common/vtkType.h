@@ -72,6 +72,7 @@
 #define VTK_HIERARCHICAL_BOX_DATA_SET      15
 #define VTK_GENERIC_DATA_SET               16
 #define VTK_HYPER_OCTREE                   17
+#define VTK_TEMPORAL_DATA_SET              18
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */
