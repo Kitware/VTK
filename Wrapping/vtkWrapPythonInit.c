@@ -54,12 +54,14 @@ for (i = 0; i < numConcrete; i++)
 
   for (i = 0; i < numConcrete; i++)
     {
-    fprintf(fout,"  if ((c = PyVTKClass_%sNew((char*)modulename)))\n",
+    fprintf(fout,"  c = PyVTKClass_%sNew((char*)modulename);\n",
       concrete[i]);
-    fprintf(fout,"    if (-1 == PyDict_SetItemString(d, (char*)\"%s\", c))\n",
+    fprintf(fout,"  if (c && -1 == PyDict_SetItemString(d, (char*)\"%s\", c))\n",
       concrete[i]);
-    fprintf(fout,"      Py_FatalError((char*)\"can't add class %s to dictionary!\");\n\n",
+    fprintf(fout,"    {\n");
+    fprintf(fout,"      Py_FatalError((char*)\"can't add class %s to dictionary!\");\n",
       concrete[i]);
+    fprintf(fout,"    }\n\n");
     }
   fprintf(fout,"}\n\n");
 }
