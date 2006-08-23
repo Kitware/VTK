@@ -35,7 +35,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.67");
+vtkCxxRevisionMacro(vtkImageReslice, "1.68");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -683,6 +683,7 @@ int vtkImageReslice::RequestInformation(
   double maxBounds[6];
 
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   if (this->InformationInput)
@@ -822,13 +823,20 @@ int vtkImageReslice::RequestInformation(
 
   this->GetIndexMatrix(inInfo, outInfo);
 
-  if (this->GetNumberOfInputConnections(1) > 0)
+  // need to set the spacing and origin of the stencil to match the output
+  if (inInfo2)
     {
-    vtkInformation *stencilInfo = inputVector[1]->GetInformationObject(0);
-    stencilInfo->Set(vtkDataObject::SPACING(),
-                     inInfo->Get(vtkDataObject::SPACING()), 3);
-    stencilInfo->Set(vtkDataObject::ORIGIN(),
-                     inInfo->Get(vtkDataObject::ORIGIN()), 3);
+    vtkImageStencilData *stencil = 
+      vtkImageStencilData::SafeDownCast(
+        inInfo2->Get(vtkDataObject::DATA_OBJECT()));
+    // need to call the set methods on the actual data object, not
+    // on the pipeline, since the pipeline cannot back-propagate
+    // this information
+    if (stencil)
+      {
+      stencil->SetSpacing(inInfo->Get(vtkDataObject::SPACING()));
+      stencil->SetOrigin(inInfo->Get(vtkDataObject::ORIGIN()));
+      }
     }
 
   return 1;
