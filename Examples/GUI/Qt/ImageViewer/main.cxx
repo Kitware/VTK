@@ -27,10 +27,9 @@
 
 #include "qapplication.h"
 
-#include "vtkImageViewer2.h"
+#include "vtkImageViewer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkPNGReader.h"
 #include "vtkTestUtilities.h"
 
@@ -52,21 +51,16 @@ int main(int argc, char** argv)
   reader->SetFileName(fname);
   delete [] fname;
 
-  vtkImageViewer2* image_view = vtkImageViewer2::New();
+  vtkImageViewer* image_view = vtkImageViewer::New();
   image_view->SetInputConnection(reader->GetOutputPort());
 
   widget.SetRenderWindow(image_view->GetRenderWindow());
-  widget.show();
+  image_view->SetupInteractor(widget.GetRenderWindow()->GetInteractor());
+
   image_view->SetColorLevel(138.5);
   image_view->SetColorWindow(233);
-  
-  image_view->SetupInteractor(widget.GetRenderWindow()->GetInteractor());
-  //vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
-  //image_view->SetupInteractor(iren);
 
-  image_view->Render();
-
-
+  widget.show();
 
   app.exec();
   
