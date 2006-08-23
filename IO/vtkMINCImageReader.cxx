@@ -51,9 +51,11 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkIdTypeArray.h"
 #include "vtkMatrix4x4.h"
 #include "vtkSmartPointer.h"
+#include "vtkMath.h"
 
 #include "vtkType.h"
 
+#include <stdlib.h>
 #include <ctype.h>
 #include <float.h>
 #include <vtknetcdf/netcdf.h>
@@ -63,7 +65,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageReader, "1.3");
+vtkCxxRevisionMacro(vtkMINCImageReader, "1.4");
 vtkStandardNewMacro(vtkMINCImageReader);
 
 //-------------------------------------------------------------------------
@@ -143,6 +145,7 @@ vtkMINCImageReader::vtkMINCImageReader()
   this->VariableNames = vtkStringArray::New();
   this->AttributeNames = vtkMINCImageReaderAttributeMap::New();
   this->AttributeValues = vtkMINCImageReaderAttributeMap::New();
+  this->StringStore = 0;
 
   this->FileNameHasChanged = 0;
 }
@@ -190,6 +193,11 @@ vtkMINCImageReader::~vtkMINCImageReader()
     this->MINCImageMax->Delete();
     this->MINCImageMax = 0;
     }
+  if (this->StringStore)
+    {
+    this->StringStore->Delete();
+    this->StringStore = 0;
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -209,6 +217,73 @@ void vtkMINCImageReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DimensionNames: " << this->DimensionNames << "\n";
   os << indent << "DimensionLengths: " << this->DimensionLengths << "\n";
   os << indent << "VariableNames: " << this->VariableNames << "\n";
+}
+
+//-------------------------------------------------------------------------
+// This method also has to store the resulting string internally.
+const char *vtkMINCImageReader::ConvertDataArrayToString(
+  vtkDataArray *array)
+{
+  int dataType = array->GetDataType();
+
+  if (dataType == VTK_CHAR)
+    {
+    vtkCharArray *charArray = vtkCharArray::SafeDownCast(array);
+    return charArray->GetPointer(0);
+    }
+
+  ostrstream os;
+
+  int n = array->GetNumberOfTuples();
+  int i = 0;
+  for (i = 0; i < n; i++)
+    {
+    double val = array->GetComponent(i, 0);
+    os << val;
+    if (dataType == VTK_DOUBLE || dataType == VTK_FLOAT)
+      {
+      if (val == static_cast<int>(val))
+        { // add a decimal to distinguish floats from ints
+        os << ".";
+        }
+      }
+    if (i < n-1)
+      {
+      os << ", ";
+      }
+    }
+
+    os << ends;
+
+    // Store the string
+    const char *str = os.str();
+    const char *result = 0;
+
+    if (this->StringStore == 0)
+      {
+      this->StringStore = vtkStringArray::New();
+      }
+
+    // See if the string is already stored
+    n = this->StringStore->GetNumberOfValues();
+    for (i = 0; i < n; i++)
+      {
+      result = this->StringStore->GetValue(i);
+      if (strcmp(str, result) == 0)
+        {
+        break;
+        }
+      }
+    // If not, add it to the array.
+    if (i == n)
+      {
+      i = this->StringStore->InsertNextValue(str);
+      result = this->StringStore->GetValue(i);
+      }
+
+    os.rdbuf()->freeze(0);
+
+    return result;
 }
 
 //-------------------------------------------------------------------------
@@ -339,13 +414,13 @@ void vtkMINCImageReader::PrintFileHeader()
       for (int iatt = 0; iatt < natt; iatt++)
         {
         const char *attname = attArray->GetValue(iatt);
-        os << "\t\t" << varname << ":" << attname << " = ";
         vtkDataArray *array =
           this->GetAttributeValueAsArray(varname, attname);
-        int dataType = array->GetDataType();
-        if (dataType == VTK_CHAR)
+        os << "\t\t" << varname << ":" << attname << " = ";
+        if (array->GetDataType() == VTK_CHAR)
           {
-          vtkCharArray *charArray = vtkCharArray::SafeDownCast(array);
+          vtkCharArray *charArray = 
+            vtkCharArray::SafeDownCast(array);
           os << "\"";
           const char *cp = charArray->GetPointer(0);
           const char *endcp = cp + charArray->GetNumberOfTuples();
@@ -424,24 +499,8 @@ void vtkMINCImageReader::PrintFileHeader()
           }
         else
           {
-          int n = array->GetNumberOfTuples();
-          for (int i = 0; i < n; i++)
-            {
-            double val = array->GetComponent(i, 0);
-            os << val;
-            if (dataType == VTK_DOUBLE || dataType == VTK_FLOAT)
-              {
-              if (val == static_cast<int>(val))
-                { // add a decimal to distinguish floats from ints
-                os << ".";
-                }
-              }
-            if (i < n-1)
-              {
-              os << ", ";
-              }
-            }
-          os << " ;\n";
+          // Use handy conversion method
+          os << this->ConvertDataArrayToString(array) << " ;\n";
           }
         }
       }
@@ -453,9 +512,10 @@ void vtkMINCImageReader::PrintFileHeader()
 //-------------------------------------------------------------------------
 void vtkMINCImageReader::SetFileName(const char *name)
 {
-  if (name != this->GetFileName() &&
-      (name == 0 || this->GetFileName() == 0 ||
-       strcmp(name, this->GetFileName()) != 0))
+  // Set FileNameHasChanged even if the file name hasn't changed,
+  // because it is possible that the user is re-reading a file after
+  // changing it.
+  if (!(name == 0 && this->GetFileName() == 0))
     { 
     this->FileNameHasChanged = 1;
     }
@@ -466,6 +526,7 @@ void vtkMINCImageReader::SetFileName(const char *name)
 //-------------------------------------------------------------------------
 int vtkMINCImageReader::CanReadFile(const char* fname)
 {
+  // First do a very rapid check of the magic number
   FILE *fp = fopen(fname, "rb");
   if (!fp)
     {
@@ -484,7 +545,58 @@ int vtkMINCImageReader::CanReadFile(const char* fname)
     return 0;
     }
 
-  return 1;
+  // Do a more thorough check of the image:version attribute, since
+  // there are lots of NetCDF files out there that aren't minc files.
+  int status = NC_NOERR;
+  int ncid = 0;
+  status = nc_open(fname, 0, &ncid);
+  if (status != NC_NOERR)
+    {
+    return 0;
+    }
+  
+  int ndims = 0;
+  int nvars = 0;
+  int ngatts = 0;
+  int unlimdimid = 0;
+  status = nc_inq(ncid, &ndims, &nvars, &ngatts, &unlimdimid);
+  if (status != NC_NOERR)
+    {
+    return 0;
+    }
+
+  int varid = 0;
+  char varname[NC_MAX_NAME+1];
+  nc_type vartype = NC_INT;
+  int nvardims;
+  int dimids[VTK_MINC_MAX_DIMS];
+  int nvaratts = 0;
+  for (varid = 0; varid < nvars && status == NC_NOERR; varid++)
+    {
+    status = nc_inq_var(ncid, varid, varname, &vartype, &nvardims,
+                        dimids, &nvaratts);
+    if (status == NC_NOERR && strcmp(varname, "image") == 0)
+      {
+      nc_type atttype = NC_INT;
+      size_t attlength = 0;
+      status = nc_inq_att(ncid, varid, "version", &atttype, &attlength);
+      if (status == NC_NOERR && atttype == NC_CHAR && attlength < 32)
+        {
+        char verstring[32];
+        status = nc_get_att_text(ncid, varid, "version", verstring);
+        if (status == NC_NOERR && strncmp(verstring, "MINC ", 5) == 0)
+          {
+          nc_close(ncid);
+          return 1;
+          }
+        }
+      break;
+      }
+    }
+  
+  nc_close(ncid);
+
+  return 0;
 }
 
 //-------------------------------------------------------------------------
@@ -559,6 +671,14 @@ vtkStringArray *vtkMINCImageReader::GetAttributeNames(
 }
 
 //-------------------------------------------------------------------------
+int vtkMINCImageReader::HasAttribute(
+  const char *variable,
+  const char *attribute)
+{
+  return (this->GetAttributeValueAsArray(variable, attribute) != 0);
+}
+
+//-------------------------------------------------------------------------
 vtkDataArray *vtkMINCImageReader::GetAttributeValueAsArray(
   const char *variable,
   const char *attribute)
@@ -582,17 +702,17 @@ const char *vtkMINCImageReader::GetAttributeValueAsString(
   const char *variable,
   const char *attribute)
 {
-  vtkCharArray *array = vtkCharArray::SafeDownCast(
-    this->GetAttributeValueAsArray(variable, attribute));
+  vtkDataArray *array = 
+    this->GetAttributeValueAsArray(variable, attribute);
 
+  // Return NULL if not found
   if (array == 0)
     {
-    vtkErrorMacro("GetAttributeValueAsString() only works on"
-                  " string attributes.");
     return 0;
     }
 
-  return array->GetPointer(0);
+  // Convert any other array to a a string.
+  return this->ConvertDataArrayToString(array);
 }
 
 //-------------------------------------------------------------------------
@@ -601,7 +721,26 @@ int vtkMINCImageReader::GetAttributeValueAsInt(
   const char *attribute)
 {
   vtkDataArray *array = this->GetAttributeValueAsArray(variable, attribute);
-  if (array->GetNumberOfTuples() == 1)
+
+  if (array == 0)
+    {
+    vtkErrorMacro("The attribute " << variable << ":"
+                  << attribute << " was not found.");
+    return 0;
+    }
+
+  if (array->GetDataType() == VTK_CHAR)
+    {
+    char *text = vtkCharArray::SafeDownCast(array)->GetPointer(0);
+    char *endp = text;
+    long result = strtol(text, &endp, 10);
+    // Check for complete conversion
+    if (*endp == '\0' && *text != '\0')
+      {
+      return static_cast<int>(result);
+      }
+    } 
+  else if (array->GetNumberOfTuples() == 1)
     {
     switch(array->GetDataType())
       {
@@ -616,7 +755,8 @@ int vtkMINCImageReader::GetAttributeValueAsInt(
       }
     }
 
-  vtkErrorMacro("GetAttributeValueAsInt() used on a non-integer attribute.");
+  vtkErrorMacro("GetAttributeValueAsInt() used on non-integer attribute "
+                << variable << ":" << attribute <<".");
   return static_cast<int>(array->GetComponent(0,0));
 }
 
@@ -625,8 +765,32 @@ double vtkMINCImageReader::GetAttributeValueAsDouble(
   const char *variable,
   const char *attribute)
 {
+  if (variable == 0)
+    {
+    variable = "";
+    }
+
   vtkDataArray *array = this->GetAttributeValueAsArray(variable, attribute);
-  if (array->GetNumberOfTuples() == 1)
+
+  if (array == 0)
+    {
+    vtkErrorMacro("The attribute " << variable << ":"
+                  << attribute << " was not found.");
+    return 0;
+    }
+
+  if (array->GetDataType() == VTK_CHAR)
+    {
+    char *text = vtkCharArray::SafeDownCast(array)->GetPointer(0);
+    char *endp = text;
+    double result = strtod(text, &endp);
+    // Check for complete conversion
+    if (*endp == '\0' && *text != '\0')
+      {
+      return result;
+      }
+    } 
+  else if (array->GetNumberOfTuples() == 1)
     {
     switch(array->GetDataType())
       {
@@ -643,7 +807,8 @@ double vtkMINCImageReader::GetAttributeValueAsDouble(
       }
     }
 
-  vtkErrorMacro("GetAttributeValueAsDouble() used on a non-real attribute.");
+  vtkErrorMacro("GetAttributeValueAsDouble() used on non-real attribute "
+                << variable << ":" << attribute <<".");
   return array->GetComponent(0,0);
 }
 
@@ -738,6 +903,12 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
 
   this->NumberOfFrames = 1;
   this->OrientationMatrix->Identity();
+
+  // Orientation set tells us which direction cosines were found
+  int orientationSet[3];
+  orientationSet[0] = 0; 
+  orientationSet[1] = 0; 
+  orientationSet[2] = 0; 
 
   this->MINCImageMinMaxDims = 0;
   this->MINCImageMin->SetNumberOfTuples(0);
@@ -978,6 +1149,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
             this->OrientationMatrix->SetElement(0, dimIndex, dimDirCos[0]);
             this->OrientationMatrix->SetElement(1, dimIndex, dimDirCos[1]);
             this->OrientationMatrix->SetElement(2, dimIndex, dimDirCos[2]);
+            orientationSet[dimIndex] = 1;
             }
           }
         else if (strcmp(dimname, "vector_dimension") != 0)
@@ -1033,6 +1205,43 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
         return 0;
         }
       }
+    }
+
+  // Check to see if only 2 spatial dimensions were included,
+  // since we'll have to make up the third dircos if that is the case
+  int numDirCos = 0;
+  int notSetIndex = 0;
+  for (int dcount = 0; dcount < 3; dcount++)
+    {
+    if (orientationSet[dcount])
+      {
+      numDirCos++;
+      }
+    else
+      {
+      notSetIndex = dcount;
+      }
+    }
+  // If only two were set, use cross product to get the third
+  if (numDirCos == 2)
+    {
+    int idx1 = (notSetIndex + 1) % 3;
+    int idx2 = (notSetIndex + 2) % 3;
+    double v1[4];
+    double v2[4];
+    double v3[3];
+    for (int tmpi = 0; tmpi < 4; tmpi++)
+      {
+      v1[tmpi] = v2[tmpi] = 0.0;
+      }
+    v1[idx1] = 1.0;
+    v2[idx2] = 1.0;
+    this->OrientationMatrix->MultiplyPoint(v1, v1);
+    this->OrientationMatrix->MultiplyPoint(v2, v2);
+    vtkMath::Cross(v1, v2, v3);
+    this->OrientationMatrix->SetElement(0, notSetIndex, v3[0]);
+    this->OrientationMatrix->SetElement(1, notSetIndex, v3[1]);
+    this->OrientationMatrix->SetElement(2, notSetIndex, v3[2]);
     }
 
   // Get the MINCValidRange and MINCImageRange.

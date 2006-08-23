@@ -129,26 +129,36 @@ public:
   virtual vtkStringArray *GetAttributeNames(const char *variable);
 
   // Description:
+  // Check to see if a particular attribute exists.
+  virtual int HasAttribute(const char *variable, const char *attribute);
+
+  // Description:
   // Get attribute values for a variable as a vtkDataArray.
   // Set the variable to the empty string to get global attributes.
+  // A null pointer is returned if the attribute was not found.
   virtual vtkDataArray *GetAttributeValueAsArray(const char *variable,
                                                  const char *attribute);
 
   // Description:
   // Get an attribute value as a string.  Set the variable
-  // to the empty string to get global attributes.
+  // to the empty string to get global attributes.  If the
+  // specified attribute is not present, a null will be returned.
   virtual const char *GetAttributeValueAsString(const char *variable,
                                                 const char *attribute);
 
   // Description:
   // Get an attribute value as an int.  Set the variable
-  // to the empty string to get global attributes.
+  // to the empty string to get global attributes.  VTK
+  // will report an error if the attribute doesn't exist
+  // or if it is not an int.
   virtual int GetAttributeValueAsInt(const char *variable,
                                      const char *attribute);
 
   // Description:
   // Get an attribute value as a double.  Set the variable
-  // to the empty string to get global attributes.
+  // to the empty string to get global attributes.  VTK
+  // will report an error if the attribute doesn't exist
+  // or if it is not a double or int.
   virtual double GetAttributeValueAsDouble(const char *variable,
                                            const char *attribute);
 
@@ -180,6 +190,7 @@ protected:
   vtkStringArray *VariableNames;
   vtkMINCImageReaderAttributeMap *AttributeNames;
   vtkMINCImageReaderAttributeMap *AttributeValues;
+  vtkStringArray *StringStore;
 
   int FileNameHasChanged;
 
@@ -189,6 +200,7 @@ protected:
   virtual void FindMINCValidRange();
   virtual void FindMINCImageRange();
   virtual int ReadMINCFileAttributes();
+  const char *ConvertDataArrayToString(vtkDataArray *array);
   static int ConvertMINCTypeToVTKType(int minctype, int mincsigned);
 
   virtual void ExecuteInformation();
