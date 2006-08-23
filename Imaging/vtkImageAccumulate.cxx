@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.70");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.71");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -371,10 +371,17 @@ int vtkImageAccumulate::RequestInformation (
   // need to set the spacing and origin of the stencil to match the output
   if (inInfo2)
     {
-    inInfo2->Set(vtkDataObject::SPACING(),
-                 inInfo->Get(vtkDataObject::SPACING()),3);
-    inInfo2->Set(vtkDataObject::ORIGIN(),
-                 inInfo->Get(vtkDataObject::ORIGIN()),3);
+    vtkImageStencilData *stencil = 
+      vtkImageStencilData::SafeDownCast(
+        inInfo2->Get(vtkDataObject::DATA_OBJECT()));
+    // need to call the set methods on the actual data object, not
+    // on the pipeline, since the pipeline cannot back-propagate
+    // this information
+    if (stencil)
+      {
+      stencil->SetSpacing(inInfo->Get(vtkDataObject::SPACING()));
+      stencil->SetOrigin(inInfo->Get(vtkDataObject::ORIGIN()));
+      }
     }
 
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_INT, 1);
