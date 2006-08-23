@@ -31,7 +31,7 @@ class vtkRectilinearGrid;
 class vtkDataSet;
 class vtkHierarchicalDataSet;
 
-class VTK_EXPORT vtkTemporalFractal : public vtkTemporalDataSetAlgorithm
+class VTK_PARALLEL_EXPORT vtkTemporalFractal : public vtkTemporalDataSetAlgorithm
 {
 public:
   static vtkTemporalFractal *New();
