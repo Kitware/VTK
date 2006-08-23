@@ -123,6 +123,14 @@ public:
   // Description:
   // Remove all the variable names and their associated array names.
   void RemoveAllVariables();
+  
+  // Description:
+  // Remove all the scalar variable names and their associated array names.
+  void RemoveScalarVariables();
+  
+  // Description:
+  // Remove all the scalar variable names and their associated array names.
+  void RemoveVectorVariables();
 
   // Description:
   // Methods to get information about the current variables.

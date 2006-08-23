@@ -168,6 +168,14 @@ public:
   // Description:
   // Remove all the current variables.
   void RemoveAllVariables();
+  
+  // Description:
+  // Remove all the scalar variables.
+  void RemoveScalarVariables();
+  
+  // Description:
+  // Remove all the vector variables.
+  void RemoveVectorVariables();
 
   // Description:
   // When ReplaceInvalidValues is on, all invalid values (such as

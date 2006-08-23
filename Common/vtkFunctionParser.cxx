@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.32");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.33");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -1902,7 +1902,7 @@ int vtkFunctionParser::GetOperandNumber(int currentIndex)
   return 0;
 }
 
-void vtkFunctionParser::RemoveAllVariables()
+void vtkFunctionParser::RemoveScalarVariables()
 {
   int i;
   
@@ -1919,6 +1919,11 @@ void vtkFunctionParser::RemoveAllVariables()
     this->ScalarVariableValues = NULL;
     }
   this->NumberOfScalarVariables = 0;
+}
+
+void vtkFunctionParser::RemoveVectorVariables()
+{
+  int i;
   
   for (i = 0; i < this->NumberOfVectorVariables; i++)
     {
@@ -1933,6 +1938,12 @@ void vtkFunctionParser::RemoveAllVariables()
     this->VectorVariableValues = NULL;
     }
   this->NumberOfVectorVariables = 0;
+}
+
+void vtkFunctionParser::RemoveAllVariables()
+{
+  this->RemoveScalarVariables();
+  this->RemoveVectorVariables();
 }
 
 void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)

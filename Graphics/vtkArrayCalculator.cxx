@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.32");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.33");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -712,7 +712,7 @@ const char* vtkArrayCalculator::GetAttributeModeAsString()
     }
 }
 
-void vtkArrayCalculator::RemoveAllVariables()
+void vtkArrayCalculator::RemoveScalarVariables()
 {
   int i;
   
@@ -734,6 +734,13 @@ void vtkArrayCalculator::RemoveAllVariables()
     }
   this->NumberOfScalarArrays = 0;
   
+  this->FunctionParser->RemoveScalarVariables();
+}
+
+void vtkArrayCalculator::RemoveVectorVariables()
+{
+  int i;
+
   for (i = 0; i < this->NumberOfVectorArrays; i++)
     {
     delete [] this->VectorArrayNames[i];
@@ -753,8 +760,14 @@ void vtkArrayCalculator::RemoveAllVariables()
     this->SelectedVectorComponents = NULL;
     }
   this->NumberOfVectorArrays = 0;
+  
+  this->FunctionParser->RemoveVectorVariables();
+}
 
-  this->FunctionParser->RemoveAllVariables();
+void vtkArrayCalculator::RemoveAllVariables()
+{
+  this->RemoveScalarVariables();
+  this->RemoveVectorVariables();
 }
 
 char* vtkArrayCalculator::GetScalarArrayName(int i)
