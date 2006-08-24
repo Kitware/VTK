@@ -34,7 +34,17 @@ IF(DESIRED_QT_VERSION MATCHES 4)
 
   # instead of a complete port to Qt4, lets try out uic3 and Qt3Support
 
-  STRING(REGEX REPLACE "uic" "uic3" QT_UIC3_EXECUTABLE "${QT_UIC_EXECUTABLE}")
+  # cmake 2.4.0 didn't have support for uic3, help out
+  IF(NOT QT_UIC3_EXECUTABLE)
+    GET_FILENAME_COMPONENT(QTPATH "${QT_UIC_EXECUTABLE}" PATH)
+    FIND_PROGRAM(QT_UIC3_EXECUTABLE
+                 NAMES uic3
+                 PATHS ${QTPATH}
+                 NO_DEFAULT_PATH
+                 )
+  ENDIF(NOT QT_UIC3_EXECUTABLE)
+
+
   ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/GUI.h
                      COMMAND ${QT_UIC3_EXECUTABLE}
                      ARGS -o ${CMAKE_CURRENT_BINARY_DIR}/GUI.h
