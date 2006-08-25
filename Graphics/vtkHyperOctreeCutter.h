@@ -187,12 +187,6 @@ public:
   // locator is used to merge coincident points.
   void CreateDefaultLocator();
 
-  // Description:
-  // Normally I would put this in a different class, but since
-  // This is a temporary fix until we convert this class and contour filter
-  // to generate unstructured grid output instead of poly data, I am leaving it here.
-  static void GetCellTypeDimensions(unsigned char* cellTypeDimensions);
-
 protected:
   vtkHyperOctreeCutter(vtkImplicitFunction *cf=NULL);
   ~vtkHyperOctreeCutter();
