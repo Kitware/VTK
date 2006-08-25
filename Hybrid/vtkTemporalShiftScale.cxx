@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTemporalShiftScale, "1.1");
+vtkCxxRevisionMacro(vtkTemporalShiftScale, "1.2");
 vtkStandardNewMacro(vtkTemporalShiftScale);
 
 //----------------------------------------------------------------------------
@@ -102,7 +102,10 @@ int vtkTemporalShiftScale::RequestData(
     (outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   // shallow copy the data
-  inData->ShallowCopy(outData);
+  if (inData && outData)
+    {
+    inData->ShallowCopy(outData);
+    }
 
   return 1;
 }
