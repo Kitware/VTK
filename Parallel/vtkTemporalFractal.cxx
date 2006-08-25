@@ -38,7 +38,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkTemporalFractal, "1.2");
+vtkCxxRevisionMacro(vtkTemporalFractal, "1.3");
 vtkStandardNewMacro(vtkTemporalFractal);
 
 //----------------------------------------------------------------------------
@@ -1515,6 +1515,7 @@ void vtkTemporalFractal::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Dimensions: " << this->Dimensions << endl;
   os << indent << "TwoDimensional: " << this->TwoDimensional << endl;
+  os << indent << "DiscreteTimeSteps: " << this->DiscreteTimeSteps << endl;
   os << indent << "FractalValue: " << this->FractalValue << endl;
   os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
   os << indent << "GhostLevels: " << this->GhostLevels << endl;
