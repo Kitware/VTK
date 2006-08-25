@@ -38,7 +38,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkTemporalFractal, "1.1");
+vtkCxxRevisionMacro(vtkTemporalFractal, "1.2");
 vtkStandardNewMacro(vtkTemporalFractal);
 
 //----------------------------------------------------------------------------
@@ -65,6 +65,7 @@ vtkTemporalFractal::vtkTemporalFractal()
   
   this->GenerateRectilinearGrids=0;
   this->CurrentTime = 0;
+  this->DiscreteTimeSteps = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -391,11 +392,22 @@ int vtkTemporalFractal::RequestInformation(
   vtkInformation *info=outputVector->GetInformationObject(0);
   info->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION(),compInfo);
   
+  if (this->DiscreteTimeSteps)
+    {
+    double tsteps[11];
+    int i;
+    for (i = 0; i < 11; ++i)
+      {
+      tsteps[i] = i;
+      }
+    info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),tsteps,11);
+    }
+
   double trange[2];
   trange[0] = 0.0;
   trange[1] = 10.0;
   info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),trange,2);
-
+    
   info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),-1);
   compInfo->Delete();
   return 1;

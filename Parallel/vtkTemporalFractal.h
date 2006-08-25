@@ -72,6 +72,13 @@ public:
   vtkBooleanMacro(GenerateRectilinearGrids, int);
 
   // Description:
+  // Limit this source to discrete integer time steps
+  // Default is off (continuous)
+  vtkSetMacro(DiscreteTimeSteps, int);
+  vtkGetMacro(DiscreteTimeSteps, int);
+  vtkBooleanMacro(DiscreteTimeSteps, int);
+
+  // Description:
   // Make a 2D data set to test.
   vtkSetMacro(TwoDimensional, int);
   vtkGetMacro(TwoDimensional, int);
@@ -166,6 +173,7 @@ protected:
   int GhostLevels;
   vtkIntArray *Levels;
   int TwoDimensional;
+  int DiscreteTimeSteps;
 
   // New method of specifing blocks.
   double TopLevelSpacing[3];
