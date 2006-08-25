@@ -1,3 +1,8 @@
+#ifndef __VTK_SYSTEM_INCLUDES__INSIDE
+#  define __VTK_SYSTEM_INCLUDES__INSIDE
+#  include "vtkWin32Header.h"
+#  undef __VTK_SYSTEM_INCLUDES__INSIDE
+#endif
 
 #if defined (__digital__) && defined (__unix__) || defined(__IBMCPP__)
 #define HAVE_ALLOCA_H 1
@@ -4257,7 +4262,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.71");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.72");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
