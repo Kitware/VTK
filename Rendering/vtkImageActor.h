@@ -130,6 +130,7 @@ protected:
   double        Opacity;
   vtkImageData* Input;
   int           DisplayExtent[6];
+  int           ComputedDisplayExtent[6];
   double        DisplayBounds[6];
 
 private:
