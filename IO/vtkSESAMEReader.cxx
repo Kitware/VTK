@@ -17,7 +17,7 @@
 #include <vtkstd/string>
 
 vtkStandardNewMacro(vtkSESAMEReader);
-vtkCxxRevisionMacro(vtkSESAMEReader, "1.5");
+vtkCxxRevisionMacro(vtkSESAMEReader, "1.6");
 
 static const int SESAME_NUM_CHARS = 512;
 static const char* TableLineFormat = "%2i%6i%6i";
@@ -441,8 +441,9 @@ void vtkSESAMEReader::ReadTable()
     numRead = 3;
     }
   
+  unsigned int i;
   vtkstd::vector<vtkFloatArray*> scalars;
-  for(unsigned int i=0; i<this->Internal->TableArrayStatus.size(); i++)
+  for(i=0; i<this->Internal->TableArrayStatus.size(); i++)
     {
     vtkFloatArray* newArray = this->Internal->TableArrayStatus[i] ?
                       vtkFloatArray::New() : NULL;
@@ -461,15 +462,15 @@ void vtkSESAMEReader::ReadTable()
   while ( (readFromTable = ReadTableValueLine( &(v[0]), &(v[1]), &(v[2]), &(v[3]), 
       &(v[4])  )) != 0)
     {
-    for (int i=0;i<readFromTable;i++) 
+    for (int k=0;k<readFromTable;k++) 
       {
       if ( numRead < datadims[0] ) 
         {
-        xCoords->InsertNextTuple1(  v[i] );
+        xCoords->InsertNextTuple1(  v[k] );
         }
       else if ( numRead < (datadims[0] + datadims[1]) ) 
         {
-        yCoords->InsertNextTuple1(  v[i] );
+        yCoords->InsertNextTuple1(  v[k] );
         }
       else
         {
@@ -482,14 +483,14 @@ void vtkSESAMEReader::ReadTable()
         if(this->Internal->TableArrayStatus.size() > scalarIndex &&
            this->Internal->TableArrayStatus[scalarIndex])
           {
-          scalars[scalarIndex]->InsertNextTuple1(v[i]);
+          scalars[scalarIndex]->InsertNextTuple1(v[k]);
           }
         }
       numRead++;
       }
     }
 
-  for(int i=scalarIndex+1; 
+  for(i=scalarIndex+1; 
       i<this->Internal->TableArrayStatus.size();
       i++)
     {
@@ -507,15 +508,15 @@ void vtkSESAMEReader::ReadTable()
   
   output->GetPointData()->Reset();
 
-  for(unsigned int j=0; j<scalars.size(); j++)
+  for(i=0; i<scalars.size(); i++)
     {
-    if(scalars[j])
+    if(scalars[i])
       {
-      if(scalars[j]->GetNumberOfTuples())
+      if(scalars[i]->GetNumberOfTuples())
         {
-        output->GetPointData()->AddArray(scalars[j]);
+        output->GetPointData()->AddArray(scalars[i]);
         }
-      scalars[j]->Delete();
+      scalars[i]->Delete();
       }
     }
 
