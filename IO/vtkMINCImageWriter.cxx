@@ -77,7 +77,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.4");
+vtkCxxRevisionMacro(vtkMINCImageWriter, "1.5");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter,OrientationMatrix,vtkMatrix4x4);
@@ -701,7 +701,8 @@ int vtkMINCImageWriter::VerifyDimensionAttribute(
 
 //-------------------------------------------------------------------------
 int vtkMINCImageWriter::VerifyImageAttribute(
-  const char *vtkNotUsed(varname), const char *attname, vtkDataArray *array)
+  const char *vtkNotUsed(varname), const char *attname,
+  vtkDataArray *vtkNotUsed(array))
 {
   // Attributes for the "image" variable (vartype = "group________")
   static const char *imageAttributes[] = {
@@ -781,7 +782,7 @@ int vtkMINCImageWriter::VerifyImageMinMaxAttribute(
 
 //-------------------------------------------------------------------------
 int vtkMINCImageWriter::VerifyPatientAttribute(
-  const char *varname, const char *attname,
+  const char *vtkNotUsed(varname), const char *attname,
   vtkDataArray *vtkNotUsed(array))
 {
   // Attributes for "patient" variable (vartype = "group________")
@@ -873,7 +874,8 @@ int vtkMINCImageWriter::VerifyStudyAttribute(
 
 //-------------------------------------------------------------------------
 int vtkMINCImageWriter::VerifyAcquisitionAttribute(
-  const char *vtkNotUsed(varname), const char *attname, vtkDataArray *array)
+  const char *vtkNotUsed(varname), const char *attname,
+  vtkDataArray *vtkNotUsed(array))
 {
   // Attributes for "acquisition" variable (vartype = "group________")
   static const char *acquisitionAttributes[] = {
