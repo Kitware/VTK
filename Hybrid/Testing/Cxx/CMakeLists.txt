@@ -1,6 +1,7 @@
 SET(KIT Hybrid)
 # add tests that do not require data
 SET(MyTests     
+  TestImageStencilData.cxx
   )
 IF (VTK_DATA_ROOT)
   # add tests that require data
@@ -20,7 +21,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkHybrid)
 SET (TestsToRun ${Tests})
-REMOVE (TestsToRun ${KIT}CxxTests.cxx)
+REMOVE (TestsToRun ${KIT}CxxTests.cxx TestImageStencilData.cxx)
 
 #
 # Add all the executables 
@@ -34,3 +35,17 @@ FOREACH (test ${TestsToRun})
     ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
   ENDIF (VTK_DATA_ROOT)
 ENDFOREACH (test) 
+
+IF (VTK_DATA_ROOT)
+  ADD_TEST(TestAddStencilData ${CXX_TEST_PATH}/${KIT}CxxTests 
+         TestImageStencilData 1
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/${KIT}/TestAddStencilData.png)
+  ADD_TEST(TestSubtractStencilData ${CXX_TEST_PATH}/${KIT}CxxTests 
+         TestImageStencilData 2
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/${KIT}/TestSubtractStencilData.png)
+ENDIF(VTK_DATA_ROOT)
+ 
+
