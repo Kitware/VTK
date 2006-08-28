@@ -52,10 +52,12 @@
 
 class vtkDataSet;
 class vtkDataSetCache;
-class vtkTupleInterpolator;
 class vtkSimpleInterpolator;
-
-class VTK_HYBRID_EXPORT vtkTemporalDataSetInterpolationFilter : public vtkTemporalDataSetAlgorithm
+//BTX
+class VTDIF_stdinternals;
+//ETX
+class VTK_HYBRID_EXPORT vtkTemporalDataSetInterpolationFilter : 
+  public vtkTemporalDataSetAlgorithm
 {
 public:
 //BTX
@@ -67,7 +69,9 @@ public:
 //ETX
 public:
   static vtkTemporalDataSetInterpolationFilter *New();
-  vtkTypeRevisionMacro(vtkTemporalDataSetInterpolationFilter,vtkTemporalDataSetAlgorithm);
+  vtkTypeRevisionMacro(vtkTemporalDataSetInterpolationFilter,
+    vtkTemporalDataSetAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify which type of function to use for interpolation. By default
@@ -236,8 +240,7 @@ protected:
 
 //BTX
   // Keep these handy to make checks easier
-  vtkstd::vector<double>  InputTimeValues;
-  vtkstd::vector<double>  OutputTimeValues;
+  VTDIF_stdinternals     *Internals;
 //ETX
 
 private:
@@ -246,6 +249,3 @@ private:
 };
 
 #endif
-
-
-

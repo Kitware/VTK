@@ -24,7 +24,9 @@
 // The class supports Spline and Linear interpolation.
 
 // .SECTION See Also
-// vtkTemporalAlgorithm, vtkCardinalSpline
+// vtkTemporalDataSetAlgorithm
+// vtkTemporalDataSetInterpolationFilter
+// vtkCardinalSpline
 
 #ifndef __vtkSimpleInterpolator_h
 #define __vtkSimpleInterpolator_h
@@ -35,6 +37,7 @@ class VTK_HYBRID_EXPORT vtkSimpleInterpolator : public vtkObject
 {
 public:
   static vtkSimpleInterpolator *New();
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkTypeRevisionMacro(vtkSimpleInterpolator, vtkObject);
 
@@ -46,9 +49,11 @@ public:
   // Compute the value at time T using linear interpolation
   virtual double EvaluateLinear(double t);
 
+//BTX
   // Description:
   // Set the arrays on which the calculation will be based.
   virtual void SetArrays(int size, double *Tarray, double *Varray, double *Warray, double *coeffs);
+//ETX
 
   // Description:
   // Set the type of constraint of the left(right) end points. Four
@@ -111,4 +116,3 @@ private:
 };
 
 #endif
-
