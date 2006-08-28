@@ -77,6 +77,10 @@ public:
   void InsertAndMergeExtent(int r1, int r2, int yIdx, int zIdx);
 
   // Description:
+  // Remove the extent from (r1,r2) at yIdx, zIdx
+  void RemoveExtent(int r1, int r2, int yIdx, int zIdx);
+
+  // Description:
   // Set the desired spacing for the stencil.
   // This must be called before the stencil is Updated, ideally 
   // in the ExecuteInformation method of the imaging filter that
@@ -149,11 +153,25 @@ public:
   static vtkImageStencilData* GetData(vtkInformation* info);
   static vtkImageStencilData* GetData(vtkInformationVector* v, int i=0);
   //ETX
+  
+  // Description:
+  // Add merges the stencil supplied as argument into Self.
+  virtual void Add     ( vtkImageStencilData * ); 
+
+  // Description:
+  // Subtract removes the portion of the stencil, supplied as argument, 
+  // that lies within Self from Self.   
+  virtual void Subtract( vtkImageStencilData * ); 
 
 protected:
   vtkImageStencilData();
   ~vtkImageStencilData();
 
+  // Description:
+  // Merges portions of the stencil that are within Self's extents into 
+  // itself. 
+  virtual void InternalAdd( vtkImageStencilData * );
+  
   // Description:
   // Check to see of the Spacing and Origin are different
   // from the OldSpacing and OldOrigin.

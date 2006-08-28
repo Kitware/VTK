@@ -18,10 +18,11 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkMath.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.17");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.18");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -500,17 +501,17 @@ void vtkImageStencilData::InsertAndMergeExtent(int r1, int r2, int yIdx, int zId
     { 
     for (int k = 0; k < clistlen; k+=2)
       {
-      if ((r1 >= clist[k] && r1 <= clist[k+1]) || 
-          (r2 >= clist[k] && r2 <= clist[k+1]))
+      if ((r1 >= clist[k] && r1 < clist[k+1]) || 
+          (r2 >= clist[k] && r2 < clist[k+1]))
         {
         // An intersecting extent is already present. Merge with that one.
         if (r1 < clist[k])
           {
           clist[k]   = r1;
           }
-        if (r2 > clist[k+1])
+        if (r2 >= clist[k+1])
           {
-          clist[k+1] = r2;
+          clist[k+1] = r2+1;
           }
         return;
         }
@@ -544,6 +545,116 @@ void vtkImageStencilData::InsertAndMergeExtent(int r1, int r2, int yIdx, int zId
   clist[clistlen++] = r2 + 1;
 }
 
+//----------------------------------------------------------------------------
+void vtkImageStencilData::RemoveExtent(int r1, int r2, int yIdx, int zIdx)
+{
+  
+  // calculate the index into the extent array
+  int extent[6];
+  this->GetExtent(extent);
+  int yExt = extent[3] - extent[2] + 1;
+  int incr = (zIdx - extent[4])*yExt + (yIdx - extent[2]);
+
+  int &clistlen = this->ExtentListLengths[incr];
+  int *&clist = this->ExtentLists[incr];
+
+  if (clistlen == 0)
+    { // nothing here.. nothing to remove
+    return;
+    }
+
+  if (r1 <= extent[0] && r2 >= extent[1])
+    {
+    // remove the whole row.
+    clistlen = 0;
+    delete [] clist;
+    return;
+    }
+  
+  int length = clistlen;
+  for (int k = 0; k < length; k += 2)
+    {
+    if (r1 <=  clist[k] && r2 >= (clist[k+1]-1))
+      {
+      // Remove this entry;
+      clistlen -= 2;
+  
+      if (clistlen == 0)
+        {
+        delete [] clist;
+        return;
+        }
+      
+      int clistmaxlen = 2;
+      while (clistlen > clistmaxlen)
+        {
+        clistmaxlen *= 2;
+        }
+      
+      if (clistmaxlen == clistlen)
+        {
+        int *newclist = new int[clistmaxlen];
+        for (int m = 0; m < clistlen; m++)
+          {
+          newclist[m] = clist[m];
+          }
+        delete [] clist;
+        clist = newclist;
+        }
+      }
+     
+    if ((r1 >= clist[k] && r1 < clist[k+1]) || 
+        (r2 >= clist[k] && r2 < clist[k+1]))
+      {
+
+      bool split = false;  
+      int tmp;    
+
+      // An intersecting extent is already present. Merge with that one.
+      if (r1 > clist[k])
+        {
+        tmp = clist[k+1];
+        clist[k+1] = r1;
+        split    = true;
+        }
+      if (split)
+        {
+        if (r2 < tmp)
+          {
+          // check whether more space is needed
+          // the allocated space is always the smallest power of two
+          // that is not less than the number of stored items, therefore
+          // we need to allocate space when clistlen is a power of two
+          int clistmaxlen = 2;
+          while (clistlen > clistmaxlen)
+            {
+            clistmaxlen *= 2;
+            }
+          if (clistmaxlen == clistlen)
+            { // need to allocate more space
+            clistmaxlen *= 2;
+            int *newclist = new int[clistmaxlen];
+            for (int m = 0; m < clistlen; m++)
+              {
+              newclist[m] = clist[m];
+              }
+            delete [] clist;
+            clist = newclist;
+            }
+          clist[clistlen++] = r2+1;
+          clist[clistlen++] = tmp;
+          }
+        }
+      else
+        {
+        if (r2 < clist[k+1])
+          {
+          clist[k] = r2+1;
+          }
+        }
+      }
+    }
+}
 
 //----------------------------------------------------------------------------
 vtkImageStencilData* vtkImageStencilData::GetData(vtkInformation* info)
@@ -557,3 +668,166 @@ vtkImageStencilData* vtkImageStencilData::GetData(vtkInformationVector* v,
 {
   return vtkImageStencilData::GetData(v->GetInformationObject(i));
 }
+
+//----------------------------------------------------------------------------
+void vtkImageStencilData::InternalAdd( vtkImageStencilData * stencil1 )
+{
+  int extent[6], extent1[6], extent2[6], r1, r2, idy, idz, iter=0;
+  stencil1->GetExtent(extent1);
+  this->GetExtent(extent2);
+  
+  extent[0] = (extent1[0] < extent2[0]) ? extent2[0] : extent1[0];
+  extent[1] = (extent1[1] > extent2[1]) ? extent2[1] : extent1[1];
+  extent[2] = (extent1[2] < extent2[2]) ? extent2[2] : extent1[2];
+  extent[3] = (extent1[3] > extent2[3]) ? extent2[3] : extent1[3];
+  extent[4] = (extent1[4] < extent2[4]) ? extent2[4] : extent1[4];
+  extent[5] = (extent1[5] > extent2[5]) ? extent2[5] : extent1[5];
+
+  bool modified = false;
+  for (idz=extent[4]; idz<=extent[5]; idz++, iter=0)
+    {
+    for (idy = extent[2]; idy <= extent[3]; idy++, iter=0)
+      {
+      int moreSubExtents = 1;
+      while( moreSubExtents )
+        {
+        moreSubExtents = stencil1->GetNextExtent( 
+          r1, r2, extent[0], extent[1], idy, idz, iter);
+
+        if (r1 <= r2 ) // sanity check 
+          { 
+          this->InsertAndMergeExtent(r1, r2, idy, idz); 
+          modified = true;
+          }
+        }
+      }
+    }
+  
+  if (modified)
+    {
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStencilData::Add( vtkImageStencilData * stencil1 )
+{
+  int extent[6], extent1[6], extent2[6], r1, r2, idy, idz, iter=0;
+  stencil1->GetExtent(extent1);
+  this->GetExtent(extent2);
+
+  if (vtkMath::ExtentIsWithinOtherExtent(extent1,extent2))
+    {
+
+    // Extents of stencil1 are entirely within the Self's extents. There
+    // is no need to re-allocate the extent lists.
+
+    this->InternalAdd(stencil1);
+    return;
+    }
+
+  // Need to reallocate extent lists. 
+  // 1. We will create a temporary stencil data.
+  // 2. Copy Self into this temporary stencil. 
+  // 3. Reallocate Self's extents to match the resized stencil. 
+  // 4. Merge stencil data from both into the Self.
+
+  // Find the smallest bounding box large enough to hold both stencils.
+  extent[0] = (extent1[0] > extent2[0]) ? extent2[0] : extent1[0];
+  extent[1] = (extent1[1] < extent2[1]) ? extent2[1] : extent1[1];
+  extent[2] = (extent1[2] > extent2[2]) ? extent2[2] : extent1[2];
+  extent[3] = (extent1[3] < extent2[3]) ? extent2[3] : extent1[3];
+  extent[4] = (extent1[4] > extent2[4]) ? extent2[4] : extent1[4];
+  extent[5] = (extent1[5] < extent2[5]) ? extent2[5] : extent1[5];
+
+  vtkImageStencilData *tmp = vtkImageStencilData::New();
+  tmp->DeepCopy(this);
+
+  this->SetExtent(extent);
+  this->AllocateExtents(); // Reallocate extents.
+
+  for (idz=extent2[4]; idz<=extent2[5]; idz++, iter=0)
+    {
+    for (idy = extent2[2]; idy <= extent2[3]; idy++, iter=0)
+      {
+      int moreSubExtents = 1;
+      while( moreSubExtents )
+        {
+        moreSubExtents = tmp->GetNextExtent( 
+          r1, r2, extent[0], extent[1], idy, idz, iter);
+
+        if (r1 <= r2 ) // sanity check 
+          { 
+          this->InsertAndMergeExtent(r1, r2, idy, idz); 
+          }
+        }
+      }
+    }
+  
+  tmp->Delete();
+
+  for (idz=extent1[4]; idz<=extent1[5]; idz++, iter=0)
+    {
+    for (idy = extent1[2]; idy <= extent1[3]; idy++, iter=0)
+      {
+      int moreSubExtents = 1;
+      while( moreSubExtents )
+        {
+        moreSubExtents = stencil1->GetNextExtent( 
+          r1, r2, extent[0], extent[1], idy, idz, iter);
+
+        if (r1 <= r2 ) // sanity check 
+          { 
+          this->InsertAndMergeExtent(r1, r2, idy, idz); 
+          }
+        }
+      }
+    }
+
+  this->Modified();
+} 
+
+//----------------------------------------------------------------------------
+void vtkImageStencilData::Subtract( vtkImageStencilData * stencil1 )
+{
+  int extent[6], extent1[6], extent2[6], r1, r2, idy, idz, iter=0;
+  stencil1->GetExtent(extent1);
+  this->GetExtent(extent2);
+
+  if ((extent1[0] > extent2[1]) || (extent1[1] < extent2[0]) || 
+      (extent1[2] > extent2[3]) || (extent1[3] < extent2[2]) || 
+      (extent1[4] > extent2[5]) || (extent1[5] < extent2[4]))
+    {
+    // The extents don't intersect.. No subraction needed
+    return;
+    }
+
+  // Find the smallest box intersection of the extents
+  extent[0] = (extent1[0] < extent2[0]) ? extent2[0] : extent1[0];
+  extent[1] = (extent1[1] > extent2[1]) ? extent2[1] : extent1[1];
+  extent[2] = (extent1[2] < extent2[2]) ? extent2[2] : extent1[2];
+  extent[3] = (extent1[3] > extent2[3]) ? extent2[3] : extent1[3];
+  extent[4] = (extent1[4] < extent2[4]) ? extent2[4] : extent1[4];
+  extent[5] = (extent1[5] > extent2[5]) ? extent2[5] : extent1[5];
+
+  for (idz=extent[4]; idz<=extent[5]; idz++, iter=0)
+    {
+    for (idy = extent[2]; idy <= extent[3]; idy++, iter=0)
+      {
+      int moreSubExtents = 1;
+      while( moreSubExtents )
+        {
+        moreSubExtents = stencil1->GetNextExtent( 
+          r1, r2, extent[0], extent[1], idy, idz, iter);
+
+        if (r1 <= r2 ) // sanity check 
+          { 
+          this->RemoveExtent(r1, r2, idy, idz); 
+          }
+        }
+      }
+    }
+
+  this->Modified();
+} 
+
