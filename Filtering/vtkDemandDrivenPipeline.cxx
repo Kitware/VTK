@@ -42,10 +42,11 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkHyperOctree.h"
+#include "vtkTemporalDataSet.h"
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.44");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.45");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -1059,6 +1060,10 @@ vtkDataObject* vtkDemandDrivenPipeline::NewDataObject(const char* type)
   else if(strcmp(type, "vtkHyperOctree") == 0)
     {
     return vtkHyperOctree::New();
+    }
+  else if(strcmp(type, "vtkTemporalDataSet") == 0)
+    {
+    return vtkTemporalDataSet::New();
     }
   else if(vtkObject* obj = vtkInstantiator::CreateInstance(type))
     {

@@ -188,6 +188,8 @@ vtkStructuredPointsToPolyDataFilter.cxx
 vtkStructuredPointsToStructuredPointsFilter.cxx
 vtkStructuredPointsToUnstructuredGridFilter.cxx
 vtkSuperquadric.cxx
+vtkTemporalDataSet.cxx
+vtkTemporalDataSetAlgorithm.cxx
 vtkTetra.cxx
 vtkThreadedImageAlgorithm.cxx
 vtkTriangle.cxx
