@@ -23,7 +23,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDataArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLExtensionManager.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
@@ -37,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkHAVSVolumeMapper, "1.4");
+vtkCxxRevisionMacro(vtkHAVSVolumeMapper, "1.5");
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkHAVSVolumeMapper);
 
@@ -293,41 +292,6 @@ vtkHAVSVolumeMapper::~vtkHAVSVolumeMapper()
   delete [] this->RadixTemp;
   delete [] this->Centers;
   delete [] this->TransferFunction;
-}
-
-//----------------------------------------------------------------------------
-// Check the OpenGL extension manager for GPU features necessary for the
-// HAVS algorithm. 
-bool vtkHAVSVolumeMapper::SupportedByHardware()
-{
-  vtkOpenGLExtensionManager * extensions = vtkOpenGLExtensionManager::New();
-  
-  int supports_GL_EXT_texture3D =
-    extensions->ExtensionSupported( "GL_EXT_texture3D");
-  int supports_GL_EXT_framebuffer_object = 
-    extensions->ExtensionSupported( "GL_EXT_framebuffer_object");
-  int supports_GL_ARB_fragment_program = 
-    extensions->ExtensionSupported( "GL_ARB_fragment_program" );
-  int supports_GL_ARB_vertex_program = 
-    extensions->ExtensionSupported( "GL_ARB_vertex_program" );
-  int supports_GL_ARB_texture_float = 
-    extensions->ExtensionSupported( "GL_ARB_texture_float" );
-  int supports_GL_ATI_texture_float = 
-    extensions->ExtensionSupported( "GL_ATI_texture_float" );
-  extensions->Delete();
-
-  if ( !supports_GL_EXT_texture3D ||
-       !supports_GL_EXT_framebuffer_object ||
-       !supports_GL_ARB_fragment_program ||
-       !supports_GL_ARB_vertex_program ||
-       !(supports_GL_ARB_texture_float || supports_GL_ATI_texture_float))
-    {    
-    return false;
-    }
-  else
-    {
-    return true;
-    }
 }
 
 //----------------------------------------------------------------------------

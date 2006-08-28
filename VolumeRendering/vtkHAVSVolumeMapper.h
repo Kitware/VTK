@@ -157,10 +157,12 @@ public:
   void SetKBufferSizeTo6() 
   {this->SetKBufferSize(VTK_KBUFFER_SIZE_6);}
 
-  // Description Check hardware support for the HAVS algorithm.  Necessary
+  // Description:
+  // Check hardware support for the HAVS algorithm.  Necessary
   // features include off-screen rendering, 32-bit fp textures, multiple
   // render targets, and framebuffer objects.
-  static bool SupportedByHardware();
+  // Subclasses must override this method to indicate if supported by Hardware.
+  virtual bool SupportedByHardware() {return false; }
 
   // Description:
   // Set/get whether or not the data structures should be stored on the GPU 

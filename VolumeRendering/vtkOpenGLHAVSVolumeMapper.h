@@ -132,6 +132,12 @@ public:
   // for better peformance.
   virtual void SetGPUDataStructures(bool);
 
+  // Description:
+  // Check hardware support for the HAVS algorithm.  Necessary
+  // features include off-screen rendering, 32-bit fp textures, multiple
+  // render targets, and framebuffer objects.
+  // Subclasses must override this method to indicate if supported by Hardware.
+  virtual bool SupportedByHardware();
 protected:
 
   vtkOpenGLHAVSVolumeMapper();

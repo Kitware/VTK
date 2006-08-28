@@ -41,7 +41,7 @@ extern const char *vtkHAVSVolumeMapper_k6BeginFP;
 extern const char *vtkHAVSVolumeMapper_k6FP;
 extern const char *vtkHAVSVolumeMapper_k6EndFP;
 
-vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.2");
+vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.3");
 vtkStandardNewMacro(vtkOpenGLHAVSVolumeMapper);
 
 //----------------------------------------------------------------------------
@@ -1032,6 +1032,40 @@ void vtkOpenGLHAVSVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 }
 
+//----------------------------------------------------------------------------
+// Check the OpenGL extension manager for GPU features necessary for the
+// HAVS algorithm. 
+bool vtkOpenGLHAVSVolumeMapper::SupportedByHardware()
+{
+  vtkOpenGLExtensionManager * extensions = vtkOpenGLExtensionManager::New();
+  
+  int supports_GL_EXT_texture3D =
+    extensions->ExtensionSupported( "GL_EXT_texture3D");
+  int supports_GL_EXT_framebuffer_object = 
+    extensions->ExtensionSupported( "GL_EXT_framebuffer_object");
+  int supports_GL_ARB_fragment_program = 
+    extensions->ExtensionSupported( "GL_ARB_fragment_program" );
+  int supports_GL_ARB_vertex_program = 
+    extensions->ExtensionSupported( "GL_ARB_vertex_program" );
+  int supports_GL_ARB_texture_float = 
+    extensions->ExtensionSupported( "GL_ARB_texture_float" );
+  int supports_GL_ATI_texture_float = 
+    extensions->ExtensionSupported( "GL_ATI_texture_float" );
+  extensions->Delete();
+
+  if ( !supports_GL_EXT_texture3D ||
+       !supports_GL_EXT_framebuffer_object ||
+       !supports_GL_ARB_fragment_program ||
+       !supports_GL_ARB_vertex_program ||
+       !(supports_GL_ARB_texture_float || supports_GL_ATI_texture_float))
+    {    
+    return false;
+    }
+  else
+    {
+    return true;
+    }
+}
 
 //----------------------------------------------------------------------------
 int vtkOpenGLHAVSVolumeMapper::FillInputPortInformation(int port, vtkInformation* info)
