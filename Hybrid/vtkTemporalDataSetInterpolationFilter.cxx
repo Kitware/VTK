@@ -70,10 +70,10 @@ class vtkDataSetCache : public vtkDataObjectCollection
   protected:
 };
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkDataSetCache, "1.3");
+vtkCxxRevisionMacro(vtkDataSetCache, "1.4");
 vtkStandardNewMacro(vtkDataSetCache);
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalDataSetInterpolationFilter, "1.3");
+vtkCxxRevisionMacro(vtkTemporalDataSetInterpolationFilter, "1.4");
 vtkStandardNewMacro(vtkTemporalDataSetInterpolationFilter); 
 //----------------------------------------------------------------------------
 vtkTemporalDataSetInterpolationFilter::vtkTemporalDataSetInterpolationFilter()
@@ -844,6 +844,8 @@ void vtkTemporalDataSetInterpolationFilter::PrintSelf(ostream& os, vtkIndent ind
      << this->TimeValue << "\n";
   os << indent << "TimeStepInterval: "
      << this->TimeStepInterval << "\n";
+  os << indent << "TimeStepRange: "
+     << "(" << this->TimeStepRange[0] << "," << this->TimeStepRange[1] << ")\n";
 }
 
 //----------------------------------------------------------------------------
