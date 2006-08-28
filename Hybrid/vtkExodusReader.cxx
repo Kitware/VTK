@@ -1392,7 +1392,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.23");
+vtkCxxRevisionMacro(vtkExodusReader, "1.24");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -4960,33 +4960,34 @@ int vtkExodusReader::GetVariableID ( const char *type, const char *name )
 {
   ArrayType typeID = this->GetArrayTypeID( type );
 
+  int res = -1;
   switch ( typeID )
     {
     case vtkExodusReader::CELL:
-      return this->GetCellArrayID( name );
+      res = this->GetCellArrayID( name );
       break;
     case vtkExodusReader::POINT:
-      return this->GetPointArrayID( name );
+      res = this->GetPointArrayID( name );
       break;
     case vtkExodusReader::BLOCK:
-      return this->GetBlockArrayID( name );
+      res = this->GetBlockArrayID( name );
       break;
     case vtkExodusReader::PART:
-      return this->GetPartArrayID( name );
+      res = this->GetPartArrayID( name );
       break;
     case vtkExodusReader::MATERIAL:
-      return this->GetMaterialArrayID( name );
+      res = this->GetMaterialArrayID( name );
       break;
     case vtkExodusReader::ASSEMBLY:
-      return this->GetAssemblyArrayID( name );
+      res = this->GetAssemblyArrayID( name );
       break;
     case vtkExodusReader::HIERARCHY:
     case vtkExodusReader::NUM_ARRAY_TYPES:
     case vtkExodusReader::UNKNOWN_TYPE:
     default:
-      return -1;
-      break;
+      ;
     }
+  return res;
 }
 
 int vtkExodusReader::GetGlobalElementID ( vtkDataSet *data, int localID )
