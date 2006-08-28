@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.20");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.21");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -186,7 +186,7 @@ int vtkExtractCTHPart::FillInputPortInformation(int port,
     {
     return 0;
     }
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiGroupDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   
   return 1;
 }
@@ -252,8 +252,10 @@ int vtkExtractCTHPart::RequestData(
       if(this->GetNumberOfOutputPorts()>0) // 
         {
         vtkInformation *info=outputVector->GetInformationObject(0);
-        int processNumber = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-        int numProcessors =info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+        int processNumber = 
+          info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+        int numProcessors =
+          info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
         if(this->Controller==0)
           {
           processNumber=0;
@@ -269,10 +271,11 @@ int vtkExtractCTHPart::RequestData(
     }
   else
     {
-    rg=vtkRectilinearGrid::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    rg=vtkRectilinearGrid::SafeDownCast(
+      inInfo->Get(vtkDataObject::DATA_OBJECT()));
     if(rg==0)
       {
-      vtkErrorMacro(<<"No input.");
+      vtkErrorMacro(<<"No valid input.");
       return 0;
       }
     rg->GetBounds(this->Bounds);
