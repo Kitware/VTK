@@ -12,8 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDICOMImageReader - Reads DICOM images
+// .NAME vtkDICOMImageReader - Reads some DICOM images
 // .SECTION Description
+// DICOM (stands for Digital Imaging in COmmunications and Medicine)
+// is a medical image file format widely used to exchange data, provided
+// by various modalities.
+// .SECTION Warnings
+// This reader might eventually handle ACR-NEMA file (predecessor of the DICOM
+// format for medical images).
+// This reader does not handle encapsulated format, only plain raw file are
+// handled. This reader also does not handle multi-frames DICOM datasets.
 // .SECTION See Also
 // vtkBMPReader vtkPNMReader vtkTIFFReader
 
@@ -138,12 +146,6 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   //
   virtual int CanReadFile(const char* fname);
 
-protected:
-  //
-  // Setup the volume size
-  //
-  void SetupOutputInformation(int num_slices);
-
   //
   // What file extensions are supported?
   //
@@ -158,6 +160,12 @@ protected:
   {
     return "DICOM";
   }
+
+protected:
+  //
+  // Setup the volume size
+  //
+  void SetupOutputInformation(int num_slices);
 
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *out);
