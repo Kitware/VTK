@@ -77,7 +77,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.5");
+vtkCxxRevisionMacro(vtkMINCImageWriter, "1.6");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter,OrientationMatrix,vtkMatrix4x4);
@@ -823,7 +823,8 @@ int vtkMINCImageWriter::VerifyPatientAttribute(
 
 //-------------------------------------------------------------------------
 int vtkMINCImageWriter::VerifyStudyAttribute(
-  const char *vtkNotUsed(varname), const char *attname, vtkDataArray *array)
+  const char *vtkNotUsed(varname), const char *attname,
+  vtkDataArray *vtkNotUsed(array))
 {
   // Attributes for "study" variable (vartype = "group________")
   static const char *studyAttributes[] = {
