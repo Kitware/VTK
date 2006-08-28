@@ -56,7 +56,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestSortFileNames
       )
       ADD_TEST(${tfile} ${VTK_EXECUTABLE}
-               ${VTK_SOURCE_DIR}/IO/Testing/Tcl/${tfile}.tcl)
+               ${VTK_SOURCE_DIR}/IO/Testing/Tcl/${tfile}.tcl
+               -D ${VTK_DATA_ROOT})
     ENDFOREACH( tfile )
   #
   # If we do not have the data, still run the tests that we can
