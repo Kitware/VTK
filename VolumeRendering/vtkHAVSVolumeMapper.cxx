@@ -31,12 +31,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRenderingFactory.h"
 
-#include <set>
-#include <vector>
-#include <math.h>
 #include <vtkstd/algorithm>
+#include <vtkstd/set>
+#include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkHAVSVolumeMapper, "1.3");
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkHAVSVolumeMapper, "1.4");
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkHAVSVolumeMapper);
 
