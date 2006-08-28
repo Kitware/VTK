@@ -60,6 +60,7 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #ifdef _WIN32
 #include "vtkWindows.h"
+#include <process.h>
 #else
 #include <sys/types.h>
 #include <unistd.h>
@@ -76,7 +77,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.1");
+vtkCxxRevisionMacro(vtkMINCImageWriter, "1.2");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter,OrientationMatrix,vtkMatrix4x4);
@@ -981,7 +982,12 @@ vtkstd::string vtkMINCImageWriterCreateIdentString()
   ident.append(itemsep);
 
   // Get the process ID and the counter for this process.
-  sprintf(buf, "%i%s%i", getpid(), itemsep, identx++);
+#ifdef _WIN32
+  int processId = _getpid();
+#else
+  int processId = getpid();
+#endif
+  sprintf(buf, "%i%s%i", processId, itemsep, identx++);
   ident.append(buf);
   
   return ident;
