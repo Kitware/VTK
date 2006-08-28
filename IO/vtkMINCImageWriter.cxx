@@ -77,7 +77,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.2");
+vtkCxxRevisionMacro(vtkMINCImageWriter, "1.3");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter,OrientationMatrix,vtkMatrix4x4);
@@ -539,8 +539,8 @@ void vtkMINCImageWriter::ComputePermutationFromOrientation(
 // 2 means that the attribute wasn't recognized
 
 //-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyGlobalAttribute(const char *attname,
-                                         vtkDataArray *array)
+int vtkMINCImageWriter::VerifyGlobalAttribute(
+  const char *attname, vtkDataArray *vtkNotUsed(array))
 {
   // Global attributes
   static const char *globalAttributes[] = {
@@ -573,9 +573,8 @@ int vtkMINCImageWriter::VerifyGlobalAttribute(const char *attname,
 }
 
 //-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyGeneralAttribute(const char *varname,
-                                          const char *attname,
-                                          vtkDataArray *array)
+int vtkMINCImageWriter::VerifyGeneralAttribute(
+  const char *varname, const char *attname, vtkDataArray *array)
 {
   // Attributes that all MINC variables have
   static const char *generalAttributes[] = {
@@ -624,9 +623,8 @@ int vtkMINCImageWriter::VerifyGeneralAttribute(const char *varname,
 }
 
 //-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyDimensionAttribute(const char *varname,
-                                            const char *attname,
-                                            vtkDataArray *array)
+int vtkMINCImageWriter::VerifyDimensionAttribute(
+  const char *varname, const char *attname, vtkDataArray *array)
 {
   // Attributes for dimension variables (vartype = "dimension____")
   static const char *dimensionAttributes[] = {
@@ -702,9 +700,8 @@ int vtkMINCImageWriter::VerifyDimensionAttribute(const char *varname,
 }
 
 //-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyImageAttribute(const char *varname,
-                                        const char *attname,
-                                        vtkDataArray *array)
+int vtkMINCImageWriter::VerifyImageAttribute(
+  const char *vtkNotUsed(varname), const char *attname, vtkDataArray *array)
 {
   // Attributes for the "image" variable (vartype = "group________")
   static const char *imageAttributes[] = {
@@ -739,9 +736,8 @@ int vtkMINCImageWriter::VerifyImageAttribute(const char *varname,
 }
 
 //-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyImageMinMaxAttribute(const char *varname,
-                                              const char *attname,
-                                              vtkDataArray *array)
+int vtkMINCImageWriter::VerifyImageMinMaxAttribute(
+  const char *varname, const char *attname, vtkDataArray *array)
 {
   // Attributes for "image-min", "image-max" (vartype = "var_attribute")
   static const char *imageMinMaxAttributes[] = {
@@ -784,9 +780,9 @@ int vtkMINCImageWriter::VerifyImageMinMaxAttribute(const char *varname,
 }
 
 //-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyPatientAttribute(const char *varname,
-                                          const char *attname,
-                                          vtkDataArray *array)
+int vtkMINCImageWriter::VerifyPatientAttribute(
+  const char *varname, const char *attname,
+  vtkDataArray *vtkNotUsed(array))
 {
   // Attributes for "patient" variable (vartype = "group________")
   static const char *patientAttributes[] = {
@@ -825,9 +821,8 @@ int vtkMINCImageWriter::VerifyPatientAttribute(const char *varname,
 }
 
 //-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyStudyAttribute(const char *varname,
-                                        const char *attname,
-                                        vtkDataArray *array)
+int vtkMINCImageWriter::VerifyStudyAttribute(
+  const char *vtkNotUsed(varname), const char *attname, vtkDataArray *array)
 {
   // Attributes for "study" variable (vartype = "group________")
   static const char *studyAttributes[] = {
@@ -877,9 +872,8 @@ int vtkMINCImageWriter::VerifyStudyAttribute(const char *varname,
 }
 
 //-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyAcquisitionAttribute(const char *varname,
-                                              const char *attname,
-                                              vtkDataArray *array)
+int vtkMINCImageWriter::VerifyAcquisitionAttribute(
+  const char *vtkNotUsed(varname), const char *attname, vtkDataArray *array)
 {
   // Attributes for "acquisition" variable (vartype = "group________")
   static const char *acquisitionAttributes[] = {
@@ -2506,9 +2500,9 @@ int vtkMINCImageWriter::RequestUpdateExtent(
 
 //--------------------------------------------------------------------------
 int vtkMINCImageWriter::RequestData(
-  vtkInformation* request,
+  vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformationVector* vtkNotUsed(outputVector))
 {
   // Go through the inputs and write the data for each
   int numFrames = inputVector[0]->GetNumberOfInformationObjects();
