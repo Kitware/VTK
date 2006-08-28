@@ -65,7 +65,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageReader, "1.5");
+vtkCxxRevisionMacro(vtkMINCImageReader, "1.6");
 vtkStandardNewMacro(vtkMINCImageReader);
 
 //-------------------------------------------------------------------------
@@ -76,7 +76,7 @@ public:
   typedef vtkstd::map<vtkstd::string, vtkSmartPointer<vtkObject> > MapType;
 
   static vtkMINCImageReaderAttributeMap *New() {
-    return new vtkMINCImageReaderAttributeMap; }; 
+    return new vtkMINCImageReaderAttributeMap; };
 
   void Delete() {
     delete this; };
@@ -305,7 +305,7 @@ void vtkMINCImageReader::PrintFileHeader()
       {
       endChar = startChar;
       }
-    if (this->FileName[startChar-1] == '/') 
+    if (this->FileName[startChar-1] == '/')
       {
       break;
       }
@@ -353,7 +353,7 @@ void vtkMINCImageReader::PrintFileHeader()
     }
   for (int idim = 0; idim < ndim; idim++)
     {
-    os << "\t" << this->DimensionNames->GetValue(idim) << " = " 
+    os << "\t" << this->DimensionNames->GetValue(idim) << " = "
        << this->DimensionLengths->GetValue(idim) << " ;\n";
     }
 
@@ -374,7 +374,7 @@ void vtkMINCImageReader::PrintFileHeader()
     else
       {
       varname = this->VariableNames->GetValue(ivar);
-      
+
       if (strcmp(varname, "image") == 0 ||
           strcmp(varname, "image-max") == 0 ||
           strcmp(varname, "image-min") == 0)
@@ -385,7 +385,7 @@ void vtkMINCImageReader::PrintFileHeader()
           {
           nvardim = this->MINCImageMinMaxDims;
           }
-        
+
         if (nvardim > 0)
           {
           os << "(";
@@ -419,7 +419,7 @@ void vtkMINCImageReader::PrintFileHeader()
         os << "\t\t" << varname << ":" << attname << " = ";
         if (array->GetDataType() == VTK_CHAR)
           {
-          vtkCharArray *charArray = 
+          vtkCharArray *charArray =
             vtkCharArray::SafeDownCast(array);
           os << "\"";
           const char *cp = charArray->GetPointer(0);
@@ -470,8 +470,8 @@ void vtkMINCImageReader::PrintFileHeader()
                     break;
                   default:
                     text[j++] = '\\';
-                    text[j++] = '0' + ((c & 0xc0) >> 6); 
-                    text[j++] = '0' + ((c & 0x38) >> 3); 
+                    text[j++] = '0' + ((c & 0xc0) >> 6);
+                    text[j++] = '0' + ((c & 0x38) >> 3);
                     text[j] = '0' + (c & 0x7);
                     break;
                   }
@@ -554,7 +554,7 @@ int vtkMINCImageReader::CanReadFile(const char* fname)
     {
     return 0;
     }
-  
+
   int ndims = 0;
   int nvars = 0;
   int ngatts = 0;
@@ -593,7 +593,7 @@ int vtkMINCImageReader::CanReadFile(const char* fname)
       break;
       }
     }
-  
+
   nc_close(ncid);
 
   return 0;
@@ -693,7 +693,7 @@ vtkDataArray *vtkMINCImageReader::GetAttributeValueAsArray(
     }
   path += "/";
   path += attribute;
-  
+
   return this->AttributeValues->GetDataArray(path.c_str());
 }
 
@@ -702,7 +702,7 @@ const char *vtkMINCImageReader::GetAttributeValueAsString(
   const char *variable,
   const char *attribute)
 {
-  vtkDataArray *array = 
+  vtkDataArray *array =
     this->GetAttributeValueAsArray(variable, attribute);
 
   // Return NULL if not found
@@ -739,7 +739,7 @@ int vtkMINCImageReader::GetAttributeValueAsInt(
       {
       return static_cast<int>(result);
       }
-    } 
+    }
   else if (array->GetNumberOfTuples() == 1)
     {
     switch(array->GetDataType())
@@ -789,7 +789,7 @@ double vtkMINCImageReader::GetAttributeValueAsDouble(
       {
       return result;
       }
-    } 
+    }
   else if (array->GetNumberOfTuples() == 1)
     {
     switch(array->GetDataType())
@@ -890,7 +890,7 @@ int vtkMINCImageReader::IndexFromDimensionName(const char *dimName)
 //-------------------------------------------------------------------------
 int vtkMINCImageReader::ReadMINCFileAttributes()
 {
-  // If the filename hasn't changed since the last time the attributes 
+  // If the filename hasn't changed since the last time the attributes
   // were read, don't read them again.
   if (!this->FileNameHasChanged)
     {
@@ -906,9 +906,9 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
 
   // Orientation set tells us which direction cosines were found
   int orientationSet[3];
-  orientationSet[0] = 0; 
-  orientationSet[1] = 0; 
-  orientationSet[2] = 0; 
+  orientationSet[0] = 0;
+  orientationSet[1] = 0;
+  orientationSet[2] = 0;
 
   this->MINCImageMinMaxDims = 0;
   this->MINCImageMin->SetNumberOfTuples(0);
@@ -986,8 +986,8 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
       char attname[NC_MAX_NAME+1];
       nc_type atttype;
       size_t attlength = 0;
-      
-      status = nc_inq_attname(ncid, varid, j, attname); 
+
+      status = nc_inq_attname(ncid, varid, j, attname);
       if (status != NC_NOERR)
         {
         vtkMINCImageReaderFailAndClose(ncid, status);
@@ -1010,7 +1010,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
           // should be signed.
           vtkUnsignedCharArray *ucharArray = vtkUnsignedCharArray::New();
           ucharArray->SetNumberOfValues(attlength);
-          nc_get_att_uchar(ncid, varid, attname, 
+          nc_get_att_uchar(ncid, varid, attname,
                            ucharArray->GetPointer(0));
           dataArray = ucharArray;
           }
@@ -1079,7 +1079,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
           }
         path += "/";
         path += attname;
-  
+
         dataArray->SetName(path.c_str());
         this->AttributeValues->AddArray(dataArray);
         dataArray->Delete();
@@ -1120,7 +1120,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
         {
         char dimname[NC_MAX_NAME+1];
         size_t dimlength = 0;
-    
+
         dimid = dimids[i];
 
         status = nc_inq_dim(ncid, dimid, dimname, &dimlength);
@@ -1129,9 +1129,9 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
           vtkMINCImageReaderFailAndClose(ncid, status);
           return 0;
           }
-        
+
         this->DimensionNames->SetValue(i, dimname);
-        this->DimensionLengths->SetValue(i, 
+        this->DimensionLengths->SetValue(i,
                                          static_cast<vtkIdType>(dimlength));
 
         int dimIndex = this->IndexFromDimensionName(dimname);
@@ -1156,8 +1156,8 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
           {
           // Set the NumberOfFrames to the product of all dimensions
           // that are neither spatial dimensions nor vector dimensions.
-          this->NumberOfFrames *= dimlength; 
-          }        
+          this->NumberOfFrames *= dimlength;
+          }
         }
       }
     else if (strcmp(varname, "image-min") == 0 ||
@@ -1180,7 +1180,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
         {
         char dimname[NC_MAX_NAME+1];
         size_t dimlength = 0;
-    
+
         dimid = dimids[i];
 
         status = nc_inq_dim(ncid, dimid, dimname, &dimlength);
@@ -1275,20 +1275,20 @@ void vtkMINCImageReader::FindMINCValidRange()
   range[0] = 0.0;
   range[1] = 1.0;
 
-  // Look for the valid_range attribute of the data. 
-  vtkDoubleArray *rangearray = 
+  // Look for the valid_range attribute of the data.
+  vtkDoubleArray *rangearray =
     this->AttributeValues->GetDoubleArray("/minc/image/valid_range");
   if (rangearray)
     {
     range[0] = rangearray->GetValue(0);
     range[1] = rangearray->GetValue(1);
-    
+
     if (this->MINCImageType == NC_FLOAT)
       {
       range[0] = (float)range[0];
       range[1] = (float)range[1];
       }
-        
+
     // Sometimes the range is accidentally set to the full
     // float range.  In that case, we ignore the valid_range.
     if (this->MINCImageType == NC_FLOAT && range[1] == FLT_MAX ||
@@ -1306,16 +1306,16 @@ void vtkMINCImageReader::FindMINCValidRange()
       switch (this->MINCImageType)
         {
         case NC_BYTE:
-          range[0] = -128;
-          range[1] = 127;
+          range[0] = VTK_SIGNED_CHAR_MIN;
+          range[1] = VTK_SIGNED_CHAR_MAX;
           break;
         case NC_SHORT:
-          range[0] = -32768;
-          range[1] = 32767;
+          range[0] = VTK_SHORT_MIN;
+          range[1] = VTK_SHORT_MAX;
           break;
         case NC_INT:
-          range[0] = -2147483647 - 1;
-          range[1] = 2147483647;
+          range[0] = VTK_INT_MIN;
+          range[1] = VTK_INT_MAX;
           break;
         }
       }
@@ -1324,21 +1324,21 @@ void vtkMINCImageReader::FindMINCValidRange()
       switch (this->MINCImageType)
         {
         case NC_BYTE:
-          range[0] = 0;
-          range[1] = 255;
+          range[0] = VTK_UNSIGNED_CHAR_MIN;
+          range[1] = VTK_UNSIGNED_CHAR_MAX;
           break;
         case NC_SHORT:
-          range[0] = 0;
-          range[1] = 65535;
+          range[0] = VTK_UNSIGNED_SHORT_MIN;
+          range[1] = VTK_UNSIGNED_SHORT_MAX;
           break;
         case NC_INT:
-          range[0] = 0u;
-          range[1] = 4294967295u;
+          range[0] = VTK_UNSIGNED_INT_MIN;
+          range[1] = VTK_UNSIGNED_INT_MAX;
           break;
         }
       }
     }
-  
+
   this->MINCValidRange[0] = range[0];
   this->MINCValidRange[1] = range[1];
 }
@@ -1462,7 +1462,7 @@ void vtkMINCImageReader::ExecuteInformation()
       {
       vtkstd::string basepath = "/minc/";
       vtkstd::string path;
-      vtkDoubleArray *doubleArray = 0; 
+      vtkDoubleArray *doubleArray = 0;
 
       // Set the spacing from the 'step' attribute.
       path = basepath + dimName + "/step";
@@ -1470,7 +1470,7 @@ void vtkMINCImageReader::ExecuteInformation()
       if (doubleArray)
         {
         dataSpacing[dimIndex] = doubleArray->GetValue(0);
-        } 
+        }
 
       // Set the origin from the 'start' attribute.
       path = basepath + dimName + "/start";
@@ -1614,7 +1614,7 @@ void vtkMINCImageReaderExecuteChunk(
   size_t lastdimcount = count[lastdim];
   size_t lastdimindex = 0;
   vtkIdType lastdimInc = permutedInc[lastdim];
-  T1 *lastdimOutPtr = saveOutPtr[lastdim];  
+  T1 *lastdimOutPtr = saveOutPtr[lastdim];
 
   // Loop over all contiguous sections of the image.
   for (;;)
@@ -1698,7 +1698,7 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
   vtkIdType outInc[3];
   data->GetIncrements(outInc);
   int outSize[3];
-  data->GetDimensions(outSize);  
+  data->GetDimensions(outSize);
 
   void *outPtr = data->GetScalarPointerForExtent(outExt);
 
@@ -1823,7 +1823,7 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
     start2[idim] = start[idim];
     count2[idim] = count[idim];
     }
-  
+
   // Go through all the chunks
   for (vtkIdType ichunk = 0; ichunk < nchunks; ichunk++)
     {
