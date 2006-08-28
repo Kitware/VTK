@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkTextureMapToPlane, "1.49");
+vtkCxxRevisionMacro(vtkTextureMapToPlane, "1.50");
 vtkStandardNewMacro(vtkTextureMapToPlane);
 
 // Construct with s,t range=(0,1) and automatic plane generation turned on.
@@ -89,6 +89,7 @@ int vtkTextureMapToPlane::RequestData(
   //  Allocate texture data
   //
   newTCoords = vtkFloatArray::New();
+  newTCoords->SetName("Texture Coordinates");
   newTCoords->SetNumberOfComponents(2);
   newTCoords->SetNumberOfTuples(numPts);
   progressInterval = numPts/20 + 1;

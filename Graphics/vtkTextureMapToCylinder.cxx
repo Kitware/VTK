@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkTextureMapToCylinder, "1.32");
+vtkCxxRevisionMacro(vtkTextureMapToCylinder, "1.33");
 vtkStandardNewMacro(vtkTextureMapToCylinder);
 
 // Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 
@@ -134,6 +134,7 @@ int vtkTextureMapToCylinder::RequestData(
     return 1;
     }
   newTCoords = vtkFloatArray::New();
+  newTCoords->SetName("Texture Coordinates");
   newTCoords->SetNumberOfComponents(2);
   newTCoords->Allocate(2*numPts);
 
