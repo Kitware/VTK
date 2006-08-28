@@ -48,7 +48,6 @@
 #define __vtkTemporalDataSetInterpolationFilter_h
 
 #include "vtkTemporalDataSetAlgorithm.h"
-#include <vtkstd/vector>
 
 class vtkDataSet;
 class vtkDataSetCache;

@@ -37,6 +37,7 @@
 
 #include <functional>
 #include <vtkstd/algorithm>
+#include <vtkstd/vector>
 
 // It would be unlikely to use more than this number of timesteps for an interpolation
 // we can save a great deal of time by allocating static arrays for calculations
@@ -69,10 +70,10 @@ class vtkDataSetCache : public vtkDataObjectCollection
   protected:
 };
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkDataSetCache, "1.2");
+vtkCxxRevisionMacro(vtkDataSetCache, "1.3");
 vtkStandardNewMacro(vtkDataSetCache);
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalDataSetInterpolationFilter, "1.2");
+vtkCxxRevisionMacro(vtkTemporalDataSetInterpolationFilter, "1.3");
 vtkStandardNewMacro(vtkTemporalDataSetInterpolationFilter); 
 //----------------------------------------------------------------------------
 vtkTemporalDataSetInterpolationFilter::vtkTemporalDataSetInterpolationFilter()
@@ -836,13 +837,13 @@ void vtkTemporalDataSetInterpolationFilter::PrintSelf(ostream& os, vtkIndent ind
      ? "INTERPOLATION_TYPE_LINEAR"
      : "INTERPOLATION_TYPE_SPLINE") << "\n";
   os << indent << "NumberOfSplineInterpolationPoints: "
-     << NumberOfSplineInterpolationPoints << "\n";
+     << this->NumberOfSplineInterpolationPoints << "\n";
   os << indent << "TimeStep: "
-     << TimeStep << "\n";
+     << this->TimeStep << "\n";
   os << indent << "TimeValue: "
-     << TimeValue << "\n";
+     << this->TimeValue << "\n";
   os << indent << "TimeStepInterval: "
-     << TimeStepInterval << "\n";
+     << this->TimeStepInterval << "\n";
 }
 
 //----------------------------------------------------------------------------
