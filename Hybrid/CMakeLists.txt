@@ -51,6 +51,7 @@ vtkRIBExporter.cxx
 vtkRIBLight.cxx
 vtkRIBProperty.cxx
 vtkRenderLargeImage.cxx
+vtkTemporalShiftScale.cxx
 vtkThinPlateSplineTransform.cxx
 vtkTransformToGrid.cxx
 vtkVRMLImporter.cxx

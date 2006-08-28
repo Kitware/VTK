@@ -62,6 +62,7 @@ vtkSocketCollection.cxx
 vtkSocketCommunicator.cxx
 vtkSocketController.cxx
 vtkSubGroup.cxx
+vtkTemporalFractal.cxx
 vtkTransmitImageDataPiece.cxx
 vtkTransmitRectilinearGridPiece.cxx
 vtkTransmitStructuredGridPiece.cxx
