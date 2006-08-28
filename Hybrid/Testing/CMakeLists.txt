@@ -1,6 +1,6 @@
 # Commented out to avoid problems with Borland dashboards
 # until new tests are added to Cxx/CMakeLists.txt.
-#SUBDIRS(Cxx)
+SUBDIRS(Cxx)
 
 IF (VTK_WRAP_TCL)
   SUBDIRS(Tcl)
