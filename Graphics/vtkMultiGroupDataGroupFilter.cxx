@@ -15,14 +15,14 @@
 #include "vtkMultiGroupDataGroupFilter.h"
 
 #include "vtkCellData.h"
-#include "vtkDataSet.h"
+#include "vtkDataObject.h"
 #include "vtkMultiGroupDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataGroupFilter, "1.2");
+vtkCxxRevisionMacro(vtkMultiGroupDataGroupFilter, "1.3");
 vtkStandardNewMacro(vtkMultiGroupDataGroupFilter);
 
 vtkMultiGroupDataGroupFilter::vtkMultiGroupDataGroupFilter()
@@ -53,16 +53,15 @@ int vtkMultiGroupDataGroupFilter::RequestData(
   for (int idx = 0; idx < numInputs; ++idx)
     {
     output->SetNumberOfDataSets(idx, updateNumPieces);
-    vtkDataSet* input = 0;
+    vtkDataObject* input = 0;
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
     if (inInfo)
       {
-      input = 
-        vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+      input = inInfo->Get(vtkDataObject::DATA_OBJECT());
       }
     if (input)
       {
-      vtkDataSet* dsCopy = input->NewInstance();
+      vtkDataObject* dsCopy = input->NewInstance();
       dsCopy->ShallowCopy(input);
       output->SetDataSet(idx, updatePiece, dsCopy);
       dsCopy->Delete();
@@ -88,7 +87,7 @@ void vtkMultiGroupDataGroupFilter::AddInput(int index, vtkDataObject* input)
 int vtkMultiGroupDataGroupFilter::FillInputPortInformation(
   int, vtkInformation *info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   return 1;

@@ -83,7 +83,6 @@ public:
   static vtkInformationStringKey*        COMPOSITE_DATA_TYPE_NAME();
   static vtkInformationObjectBaseKey*    COMPOSITE_DATA_INFORMATION();
   static vtkInformationIntegerKey*       MARKED_FOR_UPDATE();
-  static vtkInformationStringKey*        INPUT_REQUIRED_COMPOSITE_DATA_TYPE();
   static vtkInformationObjectBaseKey*    UPDATE_BLOCKS();
 
 protected:
@@ -139,9 +138,15 @@ protected:
                                       vtkInformationVector** inInfoVec,
                                       vtkInformationVector* outInfoVec,
                                       int compositePort);
-  void CheckInputPorts(int& inputPortIsComposite,
-                       int& inputIsComposite,
-                       int& compositePort);
+  vtkDataObject* ExecuteSimpleAlgorithmForBlock(
+    vtkInformationVector** inInfoVec,
+    vtkInformationVector* outInfoVec,
+    vtkInformation* inInfo,
+    vtkInformation* outInfo,
+    vtkInformation* request,  
+    vtkDataObject* dobj);
+
+  int ShouldIterateOverInput(int& compositePort);
   virtual int InputTypeIsValid(int port, int index,vtkInformationVector **);
 
   vtkInformation* InformationCache;

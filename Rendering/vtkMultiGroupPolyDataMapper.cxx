@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMultiGroupPolyDataMapper, "1.2");
+vtkCxxRevisionMacro(vtkMultiGroupPolyDataMapper, "1.3");
 vtkStandardNewMacro(vtkMultiGroupPolyDataMapper);
 
 class vtkMultiGroupPolyDataMapperInternals
@@ -63,9 +63,7 @@ vtkMultiGroupPolyDataMapper::~vtkMultiGroupPolyDataMapper()
 int vtkMultiGroupPolyDataMapper::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
-  info->Set(vtkCompositeDataPipeline::INPUT_REQUIRED_COMPOSITE_DATA_TYPE(), 
-            "vtkMultiGroupDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiGroupDataSet");
   return 1;
 }    
 
@@ -112,7 +110,8 @@ void vtkMultiGroupPolyDataMapper::BuildPolyDataMapper()
     iter->GoToFirstItem();  
     while (!iter->IsDoneWithTraversal())
       {
-      vtkPolyData* pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());      
+      vtkPolyData* pd = 
+        vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());      
       if (pd)
         {
         // Make a copy of the data to break the pipeline here

@@ -40,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.42");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.43");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkInterpolatedVelocityField);
@@ -514,27 +514,28 @@ void vtkStreamTracer::InitializeSeeds(vtkDataArray*& seeds,
     }
 }
 
-void vtkStreamTracer::SetupOutput(vtkInformation* inInfo, 
-                                  vtkInformation* outInfo)
+int vtkStreamTracer::SetupOutput(vtkInformation* inInfo, 
+                                 vtkInformation* outInfo)
 {
   int piece=outInfo->Get(
     vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   int numPieces =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
-  vtkCompositeDataSet *hdInput = vtkCompositeDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+
+  vtkCompositeDataSet *hdInput = vtkCompositeDataSet::SafeDownCast(input);
+  vtkDataSet* dsInput = vtkDataSet::SafeDownCast(input);
   if (hdInput) 
     {
     this->InputData = hdInput;
     hdInput->Register(this);
+    return 1;
     }
-  else
+  else if (dsInput)
     {
-    vtkDataSet* input = vtkDataSet::SafeDownCast(
-      inInfo->Get(vtkDataObject::DATA_OBJECT()));
-    vtkDataSet* copy = input->NewInstance();
-    copy->ShallowCopy(input);
+    vtkDataSet* copy = dsInput->NewInstance();
+    copy->ShallowCopy(dsInput);
     vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::New();
     mb->SetNumberOfBlocks(1);
     mb->SetNumberOfDataSets(0, numPieces);
@@ -543,7 +544,15 @@ void vtkStreamTracer::SetupOutput(vtkInformation* inInfo,
     this->InputData = mb;
     mb->Register(this);
     mb->Delete();
+    return 1;
     }
+  else
+    {
+    vtkErrorMacro("This filter cannot handle input of type: "
+                  << (input?input->GetClassName():"(none)"));
+    return 0;
+    }
+    
 }
 
 int vtkStreamTracer::RequestData(
@@ -554,7 +563,10 @@ int vtkStreamTracer::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  this->SetupOutput(inInfo, outInfo);
+  if (this->SetupOutput(inInfo, outInfo))
+    {
+    return 0;
+    }
 
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkDataSet *source = 0;
@@ -1296,14 +1308,13 @@ void vtkStreamTracer::SimpleIntegrate(double seed[3],
 
 int vtkStreamTracer::FillInputPortInformation(int port, vtkInformation *info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   if (port == 0)
     {
-    info->Set(vtkCompositeDataPipeline::INPUT_REQUIRED_COMPOSITE_DATA_TYPE(), 
-              "vtkCompositeDataSet");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
     }
   else if (port == 1)
     {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     }
   return 1;

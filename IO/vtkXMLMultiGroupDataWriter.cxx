@@ -51,7 +51,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLMultiGroupDataWriter);
-vtkCxxRevisionMacro(vtkXMLMultiGroupDataWriter, "1.3");
+vtkCxxRevisionMacro(vtkXMLMultiGroupDataWriter, "1.4");
 
 class vtkXMLMultiGroupDataWriterInternals
 {
@@ -273,10 +273,17 @@ int vtkXMLMultiGroupDataWriter::RequestData(vtkInformation*,
       this->AppendEntry(entry_with_warning_C4701.str());
       delete[] entry_with_warning_C4701.str();
       
-      vtkDataSet* ds = 
-        vtkDataSet::SafeDownCast(hdInput->GetDataSet(groupId, dataSetId));
+      vtkDataObject* dobj = hdInput->GetDataSet(groupId, dataSetId);
+      vtkDataSet* ds = vtkDataSet::SafeDownCast(dobj);
       if (!ds)
         {
+        if (dobj)
+          {
+          vtkWarningMacro("This writer cannot handle sub-datasets of type: "
+                          << dobj->GetClassName()
+                          << " Dataset " << groupId << "," << dataSetId
+                          << " will be skipped.");
+          }
         i++;
         continue;
         }
@@ -707,8 +714,6 @@ vtkExecutive* vtkXMLMultiGroupDataWriter::CreateDefaultExecutive()
 int vtkXMLMultiGroupDataWriter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-  info->Set(vtkCompositeDataPipeline::INPUT_REQUIRED_COMPOSITE_DATA_TYPE(), 
-            "vtkMultiGroupDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiGroupDataSet");
   return 1;
 }

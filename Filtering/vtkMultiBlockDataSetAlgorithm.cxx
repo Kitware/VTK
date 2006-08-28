@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMultiBlockDataSetAlgorithm, "1.5");
+vtkCxxRevisionMacro(vtkMultiBlockDataSetAlgorithm, "1.6");
 vtkStandardNewMacro(vtkMultiBlockDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -140,9 +140,7 @@ int vtkMultiBlockDataSetAlgorithm::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
-  info->Set(vtkCompositeDataPipeline::INPUT_REQUIRED_COMPOSITE_DATA_TYPE(), 
-            "vtkMultiBlockDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
   return 1;
 }
 

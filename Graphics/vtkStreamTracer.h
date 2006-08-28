@@ -357,8 +357,8 @@ protected:
                         int direction, double cellLength, double speed);
 //ETX
 
-  void SetupOutput(vtkInformation* inInfo, 
-                   vtkInformation* outInfo);
+  int SetupOutput(vtkInformation* inInfo, 
+                  vtkInformation* outInfo);
   void InitializeSeeds(vtkDataArray*& seeds,
                        vtkIdList*& seedIds,
                        vtkIntArray*& integrationDirections,

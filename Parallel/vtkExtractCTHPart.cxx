@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.19");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.20");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -186,9 +186,7 @@ int vtkExtractCTHPart::FillInputPortInformation(int port,
     {
     return 0;
     }
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-  info->Set(vtkCompositeDataPipeline::INPUT_REQUIRED_COMPOSITE_DATA_TYPE(), 
-            "vtkCompositeDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiGroupDataSet");
   
   return 1;
 }
@@ -470,9 +468,9 @@ void vtkExtractCTHPart::ComputeBounds(vtkMultiGroupDataSet *input,
     while(dataset<numberOfDataSets)
       {
       vtkDataObject *dataObj=input->GetDataSet(group,dataset);
-      if(dataObj!=0)// can be null if on another processor
+      vtkDataSet *ds=vtkDataSet::SafeDownCast(dataObj);
+      if(ds!=0)// can be null if on another processor
         {
-        vtkDataSet *ds=vtkDataSet::SafeDownCast(dataObj);
         ds->GetBounds(realBounds);
         
         if(firstBlock)
