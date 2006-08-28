@@ -10,6 +10,13 @@ if { $n != 93 } {
         puts [$fileNames GetValue $i]
     }
     puts "GetNumberOfValues should return 93, returned $n"
+    puts "Listing of $VTK_DATA_ROOT/Data/headsq"
+    vtkDirectory directory
+    directory Open "$VTK_DATA_ROOT/Data/headsq"
+    set m [directory GetNumberOfFiles]
+    for { set j 0 } { $j < $n } { incr j } {
+        puts [directory GetFile $j]
+    }
     exit 1
 }
 
