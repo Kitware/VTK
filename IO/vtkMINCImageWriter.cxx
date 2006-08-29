@@ -76,7 +76,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.8");
+vtkCxxRevisionMacro(vtkMINCImageWriter, "1.9");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter,OrientationMatrix,vtkMatrix4x4);
@@ -644,7 +644,7 @@ int vtkMINCImageWriter::VerifyDimensionAttribute(
   int dataType = array->GetDataType();
 
   int itry = 0;
-  for (itry = 0; dimensionAttributes[itry] == 0; itry++)
+  for (itry = 0; dimensionAttributes[itry] != 0; itry++)
     {
     if (strcmp(attname, dimensionAttributes[itry]) == 0)
       {
@@ -705,7 +705,7 @@ int vtkMINCImageWriter::VerifyImageAttribute(
 {
   // Attributes for the "image" variable (vartype = "group________")
   static const char *imageAttributes[] = {
-    "compete",      // "true_" ("false" means not yet all written)
+    "complete",     // "true_" ("false" means not yet all written)
     "image-min"     // "--->image-min" variable attribute pointer
     "image-max"     // "--->image-max" variable attribute pointer
     "signtype",     // "signed__" or "unsigned"
@@ -715,7 +715,7 @@ int vtkMINCImageWriter::VerifyImageAttribute(
   const int autoImageAttributes = 5;
 
   int itry = 0;
-  for (itry = 0; imageAttributes[itry] == 0; itry++)
+  for (itry = 0; imageAttributes[itry] != 0; itry++)
     {
     if (strcmp(attname, imageAttributes[itry]) == 0)
       {
@@ -748,7 +748,7 @@ int vtkMINCImageWriter::VerifyImageMinMaxAttribute(
   const int autoImageMinMaxAttributes = 1;
 
   int itry = 0;
-  for (itry = 0; imageMinMaxAttributes[itry] == 0; itry++)
+  for (itry = 0; imageMinMaxAttributes[itry] != 0; itry++)
     {
     if (strcmp(attname, imageMinMaxAttributes[itry]) == 0)
       {
@@ -801,7 +801,7 @@ int vtkMINCImageWriter::VerifyPatientAttribute(
   };
 
   int itry = 0;
-  for (itry = 0; patientAttributes[itry] == 0; itry++)
+  for (itry = 0; patientAttributes[itry] != 0; itry++)
     {
     if (strcmp(attname, patientAttributes[itry]) == 0)
       {
@@ -828,16 +828,15 @@ int vtkMINCImageWriter::VerifyStudyAttribute(
   // Attributes for "study" variable (vartype = "group________")
   static const char *studyAttributes[] = {
     "study_id",
-    "start_date",    // "YYYYMMDD"
-    "start_time",    // "HHMMSS" or "HHMMSS.SS"
-    "start_year",    // as double or int (use start_date instead)
-    "start_month",   // as double or int (use start_date instead)
-    "start_day",     // as double or int (use start_date instead)
+    "start_time",    // "YYMMDDHHMMSS.SS" 
+    "start_year",    // as double or int (use start_time instead)
+    "start_month",   // as double or int (use start_time instead)
+    "start_day",     // as double or int (use start_time instead)
     "start_hour",    // as double or int (use start_time instead)
     "start_minute",  // as double or int (use start_time instead)
     "start_seconds", // as double or int (use start_time instead)
     "modality",      // "PET__", "SPECT", "GAMMA", "MRI__", "MRS__",
-                     // "MRA__", "CT___", "DSA__", "DR___"
+                     // "MRA__", "CT___", "DSA__", "DR___", "label"
     "manufacturer",
     "device_model",
     "institution",
@@ -853,7 +852,7 @@ int vtkMINCImageWriter::VerifyStudyAttribute(
   };
 
   int itry = 0;
-  for (itry = 0; studyAttributes[itry] == 0; itry++)
+  for (itry = 0; studyAttributes[itry] != 0; itry++)
     {
     if (strcmp(attname, studyAttributes[itry]) == 0)
       {
@@ -907,7 +906,7 @@ int vtkMINCImageWriter::VerifyAcquisitionAttribute(
   };
 
   int itry = 0;
-  for (itry = 0; acquisitionAttributes[itry] == 0; itry++)
+  for (itry = 0; acquisitionAttributes[itry] != 0; itry++)
     {
     if (strcmp(attname, acquisitionAttributes[itry]) == 0)
       {
@@ -1062,10 +1061,8 @@ static const char *vtkMINCDimVarNames[] = {
 };
 
 //-------------------------------------------------------------------------
-int vtkMINCImageWriter::CreateMINCDimensions(int wholeExtent[6],
-                                        int numComponents,
-                                        int numFrames,
-                                        int *dimids)
+int vtkMINCImageWriter::CreateMINCDimensions(
+  int wholeExtent[6], int numComponents, int numFrames, int *dimids)
 {
   // Create a default dimension order using the direction cosines.
   this->ComputePermutationFromOrientation(this->Permutation, this->Flip);
@@ -1201,11 +1198,9 @@ int vtkMINCImageWriter::CreateMINCDimensions(int wholeExtent[6],
 }
 
 //-------------------------------------------------------------------------
-int vtkMINCImageWriter::CreateMINCVariables(int wholeExtent[6],
-                                       int numComponents,
-                                       double origin[3],
-                                       double spacing[3],
-                                       int *dimids)
+int vtkMINCImageWriter::CreateMINCVariables(
+  int wholeExtent[6], int numComponents, double origin[3], double spacing[3],
+  int *dimids)
 {
   // Allowed standard variable names
   static const char *stdVarNames[] = {
@@ -1260,10 +1255,9 @@ int vtkMINCImageWriter::CreateMINCVariables(int wholeExtent[6],
       }
     if (ivar == nvars) // wasn't already in the list
       {
-      const char **tryname = 0;
       // Check if the variable name is a dimension that isn't one
       // of the selected dimensions for this image
-      for (tryname = vtkMINCDimVarNames; *tryname !=0; tryname++)
+      for (const char **tryname = vtkMINCDimVarNames; *tryname !=0; tryname++)
         {
         if (strcmp(varname, *tryname) == 0)
           {
@@ -1272,22 +1266,7 @@ int vtkMINCImageWriter::CreateMINCVariables(int wholeExtent[6],
           return 0;
           }
         }
-      for (tryname = stdVarNames; *tryname !=0; tryname++)
-        {
-        if (strcmp(varname, *tryname) == 0)
-          {
-          break;
-          }
-        }
-      if (tryname == 0)
-        {
-        vtkWarningMacro("The variable " << varname
-                        << " is not a standard minc variable.");
-        }
-      else
-        {
         variables.push_back(varname);
-        }
       }
     }
 
@@ -1336,7 +1315,7 @@ int vtkMINCImageWriter::CreateMINCVariables(int wholeExtent[6],
       {
       nc_type cdftype = NC_INT;
       varname = variables[ivar].c_str();
-      vartype = "group________";
+      vartype = "";
       const char *parent = "rootvariable";
       const char *children = 0;
       int vardims = 0;
@@ -1346,6 +1325,16 @@ int vtkMINCImageWriter::CreateMINCVariables(int wholeExtent[6],
       if (ivar < ndim)
         {
         vartype = "dimension____";
+        }
+      else
+        {
+        for (const char **tryname = stdVarNames; *tryname != 0; tryname++)
+          {
+          if (strcmp(varname, *tryname) == 0)
+            {
+            vartype = "group________";
+            }
+          }
         }
 
       // Check if this is an image-related variable
@@ -1381,10 +1370,13 @@ int vtkMINCImageWriter::CreateMINCVariables(int wholeExtent[6],
         return 0;
         }
 
-      // Standard variable attributes
-      vtkMINCImageWriterPutAttributeTextMacro("varid",    "MINC standard variable");
-      vtkMINCImageWriterPutAttributeTextMacro("version",  "MINC Version    1.0");
-      vtkMINCImageWriterPutAttributeTextMacro("vartype",  vartype);
+      // Variables of known type get standard MINC attributes
+      if (strcmp(vartype, "") != 0)
+        {
+        vtkMINCImageWriterPutAttributeTextMacro("varid",    "MINC standard variable");
+        vtkMINCImageWriterPutAttributeTextMacro("version",  "MINC Version    1.0");
+        vtkMINCImageWriterPutAttributeTextMacro("vartype",  vartype);
+        }
 
       int dimIndex = 0;
       if (strcmp(vartype, "dimension____") == 0)
@@ -1402,7 +1394,7 @@ int vtkMINCImageWriter::CreateMINCVariables(int wholeExtent[6],
         if (dimIndex >= 0 && dimIndex < 3)
           {
           vtkMINCImageWriterPutAttributeTextMacro(
-            "comment", dimensionComments[dimIndex]);
+            "comments", dimensionComments[dimIndex]);
           start = origin[dimIndex];
           step = spacing[dimIndex];
           if (this->Flip[dimIndex])
@@ -1547,14 +1539,14 @@ int vtkMINCImageWriter::CreateMINCVariables(int wholeExtent[6],
         vtkstd::string attpath = varpath + attname;
         vtkDataArray *array =
           this->AttributeValues->GetDataArray(attpath.c_str());
-        int result = 0;
+        int result = 1;
 
         if (strcmp(varname, "") == 0)
           {
           // Check global attributes
           result = this->VerifyGlobalAttribute(attname, array);
           }
-        else
+        else if (strcmp(vartype, "") != 0)
           {
           // Check general attributes
           result = this->VerifyGeneralAttribute(varname, attname, array);
