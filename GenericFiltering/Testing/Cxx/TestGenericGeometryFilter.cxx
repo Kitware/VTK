@@ -112,7 +112,8 @@ int TestGenericGeometryFilter(int argc, char* argv[])
   // Create the filter
   vtkGenericGeometryFilter *geom = vtkGenericGeometryFilter::New();
   geom->SetInput(ds);
-
+  geom->SetPassThroughCellIds(1);
+  
   geom->Update(); //So that we can call GetRange() on the scalars
   
   assert(geom->GetOutput()!=0);
