@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.18");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.19");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -608,7 +608,7 @@ void vtkImageStencilData::RemoveExtent(int r1, int r2, int yIdx, int zIdx)
       {
 
       bool split = false;  
-      int tmp;    
+      int tmp = -1;    
 
       // An intersecting extent is already present. Merge with that one.
       if (r1 > clist[k])
