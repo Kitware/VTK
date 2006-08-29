@@ -23,7 +23,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.9");
+vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.10");
 vtkStandardNewMacro(vtkCompositeRenderManager);
 
 vtkCxxSetObjectMacro(vtkCompositeRenderManager, Compositer, vtkCompositer);
@@ -68,7 +68,10 @@ void vtkCompositeRenderManager::PreRenderProcessing()
 {
   // Turn swap buffers off before the render so the end render method has a
   // chance to add to the back buffer.
-  this->RenderWindow->SwapBuffersOff();
+  if (this->UseBackBuffer)
+    {
+    this->RenderWindow->SwapBuffersOff();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -108,8 +111,11 @@ void vtkCompositeRenderManager::PostRenderProcessing()
 
   this->WriteFullImage();
 
-  // Swap buffers here.
-  this->RenderWindow->SwapBuffersOn();
+  // Swap buffers here
+  if (this->UseBackBuffer)
+    {
+    this->RenderWindow->SwapBuffersOn();
+    }
   this->RenderWindow->Frame();
 }
 

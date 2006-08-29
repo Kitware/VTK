@@ -378,6 +378,15 @@ public:
 # pragma reset woff 3303
 #endif
 
+  //Description:
+  //The default is to allow the use of the back buffer for compositing.
+  //If set to false, this will prevent to manager from swapping buffers.
+  //This allows something else (for instance VisibleCellSelection) to
+  //control front/back buffer swapping.
+  vtkSetMacro(UseBackBuffer, int);
+  vtkGetMacro(UseBackBuffer, int);
+  vtkBooleanMacro(UseBackBuffer, int);
+
 protected:
   vtkParallelRenderManager();
   ~vtkParallelRenderManager();
@@ -553,6 +562,8 @@ protected:
 //ETX
 
   int AddedRMIs;
+
+  int UseBackBuffer;
 private:
   vtkParallelRenderManager(const vtkParallelRenderManager &); //Not implemented
   void operator=(const vtkParallelRenderManager &);  //Not implemented
