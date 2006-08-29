@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMultiGroupPolyDataMapper, "1.4");
+vtkCxxRevisionMacro(vtkMultiGroupPolyDataMapper, "1.5");
 vtkStandardNewMacro(vtkMultiGroupPolyDataMapper);
 
 class vtkMultiGroupPolyDataMapperInternals
@@ -104,9 +104,9 @@ void vtkMultiGroupPolyDataMapper::BuildPolyDataMapper()
       }
     else
       {
-      vtkDataObject* input = this->GetExecutive()->GetInputData(0, 0);
+      vtkDataObject* tmpInp = this->GetExecutive()->GetInputData(0, 0);
       vtkErrorMacro("This mapper cannot handle input of type: "
-                    << (input?input->GetClassName():"(none)"));
+                    << (tmpInp?tmpInp->GetClassName():"(none)"));
       }
     }
   else
