@@ -23,10 +23,14 @@
 
 #include "vtkObject.h"
 
+template<int dimension>
+struct vtkAMRBoxInitializeHelp;
+
 // Helper to unroll the loop
 template<int dimension>
 void vtkAMRBoxInitialize(int *LoCorner, int *HiCorner, // member
-                         const int *loCorner, const int *hiCorner) // local
+                         const int *loCorner, const int *hiCorner, // local
+                         vtkAMRBoxInitializeHelp<dimension>* = 0) // dummy parameter for vs6
   {
   for(int i=0; i<dimension; ++i)
     {
