@@ -15,15 +15,16 @@ IF(VTK_USE_DISPLAY)
     TestOrderedTriangulator.cxx
     )
 
-  IF(VTK_USE_PARALLEL AND VTK_USE_MPI)
-    # This odd condition is here because of antialiasing
-    # if antialising is on compositing won't work
-    # and neither will visible cell selection.
+  IF(VTK_USE_PARALLEL AND VTK_USE_MPI AND VTK_DATA_ROOT)
+    # This odd condition is here because of antialiasing.
+    # I am assuming that if the compositing tests are running,
+    # antialiasing is off, and this test will have a chance of 
+    # passing too.
     SET(RenderingTestsWithArguments
       ${RenderingTestsWithArguments}
       TestAreaSelections.cxx
       )
-  ENDIF(VTK_USE_PARALLEL AND VTK_USE_MPI)
+  ENDIF(VTK_USE_PARALLEL AND VTK_USE_MPI AND VTK_DATA_ROOT)
 
 ENDIF(VTK_USE_DISPLAY)
 
