@@ -395,7 +395,8 @@ sentence, so additional documentation is provided here:
     shared libraries.
     </p>
     <p>
-    Warning: enabling VTK_USE_RPATH <b>DISABLES THE INSTALL TARGET</b>
+    Warning: When using CMake prior to 2.4 enabling
+    VTK_USE_RPATH <b>DISABLES THE INSTALL TARGET</b>
     so that the build cannot be used to install VTK!  This is
     necessary because the installed executables and libraries would
     contain references back to the build tree.  Running them would

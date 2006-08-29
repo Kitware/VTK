@@ -6,6 +6,10 @@ IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.4)
   MESSAGE(FATAL_ERROR "VTK requires CMake 2.4 as of August 15th 2006. Please update your CMake and this message will go away.")
 ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.4)
 
+IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.3)
+  SET(VTK_INSTALL_HAS_CMAKE_24 1)
+ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.3)
+
 # Don't build anything unless the version of CMake is high enough.
 # The matching ELSE/ENDIF should be the last lines in the file.
 IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
@@ -84,13 +88,14 @@ CHECK_CXX_SOURCE_RUNS("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
   VTK_REQUIRE_LARGE_FILE_SUPPORT "Support for 64 bit file systems")
 
 #-----------------------------------------------------------------------------
-# Disable the install targets if using the rpath feature.
+# Disable the install targets if using the rpath feature with CMake
+# earlier than 2.4.
 IF(NOT WIN32)
-  IF(VTK_USE_RPATH)
+  IF(VTK_USE_RPATH AND NOT VTK_INSTALL_HAS_CMAKE_24)
     SET(VTK_INSTALL_NO_RUNTIME 1)
     SET(VTK_INSTALL_NO_DEVELOPMENT 1)
     SET(VTK_INSTALL_NO_DOCUMENTATION 1)
-  ENDIF(VTK_USE_RPATH)
+  ENDIF(VTK_USE_RPATH AND NOT VTK_INSTALL_HAS_CMAKE_24)
 ENDIF(NOT WIN32)
 
 #-----------------------------------------------------------------------------
@@ -118,10 +123,6 @@ SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
 # the install location.  Optionally allow the project to specify a
 # single VTK_INSTALL_ROOT which basically adds to its install prefix
 # for VTK only.
-
-IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.3)
-  SET(VTK_INSTALL_HAS_CMAKE_24 1)
-ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.3)
 
 # The location in which to install VTK executables.
 IF(NOT VTK_INSTALL_BIN_DIR)

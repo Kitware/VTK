@@ -11,7 +11,8 @@ IF(NOT VTK_SHARED_LIBRARIES_SELECTED)
   # On platforms that support rpath users may want to use them to make
   # running VTK from the build tree easy.  It is not safe to install
   # programs built with an rpath pointing at the build tree, so we must
-  # disable install support when using the rpath feature.
+  # disable install support when using the rpath feature with CMake
+  # versions prior to 2.4.
   IF(NOT WIN32)
     # Choose whether to use the rpath feature.  Parent projects may
     # set VTK_FORCE_RPATH to force the value on or off without providing
@@ -49,16 +50,19 @@ IF(NOT VTK_SHARED_LIBRARIES_SELECTED)
       # We will use rpath support.  Tell CMake not to skip it.
       SET(CMAKE_SKIP_RPATH 0 CACHE INTERNAL "Whether to build with rpath." FORCE)
 
-      # If someone is trying to install do not do an entire build with
-      # the wrong rpath feature setting just to report failed
-      # installation.
-      SET(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY 1)
+      # Disable installation for CMake earlier than 2.4.
+      IF(NOT VTK_INSTALL_HAS_CMAKE_24)
+        # If someone is trying to install do not do an entire build with
+        # the wrong rpath feature setting just to report failed
+        # installation.
+        SET(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY 1)
 
-      # Add a dummy target and attach an install rule that will always fail
-      # and produce a message explaining why installation is disabled.
-      ADD_CUSTOM_TARGET(vtk_install_disabled)
-      SET_TARGET_PROPERTIES(vtk_install_disabled PROPERTIES
-        PRE_INSTALL_SCRIPT ${VTK_CMAKE_DIR}/InstallDisabled.cmake)
+        # Add a dummy target and attach an install rule that will always fail
+        # and produce a message explaining why installation is disabled.
+        ADD_CUSTOM_TARGET(vtk_install_disabled)
+        SET_TARGET_PROPERTIES(vtk_install_disabled PROPERTIES
+          PRE_INSTALL_SCRIPT ${VTK_CMAKE_DIR}/InstallDisabled.cmake)
+      ENDIF(NOT VTK_INSTALL_HAS_CMAKE_24)
     ELSE(VTK_USE_RPATH)
       # We will not use rpath support.  Tell CMake to skip it.
       SET(CMAKE_SKIP_RPATH 1 CACHE INTERNAL "Whether to build with rpath." FORCE)
