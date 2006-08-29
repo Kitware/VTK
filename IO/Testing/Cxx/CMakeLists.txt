@@ -10,9 +10,9 @@ ENDIF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
 IF(VTK_USE_FFMPEG_ENCODER)
   SET(ConditionalTests ${ConditionalTests} TestFFMPEGWriter.cxx)
 ENDIF(VTK_USE_FFMPEG_ENCODER)
-IF(VTK_USE_RENDERING)
+IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
   SET(ConditionalTests ${ConditionalTests} TestHyperOctreeIO.cxx)
-ENDIF(VTK_USE_RENDERING)
+ENDIF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
 
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
@@ -24,13 +24,16 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkIO vtkImaging vtksys)
 
+IF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
+  TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering)
+ENDIF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
+
 IF (VTK_DATA_ROOT)
   ADD_TEST(TestXML ${CXX_TEST_PATH}/${KIT}CxxTests TestXML
     ${VTK_DATA_ROOT}/Data/sample.xml)
   ADD_TEST(TestCompress ${CXX_TEST_PATH}/${KIT}CxxTests TestCompress
     ${VTK_DATA_ROOT}/Data/sample.xml)
   IF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
-    TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering)
     ADD_TEST(TestHyperOctreeIO ${CXX_TEST_PATH}/${KIT}CxxTests
          TestHyperOctreeIO -D ${VTK_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
