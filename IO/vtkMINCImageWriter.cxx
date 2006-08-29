@@ -76,7 +76,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.7");
+vtkCxxRevisionMacro(vtkMINCImageWriter, "1.8");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter,OrientationMatrix,vtkMatrix4x4);
@@ -1886,7 +1886,6 @@ void vtkMINCImageWriterExecuteChunk(
     T1 *tmpInPtr = inPtr;
     T1 *saveInPtr[VTK_MINC_MAX_DIMS];
     size_t index[VTK_MINC_MAX_DIMS];
-    int idim = 0;
     for (idim = 0; idim < ndims; idim++)
       {
       index[idim] = 0;
