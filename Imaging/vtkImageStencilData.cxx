@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.19");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.20");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -600,6 +600,12 @@ void vtkImageStencilData::RemoveExtent(int r1, int r2, int yIdx, int zIdx)
           }
         delete [] clist;
         clist = newclist;
+        }
+
+      length = clistlen;
+      if (k >= length)
+        {
+        return;
         }
       }
      
