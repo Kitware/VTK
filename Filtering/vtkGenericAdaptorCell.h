@@ -84,6 +84,7 @@ class vtkUnsignedCharArray;
 class vtkQuad;
 class vtkHexahedron;
 class vtkWedge;
+class vtkPyramid;
 
 class VTK_FILTERING_EXPORT vtkGenericAdaptorCell : public vtkObject
 {
@@ -574,7 +575,8 @@ protected:
   vtkQuad *Quad;
   vtkHexahedron *Hexa;
   vtkWedge *Wedge;
-
+  vtkPyramid *Pyramid;
+  
   // Internal locator when tessellating on a cell basis, this is different
   // from the main locator used in contour/clip filter, this locator is used for
   // points for
