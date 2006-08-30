@@ -58,6 +58,9 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkType.h"
 
+#include "vtkMINC.h"
+#include "vtknetcdf/netcdf.h"
+
 #ifdef _WIN32
 #include "vtkWindows.h"
 #else
@@ -68,7 +71,6 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <stdlib.h>
 #include <float.h>
 #include <time.h>
-#include <vtknetcdf/netcdf.h>
 #include <vtkstd/string>
 #include <vtkstd/vector>
 #include <vtkstd/map>
@@ -76,7 +78,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.9");
+vtkCxxRevisionMacro(vtkMINCImageWriter, "1.10");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter,OrientationMatrix,vtkMatrix4x4);
@@ -235,13 +237,13 @@ void vtkMINCImageWriter::SetAttributeValueAsArray(
   const char *attribute,
   vtkDataArray *array)
 {
-  vtkstd::string path = "/minc";
+  vtkstd::string path = MI_GRPNAME;
   if (variable && variable[0] != '\0')
     {
-    path += "/";
+    path += MI_GRP_SEP;
     path += variable;
     }
-  path += "/";
+  path += MI_ATT_SEP;
   path += attribute;
 
   array->SetName(path.c_str());
@@ -391,7 +393,7 @@ int vtkMINCImageWriter::IndexFromDimensionName(const char *dimName)
     case 'z':
       return this->Permutation[2];
     default:
-      if (strcmp(dimName, "vector_dimension") == 0)
+      if (strcmp(dimName, MIvector_dimension) == 0)
         {
         return -1;
         }
@@ -406,8 +408,8 @@ int vtkMINCImageWriter::IndexFromDimensionName(const char *dimName)
 // Compute the default dimension order from the direction cosines,
 // and look for flips.
 // The way the permutation should be used is as follows:
-// If permutation[0] == 0 then "xspace" is VTK's X dimension.
-// If permutation[0] == 2 then "xspace" is VTK's Z dimension.
+// If permutation[0] == 0 then MIxspace is VTK's X dimension.
+// If permutation[0] == 2 then MIxspace is VTK's Z dimension.
 // If the "flip" is set for a VTK, then that VTK dimension
 // and its dircos will have to be flipped before the MINC
 // file is written.
@@ -543,9 +545,9 @@ int vtkMINCImageWriter::VerifyGlobalAttribute(
 {
   // Global attributes
   static const char *globalAttributes[] = {
-    "ident",
-    "history",
-    "title",
+    MIident,
+    MIhistory,
+    MItitle,
     0
   };
   const int autoGlobalAttributes = 2;
@@ -577,12 +579,12 @@ int vtkMINCImageWriter::VerifyGeneralAttribute(
 {
   // Attributes that all MINC variables have
   static const char *generalAttributes[] = {
-    "vartype",      // "group________", "dimension____", "var_attribute"
-    "varid",        // "MINC standard variable"
-    "version",      // "MINC Version    1.0"
-    "parent",       // parent variable for this variable
-    "children",     // newline-separated list of child variables
-    "comments",     // each variable has specific comments to go with it
+    MIvartype,      // MI_GROUP, MI_DIMENSION, MI_VARATT
+    MIvarid,        // MI_STDVAR
+    MIversion,      // MI_VERSION_1_0
+    MIparent,       // parent variable for this variable
+    MIchildren,     // newline-separated list of child variables
+    MIcomments,     // each variable has specific comments to go with it
     0
   };
   const int autoGeneralAttributes = 5;
@@ -625,15 +627,15 @@ int vtkMINCImageWriter::VerifyGeneralAttribute(
 int vtkMINCImageWriter::VerifyDimensionAttribute(
   const char *varname, const char *attname, vtkDataArray *array)
 {
-  // Attributes for dimension variables (vartype = "dimension____")
+  // Attributes for dimension variables (vartype = MI_DIMENSION)
   static const char *dimensionAttributes[] = {
-    "step",
-    "start",
-    "spacing",      // "regular__" ("irregular" not supported)
-    "spacetype",    // "native____", "talairach_", "calossal__"
-    "alignment",    // "centre", "start_", "end___"
-    "units",        // "mm"
-    "direction_cosines",  // three doubles
+    MIstep,
+    MIstart,
+    MIspacing,      // MI_REGULAR ("irregular" not supported)
+    MIspacetype,    // "native____", "talairach_", "calossal__"
+    MIalignment,    // MI_CENTRE, "start_", "end___"
+    MIunits,        // "mm"
+    MIdirection_cosines,  // three doubles
     0
   };
   const int autoDimensionAttributes = 3;
@@ -656,7 +658,7 @@ int vtkMINCImageWriter::VerifyDimensionAttribute(
     // Skip to the next attribute
     return 0;
     }
-  else if (strcmp(attname, "direction_cosines") == 0)
+  else if (strcmp(attname, MIdirection_cosines) == 0)
     {
     if (dimIndex >= 0 && dimIndex < 3)
       {
@@ -703,13 +705,13 @@ int vtkMINCImageWriter::VerifyImageAttribute(
   const char *vtkNotUsed(varname), const char *attname,
   vtkDataArray *vtkNotUsed(array))
 {
-  // Attributes for the "image" variable (vartype = "group________")
+  // Attributes for the MIimage variable (vartype = MI_GROUP)
   static const char *imageAttributes[] = {
-    "complete",     // "true_" ("false" means not yet all written)
-    "image-min"     // "--->image-min" variable attribute pointer
-    "image-max"     // "--->image-max" variable attribute pointer
-    "signtype",     // "signed__" or "unsigned"
-    "valid_range",  // min and max scalar values as doubles
+    MIcomplete,    // MI_TRUE (MI_FALSE means not yet all written)
+    MIimagemin     // "--->image-min" variable attribute pointer
+    MIimagemax     // "--->image-max" variable attribute pointer
+    MIsigntype,     // MI_SIGNED or MI_UNSIGNED
+    MIvalid_range,  // min and max scalar values as doubles
     0
   };
   const int autoImageAttributes = 5;
@@ -739,10 +741,10 @@ int vtkMINCImageWriter::VerifyImageAttribute(
 int vtkMINCImageWriter::VerifyImageMinMaxAttribute(
   const char *varname, const char *attname, vtkDataArray *array)
 {
-  // Attributes for "image-min", "image-max" (vartype = "var_attribute")
+  // Attributes for MIimagemin, MIimagemax (vartype = MI_VARATT)
   static const char *imageMinMaxAttributes[] = {
-     "_FillValue",  // 0.0 for image-min, 1.0 for image-max
-     "units",       // "normalized", "Hounsfields", etc.
+     MI_FillValue,  // 0.0 for image-min, 1.0 for image-max
+     MIunits,       // "normalized", "Hounsfields", etc.
      0
   };
   const int autoImageMinMaxAttributes = 1;
@@ -784,19 +786,19 @@ int vtkMINCImageWriter::VerifyPatientAttribute(
   const char *vtkNotUsed(varname), const char *attname,
   vtkDataArray *vtkNotUsed(array))
 {
-  // Attributes for "patient" variable (vartype = "group________")
+  // Attributes for MIpatient variable (vartype = MI_GROUP)
   static const char *patientAttributes[] = {
-    "full_name",     // "LASTNAME^FIRSTNAME SECONDNAME"
-    "other_names",   // newline-separated string
-    "identification",
-    "other_ids",
-    "birthdate",     // "YYYYMMDD"
-    "sex",           // "male__", "female", "other_"
-    "age",           // "XXXD", "XXXM", or "XXXY" (days, months, years)
-    "weight",        // "XXkg", "X.Xkg"
-    "size",          // "XXXcm"
-    "address",       // newline-separated string
-    "insurance_id",
+    MIfull_name,     // "LASTNAME^FIRSTNAME SECONDNAME"
+    MIother_names,   // newline-separated string
+    MIidentification,
+    MIother_ids,
+    MIbirthdate,     // "YYYYMMDD"
+    MIsex,           // "male__", "female", "other_"
+    MIage,           // "XXXD", "XXXM", or "XXXY" (days, months, years)
+    MIweight,        // "XXkg", "X.Xkg" (assume kg if no units given)
+    MIsize,          // "XXXcm" (assume metres if no units given)
+    MIaddress,       // newline-separated string
+    MIinsurance_id,
     0
   };
 
@@ -825,29 +827,29 @@ int vtkMINCImageWriter::VerifyStudyAttribute(
   const char *vtkNotUsed(varname), const char *attname,
   vtkDataArray *vtkNotUsed(array))
 {
-  // Attributes for "study" variable (vartype = "group________")
+  // Attributes for MIstudy variable (vartype = MI_GROUP)
   static const char *studyAttributes[] = {
-    "study_id",
-    "start_time",    // "YYMMDDHHMMSS.SS" 
-    "start_year",    // as double or int (use start_time instead)
-    "start_month",   // as double or int (use start_time instead)
-    "start_day",     // as double or int (use start_time instead)
-    "start_hour",    // as double or int (use start_time instead)
-    "start_minute",  // as double or int (use start_time instead)
-    "start_seconds", // as double or int (use start_time instead)
-    "modality",      // "PET__", "SPECT", "GAMMA", "MRI__", "MRS__",
+    MIstudy_id,
+    MIstart_time,    // "YYYYMMDDHHMMSS.SS"
+    MIstart_year,    // as int (use start_time instead)
+    MIstart_month,   // as int (use start_time instead)
+    MIstart_day,     // as int (use start_time instead)
+    MIstart_hour,    // as int (use start_time instead)
+    MIstart_minute,  // as int (use start_time instead)
+    MIstart_seconds, // as double or int (use start_time instead)
+    MImodality,      // "PET__", "SPECT", "GAMMA", "MRI__", "MRS__",
                      // "MRA__", "CT___", "DSA__", "DR___", "label"
-    "manufacturer",
-    "device_model",
-    "institution",
-    "department",
-    "station_id",
-    "referring_physician",
-    "attending_physician",
-    "radiologist",
-    "operator",
-    "admitting_diagnosis",
-    "procedure",
+    MImanufacturer,
+    MIdevice_model,
+    MIinstitution,
+    MIdepartment,
+    MIstation_id,
+    MIreferring_physician,
+    MIattending_physician,
+    MIradiologist,
+    MIoperator,
+    MIadmitting_diagnosis,
+    MIprocedure,
     0
   };
 
@@ -876,32 +878,32 @@ int vtkMINCImageWriter::VerifyAcquisitionAttribute(
   const char *vtkNotUsed(varname), const char *attname,
   vtkDataArray *vtkNotUsed(array))
 {
-  // Attributes for "acquisition" variable (vartype = "group________")
+  // Attributes for MIacquisition variable (vartype = MI_GROUP)
   static const char *acquisitionAttributes[] = {
-    "protocol",
-    "scanning_sequence", // "GR", "SPGR", etc.
-    "repetition_time",   // as double, milliseconds
-    "echo_time",         // as double, milliseconds
-    "inversion_time",    // as double, milliseconds
-    "num_averages",      // as int
-    "imaging_frequency"  // in Hz, as double
-    "imaged_nucleus",    // "H1", "C13", etc. for MRI
-    "radionuclide",      // for PET and SPECT
-    "radionuclide_halflife",
-    "contrast_agent",
-    "tracer",
-    "injection_time",
-    "injection_year",
-    "injection_month",
-    "injection_day",
-    "injection_hour",
-    "injection_minute",
-    "injection_seconds",
-    "injection_length",
-    "injection_dose",
-    "dose_units",
-    "injection_volume",
-    "injection_route",
+    MIprotocol,
+    MIscanning_sequence, // "GR", "SPGR", etc.
+    MIrepetition_time,   // as double, milliseconds
+    MIecho_time,         // as double, milliseconds
+    MIinversion_time,    // as double, milliseconds
+    MInum_averages,      // as int
+    MIimaging_frequency, // in Hz, as double
+    MIimaged_nucleus,    // "H1", "C13", etc. for MRI
+    MIradionuclide,      // for PET and SPECT
+    MIradionuclide_halflife,
+    MIcontrast_agent,
+    MItracer,
+    MIinjection_time,
+    MIinjection_year,
+    MIinjection_month,
+    MIinjection_day,
+    MIinjection_hour,
+    MIinjection_minute,
+    MIinjection_seconds,
+    MIinjection_length,
+    MIinjection_dose,
+    MIdose_units,
+    MIinjection_volume,
+    MIinjection_route,
     0
   };
 
@@ -1055,8 +1057,8 @@ nc_type vtkMINCImageWriterConvertVTKTypeToMINCType(
 //-------------------------------------------------------------------------
 // Allowed dimension variable names
 static const char *vtkMINCDimVarNames[] = {
-  "xspace", "yspace", "zspace", "time",
-  "xfrequency", "yfrequency", "zfrequency", "tfrequency",
+  MIxspace, MIyspace, MIzspace, MItime,
+  MIxfrequency, MIyfrequency, MIzfrequency, MItfrequency,
   0
 };
 
@@ -1067,9 +1069,9 @@ int vtkMINCImageWriter::CreateMINCDimensions(
   // Create a default dimension order using the direction cosines.
   this->ComputePermutationFromOrientation(this->Permutation, this->Flip);
   const char *defaultdims[3];
-  defaultdims[this->Permutation[0]] = "xspace";
-  defaultdims[this->Permutation[1]] = "yspace";
-  defaultdims[this->Permutation[2]] = "zspace";
+  defaultdims[this->Permutation[0]] = MIxspace;
+  defaultdims[this->Permutation[1]] = MIyspace;
+  defaultdims[this->Permutation[2]] = MIzspace;
 
   int hasTimeDim = 0;
   vtkstd::vector<vtkstd::string> dimensions;
@@ -1082,7 +1084,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(
     {
     const char *dimname = this->DimensionNames->GetValue(iuserdims);
     // Remove vector_dimension, we'll add it back if it is needed
-    if (strcmp(dimname, "vector_dimension") == 0)
+    if (strcmp(dimname, MIvector_dimension) == 0)
       {
       continue;
       }
@@ -1155,12 +1157,12 @@ int vtkMINCImageWriter::CreateMINCDimensions(
   // Make sure we have a time dimension if we need one
   if (timeDimensions == 1 && hasTimeDim == 0)
     {
-    dimensions.insert(dimensions.begin(), "time");
+    dimensions.insert(dimensions.begin(), MItime);
     }
   // Check for vector_dimension
   if (numComponents > 1)
     {
-    dimensions.push_back("vector_dimension");
+    dimensions.push_back(MIvector_dimension);
     }
 
   // ------------------------
@@ -1181,7 +1183,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(
       {
       length = wholeExtent[2*dimIndex+1] - wholeExtent[2*dimIndex] + 1;
       }
-    else if (strcmp(dimname, "vector_dimension") == 0)
+    else if (strcmp(dimname, MIvector_dimension) == 0)
       {
       length = numComponents;
       }
@@ -1204,8 +1206,8 @@ int vtkMINCImageWriter::CreateMINCVariables(
 {
   // Allowed standard variable names
   static const char *stdVarNames[] = {
-    "rootvariable", "image", "image-min", "image-max",
-    "patient", "study", "acquisition",
+    MIrootvariable, MIimage, MIimagemin, MIimagemax,
+    MIpatient, MIstudy, MIacquisition,
     0
   };
 
@@ -1217,7 +1219,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
     {
     const char *dimname = this->InternalDimensionNames->GetValue(dimidx);
     // vector_dimension isn't ever included as a variable
-    if (strcmp(dimname, "vector_dimension") != 0)
+    if (strcmp(dimname, MIvector_dimension) != 0)
       {
       variables.push_back(this->InternalDimensionNames->GetValue(dimidx));
       }
@@ -1225,14 +1227,14 @@ int vtkMINCImageWriter::CreateMINCVariables(
   // Reset ndim so that it only includes dimensions with variables
   ndim = variables.size();
 
-  variables.push_back("image");
-  variables.push_back("rootvariable");
+  variables.push_back(MIimage);
+  variables.push_back(MIrootvariable);
   // Not all MINC images need image-min and image-max.
   if (this->RescaleSlope != 0)
     {
     this->MINCImageMinMaxDims = ndim - 2;
-    variables.push_back("image-min");
-    variables.push_back("image-max");
+    variables.push_back(MIimagemin);
+    variables.push_back(MIimagemax);
     }
   else
     {
@@ -1272,16 +1274,16 @@ int vtkMINCImageWriter::CreateMINCVariables(
 
   // ------------------------
   // Find the children of the root variable
-  vtkstd::string rootChildren = "";
+  vtkstd::string rootChildren = MI_EMPTY_STRING;
 
   int nvars = variables.size();
   int ivar = 0;
   for (ivar = 0; ivar < nvars; ivar++)
     {
     const char *varname = variables[ivar].c_str();
-    if (strcmp(varname, "rootvariable") == 0 ||
-        strcmp(varname, "image-min") == 0 ||
-        strcmp(varname, "image-max") == 0)
+    if (strcmp(varname, MIrootvariable) == 0 ||
+        strcmp(varname, MIimagemin) == 0 ||
+        strcmp(varname, MIimagemax) == 0)
       {
       continue;
       }
@@ -1289,9 +1291,9 @@ int vtkMINCImageWriter::CreateMINCVariables(
       {
       if (strcmp(varname, *tryname) == 0)
         {
-        if (rootChildren != "")
+        if (rootChildren != MI_EMPTY_STRING)
           {
-          rootChildren.append("\n");
+          rootChildren.append(MI_CHILD_SEPARATOR);
           }
         rootChildren.append(varname);
         break;
@@ -1307,16 +1309,15 @@ int vtkMINCImageWriter::CreateMINCVariables(
   nvars = variables.size();
   for (ivar = -1; ivar < nvars; ivar++)
     {
-    const char *varname = "";
-    const char *vartype = "";
+    const char *varname = MI_EMPTY_STRING;
+    const char *vartype = MI_EMPTY_STRING;
     int varid = -1;
 
     if (ivar >= 0)
       {
       nc_type cdftype = NC_INT;
       varname = variables[ivar].c_str();
-      vartype = "";
-      const char *parent = "rootvariable";
+      const char *parent = MIrootvariable;
       const char *children = 0;
       int vardims = 0;
 
@@ -1324,7 +1325,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
       // does not include the vector_dimension)
       if (ivar < ndim)
         {
-        vartype = "dimension____";
+        vartype = MI_DIMENSION;
         }
       else
         {
@@ -1332,30 +1333,30 @@ int vtkMINCImageWriter::CreateMINCVariables(
           {
           if (strcmp(varname, *tryname) == 0)
             {
-            vartype = "group________";
+            vartype = MI_GROUP;
             }
           }
         }
 
       // Check if this is an image-related variable
-      if (strcmp(varname, "image") == 0)
+      if (strcmp(varname, MIimage) == 0)
         {
         cdftype = (nc_type)this->MINCImageType;
         vardims = ndim + (numComponents > 1);
         }
-      else if (strcmp(varname, "image-min") == 0 ||
-               strcmp(varname, "image-max") == 0)
+      else if (strcmp(varname, MIimagemin) == 0 ||
+               strcmp(varname, MIimagemax) == 0)
         {
-        parent = "image";
-        vartype = "var_attribute";
+        parent = MIimage;
+        vartype = MI_VARATT;
         cdftype = NC_DOUBLE;
         vardims = this->MINCImageMinMaxDims;
         }
 
       // Check if this is the rootvariable
-      if (strcmp(varname, "rootvariable") == 0)
+      if (strcmp(varname, MIrootvariable) == 0)
         {
-        parent = "";
+        parent = MI_EMPTY_STRING;
         children = rootChildren.c_str();
         }
 
@@ -1371,15 +1372,15 @@ int vtkMINCImageWriter::CreateMINCVariables(
         }
 
       // Variables of known type get standard MINC attributes
-      if (strcmp(vartype, "") != 0)
+      if (strcmp(vartype, MI_EMPTY_STRING) != 0)
         {
-        vtkMINCImageWriterPutAttributeTextMacro("varid",    "MINC standard variable");
-        vtkMINCImageWriterPutAttributeTextMacro("version",  "MINC Version    1.0");
-        vtkMINCImageWriterPutAttributeTextMacro("vartype",  vartype);
+        vtkMINCImageWriterPutAttributeTextMacro(MIvarid,    MI_STDVAR);
+        vtkMINCImageWriterPutAttributeTextMacro(MIversion,  MI_VERSION_1_0);
+        vtkMINCImageWriterPutAttributeTextMacro(MIvartype,  vartype);
         }
 
       int dimIndex = 0;
-      if (strcmp(vartype, "dimension____") == 0)
+      if (strcmp(vartype, MI_DIMENSION) == 0)
         {
         static const char *dimensionComments[] = {
           "X increases from patient left to right",
@@ -1394,28 +1395,28 @@ int vtkMINCImageWriter::CreateMINCVariables(
         if (dimIndex >= 0 && dimIndex < 3)
           {
           vtkMINCImageWriterPutAttributeTextMacro(
-            "comments", dimensionComments[dimIndex]);
+            MIcomments, dimensionComments[dimIndex]);
           start = origin[dimIndex];
           step = spacing[dimIndex];
           if (this->Flip[dimIndex])
             {
-            // Switch the "start" to the other end and change sign
+            // Switch the MIstart to the other end and change sign
             double length = (wholeExtent[2*dimIndex+1] -
                              wholeExtent[2*dimIndex] + 1);
             start = -(start + step*(length-1));
             }
           }
 
-        vtkMINCImageWriterPutAttributeDoubleMacro("start", 1, &start);
-        vtkMINCImageWriterPutAttributeDoubleMacro("step",  1, &step);
-        vtkMINCImageWriterPutAttributeTextMacro("spacing",   "regular__");
-        vtkMINCImageWriterPutAttributeTextMacro("spacetype", "native____");
-        vtkMINCImageWriterPutAttributeTextMacro("alignment", "centre");
+        vtkMINCImageWriterPutAttributeDoubleMacro(MIstart, 1, &start);
+        vtkMINCImageWriterPutAttributeDoubleMacro(MIstep,  1, &step);
+        vtkMINCImageWriterPutAttributeTextMacro(MIspacing,   MI_REGULAR);
+        vtkMINCImageWriterPutAttributeTextMacro(MIspacetype, MI_NATIVE);
+        vtkMINCImageWriterPutAttributeTextMacro(MIalignment, MI_CENTRE);
 
         // Extra attributes for spatial dimensions
         if (dimIndex >= 0 && dimIndex < 3)
           {
-          vtkMINCImageWriterPutAttributeTextMacro("units",     "mm");
+          vtkMINCImageWriterPutAttributeTextMacro(MIunits,     "mm");
           vtkMatrix4x4 *matrix = this->GetOrientationMatrix();
           if (matrix)
             {
@@ -1435,62 +1436,65 @@ int vtkMINCImageWriter::CreateMINCVariables(
                   }
                 }
               }
-            vtkMINCImageWriterPutAttributeDoubleMacro("direction_cosines",
-                                                 3, dircos);
+            vtkMINCImageWriterPutAttributeDoubleMacro(MIdirection_cosines,
+                                                      3, dircos);
             }
           }
         }
-      else if (strcmp(vartype, "var_attribute") == 0)
+      else if (strcmp(vartype, MI_VARATT) == 0)
         {
-        vtkMINCImageWriterPutAttributeTextMacro("parent",  parent);
+        vtkMINCImageWriterPutAttributeTextMacro(MIparent,  parent);
         if (children)
           {
-          vtkMINCImageWriterPutAttributeTextMacro("children", children);
+          vtkMINCImageWriterPutAttributeTextMacro(MIchildren, children);
           }
-        vtkMINCImageWriterPutAttributeTextMacro("units",  "normalized");
+        vtkMINCImageWriterPutAttributeTextMacro(MIunits,  "normalized");
 
-        if (strcmp(varname, "image-min") == 0)
+        if (strcmp(varname, MIimagemin) == 0)
           {
           double val = 0.0;
-          vtkMINCImageWriterPutAttributeDoubleMacro("_FillValue", 1, &val);
+          vtkMINCImageWriterPutAttributeDoubleMacro(MI_FillValue, 1, &val);
           }
-        else if (strcmp(varname, "image-max") == 0)
+        else if (strcmp(varname, MIimagemax) == 0)
           {
           double val = 1.0;
-          vtkMINCImageWriterPutAttributeDoubleMacro("_FillValue", 1, &val);
+          vtkMINCImageWriterPutAttributeDoubleMacro(MI_FillValue, 1, &val);
           }
         }
-      else if (strcmp(vartype, "group________") == 0)
+      else if (strcmp(vartype, MI_GROUP) == 0)
         {
-        vtkMINCImageWriterPutAttributeTextMacro("parent",   parent);
+        vtkMINCImageWriterPutAttributeTextMacro(MIparent,   parent);
         if (children)
           {
-          vtkMINCImageWriterPutAttributeTextMacro("children", children);
+          vtkMINCImageWriterPutAttributeTextMacro(MIchildren, children);
           }
 
-        if (strcmp(varname, "image") == 0)
+        if (strcmp(varname, MIimage) == 0)
           {
-          const char *signType = "signed__";
+          const char *signType = MI_SIGNED;
           if (this->MINCImageTypeSigned == 0)
             {
-            signType = "unsigned";
+            signType = MI_UNSIGNED;
             }
           double *validRange = this->MINCValidRange;
 
-          vtkMINCImageWriterPutAttributeTextMacro("complete",  "true_");
-          vtkMINCImageWriterPutAttributeTextMacro("signtype",  signType);
+          vtkMINCImageWriterPutAttributeTextMacro(MIcomplete,  MI_TRUE);
+          vtkMINCImageWriterPutAttributeTextMacro(MIsigntype,  signType);
           // Don't set valid_range if its default is suitable
           if (this->ValidRange[0] != this->ValidRange[1] ||
               this->RescaleSlope == 0 ||
-              this->AttributeValues->GetDoubleArray("/minc/image/valid_range"))
+              this->AttributeValues->GetDoubleArray(
+                MI_GRPNAME MI_GRP_SEP MIimage MI_ATT_SEP MIvalid_range))
             {
-            vtkMINCImageWriterPutAttributeDoubleMacro("valid_range",2,validRange);
+            vtkMINCImageWriterPutAttributeDoubleMacro(MIvalid_range,2,validRange);
             }
           // The image-min, image-max will not always be present
           if (this->RescaleSlope != 0)
             {
-            vtkMINCImageWriterPutAttributeTextMacro("image-min", "--->image-min");
-            vtkMINCImageWriterPutAttributeTextMacro("image-max", "--->image-max");
+            vtkMINCImageWriterPutAttributeTextMacro(
+              MIimagemin, MI_VARATT_POINTER_PREFIX MIimagemin);
+            vtkMINCImageWriterPutAttributeTextMacro(
+              MIimagemax, MI_VARATT_POINTER_PREFIX MIimagemax);
             }
           }
         }
@@ -1501,11 +1505,11 @@ int vtkMINCImageWriter::CreateMINCVariables(
       varid = -1;
       // Global attributes: ident and history
       vtkstd::string ident = vtkMINCImageWriterCreateIdentString();
-      vtkMINCImageWriterPutAttributeTextMacro("ident", ident.c_str());
+      vtkMINCImageWriterPutAttributeTextMacro(MIident, ident.c_str());
       // For history, include any previous history
-      vtkstd::string history = "";
+      vtkstd::string history = MI_EMPTY_STRING;
       vtkCharArray *charArray =
-        this->AttributeValues->GetCharArray("/minc/history");
+        this->AttributeValues->GetCharArray(MI_GRPNAME MI_ATT_SEP MIhistory);
       if (charArray)
         {
         history.append(charArray->GetPointer(0));
@@ -1519,7 +1523,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
       vtkstd::string timestamp = ctime(&t);
       history.append(timestamp.substr(0, timestamp.size()-1) + ">>>"
                      + "Created by " + this->GetClassName() + "\n");
-      vtkMINCImageWriterPutAttributeTextMacro("history", history.c_str());
+      vtkMINCImageWriterPutAttributeTextMacro(MIhistory, history.c_str());
       }
 
     // Write out user-defined attributes for this variable
@@ -1527,10 +1531,10 @@ int vtkMINCImageWriter::CreateMINCVariables(
       this->AttributeNames->GetStringArray(varname);
     if (attArray)
       {
-      vtkstd::string varpath = "/minc/";
+      vtkstd::string varpath = MI_GRPNAME MI_GRP_SEP;
       if (varname[0] != '\0')
         {
-        varpath = varpath + varname + "/";
+        varpath = varpath + varname + MI_ATT_SEP;
         }
       int natts = attArray->GetNumberOfValues();
       for (int iatt = 0; iatt < natts; iatt++)
@@ -1541,42 +1545,42 @@ int vtkMINCImageWriter::CreateMINCVariables(
           this->AttributeValues->GetDataArray(attpath.c_str());
         int result = 1;
 
-        if (strcmp(varname, "") == 0)
+        if (strcmp(varname, MI_EMPTY_STRING) == 0)
           {
           // Check global attributes
           result = this->VerifyGlobalAttribute(attname, array);
           }
-        else if (strcmp(vartype, "") != 0)
+        else if (strcmp(vartype, MI_EMPTY_STRING) != 0)
           {
           // Check general attributes
           result = this->VerifyGeneralAttribute(varname, attname, array);
           }
         if (result == 2)
           {
-          if (strcmp(vartype, "dimension____") == 0)
+          if (strcmp(vartype, MI_DIMENSION) == 0)
             {
             result = this->VerifyDimensionAttribute(varname, attname,
                                                     array);
             }
-          else if (strcmp(varname, "image") == 0)
+          else if (strcmp(varname, MIimage) == 0)
             {
             result = this->VerifyImageAttribute(varname, attname, array);
             }
-          else if (strcmp(varname, "image-min") == 0 ||
-                   strcmp(varname, "image-max") == 0)
+          else if (strcmp(varname, MIimagemin) == 0 ||
+                   strcmp(varname, MIimagemax) == 0)
             {
             result = this->VerifyImageMinMaxAttribute(varname, attname,
                                                       array);
             }
-          else if (strcmp(varname, "patient") == 0)
+          else if (strcmp(varname, MIpatient) == 0)
             {
             result = this->VerifyPatientAttribute(varname, attname, array);
             }
-          else if (strcmp(varname, "study") == 0)
+          else if (strcmp(varname, MIstudy) == 0)
             {
             result = this->VerifyStudyAttribute(varname, attname, array);
             }
-          else if (strcmp(varname, "acquisition") == 0)
+          else if (strcmp(varname, MIacquisition) == 0)
             {
             result = this->VerifyAcquisitionAttribute(varname, attname,
                                                       array);
@@ -1732,7 +1736,8 @@ void vtkMINCImageWriter::FindMINCValidRange(double range[2])
 
   // Look for the valid_range attribute of the data.
   vtkDoubleArray *rangearray =
-    this->AttributeValues->GetDoubleArray("/minc/image/valid_range");
+    this->AttributeValues->GetDoubleArray(
+      MI_GRPNAME MI_GRP_SEP MIimage MI_ATT_SEP MIvalid_range);
   if (rangearray &&
       this->MINCImageType != NC_FLOAT &&
       this->MINCImageType != NC_DOUBLE &&
@@ -1790,12 +1795,18 @@ inline void vtkMINCImageWriterConvert(const F &inVal, T &outVal) \
   outVal = static_cast<T>(inVal); \
 }
 
-vtkMINCImageWriterConvertMacro(double, signed char, -128, 127);
-vtkMINCImageWriterConvertMacro(double, unsigned char, 0, 255);
-vtkMINCImageWriterConvertMacro(double, short, -32768, 32767);
-vtkMINCImageWriterConvertMacro(double, unsigned short, 0, 65535);
-vtkMINCImageWriterConvertMacro(double, int, -2147483647 - 1, 2147483647);
-vtkMINCImageWriterConvertMacro(double, unsigned int, 0u, 4294967295u);
+vtkMINCImageWriterConvertMacro(double, signed char,
+                               VTK_SIGNED_CHAR_MIN, VTK_SIGNED_CHAR_MAX);
+vtkMINCImageWriterConvertMacro(double, unsigned char,
+                               0, VTK_UNSIGNED_CHAR_MAX);
+vtkMINCImageWriterConvertMacro(double, short,
+                               VTK_SHORT_MIN, VTK_SHORT_MAX);
+vtkMINCImageWriterConvertMacro(double, unsigned short,
+                               0, VTK_UNSIGNED_SHORT_MAX);
+vtkMINCImageWriterConvertMacro(double, int,
+                               VTK_INT_MIN, VTK_INT_MAX);
+vtkMINCImageWriterConvertMacro(double, unsigned int,
+                               0, VTK_UNSIGNED_INT_MAX);
 vtkMINCImageWriterConvertMacroFloat(double, float);
 vtkMINCImageWriterConvertMacroFloat(double, double);
 
@@ -2044,18 +2055,18 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int frameNumber)
   int rescale = (this->RescaleSlope != 0);
 
   // Get the image variable.
-  status = nc_inq_varid(ncid, "image", &varid);
+  status = nc_inq_varid(ncid, MIimage, &varid);
   // Get the image-min variable.
   if (rescale)
     {
     if (status == NC_NOERR)
       {
-      status = nc_inq_varid(ncid, "image-min", &minid);
+      status = nc_inq_varid(ncid, MIimagemin, &minid);
       }
     // Get the image-max variable.
     if (status == NC_NOERR)
       {
-      status = nc_inq_varid(ncid, "image-max", &maxid);
+      status = nc_inq_varid(ncid, MIimagemax, &maxid);
       }
     }
 
@@ -2141,7 +2152,7 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int frameNumber)
         chunkSize *= count[idim];
         }
       }
-    else if (strcmp(dimName, "vector_dimension") == 0)
+    else if (strcmp(dimName, MIvector_dimension) == 0)
       {
       // Vector dimension size is also stored in numComponents.
       length[idim] = numComponents;
@@ -2382,10 +2393,10 @@ void vtkMINCImageWriter::Write()
     {
     int ncid = this->MINCFileId;
     int varid = 0;
-    int status = nc_inq_varid(ncid, "image", &varid);
+    int status = nc_inq_varid(ncid, MIimage, &varid);
     if (status == NC_NOERR)
       {
-      status = nc_put_att_double(ncid, varid, "valid_range", NC_DOUBLE, 2,
+      status = nc_put_att_double(ncid, varid, MIvalid_range, NC_DOUBLE, 2,
                                  this->MINCValidRange);
       }
     if (status != NC_NOERR)
@@ -2513,7 +2524,7 @@ int vtkMINCImageWriter::RequestData(
       // Close file, set MINCFileID to zero
       this->CloseNetCDFFile(this->MINCFileId);
       this->MINCFileId = 0;
-      vtkErrorMacro(<<"Write:Please specify an input!");
+      vtkErrorMacro(<<"Write: Please specify an input!");
       return 0;
       }
 
