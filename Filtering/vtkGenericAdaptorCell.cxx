@@ -36,7 +36,7 @@
 #include "vtkHexahedron.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.23");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.24");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -49,7 +49,7 @@ vtkGenericAdaptorCell::vtkGenericAdaptorCell()
   this->Wedge=vtkWedge::New();
   
   this->Scalars = vtkDoubleArray::New();
-  this->Scalars->SetNumberOfTuples(4);
+  this->Scalars->SetNumberOfTuples(8); // up to 8 points with a linear hexa
   this->PointData = vtkPointData::New();
   this->CellData = vtkCellData::New();
   
