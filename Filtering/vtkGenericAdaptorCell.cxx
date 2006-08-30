@@ -34,8 +34,9 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkQuad.h"
 #include "vtkHexahedron.h"
+#include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.22");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.23");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -45,6 +46,7 @@ vtkGenericAdaptorCell::vtkGenericAdaptorCell()
   this->Vertex = vtkVertex::New();
   this->Hexa=vtkHexahedron::New();
   this->Quad=vtkQuad::New();
+  this->Wedge=vtkWedge::New();
   
   this->Scalars = vtkDoubleArray::New();
   this->Scalars->SetNumberOfTuples(4);
@@ -76,6 +78,7 @@ vtkGenericAdaptorCell::~vtkGenericAdaptorCell()
   this->Vertex->Delete();
   this->Hexa->Delete();
   this->Quad->Delete();
+  this->Wedge->Delete();
   
   this->Scalars->Delete();
   this->PointData->Delete();
@@ -294,6 +297,10 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
       case VTK_HIGHER_ORDER_HEXAHEDRON:
         linearCell=this->Hexa;
         ptsCount=8;
+        break;
+      case VTK_HIGHER_ORDER_WEDGE:
+        linearCell=this->Wedge;
+        ptsCount=6;
         break;
       default:
         assert("check: impossible case" && 0);
@@ -534,6 +541,10 @@ void vtkGenericAdaptorCell::Clip(double value,
         linearCell=this->Hexa;
         ptsCount=8;
         break;
+      case VTK_HIGHER_ORDER_WEDGE:
+        linearCell=this->Wedge;
+        ptsCount=6;
+        break;
       default:
         assert("check: impossible case" && 0);
         linearCell=0; // just to fix warning of some compilers
@@ -754,6 +765,10 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
       case VTK_HIGHER_ORDER_HEXAHEDRON:
         linearCellType=VTK_HEXAHEDRON;
         numVerts=8;
+        break;
+      case VTK_HIGHER_ORDER_WEDGE:
+        linearCellType=VTK_WEDGE;
+        numVerts=6;
         break;
       default:
         assert("check: impossible case" && 0);
