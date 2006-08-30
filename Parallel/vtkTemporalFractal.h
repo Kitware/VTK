@@ -90,6 +90,13 @@ public:
   vtkSetMacro(Asymetric,int);
   vtkGetMacro(Asymetric,int);
 
+  // Description:
+  // Make the division adaptive or not, defaults to Adaptive
+  vtkSetMacro(AdaptiveSubdivision, int);
+  vtkGetMacro(AdaptiveSubdivision, int);
+  vtkBooleanMacro(AdaptiveSubdivision, int);
+
+
 protected:
   vtkTemporalFractal();
   ~vtkTemporalFractal();
@@ -182,6 +189,8 @@ protected:
   int GenerateRectilinearGrids;
 
   double CurrentTime;
+  
+  int AdaptiveSubdivision;
 
 private:
   vtkTemporalFractal(const vtkTemporalFractal&);  // Not implemented.

@@ -38,7 +38,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkTemporalFractal, "1.3");
+vtkCxxRevisionMacro(vtkTemporalFractal, "1.4");
 vtkStandardNewMacro(vtkTemporalFractal);
 
 //----------------------------------------------------------------------------
@@ -66,6 +66,8 @@ vtkTemporalFractal::vtkTemporalFractal()
   this->GenerateRectilinearGrids=0;
   this->CurrentTime = 0;
   this->DiscreteTimeSteps = 0;
+  
+  this->AdaptiveSubdivision = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -288,7 +290,7 @@ void vtkTemporalFractal::SetRBlockInfo(vtkRectilinearGrid *grid,
     ++coord;
     }
   
-//  grid->SetSpacing(spacing);
+  //  grid->SetSpacing(spacing);
   grid->SetXCoordinates(coords[0]);
   grid->SetYCoordinates(coords[1]);
   grid->SetZCoordinates(coords[2]);
@@ -316,7 +318,7 @@ int vtkTemporalFractal::TwoDTest(double bds[6], int level, int target)
     return 0;
     }
   
-  if (level < 2)
+  if (level < 2 || !this->AdaptiveSubdivision)
     {
     return 1;
     }
@@ -339,7 +341,7 @@ int vtkTemporalFractal::TwoDTest(double bds[6], int level, int target)
 int vtkTemporalFractal::MandelbrotTest(double x, double y)
 {
   unsigned short count = 0;
-  double v0, v1;
+  double v1;
   double cReal, cImag, zReal, zImag;
   double zReal2, zImag2;
 
@@ -350,7 +352,6 @@ int vtkTemporalFractal::MandelbrotTest(double x, double y)
 
   zReal2 = zReal * zReal;
   zImag2 = zImag * zImag;
-  v0 = 0.0;
   v1 = (zReal2 + zImag2);
   while ( v1 < 4.0 && count < 100)
     {
@@ -359,7 +360,6 @@ int vtkTemporalFractal::MandelbrotTest(double x, double y)
     zReal2 = zReal * zReal;
     zImag2 = zImag * zImag;
     ++count;
-    v0 = v1;
     v1 = (zReal2 + zImag2);
     }
 
@@ -671,6 +671,12 @@ int vtkTemporalFractal::LineTest(float x0, float y0, float z0,
     {
     return 0;
     }
+
+  if (!this->AdaptiveSubdivision)
+    {
+    return 1;
+    }
+
   // First check to see if the line intersects this block.
   if (this->LineTest2(x0, y0, z0, x1, y1, z1, bds))
     {
@@ -778,8 +784,6 @@ void vtkTemporalFractal::Traverse(int &blockId,
       this->Traverse(blockId, level, output, x0,x1,y0,y1,z0,z0,subOnFace);
       subOnFace[0]=0;
       subOnFace[1]=onFace[1];
-//      subOnFace[2]=onFace[2];
-//      subOnFace[3]=0;
       this->Traverse(blockId, level, output, x2,x3,y0,y1,z0,z0,subOnFace);
       subOnFace[0]=onFace[0];
       subOnFace[1]=0;
@@ -788,8 +792,6 @@ void vtkTemporalFractal::Traverse(int &blockId,
       this->Traverse(blockId, level, output, x0,x1,y2,y3,z0,z0,subOnFace);
       subOnFace[0]=0;
       subOnFace[1]=onFace[1];
-//      subOnFace[2]=0;
-//      subOnFace[3]=onFace[3];
       this->Traverse(blockId, level, output, x2,x3,y2,y3,z0,z0,subOnFace);
       }
     else
@@ -837,8 +839,6 @@ void vtkTemporalFractal::Traverse(int &blockId,
       this->Traverse(blockId, level, output, x0,x1,y0,y1,z0,z1,subOnFace);
       subOnFace[0]=0;
       subOnFace[1]=onFace[1];
-//      subOnFace[2]=onFace[2];
-//      subOnFace[3]=0;
       this->Traverse(blockId, level, output, x2,x3,y0,y1,z0,z1,subOnFace);
       subOnFace[0]=onFace[0];
       subOnFace[1]=0;
@@ -847,8 +847,6 @@ void vtkTemporalFractal::Traverse(int &blockId,
       this->Traverse(blockId, level, output, x0,x1,y2,y3,z0,z1,subOnFace);
       subOnFace[0]=0;
       subOnFace[1]=onFace[1];
-//      subOnface[2]=0;
-//      subOnFace[3]=onFace[3];
       this->Traverse(blockId, level, output, x2,x3,y2,y3,z0,z1,subOnFace);
       
       
@@ -861,8 +859,6 @@ void vtkTemporalFractal::Traverse(int &blockId,
       this->Traverse(blockId, level, output, x0,x1,y0,y1,z2,z3,subOnFace);
       subOnFace[0]=0;
       subOnFace[1]=onFace[1];
-//      subOnFace[2]=onFace[2];
-//      subOnFace[3]=0;
       this->Traverse(blockId, level, output, x2,x3,y0,y1,z2,z3,subOnFace);
       subOnFace[0]=onFace[0];
       subOnFace[1]=0;
@@ -871,8 +867,6 @@ void vtkTemporalFractal::Traverse(int &blockId,
       this->Traverse(blockId, level, output, x0,x1,y2,y3,z2,z3,subOnFace);
       subOnFace[0]=0;
       subOnFace[1]=onFace[1];
-//      subOnFace[2]=0;
-//      subOnFace[3]=onFace[3];
       this->Traverse(blockId, level, output, x2,x3,y2,y3,z2,z3,subOnFace);
       }
     else
@@ -1315,7 +1309,6 @@ void vtkTemporalFractal::AddGhostLevelArray(vtkDataSet *grid,
       }
     }
   array->SetName("vtkGhostLevels");
-//      array->SetName("vtkNotGhostLevels");
   grid->GetCellData()->AddArray(array);
   array->Delete();
 }
@@ -1373,7 +1366,6 @@ void vtkTemporalFractal::ExecuteRectilinearMandelbrot(
   double p[4];
   
   // Shift point to center of voxel.
-//  fractalSource->SetWholeExtent(0,dims[0]-1, 0,dims[1]-1, 0,dims[2]-1);
   ext[0]=0;
   ext[1]=dims[0]-1;
   ext[2]=0;
@@ -1384,10 +1376,6 @@ void vtkTemporalFractal::ExecuteRectilinearMandelbrot(
   int min0, max0;
   int idx0, idx1, idx2;
   vtkIdType inc0, inc1, inc2;
-  
-//  fractalSource->SetOriginCX(origin[0]+(spacing[0]*0.5), 
-//                             origin[1]+(spacing[1]*0.5), 
-//                             origin[2]+(spacing[2]*0.5), 0.0);
   
   double origin[4];
   vtkDataArray *coords[3];
@@ -1515,6 +1503,7 @@ void vtkTemporalFractal::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Dimensions: " << this->Dimensions << endl;
   os << indent << "TwoDimensional: " << this->TwoDimensional << endl;
+  os << indent << "AdaptiveSubdivision: " << this->AdaptiveSubdivision << endl;
   os << indent << "DiscreteTimeSteps: " << this->DiscreteTimeSteps << endl;
   os << indent << "FractalValue: " << this->FractalValue << endl;
   os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
