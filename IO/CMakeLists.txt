@@ -57,7 +57,6 @@ vtkMedicalImageProperties.cxx
 vtkMedicalImageReader2.cxx
 vtkMetaImageReader.cxx
 vtkMetaImageWriter.cxx
-vtkMINCImageAttributes.cxx
 vtkMINCImageReader.cxx
 vtkMINCImageWriter.cxx
 vtkMultiBlockPLOT3DReader.cxx

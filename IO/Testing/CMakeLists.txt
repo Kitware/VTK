@@ -13,6 +13,7 @@ IF(PYTHON_EXECUTABLE)
     ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
     "${VTK_SOURCE_DIR}/IO"
     VTK_IO_EXPORT
+    vtkMINC.h
     vtkPLY.h
     vtkBase64Utilities.h
     vtkXMLUtilities.h
