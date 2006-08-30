@@ -96,6 +96,15 @@ public:
   void AddVectorVariable(const char* variableName, const char* arrayName,
                          int component0 = 0, int component1 = 1,
                          int component2 = 2);
+
+  // Description:
+  // Add a variable name, a corresponding array name, and which components of
+  // the array to use.
+  void AddCoordinateScalarVariable(const char* variableName,
+                                   int component = 0);
+  void AddCoordinateVectorVariable(const char* variableName,
+                                   int component0 = 0, int component1 = 1,
+                                   int component2 = 2);
   
   // Description:
   // Set the name of the array in which to store the result of
@@ -104,6 +113,15 @@ public:
   // created with the specified name.
   void SetResultArrayName(const char* name);
   vtkGetStringMacro(ResultArrayName);
+  
+  // Description:
+  // Set whether to output results as coordinates.  ResultArrayName will be
+  // ignored.  Outputing as coordinates is only valid with vector results and
+  // if the AttributeMode is AttributeModeToUsePointData.
+  // If a valid output can't be made, an error will occur.
+  vtkGetMacro(CoordinateResults, int);
+  vtkSetMacro(CoordinateResults, int);
+  vtkBooleanMacro(CoordinateResults, int);
   
   // Description:
   // Control whether the filter operates on point data or cell data.
@@ -131,6 +149,14 @@ public:
   // Description:
   // Remove all the scalar variable names and their associated array names.
   void RemoveVectorVariables();
+  
+  // Description:
+  // Remove all the coordinate variables.
+  void RemoveCoordinateScalarVariables();
+  
+  // Description:
+  // Remove all the coordinate variables.
+  void RemoveCoordinateVectorVariables();
 
   // Description:
   // Methods to get information about the current variables.
@@ -181,6 +207,14 @@ protected:
 
   int ReplaceInvalidValues;
   double ReplacementValue;
+  
+  int CoordinateResults;
+  char** CoordinateScalarVariableNames;
+  char** CoordinateVectorVariableNames;
+  int* SelectedCoordinateScalarComponents;
+  int** SelectedCoordinateVectorComponents;
+  int NumberOfCoordinateScalarArrays;
+  int NumberOfCoordinateVectorArrays;
 
 private:
   vtkArrayCalculator(const vtkArrayCalculator&);  // Not implemented.
