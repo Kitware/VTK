@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataGroupIdScalars, "1.2");
+vtkCxxRevisionMacro(vtkMultiGroupDataGroupIdScalars, "1.3");
 vtkStandardNewMacro(vtkMultiGroupDataGroupIdScalars);
 
 // Construct object with PointIds and CellIds on; and ids being generated
@@ -63,29 +63,75 @@ int vtkMultiGroupDataGroupIdScalars::RequestData(
     output->SetNumberOfDataSets(group, numDataSets);
     for (unsigned int dataSet=0; dataSet<numDataSets; dataSet++)
       {
-      vtkDataSet* dObj = vtkDataSet::SafeDownCast(
-        input->GetDataSet(group, dataSet));
+      vtkDataObject* dObj = input->GetDataSet(group, dataSet);
       if (dObj)
         {
-        vtkDataSet* copy = dObj->NewInstance();
-        copy->ShallowCopy(dObj);
-        output->SetDataSet(group, dataSet, copy);
-        vtkIdType numCells = copy->GetNumberOfCells();
-        vtkUnsignedCharArray* cArray = vtkUnsignedCharArray::New();
-        cArray->SetNumberOfTuples(numCells);
-        for (vtkIdType cellIdx=0; cellIdx<numCells; cellIdx++)
+        vtkDataObject* block = this->ColorBlock(dObj, group);
+        if (block)
           {
-          cArray->SetValue(cellIdx, group);
+          output->SetDataSet(group, dataSet, block);
+          block->Delete();
           }
-        cArray->SetName("GroupIdScalars");
-        copy->GetCellData()->AddArray(cArray);
-        cArray->Delete();
-        copy->Delete();
         }
       }
     }
 
   return 1;
+}
+
+vtkDataObject* vtkMultiGroupDataGroupIdScalars::ColorBlock(
+  vtkDataObject* input, int group)
+{
+  vtkDataObject* output = 0;
+  if (input->IsA("vtkMultiGroupDataSet"))
+    {
+    vtkMultiGroupDataSet* mbInput = 
+      vtkMultiGroupDataSet::SafeDownCast(input);
+
+    output = input->NewInstance();
+    vtkMultiGroupDataSet* mbOutput =
+      vtkMultiGroupDataSet::SafeDownCast(output);
+
+    unsigned int numGroups = mbInput->GetNumberOfGroups();
+    mbOutput->SetNumberOfGroups(numGroups);
+    
+    for (unsigned int group=0; group<numGroups; group++)
+      {
+      unsigned int numDataSets = mbInput->GetNumberOfDataSets(group);
+      mbOutput->SetNumberOfDataSets(group, numDataSets);
+      for (unsigned int dataSet=0; dataSet<numDataSets; dataSet++)
+        {
+        vtkDataObject* dObj = mbInput->GetDataSet(group, dataSet);
+        vtkDataObject* outBlock = this->ColorBlock(dObj, group);
+        if (outBlock)
+          {
+          mbOutput->SetDataSet(group, dataSet, outBlock);
+          outBlock->Delete();
+          }
+        }
+      }
+    }
+  else
+    {
+    vtkDataSet* ds = vtkDataSet::SafeDownCast(input);
+    if (ds)
+      {
+      output = ds->NewInstance();
+      output->ShallowCopy(ds);
+      vtkDataSet* dsOutput = vtkDataSet::SafeDownCast(output);
+      vtkIdType numCells = dsOutput->GetNumberOfCells();
+      vtkUnsignedCharArray* cArray = vtkUnsignedCharArray::New();
+      cArray->SetNumberOfTuples(numCells);
+      for (vtkIdType cellIdx=0; cellIdx<numCells; cellIdx++)
+        {
+        cArray->SetValue(cellIdx, group);
+        }
+      cArray->SetName("GroupIdScalars");
+      dsOutput->GetCellData()->AddArray(cArray);
+      cArray->Delete();
+      }
+    }
+  return output;
 }
 
 void vtkMultiGroupDataGroupIdScalars::PrintSelf(ostream& os, vtkIndent indent)

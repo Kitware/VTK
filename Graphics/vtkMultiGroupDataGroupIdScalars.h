@@ -43,6 +43,8 @@ protected:
                   vtkInformationVector **, 
                   vtkInformationVector *);
 
+  vtkDataObject* ColorBlock(vtkDataObject* input, int group);
+
 private:
   vtkMultiGroupDataGroupIdScalars(const vtkMultiGroupDataGroupIdScalars&);  // Not implemented.
   void operator=(const vtkMultiGroupDataGroupIdScalars&);  // Not implemented.
