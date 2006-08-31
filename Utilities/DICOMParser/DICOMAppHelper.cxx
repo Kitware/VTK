@@ -565,7 +565,8 @@ void DICOMAppHelper::SliceLocationCallback(DICOMParser *parser,
     ord.SliceLocation = (float)atof( (char *) val);
 
     // insert into the map
-    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<const dicom_stl::string, DICOMOrderingElements>(parser->GetFileName(), ord));
+    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<const dicom_stl::string,
+      DICOMOrderingElements>(parser->GetFileName(), ord));
     }
   else
     {
@@ -605,7 +606,8 @@ void DICOMAppHelper::ImagePositionPatientCallback(DICOMParser *parser,
       }
 
     // insert into the map
-    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<const dicom_stl::string, DICOMOrderingElements>(parser->GetFileName(), ord));
+    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<const dicom_stl::string, 
+      DICOMOrderingElements>(parser->GetFileName(), ord));
 
     // cache the value
     memcpy( this->ImagePositionPatient, ord.ImagePositionPatient,
@@ -672,7 +674,12 @@ void DICOMAppHelper::ImageOrientationPatientCallback(DICOMParser *parser,
       }
     
     // insert into the map
-    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<const dicom_stl::string, DICOMOrderingElements>(parser->GetFileName(), ord));
+    this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<const dicom_stl::string,
+      DICOMOrderingElements>(parser->GetFileName(), ord));
+
+    // cache the value
+    memcpy( this->ImageOrientationPatient, ord.ImageOrientationPatient,
+            6*sizeof(float) );
     }
   else
     {
@@ -697,6 +704,10 @@ void DICOMAppHelper::ImageOrientationPatientCallback(DICOMParser *parser,
       (*it).second.ImageOrientationPatient[4] = 1.0;
       (*it).second.ImageOrientationPatient[5] = 0.0;
       }
+
+    // cache the value
+    memcpy( this->ImageOrientationPatient, (*it).second.ImageOrientationPatient,
+            6*sizeof(float) );
     }
 }
 
@@ -1246,7 +1257,8 @@ void DICOMAppHelper::GetImagePositionPatientFilenamePairs(const dicom_stl::strin
        float image_position;
        float normal[3];
        
-       dicom_stl::map<dicom_stl::string, DICOMOrderingElements, ltstdstr>::iterator sn_iter = Implementation->SliceOrderingMap.find(*fileIter);
+       dicom_stl::map<dicom_stl::string, DICOMOrderingElements, ltstdstr>::iterator sn_iter = 
+         Implementation->SliceOrderingMap.find(*fileIter);
 
        if (sn_iter != Implementation->SliceOrderingMap.end())
         {
@@ -1289,7 +1301,8 @@ void DICOMAppHelper::GetImagePositionPatientFilenamePairs(dicom_stl::vector<dico
   // Default to using the first series
   if (this->Implementation->SeriesUIDMap.size() > 0)
     {
-    this->GetImagePositionPatientFilenamePairs( (*this->Implementation->SeriesUIDMap.begin()).first, v, ascending);
+    this->GetImagePositionPatientFilenamePairs(
+      (*this->Implementation->SeriesUIDMap.begin()).first, v, ascending);
     }
   else
     {

@@ -99,6 +99,12 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   float* GetImagePositionPatient();
 
   // Description:
+  // Get the (DICOM) directions cosines. It consist of the components
+  // of the first two vectors. The third vector needs to be computed
+  // to form an orthonormal basis.
+  float* GetImageOrientationPatient();
+
+  // Description:
   // Get the number of bits allocated for each pixel in the file.
   int GetBitsAllocated();
 
