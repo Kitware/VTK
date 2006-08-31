@@ -28,7 +28,7 @@
 #include "DICOMAppHelper.h"
 #include "DICOMParser.h"
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.37");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.38");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -401,10 +401,6 @@ void vtkDICOMImageReader::SetupOutputInformation(int num_slices)
   this->SetNumberOfScalarComponents(num_comp);
 
   this->GetPixelSpacing();
-  float *pos = this->GetImagePositionPatient();
-  this->DataOrigin[0] = pos[0];
-  this->DataOrigin[1] = pos[1];
-  this->DataOrigin[2] = pos[2];
 
   this->vtkImageReader2::ExecuteInformation();
 }
