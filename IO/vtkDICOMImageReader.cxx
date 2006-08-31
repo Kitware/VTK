@@ -12,22 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-#include "DICOMParser.h"
-#include "DICOMAppHelper.h"
-
 #include "vtkDICOMImageReader.h"
+
+#include "vtkDirectory.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkDirectory.h"
 
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.32");
+#include "DICOMAppHelper.h"
+#include "DICOMParser.h"
+
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.32.6.1");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -354,7 +355,7 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
       char* filename = new char[len+1];
       strcpy(filename, (char*) (*fiter).c_str());
       this->SetProgressText(filename);
-
+      delete[] filename;
       }
     }
 }
@@ -400,6 +401,10 @@ void vtkDICOMImageReader::SetupOutputInformation(int num_slices)
   this->SetNumberOfScalarComponents(num_comp);
 
   this->GetPixelSpacing();
+  float *pos = this->GetImagePositionPatient();
+  this->DataOrigin[0] = pos[0];
+  this->DataOrigin[1] = pos[1];
+  this->DataOrigin[2] = pos[2];
 
   this->vtkImageReader2::ExecuteInformation();
 }
@@ -479,6 +484,12 @@ int vtkDICOMImageReader::GetHeight()
 float* vtkDICOMImageReader::GetImagePositionPatient()
 {
   return this->AppHelper->GetImagePositionPatient();
+}
+
+//----------------------------------------------------------------------------
+float* vtkDICOMImageReader::GetImageOrientationPatient()
+{
+  return this->AppHelper->GetImageOrientationPatient();
 }
 
 //----------------------------------------------------------------------------
