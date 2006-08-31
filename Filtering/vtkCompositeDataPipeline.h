@@ -119,12 +119,6 @@ protected:
                                 vtkInformationVector** inInfoVec,
                                 vtkInformationVector* outInfoVec);
 
-  // Helper to check output information before propagating it to inputs.
-  virtual int VerifyOutputInformation(int outputPort,
-                                      vtkInformationVector** inInfoVec,
-                                      vtkInformationVector* outInfoVec);
-
-
   // Check whether the data object in the pipeline information for an
   // output port exists and has a valid type.
   virtual int CheckCompositeData(int port, vtkInformationVector* outInfoVec);

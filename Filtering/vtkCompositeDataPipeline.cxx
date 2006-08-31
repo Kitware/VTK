@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.39");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.40");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_TYPE_NAME,String);
@@ -203,63 +203,6 @@ int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request,
   // Let the superclass handle other requests.
   return this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec);
 }
-
-//----------------------------------------------------------------------------
-int vtkCompositeDataPipeline::VerifyOutputInformation(
-  int outputPort,
-  vtkInformationVector** inInfoVec,
-  vtkInformationVector* outInfoVec)
-
-{
-  if (outputPort < 0)
-    {
-    return this->Superclass::VerifyOutputInformation(
-      outputPort, inInfoVec, outInfoVec);
-    }
-
-  vtkInformation* portInfo = 
-    this->Algorithm->GetOutputPortInformation(outputPort);
-  if (portInfo->Has(COMPOSITE_DATA_TYPE_NAME()))
-    {
-    vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
-    // For an unstructured extent, make sure the update request
-    // exists.  We do not need to check if it is valid because
-    // out-of-range requests produce empty data.
-    if(!outInfo->Has(MAXIMUM_NUMBER_OF_PIECES()))
-      {
-      vtkErrorMacro("No maximum number of pieces has been set in the "
-                    "information for output port " << outputPort
-                    << " on algorithm " << this->Algorithm->GetClassName()
-                    << "(" << this->Algorithm << ").");
-      return 0;
-      }
-    if(!outInfo->Has(UPDATE_PIECE_NUMBER()))
-      {
-      vtkErrorMacro("No update piece number has been set in the "
-                    "information for output port " << outputPort
-                    << " on algorithm " << this->Algorithm->GetClassName()
-                    << "(" << this->Algorithm << ").");
-      return 0;
-      }
-    if(!outInfo->Has(UPDATE_NUMBER_OF_PIECES()))
-      {
-      vtkErrorMacro("No update number of pieces has been set in the "
-                    "information for output port " << outputPort
-                    << " on algorithm " << this->Algorithm->GetClassName()
-                    << "(" << this->Algorithm << ").");
-      return 0;
-      }
-    if(!outInfo->Has(UPDATE_NUMBER_OF_GHOST_LEVELS()))
-      {
-      // Use zero ghost levels by default.
-      outInfo->Set(UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
-      }
-    return 1;
-    }
-  return this->Superclass::VerifyOutputInformation(
-    outputPort, inInfoVec, outInfoVec);
-}
-
 
 //----------------------------------------------------------------------------
 // Handle REQUEST_DATA_OBJECT
