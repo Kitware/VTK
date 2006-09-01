@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataGroupIdScalars, "1.3");
+vtkCxxRevisionMacro(vtkMultiGroupDataGroupIdScalars, "1.4");
 vtkStandardNewMacro(vtkMultiGroupDataGroupIdScalars);
 
 // Construct object with PointIds and CellIds on; and ids being generated
@@ -95,17 +95,17 @@ vtkDataObject* vtkMultiGroupDataGroupIdScalars::ColorBlock(
     unsigned int numGroups = mbInput->GetNumberOfGroups();
     mbOutput->SetNumberOfGroups(numGroups);
     
-    for (unsigned int group=0; group<numGroups; group++)
+    for (unsigned int groupidx=0; groupidx<numGroups; groupidx++)
       {
-      unsigned int numDataSets = mbInput->GetNumberOfDataSets(group);
-      mbOutput->SetNumberOfDataSets(group, numDataSets);
+      unsigned int numDataSets = mbInput->GetNumberOfDataSets(groupidx);
+      mbOutput->SetNumberOfDataSets(groupidx, numDataSets);
       for (unsigned int dataSet=0; dataSet<numDataSets; dataSet++)
         {
-        vtkDataObject* dObj = mbInput->GetDataSet(group, dataSet);
-        vtkDataObject* outBlock = this->ColorBlock(dObj, group);
+        vtkDataObject* dObj = mbInput->GetDataSet(groupidx, dataSet);
+        vtkDataObject* outBlock = this->ColorBlock(dObj, groupidx);
         if (outBlock)
           {
-          mbOutput->SetDataSet(group, dataSet, outBlock);
+          mbOutput->SetDataSet(groupidx, dataSet, outBlock);
           outBlock->Delete();
           }
         }
