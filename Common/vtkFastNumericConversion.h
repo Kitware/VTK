@@ -297,17 +297,19 @@ public:
   inline static int QuickFloor(const double &val)
     {
 #ifdef VTK_USE_TRICK
-    double tempval;
+      union { int i[2]; double d; } u;
 #ifdef VTK_EXT_PREC
-    tempval = (((val - (QuickRoundAdjust() - RoundingTieBreaker())) 
-        + QuickExtPrecTempDenormalizer()) // Push off those extended precision bits
-      - QuickExtPrecTempDenormalizer()) // Pull back the wanted bits into double range
-      + QuickFloorDenormalizer();
+      u.d = (((val - (QuickRoundAdjust() - RoundingTieBreaker())) 
+              // Push off those extended precision bits
+              + QuickExtPrecTempDenormalizer()) 
+             // Pull back the wanted bits into double range
+             - QuickExtPrecTempDenormalizer()) 
+        + QuickFloorDenormalizer();
 #else // ! VTK_EXT_PREC
-    tempval = (val - (QuickRoundAdjust() - RoundingTieBreaker())) 
-      + QuickFloorDenormalizer();
+      u.d = (val - (QuickRoundAdjust() - RoundingTieBreaker())) 
+        + QuickFloorDenormalizer();
 #endif // VTK_EXT_PREC
-    return ((int*)&tempval)[mantissa_pos];
+      return u.i[mantissa_pos];
 #else // ! VTK_USE_TRICK
     return (int) val;
 #endif // VTK_USE_TRICK
@@ -330,17 +332,17 @@ public:
   inline static int SafeFloor(const double &val)
     {
 #ifdef VTK_USE_TRICK
-    double tempval;
+      union { int i[2]; double d; } u;
 #ifdef VTK_EXT_PREC
-    tempval = (((val - SafeRoundAdjust())
-        + SafeExtPrecTempDenormalizer())
-      - SafeExtPrecTempDenormalizer())
-      + SafeFloorDenormalizer();
+      u.d = (((val - SafeRoundAdjust())
+              + SafeExtPrecTempDenormalizer())
+             - SafeExtPrecTempDenormalizer())
+        + SafeFloorDenormalizer();
 #else // ! VTK_EXT_PREC
-    tempval = (val - SafeRoundAdjust()) 
-      + SafeFloorDenormalizer();
+      u.d = (val - SafeRoundAdjust()) 
+        + SafeFloorDenormalizer();
 #endif // VTK_EXT_PREC
-    return ((int*)&tempval)[mantissa_pos] >> SafeFinalShift();
+      return u.i[mantissa_pos] >> SafeFinalShift();
 #else // ! VTK_USE_TRICK
     return (int) val;
 #endif // VTK_USE_TRICK
@@ -358,17 +360,17 @@ public:
   inline static int Round(const double &val)
     {
 #ifdef VTK_USE_TRICK
-    double tempval;
+      union { int i[2]; double d; } u;
 #ifdef VTK_EXT_PREC
-    tempval = ((val 
-        + QuickExtPrecTempDenormalizer()) 
-      - QuickExtPrecTempDenormalizer())
-      + QuickFloorDenormalizer();
+      u.d = ((val 
+              + QuickExtPrecTempDenormalizer()) 
+             - QuickExtPrecTempDenormalizer())
+        + QuickFloorDenormalizer();
 #else // ! VTK_EXT_PREC
-    tempval =    val  
-      + QuickFloorDenormalizer();
+      u.d = val  
+        + QuickFloorDenormalizer();
 #endif // VTK_EXT_PREC
-    return ((int*)&tempval)[mantissa_pos];
+    return u.i[mantissa_pos];
 #else // ! VTK_USE_TRICK
     if (val>=0)
       {
@@ -387,18 +389,18 @@ public:
   // part in the second parameter. 
   inline int ConvertFixedPoint(const double &val, int &fracPart)
     {
-    double tempval;
+      union { int i[2]; double d; } u;
 #ifdef VTK_EXT_PREC
-    tempval = (((val - fixRound)
-        + this->epTempDenormalizer)
-      - this->epTempDenormalizer)
-      + this->fpDenormalizer;
+      u.d = (((val - fixRound)
+              + this->epTempDenormalizer)
+             - this->epTempDenormalizer)
+        + this->fpDenormalizer;
 #else // ! VTK_EXT_PREC
-    tempval = (val - fixRound) 
-      + this->fpDenormalizer;
+      u.d = (val - fixRound) 
+        + this->fpDenormalizer;
 #endif // VTK_EXT_PREC
-    fracPart = (((int*)&tempval)[mantissa_pos] & fracMask) >> 1;
-    return ((int*)&tempval)[mantissa_pos] >> this->internalReservedFracBits;
+    fracPart = (u.i[mantissa_pos] & fracMask) >> 1;
+    return u.i[mantissa_pos] >> this->internalReservedFracBits;
     }
   //ETX
 
