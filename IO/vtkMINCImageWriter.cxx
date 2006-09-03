@@ -79,7 +79,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.11");
+vtkCxxRevisionMacro(vtkMINCImageWriter, "1.12");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter,OrientationMatrix,vtkMatrix4x4);
@@ -500,7 +500,7 @@ static const char *vtkMINCDimVarNames[] = {
 
 //-------------------------------------------------------------------------
 int vtkMINCImageWriter::CreateMINCDimensions(
-  int wholeExtent[6], int numComponents, int numFrames, int *dimids)
+  int wholeExtent[6], int numComponents, int numTimeSteps, int *dimids)
 {
   // Create a default dimension order using the direction cosines.
   this->ComputePermutationFromOrientation(this->Permutation, this->Flip);
@@ -563,7 +563,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(
     }
 
   // Make sure number of dimensions matches the dimensionality
-  int timeDimensions = ( numFrames > 1);
+  int timeDimensions = ( numTimeSteps > 1);
   int spatialDimensions = ((wholeExtent[0] < wholeExtent[1]) +
                            (wholeExtent[2] < wholeExtent[3]) +
                            (wholeExtent[4] < wholeExtent[5]));
@@ -616,7 +616,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(
     const char *dimname = dimensions[idim].c_str();
     this->InternalDimensionNames->SetValue(idim, dimname);
     int dimIndex = this->IndexFromDimensionName(dimname);
-    size_t length = numFrames;
+    size_t length = numTimeSteps;
     if (dimIndex >= 0 && dimIndex < 3)
       {
       length = wholeExtent[2*dimIndex+1] - wholeExtent[2*dimIndex] + 1;
@@ -1057,7 +1057,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
 
 //-------------------------------------------------------------------------
 int vtkMINCImageWriter::WriteMINCFileAttributes(
-  vtkImageData* input, int numFrames)
+  vtkImageData* input, int numTimeSteps)
 {
   // Get the information from the input
   double spacing[3];
@@ -1078,7 +1078,7 @@ int vtkMINCImageWriter::WriteMINCFileAttributes(
 
   // Create a list of dimensions (don't include vector_dimension)
   int dimids[VTK_MINC_MAX_DIMS];
-  if (this->CreateMINCDimensions(wholeExtent, numComponents, numFrames,
+  if (this->CreateMINCDimensions(wholeExtent, numComponents, numTimeSteps,
                                  dimids) == 0)
     {
     return 0;
@@ -1485,12 +1485,12 @@ void vtkMINCImageWriterExecuteChunk(
 // to calculate the scalar range of each slice before writing it,
 // therefore the UpdateExtent must contain whole slices, otherwise
 // the range won't be properly calculated.
-int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int frameNumber)
+int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
 {
   int scalarType = data->GetScalarType();
   int scalarSize = data->GetScalarSize();
   int numComponents = data->GetNumberOfScalarComponents();
-  int numFrames = this->GetNumberOfInputConnections(0);
+  int numTimeSteps = this->GetNumberOfInputConnections(0);
   int inWholeExt[6];
   data->GetWholeExtent(inWholeExt);
   int inExt[6];
@@ -1628,9 +1628,9 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int frameNumber)
       }
     else
       {
-      // Use FrameNumber to compute the index into the remaining dimension
-      length[idim] = numFrames;
-      start[idim] = frameNumber;
+      // Use TimeStep to compute the index into the remaining dimension
+      length[idim] = numTimeSteps;
+      start[idim] = timeStep;
       count[idim] = 1;
       permutedInc[idim] = 0;
       }
@@ -1964,12 +1964,12 @@ int vtkMINCImageWriter::RequestData(
   vtkInformationVector* vtkNotUsed(outputVector))
 {
   // Go through the inputs and write the data for each
-  int numFrames = inputVector[0]->GetNumberOfInformationObjects();
+  int numTimeSteps = inputVector[0]->GetNumberOfInformationObjects();
 
-  for (int frameNumber = 0; frameNumber < numFrames; frameNumber++)
+  for (int timeStep = 0; timeStep < numTimeSteps; timeStep++)
     {
     vtkInformation *inInfo =
-      inputVector[0]->GetInformationObject(frameNumber);
+      inputVector[0]->GetInformationObject(timeStep);
     vtkImageData *input =
       vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 

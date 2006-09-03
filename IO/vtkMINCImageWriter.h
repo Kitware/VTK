@@ -160,12 +160,12 @@ protected:
   virtual void ComputePermutationFromOrientation(int permutation[3],
                                                  int flip[3]);
   virtual int CreateMINCDimensions(int wholeExtent[6], int numComponents,
-                                   int numFrames, int *dimids);
+                                   int numTimeSteps, int *dimids);
   virtual int CreateMINCVariables(int wholeExtent[6], int numComponents,
                                   double origin[3], double spacing[3],
                                   int *dimids);
-  virtual int WriteMINCFileAttributes(vtkImageData *input, int numFrames);
-  virtual int WriteMINCData(vtkImageData *input, int frameNumber);
+  virtual int WriteMINCFileAttributes(vtkImageData *input, int numTimeSteps);
+  virtual int WriteMINCData(vtkImageData *input, int timeStep);
   virtual void FindRescale(double &rescaleSlope, double &rescaleIntercept);
   virtual void FindMINCValidRange(double range[2]);
 

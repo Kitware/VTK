@@ -102,14 +102,13 @@ public:
     range[0] = r[0]; range[1] = r[1]; };
 
   // Description:
-  // Get the number of frames in the file.  This is for
-  // non-spatial dimensions like time.
-  virtual int GetNumberOfFrames();
+  // Get the number of time steps in the file.
+  virtual int GetNumberOfTimeSteps();
 
   // Description:
-  // Set the frame to read.
-  vtkSetMacro(FrameNumber, int);
-  vtkGetMacro(FrameNumber, int);
+  // Set the time step to read.
+  vtkSetMacro(TimeStep, int);
+  vtkGetMacro(TimeStep, int);
 
   // Description:
   // Get the image attributes, which contain patient information and
@@ -126,8 +125,8 @@ protected:
   double ValidRange[2];
   double ImageRange[2];
 
-  int NumberOfFrames;
-  int FrameNumber;
+  int NumberOfTimeSteps;
+  int TimeStep;
   vtkMatrix4x4 *OrientationMatrix;
   double RescaleSlope;
   double RescaleIntercept;

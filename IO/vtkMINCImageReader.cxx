@@ -67,14 +67,14 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageReader, "1.8");
+vtkCxxRevisionMacro(vtkMINCImageReader, "1.9");
 vtkStandardNewMacro(vtkMINCImageReader);
 
 //-------------------------------------------------------------------------
 vtkMINCImageReader::vtkMINCImageReader()
 {
-  this->NumberOfFrames = 1;
-  this->FrameNumber = 0;
+  this->NumberOfTimeSteps = 1;
+  this->TimeStep = 0;
   this->OrientationMatrix = vtkMatrix4x4::New();
   this->RescaleIntercept = 0.0;
   this->RescaleSlope = 1.0;
@@ -128,8 +128,8 @@ void vtkMINCImageReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ValidRange: (" << this->ValidRange[0]
      << ", " << this->ValidRange[1] << ")\n";
 
-  os << indent << "NumberOfFrames: " << this->NumberOfFrames << "\n";
-  os << indent << "FrameNumber: " << this->FrameNumber << "\n";
+  os << indent << "NumberOfTimeSteps: " << this->NumberOfTimeSteps << "\n";
+  os << indent << "TimeStep: " << this->TimeStep << "\n";
 }
 
 //-------------------------------------------------------------------------
@@ -251,10 +251,10 @@ double *vtkMINCImageReader::GetValidRange()
 }
 
 //-------------------------------------------------------------------------
-int vtkMINCImageReader::GetNumberOfFrames()
+int vtkMINCImageReader::GetNumberOfTimeSteps()
 {
   this->ReadMINCFileAttributes();
-  return this->NumberOfFrames;
+  return this->NumberOfTimeSteps;
 }
 
 //-------------------------------------------------------------------------
@@ -353,7 +353,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
   this->MINCImageType = 0;
   this->MINCImageTypeSigned = 1;
 
-  this->NumberOfFrames = 1;
+  this->NumberOfTimeSteps = 1;
   this->OrientationMatrix->Identity();
 
   // Orientation set tells us which direction cosines were found
@@ -573,9 +573,9 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
           }
         else if (strcmp(dimname, MIvector_dimension) != 0)
           {
-          // Set the NumberOfFrames to the product of all dimensions
+          // Set the NumberOfTimeSteps to the product of all dimensions
           // that are neither spatial dimensions nor vector dimensions.
-          this->NumberOfFrames *= dimlength;
+          this->NumberOfTimeSteps *= dimlength;
           }
         }
       }
@@ -1061,13 +1061,13 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
 
   void *outPtr = data->GetScalarPointerForExtent(outExt);
 
-  int frameNumber = this->FrameNumber;
-  if (frameNumber < 0 || frameNumber >= this->NumberOfFrames)
+  int timeStep = this->TimeStep;
+  if (timeStep < 0 || timeStep >= this->NumberOfTimeSteps)
     {
-    vtkWarningMacro("FrameNumber is set to " << this->FrameNumber <<
-                    " but there are only " << this->NumberOfFrames <<
-                    " frames.");
-    frameNumber = frameNumber % this->NumberOfFrames;
+    vtkWarningMacro("TimeStep is set to " << this->TimeStep <<
+                    " but there are only " << this->NumberOfTimeSteps <<
+                    " time steps.");
+    timeStep = timeStep % this->NumberOfTimeSteps;
     }
 
   int status = 0;
@@ -1103,7 +1103,7 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
 
   // All of these values will be changed in the following loop
   vtkIdType nchunks = 1;
-  vtkIdType numFrames = 1;
+  vtkIdType numTimeSteps = 1;
   vtkIdType chunkSize = numComponents;
   vtkIdType chunkInc = 0;
 
@@ -1156,10 +1156,10 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
       }
     else
       {
-      // Use FrameNumber to compute the index into the remaining dimensions.
-      start[idim] = (frameNumber / numFrames) % dimLength;
+      // Use TimeStep to compute the index into the remaining dimensions.
+      start[idim] = (timeStep / numTimeSteps) % dimLength;
       count[idim] = 1;
-      numFrames *= dimLength;
+      numTimeSteps *= dimLength;
       permutedInc[idim] = 0;
       }
     }
