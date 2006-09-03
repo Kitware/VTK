@@ -110,7 +110,7 @@ private:
 };
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.2");
+vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.3");
 vtkStandardNewMacro(vtkMINCImageAttributes);
 
 vtkCxxSetObjectMacro(vtkMINCImageAttributes,ImageMin,vtkDoubleArray);
@@ -1460,9 +1460,9 @@ void vtkMINCImageAttributes::ShallowCopy(vtkMINCImageAttributes *source)
     {
     // set varname to emtpy last time around to get global attributes
     const char *varname = MI_EMPTY_STRING;
-    if (ivar == nvar)
+    if (ivar < nvar)
       {
-      varname = this->VariableNames->GetValue(ivar);
+      varname = varnames->GetValue(ivar);
       }
     vtkStringArray *attnames = source->GetAttributeNames(varname);
     int natt = attnames->GetNumberOfValues();
