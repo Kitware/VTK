@@ -215,8 +215,8 @@ public:
   // Description:
   // A diagnostic function.  Print the header of the file in 
   // the same format as ncdump or mincheader.
-  virtual void PrintHeader();
-  virtual void PrintHeader(ostream &os);
+  virtual void PrintFileHeader();
+  virtual void PrintFileHeader(ostream &os);
 
 protected:
   vtkMINCImageAttributes();
