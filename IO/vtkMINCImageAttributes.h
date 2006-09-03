@@ -3,6 +3,17 @@
   Program:   Visualization Toolkit
   Module:    vtkMINCImageAttributes.h
 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*=========================================================================
+
 Copyright (c) 2006 Atamai, Inc.
 
 Use, modification and redistribution of the software, in source or
@@ -45,6 +56,8 @@ POSSIBILITY OF SUCH DAMAGES.
 // want to change any of the header information, you must 
 // use ShallowCopy to make a copy of the reader's attributes
 // and then modify only the copy.
+// .SECTION See Also
+// vtkMINCImageReader vtkMINCImageWriter
 // .SECTION Thanks
 // Thanks to David Gobbi for writing this class and Atamai Inc. for
 // contributing it to VTK.
@@ -77,13 +90,17 @@ public:
   virtual void Reset();
  
   // Description:
-  // Get the name of the image. 
+  // Get the name of the image, not including the path or
+  // the extension.  This is only needed for printing the
+  // header and there is usually no need to set it.
   vtkSetStringMacro(Name);
   vtkGetStringMacro(Name);
 
   // Description:
-  // Get the image data type, as stored on disk.  This will not
-  // always be the same as the data type of the reader's output.
+  // Get the image data type, as stored on disk.  This information
+  // is useful if the file was converted to floating-point when it
+  // was loaded.  When writing a file from float or double image data,
+  // you can use this method to prescribe the output type. 
   vtkSetMacro(DataType, int);
   vtkGetMacro(DataType, int);
 
@@ -106,7 +123,9 @@ public:
     return this->DimensionNames; };
 
   // Description:
-  // Get the lengths of all the dimensions.
+  // Get the lengths of all the dimensions.  The dimension lengths
+  // are informative, the vtkMINCImageWriter does not look at these values
+  // but instead uses the dimension sizes of its input.
   virtual vtkIdTypeArray *GetDimensionLengths() {
     return this->DimensionLengths; };
 
@@ -117,11 +136,13 @@ public:
 
   // Description:
   // List the attribute names for a variable.  Set the variable
-  // to the empty string to get global attributes.
+  // to the empty string to get a list of the global attributes.
   virtual vtkStringArray *GetAttributeNames(const char *variable);
 
   // Description:
-  // Get the image min and max arrays.
+  // Get the image min and max arrays. These are set by the reader,
+  // but they aren't used by the writer except to compute the full
+  // real data range of the original file.
   virtual void SetImageMin(vtkDoubleArray *imageMin);
   virtual void SetImageMax(vtkDoubleArray *imageMax);
   virtual vtkDoubleArray *GetImageMin() { return this->ImageMin; };
@@ -138,9 +159,7 @@ public:
 
   // Description:
   // Set attribute values for a variable as a vtkDataArray.
-  // Set the variable to the empty string to set global attributes.
-  // If StrictValidation is set, then you may only set valid minc
-  // attributes for valid minc variables,
+  // Set the variable to the empty string to access global attributes.
   virtual void SetAttributeValueAsArray(const char *variable,
                                         const char *attribute,
                                         vtkDataArray *array);
@@ -149,7 +168,7 @@ public:
 
   // Description:
   // Set an attribute value as a string.  Set the variable
-  // to the empty string to set global attributes.
+  // to the empty string to access global attributes.
   // If you specify a variable that does not exist, it will be
   // created.
   virtual void SetAttributeValueAsString(const char *variable,
@@ -160,7 +179,7 @@ public:
 
   // Description:
   // Set an attribute value as an int. Set the variable
-  // to the empty string to set global attributes.
+  // to the empty string to access global attributes.
   // If you specify a variable that does not exist, it will be
   // created.
   virtual void SetAttributeValueAsInt(const char *variable,
@@ -171,7 +190,7 @@ public:
 
   // Description:
   // Set an attribute value as a double.  Set the variable
-  // to the empty string to set global attributes.
+  // to the empty string to access global attributes.
   // If you specify a variable that does not exist, it will be
   // created.
   virtual void SetAttributeValueAsDouble(const char *variable,
@@ -196,10 +215,10 @@ public:
   // Description:
   // Do a shallow copy.  This will copy all the attributes
   // from the source.  It is much more efficient than a DeepCopy
-  // would be, since it only copies the pointers and not the
-  // entire arrays. You must make a copy if you want to modify
-  // any MINC attributes from a MINCReader before you pass them to
-  // a MINCWriter.
+  // would be, since it only copies pointers to the attribute values
+  // instead of copying the arrays themselves.  You must use this
+  // method to make a copy if you want to modify any MINC attributes
+  // from a MINCReader before you pass them to a MINCWriter.
   virtual void ShallowCopy(vtkMINCImageAttributes *source);
 
   // Description:

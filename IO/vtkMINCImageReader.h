@@ -3,6 +3,17 @@
   Program:   Visualization Toolkit
   Module:    vtkMINCImageReader.h
 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*=========================================================================
+
 Copyright (c) 2006 Atamai, Inc.
 
 Use, modification and redistribution of the software, in source or
@@ -36,8 +47,20 @@ POSSIBILITY OF SUCH DAMAGES.
 =========================================================================*/
 // .NAME vtkMINCImageReader - A reader for MINC files.
 // .SECTION Description
-// MINC is a medical image file format that was developed at the Montreal
-// Neurological Institute in 1992. It is based on the NetCDF format.
+// MINC is a NetCDF-based medical image file format that was developed
+// at the Montreal Neurological Institute in 1992. 
+// This class will read a MINC file into VTK, rearranging the data to
+// match the VTK x, y, and z dimensions and optionally rescaling
+// real-valued data to VTK_FLOAT via the SetRescaleRealValues()
+// method.  If this method is not used, then the data will be stored
+// in its original data type and the GetRescaleSlope(),
+// GetRescaleIntercept() method can be used to retrieve global
+// rescaling parameters.  If the original file had a time dimension,
+// the SetTimeStep() method can be used to specify a time step to read.
+// All of the original header information can be accessed though the
+// GetImageAttributes() method.
+// .SECTION See Also
+// vtkMINCImageWriter vtkMINCImageAttributes
 // .SECTION Thanks
 // Thanks to David Gobbi for writing this class and Atamai Inc. for
 // contributing it to VTK.
@@ -85,20 +108,31 @@ public:
   // Get a matrix that describes the orientation of the data.
   // The three columns of the matrix are the direction cosines
   // for the x, y and z dimensions respectively.
-  virtual vtkMatrix4x4 *GetOrientationMatrix();
+  virtual vtkMatrix4x4 *GetDirectionCosines();
 
   // Description:
   // Get the slope and intercept for rescaling the scalar values
-  // to real data values.
+  // to real data values.  To convert scalar values to real values,
+  // use the equation y = x*RescaleSlope + RescaleIntercept.
   virtual double GetRescaleSlope();
   virtual double GetRescaleIntercept();
 
   // Description:
-  // Get the ValidRange of the data as stored in the file.
-  // The ScalarRange of the output data will be equal to this.
-  virtual double *GetValidRange();
-  virtual void GetValidRange(double range[2]) {
-    double *r = this->GetValidRange();
+  // Rescale real data values to float.  If this is done, the
+  // RescaleSlope and RescaleIntercept will be set to 1 and 0
+  // respectively.  This is off by default.
+  vtkSetMacro(RescaleRealValues, int);
+  vtkBooleanMacro(RescaleRealValues, int);
+  vtkGetMacro(RescaleRealValues, int);
+
+  // Description:
+  // Get the range of the output as specified in the header.
+  // The ScalarRange of the output data will be equal to this
+  // in most cases, but if the MINC file stores an incorrect
+  // valid_range then the DataRange will be incorrect.
+  virtual double *GetDataRange();
+  virtual void GetDataRange(double range[2]) {
+    double *r = this->GetDataRange();
     range[0] = r[0]; range[1] = r[1]; };
 
   // Description:
@@ -124,12 +158,14 @@ protected:
 
   double ValidRange[2];
   double ImageRange[2];
+  double DataRange[2];
 
   int NumberOfTimeSteps;
   int TimeStep;
-  vtkMatrix4x4 *OrientationMatrix;
+  vtkMatrix4x4 *DirectionCosines;
   double RescaleSlope;
   double RescaleIntercept;
+  int RescaleRealValues;
   vtkMINCImageAttributes *ImageAttributes;
 
   int FileNameHasChanged;
@@ -138,6 +174,7 @@ protected:
   virtual int CloseNetCDFFile(int ncid);
   virtual int IndexFromDimensionName(const char *dimName);
   virtual int ReadMINCFileAttributes();
+  virtual void FindRangeAndRescaleValues();
   const char *ConvertDataArrayToString(vtkDataArray *array);
   static int ConvertMINCTypeToVTKType(int minctype, int mincsigned);
 

@@ -3,6 +3,17 @@
   Program:   Visualization Toolkit
   Module:    vtkMINCImageReader.cxx
 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*=========================================================================
+
 Copyright (c) 2006 Atamai, Inc.
 
 Use, modification and redistribution of the software, in source or
@@ -67,7 +78,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageReader, "1.9");
+vtkCxxRevisionMacro(vtkMINCImageReader, "1.10");
 vtkStandardNewMacro(vtkMINCImageReader);
 
 //-------------------------------------------------------------------------
@@ -75,9 +86,10 @@ vtkMINCImageReader::vtkMINCImageReader()
 {
   this->NumberOfTimeSteps = 1;
   this->TimeStep = 0;
-  this->OrientationMatrix = vtkMatrix4x4::New();
+  this->DirectionCosines = vtkMatrix4x4::New();
   this->RescaleIntercept = 0.0;
   this->RescaleSlope = 1.0;
+  this->RescaleRealValues = 0;
 
   this->MINCImageType = 0;
   this->MINCImageTypeSigned = 1;
@@ -88,6 +100,9 @@ vtkMINCImageReader::vtkMINCImageReader()
   this->ImageRange[0] = 0.0;
   this->ImageRange[1] = 1.0;
 
+  this->DataRange[0] = 0.0;
+  this->DataRange[1] = 1.0;
+
   this->ImageAttributes = vtkMINCImageAttributes::New();
 
   this->FileNameHasChanged = 0;
@@ -96,10 +111,10 @@ vtkMINCImageReader::vtkMINCImageReader()
 //-------------------------------------------------------------------------
 vtkMINCImageReader::~vtkMINCImageReader()
 {
-  if (this->OrientationMatrix)
+  if (this->DirectionCosines)
     {
-    this->OrientationMatrix->Delete();
-    this->OrientationMatrix = 0;
+    this->DirectionCosines->Delete();
+    this->DirectionCosines = 0;
     }
   if (this->ImageAttributes)
     {
@@ -118,15 +133,17 @@ void vtkMINCImageReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->ImageAttributes->PrintSelf(os, indent.GetNextIndent());
     }
-  os << indent << "OrientationMatrix: " << this->OrientationMatrix << "\n";
-  if (this->OrientationMatrix)
+  os << indent << "DirectionCosines: " << this->DirectionCosines << "\n";
+  if (this->DirectionCosines)
     {
-    this->OrientationMatrix->PrintSelf(os, indent.GetNextIndent());
+    this->DirectionCosines->PrintSelf(os, indent.GetNextIndent());
     }
   os << indent << "RescaleSlope: " << this->RescaleSlope << "\n";
   os << indent << "RescaleIntercept: " << this->RescaleIntercept << "\n";
-  os << indent << "ValidRange: (" << this->ValidRange[0]
-     << ", " << this->ValidRange[1] << ")\n";
+  os << indent << "RescaleRealValues: "
+     << (this->RescaleRealValues ? "On" : "Off") << "\n";
+  os << indent << "DataRange: (" << this->DataRange[0]
+     << ", " << this->DataRange[1] << ")\n";
 
   os << indent << "NumberOfTimeSteps: " << this->NumberOfTimeSteps << "\n";
   os << indent << "TimeStep: " << this->TimeStep << "\n";
@@ -223,10 +240,10 @@ int vtkMINCImageReader::CanReadFile(const char* fname)
 }
 
 //-------------------------------------------------------------------------
-vtkMatrix4x4 *vtkMINCImageReader::GetOrientationMatrix()
+vtkMatrix4x4 *vtkMINCImageReader::GetDirectionCosines()
 {
   this->ReadMINCFileAttributes();
-  return this->OrientationMatrix;
+  return this->DirectionCosines;
 }
 
 //-------------------------------------------------------------------------
@@ -244,10 +261,10 @@ double vtkMINCImageReader::GetRescaleIntercept()
 }
 
 //-------------------------------------------------------------------------
-double *vtkMINCImageReader::GetValidRange()
+double *vtkMINCImageReader::GetDataRange()
 {
   this->ReadMINCFileAttributes();
-  return this->ValidRange;
+  return this->DataRange;
 }
 
 //-------------------------------------------------------------------------
@@ -354,7 +371,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
   this->MINCImageTypeSigned = 1;
 
   this->NumberOfTimeSteps = 1;
-  this->OrientationMatrix->Identity();
+  this->DirectionCosines->Identity();
 
   // Orientation set tells us which direction cosines were found
   int orientationSet[3];
@@ -565,9 +582,9 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
           if (doubleArray && doubleArray->GetNumberOfTuples() == 3)
             {
             double *dimDirCos = doubleArray->GetPointer(0);
-            this->OrientationMatrix->SetElement(0, dimIndex, dimDirCos[0]);
-            this->OrientationMatrix->SetElement(1, dimIndex, dimDirCos[1]);
-            this->OrientationMatrix->SetElement(2, dimIndex, dimDirCos[2]);
+            this->DirectionCosines->SetElement(0, dimIndex, dimDirCos[0]);
+            this->DirectionCosines->SetElement(1, dimIndex, dimDirCos[1]);
+            this->DirectionCosines->SetElement(2, dimIndex, dimDirCos[2]);
             orientationSet[dimIndex] = 1;
             }
           }
@@ -660,23 +677,20 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
       }
     v1[idx1] = 1.0;
     v2[idx2] = 1.0;
-    this->OrientationMatrix->MultiplyPoint(v1, v1);
-    this->OrientationMatrix->MultiplyPoint(v2, v2);
+    this->DirectionCosines->MultiplyPoint(v1, v1);
+    this->DirectionCosines->MultiplyPoint(v2, v2);
     vtkMath::Cross(v1, v2, v3);
-    this->OrientationMatrix->SetElement(0, notSetIndex, v3[0]);
-    this->OrientationMatrix->SetElement(1, notSetIndex, v3[1]);
-    this->OrientationMatrix->SetElement(2, notSetIndex, v3[2]);
+    this->DirectionCosines->SetElement(0, notSetIndex, v3[0]);
+    this->DirectionCosines->SetElement(1, notSetIndex, v3[1]);
+    this->DirectionCosines->SetElement(2, notSetIndex, v3[2]);
     }
 
   // Get the ValidRange and ImageRange.
   this->ImageAttributes->FindValidRange(this->ValidRange);
   this->ImageAttributes->FindImageRange(this->ImageRange);
 
-  this->RescaleSlope = ((this->ImageRange[1] - this->ImageRange[0])/
-                        (this->ValidRange[1] - this->ValidRange[0]));
-
-  this->RescaleIntercept = (this->ImageRange[0] -
-                            this->RescaleSlope*this->ValidRange[0]);
+  // Compute the DataRange, RescaleSlope, and RescaleIntercept
+  this->FindRangeAndRescaleValues();
 
   int dataType = this->ConvertMINCTypeToVTKType(this->MINCImageType,
                                                 this->MINCImageTypeSigned);
@@ -774,6 +788,36 @@ int vtkMINCImageReader::ConvertMINCTypeToVTKType(
 }
 
 //-------------------------------------------------------------------------
+void vtkMINCImageReader::FindRangeAndRescaleValues()
+{
+  // Set DataRange and Rescale values according to whether
+  // RescaleRealValues is set
+  if (this->RescaleRealValues)
+    {
+    // Set DataRange to ImageRange
+    this->DataRange[0] = this->ImageRange[0];
+    this->DataRange[1] = this->ImageRange[1];
+
+    // The output data values will be the real data values.
+    this->RescaleSlope = 1.0;
+    this->RescaleIntercept = 0.0;
+    }
+  else
+    {
+    // Set DataRange to ValidRange
+    this->DataRange[0] = this->ValidRange[0];
+    this->DataRange[1] = this->ValidRange[1];
+
+    // Set rescale parameters
+    this->RescaleSlope = ((this->ImageRange[1] - this->ImageRange[0])/
+                          (this->ValidRange[1] - this->ValidRange[0]));
+
+    this->RescaleIntercept = (this->ImageRange[0] -
+                              this->RescaleSlope*this->ValidRange[0]);
+    }
+}
+
+//-------------------------------------------------------------------------
 void vtkMINCImageReader::ExecuteInformation()
 {
   // Read the MINC attributes from the file.
@@ -796,15 +840,45 @@ void vtkMINCImageReader::ExecuteInformation()
 
   int numberOfComponents = 1;
 
-  int dataType = this->ConvertMINCTypeToVTKType(this->MINCImageType,
+  int fileType = this->ConvertMINCTypeToVTKType(this->MINCImageType,
                                                 this->MINCImageTypeSigned);
 
-  if (dataType == 0)
+  if (fileType == 0)
     {
     vtkErrorMacro("Couldn't convert NetCDF data type " << this->MINCImageType
                   << (this->MINCImageTypeSigned ? " signed" : " unsigned")
                   << " to a VTK data type.");
     return;
+    }
+
+  // Compute the DataRange, RescaleSlope, and RescaleIntercept
+  this->FindRangeAndRescaleValues();
+
+  // If we are rescaling the data, find the appropriate
+  // output data type.  The data is only rescaled if the
+  // data has an ImageMin and ImageMax.
+  int dataType = fileType;
+  if (this->RescaleRealValues &&
+      this->ImageAttributes->GetImageMin() &&
+      this->ImageAttributes->GetImageMax())
+    {
+    switch (fileType)
+      {
+      case VTK_SIGNED_CHAR:
+      case VTK_UNSIGNED_CHAR:
+      case VTK_CHAR:
+      case VTK_SHORT:
+      case VTK_UNSIGNED_SHORT:
+        dataType = VTK_FLOAT;
+        break;
+      case VTK_INT:
+      case VTK_UNSIGNED_INT:
+        dataType = VTK_DOUBLE;
+        break;
+      default:
+        dataType = fileType;
+        break;
+      }
     }
 
   // Go through the image dimensions to discover data information.
@@ -1165,8 +1239,9 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
     }
 
   // Create a buffer for intermediate results.
+  int fileType = this->ImageAttributes->GetDataType();
   void *buffer = 0;
-  switch (scalarType)
+  switch (fileType)
     {
     vtkMINCImageReaderTemplateMacro(buffer=(void *)(new VTK_TT[chunkSize]));
     }
@@ -1216,24 +1291,48 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
     // Use the range to calculate a linear transformation
     // to apply to the data values of this chunk.
     double slope = ((chunkRange[1] - chunkRange[0])/
-                    (this->ImageRange[1] - this->ImageRange[0]));
+                    ((this->ValidRange[1] - this->ValidRange[0])
+                     *this->RescaleSlope));
     double intercept = ((chunkRange[0] - this->RescaleIntercept)/
                         this->RescaleSlope) - slope*this->ValidRange[0];
 
     // Read in the chunks and permute them.
-    switch (scalarType)
+    if (scalarType == fileType)
       {
-      vtkMINCImageReaderTemplateMacro(
-        vtkMINCImageReaderExecuteChunk(
+      switch (scalarType)
+        {
+        vtkMINCImageReaderTemplateMacro(
+          vtkMINCImageReaderExecuteChunk(
           (VTK_TT *)outPtr, (VTK_TT *)buffer, slope, intercept,
           ncid, varid, ndims, start2, count2, permutedInc));
+        }
+      }
+    else if (scalarType == VTK_FLOAT)
+      {
+      switch (fileType)
+        {
+        vtkMINCImageReaderTemplateMacro(
+          vtkMINCImageReaderExecuteChunk(
+          (float *)outPtr, (VTK_TT *)buffer, slope, intercept,
+          ncid, varid, ndims, start2, count2, permutedInc));
+        }
+      }
+    else if (scalarType == VTK_DOUBLE)
+      {
+      switch (fileType)
+        {
+        vtkMINCImageReaderTemplateMacro(
+          vtkMINCImageReaderExecuteChunk(
+          (double *)outPtr, (VTK_TT *)buffer, slope, intercept,
+          ncid, varid, ndims, start2, count2, permutedInc));
+        }
       }
 
     // Increment the outPtr for the next chunk.
     outPtr = (void *)(((char *)outPtr) + chunkInc*scalarSize);
     }
 
-  switch (scalarType)
+  switch (fileType)
     {
     vtkMINCImageReaderTemplateMacro(delete [] ((VTK_TT *)buffer));
     }

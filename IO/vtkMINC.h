@@ -3,6 +3,17 @@
   Program:   Visualization Toolkit
   Module:    vtkMINC.h
 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*=========================================================================
+
 Copyright (c) 2006 Atamai, Inc.
 
 Use, modification and redistribution of the software, in source or
@@ -39,8 +50,8 @@ POSSIBILITY OF SUCH DAMAGES.
    This file has been modified from the original "minc.h" that was
    distributed with minc version 1.4.  All of the prototype
    declarations have been removed.  This modification was made in
-   support of the use of this file with the vtkMINCImageReader
-   and vtkMINCImageWriter.
+   support of the use of this file with the vtkMINCReader
+   and vtkMINCWriter.
 
    David Gobbi, Atamai Inc..
 */
@@ -76,7 +87,13 @@ POSSIBILITY OF SUCH DAMAGES.
                  MI acquisition variable
 @CREATED    : July 24, 1992. (Peter Neelin, Montreal Neurological Institute)
 @MODIFIED   : 
- * Log: minc.h
+ * Log: vtkMINC.h
+ * Revision 1.1  2006/09/03 01:01:21  dgobbi
+ * ENH: move the MINC attributes into a separate file to make it easy to copy from the reader to the writer
+ *
+ * Revision 1.1  2006/08/30 16:03:22  dgobbi
+ * ENH: Add a vtkMINC.h that contains all the MINC constants.  Make the MINCReader and MINCWriter use it.
+ *
  * Revision 6.11.2.2  2004/09/28 20:23:40  bert
  * Minor portability fixes for Windows
  *

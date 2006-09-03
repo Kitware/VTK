@@ -3,6 +3,17 @@
   Program:   Visualization Toolkit
   Module:    vtkMINCImageWriter.cxx
 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*=========================================================================
+
 Copyright (c) 2006 Atamai, Inc.
 
 Use, modification and redistribution of the software, in source or
@@ -79,21 +90,22 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.12");
+vtkCxxRevisionMacro(vtkMINCImageWriter, "1.13");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
-vtkCxxSetObjectMacro(vtkMINCImageWriter,OrientationMatrix,vtkMatrix4x4);
+vtkCxxSetObjectMacro(vtkMINCImageWriter,DirectionCosines,vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkMINCImageWriter,ImageAttributes,
                      vtkMINCImageAttributes);
 
 //-------------------------------------------------------------------------
 vtkMINCImageWriter::vtkMINCImageWriter()
 {
-  this->OrientationMatrix = 0;
+  this->DirectionCosines = 0;
   this->RescaleIntercept = 0.0;
   this->RescaleSlope = 0.0;
   this->InternalRescaleIntercept = 0.0;
   this->InternalRescaleSlope = 0.0;
+  this->InternalDataType = 0;
 
   this->MINCImageType = 0;
   this->MINCImageTypeSigned = 1;
@@ -116,15 +128,17 @@ vtkMINCImageWriter::vtkMINCImageWriter()
   this->StrictValidation = 1;
 
   this->MismatchedInputs = 0;
+
+  this->HistoryAddition = 0;
 }
 
 //-------------------------------------------------------------------------
 vtkMINCImageWriter::~vtkMINCImageWriter()
 {
-  if (this->OrientationMatrix)
+  if (this->DirectionCosines)
     {
-    this->OrientationMatrix->Delete();
-    this->OrientationMatrix = 0;
+    this->DirectionCosines->Delete();
+    this->DirectionCosines = 0;
     }
   if (this->InternalDimensionNames)
     {
@@ -136,6 +150,7 @@ vtkMINCImageWriter::~vtkMINCImageWriter()
     this->ImageAttributes->Delete();
     this->ImageAttributes = 0;
     }
+  this->SetHistoryAddition(0);
 }
 
 //-------------------------------------------------------------------------
@@ -143,15 +158,17 @@ void vtkMINCImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "OrientationMatrix: " << this->OrientationMatrix << "\n";
-  if (this->OrientationMatrix)
+  os << indent << "DirectionCosines: " << this->DirectionCosines << "\n";
+  if (this->DirectionCosines)
     {
-    this->OrientationMatrix->PrintSelf(os, indent.GetNextIndent());
+    this->DirectionCosines->PrintSelf(os, indent.GetNextIndent());
     }
   os << indent << "RescaleSlope: " << this->RescaleSlope << "\n";
   os << indent << "RescaleIntercept: " << this->RescaleIntercept << "\n";
   os << indent << "StrictValidation: " <<
     (this->StrictValidation ? "On\n" : "Off\n");
+  os << indent << "HistoryAddition: " << 
+    (this->HistoryAddition ? this->HistoryAddition : "(None)") << "\n";
 }
 
 //-------------------------------------------------------------------------
@@ -249,7 +266,7 @@ int vtkMINCImageWriter::IndexFromDimensionName(const char *dimName)
 void vtkMINCImageWriter::ComputePermutationFromOrientation(
   int permutation[3], int flip[3])
 {
-  vtkMatrix4x4 *matrix = this->OrientationMatrix;
+  vtkMatrix4x4 *matrix = this->DirectionCosines;
   if (matrix == 0)
     {
     permutation[0] = 0;
@@ -287,7 +304,7 @@ void vtkMINCImageWriter::ComputePermutationFromOrientation(
   // Here's how the algorithm works.  We want to find a matrix
   // composed only of permutations and flips that has the closest
   // possible orientation (in terms of absolute orientation angle)
-  // to our OrientationMatrix.
+  // to our DirectionCosines.
 
   // The orientation angle for any matrix A is given by:
   //
@@ -860,7 +877,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
         // Extra attributes for spatial dimensions
         if (dimIndex >= 0 && dimIndex < 3)
           {
-          vtkMatrix4x4 *matrix = this->GetOrientationMatrix();
+          vtkMatrix4x4 *matrix = this->GetDirectionCosines();
           if (matrix)
             {
             double dircos[3];
@@ -891,7 +908,6 @@ int vtkMINCImageWriter::CreateMINCVariables(
           {
           vtkMINCImageWriterPutAttributeTextMacro(MIchildren, children);
           }
-
         if (strcmp(varname, MIimagemin) == 0)
           {
           double val = 0.0;
@@ -973,8 +989,15 @@ int vtkMINCImageWriter::CreateMINCVariables(
       time_t t;
       time(&t);
       vtkstd::string timestamp = ctime(&t);
-      history.append(timestamp.substr(0, timestamp.size()-1) + ">>>"
-                     + "Created by " + this->GetClassName() + "\n");
+      history.append(timestamp.substr(0, timestamp.size()-1) + ">>>");
+      if (this->HistoryAddition)
+        {
+        history = history + this->HistoryAddition + "\n";
+        }
+      else
+        {
+        history = history + "Created by " + this->GetClassName() + "\n";
+        }
       vtkMINCImageWriterPutAttributeTextMacro(MIhistory, history.c_str());
       }
 
@@ -1010,9 +1033,9 @@ int vtkMINCImageWriter::CreateMINCVariables(
                           << " is not recognized");
           }
         else if (strcmp(attname, MIdirection_cosines) == 0 &&
-                 this->OrientationMatrix)
+                 this->DirectionCosines)
           {
-          // Let OrientationMatrix override the attributes setting
+          // Let DirectionCosines override the attributes setting
           continue;
           }
         else
@@ -1064,17 +1087,41 @@ int vtkMINCImageWriter::WriteMINCFileAttributes(
   double origin[3];
   int wholeExtent[6];
   int numComponents = input->GetNumberOfScalarComponents();
-  int vtkDataType = input->GetScalarType();
+  int dataType = input->GetScalarType();
   input->GetSpacing(spacing);
   input->GetOrigin(origin);
   input->GetWholeExtent(wholeExtent);
 
-  // Some values have to be computed
-  this->MINCImageType = vtkMINCImageWriterConvertVTKTypeToMINCType(
-    vtkDataType, this->MINCImageTypeSigned);
-  this->FindMINCValidRange(this->InternalValidRange);
+  // Get the rescale parameters (check the ImageAttributes if
+  // they are not set explicitly)
   this->FindRescale(this->InternalRescaleSlope,
                     this->InternalRescaleIntercept);
+  this->InternalDataType = dataType;
+
+  // If the data type of the input is floating point, but the orginal
+  // data type stored in ImageAttributes was an integer type, then 
+  // we will rescale the floating-point values to integer.
+  if (dataType == VTK_FLOAT || dataType == VTK_DOUBLE)
+    {
+    if (this->ImageAttributes &&
+        this->ImageAttributes->GetDataType() != VTK_VOID &&
+        this->ImageAttributes->GetDataType() != VTK_FLOAT &&
+        this->ImageAttributes->GetDataType() != VTK_DOUBLE)
+      {
+      this->InternalDataType = this->ImageAttributes->GetDataType();
+      // Unless RescaleSlope was explicitly set, use unitary rescaling
+      if (this->RescaleSlope == 0)
+        {
+        this->InternalRescaleSlope = 1.0;
+        this->InternalRescaleIntercept = 0.0;
+        }
+      }
+    }
+
+  // Some values have to be computed
+  this->MINCImageType = vtkMINCImageWriterConvertVTKTypeToMINCType(
+    this->InternalDataType, this->MINCImageTypeSigned);
+  this->FindMINCValidRange(this->InternalValidRange);
 
   // Create a list of dimensions (don't include vector_dimension)
   int dimids[VTK_MINC_MAX_DIMS];
@@ -1186,8 +1233,8 @@ void vtkMINCImageWriter::FindMINCValidRange(double range[2])
 }
 
 //-------------------------------------------------------------------------
-void vtkMINCImageWriter::FindRescale(double &rescaleSlope,
-                                     double &rescaleIntercept)
+void vtkMINCImageWriter::FindRescale(
+  double &rescaleSlope, double &rescaleIntercept)
 {
   // If this->RescaleSlope was set, use it
   if (this->RescaleSlope != 0)
@@ -1292,9 +1339,9 @@ vtkMINCImageWriterWriteChunkMacro(nc_put_vara_float, float);
 vtkMINCImageWriterWriteChunkMacro(nc_put_vara_double, double);
 
 //-------------------------------------------------------------------------
-template<class T1>
+template<class T1, class T2>
 void vtkMINCImageWriterExecuteChunk(
-  T1 *inPtr, T1 *buffer,
+  T1 *inPtr, T2 *buffer,
   double chunkRange[2], double validRange[2],
   int ncid, int varid, int ndims, size_t *start, size_t *count,
   vtkIdType *permutedInc, int rescale)
@@ -1325,7 +1372,7 @@ void vtkMINCImageWriterExecuteChunk(
     dimprod *= count[idim];
     }
 
-  T1 *outPtr = buffer;
+  T2 *outPtr = buffer;
 
   // Initialize min and max values.
   T1 minval = *inPtr;
@@ -1535,17 +1582,6 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
   // Get the rescaling parameters
   double rescaleSlope = this->InternalRescaleSlope;
   double rescaleIntercept = this->InternalRescaleIntercept;
-  if (rescale && rescaleSlope == 0)
-    {
-    // Get rescaling parameters from ImageAttributes,
-    // which usually means we are getting them from
-    // the original file
-    
-    // Find the max of the max, the min of the min,
-    // compute the valid range exactly as in the
-    // reader, and then calculate the rescale exactly
-    // as in the reader
-    } 
 
   // Get the dimensions.
   int ndims = this->InternalDimensionNames->GetNumberOfValues();
@@ -1628,7 +1664,7 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
       }
     else
       {
-      // Use TimeStep to compute the index into the remaining dimension
+      // Use TimeStepNumber to compute the index into the remaining dimension
       length[idim] = numTimeSteps;
       start[idim] = timeStep;
       count[idim] = 1;
@@ -1637,8 +1673,9 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
     }
 
   // Create a buffer for intermediate results.
+  int fileType = this->InternalDataType;
   void *buffer = 0;
-  switch (scalarType)
+  switch (fileType)
     {
     vtkMINCImageWriterTemplateMacro(buffer=(void *)(new VTK_TT[chunkSize]));
     }
@@ -1688,12 +1725,35 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
     validRange[1] = this->InternalValidRange[1];
 
     // Permute the data and write out the chunk.
-    switch (scalarType)
+    if (scalarType == fileType)
       {
-      vtkMINCImageWriterTemplateMacro(
-        vtkMINCImageWriterExecuteChunk(
-          (VTK_TT *)inPtr, (VTK_TT *)buffer, chunkRange, validRange,
-          ncid, varid, ndims, start2, count2, permutedInc, rescale));
+      switch (scalarType)
+        {
+        vtkMINCImageWriterTemplateMacro(
+          vtkMINCImageWriterExecuteChunk(
+            (VTK_TT *)inPtr, (VTK_TT *)buffer, chunkRange, validRange,
+            ncid, varid, ndims, start2, count2, permutedInc, rescale));
+        }
+      }
+    else if (scalarType == VTK_FLOAT)
+      {
+      switch (fileType)
+        {
+        vtkMINCImageWriterTemplateMacro(
+          vtkMINCImageWriterExecuteChunk(
+            (float *)inPtr, (VTK_TT *)buffer, chunkRange, validRange,
+            ncid, varid, ndims, start2, count2, permutedInc, rescale));
+        }
+      }
+    else if (scalarType == VTK_DOUBLE)
+      {
+      switch (fileType)
+        {
+        vtkMINCImageWriterTemplateMacro(
+          vtkMINCImageWriterExecuteChunk(
+            (double *)inPtr, (VTK_TT *)buffer, chunkRange, validRange,
+            ncid, varid, ndims, start2, count2, permutedInc, rescale));
+        }
       }
 
     // Set the min and max values from the chunk
@@ -1718,7 +1778,7 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
     inPtr = (void *)(((char *)inPtr) + chunkInc*scalarSize);
     }
 
-  switch (scalarType)
+  switch (fileType)
     {
     vtkMINCImageWriterTemplateMacro(delete [] ((VTK_TT *)buffer));
     }

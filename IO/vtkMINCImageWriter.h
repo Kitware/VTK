@@ -3,6 +3,17 @@
   Program:   Visualization Toolkit
   Module:    vtkMINCImageWriter.h
 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*=========================================================================
+
 Copyright (c) 2006 Atamai, Inc.
 
 Use, modification and redistribution of the software, in source or
@@ -36,16 +47,20 @@ POSSIBILITY OF SUCH DAMAGES.
 =========================================================================*/
 // .NAME vtkMINCImageWriter - A writer for MINC files.
 // .SECTION Description
-// MINC is a medical image file format that was developed at the Montreal
-// Neurological Institute in 1992. It is based on the NetCDF format.
+// MINC is a NetCDF-based medical image file format that was developed
+// at the Montreal Neurological Institute in 1992. 
 // The data is written slice-by-slice, and this writer is therefore
 // suitable for streaming MINC data that is larger than the memory
 // size through VTK.  This writer can also produce files with up to
 // 4 dimensions, where the fourth dimension is provided by using
-// AddInput() to specify multiple input data sets.
+// AddInput() to specify multiple input data sets.  If you want to
+// set header information for the file, you must supply a
+// vtkMINCImageAttributes 
+// .SECTION See Also
+// vtkMINCImageReader vtkMINCImageAttributes
 // .SECTION Thanks
-// Thanks to Atamai Inc. for contributing this class to VTK.  Written
-// by David Gobbi. 
+// Thanks to David Gobbi for writing this class and Atamai Inc. for
+// contributing it to VTK.
 
 #ifndef __vtkMINCImageWriter_h
 #define __vtkMINCImageWriter_h
@@ -99,8 +114,8 @@ public:
   // back-to-front to ensure that no MINC dimension ends up with
   // a direction cosines vector whose dot product with the canonical
   // unit vector for that dimension is negative.
-  virtual void SetOrientationMatrix(vtkMatrix4x4 *matrix);
-  vtkGetObjectMacro(OrientationMatrix, vtkMatrix4x4);
+  virtual void SetDirectionCosines(vtkMatrix4x4 *matrix);
+  vtkGetObjectMacro(DirectionCosines, vtkMatrix4x4);
 
   // Description:
   // Set the slope and intercept for rescaling the intensities.  The
@@ -125,6 +140,12 @@ public:
   vtkBooleanMacro(StrictValidation, int);
   vtkGetMacro(StrictValidation, int);
 
+  // Description:
+  // Set a string value to append to the history of the file.  This
+  // string should describe, briefly, how the file was processed.
+  vtkSetStringMacro(HistoryAddition);
+  vtkGetStringMacro(HistoryAddition);
+
 protected:
   vtkMINCImageWriter();
   ~vtkMINCImageWriter();  
@@ -133,7 +154,7 @@ protected:
   int MINCImageTypeSigned;
   int MINCImageMinMaxDims;
   
-  vtkMatrix4x4 *OrientationMatrix;
+  vtkMatrix4x4 *DirectionCosines;
   double RescaleSlope;
   double RescaleIntercept;
   int StrictValidation;
@@ -142,6 +163,7 @@ protected:
   double InternalValidRange[2];
   double InternalRescaleSlope;
   double InternalRescaleIntercept;
+  int InternalDataType;
 
   vtkStringArray *InternalDimensionNames;
 
@@ -153,6 +175,8 @@ protected:
   int MismatchedInputs;
   int MINCFileId;
 
+  char *HistoryAddition;
+
   virtual int OpenNetCDFFile(const char *filename, int& ncid);
   virtual int CloseNetCDFFile(int ncid);
 
@@ -160,12 +184,12 @@ protected:
   virtual void ComputePermutationFromOrientation(int permutation[3],
                                                  int flip[3]);
   virtual int CreateMINCDimensions(int wholeExtent[6], int numComponents,
-                                   int numTimeSteps, int *dimids);
+                                   int timeStep, int *dimids);
   virtual int CreateMINCVariables(int wholeExtent[6], int numComponents,
                                   double origin[3], double spacing[3],
                                   int *dimids);
-  virtual int WriteMINCFileAttributes(vtkImageData *input, int numTimeSteps);
-  virtual int WriteMINCData(vtkImageData *input, int timeStep);
+  virtual int WriteMINCFileAttributes(vtkImageData *input, int timeStep);
+  virtual int WriteMINCData(vtkImageData *input, int frameNumber);
   virtual void FindRescale(double &rescaleSlope, double &rescaleIntercept);
   virtual void FindMINCValidRange(double range[2]);
 

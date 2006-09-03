@@ -3,6 +3,17 @@
   Program:   Visualization Toolkit
   Module:    vtkMINCImageAttributes.cxx
 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*=========================================================================
+
 Copyright (c) 2006 Atamai, Inc.
 
 Use, modification and redistribution of the software, in source or
@@ -110,7 +121,7 @@ private:
 };
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.3");
+vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.4");
 vtkStandardNewMacro(vtkMINCImageAttributes);
 
 vtkCxxSetObjectMacro(vtkMINCImageAttributes,ImageMin,vtkDoubleArray);
@@ -133,7 +144,7 @@ vtkMINCImageAttributes::vtkMINCImageAttributes()
   this->ImageMax = 0;
 
   this->Name = 0;
-  this->DataType = VTK_SHORT;
+  this->DataType = VTK_VOID;
 }
 
 //-------------------------------------------------------------------------
@@ -204,7 +215,7 @@ void vtkMINCImageAttributes::PrintSelf(ostream& os, vtkIndent indent)
 void vtkMINCImageAttributes::Reset()
 {
   this->SetName(0);
-  this->SetDataType(VTK_SHORT);
+  this->SetDataType(VTK_VOID);
   this->SetImageMin(0);
   this->SetImageMax(0);
   this->AttributeValues->Clear();
@@ -612,7 +623,7 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
       }
     else
       {
-      os << "0 ;\n";
+      os << "_ ;\n";
       }
     }
 
