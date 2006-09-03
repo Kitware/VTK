@@ -53,7 +53,7 @@ class vtkDoubleArray;
 class vtkMatrix4x4;
 
 // A special class that holds the attributes
-class vtkMINCImageReaderAttributeMap;
+class vtkMINCImageAttributes;
 
 class VTK_IO_EXPORT vtkMINCImageReader : public vtkImageReader2
 {
@@ -99,7 +99,7 @@ public:
   virtual double *GetValidRange();
   virtual void GetValidRange(double range[2]) {
     double *r = this->GetValidRange();
-    range[0] = r[0]; range[1] = r[1]; }; 
+    range[0] = r[0]; range[1] = r[1]; };
 
   // Description:
   // Get the number of frames in the file.  This is for
@@ -112,60 +112,9 @@ public:
   vtkGetMacro(FrameNumber, int);
 
   // Description:
-  // Get the names of all of the dimensions.
-  virtual vtkStringArray *GetDimensionNames();
-
-  // Description:
-  // Get the lengths of all the dimensions.
-  virtual vtkIdTypeArray *GetDimensionLengths();
-
-  // Description:
-  // Get the names of all the variables.
-  virtual vtkStringArray *GetVariableNames();
-
-  // Description:
-  // List the attribute names for a variable.  Set the variable
-  // to the empty string to get global attributes.
-  virtual vtkStringArray *GetAttributeNames(const char *variable);
-
-  // Description:
-  // Check to see if a particular attribute exists.
-  virtual int HasAttribute(const char *variable, const char *attribute);
-
-  // Description:
-  // Get attribute values for a variable as a vtkDataArray.
-  // Set the variable to the empty string to get global attributes.
-  // A null pointer is returned if the attribute was not found.
-  virtual vtkDataArray *GetAttributeValueAsArray(const char *variable,
-                                                 const char *attribute);
-
-  // Description:
-  // Get an attribute value as a string.  Set the variable
-  // to the empty string to get global attributes.  If the
-  // specified attribute is not present, a null will be returned.
-  virtual const char *GetAttributeValueAsString(const char *variable,
-                                                const char *attribute);
-
-  // Description:
-  // Get an attribute value as an int.  Set the variable
-  // to the empty string to get global attributes.  VTK
-  // will report an error if the attribute doesn't exist
-  // or if it is not an int.
-  virtual int GetAttributeValueAsInt(const char *variable,
-                                     const char *attribute);
-
-  // Description:
-  // Get an attribute value as a double.  Set the variable
-  // to the empty string to get global attributes.  VTK
-  // will report an error if the attribute doesn't exist
-  // or if it is not a double or int.
-  virtual double GetAttributeValueAsDouble(const char *variable,
-                                           const char *attribute);
-
-  // Description:
-  // A diagnostic function.  Print the header of the file in 
-  // the same format as ncdump or mincheader.
-  virtual void PrintFileHeader();
+  // Get the image attributes, which contain patient information and
+  // other useful metadata.
+  virtual vtkMINCImageAttributes *GetImageAttributes();
 
 protected:
   vtkMINCImageReader();
@@ -173,32 +122,22 @@ protected:
 
   int MINCImageType;
   int MINCImageTypeSigned;
-  double MINCValidRange[2];
-  double MINCImageRange[2];
-  int MINCImageMinMaxDims;
-  vtkDoubleArray *MINCImageMin;
-  vtkDoubleArray *MINCImageMax;
+
+  double ValidRange[2];
+  double ImageRange[2];
 
   int NumberOfFrames;
   int FrameNumber;
   vtkMatrix4x4 *OrientationMatrix;
   double RescaleSlope;
   double RescaleIntercept;
-
-  vtkStringArray *DimensionNames;
-  vtkIdTypeArray *DimensionLengths;
-  vtkStringArray *VariableNames;
-  vtkMINCImageReaderAttributeMap *AttributeNames;
-  vtkMINCImageReaderAttributeMap *AttributeValues;
-  vtkStringArray *StringStore;
+  vtkMINCImageAttributes *ImageAttributes;
 
   int FileNameHasChanged;
 
   virtual int OpenNetCDFFile(const char *filename, int& ncid);
   virtual int CloseNetCDFFile(int ncid);
   virtual int IndexFromDimensionName(const char *dimName);
-  virtual void FindMINCValidRange();
-  virtual void FindMINCImageRange();
   virtual int ReadMINCFileAttributes();
   const char *ConvertDataArrayToString(vtkDataArray *array);
   static int ConvertMINCTypeToVTKType(int minctype, int mincsigned);

@@ -58,6 +58,7 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkType.h"
 
+#include "vtkMINCImageAttributes.h"
 #include "vtkMINC.h"
 #include "vtknetcdf/netcdf.h"
 
@@ -78,61 +79,12 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.10");
+vtkCxxRevisionMacro(vtkMINCImageWriter, "1.11");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter,OrientationMatrix,vtkMatrix4x4);
-vtkCxxSetObjectMacro(vtkMINCImageWriter,DimensionNames,vtkStringArray);
-
-//-------------------------------------------------------------------------
-// A container for mapping attribute names to arrays
-class vtkMINCImageWriterAttributeMap
-{
-public:
-  typedef vtkstd::map<vtkstd::string, vtkSmartPointer<vtkObject> > MapType;
-
-  static vtkMINCImageWriterAttributeMap *New() {
-    return new vtkMINCImageWriterAttributeMap; };
-
-  void Delete() {
-    delete this; };
-
-  void Clear() {
-    this->Map.clear(); };
-
-  void AddArray(vtkDataArray *array) {
-    this->AddObject(array->GetName(), array); };
-
-  void AddArray(vtkStringArray *array) {
-    this->AddObject(array->GetName(), array); };
-
-  vtkDataArray *GetDataArray(const char *name) const {
-    return vtkDataArray::SafeDownCast(this->GetObject(name)); };
-
-  vtkCharArray *GetCharArray(const char *name) const {
-    return vtkCharArray::SafeDownCast(this->GetObject(name)); };
-
-  vtkDoubleArray *GetDoubleArray(const char *name) const {
-    return vtkDoubleArray::SafeDownCast(this->GetObject(name)); };
-
-  vtkStringArray *GetStringArray(const char *name) const {
-    return vtkStringArray::SafeDownCast(this->GetObject(name)); };
-
-protected:
-  void AddObject(const char *name, vtkObject *object) {
-    this->Map[name] = object; };
-
-  vtkObject *GetObject(const char *name) const {
-    MapType::const_iterator iter = this->Map.find(name);
-    if (iter != this->Map.end()) { return iter->second; };
-    return 0; };
-
-private:
-  vtkMINCImageWriterAttributeMap() : Map() {};
-  ~vtkMINCImageWriterAttributeMap() {};
-
-  MapType Map;
-};
+vtkCxxSetObjectMacro(vtkMINCImageWriter,ImageAttributes,
+                     vtkMINCImageAttributes);
 
 //-------------------------------------------------------------------------
 vtkMINCImageWriter::vtkMINCImageWriter()
@@ -140,17 +92,15 @@ vtkMINCImageWriter::vtkMINCImageWriter()
   this->OrientationMatrix = 0;
   this->RescaleIntercept = 0.0;
   this->RescaleSlope = 0.0;
-
-  this->ValidRange[0] = 0.0;
-  this->ValidRange[1] = 0.0;
+  this->InternalRescaleIntercept = 0.0;
+  this->InternalRescaleSlope = 0.0;
 
   this->MINCImageType = 0;
   this->MINCImageTypeSigned = 1;
-
-  this->MINCValidRange[0] = 0.0;
-  this->MINCValidRange[1] = 1.0;
-
   this->MINCImageMinMaxDims = 0;
+
+  this->InternalValidRange[0] = 0.0;
+  this->InternalValidRange[1] = 1.0;
 
   this->DataUpdateExtent[0] = 0;
   this->DataUpdateExtent[1] = 0;
@@ -159,12 +109,9 @@ vtkMINCImageWriter::vtkMINCImageWriter()
   this->DataUpdateExtent[4] = 0;
   this->DataUpdateExtent[5] = 0;
 
-  this->DimensionNames = 0;
   this->InternalDimensionNames = vtkStringArray::New();
 
-  this->VariableNames = vtkStringArray::New();
-  this->AttributeNames = vtkMINCImageWriterAttributeMap::New();
-  this->AttributeValues = vtkMINCImageWriterAttributeMap::New();
+  this->ImageAttributes = 0;
 
   this->StrictValidation = 1;
 
@@ -179,30 +126,15 @@ vtkMINCImageWriter::~vtkMINCImageWriter()
     this->OrientationMatrix->Delete();
     this->OrientationMatrix = 0;
     }
-  if (this->DimensionNames)
-    {
-    this->DimensionNames->Delete();
-    this->DimensionNames = 0;
-    }
   if (this->InternalDimensionNames)
     {
     this->InternalDimensionNames->Delete();
     this->InternalDimensionNames = 0;
     }
-  if (this->VariableNames)
+  if (this->ImageAttributes)
     {
-    this->VariableNames->Delete();
-    this->VariableNames = 0;
-    }
-  if (this->AttributeNames)
-    {
-    this->AttributeNames->Delete();
-    this->AttributeNames = 0;
-    }
-  if (this->AttributeValues)
-    {
-    this->AttributeValues->Delete();
-    this->AttributeValues = 0;
+    this->ImageAttributes->Delete();
+    this->ImageAttributes = 0;
     }
 }
 
@@ -218,9 +150,6 @@ void vtkMINCImageWriter::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "RescaleSlope: " << this->RescaleSlope << "\n";
   os << indent << "RescaleIntercept: " << this->RescaleIntercept << "\n";
-  os << indent << "DimensionNames: " << this->DimensionNames << "\n";
-  os << indent << "ValidRange: (" << this->ValidRange[0] << ", "
-     << this->ValidRange[1] << ")\n";
   os << indent << "StrictValidation: " <<
     (this->StrictValidation ? "On\n" : "Off\n");
 }
@@ -229,105 +158,6 @@ void vtkMINCImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 void vtkMINCImageWriter::SetFileName(const char *name)
 {
   this->Superclass::SetFileName(name);
-}
-
-//-------------------------------------------------------------------------
-void vtkMINCImageWriter::SetAttributeValueAsArray(
-  const char *variable,
-  const char *attribute,
-  vtkDataArray *array)
-{
-  vtkstd::string path = MI_GRPNAME;
-  if (variable && variable[0] != '\0')
-    {
-    path += MI_GRP_SEP;
-    path += variable;
-    }
-  path += MI_ATT_SEP;
-  path += attribute;
-
-  array->SetName(path.c_str());
-  this->AttributeValues->AddArray(array);
-
-  // Add to variable to VariableNames
-  int n = this->VariableNames->GetNumberOfValues();
-  int i = 0;
-  for (i = 0; i < n; i++)
-    {
-    if (strcmp(this->VariableNames->GetValue(i), variable) == 0)
-      {
-      break;
-      }
-    }
-  if (i == n)
-    {
-    this->VariableNames->InsertNextValue(variable);
-    }
-
-  // Add to attribute to AttributeNames
-  vtkStringArray *attribs = this->AttributeNames->GetStringArray(variable);
-  // Create a new array if necessary
-  if (attribs == 0)
-    {
-    attribs = vtkStringArray::New();
-    attribs->SetName(variable);
-    this->AttributeNames->AddArray(attribs);
-    }
-
-  n = attribs->GetNumberOfValues();
-  i = 0;
-  for (i = 0; i < n; i++)
-    {
-    if (strcmp(attribs->GetValue(i), attribute) == 0)
-      {
-      break;
-      }
-    }
-  if (i == n)
-    {
-    attribs->InsertNextValue(attribute);
-    }
-}
-
-//-------------------------------------------------------------------------
-void vtkMINCImageWriter::SetAttributeValueAsString(
-  const char *variable,
-  const char *attribute,
-  const char *value)
-{
-  size_t length = strlen(value)+1;
-
-  vtkCharArray *array = vtkCharArray::New();
-  array->SetNumberOfValues(length);
-  strcpy(array->GetPointer(0), value);
-
-  this->SetAttributeValueAsArray(variable, attribute, array);
-}
-
-//-------------------------------------------------------------------------
-void vtkMINCImageWriter::SetAttributeValueAsInt(
-  const char *variable,
-  const char *attribute,
-  int value)
-{
-  vtkIntArray *array = vtkIntArray::New();
-  array->SetNumberOfValues(1);
-  array->SetValue(0, value);
-
-  this->SetAttributeValueAsArray(variable, attribute, array);
-}
-
-//-------------------------------------------------------------------------
-void vtkMINCImageWriter::SetAttributeValueAsDouble(
-  const char *variable,
-  const char *attribute,
-  double value)
-{
-  vtkDoubleArray *array = vtkDoubleArray::New();
-  array->SetNumberOfValues(1);
-  array->SetValue(0, value);
-
-  this->SetAttributeValueAsArray(variable, attribute, array);
 }
 
 //-------------------------------------------------------------------------
@@ -534,400 +364,6 @@ void vtkMINCImageWriter::ComputePermutationFromOrientation(
 }
 
 //-------------------------------------------------------------------------
-// These verification methods have three return values:
-// 0 means that the attribute should be skipped
-// 1 means that the attribute should be set
-// 2 means that the attribute wasn't recognized
-
-//-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyGlobalAttribute(
-  const char *attname, vtkDataArray *vtkNotUsed(array))
-{
-  // Global attributes
-  static const char *globalAttributes[] = {
-    MIident,
-    MIhistory,
-    MItitle,
-    0
-  };
-  const int autoGlobalAttributes = 2;
-
-  int itry = 0;
-  for (itry = 0; globalAttributes[itry] != 0; itry++)
-    {
-    if (strcmp(attname, globalAttributes[itry]) == 0)
-      {
-      break;
-      }
-    }
-  if (itry < autoGlobalAttributes)
-    {
-    // Skip to the next attribute
-    return 0;
-    }
-  else if (globalAttributes[itry] == 0)
-    {
-    return 2;
-    }
-
-  return 1;
-}
-
-//-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyGeneralAttribute(
-  const char *varname, const char *attname, vtkDataArray *array)
-{
-  // Attributes that all MINC variables have
-  static const char *generalAttributes[] = {
-    MIvartype,      // MI_GROUP, MI_DIMENSION, MI_VARATT
-    MIvarid,        // MI_STDVAR
-    MIversion,      // MI_VERSION_1_0
-    MIparent,       // parent variable for this variable
-    MIchildren,     // newline-separated list of child variables
-    MIcomments,     // each variable has specific comments to go with it
-    0
-  };
-  const int autoGeneralAttributes = 5;
-
-  int dataType = array->GetDataType();
-
-  // Check to see if the attribute is one that we automatically generate.
-  int itry = 0;
-  for (itry = 0; generalAttributes[itry] != 0; itry++)
-    {
-    if (strcmp(attname, generalAttributes[itry]) == 0)
-      {
-      break;
-      }
-    }
-  if (itry < autoGeneralAttributes)
-    {
-    // Skip to the next attribute
-    return 0;
-    }
-  else if (generalAttributes[itry] != 0)
-    {
-    if (dataType != VTK_CHAR)
-      {
-      vtkWarningMacro("The attribute " << varname << ":"
-                      << attname << " has the wrong type ("
-                      << dataType << ").");
-      return 0;
-      }
-    }
-  else
-    {
-    return 2;
-    }
-
-  return 1;
-}
-
-//-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyDimensionAttribute(
-  const char *varname, const char *attname, vtkDataArray *array)
-{
-  // Attributes for dimension variables (vartype = MI_DIMENSION)
-  static const char *dimensionAttributes[] = {
-    MIstep,
-    MIstart,
-    MIspacing,      // MI_REGULAR ("irregular" not supported)
-    MIspacetype,    // "native____", "talairach_", "calossal__"
-    MIalignment,    // MI_CENTRE, "start_", "end___"
-    MIunits,        // "mm"
-    MIdirection_cosines,  // three doubles
-    0
-  };
-  const int autoDimensionAttributes = 3;
-
-  int dimIndex = this->IndexFromDimensionName(varname);
-  vtkIdType size = (array->GetNumberOfTuples()*
-                    array->GetNumberOfComponents());
-  int dataType = array->GetDataType();
-
-  int itry = 0;
-  for (itry = 0; dimensionAttributes[itry] != 0; itry++)
-    {
-    if (strcmp(attname, dimensionAttributes[itry]) == 0)
-      {
-      break;
-      }
-    }
-  if (itry < autoDimensionAttributes)
-    {
-    // Skip to the next attribute
-    return 0;
-    }
-  else if (strcmp(attname, MIdirection_cosines) == 0)
-    {
-    if (dimIndex >= 0 && dimIndex < 3)
-      {
-      if (this->GetOrientationMatrix())
-        {
-        return 0;
-        }
-      else if (dataType != VTK_DOUBLE || size != 3)
-        {
-        vtkWarningMacro("The attribute " << varname << ":"
-                        << attname << " has the wrong type ("
-                        << dataType << ") or size ("
-                        << size << ").");
-        return 0;
-        }
-      }
-    else
-      {
-      vtkWarningMacro("Dimension " << varname << " cannot have"
-                      " direction_cosines attribute");
-      return 0;
-      }
-    }
-  else if (dimensionAttributes[itry] != 0)
-    {
-    if (dataType != VTK_CHAR)
-      {
-      vtkWarningMacro("The attribute " << varname << ":"
-                      << attname << " has the wrong type ("
-                      << dataType << ").");
-      return 0;
-      }
-    }
-  else
-    {
-    return 2;
-    }
-
-  return 1;
-}
-
-//-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyImageAttribute(
-  const char *vtkNotUsed(varname), const char *attname,
-  vtkDataArray *vtkNotUsed(array))
-{
-  // Attributes for the MIimage variable (vartype = MI_GROUP)
-  static const char *imageAttributes[] = {
-    MIcomplete,    // MI_TRUE (MI_FALSE means not yet all written)
-    MIimagemin     // "--->image-min" variable attribute pointer
-    MIimagemax     // "--->image-max" variable attribute pointer
-    MIsigntype,     // MI_SIGNED or MI_UNSIGNED
-    MIvalid_range,  // min and max scalar values as doubles
-    0
-  };
-  const int autoImageAttributes = 5;
-
-  int itry = 0;
-  for (itry = 0; imageAttributes[itry] != 0; itry++)
-    {
-    if (strcmp(attname, imageAttributes[itry]) == 0)
-      {
-      break;
-      }
-    }
-  if (itry < autoImageAttributes)
-    {
-    // Skip to the next attribute
-    return 0;
-    }
-  else if (imageAttributes[itry] == 0)
-    {
-    return 2;
-    }
-
-  return 1;
-}
-
-//-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyImageMinMaxAttribute(
-  const char *varname, const char *attname, vtkDataArray *array)
-{
-  // Attributes for MIimagemin, MIimagemax (vartype = MI_VARATT)
-  static const char *imageMinMaxAttributes[] = {
-     MI_FillValue,  // 0.0 for image-min, 1.0 for image-max
-     MIunits,       // "normalized", "Hounsfields", etc.
-     0
-  };
-  const int autoImageMinMaxAttributes = 1;
-
-  int itry = 0;
-  for (itry = 0; imageMinMaxAttributes[itry] != 0; itry++)
-    {
-    if (strcmp(attname, imageMinMaxAttributes[itry]) == 0)
-      {
-      break;
-      }
-    }
-  if (itry < autoImageMinMaxAttributes)
-    {
-    // Skip to the next attribute
-    return 0;
-    }
-  else if (imageMinMaxAttributes[itry] != 0)
-    {
-    int dataType = array->GetDataType();
-    if (dataType != VTK_CHAR)
-      {
-      vtkWarningMacro("The attribute " << varname << ":"
-                      << attname << " has the wrong type ("
-                      << dataType << ").");
-      return 0;
-      }
-    }
-  else
-    {
-    return 2;
-    }
-
-  return 1;
-}
-
-//-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyPatientAttribute(
-  const char *vtkNotUsed(varname), const char *attname,
-  vtkDataArray *vtkNotUsed(array))
-{
-  // Attributes for MIpatient variable (vartype = MI_GROUP)
-  static const char *patientAttributes[] = {
-    MIfull_name,     // "LASTNAME^FIRSTNAME SECONDNAME"
-    MIother_names,   // newline-separated string
-    MIidentification,
-    MIother_ids,
-    MIbirthdate,     // "YYYYMMDD"
-    MIsex,           // "male__", "female", "other_"
-    MIage,           // "XXXD", "XXXM", or "XXXY" (days, months, years)
-    MIweight,        // "XXkg", "X.Xkg" (assume kg if no units given)
-    MIsize,          // "XXXcm" (assume metres if no units given)
-    MIaddress,       // newline-separated string
-    MIinsurance_id,
-    0
-  };
-
-  int itry = 0;
-  for (itry = 0; patientAttributes[itry] != 0; itry++)
-    {
-    if (strcmp(attname, patientAttributes[itry]) == 0)
-      {
-      break;
-      }
-    }
-  if (patientAttributes[itry] != 0)
-    {
-    // Add checks for correct data type?
-    }
-  else
-    {
-    return 2;
-    }
-
-  return 1;
-}
-
-//-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyStudyAttribute(
-  const char *vtkNotUsed(varname), const char *attname,
-  vtkDataArray *vtkNotUsed(array))
-{
-  // Attributes for MIstudy variable (vartype = MI_GROUP)
-  static const char *studyAttributes[] = {
-    MIstudy_id,
-    MIstart_time,    // "YYYYMMDDHHMMSS.SS"
-    MIstart_year,    // as int (use start_time instead)
-    MIstart_month,   // as int (use start_time instead)
-    MIstart_day,     // as int (use start_time instead)
-    MIstart_hour,    // as int (use start_time instead)
-    MIstart_minute,  // as int (use start_time instead)
-    MIstart_seconds, // as double or int (use start_time instead)
-    MImodality,      // "PET__", "SPECT", "GAMMA", "MRI__", "MRS__",
-                     // "MRA__", "CT___", "DSA__", "DR___", "label"
-    MImanufacturer,
-    MIdevice_model,
-    MIinstitution,
-    MIdepartment,
-    MIstation_id,
-    MIreferring_physician,
-    MIattending_physician,
-    MIradiologist,
-    MIoperator,
-    MIadmitting_diagnosis,
-    MIprocedure,
-    0
-  };
-
-  int itry = 0;
-  for (itry = 0; studyAttributes[itry] != 0; itry++)
-    {
-    if (strcmp(attname, studyAttributes[itry]) == 0)
-      {
-      break;
-      }
-    }
-  if (studyAttributes[itry] != 0)
-    {
-    // Add checks for correct data type?
-    }
-  else
-    {
-    return 2;
-    }
-
-  return 1;
-}
-
-//-------------------------------------------------------------------------
-int vtkMINCImageWriter::VerifyAcquisitionAttribute(
-  const char *vtkNotUsed(varname), const char *attname,
-  vtkDataArray *vtkNotUsed(array))
-{
-  // Attributes for MIacquisition variable (vartype = MI_GROUP)
-  static const char *acquisitionAttributes[] = {
-    MIprotocol,
-    MIscanning_sequence, // "GR", "SPGR", etc.
-    MIrepetition_time,   // as double, milliseconds
-    MIecho_time,         // as double, milliseconds
-    MIinversion_time,    // as double, milliseconds
-    MInum_averages,      // as int
-    MIimaging_frequency, // in Hz, as double
-    MIimaged_nucleus,    // "H1", "C13", etc. for MRI
-    MIradionuclide,      // for PET and SPECT
-    MIradionuclide_halflife,
-    MIcontrast_agent,
-    MItracer,
-    MIinjection_time,
-    MIinjection_year,
-    MIinjection_month,
-    MIinjection_day,
-    MIinjection_hour,
-    MIinjection_minute,
-    MIinjection_seconds,
-    MIinjection_length,
-    MIinjection_dose,
-    MIdose_units,
-    MIinjection_volume,
-    MIinjection_route,
-    0
-  };
-
-  int itry = 0;
-  for (itry = 0; acquisitionAttributes[itry] != 0; itry++)
-    {
-    if (strcmp(attname, acquisitionAttributes[itry]) == 0)
-      {
-      break;
-      }
-    }
-  if (acquisitionAttributes[itry] != 0)
-    {
-    // Add checks for correct data type?
-    }
-  else
-    {
-    return 2;
-    }
-
-  return 1;
-}
-
-//-------------------------------------------------------------------------
 // Create an identity string for a file.
 vtkstd::string vtkMINCImageWriterCreateIdentString()
 {
@@ -1076,13 +512,15 @@ int vtkMINCImageWriter::CreateMINCDimensions(
   int hasTimeDim = 0;
   vtkstd::vector<vtkstd::string> dimensions;
   int nuserdims = 0;
-  if (this->DimensionNames)
+  vtkStringArray *dimensionNames = 0;
+  if (this->ImageAttributes)
     {
-    nuserdims = this->DimensionNames->GetNumberOfValues();
+    dimensionNames = this->ImageAttributes->GetDimensionNames();
+    nuserdims = dimensionNames->GetNumberOfValues();
     }
   for (int iuserdims = 0; iuserdims < nuserdims; iuserdims++)
     {
-    const char *dimname = this->DimensionNames->GetValue(iuserdims);
+    const char *dimname = dimensionNames->GetValue(iuserdims);
     // Remove vector_dimension, we'll add it back if it is needed
     if (strcmp(dimname, MIvector_dimension) == 0)
       {
@@ -1230,7 +668,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
   variables.push_back(MIimage);
   variables.push_back(MIrootvariable);
   // Not all MINC images need image-min and image-max.
-  if (this->RescaleSlope != 0)
+  if (this->InternalRescaleSlope != 0)
     {
     this->MINCImageMinMaxDims = ndim - 2;
     variables.push_back(MIimagemin);
@@ -1242,10 +680,16 @@ int vtkMINCImageWriter::CreateMINCVariables(
     }
 
   // Add user-defined variables
-  int nuservars = this->VariableNames->GetNumberOfValues();
+  int nuservars = 0;
+  vtkStringArray *variableNames = 0;
+  if (this->ImageAttributes)
+    {
+    variableNames = this->ImageAttributes->GetVariableNames();
+    nuservars = variableNames->GetNumberOfValues();
+    }
   for (int iuservars = 0; iuservars < nuservars; iuservars++)
     {
-    const char *varname = this->VariableNames->GetValue(iuservars);
+    const char *varname = variableNames->GetValue(iuservars);
     int ivar;
     int nvars = variables.size();
     for (ivar = 0; ivar < nvars; ivar++)
@@ -1416,7 +860,6 @@ int vtkMINCImageWriter::CreateMINCVariables(
         // Extra attributes for spatial dimensions
         if (dimIndex >= 0 && dimIndex < 3)
           {
-          vtkMINCImageWriterPutAttributeTextMacro(MIunits,     "mm");
           vtkMatrix4x4 *matrix = this->GetOrientationMatrix();
           if (matrix)
             {
@@ -1448,7 +891,6 @@ int vtkMINCImageWriter::CreateMINCVariables(
           {
           vtkMINCImageWriterPutAttributeTextMacro(MIchildren, children);
           }
-        vtkMINCImageWriterPutAttributeTextMacro(MIunits,  "normalized");
 
         if (strcmp(varname, MIimagemin) == 0)
           {
@@ -1476,20 +918,22 @@ int vtkMINCImageWriter::CreateMINCVariables(
             {
             signType = MI_UNSIGNED;
             }
-          double *validRange = this->MINCValidRange;
+          double *validRange = this->InternalValidRange;
 
           vtkMINCImageWriterPutAttributeTextMacro(MIcomplete,  MI_TRUE);
           vtkMINCImageWriterPutAttributeTextMacro(MIsigntype,  signType);
           // Don't set valid_range if its default is suitable
-          if (this->ValidRange[0] != this->ValidRange[1] ||
-              this->RescaleSlope == 0 ||
-              this->AttributeValues->GetDoubleArray(
-                MI_GRPNAME MI_GRP_SEP MIimage MI_ATT_SEP MIvalid_range))
+          if (this->InternalRescaleSlope == 0 || 
+              (this->ImageAttributes &&
+               vtkDoubleArray::SafeDownCast(
+                 this->ImageAttributes->GetAttributeValueAsArray(
+                   MIimage, MIvalid_range))))
             {
-            vtkMINCImageWriterPutAttributeDoubleMacro(MIvalid_range,2,validRange);
+            vtkMINCImageWriterPutAttributeDoubleMacro(MIvalid_range,2,
+                                                      validRange);
             }
           // The image-min, image-max will not always be present
-          if (this->RescaleSlope != 0)
+          if (this->InternalRescaleSlope != 0)
             {
             vtkMINCImageWriterPutAttributeTextMacro(
               MIimagemin, MI_VARATT_POINTER_PREFIX MIimagemin);
@@ -1503,21 +947,29 @@ int vtkMINCImageWriter::CreateMINCVariables(
       {
       // Set the varid for global variables
       varid = -1;
+
       // Global attributes: ident and history
       vtkstd::string ident = vtkMINCImageWriterCreateIdentString();
       vtkMINCImageWriterPutAttributeTextMacro(MIident, ident.c_str());
+
       // For history, include any previous history
       vtkstd::string history = MI_EMPTY_STRING;
-      vtkCharArray *charArray =
-        this->AttributeValues->GetCharArray(MI_GRPNAME MI_ATT_SEP MIhistory);
-      if (charArray)
+      const char *previousHistory = 0;
+      if (this->ImageAttributes)
         {
-        history.append(charArray->GetPointer(0));
+        previousHistory = this->ImageAttributes->GetAttributeValueAsString(
+          MI_EMPTY_STRING, MIhistory);
+        if (previousHistory)
+          {
+          history.append(previousHistory);
+          }
         }
+
       if (history.size() > 1 && history[history.size()-1] != '\n')
         {
         history.append("\n");
         }
+
       time_t t;
       time(&t);
       vtkstd::string timestamp = ctime(&t);
@@ -1527,65 +979,24 @@ int vtkMINCImageWriter::CreateMINCVariables(
       }
 
     // Write out user-defined attributes for this variable
-    vtkStringArray *attArray =
-      this->AttributeNames->GetStringArray(varname);
+    vtkStringArray *attArray = 0;
+    if (this->ImageAttributes)
+      {
+      attArray = this->ImageAttributes->GetAttributeNames(varname);
+      }
     if (attArray)
       {
       vtkstd::string varpath = MI_GRPNAME MI_GRP_SEP;
-      if (varname[0] != '\0')
-        {
-        varpath = varpath + varname + MI_ATT_SEP;
-        }
       int natts = attArray->GetNumberOfValues();
       for (int iatt = 0; iatt < natts; iatt++)
         {
         const char *attname = attArray->GetValue(iatt);
-        vtkstd::string attpath = varpath + attname;
         vtkDataArray *array =
-          this->AttributeValues->GetDataArray(attpath.c_str());
-        int result = 1;
+          this->ImageAttributes->GetAttributeValueAsArray(
+            varname, attname);
 
-        if (strcmp(varname, MI_EMPTY_STRING) == 0)
-          {
-          // Check global attributes
-          result = this->VerifyGlobalAttribute(attname, array);
-          }
-        else if (strcmp(vartype, MI_EMPTY_STRING) != 0)
-          {
-          // Check general attributes
-          result = this->VerifyGeneralAttribute(varname, attname, array);
-          }
-        if (result == 2)
-          {
-          if (strcmp(vartype, MI_DIMENSION) == 0)
-            {
-            result = this->VerifyDimensionAttribute(varname, attname,
-                                                    array);
-            }
-          else if (strcmp(varname, MIimage) == 0)
-            {
-            result = this->VerifyImageAttribute(varname, attname, array);
-            }
-          else if (strcmp(varname, MIimagemin) == 0 ||
-                   strcmp(varname, MIimagemax) == 0)
-            {
-            result = this->VerifyImageMinMaxAttribute(varname, attname,
-                                                      array);
-            }
-          else if (strcmp(varname, MIpatient) == 0)
-            {
-            result = this->VerifyPatientAttribute(varname, attname, array);
-            }
-          else if (strcmp(varname, MIstudy) == 0)
-            {
-            result = this->VerifyStudyAttribute(varname, attname, array);
-            }
-          else if (strcmp(varname, MIacquisition) == 0)
-            {
-            result = this->VerifyAcquisitionAttribute(varname, attname,
-                                                      array);
-            }
-          }
+        int result = this->ImageAttributes->ValidateAttribute(
+          varname, attname, array);
 
         if (result == 0)
           {
@@ -1597,6 +1008,12 @@ int vtkMINCImageWriter::CreateMINCVariables(
           {
           vtkWarningMacro("Attribute " << varname << ":" << attname
                           << " is not recognized");
+          }
+        else if (strcmp(attname, MIdirection_cosines) == 0 &&
+                 this->OrientationMatrix)
+          {
+          // Let OrientationMatrix override the attributes setting
+          continue;
           }
         else
           {
@@ -1652,9 +1069,12 @@ int vtkMINCImageWriter::WriteMINCFileAttributes(
   input->GetOrigin(origin);
   input->GetWholeExtent(wholeExtent);
 
+  // Some values have to be computed
   this->MINCImageType = vtkMINCImageWriterConvertVTKTypeToMINCType(
     vtkDataType, this->MINCImageTypeSigned);
-  this->FindMINCValidRange(this->MINCValidRange);
+  this->FindMINCValidRange(this->InternalValidRange);
+  this->FindRescale(this->InternalRescaleSlope,
+                    this->InternalRescaleIntercept);
 
   // Create a list of dimensions (don't include vector_dimension)
   int dimids[VTK_MINC_MAX_DIMS];
@@ -1681,14 +1101,6 @@ int vtkMINCImageWriter::WriteMINCFileAttributes(
 //-------------------------------------------------------------------------
 void vtkMINCImageWriter::FindMINCValidRange(double range[2])
 {
-  // Check to see if ValidRange is set
-  if (this->ValidRange[0] != this->ValidRange[1])
-    {
-    range[0] = this->ValidRange[0];
-    range[1] = this->ValidRange[1];
-    return;
-    }
-
   // Find the valid range. Start with the default.
   range[0] = 0.0;
   range[1] = 1.0;
@@ -1735,9 +1147,13 @@ void vtkMINCImageWriter::FindMINCValidRange(double range[2])
     }
 
   // Look for the valid_range attribute of the data.
-  vtkDoubleArray *rangearray =
-    this->AttributeValues->GetDoubleArray(
-      MI_GRPNAME MI_GRP_SEP MIimage MI_ATT_SEP MIvalid_range);
+  vtkDoubleArray *rangearray = 0;
+  if (this->ImageAttributes)
+    {
+    rangearray = vtkDoubleArray::SafeDownCast(
+      this->ImageAttributes->GetAttributeValueAsArray(
+        MIimage, MIvalid_range));
+    }
   if (rangearray &&
       this->MINCImageType != NC_FLOAT &&
       this->MINCImageType != NC_DOUBLE &&
@@ -1767,6 +1183,45 @@ void vtkMINCImageWriter::FindMINCValidRange(double range[2])
       range[1] = tryrange[1];
       }
     }
+}
+
+//-------------------------------------------------------------------------
+void vtkMINCImageWriter::FindRescale(double &rescaleSlope,
+                                     double &rescaleIntercept)
+{
+  // If this->RescaleSlope was set, use it
+  if (this->RescaleSlope != 0)
+    {
+    rescaleSlope = this->RescaleSlope;
+    rescaleIntercept = this->RescaleIntercept;
+    return;
+    }
+
+  if (this->ImageAttributes &&
+      this->ImageAttributes->GetImageMin() &&
+      this->ImageAttributes->GetImageMax())
+    {
+    // Compute the rescale parameters from the image attributes,
+    // i.e. use the same rescaling as the original file.
+    double imageRange[2];
+    double validRange[2];
+
+    this->ImageAttributes->FindImageRange(imageRange);
+    this->ImageAttributes->FindValidRange(validRange);
+
+    rescaleSlope = ((imageRange[1] - imageRange[0])/
+                    (validRange[1] - validRange[0]));
+
+    rescaleIntercept = (imageRange[0] -
+                        rescaleSlope*validRange[0]);
+
+    return;
+    }
+
+  // If the header contains no rescale information,
+  // we will not rescale the image.
+  rescaleSlope = 0;
+  rescaleIntercept = 0;
 }
 
 //-------------------------------------------------------------------------
@@ -2052,7 +1507,7 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int frameNumber)
   int maxid = 0;
 
   // Whether to rescale the data
-  int rescale = (this->RescaleSlope != 0);
+  int rescale = (this->InternalRescaleSlope != 0);
 
   // Get the image variable.
   status = nc_inq_varid(ncid, MIimage, &varid);
@@ -2078,8 +1533,19 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int frameNumber)
     }
 
   // Get the rescaling parameters
-  double rescaleSlope = this->RescaleSlope;
-  double rescaleIntercept = this->RescaleIntercept;
+  double rescaleSlope = this->InternalRescaleSlope;
+  double rescaleIntercept = this->InternalRescaleIntercept;
+  if (rescale && rescaleSlope == 0)
+    {
+    // Get rescaling parameters from ImageAttributes,
+    // which usually means we are getting them from
+    // the original file
+    
+    // Find the max of the max, the min of the min,
+    // compute the valid range exactly as in the
+    // reader, and then calculate the rescale exactly
+    // as in the reader
+    } 
 
   // Get the dimensions.
   int ndims = this->InternalDimensionNames->GetNumberOfValues();
@@ -2218,8 +1684,8 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int frameNumber)
     // Space to store the computed min and max of each chunk.
     double chunkRange[2];
     double validRange[2];
-    validRange[0] = this->MINCValidRange[0];
-    validRange[1] = this->MINCValidRange[1];
+    validRange[0] = this->InternalValidRange[0];
+    validRange[1] = this->InternalValidRange[1];
 
     // Permute the data and write out the chunk.
     switch (scalarType)
@@ -2238,13 +1704,13 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int frameNumber)
       }
     else
       {
-      if (chunkRange[0] < this->MINCValidRange[0])
+      if (chunkRange[0] < this->InternalValidRange[0])
         {
-        this->MINCValidRange[0] = chunkRange[0];
+        this->InternalValidRange[0] = chunkRange[0];
         }
-      if (chunkRange[1] > this->MINCValidRange[1])
+      if (chunkRange[1] > this->InternalValidRange[1])
         {
-        this->MINCValidRange[1] = chunkRange[1];
+        this->InternalValidRange[1] = chunkRange[1];
         }
       }
 
@@ -2295,6 +1761,13 @@ void vtkMINCImageWriter::Write()
 
   // Get the first input and update its information.
   vtkImageData *input = this->GetImageDataInput(0);
+
+  if (input == 0)
+    {
+    vtkErrorMacro("Write: No input supplied.");
+    return;
+    }
+
   input->UpdateInformation();
 
   // Update the rest.
@@ -2328,10 +1801,10 @@ void vtkMINCImageWriter::Write()
 
   // If RescaleSlope and ValidRange haven't been set, we compute
   // the ValidRange while writing the data
-  if (this->RescaleSlope == 0)
+  if (this->InternalRescaleSlope == 0)
     {
-    this->MINCValidRange[0] = VTK_DOUBLE_MAX;
-    this->MINCValidRange[1] = VTK_DOUBLE_MIN;
+    this->InternalValidRange[0] = VTK_DOUBLE_MAX;
+    this->InternalValidRange[1] = VTK_DOUBLE_MIN;
     }
 
   // Find the VTK dimension index for output slices.
@@ -2389,7 +1862,7 @@ void vtkMINCImageWriter::Write()
 
   // If we calculated the valid_range from the data, write it
   if (this->MINCFileId != 0 &&
-      this->RescaleSlope == 0 && this->ValidRange[0] == this->ValidRange[1])
+      this->InternalRescaleSlope == 0)
     {
     int ncid = this->MINCFileId;
     int varid = 0;
@@ -2397,30 +1870,12 @@ void vtkMINCImageWriter::Write()
     if (status == NC_NOERR)
       {
       status = nc_put_att_double(ncid, varid, MIvalid_range, NC_DOUBLE, 2,
-                                 this->MINCValidRange);
+                                 this->InternalValidRange);
       }
     if (status != NC_NOERR)
       {
       vtkMINCImageWriterFailAndClose(ncid, status);
       this->MINCFileId = 0;
-      }
-    }
-  else if (this->MINCFileId != 0)
-    {
-    // If valid range was set, make sure it actually agrees with the
-    // calculated range
-    if (this->ValidRange[0] != this->ValidRange[1] &&
-        (this->ValidRange[0] != this->MINCValidRange[0] ||
-         this->ValidRange[1] != this->MINCValidRange[1]))
-      {
-      vtkWarningMacro("In file " << this->GetFileName() << ":\n"
-                      << "The ValidRange (" << this->ValidRange[0] << ", "
-                      << this->ValidRange[1]
-                      << ") is not equal to the data range ("
-                      << this->MINCValidRange[0] << ", "
-                      << this->MINCValidRange[1] << ")!\n"
-                      << "If you set ValidRange, please also set "
-                      << "RescaleIntercept and RescaleSlope.");
       }
     }
 

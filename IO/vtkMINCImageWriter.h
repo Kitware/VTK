@@ -58,7 +58,7 @@ class vtkDoubleArray;
 class vtkMatrix4x4;
 
 // A special class that holds the attributes
-class vtkMINCImageWriterAttributeMap;
+class vtkMINCImageAttributes;
 
 class VTK_IO_EXPORT vtkMINCImageWriter : public vtkImageWriter
 {
@@ -112,60 +112,11 @@ public:
   vtkGetMacro(RescaleIntercept, double);
 
   // Description:
-  // Set the valid_range to use for the data.  When the data is
-  // written to disk, if the data is rescaled, it will be rescaled
-  // to this range.  If you set a RescaleSlope by do not set
-  // the ValidRange, then the full scalar range of the data type
-  // will be used.  If you neither set a RescaleSlope or the
-  // ValidRange, then the writer will automatically set the
-  // valid_range to the scalar range of the data set.
-  vtkSetVector2Macro(ValidRange, double);
-  vtkGetVector2Macro(ValidRange, double);
-
-  // Description:
-  // Set the names of up to five dimensions. The ordering of these
-  // dimensions will determine the dimension order of the file.  If
-  // no DimensionNames are set, the writer will set the dimension
-  // order of the file to be the same as the dimension order in memory.
-  virtual void SetDimensionNames(vtkStringArray *);
-  virtual vtkStringArray *GetDimensionNames() {
-    return this->DimensionNames; };
-
-  // Description:
-  // Set attribute values for a variable as a vtkDataArray.
-  // Set the variable to the empty string to set global attributes.
-  // If StrictValidation is set, then you may only set valid minc
-  // attributes for valid minc variables,
-  virtual void SetAttributeValueAsArray(const char *variable,
-                                        const char *attribute,
-                                        vtkDataArray *array);
-
-  // Description:
-  // Set an attribute value as a string.  Set the variable
-  // to the empty string to set global attributes.
-  // If you specify a variable that does not exist, it will be
-  // created.
-  virtual void SetAttributeValueAsString(const char *variable,
-                                         const char *attribute,
-                                         const char *value);
-
-  // Description:
-  // Set an attribute value as an int. Set the variable
-  // to the empty string to set global attributes.
-  // If you specify a variable that does not exist, it will be
-  // created.
-  virtual void SetAttributeValueAsInt(const char *variable,
-                                      const char *attribute,
-                                      int value);
-
-  // Description:
-  // Set an attribute value as a double.  Set the variable
-  // to the empty string to set global attributes.
-  // If you specify a variable that does not exist, it will be
-  // created.
-  virtual void SetAttributeValueAsDouble(const char *variable,
-                                         const char *attribute,
-                                         double value);
+  // Set the image attributes, which contain patient information and
+  // other useful metadata.
+  virtual void SetImageAttributes(vtkMINCImageAttributes *attributes);
+  virtual vtkMINCImageAttributes *GetImageAttributes() {
+    return this->ImageAttributes; }; 
 
   // Description:
   // Set whether to validate that all variable attributes that
@@ -180,21 +131,21 @@ protected:
 
   int MINCImageType;
   int MINCImageTypeSigned;
-  double MINCValidRange[2];
   int MINCImageMinMaxDims;
   
   vtkMatrix4x4 *OrientationMatrix;
   double RescaleSlope;
   double RescaleIntercept;
-  double ValidRange[2];
   int StrictValidation;
   int DataUpdateExtent[6];
 
-  vtkStringArray *DimensionNames;
+  double InternalValidRange[2];
+  double InternalRescaleSlope;
+  double InternalRescaleIntercept;
+
   vtkStringArray *InternalDimensionNames;
-  vtkStringArray *VariableNames;
-  vtkMINCImageWriterAttributeMap *AttributeNames;
-  vtkMINCImageWriterAttributeMap *AttributeValues;
+
+  vtkMINCImageAttributes *ImageAttributes;
 
   int Permutation[3];
   int Flip[3];
@@ -205,43 +156,18 @@ protected:
   virtual int OpenNetCDFFile(const char *filename, int& ncid);
   virtual int CloseNetCDFFile(int ncid);
 
-  virtual int VerifyGlobalAttribute(const char *attrib,
-                                    vtkDataArray *array);
-  virtual int VerifyGeneralAttribute(const char *varname,
-                                     const char *attname,
-                                     vtkDataArray *array);
-  virtual int VerifyDimensionAttribute(const char *varname,
-                                       const char *attname,
-                                       vtkDataArray *array);
-  virtual int VerifyImageAttribute(const char *varname,
-                                   const char *attname,
-                                   vtkDataArray *array);
-  virtual int VerifyImageMinMaxAttribute(const char *varname,
-                                         const char *attname,
-                                         vtkDataArray *array);
-  virtual int VerifyPatientAttribute(const char *varname,
-                                     const char *attname,
-                                     vtkDataArray *array);
-  virtual int VerifyStudyAttribute(const char *varname,
-                                   const char *attname,
-                                   vtkDataArray *array);
-  virtual int VerifyAcquisitionAttribute(const char *varname,
-                                         const char *attname,
-                                         vtkDataArray *array);
-
+  virtual int IndexFromDimensionName(const char *dimName);
   virtual void ComputePermutationFromOrientation(int permutation[3],
                                                  int flip[3]);
-  virtual int IndexFromDimensionName(const char *dimName);
-  virtual void FindMINCValidRange(double range[2]);
-
   virtual int CreateMINCDimensions(int wholeExtent[6], int numComponents,
                                    int numFrames, int *dimids);
   virtual int CreateMINCVariables(int wholeExtent[6], int numComponents,
                                   double origin[3], double spacing[3],
                                   int *dimids);
-
   virtual int WriteMINCFileAttributes(vtkImageData *input, int numFrames);
   virtual int WriteMINCData(vtkImageData *input, int frameNumber);
+  virtual void FindRescale(double &rescaleSlope, double &rescaleIntercept);
+  virtual void FindMINCValidRange(double range[2]);
 
   virtual int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
