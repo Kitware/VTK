@@ -6,17 +6,19 @@ IF(NOT VTK_USE_RENDERING)
 ENDIF(NOT VTK_USE_RENDERING)
 INCLUDE(${VTK_USE_FILE})
 
-ADD_EXECUTABLE(Cylinder Cylinder.cxx)
-TARGET_LINK_LIBRARIES(Cylinder vtkRendering)
+SET(RENDERING_EXAMPLES_SRCS
+  Cylinder
+  SpecularSpheres
+  DiffuseSpheres
+  AmbientSpheres
+  MaterialObjects
+  )
 
-ADD_EXECUTABLE(SpecularSpheres SpecularSpheres.cxx)
-TARGET_LINK_LIBRARIES(SpecularSpheres vtkRendering)
+IF(APPLE)
+  SET(EXECUTABLE_FLAG MACOSX_BUNDLE)
+ENDIF(APPLE)
 
-ADD_EXECUTABLE(DiffuseSpheres DiffuseSpheres.cxx)
-TARGET_LINK_LIBRARIES(DiffuseSpheres vtkRendering)
-
-ADD_EXECUTABLE(AmbientSpheres AmbientSpheres.cxx)
-TARGET_LINK_LIBRARIES(AmbientSpheres vtkRendering)
-
-ADD_EXECUTABLE(MaterialObjects MaterialObjects.cxx)
-TARGET_LINK_LIBRARIES(MaterialObjects vtkRendering)
+FOREACH(name ${RENDERING_EXAMPLES_SRCS})
+  ADD_EXECUTABLE(${name} ${EXECUTABLE_FLAG} ${name}.cxx)
+  TARGET_LINK_LIBRARIES(${name} vtkRendering)
+ENDFOREACH(name)
