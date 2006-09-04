@@ -193,6 +193,8 @@ protected:
   virtual void FindRescale(double &rescaleSlope, double &rescaleIntercept);
   virtual void FindMINCValidRange(double range[2]);
 
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
   virtual int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);

@@ -10,6 +10,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestGAMBITReader
       TestImageWriters
       TestMINCImageReader
+      TestMINCImageWriter
       TestPLYReadWrite
       TestPolygonWriters
       TestJPEGReader
