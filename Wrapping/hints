@@ -125,7 +125,7 @@ vtkMatrix4x4            MultiplyFloatPoint      301 4
 vtkMatrix4x4            MultiplyPoint           301 4
 vtkMedicalImageProperties GetWindowLevelPreset  307 2
 vtkMedicalImageProperties GetNthWindowLevelPreset  307 2
-vtkMINCImageReader      GetValidRange           307 3
+vtkMINCImageReader      GetDataRange            307 2
 vtkPiecewiseFunction    GetRange                307 2
 vtkPlaneWidget		GetCenter		307 3
 vtkPlaneWidget		GetNormal		307 3
