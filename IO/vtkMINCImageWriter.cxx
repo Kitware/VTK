@@ -90,7 +90,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.13");
+vtkCxxRevisionMacro(vtkMINCImageWriter, "1.14");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter,DirectionCosines,vtkMatrix4x4);
@@ -1952,6 +1952,18 @@ void vtkMINCImageWriter::Write()
     }
 }
 
+//----------------------------------------------------------------------------
+int vtkMINCImageWriter::FillInputPortInformation(
+  int port, vtkInformation *info)
+{
+  if (!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
+  return 1;
+}
+
 //---------------------------------------------------------------------------
 int vtkMINCImageWriter::RequestInformation(
   vtkInformation *vtkNotUsed(request),
@@ -2044,7 +2056,7 @@ int vtkMINCImageWriter::RequestData(
       }
 
     // Call WriteMINCData for each input
-    if (this->WriteMINCData(input, 0) == 0)
+    if (this->WriteMINCData(input, timeStep) == 0)
       {
       return 0;
       }
