@@ -121,7 +121,7 @@ private:
 };
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.4");
+vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.5");
 vtkStandardNewMacro(vtkMINCImageAttributes);
 
 vtkCxxSetObjectMacro(vtkMINCImageAttributes,ImageMin,vtkDoubleArray);
@@ -136,6 +136,12 @@ vtkMINCImageAttributes::vtkMINCImageAttributes()
   this->VariableNames = vtkStringArray::New();
 
   this->AttributeNames = vtkMINCImageAttributeMap::New();
+  // Add global attribute name array
+  vtkStringArray *tmparray = vtkStringArray::New();
+  tmparray->SetName("");
+  this->AttributeNames->AddArray(tmparray);
+  tmparray->Delete();
+
   this->AttributeValues = vtkMINCImageAttributeMap::New();
   this->StringStore = 0;
 
@@ -228,6 +234,12 @@ void vtkMINCImageAttributes::Reset()
     this->StringStore->Reset();
     }
   this->NumberOfImageMinMaxDimensions = 0;
+
+  // Add global attribute name array
+  vtkStringArray *tmparray = vtkStringArray::New();
+  tmparray->SetName("");
+  this->AttributeNames->AddArray(tmparray);
+  tmparray->Delete();
 }
 
 //-------------------------------------------------------------------------
