@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
 
-vtkCxxRevisionMacro(vtkFieldData, "1.2.6.1");
+vtkCxxRevisionMacro(vtkFieldData, "1.2.6.2");
 vtkStandardNewMacro(vtkFieldData);
 
 //----------------------------------------------------------------------------
@@ -296,7 +296,10 @@ void vtkFieldData::AllocateArrays(int num)
     {
     for ( i=num; i < this->NumberOfArrays; i++)
       {
-      this->Data[i]->UnRegister(this);
+      if( this->Data[i] )
+        {
+        this->Data[i]->UnRegister(this);
+        }
       }
     this->NumberOfArrays = num;
     }
