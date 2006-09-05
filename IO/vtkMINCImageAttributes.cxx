@@ -121,7 +121,7 @@ private:
 };
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.5");
+vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.6");
 vtkStandardNewMacro(vtkMINCImageAttributes);
 
 vtkCxxSetObjectMacro(vtkMINCImageAttributes,ImageMin,vtkDoubleArray);
@@ -870,6 +870,8 @@ void vtkMINCImageAttributes::SetAttributeValueAsString(
   strcpy(array->GetPointer(0), value);
 
   this->SetAttributeValueAsArray(variable, attribute, array);
+
+  array->Delete();
 }
 
 //-------------------------------------------------------------------------
@@ -883,6 +885,8 @@ void vtkMINCImageAttributes::SetAttributeValueAsInt(
   array->SetValue(0, value);
 
   this->SetAttributeValueAsArray(variable, attribute, array);
+
+  array->Delete();
 }
 
 //-------------------------------------------------------------------------
@@ -896,6 +900,8 @@ void vtkMINCImageAttributes::SetAttributeValueAsDouble(
   array->SetValue(0, value);
 
   this->SetAttributeValueAsArray(variable, attribute, array);
+
+  array->Delete();
 }
 
 //-------------------------------------------------------------------------
