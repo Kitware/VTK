@@ -175,7 +175,6 @@ protected:
   virtual int IndexFromDimensionName(const char *dimName);
   virtual int ReadMINCFileAttributes();
   virtual void FindRangeAndRescaleValues();
-  const char *ConvertDataArrayToString(vtkDataArray *array);
   static int ConvertMINCTypeToVTKType(int minctype, int mincsigned);
 
   virtual void ExecuteInformation();
