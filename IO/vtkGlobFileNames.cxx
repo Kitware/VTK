@@ -18,11 +18,12 @@
 #include "vtkDebugLeaks.h"
 
 #include <vtksys/Glob.hxx>
+#include <vtksys/SystemTools.hxx>
 #include <vtkstd/string>
 #include <vtkstd/vector>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkGlobFileNames, "1.3");
+vtkCxxRevisionMacro(vtkGlobFileNames, "1.4");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -40,6 +41,7 @@ vtkGlobFileNames* vtkGlobFileNames::New()
 //----------------------------------------------------------------------------
 vtkGlobFileNames::vtkGlobFileNames()
 {
+  this->Directory = 0;
   this->Pattern = 0;
   this->Recurse = 0;
   this->FileNames = vtkStringArray::New();
@@ -48,6 +50,10 @@ vtkGlobFileNames::vtkGlobFileNames()
 //----------------------------------------------------------------------------
 vtkGlobFileNames::~vtkGlobFileNames() 
 {
+  if (this->Directory)
+    {
+    delete [] this->Directory;
+    }
   if (this->Pattern)
     {
     delete [] this->Pattern;
@@ -60,6 +66,8 @@ vtkGlobFileNames::~vtkGlobFileNames()
 void vtkGlobFileNames::PrintSelf(ostream& os, vtkIndent indent)
 { 
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Directory: " <<  
+    (this->GetDirectory() ? this->GetDirectory() : " none") << "\n";
   os << indent << "Pattern: " <<  
     (this->GetPattern() ? this->GetPattern() : " none") << "\n";
   os << indent << "Recurse: " << (this->GetRecurse() ? "On\n" : "Off\n");
@@ -100,10 +108,24 @@ int vtkGlobFileNames::AddFileNames(const char* pattern)
     return 0;
     }
 
-  if (!glob.FindFiles(vtkstd::string(this->Pattern)))
+  vtkstd::string fullPattern = this->Pattern;
+
+  if (this->Directory && this->Directory[0] != '\0')
+    {
+    vtkstd::vector<vtkstd::string> components;
+    vtksys::SystemTools::SplitPath(fullPattern.c_str(), components);
+    // If Pattern is a relative path, prepend with Directory
+    if (components[0] == "")
+      {
+      components.insert(components.begin(), this->Directory);
+      fullPattern = vtksys::SystemTools::JoinPath(components);
+      }
+    }
+
+  if (!glob.FindFiles(fullPattern))
     {
     vtkErrorMacro(<< "FindFileNames: Glob action failed for \"" <<
-                  this->Pattern << "\"");
+                  fullPattern << "\"");
 
     return 0;
     }

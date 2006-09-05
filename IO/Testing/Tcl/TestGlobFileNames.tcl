@@ -1,7 +1,8 @@
 package require vtk
 
 vtkGlobFileNames globFileNames
-globFileNames AddFileNames "$VTK_DATA_ROOT/Data/headsq/quarter.*"
+globFileNames SetDirectory "$VTK_DATA_ROOT/Data/"
+globFileNames AddFileNames "headsq/quarter.*"
 set fileNames [globFileNames GetFileNames]
 
 set n [$fileNames GetNumberOfValues]
@@ -34,6 +35,7 @@ for { set i 0 } { $i < $n } { incr i } {
 
 # check that we can re-use the Glob object
 globFileNames Reset
+globFileNames SetDirectory "$VTK_DATA_ROOT/Data/"
 globFileNames AddFileNames "$VTK_DATA_ROOT/Data/financial.*"
 set fileNames [globFileNames GetFileNames]
 

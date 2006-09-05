@@ -57,6 +57,15 @@ public:
   void Reset();
 
   // Description:
+  // Set the directory in which to perform the glob.  If this is
+  // not set, then the current directory will be used.  Also, if
+  // you use a glob pattern that contains absolute path (one that
+  // starts with "/" or a drive letter) then that absolute path
+  // will be used and Directory will be ignored.
+  vtkSetStringMacro(Directory);
+  vtkGetStringMacro(Directory);
+
+  // Description:
   // Search for all files that match the given expression,
   // sort them, and add them to the output.  This method can
   // be called repeatedly to add files matching additional patterns.
@@ -91,6 +100,7 @@ protected:
   ~vtkGlobFileNames();
 
 private:
+  char* Directory;          // Directory for search.
   char* Pattern;            // Wildcard pattern
   int Recurse;              // Recurse into subdirectories
   vtkStringArray *FileNames;    // VTK array of files
