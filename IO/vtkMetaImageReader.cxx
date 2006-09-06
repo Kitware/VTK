@@ -23,13 +23,14 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.19");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.20");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
 vtkMetaImageReader::vtkMetaImageReader()
 {
   this->MHDFileName = 0;
+  this->FileLowerLeft = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -619,7 +620,6 @@ int vtkMetaImageReader::GetFileInformation(const char* fname, int populate)
     this->SetFileDimensionality(3);
     this->SetDataSpacing(spacing);
     this->SetDataOrigin(origin);
-    this->FileLowerLeftOn();
 
     if ( bigendian )
       {
