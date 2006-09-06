@@ -71,6 +71,11 @@ public:
   virtual void EndPrimitive() = 0;
 
   // Description:
+  // Returns if the given attribute type is supported by the device.
+  // Returns 1 is supported, 0 otherwise.
+  virtual int IsAttributesSupported(int attribute)=0;
+
+  // Description:
   // Sends a single attribute to the graphics card.  The index parameter
   // identifies the attribute.  Some indices have special meaning (see
   // vtkPainter for details).  The components parameter gives the number of

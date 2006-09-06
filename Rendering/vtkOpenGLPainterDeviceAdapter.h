@@ -59,6 +59,11 @@ public:
   virtual void EndPrimitive();
 
   // Description:
+  // Returns if the given attribute type is supported by the device.
+  // Returns 1 is supported, 0 otherwise.
+  virtual int IsAttributesSupported(int attribute);
+
+  // Description:
   // Calls one of glVertex*, glNormal*, glColor*, or glTexCoord*.
   virtual void SendAttribute(int index, int components, int type,
                              const void *attribute, unsigned long offset=0);

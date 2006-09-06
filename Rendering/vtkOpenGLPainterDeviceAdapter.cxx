@@ -35,7 +35,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.5");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.6");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -241,6 +241,20 @@ void vtkOpenGLPainterDeviceAdapter::BeginPrimitive(int mode)
 void vtkOpenGLPainterDeviceAdapter::EndPrimitive()
 {
   glEnd();
+}
+
+//-----------------------------------------------------------------------------
+int vtkOpenGLPainterDeviceAdapter::IsAttributesSupported(int attribute)
+{
+  switch(attribute)
+    {
+  case vtkDataSetAttributes::NUM_ATTRIBUTES:
+  case vtkDataSetAttributes::NORMALS:
+  case vtkDataSetAttributes::SCALARS:
+  case vtkDataSetAttributes::TCOORDS:
+    return 1;
+    }
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
