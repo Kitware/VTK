@@ -24,7 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkImageWeightedSum, "1.6");
+vtkCxxRevisionMacro(vtkImageWeightedSum, "1.7");
 vtkStandardNewMacro(vtkImageWeightedSum);
 
 vtkCxxSetObjectMacro(vtkImageWeightedSum,Weights,vtkDoubleArray);
@@ -76,8 +76,8 @@ void vtkImageWeightedSumExecute(vtkImageWeightedSum *self,
                           int outExt[6], int id, T*)
 {
   const int fastpath = 256;
-  vtkImageIterator<T> inItsFast[fastpath];
-  T* inSIFast[fastpath];
+  vtkImageIterator<T> *inItsFast = new vtkImageIterator<T>[fastpath];
+  T* *inSIFast = new T*[fastpath];
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
 
   double *weights = ((vtkDoubleArray *)self->GetWeights())->GetPointer(0);
@@ -137,6 +137,8 @@ void vtkImageWeightedSumExecute(vtkImageWeightedSum *self,
     outIt.NextSpan();
     }
 
+  delete[] inItsFast;
+  delete[] inSIFast;
   if( numInputs >= fastpath )
     {
     delete[] inIts;
