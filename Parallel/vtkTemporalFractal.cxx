@@ -38,7 +38,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkTemporalFractal, "1.4");
+vtkCxxRevisionMacro(vtkTemporalFractal, "1.5");
 vtkStandardNewMacro(vtkTemporalFractal);
 
 //----------------------------------------------------------------------------
@@ -464,7 +464,9 @@ int vtkTemporalFractal::RequestData(
     this->RequestOneTimeStep(dset,request, inputVector, outputVector);
     dset->Delete();
     }
-  
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
+                                timeSteps, numTimeSteps);
+
   return 1;
 }
 
