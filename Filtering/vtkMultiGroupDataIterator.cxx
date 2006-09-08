@@ -18,7 +18,7 @@
 #include "vtkMultiGroupDataSetInternal.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataIterator, "1.1");
+vtkCxxRevisionMacro(vtkMultiGroupDataIterator, "1.2");
 vtkStandardNewMacro(vtkMultiGroupDataIterator);
 
 class vtkMultiGroupDataIteratorInternal
@@ -29,6 +29,8 @@ public:
   // LDSIteator (GroupDataSets) iterates over the nodes in the current group
   vtkMultiGroupDataSetInternal::GroupDataSetsIterator LDSIterator;
   vtkMultiGroupDataSetInternal::DataSetsIterator DSIterator;
+
+  vtkSmartPointer<vtkCompositeDataIterator> SubIterator;
 };
 
 //----------------------------------------------------------------------------
@@ -83,9 +85,24 @@ void vtkMultiGroupDataIterator::GoToFirstItem()
       this->GoToNextNonEmptyGroup();
       }
     // Skip nodes with NULL dataset pointers.
-    if (!this->IsDoneWithTraversal() && !this->GetCurrentDataObject())
+    if (!this->IsDoneWithTraversal())
       {
-      this->GoToNextItem();
+      vtkDataObject* cur = this->GetCurrentDataObject();
+      if (!cur)
+        {
+        this->GoToNextItem();
+        }
+      else if (this->VisitOnlyLeaves && cur->IsA("vtkCompositeDataSet"))
+        {
+        this->Internal->SubIterator.TakeReference( 
+          static_cast<vtkCompositeDataSet*>(cur)->NewIterator());
+        this->Internal->SubIterator->GoToFirstItem();
+        if (this->Internal->SubIterator->IsDoneWithTraversal())
+          {
+          this->Internal->SubIterator = 0;
+          this->GoToNextItem();
+          }
+        }
       }
     }
 }
@@ -131,6 +148,16 @@ void vtkMultiGroupDataIterator::GoToNextItem()
         }
       }
 
+    if (this->Internal->SubIterator)
+      {
+      this->Internal->SubIterator->GoToNextItem();
+      if (!this->Internal->SubIterator->IsDoneWithTraversal())
+        {
+        return;
+        }
+      this->Internal->SubIterator = 0;
+      }
+
     this->Internal->LDSIterator++;
     if (this->Internal->LDSIterator == this->Internal->DSIterator->end())
       {
@@ -140,10 +167,23 @@ void vtkMultiGroupDataIterator::GoToNextItem()
         return;
         }
       }
-    // Skip nodes with NULL dataset pointers.
+    // Skip nodes with NULL dataset pointers. If current dataset is
+    // composite and VisitOnlyLeaves is on, go into the sub-dataset.
+    vtkDataObject* cur = this->GetCurrentDataObject();
     if (!this->GetCurrentDataObject())
       {
       this->GoToNextItem();
+      }
+    else if (this->VisitOnlyLeaves && cur->IsA("vtkCompositeDataSet"))
+      {
+      this->Internal->SubIterator.TakeReference( 
+        static_cast<vtkCompositeDataSet*>(cur)->NewIterator());
+      this->Internal->SubIterator->GoToFirstItem();
+      if (this->Internal->SubIterator->IsDoneWithTraversal())
+        {
+        this->Internal->SubIterator = 0;
+        this->GoToNextItem();
+        }
       }
     }
 }
@@ -171,6 +211,10 @@ vtkDataObject* vtkMultiGroupDataIterator::GetCurrentDataObject()
   if ( !this->DataSet || this->DataSet->Internal->DataSets.empty() )
     {
     return 0;
+    }
+  if (this->Internal->SubIterator)
+    {
+    return this->Internal->SubIterator->GetCurrentDataObject();
     }
   return this->Internal->LDSIterator->GetPointer();
 }

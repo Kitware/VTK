@@ -14,11 +14,12 @@
 =========================================================================*/
 #include "vtkCompositeDataIterator.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.1");
+vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.2");
 
 //----------------------------------------------------------------------------
 vtkCompositeDataIterator::vtkCompositeDataIterator()
 {
+  this->VisitOnlyLeaves = 1;
 }
 
 //----------------------------------------------------------------------------

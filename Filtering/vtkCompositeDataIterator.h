@@ -53,10 +53,24 @@ public:
   // returns 1.
   virtual vtkDataObject* GetCurrentDataObject() = 0;
 
+  // Description:
+  // If VisitOnlyLeaves is true, the iterator will only visit nodes
+  // (sub-datasets) that are not composite. If it encounters a composite
+  // data set, it will automatically traverse that composite dataset until
+  // it finds non-composite datasets. With this options, it is possible to
+  // visit all non-composite datasets in tree of composite datasets
+  // (composite of composite of composite for example :-) ) If
+  // VisitOnlyLeaves is false, GetCurrentDataObject() may return
+  // vtkCompositeDataSet. By default, VisitOnlyLeaves is 1.
+  vtkSetMacro(VisitOnlyLeaves, int);
+  vtkGetMacro(VisitOnlyLeaves, int);
+  vtkBooleanMacro(VisitOnlyLeaves, int);
+
 protected:
   vtkCompositeDataIterator(); 
   virtual ~vtkCompositeDataIterator(); 
 
+  int VisitOnlyLeaves;
 private:
   vtkCompositeDataIterator(const vtkCompositeDataIterator&);  // Not implemented.
   void operator=(const vtkCompositeDataIterator&);  // Not implemented.
