@@ -12,8 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <stdlib.h>
-
 #include "vtkTkImageViewerWidget.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTkInternals.h"
@@ -31,6 +29,8 @@
   #endif
  #endif
 #endif
+
+#include <stdlib.h>
 
 #define VTK_ALL_EVENTS_MASK \
     KeyPressMask|KeyReleaseMask|ButtonPressMask|ButtonReleaseMask|      \
