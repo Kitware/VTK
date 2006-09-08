@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.42");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.43");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_TYPE_NAME,String);
@@ -779,6 +779,10 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
           vtkInformation* inInfo = 
             inInfoVec[compositePort]->GetInformationObject(j);
             
+          if (outInfo->Has(UPDATE_TIME_STEPS()))
+            {
+            inInfo->CopyEntry(outInfo, UPDATE_TIME_STEPS());
+            }
           inInfo->CopyEntry(outInfo, UPDATE_PIECE_NUMBER());
           inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
           inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
