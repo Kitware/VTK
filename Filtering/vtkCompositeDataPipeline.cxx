@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.41");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.42");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_TYPE_NAME,String);
@@ -573,7 +573,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
       inInfo->Set(vtkDataObject::DATA_OBJECT(), prevInput);
       }
     vtkDataObject* curOutput = outInfo->Get(vtkDataObject::DATA_OBJECT());
-    if (curOutput != compositeOutput)
+    if (curOutput != compositeOutput.GetPointer())
       {
       compositeOutput->SetPipelineInformation(outInfo);
       }
