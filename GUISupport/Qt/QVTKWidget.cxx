@@ -497,16 +497,15 @@ void QVTKWidget::mousePressEvent(QMouseEvent* e)
   // give interactor the event information
 #if QT_VERSION < 0x040000
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-                                 (e->state() & Qt::ControlButton), 
-                                 (e->state() & Qt::ShiftButton ),
-                                 0,
-                                 e->type() == QEvent::MouseButtonDblClick ? 1 : 0);
+                              (e->state() & Qt::ControlButton) > 0 ? 1 : 0, 
+                              (e->state() & Qt::ShiftButton ) > 0 ? 1 : 0, 0,
+                              e->type() == QEvent::MouseButtonDblClick ? 1 : 0);
 #else
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-                                 (e->modifiers() & Qt::ControlModifier), 
-                                 (e->modifiers() & Qt::ShiftModifier ),
-                                 0,
-                                 e->type() == QEvent::MouseButtonDblClick ? 1 : 0);
+                              (e->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0, 
+                              (e->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0,
+                              0,
+                              e->type() == QEvent::MouseButtonDblClick ? 1 : 0);
 #endif
 
   // invoke appropriate vtk event
@@ -547,12 +546,12 @@ void QVTKWidget::mouseMoveEvent(QMouseEvent* e)
   // give interactor the event information
 #if QT_VERSION < 0x040000
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-                                 (e->state() & Qt::ControlButton), 
-                                 (e->state() & Qt::ShiftButton ));
+                               (e->state() & Qt::ControlButton) > 0 ? 1 : 0, 
+                               (e->state() & Qt::ShiftButton ) > 0 ? 1 : 0);
 #else
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-                                 (e->modifiers() & Qt::ControlModifier), 
-                                 (e->modifiers() & Qt::ShiftModifier ));
+                             (e->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0, 
+                             (e->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
 #endif
   
   // invoke vtk event
@@ -614,12 +613,12 @@ void QVTKWidget::mouseReleaseEvent(QMouseEvent* e)
   // give vtk event information
 #if QT_VERSION < 0x040000
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-                                 (e->state() & Qt::ControlButton), 
-                                 (e->state() & Qt::ShiftButton ));
+                             (e->state() & Qt::ControlButton) > 0 ? 1 : 0, 
+                             (e->state() & Qt::ShiftButton ) > 0 ? 1 : 0);
 #else
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-                                 (e->modifiers() & Qt::ControlModifier), 
-                                 (e->modifiers() & Qt::ShiftModifier ));
+                             (e->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0, 
+                             (e->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
 #endif
   
   // invoke appropriate vtk event
@@ -767,12 +766,12 @@ void QVTKWidget::wheelEvent(QWheelEvent* e)
   // give event information to interactor
 #if QT_VERSION < 0x040000
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-                                 (e->state() & Qt::ControlButton), 
-                                 (e->state() & Qt::ShiftButton ));
+                             (e->state() & Qt::ControlButton) > 0 ? 1 : 0, 
+                             (e->state() & Qt::ShiftButton ) > 0 ? 1 : 0);
 #else
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-                                 (e->modifiers() & Qt::ControlModifier), 
-                                 (e->modifiers() & Qt::ShiftModifier ));
+                             (e->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0, 
+                             (e->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
 #endif
   
   // invoke vtk event
@@ -823,12 +822,12 @@ void QVTKWidget::contextMenuEvent(QContextMenuEvent* e)
   // give interactor the event information
 #if QT_VERSION < 0x040000
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-                                 (e->state() & Qt::ControlButton), 
-                                 (e->state() & Qt::ShiftButton ));
+                             (e->state() & Qt::ControlButton) > 0 ? 1 : 0, 
+                             (e->state() & Qt::ShiftButton ) > 0 ? 1 : 0);
 #else
   iren->SetEventInformationFlipY(e->x(), e->y(), 
-                                 (e->modifiers() & Qt::ControlModifier), 
-                                 (e->modifiers() & Qt::ShiftModifier ));
+                             (e->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0, 
+                             (e->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
 #endif
 
   // invoke event and pass qt event for additional data as well
