@@ -35,12 +35,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.40");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.41");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_TYPE_NAME,String);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
-vtkInformationKeyMacro(vtkCompositeDataPipeline,MARKED_FOR_UPDATE,Integer);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,UPDATE_BLOCKS, ObjectBase);
 
 //----------------------------------------------------------------------------
@@ -162,42 +161,6 @@ int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request,
       request->Append(vtkExecutive::KEYS_TO_COPY(), 
                       vtkCompositeDataPipeline::UPDATE_BLOCKS());
       }
-    
-    if(this->NeedToExecuteData(outputPort,inInfoVec,outInfoVec))
-      {
-      // We have to check whether an input is marked for update before
-      // ExecuteData() is entered. When looping over blocks, the
-      // composite data producer up the pipeline will trick the
-      // intermediate simple filters to execute by sending an update
-      // mtime. However, if none of those filters are modified, this
-      // would cause unnecessary execution of the whole intermediate
-      // pipeline. Here, NeedToExecuteData() is called and the result
-      // cached so that the blocks that are up to date can be skipped
-      // later.
-      
-      // Loop over all input ports.
-      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
-        {
-        // Loop over all connections on this input port.
-        int numInConnections = inInfoVec[i]->GetNumberOfInformationObjects();
-        for (int j=0; j<numInConnections; j++)
-          {
-          vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
-          vtkDemandDrivenPipeline* ddp = 
-            vtkDemandDrivenPipeline::SafeDownCast(
-              inInfo->GetExecutive(vtkExecutive::PRODUCER()));
-          inInfo->Remove(MARKED_FOR_UPDATE());
-          if (ddp)
-            {
-            if (ddp->NeedToExecuteData(-1,ddp->GetInputInformation(),
-                                       ddp->GetOutputInformation()))
-              {
-              inInfo->Set(MARKED_FOR_UPDATE(), 1);
-              }
-            }
-          }
-        }
-      }
     }
 
   // Let the superclass handle other requests.
@@ -295,7 +258,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request,
   for(int j=0; j < this->Algorithm->GetNumberOfOutputPorts(); ++j)
     {
     vtkInformation* info = this->GetOutputInformation(j);
-    vtkObject* dobj= info->Get(vtkCompositeDataSet::DATA_OBJECT());
+    vtkObject* dobj= info->Get(vtkDataObject::DATA_OBJECT());
     if (dobj)
       {
       info->Set(UPDATE_BLOCKS(), dobj);
@@ -519,17 +482,16 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
   // TODO: Loop over all inputs
   vtkInformation* inInfo = this->GetInputInformation(compositePort, 0);
   vtkCompositeDataSet* input = vtkCompositeDataSet::SafeDownCast(
-    inInfo->Get(vtkCompositeDataSet::DATA_OBJECT()));
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkMultiGroupDataSet* updateInfo = 
     vtkMultiGroupDataSet::SafeDownCast(
       inInfo->Get(vtkCompositeDataPipeline::UPDATE_BLOCKS()));
 
-  vtkCompositeDataSet* output = 
+  vtkSmartPointer<vtkCompositeDataSet> compositeOutput = 
     vtkCompositeDataSet::SafeDownCast(
-      outInfo->Get(vtkCompositeDataSet::DATA_OBJECT()));
+      outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  prevOutput = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (input && updateInfo)
     {
     vtkSmartPointer<vtkInformation> r = 
@@ -581,10 +543,10 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
             {
             if (!outputInitialized)
               {
-              output->PrepareForNewData();
+              compositeOutput->PrepareForNewData();
               outputInitialized = 1;
               }
-            output->AddDataSet(r, outCopy);
+            compositeOutput->AddDataSet(r, outCopy);
             outCopy->Delete();
             }
           }
@@ -611,9 +573,9 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
       inInfo->Set(vtkDataObject::DATA_OBJECT(), prevInput);
       }
     vtkDataObject* curOutput = outInfo->Get(vtkDataObject::DATA_OBJECT());
-    if (curOutput != prevOutput)
+    if (curOutput != compositeOutput)
       {
-      prevOutput->SetPipelineInformation(outInfo);
+      compositeOutput->SetPipelineInformation(outInfo);
       }
     }
   this->ExecuteDataEnd(request,inInfoVec,outInfoVec);
