@@ -55,6 +55,7 @@ class vtkInformationInformationVectorKey;
 
 #define VTK_PIECES_EXTENT   0
 #define VTK_3D_EXTENT       1
+#define VTK_TIME_EXTENT     2
 
 class VTK_FILTERING_EXPORT vtkDataObject : public vtkObject
 {
