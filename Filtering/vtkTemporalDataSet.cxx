@@ -21,12 +21,14 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTemporalDataSet, "1.1");
+vtkCxxRevisionMacro(vtkTemporalDataSet, "1.2");
 vtkStandardNewMacro(vtkTemporalDataSet);
 
 //----------------------------------------------------------------------------
 vtkTemporalDataSet::vtkTemporalDataSet()
 {
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), 
+                         VTK_TIME_EXTENT);
 }
 
 //----------------------------------------------------------------------------

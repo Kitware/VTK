@@ -60,6 +60,10 @@ public:
   static vtkTemporalDataSet* GetData(vtkInformationVector* v, int i=0);
   //ETX
 
+  // Description:
+  // The extent type is a 3D extent
+  virtual int GetExtentType() { return VTK_TIME_EXTENT; };
+
 protected:
   vtkTemporalDataSet();
   ~vtkTemporalDataSet();

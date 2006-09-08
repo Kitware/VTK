@@ -108,6 +108,12 @@ public:
   int GetUpdateGhostLevel(vtkInformation *);
 
   // Description:
+  // Get/Set the update extent for output ports that use Temporal Extents
+  int SetUpdateTimeSteps(int port, double *times, int length);
+  int SetUpdateTimeSteps(vtkInformation *, double *times, int length);
+  //void GetUpdateTimeSteps(vtkInformation *, int extent[6]);
+
+  // Description:
   // This request flag indicates whether the requester can handle more
   // data than requested for the given port.  Right now it is used in
   // vtkImageData.  Image filters can return more data than requested.
