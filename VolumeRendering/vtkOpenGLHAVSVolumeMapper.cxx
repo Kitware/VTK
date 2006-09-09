@@ -41,7 +41,7 @@ extern const char *vtkHAVSVolumeMapper_k6BeginFP;
 extern const char *vtkHAVSVolumeMapper_k6FP;
 extern const char *vtkHAVSVolumeMapper_k6EndFP;
 
-vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.4");
 vtkStandardNewMacro(vtkOpenGLHAVSVolumeMapper);
 
 //----------------------------------------------------------------------------
@@ -108,7 +108,7 @@ void vtkOpenGLHAVSVolumeMapper::ReleaseGraphicsResources(vtkWindow
 
 //----------------------------------------------------------------------------
 void vtkOpenGLHAVSVolumeMapper::Initialize(vtkRenderer *ren,
-                                                           vtkVolume *vol)
+                                           vtkVolume *vol)
 {
   if (!this->SupportedByHardware())
     {
