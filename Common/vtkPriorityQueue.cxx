@@ -15,7 +15,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPriorityQueue, "1.32");
+vtkCxxRevisionMacro(vtkPriorityQueue, "1.33");
 vtkStandardNewMacro(vtkPriorityQueue);
 
 // Instantiate priority queue with default size and extension size of 1000.
@@ -140,8 +140,9 @@ vtkIdType vtkPriorityQueue::Pop(vtkIdType location, double &priority)
     return id;
     }
 
-  // percolate into the tree
-  for ( j=0, i=location; i <= (this->MaxId-1)/2; i=j )
+  // percolate down the tree from the specified location
+  int lastNodeToCheck = (this->MaxId-1)/2;
+  for ( j=0, i=location; i <= lastNodeToCheck; i=j )
     {
     idx = 2*i + 1;
 
@@ -170,7 +171,28 @@ vtkIdType vtkPriorityQueue::Pop(vtkIdType location, double &priority)
       break;
       }
     }
-  
+ 
+  // percolate up the tree from the specified location
+  for ( idx=0, i=location; i > 0; i=idx )
+    {
+    idx = (i-1)/2;
+
+    if ( this->Array[i].priority < this->Array[idx].priority )
+      {
+      temp = this->Array[i];
+
+      this->ItemLocation->SetValue(temp.id,idx);
+      this->Array[i] = this->Array[idx];
+
+      this->ItemLocation->SetValue(this->Array[idx].id,i);
+      this->Array[idx] = temp;
+      }
+    else
+      {
+      break;
+      }
+    }
+
   return id;
 }
 
