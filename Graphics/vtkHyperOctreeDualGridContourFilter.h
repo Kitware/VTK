@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkContourFilter - generate isosurfaces/isolines from scalar values
+// .NAME vtkHyperOctreeDualGridContourFilter - generate isosurfaces/isolines from scalar values
 // .SECTION Description
 // use of unsigned short to hold level index limits tree depth to 16.
 //

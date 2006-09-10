@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkContourFilter - generate isosurfaces/isolines from scalar values
+// .NAME vtkHyperOctreeContourFilter - generate isosurfaces/isolines from scalar values
 // .SECTION Description
 // vtkContourFilter is a filter that takes as input any dataset and 
 // generates on output isosurfaces and/or isolines. The exact form 

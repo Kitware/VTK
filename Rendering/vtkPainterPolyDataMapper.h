@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPainterPolyDataMapper
+// .NAME vtkPainterPolyDataMapper - PolyDataMapper using painters
 // .SECTION Description
 // PolyDataMapper that uses painters to do the actual rendering.
 

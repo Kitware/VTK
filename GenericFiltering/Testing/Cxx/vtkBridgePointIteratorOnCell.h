@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBridgePointIterator - Implementation of vtkGenericPointIterator.
+// .NAME vtkBridgePointIteratorOnCell - Implementation of vtkGenericPointIterator.
 // .SECTION Description
 // It iterates over the corner points of a cell.
 // .SECTION See Also

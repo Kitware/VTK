@@ -21,7 +21,7 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkCgShader
+// .NAME vtkCgShader - Cg Shader
 // .SECTION Description
 // vtkCgShader is the only class that interfaces directly with the Cg
 // libraries. Once is has a valid shader described by a vtkXMLDataElement

@@ -17,7 +17,7 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkExodusModel
+// .NAME vtkExodusModel - Exodus Model
 //
 // .SECTION Description
 //

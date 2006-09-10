@@ -21,7 +21,7 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkGLSLShaderProgram
+// .NAME vtkGLSLShaderProgram - GLSL Shader Program
 // .SECTION Description
 // vtkGLSLShaderProgram is a concerete implementation of vtkShaderProgram.
 // It's main function is to 'Link' a vertex and a fragment shader together

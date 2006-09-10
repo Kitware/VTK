@@ -21,7 +21,7 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkGLSLShader
+// .NAME vtkGLSLShader - GLSL Shader
 // .SECTION Description
 // vtkGLSLShader is a concrete class that creates and compiles hardware
 // shaders written in the OpenGL Shadering Language (GLSL, OpenGL2.0).

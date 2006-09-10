@@ -22,7 +22,7 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkXMLMaterialParser
+// .NAME vtkXMLMaterialParser - Parses VTK Material file
 //
 // .SECTION Description
 // vtkXMLMaterialParser parses a VTK Material file and provides that file's

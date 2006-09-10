@@ -21,7 +21,7 @@
  * statement of authorship are reproduced on all copies.
  */
 
-// .NAME vtkCgShaderProgram
+// .NAME vtkCgShaderProgram - Cg Shader Program
 // .SECTION Description
 // vtkCgShaderProgram allows vtkShaderProperty (later vtkProperty)
 // to treat a vertex/fragment shader pair as a single unit for the purpose

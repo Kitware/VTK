@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOrientedGlyphContourHandleRepresentation - point representation constrained to a 2D plane
+// .NAME vtkOrientedGlyphContourRepresentation - point representation constrained to a 2D plane
 // .SECTION Description
 //
 // .SECTION See Also

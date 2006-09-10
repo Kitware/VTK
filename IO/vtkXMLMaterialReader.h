@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLMaterialReader
+// .NAME vtkXMLMaterialReader - Provide access to elements in Material files
 //
 // .SECTION Description
 // vtkXMLMaterialReader provides access to three types of vtkXMLDataElement

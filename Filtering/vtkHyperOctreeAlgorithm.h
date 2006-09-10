@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOctreeAlgorithm - Superclass for algorithms that produce only octree as output
+// .NAME vtkHyperOctreeAlgorithm - Superclass for algorithms that produce only octree as output
 // .SECTION Description
 
 // vtkOctreeAlgorithm is a convenience class to make writing algorithms

@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLMultiGroupDataWriter - Writer for multi-group datasets
+// .NAME vtkXMLPMultiGroupDataWriter - Writer for multi-group datasets
 // .SECTION Description
 // vtkXMLPMultiGroupDataWriter writes (in parallel or serially) the VTK XML
 // multi-group, multi-block hierarchical and hierarchical box files. XML
