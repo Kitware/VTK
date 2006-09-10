@@ -78,7 +78,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageReader, "1.10");
+vtkCxxRevisionMacro(vtkMINCImageReader, "1.11");
 vtkStandardNewMacro(vtkMINCImageReader);
 
 //-------------------------------------------------------------------------
@@ -250,6 +250,7 @@ vtkMatrix4x4 *vtkMINCImageReader::GetDirectionCosines()
 double vtkMINCImageReader::GetRescaleSlope()
 {
   this->ReadMINCFileAttributes();
+  this->FindRangeAndRescaleValues();
   return this->RescaleSlope;
 }
 
@@ -257,6 +258,7 @@ double vtkMINCImageReader::GetRescaleSlope()
 double vtkMINCImageReader::GetRescaleIntercept()
 {
   this->ReadMINCFileAttributes();
+  this->FindRangeAndRescaleValues();
   return this->RescaleIntercept;
 }
 
@@ -264,6 +266,7 @@ double vtkMINCImageReader::GetRescaleIntercept()
 double *vtkMINCImageReader::GetDataRange()
 {
   this->ReadMINCFileAttributes();
+  this->FindRangeAndRescaleValues();
   return this->DataRange;
 }
 
@@ -685,13 +688,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
     this->DirectionCosines->SetElement(2, notSetIndex, v3[2]);
     }
 
-  // Get the ValidRange and ImageRange.
-  this->ImageAttributes->FindValidRange(this->ValidRange);
-  this->ImageAttributes->FindImageRange(this->ImageRange);
-
-  // Compute the DataRange, RescaleSlope, and RescaleIntercept
-  this->FindRangeAndRescaleValues();
-
+  // Get the data type
   int dataType = this->ConvertMINCTypeToVTKType(this->MINCImageType,
                                                 this->MINCImageTypeSigned);
   this->ImageAttributes->SetDataType(dataType);
@@ -736,6 +733,10 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
     {
     return 0;
     }
+
+  // Get the ValidRange and ImageRange.
+  this->ImageAttributes->FindValidRange(this->ValidRange);
+  this->ImageAttributes->FindImageRange(this->ImageRange);
 
   // Don't have to do this again until the file name changes.
   this->FileNameHasChanged = 0;
