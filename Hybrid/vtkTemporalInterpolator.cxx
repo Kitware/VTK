@@ -35,7 +35,7 @@
 #include "vtkstd/algorithm"
 #include "vtkstd/vector"
 
-vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.2");
+vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.3");
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
 //----------------------------------------------------------------------------
@@ -344,6 +344,7 @@ vtkDataObject *vtkTemporalInterpolator
         if (result) 
           {
           output->SetDataSet(g, d, result); 
+          result->Delete();
           }
         else 
           {
