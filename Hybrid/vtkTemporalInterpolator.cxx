@@ -35,7 +35,7 @@
 #include "vtkstd/algorithm"
 #include "vtkstd/vector"
 
-vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.1");
+vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.2");
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
 //----------------------------------------------------------------------------
@@ -324,6 +324,7 @@ vtkDataObject *vtkTemporalInterpolator
     for (int g=0; g<numGroups; ++g) 
       {
       int numDataSets = mgds[0]->GetNumberOfDataSets(g);
+      output->SetNumberOfDataSets(g,numDataSets);
       for (int d=0; d<numDataSets; ++d) 
         {
         // These multigroup dataset can have null data, it's bad, but
@@ -410,6 +411,7 @@ vtkDataSet *vtkTemporalInterpolator
   //
   // Interpolate pointdata if present
   //
+  output->GetPointData()->ShallowCopy(input[0]->GetPointData());
   for (int s=0; s < input[0]->GetPointData()->GetNumberOfArrays(); ++s) 
     {
     vtkstd::vector<vtkDataArray*> arrays;
@@ -452,8 +454,10 @@ vtkDataSet *vtkTemporalInterpolator
   //
   // Interpolate celldata if present
   //
+  output->GetCellData()->ShallowCopy(input[0]->GetCellData());
   for (int s=0; s<input[0]->GetCellData()->GetNumberOfArrays(); ++s) 
     {
+    // copy the structure
     vtkstd::vector<vtkDataArray*> arrays;
     char *scalarname = NULL;
     for (int i=0; i<2; ++i) 
