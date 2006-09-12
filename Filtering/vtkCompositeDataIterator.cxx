@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkCompositeDataIterator.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.2");
+vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.3");
 
 //----------------------------------------------------------------------------
 vtkCompositeDataIterator::vtkCompositeDataIterator()
@@ -31,5 +31,9 @@ vtkCompositeDataIterator::~vtkCompositeDataIterator()
 void vtkCompositeDataIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "VisitOnlyLeaves: " 
+     << (this->VisitOnlyLeaves?"(on)":"(off)")
+     << endl;
 }
 
