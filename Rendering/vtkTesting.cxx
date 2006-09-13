@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.28");
+vtkCxxRevisionMacro(vtkTesting, "1.29");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 
@@ -586,12 +586,22 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
 
   // If no image differences produced an image, do not write a
   // difference image.
-  if(minError <= 0 || 
-    !((ext2[1]-ext2[0]) == (ext1[1]-ext1[0]) && 
+  if(minError <= 0)
+    {
+    os << "Image differencing failed to produce an image." << endl;
+    return FAILED;
+    }
+  if(!(
+      (ext2[1]-ext2[0]) == (ext1[1]-ext1[0]) && 
       (ext2[3]-ext2[2]) == (ext1[3]-ext1[2]) &&
       (ext2[5]-ext2[4]) == (ext1[5]-ext1[4])))
     {
-    os << "Image differencing failed to produce an image." << endl;
+    os << "Image differencing failed to produce an image because images are "
+      "different size:" << endl;
+    os << "Valid image: " << (ext2[1]-ext2[0]) << ", " << (ext2[3]-ext2[2])
+      << ", " << (ext2[5]-ext2[4]) << endl;
+    os << "Test image: " << (ext1[1]-ext1[0]) << ", " << (ext1[3]-ext1[2])
+      << ", " << (ext1[5]-ext1[4]) << endl;
     return FAILED;
     }
   
