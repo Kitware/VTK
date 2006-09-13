@@ -242,7 +242,7 @@ VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF
 # Determine Shading Support
 VTK_DEPENDENT_OPTION(VTK_USE_CG_SHADERS "Build pixel and vertex shader support for Cg." OFF
                      "VTK_USE_RENDERING" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_GLSL_SHADERS "Build pixel and vertex shader support for GLSL." OFF
+VTK_DEPENDENT_OPTION(VTK_USE_GLSL_SHADERS "Build pixel and vertex shader support for GLSL." ON
                      "VTK_USE_RENDERING" OFF)
 
 SET(VTK_DEFAULT_SHADERS_DIR
