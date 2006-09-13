@@ -69,6 +69,7 @@ vtkExtractUnstructuredGrid.cxx
 vtkExtractVectorComponents.cxx
 vtkFeatureEdges.cxx
 vtkFieldDataToAttributeDataFilter.cxx
+vtkFrustumExtractor.cxx
 vtkGeometryFilter.cxx
 vtkGlyph2D.cxx
 vtkGlyph3D.cxx
@@ -86,13 +87,13 @@ vtkHull.cxx
 vtkHyperOctreeContourFilter.cxx
 vtkHyperOctreeCutter.cxx
 vtkHyperOctreeClipCutPointsGrabber.cxx
+vtkHyperOctreeDepth.cxx
 vtkHyperOctreeDualGridContourFilter.cxx
 vtkHyperOctreeFractalSource.cxx
+vtkHyperOctreeLimiter.cxx
 vtkHyperOctreeSampleFunction.cxx
 vtkHyperOctreeSurfaceFilter.cxx
 vtkHyperOctreeToUniformGridFilter.cxx
-vtkHyperOctreeDepth.cxx
-vtkHyperOctreeLimiter.cxx
 vtkHyperStreamline.cxx
 vtkIdFilter.cxx
 vtkImageDataGeometryFilter.cxx
@@ -218,7 +219,6 @@ vtkWarpScalar.cxx
 vtkWarpTo.cxx
 vtkWarpVector.cxx
 vtkWindowedSincPolyDataFilter.cxx
-vtkFrustumExtractor.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(
