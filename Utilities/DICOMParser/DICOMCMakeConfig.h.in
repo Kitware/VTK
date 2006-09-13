@@ -7,4 +7,6 @@
 #cmakedefine DICOM_ANSI_STDLIB
 #cmakedefine DICOM_NO_STD_NAMESPACE
 
+#include <vtksys/Configure.hxx>
+
 #endif

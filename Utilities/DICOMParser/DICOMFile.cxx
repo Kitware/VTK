@@ -22,11 +22,11 @@
 #pragma warning ( push, 3 )
 #endif 
 
-#include <stdio.h>
-#include <string>
-
 #include "DICOMConfig.h"
 #include "DICOMFile.h"
+
+#include <stdio.h>
+#include <string>
 
 DICOMFile::DICOMFile() : InputStream()
 {

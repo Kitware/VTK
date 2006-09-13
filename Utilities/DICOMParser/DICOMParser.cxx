@@ -25,6 +25,9 @@
 #pragma warning ( push, 3 )
 #endif 
 
+#include "DICOMConfig.h"
+#include "DICOMParser.h"
+#include "DICOMCallback.h"
 
 #include <stdlib.h>
 #if !defined(__MWERKS__)
@@ -37,11 +40,6 @@
 #endif
 
 #include <string>
-
-#include "DICOMConfig.h"
-#include "DICOMParser.h"
-#include "DICOMCallback.h"
-
 
 // Define DEBUG_DICOM to get debug messages sent to dicom_stream::cerr
 // #define DEBUG_DICOM
