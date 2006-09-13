@@ -23,7 +23,7 @@
 #include "vtkAssemblyPath.h"
 #include "vtkAreaPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.7");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.8");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandPick);
 
 #define VTKISRBP_ORIENT 0
@@ -173,22 +173,28 @@ void vtkInteractorStyleRubberBandPick::RedrawRubberBand()
 {
   //update the rubber band on the screen
   int *size = this->Interactor->GetRenderWindow()->GetSize();  
+
   vtkUnsignedCharArray *tmpPixelArray = vtkUnsignedCharArray::New();
   tmpPixelArray->DeepCopy(this->PixelArray);  
   unsigned char *pixels = tmpPixelArray->GetPointer(0);
+
   int min[2], max[2];
+
   min[0] = this->StartPosition[0] <= this->EndPosition[0] ?
     this->StartPosition[0] : this->EndPosition[0];
   if (min[0] < 0) { min[0] = 0; }
   if (min[0] >= size[0]) { min[0] = size[0] - 1; }
+
   min[1] = this->StartPosition[1] <= this->EndPosition[1] ?
     this->StartPosition[1] : this->EndPosition[1];
   if (min[1] < 0) { min[1] = 0; }
   if (min[1] >= size[1]) { min[1] = size[1] - 1; }
+
   max[0] = this->EndPosition[0] > this->StartPosition[0] ?
     this->EndPosition[0] : this->StartPosition[0];
   if (max[0] < 0) { max[0] = 0; }
   if (max[0] >= size[0]) { max[0] = size[0] - 1; }
+
   max[1] = this->EndPosition[1] > this->StartPosition[1] ?
     this->EndPosition[1] : this->StartPosition[1];
   if (max[1] < 0) { max[1] = 0; }
@@ -223,25 +229,32 @@ void vtkInteractorStyleRubberBandPick::RedrawRubberBand()
 //--------------------------------------------------------------------------
 void vtkInteractorStyleRubberBandPick::Pick()
 {
-  //find rubber band lower left, upper right and center
-  int width, height;
-  width = abs(this->EndPosition[0] - this->StartPosition[0]);
-  height = abs(this->EndPosition[1] - this->StartPosition[1]);
-  
-  double min[2];
+  //find rubber band lower left, upper right and center  
   double rbcenter[3];
-  min[0] = this->StartPosition[0] < this->EndPosition[0] ?
+  int *size = this->Interactor->GetRenderWindow()->GetSize();  
+  int min[2], max[2];
+  min[0] = this->StartPosition[0] <= this->EndPosition[0] ?
     this->StartPosition[0] : this->EndPosition[0];
-  min[1] = this->StartPosition[1] < this->EndPosition[1] ?
-    this->StartPosition[1] : this->EndPosition[1];
-  double max[2];
-  max[0] = this->StartPosition[0] > this->EndPosition[0] ?
-    this->StartPosition[0] : this->EndPosition[0];
-  max[1] = this->StartPosition[1] > this->EndPosition[1] ?
-    this->StartPosition[1] : this->EndPosition[1];
+  if (min[0] < 0) { min[0] = 0; }
+  if (min[0] >= size[0]) { min[0] = size[0] - 2; }
 
-  rbcenter[0] = min[0] + 0.5*width;
-  rbcenter[1] = min[1] + 0.5*height;
+  min[1] = this->StartPosition[1] <= this->EndPosition[1] ?
+    this->StartPosition[1] : this->EndPosition[1];
+  if (min[1] < 0) { min[1] = 0; }
+  if (min[1] >= size[1]) { min[1] = size[1] - 2; }
+
+  max[0] = this->EndPosition[0] > this->StartPosition[0] ?
+    this->EndPosition[0] : this->StartPosition[0];
+  if (max[0] < 0) { max[0] = 0; }
+  if (max[0] >= size[0]) { max[0] = size[0] - 2; }
+
+  max[1] = this->EndPosition[1] > this->StartPosition[1] ?
+    this->EndPosition[1] : this->StartPosition[1];
+  if (max[1] < 0) { max[1] = 0; }
+  if (max[1] >= size[1]) { max[1] = size[1] - 2; }
+
+  rbcenter[0] = (min[0] + max[0])/2.0;
+  rbcenter[1] = (min[1] + max[1])/2.0;
   rbcenter[2] = 0;
   
   if (this->State == VTKIS_NONE) 

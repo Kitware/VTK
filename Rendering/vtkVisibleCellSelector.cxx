@@ -172,7 +172,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.7");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.8");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -223,10 +223,78 @@ vtkVisibleCellSelector::~vtkVisibleCellSelector()
 void vtkVisibleCellSelector::SetArea(unsigned int x0, unsigned int y0,
                                      unsigned int x1, unsigned int y1)
 {
+  if (this->Renderer == NULL)
+    {
+    vtkErrorMacro("vtkVisibleCellSelector must have a vtkRenderer assigned.");
+    return;    
+    }
+
+  //find this renderer's viewport pixel coordinates on the renderwindow
+  double dispLL[3];
+  double dispUR[3];
+  this->Renderer->SetViewPoint(-1,-1,0);
+  this->Renderer->ViewToDisplay();
+  this->Renderer->GetDisplayPoint(dispLL);
+  this->Renderer->SetViewPoint(1,1,0);
+  this->Renderer->ViewToDisplay();
+  this->Renderer->GetDisplayPoint(dispUR);
+  int idispLL[2];
+  int idispUR[2];
+  idispLL[0] = (int) dispLL[0];
+  idispLL[1] = (int) dispLL[1];
+  idispUR[0] = (int) dispUR[0]-1;
+  idispUR[1] = (int) dispUR[1]-1;
+
+  //crop the supplied select area to within the viewport
+  if (x0 < idispLL[0])
+    {
+    x0 = idispLL[0];
+    }
+  if (x1 < idispLL[0])
+    {
+    x1 = idispLL[0];
+    }
+  if (x0 > idispUR[0])
+    {
+    x0 = idispUR[0];
+    }
+  if (x1 > idispUR[0])
+    {
+    x1 = idispUR[0];
+    }
+
+  if (y0 < idispLL[1])
+    {
+    y0 = idispLL[1];
+    }
+  if (y1 < idispLL[1])
+    {
+    y1 = idispLL[1];
+    }
+  if (y0 > idispUR[1])
+    {
+    y0 = idispUR[1];
+    }
+  if (y1 > idispUR[1])
+    {
+    y1 = idispUR[1];
+    }
+
+  //make sure we have the selection corners ordered ll to ur
   this->X0 = (x0<x1)?x0:x1;
   this->Y0 = (y0<y1)?y0:y1;
   this->X1 = (x0<x1)?x1:x0;
   this->Y1 = (y0<y1)?y1:y0;
+}
+
+//----------------------------------------------------------------------------
+void vtkVisibleCellSelector::GetArea(unsigned int &x0, unsigned int &y0,
+                                     unsigned int &x1, unsigned int &y1)
+{ 
+  x0 = this->X0;
+  x1 = this->X1;
+  y0 = this->Y0;
+  y1 = this->Y1;
 }
 
 //----------------------------------------------------------------------------

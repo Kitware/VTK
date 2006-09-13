@@ -27,6 +27,9 @@
 // obtained by calling GetSelectedIds().
 //
 // Limitations:
+// Antialiasing will break this class. If your graphics card settings force
+// their use this class will return invalid results.
+//
 // Currently only cells from PolyDataMappers can be selected from. When 
 // vtkRenderer is put into a SelectMode, it temporarily swaps in a new 
 // vtkIdentColoredPainter to do the color index rendering of each cell in 
@@ -71,8 +74,14 @@ public:
 
   // Description:
   // Call to set the selection area region.
+  // This crops the selected area to the renderers pixel limits.
   void SetArea(unsigned int x0, unsigned int y0,
                unsigned int x1, unsigned int y1);
+
+  // Description:
+  // The caller of SetArea can use to check for cropped limits.
+  void GetArea(unsigned int &x0, unsigned int &y0,
+               unsigned int &x1, unsigned int &y1);
 
   // Description:
   // Call to let this know what processor number to render as in the processor
