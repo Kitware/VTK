@@ -34,6 +34,7 @@
 #include "vtkXMLDataElement.h"
 
 #include <vtkstd/vector>
+#include <vtkstd/string>
 // GL/glu.h is needed for the error reporting, this should be removed
 // after the initial development phase.
 //#include <GL/glu.h>
@@ -61,7 +62,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.10");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.11");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
