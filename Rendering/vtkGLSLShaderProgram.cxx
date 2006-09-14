@@ -62,7 +62,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.11");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.12");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -152,7 +152,7 @@ void vtkGLSLShaderProgram::GetProgramInfo()
   GLint type = 0;
   vtkgl::GetProgramiv( static_cast<GLuint>(this->Program), 
     vtkgl::OBJECT_TYPE_ARB, &type);
-  if( type == vtkgl::PROGRAM_OBJECT_ARB )
+  if( type == static_cast<GLint>(vtkgl::PROGRAM_OBJECT_ARB) )
     {
     infoString += "GLSL Program. \n";
     }

@@ -68,7 +68,7 @@ static void printLogInfo( GLuint shader, const char* filename)
   GLint type = 0;
   // Check language
   vtkgl::GetShaderiv( shader, vtkgl::OBJECT_TYPE_ARB, &type);
-  if( type == vtkgl::SHADER_OBJECT_ARB )
+  if( type == static_cast<GLint>(vtkgl::SHADER_OBJECT_ARB) )
     {
     cout << "GLSL Shader." << endl;
     }
@@ -79,11 +79,11 @@ static void printLogInfo( GLuint shader, const char* filename)
 
   // Check scope
   vtkgl::GetShaderiv( shader, vtkgl::OBJECT_SUBTYPE_ARB, &type);
-  if( type == vtkgl::VERTEX_SHADER_ARB )
+  if( type == static_cast<GLint>(vtkgl::VERTEX_SHADER_ARB) )
     {
     cout << "GLSL Vertex Shader." << endl;
     }
-  else if( type == vtkgl::FRAGMENT_SHADER_ARB )
+  else if( type == static_cast<GLint>(vtkgl::FRAGMENT_SHADER_ARB) )
     {
     cout << "GLSL Fragment Shader." << endl;
     }
@@ -163,7 +163,7 @@ static void printAttributeInfo(GLuint program, const char* vtkNotUsed(filename))
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLSLShader);
-vtkCxxRevisionMacro(vtkGLSLShader, "1.8");
+vtkCxxRevisionMacro(vtkGLSLShader, "1.9");
 
 //-----------------------------------------------------------------------------
 vtkGLSLShader::vtkGLSLShader()
