@@ -172,7 +172,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.8");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.9");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -238,12 +238,12 @@ void vtkVisibleCellSelector::SetArea(unsigned int x0, unsigned int y0,
   this->Renderer->SetViewPoint(1,1,0);
   this->Renderer->ViewToDisplay();
   this->Renderer->GetDisplayPoint(dispUR);
-  int idispLL[2];
-  int idispUR[2];
-  idispLL[0] = (int) dispLL[0];
-  idispLL[1] = (int) dispLL[1];
-  idispUR[0] = (int) dispUR[0]-1;
-  idispUR[1] = (int) dispUR[1]-1;
+  unsigned int idispLL[2];
+  unsigned int idispUR[2];
+  idispLL[0] = (unsigned int) dispLL[0];
+  idispLL[1] = (unsigned int) dispLL[1];
+  idispUR[0] = (unsigned int) dispUR[0]-1;
+  idispUR[1] = (unsigned int) dispUR[1]-1;
 
   //crop the supplied select area to within the viewport
   if (x0 < idispLL[0])
