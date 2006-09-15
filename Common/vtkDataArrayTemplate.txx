@@ -343,6 +343,17 @@ void vtkDataArrayTemplate<T>::InsertTuple(vtkIdType i, vtkIdType j,
     return;
     }
   
+  // If this and source are the same, we need to make sure that
+  // the array grows before we get the pointer. Growing the array
+  // after getting the pointer may make it invalid.
+  if (this == source)
+    {
+    if (i >= this->Size)
+      {
+      this->ResizeAndExtend(i+1);
+      }
+    }
+
   T* data = static_cast<T*>(source->GetVoidPointer(0));
   
   vtkIdType loci = i * this->NumberOfComponents;
@@ -373,6 +384,14 @@ vtkIdType vtkDataArrayTemplate<T>::InsertNextTuple(vtkIdType j,
     return -1;
     } 
   
+  // If this and source are the same, we need to make sure that
+  // the array grows before we get the pointer. Growing the array
+  // after getting the pointer may make it invalid.
+  if (this == source)
+    {
+    this->ResizeAndExtend(this->Size+1);
+    }
+
   T* data = static_cast<T*>(source->GetVoidPointer(0));
   vtkIdType locj = j * source->GetNumberOfComponents();
   
