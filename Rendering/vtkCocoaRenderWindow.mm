@@ -24,7 +24,7 @@
 #define MAC_OS_X_VERSION_10_4 1040
 #endif
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.34");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.35");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -219,7 +219,7 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
   // pertinent settings.
   NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->PixelFormat;
   strm << "PixelFormat Descriptor:" << endl;
-  long pfd;
+  GLint pfd;
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAColorSize forVirtualScreen: currentScreen];
   strm  << "  colorSize:  " << pfd << endl;
 
@@ -264,7 +264,7 @@ int vtkCocoaRenderWindow::SupportsOpenGL()
   int currentScreen = [context currentVirtualScreen];
 
   NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->PixelFormat;
-  long pfd;
+  GLint pfd;
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFACompliant forVirtualScreen: currentScreen];
 
   return (pfd == YES ? 1 : 0);
@@ -283,7 +283,7 @@ int vtkCocoaRenderWindow::IsDirect()
   int currentScreen = [context currentVirtualScreen];
 
   NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->PixelFormat;
-  long pfd;
+  GLint pfd;
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAFullScreen forVirtualScreen: currentScreen];
 
   return (pfd == YES ? 1 : 0);
@@ -534,6 +534,10 @@ void vtkCocoaRenderWindow::CreateGLContext()
   NSOpenGLContext* context = (NSOpenGLContext*)[[NSOpenGLContext alloc]
     initWithFormat:pixelFormat
     shareContext:nil];
+  
+  // This syncs the OpenGL context to the VBL to prevent tearing
+  GLint one = 1;
+  [context setValues:&one forParameter:NSOpenGLCPSwapInterval];
 
   this->PixelFormat = (void*)pixelFormat;
   this->ContextId = (void*)context;

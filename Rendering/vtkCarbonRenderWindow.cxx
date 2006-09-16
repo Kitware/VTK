@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.45");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.46");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -900,6 +900,16 @@ void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
     vtkErrorMacro ("Could not create context");
     return;
     }
+
+  // This syncs the OpenGL context to the VBL to prevent tearing
+  GLint one = 1;
+  GLboolean res = aglSetInteger (this->ContextId, AGL_SWAP_INTERVAL, &one);
+  if (GL_FALSE == res)
+    {
+    vtkErrorMacro ("Could not set context option");
+    return;
+    }
+
   // attach the CGrafPtr to the context
   if (!aglSetDrawable (this->ContextId, GetWindowPort (this->GetRootWindow())))
     {
