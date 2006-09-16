@@ -86,7 +86,7 @@ public:
   // Description:
   // Call to let this know what processor number to render as in the processor
   // select pass. Internally this adds 1 to pid because 0 is reserved for miss.
-  virtual void SetProcessorId(int pid);
+  virtual void SetProcessorId(unsigned int pid);
 
   // Description:
   // Call to let this know what selection render passes to do.
@@ -153,7 +153,7 @@ protected:
   int DoCellIdMid;
   int DoCellIdLo;
 
-  int ProcessorId;
+  unsigned int ProcessorId;
 
   unsigned int X0;
   unsigned int Y0;

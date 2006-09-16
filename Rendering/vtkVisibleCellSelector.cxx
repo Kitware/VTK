@@ -1,3 +1,17 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkVisibleCellSelector.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 #include "vtkVisibleCellSelector.h"
 #include "vtkObjectFactory.h"
 #include "vtkIdTypeArray.h"
@@ -20,34 +34,34 @@ public:
   unsigned char byte[15];
 
   vtkVisibleCellSelectorInternals()
-  {
+    {
     memset(byte,0,15);
-  }
+    }
 
-  void print()
-  {
-   cerr << "P " << this->GetField(0) << " ";
-   cerr << " A " << this->GetField(1) << " ";
-   cerr << " H " << this->GetField(2) << " ";
-   cerr << " L " << this->GetField(3) << endl;
-  }
+  void Print(ostream &os = cerr)
+    {
+    os << "P "  << this->GetField(0) << " ";
+    os << " A " << this->GetField(1) << " ";
+    os << " H " << this->GetField(2) << " ";
+    os << " L " << this->GetField(3) << endl;
+    }
 
-  void init(unsigned char*proc, 
-            unsigned char*actor, 
-            unsigned char*cidH, unsigned char*cidM, unsigned char *cidL)
-  {
+  void Init(unsigned char *proc, 
+            unsigned char *actor, 
+            unsigned char *cidH, unsigned char *cidM, unsigned char *cidL)
+    {
     //initialize this hit record with the current hit information stored at
     //the pixel pointed to in five color buffers
     //null pointers are treated as hitting background (a miss).
-    this->initfield(&byte[0], proc);
-    this->initfield(&byte[3], actor);
-    this->initfield(&byte[6], cidH);
-    this->initfield(&byte[9], cidM);
-    this->initfield(&byte[12], cidL);
-  }
+    this->InitField(&byte[0], proc);
+    this->InitField(&byte[3], actor);
+    this->InitField(&byte[6], cidH);
+    this->InitField(&byte[9], cidM);
+    this->InitField(&byte[12], cidL);
+    }
 
-  void initfield(unsigned char *dest, unsigned char *src)
-  {
+  void InitField(unsigned char *dest, unsigned char *src)
+    {
     if (src)
       {
       dest[0] = src[0];
@@ -60,85 +74,85 @@ public:
       dest[1] = 0;
       dest[2] = 0;    
       }
-  }
+    }
 
   vtkIdType GetField(int i) const
-  {
-  vtkIdType ret;
-  if (i == 0)
     {
-    //proc
-    ret = 
-      (((vtkIdType)byte[0])<<16) |
-      (((vtkIdType)byte[1])<< 8) |
-      (((vtkIdType)byte[2])    );
-    if (ret != 0) //account for the fact that a miss is stored as 0
+    vtkIdType ret;
+    if (i == 0)
       {
-      ret --;
+      //proc
+      ret = 
+        (((vtkIdType)byte[0])<<16) |
+        (((vtkIdType)byte[1])<< 8) |
+        (((vtkIdType)byte[2])    );
+      if (ret != 0) //account for the fact that a miss is stored as 0
+        {
+        ret --;
+        }
       }
-    }
-  else if (i == 1)
-    {
-    //actor
-    ret = 
-      (((vtkIdType)byte[3])<<16) |
-      (((vtkIdType)byte[4])<< 8) |
-      (((vtkIdType)byte[5])    );
-    if (ret != 0)
+    else if (i == 1)
       {
-      ret --;
-      }
-    }
-  else
-    {
-    //cell id, convert from 3 24 bit fields to two 32 bit ones
-    //throwing away upper 8 bits, but accounting for miss stored in 0
-    vtkIdType HField;
-    HField = 
-      (((vtkIdType)byte[6])<<16) |
-      (((vtkIdType)byte[7])<< 8) |
-      (((vtkIdType)byte[8])    );
-    if (HField != 0) 
-      {
-      HField --;
-      }
-    vtkIdType MField;
-    MField = 
-      (((vtkIdType)byte[ 9])<<16) |
-      (((vtkIdType)byte[10])<< 8) |
-      (((vtkIdType)byte[11])    );
-    if (MField != 0) 
-      {
-      MField --;
-      }
-    vtkIdType LField;
-    LField = 
-      (((vtkIdType)byte[12])<<16) |
-      (((vtkIdType)byte[13])<< 8) |
-      (((vtkIdType)byte[14])    );
-    if (LField != 0) 
-      {
-      LField --;
-      }
-    if (i == 2)
-      {
-      //upper 32 bits of cell id
-      ret = ((HField & 0xFFFF) << 16) | (MField & 0xFFFF00 >> 8);
+      //actor
+      ret = 
+        (((vtkIdType)byte[3])<<16) |
+        (((vtkIdType)byte[4])<< 8) |
+        (((vtkIdType)byte[5])    );
+      if (ret != 0)
+        {
+        ret --;
+        }
       }
     else
       {
-      //lower 32 bits of cell id
-      ret = ((MField & 0xFF) << 24) | LField;
+      //cell id, convert from 3 24 bit fields to two 32 bit ones
+      //throwing away upper 8 bits, but accounting for miss stored in 0
+      vtkIdType hField;
+      hField = 
+        (((vtkIdType)byte[6])<<16) |
+        (((vtkIdType)byte[7])<< 8) |
+        (((vtkIdType)byte[8])    );
+      if (hField != 0) 
+        {
+        hField --;
+        }
+      vtkIdType mField;
+      mField = 
+        (((vtkIdType)byte[ 9])<<16) |
+        (((vtkIdType)byte[10])<< 8) |
+        (((vtkIdType)byte[11])    );
+      if (mField != 0) 
+        {
+        mField --;
+        }
+      vtkIdType lField;
+      lField = 
+        (((vtkIdType)byte[12])<<16) |
+        (((vtkIdType)byte[13])<< 8) |
+        (((vtkIdType)byte[14])    );
+      if (lField != 0) 
+        {
+        lField --;
+        }
+      if (i == 2)
+        {
+        //upper 32 bits of cell id
+        ret = ((hField & 0xFFFF) << 16) | (mField & 0xFFFF00 >> 8);
+        }
+      else
+        {
+        //lower 32 bits of cell id
+        ret = ((mField & 0xFF) << 24) | lField;
+        }
       }
-    }
     return ret;
-  }
+    }
 
   //provide != and == operators for comparisons and < operator to allow us
   //to use a std lib set container to make a sorted, non repeating list of
   //hit records.
   bool operator<(const vtkVisibleCellSelectorInternals other) const
-  {
+    {
     for (int i = 0; i < 15; i++)
       {
       if (byte[i] < other.byte[i]) 
@@ -151,10 +165,10 @@ public:
         }
       }
     return false;
-  }
+    }
 
   bool operator!=(const vtkVisibleCellSelectorInternals other) const
-  {
+    {
     for (int i = 0; i < 15; i++)
       {
       if (byte[i] != other.byte[i]) 
@@ -163,16 +177,16 @@ public:
         }
       } 
     return false;
-  }
+    }
 
   bool operator==(const vtkVisibleCellSelectorInternals other) const
-  {
+    {
     return !(operator!=(other));
-  }
+    }
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.9");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.10");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -240,10 +254,10 @@ void vtkVisibleCellSelector::SetArea(unsigned int x0, unsigned int y0,
   this->Renderer->GetDisplayPoint(dispUR);
   unsigned int idispLL[2];
   unsigned int idispUR[2];
-  idispLL[0] = (unsigned int) dispLL[0];
-  idispLL[1] = (unsigned int) dispLL[1];
-  idispUR[0] = (unsigned int) dispUR[0]-1;
-  idispUR[1] = (unsigned int) dispUR[1]-1;
+  idispLL[0] = static_cast<unsigned int>(dispLL[0]);
+  idispLL[1] = static_cast<unsigned int>(dispLL[1]);
+  idispUR[0] = static_cast<unsigned int>(dispUR[0])-1;
+  idispUR[1] = static_cast<unsigned int>(dispUR[1])-1;
 
   //crop the supplied select area to within the viewport
   if (x0 < idispLL[0])
@@ -298,7 +312,7 @@ void vtkVisibleCellSelector::GetArea(unsigned int &x0, unsigned int &y0,
 }
 
 //----------------------------------------------------------------------------
-void vtkVisibleCellSelector::SetProcessorId(int pid)
+void vtkVisibleCellSelector::SetProcessorId(unsigned int pid)
 {
   this->ProcessorId = pid + 1; //account for 0 reserved for miss
   this->SetSelectConst(this->ProcessorId);
@@ -426,7 +440,7 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
     for (int x = 0; x<=Width; x++)
       {
       //convert the pixel colors in the buffers into a very wide integer
-      nhit.init(proc, actor, cidH, cidM, cidL);
+      nhit.Init(proc, actor, cidH, cidM, cidL);
       
       if (nhit != zero)
         {
@@ -479,7 +493,7 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
     {
     //traversing the set will result in a sorted list, because vtkstd::set 
     //inserts entries using operator< to sort them for quick retrieval
-    vtkIdType id = 0;
+    vtkIdType cellid = 0;
     vtkstd::set<vtkVisibleCellSelectorInternals>::iterator sit;
     for (sit = hitrecords.begin(); sit != hitrecords.end(); sit++)
       {
@@ -488,8 +502,8 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
       info[1] = sit->GetField(1); //actorid
       info[2] = sit->GetField(2); //cidH
       info[3] = sit->GetField(3); //cidL
-      this->SelectedIds->SetTupleValue(id, info);
-      id++;
+      this->SelectedIds->SetTupleValue(cellid, info);
+      cellid++;
       }    
     }
 }
@@ -614,15 +628,15 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
 }
 
 //----------------------------------------------------------------------------
-vtkProp* vtkVisibleCellSelector::GetActorFromId(vtkIdType id)
+vtkProp* vtkVisibleCellSelector::GetActorFromId(vtkIdType cellid)
 {
   if ( (this->Renderer == NULL) || 
-       (id >= this->Renderer->PropsSelectedFromCount) )
+       (cellid >= this->Renderer->PropsSelectedFromCount) )
     {
     return NULL;
     }
 
-  return this->Renderer->PropsSelectedFrom[id];
+  return this->Renderer->PropsSelectedFrom[cellid];
 }
 
 //----------------------------------------------------------------------------
@@ -641,9 +655,9 @@ void vtkVisibleCellSelector::PrintSelectedIds(vtkIdTypeArray *lists)
   
   cerr << "PROC\tACTOR\t\tH L" << endl;
   vtkIdType rec[4];
-  for (vtkIdType id = 0; id < lists->GetNumberOfTuples(); id++)
+  for (vtkIdType cellid = 0; cellid < lists->GetNumberOfTuples(); cellid++)
     {
-    lists->GetTupleValue(id, rec);    
+    lists->GetTupleValue(cellid, rec);    
     cerr << rec[0] << '\t' << rec[1] << "\t\t" << rec[2] << ' ' << rec[3] << endl; 
     }
 }
