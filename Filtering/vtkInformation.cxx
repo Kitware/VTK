@@ -40,7 +40,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkInformation, "1.25.4.1");
+vtkCxxRevisionMacro(vtkInformation, "1.25.4.2");
 vtkStandardNewMacro(vtkInformation);
 
 // Note: assumes long is at least 32 bits.
@@ -117,7 +117,7 @@ public:
       // and then adjust table size to fit the hash size
 #if USE_MOD
       unsigned short i = 1;
-      while(_stl_prime_list[i] + 1 <= size && i < _stl_num_primes)
+      while(i < _stl_num_primes && _stl_prime_list[i] + 1 <= size)
         {
         i++;
         }
