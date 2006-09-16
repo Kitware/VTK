@@ -100,7 +100,7 @@ public:
       // and then adjust table size to fit the hash size
 #if USE_MOD
       unsigned short i = 1;
-      while(_stl_prime_list[i] + 1 <= size && i < _stl_num_primes)
+      while(i < _stl_num_primes && _stl_prime_list[i] + 1 <= size)
         {
         i++;
         }
