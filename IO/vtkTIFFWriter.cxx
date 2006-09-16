@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtk_tiff.h"
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.39");
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.39.6.1");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //----------------------------------------------------------------------------
@@ -179,7 +179,8 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
     }
   //compression = COMPRESSION_JPEG;
   TIFFSetField(tif, TIFFTAG_COMPRESSION, compression); // Fix for compression
-  uint16 photometric = (stype == VTK_FLOAT ? PHOTOMETRIC_MINISBLACK : PHOTOMETRIC_RGB);
+  uint16 photometric =
+    (scomponents == 1 ? PHOTOMETRIC_MINISBLACK : PHOTOMETRIC_RGB);
   if ( compression == COMPRESSION_JPEG )
     {
     TIFFSetField(tif, TIFFTAG_JPEGQUALITY, 75); // Parameter
