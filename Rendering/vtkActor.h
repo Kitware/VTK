@@ -150,9 +150,9 @@ public:
   // in the near future. Use vtkProp::GetNextPath() (and related functionality)
   // to get the parts in an assembly (or more correctly, the paths in the
   // assembly).
-  virtual void InitPartTraversal();
-  virtual vtkActor *GetNextPart();
-  virtual int GetNumberOfParts();
+  VTK_LEGACY(virtual void InitPartTraversal());
+  VTK_LEGACY(virtual vtkActor *GetNextPart());
+  VTK_LEGACY(virtual int GetNumberOfParts());
   
 protected:
   vtkActor();

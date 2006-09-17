@@ -31,9 +31,10 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.128");
+vtkCxxRevisionMacro(vtkActor, "1.129");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
+vtkCxxSetObjectMacro(vtkActor,Mapper,vtkMapper);
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -55,6 +56,7 @@ vtkActor::vtkActor()
   vtkMath::UninitializeBounds(this->MapperBounds);
 }
 
+//----------------------------------------------------------------------------
 vtkActor::~vtkActor()
 {
   if ( this->Property != NULL) 
@@ -77,6 +79,7 @@ vtkActor::~vtkActor()
   this->SetTexture(NULL);
 }
 
+//----------------------------------------------------------------------------
 // Shallow copy of an actor.
 void vtkActor::ShallowCopy(vtkProp *prop)
 {
@@ -93,6 +96,7 @@ void vtkActor::ShallowCopy(vtkProp *prop)
   this->vtkProp3D::ShallowCopy(prop);
 }
 
+//----------------------------------------------------------------------------
 // return the correct type of Actor 
 vtkActor *vtkActor::New()
 {
@@ -101,11 +105,13 @@ vtkActor *vtkActor::New()
   return (vtkActor*)ret;
 }
 
+//----------------------------------------------------------------------------
 void vtkActor::GetActors(vtkPropCollection *ac)
 {
   ac->AddItem(this);
 }
 
+//----------------------------------------------------------------------------
 // should be called from the render methods only
 int vtkActor::GetIsOpaque()
 {
@@ -114,7 +120,8 @@ int vtkActor::GetIsOpaque()
     if (this->Texture && this->Texture->GetInput())
       {
       this->Texture->GetInput()->UpdateInformation();
-      this->Texture->GetInput()->SetUpdateExtent(this->Texture->GetInput()->GetWholeExtent());
+      this->Texture->GetInput()->SetUpdateExtent(
+        this->Texture->GetInput()->GetWholeExtent());
       this->Texture->GetInput()->PropagateUpdateExtent();
       this->Texture->GetInput()->TriggerAsynchronousUpdate();
       this->Texture->GetInput()->UpdateData();
@@ -122,7 +129,8 @@ int vtkActor::GetIsOpaque()
         { // Handle gracefully. What should it return? 
         return 1;
         }
-      if (this->Texture->GetInput()->GetPointData()->GetScalars()->GetNumberOfComponents()%2)
+      if (this->Texture->GetInput()->GetPointData()->GetScalars()
+        ->GetNumberOfComponents()%2)
         {
         return 1;
         }
@@ -136,6 +144,7 @@ int vtkActor::GetIsOpaque()
 }
 
 
+//----------------------------------------------------------------------------
 // This causes the actor to be rendered. It in turn will render the actor's
 // property, texture map and then mapper. If a property hasn't been 
 // assigned, then the actor will create one automatically. Note that a 
@@ -182,6 +191,7 @@ int vtkActor::RenderOpaqueGeometry(vtkViewport *vp)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 int vtkActor::RenderTranslucentGeometry(vtkViewport *vp)
 {
   int          renderedSomething = 0; 
@@ -225,6 +235,7 @@ int vtkActor::RenderTranslucentGeometry(vtkViewport *vp)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 void vtkActor::ReleaseGraphicsResources(vtkWindow *win)
 {
   vtkRenderWindow *renWin = (vtkRenderWindow *)win;
@@ -242,6 +253,7 @@ void vtkActor::ReleaseGraphicsResources(vtkWindow *win)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkActor::SetProperty(vtkProperty *lut)
 {
   if ( this->Property == lut) 
@@ -262,12 +274,14 @@ void vtkActor::SetProperty(vtkProperty *lut)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 vtkProperty* vtkActor::MakeProperty()
 {
   return vtkProperty::New();
 }
 
 
+//----------------------------------------------------------------------------
 vtkProperty *vtkActor::GetProperty()
 {
   if ( this->Property == NULL )
@@ -279,6 +293,7 @@ vtkProperty *vtkActor::GetProperty()
   return this->Property;
 }
 
+//----------------------------------------------------------------------------
 void vtkActor::SetBackfaceProperty(vtkProperty *lut)
 {
   if ( this->BackfaceProperty == lut) 
@@ -299,11 +314,13 @@ void vtkActor::SetBackfaceProperty(vtkProperty *lut)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 vtkProperty *vtkActor::GetBackfaceProperty()
 {
   return this->BackfaceProperty;
 }
 
+//----------------------------------------------------------------------------
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double *vtkActor::GetBounds()
 {
@@ -393,6 +410,7 @@ double *vtkActor::GetBounds()
   return this->Bounds;
 }
 
+//----------------------------------------------------------------------------
 unsigned long int vtkActor::GetMTime()
 {
   unsigned long mTime=this->Superclass::GetMTime();
@@ -419,6 +437,7 @@ unsigned long int vtkActor::GetMTime()
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 unsigned long int vtkActor::GetRedrawMTime()
 {
   unsigned long mTime=this->GetMTime();
@@ -439,6 +458,7 @@ unsigned long int vtkActor::GetRedrawMTime()
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -474,15 +494,22 @@ void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+//----------------------------------------------------------------------------
 // Compatibility methods...to be deprecated in the future.
+#ifndef VTK_LEGACY_REMOVE
 #include "vtkAssemblyNode.h"
 void vtkActor::InitPartTraversal()
 {
+  VTK_LEGACY_REPLACED_BODY(vtkActor::InitPartTraversal, "VTK 5.0",
+                           vtkActor::InitPathTraversal);
   this->InitPathTraversal();
 }
 
+//----------------------------------------------------------------------------
 vtkActor *vtkActor::GetNextPart()
 {
+  VTK_LEGACY_REPLACED_BODY(vtkActor::GetNextPart, "VTK 5.0",
+                           vtkActor::GetNextPath);
   vtkAssemblyPath *path = this->GetNextPath();
   if ( !path )
     {
@@ -499,27 +526,13 @@ vtkActor *vtkActor::GetNextPart()
   return NULL;
 }
 
+//----------------------------------------------------------------------------
 int vtkActor::GetNumberOfParts()
 {
+  VTK_LEGACY_REPLACED_BODY(vtkActor::GetNumberOfParts, "VTK 5.0",
+                           vtkActor::GetNumberOfPaths);
   return this->GetNumberOfPaths();
 }
+#endif
 
 
-void vtkActor::SetMapper(vtkMapper *args)
-{
-  vtkDebugMacro(<< this->GetClassName() << " (" << this         
-  << "): setting Mapper to " << args );     
-  if (this->Mapper != args)                                       
-    {                                                           
-    if (this->Mapper != NULL) 
-      { 
-      this->Mapper->UnRegister(this); 
-      }   
-    this->Mapper = args;                                          
-    if (this->Mapper != NULL) 
-      { 
-      this->Mapper->Register(this); 
-      }     
-    this->Modified();                                           
-    }                                                           
-}
