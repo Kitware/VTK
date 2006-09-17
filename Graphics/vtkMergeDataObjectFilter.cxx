@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkMergeDataObjectFilter, "1.22");
+vtkCxxRevisionMacro(vtkMergeDataObjectFilter, "1.23");
 vtkStandardNewMacro(vtkMergeDataObjectFilter);
 
 //----------------------------------------------------------------------------
@@ -33,6 +33,7 @@ vtkStandardNewMacro(vtkMergeDataObjectFilter);
 vtkMergeDataObjectFilter::vtkMergeDataObjectFilter()
 {
   this->OutputField = VTK_DATA_OBJECT_FIELD;
+  this->SetNumberOfInputPorts(2);
 }
 
 //----------------------------------------------------------------------------

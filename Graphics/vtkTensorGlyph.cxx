@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTensorGlyph, "1.58");
+vtkCxxRevisionMacro(vtkTensorGlyph, "1.59");
 vtkStandardNewMacro(vtkTensorGlyph);
 
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
@@ -49,10 +49,12 @@ vtkTensorGlyph::vtkTensorGlyph()
   this->SetNumberOfInputPorts(2);
 }
 
+//----------------------------------------------------------------------------
 vtkTensorGlyph::~vtkTensorGlyph()
 {
 }
 
+//----------------------------------------------------------------------------
 int vtkTensorGlyph::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -428,6 +430,7 @@ int vtkTensorGlyph::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkTensorGlyph::SetSourceConnection(int id, vtkAlgorithmOutput* algOutput)
 {
   if (id < 0)
@@ -453,11 +456,13 @@ void vtkTensorGlyph::SetSourceConnection(int id, vtkAlgorithmOutput* algOutput)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkTensorGlyph::SetSource(vtkPolyData *source)
 {
   this->SetInput(1, source);
 }
 
+//----------------------------------------------------------------------------
 vtkPolyData *vtkTensorGlyph::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -467,6 +472,7 @@ vtkPolyData *vtkTensorGlyph::GetSource()
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
+//----------------------------------------------------------------------------
 int vtkTensorGlyph::FillInputPortInformation(int port, vtkInformation *info)
 {
   if (port == 1)
@@ -478,6 +484,7 @@ int vtkTensorGlyph::FillInputPortInformation(int port, vtkInformation *info)
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkTensorGlyph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
