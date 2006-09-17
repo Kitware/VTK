@@ -31,7 +31,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.33");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.34");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -494,13 +494,14 @@ int vtkOpenGLImageActor::TextureSizeOK( int size[2] )
                 size[0], size[1],
                 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char *)NULL );
   
-  GLint params[1];  
+  GLint params = 0;
   glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH,
-                             params ); 
+                             &params ); 
 
   // if it does, we will render it later. define the texture here
-  if ( params[0] == 0 )
+  if ( params == 0 )
     {
+    // Can't use that texture
     return 0;
     }
   else
