@@ -88,7 +88,7 @@ public:
   vtkProperty *GetProperty();
   
   // Description:
-  // Create a new property sutible for use with this type of Actor.
+  // Create a new property suitable for use with this type of Actor.
   // For example, a vtkMesaActor should create a vtkMesaProperty 
   // in this function.   The default is to just call vtkProperty::New.
   virtual vtkProperty* MakeProperty();
@@ -99,7 +99,7 @@ public:
   // isn't specified, then the front face properties will be used.  Multiple
   // actors can share one property object.
   void SetBackfaceProperty(vtkProperty *lut);
-  vtkProperty *GetBackfaceProperty();
+  vtkGetObjectMacro(BackfaceProperty,vtkProperty);
 
   // Description: 
   // Set/Get the texture object to control rendering texture maps.  This will

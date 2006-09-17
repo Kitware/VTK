@@ -31,10 +31,12 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.129");
+vtkCxxRevisionMacro(vtkActor, "1.130");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 vtkCxxSetObjectMacro(vtkActor,Mapper,vtkMapper);
+vtkCxxSetObjectMacro(vtkActor,BackfaceProperty,vtkProperty);
+vtkCxxSetObjectMacro(vtkActor,Property,vtkProperty);
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -254,32 +256,10 @@ void vtkActor::ReleaseGraphicsResources(vtkWindow *win)
 }
 
 //----------------------------------------------------------------------------
-void vtkActor::SetProperty(vtkProperty *lut)
-{
-  if ( this->Property == lut) 
-    {
-    return;
-    }
-  if ( this->Property != NULL) 
-    {
-    this->Property->UnRegister(this);
-    this->Property = NULL;
-    }
-  if ( lut != NULL) 
-    {
-    lut->Register(this);
-    }
-  
-  this->Property = lut;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
 vtkProperty* vtkActor::MakeProperty()
 {
   return vtkProperty::New();
 }
-
 
 //----------------------------------------------------------------------------
 vtkProperty *vtkActor::GetProperty()
@@ -291,33 +271,6 @@ vtkProperty *vtkActor::GetProperty()
     p->Delete();
     }
   return this->Property;
-}
-
-//----------------------------------------------------------------------------
-void vtkActor::SetBackfaceProperty(vtkProperty *lut)
-{
-  if ( this->BackfaceProperty == lut) 
-    {
-    return;
-    }
-  if ( this->BackfaceProperty != NULL) 
-    {
-    this->BackfaceProperty->UnRegister(this);
-    this->BackfaceProperty = NULL;
-    }
-  if ( lut != NULL) 
-    {
-    lut->Register(this);
-    }
-  
-  this->BackfaceProperty = lut;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-vtkProperty *vtkActor::GetBackfaceProperty()
-{
-  return this->BackfaceProperty;
 }
 
 //----------------------------------------------------------------------------
@@ -500,7 +453,7 @@ void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
 #include "vtkAssemblyNode.h"
 void vtkActor::InitPartTraversal()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkActor::InitPartTraversal, "VTK 5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkActor::InitPartTraversal, "VTK 5.2",
                            vtkActor::InitPathTraversal);
   this->InitPathTraversal();
 }
@@ -508,7 +461,7 @@ void vtkActor::InitPartTraversal()
 //----------------------------------------------------------------------------
 vtkActor *vtkActor::GetNextPart()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkActor::GetNextPart, "VTK 5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkActor::GetNextPart, "VTK 5.2",
                            vtkActor::GetNextPath);
   vtkAssemblyPath *path = this->GetNextPath();
   if ( !path )
@@ -529,7 +482,7 @@ vtkActor *vtkActor::GetNextPart()
 //----------------------------------------------------------------------------
 int vtkActor::GetNumberOfParts()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkActor::GetNumberOfParts, "VTK 5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkActor::GetNumberOfParts, "VTK 5.2",
                            vtkActor::GetNumberOfPaths);
   return this->GetNumberOfPaths();
 }
