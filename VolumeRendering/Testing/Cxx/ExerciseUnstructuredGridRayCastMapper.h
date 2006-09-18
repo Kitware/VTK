@@ -16,7 +16,7 @@
 #ifndef _ExerciseUnstructuredGridRayCastMapper_h
 #define _ExerciseUnstructuredGridRayCastMapper_h
 
-#include "stdlib.h"
+#include "vtkSystemIncludes.h"
 
 class vtkUnstructuredGridVolumeRayCastFunction;
 class vtkUnstructuredGridVolumeRayIntegrator;
