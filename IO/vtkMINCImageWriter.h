@@ -160,12 +160,14 @@ protected:
   int StrictValidation;
   int DataUpdateExtent[6];
 
-  double InternalValidRange[2];
+  int FileDataType;
+  double FileValidRange[2];
   double InternalRescaleSlope;
   double InternalRescaleIntercept;
-  int InternalDataType;
 
-  vtkStringArray *InternalDimensionNames;
+  int ComputeValidRangeFromScalarRange;
+
+  vtkStringArray *FileDimensionNames;
 
   vtkMINCImageAttributes *ImageAttributes;
 
@@ -183,10 +185,9 @@ protected:
   virtual int IndexFromDimensionName(const char *dimName);
   virtual void ComputePermutationFromOrientation(int permutation[3],
                                                  int flip[3]);
-  virtual int CreateMINCDimensions(int wholeExtent[6], int numComponents,
-                                   int timeStep, int *dimids);
-  virtual int CreateMINCVariables(int wholeExtent[6], int numComponents,
-                                  double origin[3], double spacing[3],
+  virtual int CreateMINCDimensions(vtkImageData *input, int timeStep, 
+                                   int *dimids);
+  virtual int CreateMINCVariables(vtkImageData *input, int timeStep,
                                   int *dimids);
   virtual int WriteMINCFileAttributes(vtkImageData *input, int timeStep);
   virtual int WriteMINCData(vtkImageData *input, int frameNumber);

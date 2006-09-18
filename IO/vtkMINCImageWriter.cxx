@@ -90,7 +90,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.14");
+vtkCxxRevisionMacro(vtkMINCImageWriter, "1.15");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter,DirectionCosines,vtkMatrix4x4);
@@ -105,14 +105,15 @@ vtkMINCImageWriter::vtkMINCImageWriter()
   this->RescaleSlope = 0.0;
   this->InternalRescaleIntercept = 0.0;
   this->InternalRescaleSlope = 0.0;
-  this->InternalDataType = 0;
 
   this->MINCImageType = 0;
   this->MINCImageTypeSigned = 1;
   this->MINCImageMinMaxDims = 0;
 
-  this->InternalValidRange[0] = 0.0;
-  this->InternalValidRange[1] = 1.0;
+  this->FileDataType = 0;
+  this->FileValidRange[0] = 0.0;
+  this->FileValidRange[1] = 1.0;
+  this->ComputeValidRangeFromScalarRange = 0;
 
   this->DataUpdateExtent[0] = 0;
   this->DataUpdateExtent[1] = 0;
@@ -121,7 +122,7 @@ vtkMINCImageWriter::vtkMINCImageWriter()
   this->DataUpdateExtent[4] = 0;
   this->DataUpdateExtent[5] = 0;
 
-  this->InternalDimensionNames = vtkStringArray::New();
+  this->FileDimensionNames = vtkStringArray::New();
 
   this->ImageAttributes = 0;
 
@@ -140,10 +141,10 @@ vtkMINCImageWriter::~vtkMINCImageWriter()
     this->DirectionCosines->Delete();
     this->DirectionCosines = 0;
     }
-  if (this->InternalDimensionNames)
+  if (this->FileDimensionNames)
     {
-    this->InternalDimensionNames->Delete();
-    this->InternalDimensionNames = 0;
+    this->FileDimensionNames->Delete();
+    this->FileDimensionNames = 0;
     }
   if (this->ImageAttributes)
     {
@@ -517,8 +518,12 @@ static const char *vtkMINCDimVarNames[] = {
 
 //-------------------------------------------------------------------------
 int vtkMINCImageWriter::CreateMINCDimensions(
-  int wholeExtent[6], int numComponents, int numTimeSteps, int *dimids)
+  vtkImageData *input, int numTimeSteps, int *dimids)
 {
+  int wholeExtent[6];
+  input->GetWholeExtent(wholeExtent);
+  int numComponents = input->GetNumberOfScalarComponents();
+
   // Create a default dimension order using the direction cosines.
   this->ComputePermutationFromOrientation(this->Permutation, this->Flip);
   const char *defaultdims[3];
@@ -627,11 +632,11 @@ int vtkMINCImageWriter::CreateMINCDimensions(
   int status = NC_NOERR;
 
   int ndim = dimensions.size();
-  this->InternalDimensionNames->SetNumberOfValues(ndim);
+  this->FileDimensionNames->SetNumberOfValues(ndim);
   for (int idim = 0; idim < ndim; idim++)
     {
     const char *dimname = dimensions[idim].c_str();
-    this->InternalDimensionNames->SetValue(idim, dimname);
+    this->FileDimensionNames->SetValue(idim, dimname);
     int dimIndex = this->IndexFromDimensionName(dimname);
     size_t length = numTimeSteps;
     if (dimIndex >= 0 && dimIndex < 3)
@@ -656,8 +661,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(
 
 //-------------------------------------------------------------------------
 int vtkMINCImageWriter::CreateMINCVariables(
-  int wholeExtent[6], int numComponents, double origin[3], double spacing[3],
-  int *dimids)
+  vtkImageData *input, int vtkNotUsed(numTimeSteps), int *dimids)
 {
   // Allowed standard variable names
   static const char *stdVarNames[] = {
@@ -668,15 +672,25 @@ int vtkMINCImageWriter::CreateMINCVariables(
 
   vtkstd::vector<vtkstd::string> variables;
 
+  // Get the information from the input
+  double spacing[3];
+  double origin[3];
+  int wholeExtent[6];
+  int numComponents = input->GetNumberOfScalarComponents();
+  int imageDataType = input->GetScalarType();
+  input->GetSpacing(spacing);
+  input->GetOrigin(origin);
+  input->GetWholeExtent(wholeExtent);
+
   // Add all dimensions onto the list of variables
-  int ndim = this->InternalDimensionNames->GetNumberOfValues();
+  int ndim = this->FileDimensionNames->GetNumberOfValues();
   for (int dimidx = 0; dimidx < ndim; dimidx++)
     {
-    const char *dimname = this->InternalDimensionNames->GetValue(dimidx);
+    const char *dimname = this->FileDimensionNames->GetValue(dimidx);
     // vector_dimension isn't ever included as a variable
     if (strcmp(dimname, MIvector_dimension) != 0)
       {
-      variables.push_back(this->InternalDimensionNames->GetValue(dimidx));
+      variables.push_back(this->FileDimensionNames->GetValue(dimidx));
       }
     }
   // Reset ndim so that it only includes dimensions with variables
@@ -684,16 +698,21 @@ int vtkMINCImageWriter::CreateMINCVariables(
 
   variables.push_back(MIimage);
   variables.push_back(MIrootvariable);
+
   // Not all MINC images need image-min and image-max.
+  this->MINCImageMinMaxDims = 0;
   if (this->InternalRescaleSlope != 0)
     {
-    this->MINCImageMinMaxDims = ndim - 2;
+    // Check whether slice-by-slice rescaling is needed
+    if ((imageDataType == VTK_FLOAT ||
+         imageDataType == VTK_DOUBLE) &&
+        (this->MINCImageType != NC_FLOAT &&
+         this->MINCImageType != NC_DOUBLE))
+      {
+      this->MINCImageMinMaxDims = ndim - 2;
+      }
     variables.push_back(MIimagemin);
     variables.push_back(MIimagemax);
-    }
-  else
-    {
-    this->MINCImageMinMaxDims = 0;
     }
 
   // Add user-defined variables
@@ -934,20 +953,28 @@ int vtkMINCImageWriter::CreateMINCVariables(
             {
             signType = MI_UNSIGNED;
             }
-          double *validRange = this->InternalValidRange;
+          double *validRange = this->FileValidRange;
 
           vtkMINCImageWriterPutAttributeTextMacro(MIcomplete,  MI_TRUE);
-          vtkMINCImageWriterPutAttributeTextMacro(MIsigntype,  signType);
-          // Don't set valid_range if its default is suitable
-          if (this->InternalRescaleSlope == 0 || 
-              (this->ImageAttributes &&
-               vtkDoubleArray::SafeDownCast(
-                 this->ImageAttributes->GetAttributeValueAsArray(
-                   MIimage, MIvalid_range))))
+
+          // Only produce signtype and valid_range for integer data
+          if (this->MINCImageType != NC_FLOAT &&
+              this->MINCImageType != NC_DOUBLE)
             {
-            vtkMINCImageWriterPutAttributeDoubleMacro(MIvalid_range,2,
-                                                      validRange);
+            vtkMINCImageWriterPutAttributeTextMacro(MIsigntype,  signType);
+
+            // Don't set valid_range if the default is suitable
+            if (this->ComputeValidRangeFromScalarRange ||
+                (this->ImageAttributes &&
+                 vtkDoubleArray::SafeDownCast(
+                   this->ImageAttributes->GetAttributeValueAsArray(
+                     MIimage, MIvalid_range))))
+              {
+              vtkMINCImageWriterPutAttributeDoubleMacro(MIvalid_range,2,
+                                                   validRange);
+              }
             }
+
           // The image-min, image-max will not always be present
           if (this->InternalRescaleSlope != 0)
             {
@@ -1082,58 +1109,64 @@ int vtkMINCImageWriter::CreateMINCVariables(
 int vtkMINCImageWriter::WriteMINCFileAttributes(
   vtkImageData* input, int numTimeSteps)
 {
-  // Get the information from the input
-  double spacing[3];
-  double origin[3];
-  int wholeExtent[6];
-  int numComponents = input->GetNumberOfScalarComponents();
-  int dataType = input->GetScalarType();
-  input->GetSpacing(spacing);
-  input->GetOrigin(origin);
-  input->GetWholeExtent(wholeExtent);
+  // Get the image data type
+  int imageDataType = input->GetScalarType();
+  this->FileDataType = imageDataType;
 
   // Get the rescale parameters (check the ImageAttributes if
   // they are not set explicitly)
   this->FindRescale(this->InternalRescaleSlope,
                     this->InternalRescaleIntercept);
-  this->InternalDataType = dataType;
 
-  // If the data type of the input is floating point, but the orginal
-  // data type stored in ImageAttributes was an integer type, then 
-  // we will rescale the floating-point values to integer.
-  if (dataType == VTK_FLOAT || dataType == VTK_DOUBLE)
+  // If the data type of the input is floating point, assume that
+  // the floating-point values represent the real data values
+  if (imageDataType == VTK_FLOAT || imageDataType == VTK_DOUBLE)
     {
+    // If the data type of the input is floating point, but the orginal
+    // data type stored in ImageAttributes was an integer type, then 
+    // we will rescale the floating-point values to integer.
     if (this->ImageAttributes &&
         this->ImageAttributes->GetDataType() != VTK_VOID &&
         this->ImageAttributes->GetDataType() != VTK_FLOAT &&
         this->ImageAttributes->GetDataType() != VTK_DOUBLE)
       {
-      this->InternalDataType = this->ImageAttributes->GetDataType();
-      // Unless RescaleSlope was explicitly set, use unitary rescaling
-      if (this->RescaleSlope == 0)
-        {
-        this->InternalRescaleSlope = 1.0;
-        this->InternalRescaleIntercept = 0.0;
-        }
+      this->FileDataType = this->ImageAttributes->GetDataType();
+      }
+
+    // Unless RescaleSlope was explicitly set, use unitary rescaling
+    if (this->RescaleSlope == 0)
+      {
+      this->InternalRescaleSlope = 1.0;
+      this->InternalRescaleIntercept = 0.0;
       }
     }
 
-  // Some values have to be computed
+  // Convert VTK type to MINC type
   this->MINCImageType = vtkMINCImageWriterConvertVTKTypeToMINCType(
-    this->InternalDataType, this->MINCImageTypeSigned);
-  this->FindMINCValidRange(this->InternalValidRange);
+    this->FileDataType, this->MINCImageTypeSigned);
+
+  // If the file type is the same as the image type, write the
+  // data to disk with no rescaling and set the valid range to
+  // the scalar range.
+  if (this->FileDataType == imageDataType)
+    {
+    this->ComputeValidRangeFromScalarRange = 1;
+    }
+  else
+    {
+    this->ComputeValidRangeFromScalarRange = 0;
+    this->FindMINCValidRange(this->FileValidRange);
+    }
 
   // Create a list of dimensions (don't include vector_dimension)
   int dimids[VTK_MINC_MAX_DIMS];
-  if (this->CreateMINCDimensions(wholeExtent, numComponents, numTimeSteps,
-                                 dimids) == 0)
+  if (this->CreateMINCDimensions(input, numTimeSteps, dimids) == 0)
     {
     return 0;
     }
 
   // Create a list of variables and their attributes
-  if (this->CreateMINCVariables(wholeExtent, numComponents, origin, spacing,
-                                dimids) == 0)
+  if (this->CreateMINCVariables(input, numTimeSteps, dimids) == 0)
     {
     return 0;
     }
@@ -1244,7 +1277,8 @@ void vtkMINCImageWriter::FindRescale(
     return;
     }
 
-  if (this->ImageAttributes &&
+  if (// data type check against float and double
+      this->ImageAttributes &&
       this->ImageAttributes->GetImageMin() &&
       this->ImageAttributes->GetImageMax())
     {
@@ -1554,7 +1588,7 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
   int maxid = 0;
 
   // Whether to rescale the data
-  int rescale = (this->InternalRescaleSlope != 0);
+  int rescale = !this->ComputeValidRangeFromScalarRange;
 
   // Get the image variable.
   status = nc_inq_varid(ncid, MIimage, &varid);
@@ -1584,13 +1618,13 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
   double rescaleIntercept = this->InternalRescaleIntercept;
 
   // Get the dimensions.
-  int ndims = this->InternalDimensionNames->GetNumberOfValues();
+  int ndims = this->FileDimensionNames->GetNumberOfValues();
   int idim = 0;
   int nminmaxdims = this->MINCImageMinMaxDims;
 
   // All of these values will be changed in the following loop
   vtkIdType nchunks = 1;
-  vtkIdType chunkSize = numComponents;
+  vtkIdType chunkSize = 1;
   vtkIdType chunkInc = 0;
 
   // These arrays will be filled in by the following loop
@@ -1604,7 +1638,7 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
     {
     idim--;
 
-    const char *dimName = this->InternalDimensionNames->GetValue(idim);
+    const char *dimName = this->FileDimensionNames->GetValue(idim);
 
     // Find the VTK dimension index.
     int dimIndex = this->IndexFromDimensionName(dimName);
@@ -1630,29 +1664,6 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
         start[idim] = (length[idim] - 1 - (start[idim] + count[idim] - 1));
         permutedInc[idim] = -permutedInc[idim];
         }
-      if (idim < nminmaxdims)
-        {
-        // Number of chunks is product of dimensions in minmax.
-        nchunks *= count[idim];
-
-        // After each chunk, we will increment inPtr by chunkInc.
-        if (chunkInc == 0)
-          {
-          chunkInc = inInc[dimIndex];
-          // If flipped, march in opposite direction
-          if (this->Flip[dimIndex])
-            {
-            inPtr = (void *)((char *)inPtr +
-                             (inExt[2*dimIndex+1] - inExt[2*dimIndex])*
-                             chunkInc*scalarSize);
-            chunkInc = -chunkInc;
-            }
-          }
-        }
-      else
-        {
-        chunkSize *= count[idim];
-        }
       }
     else if (strcmp(dimName, MIvector_dimension) == 0)
       {
@@ -1670,10 +1681,35 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
       count[idim] = 1;
       permutedInc[idim] = 0;
       }
+
+    // Calculate the number of chunks to use
+    if (idim < nminmaxdims)
+      {
+      // Number of chunks is product of dimensions in minmax.
+      nchunks *= count[idim];
+
+      // After each chunk, we will increment inPtr by chunkInc.
+      if (chunkInc == 0)
+        {
+        chunkInc = permutedInc[idim];
+        // If flipped, march in opposite direction
+        if (dimIndex >= 0 && dimIndex < 3 && this->Flip[dimIndex])
+          {
+          inPtr = (void *)((char *)inPtr +
+                           (inExt[2*dimIndex+1] - inExt[2*dimIndex])*
+                           chunkInc*scalarSize);
+          chunkInc = -chunkInc;
+          }
+        }
+      }
+    else
+      {
+      chunkSize *= count[idim];
+      }
     }
 
   // Create a buffer for intermediate results.
-  int fileType = this->InternalDataType;
+  int fileType = this->FileDataType;
   void *buffer = 0;
   switch (fileType)
     {
@@ -1721,12 +1757,13 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
     // Space to store the computed min and max of each chunk.
     double chunkRange[2];
     double validRange[2];
-    validRange[0] = this->InternalValidRange[0];
-    validRange[1] = this->InternalValidRange[1];
+    validRange[0] = this->FileValidRange[0];
+    validRange[1] = this->FileValidRange[1];
 
     // Permute the data and write out the chunk.
     if (scalarType == fileType)
       {
+      // Write without type conversion
       switch (scalarType)
         {
         vtkMINCImageWriterTemplateMacro(
@@ -1737,6 +1774,7 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
       }
     else if (scalarType == VTK_FLOAT)
       {
+      // Write with type conversion from float
       switch (fileType)
         {
         vtkMINCImageWriterTemplateMacro(
@@ -1747,6 +1785,7 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
       }
     else if (scalarType == VTK_DOUBLE)
       {
+      // Write with type conversion from double
       switch (fileType)
         {
         vtkMINCImageWriterTemplateMacro(
@@ -1764,13 +1803,13 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
       }
     else
       {
-      if (chunkRange[0] < this->InternalValidRange[0])
+      if (chunkRange[0] < this->FileValidRange[0])
         {
-        this->InternalValidRange[0] = chunkRange[0];
+        this->FileValidRange[0] = chunkRange[0];
         }
-      if (chunkRange[1] > this->InternalValidRange[1])
+      if (chunkRange[1] > this->FileValidRange[1])
         {
-        this->InternalValidRange[1] = chunkRange[1];
+        this->FileValidRange[1] = chunkRange[1];
         }
       }
 
@@ -1785,6 +1824,12 @@ int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
 
   // Sync the data to disk.
   status = nc_sync(ncid);
+
+  // The trick with image-min and image-max is that if these
+  // values are scalar, they are not be written out here.
+  // Instead, they are computed from the valid_range via
+  // the InternalRescaleIntercept and InternalRescaleSlope and
+  // written out after all the data has been written.
   if (rescale)
     {
     // Write out to the image-min and image-max variables
@@ -1859,12 +1904,13 @@ void vtkMINCImageWriter::Write()
   // Get the whole extent of the input
   input->GetWholeExtent(this->DataUpdateExtent);
 
-  // If RescaleSlope and ValidRange haven't been set, we compute
-  // the ValidRange while writing the data
-  if (this->InternalRescaleSlope == 0)
+  // If the image and file data types are the same, then we
+  // write the data out directly and set the ValidRange to
+  // the actual scalar range of the data.
+  if (this->ComputeValidRangeFromScalarRange)
     {
-    this->InternalValidRange[0] = VTK_DOUBLE_MAX;
-    this->InternalValidRange[1] = VTK_DOUBLE_MIN;
+    this->FileValidRange[0] = VTK_DOUBLE_MAX;
+    this->FileValidRange[1] = VTK_DOUBLE_MIN;
     }
 
   // Find the VTK dimension index for output slices.
@@ -1873,11 +1919,11 @@ void vtkMINCImageWriter::Write()
   int nfound = 0;
   int dimIndex = 0;
   // Go through dimensions until 2 spatial dimension are found
-  int idim = this->InternalDimensionNames->GetNumberOfValues();
+  int idim = this->FileDimensionNames->GetNumberOfValues();
   while (idim)
     {
     idim--;
-    const char *dimName = this->InternalDimensionNames->GetValue(idim);
+    const char *dimName = this->FileDimensionNames->GetValue(idim);
     dimIndex = this->IndexFromDimensionName(dimName);
     if (dimIndex >= 0 && dimIndex < 3)
       {
@@ -1920,22 +1966,60 @@ void vtkMINCImageWriter::Write()
       }
     }
 
-  // If we calculated the valid_range from the data, write it
-  if (this->MINCFileId != 0 &&
-      this->InternalRescaleSlope == 0)
+  if (this->MINCFileId != 0)
     {
     int ncid = this->MINCFileId;
-    int varid = 0;
-    int status = nc_inq_varid(ncid, MIimage, &varid);
-    if (status == NC_NOERR)
+
+    // If file type is the same as image type, write the
+    // scalar range as the valid_range unless the data
+    // is floating-point
+    if (this->FileDataType != VTK_FLOAT &&
+        this->FileDataType != VTK_DOUBLE &&
+        this->ComputeValidRangeFromScalarRange)
       {
-      status = nc_put_att_double(ncid, varid, MIvalid_range, NC_DOUBLE, 2,
-                                 this->InternalValidRange);
+      // If we calculated the valid_range from the data, write it
+      int varid = 0;
+      int status = nc_inq_varid(ncid, MIimage, &varid);
+      if (status == NC_NOERR)
+        {
+        status = nc_put_att_double(ncid, varid, MIvalid_range, NC_DOUBLE, 2,
+                                   this->FileValidRange);
+        }
+      if (status != NC_NOERR)
+        {
+        vtkMINCImageWriterFailAndClose(ncid, status);
+        this->MINCFileId = 0;
+        }
       }
-    if (status != NC_NOERR)
+    if (this->InternalRescaleSlope != 0 &&
+        this->ComputeValidRangeFromScalarRange)
       {
-      vtkMINCImageWriterFailAndClose(ncid, status);
-      this->MINCFileId = 0;
+      // Write out scalar image-min and image-max values
+      double imageMin = 
+        this->FileValidRange[0]*this->InternalRescaleSlope +
+        this->InternalRescaleIntercept;
+      double imageMax = 
+        this->FileValidRange[1]*this->InternalRescaleSlope +
+        this->InternalRescaleIntercept;
+
+      static size_t start[] = { 0 };
+      static size_t count[] = { 1 };
+
+      int minid = 0;
+      int maxid = 0;
+      int status = nc_inq_varid(ncid, MIimagemin, &minid);
+      if (status == NC_NOERR)
+        {
+        status = nc_put_vara_double(ncid, minid, start, count, &imageMin);
+        }
+      if (status == NC_NOERR)
+        {
+        status = nc_inq_varid(ncid, MIimagemax, &maxid);
+        }
+      if (status == NC_NOERR)
+        {
+        nc_put_vara_double(ncid, maxid, start, count, &imageMax);
+        }
       }
     }
 
