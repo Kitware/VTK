@@ -217,11 +217,13 @@ int ex_put_coord (int   exoid,
         const void *coor;
         char *which;
         int status;
+
+        coor = x_coor;
+        which = "X";
+        coordid = coordidx;
        
         if (i == 0) {
-          coor = x_coor;
-          which = "X";
-          coordid = coordidx;
+          ;
         } else if (i == 1) {
           coor = y_coor;
           which = "Y";

@@ -147,11 +147,11 @@ int ex_cvt_nodes_to_sides(int exoid,
   int i, j, k, m, n;
   int  num_side_sets, num_elem_blks;
   int tot_num_elem = 0, tot_num_ss_elem = 0, elem_num = 0, ndim;
-  int *elem_blk_ids, *connect;
+  int *elem_blk_ids, *connect = 0;
   int *ss_elem_ndx, *ss_elem_node_ndx, *ss_parm_ndx;
   int elem_ctr, node_ctr, elem_num_pos;
   int num_elem_in_blk, num_nodes_per_elem, num_node_per_side, num_attr;
-  int *same_elem_type, el_type;
+  int *same_elem_type, el_type = 0;
   float fdum;
   char *cdum, elem_type[MAX_STR_LENGTH+1];
 
