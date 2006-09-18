@@ -211,7 +211,7 @@ protected:
   vtkIdType FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri,
                          double tol, vtkIdType nei[3], vtkIdList *neighbors, int& status);
   void CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2,
-                 vtkIdType tri);
+                 vtkIdType tri, int depth);
 
   void UpdateTriangles(vtkIdType meshPtId); //update all points connected to this point
   void UpdateTriangle(vtkIdType triId, vtkIdType p1, vtkIdType p2, vtkIdType p3);
