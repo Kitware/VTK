@@ -50,13 +50,13 @@ POSSIBILITY OF SUCH DAMAGES.
 // MINC is a NetCDF-based medical image file format that was developed
 // at the Montreal Neurological Institute in 1992. 
 // This class will read a MINC file into VTK, rearranging the data to
-// match the VTK x, y, and z dimensions and optionally rescaling
-// real-valued data to VTK_FLOAT via the SetRescaleRealValues()
-// method.  If this method is not used, then the data will be stored
-// in its original data type and the GetRescaleSlope(),
-// GetRescaleIntercept() method can be used to retrieve global
-// rescaling parameters.  If the original file had a time dimension,
-// the SetTimeStep() method can be used to specify a time step to read.
+// match the VTK x, y, and z dimensions, and optionally rescaling
+// real-valued data to VTK_FLOAT if RescaleRealValuesOn() is set.
+// If RescaleRealValues is off, then the data will be stored in its
+// original data type and the GetRescaleSlope(), GetRescaleIntercept()
+// method can be used to retrieve global rescaling parameters.
+// If the original file had a time dimension, the SetTimeStep() method
+// can be used to specify a time step to read.
 // All of the original header information can be accessed though the
 // GetImageAttributes() method.
 // .SECTION See Also
@@ -126,10 +126,10 @@ public:
   vtkGetMacro(RescaleRealValues, int);
 
   // Description:
-  // Get the range of the output as specified in the header.
-  // The ScalarRange of the output data will be equal to this
-  // in most cases, but if the MINC file stores an incorrect
-  // valid_range then the DataRange will be incorrect.
+  // Get the scalar range of the output from the information in
+  // the file header.  This is more efficient that computing the
+  // scalar range, but in some cases the MINC file stores an
+  // incorrect valid_range and the DataRange will be incorrect.
   virtual double *GetDataRange();
   virtual void GetDataRange(double range[2]) {
     double *r = this->GetDataRange();

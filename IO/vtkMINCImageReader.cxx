@@ -78,7 +78,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageReader, "1.11");
+vtkCxxRevisionMacro(vtkMINCImageReader, "1.12");
 vtkStandardNewMacro(vtkMINCImageReader);
 
 //-------------------------------------------------------------------------
@@ -1170,6 +1170,7 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
   int ndims = dimensionNames->GetNumberOfValues();
   int idim = 0;
   int nminmaxdims = this->ImageAttributes->GetNumberOfImageMinMaxDimensions();
+  int nchunkdims = ndims - nminmaxdims;
   vtkIdType minmaxSize = 0;
   if (this->ImageAttributes->GetImageMin())
     {
@@ -1179,7 +1180,7 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
   // All of these values will be changed in the following loop
   vtkIdType nchunks = 1;
   vtkIdType numTimeSteps = 1;
-  vtkIdType chunkSize = numComponents;
+  vtkIdType chunkSize = 1;
   vtkIdType chunkInc = 0;
 
   // These arrays will be filled in by the following loop
@@ -1206,21 +1207,6 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
       start[idim] = outExt[2*dimIndex];
       count[idim] = outExt[2*dimIndex+1] - outExt[2*dimIndex] + 1;
       permutedInc[idim] = outInc[dimIndex];
-      if (idim < nminmaxdims)
-        {
-        // Number of chunks is product of dimensions in minmax.
-        nchunks *= count[idim];
-
-        // After each chunk, we will increment outPtr by chunkInc.
-        if (chunkInc == 0)
-          {
-          chunkInc = outInc[dimIndex];
-          }
-        }
-      else
-        {
-        chunkSize *= count[idim];
-        }
       }
     else if (strcmp(dimName, MIvector_dimension) == 0)
       {
@@ -1236,6 +1222,25 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
       count[idim] = 1;
       numTimeSteps *= dimLength;
       permutedInc[idim] = 0;
+      }
+
+    // For scalar minmax, use chunk sizes of 65536 or less
+    if (idim < nminmaxdims ||
+        (nminmaxdims == 0 && chunkSize*count[idim] > 65536))
+      {
+      // Number of chunks is product of dimensions in minmax.
+      nchunks *= count[idim];
+
+      // After each chunk, we will increment outPtr by chunkInc.
+      if (chunkInc == 0)
+        {
+        nchunkdims = ndims - idim - 1;
+        chunkInc = permutedInc[idim];
+        }
+      }
+    else
+      {
+      chunkSize *= count[idim];
       }
     }
 
@@ -1274,13 +1279,16 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
     vtkIdType minmaxIdx = 0;
     vtkIdType minmaxInc = 1;
     vtkIdType chunkProd = 1;
-    for (idim = nminmaxdims; idim > 0; )
+    for (idim = ndims - nchunkdims; idim > 0; )
       {
       idim--;
       start2[idim] = start[idim] + (ichunk / chunkProd) % count[idim];
       count2[idim] = 1;
-      minmaxIdx += start2[idim]*minmaxInc;
-      minmaxInc *= length[idim];
+      if (idim < nminmaxdims)
+        {
+        minmaxIdx += start2[idim]*minmaxInc;
+        minmaxInc *= length[idim];
+        }
       chunkProd *= count[idim];
       }
 
