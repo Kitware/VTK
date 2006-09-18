@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.22");
+vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.22.12.1");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -388,8 +388,13 @@ vtkIdType vtkGreedyTerrainDecimation::FindTriangle(double x[3], vtkIdType ptIds[
 // question; x is the coordinates of the inserted point; tri is the current
 // triangle id.
 void vtkGreedyTerrainDecimation::CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1,
-                                           vtkIdType p2, vtkIdType tri)
+                                           vtkIdType p2, vtkIdType tri, int depth)
 {
+  if ( depth > 15 )
+    {
+    return;
+    }
+
   int i;
   vtkIdType *pts, npts, numNei, nei, p3;
   double x1[3], x2[3], x3[3];
@@ -437,8 +442,8 @@ void vtkGreedyTerrainDecimation::CheckEdge(vtkIdType ptId, double x[3], vtkIdTyp
       this->Mesh->ReplaceCell(nei,3,swapTri);
 
       // two new edges become suspect
-      this->CheckEdge(ptId, x, p3, p2, tri);
-      this->CheckEdge(ptId, x, p1, p3, nei);
+      this->CheckEdge(ptId, x, p3, p2, tri, ++depth);
+      this->CheckEdge(ptId, x, p1, p3, nei,   depth);
 
       }//in circle
     }//interior edge
@@ -501,9 +506,9 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
 
       // Check edge neighbors for Delaunay criterion. If not satisfied, flip
       // edge diagonal. (This is done recursively.)
-      this->CheckEdge(ptId, x, pts[0], pts[1], tri[0]);
-      this->CheckEdge(ptId, x, pts[1], pts[2], tri[1]);
-      this->CheckEdge(ptId, x, pts[2], pts[0], tri[2]);
+      this->CheckEdge(ptId, x, pts[0], pts[1], tri[0], 0);
+      this->CheckEdge(ptId, x, pts[1], pts[2], tri[1], 0);
+      this->CheckEdge(ptId, x, pts[2], pts[0], tri[2], 0);
       }
 
     else if ( status == VTK_INTERIOR_EDGE ) // on interior triangle edge; has a neighbor
@@ -550,7 +555,7 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
       // Check edge neighbors for Delaunay criterion.
       for ( i=0; i<4; i++ )
         {
-        this->CheckEdge (ptId, x, nodes[i][1], nodes[i][2], tri[i]);
+        this->CheckEdge (ptId, x, nodes[i][1], nodes[i][2], tri[i], 0);
         }
       }
 
@@ -582,7 +587,7 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
       // Check edge neighbors for Delaunay criterion.
       for ( i=0; i<2; i++ )
         {
-        this->CheckEdge (ptId, x, nodes[i][1], nodes[i][2], tri[i]);
+        this->CheckEdge (ptId, x, nodes[i][1], nodes[i][2], tri[i], 0);
         }
       }
     
