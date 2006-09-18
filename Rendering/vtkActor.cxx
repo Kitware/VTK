@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.130");
+vtkCxxRevisionMacro(vtkActor, "1.131");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 vtkCxxSetObjectMacro(vtkActor,Mapper,vtkMapper);
@@ -434,6 +434,16 @@ void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Property: (none)\n";
+    }
+
+  if ( this->BackfaceProperty )
+    {
+    os << indent << "BackfaceProperty:\n";
+    this->BackfaceProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "BackfaceProperty: (none)\n";
     }
 
   if ( this->Texture )
