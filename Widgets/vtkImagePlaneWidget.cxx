@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.6");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.7");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -153,17 +153,17 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
 
   // Set up actions
 
-  this->LeftButtonAction = vtkImagePlaneWidget::CURSOR_ACTION;
-  this->MiddleButtonAction = vtkImagePlaneWidget::SLICE_MOTION_ACTION;
-  this->RightButtonAction = vtkImagePlaneWidget::WINDOW_LEVEL_ACTION;
+  this->LeftButtonAction = vtkImagePlaneWidget::VTK_CURSOR_ACTION;
+  this->MiddleButtonAction = vtkImagePlaneWidget::VTK_SLICE_MOTION_ACTION;
+  this->RightButtonAction = vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION;
 
   // Set up modifiers
 
-  this->LeftButtonAutoModifier = vtkImagePlaneWidget::NO_MODIFIER;
-  this->MiddleButtonAutoModifier = vtkImagePlaneWidget::NO_MODIFIER;
-  this->RightButtonAutoModifier = vtkImagePlaneWidget::NO_MODIFIER;
+  this->LeftButtonAutoModifier = vtkImagePlaneWidget::VTK_NO_MODIFIER;
+  this->MiddleButtonAutoModifier = vtkImagePlaneWidget::VTK_NO_MODIFIER;
+  this->RightButtonAutoModifier = vtkImagePlaneWidget::VTK_NO_MODIFIER;
 
-  this->LastButtonPressed = vtkImagePlaneWidget::NO_BUTTON;
+  this->LastButtonPressed = vtkImagePlaneWidget::VTK_NO_BUTTON;
 
   this->TextureVisibility = 1;
 }
@@ -378,33 +378,33 @@ void vtkImagePlaneWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
   vtkImagePlaneWidget* self =
     reinterpret_cast<vtkImagePlaneWidget *>( clientdata );
 
-  self->LastButtonPressed = vtkImagePlaneWidget::NO_BUTTON;
+  self->LastButtonPressed = vtkImagePlaneWidget::VTK_NO_BUTTON;
 
   //okay, let's do the right thing
   switch ( event )
     {
     case vtkCommand::LeftButtonPressEvent:
-      self->LastButtonPressed = vtkImagePlaneWidget::LEFT_BUTTON;
+      self->LastButtonPressed = vtkImagePlaneWidget::VTK_LEFT_BUTTON;
       self->OnLeftButtonDown();
       break;
     case vtkCommand::LeftButtonReleaseEvent:
-      self->LastButtonPressed = vtkImagePlaneWidget::LEFT_BUTTON;
+      self->LastButtonPressed = vtkImagePlaneWidget::VTK_LEFT_BUTTON;
       self->OnLeftButtonUp();
       break;
     case vtkCommand::MiddleButtonPressEvent:
-      self->LastButtonPressed = vtkImagePlaneWidget::MIDDLE_BUTTON;
+      self->LastButtonPressed = vtkImagePlaneWidget::VTK_MIDDLE_BUTTON;
       self->OnMiddleButtonDown();
       break;
     case vtkCommand::MiddleButtonReleaseEvent:
-      self->LastButtonPressed = vtkImagePlaneWidget::MIDDLE_BUTTON;
+      self->LastButtonPressed = vtkImagePlaneWidget::VTK_MIDDLE_BUTTON;
       self->OnMiddleButtonUp();
       break;
     case vtkCommand::RightButtonPressEvent:
-      self->LastButtonPressed = vtkImagePlaneWidget::RIGHT_BUTTON;
+      self->LastButtonPressed = vtkImagePlaneWidget::VTK_RIGHT_BUTTON;
       self->OnRightButtonDown();
       break;
     case vtkCommand::RightButtonReleaseEvent:
-      self->LastButtonPressed = vtkImagePlaneWidget::RIGHT_BUTTON;
+      self->LastButtonPressed = vtkImagePlaneWidget::VTK_RIGHT_BUTTON;
       self->OnRightButtonUp();
       break;
     case vtkCommand::MouseMoveEvent:
@@ -631,13 +631,13 @@ void vtkImagePlaneWidget::OnLeftButtonDown()
 {
   switch (this->LeftButtonAction)
     {
-    case vtkImagePlaneWidget::CURSOR_ACTION:
+    case vtkImagePlaneWidget::VTK_CURSOR_ACTION:
       this->StartCursor();
       break;
-    case vtkImagePlaneWidget::SLICE_MOTION_ACTION:
+    case vtkImagePlaneWidget::VTK_SLICE_MOTION_ACTION:
       this->StartSliceMotion();
       break;
-    case vtkImagePlaneWidget::WINDOW_LEVEL_ACTION:
+    case vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION:
       this->StartWindowLevel();
       break;
     }
@@ -648,13 +648,13 @@ void vtkImagePlaneWidget::OnLeftButtonUp()
 {
   switch (this->LeftButtonAction)
     {
-    case vtkImagePlaneWidget::CURSOR_ACTION:
+    case vtkImagePlaneWidget::VTK_CURSOR_ACTION:
       this->StopCursor();
       break;
-    case vtkImagePlaneWidget::SLICE_MOTION_ACTION:
+    case vtkImagePlaneWidget::VTK_SLICE_MOTION_ACTION:
       this->StopSliceMotion();
       break;
-    case vtkImagePlaneWidget::WINDOW_LEVEL_ACTION:
+    case vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION:
       this->StopWindowLevel();
       break;
     }
@@ -665,13 +665,13 @@ void vtkImagePlaneWidget::OnMiddleButtonDown()
 {
   switch (this->MiddleButtonAction)
     {
-    case vtkImagePlaneWidget::CURSOR_ACTION:
+    case vtkImagePlaneWidget::VTK_CURSOR_ACTION:
       this->StartCursor();
       break;
-    case vtkImagePlaneWidget::SLICE_MOTION_ACTION:
+    case vtkImagePlaneWidget::VTK_SLICE_MOTION_ACTION:
       this->StartSliceMotion();
       break;
-    case vtkImagePlaneWidget::WINDOW_LEVEL_ACTION:
+    case vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION:
       this->StartWindowLevel();
       break;
     }
@@ -682,13 +682,13 @@ void vtkImagePlaneWidget::OnMiddleButtonUp()
 {
   switch (this->MiddleButtonAction)
     {
-    case vtkImagePlaneWidget::CURSOR_ACTION:
+    case vtkImagePlaneWidget::VTK_CURSOR_ACTION:
       this->StopCursor();
       break;
-    case vtkImagePlaneWidget::SLICE_MOTION_ACTION:
+    case vtkImagePlaneWidget::VTK_SLICE_MOTION_ACTION:
       this->StopSliceMotion();
       break;
-    case vtkImagePlaneWidget::WINDOW_LEVEL_ACTION:
+    case vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION:
       this->StopWindowLevel();
       break;
     }
@@ -699,13 +699,13 @@ void vtkImagePlaneWidget::OnRightButtonDown()
 {
   switch (this->RightButtonAction)
     {
-    case vtkImagePlaneWidget::CURSOR_ACTION:
+    case vtkImagePlaneWidget::VTK_CURSOR_ACTION:
       this->StartCursor();
       break;
-    case vtkImagePlaneWidget::SLICE_MOTION_ACTION:
+    case vtkImagePlaneWidget::VTK_SLICE_MOTION_ACTION:
       this->StartSliceMotion();
       break;
-    case vtkImagePlaneWidget::WINDOW_LEVEL_ACTION:
+    case vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION:
       this->StartWindowLevel();
       break;
     }
@@ -716,13 +716,13 @@ void vtkImagePlaneWidget::OnRightButtonUp()
 {
   switch (this->RightButtonAction)
     {
-    case vtkImagePlaneWidget::CURSOR_ACTION:
+    case vtkImagePlaneWidget::VTK_CURSOR_ACTION:
       this->StopCursor();
       break;
-    case vtkImagePlaneWidget::SLICE_MOTION_ACTION:
+    case vtkImagePlaneWidget::VTK_SLICE_MOTION_ACTION:
       this->StopSliceMotion();
       break;
-    case vtkImagePlaneWidget::WINDOW_LEVEL_ACTION:
+    case vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION:
       this->StopWindowLevel();
       break;
     }
@@ -2242,20 +2242,20 @@ void vtkImagePlaneWidget::AdjustState()
   int *auto_modifier = NULL;
   switch (this->LastButtonPressed)
     {
-    case vtkImagePlaneWidget::LEFT_BUTTON:
+    case vtkImagePlaneWidget::VTK_LEFT_BUTTON:
       auto_modifier = &this->LeftButtonAutoModifier;
       break;
-    case vtkImagePlaneWidget::MIDDLE_BUTTON:
+    case vtkImagePlaneWidget::VTK_MIDDLE_BUTTON:
       auto_modifier = &this->MiddleButtonAutoModifier;
       break;
-    case vtkImagePlaneWidget::RIGHT_BUTTON:
+    case vtkImagePlaneWidget::VTK_RIGHT_BUTTON:
       auto_modifier = &this->RightButtonAutoModifier;
       break;
     }
 
   if (this->Interactor->GetShiftKey() || 
       (auto_modifier && 
-       (*auto_modifier & vtkImagePlaneWidget::SHIFT_MODIFIER)))
+       (*auto_modifier & vtkImagePlaneWidget::VTK_SHIFT_MODIFIER)))
     {
     this->State = vtkImagePlaneWidget::Scaling;
     return;
@@ -2342,7 +2342,7 @@ void vtkImagePlaneWidget::AdjustState()
 
   if (this->Interactor->GetControlKey() ||
       (auto_modifier && 
-       (*auto_modifier & vtkImagePlaneWidget::CONTROL_MODIFIER)))
+       (*auto_modifier & vtkImagePlaneWidget::VTK_CONTROL_MODIFIER)))
     {
     this->State = vtkImagePlaneWidget::Moving;
     }

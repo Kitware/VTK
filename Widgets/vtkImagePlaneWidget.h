@@ -398,38 +398,38 @@ public:
   //BTX
   enum
   {
-    CURSOR_ACTION       = 0,
-    SLICE_MOTION_ACTION = 1,
-    WINDOW_LEVEL_ACTION = 2
+    VTK_CURSOR_ACTION       = 0,
+    VTK_SLICE_MOTION_ACTION = 1,
+    VTK_WINDOW_LEVEL_ACTION = 2
   };
   //ETX
-  vtkSetClampMacro(LeftButtonAction,int, CURSOR_ACTION, WINDOW_LEVEL_ACTION);
+  vtkSetClampMacro(LeftButtonAction,int, VTK_CURSOR_ACTION, VTK_WINDOW_LEVEL_ACTION);
   vtkGetMacro(LeftButtonAction, int);
-  vtkSetClampMacro(MiddleButtonAction,int, CURSOR_ACTION, WINDOW_LEVEL_ACTION);
+  vtkSetClampMacro(MiddleButtonAction,int, VTK_CURSOR_ACTION, VTK_WINDOW_LEVEL_ACTION);
   vtkGetMacro(MiddleButtonAction, int);
-  vtkSetClampMacro(RightButtonAction,int, CURSOR_ACTION, WINDOW_LEVEL_ACTION);
+  vtkSetClampMacro(RightButtonAction,int, VTK_CURSOR_ACTION, VTK_WINDOW_LEVEL_ACTION);
   vtkGetMacro(RightButtonAction, int);
 
   // Description:
   // Set the auto-modifiers associated to buttons.
   // This allows users to bind some buttons to actions that are usually
   // triggered by a key modifier. For example, if you do not need cursoring,
-  // you can bind the left button action to SLICE_MOTION_ACTION (see above) 
-  // and the left button auto modifier to CONTROL_MODIFIER: you end up with
+  // you can bind the left button action to VTK_SLICE_MOTION_ACTION (see above) 
+  // and the left button auto modifier to VTK_CONTROL_MODIFIER: you end up with
   // the left button controling panning without pressing a key.
   //BTX
   enum
   {
-    NO_MODIFIER         = 0,
-    SHIFT_MODIFIER      = 1,
-    CONTROL_MODIFIER    = 2
+    VTK_NO_MODIFIER         = 0,
+    VTK_SHIFT_MODIFIER      = 1,
+    VTK_CONTROL_MODIFIER    = 2
   };
   //ETX
-  vtkSetClampMacro(LeftButtonAutoModifier,int, NO_MODIFIER, CONTROL_MODIFIER);
+  vtkSetClampMacro(LeftButtonAutoModifier,int, VTK_NO_MODIFIER, VTK_CONTROL_MODIFIER);
   vtkGetMacro(LeftButtonAutoModifier, int);
-  vtkSetClampMacro(MiddleButtonAutoModifier,int, NO_MODIFIER, CONTROL_MODIFIER);
+  vtkSetClampMacro(MiddleButtonAutoModifier,int, VTK_NO_MODIFIER, VTK_CONTROL_MODIFIER);
   vtkGetMacro(MiddleButtonAutoModifier, int);
-  vtkSetClampMacro(RightButtonAutoModifier,int, NO_MODIFIER, CONTROL_MODIFIER);
+  vtkSetClampMacro(RightButtonAutoModifier,int, VTK_NO_MODIFIER, VTK_CONTROL_MODIFIER);
   vtkGetMacro(RightButtonAutoModifier, int);
 
 protected:
@@ -449,10 +449,10 @@ protected:
   //BTX
   enum
   {
-    NO_BUTTON     = 0,
-    LEFT_BUTTON   = 1,
-    MIDDLE_BUTTON = 2,
-    RIGHT_BUTTON  = 3
+    VTK_NO_BUTTON     = 0,
+    VTK_LEFT_BUTTON   = 1,
+    VTK_MIDDLE_BUTTON = 2,
+    VTK_RIGHT_BUTTON  = 3
   };
   //ETX
   int LastButtonPressed;
