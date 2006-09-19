@@ -26,7 +26,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.69");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.70");
 #endif
 
 #define MAX_LIGHTS 8
@@ -150,6 +150,7 @@ void vtkOpenGLRenderWindow::OpenGLInit()
 
   glEnable(GL_NORMALIZE);
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+  glAlphaFunc(GL_GREATER,0);
 }
 
 
