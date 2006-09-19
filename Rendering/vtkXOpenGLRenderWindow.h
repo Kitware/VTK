@@ -244,9 +244,9 @@ protected:
 
   void CreateAWindow();
   void DestroyWindow();
-  void CreateOffScreenWindow(int x, int y);
+  void CreateOffScreenWindow(int width, int height);
   void DestroyOffScreenWindow();
-  void ResizeOffScreenWindow(int x, int y);
+  void ResizeOffScreenWindow(int width, int height);
 
   
 private:

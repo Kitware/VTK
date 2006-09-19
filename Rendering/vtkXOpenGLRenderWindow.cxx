@@ -106,7 +106,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.76");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.77");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -916,14 +916,14 @@ void vtkXOpenGLRenderWindow::DestroyOffScreenWindow()
     }
 }
 
-void vtkXOpenGLRenderWindow::ResizeOffScreenWindow(int x, int y)
+void vtkXOpenGLRenderWindow::ResizeOffScreenWindow(int width, int height)
 {
   if(!this->OffScreenRendering)
     {
     return;
     }
 
-  if(this->Size[0] == x && this->Size[1] == y)
+  if(this->Size[0] == width && this->Size[1] == height)
     {
     return;
     }
@@ -936,7 +936,7 @@ void vtkXOpenGLRenderWindow::ResizeOffScreenWindow(int x, int y)
           )
     {
     this->DestroyOffScreenWindow();
-    this->CreateOffScreenWindow(x, y);
+    this->CreateOffScreenWindow(width, height);
     }
 }
 
@@ -1106,22 +1106,22 @@ void vtkXOpenGLRenderWindow::Start(void)
 
 
 // Specify the size of the rendering window.
-void vtkXOpenGLRenderWindow::SetSize(int x,int y)
+void vtkXOpenGLRenderWindow::SetSize(int width,int height)
 {
-  if ((this->Size[0] != x)||(this->Size[1] != y))
+  if ((this->Size[0] != width)||(this->Size[1] != height))
     {
     this->Modified();
-    this->Size[0] = x;
-    this->Size[1] = y;
+    this->Size[0] = width;
+    this->Size[1] = height;
     }
 
   if(this->OffScreenRendering)
     {
-    this->ResizeOffScreenWindow(x,y);
+    this->ResizeOffScreenWindow(width,height);
     }
   else if(this->WindowId && this->Mapped)
     {
-    XResizeWindow(this->DisplayId,this->WindowId,x,y);
+    XResizeWindow(this->DisplayId,this->WindowId,width,height);
     XSync(this->DisplayId,False);
     }
 }
