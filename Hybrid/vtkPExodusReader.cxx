@@ -52,7 +52,7 @@
 #define DEBUG 0
 #define vtkPExodusReaderMAXPATHLEN 2048
 
-vtkCxxRevisionMacro(vtkPExodusReader, "1.8");
+vtkCxxRevisionMacro(vtkPExodusReader, "1.9");
 vtkStandardNewMacro(vtkPExodusReader);
 
 class vtkPExodusReaderUpdateProgress : public vtkCommand
@@ -195,6 +195,7 @@ int vtkPExodusReader::RequestInformation(
       new char[strlen(this->FilePattern) + strlen(this->FilePrefix) + 20];  
     sprintf(nm, this->FilePattern, this->FilePrefix, this->FileRange[0]);
     this->Superclass::SetFileName(nm);
+    delete [] nm;
     }
   else if (newName)
     {
