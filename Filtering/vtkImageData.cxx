@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.23");
+vtkCxxRevisionMacro(vtkImageData, "1.24");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1510,7 +1510,7 @@ void vtkImageData::AllocateScalars()
   int newType = VTK_DOUBLE;
   int newNumComp = 1;
 
-  // basically allocate the scalars based om the
+  // basically allocate the scalars based on the
   this->GetProducerPort();
   if(vtkInformation* info = this->GetPipelineInformation())
     {
