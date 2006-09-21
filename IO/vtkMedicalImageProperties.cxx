@@ -22,7 +22,7 @@
 #include <assert.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.22");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.23");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -365,13 +365,13 @@ const char *vtkMedicalImageProperties::GetInstanceUIDFromSliceID(int volumeidx, 
 void vtkMedicalImageProperties::SetInstanceUIDFromSliceID(int volumeidx, int sliceid,
  const char *uid)
 {
-  return this->Internals->SetUID(volumeidx,sliceid, uid);
+  this->Internals->SetUID(volumeidx,sliceid, uid);
 }
 
 //----------------------------------------------------------------------------
 void vtkMedicalImageProperties::SetOrientationType(int volumeidx, int orientation)
 {
-  return this->Internals->SetOrientation(volumeidx, orientation);
+  this->Internals->SetOrientation(volumeidx, orientation);
 }
 
 //----------------------------------------------------------------------------
