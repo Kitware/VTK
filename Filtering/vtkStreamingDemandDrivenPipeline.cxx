@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.42");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.43");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -671,7 +671,7 @@ int vtkStreamingDemandDrivenPipeline
     // exists.
     if(!outInfo->Has(TIME_STEPS()) && !outInfo->Has(TIME_RANGE()))
       {
-      vtkErrorMacro("No time steps ir time range been set in the "
+      vtkErrorMacro("No time steps or time range been set in the "
                     "information for output port " << outputPort
                     << " on algorithm " << this->Algorithm->GetClassName()
                     << "(" << this->Algorithm << ").");
@@ -1192,10 +1192,10 @@ int vtkStreamingDemandDrivenPipeline
     return 0;
     }
   int modified = 0;
-  if (info->Has(TIME_STEPS()))
+  if (info->Has(UPDATE_TIME_STEPS()))
     {
-    int oldLength = info->Length(TIME_STEPS());
-    double *oldSteps = info->Get(TIME_STEPS());
+    int oldLength = info->Length(UPDATE_TIME_STEPS());
+    double *oldSteps = info->Get(UPDATE_TIME_STEPS());
     if (length == oldLength)
       {
       int i;
