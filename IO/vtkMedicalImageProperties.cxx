@@ -19,9 +19,10 @@
 #include <vtksys/stl/vector>
 #include <time.h> // for strftime
 #include <ctype.h> // for isdigit
+#include <assert.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.21");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.22");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -40,6 +41,71 @@ public:
   typedef vtkstd::vector<WindowLevelPreset>::iterator WindowLevelPresetPoolIterator;
 
   WindowLevelPresetPoolType WindowLevelPresetPool;
+
+// It is also useful to have a mapping from DICOM UID to slice id, vor application like VolView
+  typedef vtkstd::vector<vtkstd::string> SliceUIDType;
+  typedef vtkstd::vector< SliceUIDType > VolumeSliceUIDType;
+  VolumeSliceUIDType UID;
+  void SetNumberOfVolumes(unsigned int n)
+    {
+    UID.resize(n);
+    Orientation.resize(n);
+    }
+  void SetNumberOfSlices(unsigned int vol, unsigned int n)
+    {
+    assert( vol < UID.size() );
+    UID[vol].resize(n);
+    }
+  void SetUID(unsigned int vol, unsigned int slice, const char *uid)
+    {
+    SetNumberOfVolumes( vol + 1 );
+    SetNumberOfSlices( vol, slice + 1 );
+    UID[vol][slice] = uid;
+    }
+  const char *GetUID(unsigned int vol, unsigned int slice)
+    {
+    assert( vol < UID.size() );
+    assert( slice< UID[vol].size() );
+    return UID[vol][slice].c_str();
+    }
+  void Print(ostream &os, vtkIndent indent)
+    {
+    os << indent << "UID(s): ";
+    for( VolumeSliceUIDType::const_iterator it = UID.begin();
+      it != UID.end();
+      ++it)
+      {
+      for( SliceUIDType::const_iterator it2 = it->begin();
+        it2 != it->end();
+        ++it2)
+        {
+        os << indent << "  " << *it2 << endl;
+        }
+      }
+    os << indent << "Orientation(s): ";
+    for( vtkstd::vector<unsigned int>::const_iterator it = Orientation.begin();
+      it != Orientation.end(); ++it)
+      {
+      os << indent << *it << endl;
+      }
+    }
+  vtkstd::vector<unsigned int> Orientation;
+  void SetOrientation(unsigned int vol, unsigned int ori)
+    {
+    // see SetNumberOfVolumes for allocation
+    Orientation[vol] = ori;
+    }
+  unsigned int GetOrientation(unsigned int vol)
+    {
+    assert( vol < Orientation.size() );
+    return Orientation[vol];
+    }
+  void DeepCopy(vtkMedicalImagePropertiesInternals *p)
+    {
+    WindowLevelPresetPool = p->WindowLevelPresetPool;
+    UID = p->UID;
+    Orientation = p->Orientation;
+    }
 };
 
 //----------------------------------------------------------------------------
@@ -166,16 +232,7 @@ void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
   this->SetStudyID(p->GetStudyID());
   this->SetXRayTubeCurrent(p->GetXRayTubeCurrent());
 
-  int nb_presets = p->GetNumberOfWindowLevelPresets();
-  for (int i = 0; i < nb_presets; i++)
-    {
-    double w, l;
-    p->GetNthWindowLevelPreset(i, &w, &l);
-    this->AddWindowLevelPreset(w, l);
-    this->SetNthWindowLevelPresetComment(
-      this->GetNumberOfWindowLevelPresets() - 1,
-      p->GetNthWindowLevelPresetComment(i));
-    }
+  this->Internals->DeepCopy( p->Internals );
 }
 
 //----------------------------------------------------------------------------
@@ -296,6 +353,31 @@ void vtkMedicalImageProperties::SetNthWindowLevelPresetComment(
     this->Internals->WindowLevelPresetPool[idx].Comment =
       (comment ? comment : "");
     }
+}
+
+//----------------------------------------------------------------------------
+const char *vtkMedicalImageProperties::GetInstanceUIDFromSliceID(int volumeidx, int sliceid)
+{
+  return this->Internals->GetUID(volumeidx,sliceid);
+}
+
+//----------------------------------------------------------------------------
+void vtkMedicalImageProperties::SetInstanceUIDFromSliceID(int volumeidx, int sliceid,
+ const char *uid)
+{
+  return this->Internals->SetUID(volumeidx,sliceid, uid);
+}
+
+//----------------------------------------------------------------------------
+void vtkMedicalImageProperties::SetOrientationType(int volumeidx, int orientation)
+{
+  return this->Internals->SetOrientation(volumeidx, orientation);
+}
+
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::GetOrientationType(int volumeidx)
+{
+  return this->Internals->GetOrientation(volumeidx);
 }
 
 //----------------------------------------------------------------------------
@@ -719,4 +801,7 @@ void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << this->Exposure;
     }
+
+  this->Internals->Print(os << "\n", indent.GetNextIndent() );
 }
+

@@ -32,7 +32,7 @@
 #include "vtkTriangleFilter.h"
 #include "vtkTriangleStrip.h"
 
-vtkCxxRevisionMacro(vtkSelectPolyData, "1.34");
+vtkCxxRevisionMacro(vtkSelectPolyData, "1.35");
 vtkStandardNewMacro(vtkSelectPolyData);
 
 vtkCxxSetObjectMacro(vtkSelectPolyData,Loop,vtkPoints);
@@ -59,6 +59,7 @@ vtkSelectPolyData::vtkSelectPolyData()
   output3->Delete();
 }
 
+//----------------------------------------------------------------------------
 vtkSelectPolyData::~vtkSelectPolyData()
 {
   if (this->Loop)
@@ -67,6 +68,7 @@ vtkSelectPolyData::~vtkSelectPolyData()
     }
 }
 
+//----------------------------------------------------------------------------
 vtkPolyData *vtkSelectPolyData::GetUnselectedOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
@@ -78,6 +80,7 @@ vtkPolyData *vtkSelectPolyData::GetUnselectedOutput()
     this->GetExecutive()->GetOutputData(1));
 }
 
+//----------------------------------------------------------------------------
 vtkPolyData *vtkSelectPolyData::GetSelectionEdges()
 {
   if (this->GetNumberOfOutputPorts() < 3)
@@ -89,6 +92,7 @@ vtkPolyData *vtkSelectPolyData::GetSelectionEdges()
     this->GetExecutive()->GetOutputData(2));
 }
 
+//----------------------------------------------------------------------------
 int vtkSelectPolyData::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -574,6 +578,7 @@ int vtkSelectPolyData::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkSelectPolyData::GetPointNeighbors (vtkIdType ptId, vtkIdList *nei)
 {
   unsigned short ncells;
@@ -595,6 +600,7 @@ void vtkSelectPolyData::GetPointNeighbors (vtkIdType ptId, vtkIdList *nei)
     }
 }
 
+//----------------------------------------------------------------------------
 unsigned long int vtkSelectPolyData::GetMTime()
 {
   unsigned long mTime=this->Superclass::GetMTime();
@@ -609,6 +615,7 @@ unsigned long int vtkSelectPolyData::GetMTime()
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

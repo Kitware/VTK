@@ -25,7 +25,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkDataArrayCollection.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.85");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.86");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -65,6 +65,7 @@ vtkPLOT3DReader::vtkPLOT3DReader()
   this->IBlankCache = 0;
 } 
 
+//----------------------------------------------------------------------------
 vtkPLOT3DReader::~vtkPLOT3DReader()
 {
   delete [] this->XYZFileName;
@@ -74,6 +75,7 @@ vtkPLOT3DReader::~vtkPLOT3DReader()
   this->ClearGeometryCache();
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::ClearGeometryCache()
 {
   if ( this->PointCache )
@@ -95,6 +97,7 @@ void vtkPLOT3DReader::ClearGeometryCache()
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkPLOT3DReader::CheckFile(FILE*& fp, const char* fname)
 {
   if (this->BinaryFile)
@@ -114,6 +117,7 @@ int vtkPLOT3DReader::CheckFile(FILE*& fp, const char* fname)
   return VTK_OK;
 }
 
+//----------------------------------------------------------------------------
 int vtkPLOT3DReader::CheckGeometryFile(FILE*& xyzFp)
 {
   if ( this->XYZFileName == NULL || this->XYZFileName[0] == '\0'  )
@@ -125,6 +129,7 @@ int vtkPLOT3DReader::CheckGeometryFile(FILE*& xyzFp)
   return this->CheckFile(xyzFp, this->XYZFileName);
 }
 
+//----------------------------------------------------------------------------
 int vtkPLOT3DReader::CheckSolutionFile(FILE*& qFp)
 {
   if ( this->QFileName == NULL || this->QFileName[0] == '\0' )
@@ -136,6 +141,7 @@ int vtkPLOT3DReader::CheckSolutionFile(FILE*& qFp)
   return this->CheckFile(qFp, this->QFileName);
 }
 
+//----------------------------------------------------------------------------
 int vtkPLOT3DReader::CheckFunctionFile(FILE*& fFp)
 {
   if ( this->FunctionFileName == NULL || this->FunctionFileName[0] == '\0' )
@@ -147,6 +153,7 @@ int vtkPLOT3DReader::CheckFunctionFile(FILE*& fFp)
   return this->CheckFile(fFp, this->FunctionFileName);
 }
 
+//----------------------------------------------------------------------------
 // Skip Fortran style byte count.
 void vtkPLOT3DReader::SkipByteCount(FILE* fp)
 {
@@ -157,6 +164,7 @@ void vtkPLOT3DReader::SkipByteCount(FILE* fp)
     }
 }
 
+//----------------------------------------------------------------------------
 // Read a block of ints (ascii or binary) and return number read.
 int vtkPLOT3DReader::ReadIntBlock(FILE* fp, int n, int* block)
 {
@@ -192,6 +200,7 @@ int vtkPLOT3DReader::ReadIntBlock(FILE* fp, int n, int* block)
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkPLOT3DReader::ReadFloatBlock(FILE* fp, int n, float* block)
 {
   if (this->BinaryFile)
@@ -226,6 +235,7 @@ int vtkPLOT3DReader::ReadFloatBlock(FILE* fp, int n, float* block)
     }
 }
 
+//----------------------------------------------------------------------------
 // Read a block of floats (ascii or binary) and return number read.
 void vtkPLOT3DReader::CalculateFileSize(FILE* fp)
 {
@@ -236,6 +246,7 @@ void vtkPLOT3DReader::CalculateFileSize(FILE* fp)
 }
 
 
+//----------------------------------------------------------------------------
 // Estimate the size of a grid (binary file only)
 long vtkPLOT3DReader::EstimateSize(int ni, int nj, int nk)
 {
@@ -262,6 +273,7 @@ long vtkPLOT3DReader::EstimateSize(int ni, int nj, int nk)
   return size;
 }
 
+//----------------------------------------------------------------------------
 int vtkPLOT3DReader::CanReadBinaryFile(const char* fname)
 {
   FILE* xyzFp;
@@ -287,6 +299,7 @@ int vtkPLOT3DReader::CanReadBinaryFile(const char* fname)
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkPLOT3DReader::GetNumberOfOutputs()
 {
   FILE* xyzFp;
@@ -305,6 +318,7 @@ int vtkPLOT3DReader::GetNumberOfOutputs()
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkPLOT3DReader::GenerateDefaultConfiguration()
 {
   FILE* xyzFp;
@@ -320,6 +334,7 @@ int vtkPLOT3DReader::GenerateDefaultConfiguration()
   return retVal;
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::ReadIntBlockV(char** buf, int n, int* block)
 {
   memcpy(block, *buf, sizeof(int)*n);
@@ -335,6 +350,7 @@ void vtkPLOT3DReader::ReadIntBlockV(char** buf, int n, int* block)
   *buf += sizeof(int);
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::SkipByteCountV(char** buf)
 {
   if (this->HasByteCount)
@@ -343,6 +359,7 @@ void vtkPLOT3DReader::SkipByteCountV(char** buf)
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkPLOT3DReader::VerifySettings(char* buf, int vtkNotUsed(bufSize))
 {
   int numGrid=0;
@@ -406,6 +423,7 @@ int vtkPLOT3DReader::VerifySettings(char* buf, int vtkNotUsed(bufSize))
   return retVal;
 }
 
+//----------------------------------------------------------------------------
 // Read the header and return the number of grids.
 int vtkPLOT3DReader::GetNumberOfOutputsInternal(FILE* xyzFp, int verify)
 {
@@ -520,6 +538,7 @@ int vtkPLOT3DReader::GetNumberOfOutputsInternal(FILE* xyzFp, int verify)
   return numOutputs;
 }
 
+//----------------------------------------------------------------------------
 int vtkPLOT3DReader::ReadGeometryHeader(FILE* fp)
 {
   int numGrid = this->GetNumberOfOutputsInternal(fp, 1);
@@ -602,6 +621,7 @@ int vtkPLOT3DReader::ReadQHeader(FILE* fp)
   return VTK_OK;
 }
 
+//----------------------------------------------------------------------------
 int vtkPLOT3DReader::ReadFunctionHeader(FILE* fp, vtkIdList*& counts)
 {
   int numGrid = this->GetNumberOfOutputsInternal(fp, 0);
@@ -638,6 +658,7 @@ int vtkPLOT3DReader::ReadFunctionHeader(FILE* fp, vtkIdList*& counts)
   return VTK_OK;
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::SetXYZFileName( const char* name )
 {
   if ( this->XYZFileName && ! strcmp( this->XYZFileName, name ) )
@@ -664,6 +685,7 @@ void vtkPLOT3DReader::SetXYZFileName( const char* name )
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::SetScalarFunctionNumber(int num)
 {
   if ( this->ScalarFunctionNumber == num)
@@ -689,6 +711,7 @@ void vtkPLOT3DReader::SetScalarFunctionNumber(int num)
   this->ScalarFunctionNumber = num;
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::SetVectorFunctionNumber(int num)
 {
   if ( this->VectorFunctionNumber == num)
@@ -714,6 +737,7 @@ void vtkPLOT3DReader::SetVectorFunctionNumber(int num)
   this->VectorFunctionNumber = num;
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::RemoveFunction(int fnum)
 {
   for (int i=0; i < this->FunctionList->GetNumberOfTuples(); i++ )
@@ -726,6 +750,7 @@ void vtkPLOT3DReader::RemoveFunction(int fnum)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::ExecuteInformation()
 {
   FILE* xyzFp;
@@ -741,6 +766,7 @@ void vtkPLOT3DReader::ExecuteInformation()
   fclose(xyzFp);
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::Execute()
 {
   this->SetErrorCode(vtkErrorCode::NoError);
@@ -1079,6 +1105,7 @@ void vtkPLOT3DReader::Execute()
     }
 }
 
+//----------------------------------------------------------------------------
 // Various PLOT3D functions.....................
 void vtkPLOT3DReader::MapFunction(int fNumber, vtkStructuredGrid* output)
 {
@@ -1141,6 +1168,7 @@ void vtkPLOT3DReader::MapFunction(int fNumber, vtkStructuredGrid* output)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::AssignAttribute(int fNumber, vtkStructuredGrid* output,
                                   int attributeType)
 {
@@ -1226,6 +1254,7 @@ void vtkPLOT3DReader::AssignAttribute(int fNumber, vtkStructuredGrid* output,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
 {
   double *m, e, rr, u, v, w, v2, p, d, rrgas;
@@ -1275,6 +1304,7 @@ void vtkPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
   vtkDebugMacro(<<"Created temperature scalar");
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
 {
   double *m, e, u, v, w, v2, p, d, rr;
@@ -1321,6 +1351,7 @@ void vtkPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
   vtkDebugMacro(<<"Created pressure scalar");
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
 {
   double *m, e, u, v, w, v2, d, rr;
@@ -1365,6 +1396,7 @@ void vtkPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
   vtkDebugMacro(<<"Created enthalpy scalar");
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
 {
   double *m, u, v, w, v2, d, rr;
@@ -1406,6 +1438,7 @@ void vtkPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
   vtkDebugMacro(<<"Created kinetic energy scalar");
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* output)
 {
   double *m, u, v, w, v2, d, rr;
@@ -1449,6 +1482,7 @@ void vtkPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* output)
   vtkDebugMacro(<<"Created velocity magnitude scalar");
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
 {
   double *m, u, v, w, v2, d, rr, s, p, e;
@@ -1495,6 +1529,7 @@ void vtkPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
   vtkDebugMacro(<<"Created entropy scalar");
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
 {
   vtkDataArray *vorticity;
@@ -1553,6 +1588,7 @@ void vtkPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
 
 }
 
+//----------------------------------------------------------------------------
 // Vector functions
 void vtkPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
 {
@@ -1597,6 +1633,7 @@ void vtkPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
   vtkDebugMacro(<<"Created velocity vector");
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::ComputeVorticity(vtkStructuredGrid* output)
 {
   vtkDataArray *velocity;
@@ -1829,6 +1866,7 @@ void vtkPLOT3DReader::ComputeVorticity(vtkStructuredGrid* output)
   vtkDebugMacro(<<"Created vorticity vector");
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::ComputePressureGradient(vtkStructuredGrid* output)
 {
   vtkDataArray *pressure;
@@ -2054,16 +2092,19 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkStructuredGrid* output)
   vtkDebugMacro(<<"Created pressure gradient vector");
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::SetByteOrderToBigEndian()
 {
   this->ByteOrder = FILE_BIG_ENDIAN;
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::SetByteOrderToLittleEndian()
 {
   this->ByteOrder = FILE_LITTLE_ENDIAN;
 }
 
+//----------------------------------------------------------------------------
 const char *vtkPLOT3DReader::GetByteOrderAsString()
 {
   if ( this->ByteOrder ==  FILE_LITTLE_ENDIAN)
@@ -2076,23 +2117,27 @@ const char *vtkPLOT3DReader::GetByteOrderAsString()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::SetOutput(int idx, vtkStructuredGrid *output)
 { 
   this->Superclass::SetNthOutput(idx, output); 
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::AddFunction(int functionNumber)
 {
   this->FunctionList->InsertNextValue(functionNumber); 
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::RemoveAllFunctions()
 {
   this->FunctionList->Reset();
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

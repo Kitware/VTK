@@ -299,6 +299,22 @@ public:
   virtual void SetNthWindowLevelPresetComment(int idx, const char *comment);
   virtual const char* GetNthWindowLevelPresetComment(int idx);
 
+  // Mapping from a sliceidx within a volumeidx into a DICOM Instance UID
+  // Some DICOM reader can populate this structure so that later on from a slice index
+  // in a vtkImageData volume we can backtrack and find out which 2d slice it was coming from
+  const char *GetInstanceUIDFromSliceID(int volumeidx, int sliceid);
+  void SetInstanceUIDFromSliceID(int volumeidx, int sliceid, const char *uid);
+
+//BTX
+  typedef enum {
+    AXIAL = 0,
+    SAGITTAL,
+    CORONAL
+  } OrientationType;
+//ETX
+  int GetOrientationType(int volumeidx);
+  void SetOrientationType(int volumeidx, int orientation);
+
 protected:
   vtkMedicalImageProperties();
   ~vtkMedicalImageProperties();

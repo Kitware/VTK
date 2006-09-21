@@ -72,8 +72,8 @@
 #ifndef __vtkPLOT3DReader_h
 #define __vtkPLOT3DReader_h
 
-#include <vtkStructuredGridSource.h>
-#include <vtkIdList.h> // Needed for internal method
+#include "vtkStructuredGridSource.h"
+#include "vtkIdList.h" // Needed for internal method
 
 class vtkUnsignedCharArray;
 class vtkIntArray;
