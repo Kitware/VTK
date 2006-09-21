@@ -528,6 +528,8 @@ protected:
   int PackExodusModelOntoOutput;
   int ExodusModelMetadata;
 
+  double *TimeSteps;
+
   int RequestInformation(
     vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestData(

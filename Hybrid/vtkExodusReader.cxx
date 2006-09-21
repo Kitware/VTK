@@ -1392,7 +1392,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.24");
+vtkCxxRevisionMacro(vtkExodusReader, "1.25");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -1472,6 +1472,7 @@ vtkExodusReader::vtkExodusReader()
 
   this->TimeStep = 0;
   this->ActualTimeStep = 0;
+  this->TimeSteps = 0;
   this->GenerateBlockIdCellArray = 1;
   this->GenerateGlobalElementIdArray = 1;
   this->GenerateGlobalNodeIdArray = 1;
@@ -1576,6 +1577,12 @@ vtkExodusReader::~vtkExodusReader()
     }
   //end USE_EXO_DSP_FILTERS
 
+  if (this->TimeSteps)
+    {
+    delete [] this->TimeSteps;
+    this->TimeSteps = 0;
+    this->NumberOfTimeSteps = 0;
+    }
 }
 
 void vtkExodusReader::NewExodusModel()
@@ -2169,6 +2176,16 @@ int vtkExodusReader::RequestInformation(
 
   if ( !newFile && !newXMLFile && !newMetaData)
     {
+    // always set the values even if we short circuit
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
+                 this->TimeSteps, 
+                 this->NumberOfTimeSteps);
+    double timeRange[2];
+    timeRange[0] = this->TimeSteps[0];
+    timeRange[1] = this->TimeSteps[this->NumberOfTimeSteps-1];
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), 
+                 timeRange, 2);
     return 1;
     }
   
@@ -4357,27 +4374,30 @@ void vtkExodusReader::GetAllTimes(vtkInformationVector *outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  int numTimesteps = this->GetNumberOfTimeSteps();
-  if (numTimesteps == 0)
+  this->NumberOfTimeSteps = this->GetNumberOfTimeSteps();
+  if (this->NumberOfTimeSteps == 0)
     {
     return;
     }
-  float* ftimeSteps = new float[numTimesteps];
+  float* ftimeSteps = new float[this->NumberOfTimeSteps];
   ex_get_all_times( this->CurrentHandle, ftimeSteps );
-  double* timeSteps = new double[numTimesteps];
-  for (int i=0; i<numTimesteps; i++)
+  if (this->TimeSteps)
     {
-    timeSteps[i] = ftimeSteps[i];
+    delete [] this->TimeSteps;
+    }
+  this->TimeSteps = new double[this->NumberOfTimeSteps];
+  for (int i=0; i<this->NumberOfTimeSteps; i++)
+    {
+    this->TimeSteps[i] = ftimeSteps[i];
     }
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
-               timeSteps, 
-               numTimesteps);
+               this->TimeSteps, 
+               this->NumberOfTimeSteps);
   double timeRange[2];
-  timeRange[0] = timeSteps[0];
-  timeRange[1] = timeSteps[numTimesteps-1];
+  timeRange[0] = this->TimeSteps[0];
+  timeRange[1] = this->TimeSteps[this->NumberOfTimeSteps-1];
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), 
                timeRange, 2);
-  delete[] timeSteps;
   delete[] ftimeSteps;
 }
 
