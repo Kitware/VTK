@@ -1392,7 +1392,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.25");
+vtkCxxRevisionMacro(vtkExodusReader, "1.26");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -2177,15 +2177,18 @@ int vtkExodusReader::RequestInformation(
   if ( !newFile && !newXMLFile && !newMetaData)
     {
     // always set the values even if we short circuit
-    vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
-                 this->TimeSteps, 
-                 this->NumberOfTimeSteps);
-    double timeRange[2];
-    timeRange[0] = this->TimeSteps[0];
-    timeRange[1] = this->TimeSteps[this->NumberOfTimeSteps-1];
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), 
-                 timeRange, 2);
+    if (this->NumberOfTimeSteps)
+      {
+      vtkInformation* outInfo = outputVector->GetInformationObject(0);
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
+                   this->TimeSteps, 
+                   this->NumberOfTimeSteps);
+      double timeRange[2];
+      timeRange[0] = this->TimeSteps[0];
+      timeRange[1] = this->TimeSteps[this->NumberOfTimeSteps-1];
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), 
+                   timeRange, 2);
+      }
     return 1;
     }
   
