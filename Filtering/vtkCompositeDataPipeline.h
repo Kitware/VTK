@@ -52,6 +52,7 @@ class vtkInformationIntegerVectorKey;
 class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
 class vtkInformationDataObjectKey;
+class vtkInformationIntegerKey;
 
 class VTK_FILTERING_EXPORT vtkCompositeDataPipeline : public vtkStreamingDemandDrivenPipeline
 {
@@ -83,6 +84,7 @@ public:
   static vtkInformationStringKey*        COMPOSITE_DATA_TYPE_NAME();
   static vtkInformationObjectBaseKey*    COMPOSITE_DATA_INFORMATION();
   static vtkInformationObjectBaseKey*    UPDATE_BLOCKS();
+  static vtkInformationIntegerKey*       REQUIRES_TIME_DOWNSTREAM();
 
 protected:
   vtkCompositeDataPipeline();
@@ -120,7 +122,8 @@ protected:
 
   // Check whether the data object in the pipeline information for an
   // output port exists and has a valid type.
-  virtual int CheckCompositeData(int port, vtkInformationVector* outInfoVec);
+  virtual int CheckCompositeData(vtkInformation *request,
+                                 int port, vtkInformationVector* outInfoVec);
 
   // True when the pipeline is iterating over the current (simple) filter
   // to produce composite output. In this case, ExecuteDataStart() should
@@ -131,6 +134,9 @@ protected:
                                       vtkInformationVector** inInfoVec,
                                       vtkInformationVector* outInfoVec,
                                       int compositePort);
+  virtual void ExecuteSimpleAlgorithmTime(vtkInformation* request,
+                                          vtkInformationVector** inInfoVec,
+                                          vtkInformationVector* outInfoVec);
   vtkDataObject* ExecuteSimpleAlgorithmForBlock(
     vtkInformationVector** inInfoVec,
     vtkInformationVector* outInfoVec,
@@ -140,6 +146,7 @@ protected:
     vtkDataObject* dobj);
 
   int ShouldIterateOverInput(int& compositePort);
+  int ShouldIterateTemporalData(vtkInformation *request);
   virtual int InputTypeIsValid(int port, int index,vtkInformationVector **);
 
   vtkInformation* InformationCache;

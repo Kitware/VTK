@@ -29,18 +29,20 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include "vtkTemporalDataSet.h"
 
 #include "vtkImageData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.43");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.44");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_TYPE_NAME,String);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,UPDATE_BLOCKS, ObjectBase);
+vtkInformationKeyMacro(vtkCompositeDataPipeline,REQUIRES_TIME_DOWNSTREAM, Integer);
 
 //----------------------------------------------------------------------------
 vtkCompositeDataPipeline::vtkCompositeDataPipeline()
@@ -99,10 +101,114 @@ vtkCompositeDataPipeline::~vtkCompositeDataPipeline()
 }
 
 //----------------------------------------------------------------------------
+int vtkCompositeDataPipeline::ForwardUpstream(vtkInformation* request)
+{
+  // Do not forward upstream if the input is shared with another
+  // executive.
+  if(this->SharedInputInformation)
+    {
+    return 1;
+    }
+
+  if (!this->Algorithm->ModifyRequest(request, BeforeForward))
+    {
+    return 0;
+    }
+
+  // Forward the request upstream through all input connections.
+  int result = 1;
+  for(int i=0; i < this->GetNumberOfInputPorts(); ++i)
+    {
+    int nic = this->Algorithm->GetNumberOfInputConnections(i);
+    vtkInformationVector* inVector = this->GetInputInformation()[i];
+    for(int j=0; j < nic; ++j)
+      {
+      vtkInformation* info = inVector->GetInformationObject(j);
+      // Get the executive producing this input.  If there is none, then
+      // it is a NULL input.
+      vtkExecutive* e;
+      int producerPort;
+      info->Get(vtkExecutive::PRODUCER(),e,producerPort);
+      if(e)
+        {
+        int port = request->Get(FROM_OUTPUT_PORT());
+        request->Set(FROM_OUTPUT_PORT(), producerPort);
+        
+        // if the input requires time them mark that
+        if (!strcmp("vtkTemporalDataSet",
+                    this->Algorithm->GetInputPortInformation(i)
+                    ->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE())))
+          {
+          request->Set(REQUIRES_TIME_DOWNSTREAM(),1);
+          }
+        if(!e->ProcessRequest(request,
+                              e->GetInputInformation(),
+                              e->GetOutputInformation()))
+          {
+          result = 0;
+          }
+        request->Remove(REQUIRES_TIME_DOWNSTREAM());
+        request->Set(FROM_OUTPUT_PORT(), port);
+        }
+      }
+    }
+
+  if (!this->Algorithm->ModifyRequest(request, AfterForward))
+    {
+    return 0;
+    }
+
+  return result;
+}
+
+//----------------------------------------------------------------------------
 int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request,
                                              vtkInformationVector** inInfoVec,
                                              vtkInformationVector* outInfoVec)
 {
+  if(this->Algorithm && request->Has(REQUEST_DATA_OBJECT()))
+    {
+    // if we are up to date then short circuit
+    if (this->PipelineMTime < this->DataObjectTime.GetMTime())
+      {
+      return 1;
+      }
+
+    // if our algorithm takes temporal data for an input add that to the
+    // request for that input Update inputs first if they are out of date
+    if(!this->ForwardUpstream(request))
+      {
+      return 0;
+      }
+    
+    // Make sure our output data type is up-to-date.
+    int result = 1;
+    if(this->PipelineMTime > this->DataObjectTime.GetMTime())
+      {
+      // Request data type from the algorithm.
+      result = this->ExecuteDataObject(request,inInfoVec,outInfoVec);
+
+      // Make sure the data object exists for all output ports.
+      for(int i=0;
+          result && i < outInfoVec->GetNumberOfInformationObjects(); ++i)
+        {
+        vtkInformation* info = outInfoVec->GetInformationObject(i);
+        if(!info->Get(vtkDataObject::DATA_OBJECT()))
+          {
+          result = 0;
+          }
+        }
+
+      if(result)
+        {
+        // Data object is now up to date.
+        this->DataObjectTime.Modified();
+        }
+      }
+
+    return result;
+    }
+
   if(this->Algorithm && request->Has(REQUEST_INFORMATION()))
     {
     int appendKey = 1;
@@ -181,7 +287,8 @@ int vtkCompositeDataPipeline::ExecuteDataObject(
   // datasets. Otherwise, the algorithm will get a chance to handle
   // REQUEST_DATA_OBJECT when it is being iterated over.
   int compositePort;
-  int shouldIterate = this->ShouldIterateOverInput(compositePort);
+  int shouldIterate = this->ShouldIterateOverInput(compositePort) ||
+    this->ShouldIterateTemporalData(request);
   if (!shouldIterate)
     {
     // Invoke the request on the algorithm.
@@ -197,7 +304,7 @@ int vtkCompositeDataPipeline::ExecuteDataObject(
   // Make sure a valid data object exists for all output ports.
   for(i=0; result && i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
     {
-    result = this->CheckCompositeData(i, outInfoVec);
+    result = this->CheckCompositeData(request, i, outInfoVec);
     }
 
   return result;
@@ -245,7 +352,8 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request,
     }
 
   int compositePort;
-  if (this->ShouldIterateOverInput(compositePort))
+  if (this->ShouldIterateOverInput(compositePort) || 
+      this->ShouldIterateTemporalData(request))
     {
     this->ExecuteSimpleAlgorithm(
       request, inInfoVec, outInfoVec, compositePort);
@@ -338,6 +446,68 @@ int vtkCompositeDataPipeline::ShouldIterateOverInput(int& compositePort)
 }
 
 //----------------------------------------------------------------------------
+int vtkCompositeDataPipeline
+::ShouldIterateTemporalData(vtkInformation *request)
+{
+  // if the filter is a subclass of vtkTemporalDataSetAlgorithm
+  // then we do not loop
+  if (this->Algorithm->IsA("vtkTemporalDataSetAlgorithm"))
+    {
+    return 0;
+    }
+
+  // if the filter has a temporal input or output, then we know it is a
+  // temporal filter and the answer is always no
+  int numInputPorts = this->Algorithm->GetNumberOfInputPorts();
+  for(int i=0; i < numInputPorts; ++i)
+    {
+    vtkInformation* inPortInfo = 
+      this->Algorithm->GetInputPortInformation(i);
+    const char* inputType = 
+      inPortInfo->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+    if (!strcmp("vtkTemporalDataSet",inputType))
+      {
+      return 0;
+      }
+    }
+
+  if (!this->Algorithm->GetNumberOfOutputPorts())
+    {
+    return 0;
+    }
+
+  if (request->Has(REQUIRES_TIME_DOWNSTREAM()))
+    {
+    return 1;
+    }
+
+  // in some cases even though no inputs require iteration, 
+  // we need to iterate because the request contains multiple time steps
+  int port = request->Get(FROM_OUTPUT_PORT());
+  
+  vtkInformation* portInfo = 
+    this->Algorithm->GetOutputPortInformation(port);
+
+  int numTimeSteps = portInfo->Length(UPDATE_TIME_STEPS());  
+  if (numTimeSteps < 1)
+    {
+    return 0;
+    }
+  
+  // if multiple time steps were requested.. and our filter does not 
+  // produce a TemporalDataSet class then loop
+  const char * outputType = 
+    portInfo->Get(vtkDataObject::DATA_TYPE_NAME());
+  
+  if (strcmp(outputType, "vtkTemporalDataSet"))
+    {
+    return 1;
+    }
+
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
   vtkInformationVector** inInfoVec,
   vtkInformationVector* outInfoVec,
@@ -346,8 +516,8 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
   vtkInformation* request,  
   vtkDataObject* dobj)
 {
-
-  if (dobj->IsA("vtkMultiGroupDataSet"))
+  // if we have an input and it is composite, then recurse
+  if (dobj && dobj->IsA("vtkMultiGroupDataSet"))
     {
     vtkMultiGroupDataSet* output = vtkMultiGroupDataSet::New();
 
@@ -376,28 +546,44 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
     }
   else
     {
+    double time = 0;
+    int hasTime = outInfo->Length(UPDATE_TIME_STEPS());
+    if (hasTime)
+      {
+      time = outInfo->Get(UPDATE_TIME_STEPS())[0];
+      }
+    
     // There must be a bug somehwere. If this Remove()
     // is not called, the following Set() has the effect
     // of removing (!) the key.
-    inInfo->Remove(vtkDataObject::DATA_OBJECT());
-    inInfo->Set(vtkDataObject::DATA_OBJECT(), dobj);
-    
-    // Process the whole dataset
-    this->CopyFromDataToInformation(dobj, inInfo);
-    
+    if (inInfo)
+      {
+      inInfo->Remove(vtkDataObject::DATA_OBJECT());
+      inInfo->Set(vtkDataObject::DATA_OBJECT(), dobj);
+      
+      // Process the whole dataset
+      this->CopyFromDataToInformation(dobj, inInfo);
+      }
+
     request->Set(REQUEST_DATA_OBJECT());
     this->Superclass::ExecuteDataObject(
       request, this->GetInputInformation(),this->GetOutputInformation());
     request->Remove(REQUEST_DATA_OBJECT());
     
     request->Set(REQUEST_INFORMATION());
+
     // Make sure that pipeline informations is in sync with the data
-    dobj->CopyInformationToPipeline(request, 0, inInfo, 1);
-    // This should not be needed but since a lot of image filters do:
-    // img->GetScalarType(), it is necessary.
-    dobj->GetProducerPort(); // make sure there is pipeline info.
-    dobj->CopyInformationToPipeline(
-      request, 0, dobj->GetPipelineInformation(), 1);
+    if (dobj)
+      {
+      dobj->CopyInformationToPipeline(request, 0, inInfo, 1);
+
+      // This should not be needed but since a lot of image filters do:
+      // img->GetScalarType(), it is necessary.
+      dobj->GetProducerPort(); // make sure there is pipeline info.
+      dobj->CopyInformationToPipeline
+        (request, 0, dobj->GetPipelineInformation(), 1);
+      }
+
     this->Superclass::ExecuteInformation(request,inInfoVec,outInfoVec);
     request->Remove(REQUEST_INFORMATION());
     
@@ -406,7 +592,7 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
       vtkInformation* info = this->GetOutputInformation(m);
       // Update the whole thing
       if (info->Has(
-            vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+                    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
         {
         int extent[6] = {0,-1,0,-1,0,-1};
         info->Get(
@@ -426,7 +612,13 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
           vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
         }
       }
-    
+
+    // if there was a time make sure that gets set in the RUE
+    if (hasTime)
+      {
+      outInfo->Set(UPDATE_TIME_STEPS(),&time,1);
+      }
+
     request->Set(REQUEST_UPDATE_EXTENT());
     this->CallAlgorithm(request, vtkExecutive::RequestUpstream,
                         inInfoVec, outInfoVec);
@@ -458,12 +650,9 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
   vtkInformationVector* outInfoVec,
   int compositePort)
 {
-  int outputInitialized = 0;
-
   this->ExecuteDataStart(request,inInfoVec,outInfoVec);
 
   vtkInformation* outInfo = 0;
-  vtkSmartPointer<vtkDataObject> prevOutput;
 
   if (this->GetNumberOfOutputPorts() > 0)
     {
@@ -473,27 +662,47 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
   // Make sure a valid composite data object exists for all output ports.
   for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
     {
-    this->CheckCompositeData(i, outInfoVec);
+    this->CheckCompositeData(request, i, outInfoVec);
+    }
+
+  // if we have no composite inputs then we are looping over time on a source
+  if (!this->Algorithm->GetNumberOfInputPorts())
+    {
+    return this->ExecuteSimpleAlgorithmTime(request, inInfoVec, outInfoVec);
     }
 
   // Loop using the first input on the first port.
   // This might not be valid for all cases but it is a decent
   // assumption to start with.
   // TODO: Loop over all inputs
-  vtkInformation* inInfo = this->GetInputInformation(compositePort, 0);
-  vtkCompositeDataSet* input = vtkCompositeDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  vtkMultiGroupDataSet* updateInfo = 
-    vtkMultiGroupDataSet::SafeDownCast(
-      inInfo->Get(vtkCompositeDataPipeline::UPDATE_BLOCKS()));
-
+  vtkInformation* inInfo = 0;
+  vtkMultiGroupDataSet* updateInfo = 0;
+  inInfo = this->GetInputInformation(compositePort, 0);
+  vtkCompositeDataSet* input = vtkCompositeDataSet::SafeDownCast
+    (inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  updateInfo = vtkMultiGroupDataSet::SafeDownCast
+    (inInfo->Get(vtkCompositeDataPipeline::UPDATE_BLOCKS()));
+  
   vtkSmartPointer<vtkCompositeDataSet> compositeOutput = 
-    vtkCompositeDataSet::SafeDownCast(
-      outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkCompositeDataSet::SafeDownCast
+    (outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  // do we have a request for multiple time steps?
+  int numTimeSteps = 0;
+  double *times = 0;
+  numTimeSteps = outInfo->Length(UPDATE_TIME_STEPS());
+  if (numTimeSteps)
+    {
+    times = new double [numTimeSteps];
+    memcpy(times,outInfo->Get(UPDATE_TIME_STEPS()),
+           sizeof(double)*numTimeSteps);
+    }
 
   if (input && updateInfo)
     {
+    int outputInitialized = 0;
+
     vtkSmartPointer<vtkInformation> r = 
       vtkSmartPointer<vtkInformation>::New();
 
@@ -505,9 +714,13 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     // Algorithms process this request after it is forwarded.
     r->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
 
-    unsigned int numGroups = updateInfo->GetNumberOfGroups();
-    vtkSmartPointer<vtkDataObject> prevInput = 
-      inInfo->Get(vtkDataObject::DATA_OBJECT());
+    // iterate over time by default
+    unsigned int numGroups = numTimeSteps;
+    // if we have a composite input the use that instead
+    vtkSmartPointer<vtkDataObject> prevInput = 0;
+    numGroups = updateInfo->GetNumberOfGroups();
+    prevInput = inInfo->Get(vtkDataObject::DATA_OBJECT());
+    this->PushInformation(inInfo);
 
     vtkDebugMacro("EXECUTING: " << this->Algorithm->GetClassName());
 
@@ -520,9 +733,13 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     // before looping. Otherwise, executeinformation will cause
     // changes (because we pretend that the max. number of pieces is
     // one to process the whole block)
-    this->PushInformation(inInfo);
     for (unsigned int k=0; k<numGroups; k++)
       {
+      // if it is a temporal input, set the time for each piece
+      if (times)
+        {
+        outInfo->Set(UPDATE_TIME_STEPS(),times+k,1);
+        }
       unsigned int numDataSets = updateInfo->GetNumberOfDataSets(k);
       for (unsigned l=0; l<numDataSets; l++)
         {
@@ -561,6 +778,13 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     // MAXIMUM_NUMBER_OF_PIECES to -1 anyway (and handle
     // piece requests properly).
     this->PopInformation(inInfo);
+    if (times)
+      {
+      outInfo->Set(UPDATE_TIME_STEPS(),times,numTimeSteps);
+      compositeOutput->GetInformation()
+        ->Set(vtkDataObject::DATA_TIME_STEPS(),times,numTimeSteps);
+      delete [] times;
+      }
     r->Set(REQUEST_INFORMATION());
     this->CopyDefaultInformation(r, vtkExecutive::RequestDownstream,
                                  this->GetInputInformation(),
@@ -577,6 +801,115 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
       {
       compositeOutput->SetPipelineInformation(outInfo);
       }
+    }
+  this->ExecuteDataEnd(request,inInfoVec,outInfoVec);
+}
+
+
+//----------------------------------------------------------------------------
+// Execute a simple (non-composite-aware) filter multiple times, once per
+// block. Collect the result in a composite dataset that is of the same
+// structure as the input.
+void vtkCompositeDataPipeline::ExecuteSimpleAlgorithmTime(
+  vtkInformation* request,
+  vtkInformationVector** inInfoVec,
+  vtkInformationVector* outInfoVec)
+{
+  vtkInformation* outInfo = 0;
+  vtkSmartPointer<vtkInformation> originalInformation = 
+    vtkSmartPointer<vtkInformation>::New();
+  if (this->GetNumberOfOutputPorts() > 0)
+    {
+    outInfo = outInfoVec->GetInformationObject(0);
+    originalInformation->CopyEntry(outInfo,TIME_STEPS(),0);
+    originalInformation->CopyEntry(outInfo,TIME_RANGE(),0);
+    }
+
+  vtkSmartPointer<vtkCompositeDataSet> compositeOutput = 
+    vtkCompositeDataSet::SafeDownCast
+    (outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  // do we have a request for multiple time steps?
+  int numTimeSteps = 0;
+  double *times = 0;
+  numTimeSteps = outInfo->Length(UPDATE_TIME_STEPS());
+  times = new double [numTimeSteps];
+  memcpy(times,outInfo->Get(UPDATE_TIME_STEPS()),
+         sizeof(double)*numTimeSteps);
+
+  int outputInitialized = 0;
+  
+  vtkSmartPointer<vtkInformation> r = 
+    vtkSmartPointer<vtkInformation>::New();
+  
+  r->Set(FROM_OUTPUT_PORT(), request->Get(FROM_OUTPUT_PORT()));
+
+  // The request is forwarded upstream through the pipeline.
+  r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
+  
+  // Algorithms process this request after it is forwarded.
+  r->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
+  
+  vtkDebugMacro("EXECUTING: " << this->Algorithm->GetClassName());
+  
+  // True when the pipeline is iterating over the current (simple)
+  // filter to produce composite output. In this case,
+  // ExecuteDataStart() should NOT Initialize() the composite output.
+  this->InLocalLoop = 1;
+  
+  // Store the information (whole_extent and maximum_number_of_pieces)
+  // before looping. Otherwise, executeinformation will cause
+  // changes (because we pretend that the max. number of pieces is
+  // one to process the whole block)
+  for (unsigned int k=0; k< static_cast<unsigned int>(numTimeSteps); k++)
+    {
+    // if it is a temporal input, set the time for each piece
+    outInfo->Set(UPDATE_TIME_STEPS(),times+k,1);
+
+    r->Set(vtkMultiGroupDataSet::GROUP(), k);
+    r->Set(vtkCompositeDataSet::INDEX(), 0);
+    vtkDataObject* dobj = 0;
+    
+    vtkDataObject* outCopy = 
+      this->ExecuteSimpleAlgorithmForBlock(inInfoVec,
+                                           outInfoVec,
+                                           0,
+                                           outInfo,
+                                           r,
+                                           dobj);
+    if (outCopy)
+      {
+      if (!outputInitialized)
+        {
+        compositeOutput->PrepareForNewData();
+        outputInitialized = 1;
+        }
+      compositeOutput->AddDataSet(r, outCopy);
+      outCopy->Delete();
+      }
+    }
+
+  // True when the pipeline is iterating over the current (simple)
+  // filter to produce composite output. In this case,
+  // ExecuteDataStart() should NOT Initialize() the composite output.
+  this->InLocalLoop = 0;
+  outInfo->Set(UPDATE_TIME_STEPS(),times,numTimeSteps);
+  compositeOutput->GetInformation()
+    ->Set(vtkDataObject::DATA_TIME_STEPS(),times,numTimeSteps);
+  delete [] times;
+  
+  r->Set(REQUEST_INFORMATION());
+  this->CopyDefaultInformation(r, vtkExecutive::RequestDownstream,
+                               this->GetInputInformation(),
+                               this->GetOutputInformation());
+
+  outInfo->CopyEntry(originalInformation,TIME_STEPS(),0);
+  outInfo->CopyEntry(originalInformation,TIME_RANGE(),0);
+  
+  vtkDataObject* curOutput = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  if (curOutput != compositeOutput.GetPointer())
+    {
+    compositeOutput->SetPipelineInformation(outInfo);
     }
   this->ExecuteDataEnd(request,inInfoVec,outInfoVec);
 }
@@ -667,12 +1000,6 @@ int vtkCompositeDataPipeline::NeedToExecuteData(
 
   // We do not need to execute.
   return 0;
-}
-
-//----------------------------------------------------------------------------
-int vtkCompositeDataPipeline::ForwardUpstream(vtkInformation* request)
-{
-  return this->Superclass::ForwardUpstream(request);
 }
 
 //----------------------------------------------------------------------------
@@ -844,8 +1171,10 @@ void vtkCompositeDataPipeline::PopInformation(vtkInformation* inInfo)
 }
 
 //----------------------------------------------------------------------------
-int vtkCompositeDataPipeline::CheckCompositeData(
-  int port, vtkInformationVector* outInfoVec)
+int vtkCompositeDataPipeline
+::CheckCompositeData(vtkInformation *request,
+                     int port, 
+                     vtkInformationVector* outInfoVec)
 {
   // Check that the given output port has a valid data object.
   vtkInformation* outInfo = outInfoVec->GetInformationObject(port);
@@ -880,7 +1209,8 @@ int vtkCompositeDataPipeline::CheckCompositeData(
   // If this is a simple filter but has composite input, create a composite
   // output.
   int compositePort;
-  if (this->ShouldIterateOverInput(compositePort))
+  if (this->ShouldIterateOverInput(compositePort) || 
+      (request && this->ShouldIterateTemporalData(request)))
     {
     // This assumes that the first output of the filter is the one
     // that will have the composite data.
@@ -889,7 +1219,14 @@ int vtkCompositeDataPipeline::CheckCompositeData(
     vtkCompositeDataSet* output = vtkCompositeDataSet::SafeDownCast(doOutput);
     if (!output)
       {
-      output = vtkMultiGroupDataSet::New();
+      if (this->ShouldIterateTemporalData(request))
+        {
+        output = vtkTemporalDataSet::New();
+        }
+      else
+        {
+        output = vtkMultiGroupDataSet::New();
+        }
       output->SetPipelineInformation(outInfo);
       output->Delete();
       }
@@ -927,7 +1264,7 @@ vtkDataObject* vtkCompositeDataPipeline::GetCompositeOutputData(int port)
     }
 
   // Check that the given output port has a valid data object.
-  this->CheckCompositeData(port, this->GetOutputInformation());
+  this->CheckCompositeData(0, port, this->GetOutputInformation());
 
   // Return the data object.
   if(vtkInformation* info = this->GetOutputInformation(port))
