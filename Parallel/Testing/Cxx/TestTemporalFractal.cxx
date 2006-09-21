@@ -23,8 +23,12 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkContourFilter.h"
 #include "vtkActor.h"
-#include "vtkMultiGroupPolyDataMapper.h"
+#include "vtkMultiGroupDataGeometryFilter.h"
 #include "vtkSmartPointer.h"
+#include "vtkTemporalDataSet.h"
+#include "vtkThreshold.h"
+#include "vtkTemporalInterpolator.h"
+#include "vtkPolyDataMapper.h"
 
 //-------------------------------------------------------------------------
 int main(int argc, char *argv[])
@@ -37,23 +41,35 @@ int main(int argc, char *argv[])
   // create temporal fractals
   vtkSmartPointer<vtkTemporalFractal> fractal = 
     vtkSmartPointer<vtkTemporalFractal>::New();
+  fractal->SetMaximumLevel(3);
+  fractal->DiscreteTimeStepsOn();
+  fractal->GenerateRectilinearGridsOn();
 
   // shift and scale the time range to that it run from -0.5 to 0.5
   vtkSmartPointer<vtkTemporalShiftScale> tempss = 
     vtkSmartPointer<vtkTemporalShiftScale>::New();
-  tempss->SetScale = 0.1;
-  tempss->SetShift = -0.5;
-  tempss->SetInputConection(fractal->GetOutputPort());
+  tempss->SetScale(0.1);
+  tempss->SetShift(-0.5);
+  tempss->SetInputConnection(fractal->GetOutputPort());
 
-  // isosurface them
-  vtkSmartPointer<vtkContourFilter> contour = 
-    vtkSmartPointer<vtkContourFilter>::New();
-  contour->SetInputConnection(tempss->GetOutputPort());
+  // interpolate if needed
+  vtkSmartPointer<vtkTemporalInterpolator> interp = 
+    vtkSmartPointer<vtkTemporalInterpolator>::New();
+  interp->SetInputConnection(tempss->GetOutputPort());
+  
+  vtkSmartPointer<vtkThreshold> contour = 
+    vtkSmartPointer<vtkThreshold>::New();
+  contour->SetInputConnection(interp->GetOutputPort());
+  contour->ThresholdByUpper(0.5);
+
+  vtkSmartPointer<vtkMultiGroupDataGeometryFilter> geom = 
+    vtkSmartPointer<vtkMultiGroupDataGeometryFilter>::New();
+  geom->SetInputConnection(contour->GetOutputPort());
 
   // map them
-  vtkSmartPointer<vtkMultiGroupPolyDataMapper> mapper = 
-    vtkSmartPointer<vtkMultiGroupPolyDataMapper>::New();
-  mapper->SetInputConnection(contour->GetOutputPort());
+  vtkSmartPointer<vtkPolyDataMapper> mapper = 
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+  mapper->SetInputConnection(geom->GetOutputPort());
   
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
@@ -66,12 +82,28 @@ int main(int argc, char *argv[])
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
 
   renderer->AddActor( actor );
+  renderer->SetBackground(0.5, 0.5, 0.5);
 
   renWin->AddRenderer( renderer );
   renWin->SetSize( 300, 300 ); 
   iren->SetRenderWindow( renWin );
   renWin->Render();
 
+  // ask for some specific data points
+  vtkStreamingDemandDrivenPipeline *sdd = 
+    vtkStreamingDemandDrivenPipeline::SafeDownCast(geom->GetExecutive());
+  double times[1];
+  times[0] = -0.6;
+  int i;
+  for (i = 0; i < 10; ++i)
+    {
+    times[0] = i/25.0 - 0.5;
+    sdd->SetUpdateTimeSteps(0, times, 1);
+    mapper->Modified();
+    renderer->ResetCameraClippingRange();
+    renWin->Render();
+    }
+  
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
