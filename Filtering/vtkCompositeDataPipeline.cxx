@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.45");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.46");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_TYPE_NAME,String);
@@ -236,14 +236,6 @@ int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request,
 
   if(this->Algorithm && request->Has(REQUEST_DATA()))
     {
-    // Get the output port from which the request was made.
-    int outputPort = -1;
-    if(request->Has(FROM_OUTPUT_PORT()))
-      {
-      outputPort = request->Get(FROM_OUTPUT_PORT());
-      }
-
-
     // UPDATE_BLOCKS() is the key that tells filters downstream which
     // blocks of a composite dataset is available. This consumers will then
     // ask for these blocks if they have to loop (simple filters in the
