@@ -16,6 +16,20 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       )
   ENDIF(VTK_DATA_ROOT)
 
+  ADD_EXECUTABLE(TestTemporalFractal TestTemporalFractal.cxx)
+  TARGET_LINK_LIBRARIES(TestTemporalFractal vtkParallel vtkHybrid)
+  IF (VTK_DATA_ROOT)
+    ADD_TEST(TestTemporalFractal-image 
+      ${CXX_TEST_PATH}/TestTemporalFractal
+      -D ${VTK_DATA_ROOT}
+      -T ${VTK_BINARY_DIR}/Testing/Temporary
+      -V Baseline/Parallel/TestTemporalFractal.png
+      )
+  ENDIF(VTK_DATA_ROOT)
+
+  ADD_EXECUTABLE(TestExodusTime TestExodusTime.cxx)
+  TARGET_LINK_LIBRARIES(TestExodusTime vtkParallel vtkHybrid)
+
   IF (VTK_USE_MPI)
     ADD_EXECUTABLE(ParallelIsoTest ParallelIso.cxx)
     TARGET_LINK_LIBRARIES(ParallelIsoTest vtkVolumeRendering vtkParallel vtkHybrid vtkWidgets)
