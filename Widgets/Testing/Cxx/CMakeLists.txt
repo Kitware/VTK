@@ -31,6 +31,7 @@ IF (VTK_DATA_ROOT)
     TestImageTracerWidget.cxx
     TestLineWidget.cxx
 #    TestLineWidget2.cxx
+    TestOrthoPlanes.cxx
     TestPlaneWidget.cxx
     TestPointWidget.cxx
     TestScalarBarWidget.cxx
