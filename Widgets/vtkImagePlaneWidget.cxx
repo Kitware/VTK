@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.8");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.9");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1376,8 +1376,9 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
   this->OriginalLevel = 0.5*(range[0] + range[1]);
 
   this->Reslice->SetInput(this->ImageData);
-  this->ResliceInterpolate = -1;
-  this->SetResliceInterpolate(this->ResliceInterpolate);
+  int interpolate = this->ResliceInterpolate;
+  this->ResliceInterpolate = -1; // Force change
+  this->SetResliceInterpolate(interpolate);
 
   this->ColorMap->SetInput(this->Reslice->GetOutput());
 
