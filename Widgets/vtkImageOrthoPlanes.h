@@ -19,6 +19,8 @@
 // and scales synchronized.
 // .SECTION See Also
 // vtkImagePlaneWidget
+// .SECTION Thanks
+// Thanks to Atamai Inc. for developing and contributing this class.
 
 #ifndef __vtkImageOrthoPlanes_h
 #define __vtkImageOrthoPlanes_h
@@ -69,6 +71,8 @@ protected:
   void SetTransformMatrix(vtkMatrix4x4 *matrix,
                           vtkImagePlaneWidget *currentImagePlane);
   
+  void GetBounds(double bounds[3]);
+
   // The plane definitions prior to any rotations or scales
   double Origin[3][3];
   double Point1[3][3];
@@ -78,11 +82,14 @@ protected:
   // respect to the origin.
   vtkTransform *Transform;
 
-  // An array to hold the three planes
-  vtkImagePlaneWidget* Planes[3];
+  // An array to hold the planes
+  vtkImagePlaneWidget** Planes;
  
+  // The number of planes.
+  int NumberOfPlanes;
+
   // The observer tags for these planes
-  long ObserverTags[3];
+  long *ObserverTags;
 
 private:
   vtkImageOrthoPlanes(const vtkImageOrthoPlanes&);  // Not implemented.

@@ -26,7 +26,7 @@
 
 //---------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkImageOrthoPlanes, "1.1"); 
+vtkCxxRevisionMacro(vtkImageOrthoPlanes, "1.2"); 
 vtkStandardNewMacro(vtkImageOrthoPlanes);
 
 //---------------------------------------------------------------------------
@@ -47,11 +47,18 @@ static void vtkImageOrthoPlanesInteractionCallback(
 //-----------------------------------------------------------------------
 vtkImageOrthoPlanes::vtkImageOrthoPlanes()
 {
+  this->NumberOfPlanes = 3;
+  this->Planes = new vtkImagePlaneWidget *[this->NumberOfPlanes];
+  this->ObserverTags = new long[this->NumberOfPlanes];
+
+  for (int j = 0; j < this->NumberOfPlanes; j++)
+    {
+    this->Planes[j] = 0;
+    this->ObserverTags[j] = 0;
+    }
+
   for (int i = 0; i < 3; i++)
     {
-    this->Planes[i] = 0;
-    this->ObserverTags[i] = 0;
-
     this->Origin[i][0] = 0.0;
     this->Origin[i][1] = 0.0;
     this->Origin[i][2] = 0.0;
@@ -74,7 +81,7 @@ vtkImageOrthoPlanes::~vtkImageOrthoPlanes()
     this->Transform->Delete();
     }
 
-  for (int i = 0; i < 3; i++)
+  for (int i = 0; i < this->NumberOfPlanes; i++)
     {
     if (this->Planes[i])
       {
@@ -82,6 +89,9 @@ vtkImageOrthoPlanes::~vtkImageOrthoPlanes()
       this->Planes[i]->Delete();
       }
     }
+
+  delete [] this->Planes;
+  delete [] this->ObserverTags;
 }
 
 //---------------------------------------------------------------------------
@@ -92,11 +102,11 @@ void vtkImageOrthoPlanes::HandlePlaneEvent(
 
   // Find out which plane the event came from
   int indexOfModifiedPlane = -1;
-  for (i = 0; i < 3; i++)
+  for (i = 0; i < this->NumberOfPlanes; i++)
     {
     if (this->Planes[i] == currentImagePlane)
       {
-      indexOfModifiedPlane = i ; 
+      indexOfModifiedPlane = (i % 3); 
       break; 
       }
     }
@@ -227,25 +237,9 @@ void vtkImageOrthoPlanes::HandlePlanePush(
 {
   int i = indexOfModifiedPlane;
     
-  // Get the bounds of the input image data
-  vtkImageData *input = 
-    vtkImageData::SafeDownCast(currentImagePlane->GetInput());
-  if (!input)
-    {
-    return;
-    }
-
-  int extent[6];
-  double origin[3];
-  double spacing[3];
-  input->UpdateInformation();
-  input->GetWholeExtent(extent);
-  input->GetOrigin(origin);
-  input->GetSpacing(spacing);
-
-  double bounds[2];
-  bounds[0] = origin[i] + spacing[i]*extent[2*i];
-  bounds[1] = origin[i] + spacing[i]*extent[2*i+1];
+  // Get the bounds of the image data
+  double bounds[6];
+  this->GetBounds(bounds);
 
   // Get the information for the plane
   double center[3];
@@ -253,28 +247,28 @@ void vtkImageOrthoPlanes::HandlePlanePush(
 
   this->Transform->GetInverse()->TransformPoint(center, center);
 
-  if (center[i] < bounds[0] || center[i] > bounds[1])
+  double origin[3];
+  double point1[3];
+  double point2[3];
+
+  this->Origin[i][i] = center[i];
+  this->Point1[i][i] = center[i];
+  this->Point2[i][i] = center[i];
+  
+  this->Transform->TransformPoint(this->Origin[i], origin);
+  this->Transform->TransformPoint(this->Point1[i], point1);
+  this->Transform->TransformPoint(this->Point2[i], point2);
+
+  if (center[i] < bounds[2*i] || center[i] > bounds[2*i+1])
     {
-    if (center[i] < bounds[0])
+    if (center[i] < bounds[2*i])
       {
-      center[i] = bounds[0];
+      center[i] = bounds[2*i];
       }
-    if (center[i] > bounds[1])
+    if (center[i] > bounds[2*i+1])
       {
-      center[i] = bounds[1];
+      center[i] = bounds[2*i+1];
       }
-
-    double origin[3];
-    double point1[3];
-    double point2[3];
-
-    this->Origin[i][i] = center[i];
-    this->Point1[i][i] = center[i];
-    this->Point2[i][i] = center[i];
-
-    this->Transform->TransformPoint(this->Origin[i], origin);
-    this->Transform->TransformPoint(this->Point1[i], point1);
-    this->Transform->TransformPoint(this->Point2[i], point2);
 
     currentImagePlane->SetOrigin(origin);
     currentImagePlane->SetPoint1(point1);
@@ -282,6 +276,22 @@ void vtkImageOrthoPlanes::HandlePlanePush(
 
     currentImagePlane->UpdatePlacement();
     }
+
+  // Do all the synced planes
+  for (int j = i; j < this->NumberOfPlanes; j += 3)
+    {
+    vtkImagePlaneWidget *planeWidget = this->Planes[j];
+    
+    if (planeWidget && planeWidget != currentImagePlane)
+      {
+      planeWidget->SetOrigin(origin);
+      planeWidget->SetPoint1(point1);
+      planeWidget->SetPoint2(point2);
+
+      planeWidget->UpdatePlacement();
+      }
+    }
+
 }
 
 //-----------------------------------------------------------------------
@@ -594,9 +604,17 @@ void vtkImageOrthoPlanes::SetTransformMatrix(
   this->Transform->Concatenate(matrix);
       
   // Apply this transform to the three planes
-  for (i = 0; i < 3; i++)
+  for (int j = 0; j < this->NumberOfPlanes; j++)
     {
-    vtkImagePlaneWidget *planeWidget = this->Planes[i];
+    vtkImagePlaneWidget *planeWidget = this->Planes[j];
+    
+    if (planeWidget == 0)
+      {
+      continue;
+      }
+
+    i = (j % 3);
+
     if (planeWidget != currentImagePlane)
       {
       double origin[3];
@@ -622,17 +640,44 @@ void vtkImageOrthoPlanes::SetTransformMatrix(
 
 //-----------------------------------------------------------------------
 void vtkImageOrthoPlanes::SetPlane(
-  int i, vtkImagePlaneWidget *currentImagePlane)
+  int j, vtkImagePlaneWidget *currentImagePlane)
 {
-  if (i >= 0 && i < 3)
+  if (j > this->NumberOfPlanes)
     {
-    if (this->Planes[i])
+    int n = 3*((j + 2)/3);
+
+    vtkImagePlaneWidget **widgets = new vtkImagePlaneWidget *[n];
+    long *tags = new long[n];
+
+    int k = 0;
+    for (k = 0; k < this->NumberOfPlanes; k++)
       {
-      this->Planes[i]->RemoveObserver(this->ObserverTags[i]);
-      this->Planes[i]->Delete();
+      widgets[k] = this->Planes[k];
+      tags[k] = this->ObserverTags[k];
+      }
+    for (k = this->NumberOfPlanes; k < n; k++)
+      {
+      widgets[k] = 0;
+      tags[k] = 0;
+      }
+
+    delete [] this->Planes;
+    delete [] this->ObserverTags;
+
+    this->Planes = widgets;
+    this->ObserverTags = tags;
+    this->NumberOfPlanes = n;
+    }
+
+  if (j >= 0 && j < this->NumberOfPlanes)
+    {
+    if (this->Planes[j])
+      {
+      this->Planes[j]->RemoveObserver(this->ObserverTags[j]);
+      this->Planes[j]->Delete();
       }
      
-    this->Planes[i] = currentImagePlane;
+    this->Planes[j] = currentImagePlane;
 
     if (currentImagePlane == 0)
       {
@@ -642,16 +687,27 @@ void vtkImageOrthoPlanes::SetPlane(
     vtkCallbackCommand* callbackCommand = vtkCallbackCommand::New();
     callbackCommand->SetClientData(this);
     callbackCommand->SetCallback(vtkImageOrthoPlanesInteractionCallback);
-    this->ObserverTags[i] =
+    this->ObserverTags[j] =
       currentImagePlane->AddObserver(vtkCommand::InteractionEvent,
                                      callbackCommand, 1.0);
     callbackCommand->Delete();
 
+    int i = (j % 3);
+
     currentImagePlane->SetPlaneOrientation(i);
     currentImagePlane->RestrictPlaneToVolumeOff();
-    currentImagePlane->GetOrigin(this->Origin[i]);
-    currentImagePlane->GetPoint1(this->Point1[i]);
-    currentImagePlane->GetPoint2(this->Point2[i]);
+    if (j < 3)
+      {
+      currentImagePlane->GetOrigin(this->Origin[i]);
+      currentImagePlane->GetPoint1(this->Point1[i]);
+      currentImagePlane->GetPoint2(this->Point2[i]);
+      }
+    else
+      {
+      currentImagePlane->SetOrigin(this->Origin[i]);
+      currentImagePlane->SetPoint1(this->Point1[i]);
+      currentImagePlane->SetPoint2(this->Point2[i]);
+      }    
 
     currentImagePlane->Register(this);
     }
@@ -660,18 +716,12 @@ void vtkImageOrthoPlanes::SetPlane(
     vtkErrorMacro("wrong plane index");
     return;
     }
-
-  // Diagnostic: only do this the last time
-  if (this->Planes[0] && this->Planes[1] && this->Planes[2])
-    {
-    this->Transform->Identity();
-    }
 }
 
 //-----------------------------------------------------------------------
 vtkImagePlaneWidget* vtkImageOrthoPlanes::GetPlane(int i)
 {
-  if (i < 0 || i >= 3)
+  if (i < 0 || i >= this->NumberOfPlanes)
     {
      vtkErrorMacro("requested invalid plane index");
      return 0;
@@ -702,15 +752,47 @@ void vtkImageOrthoPlanes::ResetPlanes()
     this->Origin[i][i] = intersection[i];
     this->Point1[i][i] = intersection[i];
     this->Point2[i][i] = intersection[i];
+    }
 
-    this->Planes[i]->SetOrigin(this->Origin[i]);
-    this->Planes[i]->SetPoint1(this->Point1[i]);
-    this->Planes[i]->SetPoint2(this->Point2[i]);
+  for (int j = 0; j < this->NumberOfPlanes; j++)
+    {
+    i = (j % 3);
 
-    this->Planes[i]->UpdatePlacement();
+    if (this->Planes[j])
+      {
+      this->Planes[j]->SetOrigin(this->Origin[i]);
+      this->Planes[j]->SetPoint1(this->Point1[i]);
+      this->Planes[j]->SetPoint2(this->Point2[i]);
+
+      this->Planes[j]->UpdatePlacement();
+      }
     }
 
   this->Modified();
+}
+
+//-----------------------------------------------------------------------
+void vtkImageOrthoPlanes::GetBounds(double bounds[6])
+{
+  vtkImageData *input = 
+    vtkImageData::SafeDownCast(this->Planes[0]->GetInput());
+  if (!input)
+    {
+    return;
+    }
+
+  int extent[6];
+  double origin[3];
+  double spacing[3];
+  input->UpdateInformation();
+  input->GetWholeExtent(extent);
+  input->GetOrigin(origin);
+  input->GetSpacing(spacing);
+  for (int i = 0; i < 3; i++)
+    {
+    bounds[2*i] = origin[i] + spacing[i]*extent[2*i];
+    bounds[2*i+1] = origin[i] + spacing[i]*extent[2*i+1];
+    }
 }
 
 //-----------------------------------------------------------------------
