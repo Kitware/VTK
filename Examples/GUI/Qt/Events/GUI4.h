@@ -24,28 +24,37 @@
  !!! license.
 =========================================================================*/
 
-#include "qapplication.h"
+#ifndef _GUI_h
+#define _GUI_h
 
-#if QT_VERSION >= 0x040000
-# include "GUI4.h"
-#else
-# include "GUI.h"
-#endif
+#include <QMainWindow>
+#include "ui_GUI4.h"
 
+class vtkRenderer;
+class vtkEventQtSlotConnect;
+class vtkObject;
+class vtkCommand;
 
-int main(int argc, char** argv)
+class GUI4 : public QMainWindow, public Ui::GUI
 {
-  QApplication app(argc, argv);
+  Q_OBJECT
+public:
+  GUI4();
+  ~GUI4();
 
-#if QT_VERSION <= 0x040000
-  Form1 widget;
-  app.setMainWidget(&widget);
-#else
-  GUI4 widget;
-#endif
+public slots:
+  void updateCoords(vtkObject*);
+  void popup(vtkObject * obj, unsigned long, 
+             void * client_data, void *,
+             vtkCommand * command);
+  void color1(QAction*);
+  void color2(QAction*);
 
-  widget.show();
+protected:
+  vtkRenderer* Ren1;
+  vtkRenderer* Ren2;
+  vtkEventQtSlotConnect* Connections;
+};
 
-  return app.exec();
-}
+#endif // _GUI_h
 
