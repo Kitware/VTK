@@ -26,7 +26,7 @@
 
 //---------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkImageOrthoPlanes, "1.2"); 
+vtkCxxRevisionMacro(vtkImageOrthoPlanes, "1.3"); 
 vtkStandardNewMacro(vtkImageOrthoPlanes);
 
 //---------------------------------------------------------------------------
@@ -247,17 +247,13 @@ void vtkImageOrthoPlanes::HandlePlanePush(
 
   this->Transform->GetInverse()->TransformPoint(center, center);
 
-  double origin[3];
-  double point1[3];
-  double point2[3];
-
   this->Origin[i][i] = center[i];
   this->Point1[i][i] = center[i];
   this->Point2[i][i] = center[i];
   
-  this->Transform->TransformPoint(this->Origin[i], origin);
-  this->Transform->TransformPoint(this->Point1[i], point1);
-  this->Transform->TransformPoint(this->Point2[i], point2);
+  double origin[3];
+  double point1[3];
+  double point2[3];
 
   if (center[i] < bounds[2*i] || center[i] > bounds[2*i+1])
     {
@@ -270,11 +266,21 @@ void vtkImageOrthoPlanes::HandlePlanePush(
       center[i] = bounds[2*i+1];
       }
 
+    this->Transform->TransformPoint(this->Origin[i], origin);
+    this->Transform->TransformPoint(this->Point1[i], point1);
+    this->Transform->TransformPoint(this->Point2[i], point2);
+
     currentImagePlane->SetOrigin(origin);
     currentImagePlane->SetPoint1(point1);
     currentImagePlane->SetPoint2(point2);
 
     currentImagePlane->UpdatePlacement();
+    }
+  else
+    {
+    currentImagePlane->GetOrigin(origin);
+    currentImagePlane->GetPoint1(point1);
+    currentImagePlane->GetPoint2(point2);
     }
 
   // Do all the synced planes
@@ -325,7 +331,7 @@ void vtkImageOrthoPlanes::HandlePlaneTranslate(
   matrix->SetElement(1, 3, matrix->GetElement(1, 3) + vec[1]);
   matrix->SetElement(2, 3, matrix->GetElement(2, 3) + vec[2]);
 
-  this->SetTransformMatrix(matrix, currentImagePlane);  
+  this->SetTransformMatrix(matrix, currentImagePlane, indexOfModifiedPlane);  
 
   matrix->Delete();
 }
@@ -424,7 +430,7 @@ void vtkImageOrthoPlanes::HandlePlaneRotation(
   matrix->SetElement(1, 3, translation[1]); 
   matrix->SetElement(2, 3, translation[2]); 
  
-  this->SetTransformMatrix(matrix, currentImagePlane);  
+  this->SetTransformMatrix(matrix, currentImagePlane, indexOfModifiedPlane);  
 
   matrix->Delete();
 }
@@ -516,7 +522,7 @@ void vtkImageOrthoPlanes::HandlePlaneScale(
       break;
     }
 
-  // Create a matrix for the relative change
+  // Create a rotation matrix
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   for (i = 0; i < 3; i++)
     {
@@ -527,9 +533,9 @@ void vtkImageOrthoPlanes::HandlePlaneScale(
     this->Transform->TransformVector(col, col);
     vtkMath::Normalize(col);
 
-    matrix->SetElement(0, i, col[0]*relativeScale[i]);
-    matrix->SetElement(1, i, col[1]*relativeScale[i]);
-    matrix->SetElement(2, i, col[2]*relativeScale[i]);
+    matrix->SetElement(0, i, col[0]);
+    matrix->SetElement(1, i, col[1]);
+    matrix->SetElement(2, i, col[2]);
     }
 
   // Grab the previous translation from the transform
@@ -544,6 +550,10 @@ void vtkImageOrthoPlanes::HandlePlaneScale(
   vtkTransform *transform = vtkTransform::New();
   transform->PostMultiply();
   transform->Translate(-oldCenter[0], -oldCenter[1], -oldCenter[2]);
+  matrix->Transpose();
+  transform->Concatenate(matrix);
+  transform->Scale(relativeScale[0], relativeScale[1], relativeScale[2]);
+  matrix->Transpose();
   transform->Concatenate(matrix);
   transform->Translate(center[0], center[1], center[2]);
   transform->TransformPoint(translation, translation);
@@ -571,7 +581,7 @@ void vtkImageOrthoPlanes::HandlePlaneScale(
     matrix->SetElement(i, 3, translation[i]);
     }
 
-  this->SetTransformMatrix(matrix, currentImagePlane);
+  this->SetTransformMatrix(matrix, currentImagePlane, indexOfModifiedPlane);
 
   matrix->Delete();
 }    
@@ -579,61 +589,47 @@ void vtkImageOrthoPlanes::HandlePlaneScale(
 //-----------------------------------------------------------------------
 void vtkImageOrthoPlanes::SetTransformMatrix(
   vtkMatrix4x4 *matrix,
-  vtkImagePlaneWidget *currentImagePlane)
+  vtkImagePlaneWidget *currentImagePlane,
+  int indexOfModifiedPlane)
 {
   int i = 0;
-
-  // Calculate the intersection of the planes so that it can be preserved
-  double intersectionPoint[3];
-  for (i = 0; i < 3; i++)
-    {
-    double q1[3];
-    double q2[3];
-
-    this->Planes[i]->GetPoint1(q1);
-    this->Planes[i]->GetPoint2(q2);
-      
-    this->Transform->GetInverse()->TransformPoint(q1, q1);
-    this->Transform->GetInverse()->TransformPoint(q2, q2);
-
-    intersectionPoint[i] = 0.5*(q1[i] + q2[i]);
-    }
 
   // Set the new transform
   this->Transform->Identity();
   this->Transform->Concatenate(matrix);
       
   // Apply this transform to the three planes
-  for (int j = 0; j < this->NumberOfPlanes; j++)
+  for (i = 0; i < 3; i++)
     {
-    vtkImagePlaneWidget *planeWidget = this->Planes[j];
-    
-    if (planeWidget == 0)
+    double origin[3];
+    double point1[3];
+    double point2[3];
+
+    if (i == indexOfModifiedPlane)
       {
-      continue;
+      currentImagePlane->GetOrigin(origin);
+      currentImagePlane->GetPoint1(point1);
+      currentImagePlane->GetPoint2(point2);
       }
-
-    i = (j % 3);
-
-    if (planeWidget != currentImagePlane)
+    else
       {
-      double origin[3];
-      double point1[3];
-      double point2[3];
-
-      this->Origin[i][i] = intersectionPoint[i];
-      this->Point1[i][i] = intersectionPoint[i];
-      this->Point2[i][i] = intersectionPoint[i];
-      
       this->Transform->TransformPoint(this->Origin[i], origin);
       this->Transform->TransformPoint(this->Point1[i], point1);
       this->Transform->TransformPoint(this->Point2[i], point2);
+      }      
 
-      planeWidget->SetOrigin(origin);
-      planeWidget->SetPoint1(point1);
-      planeWidget->SetPoint2(point2);
+    for (int j = i; j < this->NumberOfPlanes; j += 3)
+      {
+      vtkImagePlaneWidget *planeWidget = this->Planes[j];
+    
+      if (planeWidget != 0 && planeWidget != currentImagePlane)
+        {
+        planeWidget->SetOrigin(origin);
+        planeWidget->SetPoint1(point1);
+        planeWidget->SetPoint2(point2);
 
-      planeWidget->UpdatePlacement();
+        planeWidget->UpdatePlacement();
+        }
       }
     }
 }

@@ -69,7 +69,8 @@ protected:
                        int indexOfModifiedPlane);
 
   void SetTransformMatrix(vtkMatrix4x4 *matrix,
-                          vtkImagePlaneWidget *currentImagePlane);
+                          vtkImagePlaneWidget *currentImagePlane,
+                          int indexOfModifiedPlane);
   
   void GetBounds(double bounds[3]);
 
