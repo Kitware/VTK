@@ -68,7 +68,11 @@ int main(int argc, char *argv[])
   vtkSmartPointer<vtkPolyDataMapper> mapper = 
     vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(geom->GetOutputPort());
-  
+  mapper->ScalarVisibilityOn();
+  mapper->SetScalarModeToUseCellFieldData();
+  mapper->SelectColorArray("BlockId");
+  mapper->SetScalarRange(0,3);
+
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
