@@ -41,8 +41,8 @@
 #define VTK_CREATE(type, var) \
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-const NumImagesX = 6;
-const NumImagesY = 2;
+const int NumImagesX = 6;
+const int NumImagesY = 2;
 
 static void CreateHex(vtkUnstructuredGrid *hex)
 {
