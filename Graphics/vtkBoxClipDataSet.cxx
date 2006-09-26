@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.20");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.21");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 vtkCxxSetObjectMacro(vtkBoxClipDataSet, Locator, vtkPointLocator)
@@ -486,26 +486,110 @@ void vtkBoxClipDataSet::SetBoxClip(const double *n0, const double *o0,
                                    const double *n4, const double *o4,
                                    const double *n5, const double *o5)
 {
-  for (int i=0;i<3;i++)
+  if (   (this->Orientation == 1)
+
+      && (this->PlaneNormal[0][0] == n0[0])
+      && (this->PlaneNormal[0][1] == n0[1])
+      && (this->PlaneNormal[0][2] == n0[2])
+
+      && (this->PlaneNormal[1][0] == n1[0])
+      && (this->PlaneNormal[1][1] == n1[1])
+      && (this->PlaneNormal[1][2] == n1[2])
+
+      && (this->PlaneNormal[2][0] == n2[0])
+      && (this->PlaneNormal[2][1] == n2[1])
+      && (this->PlaneNormal[2][2] == n2[2])
+
+      && (this->PlaneNormal[3][0] == n3[0])
+      && (this->PlaneNormal[3][1] == n3[1])
+      && (this->PlaneNormal[3][2] == n3[2])
+
+      && (this->PlaneNormal[4][0] == n4[0])
+      && (this->PlaneNormal[4][1] == n4[1])
+      && (this->PlaneNormal[4][2] == n4[2])
+
+      && (this->PlaneNormal[5][0] == n5[0])
+      && (this->PlaneNormal[5][1] == n5[1])
+      && (this->PlaneNormal[5][2] == n5[2])
+
+      && (this->PlanePoint[0][0] == o0[0])
+      && (this->PlanePoint[0][1] == o0[1])
+      && (this->PlanePoint[0][2] == o0[2])
+
+      && (this->PlanePoint[1][0] == o1[0])
+      && (this->PlanePoint[1][1] == o1[1])
+      && (this->PlanePoint[1][2] == o1[2])
+
+      && (this->PlanePoint[2][0] == o2[0])
+      && (this->PlanePoint[2][1] == o2[1])
+      && (this->PlanePoint[2][2] == o2[2])
+
+      && (this->PlanePoint[3][0] == o3[0])
+      && (this->PlanePoint[3][1] == o3[1])
+      && (this->PlanePoint[3][2] == o3[2])
+
+      && (this->PlanePoint[4][0] == o4[0])
+      && (this->PlanePoint[4][1] == o4[1])
+      && (this->PlanePoint[4][2] == o4[2])
+
+      && (this->PlanePoint[5][0] == o5[0])
+      && (this->PlanePoint[5][1] == o5[1])
+      && (this->PlanePoint[5][2] == o5[2]) )
     {
-    this->PlaneNormal[0][i] = n0[i];
-    this->PlanePoint[0][i] = o0[i];
-
-    this->PlaneNormal[1][i] = n1[i];
-    this->PlanePoint[1][i] = o1[i];
-
-    this->PlaneNormal[2][i] = n2[i];
-    this->PlanePoint[2][i] = o2[i];
-
-    this->PlaneNormal[3][i] = n3[i];
-    this->PlanePoint[3][i] = o3[i];
-
-    this->PlaneNormal[4][i] = n4[i];
-    this->PlanePoint[4][i] = o4[i];
-
-    this->PlaneNormal[5][i] = n5[i];
-    this->PlanePoint[5][i] = o5[i];
+    return;
     }
+
+  this->SetOrientation(1);
+
+  this->PlaneNormal[0][0] = n0[0];
+  this->PlaneNormal[0][1] = n0[1];
+  this->PlaneNormal[0][2] = n0[2];
+
+  this->PlaneNormal[1][0] = n1[0];
+  this->PlaneNormal[1][1] = n1[1];
+  this->PlaneNormal[1][2] = n1[2];
+
+  this->PlaneNormal[2][0] = n2[0];
+  this->PlaneNormal[2][1] = n2[1];
+  this->PlaneNormal[2][2] = n2[2];
+
+  this->PlaneNormal[3][0] = n3[0];
+  this->PlaneNormal[3][1] = n3[1];
+  this->PlaneNormal[3][2] = n3[2];
+
+  this->PlaneNormal[4][0] = n4[0];
+  this->PlaneNormal[4][1] = n4[1];
+  this->PlaneNormal[4][2] = n4[2];
+
+  this->PlaneNormal[5][0] = n5[0];
+  this->PlaneNormal[5][1] = n5[1];
+  this->PlaneNormal[5][2] = n5[2];
+
+  this->PlanePoint[0][0] = o0[0];
+  this->PlanePoint[0][1] = o0[1];
+  this->PlanePoint[0][2] = o0[2];
+
+  this->PlanePoint[1][0] = o1[0];
+  this->PlanePoint[1][1] = o1[1];
+  this->PlanePoint[1][2] = o1[2];
+
+  this->PlanePoint[2][0] = o2[0];
+  this->PlanePoint[2][1] = o2[1];
+  this->PlanePoint[2][2] = o2[2];
+
+  this->PlanePoint[3][0] = o3[0];
+  this->PlanePoint[3][1] = o3[1];
+  this->PlanePoint[3][2] = o3[2];
+
+  this->PlanePoint[4][0] = o4[0];
+  this->PlanePoint[4][1] = o4[1];
+  this->PlanePoint[4][2] = o4[2];
+
+  this->PlanePoint[5][0] = o5[0];
+  this->PlanePoint[5][1] = o5[1];
+  this->PlanePoint[5][2] = o5[2];
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -515,6 +599,17 @@ void vtkBoxClipDataSet::SetBoxClip(double xmin,double xmax,
                                    double ymin,double ymax,
                                    double zmin,double zmax)
 {
+  if (   (this->Orientation == 0)
+      && (this->BoundBoxClip[0][0] == xmin)
+      && (this->BoundBoxClip[0][1] == xmax)
+      && (this->BoundBoxClip[1][0] == ymin)
+      && (this->BoundBoxClip[1][1] == ymax)
+      && (this->BoundBoxClip[2][0] == zmin)
+      && (this->BoundBoxClip[2][1] == zmax) )
+    {
+    return;
+    }
+
   this->SetOrientation(0);
   this->BoundBoxClip[0][0] = xmin;
   this->BoundBoxClip[0][1] = xmax;
@@ -522,6 +617,8 @@ void vtkBoxClipDataSet::SetBoxClip(double xmin,double xmax,
   this->BoundBoxClip[1][1] = ymax;
   this->BoundBoxClip[2][0] = zmin;
   this->BoundBoxClip[2][1] = zmax;
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -552,6 +649,34 @@ void vtkBoxClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
      << (this->GenerateClippedOutput ? "Yes\n" : "Off\n");
   os << indent << "Generate Clip Scalars: "
      << (this->GenerateClipScalars ? "On\n" : "Off\n");
+}
+
+//-----------------------------------------------------------------------------
+// InterpolateEdge: Interpolate the data in a vtkDataSetAttributes along a line
+//
+// This method works very much like vtkDataSetAttributes::InterpolateEdge
+// except that rather than take the interpolation information from an
+// input and copy it to an output, the values to interpolate are already
+// placed in the output arrays.  This is necessary because vtkBoxClipDataSet
+// will continually cut (and consequently interpolate) the input until it
+// fits within the bounds.
+void vtkBoxClipDataSet::InterpolateEdge(vtkDataSetAttributes *attributes,
+                                        vtkIdType toId,
+                                        vtkIdType fromId1, vtkIdType fromId2,
+                                        double t)
+{
+  int numArrays = attributes->GetNumberOfArrays();
+  for (int i = 0; i < numArrays; i++)
+    {
+    vtkAbstractArray *array = attributes->GetAbstractArray(i);
+
+    // We are ignoring any special interpolate flags (such as nearest neighbor
+    // interpolation).  That kind of interpolation is not linear and could be
+    // incorrect when multiple cuts are performed on the same primitive (which
+    // can happen).
+
+    array->InterpolateTuple(toId, fromId1, array, fromId2, array, t);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1893,8 +2018,8 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
             edges_inter = edges_inter * 10 + (edgeNum+1);
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
               {
-              outPD->InterpolateEdge(inPD, p_id[num_inter], cellIds->GetId(v1),
-                                     cellIds->GetId(v2), t);
+              this->InterpolateEdge(outPD, p_id[num_inter],
+                                    v_id[v1], v_id[v2], t);
               }
             num_inter++;        
             }//if edge intersects value
@@ -2378,8 +2503,8 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
 
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
               {
-              outPD->InterpolateEdge(inPD, p_id[num_inter], cellIds->GetId(v1),
-                                     cellIds->GetId(v2), t);
+              this->InterpolateEdge(outPD, p_id[num_inter],
+                                    v_id[v1], v_id[v2], t);
               }
       
             num_inter++;        
@@ -2862,8 +2987,8 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
             edges_inter = edges_inter * 10 + (edgeNum+1);
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
               {
-              outPD->InterpolateEdge(inPD, p_id[num_inter], cellIds->GetId(v1),
-                   cellIds->GetId(v2), t);
+              this->InterpolateEdge(outPD, p_id[num_inter],
+                                    v_id[v1], v_id[v2], t);
               }
       
             num_inter++;        
@@ -3422,8 +3547,8 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
     
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
               {
-              outPD->InterpolateEdge(inPD, p_id[num_inter], cellIds->GetId(v1),
-                                     cellIds->GetId(v2), t);
+              this->InterpolateEdge(outPD, p_id[num_inter],
+                                    v_id[v1], v_id[v2], t);
               }
           
             num_inter++;        
@@ -3921,8 +4046,8 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
             edges_inter = edges_inter * 10 + (edgeNum+1);
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
               {
-              outPD->InterpolateEdge(inPD, p_id[num_inter], cellIds->GetId(v1),
-                                     cellIds->GetId(v2), t);
+              this->InterpolateEdge(outPD, p_id[num_inter],
+                                    v_id[v1], v_id[v2], t);
               }
 
             num_inter++;        
@@ -4281,8 +4406,8 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
             edges_inter = edges_inter * 10 + (edgeNum+1);
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
               {
-              outPD->InterpolateEdge(inPD, p_id[num_inter], cellIds->GetId(v1),
-                                     cellIds->GetId(v2), t);
+              this->InterpolateEdge(outPD, p_id[num_inter],
+                                    v_id[v1], v_id[v2], t);
               }
       
             num_inter++;        
@@ -4679,8 +4804,8 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
 
               if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
                 {
-                outPD->InterpolateEdge(inPD, p_id[num_inter], cellIds->GetId(v1),
-                                       cellIds->GetId(v2), t);
+                this->InterpolateEdge(outPD, p_id[num_inter],
+                                      v_id[v1], v_id[v2], t);
                 }
         
               num_inter++;        
@@ -5038,8 +5163,8 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
 
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
               {
-              outPD->InterpolateEdge(inPD, p_id[num_inter], cellIds->GetId(v1),
-                                     cellIds->GetId(v2), t);
+              this->InterpolateEdge(outPD, p_id[num_inter],
+                                    v_id[v1], v_id[v2], t);
               }
       
             num_inter++;        
@@ -5405,8 +5530,7 @@ void vtkBoxClipDataSet::ClipBox1D(vtkPoints *newPoints,
         // necessary.
         if (locator->InsertUniquePoint(x, p_id))
           {
-          outPD->InterpolateEdge(inPD, p_id, cellIds->GetId(0),
-                                 cellIds->GetId(1), t);
+          this->InterpolateEdge(outPD, p_id, v_id[0], v_id[0], t);
           }
 
         // Add the clipped line to the output.
@@ -5625,8 +5749,7 @@ void vtkBoxClipDataSet::ClipBoxInOut1D(vtkPoints *newPoints,
         // necessary.
         if (locator->InsertUniquePoint(x, p_id))
           {
-          outPD->InterpolateEdge(inPD, p_id, cellIds->GetId(0),
-                                 cellIds->GetId(1), t);
+          this->InterpolateEdge(outPD, p_id, v_id[0], v_id[0], t);
           }
 
         // Add the clipped line to the output.
@@ -5845,8 +5968,7 @@ void vtkBoxClipDataSet::ClipHexahedron1D(vtkPoints *newPoints,
         // necessary.
         if (locator->InsertUniquePoint(x, p_id))
           {
-          outPD->InterpolateEdge(inPD, p_id, cellIds->GetId(0),
-                                 cellIds->GetId(1), t);
+          this->InterpolateEdge(outPD, p_id, v_id[0], v_id[0], t);
           }
 
         // Add the clipped line to the output.
@@ -6045,8 +6167,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut1D(vtkPoints *newPoints,
         // necessary.
         if (locator->InsertUniquePoint(x, p_id))
           {
-          outPD->InterpolateEdge(inPD, p_id, cellIds->GetId(0),
-                                 cellIds->GetId(1), t);
+          this->InterpolateEdge(outPD, p_id, v_id[0], v_id[0], t);
           }
 
         // Add the clipped line to the output.

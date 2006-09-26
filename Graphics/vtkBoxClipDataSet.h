@@ -47,15 +47,16 @@
 
 #include "vtkUnstructuredGridAlgorithm.h"
 
-class vtkGenericCell;            
-class vtkCell3D;                     
-class vtkDataArray;                    
-class vtkCellArray;                   
-class vtkPointData;                   
-class vtkCellData;                    
-class vtkPoints;                      
-class vtkIdList;                    
+class vtkCell3D;
+class vtkCellArray;
+class vtkCellData;
+class vtkDataArray;
+class vtkDataSetAttributes;
+class vtkIdList;
+class vtkGenericCell;
+class vtkPointData;
 class vtkPointLocator;
+class vtkPoints;
 
 class VTK_GRAPHICS_EXPORT vtkBoxClipDataSet : public vtkUnstructuredGridAlgorithm
 {
@@ -127,6 +128,12 @@ public:
   vtkGetMacro(Orientation,unsigned int);
   vtkSetMacro(Orientation,unsigned int);
   
+
+  static void InterpolateEdge(vtkDataSetAttributes *attributes,
+                              vtkIdType toId,
+                              vtkIdType fromId1, vtkIdType fromId2,
+                              double t);
+
   void MinEdgeF(const unsigned int *id_v, const vtkIdType *cellIds,
                 unsigned int *edgF );
   void PyramidToTetra(const vtkIdType *pyramId, const vtkIdType *cellIds,
