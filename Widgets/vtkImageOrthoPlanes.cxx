@@ -26,7 +26,7 @@
 
 //---------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkImageOrthoPlanes, "1.3"); 
+vtkCxxRevisionMacro(vtkImageOrthoPlanes, "1.4"); 
 vtkStandardNewMacro(vtkImageOrthoPlanes);
 
 //---------------------------------------------------------------------------
@@ -117,15 +117,6 @@ void vtkImageOrthoPlanes::HandlePlaneEvent(
                            << currentImagePlane);
     return;
     }
-
-  // Origin, point1, point2
-  double p0[3];
-  double p1[3];
-  double p2[3];
-
-  currentImagePlane->GetOrigin(p0);
-  currentImagePlane->GetPoint1(p1);
-  currentImagePlane->GetPoint2(p2);
 
   // Two vectors defining the plane orientation
   double v1[3];
