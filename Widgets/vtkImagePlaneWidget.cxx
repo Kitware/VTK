@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.4");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.4.2.1");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1335,7 +1335,9 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
   this->OriginalLevel = 0.5*(range[0] + range[1]);
 
   this->Reslice->SetInput(this->ImageData);
-  this->SetResliceInterpolate(this->ResliceInterpolate);
+  int interpolate = this->ResliceInterpolate;
+  this->ResliceInterpolate = -1; // Force change
+  this->SetResliceInterpolate(interpolate);
 
   this->ColorMap->SetInput(this->Reslice->GetOutput());
 
@@ -1440,14 +1442,14 @@ void vtkImagePlaneWidget::UpdatePlane()
 
   double planeOrigin[4];
   this->PlaneSource->GetOrigin(planeOrigin);
+
   planeOrigin[3] = 1.0;
   double originXYZW[4];
-  this->ResliceAxes->MultiplyPoint(planeOrigin,originXYZW);
+  this->ResliceAxes->MultiplyPoint(planeOrigin, originXYZW);
 
   this->ResliceAxes->Transpose();
   double neworiginXYZW[4];
-  double point[] =  {originXYZW[0],originXYZW[1],originXYZW[2],originXYZW[3]};
-  this->ResliceAxes->MultiplyPoint(point,neworiginXYZW);
+  this->ResliceAxes->MultiplyPoint(originXYZW, neworiginXYZW);
 
   this->ResliceAxes->SetElement(0,3,neworiginXYZW[0]);
   this->ResliceAxes->SetElement(1,3,neworiginXYZW[1]);
@@ -1507,9 +1509,11 @@ void vtkImagePlaneWidget::UpdatePlane()
         }
     }
 
-  this->Reslice->SetOutputSpacing(planeSizeX/extentX,planeSizeY/extentY,1);
-  this->Reslice->SetOutputOrigin(0.0,0.0,0.0);
-  this->Reslice->SetOutputExtent(0,extentX-1,0,extentY-1,0,0);
+  double outputSpacingX = planeSizeX/extentX;
+  double outputSpacingY = planeSizeY/extentY;
+  this->Reslice->SetOutputSpacing(outputSpacingX, outputSpacingY, 1);
+  this->Reslice->SetOutputOrigin(0.5*outputSpacingX, 0.5*outputSpacingY, 0);
+  this->Reslice->SetOutputExtent(0, extentX-1, 0, extentY-1, 0, 0);
 }
 
 vtkImageData* vtkImagePlaneWidget::GetResliceOutput()
