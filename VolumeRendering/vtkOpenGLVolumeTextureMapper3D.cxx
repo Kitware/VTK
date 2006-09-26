@@ -40,6 +40,18 @@ extern const char* vtkVolumeTextureMapper3D_TwoDependentShadeFP;
 extern const char* vtkVolumeTextureMapper3D_FourDependentNoShadeFP;
 extern const char* vtkVolumeTextureMapper3D_FourDependentShadeFP;
 
+// Apple OS X doesn't have glTexImage3DEXT, but it does have glTexImage3D
+#if defined(__APPLE__) && defined(GL_VERSION_1_4)
+#ifdef TexImage3DEXT
+#undef TexImage3DEXT
+#endif
+#define TexImage3DEXT TexImage3D
+#ifdef TEXTURE_3D_EXT
+#undef TEXTURE_3D_EXT
+#endif
+#define TEXTURE_3D_EXT TEXTURE_3D
+#endif /* defined(__APPLE__) && defined(GL_VERSION_1_4) */
+
 //extern "C" void (*glXGetProcAddressARB(const GLubyte *procName))( void );
 
 //#ifdef _WIN32
@@ -66,7 +78,7 @@ extern const char* vtkVolumeTextureMapper3D_FourDependentShadeFP;
     }}
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.7");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.8");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -1745,7 +1757,6 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
   vtkOpenGLExtensionManager * extensions = vtkOpenGLExtensionManager::New();
   extensions->SetRenderWindow(NULL); // set render window to current render window
   
-  
   int supports_GL_EXT_texture3D          = extensions->ExtensionSupported( "GL_EXT_texture3D" );
   int supports_GL_ARB_multitexture       = extensions->ExtensionSupported( "GL_ARB_multitexture" );
   int supports_GL_NV_texture_shader2     = extensions->ExtensionSupported( "GL_NV_texture_shader2" );
@@ -1797,6 +1808,11 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
 
   extensions->Delete();
   
+#if defined(__APPLE__) && defined(GL_VERSION_1_4)
+  // Apple doesn't have glTexImage3D_EXT, but it does have
+  // OpenGL 1.4 which supports glTexImage3D directly
+  supports_GL_EXT_texture3D = 1;
+#endif
   
   int canDoFP = 0;
   int canDoNV = 0;
