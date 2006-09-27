@@ -44,13 +44,17 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 #endif
 
 #ifdef VTK_USE_APPLE_LOADER
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3
+#include <dlfcn.h>
+#else
 #include <mach-o/dyld.h>
+#endif
 #endif //VTK_USE_APPLE_LOADER
 
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.17");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.18");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 vtkOpenGLExtensionManager::vtkOpenGLExtensionManager()
@@ -162,6 +166,28 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
 
 
 #ifdef VTK_USE_APPLE_LOADER
+
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3
+  
+  void* globalsymbolobject = dlopen(NULL, RTLD_GLOBAL);
+  if(globalsymbolobject)
+    {
+    void* dlsymbol = dlsym(globalsymbolobject, fname);
+    dlclose(globalsymbolobject);
+    if(!dlsymbol)
+      {
+      vtkDebugMacro("Could not load " << fname);
+      }
+    return (vtkOpenGLExtensionManagerFunctionPointer)(dlsymbol);
+    }
+  else
+    {
+    vtkDebugMacro("Could not load " << fname);
+    return NULL;
+    }
+
+#else
+  
   NSSymbol symbol = NULL;
   char *mangled_fname = new char[strlen(fname)+2];
   // Prepend a '_' to the function name.
@@ -185,6 +211,8 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
     vtkDebugMacro("Could not load " << mangled_fname);
     return NULL;
     }
+
+#endif //MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3
 #endif //VTK_USE_APPLE_LOADER
 
 
