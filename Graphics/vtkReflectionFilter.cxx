@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkReflectionFilter, "1.16");
+vtkCxxRevisionMacro(vtkReflectionFilter, "1.17");
 vtkStandardNewMacro(vtkReflectionFilter);
 
 //---------------------------------------------------------------------------
@@ -133,7 +133,7 @@ int vtkReflectionFilter::RequestData(
       mirrorDir[0] = -1;
       break;
     case USE_X:
-      constant[0] = this->Center;
+      constant[0] = 2*this->Center;
       mirrorDir[0] = -1;
       break;
     case USE_Y_MIN:
@@ -145,7 +145,7 @@ int vtkReflectionFilter::RequestData(
       mirrorDir[1] = -1;
       break;
     case USE_Y:
-      constant[1] = this->Center;
+      constant[1] = 2*this->Center;
       mirrorDir[1] = -1;
       break;
     case USE_Z_MIN:
@@ -157,7 +157,7 @@ int vtkReflectionFilter::RequestData(
       mirrorDir[2] = -1;
       break;
     case USE_Z:
-      constant[2] = this->Center;
+      constant[2] = 2*this->Center;
       mirrorDir[2] = -1;
       break;
     }
