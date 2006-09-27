@@ -70,6 +70,7 @@
 class vtkCompositeDataSet;
 class vtkDataArray;
 class vtkDoubleArray;
+class vtkExecutive;
 class vtkGenericCell;
 class vtkIdList;
 class vtkIntArray;
@@ -291,6 +292,9 @@ protected:
 
   vtkStreamTracer();
   ~vtkStreamTracer();
+
+  // Create a default executive.
+  virtual vtkExecutive* CreateDefaultExecutive();
 
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *) 

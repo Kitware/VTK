@@ -40,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.44");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.45");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkInterpolatedVelocityField);
@@ -1415,3 +1415,9 @@ void vtkStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
      << (this->ComputeVorticity ? " On" : " Off") << endl;
   os << indent << "Rotation scale: " << this->RotationScale << endl;
 }
+
+vtkExecutive* vtkStreamTracer::CreateDefaultExecutive()
+{
+  return vtkCompositeDataPipeline::New();
+}
+
