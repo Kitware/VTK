@@ -219,14 +219,8 @@ protected:
   vtkCarbonRenderWindowInternal* Internal;
 
   int ApplicationInitialized; // Toolboxen initialized?
-  Boolean fAcceleratedMust;   // input: must renderer be accelerated?
-  Boolean draggable;          // input: is the window draggable?
   GLint aglAttributes[64];    // input: pixel format attributes always required
                               //   (reset to what was actually allocated)
-  SInt32 VRAM;                // input: minimum VRAM; output: actual
-                              //   (if successful otherwise input)
-  SInt32 textureRAM;          // input: amount of texture RAM required on card;
-                              // output: same (used in allocation)
   AGLContext ContextId;
   HIViewRef WindowId;
   HIViewRef ParentId;
