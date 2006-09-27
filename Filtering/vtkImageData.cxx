@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.24");
+vtkCxxRevisionMacro(vtkImageData, "1.25");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1119,7 +1119,10 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
         pcoords[i] = 1.0;
         }
       }
-
+    // We now need to subtract the lower extent to shift to
+    // the correct location in the image (mapping {extent[0],
+    // extent[2], extent[4]) to (0, 0, 0)
+    ijk[i] -= extent[i*2];
     }
   return 1;
 }
