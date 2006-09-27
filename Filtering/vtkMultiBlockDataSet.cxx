@@ -17,10 +17,11 @@
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationVector.h"
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiBlockDataSet, "1.6");
+vtkCxxRevisionMacro(vtkMultiBlockDataSet, "1.7");
 vtkStandardNewMacro(vtkMultiBlockDataSet);
 
 vtkInformationKeyMacro(vtkMultiBlockDataSet,BLOCK,Integer);
@@ -64,3 +65,16 @@ void vtkMultiBlockDataSet::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 }
 
+//----------------------------------------------------------------------------
+vtkMultiBlockDataSet* vtkMultiBlockDataSet::GetData(vtkInformation* info)
+{
+  return
+    info? vtkMultiBlockDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkMultiBlockDataSet* vtkMultiBlockDataSet::GetData(vtkInformationVector* v,
+                                                    int i)
+{
+  return vtkMultiBlockDataSet::GetData(v->GetInformationObject(i));
+}
