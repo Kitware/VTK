@@ -25,7 +25,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataReader, "1.6");
+vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataReader, "1.7");
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataReader);
 
 struct vtkXMLHierarchicalBoxDataReaderInternals
@@ -61,9 +61,7 @@ const char* vtkXMLHierarchicalBoxDataReader::GetDataSetName()
 int vtkXMLHierarchicalBoxDataReader::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
-  info->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_TYPE_NAME(), 
-            "vtkHierarchicalBoxDataSet");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHierarchicalBoxDataSet");
   return 1;
 }
 

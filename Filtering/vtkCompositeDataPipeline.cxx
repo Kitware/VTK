@@ -36,10 +36,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.46");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.47");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
-vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_TYPE_NAME,String);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,UPDATE_BLOCKS, ObjectBase);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,REQUIRES_TIME_DOWNSTREAM, Integer);
@@ -458,9 +457,9 @@ int vtkCompositeDataPipeline
     const char* inputType = 
       inPortInfo->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
     if (!strcmp("vtkTemporalDataSet",inputType))
-      {
-      return 0;
-      }
+    {
+    return 0;
+    }
     }
 
   if (!this->Algorithm->GetNumberOfOutputPorts())
@@ -1171,33 +1170,6 @@ int vtkCompositeDataPipeline
 {
   // Check that the given output port has a valid data object.
   vtkInformation* outInfo = outInfoVec->GetInformationObject(port);
-  vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkInformation* portInfo = this->Algorithm->GetOutputPortInformation(port);
-
-  if (const char* dt = portInfo->Get(COMPOSITE_DATA_TYPE_NAME()))
-    {
-    if(!data || !data->IsA(dt))
-      {
-      // Try to create an instance of the correct type.
-      data = this->NewDataObject(dt);
-      data->SetPipelineInformation(outInfo);
-      if(data)
-        {
-        data->FastDelete();
-        }
-      }
-    if (!data)
-      {
-      // The algorithm has a bug and did not create the data object.
-      vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "("
-                    << this->Algorithm
-                    << ") did not create output for port " << port
-                    << " when asked by REQUEST_DATA_OBJECT and does not"
-                    << " specify a concrete COMPOSITE_DATA_TYPE_NAME.");
-      return 0;
-      }
-    return 1;
-    }
 
   // If this is a simple filter but has composite input, create a composite
   // output.

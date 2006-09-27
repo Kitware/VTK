@@ -24,7 +24,7 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataSet, "1.9");
+vtkCxxRevisionMacro(vtkCompositeDataSet, "1.10");
 
 vtkInformationKeyMacro(vtkCompositeDataSet,INDEX,Integer);
 
@@ -55,8 +55,7 @@ vtkAlgorithmOutput* vtkCompositeDataSet::GetProducerPort()
     tp->SetExecutive(exec);
     vtkInformation* portInfo = 
       tp->GetOutputPortInformation(0);
-    portInfo->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_TYPE_NAME(), 
-                  this->GetClassName());
+    portInfo->Set(vtkDataObject::DATA_TYPE_NAME(), this->GetClassName());
     exec->Delete();
     tp->SetOutput(this);
     tp->Delete();

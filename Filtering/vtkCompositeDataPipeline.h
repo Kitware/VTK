@@ -81,7 +81,6 @@ public:
 
   // Description:
   // vtkCompositeDataPipeline specific keys
-  static vtkInformationStringKey*        COMPOSITE_DATA_TYPE_NAME();
   static vtkInformationObjectBaseKey*    COMPOSITE_DATA_INFORMATION();
   static vtkInformationObjectBaseKey*    UPDATE_BLOCKS();
   static vtkInformationIntegerKey*       REQUIRES_TIME_DOWNSTREAM();

@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataSetAlgorithm, "1.2");
+vtkCxxRevisionMacro(vtkMultiGroupDataSetAlgorithm, "1.3");
 vtkStandardNewMacro(vtkMultiGroupDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -129,9 +129,7 @@ int vtkMultiGroupDataSetAlgorithm::ProcessRequest(
 int vtkMultiGroupDataSetAlgorithm::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
-  info->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_TYPE_NAME(), 
-            "vtkMultiGroupDataSet");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiGroupDataSet");
   return 1;
 }
 
