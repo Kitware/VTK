@@ -69,6 +69,11 @@ public:
   // Get the data type size from the underlying array.
   int GetDataTypeSize();
 
+  // Description:
+  // Sets the value at the index. This does not verify if the index is valid.
+  // The caller must ensure that id is less than the maximum number of values.
+  void SetValue(vtkIdType id, int value);
+
   //BTX
   // Description:
   // Data type of a value.

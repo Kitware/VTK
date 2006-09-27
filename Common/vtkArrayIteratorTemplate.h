@@ -63,7 +63,14 @@ public:
   T& GetValue(vtkIdType id)
     { return this->Pointer[id]; }
 
-  
+  // Description:
+  // Sets the value at the index. This does not verify if the index is valid.
+  // The caller must ensure that id is less than the maximum number of values.
+  void SetValue(vtkIdType id, T value)
+    {
+    this->Pointer[id] = value;
+    }
+
   // Description:
   // Must be called only after Initialize.
   vtkIdType GetNumberOfTuples();

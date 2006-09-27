@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkBitArrayIterator);
-vtkCxxRevisionMacro(vtkBitArrayIterator, "1.1");
+vtkCxxRevisionMacro(vtkBitArrayIterator, "1.2");
 vtkCxxSetObjectMacro(vtkBitArrayIterator, Array, vtkBitArray);
 //-----------------------------------------------------------------------------
 vtkBitArrayIterator::vtkBitArrayIterator()
@@ -90,6 +90,15 @@ int vtkBitArrayIterator::GetValue(vtkIdType id)
   return 0;
 }
   
+//-----------------------------------------------------------------------------
+void vtkBitArrayIterator::SetValue(vtkIdType id, int value)
+{
+  if (this->Array)
+    {
+    this->Array->SetValue(id, value);
+    }
+}
+
 //-----------------------------------------------------------------------------
 vtkIdType vtkBitArrayIterator::GetNumberOfTuples()
 {
