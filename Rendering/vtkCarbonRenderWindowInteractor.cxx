@@ -26,7 +26,7 @@
 
 #import <Carbon/Carbon.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.19");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.20");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -42,7 +42,7 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
                                      EventRef event, void* userData)
 {
   OSStatus                         result = eventNotHandledErr;
-  Point                            mouseLoc;
+  HIPoint                          mouseLoc;
   vtkCarbonRenderWindow            *ren;
   vtkCarbonRenderWindowInteractor  *me;
   UInt32                           eventClass = GetEventClass(event);
@@ -148,20 +148,23 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
       {
       // see if the event is for this view
       HIViewRef view_for_mouse;
-      HIViewGetViewForMouseEvent(HIViewGetRoot(ren->GetRootWindow()), event, &view_for_mouse);
+      HIViewRef root_window = HIViewGetRoot(ren->GetRootWindow());
+      HIViewGetViewForMouseEvent(root_window, event, &view_for_mouse);
       if(view_for_mouse != ren->GetWindowId())
         return eventNotHandledErr;
 
-      GetEventParameter(event, kEventParamMouseLocation, typeQDPoint,
-                        NULL, sizeof(Point), NULL, &mouseLoc);
-      SetPortWindowPort(FrontWindow());
-      GlobalToLocal(&mouseLoc);
+      GetEventParameter(event, kEventParamMouseLocation, typeHIPoint,
+                        NULL, sizeof(HIPoint), NULL, &mouseLoc);
+      
+      HIViewConvertPoint(&mouseLoc, root_window, ren->GetWindowId());
+
       GetEventParameter(event, kEventParamKeyModifiers,typeUInt32, NULL,
                         sizeof(modifierKeys), NULL, &modifierKeys);
       UInt16 buttonNumber;
       GetEventParameter(event, kEventParamMouseButton, typeMouseButton, NULL,
                         sizeof(buttonNumber), NULL, &buttonNumber);
-      me->SetEventInformationFlipY(mouseLoc.h, mouseLoc.v,
+      
+      me->SetEventInformationFlipY((int)mouseLoc.x, (int)mouseLoc.y,
                                    (modifierKeys & controlKey),
                                    (modifierKeys & shiftKey));
       me->SetAltKey(modifierKeys & altKey);
