@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataExtractGroup, "1.7");
+vtkCxxRevisionMacro(vtkMultiGroupDataExtractGroup, "1.8");
 vtkStandardNewMacro(vtkMultiGroupDataExtractGroup);
 
 //----------------------------------------------------------------------------
@@ -158,8 +158,39 @@ int vtkMultiGroupDataExtractGroup::RequestData(
     info->Get(vtkDataObject::DATA_OBJECT()));
   if (!output) {return 0;}
 
-  output->SetNumberOfGroups(this->MaxGroup-this->MinGroup+1);
-  unsigned int numGroups = output->GetNumberOfGroups();
+  unsigned int numGroups = this->MaxGroup-this->MinGroup+1;
+
+  // Detect the case where we are extracting 1 group and that group
+  // is a multigroup dataset. In that situation, directly copy
+  // that data object to the output instead of assigning it as
+  // as sub-dataset. This is done to avoid creating a multi-group
+  // of multi-group when it is not necessary.
+  if (!input->IsA("vtkHierarchicalDataSet") && numGroups == 1)
+    {
+    unsigned int numDataSets = input->GetNumberOfDataSets(this->MinGroup);
+    unsigned int numActualDS = 0;
+    unsigned int dsIdx = 0;
+    for (unsigned int dataSet=0; dataSet<numDataSets; dataSet++)
+      {
+      vtkDataObject* dobj = input->GetDataSet(this->MinGroup, dataSet);
+      if (dobj)
+        {
+        numActualDS++;
+        dsIdx = dataSet;
+        }
+      }
+    if (numActualDS == 1)
+      {
+      vtkDataObject* dobj = input->GetDataSet(this->MinGroup, dsIdx);
+      if (dobj->IsA("vtkMultiGroupDataSet"))
+        {
+        output->ShallowCopy(dobj);
+        return 1;
+        }
+      }
+    }
+
+  output->SetNumberOfGroups(numGroups);
   unsigned int numInputGroups = input->GetNumberOfGroups();
 
   float progress = 0;
