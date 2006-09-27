@@ -19,7 +19,7 @@
 // multiple groups. NULL pointers are valid placeholders for datasets.
 // Each group can contain zero or more datasets.
 // When a multi-group dataset is distributed across processors, no
-// two processor should have the dataset. For example, if a data
+// two processor should have the same dataset. For example, if a data
 // has
 // @verbatim
 // Group 0:
