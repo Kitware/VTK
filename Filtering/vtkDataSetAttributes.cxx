@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.16");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.17");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -135,7 +135,7 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData *fd)
       newData = data->NewInstance(); //instantiate same type of object
       newData->DeepCopy(data);
       newData->SetName(data->GetName());
-      if ((attributeType=dsa->IsArrayAnAttribute(i)) != -1)
+      if ((attributeType=dsa->IsArrayAnAttribute(i)) != -1 )
         {
         // If this array is an attribute in the source, make it so
         // in the target as well.
@@ -722,7 +722,7 @@ void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd,
     vtkAbstractArray* fromArray = this->Data[this->TargetIndices[i]];    
     //check if the destination array needs nearest neighbor interpolation
     int attributeIndex = this->IsArrayAnAttribute(this->TargetIndices[i]);
-    if (attributeIndex>0 
+    if (attributeIndex != -1 
         && 
         this->CopyAttributeFlags[INTERPOLATE][attributeIndex]==2)
       {
@@ -776,7 +776,7 @@ void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd,
 
     //check if the destination array needs nearest neighbor interpolation
     int attributeIndex = this->IsArrayAnAttribute(this->TargetIndices[i]);
-    if (attributeIndex>0
+    if (attributeIndex != -1
         && 
         this->CopyAttributeFlags[INTERPOLATE][attributeIndex]==2)
       {
@@ -1515,7 +1515,7 @@ void vtkDataSetAttributes::FieldList::InitializeFieldList(vtkDataSetAttributes* 
   //there may be no data hence dsa->Data
   for(i=0; dsa->Data && i < dsa->GetNumberOfArrays(); i++) 
     {
-    if ( (idx=dsa->IsArrayAnAttribute(i)) >= 0 ) //it's an attribute
+    if ( (idx=dsa->IsArrayAnAttribute(i)) != -1 ) //it's an attribute
       {
       this->FieldIndices[idx] = idx;
       this->SetField(idx, dsa->Data[i]);
