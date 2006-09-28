@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.47");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.48");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -504,12 +504,9 @@ void vtkCarbonRenderWindow::InitializeApplication()
 void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
                               int vtkNotUsed(width), int vtkNotUsed(height))
 {
-  GDHandle hGD = NULL;
-  GLint depthSizeSupport;
   static int count = 1;
   short i;
   char *windowName;
-  short numDevices;     // number of graphics devices our window covers
 
   if ((this->Size[0]+this->Size[1])==0)
     {
