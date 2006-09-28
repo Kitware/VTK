@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.25");
+vtkCxxRevisionMacro(vtkImageData, "1.26");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -870,8 +870,9 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
       {
       xOut[1] = origin[1] + j * spacing[1];
       // make idx relative to the extent not the whole extent
-      idx = loc[0]-extent[0] + (j-extent[2])*dims[0]
-        + (k-extent[4])*d01;
+      idx = loc[0] + j*dims[0] + k*d01;
+//      idx = loc[0]-extent[0] + (j-extent[2])*dims[0]
+//        + (k-extent[4])*d01;
       for (i = loc[0]; i <= iMax; i++, idx++)
         {
         xOut[0] = origin[0] + i * spacing[0];
