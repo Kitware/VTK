@@ -157,14 +157,14 @@ public:
   // for the number of items requested. Set MaxId according to the number of
   // data values requested.
   T* WritePointer(vtkIdType id, vtkIdType number);
-  void* WriteVoidPointer(vtkIdType id, vtkIdType number)
+  virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number)
     { return this->WritePointer(id, number); }
 
   // Description:
   // Get the address of a particular data index. Performs no checks
   // to verify that the memory has been allocated etc.
   T* GetPointer(vtkIdType id) { return this->Array + id; }
-  void* GetVoidPointer(vtkIdType id) { return this->GetPointer(id); }
+  virtual void* GetVoidPointer(vtkIdType id) { return this->GetPointer(id); }
 
   // Description:
   // Deep copy of another double array.

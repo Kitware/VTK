@@ -337,31 +337,31 @@ void vtkDataArrayTemplate<T>::InsertTuple(vtkIdType i, vtkIdType j,
     vtkWarningMacro("Input and output array data types do not match.");
     return;
     }
-  if (this->NumberOfComponents != source->GetNumberOfComponents())
+  int inNumComp = source->GetNumberOfComponents();
+  if (this->NumberOfComponents != inNumComp)
     {
     vtkWarningMacro("Input and output component sizes do not match.");
     return;
     }
   
-  // If this and source are the same, we need to make sure that
-  // the array grows before we get the pointer. Growing the array
-  // after getting the pointer may make it invalid.
-  if (this == source)
+  vtkIdType locOut = i * inNumComp;
+  vtkIdType maxSize = locOut + inNumComp;
+  if (maxSize > this->Size)
     {
-    if (i >= this->Size)
-      {
-      this->ResizeAndExtend(i+1);
-      }
+    this->ResizeAndExtend(maxSize);
     }
 
-  T* data = static_cast<T*>(source->GetVoidPointer(0));
-  
-  vtkIdType loci = i * this->NumberOfComponents;
-  vtkIdType locj = j * source->GetNumberOfComponents();
-  
-  for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
+  vtkIdType locIn = j * inNumComp;
+
+  T* outPtr = this->GetPointer(locOut);
+  T* inPtr = static_cast<T*>(source->GetVoidPointer(locIn));
+
+  memcpy(outPtr, inPtr, sizeof(T)*inNumComp);
+
+  vtkIdType maxId = maxSize-1;
+  if ( maxId > this->MaxId )
     {
-    this->InsertValue(loci + cur, data[locj + cur]);
+    this->MaxId = maxId;
     }
 }
 
