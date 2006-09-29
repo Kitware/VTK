@@ -23,7 +23,7 @@
 
 #include "vtkTemporalDataSetAlgorithm.h"
 
-#include <vtkstd/map>
+#include <vtkstd/map> // used for the cache
 
 class VTK_HYBRID_EXPORT vtkTemporalDataSetCache : public vtkTemporalDataSetAlgorithm
 {
