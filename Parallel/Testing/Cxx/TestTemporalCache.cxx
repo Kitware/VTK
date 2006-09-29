@@ -50,7 +50,7 @@ public:
 };
 
 //-------------------------------------------------------------------------
-int main(int argc, char *argv[])
+int main(int , char *[])
 {
   // we have to use a compsite pipeline
   vtkCompositeDataPipeline* prototype = vtkCompositeDataPipeline::New();
