@@ -51,6 +51,7 @@ vtkRIBExporter.cxx
 vtkRIBLight.cxx
 vtkRIBProperty.cxx
 vtkRenderLargeImage.cxx
+vtkTemporalDataSetCache.cxx
 vtkTemporalInterpolator.cxx
 vtkTemporalShiftScale.cxx
 vtkThinPlateSplineTransform.cxx

@@ -35,7 +35,7 @@
 #include "vtkstd/algorithm"
 #include "vtkstd/vector"
 
-vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.4");
+vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.5");
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
 //----------------------------------------------------------------------------
@@ -177,7 +177,11 @@ int vtkTemporalInterpolator::RequestData(
         }
       }
     }
-  
+
+  // set the resulting times
+  outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), 
+                                 upTimes, numUpTimes);
+
   return 1;
 }
 
