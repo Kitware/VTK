@@ -115,16 +115,13 @@ IF(WIN32)
   SET(EXE_EXT ".exe")
 ENDIF(WIN32)
 
-SET(MAKE_SYSTEM)
-IF(CMAKE_BUILD_TOOL MATCHES "make")
-  SET(MAKE_SYSTEM 1)
-ENDIF(CMAKE_BUILD_TOOL MATCHES "make")
-
-SET(CFG_INIT "/${CMAKE_CFG_INTDIR}")
-IF(MAKE_SYSTEM OR UNIX)
-  SET(CFG_INIT "")
-ENDIF(MAKE_SYSTEM OR UNIX)
-SET(CMD ${EXECUTABLE_OUTPUT_PATH}${CFG_INIT}/ProcessShader${EXE_EXT})
+# CMAKE_CFG_INTDIR is "." for build tools that don't support multiple
+# configurations. (Typical of a make build tool.)
+#
+# It's "$(OutDir)" or "$(CONFIGURATION)" or similar for build tools that do
+# support multiple configurations. (Typical of Visual Studio and Xcode.)
+#
+SET(CMD ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/ProcessShader${EXE_EXT})
 
 SET (ShaderLibraryDependencies)
 SET (ShaderLibraryHeaders)
