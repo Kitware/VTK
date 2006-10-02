@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAbstractWidget.h
+  Module:    vtkAbstractWidget.h,v
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -62,7 +62,12 @@ public:
   // Description:
   // Methods for activating this widget. Note that the widget representation
   // must be specified or the widget will not appear.
+  //
+  // SetEnabled disables the widget from receiving events. SetVisibility
+  // toggles the visibility of the widget and the enabled state.
   virtual void SetEnabled(int);
+  virtual void SetVisibility(int);
+  vtkGetMacro(Visibility, int);
 
   // Description:
   // Get the event translator. Careful manipulation of this class enables
@@ -118,6 +123,8 @@ protected:
   void SetWidgetRepresentation(vtkWidgetRepresentation *r);
   vtkWidgetRepresentation *WidgetRep;
 
+  virtual void SetVisibilityAndEnabledState();
+
   // helper methods for cursor management
   int ManagesCursor;
   virtual void SetCursor(int vtkNotUsed(state)) {}
@@ -131,6 +138,9 @@ protected:
 
   // Call data which can be retrieved by the widget
   void *CallData;
+
+  // Note: visibility and enabled are two different things
+  int Visibility;
 
 private:
   vtkAbstractWidget(const vtkAbstractWidget&);  //Not implemented

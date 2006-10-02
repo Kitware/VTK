@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkBiDimensionalWidget.h
+  Module:    vtkBiDimensionalWidget.h,v
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -114,6 +114,7 @@ public:
   // must be overridden because it is a composite widget and does more than
   // its superclasses' vtkAbstractWidget::SetEnabled() method.
   virtual void SetEnabled(int);
+  virtual void SetVisibility(int);
 
   // Description:
   // Specify an instance of vtkWidgetRepresentation used to represent this
@@ -131,6 +132,15 @@ public:
   // becomes valid after two of the four points are placed.
   int IsMeasureValid();
 
+  // Description:
+  // Events. 
+  //BTX
+  enum
+  {
+  EndWidgetSelectEvent = 10050
+  };
+  //ETX
+
 protected:
   vtkBiDimensionalWidget();
   ~vtkBiDimensionalWidget();
@@ -141,8 +151,12 @@ protected:
 //ETX
   int WidgetState;
   int CurrentHandle;
-  int HandleSelected;
-  int LineSelected;
+  int HandleLine1Selected;
+  int HandleLine2Selected;
+  int Line1InnerSelected;
+  int Line1OuterSelected;
+  int Line2InnerSelected;
+  int Line2OuterSelected;
   int CenterSelected;
 
   // Callback interface to capture events when
@@ -164,7 +178,7 @@ protected:
   // Methods invoked when the handles at the
   // end points of the widget are manipulated
   void StartBiDimensionalInteraction();
-  void EndBiDimensionalInteraction();
+  virtual void EndBiDimensionalInteraction();
   
 //BTX
   friend class vtkBiDimensionalWidgetCallback;

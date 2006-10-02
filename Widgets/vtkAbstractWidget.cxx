@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAbstractWidget.cxx
+  Module:    vtkAbstractWidget.cxx,v
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -48,6 +48,7 @@ vtkAbstractWidget::vtkAbstractWidget()
   this->EventTranslator = vtkWidgetEventTranslator::New(); 
   this->CallbackMapper = vtkWidgetCallbackMapper::New();
   this->CallbackMapper->SetEventTranslator(this->EventTranslator);
+  this->Visibility = 1;
 }
 
 //----------------------------------------------------------------------
@@ -95,18 +96,44 @@ void vtkAbstractWidget::SetWidgetRepresentation(vtkWidgetRepresentation *r)
 //----------------------------------------------------------------------
 void vtkAbstractWidget::SetEnabled(int enabling)
 {
-  if ( enabling ) //----------------
+  if (enabling == this->Enabled)
     {
-    vtkDebugMacro(<<"Enabling widget");
+    return;
+    }
 
-    if ( this->Enabled ) //already enabled, just return
-      {
-      return;
-      }
-    
+  // Enforce the requirement that if a widget is enabled, it is also visible
+  if (enabling && !this->Visibility)
+    {
+    return;
+    }
+  this->Enabled = enabling;
+  this->SetVisibilityAndEnabledState();
+}
+
+//----------------------------------------------------------------------
+void vtkAbstractWidget::SetVisibility(int v)
+{
+  // Enforce the requirement that if a widget is invisible, it is also disabled
+  if ((v == this->Visibility) && ((v*this->Enabled) == this->Enabled))
+    {
+    return;
+    }
+  
+  this->Visibility = v;
+  this->Enabled    = v * this->Enabled;
+
+  this->SetVisibilityAndEnabledState();
+}
+
+//----------------------------------------------------------------------
+void vtkAbstractWidget::SetVisibilityAndEnabledState()
+{
+  if (this->Enabled) //----------------
+    {
     if ( ! this->Interactor )
       {
-      vtkErrorMacro(<<"The interactor must be set prior to enabling the widget");
+      // The interactor must be set prior to enabling the widget
+      this->Enabled = 0;
       return;
       }
 
@@ -119,12 +146,13 @@ void vtkAbstractWidget::SetEnabled(int enabling)
 
       if (this->CurrentRenderer == NULL)
         {
+        this->Enabled = 0;
+        this->Visibility = 0;
         return;
         }
       }
 
     // We're ready to enable
-    this->Enabled = 1;
     this->CreateDefaultRepresentation();
     this->WidgetRep->SetRenderer(this->CurrentRenderer);
 
@@ -147,7 +175,10 @@ void vtkAbstractWidget::SetEnabled(int enabling)
       }
 
     this->WidgetRep->BuildRepresentation();
-    this->CurrentRenderer->AddViewProp(this->WidgetRep);
+    if (this->Visibility)
+      {
+      this->CurrentRenderer->AddViewProp(this->WidgetRep);
+      }
 
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
@@ -156,30 +187,56 @@ void vtkAbstractWidget::SetEnabled(int enabling)
     {
     vtkDebugMacro(<<"Disabling widget");
 
-    if ( ! this->Enabled ) //already disabled, just return
-      {
-      return;
-      }
-    
-    this->Enabled = 0;
-
     // don't listen for events any more
-    if ( ! this->Parent )
+    if ( !this->Parent  )
       {
-      this->Interactor->RemoveObserver(this->EventCallbackCommand);
+      if (this->Interactor)
+        {
+        this->Interactor->RemoveObserver(this->EventCallbackCommand);
+        }
       }
     else
       {
       this->Parent->RemoveObserver(this->EventCallbackCommand);
       }
 
-    this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
-
+    if (this->CurrentRenderer)
+      {
+      if (!this->Visibility)
+        {
+        this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
+        this->SetCurrentRenderer(NULL);
+        }
+      else
+        {
+        this->CurrentRenderer->AddViewProp(this->WidgetRep);   
+        }
+      }
+    else if (this->Visibility && this->Interactor)
+      {
+      int X=this->Interactor->GetEventPosition()[0];
+      int Y=this->Interactor->GetEventPosition()[1];
+      this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X,Y));
+      if (this->CurrentRenderer == NULL)
+        {
+        this->Visibility = 0;
+        }
+      else
+        {
+        this->CurrentRenderer->AddViewProp(this->WidgetRep);
+        }
+      }
+    else
+      {
+      this->Visibility = 0;
+      }
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    this->SetCurrentRenderer(NULL);
     }
 
-  this->Interactor->Render();
+  if (this->Interactor)
+    {
+    this->Interactor->Render();
+    }
 }
 
 //-------------------------------------------------------------------------

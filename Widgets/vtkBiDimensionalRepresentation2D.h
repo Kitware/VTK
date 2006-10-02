@@ -60,6 +60,10 @@ public:
   // Methods to Set/Get the coordinates of the four points defining
   // this representation. Note that methods are available for both
   // display and world coordinates.
+  virtual void SetPoint1WorldPosition(double pos[3]);
+  virtual void SetPoint2WorldPosition(double pos[3]);
+  virtual void SetPoint3WorldPosition(double pos[3]);
+  virtual void SetPoint4WorldPosition(double pos[3]);
   virtual void GetPoint1WorldPosition(double pos[3]);
   virtual void GetPoint2WorldPosition(double pos[3]);
   virtual void GetPoint3WorldPosition(double pos[3]);
@@ -144,7 +148,7 @@ public:
   vtkGetStringMacro(LabelFormat);
 
 //BTX -- used to communicate about the state of the representation
-  enum {Outside=0,NearP1,NearP2,NearP3,NearP4,OnL1,OnL2,OnCenter};
+  enum {Outside=0,NearP1,NearP2,NearP3,NearP4,OnL1Inner,OnL1Outer,OnL2Inner,OnL2Outer,OnCenter};
 //ETX
 
   // Description:
@@ -162,6 +166,26 @@ public:
   // Methods required by vtkProp superclass.
   virtual void ReleaseGraphicsResources(vtkWindow *w);
   virtual int RenderOverlay(vtkViewport *viewport);
+
+  // Description:
+  // Toggle whether to display the label above or below the widget.
+  // Defaults to 1
+  vtkSetMacro(ShowLabelAboveWidget, int);
+  vtkGetMacro(ShowLabelAboveWidget, int);
+
+  // Description:
+  // Set/get the id to display in the label.
+  void SetID(unsigned long id);
+  vtkGetMacro(ID, unsigned long);
+
+  // Description:
+  // Get the text shown in the widget's label.
+  char* GetLabelText();
+
+  // Description:
+  // Get the position of the widget's label in display coordinates.
+  double* GetLabelPosition();
+  void GetLabelPosition(double pos[3]);
 
 protected:
   vtkBiDimensionalRepresentation2D();
@@ -195,24 +219,33 @@ protected:
 
   // The labels for the line lengths
   vtkTextProperty *TextProperty;
-  vtkTextMapper   *L1TextMapper;
-  vtkActor2D      *L1TextActor;
+  vtkTextMapper   *TextMapper;
+  vtkActor2D      *TextActor;
 
-  vtkTextMapper   *L2TextMapper;
-  vtkActor2D      *L2TextActor;
+  unsigned long ID;
+  int IDInitialized;
 
   // Internal variables
   double P1[3];
   double P2[3];
   double P3[3];
   double P4[3];
+  double P1World[3];
+  double P2World[3];
+  double P3World[3];
+  double P4World[4];
   double P21[3];
   double P43[3];
+  double P21World[3];
+  double P43World[3];
   double T21;
   double T43;
 
   // Format for printing the distance
   char *LabelFormat;
+
+  // toggle to determine whether to place text above or below widget
+  int ShowLabelAboveWidget;
 
 private:
   vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&);  //Not implemented
