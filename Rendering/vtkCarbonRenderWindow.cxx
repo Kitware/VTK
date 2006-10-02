@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.48");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.49");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -853,10 +853,9 @@ int *vtkCarbonRenderWindow::GetSize()
 // Get the current size of the screen.
 int *vtkCarbonRenderWindow::GetScreenSize()
 {
-  Rect r;
-  GetAvailableWindowPositioningBounds(GetMainDevice(),&r);
-  this->Size[0] = r.right - r.left;
-  this->Size[1] = r.bottom - r.top;
+  CGRect r = CGDisplayBounds(CGMainDisplayID());
+  this->Size[0] = (int)r.size.width;
+  this->Size[1] = (int)r.size.height;
 
   return this->Size;
 }
