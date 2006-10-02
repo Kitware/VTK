@@ -36,7 +36,7 @@ class vtkTextProperty;
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
-#if (FREETYPE_MAJOR >=2 && FREETYPE_MINOR >= 1 && FREETYPE_PATCH >= 9)
+#if (FREETYPE_MAJOR >2 ||(FREETYPE_MAJOR == 2 && ( FREETYPE_MINOR > 1 || (FREETYPE_MINOR == 1 && FREETYPE_PATCH >= 9))))
 # include FT_CACHE_H
 // This flag will be used to check if Caching support is to be compiled.
 # define VTK_FREETYPE_CACHING_SUPPORTED
