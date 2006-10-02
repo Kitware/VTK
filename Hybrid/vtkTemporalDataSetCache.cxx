@@ -22,7 +22,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkTemporalDataSetCache, "1.1");
+vtkCxxRevisionMacro(vtkTemporalDataSetCache, "1.2");
 vtkStandardNewMacro(vtkTemporalDataSetCache);
 
 //----------------------------------------------------------------------------
@@ -122,7 +122,7 @@ int vtkTemporalDataSetCache
     for (i = 0; i < numTimes; ++i)
       {
       // do we have this time step?
-      CacheType::iterator pos = this->Cache.find(upTimes[i]);
+      pos = this->Cache.find(upTimes[i]);
       if (pos == this->Cache.end())
         {
         reqTimeSteps.push_back(upTimes[i]);
