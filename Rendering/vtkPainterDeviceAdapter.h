@@ -156,6 +156,10 @@ public:
   // Turns lighting on and off.
   virtual void SetLighting(int mode) = 0;
 
+  // Description:
+  // Turns antialiasing on and off.
+  virtual void SetMultisampling(int mode) = 0;
+
 protected:
   vtkPainterDeviceAdapter();
   ~vtkPainterDeviceAdapter();

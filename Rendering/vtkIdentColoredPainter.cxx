@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.7");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.8");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -242,7 +242,10 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
     return;
     }
 
-  if (!renderer->GetRenderWindow()->GetPainterDeviceAdapter())
+  vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
+    GetPainterDeviceAdapter();
+
+  if (!device)
     {
     vtkErrorMacro("Painter Device Adapter missing!");
     return;
@@ -253,8 +256,10 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
 
   this->Timer->StartTimer();
 
-  //turn off lighting so that it won't affect the colors we draw
-  renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SetLighting(0);
+  //turn off antialising and lighting so that the colors we draw will be the
+  //colors we read back
+  device->SetMultisampling(0);
+  device->SetLighting(0);
 
   vtkIdType startCell = 0;
   startCell += this->PolyData->GetNumberOfVerts();
@@ -284,7 +289,8 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
     }
 
   //reset lighting back to the default
-  renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SetLighting(1);
+  device->SetLighting(1);
+  device->SetMultisampling(1);
 
   this->Timer->StopTimer();
   this->TimeToDraw = this->Timer->GetElapsedTime();
