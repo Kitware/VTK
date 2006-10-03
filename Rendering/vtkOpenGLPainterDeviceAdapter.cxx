@@ -35,7 +35,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.8");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.9");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -645,14 +645,12 @@ void vtkOpenGLPainterDeviceAdapter::SetLighting(int mode)
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::SetMultisampling(int mode)
 {
-#ifdef GL_MULTISAMPLE
   if (mode)
     {
-    glEnable(GL_MULTISAMPLE);
+    glEnable(vtkgl::MULTISAMPLE);
     }
   else
     {
-    glDisable(GL_MULTISAMPLE);
+    glDisable(vtkgl::MULTISAMPLE);
     }
-#endif
 }
