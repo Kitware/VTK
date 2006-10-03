@@ -34,7 +34,7 @@
 
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.15");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.16");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -358,9 +358,6 @@ int vtkBiDimensionalRepresentation2D::ComputeInteractionState(int X, int Y, int 
   // Compute intersection point.
   double uIntersect, vIntersect;
   vtkLine::Intersection(p1, p2, p3, p4, uIntersect, vIntersect);
-  double intersect[2];
-  intersect[0] = p1[0] + uIntersect*(p2[0] - p1[0]);
-  intersect[1] = p1[1] + uIntersect*(p2[1] - p1[1]);
 
   // Check if we are on edges
   int onL1 = (vtkLine::DistanceToLine(xyz,p1,p2,t,closest) <= tol2);
