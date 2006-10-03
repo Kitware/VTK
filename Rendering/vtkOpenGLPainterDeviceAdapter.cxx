@@ -27,6 +27,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
+#include "vtkgl.h"
 
 #include <vtkstd/algorithm>
 
@@ -35,7 +36,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.9");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.10");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
