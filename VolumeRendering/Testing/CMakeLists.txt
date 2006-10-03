@@ -13,7 +13,6 @@ IF(PYTHON_EXECUTABLE)
     ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
     "${VTK_SOURCE_DIR}/VolumeRendering"
     VTK_VOLUMERENDERING_EXPORT
-    vtkVolumeShearWarpDataStructure.h
     vtkVolumeProMapper.h
     )
 ENDIF(PYTHON_EXECUTABLE)
