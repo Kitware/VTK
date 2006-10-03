@@ -36,7 +36,7 @@ FOREACH (test ${TestsToRun})
   ENDIF (VTK_DATA_ROOT)
 ENDFOREACH (test) 
 
-IF (VTK_DATA_ROOT)
+IF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)
   ADD_TEST(TestAddStencilData ${CXX_TEST_PATH}/${KIT}CxxTests 
          TestImageStencilData 1
         -T ${VTK_BINARY_DIR}/Testing/Temporary
@@ -46,6 +46,4 @@ IF (VTK_DATA_ROOT)
          TestImageStencilData 2
         -D ${VTK_DATA_ROOT}
         -V Baseline/${KIT}/TestSubtractStencilData.png)
-ENDIF(VTK_DATA_ROOT)
- 
-
+ENDIF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)
