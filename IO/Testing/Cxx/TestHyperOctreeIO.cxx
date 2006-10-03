@@ -49,7 +49,7 @@
 # include <io.h> /* unlink */
 #endif
 
-int TestHyperOctreeIO(int argc, char* argv[])
+int TestHyperOctreeIO(int argc, char** argv)
 {
   int dimension = 3;
   int levels = 5;
