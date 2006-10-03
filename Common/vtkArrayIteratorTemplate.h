@@ -30,12 +30,9 @@ public:
   static vtkArrayIteratorTemplate<T>* New();
   typedef vtkArrayIterator Superclass;
 private:
-  virtual const char* GetClassNameInternal() const { return "vtkArrayIteratorTemplate"; }
-public:
-  static vtkArrayIteratorTemplate<T>* SafeDownCast(vtkObjectBase* o)
-    {
-    return dynamic_cast<vtkArrayIteratorTemplate<T>*>(o);
-    }
+  virtual const char* GetClassNameInternal() const 
+    { return "vtkArrayIteratorTemplate"; }
+
 protected:
   void CollectRevisions(ostream& os);
 public:
@@ -105,6 +102,10 @@ private:
 
  void SetArray(vtkAbstractArray*);
  vtkAbstractArray* Array;
+
+ // Description:
+ // Returns the type of this template as a string (used by SafeDownCast).
+ const char* GetTypeString();
 };
 
 #if !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)

@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.22");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.23");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -515,9 +515,9 @@ vtkXMLStructuredDataReader
             {
             vtkArrayIteratorTemplateMacro(
               vtkXMLStructuredDataReaderSubExtentCopyValues(
-                VTK_TT::SafeDownCast(destIter),
+                static_cast<VTK_TT*>(destIter),
                 destTuple*components,
-                VTK_TT::SafeDownCast(srcIter),
+                static_cast<VTK_TT*>(srcIter),
                 sourceTuple*components, tupleSize*rowTuples));
           default:
             vtkErrorMacro("Array not supported : " << array->GetDataTypeAsString());

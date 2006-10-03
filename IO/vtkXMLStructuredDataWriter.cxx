@@ -30,7 +30,7 @@
 #include "vtkOffsetsManagerArray.h"
 #undef  vtkOffsetsManager_DoNotInclude
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.23");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.24");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -550,9 +550,9 @@ vtkXMLStructuredDataWriter
           vtkArrayIterator* iterS = array->NewIterator();
           vtkArrayIterator* iterD = newArray->NewIterator();
           vtkXMLStructuredDataWriterCopyTuples(
-            VTK_TT::SafeDownCast(iterD),
+            static_cast<VTK_TT*>(iterD),
             destTuple,
-            VTK_TT::SafeDownCast(iterS),
+            static_cast<VTK_TT*>(iterS),
             sourceTuple, sliceTuples);
           iterD->Delete();
           iterS->Delete());
@@ -583,8 +583,8 @@ vtkXMLStructuredDataWriter
           vtkArrayIterator* iterS = array->NewIterator();
           vtkArrayIterator* iterD = newArray->NewIterator();
           vtkXMLStructuredDataWriterCopyTuples(
-            VTK_TT::SafeDownCast(iterD), destTuple,
-            VTK_TT::SafeDownCast(iterS), sourceTuple, rowTuples);
+            static_cast<VTK_TT*>(iterD), destTuple,
+            static_cast<VTK_TT*>(iterS), sourceTuple, rowTuples);
           iterD->Delete();
           iterS->Delete());
         /*

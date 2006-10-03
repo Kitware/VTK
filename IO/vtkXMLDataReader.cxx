@@ -29,7 +29,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.31");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.32");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -745,7 +745,7 @@ int vtkXMLDataReader::ReadArrayValues(vtkXMLDataElement* da, vtkIdType arrayInde
     {
     vtkArrayIteratorTemplateMacro(
       result = vtkXMLDataReaderReadArrayValues(da, this->XMLParser,
-        arrayIndex, VTK_TT::SafeDownCast(iter), startIndex, numValues));
+        arrayIndex, static_cast<VTK_TT*>(iter), startIndex, numValues));
   default:
     result = 0;
     }

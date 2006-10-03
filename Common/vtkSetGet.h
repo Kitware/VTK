@@ -682,7 +682,7 @@ virtual double *Get##name() \
 // vtkArrayIter* iter = array->NewIterator();
 // switch(array->GetDataType())
 //   {
-//   vtkTemplateMacro(myFunc(VTK_TT::SafeDownCast(iter), arg2));
+//   vtkArrayIteratorTemplateMacro(myFunc(static_cast<VTK_TT*>(iter), arg2));
 //   }
 // iter->Delete();
 // 
