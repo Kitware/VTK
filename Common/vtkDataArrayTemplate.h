@@ -200,8 +200,7 @@ public:
                             int save, 
                             int deleteMethod)
     { 
-      this->SetVoidArray(
-        static_cast<T*>(array), size, save, VTK_DATA_ARRAY_FREE); 
+      this->SetArray(static_cast<T*>(array), size, save, deleteMethod); 
     }
 
   // Description:
