@@ -172,16 +172,37 @@ public:
   void DeepCopy(vtkAbstractArray* aa)
     { this->Superclass::DeepCopy(aa); }
 
+//BTX
+  enum DeleteMethod
+  {
+    VTK_DATA_ARRAY_FREE,
+    VTK_DATA_ARRAY_DELETE
+  };
+//ETX
+
   // Description:
   // This method lets the user specify data to be held by the array.  The
-  // array argument is a pointer to the data.  size is the size of
-  // the array supplied by the user.  Set save to 1 to keep the class
-  // from deleting the array when it cleans up or reallocates memory.
-  // The class uses the actual array provided; it does not copy the data
-  // from the suppled array. 
-  void SetArray(T* array, vtkIdType size, int save);
+  // array argument is a pointer to the data.  size is the size of the
+  // array supplied by the user.  Set save to 1 to keep the class from
+  // deleting the array when it cleans up or reallocates memory.  The class
+  // uses the actual array provided; it does not copy the data from the
+  // suppled array. If specified, the delete method determines how the data
+  // array will be deallocated. If the delete method is
+  // VTK_DATA_ARRAY_FREE, free() will be used. If the delete method is
+  // DELETE, delete[] will be used. The default is FREE.
+  void SetArray(T* array, vtkIdType size, int save, int deleteMethod);
+  void SetArray(T* array, vtkIdType size, int save)
+    { this->SetArray(array, size, save, VTK_DATA_ARRAY_FREE); }
   virtual void SetVoidArray(void* array, vtkIdType size, int save)
     { this->SetArray(static_cast<T*>(array), size, save); }
+  virtual void SetVoidArray(void* array, 
+                            vtkIdType size, 
+                            int save, 
+                            int deleteMethod)
+    { 
+      this->SetVoidArray(
+        static_cast<T*>(array), size, save, VTK_DATA_ARRAY_FREE); 
+    }
 
   // Description:
   // This method copies the array data to the void pointer specified
@@ -207,12 +228,15 @@ protected:
   double* Tuple;
 
   int SaveUserArray;
+  int DeleteMethod;
 
   void ComputeScalarRange(int comp);
   void ComputeVectorRange();
 private:
   vtkDataArrayTemplate(const vtkDataArrayTemplate&);  // Not implemented.
   void operator=(const vtkDataArrayTemplate&);  // Not implemented.
+
+  void DeleteArray();
 };
 
 #if !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)

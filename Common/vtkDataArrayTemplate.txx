@@ -35,16 +35,14 @@ vtkDataArrayTemplate<T>::vtkDataArrayTemplate(vtkIdType numComp):
   this->Tuple = 0;
   this->TupleSize = 0;
   this->SaveUserArray = 0;
+  this->DeleteMethod = VTK_DATA_ARRAY_FREE;
 }
 
 //----------------------------------------------------------------------------
 template <class T>
 vtkDataArrayTemplate<T>::~vtkDataArrayTemplate()
 {
-  if ((this->Array) && (!this->SaveUserArray))
-    {
-    free(this->Array);
-    }
+  this->DeleteArray();
   if(this->Tuple)
     {
     free(this->Tuple);
@@ -59,17 +57,12 @@ vtkDataArrayTemplate<T>::~vtkDataArrayTemplate()
 // The class uses the actual array provided; it does not copy the data
 // from the suppled array.
 template <class T>
-void vtkDataArrayTemplate<T>::SetArray(T* array, vtkIdType size, int save)
+void vtkDataArrayTemplate<T>::SetArray(T* array, 
+                                       vtkIdType size, 
+                                       int save,
+                                       int deleteMethod)
 {
-  if ((this->Array) && (!this->SaveUserArray))
-    {
-    vtkDebugMacro (<< "Deleting the array...");
-    free(this->Array);
-    }
-  else
-    {
-    vtkDebugMacro (<<"Warning, array not deleted, but will point to new array.");
-    }
+  this->DeleteArray();
 
   vtkDebugMacro(<<"Setting array to: " << static_cast<void*>(array));
 
@@ -77,6 +70,7 @@ void vtkDataArrayTemplate<T>::SetArray(T* array, vtkIdType size, int save)
   this->Size = size;
   this->MaxId = size-1;
   this->SaveUserArray = save;
+  this->DeleteMethod = deleteMethod;
 }
 
 //----------------------------------------------------------------------------
@@ -88,14 +82,9 @@ int vtkDataArrayTemplate<T>::Allocate(vtkIdType sz, vtkIdType)
 
   if(sz > this->Size)
     {
-    if(this->Array && !this->SaveUserArray)
-      {
-      free(this->Array);
-      }
+    this->DeleteArray();
 
-    this->Array = 0;
     this->Size = 0;
-    this->SaveUserArray = 0;
 
     int newSize = (sz > 0 ? sz : 1);
     this->Array = (T*)malloc(newSize * sizeof(T));
@@ -117,14 +106,10 @@ int vtkDataArrayTemplate<T>::Allocate(vtkIdType sz, vtkIdType)
 template <class T>
 void vtkDataArrayTemplate<T>::Initialize()
 {
-  if(this->Array && !this->SaveUserArray)
-    {
-    free(this->Array);
-    }
+  this->DeleteArray();
   this->Array = 0;
   this->Size = 0;
   this->MaxId = -1;
-  this->SaveUserArray = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -152,16 +137,13 @@ void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
     }
 
   // Free our previous memory.
-  if(this->Array && !this->SaveUserArray)
-    {
-    free(this->Array);
-    }
+  this->DeleteArray();
 
   // Copy the given array into new memory.
   this->NumberOfComponents = fa->GetNumberOfComponents();
   this->MaxId = fa->GetMaxId();
   this->Size = fa->GetSize();
-  this->SaveUserArray = 0;
+
   this->Array = (T*)malloc(this->Size * sizeof(T));
   if(!this->Array)
     {
@@ -190,6 +172,27 @@ void vtkDataArrayTemplate<T>::PrintSelf(ostream& os, vtkIndent indent)
     {
     osw << indent << "Array: (null)\n";
     }
+}
+
+//----------------------------------------------------------------------------
+// Protected function does "reallocate"
+template <class T>
+void vtkDataArrayTemplate<T>::DeleteArray()
+{
+  if ((this->Array) && (!this->SaveUserArray))
+    {
+    if (this->DeleteMethod == VTK_DATA_ARRAY_FREE)
+      {
+      free(this->Array);
+      }
+    else
+      {
+      delete[] this->Array;
+      }
+    }
+  this->SaveUserArray = 0;
+  this->DeleteMethod = VTK_DATA_ARRAY_FREE;
+  this->Array = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -227,7 +230,8 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
     }
 
   // Allocate the new array or reallocate the old.
-  if(this->Array && this->SaveUserArray)
+  if(this->Array && (this->SaveUserArray || 
+                     this->DeleteMethod == VTK_DATA_ARRAY_DELETE))
     {
     // The old array is owned by the user so we cannot try to
     // reallocate it.  Just allocate new memory that we will own.
@@ -243,6 +247,12 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
     // Copy the data from the old array.
     memcpy(newArray, this->Array,
            (newSize < this->Size ? newSize : this->Size) * sizeof(T));
+    if (!this->SaveUserArray)
+      {
+      delete[] this->Array;
+      this->Array = 0;
+      }
+    this->DeleteMethod = VTK_DATA_ARRAY_FREE;
     }
   else
     {
