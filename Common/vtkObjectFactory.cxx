@@ -15,16 +15,17 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkDebugLeaks.h"
-#include "vtkDirectory.h"
 #include "vtkDynamicLoader.h"
 #include "vtkObjectFactoryCollection.h"
 #include "vtkOverrideInformation.h"
 #include "vtkOverrideInformationCollection.h"
 #include "vtkVersion.h"
 
+#include "vtksys/Directory.hxx"
+
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkObjectFactory, "1.43");
+vtkCxxRevisionMacro(vtkObjectFactory, "1.44");
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
@@ -202,17 +203,16 @@ inline int vtkNameIsSharedLibrary(const char* name)
 
 void vtkObjectFactory::LoadLibrariesInPath(const char* path)
 {
-  vtkDirectory* dir = vtkDirectory::New();
-  if(!dir->Open(path))
+  vtksys::Directory dir;
+  if(!dir.Load(path))
     {
-    dir->Delete();
     return;
     }
-  
+
   // Attempt to load each file in the directory as a shared library
-  for(int i = 0; i < dir->GetNumberOfFiles(); i++)
+  for(unsigned long i = 0; i < dir.GetNumberOfFiles(); i++)
     {
-    const char* file = dir->GetFile(i);
+    const char* file = dir.GetFile(i);
     // try to make sure the file has at least the extension
     // for a shared library in it.
     if(vtkNameIsSharedLibrary(file))
@@ -276,7 +276,6 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
       delete [] fullpath;
       }
     }
-  dir->Delete();
 }
 
 
