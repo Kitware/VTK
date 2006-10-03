@@ -26,7 +26,7 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.14");
+vtkCxxRevisionMacro(vtkContourWidget, "1.15");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -84,9 +84,9 @@ void vtkContourWidget::CreateDefaultRepresentation()
     ss->Delete();
     
     rep->GetProperty()->SetColor(.25,1.0,.25);
-    
-    vtkProperty *property = 
-        dynamic_cast< vtkProperty * >(rep->GetActiveProperty());
+
+    vtkProperty *property =
+        vtkProperty::SafeDownCast(rep->GetActiveProperty());
     if (property)
       {
       property->SetRepresentationToSurface();
