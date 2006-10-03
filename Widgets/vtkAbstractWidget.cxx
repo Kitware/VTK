@@ -232,8 +232,9 @@ void vtkAbstractWidget::SetVisibilityAndEnabledState()
       }
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     }
-
-  if (this->Interactor)
+  
+  // Should only render if there is no parent
+  if ( this->Interactor && !this->Parent )
     {
     this->Interactor->Render();
     }

@@ -87,6 +87,8 @@ public:
   // Description:
   // Specifying a parent to this widget is used when creating composite
   // widgets. It is an internal method not meant to be used by the public.
+  // When a widget has a parent, it defers the rendering to the parent. It
+  // may also defer managing the cursor (see ManagesCursor ivar).
   void SetParent(vtkAbstractWidget *parent) {this->Parent = parent;}
   vtkGetObjectMacro(Parent,vtkAbstractWidget);
 
