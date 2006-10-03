@@ -21,6 +21,8 @@ IF(JAVA_COMPILE)
     ENDIF(VTK_JAVA_DEPENDENCIES)
   ENDIF(COMMAND VTK_GENERATE_JAVA_DEPENDENCIES)
 
+  SET(VTK_JAR_PATH "${LIBRARY_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}")
+
   IF(VTK_JAVA_NEW_STYLE)
     SET(CLASS_FILES ${VTK_JAVA_DEPENDENCIES})
     STRING(REGEX REPLACE "\\.java" ".class;" CLASS_FILES ${VTK_JAVA_DEPENDENCIES})
@@ -58,8 +60,8 @@ IF(JAVA_COMPILE)
 
     FOREACH(kit ${KITS})
       IF(APPLE)
-        SET(src ${LIBRARY_OUTPUT_PATH}/libvtk${kit}Java.dylib)
-        SET(tgt ${LIBRARY_OUTPUT_PATH}/libvtk${kit}Java.jnilib)
+        SET(src ${VTK_JAR_PATH}/libvtk${kit}Java.dylib)
+        SET(tgt ${VTK_JAR_PATH}/libvtk${kit}Java.jnilib)
         ADD_CUSTOM_COMMAND(SOURCE ${src}
                              COMMAND ln
                              ARGS -sf ${src} ${tgt}
@@ -69,7 +71,7 @@ IF(JAVA_COMPILE)
       ENDIF(APPLE)
       TARGET_LINK_LIBRARIES(VTKJavaExecutable vtk${kit}Java)
       SET(VTK_JAVA_DEPENDENCIES "")
-      ADD_CUSTOM_TARGET(VTKJava${kit} "")
+      ADD_CUSTOM_TARGET(VTKJava${kit} ALL)
       SET(VTK_BUILD_ALL_CONTENT
         "${VTK_BUILD_ALL_CONTENT}\n    vtk.vtkVTKJava${kit}Driver.Initialize(args);")
       SET(VTK_BUILD_ALL_DEPENDS
@@ -78,10 +80,11 @@ IF(JAVA_COMPILE)
       INCLUDE(${VTK_BINARY_DIR}/${kit}/JavaDependencies.cmake OPTIONAL)
       VTK_GENERATE_JAVA_DEPENDENCIES(VTKJava${kit} ${VTK_JAVA_DEPENDENCIES})
       #ADD_DEPENDENCIES(VTKJava${kit} VTKJavaExecutable)
-      #ADD_DEPENDENCIES(VTKJava${kit} vtk${kit}JavaJavaClasses)
+      ADD_DEPENDENCIES(VTKJava${kit} vtk${kit}JavaJavaClasses)
       #ADD_DEPENDENCIES(VTKJavaJar VTKJava${kit})
     ENDFOREACH(kit)
-    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtkBuildAllDriver.java.in
+
+    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtkBuildAllDriver.Java.in
       ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.java)
     ADD_CUSTOM_TARGET(VTKBuildAll ALL)
     ADD_CUSTOM_COMMAND(
@@ -99,6 +102,14 @@ IF(JAVA_COMPILE)
       DEPENDS ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.class
       )
     ADD_DEPENDENCIES(VTKJavaJar VTKBuildAll)
+
+    # Make sure all the VTKJava${kit} projects build *before* VTKBuildAll.
+    # (All individual generated .java files should be compiled into .class
+    # files before compiling the "driver" sources...)
+    #
+    FOREACH(kit ${KITS})
+      ADD_DEPENDENCIES(VTKBuildAll VTKJava${kit})
+    ENDFOREACH(kit)
 
     ADD_DEPENDENCIES(VTKJavaFiltering VTKJavaCommon)
     ADD_DEPENDENCIES(VTKJavaImaging VTKJavaFiltering)
@@ -146,16 +157,16 @@ IF(JAVA_COMPILE)
 
     ADD_CUSTOM_COMMAND(SOURCE ${VTK_JAVA_HOME}/vtkObject.class
       COMMAND ${JAVA_ARCHIVE}
-      ARGS -cvf  "${LIBRARY_OUTPUT_PATH}/vtk.jar"
+      ARGS -cvf  "${VTK_JAR_PATH}/vtk.jar"
       -C ${VTK_BINARY_DIR}/java
       vtk
       TARGET VTKJavaJar
       DEPENDS ${CLASS_FILES} ${JAVA_LIBRARIES}
-      OUTPUTS ${LIBRARY_OUTPUT_PATH}/vtk.jar
+      OUTPUTS ${VTK_JAR_PATH}/vtk.jar
       COMMENT "Java Archive")
     ADD_CUSTOM_COMMAND(SOURCE VTKJavaJar
       TARGET VTKJavaJar
-      DEPENDS ${LIBRARY_OUTPUT_PATH}/vtk.jar)
+      DEPENDS ${VTK_JAR_PATH}/vtk.jar)
     IF(BUILD_TESTING)
       FOREACH(jfile
           SimpleVTK
@@ -167,12 +178,12 @@ IF(JAVA_COMPILE)
         ADD_CUSTOM_COMMAND(
           SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
           COMMAND ${JAVA_COMPILE}
-          ARGS -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar
+          ARGS -classpath ${VTK_JAR_PATH}/vtk.jar
           -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
           -d ${VTK_BINARY_DIR}/Wrapping/Java
           ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
           TARGET VTKJava
-          DEPENDS ${LIBRARY_OUTPUT_PATH}/vtk.jar
+          DEPENDS ${VTK_JAR_PATH}/vtk.jar
           OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class
           COMMENT "Java Test")
         SET(JAVA_TESTS ${JAVA_TESTS} ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
@@ -186,7 +197,7 @@ IF(JAVA_COMPILE)
       # Since vtkTesting is within vtkRendering we need blockers
       IF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
-          -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+          -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
           Regression -D ${VTK_DATA_ROOT}
           -V Baseline/Graphics/Cone.png)
       ENDIF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
@@ -195,7 +206,7 @@ IF(JAVA_COMPILE)
     ADD_CUSTOM_COMMAND( 
       SOURCE    VTKJava
       TARGET    VTKJava
-      DEPENDS   ${LIBRARY_OUTPUT_PATH}/vtk.jar ${JAVA_TESTS}
+      DEPENDS   ${VTK_JAR_PATH}/vtk.jar ${JAVA_TESTS}
       )   
 
   ELSE(VTK_JAVA_NEW_STYLE)
@@ -211,11 +222,11 @@ IF(JAVA_COMPILE)
         COMMAND ${CMAKE_COMMAND}
         ARGS -E chdir 
         ${VTK_BINARY_DIR}/java ${JAVA_ARCHIVE}
-        -cvf "\"${LIBRARY_OUTPUT_PATH}/vtk.jar\""
+        -cvf "\"${VTK_JAR_PATH}/vtk.jar\""
         vtk
         TARGET VTKJava
         DEPENDS ${VTK_JAVA_HOME}/vtkObject.class
-        OUTPUTS ${LIBRARY_OUTPUT_PATH}/vtk.jar)
+        OUTPUTS ${VTK_JAR_PATH}/vtk.jar)
 
       IF(BUILD_TESTING)
         FOREACH(jfile
@@ -228,12 +239,12 @@ IF(JAVA_COMPILE)
           ADD_CUSTOM_COMMAND(
             SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
             COMMAND ${JAVA_COMPILE}
-            ARGS -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar
+            ARGS -classpath ${VTK_JAR_PATH}/vtk.jar
             -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
             -d ${VTK_BINARY_DIR}/Wrapping/Java
             ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
             TARGET VTKJava
-            DEPENDS ${LIBRARY_OUTPUT_PATH}/vtk.jar
+            DEPENDS ${VTK_JAR_PATH}/vtk.jar
             OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
           SET(JAVA_TESTS ${JAVA_TESTS} ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
         ENDFOREACH(jfile)
@@ -246,7 +257,7 @@ IF(JAVA_COMPILE)
         # Since vtkTesting is within vtkRendering we need blockers
         IF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
-            -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+            -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
             Regression -D ${VTK_DATA_ROOT}
             -V Baseline/Graphics/Cone.png)
         ENDIF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
@@ -257,11 +268,11 @@ IF(JAVA_COMPILE)
         COMMAND   echo 
         ARGS "Checking dependencies for VTK Java"
         TARGET    VTKJava
-        DEPENDS   ${LIBRARY_OUTPUT_PATH}/vtk.jar ${JAVA_TESTS}
+        DEPENDS   ${VTK_JAR_PATH}/vtk.jar ${JAVA_TESTS}
         )   
 
       IF(NOT VTK_INSTALL_NO_RUNTIME)
-        INSTALL_FILES(${VTK_INSTALL_JAVA_DIR} FILES ${LIBRARY_OUTPUT_PATH}/vtk.jar)
+        INSTALL_FILES(${VTK_INSTALL_JAVA_DIR} FILES ${VTK_JAR_PATH}/vtk.jar)
       ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
     ENDIF(JAVA_ARCHIVE)
   ENDIF(VTK_JAVA_NEW_STYLE)
