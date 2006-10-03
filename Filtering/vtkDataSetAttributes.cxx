@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.17");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.18");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -549,8 +549,8 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
       {
       vtkArrayIteratorTemplateMacro(
         vtkDataSetAttributesCopyValues(
-          VTK_TT::SafeDownCast(destIter), outExt, outIncs, rowLength,
-          VTK_TT::SafeDownCast(srcIter), inExt, inIncs));
+          static_cast<VTK_TT*>(destIter), outExt, outIncs, rowLength,
+          static_cast<VTK_TT*>(srcIter), inExt, inIncs));
       }
     srcIter->Delete();
     destIter->Delete();
