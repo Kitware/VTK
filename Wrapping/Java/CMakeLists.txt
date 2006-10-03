@@ -84,7 +84,7 @@ IF(JAVA_COMPILE)
       #ADD_DEPENDENCIES(VTKJavaJar VTKJava${kit})
     ENDFOREACH(kit)
 
-    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtkBuildAllDriver.Java.in
+    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtkBuildAllDriver.java.in
       ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.java)
     ADD_CUSTOM_TARGET(VTKBuildAll ALL)
     ADD_CUSTOM_COMMAND(
