@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.34");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.35");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -383,7 +383,7 @@ int vtkArrayCalculator::RequestData(
             i, this->SelectedVectorComponents[j][1]),
           currentArray->GetComponent(i, this->SelectedVectorComponents[j][2]));
       }
-    if(inputPoints)
+    if(inputPoints && i<inputPoints->GetNumberOfPoints())
       {
       double* pt = inputPoints->GetPoint(i);
       for (j = 0; j < this->NumberOfCoordinateScalarArrays; j++)
