@@ -300,57 +300,59 @@ IF(CMAKE_COMPILER_IS_GNUCXX AND MINGW)
 ENDIF(CMAKE_COMPILER_IS_GNUCXX AND MINGW)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
-    vtkArrayIteratorTemplate
-    vtkDataArrayTemplate
-    vtkIOStream
-    vtkIOStreamFwd
-    vtkSetGet
-    vtkSmartPointer
-    vtkSystemIncludes
-    vtkType
-    vtkTypeTraits
-    vtkWin32Header
-    vtkWindows
+  SET(__inst_files
+    vtkArrayIteratorTemplate.h
+    vtkDataArrayTemplate.h
+    vtkIOStream.h
+    vtkIOStreamFwd.h
+    vtkSetGet.h
+    vtkSmartPointer.h
+    vtkSystemIncludes.h
+    vtkType.h
+    vtkTypeTraits.h
+    vtkWin32Header.h
+    vtkWindows.h
     )
 
   IF(VTK_WRAP_TCL)
-    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
-      vtkTcl
-      vtkTclUtil
-      vtkTk
+    SET(__inst_files ${__inst_files}
+      vtkTcl.h
+      vtkTclUtil.h
+      vtkTk.h
       )
   ENDIF(VTK_WRAP_TCL)
   IF(VTK_WRAP_PYTHON)
-    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
-      vtkPythonUtil
-      )
-    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} FILES
+    SET(__inst_files ${__inst_files}
+      vtkPythonUtil.h
       vtkPython.h
       )
     IF (TK_LIBRARY)
       IF(NOT VTK_USE_COCOA)
-        INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
-          vtkTcl
-          vtkTk
+        SET(__inst_files ${__inst_files}
+          vtkTcl.h
+          vtkTk.h
           )
       ENDIF(NOT VTK_USE_COCOA)
     ENDIF (TK_LIBRARY)
   ENDIF(VTK_WRAP_PYTHON)
   IF(VTK_WRAP_JAVA)
-    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
-      vtkJavaUtil
+    SET(__inst_files ${__inst_files}
+      vtkJavaUtil.h
       )
   ENDIF(VTK_WRAP_JAVA)
 
-  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .txx
-    vtkArrayIteratorTemplate
-    vtkArrayIteratorTemplateImplicit
-    vtkDataArrayTemplate
-    vtkDataArrayTemplateImplicit
-    )
+  SET(__inst_files ${__inst_files}
+    vtkArrayIteratorTemplate.txx
+    vtkArrayIteratorTemplateImplicit.txx
+    vtkDataArrayTemplate.txx
+    vtkDataArrayTemplateImplicit.txx
+    ${VTK_SOURCE_DIR}/${KIT}/Testing/Cxx/vtkTestUtilities.h)
 
-  INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/testing FILES
+  INSTALL(FILES ${__inst_files}
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+    COMPONENT Development)
+
+  SET(__inst_files
     ${VTK_SOURCE_DIR}/${KIT}/Testing/HeaderTesting.py
     ${VTK_SOURCE_DIR}/${KIT}/Testing/WindowsMangleList.py
     ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/FindString.tcl
@@ -358,10 +360,12 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/rtImageTest.tcl
     ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/TestSetGet.tcl
     )
-  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} FILES
-    ${VTK_SOURCE_DIR}/${KIT}/Testing/Cxx/vtkTestUtilities.h)
   IF(VTK_USE_PARALLEL)
-    INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/testing FILES
+    SET(__inst_files ${__inst_files}
       ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/prtImageTest.tcl)
   ENDIF(VTK_USE_PARALLEL)
+
+  INSTALL(FILES ${__inst_files}
+    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}/testing
+    COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

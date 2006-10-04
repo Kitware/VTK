@@ -1,3 +1,6 @@
 IF(NOT VTK_INSTALL_NO_RUNTIME)
-  INSTALL_FILES(${VTK_TCL_INSTALL_DIR}/vtkvolumerendering .tcl vtkvolumerendering)
+  INSTALL(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtkvolumerendering.tcl
+    DESTINATION ${VTK_TCL_INSTALL_DIR_CM24}/vtkvolumerendering
+    COMPONENT RuntimeLibraries)
 ENDIF(NOT VTK_INSTALL_NO_RUNTIME)

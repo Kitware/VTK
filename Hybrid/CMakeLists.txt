@@ -102,5 +102,9 @@ INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 #-----------------------------------------------------------------------------
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtk3DS)
+  INSTALL(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtk3DS.h
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+    COMPONENT Development
+    )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

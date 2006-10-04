@@ -29,8 +29,9 @@ MACRO(VTK_EXPORT_KIT kit ukit sources)
                  ${VTK_BINARY_DIR}/Utilities/vtk${kit}Kit.cmake
                  @ONLY IMMEDIATE)
   IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-    INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR} FILES
+    INSTALL(FILES
       ${VTK_BINARY_DIR}/Utilities/InstallOnly/vtk${kit}Kit.cmake
-      )
+      DESTINATION "${VTK_INSTALL_PACKAGE_DIR_CM24}"
+      COMPONENT Development)
   ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 ENDMACRO(VTK_EXPORT_KIT)

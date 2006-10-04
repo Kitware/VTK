@@ -333,8 +333,11 @@ IF(CMAKE_CONFIGURATION_TYPES)
   # specified when building the install target.  The BUILD_TYPE variable
   # will be set while CMake is processing the install files.
   IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-    INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR} FILES
-      ${VTK_BINARY_DIR}/Utilities/${DOLLAR}{BUILD_TYPE}/VTKConfig.cmake)
+    INSTALL(FILES
+      ${VTK_BINARY_DIR}/Utilities/${DOLLAR}{BUILD_TYPE}/VTKConfig.cmake
+      DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}
+      COMPONENT Development
+      )
   ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 ELSE(CMAKE_CONFIGURATION_TYPES)
   # There is only one build configuration.  Configure one VTKConfig.cmake.
@@ -344,7 +347,10 @@ ELSE(CMAKE_CONFIGURATION_TYPES)
 
   # Setup an install rule for the config file.
   IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-    INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR} FILES
-      ${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake)
+    INSTALL(FILES
+      ${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake
+      DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}
+      COMPONENT Development
+      )
   ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 ENDIF(CMAKE_CONFIGURATION_TYPES)

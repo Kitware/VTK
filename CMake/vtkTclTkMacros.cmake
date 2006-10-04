@@ -113,7 +113,7 @@ ENDMACRO (VTK_GET_TK_SUPPORT_FILES)
 # copy (or install) the appropriate support files to destination dirs, 
 # recreating the subdirs.
 # This macro takes an optional last parameter, if set to INSTALL the 
-# files will be scheduled for installation (using CMake's INSTALL_FILES)
+# files will be scheduled for installation (using CMake's INSTALL)
 # instead of copied.
 #
 # in: tcl_support_lib_dir:  path to the Tcl support lib dir
@@ -139,12 +139,16 @@ MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES tcl_support_lib_dir tcl_support_lib_dest tk
   # exist, it would create the subdirs anyway)
 
   VTK_GET_TCL_SUPPORT_FILES(${tcl_support_lib_dir} "TCL_SUPPORT_FILES")
+  STRING(REGEX REPLACE "^/" "" tcl_support_lib_dest_cm24 "${tcl_support_lib_dest}")
+  STRING(REGEX REPLACE "^/" "" tk_support_lib_dest_cm24 "${tk_support_lib_dest}")
   FOREACH (file ${TCL_SUPPORT_FILES})
     IF (EXISTS ${file})
       STRING (REGEX REPLACE "${tcl_support_lib_dir}/" "" filebase ${file})
       IF ("${ARGV4}" STREQUAL "INSTALL")
         GET_FILENAME_COMPONENT(dir ${filebase} PATH)
-        INSTALL_FILES ("${tcl_support_lib_dest}/${dir}" FILES ${file})
+        INSTALL(FILES "${file}"
+          DESTINATION "${tcl_support_lib_dest_cm24}/${dir}"
+          COMPONENT RuntimeLibraries)
       ELSE ("${ARGV4}" STREQUAL "INSTALL")
         CONFIGURE_FILE (${file} "${tcl_support_lib_dest}/${filebase}" COPYONLY)
       ENDIF ("${ARGV4}" STREQUAL "INSTALL")
@@ -157,7 +161,9 @@ MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES tcl_support_lib_dir tcl_support_lib_dest tk
       STRING (REGEX REPLACE "${tk_support_lib_dir}/" "" filebase ${file})
       IF ("${ARGV4}" STREQUAL "INSTALL")
         GET_FILENAME_COMPONENT(dir ${filebase} PATH)
-        INSTALL_FILES ("${tk_support_lib_dest}/${dir}" FILES ${file})
+        INSTALL(FILES "${file}"
+          DESTINATION "${tk_support_lib_dest_cm24}/${dir}"
+          COMPONENT RuntimeLibraries)
       ELSE ("${ARGV4}" STREQUAL "INSTALL")
         CONFIGURE_FILE (${file} "${tk_support_lib_dest}/${filebase}" COPYONLY)
       ENDIF ("${ARGV4}" STREQUAL "INSTALL")
@@ -173,7 +179,7 @@ ENDMACRO (VTK_COPY_TCL_TK_SUPPORT_FILES)
 # The Tcl/Tk version is retrieved automatically and used to create
 # the subdirectories (see example below)
 # This macro takes an optional last parameter, if set to INSTALL the 
-# files will be scheduled for installation (using CMake's INSTALL_FILES)
+# files will be scheduled for installation (using CMake's INSTALL)
 # instead of copied.
 #
 # in: tcl_support_lib_dir: path to the Tcl support lib dir

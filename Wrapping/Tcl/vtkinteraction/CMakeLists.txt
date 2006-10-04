@@ -1,10 +1,11 @@
 IF(NOT VTK_INSTALL_NO_RUNTIME)
-  INSTALL_FILES(${VTK_TCL_INSTALL_DIR}/vtkinteraction .tcl
-    vtkinteraction
-    Interactor
-    bindings
-    bindings-iw
-    bindings-rw
-    setget
-    )
+  INSTALL(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtkinteraction.tcl
+    ${CMAKE_CURRENT_SOURCE_DIR}/Interactor.tcl
+    ${CMAKE_CURRENT_SOURCE_DIR}/bindings.tcl
+    ${CMAKE_CURRENT_SOURCE_DIR}/bindings-iw.tcl
+    ${CMAKE_CURRENT_SOURCE_DIR}/bindings-rw.tcl
+    ${CMAKE_CURRENT_SOURCE_DIR}/setget.tcl
+    DESTINATION ${VTK_TCL_INSTALL_DIR_CM24}/vtkinteraction
+    COMPONENT RuntimeLibraries)
 ENDIF(NOT VTK_INSTALL_NO_RUNTIME)

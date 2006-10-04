@@ -102,11 +102,6 @@ ENDIF(WIN32 OR APPLE)
 STRING(COMPARE EQUAL "${VTK_TEST_INSTALL_LEFT}" "${VTK_TEST_INSTALL_RIGHT}"
   VTK_TEST_INSTALL)
 
-# No install when using rpaths with CMake before 2.4.
-IF(VTK_USE_RPATH AND NOT VTK_INSTALL_HAS_CMAKE_24)
-  SET(VTK_TEST_INSTALL 0)
-ENDIF(VTK_USE_RPATH AND NOT VTK_INSTALL_HAS_CMAKE_24)
-
 # We cannot safely implement the install test unless the configuration
 # type is known when the test is run.
 IF(NOT VTK_TEST_CONFIG_TYPE_KNOWN)

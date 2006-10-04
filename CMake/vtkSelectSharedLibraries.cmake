@@ -49,20 +49,6 @@ IF(NOT VTK_SHARED_LIBRARIES_SELECTED)
     IF(VTK_USE_RPATH)
       # We will use rpath support.  Tell CMake not to skip it.
       SET(CMAKE_SKIP_RPATH 0 CACHE INTERNAL "Whether to build with rpath." FORCE)
-
-      # Disable installation for CMake earlier than 2.4.
-      IF(NOT VTK_INSTALL_HAS_CMAKE_24)
-        # If someone is trying to install do not do an entire build with
-        # the wrong rpath feature setting just to report failed
-        # installation.
-        SET(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY 1)
-
-        # Add a dummy target and attach an install rule that will always fail
-        # and produce a message explaining why installation is disabled.
-        ADD_CUSTOM_TARGET(vtk_install_disabled)
-        SET_TARGET_PROPERTIES(vtk_install_disabled PROPERTIES
-          PRE_INSTALL_SCRIPT ${VTK_CMAKE_DIR}/InstallDisabled.cmake)
-      ENDIF(NOT VTK_INSTALL_HAS_CMAKE_24)
     ELSE(VTK_USE_RPATH)
       # We will not use rpath support.  Tell CMake to skip it.
       SET(CMAKE_SKIP_RPATH 1 CACHE INTERNAL "Whether to build with rpath." FORCE)

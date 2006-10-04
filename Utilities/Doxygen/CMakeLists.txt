@@ -36,10 +36,18 @@ ENDIF (BUILD_DOCUMENTATION)
 INCLUDE (${VTK_SOURCE_DIR}/Utilities/Doxygen/LocalUserOptions.cmake OPTIONAL)
 
 IF(NOT VTK_INSTALL_NO_DOCUMENTATION)
-  INSTALL_FILES(${VTK_INSTALL_DOXYGEN_DIR} "\\.css$")
-  INSTALL_FILES(${VTK_INSTALL_DOXYGEN_DIR} "\\.gif$")
-  INSTALL_FILES(${VTK_INSTALL_DOXYGEN_DIR} "\\.html$")
-  INSTALL_FILES(${VTK_INSTALL_DOXYGEN_DIR} "\\.pl$")
-  INSTALL_FILES(${VTK_INSTALL_DOXYGEN_DIR} "\\.stop$")
-  INSTALL_FILES(${VTK_INSTALL_DOXYGEN_DIR} .txt authors doc_readme)
+  MACRO(__vtk_install_documentation_files glob)
+    FILE(GLOB __files "${CMAKE_CURRENT_SOURCE_DIR}/${glob}")
+    INSTALL(FILES ${__files}
+      DESTINATION ${VTK_INSTALL_DOXYGEN_DIR_CM24}
+      COMPONENT Development)
+  ENDMACRO(__vtk_install_documentation_files)
+  __vtk_install_documentation_files("*.css")
+  __vtk_install_documentation_files("*.gif")
+  __vtk_install_documentation_files("*.html")
+  __vtk_install_documentation_files("*.pl")
+  __vtk_install_documentation_files("*.stop")
+  INSTALL(FILES authors.txt doc_readme.txt
+    DESTINATION ${VTK_INSTALL_DOXYGEN_DIR_CM24}
+    COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DOCUMENTATION)

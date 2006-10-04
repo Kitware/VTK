@@ -29,8 +29,16 @@ IF(VTK_USE_RENDERING)
 ENDIF(VTK_USE_RENDERING)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
-                vtk_expat vtk_jpeg vtk_png vtk_zlib vtk_tiff vtk_freetype)
+  INSTALL(FILES
+    vtk_expat.h
+    vtk_jpeg.h
+    vtk_png.h
+    vtk_zlib.h
+    vtk_tiff.h
+    vtk_freetype.h
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+    COMPONENT Development
+    )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 #-----------------------------------------------------------------------------
@@ -69,7 +77,8 @@ IF(NOT VTK_COMPILER_NO_SGI_STDARG_WORKAROUND)
 
   # Install the work-around header.
   IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/internal FILES
-                  ${CMAKE_CURRENT_BINARY_DIR}/internal/stdio_core.h)
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/internal/stdio_core.h
+      DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/internal
+      COMPONENT Development)
   ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 ENDIF(NOT VTK_COMPILER_NO_SGI_STDARG_WORKAROUND)

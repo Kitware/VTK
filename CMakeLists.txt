@@ -1,19 +1,23 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 PROJECT(VTK)
 
+MACRO(INSTALL_TARGETS)
+  MESSAGE(FATAL_ERROR "Somebody is calling old INSTALL_TARGETS command with arguments: ${ARGV}")
+ENDMACRO(INSTALL_TARGETS)
+MACRO(INSTALL_PROGRAMS)
+  MESSAGE(FATAL_ERROR "Somebody is calling old INSTALL_PROGRAMS command with arguments: ${ARGV}")
+ENDMACRO(INSTALL_PROGRAMS)
+MACRO(INSTALL_FILES)
+  MESSAGE(FATAL_ERROR "Somebody is calling old INSTALL_FILES command with arguments: ${ARGV}")
+ENDMACRO(INSTALL_FILES)
+
 # We will require CMake 2.4 as of August 15th 2006
 IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.4)
   MESSAGE(FATAL_ERROR "VTK requires CMake 2.4 as of August 15th 2006. Please update your CMake and this message will go away.")
 ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.4)
 
-IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.3)
-  SET(VTK_INSTALL_HAS_CMAKE_24 1)
-ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.3)
-
 # Don't build anything unless the version of CMake is high enough.
 # The matching ELSE/ENDIF should be the last lines in the file.
-IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
-
 SET(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${VTK_CMAKE_DIR}")
 
@@ -86,17 +90,6 @@ FILE(READ "${VTK_CMAKE_DIR}/vtkRequireLargeFilesSupport.cxx"
   VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE)
 CHECK_CXX_SOURCE_RUNS("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
   VTK_REQUIRE_LARGE_FILE_SUPPORT "Support for 64 bit file systems")
-
-#-----------------------------------------------------------------------------
-# Disable the install targets if using the rpath feature with CMake
-# earlier than 2.4.
-IF(NOT WIN32)
-  IF(VTK_USE_RPATH AND NOT VTK_INSTALL_HAS_CMAKE_24)
-    SET(VTK_INSTALL_NO_RUNTIME 1)
-    SET(VTK_INSTALL_NO_DEVELOPMENT 1)
-    SET(VTK_INSTALL_NO_DOCUMENTATION 1)
-  ENDIF(VTK_USE_RPATH AND NOT VTK_INSTALL_HAS_CMAKE_24)
-ENDIF(NOT WIN32)
 
 #-----------------------------------------------------------------------------
 # Discover the name of the runtime library path environment variable
@@ -214,17 +207,21 @@ ENDIF(BUILD_SHARED_LIBS)
 # and newer) requires no leading / to install under INSTALL_PREFIX, we
 # are stripping the leading /. In the future, there should be no leading
 # / in any install directory variables
-IF(VTK_INSTALL_HAS_CMAKE_24)
-  STRING(REGEX REPLACE "^/" "" VTK_INSTALL_LIB_DIR_CM24 "${VTK_INSTALL_LIB_DIR}")
-  STRING(REGEX REPLACE "^/" "" VTK_INSTALL_BIN_DIR_CM24 "${VTK_INSTALL_BIN_DIR}")
-  STRING(REGEX REPLACE "^/" "" VTK_INSTALL_INCLUDE_DIR_CM24 "${VTK_INSTALL_INCLUDE_DIR}")
-ENDIF(VTK_INSTALL_HAS_CMAKE_24)
+STRING(REGEX REPLACE "^/" "" VTK_INSTALL_LIB_DIR_CM24 "${VTK_INSTALL_LIB_DIR}")
+STRING(REGEX REPLACE "^/" "" VTK_INSTALL_BIN_DIR_CM24 "${VTK_INSTALL_BIN_DIR}")
+STRING(REGEX REPLACE "^/" "" VTK_INSTALL_INCLUDE_DIR_CM24 "${VTK_INSTALL_INCLUDE_DIR}")
+STRING(REGEX REPLACE "^/" "" VTK_INSTALL_PACKAGE_DIR_CM24 "${VTK_INSTALL_PACKAGE_DIR}")
+STRING(REGEX REPLACE "^/" "" VTK_INSTALL_DOXYGEN_DIR_CM24 "${VTK_INSTALL_DOXYGEN_DIR}")
+STRING(REGEX REPLACE "^/" "" VTK_INSTALL_TCL_DIR_CM24 "${VTK_INSTALL_TCL_DIR}")
+STRING(REGEX REPLACE "^/" "" VTK_INSTALL_JAVA_DIR_CM24 "${VTK_INSTALL_JAVA_DIR}")
 
 #-----------------------------------------------------------------------------
 # Save the compiler settings so another project can import them.
 CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR} .cmake VTKBuildSettings)
+  INSTALL(FILES "${VTK_BINARY_DIR}/VTKBuildSettings.cmake"
+    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}
+    COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 #-----------------------------------------------------------------------------
@@ -899,13 +896,11 @@ IF(NOT VTK_USE_ANSI_STDLIB)
 ENDIF(NOT VTK_USE_ANSI_STDLIB)
 IF(NOT VTK_INSTALL_NO_LIBRARIES)
   SET(KWSYS_LIBRARY_INSTALL_DIR ${VTK_INSTALL_LIB_DIR})
-  IF(VTK_INSTALL_HAS_CMAKE_24)
-    SET(KWSYS_INSTALL_BIN_DIR ${VTK_INSTALL_BIN_DIR_CM24})
-    SET(KWSYS_INSTALL_LIB_DIR ${VTK_INSTALL_LIB_DIR_CM24})
-    SET(KWSYS_INSTALL_INCLUDE_DIR ${VTK_INSTALL_INCLUDE_DIR_CM24})
-    SET(KWSYS_INSTALL_COMPONENT_NAME_RUNTIME Runtime)
-    SET(KWSYS_INSTALL_COMPONENT_NAME_DEVELOPMENT Development)
-  ENDIF(VTK_INSTALL_HAS_CMAKE_24)
+  SET(KWSYS_INSTALL_BIN_DIR ${VTK_INSTALL_BIN_DIR_CM24})
+  SET(KWSYS_INSTALL_LIB_DIR ${VTK_INSTALL_LIB_DIR_CM24})
+  SET(KWSYS_INSTALL_INCLUDE_DIR ${VTK_INSTALL_INCLUDE_DIR_CM24})
+  SET(KWSYS_INSTALL_COMPONENT_NAME_RUNTIME RuntimeLibraries)
+  SET(KWSYS_INSTALL_COMPONENT_NAME_DEVELOPMENT Development)
 ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   SET(KWSYS_HEADER_INSTALL_DIR ${VTK_INSTALL_INCLUDE_DIR})
@@ -980,25 +975,7 @@ ENDIF(BUILD_TESTING)
 # the VTK build.  Doing so will not work because they are designed to
 # be built out-of-tree.
 IF(BUILD_EXAMPLES)
-  SET(VTK_CMAKE_VERSION_FOR_EXAMPLES)
-  # The examples tree now requires CMake 2.0.4 or higher.
-  IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
-    # Have version 2.0.  Check for the Modules/CMakeTestForFreeVC.cxx
-    # file which was added in 2.0.4 (this is a nasty hack).
-    IF(EXISTS ${CMAKE_ROOT}/Modules/CMakeTestForFreeVC.cxx)
-      SET(VTK_CMAKE_VERSION_FOR_EXAMPLES 1)
-    ENDIF(EXISTS ${CMAKE_ROOT}/Modules/CMakeTestForFreeVC.cxx)
-  ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
-    # Have version 2.1 or higher.
-    SET(VTK_CMAKE_VERSION_FOR_EXAMPLES 1)
-  ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
-  IF(VTK_CMAKE_VERSION_FOR_EXAMPLES)
-    SUBDIRS(Examples)
-  ELSE(VTK_CMAKE_VERSION_FOR_EXAMPLES)
-    MESSAGE(
-      "Warning: The BUILD_EXAMPLES option now requires CMake 2.0.4 or higher "
-      "and is being ignored.")
-  ENDIF(VTK_CMAKE_VERSION_FOR_EXAMPLES)
+  SUBDIRS(Examples)
 ENDIF(BUILD_EXAMPLES)
 
 #-----------------------------------------------------------------------------
@@ -1161,8 +1138,9 @@ FOREACH(header algorithm deque iterator list map new numeric queue set stack str
   CONFIGURE_FILE(${VTK_SOURCE_DIR}/Utilities/vtkstd.h.in
                  ${VTK_BINARY_DIR}/vtkstd/${header} @ONLY IMMEDIATE)
   IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/vtkstd
-                  FILES ${VTK_BINARY_DIR}/vtkstd/${header})
+    INSTALL(FILES ${VTK_BINARY_DIR}/vtkstd/${header}
+      DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkstd
+      COMPONENT Development)
   ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 ENDFOREACH(header)
 
@@ -1235,13 +1213,15 @@ IF(VTK_WRAP_TCL)
 ENDIF(VTK_WRAP_TCL)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES
+  INSTALL(FILES
     ${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake
     ${VTK_CMAKE_DIR}/vtkWrapTcl.cmake
     ${VTK_CMAKE_DIR}/vtkWrapJava.cmake
     ${VTK_CMAKE_DIR}/vtkWrapPython.cmake
     ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
     ${VTK_CMAKE_DIR}/VTKVersionMacros.cmake
+    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}/CMake 
+    COMPONENT Development
     )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
@@ -1440,25 +1420,30 @@ INCLUDE_DIRECTORIES(
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   # Install the instantiator headers.
-  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkCommonInstantiator
-                vtkFilteringInstantiator vtkIOInstantiator
-                vtkImagingInstantiator vtkGraphicsInstantiator
-                vtkGenericFilteringInstantiator)
-  IF(VTK_USE_RENDERING)
-    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkRenderingInstantiator)
-    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkVolumeRenderingInstantiator)
-    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkHybridInstantiator)
-    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkWidgetsInstantiator)
-  ENDIF(VTK_USE_RENDERING)
-  IF(VTK_USE_PARALLEL)
-    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkParallelInstantiator)
-  ENDIF(VTK_USE_PARALLEL)
-
-  # Install cmake extensions so user projects can load them.
-  INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES
+  SET(__inst_files
+    ${VTK_BINARY_DIR}/vtkCommonInstantiator.h
+    ${VTK_BINARY_DIR}/vtkFilteringInstantiator.h
+    ${VTK_BINARY_DIR}/vtkIOInstantiator.h
+    ${VTK_BINARY_DIR}/vtkImagingInstantiator.h
+    ${VTK_BINARY_DIR}/vtkGraphicsInstantiator.h
+    ${VTK_BINARY_DIR}/vtkGenericFilteringInstantiator.h
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cmake
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.h.in
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cxx.in)
+  IF(VTK_USE_RENDERING)
+    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkRenderingInstantiator.h)
+    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkVolumeRenderingInstantiator.h)
+    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkHybridInstantiator.h)
+    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkWidgetsInstantiator.h)
+  ENDIF(VTK_USE_RENDERING)
+  IF(VTK_USE_PARALLEL)
+    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkParallelInstantiator.h)
+  ENDIF(VTK_USE_PARALLEL)
+
+  # Install cmake extensions so user projects can load them.
+  INSTALL(FILES ${__inst_files}
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+    COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 # Save library dependencies.
@@ -1466,11 +1451,17 @@ EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
 
 # Install some files.
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkConfigure vtkToolkits)
-  INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR} .cmake UseVTK VTKLibraryDepends)
+  SET(__inst_files
+    ${VTK_BINARY_DIR}/vtkConfigure.h
+    ${VTK_BINARY_DIR}/vtkToolkits.h
+    ${VTK_BINARY_DIR}/UseVTK.cmake
+    ${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
   IF(VTK_WRAP_HINTS)
-    INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR} FILES ${VTK_WRAP_HINTS})
+    SET(__inst_files ${__inst_files} ${VTK_WRAP_HINTS})
   ENDIF(VTK_WRAP_HINTS)
+  INSTALL(FILES ${__inst_files}
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+    COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 #-----------------------------------------------------------------------------
@@ -1523,11 +1514,3 @@ INCLUDE(${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
 # the end of the whole configuration process, as a "last step".
 # This directory is typically the last SUBDIRS in the main CMakeLists.txt.
 SUBDIRS(Utilities/LastConfigureStep)
-
-# If the version of CMake was too old, complain and build nothing.
-# These should be the last lines in this file.
-ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
-  MESSAGE(SEND_ERROR
-          "This version of CMake is too old to build VTK.  "
-          "Please upgrade to CMake 2.0 or later.")
-ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)

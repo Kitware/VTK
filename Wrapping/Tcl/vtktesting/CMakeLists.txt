@@ -1,9 +1,10 @@
 IF(NOT VTK_INSTALL_NO_RUNTIME)
-  INSTALL_FILES(${VTK_TCL_INSTALL_DIR}/vtktesting .tcl
-    vtktesting
-    backdrop
-    grab
-    colors
-    mccases
-    )
+  INSTALL(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtktesting.tcl
+    ${CMAKE_CURRENT_SOURCE_DIR}/backdrop.tcl
+    ${CMAKE_CURRENT_SOURCE_DIR}/grab.tcl
+    ${CMAKE_CURRENT_SOURCE_DIR}/colors.tcl
+    ${CMAKE_CURRENT_SOURCE_DIR}/mccases.tcl
+    DESTINATION ${VTK_TCL_INSTALL_DIR_CM24}/vtktesting
+    COMPONENT RuntimeLibraries)
 ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
