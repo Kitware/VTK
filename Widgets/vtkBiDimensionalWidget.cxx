@@ -332,7 +332,6 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
       {
       self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
       vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->Point3WidgetInteraction(e);
-      self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       self->WidgetState = vtkBiDimensionalWidget::Manipulate;
       self->CurrentHandle = (-1);
       self->ReleaseFocus();
@@ -686,12 +685,22 @@ void vtkBiDimensionalWidget::EndSelectAction(vtkAbstractWidget *w)
   self->CenterSelected = 0;
   self->WidgetRep->Highlight(0);
   self->ReleaseFocus();
-  self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
   self->CurrentHandle = (-1);
   self->WidgetRep->BuildRepresentation();
+  int state = self->WidgetRep->GetInteractionState();
+  if ( state == vtkBiDimensionalRepresentation2D::NearP1 ||
+       state == vtkBiDimensionalRepresentation2D::NearP2 ||
+       state == vtkBiDimensionalRepresentation2D::NearP3 ||
+       state == vtkBiDimensionalRepresentation2D::NearP4 )
+    {
+    self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+    }
+  else
+    {
+    self->EndBiDimensionalInteraction();
+    }
   self->EventCallbackCommand->SetAbortFlag(1);
   self->Render();
-  self->InvokeEvent(vtkBiDimensionalWidget::EndWidgetSelectEvent, NULL);
 }
 
 // These are callbacks that are active when the user is manipulating the
