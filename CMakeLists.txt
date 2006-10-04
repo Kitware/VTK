@@ -1,15 +1,20 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 PROJECT(VTK)
 
-MACRO(INSTALL_TARGETS)
-  MESSAGE(FATAL_ERROR "Somebody is calling old INSTALL_TARGETS command with arguments: ${ARGV}")
-ENDMACRO(INSTALL_TARGETS)
-MACRO(INSTALL_PROGRAMS)
-  MESSAGE(FATAL_ERROR "Somebody is calling old INSTALL_PROGRAMS command with arguments: ${ARGV}")
-ENDMACRO(INSTALL_PROGRAMS)
-MACRO(INSTALL_FILES)
-  MESSAGE(FATAL_ERROR "Somebody is calling old INSTALL_FILES command with arguments: ${ARGV}")
-ENDMACRO(INSTALL_FILES)
+# Warn when using "old style" CMake install commands... But only when
+# building VTK itself.
+#
+IF("${VTK_BINARY_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+  MACRO(INSTALL_TARGETS)
+    MESSAGE(FATAL_ERROR "Somebody is calling old INSTALL_TARGETS command with arguments: ${ARGV}")
+  ENDMACRO(INSTALL_TARGETS)
+  MACRO(INSTALL_PROGRAMS)
+    MESSAGE(FATAL_ERROR "Somebody is calling old INSTALL_PROGRAMS command with arguments: ${ARGV}")
+  ENDMACRO(INSTALL_PROGRAMS)
+  MACRO(INSTALL_FILES)
+    MESSAGE(FATAL_ERROR "Somebody is calling old INSTALL_FILES command with arguments: ${ARGV}")
+  ENDMACRO(INSTALL_FILES)
+ENDIF("${VTK_BINARY_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
 # We will require CMake 2.4 as of August 15th 2006
 IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.4)
