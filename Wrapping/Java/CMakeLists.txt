@@ -62,11 +62,10 @@ IF(JAVA_COMPILE)
       IF(APPLE)
         SET(src ${VTK_JAR_PATH}/libvtk${kit}Java.dylib)
         SET(tgt ${VTK_JAR_PATH}/libvtk${kit}Java.jnilib)
-        ADD_CUSTOM_COMMAND(SOURCE ${src}
-                             COMMAND ln
-                             ARGS -sf ${src} ${tgt}
-                             OUTPUTS ${tgt}
-                             TARGET VTKJava)
+        ADD_CUSTOM_COMMAND(OUTPUT ${tgt}
+                           COMMAND ln
+                           ARGS -sf ${src} ${tgt}
+                           DEPENDS ${src})
         SET(JAVA_LIBRARIES ${JAVA_LIBRARIES} ${tgt})
       ENDIF(APPLE)
       TARGET_LINK_LIBRARIES(VTKJavaExecutable vtk${kit}Java)
