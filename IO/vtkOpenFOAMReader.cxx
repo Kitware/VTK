@@ -56,7 +56,7 @@ using vtkstd::istringstream;
 #include "vtkDataArraySelection.h"
 
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.4");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.5");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 struct stdString
@@ -157,6 +157,12 @@ int vtkOpenFOAMReader::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
     outInfo->Get(vtkMultiBlockDataSet::DATA_OBJECT()));
+  if (!this->FileName)
+    {
+    vtkErrorMacro("FileName has to be specified!");
+    return 0;
+    }
+
   this->CreateDataSet(output);
   return 1;
 }
@@ -182,6 +188,12 @@ int vtkOpenFOAMReader::RequestInformation(
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
+  if (!this->FileName)
+    {
+    vtkErrorMacro("FileName has to be specified!");
+    return 0;
+    }
+
   vtkDebugMacro(<<"Request Info");
   if(RequestInformationFlag)
     {

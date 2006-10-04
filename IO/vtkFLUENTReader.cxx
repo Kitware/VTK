@@ -56,7 +56,7 @@
 using vtkstd::istringstream;
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.6");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.7");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -213,6 +213,12 @@ int vtkFLUENTReader::RequestData(
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
+  if (!this->FileName)
+    {
+    vtkErrorMacro("FileName has to be specified!");
+    return 0;
+    }
+
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
@@ -377,6 +383,12 @@ int vtkFLUENTReader::RequestInformation(
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *vtkNotUsed(outputVector))
 {
+  if (!this->FileName)
+    {
+    vtkErrorMacro("FileName has to be specified!");
+    return 0;
+    }
+
   this->OpenCaseFile(this->FileName);
   this->OpenDataFile(this->FileName);
   this->ParseCaseFile();  // Reads Necessary Information from the .cas file.
