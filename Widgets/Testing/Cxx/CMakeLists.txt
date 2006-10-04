@@ -44,15 +44,16 @@ ENDIF (VTK_DATA_ROOT)
 IF(NOT VTK_USE_DISPLAY)
   REMOVE(MyTests     
     BoxWidget.cxx
-    TestImplicitPlaneWidget.cxx
-    TestOrientationMarkerWidget.cxx
     ImagePlaneWidget.cxx
-    TestSplineWidget.cxx
-    TestScalarBarWidget.cxx
+    TestImageTracerWidget.cxx
+    TestImplicitPlaneWidget.cxx
     TestLineWidget.cxx
+    TestOrientationMarkerWidget.cxx
+    TestOrthoPlanes.cxx
     TestPlaneWidget.cxx
     TestPointWidget.cxx
-    TestImageTracerWidget.cxx
+    TestScalarBarWidget.cxx
+    TestSplineWidget.cxx
     )
 ENDIF(NOT VTK_USE_DISPLAY)
 
