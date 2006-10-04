@@ -19,7 +19,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.97");
+vtkCxxRevisionMacro(vtkObject, "1.98");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -100,6 +100,7 @@ public:
   void RemoveObserver(unsigned long tag);
   void RemoveObservers(unsigned long event);
   void RemoveObservers(unsigned long event, vtkCommand *cmd);
+  void RemoveAllObservers();
   int InvokeEvent(unsigned long event, void *callData, vtkObject *self);
   vtkCommand *GetCommand(unsigned long tag);
   unsigned long GetTag(vtkCommand*);
@@ -414,6 +415,20 @@ void vtkSubjectHelper::RemoveObservers(unsigned long event, vtkCommand *cmd)
 }
 
 //----------------------------------------------------------------------------
+void vtkSubjectHelper::RemoveAllObservers()
+{
+  vtkObserver *elem = this->Start;
+  vtkObserver *next;
+  while (elem)
+    {
+    next = elem->Next;
+    delete elem;
+    elem = next;
+    }
+  this->Start = NULL;
+}
+
+//----------------------------------------------------------------------------
 int vtkSubjectHelper::HasObserver(unsigned long event)
 {
   vtkObserver *elem = this->Start;
@@ -682,6 +697,15 @@ void vtkObject::RemoveObservers(const char *event, vtkCommand *cmd)
 }
 
 //----------------------------------------------------------------------------
+void vtkObject::RemoveAllObservers()
+{
+  if ( this->SubjectHelper )
+    {
+    this->SubjectHelper->RemoveAllObservers();
+    }
+}
+
+//----------------------------------------------------------------------------
 int vtkObject::InvokeEvent(unsigned long event, void *callData)
 {
   if (this->SubjectHelper)
@@ -795,6 +819,9 @@ void vtkObject::UnRegisterInternal(vtkObjectBase* o, int check)
     // The reference count is 1, so the object is about to be deleted.
     // Invoke the delete event.
     this->InvokeEvent(vtkCommand::DeleteEvent, 0);
+
+    // Clean out observers prior to entering destructor
+    this->RemoveAllObservers();
     }
 
   // Decrement the reference count.

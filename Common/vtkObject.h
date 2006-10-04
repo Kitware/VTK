@@ -135,6 +135,7 @@ public:
   void RemoveObserver(unsigned long tag);
   void RemoveObservers(unsigned long event);
   void RemoveObservers(const char *event);
+  void RemoveAllObservers(); //remove every last one of them
   int HasObserver(unsigned long event);
   int HasObserver(const char *event);
 
@@ -170,7 +171,7 @@ protected:
 
   unsigned char     Debug;      // Enable debug messages
   vtkTimeStamp      MTime;      // Keep track of modification time
-  vtkSubjectHelper *SubjectHelper;
+  vtkSubjectHelper *SubjectHelper; // List of observers on this object
 
   // Description:
   // These methods allow a command to exclusively grab all events. (This
