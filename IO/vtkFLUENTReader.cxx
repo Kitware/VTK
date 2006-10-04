@@ -56,7 +56,7 @@
 using vtkstd::istringstream;
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.7");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.8");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -174,6 +174,8 @@ vtkFLUENTReader::vtkFLUENTReader()
   this->VectorSubSectionIds = new intVector;
   this->FluentCaseFile = new ifstream;
   this->FluentDataFile = new ifstream;
+
+  this->CellDataArraySelection = vtkDataArraySelection::New();
 }
 
 //----------------------------------------------------------------------------
@@ -205,6 +207,8 @@ vtkFLUENTReader::~vtkFLUENTReader()
   delete this->VectorSubSectionIds;
   delete this->FluentCaseFile;
   delete this->FluentDataFile;
+
+  this->CellDataArraySelection->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -399,7 +403,6 @@ int vtkFLUENTReader::RequestInformation(
   this->NumberOfScalars = 0;
   this->NumberOfVectors = 0;
   this->ParseDataFile();
-  this->CellDataArraySelection = vtkDataArraySelection::New();
   for (int i = 0; i < (int)this->SubSectionIds->value.size(); i++)
     {
     if (this->SubSectionSize->value[i] == 1)
