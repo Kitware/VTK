@@ -82,8 +82,16 @@ public:
   virtual void SetLighting(int mode);
 
   // Description:
+  // Returns current lighting setting.
+  virtual int GetLighting();
+  
+  // Description:
   // Turns antialiasing on and off.
   virtual void SetMultisampling(int mode);
+
+  // Description:
+  // Returns current antialiasing setting.
+  virtual int GetMultisampling();
 
 protected:
   vtkMesaPainterDeviceAdapter();

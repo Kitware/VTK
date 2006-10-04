@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.8");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.9");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -258,6 +258,9 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
 
   //turn off antialising and lighting so that the colors we draw will be the
   //colors we read back
+  int origMultisample = device->GetMultisampling();
+  int origLighting = device->GetLighting();
+
   device->SetMultisampling(0);
   device->SetLighting(0);
 
@@ -289,8 +292,8 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
     }
 
   //reset lighting back to the default
-  device->SetLighting(1);
-  device->SetMultisampling(1);
+  device->SetLighting(origLighting);
+  device->SetMultisampling(origMultisample);
 
   this->Timer->StopTimer();
   this->TimeToDraw = this->Timer->GetElapsedTime();

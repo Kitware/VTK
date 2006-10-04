@@ -157,8 +157,16 @@ public:
   virtual void SetLighting(int mode) = 0;
 
   // Description:
+  // Returns current lighting setting.
+  virtual int GetLighting() = 0;
+
+  // Description:
   // Turns antialiasing on and off.
   virtual void SetMultisampling(int mode) = 0;
+ 
+  // Description:
+  // Returns current antialiasing setting.
+  virtual int GetMultisampling() = 0;
 
 protected:
   vtkPainterDeviceAdapter();
