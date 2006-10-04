@@ -34,6 +34,7 @@ vtkEnSightGoldBinaryReader.cxx
 vtkEnSightGoldReader.cxx
 vtkEnSightMasterServerReader.cxx
 vtkEnSightReader.cxx
+vtkFLUENTReader.cxx
 vtkFacetWriter.cxx
 vtkGESignaReader.cxx
 vtkGAMBITReader.cxx
@@ -50,6 +51,7 @@ vtkImageWriter.cxx
 vtkInputStream.cxx
 vtkJPEGReader.cxx
 vtkJPEGWriter.cxx
+vtkMFIXReader.cxx
 vtkMaterialLibrary.cxx
 vtkMCubesReader.cxx
 vtkMCubesWriter.cxx
@@ -64,6 +66,7 @@ vtkMultiBlockPLOT3DReader.cxx
 vtkMoleculeReaderBase.cxx
 vtkOBJReader.cxx
 vtkOutputStream.cxx
+vtkOpenFOAMReader.cxx
 vtkPDBReader.cxx
 vtkPLOT3DReader.cxx
 vtkPLY.cxx
