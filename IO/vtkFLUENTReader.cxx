@@ -56,7 +56,7 @@
 using vtkstd::istringstream;
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.3");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.4");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -495,7 +495,7 @@ int vtkFLUENTReader::OpenDataFile(const char *filename)
 //----------------------------------------------------------------------------
 int vtkFLUENTReader::GetCaseChunk ()
 {
-  this->CaseBuffer->value.clear();  // Clear buffer
+  this->CaseBuffer->value = "";  // Clear buffer
 
   //
   // Look for beginning of chunk
@@ -637,7 +637,7 @@ int vtkFLUENTReader::GetDataIndex()
 //----------------------------------------------------------------------------
 int vtkFLUENTReader::GetDataChunk ()
 {
-  this->DataBuffer->value.clear();  // Clear buffer
+  this->DataBuffer->value = "";  // Clear buffer
   //
   // Look for beginning of chunk
   //

@@ -56,7 +56,7 @@ using vtkstd::istringstream;
 #include "vtkDataArraySelection.h"
 
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.2");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.3");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 struct stdString
@@ -1584,7 +1584,7 @@ vtkDoubleArray * vtkOpenFOAMReader::GetInternalVariableAtTimestep
   while(tokenizer >> foamClass)
     {
     };
-  temp.clear();
+  temp = "";
   tokenizer.str("");
   tokenizer.clear();
   //create scalar arrays
@@ -1816,7 +1816,7 @@ vtkDoubleArray * vtkOpenFOAMReader::GetBoundaryVariableAtTimestep
   temp.erase(temp.begin()+temp.find(";"));
   tokenizer.str(temp);
   while(tokenizer >> foamClass);
-  temp.clear();
+  temp = "";
   tokenizer.str("");
   tokenizer.clear();
   //create scalar arrays
