@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.33");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.34");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -335,6 +335,14 @@ int vtkFunctionParser::DisambiguateOperators()
           }
         tempStackPtr--;
         break;
+      case VTK_PARSER_CROSS:
+        if (tempStack[tempStackPtr] == 0 || tempStack[tempStackPtr-1] == 0)
+          {
+          vtkErrorMacro("can't apply cross to scalars");
+          return 0;
+          }
+        tempStackPtr--;
+        break;
       case VTK_PARSER_VECTOR_UNARY_MINUS:
         if (tempStack[tempStackPtr] == 0)
           {
@@ -460,6 +468,7 @@ void vtkFunctionParser::Evaluate()
   int numImmediatesProcessed = 0;
   int stackPosition = -1;
   double magnitude;
+  double temp[3];
   
   this->StackPointer = -1;
 
@@ -675,6 +684,31 @@ void vtkFunctionParser::Evaluate()
           this->Stack[stackPosition-1] = this->Stack[stackPosition];
           }
         stackPosition--;
+        break;
+      case VTK_PARSER_CROSS:
+        // Cross Product
+        #define Ux stackPosition-5
+        #define Uy stackPosition-4
+        #define Uz stackPosition-3
+        #define Vx stackPosition-2
+        #define Vy stackPosition-1
+        #define Vz stackPosition
+        temp[0] = this->Stack[Uy]*this->Stack[Vz] -
+                  this->Stack[Uz]*this->Stack[Vy];
+        temp[1] = this->Stack[Uz]*this->Stack[Vx] -
+                  this->Stack[Ux]*this->Stack[Vz];
+        temp[2] = this->Stack[Ux]*this->Stack[Vy] -
+                  this->Stack[Uy]*this->Stack[Vx];
+        this->Stack[Ux] = temp[0];
+        this->Stack[Uy] = temp[1];
+        this->Stack[Uz] = temp[2];
+        #undef Ux
+        #undef Uy
+        #undef Uz
+        #undef Vx
+        #undef Vy
+        #undef Vz
+        stackPosition-=3;
         break;
       case VTK_PARSER_SIGN:
         if (this->Stack[stackPosition] < 0)
@@ -1245,7 +1279,8 @@ int vtkFunctionParser::CheckSyntax()
     if ((functionNumber = this->GetMathFunctionNumber(index)))
       {
       if ((functionNumber == VTK_PARSER_MIN) ||
-          (functionNumber == VTK_PARSER_MAX))
+          (functionNumber == VTK_PARSER_MAX) ||
+          (functionNumber == VTK_PARSER_CROSS))
         {
         expectCommaOnParenthesisCount[parenthesisCount+1] = 1;
         }
@@ -1452,7 +1487,8 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
       if (this->IsSubstringCompletelyEnclosed(beginIndex2, endIndex))
         {
         if ((mathFunctionNum == VTK_PARSER_MIN) ||
-            (mathFunctionNum == VTK_PARSER_MAX))
+            (mathFunctionNum == VTK_PARSER_MAX) ||
+            (mathFunctionNum == VTK_PARSER_CROSS))
           {
           parenthesisCount = 0;
           for (i = endIndex-1; i > beginIndex2; i--)
@@ -1676,6 +1712,10 @@ int vtkFunctionParser::GetMathFunctionNumber(int currentIndex)
     {
     return VTK_PARSER_MAX;
     }
+  if (strncmp(&this->Function[currentIndex], "cross", 5) == 0) 
+    {
+    return VTK_PARSER_CROSS;
+    }
   if (strncmp(&this->Function[currentIndex], "sign", 4) == 0)
     {
     return VTK_PARSER_SIGN;
@@ -1705,6 +1745,8 @@ int vtkFunctionParser::GetMathFunctionStringLength(int mathFunctionNumber)
     case VTK_PARSER_COSINE:
     case VTK_PARSER_TANGENT:
     case VTK_PARSER_MAGNITUDE:
+    case VTK_PARSER_MIN:
+    case VTK_PARSER_MAX:
       return 3;
     case VTK_PARSER_CEILING:
     case VTK_PARSER_SQUARE_ROOT:
@@ -1718,6 +1760,7 @@ int vtkFunctionParser::GetMathFunctionStringLength(int mathFunctionNumber)
       return 4;
     case VTK_PARSER_FLOOR:
     case VTK_PARSER_LOGARITHM10:
+    case VTK_PARSER_CROSS:
       return 5;
     default:
       vtkWarningMacro("Unknown math function");

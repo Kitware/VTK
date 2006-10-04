@@ -54,25 +54,26 @@
 #define VTK_PARSER_HYPERBOLIC_TANGENT 24
 #define VTK_PARSER_MIN 25
 #define VTK_PARSER_MAX 26
-#define VTK_PARSER_SIGN 27
+#define VTK_PARSER_CROSS 27
+#define VTK_PARSER_SIGN 28
 
 // functions involving vectors
-#define VTK_PARSER_VECTOR_UNARY_MINUS 28
-#define VTK_PARSER_DOT_PRODUCT 29
-#define VTK_PARSER_VECTOR_ADD 30
-#define VTK_PARSER_VECTOR_SUBTRACT 31
-#define VTK_PARSER_SCALAR_TIMES_VECTOR 32
-#define VTK_PARSER_VECTOR_TIMES_SCALAR 33
-#define VTK_PARSER_MAGNITUDE 34
-#define VTK_PARSER_NORMALIZE 35
+#define VTK_PARSER_VECTOR_UNARY_MINUS 29
+#define VTK_PARSER_DOT_PRODUCT 30
+#define VTK_PARSER_VECTOR_ADD 31
+#define VTK_PARSER_VECTOR_SUBTRACT 32
+#define VTK_PARSER_SCALAR_TIMES_VECTOR 33
+#define VTK_PARSER_VECTOR_TIMES_SCALAR 34
+#define VTK_PARSER_MAGNITUDE 35
+#define VTK_PARSER_NORMALIZE 36
 
 // constants involving vectors
-#define VTK_PARSER_IHAT 36
-#define VTK_PARSER_JHAT 37
-#define VTK_PARSER_KHAT 38
+#define VTK_PARSER_IHAT 37
+#define VTK_PARSER_JHAT 38
+#define VTK_PARSER_KHAT 39
 
 // codes for scalar variables come before those for vectors
-#define VTK_PARSER_BEGIN_VARIABLES 39
+#define VTK_PARSER_BEGIN_VARIABLES 40
 
 // the value that is retuned as a result if there is an error
 #define VTK_PARSER_ERROR_RESULT VTK_LARGE_FLOAT
@@ -168,7 +169,7 @@ public:
   // Description:
   // Remove all the current variables.
   void RemoveAllVariables();
-  
+
   // Description:
   // Remove all the scalar variables.
   void RemoveScalarVariables();
