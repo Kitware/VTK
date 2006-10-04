@@ -162,7 +162,7 @@ void vtkBiDimensionalWidget::CreateDefaultRepresentation()
     {
     this->WidgetRep = vtkBiDimensionalRepresentation2D::New();
     }
-  dynamic_cast<vtkBiDimensionalRepresentation2D*>(this->WidgetRep)->
+  vtkBiDimensionalRepresentation2D::SafeDownCast(this->WidgetRep)->
     InstantiateHandleRepresentation();
 }
 
@@ -177,9 +177,9 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       {
       if (this->WidgetRep)
         {
-        dynamic_cast<vtkBiDimensionalRepresentation2D*>(this->WidgetRep)->
+        vtkBiDimensionalRepresentation2D::SafeDownCast(this->WidgetRep)->
           Line1VisibilityOff();
-        dynamic_cast<vtkBiDimensionalRepresentation2D*>(this->WidgetRep)->
+        vtkBiDimensionalRepresentation2D::SafeDownCast(this->WidgetRep)->
           Line2VisibilityOff();
         }
       }
@@ -187,9 +187,9 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       {
       if (this->WidgetRep && !this->Visibility)
         {
-        dynamic_cast<vtkBiDimensionalRepresentation2D*>(this->WidgetRep)->
+        vtkBiDimensionalRepresentation2D::SafeDownCast(this->WidgetRep)->
           Line1VisibilityOn();
-        dynamic_cast<vtkBiDimensionalRepresentation2D*>(this->WidgetRep)->
+        vtkBiDimensionalRepresentation2D::SafeDownCast(this->WidgetRep)->
           Line2VisibilityOn();
         }
       if (this->Point1Widget)
@@ -220,7 +220,7 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       if (this->Point1Widget)
         {
         this->Point1Widget->SetRepresentation(
-          dynamic_cast<vtkBiDimensionalRepresentation2D*>
+          vtkBiDimensionalRepresentation2D::SafeDownCast
           (this->WidgetRep)->GetPoint1Representation());
         this->Point1Widget->SetInteractor(this->Interactor);
         this->Point1Widget->GetRepresentation()->SetRenderer(
@@ -229,7 +229,7 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       if (this->Point2Widget)
         {
         this->Point2Widget->SetRepresentation(
-          dynamic_cast<vtkBiDimensionalRepresentation2D*>
+          vtkBiDimensionalRepresentation2D::SafeDownCast
           (this->WidgetRep)->GetPoint2Representation());
         this->Point2Widget->SetInteractor(this->Interactor);
         this->Point2Widget->GetRepresentation()->SetRenderer(
@@ -238,7 +238,7 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       if (this->Point3Widget)
         {
         this->Point3Widget->SetRepresentation(
-          dynamic_cast<vtkBiDimensionalRepresentation2D*>
+          vtkBiDimensionalRepresentation2D::SafeDownCast
           (this->WidgetRep)->GetPoint3Representation());
         this->Point3Widget->SetInteractor(this->Interactor);
         this->Point3Widget->GetRepresentation()->SetRenderer(
@@ -247,7 +247,7 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       if (this->Point4Widget)
         {
         this->Point4Widget->SetRepresentation(
-          dynamic_cast<vtkBiDimensionalRepresentation2D*>
+          vtkBiDimensionalRepresentation2D::SafeDownCast
           (this->WidgetRep)->GetPoint4Representation());
         this->Point4Widget->SetInteractor(this->Interactor);
         this->Point4Widget->GetRepresentation()->SetRenderer(
@@ -293,7 +293,7 @@ int vtkBiDimensionalWidget::IsMeasureValid()
 //-------------------------------------------------------------------------
 void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
 {
-  vtkBiDimensionalWidget *self = dynamic_cast<vtkBiDimensionalWidget*>(w);
+  vtkBiDimensionalWidget *self = vtkBiDimensionalWidget::SafeDownCast(w);
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
   double e[2];
@@ -306,10 +306,10 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
     self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkBiDimensionalWidget::Define;
     self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-    dynamic_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->StartWidgetDefinition(e);
+    vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->StartWidgetDefinition(e);
     self->CurrentHandle = 0;
     self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
-    dynamic_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->Line1VisibilityOn();
+    vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->Line1VisibilityOn();
     self->Point1Widget->SetEnabled(1);
     self->CurrentHandle++;
     }
@@ -321,17 +321,17 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
     if ( self->CurrentHandle == 1 )
       {
       self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
-      dynamic_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->Point2WidgetInteraction(e);
+      vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->Point2WidgetInteraction(e);
       self->CurrentHandle++;
       self->Point2Widget->SetEnabled(1);
       self->Point3Widget->SetEnabled(1);
       self->Point4Widget->SetEnabled(1);
-      dynamic_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->Line2VisibilityOn();
+      vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->Line2VisibilityOn();
       }
     else if ( self->CurrentHandle == 2 )
       {
       self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
-      dynamic_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->Point3WidgetInteraction(e);
+      vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->Point3WidgetInteraction(e);
       self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       self->WidgetState = vtkBiDimensionalWidget::Manipulate;
       self->CurrentHandle = (-1);
@@ -357,7 +357,7 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
       }
 
     self->GrabFocus(self->EventCallbackCommand);
-    dynamic_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->StartWidgetManipulation(e);
+    vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->StartWidgetManipulation(e);
     if ( state == vtkBiDimensionalRepresentation2D::NearP1 ||
          state == vtkBiDimensionalRepresentation2D::NearP2 )
       {
@@ -409,7 +409,7 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
 //-------------------------------------------------------------------------
 void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
 {
-  vtkBiDimensionalWidget *self = dynamic_cast<vtkBiDimensionalWidget*>(w);
+  vtkBiDimensionalWidget *self = vtkBiDimensionalWidget::SafeDownCast(w);
 
   // Do nothing if outside
   if ( self->WidgetState == vtkBiDimensionalWidget::Start )
@@ -429,12 +429,12 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
     {
     if ( self->CurrentHandle == 1 )
       {
-      dynamic_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+      vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->
         Point2WidgetInteraction(e);
       }
     else
       {
-      dynamic_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+      vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->
         Point3WidgetInteraction(e);
       }
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
@@ -445,7 +445,7 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
     {
     // moving outer portion of line -- rotating
     self->RequestCursorShape(VTK_CURSOR_HAND);
-    dynamic_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->
       WidgetInteraction(e);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
@@ -553,7 +553,7 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
   else if ( self->CenterSelected )
     {//grabbing center intersection point
     self->RequestCursorShape(VTK_CURSOR_SIZEALL);
-    dynamic_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->
       WidgetInteraction(e);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
@@ -664,7 +664,7 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
 //-------------------------------------------------------------------------
 void vtkBiDimensionalWidget::EndSelectAction(vtkAbstractWidget *w)
 {
-  vtkBiDimensionalWidget *self = dynamic_cast<vtkBiDimensionalWidget*>(w);
+  vtkBiDimensionalWidget *self = vtkBiDimensionalWidget::SafeDownCast(w);
 
   // Do nothing if outside
   if ( self->WidgetState == vtkBiDimensionalWidget::Start ||
