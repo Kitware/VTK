@@ -56,7 +56,7 @@
 using vtkstd::istringstream;
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.4");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.5");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -231,10 +231,10 @@ int vtkFLUENTReader::RequestData(
 
   for (int i = 0; i < (int)this->Cells->value.size(); i++)
     {
-    int location = distance(this->CellZones->value.begin(),
-                            vtkstd::find(this->CellZones->value.begin(),
-                                         this->CellZones->value.end(),
-                                         this->Cells->value[i].zone));
+    int location = vtkstd::distance(this->CellZones->value.begin(),
+                                    vtkstd::find(this->CellZones->value.begin(),
+                                                 this->CellZones->value.end(),
+                                                 this->Cells->value[i].zone));
     if (this->Cells->value[i].type == 1 )
       {
       for (int j = 0; j < 3; j++)
@@ -287,7 +287,7 @@ int vtkFLUENTReader::RequestData(
         {
         this->Wedge->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
         }
-      grid[location]->InsertNextCell(this->Wedge->GetCellType(),
+PARAVIEW_USE_SYSTEM_HDF5:BOOL      grid[location]->InsertNextCell(this->Wedge->GetCellType(),
                                      this->Wedge->GetPointIds());
       }
     else if (this->Cells->value[i].type == 7 )
@@ -308,10 +308,11 @@ int vtkFLUENTReader::RequestData(
   //Scalar Data
   for (int l = 0; l < (int)this->ScalarDataChunks->value.size(); l++)
     {
-    int location = distance(this->CellZones->value.begin(),
-                            vtkstd::find(this->CellZones->value.begin(),
-                                         this->CellZones->value.end(),
-                                         this->ScalarDataChunks->value[l].zoneId));
+    int location = vtkstd::distance(
+      this->CellZones->value.begin(),
+      vtkstd::find(this->CellZones->value.begin(),
+                   this->CellZones->value.end(),
+                   this->ScalarDataChunks->value[l].zoneId));
     vtkDoubleArray *v = vtkDoubleArray::New();
     for (int m = 0; m <
          (int)this->ScalarDataChunks->value[l].scalarData.size(); m++)
@@ -328,10 +329,11 @@ int vtkFLUENTReader::RequestData(
   //Vector Data
   for (int l = 0; l < (int)this->VectorDataChunks->value.size(); l++)
     {
-    int location = distance(this->CellZones->value.begin(),
-                            vtkstd::find(this->CellZones->value.begin(),
-                                         this->CellZones->value.end(),
-                                         this->VectorDataChunks->value[l].zoneId));
+    int location = vtkstd::distance(
+      this->CellZones->value.begin(),
+      vtkstd::find(this->CellZones->value.begin(),
+                   this->CellZones->value.end(),
+                   this->VectorDataChunks->value[l].zoneId));
     vtkDoubleArray *v = vtkDoubleArray::New();
     v->SetNumberOfComponents(3);
     for (int m = 0;
