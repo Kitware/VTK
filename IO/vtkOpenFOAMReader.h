@@ -147,11 +147,11 @@ private:
   void ReadOwnerFile(const char *);
   void ReadNeighborFile(const char *);
   void PopulatePolyMeshDirArrays();
-  char * GetDataType(const char *, const char *);
+  const char * GetDataType(const char *, const char *);
   vtkDoubleArray * GetInternalVariableAtTimestep(const char *, int);
   vtkDoubleArray * GetBoundaryVariableAtTimestep(int, const char *, int,
                                                  vtkUnstructuredGrid *);
-  stringVector *GatherBlocks(char *, int);
+  stringVector *GatherBlocks(const char *, int);
   vtkUnstructuredGrid * GetBoundaryMesh(int, int);
   vtkUnstructuredGrid * GetPointZoneMesh(int, int);
   vtkUnstructuredGrid * GetFaceZoneMesh(int, int);

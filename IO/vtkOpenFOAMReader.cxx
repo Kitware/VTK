@@ -56,7 +56,7 @@ using vtkstd::istringstream;
 #include "vtkDataArraySelection.h"
 
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.3");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.4");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 struct stdString
@@ -1454,7 +1454,7 @@ void vtkOpenFOAMReader::PopulatePolyMeshDirArrays()
 //  for meta data
 //
 // ****************************************************************************
-char * vtkOpenFOAMReader::GetDataType(const char * pathIn,
+const char * vtkOpenFOAMReader::GetDataType(const char * pathIn,
                                       const char * fileNameIn)
 {
   vtkstd::string path(pathIn);
@@ -2065,7 +2065,7 @@ vtkDoubleArray * vtkOpenFOAMReader::GetBoundaryVariableAtTimestep
 //  returns a vector of block names for a specified domain
 //
 // ****************************************************************************
-stringVector *vtkOpenFOAMReader::GatherBlocks(char * typeIn,
+stringVector *vtkOpenFOAMReader::GatherBlocks(const char * typeIn,
                                               int timeState)
 {
   vtkstd::string type(typeIn);
