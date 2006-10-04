@@ -41,8 +41,8 @@
 #include "vtkstd/vector"
 #include "vtkstd/string"
 #include "vtkstd/map"
-#include <fstream>
-#include <sstream>
+#include "vtksys/ios/fstream"
+#include "vtksys/ios/sstream"
 using vtkstd::istringstream;
 
 #include "vtkInformation.h"
@@ -56,7 +56,7 @@ using vtkstd::istringstream;
 #include "vtkDataArraySelection.h"
 
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.1");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.2");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 struct stdString
