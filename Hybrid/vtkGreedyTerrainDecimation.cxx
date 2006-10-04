@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.23");
+vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.24");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -41,6 +41,7 @@ vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 #define VTK_INTERIOR_EDGE 1
 #define VTK_BOUNDARY_EDGE 2
 
+//----------------------------------------------------------------------
 //Supporting classes for points
 class vtkTerrainInfo
 {
@@ -49,6 +50,7 @@ public:
   vtkIdType TriangleId;
 };
 
+//----------------------------------------------------------------------
 //PIMPL STL encapsulation
 //
 // Maps input point ids to owning mesh triangle
@@ -61,12 +63,14 @@ public:
     vtkstd::vector<vtkTerrainInfo>(n,value) {}
 };
 
+//----------------------------------------------------------------------
 // Maps mesh point id to input point id
 class vtkGreedyTerrainDecimationPointInfoType : public vtkstd::vector<vtkIdType> {};
 
 
 // Begin vtkGreedyTerrainDecimation class implementation-----------------------------------------
 //
+//----------------------------------------------------------------------
 vtkGreedyTerrainDecimation::vtkGreedyTerrainDecimation()
 {
   this->ErrorMeasure = VTK_ERROR_SPECIFIED_REDUCTION;
@@ -80,22 +84,26 @@ vtkGreedyTerrainDecimation::vtkGreedyTerrainDecimation()
   this->Normals = 0;
 }
 
+//----------------------------------------------------------------------
 vtkGreedyTerrainDecimation::~vtkGreedyTerrainDecimation()
 {
 }
 
+//----------------------------------------------------------------------
 inline void vtkGreedyTerrainDecimation::GetTerrainPoint(int i, int j, double x[3])
 {
   x[0] = this->Origin[0] + i*this->Spacing[0];
   x[1] = this->Origin[1] + j*this->Spacing[1];
 }
 
+//----------------------------------------------------------------------
 inline void vtkGreedyTerrainDecimation::ComputeImageCoordinates(vtkIdType inputPtId, int ij[2])
 {
   ij[0] = inputPtId % this->Dimensions[0];
   ij[1] = inputPtId / this->Dimensions[0];
 }
 
+//----------------------------------------------------------------------
 inline vtkIdType vtkGreedyTerrainDecimation::InsertNextPoint(vtkIdType inputPtId, 
                                                              double x[3])
 {
@@ -115,11 +123,13 @@ inline vtkIdType vtkGreedyTerrainDecimation::InsertNextPoint(vtkIdType inputPtId
   return this->CurrentPointId++;
 }
 
+//----------------------------------------------------------------------
 inline double *vtkGreedyTerrainDecimation::GetPoint(vtkIdType id)
 {
   return this->Points->GetPointer(3*id);
 }
 
+//----------------------------------------------------------------------
 inline void vtkGreedyTerrainDecimation::GetPoint(vtkIdType id, double x[3])
 {
   double *ptr = this->Points->GetPointer(3*id);
@@ -128,6 +138,7 @@ inline void vtkGreedyTerrainDecimation::GetPoint(vtkIdType id, double x[3])
   x[2] = *ptr;
 }
 
+//----------------------------------------------------------------------
 void vtkGreedyTerrainDecimation::EstimateOutputSize(const vtkIdType numInputPts,
                                                     vtkIdType &numPts, vtkIdType &numTris)
 {
@@ -148,6 +159,7 @@ void vtkGreedyTerrainDecimation::EstimateOutputSize(const vtkIdType numInputPts,
   return;
 }
 
+//----------------------------------------------------------------------
 int vtkGreedyTerrainDecimation::SatisfiesErrorMeasure(double error)
 {
   switch (this->ErrorMeasure)
@@ -175,6 +187,7 @@ int vtkGreedyTerrainDecimation::SatisfiesErrorMeasure(double error)
   return 0;
 }
 
+//----------------------------------------------------------------------
 //Update all triangles connected to this mesh point
 void vtkGreedyTerrainDecimation::UpdateTriangles(vtkIdType ptId)
 {
@@ -190,6 +203,7 @@ void vtkGreedyTerrainDecimation::UpdateTriangles(vtkIdType ptId)
     }
 }
 
+//----------------------------------------------------------------------
 //Update all points as to which triangle they lie in. Basically a scanline algorithm.
 void vtkGreedyTerrainDecimation::UpdateTriangle(vtkIdType triId, 
                                                 vtkIdType p1, vtkIdType p2, vtkIdType p3)
@@ -208,6 +222,7 @@ void vtkGreedyTerrainDecimation::UpdateTriangle(vtkIdType triId,
   this->UpdateTriangle(triId, ij1, ij2, ij3, h);
 }
 
+//----------------------------------------------------------------------
 void vtkGreedyTerrainDecimation::InsertBoundaryVertices()
 {
   int i, j;
@@ -246,6 +261,7 @@ void vtkGreedyTerrainDecimation::InsertBoundaryVertices()
     }
 }
 
+//----------------------------------------------------------------------
 // Determine whether point x is inside of circumcircle of triangle
 // defined by points (x1, x2, x3). Returns non-zero if inside circle.
 // (Note that z-component is ignored.)
@@ -272,6 +288,7 @@ int vtkGreedyTerrainDecimation::InCircle (double x[3], double x1[3], double x2[3
 
 #define VTK_DEL2D_TOLERANCE 1.0e-014
 
+//----------------------------------------------------------------------
 // Recursive method to locate triangle containing point. Starts with arbitrary
 // triangle (tri) and "walks" towards it. Influenced by some of Guibas and 
 // Stolfi's work. Returns id of enclosing triangle, or -1 if no triangle
@@ -383,6 +400,7 @@ vtkIdType vtkGreedyTerrainDecimation::FindTriangle(double x[3], vtkIdType ptIds[
 
 #undef VTK_DEL2D_TOLERANCE
 
+//----------------------------------------------------------------------
 // Recursive method checks whether edge is Delaunay, and if not, swaps edge.
 // Continues until all edges are Delaunay. Points p1 and p2 form the edge in
 // question; x is the coordinates of the inserted point; tri is the current
@@ -451,6 +469,7 @@ void vtkGreedyTerrainDecimation::CheckEdge(vtkIdType ptId, double x[3], vtkIdTyp
   neighbors->Delete();
 }
 
+//----------------------------------------------------------------------
 vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtId)
 {
   vtkIdType ptId, nei[3], tri[4];
@@ -600,6 +619,7 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
   return 0;
 }
 
+//----------------------------------------------------------------------
 void vtkGreedyTerrainDecimation::ComputePointNormal(int i, int j, float n[3])
 {
   vtkDataArray* scalars;
@@ -664,6 +684,7 @@ void vtkGreedyTerrainDecimation::ComputePointNormal(int i, int j, float n[3])
   vtkMath::Normalize(n);
 }
 
+//----------------------------------------------------------------------
 int vtkGreedyTerrainDecimation::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -1022,6 +1043,7 @@ void vtkGreedyTerrainDecimation::UpdateTriangle(vtkIdType tri, int ij1[2], int i
 }
 
 
+//----------------------------------------------------------------------
 // Characterize the configuration of the triangle based on image coordinates
 // (All points in triangulation are from an image).
 //
@@ -1225,12 +1247,14 @@ int vtkGreedyTerrainDecimation::CharacterizeTriangle(int ij1[2], int ij2[2], int
   return VTK_TWO_TRIANGLES;
 }
 
+//----------------------------------------------------------------------
 int vtkGreedyTerrainDecimation::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 
+//----------------------------------------------------------------------
 void vtkGreedyTerrainDecimation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
