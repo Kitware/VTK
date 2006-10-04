@@ -64,7 +64,7 @@ MACRO(VTK_WRAP_JAVA3 TARGET SRC_LIST_NAME SOURCES)
         COMMAND ${VTK_PARSE_JAVA_EXE}
         ARGS ${TMP_INPUT} ${VTK_WRAP_HINTS} ${TMP_CONCRETE} 
         ${VTK_JAVA_HOME}/${TMP_FILENAME}.java
-        COMMENT "Java Wrappings"
+        COMMENT "Java Wrappings - generating ${TMP_FILENAME}.java"
         )
       
       # add custom command to output
@@ -74,9 +74,9 @@ MACRO(VTK_WRAP_JAVA3 TARGET SRC_LIST_NAME SOURCES)
         COMMAND ${VTK_WRAP_JAVA_EXE}
         ARGS ${TMP_INPUT} ${VTK_WRAP_HINTS} ${TMP_CONCRETE} 
         ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Java.cxx
-        COMMENT "Java Wrappings"
+        COMMENT "Java Wrappings - generating ${TMP_FILENAME}Java.cxx"
         )
-      
+
       SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} "${VTK_JAVA_HOME}/${TMP_FILENAME}.java")
       SET(VTK_JAVA_DEPENDENCIES_FILE
         "${VTK_JAVA_DEPENDENCIES_FILE}\n  \"${VTK_JAVA_HOME}/${TMP_FILENAME}.java\"")
@@ -131,7 +131,10 @@ MACRO(VTK_GENERATE_JAVA_DEPENDENCIES TARGET)
   IF (USER_JAVA_CLASSPATH)
     SET (javaPath "${USER_JAVA_PATH};${VTK_BINARY_DIR}/java")
   ENDIF (USER_JAVA_CLASSPATH)
-  
+
+  SET (OUT_TEXT)
+  SET (classes)
+
   # get the classes for this lib 
   FOREACH(srcName ${ARGN})
 

@@ -96,12 +96,13 @@ public:
     {this->DisplayLocation = VTK_BACKGROUND_LOCATION;};
   void SetDisplayLocationToForeground() 
     {this->DisplayLocation = VTK_FOREGROUND_LOCATION;};
-  
-  
+
   // Description:
   // Have the device specific subclass render this property.
+  //BTX
   virtual void Render (vtkViewport* vtkNotUsed(viewport))  {}
-  
+  //ETX
+
 protected:
   vtkProperty2D();
   ~vtkProperty2D();
@@ -113,13 +114,10 @@ protected:
   int   LineStipplePattern;
   int   LineStippleRepeatFactor;
   int   DisplayLocation;
+
 private:
   vtkProperty2D(const vtkProperty2D&);  // Not implemented.
   void operator=(const vtkProperty2D&);  // Not implemented.
 };
-  
-  
+
 #endif
-
-
-  
