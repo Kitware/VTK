@@ -56,7 +56,7 @@
 using vtkstd::istringstream;
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.5");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.6");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -287,7 +287,7 @@ int vtkFLUENTReader::RequestData(
         {
         this->Wedge->GetPointIds()->SetId(j, this->Cells->value[i].nodes[j]);
         }
-PARAVIEW_USE_SYSTEM_HDF5:BOOL      grid[location]->InsertNextCell(this->Wedge->GetCellType(),
+      grid[location]->InsertNextCell(this->Wedge->GetCellType(),
                                      this->Wedge->GetPointIds());
       }
     else if (this->Cells->value[i].type == 7 )
