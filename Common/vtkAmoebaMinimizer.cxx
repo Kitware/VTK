@@ -15,7 +15,7 @@
 #include "vtkAmoebaMinimizer.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAmoebaMinimizer, "1.6");
+vtkCxxRevisionMacro(vtkAmoebaMinimizer, "1.7");
 vtkStandardNewMacro(vtkAmoebaMinimizer);
 
 //----------------------------------------------------------------------------
@@ -713,7 +713,7 @@ int vtkAmoebaMinimizer::PerformAmoeba()
 
   if( y_try <= this->AmoebaValues[low] )
     {
-    y_try = TryAmoeba( this->AmoebaSum, high, VTK_AMOEBA_STRETCH_RATIO );
+    TryAmoeba( this->AmoebaSum, high, VTK_AMOEBA_STRETCH_RATIO );
     }
   else if( y_try >= this->AmoebaValues[next_high] )
     {

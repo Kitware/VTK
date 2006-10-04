@@ -41,7 +41,7 @@
 #  include "vtkUnsigned__Int64Array.h"
 # endif
 #endif
-vtkCxxRevisionMacro(vtkAbstractArray, "1.6");
+vtkCxxRevisionMacro(vtkAbstractArray, "1.7");
 //----------------------------------------------------------------------------
 // Construct object with sane defaults.
 vtkAbstractArray::vtkAbstractArray(vtkIdType vtkNotUsed(numComp))
@@ -193,10 +193,12 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
       return vtkStringArray::New();
 
     default:
-      vtkGenericWarningMacro("Unsupported data type " << dataType
-                             << "! Setting to VTK_DOUBLE");
-      return vtkDoubleArray::New();
+      break;
     }
+
+  vtkGenericWarningMacro("Unsupported data type: " << dataType
+                         << "! Setting to VTK_DOUBLE");
+  return vtkDoubleArray::New();
 }
 
 //----------------------------------------------------------------------------
