@@ -56,7 +56,7 @@
 using vtkstd::istringstream;
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.8");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.9");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -241,10 +241,12 @@ int vtkFLUENTReader::RequestData(
 
   for (int i = 0; i < (int)this->Cells->value.size(); i++)
     {
-    int location = vtkstd::distance(this->CellZones->value.begin(),
-                                    vtkstd::find(this->CellZones->value.begin(),
-                                                 this->CellZones->value.end(),
-                                                 this->Cells->value[i].zone));
+    int location = 
+      vtkstd::find(this->CellZones->value.begin(),
+                   this->CellZones->value.end(),
+                   this->Cells->value[i].zone) - 
+      this->CellZones->value.begin();
+                                    ;
     if (this->Cells->value[i].type == 1 )
       {
       for (int j = 0; j < 3; j++)
@@ -318,11 +320,12 @@ int vtkFLUENTReader::RequestData(
   //Scalar Data
   for (int l = 0; l < (int)this->ScalarDataChunks->value.size(); l++)
     {
-    int location = vtkstd::distance(
-      this->CellZones->value.begin(),
+    int location = 
       vtkstd::find(this->CellZones->value.begin(),
                    this->CellZones->value.end(),
-                   this->ScalarDataChunks->value[l].zoneId));
+                   this->ScalarDataChunks->value[l].zoneId) -
+      this->CellZones->value.begin();
+
     vtkDoubleArray *v = vtkDoubleArray::New();
     for (int m = 0; m <
          (int)this->ScalarDataChunks->value[l].scalarData.size(); m++)
@@ -339,11 +342,11 @@ int vtkFLUENTReader::RequestData(
   //Vector Data
   for (int l = 0; l < (int)this->VectorDataChunks->value.size(); l++)
     {
-    int location = vtkstd::distance(
-      this->CellZones->value.begin(),
+    int location = 
       vtkstd::find(this->CellZones->value.begin(),
                    this->CellZones->value.end(),
-                   this->VectorDataChunks->value[l].zoneId));
+                   this->VectorDataChunks->value[l].zoneId) -
+      this->CellZones->value.begin();
     vtkDoubleArray *v = vtkDoubleArray::New();
     v->SetNumberOfComponents(3);
     for (int m = 0;
