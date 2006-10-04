@@ -331,6 +331,7 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
     else if ( self->CurrentHandle == 2 )
       {
       self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
+      dynamic_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->Point3WidgetInteraction(e);
       self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       self->WidgetState = vtkBiDimensionalWidget::Manipulate;
       self->CurrentHandle = (-1);
