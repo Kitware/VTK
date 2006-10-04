@@ -32,9 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-#include "vtkTimerLog.h"
-
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.17");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.18");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -786,8 +784,6 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
-    vtkTimerLog *timer = vtkTimerLog::New();
-    timer->StartTimer();
     this->Point1Representation->BuildRepresentation();
     this->Point2Representation->BuildRepresentation();
     this->Point3Representation->BuildRepresentation();
@@ -796,8 +792,6 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
     // Now bring the lines up to date
     if ( ! this->Line1Visibility )
       {
-      timer->StopTimer();
-      timer->Delete();
       return;
       }
 
@@ -916,8 +910,6 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
       }
     
     this->BuildTime.Modified();
-    timer->StopTimer();
-    timer->Delete();
     }
 }
 
