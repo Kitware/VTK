@@ -34,7 +34,7 @@
 
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.16");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.17");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -917,8 +917,6 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
     
     this->BuildTime.Modified();
     timer->StopTimer();
-    cout << "vtkBiDimensionalRepresentation2D::BuildRepresentation: "
-         << timer->GetElapsedTime() << endl;
     timer->Delete();
     }
 }
