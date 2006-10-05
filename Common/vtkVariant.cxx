@@ -260,6 +260,22 @@ const char* vtkVariant::GetTypeAsString() const
   return vtkImageScalarTypeNameMacro(this->Type);
 }
 
+template <typename iterT>
+vtkStdString vtkVariantArrayToString(iterT* it)
+{
+  vtkIdType maxInd = it->GetNumberOfValues();
+  vtksys_ios::ostringstream ostr;
+  for (vtkIdType i = 0; i < maxInd; i++)
+    {
+    if (i > 0)
+      {
+      ostr << " ";
+      }
+    ostr << it->GetValue(i);
+    }
+  return ostr.str();
+}
+
 vtkStdString vtkVariant::ToString() const
 {
   if (!this->IsValid())
@@ -304,7 +320,7 @@ vtkStdString vtkVariant::ToString() const
     switch(arr->GetDataType())
       {
       vtkArrayIteratorTemplateMacro(
-        str = this->ArrayToString(static_cast<VTK_TT*>(iter)));
+        str = vtkVariantArrayToString(static_cast<VTK_TT*>(iter)));
       }
     iter->Delete();
     return str;
@@ -373,22 +389,6 @@ ostream& operator << (ostream& out, vtkVariant v)
 {
   out << v.ToString();
   return out;
-}
-
-template <typename T>
-vtkStdString vtkVariant::ArrayToString(T* it) const
-{
-  vtkIdType maxInd = it->GetNumberOfValues();
-  vtksys_ios::ostringstream ostr;
-  for (vtkIdType i = 0; i < maxInd; i++)
-    {
-    if (i > 0)
-      {
-      ostr << " ";
-      }
-    ostr << it->GetValue(i);
-    }
-  return ostr.str();
 }
 
 template <typename T>
