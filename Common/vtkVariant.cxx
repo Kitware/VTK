@@ -394,7 +394,7 @@ ostream& operator << (ostream& out, vtkVariant v)
 template <typename T>
 T vtkVariantStringToNumeric(vtkStdString str, bool* valid, T* vtkNotUsed(ignored) = 0)
 {
-  vtkstd::istringstream vstr(str);
+  vtksys_ios::istringstream vstr(str);
   T data;
   vstr >> data;
   // Check for a valid result
@@ -437,7 +437,7 @@ T vtkVariant::ToNumeric(bool* valid, T*) const
     }
   if (this->IsUnsigned__Int64())
     {
-    return static_cast<T>(this->Data.Unsigned__Int64);
+    return static_cast<T>(static_cast<__int64>(this->Data.Unsigned__Int64));
     }
 #endif
 #if defined(VTK_TYPE_USE_LONG_LONG)

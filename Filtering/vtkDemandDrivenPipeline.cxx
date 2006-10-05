@@ -35,6 +35,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+#include "vtkGraph.h"
 #include "vtkImageData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
@@ -43,10 +44,12 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkHyperOctree.h"
 #include "vtkTemporalDataSet.h"
+#include "vtkTable.h"
+#include "vtkTree.h"
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.45");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.46");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -1064,6 +1067,18 @@ vtkDataObject* vtkDemandDrivenPipeline::NewDataObject(const char* type)
   else if(strcmp(type, "vtkTemporalDataSet") == 0)
     {
     return vtkTemporalDataSet::New();
+    }
+  else if(strcmp(type, "vtkTable") == 0)
+    {
+    return vtkTable::New();
+    }
+  else if(strcmp(type, "vtkGraph") == 0)
+    {
+    return vtkGraph::New();
+    }
+  else if(strcmp(type, "vtkTree") == 0)
+    {
+    return vtkTree::New();
     }
   else if(vtkObject* obj = vtkInstantiator::CreateInstance(type))
     {

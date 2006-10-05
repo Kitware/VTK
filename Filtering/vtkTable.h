@@ -130,8 +130,8 @@ protected:
   vtkTable();
   ~vtkTable() {}
 private:
-  vtkTable(const vtkTable&);
-  void operator=(const vtkTable&);
+  vtkTable(const vtkTable&); // Not implemented
+  void operator=(const vtkTable&); // Not implemented
 
   vtkIdType Rows;
 };

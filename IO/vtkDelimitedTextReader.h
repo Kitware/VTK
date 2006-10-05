@@ -32,7 +32,6 @@
 #include "vtkTableAlgorithm.h"
 
 class vtkTable;
-#include <vtkStdString.h>
 
 //BTX
 struct vtkDelimitedTextReaderInternals;

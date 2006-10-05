@@ -42,9 +42,9 @@
 #define __vtkTableAlgorithm_h
 
 #include "vtkAlgorithm.h"
-#include "vtkTable.h"
 
 class vtkDataSet;
+class vtkTable;
 
 class VTK_FILTERING_EXPORT vtkTableAlgorithm : public vtkAlgorithm
 {

@@ -14,16 +14,16 @@
 =========================================================================*/
 
 #include "vtkAbstractGraph.h"
-#include "vtkIdTypeArray.h"
-#include "vtkIdList.h"
-#include "vtkGraphIdList.h"
-#include "vtkLine.h"
-#include "vtkGenericCell.h"
-#include "vtkPointLocator.h"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
+#include "vtkGenericCell.h"
+#include "vtkGraphIdList.h"
+#include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
+#include "vtkLine.h"
 #include "vtkNodeLinks.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkPoints.h"
 
 #include <vtkstd/algorithm> // for sorting
 
@@ -33,7 +33,7 @@
 
 double vtkAbstractGraph::DefaultPoint[3] = {0, 0, 0};
 
-vtkCxxRevisionMacro(vtkAbstractGraph, "1.1");
+vtkCxxRevisionMacro(vtkAbstractGraph, "1.2");
 
 //----------------------------------------------------------------------------
 vtkAbstractGraph::vtkAbstractGraph()
@@ -151,6 +151,13 @@ void vtkAbstractGraph::GetCell(vtkIdType cellId, vtkGenericCell * cell)
   cell->PointIds->SetId(0, this->GetSourceNode(cellId));
   cell->PointIds->SetId(1, this->GetTargetNode(cellId));
 }
+
+//----------------------------------------------------------------------------
+int vtkAbstractGraph::GetCellType(vtkIdType vtkNotUsed(cellId))
+{
+  return VTK_LINE;
+}
+
 
 //----------------------------------------------------------------------------
 void vtkAbstractGraph::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)

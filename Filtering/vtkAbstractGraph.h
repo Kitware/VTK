@@ -27,8 +27,6 @@
 #define __vtkAbstractGraph_h
 
 #include "vtkPointSet.h"
-#include "vtkCellType.h"
-#include "vtkIdTypeArray.h"
 
 class vtkGraphIdList;
 class vtkPointData;
@@ -73,7 +71,7 @@ public:
 
   // Description:
   // All arcs are represented by VTK_LINE cells.
-  int GetCellType(vtkIdType vtkNotUsed(cellId)) { return VTK_LINE; }
+  int GetCellType(vtkIdType cellId);
 
   // Description:
   // For an arc, get a line from the source to the target.

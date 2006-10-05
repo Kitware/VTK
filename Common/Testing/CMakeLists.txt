@@ -80,6 +80,7 @@ IF(PYTHON_EXECUTABLE)
     vtkWindows.h
     vtkTcl.h
     vtkTk.h
+    vtkVariant.h
     vtkVersion.h
     vtkXMLFileOutputWindow.h
     )

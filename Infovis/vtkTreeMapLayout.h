@@ -25,7 +25,8 @@
 
 
 #include "vtkTreeAlgorithm.h"
-#include "vtkTreeMapLayoutStrategy.h"
+
+class vtkTreeMapLayoutStrategy;
 
 class VTK_INFOVIS_EXPORT vtkTreeMapLayout : public vtkTreeAlgorithm 
 {

@@ -20,18 +20,17 @@
 #include "vtkDelimitedTextReader.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkInformation.h>
-#include <vtkStringArray.h>
-#include <vtkStdString.h>
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkInformation.h"
+#include "vtkStringArray.h"
+#include "vtkStdString.h"
 
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 #include <vtkstd/string>
-#include "vtkIOStream.h"
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.1");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.2");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals

@@ -13,6 +13,12 @@
 
 =========================================================================*/
 
+// We do not provide a definition for the copy constructor or
+// operator=.  Block the warning.
+#ifdef _MSC_VER
+# pragma warning (disable: 4661)
+#endif
+
 #include "vtkVariantArray.h"
 
 #include "vtkDataArray.h"
@@ -27,7 +33,7 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkVariant);
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.2");
+vtkCxxRevisionMacro(vtkVariantArray, "1.3");
 vtkStandardNewMacro(vtkVariantArray);
 
 //----------------------------------------------------------------------------
