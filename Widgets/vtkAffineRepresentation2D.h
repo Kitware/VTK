@@ -116,7 +116,8 @@ public:
   // Subclasses of vtkAffineRepresentation2D must implement these methods. These
   // are the methods that the widget and its representation use to
   // communicate with each other. Note: PlaceWidget() reinitializes the 
-  // transformation matrix (i.e., sets it to identity).
+  // transformation matrix (i.e., sets it to identity). It also sets the
+  // origin for scaling and rotation.
   virtual void PlaceWidget(double bounds[6]);
   virtual void StartWidgetInteraction(double eventPos[2]);
   virtual void WidgetInteraction(double eventPos[2]);

@@ -25,7 +25,7 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAffineWidget, "1.4");
+vtkCxxRevisionMacro(vtkAffineWidget, "1.5");
 vtkStandardNewMacro(vtkAffineWidget);
 
 //----------------------------------------------------------------------------------
@@ -46,6 +46,12 @@ vtkAffineWidget::vtkAffineWidget()
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
                                           vtkWidgetEvent::Move,
                                           this, vtkAffineWidget::MoveAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent,
+                                          vtkWidgetEvent::ModifyEvent,
+                                          this, vtkAffineWidget::ModifyEventAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyReleaseEvent,
+                                          vtkWidgetEvent::ModifyEvent,
+                                          this, vtkAffineWidget::ModifyEventAction);
 }
 
 //----------------------------------------------------------------------------------
@@ -178,6 +184,27 @@ void vtkAffineWidget::MoveAction(vtkAbstractWidget *w)
   self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   self->Render();
 }
+
+//-------------------------------------------------------------------------
+void vtkAffineWidget::ModifyEventAction(vtkAbstractWidget *w)
+{
+  vtkAffineWidget *self = reinterpret_cast<vtkAffineWidget*>(w);
+  if ( self->WidgetState == vtkAffineWidget::Start )
+    {
+    int modifierActive = self->Interactor->GetShiftKey() |
+                         self->Interactor->GetControlKey();
+    if ( self->ModifierActive != modifierActive )
+      {
+      self->ModifierActive = modifierActive;
+      int X = self->Interactor->GetEventPosition()[0];
+      int Y = self->Interactor->GetEventPosition()[1];
+      reinterpret_cast<vtkAffineRepresentation*>(self->WidgetRep)->
+        ComputeInteractionState(X, Y, self->ModifierActive );
+      self->SetCursor(self->WidgetRep->GetInteractionState());
+      }
+    }
+}
+
 
 //-------------------------------------------------------------------------
 void vtkAffineWidget::EndSelectAction(vtkAbstractWidget *w)

@@ -95,6 +95,7 @@ protected:
   static void SelectAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
+  static void ModifyEventAction(vtkAbstractWidget*);
 
   // helper methods for cursor management
   void SetCursor(int state);
