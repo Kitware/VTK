@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.18");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.19");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -515,10 +515,17 @@ void vtkBiDimensionalRepresentation2D::StartWidgetDefinition(double e[2])
 //----------------------------------------------------------------------
 void vtkBiDimensionalRepresentation2D::Point2WidgetInteraction(double e[2])
 {
-  double pos[3];
+  double pos[3],p1[3];
   pos[0] = e[0];
   pos[1] = e[1];
   pos[2] = 0.0;
+  
+  // Make sure that the two points are not coincident
+  this->GetPoint1DisplayPosition(p1);
+  if ( ((pos[0]-p1[0])*(pos[0]-p1[0]) + (pos[1]-p1[1])*(pos[1]-p1[1])) < 2 )
+    {
+    pos[0] += 2;
+    }
   this->SetPoint2DisplayPosition(pos);
 }
 
@@ -661,86 +668,6 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
     this->SetPoint3DisplayPosition(p3);
     this->SetPoint4DisplayPosition(p4);
     }
-  else if ( this->InteractionState == NearP1 )
-    {
-    double p1[4];
-    vtkLine::DistanceToLine(pos,this->P1,this->P2,t,closest);
-    t = (t > this->T21 ? this->T21 : t);
-    p1[0] = this->P1World[0] + t*this->P21World[0];
-    p1[1] = this->P1World[1] + t*this->P21World[1];
-    p1[2] = this->P1World[2] + t*this->P21World[2];
-    p1[3] = 1.0;
-    
-    // Set the positions of P1
-    this->SetPoint1WorldPosition(p1);
-    if (this->Renderer)
-      {
-      this->Renderer->SetWorldPoint(p1);
-      this->Renderer->WorldToDisplay();
-      this->Renderer->GetDisplayPoint(p1);
-      this->SetPoint1DisplayPosition(p1);
-      }
-    }
-  else if ( this->InteractionState == NearP2 )
-    {
-    double p2[4];
-    vtkLine::DistanceToLine(pos,this->P1,this->P2,t,closest);
-    t = (t < this->T21 ? this->T21 : t);
-    p2[0] = this->P1World[0] + t*this->P21World[0];
-    p2[1] = this->P1World[1] + t*this->P21World[1];
-    p2[2] = this->P1World[2] + t*this->P21World[2];
-    p2[3] = 1.0;
-
-    // Set the position of P2
-    this->SetPoint2WorldPosition(p2);
-    if (this->Renderer)
-      {
-      this->Renderer->SetWorldPoint(p2);
-      this->Renderer->WorldToDisplay();
-      this->Renderer->GetDisplayPoint(p2);
-      this->SetPoint2DisplayPosition(p2);
-      }
-    }
-  else if ( this->InteractionState == NearP3 )
-    {
-    double p3[4];
-    vtkLine::DistanceToLine(pos,this->P3,this->P4,t,closest);
-    t = (t > this->T43 ? this->T43 : t);
-    p3[0] = this->P3World[0] + t*this->P43World[0];
-    p3[1] = this->P3World[1] + t*this->P43World[1];
-    p3[2] = this->P3World[2] + t*this->P43World[2];
-    p3[3] = 1.0;
-
-    // Set the position of P3 
-    this->SetPoint3WorldPosition(p3);
-    if (this->Renderer)
-      {
-      this->Renderer->SetWorldPoint(p3);
-      this->Renderer->WorldToDisplay();
-      this->Renderer->GetDisplayPoint(p3);
-      this->SetPoint3DisplayPosition(p3);
-      }
-    }
-  else if ( this->InteractionState == NearP4 )
-    {
-    double p4[4];
-    vtkLine::DistanceToLine(pos,this->P3,this->P4,t,closest);
-    t = (t < this->T43 ? this->T43 : t);
-    p4[0] = this->P3World[0] + t*this->P43World[0];
-    p4[1] = this->P3World[1] + t*this->P43World[1];
-    p4[2] = this->P3World[2] + t*this->P43World[2];
-    p4[3] = 1.0;
-
-    // Set the position of P4 
-    this->SetPoint4WorldPosition(p4);
-    if (this->Renderer)
-      {
-      this->Renderer->SetWorldPoint(p4);
-      this->Renderer->WorldToDisplay();
-      this->Renderer->GetDisplayPoint(p4);
-      this->SetPoint4DisplayPosition(p4);
-      }
-    }
   else if ( this->InteractionState == OnL1Inner )
     {
     double p1[3], p2[3];
@@ -770,6 +697,114 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
     // Set the positions of P3 and P4.
     this->SetPoint3DisplayPosition(p3);
     this->SetPoint4DisplayPosition(p4);
+    }
+  else if ( this->InteractionState == NearP1 )
+    {
+    double p1[4], c[3];
+    for (int i=0; i<3; i++)
+      {
+      c[i] = ((this->P1[i] + this->T21*this->P21[i]) + (this->P3[i] + this->T43*this->P43[i]))/2.0;
+      }
+    vtkLine::DistanceToLine(pos,this->P1,this->P2,t,closest);
+    if ( (t <= this->T21) && ((closest[0]-c[0])*(closest[0]-c[0]) + (closest[1]-c[1])*(closest[1]-c[1])) > 2 )
+      {
+      p1[0] = this->P1World[0] + t*this->P21World[0];
+      p1[1] = this->P1World[1] + t*this->P21World[1];
+      p1[2] = this->P1World[2] + t*this->P21World[2];
+      p1[3] = 1.0;
+
+      // Set the positions of P1
+      this->SetPoint1WorldPosition(p1);
+      if (this->Renderer)
+        {
+        this->Renderer->SetWorldPoint(p1);
+        this->Renderer->WorldToDisplay();
+        this->Renderer->GetDisplayPoint(p1);
+        this->SetPoint1DisplayPosition(p1);
+        }
+      } //if not too close to the center
+    }
+  else if ( this->InteractionState == NearP2 )
+    {
+    double p2[4], c[3];
+    for (int i=0; i<3; i++)
+      {
+      c[i] = ((this->P1[i] + this->T21*this->P21[i]) + (this->P3[i] + this->T43*this->P43[i]))/2.0;
+      }
+    vtkLine::DistanceToLine(pos,this->P1,this->P2,t,closest);
+    if ( (t >= this->T21) && ((closest[0]-c[0])*(closest[0]-c[0]) + (closest[1]-c[1])*(closest[1]-c[1])) > 2 )
+      {
+      p2[0] = this->P1World[0] + t*this->P21World[0];
+      p2[1] = this->P1World[1] + t*this->P21World[1];
+      p2[2] = this->P1World[2] + t*this->P21World[2];
+      p2[3] = 1.0;
+
+      // Set the position of P2
+      this->SetPoint2WorldPosition(p2);
+      if (this->Renderer)
+        {
+        this->Renderer->SetWorldPoint(p2);
+        this->Renderer->WorldToDisplay();
+        this->Renderer->GetDisplayPoint(p2);
+        this->SetPoint2DisplayPosition(p2);
+        }
+      }
+    }
+  else if ( this->InteractionState == NearP3 )
+    {
+    double p3[4], c[3];
+    for (int i=0; i<3; i++)
+      {
+      c[i] = ((this->P1[i] + this->T21*this->P21[i]) + (this->P3[i] + this->T43*this->P43[i]))/2.0;
+      }
+    vtkLine::DistanceToLine(pos,this->P3,this->P4,t,closest);
+    if ( (t <= this->T43) && ((closest[0]-c[0])*(closest[0]-c[0]) + (closest[1]-c[1])*(closest[1]-c[1])) > 2 )
+      {
+      p3[0] = this->P3World[0] + t*this->P43World[0];
+      p3[1] = this->P3World[1] + t*this->P43World[1];
+      p3[2] = this->P3World[2] + t*this->P43World[2];
+      p3[3] = 1.0;
+
+      // Set the position of P3 
+      this->SetPoint3WorldPosition(p3);
+      if (this->Renderer)
+        {
+        this->Renderer->SetWorldPoint(p3);
+        this->Renderer->WorldToDisplay();
+        this->Renderer->GetDisplayPoint(p3);
+        this->SetPoint3DisplayPosition(p3);
+        }
+      }
+    }
+  else if ( this->InteractionState == NearP4 )
+    {
+    double p4[4], c[3];
+    for (int i=0; i<3; i++)
+      {
+      c[i] = ((this->P1[i] + this->T21*this->P21[i]) + (this->P3[i] + this->T43*this->P43[i]))/2.0;
+      }
+    vtkLine::DistanceToLine(pos,this->P3,this->P4,t,closest);
+    if ( (t >= this->T43) && ((closest[0]-c[0])*(closest[0]-c[0]) + (closest[1]-c[1])*(closest[1]-c[1])) > 2 )
+      {
+      p4[0] = this->P3World[0] + t*this->P43World[0];
+      p4[1] = this->P3World[1] + t*this->P43World[1];
+      p4[2] = this->P3World[2] + t*this->P43World[2];
+      p4[3] = 1.0;
+
+      // Set the position of P4 
+      this->SetPoint4WorldPosition(p4);
+      if (this->Renderer)
+        {
+        this->Renderer->SetWorldPoint(p4);
+        this->Renderer->WorldToDisplay();
+        this->Renderer->GetDisplayPoint(p4);
+        this->SetPoint4DisplayPosition(p4);
+        }
+      }
+    else //make sure point is as close as possible
+      {
+//      cout << "Too close\n";
+      }
     }
 }
 
