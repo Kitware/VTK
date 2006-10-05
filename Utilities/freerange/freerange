@@ -32,6 +32,7 @@
 #include <vtksys/stl/deque>
 #include <vtksys/stl/functional>
 #include <vtksys/stl/vector>
+#include <vtkstd/stdexcept>
 #include <stdlib.h>
 #include <string.h>
 
