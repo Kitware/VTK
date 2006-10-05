@@ -28,10 +28,10 @@
 
 #include <assert.h>
 
-#include <vtkstd/vector>
-#include <vtkstd/deque>
-#include <vtkstd/algorithm>
-#include <vtkstd/stdexcept>
+#include <vtksys/stl/algorithm>
+#include <vtksys/stl/deque>
+#include <vtksys/stl/functional>
+#include <vtksys/stl/vector>
 #include <stdlib.h>
 #include <string.h>
 
