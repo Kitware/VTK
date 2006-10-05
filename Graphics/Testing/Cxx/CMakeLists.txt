@@ -11,6 +11,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     FrustumClip.cxx
     RGrid.cxx
     TestClipHyperOctree.cxx
+    TestExtractSelection.cxx
     TestHyperOctreeContourFilter.cxx
     TestHyperOctreeCutter.cxx
     TestHyperOctreeDual.cxx
