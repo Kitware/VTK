@@ -98,7 +98,7 @@ protected:
   // instantiate the proper type defined in FillOutputPortInformation.
   virtual int RequestDataObject(vtkInformation*,
                                 vtkInformationVector** inputVector ,
-                                vtkInformationVector* outputVector) = 0;
+                                vtkInformationVector* outputVector);
 
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
