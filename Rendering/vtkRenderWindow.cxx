@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.148");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.149");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -789,6 +789,8 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
+
+  os << indent << "MultiSamples: " << this->MultiSamples << "\n";
 }
 
 

@@ -26,7 +26,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.70");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.71");
 #endif
 
 #define MAX_LIGHTS 8
@@ -157,8 +157,6 @@ void vtkOpenGLRenderWindow::OpenGLInit()
 void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
-  os << indent << "MultiSamples: " << this->MultiSamples << "\n";
 }
 
 int vtkOpenGLRenderWindow::GetDepthBufferSize()

@@ -469,6 +469,11 @@ public:
   // this render window.
   vtkGetObjectMacro(PainterDeviceAdapter, vtkPainterDeviceAdapter);
 
+  // Description:
+  // Set / Get the number of multisamples to use for hardware antialiasing.
+  vtkSetMacro(MultiSamples,int);
+  vtkGetMacro(MultiSamples,int);
+
 protected:
   vtkRenderWindow();
   ~vtkRenderWindow();
@@ -510,7 +515,7 @@ protected:
   int IsPicking;
   float AnaglyphColorSaturation;
   int AnaglyphColorMask[2];
-
+  int MultiSamples;
 private:
   vtkRenderWindow(const vtkRenderWindow&);  // Not implemented.
   void operator=(const vtkRenderWindow&);  // Not implemented.

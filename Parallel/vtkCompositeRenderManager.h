@@ -58,6 +58,8 @@ protected:
   vtkUnsignedCharArray *TmpPixelData;
   vtkFloatArray *TmpDepthData;
 
+  int SavedMultiSamplesSetting;
+
 private:
   vtkCompositeRenderManager(const vtkCompositeRenderManager &);//Not implemented
   void operator=(const vtkCompositeRenderManager &);  //Not implemented

@@ -23,7 +23,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.10");
+vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.11");
 vtkStandardNewMacro(vtkCompositeRenderManager);
 
 vtkCxxSetObjectMacro(vtkCompositeRenderManager, Compositer, vtkCompositer);
@@ -72,11 +72,16 @@ void vtkCompositeRenderManager::PreRenderProcessing()
     {
     this->RenderWindow->SwapBuffersOff();
     }
+
+  this->SavedMultiSamplesSetting = this->RenderWindow->GetMultiSamples();
+  this->RenderWindow->SetMultiSamples(0);
 }
 
 //----------------------------------------------------------------------------
 void vtkCompositeRenderManager::PostRenderProcessing()
 {
+  this->RenderWindow->SetMultiSamples(this->SavedMultiSamplesSetting);
+
   if (!this->UseCompositing || this->CheckForAbortComposite())
     {
     return;

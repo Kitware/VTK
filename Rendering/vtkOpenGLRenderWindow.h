@@ -31,7 +31,6 @@ class vtkIdList;
 class VTK_RENDERING_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
 protected:
-  int MultiSamples;
   long OldMonitorSetting;
 
 public:
@@ -42,11 +41,6 @@ public:
   // Set/Get the maximum number of multisamples
   static void SetGlobalMaximumNumberOfMultiSamples(int val);
   static int  GetGlobalMaximumNumberOfMultiSamples();
-
-  // Description:
-  // Set / Get the number of multisamples to use for hardware antialiasing.
-  vtkSetMacro(MultiSamples,int);
-  vtkGetMacro(MultiSamples,int);
 
   // Description:
   // Update system if needed due to stereo rendering.
