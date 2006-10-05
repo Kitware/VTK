@@ -314,40 +314,40 @@ vtkStdString vtkVariant::ToString() const
 
 float vtkVariant::ToFloat(bool* valid) const
 {
-  return this->ToNumeric<float>(valid);
+  return this->ToNumeric(valid, (float *)0);
 }
 
 double vtkVariant::ToDouble(bool* valid) const
 {
-  return this->ToNumeric<double>(valid);
+  return this->ToNumeric(valid, (double *)0);
 }
 
 int vtkVariant::ToInt(bool* valid) const
 {
-  return this->ToNumeric<int>(valid);
+  return this->ToNumeric(valid, (int *)0);
 }
 
 #if defined(VTK_TYPE_USE___INT64)
 __int64 vtkVariant::To__Int64(bool* valid) const
 {
-  return this->ToNumeric<__int64>(valid);
+  return this->ToNumeric(valid, (__int64 *)0);
 }
 
 unsigned __int64 vtkVariant::ToUnsigned__Int64(bool* valid) const
 {
-  return this->ToNumeric<unsigned __int64>(valid);
+  return this->ToNumeric(valid, (unsigned __int64 *)0);
 }
 #endif
 
 #if defined(VTK_TYPE_USE_LONG_LONG)
 long long vtkVariant::ToLongLong(bool* valid) const
 {
-  return this->ToNumeric<long long>(valid);
+  return this->ToNumeric(valid, (long long *)0);
 }
 
 unsigned long long vtkVariant::ToUnsignedLongLong(bool* valid) const
 {
-  return this->ToNumeric<unsigned long long>(valid);
+  return this->ToNumeric(valid, (unsigned long long *)0);
 }
 #endif
 

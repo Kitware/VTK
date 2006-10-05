@@ -212,7 +212,7 @@ public:
 
 private:
   template <typename T>
-  T ToNumeric(bool* valid, T* ignored=0) const;
+  T ToNumeric(bool* valid, T* ignored) const;
 
   template <typename T>
   vtkStdString ArrayToString(T* arr) const;
