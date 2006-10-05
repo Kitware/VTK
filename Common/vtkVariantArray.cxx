@@ -13,22 +13,21 @@
 
 =========================================================================*/
 
-#include "vtkVariant.h"
-
 #include "vtkVariantArray.h"
 
+#include "vtkDataArray.h"
 #include "vtkIdList.h"
 #include "vtkStringArray.h"
-#include "vtkDataArray.h"
-#include "vtkArrayIteratorTemplate.txx"
+#include "vtkVariant.h"
 
+#include "vtkArrayIteratorTemplate.txx"
 VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkVariant);
 
 // 
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.1");
+vtkCxxRevisionMacro(vtkVariantArray, "1.2");
 vtkStandardNewMacro(vtkVariantArray);
 
 //----------------------------------------------------------------------------
