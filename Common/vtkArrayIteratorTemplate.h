@@ -102,10 +102,6 @@ private:
 
  void SetArray(vtkAbstractArray*);
  vtkAbstractArray* Array;
-
- // Description:
- // Returns the type of this template as a string (used by SafeDownCast).
- const char* GetTypeString();
 };
 
 #if !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
