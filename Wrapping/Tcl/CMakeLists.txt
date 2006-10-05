@@ -52,6 +52,7 @@ TARGET_LINK_LIBRARIES (vtk
   vtkFilteringTCL
   vtkGraphicsTCL
   vtkImagingTCL
+  vtkInfovisTCL
   vtkIOTCL
 )
 
@@ -116,6 +117,7 @@ IF (VTK_USE_PARALLEL)
       vtkFilteringTCL
       vtkGraphicsTCL
       vtkImagingTCL
+      vtkInfovisTCL
       vtkIOTCL
       vtkParallelTCL
     )

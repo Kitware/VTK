@@ -6,6 +6,8 @@ SET(KIT_JAVA_LIBS vtkCommonJava)
 SET(KIT_LIBS vtkCommon)
 
 SET( Kit_SRCS
+vtkAbstractGraph.cxx
+vtkAbstractGraphAlgorithm.cxx
 vtkAbstractMapper.cxx
 vtkActor2D.cxx
 vtkActor2DCollection.cxx
@@ -65,6 +67,10 @@ vtkGenericEdgeTable.cxx
 vtkGenericPointIterator.cxx
 vtkGenericSubdivisionErrorMetric.cxx
 vtkGeometricErrorMetric.cxx
+vtkGraph.cxx
+vtkGraphAlgorithm.cxx
+vtkGraphDFSIterator.cxx
+vtkGraphIdList.cxx
 vtkAttributesErrorMetric.cxx
 vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
@@ -126,6 +132,7 @@ vtkMultiGroupDataInformation.cxx
 vtkMultiGroupDataIterator.cxx
 vtkMultiGroupDataSet.cxx
 vtkMultiGroupDataSetAlgorithm.cxx
+vtkNodeLinks.cxx
 vtkNonLinearCell.cxx
 vtkOrderedTriangulator.cxx
 vtkParametricSpline.cxx
@@ -188,10 +195,15 @@ vtkStructuredPointsToPolyDataFilter.cxx
 vtkStructuredPointsToStructuredPointsFilter.cxx
 vtkStructuredPointsToUnstructuredGridFilter.cxx
 vtkSuperquadric.cxx
+vtkTable.cxx
+vtkTableAlgorithm.cxx
 vtkTemporalDataSet.cxx
 vtkTemporalDataSetAlgorithm.cxx
 vtkTetra.cxx
 vtkThreadedImageAlgorithm.cxx
+vtkTree.cxx
+vtkTreeAlgorithm.cxx
+vtkTreeDFSIterator.cxx
 vtkTriangle.cxx
 vtkTriangleStrip.cxx
 vtkTriQuadraticHexahedron.cxx
@@ -211,6 +223,7 @@ vtkGenericInterpolatedVelocityField.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(
+vtkAbstractGraph
 vtkAbstractMapper
 vtkCell
 vtkCell3D

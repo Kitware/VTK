@@ -47,6 +47,7 @@ TARGET_LINK_LIBRARIES(vtkpython
   vtkIO
   vtkGraphics
   vtkImaging
+  vtkInfovis
   ${PYTHON_UTIL_LIBRARY_LIB})
   
 SET (vtkpython_pyc_depends
@@ -55,6 +56,7 @@ SET (vtkpython_pyc_depends
     vtkIOPython
     vtkGraphicsPython
     vtkImagingPython
+    vtkInfovisPython
     )
 
 IF(VTK_WRAP_TCL)
@@ -62,7 +64,7 @@ IF(VTK_WRAP_TCL)
 ENDIF(VTK_WRAP_TCL)
 
 IF(BORLAND)
-  SET(KITS Common Filtering Graphics IO Imaging)
+  SET(KITS Common Filtering Graphics IO Imaging Infovis)
   IF (VTK_USE_PARALLEL)
     SET(KITS ${KITS} Parallel)
   ENDIF(VTK_USE_PARALLEL)
@@ -140,6 +142,7 @@ IF (VTK_USE_PARALLEL)
       vtkIO
       vtkGraphics
       vtkImaging
+      vtkInfovis
       vtkParallel
       ${PYTHON_UTIL_LIBRARY_LIB}
     )

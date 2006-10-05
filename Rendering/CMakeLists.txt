@@ -69,6 +69,7 @@ vtkInteractorStyleUser.cxx
 vtkLODActor.cxx
 vtkLODProp3D.cxx
 vtkLabeledDataMapper.cxx
+vtkLabeledTreeMapDataMapper.cxx
 vtkLeaderActor2D.cxx
 vtkLight.cxx
 vtkLightCollection.cxx

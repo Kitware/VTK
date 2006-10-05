@@ -927,6 +927,7 @@ SUBDIRS(
   Common
   Filtering
   Imaging
+  Infovis
   Graphics
   GenericFiltering
   IO)
@@ -960,7 +961,7 @@ IF(BUILD_TESTING)
   MAKE_DIRECTORY(${VTK_BINARY_DIR}/Testing/Temporary)
   # Build scripts to convert tcl tests to python
   SUBDIRS(Utilities/vtkTclTest2Py)
-  SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing GenericFiltering/Testing Imaging/Testing
+  SUBDIRS(Common/Testing Filtering/Testing Infovis/Testing Graphics/Testing GenericFiltering/Testing Imaging/Testing
           IO/Testing)
   IF(VTK_USE_RENDERING)
     SUBDIRS(Rendering/Testing)
@@ -1430,6 +1431,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTK_BINARY_DIR}/vtkFilteringInstantiator.h
     ${VTK_BINARY_DIR}/vtkIOInstantiator.h
     ${VTK_BINARY_DIR}/vtkImagingInstantiator.h
+    ${VTK_BINARY_DIR}/vtkInfovisInstantiator.h
     ${VTK_BINARY_DIR}/vtkGraphicsInstantiator.h
     ${VTK_BINARY_DIR}/vtkGenericFilteringInstantiator.h
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cmake

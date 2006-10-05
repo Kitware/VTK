@@ -147,6 +147,8 @@ vtkUnsignedCharArray.cxx
 vtkUnsignedIntArray.cxx
 vtkUnsignedLongArray.cxx
 vtkUnsignedShortArray.cxx
+vtkVariant.cxx
+vtkVariantArray.cxx
 vtkVersion.cxx
 vtkVoidArray.cxx
 vtkWarpTransform.cxx
@@ -258,6 +260,8 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkSmartPointerBase.cxx
   vtkStdString.cxx
   vtkTimeStamp.cxx
+  vtkVariant.cxx
+  vtkVariantArray.cxx
 
   WRAP_EXCLUDE
 )
