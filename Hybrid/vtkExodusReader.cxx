@@ -50,6 +50,8 @@
 
 #define DEBUG 0
 
+vtkStdString _blocks;
+
 // vtkExodusMetadata is an internal helper class that
 // manages the metadata associated with the point and cell
 // arrays. This class uses stl
@@ -631,17 +633,16 @@ public:
     }
   inline const char* GetPartBlockInfo(int idx)
     {
-      static vtkStdString blocks;
-      blocks.erase();
+      _blocks.erase();
       char buffer[80];
       for (unsigned int i=0;i<partIDToBlockIDs[idx].size();i++) 
         {
         sprintf(buffer,"%d, ",blockIds[partIDToBlockIDs[idx][i]]);
-        blocks += buffer;
+        _blocks += buffer;
         }
       
-      blocks.erase(blocks.size()-2,blocks.size()-1);
-      return blocks.c_str();
+      _blocks.erase(_blocks.size()-2,_blocks.size()-1);
+      return _blocks.c_str();
     }
   
   inline int GetPartStatus(int idx)
@@ -1392,7 +1393,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.26");
+vtkCxxRevisionMacro(vtkExodusReader, "1.27");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
