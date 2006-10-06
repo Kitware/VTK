@@ -950,7 +950,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"extern \"C\" JNIEXPORT void* %s_Typecast(void *op,char *dType);\n",
             data->SuperClasses[i]);
     }
-  
+
   fprintf(fp,"\nextern \"C\" JNIEXPORT void* %s_Typecast(void *me,char *dType)\n{\n",data->ClassName);
   if (data->NumberOfSuperClasses > 0)
     {
@@ -993,26 +993,26 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             data->ClassName);
     fprintf(fp,"\n{");
     fprintf(fp,"\n  %s *aNewOne = %s::New();",data->ClassName, data->ClassName);
-    fprintf(fp,"\n  int id= vtkJavaRegisterNewObject(env,obj,(void *)aNewOne);");
-    fprintf(fp,"\n  vtkJavaRegisterCastFunction(env,obj,id,(void *)%s_Typecast);", data->ClassName);
+    fprintf(fp,"\n  int jid= vtkJavaRegisterNewObject(env,obj,(void *)aNewOne);");
+    fprintf(fp,"\n  vtkJavaRegisterCastFunction(env,obj,jid,(void *)%s_Typecast);", data->ClassName);
     fprintf(fp,"\n}\n");  
     } 
 
   fprintf(fp,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKCastInit(JNIEnv *env, jobject obj)",
                 data->ClassName);
   fprintf(fp,"\n{");
-  fprintf(fp,"\n  int id= vtkJavaGetId(env,obj);");
-  fprintf(fp,"\n  vtkJavaRegisterCastFunction(env,obj,id,(void *)%s_Typecast);", 
+  fprintf(fp,"\n  int jid= vtkJavaGetId(env,obj);");
+  fprintf(fp,"\n  vtkJavaRegisterCastFunction(env,obj,jid,(void *)%s_Typecast);", 
             data->ClassName);
   fprintf(fp,"\n}\n");
 
   /* for vtkRenderWindow we want to add a special method to support */
   /* native AWT rendering */
-  if (!strcmp("vtkRenderWindow",data->ClassName))
-    {
-    fprintf(fp,"\n#include \"vtkJavaAwt.h\"\n\n");
-    }
-  
+//  if (!strcmp("vtkRenderWindow",data->ClassName))
+//    {
+//    fprintf(fp,"\n#include \"vtkJavaAwt.h\"\n\n");
+//    }
+
   if (!strcmp("vtkObject",data->ClassName))
     {
     /* Add the Print method to vtkObject. */
@@ -1029,6 +1029,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
     fprintf(fp,"  return tmp;\n");
     fprintf(fp,"}\n");
+
     /* Add the PrintRevisions method to vtkObject. */
     fprintf(fp,"\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_vtkObject_PrintRevisions(JNIEnv *env,jobject obj)\n");
     fprintf(fp,"{\n  vtkObject *op;\n");
@@ -1043,10 +1044,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
     fprintf(fp,"  return tmp;\n");
     fprintf(fp,"}\n");
-    }
 
-  if (!strcmp("vtkObject",data->ClassName))
-    {
     fprintf(fp,"\nextern \"C\" JNIEXPORT jint JNICALL Java_vtk_vtkObject_AddObserver(JNIEnv *env,jobject obj, jstring id0, jobject id1, jstring id2)\n");
     fprintf(fp,"{\n  vtkObject *op;\n");
 
@@ -1063,4 +1061,3 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  return temp20;\n}\n");
    }
 }
-

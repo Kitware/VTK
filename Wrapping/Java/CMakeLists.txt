@@ -2,19 +2,21 @@ IF(JAVA_COMPILE)
   SET(VTK_JAVA_DEPENDENCIES "")
   INCLUDE(${VTK_BINARY_DIR}/Common/JavaDependencies.cmake OPTIONAL)
   INCLUDE(${VTK_BINARY_DIR}/Filtering/JavaDependencies.cmake OPTIONAL)
-  INCLUDE(${VTK_BINARY_DIR}/Graphics/JavaDependencies.cmake OPTIONAL)
   INCLUDE(${VTK_BINARY_DIR}/IO/JavaDependencies.cmake OPTIONAL)
+  INCLUDE(${VTK_BINARY_DIR}/Graphics/JavaDependencies.cmake OPTIONAL)
+  INCLUDE(${VTK_BINARY_DIR}/GenericFiltering/JavaDependencies.cmake OPTIONAL)
   INCLUDE(${VTK_BINARY_DIR}/Imaging/JavaDependencies.cmake OPTIONAL)
   INCLUDE(${VTK_BINARY_DIR}/Infovis/JavaDependencies.cmake OPTIONAL)
+  IF (VTK_USE_RENDERING)
+    INCLUDE(${VTK_BINARY_DIR}/Rendering/JavaDependencies.cmake OPTIONAL)
+    INCLUDE(${VTK_BINARY_DIR}/VolumeRendering/JavaDependencies.cmake OPTIONAL)
+    INCLUDE(${VTK_BINARY_DIR}/Hybrid/JavaDependencies.cmake OPTIONAL)
+    INCLUDE(${VTK_BINARY_DIR}/Widgets/JavaDependencies.cmake OPTIONAL)
+  ENDIF(VTK_USE_RENDERING)
   IF (VTK_USE_PARALLEL)
     INCLUDE(${VTK_BINARY_DIR}/Parallel/JavaDependencies.cmake OPTIONAL)
   ENDIF(VTK_USE_PARALLEL)
-  IF (VTK_USE_RENDERING)
-    INCLUDE(${VTK_BINARY_DIR}/Widgets/JavaDependencies.cmake OPTIONAL)
-    INCLUDE(${VTK_BINARY_DIR}/Hybrid/JavaDependencies.cmake OPTIONAL)
-    INCLUDE(${VTK_BINARY_DIR}/VolumeRendering/JavaDependencies.cmake OPTIONAL)
-    INCLUDE(${VTK_BINARY_DIR}/Rendering/JavaDependencies.cmake OPTIONAL)
-  ENDIF(VTK_USE_RENDERING)
+
   SET(VTK_JAVA_NEW_STYLE 0)
   IF(COMMAND VTK_GENERATE_JAVA_DEPENDENCIES)
     IF(VTK_JAVA_DEPENDENCIES)
@@ -30,16 +32,16 @@ IF(JAVA_COMPILE)
     ADD_CUSTOM_TARGET(VTKJava ALL)
     ADD_CUSTOM_TARGET(VTKJavaJar ALL)
 
-    SET(KITS Common Filtering Graphics IO Imaging Infovis)
+    SET(KITS Common Filtering IO Graphics GenericFiltering Imaging Infovis)
+    IF (VTK_USE_RENDERING)
+      SET(KITS ${KITS} Rendering)
+      SET(KITS ${KITS} VolumeRendering)
+      SET(KITS ${KITS} Hybrid)
+      SET(KITS ${KITS} Widgets)
+    ENDIF(VTK_USE_RENDERING)
     IF (VTK_USE_PARALLEL)
       SET(KITS ${KITS} Parallel)
     ENDIF(VTK_USE_PARALLEL)
-    IF (VTK_USE_RENDERING)
-      SET(KITS ${KITS} Widgets)
-      SET(KITS ${KITS} Hybrid)
-      SET(KITS ${KITS} VolumeRendering)
-      SET(KITS ${KITS} Rendering)
-    ENDIF(VTK_USE_RENDERING)
 
     # Some platforms have libjvm in a subdirectory from
     # the rest of the java libraries and are missing the symlink.
@@ -92,6 +94,12 @@ IF(JAVA_COMPILE)
     CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtkBuildAllDriver.java.in
       ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.java)
     ADD_CUSTOM_TARGET(VTKBuildAll ALL)
+
+#    ADD_CUSTOM_COMMAND(OUTPUT ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.class
+#      COMMAND ${JAVA_COMPILE}
+#      ARGS -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.java
+#      DEPENDS ${VTK_BUILD_ALL_DEPENDS})
+
     ADD_CUSTOM_COMMAND(
       TARGET VTKBuildAll
       OUTPUTS ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.class
@@ -101,11 +109,13 @@ IF(JAVA_COMPILE)
       ARGS -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. 
       ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.java
       )
+
     ADD_CUSTOM_COMMAND(
       TARGET VTKBuildAll
       SOURCE VTKBuildAll
       DEPENDS ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.class
       )
+
     ADD_DEPENDENCIES(VTKJavaJar VTKBuildAll)
 
     # Make sure all the VTKJava${kit} projects build *before* VTKBuildAll.
@@ -117,22 +127,25 @@ IF(JAVA_COMPILE)
     ENDFOREACH(kit)
 
     ADD_DEPENDENCIES(VTKJavaFiltering VTKJavaCommon)
-    ADD_DEPENDENCIES(VTKJavaImaging VTKJavaFiltering)
-    ADD_DEPENDENCIES(VTKJavaGraphics VTKJavaFiltering)
     ADD_DEPENDENCIES(VTKJavaIO VTKJavaFiltering)
+    ADD_DEPENDENCIES(VTKJavaGraphics VTKJavaIO)
+    ADD_DEPENDENCIES(VTKJavaGenericFiltering VTKJavaGraphics)
+    ADD_DEPENDENCIES(VTKJavaImaging VTKJavaFiltering)
     ADD_DEPENDENCIES(VTKJavaInfovis VTKJavaFiltering)
+
     SET(VTK_JAVA_DEPENDENCIES vtkTesting2 vtkSettings)
     IF(VTK_USE_RENDERING)
+      SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} vtkCanvas vtkPanel)
       SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} vtkPanel)
-      ADD_DEPENDENCIES(VTKJavaRendering VTKJavaGraphics VTKJavaIO VTKJavaImaging VTKJavaInfovis)
+      ADD_DEPENDENCIES(VTKJavaRendering VTKJavaGraphics VTKJavaImaging VTKJavaInfovis)
       ADD_DEPENDENCIES(VTKJavaVolumeRendering VTKJavaRendering)
-      SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} vtkCanvas)
       ADD_DEPENDENCIES(VTKJavaHybrid VTKJavaRendering)
-      ADD_DEPENDENCIES(VTKJavaWidgets VTKJavaRendering)
+      ADD_DEPENDENCIES(VTKJavaWidgets VTKJavaHybrid)
     ENDIF(VTK_USE_RENDERING)
     IF(VTK_USE_PARALLEL)
       ADD_DEPENDENCIES(VTKJavaParallel VTKJavaRendering)
     ENDIF(VTK_USE_PARALLEL)
+
     FOREACH(jfile ${VTK_JAVA_DEPENDENCIES})
       SET(src ${VTK_SOURCE_DIR}/Wrapping/Java/vtk/${jfile}.java)
       SET(dst ${VTK_JAVA_HOME}/${jfile}.java)
@@ -149,6 +162,7 @@ IF(JAVA_COMPILE)
           ARGS -E copy ${src} ${dst}
           )
       ENDIF(${jfile} MATCHES vtkSettings)
+
       ADD_CUSTOM_COMMAND(
         TARGET VTKJavaJar
         SOURCE ${dst}
@@ -157,6 +171,7 @@ IF(JAVA_COMPILE)
         COMMAND ${JAVA_COMPILE}
         ARGS -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. ${dst}
         )
+
       SET(CLASS_FILES ${CLASS_FILES} ${class})
     ENDFOREACH(jfile)
     ADD_DEPENDENCIES(VTKJava VTKJavaJar)
@@ -170,9 +185,11 @@ IF(JAVA_COMPILE)
       DEPENDS ${CLASS_FILES} ${JAVA_LIBRARIES}
       OUTPUTS ${VTK_JAR_PATH}/vtk.jar
       COMMENT "Java Archive")
+
     ADD_CUSTOM_COMMAND(SOURCE VTKJavaJar
       TARGET VTKJavaJar
       DEPENDS ${VTK_JAR_PATH}/vtk.jar)
+
     IF(BUILD_TESTING)
       FOREACH(jfile
           SimpleVTK
@@ -194,6 +211,7 @@ IF(JAVA_COMPILE)
           COMMENT "Java Test")
         SET(JAVA_TESTS ${JAVA_TESTS} ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
       ENDFOREACH(jfile)
+
       IF(WIN32)
         SET(SEPARATOR "\;")
       ELSE(WIN32)
@@ -218,11 +236,13 @@ IF(JAVA_COMPILE)
   ELSE(VTK_JAVA_NEW_STYLE)
 
     ADD_CUSTOM_TARGET(VTKJava ALL)
+
     ADD_CUSTOM_COMMAND(SOURCE ${VTK_JAVA_HOME}/VTKJavaWrapped
       COMMAND ${JAVA_COMPILE} 
       ARGS ${VTK_JAVA_HOME}/vtk*.java
       TARGET VTKJava
       OUTPUTS ${VTK_JAVA_HOME}/vtkObject.class)
+
     IF(JAVA_ARCHIVE)
       ADD_CUSTOM_COMMAND(SOURCE ${VTK_JAVA_HOME}/vtkObject.class
         COMMAND ${CMAKE_COMMAND}
@@ -254,6 +274,7 @@ IF(JAVA_COMPILE)
             OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
           SET(JAVA_TESTS ${JAVA_TESTS} ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
         ENDFOREACH(jfile)
+
         IF(WIN32)
           SET(SEPARATOR "\;")
         ELSE(WIN32)
@@ -277,12 +298,13 @@ IF(JAVA_COMPILE)
         DEPENDS   ${VTK_JAR_PATH}/vtk.jar ${JAVA_TESTS}
         )   
 
-      IF(NOT VTK_INSTALL_NO_RUNTIME)
-        INSTALL(FILES
-          ${VTK_JAR_PATH}/vtk.jar
-          DESTINATION ${VTK_INSTALL_JAVA_DIR_CM24}/vtk
-          COMPONENT RuntimeLibraries)
-      ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
     ENDIF(JAVA_ARCHIVE)
   ENDIF(VTK_JAVA_NEW_STYLE)
+
+  IF(NOT VTK_INSTALL_NO_RUNTIME)
+    INSTALL(FILES
+      ${VTK_JAR_PATH}/vtk.jar
+      DESTINATION ${VTK_INSTALL_JAVA_DIR_CM24}/vtk
+      COMPONENT RuntimeLibraries)
+  ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
 ENDIF(JAVA_COMPILE)
