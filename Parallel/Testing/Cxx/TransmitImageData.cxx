@@ -157,7 +157,7 @@ void Run(vtkMultiProcessController *contr, void *arg)
   if (Me == 0)
     {
     vtkCamera *camera = renderer->GetActiveCamera();
-    camera->UpdateViewport(renderer);
+    //camera->UpdateViewport(renderer);
     camera->SetParallelScale(16);
 
     renWin->Render();
