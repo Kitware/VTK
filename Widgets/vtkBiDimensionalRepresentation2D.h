@@ -14,7 +14,6 @@
 =========================================================================*/
 // .NAME vtkBiDimensionalRepresentation2D - represent the vtkBiDimensionalWidget
 // .SECTION Description
-
 // The vtkBiDimensionalRepresentation2D is used to represent the
 // bi-dimensional measure in a 2D (overlay) context. This representation
 // consists of two perpendicular lines defined by four
@@ -23,6 +22,15 @@
 // the four points are referred to as Point1, Point2, Point3 and
 // Point4. Point1 and Point2 define the first line; and Point3 and Point4
 // define the second orthogonal line.)
+//
+// To create this widget, you click to place the first two points. The third
+// point is mirrored with the fourth point; when you place the third point
+// (which is orthogonal to the lined defined by the first two points), the
+// fourth point is dropped as well. After definition, the four points can be
+// moved (in constrained fashion, preserving orthogonality). Further, the
+// entire widget can be translated by grabbing the center point of the widget;
+// each line can be moved along the other line; and the entire widget can be
+// rotated around its center point.
 
 // .SECTION See Also
 // vtkAngleWidget vtkHandleRepresentation vtkBiDimensionalRepresentation2D
@@ -226,26 +234,26 @@ protected:
   int IDInitialized;
 
   // Internal variables
-  double P1[3];
-  double P2[3];
-  double P3[3];
-  double P4[3];
   double P1World[3];
   double P2World[3];
   double P3World[3];
-  double P4World[4];
-  double P21[3];
-  double P43[3];
+  double P4World[3];
   double P21World[3];
   double P43World[3];
   double T21;
   double T43;
+  double CenterWorld[3];
+  double StartEventPositionWorld[4];
 
   // Format for printing the distance
   char *LabelFormat;
 
   // toggle to determine whether to place text above or below widget
   int ShowLabelAboveWidget;
+
+  // Helper method
+  void ProjectOrthogonalPoint(double e[3], double x[4], double y[3], double y21[3], double x1[3], double x2[3], double x21[3], 
+                              double dir, double xP[3]);
 
 private:
   vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&);  //Not implemented
