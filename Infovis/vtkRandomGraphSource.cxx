@@ -20,7 +20,7 @@
 #include "vtkInformation.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkRandomGraphSource, "1.1");
+vtkCxxRevisionMacro(vtkRandomGraphSource, "1.2");
 vtkStandardNewMacro(vtkRandomGraphSource);
 
 
@@ -48,6 +48,7 @@ void vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfArcs: " << this->NumberOfArcs << endl;
   os << indent << "ArcProbability: " << this->ArcProbability << endl;
   os << indent << "Directed: " << this->Directed << endl;
+  os << indent << "StartWithTree: " << this->StartWithTree << endl;
 }
 
 int vtkRandomGraphSource::RequestData(

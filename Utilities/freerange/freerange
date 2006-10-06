@@ -298,14 +298,16 @@ class freerange
 				const T& operator * () const
 				{ assert(fl) ; return fl->array[posn] ; }
 
-				const T& operator -> () const
-				{ assert(fl) ; return fl->array[posn] ; }
+				// operator -> causes warnings in VC6 and errors in Borland
+				//const T& operator -> () const
+				//{ assert(fl) ; return fl->array[posn] ; }
 
 				T& operator * ()
 				{ assert(fl) ; return fl->array[posn] ; }
 
-				T& operator -> ()
-				{ assert(fl) ; return fl->array[posn] ; }
+				// operator -> causes warnings in VC6 and errors in Borland
+				//T& operator -> ()
+				//{ assert(fl) ; return fl->array[posn] ; }
 		} ;
 
 } ;

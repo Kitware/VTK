@@ -31,7 +31,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.1");
+vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.2");
 vtkStandardNewMacro(vtkForceDirectedLayoutStrategy);
 
 vtkForceDirectedLayoutStrategy::vtkForceDirectedLayoutStrategy()
@@ -311,6 +311,7 @@ void vtkForceDirectedLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Zmin,Zmax: (" << this->GraphBounds[4] << ", " 
      << this->GraphBounds[5] << ")\n";
   os << indent << "InitialTemperature: " << this->InitialTemperature << endl;
+  os << indent << "IterationsPerLayout: " << this->IterationsPerLayout << endl;
   os << indent << "MaxNumberOfIterations: " << this->MaxNumberOfIterations << endl;
   os << indent << "RandomInitialPoints: "
      << (this->RandomInitialPoints ? "On\n" : "Off\n");
