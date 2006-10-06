@@ -30,7 +30,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.2");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.3");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -149,17 +149,16 @@ int vtkDelimitedTextReader::RequestData(
   while (this->Internals->File->getline(this->ReadBuffer,2047))
     {
     // Now give buffer to string
-    vtkStdString s(this->ReadBuffer);
+    vtkStdString str(this->ReadBuffer);
   
     // Split string on the delimiters
     dataVector.resize(0);
-    splitString(s, this->DelimiterString, dataVector);
+    splitString(str, this->DelimiterString, dataVector);
     
     // Add data to the output arrays
 
     // Convert from vector to variant array
     vtkVariantArray* dataArray = vtkVariantArray::New();
-    vtkstd::vector<vtkStdString>::const_iterator I;
     for(I = dataVector.begin(); I != dataVector.end(); ++I)
       {
       dataArray->InsertNextValue(vtkVariant(*I));

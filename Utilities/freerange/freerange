@@ -99,7 +99,6 @@ class freerange
 
     bool grab_internal( idx_t& v, int num ) 
     {
-			bool new_alloc = false;
       if ( (num <= dead_size) && (! dead[num].empty()) ) {
 				v = dead[num].front() ;
 				dead[num].pop_front() ;
@@ -118,7 +117,6 @@ class freerange
 					array_tmp[i] = array[i];
 				delete [] array;
 				array = array_tmp;
-				new_alloc = true;
 			}
 			v = array_top;
 			array_top += num;

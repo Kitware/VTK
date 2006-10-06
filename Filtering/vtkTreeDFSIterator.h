@@ -39,7 +39,7 @@ public:
   enum ModeType
     {
     DISCOVER,
-    FINISH,
+    FINISH
     };
   //ETX
 
