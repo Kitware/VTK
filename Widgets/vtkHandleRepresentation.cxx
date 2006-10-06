@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 
 
-vtkCxxRevisionMacro(vtkHandleRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkHandleRepresentation, "1.8");
 
 //----------------------------------------------------------------------
 vtkHandleRepresentation::vtkHandleRepresentation()
@@ -72,6 +72,7 @@ void vtkHandleRepresentation::GetDisplayPosition(double pos[3])
   this->DisplayPosition->GetValue(pos);
 }
 
+//----------------------------------------------------------------------
 double* vtkHandleRepresentation::GetDisplayPosition()
 {
   return this->DisplayPosition->GetValue();
