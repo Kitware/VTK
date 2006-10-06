@@ -27,7 +27,7 @@
 #include "vtkTree.h"
 #include "vtkTreeMapLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeMapLayout, "1.2");
+vtkCxxRevisionMacro(vtkTreeMapLayout, "1.3");
 vtkStandardNewMacro(vtkTreeMapLayout);
 
 vtkTreeMapLayout::vtkTreeMapLayout()
@@ -45,6 +45,8 @@ vtkTreeMapLayout::~vtkTreeMapLayout()
     this->LayoutStrategy->Delete();
     }
 }
+
+vtkCxxSetObjectMacro(vtkTreeMapLayout, LayoutStrategy, vtkTreeMapLayoutStrategy);
 
 int vtkTreeMapLayout::RequestData(
   vtkInformation *vtkNotUsed(request),

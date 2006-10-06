@@ -45,10 +45,8 @@ public:
 
   // Description:
   // The strategy to use when laying out the tree map.
-//  vtkGetObjectMacro(LayoutStrategy, vtkTreeMapLayoutStrategy);
-//  vtkSetObjectMacro(LayoutStrategy, vtkTreeMapLayoutStrategy);
-  virtual vtkTreeMapLayoutStrategy *GetLayoutStrategy() { return (vtkTreeMapLayoutStrategy *) 0; }
-  virtual void SetLayoutStrategy(vtkTreeMapLayoutStrategy * vtkNotUsed(p)) { }
+  vtkGetObjectMacro(LayoutStrategy, vtkTreeMapLayoutStrategy);
+  void SetLayoutStrategy(vtkTreeMapLayoutStrategy * strategy);
 
   // Description:
   // Returns the node id that contains pnt (or -1 if no one contains it)
