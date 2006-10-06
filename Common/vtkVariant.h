@@ -208,7 +208,7 @@ public:
 
   // Description:
   // Write the variant's value to an output stream.
-  friend ostream& operator << (ostream& out, vtkVariant v);
+  friend ostream& operator << (ostream& out, vtkVariant& v);
 
 private:
   template <typename T>

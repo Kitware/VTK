@@ -385,7 +385,7 @@ vtkAbstractArray* vtkVariant::ToArray() const
   return 0;
 }
 
-ostream& operator << (ostream& out, vtkVariant v)
+ostream& operator << (ostream& out, vtkVariant& v)
 {
   out << v.ToString();
   return out;
