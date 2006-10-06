@@ -29,7 +29,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.54");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.55");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -307,6 +307,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
   vtkDoubleArray *outScalars = vtkDoubleArray::New();
   outScalars->Allocate(3*numPts,numPts);
   outPD->SetScalars(outScalars);
+  outScalars->Delete();
   
   for (i=0; i<numPts; i++)
     {
@@ -740,7 +741,6 @@ int vtkBandedPolyDataContourFilter::RequestData(
     delete [] isContourValue;
     delete [] isOriginalVertex;
     delete [] fullPoly;
-    outScalars->Delete();
 
     output->SetPolys(newPolys);
     newPolys->Delete();
