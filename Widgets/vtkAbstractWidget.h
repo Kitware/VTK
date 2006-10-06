@@ -15,20 +15,20 @@
 // .NAME vtkAbstractWidget - define API for widget / widget representation
 // .SECTION Description
 // The vtkAbstractWidget defines an API and implements methods common to all
-// widgets using the interaction/representation design. In this case, the
-// interaction means that part of the widget that performs event handling,
-// while the representation means the vtkProp (or subclasses) used to
-// represent the widget. This class also implements some methods common to
-// all subclasses.
+// widgets using the interaction/representation design. In this design, the
+// term interaction means that part of the widget that performs event
+// handling, while the representation corresponds to a vtkProp (or the
+// subclass vtkWidgetRepresentation) used to represent the
+// widget. vtkAbstractWidget also implements some methods common to all
+// subclasses.
 //
 // Note that vtkAbstractWidget provides access to the
 // vtkWidgetEventTranslator.  This class is responsible for translating VTK
 // events (defined in vtkCommand.h) into widget events (defined in
-// vtkWidgetEvent.h).  This class can be manipulated so that different
-// VTK events can be mapped into widget events, thereby allowing the
-// modification of event bindings. Each subclass of vtkAbstractWidget
-// defines the events to which it responds.
-
+// vtkWidgetEvent.h).  This class can be manipulated so that different VTK
+// events can be mapped into widget events, thereby allowing the modification
+// of event bindings. Each subclass of vtkAbstractWidget defines the events
+// to which it responds.
 //
 // .SECTION Caveats
 // The separation of the widget event handling and representation enables
@@ -55,7 +55,7 @@ class VTK_WIDGETS_EXPORT vtkAbstractWidget : public vtkInteractorObserver
 {
 public:
   // Description:
-  // Standard macros.
+  // Standard macros implementing standard VTK methods.
   vtkTypeRevisionMacro(vtkAbstractWidget,vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -71,17 +71,21 @@ public:
 
   // Description:
   // Get the event translator. Careful manipulation of this class enables
-  // the user to specify their own event bindings.
+  // the user to override the default event bindings.
   vtkWidgetEventTranslator *GetEventTranslator()
     {return this->EventTranslator;}
   
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set. The representation
+  // defines the geometry of the widget (i.e., how it appears) as well as providing
+  // special methods for manipulting the state and appearance of the widget.
   virtual void CreateDefaultRepresentation() = 0;
 
   // Description:
-  // This method is called by subclasses to reduce the number of renders that
-  // are invoked.
+  // This method is called by subclasses when a render method is to be
+  // invoked on the vtkRenderWindowInteractor. This method should be called
+  // (instead of vtkRenderWindow::Render() because it has built into it
+  // optimizations for minimizing renders and/or speeding renders.
   void Render();
 
   // Description:
@@ -94,8 +98,9 @@ public:
 
   // Description:
   // Return an instance of vtkWidgetRepresentation used to represent this
-  // widget in the scene. Note that the representation is a subclass of vtkProp
-  // so it can be added to the renderer independent of the widget.
+  // widget in the scene. Note that the representation is a subclass of
+  // vtkProp (typically a subclass of vtkWidgetRepresenation) so it can be
+  // added to the renderer independent of the widget.
   vtkWidgetRepresentation *GetRepresentation()
     {
       this->CreateDefaultRepresentation();
@@ -103,9 +108,11 @@ public:
     }
   
   // Description:
-  // Turn on or off the management of the cursor. Some classes (like
-  // handles) the managing of the cursor may be taken over by an
-  // owning superclass.
+  // Turn on or off the management of the cursor. Cursor management is
+  // typically disabled for subclasses when composite widgets are
+  // created. For example, vtkHandleWidgets are often used to create
+  // composite widgets, and the parent widget takes over the cursor
+  // management.
   vtkSetMacro(ManagesCursor,int);
   vtkGetMacro(ManagesCursor,int);
   vtkBooleanMacro(ManagesCursor,int);
@@ -114,7 +121,7 @@ protected:
   vtkAbstractWidget();
   ~vtkAbstractWidget();
 
-  // Handles the events
+  // Handles the events; centralized here for all widgets.
   static void ProcessEvents(vtkObject* object, unsigned long event,
                             void* clientdata, void* calldata);
 
@@ -138,7 +145,9 @@ protected:
   // The parent, if any, for this widget
   vtkAbstractWidget *Parent;
 
-  // Call data which can be retrieved by the widget
+  // Call data which can be retrieved by the widget. This data is set
+  // by ProcessEvents() if call data is provided during a callback
+  // sequence.
   void *CallData;
 
   // Note: visibility and enabled are two different things
