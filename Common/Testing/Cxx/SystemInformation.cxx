@@ -79,6 +79,8 @@ int SystemInformation(int,char *[])
       0
     };
 
+  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+
   const char** f;
   for(f = files; *f; ++f)
     {

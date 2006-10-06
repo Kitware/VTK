@@ -86,6 +86,8 @@ static void ImageCallback(vtkObject *__renwin, unsigned long, void *, void *)
 
 int LoadOpenGLExtension(int argc, char *argv[])
 {
+  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+
   vtkRenderWindow *renwin = vtkRenderWindow::New();
   renwin->SetSize(250, 250);
 
