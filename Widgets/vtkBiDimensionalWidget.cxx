@@ -289,7 +289,7 @@ int vtkBiDimensionalWidget::IsMeasureValid()
     }
 }
 
-// The following methods are the callbacks that the angle widget responds to. 
+// The following methods are the callbacks that the bidimensional widget responds to. 
 //-------------------------------------------------------------------------
 void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
 {
