@@ -164,6 +164,7 @@ public:
   // Additional functions
   //
 
+  //BTX
   // Description:
   // Get the data at a particular index.
   vtkVariant & GetValue(vtkIdType id) const;
@@ -191,6 +192,7 @@ public:
   // Description:
   // Set the internal array used by this object.
   void SetArray(vtkVariant* arr, vtkIdType size, int save);
+  //ETX
 
   // Description:
   // Specify the number of values for this object to hold. Does an
@@ -208,10 +210,12 @@ protected:
   ~vtkVariantArray();
 
   // Pointer to data
+  //BTX
   vtkVariant* Array;
 
   // Function to resize data
   vtkVariant* ResizeAndExtend(vtkIdType sz);  
+  //ETX
 
   int SaveUserArray;
 

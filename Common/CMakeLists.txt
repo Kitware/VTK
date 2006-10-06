@@ -261,7 +261,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkStdString.cxx
   vtkTimeStamp.cxx
   vtkVariant.cxx
-  vtkVariantArray.cxx
 
   WRAP_EXCLUDE
 )
