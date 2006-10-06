@@ -34,6 +34,20 @@
 #include "vtkTestUtilities.h"
 #include "vtkTransform.h"
 
+// This does the actual work: updates the probe.
+// Callback for the interaction
+class vtkBiDimensionalCallback : public vtkCommand
+{
+public:
+  static vtkBiDimensionalCallback *New() 
+    { return new vtkBiDimensionalCallback; }
+  virtual void Execute(vtkObject *caller, unsigned long, void*)
+    {
+      cout << "End interaction event\n";
+    }
+  vtkBiDimensionalCallback() {}
+};
+
 int TestBiDimensionalWidget( int argc, char *argv[] )
 {
   // Create the pipeline
@@ -90,6 +104,9 @@ int TestBiDimensionalWidget( int argc, char *argv[] )
   vtkBiDimensionalWidget *widget = vtkBiDimensionalWidget::New();
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
+
+  vtkBiDimensionalCallback *callback = vtkBiDimensionalCallback::New();
+  widget->AddObserver(vtkCommand::EndInteractionEvent,callback);
 
   // Add the actors to the renderer, set the background and size
   ren1->AddActor(imageActor);
