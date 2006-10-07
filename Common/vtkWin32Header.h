@@ -118,6 +118,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #if defined(__BORLANDC__)
   // Disable Borland compiler warning messages that often occur in valid code.
 # if !defined(VTK_DISPLAY_WIN32_WARNINGS)
+#  pragma warn -8004 /* assigned a value that is never used */
 #  pragma warn -8008 /* condition is always false */
 #  pragma warn -8026 /* funcs w/class-by-value args not expanded inline */
 #  pragma warn -8027 /* functions w/ do/for/while not expanded inline */
