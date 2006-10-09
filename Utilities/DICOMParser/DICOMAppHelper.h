@@ -35,12 +35,13 @@
 #ifdef _MSC_VER
 #pragma warning ( default: 4018 )
 #endif 
+
 class DICOMParser;
 
 // Function object for sorting strings
 struct ltstdstr
 {
-  bool operator()(const dicom_stl::string s1, const dicom_stl::string s2) const
+  bool operator()(const dicom_stl::string &s1, const dicom_stl::string &s2) const
   {
     return s1 < s2;
   }

@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.7");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.8");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -420,7 +420,7 @@ void vtkRectilinearGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
 double *vtkRectilinearGrid::GetPoint(vtkIdType ptId)
 {
   int loc[3];
-  
+
   switch (this->DataDescription)
     {
     case VTK_EMPTY: 
@@ -472,6 +472,13 @@ double *vtkRectilinearGrid::GetPoint(vtkIdType ptId)
       loc[1] = (ptId / this->Dimensions[0]) % this->Dimensions[1];
       loc[2] = ptId / (this->Dimensions[0]*this->Dimensions[1]);
       break;
+
+    default:
+      vtkErrorMacro( << "Unexpected value for DataDescription ("
+        << this->DataDescription
+        << ") in vtkRectilinearGrid::GetPoint" );
+      loc[0] = loc[1] = loc[2] = 0;
+      break;
     }
 
   this->PointReturn[0] = this->XCoordinates->GetComponent(loc[0], 0);
@@ -484,7 +491,7 @@ double *vtkRectilinearGrid::GetPoint(vtkIdType ptId)
 void vtkRectilinearGrid::GetPoint(vtkIdType ptId, double x[3])
 {
   int loc[3];
-  
+
   switch (this->DataDescription)
     {
     case VTK_EMPTY:
@@ -534,12 +541,18 @@ void vtkRectilinearGrid::GetPoint(vtkIdType ptId, double x[3])
       loc[1] = (ptId / this->Dimensions[0]) % this->Dimensions[1];
       loc[2] = ptId / (this->Dimensions[0]*this->Dimensions[1]);
       break;
+
+    default:
+      vtkErrorMacro( << "Unexpected value for DataDescription ("
+        << this->DataDescription
+        << ") in vtkRectilinearGrid::GetPoint" );
+      loc[0] = loc[1] = loc[2] = 0;
+      break;
     }
 
   x[0] = this->XCoordinates->GetComponent(loc[0], 0);
   x[1] = this->YCoordinates->GetComponent(loc[1], 0);
   x[2] = this->ZCoordinates->GetComponent(loc[2], 0);
-
 }
 
 //----------------------------------------------------------------------------

@@ -161,6 +161,9 @@
 
 #if defined(__BORLANDC__)
 #pragma warn -8004 /* "assigned a value that is never used" */
+#pragma warn -8012 /* "comparing signed and unsigned values" */
+#pragma warn -8057 /* "parameter is never used" */
+#pragma warn -8060 /* "possibly incorrect assignment" */
 #endif
 
 #endif /* _TIFFCONF_ */

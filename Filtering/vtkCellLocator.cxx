@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellLocator, "1.81");
+vtkCxxRevisionMacro(vtkCellLocator, "1.82");
 vtkStandardNewMacro(vtkCellLocator);
 
 #define VTK_CELL_OUTSIDE 0
@@ -424,7 +424,11 @@ void vtkCellLocator::FindClosestPoint(double x[3], double closestPoint[3],
   double *weights = weightsArray;
   int nWeights = 6, nPoints;
   vtkIdList *cellIds;
-  
+
+  cachedPoint[0] = 0.0;
+  cachedPoint[1] = 0.0;
+  cachedPoint[2] = 0.0;
+
   leafStart = this->NumberOfOctants
     - this->NumberOfDivisions*this->NumberOfDivisions*this->NumberOfDivisions;
   
@@ -699,7 +703,11 @@ int vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radius,
   double distance2ToCellBounds, cellBounds[6], currentRadius;
   double distance2ToDataBounds, maxDistance;
   int ii, radiusLevels[3], radiusLevel, prevMinLevel[3], prevMaxLevel[3];
-  
+
+  cachedPoint[0] = 0.0;
+  cachedPoint[1] = 0.0;
+  cachedPoint[2] = 0.0;
+
   leafStart = this->NumberOfOctants
     - this->NumberOfDivisions*this->NumberOfDivisions*this->NumberOfDivisions;
   
@@ -1395,21 +1403,21 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
   vtkPoints *pts;
   vtkCellArray *polys;
   int l, i, j, k, ii, boundary[3];
-  vtkIdType idx;
+  vtkIdType idx = 0;
   vtkIdList *inside, *Inside[3];
   int numDivs=1;
-  
+
   if ( this->Tree == NULL )
     {
     vtkErrorMacro(<<"No tree to generate representation from");
     return;
     }
-  
+
   pts = vtkPoints::New();
   pts->Allocate(5000);
   polys = vtkCellArray::New();
   polys->Allocate(10000);
-  
+
   // Compute idx into tree at appropriate level; determine if
   // faces of octants are visible.
   //

@@ -43,7 +43,7 @@
 #include <math.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkClipHyperOctree, "1.5");
+vtkCxxRevisionMacro(vtkClipHyperOctree, "1.6");
 vtkStandardNewMacro(vtkClipHyperOctree);
 vtkCxxSetObjectMacro(vtkClipHyperOctree,ClipFunction,vtkImplicitFunction);
 
@@ -554,11 +554,11 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         {
         numOutputs=1;
         }
-      
-      vtkIdType npts;
+
+      vtkIdType npts=0;
       vtkIdType *pts;
       int cellType;
-      
+
       for (i=0; i<numOutputs; i++) //for both outputs
         {
         for (int j=0; j < numNew[i]; j++) 
@@ -928,6 +928,11 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
           edges[0]=(child&1)==1; // false: -x, true: +x
           edges[1]=(child&2)==2; // false: -y, true: +y
           }
+        else
+          {
+          edges[0]=0;
+          edges[1]=0;
+          }
         
         // Insert vertex (xmin,ymin)
         pt[0]=bounds[0];
@@ -1084,7 +1089,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
                                                          cellId,
                                                          this->OutCD[i]);
           
-          vtkIdType npts;
+          vtkIdType npts=0;
           vtkIdType *pts;
           int cellType;
           int numSimplices=0;
@@ -1132,7 +1137,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
             
           this->Locs[i]->InsertNextValue(
             this->Conn[i]->GetTraversalLocation());
-          vtkIdType npts;
+          vtkIdType npts=0;
           this->Conn[i]->GetNextCell(npts,pts);
           int cellType = (npts == 3 ? VTK_TRIANGLE : 
                           (npts == 4 ? VTK_QUAD : VTK_POLYGON));
@@ -1188,6 +1193,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         int num[2];
         
         num[0]=this->Conn[0]->GetNumberOfCells();
+        num[1]=0;
         if(this->GenerateClippedOutput)
           {
           num[1]=this->Conn[1]->GetNumberOfCells();
@@ -1205,7 +1211,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
           numOutputs=1;
           }
         
-        vtkIdType npts;
+        vtkIdType npts=0;
         vtkIdType *pts;
         int cellType;
         
@@ -1277,6 +1283,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
         int num[2];
         
         num[0]=this->Conn[0]->GetNumberOfCells();
+        num[1]=0;
         if(this->GenerateClippedOutput)
           {
           num[1]=this->Conn[1]->GetNumberOfCells();
@@ -1294,7 +1301,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
           numOutputs=1;
           }
         
-        vtkIdType npts;
+        vtkIdType npts=0;
         vtkIdType *pts;
         int cellType;
         

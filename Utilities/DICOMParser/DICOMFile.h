@@ -24,6 +24,10 @@
 #pragma warning ( push, 3 )
 #endif 
 
+#ifdef __BORLANDC__
+#pragma warn -8027 /* functions containing while are not expanded inline */
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>

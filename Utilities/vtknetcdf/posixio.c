@@ -32,6 +32,9 @@
 #ifdef _MSC_VER /* Microsoft Compilers */
 #include <io.h>
 #endif
+#ifdef __BORLANDC__
+#include <io.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
