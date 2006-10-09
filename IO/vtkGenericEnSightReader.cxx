@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.79");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.80");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -543,7 +543,14 @@ void vtkGenericEnSightReader::SetCaseFileName(const char* fileName)
   
   // strip off the path and save it as FilePath if it was included in the
   // filename
-  if ((endingSlash = strrchr(this->CaseFileName, '/')))
+  endingSlash = strrchr(this->CaseFileName, '/');
+  if(endingSlash == NULL)
+    {
+    // check Windows directory separator
+    endingSlash = strrchr(this->CaseFileName, '\\');
+    }
+
+  if (endingSlash)
     {
     position = endingSlash - this->CaseFileName + 1;
     path = new char[position + 1];
