@@ -768,7 +768,7 @@ static PyObject *PyVTKClassMetaType_GetAttr(PyTypeObject *t, char *name)
     }
   if (strcmp(name, "__doc__") == 0)
     {
-    char *doc = t->tp_doc;
+    const char *doc = t->tp_doc;
     if (doc != NULL)
       {
       return PyString_FromString(doc);
