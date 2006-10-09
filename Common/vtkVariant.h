@@ -26,6 +26,7 @@
 
 #include "vtkType.h"           // To define type IDs and VTK_TYPE_USE_* flags
 #include "vtkSystemIncludes.h" // To define ostream
+#include "vtkSetGet.h"         // For vtkNotUsed macro
 
 //
 // The following should be eventually placed in vtkType.h
@@ -212,7 +213,7 @@ public:
 
 private:
   template <typename T>
-  T ToNumeric(bool* valid, T* ignored) const;
+  T ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const;
 
   union
   {

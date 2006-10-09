@@ -408,7 +408,7 @@ T vtkVariantStringToNumeric(vtkStdString str, bool* valid, T* vtkNotUsed(ignored
 }
 
 template <typename T>
-T vtkVariant::ToNumeric(bool* valid, T*) const
+T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
 {
   if (valid)
     {
