@@ -1393,7 +1393,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.27");
+vtkCxxRevisionMacro(vtkExodusReader, "1.28");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -4190,9 +4190,10 @@ int vtkExodusReader::GetArrayStatus ( vtkExodusReader::ArrayType type,
     case vtkExodusReader::NUM_ARRAY_TYPES:
     case vtkExodusReader::UNKNOWN_TYPE:
     default:
-      return 0;
       break;
     }
+
+  return 0;
 }
 
 int vtkExodusReader::GetNumberOfArrays ( vtkExodusReader::ArrayType type )
@@ -4223,9 +4224,10 @@ int vtkExodusReader::GetNumberOfArrays ( vtkExodusReader::ArrayType type )
     case vtkExodusReader::NUM_ARRAY_TYPES:
     case vtkExodusReader::UNKNOWN_TYPE:
     default:
-      return 0;
       break;
     }
+
+  return 0;
 }
 
 const char*vtkExodusReader::GetArrayName ( vtkExodusReader::ArrayType type, 
@@ -4257,9 +4259,10 @@ const char*vtkExodusReader::GetArrayName ( vtkExodusReader::ArrayType type,
     case vtkExodusReader::NUM_ARRAY_TYPES:
     case vtkExodusReader::UNKNOWN_TYPE:
     default:
-      return NULL;
       break;
     }
+
+  return NULL;
 }
 
 void vtkExodusReader::SetXMLFileName(const char *filename) 

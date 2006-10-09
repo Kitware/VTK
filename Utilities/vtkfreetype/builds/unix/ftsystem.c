@@ -266,7 +266,13 @@
       goto Fail_Map;
     }
 
-    stream->size = stat_buf.st_size;
+    /* typedef struct FT_StreamRec_*  FT_Stream;    from ftsystem.h:178 */
+    /* typedef struct FT_StreamRec_                 from ftsystem.h:283 */
+    /* unsigned long        size;                   from ftsystem.h:286 */
+    /* Therefore, cast stat_buf.st_size to unsigned long to avoid       */
+    /* 64-to-32 bit implicit conversion warning                         */
+    /*                                                                  */
+    stream->size = (unsigned long)stat_buf.st_size;
     stream->pos  = 0;
     stream->base = (unsigned char *)mmap( NULL,
                                           stream->size,
