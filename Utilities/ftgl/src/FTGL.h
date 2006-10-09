@@ -65,6 +65,12 @@ struct FTGLRenderContext
 
 #endif
 
+
+#if defined(__BORLANDC__)
+#pragma warn -8027 /* "functions containing for are not expanded inline" */
+#endif
+
+
 #ifdef WIN32
 
   // The following definitions control how symbols are exported.

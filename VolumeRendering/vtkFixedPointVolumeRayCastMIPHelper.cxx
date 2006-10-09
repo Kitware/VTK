@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMIPHelper, "1.7");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMIPHelper, "1.8");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMIPHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastMIPHelper with default values
@@ -268,8 +268,8 @@ void vtkFixedPointMIPHelperGenerateImageOneSimpleTrilin( T *dataPtr,
 
   int maxValueDefined = 0;
   unsigned short maxIdx=0;
-  unsigned short maxScalar = 0;
-  
+  unsigned int maxScalar = 0;
+
   for ( k = 0; k < numSteps; k++ )
     {
     if ( k )
@@ -299,8 +299,8 @@ void vtkFixedPointMIPHelperGenerateImageOneSimpleTrilin( T *dataPtr,
       maxScalar = (G>maxScalar)?(G):(maxScalar);
       maxScalar = (H>maxScalar)?(H):(maxScalar);      
       }
-  
-    if ( !maxValueDefined || maxScalar > maxValue )
+
+    if ( !maxValueDefined || maxScalar > static_cast<unsigned int>(maxValue) )
       {
       VTKKWRCHelper_ComputeWeights(pos);
       VTKKWRCHelper_InterpolateScalar(val);
