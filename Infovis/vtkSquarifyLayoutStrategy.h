@@ -17,7 +17,11 @@
 // .SECTION Description
 //
 // .SECTION Thanks
-// TODO: Add reference here.
+// The squarified tree map algorithm comes from:
+// Bruls, D.M., C. Huizing, J.J. van Wijk. Squarified Treemaps.
+// In: W. de Leeuw, R. van Liere (eds.), Data Visualization 2000, 
+// Proceedings of the joint Eurographics and IEEE TCVG Symposium on Visualization, 
+// 2000, Springer, Vienna, p. 33-42.
 
 #ifndef __vtkSquarifyLayoutStrategy_h
 #define __vtkSquarifyLayoutStrategy_h

@@ -19,6 +19,10 @@
 // .SECTION Thanks
 // Thanks to Brian Wylie and Ken Moreland from Sandia National Laboratories
 // for help developing this class.
+// 
+// Tree map concept comes from:
+// Shneiderman, B. 1992. Tree visualization with tree-maps: 2-d space-filling approach. 
+// ACM Trans. Graph. 11, 1 (Jan. 1992), 92-99. 
 
 #ifndef __vtkTreeMapLayout_h
 #define __vtkTreeMapLayout_h
