@@ -98,6 +98,7 @@ static void vtkParseDebug(const char* s1, const char* s2);
 # pragma warning (disable: 4244) /* conversion to smaller integer type */
 #endif
 #if defined(__BORLANDC__)
+# pragma warn -8004 /* assigned a value that is never used */
 # pragma warn -8008 /* conditional is always true */
 # pragma warn -8066 /* unreachable code */
 #endif
