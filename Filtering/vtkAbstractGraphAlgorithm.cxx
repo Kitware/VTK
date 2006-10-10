@@ -26,7 +26,7 @@
 #include "vtkTree.h"
 #include "vtkGraph.h"
 
-vtkCxxRevisionMacro(vtkAbstractGraphAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkAbstractGraphAlgorithm, "1.2");
 vtkStandardNewMacro(vtkAbstractGraphAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -158,13 +158,9 @@ int vtkAbstractGraphAlgorithm::RequestData(
 }
 
 //----------------------------------------------------------------------------
-// This method instantiates a vtkAbstractGraph by default.
-// If the output is a class other than vtkAbstractGraph, override this method.
-// When vtkAbstractGraph is made part of VTK, this should be updated to automatically
-// instantiate the proper type defined in FillOutputPortInformation.
 int vtkAbstractGraphAlgorithm::RequestDataObject(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
+  vtkInformation*, 
+  vtkInformationVector** inputVector , 
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -183,30 +179,19 @@ int vtkAbstractGraphAlgorithm::RequestDataObject(
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkAbstractGraph *output = vtkAbstractGraph::SafeDownCast(
         info->Get(vtkDataObject::DATA_OBJECT()));
-    
+      
       if (!output || !output->IsA(input->GetClassName())) 
         {
-        vtkAbstractGraph* newOutput;
-        if (input->IsA("vtkTree"))
-          {
-          newOutput = vtkTree::New();
-          }
-        else if (input->IsA("vtkGraph"))
-          {
-          newOutput = vtkGraph::New();
-          }
-        else
-          {
-          return 0;
-          }
-        newOutput->SetPipelineInformation(info);
-        newOutput->Delete();
-        this->GetOutputPortInformation(0)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
+        output = input->NewInstance();
+        output->SetPipelineInformation(info);
+        output->Delete();
+        this->GetOutputPortInformation(i)->Set(
+          vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
         }
       }
     return 1;
     }
   return 0;
 }
+
 

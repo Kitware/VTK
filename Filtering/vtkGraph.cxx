@@ -29,7 +29,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkGraph, "1.1");
+vtkCxxRevisionMacro(vtkGraph, "1.2");
 vtkStandardNewMacro(vtkGraph);
 
 //----------------------------------------------------------------------------
@@ -317,12 +317,17 @@ vtkIdType vtkGraph::AddArc(vtkIdType source, vtkIdType target)
 //----------------------------------------------------------------------------
 void vtkGraph::RemoveNode(vtkIdType node)
 {
-  // Delete any arcs adjacent to the node
-  vtkIdType narcs;
-  const vtkIdType* arcs;
-  this->NodeLinks->GetAdjacent(node, narcs, arcs);
-  // We need to remove the const for sorting the arcs
-  this->RemoveArcs(const_cast<vtkIdType*>(arcs), narcs);
+  // Delete any arcs adjacent to the node.
+  // We need to remove the const for sorting the arcs.
+  // Remove the out arcs, then the in arcs.
+  vtkIdType out;
+  const vtkIdType* outArcs;
+  this->NodeLinks->GetOutAdjacent(node, out, outArcs);
+  this->RemoveArcs(const_cast<vtkIdType*>(outArcs), out);
+  vtkIdType in;
+  const vtkIdType* inArcs;
+  this->NodeLinks->GetInAdjacent(node, in, inArcs);
+  this->RemoveArcs(const_cast<vtkIdType*>(inArcs), in);
 
   // Move the final node on top of the deleted node
   vtkIdType movedNode = this->NodeLinks->RemoveNode(node);
@@ -448,11 +453,17 @@ void vtkGraph::RemoveArcs(vtkIdType* arcs, vtkIdType size)
 
 void vtkGraph::ClearNode(vtkIdType node)
 {
-  vtkIdType narcs;
-  const vtkIdType* arcs;
-  this->NodeLinks->GetAdjacent(node, narcs, arcs);
-  // We need to remove the const for sorting
-  this->RemoveArcs(const_cast<vtkIdType*>(arcs), narcs);
+  // Delete any arcs adjacent to the node.
+  // We need to remove the const for sorting the arcs.
+  // Remove the out arcs, then the in arcs.
+  vtkIdType out;
+  const vtkIdType* outArcs;
+  this->NodeLinks->GetOutAdjacent(node, out, outArcs);
+  this->RemoveArcs(const_cast<vtkIdType*>(outArcs), out);
+  vtkIdType in;
+  const vtkIdType* inArcs;
+  this->NodeLinks->GetInAdjacent(node, in, inArcs);
+  this->RemoveArcs(const_cast<vtkIdType*>(inArcs), in);
 }
 
 //----------------------------------------------------------------------------

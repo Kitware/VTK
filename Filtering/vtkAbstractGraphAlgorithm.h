@@ -92,13 +92,11 @@ protected:
                                   vtkInformationVector*);
 
   // Description:
-  // This method instantiates a vtkAbstractGraph by default.
-  // If the output is a class other than vtkAbstractGraph, override this method.
-  // When vtkAbstractGraph is made part of VTK, this should be updated to automatically
-  // instantiate the proper type defined in FillOutputPortInformation.
-  virtual int RequestDataObject(vtkInformation*,
-                                vtkInformationVector** inputVector ,
+  // By default, creates the same output type as the input type.
+  virtual int RequestDataObject(vtkInformation*, 
+                                vtkInformationVector** inputVector, 
                                 vtkInformationVector* outputVector);
+
 
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);

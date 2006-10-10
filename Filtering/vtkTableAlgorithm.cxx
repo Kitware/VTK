@@ -27,7 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkTableAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkTableAlgorithm, "1.2");
 vtkStandardNewMacro(vtkTableAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -64,12 +64,6 @@ int vtkTableAlgorithm::ProcessRequest(vtkInformation* request,
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
-    }
-
-  // create the output
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-    {
-    return this->RequestDataObject(request, inputVector, outputVector);
     }
 
   // execute information
@@ -156,35 +150,5 @@ int vtkTableAlgorithm::RequestData(
   vtkInformationVector* vtkNotUsed( outputVector ) )
 {
   return 0;
-}
-
-//----------------------------------------------------------------------------
-// This method instantiates a vtkTable by default.
-// If the output is a class other than vtkTable, override this method.
-// When vtkTable is made part of VTK, this should be updated to automatically
-// instantiate the proper type defined in FillOutputPortInformation.
-int vtkTableAlgorithm::RequestDataObject(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** vtkNotUsed( inputVector ) ,
-  vtkInformationVector* outputVector)
-{
-  // for each output
-  for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-    {
-    vtkInformation* info = outputVector->GetInformationObject(i);
-    vtkTable *output = vtkTable::SafeDownCast(
-      info->Get(vtkDataObject::DATA_OBJECT()));
-
-    if (!output)
-      {
-      output = vtkTable::New();
-      output->SetPipelineInformation(info);
-      output->Delete();
-      this->GetOutputPortInformation(i)->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
-      }
-    }
-
-  return 1;
 }
 

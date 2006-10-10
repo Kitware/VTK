@@ -98,15 +98,6 @@ protected:
                                   vtkInformationVector**,
                                   vtkInformationVector*);
 
-  // Description:
-  // This method instantiates a vtkTable by default.
-  // If the output is a class other than vtkTable, override this method.
-  // When vtkTable is made part of VTK, this should be updated to automatically
-  // instantiate the proper type defined in FillOutputPortInformation.
-  virtual int RequestDataObject(vtkInformation*,
-                                vtkInformationVector** inputVector ,
-                                vtkInformationVector* outputVector);
-
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
   virtual int FillInputPortInformation(int port, vtkInformation* info);

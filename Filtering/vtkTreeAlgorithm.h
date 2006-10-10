@@ -91,22 +91,6 @@ protected:
                                   vtkInformationVector**,
                                   vtkInformationVector*);
 
-  // Description:
-  // This method instantiates a vtkTree by default.
-  // If the output is a class other than vtkTree, override this method.
-  // When vtkTree is made part of VTK, this should be updated to automatically
-  // instantiate the proper type defined in FillOutputPortInformation.
-  virtual int RequestDataObject(vtkInformation*,
-                                vtkInformationVector** inputVector ,
-                                vtkInformationVector* outputVector);
-
-  /*
-  // Description:
-  // This method is the old style execute method
-  virtual void ExecuteData(vtkDataObject *output);
-  virtual void Execute();
-  */
-
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
   virtual int FillInputPortInformation(int port, vtkInformation* info);

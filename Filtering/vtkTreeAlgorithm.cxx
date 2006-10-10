@@ -21,7 +21,7 @@
 #include "vtkTree.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTreeAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkTreeAlgorithm, "1.2");
 vtkStandardNewMacro(vtkTreeAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -58,12 +58,6 @@ int vtkTreeAlgorithm::ProcessRequest(vtkInformation* request,
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
-    }
-
-  // create the output
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-    {
-    return this->RequestDataObject(request, inputVector, outputVector);
     }
 
   // execute information
@@ -151,34 +145,3 @@ int vtkTreeAlgorithm::RequestData(
 {
   return 0;
 }
-
-//----------------------------------------------------------------------------
-// This method instantiates a vtkTree by default.
-// If the output is a class other than vtkTree, override this method.
-// When vtkTree is made part of VTK, this should be updated to automatically
-// instantiate the proper type defined in FillOutputPortInformation.
-int vtkTreeAlgorithm::RequestDataObject(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** vtkNotUsed( inputVector ) ,
-  vtkInformationVector* outputVector)
-{
-  // for each output
-  for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-    {
-    vtkInformation* info = outputVector->GetInformationObject(i);
-    vtkTree *output = vtkTree::SafeDownCast(
-      info->Get(vtkDataObject::DATA_OBJECT()));
-
-    if (!output)
-      {
-      output = vtkTree::New();
-      output->SetPipelineInformation(info);
-      output->Delete();
-      this->GetOutputPortInformation(i)->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
-      }
-    }
-
-  return 1;
-}
-
