@@ -16,6 +16,10 @@
 #define PNG_INTERNAL
 #include "png.h"
 
+#if defined(__BORLANDC__)
+#pragma warn -8019 /* "code has no effect" */
+#endif
+
 static void /* PRIVATE */
 png_default_error PNGARG((png_structp png_ptr,
                                       png_const_charp message));
