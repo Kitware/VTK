@@ -35,6 +35,8 @@
 #include "vtkOffsetsManagerArray.h"
 #undef  vtkOffsetsManager_DoNotInclude
 
+#include <vtksys/ios/sstream>
+
 #include <assert.h>
 #include <vtkstd/string>
 
@@ -202,7 +204,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 //*****************************************************************************
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.67");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.68");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 //----------------------------------------------------------------------------
 vtkXMLWriter::vtkXMLWriter()
@@ -1712,13 +1714,17 @@ void vtkXMLWriter::WriteArrayHeader(vtkAbstractArray* a,  vtkIndent indent,
     {
     this->WriteStringAttribute("Name", alternateName);
     }
+  else if(const char* arrayName = a->GetName())
+    {
+    this->WriteStringAttribute("Name", arrayName);
+    }
   else
     {
-    const char* arrayName = a->GetName();
-    if(arrayName)
-      {
-      this->WriteStringAttribute("Name", arrayName);
-      }
+    // Generate a name for this array.
+    vtksys_ios::ostringstream name;
+    void* p = a;
+    name << "Array " << p;
+    this->WriteStringAttribute("Name", name.str().c_str());
     }
   if(a->GetNumberOfComponents() > 1)
     {
