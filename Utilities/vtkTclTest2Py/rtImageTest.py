@@ -67,9 +67,10 @@ def get_variable_name(*args):
 try:
     import Tkinter
     pythonTk = Tkinter.Tk()
+    pythonTk.withdraw()
 except:
     pythonTk = None
-    pass #no hassles is Tk is not present.
+    pass #no hassles if Tk is not present.
 
 # setup some common things for testing
 rtTempObject = vtk.vtkObject()
@@ -101,10 +102,9 @@ local_variables_dict = locals()
 if "iren" in local_variables_dict.keys():
     renWin.Render()
 
-# run the event loop quickly to map any tkwidget windows
 if pythonTk:
-    pythonTk.withdraw()
-# update
+    # run the event loop quickly to map any tkwidget windows
+    pythonTk.update()
 
 rtResult = 0
 
