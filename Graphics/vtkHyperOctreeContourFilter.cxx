@@ -153,7 +153,7 @@ private:
   void operator=(const vtkHyperOctreeContourPointsGrabber&);    // Not implemented.
 };
   
-vtkCxxRevisionMacro(vtkHyperOctreeContourFilter, "1.3");
+vtkCxxRevisionMacro(vtkHyperOctreeContourFilter, "1.4");
 vtkStandardNewMacro(vtkHyperOctreeContourFilter);
 
 //----------------------------------------------------------------------------
@@ -881,6 +881,11 @@ void vtkHyperOctreeContourFilter::ContourNode()
         edges[0]=(child&1)==1; // false: -x, true: +x
         edges[1]=(child&2)==2; // false: -y, true: +y
         }
+      else
+        {
+        edges[0]=0;
+        edges[1]=0;
+        }
       
       i=this->Cursor->GetIndex(0);
       j=this->Cursor->GetIndex(1);
@@ -1283,7 +1288,7 @@ int vtkHyperOctreeContourFilter::FillInputPortInformation(int,
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeContourPointsGrabber, "1.3");
+vtkCxxRevisionMacro(vtkHyperOctreeContourPointsGrabber, "1.4");
 vtkStandardNewMacro(vtkHyperOctreeContourPointsGrabber);
 
 //-----------------------------------------------------------------------------

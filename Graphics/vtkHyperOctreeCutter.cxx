@@ -43,7 +43,7 @@
 #include <assert.h>
 #include "vtkHyperOctreeClipCutPointsGrabber.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeCutter, "1.4");
+vtkCxxRevisionMacro(vtkHyperOctreeCutter, "1.5");
 vtkStandardNewMacro(vtkHyperOctreeCutter);
 vtkCxxSetObjectMacro(vtkHyperOctreeCutter,CutFunction,vtkImplicitFunction);
 
@@ -908,6 +908,11 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           // list the 2 edges of the parent, the current node is lying on.
           edges[0]=(child&1)==1; // false: -x, true: +x
           edges[1]=(child&2)==2; // false: -y, true: +y
+          }
+        else
+          {
+          edges[0]=0;
+          edges[1]=0;
           }
         
         // Insert vertex (xmin,ymin)

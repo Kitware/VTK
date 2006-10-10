@@ -26,7 +26,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkOBBTree, "1.64");
+vtkCxxRevisionMacro(vtkOBBTree, "1.65");
 vtkStandardNewMacro(vtkOBBTree);
 
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
@@ -940,7 +940,14 @@ int vtkOBBTree::IntersectWithLine(double a0[3], double a1[3], double tol,
   double tBest = VTK_DOUBLE_MAX, xBest[3], pcoordsBest[3];
   int subIdBest = -1;
   vtkIdType thisId, cellIdBest = -1;
-  
+
+  pcoordsBest[0] = 0.0;
+  pcoordsBest[1] = 0.0;
+  pcoordsBest[2] = 0.0;
+  xBest[0] = 0.0;
+  xBest[1] = 0.0;
+  xBest[2] = 0.0;
+
   OBBstack = new vtkOBBNode *[this->GetLevel()+1];
   OBBstack[0] = this->Tree;
   depth = 1;

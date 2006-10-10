@@ -32,7 +32,7 @@
 #include "vtkPointData.h"
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.5");
+vtkCxxRevisionMacro(vtkModelMetadata, "1.6");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #include <vtkstd/set>
@@ -2717,7 +2717,10 @@ int vtkModelMetadata::MergeGlobalInformation(const vtkModelMetadata *em)
     typedef char *p4[4];
 
     p4 *qaRecs = new p4 [num];
-    char *name, *version, *date, *time;
+    char *name = 0;
+    char *version = 0;
+    char *date = 0;
+    char *time = 0;
 
     for (i=0; i<num; i++)
       {
@@ -4028,7 +4031,10 @@ void vtkModelMetadata::PrintGlobalInformation()
     {
     cout << "QA Records:" << endl;
 
-    char *name, *ver, *date, *time;
+    char *name = 0;
+    char *ver = 0;
+    char *date = 0;
+    char *time = 0;
 
     for (i=0; i<this->NumberOfQARecords; i++)
       {
