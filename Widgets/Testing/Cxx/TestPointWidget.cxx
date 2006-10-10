@@ -530,7 +530,6 @@ public:
   virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
       vtkPointWidget *pointWidget = reinterpret_cast<vtkPointWidget*>(caller);
-          pointWidget->GetPolyData(this->PolyData);
       pointWidget->GetPolyData(this->PolyData);
       this->Actor->VisibilityOn();
     }
