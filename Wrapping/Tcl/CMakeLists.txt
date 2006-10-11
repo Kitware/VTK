@@ -52,7 +52,6 @@ TARGET_LINK_LIBRARIES (vtk
   vtkFilteringTCL
   vtkGraphicsTCL
   vtkImagingTCL
-  vtkInfovisTCL
   vtkIOTCL
 )
 
@@ -78,6 +77,10 @@ ENDIF (VTK_USE_RENDERING)
 IF (VTK_USE_PARALLEL)
   TARGET_LINK_LIBRARIES(vtk vtkParallelTCL)
 ENDIF (VTK_USE_PARALLEL)
+
+IF (VTK_USE_INFOVIS)
+  TARGET_LINK_LIBRARIES(vtk vtkInfovisTCL)
+ENDIF (VTK_USE_INFOVIS)
 
 # Link to extra TCL libraries
 FOREACH(lib ${VTK_EXTRA_TCL_LIBRARIES})
@@ -117,7 +120,6 @@ IF (VTK_USE_PARALLEL)
       vtkFilteringTCL
       vtkGraphicsTCL
       vtkImagingTCL
-      vtkInfovisTCL
       vtkIOTCL
       vtkParallelTCL
     )
@@ -127,6 +129,10 @@ IF (VTK_USE_PARALLEL)
       TARGET_LINK_LIBRARIES(pvtk vtkWidgetsTCL)
       TARGET_LINK_LIBRARIES(pvtk vtkVolumeRenderingTCL)
     ENDIF (VTK_USE_RENDERING)
+
+    IF (VTK_USE_INFOVIS)
+      TARGET_LINK_LIBRARIES(pvtk vtkInfovisTCL)
+    ENDIF (VTK_USE_INFOVIS)
 
     IF(NOT VTK_INSTALL_NO_RUNTIME)
       INSTALL(TARGETS pvtk

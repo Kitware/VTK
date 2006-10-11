@@ -241,6 +241,8 @@ OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying dat
 VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF
                      "VTK_USE_RENDERING" OFF)
 
+VTK_DEPENDENT_OPTION(VTK_USE_INFOVIS "Build the vtkInfovis kit.  Needed for performing information visualization." OFF "VTK_USE_RENDERING" OFF)
+
 # Determine Shading Support
 VTK_DEPENDENT_OPTION(VTK_USE_CG_SHADERS "Build pixel and vertex shader support for Cg." OFF
                      "VTK_USE_RENDERING" OFF)
@@ -289,6 +291,9 @@ ENDIF(VTK_USE_RENDERING)
 IF(VTK_USE_PARALLEL)
   SET(VTK_KITS ${VTK_KITS} PARALLEL)
 ENDIF(VTK_USE_PARALLEL)
+IF(VTK_USE_INFOVIS)
+  SET(VTK_KITS ${VTK_KITS} INFOVIS)
+ENDIF(VTK_USE_INFOVIS)
 
 # from GUISupport
 IF(VTK_USE_QVTK)
@@ -927,7 +932,6 @@ SUBDIRS(
   Common
   Filtering
   Imaging
-  Infovis
   Graphics
   GenericFiltering
   IO)
@@ -941,6 +945,9 @@ ENDIF(VTK_USE_RENDERING)
 IF(VTK_USE_PARALLEL)
   SUBDIRS(Parallel)
 ENDIF(VTK_USE_PARALLEL)
+IF(VTK_USE_INFOVIS)
+  SUBDIRS(Infovis)
+ENDIF(VTK_USE_INFOVIS)
 IF(VTK_USE_GUISUPPORT)
   SUBDIRS(GUISupport)
 ENDIF(VTK_USE_GUISUPPORT)
@@ -961,7 +968,7 @@ IF(BUILD_TESTING)
   MAKE_DIRECTORY(${VTK_BINARY_DIR}/Testing/Temporary)
   # Build scripts to convert tcl tests to python
   SUBDIRS(Utilities/vtkTclTest2Py)
-  SUBDIRS(Common/Testing Filtering/Testing Infovis/Testing Graphics/Testing GenericFiltering/Testing Imaging/Testing
+  SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing GenericFiltering/Testing Imaging/Testing
           IO/Testing)
   IF(VTK_USE_RENDERING)
     SUBDIRS(Rendering/Testing)
@@ -972,6 +979,9 @@ IF(BUILD_TESTING)
   IF(VTK_USE_PARALLEL)
     SUBDIRS(Parallel/Testing)
   ENDIF(VTK_USE_PARALLEL)
+  IF(VTK_USE_INFOVIS)
+    SUBDIRS(Infovis/Testing)
+  ENDIF(VTK_USE_INFOVIS)
 ENDIF(BUILD_TESTING)
 
 
@@ -1448,7 +1458,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTK_BINARY_DIR}/vtkFilteringInstantiator.h
     ${VTK_BINARY_DIR}/vtkIOInstantiator.h
     ${VTK_BINARY_DIR}/vtkImagingInstantiator.h
-    ${VTK_BINARY_DIR}/vtkInfovisInstantiator.h
     ${VTK_BINARY_DIR}/vtkGraphicsInstantiator.h
     ${VTK_BINARY_DIR}/vtkGenericFilteringInstantiator.h
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cmake
@@ -1463,6 +1472,9 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   IF(VTK_USE_PARALLEL)
     SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkParallelInstantiator.h)
   ENDIF(VTK_USE_PARALLEL)
+  IF(VTK_USE_INFOVIS)
+    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkInfovisInstantiator.h)
+  ENDIF(VTK_USE_INFOVIS)
 
   # Install cmake extensions so user projects can load them.
   INSTALL(FILES ${__inst_files}

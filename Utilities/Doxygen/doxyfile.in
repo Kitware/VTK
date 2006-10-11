@@ -47,6 +47,7 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GUISupport" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Hybrid" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Imaging" \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Infovis" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Parallel" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Widgets" \

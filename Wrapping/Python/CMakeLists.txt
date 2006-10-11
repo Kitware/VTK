@@ -47,7 +47,6 @@ TARGET_LINK_LIBRARIES(vtkpython
   vtkIO
   vtkGraphics
   vtkImaging
-  vtkInfovis
   ${PYTHON_UTIL_LIBRARY_LIB})
   
 SET (vtkpython_pyc_depends
@@ -56,7 +55,6 @@ SET (vtkpython_pyc_depends
     vtkIOPython
     vtkGraphicsPython
     vtkImagingPython
-    vtkInfovisPython
     )
 
 IF(VTK_WRAP_TCL)
@@ -64,10 +62,13 @@ IF(VTK_WRAP_TCL)
 ENDIF(VTK_WRAP_TCL)
 
 IF(BORLAND)
-  SET(KITS Common Filtering Graphics IO Imaging Infovis)
+  SET(KITS Common Filtering Graphics IO Imaging)
   IF (VTK_USE_PARALLEL)
     SET(KITS ${KITS} Parallel)
   ENDIF(VTK_USE_PARALLEL)
+  IF (VTK_USE_INFOVIS)
+    SET(KITS ${KITS} Infovis)
+  ENDIF(VTK_USE_INFOVIS)
   IF (VTK_USE_RENDERING)
     SET(KITS ${KITS} Widgets)
     SET(KITS ${KITS} Hybrid)
@@ -102,6 +103,14 @@ IF (VTK_USE_PARALLEL)
       vtkParallelPython
       )
 ENDIF (VTK_USE_PARALLEL)
+
+IF (VTK_USE_INFOVIS)
+  TARGET_LINK_LIBRARIES(vtkpython vtkInfovis)
+  SET(vtkpython_pyc_depends
+      ${vtkpython_pyc_depends}
+      vtkInfovisPython
+      )
+ENDIF (VTK_USE_INFOVIS)
 
 # Link to rt to prevent undefined symbol 'fdatasync'
 
@@ -142,7 +151,6 @@ IF (VTK_USE_PARALLEL)
       vtkIO
       vtkGraphics
       vtkImaging
-      vtkInfovis
       vtkParallel
       ${PYTHON_UTIL_LIBRARY_LIB}
     )
@@ -151,6 +159,9 @@ IF (VTK_USE_PARALLEL)
       TARGET_LINK_LIBRARIES(pvtkpython vtkHybrid)
       TARGET_LINK_LIBRARIES(pvtkpython vtkWidgets)
     ENDIF (VTK_USE_RENDERING)
+    IF (VTK_USE_INFOVIS)
+      TARGET_LINK_LIBRARIES(pvtkpython vtkInfovis)
+    ENDIF (VTK_USE_INFOVIS)
     IF(NOT VTK_INSTALL_NO_RUNTIME)
       INSTALL(TARGETS pvtkpython
         RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeExecutables # .exe, .dll

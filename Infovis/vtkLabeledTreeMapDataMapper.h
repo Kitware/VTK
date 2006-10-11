@@ -44,7 +44,7 @@ class vtkFloatArray;
 class vtkStringArray;
 class vtkIdList;
 
-class VTK_RENDERING_EXPORT vtkLabeledTreeMapDataMapper : public vtkLabeledDataMapper
+class VTK_INFOVIS_EXPORT vtkLabeledTreeMapDataMapper : public vtkLabeledDataMapper
 {
 public:
   // Description:

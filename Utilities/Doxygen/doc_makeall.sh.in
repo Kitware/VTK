@@ -187,6 +187,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport/Qt" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Infovis" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Parallel" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Widgets" \
@@ -220,6 +221,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport/Qt" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Infovis" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Parallel" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Widgets" \
@@ -245,6 +247,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport/Qt" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Infovis" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Parallel" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Widgets" \

@@ -37,7 +37,7 @@ class vtkTable;
 struct vtkDelimitedTextReaderInternals;
 //ETX
 
-class VTK_IO_EXPORT vtkDelimitedTextReader : public vtkTableAlgorithm
+class VTK_INFOVIS_EXPORT vtkDelimitedTextReader : public vtkTableAlgorithm
 {
 public:
   static vtkDelimitedTextReader* New();

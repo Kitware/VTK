@@ -41,6 +41,7 @@ my %default =
             "../../GUISupport/Qt",
             "../../Hybrid",
             "../../Imaging",
+            "../../Infovis",
             "../../IO",
             "../../Parallel",
             "../../Patented",
