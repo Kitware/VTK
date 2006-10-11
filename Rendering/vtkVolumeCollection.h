@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkCollection vtkVolume
 
-#ifndef __vtkVolumeC_h
-#define __vtkVolumeC_h
+#ifndef __vtkVolumeCollection_h
+#define __vtkVolumeCollection_h
 
 #include "vtkPropCollection.h"
 

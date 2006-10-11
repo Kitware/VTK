@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkMapper vtkCollection 
 
-#ifndef __vtkMapperC_h
-#define __vtkMapperC_h
+#ifndef __vtkMapperCollection_h
+#define __vtkMapperCollection_h
 
 #include "vtkCollection.h"
 #include "vtkMapper.h" // Needed for direct access to mapper methods in 

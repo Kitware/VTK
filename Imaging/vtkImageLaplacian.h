@@ -23,8 +23,8 @@
 
 
 
-#ifndef __vtkimageLaplacian_h
-#define __vtkimageLaplacian_h
+#ifndef __vtkImageLaplacian_h
+#define __vtkImageLaplacian_h
 
 
 #include "vtkThreadedImageAlgorithm.h"

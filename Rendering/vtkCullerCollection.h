@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkCuller vtkCollection 
 
-#ifndef __vtkCullerC_h
-#define __vtkCullerC_h
+#ifndef __vtkCullerCollection_h
+#define __vtkCullerCollection_h
 
 #include "vtkCollection.h"
 #include "vtkCuller.h" // for inline functions

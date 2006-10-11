@@ -26,8 +26,8 @@
 // vtkUnstructuredGrid).  More efficient filters exist for vtkImageData.
 //
 
-#ifndef _vtkGradientFilter_h
-#define _vtkGradientFilter_h
+#ifndef __vtkGradientFilter_h
+#define __vtkGradientFilter_h
 
 #include "vtkDataSetAlgorithm.h"
 

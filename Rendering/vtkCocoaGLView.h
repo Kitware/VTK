@@ -27,6 +27,9 @@
 // .SECTION See Also
 // vtkCocoaRenderWindow vtkCocoaRenderWindowInteractor
 
+#ifndef __vtkCocoaGLView_h
+#define __vtkCocoaGLView_h
+
 #import <Cocoa/Cocoa.h>
 
 // Forward declarations
@@ -45,3 +48,5 @@ class vtkCocoaRenderWindowInteractor;
 - (vtkCocoaRenderWindowInteractor *)getInteractor;
 
 @end
+
+#endif /* __vtkCocoaGLView_h */

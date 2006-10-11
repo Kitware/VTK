@@ -57,8 +57,8 @@
 // The minimal angle is not, strictly speaking, a quality measure, but it is
 // provided because of its useage by many authors.
 
-#ifndef vtkMeshQuality_h
-#define vtkMeshQuality_h
+#ifndef __vtkMeshQuality_h
+#define __vtkMeshQuality_h
 
 #include "vtkDataSetAlgorithm.h"
 

@@ -608,8 +608,8 @@ static void WriteFunctionPointerDeclarations(ostream &cxxfile, int type)
 static void WriteCode(ostream &hfile, ostream &cxxfile)
 {
   // Write data for header file ---------------------------------
-  hfile << "#ifndef _vtkgl_h" << endl
-        << "#define _vtkgl_h" << endl << endl;
+  hfile << "#ifndef __vtkgl_h" << endl
+        << "#define __vtkgl_h" << endl << endl;
   hfile << "#include \"vtkToolkits.h\"" << endl;
   hfile << "#include \"vtkSystemIncludes.h\"" << endl;
   hfile << "#include \"vtkWindows.h\"" << endl;

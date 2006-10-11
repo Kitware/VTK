@@ -18,8 +18,8 @@
 // through different threads.  This header file also defines 
 // vtkSimpleMutexLock which is not a subclass of vtkObject.
 
-#ifndef __vtkMutexVariable_h
-#define __vtkMutexVariable_h
+#ifndef __vtkMutexLock_h
+#define __vtkMutexLock_h
 
 
 #include "vtkObject.h"

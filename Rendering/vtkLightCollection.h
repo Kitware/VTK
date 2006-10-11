@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkCollection vtkLight
 
-#ifndef __vtkLightC_h
-#define __vtkLightC_h
+#ifndef __vtkLightCollection_h
+#define __vtkLightCollection_h
 
 #include "vtkCollection.h"
 

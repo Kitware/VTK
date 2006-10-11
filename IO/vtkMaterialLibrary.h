@@ -18,8 +18,8 @@
 // .SECTION Thanks
 // Shader support in VTK includes key contributions by Gary Templet at 
 // Sandia National Labs.
-#ifndef __vtkShaderCodeLibrary_h
-#define __vtkShaderCodeLibrary_h
+#ifndef __vtkMaterialLibrary_h
+#define __vtkMaterialLibrary_h
 
 #include "vtkObject.h"
 

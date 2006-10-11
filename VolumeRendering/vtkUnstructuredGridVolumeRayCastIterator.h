@@ -28,8 +28,8 @@
 // vtkUnstructuredGridVolumeRayCastFunction
 //
 
-#ifndef __vtkUnstructuredGridRayCastIterator_h
-#define __vtkUnstructuredGridRayCastIterator_h
+#ifndef __vtkUnstructuredGridVolumeRayCastIterator_h
+#define __vtkUnstructuredGridVolumeRayCastIterator_h
 
 #include "vtkObject.h"
 

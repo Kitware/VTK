@@ -100,8 +100,8 @@
 // with "vtkglX::".
 //
 
-#ifndef __vtkOpenGLExtensionManager
-#define __vtkOpenGLExtensionManager
+#ifndef __vtkOpenGLExtensionManager_h
+#define __vtkOpenGLExtensionManager_h
 
 #include <vtkObject.h>
 

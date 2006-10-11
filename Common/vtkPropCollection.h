@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkProp vtkCollection 
 
-#ifndef __vtkPropC_h
-#define __vtkPropC_h
+#ifndef __vtkPropCollection_h
+#define __vtkPropCollection_h
 
 #include "vtkCollection.h"
 

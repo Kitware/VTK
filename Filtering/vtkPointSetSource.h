@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkPointSetSource is an abstract class whose subclasses generate pointdata.
 
-#ifndef __vtkPointDataSource_h
-#define __vtkPointDataSource_h
+#ifndef __vtkPointSetSource_h
+#define __vtkPointSetSource_h
 
 #include "vtkSource.h"
 
