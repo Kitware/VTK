@@ -110,7 +110,7 @@ public:
 
   // Description:
   // Get the focus for this filter.
-  vtkPolyData *GetFocus() {return (vtkPolyData *)this->Focus;};
+  vtkPolyData *GetFocus() {return this->Focus;};
 
   // Description:
   // Turn every part of the 3D cursor on or off.
