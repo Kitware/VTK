@@ -236,8 +236,10 @@ public:
   int ReduceSum(float* data, float* to, int size, int root);
   int ReduceSum(double* data, double* to, int size, int root);
 
+//BTX
   int ReduceAnd(bool* data, bool* to, int size, int root);
   int ReduceOr(bool* data, bool* to, int size, int root);
+//ETX
 
   // Description:
   // This method receives a data object from a corresponding send. It blocks
