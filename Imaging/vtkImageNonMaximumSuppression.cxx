@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.56");
+vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.57");
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //----------------------------------------------------------------------------
@@ -137,7 +137,11 @@ void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *self,
   int *wholeExtent;
   vtkIdType *inIncs;
   int axesNum;
-  
+
+  vector[0] = 0.0;
+  vector[1] = 0.0;
+  vector[2] = 0.0;
+
   // find the region to loop over
   maxC = outData->GetNumberOfScalarComponents();
   maxX = outExt[1] - outExt[0];
