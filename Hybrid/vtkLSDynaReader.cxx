@@ -97,13 +97,8 @@ typedef FILE* vtkLSDynaFile_t;
 #include <vtkMultiGroupDataInformation.h>
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
-// VTK's CVS server won't let me check in code that compiles because
-// vtkIOStream.h doesn't provide a "using" statement for ios_base. Here's a workaround:
-#define VTK_NASTY_TRICK vtkstd::
-using VTK_NASTY_TRICK ios_base;
-
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.2");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.3");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -1451,7 +1446,7 @@ protected:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.2");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.3");
 // ============================================== End of XML Summary reader class
 
 
@@ -4313,7 +4308,7 @@ int vtkLSDynaReader::ReadInputDeck()
     return 0;
     }
 
-  ifstream deck( this->InputDeck, ios_base::in );
+  ifstream deck( this->InputDeck, ios::in );
   if ( ! deck.is_open() )
     {
     return 0;
@@ -4526,7 +4521,7 @@ int vtkLSDynaReader::ReadInputDeckKeywords( ifstream& deck )
 
 int vtkLSDynaReader::WriteInputDeckSummary( const char* fname )
 {
-  ofstream xmlSummary( fname, ios_base::out | ios_base::trunc );
+  ofstream xmlSummary( fname, ios::out | ios::trunc );
   if ( ! xmlSummary.is_open() )
     {
     return 1;
@@ -4587,12 +4582,6 @@ void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
       // no deletion data for these cell types
       return;
       }
-
-    //if ( p->AnyDeletedCells[celltype] == 0 )
-      //{
-      // no work to do  FIXME: Not true... part statuses may require filtering.
-      //return;
-      //}
     }
 
   const char* attribName = this->RemoveDeletedCells ? LS_ARRAYNAME_DEATH : LS_ARRAYNAME_MATERIAL;
@@ -4828,27 +4817,41 @@ int vtkLSDynaReader::RequestData(
   // to subset and/or partition the mesh based on:
   // 1. Deleted cells
   // 2. Material ID
-  int needToRunPartFilter = this->RemoveDeletedCells || this->SplitByMaterialId;
-  if ( ! needToRunPartFilter )
-    { // We might still need to run if the user has selected a subset of the parts to load.
-    for ( unsigned int pid = 0; pid < p->PartStatus.size(); ++pid )
-      {
-      if ( ! p->PartStatus[pid] )
-        {
-        needToRunPartFilter = 1;
-        break;
-        }
-      }
+  int anyButNotAllPartsSelected = 0;
+  unsigned int pid;
+  for ( pid = 0; pid < p->PartStatus.size(); ++pid )
+    {
+    if ( p->PartStatus[pid] )
+      anyButNotAllPartsSelected |= 2;
+    else
+      anyButNotAllPartsSelected |= 1;
+    if ( anyButNotAllPartsSelected == 3 )
+      break; // we have at least one part turned on and at least one part turned off.
+    }
+  int needToRunPartFilter;
+  switch ( anyButNotAllPartsSelected )
+    {
+  case 0: // no parts exist
+  case 1: // all parts are turned off
+    needToRunPartFilter = -1;
+    break;
+  case 2: // all parts are turned on
+    needToRunPartFilter = RemoveDeletedCells || this->SplitByMaterialId;
+    break;
+  case 3:
+  default:
+    needToRunPartFilter = 1;
+    break;
     }
 
-  if ( needToRunPartFilter )
+  if ( needToRunPartFilter > 0 )
     {
     for ( int ct = vtkLSDynaReader::PARTICLE; ct < vtkLSDynaReader::NUM_CELL_TYPES; ++ct )
       {
       this->PartFilter( mbds, ct );
       }
     }
-  else
+  else if ( needToRunPartFilter == 0 )
     {
 #define VTK_LSDYNA_SETBLOCK(mds,x,m,n,mtype) \
   idx->Set( vtkMultiBlockDataSet::BLOCK(), m ); \

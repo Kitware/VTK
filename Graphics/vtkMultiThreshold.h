@@ -259,9 +259,11 @@ protected:
   typedef double (*TupleNorm)( vtkDataArray* arr, vtkIdType tuple, int component );
 
   // NormKey must be able to use TupleNorm typedef:
+  class NormKey;
   friend class vtkMultiThreshold::NormKey;
 
   // Interval must be able to use NormKey typedef:
+  class Interval;
   friend class vtkMultiThreshold::Interval;
 
   /// A class with comparison operator used to index input array norms used in threshold rules.
