@@ -258,6 +258,12 @@ protected:
   /// A pointer to a function that returns a norm (or a single component) of a tuple with 1 or more components.
   typedef double (*TupleNorm)( vtkDataArray* arr, vtkIdType tuple, int component );
 
+  // NormKey must be able to use TupleNorm typedef:
+  friend class vtkMultiThreshold::NormKey;
+
+  // Interval must be able to use NormKey typedef:
+  friend class vtkMultiThreshold::Interval;
+
   /// A class with comparison operator used to index input array norms used in threshold rules.
   class NormKey {
   public:

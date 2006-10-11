@@ -103,7 +103,7 @@ typedef FILE* vtkLSDynaFile_t;
 using VTK_NASTY_TRICK ios_base;
 
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.1");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.2");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -187,7 +187,7 @@ static int vtkLSNextSignificantLine( ifstream& deck, vtkstd::string& line )
 {
   while ( deck.good() )
     {
-    vtkstd::getline( deck, line );
+    vtkstd::getline( deck, line, '\n' );
     if ( ! line.empty() && line[0] != '$' )
       {
       return 1;
@@ -224,7 +224,7 @@ static void vtkLSDowncaseFirstWord( vtkstd::string& downcased, const vtkstd::str
   vtkstd::string::size_type i;
   vtkstd::string::value_type chr;
   int leadingSpace = 0;
-  downcased.clear();
+  downcased = "";
   for ( i = 0; i < line.length(); ++i )
     {
     chr = tolower( line[i] );
@@ -243,7 +243,7 @@ static void vtkLSDowncaseFirstWord( vtkstd::string& downcased, const vtkstd::str
         return;
         }
       }
-    downcased.push_back( chr );
+    downcased += chr;
     }
 }
 
@@ -277,12 +277,12 @@ vtkstd::string vtkLSGetFamilyFileName( const char* basedir, const vtkstd::string
     int a = adaptationLvl - 1;
     while ( a )
       {
-      slvl.push_back( char(97 + (a % 26) ) );
+      slvl += char(97 + (a % 26) );
       a = a / 26;
       }
     while ( slvl.size() < 2 )
       {
-      slvl.push_back( 'a' );
+      slvl += 'a';
       }
     vtkstd::reverse( slvl.begin(), slvl.end() );
     blorb += slvl;
@@ -1313,7 +1313,7 @@ protected:
       else
         {
         this->InPart = 1;
-        this->PartName.clear();
+        this->PartName = "";
 
         this->PartId = -1;
         this->PartStatus = 1;
@@ -1360,7 +1360,7 @@ protected:
       else
         {
         this->InName = 1;
-        this->PartName.clear();
+        this->PartName = "";
         }
       }
     else if ( ! strcmp( name, "database" ) )
@@ -1451,7 +1451,7 @@ protected:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.1");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.2");
 // ============================================== End of XML Summary reader class
 
 
@@ -4320,7 +4320,7 @@ int vtkLSDynaReader::ReadInputDeck()
     }
 
   vtkstd::string header;
-  vtkstd::getline( deck, header );
+  vtkstd::getline( deck, header, '\n' );
   deck.seekg( 0, ios::beg );
   int retval;
   if ( vtksys::SystemTools::StringStartsWith( header.c_str(), "<?xml" ) )
@@ -4383,7 +4383,7 @@ int vtkLSDynaReader::ReadInputDeckKeywords( ifstream& deck )
           }
         else
           {
-          partName.clear();
+          partName = "";
           }
         // ... read the next non-comment line as the part id or a reference to it.
         if ( vtkLSNextSignificantLine( deck, line ) )
