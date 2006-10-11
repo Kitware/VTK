@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCursor3D, "1.45");
+vtkCxxRevisionMacro(vtkCursor3D, "1.46");
 vtkStandardNewMacro(vtkCursor3D);
 
 // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
@@ -33,10 +33,15 @@ vtkCursor3D::vtkCursor3D()
 
   this->Focus = vtkPolyData::New();
   pts = vtkPoints::New();
-  pts->Allocate(1);
   pts->vtkPoints::InsertPoint(0, 0.0, 0.0, 0.0);
   this->Focus->SetPoints(pts);
   pts->Delete();
+  vtkCellArray* vert = vtkCellArray::New();
+  vert->InsertNextCell(1);
+  vert->InsertCellPoint(0);
+  this->Focus->SetVerts(vert);
+  vert->Delete();
+
 
   this->ModelBounds[0] = -1.0;
   this->ModelBounds[1] = 1.0;
