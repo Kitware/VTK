@@ -67,6 +67,7 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int count)
     case 0xB:   fprintf(fp,"long long "); break;
     case 0xC:   fprintf(fp,"__int64 "); break;
     case 0xD:   fprintf(fp,"signed char "); break;
+    case 0xE:   fprintf(fp,"bool "); break;
     case 0x8: return;
     }
 
@@ -129,6 +130,21 @@ void use_hints(FILE *fp)
       for (i = 0; i < currentFunction->HintSize; i++)
         {
         fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
+        }
+      fprintf(fp,");\n");
+      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
+      break;
+    case 0x30E:
+      fprintf(fp,"    char tempResult[1024];\n");
+      fprintf(fp,"    sprintf(tempResult,\"");
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp,"%%i ");
+        }
+      fprintf(fp,"\"");
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp,",(int)temp%i[%i]",MAX_ARGS,i);
         }
       fprintf(fp,");\n");
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
@@ -309,6 +325,12 @@ void return_result(FILE *fp)
               MAX_ARGS); 
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
+    case 0xE:
+      fprintf(fp,"    char tempResult[1024];\n");
+      fprintf(fp,"    sprintf(tempResult,\"%%i\",(int)temp%i);\n",
+              MAX_ARGS); 
+      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
+      break;
     case 0x5:
       fprintf(fp,"    char tempResult[1024];\n");
       fprintf(fp,"    sprintf(tempResult,\"%%hi\",temp%i);\n",
@@ -417,7 +439,7 @@ void return_result(FILE *fp)
     /* handle functions returning vectors */
     /* this is done by looking them up in a hint file */
     case 0x301: case 0x307:
-    case 0x304: case 0x305: case 0x306: case 0x30A: case 0x30B: case 0x30C: case 0x30D:
+    case 0x304: case 0x305: case 0x306: case 0x30A: case 0x30B: case 0x30C: case 0x30D: case 0x30E:
     case 0x313: case 0x314: case 0x315: case 0x316: case 0x31A: case 0x31B: case 0x31C:
       use_hints(fp);
       break;
@@ -466,6 +488,11 @@ void get_args(FILE *fp, int i)
       fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
               start_arg); 
       fprintf(fp,"    temp%i = tempi;\n",i);
+      break;
+    case 0xE:
+      fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
+              start_arg); 
+      fprintf(fp,"    temp%i = tempi? true:false;\n",i,j);
       break;
     case 0x3:
       fprintf(fp,"    temp%i = *(argv[%i]);\n",i,start_arg);
@@ -518,6 +545,11 @@ void get_args(FILE *fp, int i)
               fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
                       start_arg); 
               fprintf(fp,"    temp%i[%i] = tempi;\n",i,j);
+              break;
+            case 0xE:
+              fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
+                      start_arg); 
+              fprintf(fp,"    temp%i[%i] = tempi? true:false;\n",i,j);
               break;
             case 0x3:
               fprintf(fp,"    temp%i[%i] = *(argv[%i]);\n",i,j,start_arg);
@@ -605,7 +637,7 @@ void outputFunction(FILE *fp, FileInfo *data)
   switch (currentFunction->ReturnType % 0x1000)
     {
     case 0x301: case 0x307:
-    case 0x304: case 0x305: case 0x306: case 0x30A: case 0x30B: case 0x30C: case 0x30D:
+    case 0x304: case 0x305: case 0x306: case 0x30A: case 0x30B: case 0x30C: case 0x30D: case 0x30E:
     case 0x313: case 0x314: case 0x315: case 0x316: case 0x31A: case 0x31B: case 0x31C:
       args_ok = currentFunction->HaveHint;
       break;

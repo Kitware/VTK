@@ -176,6 +176,7 @@ Modify lex.yy.c:
 "double" 	return(DOUBLE);
 "void" 	        return(VOID);
 "char" 	        return(CHAR);
+"bool" 	        return(BOOL);
 "virtual"       return(VIRTUAL);
 "const"         return(CONST);
 "operator"      return(OPERATOR);

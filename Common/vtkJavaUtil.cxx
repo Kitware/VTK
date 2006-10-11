@@ -834,6 +834,32 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfCharFromChar(JNIEnv *env, char *ptr, int siz
   return ret;
 }
 
+JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromBool(JNIEnv *env, bool *ptr,int size)
+{
+  cout.flush();
+  jintArray ret;
+  int i;
+  jint *array;
+
+  ret = env->NewIntArray(size);
+  if (ret == 0)
+    {
+    // should throw an exception here
+    return 0;
+    }
+
+  array = env->GetIntArrayElements(ret,NULL);
+
+  // copy the data
+  for (i = 0; i < size; i++)
+    {
+    array[i] = ptr[i];
+    }
+  
+  env->ReleaseIntArrayElements(ret,array,0);
+  return ret;
+}
+
 JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in)
 {
   char *result;

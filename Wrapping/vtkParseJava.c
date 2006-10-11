@@ -54,6 +54,7 @@ void output_temp(FILE *fp,int i)
       case 0xB:   fprintf(fp,"int "); break;
       case 0xC:   fprintf(fp,"int "); break;
       case 0xD:   fprintf(fp,"char "); break;
+      case 0xE:   fprintf(fp,"boolean "); break;
       case 0x2:     fprintf(fp,"void "); break;
       case 0x3:     fprintf(fp,"char "); break;
       case 0x9:     fprintf(fp,"%s ",currentFunction->ArgClasses[i]); break;
@@ -82,6 +83,9 @@ void return_result(FILE *fp)
     case 0x13: case 0x14: case 0x15: case 0x16: case 0x1A: case 0x1B: case 0x1C:
       fprintf(fp,"int "); 
       break;
+    case 0xE:
+      fprintf(fp,"boolean ");
+      break;
     case 0x303: fprintf(fp,"String "); break;
     case 0x109:  
     case 0x309:  
@@ -99,6 +103,8 @@ void return_result(FILE *fp)
     case 0x304: case 0x305: case 0x306: case 0x30A: case 0x30B: case 0x30C: case 0x30D:
     case 0x314: case 0x315: case 0x316: case 0x31A: case 0x31B: case 0x31C:
       fprintf(fp,"int[]  "); break;
+    case 0x30E:
+      fprintf(fp,"boolean[]  "); break;
     }
 }
 
@@ -437,7 +443,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     {
     case 0x301: case 0x302: case 0x307:
     case 0x304: case 0x305: case 0x306:
-    case 0x30A: case 0x30B: case 0x30C:
+    case 0x30A: case 0x30B: case 0x30C: case 0x30D: case 0x30E:
     case 0x313:
       args_ok = currentFunction->HaveHint;
       break;

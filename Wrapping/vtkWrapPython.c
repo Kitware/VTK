@@ -65,6 +65,16 @@ void use_hints(FILE *fp)
         }
       fprintf(fp,");\n");
       break;
+    case 0x30E:
+      fprintf(fp,"    return Py_BuildValue((char*)\"");
+      for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"b");
+      fprintf(fp,"\"");
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp,",(int)temp%i[%d]",MAX_ARGS,i);
+        }
+      fprintf(fp,");\n");
+      break;
     case 0x30A:
       fprintf(fp,"    return Py_BuildValue((char*)\"");
 #ifdef VTK_USE_64BIT_IDS
@@ -149,6 +159,7 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     case 0xB:     fprintf(fp,"long long "); break;
     case 0xC:     fprintf(fp,"__int64 "); break;
     case 0xD:     fprintf(fp,"signed char "); break;
+    case 0xE:     fprintf(fp,"bool "); break;
     case 0x8: return;
     }
   
@@ -220,7 +231,7 @@ void do_return(FILE *fp)
     /* handle functions returning vectors */
     /* this is done by looking them up in a hint file */
     case 0x301: case 0x307: case 0x30A: case 0x30B: case 0x30C: case 0x30D:
-    case 0x304: case 0x305: case 0x306:
+    case 0x304: case 0x305: case 0x306: case 0x30E:
       use_hints(fp);
       break;
     case 0x302:
@@ -249,6 +260,11 @@ void do_return(FILE *fp)
     case 0xD:
       {
       fprintf(fp,"    return PyInt_FromLong(temp%i);\n", MAX_ARGS); 
+      break;
+      }
+    case 0xE:
+      {
+      fprintf(fp,"    return PyBool_FromLong(temp%i);\n", MAX_ARGS);
       break;
       }
     case 0x16:   
@@ -461,6 +477,7 @@ char *get_format_string()
       case 0xD:   result[currPos] = 'i'; currPos++; break;
       case 0x3:   result[currPos] = 'c'; currPos++; break;
       case 0x13:   result[currPos] = 'b'; currPos++; break;
+      case 0xE:   result[currPos] = 'b'; currPos++; break;
       }
     }
 
@@ -577,6 +594,7 @@ void get_python_signature()
       case 0x6:   add_to_sig(result,"int",&currPos); break;
       case 0x3:   add_to_sig(result,"char",&currPos); break;
       case 0x13:  add_to_sig(result,"int",&currPos); break;
+      case 0xE:   add_to_sig(result,"bool",&currPos); break;
       }
     }
 
@@ -664,6 +682,7 @@ void get_python_signature()
       case 0x5:
       case 0x6: add_to_sig(result,"int",&currPos); break;
       case 0x3: add_to_sig(result,"char",&currPos); break;
+      case 0xE: add_to_sig(result,"bool",&currPos); break;
       }
     }
   
@@ -1189,7 +1208,7 @@ void outputFunction(FILE *fp, FileInfo *data)
   /* if we need a return type hint make sure we have one */
   switch (currentFunction->ReturnType % 0x1000)
     {
-    case 0x301: case 0x307: case 0x30A: case 0x30B: case 0x30C: case 0x30D:
+    case 0x301: case 0x307: case 0x30A: case 0x30B: case 0x30C: case 0x30D: case 0x30E:
     case 0x304: case 0x305: case 0x306:
       args_ok = currentFunction->HaveHint;
       break;
