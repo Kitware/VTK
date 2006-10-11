@@ -102,6 +102,10 @@ public:
   // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
+  // Description:
+  // Methods to change the whether the widget responds to interaction.
+  // Overridden to pass the state to component widgets.
+  virtual void SetProcessEvents(int);
 protected:
   vtkDistanceWidget();
   ~vtkDistanceWidget();

@@ -28,7 +28,7 @@
 #include "vtkEvent.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSeedWidget, "1.6");
+vtkCxxRevisionMacro(vtkSeedWidget, "1.7");
 vtkStandardNewMacro(vtkSeedWidget);
 
 
@@ -264,6 +264,18 @@ void vtkSeedWidget::DeleteAction(vtkAbstractWidget *w)
   // Got this event, abort processing if it
   self->EventCallbackCommand->SetAbortFlag(1);
   self->Render();
+}
+
+//----------------------------------------------------------------------
+void vtkSeedWidget::SetProcessEvents(int pe)
+{
+  this->Superclass::SetProcessEvents(pe);
+
+  vtkSeedListIterator iter = this->Seeds->begin();
+  for (; iter != this->Seeds->end(); ++iter)
+    {
+    (*iter)->SetProcessEvents(pe);
+    }
 }
 
 //----------------------------------------------------------------------

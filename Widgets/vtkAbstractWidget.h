@@ -62,12 +62,19 @@ public:
   // Description:
   // Methods for activating this widget. Note that the widget representation
   // must be specified or the widget will not appear.
-  //
-  // SetEnabled disables the widget from receiving events. SetVisibility
-  // toggles the visibility of the widget and the enabled state.
+  // ProcessEvents (On by default) must be On for Enabled widget to respond 
+  // to interaction. If ProcessEvents is Off, enabling/disabling a widget 
+  // merely affects the visibility of the representation.
   virtual void SetEnabled(int);
-  virtual void SetVisibility(int);
-  vtkGetMacro(Visibility, int);
+
+  // Description:
+  // Methods to change the whether the widget responds to interaction.
+  // Set this to Off to disable interaction. On by default.
+  // Subclasses must overide SetProcessEvents() to make sure
+  // that they pass on the flag to all component widgets.
+  vtkSetClampMacro(ProcessEvents, int, 0, 1);
+  vtkGetMacro(ProcessEvents, int);
+  vtkBooleanMacro(ProcessEvents, int);
 
   // Description:
   // Get the event translator. Careful manipulation of this class enables
@@ -122,7 +129,7 @@ protected:
   ~vtkAbstractWidget();
 
   // Handles the events; centralized here for all widgets.
-  static void ProcessEvents(vtkObject* object, unsigned long event,
+  static void ProcessEventsHandler(vtkObject* object, unsigned long event,
                             void* clientdata, void* calldata);
 
   // The representation for the widget. This is typically called by the
@@ -131,8 +138,6 @@ protected:
   // methods constrain the type that can be set.
   void SetWidgetRepresentation(vtkWidgetRepresentation *r);
   vtkWidgetRepresentation *WidgetRep;
-
-  virtual void SetVisibilityAndEnabledState();
 
   // helper methods for cursor management
   int ManagesCursor;
@@ -150,9 +155,9 @@ protected:
   // sequence.
   void *CallData;
 
-  // Note: visibility and enabled are two different things
-  int Visibility;
-
+  // Flag indicating if the widget should handle interaction events.
+  // On by default.
+  int ProcessEvents;
 private:
   vtkAbstractWidget(const vtkAbstractWidget&);  //Not implemented
   void operator=(const vtkAbstractWidget&);  //Not implemented

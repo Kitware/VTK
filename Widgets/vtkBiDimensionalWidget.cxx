@@ -185,7 +185,7 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       }
     else
       {
-      if (this->WidgetRep && !this->Visibility)
+      if (this->WidgetRep)
         {
         vtkBiDimensionalRepresentation2D::SafeDownCast(this->WidgetRep)->
           Line1VisibilityOn();
@@ -720,31 +720,14 @@ void vtkBiDimensionalWidget::EndBiDimensionalInteraction()
 }
 
 //----------------------------------------------------------------------
-void vtkBiDimensionalWidget::SetVisibility(int v)
+void vtkBiDimensionalWidget::SetProcessEvents(int pe)
 {
-  if (this->Point1Widget)
-    {
-    this->Point1Widget->SetVisibility(v);
-    }
-  if (this->Point2Widget)
-    {
-    this->Point2Widget->SetVisibility(v);
-    }
-  if (this->Point3Widget)
-    {
-    this->Point3Widget->SetVisibility(v);
-    }
-  if (this->Point4Widget)
-    {
-    this->Point4Widget->SetVisibility(v);
-    }
-  if (vtkBiDimensionalRepresentation2D * rep2d = 
-      vtkBiDimensionalRepresentation2D::SafeDownCast(this->WidgetRep))
-    {
-    rep2d->SetLine1Visibility(v);
-    rep2d->SetLine2Visibility(v);
-    }
-  this->Superclass::SetVisibility(v);
+  this->Superclass::SetProcessEvents(pe);
+
+  this->Point1Widget->SetProcessEvents(pe);
+  this->Point2Widget->SetProcessEvents(pe);
+  this->Point3Widget->SetProcessEvents(pe);
+  this->Point4Widget->SetProcessEvents(pe);
 }
 
 //----------------------------------------------------------------------

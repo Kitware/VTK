@@ -27,7 +27,7 @@
 #include "vtkRenderWindow.h"
 
 
-vtkCxxRevisionMacro(vtkLineWidget2, "1.3");
+vtkCxxRevisionMacro(vtkLineWidget2, "1.4");
 vtkStandardNewMacro(vtkLineWidget2);
 
 //----------------------------------------------------------------------------
@@ -312,6 +312,16 @@ void vtkLineWidget2::CreateDefaultRepresentation()
     {
     this->WidgetRep = vtkLineRepresentation::New();
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkLineWidget2::SetProcessEvents(int pe)
+{
+  this->Superclass::SetProcessEvents(pe);
+
+  this->Point1Widget->SetProcessEvents(pe);
+  this->Point2Widget->SetProcessEvents(pe);
+  this->LineHandle->SetProcessEvents(pe);
 }
 
 //----------------------------------------------------------------------------

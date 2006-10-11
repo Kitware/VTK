@@ -30,7 +30,8 @@ vtkCxxRevisionMacro(vtkAbstractWidget, "1.8");
 vtkAbstractWidget::vtkAbstractWidget()
 {
   // Setup event processing
-  this->EventCallbackCommand->SetCallback(vtkAbstractWidget::ProcessEvents);
+  this->EventCallbackCommand->SetCallback(
+    vtkAbstractWidget::ProcessEventsHandler);
 
   // There is no parent to this widget currently
   this->Parent = NULL;
@@ -44,11 +45,13 @@ vtkAbstractWidget::vtkAbstractWidget()
   // Does this widget manage a cursor?
   this->ManagesCursor = 1;
 
+  // Does this widget respond to interaction?
+  this->ProcessEvents = 1;
+
   // Okay, set up the event translations for the subclasses.
   this->EventTranslator = vtkWidgetEventTranslator::New(); 
   this->CallbackMapper = vtkWidgetCallbackMapper::New();
   this->CallbackMapper->SetEventTranslator(this->EventTranslator);
-  this->Visibility = 1;
 }
 
 //----------------------------------------------------------------------
@@ -57,7 +60,7 @@ vtkAbstractWidget::~vtkAbstractWidget()
   if ( this->WidgetRep )
     {
     // Remove the representation from the renderer.
-    if (this->CurrentRenderer && this->Visibility)
+    if (this->CurrentRenderer)
       {
       this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
       }
@@ -101,44 +104,18 @@ void vtkAbstractWidget::SetWidgetRepresentation(vtkWidgetRepresentation *r)
 //----------------------------------------------------------------------
 void vtkAbstractWidget::SetEnabled(int enabling)
 {
-  if (enabling == this->Enabled)
+  if ( enabling ) //----------------
     {
-    return;
-    }
+    vtkDebugMacro(<<"Enabling widget");
 
-  // Enforce the requirement that if a widget is enabled, it is also visible
-  if (enabling && !this->Visibility)
-    {
-    return;
-    }
-  this->Enabled = enabling;
-  this->SetVisibilityAndEnabledState();
-}
+    if ( this->Enabled ) //already enabled, just return
+      {
+      return;
+      }
 
-//----------------------------------------------------------------------
-void vtkAbstractWidget::SetVisibility(int v)
-{
-  // Enforce the requirement that if a widget is invisible, it is also disabled
-  if ((v == this->Visibility) && ((v*this->Enabled) == this->Enabled))
-    {
-    return;
-    }
-  
-  this->Visibility = v;
-  this->Enabled    = v * this->Enabled;
-
-  this->SetVisibilityAndEnabledState();
-}
-
-//----------------------------------------------------------------------
-void vtkAbstractWidget::SetVisibilityAndEnabledState()
-{
-  if (this->Enabled) //----------------
-    {
     if ( ! this->Interactor )
       {
-      // The interactor must be set prior to enabling the widget
-      this->Enabled = 0;
+      vtkErrorMacro(<<"The interactor must be set prior to enabling the widget");
       return;
       }
 
@@ -151,13 +128,12 @@ void vtkAbstractWidget::SetVisibilityAndEnabledState()
 
       if (this->CurrentRenderer == NULL)
         {
-        this->Enabled = 0;
-        this->Visibility = 0;
         return;
         }
       }
 
     // We're ready to enable
+    this->Enabled = 1;
     this->CreateDefaultRepresentation();
     this->WidgetRep->SetRenderer(this->CurrentRenderer);
 
@@ -165,12 +141,12 @@ void vtkAbstractWidget::SetVisibilityAndEnabledState()
     if ( ! this->Parent )
       {
       this->EventTranslator->AddEventsToInteractor(this->Interactor,
-                                                   this->EventCallbackCommand,this->Priority);
+        this->EventCallbackCommand,this->Priority);
       }
     else
       {
       this->EventTranslator->AddEventsToParent(this->Parent,
-                                               this->EventCallbackCommand,this->Priority);
+        this->EventCallbackCommand,this->Priority);
       }
 
     if ( this->ManagesCursor )
@@ -180,64 +156,38 @@ void vtkAbstractWidget::SetVisibilityAndEnabledState()
       }
 
     this->WidgetRep->BuildRepresentation();
-    if (this->Visibility)
-      {
-      this->CurrentRenderer->AddViewProp(this->WidgetRep);
-      }
+    this->CurrentRenderer->AddViewProp(this->WidgetRep);
 
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
-  
+
   else //disabling------------------
     {
     vtkDebugMacro(<<"Disabling widget");
 
-    // don't listen for events any more
-    if ( !this->Parent  )
+    if ( ! this->Enabled ) //already disabled, just return
       {
-      if (this->Interactor)
-        {
-        this->Interactor->RemoveObserver(this->EventCallbackCommand);
-        }
+      return;
+      }
+
+    this->Enabled = 0;
+
+    // don't listen for events any more
+    if ( ! this->Parent )
+      {
+      this->Interactor->RemoveObserver(this->EventCallbackCommand);
       }
     else
       {
       this->Parent->RemoveObserver(this->EventCallbackCommand);
       }
 
-    if (this->CurrentRenderer)
-      {
-      if (!this->Visibility)
-        {
-        this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
-        this->SetCurrentRenderer(NULL);
-        }
-      else
-        {
-        this->CurrentRenderer->AddViewProp(this->WidgetRep);   
-        }
-      }
-    else if (this->Visibility && this->Interactor)
-      {
-      int X=this->Interactor->GetEventPosition()[0];
-      int Y=this->Interactor->GetEventPosition()[1];
-      this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X,Y));
-      if (this->CurrentRenderer == NULL)
-        {
-        this->Visibility = 0;
-        }
-      else
-        {
-        this->CurrentRenderer->AddViewProp(this->WidgetRep);
-        }
-      }
-    else
-      {
-      this->Visibility = 0;
-      }
+    this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
+
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
+    this->SetCurrentRenderer(NULL);
     }
-  
+
   // Should only render if there is no parent
   if ( this->Interactor && !this->Parent )
     {
@@ -246,13 +196,19 @@ void vtkAbstractWidget::SetVisibilityAndEnabledState()
 }
 
 //-------------------------------------------------------------------------
-void vtkAbstractWidget::ProcessEvents(vtkObject* vtkNotUsed(object), 
+void vtkAbstractWidget::ProcessEventsHandler(vtkObject* vtkNotUsed(object), 
                                        unsigned long vtkEvent,
                                        void* clientdata, 
                                        void* calldata)
 {
   vtkAbstractWidget* self = 
     reinterpret_cast<vtkAbstractWidget *>( clientdata );
+
+  // if ProcessEvents is Off, we ignore all interaction events.
+  if (!self->GetProcessEvents())
+    {
+    return;
+    }
   
   unsigned long widgetEvent = 
     self->EventTranslator->GetTranslation(vtkEvent,
@@ -285,7 +241,9 @@ void vtkAbstractWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+ 
+  os << indent << "ProcessEvents: " 
+    << (this->ProcessEvents? "On" : "Off") << "\n";
   if ( this->WidgetRep )
     {
     os << indent << "Widget Representation: " << this->WidgetRep << "\n";

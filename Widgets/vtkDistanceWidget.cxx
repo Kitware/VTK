@@ -25,7 +25,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkDistanceWidget, "1.10");
+vtkCxxRevisionMacro(vtkDistanceWidget, "1.11");
 vtkStandardNewMacro(vtkDistanceWidget);
 
 
@@ -325,6 +325,16 @@ void vtkDistanceWidget::EndDistanceInteraction(int)
 {
   this->Superclass::EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+}
+
+//----------------------------------------------------------------------
+void vtkDistanceWidget::SetProcessEvents(int pe)
+{
+  this->Superclass::SetProcessEvents(pe);
+
+  this->Point1Widget->SetProcessEvents(pe);
+  this->Point2Widget->SetProcessEvents(pe);
+
 }
 
 //----------------------------------------------------------------------

@@ -108,6 +108,10 @@ public:
   // valid after two of the three points are placed.
   int IsAngleValid();
 
+  // Description:
+  // Methods to change the whether the widget responds to interaction.
+  // Overridden to pass the state to component widgets.
+  virtual void SetProcessEvents(int);
 protected:
   vtkAngleWidget();
   ~vtkAngleWidget();

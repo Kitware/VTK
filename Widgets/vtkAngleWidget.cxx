@@ -25,7 +25,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAngleWidget, "1.13");
+vtkCxxRevisionMacro(vtkAngleWidget, "1.14");
 vtkStandardNewMacro(vtkAngleWidget);
 
 
@@ -452,6 +452,17 @@ void vtkAngleWidget::EndAngleInteraction(int)
   this->Superclass::EndInteraction();
 
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+}
+
+//----------------------------------------------------------------------
+void vtkAngleWidget::SetProcessEvents(int pe)
+{
+  this->Superclass::SetProcessEvents(pe);
+
+  //Pass pe flag to component widgets.
+  this->Point1Widget->SetProcessEvents(pe);
+  this->CenterWidget->SetProcessEvents(pe);
+  this->Point2Widget->SetProcessEvents(pe);
 }
 
 //----------------------------------------------------------------------

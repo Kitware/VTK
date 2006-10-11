@@ -114,7 +114,6 @@ public:
   // must be overridden because it is a composite widget and does more than
   // its superclasses' vtkAbstractWidget::SetEnabled() method.
   virtual void SetEnabled(int);
-  virtual void SetVisibility(int);
 
   // Description:
   // Specify an instance of vtkWidgetRepresentation used to represent this
@@ -141,6 +140,10 @@ public:
   };
   //ETX
 
+  // Description:
+  // Methods to change the whether the widget responds to interaction.
+  // Overridden to pass the state to component widgets.
+  virtual void SetProcessEvents(int);
 protected:
   vtkBiDimensionalWidget();
   ~vtkBiDimensionalWidget();
