@@ -236,5 +236,7 @@ int main( int argc, char *argv[] )
   renWindow->Delete();
   tl->Delete();
   //vtkGarbageCollector::DeferredCollectionPop();
+
+  delete [] cdata;
   return 1;
 }
