@@ -691,6 +691,11 @@ public:
   // Delta is the error margin along each axis (usually a small number)
   static int PointIsWithinBounds(double point[3], double bounds[6], double delta[3]);
   
+  // Description:
+  // Special IEEE-754 numbers used to represent positive and negative infinity and Not-A-Number (Nan).
+  static double Inf();
+  static double NegInf();
+  static double Nan();
 
 protected:
   vtkMath() {};

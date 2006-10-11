@@ -43,6 +43,7 @@ vtkImplicitModeller.cxx
 vtkIterativeClosestPointTransform.cxx
 vtkLandmarkTransform.cxx
 vtkLegendBoxActor.cxx
+vtkLSDynaReader.cxx
 vtkPCAAnalysisFilter.cxx
 vtkPolyDataToImageStencil.cxx
 vtkProcrustesAlignmentFilter.cxx

@@ -26,12 +26,35 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.110");
+#ifdef WIN32
+#include <float.h>
+#define isnan(x) _isnan(x)
+#endif
+
+vtkCxxRevisionMacro(vtkMath, "1.111");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
 static const double sqrt3 = sqrt( (double)3. );
 static const double inv3 = 1 / 3.;
+
+// Avoid aliasing optimization problems by using a union:
+union vtkIEEE754Bits {
+  vtkTypeInt64 i64v;
+  double d;
+};
+
+// I've always relied on the kindness of IEEE-754.
+#if defined(WIN32) && defined(_MSC_VER)
+// MSVC70 is broken; it doesn't accept the "LL" suffix. MSVC6 and MSVC71 do.
+static union vtkIEEE754Bits vtkMathNanBits    = { 0x7FF8000000000000i64 };
+static union vtkIEEE754Bits vtkMathInfBits    = { 0x7FF0000000000000i64 };
+static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000i64 };
+#else
+static union vtkIEEE754Bits vtkMathNanBits    = { 0x7FF8000000000000LL };
+static union vtkIEEE754Bits vtkMathInfBits    = { 0x7FF0000000000000LL };
+static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000LL };
+#endif // WIN32
 
 //
 // some constants we need
@@ -3408,3 +3431,24 @@ void vtkMath::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Seed: " << this->Seed << "\n";
 }
+
+
+//----------------------------------------------------------------------------
+double vtkMath::Inf()
+{
+  return vtkMathInfBits.d;
+}
+
+//----------------------------------------------------------------------------
+double vtkMath::NegInf()
+{
+  return vtkMathNegInfBits.d;
+}
+
+//----------------------------------------------------------------------------
+double vtkMath::Nan()
+{
+  return vtkMathNanBits.d;
+}
+
+
