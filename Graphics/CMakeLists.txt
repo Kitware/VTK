@@ -126,7 +126,6 @@ vtkMultiGroupDataExtractGroup.cxx
 vtkMultiGroupDataGeometryFilter.cxx
 vtkMultiGroupDataGroupFilter.cxx
 vtkMultiGroupDataGroupIdScalars.cxx
-vtkMultiThreshold.cxx
 vtkOBBDicer.cxx
 vtkOBBTree.cxx
 vtkOutlineCornerFilter.cxx
