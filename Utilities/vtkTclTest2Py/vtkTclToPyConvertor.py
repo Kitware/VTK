@@ -139,6 +139,14 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
         elif command == "proc" and len(arguments) == 3:
             translated_cmd = "def %s (" % arguments[0]
             proc_args = arguments[1].split()
+            # We add 2 default arguments to any procedure. This is necessary
+            # since Tcl event handlers don't take any arguments while python
+            # event handlers need 2 arguments. 
+            # Added 2 default arguments to ensure that such handler don't raise
+            # errors. For all other procedures, adding two unused default arguments
+            # makes no harm.
+            proc_args.append("__vtk__temp0=0")
+            proc_args.append("__vtk__temp1=0")
             i = False
             pair = 0
             for pa in proc_args:
