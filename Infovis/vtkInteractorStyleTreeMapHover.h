@@ -20,13 +20,14 @@
 #define __vtkInteractorStyleTreeMapHover_h
 
 #include "vtkInteractorStyleImage.h"
-#include "vtkTreeMapLayout.h"
-#include "vtkTreeMapToPolyData.h"
 
-class vtkTree;
-class vtkRenderer;
-class vtkWorldPointPicker;
 class vtkBalloonRepresentation;
+class vtkPoints;
+class vtkRenderer;
+class vtkTree;
+class vtkTreeMapLayout;
+class vtkTreeMapToPolyData;
+class vtkWorldPointPicker;
 
 class VTK_INFOVIS_EXPORT vtkInteractorStyleTreeMapHover : public vtkInteractorStyleImage
 {
@@ -35,10 +36,10 @@ public:
   vtkTypeRevisionMacro(vtkInteractorStyleTreeMapHover,vtkInteractorStyleImage);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkSetObjectMacro(Layout, vtkTreeMapLayout);
+  void SetLayout(vtkTreeMapLayout* layout);
   vtkGetObjectMacro(Layout, vtkTreeMapLayout);
 
-  vtkSetObjectMacro(TreeMapToPolyData, vtkTreeMapToPolyData);
+  void SetTreeMapToPolyData(vtkTreeMapToPolyData* filter);
   vtkGetObjectMacro(TreeMapToPolyData, vtkTreeMapToPolyData);
 
   vtkSetStringMacro(LabelField);
@@ -55,15 +56,18 @@ public:
   void SetSelectionLightColor(double r, double g, double b);
   void SetHighLightWidth(double lw);
   void SetSelectionWidth(double lw);
+
 protected:
+  vtkInteractorStyleTreeMapHover();
+  ~vtkInteractorStyleTreeMapHover();
 
 private:
+  vtkInteractorStyleTreeMapHover(const vtkInteractorStyleTreeMapHover&); // Not implemented
+  void operator=(const vtkInteractorStyleTreeMapHover&); // Not implemented
 
   // These methods are used internally
   vtkIdType GetTreeMapIdAtPos(int x, int y);
   void GetBoundingBoxForTreeMapItem(vtkIdType id, float *binfo);
-  vtkInteractorStyleTreeMapHover();
-  ~vtkInteractorStyleTreeMapHover();
   
   vtkWorldPointPicker* Picker;
   vtkBalloonRepresentation* Balloon;

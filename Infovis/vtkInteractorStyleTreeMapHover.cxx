@@ -15,25 +15,26 @@
 
 #include "vtkInteractorStyleTreeMapHover.h"
 
-#include <vtkStdString.h>
-#include <vtkObjectFactory.h>
-#include <vtkRenderWindow.h>
-#include <vtkRendererCollection.h>
-#include <vtkWorldPointPicker.h>
-#include <vtkBalloonRepresentation.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkPointData.h>
-#include <vtkStringArray.h>
-#include <vtkCallbackCommand.h>
-#include <vtkCellArray.h>
-#include <vtkPoints.h>
-#include <vtkActor.h>
-#include <vtkPolyData.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkProperty.h>
+#include "vtkActor.h"
+#include "vtkBalloonRepresentation.h"
+#include "vtkCallbackCommand.h"
+#include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRendererCollection.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkTreeMapLayout.h"
+#include "vtkTreeMapToPolyData.h"
+#include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.1");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.2");
 vtkStandardNewMacro(vtkInteractorStyleTreeMapHover);
 
 //----------------------------------------------------------------------------
@@ -117,6 +118,10 @@ vtkInteractorStyleTreeMapHover::~vtkInteractorStyleTreeMapHover()
     }
   this->SetLabelField(0);
 }
+
+vtkCxxSetObjectMacro(vtkInteractorStyleTreeMapHover, Layout, vtkTreeMapLayout);
+
+vtkCxxSetObjectMacro(vtkInteractorStyleTreeMapHover, TreeMapToPolyData, vtkTreeMapToPolyData);
 
 void vtkInteractorStyleTreeMapHover::SetInteractor(vtkRenderWindowInteractor
                                                    *rwi)
