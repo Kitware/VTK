@@ -492,7 +492,7 @@ void get_args(FILE *fp, int i)
     case 0xE:
       fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
               start_arg); 
-      fprintf(fp,"    temp%i = tempi? true:false;\n",i,j);
+      fprintf(fp,"    temp%i = tempi ? true : false;\n",i);
       break;
     case 0x3:
       fprintf(fp,"    temp%i = *(argv[%i]);\n",i,start_arg);
@@ -549,7 +549,7 @@ void get_args(FILE *fp, int i)
             case 0xE:
               fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
                       start_arg); 
-              fprintf(fp,"    temp%i[%i] = tempi? true:false;\n",i,j);
+              fprintf(fp,"    temp%i[%i] = tempi ? true : false;\n",i,j);
               break;
             case 0x3:
               fprintf(fp,"    temp%i[%i] = *(argv[%i]);\n",i,j,start_arg);
