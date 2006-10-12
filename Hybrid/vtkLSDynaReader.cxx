@@ -98,7 +98,7 @@ typedef FILE* vtkLSDynaFile_t;
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.5");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.6");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -1451,7 +1451,7 @@ protected:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.5");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.6");
 // ============================================== End of XML Summary reader class
 
 
@@ -4314,7 +4314,7 @@ int vtkLSDynaReader::ReadInputDeck()
     }
 
   ifstream deck( this->InputDeck, ios::in );
-  if ( ! deck.is_open() )
+  if ( ! deck.good() )
     {
     return 0;
     }
@@ -4532,7 +4532,7 @@ int vtkLSDynaReader::ReadInputDeckKeywords( ifstream& deck )
 int vtkLSDynaReader::WriteInputDeckSummary( const char* fname )
 {
   ofstream xmlSummary( fname, ios::out | ios::trunc );
-  if ( ! xmlSummary.is_open() )
+  if ( ! xmlSummary.good() )
     {
     return 1;
     }
