@@ -241,7 +241,7 @@ OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying dat
 VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF
                      "VTK_USE_RENDERING" OFF)
 
-VTK_DEPENDENT_OPTION(VTK_USE_INFOVIS "Build the vtkInfovis kit.  Needed for performing information visualization." OFF "VTK_USE_RENDERING" OFF)
+VTK_DEPENDENT_OPTION(VTK_USE_INFOVIS "Build the vtkInfovis kit.  Needed for performing information visualization." ON "VTK_USE_RENDERING" OFF)
 
 # Determine Shading Support
 VTK_DEPENDENT_OPTION(VTK_USE_CG_SHADERS "Build pixel and vertex shader support for Cg." OFF
