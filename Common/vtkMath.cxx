@@ -31,7 +31,7 @@
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.113");
+vtkCxxRevisionMacro(vtkMath, "1.114");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -3442,7 +3442,7 @@ void vtkMath::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 double vtkMath::Inf()
 {
-#if defined(WIN32) && defined(_BORLANDC__)
+#if defined(WIN32) && defined(__BORLANDC__)
   return *( (double*) vtkMathInfBits );
 #else
   return vtkMathInfBits.d;
@@ -3452,7 +3452,7 @@ double vtkMath::Inf()
 //----------------------------------------------------------------------------
 double vtkMath::NegInf()
 {
-#if defined(WIN32) && defined(_BORLANDC__)
+#if defined(WIN32) && defined(__BORLANDC__)
   return *( (double*) vtkMathNegInfBits );
 #else
   return vtkMathNegInfBits.d;
@@ -3462,7 +3462,7 @@ double vtkMath::NegInf()
 //----------------------------------------------------------------------------
 double vtkMath::Nan()
 {
-#if defined(WIN32) && defined(_BORLANDC__)
+#if defined(WIN32) && defined(__BORLANDC__)
   return *( (double*) vtkMathNanBits );
 #else
   return vtkMathNanBits.d;
