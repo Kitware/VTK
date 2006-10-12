@@ -108,13 +108,7 @@ public:
   // Description:
   // The size of the font used for labeling
   virtual void SetFontSize(const int size);
-  
 
-  // Description:
-  // Set whether the tree map uses a logarithmic scaling of sizes.
-  bool GetLogScale();
-  void SetLogScale(bool value);
-  
 protected:
   vtkGraphLayoutViewer();
   ~vtkGraphLayoutViewer();
