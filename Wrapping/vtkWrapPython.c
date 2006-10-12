@@ -264,10 +264,18 @@ void do_return(FILE *fp)
       }
     case 0xE:
       {
+      // PyBool_FromLong was introduced in Python 2.3.
+      // Use PyInt_FromLong as a bool substitute in
+      // earlier versions of python...
+      //
+      fprintf(fp,"#if PY_VERSION_HEX >= 0x02030000\n");
       fprintf(fp,"    return PyBool_FromLong(temp%i);\n", MAX_ARGS);
+      fprintf(fp,"#else\n");
+      fprintf(fp,"    return PyInt_FromLong((long)temp%i);\n", MAX_ARGS);
+      fprintf(fp,"#endif\n");
       break;
       }
-    case 0x16:   
+    case 0x16:
       {
 #if (PY_VERSION_HEX >= 0x02020000)
       fprintf(fp,"    return PyLong_FromUnsignedLong(temp%i);\n",
