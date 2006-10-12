@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.10");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.11");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -60,6 +60,8 @@ vtkIdentColoredPainter::vtkIdentColoredPainter()
 
   this->ActorIds = NULL;
   this->PropAddrs = NULL;
+
+  this->UsingMesa = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -226,9 +228,18 @@ void vtkIdentColoredPainter::GetCurrentColor(unsigned char *RGB)
   //     << this->CurrentIdPlane1 << ":"
   //     << this->CurrentIdPlane0 << endl;
 
-  RGB[0] = (val & 0x00FF0000)>>16;
-  RGB[1] = (val & 0x0000FF00)>>8;
-  RGB[2] = (val & 0x000000FF);
+  if (this->UsingMesa)
+    {
+    RGB[0] = ((val & 0x00FF0000)>>16) + 1;
+    RGB[1] = ((val & 0x0000FF00)>> 8) + 1;
+    RGB[2] = ((val & 0x000000FF)    ) + 1;
+    }
+  else
+    {
+    RGB[0] = (val & 0x00FF0000)>>16;
+    RGB[1] = (val & 0x0000FF00)>>8;
+    RGB[2] = (val & 0x000000FF);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -249,6 +260,13 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
     {
     vtkErrorMacro("Painter Device Adapter missing!");
     return;
+    }
+
+  const unsigned char *GLRenderer = glGetString(GL_RENDERER);
+  if (strstr((const char*)GLRenderer, "Mesa") != NULL)
+    {
+    cerr << "USING MESA" << endl;
+    this->UsingMesa = 1;
     }
 
   this->TotalCells = 
