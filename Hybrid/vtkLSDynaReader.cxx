@@ -37,6 +37,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <ctype.h>
 #include <assert.h>
 #ifndef WIN32
 #   include <unistd.h>
@@ -98,7 +99,7 @@ typedef FILE* vtkLSDynaFile_t;
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.8");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.9");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -173,6 +174,25 @@ static const char* vtkLSDynaCellTypes[] =
   "Road Surface"
 };
 
+static void vtkLSGetLine( ifstream& deck, vtkstd::string& line )
+{
+#if !defined(_WIN32) || !defined(_MSC_VER) || (_MSC_VER < 1200) || (_MSC_VER >= 1300)
+  // One line implementation for everyone but MSVC6
+  vtkstd::getline( deck, line, '\n' );
+#else
+  // Feed MSVC its food cut up into little pieces
+  int linechar;
+  line = "";
+  while ( deck.good() )
+    {
+    linechar = deck.get();
+    if ( linechar == '\r' || linechar == '\n' )
+      return;
+    line += linechar;
+    }
+#endif // !defined(_WIN32) || !defined(_MSC_VER) || (_MSC_VER < 1200) || (_MSC_VER >= 1300)
+}
+
 // Read in lines until one that's
 // - not empty, and
 // - not a comment
@@ -182,12 +202,7 @@ static int vtkLSNextSignificantLine( ifstream& deck, vtkstd::string& line )
 {
   while ( deck.good() )
     {
-#if defined(_WIN32) && defined(_MSC_VER) && (_MSC_VER >= 1200) && (_MSC_VER < 1300)
-    // MSVC6 is broken one way, MSVC7 another
-//    vtkstd::getline( deck, line );
-#else
-    vtkstd::getline( deck, line, '\n' );
-#endif
+    vtkLSGetLine( deck, line );
     if ( ! line.empty() && line[0] != '$' )
       {
       return 1;
@@ -1451,7 +1466,7 @@ protected:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.8");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.9");
 // ============================================== End of XML Summary reader class
 
 
@@ -4395,12 +4410,7 @@ int vtkLSDynaReader::ReadInputDeck()
     }
 
   vtkstd::string header;
-#if defined(_WIN32) && defined(_MSC_VER) && (_MSC_VER >= 1200) && (_MSC_VER < 1300)
-  // MSVC6 is broken one way, MSVC7 another
-//  vtkstd::getline( deck, header );
-#else
-  vtkstd::getline( deck, header, '\n' );
-#endif
+  vtkLSGetLine( deck, header );
   deck.seekg( 0, ios::beg );
   int retval;
   if ( vtksys::SystemTools::StringStartsWith( header.c_str(), "<?xml" ) )
