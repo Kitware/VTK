@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.11");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.12");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -60,8 +60,6 @@ vtkIdentColoredPainter::vtkIdentColoredPainter()
 
   this->ActorIds = NULL;
   this->PropAddrs = NULL;
-
-  this->UsingMesa = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -228,18 +226,9 @@ void vtkIdentColoredPainter::GetCurrentColor(unsigned char *RGB)
   //     << this->CurrentIdPlane1 << ":"
   //     << this->CurrentIdPlane0 << endl;
 
-  if (this->UsingMesa)
-    {
-    RGB[0] = ((val & 0x00FF0000)>>16) + 1;
-    RGB[1] = ((val & 0x0000FF00)>> 8) + 1;
-    RGB[2] = ((val & 0x000000FF)    ) + 1;
-    }
-  else
-    {
-    RGB[0] = (val & 0x00FF0000)>>16;
-    RGB[1] = (val & 0x0000FF00)>>8;
-    RGB[2] = (val & 0x000000FF);
-    }
+  RGB[0] = (val & 0x00FF0000)>>16;
+  RGB[1] = (val & 0x0000FF00)>>8;
+  RGB[2] = (val & 0x000000FF);
 }
 
 //-----------------------------------------------------------------------------
@@ -262,13 +251,6 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
     return;
     }
 
-  const unsigned char *GLRenderer = glGetString(GL_RENDERER);
-  if (strstr((const char*)GLRenderer, "Mesa") != NULL)
-    {
-    cerr << "USING MESA" << endl;
-    this->UsingMesa = 1;
-    }
-
   this->TotalCells = 
     vtkIdentColoredPainterGetTotalCells(this->PolyData, typeflags);
 
@@ -278,9 +260,11 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
   //colors we read back
   int origMultisample = device->QueryMultisampling();
   int origLighting = device->QueryLighting();
+  int origBlending = device->QueryBlending();
 
   device->MakeMultisampling(0);
   device->MakeLighting(0);
+  device->MakeBlending(0);
 
   vtkIdType startCell = 0;
   startCell += this->PolyData->GetNumberOfVerts();
@@ -310,6 +294,7 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
     }
 
   //reset lighting back to the default
+  device->MakeBlending(origBlending);
   device->MakeLighting(origLighting);
   device->MakeMultisampling(origMultisample);
 

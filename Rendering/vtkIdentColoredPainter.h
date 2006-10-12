@@ -107,8 +107,6 @@ protected:
   vtkIdTypeArray *ActorIds;
   vtkProp **PropAddrs;
 
-  int UsingMesa; //work around for a bug in mesa where colors are 1 off
-
 private:
   vtkIdentColoredPainter(const vtkIdentColoredPainter&); // Not implemented.
   void operator=(const vtkIdentColoredPainter&); // Not implemented.

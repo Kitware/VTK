@@ -168,6 +168,14 @@ public:
   // Returns current antialiasing setting.
   virtual int QueryMultisampling() = 0;
 
+  // Description:
+  // Turns blending on and off.
+  virtual void MakeBlending(int mode) = 0;
+ 
+  // Description:
+  // Returns current blending setting.
+  virtual int QueryBlending() = 0;
+
 protected:
   vtkPainterDeviceAdapter();
   ~vtkPainterDeviceAdapter();

@@ -36,7 +36,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.13");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.14");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -673,6 +673,32 @@ void vtkOpenGLPainterDeviceAdapter::MakeMultisampling(int mode)
 int vtkOpenGLPainterDeviceAdapter::QueryMultisampling()
 {
   if (glIsEnabled(vtkgl::MULTISAMPLE))
+    {
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPainterDeviceAdapter::MakeBlending(int mode)
+{
+  if (mode)
+    {
+    glEnable(GL_BLEND);
+    }
+  else
+    {
+    glDisable(GL_BLEND);
+    }
+}
+
+//-----------------------------------------------------------------------------
+int vtkOpenGLPainterDeviceAdapter::QueryBlending()
+{
+  if (glIsEnabled(GL_BLEND))
     {
     return 1;
     }
