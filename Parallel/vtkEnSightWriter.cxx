@@ -86,7 +86,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkEnSightWriter);
-vtkCxxRevisionMacro(vtkEnSightWriter, "1.3");
+vtkCxxRevisionMacro(vtkEnSightWriter, "1.4");
 
 vtkCxxSetObjectMacro(vtkEnSightWriter, ModelMetadata, vtkModelMetadata);
 
@@ -142,7 +142,7 @@ void vtkEnSightWriter::PrintSelf(ostream& os, vtkIndent indent)
     }
   else
     {
-    cout << indent << "ModelMetadata: (none)" << "\n";
+    os << indent << "ModelMetadata: (none)" << "\n";
     }
 
   os << indent << "TimeStep: " << this->TimeStep << "\n";

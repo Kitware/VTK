@@ -98,7 +98,7 @@ typedef FILE* vtkLSDynaFile_t;
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.6");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.7");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -1451,7 +1451,7 @@ protected:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.6");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.7");
 // ============================================== End of XML Summary reader class
 
 
@@ -1488,30 +1488,105 @@ vtkLSDynaReader::~vtkLSDynaReader()
 void vtkLSDynaReader::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "Title: \"" << this->GetTitle() << "\"" << endl
-     << indent << "InputDeck:" << this->InputDeck << endl
-     << indent << "DeformedMesh: " << (this->DeformedMesh ? "On" : "Off") << endl
-     << indent << "RemoveDeletedCells: " << (this->RemoveDeletedCells ? "On" : "Off") << endl
-     << indent << "SplitByMaterialId:" << (this->SplitByMaterialId ? "On" : "Off") << endl
-     << indent << "TimeStepRange: " << this->TimeStepRange[0] << ", " << this->TimeStepRange[1] << endl
-     << indent << "PrivateData: " << this->P << endl
-     << indent << "OutputParticles:" << this->OutputParticles << endl
-     << indent << "OutputBeams:" << this->OutputBeams << endl
-     << indent << "OutputShell:" << this->OutputShell << endl
-     << indent << "OutputThickShell:" << this->OutputThickShell << endl
-     << indent << "OutputSolid:" << this->OutputSolid << endl
-     << indent << "OutputRigidBody:" << this->OutputRigidBody << endl
-     << indent << "OutputRoadSurface:" << this->OutputRoadSurface << endl
-     << indent << "Dimensionality: " << this->GetDimensionality() << endl
-     << indent << "Nodes: " << this->GetNumberOfNodes() << endl
-     << indent << "Cells: " << this->GetNumberOfCells() << endl
-     << indent << "PointArrays:    ";
+
+  os << indent << "Title: \"" << this->GetTitle() << "\"" << endl;
+  os << indent << "InputDeck: " << (this->InputDeck ? this->InputDeck : "(null)") << endl;
+  os << indent << "DeformedMesh: " << (this->DeformedMesh ? "On" : "Off") << endl;
+  os << indent << "RemoveDeletedCells: " << (this->RemoveDeletedCells ? "On" : "Off") << endl;
+  os << indent << "SplitByMaterialId: " << (this->SplitByMaterialId ? "On" : "Off") << endl;
+  os << indent << "TimeStepRange: " << this->TimeStepRange[0] << ", " << this->TimeStepRange[1] << endl;
+
+  if (this->P)
+    {
+    os << indent << "PrivateData: " << this->P << endl;
+    }
+  else
+    {
+    os << indent << "PrivateData: (none)" << endl;
+    }
+
+  if (this->OutputParticles)
+    {
+    os << indent << "OutputParticles: " << this->OutputParticles << endl;
+    this->OutputParticles->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "OutputParticles: (none)" << endl;
+    }
+
+  if (this->OutputBeams)
+    {
+    os << indent << "OutputBeams: " << this->OutputBeams << endl;
+    this->OutputBeams->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "OutputBeams: (none)" << endl;
+    }
+
+  if (this->OutputShell)
+    {
+    os << indent << "OutputShell: " << this->OutputShell << endl;
+    this->OutputShell->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "OutputShell: (none)" << endl;
+    }
+
+  if (this->OutputThickShell)
+    {
+    os << indent << "OutputThickShell: " << this->OutputThickShell << endl;
+    this->OutputThickShell->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "OutputThickShell: (none)" << endl;
+    }
+
+  if (this->OutputSolid)
+    {
+    os << indent << "OutputSolid: " << this->OutputSolid << endl;
+    this->OutputSolid->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "OutputSolid: (none)" << endl;
+    }
+
+  if (this->OutputRigidBody)
+    {
+    os << indent << "OutputRigidBody: " << this->OutputRigidBody << endl;
+    this->OutputRigidBody->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "OutputRigidBody: (none)" << endl;
+    }
+
+  if (this->OutputRoadSurface)
+    {
+    os << indent << "OutputRoadSurface: " << this->OutputRoadSurface << endl;
+    this->OutputRoadSurface->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "OutputRoadSurface: (none)" << endl;
+    }
+
+  os << indent << "Dimensionality: " << this->GetDimensionality() << endl;
+  os << indent << "Nodes: " << this->GetNumberOfNodes() << endl;
+  os << indent << "Cells: " << this->GetNumberOfCells() << endl;
+
+  os << indent << "PointArrays: ";
   for ( int i=0; i<this->GetNumberOfPointArrays(); ++i )
     {
     os << this->GetPointArrayName( i ) << " ";
     }
-  os << endl
-     << "CellArrays:" << endl;
+  os << endl;
+
+  os << "CellArrays: " << endl;
   for ( int ct = 0; ct < vtkLSDynaReader::NUM_CELL_TYPES; ++ct )
     {
     os << vtkLSDynaCellTypes[ct] << ":" << endl;
@@ -1523,7 +1598,7 @@ void vtkLSDynaReader::PrintSelf( ostream &os, vtkIndent indent )
     }
   os << endl;
 
-  os << indent << "Time Steps:       " << this->GetNumberOfTimeSteps() << endl;
+  os << indent << "Time Steps: " << this->GetNumberOfTimeSteps() << endl;
   for ( int j=0; j<this->GetNumberOfTimeSteps(); ++j )
     {
     os.precision(5);
