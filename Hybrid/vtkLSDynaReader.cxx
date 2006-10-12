@@ -98,7 +98,7 @@ typedef FILE* vtkLSDynaFile_t;
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.7");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.8");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -184,7 +184,7 @@ static int vtkLSNextSignificantLine( ifstream& deck, vtkstd::string& line )
     {
 #if defined(_WIN32) && defined(_MSC_VER) && (_MSC_VER >= 1200) && (_MSC_VER < 1300)
     // MSVC6 is broken one way, MSVC7 another
-    vtkstd::getline( deck, line );
+//    vtkstd::getline( deck, line );
 #else
     vtkstd::getline( deck, line, '\n' );
 #endif
@@ -1451,7 +1451,7 @@ protected:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.7");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.8");
 // ============================================== End of XML Summary reader class
 
 
@@ -4397,7 +4397,7 @@ int vtkLSDynaReader::ReadInputDeck()
   vtkstd::string header;
 #if defined(_WIN32) && defined(_MSC_VER) && (_MSC_VER >= 1200) && (_MSC_VER < 1300)
   // MSVC6 is broken one way, MSVC7 another
-  vtkstd::getline( deck, header );
+//  vtkstd::getline( deck, header );
 #else
   vtkstd::getline( deck, header, '\n' );
 #endif
