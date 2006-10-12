@@ -31,7 +31,7 @@
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.111");
+vtkCxxRevisionMacro(vtkMath, "1.112");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -50,11 +50,17 @@ union vtkIEEE754Bits {
 static union vtkIEEE754Bits vtkMathNanBits    = { 0x7FF8000000000000i64 };
 static union vtkIEEE754Bits vtkMathInfBits    = { 0x7FF0000000000000i64 };
 static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000i64 };
+#elif defined(WIN32) && defined(_BORLANDC__)
+// Borland C++ union initializers are broken.
+// Use an otherwise-discouraged aliasing trick:
+static vtkTypeInt64 vtkMathNanBits            = 0x7FF8000000000000LL;
+static vtkTypeInt64 vtkMathInfBits            = 0x7FF0000000000000LL;
+static vtkTypeInt64 vtkMathNegInfBits         = 0xFFF0000000000000LL;
 #else
 static union vtkIEEE754Bits vtkMathNanBits    = { 0x7FF8000000000000LL };
 static union vtkIEEE754Bits vtkMathInfBits    = { 0x7FF0000000000000LL };
 static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000LL };
-#endif // WIN32
+#endif
 
 //
 // some constants we need
@@ -3436,19 +3442,31 @@ void vtkMath::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 double vtkMath::Inf()
 {
+#if defined(WIN32) && defined(_BORLANDC__)
+  return *( (double*) vtkMathInfBits );
+#else
   return vtkMathInfBits.d;
+#endif
 }
 
 //----------------------------------------------------------------------------
 double vtkMath::NegInf()
 {
+#if defined(WIN32) && defined(_BORLANDC__)
+  return *( (double*) vtkMathNegInfBits );
+#else
   return vtkMathNegInfBits.d;
+#endif
 }
 
 //----------------------------------------------------------------------------
 double vtkMath::Nan()
 {
+#if defined(WIN32) && defined(_BORLANDC__)
+  return *( (double*) vtkMathNanBits );
+#else
   return vtkMathNanBits.d;
+#endif
 }
 
 
