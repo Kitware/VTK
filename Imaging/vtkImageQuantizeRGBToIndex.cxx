@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.43");
+vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.44");
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -192,7 +192,7 @@ void vtkImageQuantizeRGBToIndexHistogram( T *inPtr, int extent[6],
           value[0] = (int)( *(rgbPtr++) * 255.5 ) - bounds[0];
           value[1] = (int)( *(rgbPtr++) * 255.5 ) - bounds[2];
           value[2] = (int)( *(rgbPtr++) * 255.5 ) - bounds[4];
-          if ( (int)(v[0]) < max[0] && (int)(v[1]) < max[1] && (int)(v[2]) < max[2] )
+          if ( (int)(value[0]) < max[0] && (int)(value[1]) < max[1] && (int)(value[2]) < max[2] )
             {
             histogram[0][value[0]]++;
             histogram[1][value[1]]++;
