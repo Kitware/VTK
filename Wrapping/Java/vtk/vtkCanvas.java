@@ -23,6 +23,7 @@ public class vtkCanvas extends vtkPanel implements MouseListener, MouseMotionLis
   {
     super();
     iren.SetRenderWindow(rw);
+    iren.TimerEventResetsTimerOff();
     iren.AddObserver("CreateTimerEvent", this, "StartTimer");
     iren.AddObserver("DestroyTimerEvent", this, "DestroyTimer");
     iren.SetSize(200, 200);
@@ -52,7 +53,7 @@ public class vtkCanvas extends vtkPanel implements MouseListener, MouseMotionLis
     if (timer.isRunning())
       timer.stop();
     
-    timer.setRepeats(false);
+    timer.setRepeats(true);
 
     timer.start();
     

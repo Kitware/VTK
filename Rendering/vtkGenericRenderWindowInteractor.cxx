@@ -16,12 +16,17 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkGenericRenderWindowInteractor, "1.9");
+vtkCxxRevisionMacro(vtkGenericRenderWindowInteractor, "1.10");
 vtkStandardNewMacro(vtkGenericRenderWindowInteractor);
 
 //------------------------------------------------------------------
-// Construct object so that light follows camera motion.
 vtkGenericRenderWindowInteractor::vtkGenericRenderWindowInteractor()
+{
+  this->TimerEventResetsTimer = 1;
+}
+
+//------------------------------------------------------------------
+vtkGenericRenderWindowInteractor::~vtkGenericRenderWindowInteractor()
 {
 }
 
@@ -52,7 +57,6 @@ void vtkGenericRenderWindowInteractor::RightButtonReleaseEvent()
     {
     return;
     }
- 
   this->InvokeEvent(vtkCommand::RightButtonReleaseEvent, NULL);
 }
 
@@ -167,7 +171,8 @@ void vtkGenericRenderWindowInteractor::TimerEvent()
   int timerId = this->GetCurrentTimerId();
   this->InvokeEvent(vtkCommand::TimerEvent, (void*)&timerId);
 
-  if (!this->IsOneShotTimer(timerId))
+  if (!this->IsOneShotTimer(timerId) &&
+    this->GetTimerEventResetsTimer())
     {
     this->ResetTimer(timerId);
     }
@@ -214,17 +219,6 @@ void vtkGenericRenderWindowInteractor::ExitEvent()
 }
 
 //------------------------------------------------------------------
-vtkGenericRenderWindowInteractor::~vtkGenericRenderWindowInteractor()
-{
-}
-
-//------------------------------------------------------------------
-void vtkGenericRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os,indent);
-}
-
-//------------------------------------------------------------------
 int vtkGenericRenderWindowInteractor::InternalCreateTimer(int timerId, int timerType,
                                                           unsigned long duration)
 {
@@ -250,4 +244,12 @@ int vtkGenericRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
     return 1;
     }
   return 0;
+}
+
+//------------------------------------------------------------------
+void vtkGenericRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "TimerEventResetsTimer: " << this->TimerEventResetsTimer << "\n";
 }
