@@ -1094,7 +1094,11 @@ static const char *AsciiToKeySymTable[] = {
 
 const char* ascii_to_key_sym(int i)
 {
-  return AsciiToKeySymTable[i];
+  if(i >= 0)
+    {
+    return AsciiToKeySymTable[i];
+    }
+  return 0;
 }
 
 #define QVTK_HANDLE(x,y) \
