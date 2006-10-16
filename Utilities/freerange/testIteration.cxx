@@ -1,3 +1,21 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    testIteration.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 #include "freerange"
 #include "vtkIOStream.h"
 #include "vtkSystemIncludes.h"
@@ -17,7 +35,7 @@ static int itlist[] = {
   31, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 60, 61, 62, 63, -1
 };
 
-int testIteration( int argc, char* argv[] )
+int testIteration( int, char*[] )
 {
   freerange<vtkTypeInt64,int> fr;
   vtkTypeInt64 fill = 500; // value to fill in allocated entries

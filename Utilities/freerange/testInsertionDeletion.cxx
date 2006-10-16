@@ -1,3 +1,21 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    testInsertionDeletion.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 #include "freerange"
 #include "vtkIOStream.h"
 
@@ -28,7 +46,7 @@ static int actions[] = {
  -1, -1, -1  /* signal end of test */
 };
 
-int testInsertionDeletion( int argc, char* argv[] )
+int testInsertionDeletion( int, char*[] )
 {
   freerange<int,int,-5> fr;
   int idx;

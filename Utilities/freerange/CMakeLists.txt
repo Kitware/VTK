@@ -3,10 +3,11 @@ PROJECT(freerange)
 CREATE_TEST_SOURCELIST( freerangeTestSrcs freerangeTests.cxx
   testInsertionDeletion.cxx
   testIteration.cxx
-  EXTRA_INCLUDE freerange
+  EXTRA_INCLUDE vtkSystemIncludes.h
 )
 
 INCLUDE_DIRECTORIES(
+  BEFORE
   ${freerange_SOURCE_DIR}
 )
 
