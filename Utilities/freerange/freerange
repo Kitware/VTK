@@ -137,7 +137,7 @@ class freerange
     }
 
     idx_t grabAndAssign( const T& src )
-    { idx_t entry; grab_internal(entry,1) ; (*(array[entry])) = src ; return entry ; }
+    { idx_t entry; grab_internal(entry,1) ; array[entry] = src ; return entry ; }
 
     void mark_as_freed( idx_t i, idx_t num )
     {
@@ -150,11 +150,22 @@ class freerange
       if ( num <= 0 )
         return;
 
-      if ( i == array_top - num ) {
+      if ( i > array_top )
+        { // trying to fee past end of storage. continue quietly
+        return;
+        }
+      else if ( i + num > array_top )
+        { // trying to fee past end of storage. truncate and continue quietly
+        array_top = i;
+        used -= array_top - i;
+        return;
+        }
+      else if ( i == array_top - num )
+        {
         array_top -= num ;
         used -= num;
         return ;
-      }
+        }
       mark_as_freed( i, num );
       // break up large freed blocks into random sizes that all fit in our dead pool
       while ( num >= dead_size ) {

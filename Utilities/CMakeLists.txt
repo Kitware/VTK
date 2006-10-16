@@ -14,6 +14,7 @@ VTK_THIRD_PARTY_SUBDIR(MATERIALLIBRARY MaterialLibrary)
 
 SUBDIRS(vtkmpeg2encode)
 SUBDIRS(vtknetcdf)
+SUBDIRS(freerange)
 
 IF(VTK_HAS_EXODUS)
   SUBDIRS(vtkexodus2)
