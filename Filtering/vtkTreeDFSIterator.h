@@ -15,7 +15,16 @@
 // .NAME vtkTreeDFSIterator - depth first search iterator through a vtkGraph
 //
 // .SECTION Description
+// vtkTreeDFSIterator performs a depth first search of a tree.  First,
+// you must set the tree on which you are going to iterate, and set
+// the starting node and mode.  The mode is either DISCOVER, in which
+// case nodes are visited as they are first reached, or FINISH, in which
+// case nodes are visited when they are done, i.e. all adjacent nodes
+// have been discovered already.
 //
+// After setting up the iterator, the normal mode of operation is to
+// set up a "while(iter->HasNext())" loop, with the statement
+// "vtkIdType node = iter->Next()" inside the loop.
 
 
 #ifndef __vtkTreeDFSIterator_h
@@ -62,8 +71,14 @@ public:
   // If not set (or set to a negative value), starts at the root of the tree.
   void SetStartNode(vtkIdType node);
 
+  // Description:
+  // The next node visited in the graph.
   vtkIdType Next();
+
+  // Description:
+  // Return true when all nodes have been visited.
   bool HasNext();
+
 protected:
   vtkTreeDFSIterator();
   ~vtkTreeDFSIterator();
