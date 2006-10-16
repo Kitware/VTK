@@ -34,7 +34,7 @@
 #include "vtkTreeMapToPolyData.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.2");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.3");
 vtkStandardNewMacro(vtkInteractorStyleTreeMapHover);
 
 //----------------------------------------------------------------------------
@@ -317,10 +317,18 @@ void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()
 
   // Get the pedigree id of this object and
   // send out an event with that id as data
-  vtkAbstractArray* absArray = this->Layout->GetOutput()->GetPointData()->GetAbstractArray("PedigreeNodeId");
-  vtkIdTypeArray* idArray = vtkIdTypeArray::SafeDownCast(absArray);
-  vtkIdType pedigreeId = idArray->GetValue(this->CurrentSelectedId);
-  this->InvokeEvent(vtkCommand::UserEvent, &pedigreeId);
+  vtkAbstractArray* absArray = 
+    this->Layout->GetOutput()->GetPointData()->GetAbstractArray(
+      "PedigreeNodeId");
+  if (absArray)
+    {
+    vtkIdTypeArray* idArray = vtkIdTypeArray::SafeDownCast(absArray);
+    if (idArray)
+      {
+      vtkIdType pedigreeId = idArray->GetValue(this->CurrentSelectedId);
+      this->InvokeEvent(vtkCommand::UserEvent, &pedigreeId);
+      }
+    }
 
   Superclass::OnLeftButtonUp();
 }
