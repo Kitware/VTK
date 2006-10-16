@@ -36,6 +36,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(__BORLANDC__)
+  // Disable Borland compiler warning messages that often occur in valid code.
+#  pragma warn -8027 /* functions w/ do/for/while not expanded inline */
+#endif
+
 /**\brief A free list template class in the spirit of the STL.
  *
  * A free list is a vector of items stored by value. Since items
