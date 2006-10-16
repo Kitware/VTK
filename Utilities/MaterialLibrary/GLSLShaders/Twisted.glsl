@@ -1,10 +1,4 @@
-attribute vec4 gl_Color;
-attribute vec4 gl_Vertex;
-
-uniform mat4 gl_ModelViewProjectionMatrix;
 uniform float Rate;
-
-varying vec4 gl_FrontColor;
 
 void main()
 {
@@ -32,7 +26,7 @@ void main()
   
   if (NdotL > 0.0) 
     {
-    float NdotHV = max(dot(normal, gl_LightSource[0].halfVector.xyz), 0);
+    float NdotHV = max(dot(normal, gl_LightSource[0].halfVector.xyz), 0.0);
     specular = gl_FrontMaterial.specular * gl_LightSource[0].specular * 
       pow(NdotHV, gl_FrontMaterial.shininess);
     }
