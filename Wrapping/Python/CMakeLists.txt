@@ -214,6 +214,7 @@ IF(PYTHON_EXECUTABLE)
     vtk/hybrid
     vtk/imaging
     vtk/io
+    vtk/infovis
     vtk/parallel
     vtk/rendering
     vtk/required

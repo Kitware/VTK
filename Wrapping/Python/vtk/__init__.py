@@ -77,6 +77,12 @@ except ImportError, exc:
     __helper.refine_import_err('widgets', 'vtkWidgetsPython', exc)
 
 try:
+    from infovis import *
+    kits.append('infovis')
+except ImportError, exc:
+    __helper.refine_import_err('infovis', 'vtkInfovisPython', exc)
+
+try:
     from parallel import *
     kits.append('parallel')
 except ImportError, exc:
