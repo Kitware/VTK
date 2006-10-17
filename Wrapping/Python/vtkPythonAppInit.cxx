@@ -156,6 +156,10 @@ int main(int argc, char **argv)
   // Initialize interpreter.
   Py_Initialize();
 
+  // Initialize python thread support. This function should first be
+  // called from the main thread, after Py_Initialize.
+  PyEval_InitThreads();
+
   // Compute the directory containing this executable.  The python
   // sys.executable variable contains the full path to the interpreter
   // executable.
