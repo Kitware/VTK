@@ -1,26 +1,29 @@
+# This VTK_DIR usage only works in the VTK build tree...
+# Make it work in the "make install" tree, too.
+#
+INCLUDE("${VTK_DIR}/GUISupport/MFC/VTKMFCSettings.cmake")
+IF(VTK_MFC_DELAYLOAD_VTK_DLLS)
+  VTK_MFC_ADD_DELAYLOAD_FLAGS(CMAKE_EXE_LINKER_FLAGS
+    vtkMFC.dll
+    vtkRendering.dll
+    vtkIO.dll
+    vtkFiltering.dll
+    vtkCommon.dll
+    )
+ENDIF(VTK_MFC_DELAYLOAD_VTK_DLLS)
 
 SET( vtkDLG_SRCS 
  StdAfx
  vtkDLG
  vtkDLGDlg
  vtkDLG.rc
- res/vtkDLG.ico
  res/vtkDLG.rc2
 ) 
 
-LINK_LIBRARIES(
-  vtkMFC 
-  vtkRendering
-  vtkGraphics
-  vtkImaging
-  vtkIO
-  vtkFiltering
-  vtkCommon
-)
-
-
-# add stuff to use MFC in this executable
-ADD_DEFINITIONS(-D_AFXDLL)
-SET(CMAKE_MFC_FLAG 6)
-
 ADD_EXECUTABLE(vtkDLG WIN32 ${vtkDLG_SRCS})
+
+IF(VTK_MFC_EXTRA_LIBS)
+  TARGET_LINK_LIBRARIES(vtkDLG ${VTK_MFC_EXTRA_LIBS})
+ENDIF(VTK_MFC_EXTRA_LIBS)
+
+TARGET_LINK_LIBRARIES(vtkDLG vtkMFC)

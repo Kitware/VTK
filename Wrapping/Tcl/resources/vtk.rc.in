@@ -8,18 +8,17 @@
 //IDI_VTKICO      ICON DISCARDABLE "vtkicon32.ico"
 //IDI_VTKICOSMALL ICON DISCARDABLE "vtkicon16.ico"
 
-
-
 #include <windows.h>
 
 #include "vtkConfigure.h"
-#ifdef VTK_TCL_TK_STATIC
+
+#if defined(VTK_USE_TK) && defined(VTK_TCL_TK_STATIC)
 #include "tk_base.rc"
 #endif
 
 VS_VERSION_INFO	VERSIONINFO
- FILEVERSION	@VTK_MAJOR_VERSION@,@VTK_MINOR_VERSION@
- PRODUCTVERSION	@VTK_MAJOR_VERSION@,@VTK_MINOR_VERSION@
+ FILEVERSION	@VTK_MAJOR_VERSION@,@VTK_MINOR_VERSION@,@VTK_BUILD_VERSION@
+ PRODUCTVERSION	@VTK_MAJOR_VERSION@,@VTK_MINOR_VERSION@,@VTK_BUILD_VERSION@
  FILEOS		VOS__WINDOWS32
  FILETYPE	VFT_APP
  FILESUBTYPE	0x0L
@@ -31,10 +30,10 @@ BEGIN
             VALUE "FileDescription", "VTK\0"
             VALUE "OriginalFilename", "vtk.exe\0"
             VALUE "CompanyName", "Kitware Inc.\0"
-            VALUE "FileVersion", "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@\0"
+            VALUE "FileVersion", "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@\0"
             VALUE "LegalCopyright", "Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen\0"
-            VALUE "ProductName", "VTK @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@ for Windows\0"
-            VALUE "ProductVersion", "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@\0"
+            VALUE "ProductName", "VTK @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@ for Windows\0"
+            VALUE "ProductVersion", "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@\0"
         END
     END
     BLOCK "VarFileInfo"

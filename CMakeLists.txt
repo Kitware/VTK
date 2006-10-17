@@ -1007,11 +1007,11 @@ VTK_DEPENDENT_OPTION(VTK_OPENGL_HAS_OSMESA
                      "The opengl library being used supports off screen Mesa calls." OFF
                      "VTK_USE_RENDERING;UNIX" OFF)
 SET(VTK_CAN_DO_OFF_SCREEN)
-IF(VTK_USE_MANGLED_MESA OR VTK_OPENGL_HAS_OSMESA)
+IF(VTK_USE_MANGLED_MESA OR VTK_OPENGL_HAS_OSMESA OR WIN32)
   SET(VTK_CAN_DO_OFF_SCREEN 1)
-ENDIF(VTK_USE_MANGLED_MESA OR VTK_OPENGL_HAS_OSMESA)
+ENDIF(VTK_USE_MANGLED_MESA OR VTK_OPENGL_HAS_OSMESA OR WIN32)
 VTK_DEPENDENT_OPTION(VTK_USE_OFFSCREEN
-                     "The opengl library being used supports off screen Mesa calls." OFF
+                     "Use off screen calls by default." OFF
                      "VTK_CAN_DO_OFF_SCREEN" OFF)
 VTK_DEPENDENT_OPTION(VTK_USE_MPI
                      "Use Message Passing Interface (MPI) library for parallel support." OFF

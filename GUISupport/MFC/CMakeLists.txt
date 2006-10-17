@@ -1,31 +1,40 @@
+CONFIGURE_FILE(
+  "${CMAKE_CURRENT_SOURCE_DIR}/VTKMFCSettings.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/VTKMFCSettings.cmake"
+  COPYONLY
+  )
 
-SET( MFC_SRCS 
- vtkMFCWindow.cpp
-) 
+INCLUDE("${CMAKE_CURRENT_BINARY_DIR}/VTKMFCSettings.cmake")
 
-# add stuff to use MFC in this executable
-ADD_DEFINITIONS(-D_AFXDLL)
-SET(CMAKE_MFC_FLAG 6)
+CONFIGURE_FILE(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkMFCConfigure.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkMFCConfigure.h"
+  )
 
-ADD_LIBRARY(vtkMFC ${MFC_SRCS})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+
+SET(MFC_SRCS
+  vtkMFCWindow.cpp
+  ) 
+
+ADD_LIBRARY(vtkMFC ${VTK_MFC_LIB_TYPE} ${MFC_SRCS})
 
 # Apply user-defined properties to the library target.
 IF(VTK_LIBRARY_PROPERTIES)
   SET_TARGET_PROPERTIES(vtkMFC PROPERTIES ${VTK_LIBRARY_PROPERTIES})
 ENDIF(VTK_LIBRARY_PROPERTIES)
 
-TARGET_LINK_LIBRARIES( vtkMFC
-  vtkRendering
-  vtkGraphics
-  vtkImaging
-  vtkIO
-  vtkFiltering
-  vtkCommon
-)
+IF(VTK_MFC_EXTRA_LIBS)
+  TARGET_LINK_LIBRARIES(vtkMFC ${VTK_MFC_EXTRA_LIBS})
+ENDIF(VTK_MFC_EXTRA_LIBS)
+
+TARGET_LINK_LIBRARIES(vtkMFC vtkRendering)
 
 IF ( WIN32 )
   IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     FILE(GLOB vtkMFCHeaderFiles "*.h")
+    SET(vtkMFCHeaderFiles ${vtkMFCHeaderFiles}
+      "${CMAKE_CURRENT_BINARY_DIR}/vtkMFCConfigure.h")
     INSTALL(FILES ${vtkMFCHeaderFiles}
       DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
       COMPONENT Development

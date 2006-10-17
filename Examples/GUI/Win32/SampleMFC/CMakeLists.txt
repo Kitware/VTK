@@ -1,4 +1,4 @@
-PROJECT (Win32SampleMFC)
+PROJECT(Win32SampleMFC)
 
 FIND_PACKAGE(VTK)
 IF(NOT VTK_DIR)
@@ -6,16 +6,20 @@ IF(NOT VTK_DIR)
 ENDIF(NOT VTK_DIR)
 INCLUDE(${VTK_USE_FILE})
 
-LINK_LIBRARIES( 
-  vtkRendering
-  vtkGraphics
-  vtkImaging
-  vtkIO
-  vtkFiltering
-  vtkCommon
-)
+# This VTK_DIR usage only works in the VTK build tree...
+# Make it work in the "make install" tree, too.
+#
+INCLUDE("${VTK_DIR}/GUISupport/MFC/VTKMFCSettings.cmake")
+IF(VTK_MFC_DELAYLOAD_VTK_DLLS)
+  VTK_MFC_ADD_DELAYLOAD_FLAGS(CMAKE_EXE_LINKER_FLAGS
+    vtkRendering.dll
+    vtkIO.dll
+    vtkFiltering.dll
+    vtkCommon.dll
+    )
+ENDIF(VTK_MFC_DELAYLOAD_VTK_DLLS)
 
-SET(SRCS 
+SET(SRCS
 ChildFrm.cpp
 MainFrm.cpp
 Sample.cpp
@@ -26,13 +30,13 @@ StdAfx.cpp
 vtkMFCDocument.cpp
 vtkMFCRenderView.cpp
 vtkMFCView.cpp
-res/Sample.ico
 res/Sample.rc2
-res/SampleDoc.ico
 )
 
-# add stuff to use MFC in this executable
-ADD_DEFINITIONS(-D_AFXDLL)
-SET(CMAKE_MFC_FLAG 6)
-
 ADD_EXECUTABLE(Win32SampleMFC WIN32 ${SRCS})
+
+IF(VTK_MFC_EXTRA_LIBS)
+  TARGET_LINK_LIBRARIES(Win32SampleMFC ${VTK_MFC_EXTRA_LIBS})
+ENDIF(VTK_MFC_EXTRA_LIBS)
+
+TARGET_LINK_LIBRARIES(Win32SampleMFC vtkRendering)

@@ -21,9 +21,9 @@
 class vtkWin32OpenGLRenderWindow;
 class vtkRenderWindowInteractor;
 
-#include "vtkConfigure.h"
+#include "vtkMFCConfigure.h"
 
-#if defined(VTK_BUILD_SHARED_LIBS)
+#if !defined(VTK_MFC_STATIC)
 #  if defined(vtkMFC_EXPORTS)
 #    define VTK_MFC_EXPORT __declspec( dllexport )
 #  else
