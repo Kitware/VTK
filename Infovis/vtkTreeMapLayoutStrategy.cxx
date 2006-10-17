@@ -15,7 +15,7 @@
 
 #include "vtkTreeMapLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeMapLayoutStrategy, "1.1");
+vtkCxxRevisionMacro(vtkTreeMapLayoutStrategy, "1.2");
 
 vtkTreeMapLayoutStrategy::vtkTreeMapLayoutStrategy():BorderPercentage(0.0)
 {
@@ -28,7 +28,7 @@ vtkTreeMapLayoutStrategy::~vtkTreeMapLayoutStrategy()
 void vtkTreeMapLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << "BorderPercentage = " << this->BorderPercentage << endl;
+  os << "BorderPercentage: " << this->BorderPercentage << endl;
 }
 
 void vtkTreeMapLayoutStrategy::AddBorder(float *boxInfo) 

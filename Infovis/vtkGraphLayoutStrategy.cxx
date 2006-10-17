@@ -20,7 +20,7 @@
 
 #include "vtkAbstractGraph.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutStrategy, "1.1");
+vtkCxxRevisionMacro(vtkGraphLayoutStrategy, "1.2");
 
 void vtkGraphLayoutStrategy::SetGraph(vtkAbstractGraph *graph)
 {
@@ -57,4 +57,9 @@ vtkGraphLayoutStrategy::~vtkGraphLayoutStrategy()
 void vtkGraphLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Graph: " << (this->Graph ? "" : "(none)") << endl;
+  if (this->Graph)
+    {
+    this->Graph->PrintSelf(os, indent.GetNextIndent());
+    }
 }

@@ -34,7 +34,7 @@
 #include "vtkTreeMapToPolyData.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.3");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.4");
 vtkStandardNewMacro(vtkInteractorStyleTreeMapHover);
 
 //----------------------------------------------------------------------------
@@ -155,27 +155,19 @@ void vtkInteractorStyleTreeMapHover::SetInteractor(vtkRenderWindowInteractor
 void vtkInteractorStyleTreeMapHover::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Layout: ";
-  if (this->Layout == NULL)
+  os << indent << "Layout: " << (this->Layout ? "" : "(none)") << endl;
+  if (this->Layout)
     {
-    os << "\n";
     this->Layout->PrintSelf(os, indent.GetNextIndent());
     }
-  else
+
+  os << indent << "TreeMapToPolyData: " << (this->TreeMapToPolyData ? "" : "(none)") << endl;
+  if (this->TreeMapToPolyData)
     {
-    os << "NULL\n";
-    }
-  os << indent << "TreeMapToPolyData: ";
-  if (this->TreeMapToPolyData == NULL)
-    {
-    os << "\n";
     this->TreeMapToPolyData->PrintSelf(os, indent.GetNextIndent());
     }
-  else
-    {
-    os << "NULL\n";
-    }
-  os << indent << "LabelField: " << this->LabelField << endl;
+
+  os << indent << "LabelField: " << (this->LabelField ? this->LabelField : "(none)") << endl;
 }
 
 vtkIdType vtkInteractorStyleTreeMapHover::GetTreeMapIdAtPos(int x, int y)

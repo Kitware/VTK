@@ -28,7 +28,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkSliceAndDiceLayoutStrategy, "1.1");
+vtkCxxRevisionMacro(vtkSliceAndDiceLayoutStrategy, "1.2");
 vtkStandardNewMacro(vtkSliceAndDiceLayoutStrategy);
 
 vtkSliceAndDiceLayoutStrategy::vtkSliceAndDiceLayoutStrategy()
@@ -45,7 +45,7 @@ vtkSliceAndDiceLayoutStrategy::~vtkSliceAndDiceLayoutStrategy()
 void vtkSliceAndDiceLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "SizeFieldName: " << this->SizeFieldName << endl;
+  os << indent << "SizeFieldName: " << (this->SizeFieldName ? this->SizeFieldName : "(none)") << endl;
 }
 
 // Alternating tree layout method

@@ -54,7 +54,7 @@
 #include <vtkInformation.h>
 #include <vtkCellData.h>
 
-vtkCxxRevisionMacro(vtkTreeMapViewer, "1.1");
+vtkCxxRevisionMacro(vtkTreeMapViewer, "1.2");
 vtkStandardNewMacro(vtkTreeMapViewer);
 
 
@@ -373,50 +373,65 @@ void vtkTreeMapViewer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-
-  os << indent << "Input Tree:\n";
+  os << indent << "Input Tree: " << (this->Input ? "" : "(none)") << endl;
   if (this->Input)
     {
     this->Input->PrintSelf(os,indent.GetNextIndent());
     }
-  else
-    {
-    os << "No Input Tree Set!";
-    }
-  os << indent << "RenderWindow:\n";
+
+  os << indent << "RenderWindow: " << (this->RenderWindow ? "" : "(none)") << endl;
   if (this->RenderWindow)
     {
     this->RenderWindow->PrintSelf(os,indent.GetNextIndent());
     }
-  else
+
+  os << indent << "TreeLevelsFilter: " << (this->TreeLevelsFilter ? "" : "(none)") << endl;
+  if (this->TreeLevelsFilter)
     {
-    os << "No Render Window Set!";
+    this->TreeLevelsFilter->PrintSelf(os,indent.GetNextIndent());
+    }
+  
+  os << indent << "TreeFieldAggregator: " << (this->TreeFieldAggregator ? "" : "(none)") << endl;
+  if (this->TreeFieldAggregator)
+    {
+    this->TreeFieldAggregator->PrintSelf(os,indent.GetNextIndent()); 
+    }
+  
+  os << indent << "TreeMapLayout: " << (this->TreeMapLayout ? "" : "(none)") << endl;
+  if (this->TreeMapLayout)
+    {
+    this->TreeMapLayout->PrintSelf(os,indent.GetNextIndent()); 
+    }
+  
+  os << indent << "TreeMapToPolyData: " << (this->TreeMapToPolyData ? "" : "(none)") << endl;
+  if (this->TreeMapToPolyData)
+    {
+    this->TreeMapToPolyData->PrintSelf(os,indent.GetNextIndent()); 
+    }
+  
+  os << indent << "PolyDataMapper: " << (this->PolyDataMapper ? "" : "(none)") << endl;
+  if (this->PolyDataMapper)
+    {
+    this->PolyDataMapper->PrintSelf(os,indent.GetNextIndent()); 
     }
     
-  os << indent << "TreeLevelsFilter:\n";
-  this->TreeLevelsFilter->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Renderer: " << (this->Renderer ? "" : "(none)") << endl;
+  if (this->Renderer)
+    {
+    this->Renderer->PrintSelf(os,indent.GetNextIndent());
+    }
   
-  os << indent << "TreeFieldAggregator:\n";
-  this->TreeFieldAggregator->PrintSelf(os,indent.GetNextIndent()); 
+  os << indent << "Actor: " << (this->Actor ? "" : "(none)") << endl;
+  if (this->Actor)
+    {
+    this->Actor->PrintSelf(os,indent.GetNextIndent());
+    }
   
-  os << indent << "TreeMapLayout:\n";
-  this->TreeMapLayout->PrintSelf(os,indent.GetNextIndent()); 
-  
-  os << indent << "TreeMapToPolyData:\n";
-  this->TreeMapToPolyData->PrintSelf(os,indent.GetNextIndent()); 
-  
-  os << indent << "PolyDataMapper:\n";
-  this->PolyDataMapper->PrintSelf(os,indent.GetNextIndent()); 
-    
-  os << indent << "Renderer:\n";
-  this->Renderer->PrintSelf(os,indent.GetNextIndent());
-  
-  os << indent << "Actor:\n";
-  this->Actor->PrintSelf(os,indent.GetNextIndent());
-  
-  os << indent << "InteractorStyle:\n";
-  this->InteractorStyle->PrintSelf(os,indent.GetNextIndent());
-
+  os << indent << "InteractorStyle: " << (this->InteractorStyle ? "" : "(none)") << endl;
+  if (this->InteractorStyle)
+    {
+    this->InteractorStyle->PrintSelf(os,indent.GetNextIndent());
+    }
 }
   
 void vtkTreeMapViewer::SetLabelLevelRange(int start, int end)

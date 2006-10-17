@@ -32,7 +32,7 @@
 #include <vtkViewport.h>
 #include <vtkWindow.h>
 
-vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.1");
+vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.2");
 vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
@@ -169,23 +169,19 @@ void vtkLabeledTreeMapDataMapper::UpdateFontSizes()
 void vtkLabeledTreeMapDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "RectanglesFieldName = " 
-     << this->RectanglesFieldName << endl;
-  os << indent << "ClipTextMode = " 
-     << this->ClipTextMode << endl;
-  os << indent << "ChildMotion = " 
-     << this->ChildMotion << endl;
-  os << indent << "DynamicLevel = " 
-     << this->DynamicLevel << endl;
+  os << indent << "RectanglesFieldName: " << (this->RectanglesFieldName ? this->RectanglesFieldName : "(none)") << endl;
+  os << indent << "ClipTextMode: " << this->ClipTextMode << endl;
+  os << indent << "ChildMotion: " << this->ChildMotion << endl;
+  os << indent << "DynamicLevel: " << this->DynamicLevel << endl;
   int i;
-  os << "Font Sizes = ";
+  os << "Font Sizes: ";
   for (i = 0; i <= this->MaxFontLevel; i++)
     {
     os << this->HLabelProperties[i]->GetFontSize() << " ";
     }
   os << endl;
   
-  os << indent << "Level Range = [" << this->StartLevel 
+  os << indent << "Level Range: [" << this->StartLevel 
      << ", " << this->EndLevel << "]" << endl;
 }
 

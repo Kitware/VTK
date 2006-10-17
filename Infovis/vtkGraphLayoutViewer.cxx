@@ -50,7 +50,7 @@
 #include <vtkInformation.h>
 #include <vtkCellData.h>
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.1");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.2");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -336,36 +336,41 @@ void vtkGraphLayoutViewer::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
 
-  os << indent << "Input Graph:\n";
+  os << indent << "Input Graph: " << (this->Input ? "" : "(none)") << endl;
   if (this->Input)
     {
     this->Input->PrintSelf(os,indent.GetNextIndent());
     }
-  else
-    {
-    os << "No Input Graph Set!";
-    }
-  os << indent << "RenderWindow:\n";
+
+  os << indent << "RenderWindow: " << (this->RenderWindow ? "" : "(none)") << endl;
   if (this->RenderWindow)
     {
     this->RenderWindow->PrintSelf(os,indent.GetNextIndent());
     }
-  else
+  
+  os << indent << "PolyDataMapper: " << (this->PolyDataMapper ? "" : "(none)") << endl;
+  if (this->PolyDataMapper)
     {
-    os << "No Render Window Set!";
+    this->PolyDataMapper->PrintSelf(os,indent.GetNextIndent()); 
+    }
+    
+  os << indent << "Renderer: " << (this->Renderer ? "" : "(none)") << endl;
+  if (this->Renderer)
+    {
+    this->Renderer->PrintSelf(os,indent.GetNextIndent());
     }
   
-  os << indent << "PolyDataMapper:\n";
-  this->PolyDataMapper->PrintSelf(os,indent.GetNextIndent()); 
-    
-  os << indent << "Renderer:\n";
-  this->Renderer->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Actor: " << (this->Actor ? "" : "(none)") << endl;
+  if (this->Actor)
+    {
+    this->Actor->PrintSelf(os,indent.GetNextIndent());
+    }
   
-  os << indent << "Actor:\n";
-  this->Actor->PrintSelf(os,indent.GetNextIndent());
-  
-  os << indent << "InteractorStyle:\n";
-  this->InteractorStyle->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "InteractorStyle: " << (this->InteractorStyle ? "" : "(none)") << endl;
+  if (this->InteractorStyle)
+    {
+    this->InteractorStyle->PrintSelf(os,indent.GetNextIndent());
+    }
 
 }
 

@@ -5,7 +5,7 @@ if {[info commands ::vtk::init::require_package] != ""} {
     package provide vtkinfovis 5.1
   }
 } else {
-  if {[info commands vtkInfovisFactory] != "" ||
+  if {[info commands vtkGraphLayout] != "" ||
     [::vtk::load_component vtkInfovisTCL] == ""} {
     package provide vtkinfovis 5.1
   }
