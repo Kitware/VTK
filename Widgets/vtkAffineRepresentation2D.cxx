@@ -36,7 +36,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkAffineRepresentation2D, "1.5");
+vtkCxxRevisionMacro(vtkAffineRepresentation2D, "1.6");
 vtkStandardNewMacro(vtkAffineRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkAffineRepresentation2D,Property,vtkProperty2D);
@@ -249,6 +249,8 @@ void vtkAffineRepresentation2D::GetTransform(vtkTransform *t)
                                       this->CurrentTranslation[2]);
     }
 
+  this->ApplyShear();
+  this->CurrentTransform->RotateZ(this->CurrentAngle*vtkMath::RadiansToDegrees());
   this->CurrentTransform->Scale(this->CurrentScale[0], this->CurrentScale[1], 1.0);
   this->CurrentTransform->Translate(-this->Origin[0],-this->Origin[1],-this->Origin[2]);
 
@@ -667,34 +669,39 @@ void vtkAffineRepresentation2D::Scale(double eventPos[2])
 void vtkAffineRepresentation2D::Rotate(double eventPos[2])
 {
   double deltaAngle;
-  // Find the closest point on the circle to support rotations
+  // Compute the initial selection angle, and then the change in angle between
+  // the starting point and subsequent points. The angle is constrained so that 
+  // it is in the range (-Pi < deltaAngle <= Pi).
   if ( this->StartAngle >= VTK_LARGE_FLOAT )
     {
     double delX = this->StartEventPosition[0] - this->DisplayOrigin[0];
     double delY = this->StartEventPosition[1] - this->DisplayOrigin[1];
     this->StartAngle = atan2(delY,delX);
     deltaAngle = 0.0;
-    if ( this->StartAngle < 0.0 )
-      {
-      this->StartAngle += 2.0*vtkMath::Pi();
-      }
     }
   else
     {
     double delEX = eventPos[0] - this->DisplayOrigin[0];
     double delEY = eventPos[1] - this->DisplayOrigin[1];
     double angle2 = atan2(delEY,delEX);
-    if ( angle2 < 0.0 )
-      {
-      angle2 += 2.0*vtkMath::Pi();
-      }
+    // Compute difference in angle
     deltaAngle = angle2 - this->StartAngle;
-    if ( fabs(deltaAngle) > vtkMath::Pi() ) //angle always less than 2*Pi
+    if ( fabs(deltaAngle) > vtkMath::Pi() ) //angle always less than Pi
       {
-      deltaAngle = 2.0*vtkMath::Pi() - fabs(deltaAngle);
+      if ( deltaAngle > 0 )
+        {
+        deltaAngle = -2.0*vtkMath::Pi() + deltaAngle;
+        }
+      else
+        {
+        deltaAngle =  2.0*vtkMath::Pi() + deltaAngle;
+        }
       }
     }
   
+  // Update the angle
+  this->CurrentAngle = deltaAngle;
+
   // Create the arc
   vtkIdType pid;
   this->HCirclePoints->Reset();
@@ -726,6 +733,13 @@ void vtkAffineRepresentation2D::Rotate(double eventPos[2])
     this->UpdateText(str,eventPos);
     }
 }
+
+//----------------------------------------------------------------------
+// Fiddle with matrix to apply shear
+void vtkAffineRepresentation2D::ApplyShear()
+{
+}
+
 
 //----------------------------------------------------------------------
 void vtkAffineRepresentation2D::Shear(double eventPos[2])
@@ -783,12 +797,24 @@ void vtkAffineRepresentation2D::Shear(double eventPos[2])
   this->HBoxPoints->SetPoint(3,p3);
   this->HBoxPoints->Modified();
 
+  // Update the current shear
+  double sx = (x2[1] - x1[1]) / 2.0;
+  double sy = ((p0[0]-x0[0]) + (p0[1]-x0[1]));
+  double angle = atan2(sy,sx) * vtkMath::RadiansToDegrees();
+  if ( this->InteractionState == vtkAffineRepresentation::ShearNEdge ||
+       this->InteractionState == vtkAffineRepresentation::ShearSEdge )
+    {
+    this->CurrentShear[0] = angle;
+    }
+  else
+    {
+    this->CurrentShear[1] = angle;
+    }
+
+  // Display text if requested
   if ( this->DisplayText )
     {
     char str[256];
-    double sx = (x2[1] - x1[1]) / 2.0;
-    double sy = ((p0[0]-x0[0]) + (p0[1]-x0[1]));
-    double angle = atan2(sy,sx) * vtkMath::RadiansToDegrees();
     sprintf(str,"(%0.2g)", angle);
     this->UpdateText(str,eventPos);
     }

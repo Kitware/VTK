@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkAffineWidget.h"
 #include "vtkAffineRepresentation2D.h"
-#include "vtkCommand.h"
+#include "vtkCommand.h"d
 #include "vtkCallbackCommand.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
@@ -25,7 +25,7 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkAffineWidget, "1.5");
+vtkCxxRevisionMacro(vtkAffineWidget, "1.6");
 vtkStandardNewMacro(vtkAffineWidget);
 
 //----------------------------------------------------------------------------------

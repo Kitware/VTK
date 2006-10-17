@@ -165,10 +165,11 @@ protected:
   double DisplayOrigin[3]; //the current origin in display coordinates
   double CurrentTranslation[3]; //translation this movement
   double StartWorldPosition[4]; //Start event position converted to world
-  double CurrentAngle;
   double StartAngle; //The starting angle (always positive)
+  double CurrentAngle;
   double CurrentScale[2];
   double CurrentShear[2];
+  void   ApplyShear(); //helper method to apply shear to matrix
   
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
