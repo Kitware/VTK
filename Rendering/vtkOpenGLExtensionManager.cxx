@@ -54,7 +54,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.18");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.19");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 vtkOpenGLExtensionManager::vtkOpenGLExtensionManager()
@@ -389,6 +389,10 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
   vtkstd::string version_extensions;
   vtkstd::string::size_type beginpos, endpos;
 
+  const char *version = (const char *)glGetString(GL_VERSION);
+  int driverMajor, driverMinor;
+  sscanf(version, "%d.%d", &driverMajor, &driverMinor);
+
   version_extensions = vtkgl::GLVersionExtensionsString();
   endpos = 0;
   while (endpos != vtkstd::string::npos)
@@ -398,27 +402,65 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
     endpos = version_extensions.find_first_of(' ', beginpos);
 
     vtkstd::string ve = version_extensions.substr(beginpos, endpos-beginpos);
-    if (vtkgl::LoadExtension(ve.c_str(), this))
+    int tryMajor, tryMinor;
+    sscanf(ve.c_str(), "GL_VERSION_%d_%d", &tryMajor, &tryMinor);
+    if (   (driverMajor > tryMajor)
+        || ((driverMajor == tryMajor) && (driverMinor >= tryMinor)) )
       {
+      // OpenGL version supported.
       extensions_string += " ";
       extensions_string += ve;
       }
     }
 
 #ifdef VTK_USE_X
-  version_extensions = vtkgl::GLXVersionExtensionsString();
-  endpos = 0;
-  while (endpos != vtkstd::string::npos)
+  Display *display = NULL;
+  int closeDisplay = 0;
+  if (this->RenderWindow)
     {
-    beginpos = version_extensions.find_first_not_of(' ', endpos);
-    if (beginpos == vtkstd::string::npos) break;
-    endpos = version_extensions.find_first_of(' ', beginpos);
+    // Try getting the display of the window we are doing the queries on.
+    display = (Display *)this->RenderWindow->GetGenericDisplayId();
+    }
+  if (!display)
+    {
+    // Try opening my own display.
+    display = XOpenDisplay(NULL);
+    closeDisplay = 1;
+    }
 
-    vtkstd::string ve = version_extensions.substr(beginpos, endpos-beginpos);
-    if (vtkgl::LoadExtension(ve.c_str(), this))
+  if (!display)
+    {
+    // If we could not find a display, silently fail to query the glX
+    // extensions.  It could be that there is no glX (for example if using Mesa
+    // offscreen).
+    vtkDebugMacro(<< "Could not get a Display to query GLX extensions.");
+    }
+  else
+    {
+    glXQueryExtension(display, &driverMajor, &driverMinor);
+
+    version_extensions = vtkgl::GLXVersionExtensionsString();
+    endpos = 0;
+    while (endpos != vtkstd::string::npos)
       {
-      extensions_string += " ";
-      extensions_string += ve;
+      beginpos = version_extensions.find_first_not_of(' ', endpos);
+      if (beginpos == vtkstd::string::npos) break;
+      endpos = version_extensions.find_first_of(' ', beginpos);
+      
+      vtkstd::string ve = version_extensions.substr(beginpos, endpos-beginpos);
+      int tryMajor, tryMinor;
+      sscanf(ve.c_str(), "GLX_VERSION_%d_%d", &tryMajor, &tryMinor);
+      if (   (driverMajor > tryMajor)
+          || ((driverMajor == tryMajor) && (driverMinor >= tryMinor)) )
+        {
+        extensions_string += " ";
+        extensions_string += ve;
+        }
+      }
+
+    if (closeDisplay)
+      {
+      XCloseDisplay(display);
       }
     }
 #endif //VTK_USE_X
