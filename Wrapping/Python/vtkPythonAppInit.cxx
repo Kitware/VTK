@@ -52,6 +52,10 @@
 #include "vtkParallelInstantiator.h"
 #endif
 
+#ifdef VTK_USE_INFOVIS
+#include "vtkInfovisInstantiator.h"
+#endif
+
 #include <vtkstd/string>
 #include <vtksys/SystemTools.hxx>
 

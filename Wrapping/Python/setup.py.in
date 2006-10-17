@@ -34,6 +34,7 @@ vtk_lib_dir = "@LIBRARY_OUTPUT_PATH@"
 vtk_bin_dir = "@EXECUTABLE_OUTPUT_PATH@"
 vtk_use_rendering = @VTK_PYTHON_USE_RENDERING@
 vtk_use_parallel = @VTK_PYTHON_USE_PARALLEL@
+vtk_use_infovis = @VTK_PYTHON_USE_INFOVIS@
 vtk_use_mpi = @VTK_PYTHON_USE_MPI@
 vtk_has_configuration_types = @VTK_PYTHON_HAS_CONFIG_TYPES@
 
@@ -50,6 +51,8 @@ if vtk_use_rendering:
     vtk_kit_names.extend(['Rendering', 'VolumeRendering', 'Hybrid', 'Widgets'])
 if vtk_use_parallel:
     vtk_kit_names.extend(['Parallel'])
+if vtk_use_infovis:
+    vtk_kit_names.extend(['Infovis'])
 
 # Construct the list of executable names to be installed.
 vtk_exe_names = ['vtkpython']

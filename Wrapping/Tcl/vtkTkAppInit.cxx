@@ -65,6 +65,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkParallelInstantiator.h"
 #endif
 
+#ifdef VTK_USE_INFOVIS
+#include "vtkInfovisInstantiator.h"
+#endif
+
 #include "vtkTclUtil.h"
 
 static void vtkTkAppInitEnableMSVCDebugHook();
@@ -191,6 +195,10 @@ extern "C" int Vtkwidgetstcl_Init(Tcl_Interp *interp);
 extern "C" int Vtkparalleltcl_Init(Tcl_Interp *interp);
 #endif
 
+#ifdef VTK_USE_INFOVIS
+extern "C" int Vtkinfovistcl_Init(Tcl_Interp *interp);
+#endif
+
 void help()
 {
 }
@@ -279,6 +287,13 @@ int Tcl_AppInit(Tcl_Interp *interp)
 
 #ifdef VTK_USE_PARALLEL
   if (Vtkparalleltcl_Init(interp) == TCL_ERROR)
+    {
+    return TCL_ERROR;
+    }
+#endif
+ 
+#ifdef VTK_USE_INFOVIS
+  if (Vtkinfovistcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }

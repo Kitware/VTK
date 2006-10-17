@@ -24,7 +24,7 @@ package ifneeded vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} {
     foreach kit { base Common Filtering IO Imaging Graphics
                   @VTK_TCL_RENDERING_CONFIG@ @VTK_TCL_VOLUMERENDERING_CONFIG@
                   @VTK_TCL_HYBRID_CONFIG@ @VTK_TCL_WIDGETS_CONFIG@
-                  @VTK_TCL_PARALLEL_CONFIG@ } {
+                  @VTK_TCL_PARALLEL_CONFIG@ @VTK_TCL_INFOVIS_CONFIG@ } {
       lappend kits [string tolower "${kit}"]
     }
   }
@@ -34,7 +34,7 @@ package ifneeded vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} {
 foreach kit { Common Filtering IO Imaging Graphics
               @VTK_TCL_RENDERING_CONFIG@ @VTK_TCL_VOLUMERENDERING_CONFIG@
               @VTK_TCL_HYBRID_CONFIG@ @VTK_TCL_WIDGETS_CONFIG@
-              @VTK_TCL_PARALLEL_CONFIG@ } {
+              @VTK_TCL_PARALLEL_CONFIG@ @VTK_TCL_INFOVIS_CONFIG@ } {
   package ifneeded "vtk${kit}TCL" {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} "
     package require -exact vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
     ::vtk::init::load_library_package {vtk${kit}TCL} {@VTK_TCL_LIBRARY_DIR@}
