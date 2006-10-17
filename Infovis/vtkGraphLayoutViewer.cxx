@@ -50,7 +50,7 @@
 #include <vtkInformation.h>
 #include <vtkCellData.h>
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.2");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.3");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -76,7 +76,7 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
   this->SetLayoutStrategy("Simple2D");
   
   // Okay setup the internal pipeline
-  this->SetupPipeline();
+//  this->SetupPipeline();
   
 }
 

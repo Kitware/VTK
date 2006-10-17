@@ -31,7 +31,7 @@
 #include "vtkGraph.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkTreeFieldAggregator, "1.2");
+vtkCxxRevisionMacro(vtkTreeFieldAggregator, "1.3");
 vtkStandardNewMacro(vtkTreeFieldAggregator);
 
 vtkTreeFieldAggregator::vtkTreeFieldAggregator():MinValue(0.0)
@@ -159,7 +159,7 @@ int vtkTreeFieldAggregator::RequestData(
 void vtkTreeFieldAggregator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "Field: " << this->Field << endl;
+//  os << indent << "Field: " << this->Field << endl;
   os << indent << "LeafNodeUnitSize: " << (this->LeafNodeUnitSize ? "On" : "Off") << endl;
   os << indent << "MinValue: " << this->MinValue << endl;
   os << indent << "LogScale: " << (this->LogScale? "On" : "Off") << endl;
