@@ -28,7 +28,6 @@
 #include "vtkCollection.h"
 #include "vtkCollectionIterator.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLExtensionManager.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkShader.h"
@@ -45,7 +44,7 @@
 #include "vtkGLSLShaderProgram.h"
 #endif
 
-vtkCxxRevisionMacro(vtkShaderProgram, "1.7");
+vtkCxxRevisionMacro(vtkShaderProgram, "1.8");
 
 vtkCxxSetObjectMacro(vtkShaderProgram, Material, vtkXMLMaterial);
 
@@ -167,34 +166,6 @@ void vtkShaderProgram::RemoveShader(int index)
 int vtkShaderProgram::GetNumberOfShaders()
 {
   return this->ShaderCollection->GetNumberOfItems();
-}
-
-//-----------------------------------------------------------------------------
-void vtkShaderProgram::LoadExtensions( vtkRenderWindow* renWin )
-{
-  if( this->GetGLExtensionsLoaded() == 1 )
-    {
-    return;
-    }
-  // Load extensions using vtkOpenGLExtensionManager
-  vtkOpenGLExtensionManager *extensions = vtkOpenGLExtensionManager::New();
-  // How can I get access to the vtkRenderWindow from here?
-  extensions->SetRenderWindow( renWin );
-  // Shouldn't this check be in the subclasses?  GLSL requires GL 2.0, but
-  // Cg does not.
-  if(   extensions->ExtensionSupported("GL_VERSION_2_0")
-     && extensions->ExtensionSupported("GL_VERSION_1_3") )
-    {
-    extensions->LoadExtension("GL_VERSION_2_0");
-    extensions->LoadExtension("GL_VERSION_1_3");
-    this->SetGLExtensionsLoaded(1);
-    }
-  else
-    {
-    vtkErrorMacro( "Required extension (GL_VERSION_2_0) is not supported." )
-    this->SetGLExtensionsLoaded(0);
-    }
-  extensions->Delete();
 }
 
 //-----------------------------------------------------------------------------

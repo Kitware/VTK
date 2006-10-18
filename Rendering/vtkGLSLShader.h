@@ -105,13 +105,20 @@ public:
   vtkGetMacro( Program, unsigned int );
 
   // Description:
+  // Internal ivar to determine if using OpenGL 2.0 or 1.x extensions.
+  vtkSetMacro(UseOpenGL2, int);
+  vtkGetMacro(UseOpenGL2, int);
+
+  // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
   // resources to release.
-  void ReleaseGraphicsResources(vtkWindow *);
+  virtual void ReleaseGraphicsResources(vtkWindow *);
 protected:
   vtkGLSLShader();
   virtual ~vtkGLSLShader();
+
+  int UseOpenGL2;
 
   // These are GLuints.
   unsigned int Program;

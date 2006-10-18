@@ -89,7 +89,7 @@ public:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
   // resources to release.
-  void ReleaseGraphicsResources(vtkWindow *) { }
+  virtual void ReleaseGraphicsResources(vtkWindow *) { }
   
   // Description:
   // Get/Set the XMLShader representation for this shader.
