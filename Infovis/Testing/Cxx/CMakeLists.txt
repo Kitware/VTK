@@ -13,7 +13,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                          EXTRA_INCLUDE vtkTestDriver.h)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
-  TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkInfovis vtkRendering vtkIO)
+  TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkInfovis vtkRendering vtkIO vtkCommon)
   SET (TestsToRun ${Tests})
   REMOVE (TestsToRun ${KIT}CxxTests.cxx)
 
