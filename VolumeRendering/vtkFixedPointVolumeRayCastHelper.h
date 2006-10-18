@@ -946,6 +946,8 @@
   unsigned int oldSPos[3];                              \
                                                         \
   oldSPos[0] = (pos[0] >> VTKKW_FP_SHIFT) + 1;          \
+  oldSPos[1] = 0;                                       \
+  oldSPos[2] = 0;                                       \
                                                         \
   unsigned int w1X, w1Y, w1Z;                           \
   unsigned int w2X, w2Y, w2Z;                           \
@@ -962,6 +964,8 @@
   unsigned int oldSPos[3];                                      \
                                                                 \
   oldSPos[0] = (pos[0] >> VTKKW_FP_SHIFT) + 1;                  \
+  oldSPos[1] = 0;                                               \
+  oldSPos[2] = 0;                                               \
                                                                 \
   unsigned int w1X, w1Y, w1Z;                                   \
   unsigned int w2X, w2Y, w2Z;                                   \
@@ -1007,6 +1011,8 @@
   unsigned int oldSPos[3];                              \
                                                         \
   oldSPos[0] = (pos[0] >> VTKKW_FP_SHIFT) + 1;          \
+  oldSPos[1] = 0;                                       \
+  oldSPos[2] = 0;                                       \
                                                         \
   unsigned int w1X, w1Y, w1Z;                           \
   unsigned int w2X, w2Y, w2Z;                           \
@@ -1040,6 +1046,8 @@
   unsigned int oldSPos[3];                                      \
                                                                 \
   oldSPos[0] = (pos[0] >> VTKKW_FP_SHIFT) + 1;                  \
+  oldSPos[1] = 0;                                               \
+  oldSPos[2] = 0;                                               \
                                                                 \
   unsigned int w1X, w1Y, w1Z;                                   \
   unsigned int w2X, w2Y, w2Z;                                   \
@@ -1051,7 +1059,6 @@
   unsigned int color[3] = {0,0,0};                              \
   unsigned short remainingOpacity = 0x7fff;                     \
   unsigned short tmp[4];
-
 //ETX
 
 //BTX

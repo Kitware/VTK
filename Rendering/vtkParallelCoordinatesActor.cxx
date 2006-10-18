@@ -26,7 +26,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.34");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.35");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);
@@ -317,8 +317,8 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   vtkIdType i, j, k, ptId;
   vtkDataObject *input = this->GetInput();
   vtkFieldData *field = input->GetFieldData();
-  double v;
-  
+  double v = 0.0;
+
   this->Initialize();
 
   if ( ! field )

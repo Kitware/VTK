@@ -17,7 +17,7 @@
 #include "vtkMath.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkQuaternionInterpolator, "1.5");
+vtkCxxRevisionMacro(vtkQuaternionInterpolator, "1.6");
 vtkStandardNewMacro(vtkQuaternionInterpolator);
 
 //----------------------------------------------------------------------------
@@ -130,7 +130,14 @@ struct vtkQuaternion
   // log(q) where q is a unit (normalized) quaternion
   static void UnitLog(double q[4], double qLog[4])
     {
-      double theta, sinTheta, cosTheta, v[3];
+      double theta = 0.0;
+      double sinTheta = 0.0;
+      double cosTheta = 1.0;
+      double v[3];
+      v[0] = 0.0;
+      v[1] = 0.0;
+      v[2] = 0.0;
+
       vtkQuaternion::UnitVector(q,theta,sinTheta,cosTheta,v);
       qLog[0] = 0.0;
       qLog[1] = theta * v[0];
@@ -140,7 +147,14 @@ struct vtkQuaternion
   // exp(q) where q is a unit quaternion
   static void UnitExp(double q[4], double qExp[4])
     {
-      double theta, sinTheta, cosTheta, v[3];
+      double theta = 0.0;
+      double sinTheta = 0.0;
+      double cosTheta = 1.0;
+      double v[3];
+      v[0] = 0.0;
+      v[1] = 0.0;
+      v[2] = 0.0;
+
       vtkQuaternion::UnitVector(q,theta,sinTheta,cosTheta,v);
       qExp[0] = cosTheta;
       qExp[1] = sinTheta * v[0];
