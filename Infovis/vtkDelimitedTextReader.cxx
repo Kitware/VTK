@@ -30,7 +30,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.4");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.5");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -158,6 +158,7 @@ int vtkDelimitedTextReader::RequestData(
 
   my_getline(*(this->Internals->File), firstLine);
 
+  vtkDebugMacro(<<"First line of file: " << firstLine.c_str());
    
   if (this->HaveHeaders)
     {
@@ -217,6 +218,7 @@ int vtkDelimitedTextReader::RequestData(
   vtkStdString nextLine;
   while (my_getline(*(this->Internals->File), nextLine))
     {
+    vtkDebugMacro(<<"Next line: " << nextLine.c_str());
     vtkstd::vector<vtkStdString> dataVector;
 
     // Split string on the delimiters
@@ -226,6 +228,7 @@ int vtkDelimitedTextReader::RequestData(
                 this->UseStringDelimiter,
                 dataVector);
     
+    vtkDebugMacro(<<"Split into " << dataVector.size() << " fields");
     // Add data to the output arrays
 
     // Convert from vector to variant array
@@ -332,7 +335,8 @@ splitString(const vtkStdString& input,
       lastCharacter = thisCharacter;
       }
     }
-  
+
+  results.push_back(currentField);
   return results.size();
 }
 
