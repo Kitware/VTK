@@ -30,7 +30,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.3");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.4");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -267,6 +267,7 @@ splitString(const vtkStdString& input,
 
   bool inString = false;
   char thisCharacter = 0;
+  char lastCharacter = 0;
 
   vtkstd::string currentField;
 
@@ -274,41 +275,62 @@ splitString(const vtkStdString& input,
     {
     thisCharacter = input[i];
 
-    // First: handle string beginning/end (if the user specified string
-    // delimiters)
-    if (useStringDelimiter && thisCharacter == stringDelimiter)
+    // Zeroth: are we in an escape sequence? If so, interpret this
+    // character accordingly.
+    if (lastCharacter == '\\')
       {
-      // this should just toggle inString
-      inString = (inString == false);
-      }
-    else if (thisCharacter == fieldDelimiter)
-      {
-      // Second: handle field delimiters.  A delimiter starts a new
-      // field unless we're in a string, in which case it's normal text.
-      if (inString)
+      char characterToAppend;
+      switch (thisCharacter)
         {
-        currentField += thisCharacter;
+        case '0': characterToAppend = '\0'; break;
+        case 'a': characterToAppend = '\a'; break;
+        case 'b': characterToAppend = '\b'; break;
+        case 't': characterToAppend = '\t'; break;
+        case 'n': characterToAppend = '\n'; break;
+        case 'v': characterToAppend = '\v'; break;
+        case 'f': characterToAppend = '\f'; break;
+        case 'r': characterToAppend = '\r'; break;
+        case '\\': characterToAppend = '\\'; break;
+        default:  characterToAppend = thisCharacter; break;
         }
-      else
+
+      currentField += characterToAppend;
+      lastCharacter = thisCharacter;
+      if (lastCharacter == '\\') lastCharacter = 0;
+      }
+    else 
+      {
+      // We're not in an escape sequence.
+
+      // First, are we /starting/ an escape sequence?
+      if (thisCharacter == '\\')
         {
+        lastCharacter = thisCharacter;
+        continue;
+        }
+      else if (useStringDelimiter && thisCharacter == stringDelimiter)
+        {
+        // this should just toggle inString
+        inString = (inString == false);
+        }
+      else if (thisCharacter == fieldDelimiter && !inString)
+        {
+        // A delimiter starts a new field unless we're in a string, in
+        // which case it's normal text and we won't even get here.
         if (includeEmpties || currentField.size() > 0)
           {
           results.push_back(currentField);
           }
         currentField = vtkStdString();
         }
+      else
+        {
+        // The character is just plain text.  Accumulate it and move on.
+        currentField += thisCharacter;
+        }
+      
+      lastCharacter = thisCharacter;
       }
-    else
-      {
-      // The character is just plain text.  Accumulate it and move on.
-      currentField += thisCharacter;
-      }
-    }
-  
-  // handle the string accumulated since the last delimiter, if any
-  if (includeEmpties || currentField.size() > 0)
-    {
-    results.push_back(currentField);
     }
   
   return results.size();
@@ -321,7 +343,6 @@ my_getline(istream& in, vtkStdString &out, char delimiter)
 {
   out = vtkStdString();
   int numCharactersRead = 0;
-
   int nextValue = 0;
   
   while ((nextValue = in.get()) != EOF &&
