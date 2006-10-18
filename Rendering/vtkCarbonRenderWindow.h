@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkCarbonRenderWindow.h
+Program:   Visualization Toolkit
+Module:    vtkCarbonRenderWindow.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 // .NAME vtkCarbonRenderWindow - Carbon OpenGL rendering window
@@ -114,9 +114,9 @@ public:
   void SetWindowInfo(char *);
 
   void SetNextWindowInfo(char *)
-     {
+    {
       vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
-     }
+    }
 
   //BTX
   virtual void *GetGenericDisplayId() {return NULL;}
@@ -144,7 +144,7 @@ public:
   void  SetWindowId(void *foo) {this->SetWindowId((HIViewRef)foo);};
   void SetNextWindowId(void*)
     {
-       vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
+      vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
     }
 
   // Description:
@@ -232,14 +232,16 @@ protected:
   int ForceMakeCurrent;
 
 
- // data and handlers to keep the GL view coincident with the HIView
+  // data and handlers to keep the GL view coincident with the HIView
   EventHandlerUPP RegionEventHandlerUPP;
   EventHandlerRef RegionEventHandler;
-  static OSStatus RegionEventProcessor(EventHandlerCallRef er, EventRef event, void*);
+  static OSStatus RegionEventProcessor(EventHandlerCallRef er,
+                                       EventRef event,
+                                       void*);
 
   void InitializeApplication();
 
-  void CreateAWindow(int x, int y, int width, int height);
+  void CreateAWindow();
   void DestroyWindow();
   
   void CreateOffScreenWindow(int x, int y);

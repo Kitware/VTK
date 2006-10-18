@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLRenderWindow.h
+Program:   Visualization Toolkit
+Module:    vtkOpenGLRenderWindow.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 // .NAME vtkOpenGLRenderWindow - OpenGL rendering window
@@ -113,7 +113,42 @@ protected:
   int GetRGBAPixelData(int x,int y,int x2,int y2, int front, float* data);
   int GetRGBACharPixelData(int x,int y,int x2,int y2, int front,
                            unsigned char* data);
-
+  
+  // Description:
+  // Create an offScreen window based on OpenGL framebuffer extension.
+  // Return if the creation was successful or not.
+  // \pre positive_width: width>0
+  // \pre positive_height: height>0
+  // \pre not_initialized: !OffScreenUseFrameBuffer
+  // \post valid_result: (result==0 || result==1)
+  //                     && (result implies OffScreenUseFrameBuffer)
+  int CreateHardwareOffScreenWindow(int width, int height);
+  
+  // Description:
+  // Destroy an offscreen window based on OpenGL framebuffer extension.
+  // \pre initialized: OffScreenUseFrameBuffer
+  // \post destroyed: !OffScreenUseFrameBuffer
+  void DestroyHardwareOffScreenWindow();
+  
+  // Description:
+  // Flag telling if a framebuffer-based offscreen is currently in use.
+  int OffScreenUseFrameBuffer;
+  
+  // Description:
+  // Variables used by the framebuffer-based offscreen method.
+  int NumberOfFrameBuffers;
+  unsigned int TextureObjects[4]; // really GLuint
+  unsigned int FrameBufferObject; // really GLuint
+  unsigned int DepthRenderBufferObject; // really GLuint
+  
+  // Description:
+  // Create a not-off-screen window.
+  virtual void CreateAWindow()=0;
+  
+  // Description:
+  // Destroy a not-off-screen window.
+  virtual void DestroyWindow()=0;
+  
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.
   void operator=(const vtkOpenGLRenderWindow&);  // Not implemented.

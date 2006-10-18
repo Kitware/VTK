@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkOpenGLRenderWindow.cxx
+Program:   Visualization Toolkit
+Module:    vtkOpenGLRenderWindow.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkOpenGLRenderWindow.h"
@@ -24,9 +24,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 #include "vtkUnsignedCharArray.h"
+#include "assert.h"
+#include "vtkOpenGLExtensionManager.h"
+#include "vtkgl.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.71");
+
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.72");
 #endif
 
 #define MAX_LIGHTS 8
@@ -52,7 +56,9 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   if ( this->WindowName ) 
     delete [] this->WindowName;
   this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
-    strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
+  strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
+  
+  this->OffScreenUseFrameBuffer=0;
 }
 
 // free up memory & close the window
@@ -207,7 +213,7 @@ unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
     }
 
   unsigned char *data = 
-           new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
+    new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
   this->GetPixelData(x1, y1, x2, y2, front, data);
   return data;
 }
@@ -1302,4 +1308,186 @@ void vtkOpenGLRenderWindow::RegisterTextureResource (GLuint id)
   this->TextureResourceIds->InsertNextId ((int) id);
 }
 
+// ----------------------------------------------------------------------------
+// Description:
+// Create an offScreen window based on OpenGL framebuffer extension.
+// Return if the creation was successful or not.
+// \pre positive_width: width>0
+// \pre positive_height: height>0
+// \pre not_initialized: !OffScreenUseFrameBuffer
+// \post valid_result: (result==0 || result==1)
+//                     && (result implies OffScreenUseFrameBuffer)
+int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
+{
+  assert("pre: positive_width" && width>0);
+  assert("pre: positive_height" && height>0);
+  assert("pre: not_initialized" && !this->OffScreenUseFrameBuffer);
+  
+  // 1. create a regular OpenGLcontext (ie create a window)
+  this->CreateAWindow();
+  this->MakeCurrent();
+  
+  // 2. check for OpenGL extensions Gl_EXT_framebuffer_object and
+  // GL_ARB_texture_non_power_of_two
+  vtkOpenGLExtensionManager *extensions=vtkOpenGLExtensionManager::New();
+  extensions->SetRenderWindow(this);
+  
+  int supports_GL_EXT_framebuffer_object=extensions->ExtensionSupported("GL_EXT_framebuffer_object");
+  int supports_GL_ARB_texture_non_power_of_two=extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
+  int supports_GL_ARB_draw_buffers=extensions->ExtensionSupported("GL_ARB_draw_buffers");
+  int result=0;
+  
+  if(!(supports_GL_EXT_framebuffer_object && supports_GL_ARB_texture_non_power_of_two && supports_GL_ARB_draw_buffers))
+    {
+    if(!supports_GL_EXT_framebuffer_object)
+      {
+      vtkDebugMacro(<<" extension GL_EXT_framebuffer_object is not supported. Hardware accelerated offscreen rendering is not available");
+      }
+    if(!supports_GL_ARB_texture_non_power_of_two)
+      {
+      vtkDebugMacro(<<" extension GL_ARB_texture_non_power_of_two is not supported. Hardware accelerated offscreen rendering is not available");
+      }
+    if(!supports_GL_ARB_draw_buffers)
+      {
+      vtkDebugMacro(<<" extension GL_ARB_draw_buffers is not supported. Hardware accelerated offscreen rendering is not available");
+      }
+    this->DestroyWindow();
+    }
+  else
+    {
+    result=1;
+    extensions->LoadExtension("GL_EXT_framebuffer_object");
+    extensions->LoadExtension("GL_ARB_texture_non_power_of_two");
+    extensions->LoadExtension("GL_ARB_draw_buffers");
+    
+    // 3. regular framebuffer code
+    this->NumberOfFrameBuffers=1;
+    GLboolean flag;
+    glGetBooleanv(GL_DOUBLEBUFFER,&flag);
+    if(flag)
+      {
+      this->NumberOfFrameBuffers<<=1;
+      }
+    glGetBooleanv(GL_STEREO,&flag);
+    if(flag)
+      {
+      this->NumberOfFrameBuffers<<=1;
+      }
+    
+    // Up to 4: double buffer and stereo
+    GLuint textureObjects[4];
+    
+    GLuint frameBufferObject;
+    GLuint depthRenderBufferObject;
+    vtkgl::GenFramebuffersEXT(1, &frameBufferObject); // color
+    vtkgl::GenRenderbuffersEXT(1, &depthRenderBufferObject); // depth
+    int i=0;
+    while(i<this->NumberOfFrameBuffers)
+      {
+      textureObjects[i]=0;
+      ++i;
+      }
+    glGenTextures(this->NumberOfFrameBuffers,textureObjects);
+    // Color buffers
+    vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,frameBufferObject);
+    i=0;
+    while(i<this->NumberOfFrameBuffers)
+      {
+      glBindTexture(GL_TEXTURE_2D,textureObjects[i]);
+      vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
+                                     vtkgl::COLOR_ATTACHMENT0_EXT+i,
+                                     GL_TEXTURE_2D, textureObjects[i], 0);
+      ++i;
+      }
+    
+    // Depth buffer
+    vtkgl::BindRenderbufferEXT(vtkgl::RENDERBUFFER_EXT,
+                               depthRenderBufferObject);
+    vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT,
+                                      vtkgl::DEPTH_ATTACHMENT_EXT,
+                                      vtkgl::RENDERBUFFER_EXT,
+                                      depthRenderBufferObject);
+    
+    // Restore default frame buffer.
+    vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,0);
+    
+    i=0;
+    while(i<this->NumberOfFrameBuffers)
+      {
+      glBindTexture(GL_TEXTURE_2D,textureObjects[i]);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,width,height,
+                   0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
+      ++i;
+      }
+    // Set up the depth render buffer
+    vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,frameBufferObject);
+    vtkgl::BindRenderbufferEXT(vtkgl::RENDERBUFFER_EXT,depthRenderBufferObject);
+    vtkgl::RenderbufferStorageEXT(vtkgl::RENDERBUFFER_EXT,
+                                  vtkgl::DEPTH_COMPONENT24,width,height);
+    vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,0);
+    
+    vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,frameBufferObject);
+    GLenum buffer[4];
+    buffer[0] = vtkgl::COLOR_ATTACHMENT0_EXT;
+    buffer[1] = vtkgl::COLOR_ATTACHMENT1_EXT;
+    buffer[2] = vtkgl::COLOR_ATTACHMENT2_EXT;
+    buffer[3] = vtkgl::COLOR_ATTACHMENT3_EXT;
+    vtkgl::DrawBuffersARB(this->NumberOfFrameBuffers,buffer);
+    
+    // Save GL objects by static casting to standard C types. GL* types
+    // are not allowed in VTK header files.
+    this->FrameBufferObject=static_cast<unsigned int>(frameBufferObject);
+    this->DepthRenderBufferObject=static_cast<unsigned int>(depthRenderBufferObject);
+    i=0;
+    while(i<this->NumberOfFrameBuffers)
+      {
+      this->TextureObjects[i]=static_cast<unsigned int>(textureObjects[i]);
+      ++i;
+      }
+    
+    this->OffScreenUseFrameBuffer=1;
+    }
+  extensions->Delete();
 
+  // A=>B = !A || B
+  assert("post: valid_result" && (result==0 || result==1) && (!result || OffScreenUseFrameBuffer));
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Destroy an offscreen window based on OpenGL framebuffer extension.
+// \pre initialized: OffScreenUseFrameBuffer
+// \post destroyed: !OffScreenUseFrameBuffer
+void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
+{
+  assert("pre: initialized" && this->OffScreenUseFrameBuffer);
+  
+  this->MakeCurrent();
+  vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT, 0 );
+  
+  GLuint frameBufferObject=static_cast<GLuint>(this->FrameBufferObject);
+  vtkgl::DeleteFramebuffersEXT(1,&frameBufferObject);
+  
+  GLuint depthRenderBufferObject=static_cast<GLuint>(this->DepthRenderBufferObject);
+  vtkgl::DeleteRenderbuffersEXT(1,&depthRenderBufferObject);
+  
+  GLuint textureObjects[4];
+  int i=0;
+  while(i<this->NumberOfFrameBuffers)
+    {
+    textureObjects[i]=static_cast<GLuint>(this->TextureObjects[i]);
+    ++i;
+    }
+  
+  glDeleteTextures(this->NumberOfFrameBuffers,textureObjects);
+  this->DestroyWindow();
+  
+  this->OffScreenUseFrameBuffer=0;
+  
+  assert("post: destroyed" && !this->OffScreenUseFrameBuffer);
+}

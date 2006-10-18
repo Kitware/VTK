@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkCocoaRenderWindow.mm
+Program:   Visualization Toolkit
+Module:    vtkCocoaRenderWindow.mm
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
@@ -24,7 +24,7 @@
 #define MAC_OS_X_VERSION_10_4 1040
 #endif
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.35");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.36");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -44,6 +44,8 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
   this->Capabilities = 0;
+  this->OnScreenInitialized=0;
+  this->OffScreenInitialized=0;
 }
 
 //----------------------------------------------------------------------------
@@ -85,6 +87,21 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::Finalize()
 {
+  if(this->OffScreenInitialized)
+    {
+    this->OffScreenInitialized=0;
+    this->DestroyOffScreenWindow();
+    }
+  if(this->OnScreenInitialized)
+    {
+    this->OnScreenInitialized=0;
+    this->DestroyWindow();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::DestroyWindow()
+{
   GLuint txId;
 
   // finish OpenGL rendering
@@ -116,7 +133,7 @@ void vtkCocoaRenderWindow::Finalize()
     vtkCollectionSimpleIterator rsit;
     vtkRenderer *ren;
     for ( this->Renderers->InitTraversal(rsit);
-         (ren = this->Renderers->GetNextRenderer(rsit));)
+          (ren = this->Renderers->GetNextRenderer(rsit));)
       {
       ren->SetRenderWindow(NULL);
       }
@@ -138,9 +155,9 @@ void vtkCocoaRenderWindow::SetWindowName( const char * _arg )
     NSString* winTitleStr;
 
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_4
-  winTitleStr = [NSString stringWithCString:_arg encoding:NSASCIIStringEncoding];
+    winTitleStr = [NSString stringWithCString:_arg encoding:NSASCIIStringEncoding];
 #else
-  winTitleStr = [NSString stringWithCString:_arg];
+    winTitleStr = [NSString stringWithCString:_arg];
 #endif
 
     [(NSWindow*)this->WindowId setTitle:winTitleStr];
@@ -157,20 +174,7 @@ int vtkCocoaRenderWindow::GetEventPending()
 // Initialize the rendering process.
 void vtkCocoaRenderWindow::Start()
 {
-  // if the renderer has not been initialized, do so now
-  if (!this->ContextId)
-    {
-    this->Initialize();
-    }
-
-  NSOpenGLContext* context = (NSOpenGLContext*)this->ContextId;
-
-  // the error "invalid drawable" in the console from this call can appear
-  // but only early in the app's lifetime (ie sometime during launch)
-
-  [context setView:(NSView*)this->NSViewId];
-
-  [context update];
+  this->Initialize();
 
   // set the current window
   this->MakeCurrent();
@@ -431,7 +435,7 @@ void vtkCocoaRenderWindow::SetupPalette(void*)
 
 //----------------------------------------------------------------------------
 // Initialize the window for rendering.
-void vtkCocoaRenderWindow::WindowInitialize ()
+void vtkCocoaRenderWindow::CreateAWindow()
 {
   static int count = 1;
 
@@ -464,10 +468,10 @@ void vtkCocoaRenderWindow::WindowInitialize ()
                                (float)this->Size[1]);
 
     NSWindow* theWindow = [[NSWindow alloc]
-      initWithContentRect:ctRect
-      styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask
-      backing:NSBackingStoreBuffered
-      defer:NO];
+                           initWithContentRect:ctRect
+                           styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask
+                           backing:NSBackingStoreBuffered
+                           defer:NO];
     if (!theWindow)
       {
       vtkErrorMacro("Could not create window, serious error!");
@@ -512,7 +516,27 @@ void vtkCocoaRenderWindow::WindowInitialize ()
   this->SetWindowName([winName cString]);
 #endif
 
+  // the error "invalid drawable" in the console from this call can appear
+  // but only early in the app's lifetime (ie sometime during launch)
+  // IMPORTANT: this is necessary to update the context here in case of
+  // hardware offscreen rendering
+  NSOpenGLContext* context = (NSOpenGLContext*)this->ContextId;
+  [context setView:(NSView*)this->NSViewId];
+
+  [context update];
+
   this->MakeCurrent();
+
+  // wipe out any existing display lists
+  vtkRenderer *renderer;
+  vtkCollectionSimpleIterator rsit;
+
+  for ( this->Renderers->InitTraversal(rsit);
+        (renderer = this->Renderers->GetNextRenderer(rsit));)
+    {
+    renderer->SetRenderWindow(0);
+    renderer->SetRenderWindow(this);
+    }
   this->OpenGLInit();
   this->Mapped = 1;
 }
@@ -522,18 +546,18 @@ void vtkCocoaRenderWindow::CreateGLContext()
 {
   NSOpenGLPixelFormatAttribute attribs[] =
     {
-    NSOpenGLPFAAccelerated,
-    NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)32,
-    this->DoubleBuffer? NSOpenGLPFADoubleBuffer : (NSOpenGLPixelFormatAttribute)nil,
-    (NSOpenGLPixelFormatAttribute)nil
+      NSOpenGLPFAAccelerated,
+      NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)32,
+      this->DoubleBuffer? NSOpenGLPFADoubleBuffer : (NSOpenGLPixelFormatAttribute)nil,
+      (NSOpenGLPixelFormatAttribute)nil
     };
 
   NSOpenGLPixelFormat* pixelFormat =
     (NSOpenGLPixelFormat*)[[NSOpenGLPixelFormat alloc]
-    initWithAttributes:attribs];
+                           initWithAttributes:attribs];
   NSOpenGLContext* context = (NSOpenGLContext*)[[NSOpenGLContext alloc]
-    initWithFormat:pixelFormat
-    shareContext:nil];
+                                                initWithFormat:pixelFormat
+                                                shareContext:nil];
   
   // This syncs the OpenGL context to the VBL to prevent tearing
   GLint one = 1;
@@ -547,14 +571,66 @@ void vtkCocoaRenderWindow::CreateGLContext()
 // Initialize the rendering window.
 void vtkCocoaRenderWindow::Initialize ()
 {
-  // make sure we havent already been initialized
-  if (this->ContextId)
+  if(this->OffScreenRendering)
     {
-    return;
+    // destroy on screen
+    if(this->OnScreenInitialized)
+      {
+      this->DestroyWindow();
+      this->OnScreenInitialized=0;
+      }
+    // create off screen
+    if(!this->OffScreenInitialized)
+      {
+      int width=((this->Size[0]>0) ? this->Size[0] : 300);
+      int height=((this->Size[1]>0) ? this->Size[1] : 300);
+      if(!this->CreateHardwareOffScreenWindow(width,height))
+        {
+        // no other offscreen mode available, do on screen rendering
+        this->CreateAWindow();
+        }
+      this->OffScreenInitialized=1;
+      }
     }
+  else
+    {
+    // destroy off screen
+    if(this->OffScreenInitialized)
+      {
+      this->DestroyOffScreenWindow();
+      }
+    // create on screen
+    if(!this->OnScreenInitialized)
+      {
+      this->CreateAWindow();
+      this->OnScreenInitialized=1;
+      }
+    }
+  if(this->OnScreenInitialized)
+    {
+    // the error "invalid drawable" in the console from this call can appear
+    // but only early in the app's lifetime (ie sometime during launch)
+    // IMPORTANT: this is necessary to update the context here in case of
+    // onscreen rendering
+    NSOpenGLContext* context = (NSOpenGLContext*)this->ContextId;
+    [context setView:(NSView*)this->NSViewId];
 
-  // now initialize the window
-  this->WindowInitialize();
+    [context update];
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::DestroyOffScreenWindow()
+{
+  if(this->OffScreenUseFrameBuffer)
+    {
+    this->DestroyHardwareOffScreenWindow();
+    }
+  else
+    {
+    // on screen
+    this->DestroyWindow();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -681,7 +757,7 @@ void vtkCocoaRenderWindow::PrefFullScreen()
 {
   int *size = this->GetScreenSize();
   vtkWarningMacro(<< "Can't get full screen window of size "
-      << size[0] << 'x' << size[1] << ".");
+                  << size[0] << 'x' << size[1] << ".");
 }
 
 //----------------------------------------------------------------------------
