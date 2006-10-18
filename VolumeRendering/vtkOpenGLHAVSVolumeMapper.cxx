@@ -41,7 +41,7 @@ extern const char *vtkHAVSVolumeMapper_k6BeginFP;
 extern const char *vtkHAVSVolumeMapper_k6FP;
 extern const char *vtkHAVSVolumeMapper_k6EndFP;
 
-vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.4");
+vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.5");
 vtkStandardNewMacro(vtkOpenGLHAVSVolumeMapper);
 
 //----------------------------------------------------------------------------
@@ -132,6 +132,10 @@ void vtkOpenGLHAVSVolumeMapper::Initialize(vtkRenderer *ren,
     extensions->ExtensionSupported( "GL_ATI_texture_float" );
   int supports_GL_ARB_vertex_buffer_object =
     extensions->ExtensionSupported( "GL_ARB_vertex_buffer_object" );
+  int supports_GL_ARB_draw_buffers =
+    extensions->ExtensionSupported( "GL_ARB_draw_buffers" );
+  int supports_GL_ARB_multitexture =
+    extensions->ExtensionSupported( "GL_ARB_multitexture" );
 
   if (supports_GL_EXT_texture3D)
     {
@@ -161,8 +165,16 @@ void vtkOpenGLHAVSVolumeMapper::Initialize(vtkRenderer *ren,
     {
     extensions->LoadExtension( "GL_ARB_vertex_buffer_object" );
     }
+  if (supports_GL_ARB_draw_buffers)
+    {
+    extensions->LoadExtension( "GL_ARB_draw_buffers" );
+    }
+  if (supports_GL_ARB_multitexture)
+    {
+    extensions->LoadExtension( "GL_ARB_multitexture" );
+    }
   extensions->Delete();
-  
+
   if (!supports_GL_ARB_vertex_buffer_object)
     {
     this->GPUDataStructures = false;
@@ -728,45 +740,45 @@ void vtkOpenGLHAVSVolumeMapper::SetupFBOMRT()
                        vtkgl::COLOR_ATTACHMENT1_EXT,
                        vtkgl::COLOR_ATTACHMENT2_EXT,
                        vtkgl::COLOR_ATTACHMENT3_EXT};
-  vtkgl::DrawBuffers(numBuffers, buffers);
+  vtkgl::DrawBuffersARB(numBuffers, buffers);
 
 
   this->CheckOpenGLError("setup MRTs");
 
   // Bind textures for reading
   glEnable(GL_TEXTURE_2D);
-  vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+  vtkgl::ActiveTextureARB(vtkgl::TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, this->FramebufferTextures[0]);
  
-  vtkgl::ActiveTexture(vtkgl::TEXTURE1);
+  vtkgl::ActiveTextureARB(vtkgl::TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, this->FramebufferTextures[1]);
 
   if (numBuffers == 2)
     {
     // Bind lookup tables
     glEnable(GL_TEXTURE_2D);
-    vtkgl::ActiveTexture(vtkgl::TEXTURE2);
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, this->PsiTableTexture);
     
     glEnable(GL_TEXTURE_1D);
-    vtkgl::ActiveTexture(vtkgl::TEXTURE3);
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE3);
     glBindTexture(GL_TEXTURE_1D,this->TransferFunctionTexture); 
     }
   else
     {
     // Bind lookup tables
-    vtkgl::ActiveTexture(vtkgl::TEXTURE2);
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, this->FramebufferTextures[2]);
  
-    vtkgl::ActiveTexture(vtkgl::TEXTURE3);
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, this->FramebufferTextures[3]);
 
     glEnable(GL_TEXTURE_2D);
-    vtkgl::ActiveTexture(vtkgl::TEXTURE4);
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, this->PsiTableTexture);
 
     glEnable(GL_TEXTURE_1D);
-    vtkgl::ActiveTexture(vtkgl::TEXTURE5);
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE5);
     glBindTexture(GL_TEXTURE_1D,this->TransferFunctionTexture); 
     }
   
@@ -900,25 +912,25 @@ void vtkOpenGLHAVSVolumeMapper::DrawFBOFlush(int screenWidth, int screenHeight, 
   // Disable Textures
   if (this->KBufferSize == VTK_KBUFFER_SIZE_2)
     {
-    vtkgl::ActiveTexture(vtkgl::TEXTURE2);
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE2);
     glDisable(GL_TEXTURE_2D);
-    vtkgl::ActiveTexture(vtkgl::TEXTURE3);
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE3);
     glDisable(GL_TEXTURE_1D);
     }
   else
     {
-    vtkgl::ActiveTexture(vtkgl::TEXTURE4);
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE4);
     glDisable(GL_TEXTURE_2D);
-    vtkgl::ActiveTexture(vtkgl::TEXTURE5); 
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE5); 
     glDisable(GL_TEXTURE_1D);
 
     }
   
-  vtkgl::ActiveTexture(vtkgl::TEXTURE1);
+  vtkgl::ActiveTextureARB(vtkgl::TEXTURE1);
   glDisable(GL_TEXTURE_2D);
-  vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+  vtkgl::ActiveTextureARB(vtkgl::TEXTURE0);
   glDisable(GL_TEXTURE_2D);
-  vtkgl::ActiveTexture(0);
+  vtkgl::ActiveTextureARB(0);
   
   glDisable(GL_DEPTH_TEST);
 
@@ -962,7 +974,7 @@ void vtkOpenGLHAVSVolumeMapper::DrawBlend(int screenWidth, int screenHeight, flo
   glLoadIdentity();
 
   // Bind resulting texture
-  vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+  vtkgl::ActiveTextureARB(vtkgl::TEXTURE0);
 
   glBindTexture(GL_TEXTURE_2D, this->FramebufferTextures[0]);
   glEnable(GL_TEXTURE_2D);
