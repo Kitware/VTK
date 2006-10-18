@@ -46,7 +46,7 @@ private:
 
 
 int PASCAL WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                    LPSTR lpszCmdParam, int nCmdShow) 
+                    LPSTR /* lpszCmdParam */, int nCmdShow)
 {
   static char szAppName[] = "Win32Cone";
   HWND        hwnd ;
