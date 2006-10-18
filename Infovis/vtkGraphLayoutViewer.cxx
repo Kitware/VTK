@@ -50,7 +50,7 @@
 #include <vtkInformation.h>
 #include <vtkCellData.h>
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.3");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.4");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -74,10 +74,8 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
   this->LabeledDataMapper->SetFieldDataName("name");
   this->LabeledDataMapper->GetLabelTextProperty()->SetFontSize(12);
   this->SetLayoutStrategy("Simple2D");
-  
-  // Okay setup the internal pipeline
-//  this->SetupPipeline();
-  
+
+  this->PipelineInstalled = false;
 }
 
 //----------------------------------------------------------------------------
@@ -170,6 +168,12 @@ void vtkGraphLayoutViewer::SetInput(vtkAbstractGraph *graph)
 
 void vtkGraphLayoutViewer::InputInitialize()
 {
+  if (!this->PipelineInstalled)
+    {
+    // Okay setup the internal pipeline
+    this->SetupPipeline();
+    }
+
   // Pipeline setup
   this->GraphLayout->SetInput(this->Input);
   this->Actor->VisibilityOn();
@@ -227,7 +231,7 @@ void vtkGraphLayoutViewer::SetupPipeline()
   this->GraphLayout->SetInput(NULL);
   this->Actor->VisibilityOff();
   this->LabelActor->VisibilityOff();
- 
+
   
   // Send graph to poly data filter and mapper
   this->GraphToPolyData->SetInputConnection(0, this->GraphLayout->GetOutputPort(0)); 
@@ -248,6 +252,8 @@ void vtkGraphLayoutViewer::SetupPipeline()
     
   this->Actor->SetMapper(this->PolyDataMapper);
   this->Renderer->AddActor(this->Actor);   
+
+  this->PipelineInstalled = true;
 }
 
 

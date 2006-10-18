@@ -135,6 +135,8 @@ private:
   // Description:
   // Setup the internal pipeline for the graph layout view
   virtual void SetupPipeline();
+
+  bool PipelineInstalled;
   
   // Description:
   // When the input is set with SetInput() there some
