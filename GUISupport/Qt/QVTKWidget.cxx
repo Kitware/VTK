@@ -460,7 +460,8 @@ void QVTKWidget::paintEvent(QPaintEvent* )
   // In Qt 4.1+ let's support redirected painting
 #if QT_VERSION >= 0x040100
   // if redirected, let's grab the image from VTK, and paint it to the device
-  if(this != QPainter::redirected(this))
+  QPaintDevice* device = QPainter::redirected(this);
+  if(device != NULL && device != this)
     {
     int w = this->width();
     int h = this->height();
