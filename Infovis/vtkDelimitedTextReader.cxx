@@ -30,7 +30,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.2");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.3");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -47,6 +47,13 @@ static int splitString(const vtkStdString& input,
                        bool includeEmpties=true);
 
 
+// I need a safe way to read a line of arbitrary length.  It exists on
+// some platforms but not others so I'm afraid I have to write it
+// myself.
+static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
+
+// ----------------------------------------------------------------------
+
 vtkDelimitedTextReader::vtkDelimitedTextReader()
 {
   this->Internals = new vtkDelimitedTextReaderInternals();
@@ -62,6 +69,8 @@ vtkDelimitedTextReader::vtkDelimitedTextReader()
   this->UseStringDelimiter = true;
 
 }
+
+// ----------------------------------------------------------------------
 
 vtkDelimitedTextReader::~vtkDelimitedTextReader()
 {
@@ -139,10 +148,16 @@ int vtkDelimitedTextReader::RequestData(
   // to be a little bit careful about it.  If we don't have headers
   // we'll have to make something up.
   vtkstd::vector<vtkStdString> headers;
-  vtkstd::string firstLine;
-  vtkstd::vector<vtkStdString> firstLineFields;
 
-  vtkstd::getline(*(this->Internals->File), firstLine);
+
+  // Not all platforms support vtkstd::getline(istream&, vtkstd::string) so
+  // I have to do this the clunky way.
+
+  vtkstd::vector<vtkStdString> firstLineFields;
+  vtkStdString firstLine;
+
+  my_getline(*(this->Internals->File), firstLine);
+
    
   if (this->HaveHeaders)
     {
@@ -199,8 +214,8 @@ int vtkDelimitedTextReader::RequestData(
     }
 
   // Okay read the file and add the data to the table
-  vtkstd::string nextLine;
-  while (vtkstd::getline(*(this->Internals->File), nextLine))
+  vtkStdString nextLine;
+  while (my_getline(*(this->Internals->File), nextLine))
     {
     vtkstd::vector<vtkStdString> dataVector;
 
@@ -221,6 +236,12 @@ int vtkDelimitedTextReader::RequestData(
       dataArray->InsertNextValue(vtkVariant(*I));
       }
     
+    // Pad out any missing columns
+    while (dataArray->GetNumberOfTuples() < table->GetNumberOfColumns())
+      {
+      dataArray->InsertNextValue(vtkVariant());
+      }
+
     // Insert the data into the table
     table->InsertNextRow(dataArray);
     dataArray->Delete();
@@ -274,7 +295,7 @@ splitString(const vtkStdString& input,
           {
           results.push_back(currentField);
           }
-        currentField.clear();
+        currentField = vtkStdString();
         }
       }
     else
@@ -293,3 +314,34 @@ splitString(const vtkStdString& input,
   return results.size();
 }
 
+// ----------------------------------------------------------------------
+
+static int
+my_getline(istream& in, vtkStdString &out, char delimiter)
+{
+  out = vtkStdString();
+  int numCharactersRead = 0;
+
+  int nextValue = 0;
+  
+  while ((nextValue = in.get()) != EOF &&
+         numCharactersRead < out.max_size())
+    {
+    ++numCharactersRead;
+
+    char downcast = static_cast<char>(nextValue);
+    if (downcast != delimiter)
+      {
+      out += downcast;
+      }
+    else
+      {
+      return numCharactersRead;
+      }
+    }
+
+  return numCharactersRead;
+}
+  
+      
+  
