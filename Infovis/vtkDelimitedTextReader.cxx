@@ -30,7 +30,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.1");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.2");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -40,9 +40,11 @@ struct vtkDelimitedTextReaderInternals
 
 // Forward function reference (definition at bottom :)
 static int splitString(const vtkStdString& input, 
-       const vtkStdString& delimiter, 
-       vtkstd::vector<vtkStdString>& results, 
-       bool includeEmpties=true);
+                       char fieldDelimiter,
+                       char stringDelimiter,
+                       bool useStringDelimiter,
+                       vtkstd::vector<vtkStdString>& results, 
+                       bool includeEmpties=true);
 
 
 vtkDelimitedTextReader::vtkDelimitedTextReader()
@@ -51,31 +53,41 @@ vtkDelimitedTextReader::vtkDelimitedTextReader()
 
   this->Internals->File = 0;
   this->FileName = 0;
-  this->DelimiterString = 0;
-  this->SetDelimiterString("\t");
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->ReadBuffer = new char[2048];
+
+  this->FieldDelimiter = ',';
+  this->StringDelimiter = '"';
+  this->UseStringDelimiter = true;
+
 }
 
 vtkDelimitedTextReader::~vtkDelimitedTextReader()
 {
   this->SetFileName(0);
-  this->SetDelimiterString(0);
   delete this->ReadBuffer;
   delete this->Internals;
 }
+
+// ----------------------------------------------------------------------
 
 void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " 
      << (this->FileName ? this->FileName : "(none)") << endl;
-  os << indent << "DelimiterString: " 
-     << (this->DelimiterString ? this->DelimiterString : "(none)") << endl;
+  os << indent << "Field delimiter: '" << this->FieldDelimiter 
+     << "'" << endl;
+  os << indent << "String delimiter: '" << this->StringDelimiter
+     << "'" << endl;
+  os << indent << "UseStringDelimiter: " 
+     << (this->UseStringDelimiter ? "true" : "false") << endl;
   os << indent << "HaveHeaders: " 
      << (this->HaveHeaders ? "true" : "false") << endl;
 }
+
+// ----------------------------------------------------------------------
 
 void vtkDelimitedTextReader::OpenFile()
 {
@@ -94,71 +106,116 @@ void vtkDelimitedTextReader::OpenFile()
   // Check to see if open was successful
   if (! this->Internals->File || this->Internals->File->fail())
     {
-    vtkErrorMacro(<< "vtkDelimitedTextReader could not open file " << 
-    this->FileName);
+    vtkErrorMacro(<< "vtkDelimitedTextReader could not open file " 
+                  << this->FileName);
     return;
     }
 }
 
-int vtkDelimitedTextReader::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
-  vtkInformationVector* outputVector)
-{
+// ----------------------------------------------------------------------
 
+int vtkDelimitedTextReader::RequestData(
+                                        vtkInformation*, 
+                                        vtkInformationVector**, 
+                                        vtkInformationVector* outputVector)
+{
   // Check that the filename has been specified
   if (!this->FileName)
     {
-    vtkErrorMacro("A FileName must be specified");
+    vtkErrorMacro("vtkDelimitedTextReader: You must specify a filename!");
     return 0;
     }
     
   // Open the file
   this->OpenFile();
   
-  // Get the headers from the file
-  vtkstd::vector<vtkStdString> Headers;
-  
   // Go to the top of the file
   this->Internals->File->seekg(0,ios::beg);
-  
-  // Read the first line of the file and grab headers
-  this->Internals->File->getline(this->ReadBuffer,2047);
-  
-  // Now give buffer to string
-  vtkStdString s(this->ReadBuffer);
-  
-  // Split string on the delimiters
-  splitString(s, this->DelimiterString, Headers);
 
   // Store the text data into a vtkTable
   vtkTable* table = vtkTable::GetData(outputVector);
+  
+  // The first line of the file might contain the headers, so we want
+  // to be a little bit careful about it.  If we don't have headers
+  // we'll have to make something up.
+  vtkstd::vector<vtkStdString> headers;
+  vtkstd::string firstLine;
+  vtkstd::vector<vtkStdString> firstLineFields;
 
-  // Add arrays for each header (column)
-  vtkstd::vector<vtkStdString>::const_iterator I;
-  for(I = Headers.begin(); I != Headers.end(); ++I)
+  vtkstd::getline(*(this->Internals->File), firstLine);
+   
+  if (this->HaveHeaders)
+    {
+    splitString(firstLine,
+                this->FieldDelimiter,
+                this->StringDelimiter,
+                this->UseStringDelimiter,
+                headers);
+    }
+  else
+    {
+    splitString(firstLine,
+                this->FieldDelimiter,
+                this->StringDelimiter,
+                this->UseStringDelimiter,
+                firstLineFields);
+
+    for (unsigned int i = 0; i < firstLineFields.size(); ++i)
+      {
+      // I know it's not a great idea to use sprintf.  It's safe right
+      // here because an unsigned int will never take up enough
+      // characters to fill up this buffer.
+      char fieldName[64];
+      sprintf(fieldName, "Field %d", i);
+      headers.push_back(fieldName);
+      }
+    }
+
+  // Now we can create the arrays that will hold the data for each
+  // field.
+  vtkstd::vector<vtkStdString>::const_iterator fieldIter;
+  for(fieldIter = headers.begin(); fieldIter != headers.end(); ++fieldIter)
     { 
     vtkStringArray* array = vtkStringArray::New();
-    array->SetName(I->c_str());
+    array->SetName((*fieldIter).c_str());
     table->AddColumn(array);
     array->Delete();
     }
   
-  // Okay read the file and add the data to the table
-  vtkstd::vector<vtkStdString> dataVector;
-  while (this->Internals->File->getline(this->ReadBuffer,2047))
+  // If the first line did not contain headers then we need to add it
+  // to the table.
+  if (!this->HaveHeaders)
     {
-    // Now give buffer to string
-    vtkStdString str(this->ReadBuffer);
-  
+    vtkVariantArray* dataArray = vtkVariantArray::New();
+    vtkstd::vector<vtkStdString>::const_iterator I;
+    for(I = firstLineFields.begin(); I != firstLineFields.end(); ++I)
+      {
+      dataArray->InsertNextValue(vtkVariant(*I));
+      }
+    
+    // Insert the data into the table
+    table->InsertNextRow(dataArray);
+    dataArray->Delete();
+    }
+
+  // Okay read the file and add the data to the table
+  vtkstd::string nextLine;
+  while (vtkstd::getline(*(this->Internals->File), nextLine))
+    {
+    vtkstd::vector<vtkStdString> dataVector;
+
     // Split string on the delimiters
-    dataVector.resize(0);
-    splitString(str, this->DelimiterString, dataVector);
+    splitString(nextLine,
+                this->FieldDelimiter,
+                this->StringDelimiter,
+                this->UseStringDelimiter,
+                dataVector);
     
     // Add data to the output arrays
 
     // Convert from vector to variant array
     vtkVariantArray* dataArray = vtkVariantArray::New();
+    vtkstd::vector<vtkStdString>::const_iterator I;
     for(I = dataVector.begin(); I != dataVector.end(); ++I)
       {
       dataArray->InsertNextValue(vtkVariant(*I));
@@ -172,76 +229,67 @@ int vtkDelimitedTextReader::RequestData(
   return 1;
 }
 
-static int splitString(const vtkStdString& input, 
-       const vtkStdString& delimiter, 
-       vtkstd::vector<vtkStdString>& results, 
-       bool includeEmpties)
+// ----------------------------------------------------------------------
+
+static int 
+splitString(const vtkStdString& input, 
+            char fieldDelimiter,
+            char stringDelimiter,
+            bool useStringDelimiter,
+            vtkstd::vector<vtkStdString>& results, 
+            bool includeEmpties)
 {
-    int iPos = 0;
-    int newPos = -1;
-    int sizeS2 = (int)delimiter.size();
-    int isize = (int)input.size();
-
-    if( 
-        ( isize == 0 )
-        ||
-        ( sizeS2 == 0 )
-    )
+  if (input.size() == 0)
     {
-        return 0;
+    return 0;
     }
 
-    vtkstd::vector<int> positions;
+  bool inString = false;
+  char thisCharacter = 0;
 
-    newPos = input.find (delimiter, 0);
+  vtkstd::string currentField;
 
-    if( newPos < 0 )
-    { 
-        return 0; 
-    }
-
-    int numFound = 0;
-
-    while( newPos >= iPos )
+  for (unsigned int i = 0; i < input.size(); ++i)
     {
-        numFound++;
-        positions.push_back(newPos);
-        iPos = newPos;
-        newPos = input.find (delimiter, iPos+sizeS2);
-    }
+    thisCharacter = input[i];
 
-    if( numFound == 0 )
-    {
-        return 0;
-    }
-
-    for( int i=0; i <= (int)positions.size(); ++i )
-    {
-        vtkStdString s("");
-        int offset;
-        if( i == 0 ) 
-        { 
-            s = input.substr( i, positions[i] );
-            offset = positions[0] + sizeS2; 
-        }
-        offset = positions[i-1] + sizeS2;
-        if( offset < isize )
+    // First: handle string beginning/end (if the user specified string
+    // delimiters)
+    if (useStringDelimiter && thisCharacter == stringDelimiter)
+      {
+      // this should just toggle inString
+      inString = (inString == false);
+      }
+    else if (thisCharacter == fieldDelimiter)
+      {
+      // Second: handle field delimiters.  A delimiter starts a new
+      // field unless we're in a string, in which case it's normal text.
+      if (inString)
         {
-            if( i == (int)positions.size() )
-            {
-                s = input.substr(offset);
-            }
-            else if( i > 0 )
-            {
-                s = input.substr( positions[i-1] + sizeS2, 
-                      positions[i] - positions[i-1] - sizeS2 );
-            }
+        currentField += thisCharacter;
         }
-        if( includeEmpties || ( s.size() > 0 ) )
+      else
         {
-            results.push_back(s);
+        if (includeEmpties || currentField.size() > 0)
+          {
+          results.push_back(currentField);
+          }
+        currentField.clear();
         }
+      }
+    else
+      {
+      // The character is just plain text.  Accumulate it and move on.
+      currentField += thisCharacter;
+      }
     }
-    return numFound;
+  
+  // handle the string accumulated since the last delimiter, if any
+  if (includeEmpties || currentField.size() > 0)
+    {
+    results.push_back(currentField);
+    }
+  
+  return results.size();
 }
 
