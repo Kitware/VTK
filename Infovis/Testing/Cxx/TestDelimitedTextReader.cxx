@@ -70,7 +70,7 @@ TestDelimitedTextReader(int argc, char *argv[])
       else
         {
         cout << "type " << value.GetTypeAsString() << " value " 
-             << value << endl;
+             << value.ToString() << endl;
         }
       }
     }
