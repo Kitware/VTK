@@ -47,7 +47,7 @@ public:
   MapOfTextures Textures;
 };
 
-vtkCxxRevisionMacro(vtkProperty, "1.64");
+vtkCxxRevisionMacro(vtkProperty, "1.65");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -870,7 +870,21 @@ void vtkProperty::AddShaderVariable(const char* name, int numVars, double* x)
   this->ShaderProgram->AddShaderVariable( name, numVars, x );
 }
 
+//-----------------------------------------------------------------------------
+void vtkProperty::ReleaseGraphicsResources(vtkWindow *win)
+{
+  if (this->ShaderProgram)
+    {
+    this->ShaderProgram->ReleaseGraphicsResources(win);
+    }
 
+  vtkPropertyInternals::MapOfTextures::iterator iter =
+    this->Internals->Textures.begin();
+  for ( ;iter != this->Internals->Textures.end(); ++iter)
+    {
+    iter->second->ReleaseGraphicsResources(win);
+    }  
+}
 
 
 //----------------------------------------------------------------------------

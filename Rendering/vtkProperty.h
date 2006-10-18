@@ -44,6 +44,7 @@ class vtkActor;
 class vtkRenderer;
 class vtkShaderProgram;
 class vtkTexture;
+class vtkWindow;
 class vtkXMLDataElement;
 class vtkXMLMaterial;
 
@@ -340,6 +341,12 @@ public:
   // Description:
   // Returns the number of textures in this property.
   int GetNumberOfTextures();
+
+  // Description:
+  // Release any graphics resources that are being consumed by this
+  // property. The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *win);
 
 protected:
   vtkProperty();

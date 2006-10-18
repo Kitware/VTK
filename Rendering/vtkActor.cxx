@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.131");
+vtkCxxRevisionMacro(vtkActor, "1.132");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 vtkCxxSetObjectMacro(vtkActor,Mapper,vtkMapper);
@@ -252,6 +252,16 @@ void vtkActor::ReleaseGraphicsResources(vtkWindow *win)
   if (this->Texture)
     {
     this->Texture->ReleaseGraphicsResources(renWin);
+    }
+
+  // pass this information to the properties
+  if (this->Property)
+    {
+    this->Property->ReleaseGraphicsResources(renWin);
+    }
+  if (this->BackfaceProperty)
+    {
+    this->Property->ReleaseGraphicsResources(renWin);
     }
 }
 
