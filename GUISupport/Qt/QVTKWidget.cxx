@@ -470,6 +470,7 @@ void QVTKWidget::paintEvent(QPaintEvent* )
     this->mRenWin->GetRGBACharPixelData(0, 0, w-1, h-1, 1, pixels);
     pixels->Delete();
     img = img.rgbSwapped();
+    img = img.mirrored();
     
     QPainter painter(this);
     painter.drawImage(QPointF(0.0,0.0), img);
