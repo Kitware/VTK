@@ -457,6 +457,25 @@ void QVTKWidget::paintEvent(QPaintEvent* )
     return;
     }
 
+  // In Qt 4.1+ let's support redirected painting
+#if QT_VERSION >= 0x040100
+  // if redirected, let's grab the image from VTK, and paint it to the device
+  if(this != QPainter::redirected(this))
+    {
+    int w = this->width();
+    int h = this->height();
+    QImage img(w, h, QImage::Format_ARGB32);
+    vtkUnsignedCharArray* pixels = vtkUnsignedCharArray::New();
+    pixels->SetArray(img.bits(), w*h*4, 1);
+    this->mRenWin->GetRGBACharPixelData(0, 0, w-1, h-1, 1, pixels);
+    pixels->Delete();
+    img = img.rgbSwapped();
+    
+    QPainter painter(this);
+    painter.drawImage(QPointF(0.0,0.0), img);
+    return;
+    }
+#endif
   
   // if we have a saved image, use it
   if (this->cachedImageCleanFlag)
