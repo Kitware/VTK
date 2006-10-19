@@ -94,6 +94,7 @@ public:
   // Description:
   // Set the number of scalar components
   virtual void SetNumberOfScalarComponents(int i);
+  virtual int GetNumberOfScalarComponents() const;
 
   // Description:
   // Set/Get the data scalar type (i.e VTK_DOUBLE). Note that these methods
@@ -117,6 +118,7 @@ public:
   void SetScalarTypeToChar()
     {this->SetScalarType(VTK_CHAR);};
   void SetScalarType(int);
+  int GetScalarType() const;
 
 protected:
   vtkImageCanvasSource2D();

@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.16");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.17");
 vtkStandardNewMacro(vtkSplineFilter);
 vtkCxxSetObjectMacro(vtkSplineFilter,Spline,vtkSpline);
 
@@ -45,8 +45,17 @@ vtkSplineFilter::vtkSplineFilter()
 
 vtkSplineFilter::~vtkSplineFilter()
 {
-  this->Spline->Delete();
-  this->TCoordMap->Delete();
+  if (this->Spline)
+    {
+    this->Spline->Delete();
+    this->Spline = 0;
+    }
+
+  if (this->TCoordMap)
+    {
+    this->TCoordMap->Delete();
+    this->TCoordMap = 0;
+    }
 }
 
 int vtkSplineFilter::RequestData(

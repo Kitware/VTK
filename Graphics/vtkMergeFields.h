@@ -76,6 +76,7 @@ public:
   // Set the number of the components in the output field.
   // This has to be set before execution. Default value is 0.
   vtkSetMacro(NumberOfComponents, int);
+  vtkGetMacro(NumberOfComponents, int);
 
 //BTX
   enum FieldLocations

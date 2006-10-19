@@ -47,8 +47,13 @@ public:
   void ThresholdBetween(double lower, double upper);
 
   // Description:
-  // Get the upper and lower thresholds.
+  // Set/Get the upper threshold.
+  vtkSetMacro(UpperThreshold,double);
   vtkGetMacro(UpperThreshold,double);
+
+  // Description:
+  // Set/Get the lower threshold.
+  vtkSetMacro(LowerThreshold,double);
   vtkGetMacro(LowerThreshold,double);
 
 protected:

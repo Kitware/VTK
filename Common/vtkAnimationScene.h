@@ -17,7 +17,7 @@
 // vtkAnimationCue and vtkAnimationScene provide the framework to support
 // animations in VTK. vtkAnimationCue represents an entity that changes/
 // animates with time, while vtkAnimationScene represents scene or setup 
-// for the animation, which consists on individual cues or other scenes.
+// for the animation, which consists of individual cues or other scenes.
 //
 // A scene can be played in real time mode, or as a seqence of frames
 // 1/frame rate apart in time.
@@ -81,6 +81,7 @@ public:
   // Description:
   // Makes the state of the scene same as the given time.
   void SetAnimationTime(double time);
+  vtkGetMacro(AnimationTime, double);
 
   // Description:
   // Overridden to allow change to Normalized mode only
@@ -130,4 +131,3 @@ private:
 };
 
 #endif
-

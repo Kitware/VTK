@@ -41,7 +41,7 @@ public:
 
 
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.45");
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.46");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
@@ -1556,6 +1556,13 @@ void vtkImageCanvasSource2D::SetScalarType(int t)
 }
 
 //----------------------------------------------------------------------------
+int vtkImageCanvasSource2D::GetScalarType() const
+{
+  return this->ImageData->GetScalarType();
+}
+
+
+//----------------------------------------------------------------------------
 void vtkImageCanvasSource2D::SetNumberOfScalarComponents(int t)
 {
   if (this->ImageData->GetNumberOfScalarComponents() != t)
@@ -1566,6 +1573,11 @@ void vtkImageCanvasSource2D::SetNumberOfScalarComponents(int t)
     }
 }
 
+//----------------------------------------------------------------------------
+int  vtkImageCanvasSource2D::GetNumberOfScalarComponents() const 
+{
+  return this->ImageData->GetNumberOfScalarComponents();
+}
 
 //----------------------------------------------------------------------------
 int vtkImageCanvasSource2D::RequestInformation (

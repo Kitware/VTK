@@ -28,7 +28,7 @@
 #include <ctype.h>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.73");
+vtkCxxRevisionMacro(vtkSTLReader, "1.74");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
@@ -92,7 +92,7 @@ int vtkSTLReader::RequestData(
     return 0;
     }
 
-  if (!this->FileName)
+  if (!this->FileName || (this->FileName && (0==strlen(this->FileName))))
     {
     vtkErrorMacro(<<"A FileName must be specified.");
     return 0;

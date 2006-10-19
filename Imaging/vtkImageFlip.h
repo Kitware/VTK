@@ -57,8 +57,10 @@ public:
   vtkBooleanMacro(FlipAboutOrigin, int);
 
   // Description:
-  // For compatibility with old scripts.
-  void SetFilteredAxes(int axis) { this->SetFilteredAxis(axis); };
+  // Keep the mis-named Axes variations around for compatibility with old
+  // scripts. Axis is singular, not plural...
+  void SetFilteredAxes(int axis) { this->SetFilteredAxis(axis); }
+  int GetFilteredAxes() { return this->GetFilteredAxis(); }
 
   // Description:
   // PreserveImageExtentOff wasn't covered by test scripts and its
@@ -84,6 +86,3 @@ private:
 };
 
 #endif
-
-
-

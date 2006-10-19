@@ -38,7 +38,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.1");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.2");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -200,11 +200,30 @@ vtkPlaneWidget::~vtkPlaneWidget()
   this->HandlePicker->Delete();
   this->PlanePicker->Delete();
 
-  this->HandleProperty->Delete();
-  this->SelectedHandleProperty->Delete();
-  this->PlaneProperty->Delete();
-  this->SelectedPlaneProperty->Delete();
-  
+  if (this->HandleProperty)
+    {
+    this->HandleProperty->Delete();
+    this->HandleProperty = 0;
+    }
+
+  if (this->SelectedHandleProperty)
+    {
+    this->SelectedHandleProperty->Delete();
+    this->SelectedHandleProperty = 0;
+    }
+
+  if (this->PlaneProperty)
+    {
+    this->PlaneProperty->Delete();
+    this->PlaneProperty = 0;
+    }
+
+  if (this->SelectedPlaneProperty)
+    {
+    this->SelectedPlaneProperty->Delete();
+    this->SelectedPlaneProperty = 0;
+    }
+
   this->Transform->Delete();
 }
 

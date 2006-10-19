@@ -18,7 +18,7 @@
 #include "vtkErrorCode.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataWriter, "1.4");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataWriter, "1.5");
 vtkCxxSetObjectMacro(vtkXMLPStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -31,7 +31,11 @@ vtkXMLPStructuredDataWriter::vtkXMLPStructuredDataWriter()
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataWriter::~vtkXMLPStructuredDataWriter()
 {
-  this->ExtentTranslator->Delete();
+  if (this->ExtentTranslator)
+    {
+    this->ExtentTranslator->Delete();
+    this->ExtentTranslator = 0;
+    }
 }
 
 //----------------------------------------------------------------------------

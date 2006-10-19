@@ -141,12 +141,12 @@ public:
   vtkSetClampMacro( PreferredRenderMethod, int, 
                     vtkVolumeTextureMapper3D::FRAGMENT_PROGRAM_METHOD,
                     vtkVolumeTextureMapper3D::NVIDIA_METHOD );
-  void SetPreferredMethodToFragmentProgram() 
+  void SetPreferredMethodToFragmentProgram()
     { this->SetPreferredRenderMethod( vtkVolumeTextureMapper3D::FRAGMENT_PROGRAM_METHOD ); }
   void SetPreferredMethodToNVidia() 
     { this->SetPreferredRenderMethod( vtkVolumeTextureMapper3D::NVIDIA_METHOD ); }
-  
-      
+  vtkGetMacro(PreferredRenderMethod, int);
+
 
 protected:
   vtkVolumeTextureMapper3D();
