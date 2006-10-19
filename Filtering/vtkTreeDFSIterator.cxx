@@ -36,7 +36,7 @@ public:
   stack<vtkTreeDFSIteratorPosition> Stack;
 };
 
-vtkCxxRevisionMacro(vtkTreeDFSIterator, "1.1");
+vtkCxxRevisionMacro(vtkTreeDFSIterator, "1.2");
 vtkStandardNewMacro(vtkTreeDFSIterator);
 
 vtkTreeDFSIterator::vtkTreeDFSIterator()
@@ -179,6 +179,11 @@ vtkIdType vtkTreeDFSIterator::NextInternal()
           {
           //cout << "DFS finished " << pos.Node << endl;
           return pos.Node;
+          }
+        // Done with the start node, so we are totally done!
+        if (pos.Node == this->StartNode)
+          {
+          return -1;
           }
         }
       else
