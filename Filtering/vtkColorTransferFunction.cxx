@@ -21,7 +21,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.64");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.65");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 class vtkCTFNode
@@ -119,6 +119,12 @@ vtkColorTransferFunction::~vtkColorTransferFunction()
 {
   delete [] this->Table;
   
+  if ( this->Function )
+    {
+    delete [] this->Function;
+    this->Function = NULL;
+    }
+
   for(unsigned int i=0;i<this->Internal->Nodes.size();i++)
     {
     delete this->Internal->Nodes[i];
