@@ -26,7 +26,7 @@
 
 //---------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkImageOrthoPlanes, "1.4"); 
+vtkCxxRevisionMacro(vtkImageOrthoPlanes, "1.5"); 
 vtkStandardNewMacro(vtkImageOrthoPlanes);
 
 //---------------------------------------------------------------------------
@@ -484,6 +484,10 @@ void vtkImageOrthoPlanes::HandlePlaneScale(
   // Find the absolute scale and the relative change
   double scale[3];
   double relativeScale[3];
+
+  relativeScale[0] = 1.0;
+  relativeScale[1] = 1.0;
+  relativeScale[2] = 1.0;
 
   switch (indexOfModifiedPlane)
     {

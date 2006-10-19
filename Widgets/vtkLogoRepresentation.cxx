@@ -31,7 +31,7 @@
 #include "vtkRenderer.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkLogoRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkLogoRepresentation, "1.3");
 vtkStandardNewMacro(vtkLogoRepresentation);
 
 vtkCxxSetObjectMacro(vtkLogoRepresentation, Image, vtkImageData);
@@ -143,6 +143,8 @@ void vtkLogoRepresentation::BuildRepresentation()
     if ( this->Image )
       {
       double imageSize[2], borderSize[2], o[2];
+      imageSize[0] = 0.0;
+      imageSize[1] = 0.0;
       this->Image->Update();
       if ( this->Image->GetDataDimension() == 2 )
         {

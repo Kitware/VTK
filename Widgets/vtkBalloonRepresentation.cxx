@@ -35,7 +35,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBalloonRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkBalloonRepresentation, "1.8");
 vtkStandardNewMacro(vtkBalloonRepresentation);
 
 vtkCxxSetObjectMacro(vtkBalloonRepresentation, TextProperty, vtkTextProperty);
@@ -220,6 +220,12 @@ void vtkBalloonRepresentation::BuildRepresentation()
     double imageSize[2]; imageSize[0] = imageSize[1] = 0.0;
     double frameSize[2]; frameSize[0] = frameSize[1] = 0.0;
     double io[2], so[2], fo[2];
+    io[0] = 0.0;
+    io[1] = 0.0;
+    so[0] = 0.0;
+    so[1] = 0.0;
+    fo[0] = 0.0;
+    fo[1] = 0.0;
     double e[2];
     e[0] = static_cast<double>(this->StartEventPosition[0] + this->Offset[0]);
     e[1] = static_cast<double>(this->StartEventPosition[1] + this->Offset[1]);

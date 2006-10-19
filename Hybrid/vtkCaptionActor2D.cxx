@@ -32,7 +32,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.33");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.34");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
@@ -277,6 +277,9 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   // and four edge centers.
   double d2, minD2, pt[3], minPt[3];
   minD2 = VTK_DOUBLE_MAX;
+
+  minPt[0] = p2[0];
+  minPt[1] = p2[1];
 
   pt[0] = p2[0]; pt[1] = p2[1]; pt[2] = minPt[2] = 0.0;
   if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
