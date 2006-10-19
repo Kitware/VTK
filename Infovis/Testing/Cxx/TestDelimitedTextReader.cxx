@@ -73,6 +73,9 @@ TestDelimitedTextReader(int argc, char *argv[])
              << value.ToString() << endl;
         }
       }
+
+    row->Delete();
+
     }
 
   reader->Delete();
