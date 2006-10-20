@@ -9,7 +9,7 @@
 
 #include <time.h>
 #include <vtkstd/vector>
-using namespace vtkstd;
+using vtkstd::vector;
 
 void PrintArrays(vector<double> vec, vtkVariantArray* arr)
 {
