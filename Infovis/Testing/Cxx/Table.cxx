@@ -106,6 +106,8 @@ void CheckEqual(vtkTable* table, vector<vector<double> > & stdTable)
 
 int Table(int, char*[])
 {
+  cout << "CTEST_FULL_OUTPUT" << endl;
+
   long seed = time(NULL);
   cout << "Seed: " << seed << endl;
   vtkMath::RandomSeed(seed);
@@ -219,8 +221,10 @@ int Table(int, char*[])
   for (int i = 0; i < numRowsToRemove; i++)
     {
     vtkIdType row = static_cast<vtkIdType>(vtkMath::Random(0, table->GetNumberOfRows()));
+    cout << "Removing row " << row << " from vtkTable with " << table->GetNumberOfRows() << " rows" << endl;
     table->RemoveRow(row);
 
+    cout << "Removing row " << row << " from vector< vector<double> > with " << stdTable[0].size() << " rows " << endl;
     for (unsigned int j = 0; j < stdTable.size(); j++)
       {
       vector<double>::iterator rowIt = stdTable[j].begin() + row;

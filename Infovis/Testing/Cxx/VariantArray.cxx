@@ -9,10 +9,24 @@
 
 #include <time.h>
 #include <vtkstd/vector>
-using vtkstd::vector;
+using namespace vtkstd;
+
+void PrintArrays(vector<double> vec, vtkVariantArray* arr)
+{
+  cout << endl;
+  cout << "index, vector, vtkVariantArray" << endl;
+  cout << "------------------------------" << endl;
+  for (vtkIdType i = 0; i < arr->GetNumberOfValues(); i++)
+    {
+    cout << i << ", " << vec[i] << ", " << arr->GetValue(i).ToDouble() << endl;
+    }
+  cout << endl;
+}
 
 int VariantArray(int, char*[])
 {
+  cout << "CTEST_FULL_OUTPUT" << endl;
+
   long seed = time(NULL);
   cout << "Seed: " << seed << endl;
   vtkMath::RandomSeed(seed);
@@ -166,6 +180,7 @@ int VariantArray(int, char*[])
     vec.push_back(id);
     id++;
     }
+  PrintArrays(vec, arr);
 
   cout << "Performing set operations." << endl;
   while (vtkMath::Random() < prob)
@@ -186,6 +201,8 @@ int VariantArray(int, char*[])
     }
 
   stringArr->Delete();
+
+  PrintArrays(vec, arr);
 
   // Reading from the array
   // * unsigned long GetActualMemorySize();
