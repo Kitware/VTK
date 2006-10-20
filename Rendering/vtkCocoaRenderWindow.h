@@ -1,15 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkCocoaRenderWindow.h
+  Program:   Visualization Toolkit
+  Module:    vtkCocoaRenderWindow.h
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 // .NAME vtkCocoaRenderWindow - Cocoa OpenGL rendering window
@@ -57,7 +57,7 @@ public:
 
   // Description:
   // Initialize the window for rendering.
-  //  virtual void WindowInitialize();
+  virtual void WindowInitialize();
 
   // Description:
   // Initialize the rendering window.
@@ -104,7 +104,7 @@ public:
   
   void SetNextWindowInfo(char *)
     {
-      vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
+    vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
     }
 
   virtual void *GetGenericDisplayId() {return this->NSViewId;}
@@ -127,25 +127,25 @@ public:
   
   virtual void SetParentId(void *) 
     {
-      vtkWarningMacro("Method not implemented.");
+    vtkWarningMacro("Method not implemented.");
     }
   virtual void* GetGenericParentId()
     {
-      vtkWarningMacro("Method not implemented.");
-      return 0;
+    vtkWarningMacro("Method not implemented.");
+    return 0;
     }
   virtual void* GetGenericDrawable()
     {
-      vtkWarningMacro("Method not implemented.");
-      return 0;
+    vtkWarningMacro("Method not implemented.");
+    return 0;
     }
   virtual void SetWindowInfo(char*)
     {
-      vtkWarningMacro("Method not implemented.");
+    vtkWarningMacro("Method not implemented.");
     }
   virtual void SetParentInfo(char*)
     {
-      vtkWarningMacro("Method not implemented.");
+    vtkWarningMacro("Method not implemented.");
     }
 
   // Description:
@@ -164,7 +164,7 @@ public:
 
   void SetNextWindowId(void*)
     {
-      vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
+    vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
     }
 
 
@@ -240,13 +240,6 @@ protected:
   ~vtkCocoaRenderWindow();
 
   void CreateGLContext();
-
-  void CreateAWindow();
-  void DestroyWindow();
-  void DestroyOffScreenWindow();
-
-  int OffScreenInitialized;
-  int OnScreenInitialized;
 
 private:
   vtkCocoaRenderWindow(const vtkCocoaRenderWindow&);  // Not implemented.
