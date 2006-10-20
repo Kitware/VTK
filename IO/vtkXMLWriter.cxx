@@ -46,6 +46,10 @@
 # include <io.h> /* unlink */
 #endif
 
+#if defined(__BORLANDC__)
+#include <ctype.h> // isalnum is defined here for some versions of Borland
+#endif
+
 //*****************************************************************************
 // Friend class to enable access for  template functions to the protected
 // writer methods.
@@ -204,7 +208,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 //*****************************************************************************
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.69");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.70");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 //----------------------------------------------------------------------------
 vtkXMLWriter::vtkXMLWriter()
