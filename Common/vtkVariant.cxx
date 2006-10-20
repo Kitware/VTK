@@ -558,3 +558,10 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
     }
   return static_cast<T>(0);
 }
+
+ostream& operator << (ostream& out, vtkVariant& v)
+{
+  out << v.ToString();
+  return out;
+}
+

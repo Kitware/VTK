@@ -56,6 +56,8 @@
 class vtkStdString;
 class vtkObjectBase;
 class vtkAbstractArray;
+class vtkVariant;
+VTK_COMMON_EXPORT ostream& operator<<(ostream& os, const vtkVariant& o);
 
 class VTK_COMMON_EXPORT vtkVariant
 {
@@ -237,7 +239,7 @@ public:
 
   // Description:
   // Write the variant's value to an output stream.
-  friend ostream& operator << (ostream& out, vtkVariant& v);
+  friend VTK_COMMON_EXPORT ostream& operator << (ostream& out, vtkVariant& v);
 
 private:
   template <typename T>
@@ -266,11 +268,5 @@ private:
   unsigned char Valid;
   unsigned char Type;
 };
-
-inline ostream& operator << (ostream& out, vtkVariant& v)
-{
-  out << v.ToString();
-  return out;
-}
 
 #endif
