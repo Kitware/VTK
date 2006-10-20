@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericClip, "1.7");
+vtkCxxRevisionMacro(vtkGenericClip, "1.8");
 vtkStandardNewMacro(vtkGenericClip);
 vtkCxxSetObjectMacro(vtkGenericClip,ClipFunction,vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkGenericClip,Locator,vtkPointLocator);
@@ -169,6 +169,9 @@ int vtkGenericClip::RequestData(
   vtkIdTypeArray *locs[2];
   int numOutputs = 1;
   vtkGenericAdaptorCell *cell;
+
+  outCD[0] = 0;
+  outCD[1] = 0;
 
   vtkDebugMacro(<< "Clipping dataset");
 
