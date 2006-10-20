@@ -20,8 +20,7 @@ GENERATE_TAGFILE     = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk4.tag"
 
 PDF_HYPERLINKS       = YES
 
-HAVE_DOT             = YES
-#HAVE_DOT            = NO
+HAVE_DOT             = @HAVE_DOT_YESNO@
 DOT_PATH             = "@DOT_PATH@"
 CLASS_GRAPH          = YES
 COLLABORATION_GRAPH  = YES
