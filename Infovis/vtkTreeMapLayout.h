@@ -15,6 +15,13 @@
 // .NAME vtkTreeMapLayout - layout a vtkTree into a tree map
 //
 // .SECTION Description
+// vtkTreeMapLayout assigns rectangular regions to each node in the tree,
+// creating a tree map.  The data is added as a data array with four
+// components per tuple representing the location and size of the
+// rectangle using the format (Xmin, Xmax, Ymin, Ymax).
+//
+// This algorithm relies on a helper class to perform the actual layout.
+// This helper class is a subclass of vtkTreeMapLayoutStrategy.
 //
 // .SECTION Thanks
 // Thanks to Brian Wylie and Ken Moreland from Sandia National Laboratories

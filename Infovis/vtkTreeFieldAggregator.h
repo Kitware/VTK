@@ -15,6 +15,14 @@
 // .NAME vtkTreeFieldAggregator - aggregate field values from the leaves up the tree
 //
 // .SECTION Description
+// vtkTreeFieldAggregator may be used to assign sizes to all the nodes in the
+// tree, based on the sizes of the leaves.  The size of a node will equal
+// the sum of the sizes of the child nodes.  If you have a data array with
+// values for all leaves, you may specify that array, and the values will
+// be filled in for interior tree nodes.  If you do not yet have an array,
+// you may tell the filter to create a new array, assuming that the size
+// of each leaf node is 1.  You may optionally set a flag to first take the
+// log of all leaf values before aggregating.
 
 #ifndef __vtkTreeFieldAggregator_h
 #define __vtkTreeFieldAggregator_h

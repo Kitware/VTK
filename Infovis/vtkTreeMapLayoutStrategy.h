@@ -15,6 +15,13 @@
 // .NAME vtkTreeMapLayoutStrategy - abstract superclass for all tree map layout strategies
 //
 // .SECTION Description
+// All subclasses of this class perform a tree map layout on a tree.
+// This involves assigning a rectangular region to each node in the tree,
+// and placing that information in a data array with four components per
+// tuple representing (Xmin, Xmax, Ymin, Ymax).
+//
+// Instances of subclasses of this class may be assigned as the layout
+// strategy to vtkTreeMapLayout
 //
 // .SECTION Thanks
 // Thanks to Brian Wylie and Ken Moreland from Sandia National Laboratories
@@ -35,7 +42,15 @@ public:
   vtkTypeRevisionMacro(vtkTreeMapLayoutStrategy,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Perform the layout of the input tree, and store the rectangular
+  // bounds of each node as a tuple (Xmin, Xmax, Ymin, Ymax) in a
+  // data array.
   virtual void Layout(vtkTree *inputTree, vtkDataArray *rectArray) = 0;
+
+  // Description:
+  // Define the percentage that children node regions are inset from
+  // the parent node region.
   vtkSetMacro(BorderPercentage, double);
   vtkGetMacro(BorderPercentage, double);
 
