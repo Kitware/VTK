@@ -56,8 +56,6 @@
 class vtkStdString;
 class vtkObjectBase;
 class vtkAbstractArray;
-class vtkVariant;
-VTK_COMMON_EXPORT ostream& operator<<(ostream& os, const vtkVariant& o);
 
 class VTK_COMMON_EXPORT vtkVariant
 {
@@ -236,12 +234,6 @@ public:
   // Description:
   // Return the array, or NULL if not of that type.
   vtkAbstractArray* ToArray() const;
-
-  //BTX
-  // Description:
-  // Write the variant's value to an output stream.
-  friend VTK_COMMON_EXPORT ostream& operator << (ostream& out, vtkVariant& v);
-  //ETX
 
 private:
   template <typename T>
