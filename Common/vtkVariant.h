@@ -27,6 +27,7 @@
 #include "vtkType.h"           // To define type IDs and VTK_TYPE_USE_* flags
 #include "vtkSystemIncludes.h" // To define ostream
 #include "vtkSetGet.h"         // For vtkNotUsed macro
+#include "vtkStdString.h"
 
 //
 // The following should be eventually placed in vtkType.h
@@ -73,24 +74,20 @@ public:
   vtkVariant(const vtkVariant & other);
 
   // Description:
-  // Create a string variant from a std string.
-  vtkVariant(vtkStdString value);
-
-  // Description:
-  // Create a string variant from a const char*.
-  vtkVariant(const char* value);
-
-  // Description:
-  // Create a float variant.
-  vtkVariant(float value);
-
-  // Description:
-  // Create a double variant.
-  vtkVariant(double value);
-
-  // Description:
   // Create an integer variant.
   vtkVariant(int value);
+
+  // Description:
+  // Create an unsigned integer variant.
+  vtkVariant(unsigned int value);
+
+  // Description:
+  // Create an long variant.
+  vtkVariant(long value);
+
+  // Description:
+  // Create an unsigned long variant.
+  vtkVariant(unsigned long value);
 
 #if defined(VTK_TYPE_USE___INT64)
   // Description:
@@ -110,6 +107,22 @@ public:
   // Create an unsigned long long variant.
   vtkVariant(unsigned long long value);
 #endif
+
+  // Description:
+  // Create a float variant.
+  vtkVariant(float value);
+
+  // Description:
+  // Create a double variant.
+  vtkVariant(double value);
+
+  // Description:
+  // Create a string variant from a const char*.
+  vtkVariant(const char* value);
+
+  // Description:
+  // Create a string variant from a std string.
+  vtkVariant(vtkStdString value);
 
   // Description:
   // Create a vtkObjectBase variant.
@@ -142,6 +155,18 @@ public:
   // Description:
   // Get whether the variant is an int.
   bool IsInt() const;
+
+  // Description:
+  // Get whether the variant is an unsigned int.
+  bool IsUnsignedInt() const;
+
+  // Description:
+  // Get whether the variant is an long.
+  bool IsLong() const;
+
+  // Description:
+  // Get whether the variant is an unsigned long.
+  bool IsUnsignedLong() const;
 
   // Description:
   // Get whether the variant is an __int64.
@@ -190,6 +215,9 @@ public:
   float ToFloat(bool* valid = 0) const;
   double ToDouble(bool* valid = 0) const;
   int ToInt(bool* valid = 0) const;
+  unsigned int ToUnsignedInt(bool* valid = 0) const;
+  long ToLong(bool* valid = 0) const;
+  unsigned long ToUnsignedLong(bool* valid = 0) const;
 #if defined(VTK_TYPE_USE___INT64)
   __int64 To__Int64(bool* valid = 0) const;
   unsigned __int64 ToUnsigned__Int64(bool* valid = 0) const;
@@ -221,6 +249,9 @@ private:
     float Float;
     double Double;
     int Int;
+    unsigned int UnsignedInt;
+    long Long;
+    unsigned long UnsignedLong;
 #if defined(VTK_TYPE_USE___INT64)
     __int64 __Int64;
     unsigned __int64 Unsigned__Int64;
@@ -235,5 +266,11 @@ private:
   unsigned char Valid;
   unsigned char Type;
 };
+
+inline ostream& operator << (ostream& out, vtkVariant& v)
+{
+  out << v.ToString();
+  return out;
+}
 
 #endif

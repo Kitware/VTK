@@ -3,6 +3,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(KIT Infovis)
   # add tests that do not require data
   SET(MyTests     
+    Table
+    VariantArray
     )
   IF (VTK_DATA_ROOT)
     # add tests that require data

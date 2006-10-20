@@ -103,40 +103,32 @@ vtkVariant::~vtkVariant()
     }
 }
 
-
-vtkVariant::vtkVariant(vtkStdString value)
-{
-  this->Data.String = new vtkStdString(value);
-  this->Valid = 1;
-  this->Type = VTK_STRING;
-}
-
-vtkVariant::vtkVariant(const char* value)
-{
-  this->Data.String = new vtkStdString(value);
-  this->Valid = 1;
-  this->Type = VTK_STRING;
-}
-
-vtkVariant::vtkVariant(float value)
-{
-  this->Data.Float = value;
-  this->Valid = 1;
-  this->Type = VTK_FLOAT;
-}
-
-vtkVariant::vtkVariant(double value)
-{
-  this->Data.Double = value;
-  this->Valid = 1;
-  this->Type = VTK_DOUBLE;
-}
-
 vtkVariant::vtkVariant(int value)
 {
   this->Data.Int = value;
   this->Valid = 1;
   this->Type = VTK_INT;
+}
+
+vtkVariant::vtkVariant(unsigned int value)
+{
+  this->Data.UnsignedInt = value;
+  this->Valid = 1;
+  this->Type = VTK_UNSIGNED_INT;
+}
+
+vtkVariant::vtkVariant(long value)
+{
+  this->Data.Long = value;
+  this->Valid = 1;
+  this->Type = VTK_LONG;
+}
+
+vtkVariant::vtkVariant(unsigned long value)
+{
+  this->Data.UnsignedLong = value;
+  this->Valid = 1;
+  this->Type = VTK_UNSIGNED_LONG;
 }
 
 #if defined(VTK_TYPE_USE___INT64)
@@ -170,6 +162,34 @@ vtkVariant::vtkVariant(unsigned long long value)
 }
 #endif
 
+vtkVariant::vtkVariant(float value)
+{
+  this->Data.Float = value;
+  this->Valid = 1;
+  this->Type = VTK_FLOAT;
+}
+
+vtkVariant::vtkVariant(double value)
+{
+  this->Data.Double = value;
+  this->Valid = 1;
+  this->Type = VTK_DOUBLE;
+}
+
+vtkVariant::vtkVariant(const char* value)
+{
+  this->Data.String = new vtkStdString(value);
+  this->Valid = 1;
+  this->Type = VTK_STRING;
+}
+
+vtkVariant::vtkVariant(vtkStdString value)
+{
+  this->Data.String = new vtkStdString(value);
+  this->Valid = 1;
+  this->Type = VTK_STRING;
+}
+
 vtkVariant::vtkVariant(vtkObjectBase* value)
 {
   value->Register(0);
@@ -193,6 +213,9 @@ bool vtkVariant::IsNumeric() const
   return this->IsFloat() 
     || this->IsDouble() 
     || this->IsInt() 
+    || this->IsUnsignedInt()
+    || this->IsLong() 
+    || this->IsUnsignedLong()
     || this->Is__Int64() 
     || this->IsUnsigned__Int64() 
     || this->IsLongLong() 
@@ -212,6 +235,21 @@ bool vtkVariant::IsDouble() const
 bool vtkVariant::IsInt() const
 {
   return this->Type == VTK_INT;
+}
+
+bool vtkVariant::IsUnsignedInt() const
+{
+  return this->Type == VTK_UNSIGNED_INT;
+}
+
+bool vtkVariant::IsLong() const
+{
+  return this->Type == VTK_LONG;
+}
+
+bool vtkVariant::IsUnsignedLong() const
+{
+  return this->Type == VTK_UNSIGNED_LONG;
 }
 
 bool vtkVariant::Is__Int64() const
@@ -304,6 +342,24 @@ vtkStdString vtkVariant::ToString() const
     ostr << this->Data.Int;
     return vtkStdString(ostr.str());
     }
+  if (this->IsUnsignedInt())
+    {
+    vtksys_ios::ostringstream ostr;
+    ostr << this->Data.UnsignedInt;
+    return vtkStdString(ostr.str());
+    }
+  if (this->IsLong())
+    {
+    vtksys_ios::ostringstream ostr;
+    ostr << this->Data.Long;
+    return vtkStdString(ostr.str());
+    }
+  if (this->IsUnsignedLong())
+    {
+    vtksys_ios::ostringstream ostr;
+    ostr << this->Data.UnsignedLong;
+    return vtkStdString(ostr.str());
+    }
 #if defined(VTK_TYPE_USE___INT64)
   if (this->Is__Int64())
     {
@@ -341,6 +397,21 @@ double vtkVariant::ToDouble(bool* valid) const
 int vtkVariant::ToInt(bool* valid) const
 {
   return this->ToNumeric(valid, (int *)0);
+}
+
+unsigned int vtkVariant::ToUnsignedInt(bool* valid) const
+{
+  return this->ToNumeric(valid, (unsigned int *)0);
+}
+
+long vtkVariant::ToLong(bool* valid) const
+{
+  return this->ToNumeric(valid, (long *)0);
+}
+
+unsigned long vtkVariant::ToUnsignedLong(bool* valid) const
+{
+  return this->ToNumeric(valid, (unsigned long *)0);
 }
 
 #if defined(VTK_TYPE_USE___INT64)
@@ -385,12 +456,6 @@ vtkAbstractArray* vtkVariant::ToArray() const
   return 0;
 }
 
-ostream& operator << (ostream& out, vtkVariant& v)
-{
-  out << v.ToString();
-  return out;
-}
-
 template <typename T>
 T vtkVariantStringToNumeric(vtkStdString str, bool* valid, T* vtkNotUsed(ignored) = 0)
 {
@@ -429,6 +494,18 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
   if (this->IsInt())
     {
     return static_cast<T>(this->Data.Int);
+    }
+  if (this->IsUnsignedInt())
+    {
+    return static_cast<T>(this->Data.UnsignedInt);
+    }
+  if (this->IsLong())
+    {
+    return static_cast<T>(this->Data.Long);
+    }
+  if (this->IsUnsignedLong())
+    {
+    return static_cast<T>(this->Data.UnsignedLong);
     }
 #if defined(VTK_TYPE_USE___INT64)
   if (this->Is__Int64())

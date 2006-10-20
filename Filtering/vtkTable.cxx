@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkArrayIteratorIncludes.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 #include <vtkFieldData.h>
@@ -27,7 +28,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.1");
+vtkCxxRevisionMacro(vtkTable, "1.2");
 vtkStandardNewMacro(vtkTable);
 
 //----------------------------------------------------------------------------
@@ -317,6 +318,15 @@ vtkVariant vtkTable::GetValue(vtkIdType row, vtkIdType col)
   return this->GetValueByName(row, this->GetColumnName(column));
 }
 
+
+//----------------------------------------------------------------------------
+
+template <typename iterT>
+vtkVariant vtkTableGetVariantValue(iterT* it, vtkIdType row)
+{
+  return vtkVariant(it->GetValue(row));
+}
+
 //----------------------------------------------------------------------------
 
 vtkVariant vtkTable::GetValueByName(vtkIdType row, const char* col)
@@ -325,18 +335,25 @@ vtkVariant vtkTable::GetValueByName(vtkIdType row, const char* col)
   int comps = arr->GetNumberOfComponents();
   if (arr->IsA("vtkDataArray"))
     {
-    vtkDataArray* data = vtkDataArray::SafeDownCast(arr);
     if (comps == 1)
       {
-      return vtkVariant(data->GetTuple1(row));
+      vtkArrayIterator* iter = arr->NewIterator();
+      vtkVariant v;
+      switch(arr->GetDataType())
+        {
+        vtkArrayIteratorTemplateMacro(
+          v = vtkTableGetVariantValue(static_cast<VTK_TT*>(iter), row));
+        }
+      iter->Delete();
+      return v;
       }
     else
       {
       // Create a variant holding an array of the appropriate type
       // with one tuple.
-      vtkDataArray* da = vtkDataArray::CreateDataArray(data->GetDataType());
+      vtkDataArray* da = vtkDataArray::CreateDataArray(arr->GetDataType());
       da->SetNumberOfComponents(comps);
-      da->InsertNextTuple(row, data);
+      da->InsertNextTuple(row, arr);
       vtkVariant v(da);
       da->Delete();
       return v;
