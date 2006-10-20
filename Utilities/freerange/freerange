@@ -32,7 +32,8 @@
 #include <vtksys/stl/deque>
 #include <vtksys/stl/functional>
 #include <vtksys/stl/vector>
-#include <vtkstd/stdexcept>
+#include <vtksys/stl/stdexcept>
+#include <vtksys/ios/iostream>
 #include <stdlib.h>
 #include <string.h>
 
@@ -55,8 +56,8 @@ template< class T, class idx_t, T empty_entry=-1 >
 class freerange
 {
   public:
-    typedef vtkstd::deque<idx_t>                dead_list_entry_t;
-    typedef vtkstd::vector< dead_list_entry_t > dead_list_t;
+    typedef vtksys_stl::deque<idx_t>                dead_list_entry_t;
+    typedef vtksys_stl::vector< dead_list_entry_t > dead_list_t;
   protected:
     T* array ;
     idx_t array_len ; // max id + 1
@@ -118,7 +119,7 @@ class freerange
 
         T* array_tmp = new T [ array_len ];
         if ( ! array_tmp )
-          throw vtkstd::runtime_error( "freerange memory allocation failed" );
+          throw vtksys_stl::runtime_error( "freerange memory allocation failed" );
         for ( idx_t i=0; i<array_top; i++ )
           array_tmp[i] = array[i];
         delete [] array;
@@ -211,7 +212,7 @@ class freerange
         array_len = new_size;
         T* array_tmp = new T [ array_len ];
         if ( ! array_tmp )
-          throw vtkstd::runtime_error( "freerange memory allocation failed" );
+          throw vtksys_stl::runtime_error( "freerange memory allocation failed" );
         if ( array_top > array_len ) {
           used -= array_top - array_len;
           array_top = array_len;
@@ -223,7 +224,7 @@ class freerange
           array_tmp[i] = empty_entry;
         array = array_tmp;
         for ( idx_t i=1; i<dead_size; i++ ) { // dead[0] is unused
-          typename dead_list_entry_t::iterator it = vtkstd::remove_if( dead[i].begin(), dead[i].end(), vtkstd::bind2nd( vtkstd::greater_equal<idx_t>(), new_size ) );
+          typename dead_list_entry_t::iterator it = vtksys_stl::remove_if( dead[i].begin(), dead[i].end(), vtksys_stl::bind2nd( vtksys_stl::greater_equal<idx_t>(), new_size ) );
           dead[i].erase( it, dead[i].end() );
         }
       } else { // new_size > array_len
@@ -231,7 +232,7 @@ class freerange
         array_len = new_size;
         T* array_tmp = new T [ array_len ];
         if ( ! array_tmp )
-          throw vtkstd::runtime_error( "freerange memory allocation failed" );
+          throw vtksys_stl::runtime_error( "freerange memory allocation failed" );
         for ( idx_t i=0; i<array_top; i++ )
           array_tmp[i] = array[i];
         for ( idx_t i=array_top; i<new_size; ++i )
@@ -289,7 +290,7 @@ class freerange
         }
 
       public:
-        typedef vtkstd::bidirectional_iterator_tag iterator_category;
+        typedef vtksys_stl::bidirectional_iterator_tag iterator_category;
 
         iterator()
         { fl = 0 ; posn = 0 ; }

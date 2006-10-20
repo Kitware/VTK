@@ -17,7 +17,8 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 #include "freerange"
-#include "vtkIOStream.h"
+
+using namespace vtksys_ios;
 
 // To test freerange insertion and deletion, we use an action
 // table. Each triple of integers in the list below corresponds

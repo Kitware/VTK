@@ -17,8 +17,9 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 #include "freerange"
-#include "vtkIOStream.h"
 #include "vtkSystemIncludes.h"
+
+using namespace vtksys_ios;
 
 // A list of entries to free before iterating
 static int flist[] = {
@@ -72,4 +73,3 @@ int testIteration( int, char*[] )
     }
   return result;
 }
-
