@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkCarbonRenderWindow.cxx
+Program:   Visualization Toolkit
+Module:    vtkCarbonRenderWindow.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkCarbonRenderWindow.h"
@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.51");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.52");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -51,28 +51,28 @@ OSStatus glReportError ()
 {
   GLenum err = glGetError();
   switch (err)
-  {
-  case GL_NO_ERROR:
-    break;
-  case GL_INVALID_ENUM:
-    cout << "GL Error: Invalid enumeration\n";
-    break;
-  case GL_INVALID_VALUE:
-    cout << "GL Error: Invalid value\n";
-    break;
-  case GL_INVALID_OPERATION:
-    cout << "GL Error: Invalid operation\n";
-    break;
-  case GL_STACK_OVERFLOW:
-    cout << "GL Error: Stack overflow\n";
-    break;
-  case GL_STACK_UNDERFLOW:
-    cout << "GL Error: Stack underflow\n";
-    break;
-  case GL_OUT_OF_MEMORY:
-    cout << "GL Error: Out of memory\n";
-    break;
-  }
+    {
+    case GL_NO_ERROR:
+      break;
+    case GL_INVALID_ENUM:
+      cout << "GL Error: Invalid enumeration\n";
+      break;
+    case GL_INVALID_VALUE:
+      cout << "GL Error: Invalid value\n";
+      break;
+    case GL_INVALID_OPERATION:
+      cout << "GL Error: Invalid operation\n";
+      break;
+    case GL_STACK_OVERFLOW:
+      cout << "GL Error: Stack overflow\n";
+      break;
+    case GL_STACK_UNDERFLOW:
+      cout << "GL Error: Stack underflow\n";
+      break;
+    case GL_OUT_OF_MEMORY:
+      cout << "GL Error: Out of memory\n";
+      break;
+    }
   // ensure we are returning an OSStatus noErr if no error condition
   if (err == GL_NO_ERROR)
     return noErr;
@@ -80,11 +80,13 @@ OSStatus glReportError ()
     return (OSStatus) err;
 }
 
+//-----------------------------------------------------------------------------
 static void* vtkCreateOSWindow(int width, int height, int pixel_size)
 {
   return malloc(width*height*pixel_size);
 }
 
+//-----------------------------------------------------------------------------
 static void vtkDestroyOSWindow(void* win)
 {
   free(win);
@@ -94,12 +96,12 @@ class vtkCarbonRenderWindowInternal
 {
 public:
   vtkCarbonRenderWindowInternal(vtkRenderWindow* win)
-  {
-    this->OffScreenWindow = NULL;
-    this->OffScreenContextId = NULL;
-    this->ScreenMapped = win->GetMapped();
-    this->ScreenDoubleBuffer = win->GetDoubleBuffer();
-  }
+    {
+      this->OffScreenWindow = NULL;
+      this->OffScreenContextId = NULL;
+      this->ScreenMapped = win->GetMapped();
+      this->ScreenDoubleBuffer = win->GetDoubleBuffer();
+    }
 
   void* OffScreenWindow;
   AGLContext OffScreenContextId;
@@ -146,7 +148,7 @@ void vtkCarbonRenderWindow::DestroyWindow()
   vtkCollectionSimpleIterator rsit;
   vtkRenderer *ren;
   for ( this->Renderers->InitTraversal(rsit);
-       (ren = this->Renderers->GetNextRenderer(rsit));)
+        (ren = this->Renderers->GetNextRenderer(rsit));)
     {
     ren->SetRenderWindow(NULL);
     }
@@ -173,9 +175,9 @@ void vtkCarbonRenderWindow::DestroyWindow()
 #endif
       }
 
-      aglSetCurrentContext(this->ContextId);
-      aglDestroyContext(this->ContextId);
-      this->ContextId = NULL;
+    aglSetCurrentContext(this->ContextId);
+    aglDestroyContext(this->ContextId);
+    this->ContextId = NULL;
     }
 }
 
@@ -225,7 +227,8 @@ void vtkCarbonRenderWindow::MakeCurrent()
 {
   if(this->OffScreenRendering && this->Internal->OffScreenContextId)
     {
-    if((this->Internal->OffScreenContextId != aglGetCurrentContext()) || this->ForceMakeCurrent)
+    if((this->Internal->OffScreenContextId != aglGetCurrentContext())
+       || this->ForceMakeCurrent)
       {
       aglSetCurrentContext(this->Internal->OffScreenContextId);
       this->ForceMakeCurrent = 0;
@@ -323,7 +326,7 @@ void vtkCarbonRenderWindow::UpdateGLRegion()
           DiffRgn(rgn, tmp_rgn, rgn);
           }
         }
-        last = current_view;
+      last = current_view;
       }
     
     GetControlRegion(this->WindowId, kControlStructureMetaPart, tmp_rgn);
@@ -331,12 +334,16 @@ void vtkCarbonRenderWindow::UpdateGLRegion()
     if(EqualRgn(rgn,tmp_rgn))
       {
       if(aglIsEnabled(this->ContextId, AGL_CLIP_REGION))
+        {
         aglDisable(this->ContextId, AGL_CLIP_REGION);
+        }
       }
     else
       {
       if(!aglIsEnabled(this->ContextId, AGL_CLIP_REGION))
+        {
         aglEnable(this->ContextId, AGL_CLIP_REGION);
+        }
       aglSetInteger(this->ContextId, AGL_CLIP_REGION, reinterpret_cast<const GLint*>(rgn));
       }
       
@@ -352,7 +359,7 @@ void vtkCarbonRenderWindow::UpdateGLRegion()
     GetWindowBounds(this->RootWindow, kWindowContentRgn, &windowRect);
     bufRect[0] = this->Position[0];
     bufRect[1] = (int) (windowRect.bottom-windowRect.top)
-                 - (this->Position[1]+this->Size[1]);
+      - (this->Position[1]+this->Size[1]);
     bufRect[2] = this->Size[0];
     bufRect[3] = this->Size[1];
     aglEnable(this->ContextId, AGL_BUFFER_RECT);
@@ -501,63 +508,56 @@ void vtkCarbonRenderWindow::InitializeApplication()
 
 //--------------------------------------------------------------------------
 // Initialize the window for rendering.
-void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
-                              int vtkNotUsed(width), int vtkNotUsed(height))
+void vtkCarbonRenderWindow::CreateAWindow()
 {
   static int count = 1;
   short i;
   char *windowName;
-
-  if ((this->Size[0]+this->Size[1])==0)
-    {
-    this->Size[0]=300;
-    this->Size[1]=300;
-    }
-  if ((this->Position[0]+this->Position[1])==0)
-    {
-    this->Position[0]=50;
-    this->Position[1]=50;
-    }
-
-  // Rect is defined as {top, left, bottom, right} (really)
-  Rect rectWin = {this->Position[1], this->Position[0],
-                  this->Position[1]+this->Size[1],
-                  this->Position[0]+this->Size[0]};
   
   // if a Window and HIView wasn't given, make a Window and HIView
   if (!this->WindowId && !this->RootWindow)
     {
-      WindowAttributes windowAttrs = (kWindowStandardDocumentAttributes | 
-                                      kWindowLiveResizeAttribute |
-                                      kWindowStandardHandlerAttribute |
-                                      kWindowCompositingAttribute);
-
-      if (noErr != CreateNewWindow (kDocumentWindowClass,
-                                    windowAttrs,
-                                    &rectWin, &(this->RootWindow)))
-        {
-        vtkErrorMacro("Could not create window, serious error!");
-        return;
-        }
-
-      // get the content view
-      HIViewFindByID(HIViewGetRoot(this->RootWindow),
-                     kHIViewWindowContentID,
-                     &this->WindowId);
-
-      int len = (strlen("Visualization Toolkit - Carbon #")
-                 + (int) ceil((double)log10((double)(count+1)))
-                 + 1);
-      windowName = new char [ len ];
-      sprintf(windowName,"Visualization Toolkit - Carbon #%i",count++);
-      this->OwnWindow = 1;
-      this->SetWindowName(windowName);
-      delete [] windowName;
-
-      ShowWindow(this->RootWindow);
+    this->Position[0] = ((this->Position[0] >= 0) ? this->Position[0] : 5);
+    this->Position[1] = ((this->Position[1] >= 0) ? this->Position[1] : 5);
+    this->Size[0] = ((this->Size[0] > 0) ? this->Size[0] : 300);
+    this->Size[1] = ((this->Size[1] > 0) ? this->Size[1] : 300);
+    
+    // Rect is defined as {top, left, bottom, right} (really)
+    Rect rectWin = {this->Position[1], this->Position[0],
+                    this->Position[1]+this->Size[1],
+                    this->Position[0]+this->Size[0]};
+    
+    WindowAttributes windowAttrs = (kWindowStandardDocumentAttributes | 
+                                    kWindowLiveResizeAttribute |
+                                    kWindowStandardHandlerAttribute |
+                                    kWindowCompositingAttribute);
+    
+    if (noErr != CreateNewWindow (kDocumentWindowClass,
+                                  windowAttrs,
+                                  &rectWin, &(this->RootWindow)))
+      {
+      vtkErrorMacro("Could not create window, serious error!");
+      return;
+      }
+    
+    // get the content view
+    HIViewFindByID(HIViewGetRoot(this->RootWindow),
+                   kHIViewWindowContentID,
+                   &this->WindowId);
+    
+    int len = (strlen("Visualization Toolkit - Carbon #")
+               + (int) ceil((double)log10((double)(count+1)))
+               + 1);
+    windowName = new char [ len ];
+    sprintf(windowName,"Visualization Toolkit - Carbon #%i",count++);
+    this->OwnWindow = 1;
+    this->SetWindowName(windowName);
+    delete [] windowName;
+    
+    ShowWindow(this->RootWindow);
     }
-
-
+  
+  
   // install event handler for updating gl region
   // this works for a supplied HIView and an HIView made here
   if(this->WindowId && !this->RegionEventHandler)
@@ -639,17 +639,11 @@ void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
 //--------------------------------------------------------------------------
 // Initialize the window for rendering.
 void vtkCarbonRenderWindow::WindowInitialize()
-{
-  int x, y, width, height;
-  x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
-  y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
-  height = ((this->Size[1] > 0) ? this->Size[1] : 300);
-  width = ((this->Size[0] > 0) ? this->Size[0] : 300);
-  
+{ 
   // create our own window if not already set
   this->InitializeApplication();
   this->OwnWindow = 0;
-  this->CreateAWindow(x,y,width,height);
+  this->CreateAWindow();
   
   // tell our renderers about us
   vtkRenderer* ren;
@@ -664,7 +658,7 @@ void vtkCarbonRenderWindow::WindowInitialize()
   this->SetDPI(72); // this may need to be more clever some day
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Initialize the rendering window.
 void vtkCarbonRenderWindow::Initialize ()
 {
@@ -674,20 +668,23 @@ void vtkCarbonRenderWindow::Initialize ()
     {
     this->WindowInitialize();
     }
-  else if(this->OffScreenRendering && !this->Internal->OffScreenContextId)
+  else if(this->OffScreenRendering &&
+          !(this->Internal->OffScreenContextId
+            || this->OffScreenUseFrameBuffer))
     {
     // initialize offscreen window
     int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
     int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
-    CreateOffScreenWindow(width, height);
+    this->CreateOffScreenWindow(width, height);
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkCarbonRenderWindow::Finalize(void)
 {
   if (this->CursorHidden)
     {
-      this->ShowCursor();
+    this->ShowCursor();
     }
 
   this->SetOffScreenRendering(0);
@@ -705,10 +702,11 @@ void vtkCarbonRenderWindow::Finalize(void)
 
   if (this->RootWindow && this->OwnWindow)
     {
-      DisposeWindow(this->RootWindow);
+    DisposeWindow(this->RootWindow);
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkCarbonRenderWindow::SetOffScreenRendering(int i)
 {
   if (this->OffScreenRendering == i)
@@ -737,39 +735,42 @@ void vtkCarbonRenderWindow::SetOffScreenRendering(int i)
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkCarbonRenderWindow::CreateOffScreenWindow(int width, int height)
 {
-  int i=0;
-  GLint attr[50];
-  attr [i++] = AGL_OFFSCREEN;
-  attr [i++] = AGL_RGBA;
-  attr [i++] = AGL_PIXEL_SIZE;
-  attr [i++] = 32;
-  attr [i++] = AGL_DEPTH_SIZE;
-  attr [i++] = 32;
-  if (this->AlphaBitPlanes)
+  if(!this->CreateHardwareOffScreenWindow(width,height))
     {
-    attr [i++] = AGL_ALPHA_SIZE;
-    attr [i++] = 8;
-    }
-  attr [i] = AGL_NONE;
-
-  AGLPixelFormat fmt = aglChoosePixelFormat(NULL, 0, attr);
-  this->Internal->OffScreenContextId = aglCreateContext(fmt, 0);
-  aglDestroyPixelFormat(fmt);
-
-  this->Internal->OffScreenWindow = vtkCreateOSWindow(width, height, 4);
-  this->Size[0] = width;
-  this->Size[1] = height;
-  
-  aglSetOffScreen(this->Internal->OffScreenContextId, 
-                  width, height, width*4,
-                  this->Internal->OffScreenWindow);
-
-  aglSetCurrentContext(this->Internal->OffScreenContextId);
-  
+    int i=0;
+    GLint attr[50];
+    attr [i++] = AGL_OFFSCREEN;
+    attr [i++] = AGL_RGBA;
+    attr [i++] = AGL_PIXEL_SIZE;
+    attr [i++] = 32;
+    attr [i++] = AGL_DEPTH_SIZE;
+    attr [i++] = 32;
+    if (this->AlphaBitPlanes)
+      {
+      attr [i++] = AGL_ALPHA_SIZE;
+      attr [i++] = 8;
+      }
+    attr [i] = AGL_NONE;
+      
+    AGLPixelFormat fmt = aglChoosePixelFormat(NULL, 0, attr);
+    this->Internal->OffScreenContextId = aglCreateContext(fmt, 0);
+    aglDestroyPixelFormat(fmt);
+      
+    this->Internal->OffScreenWindow = vtkCreateOSWindow(width, height, 4);
+    this->Size[0] = width;
+    this->Size[1] = height;
+      
+    aglSetOffScreen(this->Internal->OffScreenContextId, 
+                    width, height, width*4,
+                    this->Internal->OffScreenWindow);
+      
+    aglSetCurrentContext(this->Internal->OffScreenContextId);
+    } // if not hardware
   this->Mapped = 0;
-
+  
   vtkRenderer *ren;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
@@ -782,6 +783,7 @@ void vtkCarbonRenderWindow::CreateOffScreenWindow(int width, int height)
   this->OpenGLInit();
 }
 
+//-----------------------------------------------------------------------------
 void vtkCarbonRenderWindow::DestroyOffScreenWindow()
 {
   // release graphic resources.
@@ -794,15 +796,23 @@ void vtkCarbonRenderWindow::DestroyOffScreenWindow()
     ren->SetRenderWindow(this);
     }
 
-  if(this->Internal->OffScreenContextId)
+  if(this->OffScreenUseFrameBuffer)
     {
-    aglDestroyContext(this->Internal->OffScreenContextId);
-    this->Internal->OffScreenContextId = NULL;
-    vtkDestroyOSWindow(this->Internal->OffScreenWindow);
-    this->Internal->OffScreenWindow = NULL;
+    this->DestroyHardwareOffScreenWindow();
+    }
+  else
+    {
+    if(this->Internal->OffScreenContextId)
+      {
+      aglDestroyContext(this->Internal->OffScreenContextId);
+      this->Internal->OffScreenContextId = NULL;
+      vtkDestroyOSWindow(this->Internal->OffScreenWindow);
+      this->Internal->OffScreenWindow = NULL;
+      }
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkCarbonRenderWindow::ResizeOffScreenWindow(int width, int height)
 {
   if(!this->OffScreenRendering)
@@ -815,7 +825,7 @@ void vtkCarbonRenderWindow::ResizeOffScreenWindow(int width, int height)
     return;
     }
 
-  if(this->Internal->OffScreenContextId)
+  if(this->OffScreenUseFrameBuffer || this->Internal->OffScreenContextId)
     {
     this->DestroyOffScreenWindow();
     this->CreateOffScreenWindow(width, height);
@@ -825,7 +835,7 @@ void vtkCarbonRenderWindow::ResizeOffScreenWindow(int width, int height)
 
 //--------------------------------------------------------------------------
 void vtkCarbonRenderWindow::UpdateSizeAndPosition(int xPos, int yPos, 
- int xSize, int ySize)
+                                                  int xSize, int ySize)
 {
   this->Size[0]=xSize;
   this->Size[1]=ySize;
@@ -856,7 +866,6 @@ int *vtkCarbonRenderWindow::GetScreenSize()
   CGRect r = CGDisplayBounds(CGMainDisplayID());
   this->Size[0] = (int)r.size.width;
   this->Size[1] = (int)r.size.height;
-
   return this->Size;
 }
 
@@ -950,7 +959,7 @@ void vtkCarbonRenderWindow::SetStereoCapableWindow(int capable)
   else
     {
     vtkWarningMacro(<< "Requesting a StereoCapableWindow must be performed "
-      << "before the window is realized, i.e. before a render.");
+                    << "before the window is realized, i.e. before a render.");
     }
 }
 
@@ -1063,26 +1072,26 @@ void vtkCarbonRenderWindow::ShowCursor()
 OSStatus vtkCarbonRenderWindow::RegionEventProcessor(EventHandlerCallRef, 
                                                      EventRef event, void* win)
 {
-  vtkCarbonRenderWindow* vtk_win = reinterpret_cast<vtkCarbonRenderWindow*>(win);
+  vtkCarbonRenderWindow *vtk_win=reinterpret_cast<vtkCarbonRenderWindow*>(win);
   UInt32 event_kind = GetEventKind(event);
   UInt32 event_class = GetEventClass(event);
 
   switch(event_class)
     {
     case kEventClassControl:
+    {
+    switch (event_kind)
       {
-      switch (event_kind)
-        {
-        case kEventControlVisibilityChanged:
-        case kEventControlOwningWindowChanged:
-        case kEventControlBoundsChanged:
-          vtk_win->UpdateGLRegion();
-          break;
-        default:
-          break;
-        }
+      case kEventControlVisibilityChanged:
+      case kEventControlOwningWindowChanged:
+      case kEventControlBoundsChanged:
+        vtk_win->UpdateGLRegion();
+        break;
+      default:
+        break;
       }
-      break;
+    }
+    break;
     default:
       break;
     }
