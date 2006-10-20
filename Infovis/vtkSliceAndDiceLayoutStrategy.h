@@ -15,6 +15,8 @@
 // .NAME vtkSliceAndDiceLayoutStrategy - a horizontal and vertical slicing tree map layout
 //
 // .SECTION Description
+// Lays out a tree-map alternating between horizontal and vertical slices,
+// taking into account the relative size of each node.
 //
 // .SECTION Thanks
 // Slice and dice algorithm comes from:
@@ -34,8 +36,14 @@ public:
   vtkTypeRevisionMacro(vtkSliceAndDiceLayoutStrategy,vtkTreeMapLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // The field name associated with the size of the node.
   vtkGetStringMacro(SizeFieldName);
   vtkSetStringMacro(SizeFieldName);
+
+  // Description:
+  // Perform the layout of a tree and place the results as 4-tuples in
+  // coordsArray (Xmin, Xmax, Ymin, Ymax).
   void Layout(vtkTree *inputTree, vtkDataArray *coordsArray);
 
 protected:

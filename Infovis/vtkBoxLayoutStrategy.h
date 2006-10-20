@@ -19,6 +19,8 @@
 // .NAME vtkBoxLayoutStrategy - a tree map layout that puts nodes in square-ish boxes
 //
 // .SECTION Description
+// vtkBoxLayoutStrategy recursively partitions the space for children nodes
+// in a tree-map into square regions (or regions very close to a square).
 //
 // .SECTION Thanks
 // Thanks to Brian Wylie from Sandia National Laboratories for creating this class.
@@ -36,6 +38,9 @@ public:
   vtkTypeRevisionMacro(vtkBoxLayoutStrategy,vtkTreeMapLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Perform the layout of a tree and place the results as 4-tuples in
+  // coordsArray (Xmin, Xmax, Ymin, Ymax).
   void Layout(vtkTree *inputTree, vtkDataArray *coordsArray);
 protected:
   vtkBoxLayoutStrategy();

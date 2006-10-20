@@ -19,6 +19,9 @@
 // .NAME vtkForceDirectedLayoutStrategy - a force directed graph layout algorithm
 //
 // .SECTION Description
+// Lays out a graph in 2D or 3D using a force-directed algorithm.
+// The user may specify whether to layout the graph randomly initially,
+// the bounds, the number of dimensions (2 or 3), and the cool-down rate.
 //
 // .SECTION Thanks
 // Thanks to Brian Wylie for adding functionality for allowing this layout

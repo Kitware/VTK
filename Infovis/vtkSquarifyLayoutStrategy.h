@@ -15,6 +15,9 @@
 // .NAME vtkSquarifyLayoutStrategy - uses the squarify tree map layout algorithm
 //
 // .SECTION Description
+// vtkSquarigyLayoutStrategy partitions the space for child nodes into regions
+// that use all avaliable space and are as close to squares as possible.
+// The algorithm also takes into account the relative node size.
 //
 // .SECTION Thanks
 // The squarified tree map algorithm comes from:
@@ -38,9 +41,14 @@ public:
   vtkTypeRevisionMacro(vtkSquarifyLayoutStrategy,vtkTreeMapLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // The field name associated with the size of the node.
   vtkGetStringMacro(SizeFieldName);
   vtkSetStringMacro(SizeFieldName);
 
+  // Description:
+  // Perform the layout of a tree and place the results as 4-tuples in
+  // coordsArray (Xmin, Xmax, Ymin, Ymax).
   void Layout(vtkTree *inputTree, vtkDataArray *coordsArray);
 
 protected:

@@ -18,6 +18,17 @@
 // vtkGraphIdList is used to represent and pass data id's between
 // objects. vtkGraphIdList may represent any type of integer id, but
 // usually represents node and arc ids.
+// vtkGraphIdList provides read-only access to all classes except
+// for vtkGraph, vtkTree, which are responsible for creating instances
+// of this class.
+//
+// vtkGraphIdList provides two modes for creating lists:
+// (1) Fill a list from scratch using InsertNextId.  Edits on the list
+//     perform normally in this case.
+// (2) Set a list array pointer directly using SetArray.  If the "save"
+//     option is set, the data which the pointer points to is never allowed
+//     to be modified or deleted.  If the "save" flag is set, and a
+//     edit is made on the list, the entire list is copied before the change.
 
 #ifndef __vtkGraphIdList_h
 #define __vtkGraphIdList_h

@@ -12,9 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRandomGraphSource - a graph with random edges
+// .NAME vtkRandomGraphSource - a graph with random arcs
 //
 // .SECTION Description
+// Generates a graph with a specified number of nodes, with the density of
+// arcs specified by either an exact number of arcs or the probability of
+// an arc.  You may additionally specify whether to begin with a random
+// tree (which enforces graph connectivity).
 //
 
 #ifndef __vtkRandomGraphSource_h

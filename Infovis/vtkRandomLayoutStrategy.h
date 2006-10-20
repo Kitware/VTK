@@ -19,6 +19,7 @@
 // .NAME vtkRandomLayoutStrategy - randomly places nodes in 2 or 3 dimensions
 //
 // .SECTION Description
+// Assigns points to the nodes of a graph randomly within a bounded range.
 //
 // .SECION Thanks
 // Thanks to Brian Wylie from Sandia National Laboratories for adding incremental
@@ -52,6 +53,7 @@ public:
   vtkGetMacro(AutomaticBoundsComputation, int);
   vtkBooleanMacro(AutomaticBoundsComputation, int);
 
+  // Description:
   // Turn on/off layout of graph in three dimensions. If off, graph
   // layout occurs in two dimensions. By default, three dimensional
   // layout is on.
@@ -59,7 +61,12 @@ public:
   vtkGetMacro(ThreeDimensionalLayout, int);
   vtkBooleanMacro(ThreeDimensionalLayout, int);
 
+  // Description:
+  // Set the graph to layout.
   void SetGraph(vtkAbstractGraph *graph);
+
+  // Description:
+  // Perform the random layout.
   void Layout();
 
 protected:

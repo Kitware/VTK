@@ -19,6 +19,12 @@
 // .NAME vtkGraphLayoutStrategy - abstract superclass for all graph layout strategies
 //
 // .SECTION Description
+// All graph layouts should subclass from this class.  vtkGraphLayoutStrategy
+// works as a plug-in to the vtkGraphLayout algorithm.  The Layout()
+// function should perform some reasonable "chunk" of the layout.
+// This allows the user to be able to see the progress of the layout.
+// Use IsLayoutComplete() to tell the user when there is no more layout
+// to perform.
 //
 // .SECTION Thanks
 // Thanks to Brian Wylie from Sandia National Laboratories for adding incremental

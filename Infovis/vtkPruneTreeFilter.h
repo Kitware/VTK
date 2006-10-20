@@ -15,6 +15,7 @@
 // .NAME vtkPruneTreeFilter - prune a subtree out of a vtkTree
 //
 // .SECTION Description
+// Removes a subtree rooted at a particular node in a vtkTree.
 //
 
 #ifndef __vtkPruneTreeFilter_h

@@ -47,16 +47,20 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  void GetAdjacent(vtkIdType node, vtkIdType& narcs, const vtkIdType*& arcs);
-  void GetInAdjacent(vtkIdType node, vtkIdType& narcs, const vtkIdType*& arcs);
-  void GetOutAdjacent(vtkIdType node, vtkIdType& narcs, const vtkIdType*& arcs);
+  // Set a pointer to the adjacent objects for a specific node,
+  // along with the number of adjacent objects.
+  void GetAdjacent(vtkIdType node, vtkIdType& nadj, const vtkIdType*& adj);
+  void GetInAdjacent(vtkIdType node, vtkIdType& nadj, const vtkIdType*& adj);
+  void GetOutAdjacent(vtkIdType node, vtkIdType& nadj, const vtkIdType*& adj);
 
   // Description:
+  // Return the number of objects adjacent to a node.
   vtkIdType GetDegree(vtkIdType node);
   vtkIdType GetInDegree(vtkIdType node);
   vtkIdType GetOutDegree(vtkIdType node);
 
   // Description:
+  // The number of nodes stored in this structure.
   vtkIdType GetNumberOfNodes();
 
   // Description:
