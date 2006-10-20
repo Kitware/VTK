@@ -8,7 +8,7 @@
 
 #include <time.h>
 #include <vtkstd/vector>
-using vtkstd::vector;
+using namespace vtkstd;
 
 void CheckEqual(vtkTable* table, vector<vector<double> > & stdTable)
 {

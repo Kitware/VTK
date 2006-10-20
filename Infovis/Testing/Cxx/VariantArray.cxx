@@ -232,7 +232,7 @@ int VariantArray(int, char*[])
     exit(1);
     }
 
-  // Check by index.
+  cout << "Checking by index." << endl;
   for (vtkIdType i = 0; i < arr->GetNumberOfValues(); i++)
     {
     double arrVal = arr->GetValue(i).ToDouble();
@@ -243,7 +243,7 @@ int VariantArray(int, char*[])
       }
     }
 
-  // Check using an iterator.
+  cout << "Check using an iterator." << endl;
   vtkArrayIteratorTemplate<vtkVariant>* iter 
     = dynamic_cast<vtkArrayIteratorTemplate<vtkVariant>*>(arr->NewIterator());
   for (vtkIdType i = 0; i < iter->GetNumberOfValues(); i++)
@@ -257,7 +257,7 @@ int VariantArray(int, char*[])
     }
   iter->Delete();
 
-  // Check using array pointer.
+  cout << "Check using array pointer." << endl;
   vtkVariant* pointer = reinterpret_cast<vtkVariant*>(arr->GetVoidPointer(0));
   for (vtkIdType i = 0; i < arr->GetNumberOfValues(); i++)
     {
@@ -269,7 +269,7 @@ int VariantArray(int, char*[])
       }
     }
 
-  // Perform a deep copy and check it.
+  cout << "Perform a deep copy and check it." << endl;
   vtkVariantArray* copy = vtkVariantArray::New();
   arr->DeepCopy(copy);
   for (vtkIdType i = 0; i < arr->GetNumberOfValues(); i++)
