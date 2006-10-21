@@ -62,7 +62,7 @@
 // given in the OpenGL extension registry at
 // \ref http://oss.sgi.com/projects/ogl-sample/registry/ .
 // You can also grep vtkgl.h (which will be in the binary build directory
-// if vtkSNL is not installed) for appropriate names.  There are also
+// if VTK is not installed) for appropriate names.  There are also
 // special extensions GL_VERSION_X_X (where X_X is replaced with a major
 // and minor version, respectively) which contain all the constants and
 // functions for OpenGL versions for which the gl.h header file is of an
@@ -71,30 +71,48 @@
 // \code
 // if (   !extensions->ExtensionSupported("GL_VERSION_1_2")
 //     || !extensions->ExtensionSupported("GL_ARB_multitexture") ) {
-//  {
-//    vtkErrorMacro("Required extensions not supported!");
-//  }
+//   {
+//   vtkErrorMacro("Required extensions not supported!");
+//   }
 // \endcode
 //
 // Once you have verified that the extensions you want exist, before you
-// use them you have to loaded them with the LoadExtension method.
+// use them you have to load them with the LoadExtension method.
 //
 // \code
 // extensions->LoadExtension("GL_VERSION_1_2");
 // extensions->LoadExtension("GL_ARB_multitexture");
 // \endcode
 //
+// Alternatively, you can use the LoadSupportedExtension method, which checks
+// whether the requested extension is supported and, if so, loads it. The
+// LoadSupportedExtension method will not raise any errors or warnings if it
+// fails, so it is important for callers to pay attention to the return value.
+//
+// \code
+// if (   extensions->LoadSupportedExtension("GL_VERSION_1_2")
+//     && extensions->LoadSupportedExtension("GL_ARB_multitexture") ) {
+//   {
+//   vtkgl::ActiveTexture(vtkgl::TEXTURE0_ARB);
+//   }
+// else
+//   {
+//   vtkErrorMacro("Required extensions could not be loaded!");
+//   }
+// \endcode
+//
 // Once you have queried and loaded all of the extensions you need, you can
-// delete the vtkExtensionManager.  To use a constant of an extension, simply
-// replace the "GL_" prefix with "vtkgl::".  Likewise, replace the "gl" prefix
-// of functions with "vtkgl::".  In rare cases, an extension will add a type.
-// In this case, add vtkgl:: to the type (i.e. vtkgl::GLchar).
+// delete the vtkOpenGLExtensionManager.  To use a constant of an extension,
+// simply replace the "GL_" prefix with "vtkgl::".  Likewise, replace the
+// "gl" prefix of functions with "vtkgl::".  In rare cases, an extension will
+// add a type. In this case, add vtkgl:: to the type (i.e. vtkgl::GLchar).
 //
 // \code
 // extensions->Delete();
 // ...
 // vtkgl::ActiveTexture(vtkgl::TEXTURE0_ARB);
 // \endcode
+//
 // For wgl extensions, replace the "WGL_" and "wgl" prefixes with
 // "vtkwgl::".  For glX extensions, replace the "GLX_" and "glX" prefixes
 // with "vtkglX::".
@@ -153,8 +171,18 @@ public:
 
   // Description:
   // Loads all the functions associated with the given extension into the
-  // appropriate static members of vtkgl.
+  // appropriate static members of vtkgl. This method emits a warning if the
+  // requested extension is not supported. It emits an error if the extension
+  // does not load successfully.
   virtual void LoadExtension(const char *name);
+
+  // Description:
+  // Returns true if the extension is supported and loaded successfully,
+  // false otherwise. This method will "fail silently/gracefully" if the
+  // extension is not supported or does not load properly. It emits neither
+  // warnings nor errors. It is up to the caller to determine if the
+  // extension loaded properly by paying attention to the return value.
+  virtual int LoadSupportedExtension(const char *name);
 
 protected:
   vtkOpenGLExtensionManager();
@@ -174,4 +202,3 @@ private:
 };
 
 #endif //__vtkOpenGLExtensionManager
-

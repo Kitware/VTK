@@ -91,17 +91,20 @@ int LoadOpenGLExtension(int argc, char *argv[])
   vtkRenderWindow *renwin = vtkRenderWindow::New();
   renwin->SetSize(250, 250);
 
+  vtkRenderer *renderer = vtkRenderer::New();
+  renwin->AddRenderer(renderer);
+
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   renwin->SetInteractor(iren);
 
   vtkOpenGLExtensionManager *extensions = vtkOpenGLExtensionManager::New();
   extensions->SetRenderWindow(renwin);
 
-  cout << "Query extension." << endl;
-  if (!extensions->ExtensionSupported("GL_VERSION_1_2"))
+  cout << "LoadSupportedExtension..." << endl;
+  if (!extensions->LoadSupportedExtension("GL_VERSION_1_2"))
     {
     cout << "Is it possible that your driver does not support OpenGL 1.2?"
-         << endl << endl;;
+         << endl << endl;
     int forceLoad = 0;
     for (int i = 0; i < argc; i++)
       {
@@ -128,17 +131,20 @@ int LoadOpenGLExtension(int argc, char *argv[])
            << "when they in fact actually support 1.2 (and probably higher).\n"
            << "If you think this might be the case, try rerunning this test\n"
            << "with the -ForceLoad flag.  However, if Opengl 1.2 is really\n"
-           << "not supported, a seg fault will occur." << endl;
+           << "not supported, a seg fault will occur." << endl << endl;
+
+      cout << "GetExtensionsString..." << endl;
       cout << extensions->GetExtensionsString() << endl;
+
       renwin->Delete();
       iren->Delete();
       extensions->Delete();
       return 0;
       }
     }
+
+  cout << "GetExtensionsString..." << endl;
   cout << extensions->GetExtensionsString() << endl;
-  cout << "Load extension." << endl;
-  extensions->LoadExtension("GL_VERSION_1_2");
   extensions->Delete();
 
   cout << "Set up pipeline." << endl;
@@ -150,10 +156,7 @@ int LoadOpenGLExtension(int argc, char *argv[])
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
 
-  vtkRenderer *renderer = vtkRenderer::New();
   renderer->AddActor(actor);
-
-  renwin->AddRenderer(renderer);
 
   renderer->ResetCamera();
   vtkCamera *camera = renderer->GetActiveCamera();
