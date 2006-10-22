@@ -49,6 +49,8 @@ IF(APPLE)
 SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
   "warning -.: directory name .* does not exist"
+  "vtkfreetype/src/base/ftmac.c.*warning.*is deprecated"
+  "OpenTransport.h.*warning.*is deprecated"
   )
 ENDIF(APPLE)
 
