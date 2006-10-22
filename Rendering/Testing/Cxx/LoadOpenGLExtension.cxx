@@ -136,6 +136,7 @@ int LoadOpenGLExtension(int argc, char *argv[])
       cout << "GetExtensionsString..." << endl;
       cout << extensions->GetExtensionsString() << endl;
 
+      renderer->Delete();
       renwin->Delete();
       iren->Delete();
       extensions->Delete();
