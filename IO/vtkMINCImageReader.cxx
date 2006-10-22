@@ -78,7 +78,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageReader, "1.12");
+vtkCxxRevisionMacro(vtkMINCImageReader, "1.13");
 vtkStandardNewMacro(vtkMINCImageReader);
 
 //-------------------------------------------------------------------------
@@ -336,7 +336,7 @@ int vtkMINCImageReader::CloseNetCDFFile(int ncid)
 
 
 //-------------------------------------------------------------------------
-// Function for getting VTK dimension index from file name.
+// Function for getting VTK dimension index from the dimension name.
 int vtkMINCImageReader::IndexFromDimensionName(const char *dimName)
 {
   switch(dimName[0])
@@ -1170,18 +1170,21 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
   int ndims = dimensionNames->GetNumberOfValues();
   int idim = 0;
   int nminmaxdims = this->ImageAttributes->GetNumberOfImageMinMaxDimensions();
-  int nchunkdims = ndims - nminmaxdims;
   vtkIdType minmaxSize = 0;
   if (this->ImageAttributes->GetImageMin())
     {
     minmaxSize = this->ImageAttributes->GetImageMin()->GetNumberOfTuples();
     }
 
+  // The default dimensionality of the chunks that are used.
+  int nchunkdims = ndims - nminmaxdims;
+
   // All of these values will be changed in the following loop
   vtkIdType nchunks = 1;
   vtkIdType numTimeSteps = 1;
   vtkIdType chunkSize = 1;
   vtkIdType chunkInc = 0;
+  int hitChunkSizeLimit = 0;
 
   // These arrays will be filled in by the following loop
   vtkIdType permutedInc[VTK_MINC_MAX_DIMS];
@@ -1224,9 +1227,18 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
       permutedInc[idim] = 0;
       }
 
-    // For scalar minmax, use chunk sizes of 65536 or less
-    if (idim < nminmaxdims ||
-        (nminmaxdims == 0 && chunkSize*count[idim] > 65536))
+    // For scalar minmax, use chunk sizes of 65536 or less, 
+    // unless this would force the chunk size to be 1
+    if (nminmaxdims == 0 && chunkSize != 1 &&
+        chunkSize*count[idim] > 65536)
+      {
+      hitChunkSizeLimit = 1;
+      }
+
+    // If idim is one of the image-min/image-max dimensions, or if
+    // we have reached the maximum chunk size, then increase the
+    // number of chunks instead of increasing the chunk size
+    if (idim < nminmaxdims || hitChunkSizeLimit)
       {
       // Number of chunks is product of dimensions in minmax.
       nchunks *= count[idim];
