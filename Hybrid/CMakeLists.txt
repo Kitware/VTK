@@ -62,6 +62,7 @@ vtkVectorText.cxx
 vtkVideoSource.cxx
 vtkWeightedTransformFilter.cxx
 vtkXYPlotActor.cxx
+vtkX3DExporter.cxx
 )
 IF(VTK_HAS_EXODUS)
   SET(Kit_SRCS ${Kit_SRCS}

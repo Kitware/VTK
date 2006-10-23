@@ -1,11 +1,13 @@
 SET(KIT Hybrid)
 # add tests that do not require data
-SET(MyTests     
+SET(MyTests   
+  X3DTest.cxx  
   TestImageStencilData.cxx
   )
 IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}
+      
     )
 ENDIF (VTK_DATA_ROOT)
 
