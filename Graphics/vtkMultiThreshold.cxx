@@ -23,7 +23,7 @@
 #include "vtkPointSet.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkMultiThreshold,"1.2");
+vtkCxxRevisionMacro(vtkMultiThreshold,"1.3");
 vtkStandardNewMacro(vtkMultiThreshold);
 
 // Prevent lots of error messages on the inner loop of the filter by keeping track of how many we have:
@@ -489,7 +489,7 @@ int vtkMultiThreshold::RequestData(
   TruthTreeValues setStatesInit;
   for ( i = 0; i < (int)this->Sets.size(); ++i )
     {
-    BooleanSet* bset = dynamic_cast<BooleanSet*>( this->Sets[i] );
+    BooleanSet* bset = this->Sets[i]->GetBooleanSetPointer();
     if ( ! bset )
       {
       setStatesInit.push_back( INCONCLUSIVE );
@@ -616,7 +616,7 @@ void vtkMultiThreshold::UpdateDependents(
   // See if we can take care of boolean sets now.
   for ( TruthTreeValues::iterator dit = this->DependentSets[id].begin(); dit != this->DependentSets[id].end(); ++dit )
     {
-    BooleanSet* bset = dynamic_cast<BooleanSet*>( this->Sets[*dit] );
+    BooleanSet* bset = this->Sets[*dit]->GetBooleanSetPointer();
     if ( ! bset )
       {
       if ( ++vtkMultiThresholdLimitErrorCount > 5 )

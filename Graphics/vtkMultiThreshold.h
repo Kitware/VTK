@@ -266,6 +266,9 @@ protected:
   class Interval;
   friend class vtkMultiThreshold::Interval;
 
+  // Set needs to refer to boolean set pointers
+  class BooleanSet;
+
   /// A class with comparison operator used to index input array norms used in threshold rules.
   class NormKey {
   public:
@@ -329,6 +332,9 @@ protected:
     virtual void PrintNodeName( ostream& os );
     /// Print a graphviz node name for use in an edge statement.
     virtual void PrintNode( ostream& os ) = 0;
+    /// Avoid dynamic_casts. Subclasses must override
+    virtual BooleanSet* GetBooleanSetPointer();
+    virtual Interval* GetIntervalPointer();
   };
 
   /// A subset of a mesh represented by a range of acceptable attribute values.
@@ -349,6 +355,7 @@ protected:
 
     virtual ~Interval() { }
     virtual void PrintNode( ostream& os );
+    virtual Interval* GetIntervalPointer();
   };
 
   /// A subset of a mesh represented as a boolean set operation
@@ -366,6 +373,7 @@ protected:
     }
     virtual ~BooleanSet() { }
     virtual void PrintNode( ostream& os );
+    virtual BooleanSet* GetBooleanSetPointer();
   };
 
   /// A list of pointers to IntervalSets.
@@ -437,6 +445,26 @@ inline int vtkMultiThreshold::AddNotchIntervalSet(
     return -1;
     }
   return this->AddBooleanSet( NAND, 1, &band );
+}
+
+inline vtkMultiThreshold::Interval* vtkMultiThreshold::Set::GetIntervalPointer()
+{
+  return 0;
+}
+
+inline vtkMultiThreshold::BooleanSet* vtkMultiThreshold::Set::GetBooleanSetPointer()
+{
+  return 0;
+}
+
+inline vtkMultiThreshold::Interval* vtkMultiThreshold::Interval::GetIntervalPointer()
+{
+  return this;
+}
+
+inline vtkMultiThreshold::BooleanSet* vtkMultiThreshold::BooleanSet::GetBooleanSetPointer()
+{
+  return this;
 }
 
 #endif // __vtkMultiThreshold_h
