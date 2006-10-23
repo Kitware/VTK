@@ -129,6 +129,7 @@ IF(JAVA_COMPILE)
     #
     FOREACH(kit ${KITS})
       ADD_DEPENDENCIES(VTKBuildAll VTKJava${kit})
+      ADD_DEPENDENCIES(VTKBuildAll vtk${kit}Java)
     ENDFOREACH(kit)
 
     ADD_DEPENDENCIES(VTKJavaFiltering VTKJavaCommon)
