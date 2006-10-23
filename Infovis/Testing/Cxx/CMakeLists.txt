@@ -5,6 +5,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(MyTests     
     Table
     VariantArray
+    Variant
     )
   IF (VTK_DATA_ROOT)
     # add tests that require data

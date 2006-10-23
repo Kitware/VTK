@@ -367,6 +367,26 @@ vtkStdString vtkVariant::ToString() const
     ostr << this->Data.__Int64;
     return vtkStdString(ostr.str());
     }
+  if (this->IsUnsigned__Int64())
+    {
+    vtksys_ios::ostringstream ostr;
+    ostr << this->Data.Unsigned__Int64;
+    return vtkStdString(ostr.str());
+    }
+#endif
+#if defined(VTK_TYPE_USE_LONG_LONG)
+  if (this->IsLongLong())
+    {
+    vtksys_ios::ostringstream ostr;
+    ostr << this->Data.LongLong;
+    return vtkStdString(ostr.str());
+    }
+  if (this->IsUnsignedLongLong())
+    {
+    vtksys_ios::ostringstream ostr;
+    ostr << this->Data.UnsignedLongLong;
+    return vtkStdString(ostr.str());
+    }
 #endif
   if (this->IsArray())
     {
@@ -381,6 +401,7 @@ vtkStdString vtkVariant::ToString() const
     iter->Delete();
     return str;
     }
+  vtkGenericWarningMacro(<< "Cannot convert unknown type (" << this->Type << ") to a string.");
   return vtkStdString();
 }
 

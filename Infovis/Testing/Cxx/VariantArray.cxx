@@ -13,25 +13,25 @@ using vtkstd::vector;
 
 void PrintArrays(vector<double> vec, vtkVariantArray* arr)
 {
-  cout << endl;
-  cout << "index, vector, vtkVariantArray" << endl;
-  cout << "------------------------------" << endl;
+  cerr << endl;
+  cerr << "index, vector, vtkVariantArray" << endl;
+  cerr << "------------------------------" << endl;
   for (vtkIdType i = 0; i < arr->GetNumberOfValues(); i++)
     {
-    cout << i << ", " << vec[i] << ", " << arr->GetValue(i).ToDouble() << endl;
+    cerr << i << ", " << vec[i] << ", " << arr->GetValue(i).ToDouble() << endl;
     }
-  cout << endl;
+  cerr << endl;
 }
 
 int VariantArray(int, char*[])
 {
-  cout << "CTEST_FULL_OUTPUT" << endl;
+  cerr << "CTEST_FULL_OUTPUT" << endl;
 
   long seed = time(NULL);
-  cout << "Seed: " << seed << endl;
+  cerr << "Seed: " << seed << endl;
   vtkMath::RandomSeed(seed);
 
-  int size = 100;
+  int size = 20;
   double prob = 1.0 - 1.0 / size;
 
   vtkVariantArray* arr = vtkVariantArray::New();
@@ -50,7 +50,7 @@ int VariantArray(int, char*[])
   arr->Allocate(1000);
   if (arr->GetSize() != 1000 || arr->GetNumberOfTuples() != 0)
     {
-    cout << "size (" << arr->GetSize() << ") should be 1000, "
+    cerr << "size (" << arr->GetSize() << ") should be 1000, "
          << "tuples (" << arr->GetNumberOfTuples() << ") should be 0." << endl;
     exit(1);
     }
@@ -58,7 +58,7 @@ int VariantArray(int, char*[])
   arr->SetNumberOfValues(2000);
   if (arr->GetSize() != 2000 || arr->GetNumberOfTuples() != 2000)
     {
-    cout << "size (" << arr->GetSize() << ") should be 2000, "
+    cerr << "size (" << arr->GetSize() << ") should be 2000, "
          << "tuples (" << arr->GetNumberOfTuples() << ") should be 2000." << endl;
     exit(1);
     }
@@ -66,7 +66,7 @@ int VariantArray(int, char*[])
   arr->Initialize();
   if (arr->GetSize() != 0 || arr->GetNumberOfTuples() != 0)
     {
-    cout << "size (" << arr->GetSize() << ") should be 0, "
+    cerr << "size (" << arr->GetSize() << ") should be 0, "
          << "tuples (" << arr->GetNumberOfTuples() << ") should be 0." << endl;
     exit(1);
     }
@@ -76,7 +76,7 @@ int VariantArray(int, char*[])
   arr->SetNumberOfTuples(1000);
   if (arr->GetSize() != 3000 || arr->GetNumberOfTuples() != 1000)
     {
-    cout << "size (" << arr->GetSize() << ") should be 3000, "
+    cerr << "size (" << arr->GetSize() << ") should be 3000, "
          << "tuples (" << arr->GetNumberOfTuples() << ") should be 1000." << endl;
     exit(1);
     }
@@ -84,7 +84,7 @@ int VariantArray(int, char*[])
   arr->SetNumberOfTuples(500);
   if (arr->GetSize() != 3000 || arr->GetNumberOfTuples() != 500)
     {
-    cout << "size (" << arr->GetSize() << ") should be 3000, "
+    cerr << "size (" << arr->GetSize() << ") should be 3000, "
          << "tuples (" << arr->GetNumberOfTuples() << ") should be 500." << endl;
     exit(1);
     }
@@ -92,7 +92,7 @@ int VariantArray(int, char*[])
   arr->Squeeze();
   if (arr->GetSize() != 1500 || arr->GetNumberOfTuples() != 500)
     {
-    cout << "size (" << arr->GetSize() << ") should be 1500, "
+    cerr << "size (" << arr->GetSize() << ") should be 1500, "
          << "tuples (" << arr->GetNumberOfTuples() << ") should be 500." << endl;
     exit(1);
     }
@@ -100,7 +100,7 @@ int VariantArray(int, char*[])
   arr->SetNumberOfTuples(1000);
   if (arr->GetSize() != 3000 || arr->GetNumberOfTuples() != 1000)
     {
-    cout << "size=" << arr->GetSize() << ", should be 3000, "
+    cerr << "size=" << arr->GetSize() << ", should be 3000, "
          << "tuples (" << arr->GetNumberOfTuples() << ", should be 1000." << endl;
     exit(1);
     }
@@ -108,7 +108,7 @@ int VariantArray(int, char*[])
   arr->Resize(500);
   if (arr->GetSize() != 1500 || arr->GetNumberOfTuples() != 500)
     {
-    cout << "size=" << arr->GetSize() << ", should be 1500, "
+    cerr << "size=" << arr->GetSize() << ", should be 1500, "
          << "tuples=" << arr->GetNumberOfTuples() << ", should be 500." << endl;
     exit(1);
     }
@@ -117,7 +117,7 @@ int VariantArray(int, char*[])
   arr->SetVoidArray(reinterpret_cast<void*>(userArray), 3000, 0);
   if (arr->GetSize() != 3000 || arr->GetNumberOfTuples() != 1000)
     {
-    cout << "size=" << arr->GetSize() << ", should be 3000, "
+    cerr << "size=" << arr->GetSize() << ", should be 3000, "
          << "tuples=" << arr->GetNumberOfTuples() << ", should be 1000." << endl;
     exit(1);
     }
@@ -133,10 +133,12 @@ int VariantArray(int, char*[])
   // * void SetValue(vtkIdType id, vtkVariant value);
   // * void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
 
-  cout << "Performing insert operations." << endl;
+  cerr << "Performing insert operations." << endl;
   vtkIdType id = 0;
-  while (vtkMath::Random() < prob)
+  bool empty = true;
+  while (empty || vtkMath::Random() < prob)
     {
+    empty = false;
     if (vtkMath::Random() < 0.5)
       {
       arr->InsertValue(id, vtkVariant(id));
@@ -146,7 +148,7 @@ int VariantArray(int, char*[])
       vtkIdType index = arr->InsertNextValue(vtkVariant(id));
       if (index != id)
         {
-        cout << "index=" << index << ", id=" << id << endl;
+        cerr << "index=" << index << ", id=" << id << endl;
         exit(1);
         }
       }
@@ -156,8 +158,10 @@ int VariantArray(int, char*[])
 
   vtkStringArray* stringArr = vtkStringArray::New();
   vtkIdType strId = id;
-  while (vtkMath::Random() < prob)
+  empty = true;
+  while (empty || vtkMath::Random() < prob)
     {
+    empty = false;
     stringArr->InsertNextValue(vtkVariant(strId).ToString());
     strId++;
     }
@@ -173,7 +177,7 @@ int VariantArray(int, char*[])
       vtkIdType index = arr->InsertNextTuple(i, stringArr);
       if (index != id)
         {
-        cout << "index=" << index << ", id=" << id << endl;
+        cerr << "index=" << index << ", id=" << id << endl;
         exit(1);
         }
       }
@@ -182,7 +186,7 @@ int VariantArray(int, char*[])
     }
   PrintArrays(vec, arr);
 
-  cout << "Performing set operations." << endl;
+  cerr << "Performing set operations." << endl;
   while (vtkMath::Random() < prob)
     {
     int index = static_cast<int>(vtkMath::Random(0, arr->GetNumberOfValues()));
@@ -224,13 +228,13 @@ int VariantArray(int, char*[])
 
   if (arr->IsNumeric())
     {
-    cout << "The variant array is reported to be numeric, but should not be." << endl;
+    cerr << "The variant array is reported to be numeric, but should not be." << endl;
     exit(1);
     }
 
   if (arr->GetDataType() != VTK_VARIANT)
     {
-    cout << "The type of the array should be VTK_VARIANT." << endl;
+    cerr << "The type of the array should be VTK_VARIANT." << endl;
     exit(1);
     }
 
@@ -238,55 +242,55 @@ int VariantArray(int, char*[])
     || arr->GetDataTypeSize() == 0 
     || arr->GetElementComponentSize() == 0)
     {
-    cout << "One of the size functions returned zero." << endl;
+    cerr << "One of the size functions returned zero." << endl;
     exit(1);
     }
 
   if (arr->GetNumberOfValues() != static_cast<vtkIdType>(vec.size()))
     {
-    cout << "Sizes do not match (" 
+    cerr << "Sizes do not match (" 
          << arr->GetNumberOfValues() << " != " << vec.size() << ")" << endl;
     exit(1);
     }
 
-  cout << "Checking by index." << endl;
+  cerr << "Checking by index." << endl;
   for (vtkIdType i = 0; i < arr->GetNumberOfValues(); i++)
     {
     double arrVal = arr->GetValue(i).ToDouble();
     if (arrVal != vec[i])
       {
-      cout << "values do not match (" << arrVal << " != " << vec[i] << ")" << endl;
+      cerr << "values do not match (" << arrVal << " != " << vec[i] << ")" << endl;
       exit(1);
       }
     }
 
-  cout << "Check using an iterator." << endl;
+  cerr << "Check using an iterator." << endl;
   vtkArrayIteratorTemplate<vtkVariant>* iter 
-    = dynamic_cast<vtkArrayIteratorTemplate<vtkVariant>*>(arr->NewIterator());
+    = static_cast<vtkArrayIteratorTemplate<vtkVariant>*>(arr->NewIterator());
   for (vtkIdType i = 0; i < iter->GetNumberOfValues(); i++)
     {
     double arrVal = iter->GetValue(i).ToDouble();
     if (arrVal != vec[i])
       {
-      cout << "values do not match (" << arrVal << " != " << vec[i] << ")" << endl;
+      cerr << "values do not match (" << arrVal << " != " << vec[i] << ")" << endl;
       exit(1);
       }
     }
   iter->Delete();
 
-  cout << "Check using array pointer." << endl;
+  cerr << "Check using array pointer." << endl;
   vtkVariant* pointer = reinterpret_cast<vtkVariant*>(arr->GetVoidPointer(0));
   for (vtkIdType i = 0; i < arr->GetNumberOfValues(); i++)
     {
     double arrVal = pointer[i].ToDouble();
     if (arrVal != vec[i])
       {
-      cout << "values do not match (" << arrVal << " != " << vec[i] << ")" << endl;
+      cerr << "values do not match (" << arrVal << " != " << vec[i] << ")" << endl;
       exit(1);
       }
     }
 
-  cout << "Perform a deep copy and check it." << endl;
+  cerr << "Perform a deep copy and check it." << endl;
   vtkVariantArray* copy = vtkVariantArray::New();
   arr->DeepCopy(copy);
   for (vtkIdType i = 0; i < arr->GetNumberOfValues(); i++)
@@ -294,7 +298,7 @@ int VariantArray(int, char*[])
     double arrVal = copy->GetValue(i).ToDouble();
     if (arrVal != vec[i])
       {
-      cout << "values do not match (" << arrVal << " != " << vec[i] << ")" << endl;
+      cerr << "values do not match (" << arrVal << " != " << vec[i] << ")" << endl;
       exit(1);
       }
     }
