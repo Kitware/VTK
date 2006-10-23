@@ -74,9 +74,9 @@
   // accessor if you ever need it.
   // The cast should never fail, but we do it anyway, as
   // it's more correct to do so.
-  vtkCocoaRenderWindow*  cocoaRenWin = dynamic_cast<vtkCocoaRenderWindow*>(renWin);
+  vtkCocoaRenderWindow *cocoaRenWin = vtkCocoaRenderWindow::SafeDownCast(renWin);
   [self setVTKRenderWindow:cocoaRenWin];
-  
+
   // Likewise, BasicVTKView keeps track of the renderer
   [self setRenderer:ren];
 }

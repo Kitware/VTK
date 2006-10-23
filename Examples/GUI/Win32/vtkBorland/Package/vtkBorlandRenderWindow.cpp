@@ -142,7 +142,7 @@ void __fastcall TvtkBorlandRenderWindow::SetInteractorMode(const vtkBorlandInter
 {
   if ( im <= IM_TrackballActor && im >= IM_JoystickCamera )
     {
-    vtkInteractorStyleSwitch *iass = dynamic_cast<vtkInteractorStyleSwitch*>(FInteractor->GetInteractorStyle());
+    vtkInteractorStyleSwitch *iass = vtkInteractorStyleSwitch::SafeDownCast(FInteractor->GetInteractorStyle());
     if (!iass)
       {
       iass = vtkInteractorStyleSwitch::New();
@@ -162,7 +162,7 @@ void __fastcall TvtkBorlandRenderWindow::SetInteractorMode(const vtkBorlandInter
     }
     else if (im==IM_Flight)
       {
-      vtkInteractorStyleFlight *iafl = dynamic_cast<vtkInteractorStyleFlight*>(FInteractor->GetInteractorStyle());
+      vtkInteractorStyleFlight *iafl = vtkInteractorStyleFlight::SafeDownCast(FInteractor->GetInteractorStyle());
       if (!iafl)
         {
         iafl = vtkInteractorStyleFlight::New();
@@ -173,7 +173,7 @@ void __fastcall TvtkBorlandRenderWindow::SetInteractorMode(const vtkBorlandInter
       }
     else if (im==IM_Image)
       {
-      vtkInteractorStyleImage *iasi = dynamic_cast<vtkInteractorStyleImage*>(FInteractor->GetInteractorStyle());
+      vtkInteractorStyleImage *iasi = vtkInteractorStyleImage::SafeDownCast(FInteractor->GetInteractorStyle());
       if (!iasi)
         {
         iasi = vtkInteractorStyleImage::New();
@@ -184,7 +184,7 @@ void __fastcall TvtkBorlandRenderWindow::SetInteractorMode(const vtkBorlandInter
       }
     else if (im==IM_User)
       {
-      vtkInteractorStyleUser *iasu = dynamic_cast<vtkInteractorStyleUser*>(FInteractor->GetInteractorStyle());
+      vtkInteractorStyleUser *iasu = vtkInteractorStyleUser::SafeDownCast(FInteractor->GetInteractorStyle());
       if (!iasu)
         {
         iasu = vtkInteractorStyleUser::New();
