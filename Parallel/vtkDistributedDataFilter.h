@@ -301,9 +301,9 @@ private:
   vtkIdList **GetCellIdsForProcess(int proc, int *nlists);
 
   void SetUpPairWiseExchange();
-  void FreeIntArrays(vtkIdTypeArray **ar);
-  vtkIdTypeArray *ExchangeCounts(vtkIdType myCount, int tag);
-  vtkIdTypeArray **ExchangeIntArrays(vtkIdTypeArray **arIn, 
+  void FreeIntArrays(vtkIntArray **ar);
+  vtkIntArray *ExchangeCounts(int myCount, int tag);
+  vtkIntArray **ExchangeIntArrays(vtkIntArray **arIn, 
                                   int deleteSendArrays, int tag);
   vtkFloatArray **ExchangeFloatArrays(vtkFloatArray **myArray, 
                                       int deleteSendArrays, int tag);
@@ -314,9 +314,9 @@ private:
                    int deleteCellIds,
                    vtkDataSet *myGrid, int deleteMyGrid,
                    int filterOutDuplicateCells, int ghostCellFlag, int tag);
-  vtkIdTypeArray *ExchangeCountsLean(vtkIdType myCount, int tag);
-  vtkIdTypeArray **ExchangeIntArraysLean(vtkIdTypeArray **arIn, 
-                                         int deleteSendArrays, int tag);
+  vtkIntArray *ExchangeCountsLean(int myCount, int tag);
+  vtkIntArray **ExchangeIntArraysLean(vtkIntArray **arIn, 
+                                  int deleteSendArrays, int tag);
   vtkFloatArray **ExchangeFloatArraysLean(vtkFloatArray **myArray, 
                                       int deleteSendArrays, int tag);
   vtkUnstructuredGrid *ExchangeMergeSubGridsLean(
@@ -324,9 +324,9 @@ private:
                    int deleteCellIds,
                    vtkDataSet *myGrid, int deleteMyGrid,
                    int filterOutDuplicateCells, int ghostCellFlag, int tag);
-  vtkIdTypeArray *ExchangeCountsFast(vtkIdType myCount, int tag);
-  vtkIdTypeArray **ExchangeIntArraysFast(vtkIdTypeArray **arIn, 
-                                         int deleteSendArrays, int tag);
+  vtkIntArray *ExchangeCountsFast(int myCount, int tag);
+  vtkIntArray **ExchangeIntArraysFast(vtkIntArray **arIn, 
+                                  int deleteSendArrays, int tag);
   vtkFloatArray **ExchangeFloatArraysFast(vtkFloatArray **myArray, 
                                       int deleteSendArrays, int tag);
   vtkUnstructuredGrid *ExchangeMergeSubGridsFast(
@@ -354,17 +354,17 @@ private:
   int AssignGlobalNodeIds(vtkUnstructuredGrid *grid);
   int AssignGlobalElementIds(vtkDataSet *in);
 
-  vtkIdTypeArray **FindGlobalPointIds(vtkFloatArray **ptarray,
-    vtkIdTypeArray *ids, vtkUnstructuredGrid *grid, int &numUniqueMissingPoints);
+  vtkIntArray **FindGlobalPointIds(vtkFloatArray **ptarray,
+    vtkIntArray *ids, vtkUnstructuredGrid *grid, int &numUniqueMissingPoints);
 
   int InMySpatialRegion(float x, float y, float z);
   int InMySpatialRegion(double x, double y, double z);
   int StrictlyInsideMyBounds(float x, float y, float z);
   int StrictlyInsideMyBounds(double x, double y, double z);
 
-  vtkIdTypeArray **GetGhostPointIds(int ghostLevel, vtkUnstructuredGrid *grid,
-                                    int AddCellsIAlreadyHave);
-  vtkIdTypeArray **MakeProcessLists(vtkIdTypeArray **pointIds,
+  vtkIntArray **GetGhostPointIds(int ghostLevel, vtkUnstructuredGrid *grid,
+                                 int AddCellsIAlreadyHave);
+  vtkIntArray **MakeProcessLists(vtkIntArray **pointIds,
                                  vtkDistributedDataFilterSTLCloak *procs);
   vtkUnstructuredGrid *AddGhostCellsUniqueCellAssignment(
                            vtkUnstructuredGrid *myGrid,
@@ -372,7 +372,7 @@ private:
   vtkUnstructuredGrid *AddGhostCellsDuplicateCellAssignment(
                            vtkUnstructuredGrid *myGrid,
                            vtkDistributedDataFilterSTLCloak *globalToLocalMap);
-  vtkIdList **BuildRequestedGrids( vtkIdTypeArray **globalPtIds,
+  vtkIdList **BuildRequestedGrids( vtkIntArray **globalPtIds,
                         vtkUnstructuredGrid *grid,
                         vtkDistributedDataFilterSTLCloak *ptIdMap);
   vtkUnstructuredGrid *SetMergeGhostGrid(
@@ -393,12 +393,12 @@ private:
                int ptId, vtkDistributedDataFilterSTLCloak *globalToLocal);
 
   static int LocalPointIdIsUsed(vtkUnstructuredGrid *grid, int ptId);
-  static int FindId(vtkIdTypeArray *ids, vtkIdType gid, vtkIdType startLoc);
-  static vtkIdTypeArray *AddPointAndCells(vtkIdType gid, 
-                                       vtkIdType localId, 
+  static int FindId(vtkIntArray *ids, int gid, int startLoc);
+  static vtkIntArray *AddPointAndCells(int gid, 
+                                       int localId, 
                                        vtkUnstructuredGrid *grid, 
                                        vtkIdType *gidCells, 
-                                       vtkIdTypeArray *ids);
+                                       vtkIntArray *ids);
 
   static void AddConstantUnsignedCharPointArray(vtkUnstructuredGrid *grid, 
                                  const char *arrayName, unsigned char val);

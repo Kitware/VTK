@@ -77,7 +77,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.25");
+vtkCxxRevisionMacro(vtkPKdTree, "1.26");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -472,7 +472,7 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
   this->PtArray = NULL;
 
   this->PtArray = this->ComputeCellCenters();
-  vtkIdType totalPts = this->GetNumberOfCells();    // total on local node
+  int totalPts = this->GetNumberOfCells();    // total on local node
   this->CurrentPtArray = this->PtArray;
 
 //   int fail = (this->PtArray == NULL);
