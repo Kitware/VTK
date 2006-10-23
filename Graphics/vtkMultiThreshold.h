@@ -208,63 +208,15 @@ public:
   // Remove all the intervals currently defined.
   void Reset();
 
-protected:
-
-  vtkMultiThreshold();
-  virtual ~vtkMultiThreshold();
-
-  //BTX
-  // Description:
-  // When an interval is evaluated, its value is used to update a truth table.
-  // If its value allows the output of the truth table to be determined, then
-  // either INCLUDE or EXCLUDE is returned. Otherwise, INCONCLUSIVE is returned
-  // and more intervals must be evaluated.
-  //
-  // As an example, consider the ruleset {A>10} & ( {6<B<8} | {C==12} ).
-  // We first evaluate A. Say A is 100. This makes the first rule true, but the
-  // value of the rule *set* is still indeterminate. INCONCLUSIVE is returned.
-  // Next we consider B. If B is 7, then INCLUDE will be returned and there is
-  // no need to examine C.  If B is 0, then INCONCLUSIVE is returned again and
-  // we must examine C. If C is 12, then INCLUDE is returned, otherwise EXCLUDE
-  // is returned.
-  enum Ruling {
-    INCONCLUSIVE=-1,
-    INCLUDE=-2,
-    EXCLUDE=-3
-  };
-  //ETX
-
-  // Description:
-  // This function performs the actual thresholding.
-  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
-
-  // Description:
-  // We accept any mesh that is descended from vtkPointSet.
-  // In the future, it is possible to accept more types but this would require
-  // us to generate a new vtkPoints object for each output mesh.
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
-
-  // Description:
-  // A variable used to store the next index to use when calling SetInputArrayToProcess.
-  // Its value is stored in an interval's ArrayIndex member and used during RequestData
-  // to retrieve a pointer to the actual array.
-  int NextArrayIndex;
-
-  // Description:
-  // The number of output datasets.
-  int NumberOfOutputs;
-
   //BTX
   /// A pointer to a function that returns a norm (or a single component) of a tuple with 1 or more components.
   typedef double (*TupleNorm)( vtkDataArray* arr, vtkIdType tuple, int component );
 
   // NormKey must be able to use TupleNorm typedef:
   class NormKey;
-  friend class vtkMultiThreshold::NormKey;
 
   // Interval must be able to use NormKey typedef:
   class Interval;
-  friend class vtkMultiThreshold::Interval;
 
   // Set needs to refer to boolean set pointers
   class BooleanSet;
@@ -356,7 +308,6 @@ protected:
     virtual ~Interval() { }
     virtual void PrintNode( ostream& os );
     virtual Interval* GetIntervalPointer();
-    friend class vtkMultiThreshold::Set;
   };
 
   /// A subset of a mesh represented as a boolean set operation
@@ -375,9 +326,56 @@ protected:
     virtual ~BooleanSet() { }
     virtual void PrintNode( ostream& os );
     virtual BooleanSet* GetBooleanSetPointer();
-    friend class vtkMultiThreshold::Set;
   };
+  //ETX
 
+protected:
+
+  vtkMultiThreshold();
+  virtual ~vtkMultiThreshold();
+
+  //BTX
+  // Description:
+  // When an interval is evaluated, its value is used to update a truth table.
+  // If its value allows the output of the truth table to be determined, then
+  // either INCLUDE or EXCLUDE is returned. Otherwise, INCONCLUSIVE is returned
+  // and more intervals must be evaluated.
+  //
+  // As an example, consider the ruleset {A>10} & ( {6<B<8} | {C==12} ).
+  // We first evaluate A. Say A is 100. This makes the first rule true, but the
+  // value of the rule *set* is still indeterminate. INCONCLUSIVE is returned.
+  // Next we consider B. If B is 7, then INCLUDE will be returned and there is
+  // no need to examine C.  If B is 0, then INCONCLUSIVE is returned again and
+  // we must examine C. If C is 12, then INCLUDE is returned, otherwise EXCLUDE
+  // is returned.
+  enum Ruling {
+    INCONCLUSIVE=-1,
+    INCLUDE=-2,
+    EXCLUDE=-3
+  };
+  //ETX
+
+  // Description:
+  // This function performs the actual thresholding.
+  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+
+  // Description:
+  // We accept any mesh that is descended from vtkPointSet.
+  // In the future, it is possible to accept more types but this would require
+  // us to generate a new vtkPoints object for each output mesh.
+  virtual int FillInputPortInformation( int port, vtkInformation* info );
+
+  // Description:
+  // A variable used to store the next index to use when calling SetInputArrayToProcess.
+  // Its value is stored in an interval's ArrayIndex member and used during RequestData
+  // to retrieve a pointer to the actual array.
+  int NextArrayIndex;
+
+  // Description:
+  // The number of output datasets.
+  int NumberOfOutputs;
+
+  //BTX
   /// A list of pointers to IntervalSets.
   typedef vtkstd::vector<Interval*> IntervalList;
   /// A map describing the IntervalSets that share a common attribute and norm.
