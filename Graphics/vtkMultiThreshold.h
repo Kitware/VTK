@@ -356,6 +356,7 @@ protected:
     virtual ~Interval() { }
     virtual void PrintNode( ostream& os );
     virtual Interval* GetIntervalPointer();
+    friend class vtkMultiThreshold::Set;
   };
 
   /// A subset of a mesh represented as a boolean set operation
@@ -374,6 +375,7 @@ protected:
     virtual ~BooleanSet() { }
     virtual void PrintNode( ostream& os );
     virtual BooleanSet* GetBooleanSetPointer();
+    friend class vtkMultiThreshold::Set;
   };
 
   /// A list of pointers to IntervalSets.
