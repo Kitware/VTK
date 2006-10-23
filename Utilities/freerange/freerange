@@ -201,6 +201,8 @@ class freerange
 
     void resize( idx_t new_size )
     {
+      idx_t i = 0;
+
       // note that resizing doesn't guarantee the number of contiguous free
       // or even free items in the list... it only guarantees storage for
       // some total number of items assuming that all the holes get filled.
@@ -217,13 +219,13 @@ class freerange
           used -= array_top - array_len;
           array_top = array_len;
         }
-        for ( idx_t i=0; i<array_top; i++ )
+        for ( i=0; i<array_top; i++ )
           array_tmp[i] = array[i];
         delete [] array;
-        for ( idx_t i=array_top; i<new_size; ++i )
+        for ( i=array_top; i<new_size; ++i )
           array_tmp[i] = empty_entry;
         array = array_tmp;
-        for ( idx_t i=1; i<dead_size; i++ ) { // dead[0] is unused
+        for ( i=1; i<dead_size; i++ ) { // dead[0] is unused
           typename dead_list_entry_t::iterator it = vtksys_stl::remove_if( dead[i].begin(), dead[i].end(), vtksys_stl::bind2nd( vtksys_stl::greater_equal<idx_t>(), new_size ) );
           dead[i].erase( it, dead[i].end() );
         }
@@ -233,9 +235,9 @@ class freerange
         T* array_tmp = new T [ array_len ];
         if ( ! array_tmp )
           throw vtksys_stl::runtime_error( "freerange memory allocation failed" );
-        for ( idx_t i=0; i<array_top; i++ )
+        for ( i=0; i<array_top; i++ )
           array_tmp[i] = array[i];
-        for ( idx_t i=array_top; i<new_size; ++i )
+        for ( i=array_top; i<new_size; ++i )
           array_tmp[i] = empty_entry;
         delete [] array;
         array = array_tmp;
