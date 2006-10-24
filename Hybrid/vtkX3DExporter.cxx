@@ -38,9 +38,11 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
+#include "vtkstd/string"
+
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkX3DExporter, "1.1");
+vtkCxxRevisionMacro(vtkX3DExporter, "1.2");
 vtkStandardNewMacro(vtkX3DExporter);
 
 //----------------------------------------------------------------------------
