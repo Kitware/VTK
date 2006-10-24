@@ -31,7 +31,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.7");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.8");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -64,7 +64,7 @@ vtkDelimitedTextReader::vtkDelimitedTextReader()
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->ReadBuffer = new char[2048];
-
+  this->HaveHeaders = false;
   this->FieldDelimiter = ',';
   this->StringDelimiter = '"';
   this->UseStringDelimiter = true;
