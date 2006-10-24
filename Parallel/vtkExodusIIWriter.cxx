@@ -91,7 +91,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.10");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.11");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -3088,26 +3088,26 @@ int vtkExodusIIWriter::WriteGlobalPointIds()
     }
 
   vtkIdType *ids = this->GlobalNodeIdList;
-  int *newIds = NULL;
+  int *copyOfIds = NULL;
 
   if (ids)
     {
     vtkUnstructuredGrid *ug = this->GetInput();
     vtkIdType npoints = ug->GetNumberOfPoints();
 
-    newIds = new int [npoints];
+    copyOfIds = new int [npoints];
     
     for (int i=0; i<npoints; i++)
       {
-      newIds[i] = static_cast<int>(ids[i]);
+      copyOfIds[i] = static_cast<int>(ids[i]);
       }
 
-    rc = ex_put_node_num_map(this->fid, this->GlobalNodeIdList);
+    rc = ex_put_node_num_map(this->fid, copyOfIds);
     }
 
-  if (newIds != NULL)
+  if (copyOfIds != NULL)
     {
-    delete [] newIds;
+    delete [] copyOfIds;
     }
 
   int fail = ( rc < 0);
@@ -3132,7 +3132,7 @@ int vtkExodusIIWriter::WriteGlobalElementIds()
     }
 
   vtkIdType *ids = this->GlobalElementIdList;
-  int *newIds = NULL;
+  int *copyOfIds = NULL;
 
   if (ids)
     {
@@ -3140,19 +3140,19 @@ int vtkExodusIIWriter::WriteGlobalElementIds()
       {
       vtkUnstructuredGrid *ug = this->GetInput();
       int ncells = ug->GetNumberOfCells();
-      newIds = new int [ncells];
+      copyOfIds = new int [ncells];
   
       for (int i=0; i<ncells; i++)
         {
-        newIds[i] = static_cast<int>(ids[this->ElementIndex[i]]);
+        copyOfIds[i] = static_cast<int>(ids[this->ElementIndex[i]]);
         }
       }
   
-    rc = ex_put_elem_num_map(this->fid, ids);
+    rc = ex_put_elem_num_map(this->fid, copyOfIds);
   
-    if (newIds != NULL)
+    if (copyOfIds != NULL)
       {
-      delete [] newIds;
+      delete [] copyOfIds;
       }
     }
 
