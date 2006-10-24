@@ -91,7 +91,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.9");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.10");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -116,8 +116,6 @@ vtkExodusIIWriter::vtkExodusIIWriter()
   this->LastTimeStepWritten = -1;
 
   this->BlockIdArrayName = NULL;
-  this->GlobalElementIdArrayName = NULL;
-  this->GlobalNodeIdArrayName = NULL;
 
   this->BlockIdList = NULL;
   this->GlobalElementIdList = NULL;
@@ -149,6 +147,8 @@ vtkExodusIIWriter::vtkExodusIIWriter()
   this->EditorFlag = 0;
   this->WritingToOriginalFile = 0;
 }
+
+//----------------------------------------------------------------------------
 vtkExodusIIWriter::~vtkExodusIIWriter()
 {
   if (!this->BlockIdArrayName && this->BlockIdList)
@@ -160,8 +160,6 @@ vtkExodusIIWriter::~vtkExodusIIWriter()
   this->SetMyFileName(NULL);
   this->SetModelMetadata(NULL);
   this->SetBlockIdArrayName(NULL);
-  this->SetGlobalElementIdArrayName(NULL);
-  this->SetGlobalNodeIdArrayName(NULL);
 
   this->SetTimeStepValues(0, NULL);
 
@@ -188,6 +186,7 @@ vtkExodusIIWriter::~vtkExodusIIWriter()
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::FillInputPortInformation( int vtkNotUsed(port), vtkInformation* info )
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
@@ -212,10 +211,14 @@ vtkUnstructuredGrid *vtkExodusIIWriter::GetInput()
 
   return ug;
 }
+
+//----------------------------------------------------------------------------
 void vtkExodusIIWriter::SetInput(vtkUnstructuredGrid *ug)
 {
   this->Superclass::SetInput(ug);
 }
+
+//----------------------------------------------------------------------------
 void vtkExodusIIWriter::SetPassDoubles()
 {
   int i;
@@ -309,6 +312,8 @@ void vtkExodusIIWriter::SetPassDoubles()
     this->StoreDoubles = this->PassDoubles;   
     }
 }
+
+//----------------------------------------------------------------------------
 void vtkExodusIIWriter::RemoveGhostCells()
 {
   if (this->MyInput)
@@ -349,6 +354,7 @@ void vtkExodusIIWriter::RemoveGhostCells()
     
   ug->Delete();
 }
+
 //----------------------------------------------------------------------------
 // Values that can be set if there is no metadata
 //----------------------------------------------------------------------------
@@ -373,10 +379,14 @@ void vtkExodusIIWriter::SetTimeStepValues(int n, float *f)
     memcpy(this->InputTimeStepValues, f, n * sizeof(float));
     }
 }
+
+//----------------------------------------------------------------------------
 void vtkExodusIIWriter::SetCurrentTimeStep(int ts)
 {
   this->InputCurrentTimeStep = ts;
 }
+
+//----------------------------------------------------------------------------
 void vtkExodusIIWriter::SetAllBlockIds(int numEntries, int *blockIds)
 {
   if (this->InputBlockIds)
@@ -396,9 +406,8 @@ void vtkExodusIIWriter::SetAllBlockIds(int numEntries, int *blockIds)
     memcpy(this->InputBlockIds, blockIds, numEntries * sizeof(int));
     }
 }
-//------------------------------------------------------------------
-//------------------------------------------------------------------
 
+//------------------------------------------------------------------
 void vtkExodusIIWriter::WriteData()
 {
   int rc = 0;
@@ -667,39 +676,23 @@ int vtkExodusIIWriter::CheckParameters()
     this->BlockIdList = ia->GetPointer(0);
     }
 
-  if (this->GlobalElementIdArrayName)
+  if (this->WriteOutGlobalElementIdArray)
     {
-    da = cd->GetArray(this->GlobalElementIdArrayName);
+    da = cd->GetGlobalIds();
 
     if (da)
       {
-      HaveGlobalElementIdArray = 1;
-      }
-    else
-      {
-      this->SetGlobalElementIdArrayName(NULL);
-      }
-    }
-
-  if (!HaveGlobalElementIdArray)
-    {
-    da = cd->GetArray("GlobalElementId");
-
-    if (da)
-      {
-      this->SetGlobalElementIdArrayName("GlobalElementId");
       HaveGlobalElementIdArray = 1;
       }
     }
 
   if (HaveGlobalElementIdArray)
     {
-    da = cd->GetArray(this->GlobalElementIdArrayName);
-    vtkIntArray *ia = vtkIntArray::SafeDownCast(da);
+    vtkIdTypeArray *ia = vtkIdTypeArray::SafeDownCast(da);
     if (!ia)
       {
       vtkWarningMacro(<< 
-        "vtkExodusIIWriter, element ID array is not an integer array, ignoring it");
+        "vtkExodusIIWriter, element ID array is not an Id array, ignoring it");
       this->GlobalElementIdList = NULL; 
       HaveGlobalElementIdArray = 0;
       }
@@ -711,39 +704,24 @@ int vtkExodusIIWriter::CheckParameters()
 
   vtkPointData *pd = input->GetPointData();
 
-  if (this->GlobalNodeIdArrayName)
+  if (this->WriteOutGlobalNodeIdArray)
     {
-    da = pd->GetArray(this->GlobalNodeIdArrayName);
+    da = pd->GetGlobalIds();
 
     if (da)
       {
-      HaveGlobalNodeIdArray = 1;
-      }
-    else
-      {
-      this->SetGlobalNodeIdArrayName(NULL);
-      }
-    }
-
-  if (!HaveGlobalNodeIdArray)
-    {
-    da = pd->GetArray("GlobalNodeId");
-
-    if (da)
-      {
-      this->SetGlobalNodeIdArrayName("GlobalNodeId");
       HaveGlobalNodeIdArray = 1;
       }
     }
 
   if (HaveGlobalNodeIdArray)
     {
-    da = pd->GetArray(this->GlobalNodeIdArrayName);
-    vtkIntArray *ia = vtkIntArray::SafeDownCast(da);
+
+    vtkIdTypeArray *ia = vtkIdTypeArray::SafeDownCast(da);
     if (!ia)
       {
       vtkWarningMacro(<< 
-        "vtkExodusIIWriter, node ID array is not an integer array, ignoring it");
+        "vtkExodusIIWriter, node ID array is not an Id array, ignoring it");
       this->GlobalNodeIdList = 0;
       HaveGlobalNodeIdArray = 0;
       }
@@ -786,12 +764,14 @@ int vtkExodusIIWriter::CheckParameters()
   return 0;
 }
 
+//----------------------------------------------------------------------------
 vtkModelMetadata* vtkExodusIIWriter::GetOrCreateModelMetadata()
 {
   this->CheckParameters();
   return this->GetModelMetadata();
 }
 
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::CreateExodusModel()
 {
   // There is no metadata associated with this input.  If we have enough
@@ -931,6 +911,8 @@ int vtkExodusIIWriter::CreateExodusModel()
 
   return 0;
 }
+
+//----------------------------------------------------------------------------
 char **vtkExodusIIWriter::FlattenOutVariableNames(
              int narrays, int nScalarArrays, char **nms, int *numComponents)
 {
@@ -952,6 +934,8 @@ char **vtkExodusIIWriter::FlattenOutVariableNames(
 
   return newNames;
 }
+
+//----------------------------------------------------------------------------
 void vtkExodusIIWriter::CreateNamesForScalarArrays(const char *root, char **nms, int numComponents)
 {
   int next = 0;
@@ -987,6 +971,8 @@ void vtkExodusIIWriter::CreateNamesForScalarArrays(const char *root, char **nms,
       }
     }
 }
+
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::FindCellType(int blockId, int *blockIdList, 
                                     unsigned char *cellTypeList, int nCells)
 {
@@ -1004,6 +990,7 @@ int vtkExodusIIWriter::FindCellType(int blockId, int *blockIdList,
   return cellType;
 }
 
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::CreateBlockIdInformation(vtkModelMetadata *em)
 {
   vtkUnstructuredGrid *ug = this->GetInput();
@@ -1096,6 +1083,8 @@ int vtkExodusIIWriter::CreateBlockIdInformation(vtkModelMetadata *em)
 
   return err;
 }
+
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::CreateBlockIdInformationFromCellTypes(vtkModelMetadata *em)
 {
   int i;
@@ -1210,6 +1199,8 @@ int vtkExodusIIWriter::CreateBlockIdInformationFromCellTypes(vtkModelMetadata *e
 
   return err;
 }
+
+//----------------------------------------------------------------------------
 char *vtkExodusIIWriter::GetCellTypeName(int t)
 {
   if (MAX_STR_LENGTH < 32) return NULL;
@@ -1317,6 +1308,7 @@ char *vtkExodusIIWriter::GetCellTypeName(int t)
 
   return nm;
 }
+
 //------------------------------------------------------------------
 // Open or create an Exodus II file
 //------------------------------------------------------------------
@@ -1329,6 +1321,8 @@ void vtkExodusIIWriter::CloseExodusFile()
     return;
     }
 }
+
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::OpenExodusFile()
 {
   this->CloseExodusFile();
@@ -1350,6 +1344,8 @@ int vtkExodusIIWriter::OpenExodusFile()
 
   return fail;
 }
+
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::CreateNewExodusFile()
 {
   if (this->NumberOfProcesses == 1)
@@ -1389,11 +1385,11 @@ int vtkExodusIIWriter::CreateNewExodusFile()
 
   return fail;
 }
+
 //========================================================================
 //   MAPPINGS
 //   Convert local to global IDs and vice versa
 //========================================================================
-
 int vtkExodusIIWriter::GetBlockLocalIndex(int id)
 {
   if (!this->LocalBlockIndexMap)
@@ -1419,24 +1415,27 @@ int vtkExodusIIWriter::GetBlockLocalIndex(int id)
     return mapit->second;
     }
 }
-int vtkExodusIIWriter::GetElementLocalId(int id)
+
+//----------------------------------------------------------------------------
+vtkIdType vtkExodusIIWriter::GetElementLocalId(vtkIdType id)
 {
   if (!this->LocalElementIdMap)
     {
     vtkUnstructuredGrid *ug = this->GetInput();
-    int ncells = ug->GetNumberOfCells();
+    vtkIdType ncells = ug->GetNumberOfCells();
 
-    this->LocalElementIdMap = new vtkstd::map<int, int>;
+    this->LocalElementIdMap = new vtkstd::map<vtkIdType, vtkIdType>;
 
-    for (int i=0; i<ncells; i++)
+    for (vtkIdType i=0; i<ncells; i++)
       {
-      int gid = this->GlobalElementIdList[i];
+      vtkIdType gid = this->GlobalElementIdList[i];
 
-      this->LocalElementIdMap->insert(vtkstd::map<int,int>::value_type(gid, i));
+      this->LocalElementIdMap->insert(
+        vtkstd::map<vtkIdType, vtkIdType>::value_type(gid, i));
       }
     }
 
-  vtkstd::map<int,int>::iterator mapit = this->LocalElementIdMap->find(id);
+  vtkstd::map<vtkIdType,vtkIdType>::iterator mapit = this->LocalElementIdMap->find(id);
 
   if (mapit == this->LocalElementIdMap->end())
     {
@@ -1447,24 +1446,28 @@ int vtkExodusIIWriter::GetElementLocalId(int id)
     return mapit->second;
     }
 }
-int vtkExodusIIWriter::GetNodeLocalId(int id)
+
+//----------------------------------------------------------------------------
+vtkIdType vtkExodusIIWriter::GetNodeLocalId(vtkIdType id)
 {
   if (!this->LocalNodeIdMap)
     {
     vtkUnstructuredGrid *ug = this->GetInput();
-    int npoints = ug->GetNumberOfPoints();
+    vtkIdType npoints = ug->GetNumberOfPoints();
 
-    this->LocalNodeIdMap = new vtkstd::map<int, int>;
+    this->LocalNodeIdMap = new vtkstd::map<vtkIdType, vtkIdType>;
 
-    for (int i=0; i<npoints; i++)
+    for (vtkIdType i=0; i<npoints; i++)
       {
-      int gid = this->GlobalNodeIdList[i];
+      vtkIdType gid = this->GlobalNodeIdList[i];
 
-      this->LocalNodeIdMap->insert(vtkstd::map<int,int>::value_type(gid, i));
+      this->LocalNodeIdMap->insert(
+        vtkstd::map<vtkIdType,vtkIdType>::value_type(gid, i));
       }
     }
 
-  vtkstd::map<int,int>::iterator mapit = this->LocalNodeIdMap->find(id);
+  vtkstd::map<vtkIdType,vtkIdType>::iterator mapit = 
+    this->LocalNodeIdMap->find(id);
 
   if (mapit == this->LocalNodeIdMap->end())
     {
@@ -1475,11 +1478,11 @@ int vtkExodusIIWriter::GetNodeLocalId(int id)
     return mapit->second;
     }
 }
+
 //========================================================================
 //   VARIABLE ARRAYS:
 //   CONVERT VECTOR ARRAYS TO APPROPRIATELY NAMED SCALAR ARRAYS
 //========================================================================
-
 void vtkExodusIIWriter::InitializeVariableArrayNames()
 {
   this->InputElementArrayNames = NULL;
@@ -1492,6 +1495,8 @@ void vtkExodusIIWriter::InitializeVariableArrayNames()
   this->InputNodeArrayComponent = NULL;
   this->NumberOfScalarNodeArrays = 0;
 }
+
+//----------------------------------------------------------------------------
 void vtkExodusIIWriter::ClearVariableArrayNames()
 {
   int i;
@@ -1510,6 +1515,7 @@ void vtkExodusIIWriter::ClearVariableArrayNames()
   this->NumberOfScalarNodeArrays = 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::WriteVariableArrayNames()
 {
   int i, j;
@@ -1528,11 +1534,11 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
   int checkAndSkipNodeIds = 0;
   int checkAndSkipBlockIds = 0;
 
-  if (this->GlobalElementIdArrayName && !this->WriteOutGlobalElementIdArray)
+  if (!this->WriteOutGlobalElementIdArray)
     {
     checkAndSkipEltIds = 1;
     }
-  if (this->GlobalNodeIdArrayName && !this->WriteOutGlobalNodeIdArray)
+  if (!this->WriteOutGlobalNodeIdArray)
     {
     checkAndSkipNodeIds = 1;
     }
@@ -1557,8 +1563,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
       {
       if (checkAndSkipEltIds)
         {
-        const char *nm = cd->GetArray(i)->GetName();
-        if (!strcmp(nm, this->GlobalElementIdArrayName))
+        if (cd->IsArrayAnAttribute(i) == vtkDataSetAttributes::GLOBALIDS)
           {
           skipCellArray[i] = 1;
           continue;
@@ -1695,8 +1700,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
       {
       if (checkAndSkipNodeIds)
         {
-        const char *nm = pd->GetArray(i)->GetName();
-        if (!strcmp(nm, this->GlobalNodeIdArrayName))
+        if (pd->IsArrayAnAttribute(i) == vtkDataSetAttributes::GLOBALIDS)
           {
           skipPointArray[i] = 1;
           continue;
@@ -1790,6 +1794,8 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
 
   return 0;
 }
+
+//----------------------------------------------------------------------------
 void vtkExodusIIWriter::SetNewNodeVariableNames(vtkDataArray *da, char **nm)
 {
   int i;
@@ -1850,6 +1856,8 @@ void vtkExodusIIWriter::SetNewNodeVariableNames(vtkDataArray *da, char **nm)
 
   return;
 }
+
+//----------------------------------------------------------------------------
 void vtkExodusIIWriter::SetNewElementVariableNames(vtkDataArray *da, char **nm)
 {
   int i;
@@ -1910,11 +1918,11 @@ void vtkExodusIIWriter::SetNewElementVariableNames(vtkDataArray *da, char **nm)
 
   return;
 }
+
 //========================================================================
 //   VARIABLE ARRAYS:
 //   Write out the results data for one time step.
 //========================================================================
-
 #define COPY_COMPONENT(arrayType, varType, castType)  \
 {                                                     \
   arrayType *a = arrayType::SafeDownCast(da);         \
@@ -1938,6 +1946,7 @@ void vtkExodusIIWriter::SetNewElementVariableNames(vtkDataArray *da, char **nm)
     }                                                 \
 }
 
+//----------------------------------------------------------------------------
 double *vtkExodusIIWriter::ExtractComponentD(vtkDataArray *da, int comp, int *idx)
 {
   int i;
@@ -2013,6 +2022,8 @@ double *vtkExodusIIWriter::ExtractComponentD(vtkDataArray *da, int comp, int *id
 
   return val;
 }
+
+//----------------------------------------------------------------------------
 float *vtkExodusIIWriter::ExtractComponentF(vtkDataArray *da, int comp, int *idx)
 {
   int i;
@@ -2089,8 +2100,13 @@ float *vtkExodusIIWriter::ExtractComponentF(vtkDataArray *da, int comp, int *idx
   return val;
 }
 
-
-int vtkExodusIIWriter::ExtractComponentForEditorD(vtkDataArray *da, vtkDoubleArray *editedArray, vtkIntArray *idArray, int comp, int *idx)
+//----------------------------------------------------------------------------
+int vtkExodusIIWriter::ExtractComponentForEditorD(
+  vtkDataArray *da, 
+  vtkDoubleArray *editedArray, 
+  vtkIdTypeArray *idArray, 
+  int comp, 
+  int *idx)
 {
   int numComp = da->GetNumberOfComponents();
   if (numComp <= comp) return 0;
@@ -2125,7 +2141,13 @@ int vtkExodusIIWriter::ExtractComponentForEditorD(vtkDataArray *da, vtkDoubleArr
   return 1;
 }
 
-int vtkExodusIIWriter::ExtractComponentForEditorF(vtkDataArray *da, vtkFloatArray *editedArray, vtkIntArray *idArray, int comp, int *idx)
+//----------------------------------------------------------------------------
+int vtkExodusIIWriter::ExtractComponentForEditorF(
+  vtkDataArray *da, 
+  vtkFloatArray *editedArray, 
+  vtkIdTypeArray *idArray, 
+  int comp, 
+  int *idx)
 {
   int numComp = da->GetNumberOfComponents();
   if (numComp < comp) return 0;
@@ -2160,8 +2182,7 @@ int vtkExodusIIWriter::ExtractComponentForEditorF(vtkDataArray *da, vtkFloatArra
   return 1;
 }
 
-
-
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::GetTimeStepIndex()
 {
   int ts = -1;
@@ -2195,6 +2216,7 @@ int vtkExodusIIWriter::GetTimeStepIndex()
   return ts;
 }
 
+//----------------------------------------------------------------------------
 float vtkExodusIIWriter::GetTimeStepValue(int ts)
 {
   float val = (float)ts;   // default
@@ -2244,6 +2266,7 @@ float vtkExodusIIWriter::GetTimeStepValue(int ts)
   return val;
 }
 
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::WriteNextTimeStep()
 {
   int i, idIdx;
@@ -2321,7 +2344,7 @@ int vtkExodusIIWriter::WriteNextTimeStep()
       if(this->EditorFlag)
         {
         vtkDoubleArray *editedArray = vtkDoubleArray::New();
-        vtkIntArray *idArray = vtkIntArray::SafeDownCast(ug->GetPointData()->GetArray("GlobalElementId"));
+        vtkIdTypeArray *idArray = vtkIdTypeArray::SafeDownCast(ug->GetPointData()->GetGlobalIds());
         if(this->ExtractComponentForEditorD(da, editedArray, idArray, component, this->ElementIndex))
           {
           double *vars = editedArray->GetPointer(0);
@@ -2387,7 +2410,7 @@ int vtkExodusIIWriter::WriteNextTimeStep()
       if(this->EditorFlag)
         {
         vtkFloatArray *editedArray = vtkFloatArray::New();
-        vtkIntArray *idArray = vtkIntArray::SafeDownCast(ug->GetPointData()->GetArray("GlobalElementId"));
+        vtkIdTypeArray *idArray = vtkIdTypeArray::SafeDownCast(ug->GetPointData()->GetGlobalIds());
         if(this->ExtractComponentForEditorF(da, editedArray, idArray, component, this->ElementIndex))
           {
           float *vars = editedArray->GetPointer(0);
@@ -2498,7 +2521,7 @@ int vtkExodusIIWriter::WriteNextTimeStep()
         else
           continue;
 */
-        vtkIntArray *idArray = vtkIntArray::SafeDownCast(ug->GetPointData()->GetArray("InternalNodeId"));
+        vtkIdTypeArray *idArray = vtkIdTypeArray::SafeDownCast(ug->GetPointData()->GetArray("InternalNodeId"));
 /*
     // Get the data into the temp int array
     ex_get_node_num_map(this->CurrentHandle, exo_array_data);
@@ -2537,7 +2560,7 @@ int vtkExodusIIWriter::WriteNextTimeStep()
       if(this->EditorFlag)
         {
         vtkFloatArray *editedArray = vtkFloatArray::New();
-        vtkIntArray *idArray = vtkIntArray::SafeDownCast(ug->GetPointData()->GetArray("InternalNodeId"));
+        vtkIdTypeArray *idArray = vtkIdTypeArray::SafeDownCast(ug->GetPointData()->GetArray("InternalNodeId"));
 /*
         vtkIntArray *idArray = vtkIntArray::New();
         if(mmd)
@@ -2605,6 +2628,8 @@ int vtkExodusIIWriter::WriteNextTimeStep()
 
   return 0;
 }
+
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::BlockVariableTruthValue(int blockIdx, int varIdx)
 {
   int tt=0;
@@ -2721,6 +2746,7 @@ int vtkExodusIIWriter::WriteProperties()
 
   return fail;
 }
+
 //-----------------------------------------------------------------------
 // Side sets and node sets
 //-----------------------------------------------------------------------
@@ -2900,6 +2926,8 @@ int vtkExodusIIWriter::WriteSideSetInformation()
 
   return fail;
 }
+
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::WriteNodeSetInformation()
 {
   int rc = 0;
@@ -3042,6 +3070,8 @@ int vtkExodusIIWriter::WriteCoordinateNames()
 
   return fail;
 }
+
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::WriteGlobalPointIds()
 {
   int rc = 0;
@@ -3051,15 +3081,41 @@ int vtkExodusIIWriter::WriteGlobalPointIds()
     return 0;
     }
 
-  if (this->GlobalNodeIdList)
+  if (sizeof(vtkIdType) != sizeof(int))
     {
+    vtkErrorMacro(<<"vtkExodusIIWriter::WriteGlobalPointIds cannot convert vtkIdType to int.");
+    return -1;
+    }
+
+  vtkIdType *ids = this->GlobalNodeIdList;
+  int *newIds = NULL;
+
+  if (ids)
+    {
+    vtkUnstructuredGrid *ug = this->GetInput();
+    vtkIdType npoints = ug->GetNumberOfPoints();
+
+    newIds = new int [npoints];
+    
+    for (int i=0; i<npoints; i++)
+      {
+      newIds[i] = static_cast<int>(ids[i]);
+      }
+
     rc = ex_put_node_num_map(this->fid, this->GlobalNodeIdList);
+    }
+
+  if (newIds != NULL)
+    {
+    delete [] newIds;
     }
 
   int fail = ( rc < 0);
 
   return fail;
 }
+
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::WriteGlobalElementIds()
 {
   int rc = 0;
@@ -3069,7 +3125,14 @@ int vtkExodusIIWriter::WriteGlobalElementIds()
     return 0;
     }
 
-  int *ids = this->GlobalElementIdList;
+  if (sizeof(vtkIdType) != sizeof(int))
+    {
+    vtkErrorMacro(<<"vtkExodusIIWriter::WriteGlobalElementIds cannot convert vtkIdType to int.");
+    return -1;
+    }
+
+  vtkIdType *ids = this->GlobalElementIdList;
+  int *newIds = NULL;
 
   if (ids)
     {
@@ -3077,22 +3140,19 @@ int vtkExodusIIWriter::WriteGlobalElementIds()
       {
       vtkUnstructuredGrid *ug = this->GetInput();
       int ncells = ug->GetNumberOfCells();
-  
-      int *newIds = new int [ncells];
+      newIds = new int [ncells];
   
       for (int i=0; i<ncells; i++)
         {
-        newIds[i] = ids[this->ElementIndex[i]];
+        newIds[i] = static_cast<int>(ids[this->ElementIndex[i]]);
         }
-
-      ids = newIds;
       }
   
     rc = ex_put_elem_num_map(this->fid, ids);
   
-    if (ids != this->GlobalElementIdList)
+    if (newIds != NULL)
       {
-      delete [] ids;
+      delete [] newIds;
       }
     }
 
@@ -3100,6 +3160,8 @@ int vtkExodusIIWriter::WriteGlobalElementIds()
 
   return fail;
 }
+
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::WritePoints()
 {
   vtkUnstructuredGrid *ug = this->GetInput();
@@ -3231,6 +3293,8 @@ int vtkExodusIIWriter::WriteQARecords()
 
   return 0;
 }
+
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::WriteInformationRecords()
 {
   if(this->WritingToOriginalFile)
@@ -3254,6 +3318,7 @@ int vtkExodusIIWriter::WriteInformationRecords()
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::WriteInitializationParameters()
 {
   vtkUnstructuredGrid *ug = this->GetInput();
@@ -3281,6 +3346,7 @@ int vtkExodusIIWriter::WriteInitializationParameters()
   
   return fail;
 }
+
 //========================================================================
 // BLOCKS 
 //========================================================================
@@ -3298,6 +3364,8 @@ void vtkExodusIIWriter::InitializeBlockLists()
   this->BlockElementAttributesD = NULL;
   this->BlockElementConnectivity = NULL;
 }
+
+//----------------------------------------------------------------------------
 void vtkExodusIIWriter::ClearBlockLists()
 {
   int i;
@@ -3325,6 +3393,8 @@ void vtkExodusIIWriter::ClearBlockLists()
 
   this->NumberOfElementBlocks = 0;
 }
+
+//----------------------------------------------------------------------------
 int vtkExodusIIWriter::WriteBlockInformation()
 {
   int i, j, rc;
@@ -3520,7 +3590,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
 
   for (i=0; i<ncells; i++)
     {
-    int nextIdx = (this->ElementIndex ? this->ElementIndex[i] : i);
+    vtkIdType nextIdx = (this->ElementIndex ? this->ElementIndex[i] : i);
 
     int blockId = this->BlockIdList[nextIdx];
 
@@ -3556,7 +3626,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
       break;
       }
 
-    int globalId = this->GlobalElementIdList[nextIdx];
+    vtkIdType globalId = this->GlobalElementIdList[nextIdx];
     eltIt = eltIdx[idx]->find(globalId);
 
     if (eltIt == eltIdx[idx]->end())
@@ -3673,7 +3743,10 @@ int vtkExodusIIWriter::WriteBlockInformation()
   
   return fail;
 }
-vtkstd::map<int, int> *vtkExodusIIWriter::BuildBlockElementSearchStructure(int block)
+
+//----------------------------------------------------------------------------
+vtkstd::map<int, int> *
+  vtkExodusIIWriter::BuildBlockElementSearchStructure(int block)
 {
   // Create a map from an element global ID to it's location in
   // the block array in the ExodusModel object.
@@ -3720,6 +3793,7 @@ char *vtkExodusIIWriter::StrDupWithNew(const char *s)
   
   return newstr;
 }
+
 //----------------------------------------------------------------------------
 void vtkExodusIIWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -3740,14 +3814,6 @@ void vtkExodusIIWriter::PrintSelf(ostream& os, vtkIndent indent)
   if (this->BlockIdArrayName)
     {
     os << indent << "BlockIdArrayName " << this->BlockIdArrayName << endl;
-    }
-  if (this->GlobalNodeIdArrayName)
-    {
-    os << indent << "GlobalNodeIdArrayName " << this->GlobalNodeIdArrayName << endl;
-    }
-  if (this->GlobalElementIdArrayName)
-    {
-    os << indent << "GlobalNodeIdArrayName " << this->GlobalNodeIdArrayName << endl;
     }
 
   os << indent << "WriteOutBlockIdArray " << this->WriteOutBlockIdArray << endl;

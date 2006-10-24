@@ -76,6 +76,7 @@ class vtkDoubleArray;
 class vtkDataArray;
 class vtkUnsignedCharArray;
 class vtkIntArray;
+class vtkIdTypeArray;
 class vtkModelMetadata;
 
 class VTK_PARALLEL_EXPORT vtkExodusIIWriter : public vtkWriter
@@ -161,6 +162,7 @@ public:
   vtkGetMacro(WriteOutBlockIdArray, int);
   vtkBooleanMacro(WriteOutBlockIdArray, int);
 
+  /*
   // Description:
   //   The name of a point array that gives the global node IDs.
   //   We will look for an array called "GlobalNodeId" if you
@@ -169,6 +171,7 @@ public:
 
   vtkSetStringMacro(GlobalNodeIdArrayName);
   vtkGetStringMacro(GlobalNodeIdArrayName);
+  */
 
   // Description:
   //   By default, the integer array containing the global Node Ids 
@@ -179,6 +182,7 @@ public:
   vtkGetMacro(WriteOutGlobalNodeIdArray, int);
   vtkBooleanMacro(WriteOutGlobalNodeIdArray, int);
 
+  /*
   // Description:
   //   The name of a cell array that gives the global cell IDs.
   //   We will look for an array called "GlobalElementId" if you
@@ -187,6 +191,7 @@ public:
 
   vtkSetStringMacro(GlobalElementIdArrayName);
   vtkGetStringMacro(GlobalElementIdArrayName);
+  */
 
   // Description:
   //   By default, the integer array containing the global Element Ids 
@@ -358,22 +363,22 @@ private:
 
   // List of the global element ID of each cell in input
 
-  char *GlobalElementIdArrayName;
-  int *GlobalElementIdList;
+  //char *GlobalElementIdArrayName;
+  vtkIdType *GlobalElementIdList;
 //BTX
-  vtkstd::map<int, int> *LocalElementIdMap;
+  vtkstd::map<vtkIdType, vtkIdType> *LocalElementIdMap;
 //ETX
-  int GetElementLocalId(int i);
+  vtkIdType GetElementLocalId(vtkIdType i);
   int WriteOutGlobalElementIdArray;
 
   // List of the global node ID of each cell in input
 
-  char *GlobalNodeIdArrayName;
-  int *GlobalNodeIdList;
+  //char *GlobalNodeIdArrayName;
+  vtkIdType *GlobalNodeIdList;
 //BTX
-  vtkstd::map<int, int> *LocalNodeIdMap;
+  vtkstd::map<vtkIdType, vtkIdType> *LocalNodeIdMap;
 //ETX
-  int GetNodeLocalId(int i);
+  vtkIdType GetNodeLocalId(vtkIdType i);
   int WriteOutGlobalNodeIdArray;
 
   // Exodus II element blocks
@@ -437,8 +442,8 @@ private:
   int ErrorStatus;
 
   // ATTRIBUTE EDITOR
-  int ExtractComponentForEditorF(vtkDataArray *da, vtkFloatArray *fa, vtkIntArray *ids, int comp, int *idx);
-  int ExtractComponentForEditorD(vtkDataArray *da, vtkDoubleArray *dba, vtkIntArray *ids, int comp, int *idx);
+  int ExtractComponentForEditorF(vtkDataArray *da, vtkFloatArray *fa, vtkIdTypeArray *ids, int comp, int *idx);
+  int ExtractComponentForEditorD(vtkDataArray *da, vtkDoubleArray *dba, vtkIdTypeArray *ids, int comp, int *idx);
   char *EditedVariableName;
   int EditorFlag;
   int WritingToOriginalFile;
