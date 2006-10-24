@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// .NAME vtX3DExporter - create an x3d file
+// .SECTION Description
 
 #ifndef __vtkX3DExporter_h
 #define __vtkX3DExporter_h
@@ -49,7 +51,7 @@ protected:
   vtkX3DExporter();
   ~vtkX3DExporter();  
   
-   // Description:
+  // Description:
   // Write data to output.
   void WriteData();
 
@@ -62,6 +64,10 @@ protected:
             
   char *FileName;
   double Speed;
+  
+private:
+  vtkX3DExporter(const vtkX3DExporter&); // Not implemented.
+  void operator=(const vtkX3DExporter&); // Not implemented.
 };
 
 
