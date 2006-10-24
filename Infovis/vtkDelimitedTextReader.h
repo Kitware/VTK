@@ -22,6 +22,8 @@
 // vtkDelimitedTextReader is an interface for pulling in data from a
 // flat, delimited text file (delimiter can be any character).
 //
+// This class emits ProgressEvent for every 100 lines it reads.
+//
 // .SECTION Thanks
 // Thanks to Brian Wylie from Sandia National Laboratories for implementing
 // this class.

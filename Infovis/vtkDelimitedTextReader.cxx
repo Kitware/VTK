@@ -18,6 +18,7 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkDelimitedTextReader.h"
+#include "vtkCommand.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 #include "vtkObjectFactory.h"
@@ -30,7 +31,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.6");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.7");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -128,6 +129,8 @@ int vtkDelimitedTextReader::RequestData(
                                         vtkInformationVector**, 
                                         vtkInformationVector* outputVector)
 {
+  int numLines = 0;
+
   // Check that the filename has been specified
   if (!this->FileName)
     {
@@ -218,6 +221,13 @@ int vtkDelimitedTextReader::RequestData(
   vtkStdString nextLine;
   while (my_getline(*(this->Internals->File), nextLine))
     {
+    ++numLines;
+    if (numLines > 0 && numLines % 100 == 0)
+      {
+      float numLinesRead = numLines;
+      this->InvokeEvent(vtkCommand::ProgressEvent, &numLinesRead);
+      }
+
     vtkDebugMacro(<<"Next line: " << nextLine.c_str());
     vtkstd::vector<vtkStdString> dataVector;
 
