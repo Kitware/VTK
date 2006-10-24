@@ -77,7 +77,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.26");
+vtkCxxRevisionMacro(vtkPKdTree, "1.27");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -472,7 +472,7 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
   this->PtArray = NULL;
 
   this->PtArray = this->ComputeCellCenters();
-  int totalPts = this->GetNumberOfCells();    // total on local node
+  vtkIdType totalPts = this->GetNumberOfCells();    // total on local node
   this->CurrentPtArray = this->PtArray;
 
 //   int fail = (this->PtArray == NULL);
@@ -2275,9 +2275,9 @@ int vtkPKdTree::AllocateAndZeroGlobalIndexLists()
 {
   this->FreeGlobalIndexLists();
 
-  MakeList(this->StartVal, int, this->NumProcesses);
-  MakeList(this->EndVal, int, this->NumProcesses);
-  MakeList(this->NumCells, int, this->NumProcesses);
+  MakeList(this->StartVal, vtkIdType, this->NumProcesses);
+  MakeList(this->EndVal, vtkIdType, this->NumProcesses);
+  MakeList(this->NumCells, vtkIdType, this->NumProcesses);
 
   int defined = ((this->StartVal != NULL) && 
                  (this->EndVal != NULL) && 
@@ -2293,7 +2293,7 @@ void vtkPKdTree::FreeGlobalIndexLists()
   FreeList(EndVal);
   FreeList(NumCells);
 }
-int vtkPKdTree::BuildGlobalIndexLists(int numMyCells)
+int vtkPKdTree::BuildGlobalIndexLists(vtkIdType numMyCells)
 {
   int fail = this->AllocateAndZeroGlobalIndexLists();
 
@@ -2401,7 +2401,7 @@ int vtkPKdTree::AllocateAndZeroProcessDataLists()
 
   if (this->RegionList == NULL) goto doneError3;
 
-  MakeList(this->CellCountList, int * ,nRegions);
+  MakeList(this->CellCountList, vtkIdType * ,nRegions);
 
   if (this->CellCountList == NULL) goto doneError3;
 
@@ -2590,7 +2590,7 @@ int vtkPKdTree::CreateProcessCellCountData()
       {
       this->ProcessList[reg] = new int [nprocs];
       this->ProcessList[reg][0] = -1;
-      this->CellCountList[reg] = new int [nprocs];
+      this->CellCountList[reg] = new vtkIdType [nprocs];
       this->CellCountList[reg][0] = -1;
       }
     }
@@ -2839,9 +2839,23 @@ void vtkPKdTree::AddEntry(int *list, int len, int id)
 
   if (i < len) list[i] = -1;
 }
-int vtkPKdTree::BinarySearch(int *list, int len, int which)
+#ifdef VTK_USE_64BIT_IDS
+void vtkPKdTree::AddEntry(vtkIdType *list, int len, vtkIdType id)
 {
-int mid, left, right;
+  int i=0;
+
+  while ((i < len) && (list[i] != -1)) i++;
+
+  if (i == len) return;  // error
+
+  list[i++] = id;
+
+  if (i < len) list[i] = -1;
+}
+#endif
+int vtkPKdTree::BinarySearch(vtkIdType *list, int len, vtkIdType which)
+{
+  vtkIdType mid, left, right;
 
   mid = -1;
 

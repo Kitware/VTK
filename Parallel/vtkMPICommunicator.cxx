@@ -23,7 +23,7 @@
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.37");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.38");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -819,6 +819,22 @@ int vtkMPICommunicator::NoBlockReceive(float* data, int length,
                                          this->MPIComm->Handle));
 
 }
+#ifdef VTK_USE_64BIT_IDS
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::NoBlockReceive(vtkIdType* data, int length, 
+                                       int remoteProcessId, int tag,
+                                       Request& req)
+{
+
+  return CheckForMPIError(
+    vtkMPICommunicatorNoBlockReceiveData(data, 
+                                         length, remoteProcessId, 
+                                         tag, vtkMPICommunicatorGetMPIType(),
+                                         req, 
+                                         this->MPIComm->Handle));
+
+}
+#endif
 
 //----------------------------------------------------------------------------
 vtkMPICommunicator::Request::Request()

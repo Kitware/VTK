@@ -166,6 +166,12 @@ public:
                      int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
         (data, length, remoteProcessId, tag, req); }
+#ifdef VTK_USE_64BIT_IDS
+  int NoBlockReceive(vtkIdType* data, int length, int remoteProcessId, 
+                     int tag, vtkMPICommunicator::Request& req)
+    { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
+        (data, length, remoteProcessId, tag, req); }
+#endif
 
 //ETX
 

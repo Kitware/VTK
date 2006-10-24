@@ -152,6 +152,10 @@ public:
                      int tag, Request& req);
   int NoBlockReceive(float* data, int length, int remoteProcessId, 
                      int tag, Request& req);
+#ifdef VTK_USE_64BIT_IDS
+  int NoBlockReceive(vtkIdType* data, int length, int remoteProcessId, 
+                     int tag, Request& req);
+#endif
 
 
   // Description:

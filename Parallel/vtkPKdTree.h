@@ -73,7 +73,7 @@ public:
   //   files read by all processes.  You must have called BuildLocator
   //   before calling this method.
 
-  int GetTotalNumberOfCells(){return this->TotalNumCells;}
+  vtkIdType GetTotalNumberOfCells(){return this->TotalNumCells;}
 
   // Description:
   //   Create tables of counts of cells per process per region.
@@ -330,7 +330,7 @@ private:
   int *NumRegionsInProcess;           // indexed by process ID
   int **RegionList;                   // indexed by process ID
 
-  int **CellCountList;                // indexed by region ID
+  vtkIdType **CellCountList;                // indexed by region ID
 
   double *CellDataMin;           // global range for data arrays
   double *CellDataMax;
@@ -343,12 +343,12 @@ private:
 
   // distribution of indices for select operation
 
-  int BuildGlobalIndexLists(int ncells);
+  int BuildGlobalIndexLists(vtkIdType ncells);
 
-  int *StartVal;
-  int *EndVal;
-  int *NumCells;
-  int TotalNumCells;
+  vtkIdType *StartVal;
+  vtkIdType *EndVal;
+  vtkIdType *NumCells;
+  vtkIdType TotalNumCells;
 
   // local share of points to be partitioned, and local cache
 
@@ -436,7 +436,10 @@ private:
   int BuildRegionProcessTables();
   int BuildFieldArrayMinMax();
   void AddEntry(int *list, int len, int id);
-  static int BinarySearch(int *list, int len, int which);
+#ifdef VTK_USE_64BIT_IDS
+  void AddEntry(vtkIdType *list, int len, vtkIdType id);
+#endif
+  static int BinarySearch(vtkIdType *list, int len, vtkIdType which);
 
   static int FindNextLocalArrayIndex(const char *n, const char **names, int len, int start=0);
 
