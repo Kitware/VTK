@@ -103,6 +103,9 @@ public:
   }
 
   // Description:
+  void SetBorderPercentage(double pcent);
+
+  // Description:
   // These convenience functions use strings for use in GUIs and scripts.
   virtual void SetLayoutStrategy(const char *layoutType);
   static const char *GetLayoutStrategyName(int strategy);

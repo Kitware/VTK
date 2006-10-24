@@ -54,7 +54,7 @@
 #include <vtkInformation.h>
 #include <vtkCellData.h>
 
-vtkCxxRevisionMacro(vtkTreeMapViewer, "1.2");
+vtkCxxRevisionMacro(vtkTreeMapViewer, "1.3");
 vtkStandardNewMacro(vtkTreeMapViewer);
 
 
@@ -432,6 +432,7 @@ void vtkTreeMapViewer::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->InteractorStyle->PrintSelf(os,indent.GetNextIndent());
     }
+
 }
   
 void vtkTreeMapViewer::SetLabelLevelRange(int start, int end)
@@ -449,4 +450,9 @@ void vtkTreeMapViewer::SetChildLabelMotion(int mode)
 void vtkTreeMapViewer::SetLabelClipMode(int mode)
 {
   this->LabeledDataMapper->SetClipTextMode(mode);
+}
+
+void vtkTreeMapViewer::SetBorderPercentage(double pcent)
+{
+  this->TreeMapLayout->GetLayoutStrategy()->SetBorderPercentage(pcent);
 }
