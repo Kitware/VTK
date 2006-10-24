@@ -4,7 +4,7 @@
 int Variant(int, char*[])
 {
   double value = 123456;
-  char* strValue = "123456";
+  const char* strValue = "123456";
   int errors = 0;
   int type[] = {
     VTK_INT,
