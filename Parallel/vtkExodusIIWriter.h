@@ -162,17 +162,6 @@ public:
   vtkGetMacro(WriteOutBlockIdArray, int);
   vtkBooleanMacro(WriteOutBlockIdArray, int);
 
-  /*
-  // Description:
-  //   The name of a point array that gives the global node IDs.
-  //   We will look for an array called "GlobalNodeId" if you
-  //   don't provide a different name here.  It must be an integer
-  //   array.  This array is optional.
-
-  vtkSetStringMacro(GlobalNodeIdArrayName);
-  vtkGetStringMacro(GlobalNodeIdArrayName);
-  */
-
   // Description:
   //   By default, the integer array containing the global Node Ids 
   //   is not included when the new Exodus II file is written out.  If
@@ -181,17 +170,6 @@ public:
   vtkSetMacro(WriteOutGlobalNodeIdArray, int);
   vtkGetMacro(WriteOutGlobalNodeIdArray, int);
   vtkBooleanMacro(WriteOutGlobalNodeIdArray, int);
-
-  /*
-  // Description:
-  //   The name of a cell array that gives the global cell IDs.
-  //   We will look for an array called "GlobalElementId" if you
-  //   don't provide a different name here.  It must be an integer array.
-  //   This array is optional.
-
-  vtkSetStringMacro(GlobalElementIdArrayName);
-  vtkGetStringMacro(GlobalElementIdArrayName);
-  */
 
   // Description:
   //   By default, the integer array containing the global Element Ids 
@@ -363,7 +341,6 @@ private:
 
   // List of the global element ID of each cell in input
 
-  //char *GlobalElementIdArrayName;
   vtkIdType *GlobalElementIdList;
 //BTX
   vtkstd::map<vtkIdType, vtkIdType> *LocalElementIdMap;
@@ -373,7 +350,6 @@ private:
 
   // List of the global node ID of each cell in input
 
-  //char *GlobalNodeIdArrayName;
   vtkIdType *GlobalNodeIdList;
 //BTX
   vtkstd::map<vtkIdType, vtkIdType> *LocalNodeIdMap;
