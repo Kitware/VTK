@@ -1,19 +1,19 @@
 SET(KIT Hybrid)
 # add tests that do not require data
 SET(MyTests   
-  X3DTest.cxx  
   TestImageStencilData.cxx
   )
 IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}
-      
+    X3DTest.cxx  
     )
 ENDIF (VTK_DATA_ROOT)
 
 # remove some tests if there is no display
 IF(NOT VTK_USE_DISPLAY)
-  REMOVE(MyTests     
+  REMOVE(MyTests
+    X3DTest.cxx     
     )
 ENDIF(NOT VTK_USE_DISPLAY)
 
