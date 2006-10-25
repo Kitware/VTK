@@ -95,6 +95,11 @@ public:
   vtkIdType GetNumberOfChildren(vtkIdType parent);
 
   // Description:
+  // Get the child node ID at a particular index.
+  // The index may range from 0 to GetNumberOfChildern(parent)-1.
+  vtkIdType GetChild(vtkIdType parent, vtkIdType index);
+
+  // Description:
   // Get the ID of the parent of a child node.
   // The parent of the root node is defined to be the root node itself.
   vtkIdType GetParent(vtkIdType child);

@@ -31,7 +31,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTree, "1.1");
+vtkCxxRevisionMacro(vtkTree, "1.2");
 vtkStandardNewMacro(vtkTree);
 
 //----------------------------------------------------------------------------
@@ -192,6 +192,11 @@ vtkIdType vtkTree::GetOutDegree(vtkIdType node)
 vtkIdType vtkTree::GetNumberOfChildren(vtkIdType node)
 {
   return this->NodeLinks->GetOutDegree(node);
+}
+
+vtkIdType vtkTree::GetChild(vtkIdType parent, vtkIdType index)
+{
+  return this->NodeLinks->GetOutAdjacent(parent, index);
 }
 
 //----------------------------------------------------------------------------
