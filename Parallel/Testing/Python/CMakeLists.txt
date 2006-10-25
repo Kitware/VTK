@@ -1,10 +1,10 @@
 #
-# Add tests, with the data
+# Add tests
 #
 INCLUDE(${VTK_SOURCE_DIR}/Utilities/vtkTclTest2Py/vtkConvertTclTestToPy.cmake)
 
 IF (VTK_PYTHON_EXE AND VTK_USE_DISPLAY)
-  # Add test converted from Tcl
+  # Add tests converted from Tcl
   SET (tests)
   IF (VTK_DATA_ROOT)
     SET( tests ${tests}
@@ -21,11 +21,7 @@ IF (VTK_PYTHON_EXE AND VTK_USE_DISPLAY)
       TestPDataSetReaderGrid
       )
   ELSE (VTK_DATA_ROOT)
-    SET( tests ${tests}
-      TestPolyDataPieces
-      TestCutMaterial
-      TestBranchExtentTranslator
-      )
+      # All Parallel tests require VTKData - no tests should be in this block...
   ENDIF (VTK_DATA_ROOT)
 
   CONVERT_TCL_TEST_TO_PY (
