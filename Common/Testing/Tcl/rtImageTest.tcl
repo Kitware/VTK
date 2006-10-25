@@ -1,17 +1,13 @@
 
 # setup some common things for testing
-vtkObject rtTempObject;
-
-# This really should be removed but used to hang dashboards.
-# I'm commenting it out for now to see what happens.
-#rtTempObject GlobalWarningDisplayOff;
+vtkObject rtTempObject
 
 vtkMath rtExMath
 rtExMath RandomSeed 6
 
 # create the testing class to do the work
 vtkTesting rtTester
-for {set i 1} {$i < [expr $argc - 1]} {incr i} {
+for {set i 1} {$i < $argc} {incr i} {
    rtTester AddArgument "[lindex $argv $i]"
 }
 set VTK_DATA_ROOT [rtTester GetDataRoot]
@@ -78,6 +74,12 @@ if {[rtTester IsValidImageSpecified] != 0} {
       }
    }
    set rtResult [rtTester RegressionTest $threshold]
+}
+
+if {[rtTester IsInteractiveModeSpecified] != 0} {
+  if {[info commands iren] == "iren"} {
+    iren Start
+  }
 }
 
 vtkCommand DeleteAllObjects

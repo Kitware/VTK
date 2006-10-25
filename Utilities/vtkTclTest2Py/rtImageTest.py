@@ -125,7 +125,11 @@ if rtTester.IsValidImageSpecified() != 0:
         elif "imgWin" in local_variables_dict.keys():
             rtTester.SetRenderWindow(imgWin)
             imgWin.Render()
-    rtResult    = rtTester.RegressionTest(threshold)
+    rtResult = rtTester.RegressionTest(threshold)
+
+if rtTester.IsInteractiveModeSpecified() != 0:
+    if "iren" in local_variables_dict.keys():
+        iren.Start()
 
 if rtResult == 0:
     sys.exit(1)

@@ -188,7 +188,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           testDataSetTriangleFilter
           testDataSetTriangleFilter2
           testHexaPenta
-          testQuadricDecimation
           testReflect
           textureThreshold
           triangularTCoords
