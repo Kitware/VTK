@@ -33,7 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.80");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.81");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()
@@ -79,12 +79,13 @@ void vtkVRMLExporter::WriteData()
     return;
     }
 
+  // Always pick the first renderer
   // first make sure there is only one renderer in this rendering window
-  if (this->RenderWindow->GetRenderers()->GetNumberOfItems() > 1)
-    {
-    vtkErrorMacro(<< "VRML files only support one renderer per window.");
-    return;
-    }
+  //if (this->RenderWindow->GetRenderers()->GetNumberOfItems() > 1)
+  //  {
+  //  vtkErrorMacro(<< "VRML files only support one renderer per window.");
+  //  return;
+  //  }
 
   // get the renderer
   ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();

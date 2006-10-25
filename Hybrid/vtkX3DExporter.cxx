@@ -42,7 +42,7 @@
 
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkX3DExporter, "1.2");
+vtkCxxRevisionMacro(vtkX3DExporter, "1.3");
 vtkStandardNewMacro(vtkX3DExporter);
 
 //----------------------------------------------------------------------------
@@ -82,12 +82,13 @@ void vtkX3DExporter::WriteData()
     return;
     }
 
+  // Let's assume the first renderer is the right one
   // first make sure there is only one renderer in this rendering window
-  if (this->RenderWindow->GetRenderers()->GetNumberOfItems() > 1)
-    {
-    vtkErrorMacro(<< "X3D files only support one renderer per window.");
-    return;
-    }
+  //if (this->RenderWindow->GetRenderers()->GetNumberOfItems() > 1)
+  //  {
+  //  vtkErrorMacro(<< "X3D files only support one renderer per window.");
+  //  return;
+  //  }
 
   // get the renderer
   ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
