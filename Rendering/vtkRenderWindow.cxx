@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.149");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.150");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -125,6 +125,14 @@ void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
     if (this->Interactor != NULL)
       {
       this->Interactor->Register(this);
+
+      int isize[2];
+      this->Interactor->GetSize(isize);
+      if (0 == isize[0] && 0 == isize[1])
+        {
+        this->Interactor->SetSize(this->GetSize());
+        }
+
       if (this->Interactor->GetRenderWindow() != this)
         {
         this->Interactor->SetRenderWindow(this);
@@ -229,6 +237,14 @@ void vtkRenderWindow::Render()
   if (this->InRender)
     {
     return;
+    }
+
+  // if SetSize has not yet been called (from a script, possible off
+  // screen use, other scenarios?) then call it here with reasonable
+  // default values
+  if (0 == this->Size[0] && 0 == this->Size[1])
+    {
+    this->SetSize(300, 300);
     }
 
   // reset the Abort flag
@@ -521,7 +537,6 @@ void vtkRenderWindow::DoAARender()
     this->DoFDRender();
     }
 }
-
 
 //----------------------------------------------------------------------------
 // Handle rendering any focal depth frames.
