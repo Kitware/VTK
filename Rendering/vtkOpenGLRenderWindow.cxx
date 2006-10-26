@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.76");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.77");
 #endif
 
 #define MAX_LIGHTS 8
@@ -1379,7 +1379,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   // with Mesa, all the Paraview batch test are failing (Mesa 6.5.1 or CVS)
   // After too much time spent to investigate this case, we just skip it.
   const GLubyte *openglRenderer=glGetString(GL_RENDERER);
-  char *substring=strstr(reinterpret_cast<const char *>(openglRenderer),"Mesa");
+  const char *substring=strstr(reinterpret_cast<const char *>(openglRenderer),"Mesa");
   int isMesa=substring!=0;
   
   int result=0;
