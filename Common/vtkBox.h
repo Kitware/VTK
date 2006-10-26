@@ -29,6 +29,7 @@
 #define __vtkBox_h
 
 #include "vtkImplicitFunction.h"
+class vtkBoundingBox;
 
 class VTK_COMMON_EXPORT vtkBox : public vtkImplicitFunction
 {
@@ -52,10 +53,16 @@ public:
 
   // Description:
   // Set / get the bounding box using various methods.
-  vtkSetVector3Macro(XMin,double);
-  vtkGetVector3Macro(XMin,double);
-  vtkSetVector3Macro(XMax,double);
-  vtkGetVector3Macro(XMax,double);
+  void SetXMin(double p[3]);
+  void SetXMin(double x, double y, double z);
+  void GetXMin(double p[3]);
+  void GetXMin(double &x, double &y, double &z);
+
+  void SetXMax(double p[3]);
+  void SetXMax(double x, double y, double z);
+  void GetXMax(double p[3]);
+  void GetXMax(double &x, double &y, double &z);
+
   void SetBounds(double xMin, double xMax,
                  double yMin, double yMax,
                  double zMin, double zMax);
@@ -85,16 +92,28 @@ public:
 
 protected:
   vtkBox();
-  ~vtkBox() {}
+  ~vtkBox();
 
-  double XMin[3];
-  double XMax[3];
+  vtkBoundingBox *BBox; 
   double Bounds[6]; //supports the GetBounds() method
 
 private:
   vtkBox(const vtkBox&);  // Not implemented.
   void operator=(const vtkBox&);  // Not implemented.
 };
+
+
+
+inline void vtkBox::SetXMin(double p[3]) 
+{
+  this->SetXMin(p[0], p[1], p[2]);
+}
+
+inline void vtkBox::SetXMax(double p[3]) 
+{
+  this->SetXMax(p[0], p[1], p[2]);
+}
+
 
 #endif
 
