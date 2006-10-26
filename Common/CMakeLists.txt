@@ -31,6 +31,7 @@ vtkAssemblyPath.cxx
 vtkAssemblyPaths.cxx
 vtkBitArray.cxx
 vtkBitArrayIterator.cxx
+vtkBoundingBox.cxx
 vtkBox.cxx
 vtkByteSwap.cxx
 vtkCallbackCommand.cxx
@@ -245,6 +246,7 @@ ABSTRACT
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkArrayIteratorTemplate.txx
+  vtkBoundingBox.cxx
   vtkCallbackCommand.cxx
   vtkCommand.cxx
   vtkDebugLeaksManager.cxx

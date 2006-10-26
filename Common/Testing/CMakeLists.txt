@@ -21,6 +21,7 @@ IF(PYTHON_EXECUTABLE)
     vtkArrayMap.h
     vtkArrayMapIterator.h
     vtkAssemblyPaths.h
+    vtkBoundingBox.h
     vtkByteSwap.h
     vtkCallbackCommand.h
     vtkCommand.h
