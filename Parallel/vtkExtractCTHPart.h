@@ -41,7 +41,7 @@ class vtkAppendPolyData;
 class vtkDataSetSurfaceFilter;
 class vtkClipPolyData;
 class vtkCutter;
-
+class vtkBoundingBox;
 class vtkMultiProcessController;
 
 //#define EXTRACT_USE_IMAGE_DATA 1
@@ -115,13 +115,7 @@ protected:
   void ComputeBounds(vtkMultiGroupDataSet *input,
                      int processNumber,
                      int numProcessors);
-  
-  // Description:
-  // The processors are views as a heap tree. The root is the processor of
-  // id 0.
-  int GetParentProcessor(int proc);
-  int GetLeftChildProcessor(int proc);
-  
+    
   void ExecutePart(const char *arrayName,
                    vtkMultiGroupDataSet *input,
                    vtkAppendPolyData *appendSurface,
@@ -230,7 +224,7 @@ protected:
   double VolumeFractionSurfaceValueInternal;
   int OverwriteVolumeFractionSurfaceValue;
   
-  double Bounds[6]; // Whole bounds (dataset over all the processors)
+  vtkBoundingBox *Bounds; // Whole bounds (dataset over all the processors)
   
   vtkMultiProcessController *Controller;
 private:

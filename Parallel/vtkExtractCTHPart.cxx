@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.22");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.23");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -75,6 +75,7 @@ public:
 vtkExtractCTHPart::vtkExtractCTHPart()
 {
   this->Internals = new vtkExtractCTHPartInternal;
+  this->Bounds = new vtkBoundingBox;
   this->ClipPlane = 0;
   this->SetNumberOfOutputPorts(0);
   
@@ -110,6 +111,7 @@ vtkExtractCTHPart::~vtkExtractCTHPart()
 {
   this->SetClipPlane(NULL);
   delete this->Internals;
+  delete this->Bounds;
   this->Internals = 0;
   this->DeleteInternalPipeline();
   this->SetController(0);
@@ -243,7 +245,9 @@ int vtkExtractCTHPart::RequestData(
       }
     if(inInfo->Has(vtkExtractCTHPart::BOUNDS()))
       {
-      inInfo->Get(vtkExtractCTHPart::BOUNDS(),this->Bounds);
+      double b[6];
+      inInfo->Get(vtkExtractCTHPart::BOUNDS(), b);
+      this->Bounds->SetBounds(b);
       }
     else
       {
@@ -277,7 +281,9 @@ int vtkExtractCTHPart::RequestData(
       vtkErrorMacro(<<"No valid input.");
       return 0;
       }
-    rg->GetBounds(this->Bounds);
+    double b[6];
+    rg->GetBounds(b);
+    this->Bounds->SetBounds(b);
     }
   
   // Here, either input or rg is not null.
@@ -452,14 +458,6 @@ int vtkExtractCTHPart::RequestData(
   return 1;
 }
 
-// Magic number that encode the message ids for parallel communication
-enum
-{
-  VTK_MSG_EXTRACT_CTH_PART_HAS_BOUNDS=288402,
-  VTK_MSG_EXTRACT_CTH_PART_LOCAL_BOUNDS,
-  VTK_MSG_EXTRACT_CTH_PART_GLOBAL_BOUNDS
-};
-
 //-----------------------------------------------------------------------------
 void vtkExtractCTHPart::ComputeBounds(vtkMultiGroupDataSet *input,
                                       int processNumber,
@@ -470,9 +468,7 @@ void vtkExtractCTHPart::ComputeBounds(vtkMultiGroupDataSet *input,
   assert("pre: valid_processNumber" && processNumber>=0 &&
          processNumber<numProcessors);
   
-  int firstBlock=1;
   double realBounds[6];
-  vtkBoundingBox bbox;
   int numberOfGroups=input->GetNumberOfGroups();
   int group;
   for (group = 0; group<numberOfGroups; group++)
@@ -488,169 +484,29 @@ void vtkExtractCTHPart::ComputeBounds(vtkMultiGroupDataSet *input,
           continue;
         }
       ds->GetBounds(realBounds);
-      bbox.AddBounds(realBounds);
+      this->Bounds->AddBounds(realBounds);
       }
     }
   // Here we have the bounds according to our local datasets.
-  bbox.GetBounds(this->Bounds);
-  int parent;
-  int left=GetLeftChildProcessor(processNumber);
-  int right=left+1;
-  if(processNumber>0) // not root (nothing to do if root)
-    {
-    parent=this->GetParentProcessor(processNumber);
-    }
-  else
-    {
-    parent=0; // just to remove warnings, never used
-    }
-  
-  double otherBounds[6];
-  int leftHasBounds=0; // init is not useful, just for compiler warnings
-  int rightHasBounds=0; // init is not useful, just for compiler warnings
-  
-  if(left<numProcessors)
-    {
-    // TODO WARNING if the child is empty the bounds are not initialized!
-    // Grab the bounds from left child
-    this->Controller->Receive(&leftHasBounds, 1, left,
-                              VTK_MSG_EXTRACT_CTH_PART_HAS_BOUNDS);
-    
-    if(leftHasBounds)
-      {
-      this->Controller->Receive(otherBounds, 6, left,
-                                VTK_MSG_EXTRACT_CTH_PART_LOCAL_BOUNDS);
-      
-      if(firstBlock) // impossible the current processor is not a leaf
-        {
-        int cc=0;
-        while(cc<6)
-          {
-          this->Bounds[cc]=otherBounds[cc];
-          ++cc;
-          }
-        firstBlock=0;
-        }
-      else
-        {
-        int cc=0;
-        while(cc<3)
-          {
-          if(otherBounds[2*cc]<this->Bounds[2*cc])
-            {
-            this->Bounds[2*cc]=otherBounds[2*cc];
-            }
-          if(otherBounds[2*cc+1]>this->Bounds[2*cc+1])
-            {
-            this->Bounds[2*cc+1]=otherBounds[2*cc+1];
-            }
-          ++cc;
-          }
-        }
-      }
-    
-    if(right<numProcessors)
-      {
-      // Grab the bounds from right child
-      this->Controller->Receive(&rightHasBounds, 1, right,
-                                VTK_MSG_EXTRACT_CTH_PART_HAS_BOUNDS);
-      if(rightHasBounds)
-        {
-        this->Controller->Receive(otherBounds, 6, right,
-                                  VTK_MSG_EXTRACT_CTH_PART_LOCAL_BOUNDS);
-        if(firstBlock)// impossible the current processor is not a leaf
-          {
-          int cc=0;
-          while(cc<6)
-            {
-            this->Bounds[cc]=otherBounds[cc];
-            ++cc;
-            }
-          firstBlock=0;
-          }
-        else
-          {
-          int cc=0;
-          while(cc<3)
-            {
-            if(otherBounds[2*cc]<this->Bounds[2*cc])
-              {
-              this->Bounds[2*cc]=otherBounds[2*cc];
-              }
-            if(otherBounds[2*cc+1]>this->Bounds[2*cc+1])
-              {
-              this->Bounds[2*cc+1]=otherBounds[2*cc+1];
-              }
-            ++cc;
-            }
-          }
-        }
-      }
-    }
-  
-  // Send local to parent, Receive global from the parent.
-  if(processNumber>0) // not root (nothing to do if root)
-    {
-    int hasBounds=!firstBlock;
-    this->Controller->Send(&hasBounds, 1, parent,
-                           VTK_MSG_EXTRACT_CTH_PART_HAS_BOUNDS);
-    if(hasBounds)
-      {
-      this->Controller->Send(this->Bounds, 6, parent,
-                             VTK_MSG_EXTRACT_CTH_PART_LOCAL_BOUNDS);
-      
-      this->Controller->Receive(this->Bounds, 6, parent,
-                                VTK_MSG_EXTRACT_CTH_PART_GLOBAL_BOUNDS);
-      }
-    }
-  
-  if(firstBlock) // empty, no bounds, nothing to do
+  // If we are not running in parallel then the local
+  // bounds are the global bounds
+  if (!this->Controller)
     {
     return;
     }
-  
-  // Send it to children.
-  if(left<numProcessors)
+  vtkCommunicator *comm = this->Controller->GetCommunicator();
+  if (!comm)
     {
-    if(leftHasBounds)
-      {
-      this->Controller->Send(this->Bounds, 6, left,
-                             VTK_MSG_EXTRACT_CTH_PART_GLOBAL_BOUNDS);
-      }
-    if(right<numProcessors)
-      {
-      if(rightHasBounds)
-        {
-        this->Controller->Send(this->Bounds, 6, right,
-                               VTK_MSG_EXTRACT_CTH_PART_GLOBAL_BOUNDS);
-        }
-      }
+    return;
     }
-  
+
+  if (!comm->ComputeGlobalBounds(processNumber, numProcessors,
+                                 this->Bounds))
+    {
+    vtkErrorMacro("Problem occurred getting the global bounds");
+    }
   // At this point, the global bounds is set in each processor.
  
-}
-// The processors are views as a heap tree. The root is the processor of
-// id 0.
-//-----------------------------------------------------------------------------
-int vtkExtractCTHPart::GetParentProcessor(int proc)
-{
-  int result;
-  if(proc%2==1)
-    {
-    result=proc>>1; // /2
-    }
-  else
-    {
-    result=(proc-1)>>1; // /2
-    }
-  return result;
-}
-
-//-----------------------------------------------------------------------------
-int vtkExtractCTHPart::GetLeftChildProcessor(int proc)
-{
-  return (proc<<1)+1; // *2+1
 }
 
 //-----------------------------------------------------------------------------
@@ -1344,23 +1200,25 @@ int vtkExtractCTHPart::ExtractRectilinearGridSurface(
 #endif
   // here, bounds are real block bounds without ghostcells.
   
+  const double *minP = this->Bounds->GetMinPoint();
+  const double *maxP = this->Bounds->GetMaxPoint();
 #if 0
   const double epsilon=0.001;
-  int doFaceMinX=fabs(bounds[0]-this->Bounds[0])<epsilon;
-  int doFaceMaxX=fabs(bounds[1]-this->Bounds[1])<epsilon;
-  int doFaceMinY=fabs(bounds[2]-this->Bounds[2])<epsilon;
-  int doFaceMaxY=fabs(bounds[3]-this->Bounds[3])<epsilon;
-  int doFaceMinZ=fabs(bounds[4]-this->Bounds[4])<epsilon;
-  int doFaceMaxZ=fabs(bounds[5]-this->Bounds[5])<epsilon;
+  int doFaceMinX=fabs(bounds[0]- minP[0])<epsilon;
+  int doFaceMaxX=fabs(bounds[1]- maxP[0])<epsilon;
+  int doFaceMinY=fabs(bounds[2]- minP[1])<epsilon;
+  int doFaceMaxY=fabs(bounds[3]- maxP[1])<epsilon;
+  int doFaceMinZ=fabs(bounds[4]- minP[2])<epsilon;
+  int doFaceMaxZ=fabs(bounds[5]- maxP[2])<epsilon;
 #endif
   
 #if 1
-  int doFaceMinX=bounds[0]<=this->Bounds[0];
-  int doFaceMaxX=bounds[1]>=this->Bounds[1];
-  int doFaceMinY=bounds[2]<=this->Bounds[2];
-  int doFaceMaxY=bounds[3]>=this->Bounds[3];
-  int doFaceMinZ=bounds[4]<=this->Bounds[4];
-  int doFaceMaxZ=bounds[5]>=this->Bounds[5];
+  int doFaceMinX=bounds[0]<= minP[0];
+  int doFaceMaxX=bounds[1]>= maxP[0];
+  int doFaceMinY=bounds[2]<= minP[1];
+  int doFaceMaxY=bounds[3]>= maxP[1];
+  int doFaceMinZ=bounds[4]<= minP[2];
+  int doFaceMaxZ=bounds[5]>= maxP[2];
 #endif
 #if 0
   int doFaceMinX=1;
@@ -1519,12 +1377,11 @@ int vtkExtractCTHPart::ExtractUniformGridSurface(
   // bounds without taking ghost cells into account
   double bounds[6];
   
-  int i=0;
-  while(i<3)
+  int i, j;
+  for (i = 0, j = 0; i < 3; i++, j+=2)
     {
-    bounds[2*i]=origin[i];
-    bounds[2*i+1]=bounds[2*i]+spacing[i]*(dims[i]-1);
-    ++i;
+    bounds[j]=origin[i];
+    bounds[j+1]=bounds[j]+spacing[i]*(dims[i]-1);
     }
   
 #if 0
@@ -1568,24 +1425,27 @@ int vtkExtractCTHPart::ExtractUniformGridSurface(
 #endif
   // here, bounds are real block bounds without ghostcells.
   
+  const double *minP = this->Bounds->GetMinPoint();
+  const double *maxP = this->Bounds->GetMaxPoint();
 #if 0
   const double epsilon=0.001;
-  int doFaceMinX=fabs(bounds[0]-this->Bounds[0])<epsilon;
-  int doFaceMaxX=fabs(bounds[1]-this->Bounds[1])<epsilon;
-  int doFaceMinY=fabs(bounds[2]-this->Bounds[2])<epsilon;
-  int doFaceMaxY=fabs(bounds[3]-this->Bounds[3])<epsilon;
-  int doFaceMinZ=fabs(bounds[4]-this->Bounds[4])<epsilon;
-  int doFaceMaxZ=fabs(bounds[5]-this->Bounds[5])<epsilon;
+  int doFaceMinX=fabs(bounds[0]- minP[0])<epsilon;
+  int doFaceMaxX=fabs(bounds[1]- maxP[0])<epsilon;
+  int doFaceMinY=fabs(bounds[2]- minP[1])<epsilon;
+  int doFaceMaxY=fabs(bounds[3]- maxP[1])<epsilon;
+  int doFaceMinZ=fabs(bounds[4]- minP[2])<epsilon;
+  int doFaceMaxZ=fabs(bounds[5]- maxP[2])<epsilon;
 #endif
   
 #if 1
-  int doFaceMinX=bounds[0]<=this->Bounds[0];
-  int doFaceMaxX=bounds[1]>=this->Bounds[1];
-  int doFaceMinY=bounds[2]<=this->Bounds[2];
-  int doFaceMaxY=bounds[3]>=this->Bounds[3];
-  int doFaceMinZ=bounds[4]<=this->Bounds[4];
-  int doFaceMaxZ=bounds[5]>=this->Bounds[5];
+  int doFaceMinX=bounds[0]<= minP[0];
+  int doFaceMaxX=bounds[1]>= maxP[0];
+  int doFaceMinY=bounds[2]<= minP[1];
+  int doFaceMaxY=bounds[3]>= maxP[1];
+  int doFaceMinZ=bounds[4]<= minP[2];
+  int doFaceMaxZ=bounds[5]>= maxP[2];
 #endif
+
 #if 0
   int doFaceMinX=1;
   int doFaceMaxX=1;
