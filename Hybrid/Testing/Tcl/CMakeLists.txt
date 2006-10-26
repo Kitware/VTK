@@ -1,7 +1,6 @@
 IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
-
   #
-  # Add tests, with the data
+  # Add tests
   #
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile 
@@ -58,32 +57,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   # If we do not have the data, still run the tests that we can
   #
   ELSE (VTK_DATA_ROOT)
-    FOREACH ( tfile 
-      3DMorph
-      banana
-      camera
-      clipHex
-      clipPyramid
-      clipTet
-      clipWedge
-      depthSort
-      MassProperties
-      TestICPTransform
-      TestPCA
-      TestProcrustes
-      text
-      WarpPolyData
-      )
-      ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
-        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-        ${VTK_SOURCE_DIR}/Hybrid/Testing/Tcl/${tfile}.tcl
-        -D ${VTK_DATA_ROOT}
-        -T ${VTK_BINARY_DIR}/Testing/Temporary
-        -V Baseline/Hybrid/${tfile}.png
-        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-    ENDFOREACH( tfile )
+    # All rtImageTest tests require VTKData to pass...
+    # Do not add any rtImageTest based tests in this block.
   ENDIF (VTK_DATA_ROOT)
-
 ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 
 ADD_TEST(PrintSelf-Hybrid ${TCL_TCLSH}

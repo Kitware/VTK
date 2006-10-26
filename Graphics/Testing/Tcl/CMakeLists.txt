@@ -1,7 +1,6 @@
 IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
-  
   #
-  # Add tests, with the data
+  # Add tests
   #
   IF (VTK_DATA_ROOT)
 
@@ -199,63 +198,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   # If we do not have the data, still run the tests that we can
   #
   ELSE (VTK_DATA_ROOT)
-    IF (VTK_USE_MANGLED_MESA)
-      ADD_TEST(MesaCone ${VTK_EXECUTABLE}
-        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-        ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/MesaCone.tcl
-        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-    ENDIF (VTK_USE_MANGLED_MESA)
-
-    FOREACH ( tfile
-      capSphere
-      CellDataToPointData
-      clipVolume
-      clipVolume2
-      clipVolume3
-      coneResolution
-      constrainedDelaunay
-      contourCells
-      contoursToSurface
-      cursor2D
-      cutLoop
-      Delaunay2D
-      Delaunay2DAlpha
-      Delaunay2DTransform
-      Disk
-      extractPolyData
-      glyph2D
-      Hyper
-      KlineBottle
-      MatrixToTransform
-      OBBCylinder
-      progGlyphs
-      progGlyphsBySource
-      quadricCut
-      scalarConn
-      schwarz
-      shepards
-      smoothCyl
-      smoothCyl2
-      subdividePointData
-      subDivideTetra
-      TestBoxFunction
-      TestGraphLayoutFilter
-      testQuadricDecimation
-      triangularTCoords
-      triangularTexture
-      warplens
-      TestGraphLayoutFilter
-      TransformConcatenation
-      TransformCoverage
-      TransformPolyData
-      )
-      ADD_TEST(${tfile} ${VTK_EXECUTABLE}
-        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-        ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/${tfile}.tcl
-        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-    ENDFOREACH ( tfile )
+    # All rtImageTest tests require VTKData to pass...
+    # Do not add any rtImageTest based tests in this block.
   ENDIF (VTK_DATA_ROOT)
-
 ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 
 ADD_TEST(PrintSelf-Graphics ${TCL_TCLSH}

@@ -89,18 +89,8 @@ IF (VTK_DATA_ROOT)
              ${VTK_MPI_POSTFLAGS})
   ENDIF(PVTK_EXECUTABLE AND VTK_MPIRUN_EXE)
 ELSE (VTK_DATA_ROOT)
-  ADD_TEST(PolyDataPieces ${VTK_EXECUTABLE}
-           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPolyDataPieces.tcl
-           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-  ADD_TEST(CutMaterial-image ${VTK_EXECUTABLE}
-           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestCutMaterial.tcl
-           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-  ADD_TEST(BranchExtentTranslator-image ${VTK_EXECUTABLE}
-           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestBranchExtentTranslator.tcl
-           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+  # All rtImageTest tests require VTKData to pass...
+  # Do not add any rtImageTest based tests in this block.
 ENDIF (VTK_DATA_ROOT)
 ENDIF (VTK_USE_DISPLAY)
 
