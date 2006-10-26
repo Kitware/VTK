@@ -43,13 +43,13 @@
 
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkMultiProcessController.h"
-
+#include "vtkBoundingBox.h"
 #include <math.h>
 #include <vtkstd/string>
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.21");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.22");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -206,15 +206,14 @@ int vtkExtractCTHPart::RequestInformation(
   vtkInformation* outInfo;
   
   int num=this->GetNumberOfOutputPorts();
-  int port=0;
-  while(port<num)
+  int port;
+  for(port = 0; port<num; port++)
     {
     outInfo=outputVector->GetInformationObject(port);
     // RequestData() synchronizes (communicates among processes), so we need
     // all procs to call RequestData().
     outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
                  -1);
-    ++port;
     }
   return 1;
 }
@@ -319,7 +318,7 @@ int vtkExtractCTHPart::RequestData(
       progress = (1.0/num)*idx;
       nextProgress = progress + 1.0/num;
       this->ExecutePart(arrayName,input,appendSurface[idx],tmps[idx],
-                        progress,nextProgress);
+                          progress,nextProgress);
       }
     }
   else // rg!=0
@@ -335,8 +334,20 @@ int vtkExtractCTHPart::RequestData(
         }
       progress = (1.0/num)*idx;
       nextProgress = progress + 1.0/num;
-      this->ExecutePartOnRectilinearGrid(arrayName,rg,appendSurface[idx],
-                                         tmps[idx], progress, nextProgress);
+      // Does the grid have the requested cell data?
+      if (rg->GetCellData()->GetArray(arrayName))
+        {
+        this->ExecutePartOnRectilinearGrid(arrayName,rg,appendSurface[idx],
+                                           tmps[idx], progress, nextProgress);
+        }
+      else 
+        {
+        vtkWarningMacro("RectilinearGrid does not contain CellData named "
+                        << arrayName);
+        vtkPolyData *tmp=vtkPolyData::New();
+        tmps[idx]->AddInput(tmp);
+        tmp->Delete();
+        }
       }
     }
 
@@ -461,54 +472,27 @@ void vtkExtractCTHPart::ComputeBounds(vtkMultiGroupDataSet *input,
   
   int firstBlock=1;
   double realBounds[6];
-  
+  vtkBoundingBox bbox;
   int numberOfGroups=input->GetNumberOfGroups();
-  int group=0;
-  while(group<numberOfGroups)
+  int group;
+  for (group = 0; group<numberOfGroups; group++)
     {
     int numberOfDataSets=input->GetNumberOfDataSets(group);    
-    int dataset=0;
-    while(dataset<numberOfDataSets)
+    int dataset;
+    for (dataset = 0; dataset<numberOfDataSets; ++dataset)
       {
       vtkDataObject *dataObj=input->GetDataSet(group,dataset);
       vtkDataSet *ds=vtkDataSet::SafeDownCast(dataObj);
-      if(ds!=0)// can be null if on another processor
+      if(!ds)// can be null if on another processor
         {
-        ds->GetBounds(realBounds);
-        
-        if(firstBlock)
-          {
-          int c=0;
-          while(c<6)
-            {
-            this->Bounds[c]=realBounds[c];
-            ++c;
-            }
-          firstBlock=0;
-          }
-        else
-          {
-          int c=0;
-          while(c<3)
-            {
-            if(realBounds[2*c]<this->Bounds[2*c])
-              {
-              this->Bounds[2*c]=realBounds[2*c];
-              }
-            if(realBounds[2*c+1]>this->Bounds[2*c+1])
-              {
-              this->Bounds[2*c+1]=realBounds[2*c+1];
-              }
-            ++c;
-            }
-          }
+          continue;
         }
-      ++dataset;
+      ds->GetBounds(realBounds);
+      bbox.AddBounds(realBounds);
       }
-    ++group;
     }
   // Here we have the bounds according to our local datasets.
-  
+  bbox.GetBounds(this->Bounds);
   int parent;
   int left=GetLeftChildProcessor(processNumber);
   int right=left+1;
@@ -809,10 +793,23 @@ void vtkExtractCTHPart::ExecutePart(const char *arrayName,
         vtkRectilinearGrid *rg=vtkRectilinearGrid::SafeDownCast(dataObj);
         if(rg!=0)
           {
-          this->ExecutePartOnRectilinearGrid(arrayName,rg,appendSurface,
-                                             append, 
-                                             progress2, 
-                                             progress2+delProg2);
+          // Does the input have the requested cell data?
+          if (rg->GetCellData()->GetArray(arrayName))
+            {
+            this->ExecutePartOnRectilinearGrid(arrayName,rg,appendSurface,
+                                               append, 
+                                               progress2, 
+                                               progress2+delProg2);
+            }
+          else 
+            {
+            vtkWarningMacro("Rectilinear Grid does not contain CellData named "
+                            << arrayName << " aborting extraction");
+            vtkPolyData *tmp=vtkPolyData::New();
+            append->AddInput(tmp);
+            tmp->Delete();
+           return;
+            }
           }
         else
           {
@@ -823,10 +820,23 @@ void vtkExtractCTHPart::ExecutePart(const char *arrayName,
 #endif
           if(ug!=0)
             {
+            // Does the input have the requested cell data?
+            if (ug->GetCellData()->GetArray(arrayName))
+            {
             this->ExecutePartOnUniformGrid(arrayName,ug,appendSurface,
                                            append,
                                            progress2, 
                                            progress2+delProg2);
+            }
+            else 
+              {
+              vtkWarningMacro("Uniform Grid does not contain CellData named "
+                              << arrayName << " aborting extraction");
+              vtkPolyData *tmp=vtkPolyData::New();
+              append->AddInput(tmp);
+              tmp->Delete();
+              return;
+              }
             }
           else
             {
