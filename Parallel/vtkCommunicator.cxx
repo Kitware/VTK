@@ -27,8 +27,9 @@
 #include "vtkStructuredPointsWriter.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
+#include "vtkBoundingBox.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.29");
+vtkCxxRevisionMacro(vtkCommunicator, "1.30");
 
 template <class T>
 int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -524,5 +525,120 @@ int vtkCommunicator::ReadDataSet(vtkDataSet *object)
 
   reader->Delete();
 
+  return 1;
+}
+
+// The processors are views as a heap tree. The root is the processor of
+// id 0.
+//-----------------------------------------------------------------------------
+int vtkCommunicator::GetParentProcessor(int proc)
+{
+  int result;
+  if(proc%2==1)
+    {
+    result=proc>>1; // /2
+    }
+  else
+    {
+    result=(proc-1)>>1; // /2
+    }
+  return result;
+}
+
+int vtkCommunicator::GetLeftChildProcessor(int proc)
+{
+  return (proc<<1)+1; // *2+1
+}
+
+int vtkCommunicator::ComputeGlobalBounds(int processNumber, int numProcessors,
+                                         vtkBoundingBox *bounds,
+                                         int *rhb, int *lhb,
+                                         int hasBoundsTag,
+                                         int localBoundsTag,
+                                         int globalBoundsTag)
+{
+  int parent = 0;
+  int leftHasBounds, rightHasBounds;
+  int left = this->GetLeftChildProcessor(processNumber);
+  int right=left+1;
+  if(processNumber>0) // not root (nothing to do if root)
+    {
+    parent=this->GetParentProcessor(processNumber);
+    }
+  
+  double otherBounds[6];
+  if(left<numProcessors)
+    {
+    // TODO WARNING if the child is empty the bounds are not initialized!
+    // Grab the bounds from left child
+    this->Receive(&leftHasBounds, 1, left, hasBoundsTag);
+    if (lhb)
+      {
+      *lhb = leftHasBounds;
+      }
+
+    if(leftHasBounds)
+      {
+      this->Receive(otherBounds, 6, left, localBoundsTag);
+      bounds->AddBounds(otherBounds);
+      }
+    }
+  if(right<numProcessors)
+    {
+    // Grab the bounds from right child
+    this->Receive(&rightHasBounds, 1, right, hasBoundsTag);
+    
+    if (rhb)
+      {
+      *rhb = rightHasBounds;
+      }
+
+    if(rightHasBounds)
+      {
+      this->Receive(otherBounds, 6, right, localBoundsTag);
+      bounds->AddBounds(otherBounds);
+      }
+    }
+  
+  // If there are bounds to send do so
+  int boundsHaveBeenSet = bounds->IsValid();
+  double b[6];
+  // Send local to parent, Receive global from the parent.
+  if(processNumber > 0) // not root (nothing to do if root)
+    {
+    this->Send(&boundsHaveBeenSet, 1, parent, hasBoundsTag);
+    if(boundsHaveBeenSet)
+      {
+      // Copy the bounds to an array so we can send them
+      
+      bounds->GetBounds(b);
+      this->Send(b, 6, parent, localBoundsTag);
+      
+      this->Receive(b, 6, parent, globalBoundsTag);
+      bounds->AddBounds(b);
+      }
+    }
+  
+  if(!boundsHaveBeenSet) // empty, no bounds, nothing to do
+    {
+    return 1;
+    }
+  
+  // Send it to children.
+  bounds->GetBounds(b);
+  if(left<numProcessors)
+    {
+    if(leftHasBounds)
+      {
+      this->Send(b, 6, left, globalBoundsTag);
+      }
+    if(right<numProcessors)
+      {
+      if(rightHasBounds)
+        {
+        this->Send(b, 6, right, globalBoundsTag);
+        }
+      }
+    }
   return 1;
 }

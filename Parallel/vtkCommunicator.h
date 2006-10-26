@@ -35,6 +35,7 @@ class vtkDataSet;
 class vtkImageData;
 class vtkDataObject;
 class vtkDataArray;
+class vtkBoundingBox;
 
 class VTK_PARALLEL_EXPORT vtkCommunicator : public vtkObject
 {
@@ -105,6 +106,31 @@ public:
 #endif
 
   static void SetUseCopy(int useCopy);
+
+  // Description:
+  // Determine the global bounds for a set of processes.  BBox is 
+  // initially set (outside of the call to the local bounds of the process 
+  // and will be modified to be the global bounds - this default implementation
+  // views the processors as a heap tree with the root being processId = 0
+  // If either rightHasBounds or leftHasBounds is not 0 then the 
+  // corresponding int will be set to 1 if the right/left processor has
+  // bounds else it will be set to 0
+  // The last three arguements are the tags to be used when performing
+  // the operation
+  virtual int ComputeGlobalBounds(int processorId, int numProcesses,
+                                  vtkBoundingBox *bounds,
+                                  int *rightHasBounds = 0,
+                                  int *leftHasBounds = 0,
+                                  int hasBoundsTag = 288402, 
+                                  int localBoundsTag = 288403,
+                                  int globalBoundsTag = 288404);
+
+  // Description: 
+  // Some helper functions when dealing with heap tree - based
+  // algorthims - we don't need a function for getting the right
+  // processor since it is 1 + theLeftProcessor
+  static int GetParentProcessor(int pid);
+  static int GetLeftChildProcessor(int pid);
 
 protected:
 
