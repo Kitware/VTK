@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOutputWindow.h"
-#include "vtkRenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkgluPickMatrix.h"
 
 #include "vtkOpenGL.h"
@@ -26,7 +26,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.65");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.66");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
@@ -38,6 +38,8 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   int usize, vsize;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
+  vtkOpenGLRenderWindow *win=vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  
   // find out if we should stereo render
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
   ren->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
@@ -50,11 +52,11 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
       case VTK_STEREO_CRYSTAL_EYES:
         if (this->LeftEye)
           {
-          glDrawBuffer(GL_BACK_LEFT);
+          glDrawBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
           }
         else
           {
-          glDrawBuffer(GL_BACK_RIGHT);
+          glDrawBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
           }
         break;
       case VTK_STEREO_LEFT:
@@ -71,11 +73,11 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     {
     if (ren->GetRenderWindow()->GetDoubleBuffer())
       {
-      glDrawBuffer(GL_BACK);
+      glDrawBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
       }
     else
       {
-      glDrawBuffer(GL_FRONT);
+      glDrawBuffer(static_cast<GLenum>(win->GetFrontLeftBuffer()));
       }
     }
   

@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkWin32OpenGLRenderWindow.h
+Program:   Visualization Toolkit
+Module:    vtkWin32OpenGLRenderWindow.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 // .NAME vtkWin32OpenGLRenderWindow - OpenGL rendering window
@@ -254,11 +254,15 @@ protected:
   char   *Capabilities;
 
   void ResizeWhileOffscreen(int xsize, int ysize);
-  void CreateAWindow(int x, int y, int width, int height);
+  virtual void CreateAWindow();
+  virtual void DestroyWindow();
   void InitializeApplication();
   void CleanUpOffScreenRendering(void);
   void CreateOffScreenDC(int xsize, int ysize, HDC aHdc);
   void CreateOffScreenDC(HBITMAP hbmp, HDC aHdc);
+  void CreateOffScreenWindow(int width,int height);
+  void SaveScreenRendering();
+
 private:
   vtkWin32OpenGLRenderWindow(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
   void operator=(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
