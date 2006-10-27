@@ -143,18 +143,16 @@ protected:
   double MinPnt[3], MaxPnt[3];
 };
 
-inline vtkBoundingBox::vtkBoundingBox()
-{
-  this->Reset();
-}
-
 inline void vtkBoundingBox::Reset()
 {
   this->MinPnt[0] = this->MinPnt[1] = this->MinPnt[2] = VTK_DOUBLE_MAX;    
   this->MaxPnt[0] = this->MaxPnt[1] = this->MaxPnt[2] = VTK_DOUBLE_MIN;
 }
 
-
+inline vtkBoundingBox::vtkBoundingBox()
+{
+  this->Reset();
+}
 
 inline void vtkBoundingBox::GetBounds(double &xMin, double &xMax,
                                       double &yMin, double &yMax,
@@ -247,11 +245,6 @@ inline vtkBoundingBox &vtkBoundingBox::operator=(const vtkBoundingBox &bbox)
   return *this;
 }
 
-inline int vtkBoundingBox::operator!=(const vtkBoundingBox &bbox)const
-{
-  return !((*this) == bbox);
-}
-
 inline int vtkBoundingBox::operator==(const vtkBoundingBox &bbox)const
 {
   return ((this->MinPnt[0] == bbox.MinPnt[0]) &&
@@ -260,6 +253,11 @@ inline int vtkBoundingBox::operator==(const vtkBoundingBox &bbox)const
           (this->MaxPnt[0] == bbox.MaxPnt[0]) &&
           (this->MaxPnt[1] == bbox.MaxPnt[1]) &&
           (this->MaxPnt[2] == bbox.MaxPnt[2]));
+}
+
+inline int vtkBoundingBox::operator!=(const vtkBoundingBox &bbox)const
+{
+  return !((*this) == bbox);
 }
 
 inline void vtkBoundingBox::SetMinPoint(double p[3])
