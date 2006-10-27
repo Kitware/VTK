@@ -100,6 +100,22 @@ int LoadOpenGLExtension(int argc, char *argv[])
   vtkOpenGLExtensionManager *extensions = vtkOpenGLExtensionManager::New();
   extensions->SetRenderWindow(renwin);
 
+  // Force a Render here so that we can call glGetString reliably:
+  //
+  renwin->Render();
+
+  const char *gl_vendor = (const char *) glGetString(GL_VENDOR);
+  const char *gl_version = (const char *) glGetString(GL_VERSION);
+  const char *gl_renderer = (const char *) glGetString(GL_RENDERER);
+
+  cout << endl;
+  cout << "GL_VENDOR: " << (gl_vendor ? gl_vendor : "(null)") << endl;
+  cout << "GL_VERSION: " << (gl_version ? gl_version : "(null)") << endl;
+  cout << "GL_RENDERER: " << (gl_renderer ? gl_renderer : "(null)") << endl;
+
+  cout << endl;
+  renwin->Print(cout);
+
   cout << "LoadSupportedExtension..." << endl;
   if (!extensions->LoadSupportedExtension("GL_VERSION_1_2"))
     {
