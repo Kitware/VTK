@@ -126,6 +126,7 @@ IF(BUILD_QVTK_PLUGIN)
   TARGET_LINK_LIBRARIES( QVTKWidgetPlugin 
     ${QT_PLUGIN_LIBS}
     vtkRendering
+    vtkIO
     vtkImaging
     vtkGraphics
     vtkFiltering
