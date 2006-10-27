@@ -613,14 +613,12 @@ extern "C"
 
     if (self->RenderWindow)
       {
-      int netRefCount = self->RenderWindow->GetReferenceCount();
-      if (self->RenderWindow->GetInteractor() && 
-          self->RenderWindow->GetInteractor()->GetRenderWindow() == self->RenderWindow &&
-          self->RenderWindow->GetInteractor()->GetReferenceCount() == 1)
+      if (self->RenderWindow->GetInteractor() &&
+          self->RenderWindow->GetInteractor()->GetRenderWindow() == self->RenderWindow)
         {
-        netRefCount = netRefCount - 1;
+        self->RenderWindow->GetInteractor()->SetRenderWindow(0);
         }
-      if (netRefCount > 1)
+      if (self->RenderWindow->GetReferenceCount() > 1)
         {
         vtkGenericWarningMacro(
           "A TkRenderWidget is being destroyed before it associated vtkRenderWindow is destroyed."

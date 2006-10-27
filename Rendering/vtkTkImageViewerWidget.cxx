@@ -330,14 +330,12 @@ extern "C"
     
     if (self->ImageViewer)
       {
-      int netRefCount = self->ImageViewer->GetReferenceCount();
-      if (self->ImageViewer->GetRenderWindow()->GetInteractor() && 
-          self->ImageViewer->GetRenderWindow()->GetInteractor()->GetRenderWindow() == self->ImageViewer->GetRenderWindow() &&
-          self->ImageViewer->GetRenderWindow()->GetInteractor()->GetReferenceCount() == 1)
+      if (self->ImageViewer->GetRenderWindow()->GetInteractor() &&
+          self->ImageViewer->GetRenderWindow()->GetInteractor()->GetRenderWindow() == self->ImageViewer->GetRenderWindow())
         {
-        netRefCount = netRefCount - 1;
+        self->ImageViewer->GetRenderWindow()->GetInteractor()->SetRenderWindow(0);
         }
-      if (netRefCount > 1)
+      if (self->ImageViewer->GetRenderWindow()->GetReferenceCount() > 1)
         {
         vtkGenericWarningMacro("A TkImageViewerWidget is being destroyed before it associated vtkImageViewer is destroyed. This is very bad and usually due to the order in which objects are being destroyed. Always destroy the vtkImageViewer before destroying the user interface components.");
         return;
