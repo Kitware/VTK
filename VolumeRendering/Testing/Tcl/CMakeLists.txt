@@ -71,6 +71,12 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         -D ${VTK_DATA_ROOT}
         -V Baseline/VolumeRendering/volVPGradientOpacity.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+      ADD_TEST(volVPMipmap-image ${VTK_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/VolumeRendering/Testing/Tcl/volVPMipmap.tcl
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/VolumeRendering/volVPMipmap.png
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDIF (VTK_USE_VOLUMEPRO_1000)
   #
   # If we do not have the data, still run the tests that we can

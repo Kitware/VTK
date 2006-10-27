@@ -83,6 +83,8 @@ public:
 
   virtual void SetSuperSamplingFactor(double x, double y, double z);
 
+  virtual void SetMipmapLevel(int level);
+
 protected:
   vtkVolumeProVP1000Mapper();
   ~vtkVolumeProVP1000Mapper();

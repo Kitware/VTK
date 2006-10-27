@@ -61,6 +61,9 @@ class VLICutPlane;
 #if defined (VTK_USE_VOLUMEPRO_1000) || defined (VTK_FORCE_COMPILE_VP1000)
 }
 using namespace vli3;
+
+class vtkTimerLog;
+
 #endif
 //ETX
 
@@ -218,7 +221,38 @@ public:
   vtkSetClampMacro(IntermixIntersectingGeometry, int, 0, 1);
   vtkGetMacro(IntermixIntersectingGeometry, int);
   vtkBooleanMacro(IntermixIntersectingGeometry, int);
-  
+
+  // Description:
+  // If set to 1, this mapper will select a mipmap level to use based
+  // on the AllocatedRenderTime of the volume and the amount of time used
+  // by the previous render.
+  vtkSetClampMacro(AutoAdjustMipmapLevels, int, 0, 1);
+  vtkGetMacro(AutoAdjustMipmapLevels, int);
+  vtkBooleanMacro(AutoAdjustMipmapLevels, int);
+
+  // Description:
+  // Specify the minimum mipmap level to use -- the highest resolution.
+  // Defaults to 0. This is the mipmap level that is used when interaction
+  // stops.
+  vtkSetClampMacro(MinimumMipmapLevel, int, 0, 32);
+  vtkGetMacro(MinimumMipmapLevel, int);
+
+  // Description:
+  // Specify the maximum mipmap level to use -- the lowest resolution.
+  // Defaults to 4. It will not help to set the level larger than
+  // this unless your volume is very large because for each successive mipmap
+  // level, the number of voxels along each axis is cut in half.
+  vtkSetClampMacro(MaximumMipmapLevel, int, 0, 32);
+  vtkGetMacro(MaximumMipmapLevel, int);
+
+  // Description:
+  // Choose a mipmap level. If AutoAdjustMipmapLevels is off, then this
+  // specifies the mipmap level to use during interaction. If
+  // AutoAdjustMipmapLevels is on, then this specifies the initial mipmap
+  // level to use.
+  vtkSetClampMacro(MipmapLevel, int, 0, 32);
+  vtkGetMacro(MipmapLevel, int);
+
 protected:
   vtkVolumeProMapper();
   ~vtkVolumeProMapper();
@@ -287,9 +321,25 @@ protected:
   int                  WrongVLIVersion;
   int                  DisplayedMessage;
 
+  float        *RenderTimeTable;
+  vtkVolume   **RenderVolumeTable;
+  vtkRenderer **RenderRendererTable;
+  int           RenderTableSize;
+  int           RenderTableEntries;
+
+  vtkTimerLog  *RenderTimer;
+
+  void StoreRenderTime( vtkRenderer *ren, vtkVolume *vol, float t );
+  float RetrieveRenderTime( vtkRenderer *ren, vtkVolume *vol );
+
   // The embedded geometry flag
   int IntermixIntersectingGeometry;
-  
+
+  int AutoAdjustMipmapLevels;
+  int MinimumMipmapLevel;
+  int MaximumMipmapLevel;
+  int MipmapLevel;
+
 //BTX
 #if ((VTK_MAJOR_VERSION == 3)&&(VTK_MINOR_VERSION == 2))
   // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE

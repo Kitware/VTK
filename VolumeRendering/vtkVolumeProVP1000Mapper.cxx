@@ -27,6 +27,7 @@
 #include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkTimerLog.h"
 #include "vtkToolkits.h"
 #include "vtkTransform.h"
 #include "vtkVolume.h"
@@ -35,7 +36,7 @@
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.2");
+vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.3");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -105,6 +106,8 @@ vtkVolumeProVP1000Mapper::vtkVolumeProVP1000Mapper()
     }
   
   this->DrawBoundingBox = 0;
+
+  VLISetParameter("MipmapMinVolumeSize", 20);
 }
 
 
@@ -615,7 +618,7 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
   double                    dataSpacing[3];
   VLIStatus                 status;
   double                    range[2];
-  
+
   // We need the size to create the volume and check the subvolume
   input->GetDimensions( dataSize );
   VLIVolumeRange volumeRange (dataSize[0], dataSize[1], dataSize[2]);
@@ -700,7 +703,8 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
                                           dataSize[2], 0, 0, uc_data_ptr );
         this->Volume->SetFieldDescriptor(kVLIField0,
                                          VLIFieldDescriptor(0, 8, kVLIUnsignedFraction));
-        
+        this->Volume->SetMipmapAutoGenerate(1);
+
         this->VolumeDataType = VTK_VOLUME_8BIT;
         
         break;
@@ -710,18 +714,19 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
         this->Volume = VLIVolume::Create( 16, dataSize[0], dataSize[1],
                                           dataSize[2], 0, 0, us_data_ptr );
         
+        this->Volume->SetMipmapAutoGenerate(1);
         input->GetPointData()->GetScalars()->GetRange( range );
         if ( range[1] > 4095 )
           {
           this->Volume->SetFieldDescriptor(kVLIField0,
                                            VLIFieldDescriptor(0, 16, kVLIUnsignedFraction));
-          
           this->VolumeDataType = VTK_VOLUME_16BIT;
           }
         else
           {
           this->Volume->SetFieldDescriptor(kVLIField0,
                                            VLIFieldDescriptor(0, 12, kVLIUnsignedFraction));
+
           this->VolumeDataType = VTK_VOLUME_12BIT_LOWER;
           }
         
@@ -865,6 +870,8 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
     this->GetInput()->Update();
     } 
 
+  this->RenderTimer->StartTimer();
+
   this->ConvertCroppingRegionPlanesToVoxels();
   
   this->UpdateCamera( ren, vol );
@@ -877,6 +884,7 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
 
   if ( !this->Volume )
     {
+    this->RenderTimer->StopTimer();
     return;
     }
 
@@ -938,6 +946,47 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
   
   this->Context->SetRayTermination(1.0, VLIfalse);
 
+
+  float allocatedTime = vol->GetAllocatedRenderTime();
+
+  if (this->AutoAdjustMipmapLevels)
+    {
+    if (allocatedTime < 10)
+      {
+      float oldTime = this->RetrieveRenderTime(ren, vol);
+      float offset = allocatedTime * 0.2;
+      if ( oldTime > (allocatedTime+offset) )
+        {
+        this->MipmapLevel++;
+        }
+      else if ( oldTime < (allocatedTime-offset) )
+        {
+        this->MipmapLevel--;
+        }
+      this->MipmapLevel =
+        (this->MipmapLevel > this->MaximumMipmapLevel) ?
+        (this->MaximumMipmapLevel) : (this->MipmapLevel);
+      this->MipmapLevel =
+        (this->MipmapLevel < this->MinimumMipmapLevel) ?
+        (this->MinimumMipmapLevel) : (this->MipmapLevel);
+      }
+    else
+      {
+      this->MipmapLevel = this->MinimumMipmapLevel;
+      }
+    }
+
+  if (allocatedTime < 10)
+    {
+    this->Volume->SetMipmapRange(this->MipmapLevel, this->MipmapLevel);
+    }
+  else
+    {
+    this->Volume->SetMipmapRange(this->MinimumMipmapLevel,
+                                 this->MinimumMipmapLevel);
+    }
+
+
   int width = 0, height = 0;
   
   this->CheckSubSampling(this->Volume, this->Context, width, height);
@@ -952,7 +1001,6 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
     {
     if (width < 2000 && height < 2000)
       {
-//      float aspectRatio = (float)imageWidth / (float)imageHeight;
       int widthDiff, heightDiff, newWidth, newHeight;
       float increase;
       
@@ -1050,6 +1098,7 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
             vtkErrorMacro( << "Unknown error updating depth buffer!" );
             break;
           }
+        this->RenderTimer->StopTimer();
         return;
         }
       this->ImageBuffer->Clear(iRange, 0);
@@ -1092,7 +1141,8 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
           vtkErrorMacro( << "Volume could not be rendered - unkown error!" );
           break;    
         }
-      
+
+      this->RenderTimer->StopTimer();
       return;
       }
     
@@ -1131,6 +1181,9 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
     {
     this->RenderBoundingBox(ren, vol);
     }
+
+  this->RenderTimer->StopTimer();
+  this->StoreRenderTime(ren, vol, this->RenderTimer->GetElapsedTime());
 }
 
 #if ((VTK_MAJOR_VERSION == 3)&&(VTK_MINOR_VERSION == 2))
@@ -1413,6 +1466,18 @@ void vtkVolumeProVP1000Mapper::SetSuperSamplingFactor( double x, double y, doubl
   this->SuperSamplingFactor[2] = z;
 
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkVolumeProVP1000Mapper::SetMipmapLevel(int level)
+{
+  this->Superclass::SetMipmapLevel(level);
+  level = level > this->MaximumMipmapLevel ? this->MaximumMipmapLevel : level;
+  level = level < this->MinimumMipmapLevel ? this->MinimumMipmapLevel : level;
+  if (this->Volume)
+    {
+    this->Volume->SetMipmapRange(level, level);
+    }
 }
 
 //----------------------------------------------------------------------------

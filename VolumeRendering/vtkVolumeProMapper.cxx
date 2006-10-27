@@ -15,6 +15,7 @@
 
 #include "vtkVolumeProMapper.h"
 #include "vtkRenderer.h"
+#include "vtkTimerLog.h"
 #include "vtkToolkits.h"
 
 #if defined (VTK_USE_VOLUMEPRO_1000) || defined (VTK_FORCE_COMPILE_VP1000)
@@ -26,7 +27,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeProMapper, "1.2");
+vtkCxxRevisionMacro(vtkVolumeProMapper, "1.3");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -99,6 +100,17 @@ vtkVolumeProMapper::vtkVolumeProMapper()
   this->Cut = NULL;
   
   this->IntermixIntersectingGeometry = 0;
+  this->AutoAdjustMipmapLevels = 0;
+  this->MinimumMipmapLevel = 0;
+  this->MaximumMipmapLevel = 4;
+  this->MipmapLevel = 0;
+
+  this->RenderTimeTable        = NULL;
+  this->RenderVolumeTable      = NULL;
+  this->RenderRendererTable    = NULL;
+  this->RenderTableSize        = 0;  
+  this->RenderTableEntries     = 0;
+  this->RenderTimer = vtkTimerLog::New();
 }
 
 // Destroy the mapper. Delete the context, volume build time, and the
@@ -106,6 +118,14 @@ vtkVolumeProMapper::vtkVolumeProMapper()
 vtkVolumeProMapper::~vtkVolumeProMapper()
 {
   this->VolumeBuildTime->Delete();
+
+  if ( this->RenderTableSize )
+    {
+    delete [] this->RenderTimeTable;
+    delete [] this->RenderVolumeTable;
+    delete [] this->RenderRendererTable;
+    }
+  this->RenderTimer->Delete();
 }
 
 // Simplified version - just assume the mapper type
@@ -126,6 +146,78 @@ vtkVolumeProMapper *vtkVolumeProMapper::New()
   // nothing....
   return new vtkVolumeProMapper;
 #endif
+}
+
+float vtkVolumeProMapper::RetrieveRenderTime( vtkRenderer *ren, 
+                                              vtkVolume   *vol )
+{
+  int i;
+  
+  for ( i = 0; i < this->RenderTableEntries; i++ )
+    {
+    if ( this->RenderVolumeTable[i] == vol &&
+         this->RenderRendererTable[i] == ren )
+      {
+      return this->RenderTimeTable[i];
+      }
+    }
+  
+  return 0.0;
+}
+
+void vtkVolumeProMapper::StoreRenderTime( vtkRenderer *ren, 
+                                          vtkVolume   *vol, 
+                                          float       time )
+{
+  int i;
+  for ( i = 0; i < this->RenderTableEntries; i++ )
+    {
+    if ( this->RenderVolumeTable[i] == vol &&
+         this->RenderRendererTable[i] == ren )
+      {
+      this->RenderTimeTable[i] = time;
+      return;
+      }
+    }
+  
+  
+  // Need to increase size
+  if ( this->RenderTableEntries >= this->RenderTableSize )
+    {
+    if ( this->RenderTableSize == 0 )
+      {
+      this->RenderTableSize = 10;
+      }
+    else
+      {
+      this->RenderTableSize *= 2;
+      }
+    
+    float       *oldTimePtr     = this->RenderTimeTable;
+    vtkVolume   **oldVolumePtr   = this->RenderVolumeTable;
+    vtkRenderer **oldRendererPtr = this->RenderRendererTable;
+    
+    this->RenderTimeTable     = new float [this->RenderTableSize];
+    this->RenderVolumeTable   = new vtkVolume *[this->RenderTableSize];
+    this->RenderRendererTable = new vtkRenderer *[this->RenderTableSize];
+    
+    for (i = 0; i < this->RenderTableEntries; i++ )
+      {
+      this->RenderTimeTable[i] = oldTimePtr[i];
+      this->RenderVolumeTable[i] = oldVolumePtr[i];
+      this->RenderRendererTable[i] = oldRendererPtr[i];
+      }
+    
+    delete [] oldTimePtr;
+    delete [] oldVolumePtr;
+    delete [] oldRendererPtr;
+    }
+  
+  this->RenderTimeTable[this->RenderTableEntries] = time;
+  this->RenderVolumeTable[this->RenderTableEntries] = vol;
+  this->RenderRendererTable[this->RenderTableEntries] = ren;
+  
+  this->RenderTableEntries++;
 }
 
 int vtkVolumeProMapper::StatusOK()
