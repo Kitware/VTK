@@ -29,7 +29,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkBoundingBox.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.30");
+vtkCxxRevisionMacro(vtkCommunicator, "1.31");
 
 template <class T>
 int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -558,7 +558,7 @@ int vtkCommunicator::ComputeGlobalBounds(int processNumber, int numProcessors,
                                          int globalBoundsTag)
 {
   int parent = 0;
-  int leftHasBounds, rightHasBounds;
+  int leftHasBounds = 0, rightHasBounds = 0;
   int left = this->GetLeftChildProcessor(processNumber);
   int right=left+1;
   if(processNumber>0) // not root (nothing to do if root)
@@ -569,8 +569,6 @@ int vtkCommunicator::ComputeGlobalBounds(int processNumber, int numProcessors,
   double otherBounds[6];
   if(left<numProcessors)
     {
-    // TODO WARNING if the child is empty the bounds are not initialized!
-    // Grab the bounds from left child
     this->Receive(&leftHasBounds, 1, left, hasBoundsTag);
     if (lhb)
       {
