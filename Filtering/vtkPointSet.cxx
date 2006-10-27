@@ -22,7 +22,7 @@
 #include "vtkPointLocator.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPointSet, "1.5");
+vtkCxxRevisionMacro(vtkPointSet, "1.6");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
@@ -151,6 +151,8 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
   double           dist2;
   vtkIdList       *cellIds, *ptIds;
   int             initialCellProvided = 1;
+  vtkIdList       *neighbors;
+  vtkIdType       curIdListPosn;
 
   // make sure everything is up to snuff
   if ( !this->Points || this->Points->GetNumberOfPoints() < 1)
@@ -160,6 +162,8 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
 
   cellIds = vtkIdList::New();
   cellIds->Allocate(8,100);
+  neighbors = vtkIdList::New();
+  neighbors->Allocate(8,100);
   ptIds = vtkIdList::New();
   ptIds->Allocate(8,100);
 
@@ -185,15 +189,17 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
     ptId = this->Locator->FindClosestPoint(x);
     if ( ptId < 0 )
       {
+      neighbors->Delete();
       cellIds->Delete();
       ptIds->Delete();
       return (-1); //if point completely outside of data
       }
 
     this->GetPointCells(ptId, cellIds);
+    curIdListPosn = 0;
     if ( cellIds->GetNumberOfIds() > 0 )
       {
-      cellId = cellIds->GetId(0); //arbitrarily use first cell in list
+      cellId = cellIds->GetId(curIdListPosn++); //arbitrarily use first cell in list
       if ( gencell )
         {
         this->GetCell(cellId, gencell);
@@ -217,6 +223,7 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
                                     pcoords, dist2,weights) == 1
              && dist2 <= tol2 ) )
         {
+        neighbors->Delete();
         cellIds->Delete();
         ptIds->Delete();  
         return cellId;
@@ -226,59 +233,80 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
   else //EvaluatePosition insures that pcoords is defined
     {
     cell->EvaluatePosition(x,NULL,subId,pcoords,dist2,weights);
+    curIdListPosn = 1;
     }
   
   // If a cell is supplied, or we didn't find a starting cell (in the
   // previous chunk of code), then we use this to start our search. A
   // walking scheme is used, where we walk towards the point and eventually
   // locate the cell that contains the point.
-  if ( cell || cellIds->GetNumberOfIds() > 0 ) //we have a starting cell
-    {
-    for ( walk=0; walk < VTK_MAX_WALK; walk++ )
+  do {
+    if ( cell || cellIds->GetNumberOfIds() > 0 ) //we have a starting cell
       {
-      if ( cell )
+      for ( walk=0; walk < VTK_MAX_WALK; walk++ )
         {
-        cell->CellBoundary(subId, pcoords, ptIds);
-        }
-      else
-        {
-        gencell->CellBoundary(subId, pcoords, ptIds);
-        }
-      this->GetCellNeighbors(cellId, ptIds, cellIds);
-      if ( cellIds->GetNumberOfIds() > 0 )
-        {
-        cellId = cellIds->GetId(0);
-        if ( gencell )
+        if ( cell )
           {
-          cell = NULL;
-          this->GetCell(cellId, gencell);
+          cell->CellBoundary(subId, pcoords, ptIds);
           }
         else
           {
-          cell = this->GetCell(cellId);
+          gencell->CellBoundary(subId, pcoords, ptIds);
           }
+        this->GetCellNeighbors(cellId, ptIds, neighbors);
+        if ( neighbors->GetNumberOfIds() > 0 )
+          {
+          cellId = neighbors->GetId(0);
+          if ( gencell )
+            {
+            cell = NULL;
+            this->GetCell(cellId, gencell);
+            }
+          else
+            {
+            cell = this->GetCell(cellId);
+            }
+          }
+        else
+          {
+          break; //outside of data
+          }
+
+        if ( ( (!cell && 
+              gencell->EvaluatePosition(x,closestPoint,subId,pcoords,
+                dist2,weights) == 1 ) ||
+            (cell && cell->EvaluatePosition(x,closestPoint,
+                                            subId,pcoords,
+                                            dist2,weights) == 1 ) )
+          && dist2 <= tol2 )
+          {
+          neighbors->Delete();
+          cellIds->Delete();
+          ptIds->Delete();  
+          return cellId;
+          }
+
+        }//for a walk
+      }//if we have a starting cell
+    if ( curIdListPosn < cellIds->GetNumberOfIds() )
+      {
+      cellId = cellIds->GetId( curIdListPosn++ );
+      if ( gencell )
+        {
+        this->GetCell(cellId, gencell);
         }
       else
         {
-        break; //outside of data
+        cell = this->GetCell(cellId);
         }
+      }
+    else
+      {
+      cell = 0;
+      }
+  } while ( cell );
 
-      if ( ( (!cell && 
-              gencell->EvaluatePosition(x,closestPoint,subId,pcoords,
-                                        dist2,weights) == 1 ) ||
-             (cell && cell->EvaluatePosition(x,closestPoint,
-                                                 subId,pcoords,
-                                                 dist2,weights) == 1 ) )
-           && dist2 <= tol2 )
-        {
-        cellIds->Delete();
-        ptIds->Delete();  
-        return cellId;
-        }
-
-      }//for a walk
-    }//if we have a starting cell
-
+  neighbors->Delete();
   cellIds->Delete();
   ptIds->Delete();
 
