@@ -27,7 +27,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeProMapper, "1.3");
+vtkCxxRevisionMacro(vtkVolumeProMapper, "1.4");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -353,4 +353,10 @@ void vtkVolumeProMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Gradient Diffuse Modulation: " <<
     (this->GradientDiffuseModulation ? "On\n" : "Off\n");
+
+  os << indent << "AutoAdjustMipmapLevels: " <<
+    (this->AutoAdjustMipmapLevels ? "On" : "Off") << endl;
+  os << indent << "MipmapLevel: " << this->MipmapLevel << endl;
+  os << indent << "MinimumMipmapLevel: " << this->MinimumMipmapLevel << endl;
+  os << indent << "MaximumMipmapLevel: " << this->MaximumMipmapLevel << endl;
 }
