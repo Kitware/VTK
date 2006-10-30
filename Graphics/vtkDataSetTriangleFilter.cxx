@@ -29,7 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.25");
+vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.26");
 vtkStandardNewMacro(vtkDataSetTriangleFilter);
 
 vtkDataSetTriangleFilter::vtkDataSetTriangleFilter()
@@ -37,7 +37,6 @@ vtkDataSetTriangleFilter::vtkDataSetTriangleFilter()
   this->Triangulator = vtkOrderedTriangulator::New();
   this->Triangulator->PreSortedOff();
   this->Triangulator->UseTemplatesOn();
-  this->TetrahedraOnly = 0;
 }
 
 vtkDataSetTriangleFilter::~vtkDataSetTriangleFilter()
@@ -163,19 +162,16 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
           case 4:
             type = VTK_TETRA;     break;
           }
-        if (!this->TetrahedraOnly || type == VTK_TETRA)
+        for (l = 0; l < numSimplices; l++ )
           {
-          for (l = 0; l < numSimplices; l++ )
+          for (m = 0; m < dim; m++)
             {
-            for (m = 0; m < dim; m++)
-              {
-              pts[m] = cellPtIds->GetId(dim*l+m);
-              }
-            // copy cell data
-            newCellId = output->InsertNextCell(type, dim, pts);
-            outCD->CopyData(inCD, inId, newCellId);
-            }//for all simplices
-          }
+            pts[m] = cellPtIds->GetId(dim*l+m);
+            }
+          // copy cell data
+          newCellId = output->InsertNextCell(type, dim, pts);
+          outCD->CopyData(inCD, inId, newCellId);
+          }//for all simplices
         }//i dimension
       }//j dimension
     }//k dimension
@@ -274,7 +270,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
         }
       }
 
-    else if (!this->TetrahedraOnly) //2D or lower dimension
+    else //2D or lower dimension
       {
       dim++;
       cell->Triangulate(0, cellPtIds, cellPts);
@@ -322,6 +318,5 @@ int vtkDataSetTriangleFilter::FillInputPortInformation(int, vtkInformation *info
 void vtkDataSetTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "TetrahedraOnly: " << (this->TetrahedraOnly ? "On":"Off") << "\n";
 }
 
