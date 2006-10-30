@@ -96,6 +96,7 @@ protected:
   ~vtkCocoaRenderWindowInteractor();
 
   int     InstallMessageProc;
+  void    *TimerDictionary;     // Really an NSMutableDictionary*
 
   //BTX
   // Description:

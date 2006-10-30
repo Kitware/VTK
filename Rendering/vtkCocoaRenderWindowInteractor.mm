@@ -25,7 +25,7 @@
 #endif
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.11");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.12");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -39,10 +39,11 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 {
   NSTimer *timer;
   vtkCocoaRenderWindowInteractor *interactor;
+  int timerId;
 }
 
-- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor;
-- (void)startTimer:(NSTimeInterval)interval repeating:(BOOL)repeating;
+- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor timerId:(int)myTimerId;
+- (void)startTimerWithInterval:(NSTimeInterval)interval repeating:(BOOL)repeating;
 - (void)stopTimer;
 - (void)timerFired:(NSTimer *)myTimer;
 
@@ -51,12 +52,13 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 //----------------------------------------------------------------------------
 @implementation vtkCocoaTimer
 
-- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor
+- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor timerId:(int)myTimerId
 {
   self = [super init]; 
   if (self)
     {
     interactor = myInteractor;
+    timerId = myTimerId;
     }
   return self;
 }
@@ -64,17 +66,16 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 - (void)timerFired:(NSTimer *)myTimer
 {
   (void)myTimer;
-  int vtkTimerId = interactor->GetVTKTimerId((int) self);
-  interactor->InvokeEvent(vtkCommand::TimerEvent, (void *) &vtkTimerId);
+  interactor->InvokeEvent(vtkCommand::TimerEvent, &timerId);
 }
 
-- (void)startTimer:(NSTimeInterval)interval repeating:(BOOL)repeating
+- (void)startTimerWithInterval:(NSTimeInterval)interval repeating:(BOOL)repeating
 {
-  timer = [NSTimer timerWithTimeInterval:interval
+  timer = [[NSTimer timerWithTimeInterval:interval
     target:self
     selector:@selector(timerFired:)
     userInfo:nil
-    repeats:repeating];
+    repeats:repeating] retain];
   [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
   [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSEventTrackingRunLoopMode];
 }
@@ -82,6 +83,8 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 - (void)stopTimer
 {
   [timer invalidate];
+  [timer release];
+  timer = nil;
 }
 
 @end
@@ -90,12 +93,15 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor() 
 {
   this->InstallMessageProc = 1;
+  this->TimerDictionary = (void*)[[NSMutableDictionary dictionary] retain];
 }
 
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor() 
 {
   this->Enabled = 0;
+  NSMutableDictionary* timerDict = (NSMutableDictionary*)(this->TimerDictionary);
+  [timerDict release];
 }
 
 //----------------------------------------------------------------------------
@@ -187,7 +193,7 @@ void vtkCocoaRenderWindowInteractor::TerminateApp()
 }
 
 //----------------------------------------------------------------------------
-int vtkCocoaRenderWindowInteractor::InternalCreateTimer(int vtkNotUsed(timerId),
+int vtkCocoaRenderWindowInteractor::InternalCreateTimer(int timerId,
   int timerType, unsigned long duration)
 {
   BOOL repeating = NO;
@@ -197,20 +203,44 @@ int vtkCocoaRenderWindowInteractor::InternalCreateTimer(int vtkNotUsed(timerId),
     repeating = YES;
     }
 
-  int platformTimerId = (int)[[vtkCocoaTimer alloc] initWithInteractor:this];
-  [(vtkCocoaTimer*)platformTimerId startTimer:((NSTimeInterval)duration/1000.0)
+  // Create a vtkCocoaTimer and add it to a dictionary using the timerId
+  // as key, this will let us find the vtkCocoaTimer later by timerId
+  vtkCocoaTimer* cocoaTimer = [[vtkCocoaTimer alloc] initWithInteractor:this
+    timerId:timerId];  
+  NSString* timerIdAsStr = [NSString stringWithFormat:@"%i", timerId];
+  NSMutableDictionary* timerDict = (NSMutableDictionary*)(this->TimerDictionary);
+  [timerDict setObject:cocoaTimer forKey:timerIdAsStr];
+  [cocoaTimer startTimerWithInterval:((NSTimeInterval)duration/1000.0)
     repeating:repeating];
 
+  // In this implementation, timerId and platformTimerId are the same
+  int platformTimerId = timerId;
+  
   return platformTimerId;
 }
 
 //----------------------------------------------------------------------------
 int vtkCocoaRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
-  [(vtkCocoaTimer*)platformTimerId stopTimer];
-  [(vtkCocoaTimer*)platformTimerId release];
+  // In this implementation, timerId and platformTimerId are the same;
+  // but calling this anyway is more correct
+  int timerId = this->GetVTKTimerId(platformTimerId);
 
-  return 1;
+  NSString* timerIdAsStr = [NSString stringWithFormat:@"%i", timerId];
+  NSMutableDictionary* timerDict = (NSMutableDictionary*)(this->TimerDictionary);
+  vtkCocoaTimer* cocoaTimer = [timerDict objectForKey:timerIdAsStr];
+  [timerDict removeObjectForKey:timerIdAsStr];
+
+  if (nil != cocoaTimer)
+    {
+    [cocoaTimer stopTimer];
+    [cocoaTimer release];
+    return 1; // success
+    }
+  else
+    {
+    return 0; // fail
+    }
 }
 
 //----------------------------------------------------------------------------
