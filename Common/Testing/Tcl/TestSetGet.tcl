@@ -90,6 +90,7 @@ proc rtSetGetTest { fileid } {
 
 # All tests should end with the following...
 
+puts "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)"
 rtSetGetTest stdout
 
 exit
