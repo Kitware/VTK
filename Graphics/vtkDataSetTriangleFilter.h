@@ -42,13 +42,6 @@ public:
   vtkTypeRevisionMacro(vtkDataSetTriangleFilter,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // When On this filter will cull all 1D and 2D cells from the output.
-  // The default is Off.
-  vtkSetMacro(TetrahedraOnly, int);
-  vtkGetMacro(TetrahedraOnly, int);
-  vtkBooleanMacro(TetrahedraOnly, int);
-
 protected:
   vtkDataSetTriangleFilter();
   ~vtkDataSetTriangleFilter();
@@ -64,9 +57,7 @@ protected:
   // Different execute methods depending on whether input is structured or not
   void StructuredExecute(vtkDataSet *, vtkUnstructuredGrid *);
   void UnstructuredExecute(vtkDataSet *, vtkUnstructuredGrid *);
-
-  int TetrahedraOnly;
-
+  
 private:
   vtkDataSetTriangleFilter(const vtkDataSetTriangleFilter&);  // Not implemented.
   void operator=(const vtkDataSetTriangleFilter&);  // Not implemented.
