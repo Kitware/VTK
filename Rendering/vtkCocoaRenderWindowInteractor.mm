@@ -25,7 +25,7 @@
 #endif
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.12");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.13");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -48,6 +48,53 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 - (void)timerFired:(NSTimer *)myTimer;
 
 @end
+
+// This is a private class and an implementation detail, do not use it.
+//
+// This class performs various things to set up the Cocoa environment.
+// In a normal Cocoa application, in main() one calls NSApplicationMain() and
+// from that point on, everything is handled by events.  But since vtk is a
+// library, we cannot know if this has happened.  Notably, an NSAutoreleasePool
+// needs to exist before any Cocoa objects are autoreleased, which may happen
+// as a side effect of pretty much any Cocoa use.  Once we start the event loop
+// by calling [NSApp run] then a new pool will be created for every event, but
+// until then, we use this class to create a 'pool of last resort' so that we
+// know a pool is in place.  
+class vtkEarlyCocoaSetup
+{
+public:
+  vtkEarlyCocoaSetup::vtkEarlyCocoaSetup()
+  {
+    // Set up the Cocoa system
+    (void)NSApplicationLoad();
+
+    this->CreatePoolOfLastResort();
+  }
+
+  vtkEarlyCocoaSetup::~vtkEarlyCocoaSetup()
+  {
+    this->DestroyPoolOfLastResort();
+  }
+
+  void vtkEarlyCocoaSetup::DestroyPoolOfLastResort()
+  {
+    [Pool release];
+    Pool = nil;
+  }
+
+protected:
+  void vtkEarlyCocoaSetup::CreatePoolOfLastResort()
+  {
+    Pool = [[NSAutoreleasePool alloc] init];
+  }
+
+private:
+  NSAutoreleasePool     *Pool;
+};
+
+// We create a global/static instance of this class to ensure that we have an
+// autorelease pool before main() starts.
+vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 
 //----------------------------------------------------------------------------
 @implementation vtkCocoaTimer
@@ -120,7 +167,11 @@ void vtkCocoaRenderWindowInteractor::Start()
     return;
     }
 
-  (void)[NSApplication sharedApplication]; //make sure the app is initialized
+  // Now that we are about to begin the standard Cocoa event loop, we can get
+  // rid of the 'pool of last resort' because [NSApp run] will create a new
+  // pool for event event
+  gEarlyCocoaSetup->DestroyPoolOfLastResort();
+  
   [NSApp run];
 }
 

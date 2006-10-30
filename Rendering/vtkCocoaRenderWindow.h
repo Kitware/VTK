@@ -262,7 +262,6 @@ private:
   int      ViewCreated;
   int      CursorHidden;
 
-  void     *AutoreleasePool; // really an NSAutoreleasePool*
   int      ForceMakeCurrent;
   char     *Capabilities;
 };
