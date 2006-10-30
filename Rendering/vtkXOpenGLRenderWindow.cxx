@@ -41,6 +41,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRendererCollection.h"
 #include "vtkOpenGLExtensionManager.h"
 
+#include "vtksys/SystemTools.hxx"
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
@@ -106,7 +108,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.83");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.84");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -310,10 +312,14 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
   if (!this->DisplayId)
     {
     this->DisplayId = XOpenDisplay((char *)NULL); 
-    if (this->DisplayId == NULL) 
+
+    if (this->DisplayId == NULL)
       {
-      vtkErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection. DISPLAY="
+        << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
+      return NULL;
       }
+
     this->OwnDisplay = 1;
     }
 
@@ -487,7 +493,8 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     this->DisplayId = XOpenDisplay((char *)NULL); 
     if (this->DisplayId == NULL) 
       {
-      vtkErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection. DISPLAY="
+        << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
       }
     this->OwnDisplay = 1;
     }
@@ -780,7 +787,8 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
         this->DisplayId = XOpenDisplay((char *)NULL); 
         if (this->DisplayId == NULL) 
           {
-          vtkErrorMacro(<< "bad X server connection.\n");
+          vtkErrorMacro(<< "bad X server connection. DISPLAY="
+            << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
           }
         this->OwnDisplay = 1;
         }
@@ -1364,7 +1372,8 @@ int *vtkXOpenGLRenderWindow::GetScreenSize()
     this->DisplayId = XOpenDisplay((char *)NULL); 
     if (this->DisplayId == NULL) 
       {
-      vtkErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection. DISPLAY="
+        << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
       }
     else
       {
@@ -1414,7 +1423,8 @@ Display *vtkXOpenGLRenderWindow::GetDisplayId()
     this->DisplayId = XOpenDisplay((char *)NULL); 
     if (this->DisplayId == NULL) 
       {
-      vtkErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection. DISPLAY="
+        << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
       }
     this->OwnDisplay = 1;
     }
@@ -1495,7 +1505,8 @@ void vtkXOpenGLRenderWindow::SetWindowInfo(char *info)
     this->DisplayId = XOpenDisplay((char *)NULL); 
     if (this->DisplayId == NULL) 
       {
-      vtkErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection. DISPLAY="
+        << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
       }
     else
       {
@@ -1528,7 +1539,8 @@ void vtkXOpenGLRenderWindow::SetParentInfo(char *info)
     this->DisplayId = XOpenDisplay((char *)NULL); 
     if (this->DisplayId == NULL) 
       {
-      vtkErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection. DISPLAY="
+        << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
       }
     else
       {
