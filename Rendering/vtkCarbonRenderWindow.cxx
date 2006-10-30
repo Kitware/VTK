@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.55");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.56");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -377,35 +377,36 @@ void vtkCarbonRenderWindow::SetSize(int x, int y)
 
   if ((this->Size[0] != x) || (this->Size[1] != y))
     {
-    this->Modified();
     this->Size[0] = x;
     this->Size[1] = y;
-    }
 
-  if(this->OffScreenRendering && this->Internal->OffScreenWindow)
-    {
-    this->ResizeOffScreenWindow(x,y);
-    }
-  else
-    {
-    if (this->Mapped)
+    if(this->OffScreenRendering && this->Internal->OffScreenWindow)
       {
-      if (!resizing)
+      this->ResizeOffScreenWindow(x,y);
+      }
+    else
+      {
+      if (this->Mapped)
         {
-        resizing = 1;
-        
-        if(this->ParentId && this->RootWindow && !this->WindowId)
+        if (!resizing)
           {
-          // backwards compatiblity with Tk and who else?
-          UpdateGLRegion();
+          resizing = 1;
+
+          if(this->ParentId && this->RootWindow && !this->WindowId)
+            {
+            // backwards compatiblity with Tk and who else?
+            UpdateGLRegion();
+            }
+          else if(this->OwnWindow || !this->WindowId)
+            {
+            SizeWindow(this->RootWindow, x, y, TRUE);
+            }
+          resizing = 0;
           }
-        else if(this->OwnWindow || !this->WindowId)
-          {
-          SizeWindow(this->RootWindow, x, y, TRUE);
-          }
-        resizing = 0;
         }
       }
+
+    this->Modified();
     }
 }
 
@@ -816,11 +817,6 @@ void vtkCarbonRenderWindow::DestroyOffScreenWindow()
 void vtkCarbonRenderWindow::ResizeOffScreenWindow(int width, int height)
 {
   if(!this->OffScreenRendering)
-    {
-    return;
-    }
-
-  if(this->Size[0] == width && this->Size[1] == height)
     {
     return;
     }

@@ -106,7 +106,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.82");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.83");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -947,11 +947,6 @@ void vtkXOpenGLRenderWindow::ResizeOffScreenWindow(int width, int height)
     return;
     }
 
-  if(this->Size[0] == width && this->Size[1] == height)
-    {
-    return;
-    }
-
   if(this->Internal->PixmapContextId ||
      this->Internal->PbufferContextId 
 #ifdef VTK_OPENGL_HAS_OSMESA
@@ -1135,19 +1130,20 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
 {
   if ((this->Size[0] != width)||(this->Size[1] != height))
     {
-    this->Modified();
     this->Size[0] = width;
     this->Size[1] = height;
-    }
 
-  if(this->OffScreenRendering)
-    {
-    this->ResizeOffScreenWindow(width,height);
-    }
-  else if(this->WindowId && this->Mapped)
-    {
-    XResizeWindow(this->DisplayId,this->WindowId,width,height);
-    XSync(this->DisplayId,False);
+    if(this->OffScreenRendering)
+      {
+      this->ResizeOffScreenWindow(width,height);
+      }
+    else if(this->WindowId && this->Mapped)
+      {
+      XResizeWindow(this->DisplayId,this->WindowId,width,height);
+      XSync(this->DisplayId,False);
+      }
+
+    this->Modified();
     }
 }
 
