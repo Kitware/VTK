@@ -52,7 +52,7 @@
 #define DEBUG 0
 #define vtkPExodusReaderMAXPATHLEN 2048
 
-vtkCxxRevisionMacro(vtkPExodusReader, "1.9");
+vtkCxxRevisionMacro(vtkPExodusReader, "1.10");
 vtkStandardNewMacro(vtkPExodusReader);
 
 class vtkPExodusReaderUpdateProgress : public vtkCommand
@@ -181,6 +181,12 @@ int vtkPExodusReader::RequestInformation(
      ((this->FileRange[0] != this->CurrentFileRange[0]) ||
       (this->FileRange[1] != this->CurrentFileRange[1]))));
 
+  // setting filename for the first time builds the prefix/pattern
+  // if one clears the prefix/pattern, but the filename stays the same,
+  // we should rebuild the prefix/pattern
+  int rebuildPattern = newPattern && this->FilePattern[0] == '\0' &&
+                       this->FilePrefix[0] == '\0';
+
   int sanity = ((this->FilePattern && this->FilePrefix) || this->FileName);
 
   if (!sanity)
@@ -189,7 +195,7 @@ int vtkPExodusReader::RequestInformation(
     return 0;
     }
 
-  if (newPattern)
+  if (newPattern && !rebuildPattern)
     {
     char *nm = 
       new char[strlen(this->FilePattern) + strlen(this->FilePrefix) + 20];  
@@ -197,7 +203,7 @@ int vtkPExodusReader::RequestInformation(
     this->Superclass::SetFileName(nm);
     delete [] nm;
     }
-  else if (newName)
+  else if (newName || rebuildPattern)
     {
     if (this->NumberOfFileNames == 1)
       {
