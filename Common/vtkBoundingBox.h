@@ -71,6 +71,7 @@ public:
   // Note that the bounding box may have 0 volume if its bounds
   // were just initialized.  
   void AddPoint(double p[3]);
+  void AddPoint(double px, double py, double pz);
   
   // Description:
   // Change the bouding box to be the union of itself and bbox
@@ -114,6 +115,7 @@ public:
   // Description:
   // Returns 1 if the point is contained in the box else 0;
   int ContainsPoint(double p[3]) const;
+  int ContainsPoint(double px, double py, double pz) const;
 
   // Description:
   // Get the center of the bounding box
@@ -284,5 +286,27 @@ inline void vtkBoundingBox::GetMaxPoint(double &x, double &y, double &z) const
   z = this->MaxPnt[2];
 }
 
+inline int vtkBoundingBox::ContainsPoint(double px, double py, 
+                                         double pz) const
+{
+  if ((px < this->MinPnt[0]) || (px > this->MaxPnt[0]))
+    {
+    return 0;
+    }
+  if ((py < this->MinPnt[1]) || (py > this->MaxPnt[1]))
+    {
+    return 0;
+    }
+  if ((pz < this->MinPnt[2]) || (pz > this->MaxPnt[2]))
+    {
+    return 0;
+    }
+  return 1;
+}
+
+inline int vtkBoundingBox::ContainsPoint(double p[3]) const
+{
+  return this->ContainsPoint(p[0], p[1], p[2]);
+}
 
 #endif

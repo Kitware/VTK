@@ -14,6 +14,15 @@
 =========================================================================*/
 #include "vtkBoundingBox.h"
 
+void vtkBoundingBox::AddPoint(double px, double py, double pz)
+{
+  double p[3];
+  p[0] = px;
+  p[1] = py;
+  p[2] = pz;
+  this->AddPoint(p);
+}
+
 void vtkBoundingBox::AddPoint(double p[3])
 {
   int i;
@@ -233,18 +242,6 @@ int vtkBoundingBox::Intersects(const vtkBoundingBox &bbox) const
   return 1;
 }
 
-int vtkBoundingBox::ContainsPoint(double p[3]) const
-{
-  int i;
-  for (i = 0; i < 3; i++)
-    {
-    if ((p[i] < this->MinPnt[i]) || (p[i] > this->MaxPnt[i]))
-      {
-      return 0;
-      }
-    }
-  return 1;
-}
 
 double vtkBoundingBox::GetMaxLength() const
 {
