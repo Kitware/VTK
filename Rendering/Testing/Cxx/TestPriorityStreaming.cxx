@@ -26,6 +26,8 @@
 #include "vtkXMLImageDataWriter.h"
 #include "vtkXMLPImageDataWriter.h"
 
+#include "vtksys/SystemTools.hxx"
+
 //---------------------------------------------------------------------------
 int TestPriorityStreaming(int argc, char *argv[])
 {
@@ -124,9 +126,14 @@ int TestPriorityStreaming(int argc, char *argv[])
       priority[37] != 1.0)
     {
     delete [] priority;
+    // Leave file around in case somebody wants to look at it
+    // after the failed test...
     cerr << "Bad results for prioity streaming test\n";
     return 1;
     }
+
   delete [] priority;
+  // Delete the file since the test passed:
+  vtksys::SystemTools::RemoveFile(fname.c_str());
   return 0;
 }
