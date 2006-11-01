@@ -50,3 +50,12 @@ ADD_TEST(TestCxxFeatures ${CXX_TEST_PATH}/TestCxxFeatures)
 ADD_EXECUTABLE(TestInstantiator TestInstantiator.cxx)
 TARGET_LINK_LIBRARIES(TestInstantiator vtkCommon)
 ADD_TEST(TestInstantiator ${CXX_TEST_PATH}/TestInstantiator)
+
+#
+# Add a test that spits out the cygwin installation info if building
+# with cygwin:
+#
+IF(CYGWIN)
+  ADD_TEST(SystemInformation-cygcheck
+    "${CMAKE_CURRENT_SOURCE_DIR}/SystemInformation-cygcheck.sh")
+ENDIF(CYGWIN)
