@@ -57,7 +57,7 @@ const int SqrtTableSize = 2048;
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkOpenGLProjectedTetrahedraMapper, "1.5");
+vtkCxxRevisionMacro(vtkOpenGLProjectedTetrahedraMapper, "1.6");
 vtkStandardNewMacro(vtkOpenGLProjectedTetrahedraMapper);
 
 vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
@@ -74,8 +74,6 @@ vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
 
   this->SqrtTable = new float[SqrtTableSize];
   this->SqrtTableBias = 0.0;
-
-  this->JustTets = NULL;
 }
 
 vtkOpenGLProjectedTetrahedraMapper::~vtkOpenGLProjectedTetrahedraMapper()
@@ -85,11 +83,6 @@ vtkOpenGLProjectedTetrahedraMapper::~vtkOpenGLProjectedTetrahedraMapper()
   this->Colors->Delete();
 
   delete[] this->SqrtTable;
-
-  if (this->JustTets != NULL)
-    {
-    this->JustTets->Delete();
-    }
 }
 
 void vtkOpenGLProjectedTetrahedraMapper::PrintSelf(ostream &os, vtkIndent indent)
@@ -137,39 +130,6 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
       }
 
     vtkIdType npts, *pts, i;
-    if (!input->IsHomogeneous())
-      {
-      vtkWarningMacro("Input contains more than tetrahedra - only tetrahedra will be rendered.");
-
-      //we have different types of cells in the input
-      //take only the tets to render, quietly ignore all other types of cells
-      if (this->JustTets == NULL)
-        {
-        this->JustTets = vtkUnstructuredGrid::New();
-        }
-      this->JustTets->ShallowCopy(input);      
-
-      vtkCellArray *tetArray = vtkCellArray::New();
-      cells->InitTraversal();
-      for (i = 0; i < cells->GetNextCell(npts, pts); i++)
-        {
-        if (npts == 4)
-          {
-          tetArray->InsertNextCell(4, pts);
-          }
-        }
-      this->JustTets->SetCells(VTK_TETRA, tetArray);
-      input = this->JustTets;
-      cells = input->GetCells();
-      tetArray->Delete();
-      }
-
-    if (input->GetCellType(0) != VTK_TETRA)
-      {
-      // Apparently, the input has no Tetrahedral cells.  Just do nothing.
-      return;
-      }
-
     cells->InitTraversal();
     for (i = 0; cells->GetNextCell(npts, pts); i++)
       {
@@ -391,16 +351,6 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
                                                      vtkVolume *volume)
 {
   vtkUnstructuredGrid *input = this->GetInput();
-  if (!input->IsHomogeneous())
-    {
-    input = this->JustTets;
-    }
-  if (input->GetCellType(0) != VTK_TETRA)
-    {
-    // Apparently, the input has no Tetrahedral cells.  Just do nothing.
-    return;
-    }
-
 
   this->VisibilitySort->SetInput(input);
   this->VisibilitySort->SetDirectionToBackToFront();

@@ -81,8 +81,6 @@ protected:
                           int use_linear_depth_correction,
                           float linear_depth_correction);
 
-  vtkUnstructuredGrid *JustTets;
-
 private:
   vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper &);  // Not Implemented.
   void operator=(const vtkOpenGLProjectedTetrahedraMapper &);  // Not Implemented.
