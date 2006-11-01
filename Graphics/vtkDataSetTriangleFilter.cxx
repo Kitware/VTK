@@ -28,8 +28,9 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.27");
+vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.28");
 vtkStandardNewMacro(vtkDataSetTriangleFilter);
 
 vtkDataSetTriangleFilter::vtkDataSetTriangleFilter()
@@ -216,6 +217,42 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
   if (numCells == 0)
     {
     return;
+    }
+
+  vtkUnstructuredGrid * inUgrid =
+    vtkUnstructuredGrid::SafeDownCast(dataSetInput);
+  if (inUgrid)
+    {
+    //avoid doing cell simplification if all cells are already simplices
+    vtkUnsignedCharArray* cellTypes = inUgrid->GetCellTypesArray();
+    if (cellTypes)
+      {
+      int allsimplices = 1;
+      for (vtkIdType cellId = 0; cellId < cellTypes->GetSize() && allsimplices; cellId++)
+        {
+        switch (cellTypes->GetValue(cellId))
+          {
+          case VTK_TETRA:
+            break;
+          case VTK_VERTEX:
+          case VTK_LINE:
+          case VTK_TRIANGLE:          
+            if (this->TetrahedraOnly)
+              {
+              allsimplices = 0; //don't shallowcopy need to stip non tets
+              }
+            break;
+          default:
+            allsimplices = 0;
+            break;
+          }
+        }
+      if (allsimplices)
+        {
+        output->ShallowCopy(input);
+        return;
+        }
+      }
     }
 
   cell = vtkGenericCell::New();
