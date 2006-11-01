@@ -41,7 +41,7 @@ extern const char* vtkVolumeTextureMapper3D_FourDependentNoShadeFP;
 extern const char* vtkVolumeTextureMapper3D_FourDependentShadeFP;
 
 // Apple OS X doesn't have glTexImage3DEXT, but it does have glTexImage3D
-#if defined(__APPLE__) && defined(GL_VERSION_1_4)
+#if defined(__APPLE__) && defined(GL_VERSION_1_2)
 #ifdef TexImage3DEXT
 #undef TexImage3DEXT
 #endif
@@ -50,7 +50,7 @@ extern const char* vtkVolumeTextureMapper3D_FourDependentShadeFP;
 #undef TEXTURE_3D_EXT
 #endif
 #define TEXTURE_3D_EXT TEXTURE_3D
-#endif /* defined(__APPLE__) && defined(GL_VERSION_1_4) */
+#endif /* defined(__APPLE__) && defined(GL_VERSION_1_2) */
 
 //extern "C" void (*glXGetProcAddressARB(const GLubyte *procName))( void );
 
@@ -78,7 +78,7 @@ extern const char* vtkVolumeTextureMapper3D_FourDependentShadeFP;
     }}
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.8");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.9");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -1766,11 +1766,22 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
   int supports_GL_ARB_vertex_program     = extensions->ExtensionSupported( "GL_ARB_vertex_program" );
   int supports_GL_NV_register_combiners  = extensions->ExtensionSupported( "GL_NV_register_combiners" );
   
+#if defined(__APPLE__) && defined(GL_VERSION_1_2)
+  // Apple doesn't have glTexImage3D_EXT, so load
+  // GL_VERSION_1_2 and use glTexImage3D instead.
+  if (extensions->ExtensionSupported("GL_VERSION_1_2"))
+    {
+    if (vtkgl::LoadExtension("GL_VERSION_1_2", extensions)) 
+      {
+      supports_GL_EXT_texture3D = 1;
+      }
+    }
+#else
   if(supports_GL_EXT_texture3D)
     {
     extensions->LoadExtension("GL_EXT_texture3D");
     }
-  
+#endif 
   if(supports_GL_ARB_multitexture)      
     {
     extensions->LoadExtension("GL_ARB_multitexture" );
@@ -1808,11 +1819,6 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
 
   extensions->Delete();
   
-#if defined(__APPLE__) && defined(GL_VERSION_1_4)
-  // Apple doesn't have glTexImage3D_EXT, but it does have
-  // OpenGL 1.4 which supports glTexImage3D directly
-  supports_GL_EXT_texture3D = 1;
-#endif
   
   int canDoFP = 0;
   int canDoNV = 0;
