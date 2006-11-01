@@ -51,6 +51,10 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "warning -.: directory name .* does not exist"
   "vtkfreetype/src/base/ftmac.c.*warning.*is deprecated"
   "OpenTransport.*warning.*is deprecated"
+
+  # Somebody will have to get rid of these calls eventually to eliminate
+  # these warnings. For now, mask them out of dashboard results:
+  "vtkCarbonRenderWindow.cxx.*warning: .(New|Diff|Equal|Dispose)Rgn. is deprecated"
   )
 ENDIF(APPLE)
 
