@@ -1,13 +1,6 @@
 #!/usr/bin/env python
 
-import sys
-
-for i in range(0, len(sys.argv)):
-    if sys.argv[i] == '-A' and i < len(sys.argv)-1:
-        sys.path = sys.path + [sys.argv[i+1]]
-
 import vtk
-from vtk.util.misc import vtkRegressionTestImage
 
 # create a rendering window and renderer
 ren = vtk.vtkRenderer()
@@ -52,6 +45,3 @@ ren.ResetCamera();
 ren.GetActiveCamera().SetUserTransform(trans); 
 
 renWin.Render()
-retVal = vtkRegressionTestImage(renWin)
-
-sys.exit( not retVal )

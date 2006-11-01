@@ -1,13 +1,7 @@
 #!/usr/bin/env python
 
-import sys
-
-for i in range(0, len(sys.argv)):
-    if sys.argv[i] == '-A' and i < len(sys.argv)-1:
-        sys.path = sys.path + [sys.argv[i+1]]
-
 import vtk
-from vtk.util.misc import vtkRegressionTestImage, vtkGetDataRoot
+from vtk.util.misc import vtkGetDataRoot
 
 # create planes
 # Create the RenderWindow, Renderer
@@ -72,6 +66,3 @@ cam.SetPosition( -12.3332, 31.7479, 41.2387 )
 cam.SetViewUp( 0.060772, -0.319905, 0.945498 )
 
 renWin.Render()
-retVal = vtkRegressionTestImage(renWin)
-sys.exit( not retVal )
-

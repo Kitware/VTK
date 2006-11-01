@@ -5,7 +5,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     SET(tests)
     
     IF (VTK_DATA_ROOT)
-      # Older tests
+      # Tests written in Python
       FOREACH ( tfile
                 cameraWarpedCone
                 glyphComb
@@ -15,11 +15,14 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
                 streamSurface2
                 )
         ADD_TEST(${tfile}Python-image ${VTK_PYTHON_EXE}
+          ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py
           ${VTK_SOURCE_DIR}/Graphics/Testing/Python/${tfile}.py
           -D ${VTK_DATA_ROOT}
+          -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V Baseline/Graphics/${tfile}.png
-          -A ${VTK_SOURCE_DIR}/Utilities/vtkTclTest2Py
-          -A ${LIBRARY_OUTPUT_PATH})
+          -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
+          -A "${VTK_LIBRARY_DIR}"
+          )
       ENDFOREACH( tfile )
 
       # Add tests converted from Tcl
