@@ -32,7 +32,7 @@
 #include "vtkTexture.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.36");
+vtkCxxRevisionMacro(vtkTextActor, "1.37");
 vtkStandardNewMacro(vtkTextActor);
 vtkCxxSetObjectMacro(vtkTextActor,Texture,vtkTexture);
 
@@ -380,6 +380,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       vtkErrorMacro(<<"Failed rendering text to buffer");
       return 0;
       }
+    this->ImageData->Modified();
     this->Texture->SetInput(this->ImageData);
     this->InputRendered = true;
     this->BuildTime.Modified();
