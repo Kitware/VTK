@@ -15,16 +15,12 @@ IF(VTK_USE_DISPLAY)
     TestOrderedTriangulator.cxx
     )
 
-  IF(VTK_USE_PARALLEL AND VTK_USE_MPI AND VTK_DATA_ROOT)
-    # This odd condition is here because of antialiasing.
-    # I am assuming that if the compositing tests are running,
-    # antialiasing is off, and this test will have a chance of 
-    # passing too.
+  IF(VTK_DATA_ROOT)
     SET(RenderingTestsWithArguments
       ${RenderingTestsWithArguments}
       TestAreaSelections.cxx
       )
-  ENDIF(VTK_USE_PARALLEL AND VTK_USE_MPI AND VTK_DATA_ROOT)
+  ENDIF(VTK_DATA_ROOT)
 
 ENDIF(VTK_USE_DISPLAY)
 
