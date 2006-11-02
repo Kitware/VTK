@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMedicalImageProperties.cxx
+  Module:    vtkMedicalImageProperties.cxx,v
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,14 +16,23 @@
 #include "vtkObjectFactory.h"
 
 #include <vtksys/stl/string>
+#include <vtksys/stl/map>
 #include <vtksys/stl/vector>
 #include <time.h> // for strftime
 #include <ctype.h> // for isdigit
 #include <assert.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.23");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.21");
 vtkStandardNewMacro(vtkMedicalImageProperties);
+
+static const char *vtkMedicalImagePropertiesOrientationString[] = {
+  "AXIAL",
+  "SAGITTAL",
+  "CORONAL",
+  NULL
+};
+
 
 //----------------------------------------------------------------------------
 class vtkMedicalImagePropertiesInternals
@@ -42,8 +51,8 @@ public:
 
   WindowLevelPresetPoolType WindowLevelPresetPool;
 
-// It is also useful to have a mapping from DICOM UID to slice id, vor application like VolView
-  typedef vtkstd::vector<vtkstd::string> SliceUIDType;
+// It is also useful to have a mapping from DICOM UID to slice id, for application like VolView
+  typedef vtkstd::map< unsigned int, vtkstd::string> SliceUIDType;
   typedef vtkstd::vector< SliceUIDType > VolumeSliceUIDType;
   VolumeSliceUIDType UID;
   void SetNumberOfVolumes(unsigned int n)
@@ -51,22 +60,50 @@ public:
     UID.resize(n);
     Orientation.resize(n);
     }
-  void SetNumberOfSlices(unsigned int vol, unsigned int n)
-    {
-    assert( vol < UID.size() );
-    UID[vol].resize(n);
-    }
   void SetUID(unsigned int vol, unsigned int slice, const char *uid)
     {
     SetNumberOfVolumes( vol + 1 );
-    SetNumberOfSlices( vol, slice + 1 );
     UID[vol][slice] = uid;
     }
   const char *GetUID(unsigned int vol, unsigned int slice)
     {
     assert( vol < UID.size() );
-    assert( slice< UID[vol].size() );
-    return UID[vol][slice].c_str();
+    assert( UID[vol].find(slice) != UID[vol].end() );
+    //if( UID[vol].find(slice) == UID[vol].end() )
+    //  {
+    //  this->Print( cerr, vtkIndent() );
+    //  }
+    return UID[vol].find(slice)->second.c_str();
+    }
+  // Extensive lookup
+  int FindSlice(int &vol, const char *uid)
+    {
+    vol = -1;
+    for(unsigned int v = 0; v < UID.size(); ++v )
+      {
+      SliceUIDType::const_iterator cit = UID[v].begin();
+      while (cit != UID[v].end())
+        {
+        if (cit->second == uid)
+          {
+          vol = v;
+          return (int)(cit->first);
+          }
+        ++cit;
+        }
+      }
+    return -1; // volume not found.
+    }
+  int GetSlice(unsigned int vol, const char *uid)
+    {
+    assert( vol < UID.size() );
+    SliceUIDType::const_iterator cit = UID[vol].begin();
+    while (cit != UID[vol].end())
+      {
+      if (cit->second == uid) return (int)(cit->first);
+      ++cit;
+      } 
+    return -1; // uid not found.
     }
   void Print(ostream &os, vtkIndent indent)
     {
@@ -79,26 +116,29 @@ public:
         it2 != it->end();
         ++it2)
         {
-        os << indent << "  " << *it2 << endl;
+        os << indent << it2->first <<  "  " << it2->second << "\n";
         }
       }
     os << indent << "Orientation(s): ";
     for( vtkstd::vector<unsigned int>::const_iterator it = Orientation.begin();
       it != Orientation.end(); ++it)
       {
-      os << indent << *it << endl;
+      os << indent << vtkMedicalImageProperties::GetStringFromOrientationType(*it) << endl;
       }
     }
   vtkstd::vector<unsigned int> Orientation;
   void SetOrientation(unsigned int vol, unsigned int ori)
     {
     // see SetNumberOfVolumes for allocation
+    assert( ori <= vtkMedicalImageProperties::CORONAL );
     Orientation[vol] = ori;
     }
   unsigned int GetOrientation(unsigned int vol)
     {
     assert( vol < Orientation.size() );
-    return Orientation[vol];
+    const unsigned int &val = Orientation[vol];
+    assert( val <= vtkMedicalImageProperties::CORONAL );
+    return val;
     }
   void DeepCopy(vtkMedicalImagePropertiesInternals *p)
     {
@@ -356,14 +396,29 @@ void vtkMedicalImageProperties::SetNthWindowLevelPresetComment(
 }
 
 //----------------------------------------------------------------------------
-const char *vtkMedicalImageProperties::GetInstanceUIDFromSliceID(int volumeidx, int sliceid)
+const char *vtkMedicalImageProperties::GetInstanceUIDFromSliceID(
+                                       int volumeidx, int sliceid)
 {
-  return this->Internals->GetUID(volumeidx,sliceid);
+  return this->Internals->GetUID(volumeidx, sliceid);
 }
 
 //----------------------------------------------------------------------------
-void vtkMedicalImageProperties::SetInstanceUIDFromSliceID(int volumeidx, int sliceid,
- const char *uid)
+int vtkMedicalImageProperties::GetSliceIDFromInstanceUID(
+                                   int &volumeidx, const char *uid)
+{
+  if( volumeidx == -1 )
+    {
+    return this->Internals->FindSlice(volumeidx, uid);
+    }
+  else
+    {
+    return this->Internals->GetSlice(volumeidx, uid);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkMedicalImageProperties::SetInstanceUIDFromSliceID(
+                      int volumeidx, int sliceid, const char *uid)
 {
   this->Internals->SetUID(volumeidx,sliceid, uid);
 }
@@ -378,6 +433,27 @@ void vtkMedicalImageProperties::SetOrientationType(int volumeidx, int orientatio
 int vtkMedicalImageProperties::GetOrientationType(int volumeidx)
 {
   return this->Internals->GetOrientation(volumeidx);
+}
+
+//----------------------------------------------------------------------------
+const char *vtkMedicalImageProperties::GetStringFromOrientationType(unsigned int type)
+{
+  static unsigned int numtypes = 0;
+  // find length of table
+  if (!numtypes)
+    {
+    while (vtkMedicalImagePropertiesOrientationString[numtypes] != NULL)
+      {
+      numtypes++;
+      }
+    }
+
+  if (type < numtypes)
+    {
+    return vtkMedicalImagePropertiesOrientationString[type];
+    }
+
+  return NULL;
 }
 
 //----------------------------------------------------------------------------
