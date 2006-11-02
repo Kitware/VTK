@@ -187,9 +187,9 @@ int TestAreaSelections(int argc, char* argv[])
 
   //run the test
 
+  renWin->Render();
   areaPicker->AreaPick(51,78,82,273,renderer);
   EndPick(NULL, 0, NULL, NULL);
-  renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
