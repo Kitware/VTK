@@ -24,6 +24,7 @@ vtkAbstractPicker.cxx
 vtkAbstractPropPicker.cxx
 vtkActor.cxx
 vtkActorCollection.cxx
+vtkAreaPicker.cxx
 vtkAssembly.cxx
 vtkAxisActor2D.cxx
 vtkCamera.cxx
@@ -45,6 +46,7 @@ vtkGenericRenderWindowInteractor.cxx
 vtkGraphicsFactory.cxx
 vtkHierarchicalPolyDataMapper.cxx
 vtkIVExporter.cxx
+vtkIdentColoredPainter.cxx
 vtkImageActor.cxx
 vtkImageMapper.cxx
 vtkImageViewer.cxx
@@ -58,6 +60,7 @@ vtkInteractorStyleFlight.cxx
 vtkInteractorStyleImage.cxx
 vtkInteractorStyleJoystickActor.cxx
 vtkInteractorStyleJoystickCamera.cxx
+vtkInteractorStyleRubberBandPick.cxx
 vtkInteractorStyleRubberBandZoom.cxx
 vtkInteractorStyleSwitch.cxx
 vtkInteractorStyleTerrain.cxx
@@ -101,6 +104,7 @@ vtkQuaternionInterpolator.cxx
 vtkRenderWindow.cxx
 vtkRenderWindowCollection.cxx
 vtkRenderWindowInteractor.cxx
+vtkRenderedAreaPicker.cxx
 vtkRenderer.cxx
 vtkRendererCollection.cxx
 vtkRendererSource.cxx
@@ -122,6 +126,7 @@ vtkTexture.cxx
 vtkTransformInterpolator.cxx
 vtkTStripsPainter.cxx
 vtkTupleInterpolator.cxx
+vtkVisibleCellSelector.cxx
 vtkVisibilitySort.cxx
 vtkVRMLExporter.cxx
 vtkVolume.cxx
@@ -129,11 +134,6 @@ vtkVolumeCollection.cxx
 vtkVolumeProperty.cxx
 vtkWindowToImageFilter.cxx
 vtkWorldPointPicker.cxx
-vtkInteractorStyleRubberBandPick.cxx
-vtkAreaPicker.cxx
-vtkRenderedAreaPicker.cxx
-vtkIdentColoredPainter.cxx
-vtkVisibleCellSelector.cxx
 )
 
 IF(VTK_USE_GL2PS)
