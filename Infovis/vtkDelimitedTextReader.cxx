@@ -31,7 +31,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.8");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.9");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -44,6 +44,7 @@ static int splitString(const vtkStdString& input,
                        char fieldDelimiter,
                        char stringDelimiter,
                        bool useStringDelimiter,
+                       bool mergeConsecutiveDelimiters,
                        vtkstd::vector<vtkStdString>& results, 
                        bool includeEmpties=true);
 
@@ -169,6 +170,7 @@ int vtkDelimitedTextReader::RequestData(
                 this->FieldDelimiter,
                 this->StringDelimiter,
                 this->UseStringDelimiter,
+                this->MergeConsecutiveDelimiters,
                 headers);
     }
   else
@@ -177,6 +179,7 @@ int vtkDelimitedTextReader::RequestData(
                 this->FieldDelimiter,
                 this->StringDelimiter,
                 this->UseStringDelimiter,
+                this->MergeConsecutiveDelimiters,
                 firstLineFields);
 
     for (unsigned int i = 0; i < firstLineFields.size(); ++i)
@@ -236,6 +239,7 @@ int vtkDelimitedTextReader::RequestData(
                 this->FieldDelimiter,
                 this->StringDelimiter,
                 this->UseStringDelimiter,
+                this->MergeConsecutiveDelimiters,
                 dataVector);
     
     vtkDebugMacro(<<"Split into " << dataVector.size() << " fields");
@@ -270,6 +274,7 @@ splitString(const vtkStdString& input,
             char fieldDelimiter,
             char stringDelimiter,
             bool useStringDelimiter,
+            bool mergeConsecutiveDelimiters,
             vtkstd::vector<vtkStdString>& results, 
             bool includeEmpties)
 {
@@ -328,6 +333,11 @@ splitString(const vtkStdString& input,
         }
       else if (thisCharacter == fieldDelimiter && !inString)
         {
+        if (mergeConsecutiveDelimiters && lastCharacter == fieldDelimiter)
+          {
+          continue; // We're in the middle of a string of delimiters.
+          }
+
         // A delimiter starts a new field unless we're in a string, in
         // which case it's normal text and we won't even get here.
         if (includeEmpties || currentField.size() > 0)

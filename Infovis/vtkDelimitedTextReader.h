@@ -84,6 +84,14 @@ public:
   vtkGetMacro(HaveHeaders,bool);
   vtkSetMacro(HaveHeaders,bool);
 
+  // Description:
+  // Set/get whether to merge successive delimiters.  Use this if (for
+  // example) your fields are separated by spaces but you don't know
+  // exactly how many.
+  vtkSetMacro(MergeConsecutiveDelimiters, bool);
+  vtkGetMacro(MergeConsecutiveDelimiters, bool);
+  vtkBooleanMacro(MergeConsecutiveDelimiters, bool);
+
  protected:
   vtkDelimitedTextReader();
   ~vtkDelimitedTextReader();
