@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <fstream>
 
-vtkCxxRevisionMacro(vtkFixedWidthTextReader, "1.1");
+vtkCxxRevisionMacro(vtkFixedWidthTextReader, "1.2");
 vtkStandardNewMacro(vtkFixedWidthTextReader);
 
 // Function body at bottom of file
@@ -48,6 +48,24 @@ static int splitString(const vtkStdString& input,
 // some platforms but not others so I'm afraid I have to write it
 // myself.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
+
+
+// On MS-DOS, a newline is 0x0d 0x0a.  On Unix machines, it's just
+// 0x0a.  This makes me sad.  
+
+static vtkStdString simplify_newlines(const vtkStdString &input)
+{
+  vtkStdString output;
+  for (int i = 0; i < input.size(); ++i)
+    {
+    if (input.at(i) != 0x0d)
+      {
+      output += input.at(i);
+      }
+    }
+  return output;
+}
+
 
 // ----------------------------------------------------------------------
 
@@ -235,6 +253,7 @@ splitString(const vtkStdString& input,
   vtkStdString thisFieldText;
   vtkStdString parsedField;
 
+
   while (thisField * fieldWidth < input.size())
     {
     thisFieldText = input.substr(thisField*fieldWidth, fieldWidth);
@@ -242,11 +261,13 @@ splitString(const vtkStdString& input,
     if (stripWhitespace)
       {
       int startIndex = 0, endIndex = thisFieldText.size() - 1;
-      while (isspace(static_cast<int>(thisFieldText.at(startIndex))))
+      while (startIndex < thisFieldText.size() && 
+             isspace(static_cast<int>(thisFieldText.at(startIndex))))
         {
         ++startIndex;
         }
-      while (isspace(static_cast<int>(thisFieldText.at(endIndex))))
+      while (endIndex > 0 && 
+             isspace(static_cast<int>(thisFieldText.at(endIndex))))
         {
         -- endIndex;
         }
@@ -290,7 +311,7 @@ my_getline(istream& in, vtkStdString &out, char delimiter)
     ++numCharactersRead;
 
     char downcast = static_cast<char>(nextValue);
-    if (downcast != delimiter)
+    if (downcast != delimiter && downcast != 0x0d)
       {
       out += downcast;
       }
