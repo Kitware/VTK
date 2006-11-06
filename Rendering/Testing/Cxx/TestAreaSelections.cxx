@@ -87,6 +87,8 @@ static void EndPick(vtkObject *vtkNotUsed( caller ),
     }
   else
     {
+    cerr << "Empty color buffer selection -" << endl;
+    cerr << "Check display color depth. Must be at least 24 bit." << endl;
     sMap->SetInput(emptyPD);
     }
 
@@ -190,6 +192,7 @@ int TestAreaSelections(int argc, char* argv[])
   renWin->Render();
   areaPicker->AreaPick(51,78,82,273,renderer);
   EndPick(NULL, 0, NULL, NULL);
+  renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
