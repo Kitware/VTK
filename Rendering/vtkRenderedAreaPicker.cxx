@@ -36,7 +36,7 @@
 #include "vtkPoints.h"
 #include "vtkFrustumExtractor.h"
 
-vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.6");
+vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.7");
 vtkStandardNewMacro(vtkRenderedAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -150,3 +150,8 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
   return rc;
 }
 
+//----------------------------------------------------------------------------
+void vtkRenderedAreaPicker::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

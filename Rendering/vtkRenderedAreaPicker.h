@@ -37,6 +37,7 @@ class VTK_RENDERING_EXPORT vtkRenderedAreaPicker : public vtkAreaPicker
 public:
   static vtkRenderedAreaPicker *New();
   vtkTypeRevisionMacro(vtkRenderedAreaPicker,vtkAreaPicker);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Perform pick operation in volume behind the given screen coordinates.
