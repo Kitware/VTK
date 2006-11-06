@@ -8,6 +8,7 @@ SET(KIT_LIBS vtkWidgets)
 SET( Kit_SRCS
 vtkBoxLayoutStrategy.cxx
 vtkDelimitedTextReader.cxx
+vtkFixedWidthTextReader.cxx
 vtkForceDirectedLayoutStrategy.cxx
 vtkGraphLayout.cxx
 vtkGraphLayoutStrategy.cxx
