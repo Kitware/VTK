@@ -98,6 +98,11 @@ public:
   // Description:
   // Get the size of the depth buffer.
   int GetDepthBufferSize();
+
+  // Description:
+  // Get the size of the color buffer.
+  // Returns 0 if not able to determine otherwise sets R G B and A into buffer.
+  int GetColorBufferSizes(int *rgba);
   
   // Description:
   // Initialize OpenGL for this window.

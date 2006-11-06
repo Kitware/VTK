@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.77");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.78");
 #endif
 
 #define MAX_LIGHTS 8
@@ -220,6 +220,39 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
     {
     vtkDebugMacro(<< "Window is not mapped yet!" );
     return 24;
+    }
+}
+
+int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
+{
+  GLint size;
+
+  if (rgba==NULL)
+    {
+    return 0;
+    }
+  rgba[0] = 0;
+  rgba[1] = 0;
+  rgba[2] = 0;
+  rgba[3] = 0;
+
+  if ( this->Mapped)
+    {
+    this->MakeCurrent();
+    glGetIntegerv( GL_RED_BITS, &size );
+    rgba[0] = (int)size;
+    glGetIntegerv( GL_GREEN_BITS, &size  );
+    rgba[1] = (int)size;
+    glGetIntegerv( GL_BLUE_BITS, &size );
+    rgba[2] = (int)size;
+    glGetIntegerv( GL_ALPHA_BITS, &size );
+    rgba[3] = (int)size;
+    return rgba[0]+rgba[1]+rgba[2]+rgba[3];
+    }
+  else
+    {
+    vtkDebugMacro(<< "Window is not mapped yet!" );
+    return 0;
     }
 }
 

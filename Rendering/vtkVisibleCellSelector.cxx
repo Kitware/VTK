@@ -186,7 +186,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.10");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.11");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -357,6 +357,13 @@ void vtkVisibleCellSelector::Select()
     }
 
   vtkRenderWindow *rwin = this->Renderer->GetRenderWindow();
+  int rgba[4];
+  rwin->GetColorBufferSizes(rgba);
+  if (rgba[0] < 8 || rgba[1] < 8 || rgba[2] < 8)
+    {
+    return;
+    }
+
   rwin->SwapBuffersOff();
   
   unsigned char *buf;

@@ -465,6 +465,11 @@ public:
   virtual int GetDepthBufferSize() = 0;
 
   // Description:
+  // Get the size of the color buffer.
+  // Returns 0 if not able to determine otherwise sets R G B and A into buffer.
+  virtual int GetColorBufferSizes(int *rgba) = 0;
+
+  // Description:
   // Get the vtkPainterDeviceAdapter which can be used to paint on
   // this render window.
   vtkGetObjectMacro(PainterDeviceAdapter, vtkPainterDeviceAdapter);
