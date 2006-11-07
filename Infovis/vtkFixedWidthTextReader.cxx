@@ -32,8 +32,9 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 #include <fstream>
+#include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFixedWidthTextReader, "1.3");
+vtkCxxRevisionMacro(vtkFixedWidthTextReader, "1.4");
 vtkStandardNewMacro(vtkFixedWidthTextReader);
 
 // Function body at bottom of file
