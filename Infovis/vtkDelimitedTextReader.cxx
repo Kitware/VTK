@@ -31,7 +31,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.9");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.10");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -96,6 +96,8 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->UseStringDelimiter ? "true" : "false") << endl;
   os << indent << "HaveHeaders: " 
      << (this->HaveHeaders ? "true" : "false") << endl;
+  os << indent << "MergeConsecutiveDelimiters: " 
+     << (this->MergeConsecutiveDelimiters ? "true" : "false") << endl;
 }
 
 // ----------------------------------------------------------------------
