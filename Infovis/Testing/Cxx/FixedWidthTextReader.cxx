@@ -30,7 +30,7 @@ FixedWidthTextReader(int argc, char *argv[])
 {
   cout << "### Pass 1: No headers, field width 10, do not strip whitespace" << endl;
 
-  vtkIdType i;
+  vtkIdType i, j;
   char *filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                         "Data/fixedwidth.txt");
 
@@ -53,6 +53,7 @@ FixedWidthTextReader(int argc, char *argv[])
   cout << "FixedWidth text file has " << table->GetNumberOfColumns() 
        << " columns" << endl;
   cout << "Column names: " << endl;
+
   for (i = 0; i < table->GetNumberOfColumns(); ++i)
     {
     cout << "\tColumn " << i << ": " << table->GetColumn(i)->GetName() << endl;
@@ -60,11 +61,11 @@ FixedWidthTextReader(int argc, char *argv[])
 
   cout << "Table contents:" << endl;
   
-  for (vtkIdType i = 0; i < table->GetNumberOfRows(); ++i)
+  for (i = 0; i < table->GetNumberOfRows(); ++i)
     {
     vtkVariantArray *row = table->GetRow(i);
 
-    for (vtkIdType j = 0; j < row->GetNumberOfTuples(); ++j)
+    for (j = 0; j < row->GetNumberOfTuples(); ++j)
       {
       cout << "Row " << i << " column " << j << ": ";
 
@@ -113,11 +114,11 @@ FixedWidthTextReader(int argc, char *argv[])
 
   cout << "Table contents:" << endl;
   
-  for (vtkIdType i = 0; i < table->GetNumberOfRows(); ++i)
+  for (i = 0; i < table->GetNumberOfRows(); ++i)
     {
     vtkVariantArray *row = table->GetRow(i);
 
-    for (vtkIdType j = 0; j < row->GetNumberOfTuples(); ++j)
+    for (j = 0; j < row->GetNumberOfTuples(); ++j)
       {
       cout << "Row " << i << " column " << j << ": ";
 

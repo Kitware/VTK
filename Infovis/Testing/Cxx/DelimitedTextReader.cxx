@@ -28,7 +28,7 @@
 int
 DelimitedTextReader(int argc, char *argv[])
 {
-  vtkIdType i;
+  vtkIdType i, j;
   char *filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                         "Data/delimited.txt");
 
@@ -61,11 +61,11 @@ DelimitedTextReader(int argc, char *argv[])
 
   cout << "Table contents:" << endl;
   
-  for (vtkIdType i = 0; i < table->GetNumberOfRows(); ++i)
+  for (i = 0; i < table->GetNumberOfRows(); ++i)
     {
     vtkVariantArray *row = table->GetRow(i);
 
-    for (vtkIdType j = 0; j < row->GetNumberOfTuples(); ++j)
+    for (j = 0; j < row->GetNumberOfTuples(); ++j)
       {
       cout << "Row " << i << " column " << j << ": ";
 
@@ -113,11 +113,11 @@ DelimitedTextReader(int argc, char *argv[])
 
   cout << "Table contents:" << endl;
   
-  for (vtkIdType i = 0; i < table->GetNumberOfRows(); ++i)
+  for (i = 0; i < table->GetNumberOfRows(); ++i)
     {
     vtkVariantArray *row = table->GetRow(i);
 
-    for (vtkIdType j = 0; j < row->GetNumberOfTuples(); ++j)
+    for (j = 0; j < row->GetNumberOfTuples(); ++j)
       {
       cout << "Row " << i << " column " << j << ": ";
 
