@@ -129,6 +129,15 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
+
+
+  // Description:
+  // Called to pass VTK actor/property/light values and other
+  // Shader variables over to the shader. This is called by the ShaderProgram
+  // during each render. We override this method for Cg shaders, since for Cg shaders,
+  // we need to ensure that the actor transformations are pushed before
+  // state matrix uniform variables are bound. 
+  virtual void PassShaderVariables(vtkActor* actor, vtkRenderer* ren);
 protected:
   vtkCgShader();
   ~vtkCgShader();

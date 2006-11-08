@@ -25,9 +25,11 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkLight.h"
 #include "vtkLightCollection.h"
+#include "vtkLight.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGL.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
@@ -152,7 +154,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCgShader, "1.6");
+vtkCxxRevisionMacro(vtkCgShader, "1.7");
 vtkStandardNewMacro(vtkCgShader);
 
 //-----------------------------------------------------------------------------
@@ -458,6 +460,44 @@ void vtkCgShader::SetSamplerParameter(const char* name, vtkTexture* texture,int)
     {
     cgGLSetTextureParameter(param, glTexture->GetIndex());
     cgGLEnableTextureParameter(param);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkCgShader::PassShaderVariables(vtkActor* actor, vtkRenderer* renderer)
+{
+  bool push_transform = (actor->GetIsIdentity() == 0);
+  if (push_transform)
+    {
+    double *mat = actor->GetMatrix()->Element[0];
+    double mat2[16];
+    mat2[0] = mat[0];
+    mat2[1] = mat[4];
+    mat2[2] = mat[8];
+    mat2[3] = mat[12];
+    mat2[4] = mat[1];
+    mat2[5] = mat[5];
+    mat2[6] = mat[9];
+    mat2[7] = mat[13];
+    mat2[8] = mat[2];
+    mat2[9] = mat[6];
+    mat2[10] = mat[10];
+    mat2[11] = mat[14];
+    mat2[12] = mat[3];
+    mat2[13] = mat[7];
+    mat2[14] = mat[11];
+    mat2[15] = mat[15];
+
+    // insert model transformation 
+    glMatrixMode( GL_MODELVIEW );
+    glPushMatrix();
+    glMultMatrixd(mat2);
+    }
+  this->Superclass::PassShaderVariables(actor, renderer);
+  if (push_transform)
+    {
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
     }
 }
 
