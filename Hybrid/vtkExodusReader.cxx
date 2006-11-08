@@ -1470,7 +1470,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.30");
+vtkCxxRevisionMacro(vtkExodusReader, "1.31");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -1596,6 +1596,8 @@ vtkExodusReader::vtkExodusReader()
   this->AddingFilter = vtkDSPFilterDefinition::New();
   //end USE_EXO_DSP_FILTERS
 
+  this->ProgressOffset = 0.0;
+  this->ProgressScale = 1.0;
   this->SetNumberOfInputPorts(0);
 }
 
@@ -2789,16 +2791,24 @@ void vtkExodusReader::ReadGeometry(int handle, vtkUnstructuredGrid* output)
 {
   // Reset the entire unstructured grid
   output->Reset();
- 
+
+  this->ProgressOffset = 0;
+  this->ProgressScale = 0.4;
+
   // Read in cell topology
   this->ReadCells(handle, output);
 
   this->UpdateProgress(0.4);
-  
+  this->ProgressOffset = 0.4;
+  this->ProgressScale = 0.2;
+
   // Read in node and side sets
   this->ReadNodeAndSideSets(handle, output);
 
   this->UpdateProgress(0.6);
+
+  this->ProgressOffset = 0.6;
+  this->ProgressScale = 0.4;
   
   // Now read in the points
   // Note: This should come after reading in
@@ -2845,7 +2855,8 @@ void vtkExodusReader::ReadNodeAndSideSets(int handle, vtkUnstructuredGrid* outpu
         }
       }
     }
-    
+
+  this->UpdateProgress(this->ProgressOffset + this->ProgressScale*0.5);
     
   // Read in all the side sets that are 'on'
   for (i=0; i < this->GetNumberOfSideSets(); ++i)
@@ -2938,7 +2949,8 @@ void vtkExodusReader::ReadCells(int handle, vtkUnstructuredGrid* output)
    
   // Initialize using the type of cells.  
   // A block contains only one type of cell.
-  for (i=0; i < this->MetaData->GetNumberOfBlocks(); ++i)
+  int num_of_blocks = this->MetaData->GetNumberOfBlocks();
+  for (i=0; i < num_of_blocks; ++i)
     {
     // Do we read this block?
     if (this->MetaData->GetBlockStatus(i)==0) 
@@ -3054,6 +3066,12 @@ void vtkExodusReader::ReadCells(int handle, vtkUnstructuredGrid* output)
 
       // Insert cell into output.
       output->InsertNextCell(cellType, cellIds);
+      if (j%1000==0)
+        {
+        double prog = 
+          static_cast<double>(i*j)/(num_elem_in_block * num_of_blocks);
+        this->UpdateProgress(this->ProgressOffset + this->ProgressScale*prog);
+        }
       }
     
     delete [] connect;
@@ -3101,6 +3119,11 @@ void vtkExodusReader::ReadPoints(int handle, vtkUnstructuredGrid* output)
     {
     point_index = this->ReversePointMap->GetValue(pointId);
     newPoints->InsertPoint(pointId, x[point_index], y[point_index], z[point_index]);
+    if (pointId%1000 == 0)
+      {
+      this->UpdateProgress(this->ProgressOffset + 
+        static_cast<double>(pointId)/this->NumberOfUsedNodes * this->ProgressScale);
+      }
     }
   output->SetPoints(newPoints);
   delete [] x;

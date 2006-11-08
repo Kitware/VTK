@@ -535,6 +535,10 @@ protected:
   int RequestData(
     vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
+  // Used to determine current progress.
+  double ProgressOffset;
+  double ProgressScale;
+
 private:
   vtkExodusReader(const vtkExodusReader&); // Not implemented
   void operator=(const vtkExodusReader&); // Not implemented
