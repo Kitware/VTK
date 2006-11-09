@@ -91,6 +91,10 @@ vtkImplicitPlaneRepresentation	GetNormal		307 3
 vtkImplicitPlaneRepresentation	GetOrigin		307 3
 vtkImplicitPlaneWidget	GetNormal		307 3
 vtkImplicitPlaneWidget	GetOrigin		307 3
+vtkKdNode               GetMinBounds            307 3
+vtkKdNode               GetMaxBounds            307 3
+vtkKdNode               GetMinDataBounds            307 3
+vtkKdNode               GetMaxDataBounds            307 3
 vtkLegendBoxActor       GetEntryColor           307 3
 vtkLight                GetColor                307 3
 vtkLight                GetTransformedFocalPoint 307 3
