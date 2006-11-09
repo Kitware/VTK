@@ -88,8 +88,8 @@ public:
           vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::SafeDownCast(caller);
           if (iren)
             {
-            cout << "Calling iren->TerminateApp()..." << endl;
-            iren->TerminateApp();
+            cout << "Calling iren->ExitCallback()..." << endl;
+            iren->ExitCallback();
             }
           }
         else
