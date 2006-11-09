@@ -47,7 +47,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.10");
+vtkCxxRevisionMacro(vtkKdTree, "1.11");
 
 // Timing data ---------------------------------------------
 
@@ -2862,7 +2862,7 @@ void vtkKdTree::GenerateRepresentationWholeSpace(int level, vtkPolyData *pd)
 
   if (kd->GetLeft() && (level > 0))
     {
-      _generateRepresentationWholeSpace(kd, pts, polys, level-1);
+    this->_generateRepresentationWholeSpace(kd, pts, polys, level-1);
     }
 
   pd->SetPoints(pts);
@@ -2928,8 +2928,8 @@ void vtkKdTree::_generateRepresentationWholeSpace(vtkKdNode *kd,
 
   polys->InsertNextCell(4, ids);
 
-  _generateRepresentationWholeSpace(kd->GetLeft(), pts, polys, level-1);
-  _generateRepresentationWholeSpace(kd->GetRight(), pts, polys, level-1);
+  this->_generateRepresentationWholeSpace(kd->GetLeft(), pts, polys, level-1);
+  this->_generateRepresentationWholeSpace(kd->GetRight(), pts, polys, level-1);
 }
 
 //----------------------------------------------------------------------------
