@@ -7,11 +7,12 @@ SET(RenderingTests
 
 SET(RenderingTestsWithArguments)
 
-IF(VTK_USE_DISPLAY) 
+IF(VTK_USE_DISPLAY)
   # For tests that actually render something
   SET(RenderingTestsWithArguments
     ${RenderingTestsWithArguments}
     LoadOpenGLExtension.cxx
+    TestInteractorTimers.cxx
     TestOrderedTriangulator.cxx
     )
 
@@ -73,10 +74,3 @@ FOREACH (exe
     TARGET_LINK_LIBRARIES(${exe} "-framework GLUT")
   ENDIF (APPLE)
 ENDFOREACH (exe)
-
-
-
-
-
-
-
