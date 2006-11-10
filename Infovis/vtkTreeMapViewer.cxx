@@ -18,45 +18,40 @@
 ----------------------------------------------------------------------------*/
 #include "vtkTreeMapViewer.h"
 
-
-#include "vtkTreeLevelsFilter.h"
-#include "vtkTreeFieldAggregator.h"
-#include "vtkTreeMapLayout.h"
-#include "vtkTreeMapLayoutStrategy.h"
-#include "vtkBoxLayoutStrategy.h"
-#include "vtkSliceAndDiceLayoutStrategy.h"
-#include "vtkSquarifyLayoutStrategy.h"
-#include "vtkTreeMapToPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkCamera.h"
-#include "vtkCommand.h"
 #include "vtkActor.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkActor2D.h"
+#include "vtkBoxLayoutStrategy.h"
+#include "vtkCamera.h"
+#include "vtkCellCenters.h"
+#include "vtkCellData.h"
+#include "vtkCommand.h"
+#include "vtkGeometryFilter.h"
+#include "vtkInformation.h"
 #include "vtkInteractorStyle.h"
 #include "vtkInteractorStyleTreeMapHover.h"
+#include "vtkLabeledTreeMapDataMapper.h"
+#include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
-#include "vtkLookupTable.h"
+#include "vtkSliceAndDiceLayoutStrategy.h"
 #include "vtkSmartPointer.h"
+#include "vtkSquarifyLayoutStrategy.h"
+#include "vtkTextActor.h"
+#include "vtkTextProperty.h"
+#include "vtkThreshold.h"
+#include "vtkThresholdPoints.h"
+#include "vtkTreeFieldAggregator.h"
+#include "vtkTreeLevelsFilter.h"
+#include "vtkTreeMapLayout.h"
+#include "vtkTreeMapLayoutStrategy.h"
+#include "vtkTreeMapToPolyData.h"
+#include "vtkUnstructuredGrid.h"
 
-#include <vtkGeometryFilter.h>
-#include <vtkCellCenters.h>
-#include <vtkThresholdPoints.h>
-#include <vtkThreshold.h>
-#include <vtkLabeledDataMapper.h>
-#include <vtkActor2D.h>
-#include <vtkTextProperty.h>
-#include "vtkLabeledTreeMapDataMapper.h"
-#include <vtkTextActor.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkInformation.h>
-#include <vtkCellData.h>
-
-vtkCxxRevisionMacro(vtkTreeMapViewer, "1.3");
+vtkCxxRevisionMacro(vtkTreeMapViewer, "1.4");
 vtkStandardNewMacro(vtkTreeMapViewer);
-
 
 //----------------------------------------------------------------------------
 vtkTreeMapViewer::vtkTreeMapViewer()
@@ -111,6 +106,11 @@ void vtkTreeMapViewer::SetAggregationFieldName(const char *field)
   this->TreeFieldAggregator->SetField(field);
 }
 
+char* vtkTreeMapViewer::GetAggregationFieldName()
+{
+  return this->TreeFieldAggregator->GetField();
+}
+
 void vtkTreeMapViewer::SetFontSizeRange(const int maxSize, const int minSize)
 {
   this->LabeledDataMapper->SetFontSizeRange(maxSize, minSize);
@@ -120,6 +120,11 @@ void vtkTreeMapViewer::SetLabelFieldName(const char *field)
 {
   this->InteractorStyle->SetLabelField(field);
   this->LabeledDataMapper->SetFieldDataName(field); 
+}
+
+char* vtkTreeMapViewer::GetLabelFieldName()
+{
+  return this->InteractorStyle->GetLabelField();
 }
 
 void vtkTreeMapViewer::SetInput(vtkTree *tree)
@@ -267,6 +272,11 @@ void vtkTreeMapViewer::SetColorFieldName(const char *field)
     }
 }
 
+char* vtkTreeMapViewer::GetColorFieldName()
+{
+  return this->PolyDataMapper->GetArrayName();
+}
+
 bool vtkTreeMapViewer::GetLogScale()
 {
   return this->TreeFieldAggregator->GetLogScale();
@@ -329,6 +339,25 @@ void vtkTreeMapViewer::SetLayoutStrategy(int strategy_enum)
     // to reflect the new layout geometry
     this->InteractorStyle->HighLightCurrentSelectedItem();
     }
+}
+
+int vtkTreeMapViewer::GetLayoutStrategy()
+{
+  vtkTreeMapLayoutStrategy* strategy = this->TreeMapLayout->GetLayoutStrategy();
+  if (strategy->IsA("vtkBoxLayoutStrategy"))
+    {
+    return BOX_LAYOUT;
+    }
+  else if (strategy->IsA("vtkSliceAndDiceLayoutStrategy"))
+    {
+    return SLICE_AND_DICE_LAYOUT;
+    }
+  else if (strategy->IsA("vtkSquarifyLayoutStrategy"))
+    {
+    return SQUARIFY_LAYOUT;
+    }
+  vtkWarningMacro(<< "Unknown layout strategy");
+  return -1;
 }
 
 static const char *StrategyNames[vtkTreeMapViewer::NUMBER_OF_LAYOUTS] = {
@@ -439,20 +468,48 @@ void vtkTreeMapViewer::SetLabelLevelRange(int start, int end)
 {
   this->LabeledDataMapper->SetLevelRange(start, end);
 }
+
+void vtkTreeMapViewer::GetLabelLevelRange(int range[2])
+{
+  this->LabeledDataMapper->GetLevelRange(range);
+}
+
 void vtkTreeMapViewer::SetDynamicLabelLevel(int level)
 {
   this->LabeledDataMapper->SetDynamicLevel(level);
 }
+
+int vtkTreeMapViewer::GetDynamicLabelLevel()
+{
+  return this->LabeledDataMapper->GetDynamicLevel();
+}
+
 void vtkTreeMapViewer::SetChildLabelMotion(int mode)
 {
   this->LabeledDataMapper->SetChildMotion(mode);
 }
+
+int vtkTreeMapViewer::GetChildLabelMotion()
+{
+  return this->LabeledDataMapper->GetChildMotion();
+}
+
 void vtkTreeMapViewer::SetLabelClipMode(int mode)
 {
   this->LabeledDataMapper->SetClipTextMode(mode);
 }
 
+int vtkTreeMapViewer::GetLabelClipMode()
+{
+  return this->LabeledDataMapper->GetClipTextMode();
+}
+
 void vtkTreeMapViewer::SetBorderPercentage(double pcent)
 {
   this->TreeMapLayout->GetLayoutStrategy()->SetBorderPercentage(pcent);
+}
+
+double vtkTreeMapViewer::GetBorderPercentage()
+{
+  return this->TreeMapLayout->GetLayoutStrategy()->GetBorderPercentage();
 }

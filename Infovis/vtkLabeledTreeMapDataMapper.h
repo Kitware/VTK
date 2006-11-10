@@ -99,6 +99,7 @@ public:
   // The level of a node is the length of the path to the root
   // (the root has level 0).
   void SetLevelRange(int startLevel, int endLevel);
+  void GetLevelRange(int range[2]);
 
 protected:
   vtkLabeledTreeMapDataMapper();

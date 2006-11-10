@@ -13,26 +13,26 @@
 
 =========================================================================*/
 
+#include "vtkActor2D.h"
+#include "vtkCoordinate.h"
+#include "vtkDataArray.h"
+#include "vtkDataSet.h"
+#include "vtkExecutive.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
+#include "vtkInformation.h"
 #include "vtkLabeledTreeMapDataMapper.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkStringArray.h"
+#include "vtkTextMapper.h"
+#include "vtkTextProperty.h"
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
-#include <vtkExecutive.h>
-#include <vtkInformation.h>
-#include <vtkActor2D.h>
-#include <vtkDataArray.h>
-#include <vtkDataSet.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkStringArray.h>
-#include <vtkTextMapper.h>
-#include <vtkTextProperty.h>
-#include <vtkCoordinate.h>
-#include <vtkIdList.h>
-#include <vtkFloatArray.h>
-#include <vtkViewport.h>
-#include <vtkWindow.h>
+#include "vtkViewport.h"
+#include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.2");
+vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.3");
 vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
@@ -973,4 +973,10 @@ void vtkLabeledTreeMapDataMapper::SetLevelRange(int start, int end)
   this->StartLevel = start;
   this->EndLevel = end;
   this->BuildTime.Modified();
+}
+
+void vtkLabeledTreeMapDataMapper::GetLevelRange(int range[2])
+{
+  range[0] = this->StartLevel;
+  range[1] = this->EndLevel;
 }

@@ -64,12 +64,14 @@ public:
   // Use DISCOVER for top-down algorithms where parents need to be processed before children.
   // Use FINISH for bottom-up algorithms where children need to be processed before parents.
   void SetMode(int mode);
+  vtkGetMacro(Mode, int);
 
   // Description:
   // The start node of the search.
   // The tree iterator will only iterate over the subtree rooted at node.
   // If not set (or set to a negative value), starts at the root of the tree.
   void SetStartNode(vtkIdType node);
+  vtkGetMacro(StartNode, vtkIdType);
 
   // Description:
   // The next node visited in the graph.

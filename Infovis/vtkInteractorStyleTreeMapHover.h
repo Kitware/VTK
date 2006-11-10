@@ -84,10 +84,12 @@ public:
   // Description:
   // The width of the line around the hovered node.
   void SetHighLightWidth(double lw);
+  double GetHighLightWidth();
 
   // Description:
   // The width of the line around the selected node.
   void SetSelectionWidth(double lw);
+  double GetSelectionWidth();
 
 protected:
   vtkInteractorStyleTreeMapHover();

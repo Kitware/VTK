@@ -69,10 +69,12 @@ public:
   // Description:
   // Set your own renderwindow
   virtual void SetRenderWindow(vtkRenderWindow *arg);
+  vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
 
   // Description:
   // Set layout strategy for the tree map
   virtual void SetLayoutStrategy(const char *strategyName);
+  virtual char* GetLayoutStrategy();
   
   // Description:
   // Is the graph layout complete? This method is useful
@@ -95,10 +97,12 @@ public:
   // Description:
   // The name of the field used for coloring the data
   virtual void SetColorFieldName(const char *field);
+  virtual char* GetColorFieldName();
   
   // Description:
   // The name of the field used for labeling
   virtual void SetLabelFieldName(const char *field);
+  virtual char* GetLabelFieldName();
   
   // Description:
   // These methods turn labeling on or off
@@ -108,6 +112,7 @@ public:
   // Description:
   // The size of the font used for labeling
   virtual void SetFontSize(const int size);
+  virtual int GetFontSize();
 
 protected:
   vtkGraphLayoutViewer();

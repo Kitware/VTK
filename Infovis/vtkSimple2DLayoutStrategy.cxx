@@ -36,7 +36,7 @@
 #include "vtkTree.h"
 
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
@@ -46,11 +46,12 @@ vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
   this->InitialTemperature = 1;
   this->CoolDownRate = 50.0;
   this->LayoutComplete = 0;
+  this->ArcWeightField = 0;
 }
 
 vtkSimple2DLayoutStrategy::~vtkSimple2DLayoutStrategy()
 {
-  
+  this->SetArcWeightField(0);
 }
 
 // Cool-down function.
@@ -93,12 +94,38 @@ void vtkSimple2DLayoutStrategy::Initialize()
     this->VArray[i].x = static_cast<float>(pointCoords[0]);
     this->VArray[i].y = static_cast<float>(pointCoords[1]);
     }
+
+  // Get the weight array
+  vtkDataArray* weightArray = NULL;
+  double avgWeight = 0;
+  if (this->ArcWeightField != NULL)
+    {
+    weightArray = vtkDataArray::SafeDownCast(this->Graph->GetArcData()->GetAbstractArray(this->ArcWeightField));
+    if (weightArray != NULL)
+      {
+      for (vtkIdType w = 0; w < weightArray->GetNumberOfTuples(); w++)
+        {
+        double* tuple = weightArray->GetTuple(w);
+        avgWeight += tuple[0];
+        }
+      avgWeight /= weightArray->GetNumberOfTuples();
+      }
+    }
     
   // Load up the edge data structures
   for (vtkIdType i=0; i<numArcs; ++i)
     {
     this->ArcArray[i].from = this->Graph->GetSourceNode(i);
     this->ArcArray[i].to = this->Graph->GetTargetNode(i);
+    if (weightArray != NULL)
+      {
+      double* tuple = weightArray->GetTuple(i);
+      this->ArcArray[i].weight = tuple[0] / avgWeight;
+      }
+    else
+      {
+      this->ArcArray[i].weight = 1.0;
+      }
     }
     
   // Set some vars
@@ -175,7 +202,7 @@ void vtkSimple2DLayoutStrategy::Layout()
       delta[1] = this->VArray[this->ArcArray[j].to].y - 
              this->VArray[this->ArcArray[j].from].y;
       disSquared = delta[0]*delta[0] + delta[1]*delta[1];
-      
+
       // Emergency action on edges that are 10x 
       // their 'resting' distance
       if (disSquared > 100*optDist)
@@ -187,7 +214,8 @@ void vtkSimple2DLayoutStrategy::Layout()
         this->VArray[this->ArcArray[j].from].y += delta[1] * jump;
         }
 
-      attractValue = disSquared/optDist;
+      // Perform weight adjustment
+      attractValue = this->ArcArray[j].weight*disSquared/optDist;
       this->VArray[this->ArcArray[j].to].dx   -= delta[0] * attractValue;
       this->VArray[this->ArcArray[j].to].dy   -= delta[1] * attractValue;
       this->VArray[this->ArcArray[j].from].dx += delta[0] * attractValue;
@@ -234,4 +262,5 @@ void vtkSimple2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaxNumberOfIterations: " << this->MaxNumberOfIterations << endl;
   os << indent << "IterationsPerLayout: " << this->IterationsPerLayout << endl;
   os << indent << "CoolDownRate: " << this->CoolDownRate << endl;
+  os << indent << "ArcWeightField: " << (this->ArcWeightField ? this->ArcWeightField : "(none)") << endl;
 }

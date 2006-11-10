@@ -68,12 +68,14 @@ public:
   // Use DISCOVER for top-down algorithms where parents need to be processed before children.
   // Use FINISH for bottom-up algorithms where children need to be processed before parents.
   void SetMode(int mode);
+  vtkGetMacro(Mode, int);
 
   // Description:
   // The start node of the search.
   // If not set (or set to a negative value), starts at the node with index 0 in a vtkGraph,
   // or the root of a vtkTree.
   void SetStartNode(vtkIdType node);
+  vtkGetMacro(StartNode, vtkIdType);
 
   // Description:
   // The next node visited in the graph.

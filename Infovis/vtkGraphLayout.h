@@ -44,6 +44,7 @@ public:
   // Description:
   // The layout strategy to use during graph layout.
   void SetLayoutStrategy(vtkGraphLayoutStrategy *strategy);
+  vtkGetObjectMacro(LayoutStrategy, vtkGraphLayoutStrategy);
   
   // Description:
   // Ask the layout algorithm if the layout is complete

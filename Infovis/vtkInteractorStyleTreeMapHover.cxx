@@ -34,7 +34,7 @@
 #include "vtkTreeMapToPolyData.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.4");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.5");
 vtkStandardNewMacro(vtkInteractorStyleTreeMapHover);
 
 //----------------------------------------------------------------------------
@@ -291,11 +291,20 @@ void vtkInteractorStyleTreeMapHover::SetHighLightWidth(double lw)
   this->HighlightActor->GetProperty()->SetLineWidth(lw);
 }
 
+double vtkInteractorStyleTreeMapHover::GetHighLightWidth()
+{
+  return this->HighlightActor->GetProperty()->GetLineWidth();
+}
+
 void vtkInteractorStyleTreeMapHover::SetSelectionWidth(double lw)
 {
   this->SelectionActor->GetProperty()->SetLineWidth(lw);
 }
 
+double vtkInteractorStyleTreeMapHover::GetSelectionWidth()
+{
+  return this->SelectionActor->GetProperty()->GetLineWidth();
+}
 
 //---------------------------------------------------------------------------
 void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()

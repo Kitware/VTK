@@ -18,39 +18,38 @@
 ----------------------------------------------------------------------------*/
 #include "vtkGraphLayoutViewer.h"
 
-#include "vtkGraph.h"
 #include "vtkAbstractGraph.h"
+#include "vtkActor.h"
+#include "vtkActor2D.h"
+#include "vtkCamera.h"
+#include "vtkCellCenters.h"
+#include "vtkCellData.h"
+#include "vtkCommand.h"
+#include "vtkForceDirectedLayoutStrategy.h"
+#include "vtkGeometryFilter.h"
+#include "vtkGraph.h"
 #include "vtkGraphLayout.h"
 #include "vtkGraphLayoutStrategy.h"
-#include "vtkForceDirectedLayoutStrategy.h"
-#include "vtkSimple2DLayoutStrategy.h"
-#include "vtkRandomLayoutStrategy.h"
 #include "vtkGraphToPolyData.h"
+#include "vtkInformation.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkLabeledDataMapper.h"
+#include "vtkLookupTable.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRandomLayoutStrategy.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSimple2DLayoutStrategy.h"
+#include "vtkSmartPointer.h"
+#include "vtkTextProperty.h"
+#include "vtkThreshold.h"
+#include "vtkThresholdPoints.h"
 #include "vtkTreeLevelsFilter.h"
-#include <vtkPolyDataMapper.h>
-#include <vtkCamera.h>
-#include <vtkCommand.h>
-#include <vtkActor.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkInteractorStyleImage.h>
-#include <vtkObjectFactory.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkLookupTable.h>
-#include <vtkSmartPointer.h>
-#include <vtkGeometryFilter.h>
-#include <vtkCellCenters.h>
-#include <vtkThresholdPoints.h>
-#include <vtkThreshold.h>
-#include <vtkLabeledDataMapper.h>
-#include <vtkActor2D.h>
-#include <vtkTextProperty.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkInformation.h>
-#include <vtkCellData.h>
+#include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.4");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.5");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -100,9 +99,19 @@ void vtkGraphLayoutViewer::SetFontSize(const int size)
   this->LabeledDataMapper->GetLabelTextProperty()->SetFontSize(size);
 }
 
+int vtkGraphLayoutViewer::GetFontSize()
+{
+  return this->LabeledDataMapper->GetLabelTextProperty()->GetFontSize();
+}
+
 void vtkGraphLayoutViewer::SetLabelFieldName(const char *field)
 {
   this->LabeledDataMapper->SetFieldDataName(field); 
+}
+
+char* vtkGraphLayoutViewer::GetLabelFieldName()
+{
+  return this->LabeledDataMapper->GetFieldDataName();
 }
 
 void vtkGraphLayoutViewer::SetLabelsOn()
@@ -286,6 +295,11 @@ void vtkGraphLayoutViewer::SetColorFieldName(const char *field)
     }
 }
 
+char* vtkGraphLayoutViewer::GetColorFieldName()
+{
+  return this->PolyDataMapper->GetArrayName();
+}
+
 
 // Set up the layout strategy for the treemap
 void vtkGraphLayoutViewer::SetLayoutStrategy(const char* strategyName)
@@ -335,6 +349,23 @@ void vtkGraphLayoutViewer::SetLayoutStrategy(const char* strategyName)
     }
 }
 
+char* vtkGraphLayoutViewer::GetLayoutStrategy()
+{
+  vtkGraphLayoutStrategy* strategy = this->GraphLayout->GetLayoutStrategy();
+  if (strategy->IsA("vtkRandomLayoutStrategy"))
+    {
+    return "Random";
+    }
+  else if (strategy->IsA("vtkForceDirectedLayoutStrategy"))
+    {
+    return "ForceDirected";
+    }
+  else if (strategy->IsA("vtkSimple2DLayoutStrategy"))
+    {
+    return "Simple2D";
+    }
+  return "";
+}
 
 //----------------------------------------------------------------------------
 void vtkGraphLayoutViewer::PrintSelf(ostream& os, vtkIndent indent)

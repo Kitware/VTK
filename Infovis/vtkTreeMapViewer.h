@@ -72,10 +72,12 @@ public:
   // Description:
   // Set your own renderwindow
   virtual void SetRenderWindow(vtkRenderWindow *arg);
+  vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
   
   // Description:
   // Set the aggregration field (defaults to "size")
   virtual void SetAggregationFieldName(const char *field);
+  virtual char* GetAggregationFieldName();
   
   // Description:
   // Get the Interactor Style object pointer
@@ -101,9 +103,11 @@ public:
   void SetLayoutStrategyToSquarify() {
     this->SetLayoutStrategy(SQUARIFY_LAYOUT);
   }
+  virtual int GetLayoutStrategy();
 
   // Description:
   void SetBorderPercentage(double pcent);
+  double GetBorderPercentage();
 
   // Description:
   // These convenience functions use strings for use in GUIs and scripts.
@@ -113,10 +117,12 @@ public:
   // Description:
   // The name of the field used for coloring the data
   virtual void SetColorFieldName(const char *field);
+  virtual char* GetColorFieldName();
   
   // Description:
   // The name of the field used for labeling
   virtual void SetLabelFieldName(const char *field);
+  virtual char* GetLabelFieldName();
   
   // Description:
   // The sizes of the fonts used for labeling
@@ -131,10 +137,21 @@ public:
   // Highlight the tree item that matches the pedigree id
   void HighLightItem(vtkIdType id);
 
+  // Description:
   void SetLabelLevelRange(int start, int end);
+  void GetLabelLevelRange(int range[2]);
+
+  // Description:
   void SetDynamicLabelLevel(int level);
+  int GetDynamicLabelLevel();
+
+  // Description:
   void SetChildLabelMotion(int mode);
+  int GetChildLabelMotion();
+
+  // Description:
   void SetLabelClipMode(int mode);
+  int GetLabelClipMode();
 
 protected:
   vtkTreeMapViewer();
