@@ -25,8 +25,8 @@
 // This class emits ProgressEvent for every 100 lines it reads.
 //
 // .SECTION Thanks
-// Thanks to Brian Wylie from Sandia National Laboratories for implementing
-// this class.
+// Thanks to Andy Wilson and Brian Wylie from Sandia National Laboratories 
+// for implementing this class.
 // 
 // .SECTION Caveats
 //
