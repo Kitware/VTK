@@ -36,7 +36,7 @@ public:
   stack<vtkTreeDFSIteratorPosition> Stack;
 };
 
-vtkCxxRevisionMacro(vtkTreeDFSIterator, "1.2");
+vtkCxxRevisionMacro(vtkTreeDFSIterator, "1.3");
 vtkStandardNewMacro(vtkTreeDFSIterator);
 
 vtkTreeDFSIterator::vtkTreeDFSIterator()
@@ -70,6 +70,8 @@ vtkTreeDFSIterator::~vtkTreeDFSIterator()
 void vtkTreeDFSIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Mode: " << this->Mode << endl;
+  os << indent << "StartNode: " << this->StartNode << endl;
 }
 
 void vtkTreeDFSIterator::Initialize()

@@ -37,7 +37,7 @@ public:
   stack<vtkGraphDFSIteratorPosition> Stack;
 };
 
-vtkCxxRevisionMacro(vtkGraphDFSIterator, "1.1");
+vtkCxxRevisionMacro(vtkGraphDFSIterator, "1.2");
 vtkStandardNewMacro(vtkGraphDFSIterator);
 
 vtkGraphDFSIterator::vtkGraphDFSIterator()
@@ -71,6 +71,8 @@ vtkGraphDFSIterator::~vtkGraphDFSIterator()
 void vtkGraphDFSIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Mode: " << this->Mode << endl;
+  os << indent << "StartNode: " << this->StartNode << endl;
 }
 
 void vtkGraphDFSIterator::Initialize()
