@@ -123,7 +123,6 @@ vtkImageFourierFilter
 vtkImageIterateFilter
 vtkImagePadFilter
 vtkImageSpatialAlgorithm
-vtkImageSpatialFilter
   ABSTRACT
 )
 
