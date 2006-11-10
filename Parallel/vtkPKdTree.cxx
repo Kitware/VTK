@@ -78,7 +78,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.29");
+vtkCxxRevisionMacro(vtkPKdTree, "1.30");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -90,7 +90,6 @@ const int vtkPKdTree::RoundRobinAssignment  = 3;
 #define FreeItem(item)   if (item) {delete item; item = NULL;}
 #define FreeObject(item)   if (item) {item->Delete(); item = NULL;}
 
-static char errstr[256];
 
 #define VTKERROR(s) \
 {                   \
