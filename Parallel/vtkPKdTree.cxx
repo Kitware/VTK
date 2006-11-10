@@ -78,7 +78,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.28");
+vtkCxxRevisionMacro(vtkPKdTree, "1.29");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -94,13 +94,11 @@ static char errstr[256];
 
 #define VTKERROR(s) \
 {                   \
-  sprintf(errstr,"(process %d) %s",this->MyId,s); \
-  vtkErrorMacro(<< errstr);                       \
+  vtkErrorMacro(<< "(process " << this->MyId << ") " << s);\
 }
 #define VTKWARNING(s) \
 {                     \
-  sprintf(errstr,"(process %d) %s",this->MyId,s); \
-  vtkWarningMacro(<< errstr);                       \
+  vtkWarningMacro(<< "(process " << this->MyId << ") " << s);\
 }
 
 vtkPKdTree::vtkPKdTree()
@@ -295,7 +293,14 @@ double *vtkPKdTree::VolumeBounds()
   double *volBounds = new double [6];
   double localMin[3], localMax[3], globalMin[3], globalMax[3];
 
-  for (i=0; i<this->GetNumberOfDataSets(); i++)
+  int number_of_datasets = this->GetNumberOfDataSets();
+  if (number_of_datasets == 0)
+    {
+    VTKERROR("NumberOfDatasets = 0, cannot determine volume bounds.");
+    return NULL;
+    }
+
+  for (i=0; i < number_of_datasets; i++)
     {
     this->GetDataSet(i)->GetBounds(volBounds);
   
@@ -3060,7 +3065,7 @@ int vtkPKdTree::AssignRegions(int *map, int len)
     if ( (map[i] < 0) || (map[i] >= this->NumProcesses))
       {
       this->FreeRegionAssignmentLists();
-      VTKERROR("AssignRegions - invalid process id in map");
+      VTKERROR("AssignRegions - invalid process id " << map[i]);
       return 1;
       }
 

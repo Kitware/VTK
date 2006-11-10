@@ -64,6 +64,10 @@ public:
   //   Set/Get the bounds of the spatial region represented by this node.
   //   Caller allocates storage for 6-vector in GetBounds.
   void SetBounds(double x1,double x2,double y1,double y2,double z1,double z2);
+  void SetBounds(double b[6])
+    {
+    this->SetBounds(b[0], b[1], b[2], b[3], b[4], b[5]);
+    }
   void GetBounds(double *b) const;
 
   // Description:
