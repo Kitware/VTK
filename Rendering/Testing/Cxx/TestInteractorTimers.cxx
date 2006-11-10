@@ -139,6 +139,7 @@ public:
     cout << "  RenderTimerId: " << this->RenderTimerId << endl;
     cout << "  RenderTimerCount: " << this->RenderTimerCount << endl;
     cout << "  OneShotTimerId: " << this->OneShotTimerId << endl;
+    cout << "  QuitOnOneShotTimer: " << this->QuitOnOneShotTimer << endl;
     }
 
 private:

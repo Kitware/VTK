@@ -26,7 +26,7 @@
 
 #import <Carbon/Carbon.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.20");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.21");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -380,7 +380,7 @@ void vtkCarbonRenderWindowInteractor::Disable()
 //--------------------------------------------------------------------------
 void vtkCarbonRenderWindowInteractor::TerminateApp(void)
 {
-  cout << "vtkCarbonRenderWindowInteractor::TerminateApp\n";
+  QuitApplicationEventLoop();
 }
 
 //--------------------------------------------------------------------------
