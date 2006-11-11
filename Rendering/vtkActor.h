@@ -66,7 +66,7 @@ public:
   // property, texture map and then mapper. If a property hasn't been
   // assigned, then the actor will create one automatically. Note that a side
   // effect of this method is that the pipeline will be updated.
-  virtual void Render(vtkRenderer *, vtkMapper *) {};
+  virtual void Render(vtkRenderer *, vtkMapper *) {}
 
   // Description:
   // Shallow copy of an actor. Overloads the virtual vtkProp method.
@@ -122,7 +122,7 @@ public:
   // Description:
   // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax). (The
   // method GetBounds(double bounds[6]) is available from the superclass.)
-  void GetBounds(double bounds[6]) {this->vtkProp3D::GetBounds( bounds );};
+  void GetBounds(double bounds[6]) {this->vtkProp3D::GetBounds( bounds );}
   double *GetBounds();
 
   // Description:
@@ -132,7 +132,7 @@ public:
   // use of this method is to set the desired properties in the assembly,
   // and then push the properties down to the assemblies parts with
   // ApplyProperties().
-  virtual void ApplyProperties() {return;};
+  virtual void ApplyProperties() {}
 
   // Description:
   // Get the actors mtime plus consider its properties and texture if set.

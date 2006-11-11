@@ -36,7 +36,7 @@
 #include "vtkBox.h"
 #include "vtkImageActor.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.93");
+vtkCxxRevisionMacro(vtkPicker, "1.94");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -326,13 +326,13 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
       //  coordinates. 
       if ( pickable  &&  mapper != NULL )
         {
-        vtkMatrix4x4 *LastMatrix = path->GetLastNode()->GetMatrix();
-        if (LastMatrix == NULL)
+        vtkMatrix4x4 *lastMatrix = path->GetLastNode()->GetMatrix();
+        if (lastMatrix == NULL)
           {
           vtkErrorMacro (<< "Pick: Null matrix.");
           return 0;
           }
-        this->Transform->SetMatrix(LastMatrix);
+        this->Transform->SetMatrix(lastMatrix);
         this->Transform->Push();
         this->Transform->Inverse();
         this->Transform->GetScale(scale); //need to scale the tolerance
@@ -385,13 +385,13 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
         }
       else if ( pickable && imageActor )
         { // special case for imageActor, which has no mapper
-        vtkMatrix4x4 *LastMatrix = path->GetLastNode()->GetMatrix();
-        if (LastMatrix == NULL)
+        vtkMatrix4x4 *lastMatrix = path->GetLastNode()->GetMatrix();
+        if (lastMatrix == NULL)
           {
           vtkErrorMacro (<< "Pick: Null matrix.");
           return 0;
           }
-        this->Transform->SetMatrix(LastMatrix);
+        this->Transform->SetMatrix(lastMatrix);
         this->Transform->Push();
         this->Transform->Inverse();
 
