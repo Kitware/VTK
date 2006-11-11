@@ -49,7 +49,7 @@
 #include "vtkTreeLevelsFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.5");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.6");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -349,7 +349,7 @@ void vtkGraphLayoutViewer::SetLayoutStrategy(const char* strategyName)
     }
 }
 
-char* vtkGraphLayoutViewer::GetLayoutStrategy()
+const char* vtkGraphLayoutViewer::GetLayoutStrategy()
 {
   vtkGraphLayoutStrategy* strategy = this->GraphLayout->GetLayoutStrategy();
   if (strategy->IsA("vtkRandomLayoutStrategy"))

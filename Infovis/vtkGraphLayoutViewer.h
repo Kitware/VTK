@@ -74,7 +74,7 @@ public:
   // Description:
   // Set layout strategy for the tree map
   virtual void SetLayoutStrategy(const char *strategyName);
-  virtual char* GetLayoutStrategy();
+  virtual const char* GetLayoutStrategy();
   
   // Description:
   // Is the graph layout complete? This method is useful
