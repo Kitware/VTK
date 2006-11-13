@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.16");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.17");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -118,9 +118,9 @@ int vtkPProbeFilter::RequestData(vtkInformation *vtkNotUsed(request),
     vtkPointData *pointData = output->GetPointData();
     vtkIdType i;
     vtkIdType j;
+    vtkIdType k;
     vtkIdType pointId;
-    vtkIdType numComponents = pointData->GetNumberOfComponents();
-    double *tuple = new double[numComponents];
+    vtkPointData *opd = output->GetPointData();    
     for (i = 1; i < numProcs; i++)
       {
       this->Controller->Receive(&numRemotePoints, 1, i, 1970);
@@ -133,13 +133,20 @@ int vtkPProbeFilter::RequestData(vtkInformation *vtkNotUsed(request),
         for (j = 0; j < numRemotePoints; j++)
           {
           pointId = validPoints->GetValue(j);
-          output->GetPointData()->SetTuple(pointId, pointId, remotePointData);
+          for (k = 0; k < opd->GetNumberOfArrays(); k++)
+            {
+            vtkAbstractArray *oaa = opd->GetArray(k);
+            vtkAbstractArray *raa = remotePointData->GetArray(oaa->GetName());
+            if (raa != NULL)
+              {
+              oaa->SetTuple(pointId, pointId, raa);
+              }            
+            }
           }
         }
       }
     validPoints->Delete();
     remoteProbeOutput->Delete();
-    delete [] tuple;
     }
 
   return 1;
