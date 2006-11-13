@@ -123,7 +123,7 @@ int Variant(int, char*[])
               << vtkImageScalarTypeNameMacro(type[i])
               << " " << conv << " != " 
               << vtkImageScalarTypeNameMacro(type[j])
-              << " " << static_cast<__int64>(value) << ")" << endl;
+              << " " << static_cast<vtkTypeInt64>(value) << ")" << endl;
             errors++;
             }
           break;
@@ -137,7 +137,7 @@ int Variant(int, char*[])
               << vtkImageScalarTypeNameMacro(type[i])
               << " " << conv << " != " 
               << vtkImageScalarTypeNameMacro(type[j])
-              << " " << static_cast<unsigned __int64>(value) << ")" << endl;
+              << " " << static_cast<vtkTypeUInt64>(value) << ")" << endl;
             errors++;
             }
           break;
