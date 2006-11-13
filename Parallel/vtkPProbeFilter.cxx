@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.17");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.18");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -120,7 +120,6 @@ int vtkPProbeFilter::RequestData(vtkInformation *vtkNotUsed(request),
     vtkIdType j;
     vtkIdType k;
     vtkIdType pointId;
-    vtkPointData *opd = output->GetPointData();    
     for (i = 1; i < numProcs; i++)
       {
       this->Controller->Receive(&numRemotePoints, 1, i, 1970);
@@ -133,9 +132,9 @@ int vtkPProbeFilter::RequestData(vtkInformation *vtkNotUsed(request),
         for (j = 0; j < numRemotePoints; j++)
           {
           pointId = validPoints->GetValue(j);
-          for (k = 0; k < opd->GetNumberOfArrays(); k++)
+          for (k = 0; k < pointData->GetNumberOfArrays(); k++)
             {
-            vtkAbstractArray *oaa = opd->GetArray(k);
+            vtkAbstractArray *oaa = pointData->GetArray(k);
             vtkAbstractArray *raa = remotePointData->GetArray(oaa->GetName());
             if (raa != NULL)
               {
