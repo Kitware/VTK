@@ -459,6 +459,16 @@ unsigned long long vtkVariant::ToUnsignedLongLong(bool* valid) const
 }
 #endif
 
+vtkTypeInt64 vtkVariant::ToTypeInt64(bool* valid) const
+{
+  return this->ToNumeric(valid, (vtkTypeInt64 *)0);
+}
+
+vtkTypeUInt64 vtkVariant::ToTypeUInt64(bool* valid) const
+{
+  return this->ToNumeric(valid, (vtkTypeUInt64 *)0);
+}
+
 vtkObjectBase* vtkVariant::ToVTKObject() const
 {
   if (this->IsVTKObject())

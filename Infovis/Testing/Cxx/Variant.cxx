@@ -11,10 +11,8 @@ int Variant(int, char*[])
     VTK_UNSIGNED_INT,
     VTK_LONG,
     VTK_UNSIGNED_LONG,
-    VTK___INT64,
-    VTK_UNSIGNED___INT64,
-    VTK_LONG_LONG,
-    VTK_UNSIGNED_LONG_LONG,
+    VTK_TYPE_INT64,
+    VTK_TYPE_UINT64,
     VTK_FLOAT,
     VTK_DOUBLE
     };
@@ -37,22 +35,12 @@ int Variant(int, char*[])
       case VTK_UNSIGNED_LONG:
         v = static_cast<unsigned long>(value);
         break;
-#if defined(VTK_TYPE_USE___INT64)
-      case VTK___INT64:
-        v = static_cast<__int64>(value);
+      case VTK_TYPE_INT64:
+        v = static_cast<vtkTypeInt64>(value);
         break;
-      case VTK_UNSIGNED___INT64:
-        v = static_cast<unsigned __int64>(value);
+      case VTK_TYPE_UINT64:
+        v = static_cast<vtkTypeUInt64>(value);
         break;
-#endif
-#if defined(VTK_TYPE_USE_LONG_LONG)
-      case VTK_LONG_LONG:
-        v = static_cast<long long>(value);
-        break;
-      case VTK_UNSIGNED_LONG_LONG:
-        v = static_cast<unsigned long long>(value);
-        break;
-#endif
       case VTK_FLOAT:
         v = static_cast<float>(value);
         break;
@@ -126,11 +114,10 @@ int Variant(int, char*[])
             }
           break;
           }
-  #if defined(VTK_TYPE_USE___INT64)
-        case VTK___INT64:
+        case VTK_TYPE_INT64:
           {
-          __int64 conv = v.To__Int64();
-          if (conv != static_cast<__int64>(value))
+          vtkTypeInt64 conv = v.ToTypeInt64();
+          if (conv != static_cast<vtkTypeInt64>(value))
             {
             cerr << "conversion invalid (" 
               << vtkImageScalarTypeNameMacro(type[i])
@@ -141,10 +128,10 @@ int Variant(int, char*[])
             }
           break;
           }
-        case VTK_UNSIGNED___INT64:
+        case VTK_TYPE_UINT64:
           {
-          unsigned __int64 conv = v.ToUnsigned__Int64();
-          if (conv != static_cast<unsigned __int64>(value))
+          vtkTypeUInt64 conv = v.ToTypeUInt64();
+          if (conv != static_cast<vtkTypeUInt64>(value))
             {
             cerr << "conversion invalid (" 
               << vtkImageScalarTypeNameMacro(type[i])
@@ -155,37 +142,6 @@ int Variant(int, char*[])
             }
           break;
           }
-  #endif
-  #if defined(VTK_TYPE_USE_LONG_LONG)
-        case VTK_LONG_LONG:
-          {
-          long long conv = v.ToLongLong();
-          if (conv != static_cast<long long>(value))
-            {
-            cerr << "conversion invalid (" 
-              << vtkImageScalarTypeNameMacro(type[i])
-              << " " << conv << " != " 
-              << vtkImageScalarTypeNameMacro(type[j])
-              << " " << static_cast<long long>(value) << ")" << endl;
-            errors++;
-            }
-          break;
-          }
-        case VTK_UNSIGNED_LONG_LONG:
-          {
-          unsigned long long conv = v.ToUnsignedLongLong();
-          if (conv != static_cast<unsigned long long>(value))
-            {
-            cerr << "conversion invalid (" 
-              << vtkImageScalarTypeNameMacro(type[i])
-              << " " << conv << " != " 
-              << vtkImageScalarTypeNameMacro(type[j])
-              << " " << static_cast<unsigned long long>(value) << ")" << endl;
-            errors++;
-            }
-          break;
-          }
-  #endif
         case VTK_FLOAT:
           {
           float conv = v.ToFloat();

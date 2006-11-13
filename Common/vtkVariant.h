@@ -226,6 +226,8 @@ public:
   long long ToLongLong(bool* valid = 0) const;
   unsigned long long ToUnsignedLongLong(bool* valid = 0) const;
 #endif
+  vtkTypeInt64 ToTypeInt64(bool* valid = 0) const;
+  vtkTypeUInt64 ToTypeUInt64(bool* valid = 0) const;
 
   // Description:
   // Return the VTK object, or NULL if not of that type.
