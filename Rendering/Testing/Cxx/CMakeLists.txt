@@ -12,22 +12,9 @@ IF(VTK_USE_DISPLAY)
   SET(RenderingTestsWithArguments
     ${RenderingTestsWithArguments}
     LoadOpenGLExtension.cxx
+    TestInteractorTimers.cxx
     TestOrderedTriangulator.cxx
     )
-
-  # Do not run the timers test on X windows builds
-  # until somebody can figure out how to make it quit
-  # when it's done. Calling ExitCallback does not
-  # exit from this unless a user is hovering over
-  # the machine and wiggling the mouse over the
-  # window... Arg.
-  #
-  IF(NOT VTK_USE_X)
-    SET(RenderingTestsWithArguments
-      ${RenderingTestsWithArguments}
-      TestInteractorTimers.cxx
-      )
-  ENDIF(NOT VTK_USE_X)
 
   IF(VTK_DATA_ROOT)
     SET(RenderingTestsWithArguments

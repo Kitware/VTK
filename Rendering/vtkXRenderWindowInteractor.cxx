@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.127");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.128");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Initialize static members:
@@ -156,9 +156,32 @@ void vtkXRenderWindowInteractor::SetTopLevelShell(Widget topLevel)
 // With this change, it is possible to have clean-up code after
 // the interactor loop.
 void vtkXRenderWindowInteractor::BreakXtLoop(vtkObject*, unsigned long,
-                                             void* iren, void*)
+                                             void* viren, void*)
 {
-  static_cast<vtkXRenderWindowInteractor*>(iren)->SetBreakLoopFlag(1);
+  vtkXRenderWindowInteractor *iren =
+    static_cast<vtkXRenderWindowInteractor*>(viren);
+
+  iren->SetBreakLoopFlag(1);
+
+  // Send a VTK_BreakXtLoop ClientMessage event so we pop out of the current
+  // call to XtAppNextEvent and notice that BreakLoopFlag has been set...
+  //
+  XClientMessageEvent client;
+  memset(&client, 0, sizeof(client));
+
+  client.type = ClientMessage;
+  //client.serial; //leave zeroed
+  //client.send_event; //leave zeroed
+  client.display = iren->DisplayId;
+  client.window = iren->WindowId;
+  client.message_type = XInternAtom(iren->DisplayId, "VTK_BreakXtLoop",
+    False);
+  client.format = 32; // indicates size of data chunks: 8, 16 or 32 bits...
+  //client.data; //leave zeroed
+
+  XSendEvent(client.display, client.window, True, NoEventMask,
+    (XEvent *) &client);
+  XFlush(client.display);
 }
 
 //-------------------------------------------------------------------------
@@ -723,7 +746,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       me->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
       }
       break;      
-      
+
     case MotionNotify: 
       {
       if (!me->Enabled) 
@@ -749,6 +772,11 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 
     case ClientMessage: 
       {
+      //cout << "XGetAtomName(message_type): "
+      //  << XGetAtomName(me->DisplayId,
+      //       (reinterpret_cast<XClientMessageEvent *>(event))->message_type)
+      //  << endl;
+
       if( static_cast<Atom>(event->xclient.data.l[0]) == me->KillAtom )
         {
         me->InvokeEvent(vtkCommand::ExitEvent, NULL);
