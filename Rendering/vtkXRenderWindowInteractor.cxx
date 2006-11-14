@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.128");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.129");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Initialize static members:
@@ -180,7 +180,7 @@ void vtkXRenderWindowInteractor::BreakXtLoop(vtkObject*, unsigned long,
   //client.data; //leave zeroed
 
   XSendEvent(client.display, client.window, True, NoEventMask,
-    (XEvent *) &client);
+    reinterpret_cast<XEvent *>(&client));
   XFlush(client.display);
 }
 
