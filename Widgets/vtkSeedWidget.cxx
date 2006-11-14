@@ -28,7 +28,7 @@
 #include "vtkEvent.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSeedWidget, "1.7");
+vtkCxxRevisionMacro(vtkSeedWidget, "1.8");
 vtkStandardNewMacro(vtkSeedWidget);
 
 
@@ -244,7 +244,6 @@ void vtkSeedWidget::EndSelectAction(vtkAbstractWidget *w)
 //-------------------------------------------------------------------------
 void vtkSeedWidget::DeleteAction(vtkAbstractWidget *w)
 {
-  cout << "Delete action\n";
   vtkSeedWidget *self = reinterpret_cast<vtkSeedWidget*>(w);
 
   // Do nothing if outside
