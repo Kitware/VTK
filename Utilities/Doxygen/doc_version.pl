@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-11-22 16:23:16 barre>
+# Time-stamp: <2006-11-15 13:25:02 barre>
 #
 # Extract VTK version and add it to documentation
 #
@@ -150,7 +150,7 @@ while (<FILE>) {
 
 close(FILE);
 
-croak "$PROGNAME: unable to find revision/date in " . $args{"revision_file"} . "\n"
+carp "$PROGNAME: unable to find revision/date in " . $args{"revision_file"} . "\n"
   if (!defined $revision || !defined $date);
 
 # -------------------------------------------------------------------------
@@ -159,21 +159,27 @@ croak "$PROGNAME: unable to find revision/date in " . $args{"revision_file"} . "
 my $destination_file = $args{"to"} . "/" . $args{"store"};
 print "Building version documentation to ", $destination_file, "\n";
 
-sysopen(DEST_FILE, 
+sysopen(DEST_FILE,
         $destination_file, 
         O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
   or croak "$PROGNAME: unable to open destination file " . $destination_file . "\n";
 
-print DEST_FILE 
+print DEST_FILE
   "/*! \@mainpage VTK $major_version.$minor_version.$build_version Documentation\n\n";
 
-print DEST_FILE 
+print DEST_FILE
   "  \@image html " . basename($args{"logo"}) . "\n"
   if exists $args{"logo"} && -f $args{"logo"};
 
-print DEST_FILE 
-  "  $revision\n",
-  "  $date\n",
+if (defined $revision) {
+    print DEST_FILE "  $revision\n";
+}
+
+if (defined $date) {
+    print DEST_FILE "  $date\n";
+}
+
+print DEST_FILE
   "  \@par Useful links:\n",
   "  \@li VTK Home: http://www.vtk.org\n",
   "  \@li VTK Users Mailing-list: http://public.kitware.com/mailman/listinfo/vtkusers\n",
