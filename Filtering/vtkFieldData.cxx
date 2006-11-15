@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
 
-vtkCxxRevisionMacro(vtkFieldData, "1.7");
+vtkCxxRevisionMacro(vtkFieldData, "1.8");
 vtkStandardNewMacro(vtkFieldData);
 
 //----------------------------------------------------------------------------
@@ -428,7 +428,7 @@ void vtkFieldData::ShallowCopy(vtkFieldData *f)
   for ( int i=0; i < f->GetNumberOfArrays(); i++ )
     {
     this->NumberOfActiveArrays++;
-    this->SetArray(i, f->GetArray(i));
+    this->SetArray(i, f->GetAbstractArray(i));
     }
   this->CopyFlags(f);
 }
