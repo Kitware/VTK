@@ -120,6 +120,9 @@ public:
   void SetValueByName(vtkIdType row, const char* col, vtkVariant value);
   //ETX
   
+  // Description:
+  // Initialize to an empty table.
+  virtual void Initialize();
 
   // Description:
   // Retrieve the table from vtkInformation.

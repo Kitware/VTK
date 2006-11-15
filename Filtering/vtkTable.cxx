@@ -28,7 +28,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.2");
+vtkCxxRevisionMacro(vtkTable, "1.3");
 vtkStandardNewMacro(vtkTable);
 
 //----------------------------------------------------------------------------
@@ -44,6 +44,12 @@ void vtkTable::PrintSelf(ostream &os, vtkIndent indent)
 {
   vtkDataObject::PrintSelf(os, indent);
   os << indent << "Number Of Rows: " << this->Rows << endl;
+}
+
+void vtkTable::Initialize()
+{
+  this->Superclass::Initialize();
+  this->Rows = 0;
 }
 
 //
