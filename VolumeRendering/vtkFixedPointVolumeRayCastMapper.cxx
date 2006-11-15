@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.30");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.31");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -2710,6 +2710,19 @@ int vtkFixedPointVolumeRayCastMapper::ClipRayAgainstClippingPlanes( float raySta
           {
           return 0;
           }
+        }
+      }
+    else
+      {
+      // rayDir is perpendicular to planePtr; i.e., the ray does not
+      // intersect the plane. Determine which side of the plane the ray
+      // is on.
+      float side = planePtr[0]*rayStart[0] + planePtr[1]*rayStart[1] +
+        planePtr[2]*rayStart[2] + planePtr[3];
+      if (side < 0)
+        {
+        // clip
+        return 0;
         }
       }
     }
