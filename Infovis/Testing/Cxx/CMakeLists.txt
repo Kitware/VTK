@@ -3,15 +3,15 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(KIT Infovis)
   # add tests that do not require data
   SET(MyTests     
-    Table
-    VariantArray
-    Variant
+    TestTable
+    TestVariantArray
+    TestVariant
     )
   IF (VTK_DATA_ROOT)
     # add tests that require data
     SET(MyTests ${MyTests}
-      DelimitedTextReader
-      FixedWidthTextReader
+      TestDelimitedTextReader
+      TestFixedWidthTextReader
       )
   ENDIF (VTK_DATA_ROOT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}

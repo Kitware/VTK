@@ -104,7 +104,7 @@ void CheckEqual(vtkTable* table, vector<vector<double> > & stdTable)
     }
 }
 
-int Table(int, char*[])
+int TestTable(int, char*[])
 {
   cout << "CTEST_FULL_OUTPUT" << endl;
 

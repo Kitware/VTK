@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    FixedWidthTextReader.cxx
+  Module:    TestDelimitedTextReader.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,7 +17,7 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-#include <vtkFixedWidthTextReader.h>
+#include <vtkDelimitedTextReader.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
 #include <vtkVariant.h>
@@ -26,34 +26,34 @@
 #include <vtkIOStream.h>
 
 int
-FixedWidthTextReader(int argc, char *argv[])
+TestDelimitedTextReader(int argc, char *argv[])
 {
-  cout << "### Pass 1: No headers, field width 10, do not strip whitespace" << endl;
-
   vtkIdType i, j;
   char *filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                        "Data/fixedwidth.txt");
+                                                        "Data/delimited.txt");
 
   cout << "Filename: " << filename << endl;
 
-  vtkFixedWidthTextReader *reader = vtkFixedWidthTextReader::New();
-  reader->SetHaveHeaders(false);
-  reader->SetFieldWidth(10);
-  reader->StripWhiteSpaceOff();
+  vtkDelimitedTextReader *reader = vtkDelimitedTextReader::New();
+  reader->SetFieldDelimiter(':');
+  reader->SetStringDelimiter('"');
+  reader->SetUseStringDelimiter(true);
   reader->SetFileName(filename);
+  reader->SetHaveHeaders(false);
   reader->Update();
 
   cout << "Printing reader info..." << endl;
   reader->Print(cout);
 
   vtkTable *table = reader->GetOutput();
+ 
+  cout << "### Test 1: colon delimiter, no headers, do not merge consecutive delimiters" << endl;
 
-  cout << "FixedWidth text file has " << table->GetNumberOfRows() 
+  cout << "Delimited text file has " << table->GetNumberOfRows() 
        << " rows" << endl;
-  cout << "FixedWidth text file has " << table->GetNumberOfColumns() 
+  cout << "Delimited text file has " << table->GetNumberOfColumns() 
        << " columns" << endl;
   cout << "Column names: " << endl;
-
   for (i = 0; i < table->GetNumberOfColumns(); ++i)
     {
     cout << "\tColumn " << i << ": " << table->GetColumn(i)->GetName() << endl;
@@ -80,31 +80,30 @@ FixedWidthTextReader(int argc, char *argv[])
              << value.ToString() << endl;
         }
       }
+
     row->Delete();
+
     }
   
   reader->Delete();
 
-  reader = vtkFixedWidthTextReader::New();
+  // Test 2: make sure the MergeConsecutiveDelimiters thing works
+  reader = vtkDelimitedTextReader::New();
   filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                  "Data/fixedwidth.txt");
+                                                  "Data/delimited2.txt");
 
-  reader->HaveHeadersOn();
-  reader->SetFieldWidth(10);
-  reader->StripWhiteSpaceOn();
+  reader->SetFieldDelimiter(',');
+  reader->MergeConsecutiveDelimitersOn();
+  reader->SetHaveHeaders(true);
   reader->SetFileName(filename);
   reader->Update();
   table = reader->GetOutput();
 
+  cout << endl << "### Test 2: comma delimiter, headers, merge consecutive delimiters" << endl;
 
-  cout << endl << "### Test 2: headers, field width 10, strip whitespace" << endl;
-
-  cout << "Printing reader info..." << endl;
-  reader->Print(cout);
-
-  cout << "FixedWidth text file has " << table->GetNumberOfRows() 
+  cout << "Delimited text file has " << table->GetNumberOfRows() 
        << " rows" << endl;
-  cout << "FixedWidth text file has " << table->GetNumberOfColumns() 
+  cout << "Delimited text file has " << table->GetNumberOfColumns() 
        << " columns" << endl;
   cout << "Column names: " << endl;
   for (i = 0; i < table->GetNumberOfColumns(); ++i)
@@ -133,7 +132,9 @@ FixedWidthTextReader(int argc, char *argv[])
              << value.ToString() << endl;
         }
       }
+
     row->Delete();
+
     }
   
   reader->Delete();

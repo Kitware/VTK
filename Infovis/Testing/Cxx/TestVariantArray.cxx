@@ -23,7 +23,7 @@ void PrintArrays(vector<double> vec, vtkVariantArray* arr)
   cerr << endl;
 }
 
-int VariantArray(int, char*[])
+int TestVariantArray(int, char*[])
 {
   cerr << "CTEST_FULL_OUTPUT" << endl;
 

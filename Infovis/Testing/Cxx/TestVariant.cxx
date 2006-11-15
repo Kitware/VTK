@@ -1,7 +1,7 @@
 
 #include "vtkVariant.h"
 
-int Variant(int, char*[])
+int TestVariant(int, char*[])
 {
   double value = 123456;
   const char* strValue = "123456";
