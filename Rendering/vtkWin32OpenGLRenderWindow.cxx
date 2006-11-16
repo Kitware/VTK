@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkOpenGL.h"
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.140");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.141");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -922,8 +922,8 @@ void vtkWin32OpenGLRenderWindow::DestroyWindow()
     if(this->OwnWindow)
       {
       ::DestroyWindow(this->WindowId);
+      this->WindowId=0;
       }
-    this->WindowId=0;
     }
 }
 
