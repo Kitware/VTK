@@ -31,7 +31,7 @@
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.114");
+vtkCxxRevisionMacro(vtkMath, "1.115");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -1276,7 +1276,7 @@ int vtkMath::SolveCubic( double c0, double c1, double c2, double c3,
       }
     else //single real and complex conjugate pair
       {
-      A = -VTK_SIGN(R) * pow(fabs(R) + sqrt(R_squared - Q_cubed),0.33333333);
+      A = -VTK_SIGN(R) * pow(fabs(R) + sqrt(R_squared - Q_cubed), 1.0/3);
 
       if( A == 0.0 )
         {
