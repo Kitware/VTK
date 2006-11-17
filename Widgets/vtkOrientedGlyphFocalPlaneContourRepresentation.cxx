@@ -40,7 +40,7 @@
 #include "vtkFocalPlanePointPlacer.h"
 #include "vtkBezierContourLineInterpolator.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphFocalPlaneContourRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkOrientedGlyphFocalPlaneContourRepresentation, "1.4");
 vtkStandardNewMacro(vtkOrientedGlyphFocalPlaneContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -500,8 +500,8 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
 // set in vtkImageReslice or vtkImagePlaneWidget if there were a plane
 // passing through the contour points. The origin passed here must be the 
 // origin on the image data under the contour. 
-const vtkMatrix4x4 * vtkOrientedGlyphFocalPlaneContourRepresentation
-::GetContourPlaneDirectionCosines( const double origin[3] ) const
+vtkMatrix4x4 * vtkOrientedGlyphFocalPlaneContourRepresentation
+::GetContourPlaneDirectionCosines( const double origin[3] )
 {
   if (this->ContourPlaneDirectionCosines->GetMTime() 
                        >= this->Renderer->GetMTime() ||
@@ -560,8 +560,8 @@ const vtkMatrix4x4 * vtkOrientedGlyphFocalPlaneContourRepresentation
 // Returns the contour representation as polydata in world co-ordinates
 // For this class, the contour is overlayed on the focal plane.
 //
-const vtkPolyData * vtkOrientedGlyphFocalPlaneContourRepresentation
-::GetContourRepresentationAsPolyData() const
+vtkPolyData * vtkOrientedGlyphFocalPlaneContourRepresentation
+::GetContourRepresentationAsPolyData()
 {
   // Get the points in this contour as a vtkPolyData. 
 

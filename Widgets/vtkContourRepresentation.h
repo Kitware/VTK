@@ -154,19 +154,19 @@ public:
 
   // Description:
   // Get the number of nodes.
-  virtual int GetNumberOfNodes() const;
+  virtual int GetNumberOfNodes();
   
   // Description:
   // Get the nth node's display position. Will return
   // 1 on success, or 0 if there are not at least 
   // (n+1) nodes (0 based counting).
-  virtual int GetNthNodeDisplayPosition( int n, double pos[2] ) const;
+  virtual int GetNthNodeDisplayPosition( int n, double pos[2] );
   
   // Description:
   // Get the nth node's world position. Will return
   // 1 on success, or 0 if there are not at least 
   // (n+1) nodes (0 based counting).
-  virtual int GetNthNodeWorldPosition( int n, double pos[3] ) const;
+  virtual int GetNthNodeWorldPosition( int n, double pos[3] );
   
   // Description:
   // Get the nth node's world orientation. Will return
@@ -208,7 +208,7 @@ public:
   // closed, this is the number of intermediate points
   // between node n and node 0. 0 is returned if n is
   // out of range.
-  virtual int GetNumberOfIntermediatePoints( int n ) const;
+  virtual int GetNumberOfIntermediatePoints( int n );
   
   // Description:
   // Get the world position of the intermediate point at
@@ -216,7 +216,7 @@ public:
   // n is the last node and the loop is closed). Returns
   // 1 on success or 0 if n or idx are out of range.
   virtual int GetIntermediatePointWorldPosition( int n, 
-                                                 int idx, double point[3] ) const;
+                                                 int idx, double point[3] );
   
   // Description:
   // Add an intermediate point between node n and n+1
@@ -320,7 +320,7 @@ public:
   // Description:
   // Get the points in this contour as a vtkPolyData. 
 //BTX
-  virtual const vtkPolyData * GetContourRepresentationAsPolyData() const = 0;
+  virtual vtkPolyData * GetContourRepresentationAsPolyData() = 0;
 //ETX
 
 protected:

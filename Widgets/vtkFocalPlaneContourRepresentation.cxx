@@ -32,7 +32,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkFocalPlaneContourRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkFocalPlaneContourRepresentation, "1.4");
 
 //----------------------------------------------------------------------
 vtkFocalPlaneContourRepresentation::vtkFocalPlaneContourRepresentation()
@@ -50,7 +50,7 @@ vtkFocalPlaneContourRepresentation::~vtkFocalPlaneContourRepresentation()
 // point using the renderer.
 int vtkFocalPlaneContourRepresentation::GetIntermediatePointWorldPosition(int n, 
                                                                 int idx, 
-                                                                double point[3]) const
+                                                                double point[3])
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
@@ -112,7 +112,7 @@ int vtkFocalPlaneContourRepresentation::GetIntermediatePointDisplayPosition(int 
 
 //----------------------------------------------------------------------
 int vtkFocalPlaneContourRepresentation::GetNthNodeDisplayPosition( 
-                                     int n, double displayPos[2] ) const
+                                     int n, double displayPos[2] )
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
@@ -129,7 +129,7 @@ int vtkFocalPlaneContourRepresentation::GetNthNodeDisplayPosition(
 
 //----------------------------------------------------------------------
 int vtkFocalPlaneContourRepresentation::GetNthNodeWorldPosition( 
-                                     int n, double worldPos[3] ) const
+                                     int n, double worldPos[3] )
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )

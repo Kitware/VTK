@@ -31,7 +31,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.15");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.16");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -370,13 +370,13 @@ int vtkContourRepresentation::GetActiveNodeDisplayPosition( double pos[2] )
 }
 
 //----------------------------------------------------------------------
-int vtkContourRepresentation::GetNumberOfNodes() const
+int vtkContourRepresentation::GetNumberOfNodes()
 {
   return this->Internal->Nodes.size();
 }
 
 //----------------------------------------------------------------------
-int vtkContourRepresentation::GetNumberOfIntermediatePoints(int n) const
+int vtkContourRepresentation::GetNumberOfIntermediatePoints(int n)
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
@@ -390,7 +390,7 @@ int vtkContourRepresentation::GetNumberOfIntermediatePoints(int n) const
 //----------------------------------------------------------------------
 int vtkContourRepresentation::GetIntermediatePointWorldPosition(int n, 
                                                                 int idx, 
-                                                                double point[3]) const
+                                                                double point[3])
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
@@ -416,7 +416,7 @@ int vtkContourRepresentation::GetIntermediatePointWorldPosition(int n,
 // from the world positions... It should not be queried from the renderer
 // whose camera position may have changed
 int vtkContourRepresentation::GetNthNodeDisplayPosition( 
-                           int n, double displayPos[2] ) const
+                           int n, double displayPos[2] )
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
@@ -440,7 +440,7 @@ int vtkContourRepresentation::GetNthNodeDisplayPosition(
 }
 
 //----------------------------------------------------------------------
-int vtkContourRepresentation::GetNthNodeWorldPosition( int n, double worldPos[3] ) const
+int vtkContourRepresentation::GetNthNodeWorldPosition( int n, double worldPos[3] )
 {
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )

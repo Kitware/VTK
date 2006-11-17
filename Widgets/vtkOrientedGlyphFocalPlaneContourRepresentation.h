@@ -100,7 +100,7 @@ public:
  
   // Description:
   // Get the points in this contour as a vtkPolyData. 
-  virtual const vtkPolyData * GetContourRepresentationAsPolyData() const;
+  virtual vtkPolyData * GetContourRepresentationAsPolyData();
   
   // Description:
   // Direction cosines of the plane on which the contour lies
@@ -108,7 +108,7 @@ public:
   // set in vtkImageReslice or vtkImagePlaneWidget if there were a plane
   // passing through the contour points. The origin must be the origin of the 
   // data under the contour.
-  const vtkMatrix4x4   *GetContourPlaneDirectionCosines(const double origin[3]) const;
+  vtkMatrix4x4   *GetContourPlaneDirectionCosines(const double origin[3]);
  
 protected:
   vtkOrientedGlyphFocalPlaneContourRepresentation();

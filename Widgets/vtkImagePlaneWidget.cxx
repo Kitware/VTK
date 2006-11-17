@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.9");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.10");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -534,7 +534,7 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "ColorMap: (none)\n";
-    }      
+    }
 
   double *o = this->PlaneSource->GetOrigin();
   double *pt1 = this->PlaneSource->GetPoint1();
