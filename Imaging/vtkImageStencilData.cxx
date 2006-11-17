@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.20");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.21");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -594,12 +594,14 @@ void vtkImageStencilData::RemoveExtent(int r1, int r2, int yIdx, int zIdx)
       if (clistmaxlen == clistlen)
         {
         int *newclist = new int[clistmaxlen];
-        for (int m = 0; m < clistlen; m++)
-          {
-          newclist[m] = clist[m];
-          }
+        for (int m = 0;   m < k;    m++)   { newclist[m]   = clist[m]; }
+        for (int m = k+2; m < length; m++) { newclist[m-2] = clist[m]; }
         delete [] clist;
         clist = newclist;
+        }
+      else
+        {
+        for (int m = k+2; m < length; m++) { clist[m-2] = clist[m]; }
         }
 
       length = clistlen;
@@ -625,7 +627,7 @@ void vtkImageStencilData::RemoveExtent(int r1, int r2, int yIdx, int zIdx)
         }
       if (split)
         {
-        if (r2 < tmp)
+        if (r2 < tmp-1)
           {
           // check whether more space is needed
           // the allocated space is always the smallest power of two
@@ -653,7 +655,7 @@ void vtkImageStencilData::RemoveExtent(int r1, int r2, int yIdx, int zIdx)
         }
       else
         {
-        if (r2 < clist[k+1])
+        if (r2 < clist[k+1]-1)
           {
           clist[k] = r2+1;
           }
