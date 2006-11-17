@@ -80,7 +80,7 @@ class QVTK_EXPORT QVTKWidget : public QWidget
 
   // Description:
   // Set the vtk render window, if you wish to use your own vtkRenderWindow
-  void SetRenderWindow(vtkRenderWindow*);
+  virtual void SetRenderWindow(vtkRenderWindow*);
     
   // Description:
   // Get the vtk render window.
@@ -88,7 +88,7 @@ class QVTK_EXPORT QVTKWidget : public QWidget
     
   // Description:
   // Get the Qt/vtk interactor that was either created by default or set by the user
-  QVTKInteractor* GetInteractor();
+  virtual QVTKInteractor* GetInteractor();
     
   // Description:
   // Enum for additional event types supported.
