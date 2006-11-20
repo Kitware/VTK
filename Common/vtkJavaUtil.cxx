@@ -867,6 +867,11 @@ JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in)
   int length, i;
   int resultLength = 1;
   
+  if( in == NULL )
+    {
+    return NULL; 
+    }
+
   length = env->GetStringUTFLength(in);
   inBytes = env->GetStringUTFChars(in,NULL);
   
