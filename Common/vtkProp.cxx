@@ -17,8 +17,9 @@
 #include "vtkAssemblyPaths.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkProp, "1.25");
+vtkCxxRevisionMacro(vtkProp, "1.26");
 
+//----------------------------------------------------------------------------
 // Creates an Prop with the following defaults: visibility on.
 vtkProp::vtkProp()
 {
@@ -37,6 +38,7 @@ vtkProp::vtkProp()
   this->Consumers = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkProp::~vtkProp()
 {
   if ( this->Paths )
@@ -49,12 +51,14 @@ vtkProp::~vtkProp()
     }
 }
 
+//----------------------------------------------------------------------------
 // This method is invoked if the prop is picked.
 void vtkProp::Pick()
 {
   this->InvokeEvent(vtkCommand::PickEvent,NULL);
 }
 
+//----------------------------------------------------------------------------
 // Shallow copy of vtkProp.
 void vtkProp::ShallowCopy(vtkProp *prop)
 {
@@ -63,6 +67,7 @@ void vtkProp::ShallowCopy(vtkProp *prop)
   this->Dragable   = prop->GetDragable();
 }
 
+//----------------------------------------------------------------------------
 void vtkProp::InitPathTraversal()
 {
   if ( this->Paths == NULL )
@@ -76,6 +81,7 @@ void vtkProp::InitPathTraversal()
   this->Paths->InitTraversal();
 }
 
+//----------------------------------------------------------------------------
 vtkAssemblyPath *vtkProp::GetNextPath()
 {
   if ( ! this->Paths)
@@ -85,6 +91,7 @@ vtkAssemblyPath *vtkProp::GetNextPath()
   return this->Paths->GetNextItem();
 }
 
+//----------------------------------------------------------------------------
 // This method is used in conjunction with the assembly object to build a copy
 // of the assembly hierarchy. This hierarchy can then be traversed for 
 // rendering, picking or other operations.
@@ -100,6 +107,7 @@ void vtkProp::BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path)
   childPath->Delete(); //okay, reference counting
 }
 
+//----------------------------------------------------------------------------
 void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -118,6 +126,7 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkProp::AddConsumer(vtkObject *c)
 {
   // make sure it isn't already there
@@ -138,6 +147,7 @@ void vtkProp::AddConsumer(vtkObject *c)
   delete [] tmp;
 }
 
+//----------------------------------------------------------------------------
 void vtkProp::RemoveConsumer(vtkObject *c)
 {
   // make sure it is already there
@@ -163,6 +173,7 @@ void vtkProp::RemoveConsumer(vtkObject *c)
   delete [] tmp;
 }
 
+//----------------------------------------------------------------------------
 int vtkProp::IsConsumer(vtkObject *c)
 {
   int i;
@@ -176,6 +187,7 @@ int vtkProp::IsConsumer(vtkObject *c)
   return 0;
 }
 
+//----------------------------------------------------------------------------
 vtkObject *vtkProp::GetConsumer(int i)
 {
   if (i >= this->NumberOfConsumers)
