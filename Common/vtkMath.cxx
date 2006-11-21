@@ -31,7 +31,7 @@
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.115");
+vtkCxxRevisionMacro(vtkMath, "1.116");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2315,10 +2315,10 @@ void vtkMath::Multiply3x3(const double A[3][3],
 }
 
 //----------------------------------------------------------------------------
-void MultiplyMatrix(const double **A, const double **B,
-                    unsigned int rowA, unsigned int colA, 
-                    unsigned int rowB, unsigned int colB,
-                    double **C)
+void vtkMath::MultiplyMatrix(const double **A, const double **B,
+                             unsigned int rowA, unsigned int colA, 
+                             unsigned int rowB, unsigned int colB,
+                             double **C)
 {
   // we need colA == rowB 
   if (colA != rowB)
