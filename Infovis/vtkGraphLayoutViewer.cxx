@@ -49,7 +49,7 @@
 #include "vtkTreeLevelsFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.6");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.7");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -71,10 +71,15 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
   
   // Set up some the default parameters
   this->LabeledDataMapper->SetFieldDataName("name");
-  this->LabeledDataMapper->GetLabelTextProperty()->SetFontSize(12);
+  this->LabeledDataMapper->SetLabelFormat("%s");
+  this->LabeledDataMapper->SetLabelModeToLabelFieldData();
+  this->LabeledDataMapper->GetLabelTextProperty()->SetColor(1,1,1);
+  this->LabeledDataMapper->GetLabelTextProperty()->SetJustificationToCentered();
+  this->LabeledDataMapper->GetLabelTextProperty()->SetFontSize(14);
   this->SetLayoutStrategy("Simple2D");
 
-  this->PipelineInstalled = false;
+  // Okay setup the internal pipeline
+  this->SetupPipeline();
 }
 
 //----------------------------------------------------------------------------
@@ -148,7 +153,7 @@ void vtkGraphLayoutViewer::UpdateLayout()
     this->GraphLayout->Modified();
     if (this->RenderWindow)
       {
-      //this->Renderer->ResetCamera();
+      this->Renderer->ResetCamera();
       this->RenderWindow->Render();
       }
     }
@@ -177,22 +182,23 @@ void vtkGraphLayoutViewer::SetInput(vtkAbstractGraph *graph)
 
 void vtkGraphLayoutViewer::InputInitialize()
 {
-  if (!this->PipelineInstalled)
-    {
-    // Okay setup the internal pipeline
-    this->SetupPipeline();
-    }
 
   // Pipeline setup
   this->GraphLayout->SetInput(this->Input);
   this->Actor->VisibilityOn();
-  this->LabelActor->VisibilityOn();
+  this->LabelActor->VisibilityOff(); // Defaulted to off
   
   // Get and set the range of data for this mapper
   double range[2]; 
   this->GraphToPolyData->Update();
   this->GraphToPolyData->GetOutput()->GetScalarRange(range);
   this->PolyDataMapper->SetScalarRange( range[0], range[1] );
+ 
+  if (this->RenderWindow)
+    {
+    this->Renderer->ResetCamera();
+    this->RenderWindow->Render();
+    }
 }
 
 // This method is a cut and paste of vtkCxxSetObjectMacro
@@ -211,7 +217,6 @@ void vtkGraphLayoutViewer::SetRenderWindow(vtkRenderWindow *arg)
       
       // Set up last part of the pipeline
       this->RenderWindow->AddRenderer(this->Renderer);
-      //this->RenderWindow->GetInteractor()->SetInteractorStyle(this->InteractorStyle);
       this->Renderer->ResetCamera();
       }
     if (tmp != NULL)
@@ -243,17 +248,14 @@ void vtkGraphLayoutViewer::SetupPipeline()
 
   
   // Send graph to poly data filter and mapper
-  this->GraphToPolyData->SetInputConnection(0, this->GraphLayout->GetOutputPort(0)); 
+  this->GraphToPolyData->SetInputConnection(0, 
+    this->GraphLayout->GetOutputPort(0)); 
   this->PolyDataMapper->SetLookupTable(ColorLUT);
   this->PolyDataMapper->SetInputConnection(0, 
-                                           this->GraphToPolyData->GetOutputPort(0));
+    this->GraphToPolyData->GetOutputPort(0));
                                            
-        // Labels
+  // Labels
   this->LabeledDataMapper->SetInputConnection(GraphToPolyData->GetOutputPort());
-  this->LabeledDataMapper->SetLabelFormat("%s");
-  this->LabeledDataMapper->SetLabelModeToLabelFieldData();
-  this->LabeledDataMapper->GetLabelTextProperty()->SetColor(1,1,1);
-  this->LabeledDataMapper->GetLabelTextProperty()->SetJustificationToCentered();
     
   this->LabelActor->SetPickable(false);
   this->LabelActor->SetMapper(this->LabeledDataMapper);
@@ -261,12 +263,7 @@ void vtkGraphLayoutViewer::SetupPipeline()
     
   this->Actor->SetMapper(this->PolyDataMapper);
   this->Renderer->AddActor(this->Actor);   
-
-  this->PipelineInstalled = true;
 }
-
-
-
 
 
 void vtkGraphLayoutViewer::SetColorFieldName(const char *field)
@@ -410,38 +407,3 @@ void vtkGraphLayoutViewer::PrintSelf(ostream& os, vtkIndent indent)
     }
 
 }
-
-#if 0
-void vtkGraphLayoutViewer::SetActiveState(int state)
-{
-  if (state)
-    {
-    if (this->ActiveState)
-      {
-      return; // nothing to be done
-      }
-    this->ActiveState = 1;
-    if (this->Input)
-      {
-      this->TreeLevels->SetInput(this->Input);
-      this->Actor->VisibilityOn();
-      this->LabelActor->VisibilityOn();
-      this->Renderer->ResetCamera();
-      }
-    return;
-    }
-
-  if (!this->ActiveState)
-    {
-    return;
-    }
-  this->TreeLevels->SetInput(0);
-  this->Actor->VisibilityOff();
-  this->LabelActor->VisibilityOff();
-  this->ActiveState = 0;
-  if (this->RenderWindow)
-    {
-    this->RenderWindow->GetInteractor()->Render();
-    }
-}
-#endif

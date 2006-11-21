@@ -24,6 +24,11 @@
 // and vtkActor into a single easy to use class.  This class also creates 
 // an image interactor style(vtkInteractorStyleImage) that allows zooming 
 // and panning of the laid out graph.
+// 
+// .SECTION Notes
+// Because the labeller likes to complain quite a bit, labels are defaulted
+// to OFF. Also you should set all the other parameters first and then
+// call SetLabelsOn() if you want labels.
 //
 // .SECTION See Also
 // vtkTreeMapViewer
@@ -105,7 +110,7 @@ public:
   virtual char* GetLabelFieldName();
   
   // Description:
-  // These methods turn labeling on or off
+  // These methods turn labeling on or off : defaulted to off
   virtual void SetLabelsOn();
   virtual void SetLabelsOff();
   
@@ -140,8 +145,6 @@ private:
   // Description:
   // Setup the internal pipeline for the graph layout view
   virtual void SetupPipeline();
-
-  bool PipelineInstalled;
   
   // Description:
   // When the input is set with SetInput() there some
