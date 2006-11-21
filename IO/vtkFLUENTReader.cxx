@@ -52,11 +52,12 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 #include "vtksys/ios/fstream"
-#include "vtksys/ios/sstream"
-using vtkstd::istringstream;
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.9");
+#include <ctype.h>
+#include <sys/stat.h>
+
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.10");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -536,8 +537,10 @@ int vtkFLUENTReader::GetCaseChunk ()
   vtkstd::string index;
   while(this->FluentCaseFile->peek() != ' ')
     {
-    index.push_back(this->FluentCaseFile->peek());
-    this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
+    //index.push_back(this->FluentCaseFile->peek());
+        index += this->FluentCaseFile->peek();
+        //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
+        this->CaseBuffer->value += this->FluentCaseFile->get();
     if (this->FluentCaseFile->eof())
       {
       return 0;
@@ -562,7 +565,8 @@ int vtkFLUENTReader::GetCaseChunk ()
     // Load the case buffer enough to start comparing to the end vtkstd::string.
     while (this->CaseBuffer->value.size() < strlen(end))
       {
-      this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
+      //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
+      this->CaseBuffer->value += this->FluentCaseFile->get();
       }
 
     //while (CaseBuffer.compare(CaseBuffer.size()-strlen(end),
@@ -570,7 +574,8 @@ int vtkFLUENTReader::GetCaseChunk ()
     while (strcmp(this->CaseBuffer->value.c_str()+
                    (this->CaseBuffer->value.size()-strlen(end)), end))
       {
-      this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
+      //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
+      this->CaseBuffer->value += this->FluentCaseFile->get();
       }
 
     }
@@ -579,7 +584,8 @@ int vtkFLUENTReader::GetCaseChunk ()
     int level = 0;
     while ((this->FluentCaseFile->peek() != ')') || (level != 0) )
       {
-      this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
+      //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
+      this->CaseBuffer->value += this->FluentCaseFile->get();
       if (this->CaseBuffer->value.at(this->CaseBuffer->value.length()-1) == '(')
         {
         level++;
@@ -593,7 +599,8 @@ int vtkFLUENTReader::GetCaseChunk ()
         return 0;
         }
       }
-    this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
+    //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
+    this->CaseBuffer->value += this->FluentCaseFile->get();
     }
   return 1;
 }
@@ -606,7 +613,8 @@ int vtkFLUENTReader::GetCaseIndex()
   int i = 1;
   while (this->CaseBuffer->value.at(i) != ' ')
     {
-    sindex.push_back(this->CaseBuffer->value.at(i++));
+    //sindex.push_back(this->CaseBuffer->value.at(i++));
+    sindex += this->CaseBuffer->value.at(i++);
     }
   return atoi(sindex.c_str());
 }
@@ -649,7 +657,8 @@ int vtkFLUENTReader::GetDataIndex()
   int i = 1;
   while (this->DataBuffer->value.at(i) != ' ')
     {
-    sindex.push_back(this->DataBuffer->value.at(i++));
+    //sindex.push_back(this->DataBuffer->value.at(i++));
+    sindex += this->DataBuffer->value.at(i++);
     }
   return atoi(sindex.c_str());
 }
@@ -677,8 +686,10 @@ int vtkFLUENTReader::GetDataChunk ()
   vtkstd::string index;
   while(this->FluentDataFile->peek() != ' ')
     {
-    index.push_back(this->FluentDataFile->peek());
-    this->DataBuffer->value.push_back(this->FluentDataFile->get());
+    //index.push_back(this->FluentDataFile->peek());
+    index += this->FluentDataFile->peek();
+    //this->DataBuffer->value.push_back(this->FluentDataFile->get());
+    this->DataBuffer->value += this->FluentDataFile->get();
     if (this->FluentDataFile->eof())
       {
       return 0;
@@ -702,7 +713,8 @@ int vtkFLUENTReader::GetDataChunk ()
     // Load the data buffer enough to start comparing to the end vtkstd::string.
     while (this->DataBuffer->value.size() < strlen(end))
       {
-      this->DataBuffer->value.push_back(this->FluentDataFile->get());
+      //this->DataBuffer->value.push_back(this->FluentDataFile->get());
+      this->DataBuffer->value += this->FluentDataFile->get();
       }
 
     //while (DataBuffer.compare(DataBuffer.size()-strlen(end),
@@ -710,7 +722,8 @@ int vtkFLUENTReader::GetDataChunk ()
     while (strcmp(this->DataBuffer->value.c_str()+
                   (this->DataBuffer->value.size()-strlen(end)), end))
       {
-      this->DataBuffer->value.push_back(this->FluentDataFile->get());
+      //this->DataBuffer->value.push_back(this->FluentDataFile->get());
+      this->DataBuffer->value += this->FluentDataFile->get();
       }
 
     }
@@ -719,7 +732,8 @@ int vtkFLUENTReader::GetDataChunk ()
     int level = 0;
     while ((this->FluentDataFile->peek() != ')') || (level != 0) )
       {
-      this->DataBuffer->value.push_back(this->FluentDataFile->get());
+      //this->DataBuffer->value.push_back(this->FluentDataFile->get());
+      this->DataBuffer->value += this->FluentDataFile->get();
       if (this->DataBuffer->value.at(this->DataBuffer->value.length()-1) == '(')
         {
         level++;
@@ -733,7 +747,8 @@ int vtkFLUENTReader::GetDataChunk ()
         return 0;
         }
       }
-    this->DataBuffer->value.push_back(this->FluentDataFile->get());
+    //this->DataBuffer->value.push_back(this->FluentDataFile->get());
+    this->DataBuffer->value += this->FluentDataFile->get();
     }
 
   return 1;
@@ -2464,8 +2479,8 @@ void vtkFLUENTReader::GetNodesAscii()
     int dend = this->CaseBuffer->value.find(')', dstart+1);
     vtkstd::string pdata = this->CaseBuffer->
                            value.substr(dstart+1, dend-start-1);
-    vtkstd::istringstream pdatastream;
-    pdatastream.str(pdata);
+    strstream pdatastream;
+    pdatastream << pdata.c_str() << ends;
 
     double x, y, z;
     if (this->GridDimension == 3)
@@ -2607,8 +2622,8 @@ void vtkFLUENTReader::GetCellsAscii()
       int dend = this->CaseBuffer->value.find(')', dstart+1);
       vtkstd::string pdata = this->CaseBuffer->
                                    value.substr(dstart+1, dend-start-1);
-      vtkstd::istringstream pdatastream;
-      pdatastream.str(pdata);
+      strstream pdatastream;
+      pdatastream << pdata.c_str() << ends;
       for (int i = firstIndex; i <=lastIndex; i++)
         {
         pdatastream >> this->Cells->value[i].type;
@@ -2693,8 +2708,8 @@ void vtkFLUENTReader::GetFacesAscii()
     int dend = this->CaseBuffer->value.find(')', dstart+1);
     vtkstd::string pdata = this->CaseBuffer->
                                  value.substr(dstart+1, dend-start-1);
-    vtkstd::istringstream pdatastream;
-    pdatastream.str(pdata);
+    strstream pdatastream;
+    pdatastream << pdata.c_str() << ends;
 
     int numberOfNodesInFace = 0;
     for (int i = firstIndex; i <=lastIndex; i++)
@@ -2810,8 +2825,8 @@ void vtkFLUENTReader::GetPeriodicShadowFacesAscii()
   int dstart = this->CaseBuffer->value.find('(', 7);
   int dend = this->CaseBuffer->value.find(')', dstart+1);
   vtkstd::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  vtkstd::istringstream pdatastream;
-  pdatastream.str(pdata);
+  strstream pdatastream;
+  pdatastream << pdata.c_str() << ends;
 
   int faceIndex1, faceIndex2;
   for (int i = firstIndex; i <=lastIndex; i++)
@@ -2858,8 +2873,8 @@ void vtkFLUENTReader::GetCellTreeAscii()
   int dstart = this->CaseBuffer->value.find('(', 7);
   int dend = this->CaseBuffer->value.find(')', dstart+1);
   vtkstd::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  vtkstd::istringstream pdatastream;
-  pdatastream.str(pdata);
+  strstream pdatastream;
+  pdatastream << pdata.c_str() << ends;
 
   int numberOfKids, kid;
   for (int i = cellId0; i <=cellId1; i++)
@@ -2916,8 +2931,8 @@ void vtkFLUENTReader::GetFaceTreeAscii()
   int dstart = this->CaseBuffer->value.find('(', 7);
   int dend = this->CaseBuffer->value.find(')', dstart+1);
   vtkstd::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  vtkstd::istringstream pdatastream;
-  pdatastream.str(pdata);
+  strstream pdatastream;
+  pdatastream << pdata.c_str() << ends;
 
   int numberOfKids, kid;
   for (int i = faceId0; i <=faceId1; i++)
@@ -2972,8 +2987,8 @@ void vtkFLUENTReader::GetInterfaceFaceParentsAscii()
   int dstart = this->CaseBuffer->value.find('(', 7);
   int dend = this->CaseBuffer->value.find(')', dstart+1);
   vtkstd::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  vtkstd::istringstream pdatastream;
-  pdatastream.str(pdata);
+  strstream pdatastream;
+  pdatastream << pdata.c_str() << ends;
 
   int parentId0, parentId1;
   for (int i = faceId0; i <=faceId1; i++)
@@ -3026,8 +3041,8 @@ void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationAscii()
   int dstart = this->CaseBuffer->value.find('(', 7);
   int dend = this->CaseBuffer->value.find(')', dstart+1);
   vtkstd::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  vtkstd::istringstream pdatastream;
-  pdatastream.str(pdata);
+  strstream pdatastream;
+  pdatastream << pdata.c_str() << ends;
 
   int child, parent;
   for (int i = 0; i < numberOfFaces; i++)
@@ -3978,8 +3993,8 @@ void vtkFLUENTReader::GetData(int dataType)
   int start = this->DataBuffer->value.find('(', 1);
   int end = this->DataBuffer->value.find(')',1);
   vtkstd::string info = this->DataBuffer->value.substr(start+1,end-start-1 );
-  vtkstd::istringstream infostream;
-  infostream.str(info);
+  strstream infostream;
+  infostream << info.c_str() << ends;
   int subSectionId, zoneId, size, nTimeLevels, nPhases, firstId, lastId;
   infostream >> subSectionId >> zoneId >> size >> nTimeLevels >> nPhases >>
                 firstId >> lastId;
@@ -4000,10 +4015,10 @@ void vtkFLUENTReader::GetData(int dataType)
     // Set up stream or pointer to data
     int dstart = this->DataBuffer->value.find('(', 7);
     int dend = this->DataBuffer->value.find(')', dstart+1);
-    vtkstd::istringstream pdatastream;
+    strstream pdatastream;
     vtkstd::string pdata = this->DataBuffer->
                            value.substr(dstart+1, dend-dstart-2);
-    pdatastream.str(pdata);
+    pdatastream << pdata.c_str() << ends;
     int ptr = dstart + 1;
 
     // Is this a new variable?
