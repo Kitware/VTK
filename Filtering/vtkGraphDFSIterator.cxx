@@ -37,7 +37,7 @@ public:
   stack<vtkGraphDFSIteratorPosition> Stack;
 };
 
-vtkCxxRevisionMacro(vtkGraphDFSIterator, "1.2");
+vtkCxxRevisionMacro(vtkGraphDFSIterator, "1.3");
 vtkStandardNewMacro(vtkGraphDFSIterator);
 
 vtkGraphDFSIterator::vtkGraphDFSIterator()
@@ -45,7 +45,7 @@ vtkGraphDFSIterator::vtkGraphDFSIterator()
   this->Internals = new vtkGraphDFSIteratorInternals();
   this->Graph = NULL;
   this->Color = vtkIntArray::New();
-  this->StartNode = -1;
+  this->StartNode = 0;
   this->Mode = 0;
 }
 
@@ -163,7 +163,7 @@ vtkIdType vtkGraphDFSIterator::NextInternal()
       // Pop the current position off the stack
       vtkGraphDFSIteratorPosition pos = this->Internals->Stack.top();
       this->Internals->Stack.pop();
-      //cout << "popped " << pos.Node << "," << pos.Index << " off the stack" << endl;
+      //cerr << "popped " << pos.Node << "," << pos.Index << " off the stack" << endl;
 
       vtkIdType narcs;
       const vtkIdType* arcs;
@@ -175,13 +175,13 @@ vtkIdType vtkGraphDFSIterator::NextInternal()
         }
       if (pos.Index == narcs)
         {
-        //cout << "DFS coloring " << pos.Node << " black" << endl;
+        //cerr << "DFS coloring " << pos.Node << " black" << endl;
         // Done with this node; make it black and leave it off the stack
         this->Color->SetValue(pos.Node, this->BLACK);
         this->NumBlack++;
         if (this->Mode == this->FINISH)
           {
-          //cout << "DFS finished " << pos.Node << endl;
+          //cerr << "DFS finished " << pos.Node << endl;
           return pos.Node;
           }
         }
@@ -192,36 +192,44 @@ vtkIdType vtkGraphDFSIterator::NextInternal()
 
         // Found a white node; make it gray, add it to the stack
         vtkIdType found = this->Graph->GetOppositeNode(arcs[pos.Index], pos.Node);
-        //cout << "DFS coloring " << found << " gray (adjacency)" << endl;
+        //cerr << "DFS coloring " << found << " gray (adjacency)" << endl;
         this->Color->SetValue(found, this->GRAY);
         this->Internals->Stack.push(vtkGraphDFSIteratorPosition(found, 0));
         if (this->Mode == this->DISCOVER)
           {
-          //cout << "DFS adjacent discovery " << found << endl;
+          //cerr << "DFS adjacent discovery " << found << endl;
           return found;
           }
         }
       }
 
     // Done with this component, so find a white node and start a new search
-    for (; this->CurRoot < this->Graph->GetNumberOfNodes(); this->CurRoot++)
+    if (this->NumBlack < this->Graph->GetNumberOfNodes())
       {
-      if (this->Color->GetValue(this->CurRoot) == this->WHITE)
+      while (true)
         {
-        // Found a new component; make it gray, put it on the stack
-        //cout << "DFS coloring " << this->CurRoot << " gray (new component)" << endl;
-        this->Internals->Stack.push(vtkGraphDFSIteratorPosition(this->CurRoot, 0));
-        this->Color->SetValue(this->CurRoot, this->GRAY);
-        if (this->Mode == this->DISCOVER)
+        if (this->Color->GetValue(this->CurRoot) == this->WHITE)
           {
-          //cout << "DFS new component discovery " << this->CurRoot << endl;
-          return this->CurRoot;
+          // Found a new component; make it gray, put it on the stack
+          //cerr << "DFS coloring " << this->CurRoot << " gray (new component)" << endl;
+          this->Internals->Stack.push(vtkGraphDFSIteratorPosition(this->CurRoot, 0));
+          this->Color->SetValue(this->CurRoot, this->GRAY);
+          if (this->Mode == this->DISCOVER)
+            {
+            //cerr << "DFS new component discovery " << this->CurRoot << endl;
+            return this->CurRoot;
+            }
+          break;
           }
-        break;
+        else if (this->Color->GetValue(this->CurRoot) == this->GRAY)
+          {
+          vtkErrorMacro("There should be no gray nodes in the graph when starting a new component.");
+          }
+        this->CurRoot = (this->CurRoot + 1) % this->Graph->GetNumberOfNodes();
         }
       }
     }
-  //cout << "DFS no more!" << endl;
+  //cerr << "DFS no more!" << endl;
   return -1;
 }
 

@@ -36,7 +36,7 @@ public:
   stack<vtkTreeDFSIteratorPosition> Stack;
 };
 
-vtkCxxRevisionMacro(vtkTreeDFSIterator, "1.3");
+vtkCxxRevisionMacro(vtkTreeDFSIterator, "1.4");
 vtkStandardNewMacro(vtkTreeDFSIterator);
 
 vtkTreeDFSIterator::vtkTreeDFSIterator()
@@ -207,20 +207,28 @@ vtkIdType vtkTreeDFSIterator::NextInternal()
       }
 
     // Done with this component, so find a white node and start a new search
-    for (; this->CurRoot < this->Tree->GetNumberOfNodes(); this->CurRoot++)
+    if (this->Color->GetValue(this->StartNode) != this->BLACK)
       {
-      if (this->Color->GetValue(this->CurRoot) == this->WHITE)
+      while (true)
         {
-        // Found a new component; make it gray, put it on the stack
-        //cout << "DFS coloring " << this->CurRoot << " gray (new component)" << endl;
-        this->Internals->Stack.push(vtkTreeDFSIteratorPosition(this->CurRoot, 0));
-        this->Color->SetValue(this->CurRoot, this->GRAY);
-        if (this->Mode == this->DISCOVER)
+        if (this->Color->GetValue(this->CurRoot) == this->WHITE)
           {
-          //cout << "DFS new component discovery " << this->CurRoot << endl;
-          return this->CurRoot;
+          // Found a new component; make it gray, put it on the stack
+          //cerr << "DFS coloring " << this->CurRoot << " gray (new component)" << endl;
+          this->Internals->Stack.push(vtkTreeDFSIteratorPosition(this->CurRoot, 0));
+          this->Color->SetValue(this->CurRoot, this->GRAY);
+          if (this->Mode == this->DISCOVER)
+            {
+            //cerr << "DFS new component discovery " << this->CurRoot << endl;
+            return this->CurRoot;
+            }
+          break;
           }
-        break;
+        else if (this->Color->GetValue(this->CurRoot) == this->GRAY)
+          {
+          vtkErrorMacro("There should be no gray nodes in the graph when starting a new component.");
+          }
+        this->CurRoot = (this->CurRoot + 1) % this->Tree->GetNumberOfNodes();
         }
       }
     }

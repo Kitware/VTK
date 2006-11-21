@@ -29,7 +29,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkGraph, "1.2");
+vtkCxxRevisionMacro(vtkGraph, "1.3");
 vtkStandardNewMacro(vtkGraph);
 
 //----------------------------------------------------------------------------
@@ -111,6 +111,11 @@ void vtkGraph::GetAdjacentNodes(vtkIdType node, vtkGraphIdList* nodeIds)
 //----------------------------------------------------------------------------
 void vtkGraph::GetInNodes(vtkIdType node, vtkGraphIdList* nodeIds)
 {
+  if (!this->Directed)
+    {
+    this->GetAdjacentNodes(node, nodeIds);
+    return;
+    }
   nodeIds->Reset();
   vtkIdType narcs;
   const vtkIdType* arcs;
@@ -124,6 +129,11 @@ void vtkGraph::GetInNodes(vtkIdType node, vtkGraphIdList* nodeIds)
 //----------------------------------------------------------------------------
 void vtkGraph::GetOutNodes(vtkIdType node, vtkGraphIdList* nodeIds)
 {
+  if (!this->Directed)
+    {
+    this->GetAdjacentNodes(node, nodeIds);
+    return;
+    }
   nodeIds->Reset();
   vtkIdType narcs;
   const vtkIdType* arcs;
@@ -158,6 +168,11 @@ vtkIdType vtkGraph::GetDegree(vtkIdType node)
 //----------------------------------------------------------------------------
 void vtkGraph::GetInArcs(vtkIdType node, vtkGraphIdList* arcIds)
 {
+  if (!this->Directed)
+    {
+    this->GetIncidentArcs(node, arcIds);
+    return;
+    }
   vtkIdType narcs;
   const vtkIdType* arcs;
   this->NodeLinks->GetInAdjacent(node, narcs, arcs);
@@ -167,18 +182,32 @@ void vtkGraph::GetInArcs(vtkIdType node, vtkGraphIdList* arcIds)
 //----------------------------------------------------------------------------
 void vtkGraph::GetInArcs(vtkIdType node, vtkIdType& narcs, const vtkIdType*& arcs)
 {
+  if (!this->Directed)
+    {
+    this->GetIncidentArcs(node, narcs, arcs);
+    return;
+    }
   this->NodeLinks->GetInAdjacent(node, narcs, arcs);
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkGraph::GetInDegree(vtkIdType node)
 {
+  if (!this->Directed)
+    {
+    return this->GetDegree(node);
+    }
   return this->NodeLinks->GetInDegree(node);
 }
 
 //----------------------------------------------------------------------------
 void vtkGraph::GetOutArcs(vtkIdType node, vtkGraphIdList* arcIds)
 {
+  if (!this->Directed)
+    {
+    this->GetIncidentArcs(node, arcIds);
+    return;
+    }
   vtkIdType narcs;
   const vtkIdType* arcs;
   this->NodeLinks->GetOutAdjacent(node, narcs, arcs);
@@ -188,12 +217,21 @@ void vtkGraph::GetOutArcs(vtkIdType node, vtkGraphIdList* arcIds)
 //----------------------------------------------------------------------------
 void vtkGraph::GetOutArcs(vtkIdType node, vtkIdType& narcs, const vtkIdType*& arcs)
 {
+  if (!this->Directed)
+    {
+    this->GetIncidentArcs(node, narcs, arcs);
+    return;
+    }
   this->NodeLinks->GetOutAdjacent(node, narcs, arcs);
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkGraph::GetOutDegree(vtkIdType node)
 {
+  if (!this->Directed)
+    {
+    return this->GetDegree(node);
+    }
   return this->NodeLinks->GetOutDegree(node);
 }
 
