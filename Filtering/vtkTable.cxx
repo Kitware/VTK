@@ -28,7 +28,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.3");
+vtkCxxRevisionMacro(vtkTable, "1.4");
 vtkStandardNewMacro(vtkTable);
 
 //----------------------------------------------------------------------------
@@ -45,6 +45,24 @@ void vtkTable::PrintSelf(ostream &os, vtkIndent indent)
   vtkDataObject::PrintSelf(os, indent);
   os << indent << "Number Of Rows: " << this->Rows << endl;
 }
+
+//----------------------------------------------------------------------------
+
+void vtkTable::SetFieldData(vtkFieldData* data)
+{
+  // Set the Rows field to the appropriate value
+  if (data != NULL && data->GetNumberOfArrays() > 0)
+    {
+    this->Rows = data->GetAbstractArray(0)->GetNumberOfTuples();
+    }
+  else
+    {
+    this->Rows = 0;
+    }
+  this->Superclass::SetFieldData(data);
+}
+
+//----------------------------------------------------------------------------
 
 void vtkTable::Initialize()
 {

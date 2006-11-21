@@ -21,6 +21,14 @@
 // has the same number of entries, and provides row access (using vtkVariantArray)
 // and single entry access (using vtkVariant).
 //
+// .SECTION Caveats
+// You should use the vtkTable API to change the table data.  Performing
+// vtkFieldData operations on the object returned by GetFieldData() may
+// yield unexpected results.  vtkTable does allow the user to set the field
+// data using SetFieldData(); the number of rows in the table is determined
+// by the number of tuples in the first array (it is assumed that all arrays
+// are the same length).
+//
 // .SECTION Thanks
 // Thanks to Patricia Crossno, Ken Moreland, Andrew Wilson and Brian Wylie from
 // Sandia National Laboratories for their help in developing this class API.
@@ -40,6 +48,10 @@ public:
   static vtkTable* New();
   vtkTypeRevisionMacro(vtkTable, vtkDataObject);
   void PrintSelf(ostream &os, vtkIndent indent);
+
+  // Description:
+  // Sets the field data for the table.
+  virtual void SetFieldData(vtkFieldData* data);
 
   //
   // Row functions
