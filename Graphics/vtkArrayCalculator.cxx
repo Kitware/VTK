@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.35");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.36");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -175,8 +175,6 @@ int vtkArrayCalculator::RequestData(
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPointSet* inputPointSet = vtkPointSet::SafeDownCast(input);
-  vtkPoints* inputPoints = inputPointSet ? inputPointSet->GetPoints() : NULL;
   // for output to coordinates, only polydata & unstructured grids are supported
   vtkPointSet* outputPointSet = vtkPointSet::SafeDownCast(output);
   if(!vtkPolyData::SafeDownCast(outputPointSet) &&
@@ -287,11 +285,11 @@ int vtkArrayCalculator::RequestData(
     }
 
   // we can add points
-  if(attributeDataType == 0 && inputPoints)
+  if(attributeDataType == 0)
     {
     for (i = 0; i < this->NumberOfCoordinateScalarArrays; i++)
       {
-      double* pt = inputPoints->GetPoint(0);
+      double* pt = input->GetPoint(0);
       this->FunctionParser->
         SetScalarVariableValue(
           this->CoordinateScalarVariableNames[i],
@@ -300,7 +298,7 @@ int vtkArrayCalculator::RequestData(
 
     for (i = 0; i < this->NumberOfCoordinateVectorArrays; i++)
       {
-      double* pt = inputPoints->GetPoint(0);
+      double* pt = input->GetPoint(0);
       this->FunctionParser->
         SetVectorVariableValue(
           this->CoordinateVectorVariableNames[i],
@@ -383,9 +381,9 @@ int vtkArrayCalculator::RequestData(
             i, this->SelectedVectorComponents[j][1]),
           currentArray->GetComponent(i, this->SelectedVectorComponents[j][2]));
       }
-    if(inputPoints && i<inputPoints->GetNumberOfPoints())
+    if(attributeDataType == 0)
       {
-      double* pt = inputPoints->GetPoint(i);
+      double* pt = input->GetPoint(i);
       for (j = 0; j < this->NumberOfCoordinateScalarArrays; j++)
         {
         this->FunctionParser->
