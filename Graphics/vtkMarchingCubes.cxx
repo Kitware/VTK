@@ -37,7 +37,7 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMarchingCubes, "1.3");
+vtkCxxRevisionMacro(vtkMarchingCubes, "1.4");
 vtkStandardNewMacro(vtkMarchingCubes);
 
 // Description:
@@ -418,7 +418,7 @@ int vtkMarchingCubes::RequestData(
     }
   input->GetDimensions(dims);
   input->GetOrigin(origin);
-  input->Getspacing(spacing);
+  input->GetSpacing(spacing);
 
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
 
