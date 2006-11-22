@@ -49,7 +49,7 @@
 #include "vtkTreeLevelsFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.7");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.8");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -230,12 +230,13 @@ void vtkGraphLayoutViewer::SetRenderWindow(vtkRenderWindow *arg)
 //----------------------------------------------------------------------------
 void vtkGraphLayoutViewer::SetupPipeline()
 {
+
   // Set various properties
   this->Renderer->SetBackground(.3,.3,.3);
   this->Renderer->GetActiveCamera()->ParallelProjectionOn();
   this->ColorLUT->SetHueRange( 0.667, 0 );
   this->ColorLUT->Build();
-  
+ 
   // Wire up the pipeline
  
   // Set the input to NULL and turn the 
@@ -245,7 +246,6 @@ void vtkGraphLayoutViewer::SetupPipeline()
   this->GraphLayout->SetInput(NULL);
   this->Actor->VisibilityOff();
   this->LabelActor->VisibilityOff();
-
   
   // Send graph to poly data filter and mapper
   this->GraphToPolyData->SetInputConnection(0, 
@@ -256,13 +256,14 @@ void vtkGraphLayoutViewer::SetupPipeline()
                                            
   // Labels
   this->LabeledDataMapper->SetInputConnection(GraphToPolyData->GetOutputPort());
-    
   this->LabelActor->SetPickable(false);
   this->LabelActor->SetMapper(this->LabeledDataMapper);
-  this->Renderer->AddActor(this->LabelActor);
-    
+  
+  // Actor setup
   this->Actor->SetMapper(this->PolyDataMapper);
-  this->Renderer->AddActor(this->Actor);   
+  this->Renderer->AddActor(this->Actor);
+  this->Renderer->AddActor(this->LabelActor); 
+
 }
 
 
@@ -395,7 +396,7 @@ void vtkGraphLayoutViewer::PrintSelf(ostream& os, vtkIndent indent)
     }
   
   os << indent << "Actor: " << (this->Actor ? "" : "(none)") << endl;
-  if (this->Actor)
+  if (this->Actor && this->Input)
     {
     this->Actor->PrintSelf(os,indent.GetNextIndent());
     }
