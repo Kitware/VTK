@@ -44,7 +44,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.53");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.54");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -398,7 +398,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
     glTexImage2D(vtkgl::PROXY_TEXTURE_RECTANGLE_ARB,0,this->DepthFormat,
                  this->ViewportWidth,this->ViewportHeight,
                  0,GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
-    int width;
+    GLint width;
     glGetTexLevelParameteriv(vtkgl::PROXY_TEXTURE_RECTANGLE_ARB,0,
                              GL_TEXTURE_WIDTH,&width);
     if(width==0)
@@ -501,7 +501,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
     vtkgl::DeleteQueriesARB(1,&queryId);
     if(this->TransparentLayerZ!=0)
       {
-      glDeleteTextures(1,&this->TransparentLayerZ);
+      GLuint transparentLayerZ=static_cast<GLuint>(this->TransparentLayerZ);
+      glDeleteTextures(1,&transparentLayerZ);
       this->TransparentLayerZ=0;
       }
     
@@ -543,8 +544,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
     glEnd();
     
     // the transparent layers
-    vtkstd::list<GLuint>::const_reverse_iterator it=this->LayerList->List.rbegin();
-    vtkstd::list<GLuint>::const_reverse_iterator itEnd=this->LayerList->List.rend();
+    vtkstd::list<GLuint>::reverse_iterator it=this->LayerList->List.rbegin();
+    vtkstd::list<GLuint>::reverse_iterator itEnd=this->LayerList->List.rend();
     while(it!=itEnd)
       {
       glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,(*it));
@@ -679,13 +680,15 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
     vtkgl::UseProgramObjectARB(0);
     }
   
-  int width;
+  GLint width;
   
   if(layer==0)
     {
     if(numberOfRenderedProps>0)
       {
-      glGenTextures(1,&this->TransparentLayerZ);
+      GLuint transparentLayerZ;
+      glGenTextures(1,&transparentLayerZ);
+      this->TransparentLayerZ=static_cast<unsigned int>(transparentLayerZ);
       glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->TransparentLayerZ);
       
       glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,
@@ -712,7 +715,7 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
       if(width==0)
         {
         // not enough GPU RAM. Use alpha blending technique instead
-        glDeleteTextures(1,&this->TransparentLayerZ);
+        glDeleteTextures(1,&transparentLayerZ);
         this->TransparentLayerZ=0;
         return 0;
         }
