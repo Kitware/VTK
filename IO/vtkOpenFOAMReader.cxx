@@ -62,7 +62,7 @@
 #define VTK_IOS_NOCREATE | ios::nocreate
 #endif
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.6");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.7");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 struct stdString
@@ -180,6 +180,12 @@ void vtkOpenFOAMReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->FileName ? this->FileName : "(none)") << "\n";
   os << indent << "Number Of Nodes: " << this->NumPoints << "\n";
   os << indent << "Number Of Cells: " << this->NumCells << "\n";
+  os << indent << "Number of Time Steps: " << this->NumberOfTimeSteps << endl;
+  os << indent << "TimeStepRange: " 
+     << this->TimeStepRange[0] << " - " << this->TimeStepRange[1]
+     << endl;
+  os << indent << "TimeStep: " << this->TimeStep << endl;
+    
 }
 
 int vtkOpenFOAMReader::RequestInformation(
@@ -954,7 +960,11 @@ void vtkOpenFOAMReader::GetPoints (int timeState)
   //reopen file in correct format
   if(temp.find("binary") != vtkstd::string::npos)
     {
+#ifdef _WIN32
     input.open(pointPath.c_str(),ios::binary);
+#else
+    input.open(pointPath.c_str());
+#endif
     binaryWriteFormat = true;
     }
   else
@@ -1064,7 +1074,11 @@ void vtkOpenFOAMReader::ReadFacesFile (const char * facePathIn)
   //reopen file in correct format
   if(temp.find("binary") != vtkstd::string::npos)
     {
+#ifdef _WIN32
     input.open(facePath.c_str(),ios::binary);
+#else
+    input.open(facePath.c_str());
+#endif
     binaryWriteFormat = true;
     }
   else
@@ -1109,7 +1123,7 @@ void vtkOpenFOAMReader::ReadFacesFile (const char * facePathIn)
   //binary data
   if(binaryWriteFormat)
     {
-    char paren;
+    //char paren;
     int tempPoint;
     for(int i = 0; i < NumFaces; i++)
       {
@@ -1122,7 +1136,8 @@ void vtkOpenFOAMReader::ReadFacesFile (const char * facePathIn)
       tokenizer << temp;
       tokenizer >> numFacePoints;
       this->FacePoints->value[i].resize(numFacePoints);
-      paren = input.get();  //grab (
+      //paren = input.get();  //grab (
+      input.get();  //grab (
       for(int j = 0; j < numFacePoints; j++)
         {
         input.read((char *) &tempPoint, sizeof(int));
@@ -1197,7 +1212,11 @@ void vtkOpenFOAMReader::ReadOwnerFile(const char * ownerPathIn)
   //reopen file in correct format
   if(temp.find("binary") != vtkstd::string::npos)
     {
+#ifdef _WIN32
     input.open(ownerPath.c_str(),ios::binary);
+#else
+    input.open(ownerPath.c_str());
+#endif
     binaryWriteFormat = true;
     }
   else
@@ -1312,7 +1331,11 @@ void vtkOpenFOAMReader::ReadNeighborFile(const char * neighborPathIn)
   //reopen file in correct format
   if(temp.find("binary") != vtkstd::string::npos)
     {
+#ifdef _WIN32
     input.open(neighborPath.c_str(),ios::binary);
+#else
+    input.open(neighborPath.c_str());
+#endif
     binaryWriteFormat = true;
     }
   else
@@ -1635,7 +1658,11 @@ vtkDoubleArray * vtkOpenFOAMReader::GetInternalVariableAtTimestep
   //reopen file in correct format
   if(temp.find("binary") != vtkstd::string::npos)
     {
+#ifdef _WIN32
     input.open(varPath.str(),ios::binary);
+#else
+    input.open(varPath.str());
+#endif
     binaryWriteFormat = true;
     }
   else
@@ -1896,7 +1923,11 @@ vtkDoubleArray * vtkOpenFOAMReader::GetBoundaryVariableAtTimestep
   //reopen file in correct format
   if(temp.find("binary") != vtkstd::string::npos)
     {
+#ifdef _WIN32
     input.open(varPath.str(),ios::binary);
+#else
+    input.open(varPath.str());
+#endif
     binaryWriteFormat = true;
     }
   else
@@ -2439,7 +2470,11 @@ vtkUnstructuredGrid * vtkOpenFOAMReader::GetPointZoneMesh(int timeState,
   //reopen file in correct format
   if(temp.find("binary") != vtkstd::string::npos)
     {
+#ifdef _WIN32
     input.open(pointZonesPath.c_str(),ios::binary);
+#else
+    input.open(pointZonesPath.c_str());
+#endif
     binaryWriteFormat = true;
     }
   else
@@ -2572,7 +2607,11 @@ vtkUnstructuredGrid * vtkOpenFOAMReader::GetFaceZoneMesh(int timeState,
   //reopen file in correct format
   if(temp.find("binary") != vtkstd::string::npos)
     {
+#ifdef _WIN32
     input.open(faceZonesPath.c_str(),ios::binary);
+#else
+    input.open(faceZonesPath.c_str());
+#endif
     binaryWriteFormat = true;
     }
   else
@@ -2746,7 +2785,11 @@ vtkUnstructuredGrid * vtkOpenFOAMReader::GetCellZoneMesh(int timeState,
   //reopen file in correct format
   if(temp.find("binary") != vtkstd::string::npos)
     {
+#ifdef _WIN32
     input.open(cellZonesPath.c_str(),ios::binary);
+#else
+    input.open(cellZonesPath.c_str());
+#endif
     binaryWriteFormat = true;
     }
   else

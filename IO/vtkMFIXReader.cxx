@@ -38,7 +38,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 
-vtkCxxRevisionMacro(vtkMFIXReader, "1.1");
+vtkCxxRevisionMacro(vtkMFIXReader, "1.2");
 vtkStandardNewMacro(vtkMFIXReader);
 
 //----------------------------------------------------------------------------
@@ -904,7 +904,12 @@ void vtkMFIXReader::ReadRestartFile()
 {
   int dimensionUsr = 5;
 
+#ifdef _WIN32
   ifstream in(this->FileName,ios::binary);
+#else
+  ifstream in(this->FileName);
+#endif
+
   if (!in)
     {
     //cout << "could not open file" << endl;
@@ -916,7 +921,7 @@ void vtkMFIXReader::ReadRestartFile()
   // version : record 1
   memset(this->DataBuffer,0,513);
   in.read(this->DataBuffer,512);
-  RestartVersionNumber(this->DataBuffer);
+  this->RestartVersionNumber(this->DataBuffer);
 
   // skip 2 linesline : records 2 and 3
   in.read(this->DataBuffer,512);
@@ -925,7 +930,7 @@ void vtkMFIXReader::ReadRestartFile()
   // IMinimum1 etc : record 4
   memset(this->DataBuffer,0,513);
 
-  if (Version == "RES = 01.00")
+  if (strcmp(this->Version, "RES = 01.00") == 0)
     {
     this->GetInt(in,this->IMinimum1);
     this->GetInt(in,this->JMinimum1);
@@ -950,7 +955,8 @@ void vtkMFIXReader::ReadRestartFile()
     // 15 ints ... 4 doubles = 92 bytes
     this->SkipBytes(in,420);
     }
-  else if (Version == "RES = 01.01" || Version == "RES = 01.02")
+  else if (strcmp(this->Version, "RES = 01.01") == 0 || 
+           strcmp(this->Version, "RES = 01.02") == 0)
     {
     this->GetInt(in,this->IMinimum1);
     this->GetInt(in,this->JMinimum1);
@@ -977,7 +983,7 @@ void vtkMFIXReader::ReadRestartFile()
     // 17 ints ... 4 doubles = 100 bytes
     this->SkipBytes(in,412);
     }
-  else if(Version == "RES = 01.03")
+  else if(strcmp(this->Version, "RES = 01.03") == 0)
     {
     this->GetInt(in,this->IMinimum1);
     this->GetInt(in,this->JMinimum1);
@@ -1005,7 +1011,7 @@ void vtkMFIXReader::ReadRestartFile()
     // 17 ints ... 5 doubles = 108 bytes
     this->SkipBytes(in,404);
     }
-  else if(Version == "RES = 01.04")
+  else if(strcmp(this->Version, "RES = 01.04") == 0)
     {
     this->GetInt(in,this->IMinimum1);
     this->GetInt(in,this->JMinimum1);
@@ -1034,7 +1040,7 @@ void vtkMFIXReader::ReadRestartFile()
     // 18 ints ... 5 doubles = 112 bytes
     this->SkipBytes(in,400);
     }
-  else if(Version == "RES = 01.05")
+  else if(strcmp(this->Version, "RES = 01.05") == 0)
     {
     this->GetInt(in,this->IMinimum1);
     this->GetInt(in,this->JMinimum1);
@@ -1600,7 +1606,11 @@ void vtkMFIXReader::CreateVariableNames()
       strcat(fileName, ".SPB");
       }
 
+#ifdef _WIN32
     ifstream in(fileName,ios::binary);
+#else
+    ifstream in(fileName);
+#endif
     if (in) // file exists
       {
       this->SpxFileExists->InsertValue(i, 1);
@@ -1909,7 +1919,11 @@ void vtkMFIXReader::GetTimeSteps()
       {
       strcat(fileName, ".SPB");
       }
+#ifdef _WIN32
     ifstream in(fileName , ios::binary);
+#else
+    ifstream in(fileName);
+#endif
 
     int numberOfVariables=0;
     if (in) // file exists
@@ -2102,7 +2116,11 @@ void vtkMFIXReader::GetVariableAtTimestep(int vari , int tstep,
 
   int index = (vari*this->MaximumTimestep) + tstep;
   int nBytesSkip = this->SPXTimestepIndexTable->GetValue(index);
+#ifdef _WIN32
   ifstream in(fileName,ios::binary);
+#else
+  ifstream in(fileName);
+#endif
   in.seekg(nBytesSkip,ios::beg);
   this->GetBlockOfFloats (in, v, this->IJKMaximum2);
 }
@@ -2288,7 +2306,12 @@ void vtkMFIXReader::GetAllTimes(vtkInformationVector *outputVector)
     strcat(fileName, ".SPB");
     }
 
-  ifstream tfile(fileName , ios::binary);
+#ifdef _WIN32
+  ifstream tfile(fileName, ios::binary);
+#else
+  ifstream tfile(fileName);
+#endif
+
   int numberOfVariablesInSPX = 
     this->SPXToNVarTable->GetValue(this->VariableIndexToSPX->GetValue(maxVar));
   int offset = 512-(int)sizeof(float) + 

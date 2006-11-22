@@ -57,7 +57,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.10");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.11");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -433,9 +433,13 @@ int vtkFLUENTReader::RequestInformation(
 //----------------------------------------------------------------------------
 int vtkFLUENTReader::OpenCaseFile(const char *filename)
 {
+#ifdef _WIN32
   this->FluentCaseFile->open(filename, ios::in | ios::binary);
+#else
+  this->FluentCaseFile->open(filename, ios::in);
+#endif
 
-  if (this->FluentCaseFile->is_open())
+  if (*this->FluentCaseFile)
     {
     //cout << "Successfully opened " << filename << endl;
     return 1;
@@ -499,9 +503,13 @@ int vtkFLUENTReader::OpenDataFile(const char *filename)
   dfilename.erase(dfilename.length()-3, 3);
   dfilename.append("dat");
 
+#ifdef _WIN32
   this->FluentDataFile->open(dfilename.c_str(), ios::in | ios::binary);
+#else
+  this->FluentDataFile->open(dfilename.c_str(), ios::in);
+#endif
 
-  if (this->FluentDataFile->is_open())
+  if (*this->FluentDataFile)
     {
     //cout << "Successfully opened " << dfilename << endl;
     return 1;
@@ -2850,12 +2858,14 @@ void vtkFLUENTReader::GetPeriodicShadowFacesBinary()
   int dstart = this->CaseBuffer->value.find('(', 7);
   int ptr = dstart + 1;
 
-  int faceIndex1, faceIndex2;
+  //int faceIndex1, faceIndex2;
   for (int i = firstIndex; i <=lastIndex; i++)
     {
-    faceIndex1 = this->GetCaseBufferInt(ptr);
+    //faceIndex1 = this->GetCaseBufferInt(ptr);
+    this->GetCaseBufferInt(ptr);
     ptr = ptr + 4;
-    faceIndex2 = this->GetCaseBufferInt(ptr);
+    //faceIndex2 = this->GetCaseBufferInt(ptr);
+    this->GetCaseBufferInt(ptr);
     ptr = ptr + 4;
     }
 }
