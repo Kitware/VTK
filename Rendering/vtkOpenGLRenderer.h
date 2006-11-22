@@ -22,6 +22,8 @@
 
 #include "vtkRenderer.h"
 
+class vtkOpenGLRendererLayerList; // Pimpl
+
 class VTK_RENDERING_EXPORT vtkOpenGLRenderer : public vtkRenderer
 {
 protected:
@@ -34,8 +36,15 @@ public:
 
   // Description:
   // Concrete open gl render method.
-  void DeviceRender(void); 
-
+  void DeviceRender(void);
+  
+  // Description:
+  // Render translucent geometry. Default implementation just call
+  // UpdateTranslucentGeometry().
+  // Subclasses of vtkRenderer that can deal with depth peeling must
+  // override this method.
+  virtual void DeviceRenderTranslucentGeometry();
+  
   // Description:
   // Internal method temporarily removes lights before reloading them
   // into graphics pipeline.
@@ -65,6 +74,44 @@ protected:
   class vtkGLPickInfo* PickInfo;
   //ETX
   double PickedZ;
+ 
+  // Description:
+  // Render a peel layer. If there is no more GPU RAM to save the texture,
+  // return false otherwise returns true. Also if layer==0 and no prop have
+  // been rendered (there is no translucent geometry), it returns false.
+  // \pre positive_layer: layer>=0
+  int RenderPeel(int layer);
+  
+  // Description:
+  // This flag is on if the current OpenGL context supports extensions
+  // required by the depth peeling technique.
+  int DepthPeelingIsSupported;
+  
+  // Description:
+  // This flag is on once the OpenGL extensions required by the depth peeling
+  // technique have been checked.
+  int DepthPeelingIsSupportedChecked;
+  
+  // Description:
+  // Used by the depth peeling technique to store the transparency layers.
+  vtkOpenGLRendererLayerList *LayerList;
+  
+  unsigned int OpaqueLayerZ;
+  unsigned int TransparentLayerZ;
+  unsigned int ProgramShader;
+  
+  // Description:
+  // Cache viewport values for depth peeling.
+  int ViewportX;
+  int ViewportY;
+  int ViewportWidth;
+  int ViewportHeight;
+  
+  // Description:
+  // Actual depth format: vtkgl::DEPTH_COMPONENT16_ARB
+  // or vtkgl::DEPTH_COMPONENT24_ARB
+  unsigned int DepthFormat;
+  
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.
   void operator=(const vtkOpenGLRenderer&);  // Not implemented.

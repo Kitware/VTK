@@ -213,6 +213,14 @@ public:
   virtual void DeviceRender() =0;
 
   // Description:
+  // Render translucent geometry. Default implementation just call
+  // UpdateTranslucentGeometry().
+  // Subclasses of vtkRenderer that can deal with depth peeling must
+  // override this method.
+  // It updates boolean ivar LastRenderingUsedDepthPeeling.
+  virtual void DeviceRenderTranslucentGeometry();
+  
+  // Description:
   // Clear the image to the background color.
   virtual void Clear() {};
 
@@ -377,6 +385,42 @@ public:
   int IsActiveCameraCreated() 
     { return (this->ActiveCamera != NULL); }
   
+  
+  // Description:
+  // Turn on/off rendering of translucent material with depth peeling
+  // technique.
+  // If UseDepthPeeling is on and the GPU supports it, depth peeling is used
+  // for rendering translucent materials.
+  // If UseDepthPeeling is off, alpha blending is used.
+  // Initial value is off.
+  vtkSetMacro(UseDepthPeeling,int);
+  vtkGetMacro(UseDepthPeeling,int);
+  vtkBooleanMacro(UseDepthPeeling,int);
+  
+  // Description:
+  // In case of use of depth peeling technique for rendering translucent
+  // material, define the threshold under which the algorithm stops to
+  // iterate over peel layers. This is the ratio of the number of pixels
+  // that have been touched by the last layer over the total number of pixels
+  // of the viewport area.
+  // Initial value is 0.0, meaning rendering have to be exact. Greater values
+  // may speed-up the rendering with small impact on the quality.
+  vtkSetClampMacro(OcclusionRatio,double,0.0,0.5);
+  vtkGetMacro(OcclusionRatio,double);
+  
+  // Description:
+  // In case of depth peeling, define the maximum number of peeling layers.
+  // Initial value is 4. A special value of 0 means no maximum limit.
+  // It has to be a positive value.
+  vtkSetMacro(MaximumNumberOfPeels,int);
+  vtkGetMacro(MaximumNumberOfPeels,int);
+  
+  // Description:
+  // Tells if the last call to DeviceRenderTranslucentGeometry() actually
+  // used depth peeling.
+  // Initial value is false.
+  vtkGetMacro(LastRenderingUsedDepthPeeling,int);
+  
 protected:
   vtkRenderer();
   ~vtkRenderer();
@@ -465,6 +509,14 @@ protected:
   virtual int UpdateGeometry(void);
 
   // Description:
+  // Ask all props to update and draw any translucent
+  // geometry. This includes both vtkActors and vtkVolumes
+  // Return the number of rendered props.
+  // It is called once with alpha blending technique. It is called multiple
+  // times with depth peeling technique.
+  virtual int UpdateTranslucentGeometry();
+  
+  // Description:
   // Ask the active camera to do whatever it needs to do prior to rendering.
   // Creates a camera if none found active.
   virtual int UpdateCamera(void);
@@ -486,6 +538,35 @@ protected:
   // This is only used internally.
   vtkCamera *GetActiveCameraAndResetIfCreated();
 
+  // Description:
+  // If this flag is on and the GPU supports it, depth peeling is used
+  // for rendering translucent materials.
+  // If this flag is off, alpha blending is used.
+  // Initial value is off.
+  int UseDepthPeeling;
+  
+  // Description:
+  // In case of use of depth peeling technique for rendering translucent
+  // material, define the threshold under which the algorithm stops to
+  // iterate over peel layers. This is the ratio of the number of pixels
+  // that have been touched by the last layer over the total number of pixels
+  // of the viewport area.
+  // Initial value is 0.0, meaning rendering have to be exact. Greater values
+  // may speed-up the rendering with small impact on the quality.
+  double OcclusionRatio;
+   
+  // Description:
+  // In case of depth peeling, define the maximum number of peeling layers.
+  // Initial value is 4. A special value of 0 means no maximum limit.
+  // It has to be a positive value.
+  int MaximumNumberOfPeels;
+  
+  // Description:
+  // Tells if the last call to DeviceRenderTranslucentGeometry() actually
+  // used depth peeling.
+  // Initial value is false.
+  int LastRenderingUsedDepthPeeling;
+  
   // VISIBLE CELL SELECTION ----------------------------------------
   //BTX  
   friend class vtkVisibleCellSelector;

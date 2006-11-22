@@ -24,7 +24,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLActor, "1.29");
+vtkCxxRevisionMacro(vtkOpenGLActor, "1.30");
 vtkStandardNewMacro(vtkOpenGLActor);
 #endif
 
@@ -54,7 +54,14 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
       }
     else
       {
-      glDepthMask (GL_FALSE);
+      if(ren->GetLastRenderingUsedDepthPeeling())
+        {
+        glDepthMask(GL_TRUE); // transparency with depth peeling
+        }
+      else
+        {
+        glDepthMask (GL_FALSE); // transparency with alpha blending
+        }
       }
     }
 

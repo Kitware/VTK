@@ -14,6 +14,7 @@ IF(VTK_USE_DISPLAY)
     LoadOpenGLExtension.cxx
     TestInteractorTimers.cxx
     TestOrderedTriangulator.cxx
+    TestOpacity.cxx
     )
 
   IF(VTK_DATA_ROOT)

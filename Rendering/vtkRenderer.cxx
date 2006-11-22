@@ -38,7 +38,7 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.230");
+vtkCxxRevisionMacro(vtkRenderer, "1.231");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
@@ -113,6 +113,11 @@ vtkRenderer::vtkRenderer()
   this->PropsSelectedFrom = NULL;
   this->PropsSelectedFromCount = 0;
   this->IdentPainter = NULL;
+  
+  this->UseDepthPeeling=0;
+  this->OcclusionRatio=0.0;
+  this->MaximumNumberOfPeels=4;
+  this->LastRenderingUsedDepthPeeling=0;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -346,6 +351,23 @@ void vtkRenderer::Render(void)
     }
 }
 
+// ----------------------------------------------------------------------------
+// Description:
+// Render translucent geometry. Default implementation just call
+// UpdateTranslucentGeometry().
+// Subclasses of vtkRenderer that can deal with depth peeling must
+// override this method.
+void vtkRenderer::DeviceRenderTranslucentGeometry()
+{
+  // Have to be set before a call to UpdateTranslucentGeometry() because
+  // UpdateTranslucentGeometry() will eventually call
+  // vtkOpenGLActor::Render() that uses this flag.
+  this->LastRenderingUsedDepthPeeling=0;
+  
+  this->UpdateTranslucentGeometry();
+}
+
+// ----------------------------------------------------------------------------
 double vtkRenderer::GetAllocatedRenderTime()
 {
   return this->AllocatedRenderTime;
@@ -543,14 +565,9 @@ int vtkRenderer::UpdateGeometry()
     this->NumberOfPropsRendered += 
       this->PropArray[i]->RenderOpaqueGeometry(this);
     }
- 
-  // loop through props and give them a chance to 
-  // render themselves as translucent geometry
-  for ( i = 0; i < this->PropArrayCount; i++ )
-    {
-    this->NumberOfPropsRendered += 
-      this->PropArray[i]->RenderTranslucentGeometry(this);
-    }
+  
+  // do the render library specific stuff about translucent geometry.
+  this->DeviceRenderTranslucentGeometry();
     
   // loop through props and give them a chance to 
   // render themselves as an overlay (or underlay)
@@ -569,6 +586,28 @@ int vtkRenderer::UpdateGeometry()
   return  this->NumberOfPropsRendered;
 }
 
+// ----------------------------------------------------------------------------
+// Description:
+// Ask all props to update and draw any translucent
+// geometry. This includes both vtkActors and vtkVolumes
+// Return the number of rendered props.
+// It is called once with alpha blending technique. It is called multiple
+// times with depth peeling technique.
+int vtkRenderer::UpdateTranslucentGeometry()
+{
+  int result=0;
+  // loop through props and give them a chance to 
+  // render themselves as translucent geometry
+  for (int i = 0; i < this->PropArrayCount; i++ )
+    {
+    int rendered=this->PropArray[i]->RenderTranslucentGeometry(this);
+    this->NumberOfPropsRendered += rendered;
+    result+=rendered;
+    }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
 vtkWindow *vtkRenderer::GetVTKWindow()
 {
   return this->RenderWindow;
@@ -1241,6 +1280,18 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Draw: "
      << (this->Draw ? "On\n" : "Off\n");
 
+  os << indent << "UseDepthPeeling: "
+     << (this->UseDepthPeeling ? "On" : "Off")<< "\n";
+  
+  os << indent << "OcclusionRation: "
+     << this->OcclusionRatio << "\n";
+  
+  os << indent << "MaximumNumberOfPeels: "
+     << this->MaximumNumberOfPeels << "\n";
+  
+  os << indent << "LastRenderingUsedDepthPeeling: "
+     << (this->LastRenderingUsedDepthPeeling ? "On" : "Off")<< "\n";
+  
   // I don't want to print this since it is used just internally
   // os << indent << this->NumberOfPropsRendered;
 }
