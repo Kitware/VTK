@@ -1463,10 +1463,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTK_BINARY_DIR}/vtkIOInstantiator.h
     ${VTK_BINARY_DIR}/vtkImagingInstantiator.h
     ${VTK_BINARY_DIR}/vtkGraphicsInstantiator.h
-    ${VTK_BINARY_DIR}/vtkGenericFilteringInstantiator.h
-    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cmake
-    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.h.in
-    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cxx.in)
+    ${VTK_BINARY_DIR}/vtkGenericFilteringInstantiator.h)
   IF(VTK_USE_RENDERING)
     SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkRenderingInstantiator.h)
     SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkVolumeRenderingInstantiator.h)
@@ -1484,6 +1481,16 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES ${__inst_files}
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
     COMPONENT Development)
+
+  # Install the instantiator headers.
+  SET(__inst_files
+    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cmake
+    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.h.in
+    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cxx.in)
+  INSTALL(FILES ${__inst_files}
+    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}/CMake
+    COMPONENT Development)
+
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 # Save library dependencies.
@@ -1493,14 +1500,19 @@ EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   SET(__inst_files
     ${VTK_BINARY_DIR}/vtkConfigure.h
-    ${VTK_BINARY_DIR}/vtkToolkits.h
+    ${VTK_BINARY_DIR}/vtkToolkits.h)
+  INSTALL(FILES ${__inst_files}
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+    COMPONENT Development)
+
+  SET(__inst_files
     ${VTK_BINARY_DIR}/UseVTK.cmake
     ${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
   IF(VTK_WRAP_HINTS)
     SET(__inst_files ${__inst_files} ${VTK_WRAP_HINTS})
   ENDIF(VTK_WRAP_HINTS)
   INSTALL(FILES ${__inst_files}
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}
     COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
