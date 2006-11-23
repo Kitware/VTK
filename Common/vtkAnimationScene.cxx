@@ -19,7 +19,7 @@
 #include "vtkCollectionIterator.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAnimationScene, "1.9");
+vtkCxxRevisionMacro(vtkAnimationScene, "1.10");
 vtkStandardNewMacro(vtkAnimationScene);
 
 //----------------------------------------------------------------------------
@@ -150,49 +150,53 @@ void vtkAnimationScene::Play()
   this->StopPlay = 0;
   this->FrameRate = (!this->FrameRate)? 1.0 : this->FrameRate;
   // the actual play loop, check for StopPlay flag.
-  double deltatime = 0.0;
-  double currenttime = this->AnimationTime;
-  double span = this->EndTime - this->StartTime;
   
+  double currenttime = this->AnimationTime;
   // adjust currenttime to a valid time.
   currenttime = (currenttime < this->StartTime || currenttime >= this->EndTime)?
     this->StartTime : currenttime;
-  double STime = currenttime;
-  double clocktime = currenttime;
-  double oldclocktime;
-  double time_adjustment = 0;
-  this->AnimationTimer->StartTimer();
+
+  double time_per_frame = 
+    (this->PlayMode == PLAYMODE_SEQUENCE)?  (1.0 / this->FrameRate) : 1;
   do
     {
     this->Initialize(); // Set the Scene in unintialized mode.
+    this->AnimationTimer->StartTimer();
+    double timer_start_time = currenttime;
+    double deltatime = 0.0;
     do
       {
-      currenttime = clocktime - time_adjustment;
       this->Tick(currenttime, deltatime);
-      oldclocktime = clocktime;
-      if (this->PlayMode == PLAYMODE_REALTIME)
+
+      // needed to compute delta times.
+      double previous_tick_time = currenttime;
+
+      switch (this->PlayMode)
         {
+      case PLAYMODE_REALTIME:
         this->AnimationTimer->StopTimer();
-        clocktime = this->AnimationTimer->GetElapsedTime() + 
-          STime;
-        }
-      else if (this->PlayMode == PLAYMODE_SEQUENCE)
-        {
-        clocktime += 1.0 / this->FrameRate;
-        }
-      else
-        {
+        currenttime = this->AnimationTimer->GetElapsedTime() + 
+          timer_start_time;
+        break;
+
+      case PLAYMODE_SEQUENCE:
+        currenttime += time_per_frame;
+        break;
+
+      default:
         vtkErrorMacro("Invalid Play Mode");
         this->StopPlay = 1;
-        break;
         }
-      deltatime = clocktime - oldclocktime;
+
+      deltatime = currenttime - previous_tick_time;
       deltatime = (deltatime < 0)? -1*deltatime : deltatime;
-      }
-    while (!this->StopPlay && this->CueState != vtkAnimationCue::INACTIVE);
-    time_adjustment += span;
-    }
-  while (this->Loop && !this->StopPlay);
+      } while (!this->StopPlay && this->CueState != vtkAnimationCue::INACTIVE);
+      // End of loop for 1 cycle.
+
+    // restart the loop.
+    currenttime = this->StartTime;
+    } while (this->Loop && !this->StopPlay);
+
   this->StopPlay = 0;
   this->InPlay = 0;
 }
