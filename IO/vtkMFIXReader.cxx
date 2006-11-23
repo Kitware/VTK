@@ -38,7 +38,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 
-vtkCxxRevisionMacro(vtkMFIXReader, "1.2");
+vtkCxxRevisionMacro(vtkMFIXReader, "1.3");
 vtkStandardNewMacro(vtkMFIXReader);
 
 //----------------------------------------------------------------------------
@@ -1337,7 +1337,7 @@ void vtkMFIXReader::ReadRestartFile()
     this->GetBlockOfDoubles(in,this->TempD,this->DimensionBc); // bc massflow s
     }
 
-  if (this->Version == "RES = 01.00")
+  if (strcmp(this->Version,"RES = 01.00") == 0)
     {
     for (int lc=0; lc<10; ++lc)
       {
