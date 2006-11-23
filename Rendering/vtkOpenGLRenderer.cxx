@@ -33,7 +33,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 #include <assert.h>
 #include <vtkstd/list>
-#include <sstream>
 
 class vtkGLPickInfo
 {
@@ -44,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.54");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.55");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
