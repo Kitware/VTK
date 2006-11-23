@@ -16,7 +16,6 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCriticalSection.h"
 #include "vtkEmptyCell.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
@@ -33,7 +32,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.6");
+vtkCxxRevisionMacro(vtkPolyData, "1.7");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
