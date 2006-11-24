@@ -36,12 +36,13 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #ifndef vtkFloatingPointType
 #define vtkFloatingPointType float
 #endif
 
-vtkCxxRevisionMacro(vtkDiscreteMarchingCubes, "1.1");
+vtkCxxRevisionMacro(vtkDiscreteMarchingCubes, "1.2");
 vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
 // Description:
@@ -78,12 +79,16 @@ void vtkDiscreteMarchingCubesComputeGradient(
   EDGE_LIST  *edge;
   int contNum, jOffset, kOffset, idx, ii, index, *vert;
   vtkIdType ptIds[3];
+  int extent[6];
   int ComputeScalars = newCellScalars != NULL;
   vtkFloatingPointType t, *x1, *x2, x[3], min, max;
   vtkFloatingPointType pts[8][3], xp, yp, zp;
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
                               {4,5}, {5,6}, {7,6}, {4,7},
                               {0,4}, {1,5}, {3,7}, {2,6}};
+
+  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
 
   triCases =  vtkMarchingCubesTriangleCases::GetCases();
 
@@ -118,13 +123,13 @@ void vtkDiscreteMarchingCubesComputeGradient(
       break;
       }
     kOffset = k*sliceSize;
-    pts[0][2] = origin[2] + k*Spacing[2];
-    zp = origin[2] + (k+1)*Spacing[2];
+    pts[0][2] = origin[2] + (k+extent[4])*Spacing[2];
+    zp = pts[0][2] + Spacing[2];
     for ( j=0; j < (dims[1]-1); j++)
       {
       jOffset = j*dims[0];
-      pts[0][1] = origin[1] + j*Spacing[1];
-      yp = origin[1] + (j+1)*Spacing[1];
+      pts[0][1] = origin[1] + (j+extent[2])*Spacing[1];
+      yp = pts[0][1] + Spacing[1];
       for ( i=0; i < (dims[0]-1); i++)
         {
         //get scalar values
@@ -147,8 +152,8 @@ void vtkDiscreteMarchingCubesComputeGradient(
           }
 
         //create voxel points
-        pts[0][0] = origin[0] + i*Spacing[0];
-        xp = origin[0] + (i+1)*Spacing[0];
+        pts[0][0] = origin[0] + (i+extent[0])*Spacing[0];
+        xp = pts[0][0] + Spacing[0];
 
         pts[1][0] = xp;
         pts[1][1] = pts[0][1];
@@ -256,7 +261,7 @@ int vtkDiscreteMarchingCubes::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointData *pd;
   vtkDataArray *inScalars;
-  int dims[3];
+  int dims[3], extent[6];
   int estimatedSize;
   vtkFloatingPointType Spacing[3], origin[3];
   vtkFloatingPointType bounds[6];
@@ -292,6 +297,8 @@ int vtkDiscreteMarchingCubes::RequestData(
   input->GetOrigin(origin);
   input->GetSpacing(Spacing);
 
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
+
   // estimate the number of points from the volume dimensions
   estimatedSize = (int) pow ((vtkFloatingPointType) (dims[0] * dims[1] * dims[2]), .75);
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
@@ -304,8 +311,8 @@ int vtkDiscreteMarchingCubes::RequestData(
   // compute bounds for merging points
   for ( int i=0; i<3; i++)
     {
-    bounds[2*i] = origin[i];
-    bounds[2*i+1] = origin[i] + (dims[i]-1) * Spacing[i];
+    bounds[2*i] = origin[i] + extent[2*i] * Spacing[i];
+    bounds[2*i+1] = origin[i] + extent[2*i+1] * Spacing[i];
     }
   if ( this->Locator == NULL )
     {
