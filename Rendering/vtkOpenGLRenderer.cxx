@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.55");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.56");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -57,7 +57,7 @@ public:
 };
 
 const char *vtkOpenGLRenderer_PeelingFS=
-  "#extension GL_ARB_texture_rectangle: enable\n"
+//  "#extension GL_ARB_texture_rectangle: enable\n"
   "uniform sampler2DRectShadow shadowTex;\n"
   "uniform sampler2DRectShadow opaqueShadowTex;\n"
   "uniform int offsetX;\n"
@@ -263,6 +263,11 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
           supports_edge_clamp=extensions->ExtensionSupported("GL_EXT_texture_edge_clamp");
           }
         }
+
+      // Mesa does not support GL_ARB_texture_rectangle inside GLSL code
+      const GLubyte *openglRenderer=glGetString(GL_RENDERER);
+      const char *substring=strstr(reinterpret_cast<const char *>(openglRenderer),"Mesa");
+      int isMesa=substring!=0;
       
       GLint alphaBits;
       glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
@@ -278,7 +283,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
         supports_GL_ARB_multitexture &&
         supports_GL_ARB_texture_rectangle &&
         supports_edge_clamp &&
-        supportsAtLeast8AlphaBits;
+        supportsAtLeast8AlphaBits && !isMesa;
       
       if(this->DepthPeelingIsSupported)
         {
@@ -338,6 +343,10 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
         if(!supportsAtLeast8AlphaBits)
           {
           cout<<"at least 8 alpha bits is not supported"<<endl;
+          }
+        if(isMesa)
+          {
+          cout<<"Mesa does not support GL_ARB_texture_rectangle in GLSL code"<<endl;
           }
         }
       extensions->Delete();
