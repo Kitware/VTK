@@ -28,7 +28,7 @@
 // contouring other types of data, use the general vtkContourFilter. If you
 // want to contour an image (i.e., a volume slice), use vtkMarchingSquares.
 // .SECTION See Also
-// vtkContourFilter vtkSliceCubes vtkMarchingSquares vtkDividingCubes
+// vtkContourFilter vtkSliceCubes vtkMarchingSquares vtkSynchronizedTemplates3D
 
 
 #ifndef __vtkImageMarchingCubes_h
