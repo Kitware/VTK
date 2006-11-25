@@ -1,7 +1,7 @@
 /* Id */
 /*
  * GL2PS, an OpenGL to PostScript Printing Library
- * Copyright (C) 1999-2003 Christophe Geuzaine <geuz@geuz.org>
+ * Copyright (C) 1999-2006 Christophe Geuzaine <geuz@geuz.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of either:
@@ -37,19 +37,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
-/* To generate a Windows dll, define GL2PSDLL at compile time */
+/* Define GL2PSDLL at compile time to build a Windows DLL */
 
-
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #  if defined(_MSC_VER)
-/* shut up warning due to bad windows header file */
-#    pragma warning ( disable : 4115 )
+#    pragma warning(disable:4115)
 #  endif
 #  include <windows.h>
-#  ifdef GL2PSDLL
-#    ifdef GL2PSDLL_EXPORTS
+#  if defined(GL2PSDLL)
+#    if defined(GL2PSDLL_EXPORTS)
 #      define GL2PSDLL_API __declspec(dllexport)
 #    else
 #      define GL2PSDLL_API __declspec(dllimport)
@@ -61,43 +58,59 @@
 #  define GL2PSDLL_API
 #endif
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(HAVE_OPENGL_GL_H)
 #  include <OpenGL/gl.h>
 #else
 #  include <GL/gl.h>
 #endif
 
-/* Support for compressed PDF */
+/* Support for compressed PostScript/PDF/SVG and for embedded PNG
+   images in SVG */
 
-#if defined(HAVE_ZLIB) || defined(HAVE_LIBZ) || defined(GL2PS_HAVE_ZLIB)
-#  include "vtk_zlib.h"
-#  ifndef GL2PS_HAVE_ZLIB
-#    define GL2PS_HAVE_ZLIB
+#if defined(HAVE_ZLIB) || defined(HAVE_LIBZ)
+#  define GL2PS_HAVE_ZLIB
+#  if defined(HAVE_LIBPNG) || defined(HAVE_PNG)
+#    define GL2PS_HAVE_LIBPNG
 #  endif
 #endif
 
 /* Version number */
 
 #define GL2PS_MAJOR_VERSION 1
-#define GL2PS_MINOR_VERSION 1
+#define GL2PS_MINOR_VERSION 3
 #define GL2PS_PATCH_VERSION 2
+#define GL2PS_EXTRA_VERSION ""
 
 #define GL2PS_VERSION (GL2PS_MAJOR_VERSION + \
                        0.01 * GL2PS_MINOR_VERSION + \
                        0.0001 * GL2PS_PATCH_VERSION)
 
-/* Output file format */
+#define GL2PS_COPYRIGHT "(C) 1999-2006 Christophe Geuzaine (geuz@geuz.org)"
 
-#define GL2PS_PS  1
-#define GL2PS_EPS 2
-#define GL2PS_TEX 3
-#define GL2PS_PDF 4
+/* Output file formats (the values and the ordering are important!) */
+
+#define GL2PS_PS  0
+#define GL2PS_EPS 1
+#define GL2PS_TEX 2
+#define GL2PS_PDF 3
+#define GL2PS_SVG 4
+#define GL2PS_PGF 5
 
 /* Sorting algorithms */
 
 #define GL2PS_NO_SORT     1
 #define GL2PS_SIMPLE_SORT 2
 #define GL2PS_BSP_SORT    3
+
+/* Message levels and error codes */
+
+#define GL2PS_SUCCESS       0
+#define GL2PS_INFO          1
+#define GL2PS_WARNING       2
+#define GL2PS_ERROR         3
+#define GL2PS_NO_FEEDBACK   4
+#define GL2PS_OVERFLOW      5
+#define GL2PS_UNINITIALIZED 6
 
 /* Options for gl2psBeginPage */
 
@@ -113,176 +126,35 @@
 #define GL2PS_NO_PIXMAP            (1<<8)
 #define GL2PS_USE_CURRENT_VIEWPORT (1<<9)
 #define GL2PS_COMPRESS             (1<<10)
+#define GL2PS_NO_BLENDING          (1<<11)
+#define GL2PS_TIGHT_BOUNDING_BOX   (1<<12)
 
 /* Arguments for gl2psEnable/gl2psDisable */
 
 #define GL2PS_POLYGON_OFFSET_FILL 1
 #define GL2PS_POLYGON_BOUNDARY    2
 #define GL2PS_LINE_STIPPLE        3
+#define GL2PS_BLEND               4
 
-/* Magic numbers */
+/* Text alignment (o=raster position; default mode is BL):
+   +---+ +---+ +---+ +---+ +---+ +---+ +-o-+ o---+ +---o 
+   | o | o   | |   o |   | |   | |   | |   | |   | |   | 
+   +---+ +---+ +---+ +-o-+ o---+ +---o +---+ +---+ +---+ 
+    C     CL    CR    B     BL    BR    T     TL    TR */
 
-#define GL2PS_EPSILON             5.0e-3F
-#define GL2PS_DEPTH_FACT          1000.0F
-#define GL2PS_SIMPLE_OFFSET       0.05F
-#define GL2PS_SIMPLE_OFFSET_LARGE 1.0F
-#define GL2PS_ZERO(arg)           (fabs(arg)<1.e-20)
-#define GL2PS_FIXED_XREF_ENTRIES  7 
-
-/* Message levels and error codes */
-
-#define GL2PS_SUCCESS       0
-#define GL2PS_INFO          1
-#define GL2PS_WARNING       2
-#define GL2PS_ERROR         3
-#define GL2PS_NO_FEEDBACK   4
-#define GL2PS_OVERFLOW      5
-#define GL2PS_UNINITIALIZED 6
-
-/* Primitive types */
-
-#define GL2PS_NOTYPE     -1
-#define GL2PS_TEXT       1
-#define GL2PS_POINT      2
-#define GL2PS_LINE       3
-#define GL2PS_QUADRANGLE 4
-#define GL2PS_TRIANGLE   5
-#define GL2PS_PIXMAP     6
-
-/* Text alignment */
-
-#define GL2PS_TEXT_C     1
-#define GL2PS_TEXT_CL    2
-#define GL2PS_TEXT_CR    3
-#define GL2PS_TEXT_B     4
-#define GL2PS_TEXT_BL    5
-#define GL2PS_TEXT_BR    6
-#define GL2PS_TEXT_T     7
-#define GL2PS_TEXT_TL    8
-#define GL2PS_TEXT_TR    9
-
-/* BSP tree primitive comparison */
-
-#define GL2PS_COINCIDENT  1
-#define GL2PS_IN_FRONT_OF 2
-#define GL2PS_IN_BACK_OF  3
-#define GL2PS_SPANNING    4
-
-/* 2D BSP tree primitive comparison */
-
-#define GL2PS_POINT_COINCIDENT 0
-#define GL2PS_POINT_INFRONT    1
-#define GL2PS_POINT_BACK       2
-
-/* Pass through options */
-
-#define GL2PS_BEGIN_POLYGON_OFFSET_FILL 1
-#define GL2PS_END_POLYGON_OFFSET_FILL   2
-#define GL2PS_BEGIN_POLYGON_BOUNDARY    3
-#define GL2PS_END_POLYGON_BOUNDARY      4
-#define GL2PS_BEGIN_LINE_STIPPLE        5
-#define GL2PS_END_LINE_STIPPLE          6
-#define GL2PS_SET_POINT_SIZE            7
-#define GL2PS_SET_LINE_WIDTH            8
+#define GL2PS_TEXT_C  1
+#define GL2PS_TEXT_CL 2
+#define GL2PS_TEXT_CR 3
+#define GL2PS_TEXT_B  4
+#define GL2PS_TEXT_BL 5
+#define GL2PS_TEXT_BR 6
+#define GL2PS_TEXT_T  7
+#define GL2PS_TEXT_TL 8
+#define GL2PS_TEXT_TR 9
 
 typedef GLfloat GL2PSrgba[4];
-typedef GLfloat GL2PSxyz[3];
-typedef GLfloat GL2PSplane[4];
 
-typedef struct _GL2PSbsptree2d GL2PSbsptree2d;
-
-struct _GL2PSbsptree2d {
-  GL2PSplane plane;
-  GL2PSbsptree2d *front, *back;
-};
-
-typedef struct {
-  GLint nmax, size, incr, n;
-  char *array;
-} GL2PSlist;
-
-typedef struct _GL2PSbsptree GL2PSbsptree;
-
-struct _GL2PSbsptree {
-  GL2PSplane plane;
-  GL2PSlist *primitives;
-  GL2PSbsptree *front, *back;
-};
-
-typedef struct {
-  GL2PSxyz xyz;
-  GL2PSrgba rgba;
-} GL2PSvertex;
-
-typedef GL2PSvertex GL2PStriangle[3];
-
-typedef struct {
-  GLshort fontsize;
-  char *str, *fontname;
-  GLint alignment;
-} GL2PSstring;
-
-typedef struct {
-  GLsizei width, height;
-  GLenum format, type;
-  GLfloat *pixels;
-} GL2PSimage;
-
-typedef struct {
-  GLshort type, numverts;
-  char boundary, dash, culled;
-  GLfloat width, depth;
-  GL2PSvertex *verts;
-  union {
-    GL2PSstring *text;
-    GL2PSimage *image;
-  } data;
-} GL2PSprimitive;
-
-typedef struct {
-#ifdef GL2PS_HAVE_ZLIB
-  Bytef *dest, *src, *start;
-  uLongf destLen, srcLen;
-#else
-  int dummy;
-#endif
-} GL2PScompress;
-
-typedef struct {
-  /* general */
-  GLint format, sort, options, colorsize, colormode, buffersize;
-  const char *title, *producer, *filename;
-  GLboolean boundary;
-  GLfloat *feedback, offset[2], lastlinewidth;
-  GLint viewport[4];
-  GL2PSrgba *colormap, lastrgba, threshold;
-  GL2PSlist *primitives;
-  FILE *stream;
-  GL2PScompress *compress;
-
-  /* BSP-specific */
-  GLint maxbestroot;
-
-  /* occlusion culling-specific */
-  GLboolean zerosurfacearea;
-  GL2PSbsptree2d *imagetree;
-  GL2PSprimitive *primitivetoadd;
-  
-  /* PDF-specific */
-  int cref[GL2PS_FIXED_XREF_ENTRIES];
-  int streamlength;
-  GL2PSlist *tlist, *tidxlist, *ilist, *slist; 
-  int lasttype, consec_cnt, consec_inner_cnt;
-  int line_width_diff, line_rgb_diff, last_line_finished, last_triangle_finished;
-} GL2PScontext;
-
-/* private prototypes */
-
-GLint gl2psPrintPrimitives(void);
-
-/* public functions */
-
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
@@ -293,9 +165,14 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
                                   GLint nr, GLint ng, GLint nb, GLint buffersize,
                                   FILE *stream, const char *filename);
 GL2PSDLL_API GLint gl2psEndPage(void);
+GL2PSDLL_API GLint gl2psSetOptions(GLint options);
 GL2PSDLL_API GLint gl2psBeginViewport(GLint viewport[4]);
 GL2PSDLL_API GLint gl2psEndViewport(void);
-GL2PSDLL_API GLint gl2psText(const char *str, const char *fontname, GLshort fontsize);
+GL2PSDLL_API GLint gl2psText(const char *str, const char *fontname, 
+                             GLshort fontsize);
+GL2PSDLL_API GLint gl2psTextOpt(const char *str, const char *fontname, 
+                                GLshort fontsize, GLint align, GLfloat angle);
+GL2PSDLL_API GLint gl2psSpecial(GLint format, const char *str);
 GL2PSDLL_API GLint gl2psDrawPixels(GLsizei width, GLsizei height,
                                    GLint xorig, GLint yorig,
                                    GLenum format, GLenum type, const void *pixels);
@@ -303,13 +180,17 @@ GL2PSDLL_API GLint gl2psEnable(GLint mode);
 GL2PSDLL_API GLint gl2psDisable(GLint mode);
 GL2PSDLL_API GLint gl2psPointSize(GLfloat value);
 GL2PSDLL_API GLint gl2psLineWidth(GLfloat value);
+GL2PSDLL_API GLint gl2psBlendFunc(GLenum sfactor, GLenum dfactor);
 
-/* Undocumented */
-GL2PSDLL_API GLint gl2psTextOpt(const char *str, const char *fontname, GLshort fontsize,
-                                GLint align, GL2PSrgba color);
+/* undocumented */
+GL2PSDLL_API GLint gl2psDrawImageMap(GLsizei width, GLsizei height,
+                                     const GLfloat position[3],
+                                     const unsigned char *imagemap);
+GL2PSDLL_API const char *gl2psGetFileExtension(GLint format);
+GL2PSDLL_API const char *gl2psGetFormatDescription(GLint format);
 
-#ifdef __cplusplus
-};
+#if defined(__cplusplus)
+}
 #endif
 
 #endif /* __GL2PS_H__ */

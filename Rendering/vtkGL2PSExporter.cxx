@@ -167,7 +167,7 @@ void _Turn2DPropsOn(vtkRendererCollection *renCol, vtkIntArray *act2dVis)
     }
 }
 
-vtkCxxRevisionMacro(vtkGL2PSExporter, "1.13");
+vtkCxxRevisionMacro(vtkGL2PSExporter, "1.14");
 vtkStandardNewMacro(vtkGL2PSExporter);
 
 static float vtkGL2PSExporterGlobalPointSizeFactor = 5.0/7.0;
@@ -322,6 +322,11 @@ void vtkGL2PSExporter::WriteData()
     {
     sprintf(fName, "%s.tex", this->FilePrefix);
     format = GL2PS_TEX;
+    }
+  else if (this->FileFormat == SVG_FILE)
+    {
+    sprintf(fName, "%s.svg", this->FilePrefix);
+    format = GL2PS_SVG;
     }
   
   fpObj = fopen(fName, "wb");
