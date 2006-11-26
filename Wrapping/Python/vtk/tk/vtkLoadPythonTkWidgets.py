@@ -17,7 +17,9 @@ def vtkLoadPythonTkWidgets(interp):
 
     # create the platform-dependent file name
     prefix = ''
-    if os.name == 'posix':
+    if sys.platform == 'cygwin':
+        prefix = 'cyg'
+    elif os.name == 'posix':
         prefix = 'lib'
     extension = interp.call('info', 'sharedlibextension')
     filename = prefix+name+extension
