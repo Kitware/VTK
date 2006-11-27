@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.56");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.57");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -263,11 +263,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
           supports_edge_clamp=extensions->ExtensionSupported("GL_EXT_texture_edge_clamp");
           }
         }
-
-      // Mesa does not support GL_ARB_texture_rectangle inside GLSL code
-      const GLubyte *openglRenderer=glGetString(GL_RENDERER);
-      const char *substring=strstr(reinterpret_cast<const char *>(openglRenderer),"Mesa");
-      int isMesa=substring!=0;
       
       GLint alphaBits;
       glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
@@ -283,7 +278,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
         supports_GL_ARB_multitexture &&
         supports_GL_ARB_texture_rectangle &&
         supports_edge_clamp &&
-        supportsAtLeast8AlphaBits && !isMesa;
+        supportsAtLeast8AlphaBits;
       
       if(this->DepthPeelingIsSupported)
         {
@@ -299,57 +294,75 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
         }
       else
         {
-        cout<<"depth peeling is not supported."<<endl;
+        vtkDebugMacro(<<"depth peeling is not supported.");
         if(!supports_GL_ARB_depth_texture)
           {
-          cout<<"GL_ARB_depth_texture is not supported"<<endl;
+          vtkDebugMacro(<<"GL_ARB_depth_texture is not supported");
           }
         if(!supports_GL_ARB_shadow)
           {
-          cout<<"GL_ARB_shadow is not supported"<<endl;
+          vtkDebugMacro(<<"GL_ARB_shadow is not supported");
           }
         if(!supports_GL_EXT_shadow_funcs)
           {
-          cout<<"GL_EXT_shadow_funcs is not supported"<<endl;
+          vtkDebugMacro(<<"GL_EXT_shadow_funcs is not supported");
           }
         if(!supports_GL_ARB_vertex_shader)
           {
-          cout<<"GL_ARB_vertex_shader is not supported"<<endl;
+          vtkDebugMacro(<<"GL_ARB_vertex_shader is not supported");
           }
         if(!supports_GL_ARB_fragment_shader)
           {
-          cout<<"GL_ARB_fragment_shader is not supported"<<endl;
+          vtkDebugMacro(<<"GL_ARB_fragment_shader is not supported");
           }
         if(!supports_GL_ARB_shader_objects)
           {
-          cout<<"GL_ARB_shader_objects is not supported"<<endl;
+          vtkDebugMacro(<<"GL_ARB_shader_objects is not supported");
           }
         if(!supports_GL_ARB_occlusion_query)
           {
-          cout<<"GL_ARB_occlusion_query is not supported"<<endl;
+          vtkDebugMacro(<<"GL_ARB_occlusion_query is not supported");
           }
         if(!supports_GL_ARB_multitexture)
           {
-          cout<<"GL_ARB_multitexture is not supported"<<endl;
+          vtkDebugMacro(<<"GL_ARB_multitexture is not supported");
           }
         if(!supports_GL_ARB_texture_rectangle)
           {
-          cout<<"GL_ARB_texture_rectangle is not supported"<<endl;
+          vtkDebugMacro(<<"GL_ARB_texture_rectangle is not supported");
           }
         if(!supports_edge_clamp)
           {
-          cout<<"edge_clamp is not supported"<<endl;
+          vtkDebugMacro(<<"edge_clamp is not supported");
           }
         if(!supportsAtLeast8AlphaBits)
           {
-          cout<<"at least 8 alpha bits is not supported"<<endl;
-          }
-        if(isMesa)
-          {
-          cout<<"Mesa does not support GL_ARB_texture_rectangle in GLSL code"<<endl;
+          vtkDebugMacro(<<"at least 8 alpha bits is not supported");
           }
         }
       extensions->Delete();
+      }
+    }
+  
+  if(this->UseDepthPeeling && this->DepthPeelingIsSupported)
+    {
+    // last check. Some OpenGL implementations such as Mesa or ATI
+    // claim to support both GLSL and GL_ARB_texture_rectangle but
+    // don't actually support sampler2DRectShadow in a GLSL code.
+    // To test that, we compile the shader, if it fails, we don't use
+    // deph peeling
+    
+    GLuint shader=vtkgl::CreateShaderObjectARB(vtkgl::FRAGMENT_SHADER_ARB);
+    vtkgl::ShaderSourceARB(shader,1,const_cast<const char **>(&vtkOpenGLRenderer_PeelingFS),0);
+    vtkgl::CompileShaderARB(shader);
+    GLint params;
+    vtkgl::GetObjectParameterivARB(shader,vtkgl::OBJECT_COMPILE_STATUS_ARB,
+                                   &params);
+    this->DepthPeelingIsSupported=params==GL_TRUE;
+    vtkgl::DeleteObjectARB(shader);
+    if(!this->DepthPeelingIsSupported)
+      {
+      vtkDebugMacro(<<"this OpenGL implementation does not support GL_ARB_texture_rectangle in GLSL code");
       }
     }
   
