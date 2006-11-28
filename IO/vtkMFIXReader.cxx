@@ -38,7 +38,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 
-vtkCxxRevisionMacro(vtkMFIXReader, "1.3");
+vtkCxxRevisionMacro(vtkMFIXReader, "1.4");
 vtkStandardNewMacro(vtkMFIXReader);
 
 //----------------------------------------------------------------------------
@@ -610,8 +610,8 @@ void vtkMFIXReader::MakeMesh(vtkUnstructuredGrid *output)
         }
       double tempRange[2];
       this->CellDataArray[j]->GetRange(tempRange, -1);
-      this->Minimum->InsertValue( j, tempRange[0]);
-      this->Maximum->InsertValue( j, tempRange[1]);
+      this->Minimum->InsertValue( j, (float)tempRange[0]);
+      this->Maximum->InsertValue( j, (float)tempRange[1]);
       this->VectorLength->InsertValue( j, 1);
       first = 1;
       }
@@ -2203,9 +2203,9 @@ void vtkMFIXReader::ConvertVectorFromCylindricalToCartesian( int xindex,
   int zindex)
 {
   int count = 0;
-  float radius = 0.0;
-  float y = 0.0;
-  float theta = 0.0;
+  double radius = 0.0;
+  double y = 0.0;
+  double theta = 0.0;
   int cnt=0;
 
   for (int k=0; k< this->KMaximum2; k++)
@@ -2216,14 +2216,14 @@ void vtkMFIXReader::ConvertVectorFromCylindricalToCartesian( int xindex,
         {
         if ( this->Flag->GetValue(cnt) < 10 )
           {
-          float ucart = (this->CellDataArray[xindex]->
+          double ucart = (this->CellDataArray[xindex]->
             GetValue(count)*cos(theta)) -
             (this->CellDataArray[zindex]->GetValue(count)*sin(theta));
-          float wcart = (this->CellDataArray[xindex]->
+          double wcart = (this->CellDataArray[xindex]->
             GetValue(count)*sin(theta)) +
             (this->CellDataArray[zindex]->GetValue(count)*cos(theta));
-          this->CellDataArray[xindex]->InsertValue(count, ucart);
-          this->CellDataArray[zindex]->InsertValue(count, wcart);
+          this->CellDataArray[xindex]->InsertValue(count, (float)ucart);
+          this->CellDataArray[zindex]->InsertValue(count, (float)wcart);
           count++;
           }
         cnt++;
