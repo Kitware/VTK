@@ -10,7 +10,7 @@ VTK.
 
 The following command was used to obtain the symbol list:
 
-nm libvtktiff.a |grep " [TR] "
+nm libvtktiff.a |grep " [TRD] "
 
 */
 
