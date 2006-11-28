@@ -56,6 +56,9 @@ if {[catch {set channel [open "$dir/test.tmp" "w"]}] == 0 } {
    file delete -force  "$dir/minc1.mnc"
    file delete -force  "$dir/minc2.mnc"
    file delete -force  "$dir/minc3.mnc"
+
+   # write out the file header for coverage
+   attributes PrintFileHeader
 }
 
 vtkImageViewer viewer
