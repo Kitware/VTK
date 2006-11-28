@@ -71,7 +71,7 @@ protected:
 
   void InitializeToCurrentDir();
   int IsProcessed(const char*);
-  const char* GetFullPathName(const char*);
+  const char* GetDataFileFullPathName(const char*);
 
   // Description:
   // the DataLocation should be set and ResetReader() 

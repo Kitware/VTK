@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkRTXMLPolyDataReader, "1.1");
+vtkCxxRevisionMacro(vtkRTXMLPolyDataReader, "1.2");
 vtkStandardNewMacro(vtkRTXMLPolyDataReader);
 
 class vtkRTXMLPolyDataReaderInternals
@@ -118,7 +118,7 @@ int vtkRTXMLPolyDataReader::NewDataAvailable()
     {
     for (int i=0; i<current; i++)
       {
-      const char* file = this->GetFullPathName(dataDir->GetFile(i));
+      const char* file = this->GetDataFileFullPathName(dataDir->GetFile(i));
       if ( ! IsProcessed(file) )
         {
         this->Internal->AvailableDataFileList.push_back(file);
@@ -143,7 +143,7 @@ int vtkRTXMLPolyDataReader::NewDataAvailable()
 // is the concatenation of "this->DataLocation" and "name"
 // caller has to free the memory of returned fullpath name.
 //----------------------------------------------------------------------
-const char* vtkRTXMLPolyDataReader::GetFullPathName(const char* name)
+const char* vtkRTXMLPolyDataReader::GetDataFileFullPathName(const char* name)
 {
   char* fullpath;
   int n = strlen(this->DataLocation);
@@ -205,7 +205,7 @@ void vtkRTXMLPolyDataReader::ResetReader()
   for (int i=0; i< dataDir->GetNumberOfFiles();i++)
     {
     this->Internal->ProcessedFileList.push_back(
-      this->GetFullPathName(dataDir->GetFile(i))
+      this->GetDataFileFullPathName(dataDir->GetFile(i))
       );
     }
   // initialize with an empty filename if filename is not set
