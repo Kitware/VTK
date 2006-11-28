@@ -2,7 +2,7 @@ SET(KIT Hybrid)
 # add tests that do not require data
 SET(MyTests   
   TestImageStencilData.cxx
-  X3DTest.cxx  
+#  X3DTest.cxx  
   )
 IF (VTK_DATA_ROOT)
   # add tests that require data

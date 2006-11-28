@@ -89,7 +89,7 @@ vtkVectorText.cxx
 vtkVideoSource.cxx
 vtkWeightedTransformFilter.cxx
 vtkXYPlotActor.cxx
-vtkX3DExporter.cxx
+#vtkX3DExporter.cxx
 )
 IF(VTK_X3D_USE_JAVA)
   SET(Kit_SRCS ${Kit_SRCS}
