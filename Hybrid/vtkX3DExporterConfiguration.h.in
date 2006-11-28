@@ -1,0 +1,23 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkX3DExporterConfiguration.h.in
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtX3DExporter - configuration for X3D exporter
+// .SECTION Description
+
+#ifndef __vtkX3DExporterConfiguration_h
+#define __vtkX3DExporterConfiguration_h
+
+#cmakedefine VTK_X3D_USE_JAVA
+
+#endif

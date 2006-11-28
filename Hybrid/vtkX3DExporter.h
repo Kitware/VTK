@@ -26,7 +26,7 @@ class vtkActor2D;
 class vtkPoints;
 class vtkDataArray;
 class vtkUnsignedCharArray;
-
+class vtkX3DExporterWriter;
 
 class  VTK_HYBRID_EXPORT vtkX3DExporter : public vtkExporter
 {
@@ -45,26 +45,34 @@ public:
   // Specify the Speed of navigation. Default is 4.
   vtkSetMacro(Speed,double);
   vtkGetMacro(Speed,double);
-  
-  
+
+  // Description:
+  // Turn on binary mode
+  vtkSetClampMacro(Binary, int, 0, 1);
+  vtkBooleanMacro(Binary, int);
+  vtkGetMacro(Binary, int);
+
 protected:
   vtkX3DExporter();
-  ~vtkX3DExporter();  
-  
+  ~vtkX3DExporter();
+
   // Description:
   // Write data to output.
   void WriteData();
 
-  void WriteALight(vtkLight *aLight, FILE *fp);
-  void WriteAnActor(vtkActor *anActor, FILE *fp,int index);
-  void WritePointData(vtkPoints *points, vtkDataArray *normals, 
-                      vtkDataArray *tcoords, vtkUnsignedCharArray *colors, 
-                      FILE *fp,int index);
-  void WriteanTextActor2D(vtkActor2D *anTextActor2D, FILE *fp);          
-            
+  void WriteALight(vtkLight *aLight, vtkX3DExporterWriter* writer);
+  void WriteAnActor(vtkActor *anActor, vtkX3DExporterWriter* writer,
+    int index);
+  void WritePointData(vtkPoints *points, vtkDataArray *normals,
+    vtkDataArray *tcoords, vtkUnsignedCharArray *colors,
+    vtkX3DExporterWriter* writer, int index);
+  void WriteanTextActor2D(vtkActor2D *anTextActor2D,
+    vtkX3DExporterWriter* writer);
+
   char *FileName;
   double Speed;
-  
+  int Binary;
+
 private:
   vtkX3DExporter(const vtkX3DExporter&); // Not implemented.
   void operator=(const vtkX3DExporter&); // Not implemented.
