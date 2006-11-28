@@ -21,7 +21,7 @@
 // rendered as an overlay on the parent renderer and, thus, appears superposed
 // over all props in the parent's scene.  The camera view of the orientation
 // the marker is made to match that of the parent's by means of an observer
-// mechanism, giving the illusion that the orientation of the marker relfects
+// mechanism, giving the illusion that the orientation of the marker reflects
 // that of the prop(s) in the parent's scene.
 //
 // The widget listens to left mouse button and mouse movement events. It will
