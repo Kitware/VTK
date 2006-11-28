@@ -46,21 +46,9 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-#if ( _MSC_VER >= 1300 ) // Visual studio .NET
-#pragma warning ( disable : 4311 )
-#pragma warning ( disable : 4312 )
-#  define vtkGetWindowLong GetWindowLongPtr
-#  define vtkSetWindowLong SetWindowLongPtr
-#  define vtkGWL_WNDPROC GWLP_WNDPROC
-#else // regular Visual studio 
-#  define vtkGetWindowLong GetWindowLong
-#  define vtkSetWindowLong SetWindowLong
-#  define vtkGWL_WNDPROC GWL_WNDPROC
-#endif // 
-
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.98");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.99");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 

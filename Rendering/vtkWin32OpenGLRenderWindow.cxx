@@ -36,22 +36,10 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkOpenGL.h"
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.141");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.142");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
-
-#if ( _MSC_VER >= 1300 ) // Visual studio .NET
-#pragma warning ( disable : 4311 )
-#pragma warning ( disable : 4312 )
-#  define vtkGWLP_HINSTANCE GWLP_HINSTANCE
-#  define vtkGetWindowLong GetWindowLongPtr
-#  define vtkSetWindowLong SetWindowLongPtr
-#else // regular Visual studio 
-#  define vtkGWLP_HINSTANCE GWL_HINSTANCE
-#  define vtkGetWindowLong GetWindowLong
-#  define vtkSetWindowLong SetWindowLong
-#endif // 
 
 vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 {

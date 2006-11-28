@@ -49,20 +49,8 @@ public:
 // VFW compressed formats are listed at http://www.webartz.com/fourcc/
 #define VTK_BI_UYVY 0x59565955
 
-vtkCxxRevisionMacro(vtkWin32VideoSource, "1.28");
+vtkCxxRevisionMacro(vtkWin32VideoSource, "1.29");
 vtkStandardNewMacro(vtkWin32VideoSource);
-
-#if ( _MSC_VER >= 1300 ) // Visual studio .NET
-#pragma warning ( disable : 4311 )
-#pragma warning ( disable : 4312 )
-#  define vtkGetWindowLong GetWindowLongPtr
-#  define vtkSetWindowLong SetWindowLongPtr
-#  define vtkGWL_USERDATA GWLP_USERDATA
-#else // regular Visual studio 
-#  define vtkGetWindowLong GetWindowLong
-#  define vtkSetWindowLong SetWindowLong
-#  define vtkGWL_USERDATA GWL_USERDATA
-#endif // 
 
 //----------------------------------------------------------------------------
 vtkWin32VideoSource::vtkWin32VideoSource()
