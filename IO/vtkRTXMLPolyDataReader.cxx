@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkRTXMLPolyDataReader, "1.2");
+vtkCxxRevisionMacro(vtkRTXMLPolyDataReader, "1.3");
 vtkStandardNewMacro(vtkRTXMLPolyDataReader);
 
 class vtkRTXMLPolyDataReaderInternals
@@ -118,7 +118,7 @@ int vtkRTXMLPolyDataReader::NewDataAvailable()
     {
     for (int i=0; i<current; i++)
       {
-      const char* file = this->GetDataFileFullPathName(dataDir->GetFile(i));
+      char* file = this->GetDataFileFullPathName(dataDir->GetFile(i));
       if ( ! IsProcessed(file) )
         {
         this->Internal->AvailableDataFileList.push_back(file);
@@ -143,7 +143,7 @@ int vtkRTXMLPolyDataReader::NewDataAvailable()
 // is the concatenation of "this->DataLocation" and "name"
 // caller has to free the memory of returned fullpath name.
 //----------------------------------------------------------------------
-const char* vtkRTXMLPolyDataReader::GetDataFileFullPathName(const char* name)
+char* vtkRTXMLPolyDataReader::GetDataFileFullPathName(const char* name)
 {
   char* fullpath;
   int n = strlen(this->DataLocation);
