@@ -134,7 +134,7 @@ void vtkX3DExporterWriter::CloseFile()
 }
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkX3DExporter, "1.5");
+vtkCxxRevisionMacro(vtkX3DExporter, "1.6");
 vtkStandardNewMacro(vtkX3DExporter);
 
 //----------------------------------------------------------------------------
@@ -737,7 +737,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
       for (i = 0; i < npts; i++)
         {
         // treating vtkIdType as int
-        ostr3 << (int)(indx[i]) << ", ";
+        ostr3 << (int)indx[i] << ", ";
         }
       ostr3 << "-1,\n";
       }
