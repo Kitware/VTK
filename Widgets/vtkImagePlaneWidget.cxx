@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.10");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.11");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1402,15 +1402,28 @@ void vtkImagePlaneWidget::UpdatePlane()
   this->ImageData->UpdateInformation();
   double spacing[3];
   this->ImageData->GetSpacing(spacing);
+  double origin[3];
+  this->ImageData->GetOrigin(origin);
+  int extent[6];
+  this->ImageData->GetWholeExtent(extent);
 
   int i;
 
+  for (i = 0; i < 3; i++)
+    {
+    if (extent[2*i] > extent[2*i + 1])
+      {
+      vtkErrorMacro("Invalid extent ["
+                    << extent[0] << ", " << extent[1] << ", "
+                    << extent[2] << ", " << extent[3] << ", "
+                    << extent[4] << ", " << extent[5] << "]."
+                    << " Perhaps the input data is empty?");
+      break;
+      }
+    }
+
   if ( this->RestrictPlaneToVolume )
     {
-    double origin[3];
-    this->ImageData->GetOrigin(origin);
-    int extent[6];
-    this->ImageData->GetWholeExtent(extent);
     double bounds[] = {origin[0] + spacing[0]*extent[0], //xmin
                        origin[0] + spacing[0]*extent[1], //xmax
                        origin[1] + spacing[1]*extent[2], //ymin
@@ -1511,17 +1524,15 @@ void vtkImagePlaneWidget::UpdatePlane()
   // Pad extent up to a power of two for efficient texture mapping
 
   // make sure we're working with valid values
-  double realExtentX = ( spacingX == 0 ) ? 0 : planeSizeX / spacingX;
+  double realExtentX = ( spacingX == 0 ) ? VTK_INT_MAX : planeSizeX / spacingX;
 
   int extentX;
   // Sanity check the input data:
   // * if realExtentX is too large, extentX will wrap
   // * if spacingX is 0, things will blow up.
-  // * if realExtentX is naturally 0 or < 0, the padding will yield an
-  //   extentX of 1, which is also not desirable if the input data is invalid.
-  if (realExtentX > (VTK_INT_MAX >> 1) || realExtentX < 1)
+  if (realExtentX > (VTK_INT_MAX >> 1))
     {
-    vtkErrorMacro(<<"Invalid X extent.  Perhaps the input data is empty?");
+    vtkErrorMacro(<<"Invalid X extent: " << realExtentX);
     extentX = 0;
     }
   else
@@ -1534,12 +1545,12 @@ void vtkImagePlaneWidget::UpdatePlane()
     }
 
   // make sure extentY doesn't wrap during padding
-  double realExtentY = ( spacingY == 0 ) ? 0 : planeSizeY / spacingY;
+  double realExtentY = ( spacingY == 0 ) ? VTK_INT_MAX : planeSizeY / spacingY;
 
   int extentY;
-  if (realExtentY > (VTK_INT_MAX >> 1) || realExtentY < 1)
+  if (realExtentY > (VTK_INT_MAX >> 1))
     {
-    vtkErrorMacro(<<"Invalid Y extent.  Perhaps the input data is empty?");
+    vtkErrorMacro(<<"Invalid Y extent: " << realExtentY);
     extentY = 0;
     }
   else
@@ -1551,8 +1562,8 @@ void vtkImagePlaneWidget::UpdatePlane()
       }
     }
 
-  double outputSpacingX = planeSizeX/extentX;
-  double outputSpacingY = planeSizeY/extentY;
+  double outputSpacingX = (planeSizeX == 0) ? 1.0 : planeSizeX/extentX;
+  double outputSpacingY = (planeSizeY == 0) ? 1.0 : planeSizeY/extentY;
   this->Reslice->SetOutputSpacing(outputSpacingX, outputSpacingY, 1);
   this->Reslice->SetOutputOrigin(0.5*outputSpacingX, 0.5*outputSpacingY, 0);
   this->Reslice->SetOutputExtent(0, extentX-1, 0, extentY-1, 0, 0);
