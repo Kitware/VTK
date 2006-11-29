@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -62,7 +62,54 @@
 #include "exodusII_int.h"
 
 #include <ctype.h>
-/*
+
+#define EX_PREPARE_RESULT_VAR(TNAME,DIMNAME,VARNAMEVAR) \
+      if ((dimid = ncdimdef (exoid, DIMNAME, (long)num_vars)) == -1) \
+        { \
+          if (ncerr == NC_ENAMEINUSE) \
+            { \
+              exerrval = ncerr; \
+              sprintf(errmsg, \
+                      "Error: " TNAME " variable name parameters are already defined in file id %d", \
+                      exoid); \
+              ex_err("ex_put_var_param",errmsg,exerrval); \
+            } \
+          else \
+            { \
+              exerrval = ncerr; \
+              sprintf(errmsg, \
+                      "Error: failed to define number of " TNAME " variables in file id %d", \
+                      exoid); \
+              ex_err("ex_put_var_param",errmsg,exerrval); \
+            } \
+          goto error_ret;          /* exit define mode and return */ \
+        } \
+      \
+      /* Now define TNAME variable name variable */ \
+      dims[0] = dimid; \
+      dims[1] = strdim; \
+      if ((ncvardef (exoid, VARNAMEVAR, NC_CHAR, 2, dims)) == -1) \
+        { \
+          if (ncerr == NC_ENAMEINUSE) \
+            { \
+              exerrval = ncerr; \
+              sprintf(errmsg, \
+                      "Error: " TNAME " variable names are already defined in file id %d", \
+                      exoid); \
+              ex_err("ex_put_var_param",errmsg,exerrval); \
+            } \
+          else \
+            { \
+              exerrval = ncerr; \
+              sprintf(errmsg, \
+                      "Error: failed to define " TNAME " variable names in file id %d", \
+                      exoid); \
+              ex_err("ex_put_var_param",errmsg,exerrval); \
+            } \
+          goto error_ret;          /* exit define mode and return */ \
+        }
+
+/*!
  * writes the number and names of global, nodal, or element variables 
  * that will be written to the database
  */
@@ -88,6 +135,8 @@ int ex_put_var_param (int   exoid,
         vptr="global";
       else if (tolower(*var_type) == 'n')
         vptr="nodal";
+      else if (tolower(*var_type) == 'm')
+        vptr="nodeset";
       else
         vptr="invalid type"; 
 
@@ -146,65 +195,20 @@ int ex_put_var_param (int   exoid,
 
   if (tolower(*var_type) == 'g')
     {
-      if ((dimid = ncdimdef (exoid, DIM_NUM_GLO_VAR, (long)num_vars)) == -1)
-        {
-          if (ncerr == NC_ENAMEINUSE)
-            {
-              exerrval = ncerr;
-              sprintf(errmsg,
-                      "Error: global variable name parameters are already defined in file id %d",
-                      exoid);
-              ex_err("ex_put_var_param",errmsg,exerrval);
-            }
-          else
-            {
-              exerrval = ncerr;
-              sprintf(errmsg,
-                      "Error: failed to define number of global variables in file id %d",
-                      exoid);
-              ex_err("ex_put_var_param",errmsg,exerrval);
-            }
-          goto error_ret;          /* exit define mode and return */
-        }
+    EX_PREPARE_RESULT_VAR("global",DIM_NUM_GLO_VAR,VAR_NAME_GLO_VAR);
 
-
-      dims[0] = time_dim;
-      dims[1] = dimid;
-      if ((ncvardef (exoid, VAR_GLO_VAR, 
-                     nc_flt_code(exoid), 2, dims)) == -1)
-        {
-          exerrval = ncerr;
-          sprintf(errmsg,
-                  "Error: failed to define global variables in file id %d",
-                  exoid);
-          ex_err("ex_put_var_param",errmsg,exerrval);
-          goto error_ret;          /* exit define mode and return */
-        }
-
-      /* Now define global variable name variable */
-      dims[0] = dimid;
-      dims[1] = strdim;
-      if ((ncvardef (exoid, VAR_NAME_GLO_VAR, NC_CHAR, 2, dims)) == -1)
-        {
-          if (ncerr == NC_ENAMEINUSE)
-            {
-              exerrval = ncerr;
-              sprintf(errmsg,
-                      "Error: global variable names are already defined in file id %d",
-                      exoid);
-              ex_err("ex_put_var_param",errmsg,exerrval);
-            }
-          else
-            {
-              exerrval = ncerr;
-              sprintf(errmsg,
-                      "Error: failed to define global variable names in file id %d",
-                      exoid);
-              ex_err("ex_put_var_param",errmsg,exerrval);
-            }
-          goto error_ret;          /* exit define mode and return */
-        }
-
+    dims[0] = time_dim;
+    dims[1] = dimid;
+    if ((ncvardef (exoid, VAR_GLO_VAR, 
+          nc_flt_code(exoid), 2, dims)) == -1)
+      {
+      exerrval = ncerr;
+      sprintf(errmsg,
+        "Error: failed to define global variables in file id %d",
+        exoid);
+      ex_err("ex_put_var_param",errmsg,exerrval);
+      goto error_ret;          /* exit define mode and return */
+      }
     }
 
   else if (tolower(*var_type) == 'n')
@@ -303,57 +307,54 @@ int ex_put_var_param (int   exoid,
 
   else if (tolower(*var_type) == 'e')
     {
-      if ((dimid = ncdimdef (exoid, DIM_NUM_ELE_VAR, (long)num_vars)) == -1)
-        {
-          if (ncerr == NC_ENAMEINUSE)
-            {
-              exerrval = ncerr;
-              sprintf(errmsg,
-                      "Error: element variable name parameters are already defined in file id %d",
-                      exoid);
-              ex_err("ex_put_var_param",errmsg,exerrval);
-            }
-          else
-            {
-              exerrval = ncerr;
-              sprintf(errmsg,
-                      "Error: failed to define number of element variables in file id %d",
-                      exoid);
-              ex_err("ex_put_var_param",errmsg,exerrval);
-            }
-          goto error_ret;          /* exit define mode and return */
-        }
-
-      /* Now define element variable name variable */
-      dims[0] = dimid;
-      dims[1] = strdim;
-      if ((ncvardef (exoid, VAR_NAME_ELE_VAR, NC_CHAR, 2, dims)) == -1)
-        {
-          if (ncerr == NC_ENAMEINUSE)
-            {
-              exerrval = ncerr;
-              sprintf(errmsg,
-                      "Error: element variable names are already defined in file id %d",
-                      exoid);
-              ex_err("ex_put_var_param",errmsg,exerrval);
-            }
-          else
-            {
-              exerrval = ncerr;
-              sprintf(errmsg,
-                      "Error: failed to define element variable names in file id %d",
-                      exoid);
-              ex_err("ex_put_var_param",errmsg,exerrval);
-            }
-          goto error_ret;          /* exit define mode and return */
-        }
-
+    EX_PREPARE_RESULT_VAR("element",DIM_NUM_ELE_VAR,VAR_NAME_ELE_VAR);
 
       /* netCDF variables in which to store the EXODUS element variable values will
        * be defined in ex_put_elem_var_tab or ex_put_elem_var; at this point, we 
        * don't know what element variables are valid for which element blocks 
        * (the info that is stored in the element variable truth table)
        */
+    }
+
+  else if (tolower(*var_type) == 'm')
+    {
+    EX_PREPARE_RESULT_VAR("nodeset",DIM_NUM_NSET_VAR,VAR_NAME_NSET_VAR);
+
+      /* netCDF variables in which to store the EXODUS nodeset variable values will
+       * be defined in ex_put_nset_var_tab or ex_put_nset_var; at this point, we 
+       * don't know what nodeset variables are valid for which nodesets
+       * (the info that is stored in the nodeset variable truth table)
+       */
+    }
+  else if (tolower(*var_type) == 's')
+    {
+    EX_PREPARE_RESULT_VAR("sideset",DIM_NUM_SSET_VAR,VAR_NAME_SSET_VAR);
+
+      /* netCDF variables in which to store the EXODUS sideset variable values will
+       * be defined in ex_put_nset_var_tab or ex_put_nset_var; at this point, we 
+       * don't know what sideset variables are valid for which sidesets
+       * (the info that is stored in the sideset variable truth table)
+       */
+    }
+  else if (tolower(*var_type) == 'l')
+    {
+    EX_PREPARE_RESULT_VAR("edge",DIM_NUM_EDG_VAR,VAR_NAME_EDG_VAR);
+    }
+  else if (tolower(*var_type) == 'f')
+    {
+    EX_PREPARE_RESULT_VAR("face",DIM_NUM_FAC_VAR,VAR_NAME_FAC_VAR);
+    }
+  else if (tolower(*var_type) == 'd')
+    {
+    EX_PREPARE_RESULT_VAR("edgeset",DIM_NUM_ESET_VAR,VAR_NAME_ESET_VAR);
+    }
+  else if (tolower(*var_type) == 'a')
+    {
+    EX_PREPARE_RESULT_VAR("faceset",DIM_NUM_FSET_VAR,VAR_NAME_FSET_VAR);
+    }
+  else if (tolower(*var_type) == 'i')
+    {
+    EX_PREPARE_RESULT_VAR("elementset",DIM_NUM_ELSET_VAR,VAR_NAME_ELSET_VAR);
     }
 
   /* leave define mode  */

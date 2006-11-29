@@ -22,7 +22,8 @@
  * 
  */
 
-#include "ncconfig.h" /* output of 'configure' */
+#include  "ncconfig.h"
+#include  "netcdf.h"
 #include "rnd.h"
 #include <stddef.h> /* size_t */
 #include <errno.h>
@@ -39,6 +40,13 @@
 #define CRAYFLOAT 1 /* CRAY Floating point */
 #endif
 
+
+#if defined(DLL_NETCDF) /* define when library is a DLL */
+#include <io.h>
+#define lseek _lseeki64
+#define off_t __int64
+#endif  /* defined(DLL_NETCDF) */
+
 /*
  * The integer return code for the conversion routines
  * is 0 (ENOERR) when no error occured, or NC_ERANGE as appropriate
@@ -50,50 +58,51 @@
 #ifndef NC_ERANGE
 #define NC_ERANGE (-60) /* N.B. must match value in netcdf.h */
 #endif
+#ifndef NC_ENOMEM
+#define NC_ENOMEM (-61) /* N.B. must match value in netcdf.h */
+#endif
 
 
 /*
  * External sizes of the primitive elements.
  */
-#define X_SIZEOF_CHAR    1
+#define X_SIZEOF_CHAR   1
 #define X_SIZEOF_SHORT    2
-#define X_SIZEOF_INT    4  /* xdr_int */
+#define X_SIZEOF_INT    4 /* xdr_int */
 #if 0
-#define X_SIZEOF_LONG    8 */  /* xdr_long_long */
+#define X_SIZEOF_LONG   8 */  /* xdr_long_long */
 #endif
 #define X_SIZEOF_FLOAT    4
-#define X_SIZEOF_DOUBLE    8
+#define X_SIZEOF_DOUBLE   8
 
 /*
- * For now, netcdf is limited to 32 bit offsets and sizes,
+ * For now, netcdf is limited to 32 bit sizes,
+ * If compiled with support for "large files", then
+ * netcdf will use a 64 bit off_t and it can then write a file
+ * using 64 bit offsets. 
  *  see also X_SIZE_MAX, X_OFF_MAX below
  */
 #define X_SIZEOF_OFF_T    (sizeof(off_t))
-#define X_SIZEOF_SIZE_T    X_SIZEOF_INT
+#define X_SIZEOF_SIZE_T   X_SIZEOF_INT
 
 /*
  * limits of the external representation
  */
-#define X_SCHAR_MIN  (-128)
-#define X_SCHAR_MAX  127
-#define X_UCHAR_MAX  255U
-#define X_SHORT_MIN  (-32768)
-#define X_SHRT_MIN  X_SHORT_MIN  /* alias compatible with limits.h */
-#define X_SHORT_MAX  32767
-#define X_SHRT_MAX  X_SHORT_MAX  /* alias compatible with limits.h */
+#define X_SCHAR_MIN (-128)
+#define X_SCHAR_MAX 127
+#define X_UCHAR_MAX 255U
+#define X_SHORT_MIN (-32768)
+#define X_SHRT_MIN  X_SHORT_MIN /* alias compatible with limits.h */
+#define X_SHORT_MAX 32767
+#define X_SHRT_MAX  X_SHORT_MAX /* alias compatible with limits.h */
 #define X_USHORT_MAX  65535U
-#define X_USHRT_MAX  X_USHORT_MAX  /* alias compatible with limits.h */
-#define X_INT_MIN  (-2147483647-1)
-#define X_INT_MAX  2147483647
+#define X_USHRT_MAX X_USHORT_MAX  /* alias compatible with limits.h */
+#define X_INT_MIN (-2147483647-1)
+#define X_INT_MAX 2147483647
 #define X_UINT_MAX  4294967295U
-#if 0
-#define X_LONG_MIN  (-2147483647-1)
-#define X_LONG_MAX  2147483647
-#define X_ULONG_MAX  4294967295U
-#endif
-#define X_FLOAT_MAX  ((float)3.40282347e+38)
-#define X_FLOAT_MIN  (-X_FLOAT_MAX)
-#define X_FLT_MAX  X_FLOAT_MAX  /* alias compatible with limits.h */
+#define X_FLOAT_MAX 3.402823466e+38f
+#define X_FLOAT_MIN (-X_FLOAT_MAX)
+#define X_FLT_MAX X_FLOAT_MAX /* alias compatible with limits.h */
 #if CRAYFLOAT
 /* ldexp(1. - ldexp(.5 , -46), 1024) */
 #define X_DOUBLE_MAX    1.79769313486230e+308
@@ -102,10 +111,10 @@
 #define X_DOUBLE_MAX  1.7976931348623157e+308 
 #endif
 #define X_DOUBLE_MIN  (-X_DOUBLE_MAX)
-#define X_DBL_MAX  X_DOUBLE_MAX  /* alias compatible with limits.h */
+#define X_DBL_MAX X_DOUBLE_MAX  /* alias compatible with limits.h */
 
-#define X_SIZE_MAX  X_INT_MAX  /* N.B., just uses the signed range */
-#define X_OFF_MAX  X_INT_MAX
+#define X_SIZE_MAX  X_UINT_MAX
+#define X_OFF_MAX X_INT_MAX
 
 
 /* Begin ncx_len */
@@ -115,7 +124,7 @@
  * These give the length of an array of nelems of the type.
  * N.B. The 'char' and 'short' interfaces give the X_ALIGNED length.
  */
-#define X_ALIGN      4  /* a.k.a. BYTES_PER_XDR_UNIT */
+#define X_ALIGN     4 /* a.k.a. BYTES_PER_XDR_UNIT */
 
 #define ncx_len_char(nelems) \
   _RNDUP((nelems), X_ALIGN)

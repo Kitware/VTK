@@ -9,10 +9,16 @@
 /*
  *  netcdf library 'private' data structures, objects and interfaces
  */
-
 #include  "ncconfig.h"
+
+/* If netcdf-4 is in use, rename all nc_ functions to nc3_ functions. */
+#ifdef USE_NETCDF4
+#include <netcdf3.h>
+#include <nc3convert.h>
+#endif
+
 #include  <stddef.h>  /* size_t */
-#include  <sys/types.h>  /* off_t */
+#include  <sys/types.h> /* off_t */
 #include  "netcdf.h"
 #include  "ncio.h"  /* ncio */
 #include  "fbits.h"
@@ -46,10 +52,10 @@ typedef struct NC NC; /* forward reference */
  */
 typedef enum {
   NC_UNSPECIFIED = 0,
-/* future  NC_BITFIELD = 7, */
-/*  NC_STRING =  8,  */
+/* future NC_BITFIELD = 7, */
+/*  NC_STRING = 8,  */
   NC_DIMENSION =  10,
-  NC_VARIABLE =  11,
+  NC_VARIABLE = 11,
   NC_ATTRIBUTE =  12
 } NCtype;
 
@@ -126,12 +132,12 @@ elem_NC_dimarray(const NC_dimarray *ncap, size_t elem);
  * NC attribute
  */
 typedef struct {
-  size_t xsz;    /* amount of space at xvalue */
+  size_t xsz;   /* amount of space at xvalue */
   /* below gets xdr'd */
   NC_string *name;
-  nc_type type;    /* the discriminant */
+  nc_type type;   /* the discriminant */
   size_t nelems;    /* length of the array */
-  void *xvalue;    /* the actual data, in external representation */
+  void *xvalue;   /* the actual data, in external representation */
 } NC_attr;
 
 typedef struct NC_attrarray {
@@ -177,17 +183,17 @@ elem_NC_attrarray(const NC_attrarray *ncap, size_t elem);
  * NC variable: description and data
  */
 typedef struct {
-  size_t xsz;    /* xszof 1 element */
+  size_t xsz;   /* xszof 1 element */
   size_t *shape; /* compiled info: dim->size of each dim */
   size_t *dsizes; /* compiled info: the right to left product of shape */
   /* below gets xdr'd */
   NC_string *name;
   /* next two: formerly NC_iarray *assoc */ /* user definition */
-  size_t ndims;  /* assoc->count */
+  size_t ndims; /* assoc->count */
   int *dimids;  /* assoc->value */
   NC_attrarray attrs;
-  nc_type type;    /* the discriminant */
-  size_t len;    /* the total length originally allocated */
+  nc_type type;   /* the discriminant */
+  size_t len;   /* the total length originally allocated */
   off_t begin;
 } NC_var;
 
@@ -226,6 +232,9 @@ NC_var_shape(NC_var *varp, const NC_dimarray *dims);
 extern int
 NC_findvar(const NC_vararray *ncap, const char *name, NC_var **varpp);
 
+extern int
+NC_check_vlen(NC_var *varp, size_t vlen_max);
+
 extern NC_var *
 NC_lookupvar(NC *ncp, int varid);
 
@@ -233,6 +242,15 @@ NC_lookupvar(NC *ncp, int varid);
 
 #define IS_RECVAR(vp) \
   ((vp)->shape != NULL ? (*(vp)->shape == NC_UNLIMITED) : 0 )
+
+#ifdef LOCKNUMREC
+/*
+ * typedef SHMEM type
+ * for whenever the SHMEM functions can handle other than shorts
+ */
+typedef unsigned short int  ushmem_t;
+typedef short int    shmem_t;
+#endif
 
 struct NC {
   /* links to make list of open netcdf's */
@@ -243,23 +261,40 @@ struct NC {
   /* flags */
 #define NC_CREAT 2  /* in create phase, cleared by ncendef */
 #define NC_INDEF 8  /* in define mode, cleared by ncendef */
-#define NC_NSYNC 0x10  /* synchronise numrecs on change */
-#define NC_HSYNC 0x20  /* synchronise whole header on change */
+#define NC_NSYNC 0x10 /* synchronise numrecs on change */
+#define NC_HSYNC 0x20 /* synchronise whole header on change */
 #define NC_NDIRTY 0x40  /* numrecs has changed */
 #define NC_HDIRTY 0x80  /* header info has changed */
 /*  NC_NOFILL in netcdf.h, historical interface */
   int flags;
   ncio *nciop;
-  size_t chunk;  /* largest extent this layer will request from ncio->get() */
-  size_t xsz;  /* external size of this header, == var[0].begin */
-  off_t begin_var; /* postion of the first (non-record) var */
-  off_t begin_rec; /* postion of the first 'record' */
-  size_t recsize; /* length of 'record' */
+  size_t chunk; /* largest extent this layer will request from ncio->get() */
+  size_t xsz; /* external size of this header, == var[0].begin */
+  off_t begin_var; /* position of the first (non-record) var */
+  off_t begin_rec; /* position of the first 'record' */
+        /* don't constrain maximum size of record unnecessarily */
+#if SIZEOF_OFF_T > SIZEOF_SIZE_T
+        off_t recsize;   /* length of 'record' */
+#else
+  size_t recsize;  /* length of 'record' */
+#endif
   /* below gets xdr'd */
   size_t numrecs; /* number of 'records' allocated */
   NC_dimarray dims;
   NC_attrarray attrs;
   NC_vararray vars;
+#ifdef LOCKNUMREC
+/* size and named indexes for the lock array protecting NC.numrecs */
+#  define LOCKNUMREC_DIM  4
+#  define LOCKNUMREC_VALUE  0
+#  define LOCKNUMREC_LOCK 1
+#  define LOCKNUMREC_SERVING  2
+#  define LOCKNUMREC_BASEPE 3
+  /* Used on Cray T3E MPP to maintain the
+   * integrity of numrecs for an unlimited dimension
+   */
+  ushmem_t lock[LOCKNUMREC_DIM];
+#endif
 };
 
 #define NC_readonly(ncp) \
@@ -292,6 +327,21 @@ struct NC {
 #define NC_doNsync(ncp) \
   fIsSet((ncp)->flags, NC_NSYNC)
 
+#ifndef LOCKNUMREC
+#  define NC_get_numrecs(ncp) \
+  ((ncp)->numrecs)
+
+#  define NC_set_numrecs(ncp, nrecs) \
+  {((ncp)->numrecs = (nrecs));}
+
+#  define NC_increase_numrecs(ncp, nrecs) \
+  {if((nrecs) > (ncp)->numrecs) ((ncp)->numrecs = (nrecs));}
+#else
+  size_t NC_get_numrecs(const NC *ncp);
+  void   NC_set_numrecs(NC *ncp, size_t nrecs);
+  void   NC_increase_numrecs(NC *ncp, size_t nrecs);
+#endif
+
 /* Begin defined in nc.c */
 
 extern int
@@ -311,6 +361,9 @@ write_numrecs(NC *ncp);
 
 extern int
 NC_sync(NC *ncp);
+
+extern int
+NC_calcsize(NC *ncp, off_t *filesizep);
 
 /* End defined in nc.c */
 /* Begin defined in v1hpg.c */
@@ -340,54 +393,5 @@ extern int
 nc_put_rec(int ncid, size_t recnum, void *const *datap);
 
 /* End defined in putget.c */
-
-/*
- * These functions are used to support
- * interface version 2 backward compatiblity.
- * N.B. these are tested in ../nc_test even though they are
- * not public. So, be careful to change the declarations in
- * ../nc_test/tests.h if you change these.
- */
-
-extern int
-nc_put_att(int ncid, int varid, const char *name, nc_type datatype,
-  size_t len, const void *value);
-
-extern int
-nc_get_att(int ncid, int varid, const char *name, void *value);
-
-extern int
-nc_put_var1(int ncid, int varid, const size_t *index, const void *value);
-
-extern int
-nc_get_var1(int ncid, int varid, const size_t *index, void *value);
-
-extern int
-nc_put_vara(int ncid, int varid,
-   const size_t *start, const size_t *count, const void *value);
-
-extern int
-nc_get_vara(int ncid, int varid,
-   const size_t *start, const size_t *count, void *value);
-
-extern int
-nc_put_vars(int ncid, int varid,
-   const size_t *start, const size_t *count, const ptrdiff_t *stride,
-   const void * value);
-
-extern int
-nc_get_vars(int ncid, int varid,
-   const size_t *start, const size_t *count, const ptrdiff_t *stride,
-   void * value);
-
-extern int
-nc_put_varm(int ncid, int varid,
-   const size_t *start, const size_t *count, const ptrdiff_t *stride,
-   const ptrdiff_t * map, const void *value);
-
-extern int
-nc_get_varm(int ncid, int varid,
-   const size_t *start, const size_t *count, const ptrdiff_t *stride,
-   const ptrdiff_t * map, void *value);
 
 #endif /* _NC_H_ */

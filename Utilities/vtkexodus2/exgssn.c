@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -63,12 +63,9 @@
 #include <stdlib.h>
 #include "exodusII.h"
 #include "exodusII_int.h"
-/*
+/*!
  * This routine is designed to read the Exodus II V 2.0 side set side 
  * definition  and return a ExodusI style side set node definition.
-
-
-
  */
 
 int ex_get_side_set_node_list(int exoid,
@@ -80,7 +77,7 @@ int ex_get_side_set_node_list(int exoid,
   int  num_side_sets, num_elem_blks, num_df, ndim;
   int tot_num_elem = 0, tot_num_ss_elem = 0, elem_num = 0;
   int connect_offset, side_num, node_pos;
-  int *elem_blk_ids, *connect = 0; 
+  int *elem_blk_ids, *connect; 
   int *ss_elem_ndx, *ss_elem_node_ndx, *ss_parm_ndx;
   int *side_set_elem_list, *side_set_side_list;
   int elem_ctr, node_ctr, elem_num_pos;
@@ -381,9 +378,9 @@ int ex_get_side_set_node_list(int exoid,
     elem_blk_parms[i].num_nodes_per_elem = num_nodes_per_elem;
     elem_blk_parms[i].num_attr = num_attr;
 
-    for (m=0; (size_t)m < strlen(elem_type); m++)
+    for (m=0; m < strlen(elem_type); m++)
       elem_blk_parms[i].elem_type[m] = 
-              (char)toupper((int)elem_type[m]);
+              toupper((int)elem_type[m]);
     elem_blk_parms[i].elem_type[m] = '\0';
 
     if (strncmp(elem_blk_parms[i].elem_type,"CIRCLE",3) == 0)

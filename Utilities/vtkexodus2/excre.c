@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -36,13 +36,6 @@
 *
 * excre - ex_create
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions 
-*          Vic Yarberry    - Added headers and error logging
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       char*   path                    file name including path
@@ -78,15 +71,57 @@ int ex_create (const char *path,
    char errmsg[MAX_ERR_LENGTH];
    char *mode_name;
    int mode = 0;
+#if defined(NC_NETCDF4)
+   static int netcdf4_mode = -1;
+   char *option;
+#endif /* NC_NETCDF4 */
    
    exerrval = 0; /* clear error code */
+
+#if defined(NC_NETCDF4)
+   if (cmode & EX_NETCDF4) {
+     mode |= NC_NETCDF4;
+   } else {
+     if (netcdf4_mode == -1) {
+       option = getenv("EXODUS_NETCDF4");
+       if (option != NULL) {
+   fprintf(stderr, "EXODUSII: Using netcdf version 4 selected via EXODUS_NETCDF4 environment variable\n");
+   netcdf4_mode = NC_NETCDF4;
+       } else {
+   netcdf4_mode = 0;
+       }
+     }
+     mode |= netcdf4_mode;
+   }
+#endif
 
    /*
     * See if "large file" mode was specified in a ex_create cmode. If
     * so, then pass the NC_64BIT_OFFSET flag down to netcdf.
+    * If netcdf4 mode specified, don't use NC_64BIT_OFFSET mode.
     */
-   if (cmode & EX_LARGE_MODEL || ex_large_model(-1) == 1) {
+   if ( (cmode & EX_LARGE_MODEL) && (cmode & EX_NORMAL_MODEL)) {
+     exerrval = EX_BADPARAM;
+     sprintf(errmsg,
+             "Warning: conflicting mode specification for file %s, mode %d. Using normal",
+             path, cmode);
+     ex_err("ex_create",errmsg,exerrval);
+   }
+   if ((cmode & EX_NORMAL_MODEL) != 0)
+     filesiz = 0;
+   else 
+     filesiz = (nclong)(((cmode & EX_LARGE_MODEL) != 0) || (ex_large_model(-1) == 1));
+
+   if (
+#if defined(NC_NETCDF4)
+       !(mode & NC_NETCDF4) &&
+#endif
+       filesiz == 1) {
      mode |= NC_64BIT_OFFSET;
+   }
+
+   if (cmode & EX_SHARE) {
+     mode |= NC_SHARE;
    }
 
 /*
@@ -94,24 +129,14 @@ int ex_create (const char *path,
  */
   ex_opts(exoptval);    /* call required to set ncopts first time through */
 
-   if (cmode & EX_NOCLOBBER) {
-     mode |= NC_NOCLOBBER;
-     mode_name = "NOCLOBBER";
-   } else if (cmode & EX_CLOBBER) {
+   if (cmode & EX_CLOBBER) {
      mode |= NC_CLOBBER;
      mode_name = "CLOBBER";
    } else {
-     exerrval = EX_BADFILEMODE;
-     sprintf(errmsg,"Error: invalid file create mode: %d, for file %s",
-             cmode,path);
-     ex_err("ex_create",errmsg,exerrval);
-     return (EX_FATAL);
+     mode |= NC_NOCLOBBER;
+     mode_name = "NOCLOBBER";
    }
 
-#ifndef TFLOP
-   mode |= NC_SHARE;
-#endif
-   
    if ((exoid = nccreate (path, mode)) == -1) {
      exerrval = ncerr;
      sprintf(errmsg,
@@ -152,7 +177,7 @@ int ex_create (const char *path,
  */
 
 /* store Exodus API version # as an attribute */
-  vers = (float)(EX_API_VERS);
+  vers = EX_API_VERS;
   if (ncattput (exoid, NC_GLOBAL, ATT_API_VERSION, NC_FLOAT, 1, &vers) == -1)
   {
     exerrval = ncerr;
@@ -164,7 +189,7 @@ int ex_create (const char *path,
   }
 
 /* store Exodus file version # as an attribute */
-  vers = (float)(EX_VERS);
+  vers = EX_VERS;
   if (ncattput (exoid, NC_GLOBAL, ATT_VERSION, NC_FLOAT, 1, &vers) == -1)
   {
     exerrval = ncerr;
@@ -188,16 +213,14 @@ int ex_create (const char *path,
   }
 
   /* store Exodus file size (1=large, 0=normal) as an attribute */
-  filesiz = (nclong)(((cmode & EX_LARGE_MODEL) != 0) || (ex_large_model(-1) == 1));
-  if (ncattput (exoid, NC_GLOBAL, ATT_FILESIZE, NC_LONG, 1, &filesiz) == -1)
-    {
-      exerrval = ncerr;
-      sprintf(errmsg,
-              "Error: failed to store Exodus II file size attribute in file id %d",
-              exoid);
-      ex_err("ex_create",errmsg, exerrval);
-      return (EX_FATAL);
-    }
+  if (ncattput (exoid, NC_GLOBAL, ATT_FILESIZE, NC_LONG, 1, &filesiz) == -1) {
+    exerrval = ncerr;
+    sprintf(errmsg,
+      "Error: failed to store Exodus II file size attribute in file id %d",
+      exoid);
+    ex_err("ex_create",errmsg, exerrval);
+    return (EX_FATAL);
+  }
   
   /* define some dimensions and variables
    */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -65,7 +65,7 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * opens an existing EXODUS II file (or EXODUS II history file) and returns 
  * an id that can subsequently be used to refer to the file.  Multiple files 
  * may be open simultaneously
@@ -89,7 +89,7 @@ int ex_open (const char  *path,
 
   if (mode == EX_READ)  /* READ ONLY */
   {
-#ifdef TFLOP
+#if defined(__LIBCATAMOUNT__)
     if ((exoid = ncopen (path, NC_NOWRITE)) < 0)
 #else
     if ((exoid = ncopen (path, NC_NOWRITE|NC_SHARE)) < 0)
@@ -108,7 +108,7 @@ int ex_open (const char  *path,
 
   else if (mode == EX_WRITE) /* READ/WRITE */
   {
-#ifdef TFLOP
+#if defined(__LIBCATAMOUNT__)
     if ((exoid = ncopen (path, NC_WRITE)) < 0)
 #else
     if ((exoid = ncopen (path, NC_WRITE|NC_SHARE)) < 0)

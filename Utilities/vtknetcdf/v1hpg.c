@@ -5,8 +5,8 @@
 /* Id */
 
 #include "nc.h"
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include "rnd.h"
@@ -14,9 +14,12 @@
 
 /*
  * This module defines the external representation
- * of the "header" of a netcdf version one file.
+ * of the "header" of a netcdf version one file and
+ * the version two variant that uses 64-bit file 
+ * offsets instead of the 32-bit file offsets in version 
+ * one files.
  * For each of the components of the NC structure,
- * There are (static) ncx_len_XXX(), ncx_put_XXX()
+ * There are (static) ncx_len_XXX(), v1h_put_XXX()
  * and v1h_get_XXX() functions. These define the
  * external representation of the components.
  * The exported entry points for the whole NC structure
@@ -31,6 +34,7 @@
 static const schar ncmagic[] = {'C', 'D', 'F', 0x02};
 static const schar ncmagic1[] = {'C', 'D', 'F', 0x01};
 
+
 /*
  * v1hs == "Version 1 Header Stream"
  *
@@ -42,11 +46,11 @@ static const schar ncmagic1[] = {'C', 'D', 'F', 0x01};
  */
 typedef struct v1hs {
   ncio *nciop;
-  off_t offset;  /* argument to nciop->get() */
+  off_t offset; /* argument to nciop->get() */
   size_t extent;  /* argument to nciop->get() */
   int flags;  /* set to RGN_WRITE for write */
-        int version;    /* either 1 for normal netcdf or 2 for 8-byte offset version */
-  void *base;  /* beginning of current buffer */
+        int version;    /* format variant: NC_FORMAT_CLASSIC or NC_FORMAT_64BIT */
+  void *base; /* beginning of current buffer */
   void *pos;  /* current position in buffer */
   void *end;  /* end of current buffer = base + extent */
 } v1hs;
@@ -81,7 +85,7 @@ fault_v1hs(v1hs *gsp, size_t extent)
 
   if(gsp->base != NULL)
   {
-    const size_t incr = (char *)gsp->pos - (char *)gsp->base;
+    const ptrdiff_t incr = (char *)gsp->pos - (char *)gsp->base;
     status = rel_v1hs(gsp);
     if(status)
       return status;
@@ -89,10 +93,10 @@ fault_v1hs(v1hs *gsp, size_t extent)
   }
   
   if(extent > gsp->extent)
-    gsp->extent = extent;  
+    gsp->extent = extent; 
 
   status = gsp->nciop->get(gsp->nciop,
-       gsp->offset, gsp->extent,
+      gsp->offset, gsp->extent,
       gsp->flags, &gsp->base);
   if(status)
     return status;
@@ -117,7 +121,7 @@ fprintf(stderr, "nextread %lu, remaining %lu\n",
   (unsigned long)((char *)gsp->end - (char *)gsp->pos));
 #endif
 
-  if((char *)gsp->pos + nextread < (char *)gsp->end)
+  if((char *)gsp->pos + nextread <= (char *)gsp->end)
     return ENOERR;
   return fault_v1hs(gsp, nextread);
 }
@@ -127,7 +131,7 @@ fprintf(stderr, "nextread %lu, remaining %lu\n",
 static int
 v1h_put_size_t(v1hs *psp, const size_t *sp)
 {
-  int status = check_v1hs(psp, psp->version == 1 ? 4 : 8);
+  int status = check_v1hs(psp, X_SIZEOF_SIZE_T);
   if(status != ENOERR)
     return status;
   return ncx_put_size_t(&psp->pos, sp);
@@ -137,7 +141,7 @@ v1h_put_size_t(v1hs *psp, const size_t *sp)
 static int
 v1h_get_size_t(v1hs *gsp, size_t *sp)
 {
-  int status = check_v1hs(gsp, gsp->version == 1 ? 4 : 8);
+  int status = check_v1hs(gsp, X_SIZEOF_SIZE_T);
   if(status != ENOERR)
     return status;
   return ncx_get_size_t((const void **)(&gsp->pos), sp);
@@ -498,7 +502,7 @@ v1h_get_NC_dimarray(v1hs *gsp, NC_dimarray *ncap)
       status = v1h_get_NC_dim(gsp, dpp);
       if(status)
       {
-        ncap->nelems = dpp - ncap->value;
+        ncap->nelems = (size_t)(dpp - ncap->value);
         free_NC_dimarrayV(ncap);
         return status;
       }
@@ -786,7 +790,7 @@ v1h_get_NC_attrarray(v1hs *gsp, NC_attrarray *ncap)
       status = v1h_get_NC_attr(gsp, app);
       if(status)
       {
-        ncap->nelems = app - ncap->value;
+        ncap->nelems = (size_t)(app - ncap->value);
         free_NC_attrarrayV(ncap);
         return status;
       }
@@ -857,10 +861,6 @@ v1h_put_NC_var(v1hs *psp, const NC_var *varp)
   if(status != ENOERR)
     return status;
 
-#if 0
-  fprintf(stderr, "VarWr: %s--%d bytes\n", varp->name->cp, varp->len);
-#endif
-  
   status = check_v1hs(psp, psp->version == 1 ? 4 : 8);
   if(status != ENOERR)
      return status;
@@ -914,10 +914,6 @@ v1h_get_NC_var(v1hs *gsp, NC_var **varpp)
   status = v1h_get_size_t(gsp, &varp->len);
   if(status != ENOERR)
      goto unwind_alloc;
-
-#if 0
-  fprintf(stderr, "VarRd: %s--%d bytes\n", varp->name->cp, varp->len);
-#endif
 
   status = check_v1hs(gsp, gsp->version == 1 ? 4 : 8);
   if(status != ENOERR)
@@ -1051,7 +1047,7 @@ v1h_get_NC_vararray(v1hs *gsp, NC_vararray *ncap)
       status = v1h_get_NC_var(gsp, vpp);
       if(status)
       {
-        ncap->nelems = vpp - ncap->value;
+        ncap->nelems = (size_t)(vpp - ncap->value);
         free_NC_vararrayV(ncap);
         return status;
       }
@@ -1070,8 +1066,8 @@ v1h_get_NC_vararray(v1hs *gsp, NC_vararray *ncap)
  * Recompute the shapes of all variables
  * Sets ncp->begin_var to start of first variable.
  * Sets ncp->begin_rec to start of first record variable.
- * Returns -1 on error. The only possible error is an reference
- * to a non existent dimension, which would occur for a corrupt
+ * Returns -1 on error. The only possible error is a reference
+ * to a non existent dimension, which could occur for a corrupted
  * netcdf file.
  */
 static int
@@ -1079,8 +1075,8 @@ NC_computeshapes(NC *ncp)
 {
   NC_var **vpp = (NC_var **)ncp->vars.value;
   NC_var *const *const end = &vpp[ncp->vars.nelems];
-  NC_var *first_var = NULL;  /* first "non-record" var */
-  NC_var *first_rec = NULL;  /* first "record" var */
+  NC_var *first_var = NULL; /* first "non-record" var */
+  NC_var *first_rec = NULL; /* first "record" var */
   int status;
 
   ncp->begin_var = (off_t) ncp->xsz;
@@ -1096,18 +1092,19 @@ NC_computeshapes(NC *ncp)
     if(status != ENOERR)
       return(status);
 
-      if(IS_RECVAR(*vpp))  
+      if(IS_RECVAR(*vpp)) 
     {
-        if(first_rec == NULL)  
+        if(first_rec == NULL) 
         first_rec = *vpp;
       ncp->recsize += (*vpp)->len;
     }
-    else if(first_var == NULL)
+    else
     {
-      first_var = *vpp;
+            if(first_var == NULL)
+              first_var = *vpp;
       /*
        * Overwritten each time thru.
-       * Usually overwritten in first_rec != NULL clause.
+       * Usually overwritten in first_rec != NULL clause below.
        */
       ncp->begin_rec = (*vpp)->begin + (off_t)(*vpp)->len;
     }
@@ -1118,8 +1115,8 @@ NC_computeshapes(NC *ncp)
     assert(ncp->begin_rec <= first_rec->begin);
     ncp->begin_rec = first_rec->begin;
     /*
-      * for special case of exactly one record variable, pack value
-      */
+     * for special case of exactly one record variable, pack value
+     */
     if(ncp->recsize == first_rec->len)
       ncp->recsize = *first_rec->dsizes * first_rec->xsz;
   }
@@ -1141,6 +1138,28 @@ NC_computeshapes(NC *ncp)
   return(ENOERR);
 }
 
+
+/*
+ * Return actual unpadded length (in bytes) of a variable, which
+ * doesn't include any extra padding used for alignment.  For a record
+ * variable, this is the length in bytes of one record's worth of that
+ * variable's data.
+ */
+static off_t
+NC_var_unpadded_len(const NC_var *varp, const NC_dimarray *dims)
+{
+    size_t *shp;
+    off_t product = 1;
+    
+    if(varp->ndims != 0) {
+  for(shp = varp->shape + varp->ndims -1; shp >= varp->shape; shp--) {
+      if(!(shp == varp->shape && IS_RECVAR(varp)))
+    product *= *shp;
+  }
+    }
+    product = product * varp->xsz;
+    return product;
+}
 
 size_t
 ncx_len_NC(const NC *ncp, size_t sizeof_off_t)
@@ -1218,13 +1237,15 @@ ncx_put_NC(const NC *ncp, void **xpp, off_t offset, size_t extent)
     status = ncx_putn_schar_schar(&ps.pos, sizeof(ncmagic), ncmagic);
   else
     status = ncx_putn_schar_schar(&ps.pos, sizeof(ncmagic1), ncmagic1);
-
   if(status != ENOERR)
     goto release;
 
-  status = ncx_put_size_t(&ps.pos, &ncp->numrecs);
+  {
+  const size_t nrecs = NC_get_numrecs(ncp);
+  status = ncx_put_size_t(&ps.pos, &nrecs);
   if(status != ENOERR)
     goto release;
+  }
 
   assert((char *)ps.pos < (char *)ps.end);
 
@@ -1269,21 +1290,37 @@ nc_get_NC(NC *ncp)
     /*
      * Come up with a reasonable stream read size.
      */
-    size_t extent = ncp->xsz;
+          off_t filesize;
+    size_t extent = MIN_NC_XSZ;
+    
+    extent = ncp->xsz;
     if(extent <= MIN_NC_XSZ)
     {
+            status = ncio_filesize(ncp->nciop, &filesize);
+      if(status)
+          return status;
       /* first time read */
       extent = ncp->chunk;
       /* Protection for when ncp->chunk is huge;
        * no need to read hugely. */
             if(extent > 4096)
         extent = 4096;
+      if(extent > filesize)
+              extent = _RNDUP(filesize, X_ALIGN);
     }
     else if(extent > ncp->chunk)
     {
       extent = ncp->chunk;
     }
-    
+
+    /*
+     * Invalidate the I/O buffers to force a read of the header
+     * region.
+     */
+    status = gs.nciop->sync(gs.nciop);
+    if(status)
+      return status;
+
     status = fault_v1hs(&gs, extent);
     if(status)
       return status;
@@ -1311,18 +1348,26 @@ nc_get_NC(NC *ncp)
       gs.version = 1;
     } else if (magic[sizeof(ncmagic)-1] == 0x2) {
       gs.version = 2;
+      fSet(ncp->flags, NC_64BIT_OFFSET);
+      /* Now we support version 2 file access on non-LFS systems -- rkr */
+#if 0
       if (sizeof(off_t) != 8) {
-        fprintf(stderr, "NETCDF WARNING: Version 2 database on 32-bit system.\n");
+        fprintf(stderr, "NETCDF WARNING: Version 2 file on 32-bit system.\n");
       }
+#endif
     } else {
       status = NC_ENOTNC;
       goto unwind_get;
     }
   }
   
-  status = ncx_get_size_t((const void **)(&gs.pos), &ncp->numrecs);
+  {
+  size_t nrecs = 0;
+  status = ncx_get_size_t((const void **)(&gs.pos), &nrecs);
   if(status != ENOERR)
     goto unwind_get;
+  NC_set_numrecs(ncp, nrecs);
+  }
 
   assert((char *)gs.pos < (char *)gs.end);
 
@@ -1341,6 +1386,8 @@ nc_get_NC(NC *ncp)
   ncp->xsz = ncx_len_NC(ncp, (gs.version == 1) ? 4 : 8);
 
   status = NC_computeshapes(ncp);
+  if(status != ENOERR)
+    goto unwind_get;
 
 unwind_get:
   (void) rel_v1hs(&gs);

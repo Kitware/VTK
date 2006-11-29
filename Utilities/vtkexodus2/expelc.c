@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -32,38 +32,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-/*****************************************************************************
-*
-* expelc - ex_put_elem_conn
-*
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     elem_blk_id             ID value
-*       int     connect                 connectivity array
-*
-* exit conditions - 
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
+/*  Id */
 
 #include "exodusII.h"
 #include "exodusII_int.h"
+#include <stdlib.h> /* for free() */
 
-#include <stdlib.h>
-
-/*
+/*!
  * writes the connectivity array for an element block
  */
 

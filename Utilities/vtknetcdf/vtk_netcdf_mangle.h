@@ -14,20 +14,25 @@ nm libvtkNetCDF.a |grep " [TR] "
 
 This is the way to recreate the whole list:
 
-nm bin/libvtkNetCDF.so |grep " [TR] " | awk '{ print "#define "$3" vtk_netcdf_"$3 }'
+nm bin/libvtkNetCDF.so |grep " [TR] " | awk '{ print "#define "$3" vtk_netcdf_"$3 }' | \
+        grep -v vtk_netcdf__fini | grep -v vtk_netcdf__init
+
+Note that _fini and _init should be excluded because they are not functions
+implemented by the library but are rather created by the linker and
+used when the shared library is loaded/unloaded from an executable.
 
 */
 
+#define NC_calcsize vtk_netcdf_NC_calcsize
 #define NC_check_id vtk_netcdf_NC_check_id
 #define NC_check_name vtk_netcdf_NC_check_name
+#define NC_check_vlen vtk_netcdf_NC_check_vlen
 #define NC_findattr vtk_netcdf_NC_findattr
 #define NC_findvar vtk_netcdf_NC_findvar
 #define NC_lookupvar vtk_netcdf_NC_lookupvar
 #define NC_sync vtk_netcdf_NC_sync
 #define NC_var_shape vtk_netcdf_NC_var_shape
 #define NCadvise vtk_netcdf_NCadvise
-#define _fini vtk_netcdf__fini
-#define _init vtk_netcdf__init
 #define dup_NC_attrarrayV vtk_netcdf_dup_NC_attrarrayV
 #define dup_NC_dimarrayV vtk_netcdf_dup_NC_dimarrayV
 #define dup_NC_vararrayV vtk_netcdf_dup_NC_vararrayV
@@ -46,8 +51,10 @@ nm bin/libvtkNetCDF.so |grep " [TR] " | awk '{ print "#define "$3" vtk_netcdf_"$
 #define free_NC_vararrayV vtk_netcdf_free_NC_vararrayV
 #define free_NC_vararrayV0 vtk_netcdf_free_NC_vararrayV0
 #define nc__create vtk_netcdf_nc__create
+#define nc__create_mp vtk_netcdf_nc__create_mp
 #define nc__enddef vtk_netcdf_nc__enddef
 #define nc__open vtk_netcdf_nc__open
+#define nc__open_mp vtk_netcdf_nc__open_mp
 #define nc_abort vtk_netcdf_nc_abort
 #define nc_advise vtk_netcdf_nc_advise
 #define nc_cktype vtk_netcdf_nc_cktype
@@ -59,6 +66,7 @@ nm bin/libvtkNetCDF.so |grep " [TR] " | awk '{ print "#define "$3" vtk_netcdf_"$
 #define nc_def_var vtk_netcdf_nc_def_var
 #define nc_del_att vtk_netcdf_nc_del_att
 #define nc_delete vtk_netcdf_nc_delete
+#define nc_delete_mp vtk_netcdf_nc_delete_mp
 #define nc_enddef vtk_netcdf_nc_enddef
 #define nc_get_NC vtk_netcdf_nc_get_NC
 #define nc_get_att vtk_netcdf_nc_get_att
@@ -121,10 +129,12 @@ nm bin/libvtkNetCDF.so |grep " [TR] " | awk '{ print "#define "$3" vtk_netcdf_"$
 #define nc_inq_attlen vtk_netcdf_nc_inq_attlen
 #define nc_inq_attname vtk_netcdf_nc_inq_attname
 #define nc_inq_atttype vtk_netcdf_nc_inq_atttype
+#define nc_inq_base_pe vtk_netcdf_nc_inq_base_pe
 #define nc_inq_dim vtk_netcdf_nc_inq_dim
 #define nc_inq_dimid vtk_netcdf_nc_inq_dimid
 #define nc_inq_dimlen vtk_netcdf_nc_inq_dimlen
 #define nc_inq_dimname vtk_netcdf_nc_inq_dimname
+#define nc_inq_format vtk_netcdf_nc_inq_format
 #define nc_inq_libvers vtk_netcdf_nc_inq_libvers
 #define nc_inq_natts vtk_netcdf_nc_inq_natts
 #define nc_inq_ndims vtk_netcdf_nc_inq_ndims
@@ -197,6 +207,8 @@ nm bin/libvtkNetCDF.so |grep " [TR] " | awk '{ print "#define "$3" vtk_netcdf_"$
 #define nc_rename_att vtk_netcdf_nc_rename_att
 #define nc_rename_dim vtk_netcdf_nc_rename_dim
 #define nc_rename_var vtk_netcdf_nc_rename_var
+#define nc_set_base_pe vtk_netcdf_nc_set_base_pe
+#define nc_set_default_format vtk_netcdf_nc_set_default_format
 #define nc_set_fill vtk_netcdf_nc_set_fill
 #define nc_strerror vtk_netcdf_nc_strerror
 #define nc_sync vtk_netcdf_nc_sync
@@ -218,7 +230,9 @@ nm bin/libvtkNetCDF.so |grep " [TR] " | awk '{ print "#define "$3" vtk_netcdf_"$
 #define ncinquire vtk_netcdf_ncinquire
 #define ncio_close vtk_netcdf_ncio_close
 #define ncio_create vtk_netcdf_ncio_create
+#define ncio_filesize vtk_netcdf_ncio_filesize
 #define ncio_open vtk_netcdf_ncio_open
+#define ncio_pad_length vtk_netcdf_ncio_pad_length
 #define ncopen vtk_netcdf_ncopen
 #define ncrecget vtk_netcdf_ncrecget
 #define ncrecinq vtk_netcdf_ncrecinq
@@ -417,5 +431,5 @@ nm bin/libvtkNetCDF.so |grep " [TR] " | awk '{ print "#define "$3" vtk_netcdf_"$
 #define set_NC_string vtk_netcdf_set_NC_string
 #define write_numrecs vtk_netcdf_write_numrecs
 
-#endif
+#endif /* vtk_expat_mangle_h */
 

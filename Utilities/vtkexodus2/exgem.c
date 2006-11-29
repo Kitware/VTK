@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -51,6 +51,7 @@
 *       int*    elem_map                element map
 *
 * revision history - 
+*   20061127 - David Thompson - moved functionality to ex_get_num_map
 *
 *
 *****************************************************************************/
@@ -65,106 +66,7 @@
 
 int ex_get_elem_map (int   exoid,
                      int   map_id,
-                     int  *elem_map)
+                     int*  elem_map)
 {
-   int dimid, var_id, id_ndx, iresult;
-   long num_elem, start[1], count[1]; 
-   nclong *longs;
-   char errmsg[MAX_ERR_LENGTH];
-
-   exerrval = 0; /* clear error code */
-
-   /* See if file contains any elements...*/
-   if ((dimid = ncdimid (exoid, DIM_NUM_ELEM)) == -1)
-   {
-     return (EX_NOERR);
-   }
-
-   if (ncdiminq (exoid, dimid, (char *) 0, &num_elem) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to get number of elements in file id %d", exoid);
-     ex_err("ex_get_elem_map",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-/* first check if any element maps have been defined */
-
-   if ((dimid = ncdimid (exoid, DIM_NUM_EM))  == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Warning: no element maps defined in file id %d",
-             exoid);
-     ex_err("ex_get_elem_map",errmsg,exerrval);
-     return (EX_WARN);
-   }
-
-/* Lookup index of element map id property array */
-
-   id_ndx = ex_id_lkup(exoid,VAR_EM_PROP(1),map_id);
-   if (exerrval != 0) 
-   {
-
-      sprintf(errmsg,
-              "Error: failed to locate element map id %d in %s in file id %d",
-               map_id,VAR_EM_PROP(1),exoid);
-      ex_err("ex_get_elem_map",errmsg,exerrval);
-      return (EX_FATAL);
-   }
-
-/* inquire id's of previously defined dimensions and variables */
-
-   if ((var_id = ncvarid (exoid, VAR_ELEM_MAP(id_ndx))) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to locate element map %d in file id %d",
-             map_id,exoid);
-     ex_err("ex_get_elem_map",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-
-/* read in the element map */
-
-/* application code has allocated an array of ints but netcdf is expecting
-   a pointer to nclongs;  if ints are different sizes than nclongs,
-   we must allocate an array of nclongs then convert them to ints with ltoi */
-
-   start[0] = 0;
-   count[0] = num_elem;
-
-   if (sizeof(int) == sizeof(nclong)) {
-     iresult = ncvarget (exoid, var_id, start, count, elem_map);
-   } else {
-     if (!(longs = malloc(num_elem * sizeof(nclong)))) {
-       exerrval = EX_MEMFAIL;
-       sprintf(errmsg,
-               "Error: failed to allocate memory for element map for file id %d",
-               exoid);
-       ex_err("ex_get_elem_map",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-      iresult = ncvarget (exoid, var_id, start, count, longs);
-   }
-
-   if (iresult == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to get element map in file id %d",
-             exoid);
-     ex_err("ex_get_elem_map",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-   if (sizeof(int) != sizeof(nclong)) {
-      ltoi (longs, elem_map, num_elem);
-      free (longs);
-   }
-
-   return (EX_NOERR);
-
+  return ex_get_num_map( exoid, EX_ELEM_MAP, map_id, elem_map );
 }

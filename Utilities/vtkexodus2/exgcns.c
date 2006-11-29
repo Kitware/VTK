@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -81,149 +81,16 @@ int ex_get_concat_node_sets (int   exoid,
                              int  *node_sets_node_list, 
                              void *node_sets_dist_fact)
 {
-   int i, num_node_sets, node_index_ctr, df_index_ctr;
-   float fdum;
-   char *cdum;
-   float  *flt_dist_fact;
-   double *dbl_dist_fact;
-   char errmsg[MAX_ERR_LENGTH];
+  struct ex_set_specs set_specs;
 
-   exerrval = 0; /* clear error code */
+  set_specs.sets_ids = node_set_ids;
+  set_specs.num_entries_per_set = num_nodes_per_set;
+  set_specs.num_dist_per_set = num_df_per_set;
+  set_specs.sets_entry_index = node_sets_node_index;
+  set_specs.sets_dist_index = node_sets_df_index;
+  set_specs.sets_entry_list = node_sets_node_list;
+  set_specs.sets_extra_list = NULL;
+  set_specs.sets_dist_fact = node_sets_dist_fact;
 
-   cdum = 0; /* initialize even though it is not used */
-
-/* first check if any node sets are specified */
-
-   if (ncdimid (exoid, DIM_NUM_NS) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Warning: failed to locate number of node sets in file id %d",
-            exoid);
-     ex_err("ex_get_concat_node_sets",errmsg,exerrval);
-     return (EX_WARN);         /* no node sets were defined */
-   }
-
-/* inquire how many node sets have been stored */
-
-   if ((ex_inquire(exoid, EX_INQ_NODE_SETS, &num_node_sets, &fdum, cdum)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to get number of node sets in file id %d",
-            exoid);
-     ex_err("ex_get_concat_node_sets",errmsg,exerrval);
-     return(EX_FATAL);
-   }
-
-   if ((ex_get_node_set_ids (exoid, node_set_ids)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to get node sets ids in file id %d",exoid);
-     ex_err("ex_get_concat_node_sets",errmsg,exerrval);
-     return(EX_FATAL);
-   }
-
-   node_index_ctr = 0;
-   df_index_ctr = 0;
-
-   for (i=0; i<num_node_sets; i++)
-   {
-     if ((ex_get_node_set_param(exoid, node_set_ids[i], 
-                                &(num_nodes_per_set[i]),
-                                &(num_df_per_set[i]))) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Error: failed to get node set parameters in file id %d",exoid);
-       ex_err("ex_get_concat_node_sets",errmsg,exerrval);
-       return(EX_FATAL);
-     }
-
-     /* get nodes for this set */
-     if (num_nodes_per_set[i] > 0)
-     {
-       if (ex_get_node_set(exoid, node_set_ids[i],
-                 &(node_sets_node_list[node_index_ctr])) == -1)
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: failed to get node set %d in file id %d",
-                 node_set_ids[i], exoid);
-         ex_err("ex_get_concat_node_sets",errmsg,exerrval);
-         return(EX_FATAL);
-       }
-
-       if (ex_comp_ws(exoid) == sizeof(float) ) /* 4-byte float word */
-       {
-
-         /* get distribution factors for this set */
-         flt_dist_fact = node_sets_dist_fact;
-         if (num_df_per_set[i] > 0)     /* only get df if they exist */
-         {
-           if (ex_get_node_set_dist_fact(exoid, node_set_ids[i],
-                             &(flt_dist_fact[df_index_ctr])) == -1)
-           {
-             exerrval = ncerr;
-             sprintf(errmsg,
-                  "Error: failed to get node set %d dist factors in file id %d",
-                     node_set_ids[i], exoid);
-             ex_err("ex_get_concat_node_sets",errmsg,exerrval);
-             return(EX_FATAL);
-           }
-         }
-       }
-       else if (ex_comp_ws(exoid) == sizeof(double) )   /* 8-byte float word */
-       {
-
-         /* get distribution factors for this set */
-         dbl_dist_fact = node_sets_dist_fact;
-         if (num_df_per_set[i] > 0)             /* only get df if they exist */
-         {
-           if (ex_get_node_set_dist_fact(exoid, node_set_ids[i],
-                               &(dbl_dist_fact[df_index_ctr])) == -1)
-           {
-             exerrval = ncerr;
-             sprintf(errmsg,
-                  "Error: failed to get node set %d dist factors in file id %d",
-                     node_set_ids[i], exoid);
-             ex_err("ex_get_concat_node_sets",errmsg,exerrval);
-             return(EX_FATAL);
-           }
-         }
-       }
-       else
-       {
-         /* unknown floating point word size */
-         exerrval = EX_BADPARAM;
-         sprintf(errmsg,
-                "Error: unsupported floating point word size %d for file id %d",
-                 ex_comp_ws(exoid), exoid);
-         ex_err("ex_get_concat_node_sets", errmsg, exerrval);
-         return (EX_FATAL);
-       }
-     }
-
-     /* update index arrays */
-
-     if (i < num_node_sets)
-     {
-       node_sets_node_index[i] = node_index_ctr;
-       node_index_ctr += num_nodes_per_set[i];  /* keep running count */
-
-       if (num_df_per_set[i] > 0)               /* only get df if they exist */
-       {
-         node_sets_df_index[i] = df_index_ctr;
-         df_index_ctr += num_df_per_set[i];     /* keep running count */
-       }
-       else
-       {
-         node_sets_df_index[i] = -1;            /* signal non-existence of df */
-       }
-     }
-   }
-
-   return(EX_NOERR);
-
+  return ex_get_concat_sets(exoid, EX_NODE_SET, &set_specs);
 }

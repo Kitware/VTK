@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -62,30 +62,25 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-struct obj_stats* eb = 0;
-struct obj_stats* ns = 0;
-struct obj_stats* ss = 0;
-struct obj_stats* em = 0;
-struct obj_stats* nm = 0;
+struct obj_stats*  eb = 0;
+struct obj_stats*  ed = 0;
+struct obj_stats*  fa = 0;
+struct obj_stats*  ns = 0;
+struct obj_stats*  es = 0;
+struct obj_stats*  fs = 0;
+struct obj_stats*  ss = 0;
+struct obj_stats* els = 0;
+struct obj_stats*  em = 0;
+struct obj_stats* edm = 0;
+struct obj_stats* fam = 0;
+struct obj_stats*  nm = 0;
+
 
 /*****************************************************************************
 *
 * utility routines for string conversions
 * ex_catstr  - concatenate  string/number (where number is converted to ASCII)
 * ex_catstr2 - concatenate  string1/number1/string2/number2   "
-*
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-* environment - UNIX
-*
-* entry conditions -
-*
-* exit conditions -
-*
-* revision history -
 *
 * NOTE: these routines reuse the same storage over and over to build
 *        concatenated strings, because the strings are just passed to netCDF
@@ -94,14 +89,17 @@ struct obj_stats* nm = 0;
 *        immediately be copied into other storage.
 *****************************************************************************/
 
-char ret_string[MAX_VAR_NAME_LENGTH+1];
+static char ret_string[10*(MAX_VAR_NAME_LENGTH+1)];
+static char* cur_string = &ret_string[0];
 
 char *ex_catstr (const char *string,
                  int   num)
 {
-   sprintf (ret_string, "%s%d", string, num);
-   return (ret_string);
-
+  char* tmp_string = cur_string;
+  cur_string += sprintf (cur_string, "%s%d", string, num) + 1;
+  if ( cur_string - ret_string > 9*(MAX_VAR_NAME_LENGTH+1) )
+    cur_string = ret_string;
+  return (tmp_string);
 }
 
 
@@ -110,9 +108,78 @@ char *ex_catstr2 (const char *string1,
                   const char *string2,
                   int   num2)
 {
-   sprintf (ret_string, "%s%d%s%d", string1, num1, string2, num2);
-   return (ret_string);
+  char* tmp_string = cur_string;
+  cur_string += sprintf (cur_string, "%s%d%s%d", string1, num1, string2, num2) + 1;
+  if ( cur_string - ret_string > 9*(MAX_VAR_NAME_LENGTH+1) )
+    cur_string = ret_string;
+  return (tmp_string);
+}
 
+char* ex_dim_num_entries_in_object( int obj_type,
+                                    int idx )
+{
+  switch (obj_type) {
+  case EX_EDGE_BLOCK:
+    return DIM_NUM_ED_IN_EBLK(idx);
+  case EX_FACE_BLOCK:
+    return DIM_NUM_FA_IN_FBLK(idx);
+  case EX_ELEM_BLOCK:
+    return DIM_NUM_EL_IN_BLK(idx);
+  case EX_NODE_SET:
+    return DIM_NUM_NOD_NS(idx);
+  case EX_EDGE_SET:
+    return DIM_NUM_EDGE_ES(idx);
+  case EX_FACE_SET:
+    return DIM_NUM_FACE_FS(idx);
+  case EX_SIDE_SET:
+    return DIM_NUM_SIDE_SS(idx);
+  case EX_ELEM_SET:
+    return DIM_NUM_ELE_ELS(idx);
+  default:
+    return 0;
+  }
+}
+
+char* ex_name_var_of_object( int obj_type,
+                             int i,
+                             int j )
+{
+  switch (obj_type) {
+  case EX_EDGE_BLOCK:
+    return VAR_EDGE_VAR(i,j);
+  case EX_FACE_BLOCK:
+    return VAR_FACE_VAR(i,j);
+  case EX_ELEM_BLOCK:
+    return VAR_ELEM_VAR(i,j);
+  case EX_NODE_SET:
+    return VAR_NS_VAR(i,j);
+  case EX_EDGE_SET:
+    return VAR_ES_VAR(i,j);
+  case EX_FACE_SET:
+    return VAR_FS_VAR(i,j);
+  case EX_SIDE_SET:
+    return VAR_SS_VAR(i,j);
+  case EX_ELEM_SET:
+    return VAR_ELS_VAR(i,j);
+  default:
+    return 0;
+  }
+}
+
+char* ex_name_of_map( int map_type, int map_index )
+{
+  switch (map_type) {
+  case EX_NODE_MAP:
+    return VAR_NODE_MAP(map_index);
+  case EX_EDGE_MAP:
+    return VAR_EDGE_MAP(map_index);
+  case EX_FACE_MAP:
+    return VAR_FACE_MAP(map_index);
+  case EX_ELEM_MAP:
+    return VAR_ELEM_MAP(map_index);
+  default:
+    return 0;
+  }
 }
 
 /*****************************************************************************
@@ -143,7 +210,7 @@ char *ex_catstr2 (const char *string1,
 *****************************************************************************/
 
 int ex_id_lkup( int exoid,
-                char *id_type,
+                const char *id_type,
                 int num)
 {
 
@@ -198,6 +265,55 @@ int ex_id_lkup( int exoid,
     strcpy(id_dim, DIM_NUM_NM);
     strcpy(stat_table, "");
     tmp_stats = get_stat_ptr (exoid, &nm);
+  }
+  else if (strcmp(idtyp,VAR_ID_ED_BLK) == 0)
+  {
+    strcpy(id_table, VAR_ID_ED_BLK);
+    strcpy(id_dim, DIM_NUM_ED_BLK);
+    strcpy(stat_table, VAR_STAT_ED_BLK);
+    tmp_stats = get_stat_ptr (exoid, &ed);
+  }
+  else if (strcmp(idtyp,VAR_ID_FA_BLK) == 0)
+  {
+    strcpy(id_table, VAR_ID_FA_BLK);
+    strcpy(id_dim, DIM_NUM_FA_BLK);
+    strcpy(stat_table, VAR_STAT_FA_BLK);
+    tmp_stats = get_stat_ptr (exoid, &fa);
+  }
+  else if (strcmp(idtyp,VAR_ES_IDS) == 0)
+  {
+    strcpy(id_table, VAR_ES_IDS);
+    strcpy(id_dim, DIM_NUM_ES);
+    strcpy(stat_table, VAR_ES_STAT);
+    tmp_stats = get_stat_ptr (exoid, &es);
+  }
+  else if (strcmp(idtyp,VAR_FS_IDS) == 0)
+  {
+    strcpy(id_table, VAR_FS_IDS);
+    strcpy(id_dim, DIM_NUM_FS);
+    strcpy(stat_table, VAR_FS_STAT);
+    tmp_stats = get_stat_ptr (exoid, &fs);
+  }
+  else if (strcmp(idtyp,VAR_ELS_IDS) == 0)
+  {
+    strcpy(id_table, VAR_ELS_IDS);
+    strcpy(id_dim, DIM_NUM_ELS);
+    strcpy(stat_table, VAR_ELS_STAT);
+    tmp_stats = get_stat_ptr (exoid, &els);
+  }
+  else if (strcmp(idtyp,VAR_EDM_PROP(1)) == 0)
+  {
+    strcpy(id_table, VAR_EDM_PROP(1));
+    strcpy(id_dim, DIM_NUM_EDM);
+    strcpy(stat_table, "");
+    tmp_stats = get_stat_ptr (exoid, &edm);
+  }
+  else if (strcmp(idtyp,VAR_FAM_PROP(1)) == 0)
+  {
+    strcpy(id_table, VAR_FAM_PROP(1));
+    strcpy(id_dim, DIM_NUM_FAM);
+    strcpy(stat_table, "");
+    tmp_stats = get_stat_ptr (exoid, &fam);
   }
   else
   {
@@ -281,7 +397,7 @@ int ex_id_lkup( int exoid,
     filled = TRUE;
     for (i=0;i<dim_len;i++)
     {
-      if (id_vals[i] == 0) {
+      if (id_vals[i] == 0 || id_vals[i] == NC_FILL_INT) {
         filled = FALSE;
         break; /* id array hasn't been completely filled with valid ids yet */
       }
@@ -370,6 +486,9 @@ int ex_id_lkup( int exoid,
       if ( !(tmp_stats->valid_stat) ) {
         free (stat_vals);
       }
+      if ( !(tmp_stats->valid_ids) ) {
+        if (id_vals) free (id_vals); 
+      }
       return(-(i+1)); /* return index into id array (1-based) */
     }
   }
@@ -418,6 +537,11 @@ struct obj_stats *get_stat_ptr (int exoid, struct obj_stats **obj_ptr)
     tmp_ptr = (struct obj_stats *) calloc (1, sizeof(struct obj_stats));
     tmp_ptr->exoid = exoid;
     tmp_ptr->next = *obj_ptr;
+    tmp_ptr->id_vals = 0;
+    tmp_ptr->stat_vals = 0;
+    tmp_ptr->num = 0;
+    tmp_ptr->valid_ids = 0;
+    tmp_ptr->valid_stat = 0;
     *obj_ptr = tmp_ptr;
   }
 
@@ -490,8 +614,8 @@ void rm_stat_ptr (int exoid, struct obj_stats **obj_ptr)
 
 /* this routine sets up a structure to track and increment a counter for
  * each open exodus file.  it is designed to be used by the routines
- * ex_put_elem_block(), ex_put_node_set_param(), and ex_put_side_set_param(),
- * to keep track of the number of element blocks, node sets, or side sets,
+ * ex_put_elem_block() and ex_put_set_param(),
+ * to keep track of the number of element blocks, and each type of set,
  * respectively, for each open exodus II file.
  *
  * The list structure is used as follows:
@@ -561,8 +685,8 @@ int ex_inc_file_item( int exoid,                /* file id */
 
 /* this routine accesses a structure to track and increment a counter for
  * each open exodus file.  it is designed to be used by the routines
- * ex_put_elem_block(), ex_put_node_set_param(), and ex_put_side_set_param(),
- * to get the number of element blocks, node sets, or side sets,
+ * ex_put_elem_block(), and ex_put_set_param(),
+ * to get the number of element blocks, or a type of set,
  * respectively, for an open exodus II file.
  *
  * The list structure is used as follows:
@@ -708,11 +832,26 @@ int ex_get_num_props (int exoid, int obj_type)
        case EX_ELEM_BLOCK:
          strcpy (var_name, VAR_EB_PROP(cntr+1));
          break;
+       case EX_EDGE_BLOCK:
+         strcpy (var_name, VAR_ED_PROP(cntr+1));
+         break;
+       case EX_FACE_BLOCK:
+         strcpy (var_name, VAR_FA_PROP(cntr+1));
+         break;
        case EX_NODE_SET:
          strcpy (var_name, VAR_NS_PROP(cntr+1));
          break;
+       case EX_EDGE_SET:
+         strcpy (var_name, VAR_ES_PROP(cntr+1));
+         break;
+       case EX_FACE_SET:
+         strcpy (var_name, VAR_FS_PROP(cntr+1));
+         break;
        case EX_SIDE_SET:
          strcpy (var_name, VAR_SS_PROP(cntr+1));
+         break;
+       case EX_ELEM_SET:
+         strcpy (var_name, VAR_ELS_PROP(cntr+1));
          break;
        case EX_ELEM_MAP:
          strcpy (var_name, VAR_EM_PROP(cntr+1));
@@ -739,7 +878,7 @@ int ex_get_num_props (int exoid, int obj_type)
      cntr++;
    }
 }
-int ex_get_cpu_ws()
+int ex_get_cpu_ws(void)
 {
   return(sizeof(float));
 }
@@ -909,10 +1048,17 @@ int ex_large_model(int exoid)
      */
     char *option = getenv("EXODUS_LARGE_MODEL");
     if (option != NULL) {
-      fprintf(stderr, "EXODUSII: Large model size selected via EXODUS_LARGE_MODEL environment variable\n");
-      return 1;
+      if (option[0] == 'n' || option[0] == 'N') {
+        fprintf(stderr,
+                "EXODUSII: Small model size selected via EXODUS_LARGE_MODEL environment variable\n");
+        return 0;
+      } else {
+        fprintf(stderr,
+                "EXODUSII: Large model size selected via EXODUS_LARGE_MODEL environment variable\n");
+        return 1;
+      }
     } else {
-      return 0;
+      return EXODUS_DEFAULT_SIZE; /* Specified in exodusII_int.h */
     }
 
   } else {
@@ -926,3 +1072,165 @@ int ex_large_model(int exoid)
   }
 }
   
+int ex_get_dimension(int exoid, const char* DIMENSION, const char *label,
+                     long *count, const char *routine)
+{
+  char errmsg[MAX_ERR_LENGTH];
+  long dimid;
+
+  *count = 0;
+  if ((dimid = ncdimid (exoid, DIMENSION)) == -1) {
+    if (routine != NULL) {
+      if (ncerr == NC_EBADDIM) {
+        exerrval = ncerr;
+        sprintf(errmsg,
+                "Warning: no %s defined in file id %d",
+                label, exoid);
+        ex_err(routine, errmsg,exerrval);
+        
+      } else {
+        exerrval = ncerr;
+        sprintf(errmsg,
+                "Error: failed to locate number of %s in file id %d",
+                label, exoid);
+        ex_err(routine,errmsg,exerrval);
+      }
+    }
+    return dimid;
+  }
+
+  if (ncdiminq (exoid, dimid, (char *) 0, count) == -1) {
+    if (routine != NULL) {
+      exerrval = ncerr;
+      sprintf(errmsg,
+              "Error: failed to get number of %s in file id %d",
+              label, exoid);
+      ex_err(routine,errmsg,exerrval);
+      return -1;
+    }
+  }
+  return dimid;
+}
+
+size_t ex_header_size(int exoid)
+{
+  /* Calculate the number of words of storage required to store the
+   * header information.  Total bytes can be obtained by multiplying
+   * words by 4.  Size is slightly underestimated since it only
+   * considers the bulk data storage...
+   */
+  const char *routine = NULL;
+  int iows = 0;
+  long ndim = 0;
+  long num_nodes = 0;
+  long num_elem = 0;
+  long num_eblk = 0;
+  long num_map  = 0;
+  long num_nset = 0;
+  long num_sset = 0;
+  int mapid;
+  
+  size_t size = 0;
+  /* Get word size (2 = 8-byte reals, 1 = 4-byte reals */
+  
+  if (nc_flt_code(exoid) == NC_DOUBLE) 
+    iows = 2;
+  else
+    iows = 1;
+  
+  /* coordinates = (ndim * numnp)*iows + maps  */
+  ex_get_dimension(exoid, DIM_NUM_DIM,   "dimension", &ndim,      routine);
+  ex_get_dimension(exoid, DIM_NUM_NODES, "nodes",     &num_nodes, routine);
+  size += iows * ndim * num_nodes;
+
+  /* node maps */
+  mapid = ncvarid(exoid, VAR_NODE_NUM_MAP);
+  if (mapid != -1)
+    size += num_nodes;
+
+  ex_get_dimension(exoid, DIM_NUM_NM,   "node maps", &num_map, routine);
+  size += num_map * num_nodes;
+
+  /* Element Data */
+  ex_get_dimension(exoid, DIM_NUM_ELEM, "elements",  &num_elem, routine);
+  
+  /* Element order map */
+  mapid = ncvarid (exoid, VAR_MAP);
+  if (mapid != -1)
+    size += num_elem;
+   
+  mapid = ncvarid (exoid, VAR_ELEM_NUM_MAP);
+  if (mapid != -1)
+    size += num_elem;
+
+  /* Element map(s) */
+  ex_get_dimension(exoid, DIM_NUM_EM,     "element maps",   &num_map, routine);
+  size += num_map * num_elem;
+
+  /* Element Blocks... */
+  ex_get_dimension(exoid, DIM_NUM_EL_BLK, "element blocks", &num_eblk, routine);
+  if (num_eblk > 0) {
+    /* Allocate storage for element block parameters... */
+    int *ids = malloc(num_eblk * sizeof(int));
+    int i;
+
+    size += 2*num_eblk; /* status + ids */
+    
+    ex_get_ids(exoid, EX_ELEM_BLOCK, ids);
+    for (i=0; i < num_eblk; i++) {
+      int num_elem_this_blk = 0;
+      int num_nodes_per_elem = 0;
+      int num_attr = 0;
+      char elem_type[MAX_STR_LENGTH+1];
+      ex_get_elem_block(exoid, ids[i], elem_type, &num_elem_this_blk,
+                        &num_nodes_per_elem, &num_attr);
+      size += num_elem_this_blk * num_nodes_per_elem;
+      size += num_elem_this_blk * num_attr * iows;
+    }
+    free(ids);
+  }
+  
+  /* Nodesets */
+  ex_get_dimension(exoid, DIM_NUM_NS, "nodesets", &num_nset, routine);
+  if (num_nset > 0) {
+    /* Allocate storage for nodeset parameters... */
+    int *ids = malloc(num_nset * sizeof(int));
+    int i;
+
+    size += 2*num_nset; /* Status + ids */
+    ex_get_ids(exoid, EX_NODE_SET, ids);
+    for (i=0; i < num_nset; i++) {
+      int num_nodes_in_set = 0;
+      int num_df_in_set = 0;
+      ex_get_node_set_param(exoid, ids[i], &num_nodes_in_set, &num_df_in_set);
+      size += num_nodes_in_set;
+      size += num_df_in_set * iows;
+    }
+    free(ids);
+  }
+
+  /* Sidesets */
+  ex_get_dimension(exoid, DIM_NUM_SS, "sidesets", &num_sset, routine);
+  if (num_sset > 0) {
+    /* Allocate storage for sideset parameters... */
+    int *ids = malloc(num_sset * sizeof(int));
+    int i;
+
+    size += 2*num_sset; /* Status + ids */
+    ex_get_ids(exoid, EX_SIDE_SET, ids);
+    for (i=0; i < num_sset; i++) {
+      int num_sides_in_set = 0;
+      int num_df_in_set = 0;
+      ex_get_side_set_param(exoid, ids[i], &num_sides_in_set, &num_df_in_set);
+      size += num_sides_in_set * 2;
+      size += num_df_in_set * iows;
+    }
+    free(ids);
+  }
+
+  if (ex_large_model(exoid) == 0 && size > (1<<29)) {
+
+    fprintf(stderr, "ERROR: Size to store header information exceeds 2GB in file id %d\n       File is probably corrupt, rerun with environment variable EXODUS_LARGE_MODEL set.\n", exoid);
+  }
+  return size;
+}

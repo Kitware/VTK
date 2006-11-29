@@ -1,5 +1,5 @@
 /*
- *   Copyright 1988 University Corporation for Atmospheric Research
+ *  Copyright 1988 University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
 /* Id */
@@ -7,7 +7,7 @@
 /*
  *   Program to create a cdf, exercise all cdf functions.
  *  Creates cdf, stuff it full of numbers, closes it. Then
- *  reopens it, and checks for consistancy.
+ *  reopens it, and checks for consistency.
  *  Leaves the file around afterwards.
  *
  *  Based on a program to test the nasa look-alike program,
@@ -19,8 +19,9 @@
 #define REDEF
 /* #define SYNCDEBUG */
 
-#undef NDEBUG  /* always active assert() in this file */
+#undef NDEBUG /* always active assert() in this file */
 
+#include "ncconfig.h"
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -28,15 +29,21 @@
 #include <assert.h>
 #include "netcdf.h"
 
+#ifdef USE_NETCDF4
+#include <netcdf3.h>
+#include <nc3convert.h>
+#else
+#include "netcdf.h"
+#endif
 
 #define MAXSHORT  32767
 #define MAXINT    2147483647
-#define MAXBYTE    127
+#define MAXBYTE   127
 
 
-#define FNAME    "test.nc"
-#define  NUM_DIMS   3
-#define DONT_CARE  -1
+#define FNAME   "test.nc"
+#define NUM_DIMS  3
+#define DONT_CARE -1
 /* make these numbers big when you want to give this a real workout */
 #define NUM_RECS  8
 #define SIZE_1    7
@@ -100,15 +107,15 @@ chkgot(nc_type type, union getret got, double check)
   }
 }
 
-static char *fname = FNAME;
+static const char *fname = FNAME;
 
 
 static size_t num_dims = NUM_DIMS;
 static size_t sizes[] = { NC_UNLIMITED, SIZE_1 , SIZE_2 };
-static char *dim_names[] = { "record", "ixx", "iyy"};
+static const char * const dim_names[] = { "record", "ixx", "iyy"};
 
 static void
-createtestdims(int cdfid, size_t num_dims, size_t *sizes, char *dim_names[])
+createtestdims(int cdfid, size_t num_dims, const size_t *sizes, const char * const dim_names[])
 {
   int dimid;
   while(num_dims-- != 0)
@@ -122,7 +129,7 @@ createtestdims(int cdfid, size_t num_dims, size_t *sizes, char *dim_names[])
 
 
 static void
-testdims(int cdfid, size_t num_dims, size_t *sizes, char *dim_names[])
+testdims(int cdfid, size_t num_dims, size_t *sizes, const char * const dim_names[])
 {
   int ii;
   size_t size;
@@ -141,7 +148,7 @@ testdims(int cdfid, size_t num_dims, size_t *sizes, char *dim_names[])
 
 
 
-static char *reqattr[] = {
+static const char * const reqattr[] = {
   "UNITS",
   "VALIDMIN",
   "VALIDMAX",
@@ -153,17 +160,17 @@ static char *reqattr[] = {
 #define NUM_RATTRS  6
 
 static struct tcdfvar {
-  char *mnem;
+  const char *mnem;
   nc_type type;
-  char *fieldnam;
+  const char *fieldnam;
   double validmin;
   double validmax;
   double scalemin;
   double scalemax;
-  char *units;
+  const char *units;
   int ndims;
   int dims[NUM_DIMS];
-} testvars[]  = {
+} const testvars[]  = {
 #define Byte_id 0
   { "Byte", NC_BYTE, "Byte sized integer variable",
     -MAXBYTE, MAXBYTE, -MAXBYTE, MAXBYTE , "ones",
@@ -189,14 +196,14 @@ static struct tcdfvar {
     -MAXINT, MAXINT, -MAXINT, MAXINT, "dflots",
       3, {0, 1, 2 }},
 };
-#define  NUM_TESTVARS  6
+#define NUM_TESTVARS  6
 
 static void
-createtestvars(int id, struct tcdfvar *testvars, size_t count)
+createtestvars(int id, const struct tcdfvar *testvars, size_t count)
 {
   int ii;
   int varid;
-  struct tcdfvar *vp = testvars;
+  const struct tcdfvar *vp = testvars;
 
   for(ii = 0; (size_t) ii < count; ii++, vp++ )
   {
@@ -204,27 +211,27 @@ createtestvars(int id, struct tcdfvar *testvars, size_t count)
          &varid)
        == NC_NOERR ); 
 
-     assert(
+    assert(
       nc_put_att_text(id,ii,reqattr[0],strlen(vp->units),
         vp->units)
       == NC_NOERR); 
-     assert(
+    assert(
       nc_put_att_double(id,ii,reqattr[1],NC_DOUBLE,1,
         &vp->validmin)
       == NC_NOERR); 
-     assert(
+    assert(
       nc_put_att_double(id,ii,reqattr[2],NC_DOUBLE,1,
         &vp->validmax)
       == NC_NOERR); 
-     assert(
+    assert(
       nc_put_att_double(id,ii,reqattr[3],NC_DOUBLE,1,
         &vp->scalemin)
       == NC_NOERR); 
-     assert(
+    assert(
       nc_put_att_double(id,ii,reqattr[4],NC_DOUBLE,1,
         &vp->scalemax)
       == NC_NOERR); 
-     assert(
+    assert(
       nc_put_att_text(id,ii,reqattr[5],strlen(vp->fieldnam),
         vp->fieldnam)
       == NC_NOERR); 
@@ -232,7 +239,7 @@ createtestvars(int id, struct tcdfvar *testvars, size_t count)
 }
 
 static void
-parray(char *label, size_t count, size_t array[])
+parray(const char *label, size_t count, const size_t array[])
 {
   (void) fprintf(stdout, "%s", label);
   (void) fputc('\t',stdout);  
@@ -319,7 +326,7 @@ bad_ret :
   return;
 }
 
-static size_t  indices[][3] = {
+static const size_t indices[][3] = {
   {0, 1, 3},
   {0, 3, 0},
   {1, 2, 3},
@@ -329,17 +336,17 @@ static size_t  indices[][3] = {
   {0, 0, 0},
 };
 
-static char chs[] = {'A','B', ((char)0xff) };
-static size_t s_start[] = {0,1};
-static size_t s_edges[] = {NUM_RECS, SIZE_1 - 1};
+static const char chs[] = {'A','B', ((char)0xff) };
+static const size_t s_start[] = {0,1};
+static const size_t s_edges[] = {NUM_RECS, SIZE_1 - 1};
 static char sentence[NUM_RECS* SIZE_1 -1] =
   "The red death had long devastated the country.";
-static short shs[] = {97, 99};
-static int birthday = 82555;
-#define M_E  2.7182818284590452354
-static float e = (float) M_E;
-static double pinot = 3.25;
-static double zed = 0.0;
+static const short shs[] = {97, 99};
+static const int birthday = 82555;
+#define M_E 2.7182818284590452354
+static const float e = (float) M_E;
+static const double pinot = 3.25;
+static const double zed = 0.0;
 
 
 /*ARGSUSED*/
@@ -347,14 +354,14 @@ int
 main(int ac, char *av[])
 {
   int ret;
-  int   id;
+  int  id;
   char buf[256];
 #ifdef SYNCDEBUG
   char *str = "one";
 #endif
   int ii;
   size_t ui;
-  struct tcdfvar *tvp = testvars;
+  const struct tcdfvar *tvp = testvars;
   union getret got;
   const size_t initialsz = 8192;
   size_t chunksz = 8192;
@@ -386,13 +393,13 @@ main(int ac, char *av[])
 
   createtestvars(id, testvars, NUM_TESTVARS); 
 
-   {
-   int ifill = -1; double dfill = -9999;
-   assert( nc_put_att_int(id, Long_id,
-     _FillValue, NC_INT, 1, &ifill) == NC_NOERR);
-   assert( nc_put_att_double(id, Double_id,
-     _FillValue, NC_DOUBLE, 1, &dfill) == NC_NOERR);
-   }
+  {
+  int ifill = -1; double dfill = -9999;
+  assert( nc_put_att_int(id, Long_id,
+    _FillValue, NC_INT, 1, &ifill) == NC_NOERR);
+  assert( nc_put_att_double(id, Double_id,
+    _FillValue, NC_DOUBLE, 1, &dfill) == NC_NOERR);
+  }
 
 #ifdef REDEF
   assert( nc__enddef(id, 0, align, 0, 2*align) == NC_NOERR );
@@ -483,7 +490,7 @@ main(int ac, char *av[])
   assert(cdesc->num_vars == NUM_TESTVARS);
   (void) printf("done\n");
   
-  /*  GATTR  */
+  /*  GATTR */
   (void) printf("GATTR ");
 
   assert( nc_inq_attname(id, NC_GLOBAL, 0, adesc->mnem) == 0);
@@ -495,7 +502,7 @@ main(int ac, char *av[])
   buf[adesc->len] = 0;
   assert( strcmp(fname, buf) == 0);
 
-  /*  VAR  */
+  /*  VAR */
   (void) printf("VAR ");
   assert( cdesc->num_vars == NUM_TESTVARS );
 
@@ -517,7 +524,7 @@ main(int ac, char *av[])
     if(tvp->type != vdesc->type)
     {
       (void) printf("attr %d type mismatch %d, %d\n",
-        ii, tvp->type, vdesc->type);
+        ii, (int)tvp->type, (int)vdesc->type);
       continue;
     }
     for(jj = 0; jj < vdesc->ndims; jj++ )
@@ -525,7 +532,7 @@ main(int ac, char *av[])
       if(tvp->dims[jj] != vdesc->dims[jj] )
       {
     (void) printf(
-    "inconsistant dim[%d] for variable %d: %d != %d\n",
+    "inconsistent dim[%d] for variable %d: %d != %d\n",
     jj, ii, tvp->dims[jj], vdesc->dims[jj] );
       continue;
       }
@@ -548,7 +555,7 @@ main(int ac, char *av[])
       != -1) {
     assert( adesc->type == NC_CHAR );
     assert( adesc->len == strlen(tvp->units) );
-     assert( nc_get_att_text(id,ii,reqattr[0],buf)== NC_NOERR); 
+    assert( nc_get_att_text(id,ii,reqattr[0],buf)== NC_NOERR); 
     buf[adesc->len] = 0;
     assert( strcmp(tvp->units, buf) == 0);
     }
@@ -559,7 +566,7 @@ main(int ac, char *av[])
     {
     assert( adesc->type == NC_DOUBLE );
     assert( adesc->len == 1 );
-     assert( nc_get_att_double(id, ii, reqattr[1], &got.dbl)== NC_NOERR);
+    assert( nc_get_att_double(id, ii, reqattr[1], &got.dbl)== NC_NOERR);
     chkgot(adesc->type, got, tvp->validmin);
     }
 
@@ -569,7 +576,7 @@ main(int ac, char *av[])
     {
     assert( adesc->type == NC_DOUBLE );
     assert( adesc->len == 1 );
-     assert( nc_get_att_double(id, ii, reqattr[2], &got.dbl)== NC_NOERR);
+    assert( nc_get_att_double(id, ii, reqattr[2], &got.dbl)== NC_NOERR);
     chkgot(adesc->type, got, tvp->validmax);
     }
 
@@ -579,7 +586,7 @@ main(int ac, char *av[])
     {
     assert( adesc->type == NC_DOUBLE );
     assert( adesc->len ==1 );
-     assert( nc_get_att_double(id, ii, reqattr[3], &got.dbl)== NC_NOERR);
+    assert( nc_get_att_double(id, ii, reqattr[3], &got.dbl)== NC_NOERR);
     chkgot(adesc->type, got, tvp->scalemin);
     }
 
@@ -589,7 +596,7 @@ main(int ac, char *av[])
     {
     assert( adesc->type == NC_DOUBLE );
     assert( adesc->len == 1 );
-     assert( nc_get_att_double(id, ii, reqattr[4], &got.dbl)== NC_NOERR);
+    assert( nc_get_att_double(id, ii, reqattr[4], &got.dbl)== NC_NOERR);
     chkgot(adesc->type, got, tvp->scalemax);
     }
 
@@ -597,7 +604,7 @@ main(int ac, char *av[])
     {
     assert( adesc->type == NC_CHAR );
     assert( adesc->len == strlen(tvp->fieldnam) );
-     assert( nc_get_att_text(id,ii,reqattr[5],buf)== NC_NOERR); 
+    assert( nc_get_att_text(id,ii,reqattr[5],buf)== NC_NOERR); 
     buf[adesc->len] = 0;
     assert( strcmp(tvp->fieldnam, buf) == 0);
     }

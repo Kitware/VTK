@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -73,108 +73,6 @@ int ex_get_side_set_param (int  exoid,
                            int *num_side_in_set, 
                            int *num_dist_fact_in_set)
 {
-   int dimid, side_set_id_ndx;
-   long lnum_side_in_set, lnum_dist_fact_in_set;
-   char errmsg[MAX_ERR_LENGTH];
-
-   exerrval = 0; /* clear error code */
-
-/* first check if any side sets are specified */
-
-   if ((dimid = ncdimid (exoid, DIM_NUM_SS)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Warning: no side sets stored in file id %d",
-             exoid);
-     ex_err("ex_get_side_set_param",errmsg,exerrval);
-     return (EX_WARN);
-   }
-
-/* Lookup index of side set id in VAR_SS_IDS array */
-
-   side_set_id_ndx = ex_id_lkup(exoid,VAR_SS_IDS,side_set_id);
-   if (exerrval != 0) 
-   {
-     if (exerrval == EX_NULLENTITY)     /* NULL side set? */
-     {
-       *num_side_in_set = 0;
-       *num_dist_fact_in_set = 0;
-       sprintf(errmsg,
-              "Warning: side set %d is NULL in file id %d",
-               side_set_id, exoid);
-       ex_err("ex_get_side_set_param",errmsg,exerrval);
-       return (EX_WARN);
-     }
-     else
-     {
-
-       sprintf(errmsg,
-              "Error: failed to locate side set id %d in %s in file id %d",
-               side_set_id,VAR_SS_IDS,exoid);
-       ex_err("ex_get_side_set_param",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-   }
-
-
-/* inquire values of dimensions */
-
-   if ((dimid = ncdimid (exoid, DIM_NUM_SIDE_SS(side_set_id_ndx))) == -1)
-   {
-     *num_side_in_set = 0;
-     exerrval = ncerr;
-     sprintf(errmsg,
-       "Error: failed to locate number of sides in side set %d in file id %d",
-             side_set_id, exoid);
-     ex_err("ex_get_side_set_param",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-   else
-   {
-     if (ncdiminq (exoid, dimid, (char *) 0, &lnum_side_in_set) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Error: failed to get number of side sets in file id %d",
-               exoid);
-       ex_err("ex_get_side_set_param",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     *num_side_in_set = lnum_side_in_set;
-   }
-
-
-   if ((dimid = ncdimid (exoid, DIM_NUM_DF_SS(side_set_id_ndx))) == -1)
-   {
-     *num_dist_fact_in_set = 0; /* no distribution factors for this side set*/
-     if (ncerr == NC_EBADDIM)
-       return (EX_NOERR);
-     else
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-  "Error: failed to locate number of dist factors in side set %d in file id %d",
-               side_set_id, exoid);
-       ex_err("ex_get_side_set_param",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-   }
-   else
-   {
-     if (ncdiminq (exoid, dimid, (char *) 0, &lnum_dist_fact_in_set) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-         "Error: failed to get number of dist factors in side set %d in file id %d",
-               side_set_id, exoid);
-       ex_err("ex_get_side_set_param",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     *num_dist_fact_in_set = lnum_dist_fact_in_set;
-   }
-
-
-   return (EX_NOERR);
-
+  return ex_get_set_param(exoid, EX_SIDE_SET, side_set_id, 
+        num_side_in_set, num_dist_fact_in_set);
 }

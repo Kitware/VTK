@@ -1,7 +1,7 @@
 /*
  *  Copyright 1996, University Corporation for Atmospheric Research
  *  See netcdf/COPYRIGHT file for copying and redistribution conditions.
- *   
+ *  
  */
 /* Id */
 #ifndef _CRAY
@@ -57,10 +57,10 @@ static const int Zero = 0;
 static const C_SIZE_T One = 1;
 static const int ThirtyTwo = 32;
 static const int UnitStride = 1;
-static const int Cray2_I32 = 1;  /* 32 bit two complement */
-static const int Cray2_F32 = 2;  /* IEEE single precision */
-static const int Cray2_I16 = 7;  /* 16 bit twos complement */
-static const int Cray2_F64 = 8;  /* CRAY float to IEEE double */
+static const int Cray2_I32 = 1; /* 32 bit two complement */
+static const int Cray2_F32 = 2; /* IEEE single precision */
+static const int Cray2_I16 = 7; /* 16 bit twos complement */
+static const int Cray2_F64 = 8; /* CRAY float to IEEE double */
 
 #define SHORT_USE_IEG 1
 #define INT_USE_IEG 1
@@ -573,12 +573,12 @@ struct ieee_single_hi {
   unsigned int  sign  : 1;
   unsigned int   exp  : 8;
   unsigned int  mant  :23;
-  unsigned int  pad  :32;
+  unsigned int  pad :32;
 };
 typedef struct ieee_single_hi ieee_single_hi;
 
 struct ieee_single_lo {
-  unsigned int  pad  :32;
+  unsigned int  pad :32;
   unsigned int  sign  : 1;
   unsigned int   exp  : 8;
   unsigned int  mant  :23;
@@ -1240,8 +1240,7 @@ ncx_put_size_t(void **xpp, const size_t *ulp)
 {
   /* similar to put_ix_int() */
   uchar *cp = *xpp;
-    /* sizes limited to 2^31 -1 in netcdf */
-  assert(*ulp <= X_SIZE_MAX && (long) (*ulp) >= 0);
+  assert(*ulp <= X_SIZE_MAX);
 
   *cp++ = (uchar)((*ulp) >> 24);
   *cp++ = (uchar)(((*ulp) & 0x00ff0000) >> 16);
@@ -2285,7 +2284,7 @@ ncx_putn_short_short(void **xpp, const size_t nelems, const short *tp)
 #pragma _CRI ivdep
     for( ; wp < endw; wp++)
     {
-      *wp =     (*tp      << 48)
+      *wp =    (*tp      << 48)
         | ((*(tp +1) << 32) & 0x0000ffff00000000)
         | ((*(tp +2) << 16) & 0x00000000ffff0000)
         | ((*(tp +3)      ) & 0x000000000000ffff);
@@ -2414,7 +2413,7 @@ ncx_pad_putn_short_schar(void **xpp, size_t nelems, const schar *tp)
   if(rndup != 0)
   {
     (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-    xp += X_SIZEOF_SHORT;  
+    xp += X_SIZEOF_SHORT; 
   }
     
   *xpp = (void *)xp;
@@ -2439,7 +2438,7 @@ ncx_pad_putn_short_uchar(void **xpp, size_t nelems, const uchar *tp)
   if(rndup != 0)
   {
     (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-    xp += X_SIZEOF_SHORT;  
+    xp += X_SIZEOF_SHORT; 
   }
     
   *xpp = (void *)xp;
@@ -2479,7 +2478,7 @@ ncx_pad_putn_short_int(void **xpp, size_t nelems, const int *tp)
   if(rndup != 0)
   {
     (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-    xp += X_SIZEOF_SHORT;  
+    xp += X_SIZEOF_SHORT; 
   }
     
   *xpp = (void *)xp;
@@ -2504,7 +2503,7 @@ ncx_pad_putn_short_long(void **xpp, size_t nelems, const long *tp)
   if(rndup != 0)
   {
     (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-    xp += X_SIZEOF_SHORT;  
+    xp += X_SIZEOF_SHORT; 
   }
     
   *xpp = (void *)xp;
@@ -2529,7 +2528,7 @@ ncx_pad_putn_short_float(void **xpp, size_t nelems, const float *tp)
   if(rndup != 0)
   {
     (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-    xp += X_SIZEOF_SHORT;  
+    xp += X_SIZEOF_SHORT; 
   }
     
   *xpp = (void *)xp;
@@ -2554,7 +2553,7 @@ ncx_pad_putn_short_double(void **xpp, size_t nelems, const double *tp)
   if(rndup != 0)
   {
     (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-    xp += X_SIZEOF_SHORT;  
+    xp += X_SIZEOF_SHORT; 
   }
     
   *xpp = (void *)xp;
@@ -3417,10 +3416,13 @@ ncx_getn_double_double(const void **xpp, size_t nelems, double *tp)
   if(noff != 0)
   {
     /* (*xpp) not word aligned, forced to make a copy */
-    word xbuf[nelems];
+    word *xbuf = (word*)malloc(nelems*sizeof(word));
+    if (xbuf == NULL)
+      return NC_ENOMEM;
     (void) memcpy(xbuf, *xpp, nelems * X_SIZEOF_DOUBLE);
     ierr = IEG2CRAY(&Cray2_F64, &nelems, xbuf,
       &Zero, tp, &UnitStride);
+    (void)free(xbuf);
   }
   else
   {
@@ -3454,18 +3456,27 @@ ncx_getn_double_double(const void **xpp, size_t nelems, double *tp)
   if(noff != 0)
   {
     /* (*xpp) not word aligned, forced to make a copy */
-    word xbuf[nelems];
-    const word *wp = xbuf;
-    const word *const end = &wp[nelems];
+    word *xbuf = (word*)malloc(nelems*sizeof(word));
+    if (xbuf == NULL)
+    {
+      return NC_ENOMEM;
+    }
+    else
+    {
+      const word *wp = xbuf;
+      const word *const end = &wp[nelems];
 
-    (void) memcpy(xbuf, *xpp, nelems * X_SIZEOF_DOUBLE);
+      (void) memcpy(
+        (void*)xbuf, *xpp, nelems * X_SIZEOF_DOUBLE);
 
 #pragma _CRI ivdep
-    for( ; wp < end; wp++, tp++)
-    {
-      cget_double_double(wp, tp);
-    }
+      for( ; wp < end; wp++, tp++)
+      {
+        cget_double_double(wp, tp);
+      }
 
+      (void)free(xbuf);
+    }
   }
   else
   {
@@ -3604,11 +3615,14 @@ ncx_putn_double_double(void **xpp, size_t nelems, const double *tp)
   if(noff != 0)
   {
     /* (*xpp) not word aligned, forced to make a copy */
-    word xbuf[nelems];
+    word *xbuf = (word*)malloc(nelems*sizeof(word));
+    if (xbuf == NULL)
+      return NC_ENOMEM;
     ierr = CRAY2IEG(&Cray2_F64, &nelems, xbuf,
       &Zero, tp, &UnitStride);
     assert(ierr >= 0);
     (void) memcpy(*xpp, xbuf, nelems * X_SIZEOF_DOUBLE);
+    (void)free(xbuf);
   }
   else
   {
@@ -3643,19 +3657,28 @@ ncx_putn_double_double(void **xpp, size_t nelems, const double *tp)
   if(noff != 0)
   {
     /* (*xpp) not word aligned, forced to make a copy */
-    word xbuf[nelems];
-    word *wp = xbuf;
-    const word *const end = &wp[nelems];
+    word *xbuf = (word*)malloc(nelems*sizeof(word));
+    if (xbuf == NULL)
+    {
+      return NC_ENOMEM;
+    }
+    else
+    {
+      word *wp = xbuf;
+      const word *const end = &wp[nelems];
 
 #pragma _CRI ivdep
-    for( ; wp < end; wp++, tp++)
-    {
-      const int lstatus = cput_double_double(wp, tp);
-      if(lstatus != ENOERR)
-        status = lstatus;
-    }
+      for( ; wp < end; wp++, tp++)
+      {
+        const int lstatus = cput_double_double(wp, tp);
+        if(lstatus != ENOERR)
+          status = lstatus;
+      }
 
-    (void) memcpy(*xpp, xbuf, nelems * X_SIZEOF_DOUBLE);
+      (void) memcpy(
+        *xpp, (void*)xbuf, nelems * X_SIZEOF_DOUBLE);
+      (void)free(xbuf);
+    }
   }
   else
   {

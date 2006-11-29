@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -61,7 +61,9 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+#include <ctype.h>
+
+/*!
  * reads the number of global, nodal, or element variables that are 
  * stored in the database
  */
@@ -73,110 +75,90 @@ int ex_get_var_param (int   exoid,
    int dimid;
    long lnum_vars;
    char errmsg[MAX_ERR_LENGTH];
+   int vartyp;
+   const char* dnumvar;
+   const char* tname;
 
    exerrval = 0; /* clear error code */
 
-   if (*var_type == 'g' || *var_type == 'G')
-   {
-     if ((dimid = ncdimid (exoid, DIM_NUM_GLO_VAR)) == -1) 
-     {
-       *num_vars = 0;
-       if (ncerr == NC_EBADDIM)
-         return(EX_NOERR);      /* no global variables defined */
-       else
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: failed to locate global variable names in file id %d",
-                 exoid);
-         ex_err("ex_get_var_param",errmsg,exerrval);
-         return (EX_FATAL);
-       }
-     }
+   vartyp = tolower( *var_type );
 
-     if (ncdiminq (exoid, dimid, (char *) 0, &lnum_vars) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Error: failed to get number of global variables in file id %d",
-               exoid);
-       ex_err("ex_get_var_param",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     *num_vars = lnum_vars;
-
-   }
-
-   else if (*var_type == 'n' || *var_type == 'N')
-   {
-     if ((dimid = ncdimid (exoid, DIM_NUM_NOD_VAR)) == -1)
-     {
-       *num_vars = 0;
-       if (ncerr == NC_EBADDIM)
-          return(EX_NOERR);     /* no nodal variables defined */
-       else
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: failed to locate nodal variable names in file id %d",
-                 exoid);
-         ex_err("ex_get_var_param",errmsg,exerrval);
-         return (EX_FATAL);
-       }
-
-     }
-     if (ncdiminq (exoid, dimid, (char *) 0, &lnum_vars) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Error: failed to get number of nodal variables in file id %d",
-               exoid);
-       ex_err("ex_get_var_param",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     *num_vars = lnum_vars;
-
-   }
-
-   else if (*var_type == 'e' || *var_type == 'E')
-   {
-     if ((dimid = ncdimid (exoid, DIM_NUM_ELE_VAR)) == -1)
-     {
-       *num_vars = 0;
-       if (ncerr == NC_EBADDIM)
-         return(EX_NOERR);      /* no nodal variables defined */
-       else
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: failed to locate element variable names in file id %d",
-                 exoid);
-         ex_err("ex_get_var_param",errmsg,exerrval);
-         return (EX_FATAL);
-       }
-     }
-
-     if (ncdiminq (exoid, dimid, (char *) 0, &lnum_vars) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Error: failed to get number of element variables in file id %d",
-               exoid);
-       ex_err("ex_get_var_param",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     *num_vars = lnum_vars;
-   }
-
-   else /* invalid variable type */
-   {
-     exerrval = ncerr;
+   switch (vartyp) {
+   case 'g':
+     tname = "global";
+     dnumvar = DIM_NUM_GLO_VAR;
+     break;
+   case 'n':
+     tname = "nodal";
+     dnumvar = DIM_NUM_NOD_VAR;
+     break;
+   case 'l':
+     tname = "edge block";
+     dnumvar = DIM_NUM_EDG_VAR;
+     break;
+   case 'f':
+     tname = "face block";
+     dnumvar = DIM_NUM_FAC_VAR;
+     break;
+   case 'e':
+     tname = "element block";
+     dnumvar = DIM_NUM_ELE_VAR;
+     break;
+   case 'm':
+     tname = "node set";
+     dnumvar = DIM_NUM_NSET_VAR;
+     break;
+   case 'd':
+     tname = "edge set";
+     dnumvar = DIM_NUM_ESET_VAR;
+     break;
+   case 'a':
+     tname = "face set";
+     dnumvar = DIM_NUM_FSET_VAR;
+     break;
+   case 's':
+     tname = "side set";
+     dnumvar = DIM_NUM_SSET_VAR;
+     break;
+   case 't':
+     tname = "element set";
+     dnumvar = DIM_NUM_ELSET_VAR;
+     break;
+   default:
+     exerrval = EX_BADPARAM;
      sprintf(errmsg,
             "Warning: invalid variable type %c requested from file id %d",
             *var_type, exoid);
      ex_err("ex_get_var_param",errmsg,exerrval);
      return (EX_WARN);
    }
+
+   if ((dimid = ncdimid (exoid, dnumvar)) == -1) 
+     {
+     *num_vars = 0;
+     if (ncerr == NC_EBADDIM)
+       return(EX_NOERR);      /* no global variables defined */
+     else
+       {
+       exerrval = ncerr;
+       sprintf(errmsg,
+         "Error: failed to locate %s variable names in file id %d",
+         tname,exoid);
+       ex_err("ex_get_var_param",errmsg,exerrval);
+       return (EX_FATAL);
+       }
+     }
+
+   if (ncdiminq (exoid, dimid, (char *) 0, &lnum_vars) == -1)
+     {
+     exerrval = ncerr;
+     sprintf(errmsg,
+       "Error: failed to get number of %s variables in file id %d",
+       tname,exoid);
+     ex_err("ex_get_var_param",errmsg,exerrval);
+     return (EX_FATAL);
+     }
+   *num_vars = lnum_vars;
 
    return(EX_NOERR);
 }

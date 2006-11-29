@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -48,7 +48,7 @@
 *   input parameters:
 *       int     exoid                   exodus file id
 *       char*   var_type                variable type: G,N, or E
-*       int     var_num                 variable index to read
+*       int     var_num                 variable index to read 1..num_var
 *
 * exit conditions - 
 *       char*   var_name                ptr to variable name
@@ -62,7 +62,7 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * reads the name of a particular results variable from the database
  */
 
@@ -119,20 +119,49 @@ int ex_get_var_name (int   exoid,
        return (EX_WARN);
      }
    }
+
+   else if (*var_type == 'm' || *var_type == 'M')
+   {
+
+     if ((varid = ncvarid (exoid, VAR_NAME_NSET_VAR)) == -1)
+     {
+       exerrval = ncerr;
+       sprintf(errmsg,
+              "Warning: no nodeset variable names stored in file id %d",
+               exoid);
+       ex_err("ex_get_var_name",errmsg,exerrval);
+       return (EX_WARN);
+     }
+   }
+
+   else if (*var_type == 's' || *var_type == 'S')
+   {
+
+     if ((varid = ncvarid (exoid, VAR_NAME_SSET_VAR)) == -1)
+     {
+       exerrval = ncerr;
+       sprintf(errmsg,
+              "Warning: no sideset variable names stored in file id %d",
+               exoid);
+       ex_err("ex_get_var_name",errmsg,exerrval);
+       return (EX_WARN);
+     }
+   }
+
    else       /* invalid variable type */
    {
      exerrval = EX_BADPARAM;
       sprintf(errmsg,
              "Error: Invalid variable type %c specified in file id %d",
               *var_type, exoid);
-      ex_err("ex_put_var_name",errmsg,exerrval);
+      ex_err("ex_get_var_name",errmsg,exerrval);
      return (EX_WARN);
    }
 
 
 /* read the variable name */
 
-   start[0] = var_num;
+   start[0] = var_num-1;
    start[1] = 0;
 
    j = 0;

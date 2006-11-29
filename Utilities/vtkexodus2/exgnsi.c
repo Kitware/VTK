@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -68,86 +68,5 @@
 int ex_get_node_set_ids (int  exoid,
                          int *ids)
 {
-   int dimid, varid, iresult;
-   long num_node_sets, start[1], count[1]; 
-   nclong *longs;
-   char errmsg[MAX_ERR_LENGTH];
-
-   exerrval = 0; /* clear error code */
-
-/* inquire id's of previously defined dimensions and variables  */
-
-   if ((dimid = ncdimid (exoid, DIM_NUM_NS)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Warning: no node sets defined in file id %d",
-             exoid);
-     ex_err("ex_get_node_set_ids",errmsg,exerrval);
-     return (EX_WARN);
-   }
-
-
-   if (ncdiminq (exoid, dimid, (char *) 0, &num_node_sets) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to get number of node sets in file id %d",
-             exoid);
-     ex_err("ex_get_node_set_ids",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-
-   if ((varid = ncvarid (exoid, VAR_NS_IDS)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to locate node set ids in file id %d",
-             exoid);
-     ex_err("ex_get_node_set_ids",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-
-/* read in the node set ids  */
-
-/* application code has allocated an array of ints but netcdf is expecting
-   a pointer to nclongs;  if ints are different sizes than nclongs,
-   we must allocate an array of nclongs then convert them to ints with ltoi */
-
-   start[0] = 0;
-   count[0] = num_node_sets;
-
-   if (sizeof(int) == sizeof(nclong)) {
-      iresult = ncvarget (exoid, varid, start, count, ids);
-   } else {
-     if (!(longs = malloc(num_node_sets * sizeof(nclong)))) {
-       exerrval = EX_MEMFAIL;
-       sprintf(errmsg,
-               "Error: failed to allocate memory for node set ids for file id %d",
-               exoid);
-       ex_err("ex_get_node_set_ids",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     iresult = ncvarget (exoid, varid, start, count, longs);
-   }
-
-   if (iresult == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to get node set ids in file id %d",
-             exoid);
-     ex_err("ex_get_node_set_ids",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-   if (sizeof(int) != sizeof(nclong)) {
-      ltoi (longs, ids, num_node_sets);
-      free (longs);
-   }
-
-   return(EX_NOERR);
-
+  return ex_get_ids( exoid, EX_NODE_SET, ids );
 }

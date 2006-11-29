@@ -212,7 +212,7 @@ xdr_NCvbyte(XDR *xdrs, unsigned rem, unsigned count, char *value)
    */
     origin = xdr_getpos( xdrs ) ;
     /* next op is a get */
-    xdrs->x_op = XDR_DECODE  ;
+    xdrs->x_op = XDR_DECODE ;
   }
 
   if(!xdr_opaque(xdrs, buf, 4))
@@ -267,7 +267,7 @@ xdr_NCvshort(XDR *xdrs, unsigned which, short *value)
   {
     origin = xdr_getpos( xdrs ) ;
     /* next op is a get */
-    xdrs->x_op = XDR_DECODE  ;
+    xdrs->x_op = XDR_DECODE ;
   }
 
   if(!xdr_opaque(xdrs, (caddr_t)buf, 4))
@@ -357,7 +357,7 @@ xdr_shorts(XDR *xdrs, short *sp, u_int cnt)
   int odd ; /* 1 if cnt is odd, 0 otherwise */
 
   if(cnt == 0)
-    return TRUE ;  /* ? */
+    return TRUE ; /* ? */
 
   odd = cnt % 2 ;
   if(odd) 
@@ -955,7 +955,7 @@ ncx_encode(char *buf)
     return 4;
 
   NCX_VEC(&vp, ArraySize(ints), ints,
-       int, ncx_put_int_int, X_SIZEOF_INT);
+      int, ncx_put_int_int, X_SIZEOF_INT);
   if(status != ENOERR)
     return 5;
 

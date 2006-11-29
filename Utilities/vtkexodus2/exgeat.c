@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2006 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -53,6 +53,7 @@
 *       float*  attrib                  array of attributes
 *
 * revision history - 
+*   20061003 - David Thompson - moved to ex_get_att
 *
 *  Id
 *
@@ -68,114 +69,6 @@
 int ex_get_elem_attr (int   exoid,
                       int   elem_blk_id,
                       void *attrib)
-
 {
-  int numelbdim, numattrdim, attrid, elem_blk_id_ndx;
-  long num_elem_this_blk, num_attr, start[2], count[2];
-  char errmsg[MAX_ERR_LENGTH];
-
-  exerrval = 0; /* clear error code */
-
-  /* Determine index of elem_blk_id in VAR_ID_EL_BLK array */
-  elem_blk_id_ndx = ex_id_lkup(exoid,VAR_ID_EL_BLK,elem_blk_id);
-  if (exerrval != 0) 
-  {
-    if (exerrval == EX_NULLENTITY)
-    {
-      sprintf(errmsg,
-              "Warning: no attributes found for NULL block %d in file id %d",
-              elem_blk_id,exoid);
-      ex_err("ex_get_elem_attr",errmsg,EX_MSG);
-      return (EX_WARN);              /* no attributes for this element block */
-    }
-    else
-    {
-      sprintf(errmsg,
-      "Warning: failed to locate element block id %d in %s array in file id %d",
-              elem_blk_id,VAR_ID_EL_BLK, exoid);
-      ex_err("ex_get_elem_attr",errmsg,exerrval);
-      return (EX_WARN);
-    }
-  }
-
-
-/* inquire id's of previously defined dimensions  */
-
-  if ((numelbdim = ncdimid (exoid, DIM_NUM_EL_IN_BLK(elem_blk_id_ndx))) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-        "Error: failed to locate number of elements for block %d in file id %d",
-            elem_blk_id, exoid);
-    ex_err("ex_get_elem_attr",errmsg,exerrval);
-    return (EX_FATAL);
-  }
-
-  if (ncdiminq (exoid, numelbdim, (char *) 0, &num_elem_this_blk) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-           "Error: failed to get number of elements for block %d in file id %d",
-            elem_blk_id,exoid);
-    ex_err("ex_get_elem_attr",errmsg,exerrval);
-    return (EX_FATAL);
-  }
-
-
-  if ((numattrdim = ncdimid(exoid, DIM_NUM_ATT_IN_BLK(elem_blk_id_ndx))) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-            "Warning: no attributes found for block %d in file id %d",
-            elem_blk_id,exoid);
-    ex_err("ex_get_elem_attr",errmsg,EX_MSG);
-    return (EX_WARN);              /* no attributes for this element block */
-  }
-
-  if (ncdiminq (exoid, numattrdim, (char *) 0, &num_attr) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-         "Error: failed to get number of attributes for block %d in file id %d",
-            elem_blk_id,exoid);
-    ex_err("ex_get_elem_attr",errmsg,exerrval);
-    return (EX_FATAL);
-  }
-
-  if ((attrid = ncvarid (exoid, VAR_ATTRIB(elem_blk_id_ndx))) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-            "Error: failed to locate attributes for block %d in file id %d",
-            elem_blk_id,exoid);
-    ex_err("ex_get_elem_attr",errmsg,exerrval);
-    return (EX_FATAL);
-  }
-
-
-/* read in the attributes */
-
-  start[0] = 0;
-  start[1] = 0;
-
-  count[0] = num_elem_this_blk;
-  count[1] = num_attr;
-
-  if (ncvarget (exoid, attrid, start, count,
-             ex_conv_array(exoid,RTN_ADDRESS,attrib,
-                           (int)num_attr*num_elem_this_blk)) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-            "Error: failed to get attributes for block %d in file id %d",
-            elem_blk_id,exoid);
-    ex_err("ex_get_elem_attr",errmsg,exerrval);
-    return (EX_FATAL);
-  }
-
-
-  ex_conv_array( exoid, READ_CONVERT, attrib, num_attr*num_elem_this_blk );
-
-  return(EX_NOERR);
-
+  return ex_get_attr( exoid, EX_ELEM_BLOCK, elem_blk_id, attrib );
 }

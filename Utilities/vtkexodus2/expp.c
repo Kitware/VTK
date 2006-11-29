@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -36,11 +36,6 @@
 *
 * expp - ex_put_prop: write object property 
 *
-* author - Larry A. Schoof, Sandia National Laboratories
-*          Victor R. Yarberry, Sandia National Laboratories
-*
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -64,7 +59,7 @@
 #include "exodusII_int.h"
 #include <string.h>
 
-/*
+/*!
  * writes an object property 
  */
 
@@ -81,8 +76,9 @@ int ex_put_prop (int   exoid,
    char name[MAX_VAR_NAME_LENGTH+1];
    char obj_stype[MAX_VAR_NAME_LENGTH+1];
    char obj_vtype[MAX_VAR_NAME_LENGTH+1];
-   char tmpstr[MAX_VAR_NAME_LENGTH+1];
+   char tmpstr[MAX_STR_LENGTH+1];
    char dim_name[MAX_VAR_NAME_LENGTH+1];
+   long vals[1];
 
    char errmsg[MAX_ERR_LENGTH];
 
@@ -164,6 +160,7 @@ int ex_put_prop (int   exoid,
 
 /*   compare stored attribute name with passed property name   */
 
+     memset(tmpstr, 0, MAX_STR_LENGTH+1);
      if ((ncattget (exoid, propid, ATT_PROP_NAME, tmpstr)) == -1)
      {
        exerrval = ncerr;
@@ -251,12 +248,23 @@ int ex_put_prop (int   exoid,
        ex_err("ex_put_prop",errmsg,exerrval);
        goto error_ret;  /* Exit define mode and return */
      }
-     ncsetfill(exoid, NC_NOFILL); /* default: nofill */
+
+     vals[0] = 0; /* fill value */
+     /*   create attribute to cause variable to fill with zeros per routine spec */
+     if ((ncattput (exoid, propid, _FillValue, NC_LONG, 1, vals)) == -1)
+     {
+       exerrval = ncerr;
+       sprintf(errmsg,
+           "Error: failed to create property name fill attribute in file id %d",
+               exoid);
+       ex_err("ex_put_prop",errmsg,exerrval);
+       goto error_ret;  /* Exit define mode and return */
+     }
 
 /*   store property name as attribute of property array variable */
 
      if ((ncattput (exoid, propid, ATT_PROP_NAME, NC_CHAR,
-                    strlen(prop_name)+1, prop_name)) == -1)
+                    strlen(prop_name)+1, (void*)prop_name)) == -1)
      {
        exerrval = ncerr;
        sprintf(errmsg,
@@ -277,6 +285,7 @@ int ex_put_prop (int   exoid,
        ex_err("ex_put_prop",errmsg,exerrval);
        return (EX_FATAL);
      }
+     ncsetfill(exoid, NC_NOFILL); /* default: nofill */
 
    }
 

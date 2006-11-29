@@ -508,7 +508,7 @@ nc_rename_att( int ncid, int varid, const char *name, const char *newname)
   if(ncap == NULL)
     return NC_ENOTVAR;
 
-  status = NC_check_name(name);
+  status = NC_check_name(newname);
   if(status != NC_NOERR)
     return status;
 
@@ -2169,82 +2169,3 @@ nc_get_att_double(int ncid, int varid, const char *name, double *tp)
   }
 }
 
-
-
-/* deprecated, used to support the 2.x interface */
-int
-nc_put_att(
-  int ncid,
-  int varid,
-  const char *name,
-  nc_type type,
-  size_t nelems,
-  const void *value)
-{
-  switch (type) {
-  case NC_BYTE:
-    return nc_put_att_schar(ncid, varid, name, type, nelems,
-      (schar *)value);
-  case NC_CHAR:
-    return nc_put_att_text(ncid, varid, name, nelems,
-      (char *)value);
-  case NC_SHORT:
-    return nc_put_att_short(ncid, varid, name, type, nelems,
-      (short *)value);
-  case NC_INT:
-#if (SIZEOF_INT >= X_SIZEOF_INT)
-    return nc_put_att_int(ncid, varid, name, type, nelems,
-      (int *)value);
-#elif SIZEOF_LONG == X_SIZEOF_INT
-    return nc_put_att_long(ncid, varid, name, type, nelems,
-      (long *)value);
-#endif
-  case NC_FLOAT:
-    return nc_put_att_float(ncid, varid, name, type, nelems,
-      (float *)value);
-  case NC_DOUBLE:
-    return nc_put_att_double(ncid, varid, name, type, nelems,
-      (double *)value);
-  }
-  return NC_EBADTYPE;
-}
-
-
-/* deprecated, used to support the 2.x interface */
-int
-nc_get_att(int ncid, int varid, const char *name, void *value)
-{
-  int status;
-  NC_attr *attrp;
-
-  status = NC_lookupattr(ncid, varid, name, &attrp);
-  if(status != NC_NOERR)
-    return status;
-
-  switch (attrp->type) {
-  case NC_BYTE:
-    return nc_get_att_schar(ncid, varid, name,
-      (schar *)value);
-  case NC_CHAR:
-    return nc_get_att_text(ncid, varid, name,
-      (char *)value);
-  case NC_SHORT:
-    return nc_get_att_short(ncid, varid, name,
-      (short *)value);
-  case NC_INT:
-#if (SIZEOF_INT >= X_SIZEOF_INT)
-    return nc_get_att_int(ncid, varid, name,
-      (int *)value);
-#elif SIZEOF_LONG == X_SIZEOF_INT
-    return nc_get_att_long(ncid, varid, name,
-      (long *)value);
-#endif
-  case NC_FLOAT:
-    return nc_get_att_float(ncid, varid, name,
-      (float *)value);
-  case NC_DOUBLE:
-    return nc_get_att_double(ncid, varid, name,
-      (double *)value);
-  }
-  return NC_EBADTYPE;
-}

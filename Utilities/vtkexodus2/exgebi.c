@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -40,7 +40,7 @@
 *          Larry A. Schoof - Original
 *          James A. Schutt - 8 byte float and standard C definitions
 *          Vic Yarberry    - Added headers and error logging
-*
+*          David Thompson  - Moved to ex_get_ids.
 *          
 * environment - UNIX
 *
@@ -68,85 +68,6 @@
 int ex_get_elem_blk_ids (int  exoid,
                          int *ids)
 {
-   int dimid, varid, iresult;
-   long num_elem_blocks, start[1], count[1]; 
-   nclong *longs;
-   char errmsg[MAX_ERR_LENGTH];
-
-   exerrval = 0; /* clear error code */
-
-/* inquire id's of previously defined dimensions and variables  */
-
-   if ((dimid = ncdimid (exoid, DIM_NUM_EL_BLK)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-          "Error: failed to locate dimension DIM_NUM_EL_BLK in file id %d",
-             exoid);
-     ex_err("ex_get_elem_blk_ids",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-   if (ncdiminq (exoid, dimid, (char *) 0, &num_elem_blocks) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-            "Error: failed to return number of element blocks in file id %d",
-             exoid);
-     ex_err("ex_get_get_elem_blk_ids",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-
-   if ((varid = ncvarid (exoid, VAR_ID_EL_BLK)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-       "Error: failed to locate element block ids variable in file id %d",
-             exoid);
-     ex_err("ex_get_get_elem_blk_ids",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-
-/* read in the element block ids  */
-
-/* application code has allocated an array of ints but netcdf is expecting
-   a pointer to nclongs;  if ints are different sizes than nclongs,
-   we must allocate an array of nclongs then convert them to ints with ltoi */
-
-   start[0] = 0;
-   count[0] = num_elem_blocks;
-
-   if (sizeof(int) == sizeof(nclong)) {
-      iresult = ncvarget (exoid, varid, start, count, ids);
-   } else {
-     if (!(longs = malloc(num_elem_blocks * sizeof(nclong)))) {
-       exerrval = EX_MEMFAIL;
-       sprintf(errmsg,
-               "Error: failed to allocate memory for element block ids for file id %d",
-               exoid);
-       ex_err("ex_get_elem_blk_ids",errmsg,exerrval);
-       return (EX_FATAL);
-     }
-     iresult = ncvarget (exoid, varid, start, count, longs);
-   }
-
-   if (iresult == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-       "Error: failed to return element block ids in file id %d",
-             exoid);
-     ex_err("ex_get_get_elem_blk_ids",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-   if (sizeof(int) != sizeof(nclong)) {
-      ltoi (longs, ids, num_elem_blocks);
-      free (longs);
-   }
-
-   return(EX_NOERR);
-
+  /* ex_get_elem_blk_ids should be deprecated. */
+  return ex_get_ids( exoid, EX_ELEM_BLOCK, ids );
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -62,160 +62,100 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 #include <string.h>
+#include <ctype.h>
 
-/*
+#define EX_PUT_NAMES(TNAME,DNUMVAR,VNAMES) \
+     if ((ncdimid (exoid, DNUMVAR)) == -1) \
+     { \
+       if (ncerr == NC_EBADDIM) \
+       { \
+         exerrval = ncerr; \
+         sprintf(errmsg, \
+                "Error: no " TNAME " variables defined in file id %d", \
+                 exoid); \
+         ex_err("ex_put_var_names",errmsg,exerrval); \
+       } \
+       else \
+       { \
+         exerrval = ncerr; \
+         sprintf(errmsg, \
+             "Error: failed to locate number of " TNAME " variables in file id %d", \
+                 exoid); \
+         ex_err("ex_put_var_names",errmsg,exerrval); \
+       } \
+       return(EX_FATAL);  \
+     } \
+ \
+     if ((varid = ncvarid (exoid, VNAMES)) == -1) \
+     { \
+       if (ncerr == NC_ENOTVAR) \
+       { \
+         exerrval = ncerr; \
+         sprintf(errmsg, \
+                "Error: no " TNAME " variable names defined in file id %d", \
+                 exoid); \
+         ex_err("ex_put_var_names",errmsg,exerrval); \
+       } \
+       else \
+       { \
+         exerrval = ncerr; \
+         sprintf(errmsg, \
+                "Error: " TNAME " name variable names not found in file id %d", \
+                 exoid); \
+         ex_err("ex_put_var_names",errmsg,exerrval); \
+       } \
+       return(EX_FATAL); \
+     }
+
+/*!
  * writes the names of the results variables to the database
  */
 
 int ex_put_var_names (int   exoid,
                       const char *var_type,
                       int   num_vars,
-                      char *var_names[])
+                      char* var_names[])
 {
    int i, varid; 
    long  start[2], count[2];
    char errmsg[MAX_ERR_LENGTH];
+   int vartyp;
 
    exerrval = 0; /* clear error code */
 
-   if (*var_type == 'g' || *var_type == 'G')
-   {
-     if ((ncdimid (exoid, DIM_NUM_GLO_VAR)) == -1)
-     {
-       if (ncerr == NC_EBADDIM)
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: no global variables defined in file id %d",
-                 exoid);
-         ex_err("ex_put_var_names",errmsg,exerrval);
-       }
-       else
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-             "Error: failed to locate number of global variables in file id %d",
-                 exoid);
-         ex_err("ex_put_var_names",errmsg,exerrval);
-       }
-       return(EX_FATAL); 
-     }
-
-     if ((varid = ncvarid (exoid, VAR_NAME_GLO_VAR)) == -1)
-     {
-       if (ncerr == NC_ENOTVAR)
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: no global variable names defined in file id %d",
-                 exoid);
-         ex_err("ex_put_var_names",errmsg,exerrval);
-       }
-       else
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: global name variable names not found in file id %d",
-                 exoid);
-         ex_err("ex_put_var_names",errmsg,exerrval);
-       }
-       return(EX_FATAL);
-     }
-
-   }
-
-   else if (*var_type == 'n' || *var_type == 'N')
-   {
-     if ((ncdimid (exoid, DIM_NUM_NOD_VAR)) == -1)
-     {
-       if (ncerr == NC_EBADDIM)
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: no nodal variables defined in file id %d",
-                 exoid);
-         ex_err("ex_put_var_names",errmsg,exerrval);
-       }
-       else
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-              "Error: failed to locate number of nodal variables in file id %d",
-                 exoid);
-         ex_err("ex_put_var_names",errmsg,exerrval);
-       }
-       return(EX_FATAL);
-     }
-
-     if ((varid = ncvarid (exoid, VAR_NAME_NOD_VAR)) == -1)
-     {
-       if (ncerr == NC_ENOTVAR)
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: no nodal variable names defined in file id %d",
-                 exoid);
-         ex_err("ex_put_var_names",errmsg,exerrval);
-       }
-       else
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: nodal name variable names not found in file id %d",
-                 exoid);
-         ex_err("ex_put_var_names",errmsg,exerrval);
-       }
-       return(EX_FATAL);
-     }
-   }
-
-   else if (*var_type == 'e' || *var_type == 'E')
-   {
-     if ((ncdimid (exoid, DIM_NUM_ELE_VAR)) == -1)
-     {
-       if (ncerr == NC_EBADDIM)
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: no element variables defined in file id %d",
-                 exoid);
-         ex_err("ex_put_var_names",errmsg,exerrval);
-       }
-       else
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-            "Error: failed to locate number of element variables in file id %d",
-                exoid);
-         ex_err("ex_put_var_names",errmsg,exerrval);
-       }
-       return(EX_FATAL);
-     }
-     if ((varid = ncvarid (exoid, VAR_NAME_ELE_VAR)) == -1)
-     {
-       if (ncerr == NC_ENOTVAR)
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: no element variable names defined in file id %d",
-                 exoid);
-         ex_err("ex_put_var_names",errmsg,exerrval);
-       }
-       else
-       {
-         exerrval = ncerr;
-         sprintf(errmsg,
-                "Error: element name variable names not found in file id %d",
-                 exoid);
-         ex_err("ex_put_var_names",errmsg,exerrval);
-       }
-       return(EX_FATAL);
-
-     }
-   }
-
-   else /* invalid variable type */
-   {
+   vartyp = tolower( *var_type );
+   switch (vartyp) {
+   case 'g':
+     EX_PUT_NAMES(     "global",DIM_NUM_GLO_VAR,  VAR_NAME_GLO_VAR);
+     break;
+   case 'n':
+     EX_PUT_NAMES(      "nodal",DIM_NUM_NOD_VAR,  VAR_NAME_NOD_VAR);
+     break;
+   case 'l':
+     EX_PUT_NAMES(       "edge",DIM_NUM_EDG_VAR,  VAR_NAME_EDG_VAR);
+     break;
+   case 'f':
+     EX_PUT_NAMES(       "face",DIM_NUM_FAC_VAR,  VAR_NAME_FAC_VAR);
+     break;
+   case 'e':
+     EX_PUT_NAMES(    "element",DIM_NUM_ELE_VAR,  VAR_NAME_ELE_VAR);
+     break;
+   case 'm':
+     EX_PUT_NAMES(   "node set",DIM_NUM_NSET_VAR, VAR_NAME_NSET_VAR);
+     break;
+   case 'd':
+     EX_PUT_NAMES(   "edge set",DIM_NUM_ESET_VAR, VAR_NAME_ESET_VAR);
+     break;
+   case 'a':
+     EX_PUT_NAMES(   "face set",DIM_NUM_FSET_VAR, VAR_NAME_FSET_VAR);
+     break;
+   case 's':
+     EX_PUT_NAMES(   "side set",DIM_NUM_SSET_VAR, VAR_NAME_SSET_VAR);
+     break;
+   case 't':
+     EX_PUT_NAMES("element set",DIM_NUM_ELSET_VAR,VAR_NAME_ELSET_VAR);
+     break;
+   default:
      exerrval = EX_BADPARAM;
      sprintf(errmsg,
             "Error: Invalid variable type %c specified in file id %d",
@@ -223,6 +163,7 @@ int ex_put_var_names (int   exoid,
      ex_err("ex_put_var_names",errmsg,exerrval);
      return(EX_FATAL);
    }
+
 
 
 /* write EXODUS variable names */

@@ -310,8 +310,13 @@ NC_findvar(const NC_vararray *ncap, const char *name, NC_var **varpp)
 
   for(varid = 0; (size_t) varid < ncap->nelems; varid++, loc++)
   {
+    /* NOTE: The [slen-1] check is a specific optimization for
+     * exodusII files with many blocks and variables. See log
+     * message for more details.
+     */
     if(strlen((*loc)->name->cp) == slen &&
-      strncmp((*loc)->name->cp, name, slen) == 0)
+       name[slen-1]==(*loc)->name->cp[slen-1] &&
+       strncmp((*loc)->name->cp, name, slen) == 0)
     {
       if(varpp != NULL)
         *varpp = *loc;
@@ -393,7 +398,7 @@ NC_var_shape(NC_var *varp, const NC_dimarray *dims)
         /* ndims is > 0 here */
   for(shp = varp->shape + varp->ndims -1,
         dsp = varp->dsizes + varp->ndims -1;
-       shp >= varp->shape;
+      shp >= varp->shape;
       shp--, dsp--)
   {
     if(!(shp == varp->shape && IS_RECVAR(varp)))
@@ -403,7 +408,13 @@ NC_var_shape(NC_var *varp, const NC_dimarray *dims)
 
 
 out :
-  varp->len = product * varp->xsz;
+    if( varp->xsz <= X_UINT_MAX / product ) /* if integer multiply will not overflow */
+  {
+          varp->len = product * varp->xsz;
+        } else
+  { /* OK for last var to be "too big", indicated by this special len */
+          varp->len = X_UINT_MAX;
+        }
   switch(varp->type) {
   case NC_BYTE :
   case NC_CHAR :
@@ -423,6 +434,28 @@ out :
   arrayp("\tdsizes", varp->ndims, varp->dsizes);
 #endif
   return NC_NOERR;
+}
+
+/*
+ * Check whether variable size is less than or equal to vlen_max,
+ * without overflowing in arithmetic calculations.  If OK, return 1,
+ * else, return 0.  For CDF1 format or for CDF2 format on non-LFS
+ * platforms, vlen_max should be 2^31 - 4, but for CDF2 format on
+ * systems with LFS it should be 2^32 - 4.
+ */
+int
+NC_check_vlen(NC_var *varp, size_t vlen_max) {
+    size_t prod=varp->xsz;  /* product of xsz and dimensions so far */
+
+    int ii;
+
+    for(ii = IS_RECVAR(varp) ? 1 : 0; ii < varp->ndims; ii++) {
+  if (varp->shape[ii] > vlen_max / prod) {
+      return 0;   /* size in bytes won't fit in a 32-bit int */
+  }
+  prod *= varp->shape[ii];
+    }
+    return 1;     /* OK */
 }
 
 

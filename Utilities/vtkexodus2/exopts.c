@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -69,7 +69,10 @@ int exoptval = 0;  /* set default global options value to NOT print error msgs*/
 #endif
 #endif
 
-void ex_opts (int options)      /* error reporting options mask */
+/*!
+ * error reporting options mask
+ */
+void ex_opts (int options)      
 {
   static int first_time = TRUE;
   exerrval = 0; /* clear error code */

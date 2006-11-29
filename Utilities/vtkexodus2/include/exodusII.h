@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -38,10 +38,6 @@
  * exodusII.h - Exodus II include file, for general use
  *
  * author - Sandia National Laboratories
- *          Larry A. Schoof - Original
- *          James A. Schutt - 8 byte float and standard C definitions
- *          Vic Yarberry    - Added headers and error logging
- *
  *          
  * environment - UNIX
  *
@@ -54,6 +50,7 @@
 
 #include "vtk_netcdf.h"
 #include "exodusII_cfg.h"
+/* #include "stddef.h" */
 
 #ifndef TRUE
 #define TRUE -1
@@ -78,10 +75,13 @@ extern "C" {
  * The following are miscellaneous constants used in the EXODUS II API.
  */
 
-#define EX_NOCLOBBER            0
+#define EX_NOCLOBBER            0 /* Don't overwrite existing database, default */
 #define EX_CLOBBER              1
 #define EX_NORMAL_MODEL         2 /* disable mods that permit storage of larger models */
 #define EX_LARGE_MODEL          4 /* enable mods that permit storage of larger models */
+#define EX_NETCDF4              8 /* use the hdf5-based netcdf4 output */
+#define EX_NOSHARE             16 /* Do not open netcdf file in "share" mode */
+#define EX_SHARE               32 /* Do open netcdf file in "share" mode */
 
 #define EX_READ                 0
 #define EX_WRITE                1
@@ -151,163 +151,197 @@ extern "C" {
 
 /* routines for file initialization i/o */
 
-EXODUS_EXPORT int ex_create             (const char*, int, int*, int*);
-EXODUS_EXPORT int ex_open               (const char*, int, int*, int*, float*);
-EXODUS_EXPORT int ex_close              (int);
-EXODUS_EXPORT void ex_err               (const char*, const char*, int);
-EXODUS_EXPORT void ex_opts              (int);
-EXODUS_EXPORT int ex_update             (int);
+EXODUS_EXPORT int ex_close               (int);
+EXODUS_EXPORT int ex_cvt_nodes_to_sides  (int, int*, int*, int*, int*,
+                                          int*, int*, int*);
+EXODUS_EXPORT int ex_copy                (int, int);
+EXODUS_EXPORT int ex_create              (const char*, int, int*, int*);
+EXODUS_EXPORT int ex_get_all_times       (int, void*);
+EXODUS_EXPORT int ex_get_concat_node_sets (int, int*, int*, int*, int*,
+                                          int*, int*, void*);
+EXODUS_EXPORT int ex_get_coord_names     (int, char**);
+EXODUS_EXPORT int ex_get_coord           (int, void*, void*, void*);
+EXODUS_EXPORT int ex_get_concat_side_sets (int, int*, int*, int*, int*,
+                                          int*, int*, int*, void*);
+EXODUS_EXPORT int ex_get_elem_attr_names (int, int, char**);
+EXODUS_EXPORT int ex_get_elem_attr       (int, int, void*);
+EXODUS_EXPORT int ex_get_ids             (int , int, int*);
+EXODUS_EXPORT int ex_get_elem_blk_ids    (int , int*);
+EXODUS_EXPORT int ex_get_elem_block      (int, int, char*, int*, int*, int*);
 
-EXODUS_EXPORT int ex_put_init           (int, const char*, int, int, int, int, int, int);
-EXODUS_EXPORT int ex_get_init           (int, char*, int*, int*, int*, int*, int*, int*);
+EXODUS_EXPORT int ex_get_elem_conn       (int, int, int*);
 
-  EXODUS_EXPORT int ex_put_qa           (int,int, char*[][4]);
-EXODUS_EXPORT int ex_get_qa             (int, char*[][4]);
+EXODUS_EXPORT int ex_get_elem_map        (int, int, int*);
+EXODUS_EXPORT int ex_get_elem_num_map    (int , int*);
+EXODUS_EXPORT int ex_get_elem_var        (int, int, int, int, int, void*);
+EXODUS_EXPORT int ex_get_elem_varid      (int , int*);
+EXODUS_EXPORT int ex_get_elem_var_time   (int, int, int, int, int, void*);
+EXODUS_EXPORT int ex_get_coordinate_frames (int, int*, int*, void*, char*); 
+EXODUS_EXPORT int ex_get_glob_vars       (int, int, int, void*);
 
-EXODUS_EXPORT int ex_put_info           (int, int, char*[]);
-EXODUS_EXPORT int ex_get_info           (int, char*[]);
+EXODUS_EXPORT int ex_get_glob_var_time   (int, int, int, int, void*);
 
-/* routines for model description i/o */
+EXODUS_EXPORT int ex_get_info            (int, char**);
 
-EXODUS_EXPORT int ex_put_coord          (int, const void*, const void*, const void*);
-EXODUS_EXPORT int ex_get_coord          (int, void*, void*, void*);
+EXODUS_EXPORT int ex_get_init            (int, char*, int*, int*,
+                                          int*, int*, int*, int*);
 
-EXODUS_EXPORT int ex_put_coord_names    (int, char*[]);
-EXODUS_EXPORT int ex_get_coord_names    (int, char*[]);
+EXODUS_EXPORT int ex_get_map             (int , int*);
 
-EXODUS_EXPORT int ex_put_map            (int, const int*);
-EXODUS_EXPORT int ex_get_map            (int, int*);
+EXODUS_EXPORT int ex_get_map_param       (int, int*, int*);
 
-EXODUS_EXPORT int ex_put_elem_block     (int, int, const char*, int, int, int);
-EXODUS_EXPORT int ex_get_elem_block     (int, int, char*, int*, int*, int*);
-EXODUS_EXPORT int ex_put_concat_elem_block (int, const int*, char*[],
-                                     const int*, const int*, const int*, int);
+EXODUS_EXPORT int ex_get_name            (int, int, int, char*);
 
-EXODUS_EXPORT int ex_get_elem_blk_ids   (int, int*);
+EXODUS_EXPORT int ex_get_names           (int, int, char**);
 
-EXODUS_EXPORT int ex_put_elem_conn      (int, int, const int*);
-EXODUS_EXPORT int ex_get_elem_conn      (int, int, int*);
+EXODUS_EXPORT int ex_get_node_map        (int, int, int*);
 
-EXODUS_EXPORT int ex_put_elem_attr      (int, int, const void*);
-EXODUS_EXPORT int ex_get_elem_attr      (int, int, void*);
+EXODUS_EXPORT int ex_get_node_num_map    (int , int*);
 
-EXODUS_EXPORT int ex_put_node_set_param (int, int, int, int);
-EXODUS_EXPORT int ex_get_node_set_param (int, int, int*, int*);
+EXODUS_EXPORT int ex_get_node_set_param  (int , int, int*, int*);
 
-EXODUS_EXPORT int ex_put_node_set       (int, int, const int*);
-EXODUS_EXPORT int ex_get_node_set       (int, int, int*);
+EXODUS_EXPORT int ex_get_node_set        (int, int, int*);
 
-EXODUS_EXPORT int ex_put_node_set_dist_fact (int, int, const void*);
 EXODUS_EXPORT int ex_get_node_set_dist_fact (int, int, void*);
 
-EXODUS_EXPORT int ex_get_node_set_ids   (int, int*);
+EXODUS_EXPORT int ex_get_node_set_ids    (int , int*);
 
-EXODUS_EXPORT int ex_put_concat_node_sets (int, int*, int*, int*, int*, int*, int*, void*);
-EXODUS_EXPORT int ex_get_concat_node_sets(int, int*, int*, int*, int*, int*, int*, void*);
+EXODUS_EXPORT int ex_get_nset_var_tab    (int , int, int, int*);
 
-EXODUS_EXPORT int ex_put_side_set_param (int, int, int, int);
-EXODUS_EXPORT int ex_get_side_set_param (int, int, int*, int*);
+EXODUS_EXPORT int ex_get_nset_var        (int, int, int, int, int, void*);
 
-EXODUS_EXPORT int ex_put_side_set       (int, int, const int*, const int*);
-EXODUS_EXPORT int ex_get_side_set       (int, int, int*, int*);
-EXODUS_EXPORT int ex_put_side_set_dist_fact (int, int, const void*);
-EXODUS_EXPORT int ex_get_side_set_dist_fact (int, int, void*);
-EXODUS_EXPORT int ex_get_side_set_ids   (int, int*);
-EXODUS_EXPORT int ex_get_side_set_node_list (int, int, int*, int*);
+EXODUS_EXPORT int ex_get_nset_varid      (int , int*);
+
+EXODUS_EXPORT int ex_get_nodal_var       (int, int, int, int, void*);
+
+EXODUS_EXPORT int ex_get_nodal_varid(int, int*);
+
+EXODUS_EXPORT int ex_get_nodal_var_time  (int, int, int, int, int, void*);
+
+EXODUS_EXPORT int ex_get_nodal_varid_var(int, int, int, int, int, void*);
+
+EXODUS_EXPORT int ex_get_one_elem_attr   (int, int, int, void*);
+
+EXODUS_EXPORT int ex_get_prop_array      (int, int, const char*, int*);
+
+EXODUS_EXPORT int ex_get_prop            (int, int, int, const char*, int*);
+
+EXODUS_EXPORT int ex_get_partial_elem_map (int, int, int, int, int*);
+
+EXODUS_EXPORT int ex_get_prop_names      (int, int, char**);
+
+EXODUS_EXPORT int ex_get_qa              (int, char *[][4]);
+EXODUS_EXPORT int ex_get_side_set_node_list_len (int, int, int*);
+EXODUS_EXPORT int ex_get_side_set_param  (int, int, int*, int*);
+EXODUS_EXPORT int ex_get_side_set        (int, int, int*, int*);
 EXODUS_EXPORT int ex_get_side_set_node_count(int, int, int*);
+EXODUS_EXPORT int ex_get_side_set_dist_fact (int, int, void*);
+EXODUS_EXPORT int ex_get_side_set_ids    (int , int*);
+EXODUS_EXPORT int ex_get_side_set_node_list(int, int, int*, int*);
+EXODUS_EXPORT int ex_get_sset_var        (int, int, int, int, int, void*);
 
-EXODUS_EXPORT int ex_put_prop_names     (int, int, int, char**);
-EXODUS_EXPORT int ex_get_prop_names     (int, int, char**);
+EXODUS_EXPORT int ex_get_sset_var_tab    (int , int, int, int*);
+EXODUS_EXPORT int ex_get_sset_varid      (int , int*);
+EXODUS_EXPORT int ex_get_time            (int, int, void*);
+EXODUS_EXPORT int ex_get_var_names       (int, const char*, int, char*[]);
+EXODUS_EXPORT int ex_get_varid           (int , const char*, int*);
+EXODUS_EXPORT int ex_get_var_name        (int, const char*, int, char*);
+EXODUS_EXPORT int ex_get_var_param       (int, const char*, int*);
 
-EXODUS_EXPORT int ex_put_prop           (int, int, int, const char*, int);
-EXODUS_EXPORT int ex_get_prop           (int, int, int, const char*, int*);
+EXODUS_EXPORT int ex_get_object_truth_vector (int , const char*,
+                                          int, int, int*);
 
-EXODUS_EXPORT int ex_put_prop_array     (int, int, const char*, const int*);
-EXODUS_EXPORT int ex_get_prop_array     (int, int, const char*, int*);
+EXODUS_EXPORT int ex_get_var_tab         (int , const char*, int, int, int*);
 
-EXODUS_EXPORT int ex_put_concat_side_sets (int, const int*, const int*, const int*, const int*,
-                                    const int*, const int*, const int*, const void* );
-EXODUS_EXPORT int ex_get_concat_side_sets (int, int*, int*, int*, int*, int*, int*, int*, void* );
-EXODUS_EXPORT int ex_cvt_nodes_to_sides   (int, int*, int*, int*, int*, int*, int*, int*);
+EXODUS_EXPORT int ex_get_elem_var_tab    (int , int, int, int*);
+EXODUS_EXPORT int ex_open                (const char*, int, int*, int*, float*);
 
-EXODUS_EXPORT int ex_put_coordinate_frames(int, int, const int*, void*, const char*);
+EXODUS_EXPORT int ex_put_all_var_param   (int, int, int, int, int*,
+                                          int, int*, int, int*);
 
-EXODUS_EXPORT int ex_get_coordinate_frames(int, int*, int*, void*, char*);
+EXODUS_EXPORT int ex_put_concat_elem_block (int, const int*, char*[],
+                                          const int*, const int*, const int*,
+                                                                                  int);
 
-/* routines for analysis results i/o */
+EXODUS_EXPORT int ex_put_concat_node_sets (int, int*, int*, int*,
+                                          int*, int*, int*, void*);
 
-EXODUS_EXPORT int ex_put_var_param      (int, const char*, int);
-EXODUS_EXPORT int ex_get_var_param      (int, const char*, int*);
+EXODUS_EXPORT int ex_put_concat_side_sets (int, int*, int*, int*,
+                                          int*, int*, int*, int*, void*);
 
-EXODUS_EXPORT int ex_put_concat_var_param(int, int, int, int, int, int*);
-                                                      
-EXODUS_EXPORT int ex_put_var_names      (int, const char*, int, char*[]);
-EXODUS_EXPORT int ex_get_var_names      (int, const char*, int, char*[]);
+EXODUS_EXPORT int ex_put_concat_var_param (int, int, int, int, int, int*);
 
-EXODUS_EXPORT int ex_put_var_name       (int, const char*, int, const char*);
-EXODUS_EXPORT int ex_get_var_name       (int, const char*, int, char*);
+EXODUS_EXPORT int ex_put_coord_names     (int, char*[]);
+EXODUS_EXPORT int ex_put_coord           (int, const void*,
+                                          const void*, const void*);
+EXODUS_EXPORT int ex_put_elem_attr_names(int, int, char*[]);
+EXODUS_EXPORT int ex_put_elem_attr       (int, int, const void*);
+EXODUS_EXPORT int ex_put_elem_block      (int, int, const char*, int, int, int);
 
-EXODUS_EXPORT int ex_put_elem_var_tab   (int, int, int, int*);
-EXODUS_EXPORT int ex_get_elem_var_tab   (int, int, int, int*);
+EXODUS_EXPORT int ex_put_elem_conn       (int, int, const int*);
+EXODUS_EXPORT int ex_put_elem_map        (int, int, const int*);
+EXODUS_EXPORT int ex_put_elem_num_map    (int , const int*);
+EXODUS_EXPORT int ex_put_elem_var        (int, int, int, int, int, const void*);
 
-EXODUS_EXPORT int ex_put_glob_vars      (int, int, int, const void*);
-EXODUS_EXPORT int ex_get_glob_vars      (int, int, int, void*);
+EXODUS_EXPORT int ex_put_coordinate_frames(int, int, const int[],
+                                          void*, const char*);
+EXODUS_EXPORT int ex_put_glob_vars       (int, int, int, const void*);
+EXODUS_EXPORT int ex_put_info            (int, int, char*[]);
+EXODUS_EXPORT int ex_put_init            (int, const char*, int,
+                                          int, int, int, int, int);
 
-EXODUS_EXPORT int ex_get_glob_var_time  (int, int, int, int, void*);
+EXODUS_EXPORT int ex_put_map             (int , const int*);
+EXODUS_EXPORT int ex_put_map_param       (int, int, int);
+EXODUS_EXPORT int ex_put_name            (int, int, int, const char*);
+EXODUS_EXPORT int ex_put_names           (int, int, char*[]);
+EXODUS_EXPORT int ex_put_nodal_var       (int, int, int, int, const void*);
 
-EXODUS_EXPORT int ex_put_nodal_var      (int, int, int, int, const void*);
-EXODUS_EXPORT int ex_get_nodal_var      (int, int, int, int, void*);
+EXODUS_EXPORT int ex_put_nodal_varid_var(int, int, int, int, int, const void*);
 
-EXODUS_EXPORT int ex_get_nodal_var_time (int, int, int, int, int, void*);
+EXODUS_EXPORT int ex_put_node_map        (int, int, const int*);
+EXODUS_EXPORT int ex_put_node_num_map    (int , const int*);
+EXODUS_EXPORT int ex_put_node_set_param  (int, int, int, int);
+EXODUS_EXPORT int ex_put_node_set        (int, int, const int*);
+EXODUS_EXPORT int ex_put_node_set_dist_fact (int, int, const void*);
+EXODUS_EXPORT int ex_put_nset_var        (int, int, int, int, int, const void*);
 
-EXODUS_EXPORT int ex_put_elem_var       (int, int, int, int, int, const void*);
-EXODUS_EXPORT int ex_get_elem_var       (int, int, int, int, int, void*);
+EXODUS_EXPORT int ex_put_nset_var_tab    (int , int, int, int*);
+EXODUS_EXPORT int ex_put_one_elem_attr   (int, int, int, const void*);
+EXODUS_EXPORT int ex_put_partial_elem_map(int, int, int, int, const int*);
 
-EXODUS_EXPORT int ex_get_elem_var_time  (int, int, int, int, int, void*);
+EXODUS_EXPORT int ex_put_prop            (int, int, int, const char*, int);
 
-EXODUS_EXPORT int ex_put_time           (int, int, const void*);
-EXODUS_EXPORT int ex_get_time           (int, int, void*);
+EXODUS_EXPORT int ex_put_prop_array      (int, int, const char*, const int*);
+EXODUS_EXPORT int ex_put_prop_names      (int, int, int, char**);
+EXODUS_EXPORT int ex_put_qa              (int, int, char* [][4]);
+EXODUS_EXPORT int ex_put_side_set_param  (int, int, int, int);
+EXODUS_EXPORT int ex_put_side_set        (int, int, const int*, const int*);
+EXODUS_EXPORT int ex_put_side_set_dist_fact (int, int, const void*);
+EXODUS_EXPORT int ex_put_sset_var        (int, int, int, int, int, const void*);
 
-EXODUS_EXPORT int ex_get_all_times      (int, void*);
+EXODUS_EXPORT int ex_put_sset_var_tab    (int , int, int, int*);
+EXODUS_EXPORT int ex_put_time            (int, int, const void*);
+EXODUS_EXPORT int ex_put_varid_var       (int, int, int, int, const void*);
 
-EXODUS_EXPORT int ex_inquire            (int, int, int*, void*, char*);
-EXODUS_EXPORT int ex_get_num_props      (int, int);
+EXODUS_EXPORT int ex_put_var_names       (int, const char*, int, char*[]);
+EXODUS_EXPORT int ex_put_var_name        (int, const char*, int, const char*);
+EXODUS_EXPORT int ex_put_var_param       (int, const char*, int);
+EXODUS_EXPORT int ex_put_var_tab         (int , const char*, int, int, int*);
 
-EXODUS_EXPORT int ex_put_elem_num_map   (int, const int*);
-EXODUS_EXPORT int ex_get_elem_num_map   (int, int*);
+EXODUS_EXPORT int ex_put_elem_var_tab    (int , int, int, int*);
+EXODUS_EXPORT int ex_update              (int);
+EXODUS_EXPORT int ex_get_num_props       (int, int);
+EXODUS_EXPORT int ex_large_model         (int);
+EXODUS_EXPORT size_t ex_header_size      (int);
 
-EXODUS_EXPORT int ex_put_node_num_map   (int, const int*);
-EXODUS_EXPORT int ex_get_node_num_map   (int, int*);
+EXODUS_EXPORT int *itol                  (const int*, int);
+EXODUS_EXPORT int ltoi                   (const int*, int*, int);
 
-EXODUS_EXPORT int ex_put_map_param      (int, int, int);
-EXODUS_EXPORT int ex_get_map_param      (int, int*, int*);
+EXODUS_EXPORT void ex_err                (const char*, const char*, int);
+EXODUS_EXPORT void ex_opts               (int);
+EXODUS_EXPORT int ex_inquire             (int, int, int*, void*, char*);
 
-EXODUS_EXPORT int ex_put_elem_map       (int, int, const int*);
-EXODUS_EXPORT int ex_get_elem_map       (int, int, int*);
-
-EXODUS_EXPORT int ex_put_node_map       (int, int, const int*);
-EXODUS_EXPORT int ex_get_node_map       (int, int, int*);
-
-EXODUS_EXPORT int *itol              (const int*, int); 
-
-EXODUS_EXPORT int ltoi                  (const int*, int*, int);
-
-EXODUS_EXPORT int ex_copy               (int, int);
-
-EXODUS_EXPORT int cpy_att               (int, int, int, int);
-
-EXODUS_EXPORT int cpy_var_def           (int, int, int, char*);
-
-EXODUS_EXPORT int cpy_var_val           (int, int, char*);
-
-EXODUS_EXPORT int ex_get_elem_varid  (int  exoid, int *varid);
-EXODUS_EXPORT int ex_get_nodal_varid (int  exoid, int *varid);
-
-EXODUS_EXPORT int ex_get_nodal_varid_var(int, int, int, int, int,       void *nodal_var_vals);
-EXODUS_EXPORT int ex_put_nodal_varid_var(int, int, int, int, int, const void *nodal_var_vals);
-
-EXODUS_EXPORT int ex_get_varid_var(int, int, int, int,       void *var_vals);
-EXODUS_EXPORT int ex_put_varid_var(int, int, int, int, const void *var_vals);
+EXODUS_EXPORT int ex_get_varid_var       (int, int, int, int, void*);
 
 /* ERROR CODE DEFINITIONS AND STORAGE                                       */
 EXODUS_EXPORT int exerrval;            /* shared error return value                */
@@ -335,3 +369,4 @@ EXODUS_EXPORT int exoptval;            /* error reporting flag (default is quiet
 #define EX_MSG          -1000   /* message print code - no error implied    */
 #define EX_PRTLASTMSG   -1001   /* print last error message msg code        */
 
+#include "exodusII_ext.h"

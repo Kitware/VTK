@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2006 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -64,12 +64,157 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
+#define EX_GET_DIMENSION_VALUE(VAR,DEFVAL,DNAME,MISSINGOK) \
+  if ( ( dimid = ncdimid( exoid, DNAME ) ) == -1 ) { \
+    *VAR = DEFVAL; \
+    if ( MISSINGOK ) { \
+      return (EX_NOERR); \
+    } else { \
+      exerrval = ncerr; \
+      sprintf( errmsg, \
+        "Error: failed to retrieve dimension " DNAME " for file id %d", \
+        exoid); \
+      ex_err("ex_inquire",errmsg,exerrval); \
+      return (EX_FATAL); \
+    } \
+  } \
+  \
+  if ( ncdiminq( exoid, dimid, (char*) 0, &ldum ) == -1 ) { \
+    *VAR = DEFVAL; \
+    exerrval = ncerr; \
+    sprintf( errmsg, \
+      "Error: failed to retrieve value for dimension " DNAME " for file id %d",\
+      exoid); \
+    ex_err("ex_inquire",errmsg,exerrval); \
+    return (EX_FATAL); \
+  } \
+  *VAR = ldum
+
+#define EX_GET_CONCAT_SET_LEN(VAR,TNAME,SETENUM,DNUMSETS,VSETSTAT,DSETSIZE,MISSINGOK) \
+       *ret_int = 0;     /* default return value */ \
+       \
+       if ((dimid = ncdimid (exoid, DNUMSETS)) != -1) \
+       { \
+         if (ncdiminq (exoid, dimid, (char *) 0, &num_sets) == -1) \
+         { \
+           exerrval = ncerr; \
+           sprintf(errmsg, \
+                 "Error: failed to get number of " TNAME " sets in file id %d", \
+                  exoid); \
+           ex_err("ex_inquire",errmsg,exerrval); \
+           return (EX_FATAL); \
+         } \
+         \
+         \
+         if (!(ids = malloc(num_sets*sizeof(int)))) \
+         { \
+           exerrval = EX_MEMFAIL; \
+           sprintf(errmsg, \
+             "Error: failed to allocate memory for " TNAME " set ids for file id %d", \
+              exoid); \
+           ex_err("ex_inquire",errmsg,exerrval); \
+           return (EX_FATAL); \
+         } \
+         \
+         if (ex_get_ids (exoid, SETENUM, ids) == EX_FATAL) \
+         { \
+           sprintf(errmsg, \
+                  "Error: failed to get " TNAME " set ids in file id %d", \
+                   exoid); \
+           ex_err("ex_inquire",errmsg,exerrval); \
+           free(ids); \
+           return (EX_FATAL); \
+         } \
+         \
+         /* allocate space for stat array */ \
+         if (!(stat_vals = malloc((int)num_sets*sizeof(nclong)))) \
+         { \
+           exerrval = EX_MEMFAIL; \
+           free (ids); \
+           sprintf(errmsg, \
+    "Error: failed to allocate memory for " TNAME " set status array for file id %d", \
+                   exoid); \
+           ex_err("ex_inquire",errmsg,exerrval); \
+           return (EX_FATAL); \
+         } \
+         \
+         /* get variable id of status array */ \
+         if ((varid = ncvarid (exoid, VSETSTAT)) != -1) \
+         { \
+         /* if status array exists, use it, otherwise assume, object exists \
+            to be backward compatible */ \
+           \
+           start[0] = 0; \
+           start[1] = 0; \
+           count[0] = num_sets; \
+           count[1] = 0; \
+           \
+           if (ncvarget (exoid, varid, start, count, (void *)stat_vals) == -1) \
+           { \
+             exerrval = ncerr; \
+             free (ids); \
+             free(stat_vals); \
+             sprintf(errmsg, \
+             "Error: failed to get " TNAME " set status array from file id %d", \
+                     exoid); \
+             ex_err("ex_inquire",errmsg,exerrval); \
+             return (EX_FATAL); \
+           } \
+         } \
+         else /* default: status is true */ \
+           for(i=0;i<num_sets;i++) \
+             stat_vals[i]=1; \
+         \
+         for (i=0; i<num_sets; i++) \
+         { \
+           \
+           if (stat_vals[i] == 0) /* is this object null? */ \
+              continue; \
+           \
+           if ((dimid = ncdimid (exoid, DSETSIZE(i+1))) == -1) \
+           { \
+             if ( MISSINGOK ) { \
+               ldum = 0; \
+             } else { \
+               *ret_int = 0; \
+               exerrval = ncerr; \
+               sprintf(errmsg, \
+                   "Error: failed to locate " TNAME " set %d in file id %d", \
+                    ids[i],exoid); \
+               ex_err("ex_inquire",errmsg,exerrval); \
+               free(stat_vals); \
+               free(ids); \
+               return (EX_FATAL); \
+             } /* MISSINGOK */ \
+           } else { \
+         \
+             if (ncdiminq (exoid, dimid, (char *) 0, &ldum) == -1) \
+             { \
+               *ret_int = 0; \
+               exerrval = ncerr; \
+               sprintf(errmsg, \
+                   "Error: failed to get size of " TNAME " set %d in file id %d", \
+                    ids[i], exoid); \
+               ex_err("ex_inquire",errmsg,exerrval); \
+               free(stat_vals); \
+               free(ids); \
+               return (EX_FATAL); \
+             } \
+           } \
+         \
+           *ret_int += ldum; \
+         } \
+         \
+         free(stat_vals); \
+         free (ids); \
+       }
+
 static void flt_cvt(float *xptr,double x)
 {
   *xptr = (float)x;
 }
 
-/*
+/*!
  * returns information about the database
  */
 
@@ -628,122 +773,8 @@ int ex_inquire (int   exoid,
        break;
 
      case EX_INQ_SS_ELEM_LEN:
-
 /*     returns the length of the concatenated side sets element list */
-
-       *ret_int = 0;     /* default return value */
-
-       if ((dimid = ncdimid (exoid, DIM_NUM_SS)) != -1)
-       {
-         if (ncdiminq (exoid, dimid, (char *) 0, &num_sets) == -1)
-         {
-           exerrval = ncerr;
-           sprintf(errmsg,
-                 "Error: failed to get number of side sets in file id %d",
-                  exoid);
-           ex_err("ex_inquire",errmsg,exerrval);
-           return (EX_FATAL);
-         }
-
-
-         if (!(ids = malloc(num_sets*sizeof(int))))
-         {
-           exerrval = EX_MEMFAIL;
-           sprintf(errmsg,
-             "Error: failed to allocate memory for side set ids for file id %d",
-              exoid);
-           ex_err("ex_inquire",errmsg,exerrval);
-           return (EX_FATAL);
-         }
-
-         if (ex_get_side_set_ids (exoid, ids) == EX_FATAL)
-         {
-           sprintf(errmsg,
-                  "Error: failed to get side set ids in file id %d",
-                   exoid);
-           ex_err("ex_inquire",errmsg,exerrval);
-           free(ids);
-           return (EX_FATAL);
-         }
-
-         /* allocate space for stat array */
-         if (!(stat_vals = malloc((int)num_sets*sizeof(nclong))))
-         {
-           exerrval = EX_MEMFAIL;
-           free (ids);
-           sprintf(errmsg,
-    "Error: failed to allocate memory for side set status array for file id %d",
-                   exoid);
-           ex_err("ex_inquire",errmsg,exerrval);
-           return (EX_FATAL);
-         }
-
-         /* get variable id of status array */
-         if ((varid = ncvarid (exoid, VAR_SS_STAT)) != -1)
-         {
-         /* if status array exists, use it, otherwise assume, object exists
-            to be backward compatible */
-
-           start[0] = 0;
-           start[1] = 0;
-           count[0] = num_sets;
-           count[1] = 0;
-
-           if (ncvarget (exoid, varid, start, count, (void *)stat_vals) == -1)
-           {
-             exerrval = ncerr;
-             free (ids);
-             free(stat_vals);
-             sprintf(errmsg,
-             "Error: failed to get element block status array from file id %d",
-                     exoid);
-             ex_err("ex_inquire",errmsg,exerrval);
-             return (EX_FATAL);
-           }
-         }
-         else /* default: status is true */
-           for(i=0;i<num_sets;i++)
-             stat_vals[i]=1;
-
-         for (i=0; i<num_sets; i++)
-         {
-
-           if (stat_vals[i] == 0) /* is this object null? */
-              continue;
-
-           if ((dimid = ncdimid (exoid, DIM_NUM_SIDE_SS(i+1))) == -1)
-           {
-             *ret_int = 0;
-             exerrval = ncerr;
-             sprintf(errmsg,
-                 "Error: failed to locate side set %d in file id %d",
-                  ids[i],exoid);
-             ex_err("ex_inquire",errmsg,exerrval);
-             free(stat_vals);
-             free(ids);
-             return (EX_FATAL);
-           }
-
-           if (ncdiminq (exoid, dimid, (char *) 0, &ldum) == -1)
-           {
-             *ret_int = 0;
-             exerrval = ncerr;
-             sprintf(errmsg,
-                 "Error: failed to get size of side set %d in file id %d",
-                  ids[i], exoid);
-             ex_err("ex_inquire",errmsg,exerrval);
-             free(stat_vals);
-             free(ids);
-             return (EX_FATAL);
-           }
-
-           *ret_int += ldum;
-         }
-
-         free(stat_vals);
-         free (ids);
-       }
-
+       EX_GET_CONCAT_SET_LEN(ret_int,"side",EX_SIDE_SET,DIM_NUM_SS,VAR_SS_STAT,DIM_NUM_SIDE_SS,0);
        break;
 
      case EX_INQ_SS_DF_LEN:
@@ -994,10 +1025,108 @@ int ex_inquire (int   exoid,
        break;
 
      case EX_INQ_NM_PROP:
-
 /*     returns the number of element map properties */
-
        *ret_int = ex_get_num_props (exoid, EX_NODE_MAP);
+       break;
+
+     case EX_INQ_EDGE:
+/*     returns the number of edges (defined across all edge blocks). */
+       EX_GET_DIMENSION_VALUE(ret_int, 0, DIM_NUM_EDGE, 1);
+       break;
+
+     case EX_INQ_EDGE_BLK:
+/*     returns the number of edge blocks. */
+       EX_GET_DIMENSION_VALUE(ret_int, 0, DIM_NUM_ED_BLK, 1);
+       break;
+
+     case EX_INQ_EDGE_SETS:
+/*     returns the number of edge sets. */
+       EX_GET_DIMENSION_VALUE(ret_int, 0, DIM_NUM_ES, 1);
+       break;
+
+     case EX_INQ_ES_LEN:
+/*     returns the length of the concatenated edge set edge list. */
+       EX_GET_CONCAT_SET_LEN(ret_int,"edge",EX_EDGE_SET,DIM_NUM_ES,VAR_ES_STAT,DIM_NUM_EDGE_ES,0);
+       break;
+
+     case EX_INQ_ES_DF_LEN:
+/*     returns the length of the concatenated edge set distribution factor list. */
+       EX_GET_CONCAT_SET_LEN(ret_int,"edge",EX_EDGE_SET,DIM_NUM_ES,VAR_ES_STAT,DIM_NUM_DF_ES,1);
+       break;
+
+     case EX_INQ_EDGE_PROP:
+/*     returns the number of integer properties stored for each edge block. This includes the "ID" property. */
+       *ret_int = ex_get_num_props( exoid, EX_EDGE_BLOCK );
+       break;
+
+     case EX_INQ_ES_PROP:
+/*     returns the number of integer properties stored for each edge set.. This includes the "ID" property */
+       *ret_int = ex_get_num_props( exoid, EX_EDGE_SET );
+       break;
+
+     case EX_INQ_FACE:
+/*     returns the number of faces (defined across all face blocks). */
+       EX_GET_DIMENSION_VALUE(ret_int, 0, DIM_NUM_FACE, 1);
+       break;
+
+     case EX_INQ_FACE_BLK:
+/*     returns the number of edge blocks. */
+       EX_GET_DIMENSION_VALUE(ret_int, 0, DIM_NUM_FA_BLK, 1);
+       break;
+
+     case EX_INQ_FACE_SETS:
+/*     returns the number of edge sets. */
+       EX_GET_DIMENSION_VALUE(ret_int, 0, DIM_NUM_FS, 1);
+       break;
+
+     case EX_INQ_FS_LEN:
+/*     returns the length of the concatenated edge set edge list. */
+       EX_GET_CONCAT_SET_LEN(ret_int,"face",EX_FACE_SET,DIM_NUM_FS,VAR_FS_STAT,DIM_NUM_FACE_FS,0);
+       break;
+
+     case EX_INQ_FS_DF_LEN:
+/*     returns the length of the concatenated edge set distribution factor list. */
+       EX_GET_CONCAT_SET_LEN(ret_int,"face",EX_FACE_SET,DIM_NUM_FS,VAR_FS_STAT,DIM_NUM_DF_FS,1);
+       break;
+
+     case EX_INQ_FACE_PROP:
+/*     returns the number of integer properties stored for each edge block. This includes the "ID" property. */
+       *ret_int = ex_get_num_props( exoid, EX_FACE_BLOCK );
+       break;
+
+     case EX_INQ_FS_PROP:
+/*     returns the number of integer properties stored for each edge set.. This includes the "ID" property */
+       *ret_int = ex_get_num_props( exoid, EX_FACE_SET );
+       break;
+
+     case EX_INQ_ELEM_SETS:
+/*     returns the number of element sets. */
+       EX_GET_DIMENSION_VALUE(ret_int, 0, DIM_NUM_ELS, 1);
+       break;
+
+     case EX_INQ_ELS_LEN:
+/*     returns the length of the concatenated element set element list. */
+       EX_GET_CONCAT_SET_LEN(ret_int,"element",EX_ELEM_SET,DIM_NUM_ELS,VAR_ELS_STAT,DIM_NUM_ELE_ELS,0);
+       break;
+
+     case EX_INQ_ELS_DF_LEN:
+/*     returns the length of the concatenated element set distribution factor list. */
+       EX_GET_CONCAT_SET_LEN(ret_int,"element",EX_ELEM_SET,DIM_NUM_ELS,VAR_ELS_STAT,DIM_NUM_DF_ELS,1);
+       break;
+
+    case EX_INQ_ELS_PROP:
+/*     returns the number of integer properties stored for each element set. */
+       *ret_int = ex_get_num_props( exoid, EX_ELEM_SET );
+       break;
+
+    case EX_INQ_EDGE_MAP:
+/*     returns the number of edge sets. */
+       EX_GET_DIMENSION_VALUE(ret_int, 0, DIM_NUM_EDM, 1);
+       break;
+
+    case EX_INQ_FACE_MAP:
+/*     returns the number of edge sets. */
+       EX_GET_DIMENSION_VALUE(ret_int, 0, DIM_NUM_FAM, 1);
        break;
 
 
@@ -1010,3 +1139,6 @@ int ex_inquire (int   exoid,
    }
    return (EX_NOERR);
 }
+
+
+

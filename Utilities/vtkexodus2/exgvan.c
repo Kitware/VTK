@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -62,7 +62,9 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+#include <ctype.h>
+
+/*!
  * reads the names of the results variables from the database
  */
 
@@ -73,54 +75,71 @@ int ex_get_var_names (int   exoid,
 {
   int i, varid, status;
   char errmsg[MAX_ERR_LENGTH];
+  int vartyp;
+  const char* tname;
+  const char* vvarname;
 
   exerrval = 0; /* clear error code */
 
+  vartyp = tolower( *var_type );
+
+  switch (vartyp) {
+  case 'g':
+    tname = "global";
+    vvarname = VAR_NAME_GLO_VAR;
+    break;
+  case 'n':
+    tname = "nodal";
+    vvarname = VAR_NAME_NOD_VAR;
+    break;
+  case 'l':
+    tname = "edge block";
+    vvarname = VAR_NAME_EDG_VAR;
+    break;
+  case 'f':
+    tname = "face block";
+    vvarname = VAR_NAME_FAC_VAR;
+    break;
+  case 'e':
+    tname = "element block";
+    vvarname = VAR_NAME_ELE_VAR;
+    break;
+  case 'm':
+    tname = "node set";
+    vvarname = VAR_NAME_NSET_VAR;
+    break;
+  case 'd':
+    tname = "edge set";
+    vvarname = VAR_NAME_ESET_VAR;
+    break;
+  case 'a':
+    tname = "face set";
+    vvarname = VAR_NAME_FSET_VAR;
+    break;
+  case 's':
+    tname = "side set";
+    vvarname = VAR_NAME_SSET_VAR;
+    break;
+  case 't':
+    tname = "element set";
+    vvarname = VAR_NAME_ELSET_VAR;
+    break;
+  default:
+    exerrval = EX_BADPARAM;
+    sprintf(errmsg,
+      "Warning: invalid variable type %c requested from file id %d",
+      *var_type, exoid);
+    ex_err("ex_get_var_param",errmsg,exerrval);
+    return (EX_WARN);
+  }
+
   /* inquire previously defined variables  */
-  if (*var_type == 'g' || *var_type == 'G') {
-    if ((varid = ncvarid (exoid, VAR_NAME_GLO_VAR)) == -1) {
-      exerrval = ncerr;
-      sprintf(errmsg,
-              "Warning: no global variables names stored in file id %d", exoid);
-      ex_err("ex_get_var_names",errmsg,exerrval);
-      return (EX_WARN);
-    }
+  if ((varid = ncvarid (exoid, vvarname)) == -1) {
+    exerrval = ncerr;
+    sprintf(errmsg, "Warning: no %s variables names stored in file id %d", tname,exoid);
+    ex_err("ex_get_var_names",errmsg,exerrval);
+    return (EX_WARN);
   }
-
-  else if (*var_type == 'n' || *var_type == 'N') {
-    if ((varid = ncvarid (exoid, VAR_NAME_NOD_VAR)) == -1) {
-      exerrval = ncerr;
-      sprintf(errmsg,
-              "Warning: no nodal variable names stored in file id %d",
-              exoid);
-      ex_err("ex_get_var_names",errmsg,exerrval);
-      return (EX_WARN);
-    }
-
-  }
-
-  else if (*var_type == 'e' || *var_type == 'E') {
-
-    if ((varid = ncvarid (exoid, VAR_NAME_ELE_VAR)) == -1) {
-      exerrval = ncerr;
-      sprintf(errmsg,
-              "Warning: no element variable names stored in file id %d",
-              exoid);
-      ex_err("ex_get_var_names",errmsg,exerrval);
-      return (EX_WARN);
-    }
-  }
-
-  else       /* invalid variable type */
-    {
-      exerrval = EX_BADPARAM;
-      sprintf(errmsg,
-              "Error: Invalid variable type %c specified in file id %d",
-              *var_type, exoid);
-      ex_err("ex_put_var_names",errmsg,exerrval);
-      return (EX_WARN);
-    }
-
 
   /* read the variable names */
 
@@ -128,7 +147,7 @@ int ex_get_var_names (int   exoid,
    * See if reading into contiguous memory in which case we can load 
    * all values in one call.  If not, we must load each name individually.
    */
-  if ((size_t)(&var_names[num_vars-1][0] - &var_names[0][0]) ==
+  if (&var_names[num_vars-1][0] - &var_names[0][0] ==
       sizeof(char)*(MAX_STR_LENGTH+1)*(num_vars-1)) {
     status = nc_get_var_text(exoid, varid, &var_names[0][0]);
     if (status == -1) {

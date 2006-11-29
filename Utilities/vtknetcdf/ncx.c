@@ -2,8 +2,8 @@
 /*
  *  Copyright 1996, University Corporation for Atmospheric Research
  *  See netcdf/COPYRIGHT file for copying and redistribution conditions.
- *   
- *   This file contains some routines derived from code
+ *  
+ *  This file contains some routines derived from code
  *  which is copyrighted by Sun Microsystems, Inc.
  *  The "#ifdef vax" versions of
  *     ncx_put_float_float()
@@ -14,10 +14,10 @@
  *     ncx_getn_float_float()
  *     ncx_putn_double_double()
  *     ncx_getn_double_double()
- *   are derived from xdr_float() and xdr_double() routines
+ *  are derived from xdr_float() and xdr_double() routines
  *  in the freely available, copyrighted Sun RPCSRC 3.9
  *  distribution, xdr_float.c.
- *   Our "value added" is that these are always memory to memory,
+ *  Our "value added" is that these are always memory to memory,
  *  they handle IEEE subnormals properly, and their "n" versions
  *  operate speedily on arrays.
  */
@@ -28,7 +28,6 @@
  */
 
 #include "ncx.h"
-#include <stdio.h>
 #include <string.h>
 #include <limits.h>
 /* alias poorly named limits.h macros */
@@ -304,7 +303,7 @@ ncx_get_short_float(const void *xp, float *ip)
   ix_short xx;
   get_ix_short(xp, &xx);
   *ip = xx;
-#if 0  /* TODO: determine when necessary */
+#if 0 /* TODO: determine when necessary */
   if(xx > FLT_MAX || xx < (-FLT_MAX))
     return NC_ERANGE;
 #endif
@@ -530,7 +529,7 @@ ncx_get_int_long(const void *xp, long *ip)
   ix_int xx;
   get_ix_int(xp, &xx);
   *ip = xx;
-#  if IX_INT_MAX > LONG_MAX  /* unlikely */
+#  if IX_INT_MAX > LONG_MAX /* unlikely */
   if(xx > LONG_MAX || xx < LONG_MIN)
     return NC_ERANGE;
 #  endif
@@ -694,7 +693,7 @@ put_ix_float(void *xp, const float *ip)
 struct  ieee_single {
   unsigned int  exp_hi       : 7;
   unsigned int  sign         : 1;
-  unsigned int   mant_hi      : 7;
+  unsigned int  mant_hi      : 7;
   unsigned int  exp_lo       : 1;
   unsigned int  mant_lo_hi   : 8;
   unsigned int  mant_lo_lo   : 8;
@@ -709,17 +708,17 @@ struct  vax_single {
 };
 
 #define VAX_SNG_BIAS  0x81
-#define IEEE_SNG_BIAS  0x7f
+#define IEEE_SNG_BIAS 0x7f
 
 static struct sgl_limits {
   struct vax_single s;
   struct ieee_single ieee;
 } max = {
   { 0x7f, 0xff, 0x0, 0xffff },  /* Max Vax */
-  { 0x7f, 0x0, 0x0, 0x1, 0x0, 0x0 }    /* Max IEEE */
+  { 0x7f, 0x0, 0x0, 0x1, 0x0, 0x0 }   /* Max IEEE */
 };
 static struct sgl_limits min = {
-  { 0x0, 0x0, 0x0, 0x0 },  /* Min Vax */
+  { 0x0, 0x0, 0x0, 0x0 }, /* Min Vax */
   { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }    /* Min IEEE */
 };
 
@@ -845,12 +844,12 @@ struct ieee_single_hi {
   unsigned int  sign  : 1;
   unsigned int   exp  : 8;
   unsigned int  mant  :23;
-  unsigned int  pad  :32;
+  unsigned int  pad :32;
 };
 typedef struct ieee_single_hi ieee_single_hi;
 
 struct ieee_single_lo {
-  unsigned int  pad  :32;
+  unsigned int  pad :32;
   unsigned int  sign  : 1;
   unsigned int   exp  : 8;
   unsigned int  mant  :23;
@@ -1216,7 +1215,7 @@ ncx_put_float_short(void *xp, const short *ip)
 {
   float xx = (float) *ip;
   put_ix_float(xp, &xx);
-#if 0  /* TODO: figure this out */
+#if 0 /* TODO: figure this out */
   if((float)(*ip) > X_FLOAT_MAX || (float)(*ip) < X_FLOAT_MIN)
     return NC_ERANGE;
 #endif
@@ -1228,7 +1227,7 @@ ncx_put_float_int(void *xp, const int *ip)
 {
   float xx = (float) *ip;
   put_ix_float(xp, &xx);
-#if 1  /* TODO: figure this out */
+#if 1 /* TODO: figure this out */
   if((float)(*ip) > X_FLOAT_MAX || (float)(*ip) < X_FLOAT_MIN)
     return NC_ERANGE;
 #endif
@@ -1240,7 +1239,7 @@ ncx_put_float_long(void *xp, const long *ip)
 {
   float xx = (float) *ip;
   put_ix_float(xp, &xx);
-#if 1  /* TODO: figure this out */
+#if 1 /* TODO: figure this out */
   if((float)(*ip) > X_FLOAT_MAX || (float)(*ip) < X_FLOAT_MIN)
     return NC_ERANGE;
 #endif
@@ -1298,7 +1297,7 @@ put_ix_double(void *xp, const double *ip)
 struct  ieee_double {
   unsigned int  exp_hi   : 7;
   unsigned int  sign     : 1;
-  unsigned int   mant_6   : 4;
+  unsigned int  mant_6   : 4;
   unsigned int  exp_lo   : 4;
   unsigned int  mant_5   : 8;
   unsigned int  mant_4   : 8;
@@ -1317,16 +1316,16 @@ struct  vax_double {
 };
 
 #define VAX_DBL_BIAS  0x81
-#define IEEE_DBL_BIAS  0x3ff
-#define MASK(nbits)  ((1 << nbits) - 1)
+#define IEEE_DBL_BIAS 0x3ff
+#define MASK(nbits) ((1 << nbits) - 1)
 
 static const struct dbl_limits {
   struct  vax_double d;
   struct  ieee_double ieee;
 } dbl_limits[2] = {
-  {{ 0x7f, 0xff, 0x0, 0xffff, 0xffff, 0xffff },  /* Max Vax */
+  {{ 0x7f, 0xff, 0x0, 0xffff, 0xffff, 0xffff }, /* Max Vax */
   { 0x7f, 0x0, 0x0, 0xf, 0x0, 0x0, 0x0}}, /* Max IEEE */
-  {{ 0x0, 0x0, 0x0, 0x0, 0x0, 0x0},    /* Min Vax */
+  {{ 0x0, 0x0, 0x0, 0x0, 0x0, 0x0},   /* Min Vax */
   { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}}, /* Min IEEE */
 };
 
@@ -1647,7 +1646,7 @@ ncx_put_double_short(void *xp, const short *ip)
 {
   double xx = (double) *ip;
   put_ix_double(xp, &xx);
-#if 0  /* TODO: figure this out */
+#if 0 /* TODO: figure this out */
   if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
     return NC_ERANGE;
 #endif
@@ -1659,7 +1658,7 @@ ncx_put_double_int(void *xp, const int *ip)
 {
   double xx = (double) *ip;
   put_ix_double(xp, &xx);
-#if 0  /* TODO: figure this out */
+#if 0 /* TODO: figure this out */
   if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
     return NC_ERANGE;
 #endif
@@ -1671,7 +1670,7 @@ ncx_put_double_long(void *xp, const long *ip)
 {
   double xx = (double) *ip;
   put_ix_double(xp, &xx);
-#if 1  /* TODO: figure this out */
+#if 1 /* TODO: figure this out */
   if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
     return NC_ERANGE;
 #endif
@@ -1683,7 +1682,7 @@ ncx_put_double_float(void *xp, const float *ip)
 {
   double xx = (double) *ip;
   put_ix_double(xp, &xx);
-#if 1  /* TODO: figure this out */
+#if 1 /* TODO: figure this out */
   if((double)(*ip) > X_DOUBLE_MAX || (double)(*ip) < X_DOUBLE_MIN)
     return NC_ERANGE;
 #endif
@@ -1703,51 +1702,56 @@ ncx_put_double_double(void *xp, const double *ip)
 
 
 /* x_size_t */
+
+#if SIZEOF_SIZE_T < X_SIZEOF_SIZE_T
+#error "x_size_t implementation"
+/* netcdf requires size_t which can hold a values from 0 to 2^32 -1 */
+#endif
+
 int
 ncx_put_size_t(void **xpp, const size_t *ulp)
 {
-        /* similar to put_ix_int() */
-        uchar *cp = (uchar *) *xpp;
-                /* sizes limited to 2^31 -1 in netcdf */
-        assert(*ulp <= X_SIZE_MAX && (long) (*ulp) >= 0);
+  /* similar to put_ix_int() */
+  uchar *cp = (uchar *) *xpp;
+  assert(*ulp <= X_SIZE_MAX);
 
-        *cp++ = (uchar)((*ulp) >> 24);
-        *cp++ = (uchar)(((*ulp) & 0x00ff0000) >> 16);
-        *cp++ = (uchar)(((*ulp) & 0x0000ff00) >>  8);
-        *cp   = (uchar)((*ulp) & 0x000000ff);
+  *cp++ = (uchar)((*ulp) >> 24);
+  *cp++ = (uchar)(((*ulp) & 0x00ff0000) >> 16);
+  *cp++ = (uchar)(((*ulp) & 0x0000ff00) >>  8);
+  *cp   = (uchar)((*ulp) & 0x000000ff);
 
-        *xpp = (void *)((char *)(*xpp) + X_SIZEOF_SIZE_T);
-        return ENOERR;
+  *xpp = (void *)((char *)(*xpp) + X_SIZEOF_SIZE_T);
+  return ENOERR;
 }
 
 int
 ncx_get_size_t(const void **xpp,  size_t *ulp)
 {
-        /* similar to get_ix_int */
-        const uchar *cp = (const uchar *) *xpp;
-        assert((*cp & 0x80) == 0); /* sizes limited to 2^31 -1 in netcdf */
+  /* similar to get_ix_int */
+  const uchar *cp = (const uchar *) *xpp;
 
-        *ulp = *cp++ << 24;
-        *ulp |= (*cp++ << 16);
-        *ulp |= (*cp++ << 8);
-        *ulp |= *cp;
+  *ulp = (unsigned)(*cp++ << 24);
+  *ulp |= (*cp++ << 16);
+  *ulp |= (*cp++ << 8);
+  *ulp |= *cp; 
 
-        *xpp = (const void *)((const char *)(*xpp) + X_SIZEOF_SIZE_T);
-        return ENOERR;
+  *xpp = (const void *)((const char *)(*xpp) + X_SIZEOF_SIZE_T);
+  return ENOERR;
 }
 
 /* x_off_t */
+
 int
 ncx_put_off_t(void **xpp, const off_t *lp, size_t sizeof_off_t)
 {
   /* similar to put_ix_int() */
   uchar *cp = (uchar *) *xpp;
-  /* No negative offsets stored in netcdf */
+    /* No negative offsets stored in netcdf */
   if (*lp < 0) {
     /* Assume this is an overflow of a 32-bit int... */
     return ERANGE;
   }
-
+    
   assert(sizeof_off_t == 4 || sizeof_off_t == 8);
 
   if (sizeof_off_t == 4) {
@@ -1787,11 +1791,9 @@ ncx_get_off_t(const void **xpp, off_t *lp, size_t sizeof_off_t)
 {
   /* similar to get_ix_int() */
   const uchar *cp = (const uchar *) *xpp;
-
-  assert((*cp & 0x80) == 0); /* No negative offsets stored in netcdf */
   assert(sizeof_off_t == 4 || sizeof_off_t == 8);
 
-   if (sizeof_off_t == 4) {
+  if (sizeof_off_t == 4) {
     *lp = *cp++ << 24;
     *lp |= (*cp++ << 16);
     *lp |= (*cp++ <<  8);
@@ -2792,7 +2794,7 @@ ncx_pad_putn_short_schar(void **xpp, size_t nelems, const schar *tp)
   if(rndup != 0)
   {
     (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-    xp += X_SIZEOF_SHORT;  
+    xp += X_SIZEOF_SHORT; 
   }
     
   *xpp = (void *)xp;
@@ -2817,7 +2819,7 @@ ncx_pad_putn_short_uchar(void **xpp, size_t nelems, const uchar *tp)
   if(rndup != 0)
   {
     (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-    xp += X_SIZEOF_SHORT;  
+    xp += X_SIZEOF_SHORT; 
   }
     
   *xpp = (void *)xp;
@@ -2842,7 +2844,7 @@ ncx_pad_putn_short_short(void **xpp, size_t nelems, const short *tp)
   if(rndup != 0)
   {
     (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-    xp += X_SIZEOF_SHORT;  
+    xp += X_SIZEOF_SHORT; 
   }
     
   *xpp = (void *)xp;
@@ -2867,7 +2869,7 @@ ncx_pad_putn_short_int(void **xpp, size_t nelems, const int *tp)
   if(rndup != 0)
   {
     (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-    xp += X_SIZEOF_SHORT;  
+    xp += X_SIZEOF_SHORT; 
   }
     
   *xpp = (void *)xp;
@@ -2892,7 +2894,7 @@ ncx_pad_putn_short_long(void **xpp, size_t nelems, const long *tp)
   if(rndup != 0)
   {
     (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-    xp += X_SIZEOF_SHORT;  
+    xp += X_SIZEOF_SHORT; 
   }
     
   *xpp = (void *)xp;
@@ -2917,7 +2919,7 @@ ncx_pad_putn_short_float(void **xpp, size_t nelems, const float *tp)
   if(rndup != 0)
   {
     (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-    xp += X_SIZEOF_SHORT;  
+    xp += X_SIZEOF_SHORT; 
   }
     
   *xpp = (void *)xp;
@@ -2942,7 +2944,7 @@ ncx_pad_putn_short_double(void **xpp, size_t nelems, const double *tp)
   if(rndup != 0)
   {
     (void) memcpy(xp, nada, X_SIZEOF_SHORT);
-    xp += X_SIZEOF_SHORT;  
+    xp += X_SIZEOF_SHORT; 
   }
     
   *xpp = (void *)xp;

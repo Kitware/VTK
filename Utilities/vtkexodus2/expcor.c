@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -62,7 +62,7 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * writes the coordinates of all the nodes in the model
  * Only writes the 'non-null' arrays.
  */
@@ -217,13 +217,11 @@ int ex_put_coord (int   exoid,
         const void *coor;
         char *which;
         int status;
-
-        coor = x_coor;
-        which = "X";
-        coordid = coordidx;
        
         if (i == 0) {
-          ;
+          coor = x_coor;
+          which = "X";
+          coordid = coordidx;
         } else if (i == 1) {
           coor = y_coor;
           which = "Y";

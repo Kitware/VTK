@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -36,14 +36,6 @@
 *
 * expeat - ex_put_elem_attr
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -61,7 +53,7 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * writes the attributes for an element block
  */
 
@@ -69,122 +61,5 @@ int ex_put_elem_attr (int   exoid,
                       int   elem_blk_id,
                       const void *attrib)
 {
-   int numelbdim, numattrdim, attrid, elem_blk_id_ndx;
-   long num_elem_this_blk, num_attr, start[2], count[2];
-   char errmsg[MAX_ERR_LENGTH];
-
-   exerrval = 0; /* clear error code */
-
-  /* Determine index of elem_blk_id in VAR_ID_EL_BLK array */
-  elem_blk_id_ndx = ex_id_lkup(exoid,VAR_ID_EL_BLK,elem_blk_id);
-  if (exerrval != 0) 
-  {
-    if (exerrval == EX_NULLENTITY)
-    {
-      sprintf(errmsg,
-              "Warning: no attributes allowed for NULL block %d in file id %d",
-              elem_blk_id,exoid);
-      ex_err("ex_put_elem_attr",errmsg,EX_MSG);
-      return (EX_WARN);              /* no attributes for this element block */
-    }
-    else
-    {
-      sprintf(errmsg,
-             "Error: no element block id %d in %s array in file id %d",
-              elem_blk_id, VAR_ID_EL_BLK, exoid);
-      ex_err("ex_put_elem_attr",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-  }
-
-/* inquire id's of previously defined dimensions  */
-
-  if ((numelbdim = ncdimid (exoid, DIM_NUM_EL_IN_BLK(elem_blk_id_ndx))) == -1)
-  {
-    if (ncerr == NC_EBADDIM)
-    {
-      exerrval = ncerr;
-      sprintf(errmsg,
-         "Error: no element block with id %d in file id %d",
-             elem_blk_id, exoid);
-      ex_err("ex_put_elem_attr",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-    else
-    {
-      exerrval = ncerr;
-      sprintf(errmsg,
-        "Error: failed to locate number of elements for block %d in file id %d",
-             elem_blk_id, exoid);
-      ex_err("ex_put_elem_attr",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-  }
-
-
-  if (ncdiminq (exoid, numelbdim, (char *) 0, &num_elem_this_blk) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-           "Error: failed to get number of elements for block %d in file id %d",
-            elem_blk_id,exoid);
-    ex_err("ex_put_elem_attr",errmsg,exerrval);
-    return (EX_FATAL);
-  }
-
-
-  if ((numattrdim = ncdimid(exoid, DIM_NUM_ATT_IN_BLK(elem_blk_id_ndx))) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-           "Error: number of attributes not defined for block %d in file id %d",
-            elem_blk_id,exoid);
-    ex_err("ex_put_elem_attr",errmsg,EX_MSG);
-    return (EX_FATAL);              /* number of attributes not defined */
-  }
-
-  if (ncdiminq (exoid, numattrdim, (char *) 0, &num_attr) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-         "Error: failed to get number of attributes for block %d in file id %d",
-            elem_blk_id,exoid);
-    ex_err("ex_put_elem_attr",errmsg,exerrval);
-    return (EX_FATAL);
-  }
-
-  if ((attrid = ncvarid (exoid, VAR_ATTRIB(elem_blk_id_ndx))) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-        "Error: failed to locate attribute variable for block %d in file id %d",
-            elem_blk_id,exoid);
-    ex_err("ex_put_elem_attr",errmsg,exerrval);
-    return (EX_FATAL);
-  }
-
-
-/* write out the attributes  */
-
-  start[0] = 0;
-  start[1] = 0;
-
-  count[0] = num_elem_this_blk;
-  count[1] = num_attr;
-
-  if (ncvarput (exoid, attrid, start, count,
-                ex_conv_array(exoid,WRITE_CONVERT,attrib,
-                (int)num_attr*num_elem_this_blk)) == -1)
-  {
-    exerrval = ncerr;
-    sprintf(errmsg,
-            "Error: failed to put attributes for block %d in file id %d",
-            elem_blk_id,exoid);
-    ex_err("ex_put_elem_attr",errmsg,exerrval);
-    return (EX_FATAL);
-  }
-
-
-  return(EX_NOERR);
-
+  return ex_put_attr( exoid, EX_ELEM_BLOCK, elem_blk_id, attrib );
 }

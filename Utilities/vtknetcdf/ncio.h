@@ -7,11 +7,11 @@
 #ifndef _NCIO_H_
 #define _NCIO_H_
 
-#include <stddef.h>  /* size_t */
+#include <stddef.h> /* size_t */
 #include <sys/types.h>  /* off_t */
 #include "netcdf.h"
 
-typedef struct ncio ncio;  /* forward reference */
+typedef struct ncio ncio; /* forward reference */
 
 /*
  * A value which is an invalid off_t
@@ -22,22 +22,22 @@ typedef struct ncio ncio;  /* forward reference */
  * Flags used by the region layer,
  *  'rflags' argument to ncio.rel() and ncio.get().
  */
-#define RGN_NOLOCK  0x1  /* Don't lock region.
+#define RGN_NOLOCK  0x1 /* Don't lock region.
          * Used when contention control handled
          * elsewhere.
          */
-#define RGN_NOWAIT  0x2  /* return immediate if can't lock, else wait */
+#define RGN_NOWAIT  0x2 /* return immediate if can't lock, else wait */
 
-#define RGN_WRITE  0x4  /* we intend to modify, else read only */
+#define RGN_WRITE 0x4 /* we intend to modify, else read only */
 
-#define RGN_MODIFIED  0x8  /* we did modify, else, discard */
+#define RGN_MODIFIED  0x8 /* we did modify, else, discard */
 
 
 /*
  * The next four typedefs define the signatures
  * of function pointers in struct ncio below.
  * They are not used outside of this file and ncio.h,
- * They just some casts in the ncio.c more readable.
+ * They just make some casts in the ncio.c more readable.
  */
   /*
    * Indicate that you are done with the region which begins
@@ -91,9 +91,6 @@ struct ncio {
    * or ncio_create().
    */
   int ioflags;
-#ifdef __PARAGON__
-  int is_file_pfs;
-#endif
 
   /*
    * The file descriptor of the netcdf file.
@@ -140,5 +137,11 @@ ncio_open(const char *path,
 
 extern int 
 ncio_close(ncio *nciop, int doUnlink);
+
+extern int
+ncio_filesize(ncio *nciop, off_t *filesizep);
+
+extern int
+ncio_pad_length(ncio *nciop, off_t length);
 
 #endif /* _NCIO_H_ */

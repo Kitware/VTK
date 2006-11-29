@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2006 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -40,6 +40,7 @@
 *          Larry A. Schoof - Original
 *          James A. Schutt - 8 byte float and standard C definitions
 *          Vic Yarberry    - Added headers and error logging
+*          David Thompson  - Support for edge/face elements and element sets
 *
 *          
 * environment - UNIX
@@ -48,7 +49,7 @@
 *   input parameters:
 *       int     exoid                   exodus file id
 *       char*   var_type                variable type: G,N, or E
-*       int     var_num                 variable number name to write
+*       int     var_num                 variable number name to write 1..num_var
 *       char*   var_name                ptr of variable name
 *
 * exit conditions - 
@@ -62,8 +63,9 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 #include <string.h>
+#include <ctype.h>
 
-/*
+/*!
  * writes the name of a particular results variable to the database
  */
 
@@ -75,6 +77,9 @@ int ex_put_var_name (int   exoid,
    int varid; 
    long  start[2], count[2];
    char errmsg[MAX_ERR_LENGTH];
+   int otype;
+   const char* vname;
+   const char* tname;
 
    exerrval = 0; /* clear error code */
 
@@ -91,59 +96,68 @@ int ex_put_var_name (int   exoid,
 
 /* inquire previously defined variables  */
 
-   if (*var_type == 'g' || *var_type == 'G')
-   {
-     if ((varid = ncvarid (exoid, VAR_NAME_GLO_VAR)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Warning: no global variables names stored in file id %d", exoid);
-       ex_err("ex_put_var_name",errmsg,exerrval);
-       return (EX_WARN);
-     }
-   }
-
-   else if (*var_type == 'n' || *var_type == 'N')
-   {
-     if ((varid = ncvarid (exoid, VAR_NAME_NOD_VAR)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Warning: no nodal variable names stored in file id %d",
-               exoid);
-       ex_err("ex_put_var_name",errmsg,exerrval);
-       return (EX_WARN);
-     }
-
-   }
-
-   else if (*var_type == 'e' || *var_type == 'E')
-   {
-
-     if ((varid = ncvarid (exoid, VAR_NAME_ELE_VAR)) == -1)
-     {
-       exerrval = ncerr;
-       sprintf(errmsg,
-              "Warning: no element variable names stored in file id %d",
-               exoid);
-       ex_err("ex_put_var_name",errmsg,exerrval);
-       return (EX_WARN);
-     }
-   }
-
-   else       /* invalid variable type */
-   {
+   otype = tolower( *var_type );
+   switch (otype) {
+   case 'g': /* global var */
+     vname = VAR_NAME_GLO_VAR;
+     tname = "global";
+     break;
+   case 'n': /* node var */
+     vname = VAR_NAME_NOD_VAR;
+     tname = "nodal";
+     break;
+   case 'e': /* elem var */
+     vname = VAR_NAME_ELE_VAR;
+     tname = "element";
+     break;
+   case 'l': /* edge var */
+     vname = VAR_NAME_EDG_VAR;
+     tname = "edge";
+     break;
+   case 'f': /* face var */
+     vname = VAR_NAME_FAC_VAR;
+     tname = "face";
+     break;
+   case 'm': /* node set var */
+     vname = VAR_NAME_NSET_VAR;
+     tname = "node set";
+     break;
+   case 'd': /* edge set var */
+     vname = VAR_NAME_ESET_VAR;
+     tname = "edge set";
+     break;
+   case 'a': /* face set var */
+     vname = VAR_NAME_FSET_VAR;
+     tname = "face set";
+     break;
+   case 's': /* side set var */
+     vname = VAR_NAME_SSET_VAR;
+     tname = "side set";
+     break;
+   case 't': /* elem set var */
+     vname = VAR_NAME_ELSET_VAR;
+     tname = "element set";
+     break;
+   default:
      exerrval = EX_BADPARAM;
-      sprintf(errmsg,
-             "Error: Invalid variable type %c specified in file id %d",
-              *var_type, exoid);
-      ex_err("ex_put_var_name",errmsg,exerrval);
+     sprintf(errmsg,
+       "Error: Invalid variable type %c specified in file id %d",
+       *var_type, exoid);
+     ex_err("ex_put_var_name",errmsg,exerrval);
+     return (EX_WARN);
+   }
+
+   if ((varid = ncvarid (exoid, vname)) == -1) {
+     exerrval = ncerr;
+     sprintf( errmsg,
+       "Warning: no %s variables names stored in file id %d", tname, exoid );
+     ex_err("ex_put_var_name",errmsg,exerrval);
      return (EX_WARN);
    }
 
 /* write EXODUS variable name */
 
-   start[0] = var_num;
+   start[0] = var_num-1;
    start[1] = 0;
 
    count[0] = 1;

@@ -6,12 +6,18 @@
 
 /*LINTLIBRARY*/
 
-#include "ncconfig.h"
+#include  "ncconfig.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include "netcdf.h"
 
+/* If netcdf-4 is in use, rename all nc_ functions to nc3_ functions. */
+#ifdef USE_NETCDF4
+#include <netcdf3.h>
+#include <nc3convert.h>
+#else
+#include "netcdf.h"
+#endif
 
 #ifndef NO_STRERROR
 #include <string.h> /* contains prototype for ansi libc function strerror() */
@@ -74,7 +80,7 @@ nc_strerror(int err)
   if(err == EVMSERR)
   {
     return vms_strerror(err);
-  }  
+  }
   /* else */
 #endif /* vms */
 
@@ -140,7 +146,7 @@ nc_strerror(int err)
   case NC_ECHAR:
       return "Attempt to convert between text & numbers";
   case NC_EEDGE:
-      return "Edge+start exceeds dimension bound";
+      return "Start+count exceeds dimension bound";
   case NC_ESTRIDE:
       return "Illegal stride";
   case NC_EBADNAME:
@@ -149,6 +155,12 @@ nc_strerror(int err)
       return "Numeric conversion not representable";
   case NC_ENOMEM:
       return "Memory allocation (malloc) failure";
+  case NC_EVARSIZE:
+      return "One or more variable sizes violate format constraints";
+  case NC_EDIMSIZE:
+      return "Invalid dimension size";
+  case NC_ETRUNC:
+      return "File likely truncated or possibly corrupted";
   }
   /* default */
   return unknown;

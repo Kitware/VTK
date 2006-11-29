@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -36,14 +36,6 @@
 *
 * expnv - ex_put_nodal_var
 *
-* author - Sandia National Laboratories
-*          Larry A. Schoof - Original
-*          James A. Schutt - 8 byte float and standard C definitions
-*          Vic Yarberry    - Added headers and error logging
-*
-*          
-* environment - UNIX
-*
 * entry conditions - 
 *   input parameters:
 *       int     exoid                   exodus file id
@@ -63,7 +55,7 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
-/*
+/*!
  * writes the values of a single nodal variable for a single time step to 
  * the database; assume the first time step and nodal variable index
  * is 1

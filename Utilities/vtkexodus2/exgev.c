@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2006 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -79,68 +79,5 @@ int ex_get_elem_var (int   exoid,
                      int   num_elem_this_blk,
                      void *elem_var_vals)
 {
-   int varid, elem_blk_id_ndx;
-   long start[2], count[2];
-   char errmsg[MAX_ERR_LENGTH];
-
-   exerrval = 0; /* clear error code */
-
-  /* Determine index of elem_blk_id in VAR_ID_EL_BLK array */
-  elem_blk_id_ndx = ex_id_lkup(exoid,VAR_ID_EL_BLK,elem_blk_id);
-  if (exerrval != 0) 
-  {
-    if (exerrval == EX_NULLENTITY)
-    {
-      sprintf(errmsg,
-              "Warning: no element variables for NULL block %d in file id %d",
-              elem_blk_id,exoid);
-      ex_err("ex_get_elem_var",errmsg,EX_MSG);
-      return (EX_WARN);
-    }
-    else
-    {
-      sprintf(errmsg,
-     "Error: failed to locate element block id %d in %s variable in file id %d",
-              elem_blk_id, VAR_ID_EL_BLK, exoid);
-      ex_err("ex_get_elem_var",errmsg,exerrval);
-      return (EX_FATAL);
-    }
-  }
-
-
-/* inquire previously defined variable */
-
-   if((varid=ncvarid(exoid,VAR_ELEM_VAR(elem_var_index,elem_blk_id_ndx))) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-          "Error: failed to locate elem var %d for elem block %d in file id %d",
-          elem_var_index,elem_blk_id,exoid); /* this msg needs to be improved */
-     ex_err("ex_get_elem_var",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-/* read values of element variable */
-
-   start[0] = --time_step;
-   start[1] = 0;
-
-   count[0] = 1;
-   count[1] = num_elem_this_blk;
-
-   if (ncvarget (exoid, varid, start, count,
-        ex_conv_array(exoid,RTN_ADDRESS,elem_var_vals,num_elem_this_blk)) == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-        "Error: failed to get elem var %d for block %d in file id %d",
-             elem_var_index,elem_blk_id,exoid);/*this msg needs to be improved*/
-     ex_err("ex_get_elem_var",errmsg,exerrval);
-     return (EX_FATAL);
-   }
-
-
-   ex_conv_array( exoid, READ_CONVERT, elem_var_vals, num_elem_this_blk );
-
-   return (EX_NOERR);
+  return ex_get_var( exoid, time_step, EX_ELEM_BLOCK, elem_var_index, elem_blk_id, num_elem_this_blk, elem_var_vals );
 }

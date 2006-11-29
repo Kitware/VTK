@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -300,8 +300,8 @@ int ex_get_side_set_node_count(int exoid,
     elem_blk_parms[i].num_nodes_per_elem = num_nodes_per_elem;
     elem_blk_parms[i].num_attr = num_attr;
 
-    for (m=0; (size_t)m < strlen(elem_type); m++) {
-      elem_blk_parms[i].elem_type[m] = (char)toupper((int)elem_type[m]);
+    for (m=0; m < strlen(elem_type); m++) {
+      elem_blk_parms[i].elem_type[m] = toupper((int)elem_type[m]);
     }
     elem_blk_parms[i].elem_type[m] = '\0';
 

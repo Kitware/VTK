@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994 Sandia Corporation. Under the terms of Contract
+ * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Governement
  * retains certain rights in this software.
  * 
@@ -77,7 +77,7 @@ int ex_get_prop_array (int   exoid,
    long start[1], count[1], num_obj; 
    nclong *longs;
    char name[MAX_VAR_NAME_LENGTH+1];
-   char tmpstr[MAX_VAR_NAME_LENGTH+1];
+   char tmpstr[MAX_STR_LENGTH+1];
    char obj_stype[MAX_VAR_NAME_LENGTH+1];
    char dim_name[MAX_VAR_NAME_LENGTH+1];
 
@@ -158,7 +158,7 @@ int ex_get_prop_array (int   exoid,
 
 /*   compare stored attribute name with passed property name   */
 
-     tmpstr[0] = '\0';
+     memset(tmpstr, 0, MAX_STR_LENGTH+1);
      if ((ncattget (exoid, propid, ATT_PROP_NAME, tmpstr)) == -1)
      {
        exerrval = ncerr;
