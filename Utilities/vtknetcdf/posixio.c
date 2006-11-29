@@ -5,19 +5,20 @@
 /* Id */
 
 #include  "ncconfig.h"
+#ifndef NO_SYS_TYPES_H
+#  include <sys/types.h>
+#endif /* NO_SYS_TYPES_H */
+
 #if defined(__BORLANDC__)
 #pragma warn -8004 /* "assigned a value that is never used" */
 #endif
 
-
-#include "ncconfig.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <errno.h>
 #ifndef ENOERR
 #define ENOERR 0
 #endif
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
