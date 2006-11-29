@@ -349,6 +349,8 @@ ncx_szof(nc_type type)
     return X_SIZEOF_FLOAT;
   case NC_DOUBLE : 
     return X_SIZEOF_DOUBLE;
+  case NC_NAT:
+    ;
   }
   /* default */
   assert("ncx_szof invalid type" == 0);
@@ -445,16 +447,16 @@ out :
  */
 int
 NC_check_vlen(NC_var *varp, size_t vlen_max) {
-    size_t prod=varp->xsz;  /* product of xsz and dimensions so far */
+  size_t prod=varp->xsz;  /* product of xsz and dimensions so far */
 
-    int ii;
+  size_t ii;
 
-    for(ii = IS_RECVAR(varp) ? 1 : 0; ii < varp->ndims; ii++) {
-  if (varp->shape[ii] > vlen_max / prod) {
+  for(ii = IS_RECVAR(varp) ? 1 : 0; ii < varp->ndims; ii++) {
+    if (varp->shape[ii] > vlen_max / prod) {
       return 0;   /* size in bytes won't fit in a 32-bit int */
-  }
-  prod *= varp->shape[ii];
     }
+    prod *= varp->shape[ii];
+  }
     return 1;     /* OK */
 }
 

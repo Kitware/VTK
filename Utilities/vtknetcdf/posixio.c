@@ -146,7 +146,7 @@ environment_specified_size()
         size = 1 << size;
       }
       fprintf(stderr, "NETCDF: Block size set to %d via NC_BLOCKSIZE environment variable.\n",
-              size);
+              (int)size);
     }
   }
   return size;
@@ -208,6 +208,7 @@ blksize(int fd)
   /* else, silent in the face of error */
  }
 #endif
+  (void) fd;
   return (size_t) 2 * pagesize();
 }
 #define BLKSIZE_DEFINED

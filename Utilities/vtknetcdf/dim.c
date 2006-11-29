@@ -99,7 +99,7 @@ find_NC_Udim(const NC_dimarray *ncap, NC_dim **dimpp)
   {
     /*EMPTY*/
   }
-  if(dimid >= ncap->nelems)
+  if(dimid >= (int)ncap->nelems)
     return(-1); /* not found */
   /* else, normal return */
   if(dimpp != NULL)

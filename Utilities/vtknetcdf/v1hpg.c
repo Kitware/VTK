@@ -1139,6 +1139,7 @@ NC_computeshapes(NC *ncp)
 }
 
 
+#if 0
 /*
  * Return actual unpadded length (in bytes) of a variable, which
  * doesn't include any extra padding used for alignment.  For a record
@@ -1148,18 +1149,21 @@ NC_computeshapes(NC *ncp)
 static off_t
 NC_var_unpadded_len(const NC_var *varp, const NC_dimarray *dims)
 {
-    size_t *shp;
-    off_t product = 1;
-    
-    if(varp->ndims != 0) {
-  for(shp = varp->shape + varp->ndims -1; shp >= varp->shape; shp--) {
+  size_t *shp;
+  off_t product = 1;
+
+  (void)dims;
+
+  if(varp->ndims != 0) {
+    for(shp = varp->shape + varp->ndims -1; shp >= varp->shape; shp--) {
       if(!(shp == varp->shape && IS_RECVAR(varp)))
-    product *= *shp;
-  }
+        product *= *shp;
     }
-    product = product * varp->xsz;
-    return product;
+  }
+  product = product * varp->xsz;
+  return product;
 }
+#endif /* 0 */
 
 size_t
 ncx_len_NC(const NC *ncp, size_t sizeof_off_t)
@@ -1286,32 +1290,32 @@ nc_get_NC(NC *ncp)
   gs.base = NULL;
   gs.pos = gs.base;
 
-  {
+    {
     /*
      * Come up with a reasonable stream read size.
      */
-          off_t filesize;
+    off_t filesize;
     size_t extent = MIN_NC_XSZ;
-    
+
     extent = ncp->xsz;
     if(extent <= MIN_NC_XSZ)
-    {
-            status = ncio_filesize(ncp->nciop, &filesize);
+      {
+      status = ncio_filesize(ncp->nciop, &filesize);
       if(status)
-          return status;
+        return status;
       /* first time read */
       extent = ncp->chunk;
       /* Protection for when ncp->chunk is huge;
        * no need to read hugely. */
-            if(extent > 4096)
+      if(extent > 4096)
         extent = 4096;
-      if(extent > filesize)
-              extent = _RNDUP(filesize, X_ALIGN);
-    }
+      if( ((off_t)extent) > filesize )
+        extent = _RNDUP(filesize, X_ALIGN);
+      }
     else if(extent > ncp->chunk)
-    {
+      {
       extent = ncp->chunk;
-    }
+      }
 
     /*
      * Invalidate the I/O buffers to force a read of the header
@@ -1324,11 +1328,11 @@ nc_get_NC(NC *ncp)
     status = fault_v1hs(&gs, extent);
     if(status)
       return status;
-  }
+    }
 
   /* get the header from the stream gs */
 
-  {
+    {
     /* Get & check magic number */
     schar magic[sizeof(ncmagic)];
     (void) memset(magic, 0, sizeof(magic));
@@ -1337,12 +1341,12 @@ nc_get_NC(NC *ncp)
       (const void **)(&gs.pos), sizeof(magic), magic);
     if(status != ENOERR)
       goto unwind_get;
-  
+
     if(memcmp(magic, ncmagic, sizeof(ncmagic)-1) != 0)
-    {
+      {
       status = NC_ENOTNC;
       goto unwind_get;
-    }
+      }
     /* Check version number in last byte of magic */
     if (magic[sizeof(ncmagic)-1] == 0x1) {
       gs.version = 1;
@@ -1359,15 +1363,15 @@ nc_get_NC(NC *ncp)
       status = NC_ENOTNC;
       goto unwind_get;
     }
-  }
-  
-  {
-  size_t nrecs = 0;
-  status = ncx_get_size_t((const void **)(&gs.pos), &nrecs);
-  if(status != ENOERR)
-    goto unwind_get;
-  NC_set_numrecs(ncp, nrecs);
-  }
+    }
+
+    {
+    size_t nrecs = 0;
+    status = ncx_get_size_t((const void **)(&gs.pos), &nrecs);
+    if(status != ENOERR)
+      goto unwind_get;
+    NC_set_numrecs(ncp, nrecs);
+    }
 
   assert((char *)gs.pos < (char *)gs.end);
 
@@ -1382,7 +1386,7 @@ nc_get_NC(NC *ncp)
   status = v1h_get_NC_vararray(&gs, &ncp->vars);
   if(status != ENOERR)
     goto unwind_get;
-    
+
   ncp->xsz = ncx_len_NC(ncp, (gs.version == 1) ? 4 : 8);
 
   status = NC_computeshapes(ncp);

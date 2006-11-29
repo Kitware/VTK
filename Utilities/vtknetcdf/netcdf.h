@@ -225,9 +225,11 @@ typedef enum {
 #  else
 #   define MSC_EXTRA __declspec(dllimport)
 #  endif
-#include <io.h>
-#define lseek _lseeki64
-#define off_t __int64
+#  include <io.h>
+#  ifndef __BORLANDC__
+#    define lseek _lseeki64
+#    define off_t __int64
+#  endif /* __BORLANDC__ */
 #else
 #define MSC_EXTRA
 #endif  /* defined(DLL_NETCDF) */

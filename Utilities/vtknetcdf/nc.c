@@ -174,6 +174,8 @@ nc_cktype(nc_type type)
   case NC_FLOAT:
   case NC_DOUBLE:
     return(NC_NOERR);
+  case NC_NAT:
+    ;
   }
   return(NC_EBADTYPE);
 }
@@ -198,6 +200,8 @@ ncx_howmany(nc_type type, size_t xbufsize)
     return xbufsize/X_SIZEOF_FLOAT;
   case NC_DOUBLE:
     return xbufsize/X_SIZEOF_DOUBLE;
+  case NC_NAT:
+    break;
   }
   assert("ncx_howmany: Bad type" == 0);
   return(0);
@@ -273,7 +277,7 @@ fprintf(stderr, "    VAR %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index);
   /* only (re)calculate begin_rec if there is not sufficient
      space at end of non-record variables or if start of record
      variables is not aligned as requested by r_align */
-  if (ncp->begin_rec < index + v_minfree ||
+  if (ncp->begin_rec < (off_t)(index + v_minfree) ||
       ncp->begin_rec != D_RNDUP(ncp->begin_rec, r_align) )
   {
     ncp->begin_rec = D_RNDUP(index, r_align);
@@ -1566,6 +1570,9 @@ nc_set_base_pe(int ncid, int pe)
   /* complete transition */
   ncp->lock[LOCKNUMREC_BASEPE] = (ushmem_t) pe;
 
+#else /* _CRAYMPP && LOCKNUMREC */
+  (void) ncid;
+  (void) pe;
 #endif /* _CRAYMPP && LOCKNUMREC */
   return NC_NOERR;
 }
@@ -1587,6 +1594,7 @@ nc_inq_base_pe(int ncid, int *pe)
   /*
    * !_CRAYMPP, only pe 0 is valid
    */
+  (void) ncid;
   *pe = 0;
 #endif /* _CRAYMPP && LOCKNUMREC */
   return NC_NOERR;
