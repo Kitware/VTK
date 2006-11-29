@@ -147,8 +147,8 @@ int ex_get_var_names (int   exoid,
    * See if reading into contiguous memory in which case we can load 
    * all values in one call.  If not, we must load each name individually.
    */
-  if ((int)(&var_names[num_vars-1][0] - &var_names[0][0]) ==
-      sizeof(char)*(MAX_STR_LENGTH+1)*(num_vars-1)) {
+  if ((size_t)(&var_names[num_vars-1][0] - &var_names[0][0]) ==
+      (size_t)(sizeof(char)*(MAX_STR_LENGTH+1)*(num_vars-1))) {
     status = nc_get_var_text(exoid, varid, &var_names[0][0]);
     if (status == -1) {
       exerrval = ncerr;

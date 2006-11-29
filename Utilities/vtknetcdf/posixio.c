@@ -64,6 +64,44 @@
 #define WRITE write
 #endif
 
+/* Borland bcc32 doesn't have these definitions of permission bits */
+#ifndef S_IRUSR
+#define S_IRUSR 0000400
+#endif
+#ifndef S_IRGRP
+#define S_IRGRP 0000040
+#endif
+#ifndef S_IROTH
+#define S_IROTH 0000004
+#endif
+#ifndef S_IWUSR
+#define S_IWUSR 0000200
+#endif
+#ifndef S_IWGRP
+#define S_IWGRP 0000020
+#endif
+#ifndef S_IWOTH
+#define S_IWOTH 0000002
+#endif
+#ifndef S_IXUSR
+#define S_IXUSR 0000100
+#endif
+#ifndef S_IXGRP
+#define S_IXGRP 0000010
+#endif
+#ifndef S_IXOTH
+#define S_IXOTH 0000001
+#endif
+#ifndef S_IRWXU
+#define S_IRWXU 0000700
+#endif
+#ifndef S_IRWXG
+#define S_IRWXG 0000070
+#endif
+#ifndef S_IRWXO
+#define S_IRWXO 0000007
+#endif
+
 #undef MIN  /* system may define MIN somewhere and complain */
 #define MIN(mm,nn) (((mm) < (nn)) ? (mm) : (nn))
 
