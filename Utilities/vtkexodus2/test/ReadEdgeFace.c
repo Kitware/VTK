@@ -122,6 +122,9 @@ int cReadEdgeFace( int argc, char* argv[] )
   double* entry_vals; /* variable values for each entry of an object */
   ex_init_params modelParams;
 
+  (void)argc;
+  (void)argv;
+
   exoid = ex_open( EX_TEST_FILENAME, EX_READ, &appWordSize, &diskWordSize, &exoVersion );
   if ( exoid <= 0 )
     {
