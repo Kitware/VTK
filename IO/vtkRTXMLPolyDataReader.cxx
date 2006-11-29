@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkRTXMLPolyDataReader, "1.3");
+vtkCxxRevisionMacro(vtkRTXMLPolyDataReader, "1.4");
 vtkStandardNewMacro(vtkRTXMLPolyDataReader);
 
 class vtkRTXMLPolyDataReaderInternals
@@ -220,6 +220,8 @@ void vtkRTXMLPolyDataReader::ResetReader()
 void vtkRTXMLPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "DataLocation: "
+     << (this->DataLocation? this->DataLocation:"(none)") << "\n";
 }
 
 
