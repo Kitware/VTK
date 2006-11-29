@@ -340,7 +340,7 @@ nc_get_rec(
 /*
  * Error code
  */
-#if !DLL_NETCDF /* define when library is not a DLL */
+#ifndef DLL_NETCDF /* define when library is not a DLL */
 int ncerr = NC_NOERR ;
 
 
