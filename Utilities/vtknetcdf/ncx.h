@@ -27,7 +27,9 @@
 #include "rnd.h"
 #include <stddef.h> /* size_t */
 #include <errno.h>
-#include <sys/types.h> /* off_t */
+#ifndef NO_SYS_TYPES_H
+#  include <sys/types.h>  /* off_t */
+#endif /* NO_SYS_TYPES_H */
 
 #ifdef _MSC_VER
 #  pragma warning ( disable : 4244 )
