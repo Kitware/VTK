@@ -354,7 +354,7 @@ int ex_cvt_nodes_to_sides(int exoid,
     elem_blk_parms[i].num_attr = num_attr;
 
     for (m=0; m < (int)strlen(elem_type); m++)
-      elem_blk_parms[i].elem_type[m] = 
+      elem_blk_parms[i].elem_type[m] = (char)
               toupper((int)elem_type[m]);
     elem_blk_parms[i].elem_type[m] = '\0';
 

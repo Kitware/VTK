@@ -177,7 +177,7 @@ int ex_create (const char *path,
  */
 
 /* store Exodus API version # as an attribute */
-  vers = EX_API_VERS;
+  vers = (float)EX_API_VERS;
   if (ncattput (exoid, NC_GLOBAL, ATT_API_VERSION, NC_FLOAT, 1, &vers) == -1)
   {
     exerrval = ncerr;
@@ -189,7 +189,7 @@ int ex_create (const char *path,
   }
 
 /* store Exodus file version # as an attribute */
-  vers = EX_VERS;
+  vers = (float)EX_VERS;
   if (ncattput (exoid, NC_GLOBAL, ATT_VERSION, NC_FLOAT, 1, &vers) == -1)
   {
     exerrval = ncerr;
