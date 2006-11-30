@@ -2,7 +2,7 @@
 # Two data sets are loaded (both vtkImageData) - one is converted
 # to a set of tetrahedra (through the use of a vtkThreshold filter
 # and a vtkDataSetTriangleFilter) and the other is contoured.
-# The geometry and the volume rendering are them displayed together.
+# The geometry and the volume rendering are then displayed together.
 
 package require vtk
 package require vtkinteraction
