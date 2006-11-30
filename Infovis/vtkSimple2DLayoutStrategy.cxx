@@ -23,21 +23,31 @@
 
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
-#include <vtkMath.h>
+#include <vtkCommand.h>
+#include <vtkDataArray.h>
+#include <vtkFloatArray.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
+#include <vtkMath.h>
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
-#include <vtkFloatArray.h>
-#include <vtkDataArray.h>
 
 #include "vtkAbstractGraph.h"
 #include "vtkGraph.h"
 #include "vtkTree.h"
 
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.3");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.4");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
+
+
+// Cool-down function.
+static inline float CoolDown(float t, float r) 
+{  
+  return t-(t/r);
+}
+
+// ----------------------------------------------------------------------
 
 vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
 {
@@ -49,21 +59,18 @@ vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
   this->ArcWeightField = 0;
 }
 
+// ----------------------------------------------------------------------
+
 vtkSimple2DLayoutStrategy::~vtkSimple2DLayoutStrategy()
 {
   this->SetArcWeightField(0);
 }
 
-// Cool-down function.
-static inline float CoolDown(float t, float r) 
-{  
-  return t-(t/r);
-}
+// ----------------------------------------------------------------------
 
 // Set the graph that will be laid out
 void vtkSimple2DLayoutStrategy::Initialize()
 {
-  
   // Set up some quick access variables
   vtkPoints* pts = this->Graph->GetPoints();
   vtkIdType numNodes = this->Graph->GetNumberOfNodes();
@@ -133,6 +140,8 @@ void vtkSimple2DLayoutStrategy::Initialize()
   this->LayoutComplete = 0;
   this->Temp = this->InitialTemperature;
 }
+
+// ----------------------------------------------------------------------
 
 // Simple graph layout method
 void vtkSimple2DLayoutStrategy::Layout()
@@ -236,7 +245,12 @@ void vtkSimple2DLayoutStrategy::Layout()
       
     // Reduce temperature as layout approaches a better configuration.
     this->Temp = CoolDown(this->Temp, this->CoolDownRate);
-     
+
+    // Announce progress
+    double progress = static_cast<double>(this->TotalIterations) / static_cast<double>(this->MaxNumberOfIterations);
+<
+    this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void *>(&progress));
+
    } // End loop this->IterationsPerLayout
 
    // Now take the temporary point coordinate datastructure 
