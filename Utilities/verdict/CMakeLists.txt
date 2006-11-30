@@ -56,26 +56,31 @@ endif ( VERDICT_ENABLE_TESTING )
 #
 # Installation stuff
 #
-install_files( /share/docs/verdict/1.0.1 FILES
+INSTALL(FILES 
   README
   LICENSE
-       Verdict.htm
-       Verdict.doc
+  Verdict.htm
+  Verdict.doc
   docs/hex.tex
   docs/hex.eps
   docs/tri.tex
   docs/tri.eps
   docs/quad.tex
   docs/quad.eps
-       verdict_test.cpp
+  verdict_test.cpp
+  DESTINATION ${VTK_INSTALL_DOC_DIR_CM24}/verdict/1.0.1
+  COMPONENT Development
 )
 
-install_files( /include FILES
-       verdict.h
+INSTALL(FILES ${verdict_BINARY_DIR}/verdict.h
+  DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+  COMPONENT Development
 )
 
-install_targets( /lib
-  "${verdict_libname}"
+INSTALL(TARGETS "${verdict_libname}"
+      RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries # .exe, .dll
+      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries # .so, mod.dll
+      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development      # .a, .lib
 )
 
 #
