@@ -200,12 +200,12 @@ public:
   unsigned long int GetMTime();
 
   // Description:
-  // return pointer to this dataset's point data
+  // Return a pointer to this dataset's cell data.
   // THIS METHOD IS THREAD SAFE
   vtkCellData *GetCellData() {return this->CellData;};
 
   // Description:
-  // return pointer to this dataset's point data
+  // Return a pointer to this dataset's point data.
   // THIS METHOD IS THREAD SAFE
   vtkPointData *GetPointData() {return this->PointData;};
 
