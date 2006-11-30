@@ -37,7 +37,7 @@
 #include "vtkTree.h"
 
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.4");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.5");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 
@@ -248,7 +248,7 @@ void vtkSimple2DLayoutStrategy::Layout()
 
     // Announce progress
     double progress = static_cast<double>(this->TotalIterations) / static_cast<double>(this->MaxNumberOfIterations);
-<
+
     this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void *>(&progress));
 
    } // End loop this->IterationsPerLayout
