@@ -231,6 +231,7 @@ static size_t blksize(int fd)
 static size_t
 blksize(int fd)
 {
+  size_t environment_specified_size();
   size_t size = environment_specified_size();
   if (size > 0)
     return size;
