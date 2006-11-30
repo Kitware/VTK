@@ -33,6 +33,7 @@
 #include "vtkAbstractGraphAlgorithm.h"
 
 class vtkGraphLayoutStrategy;
+class vtkEventForwarderCommand;
 
 class VTK_INFOVIS_EXPORT vtkGraphLayout : public vtkAbstractGraphAlgorithm 
 {
@@ -59,6 +60,12 @@ protected:
   ~vtkGraphLayout();
 
   vtkGraphLayoutStrategy* LayoutStrategy;
+
+  // Description:
+  // This intercepts events from the strategy object and re-emits them
+  // as if they came from the layout engine itself.
+  vtkEventForwarderCommand *EventForwarder;
+  unsigned long ObserverTag;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   

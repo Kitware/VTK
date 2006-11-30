@@ -21,18 +21,21 @@
 
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
+#include <vtkDataArray.h>
+#include <vtkEventForwarderCommand.h>
+#include <vtkFloatArray.h>
 #include <vtkMath.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
-#include <vtkFloatArray.h>
-#include <vtkDataArray.h>
 
 #include "vtkGraphLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkGraphLayout, "1.2");
+vtkCxxRevisionMacro(vtkGraphLayout, "1.3");
 vtkStandardNewMacro(vtkGraphLayout);
+
+// ----------------------------------------------------------------------
 
 vtkGraphLayout::vtkGraphLayout()
 {
@@ -40,7 +43,13 @@ vtkGraphLayout::vtkGraphLayout()
   this->LastInput = NULL;
   this->LastInputMTime = 0;
   this->InternalGraph = NULL;
+
+  this->ObserverTag = 0;
+  this->EventForwarder = vtkEventForwarderCommand::New();
+  this->EventForwarder->SetTarget(this);
 }
+
+// ----------------------------------------------------------------------
 
 vtkGraphLayout::~vtkGraphLayout()
 {
@@ -52,9 +61,13 @@ vtkGraphLayout::~vtkGraphLayout()
     {
     this->InternalGraph->Delete();
     }
+  this->EventForwarder->Delete();
 }
 
-void vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
+// ----------------------------------------------------------------------
+
+void 
+vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
 {
   // This method is a cut and paste of vtkCxxSetObjectMacro
   // except for the call to SetGraph in the middle :)
@@ -65,6 +78,9 @@ void vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
     if (this->LayoutStrategy != NULL)
       {
       this->LayoutStrategy->Register(this);
+      this->ObserverTag =
+        this->LayoutStrategy->AddObserver(vtkCommand::ProgressEvent, 
+                                          this->EventForwarder);
       if (this->InternalGraph)
         {
         // Set the graph in the layout strategy
@@ -74,13 +90,17 @@ void vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
     if (tmp != NULL)
       {
       tmp->UnRegister(this);
+      tmp->RemoveObserver(this->ObserverTag);
       }
     this->Modified();
     }
   
 }
 
-unsigned long vtkGraphLayout::GetMTime()
+// ----------------------------------------------------------------------
+
+unsigned long 
+vtkGraphLayout::GetMTime()
 {
   unsigned long mTime = this->Superclass::GetMTime();
   unsigned long time;
@@ -93,7 +113,10 @@ unsigned long vtkGraphLayout::GetMTime()
   return mTime;
 }
 
-int vtkGraphLayout::IsLayoutComplete()
+// ----------------------------------------------------------------------
+
+int 
+vtkGraphLayout::IsLayoutComplete()
 {
   if (this->LayoutStrategy)
     {
@@ -105,11 +128,12 @@ int vtkGraphLayout::IsLayoutComplete()
   return 0;
 }
 
+// ----------------------------------------------------------------------
 
-int vtkGraphLayout::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int 
+vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
+                            vtkInformationVector **inputVector,
+                            vtkInformationVector *outputVector)
 {
   if (this->LayoutStrategy == NULL)
     {
@@ -121,7 +145,7 @@ int vtkGraphLayout::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkAbstractGraph *input = vtkAbstractGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkAbstractGraph *output = vtkAbstractGraph::SafeDownCast(
@@ -165,6 +189,8 @@ int vtkGraphLayout::RequestData(
 
   return 1;
 }
+
+// ----------------------------------------------------------------------
 
 
 void vtkGraphLayout::PrintSelf(ostream& os, vtkIndent indent)
