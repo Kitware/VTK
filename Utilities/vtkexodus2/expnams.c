@@ -224,23 +224,23 @@ int ex_put_names (int   exoid,
    }
    
 
-   /* write EXODUS entitynames */
+   /* write EXODUS entity names */
 
-   for (i=0; i<num_entity; i++)
-   {
-     if (names[i] != '\0') {
+   for ( i = 0; (long)i < num_entity; i++)
+     {
+     if ( names[i] != (char)'\0' ) {
        start[0] = i;
        start[1] = 0;
-       
+
        count[0] = 1;
        count[1] = strlen(names[i]) + 1;
-       
+
        if (ncvarput (exoid, varid, start, count, (void*) names[i]) == -1) {
-   exerrval = ncerr;
-   sprintf(errmsg,
-     "Error: failed to store entity names in file id %d", exoid);
-   ex_err(routine,errmsg,exerrval);
-   return (EX_FATAL);
+         exerrval = ncerr;
+         sprintf(errmsg,
+           "Error: failed to store entity names in file id %d", exoid);
+         ex_err(routine,errmsg,exerrval);
+         return (EX_FATAL);
        }
      }
    }

@@ -1713,7 +1713,10 @@ ncx_put_size_t(void **xpp, const size_t *ulp)
 {
   /* similar to put_ix_int() */
   uchar *cp = (uchar *) *xpp;
+#ifndef __BORLANDC__
+  /* For borland, the following *is* always true and will generate a warning. */
   assert(*ulp <= X_SIZE_MAX);
+#endif /* __BORLANDC__ */
 
   *cp++ = (uchar)((*ulp) >> 24);
   *cp++ = (uchar)(((*ulp) & 0x00ff0000) >> 16);

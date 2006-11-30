@@ -386,7 +386,8 @@ int ex_put_all_var_param_ext ( int   exoid,
   return(EX_FATAL);
 }
 
-int define_dimension(int exoid, const char *DIMENSION, int count, const char *label)
+static int define_dimension( int exoid, const char *DIMENSION,
+                             int count, const char *label )
 {
   char errmsg[MAX_ERR_LENGTH];
   int dimid = 0;
@@ -408,7 +409,8 @@ int define_dimension(int exoid, const char *DIMENSION, int count, const char *la
   return dimid;
 }
 
-int define_variable_name_variable(int exoid, const char *VARIABLE, long dimension, const char *label)
+static int define_variable_name_variable( int exoid, const char *VARIABLE,
+                                          long dimension, const char *label )
 {
   char errmsg[MAX_ERR_LENGTH];
   int dims[2];
@@ -436,7 +438,8 @@ int define_variable_name_variable(int exoid, const char *VARIABLE, long dimensio
   return variable;
 }
 
-nclong *get_status_array(int exoid, long var_count, const char *VARIABLE, const char *label)
+static nclong *get_status_array( int exoid, long var_count,
+                                 const char *VARIABLE, const char *label )
 {
   char errmsg[MAX_ERR_LENGTH];
   int varid;
@@ -480,13 +483,14 @@ nclong *get_status_array(int exoid, long var_count, const char *VARIABLE, const 
  return stat_vals;
 }
 
-void *safe_free(void *array)
+static void *safe_free(void *array)
 {
   if (array != 0) free(array);
   return 0;
 }
 
-int put_truth_table(int exoid, int num_blk, int num_var, int varid, int *table, const char *label)
+static int put_truth_table( int exoid, int num_blk, int num_var, int varid,
+                            int *table, const char *label)
 {
   long start[2], count[2]; 
   int  iresult = 0;
@@ -520,8 +524,9 @@ int put_truth_table(int exoid, int num_blk, int num_var, int varid, int *table, 
   return iresult;
 }
 
-int define_truth_table(int obj_type, int exoid, int num_ent, int num_var,
-                       int *var_tab, int *status, int *ids, const char *label)
+static int define_truth_table(int obj_type, int exoid, int num_ent, int num_var,
+                              int *var_tab, int *status, int *ids,
+                              const char *label)
 {
   char errmsg[MAX_ERR_LENGTH];
   int k = 0;
