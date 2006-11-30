@@ -6591,7 +6591,7 @@ nc_get_vara_double(int ncid, int varid,
 
 
 
-#if defined(__cplusplus)
+#if defined(__cplusplus) || defined(_MSC_VER)
 /* C++ consts default to internal linkage and must be initialized */
 const size_t coord_zero[NC_MAX_VAR_DIMS] = {0};
 #else
