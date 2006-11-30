@@ -70,7 +70,7 @@ int MeshQuality( int argc, char* argv[] )
          << endl;
     DumpQualityStats( iq, "Mesh Triangle Quality" );
 
-    iq->SetTriangleQualityMeasureToFrobeniusNorm();
+    iq->SetTriangleQualityMeasureToAspectFrobenius();
     iq->Update();
     cout << " Frobenius Norm:"
          << endl;
@@ -105,13 +105,13 @@ int MeshQuality( int argc, char* argv[] )
          << endl;
     DumpQualityStats( iq, "Mesh Quadrilateral Quality" );
     
-    iq->SetQuadQualityMeasureToMedFrobeniusNorm();
+    iq->SetQuadQualityMeasureToMedAspectFrobenius();
     iq->Update();
     cout << " Average Frobenius Norm:"
          << endl;
     DumpQualityStats( iq, "Mesh Quadrilateral Quality" );
     
-    iq->SetQuadQualityMeasureToMaxFrobeniusNorm();
+    iq->SetQuadQualityMeasureToMaxAspectFrobenius();
     iq->Update();
     cout << " Maximal Frobenius Norm:"
          << endl;
@@ -146,7 +146,7 @@ int MeshQuality( int argc, char* argv[] )
          << endl;
     DumpQualityStats( iq, "Mesh Tetrahedron Quality" );
     
-    iq->SetTetQualityMeasureToFrobeniusNorm();
+    iq->SetTetQualityMeasureToAspectFrobenius();
     iq->Update();
     cout << " Frobenius Norm:"
          << endl;

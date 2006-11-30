@@ -1,0 +1,22 @@
+    VERDICT - computes quality metrics for finite elements
+
+To build on Unix/Linux
+
+  Set MACHINE_TYPE environment variable to the type of machine
+  you are compiling on.  
+    Linux = lin
+    SGI   = sg
+    Sun   = ss
+    HP-UX = hp or hp11
+    DEC   = da
+    AIX   = is
+    Mac   = mac
+
+  Then just type "make" or "gmake"
+
+To build on Windows, a Visual C++ project file is included.
+
+For information on what functions are available to applications,
+see Verdict.doc or Verdict.htm.  verdict.h is the only header file
+you need to include.
+
