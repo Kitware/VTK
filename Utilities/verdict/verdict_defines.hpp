@@ -65,7 +65,7 @@ inline double determinant( VerdictVector v1,
 	xm22= (m22*mw11-m21*mw12)/detmw;
 
 
-double verdictSqrt2;
+extern double verdictSqrt2;
 
 inline double normalize_jacobian( double jacobi,
     VerdictVector& v1,
