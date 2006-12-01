@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.31");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.32");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -670,12 +670,13 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
 // Construct a new vtkFixedPointVolumeRayCastMapper with default values
 vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
 {
-  this->SampleDistance             =  1.0;
-  this->InteractiveSampleDistance  =  2.0;
-  this->ImageSampleDistance        =  1.0;
-  this->MinimumImageSampleDistance =  1.0;
-  this->MaximumImageSampleDistance = 10.0;
-  this->AutoAdjustSampleDistances  =  1;
+  this->SampleDistance                   =  1.0;
+  this->InteractiveSampleDistance        =  2.0;
+  this->ImageSampleDistance              =  1.0;
+  this->MinimumImageSampleDistance       =  1.0;
+  this->MaximumImageSampleDistance       = 10.0;
+  this->AutoAdjustSampleDistances        =  1;
+  this->LockSampleDistanceToInputSpacing =  0;
   
   // Should never be used without initialization, but
   // set here to avoid compiler warnings
@@ -1474,6 +1475,36 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
   
   this->RenderWindow = ren->GetRenderWindow();
   this->Volume = vol;
+  
+  // Adjust the sample spacing if necessary
+  if ( this->LockSampleDistanceToInputSpacing )
+    {
+    // compute 1/2 the average spacing
+    double dist = 
+      (inputSpacing[0] + inputSpacing[1] + inputSpacing[2])/6.0;
+    
+    // Need to treat interactive renders differently, because if
+    // AutoAdjustSampleDistances is on, then we doubled the sample
+    // distance
+    if ( this->AutoAdjustSampleDistances &&
+         vol->GetAllocatedRenderTime() < 1.0 )
+      {
+      if ( this->SampleDistance / (dist*2) < 0.999 ||
+           this->SampleDistance / (dist*2) > 1.001)
+        {
+        this->OldSampleDistance         = dist;
+        this->SampleDistance            = dist*2;
+        this->InteractiveSampleDistance = dist*2;
+        }
+      }      
+    else if ( this->SampleDistance / dist < 0.999 ||
+              this->SampleDistance / dist > 1.001 )
+      {
+      this->OldSampleDistance         = dist;
+      this->SampleDistance            = dist;
+      this->InteractiveSampleDistance = dist*2;
+      }
+    }
   
   this->UpdateColorTable( vol );
   this->UpdateGradients( vol );
@@ -3347,7 +3378,27 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
       if ( this->BlendMode == vtkVolumeMapper::COMPOSITE_BLEND )
         {
         float *ptr = tmpArray;    
-        double factor = this->SampleDistance / vol->GetProperty()->GetScalarOpacityUnitDistance(c);
+        double factor;
+        if ( this->LockSampleDistanceToInputSpacing )
+          {
+          // Need to treat interactive renders differently, because if
+          // AutoAdjustSampleDistances is on, then we doubled the sample
+          // distance
+          if ( this->AutoAdjustSampleDistances &&
+               vol->GetAllocatedRenderTime() < 1.0 )
+            {
+            factor = 2.0;
+            }
+          else
+            {
+            factor = 1.0;
+            }
+          }
+        else
+          {
+          factor = this->SampleDistance / vol->GetProperty()->GetScalarOpacityUnitDistance(c);
+          }
+        
         for ( i = 0; i < this->TableSize[c]; i++ )
           {
           if ( *ptr > 0.0001 )

@@ -145,6 +145,17 @@ public:
   vtkBooleanMacro( AutoAdjustSampleDistances, int );
   
   // Description:
+  // Automatically compute the sample distance from the data spacing.
+  // The sample distance will be kept at 1/2 the average sample
+  // distance. As a side effect, this method will also ignore the
+  // ScalarOpacityUnitDistance provided in the vtkVolumeProperty of
+  // the vtkVolume used during rendering, and will instead use the
+  // 1/2 average sample spacing as this unit distance as well.
+  vtkSetClampMacro( LockSampleDistanceToInputSpacing, int, 0, 1 );
+  vtkGetMacro( LockSampleDistanceToInputSpacing, int );
+  vtkBooleanMacro( LockSampleDistanceToInputSpacing, int );
+  
+  // Description:
   // Set/Get the number of threads to use. This by default is equal to
   // the number of available processors detected.
   void SetNumberOfThreads( int num );
@@ -290,7 +301,8 @@ protected:
   float                        MinimumImageSampleDistance;
   float                        MaximumImageSampleDistance;
   int                          AutoAdjustSampleDistances;
-
+  int                          LockSampleDistanceToInputSpacing;
+  
   // Saved values used to restore 
   float                        OldSampleDistance;
   float                        OldImageSampleDistance;
