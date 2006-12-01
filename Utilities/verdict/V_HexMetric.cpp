@@ -23,8 +23,9 @@
  *
  */
 
+#define VERDICT_EXPORTS
 
-
+#include "verdict.h"
 #include "VerdictVector.hpp"
 #include "V_GaussIntegration.hpp"
 #include "verdict_defines.hpp"
@@ -212,7 +213,6 @@ void localize_hex_coordinates(VERDICT_REAL coordinates[][3], VerdictVector posit
   delta += position[6];
   delta += position[7];
 
-  DX = delta.x();
   DY = delta.y();
   DZ = delta.z();
 
@@ -223,11 +223,11 @@ void localize_hex_coordinates(VERDICT_REAL coordinates[][3], VerdictVector posit
   double SX = DZ / (AMAGY + FMAGY);
   
   for (i = 0; i < 8; i++) 
-  {
+    {
     temp =  CX * position[i].y() + SX * position[i].z();
     position[i].z(-SX * position[i].y() + CX * position[i].z());
     position[i].y(temp);
-  }
+    }
 }
 
 
@@ -236,21 +236,23 @@ double safe_ratio3( const double numerator,
     const double max_ratio )
 {
     // this filter is essential for good running time in practice
-  double return_value = 0.0;
+  double return_value;
 
   const double filter_n = max_ratio * 1.0e-16;
   const double filter_d = 1.0e-16;
-  if ( fabs( numerator ) <= filter_n &&
-      fabs( denominator ) >= filter_d )
+  if ( fabs( numerator ) <= filter_n && fabs( denominator ) >= filter_d )
+    {
     return_value = numerator / denominator;
-  
+    }
   else
+    {
     return_value = fabs(numerator) / max_ratio >= fabs(denominator) ?
       ( numerator >= 0.0 && denominator >= 0.0 ||
         numerator < 0.0 && denominator < 0.0 ?
         max_ratio : -max_ratio )
       : numerator / denominator;
-  
+    }
+
   return return_value;
 }
 
@@ -259,15 +261,17 @@ double safe_ratio( const double numerator,
     const double denominator )
 {
 
-  double return_value = 0.0;
+  double return_value;
   const double filter_n = VERDICT_DBL_MAX; 
   const double filter_d = VERDICT_DBL_MIN;
-  if ( fabs( numerator ) <= filter_n &&
-      fabs( denominator ) >= filter_d )
+  if ( fabs( numerator ) <= filter_n && fabs( denominator ) >= filter_d )
+    {
     return_value = numerator / denominator;
-  
+    }
   else
+    {
     return_value = VERDICT_DBL_MAX;
+    }
 
   return return_value;
   
@@ -439,7 +443,7 @@ VERDICT_REAL hex_edge_length(int max_min, VERDICT_REAL coordinates[][3])
 VERDICT_REAL diag_length(int max_min, VERDICT_REAL coordinates[][3]) 
 {
   double temp[3], diag[4];
-  int i = 0;
+  int i;
   
   //lengths^2  f diag nals
   for (i = 0; i < 3; i++ )
@@ -957,7 +961,7 @@ C_FUNC_DEF VERDICT_REAL v_hex_dimension( int /*num_nodes*/, VERDICT_REAL coordin
 C_FUNC_DEF VERDICT_REAL v_hex_oddy( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
 {
   
-  double oddy = 0.0, current_oddy = 0.0;
+  double oddy = 0.0, current_oddy;
   VerdictVector xxi, xet, xze;
   
   VerdictVector node_pos[8];
@@ -1115,7 +1119,7 @@ C_FUNC_DEF VERDICT_REAL v_hex_condition( int /*num_nodes*/, VERDICT_REAL coordin
   VerdictVector node_pos[8];
   make_hex_nodes ( coordinates, node_pos );
 
-  double condition = 0.0, current_condition = 0.0; 
+  double condition = 0.0, current_condition; 
   VerdictVector xxi, xet, xze;
 
   xxi = calc_hex_efg(1, node_pos );
@@ -1217,7 +1221,7 @@ C_FUNC_DEF VERDICT_REAL v_hex_jacobian( int /*num_nodes*/, VERDICT_REAL coordina
   make_hex_nodes ( coordinates, node_pos );
 
   double jacobian = VERDICT_DBL_MAX;
-  double current_jacobian = VERDICT_DBL_MAX; 
+  double current_jacobian; 
   VerdictVector xxi, xet, xze;
 
   xxi = calc_hex_efg(1, node_pos );
@@ -2047,7 +2051,7 @@ C_FUNC_DEF VERDICT_REAL v_hex_shear_and_size( int num_nodes, VERDICT_REAL coordi
 /*!
   distortion of a hex
 */
-VERDICT_REAL v_hex_distortion( int num_nodes, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF VERDICT_REAL v_hex_distortion( int num_nodes, VERDICT_REAL coordinates[][3] )
 {
 
    //use 2x2 gauss points for linear hex and 3x3 for 2nd order hex

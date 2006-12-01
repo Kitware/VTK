@@ -65,6 +65,8 @@ inline double determinant( VerdictVector v1,
 	xm22= (m22*mw11-m21*mw12)/detmw;
 
 
+double verdictSqrt2;
+
 inline double normalize_jacobian( double jacobi,
     VerdictVector& v1,
     VerdictVector& v2,
@@ -73,8 +75,6 @@ inline double normalize_jacobian( double jacobi,
 {
   double return_value = 0.0;
 
-  static const double rt2 = sqrt(2.0);
-  
   if ( jacobi != 0.0 )
   {
     
@@ -96,7 +96,7 @@ inline double normalize_jacobian( double jacobi,
     }
     
     if( tet_flag == 1)
-      return_value = rt2 * jacobi / length_product;
+      return_value = verdictSqrt2 * jacobi / length_product;
     else
       return_value = jacobi / length_product;
     

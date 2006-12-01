@@ -172,7 +172,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_radius_ratio( int /*num_nodes*/, VERDICT_REAL coor
                             side[2].length_squared() * ( side[3] * side[0]) +
                             side[0].length_squared() * ( side[3] * side[2]);
 
-  double area_sum = 0.0;
+  double area_sum;
   area_sum = ((side[2] * side[0]).length() + 
               (side[3] * side[0]).length() +
               (side[4] * side[1]).length() + 
@@ -409,7 +409,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_shape( int /*num_nodes*/, VERDICT_REAL coordinates
 */
 C_FUNC_DEF VERDICT_REAL v_tet_relative_size_squared( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
 {
-  double size=0;
+  double size;
   VerdictVector w1, w2, w3;
   get_weight(w1,w2,w3);
   double avg_volume = (w1 % (w2 *w3))/6.0;

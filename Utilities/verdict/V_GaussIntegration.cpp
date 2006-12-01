@@ -30,25 +30,27 @@
 #include "verdict.h"
 #include "V_GaussIntegration.hpp"
 
+#include <math.h>
 
-   int numberGaussPoints;
-   int numberNodes;
-   int numberDims;
-   double gaussPointY[maxNumberGaussPoints];
-   double gaussWeight[maxNumberGaussPoints];
-   double shapeFunction[maxTotalNumberGaussPoints][maxNumberNodes];
-   double dndy1GaussPts[maxTotalNumberGaussPoints][maxNumberNodes];
-   double dndy2GaussPts[maxTotalNumberGaussPoints][maxNumberNodes];
-   double dndy3GaussPts[maxTotalNumberGaussPoints][maxNumberNodes];
-   double totalGaussWeight[maxTotalNumberGaussPoints];
-   int totalNumberGaussPts;
-   double y1Area[maxNumberGaussPointsTri];
-   double y2Area[maxNumberGaussPointsTri];
-   double y1Volume[maxNumberGaussPointsTet];
-   double y2Volume[maxNumberGaussPointsTet];
-   double y3Volume[maxNumberGaussPointsTet];
-   double y4Volume[maxNumberGaussPointsTet];  
+double verdictSqrt2 = sqrt( (double)2.0 );
 
+int numberGaussPoints;
+int numberNodes;
+int numberDims;
+double gaussPointY[maxNumberGaussPoints];
+double gaussWeight[maxNumberGaussPoints];
+double shapeFunction[maxTotalNumberGaussPoints][maxNumberNodes];
+double dndy1GaussPts[maxTotalNumberGaussPoints][maxNumberNodes];
+double dndy2GaussPts[maxTotalNumberGaussPoints][maxNumberNodes];
+double dndy3GaussPts[maxTotalNumberGaussPoints][maxNumberNodes];
+double totalGaussWeight[maxTotalNumberGaussPoints];
+int totalNumberGaussPts;
+double y1Area[maxNumberGaussPointsTri];
+double y2Area[maxNumberGaussPointsTri];
+double y1Volume[maxNumberGaussPointsTet];
+double y2Volume[maxNumberGaussPointsTet];
+double y3Volume[maxNumberGaussPointsTet];
+double y4Volume[maxNumberGaussPointsTet];  
 
 void GaussIntegration::initialize(int n, int m, int dim, int tri)
 {
@@ -706,12 +708,12 @@ void GaussIntegration::get_tri_rule_pts_and_weight()
 
 void GaussIntegration::calculate_shape_function_2d_tri()
 {
-   int ife=0;
-   double y1,y2, y3;
-   get_tri_rule_pts_and_weight();
+  int ife;
+  double y1,y2, y3;
+  get_tri_rule_pts_and_weight();
 
-   for (ife=0; ife<totalNumberGaussPts; ife++)
-   {
+  for (ife=0; ife<totalNumberGaussPts; ife++)
+    {
       y1 =  y1Area[ife];
       y2 =  y2Area[ife];
       y3 = 1.0 -y1 -y2;
@@ -740,14 +742,14 @@ void GaussIntegration::calculate_shape_function_2d_tri()
       dndy2GaussPts[ife][3] = 4.*y1;
       dndy2GaussPts[ife][4] = 4.*(1-y1-2.*y2);
       dndy2GaussPts[ife][5] = -4.*y1;
-   }
+    }
 }
 
 
 void GaussIntegration::calculate_derivative_at_nodes_2d_tri(double dndy1_at_nodes[][maxNumberNodes],
                                                             double dndy2_at_nodes[][maxNumberNodes])
 {
-   double y1=0., y2=0., y3=0.;
+   double y1=0., y2=0., y3;
    int i;
    for(i=0;i<numberNodes; i++) 
    {
@@ -849,7 +851,7 @@ void GaussIntegration::get_tet_rule_pts_and_weight()
 
 void GaussIntegration::calculate_shape_function_3d_tet()
 {
-   int ife=0;
+   int ife;
    double y1,y2, y3, y4;
    get_tet_rule_pts_and_weight();
 

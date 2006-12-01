@@ -198,13 +198,19 @@ C_FUNC_DEF VERDICT_REAL v_tri_minimum_angle( int /*num_nodes*/, VERDICT_REAL coo
 
   // from the shortest side, calculate the angle of the 
   // opposite angle
-  double min_angle = 0.;
+  double min_angle;
   if(short_side == 0)
+    {
     min_angle = sides[2].interior_angle(sides[1]);
+    }
   else if(short_side == 1)
+    {
     min_angle = sides[0].interior_angle(sides[2]);
+    }
   else
+    {
     min_angle = sides[0].interior_angle(sides[3]);
+    }
 
   if( min_angle > 0 )
     return (VERDICT_REAL) VERDICT_MIN( min_angle, VERDICT_DBL_MAX );
@@ -268,13 +274,19 @@ C_FUNC_DEF VERDICT_REAL v_tri_maximum_angle( int /*num_nodes*/, VERDICT_REAL coo
 
   // from the longest side, calculate the angle of the 
   // opposite angle
-  double max_angle = 0.;
+  double max_angle;
   if(short_side == 0)
+    {
     max_angle = sides[2].interior_angle(sides[1]);
+    }
   else if(short_side == 1)
+    {
     max_angle = sides[0].interior_angle(sides[2]);
+    }
   else
+    {
     max_angle = sides[0].interior_angle(sides[3]);
+    }
 
   if( max_angle > 0 )
     return (VERDICT_REAL) VERDICT_MIN( max_angle, VERDICT_DBL_MAX );
@@ -357,7 +369,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_scaled_jacobian( int /*num_nodes*/, VERDICT_REAL c
   VerdictVector cross = first * second;
   jacobian = cross.length();
 
-  double max_edge_length_product = 0.0;
+  double max_edge_length_product;
   max_edge_length_product = VERDICT_MAX( edge[0].length()*edge[1].length(),
                             VERDICT_MAX( edge[1].length()*edge[2].length(), 
                                          edge[0].length()*edge[2].length() ) ); 

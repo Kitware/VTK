@@ -31,8 +31,6 @@
 #include "VerdictVector.hpp"
 #include <float.h>
 
-
-
 const double TWO_VERDICT_PI = 2.0 * VERDICT_PI;
 
 
@@ -67,7 +65,7 @@ void VerdictVector::print_me()
 
 double VerdictVector::interior_angle(const VerdictVector &otherVector)
 {
-  double cosAngle=0., angleRad=0., len1=0., len2=0.;
+  double cosAngle=0., angleRad=0., len1, len2=0.;
   
   if (((len1 = this->length()) > 0) && ((len2 = otherVector.length()) > 0))
     cosAngle = (*this % otherVector)/(len1 * len2);
