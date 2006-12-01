@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.35");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.36");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -154,7 +154,7 @@ int vtkMeshQuality::RequestData(
   this->CellNormals = in->GetCellData()->GetNormals();
 
   if ( this->CellNormals  )
-    v_set_tri_normal_func( vtkMeshQuality::GetCurrentTriangleNormal );
+    v_set_tri_normal_func( (ComputeNormal) vtkMeshQuality::GetCurrentTriangleNormal );
   else
     v_set_tri_normal_func( 0 );
 

@@ -83,15 +83,15 @@ public:
   
   double &theta();  //- Return theta component of vector, if (r,theta) format
   
-  void x( const double x ); //- Set x component of vector
+  void x( const double xv ); //- Set x component of vector
   
-  void y( const double y ); //- Set y component of vector
+  void y( const double yv ); //- Set y component of vector
   
-  void z( const double z ); //- Set z component of vector
+  void z( const double zv ); //- Set z component of vector
   
-  void r( const double x ); //- Set r component of vector, if (r,theta) format
+  void r( const double xv ); //- Set r component of vector, if (r,theta) format
   
-  void theta( const double y ); //- Set theta component of vector, if (r,theta) format
+  void theta( const double yv ); //- Set theta component of vector, if (r,theta) format
   
   void xy_to_rtheta();
     //- convert from cartesian to polar coordinates, just 2d for now
@@ -267,26 +267,26 @@ inline void VerdictVector::get_xyz(double xyz[3])
   xyz[1] = yVal;
   xyz[2] = zVal;
 }
-inline void VerdictVector::get_xyz(double &x, double &y, double &z)
+inline void VerdictVector::get_xyz( double& xv, double& yv, double& zv )
 {
-  x = xVal; 
-  y = yVal; 
-  z = zVal;
+  xv = xVal; 
+  yv = yVal; 
+  zv = zVal;
 }
 inline double &VerdictVector::r()
 { return xVal; }
 inline double &VerdictVector::theta()
 { return yVal; }
-inline void VerdictVector::x( const double x )
-{ xVal = x; }
-inline void VerdictVector::y( const double y )
-{ yVal = y; }
-inline void VerdictVector::z( const double z )
-{ zVal = z; }
-inline void VerdictVector::r( const double x )
-{ xVal = x; }
-inline void VerdictVector::theta( const double y )
-{ yVal = y; }
+inline void VerdictVector::x( const double xv )
+{ xVal = xv; }
+inline void VerdictVector::y( const double yv )
+{ yVal = yv; }
+inline void VerdictVector::z( const double zv )
+{ zVal = zv; }
+inline void VerdictVector::r( const double xv )
+{ xVal = xv; }
+inline void VerdictVector::theta( const double yv )
+{ yVal = yv; }
 inline VerdictVector& VerdictVector::operator+=(const VerdictVector &vector)
 {
   xVal += vector.x();
