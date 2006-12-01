@@ -14,10 +14,6 @@ option( VERDICT_ENABLE_TESTING "Should tests of the VERDICT library be built?" O
 
 set( BUILD_SHARED_LIBS ${VERDICT_SHARED_LIB} )
 mark_as_advanced( BUILD_SHARED_LIBS )
-set( EXECUTABLE_OUTPUT_PATH "${verdict_BINARY_DIR}/bin" )
-mark_as_advanced( EXECUTABLE_OUTPUT_PATH )
-set( LIBRARY_OUTPUT_PATH "${verdict_BINARY_DIR}/bin" )
-mark_as_advanced( LIBRARY_OUTPUT_PATH )
 
 set( verdict_SRCS
        V_EdgeMetric.cpp
