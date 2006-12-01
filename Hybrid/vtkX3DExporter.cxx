@@ -38,7 +38,6 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-
 #include "vtkstd/string"
 #include <vtksys/ios/sstream>
 
@@ -112,7 +111,10 @@ int vtkX3DExporterWriter::OpenFile(const char* file, int binary)
     this->FilePointer = fopen(file, "w");
     return (this->FilePointer != 0);
     }
+    
+#ifndef VTK_X3D_USE_JAVA    
   return 0;
+#endif  
 }
 
 //----------------------------------------------------------------------------
@@ -134,7 +136,7 @@ void vtkX3DExporterWriter::CloseFile()
 }
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkX3DExporter, "1.7");
+vtkCxxRevisionMacro(vtkX3DExporter, "1.8");
 vtkStandardNewMacro(vtkX3DExporter);
 
 //----------------------------------------------------------------------------
@@ -213,7 +215,7 @@ void vtkX3DExporter::WriteData()
   //
   vtkDebugMacro("Writing X3D file");
 
-  vtksys_ios::ostringstream ostr;
+  vtksys_ios::stringstream ostr;
   ostr << "<?xml version=\"1.0\" encoding =\"UTF-8\"?>\n\n"
     << "<X3D profile=\"Immersive\" version=\"3.0\">\n"
     << "  <head>\n"
@@ -301,7 +303,7 @@ void vtkX3DExporter::WriteData()
 
   if(a2Dc->GetNumberOfItems()!=0)
     {
-    vtksys_ios::ostringstream ostr2;
+    vtksys_ios::stringstream ostr2;
     ostr2 << "  <ProximitySensor  DEF=\"PROX_LABEL\" "
       << " size=\"1000000.0 1000000.0 1000000.0\"/>\n";
 
@@ -328,7 +330,7 @@ void vtkX3DExporter::WriteData()
         }
       }
 
-    vtksys_ios::ostringstream ostr3;
+    vtksys_ios::stringstream ostr3;
     ostr3
       << "    </Transform>\n"
       << "  </Collision>\n"
@@ -357,7 +359,7 @@ void vtkX3DExporter::WriteALight(vtkLight *aLight,
   double *pos, *focus, *color;
   double dir[3];
 
-  vtksys_ios::ostringstream ostr;
+  vtksys_ios::stringstream ostr;
 
   pos = aLight->GetPosition();
   focus = aLight->GetFocalPoint();
@@ -424,10 +426,9 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   vtkIdType *indx = 0;
   double tempf2;
   int pointDataWritten = 0;
-  vtkPolyDataMapper *pm;
   vtkUnsignedCharArray *colors;
-  double *p;
   unsigned char *c;
+  double *p;
   vtkTransform *trans;
   int totalValues;
 
@@ -441,7 +442,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   trans = vtkTransform::New();
   trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
 
-  vtksys_ios::ostringstream ostr;
+  vtksys_ios::stringstream ostr;
   ostr << "      <Transform ";
   tempd = trans->GetPosition();
   ostr << " translation=\"" << vtkX3DPrintVector3(tempd) << "\"";
@@ -468,35 +469,12 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
     pd = (vtkPolyData *)ds;
     }
 
-  pm = vtkPolyDataMapper::New();
-  pm->SetInput(pd);
-  pm->SetScalarRange(anActor->GetMapper()->GetScalarRange());
-  pm->SetScalarVisibility(anActor->GetMapper()->GetScalarVisibility());
-  pm->SetLookupTable(anActor->GetMapper()->GetLookupTable());
-  pm->SetScalarMode(anActor->GetMapper()->GetScalarMode());
-
-  if ( pm->GetScalarMode() == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
-    pm->GetScalarMode() == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
-    {
-    if ( anActor->GetMapper()->GetArrayAccessMode() == VTK_GET_ARRAY_BY_ID )
-      {
-      pm->ColorByArrayComponent(anActor->GetMapper()->GetArrayId(),
-        anActor->GetMapper()->GetArrayComponent());
-      }
-    else
-      {
-      pm->ColorByArrayComponent(anActor->GetMapper()->GetArrayName(),
-        anActor->GetMapper()->GetArrayComponent());
-      }
-    }
-
   points = pd->GetPoints();
   pntData = pd->GetPointData();
   normals = pntData->GetNormals();
   tcoords = pntData->GetTCoords();
-  colors  = pm->MapScalars(1.0);
-
-
+  colors  = anActor->GetMapper()->MapScalars(255.0);
+   
   ostr << "        <Shape>\n";
 
   // write out the material properties to the mat file
@@ -649,10 +627,15 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   // write out polys if any
   if (pd->GetNumberOfPolys() > 0)
     {
-    vtksys_ios::ostringstream ostr1;
+    vtksys_ios::stringstream ostr1;
     ostr1 << "          <IndexedFaceSet \n";
     // two sided lighting ? for now assume it is on
     ostr1 << "            solid=\"FALSE\"\n";
+    // we don't want a color per point but per cell
+    if(!tcoords)
+      {
+      ostr1 << "            colorPerVertex=\"FALSE\"\n";
+      }
     /////////////////////
     ostr1 << "            coordIndex  =\"\n";
 
@@ -683,10 +666,15 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   // write out tstrips if any
   if (pd->GetNumberOfStrips() > 0)
     {
-    vtksys_ios::ostringstream ostr2;
+    vtksys_ios::stringstream ostr2;
     ostr2 << "           <IndexedFaceSet \n";
     ///////////
     ostr2 << "            coordIndex =\" \n";
+    // we don't want a color per point but per cell
+    if(!tcoords)
+      {
+      ostr2 << "            colorPerVertex=\"FALSE\"\n";
+      }
     cells = pd->GetStrips();
     for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
       {
@@ -725,7 +713,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   // write out lines if any
   if (pd->GetNumberOfLines() > 0)
     {
-    vtksys_ios::ostringstream ostr3;
+    vtksys_ios::stringstream ostr3;
     ostr3 << "          <IndexedLineSet \n";
     ////////////
     ostr3 << "            coordIndex  =\"\n";
@@ -756,7 +744,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
     writer->Write("          </IndexedLineSet>\n");
     }
   // write out verts if any
-  vtksys_ios::ostringstream ostr4;
+  vtksys_ios::stringstream ostr4;
   if (pd->GetNumberOfVerts() > 0)
     {
     ostr4 << "           <PointSet>\n";
@@ -802,7 +790,6 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
     {
     gf->Delete();
     }
-  pm->Delete();
   writer->Write(ostr4.str().c_str());
 }
 
@@ -813,11 +800,10 @@ void vtkX3DExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
 {
   double *p;
   int i;
-  unsigned char *c;
-
+  
   char indexString[100];
   sprintf(indexString, "%04d", index);
-  vtksys_ios::ostringstream ostr;
+  vtksys_ios::stringstream ostr;
   // write out the points
   ostr << "            <Coordinate DEF =\"VTKcoordinates" << indexString
     << "\"  \n"
@@ -862,16 +848,19 @@ void vtkX3DExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
   // write out the point data
   if (colors)
     {
+    unsigned char *c = new unsigned char[4];
+
     ostr << "            <Color DEF =\"VTKcolors" << indexString << "\"  \n"
       << "              color=\"\n";
     for (i = 0; i < colors->GetNumberOfTuples(); i++)
       {
-      c = colors->GetPointer(4*i);
+      colors->GetTupleValue(i,c);
       ostr << "           " << (c[0]/255.0) << " " << (c[1]/255.0) << " "
         << (c[2]/255.0) << ",\n";
       }
     ostr << "            \"\n"
       << "          />\n";
+    delete [] c;
     }
   writer->Write(ostr.str().c_str());
 }
@@ -912,7 +901,7 @@ void vtkX3DExporter::WriteanTextActor2D(vtkActor2D *anTextActor2D,
 
   // add a sensor with a big size for the text annotations
 
-  vtksys_ios::ostringstream ostr;
+  vtksys_ios::stringstream ostr;
   tm=(vtkTextMapper*)anTextActor2D->GetMapper();
   ds = NULL;
   ds = tm->GetInput();
