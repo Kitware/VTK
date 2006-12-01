@@ -12,7 +12,6 @@
 
 =========================================================================*/
 
-
 /*
  *
  * HexMetric.cpp contains quality calculations for hexes
@@ -28,6 +27,10 @@
 #include "V_GaussIntegration.hpp"
 #include "verdict_defines.hpp"
 #include <memory.h>
+
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#endif
 
 //! the average volume of a hex
 VERDICT_REAL verdict_hex_size = 0;

@@ -29,6 +29,10 @@
 #include "VerdictVector.hpp"
 #include <float.h>
 
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#endif
+
 const double TWO_VERDICT_PI = 2.0 * VERDICT_PI;
 
 
