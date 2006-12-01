@@ -206,10 +206,6 @@ public:
     {
     this->SetQuadQualityMeasure( VTK_QUALITY_MAX_ASPECT_FROBENIUS );
     }
-  void SetQuadQualityMeasureToMinAngle()
-    {
-    this->SetQuadQualityMeasure( VTK_QUALITY_MIN_ANGLE );
-    }
   void SetQuadQualityMeasureToMaxEdgeRatios()
     {
     this->SetQuadQualityMeasure( VTK_QUALITY_MAX_EDGE_RATIOS );
@@ -234,12 +230,10 @@ public:
     {
     this->SetQuadQualityMeasure( VTK_QUALITY_STRETCH );
     }
-#if 0
   void SetQuadQualityMeasureToMinAngle()
     {
     this->SetQuadQualityMeasure( VTK_QUALITY_MIN_ANGLE );
     }
-#endif // 0
   void SetQuadQualityMeasureToMaxAngle()
     {
     this->SetQuadQualityMeasure( VTK_QUALITY_MAX_ANGLE );
