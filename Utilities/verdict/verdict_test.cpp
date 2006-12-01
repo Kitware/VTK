@@ -25,6 +25,8 @@
 
 
 
+#define VERDICT_EXPORTS
+
 #include "verdict.h"
 #include "v_vector.h"
 #include <math.h>

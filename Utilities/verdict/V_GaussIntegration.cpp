@@ -25,8 +25,10 @@
 
 
 
-#include "V_GaussIntegration.hpp"
+#define VERDICT_EXPORTS
+
 #include "verdict.h"
+#include "V_GaussIntegration.hpp"
 
 
    int numberGaussPoints;

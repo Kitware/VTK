@@ -24,6 +24,8 @@
  */
 
 
+#define VERDICT_EXPORTS
+
 #include "verdict.h"
 #include "VerdictVector.hpp"
 #include <memory.h> 

@@ -24,8 +24,10 @@
  */
 
 
-#include <math.h>
+#define VERDICT_EXPORTS
+
 #include "verdict.h"
+#include <math.h>
 #include "VerdictVector.hpp"
 #include <float.h>
 
