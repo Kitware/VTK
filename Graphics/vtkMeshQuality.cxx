@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.36");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.37");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -591,28 +591,28 @@ int vtkMeshQuality::RequestData(
       nhex = 0;
 
       // Save info as field data for downstream filters
-      vtkDoubleArray* triAreaHint = vtkDoubleArray::New();
+      triAreaHint = vtkDoubleArray::New();
       triAreaHint->SetName( "TriArea" );
       triAreaHint->SetNumberOfComponents( 5 );
       triAreaHint->InsertNextTuple( triAreaTuple );
       out->GetFieldData()->AddArray( triAreaHint );
       triAreaHint->Delete();
 
-      vtkDoubleArray* quadAreaHint = vtkDoubleArray::New();
+      quadAreaHint = vtkDoubleArray::New();
       quadAreaHint->SetName( "QuadArea" );
       quadAreaHint->SetNumberOfComponents( 5 );
       quadAreaHint->InsertNextTuple( quadAreaTuple );
       out->GetFieldData()->AddArray( quadAreaHint );
       quadAreaHint->Delete();
 
-      vtkDoubleArray* tetVolHint = vtkDoubleArray::New();
+      tetVolHint = vtkDoubleArray::New();
       tetVolHint->SetName( "TetVolume" );
       tetVolHint->SetNumberOfComponents( 5 );
       tetVolHint->InsertNextTuple( tetVolTuple );
       out->GetFieldData()->AddArray( tetVolHint );
       tetVolHint->Delete();
 
-      vtkDoubleArray* hexVolHint = vtkDoubleArray::New();
+      hexVolHint = vtkDoubleArray::New();
       hexVolHint->SetName( "HexVolume" );
       hexVolHint->SetNumberOfComponents( 5 );
       hexVolHint->InsertNextTuple( hexVolTuple );
