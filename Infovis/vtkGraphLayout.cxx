@@ -32,7 +32,7 @@
 
 #include "vtkGraphLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkGraphLayout, "1.3");
+vtkCxxRevisionMacro(vtkGraphLayout, "1.4");
 vtkStandardNewMacro(vtkGraphLayout);
 
 // ----------------------------------------------------------------------
@@ -89,8 +89,8 @@ vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
       }
     if (tmp != NULL)
       {
-      tmp->UnRegister(this);
       tmp->RemoveObserver(this->ObserverTag);
+      tmp->UnRegister(this);
       }
     this->Modified();
     }
