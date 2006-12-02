@@ -85,7 +85,7 @@ INSTALL(TARGETS "${verdict_libname}"
 if (EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
   if (EXISTS "${CMAKE_ROOT}/Modules/InstallRequiredSystemLibraries.cmake")
       set (CMAKE_INSTALL_MFC_LIBRARIES 1)
-      include (InstallRequiredSystemLibraries)
+#      include (InstallRequiredSystemLibraries)
   endif (EXISTS "${CMAKE_ROOT}/Modules/InstallRequiredSystemLibraries.cmake")
   set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "VERDICT - Geometric finite element quality metrics library")
   set (CPACK_PACKAGE_VENDOR "Sandia National Laboratories")
