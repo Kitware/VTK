@@ -56,7 +56,7 @@ public:
   VerdictVector(const VerdictVector& copy_from);  //- Copy Constructor
   
     //- Heading: Set and Inquire Functions
-  void set(const double x, const double y, const double z);
+  void set( const double xv, const double yv, const double zv );
     //- Change vector components to {x}, {y}, and {z}
   
   void set( const double xyz[3] );
@@ -344,13 +344,13 @@ inline void VerdictVector::perpendicular_z()
   y( -temp );
 }
 
-inline void VerdictVector::set(const double x,
-                      const double y,
-                      const double z)
+inline void VerdictVector::set( const double xv,
+                                const double yv,
+                                const double zv )
 {
-  xVal = x;
-  yVal = y;
-  zVal = z;
+  xVal = xv;
+  yVal = yv;
+  zVal = zv;
 }
 
 inline void VerdictVector::set(const double xyz[3])

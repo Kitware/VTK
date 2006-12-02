@@ -54,7 +54,6 @@ endif ( VERDICT_ENABLE_TESTING )
 #
 INSTALL(FILES 
   README
-  LICENSE
   Verdict.htm
   Verdict.doc
   docs/hex.tex

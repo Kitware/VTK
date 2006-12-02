@@ -38,21 +38,21 @@ const double TWO_VERDICT_PI = 2.0 * VERDICT_PI;
 
 VerdictVector &VerdictVector::length(const double new_length)
 {
-  double length = this->length();
-  xVal *= new_length / length;
-  yVal *= new_length / length;
-  zVal *= new_length / length;
+  double len = this->length();
+  xVal *= new_length / len;
+  yVal *= new_length / len;
+  zVal *= new_length / len;
   return *this;
 }
 
 
 double VerdictVector::distance_between(const VerdictVector& test_vector)
 {
-  double x = xVal - test_vector.x();
-  double y = yVal - test_vector.y();
-  double z = zVal - test_vector.z();
+  double xv = xVal - test_vector.x();
+  double yv = yVal - test_vector.y();
+  double zv = zVal - test_vector.z();
   
-  return(sqrt(x*x + y*y + z*z));
+  return( sqrt( xv * xv + yv * yv + zv * zv ) );
 }
 
 /*
@@ -215,15 +215,15 @@ double VerdictVector::vector_angle_quick(const VerdictVector& vec1, const Verdic
   VerdictVector ry = (*this) * vec1;
   VerdictVector rx = ry * (*this);
 
-  double x = vec2 % rx;
-  double y = vec2 % ry;
+  double xv = vec2 % rx;
+  double yv = vec2 % ry;
 
   double angle;
-  assert(x != 0.0 || y != 0.0);
+  assert( xv != 0.0 || yv != 0.0 );
 
-  angle = atan2(y, x);
+  angle = atan2( yv, xv );
 
-  if (angle < 0.0)
+  if ( angle < 0.0 )
   {
     angle += TWO_VERDICT_PI;
   }
@@ -328,18 +328,18 @@ double VerdictVector::vector_angle(const VerdictVector &vector1,
   normal.normalize();
   VerdictVector yAxis = normal;
   yAxis *= vector1;
-  double y = vector2 % yAxis;
+  double yv = vector2 % yAxis;
     //  yAxis memory slot will now be used for xAxis
   yAxis *= normal;
-  double x = vector2 % yAxis;
+  double xv = vector2 % yAxis;
   
   
     //  assert(x != 0.0 || y != 0.0);
-  if( x == 0.0 && y == 0.0 )
+  if( xv == 0.0 && yv == 0.0 )
   {
     return 0.0;
   }
-  double angle = atan2(y, x);
+  double angle = atan2( yv, xv );
   
   if (angle < 0.0)
   {
@@ -365,7 +365,7 @@ bool VerdictVector::within_tolerance( const VerdictVector &vectorPtr2,
 void VerdictVector::orthogonal_vectors( VerdictVector &vector2, 
                                       VerdictVector &vector3 )
 {
-  double x[3];
+  double xv[3];
   unsigned short i=0;
   unsigned short imin=0;
   double rmin = 1.0E20;
@@ -406,14 +406,14 @@ void VerdictVector::orthogonal_vectors( VerdictVector &vector2,
   
   if (cont_flag)
   {
-    x[imin] = 1.0;
-    x[iperm1[imin]] = 0.0;
-    x[iperm2[imin]] = 0.0;
+    xv[imin] = 1.0;
+    xv[iperm1[imin]] = 0.0;
+    xv[iperm2[imin]] = 0.0;
     
       // Determine cross product
-    vec2[0] = vec1[1] * x[2] - vec1[2] * x[1];
-    vec2[1] = vec1[2] * x[0] - vec1[0] * x[2];
-    vec2[2] = vec1[0] * x[1] - vec1[1] * x[0];
+    vec2[0] = vec1[1] * xv[2] - vec1[2] * xv[1];
+    vec2[1] = vec1[2] * xv[0] - vec1[0] * xv[2];
+    vec2[2] = vec1[0] * xv[1] - vec1[1] * xv[0];
     
       // Unitize
     rmag = sqrt(vec2[0]*vec2[0] + vec2[1]*vec2[1] + vec2[2]*vec2[2]);
@@ -427,8 +427,6 @@ void VerdictVector::orthogonal_vectors( VerdictVector &vector2,
   
     // Cross vectors to determine last orthogonal vector
   vector3 = vector1 * vector2;
-  
-  return;
 }
 
 //- Find next point from this point using a direction and distance
