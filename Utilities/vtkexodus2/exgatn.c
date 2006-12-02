@@ -70,8 +70,8 @@ int ex_get_attr_names( int   exoid,
   int i, j;
   const char* tname;
   const char* vobjids;
-  const char* dnumobjatt;
-  const char* vattrbname;
+  const char* dnumobjatt = 0;
+  const char* vattrbname = 0;
 
   switch (obj_type) {
   case EX_EDGE_BLOCK:

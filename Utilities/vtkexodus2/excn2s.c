@@ -151,7 +151,7 @@ int ex_cvt_nodes_to_sides(int exoid,
   int *ss_elem_ndx, *ss_elem_node_ndx, *ss_parm_ndx;
   int elem_ctr, node_ctr, elem_num_pos;
   int num_elem_in_blk, num_nodes_per_elem, num_node_per_side, num_attr;
-  int *same_elem_type, el_type;
+  int *same_elem_type, el_type = -1;
   float fdum;
   char *cdum, elem_type[MAX_STR_LENGTH+1];
 
@@ -555,26 +555,23 @@ int ex_cvt_nodes_to_sides(int exoid,
 
   elem_ctr = num_elem_per_set[0];
   same_elem_type[0] = TRUE;
-  for (i=0,k=0;i<tot_num_ss_elem;i++)
-  {
-    for (j=0; j<num_elem_blks; j++)
-    {
+  for ( i = 0, k = 0; i < tot_num_ss_elem; i++ ) {
+    for ( j = 0; j < num_elem_blks; j++ ) {
       if (side_sets_elem_list[i] <= elem_blk_parms[j].elem_ctr) break;
     }
 
-    if (i==0) {
+    if ( i == 0 ) {
       el_type = elem_blk_parms[j].elem_type_val;
     } 
 
     /* determine which side set this element is in; assign to kth side set */
-    if (i >= elem_ctr) {
+    if ( i >= elem_ctr ) {
       elem_ctr += num_elem_per_set[++k];
       el_type = elem_blk_parms[j].elem_type_val;
       same_elem_type[k] = TRUE;
     }
 
-    if (el_type != elem_blk_parms[j].elem_type_val) same_elem_type[k] = FALSE;
-
+    if ( el_type != elem_blk_parms[j].elem_type_val ) same_elem_type[k] = FALSE;
   }
 
 /* Build side set element to node list index and side set element 
