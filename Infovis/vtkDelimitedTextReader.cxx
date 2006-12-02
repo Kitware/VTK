@@ -31,7 +31,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.10");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.11");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -77,7 +77,7 @@ vtkDelimitedTextReader::vtkDelimitedTextReader()
 vtkDelimitedTextReader::~vtkDelimitedTextReader()
 {
   this->SetFileName(0);
-  delete this->ReadBuffer;
+  delete [] this->ReadBuffer;
   delete this->Internals;
 }
 

@@ -1470,7 +1470,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.31");
+vtkCxxRevisionMacro(vtkExodusReader, "1.32");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -1558,6 +1558,10 @@ vtkExodusReader::vtkExodusReader()
   this->DisplacementMagnitude = 1;
   
   this->Title = new char[MAX_LINE_LENGTH+1];
+  this->Title[0] = (char)'\0';
+  this->Dimensionality = 0;
+  this->NumberOfUsedElements = 0;
+  this->NumberOfElementsInFile = 0;
   this->NumberOfBlocks = 0;
   this->NumberOfUsedNodes = 0;
   this->NumberOfNodesInFile = 0;
