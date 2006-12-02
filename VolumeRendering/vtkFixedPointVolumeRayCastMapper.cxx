@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.32");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.33");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -3549,6 +3549,8 @@ void vtkFixedPointVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaximumImageSampleDistance << endl;
   os << indent << "Auto Adjust Sample Distances: " 
      << this->AutoAdjustSampleDistances << endl;
+  os << indent << "LockSampleDistanceToInputSpacing: "
+    << (this->LockSampleDistanceToInputSpacing ? "On\n" : "Off\n");
   os << indent << "Intermix Intersecting Geometry: "
     << (this->IntermixIntersectingGeometry ? "On\n" : "Off\n");
   
