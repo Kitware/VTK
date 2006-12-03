@@ -34,7 +34,7 @@
 // -------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkSortDataArray);
-vtkCxxRevisionMacro(vtkSortDataArray,"1.2");
+vtkCxxRevisionMacro(vtkSortDataArray,"1.3");
 
 vtkSortDataArray::vtkSortDataArray()
 {
@@ -201,6 +201,7 @@ int vtkSortDataArrayComponentCompare_VTK_FLOAT( const void* a, const void* b )
     (((float*)a)[vtkSortDataArrayComp] == ((float*)b)[vtkSortDataArrayComp] ? 0 : 1);
 }
 
+#ifdef VTK_TYPE_USE_LONG_LONG
 int vtkSortDataArrayComponentCompare_VTK_LONG_LONG( const void* a, const void* b )
 {
   return ((long long*)a)[vtkSortDataArrayComp] < ((long long*)b)[vtkSortDataArrayComp] ? -1 :
@@ -212,7 +213,9 @@ int vtkSortDataArrayComponentCompare_VTK_UNSIGNED_LONG_LONG( const void* a, cons
   return ((unsigned long long*)a)[vtkSortDataArrayComp] < ((unsigned long long*)b)[vtkSortDataArrayComp] ? -1 :
     (((unsigned long long*)a)[vtkSortDataArrayComp] == ((unsigned long long*)b)[vtkSortDataArrayComp] ? 0 : 1);
 }
+#endif // VTK_TYPE_USE_LONG_LONG
 
+#ifdef VTK_TYPE_USE___INT64
 int vtkSortDataArrayComponentCompare_VTK___INT64( const void* a, const void* b )
 {
   return ((vtkTypeInt64*)a)[vtkSortDataArrayComp] < ((vtkTypeInt64*)b)[vtkSortDataArrayComp] ? -1 :
@@ -224,6 +227,7 @@ int vtkSortDataArrayComponentCompare_VTK_UNSIGNED___INT64( const void* a, const 
   return ((vtkTypeUInt64*)a)[vtkSortDataArrayComp] < ((vtkTypeUInt64*)b)[vtkSortDataArrayComp] ? -1 :
     (((vtkTypeUInt64*)a)[vtkSortDataArrayComp] == ((vtkTypeUInt64*)b)[vtkSortDataArrayComp] ? 0 : 1);
 }
+#endif // VTK_TYPE_USE___INT64
 
 int vtkSortDataArrayComponentCompare_VTK_ID_TYPE( const void* a, const void* b )
 {
@@ -335,6 +339,7 @@ void vtkSortDataArray::SortArrayByComponent( vtkDataArray* arr, int k )
     qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
         arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_FLOAT );
     break;
+#ifdef VTK_TYPE_USE_LONG_LONG
   case VTK_LONG_LONG:
     qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
         arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_LONG_LONG );
@@ -343,6 +348,8 @@ void vtkSortDataArray::SortArrayByComponent( vtkDataArray* arr, int k )
     qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
         arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_UNSIGNED_LONG_LONG );
     break;
+#endif // VTK_TYPE_USE_LONG_LONG
+#ifdef VTK_TYPE_USE___INT64
   case VTK___INT64:
     qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
         arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK___INT64 );
@@ -351,6 +358,7 @@ void vtkSortDataArray::SortArrayByComponent( vtkDataArray* arr, int k )
     qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
         arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_UNSIGNED___INT64 );
     break;
+#endif // VTK_TYPE_USE___INT64
   case VTK_ID_TYPE:
     qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
         arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_ID_TYPE );

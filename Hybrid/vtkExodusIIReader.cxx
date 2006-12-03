@@ -761,6 +761,7 @@ static void printMap( ostream& os, vtkIndent indent, int mtyp, vtkExodusIIReader
 
 static void printArray( ostream& os, vtkIndent indent, int atyp, vtkExodusIIReaderPrivate::ArrayInfoType& ainfo )
 {
+  (void)atyp;
   os << indent << "    " << ainfo.Name.c_str() << " [" << ainfo.Status << "] ( " << ainfo.Components << " = { ";
   os << ainfo.OriginalIndices[0] << " \"" << ainfo.OriginalNames[0] << "\"";
   int i;
@@ -794,7 +795,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.1");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.2");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -1252,13 +1253,14 @@ int vtkExodusIIReaderPrivate::AssembleOutputConnectivity( vtkIdType timeStep, vt
   //this->CachedConnectivity->ShallowCopy( output );
   if ( this->SqueezePoints )
     {
-    vtkDebugMacro( "Squeezed down to " << this->NextSqueezePoint << " points\n" );
+    vtkDebugMacro( << "Squeezed down to " << this->NextSqueezePoint << " points\n" );
     }
   return 0;
 }
 
 int vtkExodusIIReaderPrivate::AssembleOutputPoints( vtkIdType timeStep, vtkUnstructuredGrid* output )
 {
+  (void)timeStep;
   vtkPoints* pts = output->GetPoints();
   if ( ! pts )
     {
@@ -1500,7 +1502,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellArrays( vtkIdType timeStep, vtkU
           vtkstd::vector<double> zedTuple( arr->GetNumberOfComponents(), 0. ); // an empty tuple used to pad arrays
           vtkIdType i;
           vtkIdType c = bsinfop->GridOffset;
-          vtkDebugMacro( arr->GetName() << ": Padding " << bsinfop->Size << " cells at " << c << "\n" );
+          vtkDebugMacro( << arr->GetName() << ": Padding " << bsinfop->Size << " cells at " << c << "\n" );
           for ( i = 0; i < bsinfop->Size; ++i, ++c )
             {
             arr->SetTuple( c, &zedTuple[0] );
@@ -1515,6 +1517,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellArrays( vtkIdType timeStep, vtkU
 
 int vtkExodusIIReaderPrivate::AssembleOutputPointMaps( vtkIdType timeStep, vtkUnstructuredGrid* output )
 {
+  (void)timeStep;
   int status = 1;
   vtkstd::vector<MapInfoType>::iterator mi;
   int midx = 0;
@@ -1543,6 +1546,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputPointMaps( vtkIdType timeStep, vtkUn
 
 int vtkExodusIIReaderPrivate::AssembleOutputCellMaps( vtkIdType timeStep, vtkUnstructuredGrid* output )
 {
+  (void)timeStep;
   // Step 1. Create the large arrays and fill them (but don't pad them).
   vtkCellData* cd = output->GetCellData();
   vtkstd::map<int,vtkstd::vector<MapInfoType> >::iterator mmi;
@@ -1644,6 +1648,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellMaps( vtkIdType timeStep, vtkUns
 
 int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays( vtkIdType timeStep, vtkUnstructuredGrid* output )
 {
+  (void)timeStep;
   int status = 7;
   if ( this->GenerateObjectIdArray )
     {
@@ -1707,6 +1712,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays( vtkIdType timeStep
 
 void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_type, int timeStep, vtkUnstructuredGrid* output )
 {
+  (void)timeStep;
   BlockInfoType* binfo = &this->BlockInfo[otyp][obj];
   if ( binfo->Size == 0 )
     {
@@ -1781,6 +1787,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
 
 void vtkExodusIIReaderPrivate::InsertSetCells( int otyp, int obj, int conn_type, int timeStep, vtkUnstructuredGrid* output )
 {
+  (void)timeStep;
   SetInfoType* sinfo = &this->SetInfo[otyp][obj];
   if ( sinfo->Size == 0 )
     {
@@ -1854,6 +1861,7 @@ void vtkExodusIIReaderPrivate::AddPointArray( vtkDataArray* src, vtkUnstructured
 
 void vtkExodusIIReaderPrivate::InsertSetNodeCopies( vtkIntArray* refs, int otyp, int obj, vtkUnstructuredGrid* output )
 {
+  (void)otyp;
   // Insert a "VERTEX" cell for each node in the set.
   vtkIdType ref;
   vtkIdType tmp;
@@ -1867,6 +1875,7 @@ void vtkExodusIIReaderPrivate::InsertSetNodeCopies( vtkIntArray* refs, int otyp,
 
 void vtkExodusIIReaderPrivate::InsertSetCellCopies( vtkIntArray* refs, int otyp, int obj, vtkUnstructuredGrid* output )
 {
+  (void)obj;
   // First, sort the set by entry number (element, face, or edge ID)
   // so that we can refer to each block just once as we process cells.
   vtkSortDataArray::SortArrayByComponent( refs, 0 );
@@ -3798,11 +3807,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.1");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.2");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.1");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.2");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -4082,25 +4091,26 @@ int vtkExodusIIReader::GetGenerateGlobalElementIdArray() { return this->Metadata
 void vtkExodusIIReader::SetGenerateGlobalNodeIdArray( int x ) { this->Metadata->SetGenerateGlobalNodeIdArray( x ); }
 int vtkExodusIIReader::GetGenerateGlobalNodeIdArray() { return this->Metadata->GetGenerateGlobalNodeIdArray(); }
 
-int vtkExodusIIReader::GetGlobalElementID( vtkDataSet *data, int localID )
+// FIXME: Implement the four functions that return ID_NOT_FOUND below.
+int vtkExodusIIReader::GetGlobalElementID( vtkDataSet* data, int localID )
 { return GetGlobalElementID( data, localID, SEARCH_TYPE_ELEMENT_THEN_NODE ); }
-int vtkExodusIIReader::GetGlobalElementID ( vtkDataSet *data, int localID, int searchType )
-{ return ID_NOT_FOUND; }
+int vtkExodusIIReader::GetGlobalElementID ( vtkDataSet* data, int localID, int searchType )
+{ (void)data; (void)localID; (void)searchType; return ID_NOT_FOUND; }
 
-int vtkExodusIIReader::GetGlobalFaceID( vtkDataSet *data, int localID )
+int vtkExodusIIReader::GetGlobalFaceID( vtkDataSet* data, int localID )
 { return GetGlobalFaceID( data, localID, SEARCH_TYPE_ELEMENT_THEN_NODE ); }
-int vtkExodusIIReader::GetGlobalFaceID ( vtkDataSet *data, int localID, int searchType )
-{ return ID_NOT_FOUND; }
+int vtkExodusIIReader::GetGlobalFaceID ( vtkDataSet* data, int localID, int searchType )
+{ (void)data; (void)localID; (void)searchType; return ID_NOT_FOUND; }
 
-int vtkExodusIIReader::GetGlobalEdgeID( vtkDataSet *data, int localID )
+int vtkExodusIIReader::GetGlobalEdgeID( vtkDataSet* data, int localID )
 { return GetGlobalEdgeID( data, localID, SEARCH_TYPE_ELEMENT_THEN_NODE ); }
-int vtkExodusIIReader::GetGlobalEdgeID ( vtkDataSet *data, int localID, int searchType )
-{ return ID_NOT_FOUND; }
+int vtkExodusIIReader::GetGlobalEdgeID ( vtkDataSet* data, int localID, int searchType )
+{ (void)data; (void)localID; (void)searchType; return ID_NOT_FOUND; }
 
-int vtkExodusIIReader::GetGlobalNodeID( vtkDataSet *data, int localID )
+int vtkExodusIIReader::GetGlobalNodeID( vtkDataSet* data, int localID )
 { return GetGlobalNodeID( data, localID, SEARCH_TYPE_NODE_THEN_ELEMENT ); }
-int vtkExodusIIReader::GetGlobalNodeID( vtkDataSet *data, int localID, int searchType )
-{ return ID_NOT_FOUND; }
+int vtkExodusIIReader::GetGlobalNodeID( vtkDataSet* data, int localID, int searchType )
+{ (void)data; (void)localID; (void)searchType; return ID_NOT_FOUND; }
 
 void vtkExodusIIReader::SetApplyDisplacements( int d )
 {
@@ -4332,7 +4342,7 @@ int vtkExodusIIReader::GetNumberOfPartArrays()
   return 0;
 }
 
-const char* vtkExodusIIReader::GetPartArrayName(int arrayIdx)
+const char* vtkExodusIIReader::GetPartArrayName( int arrayIdx )
 {
   (void)arrayIdx;
   return "FIXME";
@@ -4340,30 +4350,37 @@ const char* vtkExodusIIReader::GetPartArrayName(int arrayIdx)
 
 int vtkExodusIIReader::GetPartArrayID( const char *name )
 {
+  (void)name;
   return 0;
 }
 
-const char* vtkExodusIIReader::GetPartBlockInfo(int arrayIdx)
+const char* vtkExodusIIReader::GetPartBlockInfo( int arrayIdx )
 {
   (void)arrayIdx;
   return "FIXME";
 }
 
-void vtkExodusIIReader::SetPartArrayStatus(int index, int flag)
+void vtkExodusIIReader::SetPartArrayStatus( int index, int flag )
 {
+  (void)index;
+  (void)flag;
 }
 
-void vtkExodusIIReader::SetPartArrayStatus(const char*, int flag)
+void vtkExodusIIReader::SetPartArrayStatus( const char* part, int flag )
 {
+  (void)part;
+  (void)flag;
 }
 
-int vtkExodusIIReader::GetPartArrayStatus(int index)
+int vtkExodusIIReader::GetPartArrayStatus( int index )
 {
+  (void)index;
   return 0;
 }
 
-int vtkExodusIIReader::GetPartArrayStatus(const char*)
+int vtkExodusIIReader::GetPartArrayStatus( const char* part )
 {
+  (void)part;
   return 0;
 }
 
@@ -4372,32 +4389,39 @@ int vtkExodusIIReader::GetNumberOfMaterialArrays()
   return 0;
 }
 
-const char* vtkExodusIIReader::GetMaterialArrayName(int arrayIdx)
+const char* vtkExodusIIReader::GetMaterialArrayName( int arrayIdx )
 {
   (void)arrayIdx;
   return "FIXME";
 }
 
-int vtkExodusIIReader::GetMaterialArrayID( const char *name )
+int vtkExodusIIReader::GetMaterialArrayID( const char* matl )
 {
+  (void)matl;
   return 0;
 }
 
-void vtkExodusIIReader::SetMaterialArrayStatus(int index, int flag)
+void vtkExodusIIReader::SetMaterialArrayStatus( int index, int flag )
 {
+  (void)index;
+  (void)flag;
 }
 
-void vtkExodusIIReader::SetMaterialArrayStatus(const char*, int flag)
+void vtkExodusIIReader::SetMaterialArrayStatus( const char* matl, int flag )
 {
+  (void)matl;
+  (void)flag;
 }
 
-int vtkExodusIIReader::GetMaterialArrayStatus(int index)
+int vtkExodusIIReader::GetMaterialArrayStatus( int index )
 {
+  (void)index;
   return 0;
 }
 
-int vtkExodusIIReader::GetMaterialArrayStatus(const char*)
+int vtkExodusIIReader::GetMaterialArrayStatus( const char* matl )
 {
+  (void)matl;
   return 0;
 }
 
@@ -4510,8 +4534,12 @@ int vtkExodusIIReader::GetVariableID( const char *type, const char *name )
     }
 }
 
-int vtkExodusIIReader::GetTimeSeriesData( int ID, const char *vName, const char *vType, vtkFloatArray *result )
+int vtkExodusIIReader::GetTimeSeriesData( int ID, const char* vName, const char* vType, vtkFloatArray* result )
 {
+  (void)ID;
+  (void)vName;
+  (void)vType;
+  (void)result;
   return -1;
 }
 
@@ -4630,6 +4658,7 @@ void vtkExodusIIReader::RemoveFilter( char* outputVariableName )
 
 void vtkExodusIIReader::GetDSPOutputArrays( int exoid, int timeStep, vtkUnstructuredGrid* output )
 {
+  (void)exoid;
   int neb = this->GetNumberOfElementBlockArrays();
   int npr = this->GetNumberOfPointResultArrays();
   int ner = this->GetNumberOfElementResultArrays();

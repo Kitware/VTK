@@ -11,16 +11,16 @@
   " [" << cval << ", " <<  (cval ? cval->GetActualMemorySize() / 1024. : 0.) << "]"
 
 #if 0
-static void printCache( vtkExodusIICacheSet& cache, vtkExodusIICacheLRU& lru )
+static void printCache( vtkExodusIICacheEntry::CacheSet& cache, vtkExodusIICacheEntry::CacheLRU& lru )
 {
   cout << "Cache\n";
-  vtkExodusIICacheRef cit;
+  vtkExodusIICacheEntry::CacheRef cit;
   for ( cit = cache.begin(); cit != cache.end(); ++cit )
     {
     cout << VTK_EXO_PRT_KEY( cit->first ) << VTK_EXO_PRT_ARR2( cit->second.GetValue() ) << "\n";
     }
   cout << "LRU\n";
-  vtkExodusIILRURef lit;
+  vtkExodusIICacheEntry::LRURef lit;
   for ( lit = lru.begin(); lit != lru.end(); ++lit )
     {
     cout << VTK_EXO_PRT_KEY( (*lit)->first ) << "\n";
@@ -54,7 +54,7 @@ vtkExodusIICacheEntry::vtkExodusIICacheEntry( const vtkExodusIICacheEntry& other
 }
 
 #if 0
-void printLRUBack( vtkExodusIICacheRef& cit )
+void printLRUBack( vtkExodusIICacheEntry::CacheRef& cit )
 {
   cout << "Key is " << VTK_EXO_PRT_KEY( cit->first ) << "\n";
 }
@@ -62,7 +62,7 @@ void printLRUBack( vtkExodusIICacheRef& cit )
 
 // ============================================================================
 
-vtkCxxRevisionMacro(vtkExodusIICache,"1.1");
+vtkCxxRevisionMacro(vtkExodusIICache,"1.2");
 vtkStandardNewMacro(vtkExodusIICache);
 
 vtkExodusIICache::vtkExodusIICache()
@@ -109,7 +109,7 @@ int vtkExodusIICache::ReduceToSize( double newSize )
   int deletedSomething = 0;
   while ( this->Size > newSize && ! this->LRU.empty() )
     {
-    vtkExodusIICacheRef cit( this->LRU.back() );
+    vtkExodusIICacheEntry::CacheRef cit( this->LRU.back() );
     vtkDataArray* arr = cit->second.Value;
     if ( arr )
       {
@@ -146,7 +146,7 @@ void vtkExodusIICache::Insert( vtkExodusIICacheKey& key, vtkDataArray* value )
 {
   double vsize = value ? value->GetActualMemorySize() / 1024. : 0.;
 
-  vtkExodusIICacheRef it = this->Cache.find( key );
+  vtkExodusIICacheEntry::CacheRef it = this->Cache.find( key );
   if ( it != this->Cache.end() )
     {
     if ( it->second.Value == value )
@@ -169,7 +169,7 @@ void vtkExodusIICache::Insert( vtkExodusIICacheKey& key, vtkDataArray* value )
   else
     {
     this->ReduceToSize( this->Capacity - vsize );
-    vtkstd::pair<vtkExodusIICacheRef, bool> iret = this->Cache.insert(
+    vtkstd::pair<vtkExodusIICacheEntry::CacheRef, bool> iret = this->Cache.insert(
       vtkstd::pair<vtkExodusIICacheKey,vtkExodusIICacheEntry>( key, vtkExodusIICacheEntry(value) ) );
     this->Size += vsize;
     cout << "Adding " << VTK_EXO_PRT_KEY( key ) << VTK_EXO_PRT_ARR( value ) << "\n";
@@ -182,7 +182,7 @@ vtkDataArray*& vtkExodusIICache::Find( vtkExodusIICacheKey key )
 {
   static vtkDataArray* dummy = 0;
 
-  vtkExodusIICacheRef it = this->Cache.find( key );
+  vtkExodusIICacheEntry::CacheRef it = this->Cache.find( key );
   if ( it != this->Cache.end() )
     {
     this->LRU.erase( it->second.LRUEntry );
@@ -196,7 +196,7 @@ vtkDataArray*& vtkExodusIICache::Find( vtkExodusIICacheKey key )
 
 int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key )
 {
-  vtkExodusIICacheRef it = this->Cache.find( key );
+  vtkExodusIICacheEntry::CacheRef it = this->Cache.find( key );
   if ( it != this->Cache.end() )
     {
     cout << "Dropping " << VTK_EXO_PRT_KEY( it->first ) << VTK_EXO_PRT_ARR( it->second.Value ) << "\n";
@@ -222,7 +222,7 @@ int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key )
 
 int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key, vtkExodusIICacheKey pattern )
 {
-  vtkExodusIICacheRef it;
+  vtkExodusIICacheEntry::CacheRef it;
   int nDropped = 0;
   it = this->Cache.begin();
   while ( it != this->Cache.end() )
@@ -239,7 +239,7 @@ int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key, vtkExodusIICacheKey p
       {
       this->Size -= it->second.Value->GetActualMemorySize() / 1024.;
       }
-    vtkExodusIICacheRef tmpIt = it++;
+    vtkExodusIICacheEntry::CacheRef tmpIt = it++;
     this->Cache.erase( tmpIt );
 
     if ( this->Size <= 0 )
@@ -258,7 +258,7 @@ int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key, vtkExodusIICacheKey p
 void vtkExodusIICache::RecomputeSize()
 {
   this->Size = 0.;
-  vtkExodusIICacheRef it;
+  vtkExodusIICacheEntry::CacheRef it;
   for ( it = this->Cache.begin(); it != this->Cache.end(); ++it )
     {
     if ( it->second.Value )

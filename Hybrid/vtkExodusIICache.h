@@ -84,10 +84,6 @@ public:
 class vtkExodusIICacheEntry;
 class vtkExodusIICache;
 class vtkDataArray;
-typedef vtkstd::map<vtkExodusIICacheKey,vtkExodusIICacheEntry> vtkExodusIICacheSet;
-typedef vtkstd::map<vtkExodusIICacheKey,vtkExodusIICacheEntry>::iterator vtkExodusIICacheRef;
-typedef vtkstd::list<vtkExodusIICacheRef> vtkExodusIICacheLRU;
-typedef vtkstd::list<vtkExodusIICacheRef>::iterator vtkExodusIILRURef;
 
 class VTK_HYBRID_EXPORT vtkExodusIICacheEntry
 {
@@ -100,9 +96,14 @@ public:
 
   vtkDataArray* GetValue() { return this->Value; }
 
+  typedef vtkstd::map<vtkExodusIICacheKey,vtkExodusIICacheEntry> CacheSet;
+  typedef vtkstd::map<vtkExodusIICacheKey,vtkExodusIICacheEntry>::iterator CacheRef;
+  typedef vtkstd::list<vtkExodusIICacheEntry::CacheRef> CacheLRU;
+  typedef vtkstd::list<vtkExodusIICacheEntry::CacheRef>::iterator LRURef;
+
 protected:
   vtkDataArray* Value;
-  vtkExodusIILRURef LRUEntry;
+  LRURef LRUEntry;
 
   friend class vtkExodusIICache;
 };
@@ -177,15 +178,17 @@ protected:
   /// The current size of the cache (i.e., the size of the all the arrays it currently contains) in MiB.
   double Size;
 
+  //BTX
   /** A least-recently-used (LRU) cache to hold arrays.
     * During RequestData the cache may contain more than its maximum size since
     * the user may request more data than the cache can hold. However, the cache
     * is expunged whenever a new array is loaded. Never count on the cache holding
     * what you request for very long.
     */
-  vtkExodusIICacheSet Cache;
+  vtkExodusIICacheEntry::CacheSet Cache;
 
   /// The actual LRU list (indices into the cache ordered least to most recently used).
-  vtkExodusIICacheLRU LRU;
+  vtkExodusIICacheEntry::CacheLRU LRU;
+  //ETX
 };
 #endif // __vtkExodusIICache_h
