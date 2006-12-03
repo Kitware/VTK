@@ -75,7 +75,7 @@ int ex_get_set (int   exoid,
     int  *set_extra_list)
 {
 
-   int dimid, entry_list_id, extra_list_id, iresult;
+   int dimid, entry_list_id, extra_list_id = -1, iresult;
    int set_id_ndx;
    long num_entry_in_set, count[1], start[1]; 
    nclong *longs;
@@ -83,9 +83,9 @@ int ex_get_set (int   exoid,
    char* typeName;
    char* dimptr;
    char* idsptr;
-   char* numentryptr;
-   char* entryptr;
-   char* extraptr;
+   char* numentryptr = 0;
+   char* entryptr = 0;
+   char* extraptr = 0;
 
    exerrval = 0; /* clear error code */
 

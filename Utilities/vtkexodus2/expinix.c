@@ -61,7 +61,8 @@
 int ex_put_init_ext (int   exoid,
                      const ex_init_params *model)
 {
-  int numdimdim, numnoddim, elblkdim, edblkdim, fablkdim, esetdim, fsetdim, elsetdim, nsetdim, ssetdim, strdim, dim[2], varid;
+  int numdimdim, numnoddim = -1, elblkdim = -1, edblkdim = -1, fablkdim = -1;
+  int esetdim = -1, fsetdim = -1, elsetdim = -1, nsetdim = -1, ssetdim = -1, strdim, dim[2], varid;
   int nmapdim,edmapdim,famapdim,emapdim;
 #if 0
   /* used for header size calculations which are turned off for now */

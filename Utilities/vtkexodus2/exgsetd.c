@@ -76,8 +76,8 @@ int ex_get_set_dist_fact (int   exoid,
    char* typeName;
    char* dimptr;
    char* idsptr;
-   char* numdfptr;
-   char* factptr;
+   char* numdfptr = 0;
+   char* factptr = 0;
  
    exerrval = 0; /* clear error code */
 

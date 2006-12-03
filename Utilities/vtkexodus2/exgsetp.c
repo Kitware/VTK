@@ -81,8 +81,8 @@ int ex_get_set_param (int  exoid,
    char* typeName;
    char* dimptr;
    char* idsptr;
-   char* numentryptr;
-   char* numdfptr;
+   char* numentryptr = 0;
+   char* numdfptr = 0;
 
    exerrval = 0; /* clear error code */
 
