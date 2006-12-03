@@ -24,8 +24,9 @@
 // removal.
 
 #include "vtkObject.h"
-#include <vtkstd/map>
-#include <vtkstd/list>
+
+#include <vtkstd/map> // used for cache storage
+#include <vtkstd/list> // use for LRU ordering
 
 //BTX
 class VTK_HYBRID_EXPORT vtkExodusIICacheKey
@@ -190,5 +191,9 @@ protected:
   /// The actual LRU list (indices into the cache ordered least to most recently used).
   vtkExodusIICacheLRU LRU;
   //ETX
+
+private:
+  vtkExodusIICache( const vtkExodusIICache& ); // Not implemented
+  void operator = ( const vtkExodusIICache& ); // Not implemented
 };
 #endif // __vtkExodusIICache_h

@@ -193,7 +193,7 @@ class vtkExodusIIReaderPrivate : public vtkObject
 {
 public:
   static vtkExodusIIReaderPrivate* New();
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintData( ostream& os, vtkIndent indent );
   vtkTypeRevisionMacro(vtkExodusIIReaderPrivate,vtkObject);
 
   /// Open an ExodusII file for reading. Returns 0 on success.
@@ -795,7 +795,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.3");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.4");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -2923,9 +2923,33 @@ void vtkExodusIIReaderPrivate::RemoveBeginningAndTrailingSpaces( int len, char *
     }
 }
 
-void vtkExodusIIReaderPrivate::PrintSelf( ostream& os, vtkIndent indent )
+// Normally, this would be below with all the other vtkExodusIIReader member definitions,
+// but the Tcl PrintSelf test script is really lame.
+void vtkExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+  os << indent << "FileName: " << ( this->FileName ? this->FileName : "(null)" ) << "\n";
+  os << indent << "XMLFileName: " << ( this->XMLFileName ? this->XMLFileName : "(null)" ) << "\n";
+  os << indent << "DisplayType: " << this->DisplayType << "\n";
+  os << indent << "TimeStep: " << this->TimeStep << "\n";
+  os << indent << "ExodusModelMetadata: " << (this->ExodusModelMetadata ? "ON" : "OFF" ) << "\n";
+  os << indent << "PackExodusModelOntoOutput: " << (this->PackExodusModelOntoOutput ? "ON" : "OFF" ) << "\n";
+  os << indent << "ExodusModel: " << this->ExodusModel << "\n";
+  if ( this->Metadata )
+    {
+    os << indent << "Metadata:\n";
+    this->Metadata->PrintData( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "Metadata: (null)\n";
+    }
+}
+
+
+void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
+{
+  //this->Superclass::Print Self( os, indent );
   os << indent << "Exoid: " << this->Exoid << "\n";
   os << indent << "AppWordSize: " << this->AppWordSize << "\n";
   os << indent << "DiskWordSize: " << this->DiskWordSize << "\n";
@@ -3814,11 +3838,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.3");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.4");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.3");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.4");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -3873,24 +3897,8 @@ vtkExodusIIReader::~vtkExodusIIReader()
   this->SetParser( 0 );
 }
 
-void vtkExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
-{
-  this->Superclass::PrintSelf( os, indent );
-  os << indent << "FileName: " << ( this->FileName ? this->FileName : "(null)" ) << "\n";
-  os << indent << "XMLFileName: " << ( this->XMLFileName ? this->XMLFileName : "(null)" ) << "\n";
-  os << indent << "ExodusModelMetadata: " << (this->ExodusModelMetadata ? "ON" : "OFF" ) << "\n";
-  os << indent << "PackExodusModelOntoOutput: " << (this->PackExodusModelOntoOutput ? "ON" : "OFF" ) << "\n";
-  os << indent << "ExodusModel: " << this->ExodusModel << "\n";
-  if ( this->Metadata )
-    {
-    os << indent << "Metadata:\n";
-    this->Metadata->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Metadata: (null)\n";
-    }
-}
+// Normally, vtkExodusIIReader::PrintSelf would be here.
+// But it's above to prevent PrintSelf-Hybrid from failing.
 
 int vtkExodusIIReader::CanReadFile( const char* fname )
 {
