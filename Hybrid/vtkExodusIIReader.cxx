@@ -795,7 +795,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.4");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.5");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -935,7 +935,7 @@ int vtkExodusIIReaderPrivate::VerifyIntegrationPointGlom(
     bad = true;
     }
   int e;
-  int ef;
+  int ef = -1;
   int cnt;
   bool found; 
   if ( dim == 2 )
@@ -1889,9 +1889,9 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies( vtkIntArray* refs, int otyp,
   int* pref = refs->GetPointer( 0 );
   int stride = refs->GetNumberOfComponents();
   BlockInfoType* binfop = &this->BlockInfo[otyp][bnum];
-  int* nodeconn;
+  int* nodeconn = 0;
   vtkIdType* cellConn;
-  int nnpe;
+  int nnpe = 0;
   vtkIntArray* nconn;
   vtkstd::vector<vtkIdType> tmpTuple;
   while ( ref < nrefs )
@@ -3107,10 +3107,10 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   int i, j;
   int num_timesteps;
   char** obj_names;
-  char** obj_typenames;
-  char** var_names;
+  char** obj_typenames = 0;
+  char** var_names = 0;
   int have_var_names;
-  int num_vars; /* number of variables per object */
+  int num_vars = 0; /* number of variables per object */
   int num_entries; /* number of values per variable per object */
 
   this->Modified(); // Update MTime so that it will be newer than parent's FileNameMTime
@@ -3838,11 +3838,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.4");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.5");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.4");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.5");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -3906,7 +3906,7 @@ int vtkExodusIIReader::CanReadFile( const char* fname )
   int appWordSize = 8;
   int diskWordSize = 8;
   float version;
-  if ( ex_open( fname, EX_READ, &appWordSize, &diskWordSize, &version ) != 0 )
+  if ( (exoid = ex_open( fname, EX_READ, &appWordSize, &diskWordSize, &version )) != 0 )
     {
     return 0;
     }
@@ -4241,7 +4241,6 @@ const char* vtkExodusIIReader::GetObjectTypeName( int otyp )
   case ELEMENT_ID: return "element id";
   case NODE_ID: return "node id";
   case NODAL_SQUEEZEMAP: return "pointmap";
-  default: return 0;
     }
   return 0;
 }
