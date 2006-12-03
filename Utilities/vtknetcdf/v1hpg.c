@@ -1310,7 +1310,7 @@ nc_get_NC(NC *ncp)
       if(extent > 4096)
         extent = 4096;
       if( ((off_t)extent) > filesize )
-        extent = _RNDUP(filesize, X_ALIGN);
+        extent = (off_t) _RNDUP(filesize, X_ALIGN);
       }
     else if(extent > ncp->chunk)
       {
