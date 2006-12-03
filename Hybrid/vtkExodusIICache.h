@@ -85,6 +85,11 @@ class vtkExodusIICacheEntry;
 class vtkExodusIICache;
 class vtkDataArray;
 
+typedef vtkstd::map<vtkExodusIICacheKey,vtkExodusIICacheEntry*> vtkExodusIICacheSet;
+typedef vtkstd::map<vtkExodusIICacheKey,vtkExodusIICacheEntry*>::iterator vtkExodusIICacheRef;
+typedef vtkstd::list<vtkExodusIICacheRef> vtkExodusIICacheLRU;
+typedef vtkstd::list<vtkExodusIICacheRef>::iterator vtkExodusIICacheLRURef;
+
 class VTK_HYBRID_EXPORT vtkExodusIICacheEntry
 {
 public:
@@ -96,14 +101,9 @@ public:
 
   vtkDataArray* GetValue() { return this->Value; }
 
-  typedef vtkstd::map<vtkExodusIICacheKey,vtkExodusIICacheEntry> CacheSet;
-  typedef vtkstd::map<vtkExodusIICacheKey,vtkExodusIICacheEntry>::iterator CacheRef;
-  typedef vtkstd::list<vtkExodusIICacheEntry::CacheRef> CacheLRU;
-  typedef vtkstd::list<vtkExodusIICacheEntry::CacheRef>::iterator LRURef;
-
 protected:
   vtkDataArray* Value;
-  LRURef LRUEntry;
+  vtkExodusIICacheLRURef LRUEntry;
 
   friend class vtkExodusIICache;
 };
@@ -185,10 +185,10 @@ protected:
     * is expunged whenever a new array is loaded. Never count on the cache holding
     * what you request for very long.
     */
-  vtkExodusIICacheEntry::CacheSet Cache;
+  vtkExodusIICacheSet Cache;
 
   /// The actual LRU list (indices into the cache ordered least to most recently used).
-  vtkExodusIICacheEntry::CacheLRU LRU;
+  vtkExodusIICacheLRU LRU;
   //ETX
 };
 #endif // __vtkExodusIICache_h

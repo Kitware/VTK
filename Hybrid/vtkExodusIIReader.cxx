@@ -795,7 +795,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.2");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.3");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -1862,6 +1862,7 @@ void vtkExodusIIReaderPrivate::AddPointArray( vtkDataArray* src, vtkUnstructured
 void vtkExodusIIReaderPrivate::InsertSetNodeCopies( vtkIntArray* refs, int otyp, int obj, vtkUnstructuredGrid* output )
 {
   (void)otyp;
+  (void)obj;
   // Insert a "VERTEX" cell for each node in the set.
   vtkIdType ref;
   vtkIdType tmp;
@@ -1889,10 +1890,10 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies( vtkIntArray* refs, int otyp,
   int stride = refs->GetNumberOfComponents();
   BlockInfoType* binfop = &this->BlockInfo[otyp][bnum];
   int* nodeconn;
-  int* cellConn;
+  vtkIdType* cellConn;
   int nnpe;
   vtkIntArray* nconn;
-  vtkstd::vector<int> tmpTuple;
+  vtkstd::vector<vtkIdType> tmpTuple;
   while ( ref < nrefs )
     {
     int loadNewBlk = 0;
@@ -1930,17 +1931,22 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies( vtkIntArray* refs, int otyp,
         tmpTuple[k] = nodeconn[off-k];
       cellConn = &tmpTuple[0];
       }
-    else if ( this->SqueezePoints )
+    else
+#ifndef VTK_USE_64BIT_IDS
+      if ( this->SqueezePoints )
+#endif // VTK_USE_64BIT_IDS
       {
       vtkIdType off = (pref[0] + 1 - binfop->FileOffset) * nnpe;
       for ( int k = 0; k < nnpe; ++k )
         tmpTuple[k] = nodeconn[off+k];
       cellConn = &tmpTuple[0];
       }
+#ifndef VTK_USE_64BIT_IDS
     else
       {
-      cellConn = nodeconn + (pref[0] + 1 - binfop->FileOffset) * nnpe;
+      cellConn = (int*)nodeconn + (pref[0] + 1 - binfop->FileOffset) * nnpe;
       }
+#endif // VTK_USE_64BIT_IDS
 
     if ( this->SqueezePoints )
       { // this loop is separated out to handle case (stride > 1 && pref[1] < 0 && this->SqueezePoints)
@@ -2193,7 +2199,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         vtkErrorMacro( "Could not read map \"" << minfop->Name.c_str() << "\" (" << minfop->Id << ") from disk." );
         arr->Delete();
         arr = 0;
-        break;
+        return 0;
         }
       for ( vtkIdType i = 0; i < arr->GetNumberOfTuples(); ++i )
         {
@@ -3728,6 +3734,7 @@ protected:
     }
   virtual void StartElement( const char* tagName, const char** attrs )
     {
+    (void)attrs; //FIXME: Useme
     const char* name = strrchr( tagName, ':' );
     name = name ? name + 1 : tagName; // If tag name has xml namespace separator, get rid of namespace.
     vtkStdString tName( name );
@@ -3807,11 +3814,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.2");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.3");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.2");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.3");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -4250,7 +4257,7 @@ int vtkExodusIIReader::GetObjectStatus( int objectType, int objectIndex )
 
 void vtkExodusIIReader::SetObjectStatus( int objectType, int objectIndex, int status )
 {
-  return this->Metadata->SetObjectStatus( objectType, objectIndex, status );
+  this->Metadata->SetObjectStatus( objectType, objectIndex, status );
 }
 
 const char* vtkExodusIIReader::GetObjectName( int objectType, int objectIndex )
@@ -4304,7 +4311,7 @@ int vtkExodusIIReader::GetObjectArrayStatus( int objectType, int arrayIndex )
 
 void vtkExodusIIReader::SetObjectArrayStatus( int objectType, int arrayIndex, int status )
 {
-  return this->Metadata->SetObjectArrayStatus( objectType, arrayIndex, status );
+  this->Metadata->SetObjectArrayStatus( objectType, arrayIndex, status );
 }
 
 int vtkExodusIIReader::GetObjectArrayIndex( int objectType, const char* arrayName )
@@ -4430,32 +4437,39 @@ int vtkExodusIIReader::GetNumberOfAssemblyArrays()
   return 0;
 }
 
-const char* vtkExodusIIReader::GetAssemblyArrayName(int arrayIdx)
+const char* vtkExodusIIReader::GetAssemblyArrayName( int arrayIdx )
 {
   (void)arrayIdx;
   return "FIXME";
 }
 
-int vtkExodusIIReader::GetAssemblyArrayID( const char *name )
+int vtkExodusIIReader::GetAssemblyArrayID( const char* name )
 {
+  (void)name;
   return 0;
 }
 
-void vtkExodusIIReader::SetAssemblyArrayStatus(int index, int flag)
+void vtkExodusIIReader::SetAssemblyArrayStatus( int index, int flag )
 {
+  (void)index;
+  (void)flag;
 }
 
-void vtkExodusIIReader::SetAssemblyArrayStatus(const char*, int flag)
+void vtkExodusIIReader::SetAssemblyArrayStatus( const char* name, int flag )
 {
+  (void)name;
+  (void)flag;
 }
 
-int vtkExodusIIReader::GetAssemblyArrayStatus(int index)
+int vtkExodusIIReader::GetAssemblyArrayStatus( int index )
 {
+  (void)index;
   return 0;
 }
 
-int vtkExodusIIReader::GetAssemblyArrayStatus(const char*)
+int vtkExodusIIReader::GetAssemblyArrayStatus( const char* name )
 {
+  (void)name;
   return 0;
 }
 
@@ -4464,27 +4478,33 @@ int vtkExodusIIReader::GetNumberOfHierarchyArrays()
   return 0;
 }
 
-const char* vtkExodusIIReader::GetHierarchyArrayName(int arrayIdx)
+const char* vtkExodusIIReader::GetHierarchyArrayName( int arrayIdx )
 {
   (void)arrayIdx;
   return "FIXME";
 }
 
-void vtkExodusIIReader::SetHierarchyArrayStatus(int index, int flag)
+void vtkExodusIIReader::SetHierarchyArrayStatus( int index, int flag )
 {
+  (void)index;
+  (void)flag;
 }
 
-void vtkExodusIIReader::SetHierarchyArrayStatus(const char*, int flag)
+void vtkExodusIIReader::SetHierarchyArrayStatus( const char* name, int flag )
 {
+  (void)name;
+  (void)flag;
 }
 
-int vtkExodusIIReader::GetHierarchyArrayStatus(int index)
+int vtkExodusIIReader::GetHierarchyArrayStatus( int index )
 {
+  (void) index;
   return 0;
 }
 
-int vtkExodusIIReader::GetHierarchyArrayStatus(const char*)
+int vtkExodusIIReader::GetHierarchyArrayStatus( const char* name )
 {
+  (void)name;
   return 0;
 }
 
