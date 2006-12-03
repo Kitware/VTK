@@ -34,7 +34,7 @@
 // -------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkSortDataArray);
-vtkCxxRevisionMacro(vtkSortDataArray,"1.1");
+vtkCxxRevisionMacro(vtkSortDataArray,"1.2");
 
 vtkSortDataArray::vtkSortDataArray()
 {
@@ -181,6 +181,111 @@ void vtkSortDataArraySort11(vtkDataArray *keys, vtkDataArray *values)
     }
 }
 
+// The component that qsort should use to compare tuples.
+// This is ugly and not thread-safe but it works.
+static int vtkSortDataArrayComp = 0;
+
+// Key comparison functions for qsort must be in an extern "C"
+// or some compilers will be unable to use their function pointers
+// as arguments to qsort.
+extern "C" {
+int vtkSortDataArrayComponentCompare_VTK_DOUBLE( const void* a, const void* b )
+{
+  return ((double*)a)[vtkSortDataArrayComp] < ((double*)b)[vtkSortDataArrayComp] ? -1 :
+    (((double*)a)[vtkSortDataArrayComp] == ((double*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_FLOAT( const void* a, const void* b )
+{
+  return ((float*)a)[vtkSortDataArrayComp] < ((float*)b)[vtkSortDataArrayComp] ? -1 :
+    (((float*)a)[vtkSortDataArrayComp] == ((float*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_LONG_LONG( const void* a, const void* b )
+{
+  return ((long long*)a)[vtkSortDataArrayComp] < ((long long*)b)[vtkSortDataArrayComp] ? -1 :
+    (((long long*)a)[vtkSortDataArrayComp] == ((long long*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_UNSIGNED_LONG_LONG( const void* a, const void* b )
+{
+  return ((unsigned long long*)a)[vtkSortDataArrayComp] < ((unsigned long long*)b)[vtkSortDataArrayComp] ? -1 :
+    (((unsigned long long*)a)[vtkSortDataArrayComp] == ((unsigned long long*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK___INT64( const void* a, const void* b )
+{
+  return ((vtkTypeInt64*)a)[vtkSortDataArrayComp] < ((vtkTypeInt64*)b)[vtkSortDataArrayComp] ? -1 :
+    (((vtkTypeInt64*)a)[vtkSortDataArrayComp] == ((vtkTypeInt64*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_UNSIGNED___INT64( const void* a, const void* b )
+{
+  return ((vtkTypeUInt64*)a)[vtkSortDataArrayComp] < ((vtkTypeUInt64*)b)[vtkSortDataArrayComp] ? -1 :
+    (((vtkTypeUInt64*)a)[vtkSortDataArrayComp] == ((vtkTypeUInt64*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_ID_TYPE( const void* a, const void* b )
+{
+  return ((vtkIdType*)a)[vtkSortDataArrayComp] < ((vtkIdType*)b)[vtkSortDataArrayComp] ? -1 :
+    (((vtkIdType*)a)[vtkSortDataArrayComp] == ((vtkIdType*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_LONG( const void* a, const void* b )
+{
+  return ((long*)a)[vtkSortDataArrayComp] < ((long*)b)[vtkSortDataArrayComp] ? -1 :
+    (((long*)a)[vtkSortDataArrayComp] == ((long*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_UNSIGNED_LONG( const void* a, const void* b )
+{
+  return ((unsigned long*)a)[vtkSortDataArrayComp] < ((unsigned long*)b)[vtkSortDataArrayComp] ? -1 :
+    (((unsigned long*)a)[vtkSortDataArrayComp] == ((unsigned long*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_INT( const void* a, const void* b )
+{
+  return ((int*)a)[vtkSortDataArrayComp] < ((int*)b)[vtkSortDataArrayComp] ? -1 :
+    (((int*)a)[vtkSortDataArrayComp] == ((int*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_UNSIGNED_INT( const void* a, const void* b )
+{
+  return ((unsigned int*)a)[vtkSortDataArrayComp] < ((unsigned int*)b)[vtkSortDataArrayComp] ? -1 :
+    (((unsigned int*)a)[vtkSortDataArrayComp] == ((unsigned int*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_SHORT( const void* a, const void* b )
+{
+  return ((short*)a)[vtkSortDataArrayComp] < ((short*)b)[vtkSortDataArrayComp] ? -1 :
+    (((short*)a)[vtkSortDataArrayComp] == ((short*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_UNSIGNED_SHORT( const void* a, const void* b )
+{
+  return ((unsigned short*)a)[vtkSortDataArrayComp] < ((unsigned short*)b)[vtkSortDataArrayComp] ? -1 :
+    (((unsigned short*)a)[vtkSortDataArrayComp] == ((unsigned short*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_CHAR( const void* a, const void* b )
+{
+  return ((char*)a)[vtkSortDataArrayComp] < ((char*)b)[vtkSortDataArrayComp] ? -1 :
+    (((char*)a)[vtkSortDataArrayComp] == ((char*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_SIGNED_CHAR( const void* a, const void* b )
+{
+  return ((signed char*)a)[vtkSortDataArrayComp] < ((signed char*)b)[vtkSortDataArrayComp] ? -1 :
+    (((signed char*)a)[vtkSortDataArrayComp] == ((signed char*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+
+int vtkSortDataArrayComponentCompare_VTK_UNSIGNED_CHAR( const void* a, const void* b )
+{
+  return ((unsigned char*)a)[vtkSortDataArrayComp] < ((unsigned char*)b)[vtkSortDataArrayComp] ? -1 :
+    (((unsigned char*)a)[vtkSortDataArrayComp] == ((unsigned char*)b)[vtkSortDataArrayComp] ? 0 : 1);
+}
+}
+
 // vtkSortDataArray methods -------------------------------------------------------
 
 void vtkSortDataArray::Sort(vtkIdList *keys)
@@ -204,6 +309,88 @@ void vtkSortDataArray::Sort(vtkDataArray *keys)
   switch (keys->GetDataType())
     {
     vtkTemplateMacro(vtkstd::sort((VTK_TT *)data, ((VTK_TT *)data) + numKeys));
+    }
+}
+
+void vtkSortDataArray::SortArrayByComponent( vtkDataArray* arr, int k )
+{
+  int nc = arr->GetNumberOfComponents();
+  if ( nc <= k )
+    {
+    vtkGenericWarningMacro( "Cannot sort by column " << k <<
+      " since the array only has columns 0 through " << (nc-1) );
+    return;
+    }
+
+  // This global variable is what makes the method unsafe for threads:
+  vtkSortDataArrayComp = k;
+
+  switch ( arr->GetDataType() )
+    {
+  case VTK_DOUBLE:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_DOUBLE );
+    break;
+  case VTK_FLOAT:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_FLOAT );
+    break;
+  case VTK_LONG_LONG:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_LONG_LONG );
+    break;
+  case VTK_UNSIGNED_LONG_LONG:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_UNSIGNED_LONG_LONG );
+    break;
+  case VTK___INT64:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK___INT64 );
+    break;
+  case VTK_UNSIGNED___INT64:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_UNSIGNED___INT64 );
+    break;
+  case VTK_ID_TYPE:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_ID_TYPE );
+    break;
+  case VTK_LONG:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_LONG );
+    break;
+  case VTK_UNSIGNED_LONG:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_UNSIGNED_LONG );
+    break;
+  case VTK_INT:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_INT );
+    break;
+  case VTK_UNSIGNED_INT:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_UNSIGNED_INT );
+    break;
+  case VTK_SHORT:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_SHORT );
+    break;
+  case VTK_UNSIGNED_SHORT:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_UNSIGNED_SHORT );
+    break;
+  case VTK_CHAR:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_CHAR );
+    break;
+  case VTK_SIGNED_CHAR:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_SIGNED_CHAR );
+    break;
+  case VTK_UNSIGNED_CHAR:
+    qsort( (void*)arr->GetVoidPointer( 0 ), arr->GetNumberOfTuples(),
+        arr->GetDataTypeSize() * nc, vtkSortDataArrayComponentCompare_VTK_UNSIGNED_CHAR );
+    break;
     }
 }
 

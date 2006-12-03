@@ -97,6 +97,8 @@ IF(VTK_X3D_USE_JAVA)
 ENDIF(VTK_X3D_USE_JAVA)
 IF(VTK_HAS_EXODUS)
   SET(Kit_SRCS ${Kit_SRCS}
+    vtkExodusIICache.cxx
+    vtkExodusIIReader.cxx
     vtkPExodusReader.cxx
     vtkExodusReader.cxx
     vtkDSPFilterDefinition.cxx
