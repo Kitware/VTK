@@ -56,11 +56,13 @@ public:
   vtkSetStringMacro(FileName);
 
   // Description:
-  // Get/set the character that will be used to separate fields.  For
-  // example, set this to ',' for a comma-separated value file.
-  // Defaults to a comma.
-  vtkGetMacro(FieldDelimiter, char);
-  vtkSetMacro(FieldDelimiter, char);
+  // Get/set the characters that will be used to separate fields.  For
+  // example, set this to "," for a comma-separated value file.  Set
+  // it to ".:;" for a file where columns can be separated by a
+  // period, colon or semicolon.  The order of the characters in the
+  // string does not matter.  Defaults to a comma.
+  vtkSetStringMacro(FieldDelimiterCharacters);
+  vtkGetStringMacro(FieldDelimiterCharacters);
 
   // Description:
   // Get/set the character that will begin and end strings.  Microsoft
@@ -106,7 +108,7 @@ public:
   void OpenFile();
 
   char* FileName;
-  char FieldDelimiter;
+  char *FieldDelimiterCharacters;
   char StringDelimiter;
   bool UseStringDelimiter;
   bool HaveHeaders;

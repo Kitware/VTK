@@ -31,7 +31,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.11");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.12");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -41,7 +41,7 @@ struct vtkDelimitedTextReaderInternals
 
 // Forward function reference (definition at bottom :)
 static int splitString(const vtkStdString& input, 
-                       char fieldDelimiter,
+                       const char *fieldDelimiters,
                        char stringDelimiter,
                        bool useStringDelimiter,
                        bool mergeConsecutiveDelimiters,
@@ -66,7 +66,8 @@ vtkDelimitedTextReader::vtkDelimitedTextReader()
   this->SetNumberOfOutputPorts(1);
   this->ReadBuffer = new char[2048];
   this->HaveHeaders = false;
-  this->FieldDelimiter = ',';
+  this->FieldDelimiterCharacters = NULL;
+  this->SetFieldDelimiterCharacters(",");
   this->StringDelimiter = '"';
   this->UseStringDelimiter = true;
 
@@ -77,6 +78,8 @@ vtkDelimitedTextReader::vtkDelimitedTextReader()
 vtkDelimitedTextReader::~vtkDelimitedTextReader()
 {
   this->SetFileName(0);
+  this->SetFieldDelimiterCharacters(NULL);
+
   delete [] this->ReadBuffer;
   delete this->Internals;
 }
@@ -88,7 +91,7 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " 
      << (this->FileName ? this->FileName : "(none)") << endl;
-  os << indent << "Field delimiter: '" << this->FieldDelimiter 
+  os << indent << "Field delimiters: '" << this->FieldDelimiterCharacters
      << "'" << endl;
   os << indent << "String delimiter: '" << this->StringDelimiter
      << "'" << endl;
@@ -169,7 +172,7 @@ int vtkDelimitedTextReader::RequestData(
   if (this->HaveHeaders)
     {
     splitString(firstLine,
-                this->FieldDelimiter,
+                this->FieldDelimiterCharacters,
                 this->StringDelimiter,
                 this->UseStringDelimiter,
                 this->MergeConsecutiveDelimiters,
@@ -178,7 +181,7 @@ int vtkDelimitedTextReader::RequestData(
   else
     {
     splitString(firstLine,
-                this->FieldDelimiter,
+                this->FieldDelimiterCharacters,
                 this->StringDelimiter,
                 this->UseStringDelimiter,
                 this->MergeConsecutiveDelimiters,
@@ -238,7 +241,7 @@ int vtkDelimitedTextReader::RequestData(
 
     // Split string on the delimiters
     splitString(nextLine,
-                this->FieldDelimiter,
+                this->FieldDelimiterCharacters,
                 this->StringDelimiter,
                 this->UseStringDelimiter,
                 this->MergeConsecutiveDelimiters,
@@ -273,7 +276,7 @@ int vtkDelimitedTextReader::RequestData(
 
 static int 
 splitString(const vtkStdString& input, 
-            char fieldDelimiter,
+            const char *fieldDelimiters,
             char stringDelimiter,
             bool useStringDelimiter,
             bool mergeConsecutiveDelimiters,
@@ -333,9 +336,10 @@ splitString(const vtkStdString& input,
         // this should just toggle inString
         inString = (inString == false);
         }
-      else if (thisCharacter == fieldDelimiter && !inString)
+      else if (!inString && (strchr(fieldDelimiters, thisCharacter) != NULL))
         {
-        if (mergeConsecutiveDelimiters && lastCharacter == fieldDelimiter)
+        if (mergeConsecutiveDelimiters && 
+            (strchr(fieldDelimiters, lastCharacter) != NULL))
           {
           continue; // We're in the middle of a string of delimiters.
           }
