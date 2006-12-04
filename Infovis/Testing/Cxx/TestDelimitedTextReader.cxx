@@ -35,7 +35,7 @@ TestDelimitedTextReader(int argc, char *argv[])
   cout << "Filename: " << filename << endl;
 
   vtkDelimitedTextReader *reader = vtkDelimitedTextReader::New();
-  reader->SetFieldDelimiter(':');
+  reader->SetFieldDelimiterCharacters(":");
   reader->SetStringDelimiter('"');
   reader->SetUseStringDelimiter(true);
   reader->SetFileName(filename);
@@ -92,7 +92,7 @@ TestDelimitedTextReader(int argc, char *argv[])
   filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                   "Data/delimited2.txt");
 
-  reader->SetFieldDelimiter(',');
+  reader->SetFieldDelimiterCharacters(",");
   reader->MergeConsecutiveDelimitersOn();
   reader->SetHaveHeaders(true);
   reader->SetFileName(filename);
