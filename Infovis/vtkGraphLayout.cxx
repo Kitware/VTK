@@ -32,7 +32,7 @@
 
 #include "vtkGraphLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkGraphLayout, "1.4");
+vtkCxxRevisionMacro(vtkGraphLayout, "1.5");
 vtkStandardNewMacro(vtkGraphLayout);
 
 // ----------------------------------------------------------------------
@@ -137,7 +137,7 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
 {
   if (this->LayoutStrategy == NULL)
     {
-    vtkErrorMacro(<< "Layout strategy must me non-null.");
+    vtkErrorMacro(<< "Layout strategy must be non-null.");
     return 0;
     }
 
@@ -150,40 +150,56 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkAbstractGraph *output = vtkAbstractGraph::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-    
-  // See if the input is the same as the last input
-  // Note: This is keeping state and in vtk filter
-  // land this is a bad thing. :)
-  if ((input != this->LastInput) ||
-      (input->GetMTime() != this->LastInputMTime))
+
+  // Is this a completely new input?  Is it the same input as the last
+  // time the filter ran but with a new MTime?  If either of those is
+  // true, make a copy and give it to the strategy object anew.
+  if (input != this->LastInput ||
+      input->GetMTime() > this->LastInputMTime)
     {
-    
-    // Okay create an internal graph for supporting
-    // iterative graph layout strategies
+    if (input != this->LastInput)
+      {
+      vtkDebugMacro(<<"Filter running with different input.  Resetting in strategy.");
+      }
+    else
+      {
+      vtkDebugMacro(<<"Input modified since last run.  Resetting in strategy.");
+      }
+
     if (this->InternalGraph)
       {
       this->InternalGraph->Delete();
       }
+
     this->InternalGraph = input->NewInstance();
-    
-    // Capture info about graph
+    // The strategy object is going to modify the Points member so
+    // we'll replace that with a deep copy.  For everything else a
+    // shallow copy is sufficient.
+    this->InternalGraph->ShallowCopy(input);
+    vtkPoints* newPoints = vtkPoints::New();
+    newPoints->DeepCopy(input->GetPoints());
+    this->InternalGraph->SetPoints(newPoints);
+    newPoints->Delete();
+
+    // Save information about the input so that we can detect when
+    // it's changed on future runs.  According to the VTK pipeline
+    // design, this is a bad thing.  In this case there's no
+    // particularly graceful way around it since the pipeline was not
+    // designed to support incremental execution.
     this->LastInput = input;
     this->LastInputMTime = input->GetMTime();
     
-    // Shallow copy data to output.
-    this->InternalGraph->ShallowCopy(input);
-
-    // Deep copy the point data from input to output
-    vtkPoints* oldPoints = input->GetPoints();
-    vtkPoints* newPoints = vtkPoints::New();
-    newPoints->DeepCopy(oldPoints);
-    this->InternalGraph->SetPoints(newPoints);
-    newPoints->Delete();
-    
-    // Set the graph in the layout strategy
+    // Give the layout strategy a pointer to the input.  We set it to
+    // NULL first to force the layout algorithm to re-initialize
+    // itself.  This is necessary in case the input is the same data
+    // object with a newer mtime.
+    this->LayoutStrategy->SetGraph(NULL);
     this->LayoutStrategy->SetGraph(this->InternalGraph);
-    }
+    } // Done handling a new or changed filter input.
 
+  // No matter whether the input is new or not, the layout strategy
+  // needs to do its thing.  It modifies its input
+  // (this->InternalGraph) so we can just use that as the output.
   this->LayoutStrategy->Layout();
   output->ShallowCopy(this->InternalGraph);
 
