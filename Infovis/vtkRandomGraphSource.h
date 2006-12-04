@@ -54,6 +54,13 @@ public:
   vtkSetClampMacro(ArcProbability, double, 0.0, 1.0);
 
   // Description:
+  // When set, includes arc weights in an array named "arc_weights".
+  // Defaults to off.  Weights are random between 0 and 1.
+  vtkSetMacro(IncludeArcWeights, bool);
+  vtkGetMacro(IncludeArcWeights, bool);
+  vtkBooleanMacro(IncludeArcWeights, bool);
+
+  // Description:
   // When set, creates a directed graph, as opposed to an undirected graph.
   vtkSetMacro(Directed, bool);
   vtkGetMacro(Directed, bool);
@@ -73,6 +80,14 @@ public:
   vtkGetMacro(StartWithTree, bool);
   vtkBooleanMacro(StartWithTree, bool);
 
+  // Description:
+  // If this flag is set to true, arcs where the source and target
+  // node are the same can be generated.  The default is to forbid
+  // such loops.
+  vtkSetMacro(AllowSelfLoops, bool);
+  vtkGetMacro(AllowSelfLoops, bool);
+  vtkBooleanMacro(AllowSelfLoops, bool);
+
 protected:
   vtkRandomGraphSource();
   ~vtkRandomGraphSource();
@@ -82,6 +97,8 @@ protected:
   bool Directed;
   bool UseArcProbability;
   bool StartWithTree;
+  bool IncludeArcWeights;
+  bool AllowSelfLoops;
 
   int RequestData(
     vtkInformation*, 

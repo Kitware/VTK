@@ -14,15 +14,21 @@
 =========================================================================*/
 
 #include "vtkRandomGraphSource.h"
+#include <vtkCellData.h>
+#include <vtkFloatArray.h>
 #include "vtkGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkRandomGraphSource, "1.2");
+#include <vtksys/stl/set>
+#include <vtksys/stl/algorithm>
+
+vtkCxxRevisionMacro(vtkRandomGraphSource, "1.3");
 vtkStandardNewMacro(vtkRandomGraphSource);
 
+// ----------------------------------------------------------------------
 
 vtkRandomGraphSource::vtkRandomGraphSource()
 {
@@ -30,17 +36,24 @@ vtkRandomGraphSource::vtkRandomGraphSource()
   this->NumberOfArcs = 10;
   this->Directed = 0;
   this->UseArcProbability = 0;
+  this->IncludeArcWeights = false;
+  this->AllowSelfLoops = false;
   this->ArcProbability = 0.5;
   this->StartWithTree = 0;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 }
 
+// ----------------------------------------------------------------------
+
 vtkRandomGraphSource::~vtkRandomGraphSource()
 {
 }
 
-void vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
+// ----------------------------------------------------------------------
+
+void 
+vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfNodes: " << this->NumberOfNodes << endl;
@@ -49,9 +62,13 @@ void vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ArcProbability: " << this->ArcProbability << endl;
   os << indent << "Directed: " << this->Directed << endl;
   os << indent << "StartWithTree: " << this->StartWithTree << endl;
+  os << indent << "IncludeArcWeights: " << this->IncludeArcWeights << endl;
 }
 
-int vtkRandomGraphSource::RequestData(
+// ----------------------------------------------------------------------
+
+int 
+vtkRandomGraphSource::RequestData(
   vtkInformation*, 
   vtkInformationVector**, 
   vtkInformationVector* outputVector)
@@ -88,14 +105,72 @@ int vtkRandomGraphSource::RequestData(
     }
   else
     {
+    // Don't duplicate edges.
+    vtksys_stl::set< vtksys_stl::pair<vtkIdType, vtkIdType> > existingArcs;
+
+    vtkIdType MaxEdges;
+    if (this->AllowSelfLoops)
+      {
+      MaxEdges = this->NumberOfNodes * this->NumberOfNodes;
+      }
+    else
+      {
+      MaxEdges = (this->NumberOfNodes * (this->NumberOfNodes-1)) / 2;
+      }
+    
+    if (this->NumberOfArcs > MaxEdges)
+      {
+      this->NumberOfArcs = MaxEdges;
+      }
+
     for (vtkIdType i = 0; i < this->NumberOfArcs; i++)
       {
-      vtkIdType s = static_cast<vtkIdType>(vtkMath::Random(0, this->NumberOfNodes));
-      vtkIdType t = static_cast<vtkIdType>(vtkMath::Random(0, this->NumberOfNodes));
-      output->AddArc(s, t);
+      bool newArcFound = false;
+      while (!newArcFound)
+        {
+        vtkIdType s = static_cast<vtkIdType>(vtkMath::Random(0, this->NumberOfNodes));
+        vtkIdType t = static_cast<vtkIdType>(vtkMath::Random(0, this->NumberOfNodes));
+        if (s == t && (!this->AllowSelfLoops))
+          {
+          continue;
+          }
+
+        if (!this->Directed)
+          {
+          vtkIdType tmp;
+          if (s > t)
+            {
+            tmp = t;
+            t = s;
+            s = tmp;
+            }
+          }
+
+        vtksys_stl::pair<vtkIdType, vtkIdType> newArc(s, t);
+
+        if (existingArcs.find(newArc) == existingArcs.end())
+          {
+          vtkDebugMacro(<<"Adding arc " << s << " to " << t);
+          output->AddArc(s, t);
+          existingArcs.insert(newArc);
+          newArcFound = true;
+          }
+        }
       }
     }
-  
+
+  if (this->IncludeArcWeights)
+    {
+    vtkFloatArray *weights = vtkFloatArray::New();
+    weights->SetName("arc_weights");
+    for (vtkIdType i = 0; i < output->GetNumberOfArcs(); ++i)
+      {
+      weights->InsertNextValue(vtkMath::Random());
+      }
+    output->GetArcData()->AddArray(weights);
+    weights->Delete();
+    }
+
   return 1;
 }
 
