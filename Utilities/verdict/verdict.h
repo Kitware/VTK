@@ -46,7 +46,7 @@
 
 
 #ifdef __cplusplus
-  #ifdef WIN32
+  #if defined(WIN32) && defined(VERDICT_SHARED_LIB)
     #ifdef VERDICT_EXPORTS
       #define C_FUNC_DEF extern "C" __declspec(dllexport)
     #else
@@ -56,7 +56,7 @@
     #define C_FUNC_DEF extern "C"
   #endif
 #else
-  #ifdef WIN32
+#if defined(WIN32) && defined(VERDICT_SHARED_LIB)
     #ifdef VERDICT_EXPORTS
       #define C_FUNC_DEF __declspec(dllexport)
     #else
