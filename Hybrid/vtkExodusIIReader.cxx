@@ -796,7 +796,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.6");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.7");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -3112,7 +3112,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   char** var_names = 0;
   int have_var_names;
   int num_vars = 0; /* number of variables per object */
-  int num_entries; /* number of values per variable per object */
+  //int num_entries; /* number of values per variable per object */
 
   this->Modified(); // Update MTime so that it will be newer than parent's FileNameMTime
 
@@ -3202,13 +3202,11 @@ int vtkExodusIIReaderPrivate::RequestInformation()
       }
 
     if ( (OBJTYPE_IS_BLOCK(i)) || (OBJTYPE_IS_SET(i)) ) {
-      int* tp;
       VTK_EXO_FUNC( ex_get_var_param( exoid, obj_typestr[i], &num_vars ), "Could not read number of variables." );
 
       if ( num_vars && num_timesteps > 0 ) {
         truth_tab = (int*) malloc( num_vars * nids * sizeof(int) );
         VTK_EXO_FUNC( ex_get_var_tab( exoid, obj_typestr[i], nids, num_vars, truth_tab ), "Could not read truth table." );
-        tp = truth_tab;
 
         var_names = (char**) malloc( num_vars * sizeof(char*) );
         for ( j = 0; j < num_vars; ++j )
@@ -3249,7 +3247,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
           binfo.TypeName = obj_typenames[obj];
           binfo.BdsPerEntry[1] = binfo.BdsPerEntry[2] = 0;
         }
-        num_entries = binfo.Size;
+        //num_entries = binfo.Size;
         binfo.FileOffset = blockEntryFileOffset;
         blockEntryFileOffset += binfo.Size;
         if ( binfo.Status )
@@ -3292,7 +3290,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 
         VTK_EXO_FUNC( ex_get_set_param( exoid, obj_types[i], ids[obj], &sinfo.Size, &sinfo.DistFact ),
           "Could not read set parameters." );
-        num_entries = sinfo.Size;
+        //num_entries = sinfo.Size;
         sinfo.FileOffset = setEntryFileOffset;
         setEntryFileOffset += sinfo.Size;
         if ( sinfo.Status )
@@ -3313,19 +3311,19 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         minfo.Status = obj == 0 ? 1 : 0; // only load the first map by default
         switch (obj_types[i]) {
         case vtkExodusIIReader::NODE_MAP:
-          num_entries = this->ModelParameters.num_nodes;
+          //num_entries = this->ModelParameters.num_nodes;
           minfo.Size = this->ModelParameters.num_nodes;
           break;
         case vtkExodusIIReader::EDGE_MAP:
-          num_entries = this->ModelParameters.num_edge;
+          //num_entries = this->ModelParameters.num_edge;
           minfo.Size = this->ModelParameters.num_edge;
           break;
         case vtkExodusIIReader::FACE_MAP:
-          num_entries = this->ModelParameters.num_face;
+          //num_entries = this->ModelParameters.num_face;
           minfo.Size = this->ModelParameters.num_face;
           break;
         case vtkExodusIIReader::ELEM_MAP:
-          num_entries = this->ModelParameters.num_elem;
+          //num_entries = this->ModelParameters.num_elem;
           minfo.Size = this->ModelParameters.num_elem;
           break;
         default:
@@ -3839,11 +3837,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.6");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.7");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.6");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.7");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
