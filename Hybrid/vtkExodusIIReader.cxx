@@ -796,7 +796,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.7");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.8");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -3837,11 +3837,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.7");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.8");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.7");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.8");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -3858,6 +3858,7 @@ vtkExodusIIReader::vtkExodusIIReader()
   this->ExodusModelMetadata = 0;
   this->PackExodusModelOntoOutput = 1;
   this->ExodusModel = 0;
+  this->DisplayType = 0;
 
   //begin USE_EXO_DSP_FILTERS
   this->DSPFilteringIsEnabled = 0;
