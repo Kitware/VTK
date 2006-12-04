@@ -185,7 +185,7 @@ int cReadEdgeFace( int argc, char* argv[] )
   num_timesteps = itmp[0];
 
   /* *** NEW API *** */
-  for ( i = 0; i < sizeof(obj_types)/sizeof(obj_types[0]); ++i ) {
+  for ( i = 0; i < (int)sizeof(obj_types)/sizeof(obj_types[0]); ++i ) {
     int* truth_tab = 0;
     have_var_names = 0;
 
