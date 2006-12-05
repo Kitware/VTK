@@ -9,11 +9,7 @@ set( VERDICT_VERSION "${verdict_version_major}${verdict_version_minor}${verdict_
 set( VERDICT_DOTVERSION "${verdict_version_major}.${verdict_version_minor}.${verdict_version_patch}" )
 
 option( VERDICT_USE_FLOAT "Should VERDICT use single-precision (float) or double-precision (double) numbers?" ON )
-option( VERDICT_SHARED_LIB "Should the VERDICT library be shared or statically linked?" ON )
 option( VERDICT_ENABLE_TESTING "Should tests of the VERDICT library be built?" OFF )
-
-set( BUILD_SHARED_LIBS ${VERDICT_SHARED_LIB} )
-mark_as_advanced( BUILD_SHARED_LIBS )
 
 include_directories(${verdict_BINARY_DIR})
 
