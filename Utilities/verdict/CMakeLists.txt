@@ -15,6 +15,8 @@ option( VERDICT_ENABLE_TESTING "Should tests of the VERDICT library be built?" O
 set( BUILD_SHARED_LIBS ${VERDICT_SHARED_LIB} )
 mark_as_advanced( BUILD_SHARED_LIBS )
 
+include_directories(${verdict_BINARY_DIR})
+
 set( verdict_SRCS
        V_EdgeMetric.cpp
        V_GaussIntegration.cpp
