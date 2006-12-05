@@ -45,10 +45,10 @@
 
 #if defined(DLL_NETCDF) /* define when library is a DLL */
 #  include <io.h>
-#  ifndef __BORLANDC__
+#  if !defined(__BORLANDC__) && !defined(__GNUC__)
 #    define lseek _lseeki64
 #    define off_t __int64
-#  endif /* __BORLANDC__ */
+#  endif /* ! __BORLANDC__ && ! __GNUC__ */
 #endif  /* defined(DLL_NETCDF) */
 
 /*
