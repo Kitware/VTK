@@ -49,7 +49,7 @@
 #cmakedefine VERDICT_SHARED_LIB
 #ifdef __cplusplus
   #if defined(WIN32) && defined(VERDICT_SHARED_LIB)
-    #ifdef VERDICT_EXPORTS
+    #ifdef verdict112_EXPORTS
       #define C_FUNC_DEF extern "C" __declspec(dllexport)
     #else
       #define C_FUNC_DEF extern "C" __declspec(dllimport)
@@ -59,7 +59,7 @@
   #endif
 #else
   #if defined(WIN32) && defined(VERDICT_SHARED_LIB)
-    #ifdef VERDICT_EXPORTS
+    #ifdef verdict112_EXPORTS
       #define C_FUNC_DEF __declspec(dllexport)
     #else
       #define C_FUNC_DEF __declspec(dllimport)
