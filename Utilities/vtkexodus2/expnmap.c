@@ -82,7 +82,7 @@ int ex_put_num_map ( int exoid,
    const char* dnumentries;
    const char* dnummaps;
    const char* vmapids;
-   const char* vmap;
+   const char* vmap = 0;
    struct list_item** map_ctr_list;
 
    exerrval = 0; /* clear error code */

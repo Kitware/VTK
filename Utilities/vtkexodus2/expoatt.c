@@ -74,9 +74,9 @@ int ex_put_one_attr( int   exoid,
   char errmsg[MAX_ERR_LENGTH];
   const char* tname;
   const char* vobjids;
-  const char* dnumobjent;
-  const char* dnumobjatt;
-  const char* vattrbname;
+  const char* dnumobjent = 0;
+  const char* dnumobjatt = 0;
+  const char* vattrbname = 0;
 
   switch (obj_type) {
   case EX_EDGE_BLOCK:

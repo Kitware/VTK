@@ -72,10 +72,10 @@ int ex_put_all_var_param_ext ( int   exoid,
   int time_dim, num_nod_dim, dimid, iresult;
   long num_elem_blk, num_edge_blk, num_face_blk,
        num_nset, num_eset, num_fset, num_sset, num_elset;
-  int numelblkdim, numelvardim, numedvardim, numedblkdim,
-      numfavardim, numfablkdim,  numnsetdim,  nsetvardim,
-      numesetdim,  esetvardim,   numfsetdim,  fsetvardim,
-      numssetdim,  ssetvardim,  numelsetdim, elsetvardim;
+  int numelblkdim = -1, numelvardim, numedvardim, numedblkdim = -1,
+      numfavardim, numfablkdim = -1,  numnsetdim = -1,  nsetvardim,
+      numesetdim = -1,  esetvardim,   numfsetdim = -1,  fsetvardim,
+      numssetdim = -1,  ssetvardim,  numelsetdim = -1, elsetvardim;
   int i;
 
   int edblk_varid, fablk_varid, eblk_varid, nset_varid,

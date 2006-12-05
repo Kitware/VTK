@@ -78,7 +78,7 @@ int ex_put_var (int   exoid,
   long num_obj, num_obj_var, start[2], count[2];
   nclong *obj_var_truth_tab;
   char errmsg[MAX_ERR_LENGTH];
-  const char* tname;
+  const char* tname = 0;
 
   exerrval = 0; /* clear error code */
 

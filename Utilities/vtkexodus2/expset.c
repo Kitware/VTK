@@ -75,16 +75,16 @@ int ex_put_set (int   exoid,
     const int  *set_extra_list)
 {
    int dimid, iresult;
-   int entry_list_id, extra_list_id, set_id_ndx;
+   int entry_list_id, extra_list_id = -1, set_id_ndx;
    long  num_entries_in_set, start[1], count[1]; 
    nclong *lptr;
    char errmsg[MAX_ERR_LENGTH];
    char* typeName;
    char* dimptr;
    char* idsptr;
-   char* numentryptr;
-   char* entryptr;
-   char* extraptr;
+   char* numentryptr = 0;
+   char* entryptr = 0;
+   char* extraptr = 0;
 
    exerrval = 0; /* clear error code */
 
@@ -267,23 +267,23 @@ int ex_put_set (int   exoid,
    /* only do for edge, face and side sets */
    if (extraptr)
      {
-       if (sizeof(int) == sizeof(nclong)) {
-   iresult = ncvarput(exoid, extra_list_id, start, count, set_extra_list);
-       } else {
-   lptr = itol (set_extra_list, (int)num_entries_in_set);
-   iresult = ncvarput (exoid, extra_list_id, start, count, lptr);
-   free(lptr);
-       }
+     if (sizeof(int) == sizeof(nclong)) {
+       iresult = ncvarput(exoid, extra_list_id, start, count, set_extra_list);
+     } else {
+       lptr = itol (set_extra_list, (int)num_entries_in_set);
+       iresult = ncvarput (exoid, extra_list_id, start, count, lptr);
+       free(lptr);
+     }
 
-       if (iresult == -1)
-   {
-     exerrval = ncerr;
-     sprintf(errmsg,
-       "Error: failed to store extra list for %s set %d in file id %d",
-       typeName, set_id,exoid);
-     ex_err("ex_put_set",errmsg,exerrval);
-     return (EX_FATAL);
-   }
+     if (iresult == -1)
+       {
+       exerrval = ncerr;
+       sprintf(errmsg,
+         "Error: failed to store extra list for %s set %d in file id %d",
+         typeName, set_id,exoid);
+       ex_err("ex_put_set",errmsg,exerrval);
+       return (EX_FATAL);
+       }
      }
 
    /* warn if extra data was sent in for node sets and elem sets */

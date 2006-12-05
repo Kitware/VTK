@@ -64,7 +64,7 @@ int ex_put_attr_names(int   exoid,
          int   blk_id,
          char* names[])
 {
-   int varid, numattrdim = -1, blk_id_ndx;
+   int varid = -1, numattrdim = -1, blk_id_ndx;
    long num_attr, start[2], count[2];
    char errmsg[MAX_ERR_LENGTH];
    int i;

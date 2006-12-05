@@ -63,7 +63,7 @@ int ex_put_init_ext (int   exoid,
 {
   int numdimdim, numnoddim = -1, elblkdim = -1, edblkdim = -1, fablkdim = -1;
   int esetdim = -1, fsetdim = -1, elsetdim = -1, nsetdim = -1, ssetdim = -1, strdim, dim[2], varid;
-  int nmapdim,edmapdim,famapdim,emapdim;
+  int nmapdim = -1, edmapdim = -1, famapdim = -1, emapdim = -1;
 #if 0
   /* used for header size calculations which are turned off for now */
   int header_size, fixed_var_size, iows;

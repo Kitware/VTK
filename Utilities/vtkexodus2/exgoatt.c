@@ -73,7 +73,7 @@ int ex_get_one_attr( int   exoid,
   char errmsg[MAX_ERR_LENGTH];
   const char* tname;
   const char* vobjids;
-  const char* dnumobjent;
+  const char* dnumobjent = 0;
   const char* dnumobjatt = 0;
   const char* vattrbname = 0;
 
