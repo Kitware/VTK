@@ -62,7 +62,7 @@ void printLRUBack( vtkExodusIICacheRef& cit )
 
 // ============================================================================
 
-vtkCxxRevisionMacro(vtkExodusIICache,"1.4");
+vtkCxxRevisionMacro(vtkExodusIICache,"1.5");
 vtkStandardNewMacro(vtkExodusIICache);
 
 vtkExodusIICache::vtkExodusIICache()
@@ -170,7 +170,7 @@ void vtkExodusIICache::Insert( vtkExodusIICacheKey& key, vtkDataArray* value )
   else
     {
     this->ReduceToSize( this->Capacity - vsize );
-    vtkstd::pair<vtkExodusIICacheKey,vtkExodusIICacheEntry*> entry( key, new vtkExodusIICacheEntry(value) );
+    vtkstd::pair<const vtkExodusIICacheKey,vtkExodusIICacheEntry*> entry( key, new vtkExodusIICacheEntry(value) );
     vtkstd::pair<vtkExodusIICacheSet::iterator, bool> iret = this->Cache.insert( entry );
     this->Size += vsize;
     cout << "Adding " << VTK_EXO_PRT_KEY( key ) << VTK_EXO_PRT_ARR( value ) << "\n";
