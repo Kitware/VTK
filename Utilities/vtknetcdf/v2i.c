@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include "netcdf.h"
+#include "nc.h"
 
 #ifndef NO_NETCDF_2
 
