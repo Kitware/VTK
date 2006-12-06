@@ -105,15 +105,18 @@ protected:
   vtkScalarsToColorsPainter();
   virtual ~vtkScalarsToColorsPainter(); 
  
-  void MapScalarsToTexture(vtkDataArray* scalars, double alpha);
+  void MapScalarsToTexture(vtkDataArray* scalars, double alpha,
+    int multiply_with_alpha);
 
   // Description:
   // Called just before RenderInternal(). We build the Color array here.
   virtual void PrepareForRendering(vtkRenderer* renderer, vtkActor* actor);
 
   // Description:
-  // Generates the colors, if needed.
-  virtual void MapScalars(double alpha);
+  // Generates the colors, if needed. 
+  // If multiply_with_alpha is set, the colors are multiplied with 
+  // alpha.
+  virtual void MapScalars(double alpha, int multiply_with_alpha);
 
   // Description:
   // Called before RenderInternal() if the Information has been changed
@@ -127,6 +130,19 @@ protected:
   // Description:
   // Take part in garbage collection.
   virtual void ReportReferences(vtkGarbageCollector *collector);
+
+  // Description:
+  // For alpha blending, we sometime premultiply the colors
+  // with alpha and change the alpha blending function.
+  // This call returns whether we are premultiplying or using
+  // the default blending function.
+  // Currently this checks if the actor has a texture, if not
+  // it returns true. 
+  // TODO: It is possible to make this decision
+  // dependent on key passed down from a painter upstream
+  // that makes a more informed decision for alpha blending
+  // depending on extensions available, for example.
+  int GetPremultiplyColorsWithAlpha(vtkActor* actor);
   
   // Methods to set the ivars. These are purposefully protected.
   // The only means of affecting these should be using teh vtkInformation 
