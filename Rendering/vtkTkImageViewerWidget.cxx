@@ -38,16 +38,6 @@
     VisibilityChangeMask|FocusChangeMask|PropertyChangeMask|ColormapChangeMask
 
 #define VTK_MAX(a,b)    (((a)>(b))?(a):(b))
-    
-#if ( _MSC_VER >= 1300 ) // Visual studio .NET
-#pragma warning ( disable : 4311 )
-#pragma warning ( disable : 4312 )
-#  define vtkGetWindowLong GetWindowLongPtr
-#  define vtkSetWindowLong SetWindowLongPtr
-#else // regular Visual studio 
-#  define vtkGetWindowLong GetWindowLong
-#  define vtkSetWindowLong SetWindowLong
-#endif // 
 
 // These are the options that can be set when the widget is created
 // or with the command configure.  The only new one is "-rw" which allows
@@ -398,10 +388,10 @@ extern "C"
 #ifdef _WIN32
         if (self->ImageViewer->GetRenderWindow()->GetGenericWindowId())
           {
-          SetWindowLong((HWND)self->ImageViewer->GetRenderWindow()->GetGenericWindowId(),
+          vtkSetWindowLong((HWND)self->ImageViewer->GetRenderWindow()->GetGenericWindowId(),
                         vtkGWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);
-          SetWindowLong((HWND)self->ImageViewer->GetRenderWindow()->GetGenericWindowId(),
-                        vtkGWL_USERDATA,(LONG)TkWinChildProc);
+          vtkSetWindowLong((HWND)self->ImageViewer->GetRenderWindow()->GetGenericWindowId(),
+                        vtkGWL_WNDPROC,(LONG)TkWinChildProc);
           }
 #endif
         Tcl_EventuallyFree( (ClientData) self, vtkTkImageViewerWidget_Destroy );
