@@ -106,8 +106,8 @@ protected:
   char * FileName;
   int NumberOfCells;
   int NumberOfCellArrays;
-  int                    OpenCaseFile(const char *filename);
-  int                    OpenDataFile(const char *filename);
+  bool                    OpenCaseFile(const char *filename);
+  bool                    OpenDataFile(const char *filename);
   int                    GetCaseChunk ();
   void                   GetNumberOfCellZones();
   int                    GetCaseIndex();
