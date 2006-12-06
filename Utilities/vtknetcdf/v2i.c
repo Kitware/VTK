@@ -5,8 +5,8 @@
 /* Id */
 
 #include <stdlib.h>
+#include "nc.h" /* WARNING: nc.h must be included before netcdf.h or MSVC60 will die. */
 #include "netcdf.h"
-#include "nc.h"
 
 #ifndef NO_NETCDF_2
 
