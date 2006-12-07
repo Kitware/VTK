@@ -27,7 +27,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.35");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.34");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -98,20 +98,17 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
 
   for (i=0; i < 3; i++) 
     {
-    Info[i] = 
-      static_cast<float>(this->Opacity*this->Ambient*this->AmbientColor[i]);
+    Info[i] = static_cast<float>(this->Ambient*this->AmbientColor[i]);
     }
   glMaterialfv( Face, GL_AMBIENT, Info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = 
-      static_cast<float>(this->Opacity*this->Diffuse*this->DiffuseColor[i]);
+    Info[i] = static_cast<float>(this->Diffuse*this->DiffuseColor[i]);
     }
   glMaterialfv( Face, GL_DIFFUSE, Info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = 
-      static_cast<float>(this->Opacity*this->Specular*this->SpecularColor[i]);
+    Info[i] = static_cast<float>(this->Specular*this->SpecularColor[i]);
     }
   glMaterialfv( Face, GL_SPECULAR, Info );
 
@@ -141,11 +138,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
   // vtkOpenGLPolyDataMapper::Draw() method if points or lines
   // are encountered without normals. 
   this->GetColor( color );
-  color[0] *= this->Opacity;
-  color[1] *= this->Opacity;
-  color[2] *= this->Opacity;
   color[3] = this->Opacity;
-
   glColor4dv( color );
 
   // Set the PointSize
@@ -196,20 +189,17 @@ void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
 
   for (i=0; i < 3; i++) 
     {
-    Info[i] = 
-      static_cast<float>(this->Opacity*this->Ambient*this->AmbientColor[i]);
+    Info[i] = static_cast<float>(this->Ambient*this->AmbientColor[i]);
     }
   glMaterialfv( Face, GL_AMBIENT, Info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = 
-      static_cast<float>(this->Opacity*this->Diffuse*this->DiffuseColor[i]);
+    Info[i] = static_cast<float>(this->Diffuse*this->DiffuseColor[i]);
     }
   glMaterialfv( Face, GL_DIFFUSE, Info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = 
-      static_cast<float>(this->Opacity*this->Specular*this->SpecularColor[i]);
+    Info[i] = static_cast<float>(this->Specular*this->SpecularColor[i]);
     }
   glMaterialfv( Face, GL_SPECULAR, Info );
 
