@@ -78,8 +78,8 @@ int ex_put_all_var_param_ext ( int   exoid,
       numssetdim = -1,  ssetvardim,  numelsetdim = -1, elsetvardim;
   int i;
 
-  int edblk_varid, fablk_varid, eblk_varid, nset_varid,
-      eset_varid, fset_varid, sset_varid, elset_varid;
+  int edblk_varid = -1, fablk_varid = -1, eblk_varid = -1, nset_varid = -1,
+      eset_varid = -1, fset_varid = -1, sset_varid = -1, elset_varid = -1;
   
   int* eblk_ids = 0;
   int* edblk_ids = 0;
