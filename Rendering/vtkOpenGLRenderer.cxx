@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.57");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.58");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -282,6 +282,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
       
       if(this->DepthPeelingIsSupported)
         {
+        vtkDebugMacro("depth peeling supported");
         extensions->LoadExtension("GL_ARB_depth_texture");
         extensions->LoadExtension("GL_ARB_shadow");
         extensions->LoadExtension("GL_EXT_shadow_funcs");
@@ -535,14 +536,14 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
-    glClearColor( ((GLclampf)(this->Background[0])),
-                  ((GLclampf)(this->Background[1])),
-                  ((GLclampf)(this->Background[2])),
+    glClearColor( ((GLclampf)(0)),
+                  ((GLclampf)(0)),
+                  ((GLclampf)(0)),
                   ((GLclampf)(0.0)) );
     
     glClear(GL_COLOR_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
