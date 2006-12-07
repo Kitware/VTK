@@ -314,8 +314,8 @@ public:
 //BTX
   typedef enum {
     AXIAL = 0,
-    SAGITTAL,
-    CORONAL
+    CORONAL,
+    SAGITTAL
   } OrientationType;
 //ETX
   int GetOrientationType(int volumeidx);

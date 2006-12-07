@@ -28,8 +28,8 @@ vtkStandardNewMacro(vtkMedicalImageProperties);
 
 static const char *vtkMedicalImagePropertiesOrientationString[] = {
   "AXIAL",
-  "SAGITTAL",
   "CORONAL",
+  "SAGITTAL",
   NULL
 };
 
@@ -130,14 +130,14 @@ public:
   void SetOrientation(unsigned int vol, unsigned int ori)
     {
     // see SetNumberOfVolumes for allocation
-    assert( ori <= vtkMedicalImageProperties::CORONAL );
+    assert( ori <= vtkMedicalImageProperties::SAGITTAL );
     Orientation[vol] = ori;
     }
   unsigned int GetOrientation(unsigned int vol)
     {
     assert( vol < Orientation.size() );
     const unsigned int &val = Orientation[vol];
-    assert( val <= vtkMedicalImageProperties::CORONAL );
+    assert( val <= vtkMedicalImageProperties::SAGITTAL );
     return val;
     }
   void DeepCopy(vtkMedicalImagePropertiesInternals *p)
