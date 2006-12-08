@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkOpenGL.h"
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.142");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.143");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -799,7 +799,10 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
     // extract the create info
     
     /* display window */
-    ShowWindow(this->WindowId, SW_SHOW);
+    if(!this->OffScreenRendering)
+      {
+      ShowWindow(this->WindowId, SW_SHOW);
+      }
     //UpdateWindow(this->WindowId);
     this->OwnWindow = 1;
     vtkSetWindowLong(this->WindowId,4,(LONG)this);
