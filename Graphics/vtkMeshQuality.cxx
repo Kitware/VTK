@@ -38,10 +38,10 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.37");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.38");
 vtkStandardNewMacro(vtkMeshQuality);
 
-typedef double (*CellQualityType)( vtkCell* );
+typedef double (*CellQualityType)( vtkCell*  );
 
 double TetVolume( vtkCell* cell );
 
