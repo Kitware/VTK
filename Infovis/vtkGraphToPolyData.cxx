@@ -24,7 +24,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkAbstractGraph.h"
 
-vtkCxxRevisionMacro(vtkGraphToPolyData, "1.1");
+vtkCxxRevisionMacro(vtkGraphToPolyData, "1.2");
 vtkStandardNewMacro(vtkGraphToPolyData);
 
 vtkGraphToPolyData::vtkGraphToPolyData()
@@ -52,23 +52,60 @@ int vtkGraphToPolyData::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkCellArray* newLines = vtkCellArray::New();
-  vtkIdType points[2];
-  for (int i = 0; i < input->GetNumberOfArcs(); i++)
+  vtkDataArray* arcGhostLevels = vtkDataArray::SafeDownCast(
+    input->GetCellData()->GetAbstractArray("vtkGhostLevels"));
+
+  if (arcGhostLevels == NULL)
     {
-    points[0] = input->GetSourceNode(i);
-    points[1] = input->GetTargetNode(i);
-    newLines->InsertNextCell(2, points);
+    vtkCellArray* newLines = vtkCellArray::New();
+    vtkIdType points[2];
+    for (vtkIdType i = 0; i < input->GetNumberOfArcs(); i++)
+      {
+      points[0] = input->GetSourceNode(i);
+      points[1] = input->GetTargetNode(i);
+      newLines->InsertNextCell(2, points);
+      }
+
+    // Send the data to output.
+    output->SetPoints(input->GetPoints());
+    output->SetLines(newLines);
+    output->GetPointData()->PassData(input->GetPointData());
+    output->GetCellData()->PassData(input->GetCellData());
+
+    // Clean up.
+    newLines->Delete();
     }
+  else
+    {
+    vtkIdType numArcs = input->GetNumberOfArcs();
+    vtkCellData* inputCellData = input->GetCellData();
+    vtkCellData* outputCellData = output->GetCellData();
+    outputCellData->CopyAllocate(inputCellData);
+    vtkCellArray* newLines = vtkCellArray::New();
+    newLines->Allocate(newLines->EstimateSize(numArcs, 2));
+    vtkIdType points[2];
 
-  // Send the data to output.
-  output->SetPoints(input->GetPoints());
-  output->SetLines(newLines);
-  output->GetPointData()->PassData(input->GetPointData());
-  output->GetCellData()->PassData(input->GetCellData());
+    // Only create lines for non-ghost arcs
+    for (vtkIdType i = 0; i < numArcs; i++)
+      {
+      if (arcGhostLevels->GetComponent(i, 0) == 0) 
+        {
+        points[0] = input->GetSourceNode(i);
+        points[1] = input->GetTargetNode(i);
+        vtkIdType ind = newLines->InsertNextCell(2, points);
+        outputCellData->CopyData(inputCellData, i, ind);
+        }
+      } 
 
-  // Clean up.
-  newLines->Delete();
+    // Send data to output
+    output->SetPoints(input->GetPoints());
+    output->SetLines(newLines);
+    output->GetPointData()->PassData(input->GetPointData());
+
+    // Clean up
+    newLines->Delete();
+    output->Squeeze();
+    }
 
   return 1;
 }

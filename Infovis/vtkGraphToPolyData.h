@@ -20,6 +20,9 @@
 // and coverts all the arc of the graph into lines in the polydata.
 // The node data is passed along to the point data, and the arc data
 // is passed along to the cell data.
+//
+// Only the owned graph arcs (i.e. arcs with ghost level 0) are copied
+// into the vtkPolyData.
 
 #ifndef __vtkGraphToPolyData_h
 #define __vtkGraphToPolyData_h
