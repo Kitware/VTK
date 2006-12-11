@@ -24,6 +24,7 @@
 #include "vtkObject.h"
 
 class vtkDataObject;
+class vtkInformation;
 
 class VTK_FILTERING_EXPORT vtkCompositeDataIterator : public vtkObject
 {
@@ -47,6 +48,11 @@ public:
   // Test whether the iterator is currently pointing to a valid
   // item. Returns 1 for yes, 0 for no.
   virtual int IsDoneWithTraversal() = 0;
+
+  // Description:
+  // Get the information object associated with the current
+  // data object.
+  virtual vtkInformation* GetCurrentInformationObject() = 0;
 
   // Description:
   // Get the current item. Valid only when IsDoneWithTraversal()

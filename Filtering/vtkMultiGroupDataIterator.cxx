@@ -14,11 +14,13 @@
 =========================================================================*/
 #include "vtkMultiGroupDataIterator.h"
 
+#include "vtkInformation.h"
+#include "vtkMultiGroupDataInformation.h"
 #include "vtkMultiGroupDataSet.h"
 #include "vtkMultiGroupDataSetInternal.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataIterator, "1.2");
+vtkCxxRevisionMacro(vtkMultiGroupDataIterator, "1.2.8.1");
 vtkStandardNewMacro(vtkMultiGroupDataIterator);
 
 class vtkMultiGroupDataIteratorInternal
@@ -203,6 +205,31 @@ int vtkMultiGroupDataIterator::IsDoneWithTraversal()
     return 1;
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkInformation* vtkMultiGroupDataIterator::GetCurrentInformationObject()
+{
+  if ( !this->DataSet || this->DataSet->Internal->DataSets.empty() )
+    {
+    return 0;
+    }
+  if (this->Internal->SubIterator)
+    {
+    return this->Internal->SubIterator->GetCurrentInformationObject();
+    }
+  unsigned int group = 
+    this->Internal->DSIterator - this->DataSet->Internal->DataSets.begin();
+  unsigned int idx =
+    this->Internal->LDSIterator - this->Internal->DSIterator->begin();
+
+  vtkMultiGroupDataInformation* mgInfo =
+    this->DataSet->GetMultiGroupDataInformation();
+  if (!mgInfo)
+    {
+    return 0;
+    }
+  return mgInfo->GetInformation(group, idx);
 }
 
 //----------------------------------------------------------------------------

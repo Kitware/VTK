@@ -23,6 +23,7 @@
 
 #include "vtkCompositeDataIterator.h"
 
+class vtkInformation;
 class vtkMultiGroupDataSet;
 class vtkMultiGroupDataIteratorInternal;
 
@@ -46,6 +47,11 @@ public:
   // Test whether the iterator is currently pointing to a valid
   // item. Returns 1 for yes, 0 for no.
   virtual int IsDoneWithTraversal();
+
+  // Description:
+  // Get the information object associated with the current
+  // data object.
+  virtual vtkInformation* GetCurrentInformationObject();
 
   // Description:
   // Get the current item. Valid only when IsDoneWithTraversal()
