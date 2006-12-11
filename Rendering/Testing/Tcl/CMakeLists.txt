@@ -25,6 +25,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestStyleTerrain
       TestTiling
       TestTriangleStripCellColor
+      TestOpacity2
     )
     IF(VTK_USE_TK)
       SET(tests ${tests}
