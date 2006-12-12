@@ -128,7 +128,7 @@ private:
   {
     vtkIdType from;
     vtkIdType to;
-    double weight;
+    float weight;
   } vtkLayoutArc;
   //ETX
   
@@ -138,10 +138,6 @@ private:
   int TotalIterations;
   int LayoutComplete;
   float Temp;
-  
-  //BTX
-  inline double Cycle(double t, double r);
-  //ETX
 
   vtkSimple2DLayoutStrategy(const vtkSimple2DLayoutStrategy&);  // Not implemented.
   void operator=(const vtkSimple2DLayoutStrategy&);  // Not implemented.
