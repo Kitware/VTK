@@ -118,6 +118,16 @@ public:
   // The size of the font used for labeling
   virtual void SetFontSize(const int size);
   virtual int GetFontSize();
+  
+  // Description:
+  // Set/Get whether the layout is shown iteratively or not
+  vtkSetMacro(Iterative, bool);
+  vtkGetMacro(Iterative, bool);
+  
+  // Description:
+  // Set/Get the field to use for the arc weights.
+  vtkSetStringMacro(ArcWeightField);
+  vtkGetStringMacro(ArcWeightField);
 
 protected:
   vtkGraphLayoutViewer();
@@ -150,6 +160,14 @@ private:
   // When the input is set with SetInput() there some
   // initialization to do for the internal pipeline
   void InputInitialize();
+  
+  // Description:
+  // Controls whether the layout is shown iteratively or not
+  bool Iterative;
+  
+  // Description:
+  // The field to use for the arc weights
+  char*  ArcWeightField;
   
   vtkGraphLayoutViewer(const vtkGraphLayoutViewer&);  // Not implemented.
   void operator=(const vtkGraphLayoutViewer&);  // Not implemented.

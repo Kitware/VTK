@@ -49,7 +49,7 @@
 #include "vtkTreeLevelsFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.8");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.9");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -68,6 +68,7 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
   this->LabelActor            = vtkSmartPointer<vtkActor2D>::New();
   this->ColorLUT              = vtkSmartPointer<vtkLookupTable>::New();
   this->LabeledDataMapper     = vtkSmartPointer<vtkLabeledDataMapper>::New();
+  this->ArcWeightField        = 0;
   
   // Set up some the default parameters
   this->LabeledDataMapper->SetFieldDataName("name");
@@ -94,6 +95,8 @@ vtkGraphLayoutViewer::~vtkGraphLayoutViewer()
     this->InteractorStyle->Delete();
     this->InteractorStyle = NULL;
     }
+    
+  this->SetArcWeightField(0);
   
   // Smart pointers will handle the rest of
   // vtk pipeline objects :)
@@ -303,8 +306,17 @@ char* vtkGraphLayoutViewer::GetColorFieldName()
 void vtkGraphLayoutViewer::SetLayoutStrategy(const char* strategyName)
 {
   vtkGraphLayoutStrategy* strategy;
+  
+  // Set some general parameters
+  int MaxIterations = 100;
+  int InterationPerLayout = 100;
+  if (this->Iterative)
+    {
+    InterationPerLayout = 5;
+    }
 
-  // "Switch" on strategy name
+  // "Switch" on strategy name to set up the layout
+  // strategy and parameters specific to the layout type. 
   if (!strcmp(strategyName, "Random"))
     {
     strategy = vtkRandomLayoutStrategy::New();
@@ -312,25 +324,34 @@ void vtkGraphLayoutViewer::SetLayoutStrategy(const char* strategyName)
   else if (!strcmp(strategyName, "ForceDirected"))
     {
     strategy = vtkForceDirectedLayoutStrategy::New();
-    vtkForceDirectedLayoutStrategy::SafeDownCast(strategy)->SetMaxNumberOfIterations(100);
-    vtkForceDirectedLayoutStrategy::SafeDownCast(strategy)->SetIterationsPerLayout(5);
-    vtkForceDirectedLayoutStrategy::SafeDownCast(strategy)->SetThreeDimensionalLayout(false);
+    vtkForceDirectedLayoutStrategy::SafeDownCast(strategy)
+      ->SetMaxNumberOfIterations(MaxIterations);
+    vtkForceDirectedLayoutStrategy::SafeDownCast(strategy)
+      ->SetIterationsPerLayout(InterationPerLayout);
+    vtkForceDirectedLayoutStrategy::SafeDownCast(strategy)
+      ->SetThreeDimensionalLayout(false);
     }
   else if (!strcmp(strategyName, "Simple2D"))
     {
     strategy = vtkSimple2DLayoutStrategy::New();
-    vtkSimple2DLayoutStrategy::SafeDownCast(strategy)->SetMaxNumberOfIterations(100);
-    vtkSimple2DLayoutStrategy::SafeDownCast(strategy)->SetIterationsPerLayout(1);
-    vtkSimple2DLayoutStrategy::SafeDownCast(strategy)->SetInitialTemperature(1);
+    vtkSimple2DLayoutStrategy::SafeDownCast(strategy)
+      ->SetMaxNumberOfIterations(100);
+    vtkSimple2DLayoutStrategy::SafeDownCast(strategy)
+      ->SetIterationsPerLayout(100);
+    vtkSimple2DLayoutStrategy::SafeDownCast(strategy)
+      ->SetInitialTemperature(1);
     }
   else
     {
     // Just use the default of force directed
     vtkWarningMacro(<<"Unknown layout strategy: " << strategyName);
     strategy = vtkForceDirectedLayoutStrategy::New();
-    vtkForceDirectedLayoutStrategy::SafeDownCast(strategy)->SetMaxNumberOfIterations(50);
-    vtkForceDirectedLayoutStrategy::SafeDownCast(strategy)->SetIterationsPerLayout(1);
-    vtkForceDirectedLayoutStrategy::SafeDownCast(strategy)->SetInitialTemperature(10);
+    vtkForceDirectedLayoutStrategy::SafeDownCast(strategy)
+      ->SetMaxNumberOfIterations(MaxIterations);
+    vtkForceDirectedLayoutStrategy::SafeDownCast(strategy)
+      ->SetIterationsPerLayout(InterationPerLayout);
+    vtkForceDirectedLayoutStrategy::SafeDownCast(strategy)
+      ->SetThreeDimensionalLayout(false);
     }
 
   // Set the strategy for the layout
@@ -406,5 +427,9 @@ void vtkGraphLayoutViewer::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->InteractorStyle->PrintSelf(os,indent.GetNextIndent());
     }
-
+  os << indent << "Iterative: " 
+     << (this->Iterative ? "true" : "false") << endl;
+     
+  os << indent << "ArcWeightField: " 
+     << (this->ArcWeightField ? this->ArcWeightField : "(none)") << endl;
 }
