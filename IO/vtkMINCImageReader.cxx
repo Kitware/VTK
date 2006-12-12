@@ -78,7 +78,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageReader, "1.13");
+vtkCxxRevisionMacro(vtkMINCImageReader, "1.14");
 vtkStandardNewMacro(vtkMINCImageReader);
 
 //-------------------------------------------------------------------------
@@ -1183,8 +1183,8 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
   vtkIdType nchunks = 1;
   vtkIdType numTimeSteps = 1;
   vtkIdType chunkSize = 1;
-  vtkIdType chunkInc = 0;
   int hitChunkSizeLimit = 0;
+  int nchunkdimsIsSet = 0;
 
   // These arrays will be filled in by the following loop
   vtkIdType permutedInc[VTK_MINC_MAX_DIMS];
@@ -1243,11 +1243,11 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
       // Number of chunks is product of dimensions in minmax.
       nchunks *= count[idim];
 
-      // After each chunk, we will increment outPtr by chunkInc.
-      if (chunkInc == 0)
+      // Only set nchunkdims once
+      if (nchunkdimsIsSet == 0)
         {
         nchunkdims = ndims - idim - 1;
-        chunkInc = permutedInc[idim];
+        nchunkdimsIsSet = 1;
         }
       }
     else
@@ -1291,6 +1291,7 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
     vtkIdType minmaxIdx = 0;
     vtkIdType minmaxInc = 1;
     vtkIdType chunkProd = 1;
+    vtkIdType chunkOffset = 0;
     for (idim = ndims - nchunkdims; idim > 0; )
       {
       idim--;
@@ -1301,6 +1302,7 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
         minmaxIdx += start2[idim]*minmaxInc;
         minmaxInc *= length[idim];
         }
+      chunkOffset += (start2[idim] - start[idim])*permutedInc[idim];
       chunkProd *= count[idim];
       }
 
@@ -1317,6 +1319,9 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
     double intercept = ((chunkRange[0] - this->RescaleIntercept)/
                         this->RescaleSlope) - slope*this->ValidRange[0];
 
+    // set the output pointer to use for this chunk
+    void *outPtr1 = (void *)(((char *)outPtr) + chunkOffset*scalarSize);
+
     // Read in the chunks and permute them.
     if (scalarType == fileType)
       {
@@ -1324,7 +1329,7 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
         {
         vtkMINCImageReaderTemplateMacro(
           vtkMINCImageReaderExecuteChunk(
-          (VTK_TT *)outPtr, (VTK_TT *)buffer, slope, intercept,
+          (VTK_TT *)outPtr1, (VTK_TT *)buffer, slope, intercept,
           ncid, varid, ndims, start2, count2, permutedInc));
         }
       }
@@ -1334,7 +1339,7 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
         {
         vtkMINCImageReaderTemplateMacro(
           vtkMINCImageReaderExecuteChunk(
-          (float *)outPtr, (VTK_TT *)buffer, slope, intercept,
+          (float *)outPtr1, (VTK_TT *)buffer, slope, intercept,
           ncid, varid, ndims, start2, count2, permutedInc));
         }
       }
@@ -1344,13 +1349,10 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
         {
         vtkMINCImageReaderTemplateMacro(
           vtkMINCImageReaderExecuteChunk(
-          (double *)outPtr, (VTK_TT *)buffer, slope, intercept,
+          (double *)outPtr1, (VTK_TT *)buffer, slope, intercept,
           ncid, varid, ndims, start2, count2, permutedInc));
         }
       }
-
-    // Increment the outPtr for the next chunk.
-    outPtr = (void *)(((char *)outPtr) + chunkInc*scalarSize);
     }
 
   switch (fileType)
