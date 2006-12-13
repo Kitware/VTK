@@ -35,7 +35,7 @@ struct vtkNodeLinksInternals
 };
 
 
-vtkCxxRevisionMacro(vtkNodeLinks, "1.1");
+vtkCxxRevisionMacro(vtkNodeLinks, "1.2");
 vtkStandardNewMacro(vtkNodeLinks);
 
 //----------------------------------------------------------------------------
@@ -256,6 +256,26 @@ void vtkNodeLinks::RemoveOutAdjacent(vtkIdType node, vtkIdType adj)
       {
       this->Internals->FreeRange[adjacent + e] = 
         this->Internals->FreeRange[adjacent + this->GetDegree(node) - 1];
+      this->Internals->Nodes[node].Degree--;
+      break;
+      }
+    }
+}
+
+void vtkNodeLinks::RemoveOutAdjacentShift(vtkIdType node, vtkIdType adj)
+{
+  vtkIdType adjacent = this->Internals->Nodes[node].Adjacent;
+  for (vtkIdType e = this->GetInDegree(node); e < this->GetDegree(node); e++)
+    {
+    if (this->Internals->FreeRange[adjacent + e] == adj)
+      {
+      if (e < this->GetDegree(node) - 1)
+        {
+        vtkIdType* fromPtr = this->Internals->FreeRange.pointer(adjacent + e + 1);
+        vtkIdType* toPtr = this->Internals->FreeRange.pointer(adjacent + e);
+        int size = this->GetDegree(node) - e - 1;
+        memmove(toPtr, fromPtr, size*sizeof(vtkIdType));
+        }
       this->Internals->Nodes[node].Degree--;
       break;
       }

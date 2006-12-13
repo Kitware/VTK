@@ -31,7 +31,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTree, "1.2");
+vtkCxxRevisionMacro(vtkTree, "1.3");
 vtkStandardNewMacro(vtkTree);
 
 //----------------------------------------------------------------------------
@@ -542,7 +542,7 @@ void vtkTree::SetParent(vtkIdType child, vtkIdType parent)
   vtkIdType oldParent = this->GetParent(child);
 
   // Delete the node from the old parent's child list
-  this->NodeLinks->RemoveOutAdjacent(oldParent, child);
+  this->NodeLinks->RemoveOutAdjacentShift(oldParent, child);
 
   // Add the node to the new parent's child list
   this->NodeLinks->AddOutAdjacent(parent, child);

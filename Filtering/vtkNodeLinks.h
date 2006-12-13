@@ -86,7 +86,14 @@ public:
 
   // Description:
   // Remove an adjacent ID from the node's outgoing adjacency list.
+  // Moves the final out ID into the position of the removed ID.
   void RemoveOutAdjacent(vtkIdType node, vtkIdType adj);
+
+  // Description:
+  // Remove an adjacent ID from the node's outgoing adjacency list.
+  // Shifts out IDs after the removed ID back one position.
+  // This is slower than RemoveOutAdjacent but preserves order.
+  void RemoveOutAdjacentShift(vtkIdType node, vtkIdType adj);
 
   // Description:
   // Get the adjacent ID from the node's incoming adjacency list at an index.
