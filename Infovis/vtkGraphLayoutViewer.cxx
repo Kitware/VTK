@@ -44,12 +44,13 @@
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
-#include "vtkThreshold.h"
-#include "vtkThresholdPoints.h"
-#include "vtkTreeLevelsFilter.h"
-#include "vtkUnstructuredGrid.h"
+#include <vtkThreshold.h>
+#include <vtkThresholdPoints.h>
+#include <vtkTreeLevelsFilter.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkEventForwarderCommand.h>
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.9");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.10");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -70,6 +71,10 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
   this->LabeledDataMapper     = vtkSmartPointer<vtkLabeledDataMapper>::New();
   this->ArcWeightField        = 0;
   
+  // Set up eventforwarder
+  this->EventForwarder = vtkEventForwarderCommand::New();
+  this->EventForwarder->SetTarget(this);
+  
   // Set up some the default parameters
   this->LabeledDataMapper->SetFieldDataName("name");
   this->LabeledDataMapper->SetLabelFormat("%s");
@@ -81,6 +86,8 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
 
   // Okay setup the internal pipeline
   this->SetupPipeline();
+  
+
 }
 
 //----------------------------------------------------------------------------
@@ -97,6 +104,8 @@ vtkGraphLayoutViewer::~vtkGraphLayoutViewer()
     }
     
   this->SetArcWeightField(0);
+  
+  this->EventForwarder->Delete();
   
   // Smart pointers will handle the rest of
   // vtk pipeline objects :)
@@ -357,6 +366,10 @@ void vtkGraphLayoutViewer::SetLayoutStrategy(const char* strategyName)
   // Set the strategy for the layout
   this->GraphLayout->SetLayoutStrategy(strategy);
   strategy->Delete();
+  
+  // Now forward progress events from the graph layout
+  this->GraphLayout->AddObserver(vtkCommand::ProgressEvent, 
+                                 this->EventForwarder);
     
   // Reset camera
   this->Renderer->ResetCamera();

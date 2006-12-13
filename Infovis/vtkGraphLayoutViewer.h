@@ -59,6 +59,7 @@ class vtkRenderer;
 class vtkRenderWindowInteractor;
 class vtkLookupTable;
 class vtkLabeledDataMapper;
+class vtkEventForwarderCommand;
 
 class VTK_INFOVIS_EXPORT vtkGraphLayoutViewer : public vtkObject 
 {
@@ -147,6 +148,12 @@ protected:
   vtkSmartPointer<vtkLookupTable>           ColorLUT;
   vtkSmartPointer<vtkLabeledDataMapper>     LabeledDataMapper;
   //ETX
+  
+  // Description:
+  // This intercepts events from the graph layout class 
+  // and re-emits them as if they came from this class.
+  vtkEventForwarderCommand *EventForwarder;
+  unsigned long ObserverTag;
   
 private:
 
