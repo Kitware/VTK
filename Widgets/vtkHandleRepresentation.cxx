@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 
 
-vtkCxxRevisionMacro(vtkHandleRepresentation, "1.8");
+vtkCxxRevisionMacro(vtkHandleRepresentation, "1.9");
 
 //----------------------------------------------------------------------
 vtkHandleRepresentation::vtkHandleRepresentation()
@@ -94,6 +94,13 @@ void vtkHandleRepresentation::GetWorldPosition(double pos[3])
 double* vtkHandleRepresentation::GetWorldPosition()
 {
   return this->WorldPosition->GetValue();
+}
+
+//----------------------------------------------------------------------
+int vtkHandleRepresentation::CheckConstraint(vtkRenderer *vtkNotUsed(renderer),
+                                             double vtkNotUsed(pos)[2])
+{
+  return 1;
 }
 
 //----------------------------------------------------------------------

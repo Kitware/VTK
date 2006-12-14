@@ -156,7 +156,7 @@ int TestAffineWidget( int argc, char *argv[] )
   recorder->Off();
 
   int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }

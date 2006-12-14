@@ -117,7 +117,7 @@ public:
   // (Ex. vtkConstrainedPointHandleRepresentation). It should return 1
   // if the position is within the constraint, else it should return
   // 0. By default it returns 1.
-  virtual int CheckConstraint(vtkRenderer *renderer, double pos[2]) {return 1;};
+  virtual int CheckConstraint(vtkRenderer *renderer, double pos[2]);
   
   // Description:
   // Methods to make this class properly act like a vtkWidgetRepresentation.
