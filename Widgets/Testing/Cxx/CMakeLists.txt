@@ -2,23 +2,23 @@ SET(KIT Widgets)
 # add tests that do not require data
 SET(MyTests     
   BoxWidget.cxx
-  TestAffineWidget.cxx
-  TestAngleWidget.cxx
-  TestBalloonWidget.cxx
-  TestBorderWidget.cxx
-  TestCameraWidget.cxx
-  TestCaptionWidget.cxx
-  TestCheckerboardWidget.cxx
-  TestDistanceWidget.cxx
-  TestHandleWidget.cxx
-  TestHandleWidget2D.cxx
+#  TestAffineWidget.cxx
+#  TestAngleWidget.cxx
+#  TestBalloonWidget.cxx
+#  TestBorderWidget.cxx
+#  TestCameraWidget.cxx
+#  TestCaptionWidget.cxx
+#  TestCheckerboardWidget.cxx
+#  TestDistanceWidget.cxx
+#  TestHandleWidget.cxx
+#  TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx
 #  TestLogoWidget.cxx
   TestOrientationMarkerWidget.cxx
 #  TestPlaybackWidget.cxx
 #  TestRectilinearWipeWidget.cxx
 #  TestSeedWidget.cxx
-  TestSliderWidget.cxx
+#  TestSliderWidget.cxx
 #  TestTextWidget.cxx
   )
 IF (VTK_DATA_ROOT)
