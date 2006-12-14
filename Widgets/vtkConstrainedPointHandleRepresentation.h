@@ -47,6 +47,7 @@ class vtkPolyData;
 class vtkPlane;
 class vtkPlaneCollection;
 class vtkPlanes;
+class vtkRenderer;
 
 class VTK_WIDGETS_EXPORT vtkConstrainedPointHandleRepresentation : public vtkHandleRepresentation
 {
@@ -82,6 +83,7 @@ public:
                    vtkConstrainedPointHandleRepresentation::XAxis,
                    vtkConstrainedPointHandleRepresentation::Oblique);
   vtkGetMacro(ProjectionNormal,int);
+ 
   void SetProjectionNormalToXAxis()
     { this->SetProjectionNormal(vtkConstrainedPointHandleRepresentation::XAxis); }
   void SetProjectionNormalToYAxis()
@@ -95,6 +97,7 @@ public:
   // If the ProjectionNormal is set to Oblique, then this is the 
   // oblique plane used to constrain the handle position
   void SetObliquePlane(vtkPlane *);
+  vtkGetObjectMacro(ObliquePlane, vtkPlane);
 
   // Description:
   // The position of the bounding plane from the origin along the
@@ -119,6 +122,12 @@ public:
   vtkGetObjectMacro(BoundingPlanes,vtkPlaneCollection);
   void SetBoundingPlanes(vtkPlanes *planes);
   
+  // Description:
+  // Overridden from the base class. It converts the display
+  // co-ordinates to world co-ordinates. It returns 1 if the point lies
+  // within the constrained region, otherwise return 0
+  virtual int CheckConstraint(vtkRenderer *renderer, double pos[2]);
+
   // Description:
   // Set/Get the position of the point in display coordinates.  These are
   // convenience methods that extend the superclasses' GetHandlePosition()
@@ -154,6 +163,11 @@ public:
   virtual int ComputeInteractionState(int X, int Y, int modify);
 
   // Description:
+  // Method overridden from Superclass. computes the world
+  // co-ordinates using GetIntersectionPosition()
+  virtual void SetDisplayPosition(double pos[3]);
+
+  // Description:
   // Methods to make this class behave as a vtkProp.
   virtual void GetActors(vtkPropCollection *);
   virtual void ReleaseGraphicsResources(vtkWindow *);
@@ -161,6 +175,8 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual int RenderTranslucentGeometry(vtkViewport *viewport);
  
+  virtual void ShallowCopy(vtkProp* prop);
+
 //BTX
   enum {XAxis=0,YAxis,ZAxis,Oblique};
 //ETX
@@ -205,7 +221,8 @@ protected:
   // Internal method for computing 3D location from 2D screen position
   int GetIntersectionPosition( double eventPos[2],
                                double worldPos[3],
-                               double tolerance = 0.0 );
+                               double tolerance = 0.0,
+                               vtkRenderer *renderer=0);
 
   // Internal method for getting the project normal as a vector
   void GetProjectionNormal( double normal[3] );
@@ -213,6 +230,8 @@ protected:
   // Internal method for getting the origin of the 
   // constraining plane as a 3-tuple
   void GetProjectionOrigin( double origin[3] );
+  
+  
   
   // Distance between where the mouse event happens and where the
   // widget is focused - maintain this distance during interaction.

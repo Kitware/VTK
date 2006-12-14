@@ -46,6 +46,7 @@
 #include "vtkWidgetRepresentation.h"
 
 class vtkCoordinate;
+class vtkRenderer;
 
 class VTK_WIDGETS_EXPORT vtkHandleRepresentation : public vtkWidgetRepresentation
 {
@@ -110,6 +111,14 @@ public:
   vtkGetMacro(Constrained,int);
   vtkBooleanMacro(Constrained,int);
 
+  // Description:
+  // Method has to be overridden in the subclasses which has
+  // constraints on placing the handle
+  // (Ex. vtkConstrainedPointHandleRepresentation). It should return 1
+  // if the position is within the constraint, else it should return
+  // 0. By default it returns 1.
+  virtual int CheckConstraint(vtkRenderer *renderer, double pos[2]) {return 1;};
+  
   // Description:
   // Methods to make this class properly act like a vtkWidgetRepresentation.
   virtual void ShallowCopy(vtkProp *prop);

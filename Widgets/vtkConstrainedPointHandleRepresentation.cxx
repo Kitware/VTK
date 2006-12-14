@@ -13,11 +13,13 @@
 
 =========================================================================*/
 #include "vtkConstrainedPointHandleRepresentation.h"
+#include "vtkCellPicker.h"
 #include "vtkCleanPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
 #include "vtkAssemblyPath.h"
@@ -39,7 +41,7 @@
 #include "vtkTransform.h"
 #include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkConstrainedPointHandleRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkConstrainedPointHandleRepresentation, "1.4");
 vtkStandardNewMacro(vtkConstrainedPointHandleRepresentation);
 
 vtkCxxSetObjectMacro(vtkConstrainedPointHandleRepresentation, ObliquePlane, vtkPlane);
@@ -165,6 +167,15 @@ vtkConstrainedPointHandleRepresentation::~vtkConstrainedPointHandleRepresentatio
     this->BoundingPlanes->UnRegister(this);
     }
 }
+
+//----------------------------------------------------------------------
+int vtkConstrainedPointHandleRepresentation::CheckConstraint(vtkRenderer *renderer,
+                                                             double eventPos[2])
+{
+  double worldPos[3];
+  double tolerance = 0.0;
+  return  this->GetIntersectionPosition(eventPos, worldPos, tolerance, renderer);
+}                                        
 
 //----------------------------------------------------------------------
 void vtkConstrainedPointHandleRepresentation::SetProjectionPosition(double position)
@@ -295,6 +306,21 @@ void vtkConstrainedPointHandleRepresentation::SetPosition(double x, double y, do
 }
 
 //-------------------------------------------------------------------------
+void vtkConstrainedPointHandleRepresentation::SetDisplayPosition(double eventPos[3])
+{
+  double worldPos[3];
+  this->DisplayPosition->SetValue(eventPos);
+  if(this->Renderer)
+    {
+    if ( this->GetIntersectionPosition(eventPos, worldPos) )
+      {
+      this->SetPosition(worldPos);
+      }
+    }
+   this->DisplayPositionTime.Modified();
+}
+
+//-------------------------------------------------------------------------
 void vtkConstrainedPointHandleRepresentation::SetPosition(double xyz[3])
 {
   this->SetPosition(xyz[0],xyz[1],xyz[2]);
@@ -313,7 +339,26 @@ void vtkConstrainedPointHandleRepresentation::GetPosition(double xyz[3])
 }
 
 //-------------------------------------------------------------------------
-int vtkConstrainedPointHandleRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
+void vtkConstrainedPointHandleRepresentation::ShallowCopy(vtkProp* prop)
+{
+  vtkConstrainedPointHandleRepresentation *rep = 
+    vtkConstrainedPointHandleRepresentation::SafeDownCast(prop);
+  if(rep)
+    {
+    this->Property->DeepCopy( rep->GetProperty() );
+    this->SelectedProperty->DeepCopy(rep->GetSelectedProperty());
+    this->ActiveProperty->DeepCopy(rep->GetActiveProperty());
+    this->ProjectionNormal = rep->GetProjectionNormal();
+    this->ProjectionPosition = rep->GetProjectionPosition();
+   
+    this->SetObliquePlane(rep->GetObliquePlane());
+    this->SetBoundingPlanes(rep->GetBoundingPlanes());
+    }
+  this->Superclass::ShallowCopy(prop);
+}
+//-------------------------------------------------------------------------
+int vtkConstrainedPointHandleRepresentation::ComputeInteractionState(
+  int X, int Y, int vtkNotUsed(modify))
 {
   
   double pos[4], xyz[3];
@@ -420,11 +465,11 @@ void vtkConstrainedPointHandleRepresentation::Translate(double eventPos[2])
     }
 }
 
-
 //----------------------------------------------------------------------
 int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double eventPos[2], 
                                                                      double worldPos[3],
-                                                                     double tolerance)
+                                                                     double tolerance,
+                                                                     vtkRenderer * renderer)
 { 
   double nearWorldPoint[4];
   double farWorldPoint[4];
@@ -433,15 +478,19 @@ int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double even
   tmp[0] = eventPos[0] + this->InteractionOffset[0];
   tmp[1] = eventPos[1] + this->InteractionOffset[1];
   tmp[2] = 0.0;  // near plane
+  if(renderer == 0)
+    {
+    renderer = this->Renderer;
+    }
   
-  this->Renderer->SetDisplayPoint(tmp);
-  this->Renderer->DisplayToWorld();
-  this->Renderer->GetWorldPoint(nearWorldPoint);
+  renderer->SetDisplayPoint(tmp);
+  renderer->DisplayToWorld();
+  renderer->GetWorldPoint(nearWorldPoint);
 
   tmp[2] = 1.0;  // far plane
-  this->Renderer->SetDisplayPoint(tmp);
-  this->Renderer->DisplayToWorld();
-  this->Renderer->GetWorldPoint(farWorldPoint);
+  renderer->SetDisplayPoint(tmp);
+  renderer->DisplayToWorld();
+  renderer->GetWorldPoint(farWorldPoint);
   
   double normal[3];
   double origin[3];
@@ -449,36 +498,40 @@ int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double even
   this->GetProjectionNormal( normal );
   this->GetProjectionOrigin( origin );
   
-  double position[3];
-  double distance;
-  if ( vtkPlane::IntersectWithLine( nearWorldPoint,
-                                    farWorldPoint,
-                                    normal, origin,
-                                    distance, position ) )
+  vtkCellPicker *picker = vtkCellPicker::New();
+ 
+  picker->Pick(eventPos[0], eventPos[1], 0, renderer);   
+
+  vtkAssemblyPath *path = picker->GetPath();
+  
+  if(path == 0)
+   {
+   return 0;
+   }
+  double pickPos[3];
+  picker->GetPickPosition(pickPos);   
+  path->Register(this);
+  if ( this->BoundingPlanes )
     {
-    // Now check against the bounding planes
-    if ( this->BoundingPlanes )
+    vtkPlane *p;
+    this->BoundingPlanes->InitTraversal();
+    while ( (p = this->BoundingPlanes->GetNextItem()) )
       {
-      vtkPlane *p;
-      
-      this->BoundingPlanes->InitTraversal();
-      
-      while ( (p = this->BoundingPlanes->GetNextItem()) )
+      double v = p->EvaluateFunction( pickPos );
+      if ( v < tolerance )
         {
-        if ( p->EvaluateFunction( position ) < tolerance )
-          {
-          return 0;
-          }
+        return 0;
         }
       }
-    
-    worldPos[0] = position[0];
-    worldPos[1] = position[1];
-    worldPos[2] = position[2];
-    return 1;
     }
+    
+  worldPos[0] = pickPos[0];
+  worldPos[1] = pickPos[1];
+  worldPos[2] = pickPos[2];
   
-  return 0;
+  picker->Delete();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------
