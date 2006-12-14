@@ -36,7 +36,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.111");
+vtkCxxRevisionMacro(vtkDataWriter, "1.112");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -490,7 +490,7 @@ void vtkWriteDataArray(ostream *fp, T *data, int fileType,
 }
 
 // Write out data to file specified.
-int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data,
+int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
                               const char *format, int num, int numComp)
 {
   int i, j, idx;
@@ -628,9 +628,15 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data,
       }
     break;
 
+    case VTK_STRING_TYPE:
+      {
+      }
+    break;
+
     default:
       {
       vtkErrorMacro(<<"Type currently not supported");
+      *fp << "NULL_ARRAY" << endl;
       return 0;
       }
     }
@@ -1001,7 +1007,7 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
   int i, numArrays=f->GetNumberOfArrays(), actNumArrays=0;
   int numComp, numTuples;
   int attributeIndices[vtkDataSetAttributes::NUM_ATTRIBUTES];
-  vtkDataArray *array;
+  vtkAbstractArray *array;
 
   for(i=0; i<vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
     {
@@ -1033,7 +1039,7 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
     if (!vtkIsInTheList(i, attributeIndices, 
                         vtkDataSetAttributes::NUM_ATTRIBUTES))
       {
-      array = f->GetArray(i);
+      array = f->GetAbstractArray(i);
       if ( array != NULL )
         {
         numComp = array->GetNumberOfComponents();
@@ -1060,7 +1066,7 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
         }
       else
         {
-        *fp << "NULL_ARRAY"; 
+        *fp << "NULL_ARRAY" << endl;
         }
       }
     }
