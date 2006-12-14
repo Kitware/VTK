@@ -97,7 +97,6 @@ vtkFocalPlaneContourRepresentation
 vtkDistanceRepresentation
 vtkHandleRepresentation
 vtkPolyDataSourceWidget
-vtkPointPlacer
 vtkSliderRepresentation
 vtkWidgetRepresentation
 ABSTRACT

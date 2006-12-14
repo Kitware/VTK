@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPointPlacer.h
+  Module:    vtkPointPlacer.h,v
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,8 +18,6 @@
 //
 // .SECTION See Also
 
-
-
 #ifndef __vtkPointPlacer_h
 #define __vtkPointPlacer_h
 
@@ -30,6 +28,10 @@ class vtkRenderer;
 class VTK_WIDGETS_EXPORT vtkPointPlacer : public vtkObject
 {
 public:
+  // Description:
+  // Instantiate this class.
+  static vtkPointPlacer *New();
+
   // Description:
   // Standard methods for instances of this class.
   vtkTypeRevisionMacro(vtkPointPlacer,vtkObject);
@@ -43,7 +45,7 @@ public:
   virtual int ComputeWorldPosition( vtkRenderer *ren,
                                     double displayPos[2], 
                                     double worldPos[3],
-                                    double worldOrient[9] )=0;
+                                    double worldOrient[9] );
   
   // Description:
   // Given a renderer, a display position, and a reference world
@@ -54,18 +56,22 @@ public:
                                     double displayPos[2], 
                                     double refWorldPos[3],
                                     double worldPos[3],
-                                    double worldOrient[9] )=0;
+                                    double worldOrient[9] );
   
   // Description:
   // Given a world position check the validity of this 
   // position according to the constraints of the placer
-  virtual int ValidateWorldPosition( double worldPos[3] )=0;
+  virtual int ValidateWorldPosition( double worldPos[3] );
+  
+  // Description:
+  // Given a display position, check the validity of this position.
+  virtual int ValidateDisplayPosition( vtkRenderer *, double displayPos[2] );
   
   // Description:
   // Given a world position and a world orientation,
   // validate it according to the constraints of the placer.
   virtual int ValidateWorldPosition( double worldPos[3],
-                                     double worldOrient[9] )=0;
+                                     double worldOrient[9] );
 
   // Description:
   // Given a current renderer, world position and orientation,
