@@ -590,7 +590,7 @@ public:
   }
   inline void SetUnsortedBlockStatus(int idx, int flag) 
   { 
-    if (blockStatus.size() > idx)
+    if (static_cast<int>(blockStatus.size()) > idx)
       {
       blockStatus[idx] = flag; 
       }
@@ -598,7 +598,7 @@ public:
   
   inline int GetUnsortedBlockStatus(int idx) 
   { 
-    if (blockStatus.size() > idx)
+    if (static_cast<int>(blockStatus.size()) > idx)
       {
       return blockStatus[idx]; 
       }
@@ -1477,7 +1477,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.33");
+vtkCxxRevisionMacro(vtkExodusReader, "1.34");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
