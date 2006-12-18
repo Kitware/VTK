@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
   fractal->SetMaximumLevel(3);
   fractal->DiscreteTimeStepsOn();
   fractal->GenerateRectilinearGridsOn();
+//  fractal->SetAdaptiveSubdivision(0);
 
   // shift and scale the time range to that it run from -0.5 to 0.5
   vtkSmartPointer<vtkTemporalShiftScale> tempss = 

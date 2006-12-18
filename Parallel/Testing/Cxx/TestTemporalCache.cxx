@@ -40,10 +40,22 @@ public:
   
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   { 
-    // count the number of time steps requested
-    vtkTemporalFractal *frac = vtkTemporalFractal::SafeDownCast(caller);
-    this->Count += frac->GetExecutive()->GetOutputInformation(0)
-      ->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    // count the number of timesteps requested
+    vtkTemporalFractal *f = vtkTemporalFractal::SafeDownCast(caller);
+    vtkInformation *info = f->GetExecutive()->GetOutputInformation(0);
+    int Length = info->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    this->Count += Length;
+    if (Length>0)
+      {
+      vtkstd::vector<double> steps;
+      steps.resize(Length);
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), &steps[0]);
+      for (int i=0; i<Length; ++i) 
+        {
+//        cout << steps[i] << " ";
+        }
+//      cout << endl;
+      }
   }
 
   unsigned int Count;
@@ -63,6 +75,7 @@ int main(int , char *[])
   fractal->SetMaximumLevel(2);
   fractal->DiscreteTimeStepsOn();
   fractal->GenerateRectilinearGridsOn();
+  fractal->SetAdaptiveSubdivision(0);
 
   ExecuteCallback *executecb =ExecuteCallback::New();
   executecb->Count = 0;
