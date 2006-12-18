@@ -43,7 +43,14 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDataReader, "1.137");
+// I need a safe way to read a line of arbitrary length.  It exists on
+// some platforms but not others so I'm afraid I have to write it
+// myself.
+// This function is also defined in Infovis/vtkDelimitedTextReader.cxx,
+// so it would be nice to put this in a common file.
+static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
+
+vtkCxxRevisionMacro(vtkDataReader, "1.138");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -1168,13 +1175,13 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
     else 
       {
       vtkStdString s;
-      getline(*(this->IS), s);
+      my_getline(*(this->IS), s);
       for (int i=0; i<numTuples; i++)
         {
         for (int j=0; j<numComp; j++)
           {
           vtkStdString s;
-          getline(*(this->IS), s);
+          my_getline(*(this->IS), s);
           vtkIdType idx = i*numComp + j;
           if (idx % 100 == 0 || idx > 4900)
             {
@@ -2455,3 +2462,30 @@ int vtkDataReader::DecodeString(char *resname, const char* name)
   str.rdbuf()->freeze(0);
   return reslen;
 }
+
+static int
+my_getline(istream& in, vtkStdString &out, char delimiter)
+{
+  out = vtkStdString();
+  unsigned int numCharactersRead = 0;
+  int nextValue = 0;
+  
+  while ((nextValue = in.get()) != EOF &&
+         numCharactersRead < out.max_size())
+    {
+    ++numCharactersRead;
+
+    char downcast = static_cast<char>(nextValue);
+    if (downcast != delimiter)
+      {
+      out += downcast;
+      }
+    else
+      {
+      return numCharactersRead;
+      }
+    }
+
+  return numCharactersRead;
+}
+
