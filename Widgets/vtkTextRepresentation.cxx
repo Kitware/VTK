@@ -19,7 +19,7 @@
 #include "vtkRenderer.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkTextRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkTextRepresentation, "1.4");
 vtkStandardNewMacro(vtkTextRepresentation);
 
 //-------------------------------------------------------------------------
@@ -68,6 +68,30 @@ void vtkTextRepresentation::SetTextActor(vtkTextActor *textActor)
       }
     this->Modified();
     }
+}
+
+//-------------------------------------------------------------------------
+void vtkTextRepresentation::SetText(const char* text)
+{
+  if (this->TextActor)
+    {
+    this->TextActor->SetInput(text);
+    }
+  else
+    {
+    vtkErrorMacro("No Text Actor present. Cannot set text.");
+    }
+}
+
+//-------------------------------------------------------------------------
+const char* vtkTextRepresentation::GetText()
+{
+  if (this->TextActor)
+    {
+    return this->TextActor->GetInput();
+    }
+  vtkErrorMacro("No text actor present. No showing any text.");
+  return 0;
 }
 
 //-------------------------------------------------------------------------

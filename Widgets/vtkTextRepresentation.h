@@ -49,6 +49,11 @@ public:
   vtkGetObjectMacro(TextActor,vtkTextActor);
 
   // Description:
+  // Get/Set the text string display by this representation.
+  void SetText(const char* text);
+  const char* GetText();
+
+  // Description:
   // Satisfy the superclasses API.
   virtual void BuildRepresentation();
   virtual void GetSize(double size[2])
