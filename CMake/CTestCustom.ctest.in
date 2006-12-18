@@ -43,6 +43,10 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
 
   # Does *anyone* have an STL implementation that compiles without warnings...?
   "cc-1116 CC: WARNING File = /usr/include/CC/stl_alloc.h, Line = 175"
+
+  # vtkfreetype needs to be updated to get rid of warnings that occur during
+  # 64-bit compiles... for now, mask them out of dashboard results:
+  "vtkfreetype.*warning C4"
   )
 
 IF(APPLE)
