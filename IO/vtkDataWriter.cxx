@@ -31,12 +31,13 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkShortArray.h"
+#include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.113");
+vtkCxxRevisionMacro(vtkDataWriter, "1.114");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -630,6 +631,55 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
 
     case VTK_STRING:
       {
+      sprintf (str, format, "string"); *fp << str; 
+      if ( this->FileType == VTK_ASCII )
+        {
+        vtkStdString s;
+        for (j=0; j<num; j++)
+          {
+          for (i=0; i<numComp; i++)
+            {
+            idx = i + j*numComp;
+            s = ((vtkStringArray *)data)->GetValue(idx);
+            this->EncodeWriteString(fp, s.c_str(), false);
+            *fp << "\n";
+            }
+          }
+        }
+      else
+        {
+        vtkStdString s;
+        for (j=0; j<num; j++)
+          {
+          for (i=0; i<numComp; i++)
+            {
+            idx = i + j*numComp;
+            s = ((vtkStringArray *)data)->GetValue(idx);
+            vtkTypeUInt64 length = s.length();
+            if (length < (1 << 6))
+              {
+              vtkTypeUInt8 len = (static_cast<vtkTypeUInt8>(3) << 6) | static_cast<vtkTypeUInt8>(length);
+              fp->write((char*)(&len), 1);
+              }
+            else if (length < (1 << 14))
+              {
+              vtkTypeUInt16 len = (static_cast<vtkTypeUInt16>(2) << 14) | static_cast<vtkTypeUInt16>(length);
+              vtkByteSwap::SwapWrite2BERange(&len, 1, fp);
+              }
+            else if (length < (1 << 30))
+              {
+              vtkTypeUInt32 len = (static_cast<vtkTypeUInt32>(1) << 30) | static_cast<vtkTypeUInt32>(length);
+              vtkByteSwap::SwapWrite4BERange(&len, 1, fp);
+              }
+            else
+              {
+              vtkByteSwap::SwapWrite8BERange(&length, 1, fp);
+              }
+            fp->write(s.c_str(), length);
+            }
+          }
+        }
+      *fp << "\n";
       }
     break;
 
@@ -715,7 +765,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
     if (scalars->GetName() && strlen(scalars->GetName()))
       {
       scalarsName = new char[ strlen(scalars->GetName()) * 4 + 1];
-      this->EncodeArrayName(scalarsName, scalars->GetName());
+      this->EncodeString(scalarsName, scalars->GetName(), true);
       }
     else
       {
@@ -726,7 +776,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
   else
     {
     scalarsName = new char[ strlen(this->ScalarsName) * 4 + 1];
-    this->EncodeArrayName(scalarsName, this->ScalarsName);
+    this->EncodeString(scalarsName, this->ScalarsName, true);
     }
   
   if ( dataType != VTK_UNSIGNED_CHAR )
@@ -829,7 +879,7 @@ int vtkDataWriter::WriteVectorData(ostream *fp, vtkDataArray *vectors, int num)
     if (vectors->GetName() && strlen(vectors->GetName()))
       {
       vectorsName = new char[ strlen(vectors->GetName()) * 4 + 1];
-      this->EncodeArrayName(vectorsName, vectors->GetName());
+      this->EncodeString(vectorsName, vectors->GetName(), true);
       }
     else
       {
@@ -840,7 +890,7 @@ int vtkDataWriter::WriteVectorData(ostream *fp, vtkDataArray *vectors, int num)
   else
     {
     vectorsName = new char[ strlen(this->VectorsName) * 4 + 1];
-    this->EncodeArrayName(vectorsName, this->VectorsName);
+    this->EncodeString(vectorsName, this->VectorsName, true);
     }
 
   sprintf(format, "%s %s\n", vectorsName, "%s");
@@ -862,7 +912,7 @@ int vtkDataWriter::WriteNormalData(ostream *fp, vtkDataArray *normals, int num)
     if (normals->GetName() && strlen(normals->GetName()) )
       {
       normalsName = new char[ strlen(normals->GetName()) * 4 + 1];
-      this->EncodeArrayName(normalsName, normals->GetName());
+      this->EncodeString(normalsName, normals->GetName(), true);
       }
     else
       {
@@ -873,7 +923,7 @@ int vtkDataWriter::WriteNormalData(ostream *fp, vtkDataArray *normals, int num)
   else
     {
     normalsName = new char[ strlen(this->NormalsName) * 4 + 1];
-    this->EncodeArrayName(normalsName, this->NormalsName);
+    this->EncodeString(normalsName, this->NormalsName, true);
     }
 
   *fp << "NORMALS ";
@@ -897,7 +947,7 @@ int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
     if (tcoords->GetName() && strlen(tcoords->GetName()))
       {
       tcoordsName = new char[ strlen(tcoords->GetName()) * 4 + 1];
-      this->EncodeArrayName(tcoordsName, tcoords->GetName());
+      this->EncodeString(tcoordsName, tcoords->GetName(), true);
       }
     else
       {
@@ -908,7 +958,7 @@ int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
   else
     {
     tcoordsName = new char[ strlen(this->TCoordsName) * 4 + 1];
-    this->EncodeArrayName(tcoordsName, this->TCoordsName);
+    this->EncodeString(tcoordsName, this->TCoordsName, true);
     }
 
 
@@ -933,7 +983,7 @@ int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
     if (tensors->GetName() && strlen(tensors->GetName()))
       {
       tensorsName = new char[ strlen(tensors->GetName()) * 4 + 1];
-      this->EncodeArrayName(tensorsName, tensors->GetName());
+      this->EncodeString(tensorsName, tensors->GetName(), true);
       }
     else
       {
@@ -944,7 +994,7 @@ int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
   else
     {
     tensorsName = new char[ strlen(this->TensorsName) * 4 + 1];
-    this->EncodeArrayName(tensorsName, this->TensorsName);
+    this->EncodeString(tensorsName, this->TensorsName, true);
     }
 
   *fp << "TENSORS "; 
@@ -969,7 +1019,7 @@ int vtkDataWriter::WriteGlobalIdData(ostream *fp, vtkDataArray *globalIds, int n
     if (globalIds->GetName() && strlen(globalIds->GetName()))
       {
       globalIdsName = new char[ strlen(globalIds->GetName()) * 4 + 1];
-      this->EncodeArrayName(globalIdsName, globalIds->GetName());
+      this->EncodeString(globalIdsName, globalIds->GetName(), true);
       }
     else
       {
@@ -980,7 +1030,7 @@ int vtkDataWriter::WriteGlobalIdData(ostream *fp, vtkDataArray *globalIds, int n
   else
     {
     globalIdsName = new char[ strlen(this->GlobalIdsName) * 4 + 1];
-    this->EncodeArrayName(globalIdsName, this->GlobalIdsName);
+    this->EncodeString(globalIdsName, this->GlobalIdsName, true);
     }
 
   sprintf(format, "%s %s\n", globalIdsName, "%s");
@@ -1056,7 +1106,7 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
         else
           {
           buffer = new char[ strlen(array->GetName()) * 4 + 1];
-          this->EncodeArrayName(buffer, array->GetName());
+          this->EncodeString(buffer, array->GetName(), true);
           }
         sprintf(format, "%s %d %d %s\n", buffer, numComp, numTuples, 
                 "%s");

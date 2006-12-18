@@ -48,10 +48,19 @@ public:
   virtual int Write();
 
   // Description:
-  // Encode the name so that the reader will not have problems.
-  // The resulting string is up to four time the size of the input 
-  // string.
-  void EncodeArrayName(char* resname, const char* name);
+  // Encode the string so that the reader will not have problems.
+  // The resulting string is up to three times the size of the input 
+  // string.  doublePercent indicates whether to output a double '%' before
+  // escaped characters so the string may be used as a printf format string.
+  void EncodeString(char* resname, const char* name, bool doublePercent);
+  
+  // Description:
+  // Encode the string so that the reader will not have problems.
+  // The resulting string is up to three times the size of the input 
+  // string.  Write the string to the output stream.
+  // doublePercent indicates whether to output a double '%' before
+  // escaped characters so the string may be used as a printf format string.
+  void EncodeWriteString(ostream* out, const char* name, bool doublePercent);
   
   // Description:
   // Set/get the input to this writer.

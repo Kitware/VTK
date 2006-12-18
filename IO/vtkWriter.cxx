@@ -21,7 +21,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkWriter, "1.43");
+vtkCxxRevisionMacro(vtkWriter, "1.44");
 
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
@@ -162,7 +162,7 @@ void vtkWriter::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
-void vtkWriter::EncodeArrayName(char* resname, const char* name)
+void vtkWriter::EncodeString(char* resname, const char* name, bool doublePercent)
 {
   if ( !name || !resname )
     {   
@@ -176,12 +176,20 @@ void vtkWriter::EncodeArrayName(char* resname, const char* name)
   while( name[cc] )
     {
     // Encode spaces and %'s (and most non-printable ascii characters)
-    // The reader does not support spaces in array names.
+    // The reader does not support spaces in strings.
     if ( name[cc] < 33  || name[cc] > 126 ||
          name[cc] == '\"' || name[cc] == '%' )
       {
-      sprintf(buffer, "%2X", name[cc]);
-      str << "%%" << buffer; // Two % because it goes through printf format
+      sprintf(buffer, "%02X", name[cc]);
+      if (doublePercent)
+        {
+        str << "%%";
+        }
+      else
+        {
+        str << "%";
+        }
+      str << buffer;
       }
     else
       {
@@ -193,3 +201,41 @@ void vtkWriter::EncodeArrayName(char* resname, const char* name)
   strcpy(resname, str.str());
   str.rdbuf()->freeze(0);
 }
+
+void vtkWriter::EncodeWriteString(ostream* out, const char* name, bool doublePercent)
+{
+  if (!name)
+    {   
+    return;
+    }
+  int cc = 0;
+
+  char buffer[10];
+
+  while( name[cc] )
+    {
+    // Encode spaces and %'s (and most non-printable ascii characters)
+    // The reader does not support spaces in strings.
+    if ( name[cc] < 33  || name[cc] > 126 ||
+         name[cc] == '\"' || name[cc] == '%' )
+      {
+      sprintf(buffer, "%02X", name[cc]);
+      if (doublePercent)
+        {
+        *out << "%%";
+        }
+      else
+        {
+        *out << "%";
+        }
+      *out << buffer;
+      }
+    else
+      {
+      *out << name[cc];
+      }
+    cc++;
+    }
+}
+
+

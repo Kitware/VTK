@@ -34,6 +34,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkShortArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -42,7 +43,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDataReader, "1.136");
+vtkCxxRevisionMacro(vtkDataReader, "1.137");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -803,7 +804,7 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
         }
       for(int i=0; i<f->GetNumberOfArrays(); i++)
         {
-        a->AddArray(f->GetArray(i));
+        a->AddArray(f->GetAbstractArray(i));
         }
       f->Delete();
       }
@@ -829,7 +830,6 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
       return 0;
       }
     }
-
   return 1;
 }
 
@@ -876,12 +876,12 @@ int vtkReadASCIIData(vtkDataReader *self, T *data, int numTuples, int numComp)
 // object with initial count of one; proper protocol is for you to assign 
 // the data object and then invoke Delete() it to restore proper reference
 // count.
-vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int numComp)
+vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int numComp)
 {
   char *type=strdup(dataType);
   type=this->LowerCase(type);
 
-  vtkDataArray *array;
+  vtkAbstractArray *array;
 
   if ( ! strncmp(type, "bit", 3) )
     {
@@ -1105,6 +1105,90 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
       }
     }
 
+  else if ( ! strncmp(type, "string", 6) )
+    {
+    array = vtkStringArray::New();
+    array->SetNumberOfComponents(numComp);
+
+    if ( this->FileType == VTK_BINARY )
+      {
+      // suck up newline
+      char line[256];
+      IS->getline(line,256);
+
+      vtkStdString s;
+      for (int i=0; i<numTuples; i++)
+        {
+        for (int j=0; j<numComp; j++)
+          {
+          vtkTypeUInt8 firstByte;
+          vtkTypeUInt8 type;
+          vtkStdString::size_type stringLength;
+          firstByte = IS->peek();
+          type = firstByte >> 6;
+          if (type == 3)
+            {
+            vtkTypeUInt8 length = IS->get();
+            length <<= 2;
+            length >>= 2;
+            stringLength = length;
+            }
+          else if (type == 2)
+            {
+            vtkTypeUInt16 length;
+            IS->read(reinterpret_cast<char*>(&length), 2);
+            vtkByteSwap::Swap2BE(&length);
+            length <<= 2;
+            length >>= 2;
+            stringLength = length;
+            }
+          else if (type == 1)
+            {
+            vtkTypeUInt32 length;
+            IS->read(reinterpret_cast<char*>(&length), 4);
+            vtkByteSwap::Swap4BE(&length);
+            length <<= 2;
+            length >>= 2;
+            stringLength = length;
+            }
+          else
+            {
+            vtkTypeUInt64 length;
+            IS->read(reinterpret_cast<char*>(&length), 8);
+            vtkByteSwap::Swap4BE(&length);
+            stringLength = length;
+            }
+          char* str = new char[stringLength];
+          IS->read(str, stringLength);
+          vtkStdString s(str, stringLength);
+          ((vtkStringArray*)array)->InsertNextValue(s);
+          }
+        }
+      }
+    else 
+      {
+      vtkStdString s;
+      getline(*(this->IS), s);
+      for (int i=0; i<numTuples; i++)
+        {
+        for (int j=0; j<numComp; j++)
+          {
+          vtkStdString s;
+          getline(*(this->IS), s);
+          vtkIdType idx = i*numComp + j;
+          if (idx % 100 == 0 || idx > 4900)
+            {
+            cerr << "reading index " << idx << "=" << s.substr(0, 10) << endl;
+            }
+          int length = s.length();
+          char* decoded = new char[length + 1];
+          int decodedLength = this->DecodeString(decoded, s.c_str());
+          vtkStdString decodedStr(decoded, decodedLength);
+          ((vtkStringArray*)array)->InsertNextValue(decodedStr);
+          }
+        }
+      }
+    }
   else 
     {
     vtkErrorMacro(<< "Unsupported data type: " << type);
@@ -1128,7 +1212,8 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
     return 0;
     }
 
-  data = this->ReadArray(line, numPts, 3);
+  data = vtkDataArray::SafeDownCast(
+    this->ReadArray(line, numPts, 3));
   if ( data != NULL )
     {
     vtkPoints *points=vtkPoints::New();
@@ -1164,7 +1249,8 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
     return 0;
     }
 
-  data = this->ReadArray(line, numCoords, 1);
+  data = vtkDataArray::SafeDownCast(
+    this->ReadArray(line, numCoords, 1));
   if ( !data  )
     {
     return 0;
@@ -1208,7 +1294,7 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
     return 0;
     }
 
-  this->DecodeArrayName(name, buffer);
+  this->DecodeString(name, buffer);
 
   if (!this->ReadString(key))
     {
@@ -1256,7 +1342,8 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
     }
 
   // Read the data
-  data = this->ReadArray(line, numPts, numComp);
+  data = vtkDataArray::SafeDownCast(
+    this->ReadArray(line, numPts, numComp));
   if ( data != NULL )
     {
     data->SetName(name);
@@ -1293,7 +1380,7 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, int numPts)
     vtkErrorMacro(<<"Cannot read vector data!" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
     return 0;
     }
-  this->DecodeArrayName(name, buffer);
+  this->DecodeString(name, buffer);
 
   //
   // See whether vector has been already read or vector name (if specified) 
@@ -1304,7 +1391,8 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, int numPts)
     skipVector = 1;
     }
 
-  data = this->ReadArray(line, numPts, 3);
+  data = vtkDataArray::SafeDownCast(
+    this->ReadArray(line, numPts, 3));
   if ( data != NULL )
     {
     data->SetName(name);
@@ -1342,7 +1430,7 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
     vtkErrorMacro(<<"Cannot read normal data!" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
     return 0;
     }
-  this->DecodeArrayName(name, buffer);
+  this->DecodeString(name, buffer);
 
   //
   // See whether normal has been already read or normal name (if specified) 
@@ -1353,7 +1441,8 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
     skipNormal = 1;
     }
 
-  data = this->ReadArray(line, numPts, 3);
+  data = vtkDataArray::SafeDownCast(
+    this->ReadArray(line, numPts, 3));
   if ( data != NULL )
     {
     data->SetName(name);
@@ -1391,7 +1480,7 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
     vtkErrorMacro(<<"Cannot read tensor data!" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
     return 0;
     }
-  this->DecodeArrayName(name, buffer);
+  this->DecodeString(name, buffer);
   //
   // See whether tensor has been already read or tensor name (if specified) 
   // matches name in file. 
@@ -1401,7 +1490,8 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
     skipTensor = 1;
     }
 
-  data = this->ReadArray(line, numPts, 9);
+  data = vtkDataArray::SafeDownCast(
+    this->ReadArray(line, numPts, 9));
   if ( data != NULL )
     {
     data->SetName(name);
@@ -1439,7 +1529,7 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
                   << (this->FileName?this->FileName:"(Null FileName)"));
     return 0;
     }
-  this->DecodeArrayName(name, buffer);
+  this->DecodeString(name, buffer);
   //
   // See whether scalar has been already read or scalar name (if specified) 
   // matches name in file. 
@@ -1535,7 +1625,7 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
     vtkErrorMacro(<<"Cannot read texture data!" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
     return 0;
     }
-  this->DecodeArrayName(name, buffer);
+  this->DecodeString(name, buffer);
 
   if ( dim < 1 || dim > 3 )
     {
@@ -1554,7 +1644,8 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
     skipTCoord = 1;
     }
 
-  data = this->ReadArray(line, numPts, dim);
+  data = vtkDataArray::SafeDownCast(
+    this->ReadArray(line, numPts, dim));
   if ( data != NULL )
     {
     data->SetName(name);
@@ -1592,7 +1683,7 @@ int vtkDataReader::ReadGlobalIds(vtkDataSetAttributes *a, int numPts)
     vtkErrorMacro(<<"Cannot read global id data" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
     return 0;
     }
-  this->DecodeArrayName(name, buffer);
+  this->DecodeString(name, buffer);
 
   //
   // See whether global ids have been already read
@@ -1602,7 +1693,8 @@ int vtkDataReader::ReadGlobalIds(vtkDataSetAttributes *a, int numPts)
     skipGlobalIds = 1;
     }
 
-  data = this->ReadArray(line, numPts, 1);
+  data = vtkDataArray::SafeDownCast(
+    this->ReadArray(line, numPts, 1));
   if ( data != NULL )
     {
     data->SetName(name);
@@ -1843,7 +1935,7 @@ vtkFieldData *vtkDataReader::ReadFieldData()
   vtkFieldData *f;
   char name[256], type[256];
   int numComp, numTuples;
-  vtkDataArray *data;
+  vtkAbstractArray *data;
 
   if ( !(this->ReadString(name) && this->Read(&numArrays)) )
     {
@@ -1870,7 +1962,7 @@ vtkFieldData *vtkDataReader::ReadFieldData()
       {
       continue;
       }
-    this->DecodeArrayName(name, buffer);
+    this->DecodeString(name, buffer);
     this->Read(&numComp);
     this->Read(&numTuples);
     this->ReadString(type);
@@ -2323,24 +2415,24 @@ int vtkDataReader::ReadDataSetData(vtkDataSet *vtkNotUsed(ds))
   return 0;
 }
 
-
-void vtkDataReader::DecodeArrayName(char *resname, const char* name)
+int vtkDataReader::DecodeString(char *resname, const char* name)
 {
   if ( !resname || !name )
     {
-    return;
+    return 0;
     }
   //strcpy(resname, name);
   ostrstream str;
   int cc = 0;
   unsigned int ch;
   int len = static_cast<int>(strlen(name));
+  int reslen = 0;
   char buffer[10] = "0x";
   while(name[cc]) 
     {
     if ( name[cc] == '%' )
       {
-      if ( cc < len - 3 )
+      if ( cc <= len - 3 )
         {
         buffer[2] = name[cc+1];
         buffer[3] = name[cc+2];
@@ -2348,15 +2440,18 @@ void vtkDataReader::DecodeArrayName(char *resname, const char* name)
         sscanf(buffer, "%x", &ch);
         str << static_cast<char>(ch);
         cc+=2;
+        reslen++;
         }
       }
     else
       {
       str << name[cc];
+      reslen++;
       }
     cc ++;
     }
   str << ends;
-  strcpy(resname, str.str());
+  strncpy(resname, str.str(), reslen+1);
   str.rdbuf()->freeze(0);
+  return reslen;
 }

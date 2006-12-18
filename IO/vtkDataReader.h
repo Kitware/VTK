@@ -31,8 +31,8 @@
 #define VTK_ASCII 1
 #define VTK_BINARY 2
 
+class vtkAbstractArray;
 class vtkCharArray;
-class vtkDataArray;
 class vtkDataSet;
 class vtkDataSetAttributes;
 class vtkFieldData;
@@ -256,7 +256,7 @@ public:
 
   // Description:
   // Helper functions for reading data.
-  vtkDataArray *ReadArray(const char *dataType, int numTuples, int numComp);
+  vtkAbstractArray *ReadArray(const char *dataType, int numTuples, int numComp);
   vtkFieldData *ReadFieldData();
 
   // Description:
@@ -377,9 +377,10 @@ protected:
   vtkCharArray* InputArray;
 
   // Description:
-  // Decode the name of array. This method is the inverse of 
-  // vtkWriter::EncodeName.
-  void DecodeArrayName(char *resname, const char* name);
+  // Decode a string. This method is the inverse of 
+  // vtkWriter::EncodeString.  Returns the length of the
+  // result string.
+  int DecodeString(char *resname, const char* name);
 
   virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
                              vtkInformationVector *);
