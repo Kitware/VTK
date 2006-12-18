@@ -62,7 +62,7 @@
 #define VTK_IOS_NOCREATE | ios::nocreate
 #endif
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.7");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.7.2.1");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 struct stdString
@@ -861,7 +861,7 @@ void vtkOpenFOAMReader::ReadControlDict ()
 
   //calculate the time step increment based on type of run
   //if(writeControl.compare(0,7,"timeStep",0,7) == 0)
-  if(!strcmp(temp.substr(0,8).c_str(), "timeStep"))
+  if(!strcmp(writeControl.substr(0,8).c_str(), "timeStep"))
     {
     vtkDebugMacro(<<"Time step type data");
     timeStepIncrement = writeInterval * deltaT;
