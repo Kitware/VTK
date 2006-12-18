@@ -21,7 +21,7 @@
 // NumberOfIndependentVariables = 4 (x,y,z,t) and 
 // NumberOfFunctions = 3 (u,v,w). Normally, every time an evaluation
 // is performed, the cell which contains the point (x,y,z) has to
-// be found by calling FindCell. This is a computationally expansive 
+// be found by calling FindCell. This is a computationally expensive 
 // operation. In certain cases, the cell search can be avoided or shortened 
 // by providing a guess for the cell id. For example, in streamline
 // integration, the next evaluation is usually in the same or a neighbour
@@ -41,6 +41,7 @@
 #include "vtkFunctionSet.h"
 
 class vtkDataSet;
+class vtkDataArray;
 class vtkGenericCell;
 
 class vtkInterpolatedVelocityFieldDataSetsType;
@@ -72,7 +73,9 @@ public:
   // Description:
   // Return the cell id cached from last evaluation.
   vtkGetMacro(LastCellId, vtkIdType);
-  vtkSetMacro(LastCellId, vtkIdType);
+  void SetLastCellId(vtkIdType c)
+    { this->LastCellId = c; }
+  void SetLastCellId(vtkIdType c, int dataindex);
 
   // Description:
   // Set the last cell id to -1 so that the next search does not
@@ -110,7 +113,12 @@ public:
   // as a first guess as to where the next point will be as
   // well as to avoid searching through all datasets to get
   // more information about the point.
+  // When setting the last dataset, you must be very careful
+  // no reference counting or checks are performed
+  // the feature is intended only to be used by custom
+  // interpolators which cache datasets independently
   vtkGetObjectMacro(LastDataSet, vtkDataSet);
+  vtkGetMacro(LastDataSetIndex, int);
 
   // Description:
   // Copy the user set parameters from source. This copies
@@ -131,6 +139,7 @@ protected:
   int CacheHit;
   int CacheMiss;
   int Caching;
+  int LastDataSetIndex;
 
   vtkDataSet* LastDataSet;
 
@@ -140,7 +149,12 @@ protected:
   vtkInterpolatedVelocityFieldDataSetsType* DataSets;
 
   int FunctionValues(vtkDataSet* ds, double* x, double* f);
-
+//BTX
+  friend class vtkTemporalInterpolatedVelocityField;
+  // This is reserved for fast access to results by 
+  // vtkTemporalInterpolatedVelocityField
+  void FastCompute(vtkDataArray* vectors, double f[3]);
+//ETX
   static const double TOLERANCE_SCALE;
 
 private:

@@ -22,7 +22,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.2");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.3");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;
@@ -45,6 +45,7 @@ vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
 
   this->DataSets = new vtkInterpolatedVelocityFieldDataSetsType;
   this->LastDataSet = 0;
+  this->LastDataSetIndex = 0;
 }
 
 vtkInterpolatedVelocityField::~vtkInterpolatedVelocityField()
@@ -60,6 +61,18 @@ vtkInterpolatedVelocityField::~vtkInterpolatedVelocityField()
 
   delete this->DataSets;
 }
+  
+void vtkInterpolatedVelocityField::SetLastCellId(vtkIdType c, int dataindex) {
+  this->LastCellId = c; 
+  this->LastDataSet = (*this->DataSets)[dataindex];
+  // if the dataset changes, then the cached cell is invalidated
+  // we might as well prefetch the cached cell either way
+  if (this->LastCellId!=-1)
+  {
+    this->LastDataSet->GetCell(this->LastCellId, this->GenCell);
+  } 
+  this->LastDataSetIndex = dataindex;
+}
 
 static int tmp_count=0;
 // Evaluate u,v,w at x,y,z,t
@@ -70,19 +83,21 @@ int vtkInterpolatedVelocityField::FunctionValues(double* x, double* f)
     {
     ds = (*this->DataSets)[0];
     this->LastDataSet = ds;
+    this->LastDataSetIndex = 0;
     }
   else
     {
     ds = this->LastDataSet;
     }
   int retVal = this->FunctionValues(ds, x, f);
+  
   if (!retVal)
     {
     tmp_count = 0;
-    for(DataSetsTypeBase::iterator i = this->DataSets->begin();
-        i != this->DataSets->end(); ++i)
+    for(this->LastDataSetIndex = 0; 
+      this->LastDataSetIndex < (int)(this->DataSets->size()); this->LastDataSetIndex++)
       {
-      ds = *i;
+      ds = this->DataSets->operator[](this->LastDataSetIndex);
       if(ds && ds != this->LastDataSet)
         {
         this->ClearLastCellId();
@@ -94,7 +109,9 @@ int vtkInterpolatedVelocityField::FunctionValues(double* x, double* f)
           }
         }
       }
-    this->ClearLastCellId();
+    this->LastCellId = -1;
+    this->LastDataSetIndex = 0;
+    this->LastDataSet = (*this->DataSets)[0];
     return 0;
     }
   tmp_count++;
@@ -181,7 +198,7 @@ int vtkInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset,
       return 0;
       }
     }
-
+                                
   // if the cell is valid
   if (this->LastCellId >= 0)
     {
@@ -221,6 +238,27 @@ void vtkInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
     this->WeightsSize = size;
     delete[] this->Weights;
     this->Weights = new double[size]; 
+    }
+}
+
+void vtkInterpolatedVelocityField::FastCompute(vtkDataArray* vectors, double f[3])
+{
+  int i,j,id;
+  double vec[3];
+  for(i=0; i<3; i++)
+    {
+    f[i] = 0;
+    }
+  int numPts = this->GenCell->GetNumberOfPoints();
+  // interpolate the vectors
+  for (j=0; j < numPts; j++)
+    {
+    id = this->GenCell->PointIds->GetId(j);
+    vectors->GetTuple(id, vec);
+    for (i=0; i < 3; i++)
+      {
+      f[i] +=  vec[i] * this->Weights[j];
+      }
     }
 }
 
@@ -310,6 +348,8 @@ void vtkInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
      << (this->VectorsSelection?this->VectorsSelection:"(none)") << endl;
   os << indent << "LastDataSet : "
      << this->LastDataSet << endl;
+  os << indent << "LastDataSetIndex : "
+     << this->LastDataSetIndex << endl;
 
 }
 
