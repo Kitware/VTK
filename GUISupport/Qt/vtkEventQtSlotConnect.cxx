@@ -182,6 +182,11 @@ void vtkEventQtSlotConnect::Connect(
   )
 #endif
 {
+  if (!vtk_obj || !qt_obj)
+    {
+    vtkErrorMacro("Cannot connect NULL objects.");
+    return;
+    }
   vtkQtConnection* connection = new vtkQtConnection;
   connection->SetConnection(
     vtk_obj, event, qt_obj, slot, client_data, priority
