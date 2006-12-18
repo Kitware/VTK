@@ -57,7 +57,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.11");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.11.2.1");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -397,8 +397,18 @@ int vtkFLUENTReader::RequestInformation(
     return 0;
     }
 
-  this->OpenCaseFile(this->FileName);
-  this->OpenDataFile(this->FileName);
+  if(!this->OpenCaseFile(this->FileName))
+    {
+    vtkErrorMacro("Unable to open cas file.");
+    return 0;
+    }
+
+  if(!this->OpenDataFile(this->FileName))
+    {
+    vtkErrorMacro("Unable to open dat file.");
+    return 0;
+    }
+
   this->ParseCaseFile();  // Reads Necessary Information from the .cas file.
   this->CleanCells();  //  Removes unnecessary faces from the cells.
   this->PopulateCellNodes();
@@ -431,23 +441,23 @@ int vtkFLUENTReader::RequestInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkFLUENTReader::OpenCaseFile(const char *filename)
+bool vtkFLUENTReader::OpenCaseFile(const char *filename)
 {
 #ifdef _WIN32
-  this->FluentCaseFile->open(filename, ios::in | ios::binary);
+  //this->FluentCaseFile->open(filename, ios::in | ios::binary);
+  this->FluentCaseFile = new ifstream(filename, ios::in | ios::binary);
 #else
-  this->FluentCaseFile->open(filename, ios::in);
+  //this->FluentCaseFile->open(filename, ios::in);
+  this->FluentCaseFile = new ifstream(filename, ios::in);
 #endif
 
-  if (*this->FluentCaseFile)
+  if (!this->FluentCaseFile->fail())
     {
-    //cout << "Successfully opened " << filename << endl;
-    return 1;
+    return true;
     }
   else
     {
-    //cout << "Could not open " << filename << endl;
-    return 0;
+    return false;
     }
 }
 
@@ -497,27 +507,27 @@ void vtkFLUENTReader::DisableAllCellArrays()
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-int vtkFLUENTReader::OpenDataFile(const char *filename)
+bool vtkFLUENTReader::OpenDataFile(const char *filename)
 {
   vtkstd::string dfilename(filename);
   dfilename.erase(dfilename.length()-3, 3);
   dfilename.append("dat");
 
 #ifdef _WIN32
-  this->FluentDataFile->open(dfilename.c_str(), ios::in | ios::binary);
+  //this->FluentDataFile->open(dfilename.c_str(), ios::in | ios::binary);
+  this->FluentDataFile = new ifstream(dfilename.c_str(), ios::in | ios::binary);
 #else
-  this->FluentDataFile->open(dfilename.c_str(), ios::in);
+  //this->FluentDataFile->open(dfilename.c_str(), ios::in);
+  this->FluentDataFile = new ifstream(dfilename.c_str(), ios::in);
 #endif
 
-  if (*this->FluentDataFile)
+  if (this->FluentDataFile->fail())
     {
-    //cout << "Successfully opened " << dfilename << endl;
-    return 1;
+    return false;
     }
   else
     {
-    //cout << "Could not open " << dfilename << endl;
-    return 0;
+    return true;
     }
 }
 
