@@ -50,7 +50,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.138");
+vtkCxxRevisionMacro(vtkDataReader, "1.139");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -1119,28 +1119,27 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
 
     if ( this->FileType == VTK_BINARY )
       {
-      // suck up newline
+      // read in newline
       char line[256];
       IS->getline(line,256);
 
-      vtkStdString s;
       for (int i=0; i<numTuples; i++)
         {
         for (int j=0; j<numComp; j++)
           {
           vtkTypeUInt8 firstByte;
-          vtkTypeUInt8 type;
+          vtkTypeUInt8 headerType;
           vtkStdString::size_type stringLength;
           firstByte = IS->peek();
-          type = firstByte >> 6;
-          if (type == 3)
+          headerType = firstByte >> 6;
+          if (headerType == 3)
             {
             vtkTypeUInt8 length = IS->get();
             length <<= 2;
             length >>= 2;
             stringLength = length;
             }
-          else if (type == 2)
+          else if (headerType == 2)
             {
             vtkTypeUInt16 length;
             IS->read(reinterpret_cast<char*>(&length), 2);
@@ -1149,7 +1148,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
             length >>= 2;
             stringLength = length;
             }
-          else if (type == 1)
+          else if (headerType == 1)
             {
             vtkTypeUInt32 length;
             IS->read(reinterpret_cast<char*>(&length), 4);
@@ -1174,13 +1173,14 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
       }
     else 
       {
+      // read in newline
       vtkStdString s;
       my_getline(*(this->IS), s);
+
       for (int i=0; i<numTuples; i++)
         {
         for (int j=0; j<numComp; j++)
           {
-          vtkStdString s;
           my_getline(*(this->IS), s);
           vtkIdType idx = i*numComp + j;
           if (idx % 100 == 0 || idx > 4900)

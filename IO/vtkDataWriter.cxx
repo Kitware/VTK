@@ -37,7 +37,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.114");
+vtkCxxRevisionMacro(vtkDataWriter, "1.115");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -656,17 +656,17 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
             idx = i + j*numComp;
             s = ((vtkStringArray *)data)->GetValue(idx);
             vtkTypeUInt64 length = s.length();
-            if (length < (1 << 6))
+            if (length < (static_cast<vtkTypeUInt64>(1) << 6))
               {
               vtkTypeUInt8 len = (static_cast<vtkTypeUInt8>(3) << 6) | static_cast<vtkTypeUInt8>(length);
               fp->write((char*)(&len), 1);
               }
-            else if (length < (1 << 14))
+            else if (length < (static_cast<vtkTypeUInt64>(1) << 14))
               {
               vtkTypeUInt16 len = (static_cast<vtkTypeUInt16>(2) << 14) | static_cast<vtkTypeUInt16>(length);
               vtkByteSwap::SwapWrite2BERange(&len, 1, fp);
               }
-            else if (length < (1 << 30))
+            else if (length < (static_cast<vtkTypeUInt64>(1) << 30))
               {
               vtkTypeUInt32 len = (static_cast<vtkTypeUInt32>(1) << 30) | static_cast<vtkTypeUInt32>(length);
               vtkByteSwap::SwapWrite4BERange(&len, 1, fp);
