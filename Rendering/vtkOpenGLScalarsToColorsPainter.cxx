@@ -35,7 +35,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkOpenGLScalarsToColorsPainter, "1.2");
+vtkCxxRevisionMacro(vtkOpenGLScalarsToColorsPainter, "1.2.24.1");
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLScalarsToColorsPainter::vtkOpenGLScalarsToColorsPainter()
@@ -133,7 +133,26 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer* renderer,
     {
     this->InternalColorTexture->Load(renderer);
     }
+
+  int pre_mulitiplied_by_alpha =  this->GetPremultiplyColorsWithAlpha(actor);
+
+  GLint old_func[2];
+  // We colors were premultiplied by alpha then we change the blending
+  // function to one that will compute correct blended destination alpha
+  // value, otherwise we stick with the default.
+  if (pre_mulitiplied_by_alpha)
+    {
+    glGetIntegerv(GL_BLEND_SRC, &old_func[0]);
+    glGetIntegerv(GL_BLEND_DST, &old_func[1]);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
   this->Superclass::RenderInternal(renderer, actor, typeflags);
+
+  if (pre_mulitiplied_by_alpha)
+    {
+    glBlendFunc(old_func[0], old_func[1]);
+    }
 }
 
 //-----------------------------------------------------------------------------

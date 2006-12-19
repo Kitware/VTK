@@ -21,8 +21,8 @@
 #include "vtkGarbageCollector.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkImageData.h"
-#include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
@@ -33,10 +33,11 @@
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkScalarsToColors.h"
+#include "vtkUnsignedCharArray.h"
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.4");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.4.24.1");
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_MODE, Integer);
@@ -103,6 +104,16 @@ vtkScalarsToColorsPainter* vtkScalarsToColorsPainter::New()
 }
 
 //-----------------------------------------------------------------------------
+int vtkScalarsToColorsPainter::GetPremultiplyColorsWithAlpha(vtkActor* actor)
+{
+  if (actor && actor->GetTexture())
+    {
+    return 0;
+    }
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
 void vtkScalarsToColorsPainter::PrepareForRendering(vtkRenderer* renderer,
   vtkActor* actor)
 {
@@ -127,7 +138,8 @@ void vtkScalarsToColorsPainter::PrepareForRendering(vtkRenderer* renderer,
   // As per the vtkOpenGLPolyDataMapper's claim, this
   // it not a very expensive task, as the colors are cached
   // and hence we do this always.
-  this->MapScalars(actor->GetProperty()->GetOpacity()); 
+  this->MapScalars(actor->GetProperty()->GetOpacity(),
+    this->GetPremultiplyColorsWithAlpha(actor)); 
   this->Superclass::PrepareForRendering(renderer, actor);
 }
 
@@ -202,8 +214,32 @@ void vtkScalarsToColorsPainter::ProcessInformation(vtkInformation* info)
 }
 
 //-----------------------------------------------------------------------------
+static inline void vtkMulitplyColorsWithAlpha(vtkDataArray* array)
+{
+  vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(array);
+  if (!colors || colors->GetNumberOfComponents() != 4)
+    {
+    return;
+    }
+  unsigned char* ptr = colors->GetPointer(0);
+  vtkIdType numValues = colors->GetNumberOfTuples() *
+    colors->GetNumberOfComponents();
+  if (numValues <= 4)
+    {
+    return;
+    }
+  for (vtkIdType cc=0; cc < numValues; cc+=4, ptr+=4)
+    {
+    double alpha = (0x0ff & ptr[3])/255.0;
+    ptr[0] = static_cast<unsigned char>(0x0ff & static_cast<int>((0x0ff&ptr[0])*alpha));
+    ptr[1] = static_cast<unsigned char>(0x0ff & static_cast<int>((0x0ff&ptr[1])*alpha));
+    ptr[2] = static_cast<unsigned char>(0x0ff & static_cast<int>((0x0ff&ptr[2])*alpha));
+    }
+}
+
+//-----------------------------------------------------------------------------
 // This method has the same functionality as the old vtkMapper::MapScalars.
-void vtkScalarsToColorsPainter::MapScalars(double alpha)
+void vtkScalarsToColorsPainter::MapScalars(double alpha, int multiply_with_alpha)
 {
   int cellFlag;
   vtkDataArray* scalars = vtkAbstractMapper::GetScalars(this->GetPolyData(),
@@ -266,7 +302,7 @@ void vtkScalarsToColorsPainter::MapScalars(double alpha)
     if ( this->ColorMode != VTK_COLOR_MODE_DEFAULT || 
          (vtkUnsignedCharArray::SafeDownCast(scalars)) == 0 )
       { // Texture color option.
-      this->MapScalarsToTexture(scalars, alpha);
+      this->MapScalarsToTexture(scalars, alpha, multiply_with_alpha);
       return;
       }
     }
@@ -317,6 +353,21 @@ void vtkScalarsToColorsPainter::MapScalars(double alpha)
   this->LookupTable->SetAlpha(alpha);
   colors = this->LookupTable->
     MapScalars(scalars, this->ColorMode, this->ArrayComponent);
+  if (multiply_with_alpha)
+    {
+    // It is possible that the LUT simply returns the scalars as the
+    // colors. In which case, we allocate a new array to ensure
+    // that we don't modify the array in the input.
+    if (scalars == colors)
+      {
+      // Since we will be changing the colors array
+      // we create a copy.
+      colors->Delete();
+      colors = scalars->NewInstance();
+      colors->DeepCopy(scalars);
+      }
+    vtkMulitplyColorsWithAlpha(colors);
+    }
   if (cellFlag == 0)
     {
     oppd->SetScalars(colors);
@@ -438,7 +489,7 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
 #define ColorTextureMapSize 256
 
 void vtkScalarsToColorsPainter::MapScalarsToTexture(vtkDataArray* scalars,
-  double alpha)
+  double alpha, int multiply_with_alpha)
 {
   vtkPolyData* input = this->GetPolyData();
   
@@ -477,10 +528,15 @@ void vtkScalarsToColorsPainter::MapScalarsToTexture(vtkDataArray* scalars,
       0,0, 0,0);
     this->ColorTextureMap->SetNumberOfScalarComponents(4);
     this->ColorTextureMap->SetScalarTypeToUnsignedChar();
-    this->ColorTextureMap->GetPointData()->SetScalars(
-      this->LookupTable->MapScalars(tmp, this->ColorMode, 0));
-    // Do we need to delete the scalars?
-    this->ColorTextureMap->GetPointData()->GetScalars()->Delete();
+    vtkDataArray* colors = 
+      this->LookupTable->MapScalars(tmp, this->ColorMode, 0);
+    if (multiply_with_alpha)
+      {
+      vtkMulitplyColorsWithAlpha(colors);
+      }
+
+    this->ColorTextureMap->GetPointData()->SetScalars(colors);
+    colors->Delete();
     // Consistent register and unregisters
     this->ColorTextureMap->Register(this);
     this->ColorTextureMap->Delete();
