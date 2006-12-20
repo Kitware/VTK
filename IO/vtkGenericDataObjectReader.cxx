@@ -35,7 +35,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkGenericDataObjectReader, "1.1");
+vtkCxxRevisionMacro(vtkGenericDataObjectReader, "1.2");
 vtkStandardNewMacro(vtkGenericDataObjectReader);
 
 template<typename ReaderT, typename DataT>
@@ -91,8 +91,8 @@ vtkGenericDataObjectReader::~vtkGenericDataObjectReader()
 }
 
 int vtkGenericDataObjectReader::RequestDataObject(
-  vtkInformation * information,
-  vtkInformationVector** inputVector , 
+  vtkInformation* /*information*/,
+  vtkInformationVector** /*inputVector*/, 
   vtkInformationVector* outputVector)
 {
   if(this->GetFileName() == NULL &&
@@ -158,9 +158,9 @@ int vtkGenericDataObjectReader::RequestDataObject(
 }
 
 int vtkGenericDataObjectReader::RequestInformation(
-  vtkInformation * information,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* /*information*/,
+  vtkInformationVector** /*inputVector*/,
+  vtkInformationVector* outputVector)
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   if(this->GetFileName() == NULL &&
