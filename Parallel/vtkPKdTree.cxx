@@ -78,7 +78,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.30");
+vtkCxxRevisionMacro(vtkPKdTree, "1.30.2.1");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -378,6 +378,7 @@ void vtkPKdTree::BuildLocator()
       }
     return;
     }
+  this->UpdateProgress(0);
 
   TIMER("Determine if we need to rebuild");
 
@@ -415,6 +416,7 @@ void vtkPKdTree::BuildLocator()
       {
       goto doneError;
       }
+    this->UpdateProgress(0.1);
 
     if (this->UserDefinedCuts)
       {
@@ -455,7 +457,7 @@ done:
   this->SetCalculator(this->Top);
 
   this->UpdateBuildTime();
-  
+  this->UpdateProgress(1.0);
   return;
 }
 int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
@@ -476,6 +478,9 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
 
   this->PtArray = NULL;
 
+  this->ProgressOffset = 0.1;
+  this->ProgressScale = 0.5;
+   
   this->PtArray = this->ComputeCellCenters();
   vtkIdType totalPts = this->GetNumberOfCells();    // total on local node
   this->CurrentPtArray = this->PtArray;
@@ -497,6 +502,7 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
   TIMER("Build index lists");
 
   fail = this->BuildGlobalIndexLists(totalPts);
+  this->UpdateProgress(0.7);
 
   TIMERDONE("Build index lists");
 
@@ -514,6 +520,7 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
   TIMER("Compute tree");
 
   fail = this->BreadthFirstDivide(volBounds);
+  this->UpdateProgress(0.9);
 
   TIMERDONE("Compute tree");
 
@@ -2338,8 +2345,14 @@ void vtkPKdTree::FreeSelectBuffer()
 
 #define MakeList(field, type, len) \
   {                                \
-   field = new type [len];         \
-   if (field) memset(field, 0, (len) * sizeof(type));  \
+   if (len>0)                      \
+    {                              \
+    field = new type [len];         \
+    if (field)                      \
+      {                             \
+      memset(field, 0, (len) * sizeof(type));  \
+      }                              \
+    }                                \
   }
 
 // global index lists -----------------------------------------------
