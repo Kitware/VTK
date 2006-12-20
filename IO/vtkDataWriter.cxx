@@ -37,7 +37,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.115");
+vtkCxxRevisionMacro(vtkDataWriter, "1.116");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -239,16 +239,41 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   vtkDebugMacro(<<"Writing cell data...");
 
   numCells = ds->GetNumberOfCells();
+  if(numCells <= 0)
+    {
+    vtkDebugMacro(<<"No cell data to write!");
+    return 1;
+    }
+    
   scalars = cd->GetScalars();
+  if(scalars && scalars->GetNumberOfTuples() <= 0)
+    scalars = 0;
+    
   vectors = cd->GetVectors();
+  if(vectors && vectors->GetNumberOfTuples() <= 0)
+    vectors = 0;
+    
   normals = cd->GetNormals();
+  if(normals && normals->GetNumberOfTuples() <= 0)
+    normals = 0;
+    
   tcoords = cd->GetTCoords();
+  if(tcoords && tcoords->GetNumberOfTuples() <= 0)
+    tcoords = 0;
+    
   tensors = cd->GetTensors();
+  if(tensors && tensors->GetNumberOfTuples() <= 0)
+    tensors = 0;
+    
   globalIds = cd->GetGlobalIds();
+  if(globalIds && globalIds->GetNumberOfTuples() <= 0)
+    globalIds = 0;
+    
   field = cd;
+  if(field && field->GetNumberOfTuples() <= 0)
+    field = 0;
 
-  if ( numCells <= 0 || !(scalars || vectors || normals || tcoords || 
-                          tensors || field))
+  if(!(scalars || vectors || normals || tcoords || tensors || globalIds || field))
     {
     vtkDebugMacro(<<"No cell data to write!");
     return 1;
@@ -258,7 +283,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   //
   // Write scalar data
   //
-  if ( scalars && scalars->GetNumberOfTuples() > 0 )
+  if( scalars )
     {
     if ( ! this->WriteScalarData(fp, scalars, numCells) )
       {
@@ -268,7 +293,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   //
   // Write vector data
   //
-  if ( vectors && vectors->GetNumberOfTuples() > 0 )
+  if( vectors )
     {
     if ( ! this->WriteVectorData(fp, vectors, numCells) )
       {
@@ -278,7 +303,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   //
   // Write normals
   //
-  if ( normals && normals->GetNumberOfTuples() > 0 )
+  if ( normals )
     {
     if ( ! this->WriteNormalData(fp, normals, numCells) )
       {
@@ -288,7 +313,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   //
   // Write texture coords
   //
-  if ( tcoords && tcoords->GetNumberOfTuples() > 0 )
+  if ( tcoords )
     {
     if ( ! this->WriteTCoordData(fp, tcoords, numCells) )
       {
@@ -298,7 +323,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   //
   // Write tensors
   //
-  if ( tensors && tensors->GetNumberOfTuples() > 0 )
+  if ( tensors )
     {
     if ( ! this->WriteTensorData(fp, tensors, numCells) )
       {
@@ -308,7 +333,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   //
   // Write global ids
   //
-  if ( globalIds && globalIds->GetNumberOfTuples() > 0 )
+  if ( globalIds )
     {
     if ( ! this->WriteGlobalIdData(fp, globalIds, numCells) )
       {
@@ -318,7 +343,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   //
   // Write field
   //
-  if ( field && field->GetNumberOfTuples() > 0 )
+  if ( field )
     {
     if ( ! this->WriteFieldData(fp, field) )
       {
@@ -346,16 +371,41 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   vtkDebugMacro(<<"Writing point data...");
 
   numPts = ds->GetNumberOfPoints();
+  if(numPts <= 0)
+    {
+    vtkDebugMacro(<<"No point data to write!");
+    return 1;
+    }
+    
   scalars = pd->GetScalars();
+  if(scalars && scalars->GetNumberOfTuples() <= 0)
+    scalars = 0;
+    
   vectors = pd->GetVectors();
+  if(vectors && vectors->GetNumberOfTuples() <= 0)
+    vectors = 0;
+    
   normals = pd->GetNormals();
+  if(normals && normals->GetNumberOfTuples() <= 0)
+    normals = 0;
+    
   tcoords = pd->GetTCoords();
+  if(tcoords && tcoords->GetNumberOfTuples() <= 0)
+    tcoords = 0;
+    
   tensors = pd->GetTensors();
+  if(tensors && tensors->GetNumberOfTuples() <= 0)
+    tensors = 0;
+    
   globalIds = pd->GetGlobalIds();
+  if(globalIds && globalIds->GetNumberOfTuples() <= 0)
+    globalIds = 0;
+    
   field = pd;
+  if(field && field->GetNumberOfTuples() <= 0)
+    field = 0;
 
-  if ( numPts <= 0 || !(scalars || vectors || normals || tcoords || 
-                        tensors || field))
+  if(!(scalars || vectors || normals || tcoords || tensors || globalIds || field))
     {
     vtkDebugMacro(<<"No point data to write!");
     return 1;
@@ -365,7 +415,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   //
   // Write scalar data
   //
-  if ( scalars && scalars->GetNumberOfTuples() > 0 )
+  if ( scalars )
     {
     if ( ! this->WriteScalarData(fp, scalars, numPts) )
       {
@@ -375,7 +425,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   //
   // Write vector data
   //
-  if ( vectors && vectors->GetNumberOfTuples() > 0 )
+  if ( vectors )
     {
     if ( ! this->WriteVectorData(fp, vectors, numPts) )
       {
@@ -385,7 +435,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   //
   // Write normals
   //
-  if ( normals && normals->GetNumberOfTuples() > 0 )
+  if ( normals )
     {
     if ( ! this->WriteNormalData(fp, normals, numPts) )
       {
@@ -395,7 +445,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   //
   // Write texture coords
   //
-  if ( tcoords && tcoords->GetNumberOfTuples() > 0 )
+  if ( tcoords )
     {
     if ( ! this->WriteTCoordData(fp, tcoords, numPts) )
       {
@@ -405,7 +455,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   //
   // Write tensors
   //
-  if ( tensors && tensors->GetNumberOfTuples() > 0 )
+  if ( tensors )
     {
     if ( ! this->WriteTensorData(fp, tensors, numPts) )
       {
@@ -415,7 +465,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   //
   // Write global ids
   //
-  if ( globalIds && globalIds->GetNumberOfTuples() > 0 )
+  if ( globalIds )
     {
     if ( ! this->WriteGlobalIdData(fp, globalIds, numPts) )
       {
@@ -425,7 +475,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   //
   // Write field
   //
-  if ( field && field->GetNumberOfTuples() > 0 )
+  if ( field )
     {
     if ( ! this->WriteFieldData(fp, field) )
       {

@@ -1,0 +1,53 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkTableWriter.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkTableWriter - write vtk table data to a file
+// .SECTION Description
+// vtkTableWriter is a source object that writes ASCII or binary 
+// table data files in vtk format. See text for format details.
+// .SECTION Caveats
+// Binary files written on one system may not be readable on other systems.
+
+#ifndef __vtkTableWriter_h
+#define __vtkTableWriter_h
+
+#include "vtkDataWriter.h"
+class vtkTable;
+
+class VTK_IO_EXPORT vtkTableWriter : public vtkDataWriter
+{
+public:
+  static vtkTableWriter *New();
+  vtkTypeRevisionMacro(vtkTableWriter,vtkDataWriter);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Get the input to this writer.
+  vtkTable* GetInput();
+  vtkTable* GetInput(int port);
+
+protected:
+  vtkTableWriter() {};
+  ~vtkTableWriter() {};
+
+  void WriteData();
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
+private:
+  vtkTableWriter(const vtkTableWriter&);  // Not implemented.
+  void operator=(const vtkTableWriter&);  // Not implemented.
+};
+
+#endif

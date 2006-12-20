@@ -18,11 +18,12 @@ ENDIF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestXML.cxx
   TestCompress.cxx
+  TestDataObjectIO.cxx
   ${ConditionalTests}
   EXTRA_INCLUDE vtkTestDriver.h
 )
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkIO vtkImaging vtksys)
+TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkIO vtkImaging vtkInfovis vtksys)
 
 IF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering)
@@ -51,3 +52,6 @@ ENDIF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
 IF(VTK_USE_FFMPEG_ENCODER)
   ADD_TEST(TestFFMPEGWriter ${CXX_TEST_PATH}/${KIT}CxxTests TestFFMPEGWriter)
 ENDIF(VTK_USE_FFMPEG_ENCODER)
+
+ADD_TEST(TestDataObjectIO ${CXX_TEST_PATH}/${KIT}CxxTests TestDataObjectIO)
+

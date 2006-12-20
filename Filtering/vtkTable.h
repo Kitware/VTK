@@ -50,6 +50,10 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
+  // Return what type of dataset this is.
+  int GetDataObjectType() {return VTK_TABLE;}
+
+  // Description:
   // Sets the field data for the table.
   virtual void SetFieldData(vtkFieldData* data);
 
@@ -140,6 +144,8 @@ public:
   // Retrieve the table from vtkInformation.
   static vtkTable* GetData(vtkInformation* info);
   static vtkTable* GetData(vtkInformationVector* v, int i=0);
+
+  virtual void ShallowCopy(vtkDataObject* src);
 
 protected:
   vtkTable();

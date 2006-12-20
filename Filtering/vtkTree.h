@@ -37,6 +37,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Return what type of dataset this is.
+  int GetDataObjectType() {return VTK_TREE;}
+
+  // Description:
   // The number of nodes in the graph.
   virtual vtkIdType GetNumberOfNodes();
 

@@ -28,7 +28,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.4");
+vtkCxxRevisionMacro(vtkTable, "1.5");
 vtkStandardNewMacro(vtkTable);
 
 //----------------------------------------------------------------------------
@@ -432,4 +432,14 @@ vtkTable* vtkTable::GetData(vtkInformation* info)
 vtkTable* vtkTable::GetData(vtkInformationVector* v, int i)
 {
   return vtkTable::GetData(v->GetInformationObject(i));
+}
+
+void vtkTable::ShallowCopy(vtkDataObject* src)
+{
+  if(vtkTable* const table = vtkTable::SafeDownCast(src))
+    {
+    this->Rows = table->Rows;
+    }
+
+  Superclass::ShallowCopy(src);
 }

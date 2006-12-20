@@ -73,6 +73,9 @@
 #define VTK_GENERIC_DATA_SET               16
 #define VTK_HYPER_OCTREE                   17
 #define VTK_TEMPORAL_DATA_SET              18
+#define VTK_TABLE                          19
+#define VTK_GRAPH                          20
+#define VTK_TREE                           21
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */
