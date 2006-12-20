@@ -48,7 +48,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.99");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.100");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -65,6 +65,7 @@ vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
   this->WindowId           = 0;
   this->InstallMessageProc = 1;
   this->MouseInWindow = 0;
+  this->StartedMessageLoop = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -77,7 +78,7 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
     {
     vtkWin32OpenGLRenderWindow *ren;
     ren = static_cast<vtkWin32OpenGLRenderWindow *>(this->RenderWindow);
-    tmp = (vtkWin32OpenGLRenderWindow *)(vtkGetWindowLong(this->WindowId,4));
+    tmp = (vtkWin32OpenGLRenderWindow *)(vtkGetWindowLong(this->WindowId,sizeof(vtkLONG)));
     // watch for odd conditions
     if ((tmp != ren) && (ren != NULL)) 
       {
@@ -90,7 +91,7 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
       }
     else 
       {
-      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(LONG)this->OldProc);
+      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(vtkLONG)this->OldProc);
       }
     this->Enabled = 0;
     }
@@ -107,12 +108,15 @@ void  vtkWin32RenderWindowInteractor::Start()
     }
 
   // No need to do anything if this is a 'mapped' interactor
-  if (!this->Enabled || !this->InstallMessageProc) 
+  if (!this->Enabled || !this->InstallMessageProc)
     {
     return;
     }
+
+  this->StartedMessageLoop = 1;
+
   MSG msg;
-  while (GetMessage(&msg, NULL, 0, 0)) 
+  while (GetMessage(&msg, NULL, 0, 0))
     {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
@@ -162,7 +166,7 @@ void vtkWin32RenderWindowInteractor::Enable()
     // add our callback
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
     this->OldProc = (WNDPROC)vtkGetWindowLong(this->WindowId,vtkGWL_WNDPROC);
-    tmp=(vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(this->WindowId,4);
+    tmp=(vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(this->WindowId,sizeof(vtkLONG));
     // watch for odd conditions
     if (tmp != ren) 
       {
@@ -175,7 +179,7 @@ void vtkWin32RenderWindowInteractor::Enable()
       }
     else 
       {
-      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(LONG)vtkHandleMessage);
+      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(vtkLONG)vtkHandleMessage);
       }
     // in case the size of the window has changed while we were away
     int *size;
@@ -202,7 +206,7 @@ void vtkWin32RenderWindowInteractor::Disable()
     // we need to release any hold we have on a windows event loop
     vtkWin32OpenGLRenderWindow *ren;
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
-    tmp = (vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(this->WindowId,4);
+    tmp = (vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(this->WindowId,sizeof(vtkLONG));
     // watch for odd conditions
     if ((tmp != ren) && (ren != NULL)) 
       {
@@ -215,7 +219,7 @@ void vtkWin32RenderWindowInteractor::Disable()
       }
     else 
       {
-      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(LONG)this->OldProc);
+      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(vtkLONG)this->OldProc);
       }
     }
   this->Enabled = 0;
@@ -223,13 +227,18 @@ void vtkWin32RenderWindowInteractor::Disable()
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::TerminateApp(void) 
+void vtkWin32RenderWindowInteractor::TerminateApp(void)
 {
-  PostQuitMessage(0);
+  // Only post a quit message if Start was called...
+  //
+  if (this->StartedMessageLoop)
+    {
+    PostQuitMessage(0);
+    }
 }
 
 //----------------------------------------------------------------------------
-int vtkWin32RenderWindowInteractor::InternalCreateTimer(int timerId, int vtkNotUsed(timerType), 
+int vtkWin32RenderWindowInteractor::InternalCreateTimer(int timerId, int vtkNotUsed(timerType),
                                                         unsigned long duration)
 {
   // Win32 always creates repeating timers
@@ -625,22 +634,25 @@ void vtkWin32RenderWindowInteractor::OnChar(HWND,UINT nChar,
 LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, 
                                   LPARAM lParam) 
 {
+  LRESULT res = 0;
   vtkWin32OpenGLRenderWindow *ren;
-  vtkWin32RenderWindowInteractor *me;
-  
-  ren = (vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(hWnd,4);
-  if (ren == NULL) 
-    { 
-    return 0; 
+  vtkWin32RenderWindowInteractor *me = 0;
+
+  ren = (vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(hWnd,sizeof(vtkLONG));
+
+  if (ren)
+    {
+    me = (vtkWin32RenderWindowInteractor *)ren->GetInteractor();
     }
-  
-  me = (vtkWin32RenderWindowInteractor *)ren->GetInteractor();
-  
-  if (me == NULL) 
-    { 
-    return 0; 
+
+  if (me && me->GetReferenceCount()>0)
+    {
+    me->Register(me);
+    res = vtkHandleMessage2(hWnd,uMsg,wParam,lParam,me);
+    me->UnRegister(me);
     }
-  return vtkHandleMessage2(hWnd,uMsg,wParam, lParam, me);
+
+  return res;
 }
 
 #ifndef MAKEPOINTS
@@ -730,23 +742,9 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
 #endif
 
     case WM_CLOSE:
-      // Don't know what to put here ! Why so many callbacks ?
-      if (me->HasObserver(vtkCommand::ExitEvent)) 
-        {
-        me->InvokeEvent(vtkCommand::ExitEvent,NULL);
-        }
-      else if (me->ClassExitMethod) 
-        {
-        (*me->ClassExitMethod)(me->ClassExitMethodArg);
-        }
-      else
-        {
-        // Add a else condition to override the ExitEvent, and allow for example
-        // a message box: "Are you sure you want to quit?"
-        me->TerminateApp();
-        }
+      me->ExitCallback();
       break;
-      
+
     case WM_CHAR:
       me->OnChar(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       break;
@@ -762,15 +760,16 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
       break;
 
     case WM_TIMER:
-      me->OnTimer(hWnd,wParam);
-    
+      me->OnTimer(hWnd,wParam);    
       break;
+
     default:
       if (me) 
         {
         return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
         }
     };
+
   return 0;
 }
 
@@ -817,12 +816,13 @@ void vtkWin32RenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "InstallMessageProc: " << this->InstallMessageProc << endl;
+  os << indent << "StartedMessageLoop: " << this->StartedMessageLoop << endl;
 }
 
 //----------------------------------------------------------------------------
 void vtkWin32RenderWindowInteractor::ExitCallback()
 {
-  if (this->HasObserver(vtkCommand::ExitEvent)) 
+  if (this->HasObserver(vtkCommand::ExitEvent))
     {
     this->InvokeEvent(vtkCommand::ExitEvent,NULL);
     }
@@ -830,7 +830,6 @@ void vtkWin32RenderWindowInteractor::ExitCallback()
     {
     (*this->ClassExitMethod)(this->ClassExitMethodArg);
     }
+
   this->TerminateApp();
 }
-
-

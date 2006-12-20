@@ -121,6 +121,7 @@ protected:
   WNDPROC OldProc;
   int     InstallMessageProc;
   int     MouseInWindow;
+  int     StartedMessageLoop;
 
   //BTX
   // Description:

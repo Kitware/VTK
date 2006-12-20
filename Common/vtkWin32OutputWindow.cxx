@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
-vtkCxxRevisionMacro(vtkWin32OutputWindow, "1.21");
+vtkCxxRevisionMacro(vtkWin32OutputWindow, "1.22");
 vtkStandardNewMacro(vtkWin32OutputWindow);
 
 HWND vtkWin32OutputWindowOutputWindow = 0;
@@ -156,9 +156,11 @@ int vtkWin32OutputWindow::Initialize()
 #else
     wndClass.lpszClassName = "vtkOutputWindow";
 #endif
-    // vtk doesn't use these extra 4 bytes, but app writers
-    // may want them, so we provide them.
-    wndClass.cbWndExtra = 4;
+    // vtk doesn't use these extra bytes, but app writers
+    // may want them, so we provide them -- big enough for
+    // one run time pointer: 4 bytes on 32-bit builds, 8 bytes
+    // on 64-bit builds
+    wndClass.cbWndExtra = sizeof(vtkLONG);
     RegisterClass(&wndClass);
     }
 

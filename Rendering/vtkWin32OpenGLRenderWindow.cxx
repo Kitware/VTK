@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkOpenGL.h"
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.143");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.144");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -134,16 +134,23 @@ LRESULT APIENTRY vtkWin32OpenGLRenderWindow::WndProc(HWND hWnd, UINT message,
                                                      WPARAM wParam, 
                                                      LPARAM lParam)
 {
-  vtkWin32OpenGLRenderWindow *me = 
-    (vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(hWnd,4);
+  LRESULT res;
 
-  // forward to actual object
-  if (me)
+  vtkWin32OpenGLRenderWindow *me = 
+    (vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(hWnd,sizeof(vtkLONG));
+
+  if (me && me->GetReferenceCount()>0)
     {
-    return me->MessageProc(hWnd, message, wParam, lParam);
+    me->Register(me);
+    res = me->MessageProc(hWnd, message, wParam, lParam);
+    me->UnRegister(me);
+    }
+  else
+    {
+    res = DefWindowProc(hWnd, message, wParam, lParam);
     }
 
-  return DefWindowProc(hWnd, message, wParam, lParam);
+  return res;
 }
 
 void vtkWin32OpenGLRenderWindow::SetWindowName( const char * _arg )
@@ -665,9 +672,7 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(HWND hWnd, UINT message,
     case WM_ERASEBKGND:
       return TRUE;
     default:
-      this->Register(this);
       this->InvokeEvent(vtkCommand::RenderWindowMessageEvent, &message);
-      this->UnRegister(this);
       break;
     }
   return DefWindowProc(hWnd, message, wParam, lParam);
@@ -682,7 +687,7 @@ void vtkWin32OpenGLRenderWindow::InitializeApplication()
     // if we have a parent window get the app instance from it
     if (this->ParentId)
       {
-      this->ApplicationInstance = (HINSTANCE)vtkGetWindowLong(this->ParentId,vtkGWLP_HINSTANCE);
+      this->ApplicationInstance = (HINSTANCE)vtkGetWindowLong(this->ParentId,vtkGWL_HINSTANCE);
       }
     else
       {
@@ -729,13 +734,13 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
 #else
         wndClass.lpszClassName = "vtkOpenGL";
 #endif
-        // vtk doesn't use the first extra 4 bytes, but app writers
-        // may want them, so we provide them. VTK does use the second 
-        // four bytes of extra space.
-        wndClass.cbWndExtra = 8;
+        // vtk doesn't use the first extra vtkLONG's worth of bytes,
+        // but app writers may want them, so we provide them. VTK
+        // does use the second vtkLONG's worth of bytes of extra space.
+        wndClass.cbWndExtra = 2 * sizeof(vtkLONG);
         RegisterClass(&wndClass);
         }
-    
+
 #ifdef UNICODE
     wchar_t *wname = new wchar_t [mbstowcs(NULL, this->WindowName, 32000)+1];
     mbstowcs(wname, this->WindowName, 32000);
@@ -805,7 +810,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
       }
     //UpdateWindow(this->WindowId);
     this->OwnWindow = 1;
-    vtkSetWindowLong(this->WindowId,4,(LONG)this);
+    vtkSetWindowLong(this->WindowId,sizeof(vtkLONG),(vtkLONG)this);
     }
   if (!this->DeviceContext)
     {
@@ -909,7 +914,7 @@ void vtkWin32OpenGLRenderWindow::DestroyWindow()
     this->DeviceContext = NULL;
       
     // clear the extra data before calling destroy
-    vtkSetWindowLong(this->WindowId,4,(LONG)0);
+    vtkSetWindowLong(this->WindowId,sizeof(vtkLONG),(vtkLONG)0);
     if(this->OwnWindow)
       {
       ::DestroyWindow(this->WindowId);

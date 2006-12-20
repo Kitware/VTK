@@ -64,15 +64,15 @@ void vtkMFCRenderView::OnDraw(CDC* pDC)
 {
   CDocument* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
-  
+
   if (!this->Interactor->GetInitialized())
     {
     this->Interactor->SetRenderWindow(this->RenderWindow);
-    WNDPROC OldProc = (WNDPROC)GetWindowLong(this->m_hWnd,GWL_WNDPROC);
+    WNDPROC OldProc = (WNDPROC)vtkGetWindowLong(this->m_hWnd,vtkGWL_WNDPROC);
     this->Interactor->Initialize();
-    SetWindowLong(this->m_hWnd,GWL_WNDPROC,(LONG)OldProc);
+    vtkSetWindowLong(this->m_hWnd,vtkGWL_WNDPROC,(vtkLONG)OldProc);
     }
-  
+
   // TODO: add draw code for native data here
   if (pDC->IsPrinting())
     {

@@ -271,9 +271,8 @@ void vtkMFCWindow::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
     OnKeyDown(this->GetSafeHwnd(), nChar, nRepCnt, nFlags);
 }
 
-void vtkMFCWindow::OnTimer(UINT nIDEvent)
+void vtkMFCWindow::OnTimer(UINT_PTR nIDEvent)
 {
   static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
-    OnTimer(this->GetSafeHwnd(), nIDEvent);
+    OnTimer(this->GetSafeHwnd(), (UINT) nIDEvent);
 }
-

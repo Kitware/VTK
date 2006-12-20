@@ -49,7 +49,7 @@ public:
 // VFW compressed formats are listed at http://www.webartz.com/fourcc/
 #define VTK_BI_UYVY 0x59565955
 
-vtkCxxRevisionMacro(vtkWin32VideoSource, "1.29");
+vtkCxxRevisionMacro(vtkWin32VideoSource, "1.30");
 vtkStandardNewMacro(vtkWin32VideoSource);
 
 //----------------------------------------------------------------------------
@@ -275,7 +275,7 @@ void vtkWin32VideoSource::Initialize()
     }
 
   // set the user data to 'this'
-  vtkSetWindowLong(this->Internal->ParentWnd,vtkGWL_USERDATA,(LONG)this);
+  vtkSetWindowLong(this->Internal->ParentWnd,vtkGWL_USERDATA,(vtkLONG)this);
 
   // Create the capture window
   this->Internal->CapWnd = capCreateCaptureWindow("Capture",

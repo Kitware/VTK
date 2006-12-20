@@ -28,7 +28,7 @@
 #include "vtkRenderer.h"
 
 static HANDLE hinst; 
-long FAR PASCAL WndProc(HWND, UINT, UINT, LONG);
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 // define the vtk part as a simple c++ class 
 class myVTKApp   
 {
@@ -90,8 +90,7 @@ int PASCAL WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
   return msg.wParam;
 }
 
-long FAR PASCAL WndProc (HWND hwnd, UINT message,                          
-                         UINT wParam, LONG lParam)
+LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   static HWND ewin;
   static myVTKApp *theVTKApp;
@@ -104,7 +103,7 @@ long FAR PASCAL WndProc (HWND hwnd, UINT message,
                           WS_CHILD | WS_VISIBLE | SS_CENTER,                   
                           0,400,400,60, 
                           hwnd,(HMENU)2, 
-                          (HINSTANCE)GetWindowLong(hwnd,GWL_HINSTANCE),
+                          (HINSTANCE)vtkGetWindowLong(hwnd,vtkGWL_HINSTANCE),
                           NULL);
       theVTKApp = new myVTKApp(hwnd);
       return 0;

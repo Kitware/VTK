@@ -28,7 +28,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWinCEOpenGLRenderWindow, "1.12");
+vtkCxxRevisionMacro(vtkWinCEOpenGLRenderWindow, "1.13");
 vtkStandardNewMacro(vtkWinCEOpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -120,7 +120,7 @@ LRESULT APIENTRY vtkWinCEOpenGLRenderWindow::WndProc(HWND hWnd, UINT message,
                                                      LPARAM lParam)
 {
   vtkWinCEOpenGLRenderWindow *me = 
-    (vtkWinCEOpenGLRenderWindow *)GetWindowLong(hWnd,4);
+    (vtkWinCEOpenGLRenderWindow *)vtkGetWindowLong(hWnd,sizeof(vtkLONG));
 
   // forward to actual object
   if (me)
@@ -373,10 +373,10 @@ void vtkWinCEOpenGLRenderWindow::CreateAWindow(int x, int y, int width,
       wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
       wndClass.lpszMenuName = NULL;
       wndClass.lpszClassName = L"vtkOpenGL";
-      // vtk doesn't use the first extra 4 bytes, but app writers
+      // vtk doesn't use the first half of the extra bytes, but app writers
       // may want them, so we provide them. VTK does use the second 
-      // four bytes of extra space.
-      wndClass.cbWndExtra = 8;
+      // half of the extra space.
+      wndClass.cbWndExtra = 2 * sizeof(vtkLONG);
       ATOM res = RegisterClass(&wndClass);
       if (!res)
        {
@@ -424,7 +424,7 @@ void vtkWinCEOpenGLRenderWindow::CreateAWindow(int x, int y, int width,
     ShowWindow(this->WindowId, SW_SHOW);
     //UpdateWindow(this->WindowId);
     this->OwnWindow = 1;
-    SetWindowLong(this->WindowId,4,(LONG)this);
+    vtkSetWindowLong(this->WindowId,sizeof(vtkLONG),(vtkLONG)this);
     }
   this->DeviceContext = GetDC(this->WindowId);
   if (!this->OffScreenWindow)
@@ -488,7 +488,7 @@ void vtkWinCEOpenGLRenderWindow::Finalize (void)
     this->DeviceContext = NULL;
     
     // clear the extra data before calling destroy
-    SetWindowLong(this->WindowId,4,(LONG)0);
+    vtkSetWindowLong(this->WindowId,sizeof(vtkLONG),(vtkLONG)0);
     DestroyWindow(this->WindowId);
     }
 }

@@ -92,16 +92,18 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #pragma warning ( disable : 4312 )
 #  define vtkGetWindowLong GetWindowLongPtr
 #  define vtkSetWindowLong SetWindowLongPtr
+#  define vtkLONG LONG_PTR
 #  define vtkGWL_WNDPROC GWLP_WNDPROC
-#  define vtkGWLP_HINSTANCE GWLP_HINSTANCE
+#  define vtkGWL_HINSTANCE GWLP_HINSTANCE
 #  define vtkGWL_USERDATA GWLP_USERDATA
-#else // regular Visual studio 
+#else // older or non-Visual studio
 #  define vtkGetWindowLong GetWindowLong
 #  define vtkSetWindowLong SetWindowLong
+#  define vtkLONG LONG
 #  define vtkGWL_WNDPROC GWL_WNDPROC
-#  define vtkGWLP_HINSTANCE GWL_HINSTANCE
+#  define vtkGWL_HINSTANCE GWL_HINSTANCE
 #  define vtkGWL_USERDATA GWL_USERDATA
-#endif // 
+#endif //
 
 #endif
 
