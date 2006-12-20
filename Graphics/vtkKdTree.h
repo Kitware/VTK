@@ -613,6 +613,28 @@ protected:
 
   virtual void ReportReferences(vtkGarbageCollector*);
 
+  // Description:
+  // Modelled on vtkAlgorithm::UpdateProgress(). 
+  // Update the progress when building the locator.
+  // Fires vtkCommand::ProgressEvent.
+  void UpdateProgress(double amount);
+
+  // Description:
+  // Set/Get the execution progress of a process object.
+  vtkSetClampMacro(Progress,double,0.0,1.0);
+  vtkGetMacro(Progress,double);
+protected:
+  // So that each suboperation can report progress
+  // in [0,1], yet we will be able to report a global 
+  // progress. Sub-operations must use UpdateSubOperationProgress()
+  // for this to work.
+  double ProgressScale;
+  double ProgressOffset;
+  
+  // Update progress for a sub-operation. \c amount goes from 0.0 to 1.0.
+  // Actual progress is given by 
+  // (this->ProgressOffset + this->ProgressScale* amount).
+  void UpdateSubOperationProgress(double amount);
 private:
 
   static void _SetNewBounds(vtkKdNode *kd, double *b, int *fixDim);
@@ -766,6 +788,7 @@ private:
   vtkIdType *LastNumCells;
 
   vtkBSPCuts *Cuts;
+  double Progress;
 
   vtkKdTree(const vtkKdTree&); // Not implemented
   void operator=(const vtkKdTree&); // Not implemented

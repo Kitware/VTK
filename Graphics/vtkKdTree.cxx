@@ -47,7 +47,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.11");
+vtkCxxRevisionMacro(vtkKdTree, "1.12");
 
 // Timing data ---------------------------------------------
 
@@ -139,6 +139,10 @@ vtkKdTree::vtkKdTree()
   this->BSPCalculator = NULL;
   this->Cuts = NULL;
   this->UserDefinedCuts = 0;
+
+  this->Progress = 0;
+  this->ProgressOffset = 0;
+  this->ProgressScale = 1.0;
 }
 
 //----------------------------------------------------------------------------
@@ -511,6 +515,7 @@ float *vtkKdTree::ComputeCellCenters(int set)
 //----------------------------------------------------------------------------
 float *vtkKdTree::ComputeCellCenters(vtkDataSet *set)
 {
+  this->UpdateSubOperationProgress(0);
   int totalCells;
 
   if (set)
@@ -566,6 +571,10 @@ float *vtkKdTree::ComputeCellCenters(vtkDataSet *set)
       cptr[1] = (float)dcenter[1];
       cptr[2] = (float)dcenter[2];
       cptr += 3;
+      if (j%100)
+        {
+        this->UpdateSubOperationProgress(static_cast<double>(j)/totalCells);
+        }
       }
     }
   else
@@ -584,12 +593,17 @@ float *vtkKdTree::ComputeCellCenters(vtkDataSet *set)
         cptr[1] = (float)dcenter[1];
         cptr[2] = (float)dcenter[2];
         cptr += 3;
+        if (j%100)
+          {
+          this->UpdateSubOperationProgress(static_cast<double>(j)/totalCells);
+          }
         }
       }
     }
 
   delete [] weights;
 
+  this->UpdateSubOperationProgress(1.0);
   return center;
 }
 
@@ -659,7 +673,7 @@ void vtkKdTree::ComputeCellCenter(vtkCell *cell, double *center,
 //
 void vtkKdTree::BuildLocator()
 {
-
+  this->UpdateProgress(0);
   int nCells=0;
   int i;
 
@@ -787,7 +801,8 @@ void vtkKdTree::BuildLocator()
     // cell centers - basis of spatial decomposition
   
     TIMER("Create centroid list");
-  
+    this->ProgressOffset = 0;
+    this->ProgressScale = 0.3;
     float *ptarray = this->ComputeCellCenters();
   
     TIMERDONE("Create centroid list");
@@ -814,6 +829,8 @@ void vtkKdTree::BuildLocator()
   
     TIMER("Build tree");
   
+    this->ProgressOffset += this->ProgressScale;
+    this->ProgressScale = 0.7;
     this->DivideRegion(kd, ptarray, NULL, 0);
   
     TIMERDONE("Build tree");
@@ -834,6 +851,7 @@ void vtkKdTree::BuildLocator()
 
   this->SetCalculator(this->Top);
 
+  this->UpdateProgress(1.0);
   return;
 }
 
@@ -4229,6 +4247,19 @@ void vtkKdTree::ReportReferences(vtkGarbageCollector *collector)
 }
 
 //----------------------------------------------------------------------------
+void vtkKdTree::UpdateProgress(double amt)
+{
+  this->Progress = amt;
+  this->InvokeEvent(vtkCommand::ProgressEvent,(void *)&amt);
+}
+
+//----------------------------------------------------------------------------
+void vtkKdTree::UpdateSubOperationProgress(double amt)
+{
+  this->UpdateProgress(this->ProgressOffset + this->ProgressScale*amt);
+}
+
+//----------------------------------------------------------------------------
 void vtkKdTree::PrintSelf(ostream& os, vtkIndent indent)
 { 
   this->Superclass::PrintSelf(os,indent);
@@ -4280,4 +4311,5 @@ void vtkKdTree::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "(none)" << endl;
   }
+  os << indent << "Progress: " << this->Progress << endl;
 }
