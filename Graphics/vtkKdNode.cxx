@@ -26,7 +26,7 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkKdNode, "1.4");
+vtkCxxRevisionMacro(vtkKdNode, "1.5");
 vtkStandardNewMacro(vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Left, vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Right, vtkKdNode);
@@ -46,6 +46,9 @@ vtkKdNode::vtkKdNode()
 //----------------------------------------------------------------------------
 vtkKdNode::~vtkKdNode()
 {
+  this->SetLeft(0);
+  this->SetRight(0);
+  this->SetUp(0);
 }
 
 //----------------------------------------------------------------------------
