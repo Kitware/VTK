@@ -50,7 +50,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.139");
+vtkCxxRevisionMacro(vtkDataReader, "1.140");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -844,6 +844,11 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
 template <class T>
 int vtkReadBinaryData(istream *IS, T *data, int numTuples, int numComp)
 {
+  if (numTuples==0 || numComp==0)
+    {
+    // nothing to read here.
+    return 1;
+    }
   char line[256];
 
   // suck up newline
@@ -889,40 +894,44 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
   type=this->LowerCase(type);
 
   vtkAbstractArray *array;
-
   if ( ! strncmp(type, "bit", 3) )
     {
     array = vtkBitArray::New();
     array->SetNumberOfComponents(numComp);
-    unsigned char *ptr=((vtkBitArray *)array)->WritePointer(0,numTuples*numComp);
-    if ( this->FileType == VTK_BINARY )
+    if (numTuples !=0 && numComp !=0)
       {
-      char line[256];
-      this->IS->getline(line,256);
-      this->IS->read((char *)ptr,sizeof(unsigned char)*(numTuples*numComp+7)/8);
-      if (this->IS->eof())
+      unsigned char *ptr=((vtkBitArray *)array)->WritePointer(0,numTuples*numComp);
+      if ( this->FileType == VTK_BINARY )
         {
-        vtkErrorMacro(<<"Error reading binary bit array!");
-        free(type);
-        return NULL;
-        }
-      }
-    else 
-      {
-      int b;
-      for (int i=0; i<numTuples; i++)
-        {
-        for (int j=0; j<numComp; j++)
+        char line[256];
+        this->IS->getline(line,256);
+        this->IS->read((char *)ptr,sizeof(unsigned char)*(numTuples*numComp+7)/8);
+        if (this->IS->eof())
           {
-          if ( !this->Read(&b) )
+          vtkErrorMacro(<<"Error reading binary bit array!");
+          free(type);
+          array->Delete();
+          return NULL;
+          }
+        }
+      else 
+        {
+        int b;
+        for (int i=0; i<numTuples; i++)
+          {
+          for (int j=0; j<numComp; j++)
             {
-              vtkErrorMacro(<<"Error reading ascii bit array! tuple: " << i << ", component: " << j);
+            if ( !this->Read(&b) )
+              {
+              vtkErrorMacro("Error reading ascii bit array! tuple: " << i << ", component: " << j);
               free(type);
+              array->Delete();
               return NULL;
-            }
-          else
-            {
-            ((vtkBitArray *)array)->SetValue(i*numComp+j,b);
+              }
+            else
+              {
+              ((vtkBitArray *)array)->SetValue(i*numComp+j,b);
+              }
             }
           }
         }
