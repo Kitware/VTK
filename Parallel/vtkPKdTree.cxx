@@ -78,7 +78,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.31");
+vtkCxxRevisionMacro(vtkPKdTree, "1.32");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -2892,7 +2892,7 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
 }
 int *vtkPKdTree::CollectLocalRegionProcessData()
 {
-  int *cellCounts;
+  int *cellCounts = NULL;
 
   int numRegions = this->GetNumberOfRegions();
 
