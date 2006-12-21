@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <vtkCellData.h>
 #include <vtkCubeSource.h>
 #include <vtkDataObjectWriter.h>
