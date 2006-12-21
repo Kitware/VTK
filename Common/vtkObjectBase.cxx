@@ -172,7 +172,7 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
 
 void vtkObjectBase::CollectRevisions(ostream& os)
 {
-  os << "vtkObjectBase 1.14\n";
+  os << "vtkObjectBase 1.14.6.1\n";
 }
 
 void vtkObjectBase::PrintRevisions(ostream& os)
@@ -205,6 +205,10 @@ void vtkObjectBase::PrintRevisions(ostream& os)
         {
         endRevision = c;
         }
+      }
+    if (beginRevision && !endRevision)
+      {
+      endRevision = c - 1;
       }
     if(beginClass && endClass && beginRevision && endRevision)
       {
