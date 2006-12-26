@@ -40,7 +40,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.6");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.7");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -801,6 +801,10 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int ,
     ContourGrid(this, exExt, scalars, input, output, inScalars);
     image->Delete();
     }
+
+  // Some useful debugging information
+  vtkDebugMacro(<<"Produced: " << output->GetNumberOfPoints() << " points, "
+                << output->GetNumberOfCells() << " cells");
 
   // Lets set the name of the scalars here.
   if (this->ComputeScalars)
