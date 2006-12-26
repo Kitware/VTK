@@ -40,7 +40,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.86");
+vtkCxxRevisionMacro(vtkCutter, "1.87");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkCutter,Locator,vtkPointLocator)
@@ -227,6 +227,7 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
     }
   int numContours = this->GetNumberOfContours();
   
+  this->GridSynchronizedTemplates->SetDebug(this->GetDebug());
   this->GridSynchronizedTemplates->SetInput(contourData);
   this->GridSynchronizedTemplates->
     SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
