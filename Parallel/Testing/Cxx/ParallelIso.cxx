@@ -18,6 +18,8 @@
 // All satellite processes send the result to the first process which
 // collects and renders them.
 
+#include <mpi.h>
+
 #include "vtkActor.h"
 #include "vtkAppendPolyData.h"
 #include "vtkCamera.h"
@@ -42,8 +44,6 @@
 #include "vtkInformation.h"
 
 #include "vtkDebugLeaks.h"
-
-#include <mpi.h>
 
 static const float ISO_START=4250.0;
 static const float ISO_STEP=-1250.0;

@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <mpi.h>
+
 #include "vtkActor.h"
 #include "vtkCharArray.h"
 #include "vtkCallbackCommand.h"
@@ -35,7 +37,6 @@
 #include "vtkDebugLeaks.h"
 #include "vtkRegressionTestImage.h"
 
-#include <mpi.h>
 
 static const int scMsgLength = 10;
 

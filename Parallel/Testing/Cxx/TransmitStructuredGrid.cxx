@@ -15,6 +15,12 @@
 
 // Tests vtkTransmitStructuredGrid.
 
+/*
+** This test only builds if MPI is in use
+*/
+#include <mpi.h>
+#include "vtkMPICommunicator.h"
+
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkParallelFactory.h"
@@ -35,12 +41,7 @@
 #include "vtkCompositeRenderManager.h"
 #include "vtkCamera.h"
 
-/*
-** This test only builds if MPI is in use
-*/
-#include "vtkMPICommunicator.h"
 
-#include <mpi.h>
 
 static int NumProcs, Me;
 
