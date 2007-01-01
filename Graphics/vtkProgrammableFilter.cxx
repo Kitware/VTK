@@ -22,7 +22,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkProgrammableFilter, "1.21");
+vtkCxxRevisionMacro(vtkProgrammableFilter, "1.22");
 vtkStandardNewMacro(vtkProgrammableFilter);
 
 // Construct programmable filter with empty execute method.
@@ -122,7 +122,10 @@ int vtkProgrammableFilter::RequestData(
   vtkDebugMacro(<<"Executing programmable filter");
 
   // First, copy the input to the output as a starting point
-  output->CopyStructure( input );
+  if (input->GetDataObjectType() == output->GetDataObjectType())
+    {
+    output->CopyStructure( input );
+    }
 
   // Now invoke the procedure, if specified.
   if ( this->ExecuteMethod != NULL )
