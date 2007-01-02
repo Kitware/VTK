@@ -16,7 +16,7 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkGraphLayoutViewer - Display a 2D TreeMap.
+// .NAME vtkGraphLayoutViewer - Layout and display of a vtkGraph.
 //
 // .SECTION Description
 // vtkGraphLayoutViewer is a convenience class for displaying a vtkGraph.  It
@@ -129,6 +129,12 @@ public:
   // Set/Get the field to use for the arc weights.
   vtkSetStringMacro(ArcWeightField);
   vtkGetStringMacro(ArcWeightField);
+  
+  // Description:
+  // Get the graph output of the layout filter
+  // Note: This function may return NULL if no
+  // layout strategy is registered with this class
+  vtkAbstractGraph* GetGraphAfterLayout();
 
 protected:
   vtkGraphLayoutViewer();

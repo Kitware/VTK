@@ -50,7 +50,7 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkEventForwarderCommand.h>
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.10");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.11");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -141,6 +141,17 @@ void vtkGraphLayoutViewer::SetLabelsOff()
   this->LabelActor->VisibilityOff();
 }
 
+
+// Description:
+// Get the graph output of the layout filter
+vtkAbstractGraph* vtkGraphLayoutViewer::GetGraphAfterLayout()
+{
+  if (this->GraphLayout)
+    {
+    return this->GraphLayout->GetOutput();
+    }
+  return NULL;
+}
 
 int vtkGraphLayoutViewer::IsLayoutComplete()
 {
