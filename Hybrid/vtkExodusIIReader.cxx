@@ -796,7 +796,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.8");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.8.2.1");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -1197,6 +1197,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputConnectivity( vtkIdType timeStep, vt
   this->CachedConnectivity->Allocate( this->NumberOfCells );
   if ( this->SqueezePoints )
     {
+    this->NextSqueezePoint = 0;
     this->PointMap.clear();
     this->PointMap.reserve( this->ModelParameters.num_nodes );
     for ( int i = 0; i < this->ModelParameters.num_nodes; ++i )
@@ -1269,6 +1270,10 @@ int vtkExodusIIReaderPrivate::AssembleOutputPoints( vtkIdType timeStep, vtkUnstr
     output->SetPoints( pts );
     pts->FastDelete();
     }
+  else
+    {
+    pts->Reset();
+    }
 
   vtkDataArray* arr = this->GetCacheOrRead( vtkExodusIICacheKey( -1, vtkExodusIIReader::NODAL_COORDS, 0, 0 ) );
   if ( ! arr )
@@ -1276,7 +1281,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputPoints( vtkIdType timeStep, vtkUnstr
     vtkErrorMacro( "Unable to read points from file." );
     return 0;
     }
-
+  
   if ( this->SqueezePoints )
     {
     vtkIdType exoPtId;
@@ -1953,11 +1958,12 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies( vtkIntArray* refs, int otyp,
       { // this loop is separated out to handle case (stride > 1 && pref[1] < 0 && this->SqueezePoints)
       for ( int k = 0; k < nnpe; ++k )
         {
-        vtkIdType x = this->PointMap[cellConn[k]];
-        if ( x < 0 )
-          cellConn[k] = this->NextSqueezePoint++;
-        else
-          cellConn[k] = x;
+        vtkIdType* x = &this->PointMap[cellConn[k]];
+        if ( *x < 0 )
+          {
+          *x = this->NextSqueezePoint++;
+          }
+        cellConn[k] = *x;
         }
       }
 
@@ -2000,11 +2006,12 @@ void vtkExodusIIReaderPrivate::InsertSetSides( vtkIntArray* refs, int otyp, int 
       nnpe = nodesPerSide[side];
       for ( int k = 0; k < nnpe; ++k )
         {
-        vtkIdType x = this->PointMap[sideNodes[k]];
-        if ( x < 0 )
-          cellConn[k] = this->NextSqueezePoint++;
-        else
-          cellConn[k] = x;
+        vtkIdType* x = &this->PointMap[sideNodes[k]];
+        if ( *x < 0 )
+          {
+          *x = this->NextSqueezePoint++;
+          }
+        cellConn[k] = *x;
         }
       output->InsertNextCell( sideCellTypes[nnpe], nnpe, &cellConn[0] );
       sideNodes += nnpe;
@@ -3594,6 +3601,10 @@ void vtkExodusIIReaderPrivate::SetObjectStatus( int otyp, int k, int stat )
   // Invalidate global cell arrays
   vtkExodusIICacheKey pattern( 0, 1, 0, 0 );
   this->Cache->Invalidate( vtkExodusIICacheKey( 0, vtkExodusIIReader::GLOBAL, 0, 0 ), pattern );
+  pattern = vtkExodusIICacheKey( 1, 1, 0, 0 );
+  this->Cache->Invalidate( vtkExodusIICacheKey( -1, vtkExodusIIReader::GLOBAL_OBJECT_ID, 0, 0 ), pattern );
+  this->Cache->Invalidate( vtkExodusIICacheKey( -1, vtkExodusIIReader::GLOBAL_ELEMENT_ID, 0, 0 ), pattern );
+  this->Cache->Invalidate( vtkExodusIICacheKey( -1, vtkExodusIIReader::GLOBAL_NODE_ID, 0, 0 ), pattern );
 
   this->Modified();
 }
@@ -3837,11 +3848,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.8");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.8.2.1");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.8");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.8.2.1");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -3854,6 +3865,8 @@ vtkExodusIIReader::vtkExodusIIReader()
   this->Metadata = vtkExodusIIReaderPrivate::New();
   this->Metadata->Parent = this;
   this->TimeStep = 0;
+  this->TimeStepRange[0] = 0;
+  this->TimeStepRange[1] = 0;
   this->Parser = 0;
   this->ExodusModelMetadata = 0;
   this->PackExodusModelOntoOutput = 1;
@@ -3898,7 +3911,8 @@ vtkExodusIIReader::~vtkExodusIIReader()
 }
 
 // Normally, vtkExodusIIReader::PrintSelf would be here.
-// But it's above to prevent PrintSelf-Hybrid from failing.
+// But it's above to prevent PrintSelf-Hybrid from failing because it assumes
+// the first PrintSelf method is the one for the class declared in the header file.
 
 int vtkExodusIIReader::CanReadFile( const char* fname )
 {
@@ -3906,7 +3920,7 @@ int vtkExodusIIReader::CanReadFile( const char* fname )
   int appWordSize = 8;
   int diskWordSize = 8;
   float version;
-  if ( (exoid = ex_open( fname, EX_READ, &appWordSize, &diskWordSize, &version )) != 0 )
+  if ( (exoid = ex_open( fname, EX_READ, &appWordSize, &diskWordSize, &version )) == 0 )
     {
     return 0;
     }
@@ -3916,6 +3930,13 @@ int vtkExodusIIReader::CanReadFile( const char* fname )
     return 0;
     }
   return 1;
+}
+
+unsigned long vtkExodusIIReader::GetMTime()
+{
+  unsigned long readerMTime = this->MTime.GetMTime();
+  unsigned long privateMTime = this->Metadata->GetMTime();
+  return privateMTime > readerMTime ? privateMTime : readerMTime;
 }
 
 #define vtkSetStringMacroBody(propName,fname) \
@@ -4043,6 +4064,7 @@ int vtkExodusIIReader::RequestInformation(
     timeRange[1] = this->Metadata->Times[nTimes - 1];
     outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->Metadata->Times[0], nTimes );
     outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
+    this->TimeStepRange[0] = 0; this->TimeStepRange[1] = nTimes - 1;
     }
 
   if ( newMetadata )
@@ -4087,7 +4109,7 @@ int vtkExodusIIReader::RequestData(
     output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), steps + timeStep, 1 );
     }
 
-  cout << "Requesting step " << timeStep << " for output " << output << "\n";
+  //cout << "Requesting step " << timeStep << " for output " << output << "\n";
   this->Metadata->RequestData( timeStep, output );
 
   //begin USE_EXO_DSP_FILTERS

@@ -63,6 +63,10 @@ public:
   int CanReadFile(const char* fname);
 
   // Description:
+  // Return the object's MTime. This is overridden to include the timestamp of its internal class.
+  virtual unsigned long GetMTime();
+
+  // Description:
   // Specify file name of the Exodus file.
   virtual void SetFileName( const char* fname );
   vtkGetStringMacro(FileName);
@@ -76,6 +80,11 @@ public:
   // Which TimeStep to read.    
   vtkSetMacro(TimeStep, int);
   vtkGetMacro(TimeStep, int);
+
+  // Description:
+  // Returns the available range of valid integer time steps.
+  vtkGetVector2Macro(TimeStepRange,int);
+  vtkSetVector2Macro(TimeStepRange,int);
 
   // Description:
   // Extra cell data array that can be generated.  By default, this array
@@ -651,6 +660,7 @@ protected:
   char* FileName;
   char* XMLFileName;
   int TimeStep;
+  int TimeStepRange[2];
   vtkTimeStamp FileNameMTime;
   vtkTimeStamp XMLFileNameMTime;
   
