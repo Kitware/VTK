@@ -64,6 +64,8 @@ public:
   // It's an error to add a cue twice to the Scene.
   void AddCue(vtkAnimationCue* cue);
   void RemoveCue(vtkAnimationCue* cue);
+  void RemoveAllCues();
+  int  GetNumberOfCues();
   
   // Description:
   // Starts playing the animation scene.

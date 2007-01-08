@@ -19,7 +19,7 @@
 #include "vtkCollectionIterator.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAnimationScene, "1.10");
+vtkCxxRevisionMacro(vtkAnimationScene, "1.11");
 vtkStandardNewMacro(vtkAnimationScene);
 
 //----------------------------------------------------------------------------
@@ -73,6 +73,16 @@ void vtkAnimationScene::RemoveCue(vtkAnimationCue* cue)
   this->AnimationCues->RemoveItem(cue);
 }
 
+//----------------------------------------------------------------------------
+void vtkAnimationScene::RemoveAllCues()
+{  
+  this->AnimationCues->RemoveAllItems();
+}
+//----------------------------------------------------------------------------
+int vtkAnimationScene::GetNumberOfCues()
+{
+  return this->AnimationCues->GetNumberOfItems();
+}
 //----------------------------------------------------------------------------
 void vtkAnimationScene::SetTimeMode(int mode)
 {
