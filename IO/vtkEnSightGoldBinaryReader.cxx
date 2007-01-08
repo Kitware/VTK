@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.65");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.66");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -43,6 +43,7 @@ vtkEnSightGoldBinaryReader::vtkEnSightGoldBinaryReader()
 {
   this->IFile = NULL;
   this->FileSize = 0;
+  this->Fortran = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -3269,6 +3270,34 @@ int vtkEnSightGoldBinaryReader::ReadLine(char result[80])
     vtkDebugMacro("Read failed");
     return 0;
     }
+  // if the first 4 bytes is the length, then this data is no doubt
+  // a fortran data write!, copy the last 76 into the beginning
+  int c;
+  char len[4] = {0x50, 0x00, 0x00, 0x00};
+  if (this->ByteOrder == FILE_BIG_ENDIAN)
+    {
+    vtkByteSwap::Swap4BE(len);
+    }
+
+  bool isFortran = false;
+  for (c=0; c<4; c++) 
+  {
+    if (result[c]!=len[c]) break;
+    else isFortran = true;
+  }
+  this->Fortran = isFortran;
+  if (this->Fortran) 
+  {
+    strncpy(result, &result[4], 76);
+    result[76] = 0;
+    // better read an extra 8 bytes to prevent error next time
+    char dummy[8];
+    if (this->IFile->read(dummy, 8) == 0)
+      {
+      vtkDebugMacro("Read (fortran) failed");
+      return 0;
+      }
+  }
   
   return 1;
 }
@@ -3317,6 +3346,16 @@ int vtkEnSightGoldBinaryReader::ReadPartId(int *result)
 // Returns zero if there was an error.
 int vtkEnSightGoldBinaryReader::ReadInt(int *result)
 {
+  char dummy[4];
+  if (this->Fortran) 
+    {
+    if (this->IFile->read(dummy, 4) == 0)
+      {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+      }
+    }
+
   if ( this->IFile->read((char*)result, sizeof(int)) == 0)
     {
     vtkErrorMacro("Read failed");
@@ -3332,6 +3371,15 @@ int vtkEnSightGoldBinaryReader::ReadInt(int *result)
     vtkByteSwap::Swap4BE(result);
     }
 
+  if (this->Fortran) 
+    {
+    if (this->IFile->read(dummy, 4) == 0)
+      {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+      }
+    }
+
   return 1;
 }
 
@@ -3344,7 +3392,17 @@ int vtkEnSightGoldBinaryReader::ReadIntArray(int *result,
     {
     return 1;
     }
-  
+
+  char dummy[4];
+  if (this->Fortran) 
+    {
+    if (this->IFile->read(dummy, 4) == 0)
+      {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+      }
+    }
+
   if (this->IFile->read((char*)result, sizeof(int)*numInts) == 0)
     {
     vtkErrorMacro("Read failed.");
@@ -3360,6 +3418,15 @@ int vtkEnSightGoldBinaryReader::ReadIntArray(int *result,
     vtkByteSwap::Swap4BERange(result, numInts);
     }
   
+  if (this->Fortran) 
+    {
+    if (this->IFile->read(dummy, 4) == 0)
+      {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+      }
+    }
+
   return 1;
 }
 
@@ -3371,6 +3438,16 @@ int vtkEnSightGoldBinaryReader::ReadFloatArray(float *result,
   if (numFloats <= 0)
     {
     return 1;
+    }
+
+  char dummy[4];
+  if (this->Fortran) 
+    {
+    if (this->IFile->read(dummy, 4) == 0)
+      {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+      }
     }
 
   if (this->IFile->read((char*)result, sizeof(float)*numFloats) == 0)
@@ -3388,6 +3465,14 @@ int vtkEnSightGoldBinaryReader::ReadFloatArray(float *result,
     vtkByteSwap::Swap4BERange(result, numFloats);
     }
   
+  if (this->Fortran) 
+    {
+    if (this->IFile->read(dummy, 4) == 0)
+      {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+      }
+    }
   return 1;
 }
 

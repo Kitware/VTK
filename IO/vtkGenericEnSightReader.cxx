@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.81");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.82");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -256,6 +256,7 @@ void vtkGenericEnSightReader::SetTimeValue(float value)
 int vtkGenericEnSightReader::DetermineEnSightVersion()
 {
   char line[256], subLine[256], subLine1[256], subLine2[256], binaryLine[81];
+  char *binaryLinePtr;
   int stringRead;
   int timeSet = 1, fileSet = 1;
   int xtimeSet= 1, xfileSet= 1;
@@ -383,7 +384,15 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           
             this->ReadBinaryLine(binaryLine);
             binaryLine[80] = '\0';
-            sscanf(binaryLine, " %*s %s", subLine);
+            // because fortran stores 4 length bytes at the start, 
+            // if the strlen is less than 4, skip the first 4
+            // and jump to the start of the actual string
+            binaryLinePtr = &binaryLine[0];
+            if (strlen(binaryLine)<4) 
+              {
+              binaryLinePtr = &binaryLine[4];
+              }
+            sscanf(binaryLinePtr, " %*s %s", subLine);
             // If the file is ascii, there might not be a null
             // terminator. This leads to a UMR in sscanf
             if (strncmp(subLine,"Binary",6) == 0 ||

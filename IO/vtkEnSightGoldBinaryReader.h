@@ -167,6 +167,7 @@ protected:
   
   int NodeIdsListed;
   int ElementIdsListed;
+  int Fortran;
   
   ifstream *IFile;
   // The size of the file could be used to choose byte order.
