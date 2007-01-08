@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.52");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.53");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -727,7 +727,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
   const char* fileName, int timeStep, vtkMultiBlockDataSet *output)
 {
   char line[80], subLine[80];
-  int i;
+  vtkIdType i;
   int *pointIds;
   float *coords;
   vtkPoints *points = vtkPoints::New();

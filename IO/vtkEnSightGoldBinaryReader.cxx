@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.66");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.67");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -913,7 +913,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
                                                          vtkMultiBlockDataSet *output)
 {
   char line[80], subLine[80];
-  int i;
+  vtkIdType i;
   int *pointIds;
   float *xCoords, *yCoords, *zCoords;
   vtkPoints *points = vtkPoints::New();
