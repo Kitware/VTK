@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.63");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.64");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -43,6 +43,7 @@ vtkEnSightReader::vtkEnSightReader()
   this->MeasuredFileName = NULL;
   this->MatchFileName = NULL;
 
+  this->ParticleCoordinatesByIndex;
   this->IS = NULL;
   
   this->VariableMode = -1;
@@ -1918,4 +1919,5 @@ void vtkEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
      (this->MeasuredFileName ? this->MeasuredFileName : "(none)") << endl;
   os << indent << "MatchFileName: " << 
      (this->MatchFileName ? this->MatchFileName : "(none)") << endl;
+  os << indent << "ParticleCoordinatesByIndex: " << this->ParticleCoordinatesByIndex << endl;
 }

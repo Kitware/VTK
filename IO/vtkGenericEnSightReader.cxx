@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.80");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.81");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -91,6 +91,8 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
 
   this->ByteOrder = FILE_UNKNOWN_ENDIAN;
   
+  this->ParticleCoordinatesByIndex = 0;
+
   this->EnSightVersion = -1;
   
   this->PointDataArraySelection = vtkDataArraySelection::New();
@@ -729,6 +731,7 @@ int vtkGenericEnSightReader::RequestInformation(
   this->Reader->SetFilePath(this->GetFilePath());
   this->Reader->SetByteOrder(this->ByteOrder);
   this->Reader->RequestInformation(request, inputVector, outputVector);
+  this->Reader->SetParticleCoordinatesByIndex(this->ParticleCoordinatesByIndex);
 
   this->SetTimeSets(this->Reader->GetTimeSets());
   if(!this->TimeValueInitialized)
@@ -1235,6 +1238,7 @@ void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TimeSets: " << this->TimeSets << endl;
   os << indent << "ReadAllVariables: " << this->ReadAllVariables << endl;
   os << indent << "ByteOrder: " << this->ByteOrder << endl;
+  os << indent << "ParticleCoordinatesByIndex: " << this->ParticleCoordinatesByIndex << endl;
   os << indent << "CellDataArraySelection: " << this->CellDataArraySelection 
      << endl;
   os << indent << "PointDataArraySelection: " << this->PointDataArraySelection 
