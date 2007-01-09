@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.18");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.19");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -1470,16 +1470,16 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes::FieldList& list,
                                     vtkDataSetAttributes* fromDSA,
                                     int idx, vtkIdType fromId, vtkIdType toId)
 {
-  vtkDataArray *fromDA;
-  vtkDataArray *toDA;
+  vtkAbstractArray *fromDA;
+  vtkAbstractArray *toDA;
   
   int i;
   for (i=0; i < list.NumberOfFields; i++)
     {
     if ( list.FieldIndices[i] >= 0 )
       {
-      toDA = this->GetArray(list.FieldIndices[i]);
-      fromDA = fromDSA->GetArray(list.DSAIndices[idx][i]);
+      toDA = this->GetAbstractArray(list.FieldIndices[i]);
+      fromDA = fromDSA->GetAbstractArray(list.DSAIndices[idx][i]);
       this->CopyTuple(fromDA, toDA, fromId, toId);
       }
     }
