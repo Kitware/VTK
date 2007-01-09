@@ -25,9 +25,10 @@
 #include "vtkGL2PSExporter.h"
 #endif // VTK_USE_GL2PS
 
+#include "vtkgl.h" // vtkgl namespace
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.36");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.37");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -44,6 +45,15 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
   double  color[4];
 
   // unbind any textures for starters
+  vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(ren);
+  int translucentStage=oRenderer->GetTranslucentStage();
+  
+  if(translucentStage && ren->GetLastRenderingUsedDepthPeeling())
+    {
+    GLint uUseTexture=-1;
+    uUseTexture=oRenderer->GetUseTextureUniformVariable();
+    vtkgl::Uniform1iARB(uUseTexture,0);
+    }
   glDisable(GL_TEXTURE_2D);
 
   // disable alpha testing (this may have been enabled

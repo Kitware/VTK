@@ -32,10 +32,11 @@ lut SetValueRange 1 1
 coneMapper2 SetLookupTable lut
 coneMapper2 SetScalarModeToUsePointData
 coneMapper2 SetScalarVisibility 1
+coneMapper2 InterpolateScalarsBeforeMappingOn
 
 vtkActor coneActorLUT
 coneActorLUT SetMapper coneMapper2
-coneActorLUT SetPosition 0 1.0 0
+coneActorLUT SetPosition 0.1 1.0 0
 [coneActorLUT GetProperty] SetOpacity 0.99
 
 
@@ -65,8 +66,12 @@ ren1 AddActor coneActorLUT
 ren1 AddActor coneActorTexture
 ren1 SetBackground 0.1 0.2 0.4
 
+ren1 SetUseDepthPeeling 1
+ren1 SetMaximumNumberOfPeels 200
+ren1 SetOcclusionRatio 0.1
 
 vtkRenderWindow renWin
+renWin SetAlphaBitPlanes 1
 renWin AddRenderer ren1
 renWin SetSize 300 300
 
@@ -91,3 +96,9 @@ $camera SetFocalPoint 0 0.25 0
 
 ren1 ResetCameraClippingRange
 renWin Render
+puts [ren1 GetLastRenderingUsedDepthPeeling]
+if { [ren1 GetLastRenderingUsedDepthPeeling] } {
+    puts "depth peeling was used"
+} else {
+    puts "depth peeling was not used (alpha blending instead)"
+}
