@@ -57,16 +57,6 @@ public:
   int UpdateLights(void);
   
   // Description:
-  // Access to the OpenGL program shader uniform variable "useTexture" from the
-  // vtkOpenGLProperty or vtkOpenGLTexture.
-  int GetUseTextureUniformVariable();
-  
-  // Description:
-  // Access to the OpenGL program shader uniform variable "texture" from the
-  // vtkOpenGLProperty or vtkOpenGLTexture.
-  int GetTextureUniformVariable();
-  
-  // Description:
   // Is rendering at translucent geometry stage? (Used by vtkOpenGLProperty
   // or vtkOpenGLTexture)
   int GetTranslucentStage();
@@ -100,6 +90,21 @@ protected:
   // been rendered (there is no translucent geometry), it returns false.
   // \pre positive_layer: layer>=0
   int RenderPeel(int layer);
+  
+  //BTX
+  friend class vtkOpenGLProperty;
+  friend class vtkOpenGLTexture;
+  //ETX
+  
+  // Description:
+  // Access to the OpenGL program shader uniform variable "useTexture" from the
+  // vtkOpenGLProperty or vtkOpenGLTexture.
+  int GetUseTextureUniformVariable();
+  
+  // Description:
+  // Access to the OpenGL program shader uniform variable "texture" from the
+  // vtkOpenGLProperty or vtkOpenGLTexture.
+  int GetTextureUniformVariable();
   
   // Description:
   // This flag is on if the current OpenGL context supports extensions
