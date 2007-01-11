@@ -56,10 +56,19 @@ public:
   // Ask lights to load themselves into graphics pipeline.
   int UpdateLights(void);
   
+  // Description:
+  // Is rendering at translucent geometry stage? (Used by vtkOpenGLProperty
+  // or vtkOpenGLTexture)
+  int GetTranslucentStage();
+  
 protected:
   vtkOpenGLRenderer();
   ~vtkOpenGLRenderer();
-
+  
+  // Description:
+  // Check the compilation status of some fragment shader source.
+  void CheckCompilation(unsigned int fragmentShader);
+  
   //BTX
   // Picking functions to be implemented by sub-classes
   virtual void DevicePickRender();
@@ -81,6 +90,21 @@ protected:
   // been rendered (there is no translucent geometry), it returns false.
   // \pre positive_layer: layer>=0
   int RenderPeel(int layer);
+  
+  //BTX
+  friend class vtkOpenGLProperty;
+  friend class vtkOpenGLTexture;
+  //ETX
+  
+  // Description:
+  // Access to the OpenGL program shader uniform variable "useTexture" from the
+  // vtkOpenGLProperty or vtkOpenGLTexture.
+  int GetUseTextureUniformVariable();
+  
+  // Description:
+  // Access to the OpenGL program shader uniform variable "texture" from the
+  // vtkOpenGLProperty or vtkOpenGLTexture.
+  int GetTextureUniformVariable();
   
   // Description:
   // This flag is on if the current OpenGL context supports extensions
@@ -111,6 +135,11 @@ protected:
   // Actual depth format: vtkgl::DEPTH_COMPONENT16_ARB
   // or vtkgl::DEPTH_COMPONENT24_ARB
   unsigned int DepthFormat;
+  
+  // Description:
+  // Is rendering at translucent geometry stage? (Used by vtkOpenGLProperty
+  // or vtkOpenGLTexture). Boolean value.
+  int TranslucentStage;
   
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.

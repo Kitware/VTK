@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.57.2.1");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.57.2.2");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -62,6 +62,8 @@ const char *vtkOpenGLRenderer_PeelingFS=
   "uniform sampler2DRectShadow opaqueShadowTex;\n"
   "uniform int offsetX;\n"
   "uniform int offsetY;\n"
+  "uniform int useTexture;\n"
+  "uniform sampler2D texture;\n"
   "void main()\n"
   "{\n"
   "vec4 r0=gl_FragCoord;\n"
@@ -79,7 +81,14 @@ const char *vtkOpenGLRenderer_PeelingFS=
   "{\n"
   " discard;\n"
   "}\n"
-  "gl_FragColor=gl_Color;\n"
+  "if(useTexture==1)\n"
+  "{\n"
+  " gl_FragColor=gl_Color*texture2D(texture,gl_TexCoord[0]);\n"
+  "}\n"
+  "else\n"
+  "{\n"
+  " gl_FragColor=gl_Color;\n"
+  "}\n"
   "}\n";
 
 vtkOpenGLRenderer::vtkOpenGLRenderer()
@@ -98,6 +107,7 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->TransparentLayerZ=0;
   this->ProgramShader=0;
   this->DepthFormat=0;
+  this->TranslucentStage=0;
 }
 
 // Internal method temporarily removes lights before reloading them
@@ -197,6 +207,44 @@ int vtkOpenGLRenderer::UpdateLights ()
   return count;
 }
 
+// ----------------------------------------------------------------------------
+// Description:
+// Access to the OpenGL program shader uniform variable "useTexture" from the
+// vtkOpenGLProperty or vtkOpenGLTexture.
+int vtkOpenGLRenderer::GetUseTextureUniformVariable()
+{
+  GLint result=vtkgl::GetUniformLocationARB(this->ProgramShader,"useTexture");
+  if(result==-1)
+    {
+    vtkErrorMacro(<<"useTexture is not a uniform variable");
+    }
+  return result;
+}
+  
+// ----------------------------------------------------------------------------
+// Description:
+// Access to the OpenGL program shader uniform variable "texture" from the
+// vtkOpenGLProperty or vtkOpenGLTexture.
+int vtkOpenGLRenderer::GetTextureUniformVariable()
+{
+  GLint result=vtkgl::GetUniformLocationARB(this->ProgramShader,"texture");
+  if(result==-1)
+    {
+    vtkErrorMacro(<<"texture is not a uniform variable");
+    }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Is rendering at translucent geometry stage? (Used by vtkOpenGLProperty
+// or vtkOpenGLTexture)
+int vtkOpenGLRenderer::GetTranslucentStage()
+{
+  return this->TranslucentStage;
+}
+
+// ----------------------------------------------------------------------------
 // Concrete open gl render method.
 void vtkOpenGLRenderer::DeviceRender(void)
 {
@@ -231,6 +279,7 @@ void vtkOpenGLRenderer::DeviceRender(void)
 // override this method.
 void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
 {
+  this->TranslucentStage=1;
   if(this->UseDepthPeeling)
     {
     if(!this->DepthPeelingIsSupportedChecked)
@@ -372,6 +421,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
     // just alpha blending
     this->LastRenderingUsedDepthPeeling=0;
     this->UpdateTranslucentGeometry();
+    this->TranslucentStage=0;
     }
   else
     {
@@ -400,6 +450,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
     
     glGenTextures(1,&opaqueLayerRgba);
     // opaque z format
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE1_ARB );
     glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,opaqueLayerZ);
     glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,
                     GL_NEAREST);
@@ -430,7 +481,9 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
       glDeleteTextures(1,&opaqueLayerRgba);
       glDeleteTextures(1,&opaqueLayerZ);
       this->LastRenderingUsedDepthPeeling=0;
+      vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
       this->UpdateTranslucentGeometry();
+      this->TranslucentStage=0;
       return;
       }
     glTexImage2D(vtkgl::TEXTURE_RECTANGLE_ARB,0,this->DepthFormat,
@@ -459,7 +512,9 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
       glDeleteTextures(1,&opaqueLayerRgba);
       glDeleteTextures(1,&opaqueLayerZ);
       this->LastRenderingUsedDepthPeeling=0;
+      vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
       this->UpdateTranslucentGeometry();
+      this->TranslucentStage=0;
       return;
       }
     
@@ -519,7 +574,11 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
       {
       glEnable(vtkgl::MULTISAMPLE);
       }
-    
+    // The two following lines are taken from vtkOpenGLProperty to
+    // reset texturing state after rendering the props.
+    glDisable(GL_TEXTURE_2D);
+    glDisable (GL_ALPHA_TEST);
+    glDepthFunc(GL_LEQUAL);
     vtkgl::DeleteQueriesARB(1,&queryId);
     if(this->TransparentLayerZ!=0)
       {
@@ -546,6 +605,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glEnable(vtkgl::TEXTURE_RECTANGLE_ARB);
     
@@ -585,6 +645,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
       ++it;
       }
     
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glDisable(vtkgl::TEXTURE_RECTANGLE_ARB);
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -618,6 +679,39 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
     glDeleteTextures(1,&opaqueLayerRgba);
     glDeleteTextures(1,&opaqueLayerZ);
     }
+  this->TranslucentStage=0;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Check the compilation status of some fragment shader source.
+void vtkOpenGLRenderer::CheckCompilation(
+  unsigned int fragmentShader)
+{
+  GLuint fs=static_cast<GLuint>(fragmentShader);
+  GLint params;
+  vtkgl::GetObjectParameterivARB(fs,vtkgl::OBJECT_COMPILE_STATUS_ARB,&params);
+  if(params==GL_TRUE)
+    {
+    vtkDebugMacro(<<"shader source compiled successfully");
+    }
+  else
+    {
+    vtkErrorMacro(<<"shader source compile error");
+    // include null terminator
+    vtkgl::GetObjectParameterivARB(fs,vtkgl::OBJECT_INFO_LOG_LENGTH_ARB,&params);
+    if(params>0)
+      {
+      char *buffer=new char[params];
+      vtkgl::GetInfoLogARB(fs,params,0,buffer);
+      vtkErrorMacro(<<"log: "<<buffer);
+      delete[] buffer;
+      }
+    else
+      {
+      vtkErrorMacro(<<"no log");
+      }
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -639,28 +733,56 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(mask);
   
-  vtkgl::ActiveTextureARB(vtkgl::TEXTURE1_ARB);
+  vtkgl::ActiveTextureARB(vtkgl::TEXTURE2_ARB);
   glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->OpaqueLayerZ);
-  vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
+  vtkgl::ActiveTextureARB(vtkgl::TEXTURE1_ARB );
+  
+  if(this->ProgramShader==0)
+    {
+    this->ProgramShader=vtkgl::CreateProgramObjectARB();
+    GLuint shader=vtkgl::CreateShaderObjectARB(vtkgl::FRAGMENT_SHADER_ARB);
+    vtkgl::ShaderSourceARB(shader,1,const_cast<const char **>(&vtkOpenGLRenderer_PeelingFS),0);
+    vtkgl::CompileShaderARB(shader);
+    this->CheckCompilation(shader);
+    vtkgl::AttachObjectARB(this->ProgramShader,shader);
+    vtkgl::LinkProgramARB(this->ProgramShader);
+    
+    GLint params;
+    vtkgl::GetObjectParameterivARB(static_cast<GLuint>(this->ProgramShader),vtkgl::OBJECT_LINK_STATUS_ARB,&params);
+    if(params==GL_TRUE)
+      {
+      vtkDebugMacro(<<"program linked successfully");
+      }
+    else
+      {
+      vtkErrorMacro(<<"program link error");
+      // include null terminator
+      vtkgl::GetObjectParameterivARB(static_cast<GLuint>(this->ProgramShader),vtkgl::OBJECT_INFO_LOG_LENGTH_ARB,&params);
+      if(params>0)
+        {
+#if 1
+        char *buffer=new char[params];
+        vtkgl::GetInfoLogARB(static_cast<GLuint>(this->ProgramShader),params,0,buffer);
+        vtkErrorMacro(<<"log: "<<buffer);
+        delete[] buffer;
+#endif
+        }
+      else
+        {
+        vtkErrorMacro(<<"no log: ");
+        }
+      }
+    vtkgl::DeleteObjectARB(shader); // reference counting
+    }
   
   if(layer>0)
     {
     glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->TransparentLayerZ);
-    if(this->ProgramShader==0)
-      {
-      this->ProgramShader=vtkgl::CreateProgramObjectARB();
-      GLuint shader=vtkgl::CreateShaderObjectARB(vtkgl::FRAGMENT_SHADER_ARB);
-      vtkgl::ShaderSourceARB(shader,1,const_cast<const char **>(&vtkOpenGLRenderer_PeelingFS),0);
-      vtkgl::CompileShaderARB(shader);
-      vtkgl::AttachObjectARB(this->ProgramShader,shader);
-      vtkgl::LinkProgramARB(this->ProgramShader);
-      vtkgl::DeleteObjectARB(shader); // reference counting
-      }
     vtkgl::UseProgramObjectARB(this->ProgramShader);
     GLint uShadowTex=vtkgl::GetUniformLocationARB(this->ProgramShader,"shadowTex");
     if(uShadowTex!=-1)
       {
-      vtkgl::Uniform1iARB(uShadowTex,0);
+      vtkgl::Uniform1iARB(uShadowTex,1);
       }
     else
       {
@@ -669,7 +791,7 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
     GLint uOpaqueShadowTex=vtkgl::GetUniformLocationARB(this->ProgramShader,"opaqueShadowTex");
     if(uOpaqueShadowTex!=-1)
       {
-      vtkgl::Uniform1iARB(uOpaqueShadowTex,1);
+      vtkgl::Uniform1iARB(uOpaqueShadowTex,2);
       }
     else
       {
@@ -696,6 +818,8 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
       vtkErrorMacro(<<"error: offsetY is not a uniform.");
       }
     }
+  vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   int numberOfRenderedProps=this->UpdateTranslucentGeometry();
   if(layer>0)
     {
@@ -703,7 +827,7 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
     }
   
   GLint width;
-  
+  vtkgl::ActiveTextureARB(vtkgl::TEXTURE1_ARB );
   if(layer==0)
     {
     if(numberOfRenderedProps>0)
