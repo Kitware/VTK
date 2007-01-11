@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.67");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.68");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -3282,7 +3282,11 @@ int vtkEnSightGoldBinaryReader::ReadLine(char result[80])
   bool isFortran = false;
   for (c=0; c<4; c++) 
   {
-    if (result[c]!=len[c]) break;
+    if (result[c]!=len[c]) 
+      {
+      isFortran = false;
+      break;
+      }
     else isFortran = true;
   }
   this->Fortran = isFortran;
