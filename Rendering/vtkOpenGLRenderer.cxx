@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.57.2.2");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.57.2.3");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -60,8 +60,8 @@ const char *vtkOpenGLRenderer_PeelingFS=
 //  "#extension GL_ARB_texture_rectangle: enable\n"
   "uniform sampler2DRectShadow shadowTex;\n"
   "uniform sampler2DRectShadow opaqueShadowTex;\n"
-  "uniform int offsetX;\n"
-  "uniform int offsetY;\n"
+  "uniform float offsetX;\n"
+  "uniform float offsetY;\n"
   "uniform int useTexture;\n"
   "uniform sampler2D texture;\n"
   "void main()\n"
@@ -69,13 +69,13 @@ const char *vtkOpenGLRenderer_PeelingFS=
   "vec4 r0=gl_FragCoord;\n"
   "r0.x=r0.x-offsetX;\n"
   "r0.y=r0.y-offsetY;\n"
-  "float r1=shadow2DRect(opaqueShadowTex,r0);\n"
+  "float r1=shadow2DRect(opaqueShadowTex,r0.xyz).x;\n"
   "r1=r1-0.5;\n"
   "if(r1<0.0)\n"
   "{\n"
   " discard;\n"
   "}\n"
-  "r0.x=shadow2DRect(shadowTex,r0);\n"
+  "r0.x=shadow2DRect(shadowTex,r0.xyz).x;\n"
   "r0.x=r0.x-0.5;\n"
   "if(r0.x<0.0)\n"
   "{\n"
@@ -83,7 +83,7 @@ const char *vtkOpenGLRenderer_PeelingFS=
   "}\n"
   "if(useTexture==1)\n"
   "{\n"
-  " gl_FragColor=gl_Color*texture2D(texture,gl_TexCoord[0]);\n"
+  " gl_FragColor=gl_Color*texture2D(texture,gl_TexCoord[0].xy);\n"
   "}\n"
   "else\n"
   "{\n"
@@ -801,7 +801,7 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
     GLint uOffsetX=vtkgl::GetUniformLocationARB(this->ProgramShader,"offsetX");
     if(uOffsetX!=-1)
       {
-      vtkgl::Uniform1iARB(uOffsetX,this->ViewportX);
+      vtkgl::Uniform1fARB(uOffsetX,this->ViewportX);
       }
     else
       {
@@ -811,7 +811,7 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
     GLint uOffsetY=vtkgl::GetUniformLocationARB(this->ProgramShader,"offsetY");
     if(uOffsetY!=-1)
       {
-      vtkgl::Uniform1iARB(uOffsetY,this->ViewportY);
+      vtkgl::Uniform1fARB(uOffsetY,this->ViewportY);
       }
     else
       {
