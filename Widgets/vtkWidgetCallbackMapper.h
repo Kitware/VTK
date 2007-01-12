@@ -72,8 +72,8 @@ public:
                          int repeatCount, char* keySym,
                          unsigned long widgetEvent, 
                          vtkAbstractWidget *w, CallbackType f);
-  void SetCallbackMethod(vtkWidgetEvent *vtkEvent, unsigned long widgetEvent, 
-                         vtkAbstractWidget *w, CallbackType f);
+  //void SetCallbackMethod(vtkWidgetEvent *vtkEvent, unsigned long widgetEvent,
+  //                       vtkAbstractWidget *w, CallbackType f);
 
   // Description:
   // This method invokes the callback given a widget event. A non-zero value
