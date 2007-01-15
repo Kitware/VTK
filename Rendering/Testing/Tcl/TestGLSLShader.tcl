@@ -26,7 +26,7 @@ actor SetMapper mapper
 # Turn shading on. Otherwise, shaders are not used.
 [actor GetProperty] ShadingOn
 
-# Pass a shader variable need by CgTwisted.
+# Pass a shader variable need by GLSLTwisted.
 [actor GetProperty] AddShaderVariable "Rate" 1.0
 
 renderer AddActor actor
