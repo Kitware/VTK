@@ -240,6 +240,8 @@ protected:
   int ScreenDoubleBuffer;
   HGLRC ScreenContextId;
 
+  int CreatingOffScreenWindow; // to avoid recursion (and memory leaks...)
+  
   //BTX
   // message handler
   virtual LRESULT MessageProc(HWND hWnd, UINT message, 
