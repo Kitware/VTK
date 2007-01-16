@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.60");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.61");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -680,6 +680,10 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
     glDeleteTextures(1,&opaqueLayerZ);
     }
   this->TranslucentStage=0;
+  
+  // Restore default alpha blending for the next stage (overlay)
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
 }
 
 // ----------------------------------------------------------------------------
