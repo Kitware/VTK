@@ -54,7 +54,7 @@
 #include "vtkUnstructuredGrid.h"
 
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.12");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.13");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -84,7 +84,7 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
   this->EventForwarder->SetTarget(this);
   
   // Set up some the default parameters
-  this->LabeledDataMapper->SetFieldDataName("name");
+  this->LabeledDataMapper->SetFieldDataName("label");
   this->LabeledDataMapper->SetLabelFormat("%s");
   this->LabeledDataMapper->SetLabelModeToLabelFieldData();
   this->LabeledDataMapper->GetLabelTextProperty()->SetColor(1,1,1);
@@ -134,7 +134,29 @@ int vtkGraphLayoutViewer::GetFontSize()
 
 void vtkGraphLayoutViewer::SetLabelFieldName(const char *field)
 {
+  // We need to check the type of the array and
+  // set the string format based on the type
+  vtkAbstractArray* abstract = 
+    this->GraphToPolyData->GetOutput()->GetPointData()->GetAbstractArray(field);
+  
+  // Does the array exist at all?  
+  if (abstract == NULL)
+    {
+    return;
+    }
+     
+  // Set the field name
   this->LabeledDataMapper->SetFieldDataName(field); 
+    
+  // Okay now what type of array is it
+  if (vtkDataArray::SafeDownCast(abstract))
+    {
+    this->LabeledDataMapper->SetLabelFormat("%f");
+    }
+  else
+    {
+    this->LabeledDataMapper->SetLabelFormat("%s");
+    } 
 }
 
 char* vtkGraphLayoutViewer::GetLabelFieldName()
@@ -218,6 +240,11 @@ void vtkGraphLayoutViewer::InputInitialize()
 {
 
   // Pipeline setup
+  if (this->ArcWeightField)
+    {
+    this->GraphLayout->GetLayoutStrategy()
+      ->SetArcWeightField(this->ArcWeightField);
+    }
   this->GraphLayout->SetInput(this->Input);
   this->NodeActor->VisibilityOn();
   this->EdgeActor->VisibilityOn();
