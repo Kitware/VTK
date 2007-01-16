@@ -60,6 +60,8 @@ class vtkRenderWindowInteractor;
 class vtkLookupTable;
 class vtkLabeledDataMapper;
 class vtkEventForwarderCommand;
+class vtkSphereSource;
+class vtkGlyph3D;
 
 class VTK_INFOVIS_EXPORT vtkGraphLayoutViewer : public vtkObject 
 {
@@ -101,9 +103,14 @@ public:
   virtual void UpdateLayout();
   
   // Description:
-  // The name of the field used for coloring the data
-  virtual void SetColorFieldName(const char *field);
-  virtual char* GetColorFieldName();
+  // The name of the node field used for coloring the nodes
+  virtual void SetNodeColorFieldName(const char *field);
+  virtual char* GetNodeColorFieldName();
+  
+  // Description:
+  // The name of the arc field used for coloring the edges
+  virtual void SetArcColorFieldName(const char *field);
+  virtual char* GetArcColorFieldName();
   
   // Description:
   // The name of the field used for labeling
@@ -146,10 +153,14 @@ protected:
   //BTX
   vtkSmartPointer<vtkGraphLayout>           GraphLayout;
   vtkSmartPointer<vtkGraphToPolyData>       GraphToPolyData;
+  vtkSmartPointer<vtkSphereSource>          SphereSource;
+  vtkSmartPointer<vtkGlyph3D>               NodeGlyphs;
   vtkSmartPointer<vtkInteractorStyleImage>  InteractorStyle;
-  vtkSmartPointer<vtkPolyDataMapper>        PolyDataMapper;
+  vtkSmartPointer<vtkPolyDataMapper>        NodeMapper;
+  vtkSmartPointer<vtkPolyDataMapper>        EdgeMapper;
   vtkSmartPointer<vtkRenderer>              Renderer;
-  vtkSmartPointer<vtkActor>                 Actor;
+  vtkSmartPointer<vtkActor>                 NodeActor;
+  vtkSmartPointer<vtkActor>                 EdgeActor;
   vtkSmartPointer<vtkActor2D>               LabelActor;
   vtkSmartPointer<vtkLookupTable>           ColorLUT;
   vtkSmartPointer<vtkLabeledDataMapper>     LabeledDataMapper;

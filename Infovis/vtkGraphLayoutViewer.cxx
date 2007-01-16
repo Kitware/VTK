@@ -25,17 +25,20 @@
 #include "vtkCellCenters.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
+#include "vtkEventForwarderCommand.h"
 #include "vtkForceDirectedLayoutStrategy.h"
 #include "vtkGeometryFilter.h"
 #include "vtkGraph.h"
 #include "vtkGraphLayout.h"
 #include "vtkGraphLayoutStrategy.h"
 #include "vtkGraphToPolyData.h"
+#include "vtkGlyph3D.h"
 #include "vtkInformation.h"
 #include "vtkInteractorStyleImage.h"
 #include "vtkLabeledDataMapper.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRandomLayoutStrategy.h"
 #include "vtkRenderer.h"
@@ -43,14 +46,15 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 #include "vtkTextProperty.h"
-#include <vtkThreshold.h>
-#include <vtkThresholdPoints.h>
-#include <vtkTreeLevelsFilter.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkEventForwarderCommand.h>
+#include "vtkThreshold.h"
+#include "vtkThresholdPoints.h"
+#include "vtkTreeLevelsFilter.h"
+#include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.11");
+
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.12");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -63,9 +67,13 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
   this->InteractorStyle       = vtkInteractorStyleImage::New();
   this->GraphLayout           = vtkSmartPointer<vtkGraphLayout>::New();
   this->GraphToPolyData       = vtkSmartPointer<vtkGraphToPolyData>::New();
-  this->PolyDataMapper        = vtkSmartPointer<vtkPolyDataMapper>::New();
+  this->NodeMapper            = vtkSmartPointer<vtkPolyDataMapper>::New();
+  this->EdgeMapper            = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->Renderer              = vtkSmartPointer<vtkRenderer>::New();
-  this->Actor                 = vtkSmartPointer<vtkActor>::New();
+  this->SphereSource          = vtkSmartPointer<vtkSphereSource>::New();
+  this->NodeGlyphs            = vtkSmartPointer<vtkGlyph3D>::New();
+  this->NodeActor             = vtkSmartPointer<vtkActor>::New();
+  this->EdgeActor             = vtkSmartPointer<vtkActor>::New();
   this->LabelActor            = vtkSmartPointer<vtkActor2D>::New();
   this->ColorLUT              = vtkSmartPointer<vtkLookupTable>::New();
   this->LabeledDataMapper     = vtkSmartPointer<vtkLabeledDataMapper>::New();
@@ -83,10 +91,13 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
   this->LabeledDataMapper->GetLabelTextProperty()->SetJustificationToCentered();
   this->LabeledDataMapper->GetLabelTextProperty()->SetFontSize(14);
   this->SetLayoutStrategy("Simple2D");
+  this->SphereSource->SetRadius(0.025);// Why? Given the current layout strategies
+                                       // seems to work pretty good just hardcoding
+  this->SphereSource->SetPhiResolution(8);
+  this->SphereSource->SetThetaResolution(8);
 
   // Okay setup the internal pipeline
   this->SetupPipeline();
-  
 
 }
 
@@ -208,14 +219,9 @@ void vtkGraphLayoutViewer::InputInitialize()
 
   // Pipeline setup
   this->GraphLayout->SetInput(this->Input);
-  this->Actor->VisibilityOn();
+  this->NodeActor->VisibilityOn();
+  this->EdgeActor->VisibilityOn();
   this->LabelActor->VisibilityOff(); // Defaulted to off
-  
-  // Get and set the range of data for this mapper
-  double range[2]; 
-  this->GraphToPolyData->Update();
-  this->GraphToPolyData->GetOutput()->GetScalarRange(range);
-  this->PolyDataMapper->SetScalarRange( range[0], range[1] );
  
   if (this->RenderWindow)
     {
@@ -267,15 +273,26 @@ void vtkGraphLayoutViewer::SetupPipeline()
   // When SetInput() is called by the application
   // the input is set and the actors are turned on
   this->GraphLayout->SetInput(NULL);
-  this->Actor->VisibilityOff();
+  this->NodeActor->VisibilityOff();
+  this->EdgeActor->VisibilityOff();
   this->LabelActor->VisibilityOff();
   
-  // Send graph to poly data filter and mapper
+  // Send graph to poly data filter
   this->GraphToPolyData->SetInputConnection(0, 
     this->GraphLayout->GetOutputPort(0)); 
-  this->PolyDataMapper->SetLookupTable(ColorLUT);
-  this->PolyDataMapper->SetInputConnection(0, 
-    this->GraphToPolyData->GetOutputPort(0));
+    
+  // Now give poly data to the node glyphs
+  this->NodeGlyphs->SetInputConnection(0, this->GraphToPolyData->GetOutputPort(0));
+  this->NodeGlyphs->SetInputConnection(1, this->SphereSource->GetOutputPort(0));
+  this->NodeGlyphs->ScalingOff();
+  this->NodeMapper->SetLookupTable(ColorLUT);
+  this->NodeMapper->SetScalarRange( 0, 1 );
+  this->NodeMapper->SetInputConnection(0, this->NodeGlyphs->GetOutputPort(0));
+  
+  // Now give poly data to the edge mapper
+  this->EdgeMapper->SetLookupTable(ColorLUT);
+  this->EdgeMapper->SetScalarRange( 0, 1 );
+  this->EdgeMapper->SetInputConnection(0, this->GraphToPolyData->GetOutputPort(0));
                                            
   // Labels
   this->LabeledDataMapper->SetInputConnection(GraphToPolyData->GetOutputPort());
@@ -283,21 +300,49 @@ void vtkGraphLayoutViewer::SetupPipeline()
   this->LabelActor->SetMapper(this->LabeledDataMapper);
   
   // Actor setup
-  this->Actor->SetMapper(this->PolyDataMapper);
-  this->Renderer->AddActor(this->Actor);
+  this->NodeActor->SetMapper(this->NodeMapper);
+  this->EdgeActor->SetMapper(this->EdgeMapper);
+  this->Renderer->AddActor(this->NodeActor);
+  this->Renderer->AddActor(this->EdgeActor);
   this->Renderer->AddActor(this->LabelActor); 
 
 }
 
 
-void vtkGraphLayoutViewer::SetColorFieldName(const char *field)
+void vtkGraphLayoutViewer::SetNodeColorFieldName(const char *field)
 {
   // Sanity Check
   if (!strcmp(field,"")) return;
   if (!strcmp(field,"No Filter")) return;
   
-  this->PolyDataMapper->SetScalarModeToUseCellFieldData();
-  this->PolyDataMapper->SelectColorArray(field);
+  this->NodeMapper->SetScalarModeToUsePointFieldData();
+  this->NodeMapper->SelectColorArray(field);
+  
+  // Okay now get the range of the data field
+  double range[2]; 
+  this->GraphToPolyData->Update();
+  vtkDataArray *array =
+    this->GraphToPolyData->GetOutput()->GetPointData()->GetArray(field);
+  if (array)
+    {
+    array->GetRange(range);
+    this->NodeMapper->SetScalarRange( range[0], range[1] );
+    } 
+
+  if (this->RenderWindow)
+    {
+    this->RenderWindow->GetInteractor()->Render();
+    }
+}
+
+void vtkGraphLayoutViewer::SetArcColorFieldName(const char *field)
+{
+  // Sanity Check
+  if (!strcmp(field,"")) return;
+  if (!strcmp(field,"No Filter")) return;
+  
+  this->EdgeMapper->SetScalarModeToUseCellFieldData();
+  this->EdgeMapper->SelectColorArray(field);
   
   // Okay now get the range of the data field
   double range[2]; 
@@ -307,7 +352,7 @@ void vtkGraphLayoutViewer::SetColorFieldName(const char *field)
   if (array)
     {
     array->GetRange(range);
-    this->PolyDataMapper->SetScalarRange( range[0], range[1] );
+    this->EdgeMapper->SetScalarRange( range[0], range[1] );
     } 
 
   if (this->RenderWindow)
@@ -316,9 +361,14 @@ void vtkGraphLayoutViewer::SetColorFieldName(const char *field)
     }
 }
 
-char* vtkGraphLayoutViewer::GetColorFieldName()
+char* vtkGraphLayoutViewer::GetNodeColorFieldName()
 {
-  return this->PolyDataMapper->GetArrayName();
+  return this->NodeMapper->GetArrayName();
+}
+
+char* vtkGraphLayoutViewer::GetArcColorFieldName()
+{
+  return this->EdgeMapper->GetArrayName();
 }
 
 
@@ -428,22 +478,34 @@ void vtkGraphLayoutViewer::PrintSelf(ostream& os, vtkIndent indent)
     this->RenderWindow->PrintSelf(os,indent.GetNextIndent());
     }
   
-  os << indent << "PolyDataMapper: " << (this->PolyDataMapper ? "" : "(none)") << endl;
-  if (this->PolyDataMapper)
+  os << indent << "NodeMapper: " << (this->NodeMapper ? "" : "(none)") << endl;
+  if (this->NodeMapper)
     {
-    this->PolyDataMapper->PrintSelf(os,indent.GetNextIndent()); 
+    this->NodeMapper->PrintSelf(os,indent.GetNextIndent()); 
     }
     
+  os << indent << "SphereSource: " << (this->SphereSource ? "" : "(none)") << endl;
+  if (this->SphereSource)
+    {
+    this->SphereSource->PrintSelf(os,indent.GetNextIndent()); 
+    }
+    
+  os << indent << "NodeGlyphs: " << (this->NodeGlyphs ? "" : "(none)") << endl;
+  if (this->NodeGlyphs)
+    {
+    this->NodeGlyphs->PrintSelf(os,indent.GetNextIndent()); 
+    }
+      
   os << indent << "Renderer: " << (this->Renderer ? "" : "(none)") << endl;
   if (this->Renderer)
     {
     this->Renderer->PrintSelf(os,indent.GetNextIndent());
     }
   
-  os << indent << "Actor: " << (this->Actor ? "" : "(none)") << endl;
-  if (this->Actor && this->Input)
+  os << indent << "NodeActor: " << (this->NodeActor ? "" : "(none)") << endl;
+  if (this->NodeActor && this->Input)
     {
-    this->Actor->PrintSelf(os,indent.GetNextIndent());
+    this->NodeActor->PrintSelf(os,indent.GetNextIndent());
     }
   
   os << indent << "InteractorStyle: " << (this->InteractorStyle ? "" : "(none)") << endl;
