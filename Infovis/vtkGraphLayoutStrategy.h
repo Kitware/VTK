@@ -68,12 +68,17 @@ public:
   virtual int IsLayoutComplete() {return 1;}
   
   
+  // Description:
+  // Set/Get the field to use for the arc weights.
+  vtkSetStringMacro(ArcWeightField);
+  vtkGetStringMacro(ArcWeightField);
 
 protected:
   vtkGraphLayoutStrategy();
   ~vtkGraphLayoutStrategy();
   
   vtkAbstractGraph *Graph;
+  char*  ArcWeightField;
 
 private:
 

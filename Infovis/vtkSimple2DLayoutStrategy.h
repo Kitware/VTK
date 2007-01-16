@@ -41,10 +41,6 @@ public:
   vtkTypeRevisionMacro(vtkSimple2DLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set/Get the field to use for the arc weights.
-  vtkSetStringMacro(ArcWeightField);
-  vtkGetStringMacro(ArcWeightField);
 
   // Description:
   // Set/Get the maximum number of iterations to be used.
@@ -108,7 +104,7 @@ protected:
   int    MaxNumberOfIterations;  //Maximum number of iterations.
   float  InitialTemperature;
   float  CoolDownRate;  //Cool-down rate.  Note:  Higher # = Slower rate.
-  char*  ArcWeightField;
+
 private:
 
   //BTX

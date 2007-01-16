@@ -20,7 +20,7 @@
 
 #include "vtkAbstractGraph.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkGraphLayoutStrategy, "1.3");
 
 void vtkGraphLayoutStrategy::SetGraph(vtkAbstractGraph *graph)
 {
@@ -62,4 +62,5 @@ void vtkGraphLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->Graph->PrintSelf(os, indent.GetNextIndent());
     }
+  os << indent << "ArcWeightField: " << (this->ArcWeightField ? this->ArcWeightField : "(none)") << endl;
 }
