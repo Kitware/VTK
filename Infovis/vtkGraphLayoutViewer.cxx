@@ -54,7 +54,7 @@
 #include "vtkUnstructuredGrid.h"
 
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.13");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.14");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -134,19 +134,25 @@ int vtkGraphLayoutViewer::GetFontSize()
 
 void vtkGraphLayoutViewer::SetLabelFieldName(const char *field)
 {
+  // Set the field name
+  this->LabeledDataMapper->SetFieldDataName(field); 
+  
   // We need to check the type of the array and
   // set the string format based on the type
-  vtkAbstractArray* abstract = 
-    this->GraphToPolyData->GetOutput()->GetPointData()->GetAbstractArray(field);
+  vtkPolyData *poly = this->GraphToPolyData->GetOutput();
+  
+  // Does GraphToPolyData have any output
+  if (poly == NULL)
+    {
+    return;
+    }
+  vtkAbstractArray* abstract = poly->GetPointData()->GetAbstractArray(field);
   
   // Does the array exist at all?  
   if (abstract == NULL)
     {
     return;
     }
-     
-  // Set the field name
-  this->LabeledDataMapper->SetFieldDataName(field); 
     
   // Okay now what type of array is it
   if (vtkDataArray::SafeDownCast(abstract))
