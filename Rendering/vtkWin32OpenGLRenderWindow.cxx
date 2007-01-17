@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkOpenGL.h"
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.142");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.142.2.1");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -58,6 +58,7 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 
   this->ScreenDeviceContext = (HDC)0;
   this->MemoryHdc = (HDC)0;
+  this->CreatingOffScreenWindow=0;
 }
 
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
@@ -249,19 +250,15 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
 
     if (this->OffScreenRendering)
       {
-      if (!resizing)
+      if(!this->CreatingOffScreenWindow)
         {
-        resizing = 1;
-        this->CleanUpOffScreenRendering();
-        this->CreateOffScreenWindow(x,y);
-#ifdef UNICODE
-        HDC dc = CreateDC(L"DISPLAY", 0, 0, 0);
-#else
-        HDC dc = CreateDC("DISPLAY", 0, 0, 0);
-#endif
-        this->CreateOffScreenDC(x, y, dc);
-        DeleteDC(dc);
-        resizing = 0;
+        if (!resizing)
+          {
+          resizing = 1;
+          this->CleanUpOffScreenRendering();
+          this->CreateOffScreenWindow(x,y);
+          resizing = 0;
+          }
         }
       }
     
@@ -1237,6 +1234,8 @@ void vtkWin32OpenGLRenderWindow::SaveScreenRendering()
 void vtkWin32OpenGLRenderWindow::CreateOffScreenWindow(int width,
                                                        int height)
 {
+  int status=this->CreatingOffScreenWindow;
+  this->CreatingOffScreenWindow=1;
   if(!this->CreateHardwareOffScreenWindow(width,height))
     {
 #ifdef UNICODE
@@ -1247,6 +1246,7 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenWindow(int width,
     this->CreateOffScreenDC(width,height,dc);
     DeleteDC(dc);
     }
+  this->CreatingOffScreenWindow=status;
 } 
 
 void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(int xsize, int ysize,
