@@ -893,10 +893,11 @@ public:
   // Parse the XML input.
   virtual int Parse()
     {
-      this->Superclass::Parse();
+      int retVal = this->Superclass::Parse();
       this->PartNumber="";
       this->InstanceNumber="";
       this->ParseMaterials=0;
+      return retVal;
     }
   
   virtual vtkStdString GetPartNumber(int block)
@@ -1328,7 +1329,7 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.36");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.37");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1493,7 +1494,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.36");
+vtkCxxRevisionMacro(vtkExodusReader, "1.37");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
