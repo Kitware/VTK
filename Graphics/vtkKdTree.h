@@ -516,6 +516,11 @@ public:
 
   static vtkKdNode *CopyTree(vtkKdNode *kd);
 
+  // Description:
+  // Fill ids with points found in area.  The area is a 6-tuple containing
+  // (xmin, xmax, ymin, ymax, zmin, zmax).
+  void FindPointsInArea(double* area, vtkIdTypeArray* ids);
+
 protected:
 
   vtkKdTree();
@@ -623,6 +628,7 @@ protected:
   // Set/Get the execution progress of a process object.
   vtkSetClampMacro(Progress,double,0.0,1.0);
   vtkGetMacro(Progress,double);
+
 protected:
   // So that each suboperation can report progress
   // in [0,1], yet we will be able to report a global 
@@ -644,6 +650,12 @@ private:
   static void ZeroNumberOfPoints(vtkKdNode *kd);
 
 //BTX
+  // Recursive helper for public FindPointsInArea
+  void FindPointsInArea(vtkKdNode* node, double* area, vtkIdTypeArray* ids);
+
+  // Recursive helper for public FindPointsInArea
+  void AddAllPointsInRegion(vtkKdNode* node, vtkIdTypeArray* ids);
+
   int DivideRegion(vtkKdNode *kd, float *c1, int *ids, int nlevels);
 
   void DoMedianFind(vtkKdNode *kd, float *c1, int *ids, int d1, int d2, int d3);

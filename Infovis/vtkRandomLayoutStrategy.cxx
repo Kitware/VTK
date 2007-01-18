@@ -31,7 +31,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkRandomLayoutStrategy, "1.1");
+vtkCxxRevisionMacro(vtkRandomLayoutStrategy, "1.2");
 vtkStandardNewMacro(vtkRandomLayoutStrategy);
 
 vtkRandomLayoutStrategy::vtkRandomLayoutStrategy()
@@ -51,6 +51,11 @@ vtkRandomLayoutStrategy::~vtkRandomLayoutStrategy()
 void vtkRandomLayoutStrategy::Layout() {}; 
 void vtkRandomLayoutStrategy::SetGraph(vtkAbstractGraph *graph)
 {
+  if (graph == NULL)
+    {
+    return;
+    }
+
   // Generate bounds automatically if necessary. It's the same
   // as the graph bounds.
   if ( this->AutomaticBoundsComputation )
