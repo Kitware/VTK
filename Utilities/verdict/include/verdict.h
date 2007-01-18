@@ -273,6 +273,12 @@ struct TetMetricVals
 */
 struct TriMetricVals
 {
+  /** \sa v_tri_edge_ratio */
+  VERDICT_REAL edge_ratio ;
+  /** \sa v_tri_aspect_ratio */
+  VERDICT_REAL aspect_ratio ;
+  /** \sa v_tri_radius_ratio */
+  VERDICT_REAL radius_ratio ;
   /** \sa v_tri_aspect_frobenius */
   VERDICT_REAL aspect_frobenius ;
   /** \sa v_tri_area*/
@@ -445,7 +451,7 @@ struct TriMetricVals
 //! \name Tri bit fields
 //! 
 //@{
-#define V_TRI_ASPECT_FROBENIUS                 1   /*!< \hideinitializer */
+#define V_TRI_ASPECT_FROBENIUS       1   /*!< \hideinitializer */
 #define V_TRI_AREA                   2   /*!< \hideinitializer */
 #define V_TRI_MINIMUM_ANGLE          4   /*!< \hideinitializer */
 #define V_TRI_MAXIMUM_ANGLE          8   /*!< \hideinitializer */
@@ -455,7 +461,9 @@ struct TriMetricVals
 #define V_TRI_RELATIVE_SIZE_SQUARED  128   /*!< \hideinitializer */
 #define V_TRI_SHAPE_AND_SIZE         256   /*!< \hideinitializer */
 #define V_TRI_DISTORTION             512   /*!< \hideinitializer */
-#define V_TRI_ALL                    1023   /*!< \hideinitializer */
+#define V_TRI_RADIUS_RATIO           1024   /*!< \hideinitializer */
+#define V_TRI_EDGE_RATIO             2048   /*!< \hideinitializer */
+#define V_TRI_ALL                    4095   /*!< \hideinitializer */
 /*!< \hideinitializer */
 #define V_TRI_TRADITIONAL            V_TRI_ASPECT_FROBENIUS + \
                                      V_TRI_MINIMUM_ANGLE + \
@@ -914,7 +922,25 @@ struct TriMetricVals
     C_FUNC_DEF void v_set_tri_normal_func( ComputeNormal func );
 
     //! Calculates tri metric.
-    /**  */
+    /** edge ratio
+        Reference --- P. P. Pebay & T. J. Baker, Analysis of Triangle Quality
+        Measures, AMS Math. Comp., 2003, 72(244):1817-1839 */
+    C_FUNC_DEF VERDICT_REAL v_tri_edge_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+
+    //! Calculates tri metric.
+    /** aspect ratio
+        Reference --- P. P. Pebay & T. J. Baker, Analysis of Triangle Quality
+        Measures, AMS Math. Comp., 2003, 72(244):1817-1839 */
+    C_FUNC_DEF VERDICT_REAL v_tri_aspect_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+
+    //! Calculates tri metric.
+    /** radius ratio
+        Reference --- P. P. Pebay & T. J. Baker, Analysis of Triangle Quality
+        Measures, AMS Math. Comp., 2003, 72(244):1817-1839 */
+    C_FUNC_DEF VERDICT_REAL v_tri_radius_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+
+    //! Calculates tri metric.
+    /** Frobenius aspect */
     C_FUNC_DEF VERDICT_REAL v_tri_aspect_frobenius( int num_nodes, VERDICT_REAL coordinates[][3] ); 
 
     //! Calculates tri metric.

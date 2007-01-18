@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.38");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.39");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );
@@ -843,214 +843,62 @@ int vtkMeshQuality::GetCurrentTriangleNormal( double point[3], double normal[3] 
 
 double vtkMeshQuality::TriangleEdgeRatio( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3];
-  double a[3],b[3],c[3];
-  double a2,b2,c2,m2,M2;
- 
+  double pc[3][3];
+
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
+  p->GetPoint(0, pc[0]);
+  p->GetPoint(1, pc[1]);
+  p->GetPoint(2, pc[2]);
 
-  a[0] = p1[0] - p0[0];
-  a[1] = p1[1] - p0[1];
-  a[2] = p1[2] - p0[2];
- 
-  b[0] = p2[0] - p1[0];
-  b[1] = p2[1] - p1[1];
-  b[2] = p2[2] - p1[2];
- 
-  c[0] = p2[0] - p0[0];
-  c[1] = p2[1] - p0[1];
-  c[2] = p2[2] - p0[2];
- 
-  a2 = vtkMath::Dot(a,a);
-  b2 = vtkMath::Dot(b,b);
-  c2 = vtkMath::Dot(c,c);
-
-  if ( a2 < b2 )
-    {
-    if ( b2 < c2 )
-      {
-        m2 = a2;
-        M2 = c2;
-      }
-    else // b2 <= a2
-      {
-      if ( a2 < c2 )
-        {
-        m2 = a2;
-        M2 = b2;
-        }
-      else // c2 <= a2
-        {
-          m2 = c2;
-          M2 = b2;
-        }
-      }
-    }
-  else // b2 <= a2
-    {
-    if ( a2 < c2 )
-      {
-        m2 = b2;
-        M2 = c2;
-      }
-    else // c2 <= a2
-      {
-      if ( b2 < c2 )
-        {
-          m2 = b2;
-          M2 = a2;
-        }
-      else // c2 <= b2
-        {
-          m2 = c2;
-          M2 = a2;
-        }
-      }
-    }
-
-  return sqrt(M2 / m2);
+  return v_tri_edge_ratio( 3, pc );
 }
 
 double vtkMeshQuality::TriangleAspectRatio( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3];
-  double a[3],b[3],c[3];
-  double a1,b1,c1,hm;
-  const double normal_coeff = sqrt( 3. ) / 6.;
- 
+  double pc[3][3];
+
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
+  p->GetPoint(0, pc[0]);
+  p->GetPoint(1, pc[1]);
+  p->GetPoint(2, pc[2]);
 
-  a[0] = p1[0] - p0[0];
-  a[1] = p1[1] - p0[1];
-  a[2] = p1[2] - p0[2];
- 
-  b[0] = p2[0] - p1[0];
-  b[1] = p2[1] - p1[1];
-  b[2] = p2[2] - p1[2];
- 
-  c[0] = p2[0] - p0[0];
-  c[1] = p2[1] - p0[1];
-  c[2] = p2[2] - p0[2];
- 
-  a1 = sqrt(vtkMath::Dot(a,a));
-  b1 = sqrt(vtkMath::Dot(b,b));
-  c1 = sqrt(vtkMath::Dot(c,c));
-
-  hm = a1 > b1 ? a1 : b1;
-  hm = hm > c1 ? hm : c1;
-
-  vtkMath::Cross(a,b,c);
-
-  return normal_coeff * hm * (a1 + b1 + c1) / vtkMath::Norm(c);
+  return v_tri_aspect_ratio( 3, pc );
 }
 
 double vtkMeshQuality::TriangleRadiusRatio( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3];
-  double a[3],b[3],c[3];
-  double a1,b1,c1,ab;
- 
+  double pc[3][3];
+
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
+  p->GetPoint(0, pc[0]);
+  p->GetPoint(1, pc[1]);
+  p->GetPoint(2, pc[2]);
 
-  a[0] = p1[0] - p0[0];
-  a[1] = p1[1] - p0[1];
-  a[2] = p1[2] - p0[2];
- 
-  b[0] = p2[0] - p1[0];
-  b[1] = p2[1] - p1[1];
-  b[2] = p2[2] - p1[2];
- 
-  c[0] = p2[0] - p0[0];
-  c[1] = p2[1] - p0[1];
-  c[2] = p2[2] - p0[2];
- 
-  a1 = sqrt(vtkMath::Dot(a,a));
-  b1 = sqrt(vtkMath::Dot(b,b));
-  c1 = sqrt(vtkMath::Dot(c,c));
-
-  vtkMath::Cross(a,b,c);
-  ab = vtkMath::Norm(c);
-
-  return .25 * a1 * b1 * c1 * (a1 + b1 + c1) / (ab * ab);
+  return v_tri_radius_ratio( 3, pc );
 }
 
 double vtkMeshQuality::TriangleAspectFrobenius( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3];
-  double a[3],b[3],c[3];
-  double t22;
-  const double normal_coeff = .5 / sqrt(3.);
- 
+  double pc[3][3];
+
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
+  p->GetPoint(0, pc[0]);
+  p->GetPoint(1, pc[1]);
+  p->GetPoint(2, pc[2]);
 
-  a[0] = p1[0] - p0[0];
-  a[1] = p1[1] - p0[1];
-  a[2] = p1[2] - p0[2];
- 
-  b[0] = p2[0] - p1[0];
-  b[1] = p2[1] - p1[1];
-  b[2] = p2[2] - p1[2];
- 
-  c[0] = p2[0] - p0[0];
-  c[1] = p2[1] - p0[1];
-  c[2] = p2[2] - p0[2];
- 
-  t22  = vtkMath::Dot(a,a);
-  t22 += vtkMath::Dot(b,b);
-  t22 += vtkMath::Dot(c,c);
-
-  vtkMath::Cross(a,b,c);
-
-  return normal_coeff * t22 / vtkMath::Norm(c);
+  return v_tri_aspect_frobenius( 3, pc );
 }
 
 double vtkMeshQuality::TriangleMinAngle( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3];
-  double a[3],b[3],c[3];
-  double a2,b2,c2,alpha,beta,gamma;
-  const double normal_coeff = .3183098861837906715377675267450287;
+  double pc[3][3];
 
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
+  p->GetPoint(0, pc[0]);
+  p->GetPoint(1, pc[1]);
+  p->GetPoint(2, pc[2]);
 
-  a[0] = p1[0] - p0[0];
-  a[1] = p1[1] - p0[1];
-  a[2] = p1[2] - p0[2];
- 
-  b[0] = p2[0] - p1[0];
-  b[1] = p2[1] - p1[1];
-  b[2] = p2[2] - p1[2];
- 
-  c[0] = p2[0] - p0[0];
-  c[1] = p2[1] - p0[1];
-  c[2] = p2[2] - p0[2];
- 
-  a2 = vtkMath::Dot(a,a);
-  b2 = vtkMath::Dot(b,b);
-  c2 = vtkMath::Dot(c,c);
-
-  alpha = acos(vtkMath::Dot(b,c) / sqrt(b2 * c2));
-  beta  = acos(vtkMath::Dot(c,a) / sqrt(c2 * a2));
-  gamma = acos(vtkMath::Dot(a,b) / sqrt(a2 * b2));
-
-  alpha = alpha < beta ? alpha : beta;
-
-  return  (alpha < gamma ? alpha : gamma) * 180. * normal_coeff;
+  return v_tri_minimum_angle( 3, pc );
 }
 
 double vtkMeshQuality::TriangleMaxAngle( vtkCell* cell )
@@ -2703,4 +2551,3 @@ double vtkMeshQuality::HexDistortion( vtkCell* cell )
 
   return v_hex_distortion( 8, pc );
 }
-

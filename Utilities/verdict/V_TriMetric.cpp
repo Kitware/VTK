@@ -2,7 +2,7 @@
 
   Module:    V_TriMetric.cpp
 
-  Copyright (c) 2006 Sandia Corporation.
+  Copyright (c) 2007 Sandia Corporation.
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
@@ -71,13 +71,199 @@ C_FUNC_DEF void v_set_tri_normal_func( ComputeNormal func )
   compute_normal = func;
 }
 
+/*!
+   the edge ratio of a triangle
 
+   NB (P. Pebay 01/14/07): 
+     Hmax / Hmin where Hmax and Hmin are respectively the maximum and the
+     minimum edge lengths
+
+*/
+C_FUNC_DEF VERDICT_REAL v_tri_edge_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+
+  // three vectors for each side 
+  VerdictVector a( coordinates[1][0] - coordinates[0][0],
+                   coordinates[1][1] - coordinates[0][1],
+                   coordinates[1][2] - coordinates[0][2] );
+  
+  VerdictVector b( coordinates[2][0] - coordinates[1][0],
+                   coordinates[2][1] - coordinates[1][1],
+                   coordinates[2][2] - coordinates[1][2] );
+  
+  VerdictVector c( coordinates[0][0] - coordinates[2][0],
+                   coordinates[0][1] - coordinates[2][1],
+                   coordinates[0][2] - coordinates[2][2] );
+
+  double a2 = a.length_squared();
+  double b2 = b.length_squared();
+  double c2 = c.length_squared();
+ 
+  double m2, M2;
+  if ( a2 < b2 )
+    {
+      if ( b2 < c2 )
+        {
+          m2 = a2;
+          M2 = c2;
+        }
+      else // b2 <= a2
+        {
+          if ( a2 < c2 )
+            {
+              m2 = a2;
+              M2 = b2;
+            }
+          else // c2 <= a2
+            {
+              m2 = c2;
+              M2 = b2;
+            }
+        }
+    }
+  else // b2 <= a2
+    {
+      if ( a2 < c2 )
+        {
+          m2 = b2;
+          M2 = c2;
+        }
+      else // c2 <= a2
+        {
+          if ( b2 < c2 )
+            {
+              m2 = b2;
+              M2 = a2;
+            }
+          else // c2 <= b2
+            {
+              m2 = c2;
+              M2 = a2;
+            }
+        }
+    }
+
+  if( m2 < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+  else
+  {
+    double edge_ratio;
+    edge_ratio = sqrt(M2 / m2);
+    
+    if( edge_ratio > 0 )
+      return (VERDICT_REAL) VERDICT_MIN( edge_ratio, VERDICT_DBL_MAX );
+    return (VERDICT_REAL) VERDICT_MAX( edge_ratio, -VERDICT_DBL_MAX );
+  }
+
+}
 
 /*!
-   the aspect ratio of a tri
+   the aspect ratio of a triangle
+
+   NB (P. Pebay 01/14/07): 
+     Hmax / ( 2.0 * sqrt(3.0) * IR) where Hmax is the maximum edge length 
+     and IR is the inradius
+
+     note that previous incarnations of verdict used "v_tri_aspect_ratio" to denote
+     what is now called "v_tri_aspect_frobenius"
+   
+*/
+C_FUNC_DEF VERDICT_REAL v_tri_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+  static const double normal_coeff = sqrt( 3. ) / 6.;
+
+  // three vectors for each side 
+  VerdictVector a( coordinates[1][0] - coordinates[0][0],
+                   coordinates[1][1] - coordinates[0][1],
+                   coordinates[1][2] - coordinates[0][2] );
+  
+  VerdictVector b( coordinates[2][0] - coordinates[1][0],
+                   coordinates[2][1] - coordinates[1][1],
+                   coordinates[2][2] - coordinates[1][2] );
+  
+  VerdictVector c( coordinates[0][0] - coordinates[2][0],
+                   coordinates[0][1] - coordinates[2][1],
+                   coordinates[0][2] - coordinates[2][2] );
+
+  double a1 = a.length();
+  double b1 = b.length();
+  double c1 = c.length();
+ 
+  double hm = a1 > b1 ? a1 : b1;
+  hm = hm > c1 ? hm : c1;
+
+  VerdictVector ab = a * b;
+  double denominator = ab.length();
+
+  if( denominator < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+  else
+  {
+    double aspect_ratio;
+    aspect_ratio = normal_coeff * hm * (a1 + b1 + c1) / denominator;
+    
+    if( aspect_ratio > 0 )
+      return (VERDICT_REAL) VERDICT_MIN( aspect_ratio, VERDICT_DBL_MAX );
+    return (VERDICT_REAL) VERDICT_MAX( aspect_ratio, -VERDICT_DBL_MAX );
+  }
+
+}
+
+/*!
+   the radius ratio of a triangle
+
+   NB (P. Pebay 01/13/07): 
+     CR / (3.0*IR) where CR is the circumradius and IR is the inradius
+
+     this quality metric is also known to VERDICT, for tetrahedral elements only,
+     a the "aspect beta"
+   
+*/
+C_FUNC_DEF VERDICT_REAL v_tri_radius_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+
+  // three vectors for each side 
+  VerdictVector a( coordinates[1][0] - coordinates[0][0],
+                   coordinates[1][1] - coordinates[0][1],
+                   coordinates[1][2] - coordinates[0][2] );
+  
+  VerdictVector b( coordinates[2][0] - coordinates[1][0],
+                   coordinates[2][1] - coordinates[1][1],
+                   coordinates[2][2] - coordinates[1][2] );
+  
+  VerdictVector c( coordinates[0][0] - coordinates[2][0],
+                   coordinates[0][1] - coordinates[2][1],
+                   coordinates[0][2] - coordinates[2][2] );
+
+  double a2 = a.length_squared();
+  double b2 = b.length_squared();
+  double c2 = c.length_squared();
+ 
+  VerdictVector ab = a * b;
+  double denominator = ab.length_squared();
+
+  if( denominator < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+  else
+  {
+    double radius_ratio;
+    radius_ratio = .25 * a2 * b2 * c2 * ( a2 + b2 + c2 ) / denominator;
+    
+    if( radius_ratio > 0 )
+      return (VERDICT_REAL) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
+    return (VERDICT_REAL) VERDICT_MAX( radius_ratio, -VERDICT_DBL_MAX );
+  }
+
+}
+
+/*!
+   the Frobenius aspect of a tri
 
    srms^2/(2 * sqrt(3.0) * area)
    where srms^2 is sum of the lengths squared
+
+   NB (P. Pebay 01/14/07): 
+     this method was called "aspect ratio" in earlier incarnations of VERDICT
    
 */
 
@@ -1001,6 +1187,3 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, VERDICT_REAL coordinates[][3],
   else
     metric_vals->distortion = (VERDICT_REAL) VERDICT_MAX( metric_vals->distortion, -VERDICT_DBL_MAX );
 }
-
-
-

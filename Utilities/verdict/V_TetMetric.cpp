@@ -133,9 +133,11 @@ C_FUNC_DEF VERDICT_REAL v_tet_scaled_jacobian( int /*num_nodes*/, VERDICT_REAL c
 }
 
 /*!
-  the radius ratio of a tet
+  The radius ratio of a tet
 
   CR / (3.0*IR) where CR is the circumsphere radius and IR is the inscribed sphere radius
+  NB (P. Pebay 01/17/07):
+    this method was know in earlier incarnations of VERDICT as "v_tet_aspect_beta"
 */
 C_FUNC_DEF VERDICT_REAL v_tet_radius_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
 {
@@ -194,8 +196,8 @@ C_FUNC_DEF VERDICT_REAL v_tet_radius_ratio( int /*num_nodes*/, VERDICT_REAL coor
 }
 
 /*!
-  the radius ratio of a tet, a.k.a. "aspect beta"
-  NB (P.Pebay 11/28/06): 
+  The radius ratio of a tet, a.k.a. "aspect beta"
+  NB (P. Pebay 11/28/06): 
      this method is maintained for backwards compatibility only.
      It will become deprecated at some point.
 
