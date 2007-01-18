@@ -864,7 +864,6 @@ private:
   vtkstd::map<vtkStdString,vtkStdString> PartDescriptions;
   vtkstd::vector<vtkStdString> MaterialNames;
   vtkstd::vector<vtkStdString> BlockNames;
-  char* Filename;
   vtkStdString PartNumber;
   vtkStdString InstanceNumber;
   int ParseMaterials;
@@ -886,17 +885,19 @@ private:
   vtkstd::map<vtkStdString,int> apbIndents;
 
 public:
-  
-  vtkExodusXMLParser(char* filename)
-  {
-    this->SetFileName(filename);
-    this->Parse();
-    this->PartNumber="";
-    this->InstanceNumber="";
-    this->ParseMaterials=0;
-  }
-  
-  virtual ~vtkExodusXMLParser() {}
+  vtkTypeRevisionMacro(vtkExodusXMLParser,vtkXMLParser);
+
+  static vtkExodusXMLParser* New();
+
+  // Description:
+  // Parse the XML input.
+  virtual int Parse()
+    {
+      this->Superclass::Parse();
+      this->PartNumber="";
+      this->InstanceNumber="";
+      this->ParseMaterials=0;
+    }
   
   virtual vtkStdString GetPartNumber(int block)
   {
@@ -950,6 +951,19 @@ public:
   }
   
 protected: 
+  vtkExodusXMLParser()
+  {
+    this->FileName = 0;
+    this->PartNumber="";
+    this->InstanceNumber="";
+    this->ParseMaterials=0;
+  }
+  
+  virtual ~vtkExodusXMLParser() 
+    {
+      this->SetFileName(0);
+    }
+  
   virtual void StartElement(const char* tname, const char** attrs)
   { 
     const char* name=strrchr(tname,':');
@@ -1314,6 +1328,8 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.36");
+vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
 // char ** pointer to the exodus function
@@ -1477,7 +1493,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.35");
+vtkCxxRevisionMacro(vtkExodusReader, "1.36");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -1654,10 +1670,11 @@ vtkExodusReader::~vtkExodusReader()
   //end USE_EXO_DSP_FILTERS
 
 
-  if (this->Parser){
-  this->Parser->Delete();
-  this->Parser=NULL;
-  }
+  if (this->Parser)
+    {
+    this->Parser->Delete();
+    this->Parser=NULL;
+    }
 
   delete this->MetaData;
 
@@ -2339,7 +2356,9 @@ int vtkExodusReader::RequestInformation(
     if (this->XMLFileName)
       {
       //cout << "parsing: " << this->XMLFileName << endl;
-      this->Parser=new vtkExodusXMLParser(this->XMLFileName);
+      this->Parser = vtkExodusXMLParser::New();
+      this->Parser->SetFileName(this->XMLFileName);
+      this->Parser->Parse();
       }
   
     // The filename is different so we need to open the file
