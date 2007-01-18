@@ -17,9 +17,9 @@
 
 // vtkSelection is a node of a tree data structure used to store
 // selection results. Each node in this tree stores a list of properties
-// (as a vtkInformation map) and a list of selection values (as a
+// (in a vtkInformation) and a list of selection values (in a
 // vtkAbstractArray). The properties provide information about what the
-// selection values mean. For example, if the CONTENT_TYPE properties gives
+// selection values mean. For example the CONTENT_TYPE property gives
 // information about what is stored by the node. If the CONTENT_TYPE is
 // SELECTIONS, the node is used as a parent node that contains other
 // vtkSelections and does not usually contain any selection values. If
@@ -28,8 +28,8 @@
 // one data object. SOURCE or SOURCE_ID properties point to this object. If
 // the selection was performed on a renderer, PROP or PROP_ID point to the
 // prop the selection was made on. Selection nodes corresponding to
-// composite datasets may contain child nodes. Each childe node of a
-// composite dataset should have GROUP and BLOCK set. This was, the pointer
+// composite datasets may contain child nodes. Each child node of a
+// composite dataset should have GROUP and BLOCK set. This way, the pointer
 // to the composite dataset can be obtained from the parent of a block
 // node. The pointer to the block can be obtained from the composite
 // dataset using GROUP and BLOCK.  
