@@ -138,6 +138,7 @@ private:
   stringVector * FaceZoneNames;
   stringVector * CellZoneNames;
   int NumBlocks;
+
   void CombineOwnerNeigbor();
   vtkUnstructuredGrid * MakeInternalMesh();
   double ControlDictDataParser(const char *);
@@ -157,6 +158,7 @@ private:
   vtkUnstructuredGrid * GetFaceZoneMesh(int, int);
   vtkUnstructuredGrid * GetCellZoneMesh(int, int);
   void CreateDataSet(vtkMultiBlockDataSet *);
+  stdString * GetLine(ifstream *);
 };
 
 #endif
