@@ -126,6 +126,9 @@ ENDIF(CMAKE_SYSTEM MATCHES "SunOS.*")
 # Create the pvtkpython Python wrapper executable with MPI support.
 IF (VTK_USE_PARALLEL)
   IF (VTK_USE_MPI)
+    # Needed for mpich 2
+    ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")
+
     ADD_EXECUTABLE(pvtkpython vtkParaPythonAppInit.cxx)
     IF(CMAKE_SYSTEM_NAME MATCHES "AIX")
       SET_TARGET_PROPERTIES( pvtkpython PROPERTIES LINK_FLAGS

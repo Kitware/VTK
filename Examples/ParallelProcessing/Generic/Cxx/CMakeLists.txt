@@ -1,6 +1,9 @@
 INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j|Task|Pipe).*$")
 
 IF (VTK_USE_MPI)
+  # Needed for mpich 2
+  ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")
+
   IF (VTK_USE_RENDERING)
     ADD_EXECUTABLE(ParallelIso ParallelIso.cxx)
     TARGET_LINK_LIBRARIES(ParallelIso vtkParallel vtkHybrid)
