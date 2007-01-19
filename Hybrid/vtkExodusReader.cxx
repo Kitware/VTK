@@ -891,6 +891,14 @@ public:
 
   // Description:
   // Parse the XML input.
+  virtual int Parse(const char* inputString)
+    {
+      this->Superclass::Parse(inputString);
+    }
+  virtual int Parse(const char* inputString, unsigned int length)
+    {
+      this->Superclass::Parse(inputString, length);
+    }
   virtual int Parse()
     {
       int retVal = this->Superclass::Parse();
@@ -1329,7 +1337,7 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.37");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.38");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1494,7 +1502,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.37");
+vtkCxxRevisionMacro(vtkExodusReader, "1.38");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
