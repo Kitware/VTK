@@ -173,8 +173,18 @@ struct KnifeMetricVals
 
 struct QuadMetricVals
 {
+  /** \sa v_quad_edge_ratio function */
+  VERDICT_REAL edge_ratio ;
   /** \sa v_quad_max_edge_ratios function */
   VERDICT_REAL max_edge_ratios ;
+  /** \sa v_quad_aspect_ratio function */
+  VERDICT_REAL aspect_ratio ;
+  /** \sa v_quad_radius_ratio function */
+  VERDICT_REAL radius_ratio ;
+  /** \sa v_quad_med_aspect_frobenius function */
+  VERDICT_REAL med_aspect_frobenius ;
+  /** \sa v_quad_max_aspect_frobenius function */
+  VERDICT_REAL max_aspect_frobenius ;
   /** \sa v_quad_skew function */
   VERDICT_REAL skew ;
   /** \sa v_quad_taper function */
@@ -421,7 +431,12 @@ struct TriMetricVals
 #define V_QUAD_SHAPE_AND_SIZE        32768   /*!< \hideinitializer */
 #define V_QUAD_SHEAR_AND_SIZE        65536   /*!< \hideinitializer */
 #define V_QUAD_DISTORTION            131072   /*!< \hideinitializer */
-#define V_QUAD_ALL                   262143   /*!< \hideinitializer */
+#define V_QUAD_EDGE_RATIO            262144   /*!< \hideinitializer */
+#define V_QUAD_ASPECT_RATIO          524288   /*!< \hideinitializer */
+#define V_QUAD_RADIUS_RATIO          1048576  /*!< \hideinitializer */
+#define V_QUAD_MED_ASPECT_FROBENIUS  2097152  /*!< \hideinitializer */
+#define V_QUAD_MAX_ASPECT_FROBENIUS  4194304  /*!< \hideinitializer */
+#define V_QUAD_ALL                   8388607  /*!< \hideinitializer */
 /*!< \hideinitializer */
 #define V_QUAD_TRADITIONAL           V_QUAD_MAX_EDGE_RATIOS + \
                                      V_QUAD_SKEW            + \
@@ -808,11 +823,41 @@ struct TriMetricVals
     //! Sets average size (area) of quad, needed for v_quad_relative_size(...)
     C_FUNC_DEF void v_set_quad_size( VERDICT_REAL size );
 
+    //! Calculates quad edge ratio
+    /** edge ratio
+        Reference --- P. P. Pebay, Planar Quadrangle Quality
+        Measures, Eng. Comp., 2004, 20(2):157-173 */
+    C_FUNC_DEF VERDICT_REAL v_quad_edge_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+
     //! Calculates quad maximum of edge ratios.
     /** Maximum edge length ratios at quad center.
        Reference --- J. Robinson, CRE Method of element testing and the 
        Jacobian shape parameters, Eng. Comput., Vol 4, 1987. */ 
     C_FUNC_DEF VERDICT_REAL v_quad_max_edge_ratios( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+
+    //! Calculates quad aspect ratio
+    /** aspect ratio
+        Reference --- P. P. Pebay, Planar Quadrangle Quality
+        Measures, Eng. Comp., 2004, 20(2):157-173 */
+    C_FUNC_DEF VERDICT_REAL v_quad_aspect_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+
+    //! Calculates quad radius ratio
+    /** radius ratio
+        Reference --- P. P. Pebay, Planar Quadrangle Quality
+        Measures, Eng. Comp., 2004, 20(2):157-173 */
+    C_FUNC_DEF VERDICT_REAL v_quad_radius_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+
+    //! Calculates quad average Frobenius aspect
+    /** average Frobenius aspect
+        Reference --- P. P. Pebay, Planar Quadrangle Quality
+        Measures, Eng. Comp., 2004, 20(2):157-173 */
+    C_FUNC_DEF VERDICT_REAL v_quad_med_aspect_frobenius( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+
+    //! Calculates quad maximum Frobenius aspect
+    /** average Frobenius aspect
+        Reference --- P. P. Pebay, Planar Quadrangle Quality
+        Measures, Eng. Comp., 2004, 20(2):157-173 */
+    C_FUNC_DEF VERDICT_REAL v_quad_max_aspect_frobenius( int num_nodes, VERDICT_REAL coordinates[][3] ); 
 
     //! Calculates quad skew metric.
     /** Maximum |cos A| where A is the angle between edges at quad center. 

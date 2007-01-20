@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.39");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.40");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );
@@ -992,321 +992,68 @@ double vtkMeshQuality::TriangleDistortion( vtkCell* cell )
 
 double vtkMeshQuality::QuadEdgeRatio( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3],p3[3];
-  double a[3],b[3],c[3],d[3];
-  double a2,b2,c2,d2,mab,Mab,mcd,Mcd,m2,M2;
- 
+  double pc[4][3];
+
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
-  p->GetPoint(3, p3);
+  for ( int i = 0; i < 4; ++i )
+    p->GetPoint( i, pc[i] );
 
-  a[0] = p1[0] - p0[0];
-  a[1] = p1[1] - p0[1];
-  a[2] = p1[2] - p0[2];
- 
-  b[0] = p2[0] - p1[0];
-  b[1] = p2[1] - p1[1];
-  b[2] = p2[2] - p1[2];
- 
-  c[0] = p3[0] - p2[0];
-  c[1] = p3[1] - p2[1];
-  c[2] = p3[2] - p2[2];
- 
-  d[0] = p0[0] - p3[0];
-  d[1] = p0[1] - p3[1];
-  d[2] = p0[2] - p3[2];
- 
-  a2 = vtkMath::Dot(a,a);
-  b2 = vtkMath::Dot(b,b);
-  c2 = vtkMath::Dot(c,c);
-  d2 = vtkMath::Dot(d,d);
-
-  if ( a2 < b2 )
-    {
-      mab = a2;
-      Mab = b2;
-    }
-  else // b2 <= a2
-    {
-      mab = b2;
-      Mab = a2;
-    }
-  if ( c2 < d2 )
-    {
-      mcd = c2;
-      Mcd = d2;
-    }
-  else // d2 <= c2
-    {
-      mcd = d2;
-      Mcd = c2;
-    }
-  m2 = mab < mcd ? mab : mcd;
-  M2 = Mab > Mcd ? Mab : Mcd;
-
-  return sqrt(M2 / m2);
+  return v_quad_edge_ratio( 4, pc );
 }
 
 double vtkMeshQuality::QuadAspectRatio( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3],p3[3];
-  double a[3],b[3],c[3],d[3],ab[3],cd[3];
-  double a1,b1,c1,d1;
-  double ma,mb,hm;
- 
+  double pc[4][3];
+
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
-  p->GetPoint(3, p3);
+  for ( int i = 0; i < 4; ++i )
+    p->GetPoint( i, pc[i] );
 
-  a[0] = p1[0] - p0[0];
-  a[1] = p1[1] - p0[1];
-  a[2] = p1[2] - p0[2];
- 
-  b[0] = p2[0] - p1[0];
-  b[1] = p2[1] - p1[1];
-  b[2] = p2[2] - p1[2];
- 
-  c[0] = p3[0] - p2[0];
-  c[1] = p3[1] - p2[1];
-  c[2] = p3[2] - p2[2];
- 
-  d[0] = p0[0] - p3[0];
-  d[1] = p0[1] - p3[1];
-  d[2] = p0[2] - p3[2];
- 
-  a1 = sqrt(vtkMath::Dot(a,a));
-  b1 = sqrt(vtkMath::Dot(b,b));
-  c1 = sqrt(vtkMath::Dot(c,c));
-  d1 = sqrt(vtkMath::Dot(d,d));
-
-  ma = a1 > b1 ? a1 : b1;
-  mb = c1 > d1 ? c1 : d1;
-  hm = ma > mb ? ma : mb;
-
-  vtkMath::Cross(a,b,ab);
-  vtkMath::Cross(c,d,cd);
-
-  return .5 * hm * (a1 + b1 + c1 + d1) / (vtkMath::Norm(ab) + vtkMath::Norm(cd));
+  return v_quad_aspect_ratio( 4, pc );
 }
 
 double vtkMeshQuality::QuadRadiusRatio( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3],p3[3];
-  const double normal_coeff = 1. / (2.*sqrt(2.));
- 
+  double pc[4][3];
+
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
-  p->GetPoint(3, p3);
+  for ( int i = 0; i < 4; ++i )
+    p->GetPoint( i, pc[i] );
 
-  double a[3],b[3],c[3],d[3],m[3],n[3];
-
-  a[0] = p1[0] - p0[0];
-  a[1] = p1[1] - p0[1];
-  a[2] = p1[2] - p0[2];
- 
-  b[0] = p2[0] - p1[0];
-  b[1] = p2[1] - p1[1];
-  b[2] = p2[2] - p1[2];
- 
-  c[0] = p3[0] - p2[0];
-  c[1] = p3[1] - p2[1];
-  c[2] = p3[2] - p2[2];
- 
-  d[0] = p0[0] - p3[0];
-  d[1] = p0[1] - p3[1];
-  d[2] = p0[2] - p3[2];
- 
-  m[0] = p2[0] - p0[0];
-  m[1] = p2[1] - p0[1];
-  m[2] = p2[2] - p0[2];
- 
-  n[0] = p3[0] - p1[0];
-  n[1] = p3[1] - p1[1];
-  n[2] = p3[2] - p1[2];
- 
-  double a2 = vtkMath::Dot(a,a);
-  double b2 = vtkMath::Dot(b,b);
-  double c2 = vtkMath::Dot(c,c);
-  double d2 = vtkMath::Dot(d,d);
-  double m2 = vtkMath::Dot(m,m);
-  double n2 = vtkMath::Dot(n,n);
-
-  double t0 = a2 > b2 ? a2 : b2;
-  double t1 = c2 > d2 ? c2 : d2;
-  double t2 = m2 > n2 ? m2 : n2;
-  double h2 = t0 > t1 ? t0 : t1;
-  h2 = h2 > t2 ? h2 : t2;
-
-  double ab[3],bc[3],cd[3],da[3];
-
-  vtkMath::Cross(a,b,ab);
-  vtkMath::Cross(b,c,bc);
-  vtkMath::Cross(c,d,cd);
-  vtkMath::Cross(d,a,da);
-
-  t0 = vtkMath::Norm(da);
-  t1 = vtkMath::Norm(ab);
-  t2 = vtkMath::Norm(bc);
-  double t3 = vtkMath::Norm(cd);
-
-  t0 = t0 < t1 ? t0 : t1;
-  t2 = t2 < t3 ? t2 : t3;
-  t0 = t0 < t2 ? t0 : t2;
-
-  return normal_coeff * sqrt((a2 + b2 + c2 + d2) * h2) / t0;
+  return v_quad_radius_ratio( 4, pc );
 }
 
 double vtkMeshQuality::QuadMedAspectFrobenius( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3],p3[3];
+  double pc[4][3];
 
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
-  p->GetPoint(3, p3);
+  for ( int i = 0; i < 4; ++i )
+    p->GetPoint( i, pc[i] );
 
-  double a[3],b[3],c[3],d[3];
-
-  a[0] = p1[0] - p0[0];
-  a[1] = p1[1] - p0[1];
-  a[2] = p1[2] - p0[2];
- 
-  b[0] = p2[0] - p1[0];
-  b[1] = p2[1] - p1[1];
-  b[2] = p2[2] - p1[2];
- 
-  c[0] = p3[0] - p2[0];
-  c[1] = p3[1] - p2[1];
-  c[2] = p3[2] - p2[2];
- 
-  d[0] = p0[0] - p3[0];
-  d[1] = p0[1] - p3[1];
-  d[2] = p0[2] - p3[2];
- 
-  double ab[3],bc[3],cd[3],da[3];
-
-  vtkMath::Cross(a,b,ab);
-  vtkMath::Cross(b,c,bc);
-  vtkMath::Cross(c,d,cd);
-  vtkMath::Cross(d,a,da);
-
-  double a2 = vtkMath::Dot(a,a);
-  double b2 = vtkMath::Dot(b,b);
-  double c2 = vtkMath::Dot(c,c);
-  double d2 = vtkMath::Dot(d,d);
-
-  double qsum  = (a2 + b2) / vtkMath::Norm(ab);
-  qsum += (b2 + c2) / vtkMath::Norm(bc);
-  qsum += (c2 + d2) / vtkMath::Norm(cd);
-  qsum += (d2 + a2) / vtkMath::Norm(da);
-
-  return .125 * qsum;
+  return v_quad_med_aspect_frobenius( 4, pc );
 }
 
 double vtkMeshQuality::QuadMaxAspectFrobenius( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3],p3[3];
- 
+  double pc[4][3];
+
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
-  p->GetPoint(3, p3);
+  for ( int i = 0; i < 4; ++i )
+    p->GetPoint( i, pc[i] );
 
-  double a[3],b[3],c[3],d[3];
-
-  a[0] = p1[0] - p0[0];
-  a[1] = p1[1] - p0[1];
-  a[2] = p1[2] - p0[2];
- 
-  b[0] = p2[0] - p1[0];
-  b[1] = p2[1] - p1[1];
-  b[2] = p2[2] - p1[2];
- 
-  c[0] = p3[0] - p2[0];
-  c[1] = p3[1] - p2[1];
-  c[2] = p3[2] - p2[2];
- 
-  d[0] = p0[0] - p3[0];
-  d[1] = p0[1] - p3[1];
-  d[2] = p0[2] - p3[2];
- 
-  double ab[3],bc[3],cd[3],da[3];
-
-  vtkMath::Cross(a,b,ab);
-  vtkMath::Cross(b,c,bc);
-  vtkMath::Cross(c,d,cd);
-  vtkMath::Cross(d,a,da);
-
-  double a2 = vtkMath::Dot(a,a);
-  double b2 = vtkMath::Dot(b,b);
-  double c2 = vtkMath::Dot(c,c);
-  double d2 = vtkMath::Dot(d,d);
-
-  double qmax = (a2 + b2) / vtkMath::Norm(ab);
-
-  double qcur = (b2 + c2) / vtkMath::Norm(bc);
-  qmax = qmax > qcur ? qmax : qcur;
-
-  qcur = (c2 + d2) / vtkMath::Norm(cd);
-  qmax = qmax > qcur ? qmax : qcur;
-
-  qcur = (d2 + a2) / vtkMath::Norm(da);
-  qmax = qmax > qcur ? qmax : qcur;
-
-  return .5 * qmax;
+  return v_quad_max_aspect_frobenius( 4, pc );
 }
 
 double vtkMeshQuality::QuadMinAngle( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3],p3[3];
-  double a[3],b[3],c[3],d[3];
-  double a2,b2,c2,d2,alpha,beta,gamma,delta;
-  const double normal_coeff = .3183098861837906715377675267450287;
+  double pc[4][3];
 
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
-  p->GetPoint(3, p3);
+  for ( int i = 0; i < 4; ++i )
+    p->GetPoint( i, pc[i] );
 
-  a[0] = p1[0] - p0[0];
-  a[1] = p1[1] - p0[1];
-  a[2] = p1[2] - p0[2];
- 
-  b[0] = p2[0] - p1[0];
-  b[1] = p2[1] - p1[1];
-  b[2] = p2[2] - p1[2];
- 
-  c[0] = p3[0] - p2[0];
-  c[1] = p3[1] - p2[1];
-  c[2] = p3[2] - p2[2];
- 
-  d[0] = p0[0] - p3[0];
-  d[1] = p0[1] - p3[1];
-  d[2] = p0[2] - p3[2];
- 
-  a2 = vtkMath::Dot(a,a);
-  b2 = vtkMath::Dot(b,b);
-  c2 = vtkMath::Dot(c,c);
-  d2 = vtkMath::Dot(d,d);
-
-  alpha = acos(vtkMath::Dot(b,c) / sqrt(b2 * c2));
-  beta  = acos(vtkMath::Dot(c,d) / sqrt(c2 * d2));
-  gamma = acos(vtkMath::Dot(d,a) / sqrt(d2 * a2));
-  delta = acos(vtkMath::Dot(a,b) / sqrt(a2 * b2));
-
-  alpha = alpha < beta  ? alpha : beta;
-  gamma = gamma < delta ? gamma : delta;
-
-  return  (alpha < gamma ? alpha : gamma) * 180. * normal_coeff;
+  return v_quad_minimum_angle( 4, pc );
 }
 
 double vtkMeshQuality::QuadMaxEdgeRatios( vtkCell* cell )

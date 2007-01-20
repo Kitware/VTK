@@ -130,7 +130,6 @@ void signed_corner_areas( double areas[4], VERDICT_REAL coordinates[][3] )
 
 }
 
-
 /*!
   localize the coordinates of a quad
 
@@ -298,6 +297,59 @@ VerdictVector quad_normal( VERDICT_REAL coordinates[][3] )
 }
 
 /*!
+   the edge ratio of a quad
+
+   NB (P. Pebay 01/19/07): 
+     Hmax / Hmin where Hmax and Hmin are respectively the maximum and the
+     minimum edge lengths
+*/
+C_FUNC_DEF VERDICT_REAL v_quad_edge_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+  VerdictVector edges[4];
+  make_quad_edges( edges, coordinates );
+
+  double a2 = edges[0].length_squared();
+  double b2 = edges[1].length_squared();
+  double c2 = edges[2].length_squared();
+  double d2 = edges[3].length_squared();
+
+  double mab,Mab,mcd,Mcd,m2,M2;
+  if ( a2 < b2 )
+    {
+      mab = a2;
+      Mab = b2;
+    }
+  else // b2 <= a2
+    {
+      mab = b2;
+      Mab = a2;
+    }
+  if ( c2 < d2 )
+    {
+      mcd = c2;
+      Mcd = d2;
+    }
+  else // d2 <= c2
+    {
+      mcd = d2;
+      Mcd = c2;
+    }
+  m2 = mab < mcd ? mab : mcd;
+  M2 = Mab > Mcd ? Mab : Mcd;
+
+  if( m2 < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+  else
+  {
+    double edge_ratio = sqrt( M2 / m2 );
+    
+    if( edge_ratio > 0 )
+      return (VERDICT_REAL) VERDICT_MIN( edge_ratio, VERDICT_DBL_MAX );
+    return (VERDICT_REAL) VERDICT_MAX( edge_ratio, -VERDICT_DBL_MAX );
+  }
+}
+
+/*!
   maximum of edge ratios of a quad
 
   maximum edge length ratios at quad center
@@ -325,6 +377,201 @@ C_FUNC_DEF VERDICT_REAL v_quad_max_edge_ratios( int /*num_nodes*/, VERDICT_REAL 
   if( max_edge_ratios > 0 )
     return (VERDICT_REAL) VERDICT_MIN( max_edge_ratios, VERDICT_DBL_MAX );
   return (VERDICT_REAL) VERDICT_MAX( max_edge_ratios, -VERDICT_DBL_MAX );
+}
+
+/*!
+   the aspect ratio of a quad
+
+   NB (P. Pebay 01/20/07): 
+     this is a generalization of the triangle aspect ratio
+     using Heron's formula.
+*/
+C_FUNC_DEF VERDICT_REAL v_quad_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+
+  VerdictVector edges[4];
+  make_quad_edges( edges, coordinates );
+
+  double a1 = edges[0].length();
+  double b1 = edges[1].length();
+  double c1 = edges[2].length();
+  double d1 = edges[3].length();
+
+  double ma = a1 > b1 ? a1 : b1;
+  double mb = c1 > d1 ? c1 : d1;
+  double hm = ma > mb ? ma : mb;
+
+  VerdictVector ab = edges[0] * edges[1];
+  VerdictVector cd = edges[2] * edges[3];
+  double denominator = ab.length() + cd.length();
+
+  if( denominator < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+
+  double aspect_ratio = .5 * hm * ( a1 + b1 + c1 + d1 ) / denominator;
+  
+  if( aspect_ratio > 0 )
+    return (VERDICT_REAL) VERDICT_MIN( aspect_ratio, VERDICT_DBL_MAX );
+  return (VERDICT_REAL) VERDICT_MAX( aspect_ratio, -VERDICT_DBL_MAX );
+}
+
+/*!
+   the radius ratio of a quad
+
+   NB (P. Pebay 01/19/07): 
+     this metric is called "radius ratio" by extension of a concept that does
+     not exist in general with quads -- although a different name should probably
+     be used in the future.
+*/
+C_FUNC_DEF VERDICT_REAL v_quad_radius_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+  static const double normal_coeff = 1. / ( 2. * sqrt( 2. ) );
+
+  VerdictVector edges[4];
+  make_quad_edges( edges, coordinates );
+
+  double a2 = edges[0].length_squared();
+  double b2 = edges[1].length_squared();
+  double c2 = edges[2].length_squared();
+  double d2 = edges[3].length_squared();
+
+  VerdictVector diag;
+  diag.set( coordinates[2][0] - coordinates[0][0],
+            coordinates[2][1] - coordinates[0][1],
+            coordinates[2][2] - coordinates[0][2]);
+  double m2 = diag.length_squared();
+
+  diag.set( coordinates[3][0] - coordinates[1][0],
+            coordinates[3][1] - coordinates[1][1],
+            coordinates[3][2] - coordinates[1][2]);
+  double n2 = diag.length_squared();
+
+  double t0 = a2 > b2 ? a2 : b2;
+  double t1 = c2 > d2 ? c2 : d2;
+  double t2 = m2 > n2 ? m2 : n2;
+  double h2 = t0 > t1 ? t0 : t1;
+  h2 = h2 > t2 ? h2 : t2;
+
+  VerdictVector ab = edges[0] * edges[1];
+  VerdictVector bc = edges[1] * edges[2];
+  VerdictVector cd = edges[2] * edges[3];
+  VerdictVector da = edges[3] * edges[0];
+
+  t0 = da.length();
+  t1 = ab.length();
+  t2 = bc.length();
+  double t3 = cd.length();
+
+  t0 = t0 < t1 ? t0 : t1;
+  t2 = t2 < t3 ? t2 : t3;
+  t0 = t0 < t2 ? t0 : t2;
+
+  if( t0 < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+
+  double radius_ratio = normal_coeff * sqrt( ( a2 + b2 + c2 + d2 ) * h2 ) / t0;
+  
+  if( radius_ratio > 0 )
+    return (VERDICT_REAL) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
+  return (VERDICT_REAL) VERDICT_MAX( radius_ratio, -VERDICT_DBL_MAX );
+}
+
+/*!
+   the average Frobenius aspect of a quad
+
+   NB (P. Pebay 01/20/07): 
+     this metric is calculated by averaging the 4 Frobenius aspects at
+     each corner of the quad, when the reference triangle is right isosceles.
+*/
+C_FUNC_DEF VERDICT_REAL v_quad_med_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+
+  VerdictVector edges[4];
+  make_quad_edges( edges, coordinates );
+
+  double a2 = edges[0].length_squared();
+  double b2 = edges[1].length_squared();
+  double c2 = edges[2].length_squared();
+  double d2 = edges[3].length_squared();
+
+  VerdictVector ab = edges[0] * edges[1];
+  VerdictVector bc = edges[1] * edges[2];
+  VerdictVector cd = edges[2] * edges[3];
+  VerdictVector da = edges[3] * edges[0];
+
+  double ab1 = ab.length();
+  double bc1 = bc.length();
+  double cd1 = cd.length();
+  double da1 = da.length();
+
+  if( ab1 < VERDICT_DBL_MIN ||
+      bc1 < VERDICT_DBL_MIN ||
+      cd1 < VERDICT_DBL_MIN ||
+      da1 < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+
+  double qsum  = ( a2 + b2 ) / ab1;
+  qsum += ( b2 + c2 ) / bc1;
+  qsum += ( c2 + d2 ) / cd1;
+  qsum += ( d2 + a2 ) / da1;
+
+  double med_aspect_frobenius = .125 * qsum;
+
+  if( med_aspect_frobenius > 0 )
+    return (VERDICT_REAL) VERDICT_MIN( med_aspect_frobenius, VERDICT_DBL_MAX );
+  return (VERDICT_REAL) VERDICT_MAX( med_aspect_frobenius, -VERDICT_DBL_MAX );
+}
+
+/*!
+   the maximum Frobenius aspect of a quad
+
+   NB (P. Pebay 01/20/07): 
+     this metric is calculated by taking the maximum of the 4 Frobenius aspects at
+     each corner of the quad, when the reference triangle is right isosceles.
+*/
+C_FUNC_DEF VERDICT_REAL v_quad_max_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+
+  VerdictVector edges[4];
+  make_quad_edges( edges, coordinates );
+
+  double a2 = edges[0].length_squared();
+  double b2 = edges[1].length_squared();
+  double c2 = edges[2].length_squared();
+  double d2 = edges[3].length_squared();
+
+  VerdictVector ab = edges[0] * edges[1];
+  VerdictVector bc = edges[1] * edges[2];
+  VerdictVector cd = edges[2] * edges[3];
+  VerdictVector da = edges[3] * edges[0];
+
+  double ab1 = ab.length();
+  double bc1 = bc.length();
+  double cd1 = cd.length();
+  double da1 = da.length();
+
+  if( ab1 < VERDICT_DBL_MIN ||
+      bc1 < VERDICT_DBL_MIN ||
+      cd1 < VERDICT_DBL_MIN ||
+      da1 < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+
+  double qmax = ( a2 + b2 ) / ab1;
+
+  double qcur = ( b2 + c2 ) / bc1;
+  qmax = qmax > qcur ? qmax : qcur;
+
+  qcur = ( c2 + d2 ) / cd1;
+  qmax = qmax > qcur ? qmax : qcur;
+
+  qcur = ( d2 + a2 ) / da1;
+  qmax = qmax > qcur ? qmax : qcur;
+
+  double max_aspect_frobenius = .5 * qmax;
+
+  if( max_aspect_frobenius > 0 )
+    return (VERDICT_REAL) VERDICT_MIN( max_aspect_frobenius, VERDICT_DBL_MAX );
+  return (VERDICT_REAL) VERDICT_MAX( max_aspect_frobenius, -VERDICT_DBL_MAX );
 }
 
 /*!

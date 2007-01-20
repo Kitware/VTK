@@ -244,16 +244,13 @@ C_FUNC_DEF VERDICT_REAL v_tri_radius_ratio( int /*num_nodes*/, VERDICT_REAL coor
 
   if( denominator < VERDICT_DBL_MIN ) 
     return (VERDICT_REAL)VERDICT_DBL_MAX;
-  else
-  {
-    double radius_ratio;
-    radius_ratio = .25 * a2 * b2 * c2 * ( a2 + b2 + c2 ) / denominator;
-    
-    if( radius_ratio > 0 )
-      return (VERDICT_REAL) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
-    return (VERDICT_REAL) VERDICT_MAX( radius_ratio, -VERDICT_DBL_MAX );
-  }
 
+  double radius_ratio;
+  radius_ratio = .25 * a2 * b2 * c2 * ( a2 + b2 + c2 ) / denominator;
+  
+  if( radius_ratio > 0 )
+    return (VERDICT_REAL) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
+  return (VERDICT_REAL) VERDICT_MAX( radius_ratio, -VERDICT_DBL_MAX );
 }
 
 /*!
