@@ -254,7 +254,7 @@ protected:
   int ForceMakeCurrent;
 
   char   *Capabilities;
-
+  int WindowIdReferenceCount;
   void ResizeWhileOffscreen(int xsize, int ysize);
   virtual void CreateAWindow();
   virtual void DestroyWindow();
