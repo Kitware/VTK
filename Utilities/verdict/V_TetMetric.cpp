@@ -66,6 +66,98 @@ int get_weight ( VerdictVector &w1,
 }
 
 /*!
+   the edge ratio of a tet
+
+   NB (P. Pebay 01/22/07): 
+     Hmax / Hmin where Hmax and Hmin are respectively the maximum and the
+     minimum edge lengths
+*/
+C_FUNC_DEF VERDICT_REAL v_tet_edge_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+  VerdictVector a, b, c, d, e, f;
+
+  a.set( coordinates[1][0] - coordinates[0][0],
+         coordinates[1][1] - coordinates[0][1],
+         coordinates[1][2] - coordinates[0][2] );
+  
+  b.set( coordinates[2][0] - coordinates[1][0],
+         coordinates[2][1] - coordinates[1][1],
+         coordinates[2][2] - coordinates[1][2] );
+  
+  c.set( coordinates[0][0] - coordinates[2][0],
+         coordinates[0][1] - coordinates[2][1],
+         coordinates[0][2] - coordinates[2][2] );
+  
+  d.set( coordinates[3][0] - coordinates[0][0],
+         coordinates[3][1] - coordinates[0][1],
+         coordinates[3][2] - coordinates[0][2] );
+  
+  e.set( coordinates[3][0] - coordinates[1][0],
+         coordinates[3][1] - coordinates[1][1],
+         coordinates[3][2] - coordinates[1][2] );
+  
+  f.set( coordinates[3][0] - coordinates[2][0],
+         coordinates[3][1] - coordinates[2][1],
+         coordinates[3][2] - coordinates[2][2] );
+  
+  double a2 = a.length_squared();
+  double b2 = b.length_squared();
+  double c2 = c.length_squared();
+  double d2 = d.length_squared();
+  double e2 = e.length_squared();
+  double f2 = f.length_squared();
+
+  double m2,M2,mab,mcd,mef,Mab,Mcd,Mef;
+
+  if ( a2 < b2 )
+    {
+    mab = a2;
+    Mab = b2;
+    }
+  else // b2 <= a2
+    {
+    mab = b2;
+    Mab = a2;
+    }
+  if ( c2 < d2 )
+    {
+    mcd = c2;
+    Mcd = d2;
+    }
+  else // d2 <= c2
+    {
+    mcd = d2;
+    Mcd = c2;
+    }
+  if ( e2 < f2 )
+    {
+    mef = e2;
+    Mef = f2;
+    }
+  else // f2 <= e2
+    {
+    mef = f2;
+    Mef = e2;
+    }
+
+  m2 = mab < mcd ? mab : mcd;
+  m2 = m2  < mef ? m2  : mef;
+  M2 = Mab > Mcd ? Mab : Mcd;
+  M2 = M2  > Mef ? M2  : Mef;
+
+  if( m2 < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+  else
+  {
+    double edge_ratio = sqrt( M2 / m2 );
+    
+    if( edge_ratio > 0 )
+      return (VERDICT_REAL) VERDICT_MIN( edge_ratio, VERDICT_DBL_MAX );
+    return (VERDICT_REAL) VERDICT_MAX( edge_ratio, -VERDICT_DBL_MAX );
+  }
+}
+
+/*!
   the scaled jacobian of a tet
 
   minimum of the jacobian divided by the lengths of 3 edge vectors

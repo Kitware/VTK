@@ -251,6 +251,8 @@ struct WedgeMetricVals
 */
 struct TetMetricVals
 {
+  /** \sa v_tet_edge_ratio*/
+  VERDICT_REAL edge_ratio;
   /** \sa v_tet_radius_ratio*/
   VERDICT_REAL radius_ratio;
   /** \sa v_tet_aspect_beta*/
@@ -376,7 +378,8 @@ struct TriMetricVals
 #define V_TET_RELATIVE_SIZE_SQUARED  128   /*!< \hideinitializer */
 #define V_TET_SHAPE_AND_SIZE         256   /*!< \hideinitializer */
 #define V_TET_DISTORTION             512   /*!< \hideinitializer */
-#define V_TET_ALL                    1023   /*!< \hideinitializer */
+#define V_TET_EDGE_RATIO             1024   /*!< \hideinitializer */
+#define V_TET_ALL                    2047   /*!< \hideinitializer */
 /*!< \hideinitializer */
 #define V_TET_TRADITIONAL            V_TET_RADIUS_RATIO + \
                                      V_TET_ASPECT_GAMMA + \
@@ -731,6 +734,11 @@ struct TriMetricVals
 
     //! Sets average size (volume) of tet, needed for v_tet_relative_size(...)
     C_FUNC_DEF void v_set_tet_size( VERDICT_REAL size );
+
+    //! Calculates tet edge ratio metric.
+    /**  Hmax / Hmin where Hmax and Hmin are respectively the maximum and the
+       minimum edge lengths */ 
+    C_FUNC_DEF VERDICT_REAL v_tet_edge_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
 
     //! Calculates tet radius ratio metric.
     /** CR / (3.0 * IR)  where CR = circumsphere radius, IR = inscribed sphere radius.

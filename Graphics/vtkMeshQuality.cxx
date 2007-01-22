@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.40");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.41");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );
@@ -1278,85 +1278,13 @@ double TetVolume( vtkCell* cell )
 
 double vtkMeshQuality::TetEdgeRatio( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3],p3[3];
-  double a[3],b[3],c[3],d[3],e[3],f[3];
-  double a2,b2,c2,d2,e2,f2;
-  double m2,M2,mab,mcd,mef,Mab,Mcd,Mef;
- 
+  double pc[4][3];
+
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
-  p->GetPoint(3, p3);
+  for ( int i = 0; i < 4; ++i )
+    p->GetPoint( i, pc[i] );
 
-  a[0] = p1[0] - p0[0];
-  a[1] = p1[1] - p0[1];
-  a[2] = p1[2] - p0[2];
- 
-  b[0] = p2[0] - p1[0];
-  b[1] = p2[1] - p1[1];
-  b[2] = p2[2] - p1[2];
- 
-  c[0] = p2[0] - p0[0];
-  c[1] = p2[1] - p0[1];
-  c[2] = p2[2] - p0[2];
- 
-  d[0] = p3[0] - p0[0];
-  d[1] = p3[1] - p0[1];
-  d[2] = p3[2] - p0[2];
- 
-  e[0] = p3[0] - p1[0];
-  e[1] = p3[1] - p1[1];
-  e[2] = p3[2] - p1[2];
- 
-  f[0] = p3[0] - p2[0];
-  f[1] = p3[1] - p2[1];
-  f[2] = p3[2] - p2[2];
-
-  a2 = vtkMath::Dot(a,a);
-  b2 = vtkMath::Dot(b,b);
-  c2 = vtkMath::Dot(c,c);
-  d2 = vtkMath::Dot(d,d);
-  e2 = vtkMath::Dot(e,e);
-  f2 = vtkMath::Dot(f,f);
-
-  if ( a2 < b2 )
-    {
-      mab = a2;
-      Mab = b2;
-    }
-  else // b2 <= a2
-    {
-      mab = b2;
-      Mab = a2;
-    }
-  if ( c2 < d2 )
-    {
-      mcd = c2;
-      Mcd = d2;
-    }
-  else // d2 <= c2
-    {
-      mcd = d2;
-      Mcd = c2;
-    }
-  if ( e2 < f2 )
-    {
-      mef = e2;
-      Mef = f2;
-    }
-  else // f2 <= e2
-    {
-      mef = f2;
-      Mef = e2;
-    }
-
-  m2 = mab < mcd ? mab : mcd;
-  m2 = m2  < mef ? m2  : mef;
-  M2 = Mab > Mcd ? Mab : Mcd;
-  M2 = M2  > Mef ? M2  : Mef;
-
-  return sqrt(M2 / m2);
+  return v_tet_edge_ratio( 4, pc );
 }
 
 double vtkMeshQuality::TetAspectRatio( vtkCell* cell )
@@ -1426,58 +1354,24 @@ double vtkMeshQuality::TetAspectRatio( vtkCell* cell )
 
 double vtkMeshQuality::TetRadiusRatio( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3],p3[3];
-  double ab[3],bc[3],ac[3],ad[3],bd[3],cd[3],u[3];
-  double abc,abd,acd,bcd,a,b,c,det;
-  const double normal_coeff = 1. / 12.;
+  double pc[4][3];
 
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
-  p->GetPoint(3, p3);
+  for ( int i = 0; i < 4; ++i )
+    p->GetPoint( i, pc[i] );
 
-  ab[0] = p1[0] - p0[0];
-  ab[1] = p1[1] - p0[1];
-  ab[2] = p1[2] - p0[2];
- 
-  bc[0] = p2[0] - p1[0];
-  bc[1] = p2[1] - p1[1];
-  bc[2] = p2[2] - p1[2];
- 
-  ac[0] = p2[0] - p0[0];
-  ac[1] = p2[1] - p0[1];
-  ac[2] = p2[2] - p0[2];
- 
-  ad[0] = p3[0] - p0[0];
-  ad[1] = p3[1] - p0[1];
-  ad[2] = p3[2] - p0[2];
- 
-  bd[0] = p3[0] - p1[0];
-  bd[1] = p3[1] - p1[1];
-  bd[2] = p3[2] - p1[2];
- 
-  cd[0] = p3[0] - p2[0];
-  cd[1] = p3[1] - p2[1];
-  cd[2] = p3[2] - p2[2];
+  return v_tet_radius_ratio( 4, pc );
+}
 
-  a = sqrt( vtkMath::Dot(ab,ab) * vtkMath::Dot(cd,cd) );
-  b = sqrt( vtkMath::Dot(ac,ac) * vtkMath::Dot(bd,bd) );
-  c = sqrt( vtkMath::Dot(ad,ad) * vtkMath::Dot(bc,bc) );
+double vtkMeshQuality::TetAspectBeta( vtkCell* cell )
+{
+  double pc[4][3];
 
-  vtkMath::Cross(ab,bc,u);
-  abc = vtkMath::Norm(u);
-  vtkMath::Cross(ab,ad,u);
-  abd = vtkMath::Norm(u);
-  vtkMath::Cross(ac,ad,u);
-  acd = vtkMath::Norm(u);
-  vtkMath::Cross(bc,cd,u);
-  bcd = vtkMath::Norm(u);
+  vtkPoints *p = cell->GetPoints();
+  for ( int i = 0; i < 4; ++i )
+    p->GetPoint( i, pc[i] );
 
-  det = vtkMath::Determinant3x3(ab,ac,ad);
-
-  return normal_coeff * sqrt( (a+b+c) * (a+b-c) * (a+c-b) * (b+c-a) ) * ( abc + abd + acd + bcd ) \
-    / ( det * det );
+  return v_tet_aspect_beta( 4, pc );
 }
 
 double vtkMeshQuality::TetAspectFrobenius( vtkCell* cell )
@@ -1641,17 +1535,6 @@ double vtkMeshQuality::TetCollapseRatio( vtkCell* cell )
   if ( cr < crMin ) crMin = cr;
 
   return crMin;
-}
-
-double vtkMeshQuality::TetAspectBeta( vtkCell* cell )
-{
-  double pc[4][3];
-
-  vtkPoints *p = cell->GetPoints();
-  for ( int i = 0; i < 4; ++i )
-    p->GetPoint( i, pc[i] );
-
-  return v_tet_aspect_beta( 4, pc );
 }
 
 double vtkMeshQuality::TetAspectGamma( vtkCell* cell )
