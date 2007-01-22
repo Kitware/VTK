@@ -519,7 +519,9 @@ public:
   // Description:
   // Fill ids with points found in area.  The area is a 6-tuple containing
   // (xmin, xmax, ymin, ymax, zmin, zmax).
-  void FindPointsInArea(double* area, vtkIdTypeArray* ids);
+  // This method will clear the array by default.  To append ids to an array,
+  // set clearArray to false.
+  void FindPointsInArea(double* area, vtkIdTypeArray* ids, bool clearArray = true);
 
 protected:
 

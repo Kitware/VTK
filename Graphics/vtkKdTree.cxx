@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkKdTree.h"
+
 #include "vtkKdNode.h"
 #include "vtkBSPCuts.h"
 #include "vtkBSPIntersections.h"
@@ -47,7 +48,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.13");
+vtkCxxRevisionMacro(vtkKdTree, "1.14");
 
 // Timing data ---------------------------------------------
 
@@ -4260,9 +4261,12 @@ void vtkKdTree::UpdateSubOperationProgress(double amt)
 }
 
 //----------------------------------------------------------------------------
-void vtkKdTree::FindPointsInArea(double* area, vtkIdTypeArray* ids)
+void vtkKdTree::FindPointsInArea(double* area, vtkIdTypeArray* ids, bool clearArray)
 {
-  ids->Reset();
+  if (clearArray)
+    {
+    ids->Reset();
+    }
   if (!this->LocatorPoints)
     {
     vtkErrorMacro(<< "vtkKdTree::FindPointsInArea - must build locator first");
