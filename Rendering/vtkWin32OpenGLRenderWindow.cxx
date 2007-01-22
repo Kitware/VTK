@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkOpenGL.h"
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.146");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.147");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -52,14 +52,14 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->NextWindowId = 0;
   this->DeviceContext = (HDC)0;         // hsr
   this->MFChandledWindow = FALSE;       // hsr
-  this->StereoType = VTK_STEREO_CRYSTAL_EYES;  
+  this->StereoType = VTK_STEREO_CRYSTAL_EYES;
   this->CursorHidden = 0;
   this->Capabilities = 0;
 
   this->ScreenDeviceContext = (HDC)0;
   this->MemoryHdc = (HDC)0;
-  this->CreatingOffScreenWindow=0;
-  this->WindowIdReferenceCount=0;
+  this->CreatingOffScreenWindow = 0;
+  this->WindowIdReferenceCount = 0;
 }
 
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
@@ -696,9 +696,9 @@ void vtkWin32OpenGLRenderWindow::InitializeApplication()
 
 void vtkWin32OpenGLRenderWindow::CreateAWindow()
 {
-  if(this->WindowIdReferenceCount==0)
+  if(this->WindowIdReferenceCount == 0)
     {
-    static int count=1;
+    static int count = 1;
     char *windowName;
     
     if (!this->WindowId)
@@ -849,7 +849,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
       }
     this->OpenGLInit();
     this->Mapped = 1;
-    this->WindowIdReferenceCount=1;
+    this->WindowIdReferenceCount = 1;
     }
   else
     {
@@ -914,10 +914,10 @@ void vtkWin32OpenGLRenderWindow::Finalize (void)
 
 void vtkWin32OpenGLRenderWindow::DestroyWindow()
 {
-  if(this->WindowIdReferenceCount>0)
+  if(this->WindowIdReferenceCount > 0)
     {
     --this->WindowIdReferenceCount;
-    if(this->WindowIdReferenceCount==0)
+    if(this->WindowIdReferenceCount == 0)
       {
       this->Clean();
       if (this->WindowId)
@@ -1260,8 +1260,8 @@ void vtkWin32OpenGLRenderWindow::SaveScreenRendering()
 void vtkWin32OpenGLRenderWindow::CreateOffScreenWindow(int width,
                                                        int height)
 {
-  int status=this->CreatingOffScreenWindow;
-  this->CreatingOffScreenWindow=1;
+  int status = this->CreatingOffScreenWindow;
+  this->CreatingOffScreenWindow = 1;
   if(!this->CreateHardwareOffScreenWindow(width,height))
     {
 #ifdef UNICODE
@@ -1272,7 +1272,7 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenWindow(int width,
     this->CreateOffScreenDC(width,height,dc);
     DeleteDC(dc);
     }
-  this->CreatingOffScreenWindow=status;
+  this->CreatingOffScreenWindow = status;
 } 
 
 void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(int xsize, int ysize,
