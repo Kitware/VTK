@@ -52,7 +52,7 @@
 #define DEBUG 0
 #define vtkPExodusReaderMAXPATHLEN 2048
 
-vtkCxxRevisionMacro(vtkPExodusReader, "1.10");
+vtkCxxRevisionMacro(vtkPExodusReader, "1.11");
 vtkStandardNewMacro(vtkPExodusReader);
 
 class vtkPExodusReaderUpdateProgress : public vtkCommand
@@ -344,7 +344,8 @@ int vtkPExodusReader::RequestData(
     for(reader_idx=readerList.size(); reader_idx < numMyFiles; ++reader_idx)
       {
       vtkExodusReader *er = vtkExodusReader::New();
-      vtkPExodusReaderUpdateProgress* progress = vtkPExodusReaderUpdateProgress::New();
+      vtkPExodusReaderUpdateProgress* progress = 
+        vtkPExodusReaderUpdateProgress::New();
       progress->SetReader(this);
       progress->SetIndex(reader_idx);
       er->AddObserver(vtkCommand::ProgressEvent, progress);
@@ -459,6 +460,14 @@ int vtkPExodusReader::RequestData(
         idx, this->GetSideSetArrayStatus(idx));
       }
     
+    vtkInformation* tmpOutInfo = 
+      readerList[reader_idx]->GetExecutive()->GetOutputInformation(0);
+    if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+      {
+      tmpOutInfo->CopyEntry(
+        outInfo,
+        vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+      }
     readerList[reader_idx]->Update();
 
     vtkUnstructuredGrid *subgrid = vtkUnstructuredGrid::New();
@@ -504,6 +513,14 @@ int vtkPExodusReader::RequestData(
   // Append complains/barfs if you update it without any inputs
   if (append->GetInput() != NULL) 
     {
+    vtkInformation* appendOutInfo = 
+      append->GetExecutive()->GetOutputInformation(0);
+    if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+      {
+      appendOutInfo->CopyEntry(
+        outInfo,
+        vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+      }
     append->Update();
     output->ShallowCopy(append->GetOutput());
     }
