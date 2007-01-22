@@ -73,6 +73,11 @@ public:
   vtkHandleRepresentation *GetHandleRepresentation(unsigned int num);
 
   // Description:
+  // Returns the model HandleRepresentation.
+  vtkHandleRepresentation *GetHandleRepresentation(){
+    return this->HandleRepresentation;};
+
+  // Description:
   // The tolerance representing the distance to the widget (in pixels) in
   // which the cursor is considered near enough to the end points of
   // the widget to be active.

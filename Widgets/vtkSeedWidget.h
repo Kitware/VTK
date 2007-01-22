@@ -105,6 +105,18 @@ public:
   // Methods to change the whether the widget responds to interaction.
   // Overridden to pass the state to component widgets.
   virtual void SetProcessEvents(int);
+
+  // Description:
+  // Method to be called when the seed widget should stop responding to
+  // the interaction. 
+  virtual void CompleteInteraction();
+
+  // Description:
+  // Method to be called when the seed widget should start responding
+  // to the interaction.  
+  virtual void RestartInteraction();
+
+
 protected:
   vtkSeedWidget();
   ~vtkSeedWidget();

@@ -24,11 +24,12 @@
 #include "vtkCoordinate.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkEvent.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSeedWidget, "1.8");
+vtkCxxRevisionMacro(vtkSeedWidget, "1.9");
 vtkStandardNewMacro(vtkSeedWidget);
 
 
@@ -171,7 +172,15 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
     double e[3]; e[2]=0.0;
     e[0] = static_cast<double>(X);
     e[1] = static_cast<double>(Y);
+    
+
     vtkSeedRepresentation *rep = reinterpret_cast<vtkSeedRepresentation*>(self->WidgetRep);
+    // if the handle representation is constrained, check to see if
+    // the position follows the constraint.
+    if(!rep->GetHandleRepresentation()->CheckConstraint(self->GetCurrentRenderer(), e))
+      {
+      return ;
+      }
     int currentHandleNumber = rep->CreateHandle(e);
     vtkHandleWidget *currentHandle = self->CreateHandleWidget(self,rep);
     rep->SetSeedDisplayPosition(currentHandleNumber,e);
@@ -199,6 +208,18 @@ void vtkSeedWidget::CompletedAction(vtkAbstractWidget *w)
   // All we do is set the state to placed
   self->WidgetState = vtkSeedWidget::PlacedSeeds;
   self->EventCallbackCommand->SetAbortFlag(1);
+}
+
+//-------------------------------------------------------------------------
+void vtkSeedWidget::CompleteInteraction()
+{
+  this->WidgetState = vtkSeedWidget::PlacedSeeds;
+  this->EventCallbackCommand->SetAbortFlag(1);
+}
+//-------------------------------------------------------------------------
+void vtkSeedWidget::RestartInteraction()
+{
+  this->WidgetState = vtkSeedWidget::Start;
 }
 
 //-------------------------------------------------------------------------
