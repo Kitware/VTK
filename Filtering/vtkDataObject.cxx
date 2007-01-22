@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.32");
+vtkCxxRevisionMacro(vtkDataObject, "1.33");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -359,6 +359,15 @@ void vtkDataObject::Initialize()
     this->FieldData->Initialize();
     }
 
+  if (this->Information)
+    {
+    // Make sure the information is cleared.
+    this->Information->Remove(DATA_PIECE_NUMBER());
+    this->Information->Remove(DATA_NUMBER_OF_PIECES());
+    this->Information->Remove(DATA_NUMBER_OF_GHOST_LEVELS());
+    this->Information->Remove(DATA_TIME_STEPS());
+    }
+
   this->Modified();
 }
 
@@ -678,9 +687,31 @@ void vtkDataObject::DataHasBeenGenerated()
   // This is here so that the data can be easlily marked as up to date.
   // It is used specifically when the filter vtkQuadricClustering
   // is executed manually with the append methods.
-  this->Information->Set(DATA_PIECE_NUMBER(), this->GetUpdatePiece());
-  this->Information->Set(DATA_NUMBER_OF_PIECES(), this->GetUpdateNumberOfPieces());
-  this->Information->Set(DATA_NUMBER_OF_GHOST_LEVELS(), this->GetUpdateGhostLevel());
+  // Assume that the algorithm produced the required data unless the
+  // algorithm sets otherwise.
+  if (!this->Information->Has(DATA_PIECE_NUMBER()) ||
+      this->Information->Get(DATA_PIECE_NUMBER()) == - 1)
+    {
+    this->Information->Set(DATA_PIECE_NUMBER(), 
+                           this->GetUpdatePiece());
+    this->Information->Set(DATA_NUMBER_OF_PIECES(), 
+                           this->GetUpdateNumberOfPieces());
+    this->Information->Set(DATA_NUMBER_OF_GHOST_LEVELS(), 
+                           this->GetUpdateGhostLevel());
+    }
+  if (!this->Information->Has(DATA_TIME_STEPS()))
+    {
+    if(SDDP* sddp = this->TrySDDP("CopyDataTimeSteps"))
+      {
+      vtkInformation* info = 
+        sddp->GetOutputInformation()->GetInformationObject(
+          this->GetPortNumber());
+      this->Information->Set(
+        DATA_TIME_STEPS(),
+        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()),
+        info->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()));
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -898,6 +929,10 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
     {
     this->Information->Set(DATA_NUMBER_OF_GHOST_LEVELS(),
                            src->Information->Get(DATA_NUMBER_OF_GHOST_LEVELS()));
+    }
+  if(src->Information->Has(DATA_TIME_STEPS()))
+    {
+    this->Information->CopyEntry(src->Information, DATA_TIME_STEPS(), 1);
     }
   vtkInformation* thatPInfo = src->GetPipelineInformation();
   vtkInformation* thisPInfo = this->GetPipelineInformation();
