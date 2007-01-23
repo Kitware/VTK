@@ -12,18 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTreeReader - read vtk unstructured grid data file
+// .NAME vtkTreeReader - read vtkTree data file
 // .SECTION Description
 // vtkTreeReader is a source object that reads ASCII or binary 
-// unstructured grid data files in vtk format. (see text for format details).
-// The output of this reader is a single vtkUnstructuredGrid data object.
+// vtkTree data files in vtk format. (see text for format details).
+// The output of this reader is a single vtkTree data object.
 // The superclass of this class, vtkDataReader, provides many methods for
 // controlling the reading of the data file, see vtkDataReader for more
 // information.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 // .SECTION See Also
-// vtkUnstructuredGrid vtkDataReader
+// vtkTree vtkDataReader vtkTreeWriter
 
 #ifndef __vtkTreeReader_h
 #define __vtkTreeReader_h

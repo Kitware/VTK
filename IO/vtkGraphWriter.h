@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGraphWriter - write vtk table data to a file
+// .NAME vtkGraphWriter - write vtkGraph data to a file
 // .SECTION Description
-// vtkGraphWriter is a source object that writes ASCII or binary 
-// table data files in vtk format. See text for format details.
+// vtkGraphWriter is a sink object that writes ASCII or binary 
+// vtkGraph data files in vtk format. See text for format details.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 

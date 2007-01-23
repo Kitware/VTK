@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTreeWriter - write vtk table data to a file
+// .NAME vtkTreeWriter - write vtkTree data to a file
 // .SECTION Description
-// vtkTreeWriter is a source object that writes ASCII or binary 
-// table data files in vtk format. See text for format details.
+// vtkTreeWriter is a sink object that writes ASCII or binary 
+// vtkTree data files in vtk format. See text for format details.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 

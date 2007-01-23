@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTableWriter - write vtk table data to a file
+// .NAME vtkTableWriter - write vtkTable to a file
 // .SECTION Description
-// vtkTableWriter is a source object that writes ASCII or binary 
-// table data files in vtk format. See text for format details.
+// vtkTableWriter is a sink object that writes ASCII or binary 
+// vtkTable data files in vtk format. See text for format details.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
