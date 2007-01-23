@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkOpenGL.h"
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.142.2.1");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.142.2.2");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -59,6 +59,7 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->ScreenDeviceContext = (HDC)0;
   this->MemoryHdc = (HDC)0;
   this->CreatingOffScreenWindow=0;
+  this->WindowIdReferenceCount=0;
 }
 
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
@@ -690,152 +691,160 @@ void vtkWin32OpenGLRenderWindow::InitializeApplication()
 
 void vtkWin32OpenGLRenderWindow::CreateAWindow()
 {
-  static int count=1;
-  char *windowName;
-  
-  if (!this->WindowId)
+  if(this->WindowIdReferenceCount==0)
     {
-    WNDCLASS wndClass;
-    this->DeviceContext = 0;
-    
-    int len = static_cast<int>(strlen("Visualization Toolkit - Win32OpenGL #")) 
-      + (int)ceil( (double) log10( (double)(count+1) ) )
-      + 1; 
-    windowName = new char [ len ];
-    sprintf(windowName,"Visualization Toolkit - Win32OpenGL #%i",count++);
-    this->SetWindowName(windowName);
-    delete [] windowName;
-    
-    // has the class been registered ?
-#ifdef UNICODE
-    if (!GetClassInfo(this->ApplicationInstance,L"vtkOpenGL",&wndClass))
-#else
-      if (!GetClassInfo(this->ApplicationInstance,"vtkOpenGL",&wndClass))
-#endif
-        {
-        wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-        wndClass.lpfnWndProc = vtkWin32OpenGLRenderWindow::WndProc;
-        wndClass.cbClsExtra = 0;
-        wndClass.hInstance = this->ApplicationInstance;
-        wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-        wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-        wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-        wndClass.lpszMenuName = NULL;
-#ifdef UNICODE
-        wndClass.lpszClassName = L"vtkOpenGL";
-#else
-        wndClass.lpszClassName = "vtkOpenGL";
-#endif
-        // vtk doesn't use the first extra 4 bytes, but app writers
-        // may want them, so we provide them. VTK does use the second 
-        // four bytes of extra space.
-        wndClass.cbWndExtra = 8;
-        RegisterClass(&wndClass);
-        }
-    
-#ifdef UNICODE
-    wchar_t *wname = new wchar_t [mbstowcs(NULL, this->WindowName, 32000)+1];
-    mbstowcs(wname, this->WindowName, 32000);
-#endif
-    int x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
-    int y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
-    int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
-    int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
-  
-    /* create window */
-    if (this->ParentId)
-      {
-#ifdef UNICODE
-      this->WindowId = CreateWindow(
-        L"vtkOpenGL", wname,
-        WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
-        x, y, width, height,
-        this->ParentId, NULL, this->ApplicationInstance, NULL);
-#else
-      this->WindowId = CreateWindow(
-        "vtkOpenGL", this->WindowName,
-        WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
-        x, y, width, height,
-        this->ParentId, NULL, this->ApplicationInstance, NULL);
-#endif
-      }
-    else
-      {
-      DWORD style;
-      if (this->Borders)
-        {
-        style = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
-        }
-      else
-        {
-        style = WS_POPUP | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
-        }
-#ifdef UNICODE
-      this->WindowId = CreateWindow(
-        L"vtkOpenGL", wname, style,
-        x,y, width+2*GetSystemMetrics(SM_CXFRAME),
-        height+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
-        NULL, NULL, this->ApplicationInstance, NULL);
-#else
-      this->WindowId = CreateWindow(
-        "vtkOpenGL", this->WindowName, style,
-        x,y, width+2*GetSystemMetrics(SM_CXFRAME),
-        height+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
-        NULL, NULL, this->ApplicationInstance, NULL);
-#endif
-      }
-#ifdef UNICODE
-    delete [] wname;
-#endif
+    static int count=1;
+    char *windowName;
 
     if (!this->WindowId)
       {
-      vtkErrorMacro("Could not create window, error:  " << GetLastError());
-      return;
+      WNDCLASS wndClass;
+      this->DeviceContext = 0;
+
+      int len = static_cast<int>(strlen("Visualization Toolkit - Win32OpenGL #")) 
+        + (int)ceil( (double) log10( (double)(count+1) ) )
+        + 1; 
+      windowName = new char [ len ];
+      sprintf(windowName,"Visualization Toolkit - Win32OpenGL #%i",count++);
+      this->SetWindowName(windowName);
+      delete [] windowName;
+
+      // has the class been registered ?
+#ifdef UNICODE
+      if (!GetClassInfo(this->ApplicationInstance,L"vtkOpenGL",&wndClass))
+#else
+        if (!GetClassInfo(this->ApplicationInstance,"vtkOpenGL",&wndClass))
+#endif
+          {
+          wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+          wndClass.lpfnWndProc = vtkWin32OpenGLRenderWindow::WndProc;
+          wndClass.cbClsExtra = 0;
+          wndClass.hInstance = this->ApplicationInstance;
+          wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+          wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+          wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+          wndClass.lpszMenuName = NULL;
+#ifdef UNICODE
+          wndClass.lpszClassName = L"vtkOpenGL";
+#else
+          wndClass.lpszClassName = "vtkOpenGL";
+#endif
+          // vtk doesn't use the first extra 4 bytes, but app writers
+          // may want them, so we provide them. VTK does use the second 
+          // four bytes of extra space.
+          wndClass.cbWndExtra = 8;
+          RegisterClass(&wndClass);
+          }
+
+#ifdef UNICODE
+      wchar_t *wname = new wchar_t [mbstowcs(NULL, this->WindowName, 32000)+1];
+      mbstowcs(wname, this->WindowName, 32000);
+#endif
+      int x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
+      int y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
+      int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
+      int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
+
+      /* create window */
+      if (this->ParentId)
+        {
+#ifdef UNICODE
+        this->WindowId = CreateWindow(
+          L"vtkOpenGL", wname,
+          WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
+          x, y, width, height,
+          this->ParentId, NULL, this->ApplicationInstance, NULL);
+#else
+        this->WindowId = CreateWindow(
+          "vtkOpenGL", this->WindowName,
+          WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
+          x, y, width, height,
+          this->ParentId, NULL, this->ApplicationInstance, NULL);
+#endif
+        }
+      else
+        {
+        DWORD style;
+        if (this->Borders)
+          {
+          style = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
+          }
+        else
+          {
+          style = WS_POPUP | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
+          }
+#ifdef UNICODE
+        this->WindowId = CreateWindow(
+          L"vtkOpenGL", wname, style,
+          x,y, width+2*GetSystemMetrics(SM_CXFRAME),
+          height+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
+          NULL, NULL, this->ApplicationInstance, NULL);
+#else
+        this->WindowId = CreateWindow(
+          "vtkOpenGL", this->WindowName, style,
+          x,y, width+2*GetSystemMetrics(SM_CXFRAME),
+          height+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
+          NULL, NULL, this->ApplicationInstance, NULL);
+#endif
+        }
+#ifdef UNICODE
+      delete [] wname;
+#endif
+
+      if (!this->WindowId)
+        {
+        vtkErrorMacro("Could not create window, error:  " << GetLastError());
+        return;
+        }
+      // extract the create info
+
+      /* display window */
+      ShowWindow(this->WindowId, SW_SHOW);
+      //UpdateWindow(this->WindowId);
+      this->OwnWindow = 1;
+      vtkSetWindowLong(this->WindowId,4,(LONG)this);
       }
-    // extract the create info
-    
-    /* display window */
-    ShowWindow(this->WindowId, SW_SHOW);
-    //UpdateWindow(this->WindowId);
-    this->OwnWindow = 1;
-    vtkSetWindowLong(this->WindowId,4,(LONG)this);
-    }
-  if (!this->DeviceContext)
-    {
-    this->DeviceContext = GetDC(this->WindowId);
-    }
-  if (this->StereoCapableWindow)
-    {
-    this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
-                           PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER |
-                           PFD_STEREO, this->GetDebug(), 32, 32);
+    if (!this->DeviceContext)
+      {
+      this->DeviceContext = GetDC(this->WindowId);
+      }
+    if (this->StereoCapableWindow)
+      {
+      this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
+        PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER |
+        PFD_STEREO, this->GetDebug(), 32, 32);
+      }
+    else
+      {
+      this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
+        PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER,
+        this->GetDebug(), 32, 32);
+      }
+    this->SetupPalette(this->DeviceContext);
+    this->ContextId = wglCreateContext(this->DeviceContext);
+    if (this->ContextId == NULL) 
+      {
+      vtkErrorMacro("wglCreateContext failed in CreateAWindow(), error: " << GetLastError());
+      }
+    this->MakeCurrent();
+
+    // wipe out any existing display lists
+    vtkRenderer* ren;
+    vtkCollectionSimpleIterator rsit;
+    for (this->Renderers->InitTraversal(rsit); 
+      (ren = this->Renderers->GetNextRenderer(rsit));)
+      {
+      ren->SetRenderWindow(0);
+      ren->SetRenderWindow(this);
+      }
+    this->OpenGLInit();
+    this->Mapped = 1;
+    this->WindowIdReferenceCount=1;
     }
   else
     {
-    this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
-                           PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER,
-                           this->GetDebug(), 32, 32);
+    ++this->WindowIdReferenceCount;
     }
-  this->SetupPalette(this->DeviceContext);
-  this->ContextId = wglCreateContext(this->DeviceContext);
-  if (this->ContextId == NULL) 
-    {
-    vtkErrorMacro("wglCreateContext failed in CreateAWindow(), error: " << GetLastError());
-    }
-  this->MakeCurrent();
-  
-  // wipe out any existing display lists
-  vtkRenderer* ren;
-  vtkCollectionSimpleIterator rsit;
-  for (this->Renderers->InitTraversal(rsit); 
-       (ren = this->Renderers->GetNextRenderer(rsit));)
-    {
-    ren->SetRenderWindow(0);
-    ren->SetRenderWindow(this);
-    }
-  this->OpenGLInit();
-  this->Mapped = 1;
 }
 
 // Initialize the window for rendering.
@@ -895,19 +904,26 @@ void vtkWin32OpenGLRenderWindow::Finalize (void)
 
 void vtkWin32OpenGLRenderWindow::DestroyWindow()
 {
-  this->Clean();
-  if (this->WindowId)
+  if(this->WindowIdReferenceCount>0)
     {
-    ReleaseDC(this->WindowId, this->DeviceContext);
-    // can't set WindowId=NULL, needed for DestroyWindow
-    this->DeviceContext = NULL;
-      
-    // clear the extra data before calling destroy
-    vtkSetWindowLong(this->WindowId,4,(LONG)0);
-    if(this->OwnWindow)
+    --this->WindowIdReferenceCount;
+    if(this->WindowIdReferenceCount==0)
       {
-      ::DestroyWindow(this->WindowId);
-      this->WindowId=0;
+      this->Clean();
+      if (this->WindowId)
+        {
+        ReleaseDC(this->WindowId, this->DeviceContext);
+        // can't set WindowId=NULL, needed for DestroyWindow
+        this->DeviceContext = NULL;
+
+        // clear the extra data before calling destroy
+        vtkSetWindowLong(this->WindowId,4,(LONG)0);
+        if(this->OwnWindow)
+          {
+          ::DestroyWindow(this->WindowId);
+          this->WindowId=0;
+          }
+        }
       }
     }
 }
