@@ -257,8 +257,14 @@ struct TetMetricVals
   VERDICT_REAL radius_ratio;
   /** \sa v_tet_aspect_beta*/
   VERDICT_REAL aspect_beta;
-  /** \sa v_hex_aspect_gamma */
+  /** \sa v_tet_aspect_ratio */
+  VERDICT_REAL aspect_ratio ;
+  /** \sa v_tet_aspect_gamma */
   VERDICT_REAL aspect_gamma ;
+  /** \sa v_tet_aspect_frobenius */
+  VERDICT_REAL aspect_frobenius ;
+  /** \sa v_tet_minimum_angle */
+  VERDICT_REAL minimum_angle ;
   /** \sa v_tet_volume */
   VERDICT_REAL volume ;
   /** \sa v_tet_condition */
@@ -379,7 +385,10 @@ struct TriMetricVals
 #define V_TET_SHAPE_AND_SIZE         256   /*!< \hideinitializer */
 #define V_TET_DISTORTION             512   /*!< \hideinitializer */
 #define V_TET_EDGE_RATIO             1024   /*!< \hideinitializer */
-#define V_TET_ALL                    2047   /*!< \hideinitializer */
+#define V_TET_ASPECT_RATIO           2048   /*!< \hideinitializer */
+#define V_TET_ASPECT_FROBENIUS       4096   /*!< \hideinitializer */
+#define V_TET_MINIMUM_ANGLE          8192   /*!< \hideinitializer */
+#define V_TET_ALL                    16383   /*!< \hideinitializer */
 /*!< \hideinitializer */
 #define V_TET_TRADITIONAL            V_TET_RADIUS_RATIO + \
                                      V_TET_ASPECT_GAMMA + \
@@ -747,11 +756,28 @@ struct TriMetricVals
     C_FUNC_DEF VERDICT_REAL v_tet_radius_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
     C_FUNC_DEF VERDICT_REAL v_tet_aspect_beta( int num_nodes, VERDICT_REAL coordinates[][3] ); 
 
-    //! Calculates tet aspect ratio gamma metric.
+    //! Calculates tet aspect ratio metric.
+    /**  Hmax / (2 sqrt(6) r) where Hmax and r respectively denote the greatest edge 
+       length and the inradius of the tetrahedron
+       Reference ---  P. Frey and P.-L. George, Meshing, Hermes (2000). */ 
+    C_FUNC_DEF VERDICT_REAL v_tet_aspect_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+
+    //! Calculates tet aspect gamma metric.
     /**  Srms**3 / (8.479670*V) where Srms = sqrt(Sum(Si**2)/6), Si = edge length. 
        Reference ---  V. N. Parthasarathy et al, A comparison of tetrahedron 
        quality measures, Finite Elem. Anal. Des., Vol 15(1993), 255-261. */ 
     C_FUNC_DEF VERDICT_REAL v_tet_aspect_gamma( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+
+    //! Calculates tet aspect frobenius metric.
+    /** Frobenius condition number when the reference element is regular
+       Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
+       Optimization of the Jacobian Matrix Norm and Associated Quantities,
+       Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */
+    C_FUNC_DEF VERDICT_REAL v_tet_aspect_frobenius( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+
+    //! Calculates tet minimum dihedral angle.
+    /** Minimum (nonoriented) dihedral angle of a tetrahedron, expressed in degrees. */
+    C_FUNC_DEF VERDICT_REAL v_tet_minimum_angle( int num_nodes, VERDICT_REAL coordinates[][3] ); 
 
     //! Calculates tet volume.
     /** (1/6) * Jacobian at corner node.

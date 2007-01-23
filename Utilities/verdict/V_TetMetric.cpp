@@ -142,19 +142,18 @@ C_FUNC_DEF VERDICT_REAL v_tet_edge_ratio( int /*num_nodes*/, VERDICT_REAL coordi
 
   m2 = mab < mcd ? mab : mcd;
   m2 = m2  < mef ? m2  : mef;
-  M2 = Mab > Mcd ? Mab : Mcd;
-  M2 = M2  > Mef ? M2  : Mef;
 
   if( m2 < VERDICT_DBL_MIN ) 
     return (VERDICT_REAL)VERDICT_DBL_MAX;
-  else
-  {
-    double edge_ratio = sqrt( M2 / m2 );
-    
-    if( edge_ratio > 0 )
-      return (VERDICT_REAL) VERDICT_MIN( edge_ratio, VERDICT_DBL_MAX );
-    return (VERDICT_REAL) VERDICT_MAX( edge_ratio, -VERDICT_DBL_MAX );
-  }
+
+  M2 = Mab > Mcd ? Mab : Mcd;
+  M2 = M2  > Mef ? M2  : Mef;
+
+  double edge_ratio = sqrt( M2 / m2 );
+  
+  if( edge_ratio > 0 )
+    return (VERDICT_REAL) VERDICT_MIN( edge_ratio, VERDICT_DBL_MAX );
+  return (VERDICT_REAL) VERDICT_MAX( edge_ratio, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -299,7 +298,79 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_beta( int /*num_nodes*/, VERDICT_REAL coord
 {
 
   return v_tet_radius_ratio(4, coordinates);
+}
+
+/*!
+  The aspect ratio of a tet
+
+  NB (P. Pebay 01/22/07):
+    Hmax / (2 sqrt(6) r) where Hmax and r respectively denote the greatest edge 
+    length and the inradius of the tetrahedron
+*/
+C_FUNC_DEF VERDICT_REAL v_tet_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+  static const double normal_coeff = sqrt(6.) / 12.;
+
+  //Determine side vectors
+  VerdictVector ab, bc, ac, ad, bd, cd;
+
+  ab.set( coordinates[1][0] - coordinates[0][0],
+          coordinates[1][1] - coordinates[0][1],
+          coordinates[1][2] - coordinates[0][2] );
   
+  ac.set( coordinates[2][0] - coordinates[0][0],
+          coordinates[2][1] - coordinates[0][1],
+          coordinates[2][2] - coordinates[0][2] );
+
+  ad.set( coordinates[3][0] - coordinates[0][0],
+          coordinates[3][1] - coordinates[0][1],
+          coordinates[3][2] - coordinates[0][2] );
+  
+  double detTet = ab % ( ac * ad );
+  
+  if( detTet < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+
+  bc.set( coordinates[2][0] - coordinates[1][0],
+          coordinates[2][1] - coordinates[1][1],
+          coordinates[2][2] - coordinates[1][2] );
+  
+  bd.set( coordinates[3][0] - coordinates[1][0],
+          coordinates[3][1] - coordinates[1][1],
+          coordinates[3][2] - coordinates[1][2] );
+  
+  cd.set( coordinates[3][0] - coordinates[2][0],
+          coordinates[3][1] - coordinates[2][1],
+          coordinates[3][2] - coordinates[2][2] );
+
+  double ab2 = ab.length_squared();
+  double bc2 = bc.length_squared();
+  double ac2 = ac.length_squared();
+  double ad2 = ad.length_squared();
+  double bd2 = bd.length_squared();
+  double cd2 = cd.length_squared();
+
+  double A = ab2 > bc2 ? ab2 : bc2;
+  double B = ac2 > ad2 ? ac2 : ad2;
+  double C = bd2 > cd2 ? bd2 : cd2;
+  double D = A > B ? A : B;
+  double hm = D > C ? sqrt( D ) : sqrt( C );
+
+  bd = ab * bc;
+  A = bd.length();
+  bd = ab * ad;
+  B = bd.length();
+  bd = ac * ad;
+  C = bd.length();
+  bd = bc * cd;
+  D = bd.length();
+  
+  double aspect_ratio;
+  aspect_ratio = normal_coeff * hm * ( A + B + C + D ) / fabs( detTet );
+  
+  if( aspect_ratio > 0 )
+    return (VERDICT_REAL) VERDICT_MIN( aspect_ratio, VERDICT_DBL_MAX );
+  return (VERDICT_REAL) VERDICT_MAX( aspect_ratio, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -351,6 +422,120 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_gamma( int /*num_nodes*/, VERDICT_REAL coor
     double aspect_ratio_gamma = pow(srms, 3) / (8.47967 * volume );  
     return (VERDICT_REAL)aspect_ratio_gamma;
   }
+}
+
+/*!
+  The aspect frobenius of a tet
+
+  NB (P. Pebay 01/22/07):
+    Frobenius condition number when the reference element is regular
+*/
+C_FUNC_DEF VERDICT_REAL v_tet_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+  static const double normal_exp = 1. / 3.;
+
+  VerdictVector ab, ac, ad;
+
+  ab.set( coordinates[1][0] - coordinates[0][0],
+          coordinates[1][1] - coordinates[0][1],
+          coordinates[1][2] - coordinates[0][2] );
+  
+  ac.set( coordinates[2][0] - coordinates[0][0],
+          coordinates[2][1] - coordinates[0][1],
+          coordinates[2][2] - coordinates[0][2] );
+
+  ad.set( coordinates[3][0] - coordinates[0][0],
+          coordinates[3][1] - coordinates[0][1],
+          coordinates[3][2] - coordinates[0][2] );
+  
+  double denominator = ab % ( ac * ad );
+  denominator *= denominator;
+  denominator *= 2.;
+  denominator = 3. * pow( denominator, normal_exp );
+
+  if( denominator < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+
+  double u[3];
+  ab.get_xyz( u );
+  double v[3];
+  ac.get_xyz( v );
+  double w[3];
+  ad.get_xyz( w );
+
+  double numerator = u[0] * u[0] + u[1] * u[1] + u[2] * u[2];
+  numerator += v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+  numerator += w[0] * w[0] + w[1] * w[1] + w[2] * w[2];
+  numerator *= 1.5;
+  numerator -= v[0] * u[0] + v[1] * u[1] + v[2] * u[2];
+  numerator -= w[0] * u[0] + w[1] * u[1] + w[2] * u[2];
+  numerator -= w[0] * v[0] + w[1] * v[1] + w[2] * v[2];
+  
+  double aspect_frobenius = numerator / denominator;
+  
+  if( aspect_frobenius > 0 )
+    return (VERDICT_REAL) VERDICT_MIN( aspect_frobenius, VERDICT_DBL_MAX );
+  return (VERDICT_REAL) VERDICT_MAX( aspect_frobenius, -VERDICT_DBL_MAX );
+}
+
+/*!
+  The minimum angle of a tet
+
+  NB (P. Pebay 01/22/07):
+    minimum nonoriented dihedral angle
+*/
+C_FUNC_DEF VERDICT_REAL v_tet_minimum_angle( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+  static const double normal_coeff = 180. * .3183098861837906715377675267450287;
+
+  //Determine side vectors
+  VerdictVector ab, bc, ad, cd;
+
+  ab.set( coordinates[1][0] - coordinates[0][0],
+          coordinates[1][1] - coordinates[0][1],
+          coordinates[1][2] - coordinates[0][2] );
+  
+  ad.set( coordinates[3][0] - coordinates[0][0],
+          coordinates[3][1] - coordinates[0][1],
+          coordinates[3][2] - coordinates[0][2] );
+  
+  bc.set( coordinates[2][0] - coordinates[1][0],
+          coordinates[2][1] - coordinates[1][1],
+          coordinates[2][2] - coordinates[1][2] );
+  
+  cd.set( coordinates[3][0] - coordinates[2][0],
+          coordinates[3][1] - coordinates[2][1],
+          coordinates[3][2] - coordinates[2][2] );
+
+  VerdictVector abc = ab * bc;
+  double nabc = abc.length();
+  VerdictVector abd = ab * ad;
+  double nabd = abd.length();
+  VerdictVector acd = ad * cd;
+  double nacd = acd.length();
+  VerdictVector bcd = bc * cd;
+  double nbcd = bcd.length();
+
+  double alpha   = acos( ( abc % abd ) / ( nabc * nabd ) );
+  double beta    = acos( ( abc % acd ) / ( nabc * nacd ) );
+  double gamma   = acos( ( abc % bcd ) / ( nabc * nbcd ) );
+  double delta   = acos( ( abd % acd ) / ( nabd * nacd ) );
+  double epsilon = acos( ( abd % bcd ) / ( nabd * nbcd ) );
+  double zeta    = acos( ( acd % bcd ) / ( nacd * nbcd ) );
+
+  alpha = alpha < beta    ? alpha : beta;
+  alpha = alpha < gamma   ? alpha : gamma;
+  alpha = alpha < delta   ? alpha : delta;
+  alpha = alpha < epsilon ? alpha : epsilon;
+  alpha = alpha < zeta    ? alpha : zeta;
+  alpha *= normal_coeff;
+
+  if( alpha < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+
+  if( alpha > 0 )
+    return (VERDICT_REAL) VERDICT_MIN( alpha, VERDICT_DBL_MAX );
+  return (VERDICT_REAL) VERDICT_MAX( alpha, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -945,5 +1130,3 @@ C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3],
 
 
 }
-
-
