@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define MAC_OS_X_VERSION_10_4 1040
 #endif
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.41");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.42");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -40,8 +40,8 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
   this->Capabilities = 0;
-  this->OnScreenInitialized=0;
-  this->OffScreenInitialized=0;
+  this->OnScreenInitialized = 0;
+  this->OffScreenInitialized = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -82,12 +82,12 @@ void vtkCocoaRenderWindow::Finalize()
 {
   if(this->OffScreenInitialized)
     {
-    this->OffScreenInitialized=0;
+    this->OffScreenInitialized = 0;
     this->DestroyOffScreenWindow();
     }
   if(this->OnScreenInitialized)
     {
-    this->OnScreenInitialized=0;
+    this->OnScreenInitialized = 0;
     this->DestroyWindow();
     }
 }
@@ -432,25 +432,34 @@ void vtkCocoaRenderWindow::CreateAWindow()
 {
   static int count = 1;
 
-  // Due to the crossplatform nature of vtk, NSApplicationMain() is never
-  // called.  Ideally, this should be fixed one day.  Until then, we call
-  // +sharedApplication which has the side effect of doing some Cocoa
-  // initialisation; we are not actually interested in the return value.
-  // This call is intentionally delayed until this WindowInitialize call
+  // As vtk is both crossplatform and a library, we don't know if it is being
+  // used in a 'regular Cocoa application' or as a 'pure vtk application'.
+  // By the former I mean a regular Cocoa application that happens to have
+  // a vtkCocoaGLView, by the latter I mean an application that only uses
+  // vtk APIs (which happen to use Cocoa as an implementation detail).
+  // Specifically, we can't know if NSApplicationMain() was ever called
+  // (which is usually done in main()), nor whether the NSApplication exists.
+  //
+  // So here we call +sharedApplication which will create the NSApplication
+  // if it does not exist.  If it does exist, this does nothing.
+  // We are not actually interested in the return value.
+  // This call is intentionally delayed until this CreateAWindow call
   // to prevent Cocoa-window related stuff from happening in scenarios
   // where vtkRenderWindows are created but never shown.
   (void)[NSApplication sharedApplication];
 
   // create an NSWindow only if neither an NSView nor an NSWindow have
-  // been specified already
+  // been specified already.  This is the case for a 'pure vtk application'.
+  // If you are using vtk in a 'regular Mac application' you should call
+  // SetWindowId() and SetDisplayId() so that a window is not created.
   if (!this->WindowId && !this->NSViewId)
     {
-    if ((this->Size[0]+this->Size[1])==0)
+    if ((this->Size[0]+this->Size[1]) == 0)
       {
       this->Size[0] = 300;
       this->Size[1] = 300;
       }
-    if ((this->Position[0]+this->Position[1])==0)
+    if ((this->Position[0]+this->Position[1]) == 0)
       {
       this->Position[0] = 50;
       this->Position[1] = 50;
@@ -495,20 +504,24 @@ void vtkCocoaRenderWindow::CreateAWindow()
   this->CreateGLContext();
 
   // Set the window title *after* CreateGLContext. We cannot do it earlier
-  // because of a bug in panther's java library (OSX 10.3.9, Java 1.4.2_09)
+  // because of a bug in Panther's java library (OSX 10.3.9, Java 1.4.2_09)
   //
   // Details on Apple bug:
   // http://lists.apple.com/archives/Quartz-dev/2005/Apr/msg00043.html
-  // Appears to be fixed in Mac OSX 10.4, but we workaround it here anyhow
+  // Appears to be fixed in Mac OS X 10.4, but we workaround it here anyhow
   // so that we can still work on 10.3...
   //
-  NSString * winName = [NSString stringWithFormat:@"Visualization Toolkit - Cocoa #%i", count++];
+  // Additionally, only change the window title if it was created by vtk
+  if (this->WindowCreated)
+    {
+    NSString * winName = [NSString stringWithFormat:@"Visualization Toolkit - Cocoa #%i", count++];
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_4
-  this->SetWindowName([winName cStringUsingEncoding:NSASCIIStringEncoding]);
+    this->SetWindowName([winName cStringUsingEncoding:NSASCIIStringEncoding]);
 #else
-  this->SetWindowName([winName cString]);
+    this->SetWindowName([winName cString]);
 #endif
-
+    }
+  
   // the error "invalid drawable" in the console from this call can appear
   // but only early in the app's lifetime (ie sometime during launch)
   // IMPORTANT: this is necessary to update the context here in case of
