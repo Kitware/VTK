@@ -48,7 +48,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.14");
+vtkCxxRevisionMacro(vtkKdTree, "1.15");
 
 // Timing data ---------------------------------------------
 
@@ -4299,19 +4299,16 @@ void vtkKdTree::FindPointsInArea(vtkKdNode* node, double* area, vtkIdTypeArray* 
 
   if (disjoint)
     {
-    //cerr << "disjoint, skipping subtree" << endl;
     return;
     }
   else if (contains)
     {
-    //cerr << "contains, adding all points in region" << endl;
     this->AddAllPointsInRegion(node, ids);
     }
   else // intersects
     {
     if (node->GetLeft() == NULL)
       {
-      //cerr << "intersects, going through points one by one" << endl;
       int regionID = node->GetID();
       float* pt = this->LocatorPoints + (regionID * 3);
       vtkIdType numPoints = this->RegionList[regionID]->GetNumberOfPoints();
@@ -4323,14 +4320,12 @@ void vtkKdTree::FindPointsInArea(vtkKdNode* node, double* area, vtkIdTypeArray* 
           {
           vtkIdType ptId = static_cast<vtkIdType>(this->LocatorIds[regionID + i]);
           ids->InsertNextValue(ptId);
-          cerr << "inserting point " << ptId << endl;
           }
         pt += 3;
         }
       }
     else
       {
-      //cerr << "intersects, recursing" << endl;
       this->FindPointsInArea(node->GetLeft(), area, ids);
       this->FindPointsInArea(node->GetRight(), area, ids);
       }
@@ -4348,7 +4343,6 @@ void vtkKdTree::AddAllPointsInRegion(vtkKdNode* node, vtkIdTypeArray* ids)
       {
       vtkIdType ptId = static_cast<vtkIdType>(this->LocatorIds[regionID + i]);
       ids->InsertNextValue(ptId);
-      cerr << "inserting point " << ptId << endl;
       }
     }
   else
