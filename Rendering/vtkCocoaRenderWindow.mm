@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define MAC_OS_X_VERSION_10_4 1040
 #endif
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.42");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.43");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -558,12 +558,11 @@ void vtkCocoaRenderWindow::CreateGLContext()
       (NSOpenGLPixelFormatAttribute)nil
     };
 
-  NSOpenGLPixelFormat* pixelFormat =
-    (NSOpenGLPixelFormat*)[[NSOpenGLPixelFormat alloc]
-                           initWithAttributes:attribs];
-  NSOpenGLContext* context = (NSOpenGLContext*)[[NSOpenGLContext alloc]
-                                                initWithFormat:pixelFormat
-                                                shareContext:nil];
+  NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc]
+                                      initWithAttributes:attribs];
+  NSOpenGLContext* context = [[NSOpenGLContext alloc]
+                              initWithFormat:pixelFormat
+                              shareContext:nil];
   
   // This syncs the OpenGL context to the VBL to prevent tearing
   GLint one = 1;
@@ -583,7 +582,7 @@ void vtkCocoaRenderWindow::Initialize ()
     if(this->OnScreenInitialized)
       {
       this->DestroyWindow();
-      this->OnScreenInitialized=0;
+      this->OnScreenInitialized = 0;
       }
     // create off screen
     if(!this->OffScreenInitialized)
@@ -595,7 +594,7 @@ void vtkCocoaRenderWindow::Initialize ()
         // no other offscreen mode available, do on screen rendering
         this->CreateAWindow();
         }
-      this->OffScreenInitialized=1;
+      this->OffScreenInitialized = 1;
       }
     }
   else
@@ -609,7 +608,7 @@ void vtkCocoaRenderWindow::Initialize ()
     if(!this->OnScreenInitialized)
       {
       this->CreateAWindow();
-      this->OnScreenInitialized=1;
+      this->OnScreenInitialized = 1;
       }
     }
   if(this->OnScreenInitialized)
