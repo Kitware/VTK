@@ -87,9 +87,9 @@ char* vtkTestUtilities::ExpandDataFileName(int argc, char* argv[],
 }
 
 inline
-char* vtkTestUtilities::GetArgOrEnvOrDefault(const char* arg, 
-                                             int argc, char* argv[], 
-                                             const char* env, 
+char* vtkTestUtilities::GetArgOrEnvOrDefault(const char* arg,
+                                             int argc, char* argv[],
+                                             const char* env,
                                              const char *def)
 {
   int index = -1;
@@ -104,12 +104,12 @@ char* vtkTestUtilities::GetArgOrEnvOrDefault(const char* arg,
 
   char* value;
 
-  if (index != -1) 
+  if (index != -1)
     {
     value = new char[strlen(argv[index]) + 1];
     strcpy(value, argv[index]);
     }
-  else 
+  else
     {
     char *foundenv = getenv(env);
     if (foundenv)
@@ -117,15 +117,19 @@ char* vtkTestUtilities::GetArgOrEnvOrDefault(const char* arg,
       value = new char[strlen(foundenv) + 1];
       strcpy(value, foundenv);
       }
-    else
+    else if (def)
       {
       value = new char[strlen(def) + 1];
       strcpy(value, def);
       }
+    else
+      {
+      value = NULL;
+      }
     }
-  
+
   return value;
-} 
+}
 
 inline
 char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg, 
