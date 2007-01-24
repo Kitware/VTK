@@ -25,10 +25,10 @@
 #ifndef QVTK_WIDGET_PLUGIN
 #define QVTK_WIDGET_PLUGIN
 
-#include <QtDesigner/QDesignerCustomWidgetInterface>
-#include <QtDesigner/QDesignerCustomWidgetCollectionInterface>
-#include <QtCore/qplugin.h>
-#include "qobject.h"
+#include <QDesignerCustomWidgetInterface>
+#include <QDesignerCustomWidgetCollectionInterface>
+#include <qplugin.h>
+#include <qobject.h>
 
 
 // implement Designer Custom Widget interface

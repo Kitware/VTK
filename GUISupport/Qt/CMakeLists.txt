@@ -22,18 +22,17 @@ IF(DESIRED_QT_VERSION MATCHES 4)
 
   SET ( PluginLibSrcs
         Q4VTKWidgetPlugin.cxx
-        QVTKWidget.cxx)
+        )
 
   SET ( PluginMocHeaders
         Q4VTKWidgetPlugin.h
-        QVTKWidget.h)
+        )
 
   # CMake apparently doesn't do this automatically
   SET_SOURCE_FILES_PROPERTIES(Q4VTKWidgetPlugin.cxx PROPERTIES 
                               OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWidget.xpm)
 
   QT4_WRAP_CPP ( QVTKLibMocSrcs ${QVTKMocHeaders} )
-  QT4_WRAP_CPP ( PluginMocSrcs ${PluginMocHeaders} )
 
   SET(QT_LIBS "${QT_LIBRARIES}")
   
@@ -61,7 +60,6 @@ ELSE(DESIRED_QT_VERSION MATCHES 4)
 
 
   QT_WRAP_CPP ( QVTK QVTKLibMocSrcs ${QVTKMocHeaders} )
-  QT_WRAP_CPP ( QVTKWidgetPlugin PluginMocSrcs ${PluginMocHeaders} )
   
   SET(QT_LIBS ${QT_QT_LIBRARY})
   
@@ -112,6 +110,10 @@ IF(BUILD_QVTK_PLUGIN)
        ${QT_QTGUI_LIBRARY}
        )
     ENDIF(QT_QTGUI_LIBRARY)
+    INCLUDE_DIRECTORIES(${QT_QTDESIGNER_INCLUDE_DIR})
+    QT4_WRAP_CPP ( PluginMocSrcs ${PluginMocHeaders} )
+  ELSE(DESIRED_QT_VERSION MATCHES 4)
+    QT_WRAP_CPP ( QVTKWidgetPlugin PluginMocSrcs ${PluginMocHeaders} )
   ENDIF(DESIRED_QT_VERSION MATCHES 4)
   
 # add QVTK plugin from sources 
@@ -120,6 +122,8 @@ IF(BUILD_QVTK_PLUGIN)
     SHARED
     ${PluginLibSrcs}
     ${PluginMocSrcs}
+    ${QVTKLibSrcs}
+    ${QVTKLibMocSrcs}
   )
 
 # link with release version of Qt libs
