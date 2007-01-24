@@ -24,11 +24,25 @@
 #include "vtkIdTypeArray.h"
 #include "vtkAbstractGraph.h"
 
-vtkCxxRevisionMacro(vtkGraphToPolyData, "1.2");
+vtkCxxRevisionMacro(vtkGraphToPolyData, "1.3");
 vtkStandardNewMacro(vtkGraphToPolyData);
 
 vtkGraphToPolyData::vtkGraphToPolyData()
 {
+  this->DrawArrows = false;
+  this->ArrowPosition = 0.6;
+  this->ArrowSize = 0.1;
+  this->ArrowAngle = 45.0;
+  this->SetNumberOfOutputPorts(2);
+}
+
+void vtkGraphToPolyData::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  os << indent << "DrawArrows: " << (this->DrawArrows ? "on" : "off") << endl;
+  os << indent << "ArrowPosition: " << this->ArrowPosition << endl;
+  os << indent << "ArrowSize: " << this->ArrowSize << endl;
+  os << indent << "ArrowAngle: " << this->ArrowAngle << endl;
 }
 
 int vtkGraphToPolyData::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
@@ -69,7 +83,11 @@ int vtkGraphToPolyData::RequestData(
     // Send the data to output.
     output->SetPoints(input->GetPoints());
     output->SetLines(newLines);
+
+    // Points correspond to nodes, so pass the data along.
     output->GetPointData()->PassData(input->GetPointData());
+
+    // Cells correspond to arcs, so pass the cell data along.
     output->GetCellData()->PassData(input->GetCellData());
 
     // Clean up.
@@ -107,10 +125,58 @@ int vtkGraphToPolyData::RequestData(
     output->Squeeze();
     }
 
-  return 1;
-}
+  if (this->DrawArrows)
+    {
+    vtkPolyData* arrowPoly = vtkPolyData::GetData(outputVector, 1);
 
-void vtkGraphToPolyData::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os,indent);
+    vtkPoints* inputPoints = input->GetPoints();
+    vtkPoints* points = vtkPoints::New();
+    vtkCellArray* polys = vtkCellArray::New();
+
+    vtkIdType numArcs = input->GetNumberOfArcs();
+    for (vtkIdType i = 0; i < numArcs; i++)
+      {
+      vtkIdType source = input->GetSourceNode(i);
+      vtkIdType target = input->GetTargetNode(i);
+      double sourcePt[3];
+      double targetPt[3];
+      inputPoints->GetPoint(source, sourcePt);
+      inputPoints->GetPoint(target, targetPt);
+      double arrowTip[3];
+      for (int j = 0; j < 3; j++)
+        {
+        arrowTip[j] = sourcePt[j] + this->ArrowPosition*(targetPt[j] - sourcePt[j]);
+        }
+
+      double angle = atan2(sourcePt[1] - targetPt[1], sourcePt[0] - targetPt[0]);
+      double innerAngle = this->ArrowAngle*(vtkMath::Pi()/180.0);
+      double leftAngle = angle + (innerAngle/2.0);
+      double rightAngle = angle - (innerAngle/2.0);
+
+      double arrowLeft[3];
+      arrowLeft[0] = arrowTip[0] + this->ArrowSize*cos(leftAngle);
+      arrowLeft[1] = arrowTip[1] + this->ArrowSize*sin(leftAngle);
+      arrowLeft[2] = arrowTip[2];
+
+      double arrowRight[3];
+      arrowRight[0] = arrowTip[0] + this->ArrowSize*cos(rightAngle);
+      arrowRight[1] = arrowTip[1] + this->ArrowSize*sin(rightAngle);
+      arrowRight[2] = arrowTip[2];
+
+      vtkIdType arrowPoints[3];
+      arrowPoints[0] = points->InsertNextPoint(arrowTip);
+      arrowPoints[1] = points->InsertNextPoint(arrowLeft);
+      arrowPoints[2] = points->InsertNextPoint(arrowRight);
+      polys->InsertNextCell(3, arrowPoints);
+      }
+    arrowPoly->SetPoints(points);
+    points->Delete();
+    arrowPoly->SetPolys(polys);
+    polys->Delete();
+
+    // Cells correspond to arcs, so pass the cell data along.
+    arrowPoly->GetCellData()->PassData(output->GetCellData());
+    }
+
+  return 1;
 }

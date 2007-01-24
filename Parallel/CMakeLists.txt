@@ -51,6 +51,7 @@ vtkPProbeFilter.cxx
 vtkPSphereSource.cxx
 vtkPStreamTracer.cxx
 vtkParallelFactory.cxx
+vtkPieceRequestFilter.cxx
 vtkPieceScalars.cxx
 vtkPipelineSize.cxx
 vtkProcessIdScalars.cxx
