@@ -265,6 +265,8 @@ struct TetMetricVals
   VERDICT_REAL aspect_frobenius ;
   /** \sa v_tet_minimum_angle */
   VERDICT_REAL minimum_angle ;
+  /** \sa v_tet_collapse_ratio*/
+  VERDICT_REAL collapse_ratio;
   /** \sa v_tet_volume */
   VERDICT_REAL volume ;
   /** \sa v_tet_condition */
@@ -388,7 +390,8 @@ struct TriMetricVals
 #define V_TET_ASPECT_RATIO           2048   /*!< \hideinitializer */
 #define V_TET_ASPECT_FROBENIUS       4096   /*!< \hideinitializer */
 #define V_TET_MINIMUM_ANGLE          8192   /*!< \hideinitializer */
-#define V_TET_ALL                    16383   /*!< \hideinitializer */
+#define V_TET_COLLAPSE_RATIO         16384   /*!< \hideinitializer */
+#define V_TET_ALL                    32767   /*!< \hideinitializer */
 /*!< \hideinitializer */
 #define V_TET_TRADITIONAL            V_TET_RADIUS_RATIO + \
                                      V_TET_ASPECT_GAMMA + \
@@ -778,6 +781,10 @@ struct TriMetricVals
     //! Calculates tet minimum dihedral angle.
     /** Minimum (nonoriented) dihedral angle of a tetrahedron, expressed in degrees. */
     C_FUNC_DEF VERDICT_REAL v_tet_minimum_angle( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+
+    //! Calculates tet collapse ratio metric.
+    /**  Collapse ratio */ 
+    C_FUNC_DEF VERDICT_REAL v_tet_collapse_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
 
     //! Calculates tet volume.
     /** (1/6) * Jacobian at corner node.

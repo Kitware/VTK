@@ -539,6 +539,88 @@ C_FUNC_DEF VERDICT_REAL v_tet_minimum_angle( int /*num_nodes*/, VERDICT_REAL coo
 }
 
 /*!
+  The collapse ratio of a tet
+*/
+C_FUNC_DEF VERDICT_REAL v_tet_collapse_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+  //Determine side vectors
+  VerdictVector e01, e02, e03, e12, e13, e23;
+
+  e01.set( coordinates[1][0] - coordinates[0][0],
+           coordinates[1][1] - coordinates[0][1],
+           coordinates[1][2] - coordinates[0][2] );
+  
+  e02.set( coordinates[2][0] - coordinates[0][0],
+           coordinates[2][1] - coordinates[0][1],
+           coordinates[2][2] - coordinates[0][2] );
+ 
+  e03.set( coordinates[3][0] - coordinates[0][0],
+           coordinates[3][1] - coordinates[0][1],
+           coordinates[3][2] - coordinates[0][2] );
+  
+  e12.set( coordinates[2][0] - coordinates[1][0],
+           coordinates[2][1] - coordinates[1][1],
+           coordinates[2][2] - coordinates[1][2] );
+  
+  e13.set( coordinates[3][0] - coordinates[1][0],
+           coordinates[3][1] - coordinates[1][1],
+           coordinates[3][2] - coordinates[1][2] );
+  
+  e23.set( coordinates[3][0] - coordinates[2][0],
+           coordinates[3][1] - coordinates[2][1],
+           coordinates[3][2] - coordinates[2][2] );
+
+  double l[6];
+  l[0] = e01.length();
+  l[1] = e02.length();
+  l[2] = e03.length();
+  l[3] = e12.length();
+  l[4] = e13.length();
+  l[5] = e23.length();
+
+  // Find longest edge for each bounding triangle of tetrahedron
+  double l012 = l[4] > l[0] ? l[4] : l[0]; l012 = l[1] > l012 ? l[1] : l012;
+  double l031 = l[0] > l[2] ? l[0] : l[2]; l031 = l[3] > l031 ? l[3] : l031;
+  double l023 = l[2] > l[1] ? l[2] : l[1]; l023 = l[5] > l023 ? l[5] : l023;
+  double l132 = l[4] > l[3] ? l[4] : l[3]; l132 = l[5] > l132 ? l[5] : l132;
+
+  // Compute collapse ratio for each vertex/triangle pair
+  VerdictVector N;
+  double h, magN;
+  double cr;
+  double crMin;
+
+  N = e01 * e02;
+  magN = N.length();
+  h = ( e03 % N) / magN; // height of vertex 3 above 0-1-2
+  crMin = h / l012;      // ratio of height to longest edge of 0-1-2
+
+  N = e03 * e01 ;
+  magN = N.length();
+  h = ( e02 % N) / magN; // height of vertex 2 above 0-3-1
+  cr = h / l031;         // ratio of height to longest edge of 0-3-1
+  if ( cr < crMin ) crMin = cr;
+
+  N = e02 * e03 ;
+  magN = N.length();
+  h = ( e01 % N) / magN; // height of vertex 1 above 0-2-3
+  cr = h / l023;         // ratio of height to longest edge of 0-2-3
+  if ( cr < crMin ) crMin = cr;
+
+  N = e12 * e13 ;
+  magN = N.length();
+  h = ( e01 % N ) / magN; // height of vertex 0 above 1-3-2
+  cr = h / l132;          // ratio of height to longest edge of 1-3-2
+  if ( cr < crMin ) crMin = cr;
+
+  if( crMin < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+  if( crMin > 0 )
+    return (VERDICT_REAL) VERDICT_MIN( crMin, VERDICT_DBL_MAX );
+  return (VERDICT_REAL) VERDICT_MAX( crMin, -VERDICT_DBL_MAX );
+}
+
+/*!
   the volume of a tet
 
   1/6 * jacobian at a corner node

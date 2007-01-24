@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.42");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.43");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );
@@ -1344,70 +1344,13 @@ double vtkMeshQuality::TetMinAngle( vtkCell* cell )
 
 double vtkMeshQuality::TetCollapseRatio( vtkCell* cell )
 {
-  double p0[3], p1[3], p2[3], p3[3];
-  double e01[3], e02[3], e03[3], e12[3], e13[3], e23[3];
-  double l[6];
-  double N[3];
-  double h, magN;
-  double cr;
-  double crMin;
-  int i;
+  double pc[4][3];
 
   vtkPoints *p = cell->GetPoints();
-  p->GetPoint( 0, p0 );
-  p->GetPoint( 1, p1 );
-  p->GetPoint( 2, p2 );
-  p->GetPoint( 3, p3 );
+  for ( int i = 0; i < 4; ++i )
+    p->GetPoint( i, pc[i] );
 
-  // Compute edge vectors and their lengths
-  l[0] = l[1] = l[2] = l[3] = l[4] = l[5] = 0.;
-  for ( i = 0; i < 3; ++i )
-    {
-    e01[i] = p1[i] - p0[i];  l[0] += e01[i] * e01[i];
-    e02[i] = p2[i] - p0[i];  l[1] += e02[i] * e02[i];
-    e03[i] = p3[i] - p0[i];  l[2] += e03[i] * e03[i];
-
-    e12[i] = p2[i] - p1[i];  l[3] += e12[i] * e12[i];
-    e13[i] = p3[i] - p1[i];  l[4] += e13[i] * e13[i];
-
-    e23[i] = p3[i] - p2[i];  l[5] += e23[i] * e23[i];
-    }
-  for ( i = 0; i < 6; ++i )
-    {
-    l[i] = sqrt( l[i] );
-    }
-
-  // Find longest edge for each bounding triangle of tetrahedron
-  double l012 = l[4] > l[0] ? l[4] : l[0]; l012 = l[1] > l012 ? l[1] : l012;
-  double l031 = l[0] > l[2] ? l[0] : l[2]; l031 = l[3] > l031 ? l[3] : l031;
-  double l023 = l[2] > l[1] ? l[2] : l[1]; l023 = l[5] > l023 ? l[5] : l023;
-  double l132 = l[4] > l[3] ? l[4] : l[3]; l132 = l[5] > l132 ? l[5] : l132;
-
-  // Compute collapse ratio for each vertex/triangle pair
-  vtkMath::Cross(e01, e02, N);
-  magN = vtkMath::Dot(N, N);
-  h = vtkMath::Dot(e03, N) / sqrt( magN ); // height of vertex 3 above 0-1-2
-  crMin = h / l012;                        // ratio of height to longest edge of 0-1-2
-
-  vtkMath::Cross(e03, e01, N);
-  magN = vtkMath::Dot(N, N);
-  h = vtkMath::Dot(e02, N) / sqrt( magN ); // height of vertex 2 above 0-3-1
-  cr = h / l031;                           // ratio of height to longest edge of 0-3-1
-  if ( cr < crMin ) crMin = cr;
-
-  vtkMath::Cross(e02, e03, N);
-  magN = vtkMath::Dot(N, N);
-  h = vtkMath::Dot(e01, N) / sqrt( magN ); // height of vertex 1 above 0-2-3
-  cr = h / l023;                           // ratio of height to longest edge of 0-2-3
-  if ( cr < crMin ) crMin = cr;
-
-  vtkMath::Cross(e12, e13, N);
-  magN = vtkMath::Dot(N, N);
-  h = vtkMath::Dot(e01, N) / sqrt( magN ); // height of vertex 0 above 1-3-2
-  cr = h / l132;                           // ratio of height to longest edge of 1-3-2
-  if ( cr < crMin ) crMin = cr;
-
-  return crMin;
+  return v_tet_collapse_ratio( 4, pc );
 }
 
 double vtkMeshQuality::TetAspectGamma( vtkCell* cell )
