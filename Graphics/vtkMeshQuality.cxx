@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.43");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.44");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );
@@ -1458,357 +1458,35 @@ double vtkMeshQuality::TetDistortion( vtkCell* cell )
 
 double vtkMeshQuality::HexEdgeRatio( vtkCell* cell)
 {
-  double p0[3],p1[3],p2[3],p3[3];
-  double p4[3],p5[3],p6[3],p7[3];
+  double pc[8][3];
+  vtkPoints* p = cell->GetPoints();
 
-  vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
-  p->GetPoint(3, p3);
-  p->GetPoint(4, p4);
-  p->GetPoint(5, p5);
-  p->GetPoint(6, p6);
-  p->GetPoint(7, p7);
+  for ( int i = 0; i < 8; ++i )
+    p->GetPoint( i, pc[i] );
 
-  double a[3],b[3],c[3],d[3],e[3],f[3];
-  double g[3],h[3],i[3],j[3],k[3],l[3];
-
-  a[0] = p1[0] - p0[0];
-  a[1] = p1[1] - p0[1];
-  a[2] = p1[2] - p0[2];
- 
-  b[0] = p2[0] - p1[0];
-  b[1] = p2[1] - p1[1];
-  b[2] = p2[2] - p1[2];
- 
-  c[0] = p3[0] - p2[0];
-  c[1] = p3[1] - p2[1];
-  c[2] = p3[2] - p2[2];
- 
-  d[0] = p0[0] - p3[0];
-  d[1] = p0[1] - p3[1];
-  d[2] = p0[2] - p3[2];
- 
-  e[0] = p4[0] - p0[0];
-  e[1] = p4[1] - p0[1];
-  e[2] = p4[2] - p0[2];
- 
-  f[0] = p5[0] - p1[0];
-  f[1] = p5[1] - p1[1];
-  f[2] = p5[2] - p1[2];
-
-  g[0] = p6[0] - p2[0];
-  g[1] = p6[1] - p2[1];
-  g[2] = p6[2] - p2[2];
-
-  h[0] = p7[0] - p3[0];
-  h[1] = p7[1] - p3[1];
-  h[2] = p7[2] - p3[2];
-
-  i[0] = p5[0] - p4[0];
-  i[1] = p5[1] - p4[1];
-  i[2] = p5[2] - p4[2];
- 
-  j[0] = p6[0] - p5[0];
-  j[1] = p6[1] - p5[1];
-  j[2] = p6[2] - p5[2];
-
-  k[0] = p7[0] - p6[0];
-  k[1] = p7[1] - p6[1];
-  k[2] = p7[2] - p6[2];
-
-  l[0] = p4[0] - p7[0];
-  l[1] = p4[1] - p7[1];
-  l[2] = p4[2] - p7[2];
-
-  double a2 = vtkMath::Dot(a,a);
-  double b2 = vtkMath::Dot(b,b);
-  double c2 = vtkMath::Dot(c,c);
-  double d2 = vtkMath::Dot(d,d);
-  double e2 = vtkMath::Dot(e,e);
-  double f2 = vtkMath::Dot(f,f);
-  double g2 = vtkMath::Dot(g,g);
-  double h2 = vtkMath::Dot(h,h);
-  double i2 = vtkMath::Dot(i,i);
-  double j2 = vtkMath::Dot(j,j);
-  double k2 = vtkMath::Dot(k,k);
-  double l2 = vtkMath::Dot(l,l);
-
-  double mab,mcd,mef,Mab,Mcd,Mef;
-  double mgh,mij,mkl,Mgh,Mij,Mkl;
-
-  if ( a2 < b2 )
-    {
-      mab = a2;
-      Mab = b2;
-    }
-  else // b2 <= a2
-    {
-      mab = b2;
-      Mab = a2;
-    }
-  if ( c2 < d2 )
-    {
-      mcd = c2;
-      Mcd = d2;
-    }
-  else // d2 <= c2
-    {
-      mcd = d2;
-      Mcd = c2;
-    }
-  if ( e2 < f2 )
-    {
-      mef = e2;
-      Mef = f2;
-    }
-  else // f2 <= e2
-    {
-      mef = f2;
-      Mef = e2;
-    }
-  if ( g2 < h2 )
-    {
-      mgh = g2;
-      Mgh = h2;
-    }
-  else // h2 <= g2
-    {
-      mgh = h2;
-      Mgh = g2;
-    }
-  if ( i2 < j2 )
-    {
-      mij = i2;
-      Mij = j2;
-    }
-  else // j2 <= i2
-    {
-      mij = j2;
-      Mij = i2;
-    }
-  if ( k2 < l2 )
-    {
-      mkl = k2;
-      Mkl = l2;
-    }
-  else // l2 <= k2
-    {
-      mkl = l2;
-      Mkl = k2;
-    }
-
-  double m2,M2;
- 
-  m2 = mab < mcd ? mab : mcd;
-  m2 = m2  < mef ? m2  : mef;
-  m2 = m2  < mgh ? m2  : mgh;
-  m2 = m2  < mij ? m2  : mij;
-  m2 = m2  < mkl ? m2  : mkl;
-  M2 = Mab > Mcd ? Mab : Mcd;
-  M2 = M2  > Mef ? M2  : Mef;
-  M2 = M2  > Mgh ? M2  : Mgh;
-  M2 = M2  > Mij ? M2  : Mij;
-  M2 = M2  > Mkl ? M2  : Mkl;
-
-  return sqrt( M2 / m2 );
-}
-
-double cubicCornerAspectFrobenius( double* u, double* v, double* w )
-{
-  const double normal_coeff = 1. / 9.;
-  
-  double A[3][3];
-  int i;
-  for ( i = 0; i < 3; ++ i )
-    {
-    A[0][i] = u[i];
-    A[1][i] = v[i];
-    A[2][i] = w[i];
-    }
-
-  double U[3][3];
-  double VT[3][3];
-  double s[3];
-  vtkMath::SingularValueDecomposition3x3( A, U, s, VT );
-
-  double a2 = s[0] * s[0];
-  double b2 = s[1] * s[1];
-  double c2 = s[2] * s[2];
-
-  return sqrt( ( a2 + b2 + c2 ) * ( 1. / a2 + 1. / b2 + 1. / c2 ) * normal_coeff );
+  return v_hex_edge_ratio( 8, pc );
 }
 
 double vtkMeshQuality::HexMedAspectFrobenius( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3],p3[3];
-  double p4[3],p5[3],p6[3],p7[3];
- 
-  vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
-  p->GetPoint(3, p3);
-  p->GetPoint(4, p4);
-  p->GetPoint(5, p5);
-  p->GetPoint(6, p6);
-  p->GetPoint(7, p7);
+  double pc[8][3];
 
-  double e01[3],e12[3],e23[3],e30[3],e04[3],e15[3];
-  double e26[3],e37[3],e45[3],e56[3],e67[3],e74[3];
+  vtkPoints* p = cell->GetPoints();
+  for ( int i = 0; i < 8; ++i )
+    p->GetPoint( i, pc[i] );
 
-  e01[0] = p1[0] - p0[0];
-  e01[1] = p1[1] - p0[1];
-  e01[2] = p1[2] - p0[2];
- 
-  e12[0] = p2[0] - p1[0];
-  e12[1] = p2[1] - p1[1];
-  e12[2] = p2[2] - p1[2];
- 
-  e23[0] = p3[0] - p2[0];
-  e23[1] = p3[1] - p2[1];
-  e23[2] = p3[2] - p2[2];
- 
-  e30[0] = p0[0] - p3[0];
-  e30[1] = p0[1] - p3[1];
-  e30[2] = p0[2] - p3[2];
- 
-  e04[0] = p4[0] - p0[0];
-  e04[1] = p4[1] - p0[1];
-  e04[2] = p4[2] - p0[2];
- 
-  e15[0] = p5[0] - p1[0];
-  e15[1] = p5[1] - p1[1];
-  e15[2] = p5[2] - p1[2];
-
-  e26[0] = p6[0] - p2[0];
-  e26[1] = p6[1] - p2[1];
-  e26[2] = p6[2] - p2[2];
-
-  e37[0] = p7[0] - p3[0];
-  e37[1] = p7[1] - p3[1];
-  e37[2] = p7[2] - p3[2];
-
-  e45[0] = p5[0] - p4[0];
-  e45[1] = p5[1] - p4[1];
-  e45[2] = p5[2] - p4[2];
- 
-  e56[0] = p6[0] - p5[0];
-  e56[1] = p6[1] - p5[1];
-  e56[2] = p6[2] - p5[2];
-
-  e67[0] = p7[0] - p6[0];
-  e67[1] = p7[1] - p6[1];
-  e67[2] = p7[2] - p6[2];
-
-  e74[0] = p4[0] - p7[0];
-  e74[1] = p4[1] - p7[1];
-  e74[2] = p4[2] - p7[2];
-
-  double qsum = cubicCornerAspectFrobenius( e01, e04, e30 ); 
-
-  qsum += cubicCornerAspectFrobenius( e01, e12, e15 ); 
-  qsum += cubicCornerAspectFrobenius( e12, e23, e26 ); 
-  qsum += cubicCornerAspectFrobenius( e23, e30, e37 ); 
-  qsum += cubicCornerAspectFrobenius( e74, e45, e04 ); 
-  qsum += cubicCornerAspectFrobenius( e45, e56, e15 ); 
-  qsum += cubicCornerAspectFrobenius( e56, e67, e26 ); 
-  qsum += cubicCornerAspectFrobenius( e67, e74, e37 ); 
-
-  return .125 * qsum;
+  return v_hex_med_aspect_frobenius( 8, pc );
 }
 
 double vtkMeshQuality::HexMaxAspectFrobenius( vtkCell* cell )
 {
-  double p0[3],p1[3],p2[3],p3[3];
-  double p4[3],p5[3],p6[3],p7[3];
- 
-  vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
-  p->GetPoint(3, p3);
-  p->GetPoint(4, p4);
-  p->GetPoint(5, p5);
-  p->GetPoint(6, p6);
-  p->GetPoint(7, p7);
+  double pc[8][3];
 
-  double e01[3],e12[3],e23[3],e30[3],e04[3],e15[3];
-  double e26[3],e37[3],e45[3],e56[3],e67[3],e74[3];
+  vtkPoints* p = cell->GetPoints();
+  for ( int i = 0; i < 8; ++i )
+    p->GetPoint( i, pc[i] );
 
-  e01[0] = p1[0] - p0[0];
-  e01[1] = p1[1] - p0[1];
-  e01[2] = p1[2] - p0[2];
- 
-  e12[0] = p2[0] - p1[0];
-  e12[1] = p2[1] - p1[1];
-  e12[2] = p2[2] - p1[2];
- 
-  e23[0] = p3[0] - p2[0];
-  e23[1] = p3[1] - p2[1];
-  e23[2] = p3[2] - p2[2];
- 
-  e30[0] = p0[0] - p3[0];
-  e30[1] = p0[1] - p3[1];
-  e30[2] = p0[2] - p3[2];
- 
-  e04[0] = p4[0] - p0[0];
-  e04[1] = p4[1] - p0[1];
-  e04[2] = p4[2] - p0[2];
- 
-  e15[0] = p5[0] - p1[0];
-  e15[1] = p5[1] - p1[1];
-  e15[2] = p5[2] - p1[2];
-
-  e26[0] = p6[0] - p2[0];
-  e26[1] = p6[1] - p2[1];
-  e26[2] = p6[2] - p2[2];
-
-  e37[0] = p7[0] - p3[0];
-  e37[1] = p7[1] - p3[1];
-  e37[2] = p7[2] - p3[2];
-
-  e45[0] = p5[0] - p4[0];
-  e45[1] = p5[1] - p4[1];
-  e45[2] = p5[2] - p4[2];
- 
-  e56[0] = p6[0] - p5[0];
-  e56[1] = p6[1] - p5[1];
-  e56[2] = p6[2] - p5[2];
-
-  e67[0] = p7[0] - p6[0];
-  e67[1] = p7[1] - p6[1];
-  e67[2] = p7[2] - p6[2];
-
-  e74[0] = p4[0] - p7[0];
-  e74[1] = p4[1] - p7[1];
-  e74[2] = p4[2] - p7[2];
-
-  double qmax = cubicCornerAspectFrobenius( e01, e04, e30 ); 
-
-  double qcur = cubicCornerAspectFrobenius( e01, e12, e15 ); 
-  if ( qcur > qmax ) qmax = qcur;
-
-  qcur = cubicCornerAspectFrobenius( e12, e23, e26 ); 
-  if ( qcur > qmax ) qmax = qcur;
-
-  qcur = cubicCornerAspectFrobenius( e23, e30, e37 ); 
-  if ( qcur > qmax ) qmax = qcur;
-
-  qcur = cubicCornerAspectFrobenius( e74, e45, e04 ); 
-  if ( qcur > qmax ) qmax = qcur;
-
-  qcur = cubicCornerAspectFrobenius( e45, e56, e15 ); 
-  if ( qcur > qmax ) qmax = qcur;
-
-  qcur = cubicCornerAspectFrobenius( e56, e67, e26 ); 
-  if ( qcur > qmax ) qmax = qcur;
-
-  qcur = cubicCornerAspectFrobenius( e67, e74, e37 ); 
-  if ( qcur > qmax ) qmax = qcur;
-
-  return qmax;
+  return v_hex_max_aspect_frobenius( 8, pc );
 }
 
 double vtkMeshQuality::HexMaxEdgeRatios( vtkCell* cell )

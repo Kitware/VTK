@@ -90,6 +90,8 @@ extern "C" {
 */
 struct HexMetricVals
 {
+  /** \sa v_hex_edge_ratio */
+  VERDICT_REAL edge_ratio ;  
   /** \sa v_hex_max_edge_ratios */
   VERDICT_REAL max_edge_ratios ;  
   /** \sa v_hex_skew */
@@ -106,6 +108,8 @@ struct HexMetricVals
   VERDICT_REAL dimension ;
   /** \sa v_hex_oddy */
   VERDICT_REAL oddy ;
+  /** \sa v_hex_med_aspect_frobenius */
+  VERDICT_REAL med_aspect_frobenius ;
   /** \sa v_hex_condition */
   VERDICT_REAL condition ;
   /** \sa v_hex_jacobian */
@@ -337,6 +341,7 @@ struct TriMetricVals
 #define V_HEX_DIAGONAL               32     /*!< \hideinitializer */
 #define V_HEX_DIMENSION              64     /*!< \hideinitializer */
 #define V_HEX_ODDY                   128    /*!< \hideinitializer */
+#define V_HEX_MAX_ASPECT_FROBENIUS   256    /*!< \hideinitializer */
 #define V_HEX_CONDITION              256    /*!< \hideinitializer */
 #define V_HEX_JACOBIAN               512    /*!< \hideinitializer */
 #define V_HEX_SCALED_JACOBIAN        1024   /*!< \hideinitializer */
@@ -346,7 +351,9 @@ struct TriMetricVals
 #define V_HEX_SHAPE_AND_SIZE         16384  /*!< \hideinitializer */
 #define V_HEX_SHEAR_AND_SIZE         32768  /*!< \hideinitializer */
 #define V_HEX_DISTORTION             65536  /*!< \hideinitializer */
-#define V_HEX_ALL                    131071 /*!< \hideinitializer */
+#define V_HEX_EDGE_RATIO             131072 /*!< \hideinitializer */
+#define V_HEX_MED_ASPECT_FROBENIUS   262144 /*!< \hideinitializer */
+#define V_HEX_ALL                    524287 /*!< \hideinitializer */
 /*!< \hideinitializer */
 #define V_HEX_TRADITIONAL            V_HEX_MAX_EDGE_RATIOS + \
                                      V_HEX_SKEW            + \
@@ -642,6 +649,11 @@ struct TriMetricVals
     //! Sets average size (volume) of hex, needed for v_hex_relative_size(...)
     C_FUNC_DEF void v_set_hex_size( VERDICT_REAL size );
 
+    //! Calculates hex edge ratio metric.
+    /**  Hmax / Hmin where Hmax and Hmin are respectively the maximum and the
+         minimum edge lengths */ 
+    C_FUNC_DEF VERDICT_REAL v_hex_edge_ratio( int num_nodes, VERDICT_REAL coordinates[][3] );
+
     //! Calculates hex maximum of edge ratios
     /**Maximum edge length ratios at hex center.
       Reference --- L.M. Taylor, and D.P. Flanagan, Pronto3D - A Three Dimensional Transient
@@ -687,10 +699,15 @@ struct TriMetricVals
     C_FUNC_DEF VERDICT_REAL v_hex_oddy( int num_nodes, VERDICT_REAL coordinates[][3] ); 
 
     //! Calculates hex condition metric   
-    /** Maximum condition number of the Jacobian matrix at 8 corners.
+    /** Average Frobenius condition number of the Jacobian matrix at 8 corners. */ 
+    C_FUNC_DEF VERDICT_REAL v_hex_med_aspect_frobenius( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+
+    //! Calculates hex condition metric   
+    /** Maximum Frobenius condition number of the Jacobian matrix at 8 corners.
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities, 
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */ 
+    C_FUNC_DEF VERDICT_REAL v_hex_max_aspect_frobenius( int num_nodes, VERDICT_REAL coordinates[][3] ); 
     C_FUNC_DEF VERDICT_REAL v_hex_condition( int num_nodes, VERDICT_REAL coordinates[][3] ); 
 
     //! Calculates hex jacobian metric   

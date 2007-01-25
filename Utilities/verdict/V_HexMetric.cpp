@@ -585,7 +585,125 @@ VerdictVector calc_hex_efg( int efg_index, VerdictVector coordinates[8])
 }
 
 /*!
-  the aspect ratio of a hexahedral
+   the edge ratio of a hex
+
+   NB (P. Pebay 01/23/07): 
+     Hmax / Hmin where Hmax and Hmin are respectively the maximum and the
+     minimum edge lengths
+*/
+C_FUNC_DEF VERDICT_REAL v_hex_edge_ratio (int /*num_nodes*/, VERDICT_REAL coordinates[][3])
+{
+
+  VerdictVector edges[12];
+  make_hex_edges(coordinates, edges);
+  
+  double a2 = edges[0].length_squared();
+  double b2 = edges[1].length_squared();
+  double c2 = edges[2].length_squared();
+  double d2 = edges[3].length_squared();
+  double e2 = edges[4].length_squared();
+  double f2 = edges[5].length_squared();
+  double g2 = edges[6].length_squared();
+  double h2 = edges[7].length_squared();
+  double i2 = edges[8].length_squared();
+  double j2 = edges[9].length_squared();
+  double k2 = edges[10].length_squared();
+  double l2 = edges[11].length_squared();
+
+  double mab,mcd,mef,Mab,Mcd,Mef;
+  double mgh,mij,mkl,Mgh,Mij,Mkl;
+
+  if ( a2 < b2 )
+    {
+      mab = a2;
+      Mab = b2;
+    }
+  else // b2 <= a2
+    {
+      mab = b2;
+      Mab = a2;
+    }
+  if ( c2 < d2 )
+    {
+      mcd = c2;
+      Mcd = d2;
+    }
+  else // d2 <= c2
+    {
+      mcd = d2;
+      Mcd = c2;
+    }
+  if ( e2 < f2 )
+    {
+      mef = e2;
+      Mef = f2;
+    }
+  else // f2 <= e2
+    {
+      mef = f2;
+      Mef = e2;
+    }
+  if ( g2 < h2 )
+    {
+      mgh = g2;
+      Mgh = h2;
+    }
+  else // h2 <= g2
+    {
+      mgh = h2;
+      Mgh = g2;
+    }
+  if ( i2 < j2 )
+    {
+      mij = i2;
+      Mij = j2;
+    }
+  else // j2 <= i2
+    {
+      mij = j2;
+      Mij = i2;
+    }
+  if ( k2 < l2 )
+    {
+      mkl = k2;
+      Mkl = l2;
+    }
+  else // l2 <= k2
+    {
+      mkl = l2;
+      Mkl = k2;
+    }
+
+  double m2;
+  m2 = mab < mcd ? mab : mcd;
+  m2 = m2  < mef ? m2  : mef;
+  m2 = m2  < mgh ? m2  : mgh;
+  m2 = m2  < mij ? m2  : mij;
+  m2 = m2  < mkl ? m2  : mkl;
+
+  if( m2 < VERDICT_DBL_MIN ) 
+    return (VERDICT_REAL)VERDICT_DBL_MAX;
+
+  double M2;
+  M2 = Mab > Mcd ? Mab : Mcd;
+  M2 = M2  > Mef ? M2  : Mef;
+  M2 = M2  > Mgh ? M2  : Mgh;
+  M2 = M2  > Mij ? M2  : Mij;
+  M2 = M2  > Mkl ? M2  : Mkl;
+  m2 = m2  < mef ? m2  : mef;
+
+  M2 = Mab > Mcd ? Mab : Mcd;
+  M2 = M2  > Mef ? M2  : Mef;
+
+  double edge_ratio = sqrt( M2 / m2 );
+  
+  if( edge_ratio > 0 )
+    return (VERDICT_REAL) VERDICT_MIN( edge_ratio, VERDICT_DBL_MAX );
+  return (VERDICT_REAL) VERDICT_MAX( edge_ratio, -VERDICT_DBL_MAX );
+}
+
+/*!
+  max edge ratios of a hex
 
   Maximum edge length ratios at hex center
 */
@@ -1110,11 +1228,94 @@ C_FUNC_DEF VERDICT_REAL v_hex_oddy( int /*num_nodes*/, VERDICT_REAL coordinates[
 }
 
 /*!
-  condition number of a hex
+   the average Frobenius aspect of a hex
 
-  Maximum condition number of the Jacobian matrix at 8 corners
+   NB (P. Pebay 01/20/07): 
+     this metric is calculated by averaging the 8 Frobenius aspects at
+     each corner of the hex, when the reference corner is right isosceles.
 */
-C_FUNC_DEF VERDICT_REAL v_hex_condition( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF VERDICT_REAL v_hex_med_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+
+  VerdictVector node_pos[8];
+  make_hex_nodes ( coordinates, node_pos );
+
+  double med_aspect_frobenius = 0.; 
+  VerdictVector xxi, xet, xze;
+
+  // J(0,0,0):
+
+  xxi = node_pos[1] - node_pos[0];
+  xet = node_pos[3] - node_pos[0];
+  xze = node_pos[4] - node_pos[0];
+
+  med_aspect_frobenius += condition_comp( xxi, xet, xze );
+  // J(1,0,0):
+  
+  xxi = node_pos[2] - node_pos[1];
+  xet = node_pos[0] - node_pos[1];
+  xze = node_pos[5] - node_pos[1];
+
+  med_aspect_frobenius += condition_comp( xxi, xet, xze );
+  // J(1,1,0):
+  
+  xxi = node_pos[3] - node_pos[2];
+  xet = node_pos[1] - node_pos[2];
+  xze = node_pos[6] - node_pos[2];
+
+  med_aspect_frobenius += condition_comp( xxi, xet, xze );
+  // J(0,1,0):
+  
+  xxi = node_pos[0] - node_pos[3];
+  xet = node_pos[2] - node_pos[3];
+  xze = node_pos[7] - node_pos[3];
+
+  med_aspect_frobenius += condition_comp( xxi, xet, xze );
+  // J(0,0,1):
+
+  xxi = node_pos[7] - node_pos[4];
+  xet = node_pos[5] - node_pos[4];
+  xze = node_pos[0] - node_pos[4];
+
+  med_aspect_frobenius += condition_comp( xxi, xet, xze );
+  // J(1,0,1):
+
+  xxi = node_pos[4] - node_pos[5];
+  xet = node_pos[6] - node_pos[5];
+  xze = node_pos[1] - node_pos[5];
+
+  med_aspect_frobenius += condition_comp( xxi, xet, xze );
+  // J(1,1,1):
+
+  xxi = node_pos[5] - node_pos[6];
+  xet = node_pos[7] - node_pos[6];
+  xze = node_pos[2] - node_pos[6];
+
+  med_aspect_frobenius += condition_comp( xxi, xet, xze );
+  // J(1,1,1):
+
+  xxi = node_pos[6] - node_pos[7];
+  xet = node_pos[4] - node_pos[7];
+  xze = node_pos[3] - node_pos[7];
+
+  med_aspect_frobenius += condition_comp( xxi, xet, xze );
+  med_aspect_frobenius /= 24.;
+
+  if( med_aspect_frobenius > 0 )
+    return (VERDICT_REAL) VERDICT_MIN( med_aspect_frobenius, VERDICT_DBL_MAX );
+  return (VERDICT_REAL) VERDICT_MAX( med_aspect_frobenius, -VERDICT_DBL_MAX );
+
+}
+
+/*!
+  maximum Frobenius condition number of a hex
+
+  Maximum Frobenius condition number of the Jacobian matrix at 8 corners
+   NB (P. Pebay 01/25/07): 
+     this metric is calculated by taking the maximum of the 8 Frobenius aspects at
+     each corner of the hex, when the reference corner is right isosceles.
+*/
+C_FUNC_DEF VERDICT_REAL v_hex_max_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
 {
 
   VerdictVector node_pos[8];
@@ -1208,6 +1409,19 @@ C_FUNC_DEF VERDICT_REAL v_hex_condition( int /*num_nodes*/, VERDICT_REAL coordin
     return (VERDICT_REAL) VERDICT_MIN( condition, VERDICT_DBL_MAX );
   return (VERDICT_REAL) VERDICT_MAX( condition, -VERDICT_DBL_MAX );
 
+}
+
+/*!
+  The maximum Frobenius condition of a tet, a.k.a. condition
+  NB (P. Pebay 01/25/07): 
+     this method is maintained for backwards compatibility only.
+     It will become deprecated at some point.
+
+*/
+C_FUNC_DEF VERDICT_REAL v_hex_condition( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+{
+
+  return v_hex_max_aspect_frobenius(8, coordinates);
 }
 
 /*!
