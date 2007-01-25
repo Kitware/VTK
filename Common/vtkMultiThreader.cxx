@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
-vtkCxxRevisionMacro(vtkMultiThreader, "1.50");
+vtkCxxRevisionMacro(vtkMultiThreader, "1.51");
 vtkStandardNewMacro(vtkMultiThreader);
 
 // These are the includes necessary for multithreaded rendering on an SGI
@@ -42,7 +42,8 @@ typedef vtkThreadFunctionType vtkExternCThreadFunctionType;
 #endif
 
 #ifdef __APPLE__
-#include <Carbon/Carbon.h>
+#include <sys/types.h>
+#include <sys/sysctl.h>
 #endif
 
 // Initialize static member that controls global maximum number of threads
@@ -99,9 +100,16 @@ int vtkMultiThreader::GetGlobalDefaultNumberOfThreads()
 #endif
 
 #ifdef __APPLE__
-    // MPProcessors returns the physical number of processors present
-    // MPProcessorsScheduled returns number of active processors
-    num = MPProcessors();
+    // Use sysctl() to determine the number of CPUs.  This is prefered
+    // over MPProcessors() because it doesn't require CoreServices
+    // (which is only available in 32bit on Mac OS X 10.4)
+    int mib[2] = {CTL_HW, HW_NCPU};
+    size_t dataLen = sizeof(int); // 'num' is an 'int'
+    int result = sysctl(mib, 2, &num, &dataLen, NULL, 0);
+    if (result == -1)
+      {
+      num = 1;
+      }
 #endif
 
 #ifdef _WIN32
