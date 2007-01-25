@@ -95,6 +95,9 @@
 /* Whether FFMPEG is found or not  */
 #cmakedefine VTK_USE_FFMPEG_ENCODER
 
+/* Whether the user has linked in the MPEG2 library or not  */
+#cmakedefine VTK_USE_MPEG2_ENCODER
+
 /*--------------------------------------------------------------------------*/
 /* Setup VTK based on platform features and configuration.                  */
 

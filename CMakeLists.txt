@@ -1433,6 +1433,37 @@ IF (VTK_USE_FFMPEG_ENCODER)
 ENDIF (VTK_USE_FFMPEG_ENCODER)
 
 #-----------------------------------------------------------------------------
+# MPEG2
+#
+# Portions of the mpeg2 library are patented. VTK does not enable linking to
+# this library by default so VTK can remain "patent free". Users who wish to
+# link in mpeg2 functionality must build that library separately and then
+# turn on VTK_USE_MPEG2_ENCODER when configuring VTK. After turning on
+# VTK_USE_MPEG2_ENCODER, you must also set the CMake variables
+# vtkMPEG2Encode_INCLUDE_PATH and vtkMPEG2Encode_LIBRARIES.
+#
+# To use the patented mpeg2 library, first build it, then set the following
+# CMake variables during the VTK configure step:
+#   VTK_USE_MPEG2_ENCODER = ON
+#   vtkMPEG2Encode_INCLUDE_PATH = /path/to/vtkmpeg2encode;/path/to/vtkmpeg2encode-bin
+#   vtkMPEG2Encode_LIBRARIES = /path/to/vtkmpeg2encode-bin/vtkMPEG2Encode.lib
+#
+# Or using -D args on the cmake/ccmake command line:
+#   -DVTK_USE_MPEG2_ENCODER:BOOL=ON
+#   "-DvtkMPEG2Encode_INCLUDE_PATH:PATH=/path/to/vtkmpeg2encode;/path/to/vtkmpeg2encode-bin"
+#   "-DvtkMPEG2Encode_LIBRARIES:STRING=/path/to/vtkmpeg2encode-bin/vtkMPEG2Encode.lib"
+#
+# You are solely responsible for any legal issues associated with using
+# patented code in your software.
+#
+OPTION (VTK_USE_MPEG2_ENCODER
+  "Enable use of the patented mpeg2 library. You are solely responsible for any legal issues associated with using patented code in your software."
+  OFF)
+IF (VTK_USE_MPEG2_ENCODER)
+  INCLUDE(${VTK_SOURCE_DIR}/CMake/FindMPEG2.cmake OPTIONAL)
+ENDIF (VTK_USE_MPEG2_ENCODER)
+
+#-----------------------------------------------------------------------------
 # Configure files with settings for use by the build.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/vtkConfigure.h.in
                ${VTK_BINARY_DIR}/vtkConfigure.h @ONLY IMMEDIATE)
