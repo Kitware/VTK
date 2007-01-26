@@ -29,7 +29,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkBoundingBox.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.32");
+vtkCxxRevisionMacro(vtkCommunicator, "1.33");
 
 template <class T>
 int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -161,6 +161,12 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
     {
     // send name
     this->Send( const_cast<char*>(name), len, remoteHandle, tag);
+    }
+
+  // do nothing if size is zero.
+  if (size == 0)
+    {
+    return 1;
     }
 
   // now send the raw array
@@ -309,8 +315,9 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle,
     return 0;
     }
   
+  // Do nothing if size is zero.
   if (size == 0)
-    { // This indicates a NULL object was sent. Do nothing.
+    {
     return 1;   
     }
   
