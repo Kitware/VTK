@@ -29,7 +29,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkBoundingBox.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.31");
+vtkCxxRevisionMacro(vtkCommunicator, "1.32");
 
 template <class T>
 int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -136,13 +136,15 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
   type = data->GetDataType();
   this->Send( &type, 1, remoteHandle, tag);
 
-  // send array size
-  vtkIdType size = data->GetSize();
-  this->Send( &size, 1, remoteHandle, tag);
+  // send array tuples
+  vtkIdType numTuples = data->GetNumberOfTuples();
+  this->Send( &numTuples, 1, remoteHandle, tag);
 
   // send number of components in array
   int numComponents = data->GetNumberOfComponents();
   this->Send( &numComponents, 1, remoteHandle, tag);
+
+  vtkIdType size = numTuples*numComponents;
 
   
   const char* name = data->GetName();
@@ -250,7 +252,7 @@ int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle,
 int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, 
                              int tag)
 {
-  vtkIdType size;
+  vtkIdType numTuples;
   int type;
   int numComponents;
   int nameLength;
@@ -276,8 +278,8 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle,
     return 1;   
     }
 
-  // Next receive the data length.
-  if (!this->Receive( &size, 1, remoteHandle, tag))
+  // Next receive the number of tuples.
+  if (!this->Receive( &numTuples, 1, remoteHandle, tag))
     {
     vtkErrorMacro("Could not receive data!");
     return 0;
@@ -285,6 +287,8 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle,
 
   // Next receive the number of components.
   this->Receive( &numComponents, 1, remoteHandle, tag);
+
+  vtkIdType size = numTuples*numComponents;
 
   // Next receive the length of the name.
   this->Receive( &nameLength, 1, remoteHandle, tag);
