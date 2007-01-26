@@ -35,8 +35,9 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMarchingCubes, "1.1");
+vtkCxxRevisionMacro(vtkMarchingCubes, "1.1.6.1");
 vtkStandardNewMacro(vtkMarchingCubes);
 
 // Description:
@@ -83,7 +84,7 @@ unsigned long vtkMarchingCubes::GetMTime()
 // NOTE: We calculate the negative of the gradient for efficiency
 template <class T>
 void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int dims[3], 
-                                          int sliceSize, double Spacing[3], double n[3])
+                                          int sliceSize, double spacing[3], double n[3])
 {
   double sp, sm;
 
@@ -92,19 +93,19 @@ void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int dims[3]
     {
     sp = s[i+1 + j*dims[0] + k*sliceSize];
     sm = s[i + j*dims[0] + k*sliceSize];
-    n[0] = (sm - sp) / Spacing[0];
+    n[0] = (sm - sp) / spacing[0];
     }
   else if ( i == (dims[0]-1) )
     {
     sp = s[i + j*dims[0] + k*sliceSize];
     sm = s[i-1 + j*dims[0] + k*sliceSize];
-    n[0] = (sm - sp) / Spacing[0];
+    n[0] = (sm - sp) / spacing[0];
     }
   else
     {
     sp = s[i+1 + j*dims[0] + k*sliceSize];
     sm = s[i-1 + j*dims[0] + k*sliceSize];
-    n[0] = 0.5 * (sm - sp) / Spacing[0];
+    n[0] = 0.5 * (sm - sp) / spacing[0];
     }
 
   // y-direction
@@ -112,19 +113,19 @@ void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int dims[3]
     {
     sp = s[i + (j+1)*dims[0] + k*sliceSize];
     sm = s[i + j*dims[0] + k*sliceSize];
-    n[1] = (sm - sp) / Spacing[1];
+    n[1] = (sm - sp) / spacing[1];
     }
   else if ( j == (dims[1]-1) )
     {
     sp = s[i + j*dims[0] + k*sliceSize];
     sm = s[i + (j-1)*dims[0] + k*sliceSize];
-    n[1] = (sm - sp) / Spacing[1];
+    n[1] = (sm - sp) / spacing[1];
     }
   else
     {
     sp = s[i + (j+1)*dims[0] + k*sliceSize];
     sm = s[i + (j-1)*dims[0] + k*sliceSize];
-    n[1] = 0.5 * (sm - sp) / Spacing[1];
+    n[1] = 0.5 * (sm - sp) / spacing[1];
     }
 
   // z-direction
@@ -132,19 +133,19 @@ void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int dims[3]
     {
     sp = s[i + j*dims[0] + (k+1)*sliceSize];
     sm = s[i + j*dims[0] + k*sliceSize];
-    n[2] = (sm - sp) / Spacing[2];
+    n[2] = (sm - sp) / spacing[2];
     }
   else if ( k == (dims[2]-1) )
     {
     sp = s[i + j*dims[0] + k*sliceSize];
     sm = s[i + j*dims[0] + (k-1)*sliceSize];
-    n[2] = (sm - sp) / Spacing[2];
+    n[2] = (sm - sp) / spacing[2];
     }
   else
     {
     sp = s[i + j*dims[0] + (k+1)*sliceSize];
     sm = s[i + j*dims[0] + (k-1)*sliceSize];
-    n[2] = 0.5 * (sm - sp) / Spacing[2];
+    n[2] = 0.5 * (sm - sp) / spacing[2];
     }
 }
 
@@ -153,7 +154,7 @@ void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int dims[3]
 //
 template <class T>
 void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims[3], 
-                                     double origin[3], double Spacing[3],
+                                     double origin[3], double spacing[3],
                                      vtkPointLocator *locator, 
                                      vtkDataArray *newScalars, 
                                      vtkDataArray *newGradients, 
@@ -172,11 +173,15 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
   int ComputeGradients = newGradients != NULL;
   int ComputeScalars = newScalars != NULL;
   int NeedGradients;
+  int extent[6];
   double t, *x1, *x2, x[3], *n1, *n2, n[3], min, max;
   double pts[8][3], gradients[8][3], xp, yp, zp;
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
                               {4,5}, {5,6}, {7,6}, {4,7},
                               {0,4}, {1,5}, {3,7}, {2,6}};
+
+  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
 
   triCases =  vtkMarchingCubesTriangleCases::GetCases();
 
@@ -211,13 +216,13 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
       break;
       }
     kOffset = k*sliceSize;
-    pts[0][2] = origin[2] + k*Spacing[2];
-    zp = origin[2] + (k+1)*Spacing[2];
+    pts[0][2] = origin[2] + (k+extent[4]) * spacing[2];
+    zp = pts[0][2] + spacing[2];
     for ( j=0; j < (dims[1]-1); j++)
       {
       jOffset = j*dims[0];
-      pts[0][1] = origin[1] + j*Spacing[1];
-      yp = origin[1] + (j+1)*Spacing[1];
+      pts[0][1] = origin[1] + (j+extent[2]) * spacing[1];
+      yp = pts[0][1] + spacing[1];
       for ( i=0; i < (dims[0]-1); i++)
         {
         //get scalar values
@@ -240,8 +245,8 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
           }
 
         //create voxel points
-        pts[0][0] = origin[0] + i*Spacing[0];
-        xp = origin[0] + (i+1)*Spacing[0];
+        pts[0][0] = origin[0] + (i+extent[0]) * spacing[0];
+        xp = pts[0][0] + spacing[0];
 
         pts[1][0] = xp;
         pts[1][1] = pts[0][1];
@@ -276,14 +281,14 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
         //create gradients if needed
         if (NeedGradients)
           {
-          vtkMarchingCubesComputePointGradient(i,j,k, scalars, dims, sliceSize, Spacing, gradients[0]);
-          vtkMarchingCubesComputePointGradient(i+1,j,k, scalars, dims, sliceSize, Spacing, gradients[1]);
-          vtkMarchingCubesComputePointGradient(i+1,j+1,k, scalars, dims, sliceSize, Spacing, gradients[2]);
-          vtkMarchingCubesComputePointGradient(i,j+1,k, scalars, dims, sliceSize, Spacing, gradients[3]);
-          vtkMarchingCubesComputePointGradient(i,j,k+1, scalars, dims, sliceSize, Spacing, gradients[4]);
-          vtkMarchingCubesComputePointGradient(i+1,j,k+1, scalars, dims, sliceSize, Spacing, gradients[5]);
-          vtkMarchingCubesComputePointGradient(i+1,j+1,k+1, scalars, dims, sliceSize, Spacing, gradients[6]);
-          vtkMarchingCubesComputePointGradient(i,j+1,k+1, scalars, dims, sliceSize, Spacing, gradients[7]);
+          vtkMarchingCubesComputePointGradient(i,j,k, scalars, dims, sliceSize, spacing, gradients[0]);
+          vtkMarchingCubesComputePointGradient(i+1,j,k, scalars, dims, sliceSize, spacing, gradients[1]);
+          vtkMarchingCubesComputePointGradient(i+1,j+1,k, scalars, dims, sliceSize, spacing, gradients[2]);
+          vtkMarchingCubesComputePointGradient(i,j+1,k, scalars, dims, sliceSize, spacing, gradients[3]);
+          vtkMarchingCubesComputePointGradient(i,j,k+1, scalars, dims, sliceSize, spacing, gradients[4]);
+          vtkMarchingCubesComputePointGradient(i+1,j,k+1, scalars, dims, sliceSize, spacing, gradients[5]);
+          vtkMarchingCubesComputePointGradient(i+1,j+1,k+1, scalars, dims, sliceSize, spacing, gradients[6]);
+          vtkMarchingCubesComputePointGradient(i,j+1,k+1, scalars, dims, sliceSize, spacing, gradients[7]);
           }
         for (contNum=0; contNum < numValues; contNum++)
           {
@@ -381,9 +386,9 @@ int vtkMarchingCubes::RequestData(
   vtkFloatArray *newGradients;
   vtkPointData *pd;
   vtkDataArray *inScalars;
-  int dims[3];
+  int dims[3], extent[6];
   int estimatedSize;
-  double Spacing[3], origin[3];
+  double spacing[3], origin[3];
   double bounds[6];
   int numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
@@ -413,7 +418,9 @@ int vtkMarchingCubes::RequestData(
     }
   input->GetDimensions(dims);
   input->GetOrigin(origin);
-  input->GetSpacing(Spacing);
+  input->GetSpacing(spacing);
+
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
 
   // estimate the number of points from the volume dimensions
   estimatedSize = (int) pow ((double) (dims[0] * dims[1] * dims[2]), .75);
@@ -427,8 +434,8 @@ int vtkMarchingCubes::RequestData(
   // compute bounds for merging points
   for ( int i=0; i<3; i++)
     {
-    bounds[2*i] = origin[i];
-    bounds[2*i+1] = origin[i] + (dims[i]-1) * Spacing[i];
+    bounds[2*i] = origin[i] + extent[2*i] * spacing[i];
+    bounds[2*i+1] = origin[i] + extent[2*i+1] * spacing[i];
     }
   if ( this->Locator == NULL )
     {
@@ -478,7 +485,7 @@ int vtkMarchingCubes::RequestData(
       {
       vtkTemplateMacro(
         vtkMarchingCubesComputeGradient(this, static_cast<VTK_TT*>(scalars),
-                                        dims,origin,Spacing,this->Locator,
+                                        dims,origin,spacing,this->Locator,
                                         newScalars,newGradients,
                                         newNormals,newPolys,values,
                                         numContours)
@@ -495,7 +502,7 @@ int vtkMarchingCubes::RequestData(
     inScalars->GetTuples(0,dataSize,image);
 
     double *scalars = image->GetPointer(0);
-    vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
+    vtkMarchingCubesComputeGradient(this,scalars,dims,origin,spacing,this->Locator,
                   newScalars,newGradients,
                   newNormals,newPolys,values,numContours);
     image->Delete();
