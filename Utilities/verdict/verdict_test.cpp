@@ -121,7 +121,7 @@ int main( )
 */
       {
   "singular tri",
-  {v_tri_area, v_tri_aspect, v_tri_condition, 
+  {v_tri_area, v_tri_aspect_ratio, v_tri_condition, 
          v_tri_distortion, v_tri_minimum_angle, v_tri_maximum_angle,
          v_tri_relative_size_squared, v_tri_shape, v_tri_shape_and_size,
    0}, 

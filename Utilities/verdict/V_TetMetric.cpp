@@ -376,7 +376,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coor
 /*!
   the aspect gamma of a tet
 
-  srms^3 / (8.479670*V) where srms = sqrt(sum(Si^2)/6), where Si is the edge length
+  srms^3 / (8.48528137423857*V) where srms = sqrt(sum(Si^2)/6), where Si is the edge length
 */
 C_FUNC_DEF VERDICT_REAL v_tet_aspect_gamma( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
 {
@@ -419,7 +419,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_gamma( int /*num_nodes*/, VERDICT_REAL coor
                         side2.length_squared() + side3.length_squared() +
                         side4.length_squared() + side5.length_squared()) / 6.0 );
 
-    double aspect_ratio_gamma = pow(srms, 3) / (8.47967 * volume );  
+    double aspect_ratio_gamma = pow(srms, 3) / (8.48528137423857 * volume );  
     return (VERDICT_REAL)aspect_ratio_gamma;
   }
 }
@@ -1023,7 +1023,7 @@ C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3],
 
       // cube the srms
       srms *= (srms * srms);
-      metric_vals->aspect_gamma = (VERDICT_REAL)( srms / (8.47967 * volume ));
+      metric_vals->aspect_gamma = (VERDICT_REAL)( srms / (8.48528137423857 * volume ));
     }
   }
 
