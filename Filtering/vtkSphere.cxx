@@ -16,7 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSphere, "1.27");
+vtkCxxRevisionMacro(vtkSphere, "1.28");
 vtkStandardNewMacro(vtkSphere);
 
 // Construct sphere with center at (0,0,0) and radius=0.5.
@@ -51,6 +51,8 @@ void vtkSphere::EvaluateGradient(double x[3], double n[3])
 // Inspired by Graphics Gems Vol. I ("An Efficient Bounding Sphere" by Jack Ritter).
 // The algorithm works in two parts: first an initial estimate of the largest sphere;
 // second an adjustment to the sphere to make sure that it includes all the points.
+// Typically this returns a bounding sphere that is ~5% larger than the minimal
+// bounding sphere.
 void vtkSphere::ComputeBoundingSphere(double *pts, vtkIdType numPts, double sphere[4],
                                       vtkIdType hints[2])
 {
@@ -151,16 +153,28 @@ void vtkSphere::ComputeBoundingSphere(double *pts, vtkIdType numPts, double sphe
 #undef VTK_ASSIGN_POINT
 
 #define VTK_ASSIGN_SPHERE(_x,_y) {_x[0]=_y[0];_x[1]=_y[1];_x[2]=_y[2];_x[3]=_y[3];}
+// An approximation to the bounding sphere of a set of spheres. The algorithm
+// creates an iniitial approximation from two spheres that are expected to be
+// the farthest apart (taking into accout their radius). A second pass may
+// grow the bounding sphere if the remaining spheres are not contained within
+// it. The hints[2] array indicates two spheres that are expected to be the
+// farthest apart.
 //----------------------------------------------------------------------------
 void vtkSphere::ComputeBoundingSphere(double **spheres, vtkIdType numSpheres, double sphere[4],
                                       vtkIdType hints[2])
 {
-  sphere[0] = sphere[1] = sphere[2] = sphere[3] = 0.0;
   if ( numSpheres < 1 )
     {
+    sphere[0] = sphere[1] = sphere[2] = sphere[3] = 0.0;
+    return;
+    }
+  else if ( numSpheres == 1 )
+    {
+    VTK_ASSIGN_SPHERE(sphere,spheres[0]);
     return;
     }
 
+  // Okay two or more spheres
   vtkIdType i, j;
   double *s, s1[4], s2[4];
   if ( hints )
@@ -230,12 +244,14 @@ void vtkSphere::ComputeBoundingSphere(double **spheres, vtkIdType numSpheres, do
   // Compute intial estimated sphere, take into account the radius of each sphere
   double tmp, v[3], r2 = vtkMath::Distance2BetweenPoints(s1,s2)/4.0;
   sphere[3] = sqrt(r2);
+  double t1 = -s1[3]/(2.0*sphere[3]);
+  double t2 = 1.0 + s2[3]/(2.0*sphere[3]);
   for (i=0; i<3; ++i)
     {
     v[i] = s2[i] - s1[i];
-    tmp = s1[i] - (s1[3]/sphere[3])*v[i];
-    s2[i] = s1[i] + (1.0+s2[3]/sphere[3])*v[i];
-        s1[i] = tmp;
+    tmp = s1[i] + t1*v[i];
+    s2[i] = s1[i] + t2*v[i];
+    s1[i] = tmp;
     sphere[i] = (s1[i]+s2[i]) / 2.0;
     }
   r2 = vtkMath::Distance2BetweenPoints(s1,s2)/4.0;
@@ -277,7 +293,6 @@ void vtkSphere::ComputeBoundingSphere(double **spheres, vtkIdType numSpheres, do
 
 }
 #undef VTK_ASSIGN_SPHERE
-
 
 void vtkSphere::PrintSelf(ostream& os, vtkIndent indent)
 {

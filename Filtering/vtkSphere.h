@@ -15,7 +15,9 @@
 // .NAME vtkSphere - implicit function for a sphere
 // .SECTION Description
 // vtkSphere computes the implicit function and/or gradient for a sphere.
-// vtkSphere is a concrete implementation of vtkImplicitFunction.
+// vtkSphere is a concrete implementation of vtkImplicitFunction. Additional
+// methods are available for sphere-related computations, such as computing
+// bounding spheres for a set of points, or set of spheres.
 
 #ifndef __vtkSphere_h
 #define __vtkSphere_h
@@ -53,23 +55,22 @@ public:
   vtkGetVectorMacro(Center,double,3);
 
   // Description:
-  // Create a bounding sphere from a set of points. The set of points is defined
-  // by an array of doubles, in the order of x-y-z (which repeats for each point).
-  // An optional hints array provides a guess for the initial bounding sphere; the
-  // two values in the hints array are the two points expected to be the furthest
-  // apart (which provides an initial guess for a bounding sphere). The output 
-  // sphere consists of a center (x-y-z) and a radius.
+  // Create a bounding sphere from a set of points. The set of points is
+  // defined by an array of doubles, in the order of x-y-z (which repeats for
+  // each point).  An optional hints array provides a guess for the initial
+  // bounding sphere; the two values in the hints array are the two points
+  // expected to be the furthest apart. The output sphere consists of a
+  // center (x-y-z) and a radius.
   static void ComputeBoundingSphere(double *pts, vtkIdType numPts, double sphere[4], 
                                     vtkIdType hints[2]);
 
   // Description:
   // Create a bounding sphere from a set of spheres. The set of input spheres
   // is defined by an array of pointers to spheres. Each sphere is defined by
-  // the 4-tuple: center(x-y-z)-radius. An optional hints array provides a
+  // the 4-tuple: center(x-y-z)+radius. An optional hints array provides a
   // guess for the initial bounding sphere; the two values in the hints array
-  // are the two spheres expected to be the furthest apart (which provides an
-  // initial guess for a bounding sphere). The output sphere consists of a
-  // center (x-y-z) and a radius.
+  // are the two spheres expected to be the furthest apart. The output sphere
+  // consists of a center (x-y-z) and a radius.
   static void ComputeBoundingSphere(double **spheres, vtkIdType numSpheres, double sphere[4],
                                     vtkIdType hints[2]);
   
