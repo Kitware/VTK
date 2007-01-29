@@ -33,7 +33,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkDataArray, "1.72");
+vtkCxxRevisionMacro(vtkDataArray, "1.73");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -298,9 +298,12 @@ void vtkDataArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
           }
         }
       break;
+      // Note that we must call WriteVoidPointer before GetVoidPointer
+      // in case WriteVoidPointer reallocates memory and fromData ==
+      // this.
       vtkTemplateMacro(
-        void* vfrom = fromData->GetVoidPointer(0);
         void* vto = this->WriteVoidPointer(idx, numComp);
+        void* vfrom = fromData->GetVoidPointer(0);
         vtkDataArrayInterpolateTuple(static_cast<VTK_TT*>(vfrom),
           static_cast<VTK_TT*>(vto),
           numComp, ids, numIds, weights)
@@ -364,10 +367,13 @@ void vtkDataArray::InterpolateTuple(vtkIdType i,
         }
       }
       break;
+    // Note that we must call WriteVoidPointer before GetVoidPointer
+    // in case WriteVoidPointer reallocates memory and fromData1==this
+    // or fromData2==this.
     vtkTemplateMacro(
+      void* vto = this->WriteVoidPointer(loc, numComp);
       void* vfrom1 = fromData1->GetVoidPointer(id1*numComp);
       void* vfrom2 = fromData2->GetVoidPointer(id2*numComp);
-      void* vto = this->WriteVoidPointer(loc, numComp);
       vtkDataArrayInterpolateTuple(static_cast<VTK_TT*>(vfrom1),
         static_cast<VTK_TT*>(vfrom2), static_cast<VTK_TT*>(vto), numComp, t)
       );
