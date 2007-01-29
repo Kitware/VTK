@@ -80,6 +80,9 @@
 /* Whether the real python debug library has been provided.  */
 #cmakedefine VTK_WINDOWS_PYTHON_DEBUGGABLE
 
+/* Whether the user has linked in the MPEG2 library or not  */
+#cmakedefine VTK_USE_MPEG2_ENCODER
+
 /*--------------------------------------------------------------------------*/
 /* Setup VTK based on platform features and configuration.                  */
 
