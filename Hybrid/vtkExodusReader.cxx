@@ -1337,7 +1337,7 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.39");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.40");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1502,7 +1502,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.39");
+vtkCxxRevisionMacro(vtkExodusReader, "1.40");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -2674,6 +2674,11 @@ int vtkExodusReader::RequestData(
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  int tsLength =
+    outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  double* steps =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    
   // Check if a particular time was requested.
   if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
     {
@@ -2682,23 +2687,15 @@ int vtkExodusReader::RequestData(
     double *requestedTimeSteps = 
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
     
-    // Save the time value in the output data information.
-    int length =
-      outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    
-    double* steps =
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    
     // find the closest time step
     int cnt = 0;
-    while (cnt < length-1 && steps[cnt] < requestedTimeSteps[0])
+    while (cnt < tsLength-1 && steps[cnt] < requestedTimeSteps[0])
       {
       cnt++;
       }
     this->ActualTimeStep = cnt;
-    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                  steps+this->ActualTimeStep,1);
     }
+
   // Force TimeStep into the "known good" range. Although this
   // could be accomplished inside SetTimeStep(),
   // - we'd rather not override a VTK macro-defined method
@@ -2768,6 +2765,14 @@ int vtkExodusReader::RequestData(
     // The points and cell information is always the same for exodus
     // Also copy the generated arrays which also stay the same
     output->ShallowCopy(this->DataCache);
+    }
+
+  // Save the time value in the output data information.
+  if (steps)
+    {
+    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
+                                  steps+this->ActualTimeStep,
+                                  1);
     }
   
   // Read in the arrays.
