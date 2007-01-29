@@ -165,14 +165,20 @@ IF(WIN32)
   ENDIF(VTK_USE_VIDEO_FOR_WINDOWS)
 ENDIF(WIN32)
 
-# Include mpeg2 writer if the mpeg2 lib has been defined
-
-IF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
-  SET(Kit_SRCS ${Kit_SRCS} vtkMPEG2Writer.cxx)
+#-----------------------------------------------------------------------------
+# MPEG2
+#
+# Only include the vtkMPEG2Writer if the user has explicitly turned on
+# VTK_USE_MPEG2_ENCODER. If so, user should also have set
+# vtkMPEG2Encode_INCLUDE_PATH and vtkMPEG2Encode_LIBRARIES.
+#
+IF (VTK_USE_MPEG2_ENCODER)
   INCLUDE_DIRECTORIES(${vtkMPEG2Encode_INCLUDE_PATH})
-  SET(KIT_LIBS ${KIT_LIBS} vtkMPEG2Encode)
-ENDIF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
+  SET(Kit_SRCS ${Kit_SRCS} vtkMPEG2Writer.cxx)
+  SET(KIT_LIBS ${KIT_LIBS} ${vtkMPEG2Encode_LIBRARIES})
+ENDIF (VTK_USE_MPEG2_ENCODER)
 
+#-----------------------------------------------------------------------------
 SET_SOURCE_FILES_PROPERTIES(
   vtkPLY
   vtkXMLWriterC
