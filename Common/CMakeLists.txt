@@ -86,7 +86,6 @@ vtkMath.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
 vtkMatrixToLinearTransform.cxx
-vtkMultiPartExtentTranslator.cxx
 vtkMultiThreader.cxx
 vtkMutexLock.cxx
 vtkOStrStreamWrapper.cxx
@@ -96,6 +95,7 @@ vtkObjectBase.cxx
 vtkObjectFactory.cxx
 vtkObjectFactoryCollection.cxx
 vtkOldStyleCallbackCommand.cxx
+vtkOnePieceExtentTranslator.cxx
 vtkOutputWindow.cxx
 vtkOverrideInformation.cxx
 vtkOverrideInformationCollection.cxx
