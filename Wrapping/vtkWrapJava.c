@@ -1017,12 +1017,16 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             data->ClassName);
   fprintf(fp,"\n}\n");
 
-  /* for vtkRenderWindow we want to add a special method to support */
-  /* native AWT rendering */
-//  if (!strcmp("vtkRenderWindow",data->ClassName))
-//    {
-//    fprintf(fp,"\n#include \"vtkJavaAwt.h\"\n\n");
-//    }
+  /* for vtkRenderWindow we want to add a special method to support
+   * native AWT rendering
+   *
+   * Including vtkJavaAwt.h provides inline implementations of
+   * Java_vtk_vtkPanel_RenderCreate, Java_vtk_vtkPanel_Lock and
+   * Java_vtk_vtkPanel_UnLock. */
+  if (!strcmp("vtkRenderWindow",data->ClassName))
+    {
+    fprintf(fp,"\n#include \"vtkJavaAwt.h\"\n\n");
+    }
 
   if (!strcmp("vtkObject",data->ClassName))
     {
