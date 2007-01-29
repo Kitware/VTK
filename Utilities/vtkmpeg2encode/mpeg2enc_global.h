@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 
-#include <vtkmpeg2encode/mpeg2encDllConfig.h>
+#include <mpeg2encDllConfig.h>
 
 /*  VTK_MPEG2ENC_EXPORT designates exported functions...
  */
