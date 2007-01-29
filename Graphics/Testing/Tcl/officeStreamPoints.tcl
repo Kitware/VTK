@@ -13,8 +13,8 @@ vtkStructuredGridReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/office.binary.vtk"
     reader Update;#force a read to occur
 
-# to add coverage for vtkMultiPartExtentTranslator
-vtkMultiPartExtentTranslator translator
+# to add coverage for vtkOnePieceExtentTranslator
+vtkOnePieceExtentTranslator translator
 [reader GetOutput] SetExtentTranslator translator
 
 set length [[reader GetOutput] GetLength]

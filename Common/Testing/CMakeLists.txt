@@ -47,13 +47,13 @@ IF(PYTHON_EXECUTABLE)
     vtkLargeInteger.h
     vtkLinkedList.h
     vtkLinkedListIterator.h
-    vtkMultiPartExtentTranslator.h
     vtkOStrStreamWrapper.h
     vtkOStreamWrapper.h
     vtkObject.h
     vtkObjectBase.h
     vtkObjectFactoryCollection.h
     vtkOldStyleCallbackCommand.h
+    vtkOnePieceExtentTranslator.h
     vtkOverrideInformationCollection.h
     vtkPlaneCollection.h
     vtkProcessStatistics.h
