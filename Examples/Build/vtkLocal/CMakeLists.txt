@@ -66,6 +66,9 @@ IF(VTK_FOUND)
                  ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Configure.h
                  @ONLY IMMEDIATE)
 
+  # Use wrapping hints for this project.
+  SET(VTK_WRAP_HINTS "${PROJECT_SOURCE_DIR}/hints")
+
   # Create the instantiator for these classes.
   SET(VTK_USE_INSTANTIATOR_NEW 1)
   VTK_MAKE_INSTANTIATOR3("${PROJECT_NAME}Instantiator"
@@ -133,7 +136,6 @@ IF(VTK_FOUND)
   IF(VTK_WRAP_JAVA)
     INCLUDE(${VTK_CMAKE_DIR}/vtkWrapJava.cmake)
     SET(VTK_WRAP_JAVA3_INIT_DIR "${PROJECT_SOURCE_DIR}")
-    SET(VTK_WRAP_HINTS "${PROJECT_SOURCE_DIR}/hints")
     SET(VTK_JAVA_HOME ${PROJECT_BINARY_DIR}/java/${PROJECT_NAME})
     MAKE_DIRECTORY(${VTK_JAVA_HOME})
     VTK_WRAP_JAVA3(${PROJECT_NAME}Java vtkLocalJAVA_SRCS "${vtkLocal_SRCS}")
