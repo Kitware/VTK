@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.43");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.44");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -442,19 +442,18 @@ vtkStreamingDemandDrivenPipeline
             }
           else if(inData->GetExtentType() == VTK_3D_EXTENT)
             {
-
+            if (outInfo->Get(UPDATE_PIECE_NUMBER()) >= 0)
+              {
+              // Although only the extent is used when processing
+              // structured datasets, this is still passed to let
+              // algorithms know what the actual request was.
+              inInfo->CopyEntry(outInfo, UPDATE_PIECE_NUMBER());
+              inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
+              inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
+              }
+            
             if(outData->GetExtentType() == VTK_PIECES_EXTENT)
               {
-              if (outInfo->Get(UPDATE_PIECE_NUMBER()) >= 0)
-                {
-                // Although only the extent is used when processing
-                // structured datasets, this is still passed to let
-                // algorithms know what the actual request was.
-                inInfo->CopyEntry(outInfo, UPDATE_PIECE_NUMBER());
-                inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
-                inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
-                }
-
               int piece = outInfo->Get(UPDATE_PIECE_NUMBER());
               int numPieces = outInfo->Get(UPDATE_NUMBER_OF_PIECES());
               int ghostLevel = outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
@@ -742,16 +741,42 @@ vtkStreamingDemandDrivenPipeline
   // Tell outputs they have been generated.
   this->Superclass::MarkOutputsGenerated(request,inInfoVec,outInfoVec);
 
-  // Compute ghost level arrays for generated outputs.
   for(int i=0; i < outInfoVec->GetNumberOfInformationObjects(); ++i)
     {
     vtkInformation* outInfo = outInfoVec->GetInformationObject(i);
     vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
+    // Compute ghost level arrays for generated outputs.
     if(data && !outInfo->Get(DATA_NOT_GENERATED()))
       {
       if(vtkDataSet* ds = vtkDataSet::SafeDownCast(data))
         {
         ds->GenerateGhostLevelArray();
+        }
+      // Check if the output has DATA_TIME_STEPS().
+      vtkInformation* dataInfo = data->GetInformation();
+      if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEPS()))
+        {
+        // It does not. 
+        // Does the input have it? If yes, copy it.
+        vtkDataObject* input = 0;
+        if (this->GetNumberOfInputPorts() > 0)
+          {
+          input = this->GetInputData(0, 0);
+          }
+          if (input && 
+              input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEPS()))
+          {
+          dataInfo->CopyEntry(input->GetInformation(),
+                              vtkDataObject::DATA_TIME_STEPS(),
+                              1);
+          }
+        // Does the update request have it? If yes, copy it.
+        else if (outInfo->Has(UPDATE_TIME_STEPS()))
+          {
+          dataInfo->Set(vtkDataObject::DATA_TIME_STEPS(),
+                        outInfo->Get(UPDATE_TIME_STEPS()),
+                        outInfo->Length(UPDATE_TIME_STEPS()));
+          }
         }
       }
     }
