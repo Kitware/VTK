@@ -69,7 +69,7 @@ public:
   
   // Description:
   // Starts playing the animation scene.
-  void Play();
+  virtual void Play();
 
   // Description:
   // Stops the animation scene that is running.
