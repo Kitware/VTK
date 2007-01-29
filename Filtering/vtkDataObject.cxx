@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.33");
+vtkCxxRevisionMacro(vtkDataObject, "1.34");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -698,19 +698,6 @@ void vtkDataObject::DataHasBeenGenerated()
                            this->GetUpdateNumberOfPieces());
     this->Information->Set(DATA_NUMBER_OF_GHOST_LEVELS(), 
                            this->GetUpdateGhostLevel());
-    }
-  if (!this->Information->Has(DATA_TIME_STEPS()))
-    {
-    if(SDDP* sddp = this->TrySDDP("CopyDataTimeSteps"))
-      {
-      vtkInformation* info = 
-        sddp->GetOutputInformation()->GetInformationObject(
-          this->GetPortNumber());
-      this->Information->Set(
-        DATA_TIME_STEPS(),
-        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()),
-        info->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()));
-      }
     }
 }
 
