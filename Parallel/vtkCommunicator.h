@@ -141,12 +141,6 @@ protected:
   int WriteObject(vtkDataObject *object);
   int ReadObject(vtkDataObject *object);
   
-  int WriteDataSet(vtkDataSet *object);
-  int ReadDataSet(vtkDataSet *object);
-
-  int WriteImageData(vtkImageData *object);
-  int ReadImageData(vtkImageData *object);
-
   int WriteDataArray(vtkDataArray *object);
   int ReadDataArray(vtkDataArray *object);
 

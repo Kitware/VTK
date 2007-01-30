@@ -19,6 +19,8 @@
 #include "vtkDataSetWriter.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkGenericDataObjectReader.h"
+#include "vtkGenericDataObjectWriter.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageClip.h"
 #include "vtkIntArray.h"
@@ -29,7 +31,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkBoundingBox.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.33");
+vtkCxxRevisionMacro(vtkCommunicator, "1.34");
 
 template <class T>
 int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -388,140 +390,44 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle,
 
 }
 
-int vtkCommunicator::WriteObject(vtkDataObject *data)
+int vtkCommunicator::WriteObject(vtkDataObject *object)
 {
-  if (strcmp(data->GetClassName(), "vtkPolyData") == 0          ||
-      strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
-      strcmp(data->GetClassName(), "vtkStructuredGrid") == 0    ||
-      strcmp(data->GetClassName(), "vtkRectilinearGrid") == 0   ||
-      strcmp(data->GetClassName(), "vtkStructuredPoints") == 0)
-    {
-    return this->WriteDataSet((vtkDataSet*)data);
-    }  
-  if (strcmp(data->GetClassName(), "vtkImageData") == 0)
-    {
-    return this->WriteImageData((vtkImageData*)data);
-    }
-  
-  vtkErrorMacro("Cannot marshal object of type "
-                << data->GetClassName());
-  return 0;
-}
+  vtkGenericDataObjectWriter* writer = vtkGenericDataObjectWriter::New();
 
-int vtkCommunicator::ReadObject(vtkDataObject *data)
-{
-  if (strcmp(data->GetClassName(), "vtkPolyData") == 0          ||
-      strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
-      strcmp(data->GetClassName(), "vtkStructuredGrid") == 0    ||
-      strcmp(data->GetClassName(), "vtkRectilinearGrid") == 0   ||
-      strcmp(data->GetClassName(), "vtkStructuredPoints") == 0)
-    {
-    return this->ReadDataSet((vtkDataSet*)data);
-    }  
-  if (strcmp(data->GetClassName(), "vtkImageData") == 0)
-    {
-    return this->ReadImageData((vtkImageData*)data);
-    }
-  
-  vtkErrorMacro("Cannot marshal object of type "
-                << data->GetClassName());
+  vtkDataObject* copy = object->NewInstance();
+  copy->ShallowCopy(object);
 
-  return 1;
-}
-
-
-int vtkCommunicator::WriteImageData(vtkImageData *data)
-{
-  vtkImageClip *clip;
-  vtkStructuredPointsWriter *writer;
-  int size;
-  
-  // keep Update from propagating
-  vtkImageData *tmp = vtkImageData::New();
-  tmp->ShallowCopy(data);
-  
-  clip = vtkImageClip::New();
-  clip->SetInput(tmp);
-  clip->SetOutputWholeExtent(data->GetExtent());
-  writer = vtkStructuredPointsWriter::New();
   writer->SetFileTypeToBinary();
-  writer->WriteToOutputStringOn();
-  writer->SetInput(clip->GetOutput());
-  writer->Write();
-  size = writer->GetOutputStringLength();
-  
-  this->DeleteAndSetMarshalString(writer->RegisterAndGetOutputString(), size);
-  this->MarshalDataLength = size;
-  clip->Delete();
-  writer->Delete();
-  tmp->Delete();
-  
-  return 1;
-}
-
-int vtkCommunicator::ReadImageData(vtkImageData *object)
-{
-  vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
-
-  if (this->MarshalString == NULL || this->MarshalStringLength <= 0)
-    {
-    return 0;
-    }
-  
-  reader->ReadFromInputStringOn();
-  
-  vtkCharArray* mystring = vtkCharArray::New();
-  // mystring should not delete the string when it's done,
-  // that's our job.
-  mystring->SetArray(this->MarshalString, this->MarshalDataLength, 1);
-  reader->SetInputArray(mystring);
-  mystring->Delete();
-
-  reader->GetOutput()->Update();
-
-  object->ShallowCopy(reader->GetOutput());
-  
-  reader->Delete();
-
-  return 1;
-}
-
-int vtkCommunicator::WriteDataSet(vtkDataSet *data)
-{
-  vtkDataSet *copy;
-  unsigned long size;
-  vtkDataSetWriter *writer = vtkDataSetWriter::New();
-
-  copy = data->NewInstance();
-  copy->ShallowCopy(data);
-
   // There is a problem with binary files with no data.
-  if (copy->GetNumberOfCells() + copy->GetNumberOfPoints() > 0)
+  if (vtkDataSet::SafeDownCast(copy) != NULL)
     {
-    writer->SetFileTypeToBinary();
+    vtkDataSet* ds = vtkDataSet::SafeDownCast(copy);
+    if (ds->GetNumberOfCells() + ds->GetNumberOfPoints() == 0)
+      {
+      writer->SetFileTypeToASCII();
+      }
     }
   writer->WriteToOutputStringOn();
   writer->SetInput(copy);
   
   writer->Write();
-  size = writer->GetOutputStringLength();
+  unsigned int size = writer->GetOutputStringLength();
   this->DeleteAndSetMarshalString(writer->RegisterAndGetOutputString(), size);
   this->MarshalDataLength = size;
+
   writer->Delete();
   copy->Delete();
-
   return 1;
 }
 
-int vtkCommunicator::ReadDataSet(vtkDataSet *object)
+int vtkCommunicator::ReadObject(vtkDataObject *object)
 {
-  vtkDataSetReader *reader = vtkDataSetReader::New();
-
   if (this->MarshalString == NULL || this->MarshalStringLength <= 0)
     {
     return 0;
     }
   
+  vtkGenericDataObjectReader* reader = vtkGenericDataObjectReader::New();
   reader->ReadFromInputStringOn();
 
   vtkCharArray* mystring = vtkCharArray::New();
@@ -535,7 +441,6 @@ int vtkCommunicator::ReadDataSet(vtkDataSet *object)
   object->ShallowCopy(reader->GetOutput());
 
   reader->Delete();
-
   return 1;
 }
 
