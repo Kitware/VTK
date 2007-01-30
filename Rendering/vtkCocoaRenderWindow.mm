@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define MAC_OS_X_VERSION_10_4 1040
 #endif
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.43");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.44");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -553,8 +553,10 @@ void vtkCocoaRenderWindow::CreateGLContext()
   NSOpenGLPixelFormatAttribute attribs[] =
     {
       NSOpenGLPFAAccelerated,
-      NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)32,
-      this->DoubleBuffer? NSOpenGLPFADoubleBuffer : (NSOpenGLPixelFormatAttribute)nil,
+      NSOpenGLPFADepthSize,
+      (NSOpenGLPixelFormatAttribute)32,
+      (this->DoubleBuffer != 0) ?
+        NSOpenGLPFADoubleBuffer : (NSOpenGLPixelFormatAttribute)nil,
       (NSOpenGLPixelFormatAttribute)nil
     };
 
