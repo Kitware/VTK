@@ -3,7 +3,6 @@
 
 #define VERDICT_VERSION @verdict_VERSION_FLAT@
 
-#cmakedefine VERDICT_USE_FLOAT
 #cmakedefine BUILD_SHARED_LIBS
 
 #ifdef BUILD_SHARED_LIBS

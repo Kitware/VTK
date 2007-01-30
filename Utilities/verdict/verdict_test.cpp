@@ -54,8 +54,8 @@ struct test_case
    int num_nodes;
    // note: the 1st dim. of coords must bigger than the maximum num_nodes 
    // for any one element being tested
-   VERDICT_REAL coords[MAX_NODES_PER_ELEMENT][3];
-   VERDICT_REAL answer[MAX_TESTS_PER_ELEMENT];
+   double coords[MAX_NODES_PER_ELEMENT][3];
+   double answer[MAX_TESTS_PER_ELEMENT];
 };
 
 
@@ -220,9 +220,9 @@ int main( )
     
    int i;
    int j = 0;
-   VERDICT_REAL answer_from_lib;
-   VERDICT_REAL tolerance;
-//   VERDICT_REAL norm_answer_from_lib;
+   double answer_from_lib;
+   double tolerance;
+//   double norm_answer_from_lib;
    
 #define MAX_STR_LEN 30
 

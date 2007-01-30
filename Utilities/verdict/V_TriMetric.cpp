@@ -32,7 +32,7 @@
 #include <stddef.h>
 
 // the average area of a tri
-static VERDICT_REAL verdict_tri_size = 0;
+static double verdict_tri_size = 0;
 static ComputeNormal compute_normal = NULL;
 
 /*! 
@@ -61,7 +61,7 @@ static int v_tri_get_weight ( double &m11,
 
 
 /*! sets the average area of a tri */
-C_FUNC_DEF void v_set_tri_size( VERDICT_REAL size )
+C_FUNC_DEF void v_set_tri_size( double size )
 {
   verdict_tri_size = size;
 }
@@ -79,7 +79,7 @@ C_FUNC_DEF void v_set_tri_normal_func( ComputeNormal func )
      minimum edge lengths
 
 */
-C_FUNC_DEF VERDICT_REAL v_tri_edge_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tri_edge_ratio( int /*num_nodes*/, double coordinates[][3] )
 {
 
   // three vectors for each side 
@@ -144,15 +144,15 @@ C_FUNC_DEF VERDICT_REAL v_tri_edge_ratio( int /*num_nodes*/, VERDICT_REAL coordi
     }
 
   if( m2 < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
   else
   {
     double edge_ratio;
     edge_ratio = sqrt(M2 / m2);
     
     if( edge_ratio > 0 )
-      return (VERDICT_REAL) VERDICT_MIN( edge_ratio, VERDICT_DBL_MAX );
-    return (VERDICT_REAL) VERDICT_MAX( edge_ratio, -VERDICT_DBL_MAX );
+      return (double) VERDICT_MIN( edge_ratio, VERDICT_DBL_MAX );
+    return (double) VERDICT_MAX( edge_ratio, -VERDICT_DBL_MAX );
   }
 
 }
@@ -168,7 +168,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_edge_ratio( int /*num_nodes*/, VERDICT_REAL coordi
      what is now called "v_tri_aspect_frobenius"
    
 */
-C_FUNC_DEF VERDICT_REAL v_tri_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tri_aspect_ratio( int /*num_nodes*/, double coordinates[][3] )
 {
   static const double normal_coeff = sqrt( 3. ) / 6.;
 
@@ -196,15 +196,15 @@ C_FUNC_DEF VERDICT_REAL v_tri_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coor
   double denominator = ab.length();
 
   if( denominator < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
   else
   {
     double aspect_ratio;
     aspect_ratio = normal_coeff * hm * (a1 + b1 + c1) / denominator;
     
     if( aspect_ratio > 0 )
-      return (VERDICT_REAL) VERDICT_MIN( aspect_ratio, VERDICT_DBL_MAX );
-    return (VERDICT_REAL) VERDICT_MAX( aspect_ratio, -VERDICT_DBL_MAX );
+      return (double) VERDICT_MIN( aspect_ratio, VERDICT_DBL_MAX );
+    return (double) VERDICT_MAX( aspect_ratio, -VERDICT_DBL_MAX );
   }
 
 }
@@ -219,7 +219,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coor
      a the "aspect beta"
    
 */
-C_FUNC_DEF VERDICT_REAL v_tri_radius_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tri_radius_ratio( int /*num_nodes*/, double coordinates[][3] )
 {
 
   // three vectors for each side 
@@ -243,14 +243,14 @@ C_FUNC_DEF VERDICT_REAL v_tri_radius_ratio( int /*num_nodes*/, VERDICT_REAL coor
   double denominator = ab.length_squared();
 
   if( denominator < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
 
   double radius_ratio;
   radius_ratio = .25 * a2 * b2 * c2 * ( a2 + b2 + c2 ) / denominator;
   
   if( radius_ratio > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( radius_ratio, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( radius_ratio, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -264,7 +264,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_radius_ratio( int /*num_nodes*/, VERDICT_REAL coor
    
 */
 
-C_FUNC_DEF VERDICT_REAL v_tri_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tri_aspect_frobenius( int /*num_nodes*/, double coordinates[][3] )
 {
   static const double two_times_root_of_3 = 2*sqrt(3.0);
 
@@ -289,12 +289,12 @@ C_FUNC_DEF VERDICT_REAL v_tri_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL 
   double areaX2 = ((side1 * (-side3)).length());
 
   if(areaX2 == 0.0)
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
  
-  double aspect = (VERDICT_REAL)(srms / (two_times_root_of_3 * (areaX2)));
+  double aspect = (double)(srms / (two_times_root_of_3 * (areaX2)));
   if( aspect > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( aspect, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( aspect, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( aspect, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( aspect, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -302,7 +302,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL 
 
   0.5 * jacobian at a node
 */
-C_FUNC_DEF VERDICT_REAL v_tri_area( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tri_area( int /*num_nodes*/, double coordinates[][3] )
 {
   // two vectors for two sides
   VerdictVector side1( coordinates[1][0] - coordinates[0][0],
@@ -320,8 +320,8 @@ C_FUNC_DEF VERDICT_REAL v_tri_area( int /*num_nodes*/, VERDICT_REAL coordinates[
   // return the magnitude of the vector divided by two
   double area = 0.5 * tmp.length();
   if( area > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( area, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( area, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( area, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( area, -VERDICT_DBL_MAX );
   
 }
 
@@ -332,7 +332,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_area( int /*num_nodes*/, VERDICT_REAL coordinates[
   The minimum angle of a tri is the minimum angle between 
   two adjacents sides out of all three corners of the triangle.
 */
-C_FUNC_DEF VERDICT_REAL v_tri_minimum_angle( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tri_minimum_angle( int /*num_nodes*/, double coordinates[][3] )
 {
 
   // vectors for all the sides
@@ -394,8 +394,8 @@ C_FUNC_DEF VERDICT_REAL v_tri_minimum_angle( int /*num_nodes*/, VERDICT_REAL coo
     }
 
   if( min_angle > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( min_angle, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( min_angle, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( min_angle, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( min_angle, -VERDICT_DBL_MAX );
   
 }
 
@@ -405,7 +405,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_minimum_angle( int /*num_nodes*/, VERDICT_REAL coo
   The maximum angle of a tri is the maximum angle between 
   two adjacents sides out of all three corners of the triangle.
 */
-C_FUNC_DEF VERDICT_REAL v_tri_maximum_angle( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tri_maximum_angle( int /*num_nodes*/, double coordinates[][3] )
 {
 
   // vectors for all the sides
@@ -470,8 +470,8 @@ C_FUNC_DEF VERDICT_REAL v_tri_maximum_angle( int /*num_nodes*/, VERDICT_REAL coo
     }
 
   if( max_angle > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( max_angle, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( max_angle, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( max_angle, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( max_angle, -VERDICT_DBL_MAX );
   
 }
 
@@ -482,7 +482,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_maximum_angle( int /*num_nodes*/, VERDICT_REAL coo
 
   Condition number of the jacobian matrix at any corner
 */
-C_FUNC_DEF VERDICT_REAL v_tri_condition( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tri_condition( int /*num_nodes*/, double coordinates[][3] )
 {
   static const double rt3 = sqrt(3.0);
   
@@ -498,9 +498,9 @@ C_FUNC_DEF VERDICT_REAL v_tri_condition( int /*num_nodes*/, VERDICT_REAL coordin
   double areax2= tri_normal.length();
   
   if (areax2 == 0.0 ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
 
-  double condition = (VERDICT_REAL)( ((v1%v1) + (v2%v2) - (v1%v2)) / (areax2*rt3) );
+  double condition = (double)( ((v1%v1) + (v2%v2) - (v1%v2)) / (areax2*rt3) );
 
     //check for inverted if we have access to the normal
   if( compute_normal )
@@ -516,9 +516,9 @@ C_FUNC_DEF VERDICT_REAL v_tri_condition( int /*num_nodes*/, VERDICT_REAL coordin
     if( (tri_normal.x()*surf_normal[0] + 
          tri_normal.y()*surf_normal[1] +
          tri_normal.z()*surf_normal[2] ) < 0 )
-      return (VERDICT_REAL)VERDICT_DBL_MAX;
+      return (double)VERDICT_DBL_MAX;
   }
-  return (VERDICT_REAL)VERDICT_MIN( condition, VERDICT_DBL_MAX );
+  return (double)VERDICT_MIN( condition, VERDICT_DBL_MAX );
 }
 
 /*!
@@ -526,7 +526,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_condition( int /*num_nodes*/, VERDICT_REAL coordin
 
   minimum of the jacobian divided by the lengths of 2 edge vectors
 */
-C_FUNC_DEF VERDICT_REAL v_tri_scaled_jacobian( int /*num_nodes*/, VERDICT_REAL coordinates[][3])
+C_FUNC_DEF double v_tri_scaled_jacobian( int /*num_nodes*/, double coordinates[][3])
 {
   static const double detw = 2./sqrt(3.0);
   VerdictVector first, second;
@@ -556,7 +556,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_scaled_jacobian( int /*num_nodes*/, VERDICT_REAL c
                                          edge[0].length()*edge[2].length() ) ); 
 
   if( max_edge_length_product < VERDICT_DBL_MIN )
-    return (VERDICT_REAL)0.0;
+    return (double)0.0;
 
   jacobian *= detw;
   jacobian /= max_edge_length_product; 
@@ -578,8 +578,8 @@ C_FUNC_DEF VERDICT_REAL v_tri_scaled_jacobian( int /*num_nodes*/, VERDICT_REAL c
   }
 
   if( jacobian > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( jacobian, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( jacobian, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( jacobian, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( jacobian, -VERDICT_DBL_MAX );
 
 }
 
@@ -589,7 +589,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_scaled_jacobian( int /*num_nodes*/, VERDICT_REAL c
 
   2 / condition number of weighted jacobian matrix
 */
-C_FUNC_DEF VERDICT_REAL v_tri_shape( int num_nodes, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tri_shape( int num_nodes, double coordinates[][3] )
 {
   double condition = v_tri_condition( num_nodes, coordinates );
 
@@ -600,8 +600,8 @@ C_FUNC_DEF VERDICT_REAL v_tri_shape( int num_nodes, VERDICT_REAL coordinates[][3
     shape = (1 / condition);
 
   if( shape > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( shape, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( shape, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( shape, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( shape, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -609,7 +609,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_shape( int num_nodes, VERDICT_REAL coordinates[][3
 
   Min(J,1/J) where J is the determinant of the weighted jacobian matrix.
 */
-C_FUNC_DEF VERDICT_REAL v_tri_relative_size_squared( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tri_relative_size_squared( int /*num_nodes*/, double coordinates[][3] )
 {
   double w11, w21, w12, w22;
 
@@ -641,8 +641,8 @@ C_FUNC_DEF VERDICT_REAL v_tri_relative_size_squared( int /*num_nodes*/, VERDICT_
   double rel_size = VERDICT_MIN(size, 1.0/size );  
 
   if( rel_size > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( rel_size, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( rel_size, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( rel_size, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( rel_size, -VERDICT_DBL_MAX );
   
 }
 
@@ -651,7 +651,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_relative_size_squared( int /*num_nodes*/, VERDICT_
   
   Product of the Shape and Relative Size
 */
-C_FUNC_DEF VERDICT_REAL v_tri_shape_and_size( int num_nodes, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tri_shape_and_size( int num_nodes, double coordinates[][3] )
 {
   double size, shape;  
 
@@ -661,8 +661,8 @@ C_FUNC_DEF VERDICT_REAL v_tri_shape_and_size( int num_nodes, VERDICT_REAL coordi
   double shape_and_size = size * shape;
 
   if( shape_and_size > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( shape_and_size, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( shape_and_size, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( shape_and_size, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( shape_and_size, -VERDICT_DBL_MAX );
 
 }
 
@@ -672,7 +672,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_shape_and_size( int num_nodes, VERDICT_REAL coordi
 
 TODO:  make a short definition of the distortion and comment below
 */
-C_FUNC_DEF VERDICT_REAL v_tri_distortion( int num_nodes, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tri_distortion( int num_nodes, double coordinates[][3] )
 {
 
    double distortion;
@@ -695,7 +695,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_distortion( int num_nodes, VERDICT_REAL coordinate
    if (num_nodes ==3)
    {
       distortion = 1.0;
-      return (VERDICT_REAL)distortion;
+      return (double)distortion;
    }
    
    else if (num_nodes ==6)
@@ -857,8 +857,8 @@ C_FUNC_DEF VERDICT_REAL v_tri_distortion( int num_nodes, VERDICT_REAL coordinate
       distortion *=1.;
    
   if( distortion > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( distortion, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( distortion, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( distortion, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( distortion, -VERDICT_DBL_MAX );
 }
 
 
@@ -869,7 +869,7 @@ C_FUNC_DEF VERDICT_REAL v_tri_distortion( int num_nodes, VERDICT_REAL coordinate
   method multiple times.
 
 */
-C_FUNC_DEF void v_tri_quality( int num_nodes, VERDICT_REAL coordinates[][3], 
+C_FUNC_DEF void v_tri_quality( int num_nodes, double coordinates[][3], 
     unsigned int metrics_request_flag, TriMetricVals *metric_vals ) 
 {
 
@@ -962,11 +962,11 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, VERDICT_REAL coordinates[][3],
         metric_vals->minimum_angle = 0.0;
       }        
       else if(short_side == 0)
-        metric_vals->minimum_angle = (VERDICT_REAL)sides[2].interior_angle(sides[1]);
+        metric_vals->minimum_angle = (double)sides[2].interior_angle(sides[1]);
       else if(short_side == 1)
-        metric_vals->minimum_angle = (VERDICT_REAL)sides[0].interior_angle(sides[2]);
+        metric_vals->minimum_angle = (double)sides[0].interior_angle(sides[2]);
       else
-        metric_vals->minimum_angle = (VERDICT_REAL)sides[0].interior_angle(-sides[1]);
+        metric_vals->minimum_angle = (double)sides[0].interior_angle(-sides[1]);
     }
     
     // calculate the maximum angle of the tri
@@ -979,11 +979,11 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, VERDICT_REAL coordinates[][3],
         metric_vals->maximum_angle = 0.0;
       }        
       else if(long_side == 0)
-        metric_vals->maximum_angle = (VERDICT_REAL)sides[2].interior_angle(sides[1]);
+        metric_vals->maximum_angle = (double)sides[2].interior_angle(sides[1]);
       else if(long_side == 1)
-        metric_vals->maximum_angle = (VERDICT_REAL)sides[0].interior_angle(sides[2]);
+        metric_vals->maximum_angle = (double)sides[0].interior_angle(sides[2]);
       else
-        metric_vals->maximum_angle = (VERDICT_REAL)sides[0].interior_angle(-sides[1]);
+        metric_vals->maximum_angle = (double)sides[0].interior_angle(-sides[1]);
     }
   }
 
@@ -993,7 +993,7 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, VERDICT_REAL coordinates[][3],
   if( metrics_request_flag & (V_TRI_AREA | V_TRI_SCALED_JACOBIAN | 
     V_TRI_SHAPE | V_TRI_RELATIVE_SIZE_SQUARED | V_TRI_SHAPE_AND_SIZE ) )
   {
-    metric_vals->area = (VERDICT_REAL)((sides[0] * sides[2]).length() * 0.5);
+    metric_vals->area = (double)((sides[0] * sides[2]).length() * 0.5);
   }
 
   // calculate the aspect ratio
@@ -1012,9 +1012,9 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, VERDICT_REAL coordinates[][3],
       ( (sides[0] * sides[2]).length() ));
 
     if(div == 0.0)
-      metric_vals->aspect_frobenius = (VERDICT_REAL)VERDICT_DBL_MAX;
+      metric_vals->aspect_frobenius = (double)VERDICT_DBL_MAX;
     else
-      metric_vals->aspect_frobenius = (VERDICT_REAL)(srms / div);
+      metric_vals->aspect_frobenius = (double)(srms / div);
   }
 
   // calculate the scaled jacobian
@@ -1043,7 +1043,7 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, VERDICT_REAL coordinates[][3],
     {
       min_scaled_jac *= -1; 
     }
-    metric_vals->scaled_jacobian = (VERDICT_REAL)min_scaled_jac;
+    metric_vals->scaled_jacobian = (double)min_scaled_jac;
 
   }
 
@@ -1059,9 +1059,9 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, VERDICT_REAL coordinates[][3],
     else{
       double area2x = (sides[0] * sides[2]).length();
       if(area2x == 0.0 ) 
-        metric_vals->condition = (VERDICT_REAL)(VERDICT_DBL_MAX);
+        metric_vals->condition = (double)(VERDICT_DBL_MAX);
       else
-        metric_vals->condition = (VERDICT_REAL) ( (sides[0]%sides[0] +
+        metric_vals->condition = (double) ( (sides[0]%sides[0] +
                                                    sides[2]%sides[2] -
                                                    sides[0]%sides[2])  /
                                                   (area2x*rootOf3) );
@@ -1096,7 +1096,7 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, VERDICT_REAL coordinates[][3],
       if( sum_dots == 0.0 ) 
         metric_vals->shape = 0.0;
       else
-        metric_vals->shape = (VERDICT_REAL)(rootOf3 * area2x / sum_dots);
+        metric_vals->shape = (double)(rootOf3 * area2x / sum_dots);
     }
     
   }
@@ -1118,7 +1118,7 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, VERDICT_REAL coordinates[][3],
       // square the size
       size *= size;
       // value ranges between 0 to 1
-      metric_vals->relative_size_squared = (VERDICT_REAL)VERDICT_MIN(size, 1.0/size );
+      metric_vals->relative_size_squared = (double)VERDICT_MIN(size, 1.0/size );
     }
   }
 
@@ -1135,52 +1135,52 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, VERDICT_REAL coordinates[][3],
 
   //take care of any over-flow problems
   if( metric_vals->aspect_frobenius > 0 )
-    metric_vals->aspect_frobenius = (VERDICT_REAL) VERDICT_MIN( metric_vals->aspect_frobenius, VERDICT_DBL_MAX );\
+    metric_vals->aspect_frobenius = (double) VERDICT_MIN( metric_vals->aspect_frobenius, VERDICT_DBL_MAX );\
   else
-    metric_vals->aspect_frobenius = (VERDICT_REAL) VERDICT_MAX( metric_vals->aspect_frobenius, -VERDICT_DBL_MAX );
+    metric_vals->aspect_frobenius = (double) VERDICT_MAX( metric_vals->aspect_frobenius, -VERDICT_DBL_MAX );
 
   if( metric_vals->area > 0 )
-    metric_vals->area = (VERDICT_REAL) VERDICT_MIN( metric_vals->area, VERDICT_DBL_MAX );
+    metric_vals->area = (double) VERDICT_MIN( metric_vals->area, VERDICT_DBL_MAX );
   else
-    metric_vals->area = (VERDICT_REAL) VERDICT_MAX( metric_vals->area, -VERDICT_DBL_MAX );
+    metric_vals->area = (double) VERDICT_MAX( metric_vals->area, -VERDICT_DBL_MAX );
 
   if( metric_vals->minimum_angle > 0 )
-    metric_vals->minimum_angle = (VERDICT_REAL) VERDICT_MIN( metric_vals->minimum_angle, VERDICT_DBL_MAX );
+    metric_vals->minimum_angle = (double) VERDICT_MIN( metric_vals->minimum_angle, VERDICT_DBL_MAX );
   else
-    metric_vals->minimum_angle = (VERDICT_REAL) VERDICT_MAX( metric_vals->minimum_angle, -VERDICT_DBL_MAX );
+    metric_vals->minimum_angle = (double) VERDICT_MAX( metric_vals->minimum_angle, -VERDICT_DBL_MAX );
 
   if( metric_vals->maximum_angle > 0 )
-    metric_vals->maximum_angle = (VERDICT_REAL) VERDICT_MIN( metric_vals->maximum_angle, VERDICT_DBL_MAX );
+    metric_vals->maximum_angle = (double) VERDICT_MIN( metric_vals->maximum_angle, VERDICT_DBL_MAX );
   else
-    metric_vals->maximum_angle = (VERDICT_REAL) VERDICT_MAX( metric_vals->maximum_angle , -VERDICT_DBL_MAX );
+    metric_vals->maximum_angle = (double) VERDICT_MAX( metric_vals->maximum_angle , -VERDICT_DBL_MAX );
 
   if( metric_vals->condition > 0 )
-    metric_vals->condition = (VERDICT_REAL) VERDICT_MIN( metric_vals->condition, VERDICT_DBL_MAX );
+    metric_vals->condition = (double) VERDICT_MIN( metric_vals->condition, VERDICT_DBL_MAX );
   else
-    metric_vals->condition = (VERDICT_REAL) VERDICT_MAX( metric_vals->condition, -VERDICT_DBL_MAX );
+    metric_vals->condition = (double) VERDICT_MAX( metric_vals->condition, -VERDICT_DBL_MAX );
 
   if( metric_vals->shape > 0 )
-    metric_vals->shape = (VERDICT_REAL) VERDICT_MIN( metric_vals->shape, VERDICT_DBL_MAX );
+    metric_vals->shape = (double) VERDICT_MIN( metric_vals->shape, VERDICT_DBL_MAX );
   else
-    metric_vals->shape = (VERDICT_REAL) VERDICT_MAX( metric_vals->shape, -VERDICT_DBL_MAX );
+    metric_vals->shape = (double) VERDICT_MAX( metric_vals->shape, -VERDICT_DBL_MAX );
 
   if( metric_vals->scaled_jacobian > 0 )
-    metric_vals->scaled_jacobian = (VERDICT_REAL) VERDICT_MIN( metric_vals->scaled_jacobian, VERDICT_DBL_MAX );
+    metric_vals->scaled_jacobian = (double) VERDICT_MIN( metric_vals->scaled_jacobian, VERDICT_DBL_MAX );
   else
-    metric_vals->scaled_jacobian = (VERDICT_REAL) VERDICT_MAX( metric_vals->scaled_jacobian, -VERDICT_DBL_MAX );
+    metric_vals->scaled_jacobian = (double) VERDICT_MAX( metric_vals->scaled_jacobian, -VERDICT_DBL_MAX );
 
   if( metric_vals->relative_size_squared > 0 )
-    metric_vals->relative_size_squared = (VERDICT_REAL) VERDICT_MIN( metric_vals->relative_size_squared, VERDICT_DBL_MAX );
+    metric_vals->relative_size_squared = (double) VERDICT_MIN( metric_vals->relative_size_squared, VERDICT_DBL_MAX );
   else
-    metric_vals->relative_size_squared = (VERDICT_REAL) VERDICT_MAX( metric_vals->relative_size_squared, -VERDICT_DBL_MAX );
+    metric_vals->relative_size_squared = (double) VERDICT_MAX( metric_vals->relative_size_squared, -VERDICT_DBL_MAX );
 
   if( metric_vals->shape_and_size > 0 )
-    metric_vals->shape_and_size = (VERDICT_REAL) VERDICT_MIN( metric_vals->shape_and_size, VERDICT_DBL_MAX );
+    metric_vals->shape_and_size = (double) VERDICT_MIN( metric_vals->shape_and_size, VERDICT_DBL_MAX );
   else
-    metric_vals->shape_and_size = (VERDICT_REAL) VERDICT_MAX( metric_vals->shape_and_size, -VERDICT_DBL_MAX );
+    metric_vals->shape_and_size = (double) VERDICT_MAX( metric_vals->shape_and_size, -VERDICT_DBL_MAX );
 
   if( metric_vals->distortion > 0 )
-    metric_vals->distortion = (VERDICT_REAL) VERDICT_MIN( metric_vals->distortion, VERDICT_DBL_MAX );
+    metric_vals->distortion = (double) VERDICT_MIN( metric_vals->distortion, VERDICT_DBL_MAX );
   else
-    metric_vals->distortion = (VERDICT_REAL) VERDICT_MAX( metric_vals->distortion, -VERDICT_DBL_MAX );
+    metric_vals->distortion = (double) VERDICT_MAX( metric_vals->distortion, -VERDICT_DBL_MAX );
 }

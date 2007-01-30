@@ -32,7 +32,7 @@
 
 
 //! the average area of a quad
-VERDICT_REAL verdict_quad_size = 0;
+double verdict_quad_size = 0;
 
 /*!
   weights based on the average size of a quad
@@ -60,13 +60,13 @@ int get_weight ( double &m11,
 }
 
 //! return the average area of a quad
-C_FUNC_DEF void v_set_quad_size( VERDICT_REAL size )
+C_FUNC_DEF void v_set_quad_size( double size )
 {
   verdict_quad_size = size;
 }
 
 //! returns whether the quad is collapsed or not
-VerdictBoolean is_collapsed_quad ( VERDICT_REAL coordinates[][3] )
+VerdictBoolean is_collapsed_quad ( double coordinates[][3] )
 {
   if( coordinates[3][0] == coordinates[2][0] &&
       coordinates[3][1] == coordinates[2][1] &&
@@ -77,7 +77,7 @@ VerdictBoolean is_collapsed_quad ( VERDICT_REAL coordinates[][3] )
     return VERDICT_FALSE;
 }
 
-void make_quad_edges( VerdictVector edges[4], VERDICT_REAL coordinates[][3] )
+void make_quad_edges( VerdictVector edges[4], double coordinates[][3] )
 {
 
   edges[0].set(
@@ -102,7 +102,7 @@ void make_quad_edges( VerdictVector edges[4], VERDICT_REAL coordinates[][3] )
       );
 }
 
-void signed_corner_areas( double areas[4], VERDICT_REAL coordinates[][3] )
+void signed_corner_areas( double areas[4], double coordinates[][3] )
 {
   VerdictVector edges[4];
   make_quad_edges( edges, coordinates );
@@ -224,7 +224,7 @@ void localize_quad_for_ef( VerdictVector node_pos[4])
 /*!
   returns the normal vector of a quad
 */
-VerdictVector quad_normal( VERDICT_REAL coordinates[][3] )
+VerdictVector quad_normal( double coordinates[][3] )
 {
   // get normal at node 0
   VerdictVector edge0, edge1;
@@ -303,7 +303,7 @@ VerdictVector quad_normal( VERDICT_REAL coordinates[][3] )
      Hmax / Hmin where Hmax and Hmin are respectively the maximum and the
      minimum edge lengths
 */
-C_FUNC_DEF VERDICT_REAL v_quad_edge_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_edge_ratio( int /*num_nodes*/, double coordinates[][3] )
 {
   VerdictVector edges[4];
   make_quad_edges( edges, coordinates );
@@ -338,14 +338,14 @@ C_FUNC_DEF VERDICT_REAL v_quad_edge_ratio( int /*num_nodes*/, VERDICT_REAL coord
   M2 = Mab > Mcd ? Mab : Mcd;
 
   if( m2 < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
   else
   {
     double edge_ratio = sqrt( M2 / m2 );
     
     if( edge_ratio > 0 )
-      return (VERDICT_REAL) VERDICT_MIN( edge_ratio, VERDICT_DBL_MAX );
-    return (VERDICT_REAL) VERDICT_MAX( edge_ratio, -VERDICT_DBL_MAX );
+      return (double) VERDICT_MIN( edge_ratio, VERDICT_DBL_MAX );
+    return (double) VERDICT_MAX( edge_ratio, -VERDICT_DBL_MAX );
   }
 }
 
@@ -354,7 +354,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_edge_ratio( int /*num_nodes*/, VERDICT_REAL coord
 
   maximum edge length ratios at quad center
 */
-C_FUNC_DEF VERDICT_REAL v_quad_max_edge_ratios( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_max_edge_ratios( int /*num_nodes*/, double coordinates[][3] )
 {
   VerdictVector quad_nodes[4];
   quad_nodes[0].set( coordinates[0][0], coordinates[0][1], coordinates[0][2] );
@@ -370,13 +370,13 @@ C_FUNC_DEF VERDICT_REAL v_quad_max_edge_ratios( int /*num_nodes*/, VERDICT_REAL 
   double len2 = principal_axes[1].length();
 
   if( len1 < VERDICT_DBL_MIN || len2 < VERDICT_DBL_MIN )
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
 
   double max_edge_ratios = VERDICT_MAX( len1 / len2, len2 / len1 );
 
   if( max_edge_ratios > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( max_edge_ratios, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( max_edge_ratios, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( max_edge_ratios, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( max_edge_ratios, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -386,7 +386,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_max_edge_ratios( int /*num_nodes*/, VERDICT_REAL 
      this is a generalization of the triangle aspect ratio
      using Heron's formula.
 */
-C_FUNC_DEF VERDICT_REAL v_quad_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_aspect_ratio( int /*num_nodes*/, double coordinates[][3] )
 {
 
   VerdictVector edges[4];
@@ -406,13 +406,13 @@ C_FUNC_DEF VERDICT_REAL v_quad_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coo
   double denominator = ab.length() + cd.length();
 
   if( denominator < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
 
   double aspect_ratio = .5 * hm * ( a1 + b1 + c1 + d1 ) / denominator;
   
   if( aspect_ratio > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( aspect_ratio, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( aspect_ratio, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( aspect_ratio, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( aspect_ratio, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -423,7 +423,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coo
      not exist in general with quads -- although a different name should probably
      be used in the future.
 */
-C_FUNC_DEF VERDICT_REAL v_quad_radius_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_radius_ratio( int /*num_nodes*/, double coordinates[][3] )
 {
   static const double normal_coeff = 1. / ( 2. * sqrt( 2. ) );
 
@@ -467,13 +467,13 @@ C_FUNC_DEF VERDICT_REAL v_quad_radius_ratio( int /*num_nodes*/, VERDICT_REAL coo
   t0 = t0 < t2 ? t0 : t2;
 
   if( t0 < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
 
   double radius_ratio = normal_coeff * sqrt( ( a2 + b2 + c2 + d2 ) * h2 ) / t0;
   
   if( radius_ratio > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( radius_ratio, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( radius_ratio, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -483,7 +483,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_radius_ratio( int /*num_nodes*/, VERDICT_REAL coo
      this metric is calculated by averaging the 4 Frobenius aspects at
      each corner of the quad, when the reference triangle is right isosceles.
 */
-C_FUNC_DEF VERDICT_REAL v_quad_med_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_med_aspect_frobenius( int /*num_nodes*/, double coordinates[][3] )
 {
 
   VerdictVector edges[4];
@@ -508,7 +508,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_med_aspect_frobenius( int /*num_nodes*/, VERDICT_
       bc1 < VERDICT_DBL_MIN ||
       cd1 < VERDICT_DBL_MIN ||
       da1 < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
 
   double qsum  = ( a2 + b2 ) / ab1;
   qsum += ( b2 + c2 ) / bc1;
@@ -518,8 +518,8 @@ C_FUNC_DEF VERDICT_REAL v_quad_med_aspect_frobenius( int /*num_nodes*/, VERDICT_
   double med_aspect_frobenius = .125 * qsum;
 
   if( med_aspect_frobenius > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( med_aspect_frobenius, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( med_aspect_frobenius, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( med_aspect_frobenius, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( med_aspect_frobenius, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -529,7 +529,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_med_aspect_frobenius( int /*num_nodes*/, VERDICT_
      this metric is calculated by taking the maximum of the 4 Frobenius aspects at
      each corner of the quad, when the reference triangle is right isosceles.
 */
-C_FUNC_DEF VERDICT_REAL v_quad_max_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_max_aspect_frobenius( int /*num_nodes*/, double coordinates[][3] )
 {
 
   VerdictVector edges[4];
@@ -554,7 +554,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_max_aspect_frobenius( int /*num_nodes*/, VERDICT_
       bc1 < VERDICT_DBL_MIN ||
       cd1 < VERDICT_DBL_MIN ||
       da1 < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
 
   double qmax = ( a2 + b2 ) / ab1;
 
@@ -570,8 +570,8 @@ C_FUNC_DEF VERDICT_REAL v_quad_max_aspect_frobenius( int /*num_nodes*/, VERDICT_
   double max_aspect_frobenius = .5 * qmax;
 
   if( max_aspect_frobenius > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( max_aspect_frobenius, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( max_aspect_frobenius, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( max_aspect_frobenius, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( max_aspect_frobenius, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -579,7 +579,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_max_aspect_frobenius( int /*num_nodes*/, VERDICT_
 
   maximum ||cos A|| where A is the angle between edges at quad center
 */
-C_FUNC_DEF VERDICT_REAL v_quad_skew( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_skew( int /*num_nodes*/, double coordinates[][3] )
 {
   VerdictVector node_pos[4];
   for(int i = 0; i < 4; i++ )
@@ -596,7 +596,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_skew( int /*num_nodes*/, VERDICT_REAL coordinates
 
   double skew = fabs( principle_axes[0] % principle_axes[1] );
 
-  return (VERDICT_REAL) VERDICT_MIN( skew, VERDICT_DBL_MAX );
+  return (double) VERDICT_MIN( skew, VERDICT_DBL_MAX );
 }
 
 /*! 
@@ -604,7 +604,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_skew( int /*num_nodes*/, VERDICT_REAL coordinates
 
   maximum ratio of lengths derived from opposite edges
 */
-C_FUNC_DEF VERDICT_REAL v_quad_taper( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_taper( int /*num_nodes*/, double coordinates[][3] )
 {
   VerdictVector node_pos[4];
   for(int i = 0; i < 4; i++ )
@@ -627,7 +627,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_taper( int /*num_nodes*/, VERDICT_REAL coordinate
     return VERDICT_DBL_MAX;
 
   double taper = cross_derivative.length()/ lengths[0];
-  return (VERDICT_REAL) VERDICT_MIN( taper, VERDICT_DBL_MAX );
+  return (double) VERDICT_MIN( taper, VERDICT_DBL_MAX );
 
 }
 
@@ -636,7 +636,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_taper( int /*num_nodes*/, VERDICT_REAL coordinate
 
   deviation of element from planarity
 */
-C_FUNC_DEF VERDICT_REAL v_quad_warpage( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_warpage( int /*num_nodes*/, double coordinates[][3] )
 {
 
   VerdictVector edges[4];
@@ -652,15 +652,15 @@ C_FUNC_DEF VERDICT_REAL v_quad_warpage( int /*num_nodes*/, VERDICT_REAL coordina
       corner_normals[1].normalize() < VERDICT_DBL_MIN ||
       corner_normals[2].normalize() < VERDICT_DBL_MIN ||
       corner_normals[3].normalize() < VERDICT_DBL_MIN )
-    return (VERDICT_REAL) VERDICT_DBL_MIN;
+    return (double) VERDICT_DBL_MIN;
 
   double warpage = pow( 
     VERDICT_MIN( corner_normals[0]%corner_normals[2],
                  corner_normals[1]%corner_normals[3]), 3 );
 
   if( warpage > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( warpage, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( warpage, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( warpage, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( warpage, -VERDICT_DBL_MAX );
 
 }
 
@@ -669,7 +669,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_warpage( int /*num_nodes*/, VERDICT_REAL coordina
 
   jacobian at quad center
 */
-C_FUNC_DEF VERDICT_REAL v_quad_area( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_area( int /*num_nodes*/, double coordinates[][3] )
 {    
 
   double corner_areas[4];
@@ -678,8 +678,8 @@ C_FUNC_DEF VERDICT_REAL v_quad_area( int /*num_nodes*/, VERDICT_REAL coordinates
   double area = 0.25 * (corner_areas[0] + corner_areas[1] + corner_areas[2] + corner_areas[3]);
 
   if( area  > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( area, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( area, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( area, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( area, -VERDICT_DBL_MAX );
 
 }
 
@@ -688,7 +688,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_area( int /*num_nodes*/, VERDICT_REAL coordinates
 
   sqrt(2) * minimum edge length / maximum diagonal length
 */
-C_FUNC_DEF VERDICT_REAL v_quad_stretch( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_stretch( int /*num_nodes*/, double coordinates[][3] )
 {
   VerdictVector edges[4], temp;
   make_quad_edges( edges, coordinates );
@@ -715,16 +715,16 @@ C_FUNC_DEF VERDICT_REAL v_quad_stretch( int /*num_nodes*/, VERDICT_REAL coordina
   diag02 = VERDICT_MAX( diag02, diag13 );
 
   if( diag02 < VERDICT_DBL_MIN )
-    return (VERDICT_REAL) VERDICT_DBL_MAX;
+    return (double) VERDICT_DBL_MAX;
   else
   {
-    double stretch = (VERDICT_REAL) ( QUAD_STRETCH_FACTOR *
+    double stretch = (double) ( QUAD_STRETCH_FACTOR *
                            sqrt( VERDICT_MIN(
                                   VERDICT_MIN( lengths_squared[0], lengths_squared[1] ),
                                   VERDICT_MIN( lengths_squared[2], lengths_squared[3] ) ) /
                                 diag02 ));
 
-    return (VERDICT_REAL) VERDICT_MIN( stretch, VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( stretch, VERDICT_DBL_MAX );
   }
 }
 
@@ -733,7 +733,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_stretch( int /*num_nodes*/, VERDICT_REAL coordina
 
   largest included quad area (degrees)
 */
-C_FUNC_DEF VERDICT_REAL v_quad_maximum_angle( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_maximum_angle( int /*num_nodes*/, double coordinates[][3] )
 {
 
   // if this is a collapsed quad, just pass it on to 
@@ -805,8 +805,8 @@ C_FUNC_DEF VERDICT_REAL v_quad_maximum_angle( int /*num_nodes*/, VERDICT_REAL co
   } 
 
   if( max_angle  > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( max_angle, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( max_angle, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( max_angle, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( max_angle, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -814,7 +814,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_maximum_angle( int /*num_nodes*/, VERDICT_REAL co
 
   smallest included quad angle (degrees)
 */
-C_FUNC_DEF VERDICT_REAL v_quad_minimum_angle( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_minimum_angle( int /*num_nodes*/, double coordinates[][3] )
 {
   // if this quad is a collapsed quad, then just
   // send it to the tri_smallest_angle routine 
@@ -875,8 +875,8 @@ C_FUNC_DEF VERDICT_REAL v_quad_minimum_angle( int /*num_nodes*/, VERDICT_REAL co
   min_angle = min_angle *180.0/VERDICT_PI;
 
   if( min_angle  > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( min_angle, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( min_angle, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( min_angle, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( min_angle, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -884,7 +884,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_minimum_angle( int /*num_nodes*/, VERDICT_REAL co
 
   general distortion measure based on left Cauchy-Green Tensor
 */
-C_FUNC_DEF VERDICT_REAL v_quad_oddy( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_oddy( int /*num_nodes*/, double coordinates[][3] )
 {
   
   double max_oddy = 0.;
@@ -917,8 +917,8 @@ C_FUNC_DEF VERDICT_REAL v_quad_oddy( int /*num_nodes*/, VERDICT_REAL coordinates
   }
   
   if( max_oddy  > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( max_oddy, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( max_oddy, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( max_oddy, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( max_oddy, -VERDICT_DBL_MAX );
 }
 
 
@@ -927,7 +927,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_oddy( int /*num_nodes*/, VERDICT_REAL coordinates
 
   maximum condition number of the Jacobian matrix at 4 corners
 */
-C_FUNC_DEF VERDICT_REAL v_quad_condition( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_condition( int /*num_nodes*/, double coordinates[][3] )
 {
 
   if ( is_collapsed_quad( coordinates ) == VERDICT_TRUE ) 
@@ -964,8 +964,8 @@ C_FUNC_DEF VERDICT_REAL v_quad_condition( int /*num_nodes*/, VERDICT_REAL coordi
   max_condition /= 2;
 
   if( max_condition > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( max_condition, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( max_condition, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( max_condition, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( max_condition, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -973,11 +973,11 @@ C_FUNC_DEF VERDICT_REAL v_quad_condition( int /*num_nodes*/, VERDICT_REAL coordi
 
   minimum pointwise volume of local map at 4 corners and center of quad
 */
-C_FUNC_DEF VERDICT_REAL v_quad_jacobian( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_jacobian( int /*num_nodes*/, double coordinates[][3] )
 {
    
   if ( is_collapsed_quad( coordinates ) == VERDICT_TRUE )
-    return (VERDICT_REAL)(v_tri_area(3, coordinates) * 2.0);
+    return (double)(v_tri_area(3, coordinates) * 2.0);
   
   double areas[4]; 
   signed_corner_areas( areas, coordinates );
@@ -985,8 +985,8 @@ C_FUNC_DEF VERDICT_REAL v_quad_jacobian( int /*num_nodes*/, VERDICT_REAL coordin
   double jacobian = VERDICT_MIN( VERDICT_MIN( areas[0], areas[1] ), 
                                  VERDICT_MIN( areas[2], areas[3] ) );
   if( jacobian > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( jacobian, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( jacobian, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( jacobian, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( jacobian, -VERDICT_DBL_MAX );
 
 }
 
@@ -996,7 +996,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_jacobian( int /*num_nodes*/, VERDICT_REAL coordin
 
   Minimum Jacobian divided by the lengths of the 2 edge vector
 */
-C_FUNC_DEF VERDICT_REAL v_quad_scaled_jacobian( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_scaled_jacobian( int /*num_nodes*/, double coordinates[][3] )
 {
   if ( is_collapsed_quad( coordinates ) == VERDICT_TRUE ) 
     return v_tri_scaled_jacobian(3, coordinates);
@@ -1033,8 +1033,8 @@ C_FUNC_DEF VERDICT_REAL v_quad_scaled_jacobian( int /*num_nodes*/, VERDICT_REAL 
   min_scaled_jac = VERDICT_MIN( scaled_jac, min_scaled_jac );
 
   if( min_scaled_jac > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( min_scaled_jac, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( min_scaled_jac, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( min_scaled_jac, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( min_scaled_jac, -VERDICT_DBL_MAX );
 
 }
 
@@ -1043,14 +1043,14 @@ C_FUNC_DEF VERDICT_REAL v_quad_scaled_jacobian( int /*num_nodes*/, VERDICT_REAL 
 
   2/Condition number of Jacobian Skew matrix
 */
-C_FUNC_DEF VERDICT_REAL v_quad_shear( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_shear( int /*num_nodes*/, double coordinates[][3] )
 {
   double scaled_jacobian = v_quad_scaled_jacobian( 4, coordinates );
 
   if( scaled_jacobian <= VERDICT_DBL_MIN )
     return 0.0;
   else
-    return (VERDICT_REAL) VERDICT_MIN( scaled_jacobian, VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( scaled_jacobian, VERDICT_DBL_MAX );
 }
 
 /*!
@@ -1058,7 +1058,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_shear( int /*num_nodes*/, VERDICT_REAL coordinate
 
    2/Condition number of weighted Jacobian matrix
 */
-C_FUNC_DEF VERDICT_REAL v_quad_shape( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_shape( int /*num_nodes*/, double coordinates[][3] )
 {
 
   double corner_areas[4], min_shape = VERDICT_DBL_MAX, shape; 
@@ -1097,8 +1097,8 @@ C_FUNC_DEF VERDICT_REAL v_quad_shape( int /*num_nodes*/, VERDICT_REAL coordinate
     min_shape = 0;
 
   if( min_shape > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( min_shape, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( min_shape, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( min_shape, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( min_shape, -VERDICT_DBL_MAX );
 
 }
 
@@ -1107,7 +1107,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_shape( int /*num_nodes*/, VERDICT_REAL coordinate
 
   Min( J, 1/J ), where J is determinant of weighted Jacobian matrix
 */
-C_FUNC_DEF VERDICT_REAL v_quad_relative_size_squared( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_relative_size_squared( int /*num_nodes*/, double coordinates[][3] )
 {
  
   double quad_area = v_quad_area (4, coordinates); 
@@ -1131,8 +1131,8 @@ C_FUNC_DEF VERDICT_REAL v_quad_relative_size_squared( int /*num_nodes*/, VERDICT
   }
   
   if( rel_size  > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( rel_size, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( rel_size, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( rel_size, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( rel_size, -VERDICT_DBL_MAX );
 
 }
 
@@ -1141,7 +1141,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_relative_size_squared( int /*num_nodes*/, VERDICT
 
   Product of Shape and Relative Size
 */
-C_FUNC_DEF VERDICT_REAL v_quad_shape_and_size( int num_nodes, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_shape_and_size( int num_nodes, double coordinates[][3] )
 {
   double shape, size;
   size = v_quad_relative_size_squared( num_nodes, coordinates );
@@ -1150,8 +1150,8 @@ C_FUNC_DEF VERDICT_REAL v_quad_shape_and_size( int num_nodes, VERDICT_REAL coord
   double shape_and_size = shape * size;
   
   if( shape_and_size > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( shape_and_size, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( shape_and_size, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( shape_and_size, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( shape_and_size, -VERDICT_DBL_MAX );
 
 }
 
@@ -1160,7 +1160,7 @@ C_FUNC_DEF VERDICT_REAL v_quad_shape_and_size( int num_nodes, VERDICT_REAL coord
 
   product of shear and relative size
 */
-C_FUNC_DEF VERDICT_REAL v_quad_shear_and_size( int num_nodes, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_shear_and_size( int num_nodes, double coordinates[][3] )
 {
   double shear, size;
   shear = v_quad_shear( num_nodes, coordinates );
@@ -1169,15 +1169,15 @@ C_FUNC_DEF VERDICT_REAL v_quad_shear_and_size( int num_nodes, VERDICT_REAL coord
   double shear_and_size = shear * size;
 
   if( shear_and_size > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( shear_and_size, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( shear_and_size, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( shear_and_size, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( shear_and_size, -VERDICT_DBL_MAX );
 
 }
 
 /*!
   the distortion of a quad
 */
-C_FUNC_DEF VERDICT_REAL v_quad_distortion( int num_nodes, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_quad_distortion( int num_nodes, double coordinates[][3] )
 {
   // To calculate distortion for linear and 2nd order quads
   // distortion = {min(|J|)/actual area}*{parent area}
@@ -1384,13 +1384,13 @@ C_FUNC_DEF VERDICT_REAL v_quad_distortion( int num_nodes, VERDICT_REAL coordinat
 
     }
 
-  return (VERDICT_REAL)distortion;
+  return (double)distortion;
 }
 
 /*!
   multiple quality measures of a quad
 */
-C_FUNC_DEF void v_quad_quality( int num_nodes, VERDICT_REAL coordinates[][3], 
+C_FUNC_DEF void v_quad_quality( int num_nodes, double coordinates[][3], 
     unsigned int metrics_request_flag, QuadMetricVals *metric_vals )
 {
 
@@ -1436,9 +1436,9 @@ C_FUNC_DEF void v_quad_quality( int num_nodes, VERDICT_REAL coordinates[][3],
     if(metrics_request_flag & V_QUAD_MAXIMUM_ANGLE)
       metric_vals->maximum_angle = v_tri_maximum_angle(3, coordinates);
     if(metrics_request_flag & V_QUAD_JACOBIAN)
-      metric_vals->jacobian = (VERDICT_REAL)(v_tri_area(3, coordinates) * 2.0);
+      metric_vals->jacobian = (double)(v_tri_area(3, coordinates) * 2.0);
     if(metrics_request_flag & V_QUAD_SCALED_JACOBIAN)
-      metric_vals->jacobian = (VERDICT_REAL)(v_tri_scaled_jacobian(3, coordinates) * 2.0);
+      metric_vals->jacobian = (double)(v_tri_scaled_jacobian(3, coordinates) * 2.0);
   }
   
   // calculate both largest and smallest angles
@@ -1736,22 +1736,22 @@ C_FUNC_DEF void v_quad_quality( int num_nodes, VERDICT_REAL coordinates[][3],
   if(metrics_request_flag & V_QUAD_AREA )
   {
     if( metric_vals->area > 0 ) 
-      metric_vals->area = (VERDICT_REAL) VERDICT_MIN( metric_vals->area, VERDICT_DBL_MAX );
-    metric_vals->area = (VERDICT_REAL) VERDICT_MAX( metric_vals->area, -VERDICT_DBL_MAX );
+      metric_vals->area = (double) VERDICT_MIN( metric_vals->area, VERDICT_DBL_MAX );
+    metric_vals->area = (double) VERDICT_MAX( metric_vals->area, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_MAX_EDGE_RATIOS )
   {
     if( metric_vals->max_edge_ratios > 0 ) 
-      metric_vals->max_edge_ratios = (VERDICT_REAL) VERDICT_MIN( metric_vals->max_edge_ratios, VERDICT_DBL_MAX );
-    metric_vals->max_edge_ratios = (VERDICT_REAL) VERDICT_MAX( metric_vals->max_edge_ratios, -VERDICT_DBL_MAX );
+      metric_vals->max_edge_ratios = (double) VERDICT_MIN( metric_vals->max_edge_ratios, VERDICT_DBL_MAX );
+    metric_vals->max_edge_ratios = (double) VERDICT_MAX( metric_vals->max_edge_ratios, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_CONDITION )
   {
     if( metric_vals->condition > 0 ) 
-      metric_vals->condition = (VERDICT_REAL) VERDICT_MIN( metric_vals->condition, VERDICT_DBL_MAX );
-    metric_vals->condition = (VERDICT_REAL) VERDICT_MAX( metric_vals->condition, -VERDICT_DBL_MAX );
+      metric_vals->condition = (double) VERDICT_MIN( metric_vals->condition, VERDICT_DBL_MAX );
+    metric_vals->condition = (double) VERDICT_MAX( metric_vals->condition, -VERDICT_DBL_MAX );
   }
 
   // calculate distortion
@@ -1760,57 +1760,57 @@ C_FUNC_DEF void v_quad_quality( int num_nodes, VERDICT_REAL coordinates[][3],
     metric_vals->distortion = v_quad_distortion(num_nodes, coordinates);
 
     if( metric_vals->distortion > 0 ) 
-      metric_vals->distortion = (VERDICT_REAL) VERDICT_MIN( metric_vals->distortion, VERDICT_DBL_MAX );
-    metric_vals->distortion = (VERDICT_REAL) VERDICT_MAX( metric_vals->distortion, -VERDICT_DBL_MAX );
+      metric_vals->distortion = (double) VERDICT_MIN( metric_vals->distortion, VERDICT_DBL_MAX );
+    metric_vals->distortion = (double) VERDICT_MAX( metric_vals->distortion, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_JACOBIAN )
   {
     if( metric_vals->jacobian > 0 ) 
-      metric_vals->jacobian = (VERDICT_REAL) VERDICT_MIN( metric_vals->jacobian, VERDICT_DBL_MAX );
-    metric_vals->jacobian = (VERDICT_REAL) VERDICT_MAX( metric_vals->jacobian, -VERDICT_DBL_MAX );
+      metric_vals->jacobian = (double) VERDICT_MIN( metric_vals->jacobian, VERDICT_DBL_MAX );
+    metric_vals->jacobian = (double) VERDICT_MAX( metric_vals->jacobian, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_MAXIMUM_ANGLE )
   {
     if( metric_vals->maximum_angle > 0 ) 
-      metric_vals->maximum_angle = (VERDICT_REAL) VERDICT_MIN( metric_vals->maximum_angle, VERDICT_DBL_MAX );
-    metric_vals->maximum_angle = (VERDICT_REAL) VERDICT_MAX( metric_vals->maximum_angle, -VERDICT_DBL_MAX );
+      metric_vals->maximum_angle = (double) VERDICT_MIN( metric_vals->maximum_angle, VERDICT_DBL_MAX );
+    metric_vals->maximum_angle = (double) VERDICT_MAX( metric_vals->maximum_angle, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_MINIMUM_ANGLE )
   {
     if( metric_vals->minimum_angle > 0 ) 
-      metric_vals->minimum_angle = (VERDICT_REAL) VERDICT_MIN( metric_vals->minimum_angle, VERDICT_DBL_MAX );
-    metric_vals->minimum_angle = (VERDICT_REAL) VERDICT_MAX( metric_vals->minimum_angle, -VERDICT_DBL_MAX );
+      metric_vals->minimum_angle = (double) VERDICT_MIN( metric_vals->minimum_angle, VERDICT_DBL_MAX );
+    metric_vals->minimum_angle = (double) VERDICT_MAX( metric_vals->minimum_angle, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_ODDY )
   {
     if( metric_vals->oddy > 0 ) 
-      metric_vals->oddy = (VERDICT_REAL) VERDICT_MIN( metric_vals->oddy, VERDICT_DBL_MAX );
-    metric_vals->oddy = (VERDICT_REAL) VERDICT_MAX( metric_vals->oddy, -VERDICT_DBL_MAX );
+      metric_vals->oddy = (double) VERDICT_MIN( metric_vals->oddy, VERDICT_DBL_MAX );
+    metric_vals->oddy = (double) VERDICT_MAX( metric_vals->oddy, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_RELATIVE_SIZE_SQUARED )
   {
     if( metric_vals->relative_size_squared> 0 ) 
-      metric_vals->relative_size_squared = (VERDICT_REAL) VERDICT_MIN( metric_vals->relative_size_squared, VERDICT_DBL_MAX );
-    metric_vals->relative_size_squared = (VERDICT_REAL) VERDICT_MAX( metric_vals->relative_size_squared, -VERDICT_DBL_MAX );
+      metric_vals->relative_size_squared = (double) VERDICT_MIN( metric_vals->relative_size_squared, VERDICT_DBL_MAX );
+    metric_vals->relative_size_squared = (double) VERDICT_MAX( metric_vals->relative_size_squared, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_SCALED_JACOBIAN )
   {
     if( metric_vals->scaled_jacobian> 0 ) 
-      metric_vals->scaled_jacobian = (VERDICT_REAL) VERDICT_MIN( metric_vals->scaled_jacobian, VERDICT_DBL_MAX );
-    metric_vals->scaled_jacobian = (VERDICT_REAL) VERDICT_MAX( metric_vals->scaled_jacobian, -VERDICT_DBL_MAX );
+      metric_vals->scaled_jacobian = (double) VERDICT_MIN( metric_vals->scaled_jacobian, VERDICT_DBL_MAX );
+    metric_vals->scaled_jacobian = (double) VERDICT_MAX( metric_vals->scaled_jacobian, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_SHEAR )
   {
     if( metric_vals->shear > 0 ) 
-      metric_vals->shear = (VERDICT_REAL) VERDICT_MIN( metric_vals->shear, VERDICT_DBL_MAX );
-    metric_vals->shear = (VERDICT_REAL) VERDICT_MAX( metric_vals->shear, -VERDICT_DBL_MAX );
+      metric_vals->shear = (double) VERDICT_MIN( metric_vals->shear, VERDICT_DBL_MAX );
+    metric_vals->shear = (double) VERDICT_MAX( metric_vals->shear, -VERDICT_DBL_MAX );
   }
 
   // calculate shear and size
@@ -1820,15 +1820,15 @@ C_FUNC_DEF void v_quad_quality( int num_nodes, VERDICT_REAL coordinates[][3],
     metric_vals->shear_and_size = metric_vals->shear * metric_vals->relative_size_squared;
 
     if( metric_vals->shear_and_size > 0 ) 
-      metric_vals->shear_and_size = (VERDICT_REAL) VERDICT_MIN( metric_vals->shear_and_size, VERDICT_DBL_MAX );
-    metric_vals->shear_and_size = (VERDICT_REAL) VERDICT_MAX( metric_vals->shear_and_size, -VERDICT_DBL_MAX );
+      metric_vals->shear_and_size = (double) VERDICT_MIN( metric_vals->shear_and_size, VERDICT_DBL_MAX );
+    metric_vals->shear_and_size = (double) VERDICT_MAX( metric_vals->shear_and_size, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_SHAPE )
   {
     if( metric_vals->shape > 0 ) 
-      metric_vals->shape = (VERDICT_REAL) VERDICT_MIN( metric_vals->shape, VERDICT_DBL_MAX );
-    metric_vals->shape = (VERDICT_REAL) VERDICT_MAX( metric_vals->shape, -VERDICT_DBL_MAX );
+      metric_vals->shape = (double) VERDICT_MIN( metric_vals->shape, VERDICT_DBL_MAX );
+    metric_vals->shape = (double) VERDICT_MAX( metric_vals->shape, -VERDICT_DBL_MAX );
   }
 
   // calculate shape and size
@@ -1838,36 +1838,36 @@ C_FUNC_DEF void v_quad_quality( int num_nodes, VERDICT_REAL coordinates[][3],
     metric_vals->shape_and_size = metric_vals->shape * metric_vals->relative_size_squared;
 
     if( metric_vals->shape_and_size > 0 ) 
-      metric_vals->shape_and_size = (VERDICT_REAL) VERDICT_MIN( metric_vals->shape_and_size, VERDICT_DBL_MAX );
-    metric_vals->shape_and_size = (VERDICT_REAL) VERDICT_MAX( metric_vals->shape_and_size, -VERDICT_DBL_MAX );
+      metric_vals->shape_and_size = (double) VERDICT_MIN( metric_vals->shape_and_size, VERDICT_DBL_MAX );
+    metric_vals->shape_and_size = (double) VERDICT_MAX( metric_vals->shape_and_size, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_SKEW )
   {
     if( metric_vals->skew > 0 ) 
-      metric_vals->skew = (VERDICT_REAL) VERDICT_MIN( metric_vals->skew, VERDICT_DBL_MAX );
-    metric_vals->skew = (VERDICT_REAL) VERDICT_MAX( metric_vals->skew, -VERDICT_DBL_MAX );
+      metric_vals->skew = (double) VERDICT_MIN( metric_vals->skew, VERDICT_DBL_MAX );
+    metric_vals->skew = (double) VERDICT_MAX( metric_vals->skew, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_STRETCH )
   {
     if( metric_vals->stretch > 0 ) 
-      metric_vals->stretch = (VERDICT_REAL) VERDICT_MIN( metric_vals->stretch, VERDICT_DBL_MAX );
-    metric_vals->stretch = (VERDICT_REAL) VERDICT_MAX( metric_vals->stretch, -VERDICT_DBL_MAX );
+      metric_vals->stretch = (double) VERDICT_MIN( metric_vals->stretch, VERDICT_DBL_MAX );
+    metric_vals->stretch = (double) VERDICT_MAX( metric_vals->stretch, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_TAPER )
   {
     if( metric_vals->taper > 0 ) 
-      metric_vals->taper = (VERDICT_REAL) VERDICT_MIN( metric_vals->taper, VERDICT_DBL_MAX );
-    metric_vals->taper = (VERDICT_REAL) VERDICT_MAX( metric_vals->taper, -VERDICT_DBL_MAX );
+      metric_vals->taper = (double) VERDICT_MIN( metric_vals->taper, VERDICT_DBL_MAX );
+    metric_vals->taper = (double) VERDICT_MAX( metric_vals->taper, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_WARPAGE )
   {
     if( metric_vals->warpage > 0 ) 
-      metric_vals->warpage = (VERDICT_REAL) VERDICT_MIN( metric_vals->warpage, VERDICT_DBL_MAX );
-    metric_vals->warpage = (VERDICT_REAL) VERDICT_MAX( metric_vals->warpage, -VERDICT_DBL_MAX );
+      metric_vals->warpage = (double) VERDICT_MIN( metric_vals->warpage, VERDICT_DBL_MAX );
+    metric_vals->warpage = (double) VERDICT_MAX( metric_vals->warpage, -VERDICT_DBL_MAX );
   }
 
 }

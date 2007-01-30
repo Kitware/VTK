@@ -31,12 +31,12 @@
 #include <memory.h>
 
 //! the average volume of a tet
-VERDICT_REAL verdict_tet_size = 0;
+double verdict_tet_size = 0;
 
 /*! 
   set the average volume of a tet
 */
-C_FUNC_DEF void v_set_tet_size( VERDICT_REAL size )
+C_FUNC_DEF void v_set_tet_size( double size )
 {
   verdict_tet_size = size;
 }
@@ -72,7 +72,7 @@ int get_weight ( VerdictVector &w1,
      Hmax / Hmin where Hmax and Hmin are respectively the maximum and the
      minimum edge lengths
 */
-C_FUNC_DEF VERDICT_REAL v_tet_edge_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_edge_ratio( int /*num_nodes*/, double coordinates[][3] )
 {
   VerdictVector a, b, c, d, e, f;
 
@@ -144,7 +144,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_edge_ratio( int /*num_nodes*/, VERDICT_REAL coordi
   m2 = m2  < mef ? m2  : mef;
 
   if( m2 < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
 
   M2 = Mab > Mcd ? Mab : Mcd;
   M2 = M2  > Mef ? M2  : Mef;
@@ -152,8 +152,8 @@ C_FUNC_DEF VERDICT_REAL v_tet_edge_ratio( int /*num_nodes*/, VERDICT_REAL coordi
   double edge_ratio = sqrt( M2 / m2 );
   
   if( edge_ratio > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( edge_ratio, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( edge_ratio, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( edge_ratio, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( edge_ratio, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -162,7 +162,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_edge_ratio( int /*num_nodes*/, VERDICT_REAL coordi
   minimum of the jacobian divided by the lengths of 3 edge vectors
 
 */
-C_FUNC_DEF VERDICT_REAL v_tet_scaled_jacobian( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_scaled_jacobian( int /*num_nodes*/, double coordinates[][3] )
 {
 
   VerdictVector side0, side1, side2, side3, side4, side5;
@@ -215,11 +215,11 @@ C_FUNC_DEF VERDICT_REAL v_tet_scaled_jacobian( int /*num_nodes*/, VERDICT_REAL c
     length_product = fabs(jacobi);
 
   if( length_product < VERDICT_DBL_MIN )
-    return (VERDICT_REAL) VERDICT_DBL_MAX; 
+    return (double) VERDICT_DBL_MAX; 
 
   static const double root_of_2 = sqrt(2.0);
 
-  return (VERDICT_REAL)(root_of_2 * jacobi / length_product);
+  return (double)(root_of_2 * jacobi / length_product);
 
 }
 
@@ -230,7 +230,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_scaled_jacobian( int /*num_nodes*/, VERDICT_REAL c
   NB (P. Pebay 01/17/07):
     this method was know in earlier incarnations of VERDICT as "v_tet_aspect_beta"
 */
-C_FUNC_DEF VERDICT_REAL v_tet_radius_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_radius_ratio( int /*num_nodes*/, double coordinates[][3] )
 {
 
   //Determine side vectors
@@ -273,15 +273,15 @@ C_FUNC_DEF VERDICT_REAL v_tet_radius_ratio( int /*num_nodes*/, VERDICT_REAL coor
   double volume = v_tet_volume(4, coordinates);
   
   if( volume < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
   else
   {
     double radius_ratio;
     radius_ratio = numerator.length() * area_sum / (108*volume*volume); 
     
     if( radius_ratio > 0 )
-      return (VERDICT_REAL) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
-    return (VERDICT_REAL) VERDICT_MAX( radius_ratio, -VERDICT_DBL_MAX );
+      return (double) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
+    return (double) VERDICT_MAX( radius_ratio, -VERDICT_DBL_MAX );
   }
 
 }
@@ -294,7 +294,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_radius_ratio( int /*num_nodes*/, VERDICT_REAL coor
 
   CR / (3.0*IR) where CR is the circumsphere radius and IR is the inscribed sphere radius
 */
-C_FUNC_DEF VERDICT_REAL v_tet_aspect_beta( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_aspect_beta( int /*num_nodes*/, double coordinates[][3] )
 {
 
   return v_tet_radius_ratio(4, coordinates);
@@ -307,7 +307,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_beta( int /*num_nodes*/, VERDICT_REAL coord
     Hmax / (2 sqrt(6) r) where Hmax and r respectively denote the greatest edge 
     length and the inradius of the tetrahedron
 */
-C_FUNC_DEF VERDICT_REAL v_tet_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_aspect_ratio( int /*num_nodes*/, double coordinates[][3] )
 {
   static const double normal_coeff = sqrt(6.) / 12.;
 
@@ -329,7 +329,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coor
   double detTet = ab % ( ac * ad );
   
   if( detTet < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
 
   bc.set( coordinates[2][0] - coordinates[1][0],
           coordinates[2][1] - coordinates[1][1],
@@ -369,8 +369,8 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coor
   aspect_ratio = normal_coeff * hm * ( A + B + C + D ) / fabs( detTet );
   
   if( aspect_ratio > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( aspect_ratio, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( aspect_ratio, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( aspect_ratio, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( aspect_ratio, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -378,7 +378,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_ratio( int /*num_nodes*/, VERDICT_REAL coor
 
   srms^3 / (8.48528137423857*V) where srms = sqrt(sum(Si^2)/6), where Si is the edge length
 */
-C_FUNC_DEF VERDICT_REAL v_tet_aspect_gamma( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_aspect_gamma( int /*num_nodes*/, double coordinates[][3] )
 {
 
   //Determine side vectors
@@ -412,7 +412,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_gamma( int /*num_nodes*/, VERDICT_REAL coor
   double volume = fabs( v_tet_volume(4, coordinates) );
 
   if( volume  < VERDICT_DBL_MIN )
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
   else
   {
     double srms = sqrt((side0.length_squared() + side1.length_squared() +
@@ -420,7 +420,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_gamma( int /*num_nodes*/, VERDICT_REAL coor
                         side4.length_squared() + side5.length_squared()) / 6.0 );
 
     double aspect_ratio_gamma = pow(srms, 3) / (8.48528137423857 * volume );  
-    return (VERDICT_REAL)aspect_ratio_gamma;
+    return (double)aspect_ratio_gamma;
   }
 }
 
@@ -430,7 +430,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_gamma( int /*num_nodes*/, VERDICT_REAL coor
   NB (P. Pebay 01/22/07):
     Frobenius condition number when the reference element is regular
 */
-C_FUNC_DEF VERDICT_REAL v_tet_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_aspect_frobenius( int /*num_nodes*/, double coordinates[][3] )
 {
   static const double normal_exp = 1. / 3.;
 
@@ -454,7 +454,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL 
   denominator = 3. * pow( denominator, normal_exp );
 
   if( denominator < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
 
   double u[3];
   ab.get_xyz( u );
@@ -474,8 +474,8 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL 
   double aspect_frobenius = numerator / denominator;
   
   if( aspect_frobenius > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( aspect_frobenius, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( aspect_frobenius, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( aspect_frobenius, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( aspect_frobenius, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -484,7 +484,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_aspect_frobenius( int /*num_nodes*/, VERDICT_REAL 
   NB (P. Pebay 01/22/07):
     minimum nonoriented dihedral angle
 */
-C_FUNC_DEF VERDICT_REAL v_tet_minimum_angle( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_minimum_angle( int /*num_nodes*/, double coordinates[][3] )
 {
   static const double normal_coeff = 180. * .3183098861837906715377675267450287;
 
@@ -531,17 +531,17 @@ C_FUNC_DEF VERDICT_REAL v_tet_minimum_angle( int /*num_nodes*/, VERDICT_REAL coo
   alpha *= normal_coeff;
 
   if( alpha < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
 
   if( alpha > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( alpha, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( alpha, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( alpha, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( alpha, -VERDICT_DBL_MAX );
 }
 
 /*!
   The collapse ratio of a tet
 */
-C_FUNC_DEF VERDICT_REAL v_tet_collapse_ratio( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_collapse_ratio( int /*num_nodes*/, double coordinates[][3] )
 {
   //Determine side vectors
   VerdictVector e01, e02, e03, e12, e13, e23;
@@ -614,10 +614,10 @@ C_FUNC_DEF VERDICT_REAL v_tet_collapse_ratio( int /*num_nodes*/, VERDICT_REAL co
   if ( cr < crMin ) crMin = cr;
 
   if( crMin < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)VERDICT_DBL_MAX;
+    return (double)VERDICT_DBL_MAX;
   if( crMin > 0 )
-    return (VERDICT_REAL) VERDICT_MIN( crMin, VERDICT_DBL_MAX );
-  return (VERDICT_REAL) VERDICT_MAX( crMin, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( crMin, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( crMin, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -625,7 +625,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_collapse_ratio( int /*num_nodes*/, VERDICT_REAL co
 
   1/6 * jacobian at a corner node
 */
-C_FUNC_DEF VERDICT_REAL v_tet_volume( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_volume( int /*num_nodes*/, double coordinates[][3] )
 {
 
   //Determine side vectors
@@ -643,7 +643,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_volume( int /*num_nodes*/, VERDICT_REAL coordinate
              coordinates[3][1] - coordinates[0][1],
              coordinates[3][2] - coordinates[0][2] );
 
-  return  (VERDICT_REAL)((side3 % (side2 * side0)) / 6.0);
+  return  (double)((side3 % (side2 * side0)) / 6.0);
 
 }
 
@@ -652,7 +652,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_volume( int /*num_nodes*/, VERDICT_REAL coordinate
 
   condition number of the jacobian matrix at any corner
 */
-C_FUNC_DEF VERDICT_REAL v_tet_condition( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_condition( int /*num_nodes*/, double coordinates[][3] )
 {
 
   double condition, term1, term2, det;
@@ -690,7 +690,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_condition( int /*num_nodes*/, VERDICT_REAL coordin
   else 
     condition = sqrt( term1 * term2 ) /(3.0* det);
   
-  return (VERDICT_REAL)condition;
+  return (double)condition;
 }
 
 
@@ -699,7 +699,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_condition( int /*num_nodes*/, VERDICT_REAL coordin
 
   TODO
 */
-C_FUNC_DEF VERDICT_REAL v_tet_jacobian( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_jacobian( int /*num_nodes*/, double coordinates[][3] )
 {
   VerdictVector side0, side2, side3;
 
@@ -716,7 +716,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_jacobian( int /*num_nodes*/, VERDICT_REAL coordina
              coordinates[3][2] - coordinates[0][2] );
   
 
-  return (VERDICT_REAL)(side3 % (side2 * side0));
+  return (double)(side3 % (side2 * side0));
 
 }
 
@@ -726,7 +726,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_jacobian( int /*num_nodes*/, VERDICT_REAL coordina
 
   3/ condition number of weighted jacobian matrix
 */
-C_FUNC_DEF VERDICT_REAL v_tet_shape( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_shape( int /*num_nodes*/, double coordinates[][3] )
 {
 
    static const double two_thirds = 2.0/3.0;
@@ -748,16 +748,16 @@ C_FUNC_DEF VERDICT_REAL v_tet_shape( int /*num_nodes*/, VERDICT_REAL coordinates
 
   double jacobian = edge3 % (edge2 * edge0);
   if(jacobian < VERDICT_DBL_MIN){
-    return (VERDICT_REAL)0.0;
+    return (double)0.0;
   }
   double num = 3 * pow( root_of_2 * jacobian, two_thirds );
   double den = 1.5*(edge0%edge0  + edge2%edge2  + edge3%edge3)-
                    (edge0%-edge2 + -edge2%edge3 + edge3%edge0);
 
   if ( den < VERDICT_DBL_MIN ) 
-    return (VERDICT_REAL)0.0;
+    return (double)0.0;
     
-  return (VERDICT_REAL)VERDICT_MAX( num/den, 0 );
+  return (double)VERDICT_MAX( num/den, 0 );
 }
 
 
@@ -767,7 +767,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_shape( int /*num_nodes*/, VERDICT_REAL coordinates
 
   Min(J,1/J), where J is the determinant of the weighted Jacobian matrix
 */
-C_FUNC_DEF VERDICT_REAL v_tet_relative_size_squared( int /*num_nodes*/, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_relative_size_squared( int /*num_nodes*/, double coordinates[][3] )
 {
   double size;
   VerdictVector w1, w2, w3;
@@ -786,7 +786,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_relative_size_squared( int /*num_nodes*/, VERDICT_
     if ( size > 1 ) 
       size = (double)(1)/size;
   }
-  return (VERDICT_REAL)(size*size);
+  return (double)(size*size);
 }
 
 
@@ -795,14 +795,14 @@ C_FUNC_DEF VERDICT_REAL v_tet_relative_size_squared( int /*num_nodes*/, VERDICT_
 
   Product of the shape and relative size
 */
-C_FUNC_DEF VERDICT_REAL v_tet_shape_and_size( int num_nodes, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_shape_and_size( int num_nodes, double coordinates[][3] )
 {
   
   double shape, size;
   shape = v_tet_shape( num_nodes, coordinates );
   size = v_tet_relative_size_squared (num_nodes, coordinates );  
   
-  return (VERDICT_REAL)(shape * size);
+  return (double)(shape * size);
 
 }
 
@@ -811,7 +811,7 @@ C_FUNC_DEF VERDICT_REAL v_tet_shape_and_size( int num_nodes, VERDICT_REAL coordi
 /*!
   the distortion of a tet
 */
-C_FUNC_DEF VERDICT_REAL v_tet_distortion( int num_nodes, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_tet_distortion( int num_nodes, double coordinates[][3] )
 {
 
    double distortion = VERDICT_DBL_MAX;
@@ -908,14 +908,14 @@ C_FUNC_DEF VERDICT_REAL v_tet_distortion( int num_nodes, VERDICT_REAL coordinate
       }
    distortion = minimum_jacobian/element_volume;
 
-   return (VERDICT_REAL)distortion;
+   return (double)distortion;
 }
 
 
 /*!
   the quality metrics of a tet
 */
-C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3], 
+C_FUNC_DEF void v_tet_quality( int num_nodes, double coordinates[][3], 
     unsigned int metrics_request_flag, TetMetricVals *metric_vals )
 {
 
@@ -977,13 +977,13 @@ C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3],
     V_TET_SCALED_JACOBIAN | V_TET_CONDITION;
   if(metrics_request_flag & do_jacobian )
   {
-    metric_vals->jacobian = (VERDICT_REAL)(edges[3] % (edges[2] * edges[0]));
+    metric_vals->jacobian = (double)(edges[3] % (edges[2] * edges[0]));
   }
  
   // calculate the volume 
   if(metrics_request_flag & V_TET_VOLUME)
   {
-    metric_vals->volume = (VERDICT_REAL)(metric_vals->jacobian / 6.0);
+    metric_vals->volume = (double)(metric_vals->jacobian / 6.0);
   }
   
   // calculate aspect ratio
@@ -1001,10 +1001,10 @@ C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3],
     double volume = metric_vals->jacobian / 6.0;
 
     if(volume < VERDICT_DBL_MIN )
-      metric_vals->aspect_beta = (VERDICT_REAL)(VERDICT_DBL_MAX);
+      metric_vals->aspect_beta = (double)(VERDICT_DBL_MAX);
     else
       metric_vals->aspect_beta = 
-        (VERDICT_REAL)( numerator.length() * surface_area/ (108*volume*volume) );
+        (double)( numerator.length() * surface_area/ (108*volume*volume) );
   }
 
   // calculate the aspect gamma 
@@ -1023,7 +1023,7 @@ C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3],
 
       // cube the srms
       srms *= (srms * srms);
-      metric_vals->aspect_gamma = (VERDICT_REAL)( srms / (8.48528137423857 * volume ));
+      metric_vals->aspect_gamma = (double)( srms / (8.48528137423857 * volume ));
     }
   }
 
@@ -1032,7 +1032,7 @@ C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3],
   {
       //if the jacobian is non-positive, the shape is 0
     if(metric_vals->jacobian < VERDICT_DBL_MIN){
-      metric_vals->shape = (VERDICT_REAL)0.0;
+      metric_vals->shape = (double)0.0;
     }
     else{
       static const double two_thirds = 2.0/3.0;
@@ -1042,9 +1042,9 @@ C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3],
         (edges[0] % -edges[2] + -edges[2] % edges[3] + edges[3] % edges[0]);
 
       if( den < VERDICT_DBL_MIN )
-        metric_vals->shape = (VERDICT_REAL)0.0;
+        metric_vals->shape = (double)0.0;
       else
-        metric_vals->shape = (VERDICT_REAL)VERDICT_MAX( num/den, 0 );
+        metric_vals->shape = (double)VERDICT_MAX( num/den, 0 );
     }
     
   }
@@ -1066,7 +1066,7 @@ C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3],
       else
       {
         tmp *= tmp;
-        metric_vals->relative_size_squared = (VERDICT_REAL)VERDICT_MIN(tmp, 1/tmp);
+        metric_vals->relative_size_squared = (double)VERDICT_MIN(tmp, 1/tmp);
       }
     }
   }
@@ -1074,7 +1074,7 @@ C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3],
   // calculate the shape and size
   if(metrics_request_flag & V_TET_SHAPE_AND_SIZE)
   {
-    metric_vals->shape_and_size = (VERDICT_REAL)(metric_vals->shape * metric_vals->relative_size_squared);
+    metric_vals->shape_and_size = (double)(metric_vals->shape * metric_vals->relative_size_squared);
   }
   
   // calculate the scaled jacobian
@@ -1103,10 +1103,10 @@ C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3],
       length_product = fabs(metric_vals->jacobian);
 
     if( length_product < VERDICT_DBL_MIN )
-      metric_vals->scaled_jacobian = (VERDICT_REAL) VERDICT_DBL_MAX; 
+      metric_vals->scaled_jacobian = (double) VERDICT_DBL_MAX; 
     else
       metric_vals->scaled_jacobian = 
-        (VERDICT_REAL)(root_of_2 * metric_vals->jacobian / length_product);
+        (double)(root_of_2 * metric_vals->jacobian / length_product);
   }
   
   // calculate the condition number
@@ -1128,9 +1128,9 @@ C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3],
     double det = c_1 % ( c_2 * c_3 );
 
     if(det <= VERDICT_DBL_MIN)
-      metric_vals->condition = (VERDICT_REAL)VERDICT_DBL_MAX; 
+      metric_vals->condition = (double)VERDICT_DBL_MAX; 
     else
-      metric_vals->condition = (VERDICT_REAL)(sqrt(term1 * term2) / (3.0*det)); 
+      metric_vals->condition = (double)(sqrt(term1 * term2) / (3.0*det)); 
   }
     
   // calculate the distortion
@@ -1143,71 +1143,71 @@ C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3],
   if(metrics_request_flag & V_TET_ASPECT_BETA )
   {
     if( metric_vals->aspect_beta > 0 ) 
-      metric_vals->aspect_beta = (VERDICT_REAL) VERDICT_MIN( metric_vals->aspect_beta, VERDICT_DBL_MAX );
-    metric_vals->aspect_beta = (VERDICT_REAL) VERDICT_MAX( metric_vals->aspect_beta, -VERDICT_DBL_MAX );
+      metric_vals->aspect_beta = (double) VERDICT_MIN( metric_vals->aspect_beta, VERDICT_DBL_MAX );
+    metric_vals->aspect_beta = (double) VERDICT_MAX( metric_vals->aspect_beta, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_TET_ASPECT_GAMMA)
   {
     if( metric_vals->aspect_gamma > 0 ) 
-      metric_vals->aspect_gamma = (VERDICT_REAL) VERDICT_MIN( metric_vals->aspect_gamma, VERDICT_DBL_MAX );
-    metric_vals->aspect_gamma = (VERDICT_REAL) VERDICT_MAX( metric_vals->aspect_gamma, -VERDICT_DBL_MAX );
+      metric_vals->aspect_gamma = (double) VERDICT_MIN( metric_vals->aspect_gamma, VERDICT_DBL_MAX );
+    metric_vals->aspect_gamma = (double) VERDICT_MAX( metric_vals->aspect_gamma, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_TET_VOLUME)
   {
     if( metric_vals->volume > 0 ) 
-      metric_vals->volume = (VERDICT_REAL) VERDICT_MIN( metric_vals->volume, VERDICT_DBL_MAX );
-    metric_vals->volume = (VERDICT_REAL) VERDICT_MAX( metric_vals->volume, -VERDICT_DBL_MAX );
+      metric_vals->volume = (double) VERDICT_MIN( metric_vals->volume, VERDICT_DBL_MAX );
+    metric_vals->volume = (double) VERDICT_MAX( metric_vals->volume, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_TET_CONDITION)
   {
     if( metric_vals->condition > 0 ) 
-      metric_vals->condition = (VERDICT_REAL) VERDICT_MIN( metric_vals->condition, VERDICT_DBL_MAX );
-    metric_vals->condition = (VERDICT_REAL) VERDICT_MAX( metric_vals->condition, -VERDICT_DBL_MAX );
+      metric_vals->condition = (double) VERDICT_MIN( metric_vals->condition, VERDICT_DBL_MAX );
+    metric_vals->condition = (double) VERDICT_MAX( metric_vals->condition, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_TET_JACOBIAN)
   {
     if( metric_vals->jacobian > 0 ) 
-      metric_vals->jacobian = (VERDICT_REAL) VERDICT_MIN( metric_vals->jacobian, VERDICT_DBL_MAX );
-    metric_vals->jacobian = (VERDICT_REAL) VERDICT_MAX( metric_vals->jacobian, -VERDICT_DBL_MAX );
+      metric_vals->jacobian = (double) VERDICT_MIN( metric_vals->jacobian, VERDICT_DBL_MAX );
+    metric_vals->jacobian = (double) VERDICT_MAX( metric_vals->jacobian, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_TET_SCALED_JACOBIAN)
   {
     if( metric_vals->scaled_jacobian > 0 ) 
-      metric_vals->scaled_jacobian = (VERDICT_REAL) VERDICT_MIN( metric_vals->scaled_jacobian, VERDICT_DBL_MAX );
-    metric_vals->scaled_jacobian = (VERDICT_REAL) VERDICT_MAX( metric_vals->scaled_jacobian, -VERDICT_DBL_MAX );
+      metric_vals->scaled_jacobian = (double) VERDICT_MIN( metric_vals->scaled_jacobian, VERDICT_DBL_MAX );
+    metric_vals->scaled_jacobian = (double) VERDICT_MAX( metric_vals->scaled_jacobian, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_TET_SHAPE)
   {
     if( metric_vals->shape > 0 ) 
-      metric_vals->shape = (VERDICT_REAL) VERDICT_MIN( metric_vals->shape, VERDICT_DBL_MAX );
-    metric_vals->shape = (VERDICT_REAL) VERDICT_MAX( metric_vals->shape, -VERDICT_DBL_MAX );
+      metric_vals->shape = (double) VERDICT_MIN( metric_vals->shape, VERDICT_DBL_MAX );
+    metric_vals->shape = (double) VERDICT_MAX( metric_vals->shape, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_TET_RELATIVE_SIZE_SQUARED)
   {
     if( metric_vals->relative_size_squared > 0 ) 
-      metric_vals->relative_size_squared = (VERDICT_REAL) VERDICT_MIN( metric_vals->relative_size_squared, VERDICT_DBL_MAX );
-    metric_vals->relative_size_squared = (VERDICT_REAL) VERDICT_MAX( metric_vals->relative_size_squared, -VERDICT_DBL_MAX );
+      metric_vals->relative_size_squared = (double) VERDICT_MIN( metric_vals->relative_size_squared, VERDICT_DBL_MAX );
+    metric_vals->relative_size_squared = (double) VERDICT_MAX( metric_vals->relative_size_squared, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_TET_SHAPE_AND_SIZE)
   {
     if( metric_vals->shape_and_size > 0 ) 
-      metric_vals->shape_and_size = (VERDICT_REAL) VERDICT_MIN( metric_vals->shape_and_size, VERDICT_DBL_MAX );
-    metric_vals->shape_and_size = (VERDICT_REAL) VERDICT_MAX( metric_vals->shape_and_size, -VERDICT_DBL_MAX );
+      metric_vals->shape_and_size = (double) VERDICT_MIN( metric_vals->shape_and_size, VERDICT_DBL_MAX );
+    metric_vals->shape_and_size = (double) VERDICT_MAX( metric_vals->shape_and_size, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_TET_DISTORTION)
   {
     if( metric_vals->distortion > 0 ) 
-      metric_vals->distortion = (VERDICT_REAL) VERDICT_MIN( metric_vals->distortion, VERDICT_DBL_MAX );
-    metric_vals->distortion = (VERDICT_REAL) VERDICT_MAX( metric_vals->distortion, -VERDICT_DBL_MAX );
+      metric_vals->distortion = (double) VERDICT_MIN( metric_vals->distortion, VERDICT_DBL_MAX );
+    metric_vals->distortion = (double) VERDICT_MAX( metric_vals->distortion, -VERDICT_DBL_MAX );
   }
 
 

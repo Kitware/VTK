@@ -61,7 +61,7 @@
   2 tets and summing the volumes of the 2 tets.
 */
 
-C_FUNC_DEF VERDICT_REAL v_pyramid_volume( int num_nodes, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_pyramid_volume( int num_nodes, double coordinates[][3] )
 {
     
   double volume = 0;
@@ -103,13 +103,13 @@ C_FUNC_DEF VERDICT_REAL v_pyramid_volume( int num_nodes, VERDICT_REAL coordinate
     volume += (side3 % (side1 * side2 ))/6.0;
  
   }   
-  return (VERDICT_REAL)volume;
+  return (double)volume;
     
 }
 
 
 
-C_FUNC_DEF void v_pyramid_quality( int num_nodes, VERDICT_REAL coordinates[][3], 
+C_FUNC_DEF void v_pyramid_quality( int num_nodes, double coordinates[][3], 
     unsigned int metrics_request_flag, PyramidMetricVals *metric_vals )
 {
   memset( metric_vals, 0, sizeof( PyramidMetricVals ) );

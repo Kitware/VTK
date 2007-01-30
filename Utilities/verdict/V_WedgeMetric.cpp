@@ -55,7 +55,7 @@
 
 */
 
-C_FUNC_DEF VERDICT_REAL v_wedge_volume( int num_nodes, VERDICT_REAL coordinates[][3] )
+C_FUNC_DEF double v_wedge_volume( int num_nodes, double coordinates[][3] )
 {
 
   double volume = 0;
@@ -113,13 +113,13 @@ C_FUNC_DEF VERDICT_REAL v_wedge_volume( int num_nodes, VERDICT_REAL coordinates[
 
   }
 
-  return (VERDICT_REAL)volume;
+  return (double)volume;
 
 }
 
 
 
-C_FUNC_DEF void v_wedge_quality( int num_nodes, VERDICT_REAL coordinates[][3], 
+C_FUNC_DEF void v_wedge_quality( int num_nodes, double coordinates[][3], 
     unsigned int metrics_request_flag, WedgeMetricVals *metric_vals )
 {
   memset( metric_vals, 0, sizeof(WedgeMetricVals) );

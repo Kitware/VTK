@@ -9,7 +9,6 @@ set( verdict_BUILD_VERSION "2")
 
 set( verdict_VERSION_FLAT "${verdict_MAJOR_VERSION}${verdict_MINOR_VERSION}${verdict_BUILD_VERSION}" )
 set( verdict_VERSION "${verdict_MAJOR_VERSION}.${verdict_MINOR_VERSION}.${verdict_BUILD_VERSION}" )
-option( VERDICT_USE_FLOAT "Should VERDICT use single-precision (float) or double-precision (double) numbers?" ON )
 option( VERDICT_ENABLE_TESTING "Should tests of the VERDICT library be built?" OFF )
 
 

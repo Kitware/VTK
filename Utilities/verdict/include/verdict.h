@@ -38,15 +38,6 @@
 #define VERDICT_DBL_MAX 1.0E+30
 #define VERDICT_PI 3.1415926535897932384626
 
-/* note:  the VERDICT_USE_FLOAT must be consistent with the build of the library */
-
-#ifdef VERDICT_USE_FLOAT
-# define VERDICT_REAL float
-#else
-# define VERDICT_REAL double
-#endif
-
-
 #ifdef __cplusplus
 # if defined(WIN32) && defined(VERDICT_SHARED_LIB)
 #  ifdef verdict_EXPORTS
@@ -75,7 +66,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  typedef VERDICT_REAL(*VerdictFunction)(int, VERDICT_REAL[][3]);
+  typedef double(*VerdictFunction)(int, double[][3]);
   typedef int(*ComputeNormal)(double point[3], double normal[3]); 
 #ifdef __cplusplus
 }
@@ -91,43 +82,43 @@ extern "C" {
 struct HexMetricVals
 {
   /** \sa v_hex_edge_ratio */
-  VERDICT_REAL edge_ratio ;  
+  double edge_ratio ;  
   /** \sa v_hex_max_edge_ratios */
-  VERDICT_REAL max_edge_ratios ;  
+  double max_edge_ratios ;  
   /** \sa v_hex_skew */
-  VERDICT_REAL skew ;
+  double skew ;
   /** \sa v_hex_taper */
-  VERDICT_REAL taper ;
+  double taper ;
   /** \sa v_hex_volume */
-  VERDICT_REAL volume ;
+  double volume ;
   /** \sa v_hex_stretch */
-  VERDICT_REAL stretch ;
+  double stretch ;
   /** \sa v_hex_diagonal */
-  VERDICT_REAL diagonal ;
+  double diagonal ;
   /** \sa v_hex_dimension */
-  VERDICT_REAL dimension ;
+  double dimension ;
   /** \sa v_hex_oddy */
-  VERDICT_REAL oddy ;
+  double oddy ;
   /** \sa v_hex_med_aspect_frobenius */
-  VERDICT_REAL med_aspect_frobenius ;
+  double med_aspect_frobenius ;
   /** \sa v_hex_condition */
-  VERDICT_REAL condition ;
+  double condition ;
   /** \sa v_hex_jacobian */
-  VERDICT_REAL jacobian ;
+  double jacobian ;
   /** \sa v_hex_scaled_jacobian */
-  VERDICT_REAL scaled_jacobian ;
+  double scaled_jacobian ;
   /** \sa v_hex_shear */
-  VERDICT_REAL shear ;
+  double shear ;
   /** \sa v_hex_shape */
-  VERDICT_REAL shape ;
+  double shape ;
   /** \sa v_hex_relative_size */
-  VERDICT_REAL relative_size_squared;
+  double relative_size_squared;
   /** \sa v_hex_shape_and_size */
-  VERDICT_REAL shape_and_size ; 
+  double shape_and_size ; 
   /** \sa v_hex_shear_and_size */
-  VERDICT_REAL shear_and_size ; 
+  double shear_and_size ; 
   /** \sa v_hex_distortion */
-  VERDICT_REAL distortion; 
+  double distortion; 
 };
 
 /** EdgeMetricVals is a <em>struct</em> used to return calculated metrics  
@@ -138,7 +129,7 @@ struct HexMetricVals
 */
 struct EdgeMetricVals
 {
-  VERDICT_REAL length ; 
+  double length ; 
 };
 
 
@@ -150,7 +141,7 @@ struct EdgeMetricVals
 */
 struct KnifeMetricVals
 {
-  VERDICT_REAL volume ; 
+  double volume ; 
 };
 
 
@@ -178,51 +169,51 @@ struct KnifeMetricVals
 struct QuadMetricVals
 {
   /** \sa v_quad_edge_ratio function */
-  VERDICT_REAL edge_ratio ;
+  double edge_ratio ;
   /** \sa v_quad_max_edge_ratios function */
-  VERDICT_REAL max_edge_ratios ;
+  double max_edge_ratios ;
   /** \sa v_quad_aspect_ratio function */
-  VERDICT_REAL aspect_ratio ;
+  double aspect_ratio ;
   /** \sa v_quad_radius_ratio function */
-  VERDICT_REAL radius_ratio ;
+  double radius_ratio ;
   /** \sa v_quad_med_aspect_frobenius function */
-  VERDICT_REAL med_aspect_frobenius ;
+  double med_aspect_frobenius ;
   /** \sa v_quad_max_aspect_frobenius function */
-  VERDICT_REAL max_aspect_frobenius ;
+  double max_aspect_frobenius ;
   /** \sa v_quad_skew function */
-  VERDICT_REAL skew ;
+  double skew ;
   /** \sa v_quad_taper function */
-  VERDICT_REAL taper ;
+  double taper ;
   /** \sa v_quad_warpage function */
-  VERDICT_REAL warpage ;
+  double warpage ;
   /** \sa v_quad_area function */
-  VERDICT_REAL area ;
+  double area ;
   /** \sa v_quad_stretch function */
-  VERDICT_REAL stretch ;
+  double stretch ;
   /** \sa v_quad_smallest_angle function */
-  VERDICT_REAL minimum_angle ;
+  double minimum_angle ;
   /** \sa v_quad_largest_angle function */
-  VERDICT_REAL maximum_angle ;
+  double maximum_angle ;
   /** \sa v_quad_oddy function */
-  VERDICT_REAL oddy ;
+  double oddy ;
   /** \sa v_quad_condition function */
-  VERDICT_REAL condition ;
+  double condition ;
   /** \sa v_quad_jacobian function */
-  VERDICT_REAL jacobian ;
+  double jacobian ;
   /** \sa v_quad_scaled_jacobian function */
-  VERDICT_REAL scaled_jacobian ;
+  double scaled_jacobian ;
   /** \sa v_quad_shear function */
-  VERDICT_REAL shear ;
+  double shear ;
   /** \sa v_quad_shape function */
-  VERDICT_REAL shape ;
+  double shape ;
   /** \sa v_quad_relative_size_squared function */
-  VERDICT_REAL relative_size_squared ;
+  double relative_size_squared ;
   /** \sa v_quad_shape_and_size function */
-  VERDICT_REAL shape_and_size ; 
+  double shape_and_size ; 
   /** \sa v_quad_shear_and_size function */
-  VERDICT_REAL shear_and_size ;
+  double shear_and_size ;
   /** \sa v_quad_distortion function */
-  VERDICT_REAL distortion; 
+  double distortion; 
 };
 
 /** PyramidMetricVals is a <em>struct</em> used to return calculated metrics  
@@ -233,7 +224,7 @@ struct QuadMetricVals
 */
 struct PyramidMetricVals
 {
-  VERDICT_REAL volume ; 
+  double volume ; 
 };
    
 /** WedgeMetricVals is a <em>struct</em> used to return calculated metrics  
@@ -244,7 +235,7 @@ struct PyramidMetricVals
 */
 struct WedgeMetricVals
 {
-  VERDICT_REAL volume ; 
+  double volume ; 
 };
      
 /** TetMetricVals is a <em>struct</em> used to return calculated metrics  
@@ -256,37 +247,37 @@ struct WedgeMetricVals
 struct TetMetricVals
 {
   /** \sa v_tet_edge_ratio*/
-  VERDICT_REAL edge_ratio;
+  double edge_ratio;
   /** \sa v_tet_radius_ratio*/
-  VERDICT_REAL radius_ratio;
+  double radius_ratio;
   /** \sa v_tet_aspect_beta*/
-  VERDICT_REAL aspect_beta;
+  double aspect_beta;
   /** \sa v_tet_aspect_ratio */
-  VERDICT_REAL aspect_ratio ;
+  double aspect_ratio ;
   /** \sa v_tet_aspect_gamma */
-  VERDICT_REAL aspect_gamma ;
+  double aspect_gamma ;
   /** \sa v_tet_aspect_frobenius */
-  VERDICT_REAL aspect_frobenius ;
+  double aspect_frobenius ;
   /** \sa v_tet_minimum_angle */
-  VERDICT_REAL minimum_angle ;
+  double minimum_angle ;
   /** \sa v_tet_collapse_ratio*/
-  VERDICT_REAL collapse_ratio;
+  double collapse_ratio;
   /** \sa v_tet_volume */
-  VERDICT_REAL volume ;
+  double volume ;
   /** \sa v_tet_condition */
-  VERDICT_REAL condition ;
+  double condition ;
   /** \sa v_tet_jacobian */
-  VERDICT_REAL jacobian ;
+  double jacobian ;
   /** \sa v_tet_scaled_jacobian */
-  VERDICT_REAL scaled_jacobian ;
+  double scaled_jacobian ;
   /** \sa v_tet_shape */
-  VERDICT_REAL shape ;
+  double shape ;
   /** \sa v_tet_relative_size */
-  VERDICT_REAL relative_size_squared ;
+  double relative_size_squared ;
   /** \sa v_tet_shape_and_size*/
-  VERDICT_REAL shape_and_size ; 
+  double shape_and_size ; 
   /** \sa v_tet_distortion */
-  VERDICT_REAL distortion; 
+  double distortion; 
 };
 
 /** TriMetricVals is a <em>struct</em> used to return calculated metrics  
@@ -298,31 +289,31 @@ struct TetMetricVals
 struct TriMetricVals
 {
   /** \sa v_tri_edge_ratio */
-  VERDICT_REAL edge_ratio ;
+  double edge_ratio ;
   /** \sa v_tri_aspect_ratio */
-  VERDICT_REAL aspect_ratio ;
+  double aspect_ratio ;
   /** \sa v_tri_radius_ratio */
-  VERDICT_REAL radius_ratio ;
+  double radius_ratio ;
   /** \sa v_tri_aspect_frobenius */
-  VERDICT_REAL aspect_frobenius ;
+  double aspect_frobenius ;
   /** \sa v_tri_area*/
-  VERDICT_REAL area ;
+  double area ;
   /** \sa v_tri_minimum_angle*/
-  VERDICT_REAL minimum_angle ;
+  double minimum_angle ;
   /** \sa v_tri_maximum_angle */
-  VERDICT_REAL maximum_angle ;
+  double maximum_angle ;
   /** \sa v_tri_condition */
-  VERDICT_REAL condition ;
+  double condition ;
   /** \sa v_tri_scaled_jacobian */
-  VERDICT_REAL scaled_jacobian ;
+  double scaled_jacobian ;
   /** \sa v_tri_shape */
-  VERDICT_REAL shape ;
+  double shape ;
   /** \sa v_tri_relative_size_squared */
-  VERDICT_REAL relative_size_squared ;
+  double relative_size_squared ;
   /** \sa v_tri_shape_and_size */
-  VERDICT_REAL shape_and_size ; 
+  double shape_and_size ; 
   /** \sa v_tri_distortion */
-  VERDICT_REAL distortion; 
+  double distortion; 
 };
 
 
@@ -611,35 +602,35 @@ struct TriMetricVals
 */
 
     //! Calculates quality metrics for hexahedral elements.
-    C_FUNC_DEF void v_hex_quality( int num_nodes, VERDICT_REAL coordinates[][3], 
+    C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3], 
         unsigned int metrics_request_flag, struct HexMetricVals *metric_vals ); 
     
     //! Calculates quality metrics for tetrahedral elements.
-    C_FUNC_DEF void v_tet_quality( int num_nodes, VERDICT_REAL coordinates[][3], 
+    C_FUNC_DEF void v_tet_quality( int num_nodes, double coordinates[][3], 
         unsigned int metrics_request_flag, struct TetMetricVals *metric_vals ); 
     
     //! Calculates quality metrics for pyramid elements.
-    C_FUNC_DEF void v_pyramid_quality( int num_nodes, VERDICT_REAL coordinates[][3], 
+    C_FUNC_DEF void v_pyramid_quality( int num_nodes, double coordinates[][3], 
         unsigned int metrics_request_flag, struct PyramidMetricVals *metric_vals ); 
 
     //! Calculates quality metrics for wedge elements.
-    C_FUNC_DEF void v_wedge_quality( int num_nodes, VERDICT_REAL coordinates[][3], 
+    C_FUNC_DEF void v_wedge_quality( int num_nodes, double coordinates[][3], 
         unsigned int metrics_request_flag, struct WedgeMetricVals *metric_vals ); 
 
     //! Calculates quality metrics for knife elements.
-    C_FUNC_DEF void v_knife_quality( int num_nodes, VERDICT_REAL coordinates[][3], 
+    C_FUNC_DEF void v_knife_quality( int num_nodes, double coordinates[][3], 
         unsigned int metrics_request_flag, struct KnifeMetricVals *metric_vals ); 
 
     //! Calculates quality metrics for quadralateral elements.
-    C_FUNC_DEF void v_quad_quality( int num_nodes, VERDICT_REAL coordinates[][3], 
+    C_FUNC_DEF void v_quad_quality( int num_nodes, double coordinates[][3], 
         unsigned int metrics_request_flag, struct QuadMetricVals *metric_vals ); 
 
     //! Calculates quality metrics for triangle elements.
-    C_FUNC_DEF void v_tri_quality( int num_nodes, VERDICT_REAL coordinates[][3], 
+    C_FUNC_DEF void v_tri_quality( int num_nodes, double coordinates[][3], 
         unsigned int metrics_request_flag, struct TriMetricVals *metric_vals );
 
     //! Calculates quality metrics for edge elements.
-    C_FUNC_DEF void v_edge_quality( int num_nodes, VERDICT_REAL coordinates[][3], 
+    C_FUNC_DEF void v_edge_quality( int num_nodes, double coordinates[][3], 
         unsigned int metrics_request_flag, struct EdgeMetricVals *metric_vals ); 
 
 
@@ -647,379 +638,379 @@ struct TriMetricVals
 /* individual quality functions for hex elements */
 
     //! Sets average size (volume) of hex, needed for v_hex_relative_size(...)
-    C_FUNC_DEF void v_set_hex_size( VERDICT_REAL size );
+    C_FUNC_DEF void v_set_hex_size( double size );
 
     //! Calculates hex edge ratio metric.
     /**  Hmax / Hmin where Hmax and Hmin are respectively the maximum and the
          minimum edge lengths */ 
-    C_FUNC_DEF VERDICT_REAL v_hex_edge_ratio( int num_nodes, VERDICT_REAL coordinates[][3] );
+    C_FUNC_DEF double v_hex_edge_ratio( int num_nodes, double coordinates[][3] );
 
     //! Calculates hex maximum of edge ratios
     /**Maximum edge length ratios at hex center.
       Reference --- L.M. Taylor, and D.P. Flanagan, Pronto3D - A Three Dimensional Transient
          Solid Dynamics Program, SAND87-1912, Sandia National Laboratories, 1989. */
-    C_FUNC_DEF VERDICT_REAL v_hex_max_edge_ratios( int num_nodes, VERDICT_REAL coordinates[][3] );
+    C_FUNC_DEF double v_hex_max_edge_ratios( int num_nodes, double coordinates[][3] );
 
     //! Calculates hex skew metric. 
     /** Maximum |cos A| where A is the angle between edges at hex center.   
       Reference --- L.M. Taylor, and D.P. Flanagan, Pronto3D - A Three Dimensional Transient
          Solid Dynamics Program, SAND87-1912, Sandia National Laboratories, 1989. */
-    C_FUNC_DEF VERDICT_REAL v_hex_skew( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_skew( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex taper metric 
     /**  Maximum ratio of lengths derived from opposite edges. 
       Reference --- L.M. Taylor, and D.P. Flanagan, Pronto3D - A Three Dimensional Transient
          Solid Dynamics Program, SAND87-1912, Sandia National Laboratories, 1989. */
-    C_FUNC_DEF VERDICT_REAL v_hex_taper( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_taper( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex volume 
     /**  Jacobian at hex center. 
       Reference --- L.M. Taylor, and D.P. Flanagan, Pronto3D - A Three Dimensional Transient
          Solid Dynamics Program, SAND87-1912, Sandia National Laboratories, 1989. */
-    C_FUNC_DEF VERDICT_REAL v_hex_volume( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_volume( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex stretch metric   
     /**  Sqrt(3) * minimum edge length / maximum diagonal length. 
       Reference --- FIMESH code */ 
-    C_FUNC_DEF VERDICT_REAL v_hex_stretch( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_stretch( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex diagonal metric   
     /** Minimum diagonal length / maximum diagonal length. 
       Reference --- Unknown */ 
-    C_FUNC_DEF VERDICT_REAL v_hex_diagonal( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_diagonal( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex dimension metric   
     /** Pronto-specific characteristic length for stable time step calculation.  
         Char_length = Volume / 2 grad Volume. 
       Reference --- L.M. Taylor, and D.P. Flanagan, Pronto3D - A Three Dimensional Transient
          Solid Dynamics Program, SAND87-1912, Sandia National Laboratories, 1989. */
-    C_FUNC_DEF VERDICT_REAL v_hex_dimension( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_dimension( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex oddy metric   
-    C_FUNC_DEF VERDICT_REAL v_hex_oddy( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_oddy( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex condition metric   
     /** Average Frobenius condition number of the Jacobian matrix at 8 corners. */ 
-    C_FUNC_DEF VERDICT_REAL v_hex_med_aspect_frobenius( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_med_aspect_frobenius( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex condition metric   
     /** Maximum Frobenius condition number of the Jacobian matrix at 8 corners.
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities, 
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */ 
-    C_FUNC_DEF VERDICT_REAL v_hex_max_aspect_frobenius( int num_nodes, VERDICT_REAL coordinates[][3] ); 
-    C_FUNC_DEF VERDICT_REAL v_hex_condition( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_max_aspect_frobenius( int num_nodes, double coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_condition( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex jacobian metric   
     /** Minimum pointwise volume of local map at 8 corners & center of hex. 
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities, 
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */ 
-    C_FUNC_DEF VERDICT_REAL v_hex_jacobian( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_jacobian( int num_nodes, double coordinates[][3] ); 
     
     //! Calculates hex scaled jacobian metric   
     /** Minimum Jacobian divided by the lengths of the 3 edge vectors. 
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities, 
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */ 
-    C_FUNC_DEF VERDICT_REAL v_hex_scaled_jacobian( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_scaled_jacobian( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex shear metric   
     /** 3/Mean Ratio of Jacobian Skew matrix.
        Reference --- P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication.  */
-    C_FUNC_DEF VERDICT_REAL v_hex_shear( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_shear( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex shape metric.
     /** 3/Mean Ratio of weighted Jacobian matrix. 
        Reference --- P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication.  */
-    C_FUNC_DEF VERDICT_REAL v_hex_shape( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_shape( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex relative size metric. 
     /** 3/Mean Ratio of weighted Jacobian matrix.
        Reference --- P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication.  */
-    C_FUNC_DEF VERDICT_REAL v_hex_relative_size_squared( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_relative_size_squared( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex shape-size metric.
     /** Product of Shape and Relative Size.
        Reference --- P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication.  */
-    C_FUNC_DEF VERDICT_REAL v_hex_shape_and_size( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_hex_shape_and_size( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex shear-size metric   
     /** Product of Shear and Relative Size.
        Reference --- P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication.  */
-    C_FUNC_DEF VERDICT_REAL v_hex_shear_and_size( int num_nodes, VERDICT_REAL coordinates[][3] );
+    C_FUNC_DEF double v_hex_shear_and_size( int num_nodes, double coordinates[][3] );
 
     //! Calculates hex distortion metric   
     /** {min(|J|)/actual volume}*parent volume, parent volume = 8 for hex.
        Reference --- SDRC/IDEAS Simulation: Finite Element Modeling--User's Guide */
-    C_FUNC_DEF VERDICT_REAL v_hex_distortion( int num_nodes, VERDICT_REAL coordinates[][3] );
+    C_FUNC_DEF double v_hex_distortion( int num_nodes, double coordinates[][3] );
 
 /* individual quality functions for tet elements */
 
     //! Sets average size (volume) of tet, needed for v_tet_relative_size(...)
-    C_FUNC_DEF void v_set_tet_size( VERDICT_REAL size );
+    C_FUNC_DEF void v_set_tet_size( double size );
 
     //! Calculates tet edge ratio metric.
     /**  Hmax / Hmin where Hmax and Hmin are respectively the maximum and the
        minimum edge lengths */ 
-    C_FUNC_DEF VERDICT_REAL v_tet_edge_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_edge_ratio( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet radius ratio metric.
     /** CR / (3.0 * IR)  where CR = circumsphere radius, IR = inscribed sphere radius.
        Reference ---  V. N. Parthasarathy et al, A comparison of tetrahedron 
        quality measures, Finite Elem. Anal. Des., Vol 15(1993), 255-261. */ 
-    C_FUNC_DEF VERDICT_REAL v_tet_radius_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
-    C_FUNC_DEF VERDICT_REAL v_tet_aspect_beta( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_radius_ratio( int num_nodes, double coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_aspect_beta( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet aspect ratio metric.
     /**  Hmax / (2 sqrt(6) r) where Hmax and r respectively denote the greatest edge 
        length and the inradius of the tetrahedron
        Reference ---  P. Frey and P.-L. George, Meshing, Hermes (2000). */ 
-    C_FUNC_DEF VERDICT_REAL v_tet_aspect_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_aspect_ratio( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet aspect gamma metric.
     /**  Srms**3 / (8.479670*V) where Srms = sqrt(Sum(Si**2)/6), Si = edge length. 
        Reference ---  V. N. Parthasarathy et al, A comparison of tetrahedron 
        quality measures, Finite Elem. Anal. Des., Vol 15(1993), 255-261. */ 
-    C_FUNC_DEF VERDICT_REAL v_tet_aspect_gamma( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_aspect_gamma( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet aspect frobenius metric.
     /** Frobenius condition number when the reference element is regular
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities,
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */
-    C_FUNC_DEF VERDICT_REAL v_tet_aspect_frobenius( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_aspect_frobenius( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet minimum dihedral angle.
     /** Minimum (nonoriented) dihedral angle of a tetrahedron, expressed in degrees. */
-    C_FUNC_DEF VERDICT_REAL v_tet_minimum_angle( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_minimum_angle( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet collapse ratio metric.
     /**  Collapse ratio */ 
-    C_FUNC_DEF VERDICT_REAL v_tet_collapse_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_collapse_ratio( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet volume.
     /** (1/6) * Jacobian at corner node.
        Reference ---  V. N. Parthasarathy et al, A comparison of tetrahedron 
        quality measures, Finite Elem. Anal. Des., Vol 15(1993), 255-261. */ 
-    C_FUNC_DEF VERDICT_REAL v_tet_volume( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_volume( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet condition metric.
     /** Condition number of the Jacobian matrix at any corner. 
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities,
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */
-    C_FUNC_DEF VERDICT_REAL v_tet_condition( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_condition( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet jacobian. 
     /** Minimum pointwise volume at any corner. 
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities,
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */
-    C_FUNC_DEF VERDICT_REAL v_tet_jacobian( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_jacobian( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet scaled jacobian. 
     /** Minimum Jacobian divided by the lengths of 3 edge vectors 
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities,
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */
-    C_FUNC_DEF VERDICT_REAL v_tet_scaled_jacobian( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_scaled_jacobian( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet shape metric.
     /** 3/Mean Ratio of weighted Jacobian matrix.
        Reference --- P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */ 
-    C_FUNC_DEF VERDICT_REAL v_tet_shape( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_shape( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet relative size metric.
     /** Min( J, 1/J ), where J is determinant of weighted Jacobian matrix.
        Reference --- P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */ 
-    C_FUNC_DEF VERDICT_REAL v_tet_relative_size_squared( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_relative_size_squared( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet shape-size metric.
     /** Product of Shape and Relative Size. 
        Reference --- P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */ 
-    C_FUNC_DEF VERDICT_REAL v_tet_shape_and_size( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_shape_and_size( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet distortion metric.
     /** {min(|J|)/actual volume}*parent volume, parent volume = 1/6 for tet.
        Reference --- SDRC/IDEAS Simulation: Finite Element Modeling--User's Guide */ 
-    C_FUNC_DEF VERDICT_REAL v_tet_distortion( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tet_distortion( int num_nodes, double coordinates[][3] ); 
     
 /* individual quality functions for pyramid elements */ 
 
     //! Calculates pyramid volume.
-    C_FUNC_DEF VERDICT_REAL v_pyramid_volume( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_pyramid_volume( int num_nodes, double coordinates[][3] ); 
 
 
 /* individual quality functions for wedge elements */
 
     //! Calculates wedge volume.
-    C_FUNC_DEF VERDICT_REAL v_wedge_volume( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_wedge_volume( int num_nodes, double coordinates[][3] ); 
 
    
 /* individual quality functions for knife elements */
 
     //! Calculates knife volume.
-    C_FUNC_DEF VERDICT_REAL v_knife_volume( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_knife_volume( int num_nodes, double coordinates[][3] ); 
 
     
 /* individual quality functions for edge elements */
 
     //! Calculates edge length. 
-    C_FUNC_DEF VERDICT_REAL v_edge_length( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_edge_length( int num_nodes, double coordinates[][3] ); 
 
     
 /* individual quality functions for quad elements */
     //! Sets average size (area) of quad, needed for v_quad_relative_size(...)
-    C_FUNC_DEF void v_set_quad_size( VERDICT_REAL size );
+    C_FUNC_DEF void v_set_quad_size( double size );
 
     //! Calculates quad edge ratio
     /** edge ratio
         Reference --- P. P. Pebay, Planar Quadrangle Quality
         Measures, Eng. Comp., 2004, 20(2):157-173 */
-    C_FUNC_DEF VERDICT_REAL v_quad_edge_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_edge_ratio( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad maximum of edge ratios.
     /** Maximum edge length ratios at quad center.
        Reference --- J. Robinson, CRE Method of element testing and the 
        Jacobian shape parameters, Eng. Comput., Vol 4, 1987. */ 
-    C_FUNC_DEF VERDICT_REAL v_quad_max_edge_ratios( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_max_edge_ratios( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad aspect ratio
     /** aspect ratio
         Reference --- P. P. Pebay, Planar Quadrangle Quality
         Measures, Eng. Comp., 2004, 20(2):157-173 */
-    C_FUNC_DEF VERDICT_REAL v_quad_aspect_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_aspect_ratio( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad radius ratio
     /** radius ratio
         Reference --- P. P. Pebay, Planar Quadrangle Quality
         Measures, Eng. Comp., 2004, 20(2):157-173 */
-    C_FUNC_DEF VERDICT_REAL v_quad_radius_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_radius_ratio( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad average Frobenius aspect
     /** average Frobenius aspect
         Reference --- P. P. Pebay, Planar Quadrangle Quality
         Measures, Eng. Comp., 2004, 20(2):157-173 */
-    C_FUNC_DEF VERDICT_REAL v_quad_med_aspect_frobenius( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_med_aspect_frobenius( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad maximum Frobenius aspect
     /** average Frobenius aspect
         Reference --- P. P. Pebay, Planar Quadrangle Quality
         Measures, Eng. Comp., 2004, 20(2):157-173 */
-    C_FUNC_DEF VERDICT_REAL v_quad_max_aspect_frobenius( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_max_aspect_frobenius( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad skew metric.
     /** Maximum |cos A| where A is the angle between edges at quad center. 
        Reference --- J. Robinson, CRE Method of element testing and the 
        Jacobian shape parameters, Eng. Comput., Vol 4, 1987. */ 
-    C_FUNC_DEF VERDICT_REAL v_quad_skew( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_skew( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad taper metric.
     /** Maximum ratio of lengths derived from opposite edges. 
        Reference --- J. Robinson, CRE Method of element testing and the 
        Jacobian shape parameters, Eng. Comput., Vol 4, 1987. */ 
-    C_FUNC_DEF VERDICT_REAL v_quad_taper( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_taper( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad warpage metric.
     /** Cosine of Minimum Dihedral Angle formed by Planes Intersecting in Diagonals. 
        Reference --- J. Robinson, CRE Method of element testing and the 
        Jacobian shape parameters, Eng. Comput., Vol 4, 1987. */ 
-    C_FUNC_DEF VERDICT_REAL v_quad_warpage( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_warpage( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad area.
     /** Jacobian at quad center.
        Reference --- J. Robinson, CRE Method of element testing and the 
        Jacobian shape parameters, Eng. Comput., Vol 4, 1987. */ 
-    C_FUNC_DEF VERDICT_REAL v_quad_area( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_area( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad strech metric.
     /** Sqrt(2) * minimum edge length / maximum diagonal length.
        Reference --- FIMESH code. */
-    C_FUNC_DEF VERDICT_REAL v_quad_stretch( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_stretch( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad's smallest angle.
     /** Smallest included quad angle (degrees).
        Reference --- Unknown. */ 
-    C_FUNC_DEF VERDICT_REAL v_quad_minimum_angle( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_minimum_angle( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad's largest angle.
     /** Largest included quad angle (degrees). 
        Reference --- Unknown. */ 
-    C_FUNC_DEF VERDICT_REAL v_quad_maximum_angle( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_maximum_angle( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad oddy metric.
-    C_FUNC_DEF VERDICT_REAL v_quad_oddy( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_oddy( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad condition number metric.
     /** Maximum condition number of the Jacobian matrix at 4 corners.
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities,
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */
-    C_FUNC_DEF VERDICT_REAL v_quad_condition( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_condition( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad jacobian.
     /** Minimum pointwise volume of local map at 4 corners & center of quad. 
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities,
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */
-    C_FUNC_DEF VERDICT_REAL v_quad_jacobian( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_jacobian( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad scaled jacobian.
     /** Minimum Jacobian divided by the lengths of the 2 edge vectors. 
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities,
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */
-    C_FUNC_DEF VERDICT_REAL v_quad_scaled_jacobian( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_scaled_jacobian( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad shear metric.
     /** 2/Condition number of Jacobian Skew matrix.
        Reference --- P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */
-    C_FUNC_DEF VERDICT_REAL v_quad_shear( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_shear( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad shape metric.
     /** 2/Condition number of weighted Jacobian matrix. 
        Reference --- P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */
-    C_FUNC_DEF VERDICT_REAL v_quad_shape( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_shape( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad relative size metric.
     /** Min( J, 1/J ), where J is determinant of weighted Jacobian matrix. 
        Reference --- P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */
-    C_FUNC_DEF VERDICT_REAL v_quad_relative_size_squared( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_relative_size_squared( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad shape-size metric.
     /** Product of Shape and Relative Size. 
        Reference --- P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */
-    C_FUNC_DEF VERDICT_REAL v_quad_shape_and_size( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_shape_and_size( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad shear-size metric.
     /** Product of Shear and Relative Size. 
        Reference --- P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */
-    C_FUNC_DEF VERDICT_REAL v_quad_shear_and_size( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_shear_and_size( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad distortion metric.
     /** {min(|J|)/actual area}*parent area, parent area = 4 for quad.
        Reference --- SDRC/IDEAS Simulation: Finite Element Modeling--User's Guide */
-    C_FUNC_DEF VERDICT_REAL v_quad_distortion( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_distortion( int num_nodes, double coordinates[][3] ); 
 
 
 /* individual quality functions for tri elements */
 
     //! Sets average size (area) of tri, needed for v_tri_relative_size(...) 
-    C_FUNC_DEF void  v_set_tri_size( VERDICT_REAL size );
+    C_FUNC_DEF void  v_set_tri_size( double size );
 
     //! Sets fuction pointer to calculate tri normal wrt surface 
     C_FUNC_DEF void v_set_tri_normal_func( ComputeNormal func );
@@ -1028,76 +1019,76 @@ struct TriMetricVals
     /** edge ratio
         Reference --- P. P. Pebay & T. J. Baker, Analysis of Triangle Quality
         Measures, AMS Math. Comp., 2003, 72(244):1817-1839 */
-    C_FUNC_DEF VERDICT_REAL v_tri_edge_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tri_edge_ratio( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tri metric.
     /** aspect ratio
         Reference --- P. P. Pebay & T. J. Baker, Analysis of Triangle Quality
         Measures, AMS Math. Comp., 2003, 72(244):1817-1839 */
-    C_FUNC_DEF VERDICT_REAL v_tri_aspect_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tri_aspect_ratio( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tri metric.
     /** radius ratio
         Reference --- P. P. Pebay & T. J. Baker, Analysis of Triangle Quality
         Measures, AMS Math. Comp., 2003, 72(244):1817-1839 */
-    C_FUNC_DEF VERDICT_REAL v_tri_radius_ratio( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tri_radius_ratio( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tri metric.
     /** Frobenius aspect */
-    C_FUNC_DEF VERDICT_REAL v_tri_aspect_frobenius( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tri_aspect_frobenius( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tri metric.
     /** Maximum included angle in triangle */
-    C_FUNC_DEF VERDICT_REAL v_tri_area( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tri_area( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tri metric.
     /** Minimum included angle in triangle */
-    C_FUNC_DEF VERDICT_REAL v_tri_minimum_angle( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tri_minimum_angle( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tri metric.
     /** Maximum included angle in triangle */
-    C_FUNC_DEF VERDICT_REAL v_tri_maximum_angle( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tri_maximum_angle( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tri metric.
     /** Condition number of the Jacobian matrix.
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities,
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */ 
-    C_FUNC_DEF VERDICT_REAL v_tri_condition( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tri_condition( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tri metric.
     /** Minimum Jacobian divided by the lengths of 2 edge vectors. 
        Reference --- P. Knupp, Achieving Finite Element Mesh Quality via 
        Optimization of the Jacobian Matrix Norm and Associated Quantities,
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */ 
-    C_FUNC_DEF VERDICT_REAL v_tri_scaled_jacobian( int num_nodes, VERDICT_REAL coordinates[][3] );
+    C_FUNC_DEF double v_tri_scaled_jacobian( int num_nodes, double coordinates[][3] );
 
     //! Calculates tri metric.
     /**  */
-    C_FUNC_DEF VERDICT_REAL v_tri_shear( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tri_shear( int num_nodes, double coordinates[][3] ); 
     
     //! Calculates tri metric.
     /** Min( J, 1/J ), where J is determinant of weighted Jacobian matrix. 
        Reference ---  P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */
-    C_FUNC_DEF VERDICT_REAL v_tri_relative_size_squared( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tri_relative_size_squared( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tri metric.
     /** 2/Condition number of weighted Jacobian matrix. 
        Reference ---  P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */
-    C_FUNC_DEF VERDICT_REAL v_tri_shape( int num_nodes, VERDICT_REAL coordinates[][3] ); 
+    C_FUNC_DEF double v_tri_shape( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tri metric.
     /**  Product of Shape and Relative Size. 
        Reference ---  P. Knupp, Algebraic Mesh Quality Metrics for
        Unstructured Initial Meshes, submitted for publication. */
-    C_FUNC_DEF VERDICT_REAL v_tri_shape_and_size( int num_nodes, VERDICT_REAL coordinates[][3] );
+    C_FUNC_DEF double v_tri_shape_and_size( int num_nodes, double coordinates[][3] );
 
     //! Calculates tri metric.
     /** {min(|J|)/actual area}*parent area, parent area = 1/2 for triangular element. 
        Reference --- SDRC/IDEAS Simulation: Finite Element Modeling--User's Guide */
-    C_FUNC_DEF VERDICT_REAL v_tri_distortion( int num_nodes, VERDICT_REAL coordinates[][3] );
+    C_FUNC_DEF double v_tri_distortion( int num_nodes, double coordinates[][3] );
 
 
 
