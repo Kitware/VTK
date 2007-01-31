@@ -104,7 +104,7 @@ ENDIF (APPLE)
 #
 ADD_LIBRARY (vtkfreetype ${FREETYPE_SRCS})
 IF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkfreetype "-framework AppKit")
+  TARGET_LINK_LIBRARIES (vtkfreetype "-framework Carbon")
 ENDIF (APPLE)
 
 # Apply user-defined properties to the library target.
