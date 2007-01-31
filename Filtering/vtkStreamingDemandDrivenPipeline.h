@@ -166,6 +166,11 @@ public:
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_GHOST_LEVELS();
 
   // Description:
+  // This is set if the extent was set through extent translation.
+  // GenerateGhostLevelArray() is called only when this is set.
+  static vtkInformationIntegerKey* UPDATE_EXTENT_TRANSLATED();
+
+  // Description:
   // Key to store the whole extent provided in pipeline information.
   static vtkInformationIntegerVectorKey* WHOLE_EXTENT();
 

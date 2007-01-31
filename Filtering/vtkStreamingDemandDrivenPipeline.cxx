@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.44");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.45");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -42,6 +42,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT_INITIALIZ
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_PIECE_NUMBER, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_NUMBER_OF_PIECES, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_NUMBER_OF_GHOST_LEVELS, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT_TRANSLATED, Integer);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_EXTENT, IntegerVector, 6);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT, IntegerVector, 6);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline,
@@ -500,6 +501,7 @@ vtkStreamingDemandDrivenPipeline
   info->Remove(UPDATE_PIECE_NUMBER());
   info->Remove(UPDATE_NUMBER_OF_PIECES());
   info->Remove(UPDATE_NUMBER_OF_GHOST_LEVELS());
+  info->Remove(UPDATE_EXTENT_TRANSLATED());
   info->Remove(TIME_STEPS());
   info->Remove(TIME_RANGE());
   info->Remove(UPDATE_TIME_STEPS());
@@ -750,7 +752,13 @@ vtkStreamingDemandDrivenPipeline
       {
       if(vtkDataSet* ds = vtkDataSet::SafeDownCast(data))
         {
-        ds->GenerateGhostLevelArray();
+        // Generate ghost level arrays automatically only if the extent
+        // was set through translation. Otherwise, 1. there is no need
+        // for a ghost array 2. it may be wrong
+        if (outInfo->Has(UPDATE_EXTENT_TRANSLATED()))
+          {
+          ds->GenerateGhostLevelArray();
+          }
         }
       // Check if the output has DATA_TIME_STEPS().
       vtkInformation* dataInfo = data->GetInformation();
@@ -1130,6 +1138,7 @@ int vtkStreamingDemandDrivenPipeline
         translator->SetGhostLevel(ghostLevel);
         translator->PieceToExtent();
         modified |= this->SetUpdateExtent(info, translator->GetExtent());
+        info->Set(UPDATE_EXTENT_TRANSLATED(), 1);
         }
       else
         {
