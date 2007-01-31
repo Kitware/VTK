@@ -25,10 +25,16 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.44");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.45");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
+
+#ifdef _WIN32
+# define SNPRINTF _snprintf
+#else
+# define SNPRINTF snprintf
+#endif
 
 // ----------------------------------------------------------------------
 
@@ -153,7 +159,6 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
                                                 vtkActor2D *actor)
 {
   int i, j, numComp = 0, pointIdLabels = 0, activeComp = 0;
-  vtkStdString ResultString; 
   vtkAbstractArray *abstractData = NULL;
   vtkDataArray *numericData = NULL;
   vtkStringArray *stringData = NULL;
@@ -369,7 +374,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
     for (i=0; i < this->NumberOfLabels; i++)
       {
-      ResultString.clear();
+      vtkStdString ResultString; 
 
       if ( pointIdLabels )
         {
@@ -381,7 +386,6 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         if ( numericData )
           {
           void *rawData = numericData->GetVoidPointer(i);
-          int numComponents = numericData->GetNumberOfComponents();
           
           if ( numComp == 1 )
             {
@@ -429,7 +433,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
             }
           else // the user specified a label format
             {
-            snprintf(TempString, 1023, LiveFormatString, 
+            SNPRINTF(TempString, 1023, LiveFormatString, 
                      stringData->GetValue(i).c_str());
               ResultString = TempString;
             } // done printing strings with label format
