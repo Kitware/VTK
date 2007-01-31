@@ -68,7 +68,8 @@ public:
   int  GetNumberOfCues();
   
   // Description:
-  // Starts playing the animation scene.
+  // Starts playing the animation scene. Fires a vtkCommand::StartEvent
+  // before play beings and vtkCommand::EndEvent after play ends.
   virtual void Play();
 
   // Description:

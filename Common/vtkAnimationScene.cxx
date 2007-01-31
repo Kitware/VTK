@@ -12,14 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkAnimationScene.h"
-#include "vtkObjectFactory.h"
+
 #include "vtkCollection.h"
 #include "vtkCollectionIterator.h"
+#include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAnimationScene, "1.11");
+vtkCxxRevisionMacro(vtkAnimationScene, "1.12");
 vtkStandardNewMacro(vtkAnimationScene);
 
 //----------------------------------------------------------------------------
@@ -156,6 +157,8 @@ void vtkAnimationScene::Play()
     return;
     }
 
+  this->InvokeEvent(vtkCommand::StartEvent);
+
   this->InPlay = 1;
   this->StopPlay = 0;
   this->FrameRate = (!this->FrameRate)? 1.0 : this->FrameRate;
@@ -209,6 +212,8 @@ void vtkAnimationScene::Play()
 
   this->StopPlay = 0;
   this->InPlay = 0;
+
+  this->InvokeEvent(vtkCommand::EndEvent);
 }
 
 //----------------------------------------------------------------------------
