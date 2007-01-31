@@ -69,12 +69,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Set/Get the format with which to print the labels. The format needs
-  // to change depending on what you're trying to print. For example, if
-  // you're printing a vector, 3 values are printed, whereas when printing an
-  // id only one value is printed. See also the ivar LabeledComponent which
-  // can be used to specify the component to print if you want to only print
-  // one of several.
+  // Set/Get the format with which to print the labels.  This should
+  // be a printf-style format string.
+  //
+  // By default, the mapper will try to print each component of the
+  // tuple using a sane format: %d for integers, %f for floats, %g for
+  // doubles, %ld for longs, et cetera.  If you need a different
+  // format, set it here.  You can do things like limit the number of
+  // significant digits, add prefixes/suffixes, basically anything
+  // that printf can do.  If you only want to print one component of a
+  // vector, see the ivar LabeledComponent.
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
 

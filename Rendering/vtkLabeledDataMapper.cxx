@@ -25,10 +25,19 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.43");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.44");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
+
+// ----------------------------------------------------------------------
+
+template<typename T>
+void vtkLabeledDataMapper_PrintComponent(char *output, const char *format, int index, const T *array)
+{
+  sprintf(output, format, array[index]);
+}
+
 
 //----------------------------------------------------------------------------
 // Creates a new label mapper
@@ -38,8 +47,7 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
   this->Input = NULL;
   this->LabelMode = VTK_LABEL_IDS;
 
-  this->LabelFormat = new char[8]; 
-  strcpy(this->LabelFormat,"%g");
+  this->LabelFormat = NULL;
 
   this->LabeledComponent = (-1);
   this->FieldDataArray = 0;
@@ -144,12 +152,11 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
 void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport, 
                                                 vtkActor2D *actor)
 {
-  int i, j, numComp = 0, pointIdLabels, activeComp = 0;
-  char string[1024], format[1024];
-  double val, x[3];
-  vtkAbstractArray *abstractData;
-  vtkDataArray *numericData;
-  vtkStringArray *stringData;
+  int i, j, numComp = 0, pointIdLabels = 0, activeComp = 0;
+  vtkStdString ResultString; 
+  vtkAbstractArray *abstractData = NULL;
+  vtkDataArray *numericData = NULL;
+  vtkStringArray *stringData = NULL;
   vtkDataSet *input=this->GetInput();
 
   if ( ! input )
@@ -186,8 +193,10 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     switch (this->LabelMode)
       {
       case VTK_LABEL_IDS:
+      {
         pointIdLabels = 1;
-        break;
+      }; 
+      break;
       case VTK_LABEL_SCALARS:
         if ( pd->GetScalars() )
           {
@@ -223,6 +232,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       int arrayNum;
       if (this->FieldDataName != NULL)
         {
+        vtkDebugMacro(<<"Labeling field data array " << this->FieldDataName);
         abstractData = pd->GetAbstractArray(this->FieldDataName, arrayNum);
         }
       else
@@ -239,7 +249,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     // determine number of components and check input
     if ( pointIdLabels )
       {
-      ;
+      numComp = 1;
       }
     else if ( numericData )
       {
@@ -252,12 +262,85 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         numComp = 1;
         }
       }
-    else if ( !stringData )
+    else 
       {
-      vtkErrorMacro(<<"Need input data to render labels (3)");
-      return;
+      if ( stringData )
+        {
+        numComp = stringData->GetNumberOfComponents();
+        }
+      else
+        {
+        vtkErrorMacro(<<"Need input data to render labels (3)");
+        return;
+        }
       }
 
+    vtkStdString FormatString;
+    if (this->LabelFormat)
+      {
+      // The user has specified a format string.  
+      vtkDebugMacro(<<"Using user-specified format string " << this->LabelFormat);
+      FormatString = this->LabelFormat;
+      }
+    else
+      {
+      // Try to come up with some sane default.
+      if (pointIdLabels)
+        {
+        FormatString = "%d"; 
+        }
+      else if (numericData)
+        {
+        switch (numericData->GetDataType())
+          {
+          case VTK_VOID: FormatString = "0x%x"; break;
+
+          case VTK_BIT:
+          case VTK_SHORT:
+          case VTK_UNSIGNED_SHORT:
+          case VTK_INT:
+          case VTK_UNSIGNED_INT:
+            FormatString = "%d"; break;
+
+          case VTK_CHAR:
+          case VTK_SIGNED_CHAR:
+          case VTK_UNSIGNED_CHAR:
+            FormatString = "%c"; break;
+
+          case VTK_LONG:
+          case VTK_UNSIGNED_LONG:
+          case VTK_ID_TYPE:
+            FormatString = "%ld"; break;
+
+          case VTK_LONG_LONG:
+          case VTK_UNSIGNED_LONG_LONG:
+          case VTK___INT64:
+          case VTK_UNSIGNED___INT64:
+            FormatString = "%lld"; break;
+
+          case VTK_FLOAT:
+            FormatString = "%f"; break;
+
+          case VTK_DOUBLE:
+            FormatString = "%g"; break;
+
+          default:
+            FormatString = "BUG - UNKNOWN DATA FORMAT"; break;
+          }
+        }
+      else if (stringData)
+        {
+        FormatString = ""; // we'll use vtkStdString::operator+ instead of sprintf
+        }
+      else
+        {
+        FormatString = "BUG - COULDN'T DETECT DATA TYPE"; 
+        }
+
+      vtkDebugMacro(<<"Using default format string " << FormatString.c_str());
+
+      } // Done building default format string
+    
     this->NumberOfLabels = input->GetNumberOfPoints();
     if ( this->NumberOfLabels > this->NumberOfLabelsAllocated )
       {
@@ -276,60 +359,91 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         }
       }//if we have to allocate new text mappers
     
+
+    // ----------------------------------------
+    // Now we actually construct the label strings
+    //
+
+    const char *LiveFormatString = FormatString.c_str();
+    char TempString[1024];
+
     for (i=0; i < this->NumberOfLabels; i++)
       {
+      ResultString.clear();
+
       if ( pointIdLabels )
         {
-        val = (float)i;
-        sprintf(string, this->LabelFormat, val);
+        sprintf(TempString, LiveFormatString, i);
+        ResultString = TempString;
         }
       else 
         {
         if ( numericData )
           {
+          void *rawData = numericData->GetVoidPointer(i);
+          int numComponents = numericData->GetNumberOfComponents();
+          
           if ( numComp == 1 )
             {
-            if (numericData->GetDataType() == VTK_CHAR) 
+            switch (numericData->GetDataType())
               {
-              if (strcmp(this->LabelFormat,"%c") != 0) 
-                {
-                vtkErrorMacro(<<"Label format must be %c to use with char");
-                return;
-                }
-              sprintf(string, this->LabelFormat, 
-                      (char)numericData->GetComponent(i, activeComp));
-              } 
-            else 
-              {
-              sprintf(string, this->LabelFormat, 
-                      numericData->GetComponent(i, activeComp));
+              vtkTemplateMacro(vtkLabeledDataMapper_PrintComponent(TempString, LiveFormatString, activeComp, static_cast<VTK_TT *>(rawData)));
               }
-            }
-          else
+            ResultString = TempString;
+            } 
+          else // numComp != 1
             {
-            strcpy(format, "("); strcat(format, this->LabelFormat);
-            for (j=0; j<(numComp-1); j++)
+            ResultString = "(";
+            
+            // Print each component in turn and add it to the string.
+            for (j = 0; j < numComp; ++j)
               {
-              sprintf(string, format, numericData->GetComponent(i, j));
-              strcpy(format,string); strcat(format,", ");
-              strcat(format, this->LabelFormat);
+              switch (numericData->GetDataType())
+                {
+                vtkTemplateMacro(
+                  vtkLabeledDataMapper_PrintComponent(TempString, 
+                                                      LiveFormatString, 
+                                                      j, 
+                                                      static_cast<VTK_TT *>(rawData)));
+                }
+              ResultString += TempString;
+              
+              if (j < (numComp-1))
+                {
+                ResultString += ' ';
+                }
+              else
+                {
+                ResultString += ')';
+                }
               }
-            sprintf(string, format, numericData->GetComponent(i, numComp-1));
-            strcat(string, ")");
             }
           }
         else // rendering string data
           {
-          strncpy(string,stringData->GetValue(i).c_str(),1023);
-          }
-        } // not point labels
-      this->TextMappers[i]->SetInput(string);
+          // If the user hasn't given us a custom format string then
+          // we'll sidestep a lot of sprintf nonsense.
+          if (this->LabelFormat == NULL)
+            {
+            ResultString = stringData->GetValue(i);
+            }
+          else // the user specified a label format
+            {
+            snprintf(TempString, 1023, LiveFormatString, 
+                     stringData->GetValue(i).c_str());
+              ResultString = TempString;
+            } // done printing strings with label format
+          } // done printing strings
+        } // done creating string 
+
+      this->TextMappers[i]->SetInput(ResultString.c_str());
       this->TextMappers[i]->SetTextProperty(tprop);
       }
 
     this->BuildTime.Modified();
     }
 
+  double x[3];
   for (i=0; i<this->NumberOfLabels; i++)
     {
     input->GetPoint(i,x);
