@@ -28,7 +28,7 @@
    Mac OS X, we prefer those defines to decide the endianness.
    On other platforms we use the result of the TRY_RUN. */
 #if !defined(__APPLE__)
-# cmakedefine VTK_WORDS_BIGENDIAN
+ #cmakedefine VTK_WORDS_BIGENDIAN
 #elif defined(__BIG_ENDIAN__)
 # define VTK_WORDS_BIGENDIAN
 #endif
