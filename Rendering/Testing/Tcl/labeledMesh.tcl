@@ -65,7 +65,7 @@ vtkSelectVisiblePoints visPts
 	    $ymin [expr $ymin + $yLength]
 vtkLabeledDataMapper ldm
     ldm SetInputConnection [visPts GetOutputPort]
-    ldm SetLabelFormat "%g"
+#    ldm SetLabelFormat "%g"
 #    ldm SetLabelModeToLabelScalars
 #    ldm SetLabelModeToLabelNormals
     ldm SetLabelModeToLabelFieldData
@@ -84,7 +84,7 @@ vtkSelectVisiblePoints visCells
 	    $ymin [expr $ymin + $yLength]
 vtkLabeledDataMapper cellMapper
     cellMapper SetInputConnection [visCells GetOutputPort]
-    cellMapper SetLabelFormat "%g"
+#    cellMapper SetLabelFormat "%g"
 #    cellMapper SetLabelModeToLabelScalars
 #    cellMapper SetLabelModeToLabelNormals
     cellMapper SetLabelModeToLabelFieldData

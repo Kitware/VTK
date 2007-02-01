@@ -69,7 +69,7 @@ vtkSelectVisiblePoints visPts
 # format to use for the labels.  Also create the associated actor.
 vtkLabeledDataMapper ldm
     ldm SetInputConnection [visPts GetOutputPort]
-    ldm SetLabelFormat "%g"
+#    ldm SetLabelFormat "%g"
     ldm SetLabelModeToLabelFieldData
 vtkActor2D pointLabels
     pointLabels SetMapper ldm    
@@ -87,7 +87,7 @@ vtkSelectVisiblePoints visCells
 # format to use for the labels.  Also create the associated actor.
 vtkLabeledDataMapper cellMapper
     cellMapper SetInputConnection [visCells GetOutputPort]
-    cellMapper SetLabelFormat "%g"
+#    cellMapper SetLabelFormat "%g"
     cellMapper SetLabelModeToLabelFieldData
     [cellMapper GetLabelTextProperty] SetColor 0 1 0
 vtkActor2D cellLabels

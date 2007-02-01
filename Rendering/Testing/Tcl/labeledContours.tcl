@@ -44,7 +44,7 @@ vtkSelectVisiblePoints visPts
     visPts SetRenderer ren1
 vtkLabeledDataMapper ldm
     ldm SetInputConnection [mask GetOutputPort]
-    ldm SetLabelFormat "%g"
+#    ldm SetLabelFormat "%g"
     ldm SetLabelModeToLabelScalars
 set tprop [ldm GetLabelTextProperty]
     $tprop SetFontFamilyToArial

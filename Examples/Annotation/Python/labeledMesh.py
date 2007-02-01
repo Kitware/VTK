@@ -64,8 +64,8 @@ visPts.SetSelection(xmin, xmin + xLength, ymin, ymin + yLength)
 # Create the mapper to display the point ids.  Specify the format to
 # use for the labels.  Also create the associated actor.
 ldm = vtk.vtkLabeledDataMapper()
+# ldm.SetLabelFormat("%g")
 ldm.SetInputConnection(visPts.GetOutputPort())
-ldm.SetLabelFormat("%g")
 ldm.SetLabelModeToLabelFieldData()
 pointLabels = vtk.vtkActor2D()
 pointLabels.SetMapper(ldm)
@@ -83,7 +83,7 @@ visCells.SetSelection(xmin, xmin + xLength, ymin, ymin + yLength)
 # use for the labels.  Also create the associated actor.
 cellMapper = vtk.vtkLabeledDataMapper()
 cellMapper.SetInputConnection(visCells.GetOutputPort())
-cellMapper.SetLabelFormat("%g")
+# cellMapper.SetLabelFormat("%g")
 cellMapper.SetLabelModeToLabelFieldData()
 cellMapper.GetLabelTextProperty().SetColor(0, 1, 0)
 cellLabels = vtk.vtkActor2D()

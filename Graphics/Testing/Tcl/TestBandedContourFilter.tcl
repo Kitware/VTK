@@ -129,7 +129,7 @@ vtkIdFilter ids
   ids FieldDataOn
 vtkLabeledDataMapper ldm
   ldm SetInputConnection [ids GetOutputPort]
-  ldm SetLabelFormat "%g"
+#  ldm SetLabelFormat "%g"
   ldm SetLabelModeToLabelFieldData
 vtkActor2D pointLabels
   pointLabels SetMapper ldm    
