@@ -83,8 +83,8 @@ struct HexMetricVals
 {
   /** \sa v_hex_edge_ratio */
   double edge_ratio ;  
-  /** \sa v_hex_max_edge_ratios */
-  double max_edge_ratios ;  
+  /** \sa v_hex_max_edge_ratio */
+  double max_edge_ratio ;  
   /** \sa v_hex_skew */
   double skew ;
   /** \sa v_hex_taper */
@@ -170,8 +170,8 @@ struct QuadMetricVals
 {
   /** \sa v_quad_edge_ratio function */
   double edge_ratio ;
-  /** \sa v_quad_max_edge_ratios function */
-  double max_edge_ratios ;
+  /** \sa v_quad_max_edge_ratio function */
+  double max_edge_ratio ;
   /** \sa v_quad_aspect_ratio function */
   double aspect_ratio ;
   /** \sa v_quad_radius_ratio function */
@@ -324,7 +324,7 @@ struct TriMetricVals
 //! 
 //@{
 
-#define V_HEX_MAX_EDGE_RATIOS        1      /*!< \hideinitializer */
+#define V_HEX_MAX_EDGE_RATIO        1      /*!< \hideinitializer */
 #define V_HEX_SKEW                   2      /*!< \hideinitializer */
 #define V_HEX_TAPER                  4      /*!< \hideinitializer */
 #define V_HEX_VOLUME                 8      /*!< \hideinitializer */
@@ -346,7 +346,7 @@ struct TriMetricVals
 #define V_HEX_MED_ASPECT_FROBENIUS   262144 /*!< \hideinitializer */
 #define V_HEX_ALL                    524287 /*!< \hideinitializer */
 /*!< \hideinitializer */
-#define V_HEX_TRADITIONAL            V_HEX_MAX_EDGE_RATIOS + \
+#define V_HEX_TRADITIONAL            V_HEX_MAX_EDGE_RATIO + \
                                      V_HEX_SKEW            + \
                                      V_HEX_TAPER           + \
                                      V_HEX_STRETCH         + \
@@ -426,7 +426,7 @@ struct TriMetricVals
 //! \name Quad bit fields
 //! 
 //@{
-#define V_QUAD_MAX_EDGE_RATIOS       1   /*!< \hideinitializer */
+#define V_QUAD_MAX_EDGE_RATIO       1   /*!< \hideinitializer */
 #define V_QUAD_SKEW                  2   /*!< \hideinitializer */
 #define V_QUAD_TAPER                 4   /*!< \hideinitializer */
 #define V_QUAD_WARPAGE               8   /*!< \hideinitializer */
@@ -451,7 +451,7 @@ struct TriMetricVals
 #define V_QUAD_MAX_ASPECT_FROBENIUS  4194304  /*!< \hideinitializer */
 #define V_QUAD_ALL                   8388607  /*!< \hideinitializer */
 /*!< \hideinitializer */
-#define V_QUAD_TRADITIONAL           V_QUAD_MAX_EDGE_RATIOS + \
+#define V_QUAD_TRADITIONAL           V_QUAD_MAX_EDGE_RATIO + \
                                      V_QUAD_SKEW            + \
                                      V_QUAD_TAPER           + \
                                      V_QUAD_WARPAGE         + \
@@ -470,7 +470,7 @@ struct TriMetricVals
                                      V_QUAD_RELATIVE_SIZE_SQUARED + \
                                      V_QUAD_SHAPE_AND_SIZE     
 /*!< \hideinitializer */
-#define V_QUAD_ROBINSON              V_QUAD_MAX_EDGE_RATIOS + \
+#define V_QUAD_ROBINSON              V_QUAD_MAX_EDGE_RATIO + \
                                      V_QUAD_SKEW   + \
                                      V_QUAD_TAPER
 //@}
@@ -645,11 +645,11 @@ struct TriMetricVals
          minimum edge lengths */ 
     C_FUNC_DEF double v_hex_edge_ratio( int num_nodes, double coordinates[][3] );
 
-    //! Calculates hex maximum of edge ratios
-    /**Maximum edge length ratios at hex center.
+    //! Calculates hex maximum of edge ratio
+    /**Maximum edge length ratio at hex center.
       Reference --- L.M. Taylor, and D.P. Flanagan, Pronto3D - A Three Dimensional Transient
          Solid Dynamics Program, SAND87-1912, Sandia National Laboratories, 1989. */
-    C_FUNC_DEF double v_hex_max_edge_ratios( int num_nodes, double coordinates[][3] );
+    C_FUNC_DEF double v_hex_max_edge_ratio( int num_nodes, double coordinates[][3] );
 
     //! Calculates hex skew metric. 
     /** Maximum |cos A| where A is the angle between edges at hex center.   
@@ -878,11 +878,11 @@ struct TriMetricVals
         Measures, Eng. Comp., 2004, 20(2):157-173 */
     C_FUNC_DEF double v_quad_edge_ratio( int num_nodes, double coordinates[][3] ); 
 
-    //! Calculates quad maximum of edge ratios.
-    /** Maximum edge length ratios at quad center.
+    //! Calculates quad maximum of edge ratio.
+    /** Maximum edge length ratio at quad center.
        Reference --- J. Robinson, CRE Method of element testing and the 
        Jacobian shape parameters, Eng. Comput., Vol 4, 1987. */ 
-    C_FUNC_DEF double v_quad_max_edge_ratios( int num_nodes, double coordinates[][3] ); 
+    C_FUNC_DEF double v_quad_max_edge_ratio( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates quad aspect ratio
     /** aspect ratio

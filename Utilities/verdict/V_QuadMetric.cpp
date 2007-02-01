@@ -350,11 +350,11 @@ C_FUNC_DEF double v_quad_edge_ratio( int /*num_nodes*/, double coordinates[][3] 
 }
 
 /*!
-  maximum of edge ratios of a quad
+  maximum of edge ratio of a quad
 
-  maximum edge length ratios at quad center
+  maximum edge length ratio at quad center
 */
-C_FUNC_DEF double v_quad_max_edge_ratios( int /*num_nodes*/, double coordinates[][3] )
+C_FUNC_DEF double v_quad_max_edge_ratio( int /*num_nodes*/, double coordinates[][3] )
 {
   VerdictVector quad_nodes[4];
   quad_nodes[0].set( coordinates[0][0], coordinates[0][1], coordinates[0][2] );
@@ -372,11 +372,11 @@ C_FUNC_DEF double v_quad_max_edge_ratios( int /*num_nodes*/, double coordinates[
   if( len1 < VERDICT_DBL_MIN || len2 < VERDICT_DBL_MIN )
     return (double)VERDICT_DBL_MAX;
 
-  double max_edge_ratios = VERDICT_MAX( len1 / len2, len2 / len1 );
+  double max_edge_ratio = VERDICT_MAX( len1 / len2, len2 / len1 );
 
-  if( max_edge_ratios > 0 )
-    return (double) VERDICT_MIN( max_edge_ratios, VERDICT_DBL_MAX );
-  return (double) VERDICT_MAX( max_edge_ratios, -VERDICT_DBL_MAX );
+  if( max_edge_ratio > 0 )
+    return (double) VERDICT_MIN( max_edge_ratio, VERDICT_DBL_MAX );
+  return (double) VERDICT_MAX( max_edge_ratio, -VERDICT_DBL_MAX );
 }
 
 /*!
@@ -1485,26 +1485,26 @@ C_FUNC_DEF void v_quad_quality( int num_nodes, double coordinates[][3],
     }
   }
 
-  // handle max_edge_ratios, skew, taper, and area together
-  if( metrics_request_flag & ( V_QUAD_MAX_EDGE_RATIOS | V_QUAD_SKEW | V_QUAD_TAPER ) )
+  // handle max_edge_ratio, skew, taper, and area together
+  if( metrics_request_flag & ( V_QUAD_MAX_EDGE_RATIO | V_QUAD_SKEW | V_QUAD_TAPER ) )
   {
     //get principle axes
     VerdictVector principal_axes[2];
     principal_axes[0] = edges[0] - edges[2];
     principal_axes[1] = edges[1] - edges[3];
 
-    if(metrics_request_flag & (V_QUAD_MAX_EDGE_RATIOS | V_QUAD_SKEW | V_QUAD_TAPER))
+    if(metrics_request_flag & (V_QUAD_MAX_EDGE_RATIO | V_QUAD_SKEW | V_QUAD_TAPER))
     {
       double len1 = principal_axes[0].length();
       double len2 = principal_axes[1].length();
 
-      // calculate the max_edge_ratios ratio 
-      if(metrics_request_flag & V_QUAD_MAX_EDGE_RATIOS)
+      // calculate the max_edge_ratio ratio 
+      if(metrics_request_flag & V_QUAD_MAX_EDGE_RATIO)
       {
         if( len1 < VERDICT_DBL_MIN || len2 < VERDICT_DBL_MIN )
-          metric_vals->max_edge_ratios = VERDICT_DBL_MAX;
+          metric_vals->max_edge_ratio = VERDICT_DBL_MAX;
         else
-          metric_vals->max_edge_ratios = VERDICT_MAX( len1 / len2, len2 / len1 );
+          metric_vals->max_edge_ratio = VERDICT_MAX( len1 / len2, len2 / len1 );
       }
     
       // calculate the taper
@@ -1740,11 +1740,11 @@ C_FUNC_DEF void v_quad_quality( int num_nodes, double coordinates[][3],
     metric_vals->area = (double) VERDICT_MAX( metric_vals->area, -VERDICT_DBL_MAX );
   }
 
-  if(metrics_request_flag & V_QUAD_MAX_EDGE_RATIOS )
+  if(metrics_request_flag & V_QUAD_MAX_EDGE_RATIO )
   {
-    if( metric_vals->max_edge_ratios > 0 ) 
-      metric_vals->max_edge_ratios = (double) VERDICT_MIN( metric_vals->max_edge_ratios, VERDICT_DBL_MAX );
-    metric_vals->max_edge_ratios = (double) VERDICT_MAX( metric_vals->max_edge_ratios, -VERDICT_DBL_MAX );
+    if( metric_vals->max_edge_ratio > 0 ) 
+      metric_vals->max_edge_ratio = (double) VERDICT_MIN( metric_vals->max_edge_ratio, VERDICT_DBL_MAX );
+    metric_vals->max_edge_ratio = (double) VERDICT_MAX( metric_vals->max_edge_ratio, -VERDICT_DBL_MAX );
   }
 
   if(metrics_request_flag & V_QUAD_CONDITION )

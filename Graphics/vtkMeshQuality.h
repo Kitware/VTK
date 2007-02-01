@@ -81,7 +81,7 @@ class vtkDataArray;
 #define VTK_QUALITY_SHAPE 13
 #define VTK_QUALITY_SHAPE_AND_SIZE 14
 #define VTK_QUALITY_DISTORTION 15
-#define VTK_QUALITY_MAX_EDGE_RATIOS 16
+#define VTK_QUALITY_MAX_EDGE_RATIO 16
 #define VTK_QUALITY_SKEW 17
 #define VTK_QUALITY_TAPER 18
 #define VTK_QUALITY_VOLUME 19
@@ -173,7 +173,7 @@ public:
   // Description:
   // Set/Get the particular estimator used to measure the quality of quadrilaterals.
   // The default is VTK_QUALITY_EDGE_RATIO and valid values also include
-  // VTK_QUALITY_RADIUS_RATIO, VTK_QUALITY_ASPECT_RATIO, VTK_QUALITY_MAX_EDGE_RATIOS
+  // VTK_QUALITY_RADIUS_RATIO, VTK_QUALITY_ASPECT_RATIO, VTK_QUALITY_MAX_EDGE_RATIO
   // VTK_QUALITY_SKEW, VTK_QUALITY_TAPER, VTK_QUALITY_WARPAGE, VTK_QUALITY_AREA,
   // VTK_QUALITY_STRETCH, VTK_QUALITY_MIN_ANGLE, VTK_QUALITY_MAX_ANGLE,
   // VTK_QUALITY_ODDY, VTK_QUALITY_CONDITION, VTK_QUALITY_JACOBIAN,
@@ -208,7 +208,7 @@ public:
     }
   void SetQuadQualityMeasureToMaxEdgeRatios()
     {
-    this->SetQuadQualityMeasure( VTK_QUALITY_MAX_EDGE_RATIOS );
+    this->SetQuadQualityMeasure( VTK_QUALITY_MAX_EDGE_RATIO );
     }
   void SetQuadQualityMeasureToSkew()
     {
@@ -359,7 +359,7 @@ public:
   // Set/Get the particular estimator used to measure the quality of hexahedra.
   // The default is VTK_QUALITY_MAX_ASPECT_FROBENIUS and valid values also include
   // VTK_QUALITY_EDGE_RATIO, VTK_QUALITY_MAX_ASPECT_FROBENIUS, 
-  // VTK_QUALITY_MAX_EDGE_RATIOS, VTK_QUALITY_SKEW, VTK_QUALITY_TAPER, VTK_QUALITY_VOLUME,
+  // VTK_QUALITY_MAX_EDGE_RATIO, VTK_QUALITY_SKEW, VTK_QUALITY_TAPER, VTK_QUALITY_VOLUME,
   // VTK_QUALITY_STRETCH, VTK_QUALITY_DIAGONAL, VTK_QUALITY_DIMENSION,
   // VTK_QUALITY_ODDY, VTK_QUALITY_CONDITION, VTK_QUALITY_JACOBIAN,
   // VTK_QUALITY_SCALED_JACOBIAN, VTK_QUALITY_SHEAR, VTK_QUALITY_SHAPE,
@@ -381,7 +381,7 @@ public:
     }
   void SetHexQualityMeasureToMaxEdgeRatios()
     {
-    this->SetHexQualityMeasure( VTK_QUALITY_MAX_EDGE_RATIOS );
+    this->SetHexQualityMeasure( VTK_QUALITY_MAX_EDGE_RATIO );
     }
   void SetHexQualityMeasureToSkew()
     {

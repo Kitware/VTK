@@ -703,11 +703,11 @@ C_FUNC_DEF double v_hex_edge_ratio (int /*num_nodes*/, double coordinates[][3])
 }
 
 /*!
-  max edge ratios of a hex
+  max edge ratio of a hex
 
-  Maximum edge length ratios at hex center
+  Maximum edge length ratio at hex center
 */
-C_FUNC_DEF double v_hex_max_edge_ratios (int /*num_nodes*/, double coordinates[][3])
+C_FUNC_DEF double v_hex_max_edge_ratio (int /*num_nodes*/, double coordinates[][3])
 {
   double aspect;
   VerdictVector node_pos[8];
@@ -2704,8 +2704,8 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
 { 
   memset( metric_vals, 0, sizeof(HexMetricVals) );
 
-  // max edge ratios, skew, taper, and volume
-  if(metrics_request_flag & (V_HEX_MAX_EDGE_RATIOS | V_HEX_SKEW | V_HEX_TAPER ) ) 
+  // max edge ratio, skew, taper, and volume
+  if(metrics_request_flag & (V_HEX_MAX_EDGE_RATIO | V_HEX_SKEW | V_HEX_TAPER ) ) 
   {
     VerdictVector node_pos[8];
     make_hex_nodes ( coordinates, node_pos );
@@ -2715,19 +2715,19 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     efg2 = calc_hex_efg( 2, node_pos);
     efg3 = calc_hex_efg( 3, node_pos);
 
-    if(metrics_request_flag & V_HEX_MAX_EDGE_RATIOS)
+    if(metrics_request_flag & V_HEX_MAX_EDGE_RATIO)
     {
-      double max_edge_ratios_12, max_edge_ratios_13, max_edge_ratios_23;
+      double max_edge_ratio_12, max_edge_ratio_13, max_edge_ratio_23;
 
       double mag_efg1 = efg1.length();
       double mag_efg2 = efg2.length();
       double mag_efg3 = efg3.length();
       
-      max_edge_ratios_12 = safe_ratio( VERDICT_MAX( mag_efg1, mag_efg2 ) , VERDICT_MIN( mag_efg1, mag_efg2 ) );
-      max_edge_ratios_13 = safe_ratio( VERDICT_MAX( mag_efg1, mag_efg3 ) , VERDICT_MIN( mag_efg1, mag_efg3 ) );
-      max_edge_ratios_23 = safe_ratio( VERDICT_MAX( mag_efg2, mag_efg3 ) , VERDICT_MIN( mag_efg2, mag_efg3 ) );
+      max_edge_ratio_12 = safe_ratio( VERDICT_MAX( mag_efg1, mag_efg2 ) , VERDICT_MIN( mag_efg1, mag_efg2 ) );
+      max_edge_ratio_13 = safe_ratio( VERDICT_MAX( mag_efg1, mag_efg3 ) , VERDICT_MIN( mag_efg1, mag_efg3 ) );
+      max_edge_ratio_23 = safe_ratio( VERDICT_MAX( mag_efg2, mag_efg3 ) , VERDICT_MIN( mag_efg2, mag_efg3 ) );
 
-      metric_vals->max_edge_ratios = (double)VERDICT_MAX( max_edge_ratios_12, VERDICT_MAX( max_edge_ratios_13, max_edge_ratios_23 ) );
+      metric_vals->max_edge_ratio = (double)VERDICT_MAX( max_edge_ratio_12, VERDICT_MAX( max_edge_ratio_13, max_edge_ratio_23 ) );
     }
     
     if(metrics_request_flag & V_HEX_SKEW)
@@ -3302,11 +3302,11 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
 
   
   //take care of any overflow problems
-  //max_edge_ratios
-  if( metric_vals->max_edge_ratios > 0 )
-    metric_vals->max_edge_ratios = (double) VERDICT_MIN( metric_vals->max_edge_ratios, VERDICT_DBL_MAX );
+  //max_edge_ratio
+  if( metric_vals->max_edge_ratio > 0 )
+    metric_vals->max_edge_ratio = (double) VERDICT_MIN( metric_vals->max_edge_ratio, VERDICT_DBL_MAX );
   else
-    metric_vals->max_edge_ratios = (double) VERDICT_MAX( metric_vals->max_edge_ratios, -VERDICT_DBL_MAX );
+    metric_vals->max_edge_ratio = (double) VERDICT_MAX( metric_vals->max_edge_ratio, -VERDICT_DBL_MAX );
 
   //skew
   if( metric_vals->skew > 0 )

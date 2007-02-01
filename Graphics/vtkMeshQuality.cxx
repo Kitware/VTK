@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.44");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.45");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );
@@ -228,7 +228,7 @@ int vtkMeshQuality::RequestData(
     case VTK_QUALITY_MIN_ANGLE:
       QuadQuality = QuadMinAngle;
       break;
-    case VTK_QUALITY_MAX_EDGE_RATIOS:
+    case VTK_QUALITY_MAX_EDGE_RATIO:
       QuadQuality = QuadMaxEdgeRatios;
       break;
     case VTK_QUALITY_SKEW:
@@ -352,7 +352,7 @@ int vtkMeshQuality::RequestData(
     case VTK_QUALITY_MAX_ASPECT_FROBENIUS:
       HexQuality = HexMaxAspectFrobenius;
       break;
-    case VTK_QUALITY_MAX_EDGE_RATIOS:
+    case VTK_QUALITY_MAX_EDGE_RATIO:
       HexQuality = HexMaxEdgeRatios;
       break;
     case VTK_QUALITY_SKEW:
@@ -1064,7 +1064,7 @@ double vtkMeshQuality::QuadMaxEdgeRatios( vtkCell* cell )
   for ( int i = 0; i < 4; ++i )
     p->GetPoint( i, pc[i] );
 
-  return v_quad_max_edge_ratios( 4, pc );
+  return v_quad_max_edge_ratio( 4, pc );
 }
 
 double vtkMeshQuality::QuadSkew( vtkCell* cell )
@@ -1497,7 +1497,7 @@ double vtkMeshQuality::HexMaxEdgeRatios( vtkCell* cell )
   for ( int i = 0; i < 8; ++i )
     p->GetPoint( i, pc[i] );
 
-  return v_hex_max_edge_ratios( 8, pc );
+  return v_hex_max_edge_ratio( 8, pc );
 }
 
 double vtkMeshQuality::HexSkew( vtkCell* cell )
