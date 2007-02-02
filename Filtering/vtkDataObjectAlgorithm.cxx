@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkDataObjectAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkDataObjectAlgorithm, "1.2");
 vtkStandardNewMacro(vtkDataObjectAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -93,6 +93,12 @@ int vtkDataObjectAlgorithm::ProcessRequest(vtkInformation* request,
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
+    }
+
+  // Create data object output
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+    return this->RequestDataObject(request, inputVector, outputVector);
     }
 
   // execute information
