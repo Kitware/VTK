@@ -25,7 +25,7 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.45");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.46");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
@@ -519,7 +519,7 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
     os << "Label Field Data\n";
     }
 
-  os << indent << "Label Format: " << this->LabelFormat << "\n";
+  os << indent << "Label Format: " << (this->LabelFormat ? this->LabelFormat : "Null") << "\n";
 
   os << indent << "Labeled Component: ";
   if ( this->LabeledComponent < 0 )
