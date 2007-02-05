@@ -2,7 +2,7 @@
 
 # makefile for verdict library
 
-# If you change the version here, change it in verdict.h too.
+# If you change the version here, change it in include/verdict.h too.
 VERDICT_MAJOR_VERSION = 1
 VERDICT_MINOR_VERSION = 1
 VERDICT_BUILD_VERSION = 2
@@ -27,7 +27,7 @@ SRCS = \
 
 HEADERS = \
 	verdict_defines.hpp \
-	verdict.h \
+	include/verdict.h \
 	VerdictVector.hpp \
 	v_vector.h \
 	V_GaussIntegration.hpp
@@ -80,7 +80,7 @@ clean_all :
 .SUFFIXES: .cpp
 
 .cpp.o:
-	${CXX} ${CXXFLAGS} ${FLOAT} -c $<
+	${CXX} -I include ${CXXFLAGS} ${FLOAT} -c $<
 
 clean :
 	@ rm -rf *.o verde_test ${VERDICT_LIB_NAME}
@@ -98,13 +98,13 @@ dist :
 	rm -rf ${TAR_DIR_NAME}
 
 # assemble a kit for application developers to use verdict
-# contains verdict.h and the library
+# contains include/verdict.h and the library
 userkit :
 	mkdir ${TAR_DIR_NAME} ; \
 	mkdir ${TAR_DIR_NAME}/lib ; \
 	cp libverdict*.* ${TAR_DIR_NAME}/lib ;\
 	mkdir ${TAR_DIR_NAME}/include ; \
-	cp verdict.h ${TAR_DIR_NAME}/include ; \
+	cp include/verdict.h ${TAR_DIR_NAME}/include ; \
 	tar cf verdict${VERDICT_VERSIONA}-${MACHINE_TYPE}.tar ${TAR_DIR_NAME} ; \
 	gzip verdict${VERDICT_VERSIONA}-${MACHINE_TYPE}.tar ; \
 	rm -rf ${TAR_DIR_NAME}
@@ -112,23 +112,23 @@ userkit :
 
 #dependencies
 
-${OBJS} : verdict.h verdict_defines.hpp v_vector.h
-verdict_test.o : verdict.h v_vector.h
+${OBJS} : include/verdict.h verdict_defines.hpp v_vector.h
+verdict_test.o : include/verdict.h v_vector.h
 
-V_EdgeMetric.o: verdict.h 
+V_EdgeMetric.o: include/verdict.h 
 V_GaussIntegration.o: V_GaussIntegration.hpp
-V_HexMetric.o: VerdictVector.hpp verdict.h
+V_HexMetric.o: VerdictVector.hpp include/verdict.h
 V_HexMetric.o: V_GaussIntegration.hpp verdict_defines.hpp v_vector.h
-V_KnifeMetric.o: verdict.h VerdictVector.hpp
-V_PyramidMetric.o: verdict.h VerdictVector.hpp
-V_QuadMetric.o: verdict.h VerdictVector.hpp
+V_KnifeMetric.o: include/verdict.h VerdictVector.hpp
+V_PyramidMetric.o: include/verdict.h VerdictVector.hpp
+V_QuadMetric.o: include/verdict.h VerdictVector.hpp
 V_QuadMetric.o: verdict_defines.hpp v_vector.h V_GaussIntegration.hpp
-V_TetMetric.o: verdict.h verdict_defines.hpp
+V_TetMetric.o: include/verdict.h verdict_defines.hpp
 V_TetMetric.o: v_vector.h
 V_TetMetric.o: VerdictVector.hpp V_GaussIntegration.hpp
-V_TriMetric.o: verdict.h verdict_defines.hpp
+V_TriMetric.o: include/verdict.h verdict_defines.hpp
 V_TriMetric.o: v_vector.h
 V_TriMetric.o: VerdictVector.hpp V_GaussIntegration.hpp
-VerdictVector.o: VerdictVector.hpp verdict.h
-V_WedgeMetric.o: verdict.h VerdictVector.hpp
+VerdictVector.o: VerdictVector.hpp include/verdict.h
+V_WedgeMetric.o: include/verdict.h VerdictVector.hpp
 
