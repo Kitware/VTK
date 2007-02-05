@@ -15,6 +15,8 @@
 #ifndef __vtkPython_h
 #define __vtkPython_h
 
+/* Undefine macros that Python.h defines to avoid redefinition warning.  */
+#undef _POSIX_C_SOURCE
 #undef _POSIX_THREADS
 
 #include "vtkToolkits.h"
