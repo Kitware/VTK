@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkHierarchicalBoxDataSet - hierarchical dataset of vtkUniformGrids
 // .SECTION Description
-// vtkHierarchicalBoxDataSet is a concrete implementation of  
+// vtkHierarchicalBoxDataSet is a concrete implementation of
 // vtkHierarchicalDataSet. The dataset type is restricted to
-// vtkUniformGrid. Each dataset has an associated vtkAMRBox
-// that represents it's region (similar to extent) in space.
+// vtkUniformGrid. Each dataset has an associated vtkAMRBox that represents
+// it's region (similar to extent) in space.
 // .SECTION Warning
 // To compute the cellId of a cell within a vtkUniformGrid with AMRBox=box, 
 // you should not use vtkUniformGrid::ComputeCellId( {x,y,z} ) but instead
@@ -82,7 +82,12 @@ public:
     { return this->Superclass::GetDataSet(index); }
 
   // Description:
-  // Sets the refinement of a given level.
+  // Sets the refinement of a given level. The spacing at level
+  // level+1 is defined as spacing(level+1) = spacing(level)/refRatio(level).
+  // Note that currently, this is not enforced by this class however
+  // some algorithms might not function properly if the spacing in
+  // the blocks (vtkUniformGrid) does not match the one described
+  // by the refinement ratio.
   void SetRefinementRatio(unsigned int level, int refRatio);
 
   // Description:
