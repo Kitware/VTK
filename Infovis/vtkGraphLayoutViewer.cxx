@@ -54,7 +54,7 @@
 #include "vtkUnstructuredGrid.h"
 
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.14");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.15");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -91,7 +91,7 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
   this->LabeledDataMapper->GetLabelTextProperty()->SetJustificationToCentered();
   this->LabeledDataMapper->GetLabelTextProperty()->SetFontSize(14);
   this->SetLayoutStrategy("Simple2D");
-  this->SphereSource->SetRadius(0.025);// Why? Given the current layout strategies
+  this->SphereSource->SetRadius(0.05); // Why? Given the current layout strategies
                                        // seems to work pretty good just hardcoding
   this->SphereSource->SetPhiResolution(8);
   this->SphereSource->SetThetaResolution(8);
@@ -136,33 +136,6 @@ void vtkGraphLayoutViewer::SetLabelFieldName(const char *field)
 {
   // Set the field name
   this->LabeledDataMapper->SetFieldDataName(field); 
-  
-  // We need to check the type of the array and
-  // set the string format based on the type
-  vtkPolyData *poly = this->GraphToPolyData->GetOutput();
-  
-  // Does GraphToPolyData have any output
-  if (poly == NULL)
-    {
-    return;
-    }
-  vtkAbstractArray* abstract = poly->GetPointData()->GetAbstractArray(field);
-  
-  // Does the array exist at all?  
-  if (abstract == NULL)
-    {
-    return;
-    }
-    
-  // Okay now what type of array is it
-  if (vtkDataArray::SafeDownCast(abstract))
-    {
-    this->LabeledDataMapper->SetLabelFormat("%f");
-    }
-  else
-    {
-    this->LabeledDataMapper->SetLabelFormat("%s");
-    } 
 }
 
 char* vtkGraphLayoutViewer::GetLabelFieldName()
