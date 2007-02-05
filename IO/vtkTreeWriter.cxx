@@ -26,7 +26,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkTreeWriter, "1.2");
+vtkCxxRevisionMacro(vtkTreeWriter, "1.3");
 vtkStandardNewMacro(vtkTreeWriter);
 
 void vtkTreeWriter::WriteEdges(ostream& Stream, vtkTree* Tree, vtkIdType Vertex)
@@ -84,7 +84,7 @@ void vtkTreeWriter::WriteData()
   if(!error_occurred)
     {
     const vtkIdType vertex_count = input->GetNumberOfVertices();
-    *fp << "ARCS " << vertex_count << "\n";
+    *fp << "EDGES " << vertex_count << "\n";
     this->WriteEdges(*fp, input, input->GetRoot());
     }
   if (!error_occurred && !this->WriteCellData(fp, input))
