@@ -12,20 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGraph - A graph containing nodes and arcs
+// .NAME vtkGraph - A graph containing vertices and edges
 //
 // .SECTION Description
-// A graph is a collection of nodes and a collection of arcs connecting
-// the nodes.  Both nodes and arcs are represented by numeric identifiers
-// where nodes are in the range [0 number_of_nodes) and arcs are in the range
-// [0 number_of_arcs).  vtkGraph allows abitrary addition or removal of 
-// nodes and arcs.  When an element (node or arc) is removed, the final element
+// A graph is a collection of vertices and a collection of edges connecting
+// the vertices.  Both vertices and edges are represented by numeric identifiers
+// where vertices are in the range [0 number_of_vertices) and edges are in the range
+// [0 number_of_edges).  vtkGraph allows abitrary addition or removal of 
+// vertices and edges.  When an element (vertex or edge) is removed, the final element
 // identifier changes from number_of_elements - 1 to the identifier of the
 // deleted element.
 //
 // This class may represent a directed or undirected graph.  For directed
-// graphs, the in and out node/arc lists are distinct; for undirected graphs
-// these functions both return the full list of adjacent nodes/arcs.
+// graphs, the in and out vertex/edge lists are distinct; for undirected graphs
+// these functions both return the full list of adjacent vertices/edges.
 //
 // .SECTION Thanks
 // Thanks to Patricia Crossno, Ken Moreland, Andrew Wilson and Brian Wylie from
@@ -35,7 +35,7 @@
 #define __vtkGraph_h
 
 #include "vtkAbstractGraph.h"
-class vtkNodeLinks;
+class vtkVertexLinks;
 
 class VTK_FILTERING_EXPORT vtkGraph : public vtkAbstractGraph
 {
@@ -49,45 +49,45 @@ public:
   int GetDataObjectType() {return VTK_GRAPH;}
 
   // Description:
-  // The number of nodes in the graph.
-  virtual vtkIdType GetNumberOfNodes();
+  // The number of vertices in the graph.
+  virtual vtkIdType GetNumberOfVertices();
 
   // Description:
-  // The number of arcs in the graph.
-  virtual vtkIdType GetNumberOfArcs();
+  // The number of edges in the graph.
+  virtual vtkIdType GetNumberOfEdges();
 
   // Description:
-  // Fill nodes with the node IDs of every node adjacent to a certain node.
-  // For an undirected graph, these all return the same nodes.
-  virtual void GetAdjacentNodes(vtkIdType node, vtkGraphIdList* nodes);
-  virtual void GetInNodes(vtkIdType node, vtkGraphIdList* nodes);
-  virtual void GetOutNodes(vtkIdType node, vtkGraphIdList* nodes);
+  // Fill vertices with the vertex IDs of every vertex adjacent to a certain vertex.
+  // For an undirected graph, these all return the same vertices.
+  virtual void GetAdjacentVertices(vtkIdType vertex, vtkGraphIdList* vertices);
+  virtual void GetInVertices(vtkIdType vertex, vtkGraphIdList* vertices);
+  virtual void GetOutVertices(vtkIdType vertex, vtkGraphIdList* vertices);
 
   // Description:
-  // Fill arcs with the arc IDs of every arc incident to a certain node.
-  // For an undirected graph, these all return the same arcs.
-  virtual void GetIncidentArcs(vtkIdType node, vtkGraphIdList* arcs);
-  virtual void GetInArcs(vtkIdType node, vtkGraphIdList* arcs);
-  virtual void GetOutArcs(vtkIdType node, vtkGraphIdList* arcs);
+  // Fill edges with the edge IDs of every edge incident to a certain vertex.
+  // For an undirected graph, these all return the same edges.
+  virtual void GetIncidentEdges(vtkIdType vertex, vtkGraphIdList* edges);
+  virtual void GetInEdges(vtkIdType vertex, vtkGraphIdList* edges);
+  virtual void GetOutEdges(vtkIdType vertex, vtkGraphIdList* edges);
 
   // Description:
-  // Get the total, or number of incoming or outgoing arcs incident to a node.
+  // Get the total, or number of incoming or outgoing edges incident to a vertex.
   // For an undirected graph, these all return the same value.
-  virtual vtkIdType GetDegree(vtkIdType node);
-  virtual vtkIdType GetInDegree(vtkIdType node);
-  virtual vtkIdType GetOutDegree(vtkIdType node);
+  virtual vtkIdType GetDegree(vtkIdType vertex);
+  virtual vtkIdType GetInDegree(vtkIdType vertex);
+  virtual vtkIdType GetOutDegree(vtkIdType vertex);
 
   // Description:
-  // Return the source node of an arc.
-  virtual vtkIdType GetSourceNode(vtkIdType arc);
+  // Return the source vertex of an edge.
+  virtual vtkIdType GetSourceVertex(vtkIdType edge);
 
   // Description:
-  // Return the target node of an arc.
-  virtual vtkIdType GetTargetNode(vtkIdType arc);
+  // Return the target vertex of an edge.
+  virtual vtkIdType GetTargetVertex(vtkIdType edge);
 
   // Description:
-  // Return the other node adjacent to an arc.
-  virtual vtkIdType GetOppositeNode(vtkIdType arc, vtkIdType node);
+  // Return the other vertex adjacent to an edge.
+  virtual vtkIdType GetOppositeVertex(vtkIdType edge, vtkIdType vertex);
 
   // Description:
   // Create a deep copy of the graph.
@@ -98,14 +98,14 @@ public:
   virtual void ShallowCopy(vtkDataObject* object);
 
   // Description:
-  // Fast access to incident arcs of a graph.
-  void GetIncidentArcs(vtkIdType node, vtkIdType& narcs, const vtkIdType*& arcs);
-  void GetInArcs(vtkIdType node, vtkIdType& narcs, const vtkIdType*& arcs);
-  void GetOutArcs(vtkIdType node, vtkIdType& narcs, const vtkIdType*& arcs);
+  // Fast access to incident edges of a graph.
+  void GetIncidentEdges(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges);
+  void GetInEdges(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges);
+  void GetOutEdges(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges);
 
   // Description:
-  // Set the number of nodes in the graph.
-  void SetNumberOfNodes(vtkIdType nodes);
+  // Set the number of vertices in the graph.
+  void SetNumberOfVertices(vtkIdType vertices);
 
   // Description:
   // Set or get whether the graph should be considered directed or undirected.
@@ -114,30 +114,30 @@ public:
   vtkBooleanMacro(Directed, bool);
 
   // Description:
-  // Add a node to the graph and return the ID of the new node.
-  vtkIdType AddNode();
+  // Add a vertex to the graph and return the ID of the new vertex.
+  vtkIdType AddVertex();
 
   // Description:
-  // Add an arc from a source node to a target node and return
-  // the ID of the new arc.
-  vtkIdType AddArc(vtkIdType source, vtkIdType target);
+  // Add an edge from a source vertex to a target vertex and return
+  // the ID of the new edge.
+  vtkIdType AddEdge(vtkIdType source, vtkIdType target);
 
   // Description:
-  // Remove the node with the corresponding ID.
-  void RemoveNode(vtkIdType node);
+  // Remove the vertex with the corresponding ID.
+  void RemoveVertex(vtkIdType vertex);
 
   // Description:
-  // Remove all arcs incident to the node.
-  void ClearNode(vtkIdType node);
+  // Remove all edges incident to the vertex.
+  void ClearVertex(vtkIdType vertex);
 
   // Description:
-  // Remove the arc with the corresponding ID.
-  void RemoveArc(vtkIdType arc);
+  // Remove the edge with the corresponding ID.
+  void RemoveEdge(vtkIdType edge);
 
   // Description:
-  // Remove a collection of nodes or arcs.
-  void RemoveNodes(vtkIdType* nodes, vtkIdType size);
-  void RemoveArcs(vtkIdType* arcs, vtkIdType size);
+  // Remove a collection of vertices or edges.
+  void RemoveVertices(vtkIdType* vertices, vtkIdType size);
+  void RemoveEdges(vtkIdType* edges, vtkIdType size);
 
   // Description:
   // Initialize to an empty graph.
@@ -152,8 +152,8 @@ protected:
   vtkGraph();
   ~vtkGraph();
 
-  vtkIdTypeArray* Arcs;          // Size: number of arcs
-  vtkNodeLinks*   NodeLinks;
+  vtkIdTypeArray* Edges;          // Size: number of edges
+  vtkVertexLinks*   VertexLinks;
 
   bool Directed;
 private:

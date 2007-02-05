@@ -138,13 +138,13 @@ private:
     double d[3];
   } vtkLayoutVertex;
 
-  // An arc consists of two vertices joined together.
+  // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
   typedef struct 
   {
     int t;
     int u;
-  } vtkLayoutArc;
+  } vtkLayoutEdge;
   //ETX
 
   int IterationsPerLayout;
@@ -153,7 +153,7 @@ private:
   double Temp;
   double optDist;
   vtkLayoutVertex *v;
-  vtkLayoutArc *e;
+  vtkLayoutEdge *e;
   
   vtkForceDirectedLayoutStrategy(const vtkForceDirectedLayoutStrategy&);  // Not implemented.
   void operator=(const vtkForceDirectedLayoutStrategy&);  // Not implemented.

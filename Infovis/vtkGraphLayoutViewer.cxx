@@ -54,7 +54,7 @@
 #include "vtkUnstructuredGrid.h"
 
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.15");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.16");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -67,17 +67,17 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
   this->InteractorStyle       = vtkInteractorStyleImage::New();
   this->GraphLayout           = vtkSmartPointer<vtkGraphLayout>::New();
   this->GraphToPolyData       = vtkSmartPointer<vtkGraphToPolyData>::New();
-  this->NodeMapper            = vtkSmartPointer<vtkPolyDataMapper>::New();
+  this->VertexMapper            = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->EdgeMapper            = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->Renderer              = vtkSmartPointer<vtkRenderer>::New();
   this->SphereSource          = vtkSmartPointer<vtkSphereSource>::New();
-  this->NodeGlyphs            = vtkSmartPointer<vtkGlyph3D>::New();
-  this->NodeActor             = vtkSmartPointer<vtkActor>::New();
+  this->VertexGlyphs            = vtkSmartPointer<vtkGlyph3D>::New();
+  this->VertexActor             = vtkSmartPointer<vtkActor>::New();
   this->EdgeActor             = vtkSmartPointer<vtkActor>::New();
   this->LabelActor            = vtkSmartPointer<vtkActor2D>::New();
   this->ColorLUT              = vtkSmartPointer<vtkLookupTable>::New();
   this->LabeledDataMapper     = vtkSmartPointer<vtkLabeledDataMapper>::New();
-  this->ArcWeightField        = 0;
+  this->EdgeWeightField        = 0;
   
   // Set up eventforwarder
   this->EventForwarder = vtkEventForwarderCommand::New();
@@ -114,7 +114,7 @@ vtkGraphLayoutViewer::~vtkGraphLayoutViewer()
     this->InteractorStyle = NULL;
     }
     
-  this->SetArcWeightField(0);
+  this->SetEdgeWeightField(0);
   
   this->EventForwarder->Delete();
   
@@ -219,13 +219,13 @@ void vtkGraphLayoutViewer::InputInitialize()
 {
 
   // Pipeline setup
-  if (this->ArcWeightField)
+  if (this->EdgeWeightField)
     {
     this->GraphLayout->GetLayoutStrategy()
-      ->SetArcWeightField(this->ArcWeightField);
+      ->SetEdgeWeightField(this->EdgeWeightField);
     }
   this->GraphLayout->SetInput(this->Input);
-  this->NodeActor->VisibilityOn();
+  this->VertexActor->VisibilityOn();
   this->EdgeActor->VisibilityOn();
   this->LabelActor->VisibilityOff(); // Defaulted to off
  
@@ -279,7 +279,7 @@ void vtkGraphLayoutViewer::SetupPipeline()
   // When SetInput() is called by the application
   // the input is set and the actors are turned on
   this->GraphLayout->SetInput(NULL);
-  this->NodeActor->VisibilityOff();
+  this->VertexActor->VisibilityOff();
   this->EdgeActor->VisibilityOff();
   this->LabelActor->VisibilityOff();
   
@@ -287,13 +287,13 @@ void vtkGraphLayoutViewer::SetupPipeline()
   this->GraphToPolyData->SetInputConnection(0, 
     this->GraphLayout->GetOutputPort(0)); 
     
-  // Now give poly data to the node glyphs
-  this->NodeGlyphs->SetInputConnection(0, this->GraphToPolyData->GetOutputPort(0));
-  this->NodeGlyphs->SetInputConnection(1, this->SphereSource->GetOutputPort(0));
-  this->NodeGlyphs->ScalingOff();
-  this->NodeMapper->SetLookupTable(ColorLUT);
-  this->NodeMapper->SetScalarRange( 0, 1 );
-  this->NodeMapper->SetInputConnection(0, this->NodeGlyphs->GetOutputPort(0));
+  // Now give poly data to the vertex glyphs
+  this->VertexGlyphs->SetInputConnection(0, this->GraphToPolyData->GetOutputPort(0));
+  this->VertexGlyphs->SetInputConnection(1, this->SphereSource->GetOutputPort(0));
+  this->VertexGlyphs->ScalingOff();
+  this->VertexMapper->SetLookupTable(ColorLUT);
+  this->VertexMapper->SetScalarRange( 0, 1 );
+  this->VertexMapper->SetInputConnection(0, this->VertexGlyphs->GetOutputPort(0));
   
   // Now give poly data to the edge mapper
   this->EdgeMapper->SetLookupTable(ColorLUT);
@@ -306,23 +306,23 @@ void vtkGraphLayoutViewer::SetupPipeline()
   this->LabelActor->SetMapper(this->LabeledDataMapper);
   
   // Actor setup
-  this->NodeActor->SetMapper(this->NodeMapper);
+  this->VertexActor->SetMapper(this->VertexMapper);
   this->EdgeActor->SetMapper(this->EdgeMapper);
-  this->Renderer->AddActor(this->NodeActor);
+  this->Renderer->AddActor(this->VertexActor);
   this->Renderer->AddActor(this->EdgeActor);
   this->Renderer->AddActor(this->LabelActor); 
 
 }
 
 
-void vtkGraphLayoutViewer::SetNodeColorFieldName(const char *field)
+void vtkGraphLayoutViewer::SetVertexColorFieldName(const char *field)
 {
   // Sanity Check
   if (!strcmp(field,"")) return;
   if (!strcmp(field,"No Filter")) return;
   
-  this->NodeMapper->SetScalarModeToUsePointFieldData();
-  this->NodeMapper->SelectColorArray(field);
+  this->VertexMapper->SetScalarModeToUsePointFieldData();
+  this->VertexMapper->SelectColorArray(field);
   
   // Okay now get the range of the data field
   double range[2]; 
@@ -332,7 +332,7 @@ void vtkGraphLayoutViewer::SetNodeColorFieldName(const char *field)
   if (array)
     {
     array->GetRange(range);
-    this->NodeMapper->SetScalarRange( range[0], range[1] );
+    this->VertexMapper->SetScalarRange( range[0], range[1] );
     } 
 
   if (this->RenderWindow)
@@ -341,7 +341,7 @@ void vtkGraphLayoutViewer::SetNodeColorFieldName(const char *field)
     }
 }
 
-void vtkGraphLayoutViewer::SetArcColorFieldName(const char *field)
+void vtkGraphLayoutViewer::SetEdgeColorFieldName(const char *field)
 {
   // Sanity Check
   if (!strcmp(field,"")) return;
@@ -367,12 +367,12 @@ void vtkGraphLayoutViewer::SetArcColorFieldName(const char *field)
     }
 }
 
-char* vtkGraphLayoutViewer::GetNodeColorFieldName()
+char* vtkGraphLayoutViewer::GetVertexColorFieldName()
 {
-  return this->NodeMapper->GetArrayName();
+  return this->VertexMapper->GetArrayName();
 }
 
-char* vtkGraphLayoutViewer::GetArcColorFieldName()
+char* vtkGraphLayoutViewer::GetEdgeColorFieldName()
 {
   return this->EdgeMapper->GetArrayName();
 }
@@ -484,10 +484,10 @@ void vtkGraphLayoutViewer::PrintSelf(ostream& os, vtkIndent indent)
     this->RenderWindow->PrintSelf(os,indent.GetNextIndent());
     }
   
-  os << indent << "NodeMapper: " << (this->NodeMapper ? "" : "(none)") << endl;
-  if (this->NodeMapper)
+  os << indent << "VertexMapper: " << (this->VertexMapper ? "" : "(none)") << endl;
+  if (this->VertexMapper)
     {
-    this->NodeMapper->PrintSelf(os,indent.GetNextIndent()); 
+    this->VertexMapper->PrintSelf(os,indent.GetNextIndent()); 
     }
     
   os << indent << "SphereSource: " << (this->SphereSource ? "" : "(none)") << endl;
@@ -496,10 +496,10 @@ void vtkGraphLayoutViewer::PrintSelf(ostream& os, vtkIndent indent)
     this->SphereSource->PrintSelf(os,indent.GetNextIndent()); 
     }
     
-  os << indent << "NodeGlyphs: " << (this->NodeGlyphs ? "" : "(none)") << endl;
-  if (this->NodeGlyphs)
+  os << indent << "VertexGlyphs: " << (this->VertexGlyphs ? "" : "(none)") << endl;
+  if (this->VertexGlyphs)
     {
-    this->NodeGlyphs->PrintSelf(os,indent.GetNextIndent()); 
+    this->VertexGlyphs->PrintSelf(os,indent.GetNextIndent()); 
     }
       
   os << indent << "Renderer: " << (this->Renderer ? "" : "(none)") << endl;
@@ -508,10 +508,10 @@ void vtkGraphLayoutViewer::PrintSelf(ostream& os, vtkIndent indent)
     this->Renderer->PrintSelf(os,indent.GetNextIndent());
     }
   
-  os << indent << "NodeActor: " << (this->NodeActor ? "" : "(none)") << endl;
-  if (this->NodeActor && this->Input)
+  os << indent << "VertexActor: " << (this->VertexActor ? "" : "(none)") << endl;
+  if (this->VertexActor && this->Input)
     {
-    this->NodeActor->PrintSelf(os,indent.GetNextIndent());
+    this->VertexActor->PrintSelf(os,indent.GetNextIndent());
     }
   
   os << indent << "InteractorStyle: " << (this->InteractorStyle ? "" : "(none)") << endl;
@@ -522,6 +522,6 @@ void vtkGraphLayoutViewer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Iterative: " 
      << (this->Iterative ? "true" : "false") << endl;
      
-  os << indent << "ArcWeightField: " 
-     << (this->ArcWeightField ? this->ArcWeightField : "(none)") << endl;
+  os << indent << "EdgeWeightField: " 
+     << (this->EdgeWeightField ? this->EdgeWeightField : "(none)") << endl;
 }

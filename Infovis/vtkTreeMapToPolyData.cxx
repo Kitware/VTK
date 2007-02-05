@@ -27,7 +27,7 @@
 #include "vtkAbstractGraph.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkTreeMapToPolyData, "1.2");
+vtkCxxRevisionMacro(vtkTreeMapToPolyData, "1.3");
 vtkStandardNewMacro(vtkTreeMapToPolyData);
 
 vtkTreeMapToPolyData::vtkTreeMapToPolyData()
@@ -65,15 +65,15 @@ int vtkTreeMapToPolyData::RequestData(
   vtkPolyData *outputPoly = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // For each input node create 4 points and 1 cell (quad)
+  // For each input vertex create 4 points and 1 cell (quad)
   vtkPoints* outputPoints = vtkPoints::New();
-  outputPoints->SetNumberOfPoints(inputTree->GetNumberOfNodes()*4);
+  outputPoints->SetNumberOfPoints(inputTree->GetNumberOfVertices()*4);
   vtkCellArray* outputCells = vtkCellArray::New();
 
   // Create an array for the point normals
   vtkFloatArray* normals = vtkFloatArray::New();
   normals->SetNumberOfComponents(3);
-  normals->SetNumberOfTuples(inputTree->GetNumberOfNodes()*4);
+  normals->SetNumberOfTuples(inputTree->GetNumberOfVertices()*4);
   normals->SetName("normals");
 
   vtkDataArray* levelArray = NULL;
@@ -84,7 +84,7 @@ int vtkTreeMapToPolyData::RequestData(
   
   // Now set the point coordinates, normals, and insert the cell
   vtkDataArray *coordArray = inputTree->GetPointData()->GetArray(this->RectanglesFieldName);
-  for (int i = 0; i < inputTree->GetNumberOfNodes(); i++)
+  for (int i = 0; i < inputTree->GetNumberOfVertices(); i++)
     {
     // Grab coords from the input
     double coords[4];

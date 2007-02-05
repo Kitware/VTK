@@ -17,7 +17,7 @@
 // .SECTION Description
 // This algorithm requires that the vtkTreeMapLayout filter has already applied to the
 // data in order to create the quadruple array (min x, max x, min y, max y) of
-// bounds for each node of the tree.
+// bounds for each vertex of the tree.
 
 #ifndef __vtkTreeMapToPolyData_h
 #define __vtkTreeMapToPolyData_h
@@ -33,16 +33,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // The field containing quadruples of the form (min x, max x, min y, max y)
-  // representing the bounds of the rectangles for each node.
+  // representing the bounds of the rectangles for each vertex.
   // This field may be added to the tree using vtkTreeMapLayout.
   // This array must be set.
   // TODO: This should be removed, and instead use ArrayToProcess from vtkAlgorithm.
   vtkGetStringMacro(RectanglesFieldName);
   vtkSetStringMacro(RectanglesFieldName);
 
-  // The field containing the levels of each node in the tree
+  // The field containing the levels of each vertex in the tree
   // This array may be added to the tree using vtkTreeLevelsFilter.
-  // The z-coordinate for node i is computed by 0.001 * level[i].
+  // The z-coordinate for vertex i is computed by 0.001 * level[i].
   // If this array is not set, the GetLevel() method of vtkTree is used
   // to determine the level.
   // TODO: This should be removed, and instead use ArrayToProcess from vtkAlgorithm.

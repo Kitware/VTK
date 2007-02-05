@@ -25,10 +25,10 @@ using vtkstd::stack;
 
 struct vtkGraphDFSIteratorPosition
 {
-  vtkGraphDFSIteratorPosition(vtkIdType node, vtkIdType index)
-    : Node(node), Index(index) { }
-  vtkIdType Node;
-  vtkIdType Index; // How far along we are in the node's edge array
+  vtkGraphDFSIteratorPosition(vtkIdType vertex, vtkIdType index)
+    : Vertex(vertex), Index(index) { }
+  vtkIdType Vertex;
+  vtkIdType Index; // How far along we are in the vertex's edge array
 };
 
 class vtkGraphDFSIteratorInternals
@@ -37,7 +37,7 @@ public:
   stack<vtkGraphDFSIteratorPosition> Stack;
 };
 
-vtkCxxRevisionMacro(vtkGraphDFSIterator, "1.3");
+vtkCxxRevisionMacro(vtkGraphDFSIterator, "1.4");
 vtkStandardNewMacro(vtkGraphDFSIterator);
 
 vtkGraphDFSIterator::vtkGraphDFSIterator()
@@ -45,7 +45,7 @@ vtkGraphDFSIterator::vtkGraphDFSIterator()
   this->Internals = new vtkGraphDFSIteratorInternals();
   this->Graph = NULL;
   this->Color = vtkIntArray::New();
-  this->StartNode = 0;
+  this->StartVertex = 0;
   this->Mode = 0;
 }
 
@@ -72,7 +72,7 @@ void vtkGraphDFSIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Mode: " << this->Mode << endl;
-  os << indent << "StartNode: " << this->StartNode << endl;
+  os << indent << "StartVertex: " << this->StartVertex << endl;
 }
 
 void vtkGraphDFSIterator::Initialize()
@@ -82,16 +82,16 @@ void vtkGraphDFSIterator::Initialize()
     return;
     }
   // Set all colors to white
-  this->Color->Resize(this->Graph->GetNumberOfNodes());
-  for (vtkIdType i = 0; i < this->Graph->GetNumberOfNodes(); i++)
+  this->Color->Resize(this->Graph->GetNumberOfVertices());
+  for (vtkIdType i = 0; i < this->Graph->GetNumberOfVertices(); i++)
     {
     this->Color->SetValue(i, this->WHITE);
     }
-  if (this->StartNode < 0)
+  if (this->StartVertex < 0)
     {
-    this->StartNode = 0;
+    this->StartVertex = 0;
     }
-  this->CurRoot = this->StartNode;
+  this->CurRoot = this->StartVertex;
   while (this->Internals->Stack.size())
     {
     this->Internals->Stack.pop();
@@ -99,7 +99,7 @@ void vtkGraphDFSIterator::Initialize()
   this->NumBlack = 0;
 
   // Find the first item
-  if (this->Graph->GetNumberOfNodes() > 0)
+  if (this->Graph->GetNumberOfVertices() > 0)
     {
     this->NextId = this->NextInternal();
     }
@@ -127,11 +127,11 @@ void vtkGraphDFSIterator::SetGraph(vtkGraph* graph)
     }
 }
 
-void vtkGraphDFSIterator::SetStartNode(vtkIdType node)
+void vtkGraphDFSIterator::SetStartVertex(vtkIdType vertex)
 {
-  if (this->StartNode != node)
+  if (this->StartVertex != vertex)
     {
-    this->StartNode = node;
+    this->StartVertex = vertex;
     this->Initialize();
     this->Modified();
     }
@@ -156,42 +156,42 @@ vtkIdType vtkGraphDFSIterator::Next()
 
 vtkIdType vtkGraphDFSIterator::NextInternal()
 {
-  while (this->NumBlack < this->Graph->GetNumberOfNodes())
+  while (this->NumBlack < this->Graph->GetNumberOfVertices())
     {
     while (this->Internals->Stack.size() > 0)
       {
       // Pop the current position off the stack
       vtkGraphDFSIteratorPosition pos = this->Internals->Stack.top();
       this->Internals->Stack.pop();
-      //cerr << "popped " << pos.Node << "," << pos.Index << " off the stack" << endl;
+      //cerr << "popped " << pos.Vertex << "," << pos.Index << " off the stack" << endl;
 
-      vtkIdType narcs;
-      const vtkIdType* arcs;
-      this->Graph->GetOutArcs(pos.Node, narcs, arcs);
-      while (pos.Index < narcs && 
-             this->Color->GetValue(this->Graph->GetOppositeNode(arcs[pos.Index], pos.Node)) != this->WHITE)
+      vtkIdType nedges;
+      const vtkIdType* edges;
+      this->Graph->GetOutEdges(pos.Vertex, nedges, edges);
+      while (pos.Index < nedges && 
+             this->Color->GetValue(this->Graph->GetOppositeVertex(edges[pos.Index], pos.Vertex)) != this->WHITE)
         {
         pos.Index++;
         }
-      if (pos.Index == narcs)
+      if (pos.Index == nedges)
         {
-        //cerr << "DFS coloring " << pos.Node << " black" << endl;
-        // Done with this node; make it black and leave it off the stack
-        this->Color->SetValue(pos.Node, this->BLACK);
+        //cerr << "DFS coloring " << pos.Vertex << " black" << endl;
+        // Done with this vertex; make it black and leave it off the stack
+        this->Color->SetValue(pos.Vertex, this->BLACK);
         this->NumBlack++;
         if (this->Mode == this->FINISH)
           {
-          //cerr << "DFS finished " << pos.Node << endl;
-          return pos.Node;
+          //cerr << "DFS finished " << pos.Vertex << endl;
+          return pos.Vertex;
           }
         }
       else
         {
-        // Not done with this node; put it back on the stack
+        // Not done with this vertex; put it back on the stack
         this->Internals->Stack.push(pos);
 
-        // Found a white node; make it gray, add it to the stack
-        vtkIdType found = this->Graph->GetOppositeNode(arcs[pos.Index], pos.Node);
+        // Found a white vertex; make it gray, add it to the stack
+        vtkIdType found = this->Graph->GetOppositeVertex(edges[pos.Index], pos.Vertex);
         //cerr << "DFS coloring " << found << " gray (adjacency)" << endl;
         this->Color->SetValue(found, this->GRAY);
         this->Internals->Stack.push(vtkGraphDFSIteratorPosition(found, 0));
@@ -203,8 +203,8 @@ vtkIdType vtkGraphDFSIterator::NextInternal()
         }
       }
 
-    // Done with this component, so find a white node and start a new search
-    if (this->NumBlack < this->Graph->GetNumberOfNodes())
+    // Done with this component, so find a white vertex and start a new seedgeh
+    if (this->NumBlack < this->Graph->GetNumberOfVertices())
       {
       while (true)
         {
@@ -223,9 +223,9 @@ vtkIdType vtkGraphDFSIterator::NextInternal()
           }
         else if (this->Color->GetValue(this->CurRoot) == this->GRAY)
           {
-          vtkErrorMacro("There should be no gray nodes in the graph when starting a new component.");
+          vtkErrorMacro("There should be no gray vertices in the graph when starting a new component.");
           }
-        this->CurRoot = (this->CurRoot + 1) % this->Graph->GetNumberOfNodes();
+        this->CurRoot = (this->CurRoot + 1) % this->Graph->GetNumberOfVertices();
         }
       }
     }

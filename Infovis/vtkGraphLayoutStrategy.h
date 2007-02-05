@@ -69,16 +69,16 @@ public:
   
   
   // Description:
-  // Set/Get the field to use for the arc weights.
-  vtkSetStringMacro(ArcWeightField);
-  vtkGetStringMacro(ArcWeightField);
+  // Set/Get the field to use for the edge weights.
+  vtkSetStringMacro(EdgeWeightField);
+  vtkGetStringMacro(EdgeWeightField);
 
 protected:
   vtkGraphLayoutStrategy();
   ~vtkGraphLayoutStrategy();
   
   vtkAbstractGraph *Graph;
-  char*  ArcWeightField;
+  char*  EdgeWeightField;
 
 private:
 

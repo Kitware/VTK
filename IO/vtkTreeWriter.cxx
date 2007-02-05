@@ -26,19 +26,19 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkTreeWriter, "1.1");
+vtkCxxRevisionMacro(vtkTreeWriter, "1.2");
 vtkStandardNewMacro(vtkTreeWriter);
 
-void vtkTreeWriter::WriteArcs(ostream& Stream, vtkTree* Tree, vtkIdType Node)
+void vtkTreeWriter::WriteEdges(ostream& Stream, vtkTree* Tree, vtkIdType Vertex)
 {
-  Stream << Node << " " << Tree->GetParent(Node) << "\n";
+  Stream << Vertex << " " << Tree->GetParent(Vertex) << "\n";
   
   vtkIdType count = 0;
   const vtkIdType* children = 0;
-  Tree->GetChildren(Node, count, children);
+  Tree->GetChildren(Vertex, count, children);
   for(vtkIdType child = 0; child != count; ++child)
     {
-    WriteArcs(Stream, Tree, children[child]);
+    WriteEdges(Stream, Tree, children[child]);
     }
 }
 
@@ -83,9 +83,9 @@ void vtkTreeWriter::WriteData()
     }
   if(!error_occurred)
     {
-    const vtkIdType node_count = input->GetNumberOfNodes();
-    *fp << "ARCS " << node_count << "\n";
-    this->WriteArcs(*fp, input, input->GetRoot());
+    const vtkIdType vertex_count = input->GetNumberOfVertices();
+    *fp << "ARCS " << vertex_count << "\n";
+    this->WriteEdges(*fp, input, input->GetRoot());
     }
   if (!error_occurred && !this->WriteCellData(fp, input))
     {

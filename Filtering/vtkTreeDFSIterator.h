@@ -12,19 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTreeDFSIterator - depth first search iterator through a vtkGraph
+// .NAME vtkTreeDFSIterator - depth first seedgeh iterator through a vtkGraph
 //
 // .SECTION Description
-// vtkTreeDFSIterator performs a depth first search of a tree.  First,
+// vtkTreeDFSIterator performs a depth first seedgeh of a tree.  First,
 // you must set the tree on which you are going to iterate, and set
-// the starting node and mode.  The mode is either DISCOVER, in which
-// case nodes are visited as they are first reached, or FINISH, in which
-// case nodes are visited when they are done, i.e. all adjacent nodes
+// the starting vertex and mode.  The mode is either DISCOVER, in which
+// case vertices are visited as they are first reached, or FINISH, in which
+// case vertices are visited when they are done, i.e. all adjacent vertices
 // have been discovered already.
 //
 // After setting up the iterator, the normal mode of operation is to
 // set up a "while(iter->HasNext())" loop, with the statement
-// "vtkIdType node = iter->Next()" inside the loop.
+// "vtkIdType vertex = iter->Next()" inside the loop.
 
 
 #ifndef __vtkTreeDFSIterator_h
@@ -67,18 +67,18 @@ public:
   vtkGetMacro(Mode, int);
 
   // Description:
-  // The start node of the search.
-  // The tree iterator will only iterate over the subtree rooted at node.
+  // The start vertex of the seedgeh.
+  // The tree iterator will only iterate over the subtree rooted at vertex.
   // If not set (or set to a negative value), starts at the root of the tree.
-  void SetStartNode(vtkIdType node);
-  vtkGetMacro(StartNode, vtkIdType);
+  void SetStartVertex(vtkIdType vertex);
+  vtkGetMacro(StartVertex, vtkIdType);
 
   // Description:
-  // The next node visited in the graph.
+  // The next vertex visited in the graph.
   vtkIdType Next();
 
   // Description:
-  // Return true when all nodes have been visited.
+  // Return true when all vertices have been visited.
   bool HasNext();
 
 protected:
@@ -90,7 +90,7 @@ protected:
 
   vtkTree* Tree;
   int Mode;
-  vtkIdType StartNode;
+  vtkIdType StartVertex;
   vtkIdType CurRoot;
   vtkTreeDFSIteratorInternals* Internals;
   vtkIntArray* Color;

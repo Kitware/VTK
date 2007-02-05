@@ -132,7 +132,6 @@ vtkMultiGroupDataInformation.cxx
 vtkMultiGroupDataIterator.cxx
 vtkMultiGroupDataSet.cxx
 vtkMultiGroupDataSetAlgorithm.cxx
-vtkNodeLinks.cxx
 vtkNonLinearCell.cxx
 vtkOrderedTriangulator.cxx
 vtkParametricSpline.cxx
@@ -215,6 +214,7 @@ vtkUnstructuredGridSource.cxx
 vtkUnstructuredGridToPolyDataFilter.cxx
 vtkUnstructuredGridToUnstructuredGridFilter.cxx
 vtkVertex.cxx
+vtkVertexLinks.cxx
 vtkViewDependentErrorMetric.cxx
 vtkVoxel.cxx
 vtkWedge.cxx

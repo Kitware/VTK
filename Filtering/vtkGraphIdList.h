@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGraphIdList - read-only list of node or arc ids
+// .NAME vtkGraphIdList - read-only list of vertex or edge ids
 //
 // .SECTION Description
 // vtkGraphIdList is used to represent and pass data id's between
 // objects. vtkGraphIdList may represent any type of integer id, but
-// usually represents node and arc ids.
+// usually represents vertex and edge ids.
 // vtkGraphIdList provides read-only access to all classes except
 // for vtkGraph, vtkTree, which are responsible for creating instances
 // of this class.

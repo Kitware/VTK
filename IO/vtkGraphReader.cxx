@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkGraphReader, "1.1");
+vtkCxxRevisionMacro(vtkGraphReader, "1.2");
 vtkStandardNewMacro(vtkGraphReader);
 
 #ifdef read
@@ -192,27 +192,27 @@ int vtkGraphReader::RequestData(
       continue;
       }
       
-    if(!strncmp(this->LowerCase(line), "arcs", 4))
+    if(!strncmp(this->LowerCase(line), "edges", 4))
       {
-      int arc_count = 0;
-      if(!this->Read(&arc_count))
+      int edge_count = 0;
+      if(!this->Read(&edge_count))
         {
-        vtkErrorMacro(<<"Cannot read number of arcs!");
+        vtkErrorMacro(<<"Cannot read number of edges!");
         this->CloseVTKFile ();
         return 1;
         }
       int source = 0;
       int target = 0;
-      for(int arc = 0; arc != arc_count; ++arc)
+      for(int edge = 0; edge != edge_count; ++edge)
         {
         if(!(this->Read(&source) && this->Read(&target)))
           {
-          vtkErrorMacro(<<"Cannot read arc!");
+          vtkErrorMacro(<<"Cannot read edge!");
           this->CloseVTKFile();
           return 1;
           }
         
-        output->AddArc(source, target);
+        output->AddEdge(source, target);
         }
       continue;
       }
@@ -248,8 +248,8 @@ int vtkGraphReader::RequestData(
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
 
-  vtkDebugMacro(<< "Read " << output->GetNumberOfNodes() <<" nodes and "
-                << output->GetNumberOfArcs() <<" arcs.\n");
+  vtkDebugMacro(<< "Read " << output->GetNumberOfVertices() <<" vertices and "
+                << output->GetNumberOfEdges() <<" edges.\n");
 
   this->CloseVTKFile ();
 

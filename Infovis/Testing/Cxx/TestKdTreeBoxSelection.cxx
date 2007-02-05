@@ -38,17 +38,17 @@
 //
 // Make a vtkTree from a kd-tree
 //
-void BuildTree(vtkIdType parent, vtkKdNode* parentNode, vtkTree* tree, vtkFloatArray* rectArray)
+void BuildTree(vtkIdType parent, vtkKdNode* parentVertex, vtkTree* tree, vtkFloatArray* rectArray)
 {
   double bounds[6];
-  parentNode->GetBounds(bounds);
+  parentVertex->GetBounds(bounds);
   rectArray->InsertTuple(parent, bounds);
-  if (parentNode->GetLeft() != NULL)
+  if (parentVertex->GetLeft() != NULL)
     {
     vtkIdType curIndex = tree->AddChild(parent);
-    BuildTree(curIndex, parentNode->GetLeft(), tree, rectArray);
+    BuildTree(curIndex, parentVertex->GetLeft(), tree, rectArray);
     curIndex = tree->AddChild(parent);
-    BuildTree(curIndex, parentNode->GetRight(), tree, rectArray);
+    BuildTree(curIndex, parentVertex->GetRight(), tree, rectArray);
     }
 }
 
@@ -81,8 +81,8 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
 
   VTK_CREATE(vtkRandomGraphSource, source);
   source->SetStartWithTree(true);
-  source->SetNumberOfNodes(100);
-  source->SetNumberOfArcs(15);
+  source->SetNumberOfVertices(100);
+  source->SetNumberOfEdges(15);
 
   VTK_CREATE(vtkGraphLayout, layout);
   layout->SetInputConnection(source->GetOutputPort());
@@ -121,7 +121,7 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   kdTree->FindPointsInArea(bounds, selection);
 
   //
-  // Create selected node glyphs
+  // Create selected vertex glyphs
   //
 
   double glyphSize = 0.05;
@@ -223,7 +223,7 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   graphActor->SetMapper(graphMapper);
 
   //
-  // Create node glyphs
+  // Create vertex glyphs
   //
 
   VTK_CREATE(vtkSphereSource, sphere);

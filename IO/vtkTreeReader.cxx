@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTreeReader, "1.1");
+vtkCxxRevisionMacro(vtkTreeReader, "1.2");
 vtkStandardNewMacro(vtkTreeReader);
 
 #ifdef read
@@ -170,45 +170,45 @@ int vtkTreeReader::RequestData(
       continue;
       }
 
-    if(!strncmp(this->LowerCase(line), "arcs", 4))
+    if(!strncmp(this->LowerCase(line), "edges", 4))
       {
-      int arc_count = 0;
-      if(!this->Read(&arc_count))
+      int edge_count = 0;
+      if(!this->Read(&edge_count))
         {
-        vtkErrorMacro(<<"Cannot read number of arcs!");
+        vtkErrorMacro(<<"Cannot read number of edges!");
         this->CloseVTKFile ();
         return 1;
         }
         
-      // Create all of the table nodes (with no particular order or topology)
+      // Create all of the table vertices (with no particular order or topology)
       vtkIdType root_id = 0;
-      if(arc_count)
+      if(edge_count)
         {
         root_id = output->AddRoot();
         }
-      for(int arc = 1; arc < arc_count; ++arc)
+      for(int edge = 1; edge < edge_count; ++edge)
         {
         output->AddChild(root_id);
         }
 
-      // Reparent the existing nodes so their order and topology match the original      
+      // Reparent the existing vertices so their order and topology match the original      
       int child = 0;
       int parent = 0;
-      for(int arc = 0; arc != arc_count; ++arc)
+      for(int edge = 0; edge != edge_count; ++edge)
         {
         if(!(this->Read(&child) && this->Read(&parent)))
           {
-          vtkErrorMacro(<<"Cannot read arc!");
+          vtkErrorMacro(<<"Cannot read edge!");
           this->CloseVTKFile();
           return 1;
           }
 
-        // Set the ID of the root node ...
-        if(!arc)
+        // Set the ID of the root vertex ...
+        if(!edge)
           {
           if(child != parent)
             {
-            vtkErrorMacro(<<"First node must be root node!");
+            vtkErrorMacro(<<"First vertex must be root vertex!");
             this->CloseVTKFile();
             return 1;
             }
@@ -254,8 +254,8 @@ int vtkTreeReader::RequestData(
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
 
-  vtkDebugMacro(<< "Read " << output->GetNumberOfNodes() <<" nodes and "
-                << output->GetNumberOfArcs() <<" arcs.\n");
+  vtkDebugMacro(<< "Read " << output->GetNumberOfVertices() <<" vertices and "
+                << output->GetNumberOfEdges() <<" edges.\n");
 
   this->CloseVTKFile ();
 

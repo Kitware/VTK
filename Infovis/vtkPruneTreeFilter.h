@@ -15,7 +15,7 @@
 // .NAME vtkPruneTreeFilter - prune a subtree out of a vtkTree
 //
 // .SECTION Description
-// Removes a subtree rooted at a particular node in a vtkTree.
+// Removes a subtree rooted at a particular vertex in a vtkTree.
 //
 
 #ifndef __vtkPruneTreeFilter_h
@@ -34,15 +34,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the parent node of the subtree to remove.
-  vtkGetMacro(ParentNode, vtkIdType);
-  vtkSetMacro(ParentNode, vtkIdType);
+  // Set the parent vertex of the subtree to remove.
+  vtkGetMacro(ParentVertex, vtkIdType);
+  vtkSetMacro(ParentVertex, vtkIdType);
 
 protected:
   vtkPruneTreeFilter();
   ~vtkPruneTreeFilter();
 
-  vtkIdType ParentNode;
+  vtkIdType ParentVertex;
 
   int RequestData(
     vtkInformation*, 

@@ -31,7 +31,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkForceDirectedLayoutStrategy);
 
 vtkForceDirectedLayoutStrategy::vtkForceDirectedLayoutStrategy()
@@ -88,8 +88,8 @@ static inline double forceRepulse(double x, double k)
 void vtkForceDirectedLayoutStrategy::Initialize() 
 {
   vtkPoints* pts = this->Graph->GetPoints();
-  vtkIdType numNodes = this->Graph->GetNumberOfNodes();
-  vtkIdType numArcs = this->Graph->GetNumberOfArcs();
+  vtkIdType numVertices = this->Graph->GetNumberOfVertices();
+  vtkIdType numEdges = this->Graph->GetNumberOfEdges();
 
   // Generate bounds automatically if necessary. It's the same
   // as the input bounds.
@@ -108,15 +108,15 @@ void vtkForceDirectedLayoutStrategy::Initialize()
  
   if (this->v) delete[] this->v;
   if (this->e) delete[] this->e;
-  this->v = new vtkLayoutVertex[numNodes];
-  this->e = new vtkLayoutArc[numArcs];
+  this->v = new vtkLayoutVertex[numVertices];
+  this->e = new vtkLayoutEdge[numEdges];
 
   int maxCoord = this->ThreeDimensionalLayout ? 3 : 2;
         
   // Get the points, either x,y,0 or x,y,z or random
   if (this->RandomInitialPoints)
     {
-    for (vtkIdType i = 0; i < numNodes; i++)
+    for (vtkIdType i = 0; i < numVertices; i++)
       {
       for (int j = 0; j < maxCoord; j++)
         {
@@ -131,7 +131,7 @@ void vtkForceDirectedLayoutStrategy::Initialize()
     }
   else
     {
-    for (vtkIdType i = 0; i < numNodes; i++)
+    for (vtkIdType i = 0; i < numVertices; i++)
       {
       pts->GetPoint(i, v[i].x);
       if (!this->ThreeDimensionalLayout)
@@ -141,11 +141,11 @@ void vtkForceDirectedLayoutStrategy::Initialize()
       }
     }
 
-  // Get the arcs
-  for (vtkIdType i = 0; i < numArcs; i++)
+  // Get the edges
+  for (vtkIdType i = 0; i < numEdges; i++)
     {
-    e[i].t = this->Graph->GetSourceNode(i);
-    e[i].u = this->Graph->GetTargetNode(i);
+    e[i].t = this->Graph->GetSourceVertex(i);
+    e[i].u = this->Graph->GetTargetVertex(i);
     }
 
   // More variable definitions
@@ -164,7 +164,7 @@ void vtkForceDirectedLayoutStrategy::Initialize()
     this->Temp = this->InitialTemperature;
     }
   // The optimal distance between vertices.
-  this->optDist = pow(volume / numNodes, 0.33333);
+  this->optDist = pow(volume / numVertices, 0.33333);
 
   // Set some vars
   this->TotalIterations = 0;
@@ -176,8 +176,8 @@ void vtkForceDirectedLayoutStrategy::Initialize()
 void vtkForceDirectedLayoutStrategy::Layout()
 {
 
-  vtkIdType numNodes = this->Graph->GetNumberOfNodes();
-  vtkIdType numArcs = this->Graph->GetNumberOfArcs();
+  vtkIdType numVertices = this->Graph->GetNumberOfVertices();
+  vtkIdType numEdges = this->Graph->GetNumberOfEdges();
 
   
   // Begin iterations.
@@ -186,12 +186,12 @@ void vtkForceDirectedLayoutStrategy::Layout()
   for(int i = 0; i < this->IterationsPerLayout; i++)
     {
     // Calculate the repulsive forces.
-    for(vtkIdType j = 0; j < numNodes; j++)
+    for(vtkIdType j = 0; j < numVertices; j++)
       {
       v[j].d[0] = 0.0;
       v[j].d[1] = 0.0;
       v[j].d[2] = 0.0;
-      for(vtkIdType l = 0; l < numNodes; l++)
+      for(vtkIdType l = 0; l < numVertices; l++)
         {
         if (j != l)
           {
@@ -215,7 +215,7 @@ void vtkForceDirectedLayoutStrategy::Layout()
       }
 
     // Calculate the attractive forces.
-    for (vtkIdType j = 0; j < numArcs; j++)
+    for (vtkIdType j = 0; j < numEdges; j++)
       {
       diff[0] = v[e[j].u].x[0] - v[e[j].t].x[0];
       diff[1] = v[e[j].u].x[1] - v[e[j].t].x[1];
@@ -231,7 +231,7 @@ void vtkForceDirectedLayoutStrategy::Layout()
       }
 
     // Combine the forces for a new configuration
-    for (vtkIdType j = 0; j < numNodes; j++)
+    for (vtkIdType j = 0; j < numVertices; j++)
       {
       norm = vtkMath::Normalize(v[j].d);
       minimum = (norm < this->Temp ? norm : this->Temp);
@@ -247,8 +247,8 @@ void vtkForceDirectedLayoutStrategy::Layout()
   // Get the bounds of the graph and scale and translate to
   // bring them within the bounds specified.
   vtkPoints *newPts = vtkPoints::New();
-  newPts->SetNumberOfPoints(numNodes);
-  for (vtkIdType i = 0; i < numNodes; i++)
+  newPts->SetNumberOfPoints(numVertices);
+  for (vtkIdType i = 0; i < numVertices; i++)
     {
     newPts->SetPoint(i, v[i].x);
     }
@@ -271,7 +271,7 @@ void vtkForceDirectedLayoutStrategy::Layout()
   scale = (scale < sf[1] ? scale : sf[1]);
   scale = (scale < sf[2] ? scale : sf[2]);
 
-  for (vtkIdType i = 0; i < numNodes; i++)
+  for (vtkIdType i = 0; i < numVertices; i++)
     {
     newPts->GetPoint(i, x);
     for (int j = 0; j < 3; j++)

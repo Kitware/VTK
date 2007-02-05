@@ -32,7 +32,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.3");
+vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.4");
 vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
@@ -47,8 +47,8 @@ vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
   this->WindowLimits[0][0] = this->WindowLimits[1][0] = 0.0;
   this->WindowLimits[0][1] = this->WindowLimits[1][1] = 1.0;
   this->VCoord = vtkCoordinate::New();
-  this->NodeList = vtkIdList::New();
-  this->NodeList->SetNumberOfIds(this->NumberOfLabelsAllocated);
+  this->VertexList = vtkIdList::New();
+  this->VertexList->SetNumberOfIds(this->NumberOfLabelsAllocated);
   this->TextPoints = vtkPoints::New();
   this->TextPoints->Allocate(this->NumberOfLabelsAllocated);
   this->VerticalLabelProperty = vtkTextProperty::New();
@@ -86,7 +86,7 @@ vtkLabeledTreeMapDataMapper::~vtkLabeledTreeMapDataMapper()
 {
   this->VCoord->Delete();
   this->TextPoints->Delete();
-  this->NodeList->Delete();
+  this->VertexList->Delete();
   this->VerticalLabelProperty->Delete();
   int i;
   for (i = 0; i <= this->MaxFontLevel; i++)
@@ -227,7 +227,7 @@ int vtkLabeledTreeMapDataMapper::UpdateWindowInfo(vtkViewport *viewport)
   return 1;
 }
 
-void vtkLabeledTreeMapDataMapper::GetNodeLabel(vtkIdType node, 
+void vtkLabeledTreeMapDataMapper::GetVertexLabel(vtkIdType vertex, 
                                                vtkDataArray *numericData, 
                                                vtkStringArray *stringData, 
                                                int activeComp, int numComp,
@@ -249,12 +249,12 @@ void vtkLabeledTreeMapDataMapper::GetNodeLabel(vtkIdType node,
           return;
           }
         sprintf(string, this->LabelFormat, 
-                (char)numericData->GetComponent(node, activeComp));
+                (char)numericData->GetComponent(vertex, activeComp));
         } 
       else 
         {
         sprintf(string, this->LabelFormat, 
-                numericData->GetComponent(node, activeComp));
+                numericData->GetComponent(vertex, activeComp));
         }
       }
     else
@@ -262,11 +262,11 @@ void vtkLabeledTreeMapDataMapper::GetNodeLabel(vtkIdType node,
       strcpy(format, "("); strcat(format, this->LabelFormat);
       for (j=0; j<(numComp-1); j++)
         {
-        sprintf(string, format, numericData->GetComponent(node, j));
+        sprintf(string, format, numericData->GetComponent(vertex, j));
         strcpy(format,string); strcat(format,", ");
         strcat(format, this->LabelFormat);
         }
-      sprintf(string, format, numericData->GetComponent(node, numComp-1));
+      sprintf(string, format, numericData->GetComponent(vertex, numComp-1));
       strcat(string, ")");
       }
     }
@@ -279,11 +279,11 @@ void vtkLabeledTreeMapDataMapper::GetNodeLabel(vtkIdType node,
       return;
       }
     sprintf(string, this->LabelFormat, 
-            stringData->GetValue(node).c_str());
+            stringData->GetValue(vertex).c_str());
     }
-  else // Use the node id
+  else // Use the vertex id
     {
-    val = (float)node;
+    val = (float)vertex;
     sprintf(string, this->LabelFormat, val);
     }
 }
@@ -308,7 +308,7 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
                                                        vtkActor2D *actor)
 {
   int i, numComp = 0, pointIdLabels, activeComp = 0;
-  int numNodes;
+  int numVertices;
   double x[3];
   vtkAbstractArray *abstractData;
   vtkDataArray *numericData, *tempData;
@@ -438,11 +438,11 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       }
 
     // Make sure that the array of TextMappers can accomidate 
-    // the number of nodes in the tree - Note that we may 
+    // the number of vertices in the tree - Note that we may 
     // not create the actual mappers
     
-    numNodes = input->GetNumberOfPoints();
-    if ( numNodes > this->NumberOfLabelsAllocated )
+    numVertices = input->GetNumberOfPoints();
+    if ( numVertices > this->NumberOfLabelsAllocated )
       {
       // delete old stuff
       for (i=0; i < this->NumberOfLabels; i++)
@@ -451,11 +451,11 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         }
       delete [] this->TextMappers;
 
-      this->NumberOfLabelsAllocated = numNodes;
-      this->TextMappers = new vtkTextMapper * [numNodes];
-      this->NodeList->SetNumberOfIds(numNodes);
-      this->TextPoints->Allocate(numNodes);
-      for (i = 0; i < numNodes; i++)
+      this->NumberOfLabelsAllocated = numVertices;
+      this->TextMappers = new vtkTextMapper * [numVertices];
+      this->VertexList->SetNumberOfIds(numVertices);
+      this->TextPoints->Allocate(numVertices);
+      for (i = 0; i < numVertices; i++)
         {
         this->TextMappers[i] = 0;
         }
@@ -487,7 +487,7 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree *tree,
   char string[1024];
   int results;
   vtkTextProperty *tprop = NULL;
-  vtkIdType node, level, root = tree->GetRoot();
+  vtkIdType vertex, level, root = tree->GetRoot();
   if (root < 0)
     {
     vtkErrorMacro(<< "Input Tree does not have a root.");
@@ -499,19 +499,19 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree *tree,
   dfs->SetTree(tree);
   while (dfs->HasNext())
     {
-    // Are we suppose to display this node?
-    node = dfs->Next();
-    level = tree->GetLevel(node);
+    // Are we suppose to display this vertex?
+    vertex = dfs->Next();
+    level = tree->GetLevel(vertex);
 
     if (level >= this->StartLevel)
       {
-      boxInfo->GetTupleValue(node, blimits); // Get the extents of the node
+      boxInfo->GetTupleValue(vertex, blimits); // Get the extents of the vertex
       if (this->ConvertToDC(blimits, blimitsDC))
         {
         continue;
         }
       
-      this->GetNodeLabel(node, numericData, stringData, activeComp, numComps,
+      this->GetVertexLabel(vertex, numericData, stringData, activeComp, numComps,
                          string);
       results = this->AnalyseLabel(string, level, blimitsDC, textPosWC, &tprop);
       if (results == 1)
@@ -756,7 +756,7 @@ int vtkLabeledTreeMapDataMapper::AnalyseLabel(char * string, int level,
   flimits[3] = tPosDC[1] + delta;
   
   // If the label is not to be centered based on the clipped form of the
-  // node's box see if it has been clipped away
+  // vertex's box see if it has been clipped away
   if (!this->ClipTextMode)
     {
     if ((flimits[0] >= this->WindowLimits[0][1]) || 

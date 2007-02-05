@@ -125,11 +125,11 @@ private:
     vtkIdType from;
     vtkIdType to;
     float weight;
-  } vtkLayoutArc;
+  } vtkLayoutEdge;
   //ETX
   
   vtkLayoutVertex *VArray;
-  vtkLayoutArc *ArcArray;
+  vtkLayoutEdge *EdgeArray;
   int IterationsPerLayout;
   int TotalIterations;
   int LayoutComplete;

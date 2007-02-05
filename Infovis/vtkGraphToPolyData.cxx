@@ -24,7 +24,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkAbstractGraph.h"
 
-vtkCxxRevisionMacro(vtkGraphToPolyData, "1.4");
+vtkCxxRevisionMacro(vtkGraphToPolyData, "1.5");
 vtkStandardNewMacro(vtkGraphToPolyData);
 
 vtkGraphToPolyData::vtkGraphToPolyData()
@@ -57,17 +57,17 @@ int vtkGraphToPolyData::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDataArray* arcGhostLevels = vtkDataArray::SafeDownCast(
+  vtkDataArray* edgeGhostLevels = vtkDataArray::SafeDownCast(
     input->GetCellData()->GetAbstractArray("vtkGhostLevels"));
 
-  if (arcGhostLevels == NULL)
+  if (edgeGhostLevels == NULL)
     {
     vtkCellArray* newLines = vtkCellArray::New();
     vtkIdType points[2];
-    for (vtkIdType i = 0; i < input->GetNumberOfArcs(); i++)
+    for (vtkIdType i = 0; i < input->GetNumberOfEdges(); i++)
       {
-      points[0] = input->GetSourceNode(i);
-      points[1] = input->GetTargetNode(i);
+      points[0] = input->GetSourceVertex(i);
+      points[1] = input->GetTargetVertex(i);
       newLines->InsertNextCell(2, points);
       }
 
@@ -75,10 +75,10 @@ int vtkGraphToPolyData::RequestData(
     output->SetPoints(input->GetPoints());
     output->SetLines(newLines);
 
-    // Points correspond to nodes, so pass the data along.
+    // Points correspond to vertices, so pass the data along.
     output->GetPointData()->PassData(input->GetPointData());
 
-    // Cells correspond to arcs, so pass the cell data along.
+    // Cells correspond to edges, so pass the cell data along.
     output->GetCellData()->PassData(input->GetCellData());
 
     // Clean up.
@@ -86,21 +86,21 @@ int vtkGraphToPolyData::RequestData(
     }
   else
     {
-    vtkIdType numArcs = input->GetNumberOfArcs();
+    vtkIdType numEdges = input->GetNumberOfEdges();
     vtkCellData* inputCellData = input->GetCellData();
     vtkCellData* outputCellData = output->GetCellData();
     outputCellData->CopyAllocate(inputCellData);
     vtkCellArray* newLines = vtkCellArray::New();
-    newLines->Allocate(newLines->EstimateSize(numArcs, 2));
+    newLines->Allocate(newLines->EstimateSize(numEdges, 2));
     vtkIdType points[2];
 
-    // Only create lines for non-ghost arcs
-    for (vtkIdType i = 0; i < numArcs; i++)
+    // Only create lines for non-ghost edges
+    for (vtkIdType i = 0; i < numEdges; i++)
       {
-      if (arcGhostLevels->GetComponent(i, 0) == 0) 
+      if (edgeGhostLevels->GetComponent(i, 0) == 0) 
         {
-        points[0] = input->GetSourceNode(i);
-        points[1] = input->GetTargetNode(i);
+        points[0] = input->GetSourceVertex(i);
+        points[1] = input->GetTargetVertex(i);
         vtkIdType ind = newLines->InsertNextCell(2, points);
         outputCellData->CopyData(inputCellData, i, ind);
         }

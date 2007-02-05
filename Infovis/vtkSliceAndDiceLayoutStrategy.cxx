@@ -28,7 +28,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkSliceAndDiceLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkSliceAndDiceLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkSliceAndDiceLayoutStrategy);
 
 vtkSliceAndDiceLayoutStrategy::vtkSliceAndDiceLayoutStrategy()
@@ -53,7 +53,7 @@ void vtkSliceAndDiceLayoutStrategy::Layout(vtkTree *inputTree,
   vtkDataArray *coordsArray)
 {
   // Get the size array
-  vtkDataArray* sizeArray = inputTree->GetNodeData()->GetArray(this->SizeFieldName);
+  vtkDataArray* sizeArray = inputTree->GetVertexData()->GetArray(this->SizeFieldName);
 
   vtkTreeDFSIterator* dfs = vtkTreeDFSIterator::New();
   dfs->SetTree(inputTree);
@@ -62,15 +62,15 @@ void vtkSliceAndDiceLayoutStrategy::Layout(vtkTree *inputTree,
   const vtkIdType* children;
   while (dfs->HasNext())
     {
-    vtkIdType node = dfs->Next();
-    bool vertical = (inputTree->GetLevel(node) % 2) == 1;
-    if (node == inputTree->GetRoot())
+    vtkIdType vertex = dfs->Next();
+    bool vertical = (inputTree->GetLevel(vertex) % 2) == 1;
+    if (vertex == inputTree->GetRoot())
       {
       coords[0] = 0; coords[1] = 1; coords[2] = 0; coords[3] = 1;
-      coordsArray->SetTuple(node, coords);
+      coordsArray->SetTuple(vertex, coords);
       }
     double doubleCoords[4];
-    coordsArray->GetTuple(node, doubleCoords);
+    coordsArray->GetTuple(vertex, doubleCoords);
     for (int i = 0; i < 4; i++)
       {
       coords[i] = doubleCoords[i];
@@ -83,7 +83,7 @@ void vtkSliceAndDiceLayoutStrategy::Layout(vtkTree *inputTree,
     float xSpace = parentMaxX - parentMinX;
     float ySpace = parentMaxY - parentMinY;
 
-    inputTree->GetChildren(node, nchildren, children);
+    inputTree->GetChildren(vertex, nchildren, children);
 
     float total = 0;
     for (int i = 0; i < nchildren; i++)

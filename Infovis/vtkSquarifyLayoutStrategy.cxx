@@ -26,7 +26,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkSquarifyLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkSquarifyLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkSquarifyLayoutStrategy);
 
 vtkSquarifyLayoutStrategy::vtkSquarifyLayoutStrategy()
@@ -51,14 +51,14 @@ void vtkSquarifyLayoutStrategy::Layout(vtkTree *inputTree,
 {
   // Get the size array
   vtkDataArray* sizeArray = 
-    inputTree->GetNodeData()->GetArray(this->SizeFieldName);
+    inputTree->GetVertexData()->GetArray(this->SizeFieldName);
 
-  // Get the root node and set it to 0,1,0,1
+  // Get the root vertex and set it to 0,1,0,1
   vtkIdType rootId = inputTree->GetRoot();
   float coords[] = {0,1,0,1};
   coordsArray->SetTuple(rootId, coords);
   
-  // Now layout the children nodes
+  // Now layout the children vertices
   vtkIdType nchildren;
   const vtkIdType* children;
   inputTree->GetChildren(rootId, nchildren, children);
@@ -81,7 +81,7 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(
   float sizeY = maxY - minY;
   if ((sizeX == 0.0) || (sizeY == 0.0)) 
     {
-    vtkErrorMacro(<< "Invalid Box Sizes for Node: "
+    vtkErrorMacro(<< "Invalid Box Sizes for Vertex: "
                   << children[begin] << " ("
                   << sizeX << ", " << sizeY << ")");
     return;

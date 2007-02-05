@@ -31,14 +31,14 @@
 #include "vtkGraph.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkTreeFieldAggregator, "1.4");
+vtkCxxRevisionMacro(vtkTreeFieldAggregator, "1.5");
 vtkStandardNewMacro(vtkTreeFieldAggregator);
 
 vtkTreeFieldAggregator::vtkTreeFieldAggregator():MinValue(0.0)
 {
   this->MinValue = 0;
   this->Field = 0;
-  this->SetLeafNodeUnitSize(true);
+  this->SetLeafVertexUnitSize(true);
   this->SetLogScale(false);
 }
 
@@ -66,29 +66,29 @@ int vtkTreeFieldAggregator::RequestData(
   output->ShallowCopy(input);
 
   // Check for the existance of the field to be aggregated
-  if (!output->GetNodeData()->HasArray(this->Field))
+  if (!output->GetVertexData()->HasArray(this->Field))
     {
-    //vtkWarningMacro(<< "The field " << this->Field << " was NOT found! Setting LeafNodeUnitSize = true");
-    this->LeafNodeUnitSize = true;
+    //vtkWarningMacro(<< "The field " << this->Field << " was NOT found! Setting LeafVertexUnitSize = true");
+    this->LeafVertexUnitSize = true;
     }
     
   // Extract the field from the tree
   vtkAbstractArray* arr;
-  if (this->LeafNodeUnitSize)
+  if (this->LeafVertexUnitSize)
     {
     arr = vtkIntArray::New();
-    arr->SetNumberOfTuples(output->GetNumberOfNodes());
+    arr->SetNumberOfTuples(output->GetNumberOfVertices());
     arr->SetName(this->Field);
     for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
       {
       vtkIntArray::SafeDownCast(arr)->SetTuple1(i, 1);
       }
-    output->GetNodeData()->AddArray(arr);
+    output->GetVertexData()->AddArray(arr);
     arr->Delete();
     }
   else
     {
-    vtkAbstractArray* oldArr = output->GetNodeData()->GetAbstractArray(this->Field);
+    vtkAbstractArray* oldArr = output->GetVertexData()->GetAbstractArray(this->Field);
     if (oldArr->GetNumberOfComponents() != 1)
       {
       vtkErrorMacro(<< "The field " << this->Field << " must have one component per tuple");
@@ -110,12 +110,12 @@ int vtkTreeFieldAggregator::RequestData(
       }
     arr->SetName(this->Field);
 
-    // We would like to do just perform output->GetNodeData()->RemoveArray(this->Field),
+    // We would like to do just perform output->GetVertexData()->RemoveArray(this->Field),
     // but because of a bug in vtkDataSetAttributes::RemoveArray(char*), we need to do it this way.
-    vtkFieldData* data = vtkFieldData::SafeDownCast(output->GetNodeData());
+    vtkFieldData* data = vtkFieldData::SafeDownCast(output->GetVertexData());
     data->RemoveArray(this->Field);
 
-    output->GetNodeData()->AddArray(arr);
+    output->GetVertexData()->AddArray(arr);
     arr->Delete();
     }
 
@@ -126,13 +126,13 @@ int vtkTreeFieldAggregator::RequestData(
   dfs->SetMode(vtkTreeDFSIterator::FINISH);
   while (dfs->HasNext())
     {
-    vtkIdType node = dfs->Next();
-    output->GetChildren(node, nchildren, children);
+    vtkIdType vertex = dfs->Next();
+    output->GetChildren(vertex, nchildren, children);
 
     double value = 0;
     if (nchildren == 0)
       {
-      value = vtkTreeFieldAggregator::GetDoubleValue(arr, node);
+      value = vtkTreeFieldAggregator::GetDoubleValue(arr, vertex);
       if (this->LogScale)
         {
         value = log10(value);
@@ -149,7 +149,7 @@ int vtkTreeFieldAggregator::RequestData(
         value += vtkTreeFieldAggregator::GetDoubleValue(arr, children[i]);
         }
       }
-    vtkTreeFieldAggregator::SetDoubleValue(arr, node, value);
+    vtkTreeFieldAggregator::SetDoubleValue(arr, vertex, value);
     }
   dfs->Delete();
 
@@ -160,7 +160,7 @@ void vtkTreeFieldAggregator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Field: " << (this->Field ? this->Field : "(none)") << endl;
-  os << indent << "LeafNodeUnitSize: " << (this->LeafNodeUnitSize ? "On" : "Off") << endl;
+  os << indent << "LeafVertexUnitSize: " << (this->LeafVertexUnitSize ? "On" : "Off") << endl;
   os << indent << "MinValue: " << this->MinValue << endl;
   os << indent << "LogScale: " << (this->LogScale? "On" : "Off") << endl;
 }

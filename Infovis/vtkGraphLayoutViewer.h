@@ -103,14 +103,14 @@ public:
   virtual void UpdateLayout();
   
   // Description:
-  // The name of the node field used for coloring the nodes
-  virtual void SetNodeColorFieldName(const char *field);
-  virtual char* GetNodeColorFieldName();
+  // The name of the vertex field used for coloring the vertices
+  virtual void SetVertexColorFieldName(const char *field);
+  virtual char* GetVertexColorFieldName();
   
   // Description:
-  // The name of the arc field used for coloring the edges
-  virtual void SetArcColorFieldName(const char *field);
-  virtual char* GetArcColorFieldName();
+  // The name of the edge field used for coloring the edges
+  virtual void SetEdgeColorFieldName(const char *field);
+  virtual char* GetEdgeColorFieldName();
   
   // Description:
   // The name of the field used for labeling
@@ -133,9 +133,9 @@ public:
   vtkGetMacro(Iterative, bool);
   
   // Description:
-  // Set/Get the field to use for the arc weights.
-  vtkSetStringMacro(ArcWeightField);
-  vtkGetStringMacro(ArcWeightField);
+  // Set/Get the field to use for the edge weights.
+  vtkSetStringMacro(EdgeWeightField);
+  vtkGetStringMacro(EdgeWeightField);
   
   // Description:
   // Get the graph output of the layout filter
@@ -154,12 +154,12 @@ protected:
   vtkSmartPointer<vtkGraphLayout>           GraphLayout;
   vtkSmartPointer<vtkGraphToPolyData>       GraphToPolyData;
   vtkSmartPointer<vtkSphereSource>          SphereSource;
-  vtkSmartPointer<vtkGlyph3D>               NodeGlyphs;
+  vtkSmartPointer<vtkGlyph3D>               VertexGlyphs;
   vtkSmartPointer<vtkInteractorStyleImage>  InteractorStyle;
-  vtkSmartPointer<vtkPolyDataMapper>        NodeMapper;
+  vtkSmartPointer<vtkPolyDataMapper>        VertexMapper;
   vtkSmartPointer<vtkPolyDataMapper>        EdgeMapper;
   vtkSmartPointer<vtkRenderer>              Renderer;
-  vtkSmartPointer<vtkActor>                 NodeActor;
+  vtkSmartPointer<vtkActor>                 VertexActor;
   vtkSmartPointer<vtkActor>                 EdgeActor;
   vtkSmartPointer<vtkActor2D>               LabelActor;
   vtkSmartPointer<vtkLookupTable>           ColorLUT;
@@ -190,8 +190,8 @@ private:
   bool Iterative;
   
   // Description:
-  // The field to use for the arc weights
-  char*  ArcWeightField;
+  // The field to use for the edge weights
+  char*  EdgeWeightField;
   
   vtkGraphLayoutViewer(const vtkGraphLayoutViewer&);  // Not implemented.
   void operator=(const vtkGraphLayoutViewer&);  // Not implemented.

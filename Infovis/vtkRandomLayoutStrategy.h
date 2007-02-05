@@ -16,10 +16,10 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkRandomLayoutStrategy - randomly places nodes in 2 or 3 dimensions
+// .NAME vtkRandomLayoutStrategy - randomly places vertices in 2 or 3 dimensions
 //
 // .SECTION Description
-// Assigns points to the nodes of a graph randomly within a bounded range.
+// Assigns points to the vertices of a graph randomly within a bounded range.
 //
 // .SECION Thanks
 // Thanks to Brian Wylie from Sandia National Laboratories for adding incremental

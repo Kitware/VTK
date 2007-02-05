@@ -21,13 +21,13 @@
 #include "vtkInformation.h"
 #include "vtkStringArray.h"
 
-vtkCxxRevisionMacro(vtkPruneTreeFilter, "1.1");
+vtkCxxRevisionMacro(vtkPruneTreeFilter, "1.2");
 vtkStandardNewMacro(vtkPruneTreeFilter);
 
 
 vtkPruneTreeFilter::vtkPruneTreeFilter()
 {
-  this->ParentNode = 0;
+  this->ParentVertex = 0;
 }
 
 vtkPruneTreeFilter::~vtkPruneTreeFilter()
@@ -37,7 +37,7 @@ vtkPruneTreeFilter::~vtkPruneTreeFilter()
 void vtkPruneTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Parent: " << this->ParentNode << endl;
+  os << indent << "Parent: " << this->ParentVertex << endl;
 }
 
 int vtkPruneTreeFilter::RequestData(
@@ -45,21 +45,21 @@ int vtkPruneTreeFilter::RequestData(
   vtkInformationVector** inputVector, 
   vtkInformationVector* outputVector)
 {
-  // Store the XML hierarchy into a vtkTree
+  // Store the XML hieredgehy into a vtkTree
   vtkTree* inputTree = vtkTree::GetData(inputVector[0]);
   vtkTree* outputTree = vtkTree::GetData(outputVector);
 
-  if (this->ParentNode < 0 || this->ParentNode >= inputTree->GetNumberOfNodes())
+  if (this->ParentVertex < 0 || this->ParentVertex >= inputTree->GetNumberOfVertices())
     {
-    vtkErrorMacro("Parent node must be part of the tree " << this->ParentNode 
-      << " >= " << inputTree->GetNumberOfNodes());
+    vtkErrorMacro("Parent vertex must be part of the tree " << this->ParentVertex 
+      << " >= " << inputTree->GetNumberOfVertices());
     return 0;
     }
 
   outputTree->DeepCopy(inputTree);
 
   // Now, prune the tree
-  outputTree->RemoveNodeAndDescendants(this->ParentNode);
+  outputTree->RemoveVertexAndDescendants(this->ParentVertex);
 
   return 1;
 }

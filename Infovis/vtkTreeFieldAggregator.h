@@ -15,13 +15,13 @@
 // .NAME vtkTreeFieldAggregator - aggregate field values from the leaves up the tree
 //
 // .SECTION Description
-// vtkTreeFieldAggregator may be used to assign sizes to all the nodes in the
-// tree, based on the sizes of the leaves.  The size of a node will equal
-// the sum of the sizes of the child nodes.  If you have a data array with
+// vtkTreeFieldAggregator may be used to assign sizes to all the vertices in the
+// tree, based on the sizes of the leaves.  The size of a vertex will equal
+// the sum of the sizes of the child vertices.  If you have a data array with
 // values for all leaves, you may specify that array, and the values will
-// be filled in for interior tree nodes.  If you do not yet have an array,
+// be filled in for interior tree vertices.  If you do not yet have an array,
 // you may tell the filter to create a new array, assuming that the size
-// of each leaf node is 1.  You may optionally set a flag to first take the
+// of each leaf vertex is 1.  You may optionally set a flag to first take the
 // log of all leaf values before aggregating.
 
 #ifndef __vtkTreeFieldAggregator_h
@@ -47,15 +47,15 @@ public:
   vtkSetStringMacro(Field);
 
   // Description:
-  // If the value of the node is less than MinValue then consider it's value to be minVal.
+  // If the value of the vertex is less than MinValue then consider it's value to be minVal.
   vtkGetMacro(MinValue, double);
   vtkSetMacro(MinValue, double);
 
   // Description:
-  // If set, the algorithm will assume a size of 1 for each leaf node.
-  vtkSetMacro(LeafNodeUnitSize, bool);
-  vtkGetMacro(LeafNodeUnitSize, bool);
-  vtkBooleanMacro(LeafNodeUnitSize, bool);
+  // If set, the algorithm will assume a size of 1 for each leaf vertex.
+  vtkSetMacro(LeafVertexUnitSize, bool);
+  vtkGetMacro(LeafVertexUnitSize, bool);
+  vtkBooleanMacro(LeafVertexUnitSize, bool);
  
   // Description:
   // If set, the leaf values in the tree will be logarithmically scaled (base 10).
@@ -70,7 +70,7 @@ protected:
   
 private:
   char* Field;
-  bool LeafNodeUnitSize;
+  bool LeafVertexUnitSize;
   bool LogScale;
   double MinValue;
   vtkTreeFieldAggregator(const vtkTreeFieldAggregator&);  // Not implemented.

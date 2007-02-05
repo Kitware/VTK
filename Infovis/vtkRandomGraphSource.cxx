@@ -25,20 +25,20 @@
 #include <vtksys/stl/set>
 #include <vtksys/stl/algorithm>
 
-vtkCxxRevisionMacro(vtkRandomGraphSource, "1.4");
+vtkCxxRevisionMacro(vtkRandomGraphSource, "1.5");
 vtkStandardNewMacro(vtkRandomGraphSource);
 
 // ----------------------------------------------------------------------
 
 vtkRandomGraphSource::vtkRandomGraphSource()
 {
-  this->NumberOfNodes = 10;
-  this->NumberOfArcs = 10;
+  this->NumberOfVertices = 10;
+  this->NumberOfEdges = 10;
   this->Directed = 0;
-  this->UseArcProbability = 0;
-  this->IncludeArcWeights = false;
+  this->UseEdgeProbability = 0;
+  this->IncludeEdgeWeights = false;
   this->AllowSelfLoops = false;
-  this->ArcProbability = 0.5;
+  this->EdgeProbability = 0.5;
   this->StartWithTree = 0;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -56,13 +56,13 @@ void
 vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "NumberOfNodes: " << this->NumberOfNodes << endl;
-  os << indent << "UseArcProbability: " << this->UseArcProbability << endl;
-  os << indent << "NumberOfArcs: " << this->NumberOfArcs << endl;
-  os << indent << "ArcProbability: " << this->ArcProbability << endl;
+  os << indent << "NumberOfVertices: " << this->NumberOfVertices << endl;
+  os << indent << "UseEdgeProbability: " << this->UseEdgeProbability << endl;
+  os << indent << "NumberOfEdges: " << this->NumberOfEdges << endl;
+  os << indent << "EdgeProbability: " << this->EdgeProbability << endl;
   os << indent << "Directed: " << this->Directed << endl;
   os << indent << "StartWithTree: " << this->StartWithTree << endl;
-  os << indent << "IncludeArcWeights: " << this->IncludeArcWeights << endl;
+  os << indent << "IncludeEdgeWeights: " << this->IncludeEdgeWeights << endl;
   os << indent << "AllowSelfLoops: " << this->AllowSelfLoops << endl;
 }
 
@@ -76,30 +76,30 @@ vtkRandomGraphSource::RequestData(
 {
   // Generate the graph
   vtkGraph* output = vtkGraph::GetData(outputVector);
-  output->SetNumberOfNodes(this->NumberOfNodes);
+  output->SetNumberOfVertices(this->NumberOfVertices);
   output->SetDirected(this->Directed);
 
   if (this->StartWithTree)
     {
-    for (vtkIdType i = 1; i < this->NumberOfNodes; i++)
+    for (vtkIdType i = 1; i < this->NumberOfVertices; i++)
       {
-      // Pick a random node in [0, i-1].
+      // Pick a random vertex in [0, i-1].
       int j = static_cast<vtkIdType>(vtkMath::Random(0, i));
-      output->AddArc(j, i);
+      output->AddEdge(j, i);
       }
     }
 
-  if (this->UseArcProbability)
+  if (this->UseEdgeProbability)
     {
-    for (vtkIdType i = 0; i < this->NumberOfNodes; i++)
+    for (vtkIdType i = 0; i < this->NumberOfVertices; i++)
       {
       vtkIdType begin = this->Directed ? 0 : i + 1;
-      for (vtkIdType j = begin; j < this->NumberOfNodes; j++)
+      for (vtkIdType j = begin; j < this->NumberOfVertices; j++)
         {
         double r = vtkMath::Random();
-        if (r < this->ArcProbability)
+        if (r < this->EdgeProbability)
           {
-          output->AddArc(i, j);
+          output->AddEdge(i, j);
           }
         }
       }
@@ -107,30 +107,30 @@ vtkRandomGraphSource::RequestData(
   else
     {
     // Don't duplicate edges.
-    vtksys_stl::set< vtksys_stl::pair<vtkIdType, vtkIdType> > existingArcs;
+    vtksys_stl::set< vtksys_stl::pair<vtkIdType, vtkIdType> > existingEdges;
 
     vtkIdType MaxEdges;
     if (this->AllowSelfLoops)
       {
-      MaxEdges = this->NumberOfNodes * this->NumberOfNodes;
+      MaxEdges = this->NumberOfVertices * this->NumberOfVertices;
       }
     else
       {
-      MaxEdges = (this->NumberOfNodes * (this->NumberOfNodes-1)) / 2;
+      MaxEdges = (this->NumberOfVertices * (this->NumberOfVertices-1)) / 2;
       }
     
-    if (this->NumberOfArcs > MaxEdges)
+    if (this->NumberOfEdges > MaxEdges)
       {
-      this->NumberOfArcs = MaxEdges;
+      this->NumberOfEdges = MaxEdges;
       }
 
-    for (vtkIdType i = 0; i < this->NumberOfArcs; i++)
+    for (vtkIdType i = 0; i < this->NumberOfEdges; i++)
       {
-      bool newArcFound = false;
-      while (!newArcFound)
+      bool newEdgeFound = false;
+      while (!newEdgeFound)
         {
-        vtkIdType s = static_cast<vtkIdType>(vtkMath::Random(0, this->NumberOfNodes));
-        vtkIdType t = static_cast<vtkIdType>(vtkMath::Random(0, this->NumberOfNodes));
+        vtkIdType s = static_cast<vtkIdType>(vtkMath::Random(0, this->NumberOfVertices));
+        vtkIdType t = static_cast<vtkIdType>(vtkMath::Random(0, this->NumberOfVertices));
         if (s == t && (!this->AllowSelfLoops))
           {
           continue;
@@ -147,28 +147,28 @@ vtkRandomGraphSource::RequestData(
             }
           }
 
-        vtksys_stl::pair<vtkIdType, vtkIdType> newArc(s, t);
+        vtksys_stl::pair<vtkIdType, vtkIdType> newEdge(s, t);
 
-        if (existingArcs.find(newArc) == existingArcs.end())
+        if (existingEdges.find(newEdge) == existingEdges.end())
           {
-          vtkDebugMacro(<<"Adding arc " << s << " to " << t);
-          output->AddArc(s, t);
-          existingArcs.insert(newArc);
-          newArcFound = true;
+          vtkDebugMacro(<<"Adding edge " << s << " to " << t);
+          output->AddEdge(s, t);
+          existingEdges.insert(newEdge);
+          newEdgeFound = true;
           }
         }
       }
     }
 
-  if (this->IncludeArcWeights)
+  if (this->IncludeEdgeWeights)
     {
     vtkFloatArray *weights = vtkFloatArray::New();
-    weights->SetName("arc_weights");
-    for (vtkIdType i = 0; i < output->GetNumberOfArcs(); ++i)
+    weights->SetName("edge_weights");
+    for (vtkIdType i = 0; i < output->GetNumberOfEdges(); ++i)
       {
       weights->InsertNextValue(vtkMath::Random());
       }
-    output->GetArcData()->AddArray(weights);
+    output->GetEdgeData()->AddArray(weights);
     weights->Delete();
     }
 

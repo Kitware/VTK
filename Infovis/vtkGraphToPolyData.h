@@ -17,11 +17,11 @@
 // .SECTION Description
 // Converts a vtkGraph to a vtkPolyData.  This assumes that the points
 // of the graph have already been filled (perhaps by vtkGraphLayout),
-// and coverts all the arc of the graph into lines in the polydata.
-// The node data is passed along to the point data, and the arc data
+// and coverts all the edge of the graph into lines in the polydata.
+// The vertex data is passed along to the point data, and the edge data
 // is passed along to the cell data.
 //
-// Only the owned graph arcs (i.e. arcs with ghost level 0) are copied
+// Only the owned graph edges (i.e. edges with ghost level 0) are copied
 // into the vtkPolyData.
 
 #ifndef __vtkGraphToPolyData_h

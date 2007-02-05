@@ -16,10 +16,10 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkBoxLayoutStrategy - a tree map layout that puts nodes in square-ish boxes
+// .NAME vtkBoxLayoutStrategy - a tree map layout that puts vertices in square-ish boxes
 //
 // .SECTION Description
-// vtkBoxLayoutStrategy recursively partitions the space for children nodes
+// vtkBoxLayoutStrategy recursively partitions the space for children vertices
 // in a tree-map into square regions (or regions very close to a square).
 //
 // .SECTION Thanks

@@ -20,8 +20,8 @@
 // filter and a vtkTreeMapToPolyData filter, both of which must be passed
 // to this interactor style for it to function correctly.
 // This interactor style allows only 2D panning and zooming, and additionally
-// provides a balloon containing the name of the node hovered over,
-// and allows the user to highlight a node by clicking on it.
+// provides a balloon containing the name of the vertex hovered over,
+// and allows the user to highlight a vertex by clicking on it.
 
 #ifndef __vtkInteractorStyleTreeMapHover_h
 #define __vtkInteractorStyleTreeMapHover_h
@@ -44,7 +44,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Must be set to the vtkTreeMapLayout used to compute the bounds of each node
+  // Must be set to the vtkTreeMapLayout used to compute the bounds of each vertex
   // for the tree map.
   void SetLayout(vtkTreeMapLayout* layout);
   vtkGetObjectMacro(Layout, vtkTreeMapLayout);
@@ -67,27 +67,27 @@ public:
   void OnLeftButtonUp();
   
   // Description:
-  // Highlights a specific node.
+  // Highlights a specific vertex.
   void HighLightItem(vtkIdType id);
   void HighLightCurrentSelectedItem();
 
   virtual void SetInteractor(vtkRenderWindowInteractor *rwi);
 
   // Description:
-  // Set the color used to highlight the hovered node.
+  // Set the color used to highlight the hovered vertex.
   void SetHighLightColor(double r, double g, double b);
 
   // Description:
-  // Set the color used to highlight the selected node.
+  // Set the color used to highlight the selected vertex.
   void SetSelectionLightColor(double r, double g, double b);
 
   // Description:
-  // The width of the line around the hovered node.
+  // The width of the line around the hovered vertex.
   void SetHighLightWidth(double lw);
   double GetHighLightWidth();
 
   // Description:
-  // The width of the line around the selected node.
+  // The width of the line around the selected vertex.
   void SetSelectionWidth(double lw);
   double GetSelectionWidth();
 

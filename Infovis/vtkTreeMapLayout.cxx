@@ -27,7 +27,7 @@
 #include "vtkTree.h"
 #include "vtkTreeMapLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeMapLayout, "1.4");
+vtkCxxRevisionMacro(vtkTreeMapLayout, "1.5");
 vtkStandardNewMacro(vtkTreeMapLayout);
 
 vtkTreeMapLayout::vtkTreeMapLayout()
@@ -80,7 +80,7 @@ int vtkTreeMapLayout::RequestData(
   vtkFloatArray *coordsArray = vtkFloatArray::New();
   coordsArray->SetName(this->RectanglesFieldName);
   coordsArray->SetNumberOfComponents(4);
-  coordsArray->SetNumberOfTuples(inputTree->GetNumberOfNodes());
+  coordsArray->SetNumberOfTuples(inputTree->GetNumberOfVertices());
   vtkPointData* data = outputTree->GetPointData(); 
   data->AddArray(coordsArray);
   coordsArray->Delete();
@@ -102,7 +102,7 @@ void vtkTreeMapLayout::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-vtkIdType vtkTreeMapLayout::FindNode(float pnt[2], float *binfo)
+vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
 {
 
   // Do we have an output?
@@ -125,10 +125,10 @@ vtkIdType vtkTreeMapLayout::FindNode(float pnt[2], float *binfo)
   // Check to see that we are in the dataset at all
   float blimits[4];
  
-  vtkIdType node = otree->GetRoot();
+  vtkIdType vertex = otree->GetRoot();
   vtkFloatArray *boxInfo = vtkFloatArray::SafeDownCast(array);
-  // Now try to find the node that contains the point
-  boxInfo->GetTupleValue(node, blimits); // Get the extents of the root
+  // Now try to find the vertex that contains the point
+  boxInfo->GetTupleValue(vertex, blimits); // Get the extents of the root
   if ((pnt[0] < blimits[0]) || (pnt[0] > blimits[1]) ||
       (pnt[1] < blimits[2]) || (pnt[1] > blimits[3]))
     {
@@ -137,7 +137,7 @@ vtkIdType vtkTreeMapLayout::FindNode(float pnt[2], float *binfo)
     }
   
   // Now traverse the children to try and find 
-  // the node that contains the point  
+  // the vertex that contains the point  
   vtkIdType child;
   if (binfo) 
     {
@@ -149,7 +149,7 @@ vtkIdType vtkTreeMapLayout::FindNode(float pnt[2], float *binfo)
 
   vtkIdType n;
   const vtkIdType* children;
-  otree->GetChildren(node, n, children);
+  otree->GetChildren(vertex, n, children);
   for (vtkIdType i = 0; i < n; ++i) 
     {
     child = children[i];
@@ -160,14 +160,14 @@ vtkIdType vtkTreeMapLayout::FindNode(float pnt[2], float *binfo)
       continue;
       }
     // If we are here then the point is contained by the child
-    // So recurse down the children of this node
-    node = child;
-    otree->GetChildren(node, n, children);
+    // So recurse down the children of this vertex
+    vertex = child;
+    otree->GetChildren(vertex, n, children);
     i = -1; // Remember that the for loop is going to increment this
             // Note: This is an odd way to do recursion 
     }
 
-  return node;
+  return vertex;
 }
  
 void vtkTreeMapLayout::GetBoundingBox(vtkIdType id, float *binfo)

@@ -41,8 +41,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The number of points is the same as the number of nodes.
-  vtkIdType GetNumberOfPoints() { return this->GetNumberOfNodes(); }
+  // The number of points is the same as the number of vertices.
+  vtkIdType GetNumberOfPoints() { return this->GetNumberOfVertices(); }
 
   // Description:
   // These methods return the point (0,0,0) until the points structure
@@ -57,79 +57,79 @@ public:
   vtkPoints* GetPoints();
 
   // Description:
-  // The number of cells is the same as the number of arcs.
-  vtkIdType GetNumberOfCells() { return this->GetNumberOfArcs(); }
+  // The number of cells is the same as the number of edges.
+  vtkIdType GetNumberOfCells() { return this->GetNumberOfEdges(); }
 
   // Description:
   // The cells associated with a point corresponds to the
-  // arcs adjacent to a node, so this method is identical to GetNodeArcs().
+  // edges adjacent to a vertex, so this method is identical to GetVertexEdges().
   void GetPointCells(vtkIdType ptId, vtkIdList* cellIds);
 
   // Description:
-  // All arcs have two endpoints, so the maximum cell size is two.
+  // All edges have two endpoints, so the maximum cell size is two.
   int GetMaxCellSize() { return 2; }
 
   // Description:
-  // All arcs are represented by VTK_LINE cells.
+  // All edges are represented by VTK_LINE cells.
   int GetCellType(vtkIdType cellId);
 
   // Description:
-  // For an arc, get a line from the source to the target.
+  // For an edge, get a line from the source to the target.
   vtkCell* GetCell(vtkIdType cellId);
   void GetCell(vtkIdType cellId, vtkGenericCell * cell);
 
   // Description:
-  // For an arc, fill ptIds with the source and target IDs.
+  // For an edge, fill ptIds with the source and target IDs.
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds);
 
   // Description:
-  // The node data of a graph is the same as the point data of the data set.
-  vtkPointData* GetNodeData() { return this->GetPointData(); }
+  // The vertex data of a graph is the same as the point data of the data set.
+  vtkPointData* GetVertexData() { return this->GetPointData(); }
 
   // Description:
-  // The arc data of a graph is the same as the cell data of the data set.
-  vtkCellData* GetArcData() { return this->GetCellData(); }
+  // The edge data of a graph is the same as the cell data of the data set.
+  vtkCellData* GetEdgeData() { return this->GetCellData(); }
 
   // Description:
-  // The number of nodes in the graph.
-  virtual vtkIdType GetNumberOfNodes() = 0;
+  // The number of vertices in the graph.
+  virtual vtkIdType GetNumberOfVertices() = 0;
 
   // Description:
-  // The number of arcs in the graph.
-  virtual vtkIdType GetNumberOfArcs() = 0;
+  // The number of edges in the graph.
+  virtual vtkIdType GetNumberOfEdges() = 0;
 
   // Description:
-  // Fill nodes with the node IDs of every node adjacent to a certain node.
-  // For an undirected graph, these all return the same nodes.
-  virtual void GetAdjacentNodes(vtkIdType node, vtkGraphIdList* nodes) = 0;
-  virtual void GetInNodes(vtkIdType node, vtkGraphIdList* nodes) = 0;
-  virtual void GetOutNodes(vtkIdType node, vtkGraphIdList* nodes) = 0;
+  // Fill vertices with the vertex IDs of every vertex adjacent to a certain vertex.
+  // For an undirected graph, these all return the same vertices.
+  virtual void GetAdjacentVertices(vtkIdType vertex, vtkGraphIdList* vertices) = 0;
+  virtual void GetInVertices(vtkIdType vertex, vtkGraphIdList* vertices) = 0;
+  virtual void GetOutVertices(vtkIdType vertex, vtkGraphIdList* vertices) = 0;
 
   // Description:
-  // Fill arcs with the arc IDs of every arc incident to a certain node.
-  // For an undirected graph, these all return the same arcs.
-  virtual void GetIncidentArcs(vtkIdType node, vtkGraphIdList* arcs) = 0;
-  virtual void GetInArcs(vtkIdType node, vtkGraphIdList* arcs) = 0;
-  virtual void GetOutArcs(vtkIdType node, vtkGraphIdList* arcs) = 0;
+  // Fill edges with the edge IDs of every edge incident to a certain vertex.
+  // For an undirected graph, these all return the same edges.
+  virtual void GetIncidentEdges(vtkIdType vertex, vtkGraphIdList* edges) = 0;
+  virtual void GetInEdges(vtkIdType vertex, vtkGraphIdList* edges) = 0;
+  virtual void GetOutEdges(vtkIdType vertex, vtkGraphIdList* edges) = 0;
 
   // Description:
-  // Get the total, or number of incoming or outgoing arcs incident to a node.
+  // Get the total, or number of incoming or outgoing edges incident to a vertex.
   // For an undirected graph, these all return the same value.
-  virtual vtkIdType GetDegree(vtkIdType node) = 0;
-  virtual vtkIdType GetInDegree(vtkIdType node) = 0;
-  virtual vtkIdType GetOutDegree(vtkIdType node) = 0;
+  virtual vtkIdType GetDegree(vtkIdType vertex) = 0;
+  virtual vtkIdType GetInDegree(vtkIdType vertex) = 0;
+  virtual vtkIdType GetOutDegree(vtkIdType vertex) = 0;
 
   // Description:
-  // Return the source node of an arc.
-  virtual vtkIdType GetSourceNode(vtkIdType arc) = 0;
+  // Return the source vertex of an edge.
+  virtual vtkIdType GetSourceVertex(vtkIdType edge) = 0;
 
   // Description:
-  // Return the target node of an arc.
-  virtual vtkIdType GetTargetNode(vtkIdType arc) = 0;
+  // Return the target vertex of an edge.
+  virtual vtkIdType GetTargetVertex(vtkIdType edge) = 0;
 
   // Description:
-  // Return the other node adjacent to an arc.
-  virtual vtkIdType GetOppositeNode(vtkIdType arc, vtkIdType node) = 0;
+  // Return the other vertex adjacent to an edge.
+  virtual vtkIdType GetOppositeVertex(vtkIdType edge, vtkIdType vertex) = 0;
 
   // Description:
   // Return whether the graph is directed.

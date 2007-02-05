@@ -16,7 +16,7 @@
 //
 // .SECTION Description
 // All subclasses of this class perform a tree map layout on a tree.
-// This involves assigning a rectangular region to each node in the tree,
+// This involves assigning a rectangular region to each vertex in the tree,
 // and placing that information in a data array with four components per
 // tuple representing (Xmin, Xmax, Ymin, Ymax).
 //
@@ -44,13 +44,13 @@ public:
 
   // Description:
   // Perform the layout of the input tree, and store the rectangular
-  // bounds of each node as a tuple (Xmin, Xmax, Ymin, Ymax) in a
+  // bounds of each vertex as a tuple (Xmin, Xmax, Ymin, Ymax) in a
   // data array.
   virtual void Layout(vtkTree *inputTree, vtkDataArray *rectArray) = 0;
 
   // Description:
-  // Define the percentage that children node regions are inset from
-  // the parent node region.
+  // Define the percentage that children vertex regions are inset from
+  // the parent vertex region.
   vtkSetMacro(BorderPercentage, double);
   vtkGetMacro(BorderPercentage, double);
 

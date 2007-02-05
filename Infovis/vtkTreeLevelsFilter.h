@@ -20,9 +20,9 @@
 //
 // .SECTION Description
 // The filter currently add two arrays to the incoming vtkTree datastructure.
-// 1) "levels" this is the distance from the root of the node. Root = 0
+// 1) "levels" this is the distance from the root of the vertex. Root = 0
 // and you add 1 for each level down from the root
-// 2) "leaf" this array simply indicates whether the node is a leaf or not
+// 2) "leaf" this array simply indicates whether the vertex is a leaf or not
 //
 // .SECTION Thanks
 // Thanks to Brian Wylie from Sandia National Laboratories for creating this

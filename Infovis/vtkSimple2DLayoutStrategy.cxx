@@ -37,7 +37,7 @@
 #include "vtkTree.h"
 
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.6");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.7");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 
@@ -56,14 +56,14 @@ vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
   this->InitialTemperature = 1;
   this->CoolDownRate = 50.0;
   this->LayoutComplete = 0;
-  this->ArcWeightField = 0;
+  this->EdgeWeightField = 0;
 }
 
 // ----------------------------------------------------------------------
 
 vtkSimple2DLayoutStrategy::~vtkSimple2DLayoutStrategy()
 {
-  this->SetArcWeightField(0);
+  this->SetEdgeWeightField(0);
 }
 
 // ----------------------------------------------------------------------
@@ -73,18 +73,18 @@ void vtkSimple2DLayoutStrategy::Initialize()
 {
   // Set up some quick access variables
   vtkPoints* pts = this->Graph->GetPoints();
-  vtkIdType numNodes = this->Graph->GetNumberOfNodes();
-  vtkIdType numArcs = this->Graph->GetNumberOfArcs();
+  vtkIdType numVertices = this->Graph->GetNumberOfVertices();
+  vtkIdType numEdges = this->Graph->GetNumberOfEdges();
   
   // The optimal distance between vertices.
-  float optDist = sqrt(1.0 / static_cast<float>(numNodes));
+  float optDist = sqrt(1.0 / static_cast<float>(numVertices));
     
   // Put the data into compact, fast access data structures
-  this->VArray = new vtkLayoutVertex[numNodes];
-  this->ArcArray =  new vtkLayoutArc[numArcs];
+  this->VArray = new vtkLayoutVertex[numVertices];
+  this->EdgeArray =  new vtkLayoutEdge[numEdges];
 
   // Load up the vertex data structures
-  for (vtkIdType i=0; i<numNodes; ++i)
+  for (vtkIdType i=0; i<numVertices; ++i)
     {
     // Get point position
     double pointCoords[3];
@@ -105,9 +105,9 @@ void vtkSimple2DLayoutStrategy::Initialize()
   // Get the weight array
   vtkDataArray* weightArray = NULL;
   double avgWeight = 0;
-  if (this->ArcWeightField != NULL)
+  if (this->EdgeWeightField != NULL)
     {
-    weightArray = vtkDataArray::SafeDownCast(this->Graph->GetArcData()->GetAbstractArray(this->ArcWeightField));
+    weightArray = vtkDataArray::SafeDownCast(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
     if (weightArray != NULL)
       {
       for (vtkIdType w = 0; w < weightArray->GetNumberOfTuples(); w++)
@@ -120,18 +120,18 @@ void vtkSimple2DLayoutStrategy::Initialize()
     }
     
   // Load up the edge data structures
-  for (vtkIdType i=0; i<numArcs; ++i)
+  for (vtkIdType i=0; i<numEdges; ++i)
     {
-    this->ArcArray[i].from = this->Graph->GetSourceNode(i);
-    this->ArcArray[i].to = this->Graph->GetTargetNode(i);
+    this->EdgeArray[i].from = this->Graph->GetSourceVertex(i);
+    this->EdgeArray[i].to = this->Graph->GetTargetVertex(i);
     if (weightArray != NULL)
       {
       double* tuple = weightArray->GetTuple(i);
-      this->ArcArray[i].weight = tuple[0] / avgWeight;
+      this->EdgeArray[i].weight = tuple[0] / avgWeight;
       }
     else
       {
-      this->ArcArray[i].weight = 1.0;
+      this->EdgeArray[i].weight = 1.0;
       }
     }
     
@@ -156,11 +156,11 @@ void vtkSimple2DLayoutStrategy::Layout()
   
   // Set up some variables
   vtkPoints* pts = this->Graph->GetPoints();
-  vtkIdType numNodes = this->Graph->GetNumberOfNodes();
-  vtkIdType numArcs = this->Graph->GetNumberOfArcs();
+  vtkIdType numVertices = this->Graph->GetNumberOfVertices();
+  vtkIdType numEdges = this->Graph->GetNumberOfEdges();
     
   // The optimal distance between vertices.
-  float optDist = sqrt(1.0 / static_cast<float>(numNodes));
+  float optDist = sqrt(1.0 / static_cast<float>(numVertices));
   
 
   // This is the mega, uber, triple inner loop
@@ -173,11 +173,11 @@ void vtkSimple2DLayoutStrategy::Layout()
     {
   
     // Calculate the repulsive forces
-    for(vtkIdType j=0; j<numNodes; ++j)
+    for(vtkIdType j=0; j<numVertices; ++j)
       {
       this->VArray[j].dx = 0;
       this->VArray[j].dy = 0;
-      for(vtkIdType k=0; k<numNodes; ++k)
+      for(vtkIdType k=0; k<numVertices; ++k)
         {
         if (k != j)
           {
@@ -204,12 +204,12 @@ void vtkSimple2DLayoutStrategy::Layout()
       }
       
     // Calculate the attractive forces
-    for (vtkIdType j=0; j<numArcs; ++j)
+    for (vtkIdType j=0; j<numEdges; ++j)
       {
-      delta[0] = this->VArray[this->ArcArray[j].to].x - 
-             this->VArray[this->ArcArray[j].from].x;
-      delta[1] = this->VArray[this->ArcArray[j].to].y - 
-             this->VArray[this->ArcArray[j].from].y;
+      delta[0] = this->VArray[this->EdgeArray[j].to].x - 
+             this->VArray[this->EdgeArray[j].from].x;
+      delta[1] = this->VArray[this->EdgeArray[j].to].y - 
+             this->VArray[this->EdgeArray[j].from].y;
       disSquared = delta[0]*delta[0] + delta[1]*delta[1];
 
       // Emergency action on edges that are 10x 
@@ -217,23 +217,23 @@ void vtkSimple2DLayoutStrategy::Layout()
       if (disSquared > 100*optDist)
         {
         float jump = this->Temp * .5;
-        this->VArray[this->ArcArray[j].to].x   -= delta[0] * jump;
-        this->VArray[this->ArcArray[j].to].y   -= delta[1] * jump;
-        this->VArray[this->ArcArray[j].from].x += delta[0] * jump;
-        this->VArray[this->ArcArray[j].from].y += delta[1] * jump;
+        this->VArray[this->EdgeArray[j].to].x   -= delta[0] * jump;
+        this->VArray[this->EdgeArray[j].to].y   -= delta[1] * jump;
+        this->VArray[this->EdgeArray[j].from].x += delta[0] * jump;
+        this->VArray[this->EdgeArray[j].from].y += delta[1] * jump;
         }
 
       // Perform weight adjustment
-      attractValue = this->ArcArray[j].weight*disSquared/optDist;
-      this->VArray[this->ArcArray[j].to].dx   -= delta[0] * attractValue;
-      this->VArray[this->ArcArray[j].to].dy   -= delta[1] * attractValue;
-      this->VArray[this->ArcArray[j].from].dx += delta[0] * attractValue;
-      this->VArray[this->ArcArray[j].from].dy += delta[1] * attractValue;
+      attractValue = this->EdgeArray[j].weight*disSquared/optDist;
+      this->VArray[this->EdgeArray[j].to].dx   -= delta[0] * attractValue;
+      this->VArray[this->EdgeArray[j].to].dy   -= delta[1] * attractValue;
+      this->VArray[this->EdgeArray[j].from].dx += delta[0] * attractValue;
+      this->VArray[this->EdgeArray[j].from].dy += delta[1] * attractValue;
       }
 
     // Combine the forces to compute new positions
     float norm;
-    for (vtkIdType j=0; j<numNodes; ++j)
+    for (vtkIdType j=0; j<numVertices; ++j)
       {
       delta[0] = this->VArray[j].dx;
       delta[1] = this->VArray[j].dy;
@@ -255,7 +255,7 @@ void vtkSimple2DLayoutStrategy::Layout()
 
    // Now take the temporary point coordinate datastructure 
    // and convert back to VTK data structures
-   for (vtkIdType i=0; i<numNodes; ++i)
+   for (vtkIdType i=0; i<numVertices; ++i)
     {
     pts->SetPoint (i, this->VArray[i].x, this->VArray[i].y, 0.0);
     }
@@ -276,5 +276,5 @@ void vtkSimple2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaxNumberOfIterations: " << this->MaxNumberOfIterations << endl;
   os << indent << "IterationsPerLayout: " << this->IterationsPerLayout << endl;
   os << indent << "CoolDownRate: " << this->CoolDownRate << endl;
-  os << indent << "ArcWeightField: " << (this->ArcWeightField ? this->ArcWeightField : "(none)") << endl;
+  os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)") << endl;
 }

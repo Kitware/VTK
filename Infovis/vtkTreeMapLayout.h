@@ -15,7 +15,7 @@
 // .NAME vtkTreeMapLayout - layout a vtkTree into a tree map
 //
 // .SECTION Description
-// vtkTreeMapLayout assigns rectangular regions to each node in the tree,
+// vtkTreeMapLayout assigns rectangular regions to each vertex in the tree,
 // creating a tree map.  The data is added as a data array with four
 // components per tuple representing the location and size of the
 // rectangle using the format (Xmin, Xmax, Ymin, Ymax).
@@ -48,7 +48,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The field name to use for storing the rectangles for each node.
+  // The field name to use for storing the rectangles for each vertex.
   // The rectangles are stored in a quadruple float array 
   // (minX, maxX, minY, maxY).
   vtkGetStringMacro(RectanglesFieldName);
@@ -60,12 +60,12 @@ public:
   void SetLayoutStrategy(vtkTreeMapLayoutStrategy * strategy);
 
   // Description:
-  // Returns the node id that contains pnt (or -1 if no one contains it)
-  vtkIdType FindNode(float pnt[2], float *binfo=0);
+  // Returns the vertex id that contains pnt (or -1 if no one contains it)
+  vtkIdType FindVertex(float pnt[2], float *binfo=0);
   
   // Description:
   // Return the min and max 2D points of the 
-  // node's bounding box
+  // vertex's bounding box
   void GetBoundingBox(vtkIdType id, float *binfo);
 
   // Description:

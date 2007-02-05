@@ -32,7 +32,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkBoxLayoutStrategy, "1.1");
+vtkCxxRevisionMacro(vtkBoxLayoutStrategy, "1.2");
 vtkStandardNewMacro(vtkBoxLayoutStrategy);
 
 vtkBoxLayoutStrategy::vtkBoxLayoutStrategy()
@@ -53,14 +53,14 @@ void vtkBoxLayoutStrategy::Layout(vtkTree *inputTree,
   const vtkIdType* children;
   while (dfs->HasNext())
     {
-    vtkIdType node = dfs->Next();
-    if (node == inputTree->GetRoot())
+    vtkIdType vertex = dfs->Next();
+    if (vertex == inputTree->GetRoot())
       {
       coords[0] = 0; coords[1] = 1; coords[2] = 0; coords[3] = 1;
-      coordsArray->SetTuple(node, coords);
+      coordsArray->SetTuple(vertex, coords);
       }
     double doubleCoords[4];
-    coordsArray->GetTuple(node, doubleCoords);
+    coordsArray->GetTuple(vertex, doubleCoords);
     for (int i = 0; i < 4; i++)
       {
       coords[i] = doubleCoords[i];
@@ -73,7 +73,7 @@ void vtkBoxLayoutStrategy::Layout(vtkTree *inputTree,
     float xSpace = parentMaxX - parentMinX;
     float ySpace = parentMaxY - parentMinY;
 
-    inputTree->GetChildren(node, nchildren, children);
+    inputTree->GetChildren(vertex, nchildren, children);
 
     // Divide the available space with simple algo
     int xDivisions = (int)(sqrt((float)nchildren)+1); // Ceiling

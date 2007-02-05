@@ -20,7 +20,7 @@
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkLine.h"
-#include "vtkNodeLinks.h"
+#include "vtkVertexLinks.h"
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
@@ -33,7 +33,7 @@
 
 double vtkAbstractGraph::DefaultPoint[3] = {0, 0, 0};
 
-vtkCxxRevisionMacro(vtkAbstractGraph, "1.2");
+vtkCxxRevisionMacro(vtkAbstractGraph, "1.3");
 
 //----------------------------------------------------------------------------
 vtkAbstractGraph::vtkAbstractGraph()
@@ -110,10 +110,10 @@ vtkPoints* vtkAbstractGraph::GetPoints()
     {
     this->Points = vtkPoints::New();
     }
-  if (this->Points->GetNumberOfPoints() != this->GetNumberOfNodes())
+  if (this->Points->GetNumberOfPoints() != this->GetNumberOfVertices())
     {
-    this->Points->SetNumberOfPoints(this->GetNumberOfNodes());
-    for (vtkIdType i = 0; i < this->GetNumberOfNodes(); i++)
+    this->Points->SetNumberOfPoints(this->GetNumberOfVertices());
+    for (vtkIdType i = 0; i < this->GetNumberOfVertices(); i++)
       {
       this->Points->SetPoint(i, 0, 0, 0);
       }
@@ -125,13 +125,13 @@ vtkPoints* vtkAbstractGraph::GetPoints()
 vtkCell* vtkAbstractGraph::GetCell(vtkIdType cellId)
 {
   double x[3];
-  this->GetPoint(this->GetSourceNode(cellId), x);
+  this->GetPoint(this->GetSourceVertex(cellId), x);
   this->Line->Points->SetPoint(0, x);
-  this->GetPoint(this->GetTargetNode(cellId), x);
+  this->GetPoint(this->GetTargetVertex(cellId), x);
   this->Line->Points->SetPoint(1, x);
 
-  this->Line->PointIds->SetId(0, this->GetSourceNode(cellId));
-  this->Line->PointIds->SetId(1, this->GetTargetNode(cellId));
+  this->Line->PointIds->SetId(0, this->GetSourceVertex(cellId));
+  this->Line->PointIds->SetId(1, this->GetTargetVertex(cellId));
   return this->Line;
 }
 
@@ -142,14 +142,14 @@ void vtkAbstractGraph::GetCell(vtkIdType cellId, vtkGenericCell * cell)
 
   cell->Points->SetNumberOfPoints(2);
   double x[3];
-  this->GetPoint(this->GetSourceNode(cellId), x);
+  this->GetPoint(this->GetSourceVertex(cellId), x);
   cell->Points->SetPoint(0, x);
-  this->GetPoint(this->GetTargetNode(cellId), x);
+  this->GetPoint(this->GetTargetVertex(cellId), x);
   cell->Points->SetPoint(1, x);
 
   cell->PointIds->SetNumberOfIds(2);
-  cell->PointIds->SetId(0, this->GetSourceNode(cellId));
-  cell->PointIds->SetId(1, this->GetTargetNode(cellId));
+  cell->PointIds->SetId(0, this->GetSourceVertex(cellId));
+  cell->PointIds->SetId(1, this->GetTargetVertex(cellId));
 }
 
 //----------------------------------------------------------------------------
@@ -163,15 +163,15 @@ int vtkAbstractGraph::GetCellType(vtkIdType vtkNotUsed(cellId))
 void vtkAbstractGraph::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
 {
   ptIds->Reset();
-  ptIds->InsertNextId(this->GetSourceNode(cellId));
-  ptIds->InsertNextId(this->GetTargetNode(cellId));
+  ptIds->InsertNextId(this->GetSourceVertex(cellId));
+  ptIds->InsertNextId(this->GetTargetVertex(cellId));
 }
 
 void vtkAbstractGraph::GetPointCells(vtkIdType ptId, vtkIdList* cellIds)
 {
   cellIds->Reset();
   vtkGraphIdList* graphIds = vtkGraphIdList::New();
-  this->GetIncidentArcs(ptId, graphIds);
+  this->GetIncidentEdges(ptId, graphIds);
   for (vtkIdType i = 0; i < graphIds->GetNumberOfIds(); i++)
     {
     cellIds->InsertNextId(graphIds->GetId(i));

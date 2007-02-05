@@ -19,7 +19,7 @@
 #include "vtkGraphIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkNodeLinks.h"
+#include "vtkVertexLinks.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
@@ -29,7 +29,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkGraph, "1.3");
+vtkCxxRevisionMacro(vtkGraph, "1.4");
 vtkStandardNewMacro(vtkGraph);
 
 //----------------------------------------------------------------------------
@@ -37,10 +37,10 @@ vtkStandardNewMacro(vtkGraph);
 void vtkGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Arcs: " << endl;
-  this->Arcs->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "NodeLinks: " << endl;
-  this->NodeLinks->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Edges: " << endl;
+  this->Edges->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "VertexLinks: " << endl;
+  this->VertexLinks->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Directed: " << (this->Directed ? "yes" : "no") << endl;
 }
 
@@ -49,9 +49,9 @@ void vtkGraph::PrintSelf(ostream& os, vtkIndent indent)
 vtkGraph::vtkGraph()
 {
   this->Directed = 0;
-  this->Arcs = vtkIdTypeArray::New();
-  this->Arcs->SetNumberOfComponents(2);
-  this->NodeLinks = vtkNodeLinks::New();
+  this->Edges = vtkIdTypeArray::New();
+  this->Edges->SetNumberOfComponents(2);
+  this->VertexLinks = vtkVertexLinks::New();
 }
 
 //----------------------------------------------------------------------------
@@ -60,218 +60,218 @@ void vtkGraph::Initialize()
 {
   this->Superclass::Initialize();
   this->Directed = 0;
-  this->Arcs->Delete();
-  this->Arcs = vtkIdTypeArray::New();
-  this->Arcs->SetNumberOfComponents(2);
-  this->NodeLinks->Delete();
-  this->NodeLinks = vtkNodeLinks::New();
+  this->Edges->Delete();
+  this->Edges = vtkIdTypeArray::New();
+  this->Edges->SetNumberOfComponents(2);
+  this->VertexLinks->Delete();
+  this->VertexLinks = vtkVertexLinks::New();
 }
 
 //----------------------------------------------------------------------------
 
 vtkGraph::~vtkGraph()
 {
-  if (this->Arcs)
+  if (this->Edges)
     {
-    this->Arcs->Delete();
-    this->Arcs = NULL;
+    this->Edges->Delete();
+    this->Edges = NULL;
     }
-  if (this->NodeLinks)
+  if (this->VertexLinks)
     {
-    this->NodeLinks->Delete();
-    this->NodeLinks = NULL;
-    }
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetNumberOfArcs()
-{
-  return this->Arcs->GetNumberOfTuples();
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetNumberOfNodes()
-{
-  return this->NodeLinks->GetNumberOfNodes();
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::GetAdjacentNodes(vtkIdType node, vtkGraphIdList* nodeIds)
-{
-  nodeIds->Reset();
-  vtkIdType narcs;
-  const vtkIdType* arcs;
-  this->NodeLinks->GetAdjacent(node, narcs, arcs);
-  for (vtkIdType i = 0; i < narcs; i++)
-    {
-    nodeIds->InsertNextId(this->GetOppositeNode(arcs[i], node));
+    this->VertexLinks->Delete();
+    this->VertexLinks = NULL;
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::GetInNodes(vtkIdType node, vtkGraphIdList* nodeIds)
+vtkIdType vtkGraph::GetNumberOfEdges()
+{
+  return this->Edges->GetNumberOfTuples();
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetNumberOfVertices()
+{
+  return this->VertexLinks->GetNumberOfVertices();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetAdjacentVertices(vtkIdType vertex, vtkGraphIdList* vertexIds)
+{
+  vertexIds->Reset();
+  vtkIdType nedges;
+  const vtkIdType* edges;
+  this->VertexLinks->GetAdjacent(vertex, nedges, edges);
+  for (vtkIdType i = 0; i < nedges; i++)
+    {
+    vertexIds->InsertNextId(this->GetOppositeVertex(edges[i], vertex));
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetInVertices(vtkIdType vertex, vtkGraphIdList* vertexIds)
 {
   if (!this->Directed)
     {
-    this->GetAdjacentNodes(node, nodeIds);
+    this->GetAdjacentVertices(vertex, vertexIds);
     return;
     }
-  nodeIds->Reset();
-  vtkIdType narcs;
-  const vtkIdType* arcs;
-  this->NodeLinks->GetInAdjacent(node, narcs, arcs);
-  for (vtkIdType i = 0; i < narcs; i++)
+  vertexIds->Reset();
+  vtkIdType nedges;
+  const vtkIdType* edges;
+  this->VertexLinks->GetInAdjacent(vertex, nedges, edges);
+  for (vtkIdType i = 0; i < nedges; i++)
     {
-    nodeIds->InsertNextId(this->GetOppositeNode(arcs[i], node));
+    vertexIds->InsertNextId(this->GetOppositeVertex(edges[i], vertex));
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::GetOutNodes(vtkIdType node, vtkGraphIdList* nodeIds)
+void vtkGraph::GetOutVertices(vtkIdType vertex, vtkGraphIdList* vertexIds)
 {
   if (!this->Directed)
     {
-    this->GetAdjacentNodes(node, nodeIds);
+    this->GetAdjacentVertices(vertex, vertexIds);
     return;
     }
-  nodeIds->Reset();
-  vtkIdType narcs;
-  const vtkIdType* arcs;
-  this->NodeLinks->GetOutAdjacent(node, narcs, arcs);
-  for (vtkIdType i = 0; i < narcs; i++)
+  vertexIds->Reset();
+  vtkIdType nedges;
+  const vtkIdType* edges;
+  this->VertexLinks->GetOutAdjacent(vertex, nedges, edges);
+  for (vtkIdType i = 0; i < nedges; i++)
     {
-    nodeIds->InsertNextId(this->GetOppositeNode(arcs[i], node));
+    vertexIds->InsertNextId(this->GetOppositeVertex(edges[i], vertex));
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::GetIncidentArcs(vtkIdType node, vtkGraphIdList* arcIds)
+void vtkGraph::GetIncidentEdges(vtkIdType vertex, vtkGraphIdList* edgeIds)
 {
-  vtkIdType narcs;
-  const vtkIdType* arcs;
-  this->NodeLinks->GetAdjacent(node, narcs, arcs);
-  arcIds->SetArray(const_cast<vtkIdType*>(arcs), narcs, true);
+  vtkIdType nedges;
+  const vtkIdType* edges;
+  this->VertexLinks->GetAdjacent(vertex, nedges, edges);
+  edgeIds->SetArray(const_cast<vtkIdType*>(edges), nedges, true);
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::GetIncidentArcs(vtkIdType node, vtkIdType& narcs, const vtkIdType*& arcs)
+void vtkGraph::GetIncidentEdges(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges)
 {
-  this->NodeLinks->GetAdjacent(node, narcs, arcs);
+  this->VertexLinks->GetAdjacent(vertex, nedges, edges);
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetDegree(vtkIdType node)
+vtkIdType vtkGraph::GetDegree(vtkIdType vertex)
 {
-  return this->NodeLinks->GetDegree(node);
+  return this->VertexLinks->GetDegree(vertex);
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::GetInArcs(vtkIdType node, vtkGraphIdList* arcIds)
+void vtkGraph::GetInEdges(vtkIdType vertex, vtkGraphIdList* edgeIds)
 {
   if (!this->Directed)
     {
-    this->GetIncidentArcs(node, arcIds);
+    this->GetIncidentEdges(vertex, edgeIds);
     return;
     }
-  vtkIdType narcs;
-  const vtkIdType* arcs;
-  this->NodeLinks->GetInAdjacent(node, narcs, arcs);
-  arcIds->SetArray(const_cast<vtkIdType*>(arcs), narcs, true);
+  vtkIdType nedges;
+  const vtkIdType* edges;
+  this->VertexLinks->GetInAdjacent(vertex, nedges, edges);
+  edgeIds->SetArray(const_cast<vtkIdType*>(edges), nedges, true);
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::GetInArcs(vtkIdType node, vtkIdType& narcs, const vtkIdType*& arcs)
+void vtkGraph::GetInEdges(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges)
 {
   if (!this->Directed)
     {
-    this->GetIncidentArcs(node, narcs, arcs);
+    this->GetIncidentEdges(vertex, nedges, edges);
     return;
     }
-  this->NodeLinks->GetInAdjacent(node, narcs, arcs);
+  this->VertexLinks->GetInAdjacent(vertex, nedges, edges);
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetInDegree(vtkIdType node)
+vtkIdType vtkGraph::GetInDegree(vtkIdType vertex)
 {
   if (!this->Directed)
     {
-    return this->GetDegree(node);
+    return this->GetDegree(vertex);
     }
-  return this->NodeLinks->GetInDegree(node);
+  return this->VertexLinks->GetInDegree(vertex);
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::GetOutArcs(vtkIdType node, vtkGraphIdList* arcIds)
+void vtkGraph::GetOutEdges(vtkIdType vertex, vtkGraphIdList* edgeIds)
 {
   if (!this->Directed)
     {
-    this->GetIncidentArcs(node, arcIds);
+    this->GetIncidentEdges(vertex, edgeIds);
     return;
     }
-  vtkIdType narcs;
-  const vtkIdType* arcs;
-  this->NodeLinks->GetOutAdjacent(node, narcs, arcs);
-  arcIds->SetArray(const_cast<vtkIdType*>(arcs), narcs, true);
+  vtkIdType nedges;
+  const vtkIdType* edges;
+  this->VertexLinks->GetOutAdjacent(vertex, nedges, edges);
+  edgeIds->SetArray(const_cast<vtkIdType*>(edges), nedges, true);
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::GetOutArcs(vtkIdType node, vtkIdType& narcs, const vtkIdType*& arcs)
+void vtkGraph::GetOutEdges(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges)
 {
   if (!this->Directed)
     {
-    this->GetIncidentArcs(node, narcs, arcs);
+    this->GetIncidentEdges(vertex, nedges, edges);
     return;
     }
-  this->NodeLinks->GetOutAdjacent(node, narcs, arcs);
+  this->VertexLinks->GetOutAdjacent(vertex, nedges, edges);
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetOutDegree(vtkIdType node)
+vtkIdType vtkGraph::GetOutDegree(vtkIdType vertex)
 {
   if (!this->Directed)
     {
-    return this->GetDegree(node);
+    return this->GetDegree(vertex);
     }
-  return this->NodeLinks->GetOutDegree(node);
+  return this->VertexLinks->GetOutDegree(vertex);
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetSourceNode(vtkIdType arc)
+vtkIdType vtkGraph::GetSourceVertex(vtkIdType edge)
 {
-  return this->Arcs->GetValue(2*arc);
+  return this->Edges->GetValue(2*edge);
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetTargetNode(vtkIdType arc)
+vtkIdType vtkGraph::GetTargetVertex(vtkIdType edge)
 {
-  return this->Arcs->GetValue(2*arc + 1);
+  return this->Edges->GetValue(2*edge + 1);
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetOppositeNode(vtkIdType arc, vtkIdType node)
+vtkIdType vtkGraph::GetOppositeVertex(vtkIdType edge, vtkIdType vertex)
 {
-  if (this->GetSourceNode(arc) != node)
+  if (this->GetSourceVertex(edge) != vertex)
     {
-    return this->GetSourceNode(arc);
+    return this->GetSourceVertex(edge);
     }
-  return this->GetTargetNode(arc);
+  return this->GetTargetVertex(edge);
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::SetNumberOfNodes(vtkIdType nodes)
+void vtkGraph::SetNumberOfVertices(vtkIdType vertices)
 {
-  if (nodes >= this->GetNumberOfNodes())
+  if (vertices >= this->GetNumberOfVertices())
     {
-    for (vtkIdType i = this->GetNumberOfNodes(); i < nodes; i++)
+    for (vtkIdType i = this->GetNumberOfVertices(); i < vertices; i++)
       {
-      this->AddNode();
+      this->AddVertex();
       }
     }
   else
     {
-    for (vtkIdType i = this->GetNumberOfNodes() - 1; i >= nodes; i--)
+    for (vtkIdType i = this->GetNumberOfVertices() - 1; i >= vertices; i--)
       {
-      this->RemoveNode(i);
+      this->RemoveVertex(i);
       }
     }
 }
@@ -283,24 +283,24 @@ void vtkGraph::ShallowCopy(vtkDataObject *dataObject)
 
   if ( graph != NULL )
     {
-    if (this->Arcs)
+    if (this->Edges)
       {
-      this->Arcs->Delete();
+      this->Edges->Delete();
       }
-    this->Arcs = graph->Arcs;
-    if (this->Arcs)
+    this->Edges = graph->Edges;
+    if (this->Edges)
       {
-      this->Arcs->Register(this);
+      this->Edges->Register(this);
       }
 
-    if (this->NodeLinks)
+    if (this->VertexLinks)
       {
-      this->NodeLinks->Delete();
+      this->VertexLinks->Delete();
       }
-    this->NodeLinks = graph->NodeLinks;
-    if (this->NodeLinks)
+    this->VertexLinks = graph->VertexLinks;
+    if (this->VertexLinks)
       {
-      this->NodeLinks->Register(this);
+      this->VertexLinks->Register(this);
       }
 
     this->Directed = graph->Directed;
@@ -318,8 +318,8 @@ void vtkGraph::DeepCopy(vtkDataObject *dataObject)
 
   if ( graph != NULL )
     {
-    this->Arcs->DeepCopy(graph->Arcs);
-    this->NodeLinks->DeepCopy(graph->NodeLinks);
+    this->Edges->DeepCopy(graph->Edges);
+    this->VertexLinks->DeepCopy(graph->VertexLinks);
     this->Directed = graph->Directed;
     }
 
@@ -328,73 +328,73 @@ void vtkGraph::DeepCopy(vtkDataObject *dataObject)
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkGraph::AddNode()
+vtkIdType vtkGraph::AddVertex()
 {
-  return this->NodeLinks->AddNode();
+  return this->VertexLinks->AddVertex();
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkGraph::AddArc(vtkIdType source, vtkIdType target)
+vtkIdType vtkGraph::AddEdge(vtkIdType source, vtkIdType target)
 {
-  if (source > this->GetNumberOfNodes() - 1 || target > this->GetNumberOfNodes() - 1)
+  if (source > this->GetNumberOfVertices() - 1 || target > this->GetNumberOfVertices() - 1)
     {
-    this->SetNumberOfNodes(source > target ? source + 1 : target + 1);
+    this->SetNumberOfVertices(source > target ? source + 1 : target + 1);
     }
 
-  //cout << "inserting arc from " << source << " to " << target << endl;
-  vtkIdType arc = this->Arcs->InsertNextValue(source) / 2;
-  this->Arcs->InsertNextValue(target);
+  //cout << "inserting edge from " << source << " to " << target << endl;
+  vtkIdType edge = this->Edges->InsertNextValue(source) / 2;
+  this->Edges->InsertNextValue(target);
 
-  // Insert the arc into the adjacency lists
-  this->NodeLinks->AddOutAdjacent(source, arc);
-  this->NodeLinks->AddInAdjacent(target, arc);
+  // Insert the edge into the adjacency lists
+  this->VertexLinks->AddOutAdjacent(source, edge);
+  this->VertexLinks->AddInAdjacent(target, edge);
 
-  return arc;
+  return edge;
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::RemoveNode(vtkIdType node)
+void vtkGraph::RemoveVertex(vtkIdType vertex)
 {
-  // Delete any arcs adjacent to the node.
-  // We need to remove the const for sorting the arcs.
-  // Remove the out arcs, then the in arcs.
+  // Delete any edges adjacent to the vertex.
+  // We need to remove the const for sorting the edges.
+  // Remove the out edges, then the in edges.
   vtkIdType out;
-  const vtkIdType* outArcs;
-  this->NodeLinks->GetOutAdjacent(node, out, outArcs);
-  this->RemoveArcs(const_cast<vtkIdType*>(outArcs), out);
+  const vtkIdType* outEdges;
+  this->VertexLinks->GetOutAdjacent(vertex, out, outEdges);
+  this->RemoveEdges(const_cast<vtkIdType*>(outEdges), out);
   vtkIdType in;
-  const vtkIdType* inArcs;
-  this->NodeLinks->GetInAdjacent(node, in, inArcs);
-  this->RemoveArcs(const_cast<vtkIdType*>(inArcs), in);
+  const vtkIdType* inEdges;
+  this->VertexLinks->GetInAdjacent(vertex, in, inEdges);
+  this->RemoveEdges(const_cast<vtkIdType*>(inEdges), in);
 
-  // Move the final node on top of the deleted node
-  vtkIdType movedNode = this->NodeLinks->RemoveNode(node);
+  // Move the final vertex on top of the deleted vertex
+  vtkIdType movedVertex = this->VertexLinks->RemoveVertex(vertex);
 
-  if (movedNode != node)
+  if (movedVertex != vertex)
     {
-    vtkIdType nodeDegree;
-    const vtkIdType* nodeArcs;
-    this->NodeLinks->GetAdjacent(node, nodeDegree, nodeArcs);
-    for (vtkIdType e = 0; e < this->NodeLinks->GetInDegree(node); e++)
+    vtkIdType vertexDegree;
+    const vtkIdType* vertexEdges;
+    this->VertexLinks->GetAdjacent(vertex, vertexDegree, vertexEdges);
+    for (vtkIdType e = 0; e < this->VertexLinks->GetInDegree(vertex); e++)
       {
-      this->Arcs->SetValue(2*nodeArcs[e] + 1, node);
+      this->Edges->SetValue(2*vertexEdges[e] + 1, vertex);
       }
-    for (vtkIdType e = this->NodeLinks->GetInDegree(node); e < nodeDegree; e++)
+    for (vtkIdType e = this->VertexLinks->GetInDegree(vertex); e < vertexDegree; e++)
       {
-      this->Arcs->SetValue(2*nodeArcs[e], node);
+      this->Edges->SetValue(2*vertexEdges[e], vertex);
       }
     }
 
-  // Move the data of the final node on top of the data of the deleted node
+  // Move the data of the final vertex on top of the data of the deleted vertex
   for (int i = 0; i < this->GetPointData()->GetNumberOfArrays(); i++)
     {
     vtkAbstractArray* aa = this->GetPointData()->GetAbstractArray(i);
-    aa->SetTuple(node, movedNode, aa);
+    aa->SetTuple(vertex, movedVertex, aa);
     aa->Resize(aa->GetNumberOfTuples() - 1);
     }
   if (this->Points)
     {
-    this->Points->SetPoint(node, this->Points->GetPoint(movedNode));
+    this->Points->SetPoint(vertex, this->Points->GetPoint(movedVertex));
     // NOTE:
     // vtkPoints does not have a resize method, so we have to do this the slow way.
     // The fast way would be:
@@ -410,98 +410,98 @@ void vtkGraph::RemoveNode(vtkIdType node)
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::RemoveArc(vtkIdType arc)
+void vtkGraph::RemoveEdge(vtkIdType edge)
 {
-  // Remove the arc from the source arc list
-  vtkIdType source = this->Arcs->GetValue(2*arc);
-  this->NodeLinks->RemoveOutAdjacent(source, arc);
-  vtkIdType target = this->Arcs->GetValue(2*arc + 1);
-  this->NodeLinks->RemoveInAdjacent(target, arc);
+  // Remove the edge from the source edge list
+  vtkIdType source = this->Edges->GetValue(2*edge);
+  this->VertexLinks->RemoveOutAdjacent(source, edge);
+  vtkIdType target = this->Edges->GetValue(2*edge + 1);
+  this->VertexLinks->RemoveInAdjacent(target, edge);
 
-  // Move the final arc on top of the deleted arc
-  vtkIdType movedArc = this->GetNumberOfArcs() - 1;
-  vtkIdType movedSource = this->Arcs->GetValue(2*movedArc);
-  vtkIdType movedTarget = this->Arcs->GetValue(2*movedArc + 1);
+  // Move the final edge on top of the deleted edge
+  vtkIdType movedEdge = this->GetNumberOfEdges() - 1;
+  vtkIdType movedSource = this->Edges->GetValue(2*movedEdge);
+  vtkIdType movedTarget = this->Edges->GetValue(2*movedEdge + 1);
 
-  this->Arcs->SetValue(2*arc, movedSource);
-  this->Arcs->SetValue(2*arc + 1, movedTarget);
-  this->Arcs->Resize(this->Arcs->GetNumberOfTuples() - 1);
+  this->Edges->SetValue(2*edge, movedSource);
+  this->Edges->SetValue(2*edge + 1, movedTarget);
+  this->Edges->Resize(this->Edges->GetNumberOfTuples() - 1);
 
   // Modify the adjacency lists to reflect the id change
-  for (vtkIdType e = 0; e < this->NodeLinks->GetOutDegree(movedSource); e++)
+  for (vtkIdType e = 0; e < this->VertexLinks->GetOutDegree(movedSource); e++)
     {
-    if (this->NodeLinks->GetOutAdjacent(movedSource, e) == movedArc)
+    if (this->VertexLinks->GetOutAdjacent(movedSource, e) == movedEdge)
       {
-      this->NodeLinks->SetOutAdjacent(movedSource, e, arc);
+      this->VertexLinks->SetOutAdjacent(movedSource, e, edge);
       break;
       }
     }
-  for (vtkIdType e = 0; e < this->NodeLinks->GetInDegree(movedTarget); e++)
+  for (vtkIdType e = 0; e < this->VertexLinks->GetInDegree(movedTarget); e++)
     {
-    if (this->NodeLinks->GetInAdjacent(movedTarget, e) == movedArc)
+    if (this->VertexLinks->GetInAdjacent(movedTarget, e) == movedEdge)
       {
-      this->NodeLinks->SetInAdjacent(movedTarget, e, arc);
+      this->VertexLinks->SetInAdjacent(movedTarget, e, edge);
       break;
       }
     }
 
-  // Move the data of the final arc on top of the data of the deleted arc
+  // Move the data of the final edge on top of the data of the deleted edge
   for (int i = 0; i < this->GetCellData()->GetNumberOfArrays(); i++)
     {
     vtkAbstractArray* aa = this->GetCellData()->GetAbstractArray(i);
-    aa->SetTuple(arc, movedArc, aa);
+    aa->SetTuple(edge, movedEdge, aa);
     aa->Resize(aa->GetNumberOfTuples() - 1);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::RemoveNodes(vtkIdType* nodes, vtkIdType size)
+void vtkGraph::RemoveVertices(vtkIdType* vertices, vtkIdType size)
 {
-  // Sort the nodes
-  vtkstd::sort(nodes, nodes + size);
+  // Sort the vertices
+  vtkstd::sort(vertices, vertices + size);
 
-  // Delete the nodes in reverse order
+  // Delete the vertices in reverse order
   for (vtkIdType i = size - 1; i >= 0; i--)
     {
-    // Don't delete the same node twice
-    if (i == size - 1 || nodes[i] != nodes[i+1])
+    // Don't delete the same vertex twice
+    if (i == size - 1 || vertices[i] != vertices[i+1])
       {
-      this->RemoveNode(nodes[i]);
+      this->RemoveVertex(vertices[i]);
       }
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::RemoveArcs(vtkIdType* arcs, vtkIdType size)
+void vtkGraph::RemoveEdges(vtkIdType* edges, vtkIdType size)
 {
-  // Sort the arcs
-  vtkstd::sort(arcs, arcs + size);
+  // Sort the edges
+  vtkstd::sort(edges, edges + size);
 
-  // Delete the arcs in reverse order
+  // Delete the edges in reverse order
   for (vtkIdType i = size - 1; i >= 0; i--)
     {
-    // Don't delete the same arc twice.
+    // Don't delete the same edge twice.
     // This may happen if there are loops in the graph.
-    if (i == size - 1 || arcs[i] != arcs[i+1])
+    if (i == size - 1 || edges[i] != edges[i+1])
       {
-      this->RemoveArc(arcs[i]);
+      this->RemoveEdge(edges[i]);
       }
     }
 }
 
-void vtkGraph::ClearNode(vtkIdType node)
+void vtkGraph::ClearVertex(vtkIdType vertex)
 {
-  // Delete any arcs adjacent to the node.
-  // We need to remove the const for sorting the arcs.
-  // Remove the out arcs, then the in arcs.
+  // Delete any edges adjacent to the vertex.
+  // We need to remove the const for sorting the edges.
+  // Remove the out edges, then the in edges.
   vtkIdType out;
-  const vtkIdType* outArcs;
-  this->NodeLinks->GetOutAdjacent(node, out, outArcs);
-  this->RemoveArcs(const_cast<vtkIdType*>(outArcs), out);
+  const vtkIdType* outEdges;
+  this->VertexLinks->GetOutAdjacent(vertex, out, outEdges);
+  this->RemoveEdges(const_cast<vtkIdType*>(outEdges), out);
   vtkIdType in;
-  const vtkIdType* inArcs;
-  this->NodeLinks->GetInAdjacent(node, in, inArcs);
-  this->RemoveArcs(const_cast<vtkIdType*>(inArcs), in);
+  const vtkIdType* inEdges;
+  this->VertexLinks->GetInAdjacent(vertex, in, inEdges);
+  this->RemoveEdges(const_cast<vtkIdType*>(inEdges), in);
 }
 
 //----------------------------------------------------------------------------

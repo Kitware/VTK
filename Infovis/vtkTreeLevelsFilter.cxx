@@ -32,7 +32,7 @@
 #include "vtkTree.h"
 #include "vtkGraph.h"
 
-vtkCxxRevisionMacro(vtkTreeLevelsFilter, "1.1");
+vtkCxxRevisionMacro(vtkTreeLevelsFilter, "1.2");
 vtkStandardNewMacro(vtkTreeLevelsFilter);
 
 vtkTreeLevelsFilter::vtkTreeLevelsFilter()
@@ -63,7 +63,7 @@ int vtkTreeLevelsFilter::RequestData(
   vtkIntArray *levelArray = vtkIntArray::New();
   levelArray->SetName("level");
   levelArray->SetNumberOfComponents(1);
-  levelArray->SetNumberOfTuples(outputTree->GetNumberOfNodes());
+  levelArray->SetNumberOfTuples(outputTree->GetNumberOfVertices());
   vtkPointData* data = outputTree->GetPointData(); 
   data->AddArray(levelArray);
   
@@ -72,10 +72,10 @@ int vtkTreeLevelsFilter::RequestData(
   vtkIntArray *leafArray = vtkIntArray::New();
   leafArray->SetName("leaf");
   leafArray->SetNumberOfComponents(1);
-  leafArray->SetNumberOfTuples(outputTree->GetNumberOfNodes());
+  leafArray->SetNumberOfTuples(outputTree->GetNumberOfVertices());
   data->AddArray(leafArray);
 
-  for (vtkIdType i = 0; i < outputTree->GetNumberOfNodes(); i++)
+  for (vtkIdType i = 0; i < outputTree->GetNumberOfVertices(); i++)
     {
     levelArray->SetValue(i, outputTree->GetLevel(i));
     leafArray->SetValue(i, outputTree->IsLeaf(i));

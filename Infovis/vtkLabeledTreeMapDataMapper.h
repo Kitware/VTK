@@ -17,12 +17,12 @@
 // .SECTION Description
 // vtkLabeledTreeMapDataMapper is a mapper that renders text on a tree map.
 // A tree map is a vtkTree with an associated 4-tuple array
-// used for storing the boundary rectangle for each node in the tree.
+// used for storing the boundary rectangle for each vertex in the tree.
 // The user must specify the array name used for storing the rectangles.
 //
 // The mapper iterates through the tree and attempts and renders a label
-// inside the node's rectangle as long as the following conditions hold:
-// 1. The node level is within the range of levels specified for labeling.
+// inside the vertex's rectangle as long as the following conditions hold:
+// 1. The vertex level is within the range of levels specified for labeling.
 // 2. The label can fully fit inside its box.
 // 3. The label does not overlap an ancestor's label.
 //
@@ -72,7 +72,7 @@ public:
   // Description:
   // Indicates if the label can be displayed clipped by the Window
   // mode = 0 - ok to clip labels
-  // 1 - auto center labels w/r to the area of the node's clipped region
+  // 1 - auto center labels w/r to the area of the vertex's clipped region
   vtkGetMacro(ClipTextMode, int);
   vtkSetMacro(ClipTextMode, int);
 
@@ -96,7 +96,7 @@ public:
 
   // Description:
   // The range of levels to attempt to label.
-  // The level of a node is the length of the path to the root
+  // The level of a vertex is the length of the path to the root
   // (the root has level 0).
   void SetLevelRange(int startLevel, int endLevel);
   void GetLevelRange(int range[2]);
@@ -107,7 +107,7 @@ protected:
   void LabelTree(vtkTree *tree, vtkFloatArray *boxInfo,
                  vtkDataArray *numericData, vtkStringArray *stringData, 
                  int activeComp, int numComps);
-  void GetNodeLabel(vtkIdType node, vtkDataArray *numericData, 
+  void GetVertexLabel(vtkIdType vertex, vtkDataArray *numericData, 
                     vtkStringArray *stringData, int activeComp, int numComps, 
                     char *string);
   void UpdateFontSizes();
@@ -133,7 +133,7 @@ protected:
   //BTX
   float (*LabelMasks)[4];
   //ETX
-  vtkIdList *NodeList;
+  vtkIdList *VertexList;
   vtkPoints *TextPoints;
   vtkCoordinate *VCoord;
   int ClipTextMode;

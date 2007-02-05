@@ -26,7 +26,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkGraphWriter, "1.1");
+vtkCxxRevisionMacro(vtkGraphWriter, "1.2");
 vtkStandardNewMacro(vtkGraphWriter);
 
 void vtkGraphWriter::WriteData()
@@ -79,11 +79,11 @@ void vtkGraphWriter::WriteData()
     }
   if(!error_occurred)
     {
-    const vtkIdType arc_count = input->GetNumberOfArcs();
-    *fp << "ARCS " << arc_count << "\n";
-    for(int arc = 0; arc != arc_count; ++arc)
+    const vtkIdType edge_count = input->GetNumberOfEdges();
+    *fp << "ARCS " << edge_count << "\n";
+    for(int edge = 0; edge != edge_count; ++edge)
       {
-      *fp << input->GetSourceNode(arc) << " " << input->GetTargetNode(arc) << "\n";
+      *fp << input->GetSourceVertex(edge) << " " << input->GetTargetVertex(edge) << "\n";
       }
     }
   if(!error_occurred && !this->WriteCellData(fp, input))

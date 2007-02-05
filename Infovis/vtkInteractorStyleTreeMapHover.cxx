@@ -34,7 +34,7 @@
 #include "vtkTreeMapToPolyData.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.5");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.6");
 vtkStandardNewMacro(vtkInteractorStyleTreeMapHover);
 
 //----------------------------------------------------------------------------
@@ -52,7 +52,7 @@ vtkInteractorStyleTreeMapHover::vtkInteractorStyleTreeMapHover()
   this->TreeMapToPolyData = NULL;
   this->Layout = NULL;
 
-  //Setup up pipelines for highlighting and selecting nodes
+  //Setup up pipelines for highlighting and selecting vertices
   this->SelectionPoints = vtkPoints::New();
   this->SelectionPoints->SetNumberOfPoints(5);
   this->HighlightPoints = vtkPoints::New();
@@ -192,7 +192,7 @@ vtkIdType vtkInteractorStyleTreeMapHover::GetTreeMapIdAtPos(int x, int y)
       {
       posFloat[i] = pos[i];
       }
-    id = Layout->FindNode(posFloat);
+    id = Layout->FindVertex(posFloat);
     }
     
   return id;
@@ -320,7 +320,7 @@ void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()
   // send out an event with that id as data
   vtkAbstractArray* absArray = 
     this->Layout->GetOutput()->GetPointData()->GetAbstractArray(
-      "PedigreeNodeId");
+      "PedigreeVertexId");
   if (absArray)
     {
     vtkIdTypeArray* idArray = vtkIdTypeArray::SafeDownCast(absArray);

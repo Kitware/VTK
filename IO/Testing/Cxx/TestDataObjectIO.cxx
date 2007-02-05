@@ -22,11 +22,11 @@
 void InitializeData(vtkGraph* Data)
 {
   vtkRandomGraphSource* const source = vtkRandomGraphSource::New();
-  source->SetNumberOfNodes(5);
-  source->SetNumberOfArcs(10);
-  source->IncludeArcWeightsOn();
+  source->SetNumberOfVertices(5);
+  source->SetNumberOfEdges(10);
+  source->IncludeEdgeWeightsOn();
   source->DirectedOn();
-  source->UseArcProbabilityOff();
+  source->UseEdgeProbabilityOff();
   source->StartWithTreeOff();
   source->AllowSelfLoopsOff();
   source->Update();
@@ -40,10 +40,10 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
   if(Input->GetDirected() != Output->GetDirected())
     return false;
 
-  if(Input->GetNumberOfNodes() != Output->GetNumberOfNodes())
+  if(Input->GetNumberOfVertices() != Output->GetNumberOfVertices())
     return false;
     
-  if(Input->GetNumberOfArcs() != Output->GetNumberOfArcs())
+  if(Input->GetNumberOfEdges() != Output->GetNumberOfEdges())
     return false;
 
   if(Input->GetPointData()->GetNumberOfArrays() != Output->GetPointData()->GetNumberOfArrays())
@@ -52,12 +52,12 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
   if(Input->GetCellData()->GetNumberOfArrays() != Output->GetCellData()->GetNumberOfArrays())
     return false;
 
-  for(int arc = 0; arc != Input->GetNumberOfArcs(); ++arc)
+  for(int edge = 0; edge != Input->GetNumberOfEdges(); ++edge)
     {
-    if(Input->GetSourceNode(arc) != Output->GetSourceNode(arc))
+    if(Input->GetSourceVertex(edge) != Output->GetSourceVertex(edge))
       return false;
       
-    if(Input->GetTargetNode(arc) != Output->GetTargetNode(arc))
+    if(Input->GetTargetVertex(edge) != Output->GetTargetVertex(edge))
       return false;
     }
 
@@ -181,20 +181,20 @@ bool CompareData(vtkTable* Output, vtkTable* Input)
 
 void InitializeData(vtkTree* Data)
 {
-  const vtkIdType node0 = Data->AddRoot();
-  Data->AddChild(node0);
-  const vtkIdType node2 = Data->AddChild(node0);
-  Data->AddChild(node0);
-  Data->AddChild(node0);
-  Data->SetRoot(node2);
+  const vtkIdType vertex0 = Data->AddRoot();
+  Data->AddChild(vertex0);
+  const vtkIdType vertex2 = Data->AddChild(vertex0);
+  Data->AddChild(vertex0);
+  Data->AddChild(vertex0);
+  Data->SetRoot(vertex2);
 }
 
 bool CompareData(vtkTree* Output, vtkTree* Input)
 {
-  if(Input->GetNumberOfNodes() != Output->GetNumberOfNodes())
+  if(Input->GetNumberOfVertices() != Output->GetNumberOfVertices())
     return false;
     
-  if(Input->GetNumberOfArcs() != Output->GetNumberOfArcs())
+  if(Input->GetNumberOfEdges() != Output->GetNumberOfEdges())
     return false;
 
   if(Input->GetPointData()->GetNumberOfArrays() != Output->GetPointData()->GetNumberOfArrays())
@@ -206,7 +206,7 @@ bool CompareData(vtkTree* Output, vtkTree* Input)
   if(Input->GetRoot() != Output->GetRoot())
     return false;
   
-  for(vtkIdType child = 0; child != Input->GetNumberOfNodes(); ++child)
+  for(vtkIdType child = 0; child != Input->GetNumberOfVertices(); ++child)
     {
     if(Input->GetParent(child) != Output->GetParent(child))
       return false;

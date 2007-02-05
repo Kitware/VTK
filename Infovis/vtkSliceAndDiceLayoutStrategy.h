@@ -16,7 +16,7 @@
 //
 // .SECTION Description
 // Lays out a tree-map alternating between horizontal and vertical slices,
-// taking into account the relative size of each node.
+// taking into account the relative size of each vertex.
 //
 // .SECTION Thanks
 // Slice and dice algorithm comes from:
@@ -37,7 +37,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The field name associated with the size of the node.
+  // The field name associated with the size of the vertex.
   vtkGetStringMacro(SizeFieldName);
   vtkSetStringMacro(SizeFieldName);
 
