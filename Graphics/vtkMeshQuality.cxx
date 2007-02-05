@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.45");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.46");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );
@@ -838,8 +838,7 @@ int vtkMeshQuality::GetCurrentTriangleNormal( double point[3], double normal[3] 
   return 1;
 }
 
-// Triangle quality measures:
-// edge ratio, aspect ratio, radius ratio, Frobenius norm, minimal angle
+// Triangle quality measures
 
 double vtkMeshQuality::TriangleEdgeRatio( vtkCell* cell )
 {
@@ -985,10 +984,7 @@ double vtkMeshQuality::TriangleDistortion( vtkCell* cell )
   return v_tri_distortion( 3, pc );
 }
 
-// Quadrangle quality measures:
-// edge ratio, aspect ratio, radius ratio, average Frobenius norm, 
-// maximum Frobenius norm, minimal angle
-// (only edge ratio and minimal angle are intended for nonplanar quads)
+// Quadrangle quality measures
 
 double vtkMeshQuality::QuadEdgeRatio( vtkCell* cell )
 {
@@ -1273,8 +1269,7 @@ double TetVolume( vtkCell* cell )
   return vtkTetra::ComputeVolume( x0, x1, x2, x3 );
 }
 
-// Tetrahedron quality measures:
-// edge ratio, aspect ratio, radius ratio, Frobenius norm, minimal angle
+// Tetrahedron quality measures
 
 double vtkMeshQuality::TetEdgeRatio( vtkCell* cell )
 {
@@ -1452,9 +1447,7 @@ double vtkMeshQuality::TetDistortion( vtkCell* cell )
   return v_tet_distortion( 4, pc );
 }
 
-
-// Hexahedron quality measure:
-// edge ratio, average Frobenius norm, maximum Frobenius norm
+// Hexahedron quality measure
 
 double vtkMeshQuality::HexEdgeRatio( vtkCell* cell)
 {
