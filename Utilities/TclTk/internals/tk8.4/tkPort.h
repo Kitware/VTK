@@ -31,7 +31,7 @@
 #   elif defined(MAC_OSX_TK)
 #  include "tkMacOSXPort.h"
 #   else
-#  include "../unix/tkUnixPort.h"
+#  include "tkUnixPort.h"
 #   endif
 #endif
 
