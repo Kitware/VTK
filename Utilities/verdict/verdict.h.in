@@ -11,4 +11,4 @@
 
 #endif
 
-@VERDICT_HEADER_BODY@
+#include <verdict/include/verdict.h>

@@ -27,7 +27,6 @@ set( verdict_SRCS
   V_WedgeMetric.cpp
   )
 
-file(READ ${verdict_SOURCE_DIR}/include/verdict.h VERDICT_HEADER_BODY)
 configure_file(
   ${verdict_SOURCE_DIR}/verdict.h.in
   ${verdict_BINARY_DIR}/verdict.h
