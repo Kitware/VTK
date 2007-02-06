@@ -26,7 +26,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkGraphWriter, "1.3");
+vtkCxxRevisionMacro(vtkGraphWriter, "1.4");
 vtkStandardNewMacro(vtkGraphWriter);
 
 void vtkGraphWriter::WriteData()
@@ -79,6 +79,8 @@ void vtkGraphWriter::WriteData()
     }
   if(!error_occurred)
     {
+    const vtkIdType vertex_count = input->GetNumberOfVertices();
+    *fp << "VERTICES " << vertex_count << "\n";
     const vtkIdType edge_count = input->GetNumberOfEdges();
     *fp << "EDGES " << edge_count << "\n";
     for(int edge = 0; edge != edge_count; ++edge)

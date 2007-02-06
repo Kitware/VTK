@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkGraphReader, "1.2");
+vtkCxxRevisionMacro(vtkGraphReader, "1.3");
 vtkStandardNewMacro(vtkGraphReader);
 
 #ifdef read
@@ -192,7 +192,20 @@ int vtkGraphReader::RequestData(
       continue;
       }
       
-    if(!strncmp(this->LowerCase(line), "edges", 4))
+    if(!strncmp(this->LowerCase(line), "vertices", 8))
+      {
+      int vertex_count = 0;
+      if(!this->Read(&vertex_count))
+        {
+        vtkErrorMacro(<<"Cannot read number of vertices!");
+        this->CloseVTKFile ();
+        return 1;
+        }
+      output->SetNumberOfVertices(vertex_count);
+      continue;
+      }
+
+    if(!strncmp(this->LowerCase(line), "edges", 5))
       {
       int edge_count = 0;
       if(!this->Read(&edge_count))
