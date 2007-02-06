@@ -29,7 +29,7 @@
 #   if defined(MAC_TCL)
 #       include "tkMacPort.h"
 #   else
-#       include "../unix/tkUnixPort.h"
+#       include "tkUnixPort.h"
 #   endif
 #endif
 
