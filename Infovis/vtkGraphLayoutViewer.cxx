@@ -54,7 +54,7 @@
 #include "vtkUnstructuredGrid.h"
 
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.16");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.17");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -85,7 +85,6 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
   
   // Set up some the default parameters
   this->LabeledDataMapper->SetFieldDataName("label");
-  this->LabeledDataMapper->SetLabelFormat("%s");
   this->LabeledDataMapper->SetLabelModeToLabelFieldData();
   this->LabeledDataMapper->GetLabelTextProperty()->SetColor(1,1,1);
   this->LabeledDataMapper->GetLabelTextProperty()->SetJustificationToCentered();
