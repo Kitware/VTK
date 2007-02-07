@@ -235,7 +235,7 @@ IF (FTGL_BUILD_EXAMPLES)
     # Apple libraries.
     #
     IF (APPLE)
-      SET (VTKFTGL_EXAMPLES_LIBS "-framework Cocoa" ${VTKFTGL_EXAMPLES_LIBS})
+      SET (VTKFTGL_EXAMPLES_LIBS "-framework OpenGL" "-framework GLUT" ${VTKFTGL_EXAMPLES_LIBS})
     ENDIF (APPLE)
 
     #
