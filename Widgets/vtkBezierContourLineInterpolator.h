@@ -18,17 +18,13 @@
 //
 // .SECTION See Also
 
-
-
 #ifndef __vtkBezierContourLineInterpolator_h
 #define __vtkBezierContourLineInterpolator_h
 
 #include "vtkContourLineInterpolator.h"
 
-class vtkRenderer;
-class vtkContourRepresentation;
-
-class VTK_WIDGETS_EXPORT vtkBezierContourLineInterpolator : public vtkContourLineInterpolator
+class VTK_WIDGETS_EXPORT vtkBezierContourLineInterpolator 
+                          : public vtkContourLineInterpolator
 {
 public:
   
@@ -51,6 +47,21 @@ public:
   vtkSetClampMacro(MaximumCurveLineSegments, int, 1, 1000);
   vtkGetMacro(MaximumCurveLineSegments, int);
   
+  // Description:
+  // Span of the interpolator. ie. the number of control points its supposed
+  // to interpolate given a node. 
+  //
+  // The first argument is the current nodeIndex.
+  // ie, you'd be trying to interpolate between nodes "nodeIndex" and 
+  // "nodeIndex-1", unless you're closing the contour in which case, you're
+  // trying to interpolate "nodeIndex" and "Node=0". The node span is 
+  // returned in a vtkIntArray. 
+  //
+  // The node span is returned in a vtkIntArray. The node span returned by 
+  // this interpolator will be a 2-tuple with a span of 4.
+  virtual void GetSpan( int nodeIndex, vtkIntArray *nodeIndices, 
+                        vtkContourRepresentation *rep );
+    
 protected:
   vtkBezierContourLineInterpolator();
   ~vtkBezierContourLineInterpolator();

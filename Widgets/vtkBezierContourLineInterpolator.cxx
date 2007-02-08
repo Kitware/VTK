@@ -18,8 +18,9 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
+#include "vtkIntArray.h"
 
-vtkCxxRevisionMacro(vtkBezierContourLineInterpolator, "1.4");
+vtkCxxRevisionMacro(vtkBezierContourLineInterpolator, "1.5");
 vtkStandardNewMacro(vtkBezierContourLineInterpolator);
 
 //----------------------------------------------------------------------
@@ -171,9 +172,56 @@ int vtkBezierContourLineInterpolator::InterpolateLine( vtkRenderer *vtkNotUsed(r
   return 1;
 }
 
+//----------------------------------------------------------------------
+void vtkBezierContourLineInterpolator::GetSpan( int nodeIndex,
+                                          vtkIntArray *nodeIndices,
+                                          vtkContourRepresentation *rep)
+{
+  int start = nodeIndex - 2;
+  int end   = nodeIndex - 1;
+  int index[2];
+
+  // Clear the array
+  nodeIndices->Reset();
+  nodeIndices->Squeeze();
+  nodeIndices->SetNumberOfComponents(2);
+
+  for ( int i = 0; i < 4; i++ )
+    {
+    index[0] = start++;
+    index[1] = end++;
+
+    if ( rep->GetClosedLoop() )
+      {
+      if ( index[0] < 0 )
+        {
+        index[0] += rep->GetNumberOfNodes();
+        }
+      if ( index[1] < 0 )
+        {
+        index[1] += rep->GetNumberOfNodes();
+        }
+      if ( index[0] >= rep->GetNumberOfNodes() )
+        {
+        index[0] -= rep->GetNumberOfNodes();
+        }
+      if ( index[1] >= rep->GetNumberOfNodes() )
+        {
+        index[1] -= rep->GetNumberOfNodes();
+        }
+      }
+
+    if ( index[0] >= 0 && index[0] < rep->GetNumberOfNodes() &&
+         index[1] >= 0 && index[1] < rep->GetNumberOfNodes() )
+      {
+      nodeIndices->InsertNextTupleValue( index );
+      }
+    }
+}
 
 //----------------------------------------------------------------------
 void vtkBezierContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);  
 }
+

@@ -26,12 +26,13 @@
 #include "vtkCamera.h"
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
+#include "vtkIntArray.h"
 
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.16");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.17");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -843,43 +844,20 @@ void vtkContourRepresentation::SetClosedLoop( int val )
 //----------------------------------------------------------------------
 void vtkContourRepresentation::UpdateLines( int index )
 {
-  int start = index - 2;
-  int end = index - 1;
+  int indices[2];
 
-  for ( int i = 0; i < 4; i++ )
+  vtkIntArray *arr = vtkIntArray::New();
+
+  this->LineInterpolator->GetSpan( index, arr, this );
+
+  int nNodes = arr->GetNumberOfTuples();
+  for (int i = 0; i < nNodes; i++)
     {
-    int p1 = start;
-    int p2 = end;
-    
-    start++;
-    end++;
-    
-    if ( this->ClosedLoop )
-      {
-      if ( p1 < 0 )
-        {
-        p1 += this->GetNumberOfNodes();
-        }
-      if ( p2 < 0 )
-        {
-        p2 += this->GetNumberOfNodes();
-        }
-      if ( p1 >= this->GetNumberOfNodes() )
-        {
-        p1 -= this->GetNumberOfNodes();
-        }
-      if ( p2 >= this->GetNumberOfNodes() )
-        {
-        p2 -= this->GetNumberOfNodes();        
-        }
-      }
-    
-    if ( p1 >= 0 && p1 < this->GetNumberOfNodes() &&
-         p2 >= 0 && p2 < this->GetNumberOfNodes() )
-      {
-      this->UpdateLine(p1,p2);
-      }
+    arr->GetTupleValue( i, indices );
+    this->UpdateLine( indices[0], indices[1] );
     }
+
+  arr->Delete();
   
   // A check to make sure that we have no line segments in
   // the last node if the loop is not closed

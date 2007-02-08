@@ -14,7 +14,10 @@
 =========================================================================*/
 #include "vtkContourLineInterpolator.h"
 
-vtkCxxRevisionMacro(vtkContourLineInterpolator, "1.4");
+#include "vtkContourRepresentation.h"
+#include "vtkIntArray.h"
+
+vtkCxxRevisionMacro(vtkContourLineInterpolator, "1.5");
 
 //----------------------------------------------------------------------
 vtkContourLineInterpolator::vtkContourLineInterpolator()
@@ -32,6 +35,48 @@ int vtkContourLineInterpolator::UpdateNode( vtkRenderer *,
                  double * vtkNotUsed(node), int vtkNotUsed(idx) )
 {
   return 0;
+}
+
+//----------------------------------------------------------------------
+void vtkContourLineInterpolator::GetSpan( int nodeIndex,
+                                          vtkIntArray *nodeIndices,
+                                          vtkContourRepresentation *rep)
+{
+  int index[2] = { nodeIndex - 1, nodeIndex };
+
+  // Clear the array
+  nodeIndices->Reset();
+  nodeIndices->Squeeze();
+  nodeIndices->SetNumberOfComponents(2);
+
+  if ( rep->GetClosedLoop() )
+    {
+    ++index[0];
+    ++index[1];
+    if ( index[0] < 0 )
+      {
+      index[0] += rep->GetNumberOfNodes();
+      }
+    if ( index[1] < 0 )
+      {
+      index[1] += rep->GetNumberOfNodes();
+      }
+    if ( index[0] >= rep->GetNumberOfNodes() )
+      {
+      index[0] -= rep->GetNumberOfNodes();
+      }
+    if ( index[1] >= rep->GetNumberOfNodes() )
+      {
+      index[1] -= rep->GetNumberOfNodes();
+      }
+    }
+
+  if ( index[0] >= 0 && index[0] < rep->GetNumberOfNodes() &&
+       index[1] >= 0 && index[1] < rep->GetNumberOfNodes() )
+    {
+    // Sanity check
+    nodeIndices->InsertNextTupleValue(index);
+    }
 }
 
 //----------------------------------------------------------------------

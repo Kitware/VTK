@@ -35,6 +35,7 @@
 
 class vtkRenderer;
 class vtkContourRepresentation;
+class vtkIntArray;
 
 class VTK_WIDGETS_EXPORT vtkContourLineInterpolator : public vtkObject
 {
@@ -61,6 +62,23 @@ public:
   virtual int UpdateNode( vtkRenderer *, 
                           vtkContourRepresentation *,
                           double * vtkNotUsed(node), int vtkNotUsed(idx) );
+
+  // Description:
+  // Span of the interpolator. ie. the number of control points its supposed
+  // to interpolate given a node.
+  //
+  // The first argument is the current nodeIndex.
+  // ie, you'd be trying to interpolate between nodes "nodeIndex" and 
+  // "nodeIndex-1", unless you're closing the contour in which case, you're
+  // trying to interpolate "nodeIndex" and "Node=0". 
+  //
+  // The node span is returned in a vtkIntArray. The default node span is 1 
+  // (ie. nodeIndices is a 2 tuple (nodeIndex, nodeIndex-1)). However, it 
+  // need not always be 1. For instance, cubic spline interpolators, which 
+  // have a span of 3 control points, it can be larger. See
+  // vtkBezierContourLineInterpolator for instance.
+  virtual void GetSpan( int nodeIndex, vtkIntArray *nodeIndices, 
+                        vtkContourRepresentation *rep );
   
  protected:
   vtkContourLineInterpolator();
