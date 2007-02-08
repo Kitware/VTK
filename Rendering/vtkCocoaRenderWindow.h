@@ -234,6 +234,10 @@ public:
   virtual void HideCursor();
   virtual void ShowCursor();
   
+  // Description:
+  // Get the WindowCreated flag. It is 1 if this object created an instance
+  // of NSWindow, 0 otherwise.
+  virtual int GetWindowCreated();
 
 protected:
   vtkCocoaRenderWindow();

@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define MAC_OS_X_VERSION_10_4 1040
 #endif
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.44");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.45");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -58,23 +58,6 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
     delete[] this->Capabilities;
     this->Capabilities = 0;
     }
-
-  if (this->NSViewId && this->ViewCreated)
-    {
-    // If this class created the view, then this class must release it.
-    // Note that this doesn't remove it from the window, as the window
-    // has retained it.
-    [(NSView *)this->NSViewId release];
-    }
-  this->NSViewId = NULL;
-
-  if (this->WindowId && this->WindowCreated)
-    {
-    // If this class created the window, then this class must close
-    // it (this will also release its memory)
-    [(NSWindow *)this->WindowId close];
-    }
-  this->WindowId = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -133,10 +116,22 @@ void vtkCocoaRenderWindow::DestroyWindow()
 
     [(NSOpenGLContext*)this->ContextId release];
     [(NSOpenGLPixelFormat*)this->PixelFormat release];
-
+    
     this->ContextId = NULL;
     this->PixelFormat = NULL;
-    }
+  }
+
+  // If this class created the view, then this class must release it.
+  // Note that this doesn't remove it from the window, as the window
+  // has retained it.
+  if (this->NSViewId && this->ViewCreated)
+  {
+    [(NSView *)this->NSViewId release];
+  }
+  this->NSViewId = NULL;
+  
+  // The window is already released by this point, clear it anyway
+  this->WindowId = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -495,7 +490,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
       NSMakeRect(0.0, 0.0, (float)this->Size[0], (float)this->Size[1]);
     vtkCocoaGLView *glView = [[vtkCocoaGLView alloc] initWithFrame:glRect];
     [(NSWindow*)this->GetWindowId() setContentView:glView];
-
+    
     this->SetDisplayId(glView);
     this->ViewCreated = 1;
     [glView setVTKRenderWindow:this];
@@ -854,4 +849,10 @@ void vtkCocoaRenderWindow::ShowCursor()
   this->CursorHidden = 0;
 
   [NSCursor unhide];
+}
+
+// ---------------------------------------------------------------------------
+int vtkCocoaRenderWindow::GetWindowCreated()
+{
+  return this->WindowCreated;
 }

@@ -97,6 +97,7 @@ protected:
 
   int     InstallMessageProc;
   void    *TimerDictionary;     // Really an NSMutableDictionary*
+  void    *CocoaServer;         // Really a vtkCocoaServer*
 
   //BTX
   // Description:

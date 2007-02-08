@@ -25,7 +25,7 @@
 #endif
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.14");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.15");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -48,64 +48,6 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 - (void)timerFired:(NSTimer *)myTimer;
 
 @end
-
-// This is a private class and an implementation detail, do not use it.
-//
-// As vtk is both crossplatform and a library, we don't know if it is being
-// used in a 'regular Cocoa application' or as a 'pure vtk application'.
-// By the former I mean a regular Cocoa application that happens to have
-// a vtkCocoaGLView, by the latter I mean an application that only uses
-// vtk APIs (which happen to use Cocoa as an implementation detail).
-// Specifically, we can't know if NSApplicationMain() was ever called
-// (which is usually done in main()), nor whether the NSApplication exists.
-//
-// Any code that uses Cocoa needs to be sure that NSAutoreleasePools are
-// correctly setup.  Specifically, an NSAutoreleasePool needs to exist before
-// any Cocoa objects are autoreleased, which may happen as a side effect of
-// pretty much any Cocoa use.  Once we start the event loop by calling 
-// either NSApplicationMain() or [NSApp run] then a new pool will be created
-// for every event.  In a 'regular Cocoa application' NSApplicationMain() is
-// called at the start of main() and so we know a pool will be in place before
-// any vtk code is used.  But in a 'pure vtk application' the event loop does
-// not start until [NSApp run] is called by this class's Start() method. The
-// problem thus is that other vtk code may be called before Start() and that
-// code may call Cocoa and thus autorelease objects with no autorelease pool
-// in place.  The (ugly) solution is to create a 'pool of last resort' so
-// that we know a pool is always in place.
-// See: <http://lists.apple.com/archives/cocoa-dev/2006/Sep/msg00222.html>
-
-class vtkEarlyCocoaSetup
-{
-public:
-  vtkEarlyCocoaSetup::vtkEarlyCocoaSetup()
-  {
-    this->CreatePoolOfLastResort();
-  }
-
-  vtkEarlyCocoaSetup::~vtkEarlyCocoaSetup()
-  {
-    this->DestroyPoolOfLastResort();
-  }
-
-  void vtkEarlyCocoaSetup::DestroyPoolOfLastResort()
-  {
-    [Pool release];
-    Pool = nil;
-  }
-
-protected:
-  void vtkEarlyCocoaSetup::CreatePoolOfLastResort()
-  {
-    Pool = [[NSAutoreleasePool alloc] init];
-  }
-
-private:
-  NSAutoreleasePool     *Pool;
-};
-
-// We create a global/static instance of this class to ensure that we have an
-// autorelease pool before main() starts.
-vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 
 //----------------------------------------------------------------------------
 @implementation vtkCocoaTimer
@@ -147,11 +89,167 @@ vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 
 @end
 
+// This is a private class and an implementation detail, do not use it.
+// It manages the application run loop of a "pure vtk application",
+// as opposed to a regular Mac app that happens to use VTK.
+//----------------------------------------------------------------------------
+@interface vtkCocoaServer : NSObject
+{
+  vtkCocoaRenderWindow* renWin;
+}
+
+- (id)initWithRenderWindow:(vtkCocoaRenderWindow *)inRenderWindow;
+- (void)start;
+- (void)stop;
+
+@end
+
+//----------------------------------------------------------------------------
+@implementation vtkCocoaServer
+
+- (id)initWithRenderWindow:(vtkCocoaRenderWindow *)inRenderWindow
+{
+  self = [super init];
+  if (self)
+    {
+    renWin = inRenderWindow;
+    }
+  return self;
+}
+
+- (void)start
+{
+  // Retrieve the NSWindow.
+  NSWindow *win = nil;
+  if (renWin != NULL)
+    {
+    win = reinterpret_cast<NSWindow *>(renWin->GetWindowId());
+    }
+  
+  // Register for the windowWillClose notification in order to stop
+  // the run loop if the window closes.
+  NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+  [nc addObserver:self selector:@selector(windowWillClose:) 
+                           name:@"NSWindowWillCloseNotification" 
+                         object:win];
+  
+  // Start the NSApplication's run loop
+  [NSApp run];
+}
+
+- (void)stop
+{
+  // Retrieve the NSWindow.
+  NSWindow  *win = nil;
+  if (renWin != NULL)
+    {
+    win = reinterpret_cast<NSWindow *>(renWin->GetWindowId());
+    }
+  
+  // Close the window, removing it from the screen and releasing it
+  [win close];
+}
+
+- (void)windowWillClose:(NSNotification*)aNotification
+{
+  (void)aNotification;
+  
+  NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+  [nc removeObserver:self];
+  
+  if (renWin)
+    {
+    int windowCreated = renWin->GetWindowCreated();
+    if (windowCreated)
+      {
+      // Stop the current run loop. Do not terminate as it will not return to
+      // main. However, the stop message puts the run loop asleep. Let's send
+      // some event to wake it up so it can get out of the loop.
+      [NSApp stop:NSApp];
+
+      NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined       
+                                            location:NSMakePoint(0.0,0.0)
+                                       modifierFlags:0
+                                           timestamp:0
+                                        windowNumber:-1
+                                             context:nil
+                                             subtype:0
+                                               data1:0
+                                               data2:0];
+      [NSApp postEvent:event atStart:YES];
+      
+      // The NSWindow is closing, so prevent anyone from accidently using it
+      renWin->SetWindowId(nil);
+      }
+    }
+} 
+
+@end
+
+// This is a private class and an implementation detail, do not use it.
+//
+// As vtk is both crossplatform and a library, we don't know if it is being
+// used in a 'regular Cocoa application' or as a 'pure vtk application'.
+// By the former I mean a regular Cocoa application that happens to have
+// a vtkCocoaGLView, by the latter I mean an application that only uses
+// vtk APIs (which happen to use Cocoa as an implementation detail).
+// Specifically, we can't know if NSApplicationMain() was ever called
+// (which is usually done in main()), nor whether the NSApplication exists.
+//
+// Any code that uses Cocoa needs to be sure that NSAutoreleasePools are
+// correctly setup.  Specifically, an NSAutoreleasePool needs to exist before
+// any Cocoa objects are autoreleased, which may happen as a side effect of
+// pretty much any Cocoa use.  Once we start the event loop by calling 
+// either NSApplicationMain() or [NSApp run] then a new pool will be created
+// for every event.  In a 'regular Cocoa application' NSApplicationMain() is
+// called at the start of main() and so we know a pool will be in place before
+// any vtk code is used.  But in a 'pure vtk application' the event loop does
+// not start until [NSApp run] is called by this class's Start() method. The
+// problem thus is that other vtk code may be called before Start() and that
+// code may call Cocoa and thus autorelease objects with no autorelease pool
+// in place.  The (ugly) solution is to create a 'pool of last resort' so
+// that we know a pool is always in place.
+// See: <http://lists.apple.com/archives/cocoa-dev/2006/Sep/msg00222.html>
+
+class vtkEarlyCocoaSetup
+  {
+    public:
+    vtkEarlyCocoaSetup::vtkEarlyCocoaSetup()
+    {
+      this->CreatePoolOfLastResort();
+    }
+    
+    vtkEarlyCocoaSetup::~vtkEarlyCocoaSetup()
+    {
+      this->DestroyPoolOfLastResort();
+    }
+    
+    void vtkEarlyCocoaSetup::DestroyPoolOfLastResort()
+    {
+      [Pool release];
+      Pool = nil;
+    }
+    
+    protected:
+    void vtkEarlyCocoaSetup::CreatePoolOfLastResort()
+    {
+      Pool = [[NSAutoreleasePool alloc] init];
+    }
+    
+    private:
+    NSAutoreleasePool     *Pool;
+  };
+
+// We create a global/static instance of this class to ensure that we have an
+// autorelease pool before main() starts.
+vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
+
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor() 
 {
   this->InstallMessageProc = 1;
   this->TimerDictionary = (void*)[[NSMutableDictionary dictionary] retain];
+  this->CocoaServer = nil;
 }
 
 //----------------------------------------------------------------------------
@@ -183,7 +281,14 @@ void vtkCocoaRenderWindowInteractor::Start()
   // pool for event event
   gEarlyCocoaSetup->DestroyPoolOfLastResort();
   
-  [NSApp run];
+  // Start server.
+  vtkCocoaRenderWindow *renWin = vtkCocoaRenderWindow::SafeDownCast(this->GetRenderWindow());
+  if (renWin != NULL)
+    {
+    vtkCocoaServer *server = [[vtkCocoaServer alloc] initWithRenderWindow:renWin];
+    this->CocoaServer = reinterpret_cast<void *>(server);
+    [server start];
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -251,7 +356,34 @@ void vtkCocoaRenderWindowInteractor::Disable()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::TerminateApp() 
 {
-  [NSApp terminate:NSApp];
+  // Retrieve the cocoa render window.
+  vtkCocoaRenderWindow *renWin = vtkCocoaRenderWindow::SafeDownCast(this->RenderWindow);
+  if (renWin)
+    {
+    // Check if the NSWindow was created by VTK. If so, let's use the
+    // vtkCocoaServer to stop the application since it have started it.
+    // This means that the interactor was started using the Start method.
+    // The vtkCocoaServer is use to get out of that method without quiting
+    // the application, allowing to access code after the Start() call, like
+    // object deletion for exemple.
+    int windowCreated = renWin->GetWindowCreated();
+    if (windowCreated)
+      {
+      vtkCocoaServer *server = reinterpret_cast<vtkCocoaServer *>(this->CocoaServer);
+      [server stop];
+      }
+    else
+      {     
+      // The NSWindow was not created by vtk itself, so let's terminate the 
+      // application as requested.
+      [NSApp terminate:NSApp];
+      }
+    }
+   
+   // Release vtkCocoaServer if created by the start method.
+   vtkCocoaServer *server = reinterpret_cast<vtkCocoaServer *>(this->CocoaServer);
+   [server release];
+   this->CocoaServer = NULL;
 }
 
 //----------------------------------------------------------------------------
