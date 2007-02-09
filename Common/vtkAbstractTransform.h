@@ -296,6 +296,8 @@ private:
 class vtkTransformPair
 {
 public:
+  vtkTransformPair() {};
+
   vtkAbstractTransform *ForwardTransform;
   vtkAbstractTransform *InverseTransform;
   
