@@ -193,7 +193,7 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setspacing, VTKXMLWRITERF_SETSPACING)(
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
     {
-    vtkXMLWriterC_SetOrigin(vtkXMLWriterF_Table[*self], spacing);
+    vtkXMLWriterC_SetSpacing(vtkXMLWriterF_Table[*self], spacing);
     }
   else
     {
