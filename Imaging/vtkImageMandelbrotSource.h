@@ -99,8 +99,9 @@ public:
   void CopyOriginAndSample(vtkImageMandelbrotSource *source); 
 
   // Description:
-  // Set a subsample rate.
+  // Set/Get a subsample rate.
   vtkSetClampMacro(SubsampleRate, int, 1, VTK_LARGE_INTEGER);
+  vtkGetMacro(SubsampleRate, int);
 
 protected:
   vtkImageMandelbrotSource();

@@ -28,7 +28,7 @@
 #include "vtkActor2DCollection.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.47");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.48");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 class vtkWTI2DHelperClass
@@ -345,7 +345,7 @@ void vtkWindowToImageFilter::RequestData(
           {
           deltay = 2.0*deltay/(visVP[3] - visVP[1]);
           }
-        cam->SetWindowCenter(deltax,deltay);
+        cam->SetWindowCenter(windowCenters[i*2]+deltax,windowCenters[i*2+1]+deltay);
         //cam->SetViewAngle(atan(tan(viewAngles[i]*3.1415926/360.0)*mag)  //FIXME
         cam->SetViewAngle(asin(sin(viewAngles[i]*3.1415926/360.0)*mag)
                           * 360.0 / 3.1415926);

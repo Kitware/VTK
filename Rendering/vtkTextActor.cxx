@@ -32,7 +32,7 @@
 #include "vtkTexture.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.37");
+vtkCxxRevisionMacro(vtkTextActor, "1.38");
 vtkStandardNewMacro(vtkTextActor);
 vtkCxxSetObjectMacro(vtkTextActor,Texture,vtkTexture);
 
@@ -149,14 +149,17 @@ void vtkTextActor::SetMapper(vtkPolyDataMapper2D *mapper)
   // I will not reference count this because the superclass does.
   this->PDMapper = mapper; // So what is the point of have the ivar PDMapper?
   this->vtkActor2D::SetMapper( mapper );
-  
-  mapper->SetInput(this->Rectangle);
+
+  if (mapper)
+    {
+    mapper->SetInput(this->Rectangle);
+    }
 }
 
 // ----------------------------------------------------------------------------
 void vtkTextActor::SetMapper(vtkMapper2D *mapper)
 {
-  if (mapper->IsA("vtkPolyDataMapper2D"))
+  if (mapper && mapper->IsA("vtkPolyDataMapper2D"))
     {
     this->SetMapper( (vtkPolyDataMapper2D *)mapper );
     }
@@ -164,7 +167,7 @@ void vtkTextActor::SetMapper(vtkMapper2D *mapper)
     {
     vtkErrorMacro(<<"Must use a vtkPolyDataMapper2D with this class");
     }
-  }
+}
 
 // ----------------------------------------------------------------------------
 void vtkTextActor::SetInput(const char* str)
@@ -317,8 +320,8 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     // Check to see whether we have to rebuild everything
     if (positionsHaveChanged || orientationHasChanged ||
         this->GetMTime() > this->BuildTime ||
-        this->Mapper->GetMTime() > this->BuildTime ||
-        this->TextProperty->GetMTime() > this->BuildTime)
+        (this->Mapper && this->Mapper->GetMTime() > this->BuildTime) ||
+        (this->TextProperty && this->TextProperty->GetMTime() > this->BuildTime))
       {
       vtkDebugMacro(<<"Rebuilding text");
 
@@ -328,8 +331,8 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       //  Lets try to minimize the number of times we change the font size.
       //  If the width of the font box has not changed by more than a pixel
       // (numerical issues) do not recompute font size.
-      if (this->Mapper->GetMTime() > this->BuildTime ||
-          this->TextProperty->GetMTime() > this->BuildTime ||
+      if ((this->Mapper && this->Mapper->GetMTime() > this->BuildTime) ||
+          (this->TextProperty && this->TextProperty->GetMTime() > this->BuildTime) ||
           this->LastSize[0] < size[0] - 1 || this->LastSize[1] < size[1] - 1 ||
           this->LastSize[0] > size[0] + 1 || this->LastSize[1] > size[1] + 1 ||
           orientationHasChanged)
