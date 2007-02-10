@@ -74,7 +74,7 @@ public:
 
   // Description:
   // Get the name of rendering window.
-  virtual char *GetWindowName();
+  virtual const char *GetWindowName();
 
   // Description:
   // Render the resulting image.

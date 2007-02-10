@@ -26,7 +26,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.35");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.36");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -688,7 +688,7 @@ void vtkImageViewer2::Render()
 }
 
 //----------------------------------------------------------------------------
-char* vtkImageViewer2::GetWindowName() 
+const char* vtkImageViewer2::GetWindowName() 
 {
   return this->RenderWindow->GetWindowName();
 }
