@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This tests vtkVisibleCellSelector, vtkFrustumExtractor, 
+// This tests vtkVisibleCellSelector, vtkExtractSelectedFrustum, 
 // vtkRenderedAreaPicker, and vtkInteractorStyleRubberBandPick.
 // 
 // The command line arguments are:
@@ -32,13 +32,13 @@
 #include "vtkCallbackCommand.h"
 #include "vtkVisibleCellSelector.h"
 #include "vtkSelection.h"
-#include "vtkPolyDataExtractSelection.h"
+#include "vtkExtractSelectedPolyDataIds.h"
 #include "vtkIdTypeArray.h"
 #include "vtkRenderedAreaPicker.h"
 #include "vtkCamera.h"
 #include "vtkImageMandelbrotSource.h"
 #include "vtkImageActor.h"
-#include "vtkFrustumExtractor.h"
+#include "vtkExtractSelectedFrustum.h"
 #include "vtkDataSetMapper.h"
 
 #include "vtkDataSetReader.h"
@@ -77,11 +77,11 @@ static void EndPick(vtkObject *vtkNotUsed( caller ),
   */
 
   vtkSelection *cellids = res->GetChild(0);
-  vtkPolyDataExtractSelection *extr = vtkPolyDataExtractSelection::New();
+  vtkExtractSelectedPolyDataIds *extr = vtkExtractSelectedPolyDataIds::New();
   if (cellids)
     {
-    extr->SetInput(SS1->GetOutput());
-    extr->SetSelection(cellids);
+    extr->SetInput(1, SS1->GetOutput());
+    extr->SetInput(0, cellids);
     extr->Update();
     sMap->SetInput(extr->GetOutput());
     }
@@ -137,7 +137,7 @@ int TestAreaSelections(int argc, char* argv[])
   renderer->AddActor(act1);
 
   //frustum extractor works on geometry and doesn't care about pickability
-  vtkFrustumExtractor *extractor = vtkFrustumExtractor::New();
+  vtkExtractSelectedFrustum *extractor = vtkExtractSelectedFrustum::New();
   extractor->SetInputConnection(reader->GetOutputPort());
   extractor->PassThroughOff();
   extractor->ExactTestOn();

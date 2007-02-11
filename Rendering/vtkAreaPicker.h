@@ -36,7 +36,7 @@
 // of all props in the prop list.
 //
 // .SECTION See Also
-// vtkInteractorStyleRubberBandPick, vtkFrustumExtractor.
+// vtkInteractorStyleRubberBandPick, vtkExtractSelectedFrustum.
 
 #ifndef __vtkAreaPicker_h
 #define __vtkAreaPicker_h
@@ -49,7 +49,7 @@ class vtkPlanes;
 class vtkProp3DCollection;
 class vtkAbstractMapper3D;
 class vtkDataSet;
-class vtkFrustumExtractor;
+class vtkExtractSelectedFrustum;
 class vtkProp;
 class vtkImageActor;
 
@@ -128,7 +128,7 @@ protected:
   vtkDataSet *DataSet; //selected dataset (if there is one)
 
   //used internally to do prop intersection tests
-  vtkFrustumExtractor *FrustumExtractor;
+  vtkExtractSelectedFrustum *FrustumExtractor;
 
   double X0;
   double Y0;

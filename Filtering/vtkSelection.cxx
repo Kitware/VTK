@@ -20,13 +20,14 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIterator.h"
 #include "vtkInformationObjectBaseKey.h"
+#include "vtkInformationStringKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.2");
+vtkCxxRevisionMacro(vtkSelection, "1.3");
 vtkStandardNewMacro(vtkSelection);
 
 vtkCxxSetObjectMacro(vtkSelection, SelectionList, vtkAbstractArray);
@@ -39,6 +40,8 @@ vtkInformationKeyMacro(vtkSelection,PROP_ID,Integer);
 vtkInformationKeyMacro(vtkSelection,PROCESS_ID,Integer);
 vtkInformationKeyMacro(vtkSelection,GROUP,Integer);
 vtkInformationKeyMacro(vtkSelection,BLOCK,Integer);
+vtkInformationKeyMacro(vtkSelection,FIELD_TYPE,Integer);
+vtkInformationKeyMacro(vtkSelection,NAME,String);
 
 struct vtkSelectionInternals
 {
@@ -204,8 +207,9 @@ void vtkSelection::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkSelection::DeepCopy(vtkSelection* input)
+void vtkSelection::DeepCopy(vtkDataObject* src)
 {
+  vtkSelection *input = vtkSelection::SafeDownCast(src);
   if (!input)
     {
     return;

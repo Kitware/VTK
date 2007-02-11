@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSelection - A node in a selection tree. Used to store selection results
+// .NAME vtkSelection - A node in a selection tree. Used to store selection results.
 // .SECTION Description
 
 // vtkSelection is a node of a tree data structure used to store
@@ -41,7 +41,7 @@
 #ifndef __vtkSelection_h
 #define __vtkSelection_h
 
-#include "vtkObject.h"
+#include "vtkDataObject.h"
 
 //BTX
 class vtkAbstractArray;
@@ -51,10 +51,10 @@ class vtkInformationObjectBaseKey;
 struct vtkSelectionInternals;
 //ETX
 
-class VTK_FILTERING_EXPORT vtkSelection : public vtkObject
+class VTK_FILTERING_EXPORT vtkSelection : public vtkDataObject
 {
 public:
-  vtkTypeRevisionMacro(vtkSelection,vtkObject);
+  vtkTypeRevisionMacro(vtkSelection,vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkSelection* New();
 
@@ -108,7 +108,7 @@ public:
 
   // Description: 
   // Copy properties, selection list and children of the input.
-  virtual void DeepCopy(vtkSelection* input);
+  virtual void DeepCopy(vtkDataObject* src);
 
   // Description: 
   // Add the children of the given selection to this one. 
@@ -131,6 +131,25 @@ public:
   // The content of the selection node. See SelectionContent
   // enum for the possible values.
   static vtkInformationIntegerKey* CONTENT_TYPE();
+
+//BTX
+  enum SelectionContent
+  {
+    SELECTIONS,
+    COMPOSITE_SELECTIONS,
+    POINT_IDS,
+    POINT_ID_RANGE,
+    GLOBAL_POINT_IDS,
+    GLOBAL_POINT_ID_RANGE,
+    CELL_IDS,
+    CELL_ID_RANGE,
+    GLOBAL_CELL_IDS,
+    GLOBAL_CELL_ID_RANGE,
+    FRUSTUM,
+    POINTS,
+    THRESHOLD
+  };
+//ETX
 
   // Description:
   // Pointer to the data or algorithm the selection belongs to.
@@ -163,20 +182,20 @@ public:
   static vtkInformationIntegerKey* BLOCK();
 
 //BTX
-  enum SelectionContent
+  enum SelectionField
   {
-    SELECTIONS,
-    COMPOSITE_SELECTIONS,
-    POINT_IDS,
-    POINT_ID_RANGE,
-    GLOBAL_POINT_IDS,
-    GLOBAL_POINT_ID_RANGE,
-    CELL_IDS,
-    CELL_ID_RANGE,
-    GLOBAL_CELL_IDS,
-    GLOBAL_CELL_ID_RANGE
+    POINT,
+    CELL
   };
 //ETX
+
+  // Description:
+  // The an array type the selection came from.
+  static vtkInformationIntegerKey* FIELD_TYPE();
+
+  // Description:
+  // The an array name the selection came from.
+  static vtkInformationStringKey* NAME();
 
 protected:
   vtkSelection();

@@ -24,40 +24,20 @@
 #include "vtkSelection.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.2");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.3");
 vtkStandardNewMacro(vtkExtractSelection);
-vtkCxxSetObjectMacro(vtkExtractSelection,
-                     Selection,vtkSelection);
 
 //----------------------------------------------------------------------------
 vtkExtractSelection::vtkExtractSelection()
 {
-  this->Selection = 0;
+  this->SetNumberOfInputPorts(2);
   this->ExtractFilter = vtkExtractCells::New();
 }
 
 //----------------------------------------------------------------------------
 vtkExtractSelection::~vtkExtractSelection()
 {
-  this->SetSelection(NULL);
   this->ExtractFilter->Delete();
-}
-
-//----------------------------------------------------------------------------
-// Overload standard modified time function. If selection is modified,
-// then this object is modified as well.
-unsigned long vtkExtractSelection::GetMTime()
-{
-  unsigned long mTime=this->MTime.GetMTime();
-  unsigned long selTime;
-
-  if ( this->Selection != NULL )
-    {
-    selTime = this->Selection->GetMTime();
-    mTime = ( selTime > mTime ? selTime : mTime );
-    }
-
-  return mTime;
 }
 
 //----------------------------------------------------------------------------
@@ -67,23 +47,26 @@ int vtkExtractSelection::RequestData(
   vtkInformationVector *outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *selInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the selection, input and ouptut
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDebugMacro(<< "Extracting from dataset");
-
-  vtkSelection* sel = this->Selection;
+  vtkSelection *sel = vtkSelection::SafeDownCast(
+    selInfo->Get(vtkDataObject::DATA_OBJECT()));
   if ( ! sel )
     {
     vtkErrorMacro(<<"No selection specified");
     return 1;
     }
+
+  vtkDebugMacro(<< "Extracting from dataset");
+
 
   if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE()) ||
       sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::CELL_IDS)
@@ -135,21 +118,19 @@ void vtkExtractSelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Selection: ";
-  if (this->Selection)
-    {
-    this->Selection->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << "(none)" << endl;
-    }
 }
 
 //----------------------------------------------------------------------------
 int vtkExtractSelection::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+  int port, vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  if (port==0)
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    }
+  else
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");    
+    }
   return 1;
 }

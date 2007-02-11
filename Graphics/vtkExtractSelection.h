@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkExtractSelection - extract a list of cells from a dataset
 // .SECTION Description
-// vtkExtractSelection extracts all cells in vtkSelection from a
-// vtkDataSet. Internally, it uses vtkExtractCells
+// vtkExtractSelection extracts all cells within a vtkSelection from a
+// vtkDataSet. Internally, it uses vtkExtractSelectedUGridIds.
 // .SECTION See Also
-// vtkSelection vtkExtractCells
+// vtkSelection vtkExtractSelectedUGridIds
 
 #ifndef __vtkExtractSelection_h
 #define __vtkExtractSelection_h
@@ -34,19 +34,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct object with NULL selection.
+  // Construct object with NULL extractfilter
   static vtkExtractSelection *New();
-
-  // Description:
-  // Return the MTime taking into account changes to the selection
-  unsigned long GetMTime();
-
-  // Description:
-  // Specify the implicit function for inside/outside checks. The selection
-  // must have a CONTENT_TYPE of CELL_IDS and have a vtkIdTypeArray
-  // containing the cell id list.
-  virtual void SetSelection(vtkSelection*);
-  vtkGetObjectMacro(Selection,vtkSelection);
 
 protected:
   vtkExtractSelection();
@@ -57,7 +46,6 @@ protected:
                   vtkInformationVector **, 
                   vtkInformationVector *);
 
-  vtkSelection *Selection;
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 

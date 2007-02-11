@@ -63,13 +63,16 @@ vtkExtractGeometry.cxx
 vtkExtractGrid.cxx
 vtkExtractPolyDataGeometry.cxx
 vtkExtractRectilinearGrid.cxx
+vtkExtractSelectedFrustum.cxx
+vtkExtractSelectedPoints.cxx
+vtkExtractSelectedPolyDataIds.cxx
+vtkExtractSelectedThreshold.cxx
 vtkExtractSelection.cxx
 vtkExtractTensorComponents.cxx
 vtkExtractUnstructuredGrid.cxx
 vtkExtractVectorComponents.cxx
 vtkFeatureEdges.cxx
 vtkFieldDataToAttributeDataFilter.cxx
-vtkFrustumExtractor.cxx
 vtkGeometryFilter.cxx
 vtkGlyph2D.cxx
 vtkGlyph3D.cxx
@@ -141,7 +144,6 @@ vtkPointDataToCellData.cxx
 vtkPointsProjectedHull.cxx
 vtkPointSource.cxx
 vtkPolyDataConnectivityFilter.cxx
-vtkPolyDataExtractSelection.cxx
 vtkPolyDataNormals.cxx
 vtkPolyDataStreamer.cxx
 vtkProbeFilter.cxx

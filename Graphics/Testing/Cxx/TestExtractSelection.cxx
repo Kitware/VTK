@@ -17,7 +17,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkSphereSource.h"
-#include "vtkPolyDataExtractSelection.h"
+#include "vtkExtractSelectedPolyDataIds.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkRenderer.h"
@@ -45,9 +45,10 @@ int TestExtractSelection( int argc, char* argv[] )
 
   vtkSphereSource* sphere = vtkSphereSource::New();
 
-  vtkPolyDataExtractSelection* selFilter = vtkPolyDataExtractSelection::New();
-  selFilter->SetInputConnection(sphere->GetOutputPort());
-  selFilter->SetSelection(sel);
+  vtkExtractSelectedPolyDataIds* selFilter = 
+    vtkExtractSelectedPolyDataIds::New();
+  selFilter->SetInput(0, sel);
+  selFilter->SetInputConnection(1,sphere->GetOutputPort());
   sel->Delete();
 
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
