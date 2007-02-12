@@ -35,7 +35,18 @@
 
 /* Define if your processor stores words with the most significant
    byte first (like Motorola and SPARC, unlike Intel and VAX).  */
-#cmakedefine WORDS_BIGENDIAN @WORDS_BIGENDIAN@
+/* All compilers that support Mac OS X define either __BIG_ENDIAN__ or
+   __LITTLE_ENDIAN__ to match the endianness of the architecture being
+   compiled for. This is not necessarily the same as the architecture of the
+   machine doing the building. In order to support Universal Binaries on
+   Mac OS X, we prefer those defines to decide the endianness.
+   On other platforms we use the result of the TRY_RUN. */
+#if !defined(__APPLE__)
+  #cmakedefine WORDS_BIGENDIAN @WORDS_BIGENDIAN@
+#elif defined(__BIG_ENDIAN__)
+#  define WORDS_BIGENDIAN 1
+#endif
+
 
 /* Define if you don't have the <stdlib.h>.  */
 #cmakedefine NO_STDLIB_H @NO_STDLIB_H@
@@ -58,12 +69,6 @@
 /* Define if you don't have the strerror function  */
 #cmakedefine NO_STRERROR @NO_STRERROR@
 
-/* The number of bytes in a size_t */
-#cmakedefine SIZEOF_SIZE_T @SIZEOF_SIZE_T@
-
-/* The number of bytes in a off_t */
-#cmakedefine SIZEOF_OFF_T @SIZEOF_OFF_T@
-
 /* Define to `int' if system doesn't define.  */
 #cmakedefine ssize_t @ssize_t@
 
@@ -76,19 +81,34 @@
 /* Define if the system does not use IEEE floating point representation */
 #cmakedefine NO_IEEE_FLOAT @NO_IEEE_FLOAT@
 
-/* The number of bytes in a double.  */
-#cmakedefine SIZEOF_DOUBLE @SIZEOF_DOUBLE@
-
-/* The number of bytes in a float.  */
-#cmakedefine SIZEOF_FLOAT @SIZEOF_FLOAT@
-
-/* The number of bytes in a int.  */
-#cmakedefine SIZEOF_INT @SIZEOF_INT@
-
-/* The number of bytes in a long.  */
-#cmakedefine SIZEOF_LONG @SIZEOF_LONG@
-
-/* The number of bytes in a short.  */
-#cmakedefine SIZEOF_SHORT @SIZEOF_SHORT@
+/* Size of fundamental data types.  */
+/* Mac OS X uses two data models, ILP32 (in which integers, long integers,
+   and pointers are 32-bit quantities) and LP64 (in which integers are 32-bit
+   quantities and long integers and pointers are 64-bit quantities). In order
+   to support Universal Binaries on Mac OS X, we rely on this knowledge
+   instead of testing the sizes of the building machine.
+   On other platforms we use the result of the TRY_RUN. */
+#if !defined(__APPLE__)
+  #cmakedefine SIZEOF_SHORT @SIZEOF_SHORT@
+  #cmakedefine SIZEOF_INT @SIZEOF_INT@
+  #cmakedefine SIZEOF_LONG @SIZEOF_LONG@
+  #cmakedefine SIZEOF_FLOAT @SIZEOF_FLOAT@
+  #cmakedefine SIZEOF_DOUBLE @SIZEOF_DOUBLE@
+  #cmakedefine SIZEOF_SIZE_T @SIZEOF_SIZE_T@
+  #cmakedefine SIZEOF_OFF_T @SIZEOF_OFF_T@
+#else
+#  define SIZEOF_SHORT   2
+#  define SIZEOF_INT     4
+#  if defined(__LP64__) && __LP64__
+#    define SIZEOF_LONG   8
+#    define SIZEOF_SIZE_T 8
+#  else
+#    define SIZEOF_LONG   4
+#    define SIZEOF_SIZE_T 4
+#  endif
+#  define SIZEOF_FLOAT   4
+#  define SIZEOF_DOUBLE  8
+#  define SIZEOF_OFF_T   8
+#endif
 
 #endif /* !_NCCONFIG_H_ */
