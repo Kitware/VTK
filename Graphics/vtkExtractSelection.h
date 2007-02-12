@@ -12,19 +12,28 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelection - extract a list of cells from a dataset
+// .NAME vtkExtractSelection - extract a subset from a vtkDataSet.
 // .SECTION Description
-// vtkExtractSelection extracts all cells within a vtkSelection from a
-// vtkDataSet. Internally, it uses vtkExtractSelectedUGridIds.
+// vtkExtractSelection extracts some subset of cells and points from
+// its input dataset. The subset is described by the contents of the
+// vtkSelection on its first input port. The dataset is given on its 
+// second input port. Depending on the content of the vtkSelection,
+// this will use either a vtkExtractSelectedIds, vtkExtractSelectedFrustum
+// vtkExtractSelectedPoints or a vtkExtractSelectedThreshold to perform
+// the extraction.
 // .SECTION See Also
-// vtkSelection vtkExtractSelectedUGridIds
+// vtkSelection vtkExtractSelectedIds vtkExtractSelectedFrustum
+// vtkExtractSelectedPoints vtkExtractSelectedThreshold
 
 #ifndef __vtkExtractSelection_h
 #define __vtkExtractSelection_h
 
 #include "vtkUnstructuredGridAlgorithm.h"
 
-class vtkExtractCells;
+class vtkExtractSelectedIds;
+class vtkExtractSelectedFrustum;
+class vtkExtractSelectedPoints;
+class vtkExtractSelectedThreshold;
 class vtkSelection;
 
 class VTK_GRAPHICS_EXPORT vtkExtractSelection : public vtkUnstructuredGridAlgorithm
@@ -47,9 +56,17 @@ protected:
                   vtkInformationVector *);
 
 
+  int ExtractCellIds(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
+  int ExtractFrustum(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
+  int ExtractPoints(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
+  int ExtractThresholds(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
+
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  vtkExtractCells* ExtractFilter;
+  vtkExtractSelectedIds* IdsFilter;
+  vtkExtractSelectedFrustum* FrustumFilter;
+  vtkExtractSelectedPoints* PointsFilter;
+  vtkExtractSelectedThreshold* ThresholdsFilter;
 
 private:
   vtkExtractSelection(const vtkExtractSelection&);  // Not implemented.
