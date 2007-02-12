@@ -27,7 +27,7 @@
 #include "vtkExtractSelectedPoints.h"
 #include "vtkExtractSelectedThresholds.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.5");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.6");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ int vtkExtractSelection::RequestData(
     {
     return this->ExtractPoints(sel, input, output);
     }
-    case vtkSelection::THRESHOLD:
+    case vtkSelection::THRESHOLDS:
     {
     return this->ExtractThresholds(sel, input, output);
     }

@@ -147,7 +147,7 @@ public:
     GLOBAL_CELL_ID_RANGE,
     FRUSTUM,
     POINTS,
-    THRESHOLD
+    THRESHOLDS
   };
 //ETX
 
