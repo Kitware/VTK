@@ -27,7 +27,7 @@
 #include "vtkExtractSelectedPoints.h"
 #include "vtkExtractSelectedThresholds.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.6");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.7");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -172,11 +172,11 @@ int vtkExtractSelection::ExtractPoints(
 int vtkExtractSelection::ExtractThresholds(
   vtkSelection *sel, vtkDataSet* input, vtkUnstructuredGrid *output)
 {
-  this->ThresholdsFilter->SetInput(1, sel);
+  this->ThresholdsFilter->SetInput(0, sel);
 
   vtkDataSet* inputCopy = input->NewInstance();
   inputCopy->ShallowCopy(input);
-  this->ThresholdsFilter->SetInput(0, inputCopy);
+  this->ThresholdsFilter->SetInput(1, inputCopy);
   inputCopy->Delete();
 
   this->ThresholdsFilter->Update();
