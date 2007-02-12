@@ -23,7 +23,7 @@
 // the extraction.
 // .SECTION See Also
 // vtkSelection vtkExtractSelectedIds vtkExtractSelectedFrustum
-// vtkExtractSelectedPoints vtkExtractSelectedThreshold
+// vtkExtractSelectedPoints vtkExtractSelectedThresholds
 
 #ifndef __vtkExtractSelection_h
 #define __vtkExtractSelection_h
@@ -33,7 +33,7 @@
 class vtkExtractSelectedIds;
 class vtkExtractSelectedFrustum;
 class vtkExtractSelectedPoints;
-class vtkExtractSelectedThreshold;
+class vtkExtractSelectedThresholds;
 class vtkSelection;
 
 class VTK_GRAPHICS_EXPORT vtkExtractSelection : public vtkUnstructuredGridAlgorithm
@@ -66,7 +66,7 @@ protected:
   vtkExtractSelectedIds* IdsFilter;
   vtkExtractSelectedFrustum* FrustumFilter;
   vtkExtractSelectedPoints* PointsFilter;
-  vtkExtractSelectedThreshold* ThresholdsFilter;
+  vtkExtractSelectedThresholds* ThresholdsFilter;
 
 private:
   vtkExtractSelection(const vtkExtractSelection&);  // Not implemented.

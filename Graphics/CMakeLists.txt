@@ -67,7 +67,7 @@ vtkExtractSelectedFrustum.cxx
 vtkExtractSelectedIds.cxx
 vtkExtractSelectedPoints.cxx
 vtkExtractSelectedPolyDataIds.cxx
-vtkExtractSelectedThreshold.cxx
+vtkExtractSelectedThresholds.cxx
 vtkExtractSelection.cxx
 vtkExtractTensorComponents.cxx
 vtkExtractUnstructuredGrid.cxx
