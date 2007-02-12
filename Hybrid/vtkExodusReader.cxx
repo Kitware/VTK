@@ -1337,7 +1337,7 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.40");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.41");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1502,7 +1502,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.40");
+vtkCxxRevisionMacro(vtkExodusReader, "1.41");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -2687,7 +2687,8 @@ int vtkExodusReader::RequestData(
     double *requestedTimeSteps = 
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
     
-    // find the closest time step
+    // find the first time value larger than requested time value
+    // this logic could be improved
     int cnt = 0;
     while (cnt < tsLength-1 && steps[cnt] < requestedTimeSteps[0])
       {
