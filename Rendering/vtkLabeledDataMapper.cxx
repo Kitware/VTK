@@ -25,12 +25,12 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.46");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.47");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 # define SNPRINTF _snprintf
 #else
 # define SNPRINTF snprintf
