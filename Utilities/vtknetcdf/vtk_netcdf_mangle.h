@@ -1,11 +1,11 @@
-#ifndef vtk_expat_mangle_h
-#define vtk_expat_mangle_h
+#ifndef vtk_netcdf_mangle_h
+#define vtk_netcdf_mangle_h
 
 /*
 
-This header file mangles all symbols exported from the expat library.
-It is included in all files while building the expat library.  Due to
-namespace pollution, no expat headers should be included in .h files in
+This header file mangles all symbols exported from the netcdf library.
+It is included in all files while building the netcdf library.  Due to
+namespace pollution, no netcdf headers should be included in .h files in
 VTK.
 
 The following command was used to obtain the symbol list:
@@ -33,6 +33,7 @@ used when the shared library is loaded/unloaded from an executable.
 #define NC_sync vtk_netcdf_NC_sync
 #define NC_var_shape vtk_netcdf_NC_var_shape
 #define NCadvise vtk_netcdf_NCadvise
+#define default_create_format vtk_netcdf_default_create_format
 #define dup_NC_attrarrayV vtk_netcdf_dup_NC_attrarrayV
 #define dup_NC_dimarrayV vtk_netcdf_dup_NC_dimarrayV
 #define dup_NC_vararrayV vtk_netcdf_dup_NC_vararrayV
@@ -227,6 +228,7 @@ used when the shared library is loaded/unloaded from an executable.
 #define ncdiminq vtk_netcdf_ncdiminq
 #define ncdimrename vtk_netcdf_ncdimrename
 #define ncendef vtk_netcdf_ncendef
+#define ncerr vtk_netcdf_ncerr
 #define ncinquire vtk_netcdf_ncinquire
 #define ncio_close vtk_netcdf_ncio_close
 #define ncio_create vtk_netcdf_ncio_create
@@ -234,6 +236,7 @@ used when the shared library is loaded/unloaded from an executable.
 #define ncio_open vtk_netcdf_ncio_open
 #define ncio_pad_length vtk_netcdf_ncio_pad_length
 #define ncopen vtk_netcdf_ncopen
+#define ncopts vtk_netcdf_ncopts
 #define ncrecget vtk_netcdf_ncrecget
 #define ncrecinq vtk_netcdf_ncrecinq
 #define ncrecput vtk_netcdf_ncrecput
@@ -431,5 +434,4 @@ used when the shared library is loaded/unloaded from an executable.
 #define set_NC_string vtk_netcdf_set_NC_string
 #define write_numrecs vtk_netcdf_write_numrecs
 
-#endif /* vtk_expat_mangle_h */
-
+#endif /* vtk_netcdf_mangle_h */
