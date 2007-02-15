@@ -21,13 +21,14 @@
 #include "vtkInformationIterator.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.3");
+vtkCxxRevisionMacro(vtkSelection, "1.4");
 vtkStandardNewMacro(vtkSelection);
 
 vtkCxxSetObjectMacro(vtkSelection, SelectionList, vtkAbstractArray);
@@ -285,3 +286,16 @@ unsigned long vtkSelection::GetMTime()
 
   return mTime;
 }
+
+//----------------------------------------------------------------------------
+vtkSelection* vtkSelection::GetData(vtkInformation* info)
+{
+  return info? vtkSelection::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkSelection* vtkSelection::GetData(vtkInformationVector* v, int i)
+{
+  return vtkSelection::GetData(v->GetInformationObject(i));
+}
+

@@ -197,6 +197,11 @@ public:
   // The an array name the selection came from.
   static vtkInformationStringKey* NAME();
 
+  // Description:
+  // Retrieve a selection from an information vector.
+  static vtkSelection* GetData(vtkInformation* info);
+  static vtkSelection* GetData(vtkInformationVector* v, int i=0);
+
 protected:
   vtkSelection();
   ~vtkSelection();
