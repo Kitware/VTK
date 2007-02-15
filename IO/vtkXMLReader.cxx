@@ -32,7 +32,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.44");
+vtkCxxRevisionMacro(vtkXMLReader, "1.45");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -426,15 +426,20 @@ int vtkXMLReader::RequestData(vtkInformation *request,
     double* steps =
       outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     
-    // find the closest time step
+      // find the first time value larger than requested time value
+      // this logic could be improved
     int cnt = 0;
     while (cnt < length-1 && steps[cnt] < requestedTimeSteps[0])
       {
       cnt++;
       }
     this->CurrentTimeStep = cnt;
-    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                  steps+this->CurrentTimeStep,1);
+    // Do not overwrite if a sub-reader setup data time steps.
+    if (!output->GetInformation()->Has(vtkDataObject::DATA_TIME_STEPS()))
+      {
+      output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
+                                    steps+this->CurrentTimeStep,1);
+      }
 
     // Clamp the requested time step to be in bounds.
     if ( this->CurrentTimeStep < this->TimeStepRange[0] )
