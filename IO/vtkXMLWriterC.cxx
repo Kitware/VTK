@@ -619,7 +619,7 @@ vtkXMLWriterC_NewCellArray(const char* method, vtkIdType ncells,
       );
     return 0;
     }
-  array->SetArray(cells, cellsSize, 1);
+  array->SetArray(cells, ncells*cellsSize, 1);
 
   // Create the cell array.
   vtkSmartPointer<vtkCellArray> cellArray =
