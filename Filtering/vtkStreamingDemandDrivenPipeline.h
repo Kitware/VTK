@@ -208,6 +208,20 @@ protected:
   vtkStreamingDemandDrivenPipeline();
   ~vtkStreamingDemandDrivenPipeline();
 
+  // Keep track of the update time request corresponding to the
+  // previous executing. If the previous update request did not
+  // correspond to an existing time step and the reader chose 
+  // a time step with it's own logic, the data time step will
+  // be different than the request. If the same time step is
+  // requested again, there is no need to re-execute the algorithm.
+  // We know that it does not have this time step.
+  static vtkInformationDoubleVectorKey* PREVIOUS_UPDATE_TIME_STEPS();
+
+  // Does the time request correspond to what is in the data?
+  // Returns 0 if yes, 1 otherwise.
+  int NeedToExecuteBasedOnTime(vtkInformation* outInfo,
+                               vtkInformation* dataInfo);
+
   // Setup default information on the output after the algorithm
   // executes information.
   virtual int ExecuteInformation(vtkInformation* request,

@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.45");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.46");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -51,6 +51,7 @@ vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline,
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_BOUNDING_BOX, DoubleVector, 6);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_STEPS, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_TIME_STEPS, DoubleVector);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_UPDATE_TIME_STEPS, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_RANGE, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PRIORITY, Double);
 
@@ -505,6 +506,7 @@ vtkStreamingDemandDrivenPipeline
   info->Remove(TIME_STEPS());
   info->Remove(TIME_RANGE());
   info->Remove(UPDATE_TIME_STEPS());
+  info->Remove(PREVIOUS_UPDATE_TIME_STEPS());
 }
 
 //----------------------------------------------------------------------------
@@ -786,6 +788,16 @@ vtkStreamingDemandDrivenPipeline
                         outInfo->Length(UPDATE_TIME_STEPS()));
           }
         }
+      if (outInfo->Has(UPDATE_TIME_STEPS()))
+        {
+        outInfo->Set(PREVIOUS_UPDATE_TIME_STEPS(),
+                     outInfo->Get(UPDATE_TIME_STEPS()),
+                     outInfo->Length(UPDATE_TIME_STEPS()));
+        }
+      else
+        {
+        outInfo->Remove(PREVIOUS_UPDATE_TIME_STEPS());
+        }
       }
     }
 }
@@ -874,6 +886,19 @@ int vtkStreamingDemandDrivenPipeline
       }
     }
 
+  if (this->NeedToExecuteBasedOnTime(outInfo, dataInfo))
+    {
+    return 1;
+    }
+
+  // We do not need to execute.
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
+  vtkInformation* outInfo, vtkInformation* dataInfo)
+{
   // if we are requesting a particular update time index, check
   // if we have the desired time index
   if ( outInfo->Has(UPDATE_TIME_STEPS()) )
@@ -882,15 +907,45 @@ int vtkStreamingDemandDrivenPipeline
       {
       return 1;
       }
-    int dlength = dataInfo->Length(vtkDataObject::DATA_TIME_STEPS());
+
+    double *usteps = outInfo->Get(UPDATE_TIME_STEPS());
     int ulength = outInfo->Length(UPDATE_TIME_STEPS());
+
+    // First check if time request is the same as previous time request.
+    // If the previous update request did not correspond to an existing
+    // time step and the reader chose a time step with it's own logic, the
+    // data time step will be different than the request. If the same time
+    // step is requested again, there is no need to re-execute the
+    // algorithm.  We know that it does not have this time step.
+    if ( outInfo->Has(PREVIOUS_UPDATE_TIME_STEPS()) )
+      {
+      int plength = outInfo->Length(PREVIOUS_UPDATE_TIME_STEPS());
+      if (ulength > 0 && plength == ulength)
+        {
+        bool match = true;
+        double *psteps = outInfo->Get(PREVIOUS_UPDATE_TIME_STEPS());
+        for (int cnt = 0; cnt < ulength; ++cnt)
+          {
+          if (psteps[cnt] != usteps[cnt])
+            {
+            match = false;
+            break;
+            }
+          }
+        if (match)
+          {
+          return 0;
+          }
+        }
+      }
+
+    int dlength = dataInfo->Length(vtkDataObject::DATA_TIME_STEPS());
     if (dlength != ulength)
       {
       return 1;
       }
     int cnt = 0;
     double *dsteps = dataInfo->Get(vtkDataObject::DATA_TIME_STEPS());
-    double *usteps = outInfo->Get(UPDATE_TIME_STEPS());
     for (;cnt < dlength; ++cnt)
       {
       if (dsteps[cnt] != usteps[cnt])
@@ -899,8 +954,6 @@ int vtkStreamingDemandDrivenPipeline
         }
       }
     }
-
-  // We do not need to execute.
   return 0;
 }
 

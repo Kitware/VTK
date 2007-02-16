@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.50");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.51");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
@@ -963,30 +963,9 @@ int vtkCompositeDataPipeline::NeedToExecuteData(
       }
     }
 
-  // if we are requesting a particular update time index, check
-  // if we have the desired time index
-  if ( outInfo->Has(UPDATE_TIME_STEPS()) )
+  if (this->NeedToExecuteBasedOnTime(outInfo, dataInfo))
     {
-    if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEPS()))
-      {
-      return 1;
-      }
-    int dlength = dataInfo->Length(vtkDataObject::DATA_TIME_STEPS());
-    int ulength = outInfo->Length(UPDATE_TIME_STEPS());
-    if (dlength != ulength)
-      {
-      return 1;
-      }
-    int cnt = 0;
-    double *dsteps = dataInfo->Get(vtkDataObject::DATA_TIME_STEPS());
-    double *usteps = outInfo->Get(UPDATE_TIME_STEPS());
-    for (;cnt < dlength; ++cnt)
-      {
-      if (dsteps[cnt] != usteps[cnt])
-        {
-        return 1;
-        }
-      }
+    return 1;
     }
 
   // We do not need to execute.
