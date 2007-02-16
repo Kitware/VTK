@@ -329,13 +329,23 @@ protected:
   vtkDataSet();
   ~vtkDataSet();
 
+  // Description:
+  // Compute the range of the scalars and cache it into ScalarRange
+  // only if the cache became invalid (ScalarRangeComputeTime).
+  virtual void ComputeScalarRange();
+  
   vtkCellData *CellData;   // Scalars, vectors, etc. associated w/ each cell
   vtkPointData *PointData;   // Scalars, vectors, etc. associated w/ each point
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   double Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
-  double ScalarRange[2];
   double Center[3];
-
+  
+  // Cached scalar range
+  double ScalarRange[2];
+  
+  // Time at which scalar range is computed
+  vtkTimeStamp ScalarRangeComputeTime;
+  
 private:
   void InternalDataSetCopy(vtkDataSet *src);
   //BTX

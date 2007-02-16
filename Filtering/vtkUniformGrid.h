@@ -66,7 +66,6 @@ public:
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());}
   virtual void Initialize();
   virtual int GetMaxCellSize() {return 8;}; //voxel is the largest
-  virtual void GetScalarRange(double range[2]);
 
   // Description:
   // Shallow and Deep copy.
@@ -143,7 +142,11 @@ public:
 protected:
   vtkUniformGrid();
   ~vtkUniformGrid();
-
+  
+  // Description:
+  // Override this method because of blanking.
+  virtual void ComputeScalarRange();
+  
   vtkStructuredVisibilityConstraint* PointVisibility;
 
   void SetPointVisibility(vtkStructuredVisibilityConstraint *pointVisibility);

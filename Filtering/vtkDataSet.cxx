@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.10");
+vtkCxxRevisionMacro(vtkDataSet, "1.11");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -101,39 +101,54 @@ void vtkDataSet::ComputeBounds()
 }
 
 //----------------------------------------------------------------------------
+// Description:
+// Compute the range of the scalars and cache it into ScalarRange
+// only if the cache became invalid (ScalarRangeComputeTime).
+void vtkDataSet::ComputeScalarRange()
+{
+  if ( this->GetMTime() > this->ScalarRangeComputeTime )
+    {
+    vtkDataArray *ptScalars, *cellScalars;
+    ptScalars = this->PointData->GetScalars();
+    cellScalars = this->CellData->GetScalars();
+    
+    if ( ptScalars && cellScalars)
+      {
+      double r1[2], r2[2];
+      ptScalars->GetRange(r1,0);
+      cellScalars->GetRange(r2,0);
+      this->ScalarRange[0] = (r1[0] < r2[0] ? r1[0] : r2[0]);
+      this->ScalarRange[1] = (r1[1] > r2[1] ? r1[1] : r2[1]);
+      }
+    else if ( ptScalars )
+      {
+      ptScalars->GetRange(this->ScalarRange,0);
+      }
+    else if ( cellScalars )
+      {
+      cellScalars->GetRange(this->ScalarRange,0);
+      }
+    else
+      {
+      this->ScalarRange[0] = 0.0;
+      this->ScalarRange[1] = 1.0;
+      }
+    this->ScalarRangeComputeTime.Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkDataSet::GetScalarRange(double range[2])
 {
-  vtkDataArray *ptScalars, *cellScalars;
-  ptScalars = this->PointData->GetScalars();
-  cellScalars = this->CellData->GetScalars();
-
-  if ( ptScalars && cellScalars)
-    {
-    double r1[2], r2[2];
-    ptScalars->GetRange(r1,0);
-    cellScalars->GetRange(r2,0);
-    range[0] = (r1[0] < r2[0] ? r1[0] : r2[0]);
-    range[1] = (r1[1] > r2[1] ? r1[1] : r2[1]);
-    }
-  else if ( ptScalars )
-    {
-    ptScalars->GetRange(range,0);
-    }
-  else if ( cellScalars )
-    {
-    cellScalars->GetRange(range,0);
-    }
-  else
-    {
-    range[0] = 0.0;
-    range[1] = 1.0;
-    }
+  this->ComputeScalarRange();
+  range[0]=this->ScalarRange[0];
+  range[1]=this->ScalarRange[1];
 }
 
 //----------------------------------------------------------------------------
 double *vtkDataSet::GetScalarRange()
 {
-  this->GetScalarRange(this->ScalarRange);
+  this->ComputeScalarRange();
   return this->ScalarRange;
 }
 
@@ -340,9 +355,11 @@ void vtkDataSet::InternalDataSetCopy(vtkDataSet *src)
 {
   int idx;
 
-  this->ComputeTime = src->ComputeTime;
+  this->ScalarRangeComputeTime = src->ScalarRangeComputeTime;
   this->ScalarRange[0] = src->ScalarRange[0];
   this->ScalarRange[1] = src->ScalarRange[1];
+  
+  this->ComputeTime = src->ComputeTime;
   for (idx = 0; idx < 3; ++idx)
     {
     this->Bounds[2*idx] = src->Bounds[2*idx];

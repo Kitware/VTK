@@ -121,11 +121,29 @@ public:
   static vtkHierarchicalBoxDataSet* GetData(vtkInformationVector* v, int i=0);
   //ETX
 
+  // Description:
+  // Copy the cached scalar range into range.
+  virtual void GetScalarRange(double range[2]);
+  
+  // Description:
+  // Return the cached range.
+  virtual double *GetScalarRange();
+  
 protected:
   vtkHierarchicalBoxDataSet();
   ~vtkHierarchicalBoxDataSet();
 
+  // Description:
+  // Compute the range of the scalars and cache it into ScalarRange
+  // only if the cache became invalid (ScalarRangeComputeTime).
+  virtual void ComputeScalarRange();
+  
   vtkHierarchicalBoxDataSetInternal* BoxInternal;
+  
+  // Cached scalar range
+  double ScalarRange[2];
+  // Time at which scalar range is computed
+  vtkTimeStamp ScalarRangeComputeTime;
 
 private:
   vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&);  // Not implemented.

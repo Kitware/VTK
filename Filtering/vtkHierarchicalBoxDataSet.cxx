@@ -26,7 +26,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.15");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.16");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
@@ -37,6 +37,8 @@ typedef vtkstd::vector<vtkAMRBox> vtkAMRBoxList;
 vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
 {
   this->BoxInternal = new vtkHierarchicalBoxDataSetInternal;
+  this->ScalarRange[0]=VTK_DOUBLE_MAX;
+  this->ScalarRange[0]=VTK_DOUBLE_MIN;
 }
 
 //----------------------------------------------------------------------------
@@ -384,4 +386,61 @@ vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSet::GetData(
   vtkInformationVector* v, int i)
 {
   return vtkHierarchicalBoxDataSet::GetData(v->GetInformationObject(i));
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Copy the cached scalar range into range.
+void vtkHierarchicalBoxDataSet::GetScalarRange(double range[2])
+{
+  this->ComputeScalarRange();
+  range[0]=this->ScalarRange[0];
+  range[1]=this->ScalarRange[1];
+}
+  
+//----------------------------------------------------------------------------
+// Description:
+// Return the cached range.
+double *vtkHierarchicalBoxDataSet::GetScalarRange()
+{
+  this->ComputeScalarRange();
+  return this->ScalarRange;
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Compute the range of the scalars and cache it into ScalarRange
+// only if the cache became invalid (ScalarRangeComputeTime).
+void vtkHierarchicalBoxDataSet::ComputeScalarRange()
+{
+  if ( this->GetMTime() > this->ScalarRangeComputeTime )
+    {
+    double dataSetRange[2];
+    this->ScalarRange[0]=VTK_DOUBLE_MAX;
+    this->ScalarRange[1]=VTK_DOUBLE_MIN;
+    unsigned int level=0;
+    unsigned int levels=this->GetNumberOfLevels();
+    while(level<levels)
+      {
+      unsigned int dataset=0;
+      unsigned int datasets=this->GetNumberOfDataSets(level);
+      while(dataset<datasets)
+        {
+        vtkUniformGrid *ug;
+        ug=static_cast<vtkUniformGrid *>(this->GetDataSet(level,dataset));
+        ug->GetScalarRange(dataSetRange);
+        if(dataSetRange[0]<this->ScalarRange[0])
+          {
+          this->ScalarRange[0]=dataSetRange[0];
+          }
+        if(dataSetRange[1]>this->ScalarRange[1])
+          {
+          this->ScalarRange[1]=dataSetRange[1];
+          }
+        ++dataset;
+        }
+      ++level;
+      }
+    this->ScalarRangeComputeTime.Modified();
+    }
 }
