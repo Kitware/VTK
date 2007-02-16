@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.63");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.64");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -418,7 +418,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
   
   if(this->UseDepthPeeling && this->DepthPeelingIsSupported)
     {
-    // Those cards with those driver versions do not work (iMac and MacPro).
+    // Those ATI cards with those driver versions do not work
+    // (iMac, MacPro, PC).
     // Do alpha blending always.
     const GLubyte *openglString=glGetString(GL_RENDERER);
     const char *substring=strstr(reinterpret_cast<const char *>(openglString),
@@ -427,11 +428,30 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
     substring=strstr(reinterpret_cast<const char *>(openglString),
                      "ATI Radeon X1900 OpenGL Engine");
     int isATIRadeonX1900=substring!=0;
-    openglString=glGetString(GL_VERSION);
     substring=strstr(reinterpret_cast<const char *>(openglString),
-                     "2.0 ATI-1.4.40");
-    this->DepthPeelingIsSupported=!((isATIRadeonX1600 || isATIRadeonX1900)
-                                    && substring!=0);
+                     "ATI FireGL V3300 Pentium 4 (SSE2)");
+    int isATIFireGLV3300=substring!=0;
+    
+    openglString=glGetString(GL_VERSION);
+    
+    int badCard=0;
+    
+    if(isATIFireGLV3300)
+      {
+      substring=strstr(reinterpret_cast<const char *>(openglString),
+                       "2.0.6237");
+      badCard=substring!=0;
+      }
+    else
+      {
+      if(isATIRadeonX1600 || isATIRadeonX1900)
+        {
+        substring=strstr(reinterpret_cast<const char *>(openglString),
+                         "2.0 ATI-1.4.40");
+        badCard=substring!=0;
+        }
+      }
+    this->DepthPeelingIsSupported=!badCard;
     }
   
   if(!this->UseDepthPeeling || !this->DepthPeelingIsSupported)
