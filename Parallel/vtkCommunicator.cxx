@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkCommunicator.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCharArray.h"
 #include "vtkDataSetReader.h"
 #include "vtkDataSetWriter.h"
@@ -23,15 +24,17 @@
 #include "vtkGenericDataObjectWriter.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageClip.h"
+#include "vtkImageData.h"
 #include "vtkIntArray.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkStructuredPointsWriter.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
-#include "vtkBoundingBox.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.34");
+vtkCxxRevisionMacro(vtkCommunicator, "1.35");
 
 template <class T>
 int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -115,7 +118,30 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
     // then send the string.
     this->Send( this->MarshalString, this->MarshalDataLength, 
                 remoteHandle, tag);
-    
+    // Send data extents. These make sense only for structured data.
+    // However, we still send them. We need to send extents separately
+    // because the Legacy writers discard extents.
+    int extent[6] = {0,0,0,0,0,0};
+    if (data->GetExtentType() == VTK_3D_EXTENT)
+      {
+      vtkRectilinearGrid* rg = vtkRectilinearGrid::SafeDownCast(data);
+      vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(data);
+      vtkImageData* id = vtkImageData::SafeDownCast(data);
+      if (rg)
+        {
+        rg->GetExtent(extent);
+        }
+      else if (sg)
+        {
+        sg->GetExtent(extent);
+        }
+      else if (id)
+        {
+        id->GetExtent(extent);
+        }
+      }
+    this->Send(extent, 6, remoteHandle, tag);
+
     return 1;
     }
   
@@ -249,9 +275,36 @@ int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle,
     return 0;
     }
 
+  int extent[6];
+  // Receive the extents.
+  if (!this->Receive(extent, 6, remoteHandle, tag))
+    {
+    return 0;
+    }
+
   this->MarshalDataLength = dataLength;
 
   this->ReadObject(data);
+
+  // Set the extents if the dataobject supports it.
+  if (data->GetExtentType() == VTK_3D_EXTENT)
+    {
+    vtkRectilinearGrid* rg = vtkRectilinearGrid::SafeDownCast(data);
+    vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(data);
+    vtkImageData* id = vtkImageData::SafeDownCast(data);
+    if (rg)
+      {
+      rg->SetExtent(extent);
+      }
+    else if (sg)
+      {
+      sg->SetExtent(extent);
+      }
+    else if (id)
+      {
+      id->SetExtent(extent);
+      }
+    }
 
   // we should really look at status to determine success
   return 1;
