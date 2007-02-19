@@ -162,10 +162,12 @@ public:
   // Copy the geometric and topological structure of the tree.
   virtual void CopyStructure(vtkDataSet* ds);
 
+  //BTX
   // Description:
   // Retrieve the tree from vtkInformation.
   static vtkTree* GetData(vtkInformation* info);
   static vtkTree* GetData(vtkInformationVector* v, int i=0);
+  //ETX
 
 protected:
   vtkTree();

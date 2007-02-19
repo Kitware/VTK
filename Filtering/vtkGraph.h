@@ -147,10 +147,12 @@ public:
   // Initialize to an empty graph.
   virtual void Initialize();
 
+  //BTX
   // Description:
   // Retrieve a graph from an information vector.
   static vtkGraph* GetData(vtkInformation* info);
   static vtkGraph* GetData(vtkInformationVector* v, int i=0);
+  //ETX
 
 protected:
   vtkGraph();

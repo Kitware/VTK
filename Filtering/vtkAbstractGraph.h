@@ -148,10 +148,12 @@ public:
   // Create a shallow copy of the graph.
   virtual void ShallowCopy(vtkDataObject* object);
 
+  //BTX
   // Description:
   // Retrieve an abstract graph from an information vector.
   static vtkAbstractGraph* GetData(vtkInformation* info);
   static vtkAbstractGraph* GetData(vtkInformationVector* v, int i=0);
+  //ETX
 
 protected:
   vtkAbstractGraph();
