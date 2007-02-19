@@ -71,7 +71,7 @@ def get_libs():
     else:
         dir = vtk_bin_dir.replace('/', '\\')
         prefix = 'vtk'
-        suffix = 'Python.dll'
+        suffix = 'Python.pyd'
 
     # If this build has configuration types append the selected configuration.
     if vtk_has_configuration_types:
