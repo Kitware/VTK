@@ -29,7 +29,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkGraph, "1.4");
+vtkCxxRevisionMacro(vtkGraph, "1.5");
 vtkStandardNewMacro(vtkGraph);
 
 //----------------------------------------------------------------------------
@@ -325,6 +325,22 @@ void vtkGraph::DeepCopy(vtkDataObject *dataObject)
 
   // Do superclass
   this->Superclass::DeepCopy(dataObject);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::CopyStructure(vtkDataSet* ds)
+{
+  vtkGraph* graph = vtkGraph::SafeDownCast(ds);
+
+  if (graph != NULL)
+    {
+    this->Edges->DeepCopy(graph->Edges);
+    this->VertexLinks->DeepCopy(graph->VertexLinks);
+    this->Directed = graph->Directed;
+    }
+
+  // Do superclass
+  this->Superclass::CopyStructure(ds);
 }
 
 //----------------------------------------------------------------------------

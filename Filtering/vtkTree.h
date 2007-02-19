@@ -27,6 +27,7 @@
 
 #include "vtkAbstractGraph.h"
 
+class vtkIdList;
 class vtkVertexLinks;
 
 class VTK_FILTERING_EXPORT vtkTree : public vtkAbstractGraph
@@ -104,6 +105,12 @@ public:
   vtkIdType GetChild(vtkIdType parent, vtkIdType index);
 
   // Description:
+  // Reorders the children relative to the parent.
+  // The children array must have length GetNumberOfChildren(parent),
+  // and must contain the parent's existing child ids.
+  void ReorderChildren(vtkIdType parent, vtkIdList* children);
+
+  // Description:
   // Get the ID of the parent of a child vertex.
   // The parent of the root vertex is defined to be the root vertex itself.
   vtkIdType GetParent(vtkIdType child);
@@ -150,6 +157,10 @@ public:
   // Description:
   // Create a deep copy of the tree.
   virtual void DeepCopy(vtkDataObject* object);
+
+  // Description:
+  // Copy the geometric and topological structure of the tree.
+  virtual void CopyStructure(vtkDataSet* ds);
 
   // Description:
   // Retrieve the tree from vtkInformation.

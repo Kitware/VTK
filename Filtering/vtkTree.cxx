@@ -31,7 +31,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTree, "1.4");
+vtkCxxRevisionMacro(vtkTree, "1.5");
 vtkStandardNewMacro(vtkTree);
 
 //----------------------------------------------------------------------------
@@ -199,6 +199,28 @@ vtkIdType vtkTree::GetChild(vtkIdType parent, vtkIdType index)
   return this->VertexLinks->GetOutAdjacent(parent, index);
 }
 
+void vtkTree::ReorderChildren(vtkIdType parent, vtkIdList* children)
+{
+  // Check for errors in list
+  if (children->GetNumberOfIds() != this->GetNumberOfChildren(parent))
+    {
+    vtkErrorMacro("Length of child list for reordering is the wrong length.");
+    }
+  for (vtkIdType i = 0; i < this->GetNumberOfChildren(parent); i++)
+    {
+    if (children->IsId(this->GetChild(parent, i)) == -1)
+      {
+      vtkErrorMacro("Reorder array does not contain correct children.");
+      }
+    }
+
+  for (vtkIdType c = 0; c < children->GetNumberOfIds(); c++)
+    {
+    this->VertexLinks->SetOutAdjacent(parent, c, children->GetId(c));
+    }
+  this->Modified();
+}
+
 //----------------------------------------------------------------------------
 vtkIdType vtkTree::GetSourceVertex(vtkIdType edge)
 {
@@ -265,6 +287,21 @@ void vtkTree::DeepCopy(vtkDataObject *dataObject)
 
   // Do superclass
   this->Superclass::DeepCopy(dataObject);
+}
+
+//----------------------------------------------------------------------------
+void vtkTree::CopyStructure(vtkDataSet *ds)
+{
+  vtkTree* tree = vtkTree::SafeDownCast(ds);
+
+  if ( tree != NULL )
+    {
+    this->VertexLinks->DeepCopy(tree->VertexLinks);
+    this->Root = tree->Root;
+    }
+
+  // Do superclass
+  this->Superclass::CopyStructure(ds);
 }
 
 //----------------------------------------------------------------------------

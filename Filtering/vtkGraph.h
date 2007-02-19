@@ -98,6 +98,10 @@ public:
   virtual void ShallowCopy(vtkDataObject* object);
 
   // Description:
+  // Copy the geometric and topological structure of the graph.
+  virtual void CopyStructure(vtkDataSet* ds);
+
+  // Description:
   // Fast access to incident edges of a graph.
   void GetIncidentEdges(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges);
   void GetInEdges(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges);
