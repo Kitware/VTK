@@ -1412,7 +1412,7 @@ C_FUNC_DEF double v_hex_max_aspect_frobenius( int /*num_nodes*/, double coordina
 }
 
 /*!
-  The maximum Frobenius condition of a tet, a.k.a. condition
+  The maximum Frobenius condition of a hex, a.k.a. condition
   NB (P. Pebay 01/25/07): 
      this method is maintained for backwards compatibility only.
      It will become deprecated at some point.
