@@ -155,6 +155,34 @@ void vtkXMLWriterC_SetDataObjectType(vtkXMLWriterC* self, int objType)
 }
 
 //----------------------------------------------------------------------------
+void vtkXMLWriterC_SetDataModeType(vtkXMLWriterC* self, int datamodetype)
+{
+  if(!self) { return; }
+  if(self->Writer)
+    {
+    // Invoke the writer.
+    switch(datamodetype)
+      {
+      case vtkXMLWriter::Ascii:
+      case vtkXMLWriter::Binary:
+      case vtkXMLWriter::Appended:
+        self->Writer->SetDataMode(datamodetype);
+      default:
+      vtkGenericWarningMacro(
+        "vtkXMLWriterC_SetDataModeType : unknown DataMode: ." << datamodetype
+        );
+        break;
+      }
+    }
+  else
+    {
+    vtkGenericWarningMacro(
+      "vtkXMLWriterC_SetDataModeType called before vtkXMLWriterC_SetDataObjectType."
+      );
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkXMLWriterC_SetExtent(vtkXMLWriterC* self, int extent[6])
 {
   if(!self) { return; }

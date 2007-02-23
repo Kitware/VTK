@@ -112,6 +112,24 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_delete, VTKXMLWRITERF_DELETE)(
 }
 
 /*--------------------------------------------------------------------------*/
+/* vtkXMLWriterF_SetDataModeType */
+void VTK_FORTRAN_NAME(vtkxmlwriterf_setdatamodetype, VTKXMLWRITERF_SETDATAMODETYPE)(
+  const int* self, const int* objType
+  )
+{
+  if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
+    {
+    vtkXMLWriterC_SetDataModeType(vtkXMLWriterF_Table[*self], *objType);
+    }
+  else
+    {
+    fprintf(stderr,
+            "vtkXMLWriterF_SetDataModeType called with invalid id %d.\n",
+            *self);
+    }
+}
+
+/*--------------------------------------------------------------------------*/
 /* vtkXMLWriterF_SetDataObjectType */
 void VTK_FORTRAN_NAME(vtkxmlwriterf_setdataobjecttype, VTKXMLWRITERF_SETDATAOBJECTTYPE)(
   const int* self, const int* objType

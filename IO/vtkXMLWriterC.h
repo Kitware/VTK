@@ -65,6 +65,17 @@ VTK_XML_EXPORT
 void vtkXMLWriterC_SetDataObjectType(vtkXMLWriterC* self, int objType);
 
 /**
+ * Set the VTK writer data mode to either:
+ * - Ascii
+ * - Binary
+ * - Appended (default)
+ *
+ * This may be used only after SetDataObjectType has been called.
+ */
+VTK_XML_EXPORT
+void vtkXMLWriterC_SetDataModeType(vtkXMLWriterC* self, int datamodetype);
+
+/**
  * Set the extent of a structured data set.
  *
  * This may be used only after SetDataObjectType has been called with
