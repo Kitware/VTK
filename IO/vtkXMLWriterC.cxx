@@ -167,11 +167,11 @@ void vtkXMLWriterC_SetDataModeType(vtkXMLWriterC* self, int datamodetype)
       case vtkXMLWriter::Binary:
       case vtkXMLWriter::Appended:
         self->Writer->SetDataMode(datamodetype);
-      default:
-      vtkGenericWarningMacro(
-        "vtkXMLWriterC_SetDataModeType : unknown DataMode: ." << datamodetype
-        );
         break;
+      default:
+        vtkGenericWarningMacro(
+          "vtkXMLWriterC_SetDataModeType : unknown DataMode: " << datamodetype
+          );
       }
     }
   else
