@@ -36,17 +36,7 @@
 
 #include "Q4VTKWidgetPlugin.h"
 
-#include "qobject.h"
-#include "QVTKWidget.h"
 #include "QVTKWidget.xpm"
-
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkSphereSource.h"
-#include "vtkDataSetMapper.h"
-#include "vtkPolyData.h"
-#include "vtkElevationFilter.h"
-#include "vtkActor.h"
 
 // macro for debug printing
 #define qDebug(a)
@@ -87,31 +77,14 @@ QWidget* QVTKWidgetPlugin::createWidget(QWidget* parent)
 {
   qDebug("QVTKWidgetPlugin::createWidget\n");
   QVTKWidget* widget = new QVTKWidget(parent);
-  // gotta make a renderer so we get a nice black background in the designer
-  vtkRenderer* ren = vtkRenderer::New();
-  widget->GetRenderWindow()->AddRenderer(ren);
-
-  // also for fun, let's make a cylinder and put it in the window
-  // this REALLY lets the user know that a QVTKWidget works in the designer
-  vtkSphereSource* cyl = vtkSphereSource::New();
-  vtkElevationFilter* ele = vtkElevationFilter::New();
-  ele->SetLowPoint(0.0, -0.5, 0.0);
-  ele->SetHighPoint(0.0, 0.5, 0.0);
-  ele->SetInput(cyl->GetOutput());
-  vtkDataSetMapper* mapper = vtkDataSetMapper::New();
-  mapper->SetInput(ele->GetOutput());
-  ele->Delete();
-  cyl->Delete();
-  vtkActor* actor = vtkActor::New();
-  actor->SetMapper(mapper);
-  mapper->Delete();
-#if (VTK_MAJOR_VERSION > 4) || (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION >=5)
-  ren->AddViewProp(actor);
-#else
-  ren->AddProp(actor);
+ 
+  // make black background 
+  QPalette p = widget->palette();
+  p.setColor(QPalette::Background, QColor("black"));
+  widget->setPalette(p);
+#if QT_VERSION >= 0x040100
+  widget->setAutoFillBackground(true);
 #endif
-  actor->Delete();
-  ren->Delete();
 
   // return the widget
   return widget;

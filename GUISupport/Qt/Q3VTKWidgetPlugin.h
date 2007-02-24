@@ -22,49 +22,8 @@
  !!! license.
 =========================================================================*/
 
-#ifndef QVTK_WIDGET_PLUGIN
-#define QVTK_WIDGET_PLUGIN
+#include "qwidget.h"
 
-#include <QDesignerCustomWidgetInterface>
-#include <QDesignerCustomWidgetCollectionInterface>
-#include <QtPlugin>
-#include <QObject>
-#include <QWidget>
-
-
-// implement Designer Custom Widget interface
-class QVTKWidgetPlugin : public QDesignerCustomWidgetInterface
-{
-  public:
-    QVTKWidgetPlugin();
-    ~QVTKWidgetPlugin();
-    
-    QString name() const;
-    QString domXml() const;
-    QWidget* createWidget(QWidget* parent = 0);
-    QString group() const;
-    QIcon icon() const;
-    QString includeFile() const;
-    QString toolTip() const;
-    QString whatsThis() const;
-    bool isContainer() const;
-};
-
-// implement designer widget collection interface
-class QVTKPlugin : public QObject, public QDesignerCustomWidgetCollectionInterface
-{
-  Q_OBJECT
-  Q_INTERFACES(QDesignerCustomWidgetCollectionInterface)
-  public:
-  QVTKPlugin();
-  ~QVTKPlugin();
-
-  virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const;
-  private:
-    QVTKWidgetPlugin* mQVTKWidgetPlugin;
-};
-
-// fake QVTKWidget class to satisfy the designer
 class QVTKWidget : public QWidget
 {
   Q_OBJECT
@@ -72,5 +31,3 @@ public:
   QVTKWidget(QWidget* p) : QWidget(p) {}
 };
 
-
-#endif //QVTK_WIDGET_PLUGIN
