@@ -12,15 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelectedThresholds - extract a cells or points from a dataset
-// that have values within a set of thresholds.
+// .NAME vtkExtractSelectedThresholds - extract a cells or points from a 
+// dataset that have values within a set of thresholds.
+
 // .SECTION Description
 // vtkExtractSelectedThresholds extracts all cells and points with attribute 
 // values that lie within a vtkSelection's THRESHOLD contents. The selecion
 // can specify to threshold a particular array within either the point or cell
-// attribute data of the input. This uses vtkThresholds internally.
+// attribute data of the input. This is similar to vtkThreshold
+// but allows mutliple thresholds ranges.
+// This filter adds a scalar array called vtkOriginalCellIds that says what 
+// input cell produced each output cell. This is an example of a Pedigree ID 
+// which helps to trace back results.
+
 // .SECTION See Also
-// vtkSelection vtkThresholds 
+// vtkSelection vtkExtractSelection vtkThreshold 
 
 #ifndef __vtkExtractSelectedThresholds_h
 #define __vtkExtractSelectedThresholds_h
@@ -28,7 +34,8 @@
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkSelection;
-class vtkThreshold;
+class vtkDataArray;
+class vtkDoubleArray;
 
 class VTK_GRAPHICS_EXPORT vtkExtractSelectedThresholds : public vtkUnstructuredGridAlgorithm
 {
@@ -37,7 +44,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct object with NULL vtkThresholdFilter
+  // Constructor
   static vtkExtractSelectedThresholds *New();
 
 protected:
@@ -52,7 +59,7 @@ protected:
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  vtkThreshold* ThresholdFilter;
+  int EvaluateValue(vtkDataArray *scalars, vtkIdType id, vtkDoubleArray *lims);
 
 private:
   vtkExtractSelectedThresholds(const vtkExtractSelectedThresholds&);  // Not implemented.

@@ -17,8 +17,12 @@
 // vtkExtractSelectedIds extracts a set of cells and points from within a
 // vtkDataSet. The set of ids to extract are listed within a vtkSelection.
 // Internally, it uses vtkExtractCells to performs the extraction.
+// This filter adds a scalar array called vtkOriginalCellIds that says what 
+// input cell produced each output cell. This is an example of a Pedigree ID 
+// which helps to trace back results.
+
 // .SECTION See Also
-// vtkSelectedion vtkExtractCells
+// vtkSelection vtkExtractSelection
 
 #ifndef __vtkExtractSelectedIds_h
 #define __vtkExtractSelectedIds_h

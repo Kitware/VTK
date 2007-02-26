@@ -28,7 +28,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkCell.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedPoints, "1.1");
+vtkCxxRevisionMacro(vtkExtractSelectedPoints, "1.2");
 vtkStandardNewMacro(vtkExtractSelectedPoints);
 
 //----------------------------------------------------------------------------
@@ -93,6 +93,11 @@ int vtkExtractSelectedPoints::RequestData(
   vtkCellData *outputCD = output->GetCellData();
   outputCD->CopyAllocate(inCD);
 
+  vtkIdTypeArray *originalCellIds = vtkIdTypeArray::New();
+  outputCD->AddArray(originalCellIds);
+  originalCellIds->SetName("vtkOriginalCellIds");
+  originalCellIds->SetNumberOfComponents(1);
+
   //find the cells in the input that contain the points in the selection
   //create a map to convert old to new point ids
   vtkIdType *pointMap = new vtkIdType[numIPoints]; 
@@ -153,6 +158,7 @@ int vtkExtractSelectedPoints::RequestData(
         vtkIdType newCellId = 
           output->InsertNextCell(cell->GetCellType(),newCellPtIds);
         outputCD->CopyData(inCD,c,newCellId);
+        originalCellIds->InsertNextValue(c);
         break;
         }
       }
@@ -165,6 +171,7 @@ int vtkExtractSelectedPoints::RequestData(
   newPts->Delete();  
   newCellPtIds->Delete();
   delete[] weights;  
+  originalCellIds->Delete();
 
   return 1;
 }

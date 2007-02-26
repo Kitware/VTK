@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.1");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.2");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -374,6 +374,8 @@ int vtkExtractSelectedFrustum::RequestData(
   newCellPts = vtkIdList::New();
   newCellPts->Allocate(VTK_CELL_SIZE);
 
+  vtkIdTypeArray *originalCellIds = NULL;
+
   if (this->PassThrough)
     {
     //the output is a copy of the input, with two new arrays defined
@@ -406,6 +408,10 @@ int vtkExtractSelectedFrustum::RequestData(
     newPts->Allocate(numPts/4,numPts);
     outputPD->CopyAllocate(pd);
     outputCD->CopyAllocate(cd);
+    originalCellIds = vtkIdTypeArray::New();
+    originalCellIds->SetNumberOfComponents(1);
+    originalCellIds->SetName("vtkOriginalCellIds");
+    outputCD->AddArray(originalCellIds);
     }
 
   vtkIdType updateInterval;
@@ -486,6 +492,7 @@ int vtkExtractSelectedFrustum::RequestData(
           {
           newCellId = outputUG->InsertNextCell(cell->GetCellType(),newCellPts);
           outputCD->CopyData(cd,cellId,newCellId);
+          originalCellIds->InsertNextValue(cellId);
           }
         }
 
@@ -609,6 +616,7 @@ int vtkExtractSelectedFrustum::RequestData(
           {
           newCellId = outputUG->InsertNextCell(cell->GetCellType(),newCellPts);
           outputCD->CopyData(cd,cellId,newCellId);
+          originalCellIds->InsertNextValue(cellId);
           }
         }
       }
@@ -634,6 +642,10 @@ int vtkExtractSelectedFrustum::RequestData(
   newCellPts->Delete();
   pointInArray->Delete();
   cellInArray->Delete();
+  if (originalCellIds != NULL)
+    {
+    originalCellIds->Delete();
+    }
   if (!this->PassThrough)
     {
     outputUG->SetPoints(newPts);

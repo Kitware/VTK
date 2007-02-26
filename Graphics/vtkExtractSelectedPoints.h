@@ -16,9 +16,12 @@
 // contain the points listen in the vtkSelection.
 // .SECTION Description
 // vtkExtractSelectedPoints extracts all cells whose volume contain at least 
-// one point listed in the POINTS content of the vtkSelection. 
+// one point listed in the POINTS content of the vtkSelection. This filter 
+// adds a scalar array called vtkOriginalCellIds that says what input cell 
+// produced each output cell. This is an example of a Pedigree ID which helps
+// to trace back results.
 // .SECTION See Also
-// vtkSelection
+// vtkSelection vtkExtractSelection
 
 #ifndef __vtkExtractSelectedPoints_h
 #define __vtkExtractSelectedPoints_h

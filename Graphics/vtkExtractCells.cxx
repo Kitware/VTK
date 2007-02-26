@@ -34,7 +34,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractCells, "1.4");
+vtkCxxRevisionMacro(vtkExtractCells, "1.5");
 vtkStandardNewMacro(vtkExtractCells);
 
 #include <vtkstd/set>
@@ -124,7 +124,6 @@ int vtkExtractCells::RequestData(
   vtkModelMetadata *extractMetadata = this->ExtractMetadata(input);
 
   int numCellsInput = input->GetNumberOfCells();
-
   int numCells = this->CellList->IdTypeSet.size();
 
   if (numCells == numCellsInput)  
@@ -492,6 +491,11 @@ void vtkExtractCells::CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
   vtkCellData *oldCD = input->GetCellData();
   vtkCellData *newCD = output->GetCellData();
 
+  vtkIdTypeArray *origMap = vtkIdTypeArray::New();
+  origMap->SetNumberOfComponents(1);
+  origMap->SetName("vtkOriginalCellIds");
+  newCD->AddArray(origMap);
+
   vtkIdList *cellPoints = vtkIdList::New();
 
   vtkstd::set<vtkIdType>::iterator cellPtr;
@@ -515,9 +519,12 @@ void vtkExtractCells::CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
     int newId = output->InsertNextCell(input->GetCellType(cellId), cellPoints);
 
     newCD->CopyData(oldCD, cellId, newId);
+    origMap->InsertNextValue(cellId);
+
     }
 
   cellPoints->Delete();
+  origMap->Delete();
 
   return;
 }
@@ -526,7 +533,6 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
                                                 vtkUnstructuredGrid *output)
 {
   vtkUnstructuredGrid *ugrid = vtkUnstructuredGrid::SafeDownCast(input);
-
   if (ugrid == NULL)  
     {
     this->CopyCellsDataSet(ptMap, input, output);
@@ -535,6 +541,11 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
 
   vtkCellData *oldCD = input->GetCellData();
   vtkCellData *newCD = output->GetCellData();
+
+  vtkIdTypeArray *origMap = vtkIdTypeArray::New();
+  origMap->SetNumberOfComponents(1);
+  origMap->SetName("vtkOriginalCellIds");
+  newCD->AddArray(origMap);
 
   int numCells = this->CellList->IdTypeSet.size();
 
@@ -562,7 +573,7 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
        cellPtr != this->CellList->IdTypeSet.end(); 
        ++cellPtr)  
     {
-      if (*cellPtr > maxid) continue;
+    if (*cellPtr > maxid) continue;
       
     int oldCellId = *cellPtr;
 
@@ -585,6 +596,7 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
       }
 
     newCD->CopyData(oldCD, oldCellId, nextCellId);
+    origMap->InsertNextValue(oldCellId);
 
     nextCellId++;
     }
@@ -595,6 +607,7 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
   locationArray->Delete();
   newcells->Delete();
   cellArray->Delete();
+  origMap->Delete();
 
   return;
 }

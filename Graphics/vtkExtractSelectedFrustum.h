@@ -22,7 +22,10 @@
 // either a shallow copy of the input dataset with two new "vtkInsidedness" 
 // attribute arrays, or a completely new UnstructuredGrid that contains only 
 // the cells and points of the input that are inside the frustum. The 
-// PassThrough flag controls which occurs.
+// PassThrough flag controls which occurs. When PassThrough is off 
+// this filter adds a scalar array called vtkOriginalCellIds that says what 
+// input cell produced each output cell. This is an example of a Pedigree ID 
+// which helps to trace back results.
 //
 // You have two choices for what cells are considered to be inside.
 // ExactTestOff treats a cell as inside only if all of its points are 
@@ -33,7 +36,7 @@
 // is a line segment that crosses the frustum but has both vertices outside.
 //
 // .SECTION See Also
-// vtkExtractGeometry, vtkAreaPicker
+// vtkExtractGeometry, vtkAreaPicker, vtkExtractSelection, vtkSelection
 
 #ifndef __vtkExtractSelectedFrustum_h
 #define __vtkExtractSelectedFrustum_h

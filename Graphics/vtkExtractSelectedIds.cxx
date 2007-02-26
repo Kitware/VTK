@@ -23,8 +23,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.1");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.2");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -96,6 +97,7 @@ int vtkExtractSelectedIds::RequestData(
   memcpy(idsPtr, idArray->GetPointer(0), numCells*sizeof(vtkIdType));
 
   this->ExtractFilter->SetCellList(ids);
+
   ids->Delete();
 
   vtkDataSet* inputCopy = input->NewInstance();

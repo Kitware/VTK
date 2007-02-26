@@ -156,7 +156,7 @@ public:
   static vtkInformationObjectBaseKey* SOURCE();
 
   // Description:
-  // ID the data or algorithm the selection belongs to. What
+  // ID of the data or algorithm the selection belongs to. What
   // ID means is application specific.
   static vtkInformationIntegerKey* SOURCE_ID();
 
@@ -165,7 +165,7 @@ public:
   static vtkInformationObjectBaseKey* PROP();
 
   // Description:
-  // ID the prop the selection belongs to. What
+  // ID of the prop the selection belongs to. What
   // ID means is application specific.
   static vtkInformationIntegerKey* PROP_ID();
 
@@ -190,11 +190,11 @@ public:
 //ETX
 
   // Description:
-  // The an array type the selection came from.
+  // The location of the array the selection came from (ex, point, cell or field)
   static vtkInformationIntegerKey* FIELD_TYPE();
 
   // Description:
-  // The an array name the selection came from.
+  // The name of the array the selection came from.
   static vtkInformationStringKey* NAME();
 
   // Description:
