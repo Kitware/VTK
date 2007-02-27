@@ -59,6 +59,7 @@ class vtkTimerLog;
 class vtkIdList;
 class vtkIdTypeArray;
 class vtkIntArray;
+class vtkPointSet;
 class vtkPoints;
 class vtkCellArray;
 class vtkCell;
@@ -419,6 +420,7 @@ public:
   //
   // This method works most efficiently when the point arrays are
   // float arrays.
+  void BuildLocatorFromPoints(vtkPointSet *pointset);
   void BuildLocatorFromPoints(vtkPoints *ptArray);
   void BuildLocatorFromPoints(vtkPoints **ptArray, int numPtArrays);
   

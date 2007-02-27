@@ -48,7 +48,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.15");
+vtkCxxRevisionMacro(vtkKdTree, "1.16");
 
 // Timing data ---------------------------------------------
 
@@ -1591,6 +1591,11 @@ void vtkKdTree::BuildRegionList()
 //----------------------------------------------------------------------------
 // K-d tree from points, for finding duplicate and near-by points
 //
+void vtkKdTree::BuildLocatorFromPoints(vtkPointSet *pointset)
+{
+  this->BuildLocatorFromPoints(pointset->GetPoints());
+}
+
 void vtkKdTree::BuildLocatorFromPoints(vtkPoints *ptArray)
 {
   this->BuildLocatorFromPoints(&ptArray, 1);
