@@ -57,6 +57,11 @@ public:
   virtual void GetOutVertices(vtkIdType vertex, vtkGraphIdList* vertices);
 
   // Description:
+  virtual void GetAdjacentVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType* verts);
+  virtual void GetInVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType* verts);
+  virtual void GetOutVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType* verts);
+
+  // Description:
   // Fill edges with the edge IDs of every edge incident to a certain vertex.
   // For an undirected graph, these all return the same edges.
   virtual void GetIncidentEdges(vtkIdType vertex, vtkGraphIdList* edges);

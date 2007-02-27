@@ -31,7 +31,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTree, "1.5");
+vtkCxxRevisionMacro(vtkTree, "1.6");
 vtkStandardNewMacro(vtkTree);
 
 //----------------------------------------------------------------------------
@@ -118,6 +118,24 @@ void vtkTree::GetOutVertices(vtkIdType vertex, vtkGraphIdList* vertexIds)
   const vtkIdType* children;
   this->VertexLinks->GetOutAdjacent(vertex, nchildren, children);
   vertexIds->SetArray(const_cast<vtkIdType*>(children), nchildren, true);
+}
+
+//----------------------------------------------------------------------------
+void vtkTree::GetAdjacentVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType* verts)
+{
+  this->VertexLinks->GetAdjacent(vertex, nverts, verts);
+}
+
+//----------------------------------------------------------------------------
+void vtkTree::GetInVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType* verts)
+{
+  this->VertexLinks->GetInAdjacent(vertex, nverts, verts);
+}
+
+//----------------------------------------------------------------------------
+void vtkTree::GetOutVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType* verts)
+{
+  this->VertexLinks->GetOutAdjacent(vertex, nverts, verts);
 }
 
 //----------------------------------------------------------------------------
