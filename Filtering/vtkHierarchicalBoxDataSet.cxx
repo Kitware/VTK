@@ -26,7 +26,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.16");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.17");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
@@ -38,7 +38,7 @@ vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
 {
   this->BoxInternal = new vtkHierarchicalBoxDataSetInternal;
   this->ScalarRange[0]=VTK_DOUBLE_MAX;
-  this->ScalarRange[0]=VTK_DOUBLE_MIN;
+  this->ScalarRange[1]=VTK_DOUBLE_MIN;
 }
 
 //----------------------------------------------------------------------------
