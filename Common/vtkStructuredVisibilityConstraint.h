@@ -79,7 +79,7 @@ public:
 
   // Description:
   // Returns 0 if there is no visibility array (all cells/points
-  // are visibile), 0 otherwise.
+  // are visible), 0 otherwise.
   unsigned char IsConstrained()
     {
       return this->VisibilityById ? 1 : 0;
