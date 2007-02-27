@@ -98,10 +98,10 @@ public:
                         double x[3], double pcoords[3], int& subId);
 
   // Description:
-  // @deprecated Replaced by vtkLine::InterpolateFunctions as of VTK 5.2
+  // @deprecated Replaced by vtkBiQuadraticQuadraticHexahedron::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[20]);
   // Description:
-  // @deprecated Replaced by vtkLine::InterpolateDerivs as of VTK 5.2
+  // @deprecated Replaced by vtkBiQuadraticQuadraticHexahedron::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[72]);
   // Description:
   // Compute the interpolation functions/derivatives

@@ -79,10 +79,10 @@ public:
   int GetParametricCenter(double pcoords[3]);
 
   // Description:
-  // @deprecated Replaced by vtkLine::InterpolateFunctions as of VTK 5.2
+  // @deprecated Replaced by vtkWedge::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[6]);
   // Description:
-  // @deprecated Replaced by vtkLine::InterpolateDerivs as of VTK 5.2
+  // @deprecated Replaced by vtkWedge::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[18]);
   // Description:
   // Compute the interpolation functions/derivatives

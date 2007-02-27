@@ -153,7 +153,7 @@ public:
     }
 
   // Description:
-  // Check is point pos is HiCorner
+  // Check if point pos is HiCorner
   bool IsHiCorner(const int pos[3]) const
     {
     return this->HiCorner[0] == pos[0]
@@ -162,7 +162,7 @@ public:
     }
 
   // Description:
-  // Check is point pos is LoCorner
+  // Check if point pos is LoCorner
   bool IsLoCorner(const int pos[3]) const
     {
     return this->LoCorner[0] == pos[0]

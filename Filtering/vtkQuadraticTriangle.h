@@ -96,10 +96,10 @@ public:
   double GetParametricDistance(double pcoords[3]);
 
   // Description:
-  // @deprecated Replaced by vtkLine::InterpolateFunctions as of VTK 5.2
+  // @deprecated Replaced by vtkQuadraticTriangle::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[6]);
   // Description:
-  // @deprecated Replaced by vtkLine::InterpolateDerivs as of VTK 5.2
+  // @deprecated Replaced by vtkQuadraticTriangle::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[12]);
   // Description:
   // Compute the interpolation functions/derivatives

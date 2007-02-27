@@ -135,10 +135,10 @@ public:
   int JacobianInverse(double **inverse, double derivs[12]);
 
   // Description:
-  // @deprecated Replaced by vtkLine::InterpolateFunctions as of VTK 5.2
+  // @deprecated Replaced by vtkTetra::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[4]);
   // Description:
-  // @deprecated Replaced by vtkLine::InterpolateDerivs as of VTK 5.2
+  // @deprecated Replaced by vtkTetra::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[12]);
   // Description:
   // Compute the interpolation functions/derivatives
