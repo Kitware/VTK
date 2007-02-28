@@ -44,12 +44,12 @@ public:
   int GetLocalProcessId() { return 0; }
 
   // Description:
-  // Does nothing.
-  virtual void SingleMethodExecute() {}
+  // Directly calls the single method.
+  virtual void SingleMethodExecute();
   
   // Description:
-  // Does nothing.
-  virtual void MultipleMethodExecute() {}
+  // Directly calls multiple method 0.
+  virtual void MultipleMethodExecute();
 
   // Description:
   // Does nothing.

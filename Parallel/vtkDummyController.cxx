@@ -15,7 +15,7 @@
 #include "vtkDummyController.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDummyController, "1.2");
+vtkCxxRevisionMacro(vtkDummyController, "1.3");
 vtkStandardNewMacro(vtkDummyController);
 
 
@@ -25,3 +25,34 @@ void vtkDummyController::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 }
 
+//-----------------------------------------------------------------------------
+void vtkDummyController::SingleMethodExecute()
+{
+  if (this->SingleMethod)
+    {
+    // Should we wet the global controller here?  I'm going to say no since
+    // we are not really a parallel job.
+
+    (this->SingleMethod)(this, this->SingleData);
+    }
+  else
+    {
+    vtkWarningMacro("SingleMethod not set.");
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkDummyController::MultipleMethodExecute()
+{
+  if (this->MultipleMethod[0])
+    {
+    // Should we wet the global controller here?  I'm going to say no since
+    // we are not really a parallel job.
+
+    (this->MultipleMethod[0])(this, this->MultipleData[0]);
+    }
+  else
+    {
+    vtkWarningMacro("MultipleMethod 0 not set.");
+    }
+}
