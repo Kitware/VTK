@@ -40,6 +40,7 @@ public:
   void Append(vtkInformation* info, double value);
   void Set(vtkInformation* info, double* value, int length);
   double* Get(vtkInformation* info);
+  double  Get(vtkInformation* info, int idx);
   void Get(vtkInformation* info, double* value);
   int Length(vtkInformation* info);
   int Has(vtkInformation* info);

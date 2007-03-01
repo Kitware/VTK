@@ -14,10 +14,11 @@
 =========================================================================*/
 #include "vtkInformationKeyVectorKey.h"
 
+#include "vtkInformation.h"
 #include <vtkstd/vector>
 #include <vtkstd/algorithm> // find()
 
-vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.12");
+vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.13");
 
 //----------------------------------------------------------------------------
 vtkInformationKeyVectorKey::vtkInformationKeyVectorKey(const char* name, const char* location):
@@ -136,6 +137,21 @@ vtkInformationKey** vtkInformationKeyVectorKey::Get(vtkInformation* info)
     static_cast<vtkInformationKeyVectorValue *>
     (this->GetAsObjectBase(info));
   return (v && !v->Value.empty())?(&v->Value[0]):0;
+}
+
+//----------------------------------------------------------------------------
+vtkInformationKey* vtkInformationKeyVectorKey::Get(vtkInformation* info, 
+                                                   int idx)
+{
+  if (idx >= this->Length(info))
+    {
+    vtkErrorWithObjectMacro(info,
+                            "Information does not contain " << idx
+                            << " elements. Cannot return information value.");
+    return 0;
+    }
+  vtkInformationKey** values = this->Get(info);
+  return values[idx];
 }
 
 //----------------------------------------------------------------------------

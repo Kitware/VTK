@@ -130,6 +130,7 @@ public:
            int value1, int value2, int value3,
            int value4, int value5, int value6);
   int* Get(vtkInformationIntegerVectorKey* key);
+  int  Get(vtkInformationIntegerVectorKey* key, int idx);
   void Get(vtkInformationIntegerVectorKey* key, int* value);
   int Length(vtkInformationIntegerVectorKey* key);
   void Remove(vtkInformationIntegerVectorKey* key);
@@ -161,6 +162,7 @@ public:
            double value1, double value2, double value3,
            double value4, double value5, double value6);
   double* Get(vtkInformationDoubleVectorKey* key);
+  double  Get(vtkInformationDoubleVectorKey* key, int idx);
   void Get(vtkInformationDoubleVectorKey* key, double* value);
   int Length(vtkInformationDoubleVectorKey* key);
   void Remove(vtkInformationDoubleVectorKey* key);
@@ -173,6 +175,7 @@ public:
   void Set(vtkInformationKeyVectorKey* key, vtkInformationKey** value, int length);
   void Remove(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
   vtkInformationKey** Get(vtkInformationKeyVectorKey* key);
+  vtkInformationKey*  Get(vtkInformationKeyVectorKey* key, int idx);
   void Get(vtkInformationKeyVectorKey* key, vtkInformationKey** value);
   int Length(vtkInformationKeyVectorKey* key);
   void Remove(vtkInformationKeyVectorKey* key);

@@ -40,7 +40,7 @@
 
 #include "vtkInformationInternals.h"
 
-vtkCxxRevisionMacro(vtkInformation, "1.27");
+vtkCxxRevisionMacro(vtkInformation, "1.28");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -417,6 +417,10 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(ObjectBase, vtkObjectBase*);
   type* vtkInformation::Get(vtkInformation##name##VectorKey* key)           \
     {                                                                       \
     return key->Get(this);                                                  \
+    }                                                                       \
+  type vtkInformation::Get(vtkInformation##name##VectorKey* key, int idx)   \
+    {                                                                       \
+    return key->Get(this, idx);                                             \
     }                                                                       \
   void vtkInformation::Get(vtkInformation##name##VectorKey* key,            \
                            type* value)                                     \

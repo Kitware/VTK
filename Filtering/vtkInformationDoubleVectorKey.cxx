@@ -18,7 +18,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationDoubleVectorKey, "1.9");
+vtkCxxRevisionMacro(vtkInformationDoubleVectorKey, "1.10");
 
 //----------------------------------------------------------------------------
 vtkInformationDoubleVectorKey
@@ -101,6 +101,20 @@ double* vtkInformationDoubleVectorKey::Get(vtkInformation* info)
     static_cast<vtkInformationDoubleVectorValue *>(
       this->GetAsObjectBase(info));
   return (v && !v->Value.empty())?(&v->Value[0]):0;
+}
+
+//----------------------------------------------------------------------------
+double vtkInformationDoubleVectorKey::Get(vtkInformation* info, int idx)
+{
+  if (idx >= this->Length(info))
+    {
+    vtkErrorWithObjectMacro(info,
+                            "Information does not contain " << idx
+                            << " elements. Cannot return information value.");
+    return 0;
+    }
+  double* values = this->Get(info);
+  return values[idx];
 }
 
 //----------------------------------------------------------------------------

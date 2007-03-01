@@ -19,7 +19,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.11");
+vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.12");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerVectorKey
@@ -119,6 +119,20 @@ int* vtkInformationIntegerVectorKey::Get(vtkInformation* info)
     static_cast<vtkInformationIntegerVectorValue *>
     (this->GetAsObjectBase(info));
   return (v && !v->Value.empty())?(&v->Value[0]):0;
+}
+
+//----------------------------------------------------------------------------
+int vtkInformationIntegerVectorKey::Get(vtkInformation* info, int idx)
+{
+  if (idx >= this->Length(info))
+    {
+    vtkErrorWithObjectMacro(info,
+                            "Information does not contain " << idx
+                            << " elements. Cannot return information value.");
+    return 0;
+    }
+  int* values = this->Get(info);
+  return values[idx];
 }
 
 //----------------------------------------------------------------------------

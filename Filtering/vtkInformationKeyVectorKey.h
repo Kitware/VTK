@@ -41,6 +41,7 @@ public:
   void Set(vtkInformation* info, vtkInformationKey** value, int length);
   void RemoveItem(vtkInformation* info, vtkInformationKey* value);
   vtkInformationKey** Get(vtkInformation* info);
+  vtkInformationKey*  Get(vtkInformation* info, int idx);
   void Get(vtkInformation* info, vtkInformationKey** value);
   int Length(vtkInformation* info);
   int Has(vtkInformation* info);
