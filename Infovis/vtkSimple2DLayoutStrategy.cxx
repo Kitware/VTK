@@ -37,7 +37,7 @@
 #include "vtkTree.h"
 
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.7");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.8");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 
@@ -57,6 +57,8 @@ vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
   this->CoolDownRate = 50.0;
   this->LayoutComplete = 0;
   this->EdgeWeightField = 0;
+  this->RestDistance = 0;
+  this->Jitter = true;
 }
 
 // ----------------------------------------------------------------------
@@ -77,7 +79,10 @@ void vtkSimple2DLayoutStrategy::Initialize()
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
   
   // The optimal distance between vertices.
-  float optDist = sqrt(1.0 / static_cast<float>(numVertices));
+  if (this->RestDistance == 0)
+    {
+    this->RestDistance = sqrt(1.0 / static_cast<float>(numVertices));
+    }
     
   // Put the data into compact, fast access data structures
   this->VArray = new vtkLayoutVertex[numVertices];
@@ -90,11 +95,11 @@ void vtkSimple2DLayoutStrategy::Initialize()
     double pointCoords[3];
     pts->GetPoint(i, pointCoords);
     
-    // If coordinates are 0 then give some random value
-    if ((pointCoords[0]==0) && (pointCoords[1]==0))
+    // If jitter is on then offset some random value
+    if (Jitter)
       {
-      pointCoords[0] = optDist*(static_cast<float>(rand())/RAND_MAX - .5);
-      pointCoords[1] = optDist*(static_cast<float>(rand())/RAND_MAX - .5);
+      pointCoords[0] += this->RestDistance*.01*(static_cast<float>(rand())/RAND_MAX - .5);
+      pointCoords[1] += this->RestDistance*.01*(static_cast<float>(rand())/RAND_MAX - .5);
       }
       
     // Set point position
@@ -158,9 +163,6 @@ void vtkSimple2DLayoutStrategy::Layout()
   vtkPoints* pts = this->Graph->GetPoints();
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
-    
-  // The optimal distance between vertices.
-  float optDist = sqrt(1.0 / static_cast<float>(numVertices));
   
 
   // This is the mega, uber, triple inner loop
@@ -169,6 +171,7 @@ void vtkSimple2DLayoutStrategy::Layout()
   float dis, disSquared;
   float repulseValue;
   float attractValue;
+  float epsilon = this->RestDistance * 1e-10;
   for(int i = 0; i < this->IterationsPerLayout; ++i)
     {
   
@@ -188,14 +191,22 @@ void vtkSimple2DLayoutStrategy::Layout()
           if (this->Temp > .2)
             {
             dis = fabs(delta[0]) + fabs(delta[1]);
-            repulseValue = optDist/dis;
+            if (dis < epsilon)
+              {
+              dis = epsilon;
+              }
+            repulseValue = this->RestDistance/dis;
             }
           
           // k/d**2 replusion ( flowering :)
           else
             {
             disSquared = delta[0]*delta[0] + delta[1]*delta[1];
-            repulseValue = optDist/disSquared;
+            if (disSquared < epsilon)
+              {
+              disSquared = epsilon;
+              }
+            repulseValue = this->RestDistance/disSquared;
             }
           this->VArray[j].dx += delta[0] * repulseValue;
           this->VArray[j].dy += delta[1] * repulseValue;
@@ -214,7 +225,7 @@ void vtkSimple2DLayoutStrategy::Layout()
 
       // Emergency action on edges that are 10x 
       // their 'resting' distance
-      if (disSquared > 100*optDist)
+      if (disSquared > 100*this->RestDistance)
         {
         float jump = this->Temp * .5;
         this->VArray[this->EdgeArray[j].to].x   -= delta[0] * jump;
@@ -224,7 +235,7 @@ void vtkSimple2DLayoutStrategy::Layout()
         }
 
       // Perform weight adjustment
-      attractValue = this->EdgeArray[j].weight*disSquared/optDist;
+      attractValue = this->EdgeArray[j].weight*disSquared/this->RestDistance;
       this->VArray[this->EdgeArray[j].to].dx   -= delta[0] * attractValue;
       this->VArray[this->EdgeArray[j].to].dy   -= delta[1] * attractValue;
       this->VArray[this->EdgeArray[j].from].dx += delta[0] * attractValue;
@@ -277,4 +288,5 @@ void vtkSimple2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IterationsPerLayout: " << this->IterationsPerLayout << endl;
   os << indent << "CoolDownRate: " << this->CoolDownRate << endl;
   os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)") << endl;
+  os << indent << "Jitter: " << (this->Jitter ? "True" : "False") << endl;
 }

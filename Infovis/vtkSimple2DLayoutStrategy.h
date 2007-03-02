@@ -78,6 +78,21 @@ public:
   // this parameter. :)
   vtkSetClampMacro(CoolDownRate, double, 0.01, VTK_DOUBLE_MAX);
   vtkGetMacro(CoolDownRate, double);
+  
+  // Description:
+  // Set Random jitter of the nodes at initialization
+  // to on or off.
+  // Note: It's strongly recommendation to have jitter ON
+  // even if you have initial coordinates in your graph. 
+  // Default is ON
+  vtkSetMacro(Jitter, bool);
+  vtkGetMacro(Jitter, bool);
+  
+  // Description:
+  // Manually set the resting distance. Otherwise the
+  // distance is computed automatically.
+  vtkSetMacro(RestDistance, float);
+  vtkGetMacro(RestDistance, float);
 
   // Description:
   // This strategy sets up some data structures
@@ -134,6 +149,8 @@ private:
   int TotalIterations;
   int LayoutComplete;
   float Temp;
+  float RestDistance;
+  bool Jitter;
 
   vtkSimple2DLayoutStrategy(const vtkSimple2DLayoutStrategy&);  // Not implemented.
   void operator=(const vtkSimple2DLayoutStrategy&);  // Not implemented.
