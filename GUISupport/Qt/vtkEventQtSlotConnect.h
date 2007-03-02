@@ -116,7 +116,7 @@ class vtkQtConnection : public QObject
   public:
 
     // constructor
-    vtkQtConnection();
+    vtkQtConnection(vtkEventQtSlotConnect* owner);
 
     // destructor, disconnect if necessary
     ~vtkQtConnection();
@@ -158,6 +158,7 @@ class vtkQtConnection : public QObject
     void* ClientData;
     unsigned long VTKEvent;
     QString QtSlot;
+    vtkEventQtSlotConnect* Owner;
 
   private:
     vtkQtConnection(const vtkQtConnection&);

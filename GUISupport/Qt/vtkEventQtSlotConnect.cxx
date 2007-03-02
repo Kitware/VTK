@@ -34,7 +34,8 @@
 #include <qmetaobject.h>
 
 // constructor
-vtkQtConnection::vtkQtConnection() 
+vtkQtConnection::vtkQtConnection(vtkEventQtSlotConnect* owner) 
+  : Owner(owner)
 {
   Callback = vtkCallbackCommand::New();
   Callback->SetCallback(vtkQtConnection::DoCallback);
@@ -71,8 +72,13 @@ void vtkQtConnection::Execute(vtkObject* caller, unsigned long e, void* call_dat
   
   if(e == vtkCommand::DeleteEvent)
     {
-    VTKObject->RemoveObserver(this->Callback);
-    VTKObject = NULL;
+    this->Owner->Disconnect(this->VTKObject, this->VTKEvent, this->QtObject,
+#if QT_VERSION < 0x040000
+      this->QtSlot,
+#else
+      this->QtSlot.toAscii().data(),
+#endif
+      this->ClientData);
     }
 }
 
@@ -187,7 +193,7 @@ void vtkEventQtSlotConnect::Connect(
     vtkErrorMacro("Cannot connect NULL objects.");
     return;
     }
-  vtkQtConnection* connection = new vtkQtConnection;
+  vtkQtConnection* connection = new vtkQtConnection(this);
   connection->SetConnection(
     vtk_obj, event, qt_obj, slot, client_data, priority
 #if QT_VERSION >= 0x040000
