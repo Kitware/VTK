@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.84");
+vtkCxxRevisionMacro(vtkVolume, "1.85");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -365,7 +365,7 @@ int vtkVolume::RenderTranslucentGeometry( vtkViewport *vp )
     }
 
   // If we don't have any input return silently
-  if ( !this->Mapper->GetDataSetInput() )
+  if ( !this->Mapper->GetDataObjectInput() )
     {
     return 0;
     }

@@ -41,7 +41,8 @@ public:
   // Set/Get the input data
   virtual void SetInput( vtkDataSet * );
   vtkDataSet *GetDataSetInput();
-
+  vtkDataObject *GetDataObjectInput();
+  
   // Description:
   // Return bounding box (array of six doubles) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
