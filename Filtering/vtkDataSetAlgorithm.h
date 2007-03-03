@@ -117,35 +117,49 @@ protected:
   ~vtkDataSetAlgorithm() {};
 
   // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
-  virtual int RequestDataObject(vtkInformation* request, 
-                                vtkInformationVector** inputVector, 
-                                vtkInformationVector* outputVector);
-  
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  // This is called within ProcessRequest when a request asks for 
+  // Information. Typically an algorithm provides whatever lightweight 
+  // information about its output that it can here without doing any 
+  // lengthy computations. This happens in the first pass of the pipeline
+  // execution.
   virtual int RequestInformation(vtkInformation*, 
                                  vtkInformationVector**, 
                                  vtkInformationVector*) {return 1;};
   
   // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
-  virtual int RequestData(vtkInformation*, 
-                          vtkInformationVector**, 
-                          vtkInformationVector*) {return 1;};
-  
-  // Description:
-  // This is called by the superclass.
-  // This is the method you should override.
+  // This is called within ProcessRequest when each filter in the pipeline
+  // decides what portion of its input is needed to create the portion of its
+  // output that the downstream filter asks for. This happens during the
+  // second pass in the pipeline execution process.
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*) 
     {
       return 1;
     };
+
+
+  // Description:
+  // This is called within ProcessRequest to when a request asks the
+  // algorithm to create empty output data objects. This typically happens
+  // early on in the execution of the pipeline. The default behavior is to 
+  // create an output DataSet of the same type as the input for each 
+  // output port. This method can be overridden to change the output 
+  // data type of an algorithm. This happens in the third pass of the 
+  // pipeline execution.
+  virtual int RequestDataObject(vtkInformation* request, 
+                                vtkInformationVector** inputVector, 
+                                vtkInformationVector* outputVector);
+  
+  // Description:
+  // This is called within ProcessRequest when a request asks the algorithm
+  // to do its work. This is the method you should override to do whatever the
+  // algorithm is designed to do. This happens during the fourth pass in the
+  // pipeline execution process.
+  virtual int RequestData(vtkInformation*, 
+                          vtkInformationVector**, 
+                          vtkInformationVector*) {return 1;};
+  
 
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
