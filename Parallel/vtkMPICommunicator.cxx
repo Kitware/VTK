@@ -15,15 +15,18 @@
 
 #include "vtkMPICommunicator.h"
 
+#include "vtkImageData.h"
 #include "vtkMPIController.h"
 #include "vtkMPIGroup.h"
 #include "vtkMPIGroup.h"
 #include "vtkObjectFactory.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
 #include "vtkToolkits.h"
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.38");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.39");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -1368,9 +1371,36 @@ int vtkMPICommunicator::Receive(vtkDataObject* data,
     return 0;
     }
 
+  int extent[6];
+  // Receive the extents.
+  if (!this->Receive(extent, 6, senderId, tag))
+    {
+    return 0;
+    }
+
   this->MarshalDataLength = dataLength;
 
   this->ReadObject(data);
+
+  // Set the extents if the dataobject supports it.
+  if (data->GetExtentType() == VTK_3D_EXTENT)
+    {
+    vtkRectilinearGrid* rg = vtkRectilinearGrid::SafeDownCast(data);
+    vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(data);
+    vtkImageData* id = vtkImageData::SafeDownCast(data);
+    if (rg)
+      {
+      rg->SetExtent(extent);
+      }
+    else if (sg)
+      {
+      sg->SetExtent(extent);
+      }
+    else if (id)
+      {
+      id->SetExtent(extent);
+      }
+    }
 
   // we should really look at status to determine success
   return 1;
