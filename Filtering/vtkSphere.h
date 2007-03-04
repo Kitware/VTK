@@ -61,6 +61,8 @@ public:
   // bounding sphere; the two values in the hints array are the two points
   // expected to be the furthest apart. The output sphere consists of a
   // center (x-y-z) and a radius.
+  static void ComputeBoundingSphere(float *pts, vtkIdType numPts, float sphere[4], 
+                                    vtkIdType hints[2]);
   static void ComputeBoundingSphere(double *pts, vtkIdType numPts, double sphere[4], 
                                     vtkIdType hints[2]);
 
@@ -71,6 +73,8 @@ public:
   // guess for the initial bounding sphere; the two values in the hints array
   // are the two spheres expected to be the furthest apart. The output sphere
   // consists of a center (x-y-z) and a radius.
+  static void ComputeBoundingSphere(float **spheres, vtkIdType numSpheres, float sphere[4],
+                                    vtkIdType hints[2]);
   static void ComputeBoundingSphere(double **spheres, vtkIdType numSpheres, double sphere[4],
                                     vtkIdType hints[2]);
   
