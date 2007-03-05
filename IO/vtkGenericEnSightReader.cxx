@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.82");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.83");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -80,6 +80,7 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
   this->NumberOfComplexVectorsPerElement = 0;
   
   this->TimeValue = 0;
+
   this->MinimumTimeValue = 0;
   this->MaximumTimeValue = 0;
   
@@ -189,10 +190,21 @@ int vtkGenericEnSightReader::RequestData(
     return 0;
     }
 
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   // Set the real reader's data array selections from ours.
   this->SetReaderDataArraySelectionSetsFromSelf();
   
   this->Reader->SetTimeValue(this->GetTimeValue());
+  this->Reader->UpdateInformation();
+  vtkInformation* tmpOutInfo =
+    this->Reader->GetExecutive()->GetOutputInformation(0);
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+    {
+    tmpOutInfo->CopyEntry(
+      outInfo,
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    }
   this->Reader->Update();
 
   this->NumberOfScalarsPerNode = this->Reader->GetNumberOfScalarsPerNode();
@@ -218,7 +230,6 @@ int vtkGenericEnSightReader::RequestData(
   this->NumberOfComplexVectorsPerElement =
     this->Reader->GetNumberOfComplexScalarsPerElement();
 
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   output->ShallowCopy(this->Reader->GetOutput());

@@ -24,14 +24,16 @@
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <vtkstd/algorithm>
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.65");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.66");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -162,6 +164,8 @@ vtkEnSightReader::~vtkEnSightReader()
   this->TimeSets = NULL;
   this->FileSets->Delete();
   this->FileSets = NULL;
+
+  this->ActualTimeValue = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -175,6 +179,34 @@ int vtkEnSightReader::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  int tsLength =
+    outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  double* steps =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    
+  this->ActualTimeValue = this->TimeValue;
+
+  // Check if a particular time was requested by the pipeline.
+  // This overrides the ivar.
+  if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+    {
+    // Get the requested time step. We only supprt requests of a single time
+    // step in this reader right now
+    double *requestedTimeSteps = 
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    
+    // find the first time value larger than requested time value
+    // this logic could be improved
+    int cnt = 0;
+    while (cnt < tsLength-1 && steps[cnt] < requestedTimeSteps[0])
+      {
+      cnt++;
+      }
+    this->ActualTimeValue = steps[cnt];
+    }
+
+  cout << "Executing with: " << this->ActualTimeValue << endl;
 
   int i, timeSet, fileSet, timeStep, timeStepInFile, fileNum;
   vtkDataArray *times;
@@ -209,7 +241,8 @@ int vtkEnSightReader::RequestData(
         for (i = 1; i < times->GetNumberOfTuples(); i++)
           {
           newTime = times->GetComponent(i, 0);
-          if (newTime <= this->TimeValue && newTime > this->GeometryTimeValue)
+          if (newTime <= this->ActualTimeValue && 
+              newTime > this->GeometryTimeValue)
             {
             this->GeometryTimeValue = newTime;
             timeStep++;
@@ -292,7 +325,8 @@ int vtkEnSightReader::RequestData(
         for (i = 1; i < times->GetNumberOfTuples(); i++)
           {
           newTime = times->GetComponent(i, 0);
-          if (newTime <= this->TimeValue && newTime > this->MeasuredTimeValue)
+          if (newTime <= this->ActualTimeValue && 
+              newTime > this->MeasuredTimeValue)
             {
             this->MeasuredTimeValue = newTime;
             timeStep++;
@@ -373,10 +407,44 @@ int vtkEnSightReader::RequestData(
 int vtkEnSightReader::RequestInformation(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *vtkNotUsed(outputVector))
+  vtkInformationVector *outputVector)
 {
   vtkDebugMacro("In execute information");
   this->CaseFileRead = this->ReadCaseFile();
+
+  // Convert time steps to one sorted and uniquefied list.
+  vtkstd::vector<double> timeValues;
+  if (this->GetTimeSets())
+    {
+    int numItems = this->GetTimeSets()->GetNumberOfItems();
+    for (int i=0; i<numItems; i++)
+      {
+      vtkDataArray* array = this->GetTimeSets()->GetItem(i);
+      if (array)
+        {
+        vtkIdType numTuples = array->GetNumberOfTuples();
+        for (vtkIdType j=0; j<numTuples; j++)
+          {
+          timeValues.push_back(array->GetComponent(j, 0));
+          }
+        }
+      }
+    }
+  if (timeValues.size() > 0)
+    {
+    vtkstd::vector<double> uniqueTimeValues(
+      timeValues.begin(),
+      vtkstd::unique(timeValues.begin(), timeValues.end()));
+    vtkstd::sort(uniqueTimeValues.begin(), uniqueTimeValues.end());
+    int numTimeValues = uniqueTimeValues.size();
+    if (numTimeValues > 0)
+      {
+      vtkInformation* outInfo = outputVector->GetInformationObject(0);
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
+                   &uniqueTimeValues[0], 
+                   numTimeValues);
+      }
+    }
   return this->CaseFileRead;
 }
 
@@ -1185,7 +1253,7 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet *output)
       for (j = 0; j < times->GetNumberOfTuples(); j++)
         {
         newTime = times->GetComponent(j, 0);
-        if (newTime <= this->TimeValue)
+        if (newTime <= this->ActualTimeValue)
           {
           timeStep++;
           if (this->VariableTypes[i] == SCALAR_PER_MEASURED_NODE ||
@@ -1329,7 +1397,7 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet *output)
       for (j = 0; j < times->GetNumberOfTuples(); j++)
         {
         newTime = times->GetComponent(j, 0);
-        if (newTime <= this->TimeValue)
+        if (newTime <= this->ActualTimeValue)
           {
           timeStep++;
           if (this->VariableTypes[i] == SCALAR_PER_MEASURED_NODE ||

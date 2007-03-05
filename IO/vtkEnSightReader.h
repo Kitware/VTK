@@ -295,6 +295,8 @@ protected:
 
   int ParticleCoordinatesByIndex;
   
+  double ActualTimeValue;
+
 private:
   vtkEnSightReader(const vtkEnSightReader&);  // Not implemented.
   void operator=(const vtkEnSightReader&);  // Not implemented.
