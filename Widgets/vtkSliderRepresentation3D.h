@@ -125,8 +125,9 @@ public:
   virtual void GetActors(vtkPropCollection*);
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentGeometry(vtkViewport*);
-
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
+  virtual int HasTranslucentPolygonalGeometry();
+  
   // Description:
   // Override GetMTime to include point coordinates
   virtual unsigned long GetMTime();

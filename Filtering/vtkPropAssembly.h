@@ -70,9 +70,14 @@ public:
   // recursive. The parts of each assembly are rendered only if the
   // visibility for the prop is turned on.
   int RenderOpaqueGeometry(vtkViewport *ren);
-  int RenderTranslucentGeometry(vtkViewport *ren);
-  int RenderOverlay(vtkViewport *);
+  virtual int RenderTranslucentPolygonalGeometry( vtkViewport *ren);
+  virtual int RenderVolumetricGeometry( vtkViewport *ren);
+  int RenderOverlay(vtkViewport *ren);
 
+  // Description:
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
+  
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic

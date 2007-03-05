@@ -26,7 +26,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.35");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.36");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);
@@ -289,6 +289,14 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   return renderedSomething;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkParallelCoordinatesActor::HasTranslucentPolygonalGeometry()
+{
+  return 0;
 }
 
 //----------------------------------------------------------------------------

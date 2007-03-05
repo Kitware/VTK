@@ -211,8 +211,13 @@ public:
   // Description:
   // Support the standard render methods.
   int RenderOpaqueGeometry(vtkViewport *viewport);
-  int RenderTranslucentGeometry(vtkViewport *viewport);
-
+  virtual int RenderTranslucentPolygonalGeometry( vtkViewport *ren);
+  virtual int RenderVolumetricGeometry( vtkViewport *ren);
+  
+  // Description:
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
+  
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic

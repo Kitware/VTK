@@ -44,9 +44,13 @@ public:
   // Description:
   // Draw the scalar bar and annotation text to the screen.
   int RenderOpaqueGeometry(vtkViewport* viewport);
-  int RenderTranslucentGeometry(vtkViewport* ) {return 0;};
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) {return 0;};
   int RenderOverlay(vtkViewport* viewport);
 
+  // Description:
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
+  
   // Description:
   // Set/Get the maximum height of a line of text as a 
   // percentage of the vertical area allocated to this

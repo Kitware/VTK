@@ -161,7 +161,8 @@ public:
   virtual void GetActors(vtkPropCollection *);
   virtual void ReleaseGraphicsResources(vtkWindow *);
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentGeometry(vtkViewport *viewport);
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
+  virtual int HasTranslucentPolygonalGeometry();
   
 protected:
   vtkPointHandleRepresentation3D();

@@ -31,7 +31,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkAxesActor, "1.4");
+vtkCxxRevisionMacro(vtkAxesActor, "1.5");
 vtkStandardNewMacro(vtkAxesActor);
 
 vtkCxxSetObjectMacro( vtkAxesActor, UserDefinedTip, vtkPolyData );
@@ -236,31 +236,59 @@ int vtkAxesActor::RenderOpaqueGeometry(vtkViewport *vp)
   return renderedSomething;
 }
 
-int vtkAxesActor::RenderTranslucentGeometry(vtkViewport *vp)
+//-----------------------------------------------------------------------------
+int vtkAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 {
   int renderedSomething = 0;
 
   this->UpdateProps();
 
-  renderedSomething += this->XAxisShaft->RenderTranslucentGeometry( vp );
-  renderedSomething += this->YAxisShaft->RenderTranslucentGeometry( vp );
-  renderedSomething += this->ZAxisShaft->RenderTranslucentGeometry( vp );
+  renderedSomething += this->XAxisShaft->RenderTranslucentPolygonalGeometry( vp );
+  renderedSomething += this->YAxisShaft->RenderTranslucentPolygonalGeometry( vp );
+  renderedSomething += this->ZAxisShaft->RenderTranslucentPolygonalGeometry( vp );
 
-  renderedSomething += this->XAxisTip->RenderTranslucentGeometry( vp );
-  renderedSomething += this->YAxisTip->RenderTranslucentGeometry( vp );
-  renderedSomething += this->ZAxisTip->RenderTranslucentGeometry( vp );
+  renderedSomething += this->XAxisTip->RenderTranslucentPolygonalGeometry( vp );
+  renderedSomething += this->YAxisTip->RenderTranslucentPolygonalGeometry( vp );
+  renderedSomething += this->ZAxisTip->RenderTranslucentPolygonalGeometry( vp );
 
   if ( this->AxisLabels )
     {
-    renderedSomething += this->XAxisLabel->RenderTranslucentGeometry( vp );
-    renderedSomething += this->YAxisLabel->RenderTranslucentGeometry( vp );
-    renderedSomething += this->ZAxisLabel->RenderTranslucentGeometry( vp );
+    renderedSomething += this->XAxisLabel->RenderTranslucentPolygonalGeometry( vp );
+    renderedSomething += this->YAxisLabel->RenderTranslucentPolygonalGeometry( vp );
+    renderedSomething += this->ZAxisLabel->RenderTranslucentPolygonalGeometry( vp );
     }
 
   renderedSomething = (renderedSomething > 0)?(1):(0);
   return renderedSomething;
 }
 
+//-----------------------------------------------------------------------------
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkAxesActor::HasTranslucentPolygonalGeometry()
+{
+  int result = 0;
+
+  this->UpdateProps();
+
+  result |= this->XAxisShaft->HasTranslucentPolygonalGeometry();
+  result |= this->YAxisShaft->HasTranslucentPolygonalGeometry();
+  result |= this->ZAxisShaft->HasTranslucentPolygonalGeometry();
+
+  result |= this->XAxisTip->HasTranslucentPolygonalGeometry();
+  result |= this->YAxisTip->HasTranslucentPolygonalGeometry();
+  result |= this->ZAxisTip->HasTranslucentPolygonalGeometry();
+
+  if ( this->AxisLabels )
+    {
+    result |= this->XAxisLabel->HasTranslucentPolygonalGeometry();
+    result |= this->YAxisLabel->HasTranslucentPolygonalGeometry();
+    result |= this->ZAxisLabel->HasTranslucentPolygonalGeometry();
+    }
+  return result;
+}
+
+//-----------------------------------------------------------------------------
 int vtkAxesActor::RenderOverlay(vtkViewport *vp)
 {
   int renderedSomething = 0;

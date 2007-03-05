@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkLeaderActor2D, "1.9");
+vtkCxxRevisionMacro(vtkLeaderActor2D, "1.10");
 vtkStandardNewMacro(vtkLeaderActor2D);
 
 vtkCxxSetObjectMacro(vtkLeaderActor2D,LabelTextProperty,vtkTextProperty);
@@ -659,6 +659,14 @@ int vtkLeaderActor2D::RenderOverlay(vtkViewport *viewport)
   renderedSomething += this->LeaderActor->RenderOverlay(viewport);
   
   return renderedSomething;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkLeaderActor2D::HasTranslucentPolygonalGeometry()
+{
+  return 0;
 }
 
 //----------------------------------------------------------------------------

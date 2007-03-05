@@ -95,8 +95,13 @@ public:
   // assemblies; that is, assemblies that only serve to group and transform
   // its parts.
   int RenderOpaqueGeometry(vtkViewport *ren);
-  int RenderTranslucentGeometry(vtkViewport *ren);
-
+  virtual int RenderTranslucentPolygonalGeometry( vtkViewport *ren);
+  virtual int RenderVolumetricGeometry( vtkViewport *ren);
+  
+  // Description:
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
+  
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic

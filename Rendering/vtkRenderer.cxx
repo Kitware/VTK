@@ -38,7 +38,7 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.231");
+vtkCxxRevisionMacro(vtkRenderer, "1.232");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
@@ -353,18 +353,18 @@ void vtkRenderer::Render(void)
 
 // ----------------------------------------------------------------------------
 // Description:
-// Render translucent geometry. Default implementation just call
-// UpdateTranslucentGeometry().
+// Render translucent polygonal geometry. Default implementation just call
+// UpdateTranslucentPolygonalGeometry().
 // Subclasses of vtkRenderer that can deal with depth peeling must
 // override this method.
-void vtkRenderer::DeviceRenderTranslucentGeometry()
+void vtkRenderer::DeviceRenderTranslucentPolygonalGeometry()
 {
-  // Have to be set before a call to UpdateTranslucentGeometry() because
-  // UpdateTranslucentGeometry() will eventually call
+  // Have to be set before a call to UpdateTranslucentPolygonalGeometry()
+  // because UpdateTranslucentPolygonalGeometry() will eventually call
   // vtkOpenGLActor::Render() that uses this flag.
   this->LastRenderingUsedDepthPeeling=0;
   
-  this->UpdateTranslucentGeometry();
+  this->UpdateTranslucentPolygonalGeometry();
 }
 
 // ----------------------------------------------------------------------------
@@ -566,9 +566,30 @@ int vtkRenderer::UpdateGeometry()
       this->PropArray[i]->RenderOpaqueGeometry(this);
     }
   
-  // do the render library specific stuff about translucent geometry.
-  this->DeviceRenderTranslucentGeometry();
+  // do the render library specific stuff about translucent polygonal geometry.
+  // As it can be expensive, do a quick check if we can skip this step
+  int hasTranslucentPolygonalGeometry=0;
+  for ( i = 0; !hasTranslucentPolygonalGeometry && i < this->PropArrayCount;
+        i++ )
+    { 
+    hasTranslucentPolygonalGeometry=
+      this->PropArray[i]->HasTranslucentPolygonalGeometry();
+    }
+  if(hasTranslucentPolygonalGeometry)
+    {
+    this->DeviceRenderTranslucentPolygonalGeometry();
+    }
+  
+  
     
+  // loop through props and give them a chance to 
+  // render themselves as volumetric geometry.
+  for ( i = 0; i < this->PropArrayCount; i++ )
+    {
+    this->NumberOfPropsRendered += 
+      this->PropArray[i]->RenderVolumetricGeometry(this);
+    }
+  
   // loop through props and give them a chance to 
   // render themselves as an overlay (or underlay)
   for ( i = 0; i < this->PropArrayCount; i++ )
@@ -588,19 +609,19 @@ int vtkRenderer::UpdateGeometry()
 
 // ----------------------------------------------------------------------------
 // Description:
-// Ask all props to update and draw any translucent
+// Ask all props to update and draw any translucent polygonal
 // geometry. This includes both vtkActors and vtkVolumes
 // Return the number of rendered props.
 // It is called once with alpha blending technique. It is called multiple
 // times with depth peeling technique.
-int vtkRenderer::UpdateTranslucentGeometry()
+int vtkRenderer::UpdateTranslucentPolygonalGeometry()
 {
   int result=0;
   // loop through props and give them a chance to 
   // render themselves as translucent geometry
   for (int i = 0; i < this->PropArrayCount; i++ )
     {
-    int rendered=this->PropArray[i]->RenderTranslucentGeometry(this);
+    int rendered=this->PropArray[i]->RenderTranslucentPolygonalGeometry(this);
     this->NumberOfPropsRendered += rendered;
     result+=rendered;
     }
@@ -1403,7 +1424,8 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
 
     // wrap around, as there are thrice as many pickid's as PathArrayCount,
     // because each Prop has RenderOpaqueGeometry,
-    // RenderTranslucentGeometry and RenderOverlay called on it.
+    // RenderTranslucentPolygonalGeometry, RenderVolumetricGeometry and
+    // RenderOverlay called on it.
     pickedId = pickedId % this->PathArrayCount;
     this->PickedProp = this->PathArray[pickedId];
     this->PickedProp->Register(this);
@@ -1594,7 +1616,7 @@ void vtkRenderer::PickGeometry()
     }
 
   // loop through props and give them a chance to 
-  // render themselves as translucent geometry
+  // render themselves as translucent polygonal geometry
   for ( i = 0; i < this->PathArrayCount; i++ )
     {
     this->UpdatePickId();
@@ -1602,10 +1624,23 @@ void vtkRenderer::PickGeometry()
     matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
     prop->PokeMatrix(matrix);
     this->NumberOfPropsRendered += 
-      prop->RenderTranslucentGeometry(this);
+      prop->RenderTranslucentPolygonalGeometry(this);
     prop->PokeMatrix(NULL);
     }
 
+   // loop through props and give them a chance to 
+  // render themselves as volumetric geometry
+  for ( i = 0; i < this->PathArrayCount; i++ )
+    {
+    this->UpdatePickId();
+    prop = this->PathArray[i]->GetLastNode()->GetViewProp();
+    matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
+    prop->PokeMatrix(matrix);
+    this->NumberOfPropsRendered += 
+      prop->RenderVolumetricGeometry(this);
+    prop->PokeMatrix(NULL);
+    }
+  
   for ( i = 0; i < this->PathArrayCount; i++ )
     {
     this->UpdatePickId();

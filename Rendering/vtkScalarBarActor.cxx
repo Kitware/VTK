@@ -26,7 +26,7 @@
 #include "vtkWindow.h"
 #include "vtkLookupTable.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.56");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.57");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -441,6 +441,14 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
   renderedSomething = (renderedSomething > 0)?(1):(0);
 
   return renderedSomething;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkScalarBarActor::HasTranslucentPolygonalGeometry()
+{
+  return 0;
 }
 
 //----------------------------------------------------------------------------

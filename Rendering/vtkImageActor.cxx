@@ -20,7 +20,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageActor, "1.21");
+vtkCxxRevisionMacro(vtkImageActor, "1.22");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -153,10 +153,11 @@ void vtkImageActor::GetDisplayExtent(int extent[6])
     }
 }
 
+//-----------------------------------------------------------------------------
 // Renders an actor2D's property and then it's mapper.
-int vtkImageActor::RenderTranslucentGeometry(vtkViewport* viewport)
+int vtkImageActor::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 {
-  vtkDebugMacro(<< "vtkImageActor::RenderTranslucentGeometry");
+  vtkDebugMacro(<< "vtkImageActor::RenderTranslucentPolygonalGeometry");
 
   vtkImageData *input = this->GetInput();
   if (!input)
@@ -177,6 +178,30 @@ int vtkImageActor::RenderTranslucentGeometry(vtkViewport* viewport)
   return 0;
 }
 
+//-----------------------------------------------------------------------------
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkImageActor::HasTranslucentPolygonalGeometry()
+{
+  vtkImageData *input = this->GetInput();
+  if (!input)
+    {
+    return 0;
+    }
+
+  // render the texture map
+  if ( input->GetScalarType() == VTK_UNSIGNED_CHAR )
+    {
+    if (!(this->Opacity >= 1.0 && input->GetNumberOfScalarComponents() % 2))
+      {
+      return 1;
+      }
+    }
+
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
 int vtkImageActor::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkImageActor::RenderOpaqueGeometry");

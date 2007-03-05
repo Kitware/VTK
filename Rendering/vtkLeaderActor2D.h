@@ -159,7 +159,12 @@ public:
   // Methods required by vtkProp and vtkActor2D superclasses.
   int RenderOverlay(vtkViewport* viewport);
   int RenderOpaqueGeometry(vtkViewport* viewport);
-  int RenderTranslucentGeometry(vtkViewport *) {return 0;}
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *) {return 0;}
+  
+  // Description:
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
+  
   void ReleaseGraphicsResources(vtkWindow *);
   void ShallowCopy(vtkProp *prop);
 

@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.43");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.44");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1
@@ -794,7 +794,7 @@ int vtkLODProp3D::RenderOpaqueGeometry(vtkViewport *viewport)
 }
 
 // Standard render method - render any translucent geometry in the selected LOD
-int vtkLODProp3D::RenderTranslucentGeometry(vtkViewport *viewport)
+int vtkLODProp3D::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 {
   int retval;
 
@@ -815,14 +815,69 @@ int vtkLODProp3D::RenderTranslucentGeometry(vtkViewport *viewport)
 
   // Actually do the rendering
   retval = this->LODs[this->SelectedLODIndex].Prop3D->
-    RenderTranslucentGeometry(viewport);
+    RenderTranslucentPolygonalGeometry(viewport);
+
+  this->EstimatedRenderTime += 
+    this->LODs[this->SelectedLODIndex].Prop3D->GetEstimatedRenderTime();
+  
+  return retval;
+}
+
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkLODProp3D::HasTranslucentPolygonalGeometry()
+{
+  int result;
+
+  // Check if the selected index is in range
+  if ( this->SelectedLODIndex < 0 ||
+       this->SelectedLODIndex >= this->NumberOfEntries )
+    {
+    vtkErrorMacro( << "Index out of range!" );
+    return 0;
+    }
+
+  // Check if the selected index is valid
+  if ( this->LODs[this->SelectedLODIndex].ID == VTK_INDEX_NOT_IN_USE )
+    {
+    vtkErrorMacro( << "Index not valid!" );
+    return 0;
+    }
+  
+  result = this->LODs[this->SelectedLODIndex].Prop3D->HasTranslucentPolygonalGeometry();
+  
+  return result;
+}
+
+// Standard render method - render any translucent geometry in the selected LOD
+int vtkLODProp3D::RenderVolumetricGeometry(vtkViewport *viewport)
+{
+  int retval;
+
+  // Check if the selected index is in range
+  if ( this->SelectedLODIndex < 0 ||
+       this->SelectedLODIndex >= this->NumberOfEntries )
+    {
+    vtkErrorMacro( << "Index out of range!" );
+    return 0;
+    }
+
+  // Check if the selected index is valid
+  if ( this->LODs[this->SelectedLODIndex].ID == VTK_INDEX_NOT_IN_USE )
+    {
+    vtkErrorMacro( << "Index not valid!" );
+    return 0;
+    }
+
+  // Actually do the rendering
+  retval = this->LODs[this->SelectedLODIndex].Prop3D->
+    RenderVolumetricGeometry(viewport);
 
   this->EstimatedRenderTime += 
     this->LODs[this->SelectedLODIndex].Prop3D->GetEstimatedRenderTime();
   
   return retval;
 } 
-
 
 // Override the method from vtkProp - add to both this prop and the prop of
 // the selected LOD

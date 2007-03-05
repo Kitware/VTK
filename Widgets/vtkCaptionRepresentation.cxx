@@ -23,7 +23,7 @@
 #include "vtkPointWidget.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkCaptionRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkCaptionRepresentation, "1.4");
 vtkStandardNewMacro(vtkCaptionRepresentation);
 
 //-------------------------------------------------------------------------
@@ -181,12 +181,23 @@ int vtkCaptionRepresentation::RenderOpaqueGeometry(vtkViewport *w)
 }
 
 //-------------------------------------------------------------------------
-int vtkCaptionRepresentation::RenderTranslucentGeometry(vtkViewport *w)
+int vtkCaptionRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *w)
 {
   this->BuildRepresentation();
-  int count = this->Superclass::RenderTranslucentGeometry(w);
-  count += this->CaptionActor2D->RenderTranslucentGeometry(w);
+  int count = this->Superclass::RenderTranslucentPolygonalGeometry(w);
+  count += this->CaptionActor2D->RenderTranslucentPolygonalGeometry(w);
   return count;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkCaptionRepresentation::HasTranslucentPolygonalGeometry()
+{
+  this->BuildRepresentation();
+  int result = this->Superclass::HasTranslucentPolygonalGeometry();
+  result |= this->CaptionActor2D->HasTranslucentPolygonalGeometry();
+  return result;
 }
 
 //-------------------------------------------------------------------------

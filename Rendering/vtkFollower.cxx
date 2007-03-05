@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFollower, "1.45");
+vtkCxxRevisionMacro(vtkFollower, "1.46");
 vtkStandardNewMacro(vtkFollower);
 
 vtkCxxSetObjectMacro(vtkFollower,Camera,vtkCamera);
@@ -187,7 +187,8 @@ int vtkFollower::RenderOpaqueGeometry(vtkViewport *vp)
   return 0;
 }
 
-int vtkFollower::RenderTranslucentGeometry(vtkViewport *vp)
+//-----------------------------------------------------------------------------
+int vtkFollower::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 {
   if ( ! this->Mapper )
     {
@@ -209,6 +210,27 @@ int vtkFollower::RenderTranslucentGeometry(vtkViewport *vp)
   return 0;
 }
 
+//-----------------------------------------------------------------------------
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkFollower::HasTranslucentPolygonalGeometry()
+{
+  if ( ! this->Mapper )
+    {
+    return 0;
+    }
+  // make sure we have a property
+  if (!this->Property)
+    {
+    // force creation of a property
+    this->GetProperty();
+    }
+
+  // is this actor opaque ?
+  return !this->GetIsOpaque();
+}
+
+//-----------------------------------------------------------------------------
 // This causes the actor to be rendered. It, in turn, will render the actor's
 // property and then mapper.  
 void vtkFollower::Render(vtkRenderer *ren)

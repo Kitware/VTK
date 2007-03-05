@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.85");
+vtkCxxRevisionMacro(vtkVolume, "1.86");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -354,7 +354,7 @@ double vtkVolume::GetMaxZBound( )
 
 // If the volume mapper is of type VTK_FRAMEBUFFER_VOLUME_MAPPER, then
 // this is its opportunity to render
-int vtkVolume::RenderTranslucentGeometry( vtkViewport *vp )
+int vtkVolume::RenderVolumetricGeometry( vtkViewport *vp )
 {
   this->Update();
 
@@ -387,7 +387,6 @@ int vtkVolume::RenderTranslucentGeometry( vtkViewport *vp )
 
   return 1;
 }
-
 
 void vtkVolume::ReleaseGraphicsResources(vtkWindow *win)
 {

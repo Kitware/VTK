@@ -40,7 +40,7 @@
 #include "vtkFocalPlanePointPlacer.h"
 #include "vtkBezierContourLineInterpolator.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphFocalPlaneContourRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkOrientedGlyphFocalPlaneContourRepresentation, "1.5");
 vtkStandardNewMacro(vtkOrientedGlyphFocalPlaneContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -771,8 +771,7 @@ int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderOpaqueGeometry(vtkVie
   // build here
   this->BuildRepresentation();
   
-  int count=0;
-  count += this->LinesActor->RenderOpaqueGeometry(viewport);
+  int count = this->LinesActor->RenderOpaqueGeometry(viewport);
   if ( this->Actor->GetVisibility() )
     {
     count += this->Actor->RenderOpaqueGeometry(viewport);
@@ -784,25 +783,41 @@ int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderOpaqueGeometry(vtkVie
   return count;
 }
 
-//----------------------------------------------------------------------
-int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderTranslucentGeometry(vtkViewport *viewport)
+//-----------------------------------------------------------------------------
+int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 {
-  int count=0;
-  count += this->LinesActor->RenderTranslucentGeometry(viewport);
+  int count = this->LinesActor->RenderTranslucentPolygonalGeometry(viewport);
   if ( this->Actor->GetVisibility() )
     {
-    count += this->Actor->RenderTranslucentGeometry(viewport);
+    count += this->Actor->RenderTranslucentPolygonalGeometry(viewport);
     }
   if ( this->ActiveActor->GetVisibility() )
     {
-    count += this->ActiveActor->RenderTranslucentGeometry(viewport);
+    count += this->ActiveActor->RenderTranslucentPolygonalGeometry(viewport);
     }
   return count;
 }
 
+//-----------------------------------------------------------------------------
+int vtkOrientedGlyphFocalPlaneContourRepresentation::HasTranslucentPolygonalGeometry()
+{
+  int result = this->LinesActor->HasTranslucentPolygonalGeometry();
+  if ( this->Actor->GetVisibility() )
+    {
+    result |= this->Actor->HasTranslucentPolygonalGeometry();
+    }
+  if ( this->ActiveActor->GetVisibility() )
+    {
+    result |= this->ActiveActor->HasTranslucentPolygonalGeometry();
+    }
+  return result;
+}
 
-//----------------------------------------------------------------------
-void vtkOrientedGlyphFocalPlaneContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
+
+//-----------------------------------------------------------------------------
+void vtkOrientedGlyphFocalPlaneContourRepresentation::PrintSelf(
+  ostream& os,
+  vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   

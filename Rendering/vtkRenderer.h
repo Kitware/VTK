@@ -213,12 +213,12 @@ public:
   virtual void DeviceRender() =0;
 
   // Description:
-  // Render translucent geometry. Default implementation just call
-  // UpdateTranslucentGeometry().
+  // Render translucent polygonal geometry. Default implementation just call
+  // UpdateTranslucentPolygonalGeometry().
   // Subclasses of vtkRenderer that can deal with depth peeling must
   // override this method.
   // It updates boolean ivar LastRenderingUsedDepthPeeling.
-  virtual void DeviceRenderTranslucentGeometry();
+  virtual void DeviceRenderTranslucentPolygonalGeometry();
   
   // Description:
   // Clear the image to the background color.
@@ -348,7 +348,7 @@ public:
   // Description:
   // Should be used internally only during a render
   // Get the number of props that were rendered using a
-  // RenderOpaqueGeometry or RenderTranslucentGeometry call.
+  // RenderOpaqueGeometry or RenderTranslucentPolygonalGeometry call.
   // This is used to know if something is in the frame buffer.
   vtkGetMacro( NumberOfPropsRendered, int );
 
@@ -416,8 +416,8 @@ public:
   vtkGetMacro(MaximumNumberOfPeels,int);
   
   // Description:
-  // Tells if the last call to DeviceRenderTranslucentGeometry() actually
-  // used depth peeling.
+  // Tells if the last call to DeviceRenderTranslucentPolygonalGeometry()
+  // actually used depth peeling.
   // Initial value is false.
   vtkGetMacro(LastRenderingUsedDepthPeeling,int);
   
@@ -509,12 +509,12 @@ protected:
   virtual int UpdateGeometry(void);
 
   // Description:
-  // Ask all props to update and draw any translucent
+  // Ask all props to update and draw any translucent polygonal
   // geometry. This includes both vtkActors and vtkVolumes
   // Return the number of rendered props.
   // It is called once with alpha blending technique. It is called multiple
   // times with depth peeling technique.
-  virtual int UpdateTranslucentGeometry();
+  virtual int UpdateTranslucentPolygonalGeometry();
   
   // Description:
   // Ask the active camera to do whatever it needs to do prior to rendering.
@@ -562,8 +562,8 @@ protected:
   int MaximumNumberOfPeels;
   
   // Description:
-  // Tells if the last call to DeviceRenderTranslucentGeometry() actually
-  // used depth peeling.
+  // Tells if the last call to DeviceRenderTranslucentPolygonalGeometry()
+  // actually used depth peeling.
   // Initial value is false.
   int LastRenderingUsedDepthPeeling;
   

@@ -32,7 +32,7 @@
 #include "vtkTexture.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.38");
+vtkCxxRevisionMacro(vtkTextActor, "1.39");
 vtkStandardNewMacro(vtkTextActor);
 vtkCxxSetObjectMacro(vtkTextActor,Texture,vtkTexture);
 
@@ -393,6 +393,13 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
   return this->vtkActor2D::RenderOpaqueGeometry(viewport);
 }
 
+//-----------------------------------------------------------------------------
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkTextActor::HasTranslucentPolygonalGeometry()
+{
+  return 0;
+}
 
 // ----------------------------------------------------------------------------
 void vtkTextActor::SetOrientation(float orientation) 

@@ -100,8 +100,9 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *w);
   virtual int RenderOverlay(vtkViewport *viewport);
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentGeometry(vtkViewport *viewport);
-
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
+  virtual int HasTranslucentPolygonalGeometry();
+  
 protected:
   vtkCheckerboardRepresentation();
   ~vtkCheckerboardRepresentation();

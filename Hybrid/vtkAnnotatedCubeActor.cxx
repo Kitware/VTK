@@ -30,7 +30,7 @@
 #include "vtkTransformFilter.h"
 #include "vtkVectorText.h"
 
-vtkCxxRevisionMacro(vtkAnnotatedCubeActor, "1.3");
+vtkCxxRevisionMacro(vtkAnnotatedCubeActor, "1.4");
 vtkStandardNewMacro(vtkAnnotatedCubeActor);
 
 vtkAnnotatedCubeActor::vtkAnnotatedCubeActor()
@@ -257,33 +257,63 @@ int vtkAnnotatedCubeActor::RenderOpaqueGeometry(vtkViewport *vp)
   return renderedSomething;
 }
 
-int vtkAnnotatedCubeActor::RenderTranslucentGeometry(vtkViewport *vp)
+//-----------------------------------------------------------------------------
+int vtkAnnotatedCubeActor::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 {
   this->UpdateProps();
   int renderedSomething = 0;
 
   if ( this->Cube )
     {
-    renderedSomething += this->CubeActor->RenderTranslucentGeometry( vp );
+    renderedSomething += this->CubeActor->RenderTranslucentPolygonalGeometry( vp );
     }
   if ( this->FaceText )
     {
-    renderedSomething += this->XPlusFaceActor->RenderTranslucentGeometry( vp );
-    renderedSomething += this->XMinusFaceActor->RenderTranslucentGeometry( vp );
-    renderedSomething += this->YPlusFaceActor->RenderTranslucentGeometry( vp );
-    renderedSomething += this->YMinusFaceActor->RenderTranslucentGeometry( vp );
-    renderedSomething += this->ZPlusFaceActor->RenderTranslucentGeometry( vp );
-    renderedSomething += this->ZMinusFaceActor->RenderTranslucentGeometry( vp );
+    renderedSomething += this->XPlusFaceActor->RenderTranslucentPolygonalGeometry( vp );
+    renderedSomething += this->XMinusFaceActor->RenderTranslucentPolygonalGeometry( vp );
+    renderedSomething += this->YPlusFaceActor->RenderTranslucentPolygonalGeometry( vp );
+    renderedSomething += this->YMinusFaceActor->RenderTranslucentPolygonalGeometry( vp );
+    renderedSomething += this->ZPlusFaceActor->RenderTranslucentPolygonalGeometry( vp );
+    renderedSomething += this->ZMinusFaceActor->RenderTranslucentPolygonalGeometry( vp );
     }
   if ( this->TextEdges )
     {
-    renderedSomething += this->TextEdgesActor->RenderTranslucentGeometry( vp );
+    renderedSomething += this->TextEdgesActor->RenderTranslucentPolygonalGeometry( vp );
     }
 
   renderedSomething = (renderedSomething > 0)?(1):(0);
   return renderedSomething;
 }
 
+//-----------------------------------------------------------------------------
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkAnnotatedCubeActor::HasTranslucentPolygonalGeometry()
+{
+  this->UpdateProps();
+  int result=0;
+
+  if ( this->Cube )
+    {
+    result |= this->CubeActor->HasTranslucentPolygonalGeometry();
+    }
+  if ( this->FaceText )
+    {
+    result |= this->XPlusFaceActor->HasTranslucentPolygonalGeometry();
+    result |= this->XMinusFaceActor->HasTranslucentPolygonalGeometry();
+    result |= this->YPlusFaceActor->HasTranslucentPolygonalGeometry();
+    result |= this->YMinusFaceActor->HasTranslucentPolygonalGeometry();
+    result |= this->ZPlusFaceActor->HasTranslucentPolygonalGeometry();
+    result |= this->ZMinusFaceActor->HasTranslucentPolygonalGeometry();
+    }
+  if ( this->TextEdges )
+    {
+    result |= this->TextEdgesActor->HasTranslucentPolygonalGeometry();
+    }
+  return result;
+}
+
+//-----------------------------------------------------------------------------
 void vtkAnnotatedCubeActor::ReleaseGraphicsResources(vtkWindow *win)
 {
   this->CubeActor->ReleaseGraphicsResources( win );

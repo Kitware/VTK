@@ -101,9 +101,13 @@ public:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // Support the standard render methods.
-  int RenderTranslucentGeometry(vtkViewport *viewport);
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
   int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual void Render(vtkRenderer *) {};
+  
+  // Description:
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
   //ETX
 
   // Description:

@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.7");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -732,15 +732,27 @@ int vtkLineRepresentation::RenderOpaqueGeometry(vtkViewport *v)
 }
 
 //----------------------------------------------------------------------------
-int vtkLineRepresentation::RenderTranslucentGeometry(vtkViewport *v)
+int vtkLineRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
 {
   int count=0;
   this->BuildRepresentation();
-  count += this->LineActor->RenderOpaqueGeometry(v);
-  count += this->Handle[0]->RenderTranslucentGeometry(v);
-  count += this->Handle[1]->RenderTranslucentGeometry(v);
+  count += this->LineActor->RenderTranslucentPolygonalGeometry(v);
+  count += this->Handle[0]->RenderTranslucentPolygonalGeometry(v);
+  count += this->Handle[1]->RenderTranslucentPolygonalGeometry(v);
   
   return count;
+}
+
+//----------------------------------------------------------------------------
+int vtkLineRepresentation::HasTranslucentPolygonalGeometry()
+{
+  int result=0;
+  this->BuildRepresentation();
+  result |= this->LineActor->HasTranslucentPolygonalGeometry();
+  result |= this->Handle[0]->HasTranslucentPolygonalGeometry();
+  result |= this->Handle[1]->HasTranslucentPolygonalGeometry();
+  
+  return result;
 }
 
 //----------------------------------------------------------------------------

@@ -48,8 +48,12 @@ public:
   // Support the standard render methods.
   int RenderOverlay(vtkViewport *viewport);
   int RenderOpaqueGeometry(vtkViewport *viewport);
-  int RenderTranslucentGeometry(vtkViewport *viewport);
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
 
+  // Description:
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
+  
   // Description:
   // Set/Get the vtkMapper2D which defines the data to be drawn.
   virtual void SetMapper(vtkMapper2D *mapper);

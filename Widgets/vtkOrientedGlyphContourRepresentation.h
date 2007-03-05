@@ -94,8 +94,9 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *);
   virtual int RenderOverlay(vtkViewport *viewport);
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentGeometry(vtkViewport *viewport);
- 
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
+  virtual int HasTranslucentPolygonalGeometry();
+  
   // Description:
   // Get the points in this contour as a vtkPolyData. 
   virtual vtkPolyData * GetContourRepresentationAsPolyData();

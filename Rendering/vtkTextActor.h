@@ -158,8 +158,12 @@ public:
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
   // Draw the text actor to the screen.
   int RenderOpaqueGeometry(vtkViewport* viewport);
-  int RenderTranslucentGeometry(vtkViewport* ) {return 0;};
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) {return 0;};
   int RenderOverlay(vtkViewport* viewport);
+  
+  // Description:
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
 //ETX
 
 protected:

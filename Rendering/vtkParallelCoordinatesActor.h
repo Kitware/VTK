@@ -123,8 +123,12 @@ public:
   // Draw the parallel coordinates plot.
   int RenderOpaqueGeometry(vtkViewport*);
   int RenderOverlay(vtkViewport*);
-  int RenderTranslucentGeometry(vtkViewport *) {return 0;}
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *) {return 0;}
 
+  // Description:
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
+  
   // Description:
   // Set the input to the parallel coordinates actor.
   virtual void SetInput(vtkDataObject*);

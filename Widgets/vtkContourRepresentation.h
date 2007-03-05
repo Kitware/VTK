@@ -308,8 +308,9 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *w)=0;
   virtual int RenderOverlay(vtkViewport *viewport)=0;
   virtual int RenderOpaqueGeometry(vtkViewport *viewport)=0;
-  virtual int RenderTranslucentGeometry(vtkViewport *viewport)=0;
-
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport)=0;
+  virtual int HasTranslucentPolygonalGeometry()=0;
+  
   // Description:
   // Set / Get the ClosedLoop value. This ivar indicates whether the contour
   // forms a closed loop. 

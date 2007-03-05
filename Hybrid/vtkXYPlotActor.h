@@ -503,8 +503,12 @@ public:
   // Draw the x-y plot.
   int RenderOpaqueGeometry(vtkViewport*);
   int RenderOverlay(vtkViewport*);
-  int RenderTranslucentGeometry(vtkViewport *) {return 0;}
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *) {return 0;}
 
+  // Description:
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
+  
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic

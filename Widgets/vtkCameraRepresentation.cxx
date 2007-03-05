@@ -30,7 +30,7 @@
 #include "vtkTransformPolyDataFilter.h"
 
 
-vtkCxxRevisionMacro(vtkCameraRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkCameraRepresentation, "1.4");
 vtkStandardNewMacro(vtkCameraRepresentation);
 
 vtkCxxSetObjectMacro(vtkCameraRepresentation, Camera, vtkCamera);
@@ -230,13 +230,22 @@ int vtkCameraRepresentation::RenderOpaqueGeometry(vtkViewport *w)
 }
 
 //-------------------------------------------------------------------------
-int vtkCameraRepresentation::RenderTranslucentGeometry(vtkViewport *w)
+int vtkCameraRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *w)
 {
-  int count = this->Superclass::RenderTranslucentGeometry(w);
-  count += this->Actor->RenderTranslucentGeometry(w);
+  int count = this->Superclass::RenderTranslucentPolygonalGeometry(w);
+  count += this->Actor->RenderTranslucentPolygonalGeometry(w);
   return count;
 }
 
+//-----------------------------------------------------------------------------
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkCameraRepresentation::HasTranslucentPolygonalGeometry()
+{
+  int result = this->Superclass::HasTranslucentPolygonalGeometry();
+  result |= this->Actor->HasTranslucentPolygonalGeometry();
+  return result;
+}
 
 //-------------------------------------------------------------------------
 void vtkCameraRepresentation::PrintSelf(ostream& os, vtkIndent indent)

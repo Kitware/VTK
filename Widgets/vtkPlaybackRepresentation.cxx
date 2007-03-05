@@ -30,7 +30,7 @@
 #include "vtkTransformPolyDataFilter.h"
 
 
-vtkCxxRevisionMacro(vtkPlaybackRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkPlaybackRepresentation, "1.2");
 vtkStandardNewMacro(vtkPlaybackRepresentation);
 
 vtkPlaybackRepresentation::vtkPlaybackRepresentation()
@@ -221,14 +221,24 @@ int vtkPlaybackRepresentation::RenderOpaqueGeometry(vtkViewport *w)
   return count;
 }
 
-//-------------------------------------------------------------------------
-int vtkPlaybackRepresentation::RenderTranslucentGeometry(vtkViewport *w)
+//-----------------------------------------------------------------------------
+int vtkPlaybackRepresentation::RenderTranslucentPolygonalGeometry(
+  vtkViewport *w)
 {
-  int count = this->Superclass::RenderTranslucentGeometry(w);
-  count += this->Actor->RenderTranslucentGeometry(w);
+  int count = this->Superclass::RenderTranslucentPolygonalGeometry(w);
+  count += this->Actor->RenderTranslucentPolygonalGeometry(w);
   return count;
 }
 
+//-----------------------------------------------------------------------------
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkPlaybackRepresentation::HasTranslucentPolygonalGeometry()
+{
+  int result = this->Superclass::HasTranslucentPolygonalGeometry();
+  result |= this->Actor->HasTranslucentPolygonalGeometry();
+  return result;
+}
 
 //-------------------------------------------------------------------------
 void vtkPlaybackRepresentation::PrintSelf(ostream& os, vtkIndent indent)

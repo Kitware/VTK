@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkAssembly, "1.57");
+vtkCxxRevisionMacro(vtkAssembly, "1.58");
 vtkStandardNewMacro(vtkAssembly);
 
 // Construct object with no children.
@@ -81,7 +81,7 @@ void vtkAssembly::ShallowCopy(vtkProp *prop)
 // will be drawn for this assembly. This allows you to create "logical"
 // assemblies; that is, assemblies that only serve to group and transform
 // its Parts.
-int vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
+int vtkAssembly::RenderTranslucentPolygonalGeometry(vtkViewport *ren)
 {
   vtkProp3D *prop3D;
   vtkAssemblyPath *path;
@@ -104,7 +104,7 @@ int vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
       {
       prop3D->SetAllocatedRenderTime(fraction, ren);
       prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
-      renderedSomething += prop3D->RenderTranslucentGeometry(ren);
+      renderedSomething += prop3D->RenderTranslucentPolygonalGeometry(ren);
       prop3D->PokeMatrix(NULL);
       }
     }
@@ -114,6 +114,68 @@ int vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
   return renderedSomething;
 }
 
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkAssembly::HasTranslucentPolygonalGeometry()
+{
+  vtkProp3D *prop3D;
+  vtkAssemblyPath *path;
+  int result = 0;
+
+  this->UpdatePaths();
+  
+  // render the Paths
+  vtkCollectionSimpleIterator sit;
+  for ( this->Paths->InitTraversal(sit); !result && (path = this->Paths->GetNextPath(sit)); )
+    {
+    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
+    if ( prop3D->GetVisibility() )
+      {
+      result = prop3D->HasTranslucentPolygonalGeometry();
+      }
+    }
+
+  return result;
+}
+
+
+// Render this assembly and all its Parts. The rendering process is recursive.
+// Note that a mapper need not be defined. If not defined, then no geometry 
+// will be drawn for this assembly. This allows you to create "logical"
+// assemblies; that is, assemblies that only serve to group and transform
+// its Parts.
+int vtkAssembly::RenderVolumetricGeometry(vtkViewport *ren)
+{
+  vtkProp3D *prop3D;
+  vtkAssemblyPath *path;
+  double fraction;
+  int renderedSomething = 0;
+
+  this->UpdatePaths();
+
+  // for allocating render time between components
+  // simple equal allocation
+  fraction = this->AllocatedRenderTime 
+    / (double)(this->Paths->GetNumberOfItems());
+  
+  // render the Paths
+  vtkCollectionSimpleIterator sit;
+  for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
+    {
+    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
+    if ( prop3D->GetVisibility() )
+      {
+      prop3D->SetAllocatedRenderTime(fraction, ren);
+      prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
+      renderedSomething += prop3D->RenderVolumetricGeometry(ren);
+      prop3D->PokeMatrix(NULL);
+      }
+    }
+
+  renderedSomething = (renderedSomething > 0)?(1):(0);
+
+  return renderedSomething;
+}
 
 // Render this assembly and all its Parts. The rendering process is recursive.
 // Note that a mapper need not be defined. If not defined, then no geometry 

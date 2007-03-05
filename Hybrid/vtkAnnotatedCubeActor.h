@@ -65,8 +65,12 @@ public:
   // Description:
   // Support the standard render methods.
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentGeometry(vtkViewport *viewport);
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
 
+  // Description:
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
+  
   // Description:
   // Shallow copy of an axes actor. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);

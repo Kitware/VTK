@@ -20,7 +20,7 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCheckerboardRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkCheckerboardRepresentation, "1.4");
 vtkStandardNewMacro(vtkCheckerboardRepresentation);
 
 vtkCxxSetObjectMacro(vtkCheckerboardRepresentation,Checkerboard,vtkImageCheckerboard);
@@ -264,16 +264,25 @@ int vtkCheckerboardRepresentation::RenderOpaqueGeometry(vtkViewport *v)
   return count;
 }
 
-//----------------------------------------------------------------------
-int vtkCheckerboardRepresentation::RenderTranslucentGeometry(vtkViewport *v)
+//-----------------------------------------------------------------------------
+int vtkCheckerboardRepresentation::RenderTranslucentPolygonalGeometry(
+  vtkViewport *v)
 {
-  int count = this->TopRepresentation->RenderTranslucentGeometry(v);
-  count += this->RightRepresentation->RenderTranslucentGeometry(v);
-  count += this->BottomRepresentation->RenderTranslucentGeometry(v);
-  count += this->LeftRepresentation->RenderTranslucentGeometry(v);
+  int count = this->TopRepresentation->RenderTranslucentPolygonalGeometry(v);
+  count += this->RightRepresentation->RenderTranslucentPolygonalGeometry(v);
+  count += this->BottomRepresentation->RenderTranslucentPolygonalGeometry(v);
+  count += this->LeftRepresentation->RenderTranslucentPolygonalGeometry(v);
   return count;
 }
-
+//-----------------------------------------------------------------------------
+int vtkCheckerboardRepresentation::HasTranslucentPolygonalGeometry()
+{
+  int result = this->TopRepresentation->HasTranslucentPolygonalGeometry();
+  result |= this->RightRepresentation->HasTranslucentPolygonalGeometry();
+  result |= this->BottomRepresentation->HasTranslucentPolygonalGeometry();
+  result |= this->LeftRepresentation->HasTranslucentPolygonalGeometry();
+  return result;
+}
 
 //----------------------------------------------------------------------
 void vtkCheckerboardRepresentation::PrintSelf(ostream& os, vtkIndent indent)

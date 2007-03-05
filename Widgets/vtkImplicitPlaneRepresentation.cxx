@@ -40,7 +40,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.8");
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //----------------------------------------------------------------------------
@@ -469,24 +469,45 @@ int vtkImplicitPlaneRepresentation::RenderOpaqueGeometry(vtkViewport *v)
   return count;
 }
 
-//----------------------------------------------------------------------------
-int vtkImplicitPlaneRepresentation::RenderTranslucentGeometry(vtkViewport *v)
+//-----------------------------------------------------------------------------
+int vtkImplicitPlaneRepresentation::RenderTranslucentPolygonalGeometry(
+  vtkViewport *v)
 {
   int count=0;
   this->BuildRepresentation();
-  count += this->OutlineActor->RenderTranslucentGeometry(v);
-  count += this->EdgesActor->RenderTranslucentGeometry(v);
-  count += this->ConeActor->RenderTranslucentGeometry(v);
-  count += this->LineActor->RenderTranslucentGeometry(v);
-  count += this->ConeActor2->RenderTranslucentGeometry(v);
-  count += this->LineActor2->RenderTranslucentGeometry(v);
-  count += this->SphereActor->RenderTranslucentGeometry(v);
+  count += this->OutlineActor->RenderTranslucentPolygonalGeometry(v);
+  count += this->EdgesActor->RenderTranslucentPolygonalGeometry(v);
+  count += this->ConeActor->RenderTranslucentPolygonalGeometry(v);
+  count += this->LineActor->RenderTranslucentPolygonalGeometry(v);
+  count += this->ConeActor2->RenderTranslucentPolygonalGeometry(v);
+  count += this->LineActor2->RenderTranslucentPolygonalGeometry(v);
+  count += this->SphereActor->RenderTranslucentPolygonalGeometry(v);
   if ( this->DrawPlane )
     {
-    count += this->CutActor->RenderTranslucentGeometry(v);
+    count += this->CutActor->RenderTranslucentPolygonalGeometry(v);
     }
   
   return count;
+}
+
+//-----------------------------------------------------------------------------
+int vtkImplicitPlaneRepresentation::HasTranslucentPolygonalGeometry()
+{
+  int result=0;
+  this->BuildRepresentation();
+  result |= this->OutlineActor->HasTranslucentPolygonalGeometry();
+  result |= this->EdgesActor->HasTranslucentPolygonalGeometry();
+  result |= this->ConeActor->HasTranslucentPolygonalGeometry();
+  result |= this->LineActor->HasTranslucentPolygonalGeometry();
+  result |= this->ConeActor2->HasTranslucentPolygonalGeometry();
+  result |= this->LineActor2->HasTranslucentPolygonalGeometry();
+  result |= this->SphereActor->HasTranslucentPolygonalGeometry();
+  if ( this->DrawPlane )
+    {
+    result |= this->CutActor->HasTranslucentPolygonalGeometry();
+    }
+  
+  return result;
 }
 
 //----------------------------------------------------------------------------

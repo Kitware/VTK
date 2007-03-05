@@ -19,7 +19,7 @@
 #include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkActor2D, "1.4");
+vtkCxxRevisionMacro(vtkActor2D, "1.5");
 vtkStandardNewMacro(vtkActor2D);
 
 vtkCxxSetObjectMacro(vtkActor2D,Property, vtkProperty2D);
@@ -132,11 +132,11 @@ int vtkActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Renders an actor2D's property and then it's mapper.
-int vtkActor2D::RenderTranslucentGeometry(vtkViewport* viewport)
+int vtkActor2D::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 {
-  vtkDebugMacro(<< "vtkActor2D::RenderTranslucentGeometry");
+  vtkDebugMacro(<< "vtkActor2D::RenderTranslucentPolygonalGeometry");
 
   if (!this->Property)
     {
@@ -153,11 +153,27 @@ int vtkActor2D::RenderTranslucentGeometry(vtkViewport* viewport)
     return 0;
     }
 
-  this->Mapper->RenderTranslucentGeometry(viewport, this);
+  this->Mapper->RenderTranslucentPolygonalGeometry(viewport, this);
 
   return 1;
 }
 
+//-----------------------------------------------------------------------------
+int vtkActor2D::HasTranslucentPolygonalGeometry()
+{
+  int result;
+  if(this->Mapper)
+    {
+    result=this->Mapper->HasTranslucentPolygonalGeometry();
+    }
+  else
+    {
+    vtkErrorMacro(<< "vtkActor2D::HasTranslucentPolygonalGeometry - No mapper set");
+    result=0;
+    }
+  return result;
+}
+  
 //----------------------------------------------------------------------------
 unsigned long int vtkActor2D::GetMTime()
 {

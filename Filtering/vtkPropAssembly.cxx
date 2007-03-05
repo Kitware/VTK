@@ -23,7 +23,7 @@
 #include "vtkPropCollection.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkPropAssembly, "1.2");
+vtkCxxRevisionMacro(vtkPropAssembly, "1.3");
 vtkStandardNewMacro(vtkPropAssembly);
 
 // Construct object with no children.
@@ -66,7 +66,7 @@ vtkPropCollection *vtkPropAssembly::GetParts()
 }
 
 // Render this assembly and all of its Parts. The rendering process is recursive.
-int vtkPropAssembly::RenderTranslucentGeometry(vtkViewport *ren)
+int vtkPropAssembly::RenderTranslucentPolygonalGeometry(vtkViewport *ren)
 {
   vtkProp *prop;
   vtkAssemblyPath *path;
@@ -85,7 +85,57 @@ int vtkPropAssembly::RenderTranslucentGeometry(vtkViewport *ren)
       {
       prop->SetAllocatedRenderTime(fraction, ren);
       prop->PokeMatrix(path->GetLastNode()->GetMatrix());
-      renderedSomething += prop->RenderTranslucentGeometry(ren);
+      renderedSomething += prop->RenderTranslucentPolygonalGeometry(ren);
+      prop->PokeMatrix(NULL);
+      }
+    }
+
+  return renderedSomething;
+}
+
+// Description:
+// Does this prop have some translucent polygonal geometry?
+int vtkPropAssembly::HasTranslucentPolygonalGeometry()
+{
+  vtkProp *prop;
+  vtkAssemblyPath *path;
+  int result=0;
+  
+  // render the Paths
+  vtkCollectionSimpleIterator sit;
+  for ( this->Paths->InitTraversal(sit); !result && (path = this->Paths->GetNextPath(sit)); )
+    {
+    prop = path->GetLastNode()->GetViewProp();
+    if ( prop->GetVisibility() )
+      {
+      result=prop->HasTranslucentPolygonalGeometry();
+      }
+    }
+  return result;
+}
+
+
+// Render this assembly and all of its Parts. The rendering process is recursive.
+int vtkPropAssembly::RenderVolumetricGeometry(vtkViewport *ren)
+{
+  vtkProp *prop;
+  vtkAssemblyPath *path;
+  double fraction;
+  int renderedSomething=0;
+
+  fraction = this->AllocatedRenderTime / 
+             (double)this->Parts->GetNumberOfItems();
+  
+  // render the Paths
+  vtkCollectionSimpleIterator sit;
+  for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
+    {
+    prop = path->GetLastNode()->GetViewProp();
+    if ( prop->GetVisibility() )
+      {
+      prop->SetAllocatedRenderTime(fraction, ren);
+      prop->PokeMatrix(path->GetLastNode()->GetMatrix());
+      renderedSomething += prop->RenderVolumetricGeometry(ren);
       prop->PokeMatrix(NULL);
       }
     }

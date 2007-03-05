@@ -101,8 +101,9 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int RenderOverlay(vtkViewport*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentGeometry(vtkViewport*);
-
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
+  virtual int HasTranslucentPolygonalGeometry();
+  
 protected:
   vtkCameraRepresentation();
   ~vtkCameraRepresentation();

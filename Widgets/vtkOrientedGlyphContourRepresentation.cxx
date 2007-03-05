@@ -40,7 +40,7 @@
 #include "vtkFocalPlanePointPlacer.h"
 #include "vtkBezierContourLineInterpolator.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.10");
 vtkStandardNewMacro(vtkOrientedGlyphContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -690,8 +690,9 @@ int vtkOrientedGlyphContourRepresentation::RenderOverlay(vtkViewport *viewport)
   return count;
 }
 
-//----------------------------------------------------------------------
-int vtkOrientedGlyphContourRepresentation::RenderOpaqueGeometry(vtkViewport *viewport)
+//-----------------------------------------------------------------------------
+int vtkOrientedGlyphContourRepresentation::RenderOpaqueGeometry(
+  vtkViewport *viewport)
 {
   // Since we know RenderOpaqueGeometry gets called first, will do the
   // build here
@@ -710,25 +711,42 @@ int vtkOrientedGlyphContourRepresentation::RenderOpaqueGeometry(vtkViewport *vie
   return count;
 }
 
-//----------------------------------------------------------------------
-int vtkOrientedGlyphContourRepresentation::RenderTranslucentGeometry(vtkViewport *viewport)
+//-----------------------------------------------------------------------------
+int vtkOrientedGlyphContourRepresentation::RenderTranslucentPolygonalGeometry(
+  vtkViewport *viewport)
 {
   int count=0;
-  count += this->LinesActor->RenderTranslucentGeometry(viewport);
+  count += this->LinesActor->RenderTranslucentPolygonalGeometry(viewport);
   if ( this->Actor->GetVisibility() )
     {
-    count += this->Actor->RenderTranslucentGeometry(viewport);
+    count += this->Actor->RenderTranslucentPolygonalGeometry(viewport);
     }
   if ( this->ActiveActor->GetVisibility() )
     {
-    count += this->ActiveActor->RenderTranslucentGeometry(viewport);
+    count += this->ActiveActor->RenderTranslucentPolygonalGeometry(viewport);
     }
   return count;
 }
 
+//-----------------------------------------------------------------------------
+int vtkOrientedGlyphContourRepresentation::HasTranslucentPolygonalGeometry()
+{
+  int result=0;
+  result |= this->LinesActor->HasTranslucentPolygonalGeometry();
+  if ( this->Actor->GetVisibility() )
+    {
+    result |= this->Actor->HasTranslucentPolygonalGeometry();
+    }
+  if ( this->ActiveActor->GetVisibility() )
+    {
+    result |= this->ActiveActor->HasTranslucentPolygonalGeometry();
+    }
+  return result;
+}
 
-//----------------------------------------------------------------------
-void vtkOrientedGlyphContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
+//-----------------------------------------------------------------------------
+void vtkOrientedGlyphContourRepresentation::PrintSelf(ostream& os,
+                                                      vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);

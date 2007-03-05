@@ -119,19 +119,34 @@ public:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
   // All concrete subclasses must be able to render themselves.
-  // There are three key render methods in vtk and they correspond
-  // to three different points in the rendering cycle. Any given
+  // There are four key render methods in vtk and they correspond
+  // to four different points in the rendering cycle. Any given
   // prop may implement one or more of these methods. 
   // The first method is intended for rendering all opaque geometry. The
-  // second method is intended for rendering all translucent geometry. Most
-  // volume rendering mappers draw their results during this second method.
+  // second method is intended for rendering all translucent polygonal
+  // geometry. The third one is intended for rendering all translucent
+  // volumetric geometry. Most of the volume rendering mappers draw their
+  // results during this thrid method.
   // The last method is to render any 2D annotation or overlays.
   // Each of these methods return an integer value indicating
   // whether or not this render method was applied to this data. 
   virtual int RenderOpaqueGeometry(      vtkViewport *) { return 0; }
-  virtual int RenderTranslucentGeometry( vtkViewport *) { return 0; }
+  virtual int RenderTranslucentPolygonalGeometry( vtkViewport *) { return 0; }
+  virtual int RenderVolumetricGeometry( vtkViewport *) { return 0; }
   virtual int RenderOverlay(             vtkViewport *) { return 0; }
 
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
+  // Does this prop have some translucent polygonal geometry?
+  // This method is called during the rendering process to know if there is
+  // some translucent polygonal geometry. A simple prop that has some
+  // translucent polygonal geometry will return true. A composite prop (like
+  // vtkAssembly) that has at least one sub-prop that has some translucent
+  // polygonal geometry will return true.
+  // Default implementation return false.
+  virtual int HasTranslucentPolygonalGeometry() { return 0; }
+  
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Release any graphics resources that are being consumed by this actor.

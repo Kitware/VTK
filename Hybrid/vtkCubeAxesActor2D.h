@@ -69,8 +69,12 @@ public:
   // Draw the axes as per the vtkProp superclass' API.
   int RenderOverlay(vtkViewport*);
   int RenderOpaqueGeometry(vtkViewport*);
-  int RenderTranslucentGeometry(vtkViewport *) {return 0;}
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *) {return 0;}
 
+  // Description:
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
+  
   // Description:
   // Use the bounding box of this input dataset to draw the cube axes. If this
   // is not specified, then the class will attempt to determine the bounds from

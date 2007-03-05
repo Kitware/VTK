@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.64");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.65");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -273,11 +273,11 @@ void vtkOpenGLRenderer::DeviceRender(void)
 
 // ----------------------------------------------------------------------------
 // Description:
-// Render translucent geometry. Default implementation just call
-// UpdateTranslucentGeometry().
+// Render translucent polygonal geometry. Default implementation just call
+// UpdateTranslucentPolygonalGeometry().
 // Subclasses of vtkRenderer that can deal with depth peeling must
 // override this method.
-void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
+void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 {
   this->TranslucentStage=1;
   if(this->UseDepthPeeling)
@@ -458,7 +458,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
     {
     // just alpha blending
     this->LastRenderingUsedDepthPeeling=0;
-    this->UpdateTranslucentGeometry();
+    this->UpdateTranslucentPolygonalGeometry();
     this->TranslucentStage=0;
     }
   else
@@ -520,7 +520,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
       glDeleteTextures(1,&opaqueLayerZ);
       this->LastRenderingUsedDepthPeeling=0;
       vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
-      this->UpdateTranslucentGeometry();
+      this->UpdateTranslucentPolygonalGeometry();
       this->TranslucentStage=0;
       return;
       }
@@ -551,13 +551,13 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentGeometry()
       glDeleteTextures(1,&opaqueLayerZ);
       this->LastRenderingUsedDepthPeeling=0;
       vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
-      this->UpdateTranslucentGeometry();
+      this->UpdateTranslucentPolygonalGeometry();
       this->TranslucentStage=0;
       return;
       }
     
-    // Have to be set before a call to UpdateTranslucentGeometry() because
-    // UpdateTranslucentGeometry() will eventually call
+    // Have to be set before a call to UpdateTranslucentPolygonalGeometry()
+    // because UpdateTranslucentPolygonalGeometry() will eventually call
     // vtkOpenGLActor::Render() that uses this flag.
     this->LastRenderingUsedDepthPeeling=1;
     
@@ -862,7 +862,7 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
     }
   vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  int numberOfRenderedProps=this->UpdateTranslucentGeometry();
+  int numberOfRenderedProps=this->UpdateTranslucentPolygonalGeometry();
   if(layer>0)
     {
     vtkgl::UseProgramObjectARB(0);

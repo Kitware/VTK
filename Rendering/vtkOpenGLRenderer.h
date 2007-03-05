@@ -39,11 +39,11 @@ public:
   void DeviceRender(void);
   
   // Description:
-  // Render translucent geometry. Default implementation just call
-  // UpdateTranslucentGeometry().
+  // Render translucent polygonal geometry. Default implementation just call
+  // UpdateTranslucentPolygonalGeometry().
   // Subclasses of vtkRenderer that can deal with depth peeling must
   // override this method.
-  virtual void DeviceRenderTranslucentGeometry();
+  virtual void DeviceRenderTranslucentPolygonalGeometry();
   
   // Description:
   // Internal method temporarily removes lights before reloading them

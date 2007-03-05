@@ -138,7 +138,9 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *) {}
   virtual int RenderOverlay(vtkViewport *vtkNotUsed(viewport)) {return 0;}
   virtual int RenderOpaqueGeometry(vtkViewport *vtkNotUsed(viewport)) {return 0;}
-  virtual int RenderTranslucentGeometry(vtkViewport *vtkNotUsed(viewport)) {return 0;}
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *vtkNotUsed(viewport)) {return 0;}
+  virtual int RenderVolumetricGeometry(vtkViewport *vtkNotUsed(viewport)) {return 0;}
+  virtual int HasTranslucentPolygonalGeometry() { return 0; }
   
 protected:
   vtkWidgetRepresentation();

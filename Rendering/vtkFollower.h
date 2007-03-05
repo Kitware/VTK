@@ -54,8 +54,12 @@ class VTK_RENDERING_EXPORT vtkFollower : public vtkActor
   // property, texture map and then mapper. If a property hasn't been
   // assigned, then the actor will create one automatically. 
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentGeometry(vtkViewport *viewport);
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
   virtual void Render(vtkRenderer *ren);
+  
+  // Description:
+  // Does this prop have some translucent polygonal geometry?
+  virtual int HasTranslucentPolygonalGeometry();
   
   // Description:
   // Copy the follower's composite 4x4 matrix into the matrix provided.

@@ -104,7 +104,7 @@ public:
   // Depending on the mapper type, the volume may be rendered using
   // this method (FRAMEBUFFER volume such as texture mapping will
   // be rendered this way)
-  int RenderTranslucentGeometry(vtkViewport *viewport);
+  int RenderVolumetricGeometry(vtkViewport *viewport);
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

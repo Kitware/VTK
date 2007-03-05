@@ -191,8 +191,9 @@ public:
   virtual double *GetBounds();
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentGeometry(vtkViewport*);
-
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
+  virtual int HasTranslucentPolygonalGeometry();
+  
 //BTX - manage the state of the widget
   enum _InteractionState
   {
