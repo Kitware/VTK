@@ -31,7 +31,7 @@
 #define VERDICT_INC_LIB
 
 #ifndef VERDICT_VERSION
-# define VERDICT_VERSION 112
+# define VERDICT_VERSION 120
 #endif
 
 #define VERDICT_DBL_MIN 1.0E-30

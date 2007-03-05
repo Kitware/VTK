@@ -4,8 +4,8 @@ project(verdict)
 option(BUILD_SHARED_LIBS "Build verdict with shared libraries." OFF)
 
 set( verdict_MAJOR_VERSION "1")
-set( verdict_MINOR_VERSION "1")
-set( verdict_BUILD_VERSION "2")
+set( verdict_MINOR_VERSION "2")
+set( verdict_BUILD_VERSION "0")
 
 set( verdict_VERSION_FLAT "${verdict_MAJOR_VERSION}${verdict_MINOR_VERSION}${verdict_BUILD_VERSION}" )
 set( verdict_VERSION "${verdict_MAJOR_VERSION}.${verdict_MINOR_VERSION}.${verdict_BUILD_VERSION}" )
