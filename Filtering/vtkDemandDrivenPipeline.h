@@ -125,6 +125,8 @@ public:
 
   // Description:
   // Create (New) and return a data object of the given type.
+  // This is here for backwards compatibility. Use 
+  // vtkDataObjectTypes::NewDataObject() instead.
   static vtkDataObject* NewDataObject(const char* type);
 
 protected:

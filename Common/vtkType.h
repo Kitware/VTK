@@ -53,7 +53,9 @@
 #define VTK_UNSIGNED___INT64   19
 
 /*--------------------------------------------------------------------------*/
-/* Define a unique integer identifier for each vtkDataObject type.  */
+/* Define a unique integer identifier for each vtkDataObject type.          */
+/* When adding a new data type here, make sure to update                    */
+/* vtkDataObjectTypes as well.                                              */
 #define VTK_POLY_DATA                       0
 #define VTK_STRUCTURED_POINTS               1
 #define VTK_STRUCTURED_GRID                 2

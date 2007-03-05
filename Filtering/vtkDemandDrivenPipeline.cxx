@@ -19,6 +19,7 @@
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
+#include "vtkDataObjectTypes.h"
 #include "vtkDataSet.h"
 #include "vtkGarbageCollector.h"
 #include "vtkMultiBlockDataSet.h"
@@ -35,21 +36,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-#include "vtkGraph.h"
-#include "vtkImageData.h"
-#include "vtkPolyData.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkStructuredGrid.h"
-#include "vtkStructuredPoints.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkHyperOctree.h"
-#include "vtkTemporalDataSet.h"
-#include "vtkTable.h"
-#include "vtkTree.h"
-
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.47");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.48");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -644,7 +633,7 @@ int vtkDemandDrivenPipeline::CheckDataObject(int port,
     if(!data || !data->IsA(dt))
       {
       // Try to create an instance of the correct type.
-      data = this->NewDataObject(dt);
+      data = vtkDataObjectTypes::NewDataObject(dt);
       this->SetOutputData(port, data, outInfo);
       if(data)
         {
@@ -1020,80 +1009,7 @@ int vtkDemandDrivenPipeline::InputIsRepeatable(int port)
 //----------------------------------------------------------------------------
 vtkDataObject* vtkDemandDrivenPipeline::NewDataObject(const char* type)
 {
-  // Check for some standard types and then try the instantiator.
-  if(strcmp(type, "vtkImageData") == 0)
-    {
-    return vtkImageData::New();
-    }
-  else if(strcmp(type, "vtkPolyData") == 0)
-    {
-    return vtkPolyData::New();
-    }
-  else if(strcmp(type, "vtkRectilinearGrid") == 0)
-    {
-    return vtkRectilinearGrid::New();
-    }
-  else if(strcmp(type, "vtkStructuredGrid") == 0)
-    {
-    return vtkStructuredGrid::New();
-    }
-  else if(strcmp(type, "vtkStructuredPoints") == 0)
-    {
-    return vtkStructuredPoints::New();
-    }
-  else if(strcmp(type, "vtkUnstructuredGrid") == 0)
-    {
-    return vtkUnstructuredGrid::New();
-    }
-  else if(strcmp(type, "vtkMultiGroupDataSet") == 0)
-    {
-    return vtkMultiGroupDataSet::New();
-    }
-  else if(strcmp(type, "vtkMultiBlockDataSet") == 0)
-    {
-    return vtkMultiBlockDataSet::New();
-    }
-  else if(strcmp(type, "vtkHierarchicalDataSet") == 0)
-    {
-    return vtkHierarchicalDataSet::New();
-    }
-  else if(strcmp(type, "vtkHierarchicalBoxDataSet") == 0)
-    {
-    return vtkHierarchicalBoxDataSet::New();
-    }
-  else if(strcmp(type, "vtkHyperOctree") == 0)
-    {
-    return vtkHyperOctree::New();
-    }
-  else if(strcmp(type, "vtkTemporalDataSet") == 0)
-    {
-    return vtkTemporalDataSet::New();
-    }
-  else if(strcmp(type, "vtkTable") == 0)
-    {
-    return vtkTable::New();
-    }
-  else if(strcmp(type, "vtkGraph") == 0)
-    {
-    return vtkGraph::New();
-    }
-  else if(strcmp(type, "vtkTree") == 0)
-    {
-    return vtkTree::New();
-    }
-  else if(vtkObject* obj = vtkInstantiator::CreateInstance(type))
-    {
-    vtkDataObject* data = vtkDataObject::SafeDownCast(obj);
-    if(!data)
-      {
-      obj->Delete();
-      }
-    return data;
-    }
-  else
-    {
-    return 0;
-    }
+  return vtkDataObjectTypes::NewDataObject(type);
 }
 
 //----------------------------------------------------------------------------

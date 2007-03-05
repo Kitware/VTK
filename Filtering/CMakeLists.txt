@@ -38,6 +38,7 @@ vtkDataObject.cxx
 vtkDataObjectAlgorithm.cxx
 vtkDataObjectCollection.cxx
 vtkDataObjectSource.cxx
+vtkDataObjectTypes.cxx
 vtkDataSet.cxx
 vtkDataSetAlgorithm.cxx
 vtkDataSetAttributes.cxx
