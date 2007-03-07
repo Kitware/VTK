@@ -121,6 +121,10 @@ public:
   // VTK_QUALITY_SHAPE, VTK_QUALITY_SHAPE_AND_SIZE, and VTK_QUALITY_DISTORTION.
   vtkSetMacro(TriangleQualityMeasure,int);
   vtkGetMacro(TriangleQualityMeasure,int);
+  void SetTriangleQualityMeasureToArea()
+    {
+    this->SetTriangleQualityMeasure( VTK_QUALITY_AREA );
+    }
   void SetTriangleQualityMeasureToEdgeRatio()
     {
     this->SetTriangleQualityMeasure( VTK_QUALITY_EDGE_RATIO );
@@ -449,6 +453,13 @@ public:
     }
 
   // Description:
+  // This is a static function used to calculate the area of a triangle.
+  // It assumes that you pass the correct type of cell -- no type checking is
+  // performed because this method is called from the inner loop of the Execute()
+  // member function.
+  static double TriangleArea( vtkCell* cell );
+
+  // Description:
   // This is a static function used to calculate the edge ratio of a triangle.
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
@@ -633,7 +644,6 @@ public:
   static double QuadWarpage( vtkCell* cell );
   static double QuadArea( vtkCell* cell );
   static double QuadStretch( vtkCell* cell );
-  //static double QuadMinAngle( vtkCell* cell );
   static double QuadMaxAngle( vtkCell* cell );
   static double QuadOddy( vtkCell* cell );
   static double QuadCondition( vtkCell* cell );

@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.47");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.48");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );
@@ -67,17 +67,6 @@ const char* QualityMeasureNames[] =
 };
 
 double vtkMeshQuality::CurrentTriNormal[3];
-
-static double TriangleArea( vtkCell* cell )
-{
-  double p0[3],p1[3],p2[3];
- 
-  vtkPoints *p = cell->GetPoints();
-  p->GetPoint(0, p0);
-  p->GetPoint(1, p1);
-  p->GetPoint(2, p2);
-  return vtkTriangle::TriangleArea( p0, p1, p2 );
-}
 
 void vtkMeshQuality::PrintSelf(ostream& os, vtkIndent indent )
 {
@@ -165,6 +154,9 @@ int vtkMeshQuality::RequestData(
 
   switch ( this->GetTriangleQualityMeasure() )
     {
+    case VTK_QUALITY_AREA:
+      TriangleQuality = TriangleArea;
+      break;
     case VTK_QUALITY_EDGE_RATIO:
       TriangleQuality = TriangleEdgeRatio;
       break;
@@ -838,7 +830,19 @@ int vtkMeshQuality::GetCurrentTriangleNormal( double point[3], double normal[3] 
   return 1;
 }
 
-// Triangle quality measures
+// Triangle quality metrics
+
+double vtkMeshQuality::TriangleArea( vtkCell* cell )
+{
+  double pc[3][3];
+
+  vtkPoints *p = cell->GetPoints();
+  p->GetPoint(0, pc[0]);
+  p->GetPoint(1, pc[1]);
+  p->GetPoint(2, pc[2]);
+
+  return v_tri_area( 3, pc );
+}
 
 double vtkMeshQuality::TriangleEdgeRatio( vtkCell* cell )
 {
@@ -984,7 +988,7 @@ double vtkMeshQuality::TriangleDistortion( vtkCell* cell )
   return v_tri_distortion( 3, pc );
 }
 
-// Quadrangle quality measures
+// Quadrangle quality metrics
 
 double vtkMeshQuality::QuadEdgeRatio( vtkCell* cell )
 {
@@ -1269,7 +1273,7 @@ double TetVolume( vtkCell* cell )
   return vtkTetra::ComputeVolume( x0, x1, x2, x3 );
 }
 
-// Tetrahedron quality measures
+// Tetrahedral quality metrics
 
 double vtkMeshQuality::TetEdgeRatio( vtkCell* cell )
 {
@@ -1447,7 +1451,7 @@ double vtkMeshQuality::TetDistortion( vtkCell* cell )
   return v_tet_distortion( 4, pc );
 }
 
-// Hexahedron quality measure
+// Hexahedral quality metrics
 
 double vtkMeshQuality::HexEdgeRatio( vtkCell* cell)
 {
