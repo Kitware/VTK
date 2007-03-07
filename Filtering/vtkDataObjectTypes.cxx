@@ -39,8 +39,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkTable.h"
 #include  "vtkGraph.h"
 #include  "vtkTree.h"
+#include  "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkDataObjectTypes, "1.1");
+vtkCxxRevisionMacro(vtkDataObjectTypes, "1.2");
 vtkStandardNewMacro(vtkDataObjectTypes);
 
 // This list should contain the data object class names in
@@ -69,6 +70,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkTable", 
   "vtkGraph", 
   "vtkTree", 
+  "vtkSelection",
   NULL
 };
 
@@ -200,6 +202,10 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   else if(strcmp(type, "vtkTree") == 0)
     {
     return vtkTree::New();
+    }
+  else if(strcmp(type, "vtkSelection") == 0)
+    {
+    return vtkSelection::New();
     }
   else if(vtkObject* obj = vtkInstantiator::CreateInstance(type))
     {
