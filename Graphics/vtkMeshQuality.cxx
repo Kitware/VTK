@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.46");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.47");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );
@@ -353,7 +353,7 @@ int vtkMeshQuality::RequestData(
       HexQuality = HexMaxAspectFrobenius;
       break;
     case VTK_QUALITY_MAX_EDGE_RATIO:
-      HexQuality = HexMaxEdgeRatios;
+      HexQuality = HexMaxEdgeRatio;
       break;
     case VTK_QUALITY_SKEW:
       HexQuality = HexSkew;
@@ -1482,7 +1482,7 @@ double vtkMeshQuality::HexMaxAspectFrobenius( vtkCell* cell )
   return v_hex_max_aspect_frobenius( 8, pc );
 }
 
-double vtkMeshQuality::HexMaxEdgeRatios( vtkCell* cell )
+double vtkMeshQuality::HexMaxEdgeRatio( vtkCell* cell )
 {
   double pc[8][3];
 

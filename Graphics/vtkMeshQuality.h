@@ -749,7 +749,7 @@ public:
   // performed because this method is called from the inner loop of the Execute()
   // member function.
   static double HexMaxAspectFrobenius( vtkCell* cell );
-  static double HexMaxEdgeRatios( vtkCell* cell );
+  static double HexMaxEdgeRatio( vtkCell* cell );
   static double HexSkew( vtkCell* cell );
   static double HexTaper( vtkCell* cell );
   static double HexVolume( vtkCell* cell );
