@@ -56,27 +56,27 @@ public:
   static vtkIdentColoredPainter *New();
 
   //Description:
-  //Use to color each cell by processor rank or by actor id.
-  void SetToColorByConstant(unsigned int constant);
+  //resets the current id to "first".
+  void ResetCurrentId();
 
+  //Description:
+  //Use to color each cell by processor rank or by actor id.
+  void ColorByConstant(unsigned int constant);
+  
   //Description:
   //Use to color each cell with a different index.
   //plane 0 = bits 23..0 of ident.
   //plane 1 = bits 47..24 of ident.
   //plane 2 = bits 71..48 of ident.
-  void SetToColorByIncreasingIdent(unsigned int plane);
-
-  //Description:
-  //resets the current id to "first".
-  void ResetCurrentId();
-
-  //Description:
-  //Allows you to specify a mapping for selected actor ids.
-  void SetActorLookupTable(vtkProp **Props, vtkIdTypeArray *IdsForProps);
+  void ColorByIncreasingIdent(unsigned int plane);
 
   //Description:
   //Use the actor lookup table to lookup a color to render with.
-  void SetToColorByActorId(vtkProp *ActorId);
+  void ColorByActorId(vtkProp *ActorId);
+
+  //Description:
+  //Allows you to specify a mapping for selected actor ids.
+  void MakeActorLookupTable(vtkProp **Props, vtkIdTypeArray *IdsForProps);
 
 protected:
   vtkIdentColoredPainter();

@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.13");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.14");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -77,7 +77,7 @@ vtkIdentColoredPainter::~vtkIdentColoredPainter()
 }
 
 //-----------------------------------------------------------------------------
-void vtkIdentColoredPainter::SetToColorByConstant(unsigned int constant)
+void vtkIdentColoredPainter::ColorByConstant(unsigned int constant)
 {
   this->ColorMode = COLORBYCONST;
   this->ResetCurrentId();
@@ -86,7 +86,7 @@ void vtkIdentColoredPainter::SetToColorByConstant(unsigned int constant)
 
 
 //-----------------------------------------------------------------------------
-void vtkIdentColoredPainter::SetActorLookupTable(vtkProp **props, vtkIdTypeArray *ids)
+void vtkIdentColoredPainter::MakeActorLookupTable(vtkProp **props, vtkIdTypeArray *ids)
 {
   //free whatever we were given before this
   if (this->ActorIds != NULL)
@@ -118,7 +118,7 @@ void vtkIdentColoredPainter::SetActorLookupTable(vtkProp **props, vtkIdTypeArray
 }
 
 //-----------------------------------------------------------------------------
-void vtkIdentColoredPainter::SetToColorByActorId(vtkProp *actorAddr)
+void vtkIdentColoredPainter::ColorByActorId(vtkProp *actorAddr)
 {
   this->ColorMode = COLORBYCONST;
   this->ResetCurrentId();
@@ -160,14 +160,14 @@ void vtkIdentColoredPainter::SetToColorByActorId(vtkProp *actorAddr)
     }
   arr->SetValue(numIds, maxId+1);
   SaveProps[numIds] = actorAddr;
-  this->SetActorLookupTable(SaveProps, arr);
+  this->MakeActorLookupTable(SaveProps, arr);
   arr->Delete();
 
   this->CurrentIdPlane0 = maxId+1;
 }
 
 //-----------------------------------------------------------------------------
-void vtkIdentColoredPainter::SetToColorByIncreasingIdent(unsigned int plane)
+void vtkIdentColoredPainter::ColorByIncreasingIdent(unsigned int plane)
 {
   this->ColorMode = COLORBYIDENT;
   this->Plane = (plane < 3)?plane:2;

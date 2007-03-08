@@ -38,7 +38,7 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.232");
+vtkCxxRevisionMacro(vtkRenderer, "1.233");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
@@ -1724,22 +1724,22 @@ int vtkRenderer::UpdateGeometryForSelection()
     {
     case COLOR_BY_PROCESSOR:
       //SelectConst should have been set to this node's rank
-      this->IdentPainter->SetToColorByConstant(this->SelectConst);
+      this->IdentPainter->ColorByConstant(this->SelectConst);
       break;
     case COLOR_BY_ACTOR:
       //SelectConst will be incremented with each prop
       break;
     case COLOR_BY_CELL_ID_HIGH:
       //Each polygon will gets its own color
-      this->IdentPainter->SetToColorByIncreasingIdent(2);
+      this->IdentPainter->ColorByIncreasingIdent(2);
       break;
     case COLOR_BY_CELL_ID_MID:
       //Each polygon will gets its own color
-      this->IdentPainter->SetToColorByIncreasingIdent(1);
+      this->IdentPainter->ColorByIncreasingIdent(1);
       break;
     case COLOR_BY_CELL_ID_LOW:
       //Each polygon will gets its own color
-      this->IdentPainter->SetToColorByIncreasingIdent(0);
+      this->IdentPainter->ColorByIncreasingIdent(0);
       break;
     default:
       //should never get here
@@ -1753,7 +1753,7 @@ int vtkRenderer::UpdateGeometryForSelection()
     this->PropsSelectedFrom[i] = this->PropArray[i];
     if (this->SelectMode == vtkRenderer::COLOR_BY_ACTOR)
       {
-      this->IdentPainter->SetToColorByActorId(this->PropArray[i]);
+      this->IdentPainter->ColorByActorId(this->PropArray[i]);
       }
     else if (this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_HIGH ||
              this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_MID ||

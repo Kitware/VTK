@@ -87,6 +87,7 @@ public:
   // Call to let this know what processor number to render as in the processor
   // select pass. Internally this adds 1 to pid because 0 is reserved for miss.
   virtual void SetProcessorId(unsigned int pid);
+  vtkGetMacro(ProcessorId, unsigned int);
 
   // Description:
   // Call to let this know what selection render passes to do.
