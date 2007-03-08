@@ -243,7 +243,13 @@ public:
   // Get the data object that will contain the algorithm output for
   // the given port.
   vtkDataObject* GetOutputDataObject(int port);
-
+  
+  // Description:
+  // Get the data object that will contain the algorithm input for the given
+  // port and given connection.
+  vtkDataObject *GetInputDataObject(int port,
+                                    int connection);
+  
   // Description:
   // Set the connection for the given input port index.  Each input
   // port of a filter has a specific purpose.  A port may have zero or

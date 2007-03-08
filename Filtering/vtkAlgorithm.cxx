@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.35");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.36");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -754,6 +754,13 @@ void vtkAlgorithm::ReportReferences(vtkGarbageCollector* collector)
 vtkDataObject* vtkAlgorithm::GetOutputDataObject(int port)
 {
   return this->GetExecutive()->GetOutputData(port);
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject *vtkAlgorithm::GetInputDataObject(int port,
+                                                int connection)
+{
+  return this->GetExecutive()->GetInputData(port,connection);
 }
 
 //----------------------------------------------------------------------------
