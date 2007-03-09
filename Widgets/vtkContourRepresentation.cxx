@@ -32,7 +32,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.17");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.18");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -207,7 +207,7 @@ int vtkContourRepresentation::ActivateNode( double displayPos[2] )
   // is within PixelTolerance
   
   int closestNode = -1;
-  double closestDistance2 = VTK_FLOAT_MAX;
+  double closestDistance2 = VTK_DOUBLE_MAX;
   
   unsigned int i;
   double limit = this->PixelTolerance * this->PixelTolerance;
@@ -589,7 +589,7 @@ int vtkContourRepresentation::FindClosestPointOnContour( int X, int Y,
   this->Renderer->DisplayToWorld();
   this->Renderer->GetWorldPoint(p2);
 
-  double closestDistance2 = VTK_FLOAT_MAX;
+  double closestDistance2 = VTK_DOUBLE_MAX;
   int closestNode=0;
 
   // compute a world tolerance based on pixel
@@ -713,7 +713,7 @@ int vtkContourRepresentation::FindClosestPointOnContour( int X, int Y,
       }
     }
 
-  if ( closestDistance2 < VTK_FLOAT_MAX )
+  if ( closestDistance2 < VTK_DOUBLE_MAX )
     {
     if ( closestNode < this->GetNumberOfNodes() -1 )
       {

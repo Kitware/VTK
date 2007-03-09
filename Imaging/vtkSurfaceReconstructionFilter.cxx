@@ -26,7 +26,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.35");
+vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.36");
 vtkStandardNewMacro(vtkSurfaceReconstructionFilter);
 
 vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
@@ -319,7 +319,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
       {
       // for each nearby point:
       vtkIdType iNearby,iNeighbor;
-      lowestCost = VTK_FLOAT_MAX;
+      lowestCost = VTK_DOUBLE_MAX;
       for(i=0;i<nearby->GetNumberOfIds();i++)
         {
         iNearby = nearby->GetId(i);

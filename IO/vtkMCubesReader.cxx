@@ -27,7 +27,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkMCubesReader, "1.65");
+vtkCxxRevisionMacro(vtkMCubesReader, "1.66");
 vtkStandardNewMacro(vtkMCubesReader);
 
 // Construct object with FlipNormals turned off and Normals set to true.
@@ -152,8 +152,8 @@ int vtkMCubesReader::RequestData(
     {
     fseek (fp, this->HeaderSize, 0);
     // cannot use vtkMath uninitialze bounds for this computation
-    bounds[0] = bounds[2] = bounds[4] = VTK_FLOAT_MAX;
-    bounds[1] = bounds[3] = bounds[5] = -VTK_FLOAT_MAX;
+    bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
+    bounds[1] = bounds[3] = bounds[5] = VTK_DOUBLE_MIN;
     for (i=0; fread(&point, sizeof(pointType), 1, fp); i++) 
       {
       // swap bytes if necc

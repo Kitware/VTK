@@ -139,7 +139,7 @@ public:
   // off a wall, floor, or other object.  The fill light should never
   // be brighter than the key light:  a good range for the key-to-fill
   // ratio is between 2 and 10.
-  vtkSetClampMacro(KeyToFillRatio, double, 0.5, VTK_FLOAT_MAX);
+  vtkSetClampMacro(KeyToFillRatio, double, 0.5, VTK_DOUBLE_MAX);
   vtkGetMacro(KeyToFillRatio, double);
 
   // Description: 
@@ -152,7 +152,7 @@ public:
   // can be used to fill in "shadows" of the object missed by the key
   // and fill lights.  The headlight should always be significantly
   // dimmer than the key light:  ratios of 2 to 15 are typical.
-  vtkSetClampMacro(KeyToHeadRatio, double, 0.5, VTK_FLOAT_MAX);
+  vtkSetClampMacro(KeyToHeadRatio, double, 0.5, VTK_DOUBLE_MAX);
   vtkGetMacro(KeyToHeadRatio, double);
 
   // Description: 
@@ -161,7 +161,7 @@ public:
   // values correspond to dimmer back lights.  The back lights fill
   // in the remaining high-contrast regions behind the object.
   // Values between 2 and 10 are good.
-  vtkSetClampMacro(KeyToBackRatio, double, 0.5, VTK_FLOAT_MAX);
+  vtkSetClampMacro(KeyToBackRatio, double, 0.5, VTK_DOUBLE_MAX);
   vtkGetMacro(KeyToBackRatio, double);
 
   // Description: 

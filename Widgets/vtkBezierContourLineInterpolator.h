@@ -41,7 +41,7 @@ public:
                                vtkContourRepresentation *rep,
                                int idx1, int idx2 );
   
-  vtkSetClampMacro(MaximumCurveError, double, 0.0, VTK_FLOAT_MAX);
+  vtkSetClampMacro(MaximumCurveError, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(MaximumCurveError, double);
 
   vtkSetClampMacro(MaximumCurveLineSegments, int, 1, 1000);

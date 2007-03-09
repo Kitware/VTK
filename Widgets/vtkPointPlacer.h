@@ -102,7 +102,7 @@ public:
   // Description:
   // Set/get the tolerance used when performing computations
   // in world coordinates.
-  vtkSetClampMacro(WorldTolerance, double, 0.0, VTK_FLOAT_MAX);
+  vtkSetClampMacro(WorldTolerance, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(WorldTolerance, double);
 
 protected:

@@ -254,7 +254,7 @@ public:
   // Description:
   // The tolerance to use when calculations are performed in
   // world coordinates
-  vtkSetClampMacro(WorldTolerance, double, 0.0, VTK_FLOAT_MAX);
+  vtkSetClampMacro(WorldTolerance, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(WorldTolerance, double);
 
 //BTX -- used to communicate about the state of the representation

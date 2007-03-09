@@ -106,7 +106,7 @@ public:
   // it just fits within the bounding box defined in PlaceWidget(bounds).
   // The PlaceFactor will make the widget larger (PlaceFactor > 1) or smaller
   // (PlaceFactor < 1). By default, PlaceFactor is set to 0.5.
-  vtkSetClampMacro(PlaceFactor,double,0.01,VTK_FLOAT_MAX);
+  vtkSetClampMacro(PlaceFactor,double,0.01,VTK_DOUBLE_MAX);
   vtkGetMacro(PlaceFactor,double);
 
   // Description:

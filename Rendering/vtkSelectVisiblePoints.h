@@ -94,7 +94,7 @@ public:
   // Set/Get a tolerance to use to determine whether a point is visible. A
   // tolerance is usually required because the conversion from world space
   // to display space during rendering introduces numerical round-off.
-  vtkSetClampMacro(Tolerance,double,0.0,VTK_FLOAT_MAX);
+  vtkSetClampMacro(Tolerance,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(Tolerance,double);
 
   // Description:

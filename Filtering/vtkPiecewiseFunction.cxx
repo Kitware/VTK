@@ -23,7 +23,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.47");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.48");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // The Node structure
@@ -315,7 +315,7 @@ double vtkPiecewiseFunction::GetFirstNonZeroValue()
   // a large value
   if( all_zero )
     {
-    x = VTK_FLOAT_MAX;
+    x = VTK_DOUBLE_MAX;
     }
   else  // A point was found with a non-zero value
     {
@@ -326,12 +326,12 @@ double vtkPiecewiseFunction::GetFirstNonZeroValue()
       }
     else
       // If this is the first point in the function, return its 
-      // value is clamping is off, otherwise -VTK_FLOAT_MAX if
+      // value is clamping is off, otherwise VTK_DOUBLE_MIN if
       // clamping is on.
       {
       if ( this->Clamping )
         {
-        x = -VTK_FLOAT_MAX;
+        x = VTK_DOUBLE_MIN;
         }
       else
         {
