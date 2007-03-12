@@ -19,7 +19,7 @@
 #include "vtkInformation.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkAbstractVolumeMapper, "1.10");
+vtkCxxRevisionMacro(vtkAbstractVolumeMapper, "1.11");
 
 // Construct a vtkAbstractVolumeMapper 
 vtkAbstractVolumeMapper::vtkAbstractVolumeMapper()
@@ -107,7 +107,7 @@ void vtkAbstractVolumeMapper::SelectScalarArray(const char *arrayName)
 {
   if (   !arrayName
       || (   (strcmp(this->ArrayName, arrayName) == 0)
-          && (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID) ) )
+          && (this->ArrayAccessMode == VTK_GET_ARRAY_BY_NAME) ) )
     {
     return;
     }
