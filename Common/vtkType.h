@@ -78,6 +78,7 @@
 #define VTK_TABLE                          19
 #define VTK_GRAPH                          20
 #define VTK_TREE                           21
+#define VTK_SELECTION                      22
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */
