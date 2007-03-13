@@ -64,10 +64,12 @@ private:
   vtkstd::vector<vtkStdString> pointArrayNames;
   vtkstd::vector<int> pointArrayComponents;
   vtkstd::vector<int> pointArrayStatus;
+  vtkstd::map<vtkStdString,int> pointArrayInitStatus;
 
   vtkstd::vector<vtkStdString> cellArrayNames;
   vtkstd::vector<int> cellArrayComponents;
   vtkstd::vector<int> cellArrayStatus;
+  vtkstd::map<vtkStdString,int> cellArrayInitStatus;
 
   int originalNumberOfPointArrays;
   int originalNumberOfCellArrays;
@@ -82,6 +84,7 @@ private:
   vtkstd::vector<int> blockIds;
   vtkstd::vector<int> blockStatus;
   vtkstd::vector<int> numElementsInBlock;
+  vtkstd::map<vtkStdString,int> blockInitStatus;
 
   // Node/Side set id stuff
   //  Store *Ids* for each node/side set
@@ -95,12 +98,14 @@ private:
   vtkstd::vector<int> nodeSetDistFact;
   vtkstd::vector<int> nodeSetStatus;
   vtkstd::vector<vtkStdString> nodeSetName;
+  vtkstd::map<vtkStdString,int> nodeSetInitStatus;
 
   vtkstd::vector<int> sideSetId;
   vtkstd::vector<int> sideSetSize;
   vtkstd::vector<int> sideSetDistFact;
   vtkstd::vector<int> sideSetStatus;
   vtkstd::vector<vtkStdString> sideSetName;
+  vtkstd::map<vtkStdString,int> sideSetInitStatus;
 
   //part stuff. There is no PartStatus array
   //a part is active only if all its blocks are active
@@ -187,6 +192,10 @@ public:
     { 
       return pointArrayStatus[idx]; 
     }
+  inline void SetPointArrayInitStatus(vtkStdString name, int on) 
+    { 
+      pointArrayInitStatus[name] = on; 
+    }
   inline void SetPointArrayStatus(int idx, int on) 
     { 
       pointArrayStatus[idx] = on; 
@@ -230,6 +239,10 @@ public:
   inline int GetCellArrayComponents(int idx) 
     { 
       return cellArrayComponents[idx]; 
+    }
+  inline void SetCellArrayInitStatus(vtkStdString name, int on) 
+    { 
+      cellArrayInitStatus[name] = on; 
     }
   inline void SetCellArrayStatus(int idx, int flag) 
     { 
@@ -276,27 +289,21 @@ public:
   // size - node/side set size
   // dist - number of distribution factors
   // default node/side set status to 'of' or '0'
-  inline void AddNodeSet( const int id, const int size, const int dist )
+  inline void AddNodeSet( vtkStdString name, const int id, const int size, const int dist, int status )
     {
-      char buffer[80];
-      sprintf(buffer, "NodeSet %d",id);
-    
       this->nodeSetId.push_back( id );
-      this->nodeSetName.push_back( buffer );
+      this->nodeSetName.push_back( name );
       this->nodeSetSize.push_back( size );
       this->nodeSetDistFact.push_back( dist );
-      this->nodeSetStatus.push_back( 0 );
+      this->nodeSetStatus.push_back( status );
     }
-  inline void AddSideSet( const int id, const int size, const int dist )
+  inline void AddSideSet( vtkStdString name, const int id, const int size, const int dist, int status )
     {
-      char buffer[80];
-      sprintf(buffer, "SideSet %d",id);
-      
       this->sideSetId.push_back( id );
-      this->sideSetName.push_back( buffer );
+      this->sideSetName.push_back( name );
       this->sideSetSize.push_back( size );
       this->sideSetDistFact.push_back( dist );
-      this->sideSetStatus.push_back( 0 );
+      this->sideSetStatus.push_back( status );
     }
 
   // Do a bound check and return a non-sensical -1 for a count if the user
@@ -348,6 +355,22 @@ public:
       return (id>=0 && id<(int)sideSetDistFact.size()) ? sideSetDistFact[id] : -1;
     }
 
+  inline int GetNodeSetInitStatus( vtkStdString name )
+    {
+    vtkstd::map<vtkStdString,int>::iterator i = nodeSetInitStatus.find(name);
+    if( i!= nodeSetInitStatus.end() )
+      {
+      return (*i).second;
+      }
+    else
+      {
+      return 0;
+      }
+    }
+  inline void SetNodeSetInitStatus( vtkStdString name, const int status )
+    {
+      this->nodeSetInitStatus[name] = status;
+    }
   inline void SetNodeSetStatus( const int id, const int status )
     {
       if( id>=0 && id<(int)this->nodeSetStatus.size() )
@@ -366,6 +389,22 @@ public:
           return;
           }
         }
+    }
+  inline int GetSideSetInitStatus( vtkStdString name )
+    {
+    vtkstd::map<vtkStdString,int>::iterator i = sideSetInitStatus.find(name);
+    if( i!= sideSetInitStatus.end() )
+      {
+      return (*i).second;
+      }
+    else
+      {
+      return 0;
+      }
+    }
+  inline void SetSideSetInitStatus( vtkStdString name, const int status )
+    {
+      this->sideSetInitStatus[name] = status;
     }
   inline void SetSideSetStatus( const int id, const int status )
     {
@@ -573,6 +612,22 @@ public:
   { 
     return numElementsInBlock[sortedOrder[idx]]; 
   }
+  inline void SetBlockInitStatus( vtkStdString name, const int status )
+    {
+      this->blockInitStatus[name] = status;
+    }
+  inline int GetBlockInitStatus( vtkStdString name )
+    {
+    vtkstd::map<vtkStdString,int>::iterator i = blockInitStatus.find(name);
+    if( i!= blockInitStatus.end() )
+      {
+      return (*i).second;
+      }
+    else
+      {
+      return 1;
+      }
+    }
   inline void SetBlockStatus(int idx, int flag) 
   { 
     blockStatus[sortedOrder[idx]] = flag; 
@@ -1337,7 +1392,7 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.41");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.42");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1482,6 +1537,14 @@ void vtkExodusMetadata::Finalize()
       this->GetArrayStatusInitValue( vtkExodusReader::POINT ) );
     }
 
+  // Check to see if any initial values have been set for this array
+  for (vtkstd::map<vtkStdString,int>::iterator i=pointArrayInitStatus.begin();i!=pointArrayInitStatus.end();i++)
+    {
+    this->SetPointArrayStatus((*i).first,(*i).second);
+    }
+  // Delete the values when we're done
+  pointArrayInitStatus.erase(pointArrayInitStatus.begin(),pointArrayInitStatus.end());
+
   ////////////////////////////////
   // Cell Arrays
   ////////////////////////////////
@@ -1497,12 +1560,20 @@ void vtkExodusMetadata::Finalize()
     cellArrayStatus.push_back( 
       this->GetArrayStatusInitValue( vtkExodusReader::CELL ) );
     }
-    
+
+  // Check to see if any initial values have been set for this array
+  for (vtkstd::map<vtkStdString,int>::iterator i=cellArrayInitStatus.begin();i!=cellArrayInitStatus.end();i++)
+    {
+    this->SetCellArrayStatus((*i).first,(*i).second);
+    }
+  // Delete the values when we're done:
+  cellArrayInitStatus.erase(cellArrayInitStatus.begin(),cellArrayInitStatus.end());
+
   this->SortBlocks();
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.41");
+vtkCxxRevisionMacro(vtkExodusReader, "1.42");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -1762,6 +1833,14 @@ void vtkExodusReader::SetPointArrayStatus(int index, int flag)
 
 void vtkExodusReader::SetPointArrayStatus(const char* name, int flag)
 {
+  if(this->MetaData->GetNumberOfPointArrays()==0)
+    {
+    // The point array status is being set before the meta data has been finalized
+    // so cache this value for later and use as the initial value
+    // If the number of arrays really is zero then this doesn't do any harm.
+    this->MetaData->SetPointArrayInitStatus(name, flag);
+    }
+
   this->MetaData->SetPointArrayStatus(name, flag);
   this->Modified();
 }
@@ -1812,6 +1891,14 @@ void vtkExodusReader::SetCellArrayStatus(int index, int flag)
 
 void vtkExodusReader::SetCellArrayStatus(const char* name, int flag)
 {
+  if(this->MetaData->GetNumberOfCellArrays()==0)
+    {
+    // The cell array status is being set before the meta data has been finalized
+    // so cache this value for later and use as the initial value
+    // If the number of arrays really is zero then this doesn't do any harm.
+    this->MetaData->SetCellArrayInitStatus(name, flag);
+    }
+
   this->MetaData->SetCellArrayStatus(name, flag);
   this->Modified();
 }
@@ -1861,6 +1948,12 @@ void vtkExodusReader::SetBlockArrayStatus(int index, int flag)
 
 void vtkExodusReader::SetBlockArrayStatus(const char* name, int flag)
 {
+  if(this->MetaData->GetNumberOfBlocks()==0)
+    {
+    // The value is being set before the metadata has been finalized
+    // So store for later and use as the initial value if needed
+    this->MetaData->SetBlockInitStatus(name,flag);
+    }
   // Only modify if we are 'out of sync'
   if (this->MetaData->GetBlockStatus(name) != flag)
     {
@@ -1906,6 +1999,12 @@ void vtkExodusReader::SetNodeSetArrayStatus(int index, int flag)
 }
 void vtkExodusReader::SetNodeSetArrayStatus(const char* name, int flag)
 {
+  if(this->MetaData->GetNumberOfNodeSets()==0)
+    {
+    // The value is being set before the metadata has been finalized
+    // So store for later and use as the initial value if needed
+    this->MetaData->SetNodeSetInitStatus(name,flag);
+    }
   // Only modify if we are 'out of sync'
   if (this->MetaData->GetNodeSetStatus(name) != flag)
     {
@@ -1945,6 +2044,12 @@ void vtkExodusReader::SetSideSetArrayStatus(int index, int flag)
 }
 void vtkExodusReader::SetSideSetArrayStatus(const char* name, int flag)
 {
+  if(this->MetaData->GetNumberOfSideSets()==0)
+    {
+    // The value is being set before the metadata has been finalized
+    // So store for later and use as the initial value if needed
+    this->MetaData->SetSideSetInitStatus(name,flag);
+    }
   // Only modify if we are 'out of sync'
   if (this->MetaData->GetSideSetStatus(name) != flag)
     {
@@ -2443,6 +2548,7 @@ int vtkExodusReader::RequestInformation(
     this->MetaData->ResetBlocks();
     int *ids = new int[this->NumberOfBlocks];
     char block_name_buffer[80];
+    int status = 1;
     ex_get_elem_blk_ids (this->CurrentHandle, ids);
   
     for (i = 0; i < this->NumberOfBlocks; ++i)
@@ -2466,6 +2572,11 @@ int vtkExodusReader::RequestInformation(
         }
   
       sprintf(block_name_buffer,"Block: %d (%s)",ids[i],elem_type);
+  
+      // Get whether an initial state for this block has been specified
+      // If none is found, the default value is 'on'
+      status = this->MetaData->GetBlockInitStatus(block_name_buffer);
+
       if (this->Parser && this->Parser->GetPartDescription(ids[i])!="")
         {
         //construct assembly names from number and description arrays
@@ -2490,7 +2601,7 @@ int vtkExodusReader::RequestInformation(
                                  this->Parser->GetMaterialDescription(ids[i])+" : "+
                                  this->Parser->GetMaterialSpecification(ids[i]), 
                                  assemblyNames,
-                                 ids[i], num_elem_in_block, 1);
+                                 ids[i], num_elem_in_block, status);
         }
       else
         {
@@ -2498,7 +2609,7 @@ int vtkExodusReader::RequestInformation(
         assemblyNames.push_back(vtkStdString("Default Assembly"));
         this->MetaData->AddBlock(block_name_buffer,"Default Part", 
                                  "Default Material", assemblyNames,ids[i], 
-                                 num_elem_in_block, 1); 
+                                 num_elem_in_block, status); 
         }
   
       }
@@ -2609,6 +2720,8 @@ void vtkExodusReader::ReadNodeSetMetadata()
     }
   // read meta data for each node set
   int i = 0;
+  char bufferName[80];
+  int status = 0;
   for( i = 0; i < this->NumberOfNodeSets; i++ )
     {
     error = ex_get_node_set_param( this->CurrentHandle, nodeSetId[i], &size, &dist );
@@ -2618,7 +2731,11 @@ void vtkExodusReader::ReadNodeSetMetadata()
       }
     // Add a node set's metadata to vtkExodusMetaData
     // Store it's Exodus Id, size, and number of distribution factors
-    this->MetaData->AddNodeSet( nodeSetId[i], size, dist );
+    sprintf(bufferName, "NodeSet %d",nodeSetId[i]);
+    // Get whether an initial state has been given for this node set
+    // If none is found, the default is "off"
+    status = this->MetaData->GetNodeSetInitStatus(bufferName);
+    this->MetaData->AddNodeSet( bufferName, nodeSetId[i], size, dist, status );
     }
 }
 void vtkExodusReader::ReadSideSetMetadata()
@@ -2641,6 +2758,8 @@ void vtkExodusReader::ReadSideSetMetadata()
     }
   // read meta data for each side set
   int i = 0;
+  char bufferName[80];
+  int status = 0;
   for( i = 0; i < this->NumberOfSideSets; i++ )
     {
     error = ex_get_side_set_param( this->CurrentHandle, sideSetId[i], &size, &dist );
@@ -2651,7 +2770,11 @@ void vtkExodusReader::ReadSideSetMetadata()
       }
     // Add a side set's metadate to vtkExodusMetaData
     // Store it's Exodus Id, size, and number of distribution factors
-    this->MetaData->AddSideSet( sideSetId[i], size, dist );
+    sprintf(bufferName, "SideSet %d",sideSetId[i]);
+    status = this->MetaData->GetSideSetInitStatus(bufferName);
+    // Get whether an initial state has been given for this side set
+    // If none is found, the default is "off"
+    this->MetaData->AddSideSet( bufferName, sideSetId[i], size, dist, status );
     }
 }
 
