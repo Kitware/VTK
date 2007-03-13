@@ -48,6 +48,9 @@ class VTK_FILTERING_EXPORT vtkAMRBox
 {
 public:
   // public for quick access
+  // Description:
+  // cell position of the lower cell position and higher cell positon.
+  // Eg. LoCorner = {0,0,0}, HiCorner = {0,0,0} is an AMRBox with 1 cell
   int LoCorner[3];
   int HiCorner[3];
 
@@ -113,8 +116,8 @@ public:
     {
     for (int i=0; i<3; i++)
       {
-      this->LoCorner[i] = this->LoCorner[i]*refinement;
-      this->HiCorner[i] = this->HiCorner[i]*refinement;
+      this->LoCorner[i] = (this->LoCorner[i]+1)*refinement-1;
+      this->HiCorner[i] = (this->HiCorner[i]+1)*refinement-1;
       }
     }
 
@@ -153,7 +156,7 @@ public:
     }
 
   // Description:
-  // Check if point pos is HiCorner
+  // Check if cell position is HiCorner
   bool IsHiCorner(const int pos[3]) const
     {
     return this->HiCorner[0] == pos[0]
@@ -162,7 +165,7 @@ public:
     }
 
   // Description:
-  // Check if point pos is LoCorner
+  // Check if cell position is LoCorner
   bool IsLoCorner(const int pos[3]) const
     {
     return this->LoCorner[0] == pos[0]
