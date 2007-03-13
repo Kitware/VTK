@@ -64,6 +64,8 @@ vtkSocketCommunicator.cxx
 vtkSocketController.cxx
 vtkSubGroup.cxx
 vtkTemporalFractal.cxx
+vtkTemporalInterpolatedVelocityField.cxx
+vtkTemporalStreamTracer.cxx
 vtkTransmitImageDataPiece.cxx
 vtkTransmitRectilinearGridPiece.cxx
 vtkTransmitStructuredGridPiece.cxx
