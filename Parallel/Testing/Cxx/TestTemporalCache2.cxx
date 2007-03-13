@@ -42,7 +42,7 @@
 
 //-------------------------------------------------------------------------
 // This is a dummy class which accepts time from the pipeline
-// It does'nt do anything with the time, but it is useful for testing
+// It doesn't do anything with the time, but it is useful for testing
 //-------------------------------------------------------------------------
 class vtkTemporalSphereSource : public vtkSphereSource {
 
@@ -84,7 +84,7 @@ public:
   vtkstd::vector<double> TimeStepValues;
 };
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalSphereSource, "1.1");
+vtkCxxRevisionMacro(vtkTemporalSphereSource, "1.2");
 vtkStandardNewMacro(vtkTemporalSphereSource);
 //----------------------------------------------------------------------------
 vtkTemporalSphereSource::vtkTemporalSphereSource()
@@ -148,14 +148,16 @@ int vtkTemporalSphereSource::RequestData(
       vtkstd::bind2nd( WithinTolerance( ), requestedTimeValue )) 
       - this->TimeStepValues.begin();
     this->ActualTimeStep = this->ActualTimeStep + this->TimeStepRange[0];
+    int N = outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
     doOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &requestedTimeValue, 1);
-//    CSCSOutputMacro(<<"Got a timestep request from downstream t= " << requestedTimeValue << " Step : " << this->ActualTimeStep);
+    vtkDebugMacro(<<"Got a timestep request from downstream t= " << requestedTimeValue 
+      << " Step : " << this->ActualTimeStep << "(Number of steps requested " << N << ")");
     }
   else 
     {
     double timevalue[1];
     timevalue[0] = this->TimeStepValues[this->ActualTimeStep-this->TimeStepRange[0]];
-//    CSCSOutputMacro(<<"Using manually set t= " << timevalue[0] << " Step : " << this->ActualTimeStep);
+    vtkDebugMacro(<<"Using manually set t= " << timevalue[0] << " Step : " << this->ActualTimeStep);
     doOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &timevalue[0], 1);
     }
 
@@ -259,6 +261,7 @@ int main(int , char *[])
     for (i = 0; i < 9; ++i)
       {
       times[0] = i+0.5;
+//      vtkDebugMacro(<<"SetUpdateTimeSteps t= " << times[0]);
       sdd->SetUpdateTimeSteps(0, times, 1);
       mapper->Modified();
       renderer->ResetCameraClippingRange();

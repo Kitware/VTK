@@ -15,7 +15,7 @@
 
 /*================================================
   Created by Ken Martin, 
-  leveraging code written by John Biddiscomb
+  leveraging code written by John Biddiscombe
   ================================================*/
 
 #include "vtkTemporalInterpolator.h"
@@ -35,7 +35,7 @@
 #include "vtkstd/algorithm"
 #include "vtkstd/vector"
 
-vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.5");
+vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.6");
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
 //----------------------------------------------------------------------------

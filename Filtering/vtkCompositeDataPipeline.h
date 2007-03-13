@@ -85,6 +85,10 @@ public:
   static vtkInformationObjectBaseKey*    UPDATE_BLOCKS();
   static vtkInformationIntegerKey*       REQUIRES_TIME_DOWNSTREAM();
 
+#if defined (JB_SPECIAL_PLEASE_LEAVE_IT_HERE_FOR_NOW_DEBUG)
+  static int ProcessID;
+#endif
+
 protected:
   vtkCompositeDataPipeline();
   ~vtkCompositeDataPipeline();
@@ -122,7 +126,9 @@ protected:
   // Check whether the data object in the pipeline information for an
   // output port exists and has a valid type.
   virtual int CheckCompositeData(vtkInformation *request,
-                                 int port, vtkInformationVector* outInfoVec);
+                                 int port, 
+                                 vtkInformationVector** inInfoVec,
+                                 vtkInformationVector* outInfoVec);
 
   // True when the pipeline is iterating over the current (simple) filter
   // to produce composite output. In this case, ExecuteDataStart() should
@@ -145,8 +151,12 @@ protected:
     vtkDataObject* dobj);
 
   int ShouldIterateOverInput(int& compositePort);
-  int ShouldIterateTemporalData(vtkInformation *request);
-  virtual int InputTypeIsValid(int port, int index,vtkInformationVector **);
+  int ShouldIterateTemporalData(vtkInformationVector** inInfoVec, 
+                                vtkInformation *request);
+  int ShouldCreateTemporalData(vtkInformationVector** inInfoVec, 
+                                vtkInformation *request);
+  virtual int InputTypeIsValid(int port, int index, 
+                                vtkInformationVector **inInfoVec);
 
   vtkInformation* InformationCache;
 

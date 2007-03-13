@@ -49,6 +49,9 @@ protected:
   CacheType;
   CacheType Cache;
 //ETX
+
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
   virtual int RequestUpdateExtent (vtkInformation *,
                                    vtkInformationVector **,
                                    vtkInformationVector *);

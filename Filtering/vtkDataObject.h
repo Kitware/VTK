@@ -466,6 +466,7 @@ public:
   static vtkInformationStringKey* FIELD_NAME();
   static vtkInformationDoubleVectorKey* ORIGIN();
   static vtkInformationDoubleVectorKey* SPACING();
+  static vtkInformationIntegerKey* DATA_GEOMETRY_UNMODIFIED();
 
   //BTX
   // Description:

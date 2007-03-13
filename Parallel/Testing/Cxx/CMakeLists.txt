@@ -34,6 +34,13 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     -T ${VTK_BINARY_DIR}/Testing/Temporary
     )
 
+  ADD_EXECUTABLE(TestTemporalCache2 TestTemporalCache2.cxx)
+  TARGET_LINK_LIBRARIES(TestTemporalCache2 vtkParallel vtkHybrid)
+  ADD_TEST(TestTemporalCache2-image 
+    ${CXX_TEST_PATH}/TestTemporalCache2
+    -T ${VTK_BINARY_DIR}/Testing/Temporary
+    )
+
   ADD_EXECUTABLE(TestExodusTime TestExodusTime.cxx)
   TARGET_LINK_LIBRARIES(TestExodusTime vtkParallel vtkHybrid)
 
