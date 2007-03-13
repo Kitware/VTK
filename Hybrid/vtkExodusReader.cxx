@@ -1392,7 +1392,7 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.42");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.43");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1520,6 +1520,7 @@ int vtkExodusMetadata::VectorizeArrays(
 void vtkExodusMetadata::Finalize()
 {
   int i;
+  vtkstd::map<vtkStdString,int>::iterator iter;
 
   ////////////////////////////////
   // Point Arrays
@@ -1538,9 +1539,9 @@ void vtkExodusMetadata::Finalize()
     }
 
   // Check to see if any initial values have been set for this array
-  for (vtkstd::map<vtkStdString,int>::iterator i=pointArrayInitStatus.begin();i!=pointArrayInitStatus.end();i++)
+  for (iter=pointArrayInitStatus.begin();iter!=pointArrayInitStatus.end();iter++)
     {
-    this->SetPointArrayStatus((*i).first,(*i).second);
+    this->SetPointArrayStatus((*iter).first,(*iter).second);
     }
   // Delete the values when we're done
   pointArrayInitStatus.erase(pointArrayInitStatus.begin(),pointArrayInitStatus.end());
@@ -1562,9 +1563,9 @@ void vtkExodusMetadata::Finalize()
     }
 
   // Check to see if any initial values have been set for this array
-  for (vtkstd::map<vtkStdString,int>::iterator i=cellArrayInitStatus.begin();i!=cellArrayInitStatus.end();i++)
+  for (iter=cellArrayInitStatus.begin();iter!=cellArrayInitStatus.end();iter++)
     {
-    this->SetCellArrayStatus((*i).first,(*i).second);
+    this->SetCellArrayStatus((*iter).first,(*iter).second);
     }
   // Delete the values when we're done:
   cellArrayInitStatus.erase(cellArrayInitStatus.begin(),cellArrayInitStatus.end());
@@ -1573,7 +1574,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.42");
+vtkCxxRevisionMacro(vtkExodusReader, "1.43");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
