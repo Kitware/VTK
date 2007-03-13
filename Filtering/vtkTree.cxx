@@ -31,7 +31,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTree, "1.6");
+vtkCxxRevisionMacro(vtkTree, "1.7");
 vtkStandardNewMacro(vtkTree);
 
 //----------------------------------------------------------------------------
@@ -240,7 +240,7 @@ void vtkTree::ReorderChildren(vtkIdType parent, vtkIdList* children)
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkTree::GetSourceVertex(vtkIdType edge)
+vtkIdType vtkTree::GetTargetVertex(vtkIdType edge)
 {
   if (edge == this->Root - 1)
     {
@@ -250,7 +250,7 @@ vtkIdType vtkTree::GetSourceVertex(vtkIdType edge)
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkTree::GetTargetVertex(vtkIdType edge)
+vtkIdType vtkTree::GetSourceVertex(vtkIdType edge)
 {
   if (edge == this->Root - 1)
     {

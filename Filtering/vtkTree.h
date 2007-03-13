@@ -167,6 +167,10 @@ public:
   // Copy the geometric and topological structure of the tree.
   virtual void CopyStructure(vtkDataSet* ds);
 
+  // Description:
+  // Get the id of the edge linking the vertex to its parent.
+  vtkIdType GetParentEdge(vtkIdType vertex);
+
   //BTX
   // Description:
   // Retrieve the tree from vtkInformation.
@@ -180,7 +184,6 @@ protected:
 
   vtkVertexLinks* VertexLinks;
 
-  vtkIdType GetParentEdge(vtkIdType vertex);
   vtkIdType AddVertex();
   void RemoveVertex(vtkIdType vertex);
   void RemoveVertices(vtkIdType* vertices, vtkIdType size);
