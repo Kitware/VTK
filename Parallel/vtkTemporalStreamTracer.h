@@ -24,8 +24,7 @@
 #ifndef __vtkTemporalStreamTracer_h
 #define __vtkTemporalStreamTracer_h
 
-#include "vtkToolkits.h" // For VTK_USE_MPI 
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkStreamTracer.h"
 
 //BTX
@@ -34,9 +33,7 @@
 //ETX
 //#define JB_H5PART_PARTICLE_OUTPUT 1
 
-#ifdef VTK_USE_MPI
-  class vtkMultiProcessController;
-#endif
+class vtkMultiProcessController;
 
 class vtkCompositeDataSet;
 class vtkDataArray;
@@ -158,19 +155,14 @@ public:
     vtkGetMacro(EnableSource2,int);
     vtkBooleanMacro(EnableSource2,int);
 
-//BTX
-  #ifdef VTK_USE_MPI
-//ETX
     // Description:
-    // Set/Get the controller use in compositing (set to
-    // the global controller by default)
-    // If not using the default, this must be called before any
-    // other methods.
+    // Set/Get the controller use in compositing (set to the global controller
+    // by default) If not using the default, this must be called before any
+    // other methods.  The controller must be an instance of vtkMPIController.
+    // If VTK was compiled without VTK_USE_MPI on, then the Controller is simply
+    // ignored.
     virtual void SetController(vtkMultiProcessController* controller);
     vtkGetObjectMacro(Controller, vtkMultiProcessController);
-//BTX
-  #endif
-//ETX
 
   protected:
 
@@ -323,13 +315,7 @@ public:
     //
 //ETX
 
-//BTX
-  #ifdef VTK_USE_MPI
-//ETX
-    vtkMultiProcessController* Controller;
-//BTX
-  #endif
-//ETX
+  vtkMultiProcessController* Controller;
   static vtkIdType UniqueIdCounter;
 
 private:

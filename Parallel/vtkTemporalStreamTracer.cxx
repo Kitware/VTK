@@ -41,6 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
@@ -57,8 +58,9 @@ PURPOSE.  See the above copyright notice for more information.
   #include "vtkH5PartWriter.h"
 #endif
 
+#include "vtkToolkits.h" // For VTK_USE_MPI 
+
 #ifdef VTK_USE_MPI
-  #include "vtkMultiProcessController.h"
   #include "vtkMPIController.h"
 #endif
 
@@ -66,11 +68,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include <algorithm>
 
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.2");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.3");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
-#ifdef VTK_USE_MPI
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
-#endif
 //---------------------------------------------------------------------------
 // @Todo - use MPI to ensure Ids are really unique across processors
 vtkIdType vtkTemporalStreamTracer::UniqueIdCounter = 0;
@@ -119,17 +119,13 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   //
   this->GenericCell                     = vtkGenericCell::New();
   this->SetNumberOfInputPorts(3);
-#ifdef VTK_USE_MPI
   this->Controller = NULL;
   this->SetController(vtkMultiProcessController::GetGlobalController());
-#endif
 }
 //---------------------------------------------------------------------------
 vtkTemporalStreamTracer::~vtkTemporalStreamTracer()
 {
-#ifdef VTK_USE_MPI
   this->SetController(NULL);
-#endif
   this->GenericCell->Delete();
 #ifdef JB_H5PART_PARTICLE_OUTPUT
   this->HDF5ParticleWriter->Delete();
@@ -582,10 +578,10 @@ void vtkTemporalStreamTracer::InjectSeeds(
   vtkDebugMacro(<< "Tested " << numSeedsNew << " Good " << successful << " Total " << valid);
 }
 //---------------------------------------------------------------------------
+#ifdef VTK_USE_MPI
 void vtkTemporalStreamTracer::TransmitReceiveParticles(
   ParticleList &outofdomain, ParticleList &received, bool removeself)
 {
-#ifdef VTK_USE_MPI
   vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(
     this->Controller->GetCommunicator()); 
   if (com == 0) {
@@ -629,8 +625,13 @@ void vtkTemporalStreamTracer::TransmitReceiveParticles(
       first + recvLengths[this->UpdatePiece]/TypeSize;
     received.erase(first, last);
   }
-#endif
 }
+#else // VTK_USE_MPI
+void vtkTemporalStreamTracer::TransmitReceiveParticles(
+  ParticleList &, ParticleList &, bool )
+{
+}
+#endif // VTK_USE_MPI
 //---------------------------------------------------------------------------
 void vtkTemporalStreamTracer::UpdateSeeds(ParticleList &candidates)
 {
