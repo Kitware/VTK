@@ -25,8 +25,14 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkLookupTable.h"
+#include "vtkFloatArray.h"
+#include "vtkPointData.h"
+#include "vtkTexture.h"
+#include "vtkImageData.h"
+#include "vtkRenderer.h"
+#include "vtkProperty2D.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.57");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.58");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -84,6 +90,67 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->LastOrigin[1] = 0;
   this->LastSize[0] = 0;
   this->LastSize[1] = 0;
+  
+  // If opacity is on, a jail like texture is displayed behind it..
+
+  this->UseOpacity       = 0;
+  this->TextureGridWidth = 10.0;
+  
+  this->TexturePolyData = vtkPolyData::New();
+  vtkPolyDataMapper2D * textureMapper = vtkPolyDataMapper2D::New();
+  textureMapper->SetInput(this->TexturePolyData);
+  this->TextureActor = vtkActor2D::New();
+  this->TextureActor->SetMapper(textureMapper);
+  textureMapper->Delete();
+  this->TextureActor->GetPositionCoordinate()->
+    SetReferenceCoordinate(this->PositionCoordinate);
+  vtkFloatArray* tc = vtkFloatArray::New();
+  tc->SetNumberOfComponents(2);
+  tc->SetNumberOfTuples(4);
+  tc->InsertComponent(0,0, 0.0);  
+  tc->InsertComponent(0,1, 0.0);
+  tc->InsertComponent(1,1, 0.0);
+  tc->InsertComponent(3,0, 0.0);  
+  this->TexturePolyData->GetPointData()->SetTCoords(tc);
+  tc->Delete();
+
+  vtkCellArray* polys2 = vtkCellArray::New();
+  polys2->InsertNextCell(4);
+  polys2->InsertCellPoint(0);
+  polys2->InsertCellPoint(1);
+  polys2->InsertCellPoint(2);
+  polys2->InsertCellPoint(3);
+  this->TexturePolyData->SetPolys(polys2);
+  polys2->Delete();
+
+  vtkProperty2D *imageProperty = vtkProperty2D::New();
+  imageProperty->SetOpacity(0.08);
+  this->TextureActor->SetProperty(imageProperty);
+  imageProperty->Delete();
+
+  // Create the default texture. Just a "Jail" like grid
+
+  const unsigned int dim = 128;
+  vtkImageData *image = vtkImageData::New();
+  image->SetDimensions(dim, dim, 1);
+  image->SetScalarTypeToUnsignedChar();
+  image->AllocateScalars();
+  
+  for (unsigned int y = 0; y < dim; y++)
+    {
+    unsigned char *ptr = 
+      static_cast< unsigned char * >(image->GetScalarPointer(0, y, 0));
+    for (unsigned int x = 0; x < dim; x++)
+      {
+      *ptr = ((x == y) || (x == (dim-y-1))) ? 255 : 0;
+      ++ptr;
+      }
+    }
+
+  this->Texture = vtkTexture::New();
+  this->Texture->SetInput( image );
+  this->Texture->RepeatOn();
+  image->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -139,6 +206,9 @@ vtkScalarBarActor::~vtkScalarBarActor()
   this->SetLookupTable(NULL);
   this->SetLabelTextProperty(NULL);
   this->SetTitleTextProperty(NULL);
+  this->Texture->Delete();
+  this->TextureActor->Delete();
+  this->TexturePolyData->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -162,6 +232,12 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
   for (i=0; i<this->NumberOfLabels; i++)
     {
     renderedSomething += this->TextActors[i]->RenderOverlay(viewport);
+    }
+
+  if (this->UseOpacity)
+    {
+    this->Texture->Render(vtkRenderer::SafeDownCast(viewport));
+    renderedSomething += this->TextureActor->RenderOverlay(viewport);
     }
 
   renderedSomething = (renderedSomething > 0)?(1):(0);
@@ -270,7 +346,9 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     vtkCellArray *polys = vtkCellArray::New();
     polys->Allocate(polys->EstimateSize(numColors,4));
     vtkUnsignedCharArray *colors = vtkUnsignedCharArray::New();
-    colors->SetNumberOfComponents(3);
+
+    unsigned int nComponents = ((this->UseOpacity) ? 4 : 3);
+    colors->SetNumberOfComponents( nComponents );
     colors->SetNumberOfTuples(numColors);
 
     this->ScalarBarActor->SetProperty(this->GetProperty());
@@ -373,10 +451,14 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
                              ((double)i /(numColors-1.0)));
         }
 
-      rgb = colors->GetPointer(3*i); //write into array directly
+      rgb = colors->GetPointer( nComponents * i); //write into array directly
       rgb[0] = rgba[0];
       rgb[1] = rgba[1];
       rgb[2] = rgba[2];
+      if (this->UseOpacity)
+        {
+        rgb[3] = rgba[3];
+        }
       }
 
     // Now position everything properly
@@ -423,6 +505,23 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         this->TextActors[i]->SetPosition(val, barHeight + 0.05*size[1]);
         }
       }
+
+    // Set the texture points
+    //
+    vtkPoints *texturePoints = vtkPoints::New();
+    texturePoints->SetNumberOfPoints(4);
+    this->TexturePolyData->SetPoints(texturePoints);
+    texturePoints->SetPoint(0, 0.0, 0.0, 0.0);
+    texturePoints->SetPoint(1, barWidth, 0.0, 0.0);
+    texturePoints->SetPoint(2, barWidth, barHeight, 0.0);
+    texturePoints->SetPoint(3, 0.0, barHeight, 0.0);
+    texturePoints->Delete();
+
+    vtkDataArray * tc = this->TexturePolyData->GetPointData()->GetTCoords();
+    tc->SetTuple2(1, barWidth / this->TextureGridWidth, 0.0);
+    tc->SetTuple2(2, barWidth / this->TextureGridWidth, 
+                     barHeight / this->TextureGridWidth);
+    tc->SetTuple2(3, 0.0, barHeight / this->TextureGridWidth);
 
     this->BuildTime.Modified();
     }
@@ -503,6 +602,11 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Label Format: " << this->LabelFormat << "\n";
+  os << indent << "UseOpacity: " << this->UseOpacity << "\n";
+  if (this->UseOpacity)
+    {
+    os << indent << "TextureGridWidth: " << this->TextureGridWidth << "\n";
+    }
 }
 
 //----------------------------------------------------------------------------

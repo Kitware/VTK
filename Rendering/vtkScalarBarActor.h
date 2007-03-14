@@ -60,6 +60,7 @@ class vtkPolyDataMapper2D;
 class vtkScalarsToColors;
 class vtkTextMapper;
 class vtkTextProperty;
+class vtkTexture;
 
 #define VTK_ORIENT_HORIZONTAL 0
 #define VTK_ORIENT_VERTICAL 1
@@ -98,6 +99,16 @@ public:
   // range.
   virtual void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
+
+  // Description:
+  // Should be display the opacity as well. This is displayed by changing
+  // the opacity of the scalar bar in accordance with the opacity of the
+  // given color. For clarity, a texture grid is placed in the background
+  // if Opacity is ON. You might also want to play with SetTextureGridWith
+  // in that case. [Default: off]
+  vtkSetMacro( UseOpacity, int );
+  vtkGetMacro( UseOpacity, int );
+  vtkBooleanMacro( UseOpacity, int );
 
   // Description:
   // Set/Get the maximum number of scalar bar segments to show. This may
@@ -144,6 +155,15 @@ public:
   // Shallow copy of a scalar bar actor. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
+  // Description:
+  // Set the width of the texture grid. Used only if UseOpacity is ON.
+  vtkSetMacro( TextureGridWidth, double );
+  vtkGetMacro( TextureGridWidth, double );
+
+  // Description:
+  // Get the texture actor.. you may want to change some properties on it
+  vtkGetObjectMacro( TextureActor, vtkActor2D );
+
 protected:
   vtkScalarBarActor();
   ~vtkScalarBarActor();
@@ -158,6 +178,8 @@ protected:
   int   Orientation;
   char  *Title;
   char  *LabelFormat;
+  int   UseOpacity; // off by default
+  double TextureGridWidth;
 
   vtkTextMapper **TextMappers;
   virtual void AllocateAndSizeLabels(int *labelSize, int *size,
@@ -172,6 +194,10 @@ private:
   vtkPolyData         *ScalarBar;
   vtkPolyDataMapper2D *ScalarBarMapper;
   vtkActor2D          *ScalarBarActor;
+
+  vtkPolyData         *TexturePolyData;
+  vtkTexture          *Texture;
+  vtkActor2D          *TextureActor;
 
   vtkTimeStamp  BuildTime;
   int LastSize[2];
