@@ -28,7 +28,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkCell.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.1");
+vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.2");
 vtkStandardNewMacro(vtkExtractSelectedLocations);
 
 //----------------------------------------------------------------------------
@@ -125,8 +125,6 @@ int vtkExtractSelectedLocations::RequestData(
   for (vtkIdType c = 0; c < numICells; c++)
     {
     cell = input->GetCell(c);
-    int cellD = cell->GetCellDimension();
-
     for (vtkIdType p = 0; p < numSLocations; p++)
       {    
       double *point = selLocations->GetTuple(p);
