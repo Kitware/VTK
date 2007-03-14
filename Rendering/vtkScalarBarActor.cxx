@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkProperty2D.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.58");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.59");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -606,6 +606,8 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
   if (this->UseOpacity)
     {
     os << indent << "TextureGridWidth: " << this->TextureGridWidth << "\n";
+    os << indent << "TextureActor:\n";
+    this->TextureActor->PrintSelf(os, indent.GetNextIndent());
     }
 }
 
