@@ -44,7 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 #endif
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.52");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.53");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
@@ -485,6 +485,11 @@ int vtkCompositeDataPipeline::ShouldIterateTemporalData(
     for(int i=0; i < numInputPorts; ++i)
       {
       vtkInformation* info = inInfoVec[i]->GetInformationObject(0);
+      if (!info) 
+        {
+        // This input must not have been set yet.  Skip it.
+        continue;
+        }
       vtkDataObject *dobj = info->Get(vtkDataObject::DATA_OBJECT());
       if (dobj && dobj->IsA("vtkTemporalDataSet"))
         {
