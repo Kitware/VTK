@@ -29,7 +29,7 @@
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.4");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.5");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -91,10 +91,10 @@ int vtkExtractSelectedThresholds::RequestData(
      vtkSelection::POINT)     
     )
     {
-    if (sel->GetProperties()->Has(vtkSelection::NAME()))
+    if (sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
       {
       inScalars = input->GetPointData()->GetArray(
-        sel->GetProperties()->Get(vtkSelection::NAME())
+        sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
         );      
       }
     else
@@ -104,10 +104,10 @@ int vtkExtractSelectedThresholds::RequestData(
     }
   else
     {
-    if (sel->GetProperties()->Has(vtkSelection::NAME()))
+    if (sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
       {
       inScalars = input->GetCellData()->GetArray(
-        sel->GetProperties()->Get(vtkSelection::NAME())
+        sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
         );      
       }
     else
@@ -258,3 +258,4 @@ int vtkExtractSelectedThresholds::EvaluateValue(
     }
   return keepCell;
 }
+

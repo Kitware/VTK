@@ -189,7 +189,11 @@ public:
 
   // Description:
   // The name of the array the selection came from.
-  static vtkInformationStringKey* NAME();
+  static vtkInformationStringKey* ARRAY_NAME();
+
+  // Description:
+  // For location selection of points, if distance is greater than this reject.
+  static vtkInformationDoubleKey* EPSILON();
 
   // Description:
   // Retrieve a selection from an information vector.

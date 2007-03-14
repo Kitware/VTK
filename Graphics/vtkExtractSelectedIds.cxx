@@ -28,7 +28,7 @@
 #include "vtkCellType.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.3");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.4");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -91,9 +91,8 @@ int vtkExtractSelectedIds::RequestData(
       break;
     case vtkSelection::POINT:
       return this->ExtractPoints(sel, input, output);
-    default:
-      return 1;
     }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -159,12 +158,12 @@ int vtkExtractSelectedIds::ExtractPoints(
 
   //try to find an array to use for point labels
   vtkIdTypeArray *labelArray = NULL;
-  if (sel->GetProperties()->Has(vtkSelection::NAME()))
+  if (sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
       {
       //user chose a specific label array
       labelArray = vtkIdTypeArray::SafeDownCast(
         input->GetPointData()->GetArray(
-          sel->GetProperties()->Get(vtkSelection::NAME())
+          sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
           )
         );      
       }
