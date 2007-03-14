@@ -26,7 +26,7 @@
 class vtkTInterpolatedVelocityFieldDataSetsType: 
   public vtkstd::vector< vtkDataSet* > {};
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalInterpolatedVelocityField, "1.1");
+vtkCxxRevisionMacro(vtkTemporalInterpolatedVelocityField, "1.2");
 vtkStandardNewMacro(vtkTemporalInterpolatedVelocityField);
 //---------------------------------------------------------------------------
 vtkTemporalInterpolatedVelocityField::vtkTemporalInterpolatedVelocityField()
@@ -182,5 +182,7 @@ void vtkTemporalInterpolatedVelocityField::SetVectorsSelection(const char *v)
 void vtkTemporalInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "LastGoodVelocity: " << this->LastGoodVelocity << endl;
 }
 //---------------------------------------------------------------------------
