@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkExtractSelectedPoints.h
+  Module:    vtkExtractSelectedLocations.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,37 +12,37 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelectedPoints - extract cells within a dataset that 
-// contain the points listen in the vtkSelection.
+// .NAME vtkExtractSelectedLocations - extract cells within a dataset that 
+// contain the locations listen in the vtkSelection.
 // .SECTION Description
-// vtkExtractSelectedPoints extracts all cells whose volume contain at least 
-// one point listed in the POINTS content of the vtkSelection. This filter 
+// vtkExtractSelectedLocations extracts all cells whose volume contain at least 
+// one point listed in the LOCATIONS content of the vtkSelection. This filter 
 // adds a scalar array called vtkOriginalCellIds that says what input cell 
 // produced each output cell. This is an example of a Pedigree ID which helps
 // to trace back results.
 // .SECTION See Also
 // vtkSelection vtkExtractSelection
 
-#ifndef __vtkExtractSelectedPoints_h
-#define __vtkExtractSelectedPoints_h
+#ifndef __vtkExtractSelectedLocations_h
+#define __vtkExtractSelectedLocations_h
 
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkSelection;
 
-class VTK_GRAPHICS_EXPORT vtkExtractSelectedPoints : public vtkUnstructuredGridAlgorithm
+class VTK_GRAPHICS_EXPORT vtkExtractSelectedLocations : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractSelectedPoints,vtkUnstructuredGridAlgorithm);
+  vtkTypeRevisionMacro(vtkExtractSelectedLocations,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object
-  static vtkExtractSelectedPoints *New();
+  static vtkExtractSelectedLocations *New();
 
 protected:
-  vtkExtractSelectedPoints();
-  ~vtkExtractSelectedPoints();
+  vtkExtractSelectedLocations();
+  ~vtkExtractSelectedLocations();
 
   // Usual data generation method
   int RequestData(vtkInformation *, 
@@ -53,8 +53,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkExtractSelectedPoints(const vtkExtractSelectedPoints&);  // Not implemented.
-  void operator=(const vtkExtractSelectedPoints&);  // Not implemented.
+  vtkExtractSelectedLocations(const vtkExtractSelectedLocations&);  // Not implemented.
+  void operator=(const vtkExtractSelectedLocations&);  // Not implemented.
 };
 
 #endif

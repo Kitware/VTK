@@ -137,17 +137,23 @@ public:
   {
     SELECTIONS,
     COMPOSITE_SELECTIONS,
-    POINT_IDS,
-    POINT_ID_RANGE,
-    GLOBAL_POINT_IDS,
-    GLOBAL_POINT_ID_RANGE,
-    CELL_IDS,
-    CELL_ID_RANGE,
-    GLOBAL_CELL_IDS,
-    GLOBAL_CELL_ID_RANGE,
+    IDS,
+    ID_RANGE,
     FRUSTUM,
-    POINTS,
+    LOCATIONS,
     THRESHOLDS
+  };
+//ETX
+
+  // Description:
+  // The location of the array the selection came from (ex, point, cell or field)
+  static vtkInformationIntegerKey* FIELD_TYPE();
+
+//BTX
+  enum SelectionField
+  {
+    POINT,
+    CELL
   };
 //ETX
 
@@ -180,18 +186,6 @@ public:
   // Description:
   // The composite data block the selection belongs to.
   static vtkInformationIntegerKey* BLOCK();
-
-//BTX
-  enum SelectionField
-  {
-    POINT,
-    CELL
-  };
-//ETX
-
-  // Description:
-  // The location of the array the selection came from (ex, point, cell or field)
-  static vtkInformationIntegerKey* FIELD_TYPE();
 
   // Description:
   // The name of the array the selection came from.

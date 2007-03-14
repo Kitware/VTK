@@ -186,7 +186,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.11");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.12");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -600,7 +600,9 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
       selection = vtkSelection::New();
       //record that we are storing cell ids in the node
       selection->GetProperties()->Set(
-        vtkSelection::CONTENT_TYPE(), vtkSelection::CELL_IDS);
+        vtkSelection::CONTENT_TYPE(), vtkSelection::IDS);
+      selection->GetProperties()->Set(
+        vtkSelection::FIELD_TYPE(), vtkSelection::CELL);
       //record the processor we are recording hits on
       selection->GetProperties()->Set(
         vtkSelection::PROCESS_ID(), lProcId);

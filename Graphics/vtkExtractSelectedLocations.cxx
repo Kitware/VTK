@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkExtractSelectedPoints.cxx
+  Module:    vtkExtractSelectedLocations.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkExtractSelectedPoints.h"
+#include "vtkExtractSelectedLocations.h"
 
 #include "vtkDataSet.h"
 #include "vtkPoints.h"
@@ -28,29 +28,29 @@
 #include "vtkDoubleArray.h"
 #include "vtkCell.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedPoints, "1.2");
-vtkStandardNewMacro(vtkExtractSelectedPoints);
+vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.1");
+vtkStandardNewMacro(vtkExtractSelectedLocations);
 
 //----------------------------------------------------------------------------
-vtkExtractSelectedPoints::vtkExtractSelectedPoints()
+vtkExtractSelectedLocations::vtkExtractSelectedLocations()
 {
   this->SetNumberOfInputPorts(2);
 }
 
 //----------------------------------------------------------------------------
-vtkExtractSelectedPoints::~vtkExtractSelectedPoints()
+vtkExtractSelectedLocations::~vtkExtractSelectedLocations()
 {
 }
 
 //----------------------------------------------------------------------------
-int vtkExtractSelectedPoints::RequestData(
+int vtkExtractSelectedLocations::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
   // get the info objects
-  vtkInformation *selInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *selInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the selection, input and ouptut
@@ -67,27 +67,26 @@ int vtkExtractSelectedPoints::RequestData(
     }
 
   if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE()) ||
-      sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::POINTS)
+      sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::LOCATIONS)
     {
     return 1;
     }
 
   vtkDebugMacro(<< "Extracting from dataset");
 
-
   //get a hold of input data structures and allocate output data structures
-  vtkDoubleArray *selPoints = 
+  vtkDoubleArray *selLocations = 
     vtkDoubleArray::SafeDownCast(sel->GetSelectionList());
-  vtkIdType numSPoints = selPoints->GetNumberOfTuples();
+  vtkIdType numSLocations = selLocations->GetNumberOfTuples();
 
-  vtkIdType numIPoints = input->GetNumberOfPoints();
+  vtkIdType numILocations = input->GetNumberOfPoints();
   vtkPointData *inPD = input->GetPointData();
   vtkIdType numICells = input->GetNumberOfCells();
   vtkCellData *inCD = input->GetCellData();
 
   vtkPoints *newPts = vtkPoints::New();
-  newPts->Allocate(numSPoints*4);
-  output->Allocate(numSPoints);
+  newPts->Allocate(numSLocations*4);
+  output->Allocate(numSLocations);
   vtkPointData *outputPD = output->GetPointData();
   outputPD->CopyAllocate(inPD);
   vtkCellData *outputCD = output->GetCellData();
@@ -98,11 +97,11 @@ int vtkExtractSelectedPoints::RequestData(
   originalCellIds->SetName("vtkOriginalCellIds");
   originalCellIds->SetNumberOfComponents(1);
 
-  //find the cells in the input that contain the points in the selection
+  //find the cells in the input that contain the locations in the selection
   //create a map to convert old to new point ids
-  vtkIdType *pointMap = new vtkIdType[numIPoints]; 
+  vtkIdType *pointMap = new vtkIdType[numILocations]; 
   vtkIdType ptId, newPointId;
-  for (ptId=0; ptId < numIPoints; ptId++)
+  for (ptId=0; ptId < numILocations; ptId++)
     {
     pointMap[ptId] = -1;
     }
@@ -126,22 +125,23 @@ int vtkExtractSelectedPoints::RequestData(
   for (vtkIdType c = 0; c < numICells; c++)
     {
     cell = input->GetCell(c);
+    int cellD = cell->GetCellDimension();
 
-    for (vtkIdType p = 0; p < numSPoints; p++)
+    for (vtkIdType p = 0; p < numSLocations; p++)
       {    
-      double *point = selPoints->GetTuple(p);
+      double *point = selLocations->GetTuple(p);
 
       inside = cell->EvaluatePosition(
         point,
         closestPoint, subId, pcoords, dist2, weights);
       
-      if (inside == 1)
+      if (inside == 1 && dist2==0.0) //have to check dist for 2D cells
         {
-        //copy over the points that make up the cell
+        //copy over the locations that make up the cell
         cellPtIds = cell->GetPointIds();
         numCellPts = cell->GetNumberOfPoints();    
         newCellPtIds->Reset();
-        //intersects, put all of the points inside
+        //intersects, put all of the locations inside
         for (vtkIdType i=0; i < numCellPts; i++)
           {
           ptId = cellPtIds->GetId(i);
@@ -177,23 +177,22 @@ int vtkExtractSelectedPoints::RequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractSelectedPoints::PrintSelf(ostream& os, vtkIndent indent)
+void vtkExtractSelectedLocations::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
 }
 
 //----------------------------------------------------------------------------
-int vtkExtractSelectedPoints::FillInputPortInformation(
+int vtkExtractSelectedLocations::FillInputPortInformation(
   int port, vtkInformation* info)
 {
   if (port==0)
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");    
     }
   else
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");    
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
     }
   return 1;
 }

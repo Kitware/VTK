@@ -19,11 +19,11 @@
 // vtkSelection on its first input port. The dataset is given on its 
 // second input port. Depending on the content of the vtkSelection,
 // this will use either a vtkExtractSelectedIds, vtkExtractSelectedFrustum
-// vtkExtractSelectedPoints or a vtkExtractSelectedThreshold to perform
+// vtkExtractSelectedLocations or a vtkExtractSelectedThreshold to perform
 // the extraction.
 // .SECTION See Also
 // vtkSelection vtkExtractSelectedIds vtkExtractSelectedFrustum
-// vtkExtractSelectedPoints vtkExtractSelectedThresholds
+// vtkExtractSelectedLocations vtkExtractSelectedThresholds
 
 #ifndef __vtkExtractSelection_h
 #define __vtkExtractSelection_h
@@ -32,7 +32,7 @@
 
 class vtkExtractSelectedIds;
 class vtkExtractSelectedFrustum;
-class vtkExtractSelectedPoints;
+class vtkExtractSelectedLocations;
 class vtkExtractSelectedThresholds;
 class vtkSelection;
 
@@ -56,16 +56,16 @@ protected:
                   vtkInformationVector *);
 
 
-  int ExtractCellIds(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
+  int ExtractIds(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
   int ExtractFrustum(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
-  int ExtractPoints(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
+  int ExtractLocations(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
   int ExtractThresholds(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   vtkExtractSelectedIds* IdsFilter;
   vtkExtractSelectedFrustum* FrustumFilter;
-  vtkExtractSelectedPoints* PointsFilter;
+  vtkExtractSelectedLocations* LocationsFilter;
   vtkExtractSelectedThresholds* ThresholdsFilter;
 
 private:

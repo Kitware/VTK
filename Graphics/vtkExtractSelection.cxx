@@ -24,10 +24,10 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtractSelectedIds.h"
 #include "vtkExtractSelectedFrustum.h"
-#include "vtkExtractSelectedPoints.h"
+#include "vtkExtractSelectedLocations.h"
 #include "vtkExtractSelectedThresholds.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.7");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.8");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ vtkExtractSelection::vtkExtractSelection()
   this->SetNumberOfInputPorts(2);
   this->IdsFilter = vtkExtractSelectedIds::New();
   this->FrustumFilter = vtkExtractSelectedFrustum::New();
-  this->PointsFilter = vtkExtractSelectedPoints::New();
+  this->LocationsFilter = vtkExtractSelectedLocations::New();
   this->ThresholdsFilter = vtkExtractSelectedThresholds::New();
 }
 
@@ -45,7 +45,7 @@ vtkExtractSelection::~vtkExtractSelection()
 {
   this->IdsFilter->Delete();
   this->FrustumFilter->Delete();
-  this->PointsFilter->Delete();
+  this->LocationsFilter->Delete();
   this->ThresholdsFilter->Delete();
 }
 
@@ -56,8 +56,8 @@ int vtkExtractSelection::RequestData(
   vtkInformationVector *outputVector)
 {
   // get the info objects
-  vtkInformation *selInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *selInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the selection, input and ouptut
@@ -84,17 +84,17 @@ int vtkExtractSelection::RequestData(
   int seltype = sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE());
   switch (seltype)
     {
-    case vtkSelection::CELL_IDS:
+    case vtkSelection::IDS:
     {
-    return this->ExtractCellIds(sel, input, output);
+    return this->ExtractIds(sel, input, output);
     }
     case vtkSelection::FRUSTUM:
     {
     return this->ExtractFrustum(sel, input, output);
     }
-    case vtkSelection::POINTS:
+    case vtkSelection::LOCATIONS:
     {
-    return this->ExtractPoints(sel, input, output);
+    return this->ExtractLocations(sel, input, output);
     }
     case vtkSelection::THRESHOLDS:
     {
@@ -106,14 +106,14 @@ int vtkExtractSelection::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkExtractSelection::ExtractCellIds(
+int vtkExtractSelection::ExtractIds(
   vtkSelection *sel, vtkDataSet* input, vtkUnstructuredGrid *output)
 {
-  this->IdsFilter->SetInput(0, sel);
+  this->IdsFilter->SetInput(1, sel);
 
   vtkDataSet* inputCopy = input->NewInstance();
   inputCopy->ShallowCopy(input);
-  this->IdsFilter->SetInput(1, inputCopy);
+  this->IdsFilter->SetInput(0, inputCopy);
   inputCopy->Delete();
 
   this->IdsFilter->Update();
@@ -148,20 +148,20 @@ int vtkExtractSelection::ExtractFrustum(
 }
 
 //----------------------------------------------------------------------------
-int vtkExtractSelection::ExtractPoints(
+int vtkExtractSelection::ExtractLocations(
   vtkSelection *sel, vtkDataSet* input, vtkUnstructuredGrid *output)
 {
-  this->PointsFilter->SetInput(0, sel);
+  this->LocationsFilter->SetInput(1, sel);
 
   vtkDataSet* inputCopy = input->NewInstance();
   inputCopy->ShallowCopy(input);
-  this->PointsFilter->SetInput(1, inputCopy);
+  this->LocationsFilter->SetInput(0, inputCopy);
   inputCopy->Delete();
 
-  this->PointsFilter->Update();
+  this->LocationsFilter->Update();
 
   vtkUnstructuredGrid* ecOutput = vtkUnstructuredGrid::SafeDownCast(
-    this->PointsFilter->GetOutputDataObject(0));
+    this->LocationsFilter->GetOutputDataObject(0));
   output->ShallowCopy(ecOutput);
   ecOutput->Initialize();
 
@@ -172,11 +172,11 @@ int vtkExtractSelection::ExtractPoints(
 int vtkExtractSelection::ExtractThresholds(
   vtkSelection *sel, vtkDataSet* input, vtkUnstructuredGrid *output)
 {
-  this->ThresholdsFilter->SetInput(0, sel);
+  this->ThresholdsFilter->SetInput(1, sel);
 
   vtkDataSet* inputCopy = input->NewInstance();
   inputCopy->ShallowCopy(input);
-  this->ThresholdsFilter->SetInput(1, inputCopy);
+  this->ThresholdsFilter->SetInput(0, inputCopy);
   inputCopy->Delete();
 
   this->ThresholdsFilter->Update();
@@ -201,11 +201,11 @@ int vtkExtractSelection::FillInputPortInformation(
 {
   if (port==0)
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");    
     }
   else
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");    
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
     }
   return 1;
 }

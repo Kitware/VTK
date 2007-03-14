@@ -29,7 +29,7 @@
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.3");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.4");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -50,8 +50,8 @@ int vtkExtractSelectedThresholds::RequestData(
   vtkInformationVector *outputVector)
 {
   // get the info objects
-  vtkInformation *selInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *selInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the selection, input and ouptut
@@ -117,7 +117,7 @@ int vtkExtractSelectedThresholds::RequestData(
     }
   if (inScalars == NULL)
     {
-    vtkErrorMacro("Could not figure out what array to thresholds in.");
+    vtkErrorMacro("Could not figure out what array to threshold in.");
     return 1;
     }
   
@@ -232,11 +232,11 @@ int vtkExtractSelectedThresholds::FillInputPortInformation(
 {
   if (port==0)
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");    
     }
   else
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");    
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
     }
   return 1;
 }

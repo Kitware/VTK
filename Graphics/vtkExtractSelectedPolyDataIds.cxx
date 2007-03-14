@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedPolyDataIds, "1.1");
+vtkCxxRevisionMacro(vtkExtractSelectedPolyDataIds, "1.2");
 vtkStandardNewMacro(vtkExtractSelectedPolyDataIds);
 
 //----------------------------------------------------------------------------
@@ -47,8 +47,8 @@ int vtkExtractSelectedPolyDataIds::RequestData(
   vtkInformationVector *outputVector)
 {
   // get the info objects
-  vtkInformation *selInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *selInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and ouptut
@@ -73,7 +73,9 @@ int vtkExtractSelectedPolyDataIds::RequestData(
   vtkDebugMacro(<< "Extracting poly data geometry");
 
   if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE()) ||
-      sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::CELL_IDS)
+      sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::IDS ||
+      !sel->GetProperties()->Has(vtkSelection::FIELD_TYPE()) ||
+      sel->GetProperties()->Get(vtkSelection::FIELD_TYPE()) != vtkSelection::CELL)
     {
     return 1;
     }
@@ -134,11 +136,11 @@ int vtkExtractSelectedPolyDataIds::FillInputPortInformation(
 {
   if (port==0)
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");    
     }
   else
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");    
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
     }
   return 1;
 }

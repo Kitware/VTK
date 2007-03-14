@@ -65,7 +65,7 @@ vtkExtractPolyDataGeometry.cxx
 vtkExtractRectilinearGrid.cxx
 vtkExtractSelectedFrustum.cxx
 vtkExtractSelectedIds.cxx
-vtkExtractSelectedPoints.cxx
+vtkExtractSelectedLocations.cxx
 vtkExtractSelectedPolyDataIds.cxx
 vtkExtractSelectedThresholds.cxx
 vtkExtractSelection.cxx

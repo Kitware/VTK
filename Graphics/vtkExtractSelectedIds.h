@@ -52,6 +52,11 @@ protected:
                   vtkInformationVector *);
 
 
+  int ExtractCells(vtkSelection *sel, vtkDataSet *input, 
+                   vtkUnstructuredGrid *output);
+  int ExtractPoints(vtkSelection *sel, vtkDataSet *input, 
+                    vtkUnstructuredGrid *output);
+
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   vtkExtractCells* ExtractFilter;
