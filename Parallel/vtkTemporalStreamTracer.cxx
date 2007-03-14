@@ -68,7 +68,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <algorithm>
 
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.5");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.6");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 //---------------------------------------------------------------------------
@@ -219,6 +219,7 @@ int vtkTemporalStreamTracer::RequestInformation(
     // We only output T-1 time steps   
     //
     this->OutputTimeValues.resize(this->NumberOfInputTimeSteps-1);
+    this->OutputTimeValues.clear();
     this->OutputTimeValues.insert(
       this->OutputTimeValues.begin(), 
       this->InputTimeValues.begin()+1, this->InputTimeValues.end());
@@ -1114,7 +1115,7 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     }
 
     // Point is valid. Insert it.
-    Position *currentposition = (Position*)&point2;
+//    Position *currentposition = (Position*)&point2;
     memcpy(&info.CurrentPosition, point2, sizeof(Position));
     memcpy(point1, point2, sizeof(Position));
 /*
