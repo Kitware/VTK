@@ -80,8 +80,8 @@ static void EndPick(vtkObject *vtkNotUsed( caller ),
   vtkExtractSelectedPolyDataIds *extr = vtkExtractSelectedPolyDataIds::New();
   if (cellids)
     {
-    extr->SetInput(1, SS1->GetOutput());
-    extr->SetInput(0, cellids);
+    extr->SetInput(0, SS1->GetOutput());
+    extr->SetInput(1, cellids);
     extr->Update();
     sMap->SetInput(extr->GetOutput());
     }
