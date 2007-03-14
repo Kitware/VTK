@@ -28,7 +28,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkCell.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.2");
+vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.3");
 vtkStandardNewMacro(vtkExtractSelectedLocations);
 
 //----------------------------------------------------------------------------
@@ -74,12 +74,33 @@ int vtkExtractSelectedLocations::RequestData(
 
   vtkDebugMacro(<< "Extracting from dataset");
 
+  int fieldType = vtkSelection::CELL;
+  if (sel->GetProperties()->Has(vtkSelection::FIELD_TYPE()))
+    {
+    fieldType = sel->GetProperties()->Get(vtkSelection::FIELD_TYPE());
+    }
+  switch (fieldType)
+    {
+    case vtkSelection::CELL:
+      return this->ExtractCells(sel, input, output);
+    case vtkSelection::POINT:
+      return this->ExtractPoints(sel, input, output);
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkExtractSelectedLocations::ExtractCells(
+  vtkSelection *sel,
+  vtkDataSet* input,
+  vtkUnstructuredGrid *output)
+{
   //get a hold of input data structures and allocate output data structures
   vtkDoubleArray *selLocations = 
     vtkDoubleArray::SafeDownCast(sel->GetSelectionList());
   vtkIdType numSLocations = selLocations->GetNumberOfTuples();
 
-  vtkIdType numILocations = input->GetNumberOfPoints();
+  vtkIdType numIPoints = input->GetNumberOfPoints();
   vtkPointData *inPD = input->GetPointData();
   vtkIdType numICells = input->GetNumberOfCells();
   vtkCellData *inCD = input->GetCellData();
@@ -99,9 +120,9 @@ int vtkExtractSelectedLocations::RequestData(
 
   //find the cells in the input that contain the locations in the selection
   //create a map to convert old to new point ids
-  vtkIdType *pointMap = new vtkIdType[numILocations]; 
+  vtkIdType *pointMap = new vtkIdType[numIPoints]; 
   vtkIdType ptId, newPointId;
-  for (ptId=0; ptId < numILocations; ptId++)
+  for (ptId=0; ptId < numIPoints; ptId++)
     {
     pointMap[ptId] = -1;
     }
@@ -171,6 +192,82 @@ int vtkExtractSelectedLocations::RequestData(
   delete[] weights;  
   originalCellIds->Delete();
 
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkExtractSelectedLocations::ExtractPoints(
+  vtkSelection *sel,
+  vtkDataSet* input,
+  vtkUnstructuredGrid *output)
+{
+  double epsilon = 0.1;
+  if (sel->GetProperties()->Has(vtkSelection::EPSILON()))
+    {
+    epsilon = sel->GetProperties()->Get(vtkSelection::EPSILON());
+    }
+  epsilon = epsilon*epsilon; //so we don't have to take a sqrt later
+
+  //get a hold of input data structures and allocate output data structures
+  vtkDoubleArray *selLocations = 
+    vtkDoubleArray::SafeDownCast(sel->GetSelectionList());
+  vtkIdType numSLocations = selLocations->GetNumberOfTuples();
+
+  vtkIdType numIPoints = input->GetNumberOfPoints();
+  vtkPointData *inPD = input->GetPointData();
+
+  vtkPoints *newPts = vtkPoints::New();
+  newPts->Allocate(numSLocations);
+  output->SetPoints(newPts);
+  newPts->Delete();
+  output->Allocate(numSLocations);
+
+  vtkPointData *outputPD = output->GetPointData();
+  outputPD->CopyAllocate(inPD);
+
+  double tmp;
+  double distance2;
+  vtkIdType outloc = 0;
+  for (vtkIdType i = 0; i < numSLocations; i++)
+    {
+    vtkIdType bestId = -1;
+    double bestDistance2 = VTK_LARGE_FLOAT;
+    double X[3];      
+    double bestPt[3];
+    selLocations->GetTuple(i, X);
+    
+    for (vtkIdType j = 0; j < numIPoints; j++)
+      {
+      double pt[3];
+      input->GetPoint(j, pt);
+      
+      tmp = pt[0]-X[0];
+      distance2 = tmp*tmp;
+      tmp = pt[1]-X[1];
+      distance2 += tmp*tmp;
+      tmp = pt[2]-X[2];
+      distance2 += tmp*tmp;
+
+      if (distance2 < epsilon && distance2 < bestDistance2)
+        {
+        bestId = j;
+        bestDistance2 = distance2;
+        bestPt[0] = pt[0];
+        bestPt[1] = pt[1];
+        bestPt[2] = pt[2];
+        }
+      }
+
+    if (bestId != -1)
+      {
+      output->GetPoints()->InsertNextPoint(bestPt);
+      output->InsertNextCell(VTK_VERTEX, 1, &outloc);
+      output->GetPointData()->CopyData(inPD, bestId, outloc);
+      outloc++;
+      }
+    }
+
+  output->Squeeze();
   return 1;
 }
 
