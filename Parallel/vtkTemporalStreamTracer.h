@@ -29,7 +29,7 @@
 
 //BTX
 #include <vtkstd/vector> // I'll remove these soon.
-#include <vtkstd/list>
+#include <vtkstd/list> // I'll remove these soon.
 //ETX
 //#define JB_H5PART_PARTICLE_OUTPUT 1
 
@@ -49,43 +49,6 @@ class vtkIntArray;
 #ifdef JB_H5PART_PARTICLE_OUTPUT
   class vtkH5PartWriter;
 #endif
-
-//BTX
-class vtkTemporalStreamTracerInternals : public vtkObjectBase {
-  public:
-    static vtkTemporalStreamTracerInternals *New() { return new vtkTemporalStreamTracerInternals(); }
-    //
-};
-//ETX
-
-//BTX
-    typedef struct { double x[4]; } Position;
-    typedef struct {
-      // These are used during iteration
-      int           Counter;
-      int           Index;
-      bool          Wrap;
-      Position      CurrentPosition;
-      int           CachedDataSet[2];
-      vtkIdType     CachedCellId[2];
-      // These are computed scalars we might display
-      int           SourceID;
-      int           InjectedPointId;      
-      float         UniqueParticleId;
-      float         vorticity;
-      float         rotation;
-      float         angularVel;
-    } ParticleInformation;
-
-    struct ParticleLifetime {
-      ParticleInformation      Information;
-      vtkstd::vector<Position> Coordinates;
-    };
-
-    typedef vtkstd::vector<ParticleInformation>  ParticleList;
-    typedef vtkstd::list<ParticleLifetime>       ParticleDataList;
-    typedef ParticleDataList::iterator           ParticleIterator;
-//ETX
 
 class VTK_PARALLEL_EXPORT vtkTemporalStreamTracer : public vtkStreamTracer
 {
@@ -168,6 +131,35 @@ public:
 
      vtkTemporalStreamTracer();
     ~vtkTemporalStreamTracer();
+
+//BTX
+  typedef struct { double x[4]; } Position;
+  typedef struct {
+    // These are used during iteration
+    int           Counter;
+    int           Index;
+    bool          Wrap;
+    Position      CurrentPosition;
+    int           CachedDataSet[2];
+    vtkIdType     CachedCellId[2];
+    // These are computed scalars we might display
+    int           SourceID;
+    int           InjectedPointId;      
+    float         UniqueParticleId;
+    float         vorticity;
+    float         rotation;
+    float         angularVel;
+  } ParticleInformation;
+
+  struct ParticleLifetime {
+    ParticleInformation      Information;
+    vtkstd::vector<Position> Coordinates;
+  };
+
+  typedef vtkstd::vector<ParticleInformation>  ParticleList;
+  typedef vtkstd::list<ParticleLifetime>       ParticleDataList;
+  typedef ParticleDataList::iterator           ParticleIterator;
+//ETX
 
     //
     // Make sure the pipeline knows what type we expect as input
