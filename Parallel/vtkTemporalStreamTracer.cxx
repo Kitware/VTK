@@ -66,7 +66,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <algorithm>
 
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.1");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.2");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 #ifdef VTK_USE_MPI
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
@@ -103,8 +103,6 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   this->HDF5ParticleWriter  = vtkH5PartWriter::New();
 #endif
   //
-  this->MaxTrackLength        = 2;
-  this->TrackMarkSpaceRatio   = 1;
   this->MaxCellSize           = 0;
   this->NumberOfParticles     = 0;
   this->TimeStepResolution    = 1.0;
@@ -646,8 +644,8 @@ void vtkTemporalStreamTracer::UpdateSeeds(ParticleList &candidates)
     ParticleInformation &info = P.Information;
     //
     memcpy(&info, &candidates[i], sizeof(ParticleInformation));
-    P.Coordinates.reserve(this->MaxTrackLength);
-    P.Coordinates.push_back(info.CurrentPosition);
+//    P.Coordinates.reserve(this->MaxTrackLength);
+//    P.Coordinates.push_back(info.CurrentPosition);
   }
   this->NumberOfParticles = ParticleHistories.size();
 }
@@ -954,8 +952,7 @@ void vtkTemporalStreamTracer::GenerateOutputLines(vtkPolyData *output)
   ParticleIds->SetName("ParticleId");
   SourceIds->SetName("SourceId");
   InjectedPointIds->SetName("InjectedPointId");
-  vtkstd::vector<vtkIdType> tempIds;
-  tempIds.reserve(this->MaxTrackLength);
+  vtkIdType tempIds[16]; // only need 1 now we have removed trails
   //
   for (ParticleIterator 
     it=this->ParticleHistories.begin();
@@ -965,23 +962,13 @@ void vtkTemporalStreamTracer::GenerateOutputLines(vtkPolyData *output)
     ParticleInformation &info = P.Information;
     // create Point Id's 
     vtkIdType data[8];
-//    tempIds.clear();
-//    int n = vtkstd::min(this->MaxTrackLength, (unsigned int)P.Coordinates.size()); 
-//    int n = 1;
-/*
-    for (int i=0; i<n; i++) {
-      int index = info.Wrap ? (info.Index+i+1)%this->MaxTrackLength : i;
-      double *coord = &(P.Coordinates[index].x[0]);
-*/
-      double *coord = &info.CurrentPosition.x[0];
-      vtkIdType pointId = this->OutputCoordinates->InsertNextPoint(coord);
-      tempIds[0] = pointId;
-      ParticleIds->InsertNextTuple1(info.UniqueParticleId);
-      SourceIds->InsertNextTuple1(info.SourceID);
-      InjectedPointIds->InsertNextTuple1(info.InjectedPointId);
-//    }
-//    if (tempIds.size()>0) 
-      this->ParticlePolyLines->InsertNextCell(1, data);
+    double *coord = &info.CurrentPosition.x[0];
+    vtkIdType pointId = this->OutputCoordinates->InsertNextPoint(coord);
+    tempIds[0] = pointId;
+    ParticleIds->InsertNextTuple1(info.UniqueParticleId);
+    SourceIds->InsertNextTuple1(info.SourceID);
+    InjectedPointIds->InsertNextTuple1(info.InjectedPointId);
+    this->ParticlePolyLines->InsertNextCell(1, data);
   }
 
 //  vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();
@@ -999,12 +986,12 @@ void vtkTemporalStreamTracer::GenerateOutputLines(vtkPolyData *output)
   output->GetPointData()->AddArray(InjectedPointIds);
   //
   output->SetPoints(this->OutputCoordinates);
-  if (this->MaxTrackLength>1) {
-    output->SetLines(this->ParticlePolyLines);
-  }
-  else {
+//  if (this->MaxTrackLength>1) {
+//    output->SetLines(this->ParticlePolyLines);
+//  }
+//  else {
     output->SetVerts(this->ParticlePolyLines);
-  }
+//  }
 
     vtkSmartPointer<vtkPolyData> polys = vtkSmartPointer<vtkPolyData>::New();
     polys->GetPointData()->Initialize();
@@ -1129,6 +1116,7 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     Position *currentposition = (Position*)&point2;
     memcpy(&info.CurrentPosition, point2, sizeof(Position));
     memcpy(point1, point2, sizeof(Position));
+/*
     // we store MaxTrackLength positions in our 'tail' and we wrap around
     // the data in our array to save space
     if ((info.Counter++)%this->TrackMarkSpaceRatio==0) {
@@ -1142,6 +1130,7 @@ void vtkTemporalStreamTracer::IntegrateParticle(
         P.Coordinates[info.Index] = *currentposition;
       }
     }
+*/
 
     // If the solver is adaptive and the next time step (delT.Interval)
     // that the solver wants to use is smaller than minStep or larger 

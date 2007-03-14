@@ -104,36 +104,19 @@ public:
     // using 2nd order Runge Kutta and maximum propagation 1.0 (unit length).
     static vtkTemporalStreamTracer *New();
 
+    // Description:
+    // Set/Get the TimeStep. This is the primary means of advancing 
+    // the particles. The TimeStep should be animated and this will drive
+    // the pipeline forcing timesteps to be fetched from upstream.
     vtkSetMacro(TimeStep,unsigned int);
     vtkGetMacro(TimeStep,unsigned int);
-
-    // Description:
-    // If the Particles being traced animate for a long time, the
-    // trails or traces will become long and stringy. Setting
-    // the MaxTraceTimeLength will limit how much of the trace
-    // is displayed. Tracks longer then the Max will disappear
-    // and the trace will apppear like a snake of fixed length
-    // which progresses as the particle moves
-    vtkSetMacro(MaxTrackLength,unsigned int);
-    vtkGetMacro(MaxTrackLength,unsigned int);
-
-    // Description:
-    // If storing multiple steps along the track, use TrackMarkSpaceRatio
-    // to determine which steps to save. Use a value >1. 
-    // TrackMarkSpaceRatio=1 and MaxTrackLength=2 wil always
-    // store the last two points. Using TrackMarkSpaceRatio=2 
-    // and MaxTrackLength=4 will store the 1,3,5,7 last points
-    // et cetera.
-    // NB. When crossing domain boundaries from one processor to another
-    // the stored track lists may be corrupted(=reset). This is a ToDo!
-    vtkSetMacro(TrackMarkSpaceRatio,unsigned int);
-    vtkGetMacro(TrackMarkSpaceRatio,unsigned int);
 
     // Description:
     // If the data source does not have the correct time values 
     // present on each time step - setting this value to non unity can
     // be used to adjust the time step size from 1s pre step to
-    // 1xTimeStepResolution
+    // 1x_TimeStepResolution : Not functional in thei version. 
+    // Broke it @todo, put back time scaling
     vtkSetMacro(TimeStepResolution,double);
     vtkGetMacro(TimeStepResolution,double);
 
@@ -147,15 +130,6 @@ public:
     // anyway
     vtkSetMacro(ForceReinjectionEveryNSteps,int);
     vtkGetMacro(ForceReinjectionEveryNSteps,int);
-
-    // Description:
-    // Internal Memory allocation for particles will grow by
-    // this amount when new memory is needed. If large numbers of particles
-    // are likely to be generated during N timesteps, then This number should
-    // be set quite large. The default is 1000, but values of 10000 or 100000 
-    // may be a good idea for very large simulation/animations
-//    vtkSetMacro(MemoryAllocationSize,int);
-//    vtkGetMacro(MemoryAllocationSize,int);
 
     // Description:
     // Specify an alternative Geometry object as the source of particles
@@ -279,8 +253,6 @@ public:
     unsigned int        TimeStep;
     unsigned int        ActualTimeStep;
     unsigned int        NumberOfInputTimeSteps;
-    unsigned int        MaxTrackLength;
-    unsigned int        TrackMarkSpaceRatio;
     //
     int                 EnableSource1;      
     int                 EnableSource2;
@@ -301,7 +273,6 @@ public:
     int                 ForceReinjectionEveryNSteps;
     bool                ReinjectionFlag;  
     int                 ReinjectionCounter;
-    int                 MemoryAllocationSize;
     //
     vtkTimeStamp  ParticleInjectionTime;
     vtkTimeStamp  SeedInjectionTime;
