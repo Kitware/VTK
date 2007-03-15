@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.2");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.3");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -244,6 +244,11 @@ int vtkExtractSelectedFrustum::RequestData(
       vtkDoubleArray *corners = vtkDoubleArray::SafeDownCast(
         sel->GetSelectionList());
       this->CreateFrustum(corners->GetPointer(0));
+      if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
+          sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
+        {
+        this->PassThroughOn();
+        }
       }    
     }
   if ( !this->Frustum )

@@ -196,6 +196,20 @@ public:
   static vtkInformationDoubleKey* EPSILON();
 
   // Description:
+  // This flag tells the extraction filter not to convert the selected
+  // output into an unstructured grid, but instead to produce a vtkInsidedness
+  // array and add it to the input dataset. 
+  // Warning: this is only supported by vtkExtractSelectedFrustum for now.
+  static vtkInformationIntegerKey* PRESERVE_TOPOLOGY();
+
+  // Description:
+  // This flag tells the extraction filter, when FIELD_TYPE==POINT, that
+  // it should also extract the cells that contain any of the extracted points.
+  // Warning: this is not yet supported. Some extractions act as if
+  // this is on and some as if it is off.
+  static vtkInformationIntegerKey* CONTAINING_CELLS();
+
+  // Description:
   // Retrieve a selection from an information vector.
   static vtkSelection* GetData(vtkInformation* info);
   static vtkSelection* GetData(vtkInformationVector* v, int i=0);
