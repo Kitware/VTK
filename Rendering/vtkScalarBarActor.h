@@ -164,6 +164,22 @@ public:
   // Get the texture actor.. you may want to change some properties on it
   vtkGetObjectMacro( TextureActor, vtkActor2D );
 
+//BTX
+  enum { PrecedeScalarBar = 0, SucceedScalarBar };
+//ETX
+
+  // Description:
+  // Have the text preceding the scalar bar or suceeding it ?
+  // Succeed implies the that the text is Above scalar bar if orientation 
+  // is horizontal or Right of scalar bar if orientation is vertical.
+  // Precede is the opposite
+  vtkSetClampMacro( TextPosition, int, PrecedeScalarBar, SucceedScalarBar);
+  vtkGetMacro( TextPosition, int );
+  virtual void SetTextPositionToPrecedeScalarBar()
+    { this->SetTextPosition( vtkScalarBarActor::PrecedeScalarBar ); }
+  virtual void SetTextPositionToSucceedScalarBar()
+    { this->SetTextPosition( vtkScalarBarActor::SucceedScalarBar ); }
+
 protected:
   vtkScalarBarActor();
   ~vtkScalarBarActor();
@@ -180,6 +196,7 @@ protected:
   char  *LabelFormat;
   int   UseOpacity; // off by default
   double TextureGridWidth;
+  int TextPosition;
 
   vtkTextMapper **TextMappers;
   virtual void AllocateAndSizeLabels(int *labelSize, int *size,
