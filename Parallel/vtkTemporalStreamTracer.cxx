@@ -68,7 +68,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <algorithm>
 
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.6");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.7");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 //---------------------------------------------------------------------------
@@ -98,7 +98,7 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   this->vorticity           = vtkSmartPointer<vtkDoubleArray>::New();
   this->rotation            = vtkSmartPointer<vtkDoubleArray>::New();
   this->angularVel          = vtkSmartPointer<vtkDoubleArray>::New();
-  this->ParticlePolyLines   = vtkSmartPointer<vtkCellArray>::New();
+  this->ParticleCells       = vtkSmartPointer<vtkCellArray>::New();
 #ifdef JB_H5PART_PARTICLE_OUTPUT
   this->HDF5ParticleWriter  = vtkH5PartWriter::New();
 #endif
@@ -946,7 +946,7 @@ void vtkTemporalStreamTracer::GenerateOutputLines(vtkPolyData *output)
   // Now create this->GenericCell array for POLY_LINE representation
   //
   // init our local variables for the cell array generation
-  this->ParticlePolyLines = vtkSmartPointer<vtkCellArray>::New();
+  this->ParticleCells     = vtkSmartPointer<vtkCellArray>::New();
   this->OutputCoordinates = vtkSmartPointer<vtkPoints>::New();
   vtkSmartPointer<vtkFloatArray>      ParticleIds = vtkSmartPointer<vtkFloatArray>::New();
   vtkSmartPointer<vtkFloatArray>        SourceIds = vtkSmartPointer<vtkFloatArray>::New();
@@ -955,22 +955,24 @@ void vtkTemporalStreamTracer::GenerateOutputLines(vtkPolyData *output)
   SourceIds->SetName("SourceId");
   InjectedPointIds->SetName("InjectedPointId");
   vtkIdType tempIds[16]; // only need 1 now we have removed trails
+  vtkIdType Np = this->ParticleHistories.size();
+  vtkIdType *cells = this->ParticleCells->WritePointer(Np, Np*2);
   //
+  vtkIdType index = 0;
   for (ParticleIterator 
     it=this->ParticleHistories.begin();
-    it!=this->ParticleHistories.end(); ++it)
+    it!=this->ParticleHistories.end(); ++it, ++index)
   {
     ParticleLifetime       &P = (*it);
     ParticleInformation &info = P.Information;
     // create Point Id's 
-    vtkIdType data[8];
     double *coord = &info.CurrentPosition.x[0];
-    vtkIdType pointId = this->OutputCoordinates->InsertNextPoint(coord);
-    tempIds[0] = pointId;
+    tempIds[0] = this->OutputCoordinates->InsertNextPoint(coord);
     ParticleIds->InsertNextTuple1(info.UniqueParticleId);
     SourceIds->InsertNextTuple1(info.SourceID);
     InjectedPointIds->InsertNextTuple1(info.InjectedPointId);
-    this->ParticlePolyLines->InsertNextCell(1, data);
+    cells[index*2]   = 1;
+    cells[index*2+1] = index;
   }
 
 //  vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();
@@ -989,26 +991,30 @@ void vtkTemporalStreamTracer::GenerateOutputLines(vtkPolyData *output)
   //
   output->SetPoints(this->OutputCoordinates);
 //  if (this->MaxTrackLength>1) {
-//    output->SetLines(this->ParticlePolyLines);
+//    output->SetLines(this->ParticleCells);
 //  }
 //  else {
-    output->SetVerts(this->ParticlePolyLines);
+    output->SetVerts(this->ParticleCells);
 //  }
 
+
+#ifdef JB_H5PART_PARTICLE_OUTPUT
+    // don't want our writer to trigger any updates, 
+    // so shallow copy the output
     vtkSmartPointer<vtkPolyData> polys = vtkSmartPointer<vtkPolyData>::New();
     polys->GetPointData()->Initialize();
     polys->GetCellData()->Initialize();
     //
-    polys->SetVerts(this->ParticlePolyLines);
+    polys->SetVerts(this->ParticleCells);
     polys->SetPoints(this->OutputCoordinates);
     polys->GetPointData()->AddArray(ParticleIds);
     polys->GetPointData()->AddArray(SourceIds);
     polys->GetPointData()->AddArray(InjectedPointIds);
 
-#ifdef JB_H5PART_PARTICLE_OUTPUT
     if (!this->HDF5ParticleWriter)
       {
       this->HDF5ParticleWriter = vtkH5PartWriter::New();
+      this->HDF5ParticleWriter->SetController(this->Controller);;
       }
     this->HDF5ParticleWriter->SetTimeStep(this->ActualTimeStep);
     this->HDF5ParticleWriter->SetInput(polys);

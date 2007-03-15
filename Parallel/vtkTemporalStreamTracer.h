@@ -278,7 +278,7 @@ public:
     // These are the final Points/Cells that are generated from the above lists
     //
     vtkSmartPointer<vtkPoints>        OutputCoordinates;
-    vtkSmartPointer<vtkCellArray>     ParticlePolyLines;
+    vtkSmartPointer<vtkCellArray>     ParticleCells;
     //
     // Scalar arrays that are generated as each particle is updated
     //
