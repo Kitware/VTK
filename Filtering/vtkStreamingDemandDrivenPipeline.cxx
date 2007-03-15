@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.47");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.48");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -1099,7 +1099,6 @@ int vtkStreamingDemandDrivenPipeline
       if (info->Has(TIME_STEPS()))
         {
         double *tsteps = info->Get(TIME_STEPS());
-        int length = info->Length(TIME_STEPS());
         modified |= this->SetUpdateTimeSteps(info, tsteps, 1);
         }
       else if (info->Has(TIME_RANGE()))

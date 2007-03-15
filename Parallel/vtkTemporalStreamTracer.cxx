@@ -68,7 +68,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <algorithm>
 
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.7");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.8");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 //---------------------------------------------------------------------------
@@ -355,16 +355,16 @@ int vtkTemporalStreamTracer::InitializeInterpolator(double times[2])
     this->CachedBounds[i].clear();
     this->GeometryFixed[i].clear();
     vtkCompositeDataIterator* iter = this->InputDataT[i]->NewIterator();
-    vtkSmartPointer<vtkCompositeDataIterator> iterP(iter);
+    vtkSmartPointer<vtkCompositeDataIterator> anotherIterP(iter);
     iter->Delete();
 
     // Add all the inputs ( except source, of course ) which
     // have the appropriate vectors and compute the maximum
     // Cell size.
-    iterP->GoToFirstItem();
-    while (!iterP->IsDoneWithTraversal())
+    anotherIterP->GoToFirstItem();
+    while (!anotherIterP->IsDoneWithTraversal())
       {
-      vtkDataSet* inp = vtkDataSet::SafeDownCast(iterP->GetCurrentDataObject());
+      vtkDataSet* inp = vtkDataSet::SafeDownCast(anotherIterP->GetCurrentDataObject());
       if (inp)
         {
         if (!inp->GetPointData()->GetVectors(vecname))
@@ -400,7 +400,7 @@ int vtkTemporalStreamTracer::InitializeInterpolator(double times[2])
           numInputs[i]++;
         }
         }
-      iterP->GoToNextItem();
+      anotherIterP->GoToNextItem();
       }
   }
   if (numInputs[0]==0 || numInputs[1]==0)
