@@ -23,8 +23,9 @@
 // information about what is stored by the node. If the CONTENT_TYPE is
 // SELECTIONS, the node is used as a parent node that contains other
 // vtkSelections and does not usually contain any selection values. If
-// the CONTENT_TYPE is CELL_IDS, the SelectionList array should contain a
-// list of cells ids. Usually, each node under the root is a selection from
+// the CONTENT_TYPE is IDS, the SelectionList array should contain a
+// list of ids. The type of id is specified by FIELD_TYPE (POINT or CELL).
+// Usually, each node under the root is a selection from
 // one data object. SOURCE or SOURCE_ID properties point to this object. If
 // the selection was performed on a renderer, PROP or PROP_ID point to the
 // prop the selection was made on. Selection nodes corresponding to
