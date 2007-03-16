@@ -34,7 +34,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractCells, "1.5");
+vtkCxxRevisionMacro(vtkExtractCells, "1.6");
 vtkStandardNewMacro(vtkExtractCells);
 
 #include <vtkstd/set>
@@ -46,17 +46,21 @@ public:
   vtkstd::set<vtkIdType> IdTypeSet;
 };
 
+//----------------------------------------------------------------------------
 vtkExtractCells::vtkExtractCells()
 { 
   this->SubSetUGridCellArraySize = 0;
   this->InputIsUgrid = 0;
   this->CellList = new vtkExtractCellsSTLCloak;
 }
+
+//----------------------------------------------------------------------------
 vtkExtractCells::~vtkExtractCells()
 {
   delete this->CellList;
 }
 
+//----------------------------------------------------------------------------
 void vtkExtractCells::SetCellList(vtkIdList *l)
 {
   delete this->CellList;
@@ -67,6 +71,8 @@ void vtkExtractCells::SetCellList(vtkIdList *l)
     this->AddCellList(l);
     }
 }
+
+//----------------------------------------------------------------------------
 void vtkExtractCells::AddCellList(vtkIdList *l)
 {
   if (l == NULL)
@@ -90,6 +96,8 @@ void vtkExtractCells::AddCellList(vtkIdList *l)
 
   return;
 }
+
+//----------------------------------------------------------------------------
 void vtkExtractCells::AddCellRange(vtkIdType from, vtkIdType to)
 {
   if (to < from) return;
@@ -103,6 +111,8 @@ void vtkExtractCells::AddCellRange(vtkIdType from, vtkIdType to)
 
   return;
 }
+
+//----------------------------------------------------------------------------
 int vtkExtractCells::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -224,6 +234,8 @@ int vtkExtractCells::RequestData(
 
   return 1;
 }
+
+//----------------------------------------------------------------------------
 vtkModelMetadata *vtkExtractCells::ExtractMetadata(vtkDataSet *input)
 {
   vtkModelMetadata *extractedMD = NULL;
@@ -287,6 +299,7 @@ vtkModelMetadata *vtkExtractCells::ExtractMetadata(vtkDataSet *input)
   return extractedMD;
 }
 
+//----------------------------------------------------------------------------
 void vtkExtractCells::Copy(vtkDataSet *input, vtkUnstructuredGrid *output)
 {
   int i;
@@ -342,6 +355,8 @@ void vtkExtractCells::Copy(vtkDataSet *input, vtkUnstructuredGrid *output)
 
   return;
 }
+
+//----------------------------------------------------------------------------
 vtkIdType vtkExtractCells::findInSortedList(vtkIdList *idList, vtkIdType id)
 {
   vtkIdType numids = idList->GetNumberOfIds();
@@ -391,6 +406,8 @@ vtkIdType vtkExtractCells::findInSortedList(vtkIdList *idList, vtkIdType id)
     }
   return loc;
 }
+
+//----------------------------------------------------------------------------
 vtkIdList *vtkExtractCells::reMapPointIds(vtkDataSet *grid)
 {
   int totalPoints = grid->GetNumberOfPoints();
@@ -483,6 +500,8 @@ vtkIdList *vtkExtractCells::reMapPointIds(vtkDataSet *grid)
 
   return ptIds;
 }
+
+//----------------------------------------------------------------------------
 void vtkExtractCells::CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
                                        vtkUnstructuredGrid *output)
 { 
@@ -528,6 +547,8 @@ void vtkExtractCells::CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
 
   return;
 }
+
+//----------------------------------------------------------------------------
 void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
                                                 vtkDataSet *input,
                                                 vtkUnstructuredGrid *output)
@@ -612,12 +633,14 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
   return;
 }
 
+//----------------------------------------------------------------------------
 int vtkExtractCells::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkExtractCells::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
