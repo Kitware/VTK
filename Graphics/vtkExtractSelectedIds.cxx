@@ -28,7 +28,7 @@
 #include "vtkCellType.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.4");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.5");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -170,7 +170,6 @@ int vtkExtractSelectedIds::ExtractPoints(
   if (labelArray == NULL)
     {
     //user didn't specify an array, try to use the globalid array
-    //that's what its for afterall
     labelArray = vtkIdTypeArray::SafeDownCast(input->GetPointData()->GetGlobalIds());
     }
   
@@ -184,18 +183,23 @@ int vtkExtractSelectedIds::ExtractPoints(
   opd->CopyStructure(ipd);
   opd->CopyAllOn();
   opd->CopyAllocate(ipd);
+  vtkIdType outloc = 0;
   if (labelArray == NULL)
     {
     //using offset within point data as the ID
-    //this is fast but doesn't work well in parallel
+    //this is fast but doesn't work in parallel
     for (vtkIdType i = 0; i < numPoints; i++)
       {
       double X[3];      
       vtkIdType id2find = idArray->GetValue(i);
-      input->GetPoint(id2find, X);
-      output->GetPoints()->InsertNextPoint(X);
-      opd->CopyData(ipd, id2find, i);
-      output->InsertNextCell(VTK_VERTEX, 1, &i);
+      if (id2find > 0 && id2find < input->GetNumberOfPoints())
+        {
+        input->GetPoint(id2find, X);
+        output->GetPoints()->InsertNextPoint(X);
+        output->InsertNextCell(VTK_VERTEX, 1, &outloc);
+        opd->CopyData(ipd, id2find, outloc);
+        outloc++;
+        }
       }
     }
   else
@@ -203,7 +207,6 @@ int vtkExtractSelectedIds::ExtractPoints(
     //each point has a label (such as the globalidarray) use that
     //TODO: sort both idarray and labelarray and step through them so that
     //we don't have n^2 run time
-    vtkIdType outloc = 0;
     for (vtkIdType i = 0; i < numPoints; i++)
       {
       double X[3];      
