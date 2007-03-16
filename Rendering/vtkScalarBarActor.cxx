@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkProperty2D.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.60");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.61");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -221,6 +221,12 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
   int renderedSomething = 0;
   int i;
   
+  if (this->UseOpacity)
+    {
+    this->Texture->Render(vtkRenderer::SafeDownCast(viewport));
+    renderedSomething += this->TextureActor->RenderOverlay(viewport);
+    }
+
   // Everything is built, just have to render
   if (this->Title != NULL)
     {
@@ -236,12 +242,6 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
   for (i=0; i<this->NumberOfLabels; i++)
     {
     renderedSomething += this->TextActors[i]->RenderOverlay(viewport);
-    }
-
-  if (this->UseOpacity)
-    {
-    this->Texture->Render(vtkRenderer::SafeDownCast(viewport));
-    renderedSomething += this->TextureActor->RenderOverlay(viewport);
     }
 
   renderedSomething = (renderedSomething > 0)?(1):(0);
@@ -497,7 +497,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
           }
         else
           {
-          this->TextActors[i]->SetPosition(barWidth,
+          this->TextActors[i]->SetPosition(barWidth + 3,
                                            val - sizeTextData[1]/2);
           }
         }
