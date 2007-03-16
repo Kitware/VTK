@@ -170,6 +170,7 @@ public:
     UpdateEvent,
     RegisterEvent,
     UnRegisterEvent,
+    UpdateInformationEvent,
     UserEvent = 1000
   };
 //ETX
