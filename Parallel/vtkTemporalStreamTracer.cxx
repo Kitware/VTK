@@ -68,7 +68,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <algorithm>
 
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.11");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.12");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 //---------------------------------------------------------------------------
@@ -817,7 +817,7 @@ int vtkTemporalStreamTracer::RequestData(
   if ((source1 && source1->GetMTime()>this->ParticleInjectionTime) || 
       (source2 && source2->GetMTime()>this->ParticleInjectionTime)) 
   {
-    this->ReinjectionFlag = 1;
+//    this->ReinjectionFlag = 1;
   }
   //
   // Lists for seed particles
