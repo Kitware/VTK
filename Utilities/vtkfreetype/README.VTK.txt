@@ -1,4 +1,4 @@
-This directory contains a subset of the Freetype library (2.1.9) + some recent
+This directory contains a subset of the Freetype2 library (2.1.9) + some later
 updates made to the cache subsystem.
 
 We only include enough of the distribution to provide the functionalities
@@ -9,40 +9,52 @@ http://www.freetype.org
 
 Modifications
 -------------
+
+Added Files
+-----------
 builds\win32\freetype\config\ftoption.h: 
-  new file, created from include\freetype\config\ftoption.h, used to 
+  -new file, created from include\freetype\config\ftoption.h, used to 
   support DLL build for Windows
+  -comment out FT_CONFIG_OPTION_USE_ZLIB and FT_CONFIG_OPTION_USE_LZW:
+/* #define FT_CONFIG_OPTION_USE_ZLIB */
+/* #define FT_CONFIG_OPTION_USE_LZW */
 
 builds\unix\ftconfig.h.in: 
-  new file, created from ftconfig.in, use CMake vars
+  -new file, created from ftconfig.in, use CMake vars
 
+CMakeLists.txt
+  -to support CMake builds
+
+include/vtk_freetype_mangle.h
+  -mangles all symbols exported from the freetype library
+
+include/vtkFreeTypeConfig.h.in
+  -purpose unknown
+
+Changed Files
+-------------
 include\ft2build.h:
-  added:
+  -added:
+#include "vtk_freetype_mangle.h"  
+  -added:
 #if defined(VTKFREETYPE)
 #include "vtkFreeTypeConfig.h"
 #endif
 
+src/base/ftmac.c
+  -fixed warnings
+  -other misc changes
+
 include\freetype\config\ftoption.h:
-builds\win32\freetype\config\ftoption.h: 
-  comment out FT_CONFIG_OPTION_USE_ZLIB and FT_CONFIG_OPTION_USE_LZW:
+  -comment out FT_CONFIG_OPTION_USE_ZLIB and FT_CONFIG_OPTION_USE_LZW:
 /* #define FT_CONFIG_OPTION_USE_ZLIB */
 /* #define FT_CONFIG_OPTION_USE_LZW */
 
----- DO NOT APPLY ANYMORE BUT KEEP AN EYE ON MAC -------
-src\base\ftmac.c:
-  added: 
-#if defined(FT_USE_CARBON_HEADER)
-#include <Carbon/Carbon.h>
-#else
-[...]
-#endif
----- DO NOT APPLY ANYMORE BUT KEEP AN EYE ON MAC -------
-    
----- DO NOT APPLY ANYMORE BUT KEEP AN EYE ON MAC -------
-src\raster\ftrend1.c:
-  replaced:
-   pitch = ( ( width + 15 ) >> 4 ) << 1;
-  by the old code:
-   pitch = ( width + 7 ) >> 3;
----- DO NOT APPLY ANYMORE BUT KEEP AN EYE ON MAC -------
+builds/unix/ftsystem.c
+  -fixed some 64 to 32 implicit conversion warnings in FT_Stream_Open
 
+include/freetype/config/ftstdlib.h
+  -fixed a warning with the sgi compiler
+
+Other files are changed compared to freetype 2.1.9, but those changes
+are by the freetype people.
