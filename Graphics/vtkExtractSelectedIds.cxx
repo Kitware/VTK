@@ -28,20 +28,18 @@
 #include "vtkCellType.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.5");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.6");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
 vtkExtractSelectedIds::vtkExtractSelectedIds()
 {
   this->SetNumberOfInputPorts(2);
-  this->ExtractFilter = vtkExtractCells::New();
 }
 
 //----------------------------------------------------------------------------
 vtkExtractSelectedIds::~vtkExtractSelectedIds()
 {
-  this->ExtractFilter->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -107,33 +105,141 @@ int vtkExtractSelectedIds::ExtractCells(
     return 1;
     }
 
-  vtkIdType numCells = 
-    idArray->GetNumberOfComponents()*idArray->GetNumberOfTuples();
-  if (numCells == 0)
+  vtkIdType numIds = idArray->GetNumberOfTuples();
+  if (numIds == 0)
     {
     return 1;
     }
 
-  vtkIdList* ids = vtkIdList::New();
-  vtkIdType* idsPtr = ids->WritePointer(0, numCells);
+  //try to find an array to use for ID labels
+  vtkIdTypeArray *labelArray = NULL;
+  if (sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
+      {
+      //user chose a specific label array
+      labelArray = vtkIdTypeArray::SafeDownCast(
+        input->GetCellData()->GetArray(
+          sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
+          )
+        );      
+      }
+  if (labelArray == NULL)
+    {
+    //user didn't specify an array, try to use the globalid array
+    labelArray = vtkIdTypeArray::SafeDownCast(input->GetCellData()->GetGlobalIds());
+    }
 
-  memcpy(idsPtr, idArray->GetPointer(0), numCells*sizeof(vtkIdType));
+  vtkCell *cell;
+  vtkIdList *cellPts;
+  vtkIdType newCellId;
+  vtkIdType numCellPts;
+  
+  vtkPointData *pd = input->GetPointData();
+  vtkCellData *cd = input->GetCellData();
+  vtkPointData *outputPD = output->GetPointData();
+  vtkCellData *outputCD = output->GetCellData();
+  outputPD->CopyAllocate(pd);
+  outputCD->CopyAllocate(cd);
+  vtkIdTypeArray *originalCellIds = NULL;
+  originalCellIds = vtkIdTypeArray::New();
+  originalCellIds->SetNumberOfComponents(1);
+  originalCellIds->SetName("vtkOriginalCellIds");
+  outputCD->AddArray(originalCellIds);
+  
+  vtkIdType numPts = input->GetNumberOfPoints();
+  vtkIdType numCells = input->GetNumberOfCells();
 
-  this->ExtractFilter->SetCellList(ids);
+  vtkPoints *newPts = vtkPoints::New();
+  newPts->Allocate(numPts/4,numPts);
 
-  ids->Delete();
+  output->Allocate(numCells/4); //allocate storage for geometry/topology
 
-  vtkDataSet* inputCopy = input->NewInstance();
-  inputCopy->ShallowCopy(input);
-  this->ExtractFilter->SetInput(inputCopy);
-  inputCopy->Delete();
+  vtkIdType *pointMap = new vtkIdType[numPts]; // maps old point ids into new
+  vtkIdList *newCellPts = vtkIdList::New();
+  newCellPts->Allocate(VTK_CELL_SIZE);
 
-  this->ExtractFilter->Update();
+  vtkIdType updateInterval = numCells/1000 + 1;
 
-  vtkUnstructuredGrid* ecOutput = vtkUnstructuredGrid::SafeDownCast(
-    this->ExtractFilter->GetOutputDataObject(0));
-  output->ShallowCopy(ecOutput);
-  ecOutput->Initialize();
+  vtkIdType ptId, newPointId;
+
+  //initialize all points to say not looked at
+  for (ptId=0; ptId < numPts; ptId++)
+    {
+    pointMap[ptId] = -1;
+    }
+  
+  // Loop over all cells to see whether they are inside.
+  vtkIdType cellId;
+  for (cellId=0; cellId < numCells; cellId++)
+    {
+    if ( ! (cellId % updateInterval) ) //manage progress reports 
+      {
+      this->UpdateProgress ((float)cellId / numCells);
+      }
+
+    cell = input->GetCell(cellId);
+    cellPts = cell->GetPointIds();
+    numCellPts = cell->GetNumberOfPoints();    
+    newCellPts->Reset();
+
+    vtkIdType id;
+    int isect = 0;
+    if (labelArray == NULL)
+      {
+      //check if this cell's offset is one of the selected ids
+      for (id = 0; id < numIds; id++)
+        {
+        if (idArray->GetValue(id) == cellId)
+          {
+          isect = 1;
+          break;
+          }
+        }
+      }
+    else
+      {
+      //check if this cell's label is one of the selected ids
+      vtkIdType id2find = labelArray->GetValue(cellId);
+      for (id = 0; id < numIds; id++)
+        {
+        if (idArray->GetValue(id) == id2find)
+          {
+          isect = 1;
+          break;
+          }
+        }
+      }
+      
+    if (isect == 1)
+      {
+      //intersects, put all of the points inside
+      for (vtkIdType i=0; i < numCellPts; i++)
+        {
+        ptId = cellPts->GetId(i);
+        newPointId = pointMap[ptId];
+        if (newPointId < 0)
+          {          
+          double X[3];
+          input->GetPoint(ptId, X);      
+          newPointId = newPts->InsertNextPoint(X);
+          outputPD->CopyData(pd,ptId,newPointId);
+          pointMap[ptId] = newPointId;
+          }
+        newCellPts->InsertId(i,newPointId);
+        }
+      
+      newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
+      outputCD->CopyData(cd,cellId,newCellId);
+      originalCellIds->InsertNextValue(cellId);
+      }
+    }//for all cells
+  
+  output->SetPoints(newPts);
+  newPts->Delete();
+  originalCellIds->Delete();
+  delete [] pointMap;
+  newCellPts->Delete();
+  output->Squeeze();
+
   return 1;
 }
 
@@ -149,14 +255,13 @@ int vtkExtractSelectedIds::ExtractPoints(
     return 1;
     }
 
-  vtkIdType numPoints = 
-    idArray->GetNumberOfComponents()*idArray->GetNumberOfTuples();
-  if (numPoints == 0)
+  vtkIdType numIds = idArray->GetNumberOfTuples();
+  if (numIds == 0)
     {
     return 1;
     }
 
-  //try to find an array to use for point labels
+  //try to find an array to use for ID labels
   vtkIdTypeArray *labelArray = NULL;
   if (sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
       {
@@ -177,7 +282,7 @@ int vtkExtractSelectedIds::ExtractPoints(
   vtkPoints *opoints = vtkPoints::New();
   output->SetPoints(opoints);
   opoints->Delete();
-  output->Allocate(numPoints);
+  output->Allocate(numIds);
   vtkPointData *opd = output->GetPointData();
   vtkPointData *ipd = input->GetPointData();
   opd->CopyStructure(ipd);
@@ -188,7 +293,7 @@ int vtkExtractSelectedIds::ExtractPoints(
     {
     //using offset within point data as the ID
     //this is fast but doesn't work in parallel
-    for (vtkIdType i = 0; i < numPoints; i++)
+    for (vtkIdType i = 0; i < numIds; i++)
       {
       double X[3];      
       vtkIdType id2find = idArray->GetValue(i);
@@ -207,7 +312,7 @@ int vtkExtractSelectedIds::ExtractPoints(
     //each point has a label (such as the globalidarray) use that
     //TODO: sort both idarray and labelarray and step through them so that
     //we don't have n^2 run time
-    for (vtkIdType i = 0; i < numPoints; i++)
+    for (vtkIdType i = 0; i < numIds; i++)
       {
       double X[3];      
       vtkIdType id2find = idArray->GetValue(i);

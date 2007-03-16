@@ -16,10 +16,13 @@
 // .SECTION Description
 // vtkExtractSelectedIds extracts a set of cells and points from within a
 // vtkDataSet. The set of ids to extract are listed within a vtkSelection.
-// Internally, it uses vtkExtractCells to performs the extraction.
 // This filter adds a scalar array called vtkOriginalCellIds that says what 
 // input cell produced each output cell. This is an example of a Pedigree ID 
-// which helps to trace back results.
+// which helps to trace back results. If the selection has an ARRAY_NAME
+// the filter will use that to decide where each id is. If it doesn't have
+// that then it checks if the input data set has a GlobalIds DataSetAttribute
+// and uses that array. If neither of those are available it will use the
+// offset into the points or cells lists.
 
 // .SECTION See Also
 // vtkSelection vtkExtractSelection
@@ -29,7 +32,6 @@
 
 #include "vtkUnstructuredGridAlgorithm.h"
 
-class vtkExtractCells;
 class vtkSelection;
 
 class VTK_GRAPHICS_EXPORT vtkExtractSelectedIds : public vtkUnstructuredGridAlgorithm
@@ -58,8 +60,6 @@ protected:
                     vtkUnstructuredGrid *output);
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
-
-  vtkExtractCells* ExtractFilter;
 
 private:
   vtkExtractSelectedIds(const vtkExtractSelectedIds&);  // Not implemented.
