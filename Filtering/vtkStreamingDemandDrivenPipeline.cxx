@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.48");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.49");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -727,6 +727,7 @@ vtkStreamingDemandDrivenPipeline
   if(request->Get(CONTINUE_EXECUTING()))
     {
     this->ContinueExecuting = 1;
+    this->Update(request->Get(FROM_OUTPUT_PORT()));
     }
   else
     {
