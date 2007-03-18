@@ -60,6 +60,10 @@ public:
   static vtkSelection* New();
 
   // Description:
+  // Restore data object to initial state,
+  virtual void Initialize();
+
+  // Description:
   // Sets the selection list.
   virtual void SetSelectionList(vtkAbstractArray*);
 
@@ -110,6 +114,12 @@ public:
   // Description: 
   // Copy properties, selection list and children of the input.
   virtual void DeepCopy(vtkDataObject* src);
+
+  // Description: 
+  // Copy properties, selection list and children of the input.
+  // This is a shallow copy: selection lists and pointers in the
+  // properties are passed by reference.
+  virtual void ShallowCopy(vtkDataObject* src);
 
   // Description: 
   // Add the children of the given selection to this one. 

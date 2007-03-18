@@ -29,7 +29,7 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.6");
+vtkCxxRevisionMacro(vtkSelection, "1.7");
 vtkStandardNewMacro(vtkSelection);
 
 vtkCxxSetObjectMacro(vtkSelection, SelectionList, vtkAbstractArray);
@@ -61,6 +61,11 @@ vtkSelection::vtkSelection()
   this->SelectionList = 0;
   this->ParentNode = 0;
   this->Properties = vtkInformation::New();
+
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
+  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 }
 
 //----------------------------------------------------------------------------
@@ -73,6 +78,15 @@ vtkSelection::~vtkSelection()
     }
   this->ParentNode = 0;
   this->Properties->Delete();
+}
+
+//----------------------------------------------------------------------------
+// Restore object to initial state. Release memory back to system.
+void vtkSelection::Initialize()
+{
+  this->Superclass::Initialize();
+  this->Clear();
+  this->ParentNode = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -209,6 +223,30 @@ void vtkSelection::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->GetChild(i)->PrintSelf(os, indent.GetNextIndent());
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::ShallowCopy(vtkDataObject* src)
+{
+  vtkSelection *input = vtkSelection::SafeDownCast(src);
+  if (!input)
+    {
+    return;
+    }
+
+  this->Properties->Copy(input->Properties, 0);
+  this->SetSelectionList(input->SelectionList);
+
+  unsigned int numChildren = input->GetNumberOfChildren();
+  for (unsigned int i=0; i<numChildren; i++)
+    {
+    vtkSelection* newChild = vtkSelection::New();
+    newChild->ShallowCopy(input->GetChild(i));
+    this->AddChild(newChild);
+    newChild->Delete();
+    }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
