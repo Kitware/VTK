@@ -46,6 +46,14 @@ public:
   // Construct object with NULL extractfilter
   static vtkExtractSelection *New();
 
+  // Description:
+  // Convenience method to specify the selection connection (2nd input
+  // port)
+  void SetSelectionConnection(vtkAlgorithmOutput* algOutput)
+  {
+    this->SetInputConnection(1, algOutput);
+  }
+
 protected:
   vtkExtractSelection();
   ~vtkExtractSelection();
