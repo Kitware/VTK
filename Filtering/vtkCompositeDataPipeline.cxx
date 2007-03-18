@@ -44,7 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 #endif
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.53");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.54");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
@@ -324,24 +324,6 @@ void vtkCompositeDataPipeline::ExecuteDataStart(
   vtkInformationVector* outInfoVec)
 {
   this->Superclass::ExecuteDataStart(request, inInfoVec, outInfoVec);
-
-  // True when the pipeline is iterating over the current (simple) filter
-  // to produce composite output. In this case, ExecuteDataStart() should
-  // NOT Initialize() the composite output.
-  if (!this->InLocalLoop)
-    {
-    // Prepare outputs that will be generated to receive new data.
-    for(int i=0; i < outInfoVec->GetNumberOfInformationObjects(); ++i)
-      {
-      vtkInformation* outInfo = outInfoVec->GetInformationObject(i);
-      vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
-      if(data && !outInfo->Get(DATA_NOT_GENERATED()))
-        {
-        data->PrepareForNewData();
-        data->CopyInformationFromPipeline(request);
-        }
-      }
-    }
 }
 
 //----------------------------------------------------------------------------
