@@ -172,6 +172,7 @@ vtkRotationalExtrusionFilter.cxx
 vtkRotationFilter.cxx
 vtkRuledSurfaceFilter.cxx
 vtkSelectPolyData.cxx
+vtkSelectionSource.cxx
 vtkShrinkFilter.cxx
 vtkShrinkPolyData.cxx
 vtkSimpleElevationFilter.cxx
