@@ -67,8 +67,21 @@ PURPOSE.  See the above copyright notice for more information.
 #include <functional>
 #include <algorithm>
 
+//----------------------------------------------------------------------------
+#if 0
+  #undef vtkDebugMacro
+  #define vtkDebugMacro(a)  \
+  { \
+    vtkOStreamWrapper::EndlType endl; \
+    vtkOStreamWrapper::UseEndl(endl); \
+    vtkOStrStreamWrapper vtkmsg; \
+    vtkmsg << "P(" << this->UpdatePiece << "): " a << "\n"; \
+    vtkOutputWindowDisplayText(vtkmsg.str()); \
+    vtkmsg.rdbuf()->freeze(0); \
+  }
+#endif
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.12");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.13");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 //---------------------------------------------------------------------------
@@ -954,7 +967,7 @@ void vtkTemporalStreamTracer::GenerateOutputLines(vtkPolyData *output)
   ParticleIds->SetName("ParticleId");
   SourceIds->SetName("SourceId");
   InjectedPointIds->SetName("InjectedPointId");
-  //vtkIdType tempId; // only need 1 now we have removed trails
+  vtkIdType tempId; // only need 1 now we have removed trails
   vtkIdType Np = this->ParticleHistories.size();
   vtkIdType *cells = this->ParticleCells->WritePointer(Np, Np*2);
   //
@@ -966,13 +979,13 @@ void vtkTemporalStreamTracer::GenerateOutputLines(vtkPolyData *output)
     ParticleLifetime       &P = (*it);
     ParticleInformation &info = P.Information;
     // create Point Id's 
-    //double *coord = &info.CurrentPosition.x[0];
-    //tempId = this->OutputCoordinates->InsertNextPoint(coord);
+    double *coord = &info.CurrentPosition.x[0];
+    tempId = this->OutputCoordinates->InsertNextPoint(coord);
     ParticleIds->InsertNextTuple1(info.UniqueParticleId);
     SourceIds->InsertNextTuple1(info.SourceID);
     InjectedPointIds->InsertNextTuple1(info.InjectedPointId);
     cells[index*2]   = 1;
-    cells[index*2+1] = index;
+    cells[index*2+1] = tempId;
   }
 
 //  vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();
