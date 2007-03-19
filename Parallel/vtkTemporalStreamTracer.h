@@ -221,9 +221,6 @@ public:
       vtkTemporalStreamTracerNamespace::ParticleIterator &it, 
       double currenttime, double terminationtime,
       vtkInitialValueProblemSolver* integrator);
-//
-//ETX
-//
 
     void GenerateOutputLines(vtkPolyData *output);
     bool DoParticleSendTasks(vtkTemporalStreamTracerNamespace::ParticleLifetime &info, double point1[4], double velocity[3], double delT);
@@ -232,6 +229,9 @@ public:
       double pos[4], double p2[4], double intersection[4],
       vtkGenericCell *cell);
     void AddParticleToMPISendList(vtkTemporalStreamTracerNamespace::ParticleLifetime &info);
+//
+//ETX
+//
 
     int UpdatePiece;
     int UpdateNumPieces;
