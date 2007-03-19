@@ -26,7 +26,7 @@
 struct vtkSelectionSourceInternals;
 //ETX
 
-class VTK_FILTERING_EXPORT vtkSelectionSource : public vtkSelectionAlgorithm
+class VTK_GRAPHICS_EXPORT vtkSelectionSource : public vtkSelectionAlgorithm
 {
 public:
   static vtkSelectionSource *New();
