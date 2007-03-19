@@ -50,6 +50,38 @@ class vtkIntArray;
   class vtkH5PartWriter;
 #endif
 
+//BTX
+namespace vtkTemporalStreamTracerNamespace
+{
+  typedef struct { double x[4]; } Position;
+  typedef struct {
+    // These are used during iteration
+    int           Counter;
+    int           Index;
+    bool          Wrap;
+    Position      CurrentPosition;
+    int           CachedDataSet[2];
+    vtkIdType     CachedCellId[2];
+    // These are computed scalars we might display
+    int           SourceID;
+    int           InjectedPointId;      
+    float         UniqueParticleId;
+    float         vorticity;
+    float         rotation;
+    float         angularVel;
+  } ParticleInformation;
+
+  struct ParticleLifetime {
+    ParticleInformation      Information;
+    vtkstd::vector<Position> Coordinates;
+  };
+
+  typedef vtkstd::vector<ParticleInformation>  ParticleList;
+  typedef vtkstd::list<ParticleLifetime>       ParticleDataList;
+  typedef ParticleDataList::iterator           ParticleIterator;
+};
+//ETX
+
 class VTK_PARALLEL_EXPORT vtkTemporalStreamTracer : public vtkStreamTracer
 {
 public:
@@ -132,35 +164,6 @@ public:
      vtkTemporalStreamTracer();
     ~vtkTemporalStreamTracer();
 
-//BTX
-  typedef struct { double x[4]; } Position;
-  typedef struct {
-    // These are used during iteration
-    int           Counter;
-    int           Index;
-    bool          Wrap;
-    Position      CurrentPosition;
-    int           CachedDataSet[2];
-    vtkIdType     CachedCellId[2];
-    // These are computed scalars we might display
-    int           SourceID;
-    int           InjectedPointId;      
-    float         UniqueParticleId;
-    float         vorticity;
-    float         rotation;
-    float         angularVel;
-  } ParticleInformation;
-
-  struct ParticleLifetime {
-    ParticleInformation      Information;
-    vtkstd::vector<Position> Coordinates;
-  };
-
-  typedef vtkstd::vector<ParticleInformation>  ParticleList;
-  typedef vtkstd::list<ParticleLifetime>       ParticleDataList;
-  typedef ParticleDataList::iterator           ParticleIterator;
-//ETX
-
     //
     // Make sure the pipeline knows what type we expect as input
     //
@@ -206,16 +209,16 @@ public:
     // Pass in either a source object or an input list, one
     // parameter should be valid, the other NULL
     void InjectSeeds(vtkDataSet *source, int sourceID, int injectionID, 
-      ParticleList *inputlist,
-      ParticleList &candidates, ParticleList *outofdomain);
+      vtkTemporalStreamTracerNamespace::ParticleList *inputlist,
+      vtkTemporalStreamTracerNamespace::ParticleList &candidates, vtkTemporalStreamTracerNamespace::ParticleList *outofdomain);
 
-    void UpdateSeeds(ParticleList &candidates);
+    void UpdateSeeds(vtkTemporalStreamTracerNamespace::ParticleList &candidates);
 
     void TransmitReceiveParticles(
-      ParticleList &outofdomain, ParticleList &received, bool removeself);
+      vtkTemporalStreamTracerNamespace::ParticleList &outofdomain, vtkTemporalStreamTracerNamespace::ParticleList &received, bool removeself);
 
     void IntegrateParticle(
-      ParticleIterator &it, 
+      vtkTemporalStreamTracerNamespace::ParticleIterator &it, 
       double currenttime, double terminationtime,
       vtkInitialValueProblemSolver* integrator);
 //
@@ -223,12 +226,12 @@ public:
 //
 
     void GenerateOutputLines(vtkPolyData *output);
-    bool DoParticleSendTasks(ParticleLifetime &info, double point1[4], double velocity[3], double delT);
-    bool DoParticleSendTasks(ParticleLifetime &info, double point1[4], double delT);
+    bool DoParticleSendTasks(vtkTemporalStreamTracerNamespace::ParticleLifetime &info, double point1[4], double velocity[3], double delT);
+    bool DoParticleSendTasks(vtkTemporalStreamTracerNamespace::ParticleLifetime &info, double point1[4], double delT);
     bool ComputeDomainExitLocation(
       double pos[4], double p2[4], double intersection[4],
       vtkGenericCell *cell);
-    void AddParticleToMPISendList(ParticleLifetime &info);
+    void AddParticleToMPISendList(vtkTemporalStreamTracerNamespace::ParticleLifetime &info);
 
     int UpdatePiece;
     int UpdateNumPieces;
@@ -262,10 +265,10 @@ public:
     vtkTimeStamp  SeedInjectionTime;
 
 //BTX
-    unsigned int      NumberOfParticles;
-    ParticleDataList  ParticleHistories;
+    unsigned int                                        NumberOfParticles;
+    vtkTemporalStreamTracerNamespace::ParticleDataList  ParticleHistories;
 #ifdef JB_H5PART_PARTICLE_OUTPUT
-    vtkH5PartWriter *HDF5ParticleWriter;
+    vtkH5PartWriter                                    *HDF5ParticleWriter;
 #endif
 //ETX
 /*
@@ -289,7 +292,7 @@ public:
     vtkSmartPointer<vtkDoubleArray>   rotation;
     vtkSmartPointer<vtkDoubleArray>   angularVel;
     //
-    ParticleList                      MPISendList;
+    vtkTemporalStreamTracerNamespace::ParticleList MPISendList;
     //
     vtkSmartPointer<vtkTemporalInterpolatedVelocityField>  Interpolator;
     vtkCompositeDataSet                                   *InputDataT[2];
