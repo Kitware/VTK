@@ -48,7 +48,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.100");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.101");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -101,7 +101,7 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
 void  vtkWin32RenderWindowInteractor::Start() 
 {
   // Let the compositing handle the event loop if it wants to.
-  if (this->HasObserver(vtkCommand::StartEvent))
+  if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
     {
     this->InvokeEvent(vtkCommand::StartEvent,NULL);
     return;

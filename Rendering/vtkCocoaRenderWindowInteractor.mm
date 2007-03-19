@@ -25,7 +25,7 @@
 #endif
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.15");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.16");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -264,7 +264,7 @@ vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor()
 void vtkCocoaRenderWindowInteractor::Start() 
 {
   // Let the compositing handle the event loop if it wants to.
-  if (this->HasObserver(vtkCommand::StartEvent))
+  if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
     {
     this->InvokeEvent(vtkCommand::StartEvent,NULL);
     return;

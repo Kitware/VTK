@@ -56,9 +56,13 @@ class vtkInteractorObserver;
 class vtkRenderWindow;
 class vtkRenderer;
 class vtkObserverMediator;
+class vtkInteractorEventRecorder;
 
 class VTK_RENDERING_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
+  //BTX
+  friend class vtkInteractorEventRecorder;
+  //ETX
 public:
   static vtkRenderWindowInteractor *New();
   vtkTypeRevisionMacro(vtkRenderWindowInteractor,vtkObject);
@@ -468,6 +472,11 @@ protected:
   virtual int InternalDestroyTimer(int platformTimerId);
   int GetCurrentTimerId();
   //ETX
+
+  // Force the interactor to handle the Start() event loop, ignoring any 
+  // overrides. (Overrides are registered by observing StartEvent on the 
+  // interactor.)
+  int HandleEventLoop;
   
 private:
   vtkRenderWindowInteractor(const vtkRenderWindowInteractor&);  // Not implemented.
