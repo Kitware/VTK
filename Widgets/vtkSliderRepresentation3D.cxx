@@ -39,7 +39,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.8");
+vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.9");
 vtkStandardNewMacro(vtkSliderRepresentation3D);
 
 //----------------------------------------------------------------------
@@ -62,7 +62,7 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
 
   vtkTransform *xform = vtkTransform::New();
   xform->RotateZ(90.0);
-  this->Cylinder = vtkTransformPolyDataFilter::New(); //aling the axis along the x-axis
+  this->Cylinder = vtkTransformPolyDataFilter::New(); //align the axis along the x-axis
   this->Cylinder->SetInput(this->CylinderSource->GetOutput());
   this->Cylinder->SetTransform(xform);
   xform->Delete();
@@ -381,7 +381,7 @@ double vtkSliderRepresentation3D::ComputePickPosition(double eventPos[2])
 
   // The pick ray is defined by the camera position and the (X,Y)
   // pick position in the renderer. The depth of the (X,Y) pick is
-  // is the back clipping plane.
+  // the back clipping plane.
   double cameraWorldPosition[4], cameraPosition[4];
   camera->GetPosition(cameraWorldPosition); 
   cameraWorldPosition[3] = 1.0;
@@ -424,7 +424,7 @@ unsigned long vtkSliderRepresentation3D::GetMTime()
 
   p1Time = this->Point1Coordinate->GetMTime();
   mTime = ( p1Time > mTime ? p1Time : mTime );
-  p2Time = this->Point1Coordinate->GetMTime();
+  p2Time = this->Point2Coordinate->GetMTime();
   mTime = ( p2Time > mTime ? p2Time : mTime );
 
   return mTime;
