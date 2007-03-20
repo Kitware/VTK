@@ -19,7 +19,7 @@
 #include "vtkRenderer.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkTextRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkTextRepresentation, "1.6");
 vtkStandardNewMacro(vtkTextRepresentation);
 
 //-------------------------------------------------------------------------
@@ -36,6 +36,8 @@ vtkTextRepresentation::vtkTextRepresentation()
   this->TextActor->GetTextProperty()->SetVerticalJustificationToCentered();
  
   this->ShowBorder = vtkBorderRepresentation::BORDER_ACTIVE;
+  
+  this->BWActor->VisibilityOff();
 }
 
 //-------------------------------------------------------------------------
