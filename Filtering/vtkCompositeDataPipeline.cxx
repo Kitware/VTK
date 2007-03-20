@@ -44,7 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 #endif
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.55");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.56");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
@@ -523,95 +523,6 @@ int vtkCompositeDataPipeline::ShouldIterateTemporalData(
   if (request->Has(REQUIRES_TIME_DOWNSTREAM()))
     {
     CSCSOutputMacro(<< "ShouldIterateTemporalData returns 1");
-    return 1;
-    }
-
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-int vtkCompositeDataPipeline::ShouldCreateTemporalData(
-  vtkInformationVector** vtkNotUsed(inInfoVec), 
-  vtkInformation *request)
-{
-  // Exit fast if no outputs exist
-  if (!this->Algorithm->GetNumberOfOutputPorts())
-    {
-    return 0;
-    }
-
-  // if the filter is a subclass of vtkTemporalDataSetAlgorithm
-  // then we do not loop - unless the input is non temporal
-//  if (this->Algorithm->IsA("vtkTemporalDataSetAlgorithm"))
-//    {
-//    return 0;
-//    }
-
-  // Check input and outputs
-  bool outTemporal = false;
-  bool inTemporal = false;
-
-  if (this->Algorithm->IsA("vtkTemporalDataSetAlgorithm"))
-    {
-    outTemporal = true;
-    int numInputPorts = this->Algorithm->GetNumberOfInputPorts();
-    for(int i=0; i < numInputPorts; ++i)
-      {
-      vtkInformation* inPortInfo = 
-        this->Algorithm->GetInputPortInformation(i);
-      vtkDataObject *dobj = inPortInfo->Get(vtkDataObject::DATA_OBJECT());
-      if (dobj && dobj->IsA("vtkTemporalDataSet"))
-        {
-        inTemporal = true;
-        break;
-        }
-      }
-    }
-  else 
-    {
-    int port = request->Get(FROM_OUTPUT_PORT());
-    vtkInformation* portInfo = 
-      this->Algorithm->GetOutputPortInformation(port);
-    const char * outputType = 
-      portInfo->Get(vtkDataObject::DATA_TYPE_NAME());
-    if (!strcmp("vtkTemporalDataSet", outputType))
-      {
-      outTemporal = true;
-      }
-    }
-
-  int numInputPorts = this->Algorithm->GetNumberOfInputPorts();
-  for(int i=0; i < numInputPorts; ++i)
-    {
-    vtkInformation* inPortInfo = 
-      this->Algorithm->GetInputPortInformation(i);
-    const char* inputType = 
-      inPortInfo->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
-    if (!strcmp("vtkTemporalDataSet", inputType))
-      {
-      inTemporal = true;
-      }
-    }
-
-  // No need to loop, in and out are temporal. 
-  // Algorithm knows what to do
-  if (inTemporal && outTemporal)
-    {
-    CSCSOutputMacro(<< "inTemporal && outTemporal : ShouldCreateTemporalData returning 0");
-    return 0;
-    }
-
-  // input is non temporal, but output is temporal, better loop
-  if ((numInputPorts>0 && !inTemporal) && outTemporal)
-    {
-    CSCSOutputMacro(<< "ShouldCreateTemporalData returns 1");
-    return 1;
-    }
-
-  // Time was requested so answer yes.
-  if (request->Has(REQUIRES_TIME_DOWNSTREAM()))
-    {
-    CSCSOutputMacro(<< "ShouldCreateTemporalData returns 1");
     return 1;
     }
 

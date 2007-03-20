@@ -153,8 +153,6 @@ protected:
   int ShouldIterateOverInput(int& compositePort);
   int ShouldIterateTemporalData(vtkInformationVector** inInfoVec, 
                                 vtkInformation *request);
-  int ShouldCreateTemporalData(vtkInformationVector** inInfoVec, 
-                                vtkInformation *request);
   virtual int InputTypeIsValid(int port, int index, 
                                 vtkInformationVector **inInfoVec);
 
