@@ -20,7 +20,7 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCheckerboardRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkCheckerboardRepresentation, "1.5");
 vtkStandardNewMacro(vtkCheckerboardRepresentation);
 
 vtkCxxSetObjectMacro(vtkCheckerboardRepresentation,Checkerboard,vtkImageCheckerboard);
@@ -90,7 +90,8 @@ vtkCheckerboardRepresentation::vtkCheckerboardRepresentation()
   this->LeftRepresentation->SetMaximumValue(10);
   this->LeftRepresentation->SetSliderShapeToCylinder();
   
-  this->CornerOffset = 0.00; 
+  this->CornerOffset = 0.00;
+  this->OrthoAxis = 2; 
 }
 
 //----------------------------------------------------------------------
@@ -116,29 +117,59 @@ void vtkCheckerboardRepresentation::SliderValueChanged(int sliderNum)
 {
   int *numDivisions = this->Checkerboard->GetNumberOfDivisions();
   int value;
+  int div[] = {1,1,1};
+
   if ( sliderNum == vtkCheckerboardRepresentation::TopSlider )
     {
     value = static_cast<int>(this->TopRepresentation->GetValue());
-    this->BottomRepresentation->SetValue(value);
-    this->Checkerboard->SetNumberOfDivisions(value,numDivisions[1],1);
+    this->BottomRepresentation->SetValue(this->TopRepresentation->GetValue());
+    switch ( this->OrthoAxis )
+      {
+      case 0: div[1] = value; div[2] = numDivisions[2]; break;
+      case 1: div[0] = value; div[2] = numDivisions[2]; break;
+      case 2: div[0] = value; div[1] = numDivisions[1]; break;
+      }
+
+    this->Checkerboard->SetNumberOfDivisions(div);
     }
   else if ( sliderNum == vtkCheckerboardRepresentation::RightSlider )
     {
     value = static_cast<int>(this->RightRepresentation->GetValue());
-    this->LeftRepresentation->SetValue(value);
-    this->Checkerboard->SetNumberOfDivisions(numDivisions[0],value,1);
+    this->LeftRepresentation->SetValue(this->RightRepresentation->GetValue());
+    switch ( this->OrthoAxis )
+      {
+      case 0: div[1] = numDivisions[1]; div[2] = value; break;
+      case 1: div[0] = numDivisions[0]; div[2] = value; break;
+      case 2: div[0] = numDivisions[0]; div[1] = value; break;
+      }
+
+    this->Checkerboard->SetNumberOfDivisions(div);
     }
   else if ( sliderNum == vtkCheckerboardRepresentation::BottomSlider )
     {
     value = static_cast<int>(this->BottomRepresentation->GetValue());
-    this->TopRepresentation->SetValue(value);
-    this->Checkerboard->SetNumberOfDivisions(value,numDivisions[1],1);
+    this->TopRepresentation->SetValue(this->BottomRepresentation->GetValue());
+    switch ( this->OrthoAxis )
+      {
+      case 0: div[1] = value; div[2] = numDivisions[2]; break;
+      case 1: div[0] = value; div[2] = numDivisions[2]; break;
+      case 2: div[0] = value; div[1] = numDivisions[1]; break;
+      }
+
+    this->Checkerboard->SetNumberOfDivisions(div);
     }
   else if ( sliderNum == vtkCheckerboardRepresentation::LeftSlider )
     {
     value = static_cast<int>(this->LeftRepresentation->GetValue());
-    this->RightRepresentation->SetValue(value);
-    this->Checkerboard->SetNumberOfDivisions(numDivisions[0],value,1);
+    this->RightRepresentation->SetValue(this->LeftRepresentation->GetValue());
+    switch ( this->OrthoAxis )
+      {
+      case 0: div[1] = numDivisions[1]; div[2] = value; break;
+      case 1: div[0] = numDivisions[0]; div[2] = value; break;
+      case 2: div[0] = numDivisions[0]; div[1] = value; break;
+      }
+
+    this->Checkerboard->SetNumberOfDivisions(div);
     }
 }
 
@@ -153,11 +184,9 @@ void vtkCheckerboardRepresentation::BuildRepresentation()
     }
 
   double bounds[6];
-  double o[3];
   vtkImageData *image = this->ImageActor->GetInput();
   image->Update();
   image->GetBounds(bounds);
-  image->GetOrigin(o);
   if ( image->GetDataDimension() != 2 )
     {
     vtkErrorMacro(<<" requires a 2D image");
@@ -166,7 +195,7 @@ void vtkCheckerboardRepresentation::BuildRepresentation()
   double t0 = bounds[1]-bounds[0];
   double t1 = bounds[3]-bounds[2];
   double t2 = bounds[5]-bounds[4];
-  int orthoAxis = ( t0 < t1 ? (t0 < t2 ? 0 : 2) : (t1 < t2 ? 1 : 2) );
+  this->OrthoAxis = ( t0 < t1 ? (t0 < t2 ? 0 : 2) : (t1 < t2 ? 1 : 2) );
   double o0 = t0*this->CornerOffset;
   double o1 = t1*this->CornerOffset;
   double o2 = t2*this->CornerOffset;
@@ -174,50 +203,76 @@ void vtkCheckerboardRepresentation::BuildRepresentation()
   // Set up the initial values in the slider widgets
   int *numDivisions = this->Checkerboard->GetNumberOfDivisions();
 
-  if ( orthoAxis == 0 ) //x-axis
+  if ( this->OrthoAxis == 0 ) //x-axis
     {
-    this->TopRepresentation->GetPoint1Coordinate()->SetValue(o[0], o[1]+o0, o[2]+t2);
-    this->TopRepresentation->GetPoint2Coordinate()->SetValue(o[0], o[1]+t1-o0, o[2]+t2);
+    // point1 and point2 are switched for top and bottom in case a
+    // user wants to see the slider label positions as text, and
+    // rotation of the text about the slider's local x-axis must be
+    // set correctly.  Similar logic applies to X-Z plane case.
+
+    this->TopRepresentation->GetPoint2Coordinate()->SetValue(bounds[0], bounds[2]+o1, bounds[5]);
+    this->TopRepresentation->GetPoint1Coordinate()->SetValue(bounds[0], bounds[3]-o1, bounds[5]);
     this->TopRepresentation->SetValue(numDivisions[1]);
-    this->RightRepresentation->GetPoint1Coordinate()->SetValue(o[0], o[1]+t1, o[2]+o2);
-    this->RightRepresentation->GetPoint2Coordinate()->SetValue(o[0], o[1]+t1, o[2]+t2-o2);
+    this->TopRepresentation->SetRotation(90.0);
+
+    this->RightRepresentation->GetPoint1Coordinate()->SetValue(bounds[0], bounds[3], bounds[4]+o2);
+    this->RightRepresentation->GetPoint2Coordinate()->SetValue(bounds[0], bounds[3], bounds[5]-o2);
     this->RightRepresentation->SetValue(numDivisions[2]);
-    this->BottomRepresentation->GetPoint1Coordinate()->SetValue(o[0], o[1]+o1, o[2]);
-    this->BottomRepresentation->GetPoint2Coordinate()->SetValue(o[0], o[1]+t1-o1, o[2]);
+    this->RightRepresentation->SetRotation(0.0);
+
+    this->BottomRepresentation->GetPoint2Coordinate()->SetValue(bounds[0], bounds[2]+o1, bounds[4]);
+    this->BottomRepresentation->GetPoint1Coordinate()->SetValue(bounds[0], bounds[3]-o1, bounds[4]);
     this->BottomRepresentation->SetValue(numDivisions[1]);
-    this->LeftRepresentation->GetPoint1Coordinate()->SetValue(o[0], o[1], o[2]+o2);
-    this->LeftRepresentation->GetPoint2Coordinate()->SetValue(o[0], o[1], o[2]+t2-o2);
+    this->BottomRepresentation->SetRotation(90.0);
+
+    this->LeftRepresentation->GetPoint1Coordinate()->SetValue(bounds[0], bounds[2], bounds[4]+o2);
+    this->LeftRepresentation->GetPoint2Coordinate()->SetValue(bounds[0], bounds[2], bounds[5]-o2);
     this->LeftRepresentation->SetValue(numDivisions[2]);
+    this->LeftRepresentation->SetRotation(0.0);
     }
-  else if ( orthoAxis == 1 ) //y-axis
+  else if ( this->OrthoAxis == 1 ) //y-axis
     {
-    this->TopRepresentation->GetPoint1Coordinate()->SetValue(o[0]+o0, o[1], o[2]+t2);
-    this->TopRepresentation->GetPoint2Coordinate()->SetValue(o[0]+t0-o0, o[1], o[2]+t2);
+    this->TopRepresentation->GetPoint1Coordinate()->SetValue(bounds[0]+o0, bounds[2], bounds[5]);
+    this->TopRepresentation->GetPoint2Coordinate()->SetValue(bounds[1]-o0, bounds[2], bounds[5]);
     this->TopRepresentation->SetValue(numDivisions[0]);
-    this->RightRepresentation->GetPoint1Coordinate()->SetValue(o[0]+t0, o[1], o[2]+o2);
-    this->RightRepresentation->GetPoint2Coordinate()->SetValue(o[0]+t0, o[1], o[2]+t2-o2);
+    this->TopRepresentation->SetRotation(90.0);
+
+    this->RightRepresentation->GetPoint1Coordinate()->SetValue(bounds[1], bounds[2], bounds[4]+o2);
+    this->RightRepresentation->GetPoint2Coordinate()->SetValue(bounds[1], bounds[2], bounds[5]-o2);
     this->RightRepresentation->SetValue(numDivisions[2]);
-    this->BottomRepresentation->GetPoint1Coordinate()->SetValue(o[0]+o0, o[1], o[2]);
-    this->BottomRepresentation->GetPoint2Coordinate()->SetValue(o[0]+t0-o0, o[1], o[2]);
+    this->RightRepresentation->SetRotation(90.0);
+
+    this->BottomRepresentation->GetPoint1Coordinate()->SetValue(bounds[0]+o0, bounds[2], bounds[4]);
+    this->BottomRepresentation->GetPoint2Coordinate()->SetValue(bounds[1]-o0, bounds[2], bounds[4]);
     this->BottomRepresentation->SetValue(numDivisions[0]);
-    this->LeftRepresentation->GetPoint1Coordinate()->SetValue(o[0], o[1], o[2]+o2);
-    this->LeftRepresentation->GetPoint2Coordinate()->SetValue(o[0], o[1], o[2]+t2-o2);
+    this->BottomRepresentation->SetRotation(90.0);
+
+    this->LeftRepresentation->GetPoint1Coordinate()->SetValue(bounds[0], bounds[2], bounds[4]+o2);
+    this->LeftRepresentation->GetPoint2Coordinate()->SetValue(bounds[0], bounds[2], bounds[5]-o2);
     this->LeftRepresentation->SetValue(numDivisions[2]);
+    this->LeftRepresentation->SetRotation(90.0);
     }
   else // if( orthoAxis == 2 ) //z-axis
     {
-    this->TopRepresentation->GetPoint1Coordinate()->SetValue(o[0]+o0, o[1]+t1, o[2]);
-    this->TopRepresentation->GetPoint2Coordinate()->SetValue(o[0]+t0-o0, o[1]+t1, o[2]);
+    this->TopRepresentation->GetPoint1Coordinate()->SetValue(bounds[0]+o0, bounds[3], bounds[4]);
+    this->TopRepresentation->GetPoint2Coordinate()->SetValue(bounds[1]-o0, bounds[3], bounds[4]);
     this->TopRepresentation->SetValue(numDivisions[0]);
-    this->RightRepresentation->GetPoint1Coordinate()->SetValue(o[0]+t0, o[1]+o1, o[2]);
-    this->RightRepresentation->GetPoint2Coordinate()->SetValue(o[0]+t0, o[1]+t1-o1, o[2]);
+    this->TopRepresentation->SetRotation(0.0);
+
+    this->RightRepresentation->GetPoint1Coordinate()->SetValue(bounds[1], bounds[2]+o1, bounds[4]);
+    this->RightRepresentation->GetPoint2Coordinate()->SetValue(bounds[1], bounds[3]-o1, bounds[4]);
     this->RightRepresentation->SetValue(numDivisions[1]);
-    this->BottomRepresentation->GetPoint1Coordinate()->SetValue(o[0]+o0, o[1], o[2]);
-    this->BottomRepresentation->GetPoint2Coordinate()->SetValue(o[0]+t0-o0, o[1], o[2]);
+    this->RightRepresentation->SetRotation(0.0);
+
+    this->BottomRepresentation->GetPoint1Coordinate()->SetValue(bounds[0]+o0, bounds[2], bounds[4]);
+    this->BottomRepresentation->GetPoint2Coordinate()->SetValue(bounds[1]-o0, bounds[2], bounds[4]);
     this->BottomRepresentation->SetValue(numDivisions[0]);
-    this->LeftRepresentation->GetPoint1Coordinate()->SetValue(o[0], o[1]+o1, o[2]);
-    this->LeftRepresentation->GetPoint2Coordinate()->SetValue(o[0], o[1]+t1-o1, o[2]);
+    this->BottomRepresentation->SetRotation(0.0);
+
+    this->LeftRepresentation->GetPoint1Coordinate()->SetValue(bounds[0], bounds[2]+o1, bounds[4]);
+    this->LeftRepresentation->GetPoint2Coordinate()->SetValue(bounds[0], bounds[3]-o1, bounds[4]);
     this->LeftRepresentation->SetValue(numDivisions[1]);
+    this->LeftRepresentation->SetRotation(0.0);
     }
 
   this->TopRepresentation->BuildRepresentation();
