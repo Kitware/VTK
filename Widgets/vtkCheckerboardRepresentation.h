@@ -120,6 +120,9 @@ protected:
   // The corner offset
   double CornerOffset;
 
+  // Direction index of image actor's plane normal
+  int OrthoAxis;
+
 private:
   vtkCheckerboardRepresentation(const vtkCheckerboardRepresentation&);  //Not implemented
   void operator=(const vtkCheckerboardRepresentation&);  //Not implemented
