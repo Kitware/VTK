@@ -12,28 +12,26 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTemporalInterpolatedVelocityField - Interface for obtaining
-// interpolated velocity values
+// .NAME vtkTemporalInterpolatedVelocityField - A helper class for 
+// interpolating between times during particle tracing
 // .SECTION Description
-// vtkTemporalInterpolatedVelocityField acts as a continuous velocity field
-// by performing cell interpolation on the underlying vtkDataSet.
-// This is a concrete sub-class of vtkFunctionSet with 
-// NumberOfIndependentVariables = 4 (x,y,z,t) and 
-// NumberOfFunctions = 3 (u,v,w). Normally, every time an evaluation
-// is performed, the cell which contains the point (x,y,z) has to
-// be found by calling FindCell. This is a computationally expansive 
-// operation. In certain cases, the cell search can be avoided or shortened 
-// by providing a guess for the cell id. For example, in streamline
-// integration, the next evaluation is usually in the same or a neighbour
-// cell. For this reason, vtkTemporalInterpolatedVelocityField stores the last
-// cell id. If caching is turned on, it uses this id as the starting point.
-
+// vtkTemporalInterpolatedVelocityField is a temporal version of 
+// vtk vtkInterpolatedVelocityField. I maintains two copies of 
+// vtkInterpolatedVelocityField internally and uses them to obtain velocity
+// values at time T1 and T2. 
+// In fact the class does quite a bit more than this because when the geometry
+// of the datasets is the same at T1 and T2, we can re-use cached cell Ids and 
+// weights used in the cell interpolation routines.
+// Additionally, the same weights can be used when interpolating (point) scalar 
+// values and computing vorticity etc, so the class acts as a general purpose
+// helper for the temporal particle tracing code (vtkTemporalStreamTracer)
 // .SECTION Caveats
-// vtkTemporalInterpolatedVelocityField is not thread safe. A new instance should
-// be created by each thread.
-
+// vtkTemporalInterpolatedVelocityField is not thread safe. 
+// A new instance should be created by each thread.
+//
 // .SECTION See Also
-// vtkFunctionSet vtkStreamer
+// vtkFunctionSet vtkStreamer 
+// vtkInterpolatedVelocityField vtkTemporalStreamTracer
 
 #ifndef __vtkTemporalInterpolatedVelocityField_h
 #define __vtkTemporalInterpolatedVelocityField_h
@@ -46,7 +44,10 @@
 #define ID_OUTSIDE_T2  03
 
 class vtkDataSet;
+class vtkDataArray;
+class vtkPointData;
 class vtkGenericCell;
+class vtkDoubleArray;
 class vtkInterpolatedVelocityField;
 class vtkTInterpolatedVelocityFieldDataSetsType;
 
@@ -68,23 +69,32 @@ public:
 
   // Description:
   // If you want to work with an arbitrary vector array, then set its name 
-  // here. By default this in NULL and the filter will use the active vector 
+  // here. By default this is NULL and the filter will use the active vector 
   // array.
   void SelectVectors(const char *fieldName) 
     {this->SetVectorsSelection(fieldName);}
 
+  // Description:
+  // In order to use this class, two sets of data must be supplied, 
+  // corresponding to times T1 and T2. Data is added via
+  // this function.
   void AddDataSetAtTime(int N, double T, vtkDataSet* dataset);
 
   // Description:
   // Allow the algorithm using us to turn on/off caching
-  // of CellIds between datasets
-  // Don't use a SetGetMacro to avoid calling Modified()
+  // of CellIds between datasets. If true, then calculations
+  // on the second set of data (T2) use the weights from T1
+  // without any error checking. Use with caution.
+  // We don't use a SetGetMacro to avoid calling Modified()
   void SetGeometryFixed(int g) 
   { this->GeometryFixed = g; }
   int GetGeometryFixed() 
   { return this->GeometryFixed; }
 
   // Description:
+  // Between iterations of the PArticle TRacer, Id's of the Cell
+  // are stored and then at the start of the next particle the
+  // Ids are set to 'pre-fill' the cache.
   bool GetCachedCellIds(vtkIdType id[2], int ds[2]);
   void SetCachedCellIds(vtkIdType id[2], int ds[2]);
 
@@ -93,9 +103,28 @@ public:
   // start from the previous cell
   void ClearCache();
 
+  // Description:
+  // A utility function which evaluates the point at T1, T2 to see 
+  // if it is inside the data at both times or only one.
   int TestPoint(double* x);
 
+  // Description:
+  // If an interpolation was successful, we can retrieve the last computed
+  // value from here.
   vtkGetVector3Macro(LastGoodVelocity,double);
+
+  // Description:
+  // Get the most recent weight between 0->1 from T1->T2
+  vtkGetMacro(CurrentWeight,double);
+  
+  bool InterpolatePoint(
+    vtkPointData *outPD1, vtkPointData *outPD2, vtkIdType outIndex);
+  bool InterpolatePointAtT(
+    int T, vtkPointData *outPD, vtkIdType outIndex);
+
+  bool GetVorticityData(
+    int T, double pcoords[3], double *weights, 
+    vtkGenericCell *&cell, vtkDoubleArray *cellVectors);
 
 protected:
   vtkTemporalInterpolatedVelocityField();
@@ -110,7 +139,16 @@ protected:
   double vals2[3];
   double times[2];
   double LastGoodVelocity[3];
-  double scalecoeff;
+
+  // The weight (0.0->1.0) of the value of T between the two avaiable 
+  // time values for the current computation
+  double CurrentWeight;
+  // One minus the CurrentWeight 
+  double OneMinusWeight;
+  // A scaling factor used when calculating the CurrentWeight { 1.0/(T2-T1) }
+  double ScaleCoeff;
+  // If the two timesteps have the same geometry, then this flag is set and
+  // weights can be re-used between them.
   int    GeometryFixed;
   //BTX
   // Datasets per time step
@@ -118,7 +156,7 @@ protected:
   //ETX
 
 private:
-  // Hide this since we need multiple time steps and are using a differnt
+  // Hide this since we need multiple time steps and are using a different
   // function prototype
   virtual void AddDataSet(vtkDataSet*) {};
 

@@ -15,6 +15,7 @@
 #include "vtkTemporalInterpolatedVelocityField.h"
 
 #include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
 #include "vtkObjectFactory.h"
@@ -26,7 +27,7 @@
 class vtkTInterpolatedVelocityFieldDataSetsType: 
   public vtkstd::vector< vtkDataSet* > {};
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalInterpolatedVelocityField, "1.2");
+vtkCxxRevisionMacro(vtkTemporalInterpolatedVelocityField, "1.3");
 vtkStandardNewMacro(vtkTemporalInterpolatedVelocityField);
 //---------------------------------------------------------------------------
 vtkTemporalInterpolatedVelocityField::vtkTemporalInterpolatedVelocityField()
@@ -101,15 +102,16 @@ int vtkTemporalInterpolatedVelocityField::TestPoint(double* x)
   return result;
 }
 //---------------------------------------------------------------------------
-static double WeightTolerance = 1E-3;
+static double vtkTIVFWeightTolerance = 1E-3;
 // Evaluate u,v,w at x,y,z,t
 int vtkTemporalInterpolatedVelocityField::FunctionValues(double* x, double* u)
 {
-  double weight = (x[3]-this->times[0])*this->scalecoeff;
-  if (weight<(0.0-WeightTolerance)) weight = 0.0;
-  if (weight>(1.0+WeightTolerance)) weight = 1.0;
+  this->CurrentWeight  = (x[3]-this->times[0])*this->ScaleCoeff;
+  this->OneMinusWeight = 1.0 - this->CurrentWeight;
+  if (this->CurrentWeight<(0.0+vtkTIVFWeightTolerance)) this->CurrentWeight = 0.0;
+  if (this->CurrentWeight>(1.0-vtkTIVFWeightTolerance)) this->CurrentWeight = 1.0;
   //
-  if (weight==0.0) {
+  if (this->CurrentWeight==0.0) {
     if (this->ivf[0]->FunctionValues(x, vals1)) {
       for (int i=0; i<this->NumFuncs; i++) {
         this->LastGoodVelocity[i] = u[i] = vals1[i];
@@ -118,7 +120,7 @@ int vtkTemporalInterpolatedVelocityField::FunctionValues(double* x, double* u)
     }
     return 0;
   }
-  else if (weight==1.0) {
+  else if (this->CurrentWeight==1.0) {
     if (this->ivf[1]->FunctionValues(x, vals2)) {
       for (int i=0; i<this->NumFuncs; i++) {
         this->LastGoodVelocity[i] = u[i] = vals2[i];
@@ -132,7 +134,7 @@ int vtkTemporalInterpolatedVelocityField::FunctionValues(double* x, double* u)
     int result = TestPoint(x);
     if (result==ID_INSIDE_ALL) {
       for (int i=0; i<this->NumFuncs; i++) {
-        this->LastGoodVelocity[i] = u[i] = (1.0-weight)*vals1[i] + weight*vals2[i];
+        this->LastGoodVelocity[i] = u[i] = this->OneMinusWeight*vals1[i] + this->CurrentWeight*vals2[i];
       }
     }
     return result==ID_INSIDE_ALL;
@@ -151,7 +153,7 @@ int vtkTemporalInterpolatedVelocityField::FunctionValues(double* x, double* u)
     }
     ivf[0]->FastCompute(vectors, vals2);
     for (int i=0; i<this->NumFuncs; i++) {
-      this->LastGoodVelocity[i] = u[i] = (1.0-weight)*vals1[i] + weight*vals2[i];
+      this->LastGoodVelocity[i] = u[i] = this->OneMinusWeight*vals1[i] + this->CurrentWeight*vals2[i];
     }
   }
   return 1;
@@ -169,7 +171,7 @@ void vtkTemporalInterpolatedVelocityField::AddDataSetAtTime(int N, double T, vtk
   this->ivf[N]->AddDataSet(dataset);
   if ((this->times[1]-this->times[0])>0) 
   {
-    this->scalecoeff = 1.0/(this->times[1]-this->times[0]);
+    this->ScaleCoeff = 1.0/(this->times[1]-this->times[0]);
   }
 }
 //---------------------------------------------------------------------------
@@ -179,10 +181,44 @@ void vtkTemporalInterpolatedVelocityField::SetVectorsSelection(const char *v)
   this->ivf[1]->SelectVectors(v);
 }
 //---------------------------------------------------------------------------
+bool vtkTemporalInterpolatedVelocityField::InterpolatePoint(
+    vtkPointData *outPD1, vtkPointData *outPD2, 
+    vtkIdType outIndex)
+{
+  bool ok1 = this->ivf[0]->InterpolatePoint(outPD1, outIndex);
+  bool ok2 = this->ivf[1]->InterpolatePoint(outPD2, outIndex);
+  return (ok1 && ok2);
+}
+//---------------------------------------------------------------------------
+bool vtkTemporalInterpolatedVelocityField::InterpolatePointAtT(
+    int T, vtkPointData *outPD, vtkIdType outIndex)
+{
+  bool ok = this->ivf[T]->InterpolatePoint(outPD, outIndex);
+  return ok;
+}
+//---------------------------------------------------------------------------
+bool vtkTemporalInterpolatedVelocityField::GetVorticityData(
+  int T, double pcoords[3], double *weights, 
+  vtkGenericCell *&cell, vtkDoubleArray *cellVectors)
+{
+  if (this->ivf[T]->GetLastWeights(weights) &&
+      this->ivf[T]->GetLastLocalCoordinates(pcoords) &&
+      (cell=this->ivf[T]->GetLastCell()) )
+  {
+    vtkDataSet   *ds = this->ivf[T]->GetLastDataSet();
+    vtkPointData *pd = ds->GetPointData();
+    vtkDataArray *da = pd->GetVectors(this->ivf[T]->GetVectorsSelection());
+    da->GetTuples(cell->PointIds, cellVectors);
+    return 1;
+  }
+  return 0;
+}
+//---------------------------------------------------------------------------
 void vtkTemporalInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "LastGoodVelocity: " << this->LastGoodVelocity << endl;
+  os << indent << "CurrentWeight: " << this->CurrentWeight << endl;
 }
 //---------------------------------------------------------------------------

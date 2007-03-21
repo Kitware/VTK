@@ -31,7 +31,7 @@
 #include <vtkstd/vector> // I'll remove these soon.
 #include <vtkstd/list> // I'll remove these soon.
 //ETX
-//#define JB_H5PART_PARTICLE_OUTPUT 1
+#define JB_H5PART_PARTICLE_OUTPUT 1
 
 class vtkMultiProcessController;
 
@@ -46,9 +46,7 @@ class vtkCellArray;
 class vtkDoubleArray;
 class vtkFloatArray;
 class vtkIntArray;
-#ifdef JB_H5PART_PARTICLE_OUTPUT
-  class vtkH5PartWriter;
-#endif
+class vtkAbstractParticleWriter;
 
 //BTX
 namespace vtkTemporalStreamTracerNamespace
@@ -66,20 +64,21 @@ namespace vtkTemporalStreamTracerNamespace
     int           SourceID;
     int           InjectedPointId;      
     float         UniqueParticleId;
-    float         vorticity;
+    // these are needed across time steps to compute vorticity
     float         rotation;
     float         angularVel;
+    float         time;
   } ParticleInformation;
 
-  struct ParticleLifetime {
-    ParticleInformation      Information;
-    vtkstd::vector<Position> Coordinates;
-  };
-
   typedef vtkstd::vector<ParticleInformation>  ParticleList;
-  typedef vtkstd::list<ParticleLifetime>       ParticleDataList;
+  typedef vtkstd::list<ParticleInformation>    ParticleDataList;
   typedef ParticleDataList::iterator           ParticleIterator;
+
+  class vtkTemporalStreamTracerInternals {
+  public:
+  };
 };
+
 //ETX
 
 class VTK_PARALLEL_EXPORT vtkTemporalStreamTracer : public vtkStreamTracer
@@ -90,10 +89,7 @@ public:
     void PrintSelf(ostream& os, vtkIndent indent);
 
     // Description:
-    // Construct object to start from position (0,0,0), integrate forward,
-    // terminal speed 1.0E-12, vorticity computation on, integration
-    // step length 0.5 (unit cell length), maximum number of steps 2000,
-    // using 2nd order Runge Kutta and maximum propagation 1.0 (unit length).
+    // Construct object using 2nd order Runge Kutta 
     static vtkTemporalStreamTracer *New();
 
     // Description:
@@ -107,7 +103,7 @@ public:
     // If the data source does not have the correct time values 
     // present on each time step - setting this value to non unity can
     // be used to adjust the time step size from 1s pre step to
-    // 1x_TimeStepResolution : Not functional in thei version. 
+    // 1x_TimeStepResolution : Not functional in this version. 
     // Broke it @todo, put back time scaling
     vtkSetMacro(TimeStepResolution,double);
     vtkGetMacro(TimeStepResolution,double);
@@ -151,13 +147,26 @@ public:
     vtkBooleanMacro(EnableSource2,int);
 
     // Description:
-    // Set/Get the controller use in compositing (set to the global controller
-    // by default) If not using the default, this must be called before any
-    // other methods.  The controller must be an instance of vtkMPIController.
+    // Set/Get the controller used when sending particles between processes
+    // The controller must be an instance of vtkMPIController.
     // If VTK was compiled without VTK_USE_MPI on, then the Controller is simply
     // ignored.
     virtual void SetController(vtkMultiProcessController* controller);
     vtkGetObjectMacro(Controller, vtkMultiProcessController);
+
+    // Description:
+    // Set/Get the Writer associated with this Particle Tracer
+    // Ideally a parallel IO capable vtkH5PartWriter should be used
+    // which will collect particles from all parallel processes
+    // and write them to a single HDF5 file.
+    virtual void SetParticleWriter(vtkAbstractParticleWriter *pw);
+    vtkGetObjectMacro(ParticleWriter, vtkAbstractParticleWriter);
+
+    // Description:
+    // Set/Get the filename to be used with the particle writer when
+    // dumping particles to disk    
+    vtkSetStringMacro(ParticleFileName);
+    vtkGetStringMacro(ParticleFileName);
 
   protected:
 
@@ -199,7 +208,7 @@ public:
                             vtkInformationVector* outputVector);
 
 
-    int InitializeInterpolator(double times[2]);
+    int InitializeInterpolator();
     int SetupInputs(vtkInformation* inInfo, vtkInformation* outInfo);
 
 //
@@ -223,43 +232,49 @@ public:
       vtkInitialValueProblemSolver* integrator);
 
     void GenerateOutputLines(vtkPolyData *output);
-    bool DoParticleSendTasks(vtkTemporalStreamTracerNamespace::ParticleLifetime &info, double point1[4], double velocity[3], double delT);
-    bool DoParticleSendTasks(vtkTemporalStreamTracerNamespace::ParticleLifetime &info, double point1[4], double delT);
+    bool DoParticleSendTasks(vtkTemporalStreamTracerNamespace::ParticleInformation &info, double point1[4], double velocity[3], double delT);
+    bool DoParticleSendTasks(vtkTemporalStreamTracerNamespace::ParticleInformation &info, double point1[4], double delT);
     bool ComputeDomainExitLocation(
       double pos[4], double p2[4], double intersection[4],
       vtkGenericCell *cell);
-    void AddParticleToMPISendList(vtkTemporalStreamTracerNamespace::ParticleLifetime &info);
+    void AddParticleToMPISendList(vtkTemporalStreamTracerNamespace::ParticleInformation &info);
 //
 //ETX
 //
 
-    int UpdatePiece;
-    int UpdateNumPieces;
+    // Mostly useful for debugging parallel operation
+    int           UpdatePiece;
+    int           UpdateNumPieces;
 
-    // Support pipeline time 
-    unsigned int        TimeStep;
-    unsigned int        ActualTimeStep;
-    unsigned int        NumberOfInputTimeSteps;
-    //
-    int                 EnableSource1;      
-    int                 EnableSource2;
-    //
-    int                 AllFixedGeometry;
-    int                 NoFixedGeometry;
+    // Turn on/off sources
+    int           EnableSource1;      
+    int           EnableSource2;
 
-    //BTX
-    vtkstd::vector<double>  InputTimeValues;
-    vtkstd::vector<double>  OutputTimeValues;
-    //ETX
+    // Important for Caching of Cells/Ids/Weights etc
+    int           AllFixedGeometry;
+    int           NoFixedGeometry;
 
     // internal data variables
-    int                 MaxCellSize;
-    double              EarliestTime;
-    double              CurrentTimeSteps[2];
-    double              TimeStepResolution;
-    int                 ForceReinjectionEveryNSteps;
-    bool                ReinjectionFlag;  
-    int                 ReinjectionCounter;
+    int           MaxCellSize;
+
+    // Support pipeline time 
+    unsigned int  TimeStep;
+    unsigned int  ActualTimeStep;
+    unsigned int  NumberOfInputTimeSteps;
+//BTX
+    vtkstd::vector<double>  InputTimeValues;
+    vtkstd::vector<double>  OutputTimeValues;
+//ETX
+
+    double        EarliestTime;
+    double        CurrentTimeSteps[2];
+    double        TimeStepResolution;
+    int           ForceReinjectionEveryNSteps;
+    bool          ReinjectionFlag;  
+    int           ReinjectionCounter;
+    //
+    vtkAbstractParticleWriter *ParticleWriter;
+    char                       *ParticleFileName; 
     //
     vtkTimeStamp  ParticleInjectionTime;
     vtkTimeStamp  SeedInjectionTime;
@@ -267,36 +282,31 @@ public:
 //BTX
     unsigned int                                        NumberOfParticles;
     vtkTemporalStreamTracerNamespace::ParticleDataList  ParticleHistories;
-#ifdef JB_H5PART_PARTICLE_OUTPUT
-    vtkH5PartWriter                                    *HDF5ParticleWriter;
-#endif
 //ETX
-/*
-    vtkstd::vector<Position>            MysteryCoordinates;
-*/
+
 //BTX
-    //
-    vtkstd::vector<double> weights;
-    //
-    // These are the final Points/Cells that are generated from the above lists
-    //
     vtkSmartPointer<vtkPoints>        OutputCoordinates;
     vtkSmartPointer<vtkCellArray>     ParticleCells;
     //
     // Scalar arrays that are generated as each particle is updated
     //
-    vtkSmartPointer<vtkDoubleArray>   time;
-    vtkSmartPointer<vtkIntArray>      retVals;
+    vtkSmartPointer<vtkIntArray>      ParticleIds;
+    vtkSmartPointer<vtkIntArray>      ParticleSourceIds;
+    vtkSmartPointer<vtkIntArray>      InjectedPointIds;
     vtkSmartPointer<vtkDoubleArray>   cellVectors;
-    vtkSmartPointer<vtkDoubleArray>   vorticity;
-    vtkSmartPointer<vtkDoubleArray>   rotation;
-    vtkSmartPointer<vtkDoubleArray>   angularVel;
+    vtkSmartPointer<vtkDoubleArray>   ParticleTime;
+    vtkSmartPointer<vtkDoubleArray>   ParticleVorticity;
+    vtkSmartPointer<vtkDoubleArray>   ParticleRotation;
+    vtkSmartPointer<vtkDoubleArray>   ParticleAngularVel;
+    vtkSmartPointer<vtkPointData>     OutputPointData;
+    vtkSmartPointer<vtkPointData>     OutputPointDataT1;
+    vtkSmartPointer<vtkPointData>     OutputPointDataT2;
     //
     vtkTemporalStreamTracerNamespace::ParticleList MPISendList;
     //
     vtkSmartPointer<vtkTemporalInterpolatedVelocityField>  Interpolator;
     vtkCompositeDataSet                                   *InputDataT[2];
-    vtkGenericCell                                        *GenericCell;
+    vtkDataSet                                            *DataReferenceT[2];
 
     // info about each dataset we will use repeatedly
     typedef struct {
