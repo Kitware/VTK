@@ -22,7 +22,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkTemporalDataSetCache, "1.4");
+vtkCxxRevisionMacro(vtkTemporalDataSetCache, "1.5");
 vtkStandardNewMacro(vtkTemporalDataSetCache);
 
 //----------------------------------------------------------------------------
@@ -305,6 +305,12 @@ int vtkTemporalDataSetCache::RequestData(
           this->Cache[inTimes[j]] = 
             vtkstd::pair<unsigned long, vtkDataObject *>
             (outData->GetUpdateTime(), temporal->GetDataSet(j,0));
+          vtkDataObject *dobj = temporal->GetDataSet(j,0);
+          if (!dobj)
+            {
+            vtkErrorMacro(<<"The dataset is invalid");
+            return 0;
+            }
           temporal->GetDataSet(j,0)->Register(this);
           }
         else
