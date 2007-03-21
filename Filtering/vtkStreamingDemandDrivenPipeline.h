@@ -219,8 +219,8 @@ protected:
 
   // Does the time request correspond to what is in the data?
   // Returns 0 if yes, 1 otherwise.
-  int NeedToExecuteBasedOnTime(vtkInformation* outInfo,
-                               vtkInformation* dataInfo);
+  virtual int NeedToExecuteBasedOnTime(vtkInformation* outInfo,
+                                       vtkDataObject* dataObject);
 
   // Setup default information on the output after the algorithm
   // executes information.

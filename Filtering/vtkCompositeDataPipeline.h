@@ -123,6 +123,10 @@ protected:
                                 vtkInformationVector** inInfoVec,
                                 vtkInformationVector* outInfoVec);
 
+  // Override this check to account for iterating over temporal data.
+  virtual int NeedToExecuteBasedOnTime(vtkInformation *outInfo,
+                                       vtkDataObject *dataObject);
+
   // Check whether the data object in the pipeline information for an
   // output port exists and has a valid type.
   virtual int CheckCompositeData(vtkInformation *request,
@@ -151,8 +155,9 @@ protected:
     vtkDataObject* dobj);
 
   int ShouldIterateOverInput(int& compositePort);
-  int ShouldIterateTemporalData(vtkInformationVector** inInfoVec, 
-                                vtkInformation *request);
+  int ShouldIterateTemporalData(vtkInformation *request,
+                                vtkInformationVector** inInfoVec, 
+                                vtkInformationVector *outInfoVec);
   virtual int InputTypeIsValid(int port, int index, 
                                 vtkInformationVector **inInfoVec);
 
@@ -163,6 +168,12 @@ protected:
   vtkInformation* InformationRequest;
   vtkInformation* UpdateExtentRequest;
   vtkInformation* DataRequest;
+
+  // Because we sometimes have to swap between "simple" data types and composite
+  // data types, we sometimes want to skip resetting the pipeline information.
+  int SuppressResetPipelineInformation;
+
+  virtual void ResetPipelineInformation(int port, vtkInformation*);
 
 private:
   vtkCompositeDataPipeline(const vtkCompositeDataPipeline&);  // Not implemented.

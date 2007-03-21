@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.49");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.50");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -887,7 +887,7 @@ int vtkStreamingDemandDrivenPipeline
       }
     }
 
-  if (this->NeedToExecuteBasedOnTime(outInfo, dataInfo))
+  if (this->NeedToExecuteBasedOnTime(outInfo, dataObject))
     {
     return 1;
     }
@@ -898,8 +898,10 @@ int vtkStreamingDemandDrivenPipeline
 
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
-  vtkInformation* outInfo, vtkInformation* dataInfo)
+  vtkInformation* outInfo, vtkDataObject* dataObject)
 {
+  vtkInformation *dataInfo = dataObject->GetInformation();
+
   // if we are requesting a particular update time index, check
   // if we have the desired time index
   if ( outInfo->Has(UPDATE_TIME_STEPS()) )

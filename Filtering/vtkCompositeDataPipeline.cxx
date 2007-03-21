@@ -44,7 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 #endif
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.56");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.57");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
@@ -55,6 +55,7 @@ vtkInformationKeyMacro(vtkCompositeDataPipeline,REQUIRES_TIME_DOWNSTREAM, Intege
 vtkCompositeDataPipeline::vtkCompositeDataPipeline()
 {
   this->InLocalLoop = 0;
+  this->SuppressResetPipelineInformation = 0;
   this->InformationCache = vtkInformation::New();
 
   this->GenericRequest = vtkInformation::New();
@@ -148,7 +149,7 @@ int vtkCompositeDataPipeline::ForwardUpstream(vtkInformation* request)
                     this->Algorithm->GetInputPortInformation(i)
                     ->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE())))
           {
-          request->Set(REQUIRES_TIME_DOWNSTREAM(),1);
+          info->Set(REQUIRES_TIME_DOWNSTREAM(),1);
           CSCSOutputMacro(<< "Set REQUIRES_TIME_DOWNSTREAM");
           }
         if(!e->ProcessRequest(request,
@@ -157,7 +158,7 @@ int vtkCompositeDataPipeline::ForwardUpstream(vtkInformation* request)
           {
           result = 0;
           }
-        request->Remove(REQUIRES_TIME_DOWNSTREAM());
+        info->Remove(REQUIRES_TIME_DOWNSTREAM());
         request->Set(FROM_OUTPUT_PORT(), port);
         }
       }
@@ -295,7 +296,7 @@ int vtkCompositeDataPipeline::ExecuteDataObject(
   // REQUEST_DATA_OBJECT when it is being iterated over.
   int compositePort;
   int shouldIterate = this->ShouldIterateOverInput(compositePort) ||
-    this->ShouldIterateTemporalData(inInfoVec, request);
+    this->ShouldIterateTemporalData(request, inInfoVec, outInfoVec);
   if (!shouldIterate)
     {
     // Invoke the request on the algorithm.
@@ -323,6 +324,30 @@ void vtkCompositeDataPipeline::ExecuteDataStart(
   vtkInformationVector** inInfoVec,
   vtkInformationVector* outInfoVec)
 {
+  // If the last iteration of ExecuteData had to iterate over time values, but
+  // the current does not, then we may need to replace the output.
+  int hasIteratedTemporalData = 0;
+  int isIteratingTemporalData = 0;
+  for (int i = 0; i < outInfoVec->GetNumberOfInformationObjects(); i++)
+    {
+    vtkInformation *info = outInfoVec->GetInformationObject(i);
+    isIteratingTemporalData |= info->Has(REQUIRES_TIME_DOWNSTREAM());
+    const char *providedDataType
+      = (this->Algorithm->GetOutputPortInformation(i)
+         ->Get(vtkDataObject::DATA_TYPE_NAME()));
+    if (   (strcmp(providedDataType, "vtkTemporalDataSet") != 0)
+        && (info->Get(vtkDataObject::DATA_OBJECT())->IsA("vtkTemporalDataSet")))
+      {
+      hasIteratedTemporalData = 1;
+      }
+    }
+  if (hasIteratedTemporalData && !isIteratingTemporalData)
+    {
+    this->SuppressResetPipelineInformation = 1;
+    this->ExecuteDataObject(this->DataObjectRequest, inInfoVec, outInfoVec);
+    this->SuppressResetPipelineInformation = 0;
+    }
+
   this->Superclass::ExecuteDataStart(request, inInfoVec, outInfoVec);
 }
 
@@ -343,7 +368,8 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request,
 
   int compositePort;
   int composite = this->ShouldIterateOverInput(compositePort);
-  int temporal = this->ShouldIterateTemporalData(inInfoVec, request);
+  int temporal = this->ShouldIterateTemporalData(request,
+                                                 inInfoVec, outInfoVec);
   compositePort = temporal ? -1 : compositePort;  
   if (temporal || composite)
     {
@@ -452,8 +478,9 @@ int vtkCompositeDataPipeline::ShouldIterateOverInput(int& compositePort)
 
 //----------------------------------------------------------------------------
 int vtkCompositeDataPipeline::ShouldIterateTemporalData(
-  vtkInformationVector** inInfoVec, 
-  vtkInformation *request)
+                                               vtkInformation *request,
+                                               vtkInformationVector** inInfoVec,
+                                               vtkInformationVector* outInfoVec)
 {
   // Exit fast if no outputs exist
   if (!this->Algorithm->GetNumberOfOutputPorts())
@@ -519,11 +546,15 @@ int vtkCompositeDataPipeline::ShouldIterateTemporalData(
     return 1;
     }
 
-  // Time was requested so answer yes.
-  if (request->Has(REQUIRES_TIME_DOWNSTREAM()))
+  int numOut = outInfoVec->GetNumberOfInformationObjects();
+  for (int out = 0; out < numOut; out++)
     {
-    CSCSOutputMacro(<< "ShouldIterateTemporalData returns 1");
-    return 1;
+    if (outInfoVec->GetInformationObject(out)->Has(REQUIRES_TIME_DOWNSTREAM()))
+      {
+      // Time was requested so answer yes.
+      CSCSOutputMacro(<< "ShouldIterateTemporalData returns 1");
+      return 1;
+      }
     }
 
   return 0;
@@ -1035,12 +1066,42 @@ int vtkCompositeDataPipeline::NeedToExecuteData(
       }
     }
 
-  if (this->NeedToExecuteBasedOnTime(outInfo, dataInfo))
+  if (this->NeedToExecuteBasedOnTime(outInfo, dataObject))
     {
     return 1;
     }
 
   // We do not need to execute.
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositeDataPipeline::NeedToExecuteBasedOnTime(
+                                                      vtkInformation* outInfo,
+                                                      vtkDataObject* dataObject)
+{
+  if (this->Superclass::NeedToExecuteBasedOnTime(outInfo, dataObject))
+    {
+    return 1;
+    }
+
+  if (outInfo->Has(REQUIRES_TIME_DOWNSTREAM()))
+    {
+    // Check to see if there is anything new to do to make a proper
+    // vtkTemporalDataSet.
+    if (!dataObject->IsA("vtkTemporalDataSet"))
+      {
+      // Re-run the algorithm to generate a vtkTemporalDataSet.  This is not
+      // very efficient, as we could just take the current data set and stuff it
+      // into a vtkTemporalDataSet without re-running the algorithm.  In fact,
+      // it would be nice if vtkCompositeDataPipeline would always use existing
+      // data in its output to fill a vtkTemporalDataSet with a set at the same
+      // time step.  However, that would require a lot of logic about whether
+      // something else changed, and it is not a straightforward change.
+      return 1;
+      }
+    }
+
   return 0;
 }
 
@@ -1171,6 +1232,21 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
 }
 
 //----------------------------------------------------------------------------
+void vtkCompositeDataPipeline::ResetPipelineInformation(int port,
+                                                        vtkInformation* info)
+{
+  if (this->SuppressResetPipelineInformation)
+    {
+    return;
+    }
+
+  this->Superclass::ResetPipelineInformation(port, info);
+  info->Remove(COMPOSITE_DATA_INFORMATION());
+  info->Remove(UPDATE_BLOCKS());
+  info->Remove(REQUIRES_TIME_DOWNSTREAM());
+}
+
+//----------------------------------------------------------------------------
 void vtkCompositeDataPipeline::CopyFromDataToInformation(
   vtkDataObject* dobj, vtkInformation* inInfo)
 {
@@ -1229,7 +1305,8 @@ int vtkCompositeDataPipeline
   // If this is a simple filter but has composite input, 
   // create a composite output.
   int compositePort;
-  int temporaldownstream=request && this->ShouldIterateTemporalData(inInfoVec, request);
+  int temporaldownstream
+    =request && this->ShouldIterateTemporalData(request, inInfoVec, outInfoVec);
   if (this->ShouldIterateOverInput(compositePort) || temporaldownstream)
     {
     // This assumes that the first output of the filter is the one
