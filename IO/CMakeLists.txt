@@ -9,6 +9,7 @@ SET(KIT_LIBS vtkFiltering vtkDICOMParser vtkNetCDF
   ${KWSYS_NAMESPACE})
 
 SET( Kit_SRCS
+vtkAbstractParticleWriter.cxx
 vtkAVSucdReader.cxx
 vtkBMPReader.cxx
 vtkBMPWriter.cxx
@@ -167,6 +168,7 @@ vtkZLibDataCompressor.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(
+vtkAbstractParticleWriter
 vtkDataCompressor
 vtkEnSightReader
 vtkGenericMovieWriter
