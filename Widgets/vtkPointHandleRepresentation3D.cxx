@@ -27,7 +27,7 @@
 #include "vtkCoordinate.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.8");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.9");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -159,7 +159,8 @@ int vtkPointHandleRepresentation3D::ComputeInteractionState(int X, int Y, int vt
 }
 
 //-------------------------------------------------------------------------
-int vtkPointHandleRepresentation3D::DetermineConstraintAxis(int constraint, double *x)
+int vtkPointHandleRepresentation3D::DetermineConstraintAxis(
+  int constraint, double *x, double *startPickPoint)
 {
   // Look for trivial cases
   if ( ! this->Constrained )
@@ -191,13 +192,13 @@ int vtkPointHandleRepresentation3D::DetermineConstraintAxis(int constraint, doub
       return -1;
       }
     }
-  else if ( this->WaitingForMotion && x ) 
+  else if ( this->WaitingForMotion && x && startPickPoint) 
     {
     double v[3];
     this->WaitingForMotion = 0;
-    v[0] = fabs(x[0] - this->StartEventPosition[0]);
-    v[1] = fabs(x[1] - this->StartEventPosition[1]);
-    v[2] = fabs(x[2] - this->StartEventPosition[2]);
+    v[0] = fabs(x[0] - startPickPoint[0]);
+    v[1] = fabs(x[1] - startPickPoint[1]);
+    v[2] = fabs(x[2] - startPickPoint[2]);
     return ( v[0]>v[1] ? (v[0]>v[2]?0:2) : (v[1]>v[2]?1:2));
     }
   else
@@ -223,7 +224,7 @@ void vtkPointHandleRepresentation3D::StartWidgetInteraction(double startEventPos
   if ( path != NULL )
     {
     this->InteractionState = vtkHandleRepresentation::Nearby;
-    this->ConstraintAxis = this->DetermineConstraintAxis(-1,NULL);
+    this->ConstraintAxis = -1;
     this->CursorPicker->GetPickPosition(this->LastPickPosition);
     }
   else
@@ -244,7 +245,7 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
 {
   // Do different things depending on state
   // Calculations everybody does
-  double focalPoint[4], pickPoint[4], prevPickPoint[4];
+  double focalPoint[4], pickPoint[4], prevPickPoint[4], startPickPoint[4];
   double z;
 
   // Compute the two points defining the motion vector
@@ -263,8 +264,10 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
     {
     if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
       {
+      vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, this->StartEventPosition[0], 
+                                                   this->StartEventPosition[1], z, startPickPoint);
       this->ConstraintAxis = 
-        this->DetermineConstraintAxis(this->ConstraintAxis,pickPoint);
+        this->DetermineConstraintAxis(this->ConstraintAxis,pickPoint, startPickPoint);
       if ( this->InteractionState == vtkHandleRepresentation::Selecting && !this->TranslationMode )
         {
         this->MoveFocus(prevPickPoint, pickPoint);

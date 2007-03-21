@@ -194,7 +194,7 @@ protected:
   
   // The size of the hot spot.
   double HotSpotSize;
-  int    DetermineConstraintAxis(int constraint, double *x);
+  int    DetermineConstraintAxis(int constraint, double *x, double *startPoint);
   int    WaitingForMotion;
   int    WaitCount;
   
