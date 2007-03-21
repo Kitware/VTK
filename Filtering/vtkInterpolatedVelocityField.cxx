@@ -16,18 +16,19 @@
 
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkPointData.h"
 #include "vtkGenericCell.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
 #include <vtkstd/vector>
-
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.3");
+//---------------------------------------------------------------------------
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.4");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
-
+//---------------------------------------------------------------------------
 typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;
 class vtkInterpolatedVelocityFieldDataSetsType: public DataSetsTypeBase {};
-
+//---------------------------------------------------------------------------
 vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
 {
   this->NumFuncs = 3; // u, v, w
@@ -47,7 +48,7 @@ vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
   this->LastDataSet = 0;
   this->LastDataSetIndex = 0;
 }
-
+//---------------------------------------------------------------------------
 vtkInterpolatedVelocityField::~vtkInterpolatedVelocityField()
 {
   this->NumFuncs = 0;
@@ -61,7 +62,7 @@ vtkInterpolatedVelocityField::~vtkInterpolatedVelocityField()
 
   delete this->DataSets;
 }
-  
+//---------------------------------------------------------------------------
 void vtkInterpolatedVelocityField::SetLastCellId(vtkIdType c, int dataindex) {
   this->LastCellId = c; 
   this->LastDataSet = (*this->DataSets)[dataindex];
@@ -73,7 +74,16 @@ void vtkInterpolatedVelocityField::SetLastCellId(vtkIdType c, int dataindex) {
   } 
   this->LastDataSetIndex = dataindex;
 }
-
+//---------------------------------------------------------------------------
+vtkGenericCell *vtkInterpolatedVelocityField::GetLastCell() 
+{
+  if (this->LastCellId!=-1) 
+    {
+    return this->GenCell;
+    }
+  return NULL;
+}
+//---------------------------------------------------------------------------
 static int tmp_count=0;
 // Evaluate u,v,w at x,y,z,t
 int vtkInterpolatedVelocityField::FunctionValues(double* x, double* f)
@@ -117,7 +127,7 @@ int vtkInterpolatedVelocityField::FunctionValues(double* x, double* f)
   tmp_count++;
   return retVal;
 }
-
+//---------------------------------------------------------------------------
 const double vtkInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-8;
 
 // Evaluate u,v,w at x,y,z,t
@@ -222,7 +232,7 @@ int vtkInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset,
 
   return 1;
 }
-
+//---------------------------------------------------------------------------
 void vtkInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
 {
   if (!dataset)
@@ -240,28 +250,37 @@ void vtkInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
     this->Weights = new double[size]; 
     }
 }
-
-void vtkInterpolatedVelocityField::FastCompute(vtkDataArray* vectors, double f[3])
+//---------------------------------------------------------------------------
+void vtkInterpolatedVelocityField::FastCompute(
+  vtkDataArray* vectors, double f[3])
 {
-  int i,j,id;
+  int j,id;
   double vec[3];
-  for(i=0; i<3; i++)
-    {
-    f[i] = 0;
-    }
+  f[0] = f[1] = f[2] = 0.0;
   int numPts = this->GenCell->GetNumberOfPoints();
   // interpolate the vectors
   for (j=0; j < numPts; j++)
     {
     id = this->GenCell->PointIds->GetId(j);
     vectors->GetTuple(id, vec);
-    for (i=0; i < 3; i++)
-      {
-      f[i] +=  vec[i] * this->Weights[j];
-      }
+    f[0] +=  vec[0] * this->Weights[j];
+    f[1] +=  vec[1] * this->Weights[j];
+    f[2] +=  vec[2] * this->Weights[j];
     }
 }
-
+//---------------------------------------------------------------------------
+bool vtkInterpolatedVelocityField::InterpolatePoint(
+  vtkPointData *outPD, vtkIdType outIndex)
+{
+  if (!this->LastDataSet)
+    {
+    return 0;
+    }
+  outPD->InterpolatePoint(this->LastDataSet->GetPointData(), 
+    outIndex, this->GenCell->PointIds, this->Weights);
+  return 1;
+}
+//---------------------------------------------------------------------------
 int vtkInterpolatedVelocityField::GetLastWeights(double* w)
 {
   int j, numPts;
@@ -283,7 +302,7 @@ int vtkInterpolatedVelocityField::GetLastWeights(double* w)
     return 0;
     }
 }
-
+//---------------------------------------------------------------------------
 int vtkInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords[3])
 {
   int j;
@@ -304,13 +323,13 @@ int vtkInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords[3])
     return 0;
     }
 }
-
+//---------------------------------------------------------------------------
 void vtkInterpolatedVelocityField::CopyParameters(
   vtkInterpolatedVelocityField* from)
 {
   this->Caching = from->Caching;
 }
-
+//---------------------------------------------------------------------------
 void vtkInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -352,4 +371,4 @@ void vtkInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
      << this->LastDataSetIndex << endl;
 
 }
-
+//---------------------------------------------------------------------------

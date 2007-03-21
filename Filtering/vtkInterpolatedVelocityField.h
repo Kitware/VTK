@@ -42,6 +42,7 @@
 
 class vtkDataSet;
 class vtkDataArray;
+class vtkPointData;
 class vtkGenericCell;
 
 class vtkInterpolatedVelocityFieldDataSetsType;
@@ -151,10 +152,18 @@ protected:
   int FunctionValues(vtkDataSet* ds, double* x, double* f);
 //BTX
   friend class vtkTemporalInterpolatedVelocityField;
-  // This is reserved for fast access to results by 
+  // Description:
+  // If all weights have been computed (parametric coords etc all valid)
+  // then we can quickly interpolate a scalar/vector using the known weights
+  // and the generic cell which has been stored.
+  // This function is primarily reserved for use by 
   // vtkTemporalInterpolatedVelocityField
   void FastCompute(vtkDataArray* vectors, double f[3]);
+  bool InterpolatePoint(vtkPointData *outPD, 
+    vtkIdType outIndex);
+  vtkGenericCell *GetLastCell();
 //ETX
+
   static const double TOLERANCE_SCALE;
 
 private:
