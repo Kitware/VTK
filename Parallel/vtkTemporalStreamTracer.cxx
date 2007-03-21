@@ -81,7 +81,7 @@ using namespace vtkTemporalStreamTracerNamespace;
   }
 #endif
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.15");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.16");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, ParticleWriter, vtkAbstractParticleWriter);
@@ -228,7 +228,7 @@ int vtkTemporalStreamTracer::RequestInformation(
   else 
     {
     vtkErrorMacro(<<"Input information has no TIME_STEPS set");
-    return 1;
+    return 0;
     }
   
   outInfo->Set(
