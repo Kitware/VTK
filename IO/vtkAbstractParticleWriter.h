@@ -42,6 +42,14 @@ public:
   vtkGetMacro(TimeStep, int);
 
   // Description:
+  // Before writing the current data out, set the TimeValue (optional)
+  // The TimeValue is a float/double value that corresonds to the real
+  // time of the data, it may not be regular, whereas the TimeSteps 
+  // are simple increments.
+  vtkSetMacro(TimeValue,double);
+  vtkGetMacro(TimeValue,double);
+
+  // Description:
   // Set/get the FileName that is being written to
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
@@ -52,6 +60,7 @@ protected:
 
   virtual void WriteData() = 0; //internal method subclasses must respond to
   int          TimeStep;
+  double       TimeValue;
   char        *FileName;
 
 private:
