@@ -192,7 +192,11 @@ protected:
   // Internal method to sort the vector and update the
   // Range whenever a node is added or removed
   void SortAndUpdateRange();
-  
+ 
+  // Description:
+  // Moves point from oldX to newX. It removed the point from oldX. If any point
+  // existed at newX, it will also be removed.
+  void MovePoint(double oldX, double newX);
 private:
   vtkColorTransferFunction(const vtkColorTransferFunction&);  // Not implemented.
   void operator=(const vtkColorTransferFunction&);  // Not implemented.

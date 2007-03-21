@@ -21,7 +21,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.65");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.66");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 class vtkCTFNode
@@ -74,7 +74,7 @@ public:
   double X2;
   bool operator () (const vtkCTFNode *node )
     {
-      return ( node->X < this->X1 &&
+      return ( node->X < this->X1 ||
                node->X > this->X2 );
     }
 };
@@ -338,6 +338,21 @@ int vtkColorTransferFunction::RemovePoint( double x )
   return retVal;
 }
 
+
+//----------------------------------------------------------------------------
+void vtkColorTransferFunction::MovePoint(double oldX, double newX)
+{
+  this->RemovePoint(newX);
+  for (unsigned int i = 0; i < this->Internal->Nodes.size(); i++ )
+    {
+    if ( this->Internal->Nodes[i]->X == oldX )
+      {
+      this->Internal->Nodes[i]->X = newX;
+      this->SortAndUpdateRange();
+      break;
+      }
+    }
+}
 
 //----------------------------------------------------------------------------
 // Remove all points
