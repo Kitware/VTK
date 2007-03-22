@@ -56,6 +56,7 @@ vtkDiskSource.cxx
 vtkEdgePoints.cxx
 vtkElevationFilter.cxx
 vtkEllipticalButtonSource.cxx
+vtkExtractArraysOverTime.cxx
 vtkExtractCells.cxx
 vtkExtractDataOverTime.cxx
 vtkExtractEdges.cxx
