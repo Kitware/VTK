@@ -77,6 +77,8 @@ vtkSliderRepresentation3D.cxx
 vtkSliderWidget.cxx
 vtkSphereWidget.cxx
 vtkSplineWidget.cxx
+vtkTerrainDataPointPlacer.cxx
+vtkTerrainContourLineInterpolator.cxx
 vtkTextRepresentation.cxx
 vtkTextWidget.cxx
 vtkWidgetCallbackMapper.cxx
