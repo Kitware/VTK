@@ -52,7 +52,7 @@
 #define DEBUG 0
 #define vtkPExodusReaderMAXPATHLEN 2048
 
-vtkCxxRevisionMacro(vtkPExodusReader, "1.11");
+vtkCxxRevisionMacro(vtkPExodusReader, "1.12");
 vtkStandardNewMacro(vtkPExodusReader);
 
 class vtkPExodusReaderUpdateProgress : public vtkCommand
@@ -419,6 +419,7 @@ int vtkPExodusReader::RequestData(
       this->GetApplyDisplacements());
     readerList[reader_idx]->SetDisplacementMagnitude(
       this->GetDisplacementMagnitude());
+    readerList[reader_idx]->SetHasModeShapes(this->GetHasModeShapes());
 
     readerList[reader_idx]->SetExodusModelMetadata(this->ExodusModelMetadata);
     //readerList[reader_idx]->PackExodusModelOntoOutputOff();

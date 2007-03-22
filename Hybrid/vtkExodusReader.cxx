@@ -1392,7 +1392,7 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.43");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.44");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1574,7 +1574,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.43");
+vtkCxxRevisionMacro(vtkExodusReader, "1.44");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -1689,6 +1689,8 @@ vtkExodusReader::vtkExodusReader()
   this->CellVarTruthTable = vtkIntArray::New();
   this->PointMap = vtkIntArray::New();
   this->ReversePointMap = vtkIntArray::New();
+
+  this->HasModeShapes = 0;
 
   this->ExodusModel = NULL;
   this->ExodusModelMetadata = 0;
@@ -2399,18 +2401,27 @@ int vtkExodusReader::RequestInformation(
 
   if ( !newFile && !newXMLFile && !newMetaData)
     {
-    // always set the values even if we short circuit
-    if (this->NumberOfTimeSteps)
+    // always set the time step values even if we short circuit
+    if (!this->HasModeShapes)
+      {
+      if (this->NumberOfTimeSteps)
+        {
+        vtkInformation* outInfo = outputVector->GetInformationObject(0);
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
+                     this->TimeSteps, 
+                     this->NumberOfTimeSteps);
+        double timeRange[2];
+        timeRange[0] = this->TimeSteps[0];
+        timeRange[1] = this->TimeSteps[this->NumberOfTimeSteps-1];
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), 
+                     timeRange, 2);
+        }
+      }
+    else
       {
       vtkInformation* outInfo = outputVector->GetInformationObject(0);
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
-                   this->TimeSteps, 
-                   this->NumberOfTimeSteps);
-      double timeRange[2];
-      timeRange[0] = this->TimeSteps[0];
-      timeRange[1] = this->TimeSteps[this->NumberOfTimeSteps-1];
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), 
-                   timeRange, 2);
+      outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+      outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
       }
     return 1;
     }
@@ -2804,7 +2815,8 @@ int vtkExodusReader::RequestData(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     
   // Check if a particular time was requested.
-  if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+  if(   !this->HasModeShapes
+     && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
     {
     // Get the requested time step. We only supprt requests of a single time
     // step in this reader right now
@@ -2827,11 +2839,6 @@ int vtkExodusReader::RequestData(
   //   because the macro might change
   // - it might be good to allow out-of-range values in
   //   places
-  // CHANGE: It is generally not good practice to change ivar
-  // publicly accessible (through Set) in Execute(). This can 
-  // easily make the user interface (for example server manager) 
-  // in a state inconsistent with the reader. Therefore, clamp a 
-  // protected variable and use that instead.
   if ( this->ActualTimeStep < this->TimeStepRange[0] )
     {
     this->ActualTimeStep = this->TimeStepRange[0];
@@ -2895,9 +2902,15 @@ int vtkExodusReader::RequestData(
   // Save the time value in the output data information.
   if (steps)
     {
-    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                  steps+this->ActualTimeStep,
-                                  1);
+    if (!this->HasModeShapes)
+      {
+      output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
+                                    steps+this->ActualTimeStep, 1);
+      }
+    else
+      {
+      output->GetInformation()->Remove(vtkDataObject::DATA_TIME_STEPS());
+      }
     }
   
   // Read in the arrays.
@@ -4186,6 +4199,7 @@ void vtkExodusReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TimeStepRange: " << this->TimeStepRange[0] << " " << this->TimeStepRange[1] << endl;
   os << indent << "DisplacementMagnitude: " << this->DisplacementMagnitude << "\n";
   os << indent << "DisplayType: " << this->DisplayType << "\n";
+  os << indent << "HasModeShapes: " << this->HasModeShapes << endl;
 }
 
 
@@ -4666,14 +4680,22 @@ void vtkExodusReader::GetAllTimes(vtkInformationVector *outputVector)
     {
     this->TimeSteps[i] = ftimeSteps[i];
     }
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
-               this->TimeSteps, 
-               this->NumberOfTimeSteps);
-  double timeRange[2];
-  timeRange[0] = this->TimeSteps[0];
-  timeRange[1] = this->TimeSteps[this->NumberOfTimeSteps-1];
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), 
-               timeRange, 2);
+  if (!this->HasModeShapes)
+    {
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
+                 this->TimeSteps, 
+                 this->NumberOfTimeSteps);
+    double timeRange[2];
+    timeRange[0] = this->TimeSteps[0];
+    timeRange[1] = this->TimeSteps[this->NumberOfTimeSteps-1];
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), 
+                 timeRange, 2);
+    }
+  else
+    {
+    outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
+    }
   delete[] ftimeSteps;
 }
 

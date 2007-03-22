@@ -269,6 +269,17 @@ public:
   int GetHierarchyArrayStatus(int index);
   int GetHierarchyArrayStatus(const char*);
 
+  // Description:
+  // Some simulations overload the Exodus time steps to represent mode shapes.
+  // In this case, it does not make sense to iterate over the "time steps",
+  // because they are not meant to be played in order.  Rather, each represents
+  // the vibration at a different "mode."  Setting this to 1 changes the
+  // semantics of the reader to not report the time steps to downstream filters.
+  // By default, this is off, which is the case for most Exodus files.
+  vtkGetMacro(HasModeShapes, int);
+  vtkSetMacro(HasModeShapes, int);
+  vtkBooleanMacro(HasModeShapes, int);
+
   vtkGetMacro(DisplayType,int);
   virtual void SetDisplayType(int type);
 
@@ -522,7 +533,9 @@ protected:
 
   // Time query function. Called by ExecuteInformation().
   // Fills the TimestepValues array.
-  void GetAllTimes(vtkInformationVector *); 
+  void GetAllTimes(vtkInformationVector *);
+
+  int HasModeShapes;
 
   vtkExodusModel *ExodusModel;
   int PackExodusModelOntoOutput;
