@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.78");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.79");
 #endif
 
 #define MAX_LIGHTS 8
@@ -252,7 +252,11 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
   else
     {
     vtkDebugMacro(<< "Window is not mapped yet!" );
-    return 0;
+    rgba[0] = 8;
+    rgba[1] = 8;
+    rgba[2] = 8;
+    rgba[3] = 8;
+    return 32;
     }
 }
 
