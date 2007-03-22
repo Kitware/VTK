@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.66");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.67");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -443,6 +443,11 @@ int vtkEnSightReader::RequestInformation(
       outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
                    &uniqueTimeValues[0], 
                    numTimeValues);
+      double timeRange[2];
+      timeRange[0] = uniqueTimeValues[0];
+      timeRange[1] = uniqueTimeValues[numTimeValues-1];
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),
+                   timeRange, 2);
       }
     }
   return this->CaseFileRead;
