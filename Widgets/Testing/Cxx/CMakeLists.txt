@@ -20,6 +20,7 @@ SET(MyTests
 #  TestSeedWidget.cxx
 #  TestSliderWidget.cxx
 #  TestTextWidget.cxx
+  TerrainPolylineEditor.cxx
   )
 IF (VTK_DATA_ROOT)
   # add tests that require data
@@ -55,6 +56,7 @@ IF(NOT VTK_USE_DISPLAY)
     TestScalarBarWidget.cxx
     TestSplineWidget.cxx
     TestHandleWidget.cxx
+    TerrainPolylineEditor.cxx
     )
 ENDIF(NOT VTK_USE_DISPLAY)
 
@@ -64,7 +66,11 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkWidgets)
 SET (TestsToRun ${Tests})
-REMOVE (TestsToRun ${KIT}CxxTests.cxx)
+REMOVE( TestsToRun 
+   ${KIT}CxxTests.cxx 
+   TestHandleWidget.cxx
+   TerrainPolylineEditor.cxx
+   )
 
 #
 # Add all the executables 
@@ -78,3 +84,20 @@ FOREACH (test ${TestsToRun})
     ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
   ENDIF (VTK_DATA_ROOT)
 ENDFOREACH (test) 
+
+# Add any tests with special arguments here.. 
+IF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)
+  ADD_TEST( TerrainPolylineEditor ${CXX_TEST_PATH}/${KIT}CxxTests 
+         TerrainPolylineEditor 
+         -ProjectionMode 2
+         -HeightOffset 100
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -D ${VTK_DATA_ROOT}
+         -V Baseline/${KIT}/TerrainPolylineEditor.png)
+  ADD_TEST( TestHandleWidget ${CXX_TEST_PATH}/${KIT}CxxTests 
+         TestHandleWidget
+         -ConstrainHandlesToPlane
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -D ${VTK_DATA_ROOT}
+         -V Baseline/${KIT}/TestHandleWidget.png)
+ENDIF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)
