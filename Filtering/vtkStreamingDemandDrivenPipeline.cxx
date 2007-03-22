@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.50");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.51");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -763,9 +763,22 @@ vtkStreamingDemandDrivenPipeline
           ds->GenerateGhostLevelArray();
           }
         }
+      
+      // In this block, we make sure that DATA_TIME_STEPS() is set if:
+      // * There was someone upstream that supports time (TIME_RANGE() key
+      //   is present)
+      // * Someone downstream requested a timestep (UPDATE_TIME_STEPS())
+      //
+      // A common situation in which the DATA_TIME_STEPS() would not be
+      // present even if the two conditions above are satisfied is when
+      // a filter that is not time-aware is processing a dataset produced
+      // by a time-aware source. In this case, DATA_TIME_STEPS() should
+      // be copied from input to output.
+      //
       // Check if the output has DATA_TIME_STEPS().
       vtkInformation* dataInfo = data->GetInformation();
-      if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEPS()))
+      if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEPS()) &&
+          outInfo->Has(TIME_RANGE()))
         {
         // It does not. 
         // Does the input have it? If yes, copy it.
@@ -781,7 +794,8 @@ vtkStreamingDemandDrivenPipeline
                               vtkDataObject::DATA_TIME_STEPS(),
                               1);
           }
-        // Does the update request have it? If yes, copy it.
+        // Does the update request have it? If yes, copy it. This
+        // should not normally happen.
         else if (outInfo->Has(UPDATE_TIME_STEPS()))
           {
           dataInfo->Set(vtkDataObject::DATA_TIME_STEPS(),
@@ -789,6 +803,8 @@ vtkStreamingDemandDrivenPipeline
                         outInfo->Length(UPDATE_TIME_STEPS()));
           }
         }
+
+      // We are keeping track of the previous time request.
       if (outInfo->Has(UPDATE_TIME_STEPS()))
         {
         outInfo->Set(PREVIOUS_UPDATE_TIME_STEPS(),
@@ -900,10 +916,17 @@ int vtkStreamingDemandDrivenPipeline
 int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
   vtkInformation* outInfo, vtkDataObject* dataObject)
 {
-  vtkInformation *dataInfo = dataObject->GetInformation();
+  // If this algorithm does not provide time information and another
+  // algorithm upstream did not provide time information, we do not
+  // re-execute even if the time request changed.
+  if (!outInfo->Has(TIME_RANGE()))
+    {
+    return 0;
+    }
 
+  vtkInformation *dataInfo = dataObject->GetInformation();
   // if we are requesting a particular update time index, check
-  // if we have the desired time index
+  // if we have the desired time index.
   if ( outInfo->Has(UPDATE_TIME_STEPS()) )
     {
     if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEPS()))
