@@ -29,12 +29,14 @@
 #include "vtkPoints.h"
 #include "vtkWindow.h"
 #include "vtkCamera.h"
+#include "vtkPointPlacer.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation2D, "1.6");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation2D, "1.7");
 vtkStandardNewMacro(vtkPointHandleRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D,Property,vtkProperty2D);
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D,SelectedProperty,vtkProperty2D);
+vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D,PointPlacer,vtkPointPlacer);
 
 
 //----------------------------------------------------------------------

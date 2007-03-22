@@ -10,7 +10,7 @@ SET(MyTests
 #  TestCaptionWidget.cxx
 #  TestCheckerboardWidget.cxx
 #  TestDistanceWidget.cxx
-#  TestHandleWidget.cxx
+  TestHandleWidget.cxx
 #  TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx
 #  TestLogoWidget.cxx
@@ -25,7 +25,7 @@ IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}
     ImagePlaneWidget.cxx
-#    TestConstrainedHandleWidget.cxx
+    TestConstrainedHandleWidget.cxx
 #    TestFocalPlaneContour.cxx
 #    TestOrientedGlyphContour.cxx
     TestImageTracerWidget.cxx
@@ -54,6 +54,7 @@ IF(NOT VTK_USE_DISPLAY)
     TestPointWidget.cxx
     TestScalarBarWidget.cxx
     TestSplineWidget.cxx
+    TestHandleWidget.cxx
     )
 ENDIF(NOT VTK_USE_DISPLAY)
 

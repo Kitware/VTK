@@ -34,7 +34,7 @@ class vtkPolyData;
 class vtkGlyph2D;
 class vtkPoints;
 class vtkPolyDataAlgorithm;
-
+class vtkPointPlacer;
 
 class VTK_WIDGETS_EXPORT vtkPointHandleRepresentation2D : public vtkHandleRepresentation
 {
@@ -106,6 +106,14 @@ protected:
   void Translate(double eventPos[2]);
   void Scale(double eventPos[2]);
   void Highlight(int highlight);
+
+  // Description:
+  // Override the superclass implementation. This class does not use a
+  // point placer. Point placers dictate the placement of points in 3D
+  // space. Since this class constrains points to lie in an overlay
+  // plane anyway, we don't care. Make it protected here, so users can't
+  // call this method.
+  virtual void SetPointPlacer( vtkPointPlacer * ); 
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.

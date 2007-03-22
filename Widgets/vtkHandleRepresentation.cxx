@@ -18,9 +18,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkPointPlacer.h"
 
+vtkCxxRevisionMacro(vtkHandleRepresentation, "1.10");
 
-vtkCxxRevisionMacro(vtkHandleRepresentation, "1.9");
+vtkCxxSetObjectMacro(vtkHandleRepresentation, PointPlacer, vtkPointPlacer );
 
 //----------------------------------------------------------------------
 vtkHandleRepresentation::vtkHandleRepresentation()
@@ -36,6 +38,7 @@ vtkHandleRepresentation::vtkHandleRepresentation()
   this->Tolerance = 15;
   this->ActiveRepresentation = 0;
   this->Constrained = 0;
+  this->PointPlacer = vtkPointPlacer::New();
 
   this->DisplayPositionTime.Modified();
   this->WorldPositionTime.Modified();
@@ -46,18 +49,24 @@ vtkHandleRepresentation::~vtkHandleRepresentation()
 {
   this->DisplayPosition->Delete();
   this->WorldPosition->Delete();
+  this->SetPointPlacer(NULL);
 }
 
 //----------------------------------------------------------------------
-void vtkHandleRepresentation::SetDisplayPosition(double pos[3])
+void vtkHandleRepresentation::SetDisplayPosition(double displyPos[3])
 {
-  this->DisplayPosition->SetValue(pos);
-  if ( this->Renderer )
+  if (this->Renderer && 
+      this->PointPlacer->ValidateDisplayPosition( this->Renderer, displyPos ))
     {
-    double *p = this->DisplayPosition->GetComputedWorldValue(this->Renderer);
-    this->WorldPosition->SetValue(p[0], p[1], p[2]);
+    double worldPos[3], worldOrient[9];
+    if (this->PointPlacer->ComputeWorldPosition( 
+          this->Renderer, displyPos, worldPos, worldOrient ))
+      {
+      this->DisplayPosition->SetValue(displyPos);
+      this->WorldPosition->SetValue(worldPos);
+      this->DisplayPositionTime.Modified();
+      }
     }
-  this->DisplayPositionTime.Modified();
 }
 
 //----------------------------------------------------------------------
@@ -81,8 +90,12 @@ double* vtkHandleRepresentation::GetDisplayPosition()
 //----------------------------------------------------------------------
 void vtkHandleRepresentation::SetWorldPosition(double pos[3])
 {
-  this->WorldPosition->SetValue(pos);
-  this->WorldPositionTime.Modified();
+  if (this->Renderer && 
+      this->PointPlacer->ValidateWorldPosition( pos ))
+    {
+    this->WorldPosition->SetValue(pos);
+    this->WorldPositionTime.Modified();
+    }
 }
 
 //----------------------------------------------------------------------
@@ -158,4 +171,14 @@ void vtkHandleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Active Representation: " 
      << (this->ActiveRepresentation ? "On" : "Off") << "\n";
+
+  if ( this->PointPlacer )
+    {
+    os << indent << "PointPlacer:\n"; 
+    this->PointPlacer->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "PointPlacer: (none)\n";
+    }
 }

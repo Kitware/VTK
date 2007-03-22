@@ -185,6 +185,15 @@ protected:
   void Scale(double *p1, double *p2, double eventPos[2]);
   void MoveFocus(double *p1, double *p2);
   void SizeBounds();
+  
+  // Given a motion vector defined by p1 --> p2 (p1 and p2 are in 
+  // world coordinates), the new display position of the handle center is 
+  // populated into requestedDisplayPos. This is again only a request for the
+  // new display position. It is up to the point placer to deduce the 
+  // appropriate world co-ordinates that this display position will map into.
+  // The placer may even disallow such a movement.
+  void MoveFocusRequest( 
+      double *p1, double *p2, double requestedDisplayPos[3] );
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.

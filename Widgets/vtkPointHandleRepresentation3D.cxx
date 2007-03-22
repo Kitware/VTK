@@ -26,8 +26,9 @@
 #include "vtkLine.h"
 #include "vtkCoordinate.h"
 #include "vtkRenderWindow.h"
+#include "vtkFocalPlanePointPlacer.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.9");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.10");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -76,6 +77,10 @@ vtkPointHandleRepresentation3D::vtkPointHandleRepresentation3D()
   
   // Translation control
   this->TranslationMode = 1;
+
+  vtkFocalPlanePointPlacer *pointPlacer = vtkFocalPlanePointPlacer::New();
+  this->SetPointPlacer( pointPlacer );
+  pointPlacer->Delete();
 }
 
 //----------------------------------------------------------------------
@@ -118,15 +123,26 @@ double* vtkPointHandleRepresentation3D::GetBounds()
 //-------------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::SetWorldPosition(double p[3])
 {
-  this->Cursor3D->SetFocalPoint(p); //this may clamp the point
-  this->Superclass::SetWorldPosition(this->Cursor3D->GetFocalPoint());
+  if (this->PointPlacer->ValidateWorldPosition(p))
+    {
+    this->Cursor3D->SetFocalPoint(p); //this may clamp the point
+    this->Superclass::SetWorldPosition(this->Cursor3D->GetFocalPoint());
+    }
 }
 
 //-------------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::SetDisplayPosition(double p[3])
 {
+  // Check if the superclass was successful in setting the display position 
+  // according to the placer constraints. If it is the mtime will change
+  vtkTimeStamp displayPositionMTime = this->DisplayPositionTime;
+
   this->Superclass::SetDisplayPosition(p);
-  this->SetWorldPosition(this->WorldPosition->GetValue());
+
+  if ( this->DisplayPositionTime > displayPositionMTime )
+    {
+    this->SetWorldPosition(this->WorldPosition->GetValue());
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -142,6 +158,11 @@ int vtkPointHandleRepresentation3D::ComputeInteractionState(int X, int Y, int vt
   this->VisibilityOn(); //actor must be on to be picked
   this->CursorPicker->Pick(X,Y,0.0,this->Renderer);
   vtkAssemblyPath *path = this->CursorPicker->GetPath();
+  double focus[3];
+  this->Cursor3D->GetFocalPoint(focus);
+  double d[3];
+  this->GetDisplayPosition(d);
+
   if ( path != NULL )
     {
     this->InteractionState = vtkHandleRepresentation::Nearby;
@@ -245,18 +266,21 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
 {
   // Do different things depending on state
   // Calculations everybody does
-  double focalPoint[4], pickPoint[4], prevPickPoint[4], startPickPoint[4];
-  double z;
+  double focalPoint[4], pickPoint[4], prevPickPoint[4], startPickPoint[4], z;
 
   // Compute the two points defining the motion vector
-  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer,
-                                               this->LastPickPosition[0], 
-                                               this->LastPickPosition[1],
-                                               this->LastPickPosition[2], focalPoint);
+  vtkInteractorObserver::ComputeWorldToDisplay(
+      this->Renderer,
+      this->LastPickPosition[0], 
+      this->LastPickPosition[1],
+      this->LastPickPosition[2], focalPoint);
   z = focalPoint[2];
-  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, this->LastEventPosition[0], 
-                                               this->LastEventPosition[1], z, prevPickPoint);
-  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, eventPos[0], eventPos[1], z, pickPoint);
+  vtkInteractorObserver::ComputeDisplayToWorld(
+      this->Renderer, 
+      this->LastEventPosition[0], 
+      this->LastEventPosition[1], z, prevPickPoint);
+  vtkInteractorObserver::ComputeDisplayToWorld(
+      this->Renderer, eventPos[0], eventPos[1], z, pickPoint);
 
   // Process the motion
   if ( this->InteractionState == vtkHandleRepresentation::Selecting ||
@@ -264,23 +288,97 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
     {
     if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
       {
-      vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, this->StartEventPosition[0], 
-                                                   this->StartEventPosition[1], z, startPickPoint);
-      this->ConstraintAxis = 
-        this->DetermineConstraintAxis(this->ConstraintAxis,pickPoint, startPickPoint);
-      if ( this->InteractionState == vtkHandleRepresentation::Selecting && !this->TranslationMode )
+
+      vtkInteractorObserver::ComputeDisplayToWorld(
+          this->Renderer, 
+          this->StartEventPosition[0], 
+          this->StartEventPosition[1], z, startPickPoint);
+
+      this->ConstraintAxis = this->DetermineConstraintAxis(
+          this->ConstraintAxis,pickPoint, startPickPoint);
+
+      if (    this->InteractionState == vtkHandleRepresentation::Selecting 
+          && !this->TranslationMode )
         {
-        this->MoveFocus(prevPickPoint, pickPoint);
+        // If we are doing axis constrained motion, igonore the placer.
+        // Can't have both the placer and an axis constraint dictating
+        // handle placement.
+        if (this->ConstraintAxis >= 0)
+          {
+          this->MoveFocus( prevPickPoint, pickPoint );
+          }
+        else
+          {
+          double newCenterPointRequested[3]; // displayPosition
+          double newCenterPoint[3], worldOrient[9];
+
+          // Make a request for the new position.
+          this->MoveFocusRequest( prevPickPoint,
+                                  pickPoint,
+                                  newCenterPointRequested );
+
+          // See what the placer says.
+          if (this->PointPlacer->ComputeWorldPosition( 
+                this->Renderer, newCenterPointRequested, newCenterPoint,
+                worldOrient ))
+            {
+            // Once the placer has validated us, update the handle position 
+            this->SetWorldPosition( newCenterPoint );
+            }
+          }
         }
       else
         {
-        this->Translate(prevPickPoint, pickPoint);
+
+        // If we are doing axis constrained motion, igonore the placer.
+        // Can't have both the placer and the axis constraint dictating
+        // handle placement.
+        if (this->ConstraintAxis >= 0)
+          {
+          this->Translate(prevPickPoint, pickPoint);
+          }
+        else
+          {
+          double newCenterPointRequested[3]; // displayPosition
+          double newCenterPoint[3], worldOrient[9];
+
+          // Make a request for the new position.
+          this->MoveFocusRequest( prevPickPoint, 
+                                  pickPoint, 
+                                  newCenterPointRequested);
+
+          // See what the placer says.
+          if (this->PointPlacer->ComputeWorldPosition( 
+                this->Renderer, newCenterPointRequested, newCenterPoint,
+                worldOrient ))
+            {
+            // Once the placer has validated us, update the handle 
+            // position and its bounds.
+            double *p = this->GetWorldPosition();
+
+            //Get the motion vector
+            double v[3] = { p[0] - newCenterPoint[0],
+                            p[1] - newCenterPoint[1],
+                            p[2] - newCenterPoint[2] };
+            double *bounds = this->Cursor3D->GetModelBounds(), newBounds[6];
+            for (int i=0; i<3; i++)
+              {
+              newBounds[2*i]   = bounds[2*i]   + v[i];
+              newBounds[2*i+1] = bounds[2*i+1] + v[i];
+              }
+
+            this->Cursor3D->SetModelBounds(newBounds);
+            this->SetWorldPosition( newCenterPoint );
+            }
+          }
         }
       }
     }
 
   else if ( this->InteractionState == vtkHandleRepresentation::Scaling )
     {
+    // Scaling does not change the position of the handle, we needn't
+    // ask the placer..
     this->Scale(prevPickPoint, pickPoint, eventPos);
     }
 
@@ -289,6 +387,25 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
   this->LastEventPosition[1] = eventPos[1];
   
   this->Modified();
+}
+
+//----------------------------------------------------------------------
+void vtkPointHandleRepresentation3D
+::MoveFocusRequest(double *p1, double *p2, double center[3])
+{
+  double focus[4];
+  this->Cursor3D->GetFocalPoint(focus);
+
+  // Move the center of the handle along the motion vector
+  focus[0] += (p2[0] - p1[0]);
+  focus[1] += (p2[1] - p1[1]);
+  focus[2] += (p2[2] - p1[2]);
+  focus[3] = 1.0;
+
+  // Get the display position that this center would fall on.
+  this->Renderer->SetWorldPoint( focus );
+  this->Renderer->WorldToDisplay();
+  this->Renderer->GetDisplayPoint( center );
 }
 
 //----------------------------------------------------------------------

@@ -47,6 +47,7 @@
 
 class vtkCoordinate;
 class vtkRenderer;
+class vtkPointPlacer;
 
 class VTK_WIDGETS_EXPORT vtkHandleRepresentation : public vtkWidgetRepresentation
 {
@@ -129,6 +130,16 @@ public:
   // are used to keep the state of the representation.
   virtual unsigned long GetMTime();
 
+  // Description:
+  // Set/Get the point placer. Point placers can be used to dictate constraints 
+  // on the placement of handles. As an example, see vtkBoundedPlanePointPlacer
+  // (constrains the placement of handles to a set of bounded planes)
+  // vtkFocalPlanePointPlacer (constrains placement on the focal plane) etc.
+  // The default point placer is vtkPointPlacer (which does not apply any 
+  // constraints, so the handles are free to move anywhere).
+  virtual void SetPointPlacer ( vtkPointPlacer * );
+  vtkGetObjectMacro( PointPlacer, vtkPointPlacer );
+
 protected:
   vtkHandleRepresentation();
   ~vtkHandleRepresentation();
@@ -147,6 +158,9 @@ protected:
   // Keep track of when coordinates were changed
   vtkTimeStamp DisplayPositionTime;
   vtkTimeStamp WorldPositionTime;
+
+  // Constrain the placement of handles.
+  vtkPointPlacer * PointPlacer;
 
 private:
   vtkHandleRepresentation(const vtkHandleRepresentation&);  //Not implemented
