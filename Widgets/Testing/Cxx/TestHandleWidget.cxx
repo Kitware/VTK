@@ -531,6 +531,7 @@ int TestHandleWidget( int argc, char *argv[] )
   iren->Delete();
   renWin->Delete();
   ren1->Delete();
+  recorder->Off();
   recorder->Delete();
 
   return !retVal;
