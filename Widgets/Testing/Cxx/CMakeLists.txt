@@ -25,7 +25,7 @@ IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}
     ImagePlaneWidget.cxx
-    TestConstrainedHandleWidget.cxx
+#    TestConstrainedHandleWidget.cxx
 #    TestFocalPlaneContour.cxx
 #    TestOrientedGlyphContour.cxx
     TestImageTracerWidget.cxx
