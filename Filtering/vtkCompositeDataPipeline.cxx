@@ -44,7 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 #endif
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.57");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.58");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
@@ -820,7 +820,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
       // if it is a temporal input, set the time for each piece
       if (times)
         {
-        outInfo->Set(UPDATE_TIME_STEPS(),times+k,1);
+        outInfo->Set(UPDATE_TIME_STEPS(),times,numTimeSteps);
         }
       unsigned int numDataSets = updateInfo->GetNumberOfDataSets(k);
       for (unsigned l=0; l<numDataSets; l++)
