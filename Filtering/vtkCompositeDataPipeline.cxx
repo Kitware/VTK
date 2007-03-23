@@ -79,7 +79,7 @@ PURPOSE.  See the above copyright notice for more information.
         !strcmp(name, "vtkTemporalStreamTracer")) \
       { \
 */
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.59");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.60");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
@@ -521,8 +521,8 @@ int vtkCompositeDataPipeline::ShouldIterateOverInput(int& compositePort)
 
 //----------------------------------------------------------------------------
 int vtkCompositeDataPipeline::ShouldIterateTemporalData(
-                                               vtkInformation *request,
-                                               vtkInformationVector** inInfoVec,
+                                               vtkInformation *vtkNotUsed(request),
+                                               vtkInformationVector** vtkNotUsed(inInfoVec),
                                                vtkInformationVector* outInfoVec)
 {
   // Exit fast if no outputs exist
