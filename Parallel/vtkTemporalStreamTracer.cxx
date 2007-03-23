@@ -68,7 +68,14 @@ PURPOSE.  See the above copyright notice for more information.
 using namespace vtkTemporalStreamTracerNamespace;
 
 //----------------------------------------------------------------------------
-#if 1
+#ifdef JB_H5PART_PARTICLE_OUTPUT
+  #include "vtkH5PartWriter.h"
+
+  #ifndef WIN32
+  #else
+    #define OUTPUTTEXT(a) vtkOutputWindowDisplayText(a);
+  #endif
+
   #undef vtkDebugMacro
   #define vtkDebugMacro(a)  \
   { \
@@ -76,12 +83,12 @@ using namespace vtkTemporalStreamTracerNamespace;
     vtkOStreamWrapper::UseEndl(endl); \
     vtkOStrStreamWrapper vtkmsg; \
     vtkmsg << "P(" << this->UpdatePiece << "): " a << "\n"; \
-    vtkOutputWindowDisplayText(vtkmsg.str()); \
+    OUTPUTTEXT(vtkmsg.str()); \
     vtkmsg.rdbuf()->freeze(0); \
   }
 #endif
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.16");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.17");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, ParticleWriter, vtkAbstractParticleWriter);
@@ -105,8 +112,10 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   this->AllFixedGeometry            = 0;
   this->NoFixedGeometry             = 1;
   this->ComputeVorticity            = 1;
+  this->IgnorePipelineTime          = 0;
   this->ParticleWriter              = NULL;
   this->ParticleFileName            = NULL;
+  this->EnableParticleWriting       = false;
   //
   this->MaxCellSize           = 0;
   this->NumberOfParticles     = 0;
@@ -125,12 +134,23 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   this->SetNumberOfInputPorts(3);
   this->Controller = NULL;
   this->SetController(vtkMultiProcessController::GetGlobalController());
+#ifdef JB_H5PART_PARTICLE_OUTPUT
+  vtkDebugMacro(<<"Setting vtkH5PartWriter");
+  vtkH5PartWriter *writer = vtkH5PartWriter::New();
+  this->SetParticleWriter(writer);
+  writer->Delete();
+#endif
 }
 //---------------------------------------------------------------------------
 vtkTemporalStreamTracer::~vtkTemporalStreamTracer()
 {
   this->SetController(NULL);
   this->SetParticleWriter(NULL);
+  if (this->ParticleFileName)
+  {
+    delete []this->ParticleFileName;
+    this->ParticleFileName = NULL;
+  }
 }
 //----------------------------------------------------------------------------
 int vtkTemporalStreamTracer::FillInputPortInformation(
@@ -263,19 +283,15 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
   //
   double requestedTimeValue;
 
-  if (!outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS())) 
+  if (this->IgnorePipelineTime || !outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS())) 
     {
     //
     // ideally we want the output information to be requesting a time step,
     // but since it isn't we must use the SetTimeStep value as a Time request
     //
     requestedTimeValue = this->OutputTimeValues[this->TimeStep];
-    // this should be the same, just checking for debug purposes
-    this->ActualTimeStep = vtkstd::find_if(
-      this->OutputTimeValues.begin(), 
-      this->OutputTimeValues.end(), 
-      vtkstd::bind2nd( WithinTolerance( ), requestedTimeValue )) 
-      - this->OutputTimeValues.begin();
+    this->ActualTimeStep = this->TimeStep;
+
     vtkDebugMacro(<< "SetTimeStep       : requestedTimeValue " 
       << requestedTimeValue << " ActualTimeStep " << this->ActualTimeStep);
     } 
@@ -292,6 +308,10 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
       this->OutputTimeValues.end(), 
       vtkstd::bind2nd( WithinTolerance( ), requestedTimeValue )) 
       - this->OutputTimeValues.begin();
+    if (this->ActualTimeStep>=this->OutputTimeValues.size())
+    {
+      this->ActualTimeStep = 0;
+    }
     vtkDebugMacro(<< "UPDATE_TIME_STEPS : requestedTimeValue " 
       << requestedTimeValue << " ActualTimeStep " << this->ActualTimeStep);
     }
@@ -979,13 +999,17 @@ int vtkTemporalStreamTracer::RequestData(
   //
   // NB. We don't want our writer to trigger any updates, 
   // so shallow copy the output
-  if (this->ParticleWriter) {
+  if (this->ParticleWriter && this->EnableParticleWriting) {
+    vtkDebugMacro(<< "About to write particle data for step " << this->ActualTimeStep);
     vtkSmartPointer<vtkPolyData> polys = vtkSmartPointer<vtkPolyData>::New();
     polys->ShallowCopy(output);
-    this->ParticleWriter->SetTimeStep(this->ActualTimeStep);
-    this->ParticleWriter->SetInput(polys);
     this->ParticleWriter->SetFileName(this->ParticleFileName);
+    this->ParticleWriter->SetTimeStep(this->ActualTimeStep);
+    this->ParticleWriter->SetTimeValue(this->CurrentTimeSteps[1]);
+    this->ParticleWriter->SetInput(polys);
     this->ParticleWriter->Write();
+    this->ParticleWriter->CloseFile();
+    this->ParticleWriter->SetInput(NULL);
   }
   return 1;
 }
@@ -1137,7 +1161,8 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     // were ok, but the final step just passed out)
     if ( !this->Interpolator->FunctionValues(point2, velocity) )
     {
-      vtkDebugMacro(<< "INTEGRATE_OVERSHOT : Sending Particle " << info.UniqueParticleId << " Time " << point2[3]);
+      vtkDebugMacro(<< "INTEGRATE_OVERSHOT : Sending Particle " 
+        << info.UniqueParticleId << " Time " << point2[3]);
       memcpy(&info.CurrentPosition, point2, sizeof(Position));
       this->AddParticleToMPISendList(info);
       this->ParticleHistories.erase(it);

@@ -31,7 +31,6 @@
 #include <vtkstd/vector> // I'll remove these soon.
 #include <vtkstd/list> // I'll remove these soon.
 //ETX
-#define JB_H5PART_PARTICLE_OUTPUT 1
 
 class vtkMultiProcessController;
 
@@ -98,6 +97,13 @@ public:
     // the pipeline forcing timesteps to be fetched from upstream.
     vtkSetMacro(TimeStep,unsigned int);
     vtkGetMacro(TimeStep,unsigned int);
+
+    // Description:
+    // To get around problems with the Paraview Animation controls
+    // we can just animatee the time step and ignore the TIME_ requests
+    vtkSetMacro(IgnorePipelineTime, int);
+    vtkGetMacro(IgnorePipelineTime, int);
+    vtkBooleanMacro(IgnorePipelineTime, int);
 
     // Description:
     // If the data source does not have the correct time values 
@@ -167,6 +173,13 @@ public:
     // dumping particles to disk    
     vtkSetStringMacro(ParticleFileName);
     vtkGetStringMacro(ParticleFileName);
+
+    // Description:
+    // Set/Get the filename to be used with the particle writer when
+    // dumping particles to disk    
+    vtkSetMacro(EnableParticleWriting,int);
+    vtkGetMacro(EnableParticleWriting,int);
+    vtkBooleanMacro(EnableParticleWriting,int);
 
   protected:
 
@@ -272,9 +285,11 @@ public:
     int           ForceReinjectionEveryNSteps;
     bool          ReinjectionFlag;  
     int           ReinjectionCounter;
+    int           IgnorePipelineTime;
     //
     vtkAbstractParticleWriter *ParticleWriter;
-    char                       *ParticleFileName; 
+    char                      *ParticleFileName; 
+    int                        EnableParticleWriting;
     //
     vtkTimeStamp  ParticleInjectionTime;
     vtkTimeStamp  SeedInjectionTime;
