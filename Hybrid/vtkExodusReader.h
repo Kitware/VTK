@@ -449,6 +449,7 @@ protected:
   char *XMLFileName;
   int TimeStep;
   int ActualTimeStep;
+  double TimeValue;
   int GenerateBlockIdCellArray;
   int GenerateGlobalElementIdArray;
   int GenerateGlobalNodeIdArray;

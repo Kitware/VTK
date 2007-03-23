@@ -48,6 +48,8 @@
 #include <vtkstd/list>
 #include "vtkStdString.h"
 
+#include <math.h>
+
 #define DEBUG 0
 
 vtkStdString _blocks;
@@ -1392,7 +1394,7 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.44");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.45");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1574,7 +1576,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.44");
+vtkCxxRevisionMacro(vtkExodusReader, "1.45");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -2421,7 +2423,11 @@ int vtkExodusReader::RequestInformation(
       {
       vtkInformation* outInfo = outputVector->GetInformationObject(0);
       outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-      outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
+      double timeRange[2];
+      timeRange[0] = 0;
+      timeRange[1] = 1;
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),
+                   timeRange, 2);
       }
     return 1;
     }
@@ -2815,22 +2821,25 @@ int vtkExodusReader::RequestData(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     
   // Check if a particular time was requested.
-  if(   !this->HasModeShapes
-     && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+  if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
     {
     // Get the requested time step. We only supprt requests of a single time
     // step in this reader right now
     double *requestedTimeSteps = 
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-    
-    // find the first time value larger than requested time value
-    // this logic could be improved
-    int cnt = 0;
-    while (cnt < tsLength-1 && steps[cnt] < requestedTimeSteps[0])
+    this->TimeValue = requestedTimeSteps[0];
+
+    if (!this->HasModeShapes)
       {
-      cnt++;
+      // find the first time value larger than requested time value
+      // this logic could be improved
+      int cnt = 0;
+      while (cnt < tsLength-1 && steps[cnt] < this->TimeValue)
+        {
+        cnt++;
+        }
+      this->ActualTimeStep = cnt;
       }
-    this->ActualTimeStep = cnt;
     }
 
   // Force TimeStep into the "known good" range. Although this
@@ -3532,7 +3541,15 @@ void vtkExodusReader::AddDisplacements(vtkUnstructuredGrid* output)
   warp->SetInput(geom);
   warp->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, arrayName);
-  warp->SetScaleFactor(DisplacementMagnitude);
+  if (this->HasModeShapes)
+    {
+    warp->SetScaleFactor(
+              this->DisplacementMagnitude*cos(2*vtkMath::Pi()*this->TimeValue));
+    }
+  else
+    {
+    warp->SetScaleFactor(this->DisplacementMagnitude);
+    }
   warp->Update();
 
   geom->Delete();
@@ -4694,7 +4711,10 @@ void vtkExodusReader::GetAllTimes(vtkInformationVector *outputVector)
   else
     {
     outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
+    double timeRange[2];
+    timeRange[0] = 0;
+    timeRange[1] = 1;
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
     }
   delete[] ftimeSteps;
 }
