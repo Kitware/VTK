@@ -57,6 +57,7 @@
 
 class vtkRenderer;
 class vtkIdTypeArray;
+class vtkIntArray;
 class vtkSelection;
 class vtkProp;
 class vtkIdentColoredPainter;
@@ -167,6 +168,7 @@ protected:
   // Description:
   // The results of the selection: processorIds, ActorIds, CellIds.
   vtkIdTypeArray *SelectedIds;
+  vtkIntArray *PixelCounts;
 
   vtkIdentColoredPainter *IdentPainter;
 private:

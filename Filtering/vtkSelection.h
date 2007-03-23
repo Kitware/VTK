@@ -15,16 +15,18 @@
 // .NAME vtkSelection - A node in a selection tree. Used to store selection results.
 // .SECTION Description
 
-// vtkSelection is a node of a tree data structure used to store
-// selection results. Each node in this tree stores a list of properties
-// (in a vtkInformation) and a list of selection values (in a
-// vtkAbstractArray). The properties provide information about what the
-// selection values mean. For example the CONTENT_TYPE property gives
-// information about what is stored by the node. If the CONTENT_TYPE is
-// SELECTIONS, the node is used as a parent node that contains other
-// vtkSelections and does not usually contain any selection values. If
-// the CONTENT_TYPE is IDS, the SelectionList array should contain a
-// list of ids. The type of id is specified by FIELD_TYPE (POINT or CELL).
+// vtkSelection is a tree data structure used to store selection parameters. 
+// Each node in this tree stores a list of properties (in a vtkInformation) 
+// and a list of selection values (in a vtkAbstractArray). The properties 
+// provide information about what the selection values mean. For example the 
+// CONTENT_TYPE property gives information about what is stored by the node. 
+// If the CONTENT_TYPE is SELECTIONS, the vtkSelection is used as a parent 
+// node that contains other vtkSelections. If the CONTENT_TYPE is GLOBALIDS,
+// the SelectionList array should contain a list of cell or point ids, which
+// identify the particular cells or points that have matching values in the 
+// GLOBALID vtkDataSetAttribute array. The FIELD_TYPE property designates
+// whether the selection refers to cells or points.
+//
 // Usually, each node under the root is a selection from
 // one data object. SOURCE or SOURCE_ID properties point to this object. If
 // the selection was performed on a renderer, PROP or PROP_ID point to the
@@ -139,17 +141,26 @@ public:
   // vtkSelection specific keys.
 
   // Description:
-  // The content of the selection node. See SelectionContent
-  // enum for the possible values.
+  // The content of the selection node. 
+  // SELECTIONS means that a vtkSelection contains sub selections.
+  // GLOBALIDS means that the selection list contains values from the
+  // vtkDataSetAttribute array of the same name.
+  // VALUES means the the selection list contains values from an 
+  // arbitrary attribute array (ignores any globalids attribute)
+  // OFFSETS means that the selection list contains indexes into the 
+  // cell or point arrays.
+  // FRUSTUM means the set of points and cells inside a frustum
+  // LOCATIONS means the set of points and cells near a set of positions
+  // THRESHOLDS means the points and cells with values within a set of ranges
   static vtkInformationIntegerKey* CONTENT_TYPE();
-
 //BTX
   enum SelectionContent
   {
     SELECTIONS,
     COMPOSITE_SELECTIONS,
-    IDS,
-    ID_RANGE,
+    GLOBALIDS,
+    VALUES,
+    OFFSETS,
     FRUSTUM,
     LOCATIONS,
     THRESHOLDS
@@ -157,14 +168,14 @@ public:
 //ETX
 
   // Description:
-  // The location of the array the selection came from (ex, point, cell or field)
+  // The location of the array the selection came from 
+  //(ex, point, cell or field) default is CELL
   static vtkInformationIntegerKey* FIELD_TYPE();
-
 //BTX
   enum SelectionField
   {
-    POINT,
-    CELL
+    CELL,
+    POINT
   };
 //ETX
 
@@ -224,6 +235,11 @@ public:
   // Retrieve a selection from an information vector.
   static vtkSelection* GetData(vtkInformation* info);
   static vtkSelection* GetData(vtkInformationVector* v, int i=0);
+
+  // Description:
+  // A helper for visible cell selector, this is the number of pixels covered
+  // by the actor whose cells are listed in the selection.
+  static vtkInformationIntegerKey* PIXEL_COUNT();
 
 protected:
   vtkSelection();

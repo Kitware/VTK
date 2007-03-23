@@ -29,7 +29,7 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.7");
+vtkCxxRevisionMacro(vtkSelection, "1.8");
 vtkStandardNewMacro(vtkSelection);
 
 vtkCxxSetObjectMacro(vtkSelection, SelectionList, vtkAbstractArray);
@@ -47,6 +47,7 @@ vtkInformationKeyMacro(vtkSelection,ARRAY_NAME,String);
 vtkInformationKeyMacro(vtkSelection,EPSILON,Double);
 vtkInformationKeyMacro(vtkSelection,PRESERVE_TOPOLOGY,Integer);
 vtkInformationKeyMacro(vtkSelection,CONTAINING_CELLS,Integer);
+vtkInformationKeyMacro(vtkSelection,PIXEL_COUNT,Integer);
 
 struct vtkSelectionInternals
 {

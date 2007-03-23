@@ -30,7 +30,7 @@ int TestExtractSelection( int argc, char* argv[] )
 {
   vtkSelection* sel = vtkSelection::New();
   sel->GetProperties()->Set(
-    vtkSelection::CONTENT_TYPE(), vtkSelection::IDS);
+    vtkSelection::CONTENT_TYPE(), vtkSelection::OFFSETS);
   sel->GetProperties()->Set(
     vtkSelection::FIELD_TYPE(), vtkSelection::CELL);
   

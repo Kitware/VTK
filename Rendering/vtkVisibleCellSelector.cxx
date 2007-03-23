@@ -15,6 +15,7 @@
 #include "vtkVisibleCellSelector.h"
 #include "vtkObjectFactory.h"
 #include "vtkIdTypeArray.h"
+#include "vtkIntArray.h"
 #include "vtkstd/set"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -31,11 +32,13 @@ class vtkVisibleCellSelectorInternals
 // can not distinguish very many cells, three separate cell id entries are 
 // provided for the low, mid, and high 24 bit fields of a large integer.
 public:
-  unsigned char byte[15];
+  unsigned char Byte[15];
+  int PixelCount;
 
   vtkVisibleCellSelectorInternals()
     {
-    memset(byte,0,15);
+    memset(Byte,0,15);
+    this->PixelCount = 0;
     }
 
   void Print(ostream &os = cerr)
@@ -53,11 +56,12 @@ public:
     //initialize this hit record with the current hit information stored at
     //the pixel pointed to in five color buffers
     //null pointers are treated as hitting background (a miss).
-    this->InitField(&byte[0], proc);
-    this->InitField(&byte[3], actor);
-    this->InitField(&byte[6], cidH);
-    this->InitField(&byte[9], cidM);
-    this->InitField(&byte[12], cidL);
+    this->InitField(&Byte[0], proc);
+    this->InitField(&Byte[3], actor);
+    this->InitField(&Byte[6], cidH);
+    this->InitField(&Byte[9], cidM);
+    this->InitField(&Byte[12], cidL);
+    this->PixelCount = 0;
     }
 
   void InitField(unsigned char *dest, unsigned char *src)
@@ -83,9 +87,9 @@ public:
       {
       //proc
       ret = 
-        (((vtkIdType)byte[0])<<16) |
-        (((vtkIdType)byte[1])<< 8) |
-        (((vtkIdType)byte[2])    );
+        (((vtkIdType)Byte[0])<<16) |
+        (((vtkIdType)Byte[1])<< 8) |
+        (((vtkIdType)Byte[2])    );
       if (ret != 0) //account for the fact that a miss is stored as 0
         {
         ret --;
@@ -95,9 +99,9 @@ public:
       {
       //actor
       ret = 
-        (((vtkIdType)byte[3])<<16) |
-        (((vtkIdType)byte[4])<< 8) |
-        (((vtkIdType)byte[5])    );
+        (((vtkIdType)Byte[3])<<16) |
+        (((vtkIdType)Byte[4])<< 8) |
+        (((vtkIdType)Byte[5])    );
       if (ret != 0)
         {
         ret --;
@@ -109,27 +113,27 @@ public:
       //throwing away upper 8 bits, but accounting for miss stored in 0
       vtkIdType hField;
       hField = 
-        (((vtkIdType)byte[6])<<16) |
-        (((vtkIdType)byte[7])<< 8) |
-        (((vtkIdType)byte[8])    );
+        (((vtkIdType)Byte[6])<<16) |
+        (((vtkIdType)Byte[7])<< 8) |
+        (((vtkIdType)Byte[8])    );
       if (hField != 0) 
         {
         hField --;
         }
       vtkIdType mField;
       mField = 
-        (((vtkIdType)byte[ 9])<<16) |
-        (((vtkIdType)byte[10])<< 8) |
-        (((vtkIdType)byte[11])    );
+        (((vtkIdType)Byte[ 9])<<16) |
+        (((vtkIdType)Byte[10])<< 8) |
+        (((vtkIdType)Byte[11])    );
       if (mField != 0) 
         {
         mField --;
         }
       vtkIdType lField;
       lField = 
-        (((vtkIdType)byte[12])<<16) |
-        (((vtkIdType)byte[13])<< 8) |
-        (((vtkIdType)byte[14])    );
+        (((vtkIdType)Byte[12])<<16) |
+        (((vtkIdType)Byte[13])<< 8) |
+        (((vtkIdType)Byte[14])    );
       if (lField != 0) 
         {
         lField --;
@@ -155,11 +159,11 @@ public:
     {
     for (int i = 0; i < 15; i++)
       {
-      if (byte[i] < other.byte[i]) 
+      if (Byte[i] < other.Byte[i]) 
         {
         return true;
         }
-      if (byte[i] > other.byte[i]) 
+      if (Byte[i] > other.Byte[i]) 
         {
         return false;
         }
@@ -171,7 +175,7 @@ public:
     {
     for (int i = 0; i < 15; i++)
       {
-      if (byte[i] != other.byte[i]) 
+      if (Byte[i] != other.Byte[i]) 
         {
         return true;
         }
@@ -186,7 +190,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.12");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.13");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -210,6 +214,9 @@ vtkVisibleCellSelector::vtkVisibleCellSelector()
   this->SelectedIds = vtkIdTypeArray::New();
   this->SelectedIds->SetNumberOfComponents(4);
   this->SelectedIds->SetNumberOfTuples(0);
+  this->PixelCounts = vtkIntArray::New();
+  this->PixelCounts->SetNumberOfComponents(1);
+  this->PixelCounts->SetNumberOfTuples(0);
 
 }
 
@@ -226,6 +233,8 @@ vtkVisibleCellSelector::~vtkVisibleCellSelector()
     }
   this->SelectedIds->Delete();
   this->SelectedIds = NULL;
+  this->PixelCounts->Delete();
+  this->PixelCounts = NULL;
   if (this->Renderer)
     {
     this->Renderer->UnRegister(this);
@@ -431,15 +440,15 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
   //create a sorted list of hitrecords without duplicates
   vtkstd::set<vtkVisibleCellSelectorInternals> hitrecords;
   
-  unsigned int misscnt, hitcnt, skipcnt, dupcnt;
-  misscnt = hitcnt = skipcnt = dupcnt = 0;
+  unsigned int misscnt, hitcnt, dupcnt;
+  misscnt = hitcnt = dupcnt = 0;
   unsigned char *proc = this->PixBuffer[0];
   unsigned char *actor = this->PixBuffer[1];
   unsigned char *cidH = this->PixBuffer[2];
   unsigned char *cidM = this->PixBuffer[3];
   unsigned char *cidL = this->PixBuffer[4];
 
-  vtkVisibleCellSelectorInternals nhit, lhit, zero;
+  vtkVisibleCellSelectorInternals nhit, zero;
   int Height = this->Y1-this->Y0;
   int Width = this->X1-this->X0;
   for (int y = 0; y<=Height; y++)
@@ -452,29 +461,25 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
       if (nhit != zero)
         {
         //we hit something besides the background
-        if (nhit == lhit) 
+        if (hitrecords.find(nhit) != hitrecords.end()) 
           {
-          //exploit image coherence to avoid work
-          skipcnt++;
+          //avoid dupl. entries
+          //increment hit count
+          vtkVisibleCellSelectorInternals cpy = *(hitrecords.find(nhit));
+          hitrecords.erase(nhit);
+          cpy.PixelCount++;
+          hitrecords.insert(cpy);
+          dupcnt++;
           }
         else
-          {          
-          if (hitrecords.find(nhit) != hitrecords.end()) 
-            {
-            //avoid dupl. entries
-            dupcnt++;
-            }
-          else
-            {
-            //a new item behind this pixel, remember it
-            //cerr << "NEW HIT @" << this->X0+x << "," << this->Y0+y << " ";
-            //nhit.print();
-
-            hitrecords.insert(nhit);
-            lhit = nhit;
-            hitcnt++;
-            }
-          }        
+          {
+          //a new item behind this pixel, remember it
+          //cerr << "NEW HIT @" << this->X0+x << "," << this->Y0+y << " ";
+          //nhit.Print();
+          nhit.PixelCount = 1;
+          hitrecords.insert(nhit);
+          hitcnt++;
+          }
         }
       else        
         {
@@ -491,11 +496,11 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
     }
   //cerr << misscnt << " misses" << endl;
   //cerr << hitcnt << " hits" << endl;
-  //cerr << skipcnt << " skips" << endl;
   //cerr << dupcnt << " duplicates" << endl;
 
   //save the hits into a vtkDataArray for external use
   this->SelectedIds->SetNumberOfTuples(hitcnt);
+  this->PixelCounts->SetNumberOfTuples(hitcnt);
   if (hitcnt != 0)
     {
     //traversing the set will result in a sorted list, because vtkstd::set 
@@ -504,12 +509,13 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
     vtkstd::set<vtkVisibleCellSelectorInternals>::iterator sit;
     for (sit = hitrecords.begin(); sit != hitrecords.end(); sit++)
       {
-      vtkIdType info[4];
+      vtkIdType info[5];
       info[0] = sit->GetField(0); //procid
       info[1] = sit->GetField(1); //actorid
       info[2] = sit->GetField(2); //cidH
       info[3] = sit->GetField(3); //cidL
       this->SelectedIds->SetTupleValue(cellid, info);
+      this->PixelCounts->SetValue(cellid, sit->PixelCount);
       cellid++;
       }    
     }
@@ -556,6 +562,8 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
   vtkIdTypeArray *cellids = NULL;
 
   vtkSelection* selection = NULL;
+
+  int pixelCount;
   for (vtkIdType i = 0; i < numTup; i++)
     {
     this->SelectedIds->GetTupleValue(i, &aTuple[0]);
@@ -565,6 +573,8 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
 
       if (selection != NULL)
         {
+        selection->GetProperties()->Set(
+          vtkSelection::PIXEL_COUNT(), pixelCount);
         //save whatever node we might have been filling before
         dest->AddChild(selection);
         selection->Delete();
@@ -587,6 +597,8 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
 
       if (selection != NULL)
         {
+        selection->GetProperties()->Set(
+          vtkSelection::PIXEL_COUNT(), pixelCount);
         //save whatever node we might have been filling before
         dest->AddChild(selection);
         selection->Delete();
@@ -596,11 +608,12 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
         cellids = NULL;
         }
 
+      pixelCount = 0;
       //start a new node
       selection = vtkSelection::New();
       //record that we are storing cell ids in the node
       selection->GetProperties()->Set(
-        vtkSelection::CONTENT_TYPE(), vtkSelection::IDS);
+        vtkSelection::CONTENT_TYPE(), vtkSelection::OFFSETS);
       selection->GetProperties()->Set(
         vtkSelection::FIELD_TYPE(), vtkSelection::CELL);
       //record the processor we are recording hits on
@@ -622,10 +635,13 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
     aTuple[3] |= (aTuple[2]<<32);
 #endif
     cellids->InsertNextValue(aTuple[3]);    
+    pixelCount += this->PixelCounts->GetValue(i);
     }
 
   if (selection != NULL)
     {
+    selection->GetProperties()->Set(
+      vtkSelection::PIXEL_COUNT(), pixelCount);
     //save whatever node we might have filled before
     dest->AddChild(selection);
     selection->Delete();

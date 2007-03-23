@@ -27,7 +27,7 @@
 #include "vtkExtractSelectedLocations.h"
 #include "vtkExtractSelectedThresholds.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.8");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.9");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -84,7 +84,9 @@ int vtkExtractSelection::RequestData(
   int seltype = sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE());
   switch (seltype)
     {
-    case vtkSelection::IDS:
+    case vtkSelection::GLOBALIDS:
+    case vtkSelection::VALUES:
+    case vtkSelection::OFFSETS:
     {
     return this->ExtractIds(sel, input, output);
     }

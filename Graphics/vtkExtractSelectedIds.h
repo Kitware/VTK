@@ -18,12 +18,10 @@
 // vtkDataSet. The set of ids to extract are listed within a vtkSelection.
 // This filter adds a scalar array called vtkOriginalCellIds that says what 
 // input cell produced each output cell. This is an example of a Pedigree ID 
-// which helps to trace back results. If the selection has an ARRAY_NAME
-// the filter will use that to decide where each id is. If it doesn't have
-// that then it checks if the input data set has a GlobalIds DataSetAttribute
-// and uses that array. If neither of those are available it will use the
-// offset into the points or cells lists.
-
+// which helps to trace back results. Depending on whether the selection has
+// GLOBALIDS, VALUES or OFFSETS, the selection will use the contents of the
+// array named in the GLOBALIDS DataSetAttribute, and arbitrary array, or the
+// position (tuple id or number) within the cell or point array.
 // .SECTION See Also
 // vtkSelection vtkExtractSelection
 

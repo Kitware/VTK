@@ -28,7 +28,7 @@
 #include "vtkCellType.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.6");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.7");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -72,7 +72,12 @@ int vtkExtractSelectedIds::RequestData(
 
   if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE())
       || 
-      (sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::IDS))
+      (
+        sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::GLOBALIDS &&
+        sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::VALUES &&  
+        sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::OFFSETS
+        )
+    )
     {
     return 1;
     }
@@ -111,21 +116,26 @@ int vtkExtractSelectedIds::ExtractCells(
     return 1;
     }
 
-  //try to find an array to use for ID labels
+  //decide what the IDS mean
   vtkIdTypeArray *labelArray = NULL;
-  if (sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
-      {
-      //user chose a specific label array
-      labelArray = vtkIdTypeArray::SafeDownCast(
-        input->GetCellData()->GetArray(
-          sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
-          )
-        );      
-      }
-  if (labelArray == NULL)
+  int selType = sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE());
+  if (selType == vtkSelection::GLOBALIDS)
     {
-    //user didn't specify an array, try to use the globalid array
     labelArray = vtkIdTypeArray::SafeDownCast(input->GetCellData()->GetGlobalIds());
+    }
+  else if (selType == vtkSelection::VALUES &&
+           sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
+    {
+      //user chose a specific label array
+    labelArray = vtkIdTypeArray::SafeDownCast(
+      input->GetCellData()->GetArray(
+        sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
+        )
+      );      
+    }
+  if (labelArray == NULL && selType != vtkSelection::OFFSETS)
+    {
+    return 1;
     }
 
   vtkCell *cell;
@@ -261,21 +271,26 @@ int vtkExtractSelectedIds::ExtractPoints(
     return 1;
     }
 
-  //try to find an array to use for ID labels
+  //decide what the IDS mean
   vtkIdTypeArray *labelArray = NULL;
-  if (sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
-      {
-      //user chose a specific label array
-      labelArray = vtkIdTypeArray::SafeDownCast(
-        input->GetPointData()->GetArray(
-          sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
-          )
-        );      
-      }
-  if (labelArray == NULL)
+  int selType = sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE());
+  if (selType == vtkSelection::GLOBALIDS)
     {
-    //user didn't specify an array, try to use the globalid array
-    labelArray = vtkIdTypeArray::SafeDownCast(input->GetPointData()->GetGlobalIds());
+    labelArray = vtkIdTypeArray::SafeDownCast(input->GetCellData()->GetGlobalIds());
+    }
+  else if (selType == vtkSelection::VALUES &&
+           sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
+    {
+      //user chose a specific label array
+    labelArray = vtkIdTypeArray::SafeDownCast(
+      input->GetCellData()->GetArray(
+        sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
+        )
+      );      
+    }
+  if (labelArray == NULL && selType != vtkSelection::OFFSETS)
+    {
+    return 1;
     }
   
   //copy the point data attribute array names, data types and widths
