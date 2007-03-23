@@ -85,10 +85,6 @@ public:
   static vtkInformationObjectBaseKey*    UPDATE_BLOCKS();
   static vtkInformationIntegerKey*       REQUIRES_TIME_DOWNSTREAM();
 
-#if defined (JB_SPECIAL_PLEASE_LEAVE_IT_HERE_FOR_NOW_DEBUG)
-  static int ProcessID;
-#endif
-
 protected:
   vtkCompositeDataPipeline();
   ~vtkCompositeDataPipeline();
