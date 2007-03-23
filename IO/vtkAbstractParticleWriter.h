@@ -54,6 +54,11 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
+  // Description:
+  // Close the file after a write. This is optional but
+  // may protect against data loss in between steps
+  virtual void CloseFile() = 0;
+
 protected:
    vtkAbstractParticleWriter();
   ~vtkAbstractParticleWriter();
