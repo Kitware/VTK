@@ -21,7 +21,6 @@
 #include "vtkAppendPolyData.h"
 #include "vtkHandleWidget.h"
 #include "vtkPointHandleRepresentation3D.h"
-#include "vtkPointHandleRepresentation2D.h"
 #include "vtkCoordinate.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
@@ -30,7 +29,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 #include "vtkOutlineFilter.h"
 #include "vtkImplicitPlaneWidget2.h"
@@ -512,6 +510,8 @@ int TestHandleWidget( int argc, char *argv[] )
     iren->Start();
     }
 
+  recorder->Off();
+  recorder->Delete();
   apd->Delete();
   planeWidget->Delete();
   glyph->Delete();
@@ -531,8 +531,6 @@ int TestHandleWidget( int argc, char *argv[] )
   iren->Delete();
   renWin->Delete();
   ren1->Delete();
-  recorder->Off();
-  recorder->Delete();
 
   return !retVal;
 
