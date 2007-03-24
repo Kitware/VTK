@@ -1137,6 +1137,29 @@ kwsys_stl::string SystemTools::CropString(const kwsys_stl::string& s,
 }
 
 //----------------------------------------------------------------------------
+kwsys_stl::vector<kwsys_stl::string> SystemTools::SplitString(const char* p, char sep, bool isPath)
+{
+  kwsys_stl::string path = p;
+  kwsys_stl::vector<kwsys_stl::string> paths;
+  if(isPath && path[0] == '/')
+    {
+    path.erase(path.begin());
+    paths.push_back("/"); 
+    }
+  kwsys_stl::string::size_type pos1 = 0;
+  kwsys_stl::string::size_type pos2 = path.find(sep, pos1+1);
+  while(pos2 != kwsys_stl::string::npos)
+    {
+    paths.push_back(path.substr(pos1, pos2-pos1));
+    pos1 = pos2+1;
+    pos2 = path.find(sep, pos1+1);
+    } 
+  paths.push_back(path.substr(pos1, pos2-pos1));
+  
+  return paths;
+}
+
+//----------------------------------------------------------------------------
 int SystemTools::EstimateFormatLength(const char *format, va_list ap)
 {
   if (!format)
@@ -2352,6 +2375,96 @@ kwsys_stl::string SystemTools::CollapseFullPath(const char* in_path,
   return newPath;
 }
 
+// compute the relative path from here to there
+kwsys_stl::string SystemTools::RelativePath(const char* local, const char* remote)
+{
+  if(!SystemTools::FileIsFullPath(local))
+    {
+    return "";
+    }
+  if(!SystemTools::FileIsFullPath(remote))
+    {
+    return "";
+    }
+
+  // split up both paths into arrays of strings using / as a separator
+  kwsys_stl::vector<kwsys_stl::string> localSplit = SystemTools::SplitString(local, '/', true); 
+  kwsys_stl::vector<kwsys_stl::string> remoteSplit = SystemTools::SplitString(remote, '/', true);
+  kwsys_stl::vector<kwsys_stl::string> commonPath; // store shared parts of path in this array
+  kwsys_stl::vector<kwsys_stl::string> finalPath;  // store the final relative path here
+  // count up how many matching directory names there are from the start
+  unsigned int sameCount = 0;
+  while(
+    ((sameCount <= (localSplit.size()-1)) && (sameCount <= (remoteSplit.size()-1)))
+    &&
+// for windows and apple do a case insensitive string compare
+#if defined(_WIN32) || defined(__APPLE__)
+    SystemTools::Strucmp(localSplit[sameCount].c_str(),
+                         remoteSplit[sameCount].c_str()) == 0
+#else
+    localSplit[sameCount] == remoteSplit[sameCount]
+#endif
+    )
+    {
+    // put the common parts of the path into the commonPath array
+    commonPath.push_back(localSplit[sameCount]);
+    // erase the common parts of the path from the original path arrays
+    localSplit[sameCount] = "";
+    remoteSplit[sameCount] = "";
+    sameCount++;
+    }
+
+#if 0
+  // NOTE: We did this at one time to prevent relative paths to the
+  // compiler from looking like "../../../../../../../usr/bin/gcc".
+  // Now however relative paths are only computed for destinations
+  // inside the build tree so this is not a problem.  This is now a
+  // general-purpose method and should not have this hack.  I'm
+  // leaving it in place in case removing it causes a problem so it is
+  // easy to restore:
+  //
+  // If there is nothing in common but the root directory, then just
+  // return the full path.
+  if(sameCount <= 1)
+    {
+    return remote;
+    }
+#endif
+
+  // for each entry that is not common in the local path
+  // add a ../ to the finalpath array, this gets us out of the local
+  // path into the remote dir
+  for(unsigned int i = 0; i < localSplit.size(); ++i)
+    {
+    if(localSplit[i].size())
+      {
+      finalPath.push_back("../");
+      }
+    }
+  // for each entry that is not common in the remote path add it
+  // to the final path.
+  for(kwsys_stl::vector<kwsys_stl::string>::iterator vit = remoteSplit.begin();
+      vit != remoteSplit.end(); ++vit)
+    {
+    if(vit->size())
+      {
+      finalPath.push_back(*vit);
+      }
+    }
+  kwsys_stl::string relativePath;     // result string
+  // now turn the array of directories into a unix path by puttint / 
+  // between each entry that does not already have one
+  for(kwsys_stl::vector<kwsys_stl::string>::iterator vit1 = finalPath.begin();
+      vit1 != finalPath.end(); ++vit1)
+    {
+    if(relativePath.size() && relativePath[relativePath.size()-1] != '/')
+      {
+      relativePath += "/";
+      }
+    relativePath += *vit1;
+    }
+  return relativePath;
+}
 
 // OK, some fun stuff to get the actual case of a given path.
 // Basically, you just need to call ShortPath, then GetLongPathName,
