@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPieceRequestFilter, "1.1");
+vtkCxxRevisionMacro(vtkPieceRequestFilter, "1.2");
 vtkStandardNewMacro(vtkPieceRequestFilter);
 
 //----------------------------------------------------------------------------
@@ -28,6 +28,8 @@ vtkPieceRequestFilter::vtkPieceRequestFilter()
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
+  this->Piece = 0;
+  this->NumberOfPieces = 1;
 }
 
 //----------------------------------------------------------------------------

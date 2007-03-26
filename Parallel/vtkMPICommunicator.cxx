@@ -26,7 +26,7 @@
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.39");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.40");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -843,6 +843,24 @@ int vtkMPICommunicator::NoBlockReceive(vtkIdType* data, int length,
 vtkMPICommunicator::Request::Request()
 {
   this->Req = new vtkMPICommunicatorOpaqueRequest;
+}
+
+//----------------------------------------------------------------------------
+vtkMPICommunicator::Request::Request( const vtkMPICommunicator::Request& src )
+{
+  this->Req = new vtkMPICommunicatorOpaqueRequest;
+  this->Req->Handle = src.Req->Handle;
+}
+
+//----------------------------------------------------------------------------
+vtkMPICommunicator::Request& vtkMPICommunicator::Request::operator = ( const vtkMPICommunicator::Request& src )
+{
+  if ( this == &src )
+    {
+    return *this;
+    }
+  this->Req->Handle = src.Req->Handle;
+  return *this;
 }
 
 //----------------------------------------------------------------------------

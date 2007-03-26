@@ -93,7 +93,9 @@ public:
   {
   public:
     Request();
+    Request( const Request& );
     ~Request();
+    Request& operator = ( const Request& );
     int Test();
     void Cancel();
     void Wait();
