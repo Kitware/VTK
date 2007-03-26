@@ -28,7 +28,7 @@
 #include "vtkCellType.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.7");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.8");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -121,18 +121,20 @@ int vtkExtractSelectedIds::ExtractCells(
   int selType = sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE());
   if (selType == vtkSelection::GLOBALIDS)
     {
-    labelArray = vtkIdTypeArray::SafeDownCast(input->GetCellData()->GetGlobalIds());
+    labelArray = vtkIdTypeArray::SafeDownCast(
+      input->GetCellData()->GetGlobalIds());
     }
   else if (selType == vtkSelection::VALUES &&
            sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
     {
-      //user chose a specific label array
+    //user chose a specific label array
     labelArray = vtkIdTypeArray::SafeDownCast(
       input->GetCellData()->GetArray(
         sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
         )
-      );      
+      }    
     }
+
   if (labelArray == NULL && selType != vtkSelection::OFFSETS)
     {
     return 1;
@@ -276,14 +278,15 @@ int vtkExtractSelectedIds::ExtractPoints(
   int selType = sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE());
   if (selType == vtkSelection::GLOBALIDS)
     {
-    labelArray = vtkIdTypeArray::SafeDownCast(input->GetCellData()->GetGlobalIds());
+    labelArray = vtkIdTypeArray::SafeDownCast(
+      input->GetPointData()->GetGlobalIds());
     }
   else if (selType == vtkSelection::VALUES &&
            sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
     {
       //user chose a specific label array
     labelArray = vtkIdTypeArray::SafeDownCast(
-      input->GetCellData()->GetArray(
+      input->GetPointData()->GetArray(
         sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
         )
       );      
