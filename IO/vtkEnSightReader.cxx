@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.67");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.68");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -432,10 +432,10 @@ int vtkEnSightReader::RequestInformation(
     }
   if (timeValues.size() > 0)
     {
+    vtkstd::sort(timeValues.begin(), timeValues.end());
     vtkstd::vector<double> uniqueTimeValues(
       timeValues.begin(),
       vtkstd::unique(timeValues.begin(), timeValues.end()));
-    vtkstd::sort(uniqueTimeValues.begin(), uniqueTimeValues.end());
     int numTimeValues = uniqueTimeValues.size();
     if (numTimeValues > 0)
       {
