@@ -28,7 +28,7 @@
 #include "vtkCellType.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.8");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.9");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -131,10 +131,9 @@ int vtkExtractSelectedIds::ExtractCells(
     labelArray = vtkIdTypeArray::SafeDownCast(
       input->GetCellData()->GetArray(
         sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
-        )
-      }    
-    }
-
+        ));
+    }    
+  
   if (labelArray == NULL && selType != vtkSelection::OFFSETS)
     {
     return 1;
@@ -284,12 +283,11 @@ int vtkExtractSelectedIds::ExtractPoints(
   else if (selType == vtkSelection::VALUES &&
            sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
     {
-      //user chose a specific label array
+    //user chose a specific label array
     labelArray = vtkIdTypeArray::SafeDownCast(
       input->GetPointData()->GetArray(
         sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
-        )
-      );      
+        ));      
     }
   if (labelArray == NULL && selType != vtkSelection::OFFSETS)
     {
