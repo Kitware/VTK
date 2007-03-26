@@ -41,6 +41,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
+// -----------------------------------------------------------------------
 // This does the actual work: updates the vtkPline implicit function.
 // This in turn causes the pipeline to update and clip the object.
 // Callback for the interaction
@@ -58,12 +59,15 @@ public:
       rep->GetPlane(this->Plane);
       this->Actor->VisibilityOn();
     }
-  vtkTIPW3Callback():Plane(0),Actor(0) {}
+
+  vtkTIPW3Callback() : Actor(0) { this->Plane = vtkPlane::New(); }
+  ~vtkTIPW3Callback() { this->Plane->Delete(); }
+  
   vtkPlane *Plane;
   vtkActor *Actor;
-
 };
 
+// -----------------------------------------------------------------------
 char HandleWidgetLog[] = 
 "# StreamVersion 1\n"
 "ConfigureEvent 600 -1 0 0 0 0 0 i\n"
@@ -330,6 +334,7 @@ char HandleWidgetLog[] =
 "ExitEvent 457 176 0 0 113 1 q i\n"
 ;
 
+// -----------------------------------------------------------------------
 int TestHandleWidget( int argc, char *argv[] )
 {
   // Create a mace out of filters.
@@ -351,10 +356,10 @@ int TestHandleWidget( int argc, char *argv[] )
 
   // This portion of the code clips the mace with the vtkPlanes 
   // implicit function. The cut region is colored green.
-  vtkPlane *plane = vtkPlane::New();
+  vtkTIPW3Callback *myCallback = vtkTIPW3Callback::New();
   vtkCutter *cutter = vtkCutter::New();
   cutter->SetInputConnection(apd->GetOutputPort());
-  cutter->SetCutFunction(plane);
+  cutter->SetCutFunction( myCallback->Plane );
 
   vtkPolyDataMapper *selectMapper = vtkPolyDataMapper::New();
   selectMapper->SetInputConnection(cutter->GetOutputPort());
@@ -380,8 +385,6 @@ int TestHandleWidget( int argc, char *argv[] )
   vtkImplicitPlaneWidget2 *planeWidget = vtkImplicitPlaneWidget2::New();
   planeWidget->SetRepresentation(rep);
 
-  vtkTIPW3Callback *myCallback = vtkTIPW3Callback::New();
-  myCallback->Plane = plane;
   myCallback->Actor = selectActor;
 
   planeWidget->AddObserver(vtkCommand::InteractionEvent,myCallback);
@@ -453,6 +456,7 @@ int TestHandleWidget( int argc, char *argv[] )
     // Also add bounding planes for the bounds of the dataset.
     double bounds[6];
     outline->GetOutput()->GetBounds(bounds);
+    vtkPlane *plane;
     plane = vtkPlane::New();
     plane->SetOrigin( bounds[0], bounds[2], bounds[4] );
     plane->SetNormal( 1.0, 0.0, 0.0 );
@@ -522,7 +526,6 @@ int TestHandleWidget( int argc, char *argv[] )
   selectMapper->Delete();
   selectActor->Delete();
   cutter->Delete();
-  myCallback->Plane->Delete();
   outline->Delete();
   outlineMapper->Delete();
   outlineActor->Delete();
