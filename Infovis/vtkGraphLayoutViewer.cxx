@@ -54,7 +54,7 @@
 #include "vtkUnstructuredGrid.h"
 
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.17");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.18");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -67,17 +67,18 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
   this->InteractorStyle       = vtkInteractorStyleImage::New();
   this->GraphLayout           = vtkSmartPointer<vtkGraphLayout>::New();
   this->GraphToPolyData       = vtkSmartPointer<vtkGraphToPolyData>::New();
-  this->VertexMapper            = vtkSmartPointer<vtkPolyDataMapper>::New();
+  this->GlyphMapper          = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->EdgeMapper            = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->Renderer              = vtkSmartPointer<vtkRenderer>::New();
   this->SphereSource          = vtkSmartPointer<vtkSphereSource>::New();
-  this->VertexGlyphs            = vtkSmartPointer<vtkGlyph3D>::New();
-  this->VertexActor             = vtkSmartPointer<vtkActor>::New();
+  this->VertexGlyphs          = vtkSmartPointer<vtkGlyph3D>::New();
+  this->VertexActor           = vtkSmartPointer<vtkActor>::New();
   this->EdgeActor             = vtkSmartPointer<vtkActor>::New();
   this->LabelActor            = vtkSmartPointer<vtkActor2D>::New();
-  this->ColorLUT              = vtkSmartPointer<vtkLookupTable>::New();
+  this->EdgeColorLUT          = vtkSmartPointer<vtkLookupTable>::New();
+  this->GlyphColorLUT         = vtkSmartPointer<vtkLookupTable>::New();
   this->LabeledDataMapper     = vtkSmartPointer<vtkLabeledDataMapper>::New();
-  this->EdgeWeightField        = 0;
+  this->EdgeWeightField       = 0;
   
   // Set up eventforwarder
   this->EventForwarder = vtkEventForwarderCommand::New();
@@ -90,10 +91,10 @@ vtkGraphLayoutViewer::vtkGraphLayoutViewer()
   this->LabeledDataMapper->GetLabelTextProperty()->SetJustificationToCentered();
   this->LabeledDataMapper->GetLabelTextProperty()->SetFontSize(14);
   this->SetLayoutStrategy("Simple2D");
-  this->SphereSource->SetRadius(0.05); // Why? Given the current layout strategies
+  this->SphereSource->SetRadius(0.1); // Why? Given the current layout strategies
                                        // seems to work pretty good just hardcoding
-  this->SphereSource->SetPhiResolution(8);
-  this->SphereSource->SetThetaResolution(8);
+  this->SphereSource->SetPhiResolution(3);
+  this->SphereSource->SetThetaResolution(3);
 
   // Okay setup the internal pipeline
   this->SetupPipeline();
@@ -266,10 +267,15 @@ void vtkGraphLayoutViewer::SetupPipeline()
 {
 
   // Set various properties
-  this->Renderer->SetBackground(.3,.3,.3);
-  this->Renderer->GetActiveCamera()->ParallelProjectionOn();
-  this->ColorLUT->SetHueRange( 0.667, 0 );
-  this->ColorLUT->Build();
+  this->Renderer->SetBackground(.6,.6,.5);  // Tan
+  this->EdgeColorLUT->SetHueRange( 0.667, 0 );
+  this->EdgeColorLUT->SetAlphaRange( .3, 1 );
+  this->EdgeColorLUT->SetValueRange( .5, 1 );
+  this->EdgeColorLUT->SetSaturationRange( .3, 1 );
+  this->GlyphColorLUT->SetHueRange( 0.667, 0 );
+  
+  this->EdgeColorLUT->Build();
+  this->GlyphColorLUT->Build();
  
   // Wire up the pipeline
  
@@ -290,12 +296,12 @@ void vtkGraphLayoutViewer::SetupPipeline()
   this->VertexGlyphs->SetInputConnection(0, this->GraphToPolyData->GetOutputPort(0));
   this->VertexGlyphs->SetInputConnection(1, this->SphereSource->GetOutputPort(0));
   this->VertexGlyphs->ScalingOff();
-  this->VertexMapper->SetLookupTable(ColorLUT);
-  this->VertexMapper->SetScalarRange( 0, 1 );
-  this->VertexMapper->SetInputConnection(0, this->VertexGlyphs->GetOutputPort(0));
+  this->GlyphMapper->SetLookupTable(GlyphColorLUT);
+  this->GlyphMapper->SetScalarRange( 0, 1 );
+  this->GlyphMapper->SetInputConnection(0, this->VertexGlyphs->GetOutputPort(0));
   
   // Now give poly data to the edge mapper
-  this->EdgeMapper->SetLookupTable(ColorLUT);
+  this->EdgeMapper->SetLookupTable(EdgeColorLUT);
   this->EdgeMapper->SetScalarRange( 0, 1 );
   this->EdgeMapper->SetInputConnection(0, this->GraphToPolyData->GetOutputPort(0));
                                            
@@ -305,7 +311,7 @@ void vtkGraphLayoutViewer::SetupPipeline()
   this->LabelActor->SetMapper(this->LabeledDataMapper);
   
   // Actor setup
-  this->VertexActor->SetMapper(this->VertexMapper);
+  this->VertexActor->SetMapper(this->GlyphMapper);
   this->EdgeActor->SetMapper(this->EdgeMapper);
   this->Renderer->AddActor(this->VertexActor);
   this->Renderer->AddActor(this->EdgeActor);
@@ -320,8 +326,8 @@ void vtkGraphLayoutViewer::SetVertexColorFieldName(const char *field)
   if (!strcmp(field,"")) return;
   if (!strcmp(field,"No Filter")) return;
   
-  this->VertexMapper->SetScalarModeToUsePointFieldData();
-  this->VertexMapper->SelectColorArray(field);
+  this->GlyphMapper->SetScalarModeToUsePointFieldData();
+  this->GlyphMapper->SelectColorArray(field);
   
   // Okay now get the range of the data field
   double range[2]; 
@@ -331,7 +337,7 @@ void vtkGraphLayoutViewer::SetVertexColorFieldName(const char *field)
   if (array)
     {
     array->GetRange(range);
-    this->VertexMapper->SetScalarRange( range[0], range[1] );
+    this->GlyphMapper->SetScalarRange( range[0], range[1] );
     } 
 
   if (this->RenderWindow)
@@ -368,7 +374,7 @@ void vtkGraphLayoutViewer::SetEdgeColorFieldName(const char *field)
 
 char* vtkGraphLayoutViewer::GetVertexColorFieldName()
 {
-  return this->VertexMapper->GetArrayName();
+  return this->GlyphMapper->GetArrayName();
 }
 
 char* vtkGraphLayoutViewer::GetEdgeColorFieldName()
@@ -483,10 +489,10 @@ void vtkGraphLayoutViewer::PrintSelf(ostream& os, vtkIndent indent)
     this->RenderWindow->PrintSelf(os,indent.GetNextIndent());
     }
   
-  os << indent << "VertexMapper: " << (this->VertexMapper ? "" : "(none)") << endl;
-  if (this->VertexMapper)
+  os << indent << "GlyphMapper: " << (this->GlyphMapper ? "" : "(none)") << endl;
+  if (this->GlyphMapper)
     {
-    this->VertexMapper->PrintSelf(os,indent.GetNextIndent()); 
+    this->GlyphMapper->PrintSelf(os,indent.GetNextIndent()); 
     }
     
   os << indent << "SphereSource: " << (this->SphereSource ? "" : "(none)") << endl;

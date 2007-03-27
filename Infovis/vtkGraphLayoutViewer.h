@@ -156,13 +156,14 @@ protected:
   vtkSmartPointer<vtkSphereSource>          SphereSource;
   vtkSmartPointer<vtkGlyph3D>               VertexGlyphs;
   vtkSmartPointer<vtkInteractorStyleImage>  InteractorStyle;
-  vtkSmartPointer<vtkPolyDataMapper>        VertexMapper;
+  vtkSmartPointer<vtkPolyDataMapper>        GlyphMapper;
   vtkSmartPointer<vtkPolyDataMapper>        EdgeMapper;
   vtkSmartPointer<vtkRenderer>              Renderer;
   vtkSmartPointer<vtkActor>                 VertexActor;
   vtkSmartPointer<vtkActor>                 EdgeActor;
   vtkSmartPointer<vtkActor2D>               LabelActor;
-  vtkSmartPointer<vtkLookupTable>           ColorLUT;
+  vtkSmartPointer<vtkLookupTable>           EdgeColorLUT;
+  vtkSmartPointer<vtkLookupTable>           GlyphColorLUT;
   vtkSmartPointer<vtkLabeledDataMapper>     LabeledDataMapper;
   //ETX
   
