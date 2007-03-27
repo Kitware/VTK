@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.5");
+vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.6");
 vtkStandardNewMacro(vtkExtractSelectedLocations);
 
 //----------------------------------------------------------------------------
@@ -98,25 +98,14 @@ int vtkExtractSelectedLocations::RequestDataObject(
           ||
           (passThrough && !output->IsA(input->GetClassName()))
           ||
-          (!passThrough &&
-           ((pointsOnly /*|| input->IsA("vtkPolyData")*/) && !output->IsA("vtkPolyData"))
-           ||
-           (!(pointsOnly || input->IsA("vtkPolyData")) && !output->IsA("vtkUnstructuredGrid"))
-            )
+          (!passThrough && !output->IsA("vtkUnstructuredGrid"))
         )
         {
         vtkDataSet* newOutput = NULL;
         if (!passThrough)
           {
-          // The mesh will be modified. Polydata is still polydata, but other grids become unstructured.
-          if (pointsOnly /*|| input->IsA("vtkPolyData")*/)
-            {
-            newOutput = vtkPolyData::New();
-            } 
-          else 
-            {
-            newOutput = vtkUnstructuredGrid::New();
-            }
+          // The mesh will be modified.
+          newOutput = vtkUnstructuredGrid::New();
           }
         else
           {
@@ -511,7 +500,6 @@ int vtkExtractSelectedLocations::ExtractPoints(
           }
         }
       }
-    locArrayIndex++;
     }
 
   ptCells->Delete();
@@ -539,11 +527,11 @@ int vtkExtractSelectedLocations::ExtractPoints(
     else
       {
       numPts = output->GetNumberOfPoints();
-      vtkPolyData* outputPD = vtkPolyData::SafeDownCast(output);
-      outputPD->Allocate(numPts);
+      vtkUnstructuredGrid* outputUG = vtkUnstructuredGrid::SafeDownCast(output);
+      outputUG->Allocate(numPts);
       for (i = 0; i < numPts; ++i)
         {
-        outputPD->InsertNextCell(VTK_VERTEX, 1, &i);
+        outputUG->InsertNextCell(VTK_VERTEX, 1, &i);
         }
       }
     this->UpdateProgress(1.0);      
