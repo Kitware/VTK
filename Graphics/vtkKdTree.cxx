@@ -48,7 +48,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.16");
+vtkCxxRevisionMacro(vtkKdTree, "1.17");
 
 // Timing data ---------------------------------------------
 
@@ -4315,7 +4315,8 @@ void vtkKdTree::FindPointsInArea(vtkKdNode* node, double* area, vtkIdTypeArray* 
     if (node->GetLeft() == NULL)
       {
       int regionID = node->GetID();
-      float* pt = this->LocatorPoints + (regionID * 3);
+      int regionLoc = this->LocatorRegionLocation[regionID];
+      float* pt = this->LocatorPoints + (regionLoc * 3);
       vtkIdType numPoints = this->RegionList[regionID]->GetNumberOfPoints();
       for (vtkIdType i = 0; i < numPoints; i++)
         {
@@ -4323,7 +4324,7 @@ void vtkKdTree::FindPointsInArea(vtkKdNode* node, double* area, vtkIdTypeArray* 
           area[2] <= pt[1] && pt[1] <= area[3] &&
           area[4] <= pt[2] && pt[2] <= area[5])
           {
-          vtkIdType ptId = static_cast<vtkIdType>(this->LocatorIds[regionID + i]);
+          vtkIdType ptId = static_cast<vtkIdType>(this->LocatorIds[regionLoc + i]);
           ids->InsertNextValue(ptId);
           }
         pt += 3;
@@ -4343,11 +4344,14 @@ void vtkKdTree::AddAllPointsInRegion(vtkKdNode* node, vtkIdTypeArray* ids)
   if (node->GetLeft() == NULL)
     {
     int regionID = node->GetID();
+    int regionLoc = this->LocatorRegionLocation[regionID];
+    float* pt = this->LocatorPoints + (regionLoc * 3);
     vtkIdType numPoints = this->RegionList[regionID]->GetNumberOfPoints();
     for (vtkIdType i = 0; i < numPoints; i++)
       {
-      vtkIdType ptId = static_cast<vtkIdType>(this->LocatorIds[regionID + i]);
+      vtkIdType ptId = static_cast<vtkIdType>(this->LocatorIds[regionLoc + i]);
       ids->InsertNextValue(ptId);
+      pt += 3;
       }
     }
   else
