@@ -21,13 +21,14 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
+#include "vtkDataSet.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtractSelectedIds.h"
 #include "vtkExtractSelectedFrustum.h"
 #include "vtkExtractSelectedLocations.h"
 #include "vtkExtractSelectedThresholds.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.10");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.11");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -50,6 +51,73 @@ vtkExtractSelection::~vtkExtractSelection()
 }
 
 //----------------------------------------------------------------------------
+//needed because parent class sets output type to input type
+//and we sometimes want to change it to make an UnstructuredGrid regardless of
+//input type
+int vtkExtractSelection::RequestDataObject(
+  vtkInformation*,
+  vtkInformationVector** inputVector ,
+  vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+    {
+    return 0;
+    }
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  if (input)
+    {
+    vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
+    int passThrough = 0;
+    if (inInfo)
+      {
+      vtkSelection *sel = vtkSelection::SafeDownCast(
+        selInfo->Get(vtkDataObject::DATA_OBJECT()));
+      if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
+          sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
+        {
+        passThrough = 1;
+        }
+      }
+
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkDataSet *output = vtkDataSet::SafeDownCast(
+        info->Get(vtkDataObject::DATA_OBJECT()));
+
+      if (!output
+          ||
+          (passThrough && !output->IsA(input->GetClassName()))
+          ||
+          (!passThrough && !output->IsA("vtkUnstructuredGrid"))
+        )
+        {
+        vtkDataSet* newOutput = NULL;
+        if (!passThrough)
+          {
+          // The mesh will be modified. 
+          newOutput = vtkUnstructuredGrid::New();
+          }
+        else
+          {
+          // The mesh will not be modified.
+          newOutput = input->NewInstance();
+          }
+        newOutput->SetPipelineInformation(info);
+        newOutput->Delete();
+        this->GetOutputPortInformation(i)->Set(
+          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
+        }
+      }
+    return 1;
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 int vtkExtractSelection::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -63,7 +131,7 @@ int vtkExtractSelection::RequestData(
   // get the selection, input and ouptut
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkSelection *sel = vtkSelection::SafeDownCast(
@@ -109,7 +177,7 @@ int vtkExtractSelection::RequestData(
 
 //----------------------------------------------------------------------------
 int vtkExtractSelection::ExtractIds(
-  vtkSelection *sel, vtkDataSet* input, vtkUnstructuredGrid *output)
+  vtkSelection *sel, vtkDataSet* input, vtkDataSet *output)
 {
   this->IdsFilter->SetInput(1, sel);
 
@@ -120,7 +188,7 @@ int vtkExtractSelection::ExtractIds(
 
   this->IdsFilter->Update();
 
-  vtkUnstructuredGrid* ecOutput = vtkUnstructuredGrid::SafeDownCast(
+  vtkDataSet* ecOutput = vtkDataSet::SafeDownCast(
     this->IdsFilter->GetOutputDataObject(0));
   output->ShallowCopy(ecOutput);
   ecOutput->Initialize();
@@ -130,7 +198,7 @@ int vtkExtractSelection::ExtractIds(
 
 //----------------------------------------------------------------------------
 int vtkExtractSelection::ExtractFrustum(
-  vtkSelection *sel, vtkDataSet* input, vtkUnstructuredGrid *output)
+  vtkSelection *sel, vtkDataSet* input, vtkDataSet *output)
 {
   this->FrustumFilter->SetInput(1, sel);
 
@@ -141,7 +209,7 @@ int vtkExtractSelection::ExtractFrustum(
 
   this->FrustumFilter->Update();
 
-  vtkUnstructuredGrid* ecOutput = vtkUnstructuredGrid::SafeDownCast(
+  vtkDataSet* ecOutput = vtkDataSet::SafeDownCast(
     this->FrustumFilter->GetOutputDataObject(0));
   output->ShallowCopy(ecOutput);
   ecOutput->Initialize();
@@ -151,7 +219,7 @@ int vtkExtractSelection::ExtractFrustum(
 
 //----------------------------------------------------------------------------
 int vtkExtractSelection::ExtractLocations(
-  vtkSelection *sel, vtkDataSet* input, vtkUnstructuredGrid *output)
+  vtkSelection *sel, vtkDataSet* input, vtkDataSet *output)
 {
   this->LocationsFilter->SetInput(1, sel);
 
@@ -162,7 +230,7 @@ int vtkExtractSelection::ExtractLocations(
 
   this->LocationsFilter->Update();
 
-  vtkUnstructuredGrid* ecOutput = vtkUnstructuredGrid::SafeDownCast(
+  vtkDataSet* ecOutput = vtkDataSet::SafeDownCast(
     this->LocationsFilter->GetOutputDataObject(0));
   output->ShallowCopy(ecOutput);
   ecOutput->Initialize();
@@ -172,7 +240,7 @@ int vtkExtractSelection::ExtractLocations(
 
 //----------------------------------------------------------------------------
 int vtkExtractSelection::ExtractThresholds(
-  vtkSelection *sel, vtkDataSet* input, vtkUnstructuredGrid *output)
+  vtkSelection *sel, vtkDataSet* input, vtkDataSet *output)
 {
   this->ThresholdsFilter->SetInput(1, sel);
 
@@ -183,7 +251,7 @@ int vtkExtractSelection::ExtractThresholds(
 
   this->ThresholdsFilter->Update();
 
-  vtkUnstructuredGrid* ecOutput = vtkUnstructuredGrid::SafeDownCast(
+  vtkDataSet* ecOutput = vtkDataSet::SafeDownCast(
     this->ThresholdsFilter->GetOutputDataObject(0));
   output->ShallowCopy(ecOutput);
   ecOutput->Initialize();

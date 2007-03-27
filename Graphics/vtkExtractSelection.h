@@ -28,7 +28,7 @@
 #ifndef __vtkExtractSelection_h
 #define __vtkExtractSelection_h
 
-#include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkExtractSelectedIds;
 class vtkExtractSelectedFrustum;
@@ -36,10 +36,10 @@ class vtkExtractSelectedLocations;
 class vtkExtractSelectedThresholds;
 class vtkSelection;
 
-class VTK_GRAPHICS_EXPORT vtkExtractSelection : public vtkUnstructuredGridAlgorithm
+class VTK_GRAPHICS_EXPORT vtkExtractSelection : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractSelection,vtkUnstructuredGridAlgorithm);
+  vtkTypeRevisionMacro(vtkExtractSelection,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -58,16 +58,21 @@ protected:
   vtkExtractSelection();
   ~vtkExtractSelection();
 
+  //sets up output dataset
+  virtual int RequestDataObject(vtkInformation* request,
+                                vtkInformationVector** inputVector,
+                                vtkInformationVector* outputVector);
+ 
   // Usual data generation method
-  int RequestData(vtkInformation *, 
+  virtual int RequestData(vtkInformation *, 
                   vtkInformationVector **, 
                   vtkInformationVector *);
 
 
-  int ExtractIds(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
-  int ExtractFrustum(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
-  int ExtractLocations(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
-  int ExtractThresholds(vtkSelection *s, vtkDataSet *i, vtkUnstructuredGrid *o);
+  int ExtractIds(vtkSelection *s, vtkDataSet *i, vtkDataSet *o);
+  int ExtractFrustum(vtkSelection *s, vtkDataSet *i, vtkDataSet *o);
+  int ExtractLocations(vtkSelection *s, vtkDataSet *i, vtkDataSet *o);
+  int ExtractThresholds(vtkSelection *s, vtkDataSet *i, vtkDataSet *o);
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
