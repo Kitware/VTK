@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkPointPlacer.h"
 
-vtkCxxRevisionMacro(vtkHandleRepresentation, "1.10");
+vtkCxxRevisionMacro(vtkHandleRepresentation, "1.11");
 
 vtkCxxSetObjectMacro(vtkHandleRepresentation, PointPlacer, vtkPointPlacer );
 
@@ -55,17 +55,24 @@ vtkHandleRepresentation::~vtkHandleRepresentation()
 //----------------------------------------------------------------------
 void vtkHandleRepresentation::SetDisplayPosition(double displyPos[3])
 {
-  if (this->Renderer && 
-      this->PointPlacer->ValidateDisplayPosition( this->Renderer, displyPos ))
-    {
-    double worldPos[3], worldOrient[9];
-    if (this->PointPlacer->ComputeWorldPosition( 
-          this->Renderer, displyPos, worldPos, worldOrient ))
+  if (this->Renderer && this->PointPlacer)
+    { 
+    if (this->PointPlacer->ValidateDisplayPosition( this->Renderer, displyPos ))
       {
-      this->DisplayPosition->SetValue(displyPos);
-      this->WorldPosition->SetValue(worldPos);
-      this->DisplayPositionTime.Modified();
+      double worldPos[3], worldOrient[9];
+      if (this->PointPlacer->ComputeWorldPosition( 
+            this->Renderer, displyPos, worldPos, worldOrient ))
+        {
+        this->DisplayPosition->SetValue(displyPos);
+        this->WorldPosition->SetValue(worldPos);
+        this->DisplayPositionTime.Modified();
+        }
       }
+    }
+  else 
+    {
+    this->DisplayPosition->SetValue(displyPos);
+    this->DisplayPositionTime.Modified();
     }
 }
 
@@ -90,12 +97,19 @@ double* vtkHandleRepresentation::GetDisplayPosition()
 //----------------------------------------------------------------------
 void vtkHandleRepresentation::SetWorldPosition(double pos[3])
 {
-  if (this->Renderer && 
-      this->PointPlacer->ValidateWorldPosition( pos ))
+  if (this->Renderer && this->PointPlacer)
     {
-    this->WorldPosition->SetValue(pos);
-    this->WorldPositionTime.Modified();
+    if (this->PointPlacer->ValidateWorldPosition( pos ))
+      {
+      this->WorldPosition->SetValue(pos);
+      this->WorldPositionTime.Modified();
+      }
     }
+  else 
+  {
+  this->WorldPosition->SetValue(pos);
+  this->WorldPositionTime.Modified();
+  }
 }
 
 //----------------------------------------------------------------------

@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkFocalPlanePointPlacer.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.10");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.11");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -123,25 +123,45 @@ double* vtkPointHandleRepresentation3D::GetBounds()
 //-------------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::SetWorldPosition(double p[3])
 {
-  if (this->PointPlacer->ValidateWorldPosition(p))
+  if (this->Renderer && this->PointPlacer)
+    {
+    if (this->PointPlacer->ValidateWorldPosition( p ))
+      {
+      this->Cursor3D->SetFocalPoint(p); //this may clamp the point
+      this->WorldPosition->SetValue(this->Cursor3D->GetFocalPoint());
+      this->WorldPositionTime.Modified();
+      }
+    }
+  else 
     {
     this->Cursor3D->SetFocalPoint(p); //this may clamp the point
-    this->Superclass::SetWorldPosition(this->Cursor3D->GetFocalPoint());
+    this->WorldPosition->SetValue(this->Cursor3D->GetFocalPoint());
+    this->WorldPositionTime.Modified();
     }
 }
 
 //-------------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::SetDisplayPosition(double p[3])
 {
-  // Check if the superclass was successful in setting the display position 
-  // according to the placer constraints. If it is the mtime will change
-  vtkTimeStamp displayPositionMTime = this->DisplayPositionTime;
-
-  this->Superclass::SetDisplayPosition(p);
-
-  if ( this->DisplayPositionTime > displayPositionMTime )
+  if (this->Renderer && this->PointPlacer)
+    { 
+    if (this->PointPlacer->ValidateDisplayPosition( this->Renderer, p))
+      {
+      double worldPos[3], worldOrient[9];
+      if (this->PointPlacer->ComputeWorldPosition( 
+            this->Renderer, p, worldPos, worldOrient ))
+        {
+        this->DisplayPosition->SetValue(p);
+        this->WorldPosition->SetValue(worldPos);
+        this->DisplayPositionTime.Modified();
+        this->SetWorldPosition(this->WorldPosition->GetValue());
+        }
+      }
+    }
+  else 
     {
-    this->SetWorldPosition(this->WorldPosition->GetValue());
+    this->DisplayPosition->SetValue(p);
+    this->DisplayPositionTime.Modified();
     }
 }
 
@@ -153,7 +173,8 @@ void vtkPointHandleRepresentation3D::SetHandleSize(double size)
 }
 
 //-------------------------------------------------------------------------
-int vtkPointHandleRepresentation3D::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
+int vtkPointHandleRepresentation3D
+::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   this->VisibilityOn(); //actor must be on to be picked
   this->CursorPicker->Pick(X,Y,0.0,this->Renderer);
