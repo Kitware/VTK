@@ -112,6 +112,12 @@ public:
   vtkGetMacro(ShowBounds,int);
   vtkBooleanMacro(ShowBounds,int);
   
+  // Description:
+  // When on, extracts cells outside the frustum instead of inside.
+  vtkSetMacro(InsideOut,int);
+  vtkGetMacro(InsideOut,int);
+  vtkBooleanMacro(InsideOut,int);
+
 protected:
   vtkExtractSelectedFrustum(vtkPlanes *f=NULL);
   ~vtkExtractSelectedFrustum();
@@ -146,6 +152,7 @@ protected:
   //modes
   int PassThrough;
   int ExactTest;
+  int InsideOut;
 
   //used internally
   vtkPlanes *Frustum;

@@ -26,14 +26,14 @@
 #ifndef __vtkExtractSelectedLocations_h
 #define __vtkExtractSelectedLocations_h
 
-#include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkSelection;
 
-class VTK_GRAPHICS_EXPORT vtkExtractSelectedLocations : public vtkUnstructuredGridAlgorithm
+class VTK_GRAPHICS_EXPORT vtkExtractSelectedLocations : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractSelectedLocations,vtkUnstructuredGridAlgorithm);
+  vtkTypeRevisionMacro(vtkExtractSelectedLocations,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -44,15 +44,20 @@ protected:
   vtkExtractSelectedLocations();
   ~vtkExtractSelectedLocations();
 
+  //sets up output dataset
+  virtual int RequestDataObject(vtkInformation* request,
+                                vtkInformationVector** inputVector,
+                                vtkInformationVector* outputVector);
+
   // Usual data generation method
   int RequestData(vtkInformation *, 
                   vtkInformationVector **, 
                   vtkInformationVector *);
 
   int ExtractCells(vtkSelection *sel, vtkDataSet *input, 
-                   vtkUnstructuredGrid *output);
+                   vtkDataSet *output);
   int ExtractPoints(vtkSelection *sel, vtkDataSet *input, 
-                    vtkUnstructuredGrid *output);
+                    vtkDataSet *output);
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 

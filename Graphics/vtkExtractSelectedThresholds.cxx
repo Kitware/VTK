@@ -29,7 +29,7 @@
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.5");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.6");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -84,6 +84,7 @@ int vtkExtractSelectedThresholds::RequestData(
     }
 
   //find out what array we are suppose to threshold in
+  int usePointScalars = 0;
   vtkDataArray *inScalars = NULL;
   if (
     sel->GetProperties()->Has(vtkSelection::FIELD_TYPE()) &&
@@ -91,6 +92,7 @@ int vtkExtractSelectedThresholds::RequestData(
      vtkSelection::POINT)     
     )
     {
+    usePointScalars = 1;
     if (sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
       {
       inScalars = input->GetPointData()->GetArray(
@@ -121,6 +123,11 @@ int vtkExtractSelectedThresholds::RequestData(
     return 1;
     }
   
+  int inverse = 0;
+  if (sel->GetProperties()->Has(vtkSelection::INVERSE()))
+    {
+    inverse = sel->GetProperties()->Get(vtkSelection::INVERSE());
+    }
 
   vtkIdType cellId, newCellId;
   vtkIdList *cellPts, *pointMap;
@@ -132,7 +139,7 @@ int vtkExtractSelectedThresholds::RequestData(
   double x[3];
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  int keepCell, usePointScalars;
+  int keepCell;
 
   vtkIdTypeArray *originalCellIds = vtkIdTypeArray::New();
   outCD->AddArray(originalCellIds);
@@ -158,9 +165,6 @@ int vtkExtractSelectedThresholds::RequestData(
 
   newCellPts = vtkIdList::New();     
 
-  // are we using pointScalars?
-  usePointScalars = (inScalars->GetNumberOfTuples() == numPts);
-  
   // Check that the scalars of each cell satisfy the threshold criterion
   for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
     {
@@ -182,7 +186,8 @@ int vtkExtractSelectedThresholds::RequestData(
       keepCell = this->EvaluateValue( inScalars, cellId, lims );
       }
     
-    if (  numCellPts > 0 && keepCell )
+    if (  numCellPts > 0 && 
+          (keepCell + inverse == 1) ) // Poor man's XOR
       {
       // satisfied thresholding (also non-empty cell, i.e. not VTK_EMPTY_CELL)
       originalCellIds->InsertNextValue(cellId);

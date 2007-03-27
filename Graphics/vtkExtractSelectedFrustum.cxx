@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.3");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.4");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -51,6 +51,7 @@ vtkExtractSelectedFrustum::vtkExtractSelectedFrustum(vtkPlanes *f)
 
   this->PassThrough = 0;
   this->ExactTest = 1;
+  this->InsideOut = 0;
 
   this->NumRejects = 0;
   this->NumIsects = 0;
@@ -249,6 +250,11 @@ int vtkExtractSelectedFrustum::RequestData(
         {
         this->PassThroughOn();
         }
+      if (sel->GetProperties()->Has(vtkSelection::INVERSE()) &&
+          sel->GetProperties()->Get(vtkSelection::INVERSE()) != 0)
+        {
+        this->InsideOutOn();
+        }
       }    
     }
   if ( !this->Frustum )
@@ -419,6 +425,7 @@ int vtkExtractSelectedFrustum::RequestData(
     outputCD->AddArray(originalCellIds);
     }
 
+  signed char flag = this->InsideOut ? -1 : 1;
   vtkIdType updateInterval;
 
   if (this->ExactTest)
@@ -455,7 +462,7 @@ int vtkExtractSelectedFrustum::RequestData(
       numCellPts = cell->GetNumberOfPoints();    
       newCellPts->Reset();
       
-      isect = this->ABoxFrustumIsect(bounds, cell);
+      isect = flag * this->ABoxFrustumIsect(bounds, cell);
       if (isect == 1)
         {
         /*
@@ -524,7 +531,7 @@ int vtkExtractSelectedFrustum::RequestData(
       if (pointMap[ptId] == -1) //point wasn't attached to a cell
         {
         input->GetPoint(ptId,x);      
-        if (this->Frustum->EvaluateFunction(x) < 0.0)
+        if ((this->Frustum->EvaluateFunction(x) *flag)< 0.0)
           {
           /*
           NUMPTS++;
@@ -1055,8 +1062,11 @@ void vtkExtractSelectedFrustum::PrintSelf(ostream& os, vtkIndent indent)
      << (this->PassThrough ? "On\n" : "Off\n");
 
   os << indent << "ExactTest: "
-     << this->ExactTest << "\n";
+     << (this->ExactTest ? "On\n" : "Off\n");
 
   os << indent << "ShowBounds: "
-     << this->ShowBounds << "\n";
+     << (this->ShowBounds ? "On\n" : "Off\n");
+
+  os << indent << "InsideOut: "
+     << (this->InsideOut ? "On\n" : "Off\n");
 }

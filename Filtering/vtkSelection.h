@@ -139,9 +139,16 @@ public:
   unsigned long GetMTime();
 
   // vtkSelection specific keys.
+  // Description:
+  // Retrieve the data within a selection node.
+  // This is an array that can contain a set of ids, data values, locations in
+  // in space.
+  static vtkSelection* GetData(vtkInformation* info);
+  static vtkSelection* GetData(vtkInformationVector* v, int i=0);
 
   // Description:
-  // The content of the selection node. 
+  // Get the (primary) property that describes the content of a selection 
+  // node's data. Other auxiliary description properties follow.
   // SELECTIONS means that a vtkSelection contains sub selections.
   // GLOBALIDS means that the selection list contains values from the
   // vtkDataSetAttribute array of the same name.
@@ -180,6 +187,37 @@ public:
 //ETX
 
   // Description:
+  // The name of the array the selection came from.
+  static vtkInformationStringKey* ARRAY_NAME();
+
+  // Description:
+  // For location selection of points, if distance is greater than this reject.
+  static vtkInformationDoubleKey* EPSILON();
+
+  // Description:
+  // This flag tells the extraction filter not to convert the selected
+  // output into an unstructured grid, but instead to produce a vtkInsidedness
+  // array and add it to the input dataset. 
+  // Warning: this is not supported by vtkExtractSelectedThresholds for now.
+  static vtkInformationIntegerKey* PRESERVE_TOPOLOGY();
+
+  // Description:
+  // This flag tells the extraction filter, when FIELD_TYPE==POINT, that
+  // it should also extract the cells that contain any of the extracted points.
+  // Warning: this is not supported by vtkExtractSelectedThresholds or
+  // vtkExtractSelectedFrustum; these act as if this value is 1.
+  static vtkInformationIntegerKey* CONTAINING_CELLS();
+
+  // Description:
+  // This flag tells the extraction filter to exclude the selection.
+  static vtkInformationIntegerKey* INVERSE();
+
+  // Description:
+  // A helper for visible cell selector, this is the number of pixels covered
+  // by the actor whose cells are listed in the selection.
+  static vtkInformationIntegerKey* PIXEL_COUNT();
+
+  // Description:
   // Pointer to the data or algorithm the selection belongs to.
   static vtkInformationObjectBaseKey* SOURCE();
 
@@ -208,38 +246,6 @@ public:
   // Description:
   // The composite data block the selection belongs to.
   static vtkInformationIntegerKey* BLOCK();
-
-  // Description:
-  // The name of the array the selection came from.
-  static vtkInformationStringKey* ARRAY_NAME();
-
-  // Description:
-  // For location selection of points, if distance is greater than this reject.
-  static vtkInformationDoubleKey* EPSILON();
-
-  // Description:
-  // This flag tells the extraction filter not to convert the selected
-  // output into an unstructured grid, but instead to produce a vtkInsidedness
-  // array and add it to the input dataset. 
-  // Warning: this is only supported by vtkExtractSelectedFrustum for now.
-  static vtkInformationIntegerKey* PRESERVE_TOPOLOGY();
-
-  // Description:
-  // This flag tells the extraction filter, when FIELD_TYPE==POINT, that
-  // it should also extract the cells that contain any of the extracted points.
-  // Warning: this is not yet supported. Some extractions act as if
-  // this is on and some as if it is off.
-  static vtkInformationIntegerKey* CONTAINING_CELLS();
-
-  // Description:
-  // Retrieve a selection from an information vector.
-  static vtkSelection* GetData(vtkInformation* info);
-  static vtkSelection* GetData(vtkInformationVector* v, int i=0);
-
-  // Description:
-  // A helper for visible cell selector, this is the number of pixels covered
-  // by the actor whose cells are listed in the selection.
-  static vtkInformationIntegerKey* PIXEL_COUNT();
 
 protected:
   vtkSelection();
