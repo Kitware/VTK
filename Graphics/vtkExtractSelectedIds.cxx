@@ -31,7 +31,7 @@
 #include "vtkSelection.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.11");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.12");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -97,25 +97,14 @@ int vtkExtractSelectedIds::RequestDataObject(
           ||
           (passThrough && !output->IsA(input->GetClassName()))
           ||
-          (!passThrough &&
-           ((pointsOnly /*|| input->IsA("vtkPolyData")*/) && !output->IsA("vtkPolyData"))
-            ||
-            (!(pointsOnly || input->IsA("vtkPolyData")) && !output->IsA("vtkUnstructuredGrid"))
-          )
-         )
+          (!passThrough && !output->IsA("vtkUnstructuredGrid"))
+        )
         {
         vtkDataSet* newOutput = NULL;
         if (!passThrough)
           {
-          // The mesh will be modified. Polydata is still polydata, but other grids become unstructured.
-          if (pointsOnly /*|| input->IsA("vtkPolyData")*/)
-            {
-            newOutput = vtkPolyData::New();
-            } 
-          else 
-            {
-            newOutput = vtkUnstructuredGrid::New();
-            }
+          // The mesh will be modified. 
+          newOutput = vtkUnstructuredGrid::New();
           }
         else
           {
@@ -166,7 +155,7 @@ int vtkExtractSelectedIds::RequestData(
       (
         sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::GLOBALIDS &&
         sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::VALUES &&  
-        sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::OFFSETS
+        sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::INDICES
         )
     )
     {
@@ -330,7 +319,7 @@ int vtkExtractSelectedIds::ExtractCells(
         ));
     }    
   
-  if (labelArray == NULL && selType != vtkSelection::OFFSETS)
+  if (labelArray == NULL && selType != vtkSelection::INDICES)
     {
     return 1;
     }
@@ -459,7 +448,7 @@ int vtkExtractSelectedIds::ExtractCells(
     {
     vtkIdType *pointMap = new vtkIdType[numPts]; // maps old point ids into new
     vtkExtractSelectedIdsCopyPoints(input, output, pointInArray->GetPointer(0), pointMap);
-    this->UpdateProgress(0.75);
+    this->UpdateProgress(0.75);    
     if (output->GetDataObjectType() == VTK_POLY_DATA)
       {
       vtkExtractSelectedIdsCopyCells<vtkPolyData>(input, vtkPolyData::SafeDownCast(output), cellInArray->GetPointer(0), pointMap);
@@ -564,7 +553,7 @@ int vtkExtractSelectedIds::ExtractPoints(
         sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
         ));      
     }
-  if (labelArray == NULL && selType != vtkSelection::OFFSETS)
+  if (labelArray == NULL && selType != vtkSelection::INDICES)
     {
     return 1;
     }
@@ -685,11 +674,11 @@ int vtkExtractSelectedIds::ExtractPoints(
     else
       {
       numPts = output->GetNumberOfPoints();
-      vtkPolyData* outputPD = vtkPolyData::SafeDownCast(output);
-      outputPD->Allocate(numPts);
+      vtkUnstructuredGrid* outputUG = vtkUnstructuredGrid::SafeDownCast(output);
+      outputUG->Allocate(numPts);
       for (i = 0; i < numPts; ++i)
         {
-        outputPD->InsertNextCell(VTK_VERTEX, 1, &i);
+        outputUG->InsertNextCell(VTK_VERTEX, 1, &i);
         }
       }
       this->UpdateProgress(1.0);
