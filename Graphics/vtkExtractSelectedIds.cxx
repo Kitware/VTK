@@ -31,7 +31,7 @@
 #include "vtkSelection.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.10");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.11");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -589,7 +589,7 @@ int vtkExtractSelectedIds::ExtractPoints(
 
   vtkIdList *ptCells = vtkIdList::New();
   vtkIdList *cellPts = vtkIdList::New();
-  vtkIdType j, numIds = 0, ptId, cellId, idArrayIndex = 0, labelArrayIndex = 0;
+  vtkIdType numIds = 0, ptId, cellId, idArrayIndex = 0, labelArrayIndex = 0;
   vtkIdTypeArray* idArray = vtkIdTypeArray::SafeDownCast(sel->GetSelectionList());
   if (idArray)
     {
