@@ -154,7 +154,7 @@ public:
   // vtkDataSetAttribute array of the same name.
   // VALUES means the the selection list contains values from an 
   // arbitrary attribute array (ignores any globalids attribute)
-  // OFFSETS means that the selection list contains indexes into the 
+  // INDICES means that the selection list contains indexes into the 
   // cell or point arrays.
   // FRUSTUM means the set of points and cells inside a frustum
   // LOCATIONS means the set of points and cells near a set of positions
@@ -167,7 +167,7 @@ public:
     COMPOSITE_SELECTIONS,
     GLOBALIDS,
     VALUES,
-    OFFSETS,
+    INDICES,
     FRUSTUM,
     LOCATIONS,
     THRESHOLDS

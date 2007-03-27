@@ -26,7 +26,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.2");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.3");
 vtkStandardNewMacro(vtkSelectionSource);
 
 struct vtkSelectionSourceInternals
@@ -115,7 +115,7 @@ int vtkSelectionSource::RequestData(
   if (selSet.size() > 0)
     {
     output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
-                                 vtkSelection::OFFSETS);
+                                 vtkSelection::INDICES);
     output->GetProperties()->Set(vtkSelection::FIELD_TYPE(),
                                  vtkSelection::CELL);
     // Create the selection list

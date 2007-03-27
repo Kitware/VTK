@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedPolyDataIds, "1.3");
+vtkCxxRevisionMacro(vtkExtractSelectedPolyDataIds, "1.4");
 vtkStandardNewMacro(vtkExtractSelectedPolyDataIds);
 
 //----------------------------------------------------------------------------
@@ -73,7 +73,7 @@ int vtkExtractSelectedPolyDataIds::RequestData(
   vtkDebugMacro(<< "Extracting poly data geometry");
 
   if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE()) ||
-      sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::OFFSETS ||
+      sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::INDICES ||
       !sel->GetProperties()->Has(vtkSelection::FIELD_TYPE()) ||
       sel->GetProperties()->Get(vtkSelection::FIELD_TYPE()) != vtkSelection::CELL)
     {

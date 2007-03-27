@@ -31,7 +31,7 @@
 #include "vtkSelection.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.13");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.14");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ int vtkExtractSelectedIds::RequestData(
       (
         sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::GLOBALIDS &&
         sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::VALUES &&  
-        sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::OFFSETS
+        sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::INDICES
         )
     )
     {
@@ -319,7 +319,7 @@ int vtkExtractSelectedIds::ExtractCells(
         ));
     }    
   
-  if (labelArray == NULL && selType != vtkSelection::OFFSETS)
+  if (labelArray == NULL && selType != vtkSelection::INDICES)
     {
     return 1;
     }
@@ -553,7 +553,7 @@ int vtkExtractSelectedIds::ExtractPoints(
         sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
         ));      
     }
-  if (labelArray == NULL && selType != vtkSelection::OFFSETS)
+  if (labelArray == NULL && selType != vtkSelection::INDICES)
     {
     return 1;
     }
