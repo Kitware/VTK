@@ -51,6 +51,7 @@ vtkDecimatePro.cxx
 vtkDelaunay2D.cxx
 vtkDelaunay3D.cxx
 vtkDicer.cxx
+vtkDijkstraGraphGeodesicPath.cxx
 vtkDiscreteMarchingCubes.cxx
 vtkDiskSource.cxx
 vtkEdgePoints.cxx
@@ -75,11 +76,13 @@ vtkExtractUnstructuredGrid.cxx
 vtkExtractVectorComponents.cxx
 vtkFeatureEdges.cxx
 vtkFieldDataToAttributeDataFilter.cxx
+vtkGeodesicPath.cxx
 vtkGeometryFilter.cxx
 vtkGlyph2D.cxx
 vtkGlyph3D.cxx
 vtkGlyphSource2D.cxx
 vtkGradientFilter.cxx
+vtkGraphGeodesicPath.cxx
 vtkGraphLayoutFilter.cxx
 vtkGridSynchronizedTemplates3D.cxx
 vtkHierarchicalDataSetGeometryFilter.cxx
@@ -231,7 +234,10 @@ SET_SOURCE_FILES_PROPERTIES(
 vtkApproximatingSubdivisionFilter
 vtkButtonSource
 vtkDicer
+vtkDijkstraGraphGeodesicPath
 vtkInterpolatingSubdivisionFilter
+vtkGeodesicPath
+vtkGraphGeodesicPath
 vtkStreamer
 ABSTRACT
 )
