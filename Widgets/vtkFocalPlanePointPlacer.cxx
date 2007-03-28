@@ -22,13 +22,15 @@
 #include "vtkPlaneCollection.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkFocalPlanePointPlacer, "1.3");
+vtkCxxRevisionMacro(vtkFocalPlanePointPlacer, "1.4");
 vtkStandardNewMacro(vtkFocalPlanePointPlacer);
 
 
 //----------------------------------------------------------------------
 vtkFocalPlanePointPlacer::vtkFocalPlanePointPlacer()
 {
+  this->PointBounds[0] = this->PointBounds[2] = this->PointBounds[4] = 0;
+  this->PointBounds[1] = this->PointBounds[3] = this->PointBounds[5] = -1;
 }
 
 //----------------------------------------------------------------------
@@ -57,6 +59,13 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   ren->DisplayToWorld();
   ren->GetWorldPoint(tmp);
   
+  double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
+  if ( this->PointBounds[0] < this->PointBounds[1] && 
+      !(vtkMath::PointIsWithinBounds( tmp, this->PointBounds, tolerance )))
+    {
+    return 0;
+    }
+
   worldPos[0] = tmp[0];
   worldPos[1] = tmp[1];
   worldPos[2] = tmp[2];
@@ -89,6 +98,13 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   ren->DisplayToWorld();
   ren->GetWorldPoint(tmp);
   
+  double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
+  if ( this->PointBounds[0] < this->PointBounds[1] && 
+      !(vtkMath::PointIsWithinBounds( tmp, this->PointBounds, tolerance )))
+    {
+    return 0;
+    }
+
   worldPos[0] = tmp[0];
   worldPos[1] = tmp[1];
   worldPos[2] = tmp[2];
@@ -99,15 +115,29 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
 }
 
 //----------------------------------------------------------------------
-int vtkFocalPlanePointPlacer::ValidateWorldPosition( double* vtkNotUsed(worldPos) )
+int vtkFocalPlanePointPlacer::ValidateWorldPosition( double* worldPos )
 {
+  double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
+  if ( this->PointBounds[0] < this->PointBounds[1] && 
+    !(vtkMath::PointIsWithinBounds( worldPos, this->PointBounds, tolerance )))
+    {
+    return 0;
+    }
+
   return 1;
 }
 
 //----------------------------------------------------------------------
-int vtkFocalPlanePointPlacer::ValidateWorldPosition( double* vtkNotUsed(worldPos),
+int vtkFocalPlanePointPlacer::ValidateWorldPosition( double* worldPos,
                                                      double* vtkNotUsed(worldOrient) )
 {
+  double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
+  if ( this->PointBounds[0] < this->PointBounds[1] && 
+    !(vtkMath::PointIsWithinBounds( worldPos, this->PointBounds, tolerance )))
+    {
+    return 0;
+    }
+
   return 1;
 }
 
@@ -136,4 +166,11 @@ void vtkFocalPlanePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
+  os << indent << "PointBounds: \n";
+  os << indent << "  Xmin,Xmax: (" << 
+    this->PointBounds[0] << ", " << this->PointBounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << 
+    this->PointBounds[2] << ", " << this->PointBounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" <<
+    this->PointBounds[4] << ", " << this->PointBounds[5] << ")\n";
 }

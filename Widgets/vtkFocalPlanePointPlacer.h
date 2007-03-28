@@ -72,12 +72,20 @@ public:
   int ValidateWorldPosition( double worldPos[3],
                              double worldOrient[9]);
   
+  // Description:
+  // Optionally Restrict the points to a set of bounds. The placer will
+  // invalidate points outside these bounds.
+  vtkSetVector6Macro( PointBounds, double );
+  vtkGetVector6Macro( PointBounds, double );
+
 protected:
   vtkFocalPlanePointPlacer();
   ~vtkFocalPlanePointPlacer();
 
   void GetCurrentOrientation( double worldOrient[9] );
   
+  double PointBounds[6];
+
 private:
   vtkFocalPlanePointPlacer(const vtkFocalPlanePointPlacer&);  //Not implemented
   void operator=(const vtkFocalPlanePointPlacer&);  //Not implemented
