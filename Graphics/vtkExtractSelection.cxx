@@ -28,7 +28,7 @@
 #include "vtkExtractSelectedLocations.h"
 #include "vtkExtractSelectedThresholds.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.11");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.12");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -193,6 +193,8 @@ int vtkExtractSelection::ExtractIds(
   output->ShallowCopy(ecOutput);
   ecOutput->Initialize();
 
+  this->IdsFilter->SetInput(0, (vtkDataSet*)NULL);
+  this->IdsFilter->SetInput(1, (vtkSelection*)NULL);  
   return 1;
 }
 
@@ -213,6 +215,9 @@ int vtkExtractSelection::ExtractFrustum(
     this->FrustumFilter->GetOutputDataObject(0));
   output->ShallowCopy(ecOutput);
   ecOutput->Initialize();
+
+  this->FrustumFilter->SetInput(0, (vtkDataSet*)NULL);
+  this->FrustumFilter->SetInput(1, (vtkSelection*)NULL);
 
   return 1;
 }
@@ -235,6 +240,9 @@ int vtkExtractSelection::ExtractLocations(
   output->ShallowCopy(ecOutput);
   ecOutput->Initialize();
 
+  this->LocationsFilter->SetInput(0, (vtkDataSet*)NULL);
+  this->LocationsFilter->SetInput(1, (vtkSelection*)NULL);
+
   return 1;
 }
 
@@ -255,6 +263,9 @@ int vtkExtractSelection::ExtractThresholds(
     this->ThresholdsFilter->GetOutputDataObject(0));
   output->ShallowCopy(ecOutput);
   ecOutput->Initialize();
+
+  this->ThresholdsFilter->SetInput(0, (vtkDataSet*)NULL);
+  this->ThresholdsFilter->SetInput(1, (vtkSelection*)NULL);
 
   return 1;
 }

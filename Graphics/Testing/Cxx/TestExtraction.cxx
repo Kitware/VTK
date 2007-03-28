@@ -103,6 +103,8 @@ void showMe(vtkUnstructuredGrid *result, int X, int Y, int CellOrPoint, vtkDataA
   actor2->SetMapper(mapper2);
   actor2->SetPosition(X*4,Y*4, 0);
   renderer->AddActor(actor2);
+  mapper2->Delete();
+  actor2->Delete();
 }
 
 int TestExtraction(int argc, char *argv[])
@@ -297,6 +299,7 @@ int TestExtraction(int argc, char *argv[])
   vtkExtractSelection *ext = vtkExtractSelection::New();
   ext->SetInput(0, ugrid);
   ext->SetInput(1, sel);
+
   vtkUnstructuredGrid *extGrid;
 
   //-------------------------------------------------------------------------
@@ -741,11 +744,8 @@ int TestExtraction(int argc, char *argv[])
   xwriter->Delete();
   vtkDataArray *da = extGrid->GetCellData()->GetArray("vtkInsidedness");
   showMe(extGrid, 2, 5, COLORBYCELL, da);
-  
+
   //-------------------------------------------------------------------------
-  //cleanup
-  writer->Delete();
-  sel->Delete();
 
   vtkCamera *cam = renderer->GetActiveCamera();
   cam->SetPosition(-6, -2, 45);
@@ -758,7 +758,11 @@ int TestExtraction(int argc, char *argv[])
     {
     rwi->Start();
     }
- 
+
+  //cleanup
+  sel->Delete();
+  ext->Delete();
+
   pia->Delete();
   piaF->Delete();
   piaR->Delete();
@@ -771,6 +775,8 @@ int TestExtraction(int argc, char *argv[])
   cxa->Delete();
   cya->Delete();
   cza->Delete();
+
+  writer->Delete();
   renderer->Delete();
   ugrid->Delete();
   renwin->Delete();
