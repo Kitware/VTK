@@ -46,7 +46,7 @@ public:
   // Description:
   // Standard methods for instances of this class.
   vtkTypeRevisionMacro(vtkPolygonalSurfaceContourLineInterpolator,
-                              vtkContourLineInterpolator);
+                              vtkPolyDataContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkPolygonalSurfaceContourLineInterpolator *New();
