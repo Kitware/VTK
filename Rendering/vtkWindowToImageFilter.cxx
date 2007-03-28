@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.39");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.39.4.1");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -306,7 +306,7 @@ void vtkWindowToImageFilter::RequestData(
           {
           deltay = 2.0*deltay/(visVP[3] - visVP[1]);
           }
-        cam->SetWindowCenter(deltax,deltay);        
+        cam->SetWindowCenter(windowCenters[i*2]+deltax,windowCenters[i*2+1]+deltay);
         cam->SetViewAngle(asin(sin(viewAngles[i]*3.1415926/360.0)*mag) 
                           * 360.0 / 3.1415926);
         cam->SetParallelScale(parallelScale[i]*mag);
