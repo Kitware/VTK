@@ -22,6 +22,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
+#include <vtkImageData.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkUnstructuredGridWriter.h>
 #include <vtkXMLDataSetWriter.h>
@@ -52,13 +53,13 @@
 #define ZCELLS 3
 
 vtkRenderer *renderer = NULL;
-vtkUnstructuredGrid *ugrid = NULL;
+vtkUnstructuredGrid *sampleData = NULL;
 
 enum {COLORBYCELL, COLORBYPOINT};
 
-void showMe(vtkUnstructuredGrid *result, int X, int Y, int CellOrPoint, vtkDataArray *array)
+void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *array)
 {
-  vtkUnstructuredGrid *copy = vtkUnstructuredGrid::New();
+  vtkDataSet *copy = result->NewInstance();
   copy->DeepCopy(result);
   vtkDataSetMapper *mapper = vtkDataSetMapper::New();
   mapper->SetInput(copy);
@@ -97,7 +98,7 @@ void showMe(vtkUnstructuredGrid *result, int X, int Y, int CellOrPoint, vtkDataA
     mapper2->SelectColorArray("Forward Point Ids");
     mapper2->SetScalarRange(10, 73);
     }  
-  mapper2->SetInput(ugrid);
+  mapper2->SetInput(sampleData);
   vtkActor *actor2 = vtkActor::New();
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->SetMapper(mapper2);
@@ -139,39 +140,37 @@ int TestExtraction(int argc, char *argv[])
   //the scalars datasetattibute will be the X array
   //the globalids datasetattribute will be the forward running id array
 
-  ugrid = vtkUnstructuredGrid::New();
-  vtkPointData *pd = ugrid->GetPointData();
-  vtkCellData *cd = ugrid->GetCellData();
+  sampleData = vtkUnstructuredGrid::New();
 
   vtkIdTypeArray *pia = vtkIdTypeArray::New();
   pia->SetNumberOfComponents(1);
   pia->SetName("Point Counter");
-  ugrid->GetPointData()->AddArray(pia);
+  sampleData->GetPointData()->AddArray(pia);
   
   vtkIdTypeArray *piaF = vtkIdTypeArray::New();
   piaF->SetNumberOfComponents(1);
   piaF->SetName("Forward Point Ids");
-  ugrid->GetPointData()->AddArray(piaF);
+  sampleData->GetPointData()->AddArray(piaF);
 
   vtkIdTypeArray *piaR = vtkIdTypeArray::New();
   piaR->SetNumberOfComponents(1);
   piaR->SetName("Reverse Point Ids");
-  ugrid->GetPointData()->AddArray(piaR);
+  sampleData->GetPointData()->AddArray(piaR);
 
   vtkDoubleArray *pxa = vtkDoubleArray::New();
   pxa->SetNumberOfComponents(1);
   pxa->SetName("Point X");
-  ugrid->GetPointData()->AddArray(pxa);
+  sampleData->GetPointData()->AddArray(pxa);
   
   vtkDoubleArray *pya = vtkDoubleArray::New();
   pya->SetNumberOfComponents(1);
   pya->SetName("Point Y");
-  ugrid->GetPointData()->AddArray(pya);
+  sampleData->GetPointData()->AddArray(pya);
   
   vtkDoubleArray *pza = vtkDoubleArray::New();
   pza->SetNumberOfComponents(1);
   pza->SetName("Point Z");
-  ugrid->GetPointData()->AddArray(pza);
+  sampleData->GetPointData()->AddArray(pza);
 
   vtkPoints *points = vtkPoints::New();
   vtkIdType pcnt = 0;
@@ -197,7 +196,7 @@ int TestExtraction(int argc, char *argv[])
       }
     }
   
-  ugrid->SetPoints(points);
+  sampleData->SetPoints(points);
   points->Delete();
   
   vtkIdList *ids = vtkIdList::New();
@@ -205,32 +204,32 @@ int TestExtraction(int argc, char *argv[])
   vtkIdTypeArray *cia = vtkIdTypeArray::New();
   cia->SetNumberOfComponents(1);
   cia->SetName("Cell Count");
-  ugrid->GetCellData()->AddArray(cia);
+  sampleData->GetCellData()->AddArray(cia);
 
   vtkIdTypeArray *ciaF = vtkIdTypeArray::New();
   ciaF->SetNumberOfComponents(1);
   ciaF->SetName("Forward Cell Ids");
-  ugrid->GetCellData()->AddArray(ciaF);
+  sampleData->GetCellData()->AddArray(ciaF);
 
   vtkIdTypeArray *ciaR = vtkIdTypeArray::New();
   ciaR->SetNumberOfComponents(1);
   ciaR->SetName("Reverse Cell Ids");
-  ugrid->GetCellData()->AddArray(ciaR);
+  sampleData->GetCellData()->AddArray(ciaR);
 
   vtkDoubleArray *cxa = vtkDoubleArray::New();
   cxa->SetNumberOfComponents(1);
   cxa->SetName("Cell X");
-  ugrid->GetCellData()->AddArray(cxa);
+  sampleData->GetCellData()->AddArray(cxa);
 
   vtkDoubleArray *cya = vtkDoubleArray::New();
   cya->SetNumberOfComponents(1);
   cya->SetName("Cell Y");
-  ugrid->GetCellData()->AddArray(cya);
+  sampleData->GetCellData()->AddArray(cya);
   
   vtkDoubleArray *cza = vtkDoubleArray::New();
   cza->SetNumberOfComponents(1);
   cza->SetName("Cell Z");
-  ugrid->GetCellData()->AddArray(cza);
+  sampleData->GetCellData()->AddArray(cza);
   
   vtkIdType ccnt = 0;
   for (int i = 0; i < ZCELLS; i++)
@@ -239,6 +238,7 @@ int TestExtraction(int argc, char *argv[])
       {
       for (int k = 0; k < XCELLS; k++)
         {
+        
         ids->Reset();
         if (ZCELLS > 1)
           {
@@ -250,7 +250,7 @@ int TestExtraction(int argc, char *argv[])
           ids->InsertId(5, (i+1)*(YCELLS+1)*(XCELLS+1) + (j)*(XCELLS+1) + (k+1));
           ids->InsertId(6, (i+1)*(YCELLS+1)*(XCELLS+1) + (j+1)*(XCELLS+1) + (k));
           ids->InsertId(7, (i+1)*(YCELLS+1)*(XCELLS+1) + (j+1)*(XCELLS+1) + (k+1));          
-          ugrid->InsertNextCell(VTK_VOXEL, ids);
+          sampleData->InsertNextCell(VTK_VOXEL, ids);
           }
         else
           {
@@ -258,7 +258,7 @@ int TestExtraction(int argc, char *argv[])
           ids->InsertId(1, (i)*(YCELLS+1)*(XCELLS+1) + (j)*(XCELLS+1) + (k+1));
           ids->InsertId(2, (i)*(YCELLS+1)*(XCELLS+1) + (j+1)*(XCELLS+1) + (k));
           ids->InsertId(3, (i)*(YCELLS+1)*(XCELLS+1) + (j+1)*(XCELLS+1) + (k+1));
-          ugrid->InsertNextCell(VTK_PIXEL, ids);
+          sampleData->InsertNextCell(VTK_PIXEL, ids);
           }
         
         cia->InsertNextValue(ccnt);
@@ -278,27 +278,29 @@ int TestExtraction(int argc, char *argv[])
     }
   ids->Delete();  
   
-  ugrid->GetPointData()->SetGlobalIds(piaF);
-  ugrid->GetPointData()->SetScalars(pxa);
+  sampleData->GetPointData()->SetGlobalIds(piaF);
+  sampleData->GetPointData()->SetScalars(pxa);
   
-  ugrid->GetCellData()->SetGlobalIds(ciaF);
-  ugrid->GetCellData()->SetScalars(cxa);
+  sampleData->GetCellData()->SetGlobalIds(ciaF);
+  sampleData->GetCellData()->SetScalars(cxa);
   
   //save the test data set
-  vtkUnstructuredGridWriter *writer = vtkUnstructuredGridWriter::New();
-  writer->SetInput(ugrid);
-  writer->SetFileName("sampleData.vtk");
+  vtkXMLDataSetWriter *xwriter = vtkXMLDataSetWriter::New(); 
+  xwriter->SetInput(sampleData);
+  xwriter->SetFileName("sampleData.vtu");
   if (DoWrite)
     {
-    writer->Write();
+    xwriter->Write();
     }
+  xwriter->Delete();
 
   //-------------------------------------------------------------------------
   //Setup the components of the pipeline
   vtkSelection *sel = vtkSelection::New();
   vtkExtractSelection *ext = vtkExtractSelection::New();
-  ext->SetInput(0, ugrid);
+  ext->SetInput(0, sampleData);
   ext->SetInput(1, sel);
+  vtkUnstructuredGridWriter *writer = vtkUnstructuredGridWriter::New();
 
   vtkUnstructuredGrid *extGrid;
 
@@ -732,10 +734,9 @@ int TestExtraction(int argc, char *argv[])
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
   sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
   ext->Update();
-  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   //old style writer doesn't like the uchar typed array
-  vtkXMLDataSetWriter *xwriter = vtkXMLDataSetWriter::New(); 
-  xwriter->SetInput(extGrid);
+  xwriter = vtkXMLDataSetWriter::New(); 
+  xwriter->SetInput(ext->GetOutput());
   xwriter->SetFileName("extFrustumPT.vtu");
   if (DoWrite)
     {
@@ -778,7 +779,7 @@ int TestExtraction(int argc, char *argv[])
 
   writer->Delete();
   renderer->Delete();
-  ugrid->Delete();
+  sampleData->Delete();
   renwin->Delete();
   rwi->Delete();
 
