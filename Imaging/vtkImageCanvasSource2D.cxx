@@ -41,7 +41,7 @@ public:
 
 
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.44");
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.44.4.1");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
@@ -49,12 +49,20 @@ vtkStandardNewMacro(vtkImageCanvasSource2D);
 vtkImageCanvasSource2D::vtkImageCanvasSource2D()
 {
   this->SetNumberOfInputPorts(0);
-  
-  this->DrawColor[0] = this->DrawColor[1] = 
-  this->DrawColor[2] = this->DrawColor[3] = 0.0;
 
   this->ImageData = vtkImageData::New();
   this->ImageData->SetScalarType(VTK_DOUBLE);
+
+  this->WholeExtent[0] = 0;
+  this->WholeExtent[1] = 0;
+  this->WholeExtent[2] = 0;
+  this->WholeExtent[3] = 0;
+  this->WholeExtent[4] = 0;
+  this->WholeExtent[5] = 0;
+
+  this->DrawColor[0] = this->DrawColor[1] =
+    this->DrawColor[2] = this->DrawColor[3] = 0.0;
+
   this->DefaultZ = 0;
 
   this->Ratio[0] = this->Ratio[1] = this->Ratio[2] = 1.0;
