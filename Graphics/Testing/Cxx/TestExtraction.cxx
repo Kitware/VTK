@@ -147,8 +147,6 @@ int TestExtraction(int argc, char *argv[])
   sampleData->SetDimensions(XCELLS+1,YCELLS+1,ZCELLS+1);
   sampleData->SetWholeExtent(0,XCELLS+1,0,YCELLS+1,0,ZCELLS+1);
   sampleData->AllocateScalars();
-  vtkPointData *pd = sampleData->GetPointData();
-  vtkCellData *cd = sampleData->GetCellData();
 
   vtkIdTypeArray *pia = vtkIdTypeArray::New();
   pia->SetNumberOfComponents(1);
