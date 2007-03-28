@@ -42,6 +42,20 @@ public:
   // Removes all IDs.
   void RemoveAllIDs();
 
+  // Description:
+  // Set the content type for the generated selection.
+  // Possible values are as defined by 
+  // vtkSelection::SelectionContent.
+  vtkSetMacro(ContentType, int);
+  vtkGetMacro(ContentType, int);
+
+  // Description:
+  // Set the field type for the generated selection.
+  // Possible values are as defined by
+  // vtkSelection::SelectionField.
+  vtkSetMacro(FieldType, int);
+  vtkGetMacro(FieldType, int);
+
 protected:
   vtkSelectionSource();
   ~vtkSelectionSource();
@@ -55,6 +69,9 @@ protected:
                           vtkInformationVector* outputVector);
 
   vtkSelectionSourceInternals* Internal;
+
+  int ContentType;
+  int FieldType;
 
 private:
   vtkSelectionSource(const vtkSelectionSource&);  // Not implemented.

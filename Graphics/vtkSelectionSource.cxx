@@ -26,7 +26,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.3");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.4");
 vtkStandardNewMacro(vtkSelectionSource);
 
 struct vtkSelectionSourceInternals
@@ -41,6 +41,8 @@ vtkSelectionSource::vtkSelectionSource()
 {
   this->SetNumberOfInputPorts(0);
   this->Internal = new vtkSelectionSourceInternals;
+  this->ContentType = vtkSelection::INDICES;
+  this->FieldType = vtkSelection::CELL;
 }
 
 //----------------------------------------------------------------------------
@@ -70,6 +72,51 @@ void vtkSelectionSource::AddID(vtkIdType proc, vtkIdType id)
 void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "ContentType: " ;
+  switch (this->ContentType)
+    {
+  case vtkSelection::SELECTIONS:
+    os << "SELECTIONS";
+    break;
+  case vtkSelection::COMPOSITE_SELECTIONS:
+    os << "COMPOSITE_SELECTIONS";
+    break;
+  case vtkSelection::GLOBALIDS:
+    os << "GLOBALIDS";
+    break;
+  case vtkSelection::VALUES:
+    os << "VALUES";
+    break;
+  case vtkSelection::INDICES:
+    os << "INDICES";
+    break;
+  case vtkSelection::FRUSTUM:
+    os << "FRUSTUM";
+    break;
+  case vtkSelection::LOCATIONS:
+    os << "LOCATIONS";
+    break;
+  case vtkSelection::THRESHOLDS:
+    os << "THRESHOLDS";
+    break;
+  default:
+    os << "UNKNOWN";
+    }
+  os << endl;
+
+  os << indent << "FieldType: " ;
+  switch (this->FieldType)
+    {
+  case vtkSelection::CELL:
+    os << "CELL";
+    break;
+  case vtkSelection::POINT:
+    os << "POINT";
+    break;
+  default:
+    os << "UNKNOWN";
+    }
+  os << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -115,9 +162,9 @@ int vtkSelectionSource::RequestData(
   if (selSet.size() > 0)
     {
     output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
-                                 vtkSelection::INDICES);
+                                 this->ContentType);
     output->GetProperties()->Set(vtkSelection::FIELD_TYPE(),
-                                 vtkSelection::CELL);
+                                 this->FieldType);
     // Create the selection list
     vtkIdTypeArray* selectionList = vtkIdTypeArray::New();
     selectionList->SetNumberOfTuples(selSet.size());
