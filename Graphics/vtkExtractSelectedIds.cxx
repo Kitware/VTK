@@ -29,9 +29,10 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSelection.h"
+#include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.15");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.16");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -283,16 +284,8 @@ int vtkExtractSelectedIds::ExtractCells(
     outCD->SetScalars(cellInArray);
     }
 
-  vtkIdTypeArray *idxArray = vtkIdTypeArray::New();
-  idxArray->SetNumberOfComponents(1);
-  idxArray->SetNumberOfTuples(numCells);
-  for (i=0; i < numCells; i++)
-    {
-    idxArray->SetValue(i, i);
-    }
-
   //decide what the IDS mean
-  vtkIdTypeArray *labelArray = NULL;
+  vtkAbstractArray *labelArray = NULL;
   int selType = sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE());
   if (selType == vtkSelection::GLOBALIDS)
     {
@@ -303,10 +296,9 @@ int vtkExtractSelectedIds::ExtractCells(
            sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
     {
     //user chose a specific label array
-    labelArray = vtkIdTypeArray::SafeDownCast(
-      input->GetCellData()->GetArray(
+    labelArray = input->GetCellData()->GetAbstractArray(
         sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
-        ));
+        );
     }    
   
   if (labelArray == NULL && selType != vtkSelection::INDICES)
@@ -314,9 +306,18 @@ int vtkExtractSelectedIds::ExtractCells(
     return 1;
     }
 
+  vtkIdTypeArray *idxArray = vtkIdTypeArray::New();
+  idxArray->SetNumberOfComponents(1);
+  idxArray->SetNumberOfTuples(numCells);
+  for (i=0; i < numCells; i++)
+    {
+    idxArray->SetValue(i, i);
+    }
+
   if (labelArray)
     {
-    vtkIdTypeArray* sortedArray = vtkIdTypeArray::New();
+    vtkAbstractArray* sortedArray = 
+      vtkAbstractArray::CreateArray(labelArray->GetDataType());
     sortedArray->DeepCopy(labelArray);
     vtkSortDataArray::Sort(sortedArray, idxArray);
     labelArray = sortedArray;
@@ -344,25 +345,62 @@ int vtkExtractSelectedIds::ExtractCells(
     }
   vtkIdList *idList = vtkIdList::New();
   vtkIdType numIds = 0, ptId, cellId, idArrayIndex = 0, labelArrayIndex = 0;
-  vtkIdTypeArray* idArray = vtkIdTypeArray::SafeDownCast(sel->GetSelectionList());
+  vtkAbstractArray* idArray = sel->GetSelectionList();
   if (idArray)
     {
     numIds = idArray->GetNumberOfTuples();
-    vtkIdTypeArray* sortedArray = vtkIdTypeArray::New();
+    vtkAbstractArray* sortedArray = 
+      vtkAbstractArray::CreateArray(idArray->GetDataType());
     sortedArray->DeepCopy(idArray);
     vtkSortDataArray::SortArrayByComponent(sortedArray, 0);
     idArray = sortedArray;
     }
+
+  if (idArray == NULL)
+    {
+    return 1;
+    }
+  
+  // Array types must match
+  if (idArray->GetDataType() != labelArray->GetDataType())
+    {
+    vtkWarningMacro("array types don't match");
+    return 0;
+    }
+
+  void *idVoid = idArray->GetVoidPointer(0);
+  void *labelVoid = labelArray->GetVoidPointer(0);
 
   // Check each cell to see if it's selected
   while (labelArrayIndex < numCells)
     {
     // Advance through the selection ids until we find
     // one that's NOT LESS THAN the current cell label.
-    while ((idArrayIndex < numIds) &&
-           (idArray->GetValue(idArrayIndex) < labelArray->GetValue(labelArrayIndex)))
+    bool idLessThanLabel = false;
+    if (idArrayIndex < numIds)
+      {
+      switch(idArray->GetDataType())
+        {
+        vtkExtendedTemplateMacro(
+          idLessThanLabel = 
+            static_cast<VTK_TT*>(idVoid)[idArrayIndex] <
+            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
+        }
+      }
+    while ((idArrayIndex < numIds) && idLessThanLabel)
       {
       ++idArrayIndex;
+      if (idArrayIndex >= numIds)
+        {
+        break;
+        }
+      switch(idArray->GetDataType())
+        {
+        vtkExtendedTemplateMacro(
+          idLessThanLabel = 
+            static_cast<VTK_TT*>(idVoid)[idArrayIndex] <
+            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
+        }
       }
 
     this->UpdateProgress(static_cast<double>(idArrayIndex) / (numIds * (passThrough + 1)));
@@ -374,8 +412,18 @@ int vtkExtractSelectedIds::ExtractCells(
 
     // Advance through and mark all cells with a label EQUAL TO the
     // current selection id, as well as their points.
-    while ((labelArrayIndex < numCells) &&
-           (idArray->GetValue(idArrayIndex) == labelArray->GetValue(labelArrayIndex)))
+    bool idEqualToLabel = false;
+    if (labelArrayIndex < numCells)
+      {
+      switch(idArray->GetDataType())
+        {
+        vtkExtendedTemplateMacro(
+          idEqualToLabel = 
+            static_cast<VTK_TT*>(idVoid)[idArrayIndex] ==
+            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
+        }
+      }
+    while ((labelArrayIndex < numCells) && idEqualToLabel)
       {
       cellId = idxArray->GetValue(labelArrayIndex);
       cellInArray->SetValue(cellId, flag);
@@ -397,15 +445,47 @@ int vtkExtractSelectedIds::ExtractCells(
           }
         }
       ++labelArrayIndex;
+      if (labelArrayIndex >= numCells)
+        {
+        break;
+        }
+      switch(idArray->GetDataType())
+        {
+        vtkExtendedTemplateMacro(
+          idEqualToLabel = 
+            static_cast<VTK_TT*>(idVoid)[idArrayIndex] ==
+            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
+        }
       }
       
 
     // Advance through cell labels until we find
     // one that's NOT LESS THAN the current selection id.
-    while ((labelArrayIndex < numCells) &&
-           (labelArray->GetValue(labelArrayIndex) < idArray->GetValue(idArrayIndex)))
+    bool labelLessThanId = false;
+    if (labelArrayIndex < numCells)
+      {
+      switch(idArray->GetDataType())
+        {
+        vtkExtendedTemplateMacro(
+          labelLessThanId = 
+            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex] <
+            static_cast<VTK_TT*>(idVoid)[idArrayIndex]);
+        }
+      }
+    while ((labelArrayIndex < numCells) && labelLessThanId)
       {
       ++labelArrayIndex;
+      if (labelArrayIndex >= numCells)
+        {
+        break;
+        }
+      switch(idArray->GetDataType())
+        {
+        vtkExtendedTemplateMacro(
+          labelLessThanId = 
+            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex] <
+            static_cast<VTK_TT*>(idVoid)[idArrayIndex]);
+        }
       }
     }
 
@@ -518,16 +598,8 @@ int vtkExtractSelectedIds::ExtractPoints(
       }
     }
 
-  vtkIdTypeArray *idxArray = vtkIdTypeArray::New();
-  idxArray->SetNumberOfComponents(1);
-  idxArray->SetNumberOfTuples(numPts);
-  for (i=0; i < numPts; i++)
-    {
-    idxArray->SetValue(i, i);
-    }
-
   //decide what the IDS mean
-  vtkIdTypeArray *labelArray = NULL;
+  vtkAbstractArray *labelArray = NULL;
   int selType = sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE());
   if (selType == vtkSelection::GLOBALIDS)
     {
@@ -538,19 +610,26 @@ int vtkExtractSelectedIds::ExtractPoints(
            sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
     {
     //user chose a specific label array
-    labelArray = vtkIdTypeArray::SafeDownCast(
-      input->GetPointData()->GetArray(
-        sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
-        ));      
+    labelArray = input->GetPointData()->GetAbstractArray(
+      sel->GetProperties()->Get(vtkSelection::ARRAY_NAME()));      
     }
   if (labelArray == NULL && selType != vtkSelection::INDICES)
     {
     return 1;
     }
   
+  vtkIdTypeArray *idxArray = vtkIdTypeArray::New();
+  idxArray->SetNumberOfComponents(1);
+  idxArray->SetNumberOfTuples(numPts);
+  for (i=0; i < numPts; i++)
+    {
+    idxArray->SetValue(i, i);
+    }
+
   if (labelArray)
     {
-    vtkIdTypeArray* sortedArray = vtkIdTypeArray::New();
+    vtkAbstractArray* sortedArray = 
+      vtkAbstractArray::CreateArray(labelArray->GetDataType());
     sortedArray->DeepCopy(labelArray);
     vtkSortDataArray::Sort(sortedArray, idxArray);
     labelArray = sortedArray;
@@ -568,25 +647,62 @@ int vtkExtractSelectedIds::ExtractPoints(
   vtkIdList *ptCells = vtkIdList::New();
   vtkIdList *cellPts = vtkIdList::New();
   vtkIdType numIds = 0, ptId, cellId, idArrayIndex = 0, labelArrayIndex = 0;
-  vtkIdTypeArray* idArray = vtkIdTypeArray::SafeDownCast(sel->GetSelectionList());
+  vtkAbstractArray* idArray = sel->GetSelectionList();
   if (idArray)
     {
     numIds = idArray->GetNumberOfTuples();
-    vtkIdTypeArray* sortedArray = vtkIdTypeArray::New();
+    vtkAbstractArray* sortedArray = 
+      vtkAbstractArray::CreateArray(idArray->GetDataType());
     sortedArray->DeepCopy(idArray);
     vtkSortDataArray::SortArrayByComponent(sortedArray, 0);
     idArray = sortedArray;
     }
+
+  if (idArray == NULL)
+    {
+    return 1;
+    }
+
+  // Array types must match
+  if (idArray->GetDataType() != labelArray->GetDataType())
+    {
+    vtkWarningMacro("array types don't match");
+    return 0;
+    }
+
+  void *idVoid = idArray->GetVoidPointer(0);
+  void *labelVoid = labelArray->GetVoidPointer(0);
 
   // Check each point to see if it's selected
   while (labelArrayIndex < numPts)
     {
     // Advance through the selection ids until we find
     // one that's NOT LESS THAN the current point label.
-    while ((idArrayIndex < numIds) &&
-           (idArray->GetValue(idArrayIndex) < labelArray->GetValue(labelArrayIndex)))
+    bool idLessThanLabel = false;
+    if (idArrayIndex < numIds)
+      {
+      switch(idArray->GetDataType())
+        {
+        vtkExtendedTemplateMacro(
+          idLessThanLabel = 
+            static_cast<VTK_TT*>(idVoid)[idArrayIndex] <
+            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
+        }
+      }
+    while ((idArrayIndex < numIds) && idLessThanLabel)
       {
       ++idArrayIndex;
+      if (idArrayIndex >= numIds)
+        {
+        break;
+        }
+      switch(idArray->GetDataType())
+        {
+        vtkExtendedTemplateMacro(
+          idLessThanLabel = 
+            static_cast<VTK_TT*>(idVoid)[idArrayIndex] <
+            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
+        }
       }
 
     this->UpdateProgress(static_cast<double>(idArrayIndex) / (numIds * (passThrough + 1)));
@@ -598,8 +714,18 @@ int vtkExtractSelectedIds::ExtractPoints(
 
     // Advance through and mark all points with a label EQUAL TO the
     // current selection id, as well as their cells.
-    while ((labelArrayIndex < numPts) &&
-           (idArray->GetValue(idArrayIndex) == labelArray->GetValue(labelArrayIndex)))
+    bool idEqualToLabel = false;
+    if (labelArrayIndex < numPts)
+      {
+      switch(idArray->GetDataType())
+        {
+        vtkExtendedTemplateMacro(
+          idEqualToLabel = 
+            static_cast<VTK_TT*>(idVoid)[idArrayIndex] ==
+            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
+        }
+      }
+    while ((labelArrayIndex < numPts) && idEqualToLabel)
       {
       ptId = idxArray->GetValue(labelArrayIndex);
       pointInArray->SetValue(ptId, flag);
@@ -624,14 +750,46 @@ int vtkExtractSelectedIds::ExtractPoints(
           }
         }
       ++labelArrayIndex;
+      if (labelArrayIndex >= numPts)
+        {
+        break;
+        }
+      switch(idArray->GetDataType())
+        {
+        vtkExtendedTemplateMacro(
+          idEqualToLabel = 
+            static_cast<VTK_TT*>(idVoid)[idArrayIndex] ==
+            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
+        }
       }
 
     // Advance through point labels until we find
     // one that's NOT LESS THAN the current selection id.
-    while ((labelArrayIndex < numPts) &&
-           (labelArray->GetValue(labelArrayIndex) < idArray->GetValue(idArrayIndex)))
+    bool labelLessThanId = false;
+    if (labelArrayIndex < numPts)
+      {
+      switch(idArray->GetDataType())
+        {
+        vtkExtendedTemplateMacro(
+          labelLessThanId = 
+            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex] <
+            static_cast<VTK_TT*>(idVoid)[idArrayIndex]);
+        }
+      }
+    while ((labelArrayIndex < numPts) && labelLessThanId)
       {
       ++labelArrayIndex;
+      if (labelArrayIndex >= numPts)
+        {
+        break;
+        }
+      switch(idArray->GetDataType())
+        {
+        vtkExtendedTemplateMacro(
+          labelLessThanId = 
+            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex] <
+            static_cast<VTK_TT*>(idVoid)[idArrayIndex]);
+        }
       }
     }
 
