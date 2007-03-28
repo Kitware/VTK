@@ -23,7 +23,7 @@
 #include "vtkAssemblyNode.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkPolyDataPointPlacer, "1.1");
+vtkCxxRevisionMacro(vtkPolyDataPointPlacer, "1.2");
 vtkStandardNewMacro(vtkPolyDataPointPlacer);
 
 //----------------------------------------------------------------------
@@ -103,13 +103,13 @@ int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
           this->PropPicker->GetPickPosition(worldPos);
           
           // Raise height by 0.01 ... this should be a method..
-          double displayPos[3];
+          double displyPos[3];
           vtkInteractorObserver::ComputeWorldToDisplay(ren,
-              worldPos[0], worldPos[1], worldPos[2], displayPos);
-          displayPos[2] -= 0.01;
+              worldPos[0], worldPos[1], worldPos[2], displyPos);
+          displyPos[2] -= 0.01;
           double w[4];
           vtkInteractorObserver::ComputeDisplayToWorld(ren,
-              displayPos[0], displayPos[1], displayPos[2], w);
+              displyPos[0], displyPos[1], displyPos[2], w);
           worldPos[0] = w[0];
           worldPos[1] = w[1];
           worldPos[2] = w[2];
