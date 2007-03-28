@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.7");
+vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.8");
 vtkStandardNewMacro(vtkExtractSelectedLocations);
 
 //----------------------------------------------------------------------------
@@ -60,12 +60,17 @@ int vtkExtractSelectedLocations::RequestDataObject(
     {
     return 0;
     }
+  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
+  if (!selInfo)
+    {
+    return 0;
+    }
+  
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   if (input)
     {
-    vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
     int passThrough = 0;
     if (inInfo)
       {
@@ -127,6 +132,11 @@ int vtkExtractSelectedLocations::RequestData(
   // get the selection, input and ouptut
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if ( ! input )
+    {
+    vtkErrorMacro(<<"No input specified");
+    return 1;
+    }
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkSelection *sel = vtkSelection::SafeDownCast(

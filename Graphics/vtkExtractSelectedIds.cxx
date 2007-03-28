@@ -32,7 +32,7 @@
 #include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.16");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.17");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -60,12 +60,17 @@ int vtkExtractSelectedIds::RequestDataObject(
     {
     return 0;
     }
+  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
+  if (!selInfo)
+    {
+    return 0;
+    }
+
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input)
     {
-    vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
     int passThrough = 0;
     if (inInfo)
       {
@@ -127,6 +132,12 @@ int vtkExtractSelectedIds::RequestData(
   // get the selection, input and ouptut
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if ( ! input )
+    {
+    vtkErrorMacro(<<"No input specified");
+    return 1;
+    }
+
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
