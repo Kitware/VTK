@@ -26,7 +26,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.4");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.5");
 vtkStandardNewMacro(vtkSelectionSource);
 
 struct vtkSelectionSourceInternals
@@ -55,6 +55,7 @@ vtkSelectionSource::~vtkSelectionSource()
 void vtkSelectionSource::RemoveAllIDs()
 {
   this->Internal->IDs.clear();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -66,6 +67,7 @@ void vtkSelectionSource::AddID(vtkIdType proc, vtkIdType id)
     }
   vtkSelectionSourceInternals::IDSetType& idSet = this->Internal->IDs[proc];
   idSet.insert(id);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
