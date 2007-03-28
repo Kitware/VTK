@@ -20,7 +20,6 @@
 // a volume, or a pixmap are all considered regular.
 // .SECTION See Also
 // vtkStructuredGrid vtkUniformGrid vtkRectilinearGrid vtkRectilinearGrid
-// vtkExtractCTHPart
 
 #ifndef __vtkStructuredData_h
 #define __vtkStructuredData_h
