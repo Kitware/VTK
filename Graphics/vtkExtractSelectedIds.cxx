@@ -31,7 +31,7 @@
 #include "vtkSelection.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.14");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.15");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -66,7 +66,6 @@ int vtkExtractSelectedIds::RequestDataObject(
     {
     vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
     int passThrough = 0;
-    int pointsOnly = 1;
     if (inInfo)
       {
       vtkSelection *sel = vtkSelection::SafeDownCast(
@@ -75,15 +74,6 @@ int vtkExtractSelectedIds::RequestDataObject(
           sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
         {
         passThrough = 1;
-        }
-      if (!sel->GetProperties()->Has(vtkSelection::FIELD_TYPE())
-          ||
-          sel->GetProperties()->Get(vtkSelection::FIELD_TYPE()) == vtkSelection::CELL
-          ||
-          (sel->GetProperties()->Has(vtkSelection::CONTAINING_CELLS()) &&
-           sel->GetProperties()->Get(vtkSelection::CONTAINING_CELLS()) == 1))
-        {
-        pointsOnly = 0;
         }
       }
 
@@ -558,7 +548,6 @@ int vtkExtractSelectedIds::ExtractPoints(
     return 1;
     }
   
-
   if (labelArray)
     {
     vtkIdTypeArray* sortedArray = vtkIdTypeArray::New();
@@ -615,21 +604,23 @@ int vtkExtractSelectedIds::ExtractPoints(
       ptId = idxArray->GetValue(labelArrayIndex);
       pointInArray->SetValue(ptId, flag);
       if (containingCells)
-      for (vtkIdType j = 0; j < input->GetNumberOfPoints(); j++)
         {
-        input->GetPointCells(ptId, ptCells);
-        for (i = 0; i < ptCells->GetNumberOfIds(); ++i)
+        for (vtkIdType j = 0; j < input->GetNumberOfPoints(); j++)
           {
-          cellId = ptCells->GetId(i);
-          if (!passThrough && !invert && cellInArray->GetValue(cellId) != flag)
+          input->GetPointCells(ptId, ptCells);
+          for (i = 0; i < ptCells->GetNumberOfIds(); ++i)
             {
-            input->GetCellPoints(cellId, cellPts);
-            for (j = 0; j < cellPts->GetNumberOfIds(); ++j)
+            cellId = ptCells->GetId(i);
+            if (!passThrough && !invert && cellInArray->GetValue(cellId) != flag)
               {
-              pointInArray->SetValue(cellPts->GetId(j), flag);
+              input->GetCellPoints(cellId, cellPts);
+              for (j = 0; j < cellPts->GetNumberOfIds(); ++j)
+                {
+                pointInArray->SetValue(cellPts->GetId(j), flag);
+                }
               }
+            cellInArray->SetValue(cellId, flag);
             }
-          cellInArray->SetValue(cellId, flag);
           }
         }
       ++labelArrayIndex;
