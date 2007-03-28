@@ -28,7 +28,7 @@
 #include "vtkExtractSelectedLocations.h"
 #include "vtkExtractSelectedThresholds.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.12");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.13");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ int vtkExtractSelection::RequestDataObject(
     {
     vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
     int passThrough = 0;
-    if (inInfo)
+    if (selInfo)
       {
       vtkSelection *sel = vtkSelection::SafeDownCast(
         selInfo->Get(vtkDataObject::DATA_OBJECT()));

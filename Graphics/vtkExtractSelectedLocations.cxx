@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.8");
+vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.9");
 vtkStandardNewMacro(vtkExtractSelectedLocations);
 
 //----------------------------------------------------------------------------
@@ -468,17 +468,46 @@ int vtkExtractSelectedLocations::ExtractPoints(
   // Reverse the "in" flag
   flag = -flag;
 
-  vtkPointLocator* locator = vtkPointLocator::New();
-  locator->SetDataSet(input);
+  vtkPointLocator* locator = NULL;
+
+  if (input->IsA("vtkPointSet"))
+    {
+    vtkPointLocator::New();
+    locator->SetDataSet(input);
+    }
 
   vtkIdList *ptCells = vtkIdList::New();
   vtkIdList *cellPts = vtkIdList::New();
   vtkIdType numLocs = locArray->GetNumberOfTuples();
   double dist2;
   vtkIdType j, ptId, cellId, locArrayIndex;
+  double epsSquared = epsilon*epsilon;
   for (locArrayIndex = 0; locArrayIndex < numLocs; locArrayIndex++)
     {
-    ptId = locator->FindClosestPointWithinRadius(epsilon, locArray->GetTuple(locArrayIndex), dist2);
+    if (locator != NULL)
+      {
+      ptId = locator->FindClosestPointWithinRadius(epsilon, locArray->GetTuple(locArrayIndex), dist2);
+      }
+    else
+      {
+      double *L = locArray->GetTuple(locArrayIndex);
+      ptId = input->FindPoint(locArray->GetTuple(locArrayIndex));
+      if (ptId >=0)
+        {
+        double *X = input->GetPoint(ptId);
+        double dx = X[0]-L[0];
+        dx = dx * dx;
+        double dy = X[1]-L[1];
+        dy = dy * dy;
+        double dz = X[2]-L[2];
+        dz = dz * dz;
+        if (dx+dy+dz > epsSquared)
+          {
+          ptId = -1;
+          }          
+        }
+      }
+
     if ((ptId >= 0) && (pointInArray->GetValue(ptId) != flag))
      {
       pointInArray->SetValue(ptId, flag);
@@ -504,8 +533,11 @@ int vtkExtractSelectedLocations::ExtractPoints(
 
   ptCells->Delete();
   cellPts->Delete();
-  locator->SetDataSet(NULL);
-  locator->Delete();
+  if (locator)
+    {
+    locator->SetDataSet(NULL);
+    locator->Delete();
+    }
 
   if (!passThrough)
     {

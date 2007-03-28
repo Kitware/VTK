@@ -53,7 +53,7 @@
 #define ZCELLS 3
 
 vtkRenderer *renderer = NULL;
-vtkUnstructuredGrid *sampleData = NULL;
+vtkImageData *sampleData = NULL;
 
 enum {COLORBYCELL, COLORBYPOINT};
 
@@ -140,7 +140,15 @@ int TestExtraction(int argc, char *argv[])
   //the scalars datasetattibute will be the X array
   //the globalids datasetattribute will be the forward running id array
 
-  sampleData = vtkUnstructuredGrid::New();
+  sampleData = vtkImageData::New();
+  sampleData->Initialize();
+  sampleData->SetSpacing(1.0,1.0,1.0);
+  sampleData->SetOrigin(0.0,0.0,0.0);
+  sampleData->SetDimensions(XCELLS+1,YCELLS+1,ZCELLS+1);
+  sampleData->SetWholeExtent(0,XCELLS+1,0,YCELLS+1,0,ZCELLS+1);
+  sampleData->AllocateScalars();
+  vtkPointData *pd = sampleData->GetPointData();
+  vtkCellData *cd = sampleData->GetCellData();
 
   vtkIdTypeArray *pia = vtkIdTypeArray::New();
   pia->SetNumberOfComponents(1);
@@ -172,7 +180,7 @@ int TestExtraction(int argc, char *argv[])
   pza->SetName("Point Z");
   sampleData->GetPointData()->AddArray(pza);
 
-  vtkPoints *points = vtkPoints::New();
+  //vtkPoints *points = vtkPoints::New();
   vtkIdType pcnt = 0;
   for (int i = 0; i < ZCELLS+1; i++)
     {
@@ -180,7 +188,7 @@ int TestExtraction(int argc, char *argv[])
       {
       for (int k = 0; k < XCELLS+1; k++)
         {
-        points->InsertNextPoint(k,j,i);
+        //points->InsertNextPoint(k,j,i);
 
         pia->InsertNextValue(pcnt);
         int idF = pcnt + 10;
@@ -196,10 +204,10 @@ int TestExtraction(int argc, char *argv[])
       }
     }
   
-  sampleData->SetPoints(points);
-  points->Delete();
+  //sampleData->SetPoints(points);
+  //points->Delete();
   
-  vtkIdList *ids = vtkIdList::New();
+  //vtkIdList *ids = vtkIdList::New();
   
   vtkIdTypeArray *cia = vtkIdTypeArray::New();
   cia->SetNumberOfComponents(1);
@@ -238,7 +246,7 @@ int TestExtraction(int argc, char *argv[])
       {
       for (int k = 0; k < XCELLS; k++)
         {
-        
+        /*
         ids->Reset();
         if (ZCELLS > 1)
           {
@@ -260,7 +268,7 @@ int TestExtraction(int argc, char *argv[])
           ids->InsertId(3, (i)*(YCELLS+1)*(XCELLS+1) + (j+1)*(XCELLS+1) + (k+1));
           sampleData->InsertNextCell(VTK_PIXEL, ids);
           }
-        
+        */
         cia->InsertNextValue(ccnt);
 
         int idF = ccnt + 10;
@@ -276,7 +284,7 @@ int TestExtraction(int argc, char *argv[])
         }
       }
     }
-  ids->Delete();  
+  //ids->Delete();  
   
   sampleData->GetPointData()->SetGlobalIds(piaF);
   sampleData->GetPointData()->SetScalars(pxa);
@@ -287,12 +295,13 @@ int TestExtraction(int argc, char *argv[])
   //save the test data set
   vtkXMLDataSetWriter *xwriter = vtkXMLDataSetWriter::New(); 
   xwriter->SetInput(sampleData);
-  xwriter->SetFileName("sampleData.vtu");
+  xwriter->SetFileName("sampleData.vti");
   if (DoWrite)
     {
     xwriter->Write();
     }
   xwriter->Delete();
+
 
   //-------------------------------------------------------------------------
   //Setup the components of the pipeline
@@ -544,7 +553,8 @@ int TestExtraction(int argc, char *argv[])
   vtkDoubleArray *cellLocs = vtkDoubleArray::New();
   cellLocs->SetNumberOfComponents(3);
   cellLocs->SetNumberOfTuples(4);
-  cellLocs->SetTuple3(0, 0.0, 1.0, 0.5); //on the edge of two cells, pick one
+  cellLocs->SetTuple3(0, 0.0, 0.99, 0.5); //on the edge of two cells, pick one
+  //grr different data set types cell locators return different cells so I could not use 1.0 and had to make it 0.99 to make it consistent
   cellLocs->SetTuple3(1, 2.5, 1.5, 0.5); //inside a cell
   cellLocs->SetTuple3(2, 2.5, 2.1, 2.9); //inside a cell
   cellLocs->SetTuple3(3, 5.0, 5.0, 5.0); //outside of all cells
@@ -560,7 +570,7 @@ int TestExtraction(int argc, char *argv[])
     writer->Write();
     }
   showMe(extGrid, 0, 3, COLORBYCELL, cia);
-  
+
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
@@ -574,6 +584,7 @@ int TestExtraction(int argc, char *argv[])
 
   //-------------------------------------------------------------------------
   //test the extract LOCATIONS filter on points
+
   sel->Clear();
   sel->GetProperties()->Set(
     vtkSelection::CONTENT_TYPE(), vtkSelection::LOCATIONS);
@@ -597,7 +608,7 @@ int TestExtraction(int argc, char *argv[])
     writer->Write();
     }
   showMe(extGrid, 3, 3, COLORBYPOINT, pia);
-  
+
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
@@ -678,7 +689,7 @@ int TestExtraction(int argc, char *argv[])
     writer->Write();
     }
   showMe(extGrid, 3, 4, COLORBYPOINT, pxa);
-  
+
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
@@ -734,20 +745,19 @@ int TestExtraction(int argc, char *argv[])
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
   sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
   ext->Update();
-  //old style writer doesn't like the uchar typed array
+  vtkImageData *extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   xwriter = vtkXMLDataSetWriter::New(); 
-  xwriter->SetInput(ext->GetOutput());
-  xwriter->SetFileName("extFrustumPT.vtu");
+  xwriter->SetInput(extIData);
+  xwriter->SetFileName("extFrustumPT.vti");
   if (DoWrite)
     {
     xwriter->Write();
     }
   xwriter->Delete();
-  vtkDataArray *da = extGrid->GetCellData()->GetArray("vtkInsidedness");
-  showMe(extGrid, 2, 5, COLORBYCELL, da);
+  vtkDataArray *da = extIData->GetCellData()->GetArray("vtkInsidedness");
+  showMe(extIData, 2, 5, COLORBYCELL, da);
 
   //-------------------------------------------------------------------------
-
   vtkCamera *cam = renderer->GetActiveCamera();
   cam->SetPosition(-6, -2, 45);
   cam->SetFocalPoint(10, 11, 2);

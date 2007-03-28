@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.4");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.5");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -186,6 +186,18 @@ int vtkExtractSelectedFrustum::RequestDataObject(
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   
+  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
+  if (selInfo)
+    {
+    vtkSelection *sel = vtkSelection::SafeDownCast(
+      selInfo->Get(vtkDataObject::DATA_OBJECT()));
+    if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
+        sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
+      {
+      this->PassThrough = 1;
+      }
+    }
+
   if (input)
     {
     for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
