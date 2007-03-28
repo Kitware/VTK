@@ -66,6 +66,10 @@ vtkPointHandleRepresentation3D.cxx
 vtkPointPlacer.cxx
 vtkPointWidget.cxx
 vtkPolyDataSourceWidget.cxx
+vtkPolyDataPointPlacer.cxx
+vtkPolygonalSurfacePointPlacer.cxx
+vtkPolyDataContourLineInterpolator.cxx
+vtkPolygonalSurfaceContourLineInterpolator.cxx
 vtkRectilinearWipeRepresentation.cxx
 vtkRectilinearWipeWidget.cxx
 vtkScalarBarWidget.cxx
@@ -93,6 +97,7 @@ vtk3DWidget
 vtkAbstractWidget
 vtkAffineRepresentation
 vtkAngleRepresentation
+vtkPolyDataContourLineInterpolator
 vtkContourLineInterpolator
 vtkContourRepresentation
 vtkFocalPlaneContourRepresentation

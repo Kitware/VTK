@@ -21,6 +21,7 @@ SET(MyTests
 #  TestSliderWidget.cxx
 #  TestTextWidget.cxx
   TerrainPolylineEditor.cxx
+  TestDijkstraGraphGeodesicPath.cxx
   )
 IF (VTK_DATA_ROOT)
   # add tests that require data
@@ -70,6 +71,7 @@ REMOVE( TestsToRun
    ${KIT}CxxTests.cxx 
    TestHandleWidget.cxx
    TerrainPolylineEditor.cxx
+   TestDijkstraGraphGeodesicPath.cxx
    )
 
 #
@@ -100,4 +102,10 @@ IF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -D ${VTK_DATA_ROOT}
          -V Baseline/${KIT}/TestHandleWidget.png)
+  ADD_TEST( TestDijkstraGraphGeodesicPath ${CXX_TEST_PATH}/${KIT}CxxTests 
+         TestDijkstraGraphGeodesicPath
+         -DistanceOffset 20.0
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -D ${VTK_DATA_ROOT}
+         -V Baseline/${KIT}/TestDijkstraGraphGeodesicPath.png)
 ENDIF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)
