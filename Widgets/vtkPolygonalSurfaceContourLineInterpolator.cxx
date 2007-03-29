@@ -27,7 +27,7 @@
 #include "vtkDijkstraGraphGeodesicPath.h"
 
 vtkCxxRevisionMacro(vtkPolygonalSurfaceContourLineInterpolator,
-                                            "1.2");
+                                            "1.3");
 vtkStandardNewMacro(vtkPolygonalSurfaceContourLineInterpolator);
 
 //----------------------------------------------------------------------
@@ -88,7 +88,7 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
     {
     cellBeginPoints->GetPoint(i, p);
     double distance = vtkMath::Distance2BetweenPoints( p, p1 );
-    if (distance < minDistance);
+    if (distance < minDistance)
       {
       beginVertId = cellBegin->GetPointId(i);
       minDistance = distance;
@@ -103,7 +103,7 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
     {
     cellEndPoints->GetPoint(i, p);
     double distance = vtkMath::Distance2BetweenPoints( p, p2 );
-    if (distance < minDistance);
+    if (distance < minDistance)
       {
       endVertId = cellEnd->GetPointId(i);
       minDistance = distance;
