@@ -634,6 +634,6 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
   renWin->Delete();
   ren1->Delete();
   
-  return retVal;
+  return !retVal;
 }
 
