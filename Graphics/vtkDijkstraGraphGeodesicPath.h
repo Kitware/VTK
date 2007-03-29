@@ -42,8 +42,8 @@ class vtkIntArray;
 class vtkIdList;
 class vtkFloatArray;
 
-class VTK_GRAPHICS_EXPORT vtkDijkstraGraphGeodesicPath 
-                                    : public vtkGraphGeodesicPath
+class VTK_GRAPHICS_EXPORT vtkDijkstraGraphGeodesicPath :
+                           public vtkGraphGeodesicPath
 {
 public:
   

@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkExecutive.h"
 
-vtkCxxRevisionMacro(vtkGraphGeodesicPath, "1.1");
+vtkCxxRevisionMacro(vtkGraphGeodesicPath, "1.2");
 
 //-----------------------------------------------------------------------------
 vtkGraphGeodesicPath::vtkGraphGeodesicPath()
@@ -35,5 +35,8 @@ vtkGraphGeodesicPath::~vtkGraphGeodesicPath()
 void vtkGraphGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "StartVertex: " << this->StartVertex << endl;
+  os << indent << "EndVertex: "   << this->EndVertex   << endl;
 }
 
