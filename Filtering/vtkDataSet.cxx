@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.11");
+vtkCxxRevisionMacro(vtkDataSet, "1.12");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -235,7 +235,7 @@ vtkCell *vtkDataSet::FindAndGetCell (double x[3], vtkCell *cell,
                                      vtkIdType cellId, double tol2, int& subId,
                                      double pcoords[3], double *weights)
 {
-  int newCell = this->FindCell(x,cell,cellId,tol2,subId,pcoords,weights);
+  vtkIdType newCell = this->FindCell(x,cell,cellId,tol2,subId,pcoords,weights);
   if (newCell >= 0 )
     {
     cell = this->GetCell (newCell);
