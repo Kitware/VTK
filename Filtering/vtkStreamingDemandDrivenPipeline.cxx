@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.51");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.52");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -1284,6 +1284,12 @@ int vtkStreamingDemandDrivenPipeline
     }
   info->Set(UPDATE_EXTENT_INITIALIZED(), 1);
   return modified;
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::SetUpdateTimeStep(int port, double time)
+{
+  return this->SetUpdateTimeSteps(port, &time, 1);
 }
 
 //----------------------------------------------------------------------------

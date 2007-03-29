@@ -111,6 +111,7 @@ public:
   // Get/Set the update extent for output ports that use Temporal Extents
   int SetUpdateTimeSteps(int port, double *times, int length);
   int SetUpdateTimeSteps(vtkInformation *, double *times, int length);
+  int SetUpdateTimeStep(int port, double time);
   //void GetUpdateTimeSteps(vtkInformation *, int extent[6]);
 
   // Description:
