@@ -28,7 +28,7 @@
 #include "vtkPointData.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.2");
+vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.3");
 vtkStandardNewMacro(vtkDijkstraGraphGeodesicPath);
 
 //----------------------------------------------------------------------------
@@ -167,9 +167,10 @@ double vtkDijkstraGraphGeodesicPath::EdgeCost(
     //    float s1 = scalars->GetValue(u);
     float s2 = scalars->GetValue(v);
     
-    if (s2)
+    double wt = ((double)(s2))*((double)(s2));
+    if (wt != 0.0)
       {
-      w  /= (s2*s2);
+      w  /= wt;
       }
     }
   return w;
