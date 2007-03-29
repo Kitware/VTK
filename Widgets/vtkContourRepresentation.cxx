@@ -32,7 +32,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.18");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.19");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -846,18 +846,19 @@ void vtkContourRepresentation::UpdateLines( int index )
 {
   int indices[2];
 
-  vtkIntArray *arr = vtkIntArray::New();
-
-  this->LineInterpolator->GetSpan( index, arr, this );
-
-  int nNodes = arr->GetNumberOfTuples();
-  for (int i = 0; i < nNodes; i++)
+  if (this->LineInterpolator)
     {
-    arr->GetTupleValue( i, indices );
-    this->UpdateLine( indices[0], indices[1] );
-    }
+    vtkIntArray *arr = vtkIntArray::New();
+    this->LineInterpolator->GetSpan( index, arr, this );
 
-  arr->Delete();
+    int nNodes = arr->GetNumberOfTuples();
+    for (int i = 0; i < nNodes; i++)
+      {
+      arr->GetTupleValue( i, indices );
+      this->UpdateLine( indices[0], indices[1] );
+      }
+    arr->Delete();
+    }
   
   // A check to make sure that we have no line segments in
   // the last node if the loop is not closed
