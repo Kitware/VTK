@@ -15,6 +15,7 @@
 #include "vtkProbeFilter.h"
 
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -23,7 +24,9 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.87");
+#include <vtkstd/vector>
+
+vtkCxxRevisionMacro(vtkProbeFilter, "1.88");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -100,6 +103,7 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
   double x[3], tol2;
   vtkCell *cell;
   vtkPointData *pd, *outPD;
+  vtkCellData* cd;
   int subId;
   double pcoords[3], *weights;
   double fastweights[256];
@@ -107,6 +111,7 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
   vtkDebugMacro(<<"Probing data");
 
   pd = source->GetPointData();
+  cd = source->GetCellData();
   int size = input->GetNumberOfPoints();
 
   // lets use a stack allocated array if possible for performance reasons
@@ -130,6 +135,26 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
   //
   outPD = output->GetPointData();
   outPD->InterpolateAllocate(pd, size, size);
+  int numArrays = cd->GetNumberOfArrays();
+  vtkstd::vector<vtkDataArray*> outArrays(numArrays);
+  for (int i=0; i<numArrays; i++)
+    {
+    vtkDataArray* inArray = cd->GetArray(i);
+    if (inArray && inArray->GetName() && !outPD->GetArray(inArray->GetName()))
+      {
+      vtkDataArray* newArray = inArray->NewInstance();
+      newArray->SetName(inArray->GetName());
+      newArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
+      newArray->Allocate(size);
+      outPD->AddArray(newArray);
+      outArrays[i] = newArray;
+      newArray->Delete();
+      }
+    else
+      {
+      outArrays[i] = 0;
+      }
+    }
 
   // Use tolerance as a function of size of source data
   //
@@ -152,12 +177,28 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
     input->GetPoint(ptId, x);
 
     // Find the cell that contains xyz and get it
-    cell = source->FindAndGetCell(x,NULL,-1,tol2,subId,pcoords,weights);
+    vtkIdType cellId = source->FindCell(x,NULL,-1,tol2,subId,pcoords,weights);
+    if (cellId >= 0)
+      {
+      cell = source->GetCell(cellId);
+      }
+    else
+      {
+      cell = 0;
+      }
     if (cell)
       {
       // Interpolate the point data
       outPD->InterpolatePoint(pd,ptId,cell->PointIds,weights);
       this->ValidPoints->InsertNextValue(ptId);
+      for (int i=0; i<numArrays; i++)
+        {
+        vtkDataArray* inArray = cd->GetArray(i);
+        if (outArrays[i])
+          {
+          outPD->CopyTuple(inArray, outArrays[i], cellId, ptId);
+          }
+        }
       }
     else
       {
@@ -274,11 +315,12 @@ int vtkProbeFilter::RequestUpdateExtent(
   
   if ( ! this->SpatialMatch)
     {
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                    1);
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                    0);
+    sourceInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+    sourceInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+    sourceInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
     }
   else if (this->SpatialMatch == 1)
     {
@@ -287,35 +329,41 @@ int vtkProbeFilter::RequestUpdateExtent(
       // Request an extra ghost level because the probe
       // gets external values with computation prescision problems.
       // I think the probe should be changed to have an epsilon ...
-      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
-      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
-      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())+1);
+      sourceInfo->Set(
+        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+      sourceInfo->Set(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+      sourceInfo->Set(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())+1);
       }
     else
       {
-      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
-                      6);
+      sourceInfo->Set(
+        vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 6);
       }
     }
   
   if (usePiece)
     {
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
     }
   else
     {
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
-                6);
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 6);
     }
   
   // Use the whole input in all processes, and use the requested update
@@ -325,12 +373,15 @@ int vtkProbeFilter::RequestUpdateExtent(
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+    sourceInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+    sourceInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+    sourceInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
     }
   return 1;
 }

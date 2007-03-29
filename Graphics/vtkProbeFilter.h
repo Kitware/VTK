@@ -20,6 +20,10 @@
 // filter. The point attributes are computed at the Input point positions
 // by interpolating into the source data. For example, we can compute data
 // values on a plane (plane specified as Input) from a volume (Source).
+// The cell data of the source data is copied to the output based on in
+// which source cell each input point is. If an array of the same name exists
+// both in source's point and cell data, only the one from the point data is
+// probed.
 //
 // This filter can be used to resample data, or convert one dataset form into
 // another. For example, an unstructured grid (vtkUnstructuredGrid) can be
