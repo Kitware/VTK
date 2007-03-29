@@ -771,7 +771,7 @@ int TestExtraction(int argc, char *argv[])
   cam->SetViewUp(0,1,0);
   renderer->SetActiveCamera(cam);
   
-  int retVal = vtkRegressionTestImage( renwin );
+  int retVal = vtkRegressionTestImageThreshold( renwin, 13 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     rwi->Start();
