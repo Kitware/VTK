@@ -96,8 +96,14 @@ protected:
   ~vtkCocoaRenderWindowInteractor();
 
   int     InstallMessageProc;
-  void    *TimerDictionary;     // Really an NSMutableDictionary*
-  void    *CocoaServer;         // Really a vtkCocoaServer*
+  
+  // Description:
+  // Accessors for the Cocoa member variables. These should be used at all time, even
+  // by this class.
+  void SetTimerDictionary(void *dictionary);
+  void *GetTimerDictionary();
+  void SetCocoaServer(void *server);
+  void *GetCocoaServer();
 
   //BTX
   // Description:
@@ -118,6 +124,10 @@ protected:
 private:
   vtkCocoaRenderWindowInteractor(const vtkCocoaRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkCocoaRenderWindowInteractor&);  // Not implemented.
+  
+  void    *TimerDictionary;     // Really an NSMutableDictionary*
+  void    *CocoaServer;         // Really a vtkCocoaServer*
+  
 };
 
 #endif

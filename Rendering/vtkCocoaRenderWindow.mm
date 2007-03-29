@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define MAC_OS_X_VERSION_10_4 1040
 #endif
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.46");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.47");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -32,10 +32,10 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
 {
   this->WindowCreated = 0;
   this->ViewCreated = 0;
-  this->ContextId = 0;
+  this->SetContextId(0);
   this->MultiSamples = 8;
-  this->WindowId = 0;
-  this->NSViewId = 0;
+  this->SetWindowId(0);
+  this->SetDisplayId(0);
   this->SetWindowName("Visualization Toolkit - Cocoa");
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
@@ -81,7 +81,7 @@ void vtkCocoaRenderWindow::DestroyWindow()
   GLuint txId;
 
   // finish OpenGL rendering
-  if (this->ContextId)
+  if (this->GetContextId())
     {
     this->MakeCurrent();
 
@@ -114,31 +114,31 @@ void vtkCocoaRenderWindow::DestroyWindow()
       ren->SetRenderWindow(NULL);
       }
 
-    [(NSOpenGLContext*)this->ContextId release];
-    [(NSOpenGLPixelFormat*)this->PixelFormat release];
+    [(NSOpenGLContext*)this->GetContextId() release];
+    [(NSOpenGLPixelFormat*)this->GetPixelFormat() release];
     
-    this->ContextId = NULL;
-    this->PixelFormat = NULL;
+    this->SetContextId(NULL);
+    this->SetPixelFormat(NULL);
   }
 
   // If this class created the view, then this class must release it.
   // Note that this doesn't remove it from the window, as the window
   // has retained it.
-  if (this->NSViewId && this->ViewCreated)
+  if (this->GetDisplayId() && this->ViewCreated)
   {
-    [(NSView *)this->NSViewId release];
+    [(NSView *)this->GetDisplayId() release];
   }
-  this->NSViewId = NULL;
+  this->SetDisplayId(NULL);
   
   // The window is already released by this point, clear it anyway
-  this->WindowId = NULL;
+  this->SetWindowId(NULL);
 }
 
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::SetWindowName( const char * _arg )
 {
   vtkWindow::SetWindowName(_arg);
-  if (this->WindowId)
+  if (this->GetWindowId())
     {
     NSString* winTitleStr;
 
@@ -148,7 +148,7 @@ void vtkCocoaRenderWindow::SetWindowName( const char * _arg )
     winTitleStr = [NSString stringWithCString:_arg];
 #endif
 
-    [(NSWindow*)this->WindowId setTitle:winTitleStr];
+    [(NSWindow*)this->GetWindowId() setTitle:winTitleStr];
     }
 }
 
@@ -171,18 +171,18 @@ void vtkCocoaRenderWindow::Start()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::MakeCurrent()
 {
-  if (this->ContextId)
+  if (this->GetContextId())
     {
-    [(NSOpenGLContext*)this->ContextId makeCurrentContext];
+    [(NSOpenGLContext*)this->GetContextId() makeCurrentContext];
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::UpdateContext()
 {
-  if (this->ContextId)
+  if (this->GetContextId())
     {
-    [(NSOpenGLContext*)this->ContextId update];
+    [(NSOpenGLContext*)this->GetContextId() update];
     }
 }
 
@@ -203,13 +203,13 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
        << "\nOpenGL extensions:  " << glExtensions << endl;
 
   // Obtain the OpenGL context in order to keep track of the current screen.
-  NSOpenGLContext* context = (NSOpenGLContext*)this->ContextId;
+  NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
   int currentScreen = [context currentVirtualScreen];
 
   // The NSOpenGLPixelFormat can only be queried for one particular
   // attribute at a time. Just make repeated queries to get the
   // pertinent settings.
-  NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->PixelFormat;
+  NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->GetPixelFormat();
   strm << "PixelFormat Descriptor:" << endl;
   GLint pfd;
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAColorSize forVirtualScreen: currentScreen];
@@ -247,15 +247,15 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
 int vtkCocoaRenderWindow::SupportsOpenGL()
 {
   this->MakeCurrent();
-  if (!this->ContextId || !this->PixelFormat)
+  if (!this->GetContextId() || !this->GetPixelFormat())
     {
     return 0;
     }
 
-  NSOpenGLContext* context = (NSOpenGLContext*)this->ContextId;
+  NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
   int currentScreen = [context currentVirtualScreen];
 
-  NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->PixelFormat;
+  NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->GetPixelFormat();
   GLint pfd;
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFACompliant forVirtualScreen: currentScreen];
 
@@ -266,15 +266,15 @@ int vtkCocoaRenderWindow::SupportsOpenGL()
 int vtkCocoaRenderWindow::IsDirect()
 {
   this->MakeCurrent();
-  if (!this->ContextId || !this->PixelFormat)
+  if (!this->GetContextId() || !this->GetPixelFormat())
     {
     return 0;
     }
 
-  NSOpenGLContext* context = (NSOpenGLContext*)this->ContextId;
+  NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
   int currentScreen = [context currentVirtualScreen];
 
-  NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->PixelFormat;
+  NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->GetPixelFormat();
   GLint pfd;
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAFullScreen forVirtualScreen: currentScreen];
 
@@ -297,13 +297,13 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
     this->Modified();
     this->Size[0] = x;
     this->Size[1] = y;
-    if (this->WindowId && this->Mapped)
+    if (this->GetWindowId() && this->Mapped)
       {
       if (!resizing)
         {
         resizing = 1;
         NSSize theSize = NSMakeSize((float)x, (float)y);
-        [(NSWindow*)this->WindowId setContentSize:theSize];
+        [(NSWindow*)this->GetWindowId() setContentSize:theSize];
         resizing = 0;
         }
       }
@@ -332,13 +332,13 @@ void vtkCocoaRenderWindow::SetPosition(int x, int y)
     this->Modified();
     this->Position[0] = x;
     this->Position[1] = y;
-    if (this->WindowId && this->Mapped)
+    if (this->GetWindowId() && this->Mapped)
       {
       if (!resizing)
         {
         resizing = 1;
         NSPoint origin = NSMakePoint((float)x, (float)y);
-        [(NSWindow*)this->WindowId setFrameOrigin:origin];
+        [(NSWindow*)this->GetWindowId() setFrameOrigin:origin];
         resizing = 0;
         }
       }
@@ -350,7 +350,7 @@ void vtkCocoaRenderWindow::SetPosition(int x, int y)
 void vtkCocoaRenderWindow::Frame()
 {
   this->MakeCurrent();
-  [(NSOpenGLContext*)this->ContextId flushBuffer];
+  [(NSOpenGLContext*)this->GetContextId() flushBuffer];
 }
 
 //----------------------------------------------------------------------------
@@ -447,7 +447,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
   // been specified already.  This is the case for a 'pure vtk application'.
   // If you are using vtk in a 'regular Mac application' you should call
   // SetWindowId() and SetDisplayId() so that a window is not created.
-  if (!this->WindowId && !this->NSViewId)
+  if (!this->GetWindowId() && !this->GetDisplayId())
     {
     if ((this->Size[0]+this->Size[1]) == 0)
       {
@@ -484,7 +484,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
     }
 
   // create a vtkCocoaGLView if one has not been specified
-  if (!this->NSViewId)
+  if (!this->GetDisplayId())
     {
     NSRect glRect =
       NSMakeRect(0.0, 0.0, (float)this->Size[0], (float)this->Size[1]);
@@ -521,8 +521,8 @@ void vtkCocoaRenderWindow::CreateAWindow()
   // but only early in the app's lifetime (ie sometime during launch)
   // IMPORTANT: this is necessary to update the context here in case of
   // hardware offscreen rendering
-  NSOpenGLContext* context = (NSOpenGLContext*)this->ContextId;
-  [context setView:(NSView*)this->NSViewId];
+  NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
+  [context setView:(NSView*)this->GetDisplayId()];
 
   [context update];
 
@@ -566,8 +566,8 @@ void vtkCocoaRenderWindow::CreateGLContext()
   GLint one = 1;
   [context setValues:&one forParameter:NSOpenGLCPSwapInterval];
 
-  this->PixelFormat = (void*)pixelFormat;
-  this->ContextId = (void*)context;
+  this->SetPixelFormat((void*)pixelFormat);
+  this->SetContextId((void*)context);
 }
 
 //----------------------------------------------------------------------------
@@ -615,8 +615,8 @@ void vtkCocoaRenderWindow::Initialize ()
     // but only early in the app's lifetime (ie sometime during launch)
     // IMPORTANT: this is necessary to update the context here in case of
     // onscreen rendering
-    NSOpenGLContext* context = (NSOpenGLContext*)this->ContextId;
-    [context setView:(NSView*)this->NSViewId];
+    NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
+    [context setView:(NSView*)this->GetDisplayId()];
 
     [context update];
     }
@@ -649,7 +649,7 @@ int *vtkCocoaRenderWindow::GetSize()
   // We want to return the size of 'the window'.  But the term 'window'
   // is overloaded. It's really the NSView that vtk draws into, so we
   // return its size.
-  NSRect frameRect = [(NSView *)this->NSViewId frame];
+  NSRect frameRect = [(NSView*)this->GetDisplayId() frame];
   this->Size[0] = (int)NSWidth(frameRect);
   this->Size[1] = (int)NSHeight(frameRect);
   return this->Superclass::GetSize();
@@ -659,7 +659,7 @@ int *vtkCocoaRenderWindow::GetSize()
 // Get the current size of the screen.
 int *vtkCocoaRenderWindow::GetScreenSize()
 {
-  NSOpenGLContext* context = (NSOpenGLContext*)this->ContextId;
+  NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
   int currentScreen = [context currentVirtualScreen];
 
   NSScreen* screen = [[NSScreen screens] objectAtIndex: currentScreen];
@@ -683,7 +683,7 @@ int *vtkCocoaRenderWindow::GetPosition()
   // is overloaded. In this case, it's the position of the NSWindow itself
   // on the screen that we return. We don't much care where the NSView is
   // within the NSWindow.
-  NSRect winFrameRect = [(NSWindow*)this->WindowId frame];
+  NSRect winFrameRect = [(NSWindow*)this->GetWindowId() frame];
   this->Position[0] = (int)NSMinX(winFrameRect);
   this->Position[1] = (int)NSMinY(winFrameRect);
   return this->Position;
@@ -719,7 +719,7 @@ void vtkCocoaRenderWindow::SetFullScreen(int arg)
   else
     {
     // if window already up get its values
-    if (this->WindowId)
+    if (this->GetWindowId())
       {
       pos = this->GetPosition();
       this->OldScreen[0] = pos[0];
@@ -743,7 +743,7 @@ void vtkCocoaRenderWindow::SetFullScreen(int arg)
 //
 void vtkCocoaRenderWindow::SetStereoCapableWindow(int capable)
 {
-  if (this->ContextId == 0)
+  if (this->GetContextId() == 0)
     {
     vtkRenderWindow::SetStereoCapableWindow(capable);
     }
@@ -778,7 +778,7 @@ void vtkCocoaRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "ContextId: " << this->ContextId << "\n";
+  os << indent << "ContextId: " << this->GetContextId() << "\n";
   os << indent << "MultiSamples: " << this->MultiSamples << "\n";
 }
 
@@ -816,16 +816,44 @@ void vtkCocoaRenderWindow::SetWindowId(void *arg)
 
 //----------------------------------------------------------------------------
 // Returns the NSView* associated with this vtkRenderWindow.
-void* vtkCocoaRenderWindow::GetDisplayId()
+void *vtkCocoaRenderWindow::GetDisplayId()
 {
-  return this->NSViewId;
+  return this->DisplayId;
 }
 
 //----------------------------------------------------------------------------
 // Sets the NSView* associated with this vtkRenderWindow.
 void vtkCocoaRenderWindow::SetDisplayId(void *arg)
 {
-  this->NSViewId = arg;
+  this->DisplayId = arg;
+}
+
+//----------------------------------------------------------------------------
+// Sets the NSOpenGLContext* associated with this vtkRenderWindow.
+void vtkCocoaRenderWindow::SetContextId(void *contextId)
+{
+  this->ContextId = contextId;
+}
+
+//----------------------------------------------------------------------------
+// Returns the NSOpenGLContext* associated with this vtkRenderWindow.
+void *vtkCocoaRenderWindow::GetContextId()
+{
+  return this->ContextId;
+}
+
+//----------------------------------------------------------------------------
+// Sets the NSOpenGLPixelFormat* associated with this vtkRenderWindow.
+void vtkCocoaRenderWindow::SetPixelFormat(void *pixelFormat)
+{
+  this->PixelFormat = pixelFormat;
+}
+  
+//----------------------------------------------------------------------------
+// Returns the NSOpenGLPixelFormat* associated with this vtkRenderWindow.
+void *vtkCocoaRenderWindow::GetPixelFormat()
+{
+  return this->PixelFormat;
 }
 
 //----------------------------------------------------------------------------

@@ -25,7 +25,7 @@
 #endif
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.16");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.17");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -248,15 +248,16 @@ vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor() 
 {
   this->InstallMessageProc = 1;
-  this->TimerDictionary = (void*)[[NSMutableDictionary dictionary] retain];
-  this->CocoaServer = nil;
+  NSMutableDictionary *timerDict = [[NSMutableDictionary dictionary] retain];
+  this->SetTimerDictionary((void*)timerDict);
+  this->SetCocoaServer(nil);
 }
 
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor() 
 {
   this->Enabled = 0;
-  NSMutableDictionary* timerDict = (NSMutableDictionary*)(this->TimerDictionary);
+  NSMutableDictionary *timerDict = (NSMutableDictionary*)(this->GetTimerDictionary());
   [timerDict release];
 }
 
@@ -286,7 +287,7 @@ void vtkCocoaRenderWindowInteractor::Start()
   if (renWin != NULL)
     {
     vtkCocoaServer *server = [[vtkCocoaServer alloc] initWithRenderWindow:renWin];
-    this->CocoaServer = reinterpret_cast<void *>(server);
+    this->SetCocoaServer(reinterpret_cast<void *>(server));
     [server start];
     }
 }
@@ -369,7 +370,7 @@ void vtkCocoaRenderWindowInteractor::TerminateApp()
     int windowCreated = renWin->GetWindowCreated();
     if (windowCreated)
       {
-      vtkCocoaServer *server = reinterpret_cast<vtkCocoaServer *>(this->CocoaServer);
+      vtkCocoaServer *server = reinterpret_cast<vtkCocoaServer *>(this->GetCocoaServer());
       [server stop];
       }
     else
@@ -381,9 +382,9 @@ void vtkCocoaRenderWindowInteractor::TerminateApp()
     }
    
    // Release vtkCocoaServer if created by the start method.
-   vtkCocoaServer *server = reinterpret_cast<vtkCocoaServer *>(this->CocoaServer);
+   vtkCocoaServer *server = reinterpret_cast<vtkCocoaServer *>(this->GetCocoaServer());
    [server release];
-   this->CocoaServer = NULL;
+   this->SetCocoaServer(nil);
 }
 
 //----------------------------------------------------------------------------
@@ -399,10 +400,10 @@ int vtkCocoaRenderWindowInteractor::InternalCreateTimer(int timerId,
 
   // Create a vtkCocoaTimer and add it to a dictionary using the timerId
   // as key, this will let us find the vtkCocoaTimer later by timerId
-  vtkCocoaTimer* cocoaTimer = [[vtkCocoaTimer alloc] initWithInteractor:this
+  vtkCocoaTimer *cocoaTimer = [[vtkCocoaTimer alloc] initWithInteractor:this
     timerId:timerId];  
-  NSString* timerIdAsStr = [NSString stringWithFormat:@"%i", timerId];
-  NSMutableDictionary* timerDict = (NSMutableDictionary*)(this->TimerDictionary);
+  NSString *timerIdAsStr = [NSString stringWithFormat:@"%i", timerId];
+  NSMutableDictionary *timerDict = (NSMutableDictionary*)(this->GetTimerDictionary());
   [timerDict setObject:cocoaTimer forKey:timerIdAsStr];
   [cocoaTimer startTimerWithInterval:((NSTimeInterval)duration/1000.0)
     repeating:repeating];
@@ -420,8 +421,8 @@ int vtkCocoaRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
   // but calling this anyway is more correct
   int timerId = this->GetVTKTimerId(platformTimerId);
 
-  NSString* timerIdAsStr = [NSString stringWithFormat:@"%i", timerId];
-  NSMutableDictionary* timerDict = (NSMutableDictionary*)(this->TimerDictionary);
+  NSString *timerIdAsStr = [NSString stringWithFormat:@"%i", timerId];
+  NSMutableDictionary *timerDict = (NSMutableDictionary*)(this->GetTimerDictionary());
   vtkCocoaTimer* cocoaTimer = [timerDict objectForKey:timerIdAsStr];
   [timerDict removeObjectForKey:timerIdAsStr];
 
@@ -490,4 +491,28 @@ void vtkCocoaRenderWindowInteractor::ExitCallback()
     (*this->ClassExitMethod)(this->ClassExitMethodArg);
     }
   this->TerminateApp();
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindowInteractor::SetTimerDictionary(void *dictionary)
+{
+  this->TimerDictionary = dictionary;
+}
+
+//----------------------------------------------------------------------------
+void *vtkCocoaRenderWindowInteractor::GetTimerDictionary()
+{
+  return this->TimerDictionary;
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindowInteractor::SetCocoaServer(void *server)
+{
+  this->CocoaServer = server;
+}
+  
+//----------------------------------------------------------------------------
+void *vtkCocoaRenderWindowInteractor::GetCocoaServer()
+{
+  return this->CocoaServer;
 }

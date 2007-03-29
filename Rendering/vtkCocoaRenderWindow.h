@@ -106,25 +106,6 @@ public:
     {
       vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
     }
-
-  virtual void *GetGenericDisplayId() {return this->NSViewId;}
-  virtual void *GetGenericWindowId()  {return this->WindowId;}
-  virtual void *GetGenericContext()   {return this->ContextId;}
-  
-  // Description:
-  // Returns the NSView* associated with this vtkRenderWindow.
-  virtual void* GetDisplayId();
-
-  // Description:
-  // Sets the NSView* associated with this vtkRenderWindow. This class' default
-  // behaviour, that is, if you never call this SetDisplayId()/SetWindowId() is
-  // to create an NSWindow and a vtkCocoaGLView (NSView subclass) which are used
-  // together to draw all vtk stuff into. If you already have an NSWindow and
-  // NSView and you want this class to use them you must call both SetWindowId()
-  // and SetDisplayId() early on (before WindowInitialize() is executed). In the
-  // case of Java, you should call only SetDisplayId().
-  virtual void SetDisplayId(void *);
-  
   virtual void SetParentId(void *) 
     {
       vtkWarningMacro("Method not implemented.");
@@ -147,21 +128,6 @@ public:
     {
       vtkWarningMacro("Method not implemented.");
     }
-
-  // Description:
-  // Returns the NSWindow* associated with this vtkRenderWindow.
-  virtual void *GetWindowId();
-
-  // Description:
-  // Sets the NSWindow* associated with this vtkRenderWindow. This class' default
-  // behaviour, that is, if you never call this SetDisplayId()/SetWindowId() is
-  // to create an NSWindow and a vtkCocoaGLView (NSView subclass) which are used
-  // together to draw all vtk stuff into. If you already have an NSWindow and
-  // NSView and you want this class to use them you must call both SetWindowId()
-  // and SetDisplayId() early on (before WindowInitialize() is executed). In the
-  // case of Java, you should call only SetDisplayId().
-  virtual void SetWindowId(void *);
-
   void SetNextWindowId(void*)
     {
       vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
@@ -238,6 +204,42 @@ public:
   // Get the WindowCreated flag. It is 1 if this object created an instance
   // of NSWindow, 0 otherwise.
   virtual int GetWindowCreated();
+  
+  // Description:
+  // Accessors for the OpenGL context.
+  void SetContextId(void *);
+  void *GetContextId();
+  virtual void *GetGenericContext()   {return this->GetContextId();}
+
+  // Description:
+  // Sets the NSWindow* associated with this vtkRenderWindow. This class' default
+  // behaviour, that is, if you never call this SetDisplayId()/SetWindowId() is
+  // to create an NSWindow and a vtkCocoaGLView (NSView subclass) which are used
+  // together to draw all vtk stuff into. If you already have an NSWindow and
+  // NSView and you want this class to use them you must call both SetWindowId()
+  // and SetDisplayId() early on (before WindowInitialize() is executed). In the
+  // case of Java, you should call only SetDisplayId().
+  virtual void SetWindowId(void *);
+  
+  // Description:
+  // Returns the NSWindow* associated with this vtkRenderWindow.
+  virtual void *GetWindowId();
+  virtual void *GetGenericWindowId()  {return this->GetWindowId();}
+
+  // Description:
+  // Sets the NSView* associated with this vtkRenderWindow. This class' default
+  // behaviour, that is, if you never call this SetDisplayId()/SetWindowId() is
+  // to create an NSWindow and a vtkCocoaGLView (NSView subclass) which are used
+  // together to draw all vtk stuff into. If you already have an NSWindow and
+  // NSView and you want this class to use them you must call both SetWindowId()
+  // and SetDisplayId() early on (before WindowInitialize() is executed). In the
+  // case of Java, you should call only SetDisplayId().
+  virtual void SetDisplayId(void *);
+
+  // Description:
+  // Returns the NSView* associated with this vtkRenderWindow.
+  virtual void *GetDisplayId();
+  virtual void *GetGenericDisplayId() {return this->GetDisplayId();}
 
 protected:
   vtkCocoaRenderWindow();
@@ -251,6 +253,11 @@ protected:
 
   int OffScreenInitialized;
   int OnScreenInitialized;
+  
+  // Description:
+  // Accessors for the NSPixelFormat object.
+  void SetPixelFormat(void *pixelFormat);
+  void *GetPixelFormat();
 
 private:
   vtkCocoaRenderWindow(const vtkCocoaRenderWindow&);  // Not implemented.
@@ -259,7 +266,7 @@ private:
 private:
   void     *ContextId;    // really an NSOpenGLContext*
   void     *WindowId;     // really an NSWindow*
-  void     *NSViewId;     // really an NSView* (usually but not necessarily a vtkCocoaGLView*)
+  void     *DisplayId;    // really an NSView* (usually but not necessarily a vtkCocoaGLView*)
   void     *PixelFormat;  // really an NSOpenGLPixelFormat*
 
   int      WindowCreated;
