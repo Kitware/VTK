@@ -18,6 +18,7 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 // -W        => write data files at each step for closer inspection
+// -S        => draw sample data set in wireframe with each result
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
@@ -54,6 +55,7 @@
 
 vtkRenderer *renderer = NULL;
 vtkImageData *sampleData = NULL;
+int DrawSampleData = 0;
 
 enum {COLORBYCELL, COLORBYPOINT};
 
@@ -84,28 +86,31 @@ void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *arr
   actor->Delete();
   copy->Delete();
 
-  vtkDataSetMapper *mapper2 = vtkDataSetMapper::New();
-  mapper2->SetScalarModeToUseCellFieldData();    
-  if (CellOrPoint == COLORBYCELL)
+  if (DrawSampleData)
     {
+    vtkDataSetMapper *mapper2 = vtkDataSetMapper::New();
     mapper2->SetScalarModeToUseCellFieldData();    
-    mapper2->SelectColorArray("Forward Cell Ids");
-    mapper2->SetScalarRange(10, 36);
+    if (CellOrPoint == COLORBYCELL)
+      {
+      mapper2->SetScalarModeToUseCellFieldData();    
+      mapper2->SelectColorArray("Forward Cell Ids");
+      mapper2->SetScalarRange(10, 36);
     }
-  else
-    {
-    mapper2->SetScalarModeToUsePointFieldData();
-    mapper2->SelectColorArray("Forward Point Ids");
-    mapper2->SetScalarRange(10, 73);
-    }  
-  mapper2->SetInput(sampleData);
-  vtkActor *actor2 = vtkActor::New();
-  actor2->GetProperty()->SetRepresentationToWireframe();
-  actor2->SetMapper(mapper2);
-  actor2->SetPosition(X*4,Y*4, 0);
-  renderer->AddActor(actor2);
-  mapper2->Delete();
-  actor2->Delete();
+    else
+      {
+      mapper2->SetScalarModeToUsePointFieldData();
+      mapper2->SelectColorArray("Forward Point Ids");
+      mapper2->SetScalarRange(10, 73);
+      }  
+    mapper2->SetInput(sampleData);
+    vtkActor *actor2 = vtkActor::New();
+    actor2->GetProperty()->SetRepresentationToWireframe();
+    actor2->SetMapper(mapper2);
+    actor2->SetPosition(X*4,Y*4, 0);
+    renderer->AddActor(actor2);
+    mapper2->Delete();
+    actor2->Delete();
+    }
 }
 
 int TestExtraction(int argc, char *argv[])
@@ -116,6 +121,10 @@ int TestExtraction(int argc, char *argv[])
     if (!strcmp(argv[i], "-W"))
       {
       DoWrite = 1;
+      }
+    if (!strcmp(argv[i], "-S"))
+      {
+      DrawSampleData = 1;
       }
     }
 
