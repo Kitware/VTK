@@ -1374,6 +1374,7 @@ void QVTKWidget::x11_setup_window()
   XSetWMColormapWindows( display, topLevelWidget()->winId(), cmw, count );
 
   delete [] cmw;
+  XFree(vi);
   
   XFlush(display);
 
