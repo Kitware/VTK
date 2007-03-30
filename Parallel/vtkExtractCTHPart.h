@@ -23,33 +23,34 @@
 #ifndef __vtkExtractCTHPart_h
 #define __vtkExtractCTHPart_h
 
-#include "vtkPolyDataAlgorithm.h"
-class vtkPlane;
-class vtkDataArray;
-class vtkDoubleArray;
-class vtkRectilinearGrid;
+#include "vtkMultiBlockDataSetAlgorithm.h"
 
-class vtkExtractCTHPartInternal;
-class vtkMultiGroupDataSet;
-class vtkPolyData;
-class vtkUniformGrid;
-class vtkImageData;
-class vtkDataSet;
-
-class vtkContourFilter;
 class vtkAppendPolyData;
-class vtkDataSetSurfaceFilter;
-class vtkClipPolyData;
-class vtkCutter;
 class vtkBoundingBox;
+class vtkClipPolyData;
+class vtkContourFilter;
+class vtkCutter;
+class vtkDataArray;
+class vtkDataSet;
+class vtkDataSetSurfaceFilter;
+class vtkDoubleArray;
+class vtkExtractCTHPartInternal;
+class vtkImageData;
+class vtkInformationDoubleVectorKey;
+class vtkMultiGroupDataSet;
 class vtkMultiProcessController;
+class vtkPlane;
+class vtkPolyData;
+class vtkRectilinearGrid;
+class vtkUniformGrid;
+class vtkUnsignedCharArray;
 
 //#define EXTRACT_USE_IMAGE_DATA 1
 
-class VTK_PARALLEL_EXPORT vtkExtractCTHPart : public vtkPolyDataAlgorithm
+class VTK_PARALLEL_EXPORT vtkExtractCTHPart : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractCTHPart,vtkPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkExtractCTHPart,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -87,7 +88,8 @@ public:
   vtkGetObjectMacro(Controller,vtkMultiProcessController);
 
   // Description:
-  // Set and get the volume fraction surface value. This value should be between 0 and 1
+  // Set and get the volume fraction surface value. This value should be
+  // between 0 and 1
   vtkSetClampMacro(VolumeFractionSurfaceValue, double, 0.0, 1.0);
   vtkGetMacro(VolumeFractionSurfaceValue, double);
  
@@ -95,13 +97,11 @@ protected:
   vtkExtractCTHPart();
   ~vtkExtractCTHPart();
 
-  void SetOutputData(int idx, vtkPolyData* d);
+  virtual int RequestInformation(vtkInformation *request,
+                                 vtkInformationVector **inputVector,
+                                 vtkInformationVector *outputVector);
   
-  int RequestInformation(vtkInformation *request,
-                         vtkInformationVector **inputVector,
-                         vtkInformationVector *outputVector);
-  
-  int RequestData(vtkInformation *, vtkInformationVector **,
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
                   vtkInformationVector *);
   
   // Description:
@@ -134,20 +134,22 @@ protected:
                                 float minProgress,
                                 float maxProgress);
   
-  void ExecutePartOnRectilinearGrid( const char *arrayName,
-                                     vtkRectilinearGrid *input,
-                                     vtkAppendPolyData *appendSurface,
-                                     vtkAppendPolyData *append,
-                                     float minProgress,
-                                     float maxProgress);
+  void ExecutePartOnRectilinearGrid(const char *arrayName,
+                                    vtkRectilinearGrid *input,
+                                    vtkAppendPolyData *appendSurface,
+                                    vtkAppendPolyData *append,
+                                    float minProgress,
+                                    float maxProgress);
   
   void ExecuteCellDataToPointData(vtkDataArray *cellVolumeFraction, 
                                   vtkDoubleArray *pointVolumeFraction,
-                                  int *dims, float minProgress, float maxProgress,
+                                  int *dims, 
+                                  float minProgress, 
+                                  float maxProgress,
                                   int reportProgress);
   
-  int FillInputPortInformation(int port,
-                               vtkInformation *info);
+  virtual int FillInputPortInformation(int port,
+                                       vtkInformation *info);
   
   void CreateInternalPipeline();
   void DeleteInternalPipeline();
@@ -218,7 +220,8 @@ protected:
   vtkCutter *RCut;
   vtkClipPolyData *RClip2;
 
-  void EvaluateVolumeFractionType(vtkRectilinearGrid* rg, vtkMultiGroupDataSet* input);
+  void EvaluateVolumeFractionType(vtkRectilinearGrid* rg, 
+                                  vtkMultiGroupDataSet* input);
   int VolumeFractionType;
   double VolumeFractionSurfaceValue;
   double VolumeFractionSurfaceValueInternal;

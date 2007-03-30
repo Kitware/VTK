@@ -14,42 +14,41 @@
 =========================================================================*/
 #include "vtkExtractCTHPart.h"
 
-#include "vtkToolkits.h"
 #include "vtkAppendPolyData.h"
+#include "vtkBoundingBox.h"
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCharArray.h"
 #include "vtkClipPolyData.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkContourFilter.h"
 #include "vtkCutter.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkDoubleArray.h"
+#include "vtkExecutive.h"
+#include "vtkGarbageCollector.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiGroupDataSet.h"
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
-#include "vtkCharArray.h"
 #include "vtkTimerLog.h"
-
-#include "vtkExecutive.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkMultiGroupDataSet.h"
+#include "vtkToolkits.h"
 #include "vtkUniformGrid.h"
-#include "vtkGarbageCollector.h"
-#include "vtkImageData.h"
 
-#include "vtkCellArray.h"
-
-#include "vtkInformationDoubleVectorKey.h"
-#include "vtkMultiProcessController.h"
-#include "vtkBoundingBox.h"
 #include <math.h>
 #include <vtkstd/string>
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.23");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.24");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -77,7 +76,6 @@ vtkExtractCTHPart::vtkExtractCTHPart()
   this->Internals = new vtkExtractCTHPartInternal;
   this->Bounds = new vtkBoundingBox;
   this->ClipPlane = 0;
-  this->SetNumberOfOutputPorts(0);
   
   this->PointVolumeFraction=0;
   
@@ -137,7 +135,6 @@ unsigned long vtkExtractCTHPart::GetMTime()
 //-----------------------------------------------------------------------------
 void vtkExtractCTHPart::RemoveAllVolumeArrayNames()
 {
-  this->SetNumberOfOutputPorts(0);
   
   this->Internals->VolumeArrayNames.erase(
     this->Internals->VolumeArrayNames.begin(),
@@ -153,12 +150,7 @@ void vtkExtractCTHPart::AddVolumeArrayName(char* arrayName)
     return;
     }
   
-  vtkPolyData *d=vtkPolyData::New();
   this->Internals->VolumeArrayNames.push_back(arrayName);
-  int num = this->GetNumberOfOutputPorts();
-  this->SetNumberOfOutputPorts(num+1);
-  this->SetOutputData(num, d);
-  d->FastDelete();
   this->Modified();
 }
 
@@ -194,12 +186,6 @@ int vtkExtractCTHPart::FillInputPortInformation(int port,
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractCTHPart::SetOutputData(int idx, vtkPolyData* d)
-{
-  this->GetExecutive()->SetOutputData(idx, d);
-}
-
-//----------------------------------------------------------------------------
 int vtkExtractCTHPart::RequestInformation(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
@@ -228,11 +214,31 @@ int vtkExtractCTHPart::RequestData(
 {
   this->VolumeFractionType = -1;
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *inInfo  = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  int processNumber = 
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numProcessors =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  if(this->Controller==0)
+    {
+    processNumber=0;
+    numProcessors=1;
+    }
 
   // get the input and output
-  vtkMultiGroupDataSet *input=vtkMultiGroupDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkMultiGroupDataSet* input = vtkMultiGroupDataSet::GetData(inInfo);
+
+  vtkMultiBlockDataSet* mbOutput= vtkMultiBlockDataSet::GetData(outInfo);
+  unsigned int numBlocks = this->Internals->VolumeArrayNames.size();
+  mbOutput->SetNumberOfBlocks(numBlocks);
+  for (unsigned int i=0; i<numBlocks; i++)
+    {
+    vtkPolyData* pd = vtkPolyData::New();
+    mbOutput->SetDataSet(i, processNumber, pd);
+    pd->Delete();
+    }
   
   vtkRectilinearGrid *rg=0;
   
@@ -252,24 +258,7 @@ int vtkExtractCTHPart::RequestData(
     else
       {
       // compute the bounds
-      if(this->GetNumberOfOutputPorts()>0) // 
-        {
-        vtkInformation *info=outputVector->GetInformationObject(0);
-        int processNumber = 
-          info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-        int numProcessors =
-          info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-        if(this->Controller==0)
-          {
-          processNumber=0;
-          numProcessors=1;
-          }
-        this->ComputeBounds(input,processNumber,numProcessors);
-        }
-      else
-        {
-        return 1; // no output port, means no part to extract, that's OK.
-        }
+      this->ComputeBounds(input,processNumber,numProcessors);
       }
     }
   else
@@ -315,7 +304,8 @@ int vtkExtractCTHPart::RequestData(
     for (idx = 0; idx < num; ++idx)
       {
       arrayName = this->GetVolumeArrayName(idx);
-      output = this->GetOutput(idx);
+      output = 
+        vtkPolyData::SafeDownCast(mbOutput->GetDataSet(idx, processNumber));
       if(output==0)
         {
         vtkErrorMacro(<<"No output.");
@@ -332,7 +322,8 @@ int vtkExtractCTHPart::RequestData(
     for (idx = 0; idx < num; ++idx)
       {
       arrayName = this->GetVolumeArrayName(idx);
-      output = this->GetOutput(idx);
+      output = 
+        vtkPolyData::SafeDownCast(mbOutput->GetDataSet(idx, processNumber));
       if(output==0)
         {
         vtkErrorMacro(<<"No output.");
@@ -406,7 +397,8 @@ int vtkExtractCTHPart::RequestData(
     tmps[idx]->AddInput(appendSurface[idx]->GetOutput());
 #endif
     
-    output = this->GetOutput(idx);
+    output = vtkPolyData::SafeDownCast(
+      mbOutput->GetDataSet(idx, processNumber));
     if (inputConns > 0)
       {
       vtkTimerLog::MarkStartEvent("BlockAppend");
