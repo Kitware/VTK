@@ -46,6 +46,12 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # vtkfreetype needs to be updated to get rid of warnings that occur during
   # 64-bit compiles... for now, mask them out of dashboard results:
   "vtkfreetype.*warning C4"
+
+  # Some VTK dashboards include building bits of Qt which produce lots of
+  # the following warnings when built with the MS compilers. Qt guys should
+  # fix their code. Until they do, keep the Qt chatter off the VTK dashboard
+  # results:
+  "include.QtCore.*warning C4127: conditional expression is constant"
   )
 
 IF(APPLE)
