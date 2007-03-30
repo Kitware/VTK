@@ -53,6 +53,11 @@ protected:
   // Returns 1 if successful.  Sets file size as a side action.
   int OpenFile(const char* filename);
 
+
+  // Returns 1 if successful.  Handles constructing the filename, opening the file and checking
+  // if it's binary
+  int InitializeFile(const char* filename);
+
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
   virtual int ReadGeometryFile(const char* fileName, int timeStep,
@@ -156,6 +161,13 @@ protected:
   // Internal function to read in a float array.
   // Returns zero if there was an error.
   int ReadFloatArray(float *result, int numFloats);
+
+  // Description:
+  // Counts the number of timesteps in the geometry file
+  // This function assumes the file is already open and returns the
+  // number of timesteps remaining in the file
+  // The file will be closed after calling this method
+  int CountTimeSteps();
 
   // Description:
   // Read to the next time step in the geometry file.

@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.68");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.69");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -103,13 +103,10 @@ int vtkEnSightGoldBinaryReader::OpenFile(const char* filename)
 
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeStep,
-                                                 vtkMultiBlockDataSet *output)
+int vtkEnSightGoldBinaryReader::InitializeFile(const char* fileName)
 {
   char line[80], subLine[80];
-  int partId, realId;
-  int lineRead, i;
-  
+ 
   // Initialize
   //
   if (!fileName)
@@ -138,7 +135,6 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     return 0;
     }
-  
   this->ReadLine(line);
   sscanf(line, " %*s %s", subLine);
   if (strncmp(subLine, "Binary", 6) != 0 &&
@@ -148,20 +144,48 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
                   << "vtkEnSightGoldReader.");
     return 0;
     }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeStep,
+                                                 vtkMultiBlockDataSet *output)
+{
+  char line[80], subLine[80];
+  int partId, realId;
+  int lineRead, i;
+  int result;
+  
+  if (!this->InitializeFile(fileName))
+    {
+    return 0;
+    }
+  
+  //this will close the file, so we need to reinitialize it
+  int numberOfTimeStepsInFile=this->CountTimeSteps();
+  
+  if (!this->InitializeFile(fileName))
+    {
+    return 0;
+    }
+    
 
   if (this->UseFileSets)
     {
-    for (i = 0; i < timeStep - 1; i++)
+    if (numberOfTimeStepsInFile>1)
       {
-      if (!this->SkipTimeStep())
+      for (i = 0; i < timeStep - 1; i++)
         {
-        return 0;
+        if (!this->SkipTimeStep())
+          {
+          return 0;
+          }
         }
       }
-    
+
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
       {
-      this->ReadLine(line);
+      int result=this->ReadLine(line);
       }
     }
   
@@ -292,6 +316,25 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
 
 
 //----------------------------------------------------------------------------
+int vtkEnSightGoldBinaryReader::CountTimeSteps()
+{
+  int count=0;
+  while(1)
+    {
+    int result=this->SkipTimeStep();
+    if (result)
+      {
+      count++;
+      }
+    else
+      {
+      break;
+      }
+    }
+  return count;
+}
+
+//----------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::SkipTimeStep()
 {
   char line[80], subLine[80];
@@ -300,7 +343,10 @@ int vtkEnSightGoldBinaryReader::SkipTimeStep()
   line[0] = '\0';
   while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
     {
-    this->ReadLine(line);
+    if (!this->ReadLine(line))
+      {
+      return 0;
+      }
     }
   
   // Skip the 2 description lines.
