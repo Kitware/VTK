@@ -1,6 +1,11 @@
 package require vtk
 package require vtkinteraction
 
+# we need to use composite data pipeline with multiblock datasets
+vtkAlgorithm alg
+vtkCompositeDataPipeline pip
+alg SetDefaultExecutivePrototype pip
+pip Delete
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -22,7 +27,7 @@ vtkXMLRectilinearGridReader pvTemp59
   pvTemp59 SetCellArrayStatus "Mass for Body, Nose" 0
 
 vtkExtractCTHPart pvTemp79
-  pvTemp79 SetInput [pvTemp59 GetOutput 0]
+  pvTemp79 SetInputConnection [pvTemp59 GetOutputPort]
   pvTemp79 AddVolumeArrayName "Volume Fraction for Armor Plate"
   pvTemp79 AddVolumeArrayName "Volume Fraction for Body, Nose"
   pvTemp79 SetClipPlane {}
@@ -34,8 +39,8 @@ vtkLookupTable pvTemp104
   pvTemp104 SetTableRange 0 1
   pvTemp104 SetVectorComponent 0
   pvTemp104 Build
-vtkPolyDataMapper pvTemp87
-  pvTemp87 SetInput [pvTemp79 GetOutput 0]
+vtkMultiGroupPolyDataMapper pvTemp87
+  pvTemp87 SetInputConnection [pvTemp79 GetOutputPort]
   pvTemp87 SetImmediateModeRendering 1
   pvTemp87 SetScalarRange 0 1
   pvTemp87 UseLookupTableScalarRangeOn
@@ -53,24 +58,5 @@ vtkActor pvTemp88
   [pvTemp88 GetProperty] SetSpecularPower 1
   [pvTemp88 GetProperty] SetSpecularColor 1 1 1
 Ren1 AddActor pvTemp88
-vtkPolyDataMapper pvTemp96
-  pvTemp96 SetInput [pvTemp79 GetOutput 1]
-  pvTemp96 SetImmediateModeRendering 1
-  pvTemp96 SetScalarRange 0 1
-  pvTemp96 UseLookupTableScalarRangeOn
-  pvTemp96 SetScalarVisibility 1
-  pvTemp96 SetScalarModeToUsePointFieldData
-  pvTemp96 SelectColorArray "Part Index"
-pvTemp96 SetLookupTable pvTemp104
-vtkActor pvTemp97
-  pvTemp97 SetMapper pvTemp96
-  [ pvTemp97 GetProperty] SetRepresentationToSurface
-  [pvTemp97 GetProperty] SetInterpolationToGouraud
-  [pvTemp97 GetProperty] SetAmbient 0
-  [pvTemp97 GetProperty] SetDiffuse 1
-  [pvTemp97 GetProperty] SetSpecular 0
-  [pvTemp97 GetProperty] SetSpecularPower 1
-  [pvTemp97 GetProperty] SetSpecularColor 1 1 1
-Ren1 AddActor pvTemp97
 
 renWin Render
