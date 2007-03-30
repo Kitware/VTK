@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.68");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.69");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -189,7 +189,7 @@ int vtkEnSightReader::RequestData(
 
   // Check if a particular time was requested by the pipeline.
   // This overrides the ivar.
-  if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+  if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()) && tsLength>0)
     {
     // Get the requested time step. We only supprt requests of a single time
     // step in this reader right now
