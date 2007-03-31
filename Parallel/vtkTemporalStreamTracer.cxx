@@ -70,25 +70,10 @@ using namespace vtkTemporalStreamTracerNamespace;
 //----------------------------------------------------------------------------
 #ifdef JB_H5PART_PARTICLE_OUTPUT
   #include "vtkH5PartWriter.h"
-
-  #ifndef WIN32
-  #else
-    #define OUTPUTTEXT(a) vtkOutputWindowDisplayText(a);
-  #endif
-
-  #undef vtkDebugMacro
-  #define vtkDebugMacro(a)  \
-  { \
-    vtkOStreamWrapper::EndlType endl; \
-    vtkOStreamWrapper::UseEndl(endl); \
-    vtkOStrStreamWrapper vtkmsg; \
-    vtkmsg << "P(" << this->UpdatePiece << "): " a << "\n"; \
-    OUTPUTTEXT(vtkmsg.str()); \
-    vtkmsg.rdbuf()->freeze(0); \
-  }
+  #include "vtkXMLParticleWriter.h"
 #endif
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.18");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.19");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, ParticleWriter, vtkAbstractParticleWriter);
@@ -135,8 +120,11 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   this->Controller = NULL;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 #ifdef JB_H5PART_PARTICLE_OUTPUT
-  vtkDebugMacro(<<"Setting vtkH5PartWriter");
-  vtkH5PartWriter *writer = vtkH5PartWriter::New();
+//  vtkDebugMacro(<<"Setting vtkH5PartWriter");
+//  vtkH5PartWriter *writer = vtkH5PartWriter::New();
+  vtkDebugMacro(<<"Setting vtkXMLParticleWriter");
+  vtkXMLParticleWriter *writer = vtkXMLParticleWriter::New();
+
   this->SetParticleWriter(writer);
   writer->Delete();
 #endif
@@ -638,7 +626,7 @@ void vtkTemporalStreamTracer::TransmitReceiveParticles(
   // Allocate the space for all particles
   received.resize(TotalParticles);
   if (TotalParticles==0) return;
-  // Gather the marshaled data sets from all procs.
+  // Gather the data from all procs.
   char *sendbuf = (char*) ((outofdomain.size()>0) ? &(outofdomain[0]) : NULL);
   char *recvbuf = (char*) (&(received[0]));
   com->AllGatherV(sendbuf, recvbuf, 
@@ -673,34 +661,6 @@ void vtkTemporalStreamTracer::UpdateSeeds(ParticleList &candidates)
     memcpy(&info, &candidates[i], sizeof(ParticleInformation));
   }
   this->NumberOfParticles = ParticleHistories.size();
-}
-//---------------------------------------------------------------------------
-unsigned long int randomseed()
-{
-  unsigned int seed;
-#ifndef _WIN32
-  struct timeval tv;
-  FILE *devrandom;
-
-  if ((devrandom = fopen("/dev/random","r")) == NULL) {
-    gettimeofday(&tv,0);
-    seed = tv.tv_sec + tv.tv_usec;
-  } 
-  else {
-    if (fread(&seed,sizeof(seed),1,devrandom) == 1) {
-      fclose(devrandom);
-    } 
-    else {
-      gettimeofday(&tv,0);
-      seed = tv.tv_sec + tv.tv_usec;
-    }
-  }
-#else
-  LARGE_INTEGER lpPerformanceCount;
-  QueryPerformanceCounter(&lpPerformanceCount);
-  seed = lpPerformanceCount.LowPart + lpPerformanceCount.HighPart;
-#endif
-  return seed;
 }
 //---------------------------------------------------------------------------
 int vtkTemporalStreamTracer::RequestData(
@@ -848,9 +808,9 @@ int vtkTemporalStreamTracer::RequestData(
   //
   if (this->ReinjectionFlag) {
     int injectionId = source1 ? source1->GetNumberOfPoints() : 0;
-    if (source1 && this->UpdatePiece==0) 
+    if (source1 /*&& this->UpdatePiece==0*/) 
       this->InjectSeeds(source1, 1,           0, NULL, candidates, &outofdomain);
-    if (source2 && this->UpdatePiece==0) 
+    if (source2 /*&& this->UpdatePiece==0*/) 
       this->InjectSeeds(source2, 2, injectionId, NULL, candidates, &outofdomain);
     this->ParticleInjectionTime.Modified();
     //
@@ -883,13 +843,13 @@ int vtkTemporalStreamTracer::RequestData(
   // setup all our output arrays
   //
   vtkPolyData *output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  this->ParticleTime        = vtkSmartPointer<vtkDoubleArray>::New();
+  this->ParticleTime        = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleIds         = vtkSmartPointer<vtkIntArray>::New();
   this->ParticleSourceIds   = vtkSmartPointer<vtkIntArray>::New();
   this->InjectedPointIds    = vtkSmartPointer<vtkIntArray>::New();
-  this->ParticleVorticity   = vtkSmartPointer<vtkDoubleArray>::New();
-  this->ParticleRotation    = vtkSmartPointer<vtkDoubleArray>::New();
-  this->ParticleAngularVel  = vtkSmartPointer<vtkDoubleArray>::New();
+  this->ParticleVorticity   = vtkSmartPointer<vtkFloatArray>::New();
+  this->ParticleRotation    = vtkSmartPointer<vtkFloatArray>::New();
+  this->ParticleAngularVel  = vtkSmartPointer<vtkFloatArray>::New();
   this->cellVectors         = vtkSmartPointer<vtkDoubleArray>::New();
   this->ParticleCells       = vtkSmartPointer<vtkCellArray>::New();
   this->OutputCoordinates   = vtkSmartPointer<vtkPoints>::New();
@@ -1000,7 +960,10 @@ int vtkTemporalStreamTracer::RequestData(
   // NB. We don't want our writer to trigger any updates, 
   // so shallow copy the output
   if (this->ParticleWriter && this->EnableParticleWriting) {
-    vtkDebugMacro(<< "About to write particle data for step " << this->ActualTimeStep);
+    vtkDebugMacro(<< "Waiting to write particle data for step " << this->ActualTimeStep);
+    #ifdef VTK_USE_MPI
+//      this->Controller->Barrier();
+    #endif
     vtkSmartPointer<vtkPolyData> polys = vtkSmartPointer<vtkPolyData>::New();
     polys->ShallowCopy(output);
     this->ParticleWriter->SetFileName(this->ParticleFileName);

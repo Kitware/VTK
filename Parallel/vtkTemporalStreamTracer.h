@@ -309,10 +309,10 @@ public:
     vtkSmartPointer<vtkIntArray>      ParticleSourceIds;
     vtkSmartPointer<vtkIntArray>      InjectedPointIds;
     vtkSmartPointer<vtkDoubleArray>   cellVectors;
-    vtkSmartPointer<vtkDoubleArray>   ParticleTime;
-    vtkSmartPointer<vtkDoubleArray>   ParticleVorticity;
-    vtkSmartPointer<vtkDoubleArray>   ParticleRotation;
-    vtkSmartPointer<vtkDoubleArray>   ParticleAngularVel;
+    vtkSmartPointer<vtkFloatArray>    ParticleTime;
+    vtkSmartPointer<vtkFloatArray>    ParticleVorticity;
+    vtkSmartPointer<vtkFloatArray>    ParticleRotation;
+    vtkSmartPointer<vtkFloatArray>    ParticleAngularVel;
     vtkSmartPointer<vtkPointData>     OutputPointData;
     vtkSmartPointer<vtkPointData>     OutputPointDataT1;
     vtkSmartPointer<vtkPointData>     OutputPointDataT2;
