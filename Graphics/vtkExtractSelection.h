@@ -68,12 +68,6 @@ protected:
                   vtkInformationVector **, 
                   vtkInformationVector *);
 
-
-  int ExtractIds(vtkSelection *s, vtkDataSet *i, vtkDataSet *o);
-  int ExtractFrustum(vtkSelection *s, vtkDataSet *i, vtkDataSet *o);
-  int ExtractLocations(vtkSelection *s, vtkDataSet *i, vtkDataSet *o);
-  int ExtractThresholds(vtkSelection *s, vtkDataSet *i, vtkDataSet *o);
-
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   vtkExtractSelectedIds* IdsFilter;

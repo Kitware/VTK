@@ -28,7 +28,9 @@
 #include "vtkExtractSelectedLocations.h"
 #include "vtkExtractSelectedThresholds.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.13");
+#include "vtkStreamingDemandDrivenPipeline.h"
+
+vtkCxxRevisionMacro(vtkExtractSelection, "1.14");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -123,17 +125,11 @@ int vtkExtractSelection::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
-  vtkInformation *selInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  // get the selection, input and ouptut
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  vtkInformation *selInfo = inputVector[1]->GetInformationObject(0);
   vtkSelection *sel = vtkSelection::SafeDownCast(
     selInfo->Get(vtkDataObject::DATA_OBJECT()));
   if ( ! sel )
@@ -141,14 +137,14 @@ int vtkExtractSelection::RequestData(
     vtkErrorMacro(<<"No selection specified");
     return 1;
     }
-
-  vtkDebugMacro(<< "Extracting from dataset");
-
   if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE()))
     {
     return 1;
     }
+
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   
+  vtkDataSetAlgorithm *subFilter = NULL;
   int seltype = sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE());
   switch (seltype)
     {
@@ -156,119 +152,104 @@ int vtkExtractSelection::RequestData(
     case vtkSelection::VALUES:
     case vtkSelection::INDICES:
     {
-    return this->ExtractIds(sel, input, output);
+    subFilter = this->IdsFilter;
+    break;
     }
     case vtkSelection::FRUSTUM:
     {
-    return this->ExtractFrustum(sel, input, output);
+    subFilter = this->FrustumFilter;
+    break;
     }
     case vtkSelection::LOCATIONS:
     {
-    return this->ExtractLocations(sel, input, output);
+    subFilter = this->LocationsFilter;
+    break;
     }
     case vtkSelection::THRESHOLDS:
     {
-    return this->ExtractThresholds(sel, input, output);
+    //TODO: Make ThresholdsFilter a dataset algorithm for PRESERVE_TOPOLOGY
+    //and get rid of this
+      this->ThresholdsFilter->SetInput(1, sel);
+
+      vtkDataSet* inputCopy = input->NewInstance();
+      inputCopy->ShallowCopy(input);
+      this->ThresholdsFilter->SetInput(0, inputCopy);
+      inputCopy->Delete();
+      
+      this->ThresholdsFilter->Update();
+      
+      vtkDataSet* ecOutput = vtkDataSet::SafeDownCast(
+        this->ThresholdsFilter->GetOutputDataObject(0));
+
+      vtkDataSet *output = vtkDataSet::SafeDownCast(
+        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+      output->ShallowCopy(ecOutput);
+
+      //clean up and deallocate
+      ecOutput->Initialize();      
+      this->ThresholdsFilter->SetInput(0, (vtkDataSet*)NULL);
+      this->ThresholdsFilter->SetInput(1, (vtkSelection*)NULL);
+      return 1;
     }
     default:
       return 1;
     }
-}
 
-//----------------------------------------------------------------------------
-int vtkExtractSelection::ExtractIds(
-  vtkSelection *sel, vtkDataSet* input, vtkDataSet *output)
-{
-  this->IdsFilter->SetInput(1, sel);
+  subFilter->SetInput(1, sel);
 
+  vtkStreamingDemandDrivenPipeline* sddp =
+    vtkStreamingDemandDrivenPipeline::SafeDownCast(
+      subFilter->GetExecutive());
+
+  //pass all required information to the helper filter
+  int piece = -1;
+  int npieces = -1;
+  int *uExtent;
+  if (outInfo->Has(
+        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
+    {
+    piece = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    npieces = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    if (sddp)
+      {
+      sddp->SetUpdateExtent(0, piece, npieces, 0);
+      }
+    }
+  if (outInfo->Has(
+        vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
+    {
+    uExtent = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    if (sddp)
+      {
+      sddp->SetUpdateExtent(0, uExtent);
+      }
+    }
+  
   vtkDataSet* inputCopy = input->NewInstance();
   inputCopy->ShallowCopy(input);
-  this->IdsFilter->SetInput(0, inputCopy);
-  inputCopy->Delete();
+  subFilter->SetInput(0, inputCopy);
 
-  this->IdsFilter->Update();
+  subFilter->Update();
 
   vtkDataSet* ecOutput = vtkDataSet::SafeDownCast(
-    this->IdsFilter->GetOutputDataObject(0));
-  output->ShallowCopy(ecOutput);
-  ecOutput->Initialize();
+    subFilter->GetOutputDataObject(0));
 
-  this->IdsFilter->SetInput(0, (vtkDataSet*)NULL);
-  this->IdsFilter->SetInput(1, (vtkSelection*)NULL);  
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  output->ShallowCopy(ecOutput);
+
+  //make sure everything is deallocated
+  inputCopy->Delete();
+  ecOutput->Initialize();
+  subFilter->SetInput(0, (vtkDataSet*)NULL);
+  subFilter->SetInput(1, (vtkSelection*)NULL);  
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkExtractSelection::ExtractFrustum(
-  vtkSelection *sel, vtkDataSet* input, vtkDataSet *output)
-{
-  this->FrustumFilter->SetInput(1, sel);
-
-  vtkDataSet* inputCopy = input->NewInstance();
-  inputCopy->ShallowCopy(input);
-  this->FrustumFilter->SetInput(0, inputCopy);
-  inputCopy->Delete();
-
-  this->FrustumFilter->Update();
-
-  vtkDataSet* ecOutput = vtkDataSet::SafeDownCast(
-    this->FrustumFilter->GetOutputDataObject(0));
-  output->ShallowCopy(ecOutput);
-  ecOutput->Initialize();
-
-  this->FrustumFilter->SetInput(0, (vtkDataSet*)NULL);
-  this->FrustumFilter->SetInput(1, (vtkSelection*)NULL);
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkExtractSelection::ExtractLocations(
-  vtkSelection *sel, vtkDataSet* input, vtkDataSet *output)
-{
-  this->LocationsFilter->SetInput(1, sel);
-
-  vtkDataSet* inputCopy = input->NewInstance();
-  inputCopy->ShallowCopy(input);
-  this->LocationsFilter->SetInput(0, inputCopy);
-  inputCopy->Delete();
-
-  this->LocationsFilter->Update();
-
-  vtkDataSet* ecOutput = vtkDataSet::SafeDownCast(
-    this->LocationsFilter->GetOutputDataObject(0));
-  output->ShallowCopy(ecOutput);
-  ecOutput->Initialize();
-
-  this->LocationsFilter->SetInput(0, (vtkDataSet*)NULL);
-  this->LocationsFilter->SetInput(1, (vtkSelection*)NULL);
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkExtractSelection::ExtractThresholds(
-  vtkSelection *sel, vtkDataSet* input, vtkDataSet *output)
-{
-  this->ThresholdsFilter->SetInput(1, sel);
-
-  vtkDataSet* inputCopy = input->NewInstance();
-  inputCopy->ShallowCopy(input);
-  this->ThresholdsFilter->SetInput(0, inputCopy);
-  inputCopy->Delete();
-
-  this->ThresholdsFilter->Update();
-
-  vtkDataSet* ecOutput = vtkDataSet::SafeDownCast(
-    this->ThresholdsFilter->GetOutputDataObject(0));
-  output->ShallowCopy(ecOutput);
-  ecOutput->Initialize();
-
-  this->ThresholdsFilter->SetInput(0, (vtkDataSet*)NULL);
-  this->ThresholdsFilter->SetInput(1, (vtkSelection*)NULL);
-
-  return 1;
-}
 
 //----------------------------------------------------------------------------
 void vtkExtractSelection::PrintSelf(ostream& os, vtkIndent indent)
