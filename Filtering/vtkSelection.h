@@ -138,14 +138,7 @@ public:
   // Return the MTime taking into account changes to the properties
   unsigned long GetMTime();
 
-  // vtkSelection specific keys.
-  // Description:
-  // Retrieve the data within a selection node.
-  // This is an array that can contain a set of ids, data values, locations in
-  // in space.
-  static vtkSelection* GetData(vtkInformation* info);
-  static vtkSelection* GetData(vtkInformationVector* v, int i=0);
-
+  // vtkSelection specific keys follow:
   // Description:
   // Get the (primary) property that describes the content of a selection 
   // node's data. Other auxiliary description properties follow.
@@ -246,6 +239,11 @@ public:
   // Description:
   // The composite data block the selection belongs to.
   static vtkInformationIntegerKey* BLOCK();
+
+  // Description:
+  // Retrieve a vtkSelection stored inside an invormation object.
+  static vtkSelection* GetData(vtkInformation* info);
+  static vtkSelection* GetData(vtkInformationVector* v, int i=0);
 
 protected:
   vtkSelection();
