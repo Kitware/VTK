@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.70");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.71");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -154,7 +154,6 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
   char line[80], subLine[80];
   int partId, realId;
   int lineRead, i;
-  int result;
   
   if (!this->InitializeFile(fileName))
     {
