@@ -88,7 +88,7 @@ using namespace vtkTemporalStreamTracerNamespace;
   }
 #endif
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.17");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.18");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, ParticleWriter, vtkAbstractParticleWriter);
@@ -1321,6 +1321,8 @@ void vtkTemporalStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TimeStep: " << this->TimeStep << endl;
   os << indent << "ForceReinjectionEveryNSteps: "
      << this->ForceReinjectionEveryNSteps << endl;
+  os << indent << "EnableParticleWriting: " << this->EnableParticleWriting << endl;
+  os << indent << "IgnorePipelineTime: " << this->IgnorePipelineTime << endl;
 }
 //---------------------------------------------------------------------------
 bool vtkTemporalStreamTracer::ComputeDomainExitLocation(
