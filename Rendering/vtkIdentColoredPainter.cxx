@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.14");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.15");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -45,6 +45,8 @@ static inline int vtkIdentColoredPainterGetTotalCells(vtkPolyData* pd,
   unsigned long typeflags)
 {
   int total_cells = 0;
+  total_cells += (typeflags & vtkPainter::VERTS)? 
+    pd->GetNumberOfVerts() : 0;
   total_cells += (typeflags & vtkPainter::LINES)? 
     pd->GetNumberOfLines() : 0;
   total_cells += (typeflags & vtkPainter::POLYS)? 
@@ -269,6 +271,11 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
   device->MakeBlending(0);
 
   vtkIdType startCell = 0;
+  if (typeflags & vtkPainter::VERTS)
+    {
+    this->DrawCells(VTK_POLY_VERTEX, this->PolyData->GetVerts(), startCell,
+      renderer);
+    }
   startCell += this->PolyData->GetNumberOfVerts();
 
   if (typeflags & vtkPainter::LINES)
