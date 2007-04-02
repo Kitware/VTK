@@ -30,7 +30,7 @@
 
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.14");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.15");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -167,30 +167,8 @@ int vtkExtractSelection::RequestData(
     }
     case vtkSelection::THRESHOLDS:
     {
-    //TODO: Make ThresholdsFilter a dataset algorithm for PRESERVE_TOPOLOGY
-    //and get rid of this
-      this->ThresholdsFilter->SetInput(1, sel);
-
-      vtkDataSet* inputCopy = input->NewInstance();
-      inputCopy->ShallowCopy(input);
-      this->ThresholdsFilter->SetInput(0, inputCopy);
-      inputCopy->Delete();
-      
-      this->ThresholdsFilter->Update();
-      
-      vtkDataSet* ecOutput = vtkDataSet::SafeDownCast(
-        this->ThresholdsFilter->GetOutputDataObject(0));
-
-      vtkDataSet *output = vtkDataSet::SafeDownCast(
-        outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-      output->ShallowCopy(ecOutput);
-
-      //clean up and deallocate
-      ecOutput->Initialize();      
-      this->ThresholdsFilter->SetInput(0, (vtkDataSet*)NULL);
-      this->ThresholdsFilter->SetInput(1, (vtkSelection*)NULL);
-      return 1;
+    subFilter = this->ThresholdsFilter;
+    break;
     }
     default:
       return 1;

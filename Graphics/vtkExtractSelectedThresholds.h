@@ -31,16 +31,16 @@
 #ifndef __vtkExtractSelectedThresholds_h
 #define __vtkExtractSelectedThresholds_h
 
-#include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkSelection;
 class vtkDataArray;
 class vtkDoubleArray;
 
-class VTK_GRAPHICS_EXPORT vtkExtractSelectedThresholds : public vtkUnstructuredGridAlgorithm
+class VTK_GRAPHICS_EXPORT vtkExtractSelectedThresholds : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractSelectedThresholds,vtkUnstructuredGridAlgorithm);
+  vtkTypeRevisionMacro(vtkExtractSelectedThresholds,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -51,15 +51,25 @@ protected:
   vtkExtractSelectedThresholds();
   ~vtkExtractSelectedThresholds();
 
+  //sets up output dataset
+  virtual int RequestDataObject(vtkInformation* request,
+                                vtkInformationVector** inputVector,
+                                vtkInformationVector* outputVector);
+
   // Usual data generation method
   int RequestData(vtkInformation *, 
                   vtkInformationVector **, 
                   vtkInformationVector *);
 
-
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int ExtractCells(vtkSelection *sel, vtkDataSet *input, 
+                   vtkDataSet *output,
+                   int usePointScalars);
+  int ExtractPoints(vtkSelection *sel, vtkDataSet *input, 
+                    vtkDataSet *output);
 
   int EvaluateValue(vtkDataArray *scalars, vtkIdType id, vtkDoubleArray *lims);
+
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
   vtkExtractSelectedThresholds(const vtkExtractSelectedThresholds&);  // Not implemented.

@@ -28,8 +28,9 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
+#include "vtkSignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.6");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.7");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -41,6 +42,78 @@ vtkExtractSelectedThresholds::vtkExtractSelectedThresholds()
 //----------------------------------------------------------------------------
 vtkExtractSelectedThresholds::~vtkExtractSelectedThresholds()
 {
+}
+
+//----------------------------------------------------------------------------
+//needed because parent class sets output type to input type
+//and we sometimes want to change it to make a PolyData or UnstructuredGrid
+//regardless of input type
+int vtkExtractSelectedThresholds::RequestDataObject(
+  vtkInformation*,
+  vtkInformationVector** inputVector ,
+  vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+    {
+    return 0;
+    }
+  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
+  if (!selInfo)
+    {
+    return 0;
+    }
+  
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  if (input)
+    {
+    int passThrough = 0;
+    if (inInfo)
+      {
+      vtkSelection *sel = vtkSelection::SafeDownCast(
+        selInfo->Get(vtkDataObject::DATA_OBJECT()));
+      if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
+          sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
+        {
+        passThrough = 1;
+        }
+      }
+    
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkDataSet *output = vtkDataSet::SafeDownCast(
+        info->Get(vtkDataObject::DATA_OBJECT()));
+      
+      if (!output
+          ||
+          (passThrough && !output->IsA(input->GetClassName()))
+          ||
+          (!passThrough && !output->IsA("vtkUnstructuredGrid"))
+        )
+        {
+        vtkDataSet* newOutput = NULL;
+        if (!passThrough)
+          {
+          // The mesh will be modified.
+          newOutput = vtkUnstructuredGrid::New();
+          }
+        else
+          {
+          // The mesh will not be modified.
+          newOutput = input->NewInstance();
+          }
+        newOutput->SetPipelineInformation(info);
+        newOutput->Delete();
+        this->GetOutputPortInformation(i)->Set(
+          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
+        }
+      }
+    return 1;
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -57,7 +130,13 @@ int vtkExtractSelectedThresholds::RequestData(
   // get the selection, input and ouptut
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+  if (!input)
+    {
+    vtkErrorMacro(<<"No input specified");
+    return 1;
+    }
+
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkSelection *sel = vtkSelection::SafeDownCast(
@@ -73,8 +152,43 @@ int vtkExtractSelectedThresholds::RequestData(
     {
     return 1;
     }
+
   vtkDebugMacro(<< "Extracting from dataset");
 
+  int thresholdByPointVals = 0;
+  int fieldType = vtkSelection::CELL;
+  if (sel->GetProperties()->Has(vtkSelection::FIELD_TYPE()))
+    {
+    fieldType = sel->GetProperties()->Get(vtkSelection::FIELD_TYPE());
+    if (fieldType == vtkSelection::POINT)
+      {
+      if (sel->GetProperties()->Has(vtkSelection::CONTAINING_CELLS()))
+        {
+        thresholdByPointVals = 
+          sel->GetProperties()->Get(vtkSelection::CONTAINING_CELLS());
+        }
+      }
+    }
+
+  if (thresholdByPointVals || fieldType==vtkSelection::CELL)
+    {
+    return this->ExtractCells(sel, input, output, thresholdByPointVals);
+    }
+  if (fieldType == vtkSelection::POINT)
+    {
+    return this->ExtractPoints(sel, input, output);
+    }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkExtractSelectedThresholds::ExtractCells(
+  vtkSelection *sel, 
+  vtkDataSet *input, 
+  vtkDataSet *output,
+  int usePointScalars)
+{
   //find the values to threshold within
   vtkDoubleArray *lims = vtkDoubleArray::SafeDownCast(sel->GetSelectionList());
   if (lims == NULL)
@@ -84,15 +198,9 @@ int vtkExtractSelectedThresholds::RequestData(
     }
 
   //find out what array we are suppose to threshold in
-  int usePointScalars = 0;
   vtkDataArray *inScalars = NULL;
-  if (
-    sel->GetProperties()->Has(vtkSelection::FIELD_TYPE()) &&
-    (sel->GetProperties()->Get(vtkSelection::FIELD_TYPE()) == 
-     vtkSelection::POINT)     
-    )
+  if (usePointScalars)
     {
-    usePointScalars = 1;
     if (sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
       {
       inScalars = input->GetPointData()->GetArray(
@@ -129,22 +237,25 @@ int vtkExtractSelectedThresholds::RequestData(
     inverse = sel->GetProperties()->Get(vtkSelection::INVERSE());
     }
 
+  int passThrough = 0;
+  if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
+      sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
+    {
+    passThrough = 1;
+    }
+
   vtkIdType cellId, newCellId;
-  vtkIdList *cellPts, *pointMap;
-  vtkIdList *newCellPts;
+  vtkIdList *cellPts, *pointMap = NULL;
+  vtkIdList *newCellPts = NULL;
   vtkCell *cell;
   vtkPoints *newPoints;
-  int i, ptId, newId, numPts;
+  int i, ptId, newId, numPts, numCells;
   int numCellPts;
   double x[3];
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   int keepCell;
 
-  vtkIdTypeArray *originalCellIds = vtkIdTypeArray::New();
-  outCD->AddArray(originalCellIds);
-  originalCellIds->SetName("vtkOriginalCellIds");
-  originalCellIds->SetNumberOfComponents(1);
 
   outPD->CopyGlobalIdsOn();
   outPD->CopyAllocate(pd);
@@ -152,18 +263,66 @@ int vtkExtractSelectedThresholds::RequestData(
   outCD->CopyAllocate(cd);
 
   numPts = input->GetNumberOfPoints();
-  output->Allocate(input->GetNumberOfCells());
-  newPoints = vtkPoints::New();
-  newPoints->Allocate(numPts);
+  numCells = input->GetNumberOfCells();
 
-  pointMap = vtkIdList::New(); //maps old point ids into new
-  pointMap->SetNumberOfIds(numPts);
-  for (i=0; i < numPts; i++)
+  vtkDataSet *outputDS = output;
+  vtkSignedCharArray *pointInArray = NULL;
+  vtkSignedCharArray *cellInArray = NULL;
+
+  vtkUnstructuredGrid *outputUG = NULL;
+  vtkIdTypeArray *originalCellIds = NULL;
+
+  signed char flag = inverse ? 1 : -1;
+
+  if (passThrough)
     {
-    pointMap->SetId(i,-1);
+    outputDS->ShallowCopy(input);
+
+    pointInArray = vtkSignedCharArray::New();
+    pointInArray->SetNumberOfComponents(1);
+    pointInArray->SetNumberOfTuples(numPts);
+    for (vtkIdType i=0; i < numPts; i++)
+      {
+      pointInArray->SetValue(i, flag);
+      }
+    pointInArray->SetName("vtkInsidedness");
+    outPD->AddArray(pointInArray);
+    outPD->SetScalars(pointInArray);
+
+    cellInArray = vtkSignedCharArray::New();
+    cellInArray->SetNumberOfComponents(1);
+    cellInArray->SetNumberOfTuples(numCells);
+    for (vtkIdType i=0; i < numCells; i++)
+      {
+      cellInArray->SetValue(i, flag);
+      }
+    cellInArray->SetName("vtkInsidedness");
+    outCD->AddArray(cellInArray);
+    outCD->SetScalars(cellInArray);
+    }
+  else
+    {
+    outputUG = vtkUnstructuredGrid::SafeDownCast(output);
+    outputUG->Allocate(input->GetNumberOfCells());
+    newPoints = vtkPoints::New();
+    newPoints->Allocate(numPts);
+
+    pointMap = vtkIdList::New(); //maps old point ids into new
+    pointMap->SetNumberOfIds(numPts);
+    for (i=0; i < numPts; i++)
+      {
+      pointMap->SetId(i,-1);
+      }
+
+    newCellPts = vtkIdList::New();     
+
+    originalCellIds = vtkIdTypeArray::New();
+    originalCellIds->SetName("vtkOriginalCellIds");
+    originalCellIds->SetNumberOfComponents(1);
+    outCD->AddArray(originalCellIds);
     }
 
-  newCellPts = vtkIdList::New();     
+  flag = -flag;
 
   // Check that the scalars of each cell satisfy the threshold criterion
   for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
@@ -175,18 +334,31 @@ int vtkExtractSelectedThresholds::RequestData(
     if ( usePointScalars )
       {
       keepCell = 0;
-      for ( i=0; (!keepCell) && (i < numCellPts); i++)
+      for ( i=0; 
+            (i < numCellPts) && (passThrough || !keepCell); 
+            i++)
         {
         ptId = cellPts->GetId(i);
-        keepCell = this->EvaluateValue( inScalars, ptId, lims );
+        int inside = this->EvaluateValue( inScalars, ptId, lims );
+        if (passThrough && (inside ^ inverse))
+          {
+          pointInArray->SetValue(ptId, flag);
+          cellInArray->SetValue(cellId, flag);
+          }
+        keepCell |= inside;
         }
       }
     else //use cell scalars
       {
       keepCell = this->EvaluateValue( inScalars, cellId, lims );
+      if (passThrough && (keepCell ^ inverse))
+        {
+        cellInArray->SetValue(cellId, flag);
+        }
       }
     
-    if (  numCellPts > 0 && 
+    if (  !passThrough &&
+          (numCellPts > 0) && 
           (keepCell + inverse == 1) ) // Poor man's XOR
       {
       // satisfied thresholding (also non-empty cell, i.e. not VTK_EMPTY_CELL)
@@ -204,23 +376,150 @@ int vtkExtractSelectedThresholds::RequestData(
           }
         newCellPts->InsertId(i,newId);
         }
-      newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
+      newCellId = outputUG->InsertNextCell(cell->GetCellType(),newCellPts);
       outCD->CopyData(cd,cellId,newCellId);
       newCellPts->Reset();
       } // satisfied thresholding
     } // for all cells
   
-  vtkDebugMacro( << "Extracted " << output->GetNumberOfCells() << " number of cells.");
-
   // now clean up / update ourselves
-  pointMap->Delete();
-  newCellPts->Delete();
-  originalCellIds->Delete();
-  output->SetPoints(newPoints);
-  newPoints->Delete();
+  if (passThrough)
+    {
+    pointInArray->Delete();
+    cellInArray->Delete();
+    }
+  else
+    {
+    outputUG->SetPoints(newPoints);
+    newPoints->Delete();
+    pointMap->Delete();
+    newCellPts->Delete();
+    originalCellIds->Delete();
+    }
 
   output->Squeeze();
 
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkExtractSelectedThresholds::ExtractPoints(
+  vtkSelection *sel, 
+  vtkDataSet *input, 
+  vtkDataSet *output)
+{
+  //find the values to threshold within
+  vtkDoubleArray *lims = vtkDoubleArray::SafeDownCast(sel->GetSelectionList());
+  if (lims == NULL)
+    {
+    vtkErrorMacro(<<"No values to threshold with");
+    return 1;
+    }
+
+  //find out what array we are suppose to threshold in
+  vtkDataArray *inScalars = NULL;
+  if (sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
+    {
+    inScalars = input->GetPointData()->GetArray(
+      sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
+      );      
+    }
+  else
+    {
+    inScalars = input->GetPointData()->GetScalars();
+    }
+  if (inScalars == NULL)
+    {
+    vtkErrorMacro("Could not figure out what array to threshold in.");
+    return 1;
+    }
+  
+  int inverse = 0;
+  if (sel->GetProperties()->Has(vtkSelection::INVERSE()))
+    {
+    inverse = sel->GetProperties()->Get(vtkSelection::INVERSE());
+    }
+
+  int passThrough = 0;
+  if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
+      sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
+    {
+    passThrough = 1;
+    }
+
+  vtkIdType numPts = input->GetNumberOfPoints();
+  vtkPointData *inputPD = input->GetPointData();
+  vtkPointData *outPD = output->GetPointData();
+
+  vtkDataSet *outputDS = output;
+  vtkSignedCharArray *pointInArray = NULL;
+
+  vtkUnstructuredGrid * outputUG = NULL;
+  vtkPoints *newPts = NULL;
+
+  signed char flag = inverse ? 1 : -1;
+  
+  if (passThrough)
+    {
+    outputDS->ShallowCopy(input);
+
+    pointInArray = vtkSignedCharArray::New();
+    pointInArray->SetNumberOfComponents(1);
+    pointInArray->SetNumberOfTuples(numPts);
+    for (vtkIdType i=0; i < numPts; i++)
+      {
+      pointInArray->SetValue(i, flag);
+      }
+    pointInArray->SetName("vtkInsidedness");
+    outPD->AddArray(pointInArray);
+    outPD->SetScalars(pointInArray);
+    }
+  else
+    {
+    outputUG = vtkUnstructuredGrid::SafeDownCast(output);
+    outputUG->Allocate(numPts);
+    
+    newPts = vtkPoints::New();
+    newPts->Allocate(numPts);
+    outputUG->SetPoints(newPts);
+
+    outPD->CopyAllocate(inputPD);
+    outPD->CopyGlobalIdsOn();
+    }
+
+  flag = -flag;
+
+  vtkIdType outPtCnt = 0;
+  for (vtkIdType ptId = 0; ptId < numPts; ptId++)
+    {
+    int keepPoint = this->EvaluateValue( inScalars, ptId, lims );
+    if (keepPoint ^ inverse)
+      {
+      if (passThrough)
+        {
+        pointInArray->SetValue(ptId, flag);
+        }
+      else
+        {
+        double X[4];
+        input->GetPoint(ptId, X);
+        newPts->InsertNextPoint(X);
+        outPD->CopyData(inputPD, ptId, outPtCnt);
+        outputUG->InsertNextCell(VTK_VERTEX, 1, &outPtCnt);
+        outPtCnt++;
+        }
+      }
+    }
+
+  if (passThrough)
+    {
+    pointInArray->Delete();
+    }
+  else
+    {
+    newPts->Delete();
+    }
+  output->Squeeze();
   return 1;
 }
 

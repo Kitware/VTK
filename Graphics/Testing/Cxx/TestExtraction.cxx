@@ -307,8 +307,6 @@ int TestExtraction(int argc, char *argv[])
     {
     xwriter->Write();
     }
-  xwriter->Delete();
-
 
   //-------------------------------------------------------------------------
   //Setup the components of the pipeline
@@ -319,6 +317,8 @@ int TestExtraction(int argc, char *argv[])
   vtkUnstructuredGridWriter *writer = vtkUnstructuredGridWriter::New();
 
   vtkUnstructuredGrid *extGrid;
+  vtkImageData *extIData;
+  vtkDataArray *insideArray;
 
   //-------------------------------------------------------------------------
   //Test extract GLOBALIDS filter on cells
@@ -340,10 +340,10 @@ int TestExtraction(int argc, char *argv[])
 
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extCellGIds.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_C_GID.vtk");
     writer->Write();
     }
   showMe(extGrid, 0, 0, COLORBYCELL, ciaF);
@@ -351,87 +351,26 @@ int TestExtraction(int argc, char *argv[])
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extCellGIdsNOT.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_C_GID_I.vtk");
     writer->Write();
     }
   showMe(extGrid, 1, 0, COLORBYCELL, ciaF);
 
-  //Test extract VALUES filter on cells
-  sel->Clear();
-  sel->GetProperties()->Set(
-    vtkSelection::CONTENT_TYPE(), vtkSelection::VALUES);
-  sel->GetProperties()->Set(
-    vtkSelection::ARRAY_NAME(), "Reverse Cell Ids");
-  cellIds = vtkIdTypeArray::New();
-  cellIds->SetNumberOfComponents(1);
-  cellIds->SetNumberOfTuples(5);
-  cellIds->SetTuple1(0,  9); //just passed last -miss
-  cellIds->SetTuple1(1,  10); //last
-  cellIds->SetTuple1(2,  11); //next to last (distinguishes from forward ids)
-  cellIds->SetTuple1(3,  36); //first
-  cellIds->SetTuple1(4,  37); //just before first -miss
-  sel->SetSelectionList(cellIds);
-  cellIds->Delete();
-
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
   ext->Update();
-  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extCellValues.vtk");
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->Write();
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_C_GID_PT.vti");
+    xwriter->Write();
     }
-  showMe(extGrid, 0, 1, COLORBYCELL, ciaR);
-  
-  sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
-  ext->Update();
-  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extCellValuesNOT.vtk");
-  if (DoWrite)
-    {
-    writer->Write();
-    }
-  showMe(extGrid, 1, 1, COLORBYCELL, ciaR);
-
-  //Test extract INDICES filter on cells
-  sel->Clear();
-  sel->GetProperties()->Set(
-    vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
-  cellIds = vtkIdTypeArray::New();
-  cellIds->SetNumberOfComponents(1);
-  cellIds->SetNumberOfTuples(5);
-  cellIds->SetTuple1(0,  0); 
-  cellIds->SetTuple1(1,  1);
-  cellIds->SetTuple1(2,  2);
-  cellIds->SetTuple1(3,  26); //last
-  cellIds->SetTuple1(4,  27); //just outside -miss
-  sel->SetSelectionList(cellIds);
-  cellIds->Delete();
-
-  ext->Update();
-  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extCellIndices.vtk");
-  if (DoWrite)
-    {
-    writer->Write();
-    }
-  showMe(extGrid, 0, 2, COLORBYCELL, cia);
-  
-  sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
-  ext->Update();
-  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extCellIndicesNOT.vtk");
-  if (DoWrite)
-    {
-    writer->Write();
-    }
-  showMe(extGrid, 1, 2, COLORBYCELL, cia);
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  showMe(extIData, 2, 0, COLORBYCELL, insideArray);
 
   //-------------------------------------------------------------------------
   //Test extract GLOBALIDS filter on points
@@ -455,10 +394,10 @@ int TestExtraction(int argc, char *argv[])
 
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extPointGIds.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_GID.vtk");
     writer->Write();
     }
   showMe(extGrid, 3, 0, COLORBYPOINT, piaF);
@@ -466,14 +405,242 @@ int TestExtraction(int argc, char *argv[])
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extPointGIdsNOT.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_GID_I.vtk");
     writer->Write();
     }
   showMe(extGrid, 4, 0, COLORBYPOINT, piaF);
 
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 1);
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_GID_WC.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 5, 0, COLORBYPOINT, piaF);
+
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 0);
+  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_P_GID_PT.vti");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  if (insideArray)
+    {
+    cerr << "ERROR: Extract point global id without containing cells made cell inside array." << endl;
+    }
+  insideArray = extIData->GetPointData()->GetArray("vtkInsidedness");
+  showMe(extIData, 6, 0, COLORBYPOINT, insideArray);
+
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 1);
+  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extGrid);
+    xwriter->SetFileName("ext_P_GID_WC_PT.vtk");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  showMe(extIData, 7, 0, COLORBYCELL, insideArray);
+
+  //--------------------------------------------------------------------------
+  //Test extract INDICES filter on cells
+  sel->Clear();
+  sel->GetProperties()->Set(
+    vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
+  cellIds = vtkIdTypeArray::New();
+  cellIds->SetNumberOfComponents(1);
+  cellIds->SetNumberOfTuples(5);
+  cellIds->SetTuple1(0,  0); 
+  cellIds->SetTuple1(1,  1);
+  cellIds->SetTuple1(2,  2);
+  cellIds->SetTuple1(3,  26); //last
+  cellIds->SetTuple1(4,  27); //just outside -miss
+  sel->SetSelectionList(cellIds);
+  cellIds->Delete();
+
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_C_Ind.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 0, 1, COLORBYCELL, cia);
+  
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_C_Ind_I.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 1, 1, COLORBYCELL, cia);
+
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_C_Ind_PT.vti");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  showMe(extIData, 2, 1, COLORBYCELL, insideArray);
+
+  //--------------------------------------------------------------------------
+  //Test extract INDICES filter on points
+  sel->Clear();
+  sel->GetProperties()->Set(
+    vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
+  sel->GetProperties()->Set(
+    vtkSelection::FIELD_TYPE(), vtkSelection::POINT);  
+  pointIds = vtkIdTypeArray::New();
+  pointIds->SetNumberOfComponents(1);
+  pointIds->SetNumberOfTuples(5);
+  pointIds->SetTuple1(0,  0); //first
+  pointIds->SetTuple1(1,  1); //second
+  pointIds->SetTuple1(2,  2); //third
+  pointIds->SetTuple1(3,  63);//last
+  pointIds->SetTuple1(4,  64); //just beyond last -miss
+  sel->SetSelectionList(pointIds);
+  pointIds->Delete();
+
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Ind_I.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 3, 1, COLORBYPOINT, pia);
+  
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Ind_I.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 4, 1, COLORBYPOINT, pia);
+
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 1);
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Ind_WC.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 5, 1, COLORBYPOINT, pia);
+
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 0);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_P_Ind_PT.vti");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  if (insideArray)
+    {
+    cerr << "ERROR: Extract point indices without containing cells made cell inside array." << endl;
+    }
+  insideArray = extIData->GetPointData()->GetArray("vtkInsidedness");
+  showMe(extIData, 6, 1, COLORBYPOINT, insideArray);
+
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_P_Ind_PT_WC.vti");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  showMe(extIData, 7, 1, COLORBYCELL, insideArray);
+
+  //--------------------------------------------------------------------------
+  //Test extract VALUES filter on cells
+  sel->Clear();
+  sel->GetProperties()->Set(
+    vtkSelection::CONTENT_TYPE(), vtkSelection::VALUES);
+  sel->GetProperties()->Set(
+    vtkSelection::ARRAY_NAME(), "Reverse Cell Ids");
+  cellIds = vtkIdTypeArray::New();
+  cellIds->SetNumberOfComponents(1);
+  cellIds->SetNumberOfTuples(5);
+  cellIds->SetTuple1(0,  9); //just passed last -miss
+  cellIds->SetTuple1(1,  10); //last
+  cellIds->SetTuple1(2,  11); //next to last (distinguishes from forward ids)
+  cellIds->SetTuple1(3,  36); //first
+  cellIds->SetTuple1(4,  37); //just before first -miss
+  sel->SetSelectionList(cellIds);
+  cellIds->Delete();
+
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_C_Val.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 0, 2, COLORBYCELL, ciaR);
+  
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_C_Val_I.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 1, 2, COLORBYCELL, ciaR);
+
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_C_Val_PT.vti");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  showMe(extIData, 2, 2, COLORBYCELL, insideArray);
+
+  //--------------------------------------------------------------------------
   //Test extract VALUES filter on points
   sel->Clear();
   sel->GetProperties()->Set(
@@ -495,62 +662,191 @@ int TestExtraction(int argc, char *argv[])
 
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extPointValues.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Val.vtk");
     writer->Write();
     }
-  showMe(extGrid, 3, 1, COLORBYPOINT, piaR);
+  showMe(extGrid, 3, 2, COLORBYPOINT, piaR);
   
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extPointValuesNOT.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Val_I.vtk");
     writer->Write();
     }
-  showMe(extGrid, 4, 1, COLORBYPOINT, piaR);
+  showMe(extGrid, 4, 2, COLORBYPOINT, piaR);
 
-  //Test extract INDICES filter on points
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 1);
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Val_WC.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 5, 2, COLORBYPOINT, piaR);
+
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 0);
+  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_P_Val_PT.vtk");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  if (insideArray)
+    {
+    cerr << "ERROR: Extract point values without containing cells made cell inside array." << endl;
+    }
+  insideArray = extIData->GetPointData()->GetArray("vtkInsidedness");
+  showMe(extIData, 6, 2, COLORBYPOINT, insideArray);
+
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_P_Val_PT_WC.vtk");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  showMe(extIData, 7, 2, COLORBYCELL, insideArray);
+
+  //-------------------------------------------------------------------------
+  //test the extract THRESHOLD filter on cell data
   sel->Clear();
   sel->GetProperties()->Set(
-    vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
-  sel->GetProperties()->Set(
-    vtkSelection::FIELD_TYPE(), vtkSelection::POINT);  
-  pointIds = vtkIdTypeArray::New();
-  pointIds->SetNumberOfComponents(1);
-  pointIds->SetNumberOfTuples(5);
-  pointIds->SetTuple1(0,  0); //first
-  pointIds->SetTuple1(1,  1); //second
-  pointIds->SetTuple1(2,  2); //third
-  pointIds->SetTuple1(3,  63);//last
-  pointIds->SetTuple1(4,  64); //just beyond last -miss
-  sel->SetSelectionList(pointIds);
-  pointIds->Delete();
+    vtkSelection::CONTENT_TYPE(), vtkSelection::THRESHOLDS);
+  vtkDoubleArray *cellThresh = vtkDoubleArray::New();
+  cellThresh->SetNumberOfComponents(1);
+  cellThresh->SetNumberOfTuples(2);
+  cellThresh->SetTuple1(0, 1.9); //the nine rightmost(+X) cells are in here
+  cellThresh->SetTuple1(1, 3.1);
+  sel->SetSelectionList(cellThresh);
+  cellThresh->Delete();
 
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extPointIndices.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_C_Thr.vtk");
     writer->Write();
     }
-  showMe(extGrid, 3, 2, COLORBYPOINT, pia);
+  showMe(extGrid, 0, 3, COLORBYCELL, cxa);
   
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extPointIndicesNOT.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_C_Thr_I.vtk");
     writer->Write();
     }
-  showMe(extGrid, 4, 2, COLORBYPOINT, pia);
+  showMe(extGrid, 1, 3, COLORBYCELL, cxa);
+
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_C_Thr_PT.vtk");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  showMe(extIData, 2, 3, COLORBYCELL, insideArray);
+
+  //-------------------------------------------------------------------------
+  //test the extract THRESHOLD filter on point data
+  sel->Clear();
+  sel->GetProperties()->Set(
+    vtkSelection::CONTENT_TYPE(), vtkSelection::THRESHOLDS);
+  sel->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
+  vtkDoubleArray *pointThresh = vtkDoubleArray::New();
+  pointThresh->SetNumberOfComponents(1);
+  pointThresh->SetNumberOfTuples(2);
+  pointThresh->SetTuple1(0, 0.9);  //the 18 leftmost cells have points in here
+  pointThresh->SetTuple1(1, 1.1);
+  sel->SetSelectionList(pointThresh);
+  pointThresh->Delete();
+
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Thr.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 3, 3, COLORBYPOINT, pxa);
+
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Thr_I.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 4, 3, COLORBYPOINT, pxa);
+
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 1);
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Thr_WC.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 5, 3, COLORBYPOINT, pxa);
+
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 0);
+  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_P_Thr_PT.vtk");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  if (insideArray)
+    {
+    cerr << "ERROR: Extract point thresh without containing cells made cell inside array." << endl;
+    }
+  insideArray = extIData->GetPointData()->GetArray("vtkInsidedness");
+  showMe(extIData, 6, 3, COLORBYPOINT, insideArray);
+
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_P_Thr_PT_WC.vtk");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  showMe(extIData, 7, 3, COLORBYCELL, insideArray);
 
   //-------------------------------------------------------------------------
   //test the extract LOCATIONS filter on cells
@@ -570,24 +866,37 @@ int TestExtraction(int argc, char *argv[])
 
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extCellLocations.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_C_Loc.vtk");
     writer->Write();
     }
-  showMe(extGrid, 0, 3, COLORBYCELL, cia);
+  showMe(extGrid, 0, 4, COLORBYCELL, cia);
 
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extCellLocationsNOT.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_C_Loc_I.vtk");
     writer->Write();
     }
-  showMe(extGrid, 1, 3, COLORBYCELL, cia);
+  showMe(extGrid, 1, 4, COLORBYCELL, cia);
+
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_C_Loc_PT.vti");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  showMe(extIData, 2, 4, COLORBYCELL, insideArray);
 
   //-------------------------------------------------------------------------
   //test the extract LOCATIONS filter on points
@@ -608,105 +917,62 @@ int TestExtraction(int argc, char *argv[])
 
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extPointLocations.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Loc.vtk");
     writer->Write();
     }
-  showMe(extGrid, 3, 3, COLORBYPOINT, pia);
+  showMe(extGrid, 3, 4, COLORBYPOINT, pia);
 
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extPointLocationsNOT.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Loc_I.vtk");
     writer->Write();
     }
-  showMe(extGrid, 4, 3, COLORBYPOINT, pia);
+  showMe(extGrid, 4, 4, COLORBYPOINT, pia);
 
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
   sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extPointLocationsWithCells.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Loc_WC.vtk");
     writer->Write();
     }
-  showMe(extGrid, 5, 3, COLORBYPOINT, pia);
+  showMe(extGrid, 5, 4, COLORBYPOINT, pia);
 
-  //-------------------------------------------------------------------------
-  //test the extract THRESHOLD filter on cell data
-  sel->Clear();
-  sel->GetProperties()->Set(
-    vtkSelection::CONTENT_TYPE(), vtkSelection::THRESHOLDS);
-  vtkDoubleArray *cellThresh = vtkDoubleArray::New();
-  cellThresh->SetNumberOfComponents(1);
-  cellThresh->SetNumberOfTuples(2);
-  cellThresh->SetTuple1(0, 1.9); //the nine rightmost(+X) cells are in here
-  cellThresh->SetTuple1(1, 3.1);
-  sel->SetSelectionList(cellThresh);
-  cellThresh->Delete();
-
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 0);
+  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
   ext->Update();
-  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extCellThresholds.vtk");
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->Write();
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_P_Loc_PT.vti");
+    xwriter->Write();
     }
-  showMe(extGrid, 0, 4, COLORBYCELL, cxa);
-  
-  sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
-  ext->Update();
-  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extCellThresholdsNOT.vtk");
-  if (DoWrite)
-    {
-    writer->Write();
-    }
-  showMe(extGrid, 1, 4, COLORBYCELL, cxa);
+  insideArray = extIData->GetPointData()->GetArray("vtkInsidedness");
+  showMe(extIData, 6, 4, COLORBYPOINT, insideArray);
 
-  //-------------------------------------------------------------------------
-  //test the extract THRESHOLD filter on point data
-  sel->Clear();
-  sel->GetProperties()->Set(
-    vtkSelection::CONTENT_TYPE(), vtkSelection::THRESHOLDS);
-  sel->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
-  vtkDoubleArray *pointThresh = vtkDoubleArray::New();
-  pointThresh->SetNumberOfComponents(1);
-  pointThresh->SetNumberOfTuples(2);
-  pointThresh->SetTuple1(0, 0.9);  //the 18 leftmost cells have points in here
-  pointThresh->SetTuple1(1, 1.1);
-  sel->SetSelectionList(pointThresh);
-  pointThresh->Delete();
-
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 1);
   ext->Update();
-  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extPointThresholds.vtk");
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->Write();
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_P_Loc_PT_WC.vti");
+    xwriter->Write();
     }
-  showMe(extGrid, 3, 4, COLORBYPOINT, pxa);
-
-  sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
-  ext->Update();
-  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extPointThresholdsNOT.vtk");
-  if (DoWrite)
-    {
-    writer->Write();
-    }
-  showMe(extGrid, 4, 4, COLORBYPOINT, pxa);
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  showMe(extIData, 7, 4, COLORBYCELL, insideArray);
 
   //-------------------------------------------------------------------------
   //test the extract FRUSTUM filter
@@ -730,10 +996,10 @@ int TestExtraction(int argc, char *argv[])
 
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extFrustum.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_Fru.vtk");
     writer->Write();
     }
   showMe(extGrid, 0, 5, COLORBYCELL, cia);
@@ -741,10 +1007,10 @@ int TestExtraction(int argc, char *argv[])
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
-  writer->SetInput(extGrid);
-  writer->SetFileName("extFrustumNOT.vtk");
   if (DoWrite)
     {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_Fru_I.vtk");
     writer->Write();
     }
   showMe(extGrid, 1, 5, COLORBYCELL, cia);
@@ -752,25 +1018,24 @@ int TestExtraction(int argc, char *argv[])
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
   sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
   ext->Update();
-  vtkImageData *extIData = vtkImageData::SafeDownCast(ext->GetOutput());
-  xwriter = vtkXMLDataSetWriter::New(); 
-  xwriter->SetInput(extIData);
-  xwriter->SetFileName("extFrustumPT.vti");
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_Fru_PT.vti");
     xwriter->Write();
     }
-  xwriter->Delete();
-  vtkDataArray *da = extIData->GetCellData()->GetArray("vtkInsidedness");
-  showMe(extIData, 2, 5, COLORBYCELL, da);
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  showMe(extIData, 2, 5, COLORBYCELL, insideArray);
 
   //-------------------------------------------------------------------------
+  /*
   vtkCamera *cam = renderer->GetActiveCamera();
   cam->SetPosition(-6, -2, 45);
   cam->SetFocalPoint(10, 11, 2);
   cam->SetViewUp(0,1,0);
   renderer->SetActiveCamera(cam);
-  
+  */
   int retVal = vtkRegressionTestImageThreshold( renwin, 13 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
@@ -794,6 +1059,7 @@ int TestExtraction(int argc, char *argv[])
   cya->Delete();
   cza->Delete();
 
+  xwriter->Delete();
   writer->Delete();
   renderer->Delete();
   sampleData->Delete();

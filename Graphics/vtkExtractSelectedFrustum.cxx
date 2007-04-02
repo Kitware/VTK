@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.5");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.6");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -399,6 +399,8 @@ int vtkExtractSelectedFrustum::RequestData(
 
   vtkIdTypeArray *originalCellIds = NULL;
 
+  signed char flag = this->InsideOut ? 1 : -1;
+
   if (this->PassThrough)
     {
     //the output is a copy of the input, with two new arrays defined
@@ -408,7 +410,7 @@ int vtkExtractSelectedFrustum::RequestData(
     pointInArray->SetNumberOfTuples(numPts);
     for (i=0; i < numPts; i++)
       {
-      pointInArray->SetValue(i, -1);
+      pointInArray->SetValue(i, flag);
       }
     pointInArray->SetName("vtkInsidedness");
     outputPD->AddArray(pointInArray);
@@ -418,7 +420,7 @@ int vtkExtractSelectedFrustum::RequestData(
     cellInArray->SetNumberOfTuples(numCells);
     for (i=0; i < numCells; i++)
       {
-      cellInArray->SetValue(i, -1);
+      cellInArray->SetValue(i, flag);
       }
     cellInArray->SetName("vtkInsidedness");
     outputCD->AddArray(cellInArray);
@@ -437,7 +439,8 @@ int vtkExtractSelectedFrustum::RequestData(
     outputCD->AddArray(originalCellIds);
     }
 
-  signed char flag = this->InsideOut ? -1 : 1;
+  flag = -flag;
+
   vtkIdType updateInterval;
 
   if (this->ExactTest)
@@ -495,7 +498,7 @@ int vtkExtractSelectedFrustum::RequestData(
             input->GetPoint(ptId, x);      
             if (this->PassThrough)
               {
-              pointInArray->SetValue(ptId, 1);
+              pointInArray->SetValue(ptId, flag);
               newPointId = ptId;
               }
             else
@@ -510,7 +513,7 @@ int vtkExtractSelectedFrustum::RequestData(
 
         if (this->PassThrough)
           {
-          cellInArray->SetValue(cellId, 1);
+          cellInArray->SetValue(cellId, flag);
           }
         else
           {
@@ -550,7 +553,7 @@ int vtkExtractSelectedFrustum::RequestData(
           */
           if (this->PassThrough)
             {
-            pointInArray->SetValue(ptId, 1);
+            pointInArray->SetValue(ptId, flag);
             }
           else
             {
@@ -586,7 +589,7 @@ int vtkExtractSelectedFrustum::RequestData(
         if (this->PassThrough)
           {
           newPointId = ptId;
-          pointInArray->SetValue(ptId,1);
+          pointInArray->SetValue(ptId,flag);
           }
         else
           {
@@ -634,7 +637,7 @@ int vtkExtractSelectedFrustum::RequestData(
         */
         if (this->PassThrough)
           {
-          cellInArray->SetValue(cellId,1);
+          cellInArray->SetValue(cellId,flag);
           }
         else
           {
