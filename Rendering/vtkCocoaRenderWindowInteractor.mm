@@ -25,7 +25,7 @@
 #endif
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.17");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.18");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -98,7 +98,8 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
   vtkCocoaRenderWindow* renWin;
 }
 
-- (id)initWithRenderWindow:(vtkCocoaRenderWindow *)inRenderWindow;
++ (id)cocoaServerWithRenderWindow:(vtkCocoaRenderWindow *)inRenderWindow;
+
 - (void)start;
 - (void)stop;
 
@@ -115,6 +116,14 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
     renWin = inRenderWindow;
     }
   return self;
+}
+
++ (id)cocoaServerWithRenderWindow:(vtkCocoaRenderWindow *)inRenderWindow
+{
+  vtkCocoaServer *server = [[[vtkCocoaServer alloc] 
+                            initWithRenderWindow:inRenderWindow]
+                            autorelease];
+  return server;
 }
 
 - (void)start
@@ -179,7 +188,7 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
       [NSApp postEvent:event atStart:YES];
       
       // The NSWindow is closing, so prevent anyone from accidently using it
-      renWin->SetWindowId(nil);
+      renWin->SetWindowId(NULL);
       }
     }
 } 
@@ -210,7 +219,10 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 // in place.  The (ugly) solution is to create a 'pool of last resort' so
 // that we know a pool is always in place.
 // See: <http://lists.apple.com/archives/cocoa-dev/2006/Sep/msg00222.html>
-
+//
+// However, with garbage collection, autorelease pools are a thing of the
+// past, and so this hack is not needed.
+#ifndef __OBJC_GC__
 class vtkEarlyCocoaSetup
   {
     public:
@@ -243,22 +255,25 @@ class vtkEarlyCocoaSetup
 // We create a global/static instance of this class to ensure that we have an
 // autorelease pool before main() starts.
 vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
+#endif
 
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor() 
 {
   this->InstallMessageProc = 1;
-  NSMutableDictionary *timerDict = [[NSMutableDictionary dictionary] retain];
-  this->SetTimerDictionary((void*)timerDict);
-  this->SetCocoaServer(nil);
+  
+  // Create the cocoa objects manager. They are all NULL by default.
+  this->SetCocoaManager(reinterpret_cast<void *>([NSMutableDictionary dictionary]));
+  this->SetTimerDictionary(reinterpret_cast<void *>([NSMutableDictionary dictionary]));
 }
 
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor() 
 {
   this->Enabled = 0;
-  NSMutableDictionary *timerDict = (NSMutableDictionary*)(this->GetTimerDictionary());
-  [timerDict release];
+  this->SetTimerDictionary(NULL);
+  this->SetCocoaServer(NULL);
+  this->SetCocoaManager(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -280,13 +295,15 @@ void vtkCocoaRenderWindowInteractor::Start()
   // Now that we are about to begin the standard Cocoa event loop, we can get
   // rid of the 'pool of last resort' because [NSApp run] will create a new
   // pool for event event
+  #ifndef __OBJC_GC__
   gEarlyCocoaSetup->DestroyPoolOfLastResort();
-  
+  #endif
+   
   // Start server.
   vtkCocoaRenderWindow *renWin = vtkCocoaRenderWindow::SafeDownCast(this->GetRenderWindow());
   if (renWin != NULL)
     {
-    vtkCocoaServer *server = [[vtkCocoaServer alloc] initWithRenderWindow:renWin];
+    vtkCocoaServer *server = [vtkCocoaServer cocoaServerWithRenderWindow:renWin];
     this->SetCocoaServer(reinterpret_cast<void *>(server));
     [server start];
     }
@@ -382,9 +399,7 @@ void vtkCocoaRenderWindowInteractor::TerminateApp()
     }
    
    // Release vtkCocoaServer if created by the start method.
-   vtkCocoaServer *server = reinterpret_cast<vtkCocoaServer *>(this->GetCocoaServer());
-   [server release];
-   this->SetCocoaServer(nil);
+   this->SetCocoaServer(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -496,23 +511,83 @@ void vtkCocoaRenderWindowInteractor::ExitCallback()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::SetTimerDictionary(void *dictionary)
 {
-  this->TimerDictionary = dictionary;
+  if (dictionary != NULL)
+    {
+    NSMutableDictionary* manager = 
+      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+    [manager setObject:reinterpret_cast<id>(dictionary) 
+                forKey:@"TimerDictionary"];
+    }
+  else
+    {
+    NSMutableDictionary* manager = 
+      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+    [manager removeObjectForKey:@"TimerDictionary"];
+    }
 }
 
 //----------------------------------------------------------------------------
 void *vtkCocoaRenderWindowInteractor::GetTimerDictionary()
 {
-  return this->TimerDictionary;
+  NSMutableDictionary* manager = 
+    reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+  return reinterpret_cast<void *>([manager objectForKey:@"TimerDictionary"]);
 }
 
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::SetCocoaServer(void *server)
 {
-  this->CocoaServer = server;
+  if (server != NULL)
+    {
+    NSMutableDictionary* manager = 
+      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+    [manager setObject:reinterpret_cast<vtkCocoaServer *>(server) 
+                forKey:@"CocoaServer"];
+    }
+  else
+    {
+    NSMutableDictionary* manager = 
+      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+    [manager removeObjectForKey:@"CocoaServer"];
+    }
 }
   
 //----------------------------------------------------------------------------
 void *vtkCocoaRenderWindowInteractor::GetCocoaServer()
 {
-  return this->CocoaServer;
+  NSMutableDictionary* manager = 
+    reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+  return reinterpret_cast<void *>([manager objectForKey:@"CocoaServer"]);
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindowInteractor::SetCocoaManager(void *manager)
+{
+  if (manager == NULL)
+    {
+    NSMutableDictionary* cocoaManager = 
+      reinterpret_cast<NSMutableDictionary *>(manager);
+    #ifdef __OBJC_GC__
+      #error VTK does not yet support garbage collection
+    #else
+      [cocoaManager release];
+    #endif
+    }
+  else
+    {
+    NSMutableDictionary* cocoaManager = 
+      reinterpret_cast<NSMutableDictionary *>(manager);
+    #ifdef __OBJC_GC__
+      #error VTK does not yet support garbage collection
+    #else
+      [cocoaManager retain];
+    #endif
+    }
+  this->CocoaManager = manager;
+}
+  
+//----------------------------------------------------------------------------
+void *vtkCocoaRenderWindowInteractor::GetCocoaManager()
+{
+  return this->CocoaManager;
 }

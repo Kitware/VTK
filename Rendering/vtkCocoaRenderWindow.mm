@@ -23,19 +23,20 @@ PURPOSE.  See the above copyright notice for more information.
 #define MAC_OS_X_VERSION_10_4 1040
 #endif
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.47");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.48");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindow::vtkCocoaRenderWindow()
 {
+  // First, create the cocoa objects manager. The dictionary is empty so
+  // essentially all objects are initialized to NULL.
+  this->SetCocoaManager(reinterpret_cast<void *>([NSMutableDictionary dictionary]));
+  
   this->WindowCreated = 0;
   this->ViewCreated = 0;
-  this->SetContextId(0);
   this->MultiSamples = 8;
-  this->SetWindowId(0);
-  this->SetDisplayId(0);
   this->SetWindowName("Visualization Toolkit - Cocoa");
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
@@ -58,6 +59,9 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
     delete[] this->Capabilities;
     this->Capabilities = 0;
     }
+  
+  // Release the cocoa object manager.
+  this->SetCocoaManager(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -113,24 +117,12 @@ void vtkCocoaRenderWindow::DestroyWindow()
       {
       ren->SetRenderWindow(NULL);
       }
-
-    [(NSOpenGLContext*)this->GetContextId() release];
-    [(NSOpenGLPixelFormat*)this->GetPixelFormat() release];
     
     this->SetContextId(NULL);
     this->SetPixelFormat(NULL);
   }
 
-  // If this class created the view, then this class must release it.
-  // Note that this doesn't remove it from the window, as the window
-  // has retained it.
-  if (this->GetDisplayId() && this->ViewCreated)
-  {
-    [(NSView *)this->GetDisplayId() release];
-  }
   this->SetDisplayId(NULL);
-  
-  // The window is already released by this point, clear it anyway
   this->SetWindowId(NULL);
 }
 
@@ -488,7 +480,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
     {
     NSRect glRect =
       NSMakeRect(0.0, 0.0, (float)this->Size[0], (float)this->Size[1]);
-    vtkCocoaGLView *glView = [[vtkCocoaGLView alloc] initWithFrame:glRect];
+    vtkCocoaGLView *glView = [[[vtkCocoaGLView alloc] initWithFrame:glRect] autorelease];
     [(NSWindow*)this->GetWindowId() setContentView:glView];
     
     this->SetDisplayId(glView);
@@ -556,11 +548,11 @@ void vtkCocoaRenderWindow::CreateGLContext()
       (NSOpenGLPixelFormatAttribute)nil
     };
 
-  NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc]
-                                      initWithAttributes:attribs];
-  NSOpenGLContext* context = [[NSOpenGLContext alloc]
+  NSOpenGLPixelFormat* pixelFormat = [[[NSOpenGLPixelFormat alloc]
+                                      initWithAttributes:attribs] autorelease];
+  NSOpenGLContext* context = [[[NSOpenGLContext alloc]
                               initWithFormat:pixelFormat
-                              shareContext:nil];
+                              shareContext:nil] autorelease];
   
   // This syncs the OpenGL context to the VBL to prevent tearing
   GLint one = 1;
@@ -804,56 +796,144 @@ int vtkCocoaRenderWindow::GetDepthBufferSize()
 // Returns the NSWindow* associated with this vtkRenderWindow.
 void *vtkCocoaRenderWindow::GetWindowId()
 {
-  return this->WindowId;
+  NSMutableDictionary* manager = 
+    reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+  return reinterpret_cast<void *>([manager objectForKey:@"WindowId"]);
 }
 
 //----------------------------------------------------------------------------
 // Sets the NSWindow* associated with this vtkRenderWindow.
 void vtkCocoaRenderWindow::SetWindowId(void *arg)
 {
-  this->WindowId = arg;
+  if (arg != NULL)
+    {
+    NSMutableDictionary* manager = 
+      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+    [manager setObject:reinterpret_cast<id>(arg) 
+                forKey:@"WindowId"];
+    }
+  else
+    {
+    NSMutableDictionary* manager = 
+      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+    [manager removeObjectForKey:@"WindowId"];
+    }
 }
 
 //----------------------------------------------------------------------------
 // Returns the NSView* associated with this vtkRenderWindow.
 void *vtkCocoaRenderWindow::GetDisplayId()
 {
-  return this->DisplayId;
+  NSMutableDictionary* manager = 
+    reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+  return reinterpret_cast<void *>([manager objectForKey:@"DisplayId"]);
 }
 
 //----------------------------------------------------------------------------
 // Sets the NSView* associated with this vtkRenderWindow.
 void vtkCocoaRenderWindow::SetDisplayId(void *arg)
 {
-  this->DisplayId = arg;
+  if (arg != NULL)
+    {
+    NSMutableDictionary* manager = 
+      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+    [manager setObject:reinterpret_cast<id>(arg) 
+                forKey:@"DisplayId"];
+    }
+  else
+    {
+    NSMutableDictionary* manager = 
+      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+    [manager removeObjectForKey:@"DisplayId"];
+    }
 }
 
 //----------------------------------------------------------------------------
 // Sets the NSOpenGLContext* associated with this vtkRenderWindow.
 void vtkCocoaRenderWindow::SetContextId(void *contextId)
 {
-  this->ContextId = contextId;
+  if (contextId != NULL)
+    {
+    NSMutableDictionary* manager = 
+      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+    [manager setObject:reinterpret_cast<id>(contextId) 
+                forKey:@"ContextId"];
+    }
+  else
+    {
+    NSMutableDictionary* manager = 
+      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+    [manager removeObjectForKey:@"ContextId"];
+    }
 }
 
 //----------------------------------------------------------------------------
 // Returns the NSOpenGLContext* associated with this vtkRenderWindow.
 void *vtkCocoaRenderWindow::GetContextId()
 {
-  return this->ContextId;
+  NSMutableDictionary* manager = 
+    reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+  return reinterpret_cast<void *>([manager objectForKey:@"ContextId"]);
 }
 
 //----------------------------------------------------------------------------
 // Sets the NSOpenGLPixelFormat* associated with this vtkRenderWindow.
 void vtkCocoaRenderWindow::SetPixelFormat(void *pixelFormat)
 {
-  this->PixelFormat = pixelFormat;
+  if (pixelFormat != NULL)
+    {
+    NSMutableDictionary* manager = 
+      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+    [manager setObject:reinterpret_cast<id>(pixelFormat) 
+                forKey:@"PixelFormat"];
+    }
+  else
+    {
+    NSMutableDictionary* manager = 
+      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+    [manager removeObjectForKey:@"PixelFormat"];
+    }
 }
   
 //----------------------------------------------------------------------------
 // Returns the NSOpenGLPixelFormat* associated with this vtkRenderWindow.
 void *vtkCocoaRenderWindow::GetPixelFormat()
 {
-  return this->PixelFormat;
+  NSMutableDictionary* manager = 
+    reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
+  return reinterpret_cast<void *>([manager objectForKey:@"PixelFormat"]);
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::SetCocoaManager(void *manager)
+{
+  if (manager == NULL)
+    {
+    NSMutableDictionary* cocoaManager = 
+      reinterpret_cast<NSMutableDictionary *>(manager);
+    #ifdef __OBJC_GC__
+      #error VTK does not yet support garbage collection
+    #else
+      [cocoaManager release];
+    #endif
+    }
+  else
+    {
+    NSMutableDictionary* cocoaManager = 
+      reinterpret_cast<NSMutableDictionary *>(manager);
+    #ifdef __OBJC_GC__
+      #error VTK does not yet support garbage collection
+    #else
+      [cocoaManager retain];
+    #endif
+    }
+  this->CocoaManager = manager;
+}
+  
+//----------------------------------------------------------------------------
+void *vtkCocoaRenderWindow::GetCocoaManager()
+{
+  return this->CocoaManager;
 }
 
 //----------------------------------------------------------------------------

@@ -206,7 +206,7 @@ public:
   virtual int GetWindowCreated();
   
   // Description:
-  // Accessors for the OpenGL context.
+  // Accessors for the OpenGL context (Really an NSOpenGLContext*).
   void SetContextId(void *);
   void *GetContextId();
   virtual void *GetGenericContext()   {return this->GetContextId();}
@@ -255,19 +255,28 @@ protected:
   int OnScreenInitialized;
   
   // Description:
-  // Accessors for the NSPixelFormat object.
+  // Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
   void SetPixelFormat(void *pixelFormat);
   void *GetPixelFormat();
+  
+  // Description:
+  // Accessors for the cocoa manager (Really an NSMutableDictionary*).
+  // It manages all Cocoa objects in this C++ class.
+  void SetCocoaManager(void *manager);
+  void *GetCocoaManager();
 
 private:
   vtkCocoaRenderWindow(const vtkCocoaRenderWindow&);  // Not implemented.
   void operator=(const vtkCocoaRenderWindow&);  // Not implemented.
 
 private:
-  void     *ContextId;    // really an NSOpenGLContext*
-  void     *WindowId;     // really an NSWindow*
-  void     *DisplayId;    // really an NSView* (usually but not necessarily a vtkCocoaGLView*)
-  void     *PixelFormat;  // really an NSOpenGLPixelFormat*
+  // Important: this class cannot contain Objective-C instance
+  // variables for 2 reasons:
+  // 1) C++ files include this header
+  // 2) because of garbage collection
+  // Instead, use the CocoaManager dictionary to keep a collection
+  // of what would otherwise be Objective-C instance variables.
+  void     *CocoaManager; // Really an NSMutableDictionary*
 
   int      WindowCreated;
   int      ViewCreated;

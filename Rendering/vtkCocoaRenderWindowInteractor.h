@@ -100,9 +100,9 @@ protected:
   // Description:
   // Accessors for the Cocoa member variables. These should be used at all time, even
   // by this class.
-  void SetTimerDictionary(void *dictionary);
+  void SetTimerDictionary(void *dictionary);    // Really an NSMutableDictionary*
   void *GetTimerDictionary();
-  void SetCocoaServer(void *server);
+  void SetCocoaServer(void *server);            // Really a vtkCocoaServer*
   void *GetCocoaServer();
 
   //BTX
@@ -120,13 +120,24 @@ protected:
   // documentation.
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
+  
+  // Description:
+  // Accessors for the cocoa manager (Really an NSMutableDictionary*).
+  // It manages all Cocoa objects in this C++ class.
+  void SetCocoaManager(void *manager);
+  void *GetCocoaManager();
 
 private:
   vtkCocoaRenderWindowInteractor(const vtkCocoaRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkCocoaRenderWindowInteractor&);  // Not implemented.
   
-  void    *TimerDictionary;     // Really an NSMutableDictionary*
-  void    *CocoaServer;         // Really a vtkCocoaServer*
+  // Important: this class cannot contain Objective-C instance
+  // variables for 2 reasons:
+  // 1) C++ files include this header
+  // 2) because of garbage collection
+  // Instead, use the CocoaManager dictionary to keep a collection
+  // of what would otherwise be Objective-C instance variables.
+  void    *CocoaManager;        // Really an NSMutableDictionary*
   
 };
 
