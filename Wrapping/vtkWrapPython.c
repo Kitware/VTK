@@ -1099,7 +1099,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
         if (wrappedFunctions[occ]->Name && 
             !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
           {
-          int siglen = (int)strlen(wrappedFunctions[fnum]->Signature);
+          size_t siglen = strlen(wrappedFunctions[fnum]->Signature);
           /* memory leak here but ... */
           wrappedFunctions[occ]->Name = NULL;
           wrappedFunctions[fnum]->Signature = (char *)
@@ -1248,7 +1248,7 @@ void outputFunction(FILE *fp, FileInfo *data)
 static void create_class_doc(FILE *fp, FileInfo *data)
 {
   const char *text;
-  int i, n;
+  size_t i, n;
   char temp[500];
 
   if (data->NameComment) 
@@ -1274,7 +1274,7 @@ static void create_class_doc(FILE *fp, FileInfo *data)
 
   if (data->Description)
     {
-    n = (int)((strlen(data->Description) + 400-1)/400);
+    n = (strlen(data->Description) + 400-1)/400;
     for (i = 0; i < n; i++)
       {
       strncpy(temp, &data->Description[400*i], 400);

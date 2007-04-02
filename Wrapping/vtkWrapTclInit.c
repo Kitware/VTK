@@ -5,7 +5,7 @@
 char *Capitalized(const char *input)
 {
   char *result;
-  unsigned int i;
+  size_t i;
 
   result = strdup(input);
   if (result[0] > 90) 

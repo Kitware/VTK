@@ -619,8 +619,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   fprintf(fp,"\n}\n");
   {
-  int cc;
-  int len;
+  size_t cc;
+  size_t len;
   char *dir;
   char *fname;
   char javaDone[] = "VTKJavaWrapped";
@@ -628,7 +628,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fname = data->OutputFileName;
   dir = (char*)malloc(strlen(fname) + strlen(javaDone) + 2);
   sprintf(dir, "%s", fname);
-  len = (int)strlen(dir); 
+  len = strlen(dir); 
   for ( cc = len-1; cc > 0; cc -- )
     {
     if ( dir[cc] == '/' || dir[cc] == '\\' )
