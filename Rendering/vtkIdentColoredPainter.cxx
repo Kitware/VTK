@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.15");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.16");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -271,6 +271,7 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
   device->MakeBlending(0);
 
   vtkIdType startCell = 0;
+
   if (typeflags & vtkPainter::VERTS)
     {
     this->DrawCells(VTK_POLY_VERTEX, this->PolyData->GetVerts(), startCell,
@@ -299,14 +300,15 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
       this->DrawCells(VTK_POLYGON, this->PolyData->GetPolys(), startCell,
         renderer);
       }
-    }
- 
+    } 
   startCell += this->PolyData->GetNumberOfPolys();
+
   if (typeflags & vtkPainter::STRIPS)
     {
     this->DrawCells(VTK_TRIANGLE_STRIP, this->PolyData->GetStrips(), startCell,
       renderer);
     }
+  startCell += this->PolyData->GetNumberOfStrips();
 
   //reset lighting back to the default
   device->MakeBlending(origBlending);
@@ -355,20 +357,14 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
 
     device->SendAttribute(vtkCellData::SCALARS, 3, VTK_UNSIGNED_CHAR, color);
 
-    this->IncrementCurrentId();
-
     for (vtkIdType cellpointi = 0; cellpointi < npts; cellpointi++)
       {
       vtkIdType pointId = pts[cellpointi];
-      // If using field colors, then we must send triangle colors, 
-      // if rendering triangle strips.
       if (mode == VTK_TRIANGLE_STRIP && cellpointi > 2)
         {
         this->GetCurrentColor(color);
 
         device->SendAttribute(vtkCellData::SCALARS, 3, VTK_UNSIGNED_CHAR, color);
-
-        this->IncrementCurrentId();
         }
       
       // Send the point position as the last attribute.
@@ -379,6 +375,9 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
       device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3, 
         pointtype, voidpoints, 3*pointId);
       }
+
+    this->IncrementCurrentId();
+
     device->EndPrimitive();
 
     cellId++;
