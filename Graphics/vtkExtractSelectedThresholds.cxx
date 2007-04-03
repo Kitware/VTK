@@ -30,7 +30,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkSignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.8");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.9");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -247,8 +247,8 @@ int vtkExtractSelectedThresholds::ExtractCells(
   vtkIdType cellId, newCellId;
   vtkIdList *cellPts, *pointMap = NULL;
   vtkIdList *newCellPts = NULL;
-  vtkCell *cell;
-  vtkPoints *newPoints;
+  vtkCell *cell = 0;
+  vtkPoints *newPoints = 0;
   vtkIdType i, ptId, newId, numPts, numCells;
   int numCellPts;
   double x[3];
