@@ -86,7 +86,7 @@ public:
   // != 1 modify the resulting color consistent with the requested
   // form of the output. This is typically used by an actor in order to
   // blend its opacity.
-  void SetAlpha(double alpha);
+  virtual void SetAlpha(double alpha);
   vtkGetMacro(Alpha,double);
 
   // Description:
