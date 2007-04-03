@@ -57,7 +57,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.12");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.13");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -333,8 +333,10 @@ int vtkFLUENTReader::RequestData(
       {
       v->InsertValue(m, this->ScalarDataChunks->value[l].scalarData[m]);
       }
-    v->SetName(this->ScalarVariableNames->
-               value[l/this->CellZones->value.size()].c_str());
+    //v->SetName(this->ScalarVariableNames->
+    //           value[l/this->CellZones->value.size()].c_str());
+    v->SetName(this->VariableNames->
+      value[this->ScalarDataChunks->value[l].subsectionId].c_str());
     grid[location]->GetCellData()->AddArray(v);
     v->Delete();
     }
@@ -360,8 +362,10 @@ int vtkFLUENTReader::RequestData(
       v->InsertComponent(m, 2,
                          this->VectorDataChunks->value[l].kComponentData[m]);
       }
-    v->SetName(this->VectorVariableNames->
-               value[l/this->CellZones->value.size()].c_str());
+    //v->SetName(this->VectorVariableNames->
+    //           value[l/this->CellZones->value.size()].c_str());
+    v->SetName(this->VariableNames->
+      value[this->VectorDataChunks->value[l].subsectionId].c_str());
     grid[location]->GetCellData()->AddArray(v);
     v->Delete();
     }
