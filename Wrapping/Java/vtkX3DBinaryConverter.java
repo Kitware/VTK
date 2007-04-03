@@ -6,80 +6,148 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-import java.io.*;
-import javax.xml.parsers.*;
-import com.sun.xml.fastinfoset.sax.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.web3d.parser.x3d.X3DReader;
+import org.web3d.vrml.export.Exporter;
+import org.web3d.vrml.export.X3DBinaryRetainedDirectExporter;
+import org.web3d.vrml.export.X3DBinarySerializer;
+import org.web3d.vrml.sav.InputSource;
+import org.web3d.vrml.sav.VRMLReader;
 
 /*
  * Need to include libraries in the project
  *
  *
- **/
+ */
 
-/* @author christian */
+/* @author Franck Kolb */
 
 public class vtkX3DBinaryConverter {
 
-  private ByteArrayOutputStream WriteStream;
-  private SAXDocumentSerializer DocumentSerializer;
+	// Default Largest acceptable error for float quantization
+	private static float PARAM_FLOAT_LOSSY = 0.001f;
 
-  /** Creates a new instance of Main */
-  public vtkX3DBinaryConverter(String outputFileName) throws Exception
+	/** The VRMLReader */
+	private VRMLReader reader;
+
+	private static Exporter writer;
+
+	/** The compression method to use for binary */
+	private int compressionMethod;
+
+	/** The float lossy param */
+	private float quantizeParam;
+
+	private ByteArrayOutputStream writeStream;
+
+	private BufferedOutputStream bos;
+
+	/** Creates a new instance of vtkX3DBinaryConverter */
+	public vtkX3DBinaryConverter(String outputFileName) throws Exception {
+
+		this ( outputFileName, X3DBinarySerializer.METHOD_SMALLEST_NONLOSSY, PARAM_FLOAT_LOSSY);
+
+	}
+
+
+	/** Creates a new instance of vtkX3DBinaryConverter */
+	private vtkX3DBinaryConverter(String outputFileName, int method,
+			float quantizeParam) throws Exception {
+
+		// Get the input stream for the XML document
+		this.writeStream = new ByteArrayOutputStream();
+
+		compressionMethod = method;
+		this.quantizeParam = quantizeParam;
+
+		reader = new X3DReader();
+
+		// Set up output stream for fast infoset document
+		FileOutputStream fos = null;
+
+		try {
+			fos = new FileOutputStream(outputFileName);
+		} catch (FileNotFoundException fnfe) {
+			fnfe.printStackTrace();
+		}
+
+		bos = new BufferedOutputStream(fos);
+
+	}
+
+
+	public void Write(byte[] b) throws IOException
+	{
+		this.writeStream.write(b, 0, b.length);
+
+	}
+
+	public void Close() throws Exception
     {
-    System.out.println("Write X3D binary file: " + outputFileName);
-    // Get the input stream for the XML document
-    this.WriteStream = new ByteArrayOutputStream();
+		InputStream inputStream = new ByteArrayInputStream(
+			      this.writeStream.toByteArray());
 
-    // Set up output stream for fast infoset document
-    OutputStream fiDocument = new BufferedOutputStream(
-      new FileOutputStream(outputFileName));
+		InputSource is = new InputSource(null, inputStream);
 
-    // Create Fast Infoset SAX serializer
-    this.DocumentSerializer = new SAXDocumentSerializer();
-    // Set the output stream
-    this.DocumentSerializer.setOutputStream(fiDocument);
+		System.out.println("Write X3D binary file");
+
+		writer = new X3DBinaryRetainedDirectExporter(bos, 3, 1, null,
+			   	compressionMethod, quantizeParam);
+
+		reader.setContentHandler(writer);
+		reader.setRouteHandler(writer);
+		reader.setScriptHandler(writer);
+		reader.setProtoHandler(writer);
+
+		try {
+			reader.parse(is);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
     }
 
-  public void Write(byte[] b) throws IOException
-    {
-    this.WriteStream.write(b, 0, b.length);
-    }
 
-  public void Close() throws Exception
-    {
-    InputStream inputStream = new ByteArrayInputStream(
-      this.WriteStream.toByteArray());
+	/*
+	 * Create an instance of this class and run it.
+	 */
+	public static void main(String[] args) {
 
-    // Instantiate JAXP SAX parser factory
-    SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-    /* Set parser to be namespace aware
-     * Very important to do otherwise invalid FI documents will be
-     * created by the SAXDocumentSerializer
-     */
-    saxParserFactory.setNamespaceAware(true);
-    // Instantiate the JAXP SAX parser
 
-    SAXParser parser = saxParserFactory.newSAXParser();
-    parser.parse(inputStream, this.DocumentSerializer);
-    }
+		/*
+		 * Set the compression method to use for binary compression. 4 mehods :
+		 * Fasting parsing method Smallest parsing method Lossy parsing method
+		 * Strings method
+		 */
+		// method = X3DBinarySerializer.METHOD_FASTEST_PARSING;
+		// method = X3DBinarySerializer.METHOD_SMALLEST_NONLOSSY;
+		// method = X3DBinarySerializer.METHOD_SMALLEST_LOSSY;
+		// method = X3DBinarySerializer.METHOD_STRINGS;
 
-  public static void main(String[] args) {
+	    try{
+	        System.out.println("Create converter");
+	        vtkX3DBinaryConverter x = new vtkX3DBinaryConverter("out.x3db");
+	        InputStream is = new BufferedInputStream(new FileInputStream("export.x3d"));
+	        System.out.println("Read file: " + is.available());
+	        byte b[] = new byte[is.available()];
+	        is.read(b);
+	        x.Write(b);
 
-    try{
-      System.out.println("Create converter");
-      vtkX3DBinaryConverter x = new vtkX3DBinaryConverter("out.x3db");
-      InputStream is = new BufferedInputStream(new FileInputStream("export.x3d"));
-      System.out.println("Read file: " + is.available());
-      byte b[] = new byte[is.available()];
-      is.read(b);
-      x.Write(b);
-
-      System.out.println("Done...");
-      x.Close();
-    }
-    catch (Exception ex)
-      {
-      System.out.println(ex);
-      }
-  }
+	        System.out.println("Done...");
+	        x.Close();
+	      }
+	      catch (Exception ex)
+	        {
+	        System.out.println(ex);
+	        }
+	}
 }
