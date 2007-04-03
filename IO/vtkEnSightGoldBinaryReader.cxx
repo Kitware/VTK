@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.64");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.64.24.1");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -43,6 +43,7 @@ vtkEnSightGoldBinaryReader::vtkEnSightGoldBinaryReader()
 {
   this->IFile = NULL;
   this->FileSize = 0;
+  this->Fortran = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -102,13 +103,10 @@ int vtkEnSightGoldBinaryReader::OpenFile(const char* filename)
 
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeStep,
-                                                 vtkMultiBlockDataSet *output)
+int vtkEnSightGoldBinaryReader::InitializeFile(const char* fileName)
 {
   char line[80], subLine[80];
-  int partId, realId;
-  int lineRead, i;
-  
+ 
   // Initialize
   //
   if (!fileName)
@@ -137,7 +135,6 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     return 0;
     }
-  
   this->ReadLine(line);
   sscanf(line, " %*s %s", subLine);
   if (strncmp(subLine, "Binary", 6) != 0 &&
@@ -147,17 +144,44 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
                   << "vtkEnSightGoldReader.");
     return 0;
     }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeStep,
+                                                 vtkMultiBlockDataSet *output)
+{
+  char line[80], subLine[80];
+  int partId, realId;
+  int lineRead, i;
+  
+  if (!this->InitializeFile(fileName))
+    {
+    return 0;
+    }
+  
+  //this will close the file, so we need to reinitialize it
+  int numberOfTimeStepsInFile=this->CountTimeSteps();
+  
+  if (!this->InitializeFile(fileName))
+    {
+    return 0;
+    }
+    
 
   if (this->UseFileSets)
     {
-    for (i = 0; i < timeStep - 1; i++)
+    if (numberOfTimeStepsInFile>1)
       {
-      if (!this->SkipTimeStep())
+      for (i = 0; i < timeStep - 1; i++)
         {
-        return 0;
+        if (!this->SkipTimeStep())
+          {
+          return 0;
+          }
         }
       }
-    
+
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
       {
       this->ReadLine(line);
@@ -291,6 +315,25 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
 
 
 //----------------------------------------------------------------------------
+int vtkEnSightGoldBinaryReader::CountTimeSteps()
+{
+  int count=0;
+  while(1)
+    {
+    int result=this->SkipTimeStep();
+    if (result)
+      {
+      count++;
+      }
+    else
+      {
+      break;
+      }
+    }
+  return count;
+}
+
+//----------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::SkipTimeStep()
 {
   char line[80], subLine[80];
@@ -299,7 +342,10 @@ int vtkEnSightGoldBinaryReader::SkipTimeStep()
   line[0] = '\0';
   while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
     {
-    this->ReadLine(line);
+    if (!this->ReadLine(line))
+      {
+      return 0;
+      }
     }
   
   // Skip the 2 description lines.
@@ -912,7 +958,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
                                                          vtkMultiBlockDataSet *output)
 {
   char line[80], subLine[80];
-  int i;
+  vtkIdType i;
   int *pointIds;
   float *xCoords, *yCoords, *zCoords;
   vtkPoints *points = vtkPoints::New();
@@ -1012,10 +1058,21 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
   this->ReadFloatArray(yCoords, this->NumberOfMeasuredPoints);
   this->ReadFloatArray(zCoords, this->NumberOfMeasuredPoints);
   
-  for (i = 0; i < this->NumberOfMeasuredPoints; i++)
+  if (this->ParticleCoordinatesByIndex) 
     {
-    points->InsertNextPoint(xCoords[i], yCoords[i], zCoords[i]);
-    pd->InsertNextCell(VTK_VERTEX, 1, (vtkIdType*)&pointIds[i]);
+    for (i = 0; i < this->NumberOfMeasuredPoints; i++)
+      {
+      points->InsertNextPoint(xCoords[i], yCoords[i], zCoords[i]);
+      pd->InsertNextCell(VTK_VERTEX, 1, &i);
+      }
+   }
+  else
+    {
+    for (i = 0; i < this->NumberOfMeasuredPoints; i++)
+      {
+      points->InsertNextPoint(xCoords[i], yCoords[i], zCoords[i]);
+      pd->InsertNextCell(VTK_VERTEX, 1, (vtkIdType*)&pointIds[i]);
+      }
     }
 
   pd->SetPoints(points);
@@ -3258,6 +3315,38 @@ int vtkEnSightGoldBinaryReader::ReadLine(char result[80])
     vtkDebugMacro("Read failed");
     return 0;
     }
+  // if the first 4 bytes is the length, then this data is no doubt
+  // a fortran data write!, copy the last 76 into the beginning
+  int c;
+  char len[4] = {0x50, 0x00, 0x00, 0x00};
+  if (this->ByteOrder == FILE_BIG_ENDIAN)
+    {
+    vtkByteSwap::Swap4BE(len);
+    }
+
+  bool isFortran = false;
+  for (c=0; c<4; c++) 
+  {
+    if (result[c]!=len[c]) 
+      {
+      isFortran = false;
+      break;
+      }
+    else isFortran = true;
+  }
+  this->Fortran = isFortran;
+  if (this->Fortran) 
+  {
+    strncpy(result, &result[4], 76);
+    result[76] = 0;
+    // better read an extra 8 bytes to prevent error next time
+    char dummy[8];
+    if (this->IFile->read(dummy, 8) == 0)
+      {
+      vtkDebugMacro("Read (fortran) failed");
+      return 0;
+      }
+  }
   
   return 1;
 }
@@ -3306,6 +3395,16 @@ int vtkEnSightGoldBinaryReader::ReadPartId(int *result)
 // Returns zero if there was an error.
 int vtkEnSightGoldBinaryReader::ReadInt(int *result)
 {
+  char dummy[4];
+  if (this->Fortran) 
+    {
+    if (this->IFile->read(dummy, 4) == 0)
+      {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+      }
+    }
+
   if ( this->IFile->read((char*)result, sizeof(int)) == 0)
     {
     vtkErrorMacro("Read failed");
@@ -3321,6 +3420,15 @@ int vtkEnSightGoldBinaryReader::ReadInt(int *result)
     vtkByteSwap::Swap4BE(result);
     }
 
+  if (this->Fortran) 
+    {
+    if (this->IFile->read(dummy, 4) == 0)
+      {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+      }
+    }
+
   return 1;
 }
 
@@ -3333,7 +3441,17 @@ int vtkEnSightGoldBinaryReader::ReadIntArray(int *result,
     {
     return 1;
     }
-  
+
+  char dummy[4];
+  if (this->Fortran) 
+    {
+    if (this->IFile->read(dummy, 4) == 0)
+      {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+      }
+    }
+
   if (this->IFile->read((char*)result, sizeof(int)*numInts) == 0)
     {
     vtkErrorMacro("Read failed.");
@@ -3349,6 +3467,15 @@ int vtkEnSightGoldBinaryReader::ReadIntArray(int *result,
     vtkByteSwap::Swap4BERange(result, numInts);
     }
   
+  if (this->Fortran) 
+    {
+    if (this->IFile->read(dummy, 4) == 0)
+      {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+      }
+    }
+
   return 1;
 }
 
@@ -3360,6 +3487,16 @@ int vtkEnSightGoldBinaryReader::ReadFloatArray(float *result,
   if (numFloats <= 0)
     {
     return 1;
+    }
+
+  char dummy[4];
+  if (this->Fortran) 
+    {
+    if (this->IFile->read(dummy, 4) == 0)
+      {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+      }
     }
 
   if (this->IFile->read((char*)result, sizeof(float)*numFloats) == 0)
@@ -3377,6 +3514,14 @@ int vtkEnSightGoldBinaryReader::ReadFloatArray(float *result,
     vtkByteSwap::Swap4BERange(result, numFloats);
     }
   
+  if (this->Fortran) 
+    {
+    if (this->IFile->read(dummy, 4) == 0)
+      {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+      }
+    }
   return 1;
 }
 

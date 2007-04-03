@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.61");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.61.22.1");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -447,7 +447,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName,
     this->ReadLine(line);
     vtkEnSight6ReaderRead1(line, " %8d %12e %12e %12e", &tempId, &coords[0],
                            &coords[1], &coords[2]);
-    id = tempId;
+    id = this->ParticleCoordinatesByIndex ? i : tempId;
     newPoints->InsertNextPoint(coords);
     pd->InsertNextCell(VTK_VERTEX, 1, &id);
     }

@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.80");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.80.4.1");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -80,6 +80,7 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
   this->NumberOfComplexVectorsPerElement = 0;
   
   this->TimeValue = 0;
+
   this->MinimumTimeValue = 0;
   this->MaximumTimeValue = 0;
   
@@ -91,6 +92,8 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
 
   this->ByteOrder = FILE_UNKNOWN_ENDIAN;
   
+  this->ParticleCoordinatesByIndex = 0;
+
   this->EnSightVersion = -1;
   
   this->PointDataArraySelection = vtkDataArraySelection::New();
@@ -187,10 +190,21 @@ int vtkGenericEnSightReader::RequestData(
     return 0;
     }
 
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   // Set the real reader's data array selections from ours.
   this->SetReaderDataArraySelectionSetsFromSelf();
   
   this->Reader->SetTimeValue(this->GetTimeValue());
+  this->Reader->UpdateInformation();
+  vtkInformation* tmpOutInfo =
+    this->Reader->GetExecutive()->GetOutputInformation(0);
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+    {
+    tmpOutInfo->CopyEntry(
+      outInfo,
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    }
   this->Reader->Update();
 
   this->NumberOfScalarsPerNode = this->Reader->GetNumberOfScalarsPerNode();
@@ -216,7 +230,6 @@ int vtkGenericEnSightReader::RequestData(
   this->NumberOfComplexVectorsPerElement =
     this->Reader->GetNumberOfComplexScalarsPerElement();
 
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   output->ShallowCopy(this->Reader->GetOutput());
@@ -254,6 +267,7 @@ void vtkGenericEnSightReader::SetTimeValue(float value)
 int vtkGenericEnSightReader::DetermineEnSightVersion()
 {
   char line[256], subLine[256], subLine1[256], subLine2[256], binaryLine[81];
+  char *binaryLinePtr;
   int stringRead;
   int timeSet = 1, fileSet = 1;
   int xtimeSet= 1, xfileSet= 1;
@@ -381,7 +395,15 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           
             this->ReadBinaryLine(binaryLine);
             binaryLine[80] = '\0';
-            sscanf(binaryLine, " %*s %s", subLine);
+            // because fortran stores 4 length bytes at the start, 
+            // if the strlen is less than 4, skip the first 4
+            // and jump to the start of the actual string
+            binaryLinePtr = &binaryLine[0];
+            if (strlen(binaryLine)<4) 
+              {
+              binaryLinePtr = &binaryLine[4];
+              }
+            sscanf(binaryLinePtr, " %*s %s", subLine);
             // If the file is ascii, there might not be a null
             // terminator. This leads to a UMR in sscanf
             if (strncmp(subLine,"Binary",6) == 0 ||
@@ -729,6 +751,7 @@ int vtkGenericEnSightReader::RequestInformation(
   this->Reader->SetFilePath(this->GetFilePath());
   this->Reader->SetByteOrder(this->ByteOrder);
   this->Reader->RequestInformation(request, inputVector, outputVector);
+  this->Reader->SetParticleCoordinatesByIndex(this->ParticleCoordinatesByIndex);
 
   this->SetTimeSets(this->Reader->GetTimeSets());
   if(!this->TimeValueInitialized)
@@ -1235,6 +1258,7 @@ void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TimeSets: " << this->TimeSets << endl;
   os << indent << "ReadAllVariables: " << this->ReadAllVariables << endl;
   os << indent << "ByteOrder: " << this->ByteOrder << endl;
+  os << indent << "ParticleCoordinatesByIndex: " << this->ParticleCoordinatesByIndex << endl;
   os << indent << "CellDataArraySelection: " << this->CellDataArraySelection 
      << endl;
   os << indent << "PointDataArraySelection: " << this->PointDataArraySelection 

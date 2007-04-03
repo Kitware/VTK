@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.51");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.51.24.1");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -727,7 +727,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
   const char* fileName, int timeStep, vtkMultiBlockDataSet *output)
 {
   char line[80], subLine[80];
-  int i;
+  vtkIdType i;
   int *pointIds;
   float *coords;
   vtkPoints *points = vtkPoints::New();
@@ -847,10 +847,21 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
   this->ReadIntArray(pointIds, this->NumberOfMeasuredPoints);
   this->ReadFloatArray(coords, this->NumberOfMeasuredPoints*3);
   
-  for (i = 0; i < this->NumberOfMeasuredPoints; i++)
+  if (this->ParticleCoordinatesByIndex) 
     {
-    points->InsertNextPoint(coords[3*i], coords[3*i+1], coords[3*i+2]);
-    pd->InsertNextCell(VTK_VERTEX, 1, (vtkIdType*)&pointIds[i]);
+    for (i = 0; i < this->NumberOfMeasuredPoints; i++)
+      {
+      points->InsertNextPoint(coords[3*i], coords[3*i+1], coords[3*i+2]);
+      pd->InsertNextCell(VTK_VERTEX, 1, &i);
+      }
+   }
+  else
+    {
+    for (i = 0; i < this->NumberOfMeasuredPoints; i++)
+      {
+      points->InsertNextPoint(coords[3*i], coords[3*i+1], coords[3*i+2]);
+      pd->InsertNextCell(VTK_VERTEX, 1, (vtkIdType*)&pointIds[i]);
+      }
     }
 
   pd->SetPoints(points);
