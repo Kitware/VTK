@@ -30,7 +30,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkSignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.7");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.8");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -249,9 +249,10 @@ int vtkExtractSelectedThresholds::ExtractCells(
   vtkIdList *newCellPts = NULL;
   vtkCell *cell;
   vtkPoints *newPoints;
-  int i, ptId, newId, numPts, numCells;
+  vtkIdType i, ptId, newId, numPts, numCells;
   int numCellPts;
   double x[3];
+
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   int keepCell;
@@ -281,7 +282,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
     pointInArray = vtkSignedCharArray::New();
     pointInArray->SetNumberOfComponents(1);
     pointInArray->SetNumberOfTuples(numPts);
-    for (vtkIdType i=0; i < numPts; i++)
+    for (i=0; i < numPts; i++)
       {
       pointInArray->SetValue(i, flag);
       }
@@ -292,7 +293,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
     cellInArray = vtkSignedCharArray::New();
     cellInArray->SetNumberOfComponents(1);
     cellInArray->SetNumberOfTuples(numCells);
-    for (vtkIdType i=0; i < numCells; i++)
+    for (i=0; i < numCells; i++)
       {
       cellInArray->SetValue(i, flag);
       }
@@ -455,7 +456,8 @@ int vtkExtractSelectedThresholds::ExtractPoints(
   vtkSignedCharArray *pointInArray = NULL;
 
   vtkUnstructuredGrid * outputUG = NULL;
-  vtkPoints *newPts = NULL;
+  vtkPoints *newPts = vtkPoints::New();
+
 
   signed char flag = inverse ? 1 : -1;
   
@@ -479,7 +481,6 @@ int vtkExtractSelectedThresholds::ExtractPoints(
     outputUG = vtkUnstructuredGrid::SafeDownCast(output);
     outputUG->Allocate(numPts);
     
-    newPts = vtkPoints::New();
     newPts->Allocate(numPts);
     outputUG->SetPoints(newPts);
 
@@ -515,10 +516,7 @@ int vtkExtractSelectedThresholds::ExtractPoints(
     {
     pointInArray->Delete();
     }
-  else
-    {
-    newPts->Delete();
-    }
+  newPts->Delete();
   output->Squeeze();
   return 1;
 }
