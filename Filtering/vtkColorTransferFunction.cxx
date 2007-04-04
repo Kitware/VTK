@@ -21,7 +21,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.67");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.68");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 class vtkCTFNode
@@ -104,6 +104,8 @@ vtkColorTransferFunction::vtkColorTransferFunction()
   this->Clamping = 1;
   this->ColorSpace = VTK_CTF_RGB;
   this->HSVWrap = 1; //By default HSV will be wrap
+
+  this->Scale = VTK_CTF_LINEAR;
   
   this->Function = NULL;
 
@@ -505,6 +507,23 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
   double rgb2[3]   = {0.0, 0.0, 0.0};  
   double midpoint  = 0.0;
   double sharpness = 0.0;
+
+  // If the scale is logarithmic, make sure the range is valid.
+  bool usingLogScale = this->Scale == VTK_CTF_LOG10;
+  if(usingLogScale)
+    {
+    // Note: This requires range[0] <= range[1].
+    usingLogScale = this->Range[0] > 0.0 || this->Range[1] < 0.0;
+    }
+
+  double logStart = 0.0;
+  double logEnd   = 0.0;
+  double logX     = 0.0;
+  if(usingLogScale)
+    {
+    logStart = log10(xStart < 0 ? -xStart : xStart);
+    logEnd = log10(xEnd < 0 ? -xEnd : xEnd);
+    }
     
   // For each table entry
   for ( i = 0; i < size; i++ )
@@ -518,11 +537,27 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
     // be the same in this case)
     if ( size > 1 )
       {
-      x = xStart + (double(i)/double(size-1))*(xEnd-xStart);
+      if(usingLogScale)
+        {
+        logX = logStart + (double(i)/double(size-1))*(logEnd-logStart);
+        x = pow((double)10.0, logX);
+        }
+      else
+        {
+        x = xStart + (double(i)/double(size-1))*(xEnd-xStart);
+        }
       }
     else
       {
-      x = 0.5*(xStart+xEnd);
+      if(usingLogScale)
+        {
+        logX = 0.5*(logStart+logEnd);
+        x = pow((double)10.0, logX);
+        }
+      else
+        {
+        x = 0.5*(xStart+xEnd);
+        }
       }
     
     // Do we need to move to the next node?
@@ -538,6 +573,11 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
         {
         x1 = this->Internal->Nodes[idx-1]->X;
         x2 = this->Internal->Nodes[idx  ]->X;
+        if(usingLogScale)
+          {
+          x1 = log10(x1 < 0 ? -x1 : x1);
+          x2 = log10(x2 < 0 ? -x2 : x2);
+          }
         
         rgb1[0] = this->Internal->Nodes[idx-1]->R;
         rgb2[0] = this->Internal->Nodes[idx  ]->R;
@@ -588,7 +628,15 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
       // we will be modifying this based on midpoint and 
       // sharpness to get the curve shape we want and to have
       // it pass through (y1+y2)/2 at the midpoint.
-      double s = (x - x1) / (x2 - x1);
+      double s = 0.0;
+      if(usingLogScale)
+        {
+        s = (logX - x1) / (x2 - x1);
+        }
+      else
+        {
+        s = (x - x1) / (x2 - x1);
+        }
       
       // Readjust based on the midpoint - linear adjustment
       if ( s < midpoint )
@@ -883,6 +931,7 @@ void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
     this->Clamping     = f->Clamping;
     this->ColorSpace   = f->ColorSpace;
     this->HSVWrap      = f->HSVWrap;
+    this->Scale        = f->Scale;
 
     int i;
     this->RemoveAllPoints();
@@ -904,6 +953,7 @@ void vtkColorTransferFunction::ShallowCopy( vtkColorTransferFunction *f )
     this->Clamping     = f->Clamping;
     this->ColorSpace   = f->ColorSpace;
     this->HSVWrap      = f->HSVWrap;
+    this->Scale        = f->Scale;
 
     int i;
     this->RemoveAllPoints();
@@ -1229,6 +1279,14 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Color Space: HSV (No Wrap)\n";
     }
   
+  if ( this->Scale == VTK_CTF_LOG10 )
+    {
+    os << indent << "Scale: Log10\n";
+    }
+  else
+    {
+    os << indent << "Scale: Linear\n";
+    }
   
   os << indent << "Range: " << this->Range[0] << " to " 
      << this->Range[1] << endl;

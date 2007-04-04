@@ -37,6 +37,9 @@ class vtkColorTransferFunctionInternals;
 #define VTK_CTF_RGB           0
 #define VTK_CTF_HSV           1
 
+#define VTK_CTF_LINEAR        0
+#define VTK_CTF_LOG10         1
+
 class VTK_FILTERING_EXPORT vtkColorTransferFunction : public vtkScalarsToColors 
 {
 public:
@@ -140,6 +143,15 @@ public:
   vtkSetMacro(HSVWrap, int);
   vtkGetMacro(HSVWrap, int);
   vtkBooleanMacro(HSVWrap, int);
+
+  // Description:
+  // Set the type of scale to use, linear or logarithmic.  The default
+  // is linear.  If the scale is logarithmic, and the range contains
+  // zero, the color mapping will be linear.
+  vtkSetMacro(Scale,int);
+  void SetScaleToLinear() { this->SetScale(VTK_CTF_LINEAR); };
+  void SetScaleToLog10() { this->SetScale(VTK_CTF_LOG10); };
+  vtkGetMacro(Scale,int);
     
   // Description:
   // Returns a list of all nodes
@@ -170,6 +182,9 @@ protected:
 
   // Specify if HSW is warp or not
   int HSVWrap;
+
+  // The color interpolation scale (linear or logarithmic).
+  int Scale;
   
   double     *Function;
   
