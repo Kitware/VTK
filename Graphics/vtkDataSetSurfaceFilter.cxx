@@ -51,7 +51,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.54");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.55");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -278,17 +278,7 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
     this->OriginalCellIds = vtkIdTypeArray::New();
     this->OriginalCellIds->SetName("vtkOriginalCellIds");
     this->OriginalCellIds->SetNumberOfComponents(1);
-    if (this->UseStrips)
-      {
-      //We use Field data because we need to remember more values than there
-      //are output cells. Each strip (an output cell) has to point to multiple 
-      //input cells we can not use the DataSet's CellData.
-      output->GetFieldData()->AddArray(this->OriginalCellIds);
-      }
-    else
-      {
-      output->GetCellData()->AddArray(this->OriginalCellIds);
-      }
+    output->GetCellData()->AddArray(this->OriginalCellIds);
     }
 
   if (this->UseStrips)
