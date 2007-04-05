@@ -63,6 +63,16 @@ public:
   int CanReadFile(const char* fname);
 
   // Description:
+  // Return the object's MTime. This is overridden to include the timestamp of its internal class.
+  virtual unsigned long GetMTime();
+  
+  // Description:
+  // Return the MTime of the internal data structure.
+  // This is really only intended for use by vtkPExodusIIReader in order
+  // to determine if the filename is newer than the metadata.
+  virtual unsigned long GetMetadataMTime();
+
+  // Description:
   // Specify file name of the Exodus file.
   virtual void SetFileName( const char* fname );
   vtkGetStringMacro(FileName);
@@ -76,6 +86,11 @@ public:
   // Which TimeStep to read.    
   vtkSetMacro(TimeStep, int);
   vtkGetMacro(TimeStep, int);
+
+  // Description:
+  // Returns the available range of valid integer time steps.
+  vtkGetVector2Macro(TimeStepRange,int);
+  vtkSetVector2Macro(TimeStepRange,int);
 
   // Description:
   // Extra cell data array that can be generated.  By default, this array
@@ -154,7 +169,10 @@ public:
     GLOBAL_NODE_ID = 85,       //!< assembled, zero-padded nodal id array
     ELEMENT_ID = 84,           //!< element id map (old-style elem_num_map or first new-style elem map) array
     NODE_ID = 83,              //!< nodal id map (old-style node_num_map or first new-style node map) array
-    NODAL_SQUEEZEMAP = 82      //!< the integer map use to "squeeze" coordinates and nodal arrays/maps
+    NODAL_SQUEEZEMAP = 82,     //!< the integer map use to "squeeze" coordinates and nodal arrays/maps
+    ELEM_BLOCK_ATTRIB = 81,    //!< an element block attribute array (time-constant scalar per element)
+    FACE_BLOCK_ATTRIB = 80,    //!< a face block attribute array (time-constant scalar per element)
+    EDGE_BLOCK_ATTRIB = 79     //!< an edge block attribute array (time-constant scalar per element)
   };
 //ETX
   static const char* GetGlobalElementIdArrayName() { return "GlobalElementId"; }
@@ -271,6 +289,18 @@ public:
   void SetObjectArrayStatus( int objectType, int arrayIndex, int status );
   void SetObjectArrayStatus( int objectType, const char* arrayName, int status ) 
     { this->SetObjectArrayStatus( objectType, this->GetObjectArrayIndex( objectType, arrayName ), status ); }
+
+  int GetNumberOfObjectAttributes( int objectType, int objectIndex );
+  const char* GetObjectAttributeName( int objectType, int objectIndex, int attribIndex );
+  int GetObjectAttributeIndex( int objectType, int objectIndex, const char* attribName );
+  int GetObjectAttributeStatus( int objectType, int objectIndex, int attribIndex );
+  int GetObjectAttributeStatus( int objectType, int objectIndex, const char* attribName )
+    { return this->GetObjectAttributeStatus( objectType, objectIndex,
+      this->GetObjectAttributeIndex( objectType, objectIndex, attribName ) ); }
+  void SetObjectAttributeStatus( int objectType, int objectIndex, int attribIndex, int status );
+  void SetObjectAttributeStatus( int objectType, int objectIndex, const char* attribName, int status )
+    { this->SetObjectAttributeStatus( objectType, objectIndex,
+      this->GetObjectAttributeIndex( objectType, objectIndex, attribName ), status ); }
 
   // Descriptions:
   // By default arrays are not loaded.  These methods allow the user to select
@@ -637,6 +667,10 @@ protected:
   vtkExodusIIReader();
   ~vtkExodusIIReader();
 
+  // Description:
+  // Reset or create an ExodusModel and turn on arrays that must be present for the ExodusIIWriter
+  virtual void NewExodusModel();
+
   // helper for finding IDs
   static int GetIDHelper ( const char *arrayName, vtkDataSet *data, int localID, int searchType );
   static int GetGlobalID( const char *arrayName, vtkDataSet *data, int localID, int searchType );
@@ -647,10 +681,13 @@ protected:
   virtual void SetParser( vtkExodusIIXMLParser* );
   vtkGetObjectMacro(Parser,vtkExodusIIXMLParser);
 
+  virtual void Dump();
+
   // Parameters for controlling what is read in.
   char* FileName;
   char* XMLFileName;
   int TimeStep;
+  int TimeStepRange[2];
   vtkTimeStamp FileNameMTime;
   vtkTimeStamp XMLFileNameMTime;
   
