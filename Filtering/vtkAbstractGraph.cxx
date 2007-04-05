@@ -35,12 +35,17 @@
 
 double vtkAbstractGraph::DefaultPoint[3] = {0, 0, 0};
 
-vtkCxxRevisionMacro(vtkAbstractGraph, "1.4");
+vtkCxxRevisionMacro(vtkAbstractGraph, "1.5");
 
 //----------------------------------------------------------------------------
 vtkAbstractGraph::vtkAbstractGraph()
 {
   this->Line = vtkLine::New();
+
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
+  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 }
 
 //----------------------------------------------------------------------------

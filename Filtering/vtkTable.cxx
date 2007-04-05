@@ -28,7 +28,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.5");
+vtkCxxRevisionMacro(vtkTable, "1.6");
 vtkStandardNewMacro(vtkTable);
 
 //----------------------------------------------------------------------------
@@ -36,6 +36,11 @@ vtkStandardNewMacro(vtkTable);
 vtkTable::vtkTable()
 {
   this->Rows = 0;
+
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
+  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 }
 
 //----------------------------------------------------------------------------
