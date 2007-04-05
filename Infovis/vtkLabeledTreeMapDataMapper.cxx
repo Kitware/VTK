@@ -32,7 +32,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.6");
+vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.7");
 vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
@@ -103,11 +103,10 @@ vtkLabeledTreeMapDataMapper::~vtkLabeledTreeMapDataMapper()
     {
     for (i=0; i < this->NumberOfLabelsAllocated; i++)
       {
-      if (!this->TextMappers[i])
+      if (this->TextMappers[i])
         {
-        break; // Deallocated all that we created
+        this->TextMappers[i]->Delete();
         }
-      this->TextMappers[i]->Delete();
       }
     delete [] this->TextMappers;
     this->TextMappers = NULL;
@@ -121,13 +120,12 @@ void vtkLabeledTreeMapDataMapper::ReleaseGraphicsResources(vtkWindow *win)
 {
   if (this->TextMappers != NULL )
     {
-    for (int i=0; i < this->NumberOfLabels; i++)
+    for (int i=0; i < this->NumberOfLabelsAllocated; i++)
       {
-      if (!this->TextMappers[i])
+      if (this->TextMappers[i])
         {
-        break; // Released all that we created
+        this->TextMappers[i]->ReleaseGraphicsResources(win);
         }
-      this->TextMappers[i]->ReleaseGraphicsResources(win);
       }
     }
 }
@@ -169,7 +167,9 @@ void vtkLabeledTreeMapDataMapper::UpdateFontSizes()
 void vtkLabeledTreeMapDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "RectanglesFieldName: " << (this->RectanglesFieldName ? this->RectanglesFieldName : "(none)") << endl;
+  os << indent << "RectanglesFieldName: "
+     << (this->RectanglesFieldName ? this->RectanglesFieldName : "(none)") << endl;
+
   os << indent << "ClipTextMode: " << this->ClipTextMode << endl;
   os << indent << "ChildMotion: " << this->ChildMotion << endl;
   os << indent << "DynamicLevel: " << this->DynamicLevel << endl;
@@ -437,7 +437,7 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       return;
       }
 
-    // Make sure that the array of TextMappers can accomidate 
+    // Make sure that the array of TextMappers can accommodate 
     // the number of vertices in the tree - Note that we may 
     // not create the actual mappers
     
@@ -445,9 +445,12 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     if ( numVertices > this->NumberOfLabelsAllocated )
       {
       // delete old stuff
-      for (i=0; i < this->NumberOfLabels; i++)
+      for (i=0; i < this->NumberOfLabelsAllocated; i++)
         {
-        this->TextMappers[i]->Delete();
+          if (this->TextMappers[i])
+          {
+          this->TextMappers[i]->Delete();
+          }
         }
       delete [] this->TextMappers;
 
@@ -535,7 +538,6 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree *tree,
       if (!this->TextMappers[this->NumberOfLabels])
         {
         this->TextMappers[this->NumberOfLabels] = vtkTextMapper::New();
-        ++(this->NumberOfLabelsAllocated);
         }
       this->TextMappers[this->NumberOfLabels]->SetInput(string);
       this->TextMappers[this->NumberOfLabels]->
@@ -716,9 +718,9 @@ int vtkLabeledTreeMapDataMapper::AnalyseLabel(char * string, int level,
   trueLevel = 
     (trueLevel > this->MaxFontLevel) ? this->MaxFontLevel : trueLevel;
    fsize = this->GetStringSize(string, trueLevel);
- // Determine the orientation of the label
+  // Determine the orientation of the label
   // Vertical Label - THIS DOESN'T WORK DUE TO ISSUES WITH vtkTextActor
-  // so always do the following - hense the 1 in the condition
+  // so always do the following - hence the 1 in the condition
   if (1 || (sizes[0] >= sizes[1]))
     {
     // Horizontal label
@@ -854,7 +856,7 @@ int vtkLabeledTreeMapDataMapper::ApplyMasks(int level, float flimits[4],
     return 0;
     }
 
-// dir == 0 indicate we are dropping the label and 1 means we are raising it
+  // dir == 0 indicates we are dropping the label and 1 means we are raising it
   while (changed)
     {
     changed = 0;
@@ -874,7 +876,7 @@ int vtkLabeledTreeMapDataMapper::ApplyMasks(int level, float flimits[4],
         }
       
       // If the label passes either x-check it will never
-      // interfer with a horizontal label
+      // interfere with a horizontal label
       if (this->LabelMasks[l][0] > flimits[1])
         {
         // Set the second component to be -(value + 1) - the reason
