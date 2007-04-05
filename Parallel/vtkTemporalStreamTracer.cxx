@@ -12,16 +12,6 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifdef _WIN32
-  #include <windows.h>  // for random seed (QueryPerformanceCounter)
-  #ifdef min
-    #undef min
-    #undef max
-  #endif
-#else 
-  #include <sys/time.h> // for random seed
-#endif
-
 #include "vtkTemporalStreamTracer.h"
 
 #include "vtkCellArray.h"
@@ -62,18 +52,17 @@ PURPOSE.  See the above copyright notice for more information.
   #include "vtkMPIController.h"
 #endif
 
-#include <functional>
+//#include <functional>
 #include <algorithm>
 
 using namespace vtkTemporalStreamTracerNamespace;
 
 //----------------------------------------------------------------------------
+#undef JB_H5PART_PARTICLE_OUTPUT
 #ifdef JB_H5PART_PARTICLE_OUTPUT
-  #include "vtkH5PartWriter.h"
-  #include "vtkXMLParticleWriter.h"
 #endif
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.19");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.20");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, ParticleWriter, vtkAbstractParticleWriter);
@@ -902,7 +891,8 @@ int vtkTemporalStreamTracer::RequestData(
       ParticleIterator next = it;
       next++;
       //
-      this->IntegrateParticle(it, this->CurrentTimeSteps[0], this->CurrentTimeSteps[1], integrator);
+      this->IntegrateParticle(it, this->CurrentTimeSteps[0], 
+        this->CurrentTimeSteps[1], integrator);
       //
       if (this->GetAbortExecute()) {
         break;
@@ -1053,7 +1043,9 @@ void vtkTemporalStreamTracer::IntegrateParticle(
   memcpy(point1, &info.CurrentPosition, sizeof(Position));
 
   if (point1[3]<(currenttime-epsilon) || point1[3]>(terminationtime+epsilon)) {
-    vtkDebugMacro(<< "Bad particle time : expected (" << this->CurrentTimeSteps[0] << "-" << this->CurrentTimeSteps[1] << ") got " << point1[3]);
+    vtkDebugMacro(<< "Bad particle time : expected (" 
+      << this->CurrentTimeSteps[0] << "-" << this->CurrentTimeSteps[1] 
+      << ") got " << point1[3]);
   }
 
   IntervalInformation delT;
@@ -1119,20 +1111,6 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     // increment the particle time
     point2[3] = point1[3] + stepTaken;
 
-    // The integration succeeded, but the computed final position is actually 
-    // just outside the domain (the intermediate steps taken inside the integrator
-    // were ok, but the final step just passed out)
-    if ( !this->Interpolator->FunctionValues(point2, velocity) )
-    {
-      vtkDebugMacro(<< "INTEGRATE_OVERSHOT : Sending Particle " 
-        << info.UniqueParticleId << " Time " << point2[3]);
-      memcpy(&info.CurrentPosition, point2, sizeof(Position));
-      this->AddParticleToMPISendList(info);
-      this->ParticleHistories.erase(it);
-      ok = false;
-      break;
-    }
-
     // Point is valid. Insert it.
     memcpy(&info.CurrentPosition, point2, sizeof(Position));
     memcpy(point1, point2, sizeof(Position));
@@ -1147,6 +1125,21 @@ void vtkTemporalStreamTracer::IntegrateParticle(
         // code removed. Put it back when this is stable
       }
   }
+
+  if (ok) {
+    // The integration succeeded, but check the computed final position 
+    // is actually inside the domain (the intermediate steps taken inside 
+    // the integrator were ok, but the final step may just pass out)
+    if (!this->Interpolator->FunctionValues(&info.CurrentPosition.x[0], velocity) )
+    {
+      vtkDebugMacro(<< "INTEGRATE_OVERSHOT : Sending Particle " 
+        << info.UniqueParticleId << " Time " << &info.CurrentPosition.x[3]);
+      this->AddParticleToMPISendList(info);
+      this->ParticleHistories.erase(it);
+      ok = false;
+    }
+  }
+
   //
   // We got this far without error :
   // Insert the point into the output
@@ -1165,7 +1158,6 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     }
     //
     // Now generate the output geometry and scalars
-    //
     //
     // Note that this is slightly overkill. In principle we always integrate
     // the particle until it reaches Time2 - so we don't need to do any 
