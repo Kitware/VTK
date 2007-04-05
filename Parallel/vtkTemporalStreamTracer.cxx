@@ -52,7 +52,7 @@ PURPOSE.  See the above copyright notice for more information.
   #include "vtkMPIController.h"
 #endif
 
-//#include <functional>
+#include <functional>
 #include <algorithm>
 
 using namespace vtkTemporalStreamTracerNamespace;
@@ -62,7 +62,7 @@ using namespace vtkTemporalStreamTracerNamespace;
 #ifdef JB_H5PART_PARTICLE_OUTPUT
 #endif
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.20");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.21");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, ParticleWriter, vtkAbstractParticleWriter);
