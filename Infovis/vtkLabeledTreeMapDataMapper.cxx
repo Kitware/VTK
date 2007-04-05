@@ -32,7 +32,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.4");
+vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.5");
 vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
@@ -535,6 +535,7 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree *tree,
       if (!this->TextMappers[this->NumberOfLabels])
         {
         this->TextMappers[this->NumberOfLabels] = vtkTextMapper::New();
+        ++(this->NumberOfLabelsAllocated);
         }
       this->TextMappers[this->NumberOfLabels]->SetInput(string);
       this->TextMappers[this->NumberOfLabels]->
