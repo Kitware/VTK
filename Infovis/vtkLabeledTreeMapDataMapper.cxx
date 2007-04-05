@@ -32,7 +32,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.5");
+vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.6");
 vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
@@ -503,7 +503,7 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree *tree,
     vertex = dfs->Next();
     level = tree->GetLevel(vertex);
 
-    if (level >= this->StartLevel)
+    if (level >= this->StartLevel && (this->EndLevel == -1 || level <= this->EndLevel))
       {
       boxInfo->GetTupleValue(vertex, blimits); // Get the extents of the vertex
       if (this->ConvertToDC(blimits, blimitsDC))
@@ -587,22 +587,27 @@ int vtkLabeledTreeMapDataMapper::ConvertToDC(float *binfo, float *newBinfo)
   newBinfo[2] = this->BoxTrans[1][0] + (binfo[2]*this->BoxTrans[1][1]);  
   newBinfo[3] = this->BoxTrans[1][0] + (binfo[3]*this->BoxTrans[1][1]);
 
-  if (newBinfo[0] >= this->WindowLimits[0][1])
+  // See the comments in AnalyseLabel for why we're comparing against
+  // these numbers.
+  double windowWidth = this->WindowLimits[0][1] - this->WindowLimits[0][0];
+  double windowHeight = this->WindowLimits[1][1] - this->WindowLimits[1][0];
+
+  if (newBinfo[0] >= windowWidth)
     {
     return 1;
     }
 
-  if (newBinfo[1] <= this->WindowLimits[0][0])
+  if (newBinfo[1] <= 0)
     {
     return 1;
     }
 
-  if (newBinfo[2] >= this->WindowLimits[1][1])
+  if (newBinfo[2] >= windowHeight)
     {
     return 1;
     }
 
-  if (newBinfo[3] <= this->WindowLimits[1][0])
+  if (newBinfo[3] <= 0)
     {
     return 1;
     }
@@ -612,24 +617,24 @@ int vtkLabeledTreeMapDataMapper::ConvertToDC(float *binfo, float *newBinfo)
     return 0;
     }
   
-  if (newBinfo[0] < this->WindowLimits[0][0])
+  if (newBinfo[0] < 0)
     {
-    newBinfo[0] = this->WindowLimits[0][0];
+    newBinfo[0] = 0;
     }
   
-  if (newBinfo[1] > this->WindowLimits[0][1])
+  if (newBinfo[1] > windowWidth)
     {
-    newBinfo[1] = this->WindowLimits[0][1];
+    newBinfo[1] = windowWidth;
     }
   
-  if (newBinfo[2] < this->WindowLimits[1][0])
+  if (newBinfo[2] < 0)
     {
-    newBinfo[2] = this->WindowLimits[1][0];
+    newBinfo[2] = 0;
     }
   
-  if (newBinfo[3] > this->WindowLimits[1][1])
+  if (newBinfo[3] > windowHeight)
     {
-    newBinfo[3] = this->WindowLimits[1][1];
+    newBinfo[3] = windowHeight;
     }
   
   return 0;
@@ -760,10 +765,19 @@ int vtkLabeledTreeMapDataMapper::AnalyseLabel(char * string, int level,
   // vertex's box see if it has been clipped away
   if (!this->ClipTextMode)
     {
-    if ((flimits[0] >= this->WindowLimits[0][1]) || 
-        (flimits[1] <= this->WindowLimits[0][0]) ||
-        (flimits[2] >= this->WindowLimits[1][1]) ||
-        (flimits[3] <= this->WindowLimits[1][0]))
+    // The 'flimits' variable contains the bounding box of the label
+    // in coordinates relative to (0, 0) in the window -- that is, the
+    // lower left corner of the window.  These next few lines test to
+    // make sure the label is not entirely outside the window.  The
+    // coordinates in WindowLimits are actually in the space of the
+    // entire screen, not just this application or its OpenGL window.
+    double windowWidth = this->WindowLimits[0][1] - this->WindowLimits[0][0];
+    double windowHeight = this->WindowLimits[1][1] - this->WindowLimits[0][0];
+
+    if ((flimits[0] >= windowWidth) ||
+        (flimits[1] <= 0) ||
+        (flimits[2] >= windowHeight) ||
+        (flimits[3] <= 0))
       {
       this->LabelMasks[level][0] = -1.0;
       return 2;
