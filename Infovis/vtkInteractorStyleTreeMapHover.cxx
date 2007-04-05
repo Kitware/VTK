@@ -34,7 +34,7 @@
 #include "vtkTreeMapToPolyData.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.6");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.7");
 vtkStandardNewMacro(vtkInteractorStyleTreeMapHover);
 
 //----------------------------------------------------------------------------
@@ -225,8 +225,12 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
   int y = this->Interactor->GetEventPosition()[1];
   float binfo[4];
   vtkIdType id = this->GetTreeMapIdAtPos(x,y);
-  this->GetBoundingBoxForTreeMapItem(id,binfo);
   
+  if (id != -1)
+    {
+    this->GetBoundingBoxForTreeMapItem(id,binfo);
+    }
+
   double loc[2] = {x, y};
   this->Balloon->EndWidgetInteraction(loc);
   
@@ -262,7 +266,7 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
       else
         {
         this->Balloon->SetBalloonText("");
-              HighlightActor->VisibilityOff();
+        HighlightActor->VisibilityOff();
         }
       }
 
@@ -343,9 +347,10 @@ void vtkInteractorStyleTreeMapHover::HighLightItem(vtkIdType id)
 void vtkInteractorStyleTreeMapHover::HighLightCurrentSelectedItem()
 {
   float binfo[4];
-  this->GetBoundingBoxForTreeMapItem(this->CurrentSelectedId,binfo);
+
   if (this->CurrentSelectedId > -1)
     {
+    this->GetBoundingBoxForTreeMapItem(this->CurrentSelectedId,binfo);
     vtkTree* tree = this->Layout->GetOutput();
     double z;
     if (this->TreeMapToPolyData != NULL)
