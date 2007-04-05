@@ -27,7 +27,7 @@
 #include "vtkDijkstraGraphGeodesicPath.h"
 
 vtkCxxRevisionMacro(vtkPolygonalSurfaceContourLineInterpolator,
-                                            "1.3");
+                                            "1.4");
 vtkStandardNewMacro(vtkPolygonalSurfaceContourLineInterpolator);
 
 //----------------------------------------------------------------------
@@ -79,7 +79,7 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
     }
 
   // Find the starting and ending point id's
-  vtkIdType beginVertId, endVertId;
+  vtkIdType beginVertId = -1, endVertId = -1;
   vtkCell *cellBegin = nodeBegin->PolyData->GetCell(nodeBegin->CellId);
   vtkPoints *cellBeginPoints = cellBegin->GetPoints();
 
@@ -110,6 +110,11 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
       }
     }
 
+  if (beginVertId == -1 || endVertId == -1)
+    {
+    // Could not find the starting and ending cells. We can't interpolate.
+    return 0;
+    }
   
   if (this->LastInterpolatedVertexIds[0] != beginVertId || 
       this->LastInterpolatedVertexIds[1] != endVertId)
