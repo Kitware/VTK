@@ -791,7 +791,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.11");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.12");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -4089,11 +4089,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.11");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.12");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.11");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.12");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -4417,6 +4417,16 @@ void vtkExodusIIReader::SetDisplacementMagnitude( float s )
 float vtkExodusIIReader::GetDisplacementMagnitude()
 {
   return this->Metadata->GetDisplacementMagnitude();
+}
+
+void vtkExodusIIReader::SetHasModeShapes( int ms )
+{
+  this->Metadata->SetHasModeShapes(ms);
+}
+
+int vtkExodusIIReader::GetHasModeShapes()
+{
+  return this->Metadata->GetHasModeShapes();
 }
 
 const char* vtkExodusIIReader::GetTitle() { return this->Metadata->ModelParameters.title; }
