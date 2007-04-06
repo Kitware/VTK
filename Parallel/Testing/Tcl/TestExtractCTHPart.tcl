@@ -60,3 +60,6 @@ vtkActor pvTemp88
 Ren1 AddActor pvTemp88
 
 renWin Render
+
+alg SetDefaultExecutivePrototype {}
+
