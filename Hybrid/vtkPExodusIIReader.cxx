@@ -91,7 +91,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.3");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.4");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -387,22 +387,6 @@ int vtkPExodusIIReader::RequestData(
       er->AddObserver( vtkCommand::ProgressEvent, progress );
       progress->Delete();
 
-
-      //begin USE_EXO_DSP_FILTERS
-      if(this->DSPFilteringIsEnabled && this->DSPFilters)
-        {
-        int i;
-        er->DSPFilteringIsEnabled = this->DSPFilteringIsEnabled;
-        er->DSPFilters = new vtkDSPFilterGroup*[this->GetNumberOfElementBlockArrays()];
-        for(i=0;i<this->GetNumberOfElementBlockArrays();i++)
-          {
-          er->DSPFilters[i] = vtkDSPFilterGroup::New();
-          er->DSPFilters[i]->Copy( this->DSPFilters[i] );
-          }
-        }
-      //end USE_EXO_DSP_FILTERS
-      
-      
       this->ReaderList.push_back( er );
       }
     }
@@ -449,6 +433,7 @@ int vtkPExodusIIReader::RequestData(
     this->ReaderList[reader_idx]->SetGenerateGlobalNodeIdArray( this->GetGenerateGlobalNodeIdArray() );
     this->ReaderList[reader_idx]->SetApplyDisplacements( this->GetApplyDisplacements() );
     this->ReaderList[reader_idx]->SetDisplacementMagnitude( this->GetDisplacementMagnitude() );
+    this->ReaderList[reader_idx]->SetHasModeShapes( this->GetHasModeShapes() );
 
     this->ReaderList[reader_idx]->SetExodusModelMetadata( this->ExodusModelMetadata );
     // For now, this *must* come last before the UpdateInformation() call because its MTime is compared to the metadata's MTime,
@@ -921,112 +906,6 @@ void vtkPExodusIIReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GenerateFileIdArray: " << this->GenerateFileIdArray << endl;
   os << indent << "NumberOfFiles: " << this->NumberOfFiles << endl;
 }
-
-
-//----------------------------------------------------------------------------
-//begin USE_EXO_DSP_FILTERS
-//
-int vtkPExodusIIReader::GetNumberOfVariableArrays()
-{ 
-  return this->vtkExodusIIReader::GetNumberOfVariableArrays(); 
-}
-const char *vtkPExodusIIReader::GetVariableArrayName(int a_which)
-{ 
-  return this->vtkExodusIIReader::GetVariableArrayName(a_which); 
-}
-
-//note: for the rest of these ..... is the this->vtkExodusIIReader:: part needed?
-void vtkPExodusIIReader::EnableDSPFiltering()
-{ 
-  this->vtkExodusIIReader::EnableDSPFiltering(); 
-  for(unsigned int i=0;i<this->ReaderList.size();i++)
-    {
-    this->ReaderList[i]->EnableDSPFiltering();
-    }
-} 
-void vtkPExodusIIReader::AddFilter(vtkDSPFilterDefinition *a_filter)
-{ 
-  this->vtkExodusIIReader::AddFilter(a_filter); 
-  for(unsigned int i=0;i<this->ReaderList.size();i++)
-    {
-    this->ReaderList[i]->AddFilter(a_filter);
-    }
-}
-void vtkPExodusIIReader::StartAddingFilter()
-{ 
-  this->vtkExodusIIReader::StartAddingFilter(); 
-  for(unsigned int i=0;i<this->ReaderList.size();i++)
-    {
-    this->ReaderList[i]->StartAddingFilter();
-    }
-}
-void vtkPExodusIIReader::AddFilterInputVar(char *name)
-{ 
-  this->vtkExodusIIReader::AddFilterInputVar(name); 
-  for(unsigned int i=0;i<this->ReaderList.size();i++)
-    {
-    this->ReaderList[i]->AddFilterInputVar(name); 
-    }
-}
-void vtkPExodusIIReader::AddFilterOutputVar(char *name)
-{ 
-  this->vtkExodusIIReader::AddFilterOutputVar(name); 
-  for(unsigned int i=0;i<this->ReaderList.size();i++) 
-    {
-    this->ReaderList[i]->AddFilterOutputVar(name); 
-    }
-}
-void vtkPExodusIIReader::AddFilterNumeratorWeight(double weight)
-{ 
-  this->vtkExodusIIReader::AddFilterNumeratorWeight(weight); 
-  for(unsigned int i=0;i<this->ReaderList.size();i++)
-    {
-    this->ReaderList[i]->AddFilterNumeratorWeight(weight);
-    }
-}
-void vtkPExodusIIReader::AddFilterForwardNumeratorWeight(double weight)
-{ 
-  this->vtkExodusIIReader::AddFilterForwardNumeratorWeight(weight); 
-  for(unsigned int i=0;i<this->ReaderList.size();i++)
-    {
-    this->ReaderList[i]->AddFilterForwardNumeratorWeight(weight); 
-    }
-}
-void vtkPExodusIIReader::AddFilterDenominatorWeight(double weight)
-{ 
-  this->vtkExodusIIReader::AddFilterDenominatorWeight(weight); 
-  for(unsigned int i=0;i<this->ReaderList.size();i++) 
-    {
-    this->ReaderList[i]->AddFilterDenominatorWeight(weight);
-    }
-}
-  void vtkPExodusIIReader::FinishAddingFilter()
-{ 
-  this->vtkExodusIIReader::FinishAddingFilter(); 
-  for(unsigned int i=0;i<this->ReaderList.size();i++) 
-    {
-    this->ReaderList[i]->FinishAddingFilter();
-    }
-}
-void vtkPExodusIIReader::RemoveFilter( char* a_outputVariableName )
-{ 
-  this->vtkExodusIIReader::RemoveFilter(a_outputVariableName); 
-  for ( unsigned int i = 0; i < this->ReaderList.size(); ++i ) 
-    {
-    this->ReaderList[i]->RemoveFilter( a_outputVariableName ); 
-    }
-}
-void vtkPExodusIIReader::GetDSPOutputArrays( int exoid, vtkUnstructuredGrid* output )
-{ 
-  this->Superclass::GetDSPOutputArrays( exoid, this->TimeStep, output );
-  for ( unsigned int i = 0; i < this->ReaderList.size(); ++i ) 
-    {
-    this->ReaderList[i]->GetDSPOutputArrays( exoid, this->TimeStep, output );
-    }
-}
-//end USE_EXO_DSP_FILTERS
-
-
 
 int vtkPExodusIIReader::GetTotalNumberOfElements()
 {

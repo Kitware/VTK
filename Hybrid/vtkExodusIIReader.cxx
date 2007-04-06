@@ -5,13 +5,13 @@
 #include "vtkCellType.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkDSPFilterDefinition.h"
 #include "vtkExodusModel.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -32,6 +32,7 @@
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memset() */
 #include <ctype.h> /* for toupper(), isgraph() */
+#include <math.h> /* for cos() */
 
 #ifdef EXODUSII_HAVE_MALLOC_H
 #  include <malloc.h>
@@ -268,6 +269,12 @@ public:
     */
   void SetObjectArrayStatus( int otype, int i, int stat );
 
+  /** Unlike object arrays, attributes are only defined over blocks (not sets)
+    * and are defined on a per-block (not a per-block-type) basis.
+    * In other words, there is no truth table for attributes.
+    * This means the interface is different because each block can have a different number of attributes with
+    * different names.
+    */
   int GetNumberOfObjectAttributes( int objectType, int objectIndex );
   const char* GetObjectAttributeName( int objectType, int objectIndex, int attributeIndex );
   int GetObjectAttributeIndex( int objectType, int objectIndex, const char* attribName );
@@ -292,6 +299,9 @@ public:
 
   virtual void SetDisplacementMagnitude( double s );
   vtkGetMacro(DisplacementMagnitude,double);
+
+  vtkSetMacro(HasModeShapes,int);
+  vtkGetMacro(HasModeShapes,int);
 
   vtkDataArray* FindDisplacementVectors( int timeStep );
 
@@ -591,6 +601,9 @@ protected:
   /// The current time step
   int TimeStep;
 
+  /// The time value. This is used internally when HasModeShapes is true and ignored otherwise.
+  double ModeShapeTime;
+
   int GenerateObjectIdArray;
   int GenerateGlobalIdArray;
 
@@ -604,6 +617,7 @@ protected:
   int GenerateGlobalNodeIdArray;
   int ApplyDisplacements;
   float DisplacementMagnitude;
+  int HasModeShapes;
 
   /** Should the reader output only points used by elements in the output mesh, or all the points.
     * Outputting all the points is much faster since the point array can be read straight from
@@ -777,7 +791,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.10");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.11");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -792,6 +806,8 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->Cache = vtkExodusIICache::New();
 
   this->TimeStep = 0;
+  this->HasModeShapes = 0;
+  this->ModeShapeTime = -1.;
 
   this->GenerateObjectIdArray = 1;
   this->GenerateGlobalElementIdArray = 0;
@@ -2024,7 +2040,16 @@ void vtkExodusIIReaderPrivate::InsertSetSides( vtkIntArray* refs, int otyp, int 
 
 vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key )
 {
-  vtkDataArray* arr = this->Cache->Find( key );
+  vtkDataArray* arr;
+  // Never cache points deflected for a mode shape animation... doubles don't make good keys.
+  if ( this->HasModeShapes && key.ObjectType == vtkExodusIIReader::NODAL_COORDS )
+    {
+    arr = 0;
+    }
+  else
+    {
+    arr = this->Cache->Find( key );
+    }
 
   if ( arr )
     {
@@ -2565,13 +2590,27 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     if ( displ )
       {
       double* coords = darr->GetPointer( 0 );
-      for ( vtkIdType idx = 0; idx < displ->GetNumberOfTuples(); ++idx )
+      if ( this->HasModeShapes )
         {
-        double* dispVal = displ->GetTuple3( idx );
-        for ( c = 0; c < 3; ++c )
-          coords[c] += dispVal[c] * this->DisplacementMagnitude;
+        for ( vtkIdType idx = 0; idx < displ->GetNumberOfTuples(); ++idx )
+          {
+          double* dispVal = displ->GetTuple3( idx );
+          for ( c = 0; c < 3; ++c )
+            coords[c] += dispVal[c] * this->DisplacementMagnitude * cos( 2. * vtkMath::DoublePi() * this->ModeShapeTime );
 
-        coords += 3;
+          coords += 3;
+          }
+        }
+      else
+        {
+        for ( vtkIdType idx = 0; idx < displ->GetNumberOfTuples(); ++idx )
+          {
+          double* dispVal = displ->GetTuple3( idx );
+          for ( c = 0; c < 3; ++c )
+            coords[c] += dispVal[c] * this->DisplacementMagnitude;
+
+          coords += 3;
+          }
         }
       }
     }
@@ -3023,6 +3062,8 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
     }
   os << "\n";
   os << indent << "TimeStep: " << this->TimeStep << "\n";
+  os << indent << "HasModeShapes: " << this->HasModeShapes << "\n";
+  os << indent << "ModeShapeTime: " << this->ModeShapeTime << "\n";
 
   // Print nodal variables
   if ( this->ArrayInfo[ vtkExodusIIReader::NODAL ].size() > 0 )
@@ -4048,11 +4089,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.10");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.11");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.10");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.11");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -4073,37 +4114,11 @@ vtkExodusIIReader::vtkExodusIIReader()
   this->ExodusModel = 0;
   this->DisplayType = 0;
 
-  //begin USE_EXO_DSP_FILTERS
-  this->DSPFilteringIsEnabled = 0;
-  this->DSPFilters = 0;
-  this->AddingFilter = vtkDSPFilterDefinition::New();
-  //end USE_EXO_DSP_FILTERS
-
-
   this->SetNumberOfInputPorts( 0 );
 }
 
 vtkExodusIIReader::~vtkExodusIIReader()
 {
-  //begin USE_EXO_DSP_FILTERS
-  int neb = this->GetNumberOfElementBlockArrays();
-  if ( this->DSPFilters )
-    {
-    for ( int i = 0; i < neb; ++i )
-      {
-      this->DSPFilters[i]->Delete();
-      }
-    delete [] this->DSPFilters ;
-    this->DSPFilters = 0;
-    }
-  if ( this->AddingFilter )
-    {
-    this->AddingFilter->Delete();
-    }
-  //end USE_EXO_DSP_FILTERS
-
-  // The following must come *after* DSPFilters are deleted since neb
-  // requires data that's reset inside SetFileName().
   this->SetXMLFileName( 0 );
   this->SetFileName( 0 );
 
@@ -4277,15 +4292,24 @@ int vtkExodusIIReader::RequestInformation(
       }
     }
 
-  int nTimes = (int) this->Metadata->Times.size();
-  double timeRange[2];
-  if ( nTimes )
+  if ( ! this->GetHasModeShapes() )
     {
-    timeRange[0] = this->Metadata->Times[0];
-    timeRange[1] = this->Metadata->Times[nTimes - 1];
-    outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->Metadata->Times[0], nTimes );
+    int nTimes = (int) this->Metadata->Times.size();
+    double timeRange[2];
+    if ( nTimes )
+      {
+      timeRange[0] = this->Metadata->Times[0];
+      timeRange[1] = this->Metadata->Times[nTimes - 1];
+      outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->Metadata->Times[0], nTimes );
+      outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
+      this->TimeStepRange[0] = 0; this->TimeStepRange[1] = nTimes - 1;
+      }
+    }
+  else
+    {
+    outInfo->Remove( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+    static double timeRange[] = { 0, 1 };
     outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
-    this->TimeStepRange[0] = 0; this->TimeStepRange[1] = nTimes - 1;
     }
 
   if ( newMetadata )
@@ -4312,7 +4336,8 @@ int vtkExodusIIReader::RequestData(
 
   // Check if a particular time was requested.
   int timeStep = this->TimeStep;
-  if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+
+  if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() ) )
     { // Get the requested time step. We only supprt requests of a single time step in this reader right now
     double* requestedTimeSteps = outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() );
 
@@ -4320,22 +4345,28 @@ int vtkExodusIIReader::RequestData(
     int length = outInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
     double* steps = outInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
 
-    // find the closest time step
-    timeStep = 0;
-    while (timeStep < length - 1 && steps[timeStep] < requestedTimeSteps[0])
+    if ( ! this->GetHasModeShapes() )
       {
-      timeStep++;
+      // find the highest time step with a time value that is smaller than the requested time.
+      timeStep = 0;
+      while (timeStep < length - 1 && steps[timeStep] < requestedTimeSteps[0])
+        {
+        timeStep++;
+        }
+      this->TimeStep = timeStep;
+      output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), steps + timeStep, 1 );
       }
-    this->TimeStep = timeStep;
-    output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), steps + timeStep, 1 );
+    else
+      {
+      // Let the metadata know the time value so that the Metadata->RequestData call below will generate
+      // the animated mode shape properly.
+      this->Metadata->ModeShapeTime = requestedTimeSteps[0];
+      output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), &this->Metadata->ModeShapeTime, 1 );
+      }
     }
 
   //cout << "Requesting step " << timeStep << " for output " << output << "\n";
   this->Metadata->RequestData( timeStep, output );
-
-  //begin USE_EXO_DSP_FILTERS
-  this->GetDSPOutputArrays( this->Metadata->Exoid, timeStep, output );
-  //end USE_EXO_DSP_FILTERS
 
   return 1;
 }
@@ -4837,390 +4868,6 @@ int vtkExodusIIReader::GetTimeSeriesData( int ID, const char* vName, const char*
   (void)result;
   return -1;
 }
-
-// %------------------------------------------------------------- DSP FILTERING
-int vtkExodusIIReader::GetNumberOfVariableArrays()
-{ //FIXME: Include all time-varying results, not just node and element
-  return
-    this->GetNumberOfElementResultArrays() +
-    this->GetNumberOfPointResultArrays();
-}
-
-const char* vtkExodusIIReader::GetVariableArrayName( int aIndex )
-{
-  int ne = this->GetNumberOfElementResultArrays();
-  if ( aIndex < ne )
-    {
-    return this->GetElementResultArrayName( aIndex );
-    }
-  return this->GetPointResultArrayName( aIndex - ne );
-}
-
-void vtkExodusIIReader::EnableDSPFiltering()
-{
-  this->DSPFilteringIsEnabled = 1;
-  int neb = this->GetNumberOfElementBlockArrays();
-  if ( ! this->DSPFilters && neb )
-    {
-    this->DSPFilters = new vtkDSPFilterGroup*[neb];
-    for ( int i = 0; i < neb; ++i )
-      {
-      this->DSPFilters[i] = vtkDSPFilterGroup::New();
-      }
-    }
-}
-
-void vtkExodusIIReader::AddFilter( vtkDSPFilterDefinition* aFilter )
-{
-  this->DSPFilteringIsEnabled = 1; // Is this var necessary any more?
-
-  int neb = this->GetNumberOfElementBlockArrays();
-  if( ! this->DSPFilters && neb )
-    {
-    this->DSPFilters = new vtkDSPFilterGroup*[neb];
-    for ( int i = 0; i < neb; ++i )
-      {
-      this->DSPFilters[i] = vtkDSPFilterGroup::New();
-      }
-    }
-  if ( ! this->DSPFilters )
-    return;
-
-  for ( int i = 0; i < neb; ++i )
-    {
-    this->DSPFilters[i]->AddFilter( aFilter );
-    }
-
-  this->Modified();
-}
-
-void vtkExodusIIReader::StartAddingFilter()
-{
-  this->AddingFilter->Clear();
-}
-
-void vtkExodusIIReader::AddFilterInputVar( char* name )
-{
-  this->AddingFilter->SetInputVariableName( name );
-}
-
-void vtkExodusIIReader::AddFilterOutputVar( char* name )
-{
-  this->AddingFilter->SetOutputVariableName( name );
-}
-
-void vtkExodusIIReader::AddFilterNumeratorWeight( double weight )
-{
-  this->AddingFilter->PushBackNumeratorWeight( weight );
-}
-
-void vtkExodusIIReader::AddFilterForwardNumeratorWeight( double weight )
-{
-  this->AddingFilter->PushBackForwardNumeratorWeight( weight );
-}
-
-void vtkExodusIIReader::AddFilterDenominatorWeight( double weight )
-{
-  this->AddingFilter->PushBackDenominatorWeight( weight );
-}
-
-void vtkExodusIIReader::FinishAddingFilter()
-{
-  this->AddFilter( this->AddingFilter );
-}
-
-void vtkExodusIIReader::RemoveFilter( char* outputVariableName )
-{
-  int neb = this->GetNumberOfElementBlockArrays();
-  if ( ! this->DSPFilters && neb )
-    {
-    this->DSPFilters = new vtkDSPFilterGroup*[neb];
-    for ( int i = 0; i < neb; ++i )
-      {
-      this->DSPFilters[i] = vtkDSPFilterGroup::New();
-      }
-    }
-  if ( ! this->DSPFilters )
-    return;
-
-  for ( int i = 0; i < neb; ++i )
-    {
-    this->DSPFilters[i]->RemoveFilter( outputVariableName );
-    }
-
-  this->Modified();
-}
-
-void vtkExodusIIReader::GetDSPOutputArrays( int exoid, int timeStep, vtkUnstructuredGrid* output )
-{
-  (void)exoid;
-  int neb = this->GetNumberOfElementBlockArrays();
-  int npr = this->GetNumberOfPointResultArrays();
-  int ner = this->GetNumberOfElementResultArrays();
-  //int neb = this->GetNumberOfElementBlocks();
-  if ( ! this->DSPFilters && neb )
-    {
-    this->DSPFilters = new vtkDSPFilterGroup*[neb];
-    for ( int i = 0; i < neb; ++i )
-      {
-      this->DSPFilters[i] = vtkDSPFilterGroup::New();
-      }
-    }
-
-  if ( this->DSPFilteringIsEnabled && this->DSPFilters )
-    {
-    //printf("in vtkExodusReader::GetDSPOutputArrays DSPFilters IS allocated\n");
-
-    int l_numPointVarInstancesLoaded = 0;
-    int l_numCellVarInstancesLoaded = 0;
-    int i, j;
-
-    //GET ALL THE INPUTS
-    //This is a brute force approach, but will never be problem-sized
-    for ( int l_whichVar = 0;
-        l_whichVar < this->GetNumberOfVariableArrays();
-        ++l_whichVar )
-      {
-      const char *l_name = this->GetVariableArrayName( l_whichVar );
-      for ( int l_whichTime = 0;
-            l_whichTime < this->GetNumberOfTimeSteps();
-            ++l_whichTime )
-        {
-        //assuming all blocks' filters have same needs
-        int l_needed = 
-          this->DSPFilters[0]->IsThisInputVariableInstanceNeeded( l_name, l_whichTime, timeStep );
-        if ( l_needed ) 
-          {
-          // cannot assume all blocks' filters have the same cache,
-          // because a block may have been turned off before
-          for ( i = 0; i < neb; ++i )
-            {
-            //XXX STILL NEED TO HANDLE TRUTH TABLES FOR SHIP.EXO
-            if ( this->GetElementBlockArrayStatus( i ) )
-              {
-              int l_cached = 
-                this->DSPFilters[i]->IsThisInputVariableInstanceCached( l_name, l_whichTime );
-              if ( ! l_cached )
-                {
-                //Get the type of var, and the index of var
-                int l_varIndex = -1;
-                int l_pointArrayIndex = 0, l_cellArrayIndex = 0; //this is confusing
-                int l_isPointArray = 0;
-                for ( j = 0; j < npr; ++j )
-                  {
-                  if ( ! strcmp( this->GetPointResultArrayName( j ), l_name ) )
-                    {
-                    l_varIndex = j;
-                    l_isPointArray = 1;
-                    break;
-                    }
-                  l_pointArrayIndex += this->GetPointResultArrayNumberOfComponents( j );
-                  }
-                for ( j = 0; j < ner; ++j )
-                  {
-                  if ( ! strcmp( this->GetElementResultArrayName( j ), l_name ) )
-                    {
-                    if ( l_varIndex >= 0 )
-                      {           
-                      vtkErrorMacro( "Apparently there are nodal and element block result variables with same name: "  << l_name );
-                      break;
-                      }
-                    l_varIndex = j;
-                    l_isPointArray = 0;
-                    break;
-                    }
-                  l_cellArrayIndex += this->GetElementResultArrayNumberOfComponents( j );
-                  }
-                if ( l_varIndex < 0 )
-                  {
-                  vtkErrorMacro( "Can't find nodal or element block vars with name: " << l_name );
-                  break;
-                  }
-
-
-                if ( l_isPointArray )
-                  {
-                  // Can't use l_varIndex here, because the output's 'Point Data' may
-                  // not have all the vars that the actual input Point Data has
-                  vtkDataArray* l_array = output->GetPointData()->GetArray( l_name );
-        
-                  if ( ! l_array )
-                    {
-                    //FIXME: Is NODAL the global version with "squeezed" points? If not, change this...
-                    l_array = this->Metadata->GetCacheOrRead( vtkExodusIICacheKey( l_whichTime, NODAL, 0, l_pointArrayIndex ) );
-                    }
-
-                  if ( ! l_array )
-                    {           
-                    vtkErrorMacro( "Can't get point array: " << l_name );
-                    break;
-                    }
-
-                  if ( ! l_array->GetNumberOfComponents() || !l_array->GetNumberOfTuples() )
-                    {
-                    vtkErrorMacro( "Zero sized point array: " << l_name );
-                    break;
-                    }
-
-                  int l_type = l_array->GetDataType();
-                  if ( l_type != VTK_FLOAT ) 
-                    {
-                    vtkWarningMacro( "vtkExodusReader::GetDSPOutputArrays can only do floats for now (type=" << l_type << ")" );
-                    }
-                  else
-                    {
-                    vtkFloatArray *l_floatArray = static_cast<vtkFloatArray *>( l_array );
-                    this->DSPFilters[i]->AddInputVariableInstance( l_name,l_whichTime, l_floatArray );
-
-                    l_numPointVarInstancesLoaded++;
-                    }
-
-                  //l_array->Delete(); //DONT DELETE HERE 26aug
-
-                  /*END OF POINT ARRAY PART*/ 
-                  }
-                else
-                  {
-                  // BEGIN CELL ARRAY PART
-                  // Can't use l_varIndex here, because the output's 'Point Data' may
-                  // not have all the vars that the actual input Point Data has
-                  vtkDataArray *l_array = output->GetCellData()->GetArray( l_name );
-                  if ( ! l_array )
-                    {
-                    l_array = this->Metadata->GetCacheOrRead(
-                      vtkExodusIICacheKey( l_whichTime, GLOBAL, ELEM_BLOCK, l_cellArrayIndex ) );
-                    }
-
-                  if ( !l_array )
-                    {           
-                    vtkErrorMacro( "Can't get cell array: " << l_name );
-                    break;
-                    }
-
-                  if ( ! l_array->GetNumberOfComponents() || ! l_array->GetNumberOfTuples() )
-                    {
-                    vtkErrorMacro( "Zero sized cell array: " << l_name );
-                    break;
-                    }         
-
-
-                  int l_type = l_array->GetDataType();
-                  if ( l_type != VTK_FLOAT ) 
-                    {
-                    vtkWarningMacro( "vtkExodusReader::GetDSPOutputArrays can only do floats for now (type=" << l_type << ")" );
-                    }
-                  else
-                    {
-                    vtkFloatArray* l_floatArray = static_cast<vtkFloatArray *>( l_array );
-                    this->DSPFilters[i]->AddInputVariableInstance( l_name, l_whichTime, l_floatArray );
-
-                    ++l_numCellVarInstancesLoaded;
-                    }
-
-                  //l_array->Delete(); //DONT DELETE HERE 26aug
-
-                  /*END OF CELL ARRAY PART*/
-
-                  }
-                }
-              //else printf("...vtkExodusReader DSP FILTERING not loading time %d %s for block %d of %d ALREADY CACHED\n",l_whichTime,l_name,i,neb);
-
-              }
-            //else printf("...vtkExodusReader DSP FILTERING time %d %s for block %d of %d HAS 0 STATUS\n",l_whichTime,l_name,i,neb);
-            }
-          }
-        //else  printf("...vtkExodusReader DSP FILTERING time %d %s NOT NEEDED\n",l_whichTime,l_name);
-        }
-      }
-    printf("vtkExodusReader::GetDSPOutputArrays() read %d dsp POINT "
-           "input variable instances\n",l_numPointVarInstancesLoaded);
-    printf("vtkExodusReader::GetDSPOutputArrays() read %d dsp CELL "
-           "input variable instances\n",l_numCellVarInstancesLoaded);
-    
-    //CALCULATE THE OUTPUTS
-    int l_numCalculated = 0;
-    int l_numFilters = (int) this->DSPFilters[0]->GetNumFilters();
-    for ( i = 0; i < neb; ++i )
-      {
-      for ( j = 0; j < l_numFilters; ++j)
-        {
-        //Figure out whether the input (and therefore output) var
-        //is cell or point
-        int l_isCellVar = 1;
-        int l_var = -1;
-        for ( l_var = 0; l_var < npr; ++l_var )
-          {
-          if ( ! strcmp( this->GetPointResultArrayName(l_var), this->DSPFilters[i]->GetInputVariableName( j ) ) )
-            {
-            l_isCellVar = 0;
-            break;
-            } 
-          }
-
-        vtkFloatArray* l_array = 0;
-        if( this->GetElementBlockArrayStatus( i ) )
-          {
-          l_array = this->DSPFilters[i]->GetOutput( j, timeStep, l_numCalculated );
-          }
-
-        if(l_array)
-          {
-#if 0 //get the min/max and print it out
-          int l_datatype = l_array->GetDataType();
-          if( l_datatype == VTK_FLOAT ) 
-            {
-            for ( int l_comp=0; l_comp < l_array->GetNumberOfComponents(); ++l_comp )
-              {
-              float l_min,l_max;
-              float* l_data = (float*)l_array->GetVoidPointer( 0 );
-        
-              for ( int l_tup = 0; l_tup < l_array->GetNumberOfTuples(); ++l_tup )
-                {
-                float l_val = l_data[l_tup * l_array->GetNumberOfComponents() + l_comp];
-                if ( ! l_tup )
-                  {
-                  l_min = l_max = l_val;
-                  }
-                else if ( l_min > l_val )
-                  {
-                  l_min = l_val;
-                  }
-                else if ( l_max < l_val )
-                  {
-                  l_max = l_val;
-                  }
-                }
-              printf( "*****************comp=%d  min=%f max=%f\n", l_comp, l_min, l_max );
-              }
-            }
-
-#endif
-
-          if( ! l_isCellVar )
-            {
-            output->GetPointData()->AddArray( l_array );
-            //printf("added dsp point var block %d\n",i);
-            }
-          else
-            {
-            output->GetCellData()->AddArray( l_array );
-            //printf("added dsp cell var block %d\n",i);
-            }
-          }
-
-        //printf("block %d AFTER DSP  num pt arrays = %d, num cell arrays = %d    num pts=%d  num cells=%d\n", i,
-        // output->GetPointData()->GetNumberOfArrays(), output->GetCellData()->GetNumberOfArrays(),
-        // output->GetPoints()->GetNumberOfPoints(), output->GetNumberOfCells() );
-
-        }
-      }
-
-    printf("---vtkExodusReader::GetDSPOutputArrays() calculated %d dsp output "
-           "variable instances---\n",l_numCalculated);
-    }
-}
-
-// %---------------------------------------------------------------------------
 
 void vtkExodusIIReader::SetAllArrayStatus( int otyp, int status )
 {

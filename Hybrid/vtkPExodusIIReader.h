@@ -104,29 +104,9 @@ public:
   virtual int GetTotalNumberOfNodes();
 
 
-//begin USE_EXO_DSP_FILTERS
-  int GetNumberOfVariableArrays();
-  const char* GetVariableArrayName( int a_which );
-  void EnableDSPFiltering();
-  void AddFilter( vtkDSPFilterDefinition* a_filter );
-  void StartAddingFilter();
-  void AddFilterInputVar( char* name );
-  void AddFilterOutputVar( char* name );
-  void AddFilterNumeratorWeight( double weight );
-  void AddFilterForwardNumeratorWeight( double weight );
-  void AddFilterDenominatorWeight( double weight );
-  void FinishAddingFilter();
-  void RemoveFilter( char *a_outputVariableName );
-//end USE_EXO_DSP_FILTERS
-
-
 protected:
   vtkPExodusIIReader();
   ~vtkPExodusIIReader();
-
-//begin USE_EXO_DSP_FILTERS
-  void GetDSPOutputArrays( int exoid, vtkUnstructuredGrid* output );
-//end USE_EXO_DSP_FILTERS
 
   // Description:
   // Try to "guess" the pattern of files.
