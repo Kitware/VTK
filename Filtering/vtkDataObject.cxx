@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.35");
+vtkCxxRevisionMacro(vtkDataObject, "1.36");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -685,12 +685,16 @@ void vtkDataObject::DataHasBeenGenerated()
   this->DataReleased = 0;
   this->UpdateTime.Modified();
 
-  // This is here so that the data can be easlily marked as up to date.
-  // It is used specifically when the filter vtkQuadricClustering
-  // is executed manually with the append methods.
   // Assume that the algorithm produced the required data unless the
   // algorithm sets otherwise.
-  if (!this->Information->Has(DATA_PIECE_NUMBER()) ||
+  // NOTE: This is a temporary fix. We should check if the algorithm
+  // produced what was requested and produce an error if it didn't.
+  // However, when such a check is added, all algorithms that do this:
+  // internalAlg->Update();
+  // myOutput->ShallowCopy(internalAlg->GetOutput());
+  // will break when running in parallel because ShallowCopy() will 
+  // copy that piece related keys which will be 0 of 1.
+  if (true || !this->Information->Has(DATA_PIECE_NUMBER()) ||
       this->Information->Get(DATA_PIECE_NUMBER()) == - 1)
     {
     this->Information->Set(DATA_PIECE_NUMBER(), 
