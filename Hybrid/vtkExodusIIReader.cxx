@@ -37,6 +37,12 @@
 #  include <malloc.h>
 #endif /* EXODUSII_HAVE_MALLOC_H */
 
+#if defined(_WIN32) && !defined(__CYGWIN__)
+# define SNPRINTF _snprintf
+#else
+# define SNPRINTF snprintf
+#endif
+
 /// Define this to get printouts summarizing array glomming process
 #undef VTK_DBG_GLOM
 
@@ -771,7 +777,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.8.2.2");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.8.2.3");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -2964,6 +2970,7 @@ void vtkExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "XMLFileName: " << ( this->XMLFileName ? this->XMLFileName : "(null)" ) << "\n";
   os << indent << "DisplayType: " << this->DisplayType << "\n";
   os << indent << "TimeStep: " << this->TimeStep << "\n";
+  os << indent << "TimeStepRange: [" << this->TimeStepRange[0] << ", " << this->TimeStepRange[1] << "]\n";
   os << indent << "ExodusModelMetadata: " << (this->ExodusModelMetadata ? "ON" : "OFF" ) << "\n";
   os << indent << "PackExodusModelOntoOutput: " << (this->PackExodusModelOntoOutput ? "ON" : "OFF" ) << "\n";
   os << indent << "ExodusModel: " << this->ExodusModel << "\n";
@@ -3144,6 +3151,8 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   int have_var_names;
   int num_vars = 0; /* number of variables per object */
   //int num_entries; /* number of values per variable per object */
+  char tmpName[256];
+  tmpName[255] = '\0';
 
   this->Modified(); // Update MTime so that it will be newer than parent's FileNameMTime
 
@@ -3286,10 +3295,10 @@ int vtkExodusIIReaderPrivate::RequestInformation()
           binfo.GridOffset = -1;
           }
         if ( binfo.Name.length() == 0 )
-          { // make up a name. FIXME: Possible buffer overflow w/ sprintf
-          sprintf( obj_names[obj], "Unnamed block ID: %d Type: %s Size: %d",
+          {
+          SNPRINTF( tmpName, 255, "Unnamed block ID: %d Type: %s Size: %d",
             ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "NULL", binfo.Size ); 
-          binfo.Name = obj_names[obj];
+          binfo.Name = tmpName;
           }
         this->DetermineVtkCellType( binfo );
 
@@ -3335,9 +3344,9 @@ int vtkExodusIIReaderPrivate::RequestInformation()
           sinfo.GridOffset = -1;
           }
         if ( sinfo.Name.length() == 0 )
-          { // make up a name. FIXME: Possible buffer overflow w/ sprintf
-          sprintf( obj_names[obj], "Unnamed set ID: %d Size: %d", ids[obj], sinfo.Size ); 
-          sinfo.Name = obj_names[obj];
+          {
+          SNPRINTF( tmpName, 255, "Unnamed set ID: %d Size: %d", ids[obj], sinfo.Size ); 
+          sinfo.Name = tmpName;
           }
         sortedObjects[sinfo.Id] = (int) this->SetInfo[obj_types[i]].size();
         this->SetInfo[obj_types[i]].push_back( sinfo );
@@ -3369,8 +3378,8 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         minfo.Name = obj_names[obj];
         if ( minfo.Name.length() == 0 )
           { // make up a name. FIXME: Possible buffer overflow w/ sprintf
-          sprintf( obj_names[obj], "Unnamed map ID: %d", ids[obj] ); 
-          minfo.Name = obj_names[obj];
+          SNPRINTF( tmpName, 255, "Unnamed map ID: %d", ids[obj] ); 
+          minfo.Name = tmpName;
           }
         sortedObjects[minfo.Id] = (int) this->MapInfo[obj_types[i]].size();
         this->MapInfo[obj_types[i]].push_back( minfo );
@@ -4039,11 +4048,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.8.2.2");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.8.2.3");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.8.2.2");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.8.2.3");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -5293,4 +5302,10 @@ void vtkExodusIIReader::NewExodusModel()
     }
 
   this->ExodusModel = vtkExodusModel::New();
+}
+
+void vtkExodusIIReader::Dump()
+{
+  vtkIndent indent;
+  this->PrintSelf( cout, indent );
 }

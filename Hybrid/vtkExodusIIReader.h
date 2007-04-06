@@ -681,6 +681,8 @@ protected:
   virtual void SetParser( vtkExodusIIXMLParser* );
   vtkGetObjectMacro(Parser,vtkExodusIIXMLParser);
 
+  virtual void Dump();
+
   // Parameters for controlling what is read in.
   char* FileName;
   char* XMLFileName;

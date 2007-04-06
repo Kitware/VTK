@@ -138,7 +138,7 @@ protected:
   void SetUpEmptyGrid();
 
   // **KEN** Previous discussions concluded with std classes in header
-  // files is bad.  Perhaps we should change readerList.
+  // files is bad.  Perhaps we should change ReaderList.
 
   char* FilePattern;
   char* CurrentFilePattern;
@@ -152,7 +152,7 @@ protected:
   int NumberOfFileNames;
   int GenerateFileIdArray;
 //BTX
-  vtkstd::vector<vtkExodusIIReader*> readerList;
+  vtkstd::vector<vtkExodusIIReader*> ReaderList;
 //ETX
 
   int Timing;

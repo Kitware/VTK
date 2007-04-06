@@ -34,12 +34,11 @@
 #endif
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkExodusModel.h"
@@ -92,7 +91,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.1.2.1");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.1.2.2");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -166,11 +165,11 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
   this->SetFilePrefix(0);
 
   // If we've allocated filenames then delete them
-  if (this->FileNames) 
+  if ( this->FileNames ) 
     {
     for (int i=0; i<this->NumberOfFileNames; i++)
       {
-      if (this->FileNames[i])
+      if ( this->FileNames[i] )
         {
         delete [] this->FileNames[i];
         }
@@ -179,13 +178,13 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
     }
 
   // Delete all the readers we may have
-  for(int reader_idx=readerList.size()-1; reader_idx >= 0; --reader_idx)
+  for ( int reader_idx = this->ReaderList.size() - 1; reader_idx >= 0; --reader_idx )
     {
-    readerList[reader_idx]->Delete();
-    readerList.pop_back();
+    this->ReaderList[reader_idx]->Delete();
+    this->ReaderList.pop_back();
     }
 
-  if (this->CurrentFilePrefix)
+  if ( this->CurrentFilePrefix )
     {
     delete [] this->CurrentFilePrefix;
     delete [] this->CurrentFilePattern;
@@ -227,13 +226,13 @@ int vtkPExodusIIReader::RequestInformation(
 
   int sanity = ((this->FilePattern && this->FilePrefix) || this->FileName);
 
-  if (!sanity)
+  if ( ! sanity )
     {
     vtkErrorMacro(<< "Must SetFilePattern AND SetFilePrefix, or SetFileName(s)");
     return 0;
     }
 
-  if (newPattern && !rebuildPattern)
+  if ( newPattern && !rebuildPattern )
     {
     char *nm = 
       new char[strlen(this->FilePattern) + strlen(this->FilePrefix) + 20];  
@@ -241,13 +240,14 @@ int vtkPExodusIIReader::RequestInformation(
     this->Superclass::SetFileName(nm);
     delete [] nm;
     }
-  else if (newName || rebuildPattern)
+  else if ( newName || rebuildPattern )
     {
     if ( this->NumberOfFileNames == 1 )
       {
       // A singleton file may actually be a hint to look for
       // a series of files with the same base name.  Must compute
       // this now for ParaView.
+
       this->DeterminePattern( this->FileNames[0] );
       }
     }
@@ -272,7 +272,6 @@ int vtkPExodusIIReader::RequestInformation(
     this->CurrentFileRange[0] = 0;
     this->CurrentFileRange[1] = 0;
     }
-
   if ( this->FilePrefix )
     {
     this->CurrentFilePrefix = vtkExodusReader::StrDupWithNew( this->FilePrefix );
@@ -323,7 +322,7 @@ int vtkPExodusIIReader::RequestData(
   // more processors than files. So I'm going to create an
   // empty unstructured grid that contains all the meta
   // information but has 0 cells
-  if (processNumber >= numFiles)
+  if ( processNumber >= numFiles )
     {
 #if DEBUG
     vtkWarningMacro("Creating empty grid for processor: " << processNumber);
@@ -338,7 +337,7 @@ int vtkPExodusIIReader::RequestData(
   // This if/else logic is for when you don't have a nice even division of files
   // Each process computes which sequence of files it needs to read in
   int left_over_files = numFiles - (num_files_per_process*numProcessors);
-  if (processNumber < left_over_files)
+  if ( processNumber < left_over_files )
     {
     min = (num_files_per_process+1) * processNumber + start;
     max = min + (num_files_per_process+1) - 1;
@@ -372,14 +371,14 @@ int vtkPExodusIIReader::RequestData(
   memset( mergeGrid, 0, sizeof(vtkUnstructuredGrid*) );
 #endif
 
-  if (this->ExodusModelMetadata)
+  if ( this->ExodusModelMetadata )
     {
     this->NewExodusModel();
     }
 
-  if (readerList.size() < numMyFiles)
+  if ( ReaderList.size() < numMyFiles )
     {
-    for(reader_idx=readerList.size(); reader_idx < numMyFiles; ++reader_idx)
+    for ( reader_idx = this->ReaderList.size(); reader_idx < numMyFiles; ++reader_idx )
       {
       vtkExodusIIReader* er = vtkExodusIIReader::New();
       vtkPExodusIIReaderUpdateProgress* progress = vtkPExodusIIReaderUpdateProgress::New();
@@ -404,15 +403,15 @@ int vtkPExodusIIReader::RequestData(
       //end USE_EXO_DSP_FILTERS
       
       
-      readerList.push_back( er );
+      this->ReaderList.push_back( er );
       }
     }
-  else if (readerList.size() > numMyFiles)
+  else if ( this->ReaderList.size() > numMyFiles )
     {
-    for ( reader_idx = readerList.size() - 1; reader_idx >= numMyFiles; --reader_idx )
+    for ( reader_idx = this->ReaderList.size() - 1; reader_idx >= numMyFiles; --reader_idx )
       {
-      readerList[reader_idx]->Delete();
-      readerList.pop_back();
+      this->ReaderList[reader_idx]->Delete();
+      ReaderList.pop_back();
       }
     }
 
@@ -444,36 +443,41 @@ int vtkPExodusIIReader::RequestData(
       return 0;
       }
 
-    readerList[reader_idx]->SetFileName( this->MultiFileName );
-    readerList[reader_idx]->UpdateInformation();
-    readerList[reader_idx]->SetTimeStep( this->GetTimeStep() );
-    readerList[reader_idx]->SetGenerateObjectIdCellArray( this->GetGenerateObjectIdCellArray() );
-    readerList[reader_idx]->SetGenerateGlobalElementIdArray( this->GetGenerateGlobalElementIdArray() );
-    readerList[reader_idx]->SetGenerateGlobalNodeIdArray( this->GetGenerateGlobalNodeIdArray() );
-    readerList[reader_idx]->SetApplyDisplacements( this->GetApplyDisplacements() );
-    readerList[reader_idx]->SetDisplacementMagnitude( this->GetDisplacementMagnitude() );
+    this->ReaderList[reader_idx]->SetTimeStep( this->GetTimeStep() );
+    this->ReaderList[reader_idx]->SetGenerateObjectIdCellArray( this->GetGenerateObjectIdCellArray() );
+    this->ReaderList[reader_idx]->SetGenerateGlobalElementIdArray( this->GetGenerateGlobalElementIdArray() );
+    this->ReaderList[reader_idx]->SetGenerateGlobalNodeIdArray( this->GetGenerateGlobalNodeIdArray() );
+    this->ReaderList[reader_idx]->SetApplyDisplacements( this->GetApplyDisplacements() );
+    this->ReaderList[reader_idx]->SetDisplacementMagnitude( this->GetDisplacementMagnitude() );
 
-    readerList[reader_idx]->SetExodusModelMetadata( this->ExodusModelMetadata );
-    //readerList[reader_idx]->PackExodusModelOntoOutputOff();
+    this->ReaderList[reader_idx]->SetExodusModelMetadata( this->ExodusModelMetadata );
+    // For now, this *must* come last before the UpdateInformation() call because its MTime is compared to the metadata's MTime,
+    // which is modified by the calls above.
+    this->ReaderList[reader_idx]->SetFileName( this->MultiFileName );
+    //this->ReaderList[reader_idx]->PackExodusModelOntoOutputOff();
 
-    readerList[reader_idx]->UpdateInformation();
+    this->ReaderList[reader_idx]->UpdateInformation();
 
     int typ;
     for ( typ = 0; typ < numObjTypes; ++typ )
       {
-      int nObj = this->GetNumberOfObjects( objTypes[typ] );
+      int nObj = this->ReaderList[reader_idx]->GetNumberOfObjects( objTypes[typ] );
       for ( idx = 0; idx < nObj; ++idx )
         {
-        readerList[reader_idx]->SetObjectStatus( objTypes[typ], idx, this->GetObjectStatus( objTypes[typ], idx ) );
+        this->ReaderList[reader_idx]->SetObjectStatus( objTypes[typ], idx, this->GetObjectStatus( objTypes[typ], idx ) );
+        }
+      }
 
-        if ( typ < 3 ) // Only blocks can have attributes
+    for ( typ = 0; typ < numObjAttribTypes; ++typ )
+      {
+      int nObj = this->ReaderList[reader_idx]->GetNumberOfObjects( objAttribTypes[typ] );
+      for ( idx = 0; idx < nObj; ++idx )
+        {
+        int nObjAtt = this->GetNumberOfObjectAttributes( objAttribTypes[typ], idx );
+        for ( int aidx = 0; aidx < nObjAtt; ++aidx )
           {
-          int nObjArr = this->GetNumberOfObjectAttributes( objTypes[typ], idx );
-          for ( int aidx = 0; aidx < nObjArr; ++aidx )
-            {
-            readerList[reader_idx]->SetObjectAttributeStatus( objTypes[typ], idx, aidx,
-              this->GetObjectAttributeStatus( objTypes[typ], idx, aidx ) );
-            }
+          this->ReaderList[reader_idx]->SetObjectAttributeStatus( objAttribTypes[typ], idx, aidx,
+            this->GetObjectAttributeStatus( objAttribTypes[typ], idx, aidx ) );
           }
         }
       }
@@ -483,14 +487,15 @@ int vtkPExodusIIReader::RequestData(
       int nObjArr = this->GetNumberOfObjectArrays( objResultTypes[typ] );
       for ( idx = 0; idx < nObjArr; ++idx )
         {
-        readerList[reader_idx]->SetObjectArrayStatus( objResultTypes[typ], idx, this->GetObjectArrayStatus( objResultTypes[typ], idx ) );
+        this->ReaderList[reader_idx]->SetObjectArrayStatus(
+          objResultTypes[typ], idx, this->GetObjectArrayStatus( objResultTypes[typ], idx ) );
         }
       }
 
-    readerList[reader_idx]->Update();
+    this->ReaderList[reader_idx]->Update();
 
     vtkUnstructuredGrid* subgrid = vtkUnstructuredGrid::New();
-    subgrid->ShallowCopy( readerList[reader_idx]->GetOutput() );
+    subgrid->ShallowCopy( this->ReaderList[reader_idx]->GetOutput() );
 
     int ncells = subgrid->GetNumberOfCells();
 
@@ -512,7 +517,7 @@ int vtkPExodusIIReader::RequestData(
       {
       if ( this->ExodusModelMetadata )
         {
-        vtkExodusModel* em = readerList[reader_idx]->GetExodusModel();
+        vtkExodusModel* em = this->ReaderList[reader_idx]->GetExodusModel();
         this->ExodusModel->MergeExodusModel( em );
         }
 
@@ -530,7 +535,7 @@ int vtkPExodusIIReader::RequestData(
 
 #ifdef APPEND
   // Append complains/barfs if you update it without any inputs
-  if (append->GetInput() != NULL) 
+  if ( append->GetInput() != NULL ) 
     {
     append->Update();
     output->ShallowCopy(append->GetOutput());
@@ -540,13 +545,13 @@ int vtkPExodusIIReader::RequestData(
   append->Delete();
   append = NULL;
 
-  if (this->PackExodusModelOntoOutput)
+  if ( this->PackExodusModelOntoOutput )
     {
     // The metadata is written to field arrays and attached
     // to the output unstructured grid.  (vtkMergeCells does this
     // itself, so we only have to do this for vtkAppendFilter.)
 
-    if (this->ExodusModel)  
+    if ( this->ExodusModel ) 
       {
       vtkModelMetadata::RemoveMetadata(output);
       this->ExodusModel->GetModelMetadata()->Pack(output);
@@ -570,7 +575,7 @@ int vtkPExodusIIReader::RequestData(
   if ( this->GetGenerateGlobalNodeIdArray() )
     {
     // merge duplicate points using global IDs
-    mc->SetGlobalIdArrayName( "GlobalNodeId" );
+    mc->SetGlobalIdArrayName( this->GetGlobalNodeIdArrayName() );
     }
   else
     {
@@ -578,9 +583,9 @@ int vtkPExodusIIReader::RequestData(
     mc->MergeDuplicatePointsOff();
     }
 
-  for (reader_idx=0; reader_idx < numMyFiles; ++reader_idx)
+  for ( reader_idx=0; reader_idx < numMyFiles; ++reader_idx )
     {
-    if (mergeGrid[reader_idx]->GetNumberOfCells() != 0)
+    if ( mergeGrid[reader_idx]->GetNumberOfCells() != 0 )
       {
       mc->MergeDataSet(mergeGrid[reader_idx]);
 
@@ -593,6 +598,7 @@ int vtkPExodusIIReader::RequestData(
   mc->Finish();
   mc->Delete();
 #endif
+
 
   // This should not be necessary. If broken, investigate
   // further.
@@ -617,84 +623,79 @@ void vtkPExodusIIReader::SetUpEmptyGrid()
 
   // Create point and cell arrays
   int typ;
-  for ( typ = 0; typ < 3; ++typ )
+  for ( typ = 0; typ < numObjResultTypes; ++typ )
     {
-    int nObj = this->GetNumberOfObjects( objTypes[typ] );
-    for ( idx = 0; idx < nObj; ++idx )
+    int otyp = objResultTypes[typ];
+    int nObjArr = this->GetNumberOfObjectArrays( otyp );
+    for ( idx = 0; idx < nObjArr; ++idx )
       {
-      int nObjArr = this->GetNumberOfObjectAttributes( objTypes[typ], idx );
-      for ( int aidx = 0; aidx < nObjArr; ++aidx )
+      vtkDoubleArray* da = vtkDoubleArray::New();
+      da->SetName( this->GetObjectArrayName( otyp, idx ) );
+      da->SetNumberOfComponents( this->GetNumberOfObjectArrayComponents( otyp, idx ) );
+      if ( otyp == vtkExodusIIReader::NODAL )
         {
-        if ( this->GetObjectAttributeStatus( objTypes[typ], idx, aidx ) )
-          {
-          vtkDoubleArray* da = vtkDoubleArray::New();
-          da->SetNumberOfComponents( 1 );
-          da->SetNumberOfTuples( 0 );
-          da->SetName( this->GetObjectAttributeName( objTypes[typ], idx, aidx ) );
-          output->GetCellData()->AddArray( da );
-          da->FastDelete();
-          }
+        output->GetPointData()->AddArray( da );
         }
+      else
+        {
+        output->GetCellData()->AddArray( da );
+        }
+      da->FastDelete();
       }
     }
 
-  for ( typ = 0; typ < numObjResultTypes; ++typ )
+  for ( typ = 0; typ < numObjAttribTypes; ++typ )
     {
-    int nObjArr = this->GetNumberOfObjectArrays( objResultTypes[typ] );
-    for ( idx = 0; idx < nObjArr; ++idx )
+    int otyp = objAttribTypes[typ];
+    int nObj = this->GetNumberOfObjects( otyp );
+    for ( idx = 0; idx < nObj; ++idx )
       {
-      if ( this->GetObjectArrayStatus( objResultTypes[typ], idx ) )
+      // Attributes are defined per block, not per block type.
+      int nObjAtt = this->GetNumberOfObjectAttributes( otyp, idx );
+      for ( int aidx = 0; aidx < nObjAtt; ++aidx )
         {
         vtkDoubleArray* da = vtkDoubleArray::New();
+        da->SetName( this->GetObjectAttributeName( otyp, idx, aidx ) );
         da->SetNumberOfComponents( 1 );
-        da->SetNumberOfTuples( 0 );
-        da->SetName( this->GetObjectArrayName( objResultTypes[typ], idx ) );
-        if ( objResultTypes[typ] == vtkExodusIIReader::NODAL )
-          {
-          output->GetPointData()->AddArray( da );
-          }
-        else
-          {
-          output->GetCellData()->AddArray( da );
-          }
+        // All attributes are cell data
+        output->GetCellData()->AddArray( da );
         da->FastDelete();
         }
       }
     }
 
-  // Set up generated arrays
-  vtkIdTypeArray* iarray;
-
   if ( this->GetGenerateObjectIdCellArray() )
     {
-    iarray = vtkIdTypeArray::New();
-    iarray->SetName( "ObjectId" );
-    iarray->SetNumberOfComponents( 1 );
-    output->GetCellData()->AddArray( iarray );
-    iarray->FastDelete();
+    vtkIntArray* ia = vtkIntArray::New();
+    ia->SetName( this->GetObjectIdArrayName() );
+    ia->SetNumberOfComponents( 1 );
+    output->GetCellData()->AddArray( ia );
+    ia->FastDelete();
     }
+
   if ( this->GetGenerateGlobalNodeIdArray() )
     {
-    iarray = vtkIdTypeArray::New();
-    iarray->SetName( "GlobalNodeId" );
-    iarray->SetNumberOfComponents( 1 );
-    output->GetPointData()->AddArray( iarray );
-    iarray->FastDelete();
+    vtkIntArray* ia = vtkIntArray::New();
+    ia->SetName( this->GetGlobalNodeIdArrayName() );
+    ia->SetNumberOfComponents( 1 );
+    output->GetPointData()->AddArray( ia );
+    ia->FastDelete();
     }
+
   if ( this->GetGenerateGlobalElementIdArray() )
     {
-    iarray = vtkIdTypeArray::New();
-    iarray->SetName( "GlobalElementId" );
-    iarray->SetNumberOfComponents( 1 );
-    output->GetCellData()->AddArray( iarray );
-    iarray->FastDelete();
+    vtkIntArray* ia = vtkIntArray::New();
+    ia->SetName( this->GetGlobalElementIdArrayName() );
+    ia->SetNumberOfComponents( 1 );
+    output->GetCellData()->AddArray( ia );
+    ia->FastDelete();
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkPExodusIIReader::SetFileRange(int min, int max)
 {
-  if (min == this->FileRange[0] && max == this->FileRange[1])
+  if ( min == this->FileRange[0] && max == this->FileRange[1] )
     {  
     return;
     }
@@ -711,14 +712,18 @@ void vtkPExodusIIReader::SetFileName(const char *name)
 void vtkPExodusIIReader::SetFileNames(int nfiles, const char **names)
 {
   // If I have an old list of filename delete them
-  if (this->FileNames){
-
-    for (int i=0; i<this->NumberOfFileNames; i++){
-      if (this->FileNames[i]) delete [] this->FileNames[i];
-    }
+  if ( this->FileNames )
+    {
+    for (int i=0; i<this->NumberOfFileNames; i++)
+      {
+      if ( this->FileNames[i] )
+        {
+        delete [] this->FileNames[i];
+        }
+      }
     delete [] this->FileNames;
     this->FileNames = NULL;
-  }
+    }
 
   // Set the number of files
   this->NumberOfFileNames = nfiles;
@@ -727,15 +732,16 @@ void vtkPExodusIIReader::SetFileNames(int nfiles, const char **names)
   this->FileNames = new char * [this->NumberOfFileNames];
 
   // Copy filenames
-  for (int i=0; i<nfiles; i++){
+  for (int i=0; i<nfiles; i++)
+    {
     this->FileNames[i] = vtkExodusReader::StrDupWithNew(names[i]);
-  }
+    }
 
   vtkExodusIIReader::SetFileName(names[0]);
 }
 
 //----------------------------------------------------------------------------
-int vtkPExodusIIReader::DetermineFileId(const char* file)
+int vtkPExodusIIReader::DetermineFileId( const char* file )
 {
   // Assume the file number is the last digits found in the file name.
   int fileId = 0;
@@ -743,19 +749,19 @@ int vtkPExodusIIReader::DetermineFileId(const char* file)
   const char *end = file + strlen(file) - 1;
   const char *numString = end;
 
-  if (!isdigit(*numString))
+  if ( ! isdigit( *numString ) )
     {
-    while(numString > start)
+    while ( numString > start )
       {
       --numString;
-      if (isdigit(*numString)) break;
+      if ( isdigit( *numString ) ) break;
       }
 
-    if (numString == start)
+    if ( numString == start )
       {
-      if (isdigit(*numString))
+      if ( isdigit( *numString ) )
         {
-        fileId = atoi(numString);
+        fileId = atoi( numString );
         }
       return fileId;  // no numbers in file name
       }
@@ -764,7 +770,7 @@ int vtkPExodusIIReader::DetermineFileId(const char* file)
   while(numString > start)
     {
     --numString;
-    if (!isdigit(*numString)) break;
+    if ( ! isdigit( *numString ) ) break;
     }
 
   if ( (numString == start) && (isdigit(*numString)))
@@ -781,19 +787,21 @@ int vtkPExodusIIReader::DetermineFileId(const char* file)
 
 int vtkPExodusIIReader::DeterminePattern( const char* file )
 {
-  char* prefix = vtkExodusReader::StrDupWithNew( file );
+  char* prefix = vtkExodusReader::StrDupWithNew(file);
+  int slen = strlen( prefix );
   char pattern[20] = "%s";
   int scount = 0;
   int cc = 0;
   int res =0;
   int min=0, max=0;
-  int slen = strlen( prefix );
 
   
-  // Check for .ex2v3. If this extension is present,
-  // do not look for a numbered sequence
-  char* ex2v3 = strstr( prefix, ".ex2v3" );
-  if ( ex2v3 )
+  // Check for .exii or .ex2v3. If either
+  // of these extenstions do not look for
+  // a numbered sequence
+  char *ex2 = strstr(prefix, ".exii");
+  char *ex2v3 = strstr(prefix, ".ex2v3");
+  if ( ex2 || ex2v3 )
     {
     // Set my info
     this->SetFilePattern( pattern );
@@ -803,16 +811,10 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     return VTK_OK;
     }
 
-  cc = slen - 1;
-  int gotExt = 0;
-  if ( ! strcmp( file + cc - 4, ".exii" ) )
-    {
-    cc -= 5;
-    scount = 5;
-    gotExt = 1;
-    }
+
+
   // Find minimum of range, if any
-  for ( ; cc >= 0; --cc )
+  for ( cc = slen - 1; cc >= 0; --cc )
     {
     if ( prefix[cc] >= '0' && prefix[cc] <= '9' )
       {
@@ -831,12 +833,12 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     }
 
   // Determine the pattern
-  if ( scount > (gotExt ? 5 : 0) )
+  if ( scount > 0 )
     {
-    res = sscanf( file + slen - scount, "%d", &min );
+    res = sscanf( file + slen - scount, "%d", &min);
     if ( res )
       {
-      sprintf( pattern, gotExt ? "%%s.%%0%ii.exii" : "%%s.%%0%ii", gotExt ? scount - 5 : scount );
+      sprintf( pattern, "%%s.%%0%ii", scount );
       }
     }
 
@@ -852,24 +854,25 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     // Stat returns -1 if file NOT found
     if ( stat( buffer, &fs ) == -1 )
       break;
-    }
 
-  // Okay if I'm here then stat has failed so -100 on my cc
+    }
+  // Okay if I'm here than stat has failed so -100 on my cc
   cc = cc - 100;
-  for ( cc = cc + 1; res; ++cc )
+  for (cc = cc + 1; res; ++cc )
     {
     sprintf( buffer, pattern, prefix, cc );
 
     // Stat returns -1 if file NOT found
-    if ( stat( buffer, &fs ) == -1 )
+    if ( stat( buffer, &fs ) == -1)
       break;
+
     }
-  // Okay if I'm here then stat has failed so -1 on my cc
+  // Okay if I'm here than stat has failed so -1 on my cc
   max = cc - 1;
 
   // If the user did not specify a range before this, 
-  // then set the range to the min and max
-  if ( ( this->FileRange[0] == -1 ) && ( this->FileRange[1] == -1 ) )
+  // than set the range to the min and max
+  if ( (this->FileRange[0] == -1) && (this->FileRange[1] == -1) )
     {
     this->SetFileRange( min, max );
     }
@@ -894,7 +897,7 @@ void vtkPExodusIIReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkExodusIIReader::PrintSelf(os,indent);
 
-  if (this->FilePattern)
+  if ( this->FilePattern )
     {
     os << indent << "FilePattern: " << this->FilePattern << endl;
     }
@@ -903,7 +906,7 @@ void vtkPExodusIIReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "FilePattern: NULL\n";
     }
 
-  if (this->FilePattern)
+  if ( this->FilePattern )
     {
     os << indent << "FilePrefix: " << this->FilePrefix << endl;
     }
@@ -936,89 +939,89 @@ const char *vtkPExodusIIReader::GetVariableArrayName(int a_which)
 void vtkPExodusIIReader::EnableDSPFiltering()
 { 
   this->vtkExodusIIReader::EnableDSPFiltering(); 
-  for(unsigned int i=0;i<this->readerList.size();i++)
+  for(unsigned int i=0;i<this->ReaderList.size();i++)
     {
-    this->readerList[i]->EnableDSPFiltering();
+    this->ReaderList[i]->EnableDSPFiltering();
     }
 } 
 void vtkPExodusIIReader::AddFilter(vtkDSPFilterDefinition *a_filter)
 { 
   this->vtkExodusIIReader::AddFilter(a_filter); 
-  for(unsigned int i=0;i<this->readerList.size();i++)
+  for(unsigned int i=0;i<this->ReaderList.size();i++)
     {
-    this->readerList[i]->AddFilter(a_filter);
+    this->ReaderList[i]->AddFilter(a_filter);
     }
 }
 void vtkPExodusIIReader::StartAddingFilter()
 { 
   this->vtkExodusIIReader::StartAddingFilter(); 
-  for(unsigned int i=0;i<this->readerList.size();i++)
+  for(unsigned int i=0;i<this->ReaderList.size();i++)
     {
-    this->readerList[i]->StartAddingFilter();
+    this->ReaderList[i]->StartAddingFilter();
     }
 }
 void vtkPExodusIIReader::AddFilterInputVar(char *name)
 { 
   this->vtkExodusIIReader::AddFilterInputVar(name); 
-  for(unsigned int i=0;i<this->readerList.size();i++)
+  for(unsigned int i=0;i<this->ReaderList.size();i++)
     {
-    this->readerList[i]->AddFilterInputVar(name); 
+    this->ReaderList[i]->AddFilterInputVar(name); 
     }
 }
 void vtkPExodusIIReader::AddFilterOutputVar(char *name)
 { 
   this->vtkExodusIIReader::AddFilterOutputVar(name); 
-  for(unsigned int i=0;i<this->readerList.size();i++) 
+  for(unsigned int i=0;i<this->ReaderList.size();i++) 
     {
-    this->readerList[i]->AddFilterOutputVar(name); 
+    this->ReaderList[i]->AddFilterOutputVar(name); 
     }
 }
 void vtkPExodusIIReader::AddFilterNumeratorWeight(double weight)
 { 
   this->vtkExodusIIReader::AddFilterNumeratorWeight(weight); 
-  for(unsigned int i=0;i<this->readerList.size();i++)
+  for(unsigned int i=0;i<this->ReaderList.size();i++)
     {
-    this->readerList[i]->AddFilterNumeratorWeight(weight);
+    this->ReaderList[i]->AddFilterNumeratorWeight(weight);
     }
 }
 void vtkPExodusIIReader::AddFilterForwardNumeratorWeight(double weight)
 { 
   this->vtkExodusIIReader::AddFilterForwardNumeratorWeight(weight); 
-  for(unsigned int i=0;i<this->readerList.size();i++)
+  for(unsigned int i=0;i<this->ReaderList.size();i++)
     {
-    this->readerList[i]->AddFilterForwardNumeratorWeight(weight); 
+    this->ReaderList[i]->AddFilterForwardNumeratorWeight(weight); 
     }
 }
 void vtkPExodusIIReader::AddFilterDenominatorWeight(double weight)
 { 
   this->vtkExodusIIReader::AddFilterDenominatorWeight(weight); 
-  for(unsigned int i=0;i<this->readerList.size();i++) 
+  for(unsigned int i=0;i<this->ReaderList.size();i++) 
     {
-    this->readerList[i]->AddFilterDenominatorWeight(weight);
+    this->ReaderList[i]->AddFilterDenominatorWeight(weight);
     }
 }
   void vtkPExodusIIReader::FinishAddingFilter()
 { 
   this->vtkExodusIIReader::FinishAddingFilter(); 
-  for(unsigned int i=0;i<this->readerList.size();i++) 
+  for(unsigned int i=0;i<this->ReaderList.size();i++) 
     {
-    this->readerList[i]->FinishAddingFilter();
+    this->ReaderList[i]->FinishAddingFilter();
     }
 }
 void vtkPExodusIIReader::RemoveFilter( char* a_outputVariableName )
 { 
   this->vtkExodusIIReader::RemoveFilter(a_outputVariableName); 
-  for ( unsigned int i = 0; i < this->readerList.size(); ++i ) 
+  for ( unsigned int i = 0; i < this->ReaderList.size(); ++i ) 
     {
-    this->readerList[i]->RemoveFilter( a_outputVariableName ); 
+    this->ReaderList[i]->RemoveFilter( a_outputVariableName ); 
     }
 }
 void vtkPExodusIIReader::GetDSPOutputArrays( int exoid, vtkUnstructuredGrid* output )
 { 
   this->Superclass::GetDSPOutputArrays( exoid, this->TimeStep, output );
-  for ( unsigned int i = 0; i < this->readerList.size(); ++i ) 
+  for ( unsigned int i = 0; i < this->ReaderList.size(); ++i ) 
     {
-    this->readerList[i]->GetDSPOutputArrays( exoid, this->TimeStep, output );
+    this->ReaderList[i]->GetDSPOutputArrays( exoid, this->TimeStep, output );
     }
 }
 //end USE_EXO_DSP_FILTERS
@@ -1028,9 +1031,9 @@ void vtkPExodusIIReader::GetDSPOutputArrays( int exoid, vtkUnstructuredGrid* out
 int vtkPExodusIIReader::GetTotalNumberOfElements()
 {
   int total = 0;
-  for(int id=readerList.size()-1; id >= 0; --id)
+  for(int id=ReaderList.size()-1; id >= 0; --id)
     {
-    total += this->readerList[id]->GetTotalNumberOfElements();
+    total += this->ReaderList[id]->GetTotalNumberOfElements();
     }
   return total;
 }
@@ -1038,9 +1041,9 @@ int vtkPExodusIIReader::GetTotalNumberOfElements()
 int vtkPExodusIIReader::GetTotalNumberOfNodes()
 {
   int total = 0;
-  for(int id=readerList.size()-1; id >= 0; --id)
+  for(int id=ReaderList.size()-1; id >= 0; --id)
     {
-    total += this->readerList[id]->GetTotalNumberOfNodes();
+    total += this->ReaderList[id]->GetTotalNumberOfNodes();
     }
   return total;
 }
