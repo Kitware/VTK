@@ -16,7 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSphere, "1.29");
+vtkCxxRevisionMacro(vtkSphere, "1.30");
 vtkStandardNewMacro(vtkSphere);
 
 //----------------------------------------------------------------------------
@@ -80,8 +80,12 @@ void vtkSphereComputeBoundingSphere(T *pts, vtkIdType numPts, T sphere[4],
   else //no hints provided, compute an initial guess
     {
     T xMin[3], xMax[3], yMin[3], yMax[3], zMin[3], zMax[3];
-    xMin[0] = yMin[1] = zMin[2] = VTK_LARGE_FLOAT;
-    xMax[0] = yMax[1] = zMax[2] = -VTK_LARGE_FLOAT;
+    xMin[0] = xMin[1] = xMin[2] = VTK_LARGE_FLOAT;
+    yMin[0] = yMin[1] = yMin[2] = VTK_LARGE_FLOAT;
+    zMin[0] = zMin[1] = zMin[2] = VTK_LARGE_FLOAT;
+    xMax[0] = xMax[1] = xMax[2] = -VTK_LARGE_FLOAT;
+    yMax[0] = yMax[1] = yMax[2] = -VTK_LARGE_FLOAT;
+    zMax[0] = zMax[1] = zMax[2] = -VTK_LARGE_FLOAT;
 
     // First part: Estimate the points furthest apart to define the largest sphere.
     // Find the points that span the greatest distance on the x-y-z axes. Use these
@@ -194,8 +198,12 @@ void vtkSphereComputeBoundingSphere(T **spheres, vtkIdType numSpheres, T sphere[
   else //no hints provided, compute an initial guess
     {
     T xMin[4], xMax[4], yMin[4], yMax[4], zMin[4], zMax[4];
-    xMin[0] = yMin[1] = zMin[2] = VTK_LARGE_FLOAT;
-    xMax[0] = yMax[1] = zMax[2] = -VTK_LARGE_FLOAT;
+    xMin[0] = xMin[1] = xMin[2] = VTK_LARGE_FLOAT;
+    yMin[0] = yMin[1] = yMin[2] = VTK_LARGE_FLOAT;
+    zMin[0] = zMin[1] = zMin[2] = VTK_LARGE_FLOAT;
+    xMax[0] = xMax[1] = xMax[2] = -VTK_LARGE_FLOAT;
+    yMax[0] = yMax[1] = yMax[2] = -VTK_LARGE_FLOAT;
+    zMax[0] = zMax[1] = zMax[2] = -VTK_LARGE_FLOAT;
 
     // First part: Estimate the points furthest apart to define the largest sphere.
     // Find the points that span the greatest distance on the x-y-z axes. Use these
