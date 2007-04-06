@@ -91,7 +91,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.2");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.3");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -647,8 +647,8 @@ void vtkPExodusIIReader::SetUpEmptyGrid()
   for ( typ = 0; typ < numObjAttribTypes; ++typ )
     {
     int otyp = objAttribTypes[typ];
-    int nObjArr = this->GetNumberOfObjectArrays( objTypes[typ] );
-    for ( idx = 0; idx < nObjArr; ++idx )
+    int nObj = this->GetNumberOfObjects( otyp );
+    for ( idx = 0; idx < nObj; ++idx )
       {
       // Attributes are defined per block, not per block type.
       int nObjAtt = this->GetNumberOfObjectAttributes( otyp, idx );
