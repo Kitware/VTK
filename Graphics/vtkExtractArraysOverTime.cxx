@@ -29,7 +29,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.2");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.3");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 
 //----------------------------------------------------------------------------
@@ -184,7 +184,7 @@ int vtkExtractArraysOverTime::ProcessRequest(
       this->Error = vtkExtractArraysOverTime::NoError;
       }
 
-    this->ExecuteData(inputVector, outInfo);
+    this->ExecuteTimeStep(inputVector, outInfo);
 
     // increment the time index
     this->CurrentTimeIndex++;
@@ -200,7 +200,7 @@ int vtkExtractArraysOverTime::ProcessRequest(
 
 //----------------------------------------------------------------------------
 int vtkExtractArraysOverTime::RequestUpdateExtent(
-  vtkInformation* request,
+  vtkInformation*,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
@@ -392,8 +392,8 @@ vtkIdType vtkExtractArraysOverTime::GetIndex(vtkIdType selIndex,
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractArraysOverTime::ExecuteData(vtkInformationVector** inputV, 
-                                           vtkInformation* outInfo)
+void vtkExtractArraysOverTime::ExecuteTimeStep(vtkInformationVector** inputV, 
+                                               vtkInformation* outInfo)
 {
   vtkRectilinearGrid *output = vtkRectilinearGrid::GetData(outInfo);
   int piece = 0;
