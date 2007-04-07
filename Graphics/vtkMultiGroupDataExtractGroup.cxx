@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataExtractGroup, "1.9");
+vtkCxxRevisionMacro(vtkMultiGroupDataExtractGroup, "1.10");
 vtkStandardNewMacro(vtkMultiGroupDataExtractGroup);
 
 //----------------------------------------------------------------------------
@@ -231,7 +231,10 @@ int vtkMultiGroupDataExtractGroup::RequestData(
     vtkMultiGroupDataInformation::SafeDownCast(
       info->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION()));
 
-  output->SetMultiGroupDataInformation(compInfo);
+  if (compInfo)
+    {
+    output->SetMultiGroupDataInformation(compInfo);
+    }
 
   vtkHierarchicalBoxDataSet* hbds = 
     vtkHierarchicalBoxDataSet::SafeDownCast(output);
