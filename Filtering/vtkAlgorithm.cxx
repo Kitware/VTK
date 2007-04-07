@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.36");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.37");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -1258,4 +1258,30 @@ int vtkAlgorithm::UpdateExtentIsEmpty(vtkInformation *info, int extentType)
     }
 
   return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::SetProgressText(const char* ptext)
+{
+  if (!this->ProgressText  && !ptext)
+    {
+    return;
+    }
+  if (this->ProgressText && ptext && (strcmp(this->ProgressText,ptext)) == 0) 
+    {
+    return;
+    }
+  if (this->ProgressText) 
+    {
+    delete[] this->ProgressText;
+    this->ProgressText = 0;
+    }
+  if (ptext)
+    {
+    size_t n = strlen(ptext) + 1;
+    char *cp1 =  new char[n];
+    const char *cp2 = ptext;
+    this->ProgressText = cp1;
+    do { *cp1++ = *cp2++; } while ( --n );
+    }
 }

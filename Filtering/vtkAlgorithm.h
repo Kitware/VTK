@@ -164,7 +164,10 @@ public:
   // Description:
   // Set the current text message associated with the progress state.
   // This may be used by a calling process/GUI.
-  vtkSetStringMacro(ProgressText);
+  // Note: Because SetProgressText() is called from inside RequestData()
+  // it does not modify the algorithm object. Algorithms are not 
+  // allowed to modify themselves from inside RequestData().
+  void SetProgressText(const char* ptext);
   vtkGetStringMacro(ProgressText);
 
   // Description:
