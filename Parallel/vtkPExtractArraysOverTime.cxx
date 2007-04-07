@@ -21,7 +21,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.1");
+vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.2");
 vtkStandardNewMacro(vtkPExtractArraysOverTime);
 
 vtkCxxSetObjectMacro(vtkPExtractArraysOverTime, Controller, vtkMultiProcessController);
@@ -97,13 +97,39 @@ void vtkPExtractArraysOverTime::AddRemoteData(vtkRectilinearGrid* routput,
   vtkUnsignedCharArray* rValidPts = vtkUnsignedCharArray::SafeDownCast(
     routput->GetPointData()->GetArray("vtkEAOTValidity"));
 
+  // Copy the valid values
   if (rValidPts)
     {
     for (int i=0; i<dims[0]; i++)
       {
       if (rValidPts->GetValue(i))
         {
-        output->GetPointData()->CopyData(routput->GetPointData(), i, i);
+        vtkDataSetAttributes* outPointData = output->GetPointData();
+        vtkDataSetAttributes* remotePointData = routput->GetPointData();
+        int numRArrays = remotePointData->GetNumberOfArrays();
+        for (int aidx=0; aidx<numRArrays; aidx++)
+          {
+          const char* name = 0;
+          vtkAbstractArray* raa = remotePointData->GetAbstractArray(aidx);
+          if (raa)
+            {
+            name = raa->GetName();
+            }
+          if (name)
+            {
+            vtkAbstractArray* aa = outPointData->GetAbstractArray(name);
+            // Create the output array if necessary
+            if (!aa)
+              {
+              aa = raa->NewInstance();
+              aa->DeepCopy(raa);
+              aa->SetName(name);
+              outPointData->AddArray(aa);
+              aa->UnRegister(0);
+              }
+            aa->InsertTuple(i, i, raa);
+            }
+          }
         }
       }
     }
