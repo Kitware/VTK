@@ -463,15 +463,6 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
   //
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
 
-  // just for coverage
-  //
-  cube->TextEdgesOff();
-  cube->TextEdgesOn();
-  cube->CubeOff();
-  cube->CubeOn();
-  cube->FaceTextOff();
-  cube->FaceTextOn();
-
   // anatomic labelling
   //
   cube->SetXPlusFaceText ( "A" );
