@@ -645,7 +645,6 @@ protected:
   // Actual progress is given by 
   // (this->ProgressOffset + this->ProgressScale* amount).
   void UpdateSubOperationProgress(double amount);
-private:
 
   static void _SetNewBounds(vtkKdNode *kd, double *b, int *fixDim);
   static void CopyChildNodes(vtkKdNode *to, vtkKdNode *from);
