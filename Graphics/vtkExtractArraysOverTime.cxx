@@ -29,7 +29,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.3");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.4");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 
 //----------------------------------------------------------------------------
@@ -264,6 +264,8 @@ void vtkExtractArraysOverTime::PostExecute(
       
     }
 
+  // The vtkEAOTValidity array is for internal use only. Remove it
+  // before returning control to the executive.
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkRectilinearGrid *output = vtkRectilinearGrid::GetData(outInfo);
   if (output->GetPointData()->GetArray("vtkEAOTValidity"))
@@ -291,9 +293,9 @@ int vtkExtractArraysOverTime::AllocateOutputData(vtkDataSet *input,
   output->GetPointData()->CopyAllocate(attr, 
                                        this->NumberOfTimeSteps);
 
-  // and finally add an array to hold the time at each step
+  // Add an array to hold the time at each step
   vtkDoubleArray *timeArray = vtkDoubleArray::New();
-  timeArray->SetNumberOfComponents(3);
+  timeArray->SetNumberOfComponents(1);
   timeArray->SetNumberOfTuples(this->NumberOfTimeSteps);
   if (attr->GetArray("Time"))
     {
@@ -304,23 +306,26 @@ int vtkExtractArraysOverTime::AllocateOutputData(vtkDataSet *input,
     timeArray->SetName("Time");
     }
   output->GetPointData()->AddArray(timeArray);
+  // Assign this array as the x-coords
   output->SetXCoordinates(timeArray);
   timeArray->Delete();
 
+  // Assign dummy y and z coordinates
   vtkDoubleArray* yCoords = vtkDoubleArray::New();
-  yCoords->SetNumberOfComponents(3);
+  yCoords->SetNumberOfComponents(1);
   yCoords->SetNumberOfTuples(1);
-  yCoords->SetTuple3(0, 0.0, 0.0, 0.0);
+  yCoords->SetTuple1(0, 0.0);
   output->SetYCoordinates(yCoords);
   yCoords->Delete();
 
   vtkDoubleArray* zCoords = vtkDoubleArray::New();
-  zCoords->SetNumberOfComponents(3);
+  zCoords->SetNumberOfComponents(1);
   zCoords->SetNumberOfTuples(1);
-  zCoords->SetTuple3(0, 0.0, 0.0, 0.0);
+  zCoords->SetTuple1(0, 0.0);
   output->SetZCoordinates(zCoords);
   zCoords->Delete();
 
+  // These are the point coordinates of the original data
   vtkDoubleArray* coordsArray = vtkDoubleArray::New();
   coordsArray->SetNumberOfComponents(3);
   coordsArray->SetNumberOfTuples(this->NumberOfTimeSteps);
@@ -351,13 +356,16 @@ int vtkExtractArraysOverTime::AllocateOutputData(vtkDataSet *input,
 }
 
 //----------------------------------------------------------------------------
+// Returns index based on the selection time.
 vtkIdType vtkExtractArraysOverTime::GetIndex(vtkIdType selIndex,
                                              vtkDataSet* input)
 {
+  // If selection type is indices, return the selIndex itself
   if (this->ContentType == vtkSelection::INDICES)
     {
     return selIndex;
     }
+  // If selection type is global ids, find the right index
   else if (this->ContentType == vtkSelection::GLOBALIDS)
     {
     vtkDataSetAttributes* attr = 0;
@@ -371,10 +379,12 @@ vtkIdType vtkExtractArraysOverTime::GetIndex(vtkIdType selIndex,
       }
     if (attr)
       {
+      // Get the global id array
       vtkIdTypeArray* globalIds = vtkIdTypeArray::SafeDownCast(
         attr->GetGlobalIds());
       if (globalIds)
         {
+        // Find the point/cell that has the given global id
         vtkIdType numVals = globalIds->GetNumberOfTuples()*
           globalIds->GetNumberOfComponents();
         for (vtkIdType i=0; i<numVals; i++)
@@ -392,6 +402,7 @@ vtkIdType vtkExtractArraysOverTime::GetIndex(vtkIdType selIndex,
 }
 
 //----------------------------------------------------------------------------
+// This is executed once at every time step
 void vtkExtractArraysOverTime::ExecuteTimeStep(vtkInformationVector** inputV, 
                                                vtkInformation* outInfo)
 {
@@ -411,6 +422,7 @@ void vtkExtractArraysOverTime::ExecuteTimeStep(vtkInformationVector** inputV,
 
   vtkIdType numElems = 0;
   vtkDataSetAttributes* attr = 0;
+  // Get the right attribute and number of elements
   switch (this->FieldType)
     {
     case vtkSelection::CELL:
@@ -422,21 +434,18 @@ void vtkExtractArraysOverTime::ExecuteTimeStep(vtkInformationVector** inputV,
       attr = input->GetPointData();
     }
 
+  // This is the time array
   if (attr->GetArray("Time"))
     {
-    output->GetPointData()->GetArray("TimeData")->SetTuple3(
+    output->GetPointData()->GetArray("TimeData")->SetTuple1(
       this->CurrentTimeIndex, 
-      input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0],
-      0,
-      0);
+      input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0]);
     }
   else
     {
-    output->GetPointData()->GetArray("Time")->SetTuple3(
+    output->GetPointData()->GetArray("Time")->SetTuple1(
       this->CurrentTimeIndex, 
-      input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0],
-      0,
-      0);
+      input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0]);
     }
 
   if (this->ContentType < 0)
@@ -473,6 +482,7 @@ void vtkExtractArraysOverTime::ExecuteTimeStep(vtkInformationVector** inputV,
     return;
     }
 
+  // Extract the selected point/cell data at this time step
   vtkIdType index = this->GetIndex(idArray->GetValue(0), input);
 
   if (index >= 0 && index < numElems)
