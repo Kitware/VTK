@@ -21,7 +21,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.2");
+vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.3");
 vtkStandardNewMacro(vtkPExtractArraysOverTime);
 
 vtkCxxSetObjectMacro(vtkPExtractArraysOverTime, Controller, vtkMultiProcessController);
@@ -42,6 +42,8 @@ vtkPExtractArraysOverTime::~vtkPExtractArraysOverTime()
 void vtkPExtractArraysOverTime::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Controller: " << this->Controller << endl;
 }
 
 //----------------------------------------------------------------------------
