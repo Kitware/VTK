@@ -78,7 +78,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.32");
+vtkCxxRevisionMacro(vtkPKdTree, "1.33");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -336,7 +336,7 @@ double *vtkPKdTree::VolumeBounds()
      return NULL;
     }
 
-  this->SetFudgeFactor(aLittle * 10e-4);
+  this->FudgeFactor = aLittle * 10e-4;
 
   for (i=0; i<3; i++)
     {
