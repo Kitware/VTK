@@ -147,6 +147,9 @@ public:
   // Set the information about the datasets.
   // This is an information object containing the meta-data associated with
   // this dataset. This may include things like datatypes, extents...
+  // NOTE: vtkMultiGroupDataSet must have a valid information object
+  // at all times. Passing a null argument to this method will cause
+  // the existing information being replaced by a new (empty) one.
   void SetMultiGroupDataInformation(vtkMultiGroupDataInformation* info);
 
   // Description:
