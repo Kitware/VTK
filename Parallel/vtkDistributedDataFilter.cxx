@@ -17,48 +17,44 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkDistributedDataFilter
-//
-// .SECTION Description
-//
-// .SECTION See Also
-
-#include "vtkToolkits.h"
 #include "vtkDistributedDataFilter.h"
-#include "vtkModelMetadata.h"
+
+#include "vtkBSPCuts.h"
+#include "vtkBox.h"
+#include "vtkBoxClipDataSet.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkCharArray.h"
+#include "vtkClipDataSet.h"
+#include "vtkDataSetReader.h"
+#include "vtkDataSetWriter.h"
 #include "vtkExtractCells.h"
-#include "vtkMergeCells.h"
+#include "vtkExtractUserDefinedPiece.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkIntArray.h"
+#include "vtkMergeCells.h"
+#include "vtkModelMetadata.h"
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPKdTree.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkExtractUserDefinedPiece.h"
-#include "vtkCellData.h"
-#include "vtkCellArray.h"
-#include "vtkPointData.h"
-#include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
-#include "vtkCharArray.h"
-#include "vtkFloatArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkMultiProcessController.h"
-#include "vtkSocketController.h"
-#include "vtkDataSetWriter.h"
-#include "vtkDataSetReader.h"
-#include "vtkBoxClipDataSet.h"
-#include "vtkClipDataSet.h"
-#include "vtkBox.h"
-#include "vtkIdList.h"
-#include "vtkPointLocator.h"
 #include "vtkPlane.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkSocketController.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkToolkits.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 
 #ifdef VTK_USE_MPI
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.40")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.41")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -100,6 +96,8 @@ vtkDistributedDataFilter::vtkDistributedDataFilter()
   this->Timing = 0;
 
   this->UseMinimalMemory = 0;
+
+  this->UserCuts = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -130,6 +128,38 @@ vtkDistributedDataFilter::~vtkDistributedDataFilter()
     delete [] this->ConvexSubRegionBounds;
     this->ConvexSubRegionBounds = NULL;
     } 
+
+  if (this->UserCuts)
+    {
+    this->UserCuts->Delete();
+    this->UserCuts = NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDistributedDataFilter::SetCuts(vtkBSPCuts* cuts)
+{
+  if (cuts == this->UserCuts)
+    {
+    return;
+    }
+  if (this->UserCuts)
+    {
+    this->UserCuts->Delete();
+    this->UserCuts = 0;
+    }
+  if (cuts)
+    {
+    cuts->Register(this);
+    this->UserCuts = cuts;
+    }
+  // Delete the Kdtree so that it is regenerated next time.
+  if (this->Kdtree)
+    {
+    this->Kdtree->Delete();
+    this->Kdtree = 0;
+    }
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -169,39 +199,6 @@ vtkIdType *vtkDistributedDataFilter::GetGlobalNodeIds(vtkDataSet *set)
     }
 
   return ia->GetPointer(0);
-}
-
-//=========================================================================
-
-//-------------------------------------------------------------------------
-vtkPKdTree *vtkDistributedDataFilter::GetKdtree()
-{
-  if (this->Kdtree == NULL)
-    {
-    this->Kdtree = vtkPKdTree::New();
-    this->Kdtree->AssignRegionsContiguous();
-    this->Kdtree->SetTiming(this->GetTiming()); 
-    }
-
-  return this->Kdtree;
-}
-
-//----------------------------------------------------------------------------
-unsigned long vtkDistributedDataFilter::GetMTime()
-{
-  unsigned long t1, t2;
-
-  t1 = this->Superclass::GetMTime();
-  if (this->Kdtree == NULL)
-    {
-    return t1;
-    }
-  t2 = this->Kdtree->GetMTime();
-  if (t1 > t2)
-    {
-    return t1;
-    }
-  return t2;
 }
 
 //----------------------------------------------------------------------------
@@ -627,7 +624,14 @@ int vtkDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set)
   if (this->Kdtree == NULL)
     {
     this->Kdtree = vtkPKdTree::New();
-    this->Kdtree->AssignRegionsContiguous();
+    if (this->UserCuts)
+      {
+      this->Kdtree->SetCuts(this->UserCuts);
+      }
+    else
+      {
+      this->Kdtree->AssignRegionsContiguous();
+      }
     this->Kdtree->SetTiming(this->GetTiming()); 
     }
 
@@ -757,6 +761,10 @@ void vtkDistributedDataFilter::SingleProcessExecute(vtkDataSet *input,
     if (this->Kdtree == NULL)
       {
       this->Kdtree = vtkPKdTree::New();
+      if (this->UserCuts)
+        {
+        this->Kdtree->SetCuts(this->UserCuts);
+        }
       this->Kdtree->SetTiming(this->GetTiming()); 
       }
 

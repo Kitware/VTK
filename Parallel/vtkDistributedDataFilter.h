@@ -38,11 +38,11 @@
 // the decomposition computed for another dataset.  Obtain a description
 // of the k-d tree cuts this way:
 //
-//    vtkBSPCuts *cuts = D3Object1->GetKdtree()->GetCuts()
+//    vtkBSPCuts *cuts = D3Object1->GetCuts()
 //
 // And set it this way:
 //
-//    D3Object2->GetKdtree()->SetCuts(cuts) 
+//    D3Object2->SetCuts(cuts) 
 //
 //    It is desirable to have a field array of global node IDs
 //    for two reasons:
@@ -88,17 +88,18 @@
 
 #include "vtkUnstructuredGridAlgorithm.h"
 
-class vtkUnstructuredGrid;
-class vtkPKdTree;
-class vtkMultiProcessController;
+class vtkBSPCuts;
 class vtkDataArray;
-class vtkIdTypeArray;
-class vtkIntArray;
+class vtkDistributedDataFilterSTLCloak;
 class vtkFloatArray;
 class vtkIdList;
-class vtkUnstructuredGrid;
+class vtkIdTypeArray;
+class vtkIntArray;
 class vtkModelMetadata;
-class vtkDistributedDataFilterSTLCloak;
+class vtkMultiProcessController;
+class vtkPKdTree;
+class vtkUnstructuredGrid;
+class vtkUnstructuredGrid;
 
 class VTK_PARALLEL_EXPORT vtkDistributedDataFilter: public vtkUnstructuredGridAlgorithm
 {
@@ -134,14 +135,6 @@ public:
   vtkBooleanMacro(RetainKdtree, int);
   vtkGetMacro(RetainKdtree, int);
   vtkSetMacro(RetainKdtree, int);
-
-  // Description:
-  //   Get a pointer to the parallel k-d tree object.  Required for changing
-  //   default behavior for region assignment, changing default depth of tree,
-  //   or other tree building default parameters.  See vtkPKdTree and 
-  //   vtkKdTree for more information about these options.
-
-  vtkPKdTree *GetKdtree();
 
   // Description:
   //   Each cell in the data set is associated with one of the
@@ -213,8 +206,18 @@ public:
   vtkGetMacro(Timing, int);
 
   // Description:
-  // Consider the MTime of the KdTree.
-  unsigned long GetMTime();
+  // You can set the k-d tree decomposition, rather than
+  // have D3 compute it.  This allows you to divide a dataset using
+  // the decomposition computed for another dataset.  Obtain a description
+  // of the k-d tree cuts this way:
+  //
+  //    vtkBSPCuts *cuts = D3Object1->GetCuts()
+  //
+  // And set it this way:
+  //
+  //    D3Object2->SetCuts(cuts) 
+  vtkBSPCuts* GetCuts() {return this->UserCuts;}
+  void SetCuts(vtkBSPCuts* cuts);
 
 protected:
   vtkDistributedDataFilter();
@@ -491,9 +494,6 @@ private:
   void AddMetadata(vtkUnstructuredGrid *grid, vtkModelMetadata *mmd);
   static int HasMetadata(vtkDataSet *s);
 
-
-
-
   vtkPKdTree *Kdtree;
   vtkMultiProcessController *Controller;
 
@@ -521,6 +521,8 @@ private:
   double ProgressIncrement;
 
   int UseMinimalMemory;
+
+  vtkBSPCuts* UserCuts;
 
   vtkDistributedDataFilter(const vtkDistributedDataFilter&); // Not implemented
   void operator=(const vtkDistributedDataFilter&); // Not implemented
