@@ -1394,7 +1394,7 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.45");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.46");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1576,7 +1576,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.45");
+vtkCxxRevisionMacro(vtkExodusReader, "1.46");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -3364,7 +3364,7 @@ void vtkExodusReader::ReadArrays(int handle, vtkUnstructuredGrid* output)
          !strncmp(arrayNameUpper,"DISP",4)) 
       {
       // Add it to the arrays I want
-      SetPointArrayStatus(idx, 1);
+      this->MetaData->SetPointArrayStatus(idx, 1);
       }
 
     // Does the user want this array?
@@ -3386,14 +3386,17 @@ void vtkExodusReader::ReadArrays(int handle, vtkUnstructuredGrid* output)
     // then read in the data
     else if (getArray && !haveArray)
       { 
-
       // How many dimensions is this array
       dim = this->GetPointArrayNumberOfComponents(idx);
 
       if (dim == 1)
+        {
         array = this->ReadPointArray(handle, arrayIdx);
+        }
       else
+        {
         array = this->ReadPointVector(handle, arrayIdx, dim);
+        }
 
       // Opps some sort of problem
       if (array == NULL) 
@@ -3467,9 +3470,13 @@ void vtkExodusReader::ReadArrays(int handle, vtkUnstructuredGrid* output)
       // How many dimensions is this array
       dim = this->GetCellArrayNumberOfComponents(idx);
       if (dim == 1)
+        {
         array = this->ReadCellArray(handle, arrayIdx);
+        }
       else
+        {
         array = this->ReadCellVector(handle, arrayIdx, dim);
+        }
 
       // Opps some sort of problem
       if (array == NULL)
@@ -3568,9 +3575,10 @@ void vtkExodusReader::AddDisplacements(vtkUnstructuredGrid* output)
   // applied displacements to the points, maintaining the displacement array
   // will yield incorrect geometry when the output file is read in.
 
-  if (this->ExodusModelMetadata){
+  if (this->ExodusModelMetadata)
+    {
     output->GetPointData()->RemoveArray(arrayName);
-  }
+    }
 }
 
 
@@ -3698,7 +3706,9 @@ vtkDataArray *vtkExodusReader::ReadCellVector(int handle, int varIndex, int dim)
   // Do they need a third
   vtkFloatArray *dim3 = NULL;
   if (dim == 3)
+    {
     dim3 = (vtkFloatArray*)ReadCellArray(handle,varIndex+2);
+    }
 
   // Okay now set up memory pointers
   float *vector_ptr = vectors->GetPointer(0);
