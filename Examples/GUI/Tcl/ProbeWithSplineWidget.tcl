@@ -155,9 +155,6 @@ vtkAnnotatedCubeActor cube
   $property SetDiffuse 0
   $property SetAmbient 1
   $property SetColor 0.18 0.28 0.23
-  cube TextEdgesOn
-  cube CubeOn
-  cube FaceTextOn
   set property [ cube GetXPlusFaceProperty ]
   $property SetColor 0 0 1
   $property SetInterpolationToFlat
