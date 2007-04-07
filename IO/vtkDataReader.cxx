@@ -50,7 +50,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.140");
+vtkCxxRevisionMacro(vtkDataReader, "1.141");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -2498,3 +2498,28 @@ my_getline(istream& in, vtkStdString &out, char delimiter)
   return numCharactersRead;
 }
 
+//----------------------------------------------------------------------------
+void vtkDataReader::SetScalarLut(const char* sl)
+{
+  if (!this->ScalarLut  && !sl)
+    {
+    return;
+    }
+  if (this->ScalarLut && sl && (strcmp(this->ScalarLut,sl)) == 0) 
+    {
+    return;
+    }
+  if (this->ScalarLut) 
+    {
+    delete[] this->ScalarLut;
+    this->ScalarLut = 0;
+    }
+  if (sl)
+    {
+    size_t n = strlen(sl) + 1;
+    char *cp1 =  new char[n];
+    const char *cp2 = sl;
+    this->ScalarLut = cp1;
+    do { *cp1++ = *cp2++; } while ( --n );
+    }
+}

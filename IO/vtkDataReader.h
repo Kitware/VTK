@@ -324,7 +324,7 @@ protected:
   int InputStringLength;
   int InputStringPos;
 
-  vtkSetStringMacro(ScalarLut);
+  void SetScalarLut(const char* lut);
   vtkGetStringMacro(ScalarLut);
 
   char *Header;
