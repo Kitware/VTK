@@ -24,7 +24,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataSet, "1.3");
+vtkCxxRevisionMacro(vtkMultiGroupDataSet, "1.4");
 vtkStandardNewMacro(vtkMultiGroupDataSet);
 
 vtkCxxSetObjectMacro(vtkMultiGroupDataSet,MultiGroupDataInformation,vtkMultiGroupDataInformation);
@@ -84,6 +84,10 @@ unsigned int vtkMultiGroupDataSet::GetNumberOfGroups()
 //----------------------------------------------------------------------------
 void vtkMultiGroupDataSet::SetNumberOfGroups(unsigned int numGroups)
 {
+  if (!this->MultiGroupDataInformation)
+    {
+    this->MultiGroupDataInformation = vtkMultiGroupDataInformation::New();
+    }
   this->MultiGroupDataInformation->SetNumberOfGroups(numGroups);
   if (numGroups == this->GetNumberOfGroups())
     {
@@ -111,6 +115,10 @@ unsigned int vtkMultiGroupDataSet::GetNumberOfDataSets(unsigned int group)
 void vtkMultiGroupDataSet::SetNumberOfDataSets(unsigned int group, 
                                                  unsigned int numDataSets)
 {
+  if (!this->MultiGroupDataInformation)
+    {
+    this->MultiGroupDataInformation = vtkMultiGroupDataInformation::New();
+    }
   this->MultiGroupDataInformation->SetNumberOfDataSets(group, numDataSets);
   if (numDataSets == this->GetNumberOfDataSets(group))
     {
@@ -246,10 +254,7 @@ void vtkMultiGroupDataSet::ShallowCopy(vtkDataObject *src)
   vtkMultiGroupDataSet* from = vtkMultiGroupDataSet::SafeDownCast(src);
   if (from)
     {
-    if (from->MultiGroupDataInformation)
-      {
-      this->SetMultiGroupDataInformation(from->MultiGroupDataInformation);
-      }
+    this->SetMultiGroupDataInformation(from->MultiGroupDataInformation);
     unsigned int numGroups = from->GetNumberOfGroups();
     this->SetNumberOfGroups(numGroups);
     for (unsigned int i=0; i<numGroups; i++)
