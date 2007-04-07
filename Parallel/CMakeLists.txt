@@ -41,6 +41,7 @@ vtkPCellDataToPointData.cxx
 vtkPChacoReader.cxx
 vtkPDataSetReader.cxx
 vtkPDataSetWriter.cxx
+vtkPExtractArraysOverTime.cxx
 vtkPImageWriter.cxx
 vtkPLinearExtrusionFilter.cxx
 vtkPOPReader.cxx
