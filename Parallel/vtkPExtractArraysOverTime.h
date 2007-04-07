@@ -14,7 +14,14 @@
 =========================================================================*/
 // .NAME vtkPExtractArraysOverTime - extract point or cell data over time (parallel)
 // .SECTION Description
-// vtkPExtractArraysOverTime
+// vtkPExtractArraysOverTime is a parallelized version of
+// vtkExtractArraysOverTime. After the data is extracted, it is gathered to
+// the first node. During this reduction process, only data points that are
+// valid are copied: if the point/cell extracted is not available on a
+// particular processor, it is marked as invalid during extraction by the
+// superclass.
+// .SECTION See Also
+// vtkExtractArraysOverTime
 
 #ifndef __vtkPExtractArraysOverTime_h
 #define __vtkPExtractArraysOverTime_h
