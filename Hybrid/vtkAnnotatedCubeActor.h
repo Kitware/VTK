@@ -40,6 +40,7 @@
 
 class vtkActor;
 class vtkAppendPolyData;
+class vtkAssembly;
 class vtkCubeSource;
 class vtkFeatureEdges;
 class vtkPropCollection;
@@ -92,13 +93,6 @@ public:
   unsigned long int GetMTime();
 
   // Description:
-  // Return the mtime of anything that would cause the rendered image to
-  // appear differently. Usually this involves checking the mtime of the
-  // prop plus anything else it depends on such as properties, textures
-  // etc.
-  virtual unsigned long GetRedrawMTime();
-
-  // Description:
   // Set/Get the scale factor for the face text
   void SetFaceTextScale(double);
   vtkGetMacro(FaceTextScale, double);
@@ -137,21 +131,18 @@ public:
 
   // Description:
   // Enable/disable drawing the vector text edges.
-  vtkSetMacro(TextEdges, int);
-  vtkGetMacro(TextEdges, int);
-  vtkBooleanMacro(TextEdges, int);
+  void SetTextEdgesVisibility(int);
+  int GetTextEdgesVisibility();
 
   // Description:
   // Enable/disable drawing the cube.
-  vtkSetMacro(Cube, int);
-  vtkGetMacro(Cube, int);
-  vtkBooleanMacro(Cube, int);
+  void SetCubeVisibility(int);
+  int GetCubeVisibility();
 
   // Description:
   // Enable/disable drawing the vector text.
-  vtkSetMacro(FaceText, int);
-  vtkGetMacro(FaceText, int);
-  vtkBooleanMacro(FaceText, int);
+  void SetFaceTextVisibility(int);
+  int GetFaceTextVisibility();
 
   // Description:
   // Augment individual face text orientations.
@@ -162,18 +153,21 @@ public:
   vtkSetMacro(ZFaceTextRotation,double);
   vtkGetMacro(ZFaceTextRotation,double);
 
+  // Description:
+  // Get the assembly so that user supplied transforms can be applied
+  vtkAssembly *GetAssembly()
+    { return this->Assembly; }
+
 protected:
   vtkAnnotatedCubeActor();
   ~vtkAnnotatedCubeActor();
 
   vtkCubeSource      *CubeSource;
   vtkActor           *CubeActor;
-  int                 Cube;
 
   vtkAppendPolyData  *AppendTextEdges;
   vtkFeatureEdges    *ExtractTextEdges;
   vtkActor           *TextEdgesActor;
-  int                 TextEdges;
 
   void                UpdateProps();
 
@@ -185,7 +179,6 @@ protected:
   char               *ZMinusFaceText;
 
   double              FaceTextScale;
-  int                 FaceText;
 
   double              XFaceTextRotation;
   double              YFaceTextRotation;
@@ -207,6 +200,8 @@ protected:
 
   vtkTransformFilter *TransformFilter;
   vtkTransform       *Transform;
+
+  vtkAssembly        *Assembly;
 
 private:
   vtkAnnotatedCubeActor(const vtkAnnotatedCubeActor&);  // Not implemented.
