@@ -24,7 +24,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataSet, "1.6");
+vtkCxxRevisionMacro(vtkMultiGroupDataSet, "1.7");
 vtkStandardNewMacro(vtkMultiGroupDataSet);
 
 vtkInformationKeyMacro(vtkMultiGroupDataSet,GROUP,Integer);
@@ -101,7 +101,11 @@ void vtkMultiGroupDataSet::Initialize()
 {
   this->Superclass::Initialize();
   this->InitializeDataSets();
-  this->SetMultiGroupDataInformation(0);
+  if (this->MultiGroupDataInformation)
+    {
+    this->MultiGroupDataInformation->Delete();
+    this->MultiGroupDataInformation = 0;
+    }
   this->MultiGroupDataInformation = vtkMultiGroupDataInformation::New();
 }
 
@@ -310,7 +314,11 @@ void vtkMultiGroupDataSet::DeepCopy(vtkDataObject *src)
     }
   this->InitializeDataSets();
   this->Superclass::ShallowCopy(src);
-  this->SetMultiGroupDataInformation(0);
+  if (this->MultiGroupDataInformation)
+    {
+    this->MultiGroupDataInformation->Delete();
+    this->MultiGroupDataInformation = 0;
+    }
   this->MultiGroupDataInformation = vtkMultiGroupDataInformation::New();
 
   vtkMultiGroupDataSet* from = vtkMultiGroupDataSet::SafeDownCast(src);
