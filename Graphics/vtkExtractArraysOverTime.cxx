@@ -29,7 +29,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.4");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.5");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 
 //----------------------------------------------------------------------------
@@ -513,5 +513,7 @@ void vtkExtractArraysOverTime::ExecuteTimeStep(vtkInformationVector** inputV,
         point);
       }
     }
+  this->UpdateProgress(
+    (double)this->CurrentTimeIndex/this->NumberOfTimeSteps);
 }
 
