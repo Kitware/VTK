@@ -24,7 +24,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataSet, "1.7");
+vtkCxxRevisionMacro(vtkMultiGroupDataSet, "1.8");
 vtkStandardNewMacro(vtkMultiGroupDataSet);
 
 vtkInformationKeyMacro(vtkMultiGroupDataSet,GROUP,Integer);
@@ -101,12 +101,8 @@ void vtkMultiGroupDataSet::Initialize()
 {
   this->Superclass::Initialize();
   this->InitializeDataSets();
-  if (this->MultiGroupDataInformation)
-    {
-    this->MultiGroupDataInformation->Delete();
-    this->MultiGroupDataInformation = 0;
-    }
-  this->MultiGroupDataInformation = vtkMultiGroupDataInformation::New();
+  // This will create a new multigroup information.
+  this->SetMultiGroupDataInformation(0);
 }
 
 //----------------------------------------------------------------------------
@@ -118,10 +114,6 @@ unsigned int vtkMultiGroupDataSet::GetNumberOfGroups()
 //----------------------------------------------------------------------------
 void vtkMultiGroupDataSet::SetNumberOfGroups(unsigned int numGroups)
 {
-  if (!this->MultiGroupDataInformation)
-    {
-    this->MultiGroupDataInformation = vtkMultiGroupDataInformation::New();
-    }
   this->MultiGroupDataInformation->SetNumberOfGroups(numGroups);
   if (numGroups == this->GetNumberOfGroups())
     {
@@ -149,10 +141,6 @@ unsigned int vtkMultiGroupDataSet::GetNumberOfDataSets(unsigned int group)
 void vtkMultiGroupDataSet::SetNumberOfDataSets(unsigned int group, 
                                                  unsigned int numDataSets)
 {
-  if (!this->MultiGroupDataInformation)
-    {
-    this->MultiGroupDataInformation = vtkMultiGroupDataInformation::New();
-    }
   this->MultiGroupDataInformation->SetNumberOfDataSets(group, numDataSets);
   if (numDataSets == this->GetNumberOfDataSets(group))
     {
@@ -314,12 +302,9 @@ void vtkMultiGroupDataSet::DeepCopy(vtkDataObject *src)
     }
   this->InitializeDataSets();
   this->Superclass::ShallowCopy(src);
-  if (this->MultiGroupDataInformation)
-    {
-    this->MultiGroupDataInformation->Delete();
-    this->MultiGroupDataInformation = 0;
-    }
-  this->MultiGroupDataInformation = vtkMultiGroupDataInformation::New();
+
+  // This will create a new multigroup information.
+  this->SetMultiGroupDataInformation(0);
 
   vtkMultiGroupDataSet* from = vtkMultiGroupDataSet::SafeDownCast(src);
   if (from)
