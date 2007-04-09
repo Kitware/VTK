@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.9");
+vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.10");
 vtkStandardNewMacro(vtkExtractSelectedLocations);
 
 //----------------------------------------------------------------------------
@@ -472,7 +472,7 @@ int vtkExtractSelectedLocations::ExtractPoints(
 
   if (input->IsA("vtkPointSet"))
     {
-    vtkPointLocator::New();
+    locator = vtkPointLocator::New();
     locator->SetDataSet(input);
     }
 
