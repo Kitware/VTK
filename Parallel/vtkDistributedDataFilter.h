@@ -117,6 +117,17 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
   // Description:
+  //   Get a pointer to the parallel k-d tree object.  Required for changing
+  //   default behavior for region assignment, changing default depth of tree,
+  //   or other tree building default parameters.  See vtkPKdTree and 
+  //   vtkKdTree for more information about these options.
+  //   NOTE: Changing the tree returned by this method does NOT change
+  //   the d3 filter. Make sure to call Modified() on the d3 object if
+  //   you want it to re-execute.
+
+  vtkPKdTree *GetKdtree();
+
+  // Description:
   //    When this filter executes, it creates a vtkPKdTree (K-d tree)
   //    data structure in parallel which divides the total distributed 
   //    data set into spatial regions.  The K-d tree object also creates 

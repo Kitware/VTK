@@ -54,7 +54,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.41")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.42")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -156,8 +156,7 @@ void vtkDistributedDataFilter::SetCuts(vtkBSPCuts* cuts)
   // Delete the Kdtree so that it is regenerated next time.
   if (this->Kdtree)
     {
-    this->Kdtree->Delete();
-    this->Kdtree = 0;
+    this->Kdtree->SetCuts(cuts);
     }
   this->Modified();
 }
@@ -624,15 +623,15 @@ int vtkDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set)
   if (this->Kdtree == NULL)
     {
     this->Kdtree = vtkPKdTree::New();
-    if (this->UserCuts)
-      {
-      this->Kdtree->SetCuts(this->UserCuts);
-      }
-    else
+    if (!this->UserCuts)
       {
       this->Kdtree->AssignRegionsContiguous();
       }
     this->Kdtree->SetTiming(this->GetTiming()); 
+    }
+  if (this->UserCuts)
+    {
+    this->Kdtree->SetCuts(this->UserCuts);
     }
 
   this->Kdtree->SetController(this->Controller);
@@ -4544,6 +4543,19 @@ int vtkDistributedDataFilter::FillInputPortInformation(int, vtkInformation *info
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
+}
+
+//-------------------------------------------------------------------------
+vtkPKdTree *vtkDistributedDataFilter::GetKdtree()
+{
+  if (this->Kdtree == NULL)
+    {
+    this->Kdtree = vtkPKdTree::New();
+    this->Kdtree->AssignRegionsContiguous();
+    this->Kdtree->SetTiming(this->GetTiming()); 
+    }
+
+  return this->Kdtree;
 }
 
 //-------------------------------------------------------------------------
