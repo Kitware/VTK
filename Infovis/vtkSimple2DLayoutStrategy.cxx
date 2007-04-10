@@ -17,8 +17,7 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// Please note: Lots of this code was directly 'lifted' from 
-// the vtkForceDirectedLayoutStrategy class
+
 #include "vtkSimple2DLayoutStrategy.h"
 
 #include <vtkCellArray.h>
@@ -37,8 +36,16 @@
 #include "vtkTree.h"
 
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.9");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.10");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
+
+// This is just a convenient macro for smart pointers
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+  
+#ifndef MIN
+#define MIN(x, y)       ((x) < (y) ? (x) : (y))
+#endif
 
 
 // Cool-down function.
@@ -51,9 +58,13 @@ static inline float CoolDown(float t, float r)
 
 vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
 {
-  this->MaxNumberOfIterations = 100;
+
+  // Create internal vtk classes
+  this->RepulsionArray = vtkSmartPointer<vtkFloatArray>::New();
+  this->AttractionArray = vtkSmartPointer<vtkFloatArray>::New();
+    
   this->IterationsPerLayout = 100;
-  this->InitialTemperature = 1;
+  this->InitialTemperature = 5;
   this->CoolDownRate = 50.0;
   this->LayoutComplete = 0;
   this->EdgeWeightField = 0;
@@ -78,38 +89,69 @@ void vtkSimple2DLayoutStrategy::Initialize()
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
   
+  // Create new float array that will be the graph's
+  // geometric points
+  VTK_CREATE(vtkFloatArray, graphPoints);
+  graphPoints->SetNumberOfComponents(3);
+  graphPoints->SetNumberOfTuples(numVertices);
+  
+  // Copy current points to new float array
+  double pointCoords[3];
+  for (vtkIdType i=0; i<numVertices; ++i)
+    {
+    pts->GetPoint(i, pointCoords);
+    graphPoints->SetValue(i*3, static_cast<float>(pointCoords[0]));
+    graphPoints->SetValue(i*3+1, static_cast<float>(pointCoords[1]));
+    graphPoints->SetValue(i*3+2, static_cast<float>(pointCoords[2]));
+    }
+  
+  // Set the graph points
+  pts->SetData(graphPoints);
+  
+  // Get a quick pointer to the point data
+  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  float *rawPointData = array->GetPointer(0);
+  
   // The optimal distance between vertices.
   if (this->RestDistance == 0)
     {
     this->RestDistance = sqrt(1.0 / static_cast<float>(numVertices));
     }
     
-  // Put the data into compact, fast access data structures
-  this->VArray = new vtkLayoutVertex[numVertices];
-  this->EdgeArray =  new vtkLayoutEdge[numEdges];
-
-  // Load up the vertex data structures
-  for (vtkIdType i=0; i<numVertices; ++i)
+  // Set up array to store repulsion values
+  this->RepulsionArray->SetNumberOfComponents(3);
+  this->RepulsionArray->SetNumberOfTuples(numVertices);
+  for (vtkIdType i=0; i<numVertices*3; ++i)
     {
-    // Get point position
-    double pointCoords[3];
-    pts->GetPoint(i, pointCoords);
+    this->RepulsionArray->SetValue(i, 0);
+    }
     
-    // If jitter is on then offset some random value
-    if (Jitter)
+  // Set up array to store attraction values
+  this->AttractionArray->SetNumberOfComponents(3);
+  this->AttractionArray->SetNumberOfTuples(numVertices);
+  for (vtkIdType i=0; i<numVertices*3; ++i)
+    {
+    this->AttractionArray->SetValue(i, 0);
+    }
+    
+  // Put the edge data into compact, fast access edge data structure
+  this->EdgeArray =  new vtkLayoutEdge[numEdges];
+  
+  // If jitter then do it now at initialization
+  if (Jitter)
+    {
+    
+    // Jitter x and y, skip z
+    for (vtkIdType i=0; i<numVertices*3; i+=3)
       {
-      pointCoords[0] += this->RestDistance*.01*(static_cast<float>(rand())/RAND_MAX - .5);
-      pointCoords[1] += this->RestDistance*.01*(static_cast<float>(rand())/RAND_MAX - .5);
+      rawPointData[i] += this->RestDistance*(static_cast<float>(rand())/RAND_MAX - .5);
+      rawPointData[i+1] += this->RestDistance*(static_cast<float>(rand())/RAND_MAX - .5);
       }
-      
-    // Set point position
-    this->VArray[i].x = static_cast<float>(pointCoords[0]);
-    this->VArray[i].y = static_cast<float>(pointCoords[1]);
     }
 
   // Get the weight array
   vtkDataArray* weightArray = NULL;
-  double avgWeight = 0;
+  double weight, maxWeight = 0;
   if (this->EdgeWeightField != NULL)
     {
     weightArray = vtkDataArray::SafeDownCast(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
@@ -117,10 +159,12 @@ void vtkSimple2DLayoutStrategy::Initialize()
       {
       for (vtkIdType w = 0; w < weightArray->GetNumberOfTuples(); w++)
         {
-        double* tuple = weightArray->GetTuple(w);
-        avgWeight += tuple[0];
+        weight = weightArray->GetTuple1(w);
+        if (weight > maxWeight)
+          {
+          maxWeight = weight;
+          }
         }
-      avgWeight /= weightArray->GetNumberOfTuples();
       }
     }
     
@@ -131,8 +175,8 @@ void vtkSimple2DLayoutStrategy::Initialize()
     this->EdgeArray[i].to = this->Graph->GetTargetVertex(i);
     if (weightArray != NULL)
       {
-      double* tuple = weightArray->GetTuple(i);
-      this->EdgeArray[i].weight = tuple[0] / avgWeight;
+      weight = weightArray->GetTuple1(i);
+      this->EdgeArray[i].weight = weight / maxWeight;
       }
     else
       {
@@ -144,6 +188,7 @@ void vtkSimple2DLayoutStrategy::Initialize()
   this->TotalIterations = 0;
   this->LayoutComplete = 0;
   this->Temp = this->InitialTemperature;
+
 }
 
 // ----------------------------------------------------------------------
@@ -164,95 +209,106 @@ void vtkSimple2DLayoutStrategy::Layout()
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
   
+  // Get a quick pointer to the point data
+  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  float *rawPointData = array->GetPointer(0);
 
   // This is the mega, uber, triple inner loop
   // ye of weak hearts, tread no further!
   float delta[]={0,0,0};
-  float dis, disSquared;
-  float repulseValue;
+  float disSquared;
   float attractValue;
-  float epsilon = this->RestDistance * 1e-10;
+  vtkIdType pointIndex1=0;
+  vtkIdType pointIndex2=0;
   for(int i = 0; i < this->IterationsPerLayout; ++i)
     {
+    
+    // Initialize the repulsion and attraction arrays
+    for (vtkIdType j=0; j<numVertices*3; ++j)
+      {
+      this->RepulsionArray->SetValue(j, 0);
+      }
+      
+    // Set up array to store attraction values
+    for (vtkIdType j=0; j<numVertices*3; ++j)
+      {
+      this->AttractionArray->SetValue(j, 0);
+      }
   
     // Calculate the repulsive forces
+    float *rawRepulseArray = this->RepulsionArray->GetPointer(0);
     for(vtkIdType j=0; j<numVertices; ++j)
       {
-      this->VArray[j].dx = 0;
-      this->VArray[j].dy = 0;
+      pointIndex1 = j * 3;
+        
       for(vtkIdType k=0; k<numVertices; ++k)
         {
-        if (k != j)
-          {
-          delta[0] = this->VArray[j].x - this->VArray[k].x;
-          delta[1] = this->VArray[j].y - this->VArray[k].y;
+        // Don't repluse against yourself :)
+        if (k == j) continue;
           
-          // Traditional k/d replusion
-          if (this->Temp > .2)
-            {
-            dis = fabs(delta[0]) + fabs(delta[1]);
-            if (dis < epsilon)
-              {
-              dis = epsilon;
-              }
-            repulseValue = this->RestDistance/dis;
-            }
+        pointIndex2 = k * 3;
           
-          // k/d**2 replusion ( flowering :)
-          else
-            {
-            disSquared = delta[0]*delta[0] + delta[1]*delta[1];
-            if (disSquared < epsilon)
-              {
-              disSquared = epsilon;
-              }
-            repulseValue = this->RestDistance/disSquared;
-            }
-          this->VArray[j].dx += delta[0] * repulseValue;
-          this->VArray[j].dy += delta[1] * repulseValue;
-          }
+        delta[0] = rawPointData[pointIndex1] - 
+                  rawPointData[pointIndex2];
+        delta[1] = rawPointData[pointIndex1+1] - 
+                  rawPointData[pointIndex2+1];
+        disSquared = delta[0]*delta[0] + delta[1]*delta[1];
+        rawRepulseArray[pointIndex1]   += delta[0]/disSquared;
+        rawRepulseArray[pointIndex1+1] += delta[1]/disSquared;      
         }
       }
       
     // Calculate the attractive forces
+    float *rawAttractArray = this->AttractionArray->GetPointer(0);
     for (vtkIdType j=0; j<numEdges; ++j)
       {
-      delta[0] = this->VArray[this->EdgeArray[j].to].x - 
-             this->VArray[this->EdgeArray[j].from].x;
-      delta[1] = this->VArray[this->EdgeArray[j].to].y - 
-             this->VArray[this->EdgeArray[j].from].y;
+      pointIndex1 = this->EdgeArray[j].to * 3;
+      pointIndex2 = this->EdgeArray[j].from * 3;
+      
+      // No need to attract points to themselves
+      if (pointIndex1 == pointIndex2) continue;
+      
+      delta[0] = rawPointData[pointIndex1] - 
+             rawPointData[pointIndex2];
+      delta[1] = rawPointData[pointIndex1+1] - 
+              rawPointData[pointIndex2+1];
       disSquared = delta[0]*delta[0] + delta[1]*delta[1];
-
-      // Emergency action on edges that are 10x 
-      // their 'resting' distance
-      if (disSquared > 100*this->RestDistance)
-        {
-        float jump = this->Temp * .5;
-        this->VArray[this->EdgeArray[j].to].x   -= delta[0] * jump;
-        this->VArray[this->EdgeArray[j].to].y   -= delta[1] * jump;
-        this->VArray[this->EdgeArray[j].from].x += delta[0] * jump;
-        this->VArray[this->EdgeArray[j].from].y += delta[1] * jump;
-        }
-
+       
       // Perform weight adjustment
-      attractValue = this->EdgeArray[j].weight*disSquared/this->RestDistance;
-      this->VArray[this->EdgeArray[j].to].dx   -= delta[0] * attractValue;
-      this->VArray[this->EdgeArray[j].to].dy   -= delta[1] * attractValue;
-      this->VArray[this->EdgeArray[j].from].dx += delta[0] * attractValue;
-      this->VArray[this->EdgeArray[j].from].dy += delta[1] * attractValue;
-      }
+      attractValue = this->EdgeArray[j].weight*disSquared-this->RestDistance;
 
-    // Combine the forces to compute new positions
-    float norm;
-    for (vtkIdType j=0; j<numVertices; ++j)
-      {
-      delta[0] = this->VArray[j].dx;
-      delta[1] = this->VArray[j].dy;
-      norm = vtkMath::Normalize(delta);
-      float minimum = (norm < this->Temp ? norm : this->Temp);
-      this->VArray[j].x += delta[0] * minimum;
-      this->VArray[j].y += delta[1] * minimum;
+      rawAttractArray[pointIndex1]   -= delta[0] * attractValue;
+      rawAttractArray[pointIndex1+1] -= delta[1] * attractValue;
+      rawAttractArray[pointIndex2]   += delta[0] * attractValue;
+      rawAttractArray[pointIndex2+1] += delta[1] * attractValue;
       }
+      
+    // Okay now set new positions based on replusion 
+    // and attraction 'forces'
+    for(vtkIdType j=0; j<numVertices; ++j)
+      {
+      pointIndex1 = j * 3;
+      
+      // Get forces for this node
+      float forceX = rawAttractArray[pointIndex1] + rawRepulseArray[pointIndex1];
+      float forceY = rawAttractArray[pointIndex1+1] + rawRepulseArray[pointIndex1+1];
+      //forceX = rawRepulseArray[pointIndex1];
+      //forceY = rawRepulseArray[pointIndex1+1];
+      
+      // Forces can get extreme so limit them
+      // Note: This is psuedo-normalization of the
+      //       force vector, just to save some cycles
+      float pNormalize = MIN(1, 1.0/(fabs(forceX) + fabs(forceY)));
+      pNormalize *= this->Temp;
+      forceX *= pNormalize;
+      forceY *= pNormalize;
+  
+      rawPointData[pointIndex1] += forceX;
+      rawPointData[pointIndex1+1] += forceY;
+      }
+      
+    // The point coordinates have been modified
+    this->Graph->GetPoints()->Modified();
       
     // Reduce temperature as layout approaches a better configuration.
     this->Temp = CoolDown(this->Temp, this->CoolDownRate);
@@ -264,12 +320,6 @@ void vtkSimple2DLayoutStrategy::Layout()
 
    } // End loop this->IterationsPerLayout
 
-   // Now take the temporary point coordinate datastructure 
-   // and convert back to VTK data structures
-   for (vtkIdType i=0; i<numVertices; ++i)
-    {
-    pts->SetPoint (i, this->VArray[i].x, this->VArray[i].y, 0.0);
-    }
     
   // Check for completion of layout
   this->TotalIterations += this->IterationsPerLayout;

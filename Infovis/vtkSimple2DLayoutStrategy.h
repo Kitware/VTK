@@ -33,6 +33,9 @@
 
 #include "vtkGraphLayoutStrategy.h"
 
+#include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
+class vtkFloatArray;
+
 class VTK_INFOVIS_EXPORT vtkSimple2DLayoutStrategy : public vtkGraphLayoutStrategy 
 {
 public:
@@ -62,7 +65,7 @@ public:
   vtkGetMacro(IterationsPerLayout, int);
 
   // Description:
-  // Set the initial temperature.  The temperature default is '1'
+  // Set the initial temperature.  The temperature default is '5'
   // for no particular reason
   // Note: The strong recommendation is that you do not change
   // this parameter. :)
@@ -123,16 +126,6 @@ protected:
 private:
 
   //BTX
-  // Some internal data structures
-  // A vertex contains a position and a displacement.
-  typedef struct 
-  {
-    float x;
-    float y;
-    float dx;
-    float dy;
-  } vtkLayoutVertex;
-
   // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
   typedef struct 
@@ -141,10 +134,13 @@ private:
     vtkIdType to;
     float weight;
   } vtkLayoutEdge;
+  
+  // These are for storage of repulsion and attraction
+  vtkSmartPointer<vtkFloatArray>          RepulsionArray;
+  vtkSmartPointer<vtkFloatArray>          AttractionArray;
+  vtkLayoutEdge *EdgeArray;
   //ETX
   
-  vtkLayoutVertex *VArray;
-  vtkLayoutEdge *EdgeArray;
   int IterationsPerLayout;
   int TotalIterations;
   int LayoutComplete;
