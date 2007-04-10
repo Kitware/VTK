@@ -52,7 +52,7 @@
 #define DEBUG 0
 #define vtkPExodusReaderMAXPATHLEN 2048
 
-vtkCxxRevisionMacro(vtkPExodusReader, "1.12");
+vtkCxxRevisionMacro(vtkPExodusReader, "1.13");
 vtkStandardNewMacro(vtkPExodusReader);
 
 class vtkPExodusReaderUpdateProgress : public vtkCommand
@@ -84,11 +84,14 @@ protected:
   {
     if(event == vtkCommand::ProgressEvent)
     {
-      double num = Reader->GetNumberOfFileNames();
-      if(num == 0)
+      int num = Reader->GetNumberOfFileNames();
+      if(num <= 1)
+        {
         num = Reader->GetNumberOfFiles();
+        }
       double* progress = static_cast<double*>(callData);
-      double newProgress = *progress/num + Index/num;
+      //only use half the progress since append uses the other half
+      double newProgress = (*progress/(double)num + Index/(double)num)*0.5;
       Reader->UpdateProgress(newProgress);
     }
   }
@@ -97,6 +100,38 @@ protected:
   int Index;
 };
 
+class vtkPExodusReaderAppendUpdateProgress : public vtkCommand
+{
+public:
+  vtkTypeMacro(vtkPExodusReaderAppendUpdateProgress, vtkCommand)
+  static vtkPExodusReaderAppendUpdateProgress* New()
+  {
+    return new vtkPExodusReaderAppendUpdateProgress;
+  }
+  void SetReader(vtkPExodusReader* r)
+  {
+    Reader = r;
+  }
+protected:
+
+  vtkPExodusReaderAppendUpdateProgress()
+  {
+    Reader = NULL;
+  }
+  ~vtkPExodusReaderAppendUpdateProgress(){}
+
+  void Execute(vtkObject*, unsigned long event, void* callData)
+  {
+    if(event == vtkCommand::ProgressEvent)
+    {
+      double* progress = static_cast<double*>(callData);
+      double newProgress = 0.5*(*progress)+0.5;
+      Reader->UpdateProgress(newProgress);
+    }
+  }
+
+  vtkPExodusReader* Reader;
+};
 
 //----------------------------------------------------------------------------
 // Description:
@@ -279,7 +314,7 @@ int vtkPExodusReader::RequestData(
     start = this->FileRange[0];   // use prefix/pattern/range
     numFiles = this->NumberOfFiles;
     }
-
+  
   // Someone has requested a file that is above the number
   // of pieces I have. That may have been caused by having
   // more processors than files. So I'm going to create an
@@ -325,7 +360,12 @@ int vtkPExodusReader::RequestData(
   unsigned int numMyFiles = max - min + 1;
 
 #ifdef APPEND
-  vtkAppendFilter *append = vtkAppendFilter::New();
+  vtkAppendFilter *append = vtkAppendFilter::New(); 
+  vtkPExodusReaderAppendUpdateProgress* appendProgress = 
+        vtkPExodusReaderAppendUpdateProgress::New();
+  appendProgress->SetReader(this);
+  append->AddObserver(vtkCommand::ProgressEvent, appendProgress);
+  appendProgress->Delete();
 #else
   int totalSets = 0;
   int totalCells = 0;
@@ -338,7 +378,6 @@ int vtkPExodusReader::RequestData(
     {
     this->NewExodusModel();
     }
-
   if (readerList.size() < numMyFiles)
     {
     for(reader_idx=readerList.size(); reader_idx < numMyFiles; ++reader_idx)
@@ -697,6 +736,7 @@ void vtkPExodusReader::SetFileNames(int nfiles, const char **names)
   // Set the number of files
   this->NumberOfFileNames = nfiles;
 
+
   // Allocate memory for new filenames
   this->FileNames = new char * [this->NumberOfFileNames];
 
@@ -809,7 +849,7 @@ int vtkPExodusReader::DeterminePattern(const char* file)
     }
 
   // Count up the files
-  char buffer[1024];
+  char buffer[vtkPExodusReaderMAXPATHLEN];
   struct stat fs;
   
   // First go every 100
