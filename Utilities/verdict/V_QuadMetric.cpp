@@ -694,10 +694,10 @@ C_FUNC_DEF double v_quad_stretch( int /*num_nodes*/, double coordinates[][3] )
   make_quad_edges( edges, coordinates );
 
   double lengths_squared[4];
-  lengths_squared[0] = edges[0].length();
-  lengths_squared[1] = edges[1].length();
-  lengths_squared[2] = edges[2].length();
-  lengths_squared[3] = edges[3].length();
+  lengths_squared[0] = edges[0].length_squared();
+  lengths_squared[1] = edges[1].length_squared();
+  lengths_squared[2] = edges[2].length_squared();
+  lengths_squared[3] = edges[3].length_squared();
 
   temp.set( coordinates[2][0] - coordinates[0][0],
             coordinates[2][1] - coordinates[0][1],
