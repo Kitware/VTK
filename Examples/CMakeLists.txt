@@ -140,6 +140,7 @@ ELSE(VTK_BINARY_DIR)
       MultiBlock/Cxx
       GUI/Motif
       DataManipulation/Cxx
+      ImageProcessing/Cxx
       Medical/Cxx
       Modelling/Cxx
       Rendering/Cxx
