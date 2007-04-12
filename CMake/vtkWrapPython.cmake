@@ -68,7 +68,7 @@ MACRO(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
         COMMAND ${VTK_WRAP_PYTHON_EXE}
         ARGS ${TMP_INPUT} ${VTK_WRAP_HINTS} ${TMP_CONCRETE} 
         ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx
-        COMMENT "Python Wrappings"
+        COMMENT "Python Wrapping - generating ${TMP_FILENAME}Python.cxx"
         )
       
       # Add this output to a custom target if needed.
@@ -102,7 +102,7 @@ MACRO(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
     COMMAND ${VTK_WRAP_PYTHON_INIT_EXE}
     ARGS ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
-    COMMENT "Python Wrapping Init"
+    COMMENT "Python Wrapping - generating ${TARGET}Init.cxx"
     )
   
   # Create the Init File
