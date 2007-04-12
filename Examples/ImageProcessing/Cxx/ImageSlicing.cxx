@@ -159,17 +159,17 @@ int main (int argc, char **argv)
   center[2] = origin[2] + spacing[2] * 0.5 * (extent[4] + extent[5]); 
 
   // Matrices for axial, coronal, sagittal, oblique view orientations
-  static double axialElements[16] = {
-           1, 0, 0, 0,
-           0, 1, 0, 0,
-           0, 0, 1, 0,
-           0, 0, 0, 1 };
+  //static double axialElements[16] = {
+  //         1, 0, 0, 0,
+  //         0, 1, 0, 0,
+  //         0, 0, 1, 0,
+  //         0, 0, 0, 1 };
 
-  static double coronalElements[16] = {
-           1, 0, 0, 0,
-           0, 0, 1, 0,
-           0,-1, 0, 0,
-           0, 0, 0, 1 };
+  //static double coronalElements[16] = {
+  //         1, 0, 0, 0,
+  //         0, 0, 1, 0,
+  //         0,-1, 0, 0,
+  //         0, 0, 0, 1 };
 
   static double sagittalElements[16] = {
            0, 0,-1, 0,
@@ -177,11 +177,11 @@ int main (int argc, char **argv)
            0,-1, 0, 0,
            0, 0, 0, 1 };
 
-  static double obliqueElements[16] = {
-           1, 0, 0, 0,
-           0, 0.866025, -0.5, 0,
-           0, 0.5, 0.866025, 0,
-           0, 0, 0, 1 };
+  //static double obliqueElements[16] = {
+  //         1, 0, 0, 0,
+  //         0, 0.866025, -0.5, 0,
+  //         0, 0.5, 0.866025, 0,
+  //         0, 0, 0, 1 };
 
   // Set the slice orientation
   vtkMatrix4x4 *resliceAxes = vtkMatrix4x4::New();
