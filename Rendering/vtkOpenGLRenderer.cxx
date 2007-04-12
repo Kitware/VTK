@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.66");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.67");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -107,7 +107,7 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->TransparentLayerZ=0;
   this->ProgramShader=0;
   this->DepthFormat=0;
-  this->TranslucentStage=0;
+  this->DepthPeelingHigherLayer=0;
 }
 
 // Internal method temporarily removes lights before reloading them
@@ -237,11 +237,13 @@ int vtkOpenGLRenderer::GetTextureUniformVariable()
 
 // ----------------------------------------------------------------------------
 // Description:
-// Is rendering at translucent geometry stage? (Used by vtkOpenGLProperty
-// or vtkOpenGLTexture)
-int vtkOpenGLRenderer::GetTranslucentStage()
+// Is rendering at translucent geometry stage using depth peeling and
+// rendering a layer other than the first one? (Boolean value)
+// If so, the uniform variables UseTexture and Texture can be set.
+// (Used by vtkOpenGLProperty or vtkOpenGLTexture)
+int vtkOpenGLRenderer::GetDepthPeelingHigherLayer()
 {
-  return this->TranslucentStage;
+  return this->DepthPeelingHigherLayer;
 }
 
 // ----------------------------------------------------------------------------
@@ -253,7 +255,7 @@ void vtkOpenGLRenderer::DeviceRender(void)
   // other windows might get rendered since the last time
   // a MakeCurrent was called.
   this->RenderWindow->MakeCurrent();
-
+  
   // standard render method 
   this->ClearLights();
 
@@ -279,7 +281,6 @@ void vtkOpenGLRenderer::DeviceRender(void)
 // override this method.
 void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 {
-  this->TranslucentStage=1;
   if(this->UseDepthPeeling)
     {
     if(!this->DepthPeelingIsSupportedChecked)
@@ -477,7 +478,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     // just alpha blending
     this->LastRenderingUsedDepthPeeling=0;
     this->UpdateTranslucentPolygonalGeometry();
-    this->TranslucentStage=0;
     }
   else
     {
@@ -539,7 +539,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       this->LastRenderingUsedDepthPeeling=0;
       vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
       this->UpdateTranslucentPolygonalGeometry();
-      this->TranslucentStage=0;
       return;
       }
     glTexImage2D(vtkgl::TEXTURE_RECTANGLE_ARB,0,this->DepthFormat,
@@ -570,7 +569,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       this->LastRenderingUsedDepthPeeling=0;
       vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
       this->UpdateTranslucentPolygonalGeometry();
-      this->TranslucentStage=0;
       return;
       }
     
@@ -735,7 +733,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     glDeleteTextures(1,&opaqueLayerRgba);
     glDeleteTextures(1,&opaqueLayerZ);
     }
-  this->TranslucentStage=0;
   
   // Restore default alpha blending for the next stage (overlay)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -880,9 +877,11 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
     }
   vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  this->DepthPeelingHigherLayer=layer>0;
   int numberOfRenderedProps=this->UpdateTranslucentPolygonalGeometry();
   if(layer>0)
     {
+    this->DepthPeelingHigherLayer=0;
     vtkgl::UseProgramObjectARB(0);
     }
   

@@ -28,7 +28,7 @@
 #include "vtkgl.h" // vtkgl namespace
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.37");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.38");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -46,9 +46,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
 
   // unbind any textures for starters
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(ren);
-  int translucentStage=oRenderer->GetTranslucentStage();
-  
-  if(translucentStage && ren->GetLastRenderingUsedDepthPeeling())
+  if(oRenderer->GetDepthPeelingHigherLayer())
     {
     GLint uUseTexture=-1;
     uUseTexture=oRenderer->GetUseTextureUniformVariable();

@@ -57,9 +57,11 @@ public:
   int UpdateLights(void);
   
   // Description:
-  // Is rendering at translucent geometry stage? (Used by vtkOpenGLProperty
-  // or vtkOpenGLTexture)
-  int GetTranslucentStage();
+  // Is rendering at translucent geometry stage using depth peeling and
+  // rendering a layer other than the first one? (Boolean value)
+  // If so, the uniform variables UseTexture and Texture can be set.
+  // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
+  int GetDepthPeelingHigherLayer();
   
 protected:
   vtkOpenGLRenderer();
@@ -136,10 +138,11 @@ protected:
   // or vtkgl::DEPTH_COMPONENT24_ARB
   unsigned int DepthFormat;
   
-  // Description:
-  // Is rendering at translucent geometry stage? (Used by vtkOpenGLProperty
-  // or vtkOpenGLTexture). Boolean value.
-  int TranslucentStage;
+  // Is rendering at translucent geometry stage using depth peeling and
+  // rendering a layer other than the first one? (Boolean value)
+  // If so, the uniform variables UseTexture and Texture can be set.
+  // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
+  int DepthPeelingHigherLayer;
   
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.

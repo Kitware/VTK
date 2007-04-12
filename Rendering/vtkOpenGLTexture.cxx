@@ -28,7 +28,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.60");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.61");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -331,9 +331,8 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   GLint uTexture=-1;
   
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(ren);
-  int translucentStage=oRenderer->GetTranslucentStage();
-  
-  if(translucentStage && ren->GetLastRenderingUsedDepthPeeling())
+ 
+  if(oRenderer->GetDepthPeelingHigherLayer())
     {
     uUseTexture=oRenderer->GetUseTextureUniformVariable();
     uTexture=oRenderer->GetTextureUniformVariable();
