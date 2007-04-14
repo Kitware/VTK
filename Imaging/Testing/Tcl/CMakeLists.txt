@@ -11,6 +11,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         reconstructSurface
         resampledTexture
         ResliceColorWrap
+        ResliceInformationInput
         ResliceInterpolationModes
         ResliceInterpolationOblique
         ResliceMirrorOblique

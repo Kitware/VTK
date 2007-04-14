@@ -12,6 +12,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         #reconstructSurface -- scanf
         resampledTexture
         ResliceColorWrap
+        ResliceInformationInput
         ResliceInterpolationModes
         ResliceInterpolationOblique
         ResliceMirrorOblique

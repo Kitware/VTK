@@ -265,6 +265,10 @@ public:
   unsigned long int GetMTime();
 
   // Description:
+  // Report object referenced by instances of this class.
+  virtual void ReportReferences(vtkGarbageCollector*);
+
+  // Description:
   // Convenient methods for switching between nearest-neighbor and linear
   // interpolation.  
   // InterpolateOn() is equivalent to SetInterpolationModeToLinear() and
