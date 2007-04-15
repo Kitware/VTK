@@ -136,7 +136,7 @@ void vtkX3DExporterWriter::CloseFile()
 }
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkX3DExporter, "1.9");
+vtkCxxRevisionMacro(vtkX3DExporter, "1.9.2.1");
 vtkStandardNewMacro(vtkX3DExporter);
 
 //----------------------------------------------------------------------------
@@ -248,14 +248,19 @@ void vtkX3DExporter::WriteData()
   // do the lights first the ambient then the others
   ostr << "    <NavigationInfo type='\"EXAMINE\" \"FLY\" \"ANY\"' speed=\""
     << this->Speed << "\"";
+  /*
+  // Headlight refers to the implicit headlight. Should be false pretty much
+  // every time, since VTK always has explicit lights.
   if (ren->GetLights()->GetNumberOfItems() == 0)
     {
-    ostr << "  headlight=\"TRUE\"/>\n\n";
+    ostr << "  headlight=\"true\"/>\n\n";
     }
   else
     {
-    ostr << "  headlight=\"FALSE\"/>\n\n";
+    ostr << "  headlight=\"false\"/>\n\n";
     }
+  */
+  ostr << "  headlight=\"false\"/>\n\n";
   ostr << "    <DirectionalLight ambientIntensity=\"1\" intensity=\"0\" "
     << "  color=\"" << vtkX3DPrintVector3(ren->GetAmbient()) << "\"/>\n\n";
 
@@ -308,7 +313,7 @@ void vtkX3DExporter::WriteData()
       << " size=\"1000000.0 1000000.0 1000000.0\"/>\n";
 
     //disable collision for the text annotations
-    ostr2 << "  <Collision  enabled=\"FALSE\">\n";
+    ostr2 << "  <Collision  enabled=\"false\">\n";
 
     //add a Label TRANS_LABEL for the text annotations and the sensor
     ostr2 << "    <Transform  DEF=\"TRANS_LABEL\" >\n";
@@ -398,11 +403,11 @@ void vtkX3DExporter::WriteALight(vtkLight *aLight,
     << "  intensity=\"" << aLight->GetIntensity() << "\"";
   if (aLight->GetSwitch())
     {
-    ostr << "  on=\"TRUE\"/>\n\n";
+    ostr << "  on=\"true\"/>\n\n";
     }
   else
     {
-    ostr << "  on=\"FALSE\"/>\n\n";
+    ostr << "  on=\"false\"/>\n\n";
     }
   writer->Write(ostr.str().c_str());
 }
@@ -479,6 +484,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
 
   // write out the material properties to the mat file
   prop = anActor->GetProperty();
+  int representation = prop->GetRepresentation();
   ostr << "          <Appearance>\n"
     << "            <Material "
     << " ambientIntensity=\"" << prop->GetAmbient() << "\"";
@@ -616,8 +622,8 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
       }
     if (!(aTexture->GetRepeat()))
       {
-      ostr << "              repeatS=\"FALSE\"\n";
-      ostr << "              repeatT=\"FALSE\"\n";
+      ostr << "              repeatS=\"false\"\n";
+      ostr << "              repeatT=\"false\"\n";
       }
     ostr << "              />\n"; // close texture
     }
@@ -628,30 +634,46 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   if (pd->GetNumberOfPolys() > 0)
     {
     vtksys_ios::ostringstream ostr1;
-    ostr1 << "          <IndexedFaceSet \n";
-    // two sided lighting ? for now assume it is on
-    ostr1 << "            solid=\"FALSE\"\n";
-    // we don't want a color per point but per cell
-    if(!tcoords)
+    switch ( representation )
       {
-      ostr1 << "            colorPerVertex=\"FALSE\"\n";
+    case VTK_SURFACE:
+      ostr1 << "          <IndexedFaceSet \n";
+      ostr1 << "            solid=\"false\"\n";
+      break;
+    case VTK_WIREFRAME:
+      ostr1 << "          <IndexedLineSet\n";
+      break;
+    case VTK_POINTS:
+      ostr1 << "          <PointSet>\n";
+      break;
       }
-    /////////////////////
-    ostr1 << "            coordIndex  =\"\n";
 
-    cells = pd->GetPolys();
-    for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
+    switch (representation )
       {
-      ostr1 << "              ";
-      for (i = 0; i < npts; i++)
+    case VTK_SURFACE: case VTK_WIREFRAME:
+      // two sided lighting ? for now assume it is on
+      // we don't want a color per point but per cell
+      if(!tcoords)
         {
-        // treating vtkIdType as int
-        ostr1 << (int)indx[i] << " ";
+        ostr1 << "            colorPerVertex=\"false\"\n";
         }
-      ostr1 << "-1\n";
+      /////////////////////
+      ostr1 << "            coordIndex  =\"\n";
+
+      cells = pd->GetPolys();
+      for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
+        {
+        ostr1 << "              ";
+        for (i = 0; i < npts; i++)
+          {
+          // treating vtkIdType as int
+          ostr1 << (int)indx[i] << " ";
+          }
+        ostr1 << "-1\n";
+        }
+      ostr1 << "            \"\n";
+      ostr1 << "          >\n";
       }
-    ostr1 << "            \"\n";
-    ostr1 << "          >\n";
     writer->Write(ostr1.str().c_str());
 
     /////////////////////////////
@@ -660,45 +682,72 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
       this->WritePointData(points, normals, tcoords, colors, writer, index);
       pointDataWritten = 1;
       }
-    writer->Write("          </IndexedFaceSet> \n");
+    switch ( representation )
+      {
+    case VTK_SURFACE:
+      writer->Write("          </IndexedFaceSet> \n");
+      break;
+    case VTK_WIREFRAME:
+      writer->Write("          </IndexedLineSet> \n");
+      break;
+    case VTK_POINTS:
+      writer->Write("          </PointSet> \n");
+      break;
+      }
     }
 
   // write out tstrips if any
   if (pd->GetNumberOfStrips() > 0)
     {
     vtksys_ios::ostringstream ostr2;
-    ostr2 << "           <IndexedFaceSet \n";
-    ///////////
-    ostr2 << "            coordIndex =\" \n";
-    // we don't want a color per point but per cell
-    if(!tcoords)
+    switch ( representation )
       {
-      ostr2 << "            colorPerVertex=\"FALSE\"\n";
+    case VTK_SURFACE:
+      ostr2 << "          <IndexedFaceSet \n";
+      break;
+    case VTK_WIREFRAME:
+      ostr2 << "          <IndexedLineSet\n";
+      ostr2 << "            solid=\"false\"\n";
+      break;
+    case VTK_POINTS:
+      ostr2 << "          <PointSet>\n";
+      break;
       }
-    cells = pd->GetStrips();
-    for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
+    switch (representation )
       {
-      for (i = 2; i < npts; i++)
+    case VTK_SURFACE: case VTK_WIREFRAME:
+      ///////////
+      ostr2 << "            coordIndex =\" \n";
+      // we don't want a color per point but per cell
+      if(!tcoords)
         {
-        if (i%2)
-          {
-          i1 = i - 1;
-          i2 = i - 2;
-          }
-        else
-          {
-          i1 = i - 2;
-          i2 = i - 1;
-          }
-        // treating vtkIdType as int
-        ostr2 << "              "
-          << ((int)indx[i1]) << " " << ((int)indx[i2])
-          << " " << ((int)indx[i])
-          << " -1,\n";
+        ostr2 << "            colorPerVertex=\"false\"\n";
         }
+      cells = pd->GetStrips();
+      for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
+        {
+        for (i = 2; i < npts; i++)
+          {
+          if (i%2)
+            {
+            i1 = i - 1;
+            i2 = i - 2;
+            }
+          else
+            {
+            i1 = i - 2;
+            i2 = i - 1;
+            }
+          // treating vtkIdType as int
+          ostr2 << "              "
+            << ((int)indx[i1]) << " " << ((int)indx[i2])
+            << " " << ((int)indx[i])
+            << " -1,\n";
+          }
+        }
+      ostr2 << "            \"\n";
+      ostr2 << "          >\n";
       }
-    ostr2 << "            \"\n";
-    ostr2 << "          >\n";
 
     ///////////////
     if (!pointDataWritten)
@@ -706,7 +755,18 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
       this->WritePointData(points, normals, tcoords, colors, writer,index);
       pointDataWritten = 1;
       }
-    ostr2 << "          </IndexedFaceSet>\n";
+    switch ( representation )
+      {
+    case VTK_SURFACE:
+      writer->Write("          </IndexedFaceSet> \n");
+      break;
+    case VTK_WIREFRAME:
+      writer->Write("          </IndexedLineSet> \n");
+      break;
+    case VTK_POINTS:
+      writer->Write("          </PointSet> \n");
+      break;
+      }
     writer->Write(ostr2.str().c_str());
     }
 
@@ -949,10 +1009,10 @@ void vtkX3DExporter::WriteanTextActor2D(vtkActor2D *anTextActor2D,
     {
   case 0:
   default: 
-    style += "FALSE\"";
+    style += "false\"";
     break;
   case 2:
-    style += "TRUE\"";
+    style += "true\"";
     break;
     }
 
