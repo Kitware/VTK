@@ -21,7 +21,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.3");
+vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.4");
 vtkStandardNewMacro(vtkPExtractArraysOverTime);
 
 vtkCxxSetObjectMacro(vtkPExtractArraysOverTime, Controller, vtkMultiProcessController);
@@ -74,6 +74,47 @@ void vtkPExtractArraysOverTime::PostExecute(
         this->AddRemoteData(remoteOutput, output);
         remoteOutput->Delete();
         }
+
+      // Zero out invalid time steps and report error if necessary.
+      bool error = false;
+      vtkUnsignedCharArray* validPts = vtkUnsignedCharArray::SafeDownCast(
+        output->GetPointData()->GetArray("vtkEAOTValidity"));
+      if (validPts)
+        {
+        int* dims = output->GetDimensions();
+        for (int i=0; i<dims[0]; i++)
+          {
+          if (!validPts->GetValue(i))
+            {
+            error = true;
+            vtkDataSetAttributes* outPointData = output->GetPointData();
+            int numArrays = outPointData->GetNumberOfArrays();
+            for (int aidx=0; aidx<numArrays; aidx++)
+              {
+              vtkDataArray* array = outPointData->GetArray(aidx);
+              // If array is not null and it is not the time array
+              if (array &&
+                  (!array->GetName() ||
+                   strncmp(array->GetName(), "Time", 4) != 0))
+                {
+                int numComps = array->GetNumberOfComponents();
+                if (numComps > 0)
+                  {
+                  // This should also initialize to 0
+                  double* val = new double[numComps];
+                  array->SetTuple(i, val);
+                  delete[] val;
+                  }
+                }
+              }
+            }
+          }
+        }
+      if (error)
+        {
+        vtkErrorMacro("One or more selected items could not be found. "
+                      "Array values for those items are set to 0");
+        }
       }
     else
       {
@@ -108,6 +149,7 @@ void vtkPExtractArraysOverTime::AddRemoteData(vtkRectilinearGrid* routput,
         {
         vtkDataSetAttributes* outPointData = output->GetPointData();
         vtkDataSetAttributes* remotePointData = routput->GetPointData();
+        // Copy arrays from remote to current
         int numRArrays = remotePointData->GetNumberOfArrays();
         for (int aidx=0; aidx<numRArrays; aidx++)
           {
