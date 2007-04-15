@@ -36,6 +36,7 @@ public:
   // Description:
   // Add a (piece, id) to the selection set. The source will generate
   // only the ids for which piece == UPDATE_PIECE_NUMBER.
+  // If piece == -1, the id applies to all pieces.
   void AddID(vtkIdType piece, vtkIdType id);
 
   // Description:
