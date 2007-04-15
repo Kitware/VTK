@@ -29,7 +29,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.5");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.6");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 
 //----------------------------------------------------------------------------
@@ -392,7 +392,7 @@ vtkIdType vtkExtractArraysOverTime::GetIndex(vtkIdType selIndex,
           vtkIdType idx = globalIds->GetValue(i);
           if (idx == selIndex)
             {
-            return idx;
+            return i;
             }
           }
         }
@@ -452,7 +452,7 @@ void vtkExtractArraysOverTime::ExecuteTimeStep(vtkInformationVector** inputV,
     {
     return;
     }
-  
+
   vtkInformation* selProperties = selection->GetProperties();
   if (selProperties->Has(vtkSelection::PROCESS_ID()) &&
       piece != selProperties->Get(vtkSelection::PROCESS_ID()))
