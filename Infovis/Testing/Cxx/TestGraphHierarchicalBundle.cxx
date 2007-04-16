@@ -256,7 +256,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
       for (k = 0; k < kitNames->GetNumberOfValues(); k++)
         {
         vtkStdString kit = kitNames->GetValue(k);
-        if (!curFile.compare(0, kit.length(), kit))
+        if (curFile.substr(0, kit.length()) == kit)
           {
           tree->SetParent(i, root + 1 + k);
           found = true;
