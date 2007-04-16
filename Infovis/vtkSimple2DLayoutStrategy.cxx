@@ -36,13 +36,9 @@
 #include "vtkTree.h"
 
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.12");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.13");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
-// This is just a convenient macro for smart pointers
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-  
 #ifndef MIN
 #define MIN(x, y)       ((x) < (y) ? (x) : (y))
 #endif
@@ -60,8 +56,8 @@ vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
 {
 
   // Create internal vtk classes
-  this->RepulsionArray = vtkSmartPointer<vtkFloatArray>::New();
-  this->AttractionArray = vtkSmartPointer<vtkFloatArray>::New();
+  this->RepulsionArray = vtkFloatArray::New();
+  this->AttractionArray = vtkFloatArray::New();
     
   this->IterationsPerLayout = 100;
   this->InitialTemperature = 5;
@@ -77,6 +73,8 @@ vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
 vtkSimple2DLayoutStrategy::~vtkSimple2DLayoutStrategy()
 {
   this->SetEdgeWeightField(0);
+  this->RepulsionArray->Delete();
+  this->AttractionArray->Delete();
 }
 
 // ----------------------------------------------------------------------

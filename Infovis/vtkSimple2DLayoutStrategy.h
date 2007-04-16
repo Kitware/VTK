@@ -33,7 +33,6 @@
 
 #include "vtkGraphLayoutStrategy.h"
 
-#include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
 class vtkFloatArray;
 
 class VTK_INFOVIS_EXPORT vtkSimple2DLayoutStrategy : public vtkGraphLayoutStrategy 
@@ -136,8 +135,8 @@ private:
   } vtkLayoutEdge;
   
   // These are for storage of repulsion and attraction
-  vtkSmartPointer<vtkFloatArray>          RepulsionArray;
-  vtkSmartPointer<vtkFloatArray>          AttractionArray;
+  vtkFloatArray *RepulsionArray;
+  vtkFloatArray *AttractionArray;
   vtkLayoutEdge *EdgeArray;
   //ETX
   
