@@ -74,6 +74,7 @@ private:
   vtkAbstractGraph *LastInput;
   unsigned long LastInputMTime;
   vtkAbstractGraph *InternalGraph;
+  bool StrategyChanged;
 
   vtkGraphLayout(const vtkGraphLayout&);  // Not implemented.
   void operator=(const vtkGraphLayout&);  // Not implemented.

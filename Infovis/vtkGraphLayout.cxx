@@ -32,7 +32,7 @@
 
 #include "vtkGraphLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkGraphLayout, "1.5");
+vtkCxxRevisionMacro(vtkGraphLayout, "1.6");
 vtkStandardNewMacro(vtkGraphLayout);
 
 // ----------------------------------------------------------------------
@@ -77,6 +77,7 @@ vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
     this->LayoutStrategy = strategy;
     if (this->LayoutStrategy != NULL)
       {
+      this->StrategyChanged = true;
       this->LayoutStrategy->Register(this);
       this->ObserverTag =
         this->LayoutStrategy->AddObserver(vtkCommand::ProgressEvent, 
@@ -154,14 +155,20 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
   // Is this a completely new input?  Is it the same input as the last
   // time the filter ran but with a new MTime?  If either of those is
   // true, make a copy and give it to the strategy object anew.
-  if (input != this->LastInput ||
+  if (this->StrategyChanged ||
+      input != this->LastInput ||
       input->GetMTime() > this->LastInputMTime)
     {
-    if (input != this->LastInput)
+    if (this->StrategyChanged)
+      {
+      vtkDebugMacro(<<"Strategy changed so reading in input again.");
+      this->StrategyChanged = false;
+      }
+    else if (input != this->LastInput)
       {
       vtkDebugMacro(<<"Filter running with different input.  Resetting in strategy.");
       }
-    else
+    else 
       {
       vtkDebugMacro(<<"Input modified since last run.  Resetting in strategy.");
       }
@@ -212,6 +219,7 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
 void vtkGraphLayout::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "StrategyChanged: " << (this->StrategyChanged ? "True" : "False") << endl;
   os << indent << "LayoutStrategy: " << (this->LayoutStrategy ? "" : "(none)") << endl;
   if (this->LayoutStrategy)
     {
