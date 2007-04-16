@@ -24,7 +24,7 @@
 #include "vtkPointSet.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkKdTreeSelector, "1.1");
+vtkCxxRevisionMacro(vtkKdTreeSelector, "1.2");
 vtkStandardNewMacro(vtkKdTreeSelector);
 
 vtkKdTreeSelector::vtkKdTreeSelector()
@@ -125,6 +125,14 @@ int vtkKdTreeSelector::RequestData(
       vtkErrorMacro("Input is NULL");
       return 0;
       }
+
+    // If no points, there is nothing to do
+    if (input->GetPoints() == NULL || input->GetNumberOfPoints() == 0)
+      {
+      return 0;
+      }
+
+    // Construct the kd-tree if we need to
     if (this->KdTree == NULL || this->KdTree->GetMTime() < input->GetMTime())
       {
       if (this->KdTree == NULL)
@@ -134,6 +142,8 @@ int vtkKdTreeSelector::RequestData(
       this->KdTree->Initialize();
       this->KdTree->BuildLocatorFromPoints(input->GetPoints());
       }
+    
+    // Look for selection field
     if (this->SelectionFieldName)
       {
       field = input->GetPointData()->GetAbstractArray(this->SelectionFieldName);
