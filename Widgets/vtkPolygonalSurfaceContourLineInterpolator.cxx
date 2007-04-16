@@ -27,7 +27,7 @@
 #include "vtkDijkstraGraphGeodesicPath.h"
 
 vtkCxxRevisionMacro(vtkPolygonalSurfaceContourLineInterpolator,
-                                            "1.4");
+                                            "1.5");
 vtkStandardNewMacro(vtkPolygonalSurfaceContourLineInterpolator);
 
 //----------------------------------------------------------------------
@@ -129,7 +129,7 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
     vtkPolyData *pd = geodesic->GetOutput();
 
     // We assume there's only one cell of course
-    vtkIdType npts, *pts = NULL; 
+    vtkIdType npts = 0, *pts = NULL; 
     pd->GetLines()->InitTraversal(); 
     pd->GetLines()->GetNextCell( npts, pts );
 
