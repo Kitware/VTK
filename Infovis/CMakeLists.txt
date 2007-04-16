@@ -8,8 +8,10 @@ SET(KIT_LIBS vtkWidgets)
 SET( Kit_SRCS
 vtkBoxLayoutStrategy.cxx
 vtkDelimitedTextReader.cxx
+vtkExtractSelectedGraph.cxx
 vtkFixedWidthTextReader.cxx
 vtkForceDirectedLayoutStrategy.cxx
+vtkGraphHierarchicalBundle.cxx
 vtkGraphLayout.cxx
 vtkGraphLayoutStrategy.cxx
 vtkGraphLayoutViewer.cxx
@@ -23,11 +25,13 @@ vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSquarifyLayoutStrategy.cxx
 vtkTreeFieldAggregator.cxx
+vtkTreeLayoutStrategy.cxx
 vtkTreeLevelsFilter.cxx
 vtkTreeMapLayout.cxx
 vtkTreeMapLayoutStrategy.cxx
 vtkTreeMapToPolyData.cxx
 vtkTreeMapViewer.cxx
+vtkVertexDegree.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(

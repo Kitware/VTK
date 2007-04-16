@@ -111,6 +111,7 @@ vtkInterpolateDataSetAttributes.cxx
 vtkInterpolatingSubdivisionFilter.cxx
 vtkKdNode.cxx
 vtkKdTree.cxx
+vtkKdTreeSelector.cxx
 vtkLineSource.cxx
 vtkLinearExtrusionFilter.cxx
 vtkLinearSubdivisionFilter.cxx
