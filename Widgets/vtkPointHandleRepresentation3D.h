@@ -101,11 +101,14 @@ public:
 
   // Description:
   // If translation mode is on, as the widget is moved the bounding box,
-  // shadows, and cursor are all translated simultaneously as the point moves
-  // (i.e., the left and middle mouse buttons act the same).  Otherwise, only
-  // the cursor focal point moves, which is constrained by the bounds of the
-  // point representation. (Note that the bounds can be scaled up using the
-  // right mouse button.)
+  // shadows, and cursor are all translated and sized simultaneously as the
+  // point moves (i.e., the left and middle mouse buttons act the same). If
+  // translation mode is off, the cursor does not scale itself (based on the
+  // specified handle size), and the bounding box and shadows do not move or
+  // size themselves as the cursor focal point moves, which is constrained by
+  // the bounds of the point representation. (Note that the bounds can be
+  // scaled up using the right mouse button, and the bounds can be manually
+  // set with the SetBounds() method.)
   vtkSetMacro(TranslationMode,int);
   vtkGetMacro(TranslationMode,int);
   vtkBooleanMacro(TranslationMode,int);

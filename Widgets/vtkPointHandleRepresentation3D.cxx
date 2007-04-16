@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkFocalPlanePointPlacer.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.11");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.12");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -274,6 +274,7 @@ void vtkPointHandleRepresentation3D::StartWidgetInteraction(double startEventPos
     this->InteractionState = vtkHandleRepresentation::Outside;
     this->ConstraintAxis = -1;
     }
+  this->Cursor3D->SetTranslationMode(this->TranslationMode);
 }
 
 
@@ -309,7 +310,6 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
     {
     if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
       {
-
       vtkInteractorObserver::ComputeDisplayToWorld(
           this->Renderer, 
           this->StartEventPosition[0], 
@@ -350,7 +350,6 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
         }
       else
         {
-
         // If we are doing axis constrained motion, igonore the placer.
         // Can't have both the placer and the axis constraint dictating
         // handle placement.
@@ -494,17 +493,21 @@ void vtkPointHandleRepresentation3D::Translate(double *p1, double *p2)
 //----------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::SizeBounds()
 {
-  double center[3], newBounds[6];
-  this->Cursor3D->GetFocalPoint(center);
-  double radius = this->SizeHandlesInPixels(1.0,center);
-  radius *= this->CurrentHandleSize / this->HandleSize;
-
-  for (int i=0; i<3; i++)
+  // Only change the size of the bounding box if translation mode is on.
+  if ( this->TranslationMode )
     {
-    newBounds[2*i] = center[i] - radius;
-    newBounds[2*i+1] = center[i] + radius;
+    double center[3], newBounds[6];
+    this->Cursor3D->GetFocalPoint(center);
+    double radius = this->SizeHandlesInPixels(1.0,center);
+    radius *= this->CurrentHandleSize / this->HandleSize;
+
+    for (int i=0; i<3; i++)
+      {
+      newBounds[2*i] = center[i] - radius;
+      newBounds[2*i+1] = center[i] + radius;
+      }
+    this->Cursor3D->SetModelBounds(newBounds);
     }
-  this->Cursor3D->SetModelBounds(newBounds);
 }
 
 //----------------------------------------------------------------------
