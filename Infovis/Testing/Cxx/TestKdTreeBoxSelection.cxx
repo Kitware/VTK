@@ -95,6 +95,7 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   else
     {
     VTK_CREATE(vtkSimple2DLayoutStrategy, simpleLayout);
+    simpleLayout->SetJitter(true);
     layout->SetLayoutStrategy(simpleLayout);
     }
 
