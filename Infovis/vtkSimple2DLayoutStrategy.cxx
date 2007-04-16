@@ -36,7 +36,7 @@
 #include "vtkTree.h"
 
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.10");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.11");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -112,10 +112,17 @@ void vtkSimple2DLayoutStrategy::Initialize()
   vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
   float *rawPointData = array->GetPointer(0);
   
+  // Avoid divide by zero
+  float div = 1;
+  if (numVertices > 0)
+    {
+    div = static_cast<float>(numVertices);
+    }
+    
   // The optimal distance between vertices.
   if (this->RestDistance == 0)
     {
-    this->RestDistance = sqrt(1.0 / static_cast<float>(numVertices));
+    this->RestDistance = sqrt(1.0 / div);
     }
     
   // Set up array to store repulsion values
@@ -151,7 +158,7 @@ void vtkSimple2DLayoutStrategy::Initialize()
 
   // Get the weight array
   vtkDataArray* weightArray = NULL;
-  double weight, maxWeight = 0;
+  double weight, maxWeight = 1;
   if (this->EdgeWeightField != NULL)
     {
     weightArray = vtkDataArray::SafeDownCast(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
@@ -218,6 +225,7 @@ void vtkSimple2DLayoutStrategy::Layout()
   float delta[]={0,0,0};
   float disSquared;
   float attractValue;
+  float epsilon = 1e-5;
   vtkIdType pointIndex1=0;
   vtkIdType pointIndex2=0;
   for(int i = 0; i < this->IterationsPerLayout; ++i)
@@ -253,6 +261,8 @@ void vtkSimple2DLayoutStrategy::Layout()
         delta[1] = rawPointData[pointIndex1+1] - 
                   rawPointData[pointIndex2+1];
         disSquared = delta[0]*delta[0] + delta[1]*delta[1];
+        // Avoid divide by zero
+        disSquared += epsilon;
         rawRepulseArray[pointIndex1]   += delta[0]/disSquared;
         rawRepulseArray[pointIndex1+1] += delta[1]/disSquared;      
         }
@@ -292,13 +302,14 @@ void vtkSimple2DLayoutStrategy::Layout()
       // Get forces for this node
       float forceX = rawAttractArray[pointIndex1] + rawRepulseArray[pointIndex1];
       float forceY = rawAttractArray[pointIndex1+1] + rawRepulseArray[pointIndex1+1];
-      //forceX = rawRepulseArray[pointIndex1];
-      //forceY = rawRepulseArray[pointIndex1+1];
       
       // Forces can get extreme so limit them
       // Note: This is psuedo-normalization of the
       //       force vector, just to save some cycles
-      float pNormalize = MIN(1, 1.0/(fabs(forceX) + fabs(forceY)));
+      
+      // Avoid divide by zero
+      float forceDiv = fabs(forceX) + fabs(forceY) + epsilon;
+      float pNormalize = MIN(1, 1.0/forceDiv);
       pNormalize *= this->Temp;
       forceX *= pNormalize;
       forceY *= pNormalize;
