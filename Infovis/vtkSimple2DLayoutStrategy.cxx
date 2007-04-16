@@ -36,7 +36,7 @@
 #include "vtkTree.h"
 
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.11");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.12");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -89,24 +89,13 @@ void vtkSimple2DLayoutStrategy::Initialize()
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
   
-  // Create new float array that will be the graph's
-  // geometric points
-  VTK_CREATE(vtkFloatArray, graphPoints);
-  graphPoints->SetNumberOfComponents(3);
-  graphPoints->SetNumberOfTuples(numVertices);
-  
-  // Copy current points to new float array
-  double pointCoords[3];
-  for (vtkIdType i=0; i<numVertices; ++i)
+  // Make sure output point type is float
+  if (pts->GetData()->GetDataType() != VTK_FLOAT)
     {
-    pts->GetPoint(i, pointCoords);
-    graphPoints->SetValue(i*3, static_cast<float>(pointCoords[0]));
-    graphPoints->SetValue(i*3+1, static_cast<float>(pointCoords[1]));
-    graphPoints->SetValue(i*3+2, static_cast<float>(pointCoords[2]));
+    vtkErrorMacro("Layout strategy expects to have points of type float");
+    this->LayoutComplete = 1;
+    return;
     }
-  
-  // Set the graph points
-  pts->SetData(graphPoints);
   
   // Get a quick pointer to the point data
   vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
