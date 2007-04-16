@@ -16,6 +16,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
+#include "vtkCoordinate.h"
 
 vtkCxxRevisionMacro(vtkPointPlacer, "$Revision 1.3");
 vtkStandardNewMacro(vtkPointPlacer);
@@ -41,22 +42,34 @@ int vtkPointPlacer::UpdateWorldPosition( vtkRenderer *vtkNotUsed(ren),
 }
 
 //----------------------------------------------------------------------
-int vtkPointPlacer::ComputeWorldPosition( vtkRenderer *,
-                                  double vtkNotUsed(displayPos)[2], 
-                                  double vtkNotUsed(worldPos)[3],
+int vtkPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
+                                  double displayPos[2],
+                                  double worldPos[3],
                                   double vtkNotUsed(worldOrient)[9] )
-{  
-  return 1;
+{
+  if (ren)
+    {
+    vtkCoordinate *dpos = vtkCoordinate::New();
+    dpos->SetCoordinateSystemToDisplay();
+    dpos->SetValue( displayPos[0], displayPos[1] );
+    double * p = dpos->GetComputedWorldValue( ren );
+    worldPos[0] = p[0];
+    worldPos[1] = p[1];
+    worldPos[2] = p[2];
+    dpos->Delete();
+    return 1;
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------
-int vtkPointPlacer::ComputeWorldPosition( vtkRenderer *,
-                                  double vtkNotUsed(displayPos)[2], 
+int vtkPointPlacer::ComputeWorldPosition( vtkRenderer * ren,
+                                  double displayPos[2],
                                   double vtkNotUsed(refWorldPos)[3],
-                                  double vtkNotUsed(worldPos)[3],
-                                  double vtkNotUsed(worldOrient)[9] )
+                                  double worldPos[3],
+                                  double worldOrient[9] )
 {
-  return 1;
+  return this->ComputeWorldPosition( ren, displayPos, worldPos, worldOrient );
 }
 
 //----------------------------------------------------------------------
@@ -64,7 +77,7 @@ int vtkPointPlacer::ValidateWorldPosition( double vtkNotUsed(worldPos)[3] )
 {
   return 1;
 }
-  
+
 //----------------------------------------------------------------------
 int vtkPointPlacer::ValidateWorldPosition( double vtkNotUsed(worldPos)[3],
                                    double vtkNotUsed(worldOrient)[9] )
