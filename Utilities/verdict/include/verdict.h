@@ -762,9 +762,15 @@ struct TriMetricVals
 
     //! Calculates tet radius ratio metric.
     /** CR / (3.0 * IR)  where CR = circumsphere radius, IR = inscribed sphere radius.
-       Reference ---  V. N. Parthasarathy et al, A comparison of tetrahedron 
-       quality measures, Finite Elem. Anal. Des., Vol 15(1993), 255-261. */ 
+        Reference ---  V. N. Parthasarathy et al, A comparison of tetrahedron 
+        quality measures, Finite Elem. Anal. Des., Vol 15(1993), 255-261. */ 
     C_FUNC_DEF double v_tet_radius_ratio( int num_nodes, double coordinates[][3] ); 
+
+    //! Calculates the radius ratio metric of a positively oriented tet.
+    /** CR / (3.0 * IR)  where CR = circumsphere radius, IR = inscribed sphere radius
+        if the element is positively-oriented.
+        Reference ---  V. N. Parthasarathy et al, A comparison of tetrahedron 
+        quality measures, Finite Elem. Anal. Des., Vol 15(1993), 255-261. */ 
     C_FUNC_DEF double v_tet_aspect_beta( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates tet aspect ratio metric.

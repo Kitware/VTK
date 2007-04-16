@@ -226,11 +226,77 @@ C_FUNC_DEF double v_tet_scaled_jacobian( int /*num_nodes*/, double coordinates[]
 /*!
   The radius ratio of a tet
 
-  CR / (3.0*IR) where CR is the circumsphere radius and IR is the inscribed sphere radius
-  NB (P. Pebay 01/17/07):
-    this method was know in earlier incarnations of VERDICT as "v_tet_aspect_beta"
+  NB (P. Pebay 04/16/07):
+    CR / (3.0 * IR) where CR is the circumsphere radius and IR is the inscribed 
+    sphere radius.
+    Note that this metric is similar to the aspect beta of a tet, except that
+    it does not return VERDICT_DBL_MAX if the element has negative orientation.
 */
 C_FUNC_DEF double v_tet_radius_ratio( int /*num_nodes*/, double coordinates[][3] )
+{
+
+  //Determine side vectors
+  VerdictVector side[6];
+
+  side[0].set( coordinates[1][0] - coordinates[0][0],
+               coordinates[1][1] - coordinates[0][1],
+               coordinates[1][2] - coordinates[0][2] );
+  
+  side[1].set( coordinates[2][0] - coordinates[1][0],
+               coordinates[2][1] - coordinates[1][1],
+               coordinates[2][2] - coordinates[1][2] );
+  
+  side[2].set( coordinates[0][0] - coordinates[2][0],
+               coordinates[0][1] - coordinates[2][1],
+               coordinates[0][2] - coordinates[2][2] );
+
+  side[3].set( coordinates[3][0] - coordinates[0][0],
+               coordinates[3][1] - coordinates[0][1],
+               coordinates[3][2] - coordinates[0][2] );
+  
+  side[4].set( coordinates[3][0] - coordinates[1][0],
+               coordinates[3][1] - coordinates[1][1],
+               coordinates[3][2] - coordinates[1][2] );
+  
+  side[5].set( coordinates[3][0] - coordinates[2][0],
+               coordinates[3][1] - coordinates[2][1],
+               coordinates[3][2] - coordinates[2][2] );
+
+  VerdictVector numerator = side[3].length_squared() * ( side[2] * side[0]) +
+                            side[2].length_squared() * ( side[3] * side[0]) +
+                            side[0].length_squared() * ( side[3] * side[2]);
+
+  double area_sum;
+  area_sum = ((side[2] * side[0]).length() + 
+              (side[3] * side[0]).length() +
+              (side[4] * side[1]).length() + 
+              (side[3] * side[2]).length() ) * 0.5;
+  
+  double volume = v_tet_volume(4, coordinates);
+  
+  if( fabs( volume ) < VERDICT_DBL_MIN ) 
+    return (double)VERDICT_DBL_MAX;
+  else
+  {
+    double radius_ratio;
+    radius_ratio = numerator.length() * area_sum / (108 * volume * volume); 
+    
+    return (double) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
+  }
+
+}
+
+/*!
+  The radius ratio of a positively-oriented tet, a.k.a. "aspect beta"
+
+  NB (P. Pebay 04/16/07):  
+    CR / (3.0 * IR) where CR is the circumsphere radius and IR is the inscribed 
+    sphere radius if the element has positive orientation.
+    Note that this metric is similar to the radius ratio of a tet, except that
+    it returns VERDICT_DBL_MAX if the element has negative orientation.
+
+*/
+C_FUNC_DEF double v_tet_aspect_beta( int /*num_nodes*/, double coordinates[][3] )
 {
 
   //Determine side vectors
@@ -277,27 +343,11 @@ C_FUNC_DEF double v_tet_radius_ratio( int /*num_nodes*/, double coordinates[][3]
   else
   {
     double radius_ratio;
-    radius_ratio = numerator.length() * area_sum / (108*volume*volume); 
+    radius_ratio = numerator.length() * area_sum / (108 * volume * volume); 
     
-    if( radius_ratio > 0 )
-      return (double) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
-    return (double) VERDICT_MAX( radius_ratio, -VERDICT_DBL_MAX );
+    return (double) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
   }
 
-}
-
-/*!
-  The radius ratio of a tet, a.k.a. "aspect beta"
-  NB (P. Pebay 11/28/06): 
-     this method is maintained for backwards compatibility only.
-     It will become deprecated at some point.
-
-  CR / (3.0*IR) where CR is the circumsphere radius and IR is the inscribed sphere radius
-*/
-C_FUNC_DEF double v_tet_aspect_beta( int /*num_nodes*/, double coordinates[][3] )
-{
-
-  return v_tet_radius_ratio(4, coordinates);
 }
 
 /*!
