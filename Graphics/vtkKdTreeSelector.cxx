@@ -24,7 +24,7 @@
 #include "vtkPointSet.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkKdTreeSelector, "1.2");
+vtkCxxRevisionMacro(vtkKdTreeSelector, "1.3");
 vtkStandardNewMacro(vtkKdTreeSelector);
 
 vtkKdTreeSelector::vtkKdTreeSelector()
@@ -118,6 +118,11 @@ int vtkKdTreeSelector::RequestData(
   if (this->BuildKdTreeFromInput)
     {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+    if (inInfo == NULL)
+      {
+      vtkErrorMacro("No input, but building kd-tree from input");
+      return 0;
+      }
     vtkPointSet* input = vtkPointSet::SafeDownCast(
       inInfo->Get(vtkDataObject::DATA_OBJECT()));
     if (input == NULL)
@@ -129,7 +134,7 @@ int vtkKdTreeSelector::RequestData(
     // If no points, there is nothing to do
     if (input->GetPoints() == NULL || input->GetNumberOfPoints() == 0)
       {
-      return 0;
+      return 1;
       }
 
     // Construct the kd-tree if we need to
@@ -153,6 +158,12 @@ int vtkKdTreeSelector::RequestData(
         return 0;
         }
       }
+    }
+
+  // If no kd-tree, there is nothing to do
+  if (this->KdTree == NULL)
+    {
+    return 1;
     }
 
   // Use the kd-tree to find the selected points
