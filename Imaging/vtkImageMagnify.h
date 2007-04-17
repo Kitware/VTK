@@ -1,5 +1,5 @@
 /*=========================================================================
-
+  
   Program:   Visualization Toolkit
   Module:    vtkImageMagnify.h
 
@@ -17,7 +17,8 @@
 // vtkImageMagnify maps each pixel of the input onto a nxmx... region
 // of the output.  Location (0,0,...) remains in the same place. The
 // magnification occurs via pixel replication, or if Interpolate is on,
-// by bilinear interpolation.
+// by bilinear interpolation. Initially, interpolation is off and magnification
+// factors are set to 1 in all directions.
 
 #ifndef __vtkImageMagnify_h
 #define __vtkImageMagnify_h
@@ -30,33 +31,40 @@ public:
   static vtkImageMagnify *New();
   vtkTypeRevisionMacro(vtkImageMagnify,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
   // Description:
   // Set/Get the integer magnification factors in the i-j-k directions.
+  // Initially, factors are set to 1 in all directions.
   vtkSetVector3Macro(MagnificationFactors,int);
   vtkGetVector3Macro(MagnificationFactors,int);
   
   // Description:
   // Turn interpolation on and off (pixel replication is used when off).
+  // Initially, interpolation is off.
   vtkSetMacro(Interpolate,int);
   vtkGetMacro(Interpolate,int);
   vtkBooleanMacro(Interpolate,int);
   
-
 protected:
   vtkImageMagnify();
   ~vtkImageMagnify() {};
-
+  
   int MagnificationFactors[3];
   int Interpolate;
-  virtual int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *,
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *,
+                                 vtkInformationVector **,
+                                 vtkInformationVector *);
   
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id);
+                           vtkImageData ***inData,
+                           vtkImageData **outData,
+                           int outExt[6],
+                           int id);
 
   void InternalRequestUpdateExtent(int *inExt, int *outExt);
 
