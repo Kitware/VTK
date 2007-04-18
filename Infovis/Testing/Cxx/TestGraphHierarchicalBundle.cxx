@@ -37,7 +37,7 @@
 int TestGraphHierarchicalBundle(int argc, char* argv[])
 {
   int treeType = STRUCTURED_TREE;
-  const char* file;
+  const char* file = 0;
   bool showTree = false;
   vtkIdType numVertices = 200;
   vtkIdType numEdges = 100;
@@ -137,7 +137,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
 
   // Create the graph.
   
-  vtkAbstractGraph* graph;
+  vtkAbstractGraph* graph = 0;
   if (treeType == RANDOM_TREE)
     {
     VTK_CREATE(vtkRandomGraphSource, source);
@@ -247,7 +247,8 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
       tree->AddChild(root);
       extendedNameArray->InsertNextValue(kitNames->GetValue(k));
       }
-    vtkStringArray* fileArray = dynamic_cast<vtkStringArray*>(graph->GetVertexData()->GetAbstractArray("filename"));
+    vtkStringArray* fileArray = vtkStringArray::SafeDownCast(
+      graph->GetVertexData()->GetAbstractArray("filename"));
     for (i = 0; i < graph->GetNumberOfVertices(); i++)
       {
       vtkStdString curFile = fileArray->GetValue(i);
