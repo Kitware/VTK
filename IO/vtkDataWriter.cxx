@@ -37,7 +37,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.117");
+vtkCxxRevisionMacro(vtkDataWriter, "1.118");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -162,7 +162,7 @@ ostream *vtkDataWriter::OpenVTKFile()
       }
     input->Update();
     this->OutputStringAllocatedLength = (int) (500 
-      + 1000 * input->GetActualMemorySize());
+      + 1024 * input->GetActualMemorySize());
     this->OutputString = new char[this->OutputStringAllocatedLength];
 
     fptr = new ostrstream(this->OutputString, 
