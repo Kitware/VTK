@@ -33,7 +33,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkDataArray, "1.73");
+vtkCxxRevisionMacro(vtkDataArray, "1.74");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -716,7 +716,7 @@ unsigned long vtkDataArray::GetActualMemorySize()
 
   size = vtkDataArray::GetDataTypeSize(this->GetDataType());
 
-  return (unsigned long)ceil((size * numPrims)/1000.0); //kilobytes
+  return (unsigned long)ceil((size * numPrims)/1024.0); //kilobytes
 }
 
 //----------------------------------------------------------------------------

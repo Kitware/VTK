@@ -15,7 +15,7 @@
 #include "vtkCellTypes.h"
 #include "vtkObjectFactory.h"  
 
-vtkCxxRevisionMacro(vtkCellTypes, "1.1");
+vtkCxxRevisionMacro(vtkCellTypes, "1.2");
 vtkStandardNewMacro(vtkCellTypes);
 
 //----------------------------------------------------------------------------
@@ -159,7 +159,7 @@ unsigned long vtkCellTypes::GetActualMemorySize()
     size += this->LocationArray->GetActualMemorySize();
     }
 
-  return (unsigned long) ceil((float)size/1000.0); //kilobytes
+  return (unsigned long) ceil((float)size/1024.0); //kilobytes
 }
 
 

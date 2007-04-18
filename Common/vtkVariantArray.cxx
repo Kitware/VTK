@@ -33,7 +33,7 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkVariant);
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.3");
+vtkCxxRevisionMacro(vtkVariantArray, "1.4");
 vtkStandardNewMacro(vtkVariantArray);
 
 //----------------------------------------------------------------------------
@@ -466,7 +466,7 @@ unsigned long vtkVariantArray::GetActualMemorySize()
 
   totalSize = numPrims*sizeof(vtkVariant);
 
-  return (unsigned long) ceil(totalSize / 1000.0); // kilobytes
+  return (unsigned long) ceil(totalSize / 1024.0); // kilobytes
 }
 
 //----------------------------------------------------------------------------

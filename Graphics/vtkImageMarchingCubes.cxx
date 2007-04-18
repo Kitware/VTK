@@ -27,7 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.1");
+vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.2");
 vtkStandardNewMacro(vtkImageMarchingCubes);
 
 //----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ vtkImageMarchingCubes::vtkImageMarchingCubes()
   this->ComputeScalars = 1;
 
   this->LocatorPointIds = NULL;
-  this->InputMemoryLimit = 10000;  // 10 mega Bytes
+  this->InputMemoryLimit = 10240;  // 10 mega Bytes
 }
 
 vtkImageMarchingCubes::~vtkImageMarchingCubes()
@@ -126,11 +126,11 @@ int vtkImageMarchingCubes::RequestData(
   temp *= extent[3] - extent[2] + 1;
   temp = temp;
   // temp holds memory per image. (+1 to avoid dividing by zero)
-  this->NumberOfSlicesPerChunk = this->InputMemoryLimit * 1000 / (temp + 1);
+  this->NumberOfSlicesPerChunk = this->InputMemoryLimit * 1024 / (temp + 1);
   if (this->NumberOfSlicesPerChunk < minSlicesPerChunk)
     {
     vtkWarningMacro("Execute: Need " 
-      <<  minSlicesPerChunk*(temp/1000) << " KB to load " 
+      <<  minSlicesPerChunk*(temp/1024) << " KB to load " 
       << minSlicesPerChunk << " slices.\n");
     this->NumberOfSlicesPerChunk = minSlicesPerChunk;
     }

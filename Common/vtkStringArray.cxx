@@ -36,7 +36,7 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkStdString);
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStringArray, "1.7");
+vtkCxxRevisionMacro(vtkStringArray, "1.8");
 vtkStandardNewMacro(vtkStringArray);
 
 //----------------------------------------------------------------------------
@@ -451,7 +451,7 @@ vtkStringArray::GetActualMemorySize( void )
     totalSize += this->Array[i].size() * sizeof( vtkStdString::value_type );
     }
 
-  return (unsigned long) ceil( totalSize / 1000.0 ); // kilobytes
+  return (unsigned long) ceil( totalSize / 1024.0 ); // kilobytes
 }
 
 // ----------------------------------------------------------------------

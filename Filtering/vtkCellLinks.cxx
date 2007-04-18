@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkCellLinks, "1.1");
+vtkCxxRevisionMacro(vtkCellLinks, "1.2");
 vtkStandardNewMacro(vtkCellLinks);
 
 //----------------------------------------------------------------------------
@@ -274,7 +274,7 @@ unsigned long vtkCellLinks::GetActualMemorySize()
   size *= sizeof(int *); //references to cells
   size += (this->MaxId+1) * sizeof(vtkCellLinks::Link); //list of cell lists
 
-  return (unsigned long) ceil((float)size/1000.0); //kilobytes
+  return (unsigned long) ceil((float)size/1024.0); //kilobytes
 }
 
 //----------------------------------------------------------------------------
