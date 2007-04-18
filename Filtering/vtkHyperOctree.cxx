@@ -114,7 +114,7 @@ void vtkHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.17");
+vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.18");
 
 template<unsigned int D> class vtkCompactHyperOctree;
 template<unsigned int D> class vtkCompactHyperOctreeNode;
@@ -517,13 +517,13 @@ private:
   void operator=(const vtkCompactHyperOctreeCursor<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.17");
+// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.18");
 template<unsigned int D>
 void vtkCompactHyperOctreeCursor<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.17" << '\n';
+  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.18" << '\n';
 }
   
 
@@ -655,7 +655,7 @@ protected:
   int Children[1<<D]; // indices
 };
 
-//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.17");
+//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.18");
 
 template<unsigned int D> class vtkCompactHyperOctree
   : public vtkHyperOctreeInternal
@@ -919,7 +919,7 @@ public:
     unsigned int size;
     size = sizeof(int) * this->GetNumberOfLeaves();
     size += sizeof(vtkCompactHyperOctreeNode<D>) * this->Nodes.size();
-    return size / 1000;
+    return size / 1024;
   }
 
 protected:
@@ -960,13 +960,13 @@ private:
   void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.17");
+// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.18");
 template<unsigned int D>
 void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctree<" << D <<"> " << "1.17" << '\n';
+  os << "vtkCompactHyperOctree<" << D <<"> " << "1.18" << '\n';
 }
   
 
@@ -974,7 +974,7 @@ void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 // quadtree: vtkHyperOctreeInternal<2>
 // bittree: vtkHyperOctreeInternal<1>
 
-vtkCxxRevisionMacro(vtkHyperOctree, "1.17");
+vtkCxxRevisionMacro(vtkHyperOctree, "1.18");
 vtkStandardNewMacro(vtkHyperOctree);
 
 //-----------------------------------------------------------------------------
