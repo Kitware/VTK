@@ -54,7 +54,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.42")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.43")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -868,14 +868,19 @@ int vtkDistributedDataFilter::CheckFieldArrayTypes(vtkDataSet *set)
 // Quickly spread input data around if there are more processes than
 // input data sets.
 //-------------------------------------------------------------------------
+struct vtkDistributedDataFilterProcInfo {
+  vtkIdType had;
+  int procId;
+  vtkIdType has;
+};
 extern "C"
 {
   int vtkDistributedDataFilterSortSize(const void *s1, const void *s2)
   {
-    struct _procInfo{ int had; int procId; int has; } *a, *b;
+    vtkDistributedDataFilterProcInfo *a, *b;
 
-    a = (struct _procInfo *)s1;
-    b = (struct _procInfo *)s2;
+    a = (struct vtkDistributedDataFilterProcInfo *)s1;
+    b = (struct vtkDistributedDataFilterProcInfo *)s2;
 
     if (a->has < b->has)
       {
@@ -1029,9 +1034,8 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
 
       vtkIdType minCells = (vtkIdType)(.8 * (double)cellsPerNode);
   
-      struct _procInfo{ vtkIdType had; int procId; vtkIdType has; };
-  
-      struct _procInfo *procInfo = new struct _procInfo [nprocs];
+      struct vtkDistributedDataFilterProcInfo *procInfo
+        = new struct vtkDistributedDataFilterProcInfo [nprocs];
   
       for (proc = 0; proc < nprocs ; proc++)
         {
@@ -1042,11 +1046,12 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
 
       inputSize->Delete();
   
-      qsort(procInfo, nprocs, sizeof(struct _procInfo), 
+      qsort(procInfo, nprocs, sizeof(struct vtkDistributedDataFilterProcInfo), 
             vtkDistributedDataFilterSortSize);
 
-      struct _procInfo *nextProducer = procInfo;
-      struct _procInfo *nextConsumer = procInfo + (nprocs - 1);
+      struct vtkDistributedDataFilterProcInfo *nextProducer = procInfo;
+      struct vtkDistributedDataFilterProcInfo *nextConsumer
+        = procInfo + (nprocs - 1);
 
       vtkIdType numTransferCells = 0;
 
