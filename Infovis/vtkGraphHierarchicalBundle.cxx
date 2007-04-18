@@ -34,7 +34,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.1");
+vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.2");
 vtkStandardNewMacro(vtkGraphHierarchicalBundle);
 
 vtkGraphHierarchicalBundle::vtkGraphHierarchicalBundle()
@@ -201,6 +201,12 @@ int vtkGraphHierarchicalBundle::RequestData(
     {
     unsigned int graphSourceIndex = graph->GetSourceVertex(i);
     unsigned int graphTargetIndex = graph->GetTargetVertex(i);
+
+    // Do not render loops
+    if (graphSourceIndex == graphTargetIndex)
+      {
+      continue;
+      }
 
     vtkIdType source = 0;
     vtkIdType target = 0;
