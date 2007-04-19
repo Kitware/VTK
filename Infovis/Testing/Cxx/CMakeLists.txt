@@ -4,6 +4,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   # add tests that do not require data
   SET(MyTests     
     TestGraphHierarchicalBundle
+    TestGroupLeafVertices
     TestKdTreeBoxSelection
     TestTable
     TestVariantArray

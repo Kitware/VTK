@@ -16,6 +16,7 @@ vtkGraphLayout.cxx
 vtkGraphLayoutStrategy.cxx
 vtkGraphLayoutViewer.cxx
 vtkGraphToPolyData.cxx
+vtkGroupLeafVertices.cxx
 vtkInteractorStyleTreeMapHover.cxx
 vtkLabeledTreeMapDataMapper.cxx
 vtkPruneTreeFilter.cxx
@@ -24,6 +25,9 @@ vtkRandomLayoutStrategy.cxx
 vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSquarifyLayoutStrategy.cxx
+vtkTableToGraphFilter.cxx
+vtkTableToTreeFilter.cxx
+vtkThresholdTable.cxx
 vtkTreeFieldAggregator.cxx
 vtkTreeLayoutStrategy.cxx
 vtkTreeLevelsFilter.cxx
