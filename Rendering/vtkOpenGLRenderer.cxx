@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.67");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.68");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -318,7 +318,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
       int supportsAtLeast8AlphaBits=alphaBits>=8;
       
-      this->DepthPeelingIsSupported=supports_GL_ARB_depth_texture &&
+      this->DepthPeelingIsSupported =
+        supports_GL_ARB_depth_texture &&
         supports_GL_ARB_shadow &&
         supports_GL_EXT_shadow_funcs &&
         supports_GL_ARB_vertex_shader &&
@@ -392,85 +393,98 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           }
         }
       extensions->Delete();
-      }
-    }
-  
-  if(this->UseDepthPeeling && this->DepthPeelingIsSupported)
-    {
-    // last check. Some OpenGL implementations such as Mesa or ATI
-    // claim to support both GLSL and GL_ARB_texture_rectangle but
-    // don't actually support sampler2DRectShadow in a GLSL code.
-    // To test that, we compile the shader, if it fails, we don't use
-    // deph peeling
-    
-    GLuint shader=vtkgl::CreateShaderObjectARB(vtkgl::FRAGMENT_SHADER_ARB);
-    vtkgl::ShaderSourceARB(shader,1,const_cast<const char **>(&vtkOpenGLRenderer_PeelingFS),0);
-    vtkgl::CompileShaderARB(shader);
-    GLint params;
-    vtkgl::GetObjectParameterivARB(shader,vtkgl::OBJECT_COMPILE_STATUS_ARB,
-                                   &params);
-    this->DepthPeelingIsSupported=params==GL_TRUE;
-    vtkgl::DeleteObjectARB(shader);
-    if(!this->DepthPeelingIsSupported)
-      {
-      vtkDebugMacro(<<"this OpenGL implementation does not support GL_ARB_texture_rectangle in GLSL code");
-      }
-    }
-  
-  if(this->UseDepthPeeling && this->DepthPeelingIsSupported)
-    {
-    // Those ATI cards with those driver versions do not work
-    // (iMac, Mac Pro, Power Mac G5, PC).
-    // Do alpha blending always.
-    const GLubyte *openglString=glGetString(GL_RENDERER);
-    const char *substring=strstr(reinterpret_cast<const char *>(openglString),
-                                 "ATI Radeon X1600 OpenGL Engine");
-    int isATIRadeonX1600=substring!=0;
-    substring=strstr(reinterpret_cast<const char *>(openglString),
-                     "ATI Radeon X1900 OpenGL Engine");
-    int isATIRadeonX1900=substring!=0;
-    substring=strstr(reinterpret_cast<const char *>(openglString),
-                     "ATI FireGL V3300 Pentium 4 (SSE2)");
-    int isATIFireGLV3300=substring!=0;
-    substring=strstr(reinterpret_cast<const char *>(openglString),
-                     "ATI Radeon 9600 XT OpenGL Engine");
-    int isATIRadeon9600XT=substring!=0;
-    
-    openglString=glGetString(GL_VERSION);
-    
-    int badCard=0;
-    
-    if(isATIRadeon9600XT)
-      {
-      // The Mac OS X 10.4.9 version of the ATI driver, known not to work
-      substring=strstr(reinterpret_cast<const char *>(openglString),
-                       "1.5 ATI-1.4.18");
-      badCard=substring!=0;
-      }
-    else if(isATIFireGLV3300)
-      {
-      substring=strstr(reinterpret_cast<const char *>(openglString),
-                       "2.0.6237");
-      badCard=substring!=0;
-      }
-    else
-      {
-      if(isATIRadeonX1600 || isATIRadeonX1900)
+
+      if(this->DepthPeelingIsSupported)
         {
-        // The Mac OS X 10.4.8 version of the ATI driver, known not to work
-        substring=strstr(reinterpret_cast<const char *>(openglString),
-                         "2.0 ATI-1.4.40");
-        badCard=substring!=0;
-        if(!badCard)
+        // Some OpenGL implementations such as Mesa or ATI
+        // claim to support both GLSL and GL_ARB_texture_rectangle but
+        // don't actually support sampler2DRectShadow in a GLSL code.
+        // To test that, we compile the shader, if it fails, we don't use
+        // deph peeling
+        GLuint shader =
+          vtkgl::CreateShaderObjectARB(vtkgl::FRAGMENT_SHADER_ARB);
+        vtkgl::ShaderSourceARB
+          (shader, 1,
+           const_cast<const char **>(&vtkOpenGLRenderer_PeelingFS), 0);
+        vtkgl::CompileShaderARB(shader);
+        GLint params;
+        vtkgl::GetObjectParameterivARB(shader,
+                                       vtkgl::OBJECT_COMPILE_STATUS_ARB,
+                                       &params);
+        this->DepthPeelingIsSupported = params==GL_TRUE;
+        vtkgl::DeleteObjectARB(shader);
+        if(!this->DepthPeelingIsSupported)
+          {
+          vtkDebugMacro("this OpenGL implementation does not support "
+                        "GL_ARB_texture_rectangle in GLSL code");
+          }
+        }
+      if(this->DepthPeelingIsSupported)
+        {
+        // Some OpenGL implementations are buggy so depth peeling does not work:
+        //  - ATI on iMac, Mac Pro, Power Mac G5, PC
+        //  - Mesa 6.5.2 and lower
+        // Do alpha blending always.
+        const char* gl_renderer =
+          reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+        int isATIRadeonX1600 =
+          strstr(gl_renderer, "ATI Radeon X1600 OpenGL Engine") != 0;
+        int isATIRadeonX1900 =
+          strstr(gl_renderer, "ATI Radeon X1900 OpenGL Engine") != 0;
+        int isATIFireGLV3300 =
+          strstr(gl_renderer, "ATI FireGL V3300 Pentium 4 (SSE2)") != 0;
+        int isATIRadeon9600XT =
+          strstr(gl_renderer, "ATI Radeon 9600 XT OpenGL Engine") != 0;
+        const char* gl_version =
+          reinterpret_cast<const char *>(glGetString(GL_VERSION));
+        if(const char* mesa_version = strstr(gl_version, "Mesa"))
+          {
+          // Mesa versions 6.5.3 and higher work.  Versions much lower
+          // than 6.5.2 do not report support for the extensions to
+          // get this far.  Therefore if parsing of the version fails
+          // just assume it is a higher version that changed the
+          // format of the version string.
+          int mesa_major = 0;
+          int mesa_minor = 0;
+          int mesa_patch = 0;
+          if(sscanf(mesa_version, "Mesa %d.%d.%d",
+                    &mesa_major, &mesa_minor, &mesa_patch) >= 2)
+            {
+            if(mesa_major  < 6 ||
+               mesa_major == 6 && mesa_major  < 5 ||
+               mesa_major == 6 && mesa_minor == 5 && mesa_patch < 3)
+              {
+              this->DepthPeelingIsSupported = 0;
+              }
+            }
+          }
+        else if(isATIRadeon9600XT)
           {
           // The Mac OS X 10.4.9 version of the ATI driver, known not to work
-          substring=strstr(reinterpret_cast<const char *>(openglString),
-                         "2.0 ATI-1.4.52");
-          badCard=substring!=0;
+          if(strstr(gl_version, "1.5 ATI-1.4.18"))
+            {
+            this->DepthPeelingIsSupported = 0;
+            }
+          }
+        else if(isATIFireGLV3300)
+          {
+          if(strstr(gl_version, "2.0.6237"))
+            {
+            this->DepthPeelingIsSupported = 0;
+            }
+          }
+        else if(isATIRadeonX1600 || isATIRadeonX1900)
+          {
+          // The Mac OS X 10.4.8 version of the ATI driver, known not to work
+          // The Mac OS X 10.4.9 version of the ATI driver, known not to work
+          if(strstr(gl_version, "2.0 ATI-1.4.40") ||
+             strstr(gl_version, "2.0 ATI-1.4.52"))
+            {
+            this->DepthPeelingIsSupported = 0;
+            }
           }
         }
       }
-    this->DepthPeelingIsSupported=!badCard;
     }
   
   if(!this->UseDepthPeeling || !this->DepthPeelingIsSupported)
