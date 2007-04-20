@@ -387,6 +387,199 @@ public:
   // time series query functions
   int GetTimeSeriesData( int ID, const char *vName, const char *vType, 
                          vtkFloatArray *result );
+
+
+
+  int GetNumberOfEdgeBlockArrays()
+    { return this->GetNumberOfObjects(EDGE_BLOCK); }
+  const char* GetEdgeBlockArrayName(int index)
+    { return this->GetObjectName(EDGE_BLOCK, index); }
+  int GetEdgeBlockArrayStatus(const char* name)
+    { return this->GetObjectStatus(EDGE_BLOCK, name); }
+  void SetEdgeBlockArrayStatus(const char* name, int flag)
+    { return this->SetObjectStatus(EDGE_BLOCK, name, flag); }
+  
+  int GetNumberOfFaceBlockArrays()
+    { return this->GetNumberOfObjects(FACE_BLOCK); }
+  const char* GetFaceBlockArrayName(int index)
+    { return this->GetObjectName(FACE_BLOCK, index); }
+  int GetFaceBlockArrayStatus(const char* name)
+    { return this->GetObjectStatus(FACE_BLOCK, name); }
+  void SetFaceBlockArrayStatus(const char* name, int flag)
+    { return this->SetObjectStatus(FACE_BLOCK, name, flag); }
+ 
+  int GetNumberOfElementBlockArrays()
+    { return this->GetNumberOfObjects(ELEM_BLOCK); }
+  const char* GetElementBlockArrayName(int index)
+    { return this->GetObjectName(ELEM_BLOCK, index); }
+  int GetElementBlockArrayStatus(const char* name)
+    { return this->GetObjectStatus(ELEM_BLOCK, name); }
+  void SetElementBlockArrayStatus(const char* name, int flag)
+    { return this->SetObjectStatus(ELEM_BLOCK, name, flag); }
+
+  int GetNumberOfPointResultArrays()
+    { return this->GetNumberOfObjectArrays(NODAL); }
+  const char* GetPointResultArrayName(int index)
+    { return this->GetObjectArrayName(NODAL, index); }
+  int GetPointResultArrayStatus(const char* name)
+    { return this->GetObjectArrayStatus(NODAL, name); }
+  void SetPointResultArrayStatus(const char* name, int flag)
+    { return this->SetObjectArrayStatus(NODAL, name, flag); }
+  
+  int GetNumberOfEdgeResultArrays()
+    { return this->GetNumberOfObjectArrays(EDGE_BLOCK); }
+  const char* GetEdgeResultArrayName(int index)
+    { return this->GetObjectArrayName(EDGE_BLOCK, index); }
+  int GetEdgeResultArrayStatus(const char* name)
+    { return this->GetObjectArrayStatus(EDGE_BLOCK, name); }
+  void SetEdgeResultArrayStatus(const char* name, int flag)
+    { return this->SetObjectArrayStatus(EDGE_BLOCK, name, flag); }
+
+  int GetNumberOfFaceResultArrays()
+    { return this->GetNumberOfObjectArrays(FACE_BLOCK); }
+  const char* GetFaceResultArrayName(int index)
+    { return this->GetObjectArrayName(FACE_BLOCK, index); }
+  int GetFaceResultArrayStatus(const char* name)
+    { return this->GetObjectArrayStatus(FACE_BLOCK, name); }
+  void SetFaceResultArrayStatus(const char* name, int flag)
+    { return this->SetObjectArrayStatus(FACE_BLOCK, name, flag); }
+
+  int GetNumberOfElementResultArrays()
+    { return this->GetNumberOfObjectArrays(ELEM_BLOCK); }
+  const char* GetElementResultArrayName(int index)
+    { return this->GetObjectArrayName(ELEM_BLOCK, index); }
+  int GetElementResultArrayStatus(const char* name)
+    { return this->GetObjectArrayStatus(ELEM_BLOCK, name); }
+  void SetElementResultArrayStatus(const char* name, int flag)
+    { return this->SetObjectArrayStatus(ELEM_BLOCK, name, flag); }
+  
+  
+  int GetNumberOfNodeMapArrays()
+    { return this->GetNumberOfObjects(NODE_MAP); }
+  const char* GetNodeMapArrayName(int index)
+    { return this->GetObjectName(NODE_MAP, index); }
+  int GetNodeMapArrayStatus(const char* name)
+    { return this->GetObjectStatus(NODE_MAP, name); }
+  void SetNodeMapArrayStatus(const char* name, int flag)
+    { return this->SetObjectStatus(NODE_MAP, name, flag); }
+  
+  int GetNumberOfEdgeMapArrays()
+    { return this->GetNumberOfObjects(EDGE_MAP); }
+  const char* GetEdgeMapArrayName(int index)
+    { return this->GetObjectName(EDGE_MAP, index); }
+  int GetEdgeMapArrayStatus(const char* name)
+    { return this->GetObjectStatus(EDGE_MAP, name); }
+  void SetEdgeMapArrayStatus(const char* name, int flag)
+    { return this->SetObjectStatus(EDGE_MAP, name, flag); }
+
+  int GetNumberOfFaceMapArrays()
+    { return this->GetNumberOfObjects(FACE_MAP); }
+  const char* GetFaceMapArrayName(int index)
+    { return this->GetObjectName(FACE_MAP, index); }
+  int GetFaceMapArrayStatus(const char* name)
+    { return this->GetObjectStatus(FACE_MAP, name); }
+  void SetFaceMapArrayStatus(const char* name, int flag)
+    { return this->SetObjectStatus(FACE_MAP, name, flag); }
+
+  int GetNumberOfElementMapArrays()
+    { return this->GetNumberOfObjects(ELEM_MAP); }
+  const char* GetElementMapArrayName(int index)
+    { return this->GetObjectName(ELEM_MAP, index); }
+  int GetElementMapArrayStatus(const char* name)
+    { return this->GetObjectStatus(ELEM_MAP, name); }
+  void SetElementMapArrayStatus(const char* name, int flag)
+    { return this->SetObjectStatus(ELEM_MAP, name, flag); }
+  
+  int GetNumberOfNodeSetArrays()
+    { return this->GetNumberOfObjects(NODE_SET); }
+  const char* GetNodeSetArrayName(int index)
+    { return this->GetObjectName(NODE_SET, index); }
+  int GetNodeSetArrayStatus(const char* name)
+    { return this->GetObjectStatus(NODE_SET, name); }
+  void SetNodeSetArrayStatus(const char* name, int flag)
+    { return this->SetObjectStatus(NODE_SET, name, flag); }
+  
+  int GetNumberOfSideSetArrays()
+    { return this->GetNumberOfObjects(SIDE_SET); }
+  const char* GetSideSetArrayName(int index)
+    { return this->GetObjectName(SIDE_SET, index); }
+  int GetSideSetArrayStatus(const char* name)
+    { return this->GetObjectStatus(SIDE_SET, name); }
+  void SetSideSetArrayStatus(const char* name, int flag)
+    { return this->SetObjectStatus(SIDE_SET, name, flag); }
+  
+  int GetNumberOfEdgeSetArrays()
+    { return this->GetNumberOfObjects(EDGE_SET); }
+  const char* GetEdgeSetArrayName(int index)
+    { return this->GetObjectName(EDGE_SET, index); }
+  int GetEdgeSetArrayStatus(const char* name)
+    { return this->GetObjectStatus(EDGE_SET, name); }
+  void SetEdgeSetArrayStatus(const char* name, int flag)
+    { return this->SetObjectStatus(EDGE_SET, name, flag); }
+
+  int GetNumberOfFaceSetArrays()
+    { return this->GetNumberOfObjects(FACE_SET); }
+  const char* GetFaceSetArrayName(int index)
+    { return this->GetObjectName(FACE_SET, index); }
+  int GetFaceSetArrayStatus(const char* name)
+    { return this->GetObjectStatus(FACE_SET, name); }
+  void SetFaceSetArrayStatus(const char* name, int flag)
+    { return this->SetObjectStatus(FACE_SET, name, flag); }
+  
+  int GetNumberOfElementSetArrays()
+    { return this->GetNumberOfObjects(ELEM_SET); }
+  const char* GetElementSetArrayName(int index)
+    { return this->GetObjectName(ELEM_SET, index); }
+  int GetElementSetArrayStatus(const char* name)
+    { return this->GetObjectStatus(ELEM_SET, name); }
+  void SetElementSetArrayStatus(const char* name, int flag)
+    { return this->SetObjectStatus(ELEM_SET, name, flag); }
+  
+  
+  int GetNumberOfNodeSetResultArrays()
+    { return this->GetNumberOfObjectArrays(NODE_SET); }
+  const char* GetNodeSetResultArrayName(int index)
+    { return this->GetObjectArrayName(NODE_SET, index); }
+  int GetNodeSetResultArrayStatus(const char* name)
+    { return this->GetObjectArrayStatus(NODE_SET, name); }
+  void SetNodeSetResultArrayStatus(const char* name, int flag)
+    { return this->SetObjectArrayStatus(NODE_SET, name, flag); }
+  
+  int GetNumberOfSideSetResultArrays()
+    { return this->GetNumberOfObjectArrays(SIDE_SET); }
+  const char* GetSideSetResultArrayName(int index)
+    { return this->GetObjectArrayName(SIDE_SET, index); }
+  int GetSideSetResultArrayStatus(const char* name)
+    { return this->GetObjectArrayStatus(SIDE_SET, name); }
+  void SetSideSetResultArrayStatus(const char* name, int flag)
+    { return this->SetObjectArrayStatus(SIDE_SET, name, flag); }
+  
+  int GetNumberOfEdgeSetResultArrays()
+    { return this->GetNumberOfObjectArrays(EDGE_SET); }
+  const char* GetEdgeSetResultArrayName(int index)
+    { return this->GetObjectArrayName(EDGE_SET, index); }
+  int GetEdgeSetResultArrayStatus(const char* name)
+    { return this->GetObjectArrayStatus(EDGE_SET, name); }
+  void SetEdgeSetResultArrayStatus(const char* name, int flag)
+    { return this->SetObjectArrayStatus(EDGE_SET, name, flag); }
+
+  int GetNumberOfFaceSetResultArrays()
+    { return this->GetNumberOfObjectArrays(FACE_SET); }
+  const char* GetFaceSetResultArrayName(int index)
+    { return this->GetObjectArrayName(FACE_SET, index); }
+  int GetFaceSetResultArrayStatus(const char* name)
+    { return this->GetObjectArrayStatus(FACE_SET, name); }
+  void SetFaceSetResultArrayStatus(const char* name, int flag)
+    { return this->SetObjectArrayStatus(FACE_SET, name, flag); }
+  
+  int GetNumberOfElementSetResultArrays()
+    { return this->GetNumberOfObjectArrays(ELEM_SET); }
+  const char* GetElementSetResultArrayName(int index)
+    { return this->GetObjectArrayName(ELEM_SET, index); }
+  int GetElementSetResultArrayStatus(const char* name)
+    { return this->GetObjectArrayStatus(ELEM_SET, name); }
+  void SetElementSetResultArrayStatus(const char* name, int flag)
+    { return this->SetObjectArrayStatus(ELEM_SET, name, flag); }
   
 protected:
   vtkExodusIIReader();
