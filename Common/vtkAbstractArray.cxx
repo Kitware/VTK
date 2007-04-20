@@ -41,7 +41,7 @@
 #  include "vtkUnsigned__Int64Array.h"
 # endif
 #endif
-vtkCxxRevisionMacro(vtkAbstractArray, "1.7");
+vtkCxxRevisionMacro(vtkAbstractArray, "1.8");
 //----------------------------------------------------------------------------
 // Construct object with sane defaults.
 vtkAbstractArray::vtkAbstractArray(vtkIdType vtkNotUsed(numComp))
@@ -97,12 +97,12 @@ void vtkAbstractArray::GetTuples(vtkIdType p1, vtkIdType p2,
 
 //----------------------------------------------------------------------------
 template <class T>
-unsigned long vtkAbstractArrayGetDataTypeSize(T*)
+int vtkAbstractArrayGetDataTypeSize(T*)
 {
   return sizeof(T);
 }
 
-unsigned long vtkAbstractArray::GetDataTypeSize(int type)
+int vtkAbstractArray::GetDataTypeSize(int type)
 {
   switch (type)
     {

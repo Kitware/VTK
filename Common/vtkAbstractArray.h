@@ -69,11 +69,11 @@ public:
   virtual int GetDataType() =0;
 
   // Description:
-  // Return the size of the underlying data type.  For a bit, 1 is
+  // Return the size of the underlying data type.  For a bit, 0 is
   // returned.  For string 0 is returned. Arrays with variable length
   // components return 0.
   virtual int GetDataTypeSize() = 0;
-  static unsigned long GetDataTypeSize(int type);
+  static int GetDataTypeSize(int type);
 
   // Description:
   // Return the size, in bytes, of the lowest-level element of an
