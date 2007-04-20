@@ -50,7 +50,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.141");
+vtkCxxRevisionMacro(vtkDataReader, "1.142");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -373,8 +373,8 @@ int vtkDataReader::OpenVTKFile()
       {
       vtkDebugMacro(<< "Reading from InputArray");
       this->IS = new istrstream(this->InputArray->GetPointer(0), 
-                                this->InputArray->GetNumberOfTuples()*
-        this->InputArray->GetNumberOfComponents());
+        static_cast<size_t>( this->InputArray->GetNumberOfTuples()  *
+                             this->InputArray->GetNumberOfComponents()) );
       return 1;
       }
     else if (this->InputString)
