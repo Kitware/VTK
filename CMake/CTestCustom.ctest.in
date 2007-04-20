@@ -46,6 +46,10 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # vtkfreetype needs to be updated to get rid of warnings that occur during
   # 64-bit compiles... for now, mask them out of dashboard results:
   "vtkfreetype.*warning C4"
+  "vtkfreetype.*warning: dereferencing type-punned pointer"
+
+  # vtknetcdf occasionally has warnings for things that are not a problem.
+  "vtknetcdf.*warning: dereferencing type-punned pointer"
 
   # Some VTK dashboards include building bits of Qt which produce lots of
   # the following warnings when built with the MS compilers. Qt guys should
