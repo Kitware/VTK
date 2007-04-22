@@ -42,7 +42,7 @@ public:
   // Description:
   // These methods send data over the socket.
   // Returns 1 on success, 0 on error and raises vtkCommand::ErrorEvent.
-  int Send(void* data, int length);
+  int Send(const void* data, int length);
 
   // Description:
   // Receive data from the socket.

@@ -37,7 +37,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocket, "1.3");
+vtkCxxRevisionMacro(vtkSocket, "1.4");
 //-----------------------------------------------------------------------------
 vtkSocket::vtkSocket()
 {
@@ -256,7 +256,7 @@ void vtkSocket::CloseSocket(int socketdescriptor)
 }
 
 //-----------------------------------------------------------------------------
-int vtkSocket::Send(void* data, int length)
+int vtkSocket::Send(const void* data, int length)
 {
   if (!this->GetConnected())
     {
@@ -267,7 +267,7 @@ int vtkSocket::Send(void* data, int length)
     // nothing to send.
     return 1;
     }
-  char* buffer = reinterpret_cast<char*>(data);
+  const char* buffer = reinterpret_cast<const char*>(data);
   int total = 0;
   do
     {
