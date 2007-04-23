@@ -26,7 +26,7 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.16");
+vtkCxxRevisionMacro(vtkContourWidget, "1.17");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -180,6 +180,7 @@ void vtkContourWidget::AddFinalPointAction(vtkAbstractWidget *w)
     self->AddNode();
     self->WidgetState = vtkContourWidget::Manipulate;
     self->EventCallbackCommand->SetAbortFlag(1);
+    self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
     }
   
   if ( rep->GetNeedToRender() )
