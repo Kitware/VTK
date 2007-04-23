@@ -1394,7 +1394,7 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.46");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.46.2.1");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1576,7 +1576,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.46");
+vtkCxxRevisionMacro(vtkExodusReader, "1.46.2.1");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -3361,7 +3361,7 @@ void vtkExodusReader::ReadArrays(int handle, vtkUnstructuredGrid* output)
     if ((this->ApplyDisplacements ||  /* user wants displacement field */
          this->ExodusModelMetadata)   /* user may plan to write out file */
          &&
-         !strncmp(arrayNameUpper,"DISP",4)) 
+         !strncmp(arrayNameUpper,"DIS",3)) 
       {
       // Add it to the arrays I want
       this->MetaData->SetPointArrayStatus(idx, 1);
@@ -3529,7 +3529,7 @@ void vtkExodusReader::AddDisplacements(vtkUnstructuredGrid* output)
     // Is this array displacement?
     strcpy(arrayName, this->GetPointArrayName(idx));
     this->StringUppercase(arrayName,arrayNameUpper);
-    if (!strncmp(arrayNameUpper,"DISP",4)) 
+    if (!strncmp(arrayNameUpper,"DIS",3)) 
       {
       FOUND = 1;
       break;
