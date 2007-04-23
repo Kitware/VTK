@@ -126,7 +126,7 @@ public:
         A[i][j] = x[i]*y[j];
   }
   // Description:
-  // Outer product of two 3-vectors (float version).
+  // Outer product of two 3-vectors (double-precision version).
   static void Outer(const double x[3], const double y[3], double A[3][3]) {
     for (int i=0; i < 3; i++)
       for (int j=0; j < 3; j++)
