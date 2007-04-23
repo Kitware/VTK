@@ -29,7 +29,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkFeatureEdges, "1.72");
+vtkCxxRevisionMacro(vtkFeatureEdges, "1.73");
 vtkStandardNewMacro(vtkFeatureEdges);
 
 // Construct object with feature angle = 30; all types of edges, except 
@@ -351,7 +351,7 @@ int vtkFeatureEdges::RequestData(
 
   output->SetLines(newLines);
   newLines->Delete();
-
+  this->Locator->Initialize();//release any extra memory
   if ( this->Coloring )
     {
     int idx = outCD->AddArray(newScalars);
