@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.26");
+vtkCxxRevisionMacro(vtkImageData, "1.27");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -590,7 +590,7 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
   if (kMax >= kMin && jMax >= jMin && iMax >= iMin)
     {
     bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
-    bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
+    bounds[1] = bounds[3] = bounds[5] =  VTK_DOUBLE_MIN;
 
     // Extract point coordinates
     for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
