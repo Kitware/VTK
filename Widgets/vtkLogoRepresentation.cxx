@@ -31,7 +31,7 @@
 #include "vtkRenderer.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkLogoRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkLogoRepresentation, "1.4");
 vtkStandardNewMacro(vtkLogoRepresentation);
 
 vtkCxxSetObjectMacro(vtkLogoRepresentation, Image, vtkImageData);
@@ -189,6 +189,7 @@ void vtkLogoRepresentation::GetActors2D(vtkPropCollection *pc)
 //-------------------------------------------------------------------------
 void vtkLogoRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 {
+  this->Texture->ReleaseGraphicsResources(w);
   this->TextureActor->ReleaseGraphicsResources(w);
   this->Superclass::ReleaseGraphicsResources(w);
 }
