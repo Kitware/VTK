@@ -41,7 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkTree.h"
 #include  "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkDataObjectTypes, "1.2");
+vtkCxxRevisionMacro(vtkDataObjectTypes, "1.3");
 vtkStandardNewMacro(vtkDataObjectTypes);
 
 // This list should contain the data object class names in
@@ -166,6 +166,10 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   else if(strcmp(type, "vtkUnstructuredGrid") == 0)
     {
     return vtkUnstructuredGrid::New();
+    }
+  else if(strcmp(type, "vtkUniformGrid") == 0)
+    {
+    return vtkUniformGrid::New();
     }
   else if(strcmp(type, "vtkMultiGroupDataSet") == 0)
     {
