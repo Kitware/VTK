@@ -90,16 +90,20 @@ protected:
 
   // Build a graph description of the mesh
   void BuildAdjacency(vtkPolyData *pd);
-  
+
   void DeleteAdjacency();
+
+  vtkTimeStamp AdjacencyBuildTime;
   
   // The cost going from vertex u to v
   // TODO: should be implemented as a user supplied
   // callback function
-  double EdgeCost(vtkPolyData *pd, vtkIdType u, vtkIdType v);
-  
+  double CalculateEdgeCost(vtkPolyData *pd, vtkIdType u, vtkIdType v);
+
   void Initialize();
-  
+
+  void Reset();
+
   // structure the heap
   void Heapify(int i);
   
@@ -119,13 +123,13 @@ protected:
   
   // Relax edge u,v with weight w
   void Relax(int u, int v, double w);
-  
+
   // Backtrace the shortest path
   void TraceShortestPath(vtkPolyData *inPd, vtkPolyData *outPd,
                vtkIdType startv, vtkIdType endv);
   
   // the number of vertices
-  int n;
+  int NumberOfVertices;
   
   // d(v) current summed weight for path to vertex v
   vtkFloatArray *d;
@@ -137,24 +141,24 @@ protected:
   // ie. the front set (f(v) == 1 means that vertex v is in f)
   vtkIntArray *f;
   
-  // s is the set of vertices with allready determined shortest path
+  // s is the set of vertices with already determined shortest path
   // s(v) == 1 means that vertex v is in s
   vtkIntArray *s;
   
   // the priority que (a binary heap) with vertex indices
-  vtkIntArray *H;
+  vtkIntArray *Heap;
   
   // The real number of elements in H != H.size()
-  int Hsize;
+  int HeapSize;
   
-  // p(v) the position of v in H (p and H are kindoff inverses)
+  // p(v) the position of v in H (p and H are kind of inverses)
   vtkIntArray *p;
   
   // The vertex ids on the shortest path
   vtkIdList *IdList;
   
   // Adjacency representation
-  vtkIdList **Adj;
+  vtkIdList **Adjacency;
   
   int StopWhenEndReached;
   

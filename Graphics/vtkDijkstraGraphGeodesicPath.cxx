@@ -28,7 +28,7 @@
 #include "vtkPointData.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.4");
+vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.5");
 vtkStandardNewMacro(vtkDijkstraGraphGeodesicPath);
 
 //----------------------------------------------------------------------------
@@ -39,15 +39,15 @@ vtkDijkstraGraphGeodesicPath::vtkDijkstraGraphGeodesicPath()
   this->pre  = vtkIntArray::New();
   this->f    = vtkIntArray::New();
   this->s    = vtkIntArray::New();
-  this->H    = vtkIntArray::New();
+  this->Heap = vtkIntArray::New();
   this->p    = vtkIntArray::New();
-  this->Hsize  = 0;
+  this->HeapSize  = 0;
   this->StartVertex = 0;
   this->EndVertex   = 0;  
   this->StopWhenEndReached = 0;
   this->UseScalarWeights = 0;
-  this->Adj = NULL;
-  this->n = 0;
+  this->Adjacency = NULL;
+  this->NumberOfVertices = 0;
   this->AdjacencyGraphSize = 0;
 }
 
@@ -55,21 +55,35 @@ vtkDijkstraGraphGeodesicPath::vtkDijkstraGraphGeodesicPath()
 vtkDijkstraGraphGeodesicPath::~vtkDijkstraGraphGeodesicPath()
 {
   if (this->IdList)
+    {
     this->IdList->Delete();
+    }
   if (this->d)
+    {
     this->d->Delete();
+    }
   if (this->pre)
+    {
     this->pre->Delete();
+    }
   if (this->f)
+    {
     this->f->Delete();
+    }
   if (this->s)
+    {
     this->s->Delete();
-  if (this->H)
-    this->H->Delete();
+    }
+  if (this->Heap)
+    {
+    this->Heap->Delete();
+    }
   if (this->p)
+    {
     this->p->Delete();
-  
-  DeleteAdjacency();
+    }
+
+  this->DeleteAdjacency();
 }
 
 //----------------------------------------------------------------------------
@@ -95,7 +109,15 @@ int vtkDijkstraGraphGeodesicPath::RequestData(
     return 0;
     }
   
-  this->Initialize();
+  if ( this->AdjacencyBuildTime.GetMTime() < input->GetMTime() )
+    {
+    this->Initialize();
+    }
+  else
+    {
+    this->Reset();
+    }
+    
   this->ShortestPath(this->StartVertex, this->EndVertex);
   this->TraceShortestPath(input, output, this->StartVertex, this->EndVertex);
   return 1;
@@ -108,27 +130,30 @@ void vtkDijkstraGraphGeodesicPath::Initialize()
       this->GetExecutive()->GetInputData(0, 0));
 
   this->BuildAdjacency( input );
-  
-  this->IdList->Reset();
-  
-  this->n = input->GetNumberOfPoints();
-  
+
+  this->NumberOfVertices = input->GetNumberOfPoints();
+
   this->d->SetNumberOfComponents(1);
-  this->d->SetNumberOfTuples(this->n);
+  this->d->SetNumberOfTuples(this->NumberOfVertices);
   this->pre->SetNumberOfComponents(1);
-  this->pre->SetNumberOfTuples(this->n);
+  this->pre->SetNumberOfTuples(this->NumberOfVertices);
   this->f->SetNumberOfComponents(1);
-  this->f->SetNumberOfTuples(this->n);
+  this->f->SetNumberOfTuples(this->NumberOfVertices);
   this->s->SetNumberOfComponents(1);
-  this->s->SetNumberOfTuples(this->n);
+  this->s->SetNumberOfTuples(this->NumberOfVertices);
   this->p->SetNumberOfComponents(1);
-  this->p->SetNumberOfTuples(this->n);
-  
+  this->p->SetNumberOfTuples(this->NumberOfVertices);
+
   // The heap has elements from 1 to n
-  this->H->SetNumberOfComponents(1);
-  this->H->SetNumberOfTuples(this->n+1);
-  
-  this->Hsize = 0;
+  this->Heap->SetNumberOfComponents(1);
+  this->Heap->SetNumberOfTuples(this->NumberOfVertices+1);
+}
+
+//----------------------------------------------------------------------------
+void vtkDijkstraGraphGeodesicPath::Reset()
+{
+  this->IdList->Reset();
+  this->HeapSize = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -136,21 +161,21 @@ void vtkDijkstraGraphGeodesicPath::DeleteAdjacency()
 {
   const int npoints = this->AdjacencyGraphSize;
   
-  if (this->Adj)
+  if (this->Adjacency)
     {
     for (int i = 0; i < npoints; i++)
       {
-      this->Adj[i]->Delete();
+      this->Adjacency[i]->Delete();
       }
-    delete [] this->Adj;
+    delete [] this->Adjacency;
     }
-  this->Adj = NULL;
+  this->Adjacency = NULL;
 }
 
 //----------------------------------------------------------------------------
 // The edge cost function should be implemented as a callback function to
 // allow more advanced weighting
-double vtkDijkstraGraphGeodesicPath::EdgeCost(
+double vtkDijkstraGraphGeodesicPath::CalculateEdgeCost(
      vtkPolyData *pd, vtkIdType u, vtkIdType v)
 {
   double p1[3];
@@ -188,14 +213,14 @@ void vtkDijkstraGraphGeodesicPath::BuildAdjacency(vtkPolyData *pd)
   
   this->DeleteAdjacency();
   
-  this->Adj = new vtkIdList*[npoints];
+  this->Adjacency = new vtkIdList*[npoints];
 
   // Remember size, so it can be deleted again
   this->AdjacencyGraphSize = npoints;
 
   for (i = 0; i < npoints; i++)
     {
-    this->Adj[i] = vtkIdList::New();
+    this->Adjacency[i] = vtkIdList::New();
     }
   
   for (i = 0; i < ncells; i++)
@@ -218,17 +243,18 @@ void vtkDijkstraGraphGeodesicPath::BuildAdjacency(vtkPolyData *pd)
       vtkIdType u = pts[0];
       vtkIdType v = pts[npts-1];
       
-      Adj[u]->InsertUniqueId(v);
-      Adj[v]->InsertUniqueId(u);
+      this->Adjacency[u]->InsertUniqueId(v);
+      this->Adjacency[v]->InsertUniqueId(u);
       for (int j = 0; j < npts-1; j++)
         {
         vtkIdType u1 = pts[j];
         vtkIdType v1 = pts[j+1];
-        Adj[u1]->InsertUniqueId(v1);
-        Adj[v1]->InsertUniqueId(u1);
+        this->Adjacency[u1]->InsertUniqueId(v1);
+        this->Adjacency[v1]->InsertUniqueId(u1);
         }
       }
     }
+  this->AdjacencyBuildTime.Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -240,7 +266,7 @@ void vtkDijkstraGraphGeodesicPath::TraceShortestPath(
   vtkCellArray *lines = vtkCellArray::New();
   
   // n is far to many. Adjusted later
-  lines->InsertNextCell(this->n);
+  lines->InsertNextCell(this->NumberOfVertices);
   
   // trace backward
   int npoints = 0;
@@ -277,7 +303,7 @@ void vtkDijkstraGraphGeodesicPath::TraceShortestPath(
 //----------------------------------------------------------------------------
 void vtkDijkstraGraphGeodesicPath::InitSingleSource(int startv)
 {
-  for (int v = 0; v < this->n; v++)
+  for (int v = 0; v < this->NumberOfVertices; v++)
     {
     // d will be updated with first visit of vertex
     this->d->SetValue(v, -1);
@@ -324,32 +350,34 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath(int startv, int endv)
     this->f->SetValue(u, 0);
     
     if (u == endv && this->StopWhenEndReached)
+      {
       stop = 1;
+      }
     
     // Update all vertices v adjacent to u
-    for (i = 0; i < this->Adj[u]->GetNumberOfIds(); i++)
+    for (i = 0; i < this->Adjacency[u]->GetNumberOfIds(); i++)
       {
-      v = this->Adj[u]->GetId(i);
+      v = this->Adjacency[u]->GetId(i);
       
       // s is the set of vertices with determined shortest path...do not use them again
       if (!this->s->GetValue(v))
         {
         // Only relax edges where the end is not in s and edge is in the front set
-        double w = this->EdgeCost(input, u, v);
+        double w = this->CalculateEdgeCost(input, u, v);
         
         if (this->f->GetValue(v))
-        {
-          Relax(u, v, w);
-        }
+          {
+          this->Relax(u, v, w);
+          }
         // add edge v to front set
         else
-        {
+          {
           this->f->SetValue(v, 1);
           this->d->SetValue(v, this->d->GetValue(u) + w);
-          
+
           // Set Predecessor of v to be u
           this->pre->SetValue(v, u);
-          
+
           this->HeapInsert(v);
           }
         }
@@ -371,9 +399,9 @@ void vtkDijkstraGraphGeodesicPath::Heapify(int i)
   
   // The value of element v is d(v)
   // the heap stores the vertex numbers
-  if (   l <= this->Hsize 
-      && (this->d->GetValue(this->H->GetValue(l)) < 
-             this->d->GetValue(this->H->GetValue(i))))
+  if (   l <= this->HeapSize 
+      && (this->d->GetValue(this->Heap->GetValue(l)) < 
+             this->d->GetValue(this->Heap->GetValue(i))))
     {
     smallest = l;
     }
@@ -382,26 +410,26 @@ void vtkDijkstraGraphGeodesicPath::Heapify(int i)
     smallest = i;
     }
   
-  if ( r <= this->Hsize && 
-      (this->d->GetValue(this->H->GetValue(r)) < 
-      this->d->GetValue(this->H->GetValue(smallest))))
+  if ( r <= this->HeapSize && 
+      (this->d->GetValue(this->Heap->GetValue(r)) < 
+      this->d->GetValue(this->Heap->GetValue(smallest))))
     {
     smallest = r;
     }
   
   if (smallest != i)
     {
-    int t = this->H->GetValue(i);
+    int t = this->Heap->GetValue(i);
     
-    this->H->SetValue(i, this->H->GetValue(smallest));
+    this->Heap->SetValue(i, this->Heap->GetValue(smallest));
     
-    // where is H(i)
-    this->p->SetValue(this->H->GetValue(i), i);
-    
-    // H and p is kinda inverse
-    this->H->SetValue(smallest, t);
+    // where is Heap(i)
+    this->p->SetValue(this->Heap->GetValue(i), i);
+
+    // Heap and p are kind of inverses
+    this->Heap->SetValue(smallest, t);
     this->p->SetValue(t, smallest);
-    
+
     this->Heapify(smallest);
     }
 }
@@ -411,38 +439,38 @@ void vtkDijkstraGraphGeodesicPath::Heapify(int i)
 // H has indices 1..n
 void vtkDijkstraGraphGeodesicPath::HeapInsert(int v)
 {
-  if (this->Hsize >= this->H->GetNumberOfTuples()-1)
+  if (this->HeapSize >= this->Heap->GetNumberOfTuples()-1)
     return;
-  
-  this->Hsize++;
-  int i = this->Hsize;
-  
-  while (i > 1 && 
-         (this->d->GetValue(this->H->GetValue(i/2)) 
+
+  this->HeapSize++;
+  int i = this->HeapSize;
+
+  while (i > 1 &&
+         (this->d->GetValue(this->Heap->GetValue(i/2))
                    > this->d->GetValue(v)))
     {
-    this->H->SetValue(i, this->H->GetValue(i/2));
-    this->p->SetValue(this->H->GetValue(i), i);
+    this->Heap->SetValue(i, this->Heap->GetValue(i/2));
+    this->p->SetValue(this->Heap->GetValue(i), i);
     i /= 2;
     }
-  // H and p is kinda inverse
-  this->H->SetValue(i, v);
+  // Heap and p are kind of inverses
+  this->Heap->SetValue(i, v);
   this->p->SetValue(v, i);
 }
 
 //----------------------------------------------------------------------------
 int vtkDijkstraGraphGeodesicPath::HeapExtractMin()
 {
-  if (this->Hsize == 0)
+  if (this->HeapSize == 0)
     return -1;
   
-  int minv = this->H->GetValue(1);
+  int minv = this->Heap->GetValue(1);
   this->p->SetValue(minv, -1);
   
-  this->H->SetValue(1, this->H->GetValue(this->Hsize));
-  this->p->SetValue(this->H->GetValue(1), 1);
+  this->Heap->SetValue(1, this->Heap->GetValue(this->HeapSize));
+  this->p->SetValue(this->Heap->GetValue(1), 1);
   
-  this->Hsize--;
+  this->HeapSize--;
   this->Heapify(1);
   
   return minv;
@@ -451,21 +479,21 @@ int vtkDijkstraGraphGeodesicPath::HeapExtractMin()
 //----------------------------------------------------------------------------
 void vtkDijkstraGraphGeodesicPath::HeapDecreaseKey(int v)
 {
-  // where in H is vertex v
+  // where in Heap is vertex v
   int i = this->p->GetValue(v);
-  if (i < 1 || i > this->Hsize)
+  if (i < 1 || i > this->HeapSize)
     return;
-  
-  while (i > 1 && 
-      this->d->GetValue(this->H->GetValue(i/2)) > this->d->GetValue(v))
+
+  while (i > 1 &&
+      this->d->GetValue(this->Heap->GetValue(i/2)) > this->d->GetValue(v))
     {
-    this->H->SetValue(i, this->H->GetValue(i/2));
-    this->p->SetValue(this->H->GetValue(i), i);
+    this->Heap->SetValue(i, this->Heap->GetValue(i/2));
+    this->p->SetValue(this->Heap->GetValue(i), i);
     i /= 2;
     }
-  
-  // H and p is kinda inverse
-  this->H->SetValue(i, v);
+
+  // Heap and p are kind of inverses
+  this->Heap->SetValue(i, v);
   this->p->SetValue(v, i);
 }
 
@@ -483,19 +511,19 @@ void vtkDijkstraGraphGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Off\n";
     }
-  os << indent << "Verts in input mesh: " << this->n << endl;
+  os << indent << "Verts in input mesh: " << this->NumberOfVertices << endl;
 
   // Add all members later
   // this->d
   // this->pre
-  // this->Adj
+  // this->Adjacency
   // this->IdList
   // this->p
   // this->UseScalarWeights
   // this->AdjacencyGraphSize
-  // this->Hsize
+  // this->HeapSize
   // this->s
-  // this->H
+  // this->Heap
   // this->f
 }
 
