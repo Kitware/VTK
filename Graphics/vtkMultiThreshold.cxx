@@ -23,7 +23,7 @@
 #include "vtkPointSet.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkMultiThreshold,"1.3");
+vtkCxxRevisionMacro(vtkMultiThreshold,"1.4");
 vtkStandardNewMacro(vtkMultiThreshold);
 
 // Prevent lots of error messages on the inner loop of the filter by keeping track of how many we have:
@@ -468,7 +468,7 @@ int vtkMultiThreshold::RequestData(
 
     idx->Set( vtkCompositeDataSet::INDEX(), i );
     omesh->AddDataSet( idx, ds );
-    ds->Delete();
+    ds->FastDelete();
 
     outv.push_back( ds );
     }

@@ -99,7 +99,7 @@ typedef FILE* vtkLSDynaFile_t;
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.12");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.13");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -1469,7 +1469,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.12");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.13");
 // ============================================== End of XML Summary reader class
 
 
@@ -4718,26 +4718,6 @@ int vtkLSDynaReader::WriteInputDeckSummary( const char* fname )
 void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
 {
   vtkLSDynaReaderPrivate* p = this->P;
-
-  if ( p->NumberOfCells[celltype] == 0 )
-    {
-    // no work to do
-    return;
-    }
-
-  // We may not have any work to do if we're only removing deleted cells:
-  if ( ! this->SplitByMaterialId )
-    {
-    if ( celltype == vtkLSDynaReader::RIGID_BODY || celltype == vtkLSDynaReader::ROAD_SURFACE )
-      {
-      // no deletion data for these cell types
-      return;
-      }
-    }
-
-  const char* attribName = this->RemoveDeletedCells ? LS_ARRAYNAME_DEATH : LS_ARRAYNAME_MATERIAL;
-  int sequentialIds = this->RemoveDeletedCells ? 1 : 0;
-
   vtkDataSet* target = 0;
   switch ( celltype )
     {
@@ -4761,10 +4741,40 @@ void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
     break;
   case vtkLSDynaReader::ROAD_SURFACE:
     target = this->OutputRoadSurface;
+    break;
   default:
     vtkErrorMacro( "Unknown cell type " << celltype << " passed to PartFilter." );
     return; // nothing we can do.
     }
+
+  if ( p->NumberOfCells[celltype] == 0 )
+    {
+    // no work to do, just add the dataset as-is.
+    vtkInformation* idx = vtkInformation::New();
+    idx->Set( vtkMultiBlockDataSet::BLOCK(), 0 );
+    idx->Set( vtkCompositeDataSet::INDEX(), celltype );
+    mbds->AddDataSet( idx, target );
+    idx->Delete();
+    return;
+    }
+
+  // We may not have any work to do if we're only removing deleted cells:
+  if ( ! this->SplitByMaterialId )
+    {
+    if ( celltype == vtkLSDynaReader::RIGID_BODY || celltype == vtkLSDynaReader::ROAD_SURFACE )
+      {
+      // no deletion data for these cell types, just add the dataset as-is.
+      vtkInformation* idx = vtkInformation::New();
+      idx->Set( vtkMultiBlockDataSet::BLOCK(), 0 );
+      idx->Set( vtkCompositeDataSet::INDEX(), celltype );
+      mbds->AddDataSet( idx, target );
+      idx->Delete();
+      return;
+      }
+    }
+
+  const char* attribName = this->RemoveDeletedCells ? LS_ARRAYNAME_DEATH : LS_ARRAYNAME_MATERIAL;
+  int sequentialIds = this->RemoveDeletedCells ? 1 : 0;
 
   int m;
   vtkMultiThreshold* thresh = vtkMultiThreshold::New();
@@ -4864,13 +4874,13 @@ int vtkLSDynaReader::RequestData(
 #define VTK_LSDYNA_PREPDATASET(mds,x,m,n,mtype) \
     x = mtype::New();
 
-    VTK_LSDYNA_PREPDATASET(mbds,this->OutputSolid,0,0,vtkUnstructuredGrid);
-    VTK_LSDYNA_PREPDATASET(mbds,this->OutputThickShell,0,1,vtkUnstructuredGrid);
-    VTK_LSDYNA_PREPDATASET(mbds,this->OutputShell,0,2,vtkUnstructuredGrid);
-    VTK_LSDYNA_PREPDATASET(mbds,this->OutputRigidBody,0,3,vtkUnstructuredGrid);
+    VTK_LSDYNA_PREPDATASET(mbds,this->OutputSolid,      0,0,vtkUnstructuredGrid);
+    VTK_LSDYNA_PREPDATASET(mbds,this->OutputThickShell, 0,1,vtkUnstructuredGrid);
+    VTK_LSDYNA_PREPDATASET(mbds,this->OutputShell,      0,2,vtkUnstructuredGrid);
+    VTK_LSDYNA_PREPDATASET(mbds,this->OutputRigidBody,  0,3,vtkUnstructuredGrid);
     VTK_LSDYNA_PREPDATASET(mbds,this->OutputRoadSurface,0,4,vtkUnstructuredGrid);
-    VTK_LSDYNA_PREPDATASET(mbds,this->OutputBeams,0,5,vtkUnstructuredGrid);
-    VTK_LSDYNA_PREPDATASET(mbds,this->OutputParticles,0,6,vtkUnstructuredGrid);
+    VTK_LSDYNA_PREPDATASET(mbds,this->OutputBeams,      0,5,vtkUnstructuredGrid);
+    VTK_LSDYNA_PREPDATASET(mbds,this->OutputParticles,  0,6,vtkUnstructuredGrid);
 #undef VTK_LSDYNA_PREPDATASET
 
   this->UpdateProgress( 0.01 );
@@ -5007,15 +5017,24 @@ int vtkLSDynaReader::RequestData(
 #define VTK_LSDYNA_SETBLOCK(mds,x,m,n,mtype) \
   idx->Set( vtkMultiBlockDataSet::BLOCK(), m ); \
   idx->Set( vtkCompositeDataSet::INDEX(), n ); \
-  mds->AddDataSet( idx, x );
+  if ( ! x ) \
+    { \
+    mtype* tmpDS = mtype::New(); \
+    mds->AddDataSet( idx, tmpDS ); \
+    tmpDS->FastDelete(); \
+    } \
+  else \
+    { \
+    mds->AddDataSet( idx, x ); \
+    }
 
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputSolid,0,0,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputThickShell,0,1,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputShell,0,2,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputRigidBody,0,3,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputSolid,      0,0,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputThickShell, 0,1,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputShell,      0,2,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputRigidBody,  0,3,vtkUnstructuredGrid);
     VTK_LSDYNA_SETBLOCK(mbds,this->OutputRoadSurface,0,4,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputBeams,0,5,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputParticles,0,6,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputBeams,      0,5,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputParticles,  0,6,vtkUnstructuredGrid);
 
 #undef VTK_LSDYNA_SETBLOCK
     }
