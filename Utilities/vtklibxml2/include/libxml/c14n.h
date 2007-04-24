@@ -23,9 +23,9 @@
 extern "C" {
 #endif /* __cplusplus */ 
 
-#include <libxml/xmlversion.h>
-#include <libxml/tree.h>
-#include <libxml/xpath.h> 
+#include "xmlversion.h"
+#include "tree.h"
+#include "xpath.h"
 
 /*
  * XML Canonicazation

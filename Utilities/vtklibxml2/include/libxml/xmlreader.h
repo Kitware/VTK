@@ -10,12 +10,12 @@
 #ifndef __XML_XMLREADER_H__
 #define __XML_XMLREADER_H__
 
-#include <libxml/xmlversion.h>
-#include <libxml/tree.h>
-#include <libxml/xmlIO.h>
+#include "xmlversion.h"
+#include "tree.h"
+#include "xmlIO.h"
 #ifdef LIBXML_SCHEMAS_ENABLED
-#include <libxml/relaxng.h>
-#include <libxml/xmlschemas.h>
+#include "relaxng.h"
+#include "xmlschemas.h"
 #endif
 
 #ifdef LIBXML_READER_ENABLED

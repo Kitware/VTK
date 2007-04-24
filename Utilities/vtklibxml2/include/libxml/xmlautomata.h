@@ -10,12 +10,12 @@
 #ifndef __XML_AUTOMATA_H__
 #define __XML_AUTOMATA_H__
 
-#include <libxml/xmlversion.h>
-#include <libxml/tree.h>
+#include "xmlversion.h"
+#include "tree.h"
 
 #ifdef LIBXML_REGEXP_ENABLED
 #ifdef LIBXML_AUTOMATA_ENABLED
-#include <libxml/xmlregexp.h>
+#include "xmlregexp.h"
 
 #ifdef __cplusplus
 extern "C" {

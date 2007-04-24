@@ -10,10 +10,10 @@
 #ifndef __XML_XMLSAVE_H__
 #define __XML_XMLSAVE_H__
 
-#include <libxml/xmlversion.h>
-#include <libxml/tree.h>
-#include <libxml/encoding.h>
-#include <libxml/xmlIO.h>
+#include "xmlversion.h"
+#include "tree.h"
+#include "encoding.h"
+#include "xmlIO.h"
 
 #ifdef LIBXML_OUTPUT_ENABLED
 #ifdef __cplusplus

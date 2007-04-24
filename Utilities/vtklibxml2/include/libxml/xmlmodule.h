@@ -11,7 +11,7 @@
 #ifndef __XML_MODULE_H__
 #define __XML_MODULE_H__
 
-#include <libxml/xmlversion.h>
+#include "xmlversion.h"
 
 #ifdef LIBXML_MODULES_ENABLED
 

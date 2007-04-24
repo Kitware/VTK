@@ -22,7 +22,7 @@
 #ifndef __XML_CHAR_ENCODING_H__
 #define __XML_CHAR_ENCODING_H__
 
-#include <libxml/xmlversion.h>
+#include "xmlversion.h"
 
 #ifdef LIBXML_ICONV_ENABLED
 #include <iconv.h>
@@ -141,7 +141,7 @@ struct _xmlCharEncodingHandler {
 #ifdef __cplusplus
 }
 #endif
-#include <libxml/tree.h>
+#include "tree.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -13,8 +13,8 @@
 #define __XML_TREE_H__
 
 #include <stdio.h>
-#include <libxml/xmlversion.h>
-#include <libxml/xmlstring.h>
+#include "xmlversion.h"
+#include "xmlstring.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -289,7 +289,7 @@ typedef enum {
 #ifdef __cplusplus
 }
 #endif
-#include <libxml/xmlregexp.h>
+#include "xmlregexp.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -1201,7 +1201,7 @@ XMLPUBFUN int XMLCALL
 }
 #endif
 #ifndef __XML_PARSER_H__
-#include <libxml/xmlmemory.h>
+#include "xmlmemory.h"
 #endif
 
 #endif /* __XML_TREE_H__ */

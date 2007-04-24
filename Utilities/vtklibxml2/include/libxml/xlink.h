@@ -10,8 +10,8 @@
 #ifndef __XML_XLINK_H__
 #define __XML_XLINK_H__
 
-#include <libxml/xmlversion.h>
-#include <libxml/tree.h>
+#include "xmlversion.h"
+#include "tree.h"
 
 #ifdef LIBXML_XPTR_ENABLED
 

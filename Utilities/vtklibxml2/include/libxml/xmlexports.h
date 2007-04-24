@@ -1,3 +1,4 @@
+#include "vtk_libxml2_mangle.h"
 /*
  * Summary: macros for marking symbols as exportable/importable.
  * Description: macros for marking symbols as exportable/importable.

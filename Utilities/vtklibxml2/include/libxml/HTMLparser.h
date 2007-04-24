@@ -12,8 +12,8 @@
 
 #ifndef __HTML_PARSER_H__
 #define __HTML_PARSER_H__
-#include <libxml/xmlversion.h>
-#include <libxml/parser.h>
+#include "xmlversion.h"
+#include "parser.h"
 
 #ifdef LIBXML_HTML_ENABLED
 

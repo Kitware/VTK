@@ -12,9 +12,9 @@
 #define __HTML_TREE_H__
 
 #include <stdio.h>
-#include <libxml/xmlversion.h>
-#include <libxml/tree.h>
-#include <libxml/HTMLparser.h>
+#include "xmlversion.h"
+#include "tree.h"
+#include "HTMLparser.h"
 
 #ifdef LIBXML_HTML_ENABLED
 
