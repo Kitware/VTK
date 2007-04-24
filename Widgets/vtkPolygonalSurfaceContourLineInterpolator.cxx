@@ -27,7 +27,7 @@
 #include "vtkDijkstraGraphGeodesicPath.h"
 
 vtkCxxRevisionMacro(vtkPolygonalSurfaceContourLineInterpolator,
-                                            "1.5");
+                                            "1.6");
 vtkStandardNewMacro(vtkPolygonalSurfaceContourLineInterpolator);
 
 //----------------------------------------------------------------------
@@ -37,12 +37,14 @@ vtkPolygonalSurfaceContourLineInterpolator
   this->LastInterpolatedVertexIds[0] = -1;
   this->LastInterpolatedVertexIds[1] = -1;
   this->DistanceOffset               = 0.0;
+  this->DijkstraGraphGeodesicPath = vtkDijkstraGraphGeodesicPath::New();
 }
 
 //----------------------------------------------------------------------
 vtkPolygonalSurfaceContourLineInterpolator
 ::~vtkPolygonalSurfaceContourLineInterpolator()
 {
+  this->DijkstraGraphGeodesicPath->Delete();
 }
 
 //----------------------------------------------------------------------
@@ -119,24 +121,22 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
   if (this->LastInterpolatedVertexIds[0] != beginVertId || 
       this->LastInterpolatedVertexIds[1] != endVertId)
     {
-    vtkDijkstraGraphGeodesicPath * geodesic 
-          = vtkDijkstraGraphGeodesicPath::New();
-    geodesic->SetInput( nodeBegin->PolyData );
-    geodesic->SetStartVertex( endVertId );
-    geodesic->SetEndVertex( beginVertId );
-    geodesic->Update();
+    this->DijkstraGraphGeodesicPath->SetInput( nodeBegin->PolyData );
+    this->DijkstraGraphGeodesicPath->SetStartVertex( endVertId );
+    this->DijkstraGraphGeodesicPath->SetEndVertex( beginVertId );
+    this->DijkstraGraphGeodesicPath->Update();
 
-    vtkPolyData *pd = geodesic->GetOutput();
+    vtkPolyData *pd = this->DijkstraGraphGeodesicPath->GetOutput();
 
     // We assume there's only one cell of course
-    vtkIdType npts = 0, *pts = NULL; 
-    pd->GetLines()->InitTraversal(); 
+    vtkIdType npts = 0, *pts = NULL;
+    pd->GetLines()->InitTraversal();
     pd->GetLines()->GetNextCell( npts, pts );
 
     // Get the vertex normals if there is a height offset. The offset at
     // each node of the graph is in the direction of the vertex normal.
-    
-    vtkIdList *vertexIds = geodesic->GetIdList();    
+
+    vtkIdList *vertexIds = this->DijkstraGraphGeodesicPath->GetIdList();
     double vertexNormal[3];
     vtkDataArray *vertexNormals = NULL;
     if (this->DistanceOffset != 0.0)
@@ -157,16 +157,14 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
         }
       else
         {
-        rep->AddIntermediatePointWorldPosition( idx1, p ); 
+        rep->AddIntermediatePointWorldPosition( idx1, p );
         }
       }
 
       this->LastInterpolatedVertexIds[0] = beginVertId;
       this->LastInterpolatedVertexIds[1] = endVertId;
+    }
 
-      geodesic->Delete();
-      }
-   
   return 1;
 }
 

@@ -39,6 +39,8 @@
 
 #include "vtkPolyDataContourLineInterpolator.h"
 
+class vtkDijkstraGraphGeodesicPath;
+
 class VTK_WIDGETS_EXPORT vtkPolygonalSurfaceContourLineInterpolator
                        : public vtkPolyDataContourLineInterpolator
 {
@@ -95,6 +97,8 @@ private:
   // Cache the last used vertex id's (start and end).
   // If they are the same, don't recompute.
   vtkIdType      LastInterpolatedVertexIds[2];
+
+  vtkDijkstraGraphGeodesicPath* DijkstraGraphGeodesicPath;
 };
 
 #endif
