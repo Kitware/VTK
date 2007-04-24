@@ -4848,7 +4848,7 @@ xmlNodeSetBase(xmlNodePtr cur, const xmlChar* uri) {
     fixed = xmlPathToURI(uri);
     if (fixed != NULL) {
         xmlSetNsProp(cur, ns, BAD_CAST "base", fixed);
-        xmlFree(fixed);
+        xmlFree((xmlChar*)fixed);
     } else {
         xmlSetNsProp(cur, ns, BAD_CAST "base", uri);
     }

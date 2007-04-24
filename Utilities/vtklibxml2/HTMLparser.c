@@ -698,7 +698,7 @@ html40ElementTable[] = {
         DECL html_flow, NULL, DECL html_attrs, DECL align_attr, NULL
 },
 { "dl",         0, 0, 0, 0, 0, 0, 0, "definition list ",
-        DECL dl_contents , "dd" , html_attrs, DECL compact_attr, NULL
+        DECL dl_contents , "dd" , DECL html_attrs, DECL compact_attr, NULL
 },
 { "dt",         0, 1, 0, 0, 0, 0, 0, "definition term ",
         DECL html_inline, NULL, DECL html_attrs, NULL, NULL
@@ -755,7 +755,7 @@ html40ElementTable[] = {
         DECL html_flow, NULL, NULL, DECL iframe_attrs, NULL
 },
 { "img",        0, 2, 2, 1, 0, 0, 1, "embedded image ",
-        EMPTY, NULL, DECL img_attrs, DECL align_attr, src_alt_attrs
+        EMPTY, NULL, DECL img_attrs, DECL align_attr, DECL src_alt_attrs
 },
 { "input",      0, 2, 2, 1, 0, 0, 1, "form control ",
         EMPTY, NULL, DECL input_attrs , DECL align_attr, NULL
@@ -782,7 +782,7 @@ html40ElementTable[] = {
         EMPTY, NULL, DECL link_attrs, DECL target_attr, NULL
 },
 { "map",        0, 0, 0, 0, 0, 0, 2, "client-side image map ",
-        DECL map_contents , NULL, DECL html_attrs , NULL, name_attr
+        DECL map_contents , NULL, DECL html_attrs , NULL, DECL name_attr
 },
 { "menu",       0, 0, 0, 0, 1, 1, 0, "menu list ",
         DECL blockli_elt , NULL, NULL, DECL compact_attrs, NULL
@@ -803,7 +803,7 @@ html40ElementTable[] = {
         DECL li_elt , "li" , DECL html_attrs, DECL ol_attrs, NULL
 },
 { "optgroup",   0, 0, 0, 0, 0, 0, 0, "option group ",
-        option_elt , "option", DECL optgroup_attrs, NULL, DECL label_attr
+        DECL option_elt , "option", DECL optgroup_attrs, NULL, DECL label_attr
 },
 { "option",     0, 1, 0, 0, 0, 0, 0, "selectable choice " ,
         DECL html_pcdata, NULL, DECL option_attrs, NULL, NULL
@@ -812,7 +812,7 @@ html40ElementTable[] = {
         DECL html_inline, NULL, DECL html_attrs, DECL align_attr, NULL
 },
 { "param",      0, 2, 2, 1, 0, 0, 0, "named property value ",
-        EMPTY, NULL, DECL param_attrs, NULL, name_attr
+        EMPTY, NULL, DECL param_attrs, NULL, DECL name_attr
 },
 { "pre",        0, 0, 0, 0, 0, 0, 0, "preformatted text ",
         DECL pre_content, NULL, DECL html_attrs, DECL width_attr, NULL

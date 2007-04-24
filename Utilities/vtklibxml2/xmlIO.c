@@ -3590,6 +3590,8 @@ xmlCheckHTTPInput(xmlParserCtxtPtr ctxt, xmlParserInputPtr ret) {
             }
         }
     }
+#else
+    (void)ctxt;
 #endif
     return(ret);
 }

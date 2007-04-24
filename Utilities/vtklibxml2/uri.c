@@ -2348,7 +2348,7 @@ xmlCanonicPath(const xmlChar *path)
 {
 #if defined(_WIN32) && !defined(__CYGWIN__)    
     int len = 0;
-    int i = 0;
+    /*int i = 0;*/
     xmlChar *p = NULL;
 #endif
     xmlURIPtr uri;

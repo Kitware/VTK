@@ -198,6 +198,7 @@ static xmlNs xmlXPathXMLNamespaceStruct = {
     XML_NAMESPACE_DECL,
     XML_XML_NAMESPACE,
     BAD_CAST "xml",
+    NULL,
     NULL
 };
 static xmlNsPtr xmlXPathXMLNamespace = &xmlXPathXMLNamespaceStruct;
