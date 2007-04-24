@@ -558,7 +558,9 @@ TRIO_ARGS2((number, is_negative),
            double number,
            int *is_negative)
 {
-  (void)trio_is_negative; /* avoid trio_is_negative not used warning */
+  /* avoid static function not used not used warning */
+  (void)trio_is_negative;
+  (void)trio_is_special_quantity;
 #if defined(fpclassify) && defined(signbit)
   /*
    * C99 defines fpclassify() and signbit() as a macros
