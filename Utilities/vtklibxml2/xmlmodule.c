@@ -281,7 +281,7 @@ xmlModulePlatformSymbol(void *handle, const char *name, void **symbol)
     int rc;
 
     errno = 0;
-    rc = shl_findsym(&handle, name, TYPE_UNDEFINED, symbol);
+    rc = shl_findsym((shl_t*)&handle, name, TYPE_UNDEFINED, symbol);
     return rc;
 }
 

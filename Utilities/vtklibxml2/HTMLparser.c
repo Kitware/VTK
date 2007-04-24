@@ -3778,7 +3778,7 @@ htmlParseContent(htmlParserCtxtPtr ctxt) {
 
     currentNode = xmlStrdup(ctxt->name);
     depth = ctxt->nameNr;
-    while (1) {
+    for(;;) {
         long cons = ctxt->nbChars;
 
         GROW;
@@ -4570,7 +4570,7 @@ htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate) {
     }
 #endif
 
-    while (1) {
+    for(;;) {
 
         in = ctxt->input;
         if (in == NULL) break;
