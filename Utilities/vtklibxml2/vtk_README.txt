@@ -46,7 +46,7 @@ To upgrade to a newer libxml2 version:
 
   cvs update -dAP
   cvs tag VTK-libxml2-<new>-merge-pre
-  cvs update -j VTK-libxml2-upstream-<old> -j VTK-libxml2-upstream-<new>
+  cvs update -d -j VTK-libxml2-upstream-<old> -j VTK-libxml2-upstream-<new>
 
 4.) Manually resolve conflicts and commit.
 
