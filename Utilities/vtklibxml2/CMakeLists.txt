@@ -1,4 +1,4 @@
-PROJECT(vtklibxml2)
+PROJECT(vtklibxml2 C)
 
 SET(PACKAGE "vtklibxml2")
 SET(VERSION "2.6.27")
