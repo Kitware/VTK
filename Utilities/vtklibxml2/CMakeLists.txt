@@ -185,10 +185,24 @@ ELSE(HAVE_ZLIB_H AND HAVE_LIBZ)
   SET(WITH_ZLIB 0)
 ENDIF(HAVE_ZLIB_H AND HAVE_LIBZ)
 
+# Create the platform configuration header.
 CONFIGURE_FILE(${vtklibxml2_SOURCE_DIR}/config_cmake.h.in
                ${vtklibxml2_BINARY_DIR}/config.h @ONLY)
+
+# Create the build configuration header.
 CONFIGURE_FILE(${vtklibxml2_SOURCE_DIR}/include/libxml/xmlversion.h.in
-               ${vtklibxml2_BINARY_DIR}/include/libxml/xmlversion.h @ONLY)
+               ${vtklibxml2_BINARY_DIR}/libxml/xmlversion.h @ONLY)
+
+# Copy all the source headers over to the same directory as the build
+# configuration header so that headers can include each other with
+# double quotes.
+FILE(GLOB vtklibxml2_HEADERS
+  RELATIVE ${vtklibxml2_SOURCE_DIR}/include/libxml
+  include/libxml/*.h)
+FOREACH(f ${vtklibxml2_HEADERS})
+  CONFIGURE_FILE(${vtklibxml2_SOURCE_DIR}/include/libxml/${f}
+                 ${vtklibxml2_BINARY_DIR}/libxml/${f} COPYONLY)
+ENDFOREACH(f)
 
 ADD_DEFINITIONS(-DHAVE_CONFIG_H -D_GNU_SOURCE -DPIC -D_REENTRANT)
 IF(WIN32)
@@ -242,20 +256,7 @@ SET(vtklibxml2_la_SOURCES
   xpointer.c
   )
 
-INCLUDE_DIRECTORIES(
-  # The .c files need to include <libxml/*.h>
-  ${vtklibxml2_SOURCE_DIR}/include
-  ${vtklibxml2_BINARY_DIR}/include
-
-  # The configured xmlversion.h needs to include "*.h"
-  ${vtklibxml2_SOURCE_DIR}/include/libxml
-
-  # The .h files need to include "xmlversion.h"
-  ${vtklibxml2_BINARY_DIR}/include/libxml
-
-  # The .c files need to include "config.h"
-  ${vtklibxml2_BINARY_DIR}
-  )
+INCLUDE_DIRECTORIES(${vtklibxml2_BINARY_DIR})
 
 IF(NOT BUILD_SHARED_LIBS)
   ADD_DEFINITIONS(-DLIBXML_STATIC)
