@@ -72,7 +72,6 @@ int PLATFORM_TEST_C_MAIN()
 int PLATFORM_TEST_C_MAIN()
 {
   if((DIR*)0) return 0;
-  if(sizeof(DIR)) return 0;
   return 0;
 }
 #endif
@@ -84,7 +83,6 @@ int PLATFORM_TEST_C_MAIN()
 int PLATFORM_TEST_C_MAIN()
 {
   if((DIR*)0) return 0;
-  if(sizeof(DIR)) return 0;
   return 0;
 }
 #endif
