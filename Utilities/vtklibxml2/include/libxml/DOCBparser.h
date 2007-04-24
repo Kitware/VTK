@@ -19,7 +19,7 @@
 
 #ifndef IN_LIBXML
 #ifdef __GNUC__
-#warning "The DOCBparser module has been deprecated in libxml2-2.6.0"
+/*#warning "The DOCBparser module has been deprecated in libxml2-2.6.0"*/
 #endif
 #endif
 
