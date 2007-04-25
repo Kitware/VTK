@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.6");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.7");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -398,6 +398,7 @@ int vtkExtractSelectedFrustum::RequestData(
   newCellPts->Allocate(VTK_CELL_SIZE);
 
   vtkIdTypeArray *originalCellIds = NULL;
+  vtkIdTypeArray *originalPointIds = NULL;
 
   signed char flag = this->InsideOut ? 1 : -1;
 
@@ -437,6 +438,13 @@ int vtkExtractSelectedFrustum::RequestData(
     originalCellIds->SetNumberOfComponents(1);
     originalCellIds->SetName("vtkOriginalCellIds");
     outputCD->AddArray(originalCellIds);
+    originalCellIds->Delete();
+
+    originalPointIds = vtkIdTypeArray::New();
+    originalPointIds->SetNumberOfComponents(1);
+    originalPointIds->SetName("vtkOriginalPointIds");
+    outputPD->AddArray(originalPointIds);
+    originalPointIds->Delete();
     }
 
   flag = -flag;
@@ -505,6 +513,7 @@ int vtkExtractSelectedFrustum::RequestData(
               {
               newPointId = newPts->InsertNextPoint(x);
               outputPD->CopyData(pd,ptId,newPointId);
+              originalPointIds->InsertNextValue(ptId);
               }
             pointMap[ptId] = newPointId;
             }
@@ -559,6 +568,7 @@ int vtkExtractSelectedFrustum::RequestData(
             {
             newPointId = newPts->InsertNextPoint(x);
             outputPD->CopyData(pd,ptId,newPointId);
+            originalPointIds->InsertNextValue(ptId);
             }
           }
         }
@@ -595,6 +605,7 @@ int vtkExtractSelectedFrustum::RequestData(
           {
           newPointId = newPts->InsertNextPoint(x);
           outputPD->CopyData(pd,ptId,newPointId);
+          originalPointIds->InsertNextValue(ptId);
           }
         pointMap[ptId] = newPointId;
         }
@@ -669,10 +680,7 @@ int vtkExtractSelectedFrustum::RequestData(
   newCellPts->Delete();
   pointInArray->Delete();
   cellInArray->Delete();
-  if (originalCellIds != NULL)
-    {
-    originalCellIds->Delete();
-    }
+
   if (!this->PassThrough)
     {
     outputUG->SetPoints(newPts);
