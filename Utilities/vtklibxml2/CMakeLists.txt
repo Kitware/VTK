@@ -1,4 +1,5 @@
 PROJECT(vtklibxml2 C)
+INCLUDE_REGULAR_EXPRESSION("^.*$")
 
 SET(PACKAGE "vtklibxml2")
 SET(VERSION "2.6.27")
