@@ -63,9 +63,7 @@
 #ifdef SUPPORT_IP6
 #include <resolv.h>
 #endif
-#ifdef HAVE_ZLIB_H
-#include <zlib.h>
-#endif
+#include "vtk_libxml2_zlib.h"
 
 
 #ifdef VMS
