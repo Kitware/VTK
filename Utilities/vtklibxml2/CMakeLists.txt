@@ -205,6 +205,30 @@ FOREACH(f ${vtklibxml2_HEADERS})
                  ${vtklibxml2_BINARY_DIR}/libxml/${f} COPYONLY)
 ENDFOREACH(f)
 
+# Block warnings unless we are instructed to allow them.
+# SET(VTKLIBXML2_WARNINGS_ALLOW 1)
+IF(NOT VTKLIBXML2_WARNINGS_ALLOW)
+  # MSVC uses /w to suppress warnings.  It also complains if another
+  # warning level is given, so remove it.
+  IF(MSVC)
+    SET(VTKLIBXML2_WARNINGS_BLOCKED 1)
+    STRING(REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " "
+      CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /w")
+  ENDIF(MSVC)
+
+  # Borland uses -w- to suppress warnings.
+  IF(BORLAND)
+    SET(VTKLIBXML2_WARNINGS_BLOCKED 1)
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w-")
+  ENDIF(BORLAND)
+
+  # Most compilers use -w to suppress warnings.
+  IF(NOT VTKLIBXML2_WARNINGS_BLOCKED)
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
+  ENDIF(NOT VTKLIBXML2_WARNINGS_BLOCKED)
+ENDIF(NOT VTKLIBXML2_WARNINGS_ALLOW)
+
 ADD_DEFINITIONS(-DHAVE_CONFIG_H -D_GNU_SOURCE -DPIC -D_REENTRANT)
 IF(WIN32)
   # threads.c looks for this
