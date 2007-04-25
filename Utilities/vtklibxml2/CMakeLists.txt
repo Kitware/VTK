@@ -54,12 +54,6 @@ ENDIF(UNIX)
 # Check for symbol dlopen separately from the dl library.
 CHECK_LIBRARY_EXISTS("${LIBXML2_LIBS}" dlopen "" HAVE_DLOPEN)
 
-# Use VTK's zlib if we are building in the tree.
-IF(VTK_ZLIB_LIBRARIES)
-  SET(HAVE_LIBZ 1)
-  SET(LIBXML2_LIBS ${VTK_ZLIB_LIBRARIES} ${LIBXML2_LIBS})
-ENDIF(VTK_ZLIB_LIBRARIES)
-
 # For other tests to use the same libraries
 SET(CMAKE_REQUIRED_LIBRARIES ${LIBXML2_LIBS})
 SET(CMAKE_REQUIRED_DEFINITIONS "-D_GNU_SOURCE")
