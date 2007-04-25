@@ -238,7 +238,7 @@ nm libxml2.a |grep " [TRD] "
 #define xmlBufferResize vtk_xmlBufferResize
 #define xmlBufferSetAllocationScheme vtk_xmlBufferSetAllocationScheme
 #define xmlBufferShrink vtk_xmlBufferShrink
-#define xmlBufferWriteCHAR vtk_xmlBufferWriteCHAR
+#define xmlBufferWriteCHAR vtk_xmlBufferWriteCHARx /* hack for borland */
 #define xmlBufferWriteChar vtk_xmlBufferWriteChar
 #define xmlBufferWriteQuotedString vtk_xmlBufferWriteQuotedString
 #define xmlBuildQName vtk_xmlBuildQName
