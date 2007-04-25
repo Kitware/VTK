@@ -683,7 +683,7 @@ static int glomTruthTabMatch( int num_obj, int num_vars, int* truth_tab, vtkExod
   // ainfo (and 0 otherwise).
   // It creates an entry in ainfo.ObjectTruth for each object
   // based on the values in truth_tab.
-  int num_comp = ainfo.OriginalIndices.size();
+  int num_comp = (int)ainfo.OriginalIndices.size();
   if ( num_comp < 1 )
     return 0;
 
@@ -794,7 +794,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.14");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.15");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -1037,7 +1037,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
       if ( i + 1  < num_vars )
         {
         int ii = i;
-        int sl = strlen(var_names[i]) - 2;
+        int sl = (int)strlen(var_names[i]) - 2;
         while ( ii < num_vars )
           {
           if ( ! reTensor.find( var_names[ii] ) || strncmp( var_names[ii], var_names[i], sl ) )
@@ -1076,7 +1076,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
         int ii = i;
         while ( ii < num_vars )
           {
-          int sl = strlen(var_names[ii]) - 1;
+          int sl = (int)strlen(var_names[ii]) - 1;
           // Require the strings to be identical except for the final XYZ at the end.
           if ( ! toupper(var_names[ii][sl]) == ('X' + (ii-i)) || strncmp( var_names[ii], var_names[i], sl ) )
             break;
@@ -2983,7 +2983,7 @@ void vtkExodusIIReaderPrivate::RemoveBeginningAndTrailingSpaces( int len, char *
   for (i=0; i<len; i++)
     {
     char *c = names[i];
-    int nmlen = strlen(c);
+    int nmlen = (int)strlen(c);
 
     char *cbegin = c;
     char *cend = c + nmlen - 1;
@@ -4114,11 +4114,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.14");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.15");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.14");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.15");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);

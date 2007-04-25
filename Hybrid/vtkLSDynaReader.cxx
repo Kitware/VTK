@@ -99,7 +99,7 @@ typedef FILE* vtkLSDynaFile_t;
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.14");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.15");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -580,7 +580,7 @@ int vtkLSDynaFamily::ScanDatabaseDirectory()
       {
       if ( adapted )
         {
-        this->Adaptations.push_back( this->Files.size() );
+        this->Adaptations.push_back( (int)this->Files.size() );
         adapted = false;
         }
       this->Files.push_back( tmpFile );
@@ -1469,7 +1469,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.14");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.15");
 // ============================================== End of XML Summary reader class
 
 
@@ -2684,7 +2684,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   iddtmp = p->Dict["NCFDV2"];
   for ( itmp=1; itmp<11; ++itmp )
     {
-    if ( iddtmp & (1<<itmp) )
+    if ( iddtmp & (vtkIdType)(1<<itmp) )
       {
       sprintf( sname, LS_ARRAYNAME_SPECIES_FMT, itmp );
       p->AddPointArray( sname, 1, 1 );
@@ -3350,7 +3350,7 @@ int vtkLSDynaReader::RequestInformation( vtkInformation* vtkNotUsed(request),
 
   // Every output object has all the time steps.
   vtkInformation* outInfo = oinfo->GetInformationObject(0);
-  outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &p->TimeValues[0], p->TimeValues.size() );
+  outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &p->TimeValues[0], (int)p->TimeValues.size() );
   double timeRange[2];
   timeRange[0] = p->TimeValues[0];
   timeRange[1] = p->TimeValues[p->TimeValues.size() - 1];
@@ -4814,7 +4814,7 @@ void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
 
   if ( ! this->SplitByMaterialId )
     {
-    partSetId = thresh->AddBooleanSet( vtkMultiThreshold::OR, partSetIds.size(), &partSetIds[0] );
+    partSetId = thresh->AddBooleanSet( vtkMultiThreshold::OR, (int)partSetIds.size(), &partSetIds[0] );
     thresh->OutputSet( partSetId );
     }
   thresh->Update();
