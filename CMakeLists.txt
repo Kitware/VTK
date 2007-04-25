@@ -1008,7 +1008,15 @@ ENDIF(BUILD_EXAMPLES)
 #-----------------------------------------------------------------------------
 # Provide a few configuration options.
 OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
-OPTION(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids" OFF)
+
+IF("${CMAKE_SIZEOF_VOID_P}" GREATER 4)
+ SET(VTK_USE_64BIT_IDS_DEFAULT ON)
+ELSE("${CMAKE_SIZEOF_VOID_P}" GREATER 4)
+ SET(VTK_USE_64BIT_IDS_DEFAULT OFF)
+ENDIF("${CMAKE_SIZEOF_VOID_P}" GREATER 4)
+OPTION(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids"
+      ${VTK_USE_64BIT_IDS_DEFAULT})
+
 OPTION(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
 MARK_AS_ADVANCED(VTK_DEBUG_LEAKS VTK_USE_64BIT_IDS)
 
