@@ -314,7 +314,7 @@ static xmlStructuredErrorFunc xmlStructuredErrorThrDef = NULL;
  */
 void *vtk_libxml2_xmlGenericErrorContext = NULL;
 static void *xmlGenericErrorContextThrDef = NULL;
-xmlError vtk_libxml2_xmlLastError = {}; /* Init avoids common block on Mac */
+xmlError vtk_libxml2_xmlLastError = {0}; /* Init avoids common block on Mac */
 
 /*
  * output defaults
