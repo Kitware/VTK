@@ -1,5 +1,5 @@
 The Infovis classes in VTK are brought to you by the Titan Informatics
-Toolkit Project.  The Titan project was an initiative out of Sandia
+Toolkit Project.  The Titan project is an initiative out of Sandia
 National Laboratories to combine SciVis and InfoVis capabilities into one
 scalable infrastructure. The Titan toolkit components were designed,
 developed, and/or supported by the Data Analysis and Visualization group at
