@@ -288,7 +288,7 @@ xmlModulePlatformSymbol(void *handle, const char *name, void **symbol)
 #endif /* HAVE_SHLLOAD */
 #endif /* ! HAVE_DLOPEN */
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(HAVE_DLOPEN)
 
 #include <windows.h>
 
