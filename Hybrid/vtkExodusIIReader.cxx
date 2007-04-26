@@ -794,7 +794,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.15");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.16");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -2607,6 +2607,14 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         cptr += 3;
         }
       }
+    if ( dim < 3 )
+      {
+      double* cptr = darr->GetPointer( 2 );
+      for ( t = 0; t < this->ModelParameters.num_nodes; ++t, cptr += 3 )
+        {
+        *cptr = 0.;
+        }
+      }
     if ( displ )
       {
       double* coords = darr->GetPointer( 0 );
@@ -3824,6 +3832,7 @@ int vtkExodusIIReaderPrivate::GetNumberOfObjectAttributes( int otyp, int oi )
       vtkWarningMacro( "You requested " << btname << " " << oi << " in a collection of only " << N << " blocks." );
       return 0;
       }
+    oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
     return (int) it->second[oi].AttributeNames.size();
     }
   vtkWarningMacro( "Could not find collection of blocks of type " << otyp <<
@@ -4114,11 +4123,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.15");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.16");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.15");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.16");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
