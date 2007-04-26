@@ -51,7 +51,7 @@
 #include <ctype.h>
 #include <vtkstd/vector>
 
-#define DEBUG 0
+#undef DBG_PEXOIIRDR
 #define vtkPExodusIIReaderMAXPATHLEN 2048
 
 static const int objTypes[] = {
@@ -91,7 +91,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.4");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.5");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -324,7 +324,7 @@ int vtkPExodusIIReader::RequestData(
   // information but has 0 cells
   if ( processNumber >= numFiles )
     {
-#if DEBUG
+#ifdef DBG_PEXOIIRDR
     vtkWarningMacro("Creating empty grid for processor: " << processNumber);
 #endif
     this->SetUpEmptyGrid();
@@ -347,11 +347,11 @@ int vtkPExodusIIReader::RequestData(
     min = num_files_per_process * processNumber + left_over_files + start;
     max = min + num_files_per_process - 1;
     }
-#if DEBUG
+#ifdef DBG_PEXOIIRDR
   vtkWarningMacro("Processor: " << processNumber << " reading files: " << min <<" " <<max);
 #endif
 
-#if DEBUG
+#ifdef DBG_PEXOIIRDR
   vtkWarningMacro("Parallel read for processor: " << processNumber);
 #endif
 
@@ -399,6 +399,10 @@ int vtkPExodusIIReader::RequestData(
       }
     }
 
+#ifdef DBG_PEXOIIRDR
+  cout << "\n\n ************************************* Parallel master reader dump\n";
+  this->Dump();
+#endif // DBG_PEXOIIRDR
   // This constructs the filenames
   for ( fileIndex = min, reader_idx=0; fileIndex <= max; ++fileIndex, ++reader_idx )
     {
@@ -442,6 +446,10 @@ int vtkPExodusIIReader::RequestData(
     //this->ReaderList[reader_idx]->PackExodusModelOntoOutputOff();
 
     this->ReaderList[reader_idx]->UpdateInformation();
+#ifdef DBG_PEXOIIRDR
+    cout << "\n\n ************************************* Reader " << reader_idx << " dump\n";
+    this->ReaderList[reader_idx]->Dump();
+#endif // DBG_PEXOIIRDR
 
     int typ;
     for ( typ = 0; typ < numObjTypes; ++typ )
@@ -781,12 +789,10 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   int min=0, max=0;
 
   
-  // Check for .exii or .ex2v3. If either
-  // of these extenstions do not look for
-  // a numbered sequence
-  char *ex2 = strstr(prefix, ".exii");
-  char *ex2v3 = strstr(prefix, ".ex2v3");
-  if ( ex2 || ex2v3 )
+  // Check for .exii or .ex2v3.
+  // If .exii is present do not look for a numbered sequence.
+  char* ex2 = strstr(prefix, ".exii");
+  if ( ex2 )
     {
     // Set my info
     this->SetFilePattern( pattern );
@@ -797,9 +803,9 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     }
 
 
-
+  char* ex2v3 = strstr(prefix, ".ex2v3");
   // Find minimum of range, if any
-  for ( cc = slen - 1; cc >= 0; --cc )
+  for ( cc = ex2v3 ? ex2v3 - prefix - 1 : slen - 1; cc >= 0; --cc )
     {
     if ( prefix[cc] >= '0' && prefix[cc] <= '9' )
       {
@@ -820,10 +826,17 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   // Determine the pattern
   if ( scount > 0 )
     {
-    res = sscanf( file + slen - scount, "%d", &min);
+    res = sscanf( file + (ex2v3 ? ex2v3 - prefix - scount : slen - scount), "%d", &min);
     if ( res )
       {
-      sprintf( pattern, "%%s.%%0%ii", scount );
+      if ( ex2v3 )
+        {
+        sprintf( pattern, "%%s.%%0%ii%s", scount, file + (ex2v3 - prefix) );
+        }
+      else
+        {
+        sprintf( pattern, "%%s.%%0%ii", scount );
+        }
       }
     }
 
@@ -831,7 +844,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   char buffer[1024];
   struct stat fs;
   
-  // First go every 100
+  // First go up every 100
   for ( cc = min + 100; res; cc += 100 )
     {
     sprintf( buffer, pattern, prefix, cc );
@@ -854,6 +867,38 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     }
   // Okay if I'm here than stat has failed so -1 on my cc
   max = cc - 1;
+
+  // Second, go down every 100
+  // We can't assume that we're starting at 0 because the file selector
+  // will pick up every file that ends in .ex2v3... not just the first one.
+  for ( cc = min - 100; res; cc -= 100 )
+    {
+    if ( cc < 0 )
+      break;
+
+    sprintf( buffer, pattern, prefix, cc );
+
+    // Stat returns -1 if file NOT found
+    if ( stat( buffer, &fs ) == -1 )
+      break;
+
+    }
+
+  cc += 100;
+  // Okay if I'm here than stat has failed so -100 on my cc
+  for (cc = cc - 1; res; --cc )
+    {
+    if ( cc < 0 )
+      break;
+
+    sprintf( buffer, pattern, prefix, cc );
+
+    // Stat returns -1 if file NOT found
+    if ( stat( buffer, &fs ) == -1)
+      break;
+
+    }
+  min = cc + 1;
 
   // If the user did not specify a range before this, 
   // than set the range to the min and max
