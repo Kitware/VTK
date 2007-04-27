@@ -118,10 +118,14 @@ public:
   // Description:
   // Get the ID of the parent of a child vertex.
   // The parent of the root vertex is defined to be the root vertex itself.
+  // Returns -1 if the child's id is < 0 or greater than the number of vertices
+  // in the tree.
   vtkIdType GetParent(vtkIdType child);
 
   // Description:
   // Get the level of the vertex in the tree.  The root vertex has level 0.
+  // Returns -1 if the vertex id is < 0 or greater than the number of vertices
+  // in the tree.
   vtkIdType GetLevel(vtkIdType vertex);
 
   // Description:

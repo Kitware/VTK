@@ -31,7 +31,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTree, "1.7");
+vtkCxxRevisionMacro(vtkTree, "1.8");
 vtkStandardNewMacro(vtkTree);
 
 //----------------------------------------------------------------------------
@@ -455,7 +455,10 @@ vtkIdType vtkTree::GetLevel(vtkIdType vertex)
   vtkIdType level = 0;
   while (vertex != this->Root)
     {
-    vertex = this->GetParent(vertex);
+    if ((vertex = this->GetParent(vertex)) < 0)
+      {
+      return -1;  // signals an invalid vertex
+      }
     level++;
     }
   return level;
