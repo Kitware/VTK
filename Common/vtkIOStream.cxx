@@ -20,9 +20,11 @@
 # endif
 # if defined(VTK_USE_ANSI_STDLIB)
 #  include <iostream>
-   using std::istream;
-   using std::ostream;
-   using std::ios_base;
+// trick cvs into allowing this pre-existing "std"...
+#  define stl std
+   using stl::istream;
+   using stl::ostream;
+   using stl::ios_base;
 # else
 #  include <string.h> // memchr
 #  include <stdio.h> // sscanf, sprintf
@@ -264,5 +266,18 @@ ostream& vtkIOStreamPrint(ostream& os, vtkIOStreamULL value)
   return vtkIOStreamPrintTemplate(os, value, 'u');
 }
 # endif
+
+#else
+
+// Having a no-op "vtkIOStreamAvoidLNK4221Warning" function avoids the
+// following warning:
+//
+// vtkIOStream.obj : warning LNK4221: no public symbols found; archive
+// member will be inaccessible
+//
+int vtkIOStreamAvoidLNK4221Warning()
+{
+  return 0;
+}
 
 #endif
