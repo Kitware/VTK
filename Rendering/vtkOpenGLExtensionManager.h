@@ -52,7 +52,7 @@
 // The vtkgl.h include file contains all the constants and function
 // pointers required for using OpenGL extensions in a portable and
 // namespace safe way.  vtkgl.h is built from parsed glext.h, glxext.h, and
-// wglext.h files.  Snapshots of these files are distributed with vtkSNL,
+// wglext.h files.  Snapshots of these files are distributed with VTK,
 // but you can also set CMake options to use other files.
 //
 // To use an OpenGL extension, you first need to make an instance of
@@ -60,7 +60,7 @@
 // query the vtkOpenGLExtensionManager to see if the extension is supported
 // with the ExtensionSupported method.  Valid names for extensions are
 // given in the OpenGL extension registry at
-// \ref http://oss.sgi.com/projects/ogl-sample/registry/ .
+// \ref http://www.opengl.org/registry/ .
 // You can also grep vtkgl.h (which will be in the binary build directory
 // if VTK is not installed) for appropriate names.  There are also
 // special extensions GL_VERSION_X_X (where X_X is replaced with a major
@@ -184,6 +184,76 @@ public:
   // extension loaded properly by paying attention to the return value.
   virtual int LoadSupportedExtension(const char *name);
 
+  
+  // Description:
+  // Loads all the functions associated with the given core-promoted extension
+  // into the appropriate static members of vtkgl associated with the OpenGL
+  // version that promoted the extension as a core feature. This method emits a
+  // warning if the requested extension is not supported. It emits an error if
+  // the extension does not load successfully.
+  //
+  // For instance, extension GL_ARB_multitexture was promoted as a core
+  // feature into OpenGL 1.3. An implementation that uses this
+  // feature has to (IN THIS ORDER), check if OpenGL 1.3 is supported
+  // with ExtensionSupported("GL_VERSION_1_3"), if true, load the extension
+  // with LoadExtension("GL_VERSION_1_3"). If false, test for the extension
+  // with ExtensionSupported("GL_ARB_multitexture"),if true load the extension
+  // with this method LoadCorePromotedExtension("GL_ARB_multitexture").
+  // If any of those loading stage succeeded, use vtgl::ActiveTexture() in
+  // any case, NOT vtgl::ActiveTextureARB().
+  // This method avoids the use of if statements everywhere in implementations
+  // using core-promoted extensions.
+  // Without this method, the implementation code should look like:
+  // \code
+  // int opengl_1_3=extensions->ExtensionSupported("GL_VERSION_1_3");
+  // if(opengl_1_3)
+  // {
+  //   extensions->LoadExtension("GL_VERSION_1_3");
+  // }
+  // else
+  // {
+  //  if(extensions->ExtensionSupported("GL_ARB_multitexture"))
+  //  {
+  //   extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
+  //  }
+  //  else
+  //  {
+  //   vtkErrorMacro("Required multitexture feature is not supported!");
+  //  }
+  // }
+  // ...
+  // if(opengl_1_3)
+  // {
+  //  vtkgl::ActiveTexture(vtkgl::TEXTURE0)
+  // }
+  // else
+  // {
+  //  vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB)
+  // }
+  // \endcode
+  // Thanks to this method, the code looks like:
+  // \code
+  // int opengl_1_3=extensions->ExtensionSupported("GL_VERSION_1_3");
+  // if(opengl_1_3)
+  // {
+  //   extensions->LoadExtension("GL_VERSION_1_3");
+  // }
+  // else
+  // {
+  //  if(extensions->ExtensionSupported("GL_ARB_multitexture"))
+  //  {
+  //   extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
+  //  }
+  //  else
+  //  {
+  //   vtkErrorMacro("Required multitexture feature is not supported!");
+  //  }
+  // }
+  // ...
+  // vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+  // \endcode
+  virtual void LoadCorePromotedExtension(const char *name);
+  
 protected:
   vtkOpenGLExtensionManager();
   virtual ~vtkOpenGLExtensionManager();
