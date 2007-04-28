@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.79");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.80");
 #endif
 
 #define MAX_LIGHTS 8
@@ -1404,13 +1404,16 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   this->CreateAWindow();
   this->MakeCurrent();
   
-  // 2. check for OpenGL extensions Gl_EXT_framebuffer_object and
-  // GL_ARB_texture_non_power_of_two
+  // 2. check for OpenGL extensions GL_EXT_framebuffer_object and
+  // GL_ARB_texture_non_power_of_two (core-promoted feature in OpenGL 2.0)
   vtkOpenGLExtensionManager *extensions=vtkOpenGLExtensionManager::New();
   extensions->SetRenderWindow(this);
   
-  int supports_GL_EXT_framebuffer_object=extensions->ExtensionSupported("GL_EXT_framebuffer_object");
-  int supports_GL_ARB_texture_non_power_of_two=extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
+  int supports_GL_EXT_framebuffer_object=
+    extensions->ExtensionSupported("GL_EXT_framebuffer_object");
+  int supports_texture_non_power_of_two=
+    extensions->ExtensionSupported("GL_VERSION_2_0") ||
+    extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
   
   // We skip it if you use Mesa. Even if the VTK offscreen test passes (OSCone)
   // with Mesa, all the Paraview batch test are failing (Mesa 6.5.1 or CVS)
@@ -1421,15 +1424,15 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   
   int result=0;
   
-  if(!(supports_GL_EXT_framebuffer_object && supports_GL_ARB_texture_non_power_of_two && !isMesa))
+  if(!(supports_GL_EXT_framebuffer_object && supports_texture_non_power_of_two && !isMesa))
     {
     if(!supports_GL_EXT_framebuffer_object)
       {
       vtkDebugMacro(<<" extension GL_EXT_framebuffer_object is not supported. Hardware accelerated offscreen rendering is not available");
       }
-    if(!supports_GL_ARB_texture_non_power_of_two)
+    if(!supports_texture_non_power_of_two)
       {
-      vtkDebugMacro(<<" extension GL_ARB_texture_non_power_of_two is not supported. Hardware accelerated offscreen rendering is not available");
+      vtkDebugMacro(<<" extension texture_non_power_of_two is not supported because neither OpenGL 2.0 nor GL_ARB_texture_non_power_of_two extension is supported. Hardware accelerated offscreen rendering is not available");
       }
     if(isMesa)
       {
@@ -1441,7 +1444,6 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
     {
     result=1;
     extensions->LoadExtension("GL_EXT_framebuffer_object");
-    extensions->LoadExtension("GL_ARB_texture_non_power_of_two");
     
     // 3. regular framebuffer code
     this->NumberOfFrameBuffers=1;
