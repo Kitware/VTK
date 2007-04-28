@@ -57,7 +57,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.22");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.23");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 namespace vtkgl
@@ -960,8 +960,8 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
      
     // There is no translation for GetHandle in OpenGL2.0.
    
-    vtkgl::IsProgram = IsProgramFromARBToPromoted;
-    vtkgl::IsShader = IsShaderFromARBToPromoted;
+    vtkgl::IsProgram = (vtkgl::PFNGLISPROGRAMPROC)IsProgramFromARBToPromoted;
+    vtkgl::IsShader = (vtkgl::PFNGLISSHADERPROC)IsShaderFromARBToPromoted;
      
     vtkgl::DetachShader = (vtkgl::PFNGLDETACHSHADERPROC)manager->GetProcAddress("glDetachObjectARB");
     vtkgl::CreateShader = (vtkgl::PFNGLCREATESHADERPROC)manager->GetProcAddress("glCreateShaderObjectARB");
