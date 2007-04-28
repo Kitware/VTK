@@ -28,7 +28,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.61");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.62");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -336,8 +336,8 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     {
     uUseTexture=oRenderer->GetUseTextureUniformVariable();
     uTexture=oRenderer->GetTextureUniformVariable();
-    vtkgl::Uniform1iARB(uUseTexture,1);
-    vtkgl::Uniform1iARB(uTexture,0); // active texture 0
+    vtkgl::Uniform1i(uUseTexture,1);
+    vtkgl::Uniform1i(uTexture,0); // active texture 0
     }
 }
 

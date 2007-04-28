@@ -28,7 +28,7 @@
 #include "vtkgl.h" // vtkgl namespace
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.38");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.39");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -50,7 +50,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
     {
     GLint uUseTexture=-1;
     uUseTexture=oRenderer->GetUseTextureUniformVariable();
-    vtkgl::Uniform1iARB(uUseTexture,0);
+    vtkgl::Uniform1i(uUseTexture,0);
     }
   glDisable(GL_TEXTURE_2D);
 

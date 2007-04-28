@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.68");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.69");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -213,7 +213,7 @@ int vtkOpenGLRenderer::UpdateLights ()
 // vtkOpenGLProperty or vtkOpenGLTexture.
 int vtkOpenGLRenderer::GetUseTextureUniformVariable()
 {
-  GLint result=vtkgl::GetUniformLocationARB(this->ProgramShader,"useTexture");
+  GLint result=vtkgl::GetUniformLocation(this->ProgramShader,"useTexture");
   if(result==-1)
     {
     vtkErrorMacro(<<"useTexture is not a uniform variable");
@@ -227,7 +227,7 @@ int vtkOpenGLRenderer::GetUseTextureUniformVariable()
 // vtkOpenGLProperty or vtkOpenGLTexture.
 int vtkOpenGLRenderer::GetTextureUniformVariable()
 {
-  GLint result=vtkgl::GetUniformLocationARB(this->ProgramShader,"texture");
+  GLint result=vtkgl::GetUniformLocation(this->ProgramShader,"texture");
   if(result==-1)
     {
     vtkErrorMacro(<<"texture is not a uniform variable");
@@ -288,14 +288,54 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       this->DepthPeelingIsSupportedChecked=1;
       vtkOpenGLExtensionManager *extensions=vtkOpenGLExtensionManager::New();
       extensions->SetRenderWindow(this->RenderWindow);
-      int supports_GL_ARB_depth_texture=extensions->ExtensionSupported("GL_ARB_depth_texture");
-      int supports_GL_ARB_shadow=extensions->ExtensionSupported("GL_ARB_shadow");
-      int supports_GL_EXT_shadow_funcs=extensions->ExtensionSupported("GL_EXT_shadow_funcs");
-      int supports_GL_ARB_vertex_shader=extensions->ExtensionSupported("GL_ARB_vertex_shader");
-      int supports_GL_ARB_fragment_shader=extensions->ExtensionSupported("GL_ARB_fragment_shader");
-      int supports_GL_ARB_shader_objects=extensions->ExtensionSupported("GL_ARB_shader_objects");
-      int supports_GL_ARB_occlusion_query=extensions->ExtensionSupported("GL_ARB_occlusion_query");
-      int supports_GL_ARB_multitexture=extensions->ExtensionSupported("GL_ARB_multitexture");
+      
+      int supports_GL_1_3=extensions->ExtensionSupported("GL_VERSION_1_3");
+      int supports_GL_1_4=extensions->ExtensionSupported("GL_VERSION_1_4");
+      int supports_GL_1_5=extensions->ExtensionSupported("GL_VERSION_1_5");
+      int supports_GL_2_0=extensions->ExtensionSupported("GL_VERSION_2_0");
+      
+      int supports_vertex_shader;
+      int supports_fragment_shader;
+      int supports_shader_objects;
+      if(supports_GL_2_0)
+        {
+        supports_vertex_shader=1;
+        supports_fragment_shader=1;
+        supports_shader_objects=1;
+        }
+      else
+        {
+        supports_vertex_shader=extensions->ExtensionSupported("GL_ARB_vertex_shader");
+        supports_fragment_shader=extensions->ExtensionSupported("GL_ARB_fragment_shader");
+        supports_shader_objects=extensions->ExtensionSupported("GL_ARB_shader_objects");
+        }
+      int supports_multitexture=supports_GL_1_3 || extensions->ExtensionSupported("GL_ARB_multitexture");
+      int supports_occlusion_query;
+      int supports_shadow_funcs;
+      if(supports_GL_1_5)
+        {
+        supports_occlusion_query=1;
+        supports_shadow_funcs=1;
+        }
+      else
+        {
+        supports_occlusion_query=extensions->ExtensionSupported("GL_ARB_occlusion_query");
+        supports_shadow_funcs=extensions->ExtensionSupported("GL_EXT_shadow_funcs");
+        }
+      
+      int supports_depth_texture;
+      int supports_shadow;
+      if(supports_GL_1_4)
+        {
+        supports_depth_texture=1;
+        supports_shadow=1;
+        }
+      else
+        {
+        supports_depth_texture=extensions->ExtensionSupported("GL_ARB_depth_texture");
+        supports_shadow=extensions->ExtensionSupported("GL_ARB_shadow");
+        }
+      
       int supports_GL_ARB_texture_rectangle=extensions->ExtensionSupported("GL_ARB_texture_rectangle");
       
       // spec claims it is GL_SGIS_texture_edge_clamp, reality shows it is
@@ -319,14 +359,14 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       int supportsAtLeast8AlphaBits=alphaBits>=8;
       
       this->DepthPeelingIsSupported =
-        supports_GL_ARB_depth_texture &&
-        supports_GL_ARB_shadow &&
-        supports_GL_EXT_shadow_funcs &&
-        supports_GL_ARB_vertex_shader &&
-        supports_GL_ARB_fragment_shader &&
-        supports_GL_ARB_shader_objects &&
-        supports_GL_ARB_occlusion_query &&
-        supports_GL_ARB_multitexture &&
+        supports_depth_texture &&
+        supports_shadow &&
+        supports_shadow_funcs &&
+        supports_vertex_shader &&
+        supports_fragment_shader &&
+        supports_shader_objects &&
+        supports_occlusion_query &&
+        supports_multitexture &&
         supports_GL_ARB_texture_rectangle &&
         supports_edge_clamp &&
         supportsAtLeast8AlphaBits;
@@ -334,50 +374,71 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       if(this->DepthPeelingIsSupported)
         {
         vtkDebugMacro("depth peeling supported");
-        extensions->LoadExtension("GL_ARB_depth_texture");
-        extensions->LoadExtension("GL_ARB_shadow");
-        extensions->LoadExtension("GL_EXT_shadow_funcs");
-        extensions->LoadExtension("GL_ARB_vertex_shader");
-        extensions->LoadExtension("GL_ARB_fragment_shader");
-        extensions->LoadExtension("GL_ARB_shader_objects");
-        extensions->LoadExtension("GL_ARB_occlusion_query");
-        extensions->LoadExtension("GL_ARB_multitexture");
+        if(supports_GL_1_3)
+          {
+          extensions->LoadExtension("GL_VERSION_1_3");
+          }
+        else
+          {
+          extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
+          }
+        // GL_ARB_depth_texture, GL_ARB_shadow and GL_EXT_shadow_funcs
+        // don't introduce new functions.
+        if(supports_GL_2_0)
+          {
+          extensions->LoadExtension("GL_VERSION_2_0");
+          }
+        else
+          {
+          extensions->LoadCorePromotedExtension("GL_ARB_vertex_shader");
+          extensions->LoadCorePromotedExtension("GL_ARB_fragment_shader");
+          extensions->LoadCorePromotedExtension("GL_ARB_shader_objects");
+          }
+        if(supports_GL_1_5)
+          {
+          extensions->LoadExtension("GL_VERSION_1_5");
+          }
+        else
+          {
+          extensions->LoadCorePromotedExtension("GL_ARB_occlusion_query");
+          }
+        
         extensions->LoadExtension("GL_ARB_texture_rectangle");
         }
       else
         {
         vtkDebugMacro(<<"depth peeling is not supported.");
-        if(!supports_GL_ARB_depth_texture)
+        if(!supports_depth_texture)
           {
-          vtkDebugMacro(<<"GL_ARB_depth_texture is not supported");
+          vtkDebugMacro(<<"neither OpenGL 1.4 nor GL_ARB_depth_texture is supported");
           }
-        if(!supports_GL_ARB_shadow)
+        if(!supports_shadow)
           {
-          vtkDebugMacro(<<"GL_ARB_shadow is not supported");
+          vtkDebugMacro(<<"neither OpenGL 1.4 nor GL_ARB_shadow is supported");
           }
-        if(!supports_GL_EXT_shadow_funcs)
+        if(!supports_shadow_funcs)
           {
-          vtkDebugMacro(<<"GL_EXT_shadow_funcs is not supported");
+          vtkDebugMacro(<<"neither OpenGL 1.5 nor GL_EXT_shadow_funcs is supported");
           }
-        if(!supports_GL_ARB_vertex_shader)
+        if(!supports_vertex_shader)
           {
-          vtkDebugMacro(<<"GL_ARB_vertex_shader is not supported");
+          vtkDebugMacro(<<"neither OpenGL 2.0 nor GL_ARB_vertex_shader is supported");
           }
-        if(!supports_GL_ARB_fragment_shader)
+        if(!supports_fragment_shader)
           {
-          vtkDebugMacro(<<"GL_ARB_fragment_shader is not supported");
+          vtkDebugMacro(<<"neither OpenGL 2.0 nor GL_ARB_fragment_shader is supported");
           }
-        if(!supports_GL_ARB_shader_objects)
+        if(!supports_shader_objects)
           {
-          vtkDebugMacro(<<"GL_ARB_shader_objects is not supported");
+          vtkDebugMacro(<<"neither OpenGL 2.0 nor GL_ARB_shader_objects is supported");
           }
-        if(!supports_GL_ARB_occlusion_query)
+        if(!supports_occlusion_query)
           {
-          vtkDebugMacro(<<"GL_ARB_occlusion_query is not supported");
+          vtkDebugMacro(<<"neither OpenGL 1.5 nor GL_ARB_occlusion_query is supported");
           }
-        if(!supports_GL_ARB_multitexture)
+        if(!supports_multitexture)
           {
-          vtkDebugMacro(<<"GL_ARB_multitexture is not supported");
+          vtkDebugMacro(<<"neither OpenGL 1.3 nor GL_ARB_multitexture is supported");
           }
         if(!supports_GL_ARB_texture_rectangle)
           {
@@ -385,7 +446,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           }
         if(!supports_edge_clamp)
           {
-          vtkDebugMacro(<<"edge_clamp is not supported");
+          vtkDebugMacro(<<"neither OpenGL 1.2 nor GL_SGIS_texture_edge_clamp nor GL_EXT_texture_edge_clamp is not supported");
           }
         if(!supportsAtLeast8AlphaBits)
           {
@@ -402,17 +463,16 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
         // To test that, we compile the shader, if it fails, we don't use
         // deph peeling
         GLuint shader =
-          vtkgl::CreateShaderObjectARB(vtkgl::FRAGMENT_SHADER_ARB);
-        vtkgl::ShaderSourceARB
-          (shader, 1,
-           const_cast<const char **>(&vtkOpenGLRenderer_PeelingFS), 0);
-        vtkgl::CompileShaderARB(shader);
+          vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER);
+        vtkgl::ShaderSource(
+          shader, 1,
+          const_cast<const char **>(&vtkOpenGLRenderer_PeelingFS), 0);
+        vtkgl::CompileShader(shader);
         GLint params;
-        vtkgl::GetObjectParameterivARB(shader,
-                                       vtkgl::OBJECT_COMPILE_STATUS_ARB,
-                                       &params);
+        vtkgl::GetShaderiv(shader,vtkgl::COMPILE_STATUS,
+                           &params);
         this->DepthPeelingIsSupported = params==GL_TRUE;
-        vtkgl::DeleteObjectARB(shader);
+        vtkgl::DeleteShader(shader);
         if(!this->DepthPeelingIsSupported)
           {
           vtkDebugMacro("this OpenGL implementation does not support "
@@ -520,7 +580,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     
     glGenTextures(1,&opaqueLayerRgba);
     // opaque z format
-    vtkgl::ActiveTextureARB(vtkgl::TEXTURE1_ARB );
+    vtkgl::ActiveTexture(vtkgl::TEXTURE1 );
     glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,opaqueLayerZ);
     glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,
                     GL_NEAREST);
@@ -531,10 +591,10 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,GL_TEXTURE_WRAP_T,
                     vtkgl::CLAMP_TO_EDGE);
     glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,
-                    vtkgl::TEXTURE_COMPARE_MODE_ARB,
-                    vtkgl::COMPARE_R_TO_TEXTURE_ARB);
+                    vtkgl::TEXTURE_COMPARE_MODE,
+                    vtkgl::COMPARE_R_TO_TEXTURE);
     glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,
-                    vtkgl::TEXTURE_COMPARE_FUNC_ARB,
+                    vtkgl::TEXTURE_COMPARE_FUNC,
                     GL_LESS);
     
     // Allocate memory
@@ -551,7 +611,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       glDeleteTextures(1,&opaqueLayerRgba);
       glDeleteTextures(1,&opaqueLayerZ);
       this->LastRenderingUsedDepthPeeling=0;
-      vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
+      vtkgl::ActiveTexture(vtkgl::TEXTURE0 );
       this->UpdateTranslucentPolygonalGeometry();
       return;
       }
@@ -581,7 +641,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       glDeleteTextures(1,&opaqueLayerRgba);
       glDeleteTextures(1,&opaqueLayerZ);
       this->LastRenderingUsedDepthPeeling=0;
-      vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
+      vtkgl::ActiveTexture(vtkgl::TEXTURE0 );
       this->UpdateTranslucentPolygonalGeometry();
       return;
       }
@@ -600,7 +660,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
                         this->ViewportHeight);
     
     GLuint queryId;
-    vtkgl::GenQueriesARB(1,&queryId);
+    vtkgl::GenQueries(1,&queryId);
     int stop=0;
     int infiniteLoop=this->MaximumNumberOfPeels==0;
     
@@ -619,14 +679,14 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     int l=0;
     while(!stop)
       {
-      vtkgl::BeginQueryARB(vtkgl::SAMPLES_PASSED,queryId);
+      vtkgl::BeginQuery(vtkgl::SAMPLES_PASSED,queryId);
       stop=!this->RenderPeel(l);
-      vtkgl::EndQueryARB(vtkgl::SAMPLES_PASSED);
+      vtkgl::EndQuery(vtkgl::SAMPLES_PASSED);
       // blocking call 
       previousNbPixels=nbPixels;
       if(!stop || l>0) // stop && l==0 <=> no translucent geometry
         {
-        vtkgl::GetQueryObjectuivARB(queryId,vtkgl::QUERY_RESULT,&nbPixels);
+        vtkgl::GetQueryObjectuiv(queryId,vtkgl::QUERY_RESULT,&nbPixels);
         if(!stop)
           {
           stop=(nbPixels<=threshold) || (nbPixels==previousNbPixels);
@@ -647,7 +707,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     glDisable(GL_TEXTURE_2D);
     glDisable (GL_ALPHA_TEST);
     glDepthFunc(GL_LEQUAL);
-    vtkgl::DeleteQueriesARB(1,&queryId);
+    vtkgl::DeleteQueries(1,&queryId);
     if(this->TransparentLayerZ!=0)
       {
       GLuint transparentLayerZ=static_cast<GLuint>(this->TransparentLayerZ);
@@ -673,7 +733,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     
-    vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0 );
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glEnable(vtkgl::TEXTURE_RECTANGLE_ARB);
     
@@ -724,7 +784,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     // Destroy the shader
     if(this->ProgramShader!=0)
       {
-      vtkgl::DeleteObjectARB(this->ProgramShader);
+      vtkgl::DeleteProgram(this->ProgramShader);
       this->ProgramShader=0;
       }
     
@@ -761,7 +821,7 @@ void vtkOpenGLRenderer::CheckCompilation(
 {
   GLuint fs=static_cast<GLuint>(fragmentShader);
   GLint params;
-  vtkgl::GetObjectParameterivARB(fs,vtkgl::OBJECT_COMPILE_STATUS_ARB,&params);
+  vtkgl::GetShaderiv(fs,vtkgl::COMPILE_STATUS,&params);
   if(params==GL_TRUE)
     {
     vtkDebugMacro(<<"shader source compiled successfully");
@@ -770,11 +830,11 @@ void vtkOpenGLRenderer::CheckCompilation(
     {
     vtkErrorMacro(<<"shader source compile error");
     // include null terminator
-    vtkgl::GetObjectParameterivARB(fs,vtkgl::OBJECT_INFO_LOG_LENGTH_ARB,&params);
+    vtkgl::GetShaderiv(fs,vtkgl::INFO_LOG_LENGTH,&params);
     if(params>0)
       {
       char *buffer=new char[params];
-      vtkgl::GetInfoLogARB(fs,params,0,buffer);
+      vtkgl::GetShaderInfoLog(fs,params,0,buffer);
       vtkErrorMacro(<<"log: "<<buffer);
       delete[] buffer;
       }
@@ -804,22 +864,22 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(mask);
   
-  vtkgl::ActiveTextureARB(vtkgl::TEXTURE2_ARB);
+  vtkgl::ActiveTexture(vtkgl::TEXTURE2);
   glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->OpaqueLayerZ);
-  vtkgl::ActiveTextureARB(vtkgl::TEXTURE1_ARB );
+  vtkgl::ActiveTexture(vtkgl::TEXTURE1 );
   
   if(this->ProgramShader==0)
     {
-    this->ProgramShader=vtkgl::CreateProgramObjectARB();
-    GLuint shader=vtkgl::CreateShaderObjectARB(vtkgl::FRAGMENT_SHADER_ARB);
-    vtkgl::ShaderSourceARB(shader,1,const_cast<const char **>(&vtkOpenGLRenderer_PeelingFS),0);
-    vtkgl::CompileShaderARB(shader);
+    this->ProgramShader=vtkgl::CreateProgram();
+    GLuint shader=vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER);
+    vtkgl::ShaderSource(shader,1,const_cast<const char **>(&vtkOpenGLRenderer_PeelingFS),0);
+    vtkgl::CompileShader(shader);
     this->CheckCompilation(shader);
-    vtkgl::AttachObjectARB(this->ProgramShader,shader);
-    vtkgl::LinkProgramARB(this->ProgramShader);
+    vtkgl::AttachShader(this->ProgramShader,shader);
+    vtkgl::LinkProgram(this->ProgramShader);
     
     GLint params;
-    vtkgl::GetObjectParameterivARB(static_cast<GLuint>(this->ProgramShader),vtkgl::OBJECT_LINK_STATUS_ARB,&params);
+    vtkgl::GetProgramiv(static_cast<GLuint>(this->ProgramShader),vtkgl::LINK_STATUS,&params);
     if(params==GL_TRUE)
       {
       vtkDebugMacro(<<"program linked successfully");
@@ -828,12 +888,12 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
       {
       vtkErrorMacro(<<"program link error");
       // include null terminator
-      vtkgl::GetObjectParameterivARB(static_cast<GLuint>(this->ProgramShader),vtkgl::OBJECT_INFO_LOG_LENGTH_ARB,&params);
+      vtkgl::GetProgramiv(static_cast<GLuint>(this->ProgramShader),vtkgl::INFO_LOG_LENGTH,&params);
       if(params>0)
         {
 #if 1
         char *buffer=new char[params];
-        vtkgl::GetInfoLogARB(static_cast<GLuint>(this->ProgramShader),params,0,buffer);
+        vtkgl::GetProgramInfoLog(static_cast<GLuint>(this->ProgramShader),params,0,buffer);
         vtkErrorMacro(<<"log: "<<buffer);
         delete[] buffer;
 #endif
@@ -843,64 +903,64 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
         vtkErrorMacro(<<"no log: ");
         }
       }
-    vtkgl::DeleteObjectARB(shader); // reference counting
+    vtkgl::DeleteShader(shader); // reference counting
     }
   
   if(layer>0)
     {
     glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->TransparentLayerZ);
-    vtkgl::UseProgramObjectARB(this->ProgramShader);
-    GLint uShadowTex=vtkgl::GetUniformLocationARB(this->ProgramShader,"shadowTex");
+    vtkgl::UseProgram(this->ProgramShader);
+    GLint uShadowTex=vtkgl::GetUniformLocation(this->ProgramShader,"shadowTex");
     if(uShadowTex!=-1)
       {
-      vtkgl::Uniform1iARB(uShadowTex,1);
+      vtkgl::Uniform1i(uShadowTex,1);
       }
     else
       {
       vtkErrorMacro(<<"error: shadowTex is not a uniform.");
       }
-    GLint uOpaqueShadowTex=vtkgl::GetUniformLocationARB(this->ProgramShader,"opaqueShadowTex");
+    GLint uOpaqueShadowTex=vtkgl::GetUniformLocation(this->ProgramShader,"opaqueShadowTex");
     if(uOpaqueShadowTex!=-1)
       {
-      vtkgl::Uniform1iARB(uOpaqueShadowTex,2);
+      vtkgl::Uniform1i(uOpaqueShadowTex,2);
       }
     else
       {
       vtkErrorMacro(<<"error: opaqueShadowTex is not a uniform.");
       }
 
-    GLint uOffsetX=vtkgl::GetUniformLocationARB(this->ProgramShader,"offsetX");
+    GLint uOffsetX=vtkgl::GetUniformLocation(this->ProgramShader,"offsetX");
     if(uOffsetX!=-1)
       {
-      vtkgl::Uniform1fARB(uOffsetX,this->ViewportX);
+      vtkgl::Uniform1f(uOffsetX,this->ViewportX);
       }
     else
       {
       vtkErrorMacro(<<"error: offsetX is not a uniform.");
       }
     
-    GLint uOffsetY=vtkgl::GetUniformLocationARB(this->ProgramShader,"offsetY");
+    GLint uOffsetY=vtkgl::GetUniformLocation(this->ProgramShader,"offsetY");
     if(uOffsetY!=-1)
       {
-      vtkgl::Uniform1fARB(uOffsetY,this->ViewportY);
+      vtkgl::Uniform1f(uOffsetY,this->ViewportY);
       }
     else
       {
       vtkErrorMacro(<<"error: offsetY is not a uniform.");
       }
     }
-  vtkgl::ActiveTextureARB(vtkgl::TEXTURE0_ARB );
+  vtkgl::ActiveTexture(vtkgl::TEXTURE0 );
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   this->DepthPeelingHigherLayer=layer>0;
   int numberOfRenderedProps=this->UpdateTranslucentPolygonalGeometry();
   if(layer>0)
     {
     this->DepthPeelingHigherLayer=0;
-    vtkgl::UseProgramObjectARB(0);
+    vtkgl::UseProgram(0);
     }
   
   GLint width;
-  vtkgl::ActiveTextureARB(vtkgl::TEXTURE1_ARB );
+  vtkgl::ActiveTexture(vtkgl::TEXTURE1 );
   if(layer==0)
     {
     if(numberOfRenderedProps>0)
@@ -919,10 +979,10 @@ int vtkOpenGLRenderer::RenderPeel(int layer)
       glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,GL_TEXTURE_WRAP_T,
                       vtkgl::CLAMP_TO_EDGE);
       glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,
-                      vtkgl::TEXTURE_COMPARE_MODE_ARB,
-                      vtkgl::COMPARE_R_TO_TEXTURE_ARB);
+                      vtkgl::TEXTURE_COMPARE_MODE,
+                      vtkgl::COMPARE_R_TO_TEXTURE);
       glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,
-                      vtkgl::TEXTURE_COMPARE_FUNC_ARB,
+                      vtkgl::TEXTURE_COMPARE_FUNC,
                       GL_GREATER);
       
       // Allocate memory
