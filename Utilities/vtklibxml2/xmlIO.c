@@ -38,6 +38,33 @@
 #include <windows.h>
 #endif
 
+/*--------------------------------------------------------------------------*/
+/*
+  VTK MODIFICATION: When building on cygwin with -mwin32 we get _WIN32
+  defined.  If -mno-cygwin is not given then __CYGWIN__ is still
+  defined.  This is the case when VTK builds in cygwin.  The cygwin
+  API does not provide _wfopen or _wstat, and libxml2 does not seem to
+  have accounted for this upstream.  We work around the unresolved
+  symbols by providing them here.  We simply return failure so that
+  the routines below fall back to the single-width API provided by
+  cygwin.
+*/
+#if defined(_WIN32) && defined(__CYGWIN__)
+static FILE* _wfopen(const wchar_t* path, const wchar_t* mode)
+{
+  (void)path;
+  (void)mode;
+  return 0;
+}
+static int _wstat(const wchar_t* path, struct _stat* info)
+{
+  (void)path;
+  (void)info;
+  return -1;
+}
+#endif
+/*--------------------------------------------------------------------------*/
+
 /* Figure a portable way to know if a file is a directory. */
 #ifndef HAVE_STAT
 #  ifdef HAVE__STAT
