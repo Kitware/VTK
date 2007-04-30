@@ -48,7 +48,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkUnstructuredGridGeometryFilter, "1.3");
+vtkCxxRevisionMacro(vtkUnstructuredGridGeometryFilter, "1.4");
 vtkStandardNewMacro(vtkUnstructuredGridGeometryFilter);
 
 #if 0
@@ -394,7 +394,7 @@ public:
       
       // Compute the smallest id among the corner points.
       int smallestIdx;
-      int smallestId;
+      vtkIdType smallestId;
       int i;
       
       int numberOfCornerPoints;
@@ -428,7 +428,7 @@ public:
         }
       
       // Compute the hashkey/code
-      int key=(faceType*VTK_HASH_PRIME+smallestId)%(this->HashTable.size());
+      size_t key=(faceType*VTK_HASH_PRIME+smallestId)%(this->HashTable.size());
       
       // Get the list at this key (several not equal faces can share the
       // same hashcode). This is the first element in the list.
@@ -607,7 +607,7 @@ public:
       this->CurrentKey=0;
       this->CurrentSurfel=0;
       
-      int c=Table->HashTable.size();
+      size_t c=Table->HashTable.size();
       int done=this->CurrentKey>=c;
       if(!done)
         {
@@ -646,7 +646,7 @@ public:
     {
       assert("pre: not_at_end"&& !IsAtEnd());
       CurrentSurfel=CurrentSurfel->Next;
-      int c=Table->HashTable.size();
+      size_t c=Table->HashTable.size();
       if(this->CurrentSurfel==0)
         {
         ++this->CurrentKey;
@@ -672,7 +672,7 @@ public:
   
 protected:
   vtkHashTableOfSurfels *Table;
-  int CurrentKey;
+  size_t CurrentKey;
   vtkSurfel *CurrentSurfel;
   int AtEnd;
 };

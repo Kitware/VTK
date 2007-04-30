@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.69");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.70");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -789,14 +789,14 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       }
     
     // Destroy the layers
-    int c=this->LayerList->List.size();
+    size_t c=this->LayerList->List.size();
     GLuint *ids=new GLuint[c];
     vtkstd::list<GLuint>::const_iterator it2=this->LayerList->List.begin();
-    l=0;
-    while(l<c)
+    size_t layer=0;
+    while(layer<c)
       {
-      ids[l]=(*it2);
-      ++l;
+      ids[layer]=(*it2);
+      ++layer;
       ++it2;
       }
     glDeleteTextures(c,ids);
