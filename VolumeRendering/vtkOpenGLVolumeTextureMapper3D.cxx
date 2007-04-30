@@ -40,24 +40,6 @@ extern const char* vtkVolumeTextureMapper3D_TwoDependentShadeFP;
 extern const char* vtkVolumeTextureMapper3D_FourDependentNoShadeFP;
 extern const char* vtkVolumeTextureMapper3D_FourDependentShadeFP;
 
-// Apple OS X doesn't have glTexImage3DEXT, but it does have glTexImage3D
-#if defined(__APPLE__) && defined(GL_VERSION_1_2)
-#ifdef TexImage3DEXT
-#undef TexImage3DEXT
-#endif
-#define TexImage3DEXT TexImage3D
-#ifdef TEXTURE_3D_EXT
-#undef TEXTURE_3D_EXT
-#endif
-#define TEXTURE_3D_EXT TEXTURE_3D
-#endif /* defined(__APPLE__) && defined(GL_VERSION_1_2) */
-
-//extern "C" void (*glXGetProcAddressARB(const GLubyte *procName))( void );
-
-//#ifdef _WIN32
-
-//#endif
-
 #define PrintError(S)                                                           \
   {                                                                             \
   GLenum errorCode;                                                             \
@@ -78,7 +60,7 @@ extern const char* vtkVolumeTextureMapper3D_FourDependentShadeFP;
     }}
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.9");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.10");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -276,17 +258,17 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFP( vtkRenderer *ren, vtkVolume *vol 
         }
     }
   
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE2);
   glDisable( GL_TEXTURE_2D );
-  glDisable( vtkgl::TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D );
   
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE1);
   glDisable( GL_TEXTURE_2D );
-  glDisable( vtkgl::TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D );
   
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE0);
   glDisable( GL_TEXTURE_2D );
-  glDisable( vtkgl::TEXTURE_3D_EXT );  
+  glDisable( vtkgl::TEXTURE_3D );  
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderNV( vtkRenderer *ren, vtkVolume *vol )
@@ -334,17 +316,17 @@ void vtkOpenGLVolumeTextureMapper3D::RenderNV( vtkRenderer *ren, vtkVolume *vol 
         }
     }
   
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE2 );
   glDisable( GL_TEXTURE_2D );
-  glDisable( vtkgl::TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D );
   
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE1 );
   glDisable( GL_TEXTURE_2D );
-  glDisable( vtkgl::TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D );
   
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
   glDisable( GL_TEXTURE_2D );
-  glDisable( vtkgl::TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D );
   
   glDisable( vtkgl::TEXTURE_SHADER_NV );
 
@@ -547,7 +529,7 @@ void vtkOpenGLVolumeTextureMapper3D::RenderPolygons( vtkRenderer *ren,
           {
           if ( stages[k] )
             {
-            vtkgl::MultiTexCoord3fvARB( vtkgl::TEXTURE0_ARB + k, ptr );
+            vtkgl::MultiTexCoord3fv( vtkgl::TEXTURE0 + k, ptr );
             }
           }
         glVertex3fv( ptr+3 );
@@ -563,37 +545,37 @@ void vtkOpenGLVolumeTextureMapper3D::Setup3DTextureParameters( vtkVolumeProperty
 {
   if ( property->GetInterpolationType() == VTK_NEAREST_INTERPOLATION )
     {
-    glTexParameterf( vtkgl::TEXTURE_3D_EXT, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-    glTexParameterf( vtkgl::TEXTURE_3D_EXT, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+    glTexParameterf( vtkgl::TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+    glTexParameterf( vtkgl::TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
     }
   else
     {
-    glTexParameterf( vtkgl::TEXTURE_3D_EXT, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexParameterf( vtkgl::TEXTURE_3D_EXT, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameterf( vtkgl::TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexParameterf( vtkgl::TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     }
-  glTexParameterf( vtkgl::TEXTURE_3D_EXT, GL_TEXTURE_WRAP_S, GL_CLAMP );
-  glTexParameterf( vtkgl::TEXTURE_3D_EXT, GL_TEXTURE_WRAP_T, GL_CLAMP );
+  glTexParameterf( vtkgl::TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP );
+  glTexParameterf( vtkgl::TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 }
 
 void vtkOpenGLVolumeTextureMapper3D::SetupOneIndependentTextures( vtkRenderer *vtkNotUsed(ren),
                     vtkVolume *vol )
 {
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
   glDisable( GL_TEXTURE_2D );
-  glEnable( vtkgl::TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
     glEnable( vtkgl::TEXTURE_SHADER_NV );
-    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D);
     }
 
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE2 );
   glDisable( GL_TEXTURE_2D );
-  glEnable( vtkgl::TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
     glEnable( vtkgl::TEXTURE_SHADER_NV );  
-    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D);
     }
 
   // Update the volume containing the 2 byte scalar / gradient magnitude
@@ -603,40 +585,40 @@ void vtkOpenGLVolumeTextureMapper3D::SetupOneIndependentTextures( vtkRenderer *v
     this->GetVolumeDimensions(dim);
     this->DeleteTextureIndex(&this->Volume3Index);
     
-    vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
+    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume1Index);
     this->CreateTextureIndex(&this->Volume1Index);
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume1Index);
-    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_LUMINANCE8_ALPHA8, dim[0], dim[1], dim[2], 0,
+    glBindTexture(vtkgl::TEXTURE_3D, this->Volume1Index);
+    vtkgl::TexImage3D( vtkgl::TEXTURE_3D, 0, GL_LUMINANCE8_ALPHA8, dim[0], dim[1], dim[2], 0,
                            GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, this->Volume1 );
     
 
-    vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTexture( vtkgl::TEXTURE2 );
+    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume2Index);
     this->CreateTextureIndex(&this->Volume2Index);
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume2Index);
-    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_RGBA8, dim[0], dim[1], dim[2], 0,
+    glBindTexture(vtkgl::TEXTURE_3D, this->Volume2Index);
+    vtkgl::TexImage3D( vtkgl::TEXTURE_3D, 0, GL_RGBA8, dim[0], dim[1], dim[2], 0,
                            GL_RGB, GL_UNSIGNED_BYTE, this->Volume2 );
     }
   
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
-  glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume1Index);   
+  vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
+  glBindTexture(vtkgl::TEXTURE_3D, this->Volume1Index);   
   this->Setup3DTextureParameters( vol->GetProperty() );
 
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
-  glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume2Index);   
+  vtkgl::ActiveTexture( vtkgl::TEXTURE2 );
+  glBindTexture(vtkgl::TEXTURE_3D, this->Volume2Index);   
   this->Setup3DTextureParameters( vol->GetProperty() );
 
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE1 );
   glEnable( GL_TEXTURE_2D );
-  glDisable( vtkgl::TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
     glTexEnvf ( vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, 
                 vtkgl::DEPENDENT_AR_TEXTURE_2D_NV );  
-    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::PREVIOUS_TEXTURE_INPUT_NV, vtkgl::TEXTURE0_ARB);
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::PREVIOUS_TEXTURE_INPUT_NV, vtkgl::TEXTURE0);
     }
 
   // Update the dependent 2D color table mapping scalar value and
@@ -667,12 +649,12 @@ void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersNoShadeNV( vtkRendere
 {
   if ( components < 3 )
     {
-    vtkgl::ActiveTextureARB(vtkgl::TEXTURE2_ARB);
+    vtkgl::ActiveTexture(vtkgl::TEXTURE2);
     glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, GL_NONE);
   
     if ( components == 1 )
       {
-      vtkgl::ActiveTextureARB(vtkgl::TEXTURE3_ARB);
+      vtkgl::ActiveTexture(vtkgl::TEXTURE3);
       glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, GL_NONE);
       }
     }
@@ -687,20 +669,20 @@ void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersNoShadeNV( vtkRendere
   vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_C_NV, GL_ZERO,         vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
   if ( components < 3 )
     {
-    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_D_NV, vtkgl::TEXTURE1_ARB, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_D_NV, vtkgl::TEXTURE1, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
     }
   else
     {
-    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_D_NV, vtkgl::TEXTURE0_ARB, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_D_NV, vtkgl::TEXTURE0, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
     }
   
   if ( components == 1 )
     {
-    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_G_NV, vtkgl::TEXTURE1_ARB, vtkgl::UNSIGNED_IDENTITY_NV, GL_ALPHA);
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_G_NV, vtkgl::TEXTURE1, vtkgl::UNSIGNED_IDENTITY_NV, GL_ALPHA);
     }
   else
     {
-    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_G_NV, vtkgl::TEXTURE3_ARB, vtkgl::UNSIGNED_IDENTITY_NV, GL_ALPHA);
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_G_NV, vtkgl::TEXTURE3, vtkgl::UNSIGNED_IDENTITY_NV, GL_ALPHA);
     }
 }
 
@@ -710,7 +692,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersShadeNV( vtkRenderer 
 {
   if ( components == 1 )
     {
-    vtkgl::ActiveTextureARB(vtkgl::TEXTURE3_ARB);
+    vtkgl::ActiveTexture(vtkgl::TEXTURE3);
     glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, GL_NONE);
     }
     
@@ -745,11 +727,11 @@ void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersShadeNV( vtkRenderer 
   vtkgl::CombinerInputNV( vtkgl::COMBINER0_NV, GL_RGB, vtkgl::VARIABLE_A_NV, 
                           vtkgl::CONSTANT_COLOR0_NV, vtkgl::EXPAND_NORMAL_NV, GL_RGB );
   vtkgl::CombinerInputNV( vtkgl::COMBINER0_NV, GL_RGB, vtkgl::VARIABLE_B_NV, 
-                          vtkgl::TEXTURE2_ARB,       vtkgl::EXPAND_NORMAL_NV, GL_RGB );
+                          vtkgl::TEXTURE2,       vtkgl::EXPAND_NORMAL_NV, GL_RGB );
   vtkgl::CombinerInputNV( vtkgl::COMBINER0_NV, GL_RGB, vtkgl::VARIABLE_C_NV, 
                           vtkgl::CONSTANT_COLOR0_NV, vtkgl::EXPAND_NORMAL_NV, GL_RGB );
   vtkgl::CombinerInputNV( vtkgl::COMBINER0_NV, GL_RGB, vtkgl::VARIABLE_D_NV, 
-                          vtkgl::TEXTURE2_ARB,       vtkgl::EXPAND_NEGATE_NV, GL_RGB );
+                          vtkgl::TEXTURE2,       vtkgl::EXPAND_NEGATE_NV, GL_RGB );
   
   vtkgl::CombinerOutputNV( vtkgl::COMBINER0_NV, GL_RGB, vtkgl::SPARE0_NV, vtkgl::SPARE1_NV, vtkgl::DISCARD_NV, 
                             GL_NONE, GL_NONE, GL_TRUE, GL_TRUE, GL_FALSE );
@@ -801,11 +783,11 @@ void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersShadeNV( vtkRenderer 
   vtkgl::CombinerInputNV( vtkgl::COMBINER3_NV, GL_RGB, vtkgl::VARIABLE_A_NV, 
                           vtkgl::CONSTANT_COLOR0_NV, vtkgl::EXPAND_NORMAL_NV, GL_RGB );
   vtkgl::CombinerInputNV( vtkgl::COMBINER3_NV, GL_RGB, vtkgl::VARIABLE_B_NV, 
-                          vtkgl::TEXTURE2_ARB, vtkgl::EXPAND_NORMAL_NV, GL_RGB );
+                          vtkgl::TEXTURE2, vtkgl::EXPAND_NORMAL_NV, GL_RGB );
   vtkgl::CombinerInputNV( vtkgl::COMBINER3_NV, GL_RGB, vtkgl::VARIABLE_C_NV, 
                           vtkgl::CONSTANT_COLOR0_NV, vtkgl::EXPAND_NORMAL_NV, GL_RGB );
   vtkgl::CombinerInputNV( vtkgl::COMBINER3_NV, GL_RGB, vtkgl::VARIABLE_D_NV, 
-                          vtkgl::TEXTURE2_ARB, vtkgl::EXPAND_NEGATE_NV, GL_RGB );
+                          vtkgl::TEXTURE2, vtkgl::EXPAND_NEGATE_NV, GL_RGB );
   
   vtkgl::CombinerOutputNV( vtkgl::COMBINER3_NV, GL_RGB, vtkgl::SPARE0_NV, vtkgl::SPARE1_NV, 
                            vtkgl::DISCARD_NV, GL_NONE, GL_NONE, GL_TRUE, GL_TRUE, GL_FALSE );
@@ -931,12 +913,12 @@ void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersShadeNV( vtkRenderer 
                               vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
   if ( components < 3 )
     {
-    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_B_NV, vtkgl::TEXTURE1_ARB, 
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_B_NV, vtkgl::TEXTURE1, 
                                 vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
     }
   else
     {
-    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_B_NV, vtkgl::TEXTURE0_ARB, 
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_B_NV, vtkgl::TEXTURE0, 
                                 vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
     }
   vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_C_NV, GL_ZERO, 
@@ -946,19 +928,20 @@ void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersShadeNV( vtkRenderer 
   
   if ( components == 1 )
     {
-    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_G_NV, vtkgl::TEXTURE1_ARB, 
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_G_NV, vtkgl::TEXTURE1, 
                                 vtkgl::UNSIGNED_IDENTITY_NV, GL_ALPHA);
     }
   else
     {
-    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_G_NV, vtkgl::TEXTURE3_ARB, 
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_G_NV, vtkgl::TEXTURE3, 
                                 vtkgl::UNSIGNED_IDENTITY_NV, GL_ALPHA);
     }
   
 }
 
-void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentNoShadeNV( vtkRenderer *ren,
-                                                                      vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentNoShadeNV(
+  vtkRenderer *ren,
+  vtkVolume *vol )
 {
   this->SetupOneIndependentTextures( ren, vol );
 
@@ -972,8 +955,9 @@ void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentNoShadeNV( vtkRenderer 
 }
 
 
-void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentShadeNV( vtkRenderer *ren,
-                                                                    vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentShadeNV(
+  vtkRenderer *ren,
+  vtkVolume *vol )
 {
   this->SetupOneIndependentTextures( ren, vol );
   
@@ -987,25 +971,26 @@ void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentShadeNV( vtkRenderer *r
 }
 
 
-void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures( vtkRenderer *vtkNotUsed(ren),
-                  vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures(
+  vtkRenderer *vtkNotUsed(ren),
+  vtkVolume *vol )
 {
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
   glDisable( GL_TEXTURE_2D );
-  glEnable( vtkgl::TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
     glEnable( vtkgl::TEXTURE_SHADER_NV );
-    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D);
     }
 
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE2 );
   glDisable( GL_TEXTURE_2D );
-  glEnable( vtkgl::TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
     glEnable( vtkgl::TEXTURE_SHADER_NV );  
-    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D);
     }
 
   // Update the volume containing the 3 byte scalars / gradient magnitude
@@ -1015,49 +1000,49 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures( vtkRenderer *vtk
     this->GetVolumeDimensions(dim);
     this->DeleteTextureIndex(&this->Volume3Index);
     
-    vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
+    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume1Index);
     this->CreateTextureIndex(&this->Volume1Index);
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume1Index);
-    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_RGB8, dim[0], dim[1], dim[2], 0,
-                           GL_RGB, GL_UNSIGNED_BYTE, this->Volume1 );
+    glBindTexture(vtkgl::TEXTURE_3D, this->Volume1Index);
+    vtkgl::TexImage3D(vtkgl::TEXTURE_3D, 0, GL_RGB8, dim[0], dim[1], dim[2], 0,
+                      GL_RGB, GL_UNSIGNED_BYTE, this->Volume1 );
     
-    vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTexture( vtkgl::TEXTURE2 );
+    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume2Index);
     this->CreateTextureIndex(&this->Volume2Index);
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume2Index);
-    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_RGBA8, dim[0], dim[1], dim[2], 0,
+    glBindTexture(vtkgl::TEXTURE_3D, this->Volume2Index);
+    vtkgl::TexImage3D(vtkgl::TEXTURE_3D,0, GL_RGBA8, dim[0], dim[1], dim[2], 0,
                            GL_RGB, GL_UNSIGNED_BYTE, this->Volume2 );
     }
   
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
-  glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume1Index);   
+  vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
+  glBindTexture(vtkgl::TEXTURE_3D, this->Volume1Index);   
   this->Setup3DTextureParameters( vol->GetProperty() );
 
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
-  glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume2Index);   
+  vtkgl::ActiveTexture( vtkgl::TEXTURE2 );
+  glBindTexture(vtkgl::TEXTURE_3D, this->Volume2Index);   
   this->Setup3DTextureParameters( vol->GetProperty() );
     
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE1 );
   glEnable( GL_TEXTURE_2D );
-  glDisable( vtkgl::TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
     glTexEnvf ( vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, 
                 vtkgl::DEPENDENT_AR_TEXTURE_2D_NV );
-    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::PREVIOUS_TEXTURE_INPUT_NV, vtkgl::TEXTURE0_ARB);
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::PREVIOUS_TEXTURE_INPUT_NV, vtkgl::TEXTURE0);
     }
 
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE3_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
   glEnable( GL_TEXTURE_2D );
-  glDisable( vtkgl::TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
     glTexEnvf ( vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, 
                 vtkgl::DEPENDENT_GB_TEXTURE_2D_NV );
-    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::PREVIOUS_TEXTURE_INPUT_NV, vtkgl::TEXTURE0_ARB);
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::PREVIOUS_TEXTURE_INPUT_NV, vtkgl::TEXTURE0);
     }
 
   // Update the dependent 2D color table mapping scalar value and
@@ -1065,7 +1050,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures( vtkRenderer *vtk
   if ( this->UpdateColorLookup( vol ) || 
        !this->ColorLookupIndex || !this->AlphaLookupIndex )
     {    
-    vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
+    vtkgl::ActiveTexture( vtkgl::TEXTURE1 );
     glBindTexture(GL_TEXTURE_2D, (GLuint)NULL);
     this->DeleteTextureIndex(&this->ColorLookupIndex);
     this->CreateTextureIndex(&this->ColorLookupIndex);
@@ -1079,7 +1064,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures( vtkRenderer *vtk
     glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB8, 256, 256, 0,
                   GL_RGB, GL_UNSIGNED_BYTE, this->ColorLookup );    
       
-    vtkgl::ActiveTextureARB( vtkgl::TEXTURE3_ARB );
+    vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
     glBindTexture(GL_TEXTURE_2D, (GLuint)NULL);
     this->DeleteTextureIndex(&this->AlphaLookupIndex);
     this->CreateTextureIndex(&this->AlphaLookupIndex);
@@ -1094,15 +1079,16 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures( vtkRenderer *vtk
                   GL_ALPHA, GL_UNSIGNED_BYTE, this->AlphaLookup );      
     }
   
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE1 );
   glBindTexture(GL_TEXTURE_2D, this->ColorLookupIndex);   
 
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE3_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
   glBindTexture(GL_TEXTURE_2D, this->AlphaLookupIndex);   
 }
 
-void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentNoShadeNV( vtkRenderer *ren,
-                                                                    vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentNoShadeNV(
+  vtkRenderer *ren,
+  vtkVolume *vol )
 {
   this->SetupTwoDependentTextures(ren, vol);
   
@@ -1115,8 +1101,9 @@ void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentNoShadeNV( vtkRenderer *r
   this->RenderPolygons( ren, vol, stages );  
 }
 
-void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentShadeNV( vtkRenderer *ren,
-                                                                  vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentShadeNV(
+  vtkRenderer *ren,
+  vtkVolume *vol )
 {
   this->SetupTwoDependentTextures( ren, vol );
   
@@ -1129,34 +1116,35 @@ void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentShadeNV( vtkRenderer *ren
   this->RenderPolygons( ren, vol, stages );  
 }
 
-void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures( vtkRenderer *vtkNotUsed(ren),
-                   vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures(
+  vtkRenderer *vtkNotUsed(ren),
+  vtkVolume *vol )
 {
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
   glDisable( GL_TEXTURE_2D );
-  glEnable( vtkgl::TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
     glEnable( vtkgl::TEXTURE_SHADER_NV );
-    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D);
     }
 
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE1 );
   glDisable( GL_TEXTURE_2D );
-  glEnable( vtkgl::TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
     glEnable( vtkgl::TEXTURE_SHADER_NV );
-    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D);
     }
 
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE2 );
   glDisable( GL_TEXTURE_2D );
-  glEnable( vtkgl::TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
     glEnable( vtkgl::TEXTURE_SHADER_NV );  
-    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D);
     }
 
   // Update the volume containing the 3 byte scalars / gradient magnitude
@@ -1166,51 +1154,53 @@ void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures( vtkRenderer *vt
     int dim[3];
     this->GetVolumeDimensions(dim);
     
-    vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
+    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume1Index);
     this->CreateTextureIndex(&this->Volume1Index);
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume1Index);
-    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_RGB8, dim[0], dim[1], dim[2], 0,
-                           GL_RGB, GL_UNSIGNED_BYTE, this->Volume1 );
+    glBindTexture(vtkgl::TEXTURE_3D, this->Volume1Index);
+    vtkgl::TexImage3D(vtkgl::TEXTURE_3D, 0, GL_RGB8, dim[0], dim[1], dim[2], 0,
+                      GL_RGB, GL_UNSIGNED_BYTE, this->Volume1 );
 
-    vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTexture( vtkgl::TEXTURE1 );
+    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume2Index);
     this->CreateTextureIndex(&this->Volume2Index);
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume2Index);   
-    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_LUMINANCE8_ALPHA8, dim[0], dim[1], dim[2], 0,
-                           GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, this->Volume2 );
+    glBindTexture(vtkgl::TEXTURE_3D, this->Volume2Index);   
+    vtkgl::TexImage3D(vtkgl::TEXTURE_3D,0,GL_LUMINANCE8_ALPHA8,dim[0],dim[1],
+                      dim[2], 0,GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE,
+                      this->Volume2 );
 
-    vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTexture( vtkgl::TEXTURE2 );
+    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume3Index);
     this->CreateTextureIndex(&this->Volume3Index);
-    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume3Index);
-    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_RGB8, dim[0], dim[1], dim[2], 0,
-                           GL_RGB, GL_UNSIGNED_BYTE, this->Volume3 );
+    glBindTexture(vtkgl::TEXTURE_3D, this->Volume3Index);
+    vtkgl::TexImage3D( vtkgl::TEXTURE_3D,0, GL_RGB8, dim[0], dim[1], dim[2], 0,
+                       GL_RGB, GL_UNSIGNED_BYTE, this->Volume3 );
     }
   
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
-  glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume1Index);   
+  vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
+  glBindTexture(vtkgl::TEXTURE_3D, this->Volume1Index);
   this->Setup3DTextureParameters( vol->GetProperty() );
 
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
-  glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume2Index);   
+  vtkgl::ActiveTexture( vtkgl::TEXTURE1 );
+  glBindTexture(vtkgl::TEXTURE_3D, this->Volume2Index);   
   this->Setup3DTextureParameters( vol->GetProperty() );
 
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE2 );
   glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume3Index);   
   this->Setup3DTextureParameters( vol->GetProperty() );
 
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE3_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
   glEnable( GL_TEXTURE_2D );
-  glDisable( vtkgl::TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
     glTexEnvf ( vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, 
                 vtkgl::DEPENDENT_AR_TEXTURE_2D_NV );
-    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::PREVIOUS_TEXTURE_INPUT_NV, vtkgl::TEXTURE1_ARB);
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::PREVIOUS_TEXTURE_INPUT_NV,
+              vtkgl::TEXTURE1);
     }
 
   // Update the dependent 2D table mapping scalar value and
@@ -1219,7 +1209,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures( vtkRenderer *vt
     {    
     this->DeleteTextureIndex(&this->ColorLookupIndex);
     
-    vtkgl::ActiveTextureARB( vtkgl::TEXTURE3_ARB );
+    vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
     glBindTexture(GL_TEXTURE_2D, (GLuint)NULL);
     this->DeleteTextureIndex(&this->AlphaLookupIndex);
     this->CreateTextureIndex(&this->AlphaLookupIndex);
@@ -1234,12 +1224,13 @@ void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures( vtkRenderer *vt
                   GL_ALPHA, GL_UNSIGNED_BYTE, this->AlphaLookup );      
     }
 
-  vtkgl::ActiveTextureARB( vtkgl::TEXTURE3_ARB );
+  vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
   glBindTexture(GL_TEXTURE_2D, this->AlphaLookupIndex);   
 }
 
-void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentNoShadeNV( vtkRenderer *ren,
-                                                                     vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentNoShadeNV(
+  vtkRenderer *ren,
+  vtkVolume *vol )
 {
   this->SetupFourDependentTextures(ren, vol);
   
@@ -1252,8 +1243,9 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentNoShadeNV( vtkRenderer *
   this->RenderPolygons( ren, vol, stages );  
 }
 
-void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentShadeNV( vtkRenderer *ren,
-                                                                   vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentShadeNV(
+  vtkRenderer *ren,
+  vtkVolume *vol )
 {
   this->SetupFourDependentTextures( ren, vol );
   
@@ -1266,8 +1258,9 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentShadeNV( vtkRenderer *re
   this->RenderPolygons( ren, vol, stages );  
 }
 
-void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentNoShadeFP( vtkRenderer *ren,
-                                                                      vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentNoShadeFP(
+  vtkRenderer *ren,
+  vtkVolume *vol )
 {
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
@@ -1295,8 +1288,9 @@ void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentNoShadeFP( vtkRenderer 
   vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
 }
 
-void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentShadeFP( vtkRenderer *ren,
-                                                                    vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentShadeFP(
+  vtkRenderer *ren,
+  vtkVolume *vol )
 {
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
@@ -1325,8 +1319,9 @@ void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentShadeFP( vtkRenderer *r
   vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
 }
 
-void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentNoShadeFP( vtkRenderer *ren,
-                                                                    vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentNoShadeFP(
+  vtkRenderer *ren,
+  vtkVolume *vol )
 {
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
@@ -1354,8 +1349,9 @@ void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentNoShadeFP( vtkRenderer *r
 }
 
 
-void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentShadeFP( vtkRenderer *ren,
-                  vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentShadeFP(
+  vtkRenderer *ren,
+  vtkVolume *vol )
 {
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
@@ -1383,8 +1379,9 @@ void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentShadeFP( vtkRenderer *ren
   vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
 }
 
-void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentNoShadeFP( vtkRenderer *ren,
-                                                                     vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentNoShadeFP(
+  vtkRenderer *ren,
+  vtkVolume *vol )
 {
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
@@ -1411,8 +1408,9 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentNoShadeFP( vtkRenderer *
   vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
 }
 
-void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentShadeFP( vtkRenderer *ren,
-                   vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentShadeFP(
+  vtkRenderer *ren,
+  vtkVolume *vol )
 {
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
@@ -1441,13 +1439,14 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentShadeFP( vtkRenderer *re
 }
 
 
-void vtkOpenGLVolumeTextureMapper3D::GetLightInformation( vtkRenderer *ren,
-                                                          vtkVolume *vol,
-                                                          GLfloat lightDirection[2][4],
-                                                          GLfloat lightDiffuseColor[2][4],
-                                                          GLfloat lightSpecularColor[2][4],
-                                                          GLfloat halfwayVector[2][4],
-                                                          GLfloat ambientColor[4] )
+void vtkOpenGLVolumeTextureMapper3D::GetLightInformation(
+  vtkRenderer *ren,
+  vtkVolume *vol,
+  GLfloat lightDirection[2][4],
+  GLfloat lightDiffuseColor[2][4],
+  GLfloat lightSpecularColor[2][4],
+  GLfloat halfwayVector[2][4],
+  GLfloat ambientColor[4] )
 {
   float ambient = vol->GetProperty()->GetAmbient();
   float diffuse  = vol->GetProperty()->GetDiffuse();
@@ -1521,7 +1520,7 @@ void vtkOpenGLVolumeTextureMapper3D::GetLightInformation( vtkRenderer *ren,
       light[lightIndex]->GetTransformedFocalPoint( lightFocalPoint );
 
       volumeTransform->TransformPoint( lightPosition, lightPosition );
-      volumeTransform->TransformPoint( lightFocalPoint, lightFocalPoint );      
+      volumeTransform->TransformPoint( lightFocalPoint, lightFocalPoint );
       
       dir[0] = lightPosition[0] - lightFocalPoint[0];
       dir[1] = lightPosition[1] - lightFocalPoint[1];
@@ -1534,9 +1533,9 @@ void vtkOpenGLVolumeTextureMapper3D::GetLightInformation( vtkRenderer *ren,
       lightDiffuseColor[lightIndex][2] = lightColor[2]*diffuse*lightIntensity;
       lightDiffuseColor[lightIndex][3] = 1.0;
       
-      lightSpecularColor[lightIndex][0] = lightColor[0]*specular*lightIntensity;
-      lightSpecularColor[lightIndex][1] = lightColor[1]*specular*lightIntensity;
-      lightSpecularColor[lightIndex][2] = lightColor[2]*specular*lightIntensity;
+      lightSpecularColor[lightIndex][0]= lightColor[0]*specular*lightIntensity;
+      lightSpecularColor[lightIndex][1]= lightColor[1]*specular*lightIntensity;
+      lightSpecularColor[lightIndex][2]= lightColor[2]*specular*lightIntensity;
       lightSpecularColor[lightIndex][3] = 0.0;
 
       half[0] = dir[0] - viewDirection[0];
@@ -1565,8 +1564,9 @@ void vtkOpenGLVolumeTextureMapper3D::GetLightInformation( vtkRenderer *ren,
   
 }
 
-void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP( vtkRenderer *ren,
-                                                                     vtkVolume *vol )
+void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP(
+  vtkRenderer *ren,
+  vtkVolume *vol )
 {
   GLfloat lightDirection[2][4];
   GLfloat lightDiffuseColor[2][4];
@@ -1647,7 +1647,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP( vtkRenderer
       light[lightIndex]->GetTransformedFocalPoint( lightFocalPoint );
       
       volumeTransform->TransformPoint( lightPosition, lightPosition );
-      volumeTransform->TransformPoint( lightFocalPoint, lightFocalPoint );      
+      volumeTransform->TransformPoint( lightFocalPoint, lightFocalPoint );
       
       dir[0] = lightPosition[0] - lightFocalPoint[0];
       dir[1] = lightPosition[1] - lightFocalPoint[1];
@@ -1660,9 +1660,9 @@ void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP( vtkRenderer
       lightDiffuseColor[lightIndex][2] = lightColor[2]*diffuse*lightIntensity;
       lightDiffuseColor[lightIndex][3] = 0.0;
       
-      lightSpecularColor[lightIndex][0] = lightColor[0]*specular*lightIntensity;
-      lightSpecularColor[lightIndex][1] = lightColor[1]*specular*lightIntensity;
-      lightSpecularColor[lightIndex][2] = lightColor[2]*specular*lightIntensity;
+      lightSpecularColor[lightIndex][0]= lightColor[0]*specular*lightIntensity;
+      lightSpecularColor[lightIndex][1]= lightColor[1]*specular*lightIntensity;
+      lightSpecularColor[lightIndex][2]= lightColor[2]*specular*lightIntensity;
       lightSpecularColor[lightIndex][3] = 0.0;
 
       half[0] = dir[0] - viewDirection[0];
@@ -1722,10 +1722,12 @@ void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP( vtkRenderer
               viewDirection[2],
               viewDirection[3] );
 
-  vtkgl::ProgramLocalParameter4fARB( vtkgl::FRAGMENT_PROGRAM_ARB, 6, 2.0, -1.0, 0.0, 0.0 );
+  vtkgl::ProgramLocalParameter4fARB( vtkgl::FRAGMENT_PROGRAM_ARB, 6,
+                                     2.0, -1.0, 0.0, 0.0 );
 }
 
-int  vtkOpenGLVolumeTextureMapper3D::IsRenderSupported( vtkVolumeProperty *property )
+int  vtkOpenGLVolumeTextureMapper3D::IsRenderSupported(
+  vtkVolumeProperty *property )
 {
   if ( !this->Initialized )
     {
@@ -1738,10 +1740,10 @@ int  vtkOpenGLVolumeTextureMapper3D::IsRenderSupported( vtkVolumeProperty *prope
     }
   
   if ( !this->GetInput() )
-  {
+    {
     return 0;
-  }
-
+    }
+  
   if ( this->GetInput()->GetNumberOfScalarComponents() > 1 &&
        property->GetIndependentComponents() )
     {
@@ -1755,37 +1757,43 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
 {
   this->Initialized = 1;
   vtkOpenGLExtensionManager * extensions = vtkOpenGLExtensionManager::New();
-  extensions->SetRenderWindow(NULL); // set render window to current render window
+  extensions->SetRenderWindow(NULL); // set render window to the current one.
   
-  int supports_GL_EXT_texture3D          = extensions->ExtensionSupported( "GL_EXT_texture3D" );
-  int supports_GL_ARB_multitexture       = extensions->ExtensionSupported( "GL_ARB_multitexture" );
+  int supports_texture3D=extensions->ExtensionSupported( "GL_VERSION_1_2" );
+  if(supports_texture3D)
+    {
+    extensions->LoadExtension("GL_VERSION_1_2");
+    }
+  else
+    {
+    supports_texture3D=extensions->ExtensionSupported( "GL_EXT_texture3D" );
+    if(supports_texture3D)
+      {
+      extensions->LoadCorePromotedExtension("GL_EXT_texture3D");
+      }
+    }
+  
+  int supports_multitexture=extensions->ExtensionSupported( "GL_VERSION_1_3" );
+  if(supports_multitexture)
+    {
+    extensions->LoadExtension("GL_VERSION_1_3");
+    }
+  else
+    {
+    supports_multitexture=
+      extensions->ExtensionSupported("GL_ARB_multitexture");
+    if(supports_multitexture)
+      {
+      extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
+      }
+    }
+  
   int supports_GL_NV_texture_shader2     = extensions->ExtensionSupported( "GL_NV_texture_shader2" );
   int supports_GL_NV_register_combiners2 = extensions->ExtensionSupported( "GL_NV_register_combiners2" );
   int supports_GL_ATI_fragment_shader    = extensions->ExtensionSupported( "GL_ATI_fragment_shader" );
   int supports_GL_ARB_fragment_program   = extensions->ExtensionSupported( "GL_ARB_fragment_program" );
   int supports_GL_ARB_vertex_program     = extensions->ExtensionSupported( "GL_ARB_vertex_program" );
   int supports_GL_NV_register_combiners  = extensions->ExtensionSupported( "GL_NV_register_combiners" );
-  
-#if defined(__APPLE__) && defined(GL_VERSION_1_2)
-  // Apple doesn't have glTexImage3D_EXT, so load
-  // GL_VERSION_1_2 and use glTexImage3D instead.
-  if (extensions->ExtensionSupported("GL_VERSION_1_2"))
-    {
-    if (vtkgl::LoadExtension("GL_VERSION_1_2", extensions)) 
-      {
-      supports_GL_EXT_texture3D = 1;
-      }
-    }
-#else
-  if(supports_GL_EXT_texture3D)
-    {
-    extensions->LoadExtension("GL_EXT_texture3D");
-    }
-#endif 
-  if(supports_GL_ARB_multitexture)      
-    {
-    extensions->LoadExtension("GL_ARB_multitexture" );
-    }
   
   if(supports_GL_NV_texture_shader2) 
     {
@@ -1823,13 +1831,13 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
   int canDoFP = 0;
   int canDoNV = 0;
   
-  if ( supports_GL_EXT_texture3D          &&
-       supports_GL_ARB_multitexture       &&
+  if ( supports_texture3D          &&
+       supports_multitexture       &&
        supports_GL_ARB_fragment_program   &&
        supports_GL_ARB_vertex_program     &&
-       vtkgl::TexImage3DEXT               &&
-       vtkgl::ActiveTextureARB            &&
-       vtkgl::MultiTexCoord3fvARB         &&
+       vtkgl::TexImage3D               &&
+       vtkgl::ActiveTexture            &&
+       vtkgl::MultiTexCoord3fv         &&
        vtkgl::GenProgramsARB              &&
        vtkgl::DeleteProgramsARB           &&
        vtkgl::BindProgramARB              &&
@@ -1838,14 +1846,14 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
     {    
     canDoFP = 1;
     }
-  else if ( supports_GL_EXT_texture3D          &&
-            supports_GL_ARB_multitexture       &&
+  else if ( supports_texture3D          &&
+            supports_multitexture       &&
             supports_GL_NV_texture_shader2     &&
             supports_GL_NV_register_combiners2 &&
             supports_GL_NV_register_combiners  &&
-            vtkgl::TexImage3DEXT               &&
-            vtkgl::ActiveTextureARB            &&
-            vtkgl::MultiTexCoord3fvARB         &&
+            vtkgl::TexImage3D               &&
+            vtkgl::ActiveTexture            &&
+            vtkgl::MultiTexCoord3fv         &&
             vtkgl::CombinerParameteriNV        &&
             vtkgl::CombinerStageParameterfvNV  &&
             vtkgl::CombinerInputNV             &&
@@ -1875,9 +1883,6 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
     {
     this->RenderMethod = this->PreferredRenderMethod;
     }
-  
-  
-  
 }
 
 int vtkOpenGLVolumeTextureMapper3D::IsTextureSizeSupported( int size[3] )
@@ -1889,8 +1894,9 @@ int vtkOpenGLVolumeTextureMapper3D::IsTextureSizeSupported( int size[3] )
       return 0;
       }
     
-    vtkgl::TexImage3DEXT( vtkgl::PROXY_TEXTURE_3D_EXT, 0, GL_RGBA8, size[0]*2, 
-                           size[1]*2, size[2], 0, GL_RGBA, GL_UNSIGNED_BYTE, this->Volume2 );
+    vtkgl::TexImage3D(vtkgl::PROXY_TEXTURE_3D, 0, GL_RGBA8, size[0]*2, 
+                      size[1]*2, size[2], 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                      this->Volume2 );
     }
   else
     {
@@ -1899,14 +1905,16 @@ int vtkOpenGLVolumeTextureMapper3D::IsTextureSizeSupported( int size[3] )
       return 0;
       }
     
-    vtkgl::TexImage3DEXT( vtkgl::PROXY_TEXTURE_3D_EXT, 0, GL_RGBA8, size[0]*2,
-                          size[1]*2, size[2]*2, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->Volume2 );
+    vtkgl::TexImage3D( vtkgl::PROXY_TEXTURE_3D, 0, GL_RGBA8, size[0]*2,
+                       size[1]*2, size[2]*2, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                       this->Volume2 );
     }
   
 
   GLint params[1];
-  glGetTexLevelParameteriv ( vtkgl::PROXY_TEXTURE_3D_EXT, 0, GL_TEXTURE_WIDTH, params ); 
-
+  glGetTexLevelParameteriv ( vtkgl::PROXY_TEXTURE_3D, 0, GL_TEXTURE_WIDTH,
+                             params ); 
+  
   if ( params[0] != 0 ) 
     {
     return 1;
@@ -1927,8 +1935,12 @@ void vtkOpenGLVolumeTextureMapper3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Initialized " << this->Initialized << endl;
   if ( this->Initialized )
     {
+    os << indent << "Supports GL_VERSION_1_2:" 
+       << extensions->ExtensionSupported( "GL_VERSION_1_2" ) << endl;
     os << indent << "Supports GL_EXT_texture3D:" 
        << extensions->ExtensionSupported( "GL_EXT_texture3D" ) << endl;
+     os << indent << "Supports GL_VERSION_1_3:" 
+       << extensions->ExtensionSupported( "GL_VERSION_1_3" ) << endl;
     os << indent << "Supports GL_ARB_multitexture: " 
        << extensions->ExtensionSupported( "GL_ARB_multitexture" ) << endl;
     os << indent << "Supports GL_NV_texture_shader2: " 
