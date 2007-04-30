@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.80");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.81");
 #endif
 
 #define MAX_LIGHTS 8
@@ -1411,20 +1411,42 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   
   int supports_GL_EXT_framebuffer_object=
     extensions->ExtensionSupported("GL_EXT_framebuffer_object");
-  int supports_texture_non_power_of_two=
-    extensions->ExtensionSupported("GL_VERSION_2_0") ||
-    extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
   
   // We skip it if you use Mesa. Even if the VTK offscreen test passes (OSCone)
   // with Mesa, all the Paraview batch test are failing (Mesa 6.5.1 or CVS)
   // After too much time spent to investigate this case, we just skip it.
   const GLubyte *openglRenderer=glGetString(GL_RENDERER);
-  const char *substring=strstr(reinterpret_cast<const char *>(openglRenderer),"Mesa");
+  const char *substring=strstr(reinterpret_cast<const char *>(openglRenderer),
+                               "Mesa");
   int isMesa=substring!=0;
+  
+  // Even if OpenGL 2.0 is supported (therefore non power of two textures),
+  // those GeForce 5 don't support it in combination with FBO.
+  // GeForce FX Go5650/AGP/SSE2 with Linux driver 2.0.2 NVIDIA 87.76
+  // GeForce FX 5900 Ultra/AGP/SSE2 with Linux driver 2.0.2 NVIDIA 87.74
+  int isGeForce5=strstr(reinterpret_cast<const char *>(openglRenderer),
+                        "GeForce FX Go5650/AGP/SSE2")!=0
+    || strstr(reinterpret_cast<const char *>(openglRenderer),
+              "GeForce FX 5900 Ultra/AGP/SSE2")!=0;
+  int supports_texture_non_power_of_two=
+    extensions->ExtensionSupported("GL_VERSION_2_0");
+  if(isGeForce5)
+    {
+    supports_texture_non_power_of_two=0;
+    }
+  if(!supports_texture_non_power_of_two)
+    {
+    supports_texture_non_power_of_two=
+      extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
+    }
+  int supports_texture_rectangle=
+    extensions->ExtensionSupported("GL_ARB_texture_rectangle");
   
   int result=0;
   
-  if(!(supports_GL_EXT_framebuffer_object && supports_texture_non_power_of_two && !isMesa))
+  if(!(supports_GL_EXT_framebuffer_object &&
+       (supports_texture_non_power_of_two || supports_texture_rectangle) &&
+       !isMesa))
     {
     if(!supports_GL_EXT_framebuffer_object)
       {
@@ -1433,6 +1455,10 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
     if(!supports_texture_non_power_of_two)
       {
       vtkDebugMacro(<<" extension texture_non_power_of_two is not supported because neither OpenGL 2.0 nor GL_ARB_texture_non_power_of_two extension is supported. Hardware accelerated offscreen rendering is not available");
+      }
+    if(!supports_texture_rectangle)
+      {
+        vtkDebugMacro(<<" extension GL_ARB_texture_rectangle is not supported");
       }
     if(isMesa)
       {
@@ -1471,19 +1497,29 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
     // Color buffers
     vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,frameBufferObject);
     
+    GLenum target;
+    if(supports_texture_non_power_of_two)
+      {
+      target=GL_TEXTURE_2D;
+      }
+    else
+      {
+      target=vtkgl::TEXTURE_RECTANGLE_ARB;
+      }
+    
     i=0;
     while(i<this->NumberOfFrameBuffers)
       {
-      glBindTexture(GL_TEXTURE_2D,textureObjects[i]);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,width,height,
+      glBindTexture(target,textureObjects[i]);
+      glTexParameteri(target, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
+      glTexParameteri(target, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
+      glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexImage2D(target,0,GL_RGBA8,width,height,
                    0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
       vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
                                      vtkgl::COLOR_ATTACHMENT0_EXT+i,
-                                     GL_TEXTURE_2D, textureObjects[i], 0);
+                                     target, textureObjects[i], 0);
       ++i;
       }
     // Set up the depth render buffer
@@ -1496,18 +1532,22 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
                                       vtkgl::RENDERBUFFER_EXT,
                                       depthRenderBufferObject);
    
-     this->BackLeftBuffer=static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
-     this->FrontLeftBuffer=static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
+     this->BackLeftBuffer=
+       static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
+     this->FrontLeftBuffer=
+       static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
      
      if(this->NumberOfFrameBuffers==2)
        {
-       this->BackRightBuffer=static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT1_EXT);
+       this->BackRightBuffer=
+         static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT1_EXT);
        }
      
     // Save GL objects by static casting to standard C types. GL* types
     // are not allowed in VTK header files.
     this->FrameBufferObject=static_cast<unsigned int>(frameBufferObject);
-    this->DepthRenderBufferObject=static_cast<unsigned int>(depthRenderBufferObject);
+    this->DepthRenderBufferObject=
+      static_cast<unsigned int>(depthRenderBufferObject);
     i=0;
     while(i<this->NumberOfFrameBuffers)
       {
@@ -1520,7 +1560,8 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   extensions->Delete();
 
   // A=>B = !A || B
-  assert("post: valid_result" && (result==0 || result==1) && (!result || OffScreenUseFrameBuffer));
+  assert("post: valid_result" && (result==0 || result==1)
+         && (!result || OffScreenUseFrameBuffer));
   return result;
 }
 
