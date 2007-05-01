@@ -48,7 +48,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkUnstructuredGridGeometryFilter, "1.4");
+vtkCxxRevisionMacro(vtkUnstructuredGridGeometryFilter, "1.5");
 vtkStandardNewMacro(vtkUnstructuredGridGeometryFilter);
 
 #if 0
@@ -226,7 +226,7 @@ public:
     {
       assert("pre: is_initialized" && this->IsInitialized());
       G *result=0;
-      int c=this->Chunks->size();
+      size_t c=this->Chunks->size();
       if(c==0) // first Allocate()
         {
         this->Chunks->resize(1);
@@ -248,7 +248,7 @@ public:
             this->Chunks->reserve(this->Chunks->capacity()*2);
             }
           // Allocate the next chunk.
-          int chunkIdx=this->Chunks->size();
+          size_t chunkIdx=this->Chunks->size();
           this->Chunks->resize(chunkIdx+1);
           (*this->Chunks)[chunkIdx]=new vtkstd::vector<G>();
           (*this->Chunks)[chunkIdx]->reserve(this->ChunkSize);
@@ -258,7 +258,7 @@ public:
           }
         else
           {
-          int c2=(*this->Chunks)[c-1]->size();
+          size_t c2=(*this->Chunks)[c-1]->size();
           (*this->Chunks)[c-1]->resize(c2+1);
           result=&((*((*this->Chunks)[c-1]))[c2]);
           }
@@ -271,8 +271,8 @@ public:
     {
       if(this->Chunks!=0)
         {
-        int c=this->Chunks->size();
-        int i=0;
+        size_t c=this->Chunks->size();
+        size_t i=0;
         while(i<c)
           {
           delete (*this->Chunks)[i];

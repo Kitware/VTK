@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.70");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.71");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -799,7 +799,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       ++layer;
       ++it2;
       }
-    glDeleteTextures(c,ids);
+    glDeleteTextures(static_cast<GLsizei>(c),ids);
     delete[] ids;
     delete this->LayerList;
     this->LayerList=0;
