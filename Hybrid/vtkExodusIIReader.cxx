@@ -400,6 +400,9 @@ public:
     Generated=3      //!< The array is procedurally generated (e.g., BlockId)
   };
 
+ /// Time stamp from last time we were in RequestInformation
+ vtkTimeStamp InformationTimeStamp;
+ 
   friend class vtkExodusIIReader;
 
 protected:
@@ -680,7 +683,7 @@ static int glomTruthTabMatch( int num_obj, int num_vars, int* truth_tab, vtkExod
   // ainfo (and 0 otherwise).
   // It creates an entry in ainfo.ObjectTruth for each object
   // based on the values in truth_tab.
-  int num_comp = ainfo.OriginalIndices.size();
+  int num_comp = (int)ainfo.OriginalIndices.size();
   if ( num_comp < 1 )
     return 0;
 
@@ -791,7 +794,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.12.2.1");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.12.2.2");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -1034,7 +1037,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
       if ( i + 1  < num_vars )
         {
         int ii = i;
-        int sl = strlen(var_names[i]) - 2;
+        int sl = (int)strlen(var_names[i]) - 2;
         while ( ii < num_vars )
           {
           if ( ! reTensor.find( var_names[ii] ) || strncmp( var_names[ii], var_names[i], sl ) )
@@ -1073,7 +1076,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
         int ii = i;
         while ( ii < num_vars )
           {
-          int sl = strlen(var_names[ii]) - 1;
+          int sl = (int)strlen(var_names[ii]) - 1;
           // Require the strings to be identical except for the final XYZ at the end.
           if ( ! toupper(var_names[ii][sl]) == ('X' + (ii-i)) || strncmp( var_names[ii], var_names[i], sl ) )
             break;
@@ -1874,10 +1877,27 @@ void vtkExodusIIReaderPrivate::InsertSetNodeCopies( vtkIntArray* refs, int otyp,
   vtkIdType ref;
   vtkIdType tmp;
   int* iptr = refs->GetPointer( 0 );
-  for ( ref = 0; ref < refs->GetNumberOfTuples(); ++ref, ++iptr )
+
+  if ( this->SqueezePoints )
+    { // this loop is separated out to handle case (stride > 1 && pref[1] < 0 && this->SqueezePoints)
+    for ( ref = 0; ref < refs->GetNumberOfTuples(); ++ref, ++iptr )
+      {
+      tmp = *iptr;
+      vtkIdType* x = &this->PointMap[tmp];
+      if ( *x < 0 )
+        {
+        *x = this->NextSqueezePoint++;
+        }
+      output->InsertNextCell( VTK_VERTEX, 1, x );
+      }
+    }
+  else
     {
-    tmp = *iptr;
-    output->InsertNextCell( VTK_VERTEX, 1, &tmp );
+    for ( ref = 0; ref < refs->GetNumberOfTuples(); ++ref, ++iptr )
+      {
+      tmp = *iptr;
+      output->InsertNextCell( VTK_VERTEX, 1, &tmp );
+      }
     }
 }
 
@@ -2587,6 +2607,14 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         cptr += 3;
         }
       }
+    if ( dim < 3 )
+      {
+      double* cptr = darr->GetPointer( 2 );
+      for ( t = 0; t < this->ModelParameters.num_nodes; ++t, cptr += 3 )
+        {
+        *cptr = 0.;
+        }
+      }
     if ( displ )
       {
       double* coords = darr->GetPointer( 0 );
@@ -2760,7 +2788,8 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetSortedObj
   int N = this->GetNumberOfObjectsAtTypeIndex( i );
   if ( k < 0 || k >= N )
     {
-    vtkWarningMacro( "You requested object " << k << " in a collection of only " << N << " objects." );
+    const char* otname = i >= 0 ? objtype_names[i] : "object";
+    vtkWarningMacro( "You requested " << otname << " " << k << " in a collection of only " << N << " objects." );
     return 0;
     }
   return this->GetObjectInfo( i, this->SortedObjectIndices[otyp][k] );
@@ -2962,7 +2991,7 @@ void vtkExodusIIReaderPrivate::RemoveBeginningAndTrailingSpaces( int len, char *
   for (i=0; i<len; i++)
     {
     char *c = names[i];
-    int nmlen = strlen(c);
+    int nmlen = (int)strlen(c);
 
     char *cbegin = c;
     char *cend = c + nmlen - 1;
@@ -3195,7 +3224,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   char tmpName[256];
   tmpName[255] = '\0';
 
-  this->Modified(); // Update MTime so that it will be newer than parent's FileNameMTime
+  this->InformationTimeStamp.Modified(); // Update MTime so that it will be newer than parent's FileNameMTime
 
   VTK_EXO_FUNC( ex_get_init_ext( exoid, &this->ModelParameters ),
     "Unable to read database parameters." );
@@ -3579,6 +3608,8 @@ void vtkExodusIIReaderPrivate::Reset()
   this->ExodusVersion = -1.;
   this->Times.clear();
   this->TimeStep = 0;
+  this->HasModeShapes = 0;
+  this->ModeShapeTime = -1.;
   this->NumberOfCells = 0;
   this->SqueezePoints = 1;
   this->PointMap.clear();
@@ -3796,9 +3827,12 @@ int vtkExodusIIReaderPrivate::GetNumberOfObjectAttributes( int otyp, int oi )
     int N = (int) it->second.size();
     if ( oi < 0 || oi >= N )
       {
-      vtkWarningMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
+      int otypIdx = this->GetObjectTypeIndexFromObjectType(otyp);
+      const char* btname = otypIdx >= 0 ? objtype_names[otypIdx] : "block";
+      vtkWarningMacro( "You requested " << btname << " " << oi << " in a collection of only " << N << " blocks." );
       return 0;
       }
+    oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
     return (int) it->second[oi].AttributeNames.size();
     }
   vtkWarningMacro( "Could not find collection of blocks of type " << otyp <<
@@ -4089,11 +4123,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.12.2.1");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.12.2.2");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.12.2.1");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.12.2.2");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -4163,7 +4197,8 @@ unsigned long vtkExodusIIReader::GetMTime()
 
 unsigned long vtkExodusIIReader::GetMetadataMTime()
 {
-  return this->Metadata->GetMTime();
+  return this->Metadata->InformationTimeStamp < this->Metadata->GetMTime() ?
+    this->Metadata->InformationTimeStamp : this->Metadata->GetMTime();
 }
 
 #define vtkSetStringMacroBody(propName,fname) \
@@ -4216,7 +4251,7 @@ int vtkExodusIIReader::RequestInformation(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // If the metadata is older than the filename
-  if ( this->Metadata->GetMTime() < this->FileNameMTime )
+  if ( this->GetMetadataMTime() < this->FileNameMTime )
     {
     if ( this->Metadata->OpenFile( this->FileName ) )
       {
