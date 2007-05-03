@@ -17,6 +17,12 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestFixedWidthTextReader
       )
   ENDIF (VTK_DATA_ROOT)
+  IF (VTK_USE_BOOST)
+    # add boost tests
+    SET(MyTests ${MyTests}
+      TestBoostAlgorithms
+      )
+  ENDIF (VTK_USE_BOOST)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                          EXTRA_INCLUDE vtkTestDriver.h)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})

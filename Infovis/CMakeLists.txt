@@ -38,6 +38,27 @@ vtkTreeMapViewer.cxx
 vtkVertexDegree.cxx
 )
 
+# Add the option to use Boost
+OPTION(VTK_USE_BOOST "Use Boost libraries for graph algorithms - www.boost.org." OFF)
+
+# Look for Boost only if using Boost
+IF(VTK_USE_BOOST)
+  FIND_PACKAGE(Boost REQUIRED)
+  INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+ENDIF(VTK_USE_BOOST)
+
+# Add these classes only if using Boost
+IF(VTK_USE_BOOST)
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkBoostBiconnectedComponents.cxx
+    vtkBoostBrandesCentrality.cxx
+    vtkBoostBreadthFirstSearch.cxx
+    vtkBoostBreadthFirstSearchTree.cxx
+    vtkBoostConnectedComponents.cxx
+  )
+ENDIF(VTK_USE_BOOST)
+
 SET_SOURCE_FILES_PROPERTIES(
 vtkGraphLayoutStrategy.cxx
 vtkTreeMapLayoutStrategy.cxx
