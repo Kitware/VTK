@@ -81,7 +81,10 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   vtkGetStringMacro(DirectoryName);
 
   // Description:
-  // Returns the pixel spacing.
+  // Returns the pixel spacing (in X, Y, Z).
+  // Note: if there is only one slice, the Z spacing is set to the slice
+  // thickness. If there is more than one slice, it is set to the distance
+  // between the first two slices.
   double* GetPixelSpacing();
 
   // Description:

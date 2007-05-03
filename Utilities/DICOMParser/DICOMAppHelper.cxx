@@ -778,15 +778,20 @@ void DICOMAppHelper::PixelSpacingCallback(DICOMParser *parser,
                                           unsigned char* val,
                                           quadbyte) 
 {
-  float fval = DICOMFile::ReturnAsFloat(val, parser->GetDICOMFile()->GetPlatformIsBigEndian());
-
   if (group == 0x0028 && element == 0x0030)
     {
-    this->PixelSpacing[0] = this->PixelSpacing[1] = fval;
+    if (!val || sscanf((char*)(val), "%f\\%f",
+                       &this->PixelSpacing[0],
+                       &this->PixelSpacing[1]) != 2)
+      {
+      this->PixelSpacing[0] = this->PixelSpacing[1] = 0.0;
+      }
     }
   else if (group == 0x0018 && element == 0x0050)
     {
-    this->PixelSpacing[2] = fval;
+    this->PixelSpacing[2] = 
+      DICOMFile::ReturnAsFloat(
+        val, parser->GetDICOMFile()->GetPlatformIsBigEndian());
     }
 }
 
