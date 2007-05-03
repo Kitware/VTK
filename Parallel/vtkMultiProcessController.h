@@ -248,15 +248,15 @@ public:
   // Description:
   // This method sends data to another process.  Tag eliminates ambiguity
   // when multiple sends or receives exist in the same process.
-  int Send(int* data, int length, int remoteProcessId, int tag);
-  int Send(unsigned long* data, int length, int remoteProcessId, 
+  int Send(const int* data, vtkIdType length, int remoteProcessId, int tag);
+  int Send(const unsigned long* data, vtkIdType length, int remoteProcessId, 
            int tag);
-  int Send(char* data, int length, int remoteProcessId, int tag);
-  int Send(unsigned char* data, int length, int remoteProcessId, int tag);
-  int Send(float* data, int length, int remoteProcessId, int tag);
-  int Send(double* data, int length, int remoteProcessId, int tag);
+  int Send(const char* data, vtkIdType length, int remoteProcessId, int tag);
+  int Send(const unsigned char* data, vtkIdType length, int remoteProcessId, int tag);
+  int Send(const float* data, vtkIdType length, int remoteProcessId, int tag);
+  int Send(const double* data, vtkIdType length, int remoteProcessId, int tag);
 #ifdef VTK_USE_64BIT_IDS
-  int Send(vtkIdType* data, int length, int remoteProcessId, int tag);
+  int Send(const vtkIdType* data, vtkIdType length, int remoteProcessId, int tag);
 #endif
   int Send(vtkDataObject *data, int remoteId, int tag);
   int Send(vtkDataArray *data, int remoteId, int tag);
@@ -265,15 +265,15 @@ public:
   // This method receives data from a corresponding send. It blocks
   // until the receive is finished.  It calls methods in "data"
   // to communicate the sending data.
-  int Receive(int* data, int length, int remoteProcessId, int tag);
-  int Receive(unsigned long* data, int length, int remoteProcessId, 
+  int Receive(int* data, vtkIdType length, int remoteProcessId, int tag);
+  int Receive(unsigned long* data, vtkIdType length, int remoteProcessId, 
               int tag);
-  int Receive(char* data, int length, int remoteProcessId, int tag);
-  int Receive(unsigned char* data, int length, int remoteProcessId, int tag);
-  int Receive(float* data, int length, int remoteProcessId, int tag);
-  int Receive(double* data, int length, int remoteProcessId, int tag);
+  int Receive(char* data, vtkIdType length, int remoteProcessId, int tag);
+  int Receive(unsigned char* data, vtkIdType length, int remoteProcessId, int tag);
+  int Receive(float* data, vtkIdType length, int remoteProcessId, int tag);
+  int Receive(double* data, vtkIdType length, int remoteProcessId, int tag);
 #ifdef VTK_USE_64BIT_IDS
-  int Receive(vtkIdType* data, int length, int remoteProcessId, int tag);
+  int Receive(vtkIdType* data, vtkIdType length, int remoteProcessId, int tag);
 #endif
   int Receive(vtkDataObject* data, int remoteId, int tag);
   int Receive(vtkDataArray* data, int remoteId, int tag);
@@ -358,7 +358,7 @@ inline int vtkMultiProcessController::Send(vtkDataArray *data,
     }
 }
 
-inline int vtkMultiProcessController::Send(int* data, int length, 
+inline int vtkMultiProcessController::Send(const int* data, vtkIdType length, 
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -371,8 +371,9 @@ inline int vtkMultiProcessController::Send(int* data, int length,
     }
 }
 
-inline int vtkMultiProcessController::Send(unsigned long* data, 
-                                           int length, int remoteProcessId, 
+inline int vtkMultiProcessController::Send(const unsigned long* data, 
+                                           vtkIdType length,
+                                           int remoteProcessId,
                                            int tag)
 {
   if (this->Communicator)
@@ -385,7 +386,7 @@ inline int vtkMultiProcessController::Send(unsigned long* data,
     }
 }
 
-inline int vtkMultiProcessController::Send(char* data, int length, 
+inline int vtkMultiProcessController::Send(const char* data, vtkIdType length, 
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -398,7 +399,8 @@ inline int vtkMultiProcessController::Send(char* data, int length,
     }
 }
 
-inline int vtkMultiProcessController::Send(unsigned char* data, int length, 
+inline int vtkMultiProcessController::Send(const unsigned char* data,
+                                           vtkIdType length, 
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -411,7 +413,7 @@ inline int vtkMultiProcessController::Send(unsigned char* data, int length,
     }
 }
 
-inline int vtkMultiProcessController::Send(float* data, int length, 
+inline int vtkMultiProcessController::Send(const float* data, vtkIdType length, 
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -424,7 +426,7 @@ inline int vtkMultiProcessController::Send(float* data, int length,
     }
 }
 
-inline int vtkMultiProcessController::Send(double* data, int length, 
+inline int vtkMultiProcessController::Send(const double* data, vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -438,7 +440,8 @@ inline int vtkMultiProcessController::Send(double* data, int length,
 }
 
 #ifdef VTK_USE_64BIT_IDS
-inline int vtkMultiProcessController::Send(vtkIdType* data, int length, 
+inline int vtkMultiProcessController::Send(const vtkIdType* data,
+                                           vtkIdType length, 
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -478,7 +481,7 @@ inline int vtkMultiProcessController::Receive(vtkDataArray* data,
     }
 }
 
-inline int vtkMultiProcessController::Receive(int* data, int length, 
+inline int vtkMultiProcessController::Receive(int* data, vtkIdType length, 
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -492,7 +495,8 @@ inline int vtkMultiProcessController::Receive(int* data, int length,
 }
 
 inline int vtkMultiProcessController::Receive(unsigned long* data, 
-                                              int length,int remoteProcessId, 
+                                              vtkIdType length,
+                                              int remoteProcessId, 
                                               int tag)
 {
   if (this->Communicator)
@@ -505,7 +509,7 @@ inline int vtkMultiProcessController::Receive(unsigned long* data,
     }
 }
 
-inline int vtkMultiProcessController::Receive(char* data, int length, 
+inline int vtkMultiProcessController::Receive(char* data, vtkIdType length, 
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -518,7 +522,8 @@ inline int vtkMultiProcessController::Receive(char* data, int length,
     }
 }
 
-inline int vtkMultiProcessController::Receive(unsigned char* data, int length, 
+inline int vtkMultiProcessController::Receive(unsigned char* data,
+                                              vtkIdType length, 
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -531,7 +536,7 @@ inline int vtkMultiProcessController::Receive(unsigned char* data, int length,
     }
 }
 
-inline int vtkMultiProcessController::Receive(float* data, int length, 
+inline int vtkMultiProcessController::Receive(float* data, vtkIdType length, 
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -544,7 +549,7 @@ inline int vtkMultiProcessController::Receive(float* data, int length,
     }
 }
 
-inline int vtkMultiProcessController::Receive(double* data, int length, 
+inline int vtkMultiProcessController::Receive(double* data, vtkIdType length, 
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -558,7 +563,8 @@ inline int vtkMultiProcessController::Receive(double* data, int length,
 }
 
 #ifdef VTK_USE_64BIT_IDS
-inline int vtkMultiProcessController::Receive(vtkIdType* data, int length, 
+inline int vtkMultiProcessController::Receive(vtkIdType* data,
+                                              vtkIdType length, 
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)

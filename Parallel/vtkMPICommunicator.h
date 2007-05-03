@@ -66,26 +66,12 @@ public:
   int Initialize(vtkMPICommunicator* mpiComm, vtkMPIGroup* group);
 
   // Description:
-  // This method sends data to another process.  Tag eliminates ambiguity
-  // when multiple sends or receives exist in the same process.
-  virtual int Send(int* data, int length, int remoteProcessId, int tag);
-  virtual int Send(unsigned long* data, int length, int remoteProcessId,
-                   int tag);
-  virtual int Send(char* data, int length, int remoteProcessId, int tag);
-  virtual int Send(unsigned char* data, int length, int remoteProcessId, 
-                   int tag);
-  virtual int Send(float* data, int length, int remoteProcessId, 
-                   int tag);
-  virtual int Send(double* data, int length, int remoteProcessId, 
-                   int tag);
-#ifdef VTK_USE_64BIT_IDS
-  virtual int Send(vtkIdType* data, int length, int remoteProcessId, 
-                   int tag);
-#endif
-  virtual int Send(vtkDataObject* data, int remoteProcessId, int tag)
-    { return this->vtkCommunicator::Send(data, remoteProcessId, tag); }
-  virtual int Send(vtkDataArray* data, int remoteProcessId, int tag)
-    { return this->vtkCommunicator::Send(data, remoteProcessId, tag); }
+  // Performs the actual communication.  You will usually use the convenience
+  // Send functions defined in the superclass.
+  virtual int SendVoidArray(const void *data, vtkIdType length, int type,
+                            int remoteProcessId, int tag);
+  virtual int ReceiveVoidArray(void *data, vtkIdType length, int type,
+                               int remoteProcessId, int tag);
 
 //BTX
 
@@ -110,36 +96,14 @@ public:
   // exist in the same process. The last argument,
   // vtkMPICommunicator::Request& req can later be used (with
   // req.Test() ) to test the success of the message.
-  int NoBlockSend(int* data, int length, int remoteProcessId, int tag,
+  int NoBlockSend(const int* data, int length, int remoteProcessId, int tag,
                   Request& req);
-  int NoBlockSend(unsigned long* data, int length, int remoteProcessId,
+  int NoBlockSend(const unsigned long* data, int length, int remoteProcessId,
                   int tag, Request& req);
-  int NoBlockSend(char* data, int length, int remoteProcessId, 
+  int NoBlockSend(const char* data, int length, int remoteProcessId, 
                   int tag, Request& req);
-  int NoBlockSend(float* data, int length, int remoteProcessId, 
+  int NoBlockSend(const float* data, int length, int remoteProcessId, 
                   int tag, Request& req);
-
-  // Description:
-  // This method receives data from a corresponding send. It blocks
-  // until the receive is finished.
-  virtual int Receive(int* data, int length, int remoteProcessId, 
-                      int tag);
-  virtual int Receive(unsigned long* data, int length, 
-                      int remoteProcessId, int tag);
-  virtual int Receive(char* data, int length, int remoteProcessId, 
-                      int tag);
-  virtual int Receive(unsigned char* data, int length, int remoteProcessId, 
-                      int tag);
-  virtual int Receive(float* data, int length, int remoteProcessId, 
-                      int tag);
-  virtual int Receive(double* data, int length, int remoteProcessId, 
-                      int tag);
-#ifdef VTK_USE_64BIT_IDS
-  virtual int Receive(vtkIdType* data, int length, int remoteProcessId, 
-                      int tag);
-#endif
-  virtual int Receive(vtkDataArray* data, int remoteProcessId, int tag)
-    { return this->vtkCommunicator::Receive(data, remoteProcessId, tag); }
 
   // Description:
   // This method receives data from a corresponding send (non-blocking). 
@@ -246,11 +210,6 @@ public:
   int ReduceAnd(bool* data, bool* to, int size, int root);
   int ReduceOr(bool* data, bool* to, int size, int root);
 //ETX
-
-  // Description:
-  // This method receives a data object from a corresponding send. It blocks
-  // until the receive is finished. 
-  virtual int Receive(vtkDataObject* data, int remoteHandle, int tag);
 
 //BTX
 

@@ -81,41 +81,14 @@ public:
   int GetIsConnected();
 
   //------------------ Communication --------------------
-  
-  // Description:
-  // This method sends data to another process.  Tag eliminates ambiguity
-  // when multiple sends or receives exist in the same process.
-  int Send(int *data, int length, int remoteProcessId, int tag);
-  int Send(unsigned long *data, int length, int remoteProcessId, int tag);
-  int Send(char *data, int length, int remoteProcessId, int tag);
-  int Send(unsigned char *data, int length, int remoteProcessId, int tag);
-  int Send(float *data, int length, int remoteProcessId, int tag);
-  int Send(double *data, int length, int remoteProcessId, int tag);
-#ifdef VTK_USE_64BIT_IDS
-  int Send(vtkIdType *data, int length, int remoteProcessId, int tag);
-#endif
-  int Send(vtkDataObject *data, int remoteId, int tag)
-    {return this->vtkCommunicator::Send(data,remoteId,tag);}
-  int Send(vtkDataArray *data, int remoteId, int tag)
-    {return this->vtkCommunicator::Send(data,remoteId,tag);}
 
   // Description:
-  // This method receives data from a corresponding send. It blocks
-  // until the receive is finished.  It calls methods in "data"
-  // to communicate the sending data.
-  int Receive(int *data, int length, int remoteProcessId, int tag);
-  int Receive(unsigned long *data, int length, int remoteProcessId, int tag);
-  int Receive(char *data, int length, int remoteProcessId, int tag);
-  int Receive(unsigned char *data, int length, int remoteProcessId, int tag);
-  int Receive(float *data, int length, int remoteProcessId, int tag);
-  int Receive(double *data, int length, int remoteProcessId, int tag);
-#ifdef VTK_USE_64BIT_IDS
-  int Receive(vtkIdType *data, int length, int remoteProcessId, int tag);
-#endif
-  int Receive(vtkDataObject *data, int remoteId, int tag)
-    {return this->vtkCommunicator::Receive(data, remoteId, tag);}
-  int Receive(vtkDataArray *data, int remoteId, int tag)
-    {return this->vtkCommunicator::Receive(data, remoteId, tag);}
+  // Performs the actual communication.  You will usually use the convenience
+  // Send functions defined in the superclass.
+  virtual int SendVoidArray(const void *data, vtkIdType length, int type,
+                            int remoteHandle, int tag);
+  virtual int ReceiveVoidArray(void *data, vtkIdType length, int type,
+                               int remoteHandle, int tag);
 
   // Description:
   // Set or get the PerformHandshake ivar. If it is on, the communicator
@@ -175,7 +148,7 @@ protected:
   
   // Wrappers around send/recv calls to implement loops.  Return 1 for
   // success, and 0 for failure.
-  int SendTagged(void* data, int wordSize, int numWords, int tag,
+  int SendTagged(const void* data, int wordSize, int numWords, int tag,
                  const char* logName);
   int ReceiveTagged(void* data, int wordSize, int numWords, int tag,
                     const char* logName);
@@ -183,7 +156,7 @@ protected:
                     const char* logName);
   
   // Internal utility methods.
-  void LogTagged(const char* name, void* data, int wordSize, int numWords,
+  void LogTagged(const char* name, const void* data, int wordSize, int numWords,
                  int tag, const char* logName);
   int CheckForErrorInternal(int id);
 private:

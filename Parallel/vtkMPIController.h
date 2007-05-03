@@ -126,19 +126,19 @@ public:
   // vtkMPICommunicator::Request& req can later be used (with
   // req.Test() ) to test the success of the message.
   // Note: These methods delegate to the communicator
-  int NoBlockSend(int* data, int length, int remoteProcessId, int tag,
+  int NoBlockSend(const int* data, int length, int remoteProcessId, int tag,
                   vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
         (data ,length, remoteProcessId, tag, req); }
-  int NoBlockSend(unsigned long* data, int length, int remoteProcessId,
+  int NoBlockSend(const unsigned long* data, int length, int remoteProcessId,
                   int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
         (data, length, remoteProcessId, tag, req); }
-  int NoBlockSend(char* data, int length, int remoteProcessId, 
+  int NoBlockSend(const char* data, int length, int remoteProcessId, 
                   int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
         (data, length, remoteProcessId, tag, req); }
-  int NoBlockSend(float* data, int length, int remoteProcessId, 
+  int NoBlockSend(const float* data, int length, int remoteProcessId, 
                   int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
         (data, length, remoteProcessId, tag, req); }

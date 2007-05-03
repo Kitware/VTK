@@ -15,13 +15,15 @@
 #include "vtkSocketCommunicator.h"
 
 #include "vtkClientSocket.h"
+#include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkServerSocket.h"
 #include "vtkSocketController.h"
-#include "vtkCommand.h"
+#include "vtkStdString.h"
+#include "vtkTypeTraits.h"
 
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.63");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.64");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -150,140 +152,81 @@ int vtkSocketCommunicator::LogToFile(const char* name, int append)
   return 1;
 }
 
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Send(int* data, int length, int remoteProcessId, 
-                                int tag)
+//-----------------------------------------------------------------------------
+int vtkSocketCommunicator::SendVoidArray(const void *data, vtkIdType length,
+                                         int type, int remoteProcessId, int tag)
 {
   if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  return this->SendTagged(data, static_cast<int>(sizeof(int)),
-                          length, tag, "int");
-}
 
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Send(unsigned long* data, int length, 
-                                int remoteProcessId, int tag)
-{
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  return this->SendTagged(data, static_cast<int>(sizeof(unsigned long)),
-                          length, tag, "ulong");
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Send(char* data, int length, 
-                                int remoteProcessId, int tag)
-{
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  return this->SendTagged(data, static_cast<int>(sizeof(char)),
-                          length, tag, "char");
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Send(unsigned char* data, int length, 
-                                int remoteProcessId, int tag)
-{
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  return this->SendTagged(data, static_cast<int>(sizeof(unsigned char)),
-                          length, tag, "uchar");
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Send(float* data, int length, 
-                                int remoteProcessId, int tag)
-{
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  return this->SendTagged(data, static_cast<int>(sizeof(float)),
-                          length, tag, "float");
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Send(double *data, int length, 
-                                int remoteProcessId, int tag)
-{
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  return this->SendTagged(data, static_cast<int>(sizeof(double)),
-                          length, tag, "double");
-}
-
-#ifdef VTK_USE_64BIT_IDS
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Send(vtkIdType *data, int length, 
-                                int remoteProcessId, int tag)
-{
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  return this->SendTagged(data, static_cast<int>(sizeof(vtkIdType)),
-                          length, tag, "vtkIdType");
-}
-#endif
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Receive(int* data, int length, int remoteProcessId, 
-                                   int tag)
-{
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  int ret = this->ReceiveTagged(data, static_cast<int>(sizeof(int)),
-                                length, tag, "int");
-  if(tag == vtkMultiProcessController::RMI_TAG)
+  int typeSize;
+  vtkStdString typeName;
+  switch (type)
     {
-    data[2] = 1;
-    }  
+    vtkTemplateMacro(typeSize = sizeof(VTK_TT);
+                     typeName = vtkTypeTraits<VTK_TT>().SizedName());
+    }
+  // Special case for logging.
+  if (type == VTK_CHAR) typeName = "char";
+
+  const char *byteData = reinterpret_cast<const char *>(data);
+  int maxSend = VTK_INT_MAX/typeSize;
+  // If sending an array longer than the maximum number that can be held
+  // in an integer, break up the array into pieces.
+  while (length > maxSend)
+    {
+    if (!this->SendTagged(byteData, typeSize, maxSend, tag, typeName))
+      {
+      return 0;
+      }
+    byteData += maxSend*typeSize;
+    length -= maxSend;
+    }
+  return this->SendTagged(byteData, typeSize, length, tag, typeName);
+}
+
+//-----------------------------------------------------------------------------
+int vtkSocketCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
+                                            int type, int remoteProcessId,
+                                            int tag)
+{
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+
+  int typeSize;
+  vtkStdString typeName;
+  switch (type)
+    {
+    vtkTemplateMacro(typeSize = sizeof(VTK_TT);
+                     typeName = vtkTypeTraits<VTK_TT>().SizedName());
+    }
+  // Special case for logging.
+  if (type == VTK_CHAR) typeName = "char";
+
+  char *byteData = reinterpret_cast<char *>(data);
+  int maxReceive = VTK_INT_MAX/typeSize;
+  // If receiving an array longer than the maximum number that can be held
+  // in an integer, break up the array into pieces.
+  while (length > maxReceive)
+    {
+    if (!this->ReceiveTagged(byteData, typeSize, maxReceive, tag, typeName))
+      {
+      return 0;
+      }
+    byteData += maxReceive*typeSize;
+    length -= maxReceive;
+    }
+  int ret = this->ReceiveTagged(byteData, typeSize, length, tag, typeName);
+
+  // Some crazy special crud for RMIs that may one day screw someone up in
+  // a weird way.  No, I did not write this, but I'm sure there is code that
+  // relies on it.
+  if ((tag == vtkMultiProcessController::RMI_TAG) && (type == VTK_INT))
+    {
+    int *idata = reinterpret_cast<int *>(data);
+    idata[2] = 1;
+    }
+
   return ret;
 }
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Receive(unsigned long* data, int length, 
-                                   int remoteProcessId, int tag)
-{
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  return this->ReceiveTagged(data, static_cast<int>(sizeof(unsigned long)),
-                             length, tag, "ulong");
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Receive(char* data, int length, 
-                                   int remoteProcessId, int tag)
-{
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  return this->ReceiveTagged(data, static_cast<int>(sizeof(char)),
-                             length, tag, "char");
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Receive(unsigned char* data, int length, 
-                                   int remoteProcessId, int tag)
-{
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  return this->ReceiveTagged(data, static_cast<int>(sizeof(unsigned char)),
-                             length, tag, "uchar");
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Receive(float* data, int length, 
-                                   int remoteProcessId, int tag)
-{
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  return this->ReceiveTagged(data, static_cast<int>(sizeof(float)),
-                             length, tag, "float");
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Receive(double* data, int length, 
-                                   int remoteProcessId, int tag)
-{
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  return this->ReceiveTagged(data, static_cast<int>(sizeof(double)),
-                             length, tag, "double");
-}
-
-//----------------------------------------------------------------------------
-#ifdef VTK_USE_64BIT_IDS
-int vtkSocketCommunicator::Receive(vtkIdType* data, int length, 
-                                   int remoteProcessId, int tag)
-{
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
-  return this->ReceiveTagged(data, static_cast<int>(sizeof(vtkIdType)),
-                             length, tag, "vtkIdType");
-}
-#endif
 
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::ServerSideHandshake()
@@ -478,7 +421,7 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::SendTagged(void* data, int wordSize,
+int vtkSocketCommunicator::SendTagged(const void* data, int wordSize,
                                       int numWords, int tag,
                                       const char* logName)
 {
@@ -656,7 +599,7 @@ void vtkSocketCommunicatorLogArray(ostream& os, T* array, int length, int max,
 }
 
 //----------------------------------------------------------------------------
-void vtkSocketCommunicator::LogTagged(const char* name, void* data,
+void vtkSocketCommunicator::LogTagged(const char* name, const void* data,
                                       int wordSize, int numWords,
                                       int tag, const char* logName)
 {
@@ -677,7 +620,7 @@ void vtkSocketCommunicator::LogTagged(const char* name, void* data,
     if(wordSize == static_cast<int>(sizeof(char)) && logName &&
        (strcmp(logName, "char") == 0))
       {
-      char* chars = reinterpret_cast<char*>(data);
+      const char* chars = reinterpret_cast<const char*>(data);
       if((chars[numWords-1]) == 0 &&
          (static_cast<int>(strlen(chars)) == numWords-1))
         {
@@ -689,7 +632,7 @@ void vtkSocketCommunicator::LogTagged(const char* name, void* data,
           }
         else
           {
-          this->LogStream->write(reinterpret_cast<char*>(data), 70);
+          this->LogStream->write(reinterpret_cast<const char*>(data), 70);
           *this->LogStream << " ...";
           }
         *this->LogStream << "}";
@@ -698,54 +641,70 @@ void vtkSocketCommunicator::LogTagged(const char* name, void* data,
         {
         // Not string data.  Display the characters as integer values.
         vtkSocketCommunicatorLogArray(*this->LogStream,
-                                      reinterpret_cast<char*>(data),
+                                      reinterpret_cast<const char*>(data),
                                       numWords, 6, static_cast<int*>(0));
         }
       }
-    else if(wordSize == static_cast<int>(sizeof(int)) && logName &&
-            (strcmp(logName, "int") == 0))
+    else if ((wordSize == 1) && logName && (strcmp(logName, "Int8") == 0))
       {
       vtkSocketCommunicatorLogArray(*this->LogStream,
-                                    reinterpret_cast<int*>(data),
-                                    numWords, 6, static_cast<int*>(0));
+                                    reinterpret_cast<const vtkTypeInt8*>(data),
+                                    numWords, 6, static_cast<vtkTypeInt16*>(0));
       }
-    else if(wordSize == static_cast<int>(sizeof(unsigned char)) && logName &&
-            (strcmp(logName, "uchar") == 0))
+    else if ((wordSize == 1) && logName && (strcmp(logName, "UInt8") == 0))
       {
       vtkSocketCommunicatorLogArray(*this->LogStream,
-                                    reinterpret_cast<unsigned char*>(data),
-                                    numWords, 6, static_cast<int*>(0));
+                                   reinterpret_cast<const vtkTypeUInt8*>(data),
+                                   numWords, 6, static_cast<vtkTypeUInt16*>(0));
       }
-    else if(wordSize == static_cast<int>(sizeof(unsigned long)) && logName &&
-            (strcmp(logName, "ulong") == 0))
+    else if ((wordSize == 2) && logName && (strcmp(logName, "Int16") == 0))
       {
       vtkSocketCommunicatorLogArray(*this->LogStream,
-                                    reinterpret_cast<unsigned long*>(data),
-                                    numWords, 6, static_cast<unsigned long*>(0));
+                                    reinterpret_cast<const vtkTypeInt16*>(data),
+                                    numWords, 6, static_cast<vtkTypeInt16*>(0));
       }
-    else if(wordSize == static_cast<int>(sizeof(float)) && logName &&
-            (strcmp(logName, "float") == 0))
+    else if ((wordSize == 2) && logName && (strcmp(logName, "UInt16") == 0))
       {
       vtkSocketCommunicatorLogArray(*this->LogStream,
-                                    reinterpret_cast<float*>(data),
-                                    numWords, 6, static_cast<float*>(0));
+                                   reinterpret_cast<const vtkTypeUInt16*>(data),
+                                   numWords, 6, static_cast<vtkTypeUInt16*>(0));
       }
-    else if(wordSize == static_cast<int>(sizeof(double)) && logName &&
-            (strcmp(logName, "double") == 0))
+    else if ((wordSize == 4) && logName && (strcmp(logName, "Int32") == 0))
       {
       vtkSocketCommunicatorLogArray(*this->LogStream,
-                                    reinterpret_cast<double*>(data),
-                                    numWords, 6, static_cast<double*>(0));
+                                    reinterpret_cast<const vtkTypeInt32*>(data),
+                                    numWords, 6, static_cast<vtkTypeInt32*>(0));
       }
-#ifdef VTK_USE_64BIT_IDS
-    else if(wordSize == static_cast<int>(sizeof(vtkIdType)) && logName &&
-            (strcmp(logName, "vtkIdType") == 0))
+    else if ((wordSize == 4) && logName && (strcmp(logName, "UInt32") == 0))
       {
       vtkSocketCommunicatorLogArray(*this->LogStream,
-                                    reinterpret_cast<vtkIdType*>(data),
-                                    numWords, 6, static_cast<vtkIdType*>(0));
+                                   reinterpret_cast<const vtkTypeUInt32*>(data),
+                                   numWords, 6, static_cast<vtkTypeUInt32*>(0));
       }
-#endif
+    else if ((wordSize == 8) && logName && (strcmp(logName, "Int64") == 0))
+      {
+      vtkSocketCommunicatorLogArray(*this->LogStream,
+                                    reinterpret_cast<const vtkTypeInt64*>(data),
+                                    numWords, 6, static_cast<vtkTypeInt64*>(0));
+      }
+    else if ((wordSize == 8) && logName && (strcmp(logName, "UInt64") == 0))
+      {
+      vtkSocketCommunicatorLogArray(*this->LogStream,
+                                   reinterpret_cast<const vtkTypeUInt64*>(data),
+                                   numWords, 6, static_cast<vtkTypeUInt64*>(0));
+      }
+    else if ((wordSize == 4) && logName && (strcmp(logName, "Float32") == 0))
+      {
+      vtkSocketCommunicatorLogArray(*this->LogStream,
+                                  reinterpret_cast<const vtkTypeFloat32*>(data),
+                                  numWords, 6, static_cast<vtkTypeFloat32*>(0));
+      }
+    else if ((wordSize == 8) && logName && (strcmp(logName, "Float64") == 0))
+      {
+      vtkSocketCommunicatorLogArray(*this->LogStream,
+                                  reinterpret_cast<const vtkTypeFloat64*>(data),
+                                  numWords, 6, static_cast<vtkTypeFloat64*>(0));
+      }
     *this->LogStream << "\n";
     }
 }

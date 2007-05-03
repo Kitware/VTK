@@ -34,28 +34,19 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.35");
+#include "vtkSmartPointer.h"
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-template <class T>
-int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
-{
-
-  self->Send(data, length, handle, tag);
-
-  return 1;
-}
+vtkCxxRevisionMacro(vtkCommunicator, "1.36");
 
 
 vtkCommunicator::vtkCommunicator()
 {
-  this->MarshalString = 0;
-  this->MarshalStringLength = 0;
-  this->MarshalDataLength = 0;
 }
 
 vtkCommunicator::~vtkCommunicator()
 {
-  this->DeleteAndSetMarshalString(0, 0);
 }
 
 int vtkCommunicator::UseCopy = 0;
@@ -67,62 +58,23 @@ void vtkCommunicator::SetUseCopy(int useCopy)
 void vtkCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Marshal string: ";
-  if ( this->MarshalString )
-    {
-    os << this->MarshalString << endl;
-    }
-  else
-    {
-    os << "(None)" << endl;
-    }
-  os << indent << "Marshal string length: " << this->MarshalStringLength
-     << endl;
-  os << indent << "Marshal data length: " << this->MarshalDataLength
-     << endl;
 }
 
 //----------------------------------------------------------------------------
-// Internal method.  Assumes responsibility for deleting the string
-void vtkCommunicator::DeleteAndSetMarshalString(char *str, int strLength)
-{
-  // delete any previous string
-  if (this->MarshalString)
-    {
-    delete [] this->MarshalString;
-    this->MarshalString = 0;
-    this->MarshalStringLength = 0;
-    this->MarshalDataLength = 0;
-    }
-  
-  this->MarshalString = str;
-  this->MarshalStringLength = strLength;
-}
-
 // Need to add better error checking
 int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle, 
                           int tag)
 {
+  VTK_CREATE(vtkCharArray, buffer);
+  if (vtkCommunicator::MarshalDataObject(data, buffer))
+    {
+    this->Send(buffer, remoteHandle, tag);
 
-  if (data == NULL)
-    {
-    this->MarshalDataLength = 0;
-    this->Send( &this->MarshalDataLength, 1,      
-                remoteHandle, tag);
-    return 1;
-    }
-  if (this->WriteObject(data))
-    {
-    this->Send( &this->MarshalDataLength, 1,      
-                remoteHandle, tag);
-    // then send the string.
-    this->Send( this->MarshalString, this->MarshalDataLength, 
-                remoteHandle, tag);
     // Send data extents. These make sense only for structured data.
     // However, we still send them. We need to send extents separately
     // because the Legacy writers discard extents.
     int extent[6] = {0,0,0,0,0,0};
-    if (data->GetExtentType() == VTK_3D_EXTENT)
+    if (data && (data->GetExtentType() == VTK_3D_EXTENT))
       {
       vtkRectilinearGrid* rg = vtkRectilinearGrid::SafeDownCast(data);
       vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(data);
@@ -155,7 +107,6 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
   int type = -1;
   if (data == NULL)
     {
-      this->MarshalDataLength = 0;
       this->Send( &type, 1, remoteHandle, tag);
       return 1;
     }
@@ -174,7 +125,6 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
 
   vtkIdType size = numTuples*numComponents;
 
-  
   const char* name = data->GetName();
   int len = 0;
   if (name)
@@ -198,136 +148,57 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
     }
 
   // now send the raw array
-  switch (type)
-    {
-
-    case VTK_CHAR:
-      return SendDataArray(static_cast<char*>(data->GetVoidPointer(0)), 
-                          size, remoteHandle, tag, this);
-
-    case VTK_UNSIGNED_CHAR:
-      return SendDataArray(static_cast<unsigned char*>(data->GetVoidPointer(0)), 
-                          size, remoteHandle, tag, this);
-
-    case VTK_INT:
-      return SendDataArray(static_cast<int*>(data->GetVoidPointer(0)), 
-                          size, remoteHandle, tag, this);
-
-    case VTK_UNSIGNED_LONG:
-      return SendDataArray(static_cast<unsigned long*>(data->GetVoidPointer(0)), 
-                          size, remoteHandle, tag, this);
-
-    case VTK_FLOAT:
-      return SendDataArray(static_cast<float*>(data->GetVoidPointer(0)), 
-                          size, remoteHandle, tag, this);
-
-    case VTK_DOUBLE:
-      return SendDataArray(static_cast<double*>(data->GetVoidPointer(0)), 
-                          size, remoteHandle, tag, this);
-
-    case VTK_ID_TYPE:
-      return SendDataArray(static_cast<vtkIdType*>(data->GetVoidPointer(0)), 
-                          size, remoteHandle, tag, this);
-
-    default:
-      vtkErrorMacro(<<"Unsupported data type!");
-      return 0; // could not marshal data
-
-    }
-
+  this->SendVoidArray(data->GetVoidPointer(0), size, type, remoteHandle, tag);
+  return 1;
 }
 
 
 int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle, 
                              int tag)
 {
-  int dataLength;
-
-  // First receive the data length.
-  if (!this->Receive( &dataLength, 1, remoteHandle, tag))
-    {
-    vtkErrorMacro("Could not receive data!");
-    return 0;
-    }
-  
-  if (dataLength < 0)
-    {
-    vtkErrorMacro("Bad data length");
-    return 0;
-    }
-  
-  if (dataLength == 0)
-    { // This indicates a NULL object was sent. Do nothing.
-    return 1;   
-    }
-  
-  // if we cannot reuse the string, allocate a new one.
-  if (dataLength > this->MarshalStringLength)
-    {
-    char *str = new char[dataLength + 10]; // maybe a little extra?
-    this->DeleteAndSetMarshalString(str, dataLength + 10);
-    }
-  
-  // Receive the string
-  if (!this->Receive(this->MarshalString, dataLength, 
-                     remoteHandle, tag))
+  VTK_CREATE(vtkCharArray, buffer);
+  if (!this->Receive(buffer, remoteHandle, tag))
     {
     return 0;
     }
 
-  int extent[6];
-  // Receive the extents.
-  if (!this->Receive(extent, 6, remoteHandle, tag))
+  if (vtkCommunicator::UnMarshalDataObject(buffer, data))
     {
-    return 0;
-    }
-
-  this->MarshalDataLength = dataLength;
-
-  this->ReadObject(data);
-
-  // Set the extents if the dataobject supports it.
-  if (data->GetExtentType() == VTK_3D_EXTENT)
-    {
-    vtkRectilinearGrid* rg = vtkRectilinearGrid::SafeDownCast(data);
-    vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(data);
-    vtkImageData* id = vtkImageData::SafeDownCast(data);
-    if (rg)
+    int extent[6];
+    // Receive the extents.
+    if (!this->Receive(extent, 6, remoteHandle, tag))
       {
-      rg->SetExtent(extent);
+      return 0;
       }
-    else if (sg)
+
+    // Set the extents if the dataobject supports it.
+    if (data && (data->GetExtentType() == VTK_3D_EXTENT))
       {
-      sg->SetExtent(extent);
-      }
-    else if (id)
-      {
-      id->SetExtent(extent);
+      vtkRectilinearGrid* rg = vtkRectilinearGrid::SafeDownCast(data);
+      vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(data);
+      vtkImageData* id = vtkImageData::SafeDownCast(data);
+      if (rg)
+        {
+        rg->SetExtent(extent);
+        }
+      else if (sg)
+        {
+        sg->SetExtent(extent);
+        }
+      else if (id)
+        {
+        id->SetExtent(extent);
+        }
       }
     }
 
-  // we should really look at status to determine success
   return 1;
 }
 
-int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, 
-                             int tag)
+int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, int tag)
 {
-  vtkIdType numTuples;
-  int type;
-  int numComponents;
-  int nameLength;
-
-  char *c = 0;
-  unsigned char *uc = 0;
-  int *i = 0;
-  unsigned long *ul = 0;
-  float *f = 0;
-  double *d = 0;
-  vtkIdType *idt = 0;
-  
-
   // First receive the data type.
+  int type;
   if (!this->Receive( &type, 1, remoteHandle, tag))
     {
     vtkErrorMacro("Could not receive data!");
@@ -339,7 +210,14 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle,
     return 1;   
     }
 
+  if (type != data->GetDataType())
+    {
+    vtkErrorMacro("Send/receive data types do not match!");
+    return 0;
+    }
+
   // Next receive the number of tuples.
+  vtkIdType numTuples;
   if (!this->Receive( &numTuples, 1, remoteHandle, tag))
     {
     vtkErrorMacro("Could not receive data!");
@@ -347,21 +225,33 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle,
     }
 
   // Next receive the number of components.
+  int numComponents;
   this->Receive( &numComponents, 1, remoteHandle, tag);
 
   vtkIdType size = numTuples*numComponents;
+  if (data->GetSize() != size)
+    {
+    // Clear out data so that a data resize does not require memory copies.
+    data->Initialize();
+    }
+  data->SetNumberOfComponents(numComponents);
+  data->SetNumberOfTuples(numTuples);
 
   // Next receive the length of the name.
+  int nameLength;
   this->Receive( &nameLength, 1, remoteHandle, tag);
 
   if ( nameLength > 0 )
     {
     char *str = new char[nameLength]; 
-    this->DeleteAndSetMarshalString(str, nameLength);
     
     // Receive the name
-    this->Receive(this->MarshalString, nameLength, remoteHandle, tag);
-    this->MarshalDataLength = nameLength;
+    this->Receive(str, nameLength, remoteHandle, tag);
+    data->SetName(str);
+    }
+  else
+    {
+    data->SetName(NULL);
     }
 
   if (size < 0)
@@ -375,86 +265,36 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle,
     {
     return 1;   
     }
-  
-  // Receive the raw data array
-  switch (type)
-    {
 
-    case VTK_CHAR:
-      c = new char[size];
-      this->Receive(c, size, remoteHandle, tag);
-      static_cast<vtkCharArray*>(data)->SetArray(c, size, 0);
-      break;
-
-    case VTK_UNSIGNED_CHAR:
-      uc = new unsigned char[size];
-      this->Receive(uc, size, remoteHandle, tag);
-      static_cast<vtkUnsignedCharArray*>(data)->SetArray(uc, size, 0);
-      break;
-
-    case VTK_INT:
-      i = new int[size];
-      this->Receive(i, size, remoteHandle, tag);
-      static_cast<vtkIntArray*>(data)->SetArray(i, size, 0);
-      break;
-
-    case VTK_UNSIGNED_LONG:
-      ul = new unsigned long[size];
-      this->Receive(ul, size, remoteHandle, tag);
-      static_cast<vtkUnsignedLongArray*>(data)->SetArray(ul, size, 0);
-      break;
-
-    case VTK_FLOAT:
-      f = new float[size];
-      this->Receive(f, size, remoteHandle, tag);
-      static_cast<vtkFloatArray*>(data)->SetArray(f, size, 0);
-      break;
-
-    case VTK_DOUBLE:
-
-      d = new double[size];
-      this->Receive(d, size, remoteHandle, tag);
-      static_cast<vtkDoubleArray*>(data)->SetArray(d, size, 0);
-      break;
-
-    case VTK_ID_TYPE:
-      idt = new vtkIdType[size];
-      this->Receive(idt, size, remoteHandle, tag);
-      static_cast<vtkIdTypeArray*>(data)->SetArray(idt, size, 0);
-      break;
-
-    default:
-      vtkErrorMacro(<<"Unsupported data type!");
-      return 0; // could not marshal data
-
-    }
-
-  if (nameLength > 0)
-    {
-    data->SetName(this->MarshalString);
-    }
-  else
-    {
-    data->SetName(0);
-    }
-  data->SetNumberOfComponents(numComponents);
+  // now receive the raw array.
+  this->ReceiveVoidArray(data->GetVoidPointer(0), size, type, remoteHandle,tag);
 
   return 1;
-
 }
 
-int vtkCommunicator::WriteObject(vtkDataObject *object)
+//-----------------------------------------------------------------------------
+int vtkCommunicator::MarshalDataObject(vtkDataObject *object,
+                                       vtkCharArray *buffer)
 {
-  vtkGenericDataObjectWriter* writer = vtkGenericDataObjectWriter::New();
+  buffer->SetNumberOfComponents(1);
 
-  vtkDataObject* copy = object->NewInstance();
+  if (object == NULL)
+    {
+    buffer->SetNumberOfTuples(0);
+    return 1;
+    }
+
+  VTK_CREATE(vtkGenericDataObjectWriter, writer);
+
+  vtkSmartPointer<vtkDataObject> copy;
+  copy.TakeReference(object->NewInstance());
   copy->ShallowCopy(object);
 
   writer->SetFileTypeToBinary();
   // There is a problem with binary files with no data.
   if (vtkDataSet::SafeDownCast(copy) != NULL)
     {
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(copy);
+    vtkDataSet *ds = vtkDataSet::SafeDownCast(copy);
     if (ds->GetNumberOfCells() + ds->GetNumberOfPoints() == 0)
       {
       writer->SetFileTypeToASCII();
@@ -462,38 +302,32 @@ int vtkCommunicator::WriteObject(vtkDataObject *object)
     }
   writer->WriteToOutputStringOn();
   writer->SetInput(copy);
-  
+
   writer->Write();
   unsigned int size = writer->GetOutputStringLength();
-  this->DeleteAndSetMarshalString(writer->RegisterAndGetOutputString(), size);
-  this->MarshalDataLength = size;
-
-  writer->Delete();
-  copy->Delete();
+  buffer->SetArray(writer->RegisterAndGetOutputString(), size, 0);
+  buffer->SetNumberOfTuples(size);
   return 1;
 }
 
-int vtkCommunicator::ReadObject(vtkDataObject *object)
+//-----------------------------------------------------------------------------
+int vtkCommunicator::UnMarshalDataObject(vtkCharArray *buffer,
+                                         vtkDataObject *object)
 {
-  if (this->MarshalString == NULL || this->MarshalStringLength <= 0)
+  if (buffer->GetNumberOfTuples() <= 0)
     {
-    return 0;
+    object = NULL;
+    return 1;
     }
-  
-  vtkGenericDataObjectReader* reader = vtkGenericDataObjectReader::New();
+
+  VTK_CREATE(vtkGenericDataObjectReader, reader);
   reader->ReadFromInputStringOn();
 
-  vtkCharArray* mystring = vtkCharArray::New();
-  // mystring should not delete the string when it's done,
-  // that's our job.
-  mystring->SetArray(this->MarshalString, this->MarshalDataLength, 1);
-  reader->SetInputArray(mystring);
-  mystring->Delete();
+  reader->SetInputArray(buffer);
 
   reader->Update();
   object->ShallowCopy(reader->GetOutput());
 
-  reader->Delete();
   return 1;
 }
 

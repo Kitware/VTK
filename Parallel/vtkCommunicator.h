@@ -36,6 +36,7 @@ class vtkImageData;
 class vtkDataObject;
 class vtkDataArray;
 class vtkBoundingBox;
+class vtkCharArray;
 
 class VTK_PARALLEL_EXPORT vtkCommunicator : public vtkObject
 {
@@ -49,60 +50,95 @@ public:
   // This method sends a data object to a destination.  
   // Tag eliminates ambiguity
   // and is used to match sends to receives.
-  virtual int Send(vtkDataObject* data, int remoteHandle, int tag);
+  int Send(vtkDataObject* data, int remoteHandle, int tag);
 
   // Description:
   // This method sends a data array to a destination.  
   // Tag eliminates ambiguity
   // and is used to match sends to receives.
-  virtual int Send(vtkDataArray* data, int remoteHandle, int tag);
+  int Send(vtkDataArray* data, int remoteHandle, int tag);
+
+  // Description:
+  // Subclasses have to supply this method to send various arrays of data.
+  // The \c type arg is one of the VTK type constants recognized by the
+  // vtkTemplateMacro (VTK_FLOAT, VTK_INT, etc.).  \c length is measured
+  // in number of values (as opposed to number of bytes).
+  virtual int SendVoidArray(const void *data, vtkIdType length, int type,
+                            int remoteHandle, int tag) = 0;
   
   // Description:
-  // Subclass have to supply these methods to send various arrays of data.
-  virtual int Send(int* data, int length, int remoteHandle, int tag) = 0;
-  virtual int Send(unsigned long* data, int length, int remoteHandle, 
-                   int tag) = 0;
-  virtual int Send(unsigned char* data, int length, int remoteHandle, 
-                   int tag) = 0;
-  virtual int Send(char* data, int length, int remoteHandle, 
-                   int tag) = 0;
-  virtual int Send(float* data, int length, int remoteHandle, 
-                   int tag) = 0;
-  virtual int Send(double* data, int length, int remoteHandle, 
-                   int tag) = 0;
+  // Convenience methods for sending data arrays.
+  int Send(const int* data, vtkIdType length, int remoteHandle, int tag) {
+    return this->SendVoidArray(data, length, VTK_INT, remoteHandle, tag);
+  }
+  int Send(const unsigned long* data, vtkIdType length,
+           int remoteHandle, int tag) {
+    return this->SendVoidArray(data, length,VTK_UNSIGNED_LONG,remoteHandle,tag);
+  }
+  int Send(const unsigned char* data, vtkIdType length,
+           int remoteHandle, int tag) {
+    return this->SendVoidArray(data, length,VTK_UNSIGNED_CHAR,remoteHandle,tag);
+  }
+  int Send(const char* data, vtkIdType length, int remoteHandle, int tag) {
+    return this->SendVoidArray(data, length, VTK_CHAR, remoteHandle, tag);
+  }
+  int Send(const float* data, vtkIdType length, int remoteHandle, int tag) {
+    return this->SendVoidArray(data, length, VTK_FLOAT, remoteHandle, tag);
+  }
+  int Send(const double* data, vtkIdType length, int remoteHandle, int tag) {
+    return this->SendVoidArray(data, length, VTK_DOUBLE, remoteHandle, tag);
+  }
 #ifdef VTK_USE_64BIT_IDS
-  virtual int Send(vtkIdType* data, int length, int remoteHandle, 
-                   int tag) = 0;
+  int Send(const vtkIdType* data, vtkIdType length, int remoteHandle, int tag) {
+    return this->SendVoidArray(data, length, VTK_ID_TYPE, remoteHandle, tag);
+  }
 #endif
 
 
   // Description:
   // This method receives a data object from a corresponding send. It blocks
   // until the receive is finished. 
-  virtual int Receive(vtkDataObject* data, int remoteHandle, int tag);
+  int Receive(vtkDataObject* data, int remoteHandle, int tag);
 
   // Description:
   // This method receives a data array from a corresponding send. It blocks
   // until the receive is finished. 
-  virtual int Receive(vtkDataArray* data, int remoteHandle, int tag);
+  int Receive(vtkDataArray* data, int remoteHandle, int tag);
 
   // Description:
-  // Subclass have to supply these methods to receive various arrays of data.
-  virtual int Receive(int* data, int length, int remoteHandle, 
-                      int tag) = 0;
-  virtual int Receive(unsigned long* data, int length, int remoteHandle,
-                      int tag) = 0;
-  virtual int Receive(unsigned char* data, int length, int remoteHandle, 
-                      int tag) = 0;
-  virtual int Receive(char* data, int length, int remoteHandle, 
-                      int tag) = 0;
-  virtual int Receive(float* data, int length, int remoteHandle, 
-                      int tag) = 0;
-  virtual int Receive(double* data, int length, int remoteHandle, 
-                      int tag) = 0;
+  // Subclasses have to supply this method to receive various arrays of data.
+  // The \c type arg is one of the VTK type constants recognized by the
+  // vtkTemplateMacro (VTK_FLOAT, VTK_INT, etc.).  \c length is measured
+  // in number of values (as opposed to number of bytes).
+  virtual int ReceiveVoidArray(void *data, vtkIdType length, int type,
+                               int remoteHandle, int tag) = 0;
+
+  // Description:
+  // Convenience methods for receiving data arrays.
+  int Receive(int* data, vtkIdType length, int remoteHandle, int tag) {
+    return this->ReceiveVoidArray(data, length, VTK_INT, remoteHandle, tag);
+  }
+  int Receive(unsigned long* data, vtkIdType length, int remoteHandle, int tag){
+    return this->ReceiveVoidArray(data, length, VTK_UNSIGNED_LONG, remoteHandle,
+                                  tag);
+  }
+  int Receive(unsigned char* data, vtkIdType length, int remoteHandle, int tag){
+    return this->ReceiveVoidArray(data, length, VTK_UNSIGNED_CHAR, remoteHandle,
+                                  tag);
+  }
+  int Receive(char* data, vtkIdType length, int remoteHandle, int tag) {
+    return this->ReceiveVoidArray(data, length, VTK_CHAR, remoteHandle, tag);
+  }
+  int Receive(float* data, vtkIdType length, int remoteHandle, int tag) {
+    return this->ReceiveVoidArray(data, length, VTK_FLOAT, remoteHandle, tag);
+  }
+  int Receive(double* data, vtkIdType length, int remoteHandle, int tag) {
+    return this->ReceiveVoidArray(data, length, VTK_DOUBLE, remoteHandle, tag);
+  }
 #ifdef VTK_USE_64BIT_IDS
-  virtual int Receive(vtkIdType* data, int length, int remoteHandle, 
-                      int tag) = 0;
+  int Receive(vtkIdType* data, vtkIdType length, int remoteHandle, int tag) {
+    return this->ReceiveVoidArray(data, length, VTK_ID_TYPE, remoteHandle, tag);
+  }
 #endif
 
   static void SetUseCopy(int useCopy);
@@ -132,25 +168,19 @@ public:
   static int GetParentProcessor(int pid);
   static int GetLeftChildProcessor(int pid);
 
+  // Description:
+  // Convert a data object into a string that can be transmitted and vice versa.
+  // Returns 1 for success and 0 for failure.
+  static int MarshalDataObject(vtkDataObject *object, vtkCharArray *buffer);
+  static int UnMarshalDataObject(vtkCharArray *buffer, vtkDataObject *object);
+
 protected:
-
-  void DeleteAndSetMarshalString(char *str, int strLength);
-
-  // Write and read from marshal string
-  // return 1 success, 0 fail
-  int WriteObject(vtkDataObject *object);
-  int ReadObject(vtkDataObject *object);
   
   int WriteDataArray(vtkDataArray *object);
   int ReadDataArray(vtkDataArray *object);
 
   vtkCommunicator();
   ~vtkCommunicator();
-
-  char *MarshalString;
-  int MarshalStringLength;
-  // The data may not take up all of the string.
-  int MarshalDataLength;
 
   static int UseCopy;
 
