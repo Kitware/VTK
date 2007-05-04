@@ -3,7 +3,7 @@ SET(UKIT INFOVIS)
 SET(KIT_TCL_LIBS vtkWidgetsTCL)
 SET(KIT_PYTHON_LIBS vtkWidgetsPythonD)
 SET(KIT_JAVA_LIBS vtkWidgetsJava)
-SET(KIT_LIBS vtkWidgets)
+SET(KIT_LIBS vtkWidgets vtklibxml2)
 
 SET( Kit_SRCS
 vtkBoxLayoutStrategy.cxx
@@ -36,6 +36,7 @@ vtkTreeMapLayoutStrategy.cxx
 vtkTreeMapToPolyData.cxx
 vtkTreeMapViewer.cxx
 vtkVertexDegree.cxx
+vtkXMLTreeReader.cxx
 )
 
 # Add the option to use Boost
