@@ -23,7 +23,7 @@
 #include "vtkTypeTraits.h"
 
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.64");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.65");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -164,6 +164,11 @@ int vtkSocketCommunicator::SendVoidArray(const void *data, vtkIdType length,
     {
     vtkTemplateMacro(typeSize = sizeof(VTK_TT);
                      typeName = vtkTypeTraits<VTK_TT>().SizedName());
+    default:
+      vtkWarningMacro(<< "Invalid data type " << type);
+      typeSize = 1;
+      typeName = "???";
+      break;
     }
   // Special case for logging.
   if (type == VTK_CHAR) typeName = "char";
@@ -197,6 +202,11 @@ int vtkSocketCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
     {
     vtkTemplateMacro(typeSize = sizeof(VTK_TT);
                      typeName = vtkTypeTraits<VTK_TT>().SizedName());
+    default:
+      vtkWarningMacro(<< "Invalid data type " << type);
+      typeSize = 1;
+      typeName = "???";
+      break;
     }
   // Special case for logging.
   if (type == VTK_CHAR) typeName = "char";
