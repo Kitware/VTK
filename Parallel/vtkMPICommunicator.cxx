@@ -26,7 +26,7 @@
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.41");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.42");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -603,6 +603,10 @@ int vtkMPICommunicator::SendVoidArray(const void *data, vtkIdType length,
   switch(type)
     {
     vtkTemplateMacro(sizeOfType = sizeof(VTK_TT));
+    default:
+      vtkWarningMacro(<< "Invalid data type " << type);
+      sizeOfType = 1;
+      break;
     }
 
   int maxSend = VTK_INT_MAX/sizeOfType;
@@ -630,6 +634,10 @@ int vtkMPICommunicator::ReceiveVoidArray(void *data, vtkIdType length, int type,
   switch(type)
     {
     vtkTemplateMacro(sizeOfType = sizeof(VTK_TT));
+    default:
+      vtkWarningMacro(<< "Invalid data type " << type);
+      sizeOfType = 1;
+      break;
     }
 
   int maxReceive = VTK_INT_MAX/sizeOfType;
