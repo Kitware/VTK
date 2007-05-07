@@ -108,6 +108,16 @@ public:
   // to other objects, there is no ShallowCopy.
   void DeepCopy(vtkCellTypes *src);
 
+  // Description:
+  // Given an int (as defined in vtkCellType.h) identifier for a class
+  // return it's classname.
+  static const char* GetClassNameFromTypeId(int typeId);
+
+  // Description:
+  // Given a data object classname, return it's int identified (as
+  // defined in vtkCellType.h)
+  static int GetTypeIdFromClassName(const char* classname);
+
 protected:
   vtkCellTypes();
   ~vtkCellTypes();
