@@ -15,8 +15,127 @@
 #include "vtkCellTypes.h"
 #include "vtkObjectFactory.h"  
 
-vtkCxxRevisionMacro(vtkCellTypes, "1.2");
+vtkCxxRevisionMacro(vtkCellTypes, "1.3");
 vtkStandardNewMacro(vtkCellTypes);
+
+// This list should contain the cell class names in
+// the same order as the enums in vtkCellType.h. Make sure
+// this list is NULL terminated.
+static const char* vtkCellTypesStrings[] = {
+  "vtkEmptyCell",
+  "vtkVertex",
+  "vtkPolyVertex",
+  "vtkLine",
+  "vtkPolyLine",
+  "vtkTriangle",
+  "vtkTriangleStrip",
+  "vtkPolygon",
+  "vtkPixel",
+  "vtkQuad",
+  "vtkTetra",
+  "vtkVoxel",
+  "vtkHexahedron",
+  "vtkWedge",
+  "vtkPyramid",
+  "vtkPentagonalPrism",
+  "vtkHexagonalPrism",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "vtkQuadraticEdge",
+  "vtkQuadraticTriangle",
+  "vtkQuadraticQuad",
+  "vtkQuadraticTetra",
+  "vtkQuadraticHexahedron",
+  "vtkQuadraticWedge",
+  "vtkQuadraticPyramid",
+  "vtkBiquadraticQuad",
+  "vtkTriquadraticHexahedron",
+  "vtkQuadraticLinearQuad",
+  "vtkQuadraticLinearWedge",
+  "vtkBiquadraticQuadraticWedge",
+  "vtkBiquadraticQuadraticHexahedron",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "vtkConvexPointSet",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "vtkParametricCurve",
+  "vtkParametricSurface",
+  "vtkParametricTriSurface",
+  "vtkParametricQuadSurface",
+  "vtkParametricTetraRegion",
+  "vtkParametricHexRegion",
+  "UnknownClass",
+  "UnknownClass",
+  "UnknownClass",
+  "vtkHigherOrderEdge",
+  "vtkHigherOrderTriangle",
+  "vtkHigherOrderQuad",
+  "vtkHigherOrderPolygon",
+  "vtkHigherOrderTetrahedron",
+  "vtkHigherOrderWedge",
+  "vtkHigherOrderPyramid",
+  "vtkHigherOrderHexahedron",
+  NULL
+};
+
+//----------------------------------------------------------------------------
+const char* vtkCellTypes::GetClassNameFromTypeId(int type)
+{
+  static int numClasses = 0;
+  
+  // find length of table
+  if (numClasses == 0)
+    {
+    while (vtkCellTypesStrings[numClasses] != NULL)
+      {
+      numClasses++;
+      }
+    }
+
+  if (type < numClasses)
+    {
+    return vtkCellTypesStrings[type];
+    }
+  else
+    {
+    return "UnknownClass";
+    }
+  
+}
+
+//----------------------------------------------------------------------------
+int vtkCellTypes::GetTypeIdFromClassName(const char* classname)
+{
+  if (!classname)
+    {
+    return -1;
+    }
+
+  for(int idx=0; vtkCellTypesStrings[idx] != NULL; idx++)
+    {
+    if (strcmp(vtkCellTypesStrings[idx], classname) == 0)
+      {
+      return idx;
+      }
+    }
+  
+  return -1;
+}
 
 //----------------------------------------------------------------------------
 vtkCellTypes::vtkCellTypes ()
