@@ -99,7 +99,7 @@ public:
   // which component to use to do the blending.
   // When the component argument is -1, then the this object uses its
   // own selected technique to change a vector into a scalar to map.
-  vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
+  virtual vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
                                    int component);
 
   // Description:
