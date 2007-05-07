@@ -101,6 +101,9 @@ protected:
   };
   //ETX
 
+  //Returns a copy of "source" with all points marked as invalid removed.
+  vtkRectilinearGrid *RemoveInvalidPoints(vtkRectilinearGrid *source);
+
 private:
   vtkExtractArraysOverTime(const vtkExtractArraysOverTime&);  // Not implemented.
   void operator=(const vtkExtractArraysOverTime&);  // Not implemented.

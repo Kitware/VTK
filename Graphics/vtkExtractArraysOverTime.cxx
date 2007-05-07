@@ -29,7 +29,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.6");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.7");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 
 //----------------------------------------------------------------------------
@@ -264,14 +264,78 @@ void vtkExtractArraysOverTime::PostExecute(
       
     }
 
-  // The vtkEAOTValidity array is for internal use only. Remove it
-  // before returning control to the executive.
+  //Use the vtkEAOTValidity array to remove any invalid points.
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkRectilinearGrid *output = vtkRectilinearGrid::GetData(outInfo);
-  if (output->GetPointData()->GetArray("vtkEAOTValidity"))
+  vtkRectilinearGrid *cleanOut = this->RemoveInvalidPoints(output);
+  output->DeepCopy(cleanOut);
+  cleanOut->Delete();
+}
+
+//----------------------------------------------------------------------------
+vtkRectilinearGrid *vtkExtractArraysOverTime::RemoveInvalidPoints(
+  vtkRectilinearGrid *source
+  )
+{
+  vtkRectilinearGrid *dest = vtkRectilinearGrid::New();
+  
+  vtkUnsignedCharArray* validPts = vtkUnsignedCharArray::SafeDownCast(
+    source->GetPointData()->GetArray("vtkEAOTValidity"));
+  if (!validPts)
     {
-    output->GetPointData()->RemoveArray("vtkEAOTValidity");
+    dest->ShallowCopy(source);
+    return dest;
     }
+
+  vtkIdType nvalid = 0;
+  for (vtkIdType i=0; i<this->NumberOfTimeSteps; i++)
+    {
+    if (validPts->GetValue(i) == 1)
+      {
+      nvalid++;
+      }
+    }
+  dest->SetDimensions(nvalid,1,1);
+
+  // Assign dummy y and z coordinates
+  vtkDoubleArray* yCoords = vtkDoubleArray::New();
+  yCoords->SetNumberOfComponents(1);
+  yCoords->SetNumberOfTuples(1);
+  yCoords->SetTuple1(0, 0.0);
+  dest->SetYCoordinates(yCoords);
+  yCoords->Delete();
+
+  vtkDoubleArray* zCoords = vtkDoubleArray::New();
+  zCoords->SetNumberOfComponents(1);
+  zCoords->SetNumberOfTuples(1);
+  zCoords->SetTuple1(0, 0.0);
+  dest->SetZCoordinates(zCoords);
+  zCoords->Delete();
+  
+  vtkDataArray *oxc = source->GetXCoordinates();
+  vtkDataArray *cxc = oxc->NewInstance();
+  dest->SetXCoordinates(cxc);
+  
+  vtkPointData *opd = source->GetPointData();
+  vtkPointData *cpd = dest->GetPointData();
+  cpd->CopyAllOn();
+  cpd->CopyAllocate(opd); 
+  
+  vtkIdType j = 0;
+  for (vtkIdType i=0; i<this->NumberOfTimeSteps; i++)
+    {
+    if (validPts->GetValue(i) == 1)
+      {
+      cxc->InsertNextTuple(i, oxc);
+      cpd->CopyData(opd, i, j++);
+      }
+    }
+  cxc->Delete();
+
+  //This array is for internal use only (by this class and it's parallel 
+  //descendent) so we remove it here.
+  dest->GetPointData()->RemoveArray("vtkEAOTValidity");
+  return dest;
 }
 
 //----------------------------------------------------------------------------
