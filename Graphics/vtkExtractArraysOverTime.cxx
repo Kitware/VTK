@@ -30,7 +30,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkGenericCell.h"
 
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.8");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.9");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 
 //----------------------------------------------------------------------------
@@ -687,8 +687,7 @@ void vtkExtractArraysOverTime::ExecuteLocationAtTimeStep(
 
   if (this->FieldType == vtkSelection::POINT)
     { 
-    double *L = locArray->GetTuple(0);
-    vtkIdType index = input->FindPoint(locArray->GetTuple(0));
+    vtkIdType index = input->FindPoint(L);
 
     /*
     //Check distance from search location to found point    
@@ -753,7 +752,7 @@ void vtkExtractArraysOverTime::ExecuteLocationAtTimeStep(
     double pcoords[3];
     double* weights = new double[input->GetMaxCellSize()];
     
-    vtkIdType ptId, cellId, locArrayIndex;
+    vtkIdType cellId, locArrayIndex;
     cellId = input->FindCell(L, NULL, cell,
                              0, 0.0, subId, pcoords, weights);
     if (cellId >= 0)
