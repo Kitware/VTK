@@ -30,7 +30,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkGenericCell.h"
 
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.9");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.10");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 
 //----------------------------------------------------------------------------
@@ -752,7 +752,7 @@ void vtkExtractArraysOverTime::ExecuteLocationAtTimeStep(
     double pcoords[3];
     double* weights = new double[input->GetMaxCellSize()];
     
-    vtkIdType cellId, locArrayIndex;
+    vtkIdType cellId;
     cellId = input->FindCell(L, NULL, cell,
                              0, 0.0, subId, pcoords, weights);
     if (cellId >= 0)
