@@ -88,8 +88,11 @@ protected:
   int FieldType;
   int ContentType;
 
-  void ExecuteTimeStep(vtkInformationVector** inputV, 
-                       vtkInformation* outInfo);
+  void ExecuteIdAtTimeStep(vtkInformationVector** inputV, 
+                           vtkInformation* outInfo);
+
+  void ExecuteLocationAtTimeStep(vtkInformationVector** inputV, 
+                                 vtkInformation* outInfo);
 
   int Error;
 

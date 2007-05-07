@@ -23,7 +23,7 @@
 #include "vtkSelectionAlgorithm.h"
 
 //BTX
-struct vtkSelectionSourceInternals;
+class vtkSelectionSourceInternals;
 //ETX
 
 class VTK_GRAPHICS_EXPORT vtkSelectionSource : public vtkSelectionAlgorithm
@@ -40,14 +40,21 @@ public:
   void AddID(vtkIdType piece, vtkIdType id);
 
   // Description:
+  // Add a point in world space to probe at.
+  void AddLocation(double x, double y, double z);
+
+  // Description:
   // Removes all IDs.
   void RemoveAllIDs();
+  void RemoveAllValues();
 
+
+  
   // Description:
   // Set the content type for the generated selection.
   // Possible values are as defined by 
   // vtkSelection::SelectionContent.
-  vtkSetMacro(ContentType, int);
+  void SetContentType(int);
   vtkGetMacro(ContentType, int);
 
   // Description:
