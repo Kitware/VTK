@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.84");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.85");
 #endif
 
 #define MAX_LIGHTS 8
@@ -1426,6 +1426,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   // GeForce FX 5900 Ultra/AGP/SSE2 with Linux driver 2.0.2 NVIDIA 87.74
   // GeForce FX 5200/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.3
   // Quadro FX 1000/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.1
+  // Quadro FX 2000/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.1
   int isGeForce5=strstr(reinterpret_cast<const char *>(openglRenderer),
                         "GeForce FX Go5650/AGP/SSE2")!=0
     || strstr(reinterpret_cast<const char *>(openglRenderer),
@@ -1433,7 +1434,9 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
     || strstr(reinterpret_cast<const char *>(openglRenderer),
               "GeForce FX 5200/AGP/SSE2")!=0
     || strstr(reinterpret_cast<const char *>(openglRenderer),
-              "Quadro FX 1000/AGP/SSE2")!=0;
+              "Quadro FX 1000/AGP/SSE2")!=0
+    || strstr(reinterpret_cast<const char *>(openglRenderer),
+              "Quadro FX 2000/AGP/SSE2")!=0;
   int supports_texture_non_power_of_two=
     extensions->ExtensionSupported("GL_VERSION_2_0");
   if(isGeForce5)
