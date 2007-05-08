@@ -99,7 +99,7 @@ typedef FILE* vtkLSDynaFile_t;
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.11");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.11.4.1");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -1469,7 +1469,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.11");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.11.4.1");
 // ============================================== End of XML Summary reader class
 
 
@@ -1694,22 +1694,75 @@ int vtkLSDynaReader::CanReadFile( const char* fname )
   if ( ! fname )
     return 0;
 
-  vtkstd::string oldName;
-  int result;
+  vtkstd::string dbDir = vtksys::SystemTools::GetFilenamePath( fname );
+  vtkstd::string dbName = vtksys::SystemTools::GetFilenameName( fname );
+  vtkstd::string dbExt;
+  vtkstd::string::size_type dot;
+  vtkLSDynaReaderPrivate* p = new vtkLSDynaReaderPrivate;
+  int result = 0;
 
-  if ( ! this->P->Fam.GetDatabaseDirectory().empty() ) {
-    oldName = this->P->Fam.GetDatabaseDirectory();
-  }
+  // GetFilenameExtension doesn't look for the rightmost "." ... do it ourselves.
+  dot = dbName.rfind( '.' );
+  if ( dot != vtkstd::string::npos )
+    {
+    dbExt = dbName.substr( dot );
+    }
+  else
+    {
+    dbExt = "";
+    }
 
-  this->SetFileName( fname );
-  this->UpdateInformation();
-  result = this->IsDatabaseValid();
+  p->Fam.SetDatabaseDirectory( dbDir );
 
-  if ( ! oldName.empty() ) {
-    this->SetDatabaseDirectory( oldName.c_str() );
-  }
+  if ( dbExt == ".k" || dbExt == ".lsdyna" )
+    {
+    p->Fam.SetDatabaseBaseName( "/d3plot" );
+    }
+  else
+    {
+    struct stat st;
+    if ( stat( fname, &st ) == 0 )
+      {
+      dbName.insert( 0, "/" );
+      p->Fam.SetDatabaseBaseName( dbName.c_str() );
+      }
+    else
+      {
+      p->Fam.SetDatabaseBaseName( "/d3plot" );
+      }
+    }
+  // If the time step is set before RequestInformation is called, we must
+  // read the header information immediately in order to determine whether
+  // the timestep that's been passed is valid. If it's not, we ignore it.
+  if ( ! p->FileIsValid )
+    {
+    if ( p->Fam.GetDatabaseDirectory().empty() )
+      {
+      result = -1;
+      }
+    else
+      {
+      if ( p->Fam.GetDatabaseBaseName().empty() )
+        {
+        p->Fam.SetDatabaseBaseName( "/d3plot" ); // not a bad assumption.
+        }
+      p->Fam.ScanDatabaseDirectory();
+      if ( p->Fam.GetNumberOfFiles() < 1 )
+        {
+        result = -1;
+        }
+      else
+        {
+        if ( p->Fam.DetermineStorageModel() != 0 )
+          result = 0;
+        else
+          result = 1;
+        }
+      }
+    }
+  delete p;
 
-  return result;
+  return result > 0; // -1 and 0 are both problems, 1 indicates success.
 }
 
 void vtkLSDynaReader::SetDatabaseDirectory( const char* f )
