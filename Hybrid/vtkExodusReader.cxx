@@ -1394,7 +1394,7 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.47");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.48");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1576,7 +1576,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.47");
+vtkCxxRevisionMacro(vtkExodusReader, "1.48");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -3183,7 +3183,7 @@ void vtkExodusReader::ReadCells(int handle, vtkUnstructuredGrid* output)
     else if (!strncmp(elem_type,"HEX",3) && (num_nodes_per_elem==21)) 
       {cellType=VTK_QUADRATIC_HEXAHEDRON; cellNumPoints=20;} 
     else if (!strncmp(elem_type,"HEX",3) && (num_nodes_per_elem==27)) 
-      {cellType=VTK_QUADRATIC_HEXAHEDRON; cellNumPoints=20;} 
+      {cellType=VTK_TRIQUADRATIC_HEXAHEDRON; cellNumPoints=27;} 
     else if (!strncmp(elem_type,"QUA",3) && (num_nodes_per_elem==8)) 
       {cellType=VTK_QUADRATIC_QUAD; cellNumPoints=8;}   
     else if (!strncmp(elem_type,"QUA",3) && (num_nodes_per_elem==9)) 
@@ -3212,6 +3212,7 @@ void vtkExodusReader::ReadCells(int handle, vtkUnstructuredGrid* output)
     else if (!strncmp(elem_type,"HEX",3)) {cellType=VTK_HEXAHEDRON; cellNumPoints=8;}
     else if (!strncmp(elem_type,"SHE",3) && (num_nodes_per_elem==3)) {cellType=VTK_TRIANGLE;    cellNumPoints=3;}
     else if (!strncmp(elem_type,"SHE",3) && (num_nodes_per_elem==4)) {cellType=VTK_QUAD;        cellNumPoints=4;}
+    else if (!strncmp(elem_type,"SUPER",5)) {cellType=VTK_POLY_VERTEX; cellNumPoints=num_nodes_per_elem;}
     else 
       {
       vtkErrorMacro("Unsupported element type: " << elem_type);
@@ -3243,6 +3244,22 @@ void vtkExodusReader::ReadCells(int handle, vtkUnstructuredGrid* output)
           cellIds->InsertNextId(GetPointMapIndex(pConnect[k+4]-1));
         for (k=16; k<20; ++k)
           cellIds->InsertNextId(GetPointMapIndex(pConnect[k-4]-1));
+        }
+      else if (cellType==VTK_TRIQUADRATIC_HEXAHEDRON)
+        {
+        for (k=0; k<12; ++k)
+          cellIds->InsertNextId(GetPointMapIndex(pConnect[k]-1));  
+        for (k=12; k<16; ++k)
+          cellIds->InsertNextId(GetPointMapIndex(pConnect[k+4]-1));
+        for (k=16; k<20; ++k)
+          cellIds->InsertNextId(GetPointMapIndex(pConnect[k-4]-1));
+        cellIds->InsertNextId(GetPointMapIndex(pConnect[23]-1));
+        cellIds->InsertNextId(GetPointMapIndex(pConnect[24]-1));
+        cellIds->InsertNextId(GetPointMapIndex(pConnect[25]-1));
+        cellIds->InsertNextId(GetPointMapIndex(pConnect[26]-1));
+        cellIds->InsertNextId(GetPointMapIndex(pConnect[21]-1));
+        cellIds->InsertNextId(GetPointMapIndex(pConnect[22]-1));
+        cellIds->InsertNextId(GetPointMapIndex(pConnect[20]-1));
         }
 
       // All the rest of the cells have the same node numbering 
