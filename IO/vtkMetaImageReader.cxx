@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.20");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.21");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -434,7 +434,8 @@ int vtkMetaImageReader::GetFileInformation(const char* fname, int populate)
         vtkDebugMacro(<< "* This image has spacing " 
           << spacing[0] << " " << spacing[1] << " " << spacing[2]);
         }
-      else if ( vtkMetaImageReaderInternal::StringEquals(key, "Position", keylen) )
+      else if ( vtkMetaImageReaderInternal::StringEquals(key, "Position", keylen) || 
+                vtkMetaImageReaderInternal::StringEquals(key, "Offset", keylen)    )
         {
         sscanf(value, "%lf %lf %lf", origin, origin+1, origin+2);
         vtkDebugMacro(<< "* This image has origin " 
