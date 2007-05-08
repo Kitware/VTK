@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.83");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.84");
 #endif
 
 #define MAX_LIGHTS 8
@@ -1424,7 +1424,8 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   // those GeForce 5 don't support it in combination with FBO.
   // GeForce FX Go5650/AGP/SSE2 with Linux driver 2.0.2 NVIDIA 87.76
   // GeForce FX 5900 Ultra/AGP/SSE2 with Linux driver 2.0.2 NVIDIA 87.74
-  // GeForce FX 5200/AGP/SSE2 with Windows driver 2.0.3
+  // GeForce FX 5200/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.3
+  // Quadro FX 1000/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.1
   int isGeForce5=strstr(reinterpret_cast<const char *>(openglRenderer),
                         "GeForce FX Go5650/AGP/SSE2")!=0
     || strstr(reinterpret_cast<const char *>(openglRenderer),
