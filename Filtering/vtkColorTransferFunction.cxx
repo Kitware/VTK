@@ -21,7 +21,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.69");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.70");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 class vtkCTFNode
@@ -513,7 +513,7 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
   if(usingLogScale)
     {
     // Note: This requires range[0] <= range[1].
-    usingLogScale = this->Range[0] > 0.0 || this->Range[1] < 0.0;
+    usingLogScale = this->Range[0] > 0.0;
     }
 
   double logStart = 0.0;
@@ -521,8 +521,8 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
   double logX     = 0.0;
   if(usingLogScale)
     {
-    logStart = log10(xStart < 0 ? -xStart : xStart);
-    logEnd = log10(xEnd < 0 ? -xEnd : xEnd);
+    logStart = log10(xStart);
+    logEnd = log10(xEnd);
     }
     
   // For each table entry
@@ -575,8 +575,8 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
         x2 = this->Internal->Nodes[idx  ]->X;
         if(usingLogScale)
           {
-          x1 = log10(x1 < 0 ? -x1 : x1);
-          x2 = log10(x2 < 0 ? -x2 : x2);
+          x1 = log10(x1);
+          x2 = log10(x2);
           }
         
         rgb1[0] = this->Internal->Nodes[idx-1]->R;
