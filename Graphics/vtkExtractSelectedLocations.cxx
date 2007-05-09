@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.10");
+vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.10.2.1");
 vtkStandardNewMacro(vtkExtractSelectedLocations);
 
 //----------------------------------------------------------------------------
@@ -180,6 +180,10 @@ void vtkExtractSelectedLocationsCopyPoints(vtkDataSet* input, vtkDataSet* output
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
   outPD->CopyAllocate(inPD);
+
+  vtkIdTypeArray* originalPtIds = vtkIdTypeArray::New();
+  originalPtIds->SetName("vtkOriginalPointIds");
+  originalPtIds->SetNumberOfComponents(1);
   
   for (i = 0; i < numPts; i++)
     {
@@ -187,6 +191,7 @@ void vtkExtractSelectedLocationsCopyPoints(vtkDataSet* input, vtkDataSet* output
       {
       pointMap[i] = newPts->InsertNextPoint(input->GetPoint(i));
       outPD->CopyData(inPD, i, pointMap[i]);
+      originalPtIds->InsertNextValue(i);
       }
     else
       {
@@ -197,6 +202,9 @@ void vtkExtractSelectedLocationsCopyPoints(vtkDataSet* input, vtkDataSet* output
   // outputDS must be either vtkPolyData or vtkUnstructuredGrid
   vtkPointSet::SafeDownCast(output)->SetPoints(newPts);
   newPts->Delete();
+
+  outPD->AddArray(originalPtIds);
+  originalPtIds->Delete();
 }
 
 // Copy the cells marked as "in" using the given pointmap

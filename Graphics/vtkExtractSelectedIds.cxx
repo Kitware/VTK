@@ -32,7 +32,7 @@
 #include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.17");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.17.2.1");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -181,11 +181,16 @@ int vtkExtractSelectedIds::RequestData(
 }
 
 // Copy the points marked as "in" and build a pointmap
-void vtkExtractSelectedIdsCopyPoints(vtkDataSet* input, vtkDataSet* output, signed char* inArray, vtkIdType* pointMap)
+void vtkExtractSelectedIdsCopyPoints(vtkDataSet* input, 
+  vtkDataSet* output, signed char* inArray, vtkIdType* pointMap)
 {
   vtkPoints* newPts = vtkPoints::New();
 
   vtkIdType i, numPts = input->GetNumberOfPoints();
+
+  vtkIdTypeArray* originalPtIds = vtkIdTypeArray::New();
+  originalPtIds->SetNumberOfComponents(1);
+  originalPtIds->SetName("vtkOriginalPointIds");
 
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
@@ -197,12 +202,16 @@ void vtkExtractSelectedIdsCopyPoints(vtkDataSet* input, vtkDataSet* output, sign
       {
       pointMap[i] = newPts->InsertNextPoint(input->GetPoint(i));
       outPD->CopyData(inPD, i, pointMap[i]);
+      originalPtIds->InsertNextValue(i);
       }
     else
       {
       pointMap[i] = -1;
       }
     }
+
+  outPD->AddArray(originalPtIds);
+  originalPtIds->Delete();
 
   // outputDS must be either vtkPolyData or vtkUnstructuredGrid
   vtkPointSet::SafeDownCast(output)->SetPoints(newPts);
@@ -211,7 +220,8 @@ void vtkExtractSelectedIdsCopyPoints(vtkDataSet* input, vtkDataSet* output, sign
 
 // Copy the cells marked as "in" using the given pointmap
 template <class T>
-void vtkExtractSelectedIdsCopyCells(vtkDataSet* input, T* output, signed char* inArray, vtkIdType* pointMap)
+void vtkExtractSelectedIdsCopyCells(vtkDataSet* input, T* output, 
+  signed char* inArray, vtkIdType* pointMap)
 {
   vtkIdType numCells = input->GetNumberOfCells();
   output->Allocate(numCells / 4);
@@ -528,15 +538,20 @@ int vtkExtractSelectedIds::ExtractCells(
   if (!passThrough)
     {
     vtkIdType *pointMap = new vtkIdType[numPts]; // maps old point ids into new
-    vtkExtractSelectedIdsCopyPoints(input, output, pointInArray->GetPointer(0), pointMap);
+    vtkExtractSelectedIdsCopyPoints(input, output, 
+      pointInArray->GetPointer(0), pointMap);
     this->UpdateProgress(0.75);    
     if (output->GetDataObjectType() == VTK_POLY_DATA)
       {
-      vtkExtractSelectedIdsCopyCells<vtkPolyData>(input, vtkPolyData::SafeDownCast(output), cellInArray->GetPointer(0), pointMap);
+      vtkExtractSelectedIdsCopyCells<vtkPolyData>(input, 
+        vtkPolyData::SafeDownCast(output), 
+        cellInArray->GetPointer(0), pointMap);
       }
     else
       {
-      vtkExtractSelectedIdsCopyCells<vtkUnstructuredGrid>(input, vtkUnstructuredGrid::SafeDownCast(output), cellInArray->GetPointer(0), pointMap);
+      vtkExtractSelectedIdsCopyCells<vtkUnstructuredGrid>(input, 
+        vtkUnstructuredGrid::SafeDownCast(output), 
+        cellInArray->GetPointer(0), pointMap);
       }
     delete [] pointMap;
     this->UpdateProgress(1.0);
@@ -817,17 +832,22 @@ int vtkExtractSelectedIds::ExtractPoints(
   if (!passThrough)
     {
     vtkIdType *pointMap = new vtkIdType[numPts]; // maps old point ids into new
-    vtkExtractSelectedIdsCopyPoints(input, output, pointInArray->GetPointer(0), pointMap);
+    vtkExtractSelectedIdsCopyPoints(input, output, 
+      pointInArray->GetPointer(0), pointMap);
     this->UpdateProgress(0.75);
     if (containingCells)
       {
       if (output->GetDataObjectType() == VTK_POLY_DATA)
         {
-        vtkExtractSelectedIdsCopyCells<vtkPolyData>(input, vtkPolyData::SafeDownCast(output), cellInArray->GetPointer(0), pointMap);
+        vtkExtractSelectedIdsCopyCells<vtkPolyData>(input, 
+          vtkPolyData::SafeDownCast(output), cellInArray->GetPointer(0), 
+          pointMap);
         }
       else
         {
-        vtkExtractSelectedIdsCopyCells<vtkUnstructuredGrid>(input, vtkUnstructuredGrid::SafeDownCast(output), cellInArray->GetPointer(0), pointMap);
+        vtkExtractSelectedIdsCopyCells<vtkUnstructuredGrid>(input, 
+          vtkUnstructuredGrid::SafeDownCast(output), 
+          cellInArray->GetPointer(0), pointMap);
         }
       delete [] pointMap;
       }

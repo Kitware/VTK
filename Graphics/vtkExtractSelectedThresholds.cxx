@@ -30,7 +30,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkSignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.9");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.9.2.1");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -272,6 +272,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
 
   vtkUnstructuredGrid *outputUG = NULL;
   vtkIdTypeArray *originalCellIds = NULL;
+  vtkIdTypeArray *originalPointIds = NULL;
 
   signed char flag = inverse ? 1 : -1;
 
@@ -321,6 +322,12 @@ int vtkExtractSelectedThresholds::ExtractCells(
     originalCellIds->SetName("vtkOriginalCellIds");
     originalCellIds->SetNumberOfComponents(1);
     outCD->AddArray(originalCellIds);
+
+    originalPointIds = vtkIdTypeArray::New();
+    originalPointIds->SetName("vtkOriginalPointIds");
+    originalPointIds->SetNumberOfComponents(1);
+    outPD->AddArray(originalPointIds);
+    originalPointIds->Delete();
     }
 
   flag = -flag;
@@ -374,6 +381,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
           newId = newPoints->InsertNextPoint(x);
           pointMap->SetId(ptId,newId);
           outPD->CopyData(pd,ptId,newId);
+          originalPointIds->InsertNextValue(ptId);
           }
         newCellPts->InsertId(i,newId);
         }
@@ -458,6 +466,7 @@ int vtkExtractSelectedThresholds::ExtractPoints(
   vtkUnstructuredGrid * outputUG = NULL;
   vtkPoints *newPts = vtkPoints::New();
 
+  vtkIdTypeArray* originalPointIds = 0;
 
   signed char flag = inverse ? 1 : -1;
   
@@ -486,6 +495,12 @@ int vtkExtractSelectedThresholds::ExtractPoints(
 
     outPD->CopyAllocate(inputPD);
     outPD->CopyGlobalIdsOn();
+
+    originalPointIds = vtkIdTypeArray::New();
+    originalPointIds->SetNumberOfComponents(1);
+    originalPointIds->SetName("vtkOriginalPointIds");
+    outPD->AddArray(originalPointIds);
+    originalPointIds->Delete();
     }
 
   flag = -flag;
@@ -506,6 +521,7 @@ int vtkExtractSelectedThresholds::ExtractPoints(
         input->GetPoint(ptId, X);
         newPts->InsertNextPoint(X);
         outPD->CopyData(inputPD, ptId, outPtCnt);
+        originalPointIds->InsertNextValue(ptId);
         outputUG->InsertNextCell(VTK_VERTEX, 1, &outPtCnt);
         outPtCnt++;
         }
