@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.85");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.86");
 #endif
 
 #define MAX_LIGHTS 8
@@ -1419,35 +1419,9 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   const char *substring=strstr(reinterpret_cast<const char *>(openglRenderer),
                                "Mesa");
   int isMesa=substring!=0;
-  
-  // Even if OpenGL 2.0 is supported (therefore non power of two textures),
-  // those GeForce 5 don't support it in combination with FBO.
-  // GeForce FX Go5650/AGP/SSE2 with Linux driver 2.0.2 NVIDIA 87.76
-  // GeForce FX 5900 Ultra/AGP/SSE2 with Linux driver 2.0.2 NVIDIA 87.74
-  // GeForce FX 5200/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.3
-  // Quadro FX 1000/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.1
-  // Quadro FX 2000/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.1
-  int isGeForce5=strstr(reinterpret_cast<const char *>(openglRenderer),
-                        "GeForce FX Go5650/AGP/SSE2")!=0
-    || strstr(reinterpret_cast<const char *>(openglRenderer),
-              "GeForce FX 5900 Ultra/AGP/SSE2")!=0
-    || strstr(reinterpret_cast<const char *>(openglRenderer),
-              "GeForce FX 5200/AGP/SSE2")!=0
-    || strstr(reinterpret_cast<const char *>(openglRenderer),
-              "Quadro FX 1000/AGP/SSE2")!=0
-    || strstr(reinterpret_cast<const char *>(openglRenderer),
-              "Quadro FX 2000/AGP/SSE2")!=0;
   int supports_texture_non_power_of_two=
-    extensions->ExtensionSupported("GL_VERSION_2_0");
-  if(isGeForce5)
-    {
-    supports_texture_non_power_of_two=0;
-    }
-  if(!supports_texture_non_power_of_two)
-    {
-    supports_texture_non_power_of_two=
-      extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
-    }
+    extensions->ExtensionSupported("GL_VERSION_2_0") ||
+    extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
   int supports_texture_rectangle=
     extensions->ExtensionSupported("GL_ARB_texture_rectangle");
   
@@ -1467,7 +1441,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
       }
     if(!supports_texture_rectangle)
       {
-        vtkDebugMacro(<<" extension GL_ARB_texture_rectangle is not supported");
+      vtkDebugMacro(<<" extension GL_ARB_texture_rectangle is not supported");
       }
     if(isMesa)
       {
@@ -1477,7 +1451,6 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
     }
   else
     {
-    result=1;
     extensions->LoadExtension("GL_EXT_framebuffer_object");
     
     // 3. regular framebuffer code
@@ -1531,43 +1504,91 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
                                      target, textureObjects[i], 0);
       ++i;
       }
-    // Set up the depth render buffer
-    vtkgl::BindRenderbufferEXT(vtkgl::RENDERBUFFER_EXT,
-                               depthRenderBufferObject);
-    vtkgl::RenderbufferStorageEXT(vtkgl::RENDERBUFFER_EXT,
-                                  vtkgl::DEPTH_COMPONENT24,width,height);
-    vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT,
-                                      vtkgl::DEPTH_ATTACHMENT_EXT,
-                                      vtkgl::RENDERBUFFER_EXT,
-                                      depthRenderBufferObject);
-   
-     this->BackLeftBuffer=
-       static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
-     this->FrontLeftBuffer=
-       static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
-     
-     if(this->NumberOfFrameBuffers==2)
-       {
-       this->BackRightBuffer=
-         static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT1_EXT);
-       }
-     
-    // Save GL objects by static casting to standard C types. GL* types
-    // are not allowed in VTK header files.
-    this->FrameBufferObject=static_cast<unsigned int>(frameBufferObject);
-    this->DepthRenderBufferObject=
-      static_cast<unsigned int>(depthRenderBufferObject);
-    i=0;
-    while(i<this->NumberOfFrameBuffers)
+    GLenum status;
+    status=vtkgl::CheckFramebufferStatusEXT(vtkgl::FRAMEBUFFER_EXT);
+    if(status==vtkgl::FRAMEBUFFER_UNSUPPORTED_EXT && target==GL_TEXTURE_2D &&
+       supports_texture_rectangle)
       {
-      this->TextureObjects[i]=static_cast<unsigned int>(textureObjects[i]);
-      ++i;
+      // The following cards fall in this case:
+      // GeForce FX Go5650/AGP/SSE2 with Linux driver 2.0.2 NVIDIA 87.76
+      // GeForce FX 5900 Ultra/AGP/SSE2 with Linux driver 2.0.2 NVIDIA 87.74
+      // GeForce FX 5200/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.3
+      // Quadro FX 1000/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.1
+      // Quadro FX 2000/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.1
+      target=vtkgl::TEXTURE_RECTANGLE_ARB;
+      // try again.
+      glDeleteTextures(this->NumberOfFrameBuffers,textureObjects);
+      glGenTextures(this->NumberOfFrameBuffers,textureObjects);
+      i=0;
+      while(i<this->NumberOfFrameBuffers)
+        {
+        glBindTexture(target,textureObjects[i]);
+        glTexParameteri(target, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
+        glTexParameteri(target, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(target,0,GL_RGBA8,width,height,
+                     0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
+        vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
+                                       vtkgl::COLOR_ATTACHMENT0_EXT+i,
+                                       target, textureObjects[i], 0);
+        ++i;
+        }
+      // Ask for the status again.
+      status=vtkgl::CheckFramebufferStatusEXT(vtkgl::FRAMEBUFFER_EXT);
       }
+    if(status!=vtkgl::FRAMEBUFFER_COMPLETE_EXT)
+      {
+      vtkDebugMacro(<<"Hardware does not support GPU Offscreen rendering.");
+      glBindTexture(target,0);
+      vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,0);
+      vtkgl::DeleteFramebuffersEXT(1,&frameBufferObject);
+      vtkgl::DeleteRenderbuffersEXT(1,&depthRenderBufferObject);
+      glDeleteTextures(this->NumberOfFrameBuffers,textureObjects);
+      this->DestroyWindow();
+      }
+    else
+      {
+      result=1;
+      // Set up the depth render buffer
+      vtkgl::BindRenderbufferEXT(vtkgl::RENDERBUFFER_EXT,
+                                 depthRenderBufferObject);
+      vtkgl::RenderbufferStorageEXT(vtkgl::RENDERBUFFER_EXT,
+                                    vtkgl::DEPTH_COMPONENT24,width,height);
+      vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT,
+                                        vtkgl::DEPTH_ATTACHMENT_EXT,
+                                        vtkgl::RENDERBUFFER_EXT,
+                                        depthRenderBufferObject);
+      this->BackLeftBuffer=
+        static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
+      this->FrontLeftBuffer=
+        static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
     
-    this->OffScreenUseFrameBuffer=1;
+      if(this->NumberOfFrameBuffers==2)
+        {
+        this->BackRightBuffer=
+          static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT1_EXT);
+        }
+    
+      // Save GL objects by static casting to standard C types. GL* types
+      // are not allowed in VTK header files.
+      this->FrameBufferObject=static_cast<unsigned int>(frameBufferObject);
+      this->DepthRenderBufferObject=
+        static_cast<unsigned int>(depthRenderBufferObject);
+      i=0;
+      while(i<this->NumberOfFrameBuffers)
+        {
+        this->TextureObjects[i]=static_cast<unsigned int>(textureObjects[i]);
+        ++i;
+        }
+    
+      this->OffScreenUseFrameBuffer=1;
+      }
     }
   extensions->Delete();
 
+  cout<<"FBO OS="<<this->OffScreenUseFrameBuffer<<endl;
+  
   // A=>B = !A || B
   assert("post: valid_result" && (result==0 || result==1)
          && (!result || OffScreenUseFrameBuffer));
