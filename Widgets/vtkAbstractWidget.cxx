@@ -209,13 +209,36 @@ void vtkAbstractWidget::ProcessEventsHandler(vtkObject* vtkNotUsed(object),
     {
     return;
     }
-  
-  unsigned long widgetEvent = 
-    self->EventTranslator->GetTranslation(vtkEvent,
-                                          vtkEvent::GetModifier(self->Interactor),
+
+  int modifier = vtkEvent::GetModifier(self->Interactor);
+  unsigned long widgetEvent;
+
+  // If neither the ctrl nor the shift keys are pressed, give 
+  // NoModifier a preference over AnyModifer.
+  if (modifier == vtkEvent::AnyModifier)
+    {
+    widgetEvent = self->EventTranslator->GetTranslation(vtkEvent,
+                                          vtkEvent::NoModifier,
                                           self->Interactor->GetKeyCode(),
                                           self->Interactor->GetRepeatCount(),
                                           self->Interactor->GetKeySym());
+    if ( widgetEvent == vtkWidgetEvent::NoEvent)
+      {
+      widgetEvent = self->EventTranslator->GetTranslation(vtkEvent,
+                                          vtkEvent::AnyModifier,
+                                          self->Interactor->GetKeyCode(),
+                                          self->Interactor->GetRepeatCount(),
+                                          self->Interactor->GetKeySym());
+      }
+    }
+  else
+    {
+    widgetEvent = self->EventTranslator->GetTranslation(vtkEvent,
+                                  vtkEvent::GetModifier(self->Interactor),
+                                  self->Interactor->GetKeyCode(),
+                                  self->Interactor->GetRepeatCount(),
+                                  self->Interactor->GetKeySym());
+    }
 
   // Save the call data for widgets if needed
   self->CallData = calldata;
