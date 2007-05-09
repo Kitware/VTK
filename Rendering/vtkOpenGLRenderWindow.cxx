@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.86");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.87");
 #endif
 
 #define MAX_LIGHTS 8
@@ -1586,8 +1586,6 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
       }
     }
   extensions->Delete();
-
-  cout<<"FBO OS="<<this->OffScreenUseFrameBuffer<<endl;
   
   // A=>B = !A || B
   assert("post: valid_result" && (result==0 || result==1)
