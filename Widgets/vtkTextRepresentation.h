@@ -29,6 +29,8 @@
 
 class vtkRenderer;
 class vtkTextActor;
+class vtkTextProperty;
+class vtkTextRepresentationObserver;
 
 class VTK_WIDGETS_EXPORT vtkTextRepresentation : public vtkBorderRepresentation
 {
@@ -68,14 +70,29 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
+
+  // Description:
+  // Internal. Excecute events observed by internal observer
+  void ExecuteTextPropertyModifiedEvent(vtkObject* obj, unsigned long enumEvent, void* p);
+  void ExecuteTextActorModifiedEvent(vtkObject* obj, unsigned long enumEvent, void* p);
   
 protected:
   vtkTextRepresentation();
   ~vtkTextRepresentation();
 
+  // Initialize text actor
+  virtual void InitializeTextActor();
+
+  // Check and adjust boundaries according to the size of the text
+  virtual void CheckTextBoundary();
+
   // the text to manage
   vtkTextActor  *TextActor;
-  
+  vtkTextProperty *TextProperty;
+
+  // observer to observe internal TextActor and TextProperty
+  vtkTextRepresentationObserver *Observer;
+
 private:
   vtkTextRepresentation(const vtkTextRepresentation&);  //Not implemented
   void operator=(const vtkTextRepresentation&);  //Not implemented
