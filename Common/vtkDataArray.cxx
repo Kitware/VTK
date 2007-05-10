@@ -33,7 +33,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkDataArray, "1.75");
+vtkCxxRevisionMacro(vtkDataArray, "1.76");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -299,7 +299,6 @@ void vtkDataArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
     return;
     }
   
-  cout << (this->GetName()?this->GetName():"(null)") << endl;
   vtkDataArray* fromData = vtkDataArray::SafeDownCast(source);
   if (fromData)
     {
