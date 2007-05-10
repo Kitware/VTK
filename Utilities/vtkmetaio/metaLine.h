@@ -44,39 +44,9 @@ class LinePnt
 {
 public:
 
-  LinePnt(int dim)
-  { 
-    m_Dim = dim;
+  LinePnt(int dim);
 
-    m_X = new float[m_Dim];
-    m_V = new float*[m_Dim-1];
-
-    for(unsigned int i=0;i<m_Dim-1;i++)
-    {
-      m_V[i] = new float[m_Dim];
-      for(unsigned int j=0;j<m_Dim;j++)
-      {
-        m_V[i][j] = 0;
-        m_X[j] = 0;
-      } 
-    }
-    
-    //Color is red by default
-    m_Color[0]=1.0;
-    m_Color[1]=0.0;
-    m_Color[2]=0.0;
-    m_Color[3]=1.0;  
-  }
-
-  ~LinePnt()
-  {
-    delete [] m_X;
-    for(unsigned int i=0;i<m_Dim-1;i++)
-      {
-        delete [] m_V[i];
-      }
-    delete [] m_V;
-  };
+  ~LinePnt();
   
   unsigned int m_Dim;
   float*   m_X;

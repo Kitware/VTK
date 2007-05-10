@@ -43,44 +43,8 @@ class METAIO_EXPORT VesselTubePnt
 {
 public:
 
-  VesselTubePnt(int dim)
-  { 
-    m_Dim = dim;
-    m_X = new float[m_Dim];
-    m_T = new float[m_Dim];
-    m_V1= new float[m_Dim];
-    m_V2= new float[m_Dim];
-    for(unsigned int i=0;i<m_Dim;i++)
-    {
-      m_X[i] = 0;
-      m_V1[i]= 0;
-      m_V2[i]= 0;
-      m_T[i]= 0;
-    }
-    m_Alpha1=0;
-    m_Alpha2=0;
-    m_Alpha3=0;
-    m_R=0;
-    m_Medialness=0;
-    m_Ridgeness=0;
-    m_Branchness=0;
-    m_Mark=false;
-    
-    //Color is red by default
-    m_Color[0]=1.0;
-    m_Color[1]=0.0;
-    m_Color[2]=0.0;
-    m_Color[3]=1.0;
-    m_ID = -1;
-  }
-
-  ~VesselTubePnt()
-  {
-    delete []m_X;
-    delete []m_V1;
-    delete []m_V2;
-    delete []m_T;
-  };
+  VesselTubePnt(int dim);
+  ~VesselTubePnt();
   
   unsigned int m_Dim;
   float* m_V1;

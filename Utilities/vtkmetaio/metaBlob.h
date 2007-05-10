@@ -47,25 +47,8 @@ class METAIO_EXPORT BlobPnt
 {
 public:
 
-  BlobPnt(int dim)
-  { 
-    m_Dim = dim;
-    m_X = new float[m_Dim];
-    for(unsigned int i=0;i<m_Dim;i++)
-    {
-      m_X[i] = 0;
-    }
-    
-    //Color is red by default
-    m_Color[0]=1.0;
-    m_Color[1]=0.0;
-    m_Color[2]=0.0;
-    m_Color[3]=1.0;
-  }
-  ~BlobPnt()
-  { 
-    delete []m_X;
-  };
+  BlobPnt(int dim);
+  ~BlobPnt();
   
   unsigned int m_Dim;
   float* m_X;

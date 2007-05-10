@@ -24,6 +24,43 @@
 namespace METAIO_NAMESPACE {
 #endif
 
+
+MeshPoint::
+MeshPoint(int dim)
+{ 
+  m_Dim = dim;
+  m_X = new float[m_Dim];
+  for(unsigned int i=0;i<m_Dim;i++)
+    {
+    m_X[i] = 0;
+    }
+}
+
+MeshPoint::
+~MeshPoint()
+{ 
+  delete []m_X;
+}
+
+MeshCell::
+MeshCell(int dim)
+{ 
+  m_Dim = dim;
+  m_Id = -1;
+  m_PointsId = new int[m_Dim];
+  for(unsigned int i=0;i<m_Dim;i++)
+    {
+    m_PointsId[i] = -1;
+    }
+}
+
+MeshCell::
+~MeshCell()
+{ 
+  delete []m_PointsId;
+}
+  
+
 //
 // MetaMesh Constructors
 //

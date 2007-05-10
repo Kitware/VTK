@@ -24,6 +24,31 @@
 namespace METAIO_NAMESPACE {
 #endif
 
+SurfacePnt::
+SurfacePnt(int dim)
+{ 
+  m_Dim = dim;
+  m_X = new float[m_Dim];
+  m_V = new float[m_Dim];
+  for(unsigned int i=0;i<m_Dim;i++)
+    {
+    m_X[i] = 0;
+    m_V[i] = 0;
+    } 
+  //Color is red by default
+  m_Color[0]=1.0;
+  m_Color[1]=0.0;
+  m_Color[2]=0.0;
+  m_Color[3]=1.0;
+}
+
+SurfacePnt::
+~SurfacePnt()
+{
+  delete []m_X;
+  delete []m_V;
+}
+  
 
 //
 // MetaSurface Constructors

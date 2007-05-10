@@ -41,31 +41,8 @@ class METAIO_EXPORT ContourControlPnt
 {
 public:
 
-  ContourControlPnt(int dim)
-    {
-    m_Id = 0;
-    m_Dim = dim;
-    m_X = new float[m_Dim];
-    m_XPicked = new float[m_Dim];
-    m_V = new float[m_Dim];
-    for(unsigned int i=0;i<m_Dim;i++)
-      {
-      m_X[i] = 0;
-      m_XPicked[i] = 0;
-      m_V[i] = 0;
-      } 
-    //Color is red by default
-    m_Color[0]=1.0;
-    m_Color[1]=0.0;
-    m_Color[2]=0.0;
-    m_Color[3]=1.0;
-    }
-  ~ContourControlPnt()
-    {
-    delete [] m_X;
-    delete [] m_XPicked;
-    delete [] m_V;
-    };
+  ContourControlPnt(int dim);
+  ~ContourControlPnt();
   
   unsigned int m_Dim;
   unsigned int m_Id;

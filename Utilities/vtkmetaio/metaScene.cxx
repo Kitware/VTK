@@ -380,9 +380,9 @@ Write(const char *_headName)
   m_WriteStream->open(m_FileName, METAIO_STREAM::ios::binary | METAIO_STREAM::ios::out);
   if(!m_WriteStream->is_open())
     {
-    return false;
     delete m_WriteStream;
     m_WriteStream = 0;
+    return false;
     }
 
   M_Write();

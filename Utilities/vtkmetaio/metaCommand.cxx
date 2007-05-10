@@ -38,7 +38,7 @@ MetaCommand::MetaCommand()
 }
 
 
-/** Extract the date from the $Date: 2007-05-10 20:03:09 $ cvs command */
+/** Extract the date from the $Date: 2007-05-10 21:37:39 $ cvs command */
 METAIO_STL::string MetaCommand::ExtractDateFromCVS(METAIO_STL::string date)
 {
   METAIO_STL::string newdate;
@@ -956,7 +956,8 @@ bool MetaCommand::ExportGAD(bool dynamic)
 
   if(m_Name=="")
     {
-    METAIO_STREAM::cout << "Set the name of the application using SetName()" << METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "Set the name of the application using SetName()" 
+                        << METAIO_STREAM::endl;
     return false;
     }
 
@@ -964,20 +965,26 @@ bool MetaCommand::ExportGAD(bool dynamic)
   filename += ".gad.xml";
 
   METAIO_STREAM::ofstream file;
-  file.open(filename.c_str(), METAIO_STREAM::ios::binary | METAIO_STREAM::ios::out);
+  file.open(filename.c_str(),
+            METAIO_STREAM::ios::binary | METAIO_STREAM::ios::out);
   if(!file.is_open())
     {
-    METAIO_STREAM::cout << "Cannot open file for writing: " << filename.c_str() <<  METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "Cannot open file for writing: " 
+                        << filename.c_str() <<  METAIO_STREAM::endl;
     return false;
     }
   
   file << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" << METAIO_STREAM::endl;
   file << "<gridApplication" << METAIO_STREAM::endl;
-  file << "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" << METAIO_STREAM::endl;
-  file << "xsi:noNamespaceSchemaLocation=\"grid-application-description.xsd\"" << METAIO_STREAM::endl;
+  file << "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" 
+       << METAIO_STREAM::endl;
+  file << "xsi:noNamespaceSchemaLocation=\"grid-application-description.xsd\"" 
+       << METAIO_STREAM::endl;
   file << "name=\"" << m_Name.c_str() << "\"" << METAIO_STREAM::endl;
-  file << "description=\"" << m_Description.c_str() << "\">" << METAIO_STREAM::endl;
-  file << "<applicationComponent name=\"Client\" remoteExecution=\"true\">" << METAIO_STREAM::endl;
+  file << "description=\"" << m_Description.c_str() << "\">" 
+       << METAIO_STREAM::endl;
+  file << "<applicationComponent name=\"Client\" remoteExecution=\"true\">" 
+       << METAIO_STREAM::endl;
   file << "<componentActionList>" << METAIO_STREAM::endl;
   file << METAIO_STREAM::endl;
 
@@ -1196,12 +1203,14 @@ bool MetaCommand::Parse(int argc, char* argv[])
   long int slash = m_ExecutableName.find_last_of("/");
   if(slash>0)
     {
-    m_ExecutableName = m_ExecutableName.substr(slash+1,m_ExecutableName.size()-slash-1);
+    m_ExecutableName = m_ExecutableName.substr(slash+1,
+                                               m_ExecutableName.size()-slash-1);
     }
   slash = m_ExecutableName.find_last_of("\\");
   if(slash>0)
     {
-    m_ExecutableName = m_ExecutableName.substr(slash+1,m_ExecutableName.size()-slash-1);
+    m_ExecutableName = m_ExecutableName.substr(slash+1,
+                                               m_ExecutableName.size()-slash-1);
     }
 
   // List the options if using -V
@@ -1227,7 +1236,8 @@ bool MetaCommand::Parse(int argc, char* argv[])
     }
   else if(argc == 2 && !strcmp(argv[1],"-version"))
     {
-    METAIO_STREAM::cout << "Version: " << m_Version.c_str() << METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "Version: " << m_Version.c_str() 
+                        << METAIO_STREAM::endl;
     return false;
     }
   else if(argc == 2 && !strcmp(argv[1],"-date"))
@@ -1414,14 +1424,14 @@ bool MetaCommand::Parse(int argc, char* argv[])
   if(valuesRemaining>0)
     {
     METAIO_STREAM::cout << "Not enough parameters for " 
-              << m_OptionVector[currentOption].name << METAIO_STREAM::endl;
+         << m_OptionVector[currentOption].name << METAIO_STREAM::endl;
     METAIO_STREAM::cout << "Command: " << argv[0] << METAIO_STREAM::endl;
     METAIO_STREAM::cout << "Options: " << METAIO_STREAM::endl
-              << "  -v or -h for help listed in short format" << METAIO_STREAM::endl
-              << "  -V or -H for help listed in long format" << METAIO_STREAM::endl
-              << "  -vxml for help listed in xml format" << METAIO_STREAM::endl
-              << "  -export-gad to export Grid Application"
-              << "Description file format" << METAIO_STREAM::endl;
+         << "  -v or -h for help listed in short format" << METAIO_STREAM::endl
+         << "  -V or -H for help listed in long format" << METAIO_STREAM::endl
+         << "  -vxml for help listed in xml format" << METAIO_STREAM::endl
+         << "  -export-gad to export Grid Application"
+         << "Description file format" << METAIO_STREAM::endl;
 
     return false;
     }
@@ -1476,12 +1486,12 @@ bool MetaCommand::Parse(int argc, char* argv[])
   if(requiredAndNotDefined)
     {
     METAIO_STREAM::cout << "Command: " << argv[0] << METAIO_STREAM::endl
-              << "Options: " << METAIO_STREAM::endl
-              << "  -v or -h for help listed in short format" << METAIO_STREAM::endl
-              << "  -V or -H for help listed in long format" << METAIO_STREAM::endl
-              << "  -vxml for help listed in xml format" << METAIO_STREAM::endl
-              << "  -export-gad to export Grid Application"
-              << "Description file format" << METAIO_STREAM::endl;
+         << "Options: " << METAIO_STREAM::endl
+         << "  -v or -h for help listed in short format" << METAIO_STREAM::endl
+         << "  -V or -H for help listed in long format" << METAIO_STREAM::endl
+         << "  -vxml for help listed in xml format" << METAIO_STREAM::endl
+         << "  -export-gad to export Grid Application"
+         << "Description file format" << METAIO_STREAM::endl;
     return false;
     }
 
@@ -1503,10 +1513,12 @@ bool MetaCommand::Parse(int argc, char* argv[])
         // Check the range min
         if(
           (((*itFields).rangeMin != "")
-          && (atof((*itFields).rangeMin.c_str())>atof((*itFields).value.c_str())))
+          && (atof((*itFields).rangeMin.c_str())
+              >atof((*itFields).value.c_str())))
           ||
           (((*itFields).rangeMax != "")
-          && (atof((*itFields).rangeMax.c_str())<atof((*itFields).value.c_str())))
+          && (atof((*itFields).rangeMax.c_str())
+              <atof((*itFields).value.c_str())))
           )
           {
           METAIO_STREAM::cout << (*itParsed).name.c_str() 
