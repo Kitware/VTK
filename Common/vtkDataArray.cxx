@@ -33,7 +33,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkDataArray, "1.74");
+vtkCxxRevisionMacro(vtkDataArray, "1.75");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -244,6 +244,31 @@ void vtkDataArray::GetData(vtkIdType tupleMin, vtkIdType tupleMax, int compMin,
 }
 
 //--------------------------------------------------------------------------
+// The extra argument is to trick older compilers to use the non-templated
+// version first when possible.
+template <class T>
+inline void vtkDataArrayRoundIfNecessary(double val, T& retVal, long)
+{
+  retVal = static_cast<T>((val>=0.0)?(val + 0.5):(val - 0.5));
+}
+
+//--------------------------------------------------------------------------
+// The extra argument is to trick older compilers to use the non-templated
+// version first when possible.
+inline void vtkDataArrayRoundIfNecessary(double val, double& retVal, int)
+{
+  retVal = val;
+}
+
+//--------------------------------------------------------------------------
+// The extra argument is to trick older compilers to use the non-templated
+// version first when possible.
+inline void vtkDataArrayRoundIfNecessary(double val, float& retVal, int)
+{
+  retVal = static_cast<float>(val);
+}
+
+//--------------------------------------------------------------------------
 template <class T>
 void vtkDataArrayInterpolateTuple(T* from, T* to, int numComp,
   vtkIdType* ids, vtkIdType numIds, double* weights)
@@ -255,7 +280,8 @@ void vtkDataArrayInterpolateTuple(T* from, T* to, int numComp,
       {
       c += weights[j]*from[ids[j]*numComp+i];
       }
-    *to++ = static_cast<T>(c);
+    // Round integer types. Don't round floating point types.
+    vtkDataArrayRoundIfNecessary(c, *to++, 1);
     }
 }
 
@@ -273,6 +299,7 @@ void vtkDataArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
     return;
     }
   
+  cout << (this->GetName()?this->GetName():"(null)") << endl;
   vtkDataArray* fromData = vtkDataArray::SafeDownCast(source);
   if (fromData)
     {
