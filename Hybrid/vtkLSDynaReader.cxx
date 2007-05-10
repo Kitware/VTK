@@ -1,11 +1,21 @@
-/*
- * Copyright 2003,2006 Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
- * license for use of this work by or on behalf of the
- * U.S. Government. Redistribution and use in source and binary forms, with
- * or without modification, are permitted provided that this Notice and any
- * statement of authorship are reproduced on all copies.
- */
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkLSDynaReader.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 // NOTE TO DEVELOPERS: ========================================================
 //
@@ -14,13 +24,14 @@
 // - vtkLSDynaFamily:
 //    A class to abstract away I/O from families of output files.
 //    This performs the actual reads and writes plus any required byte swapping.
-//    Also contains a subclass, vtkLSDynaFamilyAdaptLevel, used to store file+offset
+//    Also contains a subclass, vtkLSDynaFamilyAdaptLevel, used to store 
+//    file+offset
 //    information for each mesh adaptation's state info.
 // - vtkLSDynaReaderPrivate:
-//    A class to hold metadata about a particular file (such as time steps, the start
-//    of state information for each time step, the number of adaptive remeshes, and the
-//    large collection of constants that determine the available attributes). It contains
-//    an vtkLSDynaFamily instance.
+//    A class to hold metadata about a particular file (such as time steps, 
+//    the start of state information for each time step, the number of 
+//    adaptive remeshes, and the large collection of constants that determine 
+//    the available attributes). It contains an vtkLSDynaFamily instance.
 // - vtkLSDynaReaderXMLParser:
 //    A class to parse XML summary files containing part names and their IDs.
 //    This class is used by vtkLSDynaReader::ReadInputDeckXML().
@@ -99,7 +110,7 @@ typedef FILE* vtkLSDynaFile_t;
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.12");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.12.14.1");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -319,7 +330,6 @@ struct vtkLSDynaFamilySectionMark
   vtkIdType Offset;
 };
 
-
 //******************************************************************
 //******************************************************************
 //******************************************************************
@@ -434,25 +444,30 @@ public:
 protected:
   /// The directory containing d3plot files
   vtkstd::string DatabaseDirectory;
-  /// The name (title string) of the database. This is the first 10 words (40 or 80 bytes) of the first file.
+  /// The name (title string) of the database. This is the first 10 words
+  /// (40 or 80 bytes) of the first file.
   vtkstd::string DatabaseBaseName;
   /// The list of files that make up the database.
   vtkstd::vector<vtkstd::string> Files;
-  /// The size of each file in the database. Note that they can be padded, so this is >= the amount of data in each file.
+  /// The size of each file in the database. Note that they can be padded,
+  /// so this is >= the amount of data in each file.
   vtkstd::vector<vtkLSDynaOff_t> FileSizes;
   /// The adaptation level associated with each file.
   vtkstd::vector<int> FileAdaptLevels;
-  /// Which files mark the start of a new mesh adaptation. There is at least one entry and the first entry is always 0.
+  /// Which files mark the start of a new mesh adaptation. There is at
+  /// least one entry and the first entry is always 0.
   vtkstd::vector<int> Adaptations;
   /// The currently open file descriptor
   vtkLSDynaFile_t FD;
   /// The index of currently open file descriptor into list of files
   vtkIdType FNum;
-  /// The current adaptation level. This is checked whenever a file is advanced so we can skip its control+geometry headers.
+  /// The current adaptation level. This is checked whenever a file is
+  /// advanced so we can skip its control+geometry headers.
   int FAdapt;
   /// The offset of Chunk in currently open file
   vtkIdType FWord;
-  /// A comprehensive list of all time values across all files (and mesh adaptations)
+  /// A comprehensive list of all time values across all files (and mesh
+  /// adaptations)
   //vtkstd::vector<double> TimeValues;
   /// The current timestep
   vtkIdType TimeStep;
@@ -462,17 +477,21 @@ protected:
   int WordSize;
   /// How many words is a timestep on disk?
   vtkIdType StateSize;
-  /// A vector of arrays of offsets to various header information sections (that do not vary with timestep), one for each mesh adaptation.
+  /// A vector of arrays of offsets to various header information sections
+  /// (that do not vary with timestep), one for each mesh adaptation.
   vtkstd::vector<vtkLSDynaFamilyAdaptLevel> AdaptationsMarkers;
-  /// An array of bookmarks pointing to the start of state information for each timestep.
+  /// An array of bookmarks pointing to the start of state information for
+  /// each timestep.
   vtkstd::vector<vtkLSDynaFamilySectionMark> TimeStepMarks;
   /// The adaptation level associated with each time step.
   vtkstd::vector<int> TimeAdaptLevels;
   /// A buffer containing file contents of file FNum starting with word FWord.
   unsigned char* Chunk;
-  /// A pointer to the next word in Chunk that will be returned when the reader requests a word.
+  /// A pointer to the next word in Chunk that will be returned when the
+  /// reader requests a word.
   vtkIdType ChunkWord;
-  // How much of the the allocated space is filled with valid data (assert ChunkValid <= ChunkAlloc).
+  // How much of the the allocated space is filled with valid data (assert
+  // ChunkValid <= ChunkAlloc).
   vtkIdType ChunkValid;
   /// The allocated size (in words) of Chunk.
   vtkIdType ChunkAlloc;
@@ -555,8 +574,9 @@ vtkstd::string vtkLSDynaFamily::GetDatabaseBaseName()
 
 int vtkLSDynaFamily::ScanDatabaseDirectory()
   {
-  // FIXME: None of this need be cleared if we are trying to track a simulation in progress.
-  // But it won't hurt to redo the scan from the beginning... it will just take longer.
+  // FIXME: None of this need be cleared if we are trying to track a
+  // simulation in progress.  But it won't hurt to redo the scan from the
+  // beginning... it will just take longer.
   this->Files.clear();
   this->FileSizes.clear();
   this->FileAdaptLevels.clear();
@@ -580,7 +600,7 @@ int vtkLSDynaFamily::ScanDatabaseDirectory()
       {
       if ( adapted )
         {
-        this->Adaptations.push_back( this->Files.size() );
+        this->Adaptations.push_back( (int)this->Files.size() );
         adapted = false;
         }
       this->Files.push_back( tmpFile );
@@ -1078,16 +1098,9 @@ void vtkLSDynaFamily::DumpMarks( ostream& os )
     }
 }
 
-
-
-
-
-
 //******************************************************************
 //******************************************************************
 //******************************************************************
-
-
 
 // ================================================= Private state of the reader
 class vtkLSDynaReaderPrivate
@@ -1285,8 +1298,6 @@ void vtkLSDynaReaderPrivate::DumpMarks( ostream& os )
 
 // ============================================== End Private state of the reader
 
-
-
 // ============================================ Start of XML Summary reader class
 class vtkXMLDynaSummaryParser : public vtkXMLParser
 {
@@ -1469,7 +1480,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.12");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.12.14.1");
 // ============================================== End of XML Summary reader class
 
 
@@ -2684,7 +2695,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   iddtmp = p->Dict["NCFDV2"];
   for ( itmp=1; itmp<11; ++itmp )
     {
-    if ( iddtmp & (1<<itmp) )
+    if ( iddtmp & (vtkIdType)(1<<itmp) )
       {
       sprintf( sname, LS_ARRAYNAME_SPECIES_FMT, itmp );
       p->AddPointArray( sname, 1, 1 );
@@ -3349,7 +3360,12 @@ int vtkLSDynaReader::RequestInformation( vtkInformation* vtkNotUsed(request),
     }
 
   // Every output object has all the time steps.
-  oinfo->GetInformationObject(0)->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &p->TimeValues[0], p->TimeValues.size() );
+  vtkInformation* outInfo = oinfo->GetInformationObject(0);
+  outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &p->TimeValues[0], (int)p->TimeValues.size() );
+  double timeRange[2];
+  timeRange[0] = p->TimeValues[0];
+  timeRange[1] = p->TimeValues[p->TimeValues.size() - 1];
+  outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
 
   return 1;
 }
@@ -4304,9 +4320,10 @@ int vtkLSDynaReader::ReadSPHState( vtkIdType vtkNotUsed(step) )
   int vppt = 0; // values per point
   int ts;
 
-  // The data is unfortunately interleaved so that all arrays for a single element
-  // are lumped together. This makes reading in a selected subset of arrays difficult.
-  // These macros greatly reduce the amount of code to read.
+  // The data is unfortunately interleaved so that all arrays for a single
+  // element are lumped together. This makes reading in a selected subset
+  // of arrays difficult.  These macros greatly reduce the amount of code
+  // to read.
 #define VTK_LS_SPHARRAY(cond,mesh,celltype,arrayname,components)\
   if ( cond ) \
     { \
@@ -4489,8 +4506,9 @@ int vtkLSDynaReader::ReadInputDeckXML( ifstream& deck )
   // We must be able to parse the file and end up with 1 part per material ID
   if ( ! parser->Parse() || this->P->GetTotalMaterialCount() != (int)this->P->PartNames.size() )
     {
-    // We had a problem identifying a part, give up and start over, pretending
-    // that InputDeck was NULL so as to get the automatically generated part names.
+    // We had a problem identifying a part, give up and start over,
+    // pretending that InputDeck was NULL so as to get the automatically
+    // generated part names.
     char* inputDeckTmp = this->InputDeck;
     this->InputDeck = 0;
     this->ReadInputDeck();
@@ -4718,26 +4736,6 @@ int vtkLSDynaReader::WriteInputDeckSummary( const char* fname )
 void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
 {
   vtkLSDynaReaderPrivate* p = this->P;
-
-  if ( p->NumberOfCells[celltype] == 0 )
-    {
-    // no work to do
-    return;
-    }
-
-  // We may not have any work to do if we're only removing deleted cells:
-  if ( ! this->SplitByMaterialId )
-    {
-    if ( celltype == vtkLSDynaReader::RIGID_BODY || celltype == vtkLSDynaReader::ROAD_SURFACE )
-      {
-      // no deletion data for these cell types
-      return;
-      }
-    }
-
-  const char* attribName = this->RemoveDeletedCells ? LS_ARRAYNAME_DEATH : LS_ARRAYNAME_MATERIAL;
-  int sequentialIds = this->RemoveDeletedCells ? 1 : 0;
-
   vtkDataSet* target = 0;
   switch ( celltype )
     {
@@ -4761,10 +4759,40 @@ void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
     break;
   case vtkLSDynaReader::ROAD_SURFACE:
     target = this->OutputRoadSurface;
+    break;
   default:
     vtkErrorMacro( "Unknown cell type " << celltype << " passed to PartFilter." );
     return; // nothing we can do.
     }
+
+  if ( p->NumberOfCells[celltype] == 0 )
+    {
+    // no work to do, just add the dataset as-is.
+    vtkInformation* idx = vtkInformation::New();
+    idx->Set( vtkMultiBlockDataSet::BLOCK(), 0 );
+    idx->Set( vtkCompositeDataSet::INDEX(), celltype );
+    mbds->AddDataSet( idx, target );
+    idx->Delete();
+    return;
+    }
+
+  // We may not have any work to do if we're only removing deleted cells:
+  if ( ! this->SplitByMaterialId )
+    {
+    if ( celltype == vtkLSDynaReader::RIGID_BODY || celltype == vtkLSDynaReader::ROAD_SURFACE )
+      {
+      // no deletion data for these cell types, just add the dataset as-is.
+      vtkInformation* idx = vtkInformation::New();
+      idx->Set( vtkMultiBlockDataSet::BLOCK(), 0 );
+      idx->Set( vtkCompositeDataSet::INDEX(), celltype );
+      mbds->AddDataSet( idx, target );
+      idx->Delete();
+      return;
+      }
+    }
+
+  const char* attribName = this->RemoveDeletedCells ? LS_ARRAYNAME_DEATH : LS_ARRAYNAME_MATERIAL;
+  int sequentialIds = this->RemoveDeletedCells ? 1 : 0;
 
   int m;
   vtkMultiThreshold* thresh = vtkMultiThreshold::New();
@@ -4799,7 +4827,7 @@ void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
 
   if ( ! this->SplitByMaterialId )
     {
-    partSetId = thresh->AddBooleanSet( vtkMultiThreshold::OR, partSetIds.size(), &partSetIds[0] );
+    partSetId = thresh->AddBooleanSet( vtkMultiThreshold::OR, (int)partSetIds.size(), &partSetIds[0] );
     thresh->OutputSet( partSetId );
     }
   thresh->Update();
@@ -4864,13 +4892,13 @@ int vtkLSDynaReader::RequestData(
 #define VTK_LSDYNA_PREPDATASET(mds,x,m,n,mtype) \
     x = mtype::New();
 
-    VTK_LSDYNA_PREPDATASET(mbds,this->OutputSolid,0,0,vtkUnstructuredGrid);
-    VTK_LSDYNA_PREPDATASET(mbds,this->OutputThickShell,0,1,vtkUnstructuredGrid);
-    VTK_LSDYNA_PREPDATASET(mbds,this->OutputShell,0,2,vtkUnstructuredGrid);
-    VTK_LSDYNA_PREPDATASET(mbds,this->OutputRigidBody,0,3,vtkUnstructuredGrid);
+    VTK_LSDYNA_PREPDATASET(mbds,this->OutputSolid,      0,0,vtkUnstructuredGrid);
+    VTK_LSDYNA_PREPDATASET(mbds,this->OutputThickShell, 0,1,vtkUnstructuredGrid);
+    VTK_LSDYNA_PREPDATASET(mbds,this->OutputShell,      0,2,vtkUnstructuredGrid);
+    VTK_LSDYNA_PREPDATASET(mbds,this->OutputRigidBody,  0,3,vtkUnstructuredGrid);
     VTK_LSDYNA_PREPDATASET(mbds,this->OutputRoadSurface,0,4,vtkUnstructuredGrid);
-    VTK_LSDYNA_PREPDATASET(mbds,this->OutputBeams,0,5,vtkUnstructuredGrid);
-    VTK_LSDYNA_PREPDATASET(mbds,this->OutputParticles,0,6,vtkUnstructuredGrid);
+    VTK_LSDYNA_PREPDATASET(mbds,this->OutputBeams,      0,5,vtkUnstructuredGrid);
+    VTK_LSDYNA_PREPDATASET(mbds,this->OutputParticles,  0,6,vtkUnstructuredGrid);
 #undef VTK_LSDYNA_PREPDATASET
 
   this->UpdateProgress( 0.01 );
@@ -5007,15 +5035,24 @@ int vtkLSDynaReader::RequestData(
 #define VTK_LSDYNA_SETBLOCK(mds,x,m,n,mtype) \
   idx->Set( vtkMultiBlockDataSet::BLOCK(), m ); \
   idx->Set( vtkCompositeDataSet::INDEX(), n ); \
-  mds->AddDataSet( idx, x );
+  if ( ! x ) \
+    { \
+    mtype* tmpDS = mtype::New(); \
+    mds->AddDataSet( idx, tmpDS ); \
+    tmpDS->FastDelete(); \
+    } \
+  else \
+    { \
+    mds->AddDataSet( idx, x ); \
+    }
 
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputSolid,0,0,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputThickShell,0,1,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputShell,0,2,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputRigidBody,0,3,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputSolid,      0,0,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputThickShell, 0,1,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputShell,      0,2,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputRigidBody,  0,3,vtkUnstructuredGrid);
     VTK_LSDYNA_SETBLOCK(mbds,this->OutputRoadSurface,0,4,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputBeams,0,5,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputParticles,0,6,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputBeams,      0,5,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputParticles,  0,6,vtkUnstructuredGrid);
 
 #undef VTK_LSDYNA_SETBLOCK
     }

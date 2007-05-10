@@ -1,88 +1,120 @@
-/*
- * Copyright 2003,2006 Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
- * license for use of this work by or on behalf of the
- * U.S. Government. Redistribution and use in source and binary forms, with
- * or without modification, are permitted provided that this Notice and any
- * statement of authorship are reproduced on all copies.
- */
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkLSDynaReader.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 // .NAME vtkLSDynaReader - Read LS-Dyna databases (d3plot)
 // .SECTION Description
 // This filter reads LS-Dyna databases.
 //
-// The Set/GetFileName() routines are actually wrappers around the Set/GetDatabaseDirectory()
-// members; the actual filename you choose is irrelevant -- only the directory name is used.
-// This is done in order to accommodate ParaView.
+// The Set/GetFileName() routines are actually wrappers around the
+// Set/GetDatabaseDirectory() members; the actual filename you choose is
+// irrelevant -- only the directory name is used.  This is done in order to
+// accommodate ParaView.
 //
 // Note that this reader produces 7 output meshes.
-// These meshes are required as several attributes are defined on subsets of the mesh.
-// Below is a list of meshes in the order they are output and an explanation of which
-// attributes are unique to each mesh:
+// These meshes are required as several attributes are defined on subsets
+// of the mesh.  Below is a list of meshes in the order they are output and
+// an explanation of which attributes are unique to each mesh:
 // - solid (3D) elements: number of integration points are different than 2D
-// - thick shell elements: number of integration points are different than planar 2D
+// - thick shell elements: number of integration points are different than 
+// planar 2D
 // - shell (2D) elements: number of integration points are different than 3D
 // - rigid surfaces: can't have deflection, only velocity, accel, etc.
-// - road surfaces: have only a "segment ID" (serves as material ID) and a velocity.
-// - beam elements: have Frenet (TNB) frame and cross-section attributes (shape and size)
-// - spherical particle hydrodynamics (SPH) elements: have a radius of influence, internal energy, etc.
-// Because each mesh has its own cell attributes, the vtkLSDynaReader has a rather large API.
-// Instead of a single set of routines to query and set cell array names and status, one exists
-// for each possible output mesh.
-// Also, GetNumberOfCells() will return the sum of all the cells in all 7 meshes. 
-// If you want the number of cells in a specific mesh, there are separate routines for each mesh type.
+// - road surfaces: have only a "segment ID" (serves as material ID) and a 
+// velocity.
+// - beam elements: have Frenet (TNB) frame and cross-section attributes 
+// (shape and size)
+// - spherical particle hydrodynamics (SPH) elements: have a radius of 
+// influence, internal energy, etc.
+// Because each mesh has its own cell attributes, the vtkLSDynaReader has a
+// rather large API.  Instead of a single set of routines to query and set
+// cell array names and status, one exists for each possible output mesh.
+// Also, GetNumberOfCells() will return the sum of all the cells in all 7
+// meshes.  If you want the number of cells in a specific mesh, there are
+// separate routines for each mesh type.
 //
 // .SECTION "Developer Notes"
-// LSDyna files contain 3 different types of sections: control, data, and state.
-// Control sections contain constants that describe the type of simulation data in a file
-// or group of files.
-// Data sections contain simulation information that is invariant across individual
-// time steps (but can vary when a mesh adaptation occurs).
-// This information includes material, connectivity, and undeformed geometry.
-// Finally, state data is information that varies with each time step.
-// Unless a mesh adaptation occurs, there will be a single control and data section,
-// and they will be located at the start of the database (the first file).
+
+// LSDyna files contain 3 different types of sections: control, data, and
+// state.  Control sections contain constants that describe the type of
+// simulation data in a file or group of files.  Data sections contain
+// simulation information that is invariant across individual time steps
+// (but can vary when a mesh adaptation occurs).  This information includes
+// material, connectivity, and undeformed geometry.  Finally, state data is
+// information that varies with each time step.  Unless a mesh adaptation
+// occurs, there will be a single control and data section, and they will
+// be located at the start of the database (the first file).
 // 
-// In their infinite wisdom, LSDyna developers decided to split simulation data
-// into multiple files, each no larger than some predetermined limit.
-// Each file can contain one section, a partial section (if it would not fit into a
-// single file), or multiple sections. Files are padded with zeros so that their
-// lengths will be multiples of 512*512.
-// The size of each section is determined by constants in the control and data sections,
-// which means that these must be parsed carefully in order to correctly locate
-// desired information.
-// Unfortunately, the constants are not terribly well-documented and in some cases
-// the documentation is in error.
+// In their infinite wisdom, LSDyna developers decided to split simulation
+// data into multiple files, each no larger than some predetermined limit.
+// Each file can contain one section, a partial section (if it would not
+// fit into a single file), or multiple sections. Files are padded with
+// zeros so that their lengths will be multiples of 512*512.  The size of
+// each section is determined by constants in the control and data
+// sections, which means that these must be parsed carefully in order to
+// correctly locate desired information.  Unfortunately, the constants are
+// not terribly well-documented and in some cases the documentation is in
+// error.
 //
 // .SECTION "Open Issues"
-// The LS-Dyna file format document leaves a good bit open to interpretation.
-// In addition to the "documentation vs. files in the wild" issues there are also implementation problems.
+// The LS-Dyna file format document leaves a good bit open to
+// interpretation.  In addition to the "documentation vs. files in the
+// wild" issues there are also implementation problems.
 //
-// - Where exactly may breaks to a new file occur in the pre-state information? At each section?
-// - Will state data sections (node/cell data, element deletion, sph data, rigid body motion) be moved to
-//   the beginning of a new file if their data will be too large for a given file, or are all the sections
-//   counted together as a single state (makes more sense for keeping time word at start of every file).
-//   The questions above arise because the docs (p. 3) state "There are 3 sections in this database." but
-//   then call many smaller pieces of data "sections". Should they be subsections? The docs are quiet about
-//   whether the second section (of 3) is ever split across multiple files and, if so, whether it is done at
-//   (sub)section boundaries when possible or just wherever it needs to occur.
-// - How many components does Eddy Viscosity have? It's shown as 7 bits in NCFDV1 which makes no sense at all.
-// - Why is NARBS larger than 10+NUMNP+NEL8+NEL2+NEL4+NELT (which is the value specified by the documentation)?
-//   Obviously, NARBS is definitive, but what are the extra numbers at the end?
-// - Is there a difference between rigid body elements NUMRBE and rigid road surfaces? It appears that
-//   the nodes and connectivity of the road surface are given separately (p.13) while on p.7 the Material
-//   Type Data subsection says that shells in a rigid body will just have a certain material ID but be
-//   interspersed among deformable shell elements.
-// - Word 37 of the control section serves two possible purposes... it can mean NMSPH or EDLOPT.
-//   I assume that different versions of the code use that word differently. How do we know the difference?
-// - It's unclear how much state isn't stored when a shell element is marked as rigid. Specifically,
-//   is element deletion data stored for rigid shells? Page 21 of the spec is mute on this.
-// - The loop to read cell User IDs won't work if Rigid Body and Shell elements are interleaved (which I now believe they are).
+// - Where exactly may breaks to a new file occur in the pre-state 
+// information? At each section?
+// - Will state data sections (node/cell data, element deletion, sph data, 
+// rigid body motion) be moved to  the beginning of a new file if their data 
+// will be too large for a given file, or are all the sections
+// counted together as a single state (makes more sense for keeping time 
+// word at start of every file).
+//  The questions above arise because the docs (p. 3) state "There are 3
+// sections in this database." but then call many smaller pieces of data
+// "sections". Should they be subsections? The docs are quiet about whether
+// the second section (of 3) is ever split across multiple files and, if
+// so, whether it is done at (sub)section boundaries when possible or just
+// wherever it needs to occur.
+// - How many components does Eddy Viscosity have? It's shown as 7 bits in 
+// NCFDV1 which makes no sense at all.
+// - Why is NARBS larger than 10+NUMNP+NEL8+NEL2+NEL4+NELT (which is the 
+// value specified by the documentation)?
+// Obviously, NARBS is definitive, but what are the extra numbers at the end?
+// - Is there a difference between rigid body elements NUMRBE and rigid road 
+// surfaces? It appears that the nodes and connectivity of the road surface 
+// are given separately (p.13) while on p.7 the Material
+//   Type Data subsection says that shells in a rigid body will just have a 
+// certain material ID but be  interspersed among deformable shell elements.
+// - Word 37 of the control section serves two possible purposes... it can 
+// mean NMSPH or EDLOPT.
+//   I assume that different versions of the code use that word differently. 
+// How do we know the difference?
+// - It's unclear how much state isn't stored when a shell element is marked 
+// as rigid. Specifically, is element deletion data stored for rigid shells? 
+// Page 21 of the spec is mute on this.
+// - The loop to read cell User IDs won't work if Rigid Body and Shell 
+// elements are interleaved (which I now believe they are).
 //
 // On the VTK side of things:
-// - Berk has nudged me towards multiblock outputs but hasn't committed to exactly how things can be
-//   made efficient for a parallel version of the reader.
-// - This reader will eventually need to respond to a second output port for "small spatial, large temporal" queries.
+// - Berk has nudged me towards multiblock outputs but hasn't committed to 
+// exactly how things can be made efficient for a parallel version of the 
+// reader.
+// - This reader will eventually need to respond to a second output port for 
+// "small spatial, large temporal" queries.
 // - The reader doesn't handle crack files (d3crck)
 // - The reader doesn't handle interface force files (no default name)
 // - The reader doesn't handle time history (abbreviated output) files (d3thdt)
@@ -96,14 +128,18 @@
 // - The reader doesn't handle packed connectivity.
 // - The reader doesn't handle adapted element parent lists (but the 2002 specification says LSDyna doesn't implement it).
 // - All the sample datasets have MATTYP = 0. Need something to test MATTYP = 1.
-// - I have no test datasets with rigid body and/or road surfaces, so the implementation is half-baked.
-// - It's unclear how some of the data should be presented. Although blindly tacking the numbers into 
-//   a large chuck of cell data is better than nothing, some attributes (e.g., forces & moments) lend
-//   themselves to more elaborate presentation. Also, shell and thick shell elements have stresses
-//   that belong to a particular side of an element or have a finite thickness that could be rendered.
-//   Finally, beam elements have cross sections that could be rendered. Some of these operations require
-//   numerical processing of the results and so we shouldn't eliminate the ability to get at the raw
-//   simulation data. Perhaps a filter could be applied to "fancify" the geometry.
+// - I have no test datasets with rigid body and/or road surfaces, so the 
+// implementation is half-baked.
+// - It's unclear how some of the data should be presented. Although blindly 
+// tacking the numbers into a large chuck of cell data is better than nothing,
+// some attributes (e.g., forces & moments) lend themselves to more elaborate
+// presentation. Also, shell and thick shell elements have stresses that 
+// belong to a particular side of an element or have a finite thickness that 
+// could be rendered.
+//   Finally, beam elements have cross sections that could be rendered. 
+// Some of these operations require numerical processing of the results and 
+// so we shouldn't eliminate the ability to get at the raw simulation data. 
+// Perhaps a filter could be applied to "fancify" the geometry.
 //
 
 #ifndef __vtkLSDynaReader_h
@@ -158,71 +194,86 @@ public:
   int CanReadFile( const char* fname );
 
   // Description:
-  // Get/Set the directory containing the LS-Dyna database and determine whether it is valid.
+  // Get/Set the directory containing the LS-Dyna database and determine
+  // whether it is valid.
   virtual void SetDatabaseDirectory( const char* );
   const char* GetDatabaseDirectory();
   int IsDatabaseValid();
 
   // Description:
-  // Get/Set the filename. The Set/GetFileName() routines are actually wrappers around the Set/GetDatabaseDirectory()
-  // members; the actual filename you choose is irrelevant -- only the directory name is used.
+  // Get/Set the filename. The Set/GetFileName() routines are actually
+  // wrappers around the Set/GetDatabaseDirectory() members; the actual
+  // filename you choose is irrelevant -- only the directory name is used.
   // This is done in order to accommodate ParaView.
   virtual void SetFileName( const char* );
   const char* GetFileName();
 
   // Description:
-  // The title of the database is a 40 or 80 character text description stored at the front of a d3plot file.
-  // Do not call this function before setting the database directory and calling UpdateInformation().
+  // The title of the database is a 40 or 80 character text description
+  // stored at the front of a d3plot file.  Do not call this function
+  // before setting the database directory and calling UpdateInformation().
   char* GetTitle();
 
   // Description:
-  // Retrieve the dimension of points in the database. This should return 2 or 3.
-  // Do not call this function before setting the database directory and calling UpdateInformation().
+  // Retrieve the dimension of points in the database. This should return 2
+  // or 3.  Do not call this function before setting the database directory
+  // and calling UpdateInformation().
   int GetDimensionality();
 
   // Description:
-  // Retrieve the number of points in the database.
-  // Do not call this function before setting the database directory and calling UpdateInformation().
+  // Retrieve the number of points in the database.  Do not call this
+  // function before setting the database directory and calling
+  // UpdateInformation().
   vtkIdType GetNumberOfNodes();
 
   // Description:
-  // Retrieve the number of cells of a given type in the database.
-  // Do not call this function before setting the database directory and calling UpdateInformation().
+  // Retrieve the number of cells of a given type in the database.  Do not
+  // call this function before setting the database directory and calling
+  // UpdateInformation().
   //
-  // Note that GetNumberOfCells() returns the sum of GetNumberOfContinuumCells() and GetNumberOfParticleCells().
+  // Note that GetNumberOfCells() returns the sum of
+  // GetNumberOfContinuumCells() and GetNumberOfParticleCells().
   vtkIdType GetNumberOfCells();
 
   // Description:
-  // Retrieve the number of cells of a given type in the database.
-  // Do not call this function before setting the database directory and calling UpdateInformation().
+  // Retrieve the number of cells of a given type in the database.  Do not
+  // call this function before setting the database directory and calling
+  // UpdateInformation().
   //
-  // Note that GetNumberOfContinuumCells() returns the sum of GetNumberOfSolidCells(), GetNumberOfThickShellCells(),
-  // GetNumberOfShellCells(), GetNumberOfRigidBodyCells(), GetNumberOfRoadSurfaceCells(), and GetNumberOfBeamCells().
+  // Note that GetNumberOfContinuumCells() returns the sum of
+  // GetNumberOfSolidCells(), GetNumberOfThickShellCells(),
+  // GetNumberOfShellCells(), GetNumberOfRigidBodyCells(),
+  // GetNumberOfRoadSurfaceCells(), and GetNumberOfBeamCells().
   vtkIdType GetNumberOfContinuumCells();
 
   // Description:
-  // Retrieve the number of cells of a given type in the database.
-  // Do not call this function before setting the database directory and calling UpdateInformation().
+  // Retrieve the number of cells of a given type in the database.  Do not
+  // call this function before setting the database directory and calling
+  // UpdateInformation().
   vtkIdType GetNumberOfSolidCells();
 
   // Description:
-  // Retrieve the number of cells of a given type in the database.
-  // Do not call this function before setting the database directory and calling UpdateInformation().
+  // Retrieve the number of cells of a given type in the database.  Do not
+  // call this function before setting the database directory and calling
+  // UpdateInformation().
   vtkIdType GetNumberOfThickShellCells();
 
   // Description:
-  // Retrieve the number of cells of a given type in the database.
-  // Do not call this function before setting the database directory and calling UpdateInformation().
+  // Retrieve the number of cells of a given type in the database.  Do not
+  // call this function before setting the database directory and calling
+  // UpdateInformation().
   vtkIdType GetNumberOfShellCells();
 
   // Description:
-  // Retrieve the number of cells of a given type in the database.
-  // Do not call this function before setting the database directory and calling UpdateInformation().
+  // Retrieve the number of cells of a given type in the database.  Do not
+  // call this function before setting the database directory and calling
+  // UpdateInformation().
   vtkIdType GetNumberOfRigidBodyCells();
 
   // Description:
-  // Retrieve the number of cells of a given type in the database.
-  // Do not call this function before setting the database directory and calling UpdateInformation().
+  // Retrieve the number of cells of a given type in the database.  Do not
+  // call this function before setting the database directory and calling
+  // UpdateInformation().
   vtkIdType GetNumberOfRoadSurfaceCells();
 
   // Description:
@@ -231,13 +282,15 @@ public:
   vtkIdType GetNumberOfBeamCells();
 
   // Description:
-  // Retrieve the number of cells of a given type in the database.
-  // Do not call this function before setting the database directory and calling UpdateInformation().
+  // Retrieve the number of cells of a given type in the database.  Do not
+  // call this function before setting the database directory and calling
+  // UpdateInformation().
   vtkIdType GetNumberOfParticleCells();
 
   // Description:
   // Retrieve information about the time extents of the LS-Dyna database.
-  // Do not call these functions before setting the database directory and calling UpdateInformation().
+  // Do not call these functions before setting the database directory and
+  // calling UpdateInformation().
   vtkIdType GetNumberOfTimeSteps();
   virtual void SetTimeStep( vtkIdType );
   vtkIdType GetTimeStep();
@@ -246,7 +299,8 @@ public:
   vtkSetVector2Macro(TimeStepRange,int);
 
   // Description:
-  // These methods allow you to load only selected subsets of the nodal variables defined over the mesh.
+  // These methods allow you to load only selected subsets of the nodal
+  // variables defined over the mesh.
   int GetNumberOfPointArrays();
   const char* GetPointArrayName(int);
   virtual void SetPointArrayStatus( int arr, int status );
@@ -257,8 +311,9 @@ public:
   int GetNumberOfComponentsInPointArray( const char* arrName );
 
   // Description:
-  // Routines that allow the status of a cell variable to be adjusted or queried independent of the output mesh.
-  // The \a cellType parameter should be one of: LS_POINT, LS_BEAM, LS_SHELL, LS_THICK_SHELL,
+  // Routines that allow the status of a cell variable to be adjusted or
+  // queried independent of the output mesh.  The \a cellType parameter
+  // should be one of: LS_POINT, LS_BEAM, LS_SHELL, LS_THICK_SHELL,
   // LS_SOLID, LS_RIGID_BODY, or LS_ROAD_SURFACE
   int GetNumberOfCellArrays( int cellType );
   const char* GetCellArrayName( int cellType, int arr );
@@ -270,7 +325,8 @@ public:
   int GetNumberOfComponentsInCellArray( int cellType, const char* arrName );
 
   // Description:
-  // These methods allow you to load only selected subsets of the cell variables defined over the mesh.
+  // These methods allow you to load only selected subsets of the cell
+  // variables defined over the mesh.
   int GetNumberOfSolidArrays();
   const char* GetSolidArrayName(int);
   virtual void SetSolidArrayStatus( int arr, int status );
@@ -282,7 +338,8 @@ public:
   int GetNumberOfComponentsInSolidArray( const char* arrName );
 
   // Description:
-  // These methods allow you to load only selected subsets of the cell variables defined over the mesh.
+  // These methods allow you to load only selected subsets of the cell
+  // variables defined over the mesh.
   int GetNumberOfThickShellArrays();
   const char* GetThickShellArrayName(int);
   virtual void SetThickShellArrayStatus( int arr, int status );
@@ -294,7 +351,8 @@ public:
   int GetNumberOfComponentsInThickShellArray( const char* arrName );
 
   // Description:
-  // These methods allow you to load only selected subsets of the cell variables defined over the mesh.
+  // These methods allow you to load only selected subsets of the cell
+  // variables defined over the mesh.
   int GetNumberOfShellArrays();
   const char* GetShellArrayName(int);
   virtual void SetShellArrayStatus( int arr, int status );
@@ -306,7 +364,8 @@ public:
   int GetNumberOfComponentsInShellArray( const char* arrName );
 
   // Description:
-  // These methods allow you to load only selected subsets of the cell variables defined over the mesh.
+  // These methods allow you to load only selected subsets of the cell
+  // variables defined over the mesh.
   int GetNumberOfRigidBodyArrays();
   const char* GetRigidBodyArrayName(int);
   virtual void SetRigidBodyArrayStatus( int arr, int status );
@@ -318,7 +377,8 @@ public:
   int GetNumberOfComponentsInRigidBodyArray( const char* arrName );
 
   // Description:
-  // These methods allow you to load only selected subsets of the cell variables defined over the mesh.
+  // These methods allow you to load only selected subsets of the cell
+  // variables defined over the mesh.
   int GetNumberOfRoadSurfaceArrays();
   const char* GetRoadSurfaceArrayName(int);
   virtual void SetRoadSurfaceArrayStatus( int arr, int status );
@@ -330,7 +390,8 @@ public:
   int GetNumberOfComponentsInRoadSurfaceArray( const char* arrName );
 
   // Description:
-  // These methods allow you to load only selected subsets of the cell variables defined over the mesh.
+  // These methods allow you to load only selected subsets of the cell
+  // variables defined over the mesh.
   int GetNumberOfBeamArrays();
   const char* GetBeamArrayName(int);
   virtual void SetBeamArrayStatus( int arr, int status );
@@ -342,7 +403,8 @@ public:
   int GetNumberOfComponentsInBeamArray( const char* arrName );
 
   // Description:
-  // These methods allow you to load only selected subsets of the cell variables defined over the mesh.
+  // These methods allow you to load only selected subsets of the cell
+  // variables defined over the mesh.
   int GetNumberOfParticleArrays();
   const char* GetParticleArrayName(int);
   virtual void SetParticleArrayStatus( int arr, int status );
@@ -354,19 +416,22 @@ public:
   int GetNumberOfComponentsInParticleArray( const char* arrName );
 
   // Description:
-  // Should deflected coordinates be used, or should the mesh remain undeflected?
-  // By default, this is true but its value is ignored if the nodal "Deflection" array is not set to be loaded.
+  // Should deflected coordinates be used, or should the mesh remain
+  // undeflected?  By default, this is true but its value is ignored if the
+  // nodal "Deflection" array is not set to be loaded.
   vtkSetMacro(DeformedMesh,int);
   vtkGetMacro(DeformedMesh,int);
   vtkBooleanMacro(DeformedMesh,int);
 
   // Description:
-  // Should dead cells be removed from the mesh?
-  // Cells are marked dead by setting the corresponding entry in the <b>cell</b> array "Death" to 0.
-  // Cells that are not dead have the corresponding entry in the cell array "Death" set to their material ID.
-  // By default, this is true but its value is ignored if the cell "Death" array is not set to be loaded.
-  // It is also ignored if the database's element deletion option is set to denote <b>points</b> (not cells) as deleted;
-  // in that case, "Death" will appear to be a point array.
+  // Should dead cells be removed from the mesh?  Cells are marked dead by
+  // setting the corresponding entry in the <b>cell</b> array "Death" to 0.
+  // Cells that are not dead have the corresponding entry in the cell array
+  // "Death" set to their material ID.  By default, this is true but its
+  // value is ignored if the cell "Death" array is not set to be loaded.
+  // It is also ignored if the database's element deletion option is set to
+  // denote <b>points</b> (not cells) as deleted; in that case, "Death"
+  // will appear to be a point array.
   vtkSetMacro(RemoveDeletedCells,int);
   vtkGetMacro(RemoveDeletedCells,int);
   vtkBooleanMacro(RemoveDeletedCells,int);
@@ -419,8 +484,8 @@ protected:
   vtkUnstructuredGrid* OutputRoadSurface; // can't have deflection, only velocity, accel, ...
 
   // Description:
-  // Should deflected coordinates be used, or should the mesh remain undeflected?
-  // By default, this is true.
+  // Should deflected coordinates be used, or should the mesh remain
+  // undeflected?  By default, this is true.
   int DeformedMesh;
 
   // Description:
@@ -445,15 +510,17 @@ protected:
   virtual ~vtkLSDynaReader();
 
   // Description:
-  // This function populates the reader's private dictionary with information about the database.
-  // It is called once from RequestInformation() and once any time the adaptation level changes.
-  // The adaptation level can change any time the current state(time) is modified.
-  // Upon success, -1 is returned. "Soft" failures return 0 and "hard" failures return 1.
+  // This function populates the reader's private dictionary with
+  // information about the database.  It is called once from
+  // RequestInformation() and once any time the adaptation level changes.
+  // The adaptation level can change any time the current state(time) is
+  // modified.  Upon success, -1 is returned. "Soft" failures return 0 and
+  // "hard" failures return 1.
   int ReadHeaderInformation( int currentAdaptLevel );
 
   // Description:
-  // This function scans the list of files in the database and bookmarks the start of each time
-  // step's state information.
+  // This function scans the list of files in the database and bookmarks the 
+  // start of each time step's state information.
   // Before this function is called:
   // - The database directory name must be set,
   // - ReadHeaderInformation must have been called for adaptation level 0, and
@@ -480,17 +547,19 @@ protected:
   virtual int ReadSPHState( vtkIdType );
 
   // Description:
-  // Called from within ReadHeaderInformation() to read part names associated with material IDs.
+  // Called from within ReadHeaderInformation() to read part names
+  // associated with material IDs.
   virtual int ReadInputDeck();
 
   // Description:
-  // Called from within ReadHeaderInformation() to read arbitrary material IDs (if present) or
-  // manufacture sequential material IDs (if not present).
+  // Called from within ReadHeaderInformation() to read arbitrary material
+  // IDs (if present) or manufacture sequential material IDs (if not
+  // present).
   virtual int ReadUserMaterialIds();
 
   // Description:
-  // ReadInputDeck determines the type of file (keyword or XML summary) and calls
-  // one of these two routines to read the file.
+  // ReadInputDeck determines the type of file (keyword or XML summary) and
+  // calls one of these two routines to read the file.
   int ReadInputDeckXML( ifstream& deck );
   int ReadInputDeckKeywords( ifstream& deck );
 
