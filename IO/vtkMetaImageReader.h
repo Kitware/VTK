@@ -121,8 +121,9 @@ protected:
   vtkMetaImageReader();
   ~vtkMetaImageReader();
 
-  // Hide these functions from the user.
-  virtual void SetFilePrefix(const char * arg) 
+  // These functions make no sense for this (or most) file readers
+  // and should be hidden from the user...but then the getsettest fails.
+  /*virtual void SetFilePrefix(const char * arg) 
     { vtkImageReader2::SetFilePrefix(arg); }
   virtual void SetFilePattern(const char * arg)
     { vtkImageReader2::SetFilePattern(arg); }
@@ -168,7 +169,7 @@ protected:
   const char * GetDataByteOrderAsString(void) 
     { return vtkImageReader2::GetDataByteOrderAsString(); }
   unsigned long GetHeaderSize(void) 
-    { return vtkImageReader2::GetHeaderSize(); }
+    { return vtkImageReader2::GetHeaderSize(); }*/
 
   void ExecuteInformation();
   void ExecuteData(vtkDataObject *out);
