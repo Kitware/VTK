@@ -52,54 +52,15 @@ public:
   typedef METAIO_STL::pair<METAIO_STL::string,float>  FieldType;
   typedef METAIO_STL::vector<FieldType>        FieldListType;
 
-  const FieldListType & GetExtraFields() const {return m_ExtraFields;}
-  void AddField(const char* name, float value)
-    {
-    FieldType field(name,value);
-    m_ExtraFields.push_back(field);
-    }
-  float GetField(const char* name) const
-    {
-    FieldListType::const_iterator it = m_ExtraFields.begin();
-    while(it != m_ExtraFields.end())
-      {
-      if(!strcmp((*it).first.c_str(),name))
-        {
-        return (*it).second;
-        }
-      ++it;
-      }
-    return -1;
-    }
+  DTITubePnt(int dim);
 
-  DTITubePnt(int dim)
-  { 
-    m_Dim = dim;
-    m_X = new float[m_Dim];
-    m_TensorMatrix = new float[6];
-  
-    unsigned int i=0;
-    for(i=0;i<m_Dim;i++)
-      {
-      m_X[i] = 0;
-      }
-    
-    // Initialize the tensor matrix to identity
-    for(i=0;i<6;i++)
-      {
-      m_TensorMatrix[i] = 0;
-      }
-    m_TensorMatrix[0] = 1;
-    m_TensorMatrix[3] = 1;
-    m_TensorMatrix[5] = 1;
-  }
+  ~DTITubePnt();
 
-  ~DTITubePnt()
-  {
-    delete []m_X;
-    delete []m_TensorMatrix;
-    m_ExtraFields.clear();
-  };
+  const FieldListType & GetExtraFields() const;
+
+  void AddField(const char* name, float value);
+
+  float GetField(const char* name) const;
   
   unsigned int m_Dim;
   float* m_X;

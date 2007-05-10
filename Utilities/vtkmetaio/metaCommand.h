@@ -98,19 +98,7 @@ public:
   bool AddField(METAIO_STL::string name,
                 METAIO_STL::string description,
                 TypeEnumType type,
-                bool externalData
-                )
-    {
-    if(externalData)
-      {
-      return this->AddField(name,description,type,DATA_IN);
-      }
-    else
-      {
-      return this->AddField(name,description,type,DATA_NONE);
-      }
-    }
-
+                bool externalData);
   
   /** Add a field to an option */
   bool AddOptionField(METAIO_STL::string optionName,
