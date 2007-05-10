@@ -38,7 +38,7 @@ MetaCommand::MetaCommand()
 }
 
 
-/** Extract the date from the $Date: 2007-05-10 22:00:34 $ cvs command */
+/** Extract the date from the $Date: 2007-05-10 22:51:51 $ cvs command */
 METAIO_STL::string MetaCommand::ExtractDateFromCVS(METAIO_STL::string date)
 {
   METAIO_STL::string newdate;
@@ -1445,7 +1445,7 @@ bool MetaCommand::Parse(int argc, char* argv[])
   if(valuesRemaining>0)
     {
     METAIO_STREAM::cout << "Not enough parameters for " 
-         << m_OptionVector[currentOption].name << METAIO_STREAM::endl;
+         << m_OptionVector[currentOption].name.c_str() << METAIO_STREAM::endl;
     METAIO_STREAM::cout << "Command: " << argv[0] << METAIO_STREAM::endl;
     METAIO_STREAM::cout << "Options: " << METAIO_STREAM::endl
          << "  -v or -h for help listed in short format" << METAIO_STREAM::endl
