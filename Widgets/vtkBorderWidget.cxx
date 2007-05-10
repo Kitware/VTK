@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 
 
-vtkCxxRevisionMacro(vtkBorderWidget, "1.6");
+vtkCxxRevisionMacro(vtkBorderWidget, "1.7");
 vtkStandardNewMacro(vtkBorderWidget);
 
 
@@ -35,6 +35,7 @@ vtkBorderWidget::vtkBorderWidget()
 {
   this->WidgetState = vtkBorderWidget::Start;
   this->Selectable = 1;
+  this->Resizable = 1;
 
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
                                           vtkWidgetEvent::Select,
@@ -61,6 +62,12 @@ vtkBorderWidget::~vtkBorderWidget()
 //-------------------------------------------------------------------------
 void vtkBorderWidget::SetCursor(int cState)
 {
+  if(!this->Resizable && cState != vtkBorderRepresentation::Inside)
+    {
+    this->RequestCursorShape(VTK_CURSOR_DEFAULT);
+    return;
+    }
+
   switch (cState)
     {
     case vtkBorderRepresentation::AdjustingP0:
@@ -230,6 +237,12 @@ void vtkBorderWidget::MoveAction(vtkAbstractWidget *w)
       {
       self->Render();
       }
+    return;
+    }
+
+  if(!self->Resizable && 
+    self->WidgetRep->GetInteractionState() != vtkBorderRepresentation::Inside)
+    {
     return;
     }
 

@@ -95,6 +95,16 @@ public:
   vtkGetMacro(Selectable,int);
   vtkBooleanMacro(Selectable,int);
 
+
+  // Description:
+  // Indicate whether the boundary of the widget can be resized.
+  // If not, the cursor will not change to "resize" type when mouse
+  // over the boundary.
+  vtkSetMacro(Resizable,int);
+  vtkGetMacro(Resizable,int);
+  vtkBooleanMacro(Resizable,int);
+
+
   // Description:
   // Specify an instance of vtkWidgetRepresentation used to represent this
   // widget in the scene. Note that the representation is a subclass of vtkProp
@@ -118,6 +128,7 @@ protected:
 
   //enable the selection of the region interior to the widget
   int Selectable;
+  int Resizable;
 
   //processes the registered events
   static void SelectAction(vtkAbstractWidget*);
