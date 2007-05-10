@@ -62,6 +62,10 @@
 
 #include "vtkImageWriter.h"
 
+//BTX
+namespace vtkmetaio { class MetaImage; } // forward declaration
+//ETX
+
 class VTK_IO_EXPORT vtkMetaImageWriter : public vtkImageWriter
 {
 public:
@@ -82,11 +86,18 @@ public:
   virtual void SetRAWFileName(const char* fname);
   virtual char* GetRAWFileName();
 
+  virtual void SetCompression( bool compress )
+    {
+    this->Compress = compress;
+    }
+  virtual bool GetCompression( void )
+    {
+    return this->Compress;
+    }
+
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestData(vtkInformation *request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+  virtual void Write();
 
 protected:
   vtkMetaImageWriter();
@@ -94,10 +105,16 @@ protected:
 
   vtkSetStringMacro(MHDFileName);
   char* MHDFileName;
+  bool Compress;
 
 private:
   vtkMetaImageWriter(const vtkMetaImageWriter&);  // Not implemented.
   void operator=(const vtkMetaImageWriter&);  // Not implemented.
+
+//BTX
+  vtkmetaio::MetaImage * MetaImagePtr;
+//ETX
+
 };
 
 #endif

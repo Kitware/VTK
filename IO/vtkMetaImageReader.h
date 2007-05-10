@@ -55,27 +55,62 @@
 // 
 
 // .SECTION See Also
-// vtkImageReader
 
-#ifndef __vtkMetaImageReader_h
-#define __vtkMetaImageReader_h
+#ifndef __vtkMetaImageReader2_h
+#define __vtkMetaImageReader2_h
 
-#include "vtkImageReader.h"
+#include "vtkImageReader2.h"
 
-class VTK_IO_EXPORT vtkMetaImageReader : public vtkImageReader
+//BTX
+namespace vtkmetaio { class MetaImage; } // forward declaration  
+//ETX
+
+class VTK_IO_EXPORT vtkMetaImageReader : public vtkImageReader2
 {
 public:
-  vtkTypeRevisionMacro(vtkMetaImageReader,vtkImageReader);
+  vtkTypeRevisionMacro(vtkMetaImageReader,vtkImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object with FlipNormals turned off and Normals set to true.
   static vtkMetaImageReader *New();
 
-  // Description:
-  // Specify file name of meta file
-  virtual void SetFileName(const char* fname);
-  virtual char* GetFileName() { return this->MHDFileName; }
+  virtual const char * GetFileExtensions() 
+    { return ".mhd .mha"; }
+
+  virtual const char * GetDescriptiveName() 
+    { return "MetaIO Library: MetaImage"; }
+
+  // These duplicate functions in vtkImageReader2, vtkMedicalImageReader.
+  double * GetPixelSpacing()
+    { return this->GetDataSpacing(); }
+  int GetWidth()
+    { return (this->GetDataExtent()[1] - this->GetDataExtent()[0] + 1); }
+  int GetHeight()
+    { return (this->GetDataExtent()[3] - this->GetDataExtent()[2] + 1); }
+  double * GetImagePositionPatient()
+    { return this->GetDataOrigin(); }
+  int GetNumberOfComponents()
+    { return this->GetNumberOfScalarComponents(); }
+  int GetPixelRepresentation()
+    { return this->GetDataScalarType(); }
+  int GetDataByteOrder(void);
+
+  vtkGetMacro(RescaleSlope, double);
+  vtkGetMacro(RescaleOffset, double);
+  vtkGetMacro(BitsAllocated, int);
+  vtkGetStringMacro(DistanceUnits);
+  vtkGetStringMacro(AnatomicalOrientation);
+  vtkGetMacro(GantryAngle, double); 
+  vtkGetStringMacro(PatientName);
+  vtkGetStringMacro(PatientID);
+  vtkGetStringMacro(Date);
+  vtkGetStringMacro(Series);
+  vtkGetStringMacro(ImageNumber);
+  vtkGetStringMacro(Modality);
+  vtkGetStringMacro(StudyID);
+  vtkGetStringMacro(StudyUID);
+  vtkGetStringMacro(TransferSyntaxUID);
 
   // Description:
   // Test whether the file with the given name can be read by this
@@ -86,18 +121,86 @@ protected:
   vtkMetaImageReader();
   ~vtkMetaImageReader();
 
-  virtual int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+  // Hide these functions from the user.
+  virtual void SetFilePrefix(const char * arg) 
+    { vtkImageReader2::SetFilePrefix(arg); }
+  virtual void SetFilePattern(const char * arg)
+    { vtkImageReader2::SetFilePattern(arg); }
+  virtual void SetDataScalarType(int type) 
+    { vtkImageReader2::SetDataScalarType(type); }
+  virtual void SetDataScalarTypeToFloat()
+    { this->SetDataScalarType(VTK_FLOAT); }
+  virtual void SetDataScalarTypeToDouble()
+    { this->SetDataScalarType(VTK_DOUBLE); }
+  virtual void SetDataScalarTypeToInt()
+    { this->SetDataScalarType(VTK_INT); }
+  virtual void SetDataScalarTypeToShort()
+    { this->SetDataScalarType(VTK_SHORT); }
+  virtual void SetDataScalarTypeToUnsignedShort()
+    {this->SetDataScalarType(VTK_UNSIGNED_SHORT);}
+  virtual void SetDataScalarTypeToUnsignedChar()
+    {this->SetDataScalarType(VTK_UNSIGNED_CHAR);}
+  vtkSetMacro(NumberOfScalarComponents, int);
+  vtkSetVector6Macro(DataExtent, int);
+  vtkSetMacro(FileDimensionality, int);
+  vtkSetVector3Macro(DataSpacing, double);
+  vtkSetVector3Macro(DataOrigin, double);
+  vtkSetMacro(HeaderSize, unsigned long); 
+  unsigned long GetHeaderSize(unsigned long) 
+    { return 0; }
+  virtual void SetDataByteOrderToBigEndian()
+    { this->SetDataByteOrderToBigEndian(); }
+  virtual void SetDataByteOrderToLittleEndian()
+    { this->SetDataByteOrderToBigEndian(); }
+  virtual void SetDataByteOrder(int order)
+    { this->SetDataByteOrder(order); }
+  vtkSetMacro(FileNameSliceOffset,int);
+  vtkSetMacro(FileNameSliceSpacing,int);
+  vtkSetMacro(SwapBytes, int);
+  virtual int OpenFile() 
+    { return vtkImageReader2::OpenFile(); }
+  virtual void SeekFile(int i, int j, int k) 
+    { vtkImageReader2::SeekFile(i, j, k); }
+  vtkSetMacro(FileLowerLeft, int);
+  virtual void ComputeInternalFileName(int slice) 
+    { vtkImageReader2::ComputeInternalFileName(slice); }
+  vtkGetStringMacro(InternalFileName)
+  const char * GetDataByteOrderAsString(void) 
+    { return vtkImageReader2::GetDataByteOrderAsString(); }
+  unsigned long GetHeaderSize(void) 
+    { return vtkImageReader2::GetHeaderSize(); }
 
-  int GetFileInformation(const char* fname, int populate);
-
-  vtkSetStringMacro(MHDFileName);
-  char* MHDFileName;
+  void ExecuteInformation();
+  void ExecuteData(vtkDataObject *out);
+  virtual int RequestInformation(vtkInformation * request,
+                         vtkInformationVector ** inputVector,
+                         vtkInformationVector * outputVector);
 
 private:
   vtkMetaImageReader(const vtkMetaImageReader&);  // Not implemented.
   void operator=(const vtkMetaImageReader&);  // Not implemented.
+
+//BTX
+  vtkmetaio::MetaImage *MetaImagePtr;
+//ETX
+
+  double GantryAngle;
+  char PatientName[255];
+  char PatientID[255];
+  char Date[255];
+  char Series[255];
+  char Study[255];
+  char ImageNumber[255];
+  char Modality[255];
+  char StudyID[255];
+  char StudyUID[255];
+  char TransferSyntaxUID[255];
+
+  double RescaleSlope;
+  double RescaleOffset;
+  int BitsAllocated;
+  char DistanceUnits[255];
+  char AnatomicalOrientation[255];
 };
 
 #endif

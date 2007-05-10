@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkMetaImageWriter.h"
 
+#include "vtkCommand.h"
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -22,11 +24,18 @@
 #include "vtkDataSetAttributes.h"
 
 #include <vtkstd/string>
+#include "vtkmetaio/metatypes.h"
+#include "vtkmetaio/metaUtils.h"
+#include "vtkmetaio/metaEvent.h"
+#include "vtkmetaio/metaObject.h"
+#include "vtkmetaio/metaImageTypes.h"
+#include "vtkmetaio/metaImageUtils.h"
+#include "vtkmetaio/metaImage.h"
 
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.13");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.14");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
@@ -34,18 +43,23 @@ vtkMetaImageWriter::vtkMetaImageWriter()
 {
   this->MHDFileName = 0;
   this->FileLowerLeft = 1;
+
+  this->MetaImagePtr = new vtkmetaio::MetaImage;
+  this->Compress = true;
 }
 
 //----------------------------------------------------------------------------
 vtkMetaImageWriter::~vtkMetaImageWriter()
 {
   this->SetFileName(0);
+  delete this->MetaImagePtr;
 }
 
 //----------------------------------------------------------------------------
 void vtkMetaImageWriter::SetFileName(const char* fname)
 {
   this->SetMHDFileName(fname);
+  this->Superclass::SetFileName( 0 );
 }
 
 //----------------------------------------------------------------------------
@@ -61,154 +75,110 @@ char* vtkMetaImageWriter::GetRAWFileName()
 }
 
 //----------------------------------------------------------------------------
-int vtkMetaImageWriter::RequestData(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+void vtkMetaImageWriter::Write( )
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkImageData *input = 
-    vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  this->SetErrorCode(vtkErrorCode::NoError);
+
+  this->GetInput()->UpdateInformation();
   
   // Error checking
-  if (input == NULL )
+  if (this->GetInput() == NULL )
     {
     vtkErrorMacro(<<"Write:Please specify an input!");
-    return 0;
+    return;
     }
 
   if ( !this->MHDFileName )
     {
     vtkErrorMacro("Output file name not specified");
-    return 0;
+    return;
     }
 
-  if ( !this->GetRAWFileName() )
-    {
-    vtkDebugMacro("Raw file name not specified. Specifying one...");
-    // Allocate new file name and leave space for extension
-    char* rfname = new char [ strlen(this->MHDFileName) + 10 ]; 
-    strcpy(rfname, this->MHDFileName);
-    size_t cc;
-    for ( cc = strlen(rfname)-1; cc > 0; cc -- )
-      {
-      if ( rfname[cc] == '.' )
-        {
-        rfname[cc] = 0;
-        break;
-        }
-      if ( rfname[cc] == '/' || rfname[cc] == '\\' )
-        {
-        break;
-        }
-      }
-    strcat(rfname, ".raw");
-    if ( strcmp(rfname, this->MHDFileName) == 0 )
-      {
-      strcat(rfname, ".raw");
-      }
-    this->SetRAWFileName(rfname);
-    delete [] rfname;
-    }
-
-  ofstream ofs_with_warning_C4701(this->MHDFileName, ios::out);
-  if ( !ofs_with_warning_C4701 )
-    {
-    vtkErrorMacro("Cannot open file: " << this->MHDFileName << " for writing");
-    return 0;
-    }
-
-  int ndims = 3;
-  int ext[6];
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext);
+  int nDims = 3;
+  int * ext = this->GetInput()->GetWholeExtent();
   if ( ext[4] == ext[5] )
     {
-    ndims = 2;
+    nDims = 2;
     if ( ext[2] == ext[3] )
       {
-      ndims = 1;
+      nDims = 1;
       }
     }
-  double origin[3];
-  double spacing[3];
-  inInfo->Get(vtkDataObject::ORIGIN(),origin);
-  inInfo->Get(vtkDataObject::SPACING(),spacing);
+
+  double * origin = this->GetInput()->GetOrigin();
+  double * spacingDouble = this->GetInput()->GetSpacing();
+
+  float spacing[3];
+  spacing[0] = spacingDouble[0];
+  spacing[1] = spacingDouble[1];
+  spacing[2] = spacingDouble[2];
+
+  int dimSize[3];
+  dimSize[0] = ext[1]-ext[0]+1;
+  dimSize[1] = ext[3]-ext[2]+1;
+  dimSize[2] = ext[5]-ext[4]+1;
   
-  const char* scalar_type;
-  vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
-  if (!scalarInfo)
+  vtkmetaio::MET_ValueEnumType elementType;
+
+  int scalarType = this->GetInput()->GetScalarType();
+  switch ( scalarType )
     {
-    vtkErrorMacro( "No active scalar information!" );
-    return 0;
-    }
-  switch ( scalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) )
-    {
-    case VTK_CHAR:           scalar_type = "MET_CHAR"; break;
-    case VTK_UNSIGNED_CHAR:  scalar_type = "MET_UCHAR"; break;
-    case VTK_SHORT:          scalar_type = "MET_SHORT"; break;
-    case VTK_UNSIGNED_SHORT: scalar_type = "MET_USHORT"; break;
-    case VTK_INT:            scalar_type = "MET_INT"; break;
-    case VTK_UNSIGNED_INT:   scalar_type = "MET_UINT"; break;
-    case VTK_LONG:           scalar_type = "MET_LONG"; break;
-    case VTK_UNSIGNED_LONG:  scalar_type = "MET_ULONG"; break;
-    case VTK_FLOAT:          scalar_type = "MET_FLOAT"; break;
-    case VTK_DOUBLE:         scalar_type = "MET_DOUBLE"; break;
+    case VTK_CHAR:           elementType = vtkmetaio::MET_CHAR; break;
+    case VTK_UNSIGNED_CHAR:  elementType = vtkmetaio::MET_UCHAR; break;
+    case VTK_SHORT:          elementType = vtkmetaio::MET_SHORT; break;
+    case VTK_UNSIGNED_SHORT: elementType = vtkmetaio::MET_USHORT; break;
+    case VTK_INT:            elementType = vtkmetaio::MET_INT; break;
+    case VTK_UNSIGNED_INT:   elementType = vtkmetaio::MET_UINT; break;
+    case VTK_LONG:           elementType = vtkmetaio::MET_LONG; break;
+    case VTK_UNSIGNED_LONG:  elementType = vtkmetaio::MET_ULONG; break;
+    case VTK_FLOAT:          elementType = vtkmetaio::MET_FLOAT; break;
+    case VTK_DOUBLE:         elementType = vtkmetaio::MET_DOUBLE; break;
     default:
-      vtkErrorMacro("Unknown scalar type: " 
-                    << scalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()));
-      return 1;
+      vtkErrorMacro("Unknown scalar type." );
+      return ;
     }
   
   origin[0] += ext[0] * spacing[0];
   origin[1] += ext[2] * spacing[1];
   origin[2] += ext[4] * spacing[2];
 
-  const char* data_file = this->GetRAWFileName();
-  int pos = 0;
-  int cc;
-  for ( cc = 0; data_file[cc]; cc ++ )
+  int numberOfElements = this->GetInput()->GetNumberOfScalarComponents();
+
+  this->GetInput()->SetUpdateExtent(ext[0], ext[1],
+                                    ext[2], ext[3],
+                                    ext[4], ext[5]);
+  this->GetInput()->UpdateData();
+  this->MetaImagePtr->InitializeEssential( nDims,
+                                           dimSize,
+                                           spacing,
+                                           elementType,
+                                           numberOfElements,
+                                           this->GetInput()
+                                               ->GetScalarPointer(ext[0],
+                                                                  ext[2],
+                                                                  ext[4]),
+                                           false );
+  this->MetaImagePtr->Position( origin );
+
+  if ( this->GetRAWFileName() )
     {
-    if ( data_file[cc] == '/' || data_file[cc] == '\\' )
-      {
-      pos = cc;
-      }
-    }
-  if ( pos > 0 )
-    {
-    if ( strncmp(data_file, this->GetFileName(), pos) == 0 )
-      {
-      data_file = this->GetRAWFileName() + pos + 1;
-      }
+    this->MetaImagePtr->ElementDataFileName( this->GetRAWFileName() );
     }
 
-  ofs_with_warning_C4701 
-    << "ObjectType = Image" << endl
-    << "NDims = " << ndims << endl
-    << "BinaryData = True" << endl
-#ifdef VTK_WORDS_BIGENDIAN
-    << "BinaryDataByteOrderMSB = True" << endl
-#else
-    << "BinaryDataByteOrderMSB = False" << endl
-#endif
-    << "ElementSpacing = " 
-    << spacing[0] << " " << spacing[1] << " " << spacing[2] << endl
-    << "DimSize = " << (ext[1]-ext[0]+1) << " " 
-    << (ext[3]-ext[2]+1) << " " << (ext[5]-ext[4]+1) << endl
-    << "Position = " 
-    << origin[0] << " " << origin[1] << " " << origin[2] << endl
-    << "ElementNumberOfChannels = " 
-    << scalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) << endl
-    << "ElementType = " << scalar_type 
-    << (scalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) > 1?"_ARRAY":"") << endl
-    << "ElementDataFile = " << data_file << endl;
-  this->SetFileDimensionality(ndims);
-  return this->Superclass::RequestData(request,inputVector,outputVector);
+  this->SetFileDimensionality(nDims);
+  this->MetaImagePtr->CompressedData(Compress);
+
+  this->InvokeEvent(vtkCommand::StartEvent);
+  this->UpdateProgress(0.0);
+  this->MetaImagePtr->Write(this->MHDFileName);
+  this->UpdateProgress(1.0);
+  this->InvokeEvent(vtkCommand::EndEvent);
 }
 
 //----------------------------------------------------------------------------
 void vtkMetaImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "MHDFileName: " << (this->MHDFileName?this->MHDFileName:"(none)") << endl;
+  os << indent << "MHDFileName: " 
+               << (this->MHDFileName?this->MHDFileName:"(none)") << endl;
 }
