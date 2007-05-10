@@ -22,6 +22,10 @@
 #include "metaUtils.h"
 #include "metaEvent.h"
 
+#ifdef _MSC_VER
+#pragma warning ( disable: 4251 )
+#endif
+
 
 #if (METAIO_USE_NAMESPACE)
 namespace METAIO_NAMESPACE {

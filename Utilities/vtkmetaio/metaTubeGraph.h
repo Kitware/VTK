@@ -22,6 +22,10 @@
 #include "metaUtils.h"
 #include "metaObject.h"
 
+#ifdef _MSC_VER
+#pragma warning ( disable: 4251 )
+#endif
+
 #include <vector>
 
 
