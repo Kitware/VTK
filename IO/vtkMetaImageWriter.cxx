@@ -24,7 +24,7 @@
 #include "vtkDataSetAttributes.h"
 
 #include <vtkstd/string>
-#include "vtkmetaio/metatypes.h"
+#include "vtkmetaio/metaTypes.h"
 #include "vtkmetaio/metaUtils.h"
 #include "vtkmetaio/metaEvent.h"
 #include "vtkmetaio/metaObject.h"
@@ -35,7 +35,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.14");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.15");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
