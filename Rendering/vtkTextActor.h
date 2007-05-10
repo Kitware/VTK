@@ -94,6 +94,14 @@ public:
   vtkBooleanMacro(ScaledText,int);
 
   // Description:
+  // Turn on or off the UseBorderAlign option.
+  // When UseBorderAlign is on, the bounding rectangle is used to align the text,
+  // which is the proper behavior when using vtkTextRepresentation
+  vtkSetMacro(UseBorderAlign,int);
+  vtkGetMacro(UseBorderAlign,int);
+  vtkBooleanMacro(UseBorderAlign,int);
+
+  // Description:
   // This method is being depricated.  Use SetJustification and
   // SetVerticalJustification in text property instead.
   // Set/Get the Alignment point
@@ -180,6 +188,7 @@ protected:
   double  FontScaleTarget;
   int     ScaledText;
   float   Orientation;
+  int     UseBorderAlign;
 
   vtkTextProperty *TextProperty;
   vtkImageData *ImageData;

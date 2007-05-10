@@ -32,7 +32,7 @@
 #include "vtkTexture.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.39");
+vtkCxxRevisionMacro(vtkTextActor, "1.40");
 vtkStandardNewMacro(vtkTextActor);
 vtkCxxSetObjectMacro(vtkTextActor,Texture,vtkTexture);
 
@@ -98,6 +98,7 @@ vtkTextActor::vtkTextActor()
   this->MaximumLineHeight = 1.0;
   this->ScaledText        = 0;
   this->Orientation       = 0.0;
+  this->UseBorderAlign    = 0;
 
   this->FontScaleExponent = 1;
   this->FontScaleTarget   = 10;
@@ -189,6 +190,7 @@ void vtkTextActor::SetInput(const char* str)
   this->Input = new char[strlen(str)+1];
   strcpy(this->Input, str);
   this->InputRendered = false;
+  this->Modified();
 }
 
 // ----------------------------------------------------------------------------
@@ -363,18 +365,10 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
         }
       }
     }
-
-  // Check if we need to create a new rectangle.  
-  // Need to check if angle has changed.
-  if(this->TextProperty->GetMTime() > this->BuildTime || 
-     !this->InputRendered || this->GetMTime() > this->BuildTime)
-    {
-    //justification and line offset are handled in ComputeRectangle
-    this->ComputeRectangle(viewport);
-    }
     
   //check if we need to render the string
-  if(this->TextProperty->GetMTime() > this->BuildTime || !this->InputRendered)
+  if(this->TextProperty->GetMTime() > this->BuildTime ||
+    !this->InputRendered || this->GetMTime() > this->BuildTime)
     {
     if(!this->FreeTypeUtilities->RenderString(this->TextProperty,
                                               this->Input,
@@ -383,6 +377,12 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       vtkErrorMacro(<<"Failed rendering text to buffer");
       return 0;
       }
+
+    // Check if we need to create a new rectangle.  
+    // Need to check if angle has changed.
+    //justification and line offset are handled in ComputeRectangle
+    this->ComputeRectangle(viewport);
+
     this->ImageData->Modified();
     this->Texture->SetInput(this->ImageData);
     this->InputRendered = true;
@@ -451,8 +451,7 @@ int vtkTextActor::GetAlignmentPoint()
       vtkErrorMacro(<<"Unknown justifaction code.");
     }
   return alignmentCode;
-}    
-    
+}     
     
 // ----------------------------------------------------------------------------
 void vtkTextActor::SetAlignmentPoint(int val) 
@@ -527,7 +526,7 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
   maxWidth = maxHeight = 0;
   // In ScaledText mode we justify text based on the rectangle formed by
   // Position & Position2 coordinates
-  if(this->ScaledText)
+  if(this->ScaledText || this->UseBorderAlign)
     {
     double position1[3], position2[3];
     this->PositionCoordinate->GetValue(position1);
@@ -631,6 +630,7 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     // handle line offset
     yo += this->TextProperty->GetLineOffset();
     } //end unscaled text case  
+
   x = xo; y = yo;      
   this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
   x = xo; y = yo + (double)(dims[1]);      
