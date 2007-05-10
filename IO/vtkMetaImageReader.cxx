@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.22");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.23");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -356,4 +356,20 @@ void vtkMetaImageReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "RescaleSlope: " << RescaleSlope << endl;
   os << indent << "RescaleOffset: " << RescaleOffset << endl;
+
+  os << indent << "GantryAngle: " << GantryAngle << endl;
+  os << indent << "PatientName: " << PatientName << endl;
+  os << indent << "PatientID: " << PatientID << endl;
+  os << indent << "Date: " << Date << endl;
+  os << indent << "Series: " << Series << endl;
+  os << indent << "Study: " << Study << endl;
+  os << indent << "ImageNumber: " << ImageNumber << endl;
+  os << indent << "Modality: " << Modality << endl;
+  os << indent << "StudyID: " << StudyID << endl;
+  os << indent << "StudyUID: " << StudyUID << endl;
+  os << indent << "TransferSyntaxUID: " << TransferSyntaxUID << endl;
+
+  os << indent << "BitsAllocated: " << BitsAllocated << endl;
+  os << indent << "DistanceUnits: " << DistanceUnits << endl;
+  os << indent << "AnatomicalOrientation: " << AnatomicalOrientation << endl;
 }
