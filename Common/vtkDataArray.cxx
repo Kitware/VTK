@@ -33,7 +33,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkDataArray, "1.76");
+vtkCxxRevisionMacro(vtkDataArray, "1.77");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -281,7 +281,8 @@ void vtkDataArrayInterpolateTuple(T* from, T* to, int numComp,
       c += weights[j]*from[ids[j]*numComp+i];
       }
     // Round integer types. Don't round floating point types.
-    vtkDataArrayRoundIfNecessary(c, *to++, 1);
+    vtkDataArrayRoundIfNecessary(c, *to, 1);
+    to++;
     }
 }
 
