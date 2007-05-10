@@ -28,7 +28,7 @@
 
 #include "vtkObject.h"
 
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.2764 $, $Date: 2007-05-09 13:10:44 $ (GMT)"
+#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.2765 $, $Date: 2007-05-10 19:18:34 $ (GMT)"
 
 
 class VTK_COMMON_EXPORT vtkVersion : public vtkObject
