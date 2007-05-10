@@ -96,7 +96,8 @@ PrintInfo() const
     {
     METAIO_STREAM::cout << "Root = " << "True" << METAIO_STREAM::endl;
     }
-  METAIO_STREAM::cout << "PointDim = " << m_PointDim << METAIO_STREAM::endl;
+  METAIO_STREAM::cout << "PointDim = " << m_PointDim.c_str() 
+                      << METAIO_STREAM::endl;
   METAIO_STREAM::cout << "NPoints = " << m_NPoints << METAIO_STREAM::endl;
   char str[255];
   MET_TypeToString(m_ElementType, str);

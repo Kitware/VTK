@@ -19,6 +19,8 @@
 #ifndef ITKMetaIO_METACOMMAND_H
 #define ITKMetaIO_METACOMMAND_H
 
+#include "metaUtils.h"
+#include "metaObject.h"
 
 #ifdef _MSC_VER
 #pragma warning ( disable : 4786 )

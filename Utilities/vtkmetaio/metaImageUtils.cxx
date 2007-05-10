@@ -17,6 +17,7 @@
 #include <stdio.h>
 
 #include "metaImageTypes.h"
+#include <string.h>
 
 #if (METAIO_USE_NAMESPACE)
 namespace METAIO_NAMESPACE {

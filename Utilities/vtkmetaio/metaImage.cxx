@@ -982,7 +982,7 @@ CanRead(const char *_headerName) const
     return false;
     }
 
-  METAIO_STL::string key;
+  char key[8000];
 
   inputStream >> key;
 
