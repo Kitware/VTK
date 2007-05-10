@@ -38,7 +38,7 @@ MetaCommand::MetaCommand()
 }
 
 
-/** Extract the date from the $Date: 2007-05-10 21:52:31 $ cvs command */
+/** Extract the date from the $Date: 2007-05-10 22:00:34 $ cvs command */
 METAIO_STL::string MetaCommand::ExtractDateFromCVS(METAIO_STL::string date)
 {
   METAIO_STL::string newdate;
@@ -67,7 +67,8 @@ bool MetaCommand::SetOption(METAIO_STL::string name,
   // need to add some tests here to check if the option is not defined yet
   if(tag == "")
     {
-    METAIO_STREAM::cout << "Tag cannot be empty : use AddField() instead." << METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "Tag cannot be empty : use AddField() instead." 
+                        << METAIO_STREAM::endl;
     return false;
     }
 
@@ -96,7 +97,8 @@ bool MetaCommand::SetOption(METAIO_STL::string name,
   // need to add some tests here to check if the option is not defined yet
   if(tag == "")
     {
-    METAIO_STREAM::cout << "Tag cannot be empty : use AddField() instead." << METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "Tag cannot be empty : use AddField() instead." 
+                        << METAIO_STREAM::endl;
     return false;
     }
 
@@ -555,12 +557,15 @@ void MetaCommand::ListOptions()
   while(it != m_OptionVector.end())
     {
     METAIO_STREAM::cout << "Option #" << i << METAIO_STREAM::endl;
-    METAIO_STREAM::cout << "   Name: " <<  (*it).name.c_str() << METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "   Name: " <<  (*it).name.c_str() 
+                        << METAIO_STREAM::endl;
     if((*it).tag.size() > 0)
       {
-      METAIO_STREAM::cout << "   Tag: " << (*it).tag.c_str() << METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "   Tag: " << (*it).tag.c_str() 
+                          << METAIO_STREAM::endl;
       }
-    METAIO_STREAM::cout << "   Description: " << (*it).description.c_str() << METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "   Description: " << (*it).description.c_str() 
+                        << METAIO_STREAM::endl;
     if((*it).required)
       {
       METAIO_STREAM::cout << "   Required: true" << METAIO_STREAM::endl;
@@ -569,27 +574,35 @@ void MetaCommand::ListOptions()
       {
       METAIO_STREAM::cout << "   Required: false" << METAIO_STREAM::endl;
       }
-    METAIO_STREAM::cout << "   Number of expeted values: " << (*it).fields.size() 
-                                              << METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "   Number of expeted values: " 
+                        << (*it).fields.size() 
+                        << METAIO_STREAM::endl;
     
     METAIO_STL::vector<Field>::const_iterator itField = (*it).fields.begin();
     while(itField != (*it).fields.end())
       {
-      METAIO_STREAM::cout << "      Field Name: " <<  (*itField).name.c_str() 
-                                        << METAIO_STREAM::endl;
-      METAIO_STREAM::cout << "      Description: " << (*itField).description.c_str() 
-                                         << METAIO_STREAM::endl;
-      METAIO_STREAM::cout << "      Type: " << this->TypeToString((*itField).type).c_str()
-                                  << METAIO_STREAM::endl;
-      METAIO_STREAM::cout << "      Value: " << (*itField).value.c_str() << METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "      Field Name: " 
+                          <<  (*itField).name.c_str() 
+                          << METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "      Description: " 
+                          << (*itField).description.c_str() 
+                          << METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "      Type: " 
+                          << this->TypeToString((*itField).type).c_str()
+                          << METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "      Value: " 
+                          << (*itField).value.c_str() 
+                          << METAIO_STREAM::endl;
       
       if((*itField).externaldata)
         {
-        METAIO_STREAM::cout << "      External Data: true" << METAIO_STREAM::endl;
+        METAIO_STREAM::cout << "      External Data: true" 
+                            << METAIO_STREAM::endl;
         }
       else
         {
-        METAIO_STREAM::cout << "      External Data: false" << METAIO_STREAM::endl;
+        METAIO_STREAM::cout << "      External Data: false" 
+                            << METAIO_STREAM::endl;
         }
 
       if((*itField).required)
@@ -620,11 +633,14 @@ void MetaCommand::ListOptionsXML()
   while(it != m_OptionVector.end())
     {
     METAIO_STREAM::cout << "<option>" << METAIO_STREAM::endl;
-    METAIO_STREAM::cout << "<number>" << i << "</number>" << METAIO_STREAM::endl;
-    METAIO_STREAM::cout << "<name>" << (*it).name.c_str() << "</name>" << METAIO_STREAM::endl;
-    METAIO_STREAM::cout << "<tag>" << (*it).tag.c_str() << "</tag>" << METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "<number>" << i << "</number>" 
+                        << METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "<name>" << (*it).name.c_str() << "</name>" 
+                        << METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "<tag>" << (*it).tag.c_str() << "</tag>" 
+                        << METAIO_STREAM::endl;
     METAIO_STREAM::cout << "<description>" << (*it).description.c_str() 
-                                 << "</description>" << METAIO_STREAM::endl;
+                        << "</description>" << METAIO_STREAM::endl;
     METAIO_STREAM::cout << "<required>";
     if((*it).required)
       {
@@ -635,19 +651,22 @@ void MetaCommand::ListOptionsXML()
       METAIO_STREAM::cout << "0</required>" << METAIO_STREAM::endl;
       }
 
-    METAIO_STREAM::cout << "<nvalues>" << (*it).fields.size() << "</nvalues>" << METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "<nvalues>" << (*it).fields.size() << "</nvalues>" 
+                        << METAIO_STREAM::endl;
     
     METAIO_STL::vector<Field>::const_iterator itField = (*it).fields.begin();
     while(itField != (*it).fields.end())
       {
       METAIO_STREAM::cout << "<field>" << METAIO_STREAM::endl;
-      METAIO_STREAM::cout << "<name>" << (*itField).name.c_str() << "</name>" << METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "<name>" << (*itField).name.c_str() << "</name>" 
+                          << METAIO_STREAM::endl;
       METAIO_STREAM::cout << "<description>" << (*itField).description.c_str() 
-                                   << "</description>" << METAIO_STREAM::endl;
-      METAIO_STREAM::cout << "<type>" << this->TypeToString((*itField).type).c_str() 
-                            << "</type>" << METAIO_STREAM::endl;
-      METAIO_STREAM::cout << "<value>" << (*itField).value.c_str() << "</value>" 
-                             << METAIO_STREAM::endl; 
+                          << "</description>" << METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "<type>" 
+                          << this->TypeToString((*itField).type).c_str() 
+                          << "</type>" << METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "<value>" << (*itField).value.c_str() 
+                          << "</value>" << METAIO_STREAM::endl; 
       METAIO_STREAM::cout << "<external>";
       if((*itField).externaldata == DATA_IN)
         {
@@ -999,8 +1018,7 @@ bool MetaCommand::ExportGAD(bool dynamic)
       if((*itFields).externaldata == DATA_IN)
         {
         file << " <componentAction type=\"DataRelocation\" order=\"" 
-             << order
-             << "\">" << METAIO_STREAM::endl;
+             << order << "\">" << METAIO_STREAM::endl;
         file << "  <parameter name=\"Name\" value=\"" 
              << (*itFields).name.c_str() <<"\"/>" << METAIO_STREAM::endl;
         file << "  <parameter name=\"Host\" value=\"hostname\"/>" 
@@ -1026,7 +1044,8 @@ bool MetaCommand::ExportGAD(bool dynamic)
           {
           datapath = datapath.substr(slash+1,datapath.size()-slash-1);
           }
-        file << "  <parameter name=\"DestDataPath\" value=\"" << datapath.c_str() << "\"/>" << METAIO_STREAM::endl;
+        file << "  <parameter name=\"DestDataPath\" value=\"" 
+             << datapath.c_str() << "\"/>" << METAIO_STREAM::endl;
         file << " </componentAction>" << METAIO_STREAM::endl;
         file << METAIO_STREAM::endl;
         order++;
@@ -1036,8 +1055,10 @@ bool MetaCommand::ExportGAD(bool dynamic)
     it++;
     }
 
-  file << " <componentAction type=\"JobSubmission\" order=\"" << order << "\">" << METAIO_STREAM::endl;
-  file << "  <parameter name=\"Executable\" value=\"" << m_ExecutableName.c_str() << "\"/>" << METAIO_STREAM::endl;
+  file << " <componentAction type=\"JobSubmission\" order=\"" << order 
+       << "\">" << METAIO_STREAM::endl;
+  file << "  <parameter name=\"Executable\" value=\"" 
+       << m_ExecutableName.c_str() << "\"/>" << METAIO_STREAM::endl;
   file << "  <parameter name=\"Arguments\"  value=\"";
   // Write out the command line arguments
   it = options.begin();
@@ -1500,7 +1521,8 @@ bool MetaCommand::Parse(int argc, char* argv[])
   bool valueInRange = true;
   while(itParsed != m_ParsedOptionVector.end())
     {
-    METAIO_STL::vector<Field>::const_iterator itFields = (*itParsed).fields.begin();
+    METAIO_STL::vector<Field>::const_iterator itFields = (*itParsed).fields
+                                                                    .begin();
     while(itFields != (*itParsed).fields.end())
       {
       // Check only if this is a number
