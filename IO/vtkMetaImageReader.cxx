@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.23");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.24");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -354,22 +354,22 @@ int vtkMetaImageReader::GetDataByteOrder(void)
 void vtkMetaImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "RescaleSlope: " << RescaleSlope << endl;
-  os << indent << "RescaleOffset: " << RescaleOffset << endl;
+  os << indent << "RescaleSlope: " << this->RescaleSlope << endl;
+  os << indent << "RescaleOffset: " << this->RescaleOffset << endl;
 
-  os << indent << "GantryAngle: " << GantryAngle << endl;
-  os << indent << "PatientName: " << PatientName << endl;
-  os << indent << "PatientID: " << PatientID << endl;
-  os << indent << "Date: " << Date << endl;
-  os << indent << "Series: " << Series << endl;
-  os << indent << "Study: " << Study << endl;
-  os << indent << "ImageNumber: " << ImageNumber << endl;
-  os << indent << "Modality: " << Modality << endl;
-  os << indent << "StudyID: " << StudyID << endl;
-  os << indent << "StudyUID: " << StudyUID << endl;
-  os << indent << "TransferSyntaxUID: " << TransferSyntaxUID << endl;
+  os << indent << "GantryAngle: " << this->GantryAngle << endl;
+  os << indent << "PatientName: " << this->PatientName << endl;
+  os << indent << "PatientID: " << this->PatientID << endl;
+  os << indent << "Date: " << this->Date << endl;
+  os << indent << "Series: " << this->Series << endl;
+  os << indent << "Study: " << this->Study << endl;
+  os << indent << "ImageNumber: " << this->ImageNumber << endl;
+  os << indent << "Modality: " << this->Modality << endl;
+  os << indent << "StudyID: " << this->StudyID << endl;
+  os << indent << "StudyUID: " << this->StudyUID << endl;
+  os << indent << "TransferSyntaxUID: " << this->TransferSyntaxUID << endl;
 
-  os << indent << "BitsAllocated: " << BitsAllocated << endl;
-  os << indent << "DistanceUnits: " << DistanceUnits << endl;
-  os << indent << "AnatomicalOrientation: " << AnatomicalOrientation << endl;
+  os << indent << "BitsAllocated: " << this->BitsAllocated << endl;
+  os << indent << "DistanceUnits: " << this->DistanceUnits << endl;
+  os << indent << "AnatomicalOrientation: " << this->AnatomicalOrientation << endl;
 }
