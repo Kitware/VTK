@@ -38,7 +38,7 @@ MetaCommand::MetaCommand()
 }
 
 
-/** Extract the date from the $Date: 2007-05-10 21:37:39 $ cvs command */
+/** Extract the date from the $Date: 2007-05-10 21:52:31 $ cvs command */
 METAIO_STL::string MetaCommand::ExtractDateFromCVS(METAIO_STL::string date)
 {
   METAIO_STL::string newdate;
@@ -1123,12 +1123,12 @@ bool MetaCommand::ExportGAD(bool dynamic)
       
       if((*itFields).rangeMin != "")
         {
-        file << " rangeMin=\"" << (*itFields).rangeMin << "\"";
+        file << " rangeMin=\"" << (*itFields).rangeMin.c_str() << "\"";
         }
 
       if((*itFields).rangeMax != "")
         {
-        file << " rangeMax=\"" << (*itFields).rangeMax << "\"";
+        file << " rangeMax=\"" << (*itFields).rangeMax.c_str() << "\"";
         } 
       file << "/>" << METAIO_STREAM::endl;
       itFields++;
@@ -1524,8 +1524,8 @@ bool MetaCommand::Parse(int argc, char* argv[])
           METAIO_STREAM::cout << (*itParsed).name.c_str() 
                     << "." << (*itFields).name.c_str()
                     << " : Value (" << (*itFields).value.c_str() << ") "
-                    << "is not in the range [" << (*itFields).rangeMin
-                    << "," << (*itFields).rangeMax 
+                    << "is not in the range [" << (*itFields).rangeMin.c_str()
+                    << "," << (*itFields).rangeMax.c_str() 
                     << "]" << METAIO_STREAM::endl;
           valueInRange = false;
           }

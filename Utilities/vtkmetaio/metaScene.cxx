@@ -176,7 +176,11 @@ Read(const char *_headerName)
   /** Objects should be added here */
   for(i=0;i<m_NObjects;i++)
   {
-    if(META_DEBUG) METAIO_STREAM::cout << MET_ReadType(*m_ReadStream) << METAIO_STREAM::endl;
+    if(META_DEBUG) 
+      {
+      METAIO_STREAM::cout << MET_ReadType(*m_ReadStream).c_str() 
+                          << METAIO_STREAM::endl;
+      }
 
     if(m_Event)
       {
