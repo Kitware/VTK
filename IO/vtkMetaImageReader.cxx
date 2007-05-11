@@ -34,7 +34,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.25");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.26");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -278,7 +278,11 @@ int vtkMetaImageReader::CanReadFile(const char* fname)
   // Now check the file content
   ifstream inputStream;
 
+#ifdef _WIN32
   inputStream.open( fname, ios::in | ios::binary );
+#else
+  inputStream.open( fname, ios::in );
+#endif
 
   if( inputStream.fail() )
     {
