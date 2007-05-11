@@ -614,8 +614,12 @@ Read(const char *_fileName)
     }
 
   METAIO_STREAM::ifstream * tmpReadStream = new METAIO_STREAM::ifstream;
+#ifdef __sgi
+  tmpReadStream->open(m_FileName, METAIO_STREAM::ios::in);
+#else
   tmpReadStream->open(m_FileName, METAIO_STREAM::ios::binary |
                                   METAIO_STREAM::ios::in);
+#endif
 
   if(!tmpReadStream->is_open())
     {
@@ -700,10 +704,12 @@ Write(const char *_fileName)
   METAIO_STREAM::ofstream tFile(m_FileName, METAIO_STREAM::ios::out);
   tFile.close();                    
   }
-#endif
-
+  tmpWriteStream->open(_fileName, METAIO_STREAM::ios::out);
+#else
   tmpWriteStream->open(_fileName, METAIO_STREAM::ios::binary |
                                   METAIO_STREAM::ios::out);
+#endif
+
   if(!tmpWriteStream->is_open())
     {
     delete tmpWriteStream;

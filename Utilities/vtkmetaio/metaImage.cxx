@@ -974,8 +974,12 @@ CanRead(const char *_headerName) const
   // Now check the file content
   METAIO_STREAM::ifstream inputStream;
 
+#ifdef __sgi
+  inputStream.open( fname.c_str(), METAIO_STREAM::ios::in );
+#else
   inputStream.open( fname.c_str(), METAIO_STREAM::ios::in |
                                    METAIO_STREAM::ios::binary );
+#endif
 
   if( inputStream.fail() )
     {
@@ -1035,8 +1039,12 @@ Read(const char *_headerName, bool _readElements, void * _buffer)
 
   METAIO_STREAM::ifstream * tmpReadStream = new METAIO_STREAM::ifstream;
 
+#ifdef __sgi
+  tmpReadStream->open(m_FileName, METAIO_STREAM::ios::in);
+#else
   tmpReadStream->open(m_FileName, METAIO_STREAM::ios::binary |
                                   METAIO_STREAM::ios::in);
+#endif
 
   if(!tmpReadStream->is_open())
     {
@@ -1163,8 +1171,12 @@ ReadStream(int _nDims,
             strcpy(fName, s);
             }
 
+#ifdef __sgi
+          readStreamTemp->open(fName, METAIO_STREAM::ios::in);
+#else
           readStreamTemp->open(fName, METAIO_STREAM::ios::binary |
                                       METAIO_STREAM::ios::in);
+#endif
           if(!readStreamTemp->is_open())
             {
             METAIO_STREAM::cerr << "MetaImage: Read: cannot open slice" 
@@ -1220,8 +1232,12 @@ ReadStream(int _nDims,
           {
           strcpy(fName, s);
           }
+#ifdef __sgi
+        readStreamTemp->open(fName, METAIO_STREAM::ios::in);
+#else
         readStreamTemp->open(fName, METAIO_STREAM::ios::binary 
                                     | METAIO_STREAM::ios::in);
+#endif
         if(!readStreamTemp->is_open())
           {
           METAIO_STREAM::cerr << "MetaImage: Read: cannot construct file" 
@@ -1251,8 +1267,14 @@ ReadStream(int _nDims,
         }
 
       METAIO_STREAM::ifstream* readStreamTemp = new METAIO_STREAM::ifstream;
+
+#ifdef __sgi
+      readStreamTemp->open(fName, METAIO_STREAM::ios::in);
+#else
       readStreamTemp->open(fName, METAIO_STREAM::ios::binary |
                                   METAIO_STREAM::ios::in);
+#endif
+
       if(!readStreamTemp->is_open())
         {
         METAIO_STREAM::cerr << "MetaImage: Read: Cannot open data file" 
@@ -1352,22 +1374,30 @@ Write(const char *_headName,
 // that requires a file to exist for output
 #ifdef __sgi
   {
-  METAIO_STREAM::ofstream tFile(m_FileName, METAIO_STREAM::ios::binary |
-                                            METAIO_STREAM::ios::out);
+  METAIO_STREAM::ofstream tFile(m_FileName, METAIO_STREAM::ios::out);
   tFile.close();                    
   }
 #endif
 
   if(!_append)
     {
+#ifdef __sgi
+    tmpWriteStream->open(m_FileName, METAIO_STREAM::ios::out);
+#else
     tmpWriteStream->open(m_FileName, METAIO_STREAM::ios::binary |
                                      METAIO_STREAM::ios::out);
+#endif
     }
   else
     {
+#ifdef __sgi
+    tmpWriteStream->open(m_FileName, METAIO_STREAM::ios::app |
+                                     METAIO_STREAM::ios::out);
+#else
     tmpWriteStream->open(m_FileName, METAIO_STREAM::ios::binary |
                                      METAIO_STREAM::ios::app |
                                      METAIO_STREAM::ios::out);
+#endif
     }
 
   if(!tmpWriteStream->is_open())
@@ -1963,14 +1993,14 @@ M_WriteElements(METAIO_STREAM::ofstream * _fstream,
 // that requires a file to exist for output
 #ifdef __sgi
         {
-        METAIO_STREAM::ofstream tFile(fName, METAIO_STREAM::ios::binary |
-                                             METAIO_STREAM::ios::out);
+        METAIO_STREAM::ofstream tFile(fName, METAIO_STREAM::ios::out);
         tFile.close();                    
         }
-#endif
-
+        writeStreamTemp->open(fName, METAIO_STREAM::ios::out);
+#else
         writeStreamTemp->open(fName, METAIO_STREAM::ios::binary |
                                      METAIO_STREAM::ios::out);
+#endif
 
         if(!m_CompressedData)
           {
@@ -2006,17 +2036,18 @@ M_WriteElements(METAIO_STREAM::ofstream * _fstream,
       {
 // Some older sgi compilers have a error in the ofstream constructor
 // that requires a file to exist for output
+      METAIO_STREAM::ofstream* writeStreamTemp = new METAIO_STREAM::ofstream;
+
 #ifdef __sgi
       {
-      METAIO_STREAM::ofstream tFile(dataFileName, METAIO_STREAM::ios::binary |
-                                                  METAIO_STREAM::ios::out);
+      METAIO_STREAM::ofstream tFile(dataFileName, METAIO_STREAM::ios::out);
       tFile.close();                    
       }
-#endif
-
-      METAIO_STREAM::ofstream* writeStreamTemp = new METAIO_STREAM::ofstream;
+      writeStreamTemp->open(dataFileName, METAIO_STREAM::ios::out);
+#else
       writeStreamTemp->open(dataFileName, METAIO_STREAM::ios::binary |
                                           METAIO_STREAM::ios::out);
+#endif
  
       MetaImage::M_WriteElementData(writeStreamTemp, _data, _dataQuantity);
         

@@ -322,9 +322,17 @@ void MetaOutput::Write()
   if(m_MetaCommand && m_MetaCommand->GetOptionWasSet("GenerateXMLFile"))
     {
     //this->GenerateXML();
-    METAIO_STL::string filename = m_MetaCommand->GetValueAsString("GenerateXMLFile");
+    METAIO_STL::string filename = m_MetaCommand
+                                  ->GetValueAsString("GenerateXMLFile");
     METAIO_STL::ofstream fileStream;
-    fileStream.open(filename.c_str(), METAIO_STL::ios::binary | METAIO_STL::ios::out);
+
+#ifdef __sgi
+    fileStream.open(filename.c_str(), METAIO_STL::ios::out);
+#else
+    fileStream.open(filename.c_str(), METAIO_STL::ios::binary 
+                                      | METAIO_STL::ios::out);
+#endif
+
     if(fileStream.is_open())
       {
       fileStream << this->GenerateXML(filename.c_str()).c_str();

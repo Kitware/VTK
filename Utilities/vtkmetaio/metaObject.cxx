@@ -252,8 +252,12 @@ Read(const char *_fileName)
 
   METAIO_STREAM::ifstream * tmpReadStream = new METAIO_STREAM::ifstream;
 
+#ifdef __sgi
+  tmpReadStream->open(m_FileName, METAIO_STREAM::ios::in);
+#else
   tmpReadStream->open(m_FileName, METAIO_STREAM::ios::binary |
                                   METAIO_STREAM::ios::in);
+#endif
 
   if(!tmpReadStream->is_open())
     {
@@ -331,12 +335,14 @@ Write(const char *_fileName)
  
 #ifdef __sgi
   // Create the file. This is required on some older sgi's
-  METAIO_STREAM::ofstream tFile(m_FileName,METAIO_STREAM::ios::out);
+  METAIO_STREAM::ofstream tFile(m_FileName, METAIO_STREAM::ios::out);
   tFile.close();                    
-#endif
-
+  m_WriteStream->open(m_FileName, METAIO_STREAM::ios::out);
+#else
   m_WriteStream->open(m_FileName, METAIO_STREAM::ios::binary |
                                   METAIO_STREAM::ios::out);
+#endif
+
   if(!m_WriteStream->is_open())
     {
     return false;
@@ -1737,18 +1743,9 @@ bool MetaObject
     m_WriteStream = new METAIO_STREAM::ofstream;
     }
 
-#ifndef __sgi
-  m_WriteStream->open(m_FileName,
-                      METAIO_STREAM::ios::binary | METAIO_STREAM::ios::out | METAIO_STREAM::ios::app);
-  if(!m_WriteStream->is_open())
-    {
-    delete m_WriteStream;
-    m_WriteStream = 0;
-    return false;
-    }
-#else
-  m_WriteStream->open(m_FileName,
-                      METAIO_STREAM::ios::binary | METAIO_STREAM::ios::out | METAIO_STREAM::ios::in);
+#ifdef __sgi
+  m_WriteStream->open(m_FileName, METAIO_STREAM::ios::out 
+                                  | METAIO_STREAM::ios::in);
   if(!m_WriteStream->is_open())
     {
     delete m_WriteStream;
@@ -1756,6 +1753,16 @@ bool MetaObject
     return false;
     }
   m_WriteStream->seekp(0,METAIO_STREAM::ios::end);
+#else
+  m_WriteStream->open(m_FileName, METAIO_STREAM::ios::binary 
+                                  | METAIO_STREAM::ios::out 
+                                  | METAIO_STREAM::ios::app);
+  if(!m_WriteStream->is_open())
+    {
+    delete m_WriteStream;
+    m_WriteStream = 0;
+    return false;
+    }
 #endif
 
   M_Write();

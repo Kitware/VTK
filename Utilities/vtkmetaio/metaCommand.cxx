@@ -38,7 +38,7 @@ MetaCommand::MetaCommand()
 }
 
 
-/** Extract the date from the $Date: 2007-05-10 22:51:51 $ cvs command */
+/** Extract the date from the $Date: 2007-05-11 22:11:25 $ cvs command */
 METAIO_STL::string MetaCommand::ExtractDateFromCVS(METAIO_STL::string date)
 {
   METAIO_STL::string newdate;
@@ -984,8 +984,13 @@ bool MetaCommand::ExportGAD(bool dynamic)
   filename += ".gad.xml";
 
   METAIO_STREAM::ofstream file;
-  file.open(filename.c_str(),
-            METAIO_STREAM::ios::binary | METAIO_STREAM::ios::out);
+#ifdef __sgi
+  file.open(filename.c_str(), METAIO_STREAM::ios::out);
+#else
+  file.open(filename.c_str(), METAIO_STREAM::ios::binary 
+                              | METAIO_STREAM::ios::out);
+#endif
+
   if(!file.is_open())
     {
     METAIO_STREAM::cout << "Cannot open file for writing: " 

@@ -148,7 +148,12 @@ Read(const char *_headerName)
  
   M_PrepareNewReadStream();
   
-  m_ReadStream->open(m_FileName, METAIO_STREAM::ios::binary | METAIO_STREAM::ios::in);
+#ifdef __sgi
+  m_ReadStream->open(m_FileName, METAIO_STREAM::ios::in);
+#else
+  m_ReadStream->open(m_FileName, METAIO_STREAM::ios::binary 
+                                 | METAIO_STREAM::ios::in);
+#endif
   
   if(!m_ReadStream->is_open())
   {
@@ -377,11 +382,16 @@ Write(const char *_headName)
 
 #ifdef __sgi
   // Create the file. This is required on some older sgi's
-  METAIO_STREAM::ofstream tFile(m_FileName,METAIO_STREAM::ios::out);
+  {
+  METAIO_STREAM::ofstream tFile(m_FileName, METAIO_STREAM::ios::out);
   tFile.close();                    
+  }
+  m_WriteStream->open(m_FileName, METAIO_STREAM::ios::out);
+#else
+  m_WriteStream->open(m_FileName, METAIO_STREAM::ios::binary 
+                                  | METAIO_STREAM::ios::out);
 #endif
 
-  m_WriteStream->open(m_FileName, METAIO_STREAM::ios::binary | METAIO_STREAM::ios::out);
   if(!m_WriteStream->is_open())
     {
     delete m_WriteStream;
