@@ -91,5 +91,10 @@ int main( int argc, char *argv[] )
   ren1->Delete();
   renWindow->Delete();
   tl->Delete();
+  actor->Delete();
+  mapper->Delete();
+  stripper->Delete();
+  tfilter->Delete();
+  plane->Delete();
   return 1;
 }
