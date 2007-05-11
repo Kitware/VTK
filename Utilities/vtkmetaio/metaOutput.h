@@ -20,6 +20,8 @@
 #ifdef _MSC_VER
 #pragma warning ( disable : 4786 )
 #pragma warning ( disable: 4251 )
+#pragma warning ( disable: 4511 ) // copy constructor not found
+#pragma warning ( disable: 4512 ) // assignment operator not found
 #endif
 
 #include "metaCommand.h"
@@ -127,7 +129,8 @@ public:
   bool Open()
     {
     MetaOutputStream::Open();
-    m_FileStream.open(m_FileName.c_str(), METAIO_STL::ios::binary | METAIO_STL::ios::out);
+    m_FileStream.open(m_FileName.c_str(),
+                      METAIO_STL::ios::binary | METAIO_STL::ios::out);
     return m_FileStream.is_open();
     }
 
