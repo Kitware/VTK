@@ -25,7 +25,7 @@
 #endif
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.18");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.19");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -294,7 +294,7 @@ void vtkCocoaRenderWindowInteractor::Start()
 
   // Now that we are about to begin the standard Cocoa event loop, we can get
   // rid of the 'pool of last resort' because [NSApp run] will create a new
-  // pool for event event
+  // pool for every event
   #ifndef __OBJC_GC__
   gEarlyCocoaSetup->DestroyPoolOfLastResort();
   #endif
@@ -379,11 +379,11 @@ void vtkCocoaRenderWindowInteractor::TerminateApp()
   if (renWin)
     {
     // Check if the NSWindow was created by VTK. If so, let's use the
-    // vtkCocoaServer to stop the application since it have started it.
+    // vtkCocoaServer to stop the application since it started it.
     // This means that the interactor was started using the Start method.
-    // The vtkCocoaServer is use to get out of that method without quiting
+    // The vtkCocoaServer is used to get out of that method without quiting
     // the application, allowing to access code after the Start() call, like
-    // object deletion for exemple.
+    // object deletion for example.
     int windowCreated = renWin->GetWindowCreated();
     if (windowCreated)
       {
