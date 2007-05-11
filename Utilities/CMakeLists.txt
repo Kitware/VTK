@@ -47,6 +47,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtk_zlib.h
     vtk_tiff.h
     vtk_freetype.h
+    vtk_libxml2.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
     COMPONENT Development
     )

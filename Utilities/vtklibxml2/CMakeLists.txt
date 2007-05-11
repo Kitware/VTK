@@ -208,6 +208,8 @@ CONFIGURE_FILE(${vtklibxml2_SOURCE_DIR}/config_cmake.h.in
 # Create the build configuration header.
 CONFIGURE_FILE(${vtklibxml2_SOURCE_DIR}/include/libxml/xmlversion.h.in
                ${vtklibxml2_BINARY_DIR}/libxml/xmlversion.h @ONLY)
+SET(vtklibxml2_HEADER_FILES
+  ${vtklibxml2_BINARY_DIR}/libxml/xmlversion.h)
 
 # Copy all the source headers over to the same directory as the build
 # configuration header so that headers can include each other with
@@ -218,6 +220,8 @@ FILE(GLOB vtklibxml2_HEADERS
 FOREACH(f ${vtklibxml2_HEADERS})
   CONFIGURE_FILE(${vtklibxml2_SOURCE_DIR}/include/libxml/${f}
                  ${vtklibxml2_BINARY_DIR}/libxml/${f} COPYONLY)
+  SET(vtklibxml2_HEADER_FILES ${vtklibxml2_HEADER_FILES}
+    ${vtklibxml2_BINARY_DIR}/libxml/${f})
 ENDFOREACH(f)
 
 # Block warnings unless we are instructed to allow them.
@@ -303,3 +307,21 @@ IF(NOT BUILD_SHARED_LIBS)
 ENDIF(NOT BUILD_SHARED_LIBS)
 ADD_LIBRARY(vtklibxml2 ${vtklibxml2_la_SOURCES})
 TARGET_LINK_LIBRARIES(vtklibxml2 ${LIBXML2_LIBS})
+
+# Apply user-defined properties to the library target.
+IF(VTK_LIBRARY_PROPERTIES)
+  SET_TARGET_PROPERTIES(vtklibxml2 PROPERTIES ${VTK_LIBRARY_PROPERTIES})
+ENDIF(VTK_LIBRARY_PROPERTIES)
+
+IF(NOT VTK_INSTALL_NO_LIBRARIES)
+  INSTALL(TARGETS vtklibxml2
+    RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
+    LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
+    ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
+ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  INSTALL(FILES
+    ${vtklibxml2_HEADER_FILES}
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtklibxml2/libxml
+    COMPONENT Development)
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
