@@ -27,7 +27,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRenderingFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.10");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.11");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -895,7 +895,7 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
       }
     }
 
-  // Compute the polgons by determining which edges were intersected
+  // Compute the polygons by determining which edges were intersected
   int neighborLines[12][6] = 
   { {  1,  2,  3,  4,  8,  9}, {  0,  2,  3,  5,  9, 10},
     {  0,  1,  3,  6, 10, 11}, {  0,  1,  2,  7,  8, 11},
