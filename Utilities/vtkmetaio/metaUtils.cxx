@@ -850,7 +850,6 @@ bool MET_Read(METAIO_STREAM::istream &fp, METAIO_STL::vector<MET_FieldRecordType
               {
               break;
               }
-            MET_CHAR_TYPE c = fp.get();
             c = fp.get();
             (*fieldIter)->value[0] = (double)c;
             fp.getline( s, 500 );

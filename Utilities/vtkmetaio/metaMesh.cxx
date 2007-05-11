@@ -466,7 +466,7 @@ M_Read(void)
       
       for(d=0; d<m_NDims; d++)
         {
-        char* num = new char[elementSize];
+        num = new char[elementSize];
         for(k=0;k<static_cast<unsigned int>(elementSize);k++)
           {
           num[k] = _data[i+k];
@@ -585,7 +585,8 @@ M_Read(void)
   
    if(!MET_Read(*m_ReadStream, & m_Fields))
       {
-      METAIO_STREAM::cout << "MetaObject: Read: MET_Read Failed" << METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "MetaObject: Read: MET_Read Failed" 
+                          << METAIO_STREAM::endl;
       return false;
       }
 
@@ -621,8 +622,9 @@ M_Read(void)
       if(gc != readSize)
         {
         METAIO_STREAM::cout << "MetaMesh: m_Read: Cells not read completely" 
-                  << METAIO_STREAM::endl;
-        METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc << METAIO_STREAM::endl;
+                            << METAIO_STREAM::endl;
+        METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc
+                            << METAIO_STREAM::endl;
         return false;
         }
 
@@ -634,6 +636,7 @@ M_Read(void)
         int n = MET_CellSize[celltype];
         MeshCell* cell = new MeshCell(n);
         unsigned int k;
+
         char* num = new char[sizeof(int)];
         for(k=0;k<sizeof(int);k++)
           {
@@ -644,9 +647,10 @@ M_Read(void)
         cell->m_Id = td;
         i+= sizeof(int);
         delete [] num;
+
         for(d=0; d<n; d++)
           {
-          char* num = new char[sizeof(int)];
+          num = new char[sizeof(int)];
           for(k=0;k<static_cast<unsigned int>(sizeof(int));k++)
              {
              num[k] = _data[i+k];
@@ -775,7 +779,6 @@ M_Read(void)
       
       for(d=0; d<n; d++)
         {
-        unsigned int k;
         for(k=0;k<sizeof(int);k++)
           {
           num[k] = _data[i+k];

@@ -414,8 +414,9 @@ M_Read(void)
     if(gc != readSize)
       {
       METAIO_STREAM::cout << "MetaContour: m_Read: data not read completely" 
-                << METAIO_STREAM::endl;
-      METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc << METAIO_STREAM::endl;
+                          << METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc 
+                          << METAIO_STREAM::endl;
       return false;
       }
 
@@ -439,7 +440,7 @@ M_Read(void)
 
       for(d=0; d<m_NDims; d++)
         {
-        char* num = new char[sizeof(float)];
+        num = new char[sizeof(float)];
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
@@ -453,7 +454,7 @@ M_Read(void)
 
       for(d=0; d<m_NDims; d++)
         {
-        char* num = new char[sizeof(float)];
+        num = new char[sizeof(float)];
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
@@ -467,7 +468,7 @@ M_Read(void)
 
       for(d=0; d<m_NDims; d++)
         {
-        char* num = new char[sizeof(float)];
+        num = new char[sizeof(float)];
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
@@ -481,7 +482,7 @@ M_Read(void)
 
       for(d=0; d<4; d++)
         {
-        char* num = new char[sizeof(float)];
+        num = new char[sizeof(float)];
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
@@ -592,18 +593,13 @@ M_Read(void)
       strcpy(m_InterpolatedPointDim,(char *)(mF->value));
       }
 
-    int pntDim;
-    char** pntVal = NULL;
     MET_StringToWordArray(m_InterpolatedPointDim, &pntDim, &pntVal); 
 
-    int i;
     for(i=0;i<pntDim;i++)
       {
       delete [] pntVal[i];
       }
     delete [] pntVal;
-
-    float v[16];
 
     if(m_BinaryData)
       {
@@ -616,8 +612,9 @@ M_Read(void)
       if(gc != readSize)
         {
         METAIO_STREAM::cout << "MetaContour: m_Read: data not read completely" 
-                  << METAIO_STREAM::endl;
-        METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc << METAIO_STREAM::endl;
+                            << METAIO_STREAM::endl;
+        METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc
+                            << METAIO_STREAM::endl;
         return false;
         }
 
@@ -641,7 +638,7 @@ M_Read(void)
 
         for(d=0; d<m_NDims; d++)
           {
-          char* num = new char[sizeof(float)];
+          num = new char[sizeof(float)];
           for(k=0;k<sizeof(float);k++)
             {
             num[k] = _data[i+k];
@@ -655,7 +652,7 @@ M_Read(void)
 
         for(d=0; d<4; d++)
           {
-          char* num = new char[sizeof(float)];
+          num = new char[sizeof(float)];
           for(k=0;k<sizeof(float);k++)
             {
             num[k] = _data[i+k];
@@ -673,35 +670,35 @@ M_Read(void)
     else
       {
       for(int j=0; j<m_NInterpolatedPoints; j++) 
-      {
-      ContourInterpolatedPnt* pnt = new ContourInterpolatedPnt(m_NDims);
-
-      for(int k=0; k<pntDim; k++)
         {
-        *m_ReadStream >> v[k];
-        m_ReadStream->get(); // char c =
-        }
-
-      unsigned long pos = 0;
-      pnt->m_Id = (unsigned long)v[pos];
-      pos++;
-
-      int d;
-      for(d=0; d<m_NDims; d++)
-        {
-        pnt->m_X[d] = v[pos];
+        ContourInterpolatedPnt* pnt = new ContourInterpolatedPnt(m_NDims);
+  
+        for(int k=0; k<pntDim; k++)
+          {
+          *m_ReadStream >> v[k];
+          m_ReadStream->get(); // char c =
+          }
+  
+        unsigned long pos = 0;
+        pnt->m_Id = (unsigned long)v[pos];
         pos++;
+  
+        int d;
+        for(d=0; d<m_NDims; d++)
+          {
+          pnt->m_X[d] = v[pos];
+          pos++;
+          }
+  
+        for(d=0; d<4; d++)
+          {
+          pnt->m_Color[d] = v[pos];
+          pos++;
+          }
+  
+        m_InterpolatedPointsList.push_back(pnt);
         }
-
-      for(d=0; d<4; d++)
-        {
-        pnt->m_Color[d] = v[pos];
-        pos++;
-        }
-
-      m_InterpolatedPointsList.push_back(pnt);
-      }
-    
+      
       char c = ' ';
       while( (c!='\n') && (!m_ReadStream->eof()))
         {
@@ -717,11 +714,15 @@ M_Read(void)
 bool MetaContour::
 M_Write(void)
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaContour: M_Write" << METAIO_STREAM::endl;
+  if(META_DEBUG) 
+    {
+    METAIO_STREAM::cout << "MetaContour: M_Write" << METAIO_STREAM::endl;
+    }
 
   if(!MetaObject::M_Write())
     {
-    METAIO_STREAM::cout << "MetaContour: M_Read: Error parsing file" << METAIO_STREAM::endl;
+    METAIO_STREAM::cout << "MetaContour: M_Read: Error parsing file" 
+                        << METAIO_STREAM::endl;
     return false;
     }
 

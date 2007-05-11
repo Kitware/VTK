@@ -239,8 +239,8 @@ METAIO_STL::string MetaOutput::GenerateXML(const char* filename)
       continue;
       }
 
-    typedef METAIO_STL::vector<MetaCommand::Field> FieldVector;
-    FieldVector::const_iterator itField = (*itInput).fields.begin();
+    typedef METAIO_STL::vector<MetaCommand::Field> CmdFieldVector;
+    CmdFieldVector::const_iterator itField = (*itInput).fields.begin();
     while(itField != (*itInput).fields.end())
       {
       if((*itInput).fields.size() == 1)
@@ -249,7 +249,8 @@ METAIO_STL::string MetaOutput::GenerateXML(const char* filename)
         }
       else
         {
-        buffer += "  <Input name=\"" + (*itInput).name + "." + (*itField).name +"\"";
+        buffer += "  <Input name=\"" + (*itInput).name + "." 
+                                     + (*itField).name +"\"";
         }
 
       buffer += " description=\"" + (*itInput).description + "\"";
