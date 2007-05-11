@@ -33,7 +33,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkDataArray, "1.73.10.2");
+vtkCxxRevisionMacro(vtkDataArray, "1.73.10.3");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -244,28 +244,24 @@ void vtkDataArray::GetData(vtkIdType tupleMin, vtkIdType tupleMax, int compMin,
 }
 
 //--------------------------------------------------------------------------
-// The extra argument is to trick older compilers to use the non-templated
-// version first when possible.
 template <class T>
-inline void vtkDataArrayRoundIfNecessary(double val, T& retVal, long)
+inline void vtkDataArrayRoundIfNecessary(double val, T* retVal)
 {
-  retVal = static_cast<T>((val>=0.0)?(val + 0.5):(val - 0.5));
+  *retVal = static_cast<T>((val>=0.0)?(val + 0.5):(val - 0.5));
 }
 
 //--------------------------------------------------------------------------
-// The extra argument is to trick older compilers to use the non-templated
-// version first when possible.
-inline void vtkDataArrayRoundIfNecessary(double val, double& retVal, int)
+VTK_TEMPLATE_SPECIALIZE
+inline void vtkDataArrayRoundIfNecessary(double val, double* retVal)
 {
-  retVal = val;
+  *retVal = val;
 }
 
 //--------------------------------------------------------------------------
-// The extra argument is to trick older compilers to use the non-templated
-// version first when possible.
-inline void vtkDataArrayRoundIfNecessary(double val, float& retVal, int)
+VTK_TEMPLATE_SPECIALIZE
+inline void vtkDataArrayRoundIfNecessary(double val, float* retVal)
 {
-  retVal = static_cast<float>(val);
+  *retVal = static_cast<float>(val);
 }
 
 //--------------------------------------------------------------------------
@@ -281,7 +277,8 @@ void vtkDataArrayInterpolateTuple(T* from, T* to, int numComp,
       c += weights[j]*from[ids[j]*numComp+i];
       }
     // Round integer types. Don't round floating point types.
-    vtkDataArrayRoundIfNecessary(c, *to++, 1);
+    vtkDataArrayRoundIfNecessary(c, to);
+    to++;
     }
 }
 
@@ -742,7 +739,7 @@ unsigned long vtkDataArray::GetActualMemorySize()
 
   size = vtkDataArray::GetDataTypeSize(this->GetDataType());
 
-  return (unsigned long)ceil((size * numPrims)/1024.0); //kilobytes
+  return (unsigned long)ceil((size * numPrims)/1000.0); //kilobytes
 }
 
 //----------------------------------------------------------------------------
