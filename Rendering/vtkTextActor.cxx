@@ -32,7 +32,7 @@
 #include "vtkTexture.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.40");
+vtkCxxRevisionMacro(vtkTextActor, "1.41");
 vtkStandardNewMacro(vtkTextActor);
 vtkCxxSetObjectMacro(vtkTextActor,Texture,vtkTexture);
 
@@ -722,6 +722,7 @@ void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FontScaleExponent: " << this->FontScaleExponent << endl;
   os << indent << "FontScaleTarget: " << this->FontScaleTarget << endl;
   os << indent << "Texture: " << this->Texture << "\n";
+  os << indent << "UseBorderAlign: " << this->UseBorderAlign << "\n";
   if (this->Texture)
     {
     this->Texture->PrintSelf(os, indent.GetNextIndent());
