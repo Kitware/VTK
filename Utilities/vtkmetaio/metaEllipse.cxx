@@ -16,6 +16,10 @@
 =========================================================================*/
 #include "metaEllipse.h"
 
+#ifdef _MSC_VER
+#pragma warning(disable:4702)
+#endif
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string>
