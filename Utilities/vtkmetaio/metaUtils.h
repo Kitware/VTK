@@ -41,6 +41,9 @@
 #ifndef ITKMetaIO_METAUTILS_H
 #define ITKMetaIO_METAUTILS_H
 
+#ifdef _MSC_VER
+#pragma warning( disable:4702 )
+#endif
 
 #include <vector>
 #include <string>
