@@ -29,7 +29,7 @@
 #include "vtkBiQuadraticQuad.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.8");
+vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.8.28.1");
 vtkStandardNewMacro(vtkBiQuadraticQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -165,6 +165,13 @@ void vtkBiQuadraticQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellDat
   //Copy point and cell attribute data, first make sure it's empty:
   this->PointData->Initialize();
   this->CellData->Initialize();
+  // Make sure to copy ALL arrays. These field data have to be 
+  // identical to the input field data. Otherwise, CopyData
+  // that occurs later may not work because the output field
+  // data was initialized (CopyAllocate) with the input field
+  // data.
+  this->PointData->CopyAllOn();
+  this->CellData->CopyAllOn();
   this->PointData->CopyAllocate(inPd,27);
   this->CellData->CopyAllocate(inCd,8);
   for (i=0; i<24; i++)
