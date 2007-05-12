@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.19");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.20");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -720,41 +720,7 @@ void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd,
       i=this->RequiredArrays.NextIndex())
     {
     vtkAbstractArray* fromArray = this->Data[this->TargetIndices[i]];    
-    //check if the destination array needs nearest neighbor interpolation
-    int attributeIndex = this->IsArrayAnAttribute(this->TargetIndices[i]);
-    if (attributeIndex != -1 
-        && 
-        this->CopyAttributeFlags[INTERPOLATE][attributeIndex]==2)
-      {
-      //if it is, then change the interpolation weights to 0* 1.0 0*
-      int sz = ptIds->GetNumberOfIds();
-      double *boolweights = new double[sz];
-      boolweights[0] = 1.0; //I assume sz is > 0 to avoid an if
-      double max = weights[0];
-      int maxpos = 0;
-      int j;
-      //make the largest weight 1 and all others 0
-      for (j = 1; j < sz; j++)
-        {
-        if (weights[j] > max)
-          {
-          boolweights[maxpos] = 0.0;
-          boolweights[j] = 1.0;
-          max = weights[j];
-          maxpos = j;
-          }
-        else
-          {
-          boolweights[j] = 0.0;
-          }
-        }      
-      fromArray->InterpolateTuple(toId, ptIds, fromPd->Data[i], boolweights);
-      delete [] boolweights;
-      }
-    else
-      {
-      fromArray->InterpolateTuple(toId, ptIds, fromPd->Data[i], weights);
-      }      
+    fromArray->InterpolateTuple(toId, ptIds, fromPd->Data[i], weights);
     }
 }
 
