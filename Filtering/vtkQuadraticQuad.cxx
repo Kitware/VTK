@@ -23,7 +23,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.9");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.10");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 //----------------------------------------------------------------------------
@@ -224,6 +224,13 @@ void vtkQuadraticQuad::InterpolateAttributes(vtkPointData *inPd, vtkCellData *in
   //Copy point and cell attribute data, first make sure it's empty:
   this->PointData->Initialize();
   this->CellData->Initialize();
+  // Make sure to copy ALL arrays. These field data have to be 
+  // identical to the input field data. Otherwise, CopyData
+  // that occurs later may not work because the output field
+  // data was initialized (CopyAllocate) with the input field
+  // data.
+  this->PointData->CopyAllOn();
+  this->CellData->CopyAllOn();
   this->PointData->CopyAllocate(inPd,9);
   this->CellData->CopyAllocate(inCd,4);
 

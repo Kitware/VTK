@@ -39,7 +39,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.50");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.51");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -499,8 +499,16 @@ int vtkDemandDrivenPipeline::ExecuteData(vtkInformation* request,
 {
   this->ExecuteDataStart(request, inInfo, outInfo);
   // Invoke the request on the algorithm.
+//   unsigned long mTimeBefore = this->Algorithm->GetMTime();
   int result = this->CallAlgorithm(request, vtkExecutive::RequestDownstream,
                                    inInfo, outInfo);
+//   if (mTimeBefore != this->Algorithm->GetMTime())
+//     {
+//     vtkWarningMacro(<< this->Algorithm->GetClassName() 
+//                     << " modified it's MTime during RequestData(). "
+//                     << "This may lead to unnecessary pipeline "
+//                     << "executions");
+//     }
   this->ExecuteDataEnd(request, inInfo, outInfo);
 
   return result;

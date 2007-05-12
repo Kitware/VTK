@@ -26,7 +26,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.11");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.12");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
 //----------------------------------------------------------------------------
@@ -322,6 +322,13 @@ void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   //Copy point and cell attribute data, first make sure it's empty:
   this->PointData->Initialize();
   this->CellData->Initialize();
+  // Make sure to copy ALL arrays. These field data have to be 
+  // identical to the input field data. Otherwise, CopyData
+  // that occurs later may not work because the output field
+  // data was initialized (CopyAllocate) with the input field
+  // data.
+  this->PointData->CopyAllOn();
+  this->CellData->CopyAllOn();
   this->PointData->CopyAllocate(inPd,18);
   this->CellData->CopyAllocate(inCd,6);
   for (i=0; i<15; i++)

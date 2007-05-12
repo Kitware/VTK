@@ -26,7 +26,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.14");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.15");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -325,6 +325,13 @@ void vtkQuadraticPyramid::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   //Copy point and cell attribute data, first make sure it's empty:
   this->PointData->Initialize();
   this->CellData->Initialize();
+  // Make sure to copy ALL arrays. These field data have to be 
+  // identical to the input field data. Otherwise, CopyData
+  // that occurs later may not work because the output field
+  // data was initialized (CopyAllocate) with the input field
+  // data.
+  this->PointData->CopyAllOn();
+  this->CellData->CopyAllOn();
   this->PointData->CopyAllocate(inPd,14);
   this->CellData->CopyAllocate(inCd,5);
   for (i=0; i<13; i++)
