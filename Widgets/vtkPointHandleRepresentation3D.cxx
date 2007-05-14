@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkFocalPlanePointPlacer.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.13");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.14");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -68,7 +68,7 @@ vtkPointHandleRepresentation3D::vtkPointHandleRepresentation3D()
   
   // The size of the hot spot
   this->HotSpotSize = 0.05;
-  this->WaitingForMotion = 0;
+  this->WaitingForMotion = 1;
   this->ConstraintAxis = -1;
   
   // Current handle size
@@ -202,7 +202,7 @@ int vtkPointHandleRepresentation3D
 
 //-------------------------------------------------------------------------
 int vtkPointHandleRepresentation3D::DetermineConstraintAxis(
-  int constraint, double *x, double *vtkNotUsed(startPickPoint))
+  int constraint, double *x, double *startPickPoint)
 {
   // Look for trivial cases
   if ( ! this->Constrained )
@@ -213,14 +213,14 @@ int vtkPointHandleRepresentation3D::DetermineConstraintAxis(
     {
     return constraint;
     }
-  
+
   // Okay, figure out constraint. First see if the choice is
   // outside the hot spot
   if ( ! this->WaitingForMotion )
     {
     double p[3], d2, tol;
     this->CursorPicker->GetPickPosition(p);
-    d2 = vtkMath::Distance2BetweenPoints(p,this->StartEventPosition);
+    d2 = vtkMath::Distance2BetweenPoints(p,this->LastPickPosition);
     tol = this->HotSpotSize*this->InitialLength;
     if ( d2 > (tol*tol))
       {
@@ -237,10 +237,9 @@ int vtkPointHandleRepresentation3D::DetermineConstraintAxis(
   else if ( this->WaitingForMotion && x) 
     {
     double v[3];
-    this->WaitingForMotion = 0;
-    v[0] = fabs(x[0] - this->StartEventPosition[0]);
-    v[1] = fabs(x[1] - this->StartEventPosition[1]);
-    v[2] = fabs(x[2] - this->StartEventPosition[2]);
+    v[0] = fabs(x[0] - startPickPoint[0]);
+    v[1] = fabs(x[1] - startPickPoint[1]);
+    v[2] = fabs(x[2] - startPickPoint[2]);
     return ( v[0]>v[1] ? (v[0]>v[2]?0:2) : (v[1]>v[2]?1:2));
     }
   else
