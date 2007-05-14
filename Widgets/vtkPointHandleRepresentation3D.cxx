@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkFocalPlanePointPlacer.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.12");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.13");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -202,7 +202,7 @@ int vtkPointHandleRepresentation3D
 
 //-------------------------------------------------------------------------
 int vtkPointHandleRepresentation3D::DetermineConstraintAxis(
-  int constraint, double *x, double *startPickPoint)
+  int constraint, double *x, double *vtkNotUsed(startPickPoint))
 {
   // Look for trivial cases
   if ( ! this->Constrained )
@@ -220,9 +220,9 @@ int vtkPointHandleRepresentation3D::DetermineConstraintAxis(
     {
     double p[3], d2, tol;
     this->CursorPicker->GetPickPosition(p);
-    d2 = vtkMath::Distance2BetweenPoints(p,this->LastPickPosition);
+    d2 = vtkMath::Distance2BetweenPoints(p,this->StartEventPosition);
     tol = this->HotSpotSize*this->InitialLength;
-    if ( d2 > (tol*tol) )
+    if ( d2 > (tol*tol))
       {
       this->WaitingForMotion = 0;
       return this->CursorPicker->GetCellId();
@@ -234,13 +234,13 @@ int vtkPointHandleRepresentation3D::DetermineConstraintAxis(
       return -1;
       }
     }
-  else if ( this->WaitingForMotion && x && startPickPoint) 
+  else if ( this->WaitingForMotion && x) 
     {
     double v[3];
     this->WaitingForMotion = 0;
-    v[0] = fabs(x[0] - startPickPoint[0]);
-    v[1] = fabs(x[1] - startPickPoint[1]);
-    v[2] = fabs(x[2] - startPickPoint[2]);
+    v[0] = fabs(x[0] - this->StartEventPosition[0]);
+    v[1] = fabs(x[1] - this->StartEventPosition[1]);
+    v[2] = fabs(x[2] - this->StartEventPosition[2]);
     return ( v[0]>v[1] ? (v[0]>v[2]?0:2) : (v[1]>v[2]?1:2));
     }
   else
