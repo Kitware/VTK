@@ -45,49 +45,50 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.1");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.2");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 
 // Redefine the bfs visitor, the only visitor we
 // are using is the tree_edge visitor.
 template <typename DistanceMap>
-  class my_distance_recorder : public default_bfs_visitor
-  {
-  public:
-    my_distance_recorder() { }
-    my_distance_recorder(DistanceMap dist, vtkIdType* far) 
-      : d(dist), far_vertex(far), far_dist(-1) { *far_vertex = -1; }
-
-    template <typename Edge, typename Graph>
-    void tree_edge(Edge e, const Graph& g) 
-    {
-      typename graph_traits<Graph>::vertex_descriptor
-      u = source(e, g), v = target(e, g);
-      put(d, v, get(d, u) + 1);
-      if (get(d, v) > far_dist)
-        {
-        *far_vertex = v;
-        far_dist = get(d, v);
-        }
-    }
-
-  private:
-      DistanceMap d;
-      vtkIdType* far_vertex;
-      vtkIdType far_dist;
-  };
-  
-#if 0
-// Convenience function
-template <typename DistanceMap>
-my_distance_recorder<DistanceMap> my_distance_recorder_func(DistanceMap d)
+class my_distance_recorder : public default_bfs_visitor
 {
-  return my_distance_recorder<DistanceMap>(d);
-}
-#endif
+public:
+  my_distance_recorder() { }
+  my_distance_recorder(DistanceMap dist, vtkIdType* far) 
+    : d(dist), far_vertex(far), far_dist(-1) { *far_vertex = -1; }
 
+  template <typename Vertex, typename Graph>
+  void discover_vertex(Vertex v, const Graph& g)
+  {
+    // If this is the start vertex, initialize far vertex and distance
+    if (*far_vertex < 0)
+      {
+      *far_vertex = v;
+      far_dist = 0;
+      }
+  }
 
+  template <typename Edge, typename Graph>
+  void tree_edge(Edge e, const Graph& g) 
+  {
+    typename graph_traits<Graph>::vertex_descriptor
+    u = source(e, g), v = target(e, g);
+    put(d, v, get(d, u) + 1);
+    if (get(d, v) > far_dist)
+      {
+      *far_vertex = v;
+      far_dist = get(d, v);
+      }
+  }
+
+private:
+  DistanceMap d;
+  vtkIdType* far_vertex;
+  vtkIdType far_dist;
+};
+  
 // Constructor/Destructor
 vtkBoostBreadthFirstSearch::vtkBoostBreadthFirstSearch()
 {
@@ -184,18 +185,18 @@ int vtkBoostBreadthFirstSearch::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkGraph *output = vtkGraph::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  // Send the data to output.
+  output->ShallowCopy(input);
     
   // Sanity check
   // The Boost BFS likes to crash on empty datasets
   if (input->GetNumberOfVertices() == 0)
     {
-    vtkWarningMacro("Empty input into " << this->GetClassName());
-    return 0;
+    //vtkWarningMacro("Empty input into " << this->GetClassName());
+    return 1;
     }
 
-  // Send the data to output.
-  output->ShallowCopy(input);
-  
   if (this->OriginFromSelection)
     {
     vtkSelection* selection = vtkSelection::GetData(inputVector[1], 0);
