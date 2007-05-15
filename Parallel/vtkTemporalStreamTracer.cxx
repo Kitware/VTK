@@ -48,6 +48,11 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkToolkits.h" // For VTK_USE_MPI 
 
+#undef JB_H5PART_PARTICLE_OUTPUT
+#ifdef JB_H5PART_PARTICLE_OUTPUT
+  #include "vtkH5PartWriter.h"
+#endif
+
 #ifdef VTK_USE_MPI
   #include "vtkMPIController.h"
 #endif
@@ -58,11 +63,7 @@ PURPOSE.  See the above copyright notice for more information.
 using namespace vtkTemporalStreamTracerNamespace;
 
 //----------------------------------------------------------------------------
-#undef JB_H5PART_PARTICLE_OUTPUT
-#ifdef JB_H5PART_PARTICLE_OUTPUT
-#endif
-//---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.21");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.22");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, ParticleWriter, vtkAbstractParticleWriter);
@@ -111,11 +112,10 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
 #ifdef JB_H5PART_PARTICLE_OUTPUT
 //  vtkDebugMacro(<<"Setting vtkH5PartWriter");
 //  vtkH5PartWriter *writer = vtkH5PartWriter::New();
-  vtkDebugMacro(<<"Setting vtkXMLParticleWriter");
-  vtkXMLParticleWriter *writer = vtkXMLParticleWriter::New();
-
-  this->SetParticleWriter(writer);
-  writer->Delete();
+//  vtkDebugMacro(<<"Setting vtkXMLParticleWriter");
+//  vtkXMLParticleWriter *writer = vtkXMLParticleWriter::New();
+//  this->SetParticleWriter(writer);
+//  writer->Delete();
 #endif
 }
 //---------------------------------------------------------------------------
@@ -891,6 +891,9 @@ int vtkTemporalStreamTracer::RequestData(
       ParticleIterator next = it;
       next++;
       //
+      if (pass==1) {
+        vtkDebugMacro(<<"In Pass " << pass << " with Particle " << it->UniqueParticleId);
+      }
       this->IntegrateParticle(it, this->CurrentTimeSteps[0], 
         this->CurrentTimeSteps[1], integrator);
       //
@@ -900,22 +903,29 @@ int vtkTemporalStreamTracer::RequestData(
       it = next;
     }
     // particles will have been deleted so now mark the new iterator positions
-    // ready for the second pass where new particles are added
-    it_first = this->ParticleHistories.end();
+    // ready for the second pass after new particles are added    
+    if (Number>0) {
+      it_first = --this->ParticleHistories.end();
+    }
     // Send and receive any particles which exited/entered the domain
     if (this->UpdateNumPieces>1 && pass==0) {
       // the Particle lists will grow if any are received
       // so we must be very careful with our iterators
+      vtkDebugMacro(<<"Pass 0 about to Transmit receive");
       this->TransmitReceiveParticles(this->MPISendList, received, true);
       // don't want the ones that we sent away
       this->MPISendList.clear();
       // classify all the ones we received
       this->InjectSeeds(NULL, 0, 0, &received, candidates, NULL);
       received.clear();
-      Number = candidates.size();
       // Now update our main list with the ones we are keeping
       this->UpdateSeeds(candidates);
       it_last = this->ParticleHistories.end();
+      if (Number>0) it_first++;
+      else it_first = this->ParticleHistories.begin();
+      // free up unwanted memory
+      Number = candidates.size();
+      candidates.clear();
     }
   }
   if (this->MPISendList.size()>0) {
@@ -1133,7 +1143,7 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     if (!this->Interpolator->FunctionValues(&info.CurrentPosition.x[0], velocity) )
     {
       vtkDebugMacro(<< "INTEGRATE_OVERSHOT : Sending Particle " 
-        << info.UniqueParticleId << " Time " << &info.CurrentPosition.x[3]);
+        << info.UniqueParticleId << " Time " << info.CurrentPosition.x[3]);
       this->AddParticleToMPISendList(info);
       this->ParticleHistories.erase(it);
       ok = false;
@@ -1166,6 +1176,8 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     // We'll leave this here for now as it is instructive to see if it 
     // works properly
     //
+    vtkDebugMacro(<< "Adding Particle to output : " << info.UniqueParticleId
+      << " Time " << info.CurrentPosition.x[3]);
 
     // insert the coordinate
     double    *coord = &info.CurrentPosition.x[0];
@@ -1255,7 +1267,8 @@ bool vtkTemporalStreamTracer::DoParticleSendTasks(ParticleInformation &info, dou
   double velocity[3];
   if ( !this->Interpolator->FunctionValues(point1, velocity) ) {
     vtkDebugMacro(<< "FunctionValues(point1, velocity) : OUT_OF_DOMAIN " << info.UniqueParticleId << '\n');
-    return 0;
+    this->Interpolator->GetLastGoodVelocity(velocity);
+    return this->DoParticleSendTasks(info, point1, velocity, delT);
   }
   else {
     return this->DoParticleSendTasks(info, point1, velocity, delT);

@@ -100,7 +100,7 @@ public:
 
     // Description:
     // To get around problems with the Paraview Animation controls
-    // we can just animatee the time step and ignore the TIME_ requests
+    // we can just animate the time step and ignore the TIME_ requests
     vtkSetMacro(IgnorePipelineTime, int);
     vtkGetMacro(IgnorePipelineTime, int);
     vtkBooleanMacro(IgnorePipelineTime, int);
