@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkFocalPlanePointPlacer.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.11");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.11.2.1");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -213,16 +213,16 @@ int vtkPointHandleRepresentation3D::DetermineConstraintAxis(
     {
     return constraint;
     }
-  
+
   // Okay, figure out constraint. First see if the choice is
   // outside the hot spot
-  if ( ! this->WaitingForMotion )
+  if ( ! x )
     {
     double p[3], d2, tol;
     this->CursorPicker->GetPickPosition(p);
     d2 = vtkMath::Distance2BetweenPoints(p,this->LastPickPosition);
     tol = this->HotSpotSize*this->InitialLength;
-    if ( d2 > (tol*tol) )
+    if ( d2 > (tol*tol))
       {
       this->WaitingForMotion = 0;
       return this->CursorPicker->GetCellId();
@@ -234,10 +234,10 @@ int vtkPointHandleRepresentation3D::DetermineConstraintAxis(
       return -1;
       }
     }
-  else if ( this->WaitingForMotion && x && startPickPoint) 
+  else if ( x) 
     {
-    double v[3];
     this->WaitingForMotion = 0;
+    double v[3];
     v[0] = fabs(x[0] - startPickPoint[0]);
     v[1] = fabs(x[1] - startPickPoint[1]);
     v[2] = fabs(x[2] - startPickPoint[2]);
@@ -274,6 +274,8 @@ void vtkPointHandleRepresentation3D::StartWidgetInteraction(double startEventPos
     this->InteractionState = vtkHandleRepresentation::Outside;
     this->ConstraintAxis = -1;
     }
+  this->Cursor3D->SetTranslationMode(this->TranslationMode);
+  this->WaitCount = 0;
 }
 
 
@@ -307,9 +309,10 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
   if ( this->InteractionState == vtkHandleRepresentation::Selecting ||
        this->InteractionState == vtkHandleRepresentation::Translating )
     {
-    if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
-      {
+    this->WaitCount++;
 
+    if ( this->WaitCount > 3 || !this->Constrained )
+      {
       vtkInteractorObserver::ComputeDisplayToWorld(
           this->Renderer, 
           this->StartEventPosition[0], 
@@ -324,7 +327,7 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
         // If we are doing axis constrained motion, igonore the placer.
         // Can't have both the placer and an axis constraint dictating
         // handle placement.
-        if (this->ConstraintAxis >= 0)
+        if (this->ConstraintAxis >= 0 || this->Constrained)
           {
           this->MoveFocus( prevPickPoint, pickPoint );
           }
@@ -350,11 +353,10 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
         }
       else
         {
-
         // If we are doing axis constrained motion, igonore the placer.
         // Can't have both the placer and the axis constraint dictating
         // handle placement.
-        if (this->ConstraintAxis >= 0)
+        if (this->ConstraintAxis >= 0 || this->Constrained)
           {
           this->Translate(prevPickPoint, pickPoint);
           }
@@ -494,17 +496,21 @@ void vtkPointHandleRepresentation3D::Translate(double *p1, double *p2)
 //----------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::SizeBounds()
 {
-  double center[3], newBounds[6];
-  this->Cursor3D->GetFocalPoint(center);
-  double radius = this->SizeHandlesInPixels(1.0,center);
-  radius *= this->CurrentHandleSize / this->HandleSize;
-
-  for (int i=0; i<3; i++)
+  // Only change the size of the bounding box if translation mode is on.
+  if ( this->TranslationMode )
     {
-    newBounds[2*i] = center[i] - radius;
-    newBounds[2*i+1] = center[i] + radius;
+    double center[3], newBounds[6];
+    this->Cursor3D->GetFocalPoint(center);
+    double radius = this->SizeHandlesInPixels(1.0,center);
+    radius *= this->CurrentHandleSize / this->HandleSize;
+
+    for (int i=0; i<3; i++)
+      {
+      newBounds[2*i] = center[i] - radius;
+      newBounds[2*i+1] = center[i] + radius;
+      }
+    this->Cursor3D->SetModelBounds(newBounds);
     }
-  this->Cursor3D->SetModelBounds(newBounds);
 }
 
 //----------------------------------------------------------------------
