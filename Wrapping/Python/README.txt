@@ -199,7 +199,9 @@ the following widgets are available.
 
   gtk -- pyGTK widgets.
 
-  qt -- Qt widgets.
+  qt -- PyQt v3 widgets.
+
+  qt4 -- PyQt v4 widgets.
 
   tk -- The Tkinter widgets.  
 

@@ -196,6 +196,7 @@ IF(PYTHON_EXECUTABLE)
   FOREACH(dir
     ${VTK_BINARY_DIR}/Wrapping/Python/vtk/gtk
     ${VTK_BINARY_DIR}/Wrapping/Python/vtk/qt
+    ${VTK_BINARY_DIR}/Wrapping/Python/vtk/qt4
     ${VTK_BINARY_DIR}/Wrapping/Python/vtk/tk
     ${VTK_BINARY_DIR}/Wrapping/Python/vtk/util
     ${VTK_BINARY_DIR}/Wrapping/Python/vtk/wx
@@ -256,12 +257,19 @@ IF(PYTHON_EXECUTABLE)
     vtk/tk/vtkTkPhotoImage
     )
 
-# QT related files
+# PyQt v3 related files
   SET(VTK_PYTHON_FILES 
     ${VTK_PYTHON_FILES}
     vtk/qt/QVTKRenderWidget
     vtk/qt/__init__
     vtk/qt/QVTKRenderWindowInteractor
+    )
+
+# PyQt v4 related files
+  SET(VTK_PYTHON_FILES 
+    ${VTK_PYTHON_FILES}
+    vtk/qt4/__init__
+    vtk/qt4/QVTKRenderWindowInteractor
     )
 
 # wxPython related files
