@@ -29,8 +29,44 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkGenericCell.h"
+#include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.10");
+class vtkExtractArraysOverTimeInternal
+{
+  //storage for the set of cell data arrays that must be copied in 
+  //ExtractLocationOverTime
+public:
+  vtkExtractArraysOverTimeInternal()
+  {
+    this->OutArrays.reserve(256);
+  }
+
+  ~vtkExtractArraysOverTimeInternal()
+  {
+    if (this->OutArrays.size() != 0)
+      {
+      this->OutArrays.clear();
+      }
+  }
+
+  void CreateArrays(int n)
+  {
+    if (this->OutArrays.size() != 0)
+      {
+      this->OutArrays.clear();
+      }
+    this->OutArrays.resize(n);
+  }
+
+  int GetSize()
+  {
+    return this->OutArrays.size();
+  }
+
+  vtkstd::vector<vtkDataArray*> OutArrays;
+};
+
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.11");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 
 //----------------------------------------------------------------------------
@@ -45,6 +81,14 @@ vtkExtractArraysOverTime::vtkExtractArraysOverTime()
   this->FieldType = vtkSelection::CELL;
 
   this->Error = vtkExtractArraysOverTime::NoError;
+
+  this->Internal = new vtkExtractArraysOverTimeInternal;
+}
+
+//----------------------------------------------------------------------------
+vtkExtractArraysOverTime::~vtkExtractArraysOverTime()
+{
+  delete this->Internal;
 }
 
 //----------------------------------------------------------------------------
@@ -181,17 +225,17 @@ int vtkExtractArraysOverTime::ProcessRequest(
       // Tell the pipeline to start looping.
       request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
       this->AllocateOutputData(input, output);
-
+      
       this->Error = vtkExtractArraysOverTime::NoError;
       }
-
+    
     if ((this->ContentType == vtkSelection::INDICES) ||        
         (this->ContentType == vtkSelection::GLOBALIDS))
       {
       this->ExecuteIdAtTimeStep(inputVector, outInfo);
       }
     if (this->ContentType == vtkSelection::LOCATIONS)
-      {
+      {     
       this->ExecuteLocationAtTimeStep(inputVector, outInfo);
       }
 
@@ -273,79 +317,12 @@ void vtkExtractArraysOverTime::PostExecute(
       
     }
 
-  //Use the vtkEAOTValidity array to remove any invalid points.
+  //Use the vtkEAOTValidity array to zero any invalid samples.
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkRectilinearGrid *output = vtkRectilinearGrid::GetData(outInfo);
   vtkRectilinearGrid *cleanOut = this->RemoveInvalidPoints(output);
   output->DeepCopy(cleanOut);
   cleanOut->Delete();
-}
-
-//----------------------------------------------------------------------------
-vtkRectilinearGrid *vtkExtractArraysOverTime::RemoveInvalidPoints(
-  vtkRectilinearGrid *source
-  )
-{
-  vtkRectilinearGrid *dest = vtkRectilinearGrid::New();
-  dest->GetPointData()->CopyAllOn();
-
-  vtkUnsignedCharArray* validPts = vtkUnsignedCharArray::SafeDownCast(
-    source->GetPointData()->GetArray("vtkEAOTValidity"));
-  if (!validPts)
-    {
-    dest->ShallowCopy(source);
-    return dest;
-    }
-
-  vtkIdType nvalid = 0;
-  for (vtkIdType i=0; i<this->NumberOfTimeSteps; i++)
-    {
-    if (validPts->GetValue(i) == 1)
-      {
-      nvalid++;
-      }
-    }
-  dest->SetDimensions(nvalid,1,1);
-
-  // Assign dummy y and z coordinates
-  vtkDoubleArray* yCoords = vtkDoubleArray::New();
-  yCoords->SetNumberOfComponents(1);
-  yCoords->SetNumberOfTuples(1);
-  yCoords->SetTuple1(0, 0.0);
-  dest->SetYCoordinates(yCoords);
-  yCoords->Delete();
-
-  vtkDoubleArray* zCoords = vtkDoubleArray::New();
-  zCoords->SetNumberOfComponents(1);
-  zCoords->SetNumberOfTuples(1);
-  zCoords->SetTuple1(0, 0.0);
-  dest->SetZCoordinates(zCoords);
-  zCoords->Delete();
-  
-  vtkDataArray *oxc = source->GetXCoordinates();
-  vtkDataArray *cxc = oxc->NewInstance();
-  dest->SetXCoordinates(cxc);
-  
-  vtkPointData *opd = source->GetPointData();
-  vtkPointData *cpd = dest->GetPointData();
-  cpd->CopyAllOn();
-  cpd->CopyAllocate(opd); 
-  
-  vtkIdType j = 0;
-  for (vtkIdType i=0; i<this->NumberOfTimeSteps; i++)
-    {
-    if (validPts->GetValue(i) == 1)
-      {
-      cxc->InsertNextTuple(i, oxc);
-      cpd->CopyData(opd, i, j++);
-      }
-    }
-  cxc->Delete();
-
-  //This array is for internal use only (by this class and it's parallel 
-  //descendent) so we remove it here.
-  dest->GetPointData()->RemoveArray("vtkEAOTValidity");
-  return dest;
 }
 
 //----------------------------------------------------------------------------
@@ -356,17 +333,33 @@ int vtkExtractArraysOverTime::AllocateOutputData(vtkDataSet *input,
 
   // now the point data
   vtkDataSetAttributes* attr = 0;
-  switch (this->FieldType)
+  if (this->ContentType == vtkSelection::LOCATIONS)
     {
-    case vtkSelection::CELL:
-      attr = input->GetCellData();
-      break;
-    case vtkSelection::POINT:
-      attr = input->GetPointData();
+    attr = input->GetPointData();
+    }
+  else
+    {
+    switch (this->FieldType)
+      {
+      case vtkSelection::CELL:
+        attr = input->GetCellData();
+        break;
+      case vtkSelection::POINT:
+        attr = input->GetPointData();
+      }
     }
   output->GetPointData()->CopyAllOn();
-  output->GetPointData()->CopyAllocate(attr, 
-                                       this->NumberOfTimeSteps);
+  if (this->ContentType == vtkSelection::LOCATIONS)
+    {
+    output->GetPointData()->InterpolateAllocate(
+      input->GetPointData(), 
+      this->NumberOfTimeSteps);
+    }
+  else
+    {
+    output->GetPointData()->CopyAllocate(attr, 
+                                         this->NumberOfTimeSteps);
+    }
 
   // Add an array to hold the time at each step
   vtkDoubleArray *timeArray = vtkDoubleArray::New();
@@ -400,39 +393,30 @@ int vtkExtractArraysOverTime::AllocateOutputData(vtkDataSet *input,
   output->SetZCoordinates(zCoords);
   zCoords->Delete();
 
-  // These are the point coordinates of the original data
-  vtkDoubleArray* coordsArray = vtkDoubleArray::New();
-  coordsArray->SetNumberOfComponents(3);
-  coordsArray->SetNumberOfTuples(this->NumberOfTimeSteps);
-  if (attr->GetArray("Point Coordinates"))
+  if (this->FieldType == vtkSelection::POINT)
     {
-    coordsArray->SetName("Points");
+    // These are the point coordinates of the original data
+    vtkDoubleArray* coordsArray = vtkDoubleArray::New();
+    coordsArray->SetNumberOfComponents(3);
+    coordsArray->SetNumberOfTuples(this->NumberOfTimeSteps);
+    if (attr->GetArray("Point Coordinates"))
+      {
+      coordsArray->SetName("Points");
+      }
+    else
+      {
+      coordsArray->SetName("Point Coordinates");
+      }
+    output->GetPointData()->AddArray(coordsArray);
+    coordsArray->Delete();
     }
-  else
-    {
-    coordsArray->SetName("Point Coordinates");
-    }
-  output->GetPointData()->AddArray(coordsArray);
-  coordsArray->Delete();
-
-  // This array is here for the sake of a parallel sub-class.
-  // It is removed in PostExecute().
-  vtkUnsignedCharArray* validPts = vtkUnsignedCharArray::New();
-  validPts->SetName("vtkEAOTValidity");
-  validPts->SetNumberOfTuples(this->NumberOfTimeSteps);
-  output->GetPointData()->AddArray(validPts);
-  for (vtkIdType i=0; i<this->NumberOfTimeSteps; i++)
-    {
-    validPts->SetValue(i, 0);
-    }
-  validPts->Delete();
 
   // Create an array of point ids to record what pts makeup the found cells.
   if (this->FieldType == vtkSelection::CELL)
     {
     vtkIdType nPtIds = input->GetMaxCellSize();
     vtkIdTypeArray *ptIdsArray = vtkIdTypeArray::New();
-    ptIdsArray->SetName("Point Ids");
+    ptIdsArray->SetName("Cell's Point Ids");
     ptIdsArray->SetNumberOfComponents(nPtIds);
     ptIdsArray->SetNumberOfTuples(this->NumberOfTimeSteps);
     for (vtkIdType i=0; i<this->NumberOfTimeSteps; i++)
@@ -445,6 +429,51 @@ int vtkExtractArraysOverTime::AllocateOutputData(vtkDataSet *input,
     output->GetPointData()->AddArray(ptIdsArray);
     ptIdsArray->Delete();
     }
+
+  if (this->ContentType == vtkSelection::LOCATIONS)
+    {
+    //the output point data already has arrays for the input point data
+    //add another set of arrays for the input cell data,
+    //or at least the arrays in it that don't have name collisions with 
+    //in the point data arrays.
+    //this->Internal keeps a record of it all so that we can reuse it later
+    int numArrays = input->GetCellData()->GetNumberOfArrays();
+    this->Internal->CreateArrays(numArrays);
+      
+    vtkPointData *opd = output->GetPointData();
+    for (int i=0; i<numArrays; i++)
+      {      
+      vtkDataArray* inArray = input->GetCellData()->GetArray(i);
+      if (inArray && inArray->GetName() && !opd->GetArray(inArray->GetName()))
+        {
+        vtkDataArray* newArray = inArray->NewInstance();
+        newArray->SetName(inArray->GetName());
+        newArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
+        newArray->Allocate(this->NumberOfTimeSteps);
+        opd->AddArray(newArray);
+        this->Internal->OutArrays[i] = newArray;
+        newArray->Delete();
+        }
+      else
+        {
+        this->Internal->OutArrays[i] = 0;
+        }
+      }
+    }
+
+  // This array is used to make particular samples as invalid.
+  // This happens when we are looking at a location which is not contained
+  // by a cell or at a cell or point id that is destroyed.
+  // It is used in the parallel subclass as well.
+  vtkUnsignedCharArray* validPts = vtkUnsignedCharArray::New();
+  validPts->SetName("vtkEAOTValidity");
+  validPts->SetNumberOfTuples(this->NumberOfTimeSteps);
+  output->GetPointData()->AddArray(validPts);
+  for (vtkIdType i=0; i<this->NumberOfTimeSteps; i++)
+    {
+    validPts->SetValue(i, 0);
+    }
+  validPts->Delete();
 
   return 1;
 }
@@ -529,20 +558,6 @@ void vtkExtractArraysOverTime::ExecuteIdAtTimeStep(
       attr = input->GetPointData();
     }
 
-  // This is the time array
-  if (attr->GetArray("Time"))
-    {
-    output->GetPointData()->GetArray("TimeData")->SetTuple1(
-      this->CurrentTimeIndex, 
-      input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0]);
-    }
-  else
-    {
-    output->GetPointData()->GetArray("Time")->SetTuple1(
-      this->CurrentTimeIndex, 
-      input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0]);
-    }
-
   vtkInformation* selProperties = selection->GetProperties();
   if (selProperties->Has(vtkSelection::PROCESS_ID()) &&
       piece != selProperties->Get(vtkSelection::PROCESS_ID()))
@@ -558,17 +573,32 @@ void vtkExtractArraysOverTime::ExecuteIdAtTimeStep(
     vtkDebugMacro(<< "Empty selection");
     return;
     }
-  
+
   if (idArray->GetNumberOfTuples() > 1)
     {
     this->Error = vtkExtractArraysOverTime::MoreThan1Indices;
     }
-  
+
+  // Record the time to plot with later
+  if (attr->GetArray("Time"))
+    {
+    output->GetPointData()->GetArray("TimeData")->SetTuple1(
+      this->CurrentTimeIndex, 
+      input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0]);
+    }
+  else
+    {
+    output->GetPointData()->GetArray("Time")->SetTuple1(
+      this->CurrentTimeIndex, 
+      input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0]);
+    }
+    
   // Extract the selected point/cell data at this time step
   vtkIdType index = this->GetIndex(idArray->GetValue(0), input);
   
   if (index >= 0 && index < numElems)
     {
+    //record that their is good data at this sample time
     vtkUnsignedCharArray* validPts = 
       vtkUnsignedCharArray::SafeDownCast(
         output->GetPointData()->GetArray("vtkEAOTValidity"));
@@ -577,29 +607,30 @@ void vtkExtractArraysOverTime::ExecuteIdAtTimeStep(
       validPts->SetValue(this->CurrentTimeIndex, 1);
       }
     
-    // extract the actual data
-    output->GetPointData()->CopyData(attr, 
-                                     index,
-                                     this->CurrentTimeIndex);
-    double* point = input->GetPoint(index);
-    if (attr->GetArray("Point Coordinates"))
+    if (this->FieldType == vtkSelection::POINT)
       {
-      output->GetPointData()->GetArray("Points")->SetTuple(
-        this->CurrentTimeIndex,
-        point);
-      }
-    else
-      {
-      output->GetPointData()->GetArray("Point Coordinates")->SetTuple(
-        this->CurrentTimeIndex,
-        point);
+      //save the location of our chosen point
+      double* point = input->GetPoint(index);
+      if (attr->GetArray("Point Coordinates"))
+        {
+        output->GetPointData()->GetArray("Points")->SetTuple(
+          this->CurrentTimeIndex,
+          point);
+        }
+      else
+        {
+        output->GetPointData()->GetArray("Point Coordinates")->SetTuple(
+          this->CurrentTimeIndex,
+          point);
+        }
       }
 
     if (this->FieldType == vtkSelection::CELL)
       {
+      //save the ids of the points that make up the cell
       vtkIdTypeArray* ptIdsArray = 
         vtkIdTypeArray::SafeDownCast(
-          output->GetPointData()->GetArray("Point Ids"));
+          output->GetPointData()->GetArray("Cell's Point Ids"));
       if (ptIdsArray)
         {
         vtkCell *cell = input->GetCell(index);
@@ -611,6 +642,11 @@ void vtkExtractArraysOverTime::ExecuteIdAtTimeStep(
           }
         }
       }
+
+    // extract the actual data
+    output->GetPointData()->CopyData(attr, 
+                                     index,
+                                     this->CurrentTimeIndex);
 
     }
   
@@ -637,29 +673,9 @@ void vtkExtractArraysOverTime::ExecuteLocationAtTimeStep(
   vtkInformation* inInfo2 = inputV[1]->GetInformationObject(0);
   vtkSelection* selection = vtkSelection::GetData(inInfo2);
 
-
-  // This is the time array
-  vtkDataSetAttributes* attr = 0;
-  switch (this->FieldType)
-    {
-    case vtkSelection::CELL:
-      attr = input->GetCellData();
-      break;
-    case vtkSelection::POINT:
-      attr = input->GetPointData();
-    }
-  if (attr->GetArray("Time"))
-    {
-    output->GetPointData()->GetArray("TimeData")->SetTuple1(
-      this->CurrentTimeIndex, 
-      input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0]);
-    }
-  else
-    {
-    output->GetPointData()->GetArray("Time")->SetTuple1(
-      this->CurrentTimeIndex, 
-      input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0]);
-    }
+  vtkDataSetAttributes* ipd = input->GetPointData();
+  vtkDataSetAttributes* icd = input->GetCellData();
+  vtkDataSetAttributes* opd = output->GetPointData();
 
   vtkInformation* selProperties = selection->GetProperties();
   if (selProperties->Has(vtkSelection::PROCESS_ID()) &&
@@ -681,116 +697,192 @@ void vtkExtractArraysOverTime::ExecuteLocationAtTimeStep(
     {
     this->Error = vtkExtractArraysOverTime::MoreThan1Indices;
     }
-  
-  // Find the cell that contains this location
-  double *L = locArray->GetTuple(0);
 
-  if (this->FieldType == vtkSelection::POINT)
-    { 
-    vtkIdType index = input->FindPoint(L);
-
-    /*
-    //Check distance from search location to found point    
-    //Could be a useful rejection criteria or could be an output array
-    if (index >=0)
-      {
-      double epsilon = 0.35;
-      if (selection->GetProperties()->Has(vtkSelection::EPSILON()))
-        {
-        epsilon = selection->GetProperties()->Get(vtkSelection::EPSILON());
-        }
-      double epsSquared = epsilon*epsilon;
-      double *X = input->GetPoint(index);
-      double dx = X[0]-L[0];
-      dx = dx * dx;
-      double dy = X[1]-L[1];
-      dy = dy * dy;
-      double dz = X[2]-L[2];
-      dz = dz * dz;
-      if (dx+dy+dz > epsSquared)
-        {
-        index = -1;
-        }          
-      }
-    */
-
-    if (index >= 0)
-      {
-      vtkUnsignedCharArray* validPts = 
-        vtkUnsignedCharArray::SafeDownCast(
-          output->GetPointData()->GetArray("vtkEAOTValidity"));
-      if (validPts)
-        {
-        validPts->SetValue(this->CurrentTimeIndex, 1);
-        }
-      
-      // extract the actual data
-      output->GetPointData()->CopyData(attr, 
-                                       index,
-                                       this->CurrentTimeIndex);
-
-      double* point = input->GetPoint(index);
-      if (attr->GetArray("Point Coordinates"))
-        {
-        output->GetPointData()->GetArray("Points")->SetTuple(
-          this->CurrentTimeIndex,
-          point);
-        }
-      else
-        {
-        output->GetPointData()->GetArray("Point Coordinates")->SetTuple(
-          this->CurrentTimeIndex,
-          point);
-        }
-      }   
+  // Record the time to plot with later
+  if (ipd->GetArray("Time"))
+    {
+    opd->GetArray("TimeData")->SetTuple1(
+      this->CurrentTimeIndex, 
+      input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0]);
     }
   else
     {
-    vtkGenericCell* cell = vtkGenericCell::New();
-    vtkIdList *idList = vtkIdList::New();
-    int subId;
-    double pcoords[3];
-    double* weights = new double[input->GetMaxCellSize()];
-    
-    vtkIdType cellId;
-    cellId = input->FindCell(L, NULL, cell,
-                             0, 0.0, subId, pcoords, weights);
-    if (cellId >= 0)
-      {
-      //mark this output as having real data
-      vtkUnsignedCharArray* validPts = 
-        vtkUnsignedCharArray::SafeDownCast(
-          output->GetPointData()->GetArray("vtkEAOTValidity"));
-      if (validPts)
-        {
-        validPts->SetValue(this->CurrentTimeIndex, 1);
-        }
+    opd->GetArray("Time")->SetTuple1(
+      this->CurrentTimeIndex, 
+      input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0]);
+    }
+  
+  // Find the cell that contains this location
+  double *location = locArray->GetTuple(0);
 
-      vtkIdTypeArray* ptIdsArray = 
-        vtkIdTypeArray::SafeDownCast(
-          output->GetPointData()->GetArray("Point Ids"));
-      if (ptIdsArray)
-        {
-        vtkIdType npts = cell->GetNumberOfPoints();
-        for (vtkIdType j=0; j<npts; j++)
-          {
-          ptIdsArray->SetComponent(this->CurrentTimeIndex,j,
-                                   cell->GetPointId(j));
-          }
-        }
+  vtkGenericCell* cell = vtkGenericCell::New();
+  vtkIdList *idList = vtkIdList::New();
+  int subId;
+  double pcoords[3];
+  double *weights;
+  double fastweights[256];
+  int mcs = input->GetMaxCellSize();
+  if (mcs<=256)
+    {
+    weights = fastweights;
+    }
+  else
+    {
+    weights = new double[mcs];
+    }
+  double tol2 = input->GetLength();
+  tol2 = tol2 ? tol2*tol2 / 1000.0 : 0.001;
+
+  //find the cell that contains the search location
+  vtkIdType cellId = input->FindCell(location, NULL, cell,
+                           0, 0.0, subId, pcoords, weights);
+  if (cellId >= 0)
+    {
+    vtkCell *inCell = input->GetCell(cellId);
       
-      //copy the cell data over
-      output->GetPointData()->CopyData(attr, 
-                                       cellId,
-                                       this->CurrentTimeIndex);
+    //record that their is good data at this sample time
+    vtkUnsignedCharArray* validPts = 
+      vtkUnsignedCharArray::SafeDownCast(
+        output->GetPointData()->GetArray("vtkEAOTValidity"));
+    if (validPts)
+      {
+      validPts->SetValue(this->CurrentTimeIndex, 1);
       }
     
-    delete[] weights;
-    cell->Delete();
-    idList->Delete();
+    //save the ids of the points that make up the cell
+    vtkIdTypeArray* ptIdsArray = 
+      vtkIdTypeArray::SafeDownCast(
+        output->GetPointData()->GetArray("Cell's Point Ids"));
+    if (ptIdsArray)
+      {
+      vtkIdType npts = inCell->GetNumberOfPoints();
+      for (vtkIdType j=0; j<npts; j++)
+        {
+        ptIdsArray->SetComponent(this->CurrentTimeIndex,j,
+                                 inCell->GetPointId(j));
+        }
+      }
+    
+    // extract the actual data
+    //interpolate the point data from the input cell and put it in the output
+    opd->InterpolatePoint(ipd, 
+                          this->CurrentTimeIndex, 
+                          inCell->PointIds,
+                          weights);
+    //copy the cell data over (as long as the names don't collide)
+    for (int i=0; i<this->Internal->GetSize(); i++)
+      {
+      vtkDataArray* inArray = icd->GetArray(i);
+      if (this->Internal->OutArrays[i])
+        {
+        opd->CopyTuple(inArray, 
+                       this->Internal->OutArrays[i], 
+                       cellId, this->CurrentTimeIndex);
+        }
+      }    
     }
+    
+  if (mcs>256)
+    {
+    delete[] weights;
+    }
+  cell->Delete();
+  idList->Delete();
   
   this->UpdateProgress(
     (double)this->CurrentTimeIndex/this->NumberOfTimeSteps);
 }
 
+//----------------------------------------------------------------------------
+vtkRectilinearGrid *vtkExtractArraysOverTime::RemoveInvalidPoints(
+  vtkRectilinearGrid *source
+  )
+{
+  vtkRectilinearGrid *dest = vtkRectilinearGrid::New();
+  dest->GetPointData()->CopyAllOn();
+
+  vtkUnsignedCharArray* validPts = vtkUnsignedCharArray::SafeDownCast(
+    source->GetPointData()->GetArray("vtkEAOTValidity"));
+  if (!validPts)
+    {
+    dest->ShallowCopy(source);
+    return dest;
+    }
+
+  dest->SetDimensions(this->NumberOfTimeSteps,1,1);
+
+  // Assign dummy y and z coordinates
+  vtkDoubleArray* yCoords = vtkDoubleArray::New();
+  yCoords->SetNumberOfComponents(1);
+  yCoords->SetNumberOfTuples(1);
+  yCoords->SetTuple1(0, 0.0);
+  dest->SetYCoordinates(yCoords);
+  yCoords->Delete();
+  vtkDoubleArray* zCoords = vtkDoubleArray::New();
+  zCoords->SetNumberOfComponents(1);
+  zCoords->SetNumberOfTuples(1);
+  zCoords->SetTuple1(0, 0.0);
+  dest->SetZCoordinates(zCoords);
+  zCoords->Delete();
+  
+  vtkDataArray *oxc = source->GetXCoordinates();
+  vtkDataArray *cxc = oxc->NewInstance();
+  dest->SetXCoordinates(cxc);
+  
+  vtkPointData *opd = source->GetPointData();
+  vtkPointData *cpd = dest->GetPointData();
+  cpd->CopyAllOn();
+  cpd->CopyAllocate(opd); 
+  
+  for (vtkIdType i=0; i<this->NumberOfTimeSteps; i++)
+    {
+    if (validPts->GetValue(i) == 1)
+      {
+      cxc->InsertNextTuple(i, oxc);
+      cpd->CopyData(opd, i, i);
+      }
+    else
+      {
+      //an invalid sample, set all the data values to 0.0
+      vtkIdType narrays = cpd->GetNumberOfArrays();
+
+      for (vtkIdType a = 0; a < narrays; a++)
+        {
+        vtkDataArray *da = cpd->GetArray(a);
+        for (vtkIdType j = 0; j < da->GetNumberOfComponents(); j++)
+          {
+          da->InsertComponent(i, j, 0.0);
+          }    
+        }
+
+      //keep the time value, it is valid
+      //cerr << "sample " << i << " is invalid" << endl;
+      cxc->InsertNextTuple(i, oxc);
+     
+      vtkDoubleArray *itimeArray = vtkDoubleArray::SafeDownCast(
+        source->GetPointData()->GetArray("TimeData"));
+      vtkDoubleArray *otimeArray = vtkDoubleArray::SafeDownCast(
+        dest->GetPointData()->GetArray("TimeData"));
+      if (!itimeArray)
+        {
+        itimeArray = vtkDoubleArray::SafeDownCast(
+          source->GetPointData()->GetArray("Time"));
+        otimeArray = vtkDoubleArray::SafeDownCast(
+          dest->GetPointData()->GetArray("Time"));
+        }
+      if (itimeArray)
+        {
+        otimeArray->SetValue(i, itimeArray->GetValue(i));
+        }
+
+      }
+    }
+  cxc->Delete();
+
+  //This array is for internal use only (by this class and it's parallel 
+  //descendent) so we remove it here.
+
+  //Actually it will be useful to use it in the graph code so we keep it.
+  //dest->GetPointData()->RemoveArray("vtkEAOTValidity");
+  return dest;
+}
