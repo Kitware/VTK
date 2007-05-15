@@ -22,6 +22,34 @@
 @implementation vtkCocoaGLView
 
 //----------------------------------------------------------------------------
+- (void)emptyMethod:(id)sender
+{
+  (void)sender;
+}
+
+//----------------------------------------------------------------------------
+// designated initializer
+- (id)initWithFrame:(NSRect)frameRect
+{
+  self = [super initWithFrame:frameRect];
+  if (self)
+    {
+    // Force Cocoa into "multi threaded mode" because VTK spawns pthreads.
+    // Apple's docs say: "If you intend to use Cocoa calls, you must force
+    // Cocoa into its multithreaded mode before detaching any POSIX threads.
+    // To do this, simply detach an NSThread and have it promptly exit.
+    // This is enough to ensure that the locks needed by the Cocoa
+    // frameworks are put in place" 
+    if ([NSThread isMultiThreaded] == NO)
+      {
+      [NSThread detachNewThreadSelector:@selector(emptyMethod:)
+        toTarget:self withObject:nil];
+      }
+    }
+  return self;
+}
+
+//----------------------------------------------------------------------------
 - (vtkCocoaRenderWindow *)getVTKRenderWindow
 {
   return myVTKRenderWindow;
