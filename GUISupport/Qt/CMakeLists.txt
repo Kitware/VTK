@@ -3,6 +3,10 @@ INCLUDE_REGULAR_EXPRESSION("^(vtk|Q).*$")
 # we need Qt3 or Qt4
 INCLUDE( ${CMAKE_ROOT}/Modules/FindQt.cmake )
 
+IF(NOT QT_FOUND)
+  MESSAGE("Qt was not found")
+ELSE(NOT QT_FOUND)
+
 # set up sources to build
 SET ( QVTKLibSrcs
     vtkEventQtSlotConnect.cxx
@@ -16,7 +20,7 @@ INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
 
 
 IF(DESIRED_QT_VERSION MATCHES 4)
-  
+
   # import Qt4 build settings
   INCLUDE(${QT_USE_FILE})
 
@@ -185,3 +189,5 @@ ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.ctest.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.ctest" @ONLY IMMEDIATE)
+
+ENDIF(NOT QT_FOUND)
