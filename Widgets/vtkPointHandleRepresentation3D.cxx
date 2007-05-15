@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkFocalPlanePointPlacer.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.14");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.15");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -68,7 +68,7 @@ vtkPointHandleRepresentation3D::vtkPointHandleRepresentation3D()
   
   // The size of the hot spot
   this->HotSpotSize = 0.05;
-  this->WaitingForMotion = 1;
+  this->WaitingForMotion = 0;
   this->ConstraintAxis = -1;
   
   // Current handle size
@@ -216,7 +216,7 @@ int vtkPointHandleRepresentation3D::DetermineConstraintAxis(
 
   // Okay, figure out constraint. First see if the choice is
   // outside the hot spot
-  if ( ! this->WaitingForMotion )
+  if ( ! x )
     {
     double p[3], d2, tol;
     this->CursorPicker->GetPickPosition(p);
@@ -234,8 +234,9 @@ int vtkPointHandleRepresentation3D::DetermineConstraintAxis(
       return -1;
       }
     }
-  else if ( this->WaitingForMotion && x) 
+  else if ( x) 
     {
+    this->WaitingForMotion = 0;
     double v[3];
     v[0] = fabs(x[0] - startPickPoint[0]);
     v[1] = fabs(x[1] - startPickPoint[1]);
@@ -274,6 +275,7 @@ void vtkPointHandleRepresentation3D::StartWidgetInteraction(double startEventPos
     this->ConstraintAxis = -1;
     }
   this->Cursor3D->SetTranslationMode(this->TranslationMode);
+  this->WaitCount = 0;
 }
 
 
@@ -307,7 +309,9 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
   if ( this->InteractionState == vtkHandleRepresentation::Selecting ||
        this->InteractionState == vtkHandleRepresentation::Translating )
     {
-    if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
+    this->WaitCount++;
+
+    if ( this->WaitCount > 3 || !this->Constrained )
       {
       vtkInteractorObserver::ComputeDisplayToWorld(
           this->Renderer, 
@@ -323,7 +327,7 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
         // If we are doing axis constrained motion, igonore the placer.
         // Can't have both the placer and an axis constraint dictating
         // handle placement.
-        if (this->ConstraintAxis >= 0)
+        if (this->ConstraintAxis >= 0 || this->Constrained)
           {
           this->MoveFocus( prevPickPoint, pickPoint );
           }
@@ -352,7 +356,7 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
         // If we are doing axis constrained motion, igonore the placer.
         // Can't have both the placer and the axis constraint dictating
         // handle placement.
-        if (this->ConstraintAxis >= 0)
+        if (this->ConstraintAxis >= 0 || this->Constrained)
           {
           this->Translate(prevPickPoint, pickPoint);
           }
