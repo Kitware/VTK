@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.9");
+vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.10");
 vtkStandardNewMacro(vtkAngleRepresentation2D);
 
 
@@ -161,6 +161,11 @@ void vtkAngleRepresentation2D::BuildRepresentation()
     // fluctuations in angle value as the camera moves, etc.)
     if ( this->GetMTime() > this->BuildTime )
       {
+      if ( p1[0]-c[0] == 0.0 || p2[0]-c[0] == 0.0 )
+         {
+         return;
+         }
+
       double theta1 = atan2(p1[1]-c[1],p1[0]-c[0]);
       double theta2 = atan2(p2[1]-c[1],p2[0]-c[0]);
       if ( (theta1 >= 0.0 && theta1 <= vtkMath::Pi() &&
