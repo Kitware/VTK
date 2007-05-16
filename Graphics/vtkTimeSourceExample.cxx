@@ -28,9 +28,12 @@
 #include "vtkIdTypeArray.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkTimeSourceExample, "1.2");
+vtkCxxRevisionMacro(vtkTimeSourceExample, "1.3");
 vtkStandardNewMacro(vtkTimeSourceExample);
 
+#ifndef M_PI
+#define M_PI 3.141516
+#endif
 
 //----------------------------------------------------------------------------
 double vtkTimeSourceExample::ValueFunction(double t)
