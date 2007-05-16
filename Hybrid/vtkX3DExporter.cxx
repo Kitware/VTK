@@ -37,6 +37,8 @@
 #include "vtkTransform.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkSmartPointer.h"
+#include "vtkCellData.h"
 
 #include "vtkstd/string"
 #include <vtksys/ios/sstream>
@@ -136,7 +138,7 @@ void vtkX3DExporterWriter::CloseFile()
 }
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkX3DExporter, "1.9.2.1");
+vtkCxxRevisionMacro(vtkX3DExporter, "1.9.2.2");
 vtkStandardNewMacro(vtkX3DExporter);
 
 //----------------------------------------------------------------------------
@@ -243,15 +245,16 @@ void vtkX3DExporter::WriteData()
     << "   position=\"" << vtkX3DPrintVector3(cam->GetPosition()) << "\""
     << "   description=\"Default View\""
     << "   orientation=\"" << tempd[1] << " " << tempd[2] << " " << tempd[3]
-    << " " << (tempd[0]*3.1415926/180.0) << "\"/>\n";
+    << " " << (tempd[0]*3.1415926/180.0) << "\""
+    << "   centerOfRotation=\"" << vtkX3DPrintVector3(cam->GetFocalPoint())  
+    << "\"/>\n";
 
   // do the lights first the ambient then the others
   ostr << "    <NavigationInfo type='\"EXAMINE\" \"FLY\" \"ANY\"' speed=\""
     << this->Speed << "\"";
-  /*
-  // Headlight refers to the implicit headlight. Should be false pretty much
-  // every time, since VTK always has explicit lights.
-  if (ren->GetLights()->GetNumberOfItems() == 0)
+
+  // Headlight refers to the implicit headlight. 
+  if (this->HasHeadLight(ren))
     {
     ostr << "  headlight=\"true\"/>\n\n";
     }
@@ -259,8 +262,7 @@ void vtkX3DExporter::WriteData()
     {
     ostr << "  headlight=\"false\"/>\n\n";
     }
-  */
-  ostr << "  headlight=\"false\"/>\n\n";
+
   ostr << "    <DirectionalLight ambientIntensity=\"1\" intensity=\"0\" "
     << "  color=\"" << vtkX3DPrintVector3(ren->GetAmbient()) << "\"/>\n\n";
 
@@ -271,14 +273,17 @@ void vtkX3DExporter::WriteData()
   // Write first batch
   writer.Write(ostr.str().c_str());
 
-
   // make sure we have a default light
   // if we dont then use a headlight
   lc = ren->GetLights();
   vtkCollectionSimpleIterator lsit;
   for (lc->InitTraversal(lsit); (aLight = lc->GetNextLight(lsit)); )
     {
-    this->WriteALight(aLight, &writer);
+    // Skip headlight, since it was added as a part of NavigationInfo.
+    if (!aLight->LightTypeIsHeadlight())
+      {
+      this->WriteALight(aLight, &writer);
+      }
     }
 
   // do the actors now
@@ -356,6 +361,23 @@ void vtkX3DExporter::WriteData()
   writer.CloseFile();
 }
 
+//----------------------------------------------------------------------------
+int vtkX3DExporter::HasHeadLight(vtkRenderer* ren)
+{
+  // make sure we have a default light
+  // if we dont then use a headlight
+  vtkLightCollection* lc = ren->GetLights();
+  vtkCollectionSimpleIterator lsit;
+  vtkLight* aLight=0;
+  for (lc->InitTraversal(lsit); (aLight = lc->GetNextLight(lsit)); )
+    {
+    if (aLight->LightTypeIsHeadlight())
+      {
+      return 1;
+      }
+    }
+  return 0;
+}
 
 //----------------------------------------------------------------------------
 void vtkX3DExporter::WriteALight(vtkLight *aLight,
@@ -413,35 +435,433 @@ void vtkX3DExporter::WriteALight(vtkLight *aLight,
 }
 
 //----------------------------------------------------------------------------
+static void vtkX3DExporterUseData(
+  vtkDataArray *normals,
+  vtkDataArray *tcoords, 
+  vtkUnsignedCharArray *colors,
+  int index, 
+  vtksys_ios::ostringstream& ostr)
+{
+  char indexString[100];
+  sprintf(indexString, "%04d", index);
+
+  // write out the points
+  ostr << "            <Coordinate USE=\"VTKcoordinates" << indexString 
+    << "\" />\n";
+
+  // write out the point data
+  if (normals)
+    {
+    ostr << "            <Normal USE=\"VTKnormals" << indexString << "\" />\n";
+    }
+
+  // write out the point data
+  if (tcoords)
+    {
+    ostr << "            <TextureCoordinate USE=\"VTKtcoords" 
+      << indexString << "\" />\n";
+    }
+
+  // write out the point data
+  if (colors)
+    {
+    ostr << "            <Color USE=\"VTKcolors" << indexString << "\" />\n";
+    }
+}
+
+//----------------------------------------------------------------------------
+static void vtkX3DExporterWriteData(vtkPoints *points, 
+  vtkDataArray *normals,
+  vtkDataArray *tcoords, 
+  vtkUnsignedCharArray *colors,
+  int index, 
+  vtksys_ios::ostringstream& ostr)
+{
+  double *p;
+  int i;
+  
+  char indexString[100];
+  sprintf(indexString, "%04d", index);
+  
+  // write out the points
+  ostr << "            <Coordinate DEF =\"VTKcoordinates" << indexString
+    << "\"  \n"
+    << "              point =\"\n";
+  for (i = 0; i < points->GetNumberOfPoints(); i++)
+    {
+    p = points->GetPoint(i);
+    ostr << "              " << vtkX3DPrintVector3(p) << ",\n";
+    }
+  ostr << "              \"\n"
+    << "            />\n";
+
+  // write out the point data
+  if (normals)
+    {
+    ostr << "            <Normal DEF =\"VTKnormals" << indexString << "\"  \n"
+      << "              vector =\"\n";
+    for (i = 0; i < normals->GetNumberOfTuples(); i++)
+      {
+      p = normals->GetTuple(i);
+      ostr << "           " << vtkX3DPrintVector3(p) << ",\n";
+      }
+    ostr << "            \"\n"
+      << "          />\n";
+    }
+
+  // write out the point data
+  if (tcoords)
+    {
+    ostr << "            <TextureCoordinate DEF =\"VTKtcoords" << indexString
+      << "\"  \n"
+      << "              point =\"\n";
+    for (i = 0; i < tcoords->GetNumberOfTuples(); i++)
+      {
+      p = tcoords->GetTuple(i);
+      ostr << "           " << p[0] << " " << p[1] << ",\n";
+      }
+    ostr << "            \"\n"
+      << "          />\n";
+    }
+
+  // write out the point data
+  if (colors)
+    {
+    unsigned char c[4];
+
+    ostr << "            <Color DEF =\"VTKcolors" << indexString << "\"  \n"
+      << "              color=\"\n";
+    for (i = 0; i < colors->GetNumberOfTuples(); i++)
+      {
+      colors->GetTupleValue(i,c);
+      ostr << "           " << (c[0]/255.0) << " " << (c[1]/255.0) << " "
+        << (c[2]/255.0) << ",\n";
+      }
+    ostr << "            \"\n"
+      << "          />\n";
+    }
+}
+
+//----------------------------------------------------------------------------
+static bool vtkX3DExporterWriterRenderVerts(
+  vtkPoints* points, vtkCellArray* cells,
+  vtkUnsignedCharArray* colors, bool cell_colors,
+  vtksys_ios::ostringstream& ostr)
+{
+  vtksys_ios::ostringstream color_stream;
+  vtksys_ios::ostringstream coordinate_stream;
+
+  vtkIdType cellId = 0;
+  vtkIdType npts = 0;
+  vtkIdType *indx = 0;
+  for (cells->InitTraversal(); cells->GetNextCell(npts,indx); cellId++)
+    {
+    for (vtkIdType cc=0; cc < npts; cc++)
+      {
+      double* point = points->GetPoint(indx[cc]);
+      coordinate_stream << "             " << vtkX3DPrintVector3(point) << ",\n";
+
+      if (colors)
+        {
+        unsigned char color[4];
+        if (cell_colors)
+          {
+          colors->GetTupleValue(cellId, color);
+          }
+        else
+          {
+          colors->GetTupleValue(indx[cc], color);
+          }
+
+        double dcolor[3];
+        dcolor[0] = color[0]/255.0;
+        dcolor[1] = color[1]/255.0;
+        dcolor[2] = color[2]/255.0;
+        color_stream << "             " << vtkX3DPrintVector3(dcolor) << ",\n";
+        }
+      }
+    }
+  ostr << "           <PointSet>\n"
+       << "             <Coordinate \n"
+       << "               point=\"\n" << coordinate_stream.str().c_str()
+       << "                     \" \n"
+       << "             />\n";
+
+  if (colors)
+    {
+    ostr << "           <Color \n"
+         << "             color=\"\n" << color_stream.str().c_str()
+         << "                   \" \n"
+         << "           />\n";
+    }
+  ostr   << "         </PointSet>\n";
+  return true; 
+}
+
+//----------------------------------------------------------------------------
+static bool vtkX3DExporterWriterRenderFaceSet(
+  int cellType,
+  int representation,
+  vtkPoints* points,
+  vtkIdType cellOffset,
+  vtkCellArray* cells,
+  vtkUnsignedCharArray* colors, bool cell_colors,
+  vtkDataArray* normals, bool cell_normals, 
+  vtkDataArray* tcoords, 
+  bool common_data_written, int index, vtksys_ios::ostringstream& ostr)
+{
+  vtksys_ios::ostringstream coordindex_stream;
+  vtksys_ios::ostringstream cellindex_stream;
+  
+  vtkIdType npts = 0;
+  vtkIdType *indx = 0;
+
+  if (cellType == VTK_POLYGON || cellType == VTK_POLY_LINE)
+    {
+    for (cells->InitTraversal(); cells->GetNextCell(npts,indx); cellOffset++)
+      {
+      coordindex_stream << "             ";
+      for (vtkIdType cc=0; cc < npts; cc++)
+        {
+        coordindex_stream << (int)indx[cc] << " ";
+        }
+
+      if (representation == VTK_WIREFRAME && npts>2 && cellType == VTK_POLYGON)
+        {
+        // close the polygon.
+        coordindex_stream << (int)indx[0] << " ";
+        }
+      coordindex_stream << "-1\n";
+
+      vtkIdType cellid = cellOffset;
+      cellindex_stream << "             " << (int)cellid << ",\n ";
+      }
+    }
+  else // cellType == VTK_TRIANGLE_STRIP
+    {
+    for (cells->InitTraversal(); cells->GetNextCell(npts,indx); cellOffset++)
+      {
+      for (vtkIdType cc=2; cc < npts; cc++)
+        {
+        vtkIdType i1;
+        vtkIdType i2;
+        if (cc%2)
+          {
+          i1 = cc - 1;
+          i2 = cc - 2;
+          }
+        else
+          {
+          i1 = cc - 2;
+          i2 = cc - 1;
+          }
+
+        coordindex_stream << "             " << "              "
+          << ((int)indx[i1]) << " " << ((int)indx[i2])
+          << " " << ((int)indx[cc]);
+        if (representation == VTK_WIREFRAME)
+          {
+            // close the polygon when drawing lines
+          coordindex_stream << " " << (int)indx[i1];
+          }
+        coordindex_stream << " -1,\n";
+
+        vtkIdType cellid = cellOffset;
+        cellindex_stream << "             "<< (int)cellid << ",\n ";
+        }
+      }
+    }
+
+  if (representation == VTK_SURFACE)
+    {
+    ostr  << "          <IndexedFaceSet \n"
+          << "            solid=\"false\"\n"
+          << "            colorPerVertex=\"" << (cell_colors? "false" : "true") << "\"\n"
+          << "            normalPerVertex=\"" << (cell_normals? "false" : "true") << "\"\n"
+          << "            coordIndex=\"\n" << coordindex_stream.str().c_str() << "\"\n";
+    }
+  else
+    {
+    // don't save normals/tcoords when saving wireframes.
+    normals = 0;
+    tcoords = 0;
+
+    ostr  << "          <IndexedLineSet \n"
+          << "            colorPerVertex=\"" << (cell_colors? "false" : "true") << "\"\n"
+          << "            coordIndex=\"\n" << coordindex_stream.str().c_str() << "\"\n";
+    }
+
+  if (normals && cell_normals && representation == VTK_SURFACE)
+    {
+    ostr  << "            normalIndex=\"\n" << cellindex_stream.str().c_str() << "\"\n";
+    }
+
+  if (colors && cell_colors)
+    {
+    ostr  << "            colorIndex=\"\n" << cellindex_stream.str().c_str() << "\"\n";
+    }
+  ostr  << "            >\n";
+
+  // Now save Coordinate, Color, Normal TextureCoordinate nodes.
+  // Use DEF/USE to avoid duplicates.
+  if (!common_data_written)
+    {
+    vtkX3DExporterWriteData(points, normals, tcoords, colors, index, ostr);
+    }
+  else
+    {
+    vtkX3DExporterUseData(normals, tcoords, colors, index, ostr);
+    }
+
+  if (representation == VTK_SURFACE)
+    {
+    ostr  << "          </IndexedFaceSet>\n";
+    }
+  else
+    {
+    ostr  << "          </IndexedLineSet>\n";
+    }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+static bool vtkX3DExporterWriterUsingCellColors(vtkActor* anActor)
+{
+  int cellFlag = 0;
+  vtkMapper* mapper = anActor->GetMapper();
+  vtkAbstractMapper::GetScalars(
+    mapper->GetInput(), 
+    mapper->GetScalarMode(), 
+    mapper->GetArrayAccessMode(),
+    mapper->GetArrayId(),
+    mapper->GetArrayName(), cellFlag);
+  return (cellFlag == 1);
+}
+
+//----------------------------------------------------------------------------
+// Render polydata as a point set. This method correctly renders cell as well as
+// point colors.
+static bool vtkX3DExporterWriterRenderPoints(
+  vtkPolyData* pd, 
+  vtkUnsignedCharArray* colors,
+  bool cell_colors,
+  vtksys_ios::ostringstream& geometry_stream)
+{
+  if (pd->GetNumberOfCells() == 0)
+    {
+    return false;
+    }
+
+  vtksys_ios::ostringstream color_stream;
+  vtksys_ios::ostringstream coordinate_stream;
+
+  vtkPoints* points = pd->GetPoints();
+
+  // We render as cells so that even when coloring with cell data, the points
+  // are assigned colors correctly.
+
+  if ( (colors !=0) && cell_colors)
+    {
+    // Cell colors are used, however PointSet element can only have point
+    // colors, hence we use this method. Although here we end up with duplicate
+    // points, that's exactly what happens in case of OpenGL rendering, so it's
+    // okay.
+    vtkIdType numCells = pd->GetNumberOfCells();
+    vtkIdList* pointIds = vtkIdList::New();
+    for (vtkIdType cid =0; cid < numCells; cid++)
+      {
+      pointIds->Reset();
+      pd->GetCellPoints(cid, pointIds);
+
+      // Get the color for this cell.
+      unsigned char color[4];
+      colors->GetTupleValue(cid, color);
+      double dcolor[3];
+      dcolor[0] = color[0]/255.0;
+      dcolor[1] = color[1]/255.0;
+      dcolor[2] = color[2]/255.0;
+
+      for (vtkIdType cc=0; cc < pointIds->GetNumberOfIds(); cc++)
+        {
+        vtkIdType pid = pointIds->GetId(cc);
+        double* point = points->GetPoint(pid);
+        coordinate_stream << "             " << vtkX3DPrintVector3(point) <<",\n";
+        color_stream << "             "<< vtkX3DPrintVector3(dcolor) << ",\n";
+        }
+      }
+    pointIds->Delete();
+    }
+  else
+    {
+    // Colors are point colors, simply render all the points and corresponding
+    // colors.
+    vtkIdType numPoints = points->GetNumberOfPoints();
+    for (vtkIdType pid=0; pid < numPoints; pid++)
+      {
+      double* point = points->GetPoint(pid);
+      coordinate_stream << "             "<< vtkX3DPrintVector3(point) <<",\n";
+
+      if (colors)
+        {
+        unsigned char color[4];
+        colors->GetTupleValue(pid, color);
+        double dcolor[3];
+        dcolor[0] = color[0]/255.0;
+        dcolor[1] = color[1]/255.0;
+        dcolor[2] = color[2]/255.0;
+        color_stream << "             " << vtkX3DPrintVector3(dcolor) << ",\n";
+        }
+      }
+    }
+
+  geometry_stream << "            <PointSet>\n"
+                  << "              <Coordinate \n"
+                  << "                point=\"\n" << coordinate_stream.str().c_str()
+                  << "                      \" \n"
+                  << "              />\n";
+
+  if (colors)
+    {
+    geometry_stream << "            <Color \n"
+                    << "              color=\"\n" << color_stream.str().c_str()
+                    << "                    \" \n"
+                    << "            />\n";
+    }
+  geometry_stream << "  </PointSet>\n";
+  return true; 
+}
+
+//----------------------------------------------------------------------------
 void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   vtkX3DExporterWriter* writer, int index)
 {
   vtkDataSet *ds;
   vtkPolyData *pd;
-  vtkGeometryFilter *gf = NULL;
+  vtkSmartPointer<vtkGeometryFilter> gf;
   vtkPointData *pntData;
+  vtkCellData *cellData;
   vtkPoints *points;
   vtkDataArray *normals = NULL;
   vtkDataArray *tcoords = NULL;
-  int i, i1, i2;
   vtkProperty *prop;
   double *tempd;
-  vtkCellArray *cells;
-  vtkIdType npts = 0;
-  vtkIdType *indx = 0;
   double tempf2;
-  int pointDataWritten = 0;
   vtkUnsignedCharArray *colors;
-  unsigned char *c;
-  double *p;
   vtkTransform *trans;
   int totalValues;
+  int i;
 
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == NULL)
     {
     return;
     }
+
+  // Essential to turn of interpolate scalars otherwise GetScalars() may return
+  // NULL. We restore value before returning.
+  int isbm = anActor->GetMapper()->GetInterpolateScalarsBeforeMapping();
+  anActor->GetMapper()->SetInterpolateScalarsBeforeMapping(0);
 
   // first stuff out the transform
   trans = vtkTransform::New();
@@ -464,7 +884,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   // we really want polydata
   if ( ds->GetDataObjectType() != VTK_POLY_DATA )
     {
-    gf = vtkGeometryFilter::New();
+    gf = vtkSmartPointer<vtkGeometryFilter>::New();
     gf->SetInput(ds);
     gf->Update();
     pd = gf->GetOutput();
@@ -474,18 +894,33 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
     pd = (vtkPolyData *)ds;
     }
 
+  prop = anActor->GetProperty();
   points = pd->GetPoints();
   pntData = pd->GetPointData();
-  normals = pntData->GetNormals();
   tcoords = pntData->GetTCoords();
+  cellData = pd->GetCellData();
+
   colors  = anActor->GetMapper()->MapScalars(255.0);
-   
-  ostr << "        <Shape>\n";
+
+  // Are we using cell colors.
+  bool cell_colors = vtkX3DExporterWriterUsingCellColors(anActor);
+
+  normals = pntData->GetNormals();
+
+  // Are we using cell normals.
+  bool cell_normals = false;
+  if (prop->GetInterpolation() == VTK_FLAT || !normals)
+    {
+    // use cell normals, if any.
+    normals = cellData->GetNormals();
+    cell_normals = true;
+    }
 
   // write out the material properties to the mat file
-  prop = anActor->GetProperty();
   int representation = prop->GetRepresentation();
-  ostr << "          <Appearance>\n"
+  vtksys_ios::ostringstream appearance_stream;
+  appearance_stream
+    << "          <Appearance >\n"
     << "            <Material "
     << " ambientIntensity=\"" << prop->GetAmbient() << "\"";
   // if we don't have colors and we have only lines & points
@@ -495,23 +930,23 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
     {
     tempf2 = prop->GetAmbient();
     tempd = prop->GetAmbientColor();
-    ostr << " emissiveColor=\""
+    appearance_stream << " emissiveColor=\""
       << (tempd[0]*tempf2) << " "
       << (tempd[1]*tempf2) << " "
       << (tempd[2]*tempf2) << "\"";
     }
   else
     {
-    ostr << " emissiveColor=\"0 0 0\"";
+    appearance_stream << " emissiveColor=\"0 0 0\"";
     }
   tempf2 = prop->GetDiffuse();
   tempd = prop->GetDiffuseColor();
-  ostr << " diffuseColor=\""
+  appearance_stream << " diffuseColor=\""
     << (tempd[0]*tempf2) << " " << (tempd[1]*tempf2)
     << " " << (tempd[2]*tempf2) << "\"",
   tempf2 = prop->GetSpecular();
   tempd = prop->GetSpecularColor();
-  ostr << " specularColor=\""
+  appearance_stream << " specularColor=\""
     << (tempd[0]*tempf2) << " " << tempd[1]*tempf2
     << " " << (tempd[2]*tempf2) << "\""
     << " shininess=\"" << (prop->GetSpecularPower()/128.0) << "\""
@@ -580,9 +1015,9 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
         }
       }
 
-    ostr << "            <PixelTexture \n";
+    appearance_stream << "            <PixelTexture \n";
     bpp = mappedScalars->GetNumberOfComponents();
-    ostr << "              image=\"" << xsize << " "
+    appearance_stream << "              image=\"" << xsize << " "
       << ysize << " " << bpp << "\"\n";
     txtrData = static_cast<vtkUnsignedCharArray*>(mappedScalars)->
       GetPointer(0);
@@ -591,340 +1026,150 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
       {
       char buffer[10];
       sprintf(buffer,"0x%.2x",*txtrData);
-      ostr << buffer;
+      appearance_stream << buffer;
       txtrData++;
       if (bpp > 1) 
         {
         sprintf(buffer,"%.2x",*txtrData);
-        ostr << buffer;
+        appearance_stream << buffer;
         txtrData++;
         }
       if (bpp > 2) 
         {
         sprintf(buffer,"%.2x",*txtrData);
-        ostr << buffer;
+        appearance_stream << buffer;
         txtrData++;
         }
       if (bpp > 3) 
         {
         sprintf(buffer,"%.2x",*txtrData);
-        ostr << buffer;
+        appearance_stream << buffer;
         txtrData++;
         }
       if (i%8 == 0)
         {
-        ostr << "\n";
+        appearance_stream << "\n";
         }
       else
         {
-        ostr << " ";
+        appearance_stream << " ";
         }
       }
     if (!(aTexture->GetRepeat()))
       {
-      ostr << "              repeatS=\"false\"\n";
-      ostr << "              repeatT=\"false\"\n";
+      appearance_stream << "              repeatS=\"false\"\n";
+      appearance_stream << "              repeatT=\"false\"\n";
       }
-    ostr << "              />\n"; // close texture
+    appearance_stream << "              />\n"; // close texture
     }
-  ostr << "            </Appearance>\n"; // close appearance
-  writer->Write(ostr.str().c_str());
+  appearance_stream << "            </Appearance>\n"; // close appearance
 
-  // write out polys if any
-  if (pd->GetNumberOfPolys() > 0)
+  if (representation == VTK_POINTS)
     {
-    vtksys_ios::ostringstream ostr1;
-    switch ( representation )
+    vtksys_ios::ostringstream geometry_stream;
+    // If representation is points, then we don't have to render different cell
+    // types in separate shapes, since the cells type no longer matter.
+    if (vtkX3DExporterWriterRenderPoints(pd, colors, cell_colors, geometry_stream))
       {
-    case VTK_SURFACE:
-      ostr1 << "          <IndexedFaceSet \n";
-      ostr1 << "            solid=\"false\"\n";
-      break;
-    case VTK_WIREFRAME:
-      ostr1 << "          <IndexedLineSet\n";
-      break;
-    case VTK_POINTS:
-      ostr1 << "          <PointSet>\n";
-      break;
+      ostr  << "        <Shape>\n"
+            << appearance_stream.str().c_str()
+            << geometry_stream.str().c_str()
+            << "        </Shape>\n"; // close the  Shape
       }
-
-    switch (representation )
-      {
-    case VTK_SURFACE: case VTK_WIREFRAME:
-      // two sided lighting ? for now assume it is on
-      // we don't want a color per point but per cell
-      if(!tcoords)
-        {
-        ostr1 << "            colorPerVertex=\"false\"\n";
-        }
-      /////////////////////
-      ostr1 << "            coordIndex  =\"\n";
-
-      cells = pd->GetPolys();
-      for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
-        {
-        ostr1 << "              ";
-        for (i = 0; i < npts; i++)
-          {
-          // treating vtkIdType as int
-          ostr1 << (int)indx[i] << " ";
-          }
-        ostr1 << "-1\n";
-        }
-      ostr1 << "            \"\n";
-      ostr1 << "          >\n";
-      }
-    writer->Write(ostr1.str().c_str());
-
-    /////////////////////////////
-    if (!pointDataWritten)
-      {
-      this->WritePointData(points, normals, tcoords, colors, writer, index);
-      pointDataWritten = 1;
-      }
-    switch ( representation )
-      {
-    case VTK_SURFACE:
-      writer->Write("          </IndexedFaceSet> \n");
-      break;
-    case VTK_WIREFRAME:
-      writer->Write("          </IndexedLineSet> \n");
-      break;
-    case VTK_POINTS:
-      writer->Write("          </PointSet> \n");
-      break;
-      }
+    ostr << "      </Transform>\n"; // close the original transform
+    writer->Write(ostr.str().c_str());
     }
-
-  // write out tstrips if any
-  if (pd->GetNumberOfStrips() > 0)
+  else
     {
-    vtksys_ios::ostringstream ostr2;
-    switch ( representation )
+    // When rendering as lines or surface, we need to respect the cell
+    // structure. This requires rendering polys, tstrips, lines, verts in
+    // separate shapes.
+    vtkCellArray* verts = pd->GetVerts();
+    vtkCellArray* lines = pd->GetLines();
+    vtkCellArray* polys = pd->GetPolys();
+    vtkCellArray* tstrips = pd->GetStrips();
+
+    vtksys_ios::ostringstream geometry_stream;
+
+    vtkIdType numVerts = verts->GetNumberOfCells();
+    vtkIdType numLines = lines->GetNumberOfCells();
+    vtkIdType numPolys = polys->GetNumberOfCells();
+    vtkIdType numStrips = tstrips->GetNumberOfCells();
+
+    bool common_data_written = false;
+    if (numPolys > 0)
       {
-    case VTK_SURFACE:
-      ostr2 << "          <IndexedFaceSet \n";
-      break;
-    case VTK_WIREFRAME:
-      ostr2 << "          <IndexedLineSet\n";
-      ostr2 << "            solid=\"false\"\n";
-      break;
-    case VTK_POINTS:
-      ostr2 << "          <PointSet>\n";
-      break;
-      }
-    switch (representation )
-      {
-    case VTK_SURFACE: case VTK_WIREFRAME:
-      ///////////
-      ostr2 << "            coordIndex =\" \n";
-      // we don't want a color per point but per cell
-      if(!tcoords)
+      // reset stream.
+      geometry_stream.str("");
+      if (vtkX3DExporterWriterRenderFaceSet(VTK_POLYGON, representation, points,
+          (numVerts+numLines), polys, 
+          colors, cell_colors, normals, cell_normals, 
+          tcoords, common_data_written, index, geometry_stream))
         {
-        ostr2 << "            colorPerVertex=\"false\"\n";
+        common_data_written = true;
+        ostr  << "        <Shape>\n"
+              << appearance_stream.str().c_str()
+              << geometry_stream.str().c_str()
+              << "        </Shape>\n"; // close the  Shape
         }
-      cells = pd->GetStrips();
-      for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
-        {
-        for (i = 2; i < npts; i++)
-          {
-          if (i%2)
-            {
-            i1 = i - 1;
-            i2 = i - 2;
-            }
-          else
-            {
-            i1 = i - 2;
-            i2 = i - 1;
-            }
-          // treating vtkIdType as int
-          ostr2 << "              "
-            << ((int)indx[i1]) << " " << ((int)indx[i2])
-            << " " << ((int)indx[i])
-            << " -1,\n";
-          }
-        }
-      ostr2 << "            \"\n";
-      ostr2 << "          >\n";
       }
 
-    ///////////////
-    if (!pointDataWritten)
+    if (numStrips > 0)
       {
-      this->WritePointData(points, normals, tcoords, colors, writer,index);
-      pointDataWritten = 1;
+      // reset stream.
+      geometry_stream.str("");
+      if (vtkX3DExporterWriterRenderFaceSet(VTK_TRIANGLE_STRIP,
+          representation, points,
+          (numVerts+numLines+numPolys), tstrips, 
+          colors, cell_colors, normals, cell_normals, 
+          tcoords, common_data_written, index, geometry_stream))
+        {
+        common_data_written = true;
+        ostr  << "        <Shape>\n"
+              << appearance_stream.str().c_str()
+              << geometry_stream.str().c_str()
+              << "        </Shape>\n"; // close the  Shape
+        }
       }
-    switch ( representation )
+
+    if (numLines > 0)
       {
-    case VTK_SURFACE:
-      writer->Write("          </IndexedFaceSet> \n");
-      break;
-    case VTK_WIREFRAME:
-      writer->Write("          </IndexedLineSet> \n");
-      break;
-    case VTK_POINTS:
-      writer->Write("          </PointSet> \n");
-      break;
+      // reset stream.
+      geometry_stream.str("");
+      if (vtkX3DExporterWriterRenderFaceSet(VTK_POLY_LINE,
+          (representation==VTK_SURFACE? VTK_WIREFRAME:representation), 
+          points, (numVerts), lines, 
+          colors, cell_colors, normals, cell_normals, 
+          tcoords, common_data_written, index, geometry_stream))
+        {
+        common_data_written = true;
+        ostr  << "        <Shape>\n"
+          << appearance_stream.str().c_str()
+          << geometry_stream.str().c_str()
+          << "        </Shape>\n"; // close the  Shape
+        }
       }
-    writer->Write(ostr2.str().c_str());
+
+    if (numVerts > 0)
+      {
+      // reset stream.
+      if (vtkX3DExporterWriterRenderVerts(
+          points, verts,
+          colors, cell_normals, geometry_stream))
+        {
+        ostr  << "        <Shape>\n"
+          << appearance_stream.str().c_str()
+          << geometry_stream.str().c_str()
+          << "        </Shape>\n"; // close the  Shape
+        }
+      }
+
+    ostr << "      </Transform>\n"; // close the original transform
+    writer->Write(ostr.str().c_str());
     }
 
-  // write out lines if any
-  if (pd->GetNumberOfLines() > 0)
-    {
-    vtksys_ios::ostringstream ostr3;
-    ostr3 << "          <IndexedLineSet \n";
-    ////////////
-    ostr3 << "            coordIndex  =\"\n";
-
-    cells = pd->GetLines();
-    for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
-      {
-      ostr3 << "              ";
-      for (i = 0; i < npts; i++)
-        {
-        // treating vtkIdType as int
-        ostr3 << (int)indx[i] << ", ";
-        }
-      ostr3 << "-1,\n";
-      }
-    ostr3 << "            \"\n";
-    ostr3 << "          >\n";
-    writer->Write(ostr3.str().c_str());
-
-    ///////////////
-
-    if (!pointDataWritten)
-      {
-
-      this->WritePointData(points, NULL, NULL, colors, writer, index);
-      pointDataWritten = 1;
-      }
-    writer->Write("          </IndexedLineSet>\n");
-    }
-  // write out verts if any
-  vtksys_ios::ostringstream ostr4;
-  if (pd->GetNumberOfVerts() > 0)
-    {
-    ostr4 << "           <PointSet>\n";
-    cells = pd->GetVerts();
-    ostr4 << "             <Coordinate ";
-    ostr4 << "              point =\"";
-    for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
-      {
-      ostr4 << "              ";
-      for (i = 0; i < npts; i++)
-        {
-        p = points->GetPoint(indx[i]);
-        ostr4 << "              " << vtkX3DPrintVector3(p) << ",\n";
-        }
-      }
-    ostr4 << "              \"\n";
-    ostr4 << "            />\n";
-    if (colors)
-      {
-      ostr4 << "            <Color ";
-      ostr4 << "              color =\"";
-      for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
-        {
-        ostr4 << "              ";
-        for (i = 0; i < npts; i++)
-          {
-          c = colors->GetPointer(4*indx[i]);
-          ostr4 << "           "
-            << (c[0]/255.0) << " " << (c[1]/255.0)
-            << (c[2]/255.0)
-            << ",\n";
-          }
-        }
-      ostr4 << "              \"\n";
-      ostr4 << "            />\n";
-      }
-    ostr4 << "          </PointSet>\n";
-    }
-  ostr4 << "        </Shape>\n"; // close the  Shape
-  ostr4 << "      </Transform>\n"; // close the original transform
-
-  if (gf)
-    {
-    gf->Delete();
-    }
-  writer->Write(ostr4.str().c_str());
+  anActor->GetMapper()->SetInterpolateScalarsBeforeMapping(isbm);
 }
-
-//----------------------------------------------------------------------------
-void vtkX3DExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
-  vtkDataArray *tcoords, vtkUnsignedCharArray *colors,
-  vtkX3DExporterWriter* writer, int index)
-{
-  double *p;
-  int i;
-  
-  char indexString[100];
-  sprintf(indexString, "%04d", index);
-  vtksys_ios::ostringstream ostr;
-  // write out the points
-  ostr << "            <Coordinate DEF =\"VTKcoordinates" << indexString
-    << "\"  \n"
-    << "              point =\"\n";
-  for (i = 0; i < points->GetNumberOfPoints(); i++)
-    {
-    p = points->GetPoint(i);
-    ostr << "              " << vtkX3DPrintVector3(p) << ",\n";
-    }
-  ostr << "              \"\n"
-    << "            />\n";
-
-  // write out the point data
-  if (normals)
-    {
-    ostr << "            <Normal DEF =\"VTKnormals" << indexString << "\"  \n"
-      << "              vector =\"\n";
-    for (i = 0; i < normals->GetNumberOfTuples(); i++)
-      {
-      p = normals->GetTuple(i);
-      ostr << "           " << vtkX3DPrintVector3(p) << ",\n";
-      }
-    ostr << "            \"\n"
-      << "          />\n";
-    }
-
-  // write out the point data
-  if (tcoords)
-    {
-    ostr << "            <TextureCoordinate DEF =\"VTKtcoords" << indexString
-      << "\"  \n"
-      << "              point =\"\n";
-    for (i = 0; i < tcoords->GetNumberOfTuples(); i++)
-      {
-      p = tcoords->GetTuple(i);
-      ostr << "           " << p[0] << " " << p[1] << ",\n";
-      }
-    ostr << "            \"\n"
-      << "          />\n";
-    }
-
-  // write out the point data
-  if (colors)
-    {
-    unsigned char *c = new unsigned char[4];
-
-    ostr << "            <Color DEF =\"VTKcolors" << indexString << "\"  \n"
-      << "              color=\"\n";
-    for (i = 0; i < colors->GetNumberOfTuples(); i++)
-      {
-      colors->GetTupleValue(i,c);
-      ostr << "           " << (c[0]/255.0) << " " << (c[1]/255.0) << " "
-        << (c[2]/255.0) << ",\n";
-      }
-    ostr << "            \"\n"
-      << "          />\n";
-    delete [] c;
-    }
-  writer->Write(ostr.str().c_str());
-}
-
 
 //----------------------------------------------------------------------------
 void vtkX3DExporter::PrintSelf(ostream& os, vtkIndent indent)
@@ -941,9 +1186,6 @@ void vtkX3DExporter::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "Speed: " << this->Speed << "\n";
 }
-
-
-
 
 //----------------------------------------------------------------------------
 void vtkX3DExporter::WriteanTextActor2D(vtkActor2D *anTextActor2D,
