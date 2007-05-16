@@ -36,7 +36,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.71");
+vtkCxxRevisionMacro(vtkImageReslice, "1.72");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -2599,9 +2599,9 @@ void vtkGetResliceSummationFunc(vtkImageReslice *self,
           default:
             summation = 0;
           }
-    }
-    else if (numScalars == 4)
-      {
+        }
+      else if (numScalars == 4)
+        {
         switch (scalarType)
           {
           vtkTemplateAliasMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
@@ -2614,9 +2614,9 @@ void vtkGetResliceSummationFunc(vtkImageReslice *self,
           default:
             summation = 0;
           }
-      }
-    else
-      {
+        }
+      else
+        {
         switch (scalarType)
           {
           vtkTemplateAliasMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
@@ -2629,7 +2629,7 @@ void vtkGetResliceSummationFunc(vtkImageReslice *self,
           default:
             summation = 0;
           }
-      }
+        }
       break;
     case VTK_RESLICE_LINEAR:
       switch (scalarType)
