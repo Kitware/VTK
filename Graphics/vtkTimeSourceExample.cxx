@@ -28,7 +28,7 @@
 #include "vtkIdTypeArray.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkTimeSourceExample, "1.1");
+vtkCxxRevisionMacro(vtkTimeSourceExample, "1.2");
 vtkStandardNewMacro(vtkTimeSourceExample);
 
 
@@ -235,8 +235,8 @@ int vtkTimeSourceExample::RequestInformation(
 
 //----------------------------------------------------------------------------
 int vtkTimeSourceExample::RequestData(
-  vtkInformation* reqInfo,
-  vtkInformationVector** inVector,
+  vtkInformation* vtkNotUsed(reqInfo),
+  vtkInformationVector** vtkNotUsed(inVector),
   vtkInformationVector* outVector
   )
 {  
