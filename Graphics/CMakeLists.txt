@@ -214,6 +214,7 @@ vtkTexturedSphereSource.cxx
 vtkThreshold.cxx
 vtkThresholdPoints.cxx
 vtkThresholdTextureCoords.cxx
+vtkTimeSourceExample.cxx
 vtkTransformFilter.cxx
 vtkTransformPolyDataFilter.cxx
 vtkTransformTextureCoords.cxx
