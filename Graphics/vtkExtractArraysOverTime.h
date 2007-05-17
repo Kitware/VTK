@@ -38,6 +38,7 @@
 class vtkDataSet;
 class vtkRectilinearGrid;
 class vtkExtractArraysOverTimeInternal;
+class vtkDataSetAttributes;
 
 class VTK_GRAPHICS_EXPORT vtkExtractArraysOverTime : public vtkRectilinearGridAlgorithm
 {
@@ -106,7 +107,7 @@ protected:
   //ETX
 
   //Returns a copy of "source" with all points marked as invalid removed.
-  vtkRectilinearGrid *RemoveInvalidPoints(vtkRectilinearGrid *source);
+  void RemoveInvalidPoints(vtkRectilinearGrid *source);
 
   vtkExtractArraysOverTimeInternal *Internal;
 
