@@ -77,7 +77,10 @@ int TestMetaIO(int argc, char *argv[])
         }
       }
     }
-    
+
+  readerStd->Delete();
+  readerNew->Delete();
+
   if(error > 1)
     {
     cerr << "Error: Image difference on read/write = " << error << endl;
