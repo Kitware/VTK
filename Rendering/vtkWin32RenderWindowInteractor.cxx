@@ -48,7 +48,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.101");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.102");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -409,6 +409,7 @@ void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags,
     {
     return;
     }
+  SetFocus(wnd);
   SetCapture(wnd);
   this->SetEventInformationFlipY(X, 
                                  Y, 
@@ -444,6 +445,7 @@ void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags,
     {
     return;
     }
+  SetFocus(wnd);
   SetCapture(wnd);
   this->SetEventInformationFlipY(X, 
                                  Y, 
@@ -479,7 +481,8 @@ void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags,
     {
     return;
     }
-  SetCapture(wnd );
+  SetFocus(wnd);
+  SetCapture(wnd);
   this->SetEventInformationFlipY(X, 
                                  Y, 
                                  nFlags & MK_CONTROL, 
