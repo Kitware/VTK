@@ -69,6 +69,7 @@ ENDIF(VTK_WRAP_JAVA)
 # Include directories from the build tree.
 SET(VTK_INCLUDE_DIRS_BUILD_TREE
   ${VTK_BINARY_DIR}
+  ${VTK_BINARY_DIR}/Common
   ${VTK_BINARY_DIR}/Utilities
   )
 
