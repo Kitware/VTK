@@ -28,7 +28,7 @@
 #include "vtkIdTypeArray.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkTimeSourceExample, "1.3");
+vtkCxxRevisionMacro(vtkTimeSourceExample, "1.4");
 vtkStandardNewMacro(vtkTimeSourceExample);
 
 #ifndef M_PI
@@ -195,11 +195,11 @@ int vtkTimeSourceExample::RequestInformation(
 
   //determine what time is being asked for
   double reqTime = 0.0;
-  int reqNTS = 0;
+  //int reqNTS = 0; since we are only answering the first request omit this
   double *reqTS = NULL;
   if (info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
     {
-    reqNTS = info->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());    
+    //reqNTS = info->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());    
     reqTS = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
     }
   if (reqTS != NULL)
@@ -253,11 +253,11 @@ int vtkTimeSourceExample::RequestData(
 
   //determine what time is being asked for
   double reqTime = 0.0;
-  int reqNTS = 0;
+  //int reqNTS = 0;
   double *reqTS = NULL;
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
     {
-    reqNTS = outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());    
+    //reqNTS = outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());    
     reqTS = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
     }
   if (reqTS != NULL)
