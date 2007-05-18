@@ -34,7 +34,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.27");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.28");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -209,6 +209,7 @@ void vtkMetaImageReader::ExecuteData(vtkDataObject * output)
   if(!this->FileName)
     {
     vtkErrorMacro( << "A filename was not specified." );
+    return;
     }
 
   data->GetPointData()->GetScalars()->SetName("MetaImage");
