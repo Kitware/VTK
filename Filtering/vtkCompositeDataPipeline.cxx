@@ -79,7 +79,7 @@ PURPOSE.  See the above copyright notice for more information.
         !strcmp(name, "vtkTemporalStreamTracer")) \
       { \
 */
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.60");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.61");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
@@ -180,7 +180,9 @@ int vtkCompositeDataPipeline::ForwardUpstream(vtkInformation* request)
         request->Set(FROM_OUTPUT_PORT(), producerPort);
         
         // if the input requires time them mark that
-        if (!strcmp("vtkTemporalDataSet",
+        if (this->Algorithm->GetInputPortInformation(i)
+            ->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()) &&
+            !strcmp("vtkTemporalDataSet",
                     this->Algorithm->GetInputPortInformation(i)
                     ->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE())))
           {
