@@ -24,11 +24,11 @@
 =========================================================================*/
 // .NAME vtkMath - performs common math operations
 // .SECTION Description
-// vtkMath is provides methods to perform common math operations. These 
+// vtkMath provides methods to perform common math operations. These 
 // include providing constants such as Pi; conversion from degrees to 
 // radians; vector operations such as dot and cross products and vector 
-// norm; matrix determinant for 2x2 and 3x3 matrices; and random 
-// number generation.
+// norm; matrix determinant for 2x2 and 3x3 matrices; univariate polynomial
+// solvers; and random number generation.
 
 #ifndef __vtkMath_h
 #define __vtkMath_h
@@ -487,13 +487,12 @@ public:
   static double* SolveLinear(double c0, double c1);
 
   // Description:
-  // Solves a \a d -th degree polynomial equation using Lin-Bairstow's
-  // method ( polynomial coefficients are REAL ) and stores the them 
-  // ( when they exist, and repeated for those that are not simple )
-  // in the \a r array of size \a nr.
+  // Seeks all REAL roots of a \a d -th degree polynomial equation using 
+  // Lin-Bairstow's method ( polynomial coefficients are REAL ) and stores the
+  // \nr roots found ( multiple roots are multiply stored ) in the \r array.
   // \a tolerance is the user-defined solver tolerance; this variable may be 
   // relaxed by the iterative solver if needed.
-  // Returns the numer of roots.
+  // Returns \nr.
   // Warning: it is the user's responsibility to make sure the \a r
   // array is large enough to contain the maximal number of expect roots.
   static int LinBairstowSolve( double* c, int d, double* r, double& tolerance );
@@ -538,7 +537,7 @@ public:
   static int TartagliaCardanSolve( double* c, double* r, int* m );
 
   // Description:
-  // Solves A Quadratic Equation c1*t^2  + c2*t  + c3 = 0 when 
+  // Solves a quadratic equation c1*t^2  + c2*t  + c3 = 0 when 
   // c1, c2, and c3 are REAL.
   // Solution is motivated by Numerical Recipes In C 2nd Ed.
   // Roots and number of roots are stored in user provided variables
