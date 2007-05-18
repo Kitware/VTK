@@ -35,7 +35,7 @@
 #include "vtkstd/algorithm"
 #include "vtkstd/vector"
 
-vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.7");
+vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.8");
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
 //----------------------------------------------------------------------------
@@ -513,7 +513,7 @@ vtkDataSet *vtkTemporalInterpolator
   //
   // Interpolate pointdata if present
   //
-  //  output->GetPointData()->ShallowCopy(input[0]->GetPointData());
+  output->GetPointData()->ShallowCopy(input[0]->GetPointData());
   for (int s=0; s < input[0]->GetPointData()->GetNumberOfArrays(); ++s) 
     {
     vtkstd::vector<vtkDataArray*> arrays;
@@ -556,7 +556,7 @@ vtkDataSet *vtkTemporalInterpolator
   //
   // Interpolate celldata if present
   //
-  //  output->GetCellData()->ShallowCopy(input[0]->GetCellData());
+  output->GetCellData()->ShallowCopy(input[0]->GetCellData());
   for (int s=0; s<input[0]->GetCellData()->GetNumberOfArrays(); ++s) 
     {
     // copy the structure
