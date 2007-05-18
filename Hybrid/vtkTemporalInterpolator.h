@@ -33,16 +33,8 @@
 
 #include "vtkTemporalDataSetAlgorithm.h"
 
-class vtkSimpleInterpolator;
 class vtkDataSet;
-/*
-class VTK_HYBRID_EXPORT vtkTemporalInterpolator : public vtkDataObjectAlgorithm
-{
-public:
-  static vtkTemporalInterpolator *New();
-  vtkTypeRevisionMacro(vtkTemporalInterpolator, vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
-*/
+
 class VTK_HYBRID_EXPORT vtkTemporalInterpolator : public vtkTemporalDataSetAlgorithm
 {
 public:
