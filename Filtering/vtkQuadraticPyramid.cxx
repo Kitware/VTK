@@ -26,7 +26,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.15");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.16");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -333,13 +333,16 @@ void vtkQuadraticPyramid::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   this->PointData->CopyAllOn();
   this->CellData->CopyAllOn();
   this->PointData->CopyAllocate(inPd,14);
-  this->CellData->CopyAllocate(inCd,5);
+  this->CellData->CopyAllocate(inCd,6);
   for (i=0; i<13; i++)
     {
     this->PointData->CopyData(inPd,this->PointIds->GetId(i),i);
     this->CellScalars->SetValue( i, cellScalars->GetTuple1(i));
     }
-  this->CellData->CopyData(inCd,cellId,0);
+  for (i=0; i<6; i++)
+    {
+    this->CellData->CopyData(inCd,cellId,i);
+    }
   
   //Interpolate new values
   double p[3];

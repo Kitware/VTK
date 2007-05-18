@@ -26,7 +26,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.12");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.13");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
 //----------------------------------------------------------------------------
@@ -330,13 +330,16 @@ void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   this->PointData->CopyAllOn();
   this->CellData->CopyAllOn();
   this->PointData->CopyAllocate(inPd,18);
-  this->CellData->CopyAllocate(inCd,6);
+  this->CellData->CopyAllocate(inCd,8);
   for (i=0; i<15; i++)
     {
     this->PointData->CopyData(inPd,this->PointIds->GetId(i),i);
     this->CellScalars->SetValue( i, cellScalars->GetTuple1(i));
     }
-  this->CellData->CopyData(inCd,cellId,0);
+  for (i=0; i<8; i++)
+    {
+    this->CellData->CopyData(inCd,cellId,i);
+    }
   
   //Interpolate new values
   double p[3];
