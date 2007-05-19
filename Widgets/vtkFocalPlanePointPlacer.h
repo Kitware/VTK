@@ -73,6 +73,13 @@ public:
                              double worldOrient[9]);
   
   // Description:
+  // Optionally specify a signed offset from the focal plane for the points to
+  // be placed at.  If negative, the constraint plane is offset closer to the 
+  // camera. If positive, its further away from the camera.
+  vtkSetMacro( Offset, double );
+  vtkGetMacro( Offset, double );
+
+  // Description:
   // Optionally Restrict the points to a set of bounds. The placer will
   // invalidate points outside these bounds.
   vtkSetVector6Macro( PointBounds, double );
@@ -85,6 +92,7 @@ protected:
   void GetCurrentOrientation( double worldOrient[9] );
   
   double PointBounds[6];
+  double Offset;
 
 private:
   vtkFocalPlanePointPlacer(const vtkFocalPlanePointPlacer&);  //Not implemented

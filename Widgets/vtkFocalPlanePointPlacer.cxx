@@ -22,7 +22,7 @@
 #include "vtkPlaneCollection.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkFocalPlanePointPlacer, "1.4");
+vtkCxxRevisionMacro(vtkFocalPlanePointPlacer, "1.5");
 vtkStandardNewMacro(vtkFocalPlanePointPlacer);
 
 
@@ -31,6 +31,7 @@ vtkFocalPlanePointPlacer::vtkFocalPlanePointPlacer()
 {
   this->PointBounds[0] = this->PointBounds[2] = this->PointBounds[4] = 0;
   this->PointBounds[1] = this->PointBounds[3] = this->PointBounds[5] = -1;
+  this->Offset = 0.0;
 }
 
 //----------------------------------------------------------------------
@@ -47,6 +48,7 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   double fp[4];
   ren->GetActiveCamera()->GetFocalPoint(fp);
   fp[3] = 1.0;
+
   ren->SetWorldPoint(fp);
   ren->WorldToDisplay();
   ren->GetDisplayPoint(fp);
@@ -58,6 +60,35 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   ren->SetDisplayPoint(tmp);
   ren->DisplayToWorld();
   ren->GetWorldPoint(tmp);
+
+  // Translate the focal point by "Offset" from the focal plane along the 
+  // viewing direction.
+
+  double focalPlaneNormal[3];
+  ren->GetActiveCamera()->GetDirectionOfProjection( focalPlaneNormal );
+  if (ren->GetActiveCamera()->GetParallelProjection())
+    {
+    tmp[0] += (focalPlaneNormal[0] * this->Offset);
+    tmp[1] += (focalPlaneNormal[1] * this->Offset);
+    tmp[2] += (focalPlaneNormal[2] * this->Offset);
+    }
+  else
+    {
+    double camPos[3], viewDirection[3];
+    ren->GetActiveCamera()->GetPosition( camPos );
+    viewDirection[0] = tmp[0] - camPos[0];
+    viewDirection[1] = tmp[1] - camPos[1];
+    viewDirection[2] = tmp[2] - camPos[2];
+    vtkMath::Normalize( viewDirection );
+    double costheta = vtkMath::Dot( viewDirection, focalPlaneNormal ) / 
+        (vtkMath::Norm(viewDirection) * vtkMath::Norm(focalPlaneNormal));
+    if (costheta != 0.0) // 0.0 Impossible in a perspective projection
+      {
+      tmp[0] += (viewDirection[0] * this->Offset / costheta);
+      tmp[1] += (viewDirection[1] * this->Offset / costheta);
+      tmp[2] += (viewDirection[2] * this->Offset / costheta);
+      }
+    }
   
   double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
   if ( this->PointBounds[0] < this->PointBounds[1] && 
@@ -97,6 +128,35 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   ren->SetDisplayPoint(tmp);
   ren->DisplayToWorld();
   ren->GetWorldPoint(tmp);
+
+  // Translate the focal point by "Offset" from the focal plane along the 
+  // viewing direction.
+
+  double focalPlaneNormal[3];
+  ren->GetActiveCamera()->GetDirectionOfProjection( focalPlaneNormal );
+  if (ren->GetActiveCamera()->GetParallelProjection())
+    {
+    tmp[0] += (focalPlaneNormal[0] * this->Offset);
+    tmp[1] += (focalPlaneNormal[1] * this->Offset);
+    tmp[2] += (focalPlaneNormal[2] * this->Offset);
+    }
+  else
+    {
+    double camPos[3], viewDirection[3];
+    ren->GetActiveCamera()->GetPosition( camPos );
+    viewDirection[0] = tmp[0] - camPos[0];
+    viewDirection[1] = tmp[1] - camPos[1];
+    viewDirection[2] = tmp[2] - camPos[2];
+    vtkMath::Normalize( viewDirection );
+    double costheta = vtkMath::Dot( viewDirection, focalPlaneNormal ) / 
+        (vtkMath::Norm(viewDirection) * vtkMath::Norm(focalPlaneNormal));
+    if (costheta != 0.0) // 0.0 Impossible in a perspective projection
+      {
+      tmp[0] += (viewDirection[0] * this->Offset / costheta);
+      tmp[1] += (viewDirection[1] * this->Offset / costheta);
+      tmp[2] += (viewDirection[2] * this->Offset / costheta);
+      }
+    }
   
   double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
   if ( this->PointBounds[0] < this->PointBounds[1] && 
@@ -173,4 +233,5 @@ void vtkFocalPlanePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
     this->PointBounds[2] << ", " << this->PointBounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" <<
     this->PointBounds[4] << ", " << this->PointBounds[5] << ")\n";
+  os << indent << "Offset: " << this->Offset << endl;
 }
