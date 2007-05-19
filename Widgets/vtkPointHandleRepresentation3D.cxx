@@ -27,8 +27,9 @@
 #include "vtkCoordinate.h"
 #include "vtkRenderWindow.h"
 #include "vtkFocalPlanePointPlacer.h"
+#include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.15");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.16");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);
@@ -327,7 +328,7 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
         // If we are doing axis constrained motion, igonore the placer.
         // Can't have both the placer and an axis constraint dictating
         // handle placement.
-        if (this->ConstraintAxis >= 0 || this->Constrained)
+        if (this->ConstraintAxis >= 0 || this->Constrained || !this->PointPlacer)
           {
           this->MoveFocus( prevPickPoint, pickPoint );
           }
@@ -340,6 +341,25 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
           this->MoveFocusRequest( prevPickPoint,
                                   pickPoint,
                                   newCenterPointRequested );
+
+          vtkFocalPlanePointPlacer * fPlacer 
+            = vtkFocalPlanePointPlacer::SafeDownCast( this->PointPlacer );
+          if (fPlacer)
+            {
+            // Offset the placer plane to one that passes through the current 
+            // world position and is parallel to the focal plane. Offset =
+            // the distance currentWorldPos is from the focal plane
+            //
+            double currentWorldPos[3], projDir[3], fp[3];
+            this->GetWorldPosition( currentWorldPos );
+            this->Renderer->GetActiveCamera()->GetFocalPoint(fp);
+            double vec[3] = { currentWorldPos[0] - fp[0],
+                              currentWorldPos[1] - fp[1],
+                              currentWorldPos[2] - fp[2]};
+            this->Renderer->GetActiveCamera()->GetDirectionOfProjection(projDir);
+            fPlacer->SetOffset( vtkMath::Dot( vec, projDir ) );
+            }
+
 
           // See what the placer says.
           if (this->PointPlacer->ComputeWorldPosition( 
@@ -356,7 +376,7 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
         // If we are doing axis constrained motion, igonore the placer.
         // Can't have both the placer and the axis constraint dictating
         // handle placement.
-        if (this->ConstraintAxis >= 0 || this->Constrained)
+        if (this->ConstraintAxis >= 0 || this->Constrained || !this->PointPlacer)
           {
           this->Translate(prevPickPoint, pickPoint);
           }
@@ -370,6 +390,24 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
                                   pickPoint, 
                                   newCenterPointRequested);
 
+          vtkFocalPlanePointPlacer * fPlacer 
+            = vtkFocalPlanePointPlacer::SafeDownCast( this->PointPlacer );
+          if (fPlacer)
+            {
+            // Offset the placer plane to one that passes through the current 
+            // world position and is parallel to the focal plane. Offset =
+            // the distance currentWorldPos is from the focal plane
+            //
+            double currentWorldPos[3], projDir[3], fp[3];
+            this->GetWorldPosition( currentWorldPos );
+            this->Renderer->GetActiveCamera()->GetFocalPoint(fp);
+            double vec[3] = { currentWorldPos[0] - fp[0],
+                              currentWorldPos[1] - fp[1],
+                              currentWorldPos[2] - fp[2]};
+            this->Renderer->GetActiveCamera()->GetDirectionOfProjection(projDir);
+            fPlacer->SetOffset( vtkMath::Dot( vec, projDir ) );
+            }
+          
           // See what the placer says.
           if (this->PointPlacer->ComputeWorldPosition( 
                 this->Renderer, newCenterPointRequested, newCenterPoint,
@@ -380,9 +418,9 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
             double *p = this->GetWorldPosition();
 
             //Get the motion vector
-            double v[3] = { p[0] - newCenterPoint[0],
-                            p[1] - newCenterPoint[1],
-                            p[2] - newCenterPoint[2] };
+            double v[3] = { newCenterPoint[0] - p[0],
+                            newCenterPoint[1] - p[1],
+                            newCenterPoint[2] - p[2] };
             double *bounds = this->Cursor3D->GetModelBounds(), newBounds[6];
             for (int i=0; i<3; i++)
               {
