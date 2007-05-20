@@ -35,7 +35,7 @@
 #include "vtkstd/algorithm"
 #include "vtkstd/vector"
 
-vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.8");
+vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.9");
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
 //----------------------------------------------------------------------------
@@ -53,6 +53,9 @@ vtkTemporalInterpolator::~vtkTemporalInterpolator()
 void vtkTemporalInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "DiscreteTimeStepInterval: "
+     << this->DiscreteTimeStepInterval << "\n";
 }
 /*
 //----------------------------------------------------------------------------
