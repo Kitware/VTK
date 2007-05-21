@@ -37,6 +37,8 @@
 
 class vtkDataSet;
 class vtkRectilinearGrid;
+class vtkExtractArraysOverTimeInternal;
+class vtkDataSetAttributes;
 
 class VTK_GRAPHICS_EXPORT vtkExtractArraysOverTime : public vtkRectilinearGridAlgorithm
 {
@@ -59,7 +61,7 @@ public:
 
 protected:
   vtkExtractArraysOverTime();
-  ~vtkExtractArraysOverTime() {};
+  ~vtkExtractArraysOverTime();
 
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector, 
@@ -88,8 +90,11 @@ protected:
   int FieldType;
   int ContentType;
 
-  void ExecuteTimeStep(vtkInformationVector** inputV, 
-                       vtkInformation* outInfo);
+  void ExecuteIdAtTimeStep(vtkInformationVector** inputV, 
+                           vtkInformation* outInfo);
+
+  void ExecuteLocationAtTimeStep(vtkInformationVector** inputV, 
+                                 vtkInformation* outInfo);
 
   int Error;
 
@@ -100,6 +105,11 @@ protected:
     MoreThan1Indices
   };
   //ETX
+
+  //Returns a copy of "source" with all points marked as invalid removed.
+  void RemoveInvalidPoints(vtkRectilinearGrid *source);
+
+  vtkExtractArraysOverTimeInternal *Internal;
 
 private:
   vtkExtractArraysOverTime(const vtkExtractArraysOverTime&);  // Not implemented.

@@ -16,6 +16,7 @@
 
 #include "vtkCommand.h"
 #include "vtkIdTypeArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -26,14 +27,30 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.7");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.7.2.1");
 vtkStandardNewMacro(vtkSelectionSource);
 
-struct vtkSelectionSourceInternals
+class vtkSelectionSourceInternals
 {
+public:
+  vtkSelectionSourceInternals()
+    {
+    this->Values = NULL;
+    }
+  
+  ~vtkSelectionSourceInternals()
+    {
+    if (this->Values)
+      {
+      this->Values->Delete();
+      }
+    }
+  
   typedef vtkstd::set<vtkIdType> IDSetType;
   typedef vtkstd::vector<IDSetType> IDsType;
   IDsType IDs;
+  
+  vtkAbstractArray *Values;
 };
 
 //----------------------------------------------------------------------------
@@ -41,6 +58,7 @@ vtkSelectionSource::vtkSelectionSource()
 {
   this->SetNumberOfInputPorts(0);
   this->Internal = new vtkSelectionSourceInternals;
+  
   this->ContentType = vtkSelection::INDICES;
   this->FieldType = vtkSelection::CELL;
 }
@@ -59,8 +77,24 @@ void vtkSelectionSource::RemoveAllIDs()
 }
 
 //----------------------------------------------------------------------------
+void vtkSelectionSource::RemoveAllValues()
+{
+  if (this->Internal->Values)
+    {
+    this->Internal->Values->Reset();
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkSelectionSource::AddID(vtkIdType proc, vtkIdType id)
 {
+  if (this->ContentType != vtkSelection::GLOBALIDS &&
+      this->ContentType != vtkSelection::INDICES)
+    {
+    return;
+    }
+  
   // proc == -1 means all processes. All other are stored at index proc+1
   proc++;
 
@@ -71,6 +105,22 @@ void vtkSelectionSource::AddID(vtkIdType proc, vtkIdType id)
   vtkSelectionSourceInternals::IDSetType& idSet = this->Internal->IDs[proc];
   idSet.insert(id);
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkSelectionSource::AddLocation(double x, double y, double z)
+{
+  if (this->ContentType != vtkSelection::LOCATIONS)
+    {
+    return;
+    }
+
+  vtkDoubleArray *da = vtkDoubleArray::SafeDownCast(this->Internal->Values);
+  if (da)
+    {
+    da->InsertNextTuple3(x,y,z);
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -155,53 +205,114 @@ int vtkSelectionSource::RequestData(
       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
     }
 
-  // Number of selected items common to all pieces
-  vtkIdType numCommonElems = 0;
-  if (!this->Internal->IDs.empty())
-    {
-    numCommonElems = this->Internal->IDs[0].size();
-    }
-  if (piece+1 >= (int)this->Internal->IDs.size() &&
-      numCommonElems == 0)
-    {
-    vtkDebugMacro("No selection for piece: " << piece);
-    return 1;
-    }
-
-  // idx == 0 is the list for all pieces
-  // idx == piece+1 is the list for the current piece
-  size_t pids[2] = {0, piece+1};
-  for(int i=0; i<2; i++)
-    {
-    size_t idx = pids[i];
-    if (idx >= this->Internal->IDs.size())
-      {
-      continue;
-      }
-    vtkSelectionSourceInternals::IDSetType& selSet =
-      this->Internal->IDs[idx];
+  if (
+    (this->ContentType == vtkSelection::GLOBALIDS) ||
+    (this->ContentType == vtkSelection::INDICES))
+    {    
     
-    if (selSet.size() > 0)
+    // Number of selected items common to all pieces
+    vtkIdType numCommonElems = 0;
+    if (!this->Internal->IDs.empty())
       {
-      output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
-                                   this->ContentType);
-      output->GetProperties()->Set(vtkSelection::FIELD_TYPE(),
-                                   this->FieldType);
-      // Create the selection list
-      vtkIdTypeArray* selectionList = vtkIdTypeArray::New();
-      selectionList->SetNumberOfTuples(selSet.size());
-      // iterate over ids and insert to the selection list
-      vtkSelectionSourceInternals::IDSetType::iterator iter =
-        selSet.begin();
-      for (vtkIdType idx2=0; iter != selSet.end(); iter++, idx2++)
-        {
-        selectionList->SetValue(idx2, *iter);
-        }
-      output->SetSelectionList(selectionList);
-      selectionList->Delete();
+      numCommonElems = this->Internal->IDs[0].size();
       }
+    if (piece+1 >= (int)this->Internal->IDs.size() &&
+        numCommonElems == 0)
+      {
+      vtkDebugMacro("No selection for piece: " << piece);
+      return 1;
+      }
+    
+    // idx == 0 is the list for all pieces
+    // idx == piece+1 is the list for the current piece
+    size_t pids[2] = {0, piece+1};
+    for(int i=0; i<2; i++)
+      {
+      size_t idx = pids[i];
+      if (idx >= this->Internal->IDs.size())
+        {
+        continue;
+        }
+      
+      vtkSelectionSourceInternals::IDSetType& selSet =
+        this->Internal->IDs[idx];
+      
+      if (selSet.size() > 0)
+        {
+        output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
+                                     this->ContentType);
+        output->GetProperties()->Set(vtkSelection::FIELD_TYPE(),
+                                     this->FieldType);
+        // Create the selection list
+        vtkIdTypeArray* selectionList = vtkIdTypeArray::New();
+        selectionList->SetNumberOfTuples(selSet.size());
+        // iterate over ids and insert to the selection list
+        vtkSelectionSourceInternals::IDSetType::iterator iter =
+          selSet.begin();
+        for (vtkIdType idx2=0; iter != selSet.end(); iter++, idx2++)
+          {
+          selectionList->SetValue(idx2, *iter);
+          }
+        output->SetSelectionList(selectionList);
+        selectionList->Delete();
+        }
+      }
+    }
+  
+  if (
+    (this->ContentType == vtkSelection::LOCATIONS)
+    &&
+    (this->Internal->Values != 0)
+    )
+    {
+    output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
+                                 this->ContentType);
+    output->GetProperties()->Set(vtkSelection::FIELD_TYPE(),
+                                 this->FieldType);
+    // Create the selection list
+    vtkAbstractArray* selectionList = this->Internal->Values->NewInstance();
+    selectionList->DeepCopy(this->Internal->Values);
+    output->SetSelectionList(selectionList);
+    selectionList->Delete();    
     }
   
   return 1;
 }
 
+//------------------------------------------------------------------------------
+void vtkSelectionSource::SetContentType(int value)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting ContentType to " << value);
+  if (this->ContentType != value)
+    {
+    this->ContentType = value;
+    this->RemoveAllIDs();
+    this->RemoveAllValues();
+    if (this->Internal->Values)
+      {
+      this->Internal->Values->Delete();
+      }
+    switch (value)
+      {
+      case vtkSelection::LOCATIONS:
+        {
+        vtkDoubleArray *da = vtkDoubleArray::New();
+        da->SetNumberOfComponents(3);
+        da->SetNumberOfTuples(0);
+        this->Internal->Values = da;
+        break;
+        }
+      case vtkSelection::THRESHOLDS:
+        {
+        vtkDoubleArray *da = vtkDoubleArray::New();
+        da->SetNumberOfComponents(2);
+        da->SetNumberOfTuples(0);
+        this->Internal->Values = da;
+        break;
+        }
+      default:
+        break;
+      }
+    this->Modified();
+    }
+}

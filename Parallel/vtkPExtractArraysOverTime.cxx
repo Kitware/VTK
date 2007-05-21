@@ -21,7 +21,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.4");
+vtkCxxRevisionMacro(vtkPExtractArraysOverTime, "1.4.2.1");
 vtkStandardNewMacro(vtkPExtractArraysOverTime);
 
 vtkCxxSetObjectMacro(vtkPExtractArraysOverTime, Controller, vtkMultiProcessController);
@@ -112,8 +112,10 @@ void vtkPExtractArraysOverTime::PostExecute(
         }
       if (error)
         {
-        vtkErrorMacro("One or more selected items could not be found. "
-                      "Array values for those items are set to 0");
+        //this is not necessarily an error
+        //when the probe misses invalid and zeroing is correct
+        //vtkErrorMacro("One or more selected items could not be found. "
+        //              "Array values for those items are set to 0");
         }
       }
     else
@@ -121,6 +123,7 @@ void vtkPExtractArraysOverTime::PostExecute(
       this->Controller->Send(output, 0, EXCHANGE_DATA);
       }
     }
+
   this->Superclass::PostExecute(request, inputVector, outputVector);
 }
 
@@ -171,7 +174,14 @@ void vtkPExtractArraysOverTime::AddRemoteData(vtkRectilinearGrid* routput,
               outPointData->AddArray(aa);
               aa->UnRegister(0);
               }
-            aa->InsertTuple(i, i, raa);
+            if (raa->GetNumberOfTuples() > i)
+              {
+              aa->InsertTuple(i, i, raa);
+              }
+            else
+              {
+              //cerr << (raa->GetName()?raa->GetName():"NONAME") <<" has only " << raa->GetNumberOfTuples() << " and looking for value at " << i << endl;
+              }
             }
           }
         }
