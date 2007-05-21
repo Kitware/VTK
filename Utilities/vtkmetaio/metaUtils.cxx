@@ -34,6 +34,10 @@
 #include <stdlib.h>
 #include <string>
 
+#if defined (__BORLANDC__) && (__BORLANDC__ >= 0x0580)
+#include <mem.h>
+#endif
+
 #if (METAIO_USE_NAMESPACE)
 namespace METAIO_NAMESPACE {
 #endif
