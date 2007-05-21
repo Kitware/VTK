@@ -150,9 +150,9 @@ class QVTKRenderWindowInteractor(qt.QWidget):
         self._Iren.SetRenderWindow(self._RenderWindow)
 
         # do all the necessary qt setup
-        self.setBackgroundMode(2) # NoBackground
+        self.setBackgroundMode(qt.Qt.NoBackground)
         self.setMouseTracking(1) # get all mouse events
-        self.setFocusPolicy(2) # ClickFocus
+        self.setFocusPolicy(qt.QWidget.ClickFocus)
         if parent == None:
             self.show()
         
