@@ -54,7 +54,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.42.2.1")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.42.2.2")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -4502,15 +4502,21 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
     {
     totalPoints += sets[i]->GetNumberOfPoints();
     totalCells += sets[i]->GetNumberOfCells();
+    // Only use global ids if they are available.
+    useGlobalNodeIds = (   useGlobalNodeIds
+                        && (sets[i]->GetPointData()->GetGlobalIds() != NULL) );
+    useGlobalCellIds = (   useGlobalNodeIds
+                        && (sets[i]->GetCellData()->GetGlobalIds() != NULL) );
     }
 
   mc->SetTotalNumberOfPoints(totalPoints);
   mc->SetTotalNumberOfCells(totalCells);
-
+   
   if (!useGlobalNodeIds)
     {
     mc->SetPointMergeTolerance(pointMergeTolerance);
     }
+  mc->SetUseGlobalIds(useGlobalNodeIds);
   mc->SetUseGlobalCellIds(useGlobalCellIds);
 
   for (i=0; i<nsets; i++)
