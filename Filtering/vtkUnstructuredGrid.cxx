@@ -56,7 +56,7 @@
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.10");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.11");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -84,12 +84,12 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->QuadraticHexahedron = NULL;
   this->QuadraticWedge = NULL;
   this->QuadraticPyramid = NULL;
-  this->QuadraticLinearQuad = vtkQuadraticLinearQuad::New ();
-  this->BiQuadraticQuad = vtkBiQuadraticQuad::New ();
-  this->TriQuadraticHexahedron = vtkTriQuadraticHexahedron::New ();
-  this->QuadraticLinearWedge = vtkQuadraticLinearWedge::New ();
-  this->BiQuadraticQuadraticWedge = vtkBiQuadraticQuadraticWedge::New ();
-  this->BiQuadraticQuadraticHexahedron = vtkBiQuadraticQuadraticHexahedron::New ();
+  this->QuadraticLinearQuad = NULL;
+  this->BiQuadraticQuad = NULL;
+  this->TriQuadraticHexahedron = NULL;
+  this->QuadraticLinearWedge = NULL;
+  this->BiQuadraticQuadraticWedge = NULL;
+  this->BiQuadraticQuadraticHexahedron = NULL;
   
   this->ConvexPointSet = NULL;
   this->EmptyCell = NULL;
