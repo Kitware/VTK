@@ -15,6 +15,7 @@
 #include "vtkVertexDegree.h"
 
 #include "vtkAbstractGraph.h"
+#include "vtkCommand.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -22,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkVertexDegree, "1.1");
+vtkCxxRevisionMacro(vtkVertexDegree, "1.2");
 vtkStandardNewMacro(vtkVertexDegree);
 
 vtkVertexDegree::vtkVertexDegree()
@@ -69,6 +70,9 @@ int vtkVertexDegree::RequestData(vtkInformation *vtkNotUsed(request),
   for(int i=0;i< DegreeArray->GetNumberOfTuples(); ++i)
     {
     DegreeArray->SetValue(i,output->GetDegree(i));
+    
+    double progress = static_cast<double>(i) / static_cast<double>(DegreeArray->GetNumberOfTuples());
+    this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
     }
     
   // Add attribute array to the output
