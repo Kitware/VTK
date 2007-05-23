@@ -31,7 +31,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.13");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.14");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -153,8 +153,12 @@ int vtkDelimitedTextReader::RequestData(
   // Open the file
   this->OpenFile();
   
+  // Get the total size of the file ...
+  this->Internals->File->seekg(0, ios::end);
+  const int total_bytes = this->Internals->File->tellg();
+  
   // Go to the top of the file
-  this->Internals->File->seekg(0,ios::beg);
+  this->Internals->File->seekg(0, ios::beg);
 
   // Store the text data into a vtkTable
   vtkTable* table = vtkTable::GetData(outputVector);
@@ -236,11 +240,12 @@ int vtkDelimitedTextReader::RequestData(
   while (my_getline(*(this->Internals->File), nextLine))
     {
     ++numLines;
-    if (numLines > 0 && numLines % 100 == 0)
-      {
-      float numLinesRead = numLines;
-      this->InvokeEvent(vtkCommand::ProgressEvent, &numLinesRead);
-      }
+    
+    double progress = total_bytes
+      ? static_cast<double>(this->Internals->File->tellg()) / static_cast<double>(total_bytes)
+      : 0.5;
+      
+    this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
 
     vtkDebugMacro(<<"Next line: " << nextLine.c_str());
     vtkstd::vector<vtkStdString> dataVector;
