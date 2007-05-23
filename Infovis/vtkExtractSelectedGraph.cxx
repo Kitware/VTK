@@ -33,7 +33,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.1");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.2");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -52,7 +52,7 @@ int vtkExtractSelectedGraph::FillInputPortInformation(int port, vtkInformation* 
 {
   if (port == 0)
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAbstractGraph");
     return 1;
     }
   else if (port == 1)
@@ -79,7 +79,7 @@ int vtkExtractSelectedGraph::RequestData(
   vtkInformationVector* outputVector)
 {
   //cerr << "in subgraph filter" << endl;
-  vtkGraph* input = vtkGraph::GetData(inputVector[0]);
+  vtkAbstractGraph* input = vtkAbstractGraph::GetData(inputVector[0]);
   vtkSelection* selection = vtkSelection::GetData(inputVector[1]);
 
   int content = selection->GetProperties()->Get(selection->CONTENT_TYPE());
@@ -132,16 +132,20 @@ int vtkExtractSelectedGraph::RequestData(
   vtkCellData* inputEdgeData = input->GetEdgeData();
   vtkCellData* outputEdgeData = output->GetEdgeData();
   outputEdgeData->CopyAllocate(inputEdgeData);
+  vtkGraphIdList* edgeList = vtkGraphIdList::New();
   for (vtkIdType i = 0; i < selectSize; i++)
     {
     vtkIdType inputVertex = selectArr->GetValue(i);
     vtkIdType outputVertex = idMap[inputVertex];
-    vtkIdType nedges;
-    const vtkIdType* edges;
-    input->GetOutEdges(inputVertex, nedges, edges);
-    for (vtkIdType j = 0; j < nedges; j++)
+    input->GetOutEdges(inputVertex, edgeList);
+    //vtkIdType nedges;
+    //const vtkIdType* edges;
+    //input->GetOutEdges(inputVertex, nedges, edges);
+    //for (vtkIdType j = 0; j < nedges; j++)
+    for (vtkIdType j = 0; j < edgeList->GetNumberOfIds(); j++)
       {
-      vtkIdType inputEdge = edges[j];
+      //vtkIdType inputEdge = edges[j];
+      vtkIdType inputEdge = edgeList->GetId(j);
       vtkIdType oppInputVertex = input->GetOppositeVertex(inputEdge, inputVertex);
       if (idMap.count(oppInputVertex) > 0)
         {
@@ -151,6 +155,7 @@ int vtkExtractSelectedGraph::RequestData(
         }
       }
     }
+  edgeList->Delete();
 
   for (vtkIdType i = 0; i < output->GetNumberOfVertices(); i++)
     {
