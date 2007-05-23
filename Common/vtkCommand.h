@@ -171,6 +171,7 @@ public:
     RegisterEvent,
     UnRegisterEvent,
     UpdateInformationEvent,
+    SelectionChangedEvent,
     UserEvent = 1000
   };
 //ETX
