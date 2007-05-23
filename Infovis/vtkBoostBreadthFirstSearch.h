@@ -38,6 +38,8 @@
 
 #include "vtkGraphAlgorithm.h"
 
+class vtkSelection;
+
 class VTK_INFOVIS_EXPORT vtkBoostBreadthFirstSearch : public vtkGraphAlgorithm 
 {
 public:
@@ -45,6 +47,14 @@ public:
   vtkTypeRevisionMacro(vtkBoostBreadthFirstSearch, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
+  // Description:
+  // Convenience methods for setting the origin selection input.
+  void SetOriginSelection(vtkSelection *s);
+  void SetOriginSelectionConnection(vtkAlgorithmOutput* algOutput)
+  {
+    this->SetInputConnection(1, algOutput);
+  }
+
   // Description:
   // Set the index (into the vertex array) of the 
   // breadth first search 'origin' vertex.

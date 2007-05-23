@@ -45,7 +45,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.2");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.3");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 
@@ -109,6 +109,11 @@ vtkBoostBreadthFirstSearch::~vtkBoostBreadthFirstSearch()
 {
   this->SetInputArrayName(0);
   this->SetOutputArrayName(0);
+}
+
+void vtkBoostBreadthFirstSearch::SetOriginSelection(vtkSelection* s)
+{
+  this->SetOriginSelectionConnection(s->GetProducerPort());
 }
 
 // Description:
