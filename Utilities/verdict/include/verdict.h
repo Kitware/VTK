@@ -374,24 +374,24 @@ struct TriMetricVals
 //! 
 //@{
 #define V_TET_RADIUS_RATIO           1   /*!< \hideinitializer */
-#define V_TET_ASPECT_BETA            1   /*!< \hideinitializer */
-#define V_TET_ASPECT_GAMMA           2   /*!< \hideinitializer */
-#define V_TET_VOLUME                 4   /*!< \hideinitializer */
-#define V_TET_CONDITION              8   /*!< \hideinitializer */
-#define V_TET_JACOBIAN               16   /*!< \hideinitializer */
-#define V_TET_SCALED_JACOBIAN        32   /*!< \hideinitializer */
-#define V_TET_SHAPE                  64   /*!< \hideinitializer */
-#define V_TET_RELATIVE_SIZE_SQUARED  128   /*!< \hideinitializer */
-#define V_TET_SHAPE_AND_SIZE         256   /*!< \hideinitializer */
-#define V_TET_DISTORTION             512   /*!< \hideinitializer */
-#define V_TET_EDGE_RATIO             1024   /*!< \hideinitializer */
-#define V_TET_ASPECT_RATIO           2048   /*!< \hideinitializer */
-#define V_TET_ASPECT_FROBENIUS       4096   /*!< \hideinitializer */
-#define V_TET_MINIMUM_ANGLE          8192   /*!< \hideinitializer */
-#define V_TET_COLLAPSE_RATIO         16384   /*!< \hideinitializer */
-#define V_TET_ALL                    32767   /*!< \hideinitializer */
+#define V_TET_ASPECT_BETA            2   /*!< \hideinitializer */
+#define V_TET_ASPECT_GAMMA           4   /*!< \hideinitializer */
+#define V_TET_VOLUME                 8   /*!< \hideinitializer */
+#define V_TET_CONDITION              16  /*!< \hideinitializer */
+#define V_TET_JACOBIAN               32   /*!< \hideinitializer */
+#define V_TET_SCALED_JACOBIAN        64   /*!< \hideinitializer */
+#define V_TET_SHAPE                  128  /*!< \hideinitializer */
+#define V_TET_RELATIVE_SIZE_SQUARED  256   /*!< \hideinitializer */
+#define V_TET_SHAPE_AND_SIZE         512   /*!< \hideinitializer */
+#define V_TET_DISTORTION             1024  /*!< \hideinitializer */
+#define V_TET_EDGE_RATIO             2048   /*!< \hideinitializer */
+#define V_TET_ASPECT_RATIO           4096   /*!< \hideinitializer */
+#define V_TET_ASPECT_FROBENIUS       8192   /*!< \hideinitializer */
+#define V_TET_MINIMUM_ANGLE          16384  /*!< \hideinitializer */
+#define V_TET_COLLAPSE_RATIO         32768   /*!< \hideinitializer */
+#define V_TET_ALL                    65535   /*!< \hideinitializer */
 /*!< \hideinitializer */
-#define V_TET_TRADITIONAL            V_TET_RADIUS_RATIO + \
+#define V_TET_TRADITIONAL            V_TET_ASPECT_BETA + \
                                      V_TET_ASPECT_GAMMA + \
                                      V_TET_CONDITION + \
                                      V_TET_JACOBIAN + \

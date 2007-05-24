@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.48");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.49");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );
@@ -298,6 +298,9 @@ int vtkMeshQuality::RequestData(
       break;
     case VTK_QUALITY_COLLAPSE_RATIO:
       TetQuality = TetCollapseRatio;
+      break;
+    case VTK_QUALITY_ASPECT_BETA:
+      TetQuality = TetAspectBeta;
       break;
     case VTK_QUALITY_ASPECT_GAMMA:
       TetQuality = TetAspectGamma;
