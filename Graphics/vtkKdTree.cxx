@@ -48,7 +48,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.17");
+vtkCxxRevisionMacro(vtkKdTree, "1.18");
 
 // Timing data ---------------------------------------------
 
@@ -367,6 +367,11 @@ void vtkKdTree::RemoveDataSet(vtkDataSet *set)
 void vtkKdTree::RemoveDataSet(int index)
 {
   this->DataSets->RemoveItem(index);
+}
+
+void vtkKdTree::RemoveAllDataSets()
+{
+  this->DataSets->RemoveAllItems();
 }
 
 //-----------------------------------------------------------------------------

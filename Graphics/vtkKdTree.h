@@ -178,6 +178,7 @@ public:
   // Remove the given data set.
   virtual void RemoveDataSet(int index);
   virtual void RemoveDataSet(vtkDataSet *set);
+  virtual void RemoveAllDataSets();
 
   // Description:
   //   Get the number of data sets included in spatial paritioning
