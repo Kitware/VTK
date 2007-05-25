@@ -24,9 +24,15 @@
 #endif
 
 #ifdef VTK_USE_ANSI_STDLIB
-  #define METAIO_STREAM std
-  #include <iostream>
-  #include <fstream>
+  #ifndef __sgi
+    #define METAIO_STREAM std
+    #include <iostream>
+    #include <fstream>
+  #else
+    #define METAIO_STREAM std
+    #include <iostream.h>
+    #include <fstream.h>
+  #endif
 #else
   #define METAIO_STREAM 
   #include <iostream.h>

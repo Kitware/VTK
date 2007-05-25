@@ -290,8 +290,10 @@ bool MET_ValueToDouble(MET_ValueEnumType _type, const void *_data, int _index,
       return true;
     case MET_ULONG_LONG:
     case MET_ULONG_LONG_ARRAY:
-#if defined(_MSC_VER) // NOTE: you cannot use __int64 in an ostream in MSV6
-      *_value = (double)((MET_LONG_LONG_TYPE)((((const MET_ULONG_LONG_TYPE *)_data)[_index])));
+#if defined(_MSC_VER) || defined(__HP_aCC)
+      // NOTE: you cannot use __int64 in an ostream in MSV6 or HPUX
+      *_value = (double)((MET_LONG_LONG_TYPE)
+                         ((((const MET_ULONG_LONG_TYPE *)_data)[_index])));
 #else
       *_value = (double)((((const MET_ULONG_LONG_TYPE *)_data)[_index]));
 #endif
@@ -314,7 +316,10 @@ bool MET_ValueToDouble(MET_ValueEnumType _type, const void *_data, int _index,
     }
   }
 
-bool MET_DoubleToValue(double _value, MET_ValueEnumType _type, void *_data, int _index)
+bool MET_DoubleToValue(double _value,
+                       MET_ValueEnumType _type,
+                       void *_data,
+                       int _index)
   {
   switch(_type)
     {
@@ -765,7 +770,8 @@ bool MET_SkipToVal(METAIO_STREAM::istream &fp)
   
   if( fp.eof() )
     {
-    METAIO_STREAM::cerr << "Incomplete file record definition" << METAIO_STREAM::endl;
+    METAIO_STREAM::cerr << "Incomplete file record definition" 
+                        << METAIO_STREAM::endl;
     return false;
     }
   
@@ -793,7 +799,8 @@ bool MET_IsComplete(METAIO_STL::vector<MET_FieldRecordType *> * fields)
   }
 
 //
-bool MET_Read(METAIO_STREAM::istream &fp, METAIO_STL::vector<MET_FieldRecordType *> * fields,
+bool MET_Read(METAIO_STREAM::istream &fp,
+              METAIO_STL::vector<MET_FieldRecordType *> * fields,
               char _MET_SeperatorChar, bool oneLine, bool display_warnings)
   {
 
@@ -842,8 +849,10 @@ bool MET_Read(METAIO_STREAM::istream &fp, METAIO_STL::vector<MET_FieldRecordType
         if((*fieldIter)->dependsOn >= 0)
           if(!(*fields)[(*fieldIter)->dependsOn]->defined)
             {
-            METAIO_STREAM::cerr << (*fieldIter)->name << " defined prior to defining ";
-            METAIO_STREAM::cerr << (*fields)[(*fieldIter)->dependsOn]->name << METAIO_STREAM::endl;
+            METAIO_STREAM::cerr << (*fieldIter)->name 
+                                << " defined prior to defining ";
+            METAIO_STREAM::cerr << (*fields)[(*fieldIter)->dependsOn]->name 
+                                << METAIO_STREAM::endl;
             return false;
             }
         switch((*fieldIter)->type)
@@ -1000,7 +1009,8 @@ bool MET_Read(METAIO_STREAM::istream &fp, METAIO_STL::vector<MET_FieldRecordType
       {
       if(display_warnings)
         {
-        METAIO_STREAM::cerr << "Skipping unrecognized field " << s << METAIO_STREAM::endl;
+        METAIO_STREAM::cerr << "Skipping unrecognized field " 
+                            << s << METAIO_STREAM::endl;
         }
       fp.getline( s, 500 );
       }
@@ -1014,7 +1024,8 @@ bool MET_Read(METAIO_STREAM::istream &fp, METAIO_STL::vector<MET_FieldRecordType
   }
   
 //
-bool MET_Write(METAIO_STREAM::ostream &fp, METAIO_STL::vector<MET_FieldRecordType *> * fields,
+bool MET_Write(METAIO_STREAM::ostream &fp,
+               METAIO_STL::vector<MET_FieldRecordType *> * fields,
                char _MET_SeperatorChar)
   {
   MET_SeperatorChar = _MET_SeperatorChar;
@@ -1048,15 +1059,18 @@ bool MET_Write(METAIO_STREAM::ostream &fp, METAIO_STL::vector<MET_FieldRecordTyp
         }
       case MET_LONG_LONG:
         {
-#if defined(_MSC_VER) // NOTE: you cannot use __int64 in an ostream in MSV6
+#if defined(_MSC_VER) || defined(__HP_aCC)
+        // NOTE: you cannot use __int64 in an ostream in MSV6 or HPUX
         fp << (double)((MET_LONG_LONG_TYPE)((*fieldIter)->value[0])) 
            << METAIO_STREAM::endl;
-        METAIO_STREAM::cerr << "Programs compiled using MSV6 cannot write 64 bit ints"
-                  << METAIO_STREAM::endl;
-        METAIO_STREAM::cerr << "  Writing as double instead.  Loss of precision results."
-                  << METAIO_STREAM::endl;
+        METAIO_STREAM::cerr << "Programs compiled using MSV6 or HPUX cannot"
+                            << " write 64 bit ints" << METAIO_STREAM::endl;
+        METAIO_STREAM::cerr << "  Writing as double instead."
+                            << "  Loss of precision results."
+                            << METAIO_STREAM::endl;
 #else
-        fp << (MET_LONG_LONG_TYPE)((*fieldIter)->value[0]) << METAIO_STREAM::endl;
+        fp << (MET_LONG_LONG_TYPE)((*fieldIter)->value[0]) 
+           << METAIO_STREAM::endl;
 #endif
         break;
         }
@@ -1071,15 +1085,20 @@ bool MET_Write(METAIO_STREAM::ostream &fp, METAIO_STL::vector<MET_FieldRecordTyp
         }
       case MET_ULONG_LONG:
         {
-#if defined(_MSC_VER) // NOTE: you cannot use __int64 in an ostream in MSV6
-        fp << (double)((MET_LONG_LONG_TYPE)((MET_ULONG_LONG_TYPE)((*fieldIter)->value[0]))) 
+#if defined(_MSC_VER) || defined(__HP_aCC)
+        // NOTE: you cannot use __int64 in an ostream in MSV6 or HPUX
+        fp << (double)((MET_LONG_LONG_TYPE)((MET_ULONG_LONG_TYPE)
+                       ((*fieldIter)->value[0]))) 
            << METAIO_STREAM::endl;
-        METAIO_STREAM::cerr << "Programs compiled using MSV6 cannot write 64 bit ints"
-                  << METAIO_STREAM::endl;
-        METAIO_STREAM::cerr << "  Writing as double instead.  Loss of precision results."
-                  << METAIO_STREAM::endl;
+        METAIO_STREAM::cerr << "Programs compiled using MSV6 or HPUX"
+                            << " cannot write 64 bit ints" 
+                            << METAIO_STREAM::endl;
+        METAIO_STREAM::cerr << "  Writing as double instead."
+                            << "  Loss of precision results."
+                            << METAIO_STREAM::endl;
 #else
-        fp << (MET_ULONG_LONG_TYPE)((*fieldIter)->value[0]) << METAIO_STREAM::endl;
+        fp << (MET_ULONG_LONG_TYPE)((*fieldIter)->value[0]) 
+           << METAIO_STREAM::endl;
 #endif
         break;
         }
@@ -1099,7 +1118,8 @@ bool MET_Write(METAIO_STREAM::ostream &fp, METAIO_STL::vector<MET_FieldRecordTyp
              (*fields)[(*fieldIter)->dependsOn]->value[0])
             {
             METAIO_STREAM::cerr << "Warning:";
-            METAIO_STREAM::cerr << "length and dependsOn values not equal in write";
+            METAIO_STREAM::cerr << "length and dependsOn values not equal"
+                                << " in write";
             METAIO_STREAM::cerr << METAIO_STREAM::endl;
             }
           }
@@ -1119,7 +1139,8 @@ bool MET_Write(METAIO_STREAM::ostream &fp, METAIO_STL::vector<MET_FieldRecordTyp
              (*fields)[(*fieldIter)->dependsOn]->value[0])
             {
             METAIO_STREAM::cerr << "Warning: ";
-            METAIO_STREAM::cerr << "Length and dependsOn values not equal in write";
+            METAIO_STREAM::cerr << "Length and dependsOn values not equal"
+                                << " in write";
             METAIO_STREAM::cerr << METAIO_STREAM::endl;
             }
           }
@@ -1139,18 +1160,22 @@ bool MET_Write(METAIO_STREAM::ostream &fp, METAIO_STL::vector<MET_FieldRecordTyp
              (*fields)[(*fieldIter)->dependsOn]->value[0])
             {
             METAIO_STREAM::cerr << "Warning: ";
-            METAIO_STREAM::cerr << "Length and dependsOn values not equal in write";
+            METAIO_STREAM::cerr << "Length and dependsOn values not equal"
+                                << " in write";
             METAIO_STREAM::cerr << METAIO_STREAM::endl;
             }
           }
         for(j=0; j<(*fieldIter)->length; j++)
           {
-#if defined(_MSC_VER) // NOTE: you cannot use __int64 in an ostream in MSV6
+#if defined(_MSC_VER) || defined(__HP_aCC)
+          // NOTE: you cannot use __int64 in an ostream in MSV6 or HPUX
           fp << " " << (double)((MET_LONG_LONG_TYPE)((*fieldIter)->value[j]));
-          METAIO_STREAM::cerr << "Programs compiled using MSV6 cannot write 64 bit ints"
-                    << METAIO_STREAM::endl;
-          METAIO_STREAM::cerr << "  Writing as double instead. Loss of precision results."
-                    << METAIO_STREAM::endl;
+          METAIO_STREAM::cerr << "Programs compiled using MSV6 cannot"
+                              << " write 64 bit ints"
+                              << METAIO_STREAM::endl;
+          METAIO_STREAM::cerr << "  Writing as double instead."
+                              << " Loss of precision results."
+                              << METAIO_STREAM::endl;
 #else
           fp << " " << (MET_LONG_LONG_TYPE)((*fieldIter)->value[j]);
 #endif
@@ -1171,7 +1196,8 @@ bool MET_Write(METAIO_STREAM::ostream &fp, METAIO_STL::vector<MET_FieldRecordTyp
              (*fields)[(*fieldIter)->dependsOn]->value[0])
             {
             METAIO_STREAM::cerr << "Warning: ";
-            METAIO_STREAM::cerr << "Length and dependsOn values not equal in write";
+            METAIO_STREAM::cerr << "Length and dependsOn values not equal"
+                                << " in write";
             METAIO_STREAM::cerr << METAIO_STREAM::endl;
             }
           }
@@ -1191,18 +1217,23 @@ bool MET_Write(METAIO_STREAM::ostream &fp, METAIO_STL::vector<MET_FieldRecordTyp
              (*fields)[(*fieldIter)->dependsOn]->value[0])
             {
             METAIO_STREAM::cerr << "Warning: ";
-            METAIO_STREAM::cerr << "Length and dependsOn values not equal in write";
+            METAIO_STREAM::cerr << "Length and dependsOn values not equal"
+                                << " in write";
             METAIO_STREAM::cerr << METAIO_STREAM::endl;
             }
           }
         for(j=0; j<(*fieldIter)->length; j++)
           {
-#if defined(_MSC_VER) // NOTE: you cannot use __int64 in an ostream in MSV6
-          fp << " " << (double)((MET_LONG_LONG_TYPE)((MET_ULONG_LONG_TYPE)((*fieldIter)->value[j])));
-          METAIO_STREAM::cerr << "Programs compiled using MSV6 cannot write 64 bit ints"
-                    << METAIO_STREAM::endl;
-          METAIO_STREAM::cerr << "  Writing as double instead. Loss of precision results."
-                    << METAIO_STREAM::endl;
+#if defined(_MSC_VER) || defined(__HP_aCC)
+          // NOTE: you cannot use __int64 in an ostream in MSV6
+          fp << " " << (double)((MET_LONG_LONG_TYPE)((MET_ULONG_LONG_TYPE)
+                                ((*fieldIter)->value[j])));
+          METAIO_STREAM::cerr << "Programs compiled using MSV6 or HPUX"
+                              << " cannot write 64 bit ints"
+                              << METAIO_STREAM::endl;
+          METAIO_STREAM::cerr << " Writing as double instead."
+                              << " Loss of precision results."
+                              << METAIO_STREAM::endl;
 #else
           fp << " " << (MET_ULONG_LONG_TYPE)((*fieldIter)->value[j]);
 #endif
@@ -1343,8 +1374,10 @@ bool MET_WriteFieldToFile(METAIO_STREAM::ostream & _fp, const char *_fieldName,
     case MET_ULONG_LONG_ARRAY:
       for(i=0; i<_n; i++)
         {
-#if defined(_MSC_VER) // NOTE: you cannot use __int64 in an ostream in MSV6
-        f.value[i] = (double)((MET_LONG_LONG_TYPE)(((const MET_ULONG_LONG_TYPE *)_v)[i]));
+#if defined(_MSC_VER) || defined(__HP_aCC)
+        // NOTE: you cannot use __int64 in an ostream in MSV6 or HPUX
+        f.value[i] = (double)((MET_LONG_LONG_TYPE)
+                              (((const MET_ULONG_LONG_TYPE *)_v)[i]));
 #else
         f.value[i] = (double)(((const MET_ULONG_LONG_TYPE *)_v)[i]);
 #endif
