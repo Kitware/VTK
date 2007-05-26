@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#ifdef _MSC_VER
+#pragma warning(disable:4018)
+#endif
+
 #include "vtkMetaImageReader.h"
 
 #include "vtkDataArray.h"
@@ -34,7 +38,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.28");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.29");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -259,7 +263,7 @@ int vtkMetaImageReader::CanReadFile(const char* fname)
     }
 
   bool extensionFound = false;
-    vtkstd::string::size_type mhaPos = filename.rfind(".mha");
+  vtkstd::string::size_type mhaPos = filename.rfind(".mha");
   if ((mhaPos != vtkstd::string::npos)
       && (mhaPos == filename.length() - 4))
     {

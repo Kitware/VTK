@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#ifdef _MSC_VER
+#pragma warning(disable:4018)
+#endif
+
 #include "vtkMetaImageWriter.h"
 
 #include "vtkCommand.h"
@@ -35,7 +39,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.15");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.16");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
