@@ -14,11 +14,11 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#include "metaContour.h"
-
 #ifdef _MSC_VER
 #pragma warning(disable:4702)
 #endif
+
+#include "metaContour.h"
 
 #include <stdio.h>
 #include <ctype.h>

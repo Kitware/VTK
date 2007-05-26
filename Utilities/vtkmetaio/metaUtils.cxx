@@ -14,11 +14,11 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#include "metaUtils.h"
-
 #ifdef _MSC_VER
 #pragma warning(disable:4702)
 #endif
+
+#include "metaUtils.h"
 
 #include <stdio.h>
 #include <ctype.h>

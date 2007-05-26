@@ -14,6 +14,10 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
+#ifdef _MSC_VER
+#pragma warning(disable:4702)
+#endif
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 #include <winsock2.h>
 #else
