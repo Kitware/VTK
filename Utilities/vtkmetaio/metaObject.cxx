@@ -263,7 +263,7 @@ Read(const char *_fileName)
                                   METAIO_STREAM::ios::in);
 #endif
 
-  if(!tmpReadStream->is_open())
+  if(!tmpReadStream->rdbuf()->is_open())
     {
     delete tmpReadStream;
     return false;
@@ -1750,7 +1750,7 @@ bool MetaObject
 #ifdef __sgi
   m_WriteStream->open(m_FileName, METAIO_STREAM::ios::out 
                                   | METAIO_STREAM::ios::in);
-  if(!m_WriteStream->is_open())
+  if(!m_WriteStream->rdbuf()->is_open())
     {
     delete m_WriteStream;
     m_WriteStream = 0;
@@ -1841,7 +1841,7 @@ void MetaObject::M_PrepareNewReadStream()
 {
   if(m_ReadStream)
     {
-    if(m_ReadStream->is_open())
+    if(m_ReadStream->rdbuf()->is_open())
       {
       m_ReadStream->close();
       }

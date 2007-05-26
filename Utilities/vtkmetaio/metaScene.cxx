@@ -156,7 +156,7 @@ Read(const char *_headerName)
                                  | METAIO_STREAM::ios::in);
 #endif
   
-  if(!m_ReadStream->is_open())
+  if(!m_ReadStream->rdbuf()->is_open())
   {
     METAIO_STREAM::cout << "MetaScene: Read: Cannot open file" << METAIO_STREAM::endl;
     return false;

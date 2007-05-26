@@ -368,11 +368,13 @@ void MetaOutput::Write()
       }
 
     FieldVector::const_iterator it = m_FieldVector.begin();
-    while(it != m_FieldVector.end())
+    FieldVector::const_iterator itEnd = m_FieldVector.end();
+    while(it != itEnd)
       {
       if(typeid(*(*itStream)) == typeid(MetaFileOutputStream))
         {
-        METAIO_STL::string filename = ((MetaFileOutputStream*)(*itStream))->GetFileName().c_str();
+        METAIO_STL::string filename = ((MetaFileOutputStream*)(*itStream))
+                                      ->GetFileName().c_str();
         (*itStream)->Write(this->GenerateXML(filename.c_str()).c_str());
         }
       else

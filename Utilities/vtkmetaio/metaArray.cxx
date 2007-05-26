@@ -634,7 +634,7 @@ CanRead(const char *_headerName) const
                                  METAIO_STREAM::ios::binary );
 #endif
 
-  if( !inputStream.is_open() )
+  if( !inputStream.rdbuf()->is_open() )
     {
     return false;
     }
@@ -665,7 +665,7 @@ Read(const char *_headerName, bool _readElements,
                               METAIO_STREAM::ios::binary);
 #endif
 
-  if(!tmpStream->is_open())
+  if(!tmpStream->rdbuf()->is_open())
     {
     METAIO_STREAM::cout << "MetaArray: Read: Cannot open file _" 
                         << m_FileName << "_" << METAIO_STREAM::endl;
@@ -769,7 +769,7 @@ ReadStream(METAIO_STREAM::ifstream * _stream, bool _readElements,
       readStreamTemp->open(fName, METAIO_STREAM::ios::binary |
                                   METAIO_STREAM::ios::in);
 #endif
-      if(!readStreamTemp->is_open())
+      if(!readStreamTemp->rdbuf()->is_open())
         {
         METAIO_STREAM::cout << "MetaArray: Read: Cannot open data file" 
                             << METAIO_STREAM::endl;

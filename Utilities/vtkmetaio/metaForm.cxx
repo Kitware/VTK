@@ -625,7 +625,7 @@ Read(const char *_fileName)
                                   METAIO_STREAM::ios::in);
 #endif
 
-  if(!tmpReadStream->is_open())
+  if(!tmpReadStream->rdbuf()->is_open())
     {
     METAIO_STREAM::cout << "MetaForm: Read: Cannot open file" 
                         << METAIO_STREAM::endl;
