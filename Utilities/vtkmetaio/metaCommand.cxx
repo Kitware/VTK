@@ -43,7 +43,7 @@ MetaCommand()
 }
 
 
-/** Extract the date from the $Date: 2007-05-26 12:45:24 $ cvs command */
+/** Extract the date from the $Date: 2007-05-27 14:04:13 $ cvs command */
 METAIO_STL::string MetaCommand::
 ExtractDateFromCVS(METAIO_STL::string date)
 {
@@ -61,7 +61,7 @@ SetDateFromCVS(METAIO_STL::string cvsDate)
   this->SetDate( this->ExtractDateFromCVS( cvsDate ).c_str() );
   }
 
-/** Extract the version from the $Revision: 1.11 $ cvs command */
+/** Extract the version from the $Revision: 1.12 $ cvs command */
 METAIO_STL::string MetaCommand::
 ExtractVersionFromCVS(METAIO_STL::string version)
 {
@@ -1118,7 +1118,7 @@ ExportGAD(bool dynamic)
   file.open(filename.c_str(), METAIO_STREAM::ios::binary 
                               | METAIO_STREAM::ios::out);
 #endif
-  if(!file.is_open())
+  if(!file.rdbuf()->is_open())
     {
     METAIO_STREAM::cout << "Cannot open file for writing: " 
                         << filename.c_str() <<  METAIO_STREAM::endl;

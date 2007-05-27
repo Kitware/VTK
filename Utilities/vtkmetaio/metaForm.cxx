@@ -714,7 +714,7 @@ Write(const char *_fileName)
                                   METAIO_STREAM::ios::out);
 #endif
 
-  if(!tmpWriteStream->is_open())
+  if(!tmpWriteStream->rdbuf()->is_open())
     {
     delete tmpWriteStream;
     return false;

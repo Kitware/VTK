@@ -337,7 +337,7 @@ void MetaOutput::Write()
                                       | METAIO_STL::ios::out);
 #endif
 
-    if(fileStream.is_open())
+    if(fileStream.rdbuf()->is_open())
       {
       fileStream << this->GenerateXML(filename.c_str()).c_str();
       fileStream.close();

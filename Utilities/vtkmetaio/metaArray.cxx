@@ -872,7 +872,7 @@ Write(const char *_headName, const char *_dataName, bool _writeElements,
                                    METAIO_STREAM::ios::out);
 #endif
 
-  if(!tmpWriteStream->is_open())
+  if(!tmpWriteStream->rdbuf()->is_open())
     {
     if(tmpDataFileName)
       {

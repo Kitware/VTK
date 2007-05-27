@@ -347,7 +347,7 @@ Write(const char *_fileName)
                                   METAIO_STREAM::ios::out);
 #endif
 
-  if(!m_WriteStream->is_open())
+  if(!m_WriteStream->rdbuf()->is_open())
     {
     return false;
     }
@@ -1761,7 +1761,7 @@ bool MetaObject
   m_WriteStream->open(m_FileName, METAIO_STREAM::ios::binary 
                                   | METAIO_STREAM::ios::out 
                                   | METAIO_STREAM::ios::app);
-  if(!m_WriteStream->is_open())
+  if(!m_WriteStream->rdbuf()->is_open())
     {
     delete m_WriteStream;
     m_WriteStream = 0;

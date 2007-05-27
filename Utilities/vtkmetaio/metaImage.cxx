@@ -1404,7 +1404,7 @@ Write(const char *_headName,
 #endif
     }
 
-  if(!tmpWriteStream->is_open())
+  if(!tmpWriteStream->rdbuf()->is_open())
     {
     if(!userDataFileName)
       {
