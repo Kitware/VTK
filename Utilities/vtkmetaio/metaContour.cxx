@@ -190,7 +190,10 @@ void MetaContour::Interpolation(MET_InterpolationEnumType _interpolation)
 void MetaContour::
 Clear(void)
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaContour: Clear" << METAIO_STREAM::endl;
+  if(META_DEBUG) 
+    {
+    METAIO_STREAM::cout << "MetaContour: Clear" << METAIO_STREAM::endl;
+    }
   MetaObject::Clear();
   m_InterpolationType = MET_NO_INTERPOLATION;
   m_NControlPoints = 0;
@@ -198,22 +201,26 @@ Clear(void)
 
   // Delete the list of control points.
   ControlPointListType::iterator it = m_ControlPointsList.begin();
-  while(it != m_ControlPointsList.end())
-  {
+  ControlPointListType::iterator itEnd = m_ControlPointsList.end();
+  while(it != itEnd)
+    {
     ContourControlPnt* pnt = *it;
     it++;
     delete pnt;
-  }
+    }
   m_ControlPointsList.clear();
 
   // Delete the list of interpolated points
-  InterpolatedPointListType::iterator itInterpolated = m_InterpolatedPointsList.begin();
-  while(itInterpolated != m_InterpolatedPointsList.end())
-  {
+  InterpolatedPointListType::iterator itInterpolated =
+                                             m_InterpolatedPointsList.begin();
+  InterpolatedPointListType::iterator itInterpolatedEnd =
+                                             m_InterpolatedPointsList.end();
+  while(itInterpolated != itInterpolatedEnd)
+    {
     ContourInterpolatedPnt* pnt = *itInterpolated;
     itInterpolated++;
     delete pnt;
-  }
+    }
   m_InterpolatedPointsList.clear();
 
   strcpy(m_ControlPointDim, "id x y z xp yp zp nx ny nz r g b a");
@@ -734,11 +741,12 @@ M_Write(void)
   if(m_BinaryData)
     {
     ControlPointListType::const_iterator it = m_ControlPointsList.begin();
+    ControlPointListType::const_iterator itEnd = m_ControlPointsList.end();
   
     char* data = new char[(m_NDims*3+5)*m_NControlPoints*4];
     int i=0;
     int d;
-    while(it != m_ControlPointsList.end())
+    while(it != itEnd)
       {
       unsigned int id = (*it)->m_Id;
       MET_SwapByteIfSystemMSB(&id,MET_UINT);    
@@ -777,13 +785,14 @@ M_Write(void)
     m_WriteStream->write((char *)data,(m_NDims*3+5)*m_NControlPoints*4);
     m_WriteStream->write("\n",1);
     delete [] data;
-  }
+    }
   else
-  {
+    {
     ControlPointListType::const_iterator it = m_ControlPointsList.begin();
+    ControlPointListType::const_iterator itEnd = m_ControlPointsList.end();
   
     int d;
-    while(it != m_ControlPointsList.end())
+    while(it != itEnd)
       {
       *m_WriteStream << (*it)->m_Id << " ";
 
@@ -845,12 +854,15 @@ M_Write(void)
 
   if(m_BinaryData)
     {
-    InterpolatedPointListType::const_iterator it = m_InterpolatedPointsList.begin();
+    InterpolatedPointListType::const_iterator it = 
+                                              m_InterpolatedPointsList.begin();
+    InterpolatedPointListType::const_iterator itEnd = 
+                                              m_InterpolatedPointsList.end();
   
     char* data = new char[(m_NDims+5)*m_NInterpolatedPoints*4];
     int i=0;
     int d;
-    while(it != m_InterpolatedPointsList.end())
+    while(it != itEnd)
       {
       unsigned int id = (*it)->m_Id;
       MET_SwapByteIfSystemMSB(&id,MET_UINT);  
@@ -877,10 +889,13 @@ M_Write(void)
     }
   else
     {
-    InterpolatedPointListType::const_iterator it = m_InterpolatedPointsList.begin();
+    InterpolatedPointListType::const_iterator it =
+                                              m_InterpolatedPointsList.begin();
+    InterpolatedPointListType::const_iterator itEnd =
+                                              m_InterpolatedPointsList.end();
   
     int d;
-    while(it != m_InterpolatedPointsList.end())
+    while(it != itEnd)
       {
       *m_WriteStream << (*it)->m_Id << " ";
 
