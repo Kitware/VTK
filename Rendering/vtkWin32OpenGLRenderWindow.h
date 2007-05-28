@@ -70,12 +70,12 @@ public:
   virtual void PrefFullScreen(void);
 
   // Description:
-  // Set the size of the window.
+  // Set the size of the window in pixels.
   virtual void SetSize(int,int);
   virtual void SetSize(int a[2]) {vtkOpenGLRenderWindow::SetSize(a);};
   
   // Description:
-  // Get the current size of the window.
+  // Get the current size of the window in pixels.
   virtual int *GetSize();
 
   // Description:
@@ -84,7 +84,7 @@ public:
   virtual void SetPosition(int a[2]) {vtkOpenGLRenderWindow::SetPosition(a);};
   
   // Description:
-  // Return the screen size.
+  // Get the current size of the screen in pixels.
   virtual int *GetScreenSize();
 
   // Description:

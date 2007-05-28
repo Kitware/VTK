@@ -83,12 +83,12 @@ public:
   virtual void PrefFullScreen();
 
   // Description:
-  // Set the size of the window.
+  // Set the size of the window in pixels.
   virtual void SetSize(int a[2]);
   virtual void SetSize(int,int);
 
   // Description:
-  // Get the current size of the window.
+  // Get the current size of the window in pixels.
   virtual int *GetSize();
 
   // Description:
@@ -97,7 +97,7 @@ public:
   virtual void SetPosition(int,int);
 
   // Description:
-  // Return the scrren size.
+  // Get the current size of the screen in pixels.
   virtual int *GetScreenSize();
 
   // Description:

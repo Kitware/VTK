@@ -154,7 +154,7 @@ public:
   virtual void SetPosition(int a[2]) { this->SetPosition(a[0],a[1]); }
   
   // Description:
-  // Set/Get the size of the window in screen coordinates.
+  // Set/Get the size of the window in screen coordinates in pixels.
   virtual int* GetSize();
   virtual void SetSize(int a, int b);
   virtual void SetSize(int a[2]) { this->SetSize(a[0],a[1]); }

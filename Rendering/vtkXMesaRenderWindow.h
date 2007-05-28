@@ -69,7 +69,7 @@ public:
   virtual void PrefFullScreen(void);
 
   // Description:
-  // Specify the size of the rendering window.
+  // Specify the size of the rendering window in pixels.
   virtual void SetSize(int,int);
   virtual void SetSize(int a[2]) {this->SetSize(a[0], a[1]);};
 
@@ -118,7 +118,7 @@ public:
   virtual void *GetGenericDrawable()  {return (void *)this->WindowId;};
   
   // Description:
-  // Get the size of the screen in pixels
+  // Get the current size of the screen in pixels.
   virtual int     *GetScreenSize();
 
   // Description:

@@ -54,13 +54,13 @@ public:
   virtual void SetPosition(int a[2]);
 
   // Description:
-  // Set/Get the size of the window in screen coordinates.
+  // Set/Get the size of the window in screen coordinates in pixels.
   virtual int *GetSize();
   virtual void SetSize(int,int);
   virtual void SetSize(int a[2]);
 
   // Description:
-  // Get the size of the screen in pixels
+  // Get the current size of the screen in pixels.
   virtual int     *GetScreenSize() = 0;
 
   // Description:

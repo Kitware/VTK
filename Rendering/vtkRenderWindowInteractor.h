@@ -105,6 +105,7 @@ public:
 
   // Description:
   // Event loop notification member for window size change.
+  // Window size is measured in pixels.
   virtual void UpdateSize(int x,int y);
 
   // Description:
@@ -266,7 +267,8 @@ public:
   // Set/Get information about the current event. 
   // The current x,y position is in the EventPosition, and the previous
   // event position is in LastEventPosition, updated automatically each
-  // time EventPosition is set using its Set() method. 
+  // time EventPosition is set using its Set() method. Mouse positions
+  // are measured in pixels.
   // The other information is about key board input.
   vtkGetVector2Macro(EventPosition,int);
   vtkGetVector2Macro(LastEventPosition,int);
@@ -382,6 +384,7 @@ public:
   // know about the change.
   // The current event width/height (if any) is in EventSize 
   // (Expose event, for example).
+  // Window size is measured in pixels.
   vtkSetVector2Macro(Size,int);
   vtkGetVector2Macro(Size,int);
   vtkSetVector2Macro(EventSize,int);
