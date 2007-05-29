@@ -14,12 +14,12 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#include "metaBlob.h"
-
 #ifdef _MSC_VER
 #pragma warning(disable:4702)
 #pragma warning(disable:4284)
 #endif
+
+#include "metaBlob.h"
 
 #include <stdio.h>
 #include <ctype.h>

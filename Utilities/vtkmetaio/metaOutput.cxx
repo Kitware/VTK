@@ -154,7 +154,14 @@ Open()
   m_FileStream.open(m_FileName.c_str(), METAIO_STREAM::ios::binary 
                                         | METAIO_STREAM::ios::out);
 #endif
-  return m_FileStream.is_open();
+  if( m_FileStream.rdbuf()->is_open() )
+    {
+    return true;
+    }
+  else
+    {
+    return false;
+    }
 }
 
 bool
