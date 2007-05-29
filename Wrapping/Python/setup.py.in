@@ -22,11 +22,12 @@ from distutils.sysconfig import get_config_var
 #  http://peak.telecommunity.com/DevCenter/PythonEggs
 #  http://peak.telecommunity.com/DevCenter/EasyInstall
 has_setup_tools = 0
-# Uncomment the following two lines if you need to build an Egg.
-# This is commented out by default since the install rule seems
-# broken for setuptools-0.5a13.
-#from setuptools import setup
-#has_setup_tools = 1
+try:
+    from setuptools import setup
+except ImportError:
+    pass
+else:
+    has_setup_tools = 1
 
 # VTK build configuration settings.
 vtk_version = "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@"
