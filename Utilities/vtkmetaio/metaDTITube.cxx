@@ -79,7 +79,8 @@ float DTITubePnt::
 GetField(const char* name) const
 {
   FieldListType::const_iterator it = m_ExtraFields.begin();
-  while(it != m_ExtraFields.end())
+  FieldListType::const_iterator itEnd = m_ExtraFields.end();
+  while(it != itEnd)
     {
     if(!strcmp((*it).first.c_str(),name))
       {
@@ -322,9 +323,11 @@ M_SetupWriteFields(void)
   m_PointDim = "x y z tensor1 tensor2 tensor3 tensor4 tensor5 tensor6";
   
   // All the points in the tube have the same number of fields
-  const DTITubePnt::FieldListType & extraList = (*(m_PointList.begin()))->GetExtraFields();
+  const DTITubePnt::FieldListType & extraList = 
+                                    (*(m_PointList.begin()))->GetExtraFields();
   DTITubePnt::FieldListType::const_iterator itFields = extraList.begin();
-  while(itFields !=  extraList.end())
+  DTITubePnt::FieldListType::const_iterator itFieldsEnd = extraList.end();
+  while(itFields !=  itFieldsEnd)
     {
     m_PointDim += " ";
     m_PointDim += (*itFields).first;
@@ -354,7 +357,8 @@ M_SetupWriteFields(void)
 int MetaDTITube::GetPosition(const char* name) const
 {
   METAIO_STL::vector<PositionType>::const_iterator it = m_Positions.begin();
-  while(it != m_Positions.end())
+  METAIO_STL::vector<PositionType>::const_iterator itEnd = m_Positions.end();
+  while(it != itEnd)
     {
     if(!strcmp((*it).first.c_str(),name))
       {
@@ -515,8 +519,11 @@ M_Read(void)
         delete [] num;
         }
 
-      METAIO_STL::vector<PositionType>::const_iterator itFields = m_Positions.begin();
-      while(itFields !=  m_Positions.end())
+      METAIO_STL::vector<PositionType>::const_iterator itFields =
+                                                           m_Positions.begin();
+      METAIO_STL::vector<PositionType>::const_iterator itFieldsEnd =
+                                                           m_Positions.end();
+      while(itFields !=  itFieldsEnd)
         {
         if(strcmp((*itFields).first.c_str(),"x") 
           && strcmp((*itFields).first.c_str(),"y") 
@@ -611,8 +618,11 @@ M_Read(void)
         }
 
       // Add the extrafields
-      METAIO_STL::vector<PositionType>::const_iterator itFields = m_Positions.begin();
-      while(itFields !=  m_Positions.end())
+      METAIO_STL::vector<PositionType>::const_iterator itFields =
+                                                           m_Positions.begin();
+      METAIO_STL::vector<PositionType>::const_iterator itFieldsEnd =
+                                                           m_Positions.end();
+      while(itFields != itFieldsEnd)
         {
         if(strcmp((*itFields).first.c_str(),"x") 
           && strcmp((*itFields).first.c_str(),"y") 
@@ -675,17 +685,19 @@ M_Write(void)
   if(m_BinaryData)
     {
     PointListType::const_iterator it = m_PointList.begin();
+    PointListType::const_iterator itEnd = m_PointList.end();
     int elementSize;
     MET_SizeOfType(m_ElementType, &elementSize);
 
     unsigned int pntDim = m_NDims+6; 
-    const DTITubePnt::FieldListType & extraList = (*(m_PointList.begin()))->GetExtraFields();
+    const DTITubePnt::FieldListType & extraList =
+                                    (*(m_PointList.begin()))->GetExtraFields();
     pntDim += extraList.size();
 
     char* data = new char[pntDim*m_NPoints*elementSize];
     int i=0;
     int d;
-    while(it != m_PointList.end())
+    while(it != itEnd)
       {
       for(d = 0; d < m_NDims; d++)
         {
@@ -704,7 +716,8 @@ M_Write(void)
       // Add the extra fields
       const DTITubePnt::FieldListType & extraList2 = (*it)->GetExtraFields();
       DTITubePnt::FieldListType::const_iterator itFields = extraList2.begin();
-      while(itFields !=  extraList2.end())
+      DTITubePnt::FieldListType::const_iterator itFieldsEnd = extraList2.end();
+      while(itFields !=  itFieldsEnd)
         {
         float x = (*itFields).second;
         MET_SwapByteIfSystemMSB(&x,MET_FLOAT);
@@ -722,9 +735,10 @@ M_Write(void)
   else
     {
     PointListType::const_iterator it = m_PointList.begin();
+    PointListType::const_iterator itEnd = m_PointList.begin();
   
     int d;
-    while(it != m_PointList.end())
+    while(it != itEnd)
       {
       for(d = 0; d < m_NDims; d++)
         {
@@ -739,7 +753,8 @@ M_Write(void)
       // Add the extra fields
       const DTITubePnt::FieldListType & extraList = (*it)->GetExtraFields();
       DTITubePnt::FieldListType::const_iterator itFields = extraList.begin();
-      while(itFields !=  extraList.end())
+      DTITubePnt::FieldListType::const_iterator itFieldsEnd = extraList.end();
+      while(itFields !=  itFieldsEnd)
         {
         *m_WriteStream << (*itFields).second << " ";
         itFields++;
