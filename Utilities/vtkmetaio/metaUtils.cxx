@@ -26,7 +26,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#ifndef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
+#include <winsock2.h>
+#else
 #include <unistd.h>
 #include <arpa/inet.h>
 #endif
