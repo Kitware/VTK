@@ -102,7 +102,7 @@ public:
   // vtkBorderRepresentation so that the Modified() will be called.
   virtual void SetPosition(double x, double y);
   virtual void SetPosition(double pos[2])
-    {return this->SetPosition(pos[0], pos[1]);};
+    { this->SetPosition(pos[0], pos[1]);};
 
   // Description:
   // Internal. Excecute events observed by internal observer
