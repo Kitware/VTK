@@ -70,6 +70,39 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
+  
+  //BTX
+  enum 
+    {
+    AnyLocation = 0,
+    LowerLeftCorner,
+    LowerRightCorner,
+    LowerCenter,
+    UpperLeftCorner,
+    UpperRightCorner,
+    UpperCenter
+    };
+  //ETX
+
+  // Description:
+  // Set the text position, by enumeration (
+    // AnyLocation = 0,
+    // LowerLeftCorner,
+    // LowerRightCorner,
+    // LowerCenter,
+    // UpperLeftCorner,
+    // UpperRightCorner,
+    // UpperCenter)
+  // related to the render window
+  virtual void SetWindowLocation(int enumLocation);
+  vtkGetMacro(WindowLocation, int);
+
+  // Description:
+  // Set the text position, by overiding the same function of
+  // vtkBorderRepresentation so that the Modified() will be called.
+  virtual void SetPosition(double x, double y);
+  virtual void SetPosition(double pos[2])
+    {return this->SetPosition(pos[0], pos[1]);};
 
   // Description:
   // Internal. Excecute events observed by internal observer
@@ -89,6 +122,10 @@ protected:
   // the text to manage
   vtkTextActor  *TextActor;
   vtkTextProperty *TextProperty;
+  
+  // Window location by enumeration
+  int WindowLocation;
+  virtual void UpdateWindowLocation();
 
   // observer to observe internal TextActor and TextProperty
   vtkTextRepresentationObserver *Observer;

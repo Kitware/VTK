@@ -50,7 +50,7 @@ protected:
     
 };
 
-vtkCxxRevisionMacro(vtkTextRepresentation, "1.8");
+vtkCxxRevisionMacro(vtkTextRepresentation, "1.9");
 vtkStandardNewMacro(vtkTextRepresentation);
 
 //-------------------------------------------------------------------------
@@ -64,6 +64,7 @@ vtkTextRepresentation::vtkTextRepresentation()
  
   this->ShowBorder = vtkBorderRepresentation::BORDER_ACTIVE;
   this->BWActor->VisibilityOff();
+  this->WindowLocation = AnyLocation;
 }
 
 //-------------------------------------------------------------------------
@@ -165,6 +166,7 @@ int vtkTextRepresentation::RenderOpaqueGeometry(vtkViewport *w)
 {
   int count = this->Superclass::RenderOpaqueGeometry(w);
   count += this->TextActor->RenderOpaqueGeometry(w);
+  this->CheckTextBoundary();
   return count;
 }
 
@@ -289,6 +291,68 @@ void vtkTextRepresentation::CheckTextBoundary()
       {
       this->Position2Coordinate->SetValue(text_size[0], text_size[1], 0);
       this->Modified();
+      }
+    if(this->WindowLocation != AnyLocation)
+      {
+      this->UpdateWindowLocation();
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkTextRepresentation::SetWindowLocation(int enumLocation)
+{
+  if(this->WindowLocation == enumLocation)
+    {
+    return;
+    }
+
+  this->WindowLocation = enumLocation;
+  this->CheckTextBoundary();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkTextRepresentation::SetPosition(double x, double y)
+{
+  double* pos = this->PositionCoordinate->GetValue();
+  if(pos[0]==x && pos[1]==y)
+    {
+    return;
+    }
+
+  this->PositionCoordinate->SetValue(x, y);
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkTextRepresentation::UpdateWindowLocation()
+{
+  if(this->WindowLocation != AnyLocation)
+    {
+    double* pos2 = this->Position2Coordinate->GetValue();
+    switch (this->WindowLocation)
+      {
+      case LowerLeftCorner:
+        this->SetPosition(0.01, 0.01);
+        break;
+      case LowerRightCorner:
+        this->SetPosition(0.99-pos2[0], 0.01);
+        break;
+      case LowerCenter:
+        this->SetPosition((1-pos2[0])/2.0, 0.01);
+        break;
+      case UpperLeftCorner:
+        this->SetPosition(0.01, 0.99-pos2[1]);
+        break;
+      case UpperRightCorner:
+        this->SetPosition(0.99-pos2[0],0.99-pos2[1]);
+        break;
+      case UpperCenter:
+        this->SetPosition((1-pos2[0])/2.0,0.99-pos2[1]);
+        break;
+      default:
+        break;
       }
     }
 }
