@@ -16,7 +16,8 @@
 =========================================================================*/
 #ifdef _MSC_VER
 #pragma warning ( disable : 4786 )
-#pragma warning(disable:4702)
+#pragma warning ( disable : 4702 )
+#pragma warning ( disable : 4284 )
 #endif
 
 #include "metaDTITube.h"

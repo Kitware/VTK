@@ -14,11 +14,12 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#include "metaTube.h"
-
 #ifdef _MSC_VER
 #pragma warning(disable:4702)
+#pragma warning(disable:4284)
 #endif
+
+#include "metaTube.h"
 
 #include <stdio.h>
 #include <ctype.h>
