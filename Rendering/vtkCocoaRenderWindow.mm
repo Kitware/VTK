@@ -19,7 +19,7 @@ PURPOSE.  See the above copyright notice for more information.
 #import "vtkRendererCollection.h"
 #import "vtkCocoaGLView.h"
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.49");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.50");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -798,6 +798,7 @@ void vtkCocoaRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ContextId: " << this->GetContextId() << "\n";
   os << indent << "MultiSamples: " << this->MultiSamples << "\n";
+  os << indent << "ScaleFactor: " << this->GetScaleFactor() << "\n";
 }
 
 //----------------------------------------------------------------------------
