@@ -20,12 +20,8 @@
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/gl.h>
 
-#ifndef MAC_OS_X_VERSION_10_4
-#define MAC_OS_X_VERSION_10_4 1040
-#endif
-
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.19");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.20");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------

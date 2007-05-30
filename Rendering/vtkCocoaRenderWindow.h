@@ -76,12 +76,12 @@ public:
   virtual void PrefFullScreen();
 
   // Description:
-  // Set the size of the window.
+  // Set the size of the window in pixels.
   virtual void SetSize(int*);
   virtual void SetSize(int,int);
 
   // Description:
-  // Get the current size of the window.
+  // Get the current size of the window in pixels.
   virtual int *GetSize();
 
   // Description:
@@ -90,7 +90,7 @@ public:
   virtual void SetPosition(int,int);
   
   // Description:
-  // Return the scrren size.
+  // Get the current size of the screen in pixels.
   virtual int *GetScreenSize();
 
   // Description:
@@ -240,6 +240,11 @@ public:
   // Returns the NSView* associated with this vtkRenderWindow.
   virtual void *GetDisplayId();
   virtual void *GetGenericDisplayId() {return this->GetDisplayId();}
+  
+  // Description:
+  // Returns the scaling factor for 'resolution independence', to convert
+  // between points and pixels.
+  vtkGetMacro(ScaleFactor, double);
 
 protected:
   vtkCocoaRenderWindow();
@@ -253,6 +258,8 @@ protected:
 
   int OffScreenInitialized;
   int OnScreenInitialized;
+  
+  double ScaleFactor;
   
   // Description:
   // Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).

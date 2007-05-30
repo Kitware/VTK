@@ -19,11 +19,7 @@ PURPOSE.  See the above copyright notice for more information.
 #import "vtkRendererCollection.h"
 #import "vtkCocoaGLView.h"
 
-#ifndef MAC_OS_X_VERSION_10_4
-#define MAC_OS_X_VERSION_10_4 1040
-#endif
-
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.48");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.49");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -43,6 +39,7 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   this->Capabilities = 0;
   this->OnScreenInitialized = 0;
   this->OffScreenInitialized = 0;
+  this->ScaleFactor = 1.0;
 }
 
 //----------------------------------------------------------------------------
@@ -134,7 +131,7 @@ void vtkCocoaRenderWindow::SetWindowName( const char * _arg )
     {
     NSString* winTitleStr;
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_4
+#if defined(MAC_OS_X_VERSION_10_4) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     winTitleStr = [NSString stringWithCString:_arg encoding:NSASCIIStringEncoding];
 #else
     winTitleStr = [NSString stringWithCString:_arg];
@@ -294,7 +291,8 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
       if (!resizing)
         {
         resizing = 1;
-        NSSize theSize = NSMakeSize((float)x, (float)y);
+        // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
+        NSSize theSize = NSMakeSize((double)x / this->ScaleFactor, (double)y / this->ScaleFactor);
         [(NSWindow*)this->GetWindowId() setContentSize:theSize];
         resizing = 0;
         }
@@ -418,6 +416,12 @@ void vtkCocoaRenderWindow::SetupPalette(void*)
 void vtkCocoaRenderWindow::CreateAWindow()
 {
   static int count = 1;
+  
+  // Get the screen's scale factor.
+  // It will be used to create the window if not created yet.
+#if defined(MAC_OS_X_VERSION_10_4) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+  this->ScaleFactor = [[NSScreen mainScreen] userSpaceScaleFactor];
+#endif
 
   // As vtk is both crossplatform and a library, we don't know if it is being
   // used in a 'regular Cocoa application' or as a 'pure vtk application'.
@@ -451,10 +455,12 @@ void vtkCocoaRenderWindow::CreateAWindow()
       this->Position[0] = 50;
       this->Position[1] = 50;
       }
+
+    // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
     NSRect ctRect = NSMakeRect((float)this->Position[0],
                                (float)this->Position[1],
-                               (float)this->Size[0],
-                               (float)this->Size[1]);
+                               (float)this->Size[0] / this->ScaleFactor,
+                               (float)this->Size[1] / this->ScaleFactor);
 
     NSWindow* theWindow = [[NSWindow alloc]
                            initWithContentRect:ctRect
@@ -473,13 +479,24 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
     this->SetWindowId(theWindow);
     this->WindowCreated = 1;
+  }
+  
+  // Always use the scaling factor from the window once it is created.
+  // The screen and the window might possibly have different scaling factors, though unlikely.
+#if defined(MAC_OS_X_VERSION_10_4) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+  if (this->GetWindowId())
+    {
+    this->ScaleFactor = [(NSWindow*)this->GetWindowId() userSpaceScaleFactor];
     }
+#endif
 
   // create a vtkCocoaGLView if one has not been specified
   if (!this->GetDisplayId())
     {
-    NSRect glRect =
-      NSMakeRect(0.0, 0.0, (float)this->Size[0], (float)this->Size[1]);
+    // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
+    NSRect glRect = NSMakeRect(0.0, 0.0,
+                               (float)this->Size[0] / this->ScaleFactor,
+                               (float)this->Size[1] / this->ScaleFactor);
     vtkCocoaGLView *glView = [[[vtkCocoaGLView alloc] initWithFrame:glRect] autorelease];
     [(NSWindow*)this->GetWindowId() setContentView:glView];
     
@@ -502,7 +519,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
   if (this->WindowCreated)
     {
     NSString * winName = [NSString stringWithFormat:@"Visualization Toolkit - Cocoa #%i", count++];
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_4
+#if defined(MAC_OS_X_VERSION_10_4) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     this->SetWindowName([winName cStringUsingEncoding:NSASCIIStringEncoding]);
 #else
     this->SetWindowName([winName cString]);
@@ -641,14 +658,15 @@ int *vtkCocoaRenderWindow::GetSize()
   // We want to return the size of 'the window'.  But the term 'window'
   // is overloaded. It's really the NSView that vtk draws into, so we
   // return its size.
+  // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
   NSRect frameRect = [(NSView*)this->GetDisplayId() frame];
-  this->Size[0] = (int)NSWidth(frameRect);
-  this->Size[1] = (int)NSHeight(frameRect);
+  this->Size[0] = (int)round(NSWidth(frameRect) * this->ScaleFactor);
+  this->Size[1] = (int)round(NSHeight(frameRect) * this->ScaleFactor);
   return this->Superclass::GetSize();
 }
 
 //----------------------------------------------------------------------------
-// Get the current size of the screen.
+// Get the current size of the screen in pixels.
 int *vtkCocoaRenderWindow::GetScreenSize()
 {
   NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
@@ -656,8 +674,16 @@ int *vtkCocoaRenderWindow::GetScreenSize()
 
   NSScreen* screen = [[NSScreen screens] objectAtIndex: currentScreen];
   NSRect screenRect = [screen frame];
+  
+  // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
+#if defined(MAC_OS_X_VERSION_10_4) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+  this->Size[0] = (int)round(NSWidth(screenRect) * [screen userSpaceScaleFactor]);
+  this->Size[1] = (int)round(NSHeight(screenRect) * [screen userSpaceScaleFactor]);
+#else
   this->Size[0] = (int)NSWidth(screenRect);
   this->Size[1] = (int)NSHeight(screenRect);
+#endif
+  
   return this->Size;
 }
 
