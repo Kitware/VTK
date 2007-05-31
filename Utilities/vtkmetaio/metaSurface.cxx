@@ -439,7 +439,7 @@ M_Write(void)
     char* data = new char[(m_NDims*2+4)*m_NPoints*elementSize];
     int i=0;
     int d;
-    while(it != m_PointList.end())
+    while(it != itEnd)
     {
       for(d = 0; d < m_NDims; d++)
       {
@@ -475,7 +475,7 @@ M_Write(void)
     PointListType::const_iterator itEnd = m_PointList.end();
   
     int d;
-    while(it != m_PointList.end())
+    while(it != itEnd)
     {
       for(d = 0; d < m_NDims; d++)
       {
