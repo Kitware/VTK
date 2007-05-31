@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType API for accessing PFR-specific data (specification only).   */
 /*                                                                         */
-/*  Copyright 2002, 2003 by                                                */
+/*  Copyright 2002, 2003, 2004, 2006 by                                    */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -41,7 +41,7 @@ FT_BEGIN_HEADER
   /*    PFR Fonts                                                          */
   /*                                                                       */
   /* <Abstract>                                                            */
-  /*    PFR/TrueDoc specific APIs                                          */
+  /*    PFR/TrueDoc specific API.                                          */
   /*                                                                       */
   /* <Description>                                                         */
   /*    This section contains the declaration of PFR-specific functions.   */
@@ -154,7 +154,7 @@ FT_BEGIN_HEADER
   *
   * @note:
   *    You can use the `x_scale' or `y_scale' results of @FT_Get_PFR_Metrics
-  *    to convert the advance to device sub-pixels (i.e. 1/64th of pixels).
+  *    to convert the advance to device sub-pixels (i.e., 1/64th of pixels).
   */
   FT_EXPORT( FT_Error )
   FT_Get_PFR_Advance( FT_Face   face,
@@ -166,7 +166,7 @@ FT_BEGIN_HEADER
 
 FT_END_HEADER
 
-#endif /* __FTBDF_H__ */
+#endif /* __FTPFR_H__ */
 
 
 /* END */

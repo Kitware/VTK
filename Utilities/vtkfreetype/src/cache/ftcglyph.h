@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType abstract glyph cache (specification).                       */
 /*                                                                         */
-/*  Copyright 2000-2001, 2003, 2004 by                                     */
+/*  Copyright 2000-2001, 2003, 2004, 2006 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -118,7 +118,7 @@
 
 
 #include <ft2build.h>
-#include FT_CACHE_INTERNAL_MANAGER_H
+#include "ftcmanag.h"
 
 
 FT_BEGIN_HEADER
@@ -175,31 +175,31 @@ FT_BEGIN_HEADER
   /*                                                                       */
 
   /* must be called by derived FTC_Node_InitFunc routines */
-  FT_EXPORT( void )
+  FT_LOCAL( void )
   FTC_GNode_Init( FTC_GNode   node,
                   FT_UInt     gindex,  /* glyph index for node */
                   FTC_Family  family );
 
   /* returns TRUE iff the query's glyph index correspond to the node;  */
-  /* this assumes that the "family" and "hash" fields of the query are */
+  /* this assumes that the `family' and `hash' fields of the query are */
   /* already correctly set                                             */
-  FT_EXPORT( FT_Bool )
+  FT_LOCAL( FT_Bool )
   FTC_GNode_Compare( FTC_GNode   gnode,
                      FTC_GQuery  gquery );
 
   /* call this function to clear a node's family -- this is necessary */
   /* to implement the `node_remove_faceid' cache method correctly     */
-  FT_EXPORT( void )
+  FT_LOCAL( void )
   FTC_GNode_UnselectFamily( FTC_GNode  gnode,
                             FTC_Cache  cache );
 
   /* must be called by derived FTC_Node_DoneFunc routines */
-  FT_EXPORT( void )
+  FT_LOCAL( void )
   FTC_GNode_Done( FTC_GNode  node,
                   FTC_Cache  cache );
 
 
-  FT_EXPORT( void )
+  FT_LOCAL( void )
   FTC_Family_Init( FTC_Family  family,
                    FTC_Cache   cache );
 
@@ -213,14 +213,18 @@ FT_BEGIN_HEADER
 #define FTC_GCACHE( x )  ((FTC_GCache)(x))
 
 
+#if 0
   /* can be used as @FTC_Cache_InitFunc */
-  FT_EXPORT( FT_Error )
+  FT_LOCAL( FT_Error )
   FTC_GCache_Init( FTC_GCache  cache );
+#endif
 
 
+#if 0
   /* can be used as @FTC_Cache_DoneFunc */
-  FT_EXPORT( void )
+  FT_LOCAL( void )
   FTC_GCache_Done( FTC_GCache  cache );
+#endif
 
 
   /* the glyph cache class adds fields for the family implementation */
@@ -242,17 +246,19 @@ FT_BEGIN_HEADER
 
 
   /* convenience function; use it instead of FTC_Manager_Register_Cache */
-  FT_EXPORT( FT_Error )
+  FT_LOCAL( FT_Error )
   FTC_GCache_New( FTC_Manager       manager,
                   FTC_GCacheClass   clazz,
                   FTC_GCache       *acache );
 
-  FT_EXPORT( FT_Error )
+#ifndef FTC_INLINE
+  FT_LOCAL( FT_Error )
   FTC_GCache_Lookup( FTC_GCache   cache,
                      FT_UInt32    hash,
                      FT_UInt      gindex,
                      FTC_GQuery   query,
                      FTC_Node    *anode );
+#endif
 
 
   /* */

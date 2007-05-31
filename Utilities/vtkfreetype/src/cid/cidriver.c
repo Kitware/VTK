@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    CID driver interface (body).                                         */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2006 by                         */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -78,8 +78,9 @@
 
   static const FT_Service_PsInfoRec  cid_service_ps_info =
   {
-    (PS_GetFontInfoFunc)  cid_ps_get_font_info,
-    (PS_HasGlyphNamesFunc)NULL          /* unsupported with CID fonts */
+    (PS_GetFontInfoFunc)   cid_ps_get_font_info,
+    (PS_HasGlyphNamesFunc) NULL,        /* unsupported with CID fonts */
+    (PS_GetFontPrivateFunc)NULL         /* unsupported                */
   };
 
 
@@ -142,15 +143,20 @@
     cid_slot_init,
     cid_slot_done,
 
-    cid_point_size_reset,
-    cid_size_reset,
+#ifdef FT_CONFIG_OPTION_OLD_INTERNALS
+    ft_stub_set_char_sizes,
+    ft_stub_set_pixel_sizes,
+#endif
 
     cid_slot_load_glyph,
 
     0,                      /* FT_Face_GetKerningFunc  */
     0,                      /* FT_Face_AttachFunc      */
 
-    0                       /* FT_Face_GetAdvancesFunc */
+    0,                      /* FT_Face_GetAdvancesFunc */
+
+    cid_size_request,
+    0                       /* FT_Size_SelectFunc      */
   };
 
 

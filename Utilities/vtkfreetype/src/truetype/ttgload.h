@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    TrueType Glyph Loader (specification).                               */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006 by                   */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -23,19 +23,13 @@
 #include <ft2build.h>
 #include "ttobjs.h"
 
-#ifdef TT_CONFIG_OPTION_BYTECODE_INTERPRETER
+#ifdef TT_USE_BYTECODE_INTERPRETER
 #include "ttinterp.h"
 #endif
 
 
 FT_BEGIN_HEADER
 
-
-  FT_LOCAL( void )
-  TT_Get_Metrics( TT_HoriHeader*  header,
-                  FT_UInt         idx,
-                  FT_Short*       bearing,
-                  FT_UShort*      advance );
 
   FT_LOCAL( void )
   TT_Init_Glyph_Loading( TT_Face  face );

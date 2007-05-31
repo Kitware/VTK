@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType PFR loader (body).                                          */
 /*                                                                         */
-/*  Copyright 2002, 2003 by                                                */
+/*  Copyright 2002, 2003, 2004, 2005, 2007 by                              */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -609,145 +609,6 @@
   }
 
 
- /*
-  *  The kerning data embedded in a PFR font are (charcode,charcode)
-  *  pairs; we need to translate them to (gindex,gindex) and sort
-  *  the resulting array.
-  */
-  static FT_UInt
-  pfr_get_gindex( PFR_Char  chars,
-                  FT_UInt   count,
-                  FT_UInt   charcode )
-  {
-    FT_UInt  min = 0;
-    FT_UInt  max = count;
-
-
-    while ( min < max )
-    {
-      FT_UInt   mid = ( min + max ) >> 1;
-      PFR_Char  c   = chars + mid;
-
-
-      if ( c->char_code == charcode )
-        return mid + 1;
-
-      if ( c->char_code < charcode )
-        min = mid + 1;
-      else
-        max = mid;
-    }
-    return 0;
-  }
-
-
-  FT_CALLBACK_DEF( int )
-  pfr_compare_kern_pairs( const void*  pair1,
-                          const void*  pair2 )
-  {
-    FT_UInt32  p1 = PFR_KERN_PAIR_INDEX( (PFR_KernPair)pair1 );
-    FT_UInt32  p2 = PFR_KERN_PAIR_INDEX( (PFR_KernPair)pair2 );
-
-
-    if ( p1 < p2 )
-      return -1;
-    if ( p1 > p2 )
-      return 1;
-    return 0;
-  }
-
-
-  static FT_Error
-  pfr_sort_kerning_pairs( FT_Stream    stream,
-                          PFR_PhyFont  phy_font )
-  {
-    FT_Error      error;
-    FT_Memory     memory = stream->memory;
-    PFR_KernPair  pairs;
-    PFR_KernItem  item;
-    PFR_Char      chars     = phy_font->chars;
-    FT_UInt       num_chars = phy_font->num_chars;
-    FT_UInt       count;
-
-
-   /* create kerning pairs array
-    */
-    if ( FT_NEW_ARRAY( phy_font->kern_pairs, phy_font->num_kern_pairs ) )
-      goto Exit;
-
-   /* load all kerning items into the array,
-    * converting character codes into glyph indices
-    */
-    pairs = phy_font->kern_pairs;
-    item  = phy_font->kern_items;
-    count = 0;
-
-    for ( ; item; item = item->next )
-    {
-      FT_UInt   limit = count + item->pair_count;
-      FT_Byte*  p;
-
-
-      if ( limit > phy_font->num_kern_pairs )
-      {
-        error = PFR_Err_Invalid_Table;
-        goto Exit;
-      }
-
-      if ( FT_STREAM_SEEK( item->offset )                       ||
-           FT_FRAME_ENTER( item->pair_count * item->pair_size ) )
-        goto Exit;
-
-      p = stream->cursor;
-
-      for ( ; count < limit; count++ )
-      {
-        PFR_KernPair  pair = pairs + count;
-        FT_UInt       char1, char2;
-        FT_Int        kerning;
-
-
-        if ( item->flags & PFR_KERN_2BYTE_CHAR )
-        {
-          char1 = FT_NEXT_USHORT( p );
-          char2 = FT_NEXT_USHORT( p );
-        }
-        else
-        {
-          char1 = FT_NEXT_BYTE( p );
-          char2 = FT_NEXT_BYTE( p );
-        }
-
-        if ( item->flags & PFR_KERN_2BYTE_ADJ )
-          kerning = item->base_adj + FT_NEXT_SHORT( p );
-        else
-          kerning = item->base_adj + FT_NEXT_CHAR( p );
-
-        pair->glyph1  = pfr_get_gindex( chars, num_chars, char1 );
-        pair->glyph2  = pfr_get_gindex( chars, num_chars, char2 );
-        pair->kerning = kerning;
-      }
-
-      FT_FRAME_EXIT();
-    }
-
-   /* sort the resulting array
-    */
-    ft_qsort( pairs, count,
-              sizeof ( PFR_KernPairRec ),
-              pfr_compare_kern_pairs );
-
-  Exit:
-    if ( error )
-    {
-     /* disable kerning data in case of error
-      */
-      phy_font->num_kern_pairs = 0;
-    }
-
-    return error;
-  }
-
 
   static const PFR_ExtraItemRec  pfr_phy_font_extra_items[] =
   {
@@ -826,7 +687,6 @@
     FT_FREE( phy_font->blue_values );
     phy_font->num_blue_values = 0;
 
-    FT_FREE( phy_font->kern_pairs );
     {
       PFR_KernItem  item, next;
 
@@ -883,7 +743,7 @@
     phy_font->bbox.yMax          = PFR_NEXT_SHORT( p );
     phy_font->flags      = flags = PFR_NEXT_BYTE( p );
 
-    /* get the standard advance for non-proprotional fonts */
+    /* get the standard advance for non-proportional fonts */
     if ( !(flags & PFR_PHY_PROPORTIONAL) )
     {
       PFR_CHECK( 2 );
@@ -1064,9 +924,6 @@
     /* save position of bitmap info */
     phy_font->bct_offset = FT_STREAM_POS();
     phy_font->cursor     = NULL;
-
-    /* now sort kerning pairs */
-    error = pfr_sort_kerning_pairs( stream, phy_font );
 
   Exit:
     return error;

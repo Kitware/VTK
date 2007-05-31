@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType Cache Manager (specification).                              */
 /*                                                                         */
-/*  Copyright 2000-2001, 2003, 2004 by                                     */
+/*  Copyright 2000-2001, 2003, 2004, 2006 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -65,8 +65,8 @@
 
 #include <ft2build.h>
 #include FT_CACHE_H
-#include FT_CACHE_INTERNAL_MRU_H
-#include FT_CACHE_INTERNAL_CACHE_H
+#include "ftcmru.h"
+#include "ftccache.h"
 
 
 FT_BEGIN_HEADER
@@ -131,20 +131,20 @@ FT_BEGIN_HEADER
   /*    The reason this function is exported is to allow client-specific   */
   /*    cache classes.                                                     */
   /*                                                                       */
-  FT_EXPORT( void )
+  FT_LOCAL( void )
   FTC_Manager_Compress( FTC_Manager  manager );
 
 
   /* try to flush `count' old nodes from the cache; return the number
    * of really flushed nodes
    */
-  FT_EXPORT( FT_UInt )
+  FT_LOCAL( FT_UInt )
   FTC_Manager_FlushN( FTC_Manager  manager,
                       FT_UInt      count );
 
 
   /* this must be used internally for the moment */
-  FT_EXPORT( FT_Error )
+  FT_LOCAL( FT_Error )
   FTC_Manager_RegisterCache( FTC_Manager      manager,
                              FTC_CacheClass   clazz,
                              FTC_Cache       *acache );

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Generic list support for FreeType (specification).                   */
 /*                                                                         */
-/*  Copyright 1996-2001, 2003 by                                           */
+/*  Copyright 1996-2001, 2003, 2007 by                                     */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -174,12 +174,12 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Description>                                                         */
   /*    An FT_List iterator function which is called during a list parse   */
-  /*    by FT_List_Iterate().                                              */
+  /*    by @FT_List_Iterate.                                               */
   /*                                                                       */
   /* <Input>                                                               */
   /*    node :: The current iteration list node.                           */
   /*                                                                       */
-  /*    user :: A typeless pointer passed to FT_List_Iterate().            */
+  /*    user :: A typeless pointer passed to @FT_List_Iterate.             */
   /*            Can be used to point to the iteration's state.             */
   /*                                                                       */
   typedef FT_Error
@@ -199,8 +199,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Input>                                                               */
   /*    list     :: A handle to the list.                                  */
-  /*    iterator :: An interator function, called on each node of the      */
-  /*                list.                                                  */
+  /*    iterator :: An iterator function, called on each node of the list. */
   /*    user     :: A user-supplied field which is passed as the second    */
   /*                argument to the iterator.                              */
   /*                                                                       */
@@ -219,8 +218,8 @@ FT_BEGIN_HEADER
   /*    FT_List_Destructor                                                 */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    An FT_List iterator function which is called during a list         */
-  /*    finalization by FT_List_Finalize() to destroy all elements in a    */
+  /*    An @FT_List iterator function which is called during a list        */
+  /*    finalization by @FT_List_Finalize to destroy all elements in a     */
   /*    given list.                                                        */
   /*                                                                       */
   /* <Input>                                                               */
@@ -228,7 +227,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    data   :: The current object to destroy.                           */
   /*                                                                       */
-  /*    user   :: A typeless pointer passed to FT_List_Iterate().  It can  */
+  /*    user   :: A typeless pointer passed to @FT_List_Iterate.  It can   */
   /*              be used to point to the iteration's state.               */
   /*                                                                       */
   typedef void

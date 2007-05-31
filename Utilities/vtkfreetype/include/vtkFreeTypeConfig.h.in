@@ -1,3 +1,9 @@
+/*
+
+VTK_FREETYPE_CHANGE this file is new for VTK.
+
+*/
+
 #ifndef _freetypeConfig_h
 #define _freetypeConfig_h
 
@@ -25,8 +31,10 @@
    Carbon framework
 */
 #cmakedefine VTKFREETYPE_USE_CARBON
-#if defined(VTKFREETYPE_USE_CARBON) && !defined(FT_USE_CARBON_HEADER)
-#define FT_USE_CARBON_HEADER
+#if defined(VTKFREETYPE_USE_CARBON) && (VTKFREETYPE_USE_CARBON == 0) && !defined(DARWIN_NO_CARBON)
+#define DARWIN_NO_CARBON
 #endif
+
+#define FT2_BUILD_LIBRARY 1
 
 #endif

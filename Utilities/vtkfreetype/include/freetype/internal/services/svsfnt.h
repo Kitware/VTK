@@ -2,7 +2,7 @@
 /*                                                                         */
 /*  svsfnt.h                                                               */
 /*                                                                         */
-/*    The FreeType PostScript name services (specification).               */
+/*    The FreeType SFNT table loading service (specification).             */
 /*                                                                         */
 /*  Copyright 2003, 2004 by                                                */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
@@ -70,7 +70,7 @@ FT_BEGIN_HEADER
 
   /* */
 
- 
+
 FT_END_HEADER
 
 

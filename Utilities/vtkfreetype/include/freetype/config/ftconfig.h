@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    ANSI-specific configuration file (specification only).               */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2006, 2007 by                   */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -72,20 +72,23 @@ FT_BEGIN_HEADER
 
 
   /* The size of an `int' type.  */
-#if   FT_UINT_MAX == 0xFFFFFFFFUL
-#define FT_SIZEOF_INT  (32 / FT_CHAR_BIT)
-#elif FT_UINT_MAX == 0xFFFFU
+#if                                 FT_UINT_MAX == 0xFFFFUL
 #define FT_SIZEOF_INT  (16 / FT_CHAR_BIT)
-#elif FT_UINT_MAX > 0xFFFFFFFFU && FT_UINT_MAX == 0xFFFFFFFFFFFFFFFFU
+#elif                               FT_UINT_MAX == 0xFFFFFFFFUL
+#define FT_SIZEOF_INT  (32 / FT_CHAR_BIT)
+#elif FT_UINT_MAX > 0xFFFFFFFFUL && FT_UINT_MAX == 0xFFFFFFFFFFFFFFFFUL
 #define FT_SIZEOF_INT  (64 / FT_CHAR_BIT)
 #else
 #error "Unsupported size of `int' type!"
 #endif
 
-  /* The size of a `long' type.  */
-#if   FT_ULONG_MAX == 0xFFFFFFFFUL
+  /* The size of a `long' type.  A five-byte `long' (as used e.g. on the */
+  /* DM642) is recognized but avoided.                                   */
+#if                                  FT_ULONG_MAX == 0xFFFFFFFFUL
 #define FT_SIZEOF_LONG  (32 / FT_CHAR_BIT)
-#elif FT_ULONG_MAX > 0xFFFFFFFFU && FT_ULONG_MAX == 0xFFFFFFFFFFFFFFFFU
+#elif FT_ULONG_MAX > 0xFFFFFFFFUL && FT_ULONG_MAX == 0xFFFFFFFFFFUL
+#define FT_SIZEOF_LONG  (32 / FT_CHAR_BIT)
+#elif FT_ULONG_MAX > 0xFFFFFFFFUL && FT_ULONG_MAX == 0xFFFFFFFFFFFFFFFFUL
 #define FT_SIZEOF_LONG  (64 / FT_CHAR_BIT)
 #else
 #error "Unsupported size of `long' type!"
@@ -123,7 +126,14 @@ FT_BEGIN_HEADER
   /*                                                                       */
 #if ( defined( __APPLE__ ) && !defined( DARWIN_NO_CARBON ) ) || \
     ( defined( __MWERKS__ ) && defined( macintosh )        )
+  /* no Carbon frameworks for 64bit 10.4.x */
+#include "AvailabilityMacros.h"
+#if defined( __LP64__ ) && \
+    ( MAC_OS_X_VERSION_MIN_REQUIRED <= MAC_OS_X_VERSION_10_4 )
+#define DARWIN_NO_CARBON 1
+#else
 #define FT_MACINTOSH 1
+#endif
 #endif
 
 
@@ -198,7 +208,7 @@ FT_BEGIN_HEADER
 
 #elif defined( __GNUC__ )
 
-  /* GCC provides the "long long" type */
+  /* GCC provides the `long long' type */
 #define FT_LONG64
 #define FT_INT64  long long int
 
@@ -262,9 +272,9 @@ FT_BEGIN_HEADER
 #ifndef FT_BASE_DEF
 
 #ifdef __cplusplus
-#define FT_BASE_DEF( x )  extern "C"  x
+#define FT_BASE_DEF( x )  x
 #else
-#define FT_BASE_DEF( x )  extern  x
+#define FT_BASE_DEF( x )  x
 #endif
 
 #endif /* !FT_BASE_DEF */

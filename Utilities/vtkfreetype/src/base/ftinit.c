@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType initialization layer (body).                                */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002 by                                           */
+/*  Copyright 1996-2001, 2002, 2005, 2007 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -55,9 +55,9 @@
 
 #undef  FT_USE_MODULE
 #ifdef __cplusplus
-#define FT_USE_MODULE( x )  extern "C" const FT_Module_Class*  x;
+#define FT_USE_MODULE( x )  extern "C" const FT_Module_Class  x;
 #else
-#define FT_USE_MODULE( x )  extern const FT_Module_Class*  x;
+#define FT_USE_MODULE( x )  extern const FT_Module_Class  x;
 #endif
 
 
@@ -65,7 +65,7 @@
 
 
 #undef  FT_USE_MODULE
-#define FT_USE_MODULE( x )  (const FT_Module_Class*)&x,
+#define FT_USE_MODULE( x )  (const FT_Module_Class*)&(x),
 
   static
   const FT_Module_Class*  const ft_default_modules[] =
@@ -75,7 +75,7 @@
   };
 
 
-  /* documentation is in ftmodule.h */
+  /* documentation is in ftmodapi.h */
 
   FT_EXPORT_DEF( void )
   FT_Add_Default_Modules( FT_Library  library )
@@ -124,7 +124,9 @@
     /* default drivers.                                        */
 
     error = FT_New_Library( memory, alibrary );
-    if ( !error )
+    if ( error )
+      FT_Done_Memory( memory );
+    else
     {
       (*alibrary)->version_major = FREETYPE_MAJOR;
       (*alibrary)->version_minor = FREETYPE_MINOR;

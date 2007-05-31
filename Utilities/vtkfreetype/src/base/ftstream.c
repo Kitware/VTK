@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    I/O stream support (body).                                           */
 /*                                                                         */
-/*  Copyright 2000-2001, 2002, 2004 by                                     */
+/*  Copyright 2000-2001, 2002, 2004, 2005, 2006 by                         */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -49,10 +49,7 @@
   FT_Stream_Close( FT_Stream  stream )
   {
     if ( stream && stream->close )
-    {
       stream->close( stream );
-      stream->close = NULL;
-    }
   }
 
 
@@ -156,6 +153,35 @@
   }
 
 
+  FT_BASE_DEF( FT_ULong )
+  FT_Stream_TryRead( FT_Stream  stream,
+                     FT_Byte*   buffer,
+                     FT_ULong   count )
+  {
+    FT_ULong  read_bytes = 0;
+
+
+    if ( stream->pos >= stream->size )
+      goto Exit;
+
+    if ( stream->read )
+      read_bytes = stream->read( stream, stream->pos, buffer, count );
+    else
+    {
+      read_bytes = stream->size - stream->pos;
+      if ( read_bytes > count )
+        read_bytes = count;
+
+      FT_MEM_COPY( buffer, stream->base + stream->pos, read_bytes );
+    }
+
+    stream->pos += read_bytes;
+
+  Exit:
+    return read_bytes;
+  }
+
+
   FT_BASE_DEF( FT_Error )
   FT_Stream_ExtractFrame( FT_Stream  stream,
                           FT_ULong   count,
@@ -186,8 +212,12 @@
     {
       FT_Memory  memory = stream->memory;
 
-
+#ifdef FT_DEBUG_MEMORY
+      ft_mem_free( memory, *pbytes );
+      *pbytes = NULL;
+#else
       FT_FREE( *pbytes );
+#endif
     }
     *pbytes = 0;
   }
@@ -209,10 +239,15 @@
       /* allocate the frame in memory */
       FT_Memory  memory = stream->memory;
 
-
+#ifdef FT_DEBUG_MEMORY
+      /* assume _ft_debug_file and _ft_debug_lineno are already set */
+      stream->base = (unsigned char*)ft_mem_qalloc( memory, count, &error );
+      if ( error )
+        goto Exit;
+#else
       if ( FT_QALLOC( stream->base, count ) )
         goto Exit;
-
+#endif
       /* read it */
       read_bytes = stream->read( stream, stream->pos,
                                  stream->base, count );
@@ -272,8 +307,12 @@
     {
       FT_Memory  memory = stream->memory;
 
-
+#ifdef FT_DEBUG_MEMORY
+      ft_mem_free( memory, stream->base );
+      stream->base = NULL;
+#else
       FT_FREE( stream->base );
+#endif
     }
     stream->cursor = 0;
     stream->limit  = 0;

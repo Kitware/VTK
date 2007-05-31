@@ -1,10 +1,10 @@
 /***************************************************************************/
 /*                                                                         */
-/*  ttcmap0.h                                                              */
+/*  ttcmap.h                                                               */
 /*                                                                         */
-/*    TrueType new character mapping table (cmap) support (specification). */
+/*    TrueType character mapping table (cmap) support (specification).     */
 /*                                                                         */
-/*  Copyright 2002, 2003 by                                                */
+/*  Copyright 2002, 2003, 2004, 2005 by                                    */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -16,21 +16,26 @@
 /***************************************************************************/
 
 
-#ifndef __TTCMAP0_H__
-#define __TTCMAP0_H__
+#ifndef __TTCMAP_H__
+#define __TTCMAP_H__
 
 
 #include <ft2build.h>
 #include FT_INTERNAL_TRUETYPE_TYPES_H
-#include FT_INTERNAL_OBJECTS_H
+#include FT_INTERNAL_VALIDATE_H
 #include FT_SERVICE_TT_CMAP_H
 
 FT_BEGIN_HEADER
+
+
+#define TT_CMAP_FLAG_UNSORTED     1
+#define TT_CMAP_FLAG_OVERLAPPING  2
 
   typedef struct  TT_CMapRec_
   {
     FT_CMapRec  cmap;
     FT_Byte*    data;           /* pointer to in-memory cmap table */
+    FT_Int      flags;          /* for format 4 only               */
 
   } TT_CMapRec, *TT_CMap;
 
@@ -74,7 +79,7 @@ FT_BEGIN_HEADER
 
 FT_END_HEADER
 
-#endif /* __TTCMAP0_H__ */
+#endif /* __TTCMAP_H__ */
 
 
 /* END */

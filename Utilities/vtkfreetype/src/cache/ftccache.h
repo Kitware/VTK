@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType internal cache interface (specification).                   */
 /*                                                                         */
-/*  Copyright 2000-2001, 2002, 2003, 2004 by                               */
+/*  Copyright 2000-2001, 2002, 2003, 2004, 2005, 2006 by                   */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -20,7 +20,7 @@
 #define __FTCCACHE_H__
 
 
-#include FT_CACHE_INTERNAL_MRU_H
+#include "ftcmru.h"
 
 FT_BEGIN_HEADER
 
@@ -66,21 +66,15 @@ FT_BEGIN_HEADER
 #define FTC_NODE( x )    ( (FTC_Node)(x) )
 #define FTC_NODE_P( x )  ( (FTC_Node*)(x) )
 
-#define FTC_NODE__NEXT(x)  FTC_NODE( (x)->mru.next )
-#define FTC_NODE__PREV(x)  FTC_NODE( (x)->mru.prev )
+#define FTC_NODE__NEXT( x )  FTC_NODE( (x)->mru.next )
+#define FTC_NODE__PREV( x )  FTC_NODE( (x)->mru.prev )
 
 
-  /*************************************************************************/
-  /*                                                                       */
-  /* These functions are exported so that they can be called from          */
-  /* user-provided cache classes; otherwise, they are really part of the   */
-  /* cache sub-system internals.                                           */
-  /*                                                                       */
-
-  /* reserved for manager's use */
-  FT_EXPORT( void )
+#ifdef FT_CONFIG_OPTION_OLD_INTERNALS
+  FT_BASE( void )
   ftc_node_destroy( FTC_Node     node,
                     FTC_Manager  manager );
+#endif
 
 
   /*************************************************************************/
@@ -158,11 +152,11 @@ FT_BEGIN_HEADER
 
 
   /* default cache initialize */
-  FT_EXPORT( FT_Error )
+  FT_LOCAL( FT_Error )
   FTC_Cache_Init( FTC_Cache  cache );
 
   /* default cache finalizer */
-  FT_EXPORT( void )
+  FT_LOCAL( void )
   FTC_Cache_Done( FTC_Cache  cache );
 
   /* Call this function to lookup the cache.  If no corresponding
@@ -170,13 +164,16 @@ FT_BEGIN_HEADER
    * is capable of flushing the cache adequately to make room for the
    * new cache object.
    */
-  FT_EXPORT( FT_Error )
+
+#ifndef FTC_INLINE
+  FT_LOCAL( FT_Error )
   FTC_Cache_Lookup( FTC_Cache   cache,
                     FT_UInt32   hash,
                     FT_Pointer  query,
                     FTC_Node   *anode );
+#endif
 
-  FT_EXPORT( FT_Error )
+  FT_LOCAL( FT_Error )
   FTC_Cache_NewNode( FTC_Cache   cache,
                      FT_UInt32   hash,
                      FT_Pointer  query,
@@ -184,7 +181,7 @@ FT_BEGIN_HEADER
 
   /* Remove all nodes that relate to a given face_id.  This is useful
    * when un-installing fonts.  Note that if a cache node relates to
-   * the face_id, but is locked (i.e., has 'ref_count > 0'), the node
+   * the face_id, but is locked (i.e., has `ref_count > 0'), the node
    * will _not_ be destroyed, but its internal face_id reference will
    * be modified.
    *
@@ -192,7 +189,7 @@ FT_BEGIN_HEADER
    * in further lookup requests, and will be flushed on demand from
    * the cache normally when its reference count reaches 0.
    */
-  FT_EXPORT( void )
+  FT_LOCAL( void )
   FTC_Cache_RemoveFaceID( FTC_Cache   cache,
                           FTC_FaceID  face_id );
 
@@ -248,7 +245,8 @@ FT_BEGIN_HEADER
     error = FTC_Cache_NewNode( _cache, _hash, query, &_node );           \
                                                                          \
   _Ok:                                                                   \
-    *(FTC_Node*)&(node) = _node;                                         \
+    _pnode = (FTC_Node*)(void*)&(node);                                  \
+    *_pnode = _node;                                                     \
   FT_END_STMNT
 
 #else /* !FTC_INLINE */
@@ -260,6 +258,52 @@ FT_BEGIN_HEADER
   FT_END_STMNT
 
 #endif /* !FTC_INLINE */
+
+
+  /*
+   * This macro, together with FTC_CACHE_TRYLOOP_END, defines a retry
+   * loop to flush the cache repeatedly in case of memory overflows.
+   *
+   * It is used when creating a new cache node, or within a lookup
+   * that needs to allocate data (e.g., the sbit cache lookup).
+   *
+   * Example:
+   *
+   *   {
+   *     FTC_CACHE_TRYLOOP( cache )
+   *       error = load_data( ... );
+   *     FTC_CACHE_TRYLOOP_END()
+   *   }
+   *
+   */
+#define FTC_CACHE_TRYLOOP( cache )                           \
+  {                                                          \
+    FTC_Manager  _try_manager = FTC_CACHE( cache )->manager; \
+    FT_UInt      _try_count   = 4;                           \
+                                                             \
+                                                             \
+    for (;;)                                                 \
+    {                                                        \
+      FT_UInt  _try_done;
+
+
+#define FTC_CACHE_TRYLOOP_END()                                   \
+      if ( !error || error != FT_Err_Out_Of_Memory )              \
+        break;                                                    \
+                                                                  \
+      _try_done = FTC_Manager_FlushN( _try_manager, _try_count ); \
+      if ( _try_done == 0 )                                       \
+        break;                                                    \
+                                                                  \
+      if ( _try_done == _try_count )                              \
+      {                                                           \
+        _try_count *= 2;                                          \
+        if ( _try_count < _try_done              ||               \
+            _try_count > _try_manager->num_nodes )                \
+          _try_count = _try_manager->num_nodes;                   \
+      }                                                           \
+    }                                                             \
+  }
 
  /* */
 

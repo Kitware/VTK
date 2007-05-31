@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    CFF token stream parser (body)                                       */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2007 by                         */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -143,8 +143,8 @@
                   FT_Int    power_ten )
   {
     FT_Byte*  p    = start;
-    FT_Long   num, divider, result, exp;
-    FT_Int    sign = 0, exp_sign = 0;
+    FT_Long   num, divider, result, exponent;
+    FT_Int    sign = 0, exponent_sign = 0;
     FT_UInt   nib;
     FT_UInt   phase;
 
@@ -159,7 +159,7 @@
     for (;;)
     {
       /* If we entered this iteration with phase == 4, we need to */
-      /* read a new byte.  This also skips past the intial 0x1E.  */
+      /* read a new byte.  This also skips past the initial 0x1E. */
       if ( phase )
       {
         p++;
@@ -212,13 +212,13 @@
     /* read exponent, if any */
     if ( nib == 12 )
     {
-      exp_sign = 1;
-      nib      = 11;
+      exponent_sign = 1;
+      nib           = 11;
     }
 
     if ( nib == 11 )
     {
-      exp = 0;
+      exponent = 0;
 
       for (;;)
       {
@@ -239,13 +239,13 @@
         if ( nib >= 10 )
           break;
 
-        exp = exp * 10 + nib;
+        exponent = exponent * 10 + nib;
       }
 
-      if ( exp_sign )
-        exp = -exp;
+      if ( exponent_sign )
+        exponent = -exponent;
 
-      power_ten += (FT_Int)exp;
+      power_ten += (FT_Int)exponent;
     }
 
     /* raise to power of ten if needed */

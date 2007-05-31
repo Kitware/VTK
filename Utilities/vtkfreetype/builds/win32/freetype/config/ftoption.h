@@ -1,10 +1,17 @@
+/*
+ *  VTK_FREETYPE_CHANGE this file is new for VTK.
+ *
+ *  This file is based on freetype's include/freetype/config/ftoption.h.
+ *
+ */
+
 /***************************************************************************/
 /*                                                                         */
 /*  ftoption.h                                                             */
 /*                                                                         */
 /*    User-selectable configuration macros (specification only).           */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007 by             */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -20,6 +27,7 @@
 #define __FTOPTION_H__
 
 
+/* VTK_FREETYPE_CHANGE added the #ifdef below */
 #ifdef _MSC_VER          // MS dev
  
 #pragma warning( disable : 4244 ) // conversion [...] possible loss of data
@@ -34,7 +42,6 @@
 #pragma warning( disable : 4701 ) // local variable 'node' may be used without having been initialized
 #pragma warning( disable : 4706 ) // assignment within conditional expression
 #pragma warning( disable : 4054 ) // 'type cast' : from function pointer ... to data pointer ...
-
 
 #endif /* _MSC_VER >= 1300 */ 
 #endif /* _MSC_VER */ 
@@ -57,22 +64,22 @@ FT_BEGIN_HEADER
   /*    library from a single source directory.                            */
   /*                                                                       */
   /*  - You can put a copy of this file in your build directory, more      */
-  /*    precisely in "$BUILD/freetype/config/ftoption.h", where "$BUILD"   */
+  /*    precisely in `$BUILD/freetype/config/ftoption.h', where `$BUILD'   */
   /*    is the name of a directory that is included _before_ the FreeType  */
   /*    include path during compilation.                                   */
   /*                                                                       */
   /*    The default FreeType Makefiles and Jamfiles use the build          */
-  /*    directory "builds/<system>" by default, but you can easily change  */
+  /*    directory `builds/<system>' by default, but you can easily change  */
   /*    that for your own projects.                                        */
   /*                                                                       */
-  /*  - Copy the file <ft2build.h> to "$BUILD/ft2build.h" and modify it    */
+  /*  - Copy the file <ft2build.h> to `$BUILD/ft2build.h' and modify it    */
   /*    slightly to pre-define the macro FT_CONFIG_OPTIONS_H used to       */
   /*    locate this file during the build.  For example,                   */
   /*                                                                       */
   /*      #define FT_CONFIG_OPTIONS_H  <myftoptions.h>                     */
   /*      #include <freetype/config/ftheader.h>                            */
   /*                                                                       */
-  /*    will use "$BUILD/myftoptions.h" instead of this file for macro     */
+  /*    will use `$BUILD/myftoptions.h' instead of this file for macro     */
   /*    definitions.                                                       */
   /*                                                                       */
   /*    Note also that you can similarly pre-define the macro              */
@@ -96,6 +103,26 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
+  /* Uncomment the line below if you want to activate sub-pixel rendering  */
+  /* (a.k.a. LCD rendering, or ClearType) in this build of the library.    */
+  /*                                                                       */
+  /* Note that this feature is covered by several Microsoft patents        */
+  /* and should not be activated in any default build of the library.      */
+  /*                                                                       */
+  /* This macro has no impact on the FreeType API, only on its             */
+  /* _implementation_.  For example, using FT_RENDER_MODE_LCD when calling */
+  /* FT_Render_Glyph still generates a bitmap that is 3 times larger than  */
+  /* the original size; the difference will be that each triplet of        */
+  /* subpixels has R=G=B.                                                  */
+  /*                                                                       */
+  /* This is done to allow FreeType clients to run unmodified, forcing     */
+  /* them to display normal gray-level anti-aliased glyphs.                */
+  /*                                                                       */
+/* #define FT_CONFIG_OPTION_SUBPIXEL_RENDERING */
+
+
+  /*************************************************************************/
+  /*                                                                       */
   /* Many compilers provide a non-ANSI 64-bit data type that can be used   */
   /* by FreeType to speed up some computations.  However, this will create */
   /* some problems when compiling the library in strict ANSI mode.         */
@@ -108,7 +135,7 @@ FT_BEGIN_HEADER
   /* building the library.                                                 */
   /*                                                                       */
   /* ObNote: The compiler-specific 64-bit integers are detected in the     */
-  /*         file "ftconfig.h" either statically or through the            */
+  /*         file `ftconfig.h' either statically or through the            */
   /*         `configure' script on supported platforms.                    */
   /*                                                                       */
 #undef  FT_CONFIG_OPTION_FORCE_INT64
@@ -119,13 +146,14 @@ FT_BEGIN_HEADER
   /* LZW-compressed file support.                                          */
   /*                                                                       */
   /*   FreeType now handles font files that have been compressed with the  */
-  /*   'compress' program.  This is mostly used to parse many of the PCF   */
+  /*   `compress' program.  This is mostly used to parse many of the PCF   */
   /*   files that come with various X11 distributions.  The implementation */
   /*   uses NetBSD's `zopen' to partially uncompress the file on the fly   */
   /*   (see src/lzw/ftgzip.c).                                             */
   /*                                                                       */
   /*   Define this macro if you want to enable this `feature'.             */
   /*                                                                       */
+  /* VTK_FREETYPE_CHANGE commented out line */
 /* #define FT_CONFIG_OPTION_USE_LZW */
 
 
@@ -134,13 +162,14 @@ FT_BEGIN_HEADER
   /* Gzip-compressed file support.                                         */
   /*                                                                       */
   /*   FreeType now handles font files that have been compressed with the  */
-  /*   'gzip' program.  This is mostly used to parse many of the PCF files */
+  /*   `gzip' program.  This is mostly used to parse many of the PCF files */
   /*   that come with XFree86.  The implementation uses `zlib' to          */
   /*   partially uncompress the file on the fly (see src/gzip/ftgzip.c).   */
   /*                                                                       */
   /*   Define this macro if you want to enable this `feature'.  See also   */
   /*   the macro FT_CONFIG_OPTION_SYSTEM_ZLIB below.                       */
   /*                                                                       */
+  /* VTK_FREETYPE_CHANGE commented out line */
 /* #define FT_CONFIG_OPTION_USE_ZLIB */
 
 
@@ -162,6 +191,7 @@ FT_BEGIN_HEADER
   /*   Do not #undef this macro here since the build system might define   */
   /*   it for certain configurations only.                                 */
   /*                                                                       */
+  /* VTK_FREETYPE_CHANGE commented out line */
 /* #define  FT_CONFIG_OPTION_SYSTEM_ZLIB */
 
 
@@ -206,6 +236,7 @@ FT_BEGIN_HEADER
 /* #define  FT_EXPORT(x)       extern x */
 /* #define  FT_EXPORT_DEF(x)   x */
 
+/* VTK_FREETYPE_CHANGE added the #if below */
 #if !defined(VTKFREETYPE_STATIC)
 #if defined(vtkfreetype_EXPORTS)
 #define FT_EXPORT( x ) __declspec( dllexport ) x
@@ -354,7 +385,7 @@ FT_BEGIN_HEADER
   /*   should define FT_DEBUG_MEMORY here.                                 */
   /*                                                                       */
   /*   Note that the memory debugger is only activated at runtime when     */
-  /*   when the _environment_ variable "FT2_DEBUG_MEMORY" is defined also! */
+  /*   when the _environment_ variable `FT2_DEBUG_MEMORY' is defined also! */
   /*                                                                       */
   /*   Do not #undef this macro here since the build system might define   */
   /*   it for certain configurations only.                                 */
@@ -462,7 +493,7 @@ FT_BEGIN_HEADER
   /*   Do not #undef this macro here, since the build system might         */
   /*   define it for certain configurations only.                          */
   /*                                                                       */
-/* #define  TT_CONFIG_OPTION_BYTECODE_INTERPRETER */
+/* #define TT_CONFIG_OPTION_BYTECODE_INTERPRETER */
 
 
   /*************************************************************************/
@@ -472,7 +503,7 @@ FT_BEGIN_HEADER
   /* work-around hinting system.  Note that for the moment, the algorithm  */
   /* is only used when selected at runtime through the parameter tag       */
   /* FT_PARAM_TAG_UNPATENTED_HINTING; or when the debug hook               */
-  /* FT_DEBUG_HOOK_UNPATENTED_HINTING is globally actived                  */
+  /* FT_DEBUG_HOOK_UNPATENTED_HINTING is globally activated.               */
   /*                                                                       */
 #define TT_CONFIG_OPTION_UNPATENTED_HINTING
 
@@ -497,7 +528,7 @@ FT_BEGIN_HEADER
   /* component offsets in composite glyphs.                                */
   /*                                                                       */
   /* Apple and MS disagree on the default behavior of component offsets    */
-  /* in composites.  Apple says that they should be scaled by the scale    */
+  /* in composites.  Apple says that they should be scaled by the scaling  */
   /* factors in the transformation matrix (roughly, it's more complex)     */
   /* while MS says they should not.  OpenType defines two bits in the      */
   /* composite flags array which can be used to disambiguate, but old      */
@@ -517,6 +548,14 @@ FT_BEGIN_HEADER
   /* Masters support.                                                      */
   /*                                                                       */
 #define TT_CONFIG_OPTION_GX_VAR_SUPPORT
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* Define TT_CONFIG_OPTION_BDF if you want to include support for        */
+  /* an embedded `BDF ' table within SFNT-based bitmap formats.            */
+  /*                                                                       */
+#define TT_CONFIG_OPTION_BDF
 
 
   /*************************************************************************/
@@ -573,26 +612,48 @@ FT_BEGIN_HEADER
   /*                                                                       */
 #undef T1_CONFIG_OPTION_NO_MM_SUPPORT
 
- /* */
 
-/*
- * The FT_CONFIG_OPTION_CHESTER_XXXX macros are used to toggle some recent
- * improvements to the auto-hinter contributed by David Chester.  They will
- * most likely disappear completely in the next release.  For now, you
- * should always keep them defined.
- *
- */
-#define  FT_CONFIG_OPTION_CHESTER_HINTS
+  /*************************************************************************/
+  /*************************************************************************/
+  /****                                                                 ****/
+  /****    A U T O F I T   M O D U L E    C O N F I G U R A T I O N     ****/
+  /****                                                                 ****/
+  /*************************************************************************/
+  /*************************************************************************/
 
-#ifdef   FT_CONFIG_OPTION_CHESTER_HINTS
 
-#define  FT_CONFIG_CHESTER_SMALL_F
-#define  FT_CONFIG_CHESTER_ASCENDER
-#define  FT_CONFIG_CHESTER_SERIF
-#define  FT_CONFIG_CHESTER_STEM
-#define  FT_CONFIG_CHESTER_BLUE_SCALE
+  /*************************************************************************/
+  /*                                                                       */
+  /* Compile autofit module with CJK script support.                       */
+  /*                                                                       */
+#define AF_CONFIG_OPTION_CJK
 
-#endif /* FT_CONFIG_OPTION_CHESTER_HINTS */
+
+  /* */
+
+
+  /*
+   * Define this variable if you want to keep the layout of internal
+   * structures that was used prior to FreeType 2.2.  This also compiles in
+   * a few obsolete functions to avoid linking problems on typical Unix
+   * distributions.
+   *
+   * For embedded systems or building a new distribution from scratch, it
+   * is recommended to disable the macro since it reduces the library's code
+   * size and activates a few memory-saving optimizations as well.
+   */
+#define FT_CONFIG_OPTION_OLD_INTERNALS
+
+
+  /*
+   * This variable is defined if either unpatented or native TrueType
+   * hinting is requested by the definitions above.
+   */
+#ifdef TT_CONFIG_OPTION_BYTECODE_INTERPRETER
+#define  TT_USE_BYTECODE_INTERPRETER
+#elif defined TT_CONFIG_OPTION_UNPATENTED_HINTING
+#define  TT_USE_BYTECODE_INTERPRETER
+#endif
 
 FT_END_HEADER
 

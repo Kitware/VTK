@@ -1,5 +1,5 @@
-This directory contains a subset of the Freetype2 library (2.1.9) + some later
-updates made to the cache subsystem.
+This directory contains a subset of the Freetype2 library (2.3.3) and
+some custom changes that VTK needs.
 
 We only include enough of the distribution to provide the functionalities
 required by VTK.
@@ -9,18 +9,19 @@ http://www.freetype.org
 
 Modifications
 -------------
+You can search for code for "VTK_FREETYPE_CHANGE" to find modifications
+vs the original freetype 2.3.3 code
 
 Added Files
 -----------
-builds\win32\freetype\config\ftoption.h: 
-  -new file, created from include\freetype\config\ftoption.h, used to 
-  support DLL build for Windows
-  -comment out FT_CONFIG_OPTION_USE_ZLIB and FT_CONFIG_OPTION_USE_LZW:
-/* #define FT_CONFIG_OPTION_USE_ZLIB */
-/* #define FT_CONFIG_OPTION_USE_LZW */
+builds/win32/freetype/config/ftoption.h: 
+  -new file, created from include/freetype/config/ftoption.h
+  -additions to support DLL build for Windows
+  -comment out FT_CONFIG_OPTION_USE_ZLIB and FT_CONFIG_OPTION_USE_LZW
 
-builds\unix\ftconfig.h.in: 
-  -new file, created from ftconfig.in, use CMake vars
+builds/unix/ftconfig.h.in: 
+  -new file, created from builds/unix/ftconfig.in
+  -use CMake variables
 
 CMakeLists.txt
   -to support CMake builds
@@ -28,33 +29,16 @@ CMakeLists.txt
 include/vtk_freetype_mangle.h
   -mangles all symbols exported from the freetype library
 
+include/vtk_ftmodule.h
+  -override the default module headers
+
 include/vtkFreeTypeConfig.h.in
   -purpose unknown
 
 Changed Files
 -------------
-include\ft2build.h:
-  -added:
-#include "vtk_freetype_mangle.h"  
-  -added:
-#if defined(VTKFREETYPE)
-#include "vtkFreeTypeConfig.h"
-#endif
+include/ft2build.h:
+  -extensive changes, see file for comments
 
-src/base/ftmac.c
-  -fixed warnings
-  -other misc changes
-
-include\freetype\config\ftoption.h:
-  -comment out FT_CONFIG_OPTION_USE_ZLIB and FT_CONFIG_OPTION_USE_LZW:
-/* #define FT_CONFIG_OPTION_USE_ZLIB */
-/* #define FT_CONFIG_OPTION_USE_LZW */
-
-builds/unix/ftsystem.c
-  -fixed some 64 to 32 implicit conversion warnings in FT_Stream_Open
-
-include/freetype/config/ftstdlib.h
-  -fixed a warning with the sgi compiler
-
-Other files are changed compared to freetype 2.1.9, but those changes
-are by the freetype people.
+include/freetype/config/ftoption.h:
+  -comment out FT_CONFIG_OPTION_USE_ZLIB and FT_CONFIG_OPTION_USE_LZW

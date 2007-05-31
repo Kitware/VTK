@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    The FreeType glyph rasterizer (body).                                */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003 by                                     */
+/*  Copyright 1996-2001, 2002, 2003, 2005, 2007 by                         */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -17,14 +17,48 @@
 
   /*************************************************************************/
   /*                                                                       */
-  /* This is a rewrite of the FreeType 1.x scan-line converter             */
+  /* This file can be compiled without the rest of the FreeType engine, by */
+  /* defining the _STANDALONE_ macro when compiling it.  You also need to  */
+  /* put the files `ftimage.h' and `ftmisc.h' into the $(incdir)           */
+  /* directory.  Typically, you should do something like                   */
+  /*                                                                       */
+  /* - copy `src/raster/ftraster.c' (this file) to your current directory  */
+  /*                                                                       */
+  /* - copy `include/freetype/ftimage.h' and `src/raster/ftmisc.h'         */
+  /*   to your current directory                                           */
+  /*                                                                       */
+  /* - compile `ftraster' with the _STANDALONE_ macro defined, as in       */
+  /*                                                                       */
+  /*     cc -c -D_STANDALONE_ ftraster.c                                   */
+  /*                                                                       */
+  /* The renderer can be initialized with a call to                        */
+  /* `ft_standard_raster.raster_new'; a bitmap can be generated            */
+  /* with a call to `ft_standard_raster.raster_render'.                    */
+  /*                                                                       */
+  /* See the comments and documentation in the file `ftimage.h' for more   */
+  /* details on how the raster works.                                      */
   /*                                                                       */
   /*************************************************************************/
 
 
+  /*************************************************************************/
+  /*                                                                       */
+  /* This is a rewrite of the FreeType 1.x scan-line converter             */
+  /*                                                                       */
+  /*************************************************************************/
+
+#ifdef _STANDALONE_
+
+#include "ftmisc.h"
+#include "ftimage.h"
+
+#else /* !_STANDALONE_ */
+
 #include <ft2build.h>
 #include "ftraster.h"
 #include FT_INTERNAL_CALC_H   /* for FT_MulDiv only */
+
+#endif /* !_STANDALONE_ */
 
 
   /*************************************************************************/
@@ -92,7 +126,7 @@
   /*   optimize performance (see technical note on the sweep below).       */
   /*                                                                       */
   /*   Of course, the raster detects whether the two stacks collide and    */
-  /*   handles the situation propertly.                                    */
+  /*   handles the situation properly.                                     */
   /*                                                                       */
   /*************************************************************************/
 
@@ -107,9 +141,6 @@
 
   /* define DEBUG_RASTER if you want to compile a debugging version */
 #define xxxDEBUG_RASTER
-
-  /* The default render pool size in bytes */
-#define RASTER_RENDER_POOL  8192
 
   /* undefine FT_RASTER_OPTION_ANTI_ALIASING if you do not want to support */
   /* 5-levels anti-aliasing                                                */
@@ -156,7 +187,9 @@
 #endif
 
 #ifndef FT_TRACE
-#define FT_TRACE( x )  do ; while ( 0 )     /* nothing */
+#define FT_TRACE( x )   do ; while ( 0 )    /* nothing */
+#define FT_TRACE1( x )  do ; while ( 0 )    /* nothing */
+#define FT_TRACE6( x )  do ; while ( 0 )    /* nothing */
 #endif
 
 #define Raster_Err_None          0
@@ -166,6 +199,7 @@
 #define Raster_Err_Invalid      -4
 #define Raster_Err_Unsupported  -5
 
+#define ft_memset   memset
 
 #else /* _STANDALONE_ */
 
@@ -190,6 +224,9 @@
 #define FT_MEM_SET( d, s, c )  ft_memset( d, s, c )
 #endif
 
+#ifndef FT_MEM_ZERO
+#define FT_MEM_ZERO( dest, count )  FT_MEM_SET( dest, 0, count )
+#endif
 
   /* FMulDiv means `Fast MulDiv'; it is used in case where `b' is       */
   /* typically a small value and the result of a*b is known to fit into */
@@ -326,7 +363,7 @@
   ( ( sizeof ( TProfile ) + sizeof ( Alignment ) - 1 ) / sizeof ( long ) )
 
 
-#ifdef TT_STATIC_RASTER
+#ifdef FT_STATIC_RASTER
 
 
 #define RAS_ARGS       /* void */
@@ -338,22 +375,22 @@
 #define FT_UNUSED_RASTER  do ; while ( 0 )
 
 
-#else /* TT_STATIC_RASTER */
+#else /* FT_STATIC_RASTER */
 
 
-#define RAS_ARGS       TRaster_Instance*  raster,
-#define RAS_ARG        TRaster_Instance*  raster
+#define RAS_ARGS       PWorker    worker,
+#define RAS_ARG        PWorker    worker
 
-#define RAS_VARS       raster,
-#define RAS_VAR        raster
+#define RAS_VARS       worker,
+#define RAS_VAR        worker
 
-#define FT_UNUSED_RASTER  FT_UNUSED( raster )
-
-
-#endif /* TT_STATIC_RASTER */
+#define FT_UNUSED_RASTER  FT_UNUSED( worker )
 
 
-  typedef struct TRaster_Instance_  TRaster_Instance;
+#endif /* FT_STATIC_RASTER */
+
+
+  typedef struct TWorker_   TWorker, *PWorker;
 
 
   /* prototypes used for sweep function dispatch */
@@ -385,7 +422,7 @@
   /* at the top.  Thus, their offset can be coded with less    */
   /* opcodes, and it results in a smaller executable.          */
 
-  struct  TRaster_Instance_
+  struct  TWorker_
   {
     Int       precision_bits;       /* precision related variables         */
     Int       precision;
@@ -449,7 +486,7 @@
 
     Byte      dropOutControl;       /* current drop_out control method     */
 
-    Bool      second_pass;          /* indicates wether a horizontal pass  */
+    Bool      second_pass;          /* indicates whether a horizontal pass */
                                     /* should be performed to control      */
                                     /* drop-out accurately when calling    */
                                     /* Render_Glyph.  Note that there is   */
@@ -461,15 +498,9 @@
     TBand     band_stack[16];       /* band stack used for sub-banding     */
     Int       band_top;             /* band stack top                      */
 
-    Int       count_table[256];     /* Look-up table used to quickly count */
-                                    /* set bits in a gray 2x2 cell         */
-
-    void*     memory;
-
 #ifdef FT_RASTER_OPTION_ANTI_ALIASING
 
-    Byte      grays[5];             /* Palette of gray levels used for     */
-                                    /* render.                             */
+    Byte*     grays;
 
     Byte      gray_lines[RASTER_GRAY_LINES];
                                 /* Intermediate table used to render the   */
@@ -486,28 +517,51 @@
 
 #endif /* FT_RASTER_ANTI_ALIASING */
 
-#if 0
-    PByte       flags;              /* current flags table                 */
-    PUShort     outs;               /* current outlines table              */
-    FT_Vector*  coords;
-
-    UShort      nPoints;            /* number of points in current glyph   */
-    Short       nContours;          /* number of contours in current glyph */
-#endif
-
   };
 
 
-#ifdef FT_CONFIG_OPTION_STATIC_RASTER
+  typedef struct TRaster_
+  {
+    char*     buffer;
+    long      buffer_size;
+    void*     memory;
+    PWorker   worker;
+    Byte      grays[5];
+    Short     gray_width;
 
-  static TRaster_Instance  cur_ras;
+  } TRaster, *PRaster;
+
+#ifdef FT_STATIC_RASTER
+
+  static TWorker   cur_ras;
 #define ras  cur_ras
 
 #else
 
-#define ras  (*raster)
+#define ras  (*worker)
 
-#endif /* FT_CONFIG_OPTION_STATIC_RASTER */
+#endif /* FT_STATIC_RASTER */
+
+
+static const char  count_table[256] =
+{
+  0 , 1 , 1 , 2 , 1 , 2 , 2 , 3 , 1 , 2 , 2 , 3 , 2 , 3 , 3 , 4,
+  1 , 2 , 2 , 3 , 2 , 3 , 3 , 4 , 2 , 3 , 3 , 4 , 3 , 4 , 4 , 5,
+  1 , 2 , 2 , 3 , 2 , 3 , 3 , 4 , 2 , 3 , 3 , 4 , 3 , 4 , 4 , 5,
+  2 , 3 , 3 , 4 , 3 , 4 , 4 , 5 , 3 , 4 , 4 , 5 , 4 , 5 , 5 , 6,
+  1 , 2 , 2 , 3 , 2 , 3 , 3 , 4 , 2 , 3 , 3 , 4 , 3 , 4 , 4 , 5,
+  2 , 3 , 3 , 4 , 3 , 4 , 4 , 5 , 3 , 4 , 4 , 5 , 4 , 5 , 5 , 6,
+  2 , 3 , 3 , 4 , 3 , 4 , 4 , 5 , 3 , 4 , 4 , 5 , 4 , 5 , 5 , 6,
+  3 , 4 , 4 , 5 , 4 , 5 , 5 , 6 , 4 , 5 , 5 , 6 , 5 , 6 , 6 , 7,
+  1 , 2 , 2 , 3 , 2 , 3 , 3 , 4 , 2 , 3 , 3 , 4 , 3 , 4 , 4 , 5,
+  2 , 3 , 3 , 4 , 3 , 4 , 4 , 5 , 3 , 4 , 4 , 5 , 4 , 5 , 5 , 6,
+  2 , 3 , 3 , 4 , 3 , 4 , 4 , 5 , 3 , 4 , 4 , 5 , 4 , 5 , 5 , 6,
+  3 , 4 , 4 , 5 , 4 , 5 , 5 , 6 , 4 , 5 , 5 , 6 , 5 , 6 , 6 , 7,
+  2 , 3 , 3 , 4 , 3 , 4 , 4 , 5 , 3 , 4 , 4 , 5 , 4 , 5 , 5 , 6,
+  3 , 4 , 4 , 5 , 4 , 5 , 5 , 6 , 4 , 5 , 5 , 6 , 5 , 6 , 6 , 7,
+  3 , 4 , 4 , 5 , 4 , 5 , 5 , 6 , 4 , 5 , 5 , 6 , 5 , 6 , 6 , 7,
+  4 , 5 , 5 , 6 , 5 , 6 , 6 , 7 , 5 , 6 , 6 , 7 , 6 , 7 , 7 , 8 };
+
 
 
   /*************************************************************************/
@@ -1258,10 +1312,10 @@
   /*                                                                       */
   /* <Input>                                                               */
   /*   x :: The x-coordinate of the segment's end point (its start point   */
-  /*        is stored in `LastX').                                         */
+  /*        is stored in `lastX').                                         */
   /*                                                                       */
   /*   y :: The y-coordinate of the segment's end point (its start point   */
-  /*        is stored in `LastY').                                         */
+  /*        is stored in `lastY').                                         */
   /*                                                                       */
   /* <Return>                                                              */
   /*   SUCCESS on success, FAILURE on render pool overflow or incorrect    */
@@ -1352,10 +1406,10 @@
   /*   cy :: The y-coordinate of the arc's new control point.              */
   /*                                                                       */
   /*   x  :: The x-coordinate of the arc's end point (its start point is   */
-  /*         stored in `LastX').                                           */
+  /*         stored in `lastX').                                           */
   /*                                                                       */
   /*   y  :: The y-coordinate of the arc's end point (its start point is   */
-  /*         stored in `LastY').                                           */
+  /*         stored in `lastY').                                           */
   /*                                                                       */
   /* <Return>                                                              */
   /*   SUCCESS on success, FAILURE on render pool overflow or incorrect    */
@@ -1466,10 +1520,10 @@
   /*   cy2 :: The y-coordinate of the arc's second new control point.      */
   /*                                                                       */
   /*   x   :: The x-coordinate of the arc's end point (its start point is  */
-  /*          stored in `LastX').                                          */
+  /*          stored in `lastX').                                          */
   /*                                                                       */
   /*   y   :: The y-coordinate of the arc's end point (its start point is  */
-  /*          stored in `LastY').                                          */
+  /*          stored in `lastY').                                          */
   /*                                                                       */
   /* <Return>                                                              */
   /*   SUCCESS on success, FAILURE on render pool overflow or incorrect    */
@@ -1592,7 +1646,7 @@
   /*    Decompose_Curve                                                    */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    Scans the outline arays in order to emit individual segments and   */
+  /*    Scans the outline arrays in order to emit individual segments and  */
   /*    Beziers by calling Line_To() and Bezier_To().  It handles all      */
   /*    weird cases, like when the first point is off the curve, or when   */
   /*    there are simply no `on' points in the contour!                    */
@@ -2253,7 +2307,7 @@
                                   Short*  max )
   {
     /* nothing, really */
-    FT_UNUSED( raster );
+    FT_UNUSED_RASTER;
     FT_UNUSED( min );
     FT_UNUSED( max );
   }
@@ -2402,7 +2456,7 @@
   Horizontal_Sweep_Step( RAS_ARG )
   {
     /* Nothing, really */
-    FT_UNUSED( raster );
+    FT_UNUSED_RASTER;
   }
 
 
@@ -2457,7 +2511,7 @@
   {
     Int    c1, c2;
     PByte  pix, bit, bit2;
-    Int*   count = ras.count_table;
+    char*  count = (char*)count_table;
     Byte*  grays;
 
 
@@ -2549,7 +2603,7 @@
                                        PProfile    right )
   {
     /* nothing, really */
-    FT_UNUSED( raster );
+    FT_UNUSED_RASTER;
     FT_UNUSED( y );
     FT_UNUSED( x1 );
     FT_UNUSED( x2 );
@@ -2984,6 +3038,9 @@
     Set_High_Precision( RAS_VARS ras.outline.flags &
                         FT_OUTLINE_HIGH_PRECISION );
     ras.scale_shift    = ras.precision_shift;
+    /* Drop-out mode 2 is hard-coded since this is the only mode used */
+    /* on Windows platforms.  Using other modes, as specified by the  */
+    /* font, results in misplaced pixels.                             */
     ras.dropOutControl = 2;
     ras.second_pass    = (FT_Byte)( !( ras.outline.flags &
                                        FT_OUTLINE_SINGLE_PASS ) );
@@ -3020,7 +3077,7 @@
         return error;
     }
 
-    return Raster_Err_Ok;
+    return Raster_Err_None;
   }
 
 
@@ -3048,6 +3105,9 @@
     Set_High_Precision( RAS_VARS ras.outline.flags &
                         FT_OUTLINE_HIGH_PRECISION );
     ras.scale_shift    = ras.precision_shift + 1;
+    /* Drop-out mode 2 is hard-coded since this is the only mode used */
+    /* on Windows platforms.  Using other modes, as specified by the  */
+    /* font, results in misplaced pixels.                             */
     ras.dropOutControl = 2;
     ras.second_pass    = !( ras.outline.flags & FT_OUTLINE_SINGLE_PASS );
 
@@ -3093,7 +3153,7 @@
         return error;
     }
 
-    return Raster_Err_Ok;
+    return Raster_Err_None;
   }
 
 #else /* !FT_RASTER_OPTION_ANTI_ALIASING */
@@ -3103,33 +3163,20 @@
   {
     FT_UNUSED_RASTER;
 
-    return Raster_Err_Cannot_Render_Glyph;
+    return Raster_Err_Unsupported;
   }
 
 #endif /* !FT_RASTER_OPTION_ANTI_ALIASING */
 
 
   static void
-  ft_black_init( TRaster_Instance*  raster )
+  ft_black_init( PRaster  raster )
   {
-    FT_UInt  n;
-    FT_ULong c;
-
-
-    /* setup count table */
-    for ( n = 0; n < 256; n++ )
-    {
-      c = ( n & 0x55 ) + ( ( n & 0xAA ) >> 1 );
-
-      c = ( ( c << 6 ) & 0x3000 ) |
-          ( ( c << 4 ) & 0x0300 ) |
-          ( ( c << 2 ) & 0x0030 ) |
-                   (c  & 0x0003 );
-
-      raster->count_table[n] = (UInt)c;
-    }
+    FT_UNUSED( raster );
 
 #ifdef FT_RASTER_OPTION_ANTI_ALIASING
+    FT_UInt  n;
+
 
     /* set default 5-levels gray palette */
     for ( n = 0; n < 5; n++ )
@@ -3152,10 +3199,10 @@
   ft_black_new( void*      memory,
                 FT_Raster  *araster )
   {
-     static FT_RasterRec_  the_raster;
+     static TRaster  the_raster;
 
 
-     *araster = &the_raster;
+     *araster = (FT_Raster)&the_raster;
      FT_MEM_ZERO( &the_raster, sizeof ( the_raster ) );
      ft_black_init( &the_raster );
 
@@ -3167,7 +3214,7 @@
   ft_black_done( FT_Raster  raster )
   {
     /* nothing */
-    raster->init = 0;
+    FT_UNUSED( raster );
   }
 
 
@@ -3175,11 +3222,11 @@
 
 
   static int
-  ft_black_new( FT_Memory           memory,
-                TRaster_Instance**  araster )
+  ft_black_new( FT_Memory   memory,
+                PRaster    *araster )
   {
-    FT_Error           error;
-    TRaster_Instance*  raster;
+    FT_Error  error;
+    PRaster   raster;
 
 
     *araster = 0;
@@ -3196,7 +3243,7 @@
 
 
   static void
-  ft_black_done( TRaster_Instance*  raster )
+  ft_black_done( PRaster  raster )
   {
     FT_Memory  memory = (FT_Memory)raster->memory;
     FT_FREE( raster );
@@ -3207,21 +3254,34 @@
 
 
   static void
-  ft_black_reset( TRaster_Instance*  raster,
-                  const char*        pool_base,
-                  long               pool_size )
+  ft_black_reset( PRaster   raster,
+                  char*     pool_base,
+                  long      pool_size )
   {
-    if ( raster && pool_base && pool_size >= 4096 )
+    if ( raster )
     {
-      /* save the pool */
-      raster->buff     = (PLong)pool_base;
-      raster->sizeBuff = raster->buff + pool_size / sizeof ( Long );
+      if ( pool_base && pool_size >= (long)sizeof(TWorker) + 2048 )
+      {
+        PWorker  worker = (PWorker)pool_base;
+
+
+        raster->buffer      = pool_base + ( (sizeof ( *worker ) + 7 ) & ~7 );
+        raster->buffer_size = ( ( pool_base + pool_size ) -
+                                (char*)raster->buffer ) / sizeof ( Long );
+        raster->worker      = worker;
+      }
+      else
+      {
+        raster->buffer      = NULL;
+        raster->buffer_size = 0;
+        raster->worker      = NULL;
+      }
     }
   }
 
 
   static void
-  ft_black_set_mode( TRaster_Instance*  raster,
+  ft_black_set_mode( PRaster            raster,
                      unsigned long      mode,
                      const char*        palette )
   {
@@ -3248,14 +3308,15 @@
 
 
   static int
-  ft_black_render( TRaster_Instance*  raster,
-                   FT_Raster_Params*  params )
+  ft_black_render( PRaster                  raster,
+                   const FT_Raster_Params*  params )
   {
-    FT_Outline*  outline    = (FT_Outline*)params->source;
-    FT_Bitmap*   target_map = params->target;
+    const FT_Outline*  outline    = (const FT_Outline*)params->source;
+    const FT_Bitmap*   target_map = params->target;
+    PWorker            worker;
 
 
-    if ( !raster || !raster->buff || !raster->sizeBuff )
+    if ( !raster || !raster->buffer || !raster->buffer_size )
       return Raster_Err_Not_Ini;
 
     /* return immediately if the outline is empty */
@@ -3268,6 +3329,8 @@
     if ( outline->n_points != outline->contours[outline->n_contours - 1] + 1 )
       return Raster_Err_Invalid;
 
+    worker = raster->worker;
+
     /* this version of the raster does not support direct rendering, sorry */
     if ( params->flags & FT_RASTER_FLAG_DIRECT )
       return Raster_Err_Unsupported;
@@ -3278,9 +3341,17 @@
     ras.outline  = *outline;
     ras.target   = *target_map;
 
+    worker->buff        = (PLong) raster->buffer;
+    worker->sizeBuff    = worker->buff +
+                            raster->buffer_size / sizeof ( Long );
+#ifdef FT_RASTER_OPTION_ANTI_ALIASING
+    worker->grays       = raster->grays;
+    worker->gray_width  = raster->gray_width;
+#endif
+
     return ( ( params->flags & FT_RASTER_FLAG_AA )
-               ? Render_Gray_Glyph( raster )
-               : Render_Glyph( raster ) );
+               ? Render_Gray_Glyph( RAS_VAR )
+               : Render_Glyph( RAS_VAR ) );
   }
 
 

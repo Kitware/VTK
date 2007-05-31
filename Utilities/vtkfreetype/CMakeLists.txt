@@ -19,9 +19,9 @@ INCLUDE_DIRECTORIES (
 # Source files
 #
 SET (FREETYPE_SRCS
-  src/autohint/autohint.c
   src/base/ftbase.c
   src/base/ftbbox.c
+  src/base/ftbitmap.c
   src/base/ftglyph.c
   src/base/ftinit.c
   src/base/ftmm.c
@@ -96,15 +96,19 @@ ENDIF (UNIX)
 #
 IF (APPLE)
   SET (VTKFREETYPE_USE_CARBON 0)
-#  SET (FREETYPE_SRCS ${FREETYPE_SRCS} src/base/ftmac.c)
 ENDIF (APPLE)
 
 #
 # Define the library (and install it)
 #
 ADD_LIBRARY (vtkfreetype ${FREETYPE_SRCS})
+
+#
+# freetype can be optionally built using some Mac OS X-only
+# APIs.  Incase they are used, we link against Carbon
+#
 IF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkfreetype "-framework Carbon")
+    TARGET_LINK_LIBRARIES (vtkfreetype "-framework Carbon")
 ENDIF (APPLE)
 
 # Apply user-defined properties to the library target.

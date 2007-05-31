@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Type 1 driver interface (body).                                      */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2006, 2007 by                   */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -36,6 +36,8 @@
 #include FT_SERVICE_POSTSCRIPT_NAME_H
 #include FT_SERVICE_POSTSCRIPT_CMAPS_H
 #include FT_SERVICE_POSTSCRIPT_INFO_H
+#include FT_SERVICE_KERNING_H
+
 
   /*************************************************************************/
   /*                                                                       */
@@ -57,22 +59,7 @@
                      FT_Pointer  buffer,
                      FT_UInt     buffer_max )
   {
-    FT_String*  gname;
-
-
-    gname = face->type1.glyph_names[glyph_index];
-
-    if ( buffer_max > 0 )
-    {
-      FT_UInt  len = (FT_UInt)( ft_strlen( gname ) );
-
-
-      if (len >= buffer_max)
-        len = buffer_max - 1;
-
-      FT_MEM_COPY( buffer, gname, len );
-      ((FT_Byte*)buffer)[len] = 0;
-    }
+    FT_STRCPYN( buffer, face->type1.glyph_names[glyph_index], buffer_max );
 
     return T1_Err_Ok;
   }
@@ -160,12 +147,28 @@
   }
 
 
+  static FT_Error
+  t1_ps_get_font_private( FT_Face         face,
+                          PS_PrivateRec*  afont_private )
+  {
+    *afont_private = ((T1_Face)face)->type1.private_dict;
+    return 0;
+  }
+
+
   static const FT_Service_PsInfoRec  t1_service_ps_info =
   {
-    (PS_GetFontInfoFunc)  t1_ps_get_font_info,
-    (PS_HasGlyphNamesFunc)t1_ps_has_glyph_names
+    (PS_GetFontInfoFunc)   t1_ps_get_font_info,
+    (PS_HasGlyphNamesFunc) t1_ps_has_glyph_names,
+    (PS_GetFontPrivateFunc)t1_ps_get_font_private,
   };
 
+#ifndef T1_CONFIG_OPTION_NO_AFM
+  static const FT_Service_KerningRec  t1_service_kerning =
+  {
+    T1_Get_Track_Kerning,
+  };
+#endif
 
  /*
   *  SERVICE LIST
@@ -178,6 +181,10 @@
     { FT_SERVICE_ID_GLYPH_DICT,           &t1_service_glyph_dict },
     { FT_SERVICE_ID_XF86_NAME,            FT_XF86_FORMAT_TYPE_1 },
     { FT_SERVICE_ID_POSTSCRIPT_INFO,      &t1_service_ps_info },
+
+#ifndef T1_CONFIG_OPTION_NO_AFM
+    { FT_SERVICE_ID_KERNING,              &t1_service_kerning },
+#endif
 
 #ifndef T1_CONFIG_OPTION_NO_MM_SUPPORT
     { FT_SERVICE_ID_MULTI_MASTERS,        &t1_service_multi_masters },
@@ -236,15 +243,14 @@
                FT_UInt     right_glyph,
                FT_Vector*  kerning )
   {
-    T1_AFM*  afm;
-
-
     kerning->x = 0;
     kerning->y = 0;
 
-    afm = (T1_AFM*)face->afm_data;
-    if ( afm )
-      T1_Get_Kerning( afm, left_glyph, right_glyph, kerning );
+    if ( face->afm_data )
+      T1_Get_Kerning( (AFM_FontInfo)face->afm_data,
+                      left_glyph,
+                      right_glyph,
+                      kerning );
 
     return T1_Err_Ok;
   }
@@ -285,8 +291,10 @@
     (FT_Slot_InitFunc)        T1_GlyphSlot_Init,
     (FT_Slot_DoneFunc)        T1_GlyphSlot_Done,
 
-    (FT_Size_ResetPointsFunc) T1_Size_Reset,
-    (FT_Size_ResetPixelsFunc) T1_Size_Reset,
+#ifdef FT_CONFIG_OPTION_OLD_INTERNALS
+    ft_stub_set_char_sizes,
+    ft_stub_set_pixel_sizes,
+#endif
     (FT_Slot_LoadFunc)        T1_Load_Glyph,
 
 #ifdef T1_CONFIG_OPTION_NO_AFM
@@ -294,9 +302,11 @@
     (FT_Face_AttachFunc)      0,
 #else
     (FT_Face_GetKerningFunc)  Get_Kerning,
-    (FT_Face_AttachFunc)      T1_Read_AFM,
+    (FT_Face_AttachFunc)      T1_Read_Metrics,
 #endif
-    (FT_Face_GetAdvancesFunc) 0
+    (FT_Face_GetAdvancesFunc) 0,
+    (FT_Size_RequestFunc)     T1_Size_Request,
+    (FT_Size_SelectFunc)      0
   };
 
 
