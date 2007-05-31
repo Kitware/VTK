@@ -149,15 +149,15 @@
       if ( bit_last < bit_width )
       {
         FT_Byte*  line  = bitmap->buffer + ( bit_last >> 3 );
+        FT_Byte*  end   = bitmap->buffer + pitch;
         FT_Int    shift = bit_last & 7;
         FT_UInt   mask  = 0xFF00U >> shift;
         FT_Int    count = height;
 
 
-        for ( ; count > 0; count--, line += pitch )
+        for ( ; count > 0; count--, line += pitch, end += pitch )
         {
           FT_Byte*  write = line;
-          FT_Byte*  end   = line + pitch;
 
 
           if ( shift > 0 )

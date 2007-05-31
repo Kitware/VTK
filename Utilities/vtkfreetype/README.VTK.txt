@@ -1,4 +1,4 @@
-This directory contains a subset of the Freetype2 library (2.3.3) and
+This directory contains a subset of the Freetype2 library (2.3.4) and
 some custom changes that VTK needs.
 
 We only include enough of the distribution to provide the functionalities
@@ -10,7 +10,7 @@ http://www.freetype.org
 Modifications
 -------------
 You can search for code for "VTK_FREETYPE_CHANGE" to find modifications
-vs the original freetype 2.3.3 code
+vs the original freetype code
 
 Added Files
 -----------

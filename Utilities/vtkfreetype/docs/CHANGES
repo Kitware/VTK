@@ -1,3 +1,13 @@
+CHANGES BETWEEN 2.3.4 and 2.3.3
+
+  I. IMPORTANT BUG FIXES
+
+    - A serious  bug  in  the  handling  of bitmap  fonts (and  bitmap
+      strikes of outline fonts) has been introduced in 2.3.3.
+
+
+======================================================================
+
 CHANGES BETWEEN 2.3.3 and 2.3.2
 
   I. IMPORTANT BUG FIXES
