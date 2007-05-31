@@ -54,7 +54,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.44")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.45")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -4505,8 +4505,12 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
     // Only use global ids if they are available.
     useGlobalNodeIds = (   useGlobalNodeIds
                         && (sets[i]->GetPointData()->GetGlobalIds() != NULL) );
-    useGlobalCellIds = (   useGlobalNodeIds
-                        && (sets[i]->GetCellData()->GetGlobalIds() != NULL) );
+    // I don't know why, but vtkMergeCells is failing if using both global node
+    // ids and global cell ids.  Rather than figure it out, I'm just disabling
+    // the global cell ids for now.  D3 is due for a major overhaul, we should
+    // pick this up then.
+//     useGlobalCellIds = (   useGlobalNodeIds
+//                         && (sets[i]->GetCellData()->GetGlobalIds() != NULL) );
     }
 
   mc->SetTotalNumberOfPoints(totalPoints);
