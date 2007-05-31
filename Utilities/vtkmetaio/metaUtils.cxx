@@ -26,7 +26,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(_WIN32)
 #include <winsock2.h>
 #else
 #include <unistd.h>

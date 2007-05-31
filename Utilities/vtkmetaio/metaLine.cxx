@@ -457,13 +457,14 @@ M_Write(void)
   if(m_BinaryData)
     {
     PointListType::const_iterator it = m_PointList.begin();
+    PointListType::const_iterator itEnd = m_PointList.end();
     int elementSize;
     MET_SizeOfType(m_ElementType, &elementSize);
 
     char* data = new char[(m_NDims*m_NDims+4)*m_NPoints*elementSize];
     int i=0;
     int d;
-    while(it != m_PointList.end())
+    while(it != itEnd)
       {
       for(d = 0; d < m_NDims; d++)
         {
@@ -499,9 +500,10 @@ M_Write(void)
   else
     {
     PointListType::const_iterator it = m_PointList.begin();
+    PointListType::const_iterator itEnd = m_PointList.begin();
   
     int d;
-    while(it != m_PointList.end())
+    while(it != itEnd)
     {
       for(d = 0; d < m_NDims; d++)
       {
