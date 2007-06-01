@@ -24,6 +24,10 @@
 
 #include "vtkSystemIncludes.h"
 
+#if defined( _MSC_VER )      /* Visual C++ (and Intel C++) */
+#pragma warning( disable : 4996 ) // 'function': was declared deprecated
+#endif
+
 struct vtkTestUtilities
 {
   // Description:

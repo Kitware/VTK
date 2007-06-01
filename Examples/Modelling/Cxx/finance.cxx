@@ -30,6 +30,10 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkTestUtilities.h"
 
+#if defined( _MSC_VER )      /* Visual C++ (and Intel C++) */
+#pragma warning(disable : 4996) // 'function': was declared deprecated
+#endif
+
 static vtkDataSet *ReadFinancialData(const char *fname, const char *x, const char *y, const char *z, const char *s);
 static int ParseFile(FILE *file, const char *tag, float *data);
 
