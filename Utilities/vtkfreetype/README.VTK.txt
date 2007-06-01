@@ -42,3 +42,7 @@ include/ft2build.h:
 
 include/freetype/config/ftoption.h:
   -comment out FT_CONFIG_OPTION_USE_ZLIB and FT_CONFIG_OPTION_USE_LZW
+
+builds/unix/ftsystem.c:
+  -fixed a warning, this fix will also be in the next version of freetype
+
