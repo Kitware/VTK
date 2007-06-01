@@ -133,6 +133,11 @@ public:
   // or PROP_ID. This handles the case of assemblies and composite
   // datasets.
   virtual void CopyChildren(vtkSelection*);
+  
+  // Description:
+  // Union this selection with the specified selection.
+  // The selection types must be identical.
+  virtual void Union(vtkSelection* selection);
 
   // Description:
   // Return the MTime taking into account changes to the properties
