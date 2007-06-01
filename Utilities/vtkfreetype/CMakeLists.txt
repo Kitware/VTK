@@ -63,12 +63,14 @@ IF (WIN32)
     BEFORE
     ${VTKFREETYPE_SOURCE_DIR}/builds/win32
   )
-  IF (BORLAND)
-    SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w-8004")
-  ENDIF (BORLAND)
 ELSE (WIN32)
   SET (FREETYPE_SRCS ${FREETYPE_SRCS} src/base/ftdebug.c)
 ENDIF (WIN32)
+
+
+# Block warnings unless we are instructed to allow them.
+# SET(VTKFREETYPE_WARNINGS_ALLOW 1)
+VTK_THIRD_PARTY_WARNING_SUPPRESS(VTKFREETYPE C)
 
 #
 # Unix flags and specific drivers

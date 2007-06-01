@@ -226,27 +226,7 @@ ENDFOREACH(f)
 
 # Block warnings unless we are instructed to allow them.
 # SET(VTKLIBXML2_WARNINGS_ALLOW 1)
-IF(NOT VTKLIBXML2_WARNINGS_ALLOW)
-  # MSVC uses /w to suppress warnings.  It also complains if another
-  # warning level is given, so remove it.
-  IF(MSVC)
-    SET(VTKLIBXML2_WARNINGS_BLOCKED 1)
-    STRING(REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " "
-      CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /w")
-  ENDIF(MSVC)
-
-  # Borland uses -w- to suppress warnings.
-  IF(BORLAND)
-    SET(VTKLIBXML2_WARNINGS_BLOCKED 1)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w-")
-  ENDIF(BORLAND)
-
-  # Most compilers use -w to suppress warnings.
-  IF(NOT VTKLIBXML2_WARNINGS_BLOCKED)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
-  ENDIF(NOT VTKLIBXML2_WARNINGS_BLOCKED)
-ENDIF(NOT VTKLIBXML2_WARNINGS_ALLOW)
+VTK_THIRD_PARTY_WARNING_SUPPRESS(VTKLIBXML2 C)
 
 ADD_DEFINITIONS(-DHAVE_CONFIG_H -D_GNU_SOURCE -DPIC -D_REENTRANT)
 IF(WIN32 AND NOT CYGWIN)
