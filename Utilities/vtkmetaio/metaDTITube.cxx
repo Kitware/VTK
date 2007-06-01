@@ -735,7 +735,7 @@ M_Write(void)
   else
     {
     PointListType::const_iterator it = m_PointList.begin();
-    PointListType::const_iterator itEnd = m_PointList.begin();
+    PointListType::const_iterator itEnd = m_PointList.end();
   
     int d;
     while(it != itEnd)
