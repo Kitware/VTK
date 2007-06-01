@@ -11,6 +11,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     FrustumClip.cxx
     RGrid.cxx
     TestClipHyperOctree.cxx
+    TestExtraction.cxx
     TestExtractSelection.cxx
     TestHyperOctreeContourFilter.cxx
     TestHyperOctreeCutter.cxx
@@ -18,7 +19,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeSurfaceFilter.cxx
     TestHyperOctreeToUniformGrid.cxx
     TestSortDataArray.cxx
-    TestExtraction.cxx
+    TestTessellator.cxx
     )
   IF (VTK_DATA_ROOT)
     # add tests that require data

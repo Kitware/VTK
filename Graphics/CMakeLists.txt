@@ -44,6 +44,7 @@ vtkCurvatures.cxx
 vtkCylinderSource.cxx
 vtkDashedStreamLine.cxx
 vtkDataObjectToDataSetFilter.cxx
+vtkDataSetEdgeSubdivisionCriterion.cxx
 vtkDataSetSurfaceFilter.cxx
 vtkDataSetToDataObjectFilter.cxx
 vtkDataSetTriangleFilter.cxx
@@ -190,6 +191,7 @@ vtkSpherePuzzleArrows.cxx
 vtkSphereSource.cxx
 vtkSplineFilter.cxx
 vtkSplitField.cxx
+vtkStreamingTessellator.cxx
 vtkStreamLine.cxx
 vtkStreamPoints.cxx
 vtkStreamTracer.cxx
@@ -199,6 +201,7 @@ vtkStructuredGridClip.cxx
 vtkStructuredGridGeometryFilter.cxx
 vtkStructuredGridOutlineFilter.cxx
 vtkStructuredPointsGeometryFilter.cxx
+vtkEdgeSubdivisionCriterion.cxx
 vtkSubPixelPositionEdgels.cxx
 vtkSubdivideTetra.cxx
 vtkSuperquadricSource.cxx
@@ -206,6 +209,7 @@ vtkSynchronizedTemplates2D.cxx
 vtkSynchronizedTemplates3D.cxx
 vtkSynchronizedTemplatesCutter3D.cxx
 vtkTensorGlyph.cxx
+vtkTessellatorFilter.cxx
 vtkTextSource.cxx
 vtkTextureMapToCylinder.cxx
 vtkTextureMapToPlane.cxx
@@ -240,6 +244,7 @@ vtkDijkstraGraphGeodesicPath
 vtkInterpolatingSubdivisionFilter
 vtkGeodesicPath
 vtkGraphGeodesicPath
+vtkEdgeSubdivisionCriterion.cxx 
 vtkStreamer
 ABSTRACT
 )
