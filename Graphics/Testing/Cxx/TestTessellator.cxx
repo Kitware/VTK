@@ -70,11 +70,11 @@ static ofstream ttri;
 static int otriCtr = 0;
 #endif // VTK_GENERATE_BASELINE
 #ifdef VTK_CHECK_RESULTS
-static int vtkOTriCtr = 0;
-static int vtkITriCtr = 0;
-static int vtkTriCode = 0;
-static double* vtkITriPtr = 0;
-static double* vtkOTriPtr = 0;
+//static int vtkOTriCtr = 0;
+//static int vtkITriCtr = 0;
+//static int vtkTriCode = 0;
+//static double* vtkITriPtr = 0;
+//static double* vtkOTriPtr = 0;
 
 static int vtkOTetCtr = 0;
 static int vtkITetCtr = 0;
@@ -2558,7 +2558,7 @@ class vtkTestTessellatorSubdivision
 
 };
 
-vtkCxxRevisionMacro(vtkTestTessellatorSubdivision,"1.1");
+vtkCxxRevisionMacro(vtkTestTessellatorSubdivision,"1.2");
 vtkStandardNewMacro(vtkTestTessellatorSubdivision);
 
 static int test_list[] =
@@ -2997,6 +2997,7 @@ void TessellatorEdgeProcessorFunction( const double*, const double*, vtkEdgeSubd
 
 void TessellatorTriangleProcessorFunction( const double* a, const double* b, const double* c, vtkEdgeSubdivisionCriterion*, void* out, const void* )
 {
+#if 0
   vtkUnstructuredGrid* mesh = static_cast<vtkUnstructuredGrid*>(out);
   if ( ! mesh )
     {
@@ -3046,6 +3047,7 @@ void TessellatorTriangleProcessorFunction( const double* a, const double* b, con
   vtkOTriPtr += 9;
   ++vtkOTriCtr;
 #endif // VTK_CHECK_RESULTS
+#endif // 0
 }
 
 void TessellatorTetrahedronProcessorFunction( const double* a, const double* b, const double* c, const double* d, vtkEdgeSubdivisionCriterion*, void* out, const void* )
