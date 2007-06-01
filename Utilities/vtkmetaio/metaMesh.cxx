@@ -1433,14 +1433,16 @@ M_Write(void)
 
     if(!MetaObject::M_Write())
       {
-      METAIO_STREAM::cout << "MetaMesh: M_Write: Error parsing file" << METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "MetaMesh: M_Write: Error parsing file" 
+                          << METAIO_STREAM::endl;
       return false;
       }
 
     // Then copy all Point data : 
     // Always binary to be compatible with everything
     it = m_PointData.begin();
-    while(it != m_PointData.end())
+    itEnd = m_PointData.end();
+    while(it != itEnd)
       {
       (*it)->Write(m_WriteStream);
       it++;
@@ -1480,14 +1482,16 @@ M_Write(void)
 
     if(!MetaObject::M_Write())
       {
-      METAIO_STREAM::cout << "MetaMesh: M_Write: Error parsing file" << METAIO_STREAM::endl;
+      METAIO_STREAM::cout << "MetaMesh: M_Write: Error parsing file" 
+                          << METAIO_STREAM::endl;
       return false;
       }
 
     // Then copy all Cell data : 
     // Always binary to be compatible with everything
     it = m_CellData.begin();
-    while(it != m_CellData.end())
+    itEnd = m_CellData.end();
+    while(it != itEnd)
       {
       (*it)->Write(m_WriteStream);
       it++;
