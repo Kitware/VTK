@@ -131,7 +131,9 @@ class VTK_GRAPHICS_EXPORT vtkStreamingTessellator : public vtkObject
     // each call to AdaptivelySample2Facet (also recursive).
     virtual void SetSubdivisionAlgorithm( vtkEdgeSubdivisionCriterion* );
     virtual vtkEdgeSubdivisionCriterion* GetSubdivisionAlgorithm() ;
+    //BTX
     virtual const vtkEdgeSubdivisionCriterion* GetSubdivisionAlgorithm() const;
+    //ETX
 
     // Description:
     // Get/Set the number of parameter-space coordinates associated with each input and output point.

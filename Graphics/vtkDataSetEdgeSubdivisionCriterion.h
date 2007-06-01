@@ -49,7 +49,9 @@ class VTK_GRAPHICS_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeSub
 
     virtual void SetMesh( vtkDataSet* );
     vtkDataSet* GetMesh();
+    //BTX
     const vtkDataSet* GetMesh() const;
+    //ETX
 
     virtual void SetCellId( vtkIdType cell );
     vtkIdType  GetCellId() const;
@@ -57,7 +59,9 @@ class VTK_GRAPHICS_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeSub
     vtkIdType& GetCellId();
     //ETX
     vtkCell* GetCell();
+    //BTX
     const vtkCell* GetCell() const;
+    //ETX
 
     virtual bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start );
 
