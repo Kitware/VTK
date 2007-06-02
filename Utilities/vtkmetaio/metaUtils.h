@@ -42,7 +42,12 @@
 #define ITKMetaIO_METAUTILS_H
 
 #ifdef _MSC_VER
+#pragma warning( disable:4251 )
+#pragma warning( disable:4511 )
+#pragma warning( disable:4512 )
+#pragma warning( disable:4284 )
 #pragma warning( disable:4702 )
+#pragma warning( disable:4786 )
 #endif
 
 #include <vector>
