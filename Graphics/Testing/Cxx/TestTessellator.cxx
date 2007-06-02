@@ -2558,7 +2558,7 @@ class vtkTestTessellatorSubdivision
 
 };
 
-vtkCxxRevisionMacro(vtkTestTessellatorSubdivision,"1.3");
+vtkCxxRevisionMacro(vtkTestTessellatorSubdivision,"1.4");
 vtkStandardNewMacro(vtkTestTessellatorSubdivision);
 
 static int test_list[] =
@@ -3209,7 +3209,7 @@ int TestTessellator( int argc, char* argv[] )
   vtkRenderWindowInteractor* ri = 0;
 
   vtkUnstructuredGrid* startTet = 0;
-  vtkPoints* startTetPts;
+  vtkPoints* startTetPts = 0;
   vtkIdType startTetConn[4];
   char annotation[512];
   char screenshotfile[512];
