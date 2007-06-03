@@ -29,7 +29,6 @@
 #include "metaCommand.h"
 #include <stdio.h>
 #include <string>
-#include <fstream>
 
 #if (METAIO_USE_NAMESPACE)
 namespace METAIO_NAMESPACE {
