@@ -337,6 +337,7 @@ protected:
   int ReadLutData(vtkDataSetAttributes *a);
   int ReadTCoordsData(vtkDataSetAttributes *a, int num);
   int ReadGlobalIds(vtkDataSetAttributes *a, int num);
+  int ReadPedigreeIds(vtkDataSetAttributes *a, int num);
 
   int ReadDataSetData(vtkDataSet *ds);
 

@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkDataSetAttributes is a class that is used to represent and manipulate
 // attribute data (e.g., scalars, vectors, normals, texture coordinates,
-// tensors, globalids, and field data). 
+// tensors, global ids, pedigree ids, and field data). 
 //
 // This adds to vtkFieldData the ability to pick one of the arrays from the 
 // field as the currently active array for each attribute type. In other 
@@ -89,6 +89,7 @@ public:
     TCOORDS=3,
     TENSORS=4,
     GLOBALIDS=5,
+    PEDIGREEIDS=6,
     NUM_ATTRIBUTES
   };
 
@@ -131,10 +132,16 @@ public:
   vtkDataArray* GetTensors();
 
   // Description:
-  // Set/Get the globalid data.
+  // Set/Get the global id data.
   int SetGlobalIds(vtkDataArray* da);
   int SetActiveGlobalIds(const char* name);
   vtkDataArray* GetGlobalIds();
+
+  // Description:
+  // Set/Get the pedigree id data.
+  int SetPedigreeIds(vtkAbstractArray* da);
+  int SetActivePedigreeIds(const char* name);
+  vtkAbstractArray* GetPedigreeIds();
 
   // Description:
   // This will first look for an array with the correct name.
@@ -146,6 +153,7 @@ public:
   vtkDataArray* GetTCoords(const char* name);
   vtkDataArray* GetTensors(const char* name);
   vtkDataArray* GetGlobalIds(const char* name);
+  vtkAbstractArray* GetPedigreeIds(const char* name);
 
   // Description:
   // Make the array with the given name the active attribute.
@@ -156,6 +164,7 @@ public:
   //  vtkDataSetAttributes::TCOORDS = 3
   //  vtkDataSetAttributes::TENSORS = 4
   //  vtkDataSetAttributes::GLOBALIDS = 5
+  //  vtkDataSetAttributes::PEDIGREEIDS = 6
   // Returns the index of the array if succesful, -1 if the array 
   // is not in the list of arrays.
   int SetActiveAttribute(const char* name, int attributeType);
@@ -179,7 +188,17 @@ public:
   // Description:
   // Return an attribute given the attribute type
   // (see vtkDataSetAttributes::AttributeTypes).
+  // Some attributes (such as PEDIGREEIDS) may not be vtkDataArray subclass,
+  // so in that case use GetAbstractAttribute().
   vtkDataArray* GetAttribute(int attributeType);
+
+  // Description:
+  // Return an attribute given the attribute type
+  // (see vtkDataSetAttributes::AttributeTypes).
+  // This is the same as GetAttribute(), except that the returned array
+  // is a vtkAbstractArray instead of vtkDataArray.
+  // Some attributes (such as PEDIGREEIDS) may not be vtkDataArray subclass.
+  vtkAbstractArray* GetAbstractAttribute(int attributeType);
 
   // Description:
   // Remove an array (with the given name) from the list of arrays.
@@ -307,7 +326,7 @@ public:
   vtkBooleanMacro(CopyTensors, int);
 
   // Description:
-  // Turn on/off the copying of globalid data.
+  // Turn on/off the copying of global id data.
   // ctype is one of the AttributeCopyOperations, and controls copy, 
   // interpolate and passdata behavior.
   // For set, ctype=ALLCOPY means set all three flags to the same value.
@@ -324,6 +343,25 @@ public:
   void SetCopyGlobalIds(int i, int ctype=ALLCOPY);
   int GetCopyGlobalIds(int ctype=ALLCOPY);
   vtkBooleanMacro(CopyGlobalIds, int);
+
+  // Description:
+  // Turn on/off the copying of pedigree id data.
+  // ctype is one of the AttributeCopyOperations, and controls copy, 
+  // interpolate and passdata behavior.
+  // For set, ctype=ALLCOPY means set all three flags to the same value.
+  // For get, ctype=ALLCOPY returns true only if all three flags are true.
+  //
+  // During copying, interpolation and passdata, the following rules are 
+  // followed for each array:
+  // 1. If the copy/interpolate/pass for an attribute is set (on or off), it is applied.
+  //    This overrides rules 2 and 3.
+  // 2. If the copy flag for an array is set (on or off), it is applied
+  //    This overrides rule 3.
+  // 3. If CopyAllOn is set, copy the array.
+  //    If CopyAllOff is set, do not copy the array
+  void SetCopyPedigreeIds(int i, int ctype=ALLCOPY);
+  int GetCopyPedigreeIds(int ctype=ALLCOPY);
+  vtkBooleanMacro(CopyPedigreeIds, int);
 
   // Description:
   // Turn on copying of all data.
@@ -520,12 +558,12 @@ protected:
 
   static const int NumberOfAttributeComponents[NUM_ATTRIBUTES];
   static const int AttributeLimits[NUM_ATTRIBUTES];
-  static const char AttributeNames[NUM_ATTRIBUTES][10];
+  static const char AttributeNames[NUM_ATTRIBUTES][12];
   static const char LongAttributeNames[NUM_ATTRIBUTES][35];
 
 private:
-  int SetAttribute(vtkDataArray* da, int attributeType);
-  static int CheckNumberOfComponents(vtkDataArray* da, int attributeType);
+  int SetAttribute(vtkAbstractArray* da, int attributeType);
+  static int CheckNumberOfComponents(vtkAbstractArray* da, int attributeType);
 
 //BTX
   vtkFieldData::BasicIterator  ComputeRequiredArrays(vtkDataSetAttributes* pd, int ctype);

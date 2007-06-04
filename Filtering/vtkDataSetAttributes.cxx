@@ -30,18 +30,19 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.20");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.21");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
 const char vtkDataSetAttributes
-::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10] =
+::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][12] =
 { "Scalars",
   "Vectors",
   "Normals",
   "TCoords",
   "Tensors",
-  "GlobalIds" };
+  "GlobalIds",
+  "PedigreeIds" };
 
 const char vtkDataSetAttributes
 ::LongAttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][35] =
@@ -50,7 +51,8 @@ const char vtkDataSetAttributes
   "vtkDataSetAttributes::NORMALS",
   "vtkDataSetAttributes::TCOORDS",
   "vtkDataSetAttributes::TENSORS",
-  "vtkDataSetAttributes::GLOBALIDS" };
+  "vtkDataSetAttributes::GLOBALIDS",
+  "vtkDataSetAttributes::PEDIGREEIDS" };
 
 //--------------------------------------------------------------------------
 // Construct object with copying turned on for all data.
@@ -70,6 +72,10 @@ vtkDataSetAttributes::vtkDataSetAttributes()
   //Passing through is ussually OK because it is 1:1.
   this->CopyAttributeFlags[COPYTUPLE][GLOBALIDS] = 0;
   this->CopyAttributeFlags[INTERPOLATE][GLOBALIDS] = 0;
+
+  //Pedigree IDs should not be interpolated because they are labels, not "numbers"
+  //Pedigree IDs may be copied since they do not require 1:1 mapping.
+  this->CopyAttributeFlags[INTERPOLATE][PEDIGREEIDS] = 0;
 
   this->TargetIndices=0;
 
@@ -95,6 +101,7 @@ void vtkDataSetAttributes::CopyAllOn(int ctype)
   this->SetCopyTCoords(1, ctype);
   this->SetCopyTensors(1, ctype);
   this->SetCopyGlobalIds(1, ctype);
+  this->SetCopyPedigreeIds(1, ctype);
 }
 
 //--------------------------------------------------------------------------
@@ -108,6 +115,7 @@ void vtkDataSetAttributes::CopyAllOff(int ctype)
   this->SetCopyTCoords(0, ctype);
   this->SetCopyTensors(0, ctype);
   this->SetCopyGlobalIds(0, ctype);
+  this->SetCopyPedigreeIds(0, ctype);
 }
 
 //--------------------------------------------------------------------------
@@ -229,7 +237,8 @@ void vtkDataSetAttributes::InitializeFields()
     }
   this->CopyAttributeFlags[COPYTUPLE][GLOBALIDS] = 0;
   this->CopyAttributeFlags[INTERPOLATE][GLOBALIDS] = 0;
-  //this->CopyAttributeFlags[PASSDATA][GLOBALIDS] = 1; here just for clarity
+  
+  this->CopyAttributeFlags[INTERPOLATE][PEDIGREEIDS] = 0;
 }
 
 //--------------------------------------------------------------------------
@@ -256,7 +265,8 @@ void vtkDataSetAttributes::Initialize()
     }
   this->CopyAttributeFlags[COPYTUPLE][GLOBALIDS] = 0;
   this->CopyAttributeFlags[INTERPOLATE][GLOBALIDS] = 0;
-  //this->CopyAttributeFlags[PASSDATA][GLOBALIDS] = 1; here just for clarity
+  
+  this->CopyAttributeFlags[INTERPOLATE][PEDIGREEIDS] = 0;
 }
 
 //--------------------------------------------------------------------------
@@ -921,6 +931,24 @@ vtkDataArray* vtkDataSetAttributes::GetGlobalIds()
 }
 
 //--------------------------------------------------------------------------
+int vtkDataSetAttributes::SetPedigreeIds(vtkAbstractArray* aa) 
+{ 
+  return this->SetAttribute(aa, PEDIGREEIDS); 
+}
+
+//--------------------------------------------------------------------------
+int vtkDataSetAttributes::SetActivePedigreeIds(const char* name)
+{ 
+  return this->SetActiveAttribute(name, PEDIGREEIDS); 
+}
+
+//--------------------------------------------------------------------------
+vtkAbstractArray* vtkDataSetAttributes::GetPedigreeIds() 
+{ 
+  return this->GetAttribute(PEDIGREEIDS); 
+}
+
+//--------------------------------------------------------------------------
 vtkDataArray* vtkDataSetAttributes::GetScalars(const char* name)
 {
   if (name == NULL || name[0] == '\0')
@@ -981,27 +1009,40 @@ vtkDataArray* vtkDataSetAttributes::GetGlobalIds(const char* name)
 }
 
 //--------------------------------------------------------------------------
+vtkAbstractArray* vtkDataSetAttributes::GetPedigreeIds(const char* name)
+{
+  if (name == NULL || name[0] == '\0')
+    {
+    return this->GetPedigreeIds();
+    }
+  return this->GetAbstractArray(name);
+}
+
+//--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
 {
   if ( (index >= 0) && (index < this->GetNumberOfArrays()))
     {
-    vtkDataArray* darray = vtkDataArray::SafeDownCast(
-      this->Data[index]);
-    if (!darray)
+    if (attributeType != PEDIGREEIDS)
       {
-      vtkWarningMacro("Can not set attribute " 
-        << vtkDataSetAttributes::AttributeNames[attributeType]
-        << ".Only vtkDataArray subclasses can be set as active attributes.");
-      return -1;
+      vtkDataArray* darray = vtkDataArray::SafeDownCast(
+        this->Data[index]);
+      if (!darray)
+        {
+        vtkWarningMacro("Can not set attribute " 
+          << vtkDataSetAttributes::AttributeNames[attributeType]
+          << ". Only vtkDataArray subclasses can be set as active attributes.");
+        return -1;
+        }
+      if (!this->CheckNumberOfComponents(darray, attributeType))
+        {
+        vtkWarningMacro("Can not set attribute " 
+                        << vtkDataSetAttributes::AttributeNames[attributeType]
+                        << ". Incorrect number of components.");
+        return -1;
+        }
       }
 
-    if (!this->CheckNumberOfComponents(darray, attributeType))
-      {
-      vtkWarningMacro("Can not set attribute " 
-                      << vtkDataSetAttributes::AttributeNames[attributeType]
-                      << ". Incorrect number of components.");
-      return -1;
-      }
     this->AttributeIndices[attributeType] = index;
     this->Modified();
     return index;
@@ -1023,6 +1064,7 @@ const int vtkDataSetAttributes
   3,
   3,
   9,
+  1,
   1};
 
 //--------------------------------------------------------------------------
@@ -1034,13 +1076,14 @@ const int vtkDataSetAttributes
   EXACT,
   MAX,
   EXACT,
+  EXACT,
   EXACT};
 
 //--------------------------------------------------------------------------
-int vtkDataSetAttributes::CheckNumberOfComponents(vtkDataArray* da,
+int vtkDataSetAttributes::CheckNumberOfComponents(vtkAbstractArray* aa,
                                                   int attributeType)
 {
-  int numComp = da->GetNumberOfComponents();
+  int numComp = aa->GetNumberOfComponents();
   
   if ( vtkDataSetAttributes::AttributeLimits[attributeType] == MAX )
     {
@@ -1091,12 +1134,33 @@ vtkDataArray* vtkDataSetAttributes::GetAttribute(int attributeType)
 }
 
 //--------------------------------------------------------------------------
+vtkAbstractArray* vtkDataSetAttributes::GetAbstractAttribute(int attributeType)
+{
+  int index = this->AttributeIndices[attributeType];
+  if (index == -1)
+    {
+    return 0;
+    }
+  else
+    {
+    return this->Data[index];
+    }
+}
+
+//--------------------------------------------------------------------------
 // This method lets the user add an array and make it the current
 // scalars, vectors etc... (this is determined by the attribute type
 // which is an enum defined vtkDataSetAttributes)
-int vtkDataSetAttributes::SetAttribute(vtkDataArray* da, int attributeType)
+int vtkDataSetAttributes::SetAttribute(vtkAbstractArray* aa, int attributeType)
 {
-  if (da && !this->CheckNumberOfComponents(da, attributeType))
+  if (aa && attributeType != PEDIGREEIDS && !vtkDataArray::SafeDownCast(aa))
+    {
+    vtkWarningMacro("Can not set attribute " 
+                    << vtkDataSetAttributes::AttributeNames[attributeType]
+                    << ". This attribute must be a subclass of vtkDataArray.");
+    return -1;
+    }
+  if (aa && !this->CheckNumberOfComponents(aa, attributeType))
     {
     vtkWarningMacro("Can not set attribute " 
                     << vtkDataSetAttributes::AttributeNames[attributeType]
@@ -1110,17 +1174,17 @@ int vtkDataSetAttributes::SetAttribute(vtkDataArray* da, int attributeType)
   if ( (currentAttribute >= 0) && 
        (currentAttribute < this->GetNumberOfArrays()) )
     {
-    if (this->GetArray(currentAttribute) == da)
+    if (this->GetAbstractArray(currentAttribute) == aa)
       {
       return currentAttribute;
       }
     this->RemoveArray(currentAttribute);
     }
 
-  if (da)
+  if (aa)
     {
     // Add the array
-    currentAttribute = this->AddArray(da);
+    currentAttribute = this->AddArray(aa);
     this->AttributeIndices[attributeType] = currentAttribute;
     }
   else
@@ -1158,16 +1222,16 @@ void vtkDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
   os << ")" << endl;
   
   // Now print the various attributes
-  vtkDataArray* da;
+  vtkAbstractArray* aa;
   int attributeType;
   for (attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
     {
     os << indent << vtkDataSetAttributes::AttributeNames[attributeType]
        << ": ";
-    if ( (da=this->GetAttribute(attributeType)) )
+    if ( (aa=this->GetAbstractAttribute(attributeType)) )
       {
       os << endl;
-      da->PrintSelf(os, indent.GetNextIndent());
+      aa->PrintSelf(os, indent.GetNextIndent());
       }
     else
       {
@@ -1354,6 +1418,29 @@ int vtkDataSetAttributes::GetCopyGlobalIds(int ctype)
     {
     return 
       this->CopyAttributeFlags[ctype][GLOBALIDS];
+    }
+}
+
+//--------------------------------------------------------------------------
+void vtkDataSetAttributes::SetCopyPedigreeIds(int i, int ctype) 
+{ 
+  this->SetCopyAttribute(PEDIGREEIDS, i, ctype); 
+}
+
+//--------------------------------------------------------------------------
+int vtkDataSetAttributes::GetCopyPedigreeIds(int ctype) 
+{ 
+  if (ctype == vtkDataSetAttributes::ALLCOPY)
+    {
+    return 
+      this->CopyAttributeFlags[COPYTUPLE][PEDIGREEIDS] && 
+      this->CopyAttributeFlags[INTERPOLATE][PEDIGREEIDS] && 
+      this->CopyAttributeFlags[PASSDATA][PEDIGREEIDS];
+    }
+  else
+    {
+    return 
+      this->CopyAttributeFlags[ctype][PEDIGREEIDS];
     }
 }
 

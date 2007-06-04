@@ -37,7 +37,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.118");
+vtkCxxRevisionMacro(vtkDataWriter, "1.119");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -63,6 +63,7 @@ vtkDataWriter::vtkDataWriter()
   this->NormalsName = 0;
   this->TCoordsName = 0;
   this->GlobalIdsName = 0;
+  this->PedigreeIdsName = 0;
 
   this->LookupTableName = new char[13];
   strcpy(this->LookupTableName,"lookup_table");
@@ -109,6 +110,10 @@ vtkDataWriter::~vtkDataWriter()
   if ( this->GlobalIdsName )
     {
     delete [] this->GlobalIdsName;
+    }
+  if ( this->PedigreeIdsName )
+    {
+    delete [] this->PedigreeIdsName;
     }
   if ( this->LookupTableName )
     {
@@ -233,6 +238,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   vtkDataArray *tcoords;
   vtkDataArray *tensors;
   vtkDataArray *globalIds;
+  vtkAbstractArray *pedigreeIds;
   vtkFieldData *field;
   vtkCellData *cd=ds->GetCellData();
 
@@ -269,11 +275,15 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   if(globalIds && globalIds->GetNumberOfTuples() <= 0)
     globalIds = 0;
     
+  pedigreeIds = cd->GetPedigreeIds();
+  if(pedigreeIds && pedigreeIds->GetNumberOfTuples() <= 0)
+    pedigreeIds = 0;
+    
   field = cd;
   if(field && field->GetNumberOfTuples() <= 0)
     field = 0;
 
-  if(!(scalars || vectors || normals || tcoords || tensors || globalIds || field))
+  if(!(scalars || vectors || normals || tcoords || tensors || globalIds || pedigreeIds || field))
     {
     vtkDebugMacro(<<"No cell data to write!");
     return 1;
@@ -341,6 +351,16 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
       }
     }
   //
+  // Write pedigree ids
+  //
+  if ( pedigreeIds )
+    {
+    if ( ! this->WritePedigreeIdData(fp, pedigreeIds, numCells) )
+      {
+      return 0;
+      }
+    }
+  //
   // Write field
   //
   if ( field )
@@ -365,6 +385,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   vtkDataArray *tcoords;
   vtkDataArray *tensors;
   vtkDataArray *globalIds;
+  vtkAbstractArray *pedigreeIds;
   vtkFieldData *field;
   vtkPointData *pd=ds->GetPointData();
 
@@ -401,11 +422,15 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   if(globalIds && globalIds->GetNumberOfTuples() <= 0)
     globalIds = 0;
     
+  pedigreeIds = pd->GetPedigreeIds();
+  if(pedigreeIds && pedigreeIds->GetNumberOfTuples() <= 0)
+    pedigreeIds = 0;
+    
   field = pd;
   if(field && field->GetNumberOfTuples() <= 0)
     field = 0;
 
-  if(!(scalars || vectors || normals || tcoords || tensors || globalIds || field))
+  if(!(scalars || vectors || normals || tcoords || tensors || globalIds || pedigreeIds || field))
     {
     vtkDebugMacro(<<"No point data to write!");
     return 1;
@@ -468,6 +493,16 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   if ( globalIds )
     {
     if ( ! this->WriteGlobalIdData(fp, globalIds, numPts) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write pedigree ids
+  //
+  if ( pedigreeIds )
+    {
+    if ( ! this->WritePedigreeIdData(fp, pedigreeIds, numPts) )
       {
       return 0;
       }
@@ -1095,6 +1130,41 @@ int vtkDataWriter::WriteGlobalIdData(ostream *fp, vtkDataArray *globalIds, int n
   return this->WriteArray(fp, globalIds->GetDataType(), globalIds, format, num, 1);
 }
 
+int vtkDataWriter::WritePedigreeIdData(ostream *fp, vtkAbstractArray *pedigreeIds, int num)
+{
+  char format[1024];
+
+  *fp << "PEDIGREE_IDS ";
+
+  char* pedigreeIdsName;
+  // Buffer size is size of array name times four because 
+  // in theory there could be array name consisting of only
+  // weird symbols.
+  if (!this->PedigreeIdsName)
+    {
+    if (pedigreeIds->GetName() && strlen(pedigreeIds->GetName()))
+      {
+      pedigreeIdsName = new char[ strlen(pedigreeIds->GetName()) * 4 + 1];
+      this->EncodeString(pedigreeIdsName, pedigreeIds->GetName(), true);
+      }
+    else
+      {
+      pedigreeIdsName = new char[ strlen("pedigree_ids") + 1];
+      strcpy(pedigreeIdsName, "pedigree_ids");
+      }
+    }
+  else
+    {
+    pedigreeIdsName = new char[ strlen(this->PedigreeIdsName) * 4 + 1];
+    this->EncodeString(pedigreeIdsName, this->PedigreeIdsName, true);
+    }
+
+  sprintf(format, "%s %s\n", pedigreeIdsName, "%s");
+  delete[] pedigreeIdsName;
+
+  return this->WriteArray(fp, pedigreeIds->GetDataType(), pedigreeIds, format, num, 1);
+}
+
 int vtkIsInTheList(int index, int* list, int numElem)
 {
   for(int i=0; i<numElem; i++)
@@ -1377,6 +1447,15 @@ void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Global Ids Name: (None)\n";
+    }
+
+  if ( this->PedigreeIdsName )
+    {
+    os << indent << "Pedigree Ids Name: " << this->PedigreeIdsName << "\n";
+    }
+  else
+    {
+    os << indent << "Pedigree Ids Name: (None)\n";
     }
 
   if ( this->LookupTableName )

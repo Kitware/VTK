@@ -23,6 +23,7 @@
 
 #include "vtkExecutive.h"
 
+class vtkAbstractArray;
 class vtkDataArray;
 class vtkDataSetAttributes;
 class vtkDemandDrivenPipelineInternals;
@@ -166,7 +167,7 @@ protected:
   // Field existence checkers.
   int DataSetAttributeExists(vtkDataSetAttributes* dsa, vtkInformation* field);
   int FieldArrayExists(vtkFieldData* data, vtkInformation* field);
-  int ArrayIsValid(vtkDataArray* array, vtkInformation* field);
+  int ArrayIsValid(vtkAbstractArray* array, vtkInformation* field);
 
   // Input port information checkers.
   int InputIsOptional(int port);

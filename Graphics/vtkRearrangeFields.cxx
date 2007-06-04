@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkRearrangeFields, "1.18");
+vtkCxxRevisionMacro(vtkRearrangeFields, "1.19");
 vtkStandardNewMacro(vtkRearrangeFields);
 
 typedef vtkRearrangeFields::Operation Operation;
@@ -191,7 +191,7 @@ void vtkRearrangeFields::ApplyOperation(Operation* op, vtkDataSet* input,
       vtkWarningMacro("Can not apply operation " << op->Id
                       << ": Input has to be vtkDataSetAttributes.");
       }
-    outputFD->AddArray(dsa->GetAttribute(op->AttributeType));
+    outputFD->AddArray(dsa->GetAbstractAttribute(op->AttributeType));
     // If moving the array, make sure that it is not copied
     // with PassData()
     if ( op->OperationType == vtkRearrangeFields::MOVE )

@@ -115,9 +115,15 @@ public:
 
   // Description:
   // Give a name to the global ids data. If not specified, uses 
-  // default name "globalids".
+  // default name "global_ids".
   vtkSetStringMacro(GlobalIdsName);
   vtkGetStringMacro(GlobalIdsName);
+
+  // Description:
+  // Give a name to the pedigree ids data. If not specified, uses 
+  // default name "pedigree_ids".
+  vtkSetStringMacro(PedigreeIdsName);
+  vtkGetStringMacro(PedigreeIdsName);
 
   // Description:
   // Give a name to the lookup table. If not specified, uses default
@@ -198,6 +204,7 @@ protected:
   char *LookupTableName;
   char *FieldDataName;
   char* GlobalIdsName;
+  char* PedigreeIdsName;
 
   int WriteArray(ostream *fp, int dataType, vtkAbstractArray *data, const char *format, 
                  int num, int numComp);
@@ -207,6 +214,7 @@ protected:
   int WriteTCoordData(ostream *fp, vtkDataArray *tc, int num);
   int WriteTensorData(ostream *fp, vtkDataArray *t, int num);
   int WriteGlobalIdData(ostream *fp, vtkDataArray *g, int num);
+  int WritePedigreeIdData(ostream *fp, vtkAbstractArray *p, int num);
 
 private:
   vtkDataWriter(const vtkDataWriter&);  // Not implemented.

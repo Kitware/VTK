@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.37");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.38");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -408,15 +408,15 @@ vtkAbstractArray* vtkAlgorithm::GetInputAbstractArrayToProcess(
     int fType = inArrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
     if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS)
       {
-      return inputDS->GetPointData()->GetAttribute(fType);
+      return inputDS->GetPointData()->GetAbstractAttribute(fType);
       }
     if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS
-        && inputDS->GetPointData()->GetAttribute(fType))
+        && inputDS->GetPointData()->GetAbstractAttribute(fType))
       {
-      return inputDS->GetPointData()->GetAttribute(fType);
+      return inputDS->GetPointData()->GetAbstractAttribute(fType);
       }
     
-    return inputDS->GetCellData()->GetAttribute(fType);
+    return inputDS->GetCellData()->GetAbstractAttribute(fType);
     }
 }
 

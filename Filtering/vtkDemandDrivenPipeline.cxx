@@ -39,7 +39,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.51");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.52");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -922,7 +922,7 @@ int vtkDemandDrivenPipeline::DataSetAttributeExists(vtkDataSetAttributes* dsa,
     {
     // A specific attribute must match the requirements.
     int attrType = field->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
-    return this->ArrayIsValid(dsa->GetAttribute(attrType), field);
+    return this->ArrayIsValid(dsa->GetAbstractAttribute(attrType), field);
     }
   else
     {
@@ -948,7 +948,7 @@ int vtkDemandDrivenPipeline::FieldArrayExists(vtkFieldData* data,
 }
 
 //----------------------------------------------------------------------------
-int vtkDemandDrivenPipeline::ArrayIsValid(vtkDataArray* array,
+int vtkDemandDrivenPipeline::ArrayIsValid(vtkAbstractArray* array,
                                           vtkInformation* field)
 {
   // Enforce existence of the array.
