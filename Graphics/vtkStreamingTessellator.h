@@ -88,6 +88,7 @@ class VTK_GRAPHICS_EXPORT vtkStreamingTessellator : public vtkObject
     virtual void PrintSelf( ostream& os, vtkIndent indent );
 
     //BTX
+    typedef void (*VertexProcessorFunction)( const double*, vtkEdgeSubdivisionCriterion*, void*, const void* );
     typedef void (*EdgeProcessorFunction)( const double*, const double*, vtkEdgeSubdivisionCriterion*, void*, const void* );
     typedef void (*TriangleProcessorFunction)( const double*, const double*, const double*, vtkEdgeSubdivisionCriterion*, void*, const void* );
     typedef void (*TetrahedronProcessorFunction)( const double*, const double*, const double*, const double*, vtkEdgeSubdivisionCriterion*, void*, const void* );
@@ -108,6 +109,11 @@ class VTK_GRAPHICS_EXPORT vtkStreamingTessellator : public vtkObject
     // Get/Set the function called for each output line segment (1-facet).
     virtual void SetEdgeCallback( EdgeProcessorFunction );
     virtual EdgeProcessorFunction GetEdgeCallback() const;
+
+    // Description:
+    // Get/Set the function called for each output line segment (1-facet).
+    virtual void SetVertexCallback( VertexProcessorFunction );
+    virtual VertexProcessorFunction GetVertexCallback() const;
     //ETX
 
     // Description:
@@ -194,6 +200,11 @@ class VTK_GRAPHICS_EXPORT vtkStreamingTessellator : public vtkObject
     // Use \p SetMaximumNumberOfSubdivisions to change the maximum
     // recursion depth.
     //
+    // The AdaptivelySample0Facet method is provided as a convenience.
+    // Obviously, there is no way to adaptively subdivide a vertex.
+    // Instead the input vertex is passed unchanged to the output
+    // via a call to the registered VertexProcessorFunction callback.
+    //
     // .SECTION Warning
     // This assumes that you have called SetSubdivisionAlgorithm(),
     // SetEdgeCallback(), SetTriangleCallback(), and SetTetrahedronCallback()
@@ -201,6 +212,7 @@ class VTK_GRAPHICS_EXPORT vtkStreamingTessellator : public vtkObject
     void AdaptivelySample3Facet( double* v1, double* v2, double* v3, double* v4 ) const ;
     void AdaptivelySample2Facet( double* v1, double* v2, double* v3 ) const ;
     void AdaptivelySample1Facet( double* v1, double* v2 ) const ;
+    void AdaptivelySample0Facet( double* v1 ) const ;
 
     // Description:
     // Reset/access the histogram of subdivision cases encountered.
@@ -255,6 +267,7 @@ class VTK_GRAPHICS_EXPORT vtkStreamingTessellator : public vtkObject
     const void* ConstPrivateData;
     vtkEdgeSubdivisionCriterion* Algorithm;
     //BTX
+    VertexProcessorFunction Callback0;
     EdgeProcessorFunction Callback1;
     TriangleProcessorFunction Callback2;
     TetrahedronProcessorFunction Callback3;

@@ -1,4 +1,5 @@
 #!/usr/bin/python2.2
+# -*- coding: latin-1 -*-
 #
 # Copyright 2003 Sandia Corporation.
 # Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
@@ -444,7 +445,53 @@ print >> genCode, """
 #  define VTK_TESSELLATOR_INCR_SUBCASE_COUNT(cs,sc)
 #endif // PARAVIEW_DEBUG_TESSELLATOR
 
-vtkCxxRevisionMacro(vtkStreamingTessellator,"1.1");
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+   /* Ignore "return type for 'vtkstd::deque<int*>::const_iterator::operator ->'
+    * is 'int *const * ' (ie; not a UDT or reference to a UDT.
+    * Will produce errors if applied using infix notation)" warning on MSVC6.
+    */
+#  pragma warning ( disable : 4284 )
+#endif
+
+static void DefaultFacet3Callback(
+  const double* a, const double* b, const double* c, const double* d,
+  vtkEdgeSubdivisionCriterion*, void* pd, const void* )
+{
+  (void)a;
+  (void)b;
+  (void)c;
+  (void)d;
+  (void)pd;
+}
+
+static void DefaultFacet2Callback(
+  const double* a, const double* b, const double* c,
+  vtkEdgeSubdivisionCriterion*, void* pd, const void* )
+{
+  (void)a;
+  (void)b;
+  (void)c;
+  (void)pd;
+}
+
+static void DefaultFacet1Callback(
+  const double* a, const double* b,
+  vtkEdgeSubdivisionCriterion*, void* pd, const void* )
+{
+  (void)a;
+  (void)b;
+  (void)pd;
+}
+
+static void DefaultFacet0Callback(
+  const double* a,
+  vtkEdgeSubdivisionCriterion*, void* pd, const void* )
+{
+  (void)a;
+  (void)pd;
+}
+
+vtkCxxRevisionMacro(vtkStreamingTessellator,"1.2");
 vtkStandardNewMacro(vtkStreamingTessellator);
 
 void vtkStreamingTessellator::PrintSelf( ostream& os, vtkIndent indent )
@@ -457,6 +504,7 @@ void vtkStreamingTessellator::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "PrivateData:          " << this->PrivateData << endl;
   os << indent << "ConstPrivateData:     " << this->ConstPrivateData << endl;
   os << indent << "SubdivisionAlgorithm: " << this->Algorithm << endl;
+  os << indent << "VertexCallback:       " << this->Callback0 << endl;
   os << indent << "EdgeCallback:         " << this->Callback1 << endl;
   os << indent << "TriangleCallback:     " << this->Callback2 << endl;
   os << indent << "TetrahedronCallback:  " << this->Callback3 << endl;
@@ -471,10 +519,11 @@ vtkStreamingTessellator::vtkStreamingTessellator()
   this->PrivateData = 0;
   this->ConstPrivateData = 0;
   this->Algorithm = 0;
-  this->Callback1 = 0;
-  this->Callback2 = 0;
-  this->Callback3 = 0;
-  this->MaximumNumberOfSubdivisions = 8;
+  this->Callback0 = DefaultFacet0Callback;
+  this->Callback1 = DefaultFacet1Callback;
+  this->Callback2 = DefaultFacet2Callback;
+  this->Callback3 = DefaultFacet3Callback;
+  this->MaximumNumberOfSubdivisions = 3;
   for ( int i=0; i<4; ++i )
     {
     this->EmbeddingDimension[i] = i;
@@ -577,19 +626,9 @@ void vtkStreamingTessellator::SetMaximumNumberOfSubdivisions( int num_subdiv_in 
   this->Modified();
 }
 
-void vtkStreamingTessellator::SetTriangleCallback( TriangleProcessorFunction f )
-{
-  this->Callback2 = f;
-}
-
-vtkStreamingTessellator::TriangleProcessorFunction vtkStreamingTessellator::GetTriangleCallback() const
-{
-  return this->Callback2;
-}
-
 void vtkStreamingTessellator::SetTetrahedronCallback( TetrahedronProcessorFunction f )
 {
-  this->Callback3 = f;
+  this->Callback3 = f ? f : DefaultFacet3Callback;
 }
 
 vtkStreamingTessellator::TetrahedronProcessorFunction vtkStreamingTessellator::GetTetrahedronCallback() const
@@ -597,14 +636,34 @@ vtkStreamingTessellator::TetrahedronProcessorFunction vtkStreamingTessellator::G
   return this->Callback3;
 }
 
+void vtkStreamingTessellator::SetTriangleCallback( TriangleProcessorFunction f )
+{
+  this->Callback2 = f ? f : DefaultFacet2Callback;
+}
+
+vtkStreamingTessellator::TriangleProcessorFunction vtkStreamingTessellator::GetTriangleCallback() const
+{
+  return this->Callback2;
+}
+
 void vtkStreamingTessellator::SetEdgeCallback( EdgeProcessorFunction f )
 {
-  this->Callback1 = f;
+  this->Callback1 = f ? f : DefaultFacet1Callback;
 }
 
 vtkStreamingTessellator::EdgeProcessorFunction vtkStreamingTessellator::GetEdgeCallback() const
 {
   return this->Callback1;
+}
+
+void vtkStreamingTessellator::SetVertexCallback( VertexProcessorFunction f )
+{
+  this->Callback0 = f ? f : DefaultFacet0Callback;
+}
+
+vtkStreamingTessellator::VertexProcessorFunction vtkStreamingTessellator::GetVertexCallback() const
+{
+  return this->Callback0;
 }
 
 void vtkStreamingTessellator::SetPrivateData( void* Private )
@@ -663,8 +722,10 @@ bool compareHopfCrossStringDist( const double* a0, const double* a1, const doubl
   for (int i=0; i<3; i++)
     {
     double tmp;
-    SqMagA += (tmp=(a0[i]-a1[i]))*tmp;
-    SqMagB += (tmp=(b0[i]-b1[i]))*tmp;
+    tmp = a0[i] - a1[i];
+    SqMagA += tmp * tmp;
+    tmp = b0[i] - b1[i];
+    SqMagB += tmp * tmp;
     }
   return SqMagA < SqMagB;
 }
@@ -708,14 +769,20 @@ int vtkStreamingTessellator::BestTets( int* connOffsets, double** verts, int per
 """
 else:
   print >> genCode, """
-  int vtkStreamingTessellator::BestTets( int* vtkNotUsed(connOffsets), double** vtkNotUsed(verts), int vtkNotUsed(permOffset), int vtkNotUsed(sgn) ) const
+int vtkStreamingTessellator::BestTets( int* vtkNotUsed(connOffsets), double** vtkNotUsed(verts), int vtkNotUsed(permOffset), int vtkNotUsed(sgn) ) const
 {
   // Re-run vtkStreamingTessellatorGenerator.py with QualityThang=1
   // to get this implemented (along with on-the-fly quality improvement)
+  return 1;
 }
 """
 
 print >> genCode, """
+void vtkStreamingTessellator::AdaptivelySample0Facet( double* v0 ) const
+{
+  Callback0( v0, this->Algorithm, this->PrivateData, this->ConstPrivateData );
+}
+
 void vtkStreamingTessellator::AdaptivelySample1Facet( double* v0, double* v1, int maxDepth ) const
 {
   int edgeCode = 0;

@@ -39,7 +39,7 @@ statement of authorship are reproduced on all copies.
 //
 // .SECTION Internals
 //
-// The filter's main member function is Execute(). This function first
+// The filter's main member function is RequestData(). This function first
 // calls SetupOutput() which allocates arrays and some temporary variables
 // for the primitive callbacks (OutputTriangle and OutputLine which are
 // called by AddATriangle and AddALine, respectively).  Each cell is given
@@ -57,6 +57,7 @@ statement of authorship are reproduced on all copies.
 class vtkDataArray;
 class vtkDataSet;
 class vtkDataSetEdgeSubdivisionCriterion;
+class vtkPointLocator;
 class vtkPoints;
 class vtkStreamingTessellator;
 class vtkEdgeSubdivisionCriterion;
@@ -101,10 +102,9 @@ public:
   // among cells, even where they should be. This can be corrected to
   // some extents with a vtkMergeFilter.
   // By default, the filter is off and vertices will not be shared.
-  virtual void SetMergePoints( int OnOrOff );
-  vtkBooleanMacro(MergePoints,int);
   vtkGetMacro(MergePoints,int);
-  int GetMergePoints() const { return this->MergePoints; }
+  vtkSetMacro(MergePoints,int);
+  vtkBooleanMacro(MergePoints,int);
 
 protected:
   vtkTessellatorFilter();
@@ -113,10 +113,18 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
   
   // Description:
-  // Called by Execute to set up a multitude of member variables used by
+  // Called by RequestData to set up a multitude of member variables used by
   // the per-primitive output functions (OutputLine, OutputTriangle, and
   // maybe one day... OutputTetrahedron).
-  void SetupOutput(vtkDataSet* input, vtkUnstructuredGrid* output);
+  void SetupOutput( vtkDataSet* input, vtkUnstructuredGrid* output );
+
+  // Description:
+  // Called by RequestData to merge output points.
+  void MergeOutputPoints( vtkUnstructuredGrid* input, vtkUnstructuredGrid* output );
+
+  // Description:
+  // Reset the temporary variables used during the filter's RequestData() method.
+  void Teardown();
 
   // Description:
   // Run the filter; produce a polygonal approximation to the grid.
@@ -124,15 +132,12 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
-  // Description:
-  // Reset the temporary variables used during the filter's Execute() method.
-  void Teardown();
-
   //BTX
   vtkStreamingTessellator* Tessellator;
   vtkDataSetEdgeSubdivisionCriterion* Subdivider;
   int OutputDimension;
   int MergePoints;
+  vtkPointLocator* Locator;
 
   // Description:
   // These member variables are set by SetupOutput for use inside the
@@ -142,6 +147,10 @@ protected:
   vtkDataArray** OutputAttributes;
   int* OutputAttributeIndices;
 
+  static void AddAPoint( const double*, 
+                         vtkEdgeSubdivisionCriterion*, 
+                         void*, 
+                         const void* );
   static void AddALine( const double*, 
                         const double*, 
                         vtkEdgeSubdivisionCriterion*, 
@@ -160,6 +169,7 @@ protected:
                                vtkEdgeSubdivisionCriterion*, 
                                void*, 
                                const void* );
+  void OutputPoint( const double* );
   void OutputLine( const double*, const double* );
   void OutputTriangle( const double*, const double*, const double* );
   void OutputTetrahedron( const double*, 

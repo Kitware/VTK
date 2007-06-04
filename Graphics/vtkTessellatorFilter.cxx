@@ -17,7 +17,9 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkCellType.h"
+#include "vtkCommand.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDataSet.h"
@@ -27,6 +29,7 @@
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMergePoints.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkStreamingTessellator.h"
@@ -34,8 +37,30 @@
 #include "vtkTessellatorFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTessellatorFilter, "1.1");
+vtkCxxRevisionMacro(vtkTessellatorFilter, "1.2");
 vtkStandardNewMacro(vtkTessellatorFilter);
+
+// ========================================
+// vtkCommand subclass for reporting progress of merge filter
+class vtkProgressCommand : public vtkCommand
+{
+public:
+  vtkProgressCommand( vtkTessellatorFilter* tf )
+    {
+    this->Tessellator = tf;
+    }
+  virtual ~vtkProgressCommand()
+    {
+    }
+  virtual void Execute( vtkObject*, unsigned long, void* callData )
+    {
+    double subprogress = *( static_cast<double*>( callData ) );
+    cout << "  ++ <" << ( (subprogress / 2. + 0.5) * 100. ) << ">\n";
+    this->Tessellator->UpdateProgress( subprogress / 2. + 0.5 );
+    }
+protected:
+  vtkTessellatorFilter* Tessellator;
+};
 
 // ========================================
 // convenience routines for paraview
@@ -64,17 +89,6 @@ double vtkTessellatorFilter::GetChordError()
 {
   double tmp = this->Subdivider ? this->Subdivider->GetChordError2() : 0.;
   return tmp > 0. ? sqrt( tmp ) : tmp;
-}
-
-void vtkTessellatorFilter::SetMergePoints( int DoTheMerge )
-{
-  if ( DoTheMerge == this->MergePoints )
-    {
-    return;
-    }
-  
-  this->MergePoints = DoTheMerge;
-  this->Modified();
 }
 
 // ========================================
@@ -186,6 +200,34 @@ void vtkTessellatorFilter::OutputLine( const double* a, const double* b )
     }
 }
 
+void vtkTessellatorFilter::AddAPoint(
+  const double* a,
+  vtkEdgeSubdivisionCriterion*, void* pd, const void* )
+{
+  vtkTessellatorFilter* self = (vtkTessellatorFilter*) pd;
+  self->OutputPoint( a );
+}
+
+void vtkTessellatorFilter::OutputPoint( const double* a )
+{
+  vtkIdType cellId;
+
+  cellId = this->OutputPoints->InsertNextPoint( a );
+  this->OutputMesh->InsertNextCell( VTK_VERTEX, 1, &cellId );
+
+  const int* off = this->Subdivider->GetFieldOffsets();
+  vtkDataArray** att = this->OutputAttributes;
+
+  // Move a, b, & c past the geometric and parametric coordinates to the
+  // beginning of the field values.
+  a += 6;
+
+  for ( int at=0; at<this->Subdivider->GetNumberOfFields(); ++at, ++att, ++off )
+    {
+    (*att)->InsertTuple( cellId, a + *off );
+    }
+}
+
 // ========================================
 
 // constructor/boilerplate members
@@ -197,6 +239,8 @@ vtkTessellatorFilter::vtkTessellatorFilter()
   this->Tessellator->Delete();
   this->SetSubdivider( vtkDataSetEdgeSubdivisionCriterion::New() );
   this->Subdivider->Delete();
+  this->MergePoints = 1;
+  this->Locator = vtkMergePoints::New();
 
   this->Tessellator->SetEmbeddingDimension( 1, 3 );
   this->Tessellator->SetEmbeddingDimension( 2, 3 );
@@ -206,15 +250,18 @@ vtkTessellatorFilter::~vtkTessellatorFilter()
 {
   this->SetSubdivider( 0 );
   this->SetTessellator( 0 );
+  this->Locator->Delete();
+  this->Locator = 0;
 }
 
 void vtkTessellatorFilter::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "OutputDimension: " << this->OutputDimension << endl
-     << indent << "Tessellator: " << this->Tessellator << endl
-     << indent << "Subdivider: " << this->Subdivider << " (" << this->Subdivider->GetClassName() << ")" << endl;
-  // don't print this->MergePoints because we don't use it yet.
+  os << indent << "OutputDimension: " << this->OutputDimension << "\n"
+     << indent << "Tessellator: " << this->Tessellator << "\n"
+     << indent << "Subdivider: " << this->Subdivider << " (" << this->Subdivider->GetClassName() << ")" << "\n"
+     << indent << "MergePoints: " << this->MergePoints << "\n"
+     << indent << "Locator: " << this->Locator << "\n";
 }
 
 // override for proper Update() behavior
@@ -359,6 +406,82 @@ void vtkTessellatorFilter::SetupOutput(
     this->Subdivider->PassField( a, array->GetNumberOfComponents(), this->Tessellator );
     ++attrib;
     }
+}
+
+void vtkTessellatorFilter::MergeOutputPoints( vtkUnstructuredGrid* input, vtkUnstructuredGrid* output )
+{
+  // this method cleverly lifted from ParaView's Servers/Filters/vtkCleanUnstructuredGrid::RequestData()
+  if (input->GetNumberOfCells() == 0)
+    {
+    // set up a ugrid with same data arrays as input, but
+    // no points, cells or data.
+    output->Allocate(1);
+    output->GetPointData()->CopyAllocate(input->GetPointData(), VTK_CELL_SIZE);
+    output->GetCellData()->CopyAllocate(input->GetCellData(), 1);
+    vtkPoints *pts = vtkPoints::New();
+    output->SetPoints(pts);
+    pts->Delete();
+    return;
+    }
+
+  output->GetPointData()->CopyAllocate(input->GetPointData());
+  output->GetCellData()->PassData(input->GetCellData());
+
+  // First, create a new points array that eliminate duplicate points.
+  // Also create a mapping from the old point id to the new.
+  vtkPoints* newPts = vtkPoints::New();
+  vtkIdType num = input->GetNumberOfPoints();
+  vtkIdType id;
+  vtkIdType newId;
+  vtkIdType* ptMap = new vtkIdType[num];
+  double pt[3];
+
+  this->Locator->InitPointInsertion(newPts, input->GetBounds(), num);
+
+  vtkIdType progressStep = num / 100;
+  if (progressStep == 0)
+    {
+    progressStep = 1;
+    }
+  for (id = 0; id < num; ++id)
+    {
+    if (id % progressStep == 0)
+      {
+      this->UpdateProgress( 0.5 * ( 1. + id * 0.8 / num ) );
+      }
+    input->GetPoint(id, pt);
+    if (this->Locator->InsertUniquePoint(pt, newId))
+      {
+      output->GetPointData()->CopyData(input->GetPointData(),id,newId);
+      }
+    ptMap[id] = newId;
+    }
+  output->SetPoints(newPts);
+  newPts->Delete();
+
+  // New copy the cells.
+  vtkIdList *cellPoints = vtkIdList::New();
+  num = input->GetNumberOfCells();
+  output->Allocate(num);
+  for (id = 0; id < num; ++id)
+    {
+    if (id % progressStep == 0)
+      {
+      this->UpdateProgress(0.9+0.1*((float)id/num));
+      }
+    input->GetCellPoints(id, cellPoints);
+    for (int i=0; i < cellPoints->GetNumberOfIds(); i++)
+      {
+      int cellPtId = cellPoints->GetId(i);
+      newId = ptMap[cellPtId];
+      cellPoints->SetId(i, newId);
+      }
+    output->InsertNextCell(input->GetCellType(id), cellPoints);
+    }
+
+  delete [] ptMap;
+  cellPoints->Delete();
+  output->Squeeze();
 }
 
 void vtkTessellatorFilter::Teardown()
@@ -580,10 +703,11 @@ vtkIdType quadTetTetrahedra[][4] =
   {4,7,6,0},
   {5,6,9,2},
   {7,8,9,3},
-  {1,6,4,7},
-  {1,6,7,5},
-  {1,5,6,8},
-  {5,6,8,9}
+  {4,5,8,1},
+  {6,8,7,4},
+  {6,8,4,5},
+  {6,8,5,9},
+  {6,8,9,7}
 };
 
 vtkIdType quadTetTris[][3] = 
@@ -927,6 +1051,7 @@ vtkIdType quadVoxEdges[][2] =
 // "Not Supported" error message per cell. Instead, we print one
 // per Execute().
 static int vtkNotSupportedErrorPrinted = 0;
+static int vtkTessellatorHasPolys = 0;
 
 // ========================================
 // the meat of the class: execution!
@@ -942,358 +1067,383 @@ int vtkTessellatorFilter::RequestData(
   vtkNotSupportedErrorPrinted = 0;
 
   // get the output info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataSet* mesh = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  this->SetupOutput(mesh, output);
+  vtkUnstructuredGrid* tmpOut;
+  if ( this->MergePoints )
+    {
+    tmpOut = vtkUnstructuredGrid::New();
+    }
+  else
+    {
+    tmpOut = output;
+    }
+
+  this->SetupOutput( mesh, tmpOut );
 
   this->Subdivider->SetMesh( mesh );
+  this->Tessellator->SetVertexCallback( AddAPoint );
   this->Tessellator->SetEdgeCallback( AddALine );
   this->Tessellator->SetTriangleCallback( AddATriangle );
   this->Tessellator->SetTetrahedronCallback( AddATetrahedron );
   this->Tessellator->SetPrivateData( this );
 
-  vtkIdType cell;
-  int nprim=0;
-  vtkIdType* outconn=0;
+  vtkIdType cell = 0;
+  int nprim = 0;
+  vtkIdType* outconn = 0;
   double pts[27][11 + vtkStreamingTessellator::MaxFieldSize];
   int c;
+  vtkIdType numCells = mesh->GetNumberOfCells();
+  int progress = 0;
+  int progMax = this->MergePoints ? 50 : 100;
+  vtkIdType deltaProg = numCells / progMax + 1; // the extra + 1 means we always reach the end
+  vtkIdType progCells = 0;
 
-  for ( cell = 0; cell < mesh->GetNumberOfCells(); ++cell )
+  vtkTessellatorHasPolys = 0; // print error message once per invocation, if needed
+  for ( progress = 0; progress < progMax; ++progress )
     {
-    this->Subdivider->SetCellId( cell );
-    vtkCell* cp = this->Subdivider->GetCell(); // We set the cell ID, get the vtkCell pointer
-    int np = cp->GetCellType();
-    if ( np == VTK_VOXEL || np == VTK_HEXAHEDRON || 
-         np == VTK_QUADRATIC_HEXAHEDRON )
+    progCells += deltaProg;
+    for ( ; (cell < progCells) && (cell < numCells); ++cell )
       {
-      np = 27;
-      }
-    else
-      {
-      np = cp->GetNumberOfPoints();
-      }
-    double* pcoord = cp->GetParametricCoords();
-    double* gcoord;
-    vtkDataArray* field;
-    for ( p = 0; p < cp->GetNumberOfPoints(); ++p )
-      {
-      gcoord = cp->Points->GetPoint( p );
-      for ( c = 0; c < 3; ++c, ++gcoord, ++pcoord )
+      this->Subdivider->SetCellId( cell );
+      vtkCell* cp = this->Subdivider->GetCell(); // We set the cell ID, get the vtkCell pointer
+      int np = cp->GetCellType();
+      if (
+        np == VTK_POLYGON || np == VTK_TRIANGLE_STRIP || np == VTK_CONVEX_POINT_SET ||
+        np == VTK_POLY_LINE || np == VTK_POLY_VERTEX )
         {
-        pts[p][c  ] = *gcoord;
-        pts[p][c+3] = *pcoord;
-        }
-      // fill in field data
-      const int* offsets = this->Subdivider->GetFieldOffsets();
-      for ( int f = 0; f < this->Subdivider->GetNumberOfFields(); ++f )
-        {
-        field = mesh->GetPointData()->GetArray( this->Subdivider->GetFieldIds()[ f ] );
-        double* tuple = field->GetTuple( cp->GetPointId( p ) );
-        for ( c = 0; c < field->GetNumberOfComponents(); ++c )
+        if ( ! vtkTessellatorHasPolys )
           {
-          pts[p][ 6 + offsets[f] + c ] = tuple[c];
+          vtkWarningMacro(
+            "Input dataset has cells without parameterizations "
+            "(VTK_POLYGON,VTK_POLY_LINE,VTK_POLY_VERTEX,VTK_TRIANGLE_STRIP,VTK_CONVEX_POINT_SET). "
+            "They will be ignored. Use vtkTriangleFilter, vtkTetrahedralize, etc. to parameterize them first." );
+          vtkTessellatorHasPolys = 1;
+          }
+        continue;
+        }
+      else if ( np == VTK_VOXEL || np == VTK_HEXAHEDRON || 
+        np == VTK_QUADRATIC_HEXAHEDRON )
+        {
+        np = 27;
+        }
+      else
+        {
+        np = cp->GetNumberOfPoints();
+        }
+      double* pcoord = cp->GetParametricCoords();
+      double* gcoord;
+      vtkDataArray* field;
+      for ( p = 0; p < cp->GetNumberOfPoints(); ++p )
+        {
+        gcoord = cp->Points->GetPoint( p );
+        for ( c = 0; c < 3; ++c, ++gcoord, ++pcoord )
+          {
+          pts[p][c  ] = *gcoord;
+          pts[p][c+3] = *pcoord;
+          }
+        // fill in field data
+        const int* offsets = this->Subdivider->GetFieldOffsets();
+        for ( int f = 0; f < this->Subdivider->GetNumberOfFields(); ++f )
+          {
+          field = mesh->GetPointData()->GetArray( this->Subdivider->GetFieldIds()[ f ] );
+          double* tuple = field->GetTuple( cp->GetPointId( p ) );
+          for ( c = 0; c < field->GetNumberOfComponents(); ++c )
+            {
+            pts[p][ 6 + offsets[f] + c ] = tuple[c];
+            }
           }
         }
-      }
-    int dim = this->OutputDimension;
-    // Tessellate each cell:
-    switch ( cp->GetCellType() )
-      {
-    case VTK_LINE:
-      dim = 1;
-      outconn = &linEdgeEdges[0][0];
-      nprim = sizeof(linEdgeEdges)/sizeof(linEdgeEdges[0]);
-      break;
-    case VTK_POLY_LINE:
-      dim = -1;
-      if ( ! vtkNotSupportedErrorPrinted )
+      int dim = this->OutputDimension;
+      // Tessellate each cell:
+      switch ( cp->GetCellType() )
         {
-        vtkNotSupportedErrorPrinted = 1;
-        vtkWarningMacro( "Oops, POLY_LINE not supported" );
-        }
-      break;
-    case VTK_TRIANGLE:
-      if ( dim > 1 )
-        {
-        dim = 2;
-        outconn = &linTriTris[0][0];
-        nprim = sizeof(linTriTris)/sizeof(linTriTris[0]);
-        }
-      else
-        {
-        outconn = &linTriEdges[0][0];
-        nprim = sizeof(linTriEdges)/sizeof(linTriEdges[0]);
-        }
-      break;
-    case VTK_TRIANGLE_STRIP:
-      dim = -1;
-      if ( ! vtkNotSupportedErrorPrinted )
-        {
-        vtkNotSupportedErrorPrinted = 1;
-        vtkWarningMacro( "Oops, TRIANGLE_STRIP not supported" );
-        }
-      break;
-    case VTK_POLYGON:
-      dim = -1;
-      if ( ! vtkNotSupportedErrorPrinted )
-        {
-        vtkNotSupportedErrorPrinted = 1;
-        vtkWarningMacro( "Oops, POLYGON not supported" );
-        }
-      break;
-    case VTK_QUAD:
-      if ( dim > 1 )
-        {
-        dim = 2;
-        outconn = &linQuadTris[0][0];
-        nprim = sizeof(linQuadTris)/sizeof(linQuadTris[0]);
-        }
-      else
-        {
-        outconn = &linQuadEdges[0][0];
-        nprim = sizeof(linQuadEdges)/sizeof(linQuadEdges[0]);
-        }
-      break;
-    case VTK_TETRA:
-      if ( dim == 3 )
-        {
-        outconn = &linTetTetrahedra[0][0];
-        nprim = sizeof(linTetTetrahedra)/sizeof(linTetTetrahedra[0]);
-        }
-      else if ( dim == 2 )
-        {
-        outconn = &linTetTris[0][0];
-        nprim = sizeof(linTetTris)/sizeof(linTetTris[0]);
-        }
-      else
-        {
-        outconn = &linTetEdges[0][0];
-        nprim = sizeof(linTetEdges)/sizeof(linTetEdges[0]);
-        }
-      break;
-    case VTK_WEDGE:
-      if ( dim == 3 )
-        {
-        outconn = &linWedgeTetrahedra[0][0];
-        nprim = sizeof(linWedgeTetrahedra)/sizeof(linWedgeTetrahedra[0]);
-        }
-      else if ( dim ==2 )
-        {
-        outconn = &linWedgeTris[0][0];
-        nprim = sizeof(linWedgeTris)/sizeof(linWedgeTris[0]);
-        }
-      else
-        {
-        outconn = &linWedgeEdges[0][0];
-        nprim = sizeof(linWedgeEdges)/sizeof(linWedgeEdges[0]);
-        }
-      break;
-    case VTK_PYRAMID:
-      if ( dim == 3 )
-        {
-        outconn = &linPyrTetrahedra[0][0];
-        nprim = sizeof(linPyrTetrahedra)/sizeof(linPyrTetrahedra[0]);
-        }
-      else if ( dim ==2 )
-        {
-        outconn = &linPyrTris[0][0];
-        nprim = sizeof(linPyrTris)/sizeof(linPyrTris[0]);
-        }
-      else
-        {
-        outconn = &linPyrEdges[0][0];
-        nprim = sizeof(linPyrEdges)/sizeof(linPyrEdges[0]);
-        }
-      break;
-    case VTK_QUADRATIC_EDGE:
-      dim = 1;
-      outconn = &quadEdgeEdges[0][0];
-      nprim = sizeof(quadEdgeEdges)/sizeof(quadEdgeEdges[0]);
-      break;
-    case VTK_QUADRATIC_TRIANGLE:
-      if ( dim > 1 )
-        {
-        dim = 2;
-        outconn = &quadTriTris[0][0];
-        nprim = sizeof(quadTriTris)/sizeof(quadTriTris[0]);
-        }
-      else
-        {
-        outconn = &quadTriEdges[0][0];
-        nprim = sizeof(quadTriEdges)/sizeof(quadTriEdges[0]);
-        }
-      break;
-    case VTK_BIQUADRATIC_QUAD:
-    case VTK_QUADRATIC_QUAD:
-      for ( c = 0; c < 3; ++c )
-        {
-        pts[8][c+3] = extraQuadQuadParams[0][c];
-        }
-      cp->EvaluateLocation( dummySubId, pts[8] + 3, pts[8], weights );
-      this->Subdivider->EvaluateFields( pts[8], weights, 6 );
-      if ( dim > 1 )
-        {
-        dim = 2;
-        outconn = &quadQuadTris[0][0];
-        nprim = sizeof(quadQuadTris)/sizeof(quadQuadTris[0]);
-        }
-      else
-        {
-        outconn = &quadQuadEdges[0][0];
-        nprim = sizeof(quadQuadEdges)/sizeof(quadQuadEdges[0]);
-        }
-      break;
-    case VTK_QUADRATIC_TETRA:
-      if ( dim == 3 )
-        {
-        outconn = &quadTetTetrahedra[0][0];
-        nprim = sizeof(quadTetTetrahedra)/sizeof(quadTetTetrahedra[0]);
-        }
-      else if ( dim ==2 )
-        {
-        outconn = &quadTetTris[0][0];
-        nprim = sizeof(quadTetTris)/sizeof(quadTetTris[0]);
-        }
-      else
-        {
-        outconn = &quadTetEdges[0][0];
-        nprim = sizeof(quadTetEdges)/sizeof(quadTetEdges[0]);
-        }
-      break;
-    case VTK_HEXAHEDRON:
-      // we sample 19 extra points to guarantee a compatible tetrahedralization
-      for ( p = 8; p < 20; ++p )
-        {
-        dummySubId=-1;
-        for ( int y = 0; y < 3; ++y )
+      case VTK_VERTEX:
+        dim = 0;
+        outconn = 0;
+        nprim = 1;
+        break;
+      case VTK_LINE:
+        dim = 1;
+        outconn = &linEdgeEdges[0][0];
+        nprim = sizeof(linEdgeEdges)/sizeof(linEdgeEdges[0]);
+        break;
+      case VTK_TRIANGLE:
+        if ( dim > 1 )
           {
-          pts[p][y+3] = extraLinHexParams[p-8][y];
+          dim = 2;
+          outconn = &linTriTris[0][0];
+          nprim = sizeof(linTriTris)/sizeof(linTriTris[0]);
           }
-        cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
-        this->Subdivider->EvaluateFields( pts[p], weights, 6 );
-        }
-      // fall through
-    case VTK_QUADRATIC_HEXAHEDRON:
-      for ( p = 20; p < 27; ++p )
-        {
-        dummySubId=-1;
-        for ( int x = 0; x < 3; ++x )
+        else
           {
-          pts[p][x+3] = extraQuadHexParams[p-20][x];
+          outconn = &linTriEdges[0][0];
+          nprim = sizeof(linTriEdges)/sizeof(linTriEdges[0]);
           }
-        cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
-        this->Subdivider->EvaluateFields( pts[p], weights, 6 );
-        }
-      if ( dim == 3 )
-        {
-        outconn = &quadHexTetrahedra[0][0];
-        nprim = sizeof(quadHexTetrahedra)/sizeof(quadHexTetrahedra[0]);
-        }
-      else if ( dim == 2 )
-        {
-        outconn = &quadHexTris[0][0];
-        nprim = sizeof(quadHexTris)/sizeof(quadHexTris[0]);
-        }
-      else
-        {
-        outconn = &quadHexEdges[0][0];
-        nprim = sizeof(quadHexEdges)/sizeof(quadHexEdges[0]);
-        }
-      break;
-    case VTK_VOXEL:
-      // we sample 19 extra points to guarantee a compatible tetrahedralization
-      for ( p = 8; p < 20; ++p )
-        {
-        dummySubId=-1;
-        for ( int y = 0; y < 3; ++y )
+        break;
+      case VTK_QUAD:
+        if ( dim > 1 )
           {
-          pts[p][y+3] = extraLinHexParams[p-8][y];
+          dim = 2;
+          outconn = &linQuadTris[0][0];
+          nprim = sizeof(linQuadTris)/sizeof(linQuadTris[0]);
           }
-        cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
-        this->Subdivider->EvaluateFields( pts[p], weights, 6 );
-        }
-      for ( p = 20; p < 27; ++p )
-        {
-        dummySubId=-1;
-        for ( int x = 0; x < 3; ++x )
+        else
           {
-          pts[p][x+3] = extraQuadHexParams[p-20][x];
+          outconn = &linQuadEdges[0][0];
+          nprim = sizeof(linQuadEdges)/sizeof(linQuadEdges[0]);
           }
-        cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
-        this->Subdivider->EvaluateFields( pts[p], weights, 6 );
+        break;
+      case VTK_TETRA:
+        if ( dim == 3 )
+          {
+          outconn = &linTetTetrahedra[0][0];
+          nprim = sizeof(linTetTetrahedra)/sizeof(linTetTetrahedra[0]);
+          }
+        else if ( dim == 2 )
+          {
+          outconn = &linTetTris[0][0];
+          nprim = sizeof(linTetTris)/sizeof(linTetTris[0]);
+          }
+        else
+          {
+          outconn = &linTetEdges[0][0];
+          nprim = sizeof(linTetEdges)/sizeof(linTetEdges[0]);
+          }
+        break;
+      case VTK_WEDGE:
+        if ( dim == 3 )
+          {
+          outconn = &linWedgeTetrahedra[0][0];
+          nprim = sizeof(linWedgeTetrahedra)/sizeof(linWedgeTetrahedra[0]);
+          }
+        else if ( dim ==2 )
+          {
+          outconn = &linWedgeTris[0][0];
+          nprim = sizeof(linWedgeTris)/sizeof(linWedgeTris[0]);
+          }
+        else
+          {
+          outconn = &linWedgeEdges[0][0];
+          nprim = sizeof(linWedgeEdges)/sizeof(linWedgeEdges[0]);
+          }
+        break;
+      case VTK_PYRAMID:
+        if ( dim == 3 )
+          {
+          outconn = &linPyrTetrahedra[0][0];
+          nprim = sizeof(linPyrTetrahedra)/sizeof(linPyrTetrahedra[0]);
+          }
+        else if ( dim ==2 )
+          {
+          outconn = &linPyrTris[0][0];
+          nprim = sizeof(linPyrTris)/sizeof(linPyrTris[0]);
+          }
+        else
+          {
+          outconn = &linPyrEdges[0][0];
+          nprim = sizeof(linPyrEdges)/sizeof(linPyrEdges[0]);
+          }
+        break;
+      case VTK_QUADRATIC_EDGE:
+        dim = 1;
+        outconn = &quadEdgeEdges[0][0];
+        nprim = sizeof(quadEdgeEdges)/sizeof(quadEdgeEdges[0]);
+        break;
+      case VTK_QUADRATIC_TRIANGLE:
+        if ( dim > 1 )
+          {
+          dim = 2;
+          outconn = &quadTriTris[0][0];
+          nprim = sizeof(quadTriTris)/sizeof(quadTriTris[0]);
+          }
+        else
+          {
+          outconn = &quadTriEdges[0][0];
+          nprim = sizeof(quadTriEdges)/sizeof(quadTriEdges[0]);
+          }
+        break;
+      case VTK_BIQUADRATIC_QUAD:
+      case VTK_QUADRATIC_QUAD:
+        for ( c = 0; c < 3; ++c )
+          {
+          pts[8][c+3] = extraQuadQuadParams[0][c];
+          }
+        cp->EvaluateLocation( dummySubId, pts[8] + 3, pts[8], weights );
+        this->Subdivider->EvaluateFields( pts[8], weights, 6 );
+        if ( dim > 1 )
+          {
+          dim = 2;
+          outconn = &quadQuadTris[0][0];
+          nprim = sizeof(quadQuadTris)/sizeof(quadQuadTris[0]);
+          }
+        else
+          {
+          outconn = &quadQuadEdges[0][0];
+          nprim = sizeof(quadQuadEdges)/sizeof(quadQuadEdges[0]);
+          }
+        break;
+      case VTK_QUADRATIC_TETRA:
+        if ( dim == 3 )
+          {
+          outconn = &quadTetTetrahedra[0][0];
+          nprim = sizeof(quadTetTetrahedra)/sizeof(quadTetTetrahedra[0]);
+          }
+        else if ( dim ==2 )
+          {
+          outconn = &quadTetTris[0][0];
+          nprim = sizeof(quadTetTris)/sizeof(quadTetTris[0]);
+          }
+        else
+          {
+          outconn = &quadTetEdges[0][0];
+          nprim = sizeof(quadTetEdges)/sizeof(quadTetEdges[0]);
+          }
+        break;
+      case VTK_HEXAHEDRON:
+        // we sample 19 extra points to guarantee a compatible tetrahedralization
+        for ( p = 8; p < 20; ++p )
+          {
+          dummySubId=-1;
+          for ( int y = 0; y < 3; ++y )
+            {
+            pts[p][y+3] = extraLinHexParams[p-8][y];
+            }
+          cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
+          this->Subdivider->EvaluateFields( pts[p], weights, 6 );
+          }
+        // fall through
+      case VTK_QUADRATIC_HEXAHEDRON:
+        for ( p = 20; p < 27; ++p )
+          {
+          dummySubId=-1;
+          for ( int x = 0; x < 3; ++x )
+            {
+            pts[p][x+3] = extraQuadHexParams[p-20][x];
+            }
+          cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
+          this->Subdivider->EvaluateFields( pts[p], weights, 6 );
+          }
+        if ( dim == 3 )
+          {
+          outconn = &quadHexTetrahedra[0][0];
+          nprim = sizeof(quadHexTetrahedra)/sizeof(quadHexTetrahedra[0]);
+          }
+        else if ( dim == 2 )
+          {
+          outconn = &quadHexTris[0][0];
+          nprim = sizeof(quadHexTris)/sizeof(quadHexTris[0]);
+          }
+        else
+          {
+          outconn = &quadHexEdges[0][0];
+          nprim = sizeof(quadHexEdges)/sizeof(quadHexEdges[0]);
+          }
+        break;
+      case VTK_VOXEL:
+        // we sample 19 extra points to guarantee a compatible tetrahedralization
+        for ( p = 8; p < 20; ++p )
+          {
+          dummySubId=-1;
+          for ( int y = 0; y < 3; ++y )
+            {
+            pts[p][y+3] = extraLinHexParams[p-8][y];
+            }
+          cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
+          this->Subdivider->EvaluateFields( pts[p], weights, 6 );
+          }
+        for ( p = 20; p < 27; ++p )
+          {
+          dummySubId=-1;
+          for ( int x = 0; x < 3; ++x )
+            {
+            pts[p][x+3] = extraQuadHexParams[p-20][x];
+            }
+          cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
+          this->Subdivider->EvaluateFields( pts[p], weights, 6 );
+          }
+        if ( dim == 3 )
+          {
+          outconn = &quadVoxTetrahedra[0][0];
+          nprim = sizeof(quadVoxTetrahedra)/sizeof(quadVoxTetrahedra[0]);
+          }
+        else if ( dim == 2 )
+          {
+          outconn = &quadVoxTris[0][0];
+          nprim = sizeof(quadVoxTris)/sizeof(quadVoxTris[0]);
+          }
+        else
+          {
+          outconn = &quadVoxEdges[0][0];
+          nprim = sizeof(quadVoxEdges)/sizeof(quadVoxEdges[0]);
+          }
+        break;
+      case VTK_PIXEL:
+        dim = -1;
+        if ( ! vtkNotSupportedErrorPrinted )
+          {
+          vtkNotSupportedErrorPrinted = 1;
+          vtkWarningMacro( "Oops, pixels are not supported" );
+          }
+        break;
+      default:
+        dim = -1;
+        if ( ! vtkNotSupportedErrorPrinted )
+          {
+          vtkNotSupportedErrorPrinted = 1;
+          vtkWarningMacro( "Oops, some cell type (" << cp->GetCellType()
+            << ") not supported" );
+          }
         }
-      if ( dim == 3 )
-        {
-        outconn = &quadVoxTetrahedra[0][0];
-        nprim = sizeof(quadVoxTetrahedra)/sizeof(quadVoxTetrahedra[0]);
-        }
-      else if ( dim == 2 )
-        {
-        outconn = &quadVoxTris[0][0];
-        nprim = sizeof(quadVoxTris)/sizeof(quadVoxTris[0]);
-        }
-      else
-        {
-        outconn = &quadVoxEdges[0][0];
-        nprim = sizeof(quadVoxEdges)/sizeof(quadVoxEdges[0]);
-        }
-      break;
-    case VTK_PIXEL:
-      dim = -1;
-      if ( ! vtkNotSupportedErrorPrinted )
-        {
-        vtkNotSupportedErrorPrinted = 1;
-        vtkWarningMacro( "Oops, pixels are not supported" );
-        }
-      break;
-    default:
-      dim = -1;
-      if ( ! vtkNotSupportedErrorPrinted )
-        {
-        vtkNotSupportedErrorPrinted = 1;
-        vtkWarningMacro( "Oops, some cell type (" << cp->GetCellType()
-          << ") not supported" );
-        }
-      }
 
-    // OK, now output the primitives
-    int tet, tri, edg;
-    switch ( dim )
-      {
-    case 3:
-      for ( tet=0; tet<nprim; ++tet, outconn += 4 )
+      // OK, now output the primitives
+      int tet, tri, edg;
+      switch ( dim )
         {
-        this->Tessellator->AdaptivelySample3Facet( pts[outconn[0]], 
-                                                   pts[outconn[1]], 
-                                                   pts[outconn[2]], 
-                                                   pts[outconn[3]] );
+      case 3:
+        for ( tet=0; tet<nprim; ++tet, outconn += 4 )
+          {
+          this->Tessellator->AdaptivelySample3Facet( pts[outconn[0]], 
+            pts[outconn[1]], 
+            pts[outconn[2]], 
+            pts[outconn[3]] );
+          }
+        break;
+      case 2:
+        for ( tri=0; tri<nprim; ++tri, outconn += 3 )
+          {
+          this->Tessellator->AdaptivelySample2Facet( pts[outconn[0]], 
+            pts[outconn[1]], 
+            pts[outconn[2]] );
+          }
+        break;
+      case 1:
+        for ( edg=0; edg<nprim; ++edg, outconn += 2 )
+          {
+          this->Tessellator->AdaptivelySample1Facet( pts[outconn[0]], 
+            pts[outconn[1]] );
+          }
+        break;
+      case 0:
+        this->Tessellator->AdaptivelySample0Facet( pts[0] );
+        break;
+      default:
+        // do nothing
+        break;
         }
-      break;
-    case 2:
-      for ( tri=0; tri<nprim; ++tri, outconn += 3 )
-        {
-        this->Tessellator->AdaptivelySample2Facet( pts[outconn[0]], 
-                                                   pts[outconn[1]], 
-                                                   pts[outconn[2]] );
-        }
-      break;
-    case 1:
-      for ( edg=0; edg<nprim; ++edg, outconn += 2 )
-        {
-        this->Tessellator->AdaptivelySample1Facet( pts[outconn[0]], 
-                                                   pts[outconn[1]] );
-        }
-      break;
-    default:
-      // do nothing
-      break;
       }
+    this->UpdateProgress( (double)( progress / 100. ) );
+    }
+
+  if ( this->MergePoints )
+    {
+    this->MergeOutputPoints( tmpOut, output );
     }
 
   this->Teardown();
