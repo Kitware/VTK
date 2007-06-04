@@ -2,7 +2,8 @@
 IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(KIT Infovis)
   # add tests that do not require data
-  SET(MyTests     
+  SET(MyTests  
+    TestGraphAlgorithms   
     TestGraphHierarchicalBundle
     TestGroupLeafVertices
     TestKdTreeBoxSelection
