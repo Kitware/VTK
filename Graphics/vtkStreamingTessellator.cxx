@@ -20,8 +20,16 @@
 #undef UGLY_ASPECT_RATIO_HACK
 #undef DBG_MIDPTS
 
-#include <stack>
-#include <algorithm>
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+   /* Ignore "return type for 'vtkstd::deque<int*>::const_iterator::operator ->'
+    * is 'int *const * ' (ie; not a UDT or reference to a UDT.
+    * Will produce errors if applied using infix notation)" warning on MSVC6.
+    */
+#  pragma warning ( disable : 4284 )
+#endif
+
+#include <vtkstd/stack>
+#include <vtkstd/algorithm>
 
 #ifdef PARAVIEW_DEBUG_TESSELLATOR
 #  define VTK_TESSELLATOR_INCR_CASE_COUNT(cs) this->CaseCounts[cs]++
@@ -30,14 +38,6 @@
 #  define VTK_TESSELLATOR_INCR_CASE_COUNT(cs)
 #  define VTK_TESSELLATOR_INCR_SUBCASE_COUNT(cs,sc)
 #endif // PARAVIEW_DEBUG_TESSELLATOR
-
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-   /* Ignore "return type for 'vtkstd::deque<int*>::const_iterator::operator ->'
-    * is 'int *const * ' (ie; not a UDT or reference to a UDT.
-    * Will produce errors if applied using infix notation)" warning on MSVC6.
-    */
-#  pragma warning ( disable : 4284 )
-#endif
 
 static void DefaultFacet3Callback(
   const double* a, const double* b, const double* c, const double* d,
@@ -77,7 +77,7 @@ static void DefaultFacet0Callback(
   (void)pd;
 }
 
-vtkCxxRevisionMacro(vtkStreamingTessellator,"1.2");
+vtkCxxRevisionMacro(vtkStreamingTessellator,"1.3");
 vtkStandardNewMacro(vtkStreamingTessellator);
 
 void vtkStreamingTessellator::PrintSelf( ostream& os, vtkIndent indent )
