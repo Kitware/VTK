@@ -37,7 +37,7 @@
 #include "vtkTessellatorFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTessellatorFilter, "1.2");
+vtkCxxRevisionMacro(vtkTessellatorFilter, "1.3");
 vtkStandardNewMacro(vtkTessellatorFilter);
 
 // ========================================
@@ -1444,6 +1444,7 @@ int vtkTessellatorFilter::RequestData(
   if ( this->MergePoints )
     {
     this->MergeOutputPoints( tmpOut, output );
+    tmpOut->Delete();
     }
 
   this->Teardown();
