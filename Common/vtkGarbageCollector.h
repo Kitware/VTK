@@ -62,9 +62,11 @@
 // but then "this->Object" will be left as a dangling pointer.  Instead
 // use code like
 //
+// \code
 //   vtkObjectBase* obj = this->Object;
 //   this->Object = 0;
 //   obj->UnRegister(this);
+// \endcode
 //
 // so that the reported reference maintains the invariant.
 //
