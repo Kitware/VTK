@@ -30,7 +30,7 @@
 
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.15");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.16");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -149,6 +149,7 @@ int vtkExtractSelection::RequestData(
   switch (seltype)
     {
     case vtkSelection::GLOBALIDS:
+    case vtkSelection::PEDIGREEIDS:
     case vtkSelection::VALUES:
     case vtkSelection::INDICES:
     {

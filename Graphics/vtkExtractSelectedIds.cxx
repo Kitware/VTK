@@ -32,7 +32,7 @@
 #include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.18");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.19");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -156,6 +156,7 @@ int vtkExtractSelectedIds::RequestData(
       || 
       (
         sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::GLOBALIDS &&
+        sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::PEDIGREEIDS &&
         sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::VALUES &&  
         sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::INDICES
         )
@@ -312,6 +313,11 @@ int vtkExtractSelectedIds::ExtractCells(
     {
     labelArray = vtkIdTypeArray::SafeDownCast(
       input->GetCellData()->GetGlobalIds());
+    }
+  else if (selType == vtkSelection::PEDIGREEIDS)
+    {
+    labelArray = vtkIdTypeArray::SafeDownCast(
+      input->GetCellData()->GetPedigreeIds());
     }
   else if (selType == vtkSelection::VALUES &&
            sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
@@ -631,6 +637,11 @@ int vtkExtractSelectedIds::ExtractPoints(
     {
     labelArray = vtkIdTypeArray::SafeDownCast(
       input->GetPointData()->GetGlobalIds());
+    }
+  else if (selType == vtkSelection::PEDIGREEIDS)
+    {
+    labelArray = vtkIdTypeArray::SafeDownCast(
+      input->GetPointData()->GetPedigreeIds());
     }
   else if (selType == vtkSelection::VALUES &&
            sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))

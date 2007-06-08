@@ -24,8 +24,11 @@
 // node that contains other vtkSelections. If the CONTENT_TYPE is GLOBALIDS,
 // the SelectionList array should contain a list of cell or point ids, which
 // identify the particular cells or points that have matching values in the 
-// GLOBALID vtkDataSetAttribute array. The FIELD_TYPE property designates
-// whether the selection refers to cells or points.
+// GLOBALID vtkDataSetAttribute array. If the CONTENT_TYPE is PEDIGREEIDS, the
+// SelectionList array should contain a list of cell or point ids, which identify
+// the particular cells or points that have matching valuse in the PEDIGREEID
+// vtkDataSetAttribute array. The FIELD_TYPE property designates whether the 
+// selection refers to cells or points.
 //
 // Usually, each node under the root is a selection from
 // one data object. SOURCE or SOURCE_ID properties point to this object. If
@@ -150,6 +153,8 @@ public:
   // SELECTIONS means that a vtkSelection contains sub selections.
   // GLOBALIDS means that the selection list contains values from the
   // vtkDataSetAttribute array of the same name.
+  // PEDIGREEIDS means that the selection list contains values from the
+  // vtkDataSetAttribute array of the same name.
   // VALUES means the the selection list contains values from an 
   // arbitrary attribute array (ignores any globalids attribute)
   // INDICES means that the selection list contains indexes into the 
@@ -164,6 +169,7 @@ public:
     SELECTIONS,
     COMPOSITE_SELECTIONS,
     GLOBALIDS,
+    PEDIGREEIDS,
     VALUES,
     INDICES,
     FRUSTUM,
