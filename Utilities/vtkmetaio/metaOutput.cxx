@@ -307,7 +307,7 @@ GetHostname()
 
 METAIO_STL::string MetaOutput::GetHostip()
 {
-  #if defined (_WIN32) || !defined(__CYGWIN__)
+  #if defined (_WIN32) && !defined(__CYGWIN__)
     WSADATA    WsaData;
     int err = WSAStartup (0x0101, &WsaData);              // Init Winsock
     if(err!=0)
