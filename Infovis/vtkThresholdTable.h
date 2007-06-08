@@ -66,6 +66,18 @@ public:
     }
   //ETX
 
+  // Overloaded SetMinValue for use with VTK parallel server
+  void SetMinValue(double v)
+  {
+    this->SetMinValue(vtkVariant(v));
+  }
+
+  // Overloaded SetMaxValue for use with VTK parallel server  
+  void SetMaxValue(double v)
+  {
+    this->SetMaxValue(vtkVariant(v));
+  }
+
 protected:
   vtkThresholdTable();
   ~vtkThresholdTable();
