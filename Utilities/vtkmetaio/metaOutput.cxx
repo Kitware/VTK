@@ -20,7 +20,7 @@
 
 #include "metaOutput.h"
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(__CYGWIN__)
 #include <winsock2.h>
 #else
 #include <unistd.h>
@@ -272,7 +272,7 @@ SetMetaCommand(MetaCommand* metaCommand)
 METAIO_STL::string MetaOutput::
 GetUsername()
 {
-#if defined (_WIN32) || defined(__CYGWIN__)
+#if defined (_WIN32) && !defined(__CYGWIN__)
     static char buf[1024];
     DWORD size = sizeof(buf);
     buf[0] = '\0';
@@ -291,7 +291,7 @@ GetUsername()
 METAIO_STL::string MetaOutput::
 GetHostname()
 {
-#if defined (_WIN32) || defined(__CYGWIN__)
+#if defined (_WIN32) && !defined(__CYGWIN__)
   WSADATA    WsaData;
   int err = WSAStartup (0x0101, &WsaData);              // Init Winsock
   if(err!=0)
@@ -307,7 +307,7 @@ GetHostname()
 
 METAIO_STL::string MetaOutput::GetHostip()
 {
-  #if defined (_WIN32) || defined(__CYGWIN__)
+  #if defined (_WIN32) || !defined(__CYGWIN__)
     WSADATA    WsaData;
     int err = WSAStartup (0x0101, &WsaData);              // Init Winsock
     if(err!=0)
