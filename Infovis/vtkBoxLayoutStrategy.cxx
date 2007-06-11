@@ -32,7 +32,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkBoxLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkBoxLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkBoxLayoutStrategy);
 
 vtkBoxLayoutStrategy::vtkBoxLayoutStrategy()
@@ -74,46 +74,48 @@ void vtkBoxLayoutStrategy::Layout(vtkTree *inputTree,
     float ySpace = parentMaxY - parentMinY;
 
     inputTree->GetChildren(vertex, nchildren, children);
-
-    // Divide the available space with simple algo
-    int xDivisions = (int)(sqrt((float)nchildren)+1); // Ceiling
-    int yDivisions = xDivisions;
-     
-    // Okay try shrinking the bounds
-    if ((xDivisions-1)*yDivisions >= nchildren)
-      --xDivisions;
-    if (xDivisions*(yDivisions-1) >= nchildren)
-      --yDivisions;
-      
-    // Now break up the space evenly and pack
-    float xDelta = xSpace / xDivisions;
-    float yDelta = ySpace / yDivisions;
-    int childIndex = 0;
-    for (int i = 0; i < yDivisions; i++)
+    if (nchildren > 0)
       {
-      for (int j = 0; j < xDivisions; j++)
+      // Divide the available space with simple algo
+      int xDivisions = (int)(sqrt((float)nchildren)+1); // Ceiling
+      int yDivisions = xDivisions;
+       
+      // Okay try shrinking the bounds
+      if ((xDivisions-1)*yDivisions >= nchildren)
+        --xDivisions;
+      if (xDivisions*(yDivisions-1) >= nchildren)
+        --yDivisions;
+        
+      // Now break up the space evenly and pack
+      float xDelta = xSpace / xDivisions;
+      float yDelta = ySpace / yDivisions;
+      int childIndex = 0;
+      for (int i = 0; i < yDivisions; i++)
         {
-        // Check to see if we have more children
-        if (childIndex >= nchildren)
+        for (int j = 0; j < xDivisions; j++)
           {
-          break;
+          // Check to see if we have more children
+          if (childIndex >= nchildren)
+            {
+            break;
+            }
+          
+          // Give children their positions
+          coords[0] = 
+            parentMinX + xDelta * j;// minX
+          coords[1] = 
+            parentMinX + xDelta * (j + 1.0);// maxX
+          coords[2] = 
+            parentMinY + ySpace - yDelta * (i + 1.0);// minY
+          coords[3] = 
+            parentMinY + ySpace - yDelta*i;// maxY
+          
+          int id = children[childIndex];
+          coordsArray->SetTuple(id, coords);
+        
+          // Increment child count
+          ++childIndex;
           }
-        
-        // Give children their positions
-        coords[0] = 
-          parentMinX + xDelta * j;// minX
-        coords[1] = 
-          parentMinX + xDelta * (j + 1.0);// maxX
-        coords[2] = 
-          parentMinY + ySpace - yDelta * (i + 1.0);// minY
-        coords[3] = 
-          parentMinY + ySpace - yDelta*i;// maxY
-        
-        int id = children[childIndex];
-        coordsArray->SetTuple(id, coords);
-      
-        // Increment child count
-        ++childIndex;
         }
       }
     }
