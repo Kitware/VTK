@@ -23,6 +23,10 @@
 // even if it appears in only one tag.  If an attribute is missing from a tag,
 // its value is the empty string.
 //
+// If MaskArrays is on (the default is off), the filter will additionally make bit
+// arrays whose names are prepended with ".valid." which are 1 if the element 
+// contains that attribute, and 0 otherwise. 
+//
 // For example, the XML file containing the text:
 // <node name="jeff" age="26">
 //   this is text in jeff's node
@@ -53,6 +57,18 @@
 // dave      (empty)   (empty)   30         node     (empty)
 // lisa      (empty)   (empty)   (empty)    node     "this is text in lisa's node"
 // darlene   (empty)   (empty)   29         node     (empty)
+//
+// There would also be the following bit arrays if MaskArrays is on:
+//
+// .valid.name   .valid.initials   .valid.other   .valid.age
+// ---------------------------------------------------------
+// 1             0                 0              1
+// 1             0                 0              0
+// 1             1                 1              0
+// 1             0                 0              1
+// 1             0                 0              0
+// 1             0                 0              1
+
 
 #ifndef __vtkXMLTreeReader_h
 #define __vtkXMLTreeReader_h
@@ -77,8 +93,16 @@ public:
   vtkSetStringMacro(XMLString);
 
   // Description:
+  // If on, makes bit arrays for each attribute with name .valid.attribute_name
+  // for each attribute.  Default is off.
+  vtkGetMacro(MaskArrays, bool);
+  vtkSetMacro(MaskArrays, bool);
+  vtkBooleanMacro(MaskArrays, bool);
+
+  // Description:
   // If on, stores the XML character data (i.e. textual data between tags)
   // into an array named CharDataField, otherwise this field is skipped.
+  // Default is off.
   vtkGetMacro(ReadCharData, bool);
   vtkSetMacro(ReadCharData, bool);
   vtkBooleanMacro(ReadCharData, bool);
@@ -92,6 +116,7 @@ protected:
   char* FileName;
   char* XMLString;
   bool ReadCharData;
+  bool MaskArrays;
 
   int RequestData(
     vtkInformation*, 

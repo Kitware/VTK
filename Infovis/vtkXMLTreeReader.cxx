@@ -15,6 +15,7 @@
 
 #include "vtkXMLTreeReader.h"
 
+#include "vtkBitArray.h"
 #include "vtkInformation.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
@@ -25,7 +26,7 @@
 #include <vtklibxml2/libxml/parser.h>
 #include <vtklibxml2/libxml/tree.h>
 
-vtkCxxRevisionMacro(vtkXMLTreeReader, "1.1");
+vtkCxxRevisionMacro(vtkXMLTreeReader, "1.2");
 vtkStandardNewMacro(vtkXMLTreeReader);
 
 const char * vtkXMLTreeReader::TagNameField = ".tagname";
@@ -38,6 +39,7 @@ vtkXMLTreeReader::vtkXMLTreeReader()
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->ReadCharData = 0;
+  this->MaskArrays = 0;
 }
 
 vtkXMLTreeReader::~vtkXMLTreeReader()
@@ -53,12 +55,14 @@ void vtkXMLTreeReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "ReadCharData: "
      << (this->ReadCharData ? "on" : "off") << endl;
+  os << indent << "MaskArrays: "
+     << (this->MaskArrays ? "on" : "off") << endl;
   os << indent << "XMLString: " 
      << (this->XMLString ? this->XMLString : "(none)") << endl;
 }
 
 void vtkXMLTreeReaderProcessElement(vtkTree* tree,
-   vtkIdType parent, xmlNode* node, int readCharData)
+   vtkIdType parent, xmlNode* node, int readCharData, int maskArrays)
 {
   vtkPointData* data = tree->GetPointData();
   vtkStringArray* nameArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(vtkXMLTreeReader::TagNameField));
@@ -99,23 +103,45 @@ void vtkXMLTreeReaderProcessElement(vtkTree* tree,
     for (xmlAttr* curAttr = curNode->properties; curAttr; curAttr = curAttr->next)
       {
       const char* name = reinterpret_cast<const char*>(curAttr->name);
-      vtkAbstractArray* arr = data->GetAbstractArray(name);
-      vtkStringArray* stringArr = vtkStringArray::SafeDownCast(arr);
-      if (!arr)
+      int len = strlen(name);
+      char* validName = new char[len+8];
+      strcpy(validName, ".valid.");
+      strcat(validName, name);
+      vtkStringArray* stringArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(name));
+      vtkBitArray* bitArr = 0;
+      if (maskArrays)
+        {
+        bitArr = vtkBitArray::SafeDownCast(data->GetAbstractArray(validName));
+        }
+      if (!stringArr)
         {
         stringArr = vtkStringArray::New();
-        stringArr->Resize(vertex);
         stringArr->SetName(name);
         data->AddArray(stringArr);
         stringArr->Delete();
+        if (maskArrays)
+          {
+          bitArr = vtkBitArray::New();
+          bitArr->SetName(validName);
+          data->AddArray(bitArr);
+          bitArr->Delete();
+          }
         }
       const char* value = reinterpret_cast<const char*>(curAttr->children->content);
       stringArr->InsertValue(vertex, value);
+      if (maskArrays)
+        {
+        for (vtkIdType i = bitArr->GetNumberOfTuples(); i < vertex; i++)
+          {
+          bitArr->InsertNextValue(false);
+          }
+        bitArr->InsertNextValue(true);
+        }
       //cerr << "attname=" << name << ",value=" << value << endl;
       }
 
     // Process this node's children
-    vtkXMLTreeReaderProcessElement(tree, vertex, curNode->children, readCharData);
+    vtkXMLTreeReaderProcessElement(tree, vertex, curNode->children, readCharData, maskArrays);
     }
 
   if (readCharData && parent >= 0)
@@ -148,7 +174,7 @@ int vtkXMLTreeReader::RequestData(
     doc = xmlReadMemory(this->XMLString, strlen(this->XMLString), "noname.xml", NULL, 0);
     }
 
-  // Store the XML hieredgehy into a vtkTree
+  // Store the XML hierarchy into a vtkTree
   vtkTree* output = vtkTree::GetData(outputVector);
   vtkPointData* data = output->GetPointData();
 
@@ -173,7 +199,7 @@ int vtkXMLTreeReader::RequestData(
 
   // Get the root element node
   xmlNode* rootElement = xmlDocGetRootElement(doc);
-  vtkXMLTreeReaderProcessElement(output, -1, rootElement, this->ReadCharData);
+  vtkXMLTreeReaderProcessElement(output, -1, rootElement, this->ReadCharData, this->MaskArrays);
 
   // Make all the arrays the same size
   for (int i = 0; i < data->GetNumberOfArrays(); i++)
