@@ -91,7 +91,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.6");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.7");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -431,7 +431,42 @@ int vtkPExodusIIReader::RequestData(
       return 0;
       }
 
-    this->ReaderList[reader_idx]->SetTimeStep( this->GetTimeStep() );
+    if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() ) )
+      { // Get the requested time step. We only support requests of a single time step in this reader right now
+      double* requestedTimeSteps = outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() );
+
+      // Save the time value in the output data information.
+      int length = outInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+      double* steps = outInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+
+      if ( ! this->GetHasModeShapes() )
+        {
+        // find the highest time step with a time value that is smaller than the requested time.
+        int timeStep = 0;
+        while (timeStep < length - 1 && steps[timeStep] < requestedTimeSteps[0])
+          {
+          timeStep++;
+          }
+        this->TimeStep = timeStep;
+        this->ReaderList[reader_idx]->SetTimeStep( this->TimeStep );
+        output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), steps + timeStep, 1 );
+        }
+      else
+        {
+        // Let the metadata know the time value so that the Metadata->RequestData call below will generate
+        // the animated mode shape properly.
+        this->SetModeShapeTime( requestedTimeSteps[0] );
+        this->ReaderList[reader_idx]->SetTimeStep( this->TimeStep );
+        this->ReaderList[reader_idx]->SetModeShapeTime( requestedTimeSteps[0] );
+        output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), requestedTimeSteps, 1 );
+        //output->GetInformation()->Remove( vtkDataObject::DATA_TIME_STEPS() );
+        }
+      }
+    else
+      {
+      this->ReaderList[reader_idx]->SetTimeStep( this->TimeStep );
+      }
+
     this->ReaderList[reader_idx]->SetGenerateObjectIdCellArray( this->GetGenerateObjectIdCellArray() );
     this->ReaderList[reader_idx]->SetGenerateGlobalElementIdArray( this->GetGenerateGlobalElementIdArray() );
     this->ReaderList[reader_idx]->SetGenerateGlobalNodeIdArray( this->GetGenerateGlobalNodeIdArray() );
