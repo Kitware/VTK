@@ -190,7 +190,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.15");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.16");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -653,15 +653,13 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
 }
 
 //----------------------------------------------------------------------------
-vtkProp* vtkVisibleCellSelector::GetActorFromId(vtkIdType cellid)
+vtkProp* vtkVisibleCellSelector::GetActorFromId(vtkIdType id)
 {
-  if ( (this->Renderer == NULL) || 
-       (cellid >= this->Renderer->PropsSelectedFromCount) )
+  if (!this->Renderer || !this->Renderer->IdentPainter)
     {
-    return NULL;
+    return 0;
     }
-
-  return this->Renderer->PropsSelectedFrom[cellid];
+  return this->Renderer->IdentPainter->GetActorFromId(id);
 }
 
 //----------------------------------------------------------------------------

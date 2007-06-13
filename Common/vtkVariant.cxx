@@ -498,6 +498,7 @@ T vtkVariantStringToNumeric(vtkStdString str, bool* valid, T* vtkNotUsed(ignored
     {
     *valid =  ((vstr.rdstate() & ios::badbit) == 0
       && (vstr.rdstate() & ios::failbit) == 0);
+    *valid = *valid && vstr.eof();
     //*valid = (vstr.rdstate() == ios::goodbit);
     }
   return data;

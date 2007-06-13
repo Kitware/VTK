@@ -78,6 +78,10 @@ public:
   //Allows you to specify a mapping for selected actor ids.
   void MakeActorLookupTable(vtkProp **Props, vtkIdTypeArray *IdsForProps);
 
+  //Description:
+  //Allows you to get the id for selected actor.
+  vtkProp* GetActorFromId(vtkIdType id);
+  
 protected:
   vtkIdentColoredPainter();
   ~vtkIdentColoredPainter();

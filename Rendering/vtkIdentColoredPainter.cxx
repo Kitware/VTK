@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.16");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.17");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -86,6 +86,19 @@ void vtkIdentColoredPainter::ColorByConstant(unsigned int constant)
   this->CurrentIdPlane0 = constant;
 }
 
+//-----------------------------------------------------------------------------
+vtkProp* vtkIdentColoredPainter::GetActorFromId(vtkIdType id)
+{
+  vtkIdType numIds = this->ActorIds->GetNumberOfTuples();
+  for (int i = 0; i < numIds; i++)
+    {
+    if (this->ActorIds->GetValue(i) == id)
+      {
+      return this->PropAddrs[i];
+      }
+    }
+  return 0;
+}
 
 //-----------------------------------------------------------------------------
 void vtkIdentColoredPainter::MakeActorLookupTable(vtkProp **props, vtkIdTypeArray *ids)
@@ -165,7 +178,7 @@ void vtkIdentColoredPainter::ColorByActorId(vtkProp *actorAddr)
   this->MakeActorLookupTable(SaveProps, arr);
   arr->Delete();
 
-  this->CurrentIdPlane0 = maxId+1;
+  this->CurrentIdPlane0 = maxId+2;
 }
 
 //-----------------------------------------------------------------------------
