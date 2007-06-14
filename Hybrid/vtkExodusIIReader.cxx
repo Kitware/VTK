@@ -303,6 +303,9 @@ public:
   vtkSetMacro(HasModeShapes,int);
   vtkGetMacro(HasModeShapes,int);
 
+  vtkSetMacro(ModeShapeTime,double);
+  vtkGetMacro(ModeShapeTime,double);
+
   vtkDataArray* FindDisplacementVectors( int timeStep );
 
   const struct ex_init_params* GetModelParams() const { return &this->ModelParameters; }
@@ -794,7 +797,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.12.2.2");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.12.2.3");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 
@@ -4123,11 +4126,11 @@ protected:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.12.2.2");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.12.2.3");
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.12.2.2");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.12.2.3");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -4373,7 +4376,7 @@ int vtkExodusIIReader::RequestData(
   int timeStep = this->TimeStep;
 
   if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() ) )
-    { // Get the requested time step. We only supprt requests of a single time step in this reader right now
+    { // Get the requested time step. We only support requests of a single time step in this reader right now
     double* requestedTimeSteps = outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() );
 
     // Save the time value in the output data information.
@@ -4397,6 +4400,7 @@ int vtkExodusIIReader::RequestData(
       // the animated mode shape properly.
       this->Metadata->ModeShapeTime = requestedTimeSteps[0];
       output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), &this->Metadata->ModeShapeTime, 1 );
+      //output->GetInformation()->Remove( vtkDataObject::DATA_TIME_STEPS() );
       }
     }
 
@@ -4462,6 +4466,21 @@ void vtkExodusIIReader::SetHasModeShapes( int ms )
 int vtkExodusIIReader::GetHasModeShapes()
 {
   return this->Metadata->GetHasModeShapes();
+}
+
+void vtkExodusIIReader::SetModeShapeTime( double phase )
+{
+  double x = phase < 0. ? 0. : ( phase > 1. ? 1. : phase );
+  if ( this->Metadata->ModeShapeTime == x )
+    {
+    return;
+    }
+  this->Metadata->SetModeShapeTime( x );
+}
+
+double vtkExodusIIReader::GetModeShapeTime()
+{
+  return this->Metadata->GetModeShapeTime();
 }
 
 const char* vtkExodusIIReader::GetTitle() { return this->Metadata->ModelParameters.title; }
