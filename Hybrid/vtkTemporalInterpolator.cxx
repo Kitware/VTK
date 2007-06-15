@@ -35,7 +35,7 @@
 #include "vtkstd/algorithm"
 #include "vtkstd/vector"
 
-vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.9");
+vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.10");
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
 //----------------------------------------------------------------------------
@@ -209,12 +209,13 @@ int vtkTemporalInterpolator::RequestData(
   for (upIdx = 0; upIdx < numUpTimes; ++upIdx)
     {
     // below the range
+    vtkDataObject *out1;
     if (upTimes[upIdx] <= inTimes[0])
       {
       // pass the lowest data
       vtkDebugMacro(<<"Interpolation time below/== range : " << inTimes[0]);
       vtkDataObject *in1 = inData->GetDataSet(0,0);
-      vtkDataObject *out1 = in1->NewInstance();
+      out1 = in1->NewInstance();
       out1->ShallowCopy(in1);
       outData->SetDataSet(upIdx,0,out1);
 //      outData->ShallowCopy(out1);
@@ -226,7 +227,7 @@ int vtkTemporalInterpolator::RequestData(
       // pass the highest data
       vtkDebugMacro(<<"Interpolation time above/== range : " << inTimes[numInTimes-1] << " of " << numInTimes);
       vtkDataObject *in1 = inData->GetDataSet(numInTimes-1,0);
-      vtkDataObject *out1 = in1->NewInstance();
+      out1 = in1->NewInstance();
       out1->ShallowCopy(in1);
       outData->SetDataSet(upIdx,0,out1);
 //      outData->ShallowCopy(out1);
@@ -246,7 +247,7 @@ int vtkTemporalInterpolator::RequestData(
         // pass the match
         vtkDebugMacro(<<"Interpolation time " << inTimes[i]);
         vtkDataObject *in1 = inData->GetDataSet(i,0);
-        vtkDataObject *out1 = in1->NewInstance();
+        out1 = in1->NewInstance();
         out1->ShallowCopy(in1);
         outData->SetDataSet(upIdx,0,out1);
 //        outData->ShallowCopy(out1);
@@ -260,11 +261,13 @@ int vtkTemporalInterpolator::RequestData(
         double ratio = (upTimes[upIdx]-inTimes[i-1])/(inTimes[i] - inTimes[i-1]);
         vtkDebugMacro(<<"Interpolation times " << inTimes[i-1] << "->" << inTimes[i] 
           << " : " << upTimes[upIdx] << " Interpolation ratio " << ratio );
-        vtkDataObject *out1 = this->InterpolateDataObject(in1,in2,ratio);
+        out1 = this->InterpolateDataObject(in1,in2,ratio);
         outData->SetDataSet(upIdx,0,out1);
 //        outData->ShallowCopy(out1);
         out1->Delete();
         }
+      out1->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), 
+                                 &upTimes[upIdx], 1);
       }
     }
 
