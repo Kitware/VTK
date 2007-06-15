@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.21");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.22");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -1448,7 +1448,7 @@ int vtkDataSetAttributes::GetCopyPedigreeIds(int ctype)
 void vtkDataSetAttributes::RemoveArray(const char *name)
 {
   int i;
-  this->GetArray(name, i);
+  this->GetAbstractArray(name, i);
   this->RemoveArray(i);
 }
 
