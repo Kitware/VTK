@@ -98,7 +98,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.13");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.14");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -3532,6 +3532,7 @@ void vtkExodusIIWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "WriteOutBlockIdArray " << this->WriteOutBlockIdArray << endl;
   os << indent << "WriteOutGlobalNodeIdArray " << this->WriteOutGlobalNodeIdArray << endl;
   os << indent << "WriteOutGlobalElementIdArray " << this->WriteOutGlobalElementIdArray << endl;
+  os << indent << "WriteAllTimeSteps " << this->WriteAllTimeSteps << endl;
 
   os << indent << "ModelMetadata " << this->ModelMetadata << endl;
 }
