@@ -36,11 +36,16 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkTypeInt64Array.h"
-#include "vtkTypeUInt64Array.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
+
+// We only have vtkTypeUInt64Array if we have long long
+// or we have __int64 with conversion to double.
+#if defined(VTK_TYPE_USE_LONG_LONG) || (defined(VTK_TYPE_USE___INT64) && defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE))
+#include "vtkTypeUInt64Array.h"
+#endif
 
 #include <ctype.h>
 #include <sys/stat.h>
@@ -52,7 +57,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.144");
+vtkCxxRevisionMacro(vtkDataReader, "1.145");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -1174,6 +1179,9 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
   
   else if ( ! strncmp(type, "vtktypeuint64", 13) )
     {
+// We only have vtkTypeUInt64Array if we have long long
+// or we have __int64 with conversion to double.
+#if defined(VTK_TYPE_USE_LONG_LONG) || (defined(VTK_TYPE_USE___INT64) && defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE))
     array = vtkTypeUInt64Array::New();
     array->SetNumberOfComponents(numComp);
     vtkTypeUInt64 *ptr = ((vtkTypeUInt64Array *)array)->WritePointer(0,numTuples*numComp);
@@ -1187,6 +1195,11 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
       {
       vtkReadASCIIData(this, ptr, numTuples, numComp);
       }
+#else
+    vtkErrorMacro("This version of VTK cannot read unsigned 64-bit integers.");
+    free(type);
+    return NULL;
+#endif
     }
   
   else if ( ! strncmp(type, "float", 5) )
