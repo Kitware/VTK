@@ -259,6 +259,7 @@ public:
   vtkAbstractArray *ReadArray(const char *dataType, int numTuples, int numComp);
   vtkFieldData *ReadFieldData();
 
+//BTX  
   // Description:
   // Internal function to read in a value.  Returns zero if there was an
   // error.
@@ -279,7 +280,8 @@ public:
   int Read(unsigned long long *result);
 #endif
   int Read(float *);
-  int Read(double *);
+  int Read(double *);  
+//ETX
 
   // Description:
   // Close the vtk file.
