@@ -190,12 +190,6 @@ public:
   virtual  int GetEventPending();
 
   // Description:
-  // Initialize OpenGL for this window.
-  virtual void SetupPalette(void *hDC);
-  virtual void SetupPixelFormat(void *hDC, void *dwFlags, int debug, 
-                                int bpp=16, int zbpp=16);
-
-  // Description:
   // Get the size of the depth buffer.
   int GetDepthBufferSize();
 

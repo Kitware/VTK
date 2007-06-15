@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.58");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.59");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -119,7 +119,114 @@ public:
   int ScreenMapped;
   int ScreenDoubleBuffer;
   
+  AGLPixelFormat ChoosePixelFormat(int accel, int offscreen, int doublebuff, int stereo, 
+    int multisamples, int alphaBitPlanes);
+
+  AGLContext CreateContext(int offscreen, int& doublebuff, int& stereo, 
+    int& multisamples, int& alphaBitPlanes, char*& error);
+  
 };
+
+AGLPixelFormat vtkCarbonRenderWindowInternal::ChoosePixelFormat(int accel, int offscreen, int doublebuff, 
+  int stereo, int multisamples, int alphaBitPlanes)
+{
+  int i = 0;
+  GLint attr[64];
+
+  if(offscreen)
+    {
+    attr[i++] = AGL_OFFSCREEN;
+    }
+  if(doublebuff)
+    {
+    attr[i++] = AGL_DOUBLEBUFFER;
+    }
+  attr[i++] = AGL_RGBA;
+  attr[i++] = AGL_DEPTH_SIZE;
+  attr[i++] = 32;
+  attr[i++] = AGL_PIXEL_SIZE;
+  attr[i++] = 32;
+  if(accel)
+    {
+    attr[i++] = AGL_ACCELERATED;
+    }
+  if(multisamples)
+    {
+    attr[i++] = AGL_SAMPLE_BUFFERS_ARB;
+    attr[i++] = 1;
+    attr[i++] = AGL_SAMPLES_ARB;
+    attr[i++] = multisamples;
+    attr[i++] = AGL_MULTISAMPLE;
+    }
+  if (alphaBitPlanes)
+    {
+    attr[i++] = AGL_ALPHA_SIZE;
+    attr[i++] = 8;
+    }
+  if(stereo)
+    {
+    attr[i++] = AGL_STEREO;
+    attr[i++] = GL_TRUE;
+    }
+  attr[i++] = AGL_NO_RECOVERY;  // must choose the pixel format we want!
+  attr[i++] = AGL_NONE;
+
+  return aglChoosePixelFormat (NULL, 0, attr);
+}
+
+AGLContext vtkCarbonRenderWindowInternal::CreateContext(int offscreen, int& doublebuff, 
+  int& stereo, int& multisamples, int& alphaBitPlanes, char*& error)
+{
+  error = NULL;
+  AGLContext ctx = 0;
+  AGLPixelFormat fmt = 0;
+  int noSoftwareRendering = 1;  // flip to zero if you're willing to do software
+                                // rendering to get more features.
+
+  int _db, _a, _s, _m;
+
+  for(_db = doublebuff; !fmt && _db >= 0; _db--)
+    {
+    for(_a = alphaBitPlanes; !fmt && _a >= 0; _a--)
+      {
+      for(_s = stereo; !fmt && _s >= 0; _s--)
+        {
+        for(_m = multisamples; !fmt && _m >= 0; _m--)
+          {
+          for(int accel = 1; !fmt && accel >= noSoftwareRendering; accel--)
+            {
+            fmt = this->ChoosePixelFormat(accel, offscreen, _db, _s, _m, _a);
+            if(fmt)
+              {
+              doublebuff = _db;
+              stereo = _s;
+              multisamples = _m;
+              alphaBitPlanes = _a;
+              }
+            }
+          }
+        }
+      }
+    }
+
+  aglReportError (); // cough up any errors encountered
+  if (NULL == fmt)
+    {
+    error = "Could not find valid pixel format";
+    return NULL;
+    }
+  
+  ctx = aglCreateContext (fmt, 0); // create without sharing
+  aglDestroyPixelFormat(fmt);
+  aglReportError (); // cough up errors
+  if (NULL == ctx)
+    {
+    error = "Could not create context";
+    return NULL;
+    }
+  return ctx;
+}
+
 
 //--------------------------------------------------------------------------
 vtkCarbonRenderWindow::vtkCarbonRenderWindow()
@@ -493,18 +600,6 @@ void vtkCarbonRenderWindow::WindowConfigure()
 }
 
 //--------------------------------------------------------------------------
-void vtkCarbonRenderWindow::SetupPixelFormat(void*, void*, int, int, int)
-{
-  cout << "vtkCarbonRenderWindow::SetupPixelFormat - IMPLEMENT\n";
-}
-
-//--------------------------------------------------------------------------
-void vtkCarbonRenderWindow::SetupPalette(void*)
-{
-  cout << "vtkCarbonRenderWindow::SetupPalette - IMPLEMENT\n";
-}
-
-//--------------------------------------------------------------------------
 void vtkCarbonRenderWindow::InitializeApplication()
 {
   if (!this->ApplicationInitialized)
@@ -587,36 +682,17 @@ void vtkCarbonRenderWindow::CreateAWindow()
     }
   
   SetPortWindowPort(this->GetRootWindow());
-  AGLPixelFormat fmt = 0;      // output pixel format
-  i = 0;
-  this->aglAttributes [i++] = AGL_RGBA;
-  this->aglAttributes [i++] = AGL_DOUBLEBUFFER;
-  this->aglAttributes [i++] = AGL_DEPTH_SIZE;
-  this->aglAttributes [i++] = 32;
-  this->aglAttributes [i++] = AGL_PIXEL_SIZE;
-  this->aglAttributes [i++] = 32;
-  this->aglAttributes [i++] = AGL_ACCELERATED;
-  if (this->AlphaBitPlanes)
-    {
-    this->aglAttributes [i++] = AGL_ALPHA_SIZE;
-    this->aglAttributes [i++] = 8;
-    }
-  this->aglAttributes [i++] = AGL_NONE;
 
-  fmt = aglChoosePixelFormat (NULL, 0, this->aglAttributes);
-  aglReportError (); // cough up any errors encountered
-  if (NULL == fmt)
-    {
-    vtkErrorMacro("Could not find valid pixel format");
-    return;
-    }
-  
-  this->ContextId = aglCreateContext (fmt, 0); // create without sharing
-  aglDestroyPixelFormat(fmt);
-  aglReportError (); // cough up errors
+  char* error = NULL;
+  this->ContextId = this->Internal->CreateContext(0, this->DoubleBuffer,
+                                this->StereoCapableWindow, this->MultiSamples, 
+                                this->AlphaBitPlanes, error);
   if (NULL == this->ContextId)
     {
-    vtkErrorMacro ("Could not create context");
+    if(error)
+      {
+      vtkErrorMacro(<<error);
+      }
     return;
     }
 
@@ -752,25 +828,13 @@ void vtkCarbonRenderWindow::CreateOffScreenWindow(int width, int height)
 {
   if(!this->CreateHardwareOffScreenWindow(width,height))
     {
-    int i=0;
-    GLint attr[50];
-    attr [i++] = AGL_OFFSCREEN;
-    attr [i++] = AGL_RGBA;
-    attr [i++] = AGL_PIXEL_SIZE;
-    attr [i++] = 32;
-    attr [i++] = AGL_DEPTH_SIZE;
-    attr [i++] = 32;
-    if (this->AlphaBitPlanes)
-      {
-      attr [i++] = AGL_ALPHA_SIZE;
-      attr [i++] = 8;
-      }
-    attr [i] = AGL_NONE;
-      
-    AGLPixelFormat fmt = aglChoosePixelFormat(NULL, 0, attr);
-    this->Internal->OffScreenContextId = aglCreateContext(fmt, 0);
-    aglDestroyPixelFormat(fmt);
-      
+    char* error = NULL;
+    int doubleBuf = 0;
+    this->Internal->OffScreenContextId = 
+      this->Internal->CreateContext(1, doubleBuf,
+         this->StereoCapableWindow, this->MultiSamples, 
+         this->AlphaBitPlanes, error);
+    
     this->Internal->OffScreenWindow = vtkCreateOSWindow(width, height, 4);
     this->Size[0] = width;
     this->Size[1] = height;
