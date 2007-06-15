@@ -82,6 +82,7 @@ vtkRenderLargeImage.cxx
 vtkTemporalDataSetCache.cxx
 vtkTemporalInterpolator.cxx
 vtkTemporalShiftScale.cxx
+vtkTemporalSnapToTimeStep.cxx
 vtkThinPlateSplineTransform.cxx
 vtkTransformToGrid.cxx
 vtkVRMLImporter.cxx
