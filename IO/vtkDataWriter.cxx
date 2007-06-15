@@ -32,12 +32,13 @@
 #include "vtkPoints.h"
 #include "vtkShortArray.h"
 #include "vtkStringArray.h"
+#include "vtkTypeTraits.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.119");
+vtkCxxRevisionMacro(vtkDataWriter, "1.120");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -582,6 +583,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
   int i, j, idx;
   char str[1024];
   
+  char* outputFormat = new char[10];
   switch (dataType)
     {
     case VTK_BIT:
@@ -682,6 +684,50 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
       }
     break;
 
+#if defined(VTK_TYPE_USE___INT64)
+    case VTK___INT64:
+      {
+      sprintf (str, format, "vtktypeint64"); *fp << str;
+      __int64 *s= static_cast<__int64*>(data->GetVoidPointer(0));
+      strcpy(outputFormat, vtkTypeTraits<__int64>::ParseFormat());
+      strcat(outputFormat, " ");
+      vtkWriteDataArray(fp, s, this->FileType, outputFormat, num, numComp);
+      }
+    break;
+
+    case VTK_UNSIGNED___INT64:
+      {
+      sprintf (str, format, "vtktypeuint64"); *fp << str; 
+      unsigned __int64 *s= static_cast<unsigned __int64*>(data->GetVoidPointer(0));
+      strcpy(outputFormat, vtkTypeTraits<unsigned __int64>::ParseFormat());
+      strcat(outputFormat, " ");
+      vtkWriteDataArray(fp, s, this->FileType, outputFormat, num, numComp);
+      }
+    break;
+#endif
+
+#if defined(VTK_TYPE_USE_LONG_LONG)
+    case VTK_LONG_LONG:
+      {
+      sprintf (str, format, "vtktypeint64"); *fp << str;
+      long long *s= static_cast<long long*>(data->GetVoidPointer(0));
+      strcpy(outputFormat, vtkTypeTraits<long long>::ParseFormat());
+      strcat(outputFormat, " ");
+      vtkWriteDataArray(fp, s, this->FileType, outputFormat, num, numComp);
+      }
+    break;
+
+    case VTK_UNSIGNED_LONG_LONG:
+      {
+      sprintf (str, format, "vtktypeuint64"); *fp << str; 
+      unsigned long long *s= static_cast<unsigned long long*>(data->GetVoidPointer(0));
+      strcpy(outputFormat, vtkTypeTraits<unsigned long long>::ParseFormat());
+      strcat(outputFormat, " ");
+      vtkWriteDataArray(fp, s, this->FileType, outputFormat, num, numComp);
+      }
+    break;
+#endif
+
     case VTK_FLOAT:
       {
       sprintf (str, format, "float"); *fp << str; 
@@ -775,6 +821,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
       return 0;
       }
     }
+  delete[] outputFormat;
 
   fp->flush();
   if (fp->fail())

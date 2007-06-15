@@ -35,6 +35,8 @@
 #include "vtkShortArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkTypeInt64Array.h"
+#include "vtkTypeUInt64Array.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -50,7 +52,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.143");
+vtkCxxRevisionMacro(vtkDataReader, "1.144");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -342,6 +344,50 @@ int vtkDataReader::Read(unsigned long *result)
     }
   return 1;
 }
+
+#if defined(VTK_TYPE_USE___INT64)
+int vtkDataReader::Read(__int64 *result)
+{
+  *this->IS >> *result;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
+  return 1;
+}
+
+int vtkDataReader::Read(unsigned __int64 *result)
+{
+  *this->IS >> *result;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
+  return 1;
+}
+#endif
+
+#if defined(VTK_TYPE_USE_LONG_LONG)
+int vtkDataReader::Read(long long *result)
+{
+  *this->IS >> *result;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
+  return 1;
+}
+
+int vtkDataReader::Read(unsigned long long *result)
+{
+  *this->IS >> *result;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
+  return 1;
+}
+#endif
 
 int vtkDataReader::Read(float *result)
 {
@@ -912,7 +958,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
 {
   char *type=strdup(dataType);
   type=this->LowerCase(type);
-
+  
   vtkAbstractArray *array;
   if ( ! strncmp(type, "bit", 3) )
     {
@@ -1103,6 +1149,40 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
       vtkByteSwap::Swap4BERange((int *)ptr,numTuples*numComp);
       }
+    else 
+      {
+      vtkReadASCIIData(this, ptr, numTuples, numComp);
+      }
+    }
+  
+  else if ( ! strncmp(type, "vtktypeint64", 12) )
+    {
+    array = vtkTypeInt64Array::New();
+    array->SetNumberOfComponents(numComp);
+    vtkTypeInt64 *ptr = ((vtkTypeInt64Array *)array)->WritePointer(0,numTuples*numComp);
+    if ( this->FileType == VTK_BINARY )
+      {
+      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
+      vtkByteSwap::Swap8BERange(ptr,numTuples*numComp);
+      }
+
+    else 
+      {
+      vtkReadASCIIData(this, ptr, numTuples, numComp);
+      }
+    }
+  
+  else if ( ! strncmp(type, "vtktypeuint64", 13) )
+    {
+    array = vtkTypeUInt64Array::New();
+    array->SetNumberOfComponents(numComp);
+    vtkTypeUInt64 *ptr = ((vtkTypeUInt64Array *)array)->WritePointer(0,numTuples*numComp);
+    if ( this->FileType == VTK_BINARY )
+      {
+      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
+      vtkByteSwap::Swap8BERange(ptr,numTuples*numComp);
+      }
+
     else 
       {
       vtkReadASCIIData(this, ptr, numTuples, numComp);
