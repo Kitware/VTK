@@ -24,7 +24,7 @@
 #include "vtkTemporalDataSetAlgorithm.h"
 
 //BTX
-#include <vtkstd/vector>
+#include <vtkstd/vector> // used because I am a bad boy. So there.
 //ETX
 
 class VTK_HYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkTemporalDataSetAlgorithm
@@ -32,6 +32,7 @@ class VTK_HYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkTemporalDataSetAlg
 public:
   static vtkTemporalSnapToTimeStep *New();
   vtkTypeRevisionMacro(vtkTemporalSnapToTimeStep, vtkTemporalDataSetAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX
   enum {

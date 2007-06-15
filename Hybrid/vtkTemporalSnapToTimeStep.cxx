@@ -21,7 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkTemporalSnapToTimeStep, "1.1");
+vtkCxxRevisionMacro(vtkTemporalSnapToTimeStep, "1.2");
 vtkStandardNewMacro(vtkTemporalSnapToTimeStep);
 
 //----------------------------------------------------------------------------
@@ -193,3 +193,11 @@ int vtkTemporalSnapToTimeStep::RequestUpdateExtent (
 
   return 1;
 }
+//----------------------------------------------------------------------------
+void vtkTemporalSnapToTimeStep::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "SnapMode: " << this->SnapMode << endl;
+}
+//----------------------------------------------------------------------------
