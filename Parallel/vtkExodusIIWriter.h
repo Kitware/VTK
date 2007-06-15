@@ -181,30 +181,13 @@ public:
   vtkBooleanMacro(WriteOutGlobalElementIdArray, int);
 
   // Description:
-  //   If there is no vtkModelMetadata object, then you can
-  //   input time step values here.  We copy your array.  This is
-  //   not required, the writer can use sensible defaults.  If you
-  //   only give one time step value (say 1.0), we'll increment
-  //   each successive time step by that amount (2.0, 3.0, ...).
+  //   When WriteAllTimeSteps is turned ON, the writer is executed once for
+  //    each timestep available from the reader.
 
-  void SetTimeStepValues(int NumberOfTimeSteps, float *v);
-  float *GetTimeStepValues(){return this->InputTimeStepValues;}
-  int GetNumberOfTimeSteps(){return this->InputNumberOfTimeSteps;}
+  vtkSetMacro(WriteAllTimeSteps, int);
+  vtkGetMacro(WriteAllTimeSteps, int);
+  vtkBooleanMacro(WriteAllTimeSteps, int);
 
-  // Description:
-  //   You can set the time step index for the next write with
-  //   SetCurrentTimeStep.  If this is not set, the writer will
-  //   use the time step index found in the vtkModelMetadata object,
-  //   or else a sensible default (one more than the last time step
-  //   written).  (You may want to set a different
-  //   time step index when you have a vtkModelMetadata object if,
-  //   for example, you are writing out only every tenth time
-  //   step.  The input to the writer may be time step 10, but you
-  //   want it written out as time step 1.)
-  //   The first index is 0.
-
-  void SetCurrentTimeStep(int ts);
-  int GetCurrentTimeStep(){return this->InputCurrentTimeStep;}
 
   // Description:
   //   Provide a list of all blockIds that appear in the file.  If
@@ -225,23 +208,20 @@ public:
   vtkSetMacro(ErrorStatus, int);
   vtkGetMacro(ErrorStatus, int);
 
-  // ATTRIBUTE EDITOR
-  // Description:
-  //    If this writer is writing to the original data file, set 
-  //    this flag so that it will only write out the variable array. 
-  //    If a vtkAttributeEditor filter is the input to this writer, set the attribute name here
-  vtkSetMacro(EditorFlag,int);
-  vtkGetMacro(EditorFlag,int);
-  vtkSetStringMacro(EditedVariableName);
-  vtkGetStringMacro(EditedVariableName);
-  vtkSetMacro(WritingToOriginalFile,int);
-  vtkGetMacro(WritingToOriginalFile,int);
-  vtkBooleanMacro(WritingToOriginalFile, int);
-
 protected:
 
   vtkExodusIIWriter();
   ~vtkExodusIIWriter();
+
+  virtual int ProcessRequest(vtkInformation *request,
+                             vtkInformationVector **inputVector,
+                             vtkInformationVector *outputVector);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector **inputVector,
+                          vtkInformationVector *outputVector);
+  virtual int RequestInformation( vtkInformation *request,
+                                  vtkInformationVector **inputVector, 
+                                  vtkInformationVector *outputVector);
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
@@ -259,6 +239,8 @@ protected:
   //   responsible for writing.
   vtkSetMacro(MyRank, int);
   vtkGetMacro(MyRank, int);
+
+  void StringUppercase(const char* str, char* upperstr);
 
 private:
   static char *StrDupWithNew(const char *s);
@@ -309,8 +291,6 @@ private:
   int WriteSideSetInformation();
   int WriteProperties();
 
-  int GetTimeStepIndex();
-  float GetTimeStepValue(int timeStepIndex);
   int WriteNextTimeStep();
   float *ExtractComponentF(vtkDataArray *da, int comp, int *idx);
   double *ExtractComponentD(vtkDataArray *da, int comp, int *idx);
@@ -333,11 +313,6 @@ private:
 
   int *InputBlockIds;
   int InputBlockIdsLength;
-
-  int InputNumberOfTimeSteps;
-  float *InputTimeStepValues;
-  int InputCurrentTimeStep;   
-  int LastTimeStepWritten;
 
   // List of the global element ID of each cell in input
 
@@ -417,12 +392,10 @@ private:
 
   int ErrorStatus;
 
-  // ATTRIBUTE EDITOR
-  int ExtractComponentForEditorF(vtkDataArray *da, vtkFloatArray *fa, vtkIdTypeArray *ids, int comp, int *idx);
-  int ExtractComponentForEditorD(vtkDataArray *da, vtkDoubleArray *dba, vtkIdTypeArray *ids, int comp, int *idx);
-  char *EditedVariableName;
-  int EditorFlag;
-  int WritingToOriginalFile;
+  int CurrentTimeIndex;
+  int NumberOfTimeSteps;
+  int WriteAllTimeSteps;
+  vtkDoubleArray *TimeValues;
 };
 
 #endif

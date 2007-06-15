@@ -41,6 +41,13 @@
 #include "vtkCellArray.h"
 #include "vtkInformationVector.h"
 #include "vtkInformation.h"
+#include "vtkCommand.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkErrorCode.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkDataObject.h"
+
 #ifdef VTK_USE_PARALLEL
 #include "vtkMultiProcessController.h"
 #endif
@@ -91,7 +98,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.11");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.12");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -102,6 +109,8 @@ vtkExodusIIWriter::vtkExodusIIWriter()
   this->FileName = NULL;
   this->MyFileName = NULL;
   this->ModelMetadata = NULL;
+  this->NumberOfTimeSteps = 0;
+  this->CurrentTimeIndex = 0;
 
   this->PassDoubles = 0;
   this->StoreDoubles = -1;   // flag that this is not set
@@ -109,11 +118,6 @@ vtkExodusIIWriter::vtkExodusIIWriter()
 
   this->InputBlockIdsLength = 0;
   this->InputBlockIds = NULL;
-
-  this->InputNumberOfTimeSteps = 0;
-  this->InputCurrentTimeStep = -1;
-  this->InputTimeStepValues = NULL;
-  this->LastTimeStepWritten = -1;
 
   this->BlockIdArrayName = NULL;
 
@@ -125,9 +129,9 @@ vtkExodusIIWriter::vtkExodusIIWriter()
   this->LocalElementIdMap = NULL;
   this->LocalNodeIdMap = NULL;
 
-  this->WriteOutBlockIdArray = 0;
-  this->WriteOutGlobalElementIdArray = 0;
-  this->WriteOutGlobalNodeIdArray = 0;
+  this->WriteOutBlockIdArray = 1;
+  this->WriteOutGlobalElementIdArray = 1;
+  this->WriteOutGlobalNodeIdArray = 1;
 
   this->InitializeBlockLists();
   this->InitializeVariableArrayNames();
@@ -141,11 +145,8 @@ vtkExodusIIWriter::vtkExodusIIWriter()
 
   this->GhostLevel = 0;
   this->ErrorStatus = 0;
-
-  // ATTRIBUTE EDITOR
-  this->EditedVariableName = NULL;
-  this->EditorFlag = 0;
-  this->WritingToOriginalFile = 0;
+  this->WriteAllTimeSteps = 0;
+  this->TimeValues = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -160,8 +161,6 @@ vtkExodusIIWriter::~vtkExodusIIWriter()
   this->SetMyFileName(NULL);
   this->SetModelMetadata(NULL);
   this->SetBlockIdArrayName(NULL);
-
-  this->SetTimeStepValues(0, NULL);
 
   this->SetAllBlockIds(0, NULL);
 
@@ -178,11 +177,11 @@ vtkExodusIIWriter::~vtkExodusIIWriter()
     this->MyInput->UnRegister(this);
     this->MyInput->Delete();
     }
-
-  // ATTRIBUTE EDITOR
-  if(this->EditedVariableName)
+  
+  if(this->TimeValues)
     {
-    delete [] this->EditedVariableName;
+    this->TimeValues->Delete();
+    this->TimeValues = NULL;
     }
 }
 
@@ -356,37 +355,6 @@ void vtkExodusIIWriter::RemoveGhostCells()
 }
 
 //----------------------------------------------------------------------------
-// Values that can be set if there is no metadata
-//----------------------------------------------------------------------------
-void vtkExodusIIWriter::SetTimeStepValues(int n, float *f)
-{
-  if (this->InputTimeStepValues)  
-    {
-    delete [] this->InputTimeStepValues;
-    this->InputTimeStepValues = NULL;
-    }
-
-  this->InputNumberOfTimeSteps = 0;
-
-  if (n < 1) return;
-
-  this->InputNumberOfTimeSteps = n;
-  
-  this->InputTimeStepValues = new float [n];
-
-  if (f)
-    {
-    memcpy(this->InputTimeStepValues, f, n * sizeof(float));
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkExodusIIWriter::SetCurrentTimeStep(int ts)
-{
-  this->InputCurrentTimeStep = ts;
-}
-
-//----------------------------------------------------------------------------
 void vtkExodusIIWriter::SetAllBlockIds(int numEntries, int *blockIds)
 {
   if (this->InputBlockIds)
@@ -406,6 +374,140 @@ void vtkExodusIIWriter::SetAllBlockIds(int numEntries, int *blockIds)
     memcpy(this->InputBlockIds, blockIds, numEntries * sizeof(int));
     }
 }
+
+int vtkExodusIIWriter::ProcessRequest(vtkInformation *request,
+                              vtkInformationVector **inputVector,
+                              vtkInformationVector *outputVector)
+{
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    return this->RequestInformation(request, inputVector, outputVector);
+    }
+  else if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    // get the requested update extent
+    if(!this->TimeValues)
+      {
+      this->TimeValues = vtkDoubleArray::New();
+      this->TimeValues->SetArray(
+        inputVector[0]->GetInformationObject(0)
+          ->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS()), 
+        inputVector[0]->GetInformationObject(0)
+          ->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS()),1);
+      }
+    if (this->WriteAllTimeSteps)
+      {
+      if(this->TimeValues->GetPointer(0))
+        {
+        double timeReq[1];
+        timeReq[0] = this->TimeValues->GetValue(this->CurrentTimeIndex);
+        inputVector[0]->GetInformationObject(0)->Set
+          ( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), 
+            timeReq, 1);
+        }
+      }
+    return 1;
+    }
+  // generate the data
+  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    return this->RequestData(request, inputVector, outputVector);
+    }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+
+//----------------------------------------------------------------------------
+int vtkExodusIIWriter::RequestInformation(
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed(outputVector))
+{
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  if ( inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
+    {
+    this->NumberOfTimeSteps = 
+      inInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+    }
+  else
+    {
+    this->NumberOfTimeSteps = 0;
+    }
+
+  return 1;
+}
+
+
+
+int vtkExodusIIWriter::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **,
+  vtkInformationVector *)
+{
+  this->SetErrorCode(vtkErrorCode::NoError);
+  
+  vtkDataObject *input = this->GetInput();
+
+  // make sure input is available
+  if ( !input )
+    {
+    vtkErrorMacro(<< "No input!");
+    return 0;
+    }
+
+  if (this->GetInput() != NULL)
+    {
+    this->GetInput()->Update();
+    }
+
+  unsigned long lastUpdateTime =  this->GetInput()->GetUpdateTime();
+
+  if (lastUpdateTime < this->WriteTime && this->GetMTime() < this->WriteTime)
+    {
+    // we are up to date
+    return 1;
+    }
+
+  // is this the first request
+  if (this->CurrentTimeIndex==0 && this->WriteAllTimeSteps)
+    {
+    // Tell the pipeline to start looping.
+    request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+    }
+
+  this->InvokeEvent(vtkCommand::StartEvent,NULL);
+  this->WriteData();
+  this->InvokeEvent(vtkCommand::EndEvent,NULL);
+
+  this->CurrentTimeIndex++;
+
+  // increment the time index
+  if ( this->CurrentTimeIndex == this->NumberOfTimeSteps && this->WriteAllTimeSteps )
+    {
+    // Tell the pipeline to stop looping.
+    request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+    }
+
+  // Close exodus file if we are done writing
+  if ( (this->WriteAllTimeSteps && this->CurrentTimeIndex == this->NumberOfTimeSteps) ||
+       !this->WriteAllTimeSteps )
+    {
+    this->CurrentTimeIndex = 0;
+    this->CloseExodusFile();
+    }
+
+  // Release any inputs if marked for release
+  if (this->GetInput() && this->GetInput()->ShouldIReleaseData())
+    {
+    this->GetInput()->ReleaseData();
+    }
+
+  this->WriteTime.Modified();
+
+  return 1;
+}
+
 
 //------------------------------------------------------------------
 void vtkExodusIIWriter::WriteData()
@@ -432,34 +534,9 @@ void vtkExodusIIWriter::WriteData()
     return;
     }
 
-// ATTRIBUTE EDITOR
-  if(this->EditorFlag && this->WritingToOriginalFile)
+  if (this->CurrentTimeIndex > 0)
     {
-    rc = this->OpenExodusFile();
-    if (rc)
-      {
-      vtkErrorMacro(<< "vtkExodusIIWriter::WriteData can't open exodus file");
-      goto doneError;
-      }
-    goto writeData;
-    }
-  else if(this->EditorFlag && !this->WritingToOriginalFile)
-    {
-    // Try to create a new file instead
-    rc = this->CreateNewExodusFile();
-    if (rc)
-      {
-      vtkErrorMacro(<< "vtkExodusIIWriter::WriteData can't create exodus file");
-      goto doneError;
-      }
-    else
-      goto writeData;
-    }
-
-
-  if (this->LastTimeStepWritten >= 0)
-    {
-    this->OpenExodusFile();
+    //this->OpenExodusFile();
 
     rc = this->WriteNextTimeStep();
 
@@ -468,7 +545,7 @@ void vtkExodusIIWriter::WriteData()
       goto doneError;
       }
 
-    goto done;
+    return;
     }
 
   rc = this->CreateNewExodusFile();
@@ -478,9 +555,6 @@ void vtkExodusIIWriter::WriteData()
     vtkErrorMacro(<< "vtkExodusIIWriter::WriteData can't create exodus file");
     goto doneError;
     }
-
-
-writeData:
 
   rc = this->WriteInitializationParameters();
 
@@ -587,15 +661,15 @@ writeData:
     goto doneError;
     }
 
-  goto done;
+  return;
 
 doneError:
 
   this->SetErrorStatus(1);
 
-done:
-  this->SetModelMetadata(NULL);
-  this->CloseExodusFile();
+//done:
+  //this->SetModelMetadata(NULL);
+  //this->CloseExodusFile();
 }
 
 //------------------------------------------------------------------
@@ -805,11 +879,6 @@ int vtkExodusIIWriter::CreateExodusModel()
   dimNames[1] = vtkExodusIIWriter::StrDupWithNew("Y");
   dimNames[2] = vtkExodusIIWriter::StrDupWithNew("Z");
   em->SetCoordinateNames(3, dimNames);
-
-  if (this->InputTimeStepValues)
-    {
-    em->SetTimeSteps(this->InputNumberOfTimeSteps, this->InputTimeStepValues);
-    }
 
   if (this->InputBlockIds && this->BlockIdList)
     {
@@ -1331,12 +1400,6 @@ int vtkExodusIIWriter::OpenExodusFile()
   int IOWordSize = (this->StoreDoubles ? sizeof(double) : sizeof(float));
   float version = 0.0;
 
-  // ATTRIBUTE EDITOR
-  if(this->EditorFlag && this->FileName)
-    {
-    this->SetMyFileName(this->GetFileName());
-    }
-
   this->fid = ex_open(this->MyFileName, EX_WRITE, &compWordSize, &IOWordSize,
                       &version);
 
@@ -1553,6 +1616,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
   int numCellArrays = cd->GetNumberOfArrays();
   int numCellScalars = 0;
   int *skipCellArray = NULL;
+  char nameInUpper[MAX_STR_LENGTH];
 
   if (numCellArrays > 0)
     {
@@ -1561,22 +1625,26 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
 
     for (i=0; i<numCellArrays; i++)
       {
-      if (checkAndSkipEltIds)
+      const char *nm = cd->GetArray(i)->GetName();
+      this->StringUppercase(nm,nameInUpper);
+
+      if (checkAndSkipEltIds && cd->IsArrayAnAttribute(i) == vtkDataSetAttributes::GLOBALIDS)
         {
-        if (cd->IsArrayAnAttribute(i) == vtkDataSetAttributes::GLOBALIDS)
-          {
-          skipCellArray[i] = 1;
-          continue;
-          }
+        skipCellArray[i] = 1;
+        continue;
         }
       if (checkAndSkipBlockIds)
         {
-        const char *nm = cd->GetArray(i)->GetName();
         if (!strcmp(nm, this->BlockIdArrayName))
           {
           skipCellArray[i] = 1;
           continue;
           }
+        }
+      if ( !strncmp(nameInUpper,"PEDIGREE",8) )
+        {
+        skipCellArray[i] = 1;
+        continue;
         }
 
       int numComponents = cd->GetArray(i)->GetNumberOfComponents();
@@ -1660,7 +1728,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
 
   this->AllVariablesDefinedInAllBlocks = allDefined;
 
-  if (numCellScalars > 0 && !this->WritingToOriginalFile)
+  if (numCellScalars > 0)
     {
     rc = ex_put_var_param(this->fid, "E", numCellScalars);
 
@@ -1698,15 +1766,20 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
 
     for (i=0; i<numPointArrays; i++)
       {
-      if (checkAndSkipNodeIds)
+      this->StringUppercase(pd->GetArray(i)->GetName(),nameInUpper);
+
+      // Is this array displacement?
+      // If it is and we are not writing all the timesteps, 
+      // do not write out. It would mess up the geometry the
+      // next time the file was read in.
+      if ( (checkAndSkipNodeIds && pd->IsArrayAnAttribute(i) == vtkDataSetAttributes::GLOBALIDS) ||
+            !strncmp(nameInUpper,"PEDIGREE",8) ||
+            (!strncmp(nameInUpper,"DIS",3) && !this->WriteAllTimeSteps) )
         {
-        if (pd->IsArrayAnAttribute(i) == vtkDataSetAttributes::GLOBALIDS)
-          {
-          skipPointArray[i] = 1;
-          continue;
-          }
+        skipPointArray[i] = 1;
+        continue;
         }
-        
+
       int numComponents = pd->GetArray(i)->GetNumberOfComponents();
       numPointScalars += numComponents;
       }
@@ -1751,7 +1824,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
 
   this->NumberOfScalarNodeArrays = numPointScalars;
 
-  if (numPointScalars > 0 && !this->WritingToOriginalFile)
+  if (numPointScalars > 0)
     {
     rc = ex_put_var_param(this->fid, "N", numPointScalars);
 
@@ -1770,10 +1843,10 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
     }
 
   // GLOBAL VARIABLES
-          
+/*          
   int ngvars = mmd->GetNumberOfGlobalVariables();
     
-  if (ngvars > 0 && !this->WritingToOriginalFile)
+  if (ngvars > 0)
     {
     char **names = mmd->GetGlobalVariableNames();
 
@@ -1791,7 +1864,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
       return 1;
       }
     }
-
+*/
   return 0;
 }
 
@@ -2101,172 +2174,6 @@ float *vtkExodusIIWriter::ExtractComponentF(vtkDataArray *da, int comp, int *idx
 }
 
 //----------------------------------------------------------------------------
-int vtkExodusIIWriter::ExtractComponentForEditorD(
-  vtkDataArray *da, 
-  vtkDoubleArray *editedArray, 
-  vtkIdTypeArray *idArray, 
-  int comp, 
-  int *idx)
-{
-  int numComp = da->GetNumberOfComponents();
-  if (numComp <= comp) return 0;
-
-  int nvals = da->GetNumberOfTuples();
-
-  if (nvals < 1) return 0;
-
-  int type = da->GetDataType();
-
-  if ((type == VTK_DOUBLE) && (numComp == 1) && (idx == NULL))
-    {
-    vtkDoubleArray *a = vtkDoubleArray::SafeDownCast(da);
-    editedArray->DeepCopy(a);
-    if(idArray)
-      {
-      int j=0;
-      float myVal;
-      while( j < nvals )
-        {
-        myVal = a->GetValue(j);
-        editedArray->SetValue(idArray->GetValue(j),myVal);
-        j++;
-        }
-      }
-    }
-  else
-    {
-    return 0;
-    }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkExodusIIWriter::ExtractComponentForEditorF(
-  vtkDataArray *da, 
-  vtkFloatArray *editedArray, 
-  vtkIdTypeArray *idArray, 
-  int comp, 
-  int *idx)
-{
-  int numComp = da->GetNumberOfComponents();
-  if (numComp < comp) return 0;
-
-  int nvals = da->GetNumberOfTuples();
-
-  if (nvals < 1) return 0;
-
-  int type = da->GetDataType();
-
-  if ((type == VTK_FLOAT) && (numComp == 1) && (idx == NULL))
-    {
-    vtkFloatArray *a = vtkFloatArray::SafeDownCast(da);
-    editedArray->DeepCopy(a);
-    if(idArray)
-      {
-      int j=0;
-      float myVal;
-      while( j < nvals )
-        {
-        myVal = a->GetValue(j);
-        editedArray->SetValue(idArray->GetValue(j),myVal);
-        j++;
-        }
-      }
-    }
-  else
-    {
-    return 0;
-    }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkExodusIIWriter::GetTimeStepIndex()
-{
-  int ts = -1;
-
-  if (this->InputCurrentTimeStep >= 0)
-    {
-    // User told writer which time step to call this results
-    // data when we write it out.
-
-    ts = this->InputCurrentTimeStep;
-    }
-  else if (this->GetModelMetadata()->GetTimeStepValues())
-    {
-    // The time step index is in the metadata, the same index as
-    // when the file was read in.
-
-    ts = this->GetModelMetadata()->GetTimeStepIndex();
-    }
-
-  if (ts < 0)
-    {
-    // We don't have metadata and the user didn't specify anything
-    // to the writer.  We just start at 1 and go up by 1 for each
-    // write.
-
-    ts = this->LastTimeStepWritten + 1;
-    }
-
-  this->LastTimeStepWritten = ts;
-
-  return ts;
-}
-
-//----------------------------------------------------------------------------
-float vtkExodusIIWriter::GetTimeStepValue(int ts)
-{
-  float val = (float)ts;   // default
-
-  vtkModelMetadata *mmd = this->GetModelMetadata();
-
-  float *tsv = mmd->GetTimeStepValues();
-  int numts = mmd->GetNumberOfTimeSteps();
-  int realTimeStep = mmd->GetTimeStepIndex();
-
-  if (numts > 0)
-    {
-    if (realTimeStep >= 0)
-      {
-      // It doesn't matter what time step we are saying it is
-      // in the output file, this is the actual time stamp
-      // associated with this results data.
-
-      val = tsv[realTimeStep];
-      }
-    else if ((ts >= 0) && (ts < numts))
-      {
-      // We didn't have vtkModelMetadata, but the user of this writer
-      // input a list of time values. Here's the value for this time 
-      // step index.
-
-      val = tsv[ts];
-      }
-    else if (ts >= numts)
-      {
-      // We didn't have vtkModelMetadata, but the user of this writer
-      // input a list of 1 or more time values.  Here's the value for 
-      // this time step index if we extrapolate from the last value.
-
-      int extra = ts - numts + 1;
-      float endOfTime = tsv[numts - 1];
-      float diff = endOfTime;
-      if (numts >= 2)
-        {
-        diff -= tsv[numts - 2];
-        }
-
-      val = endOfTime + (extra * diff);
-      }
-    }
-
-  return val;
-}
-
-//----------------------------------------------------------------------------
 int vtkExodusIIWriter::WriteNextTimeStep()
 {
   int i, idIdx;
@@ -2274,8 +2181,8 @@ int vtkExodusIIWriter::WriteNextTimeStep()
 
   vtkModelMetadata *mmd = this->GetModelMetadata();
 
-  int ts = this->GetTimeStepIndex();
-  float tsv = this->GetTimeStepValue(ts);
+  int ts = this->CurrentTimeIndex;
+  float tsv = this->TimeValues->GetValue(this->CurrentTimeIndex);
 
   if (this->PassDoubles)
     {
@@ -2298,7 +2205,7 @@ int vtkExodusIIWriter::WriteNextTimeStep()
   int npoints = ug->GetNumberOfPoints();
   int nCellArrays = this->NumberOfScalarElementArrays;
   int nPointArrays = this->NumberOfScalarNodeArrays;
-  int nGlobalVariables = mmd->GetNumberOfGlobalVariables();
+  //int nGlobalVariables = mmd->GetNumberOfGlobalVariables();
 
   // CELL VARIABLES
 
@@ -2306,22 +2213,6 @@ int vtkExodusIIWriter::WriteNextTimeStep()
     {
     char *nameIn = this->InputElementArrayNames[i];
     int component = this->InputElementArrayComponent[i];
-
-    // ATTRIBUTE EDITOR
-    int varIndex = i;
-    if(this->EditorFlag && this->EditedVariableName && strcmp(this->EditedVariableName,nameIn))
-      {
-      continue;
-      }
-    // get the real variable index used in the exodus file - only for when writing back to original file
-    char **names = this->ModelMetadata->GetOriginalElementVariableNames();
-    for(int j=0;j<this->ModelMetadata->GetOriginalNumberOfElementVariables();j++)
-      {
-      if(!strcmp(names[j],nameIn))
-        {
-        varIndex = j;
-        }
-      }
 
     vtkDataArray *da = ug->GetCellData()->GetArray(nameIn);
 
@@ -2340,133 +2231,59 @@ int vtkExodusIIWriter::WriteNextTimeStep()
 
     if (this->PassDoubles)
       {
-      // ATTRIBUTE EDITOR
-      if(this->EditorFlag)
+      double *vars = this->ExtractComponentD(da, component, this->ElementIndex);
+
+      for (idIdx=0; idIdx < nblocks; idIdx++)
         {
-        vtkDoubleArray *editedArray = vtkDoubleArray::New();
-        vtkIdTypeArray *idArray = vtkIdTypeArray::SafeDownCast(ug->GetPointData()->GetGlobalIds());
-        if(this->ExtractComponentForEditorD(da, editedArray, idArray, component, this->ElementIndex))
+        int numElts = this->NumberOfElementsPerBlock[idIdx];
+        if (numElts < 1) continue;   // no cells in this block
+
+        int defined = this->BlockVariableTruthValue(idIdx, i);
+        if (!defined) continue;    // var undefined in this block
+
+        int id = this->BlockIds[idIdx];
+        int first = this->BlockElementStart[idIdx]; 
+
+        rc = ex_put_elem_var(this->fid, ts + 1, i + 1, id, numElts, vars + first);
+
+        if (rc < 0)
           {
-          double *vars = editedArray->GetPointer(0);
-
-          for (idIdx=0; idIdx < nblocks; idIdx++)
-            {
-            int numElts = this->NumberOfElementsPerBlock[idIdx];
-            if (numElts < 1) continue;   // no cells in this block
-
-            int defined = this->BlockVariableTruthValue(idIdx, i);
-            if (!defined) continue;    // var undefined in this block
-
-            int id = this->BlockIds[idIdx];
-            int first = this->BlockElementStart[idIdx]; 
-
-            if(this->WritingToOriginalFile)
-              rc = ex_put_elem_var(this->fid, ts + 1, varIndex + 1, id, numElts, vars + first);
-            else
-              rc = ex_put_elem_var(this->fid, ts + 1, i + 1, id, numElts, vars + first);
-
-            if (rc < 0)
-              {
-              vtkErrorMacro(<< "vtkExodusIIWriter::WriteNextTimeStep ex_put_elem_var");
-              return 1;
-              }
-            }
+          vtkErrorMacro(<< "vtkExodusIIWriter::WriteNextTimeStep ex_put_elem_var");
+          return 1;
           }
-        editedArray->Delete();
         }
-      else
+
+      if (deleteIt)
         {
-        double *vars = this->ExtractComponentD(da, component, this->ElementIndex);
-
-        for (idIdx=0; idIdx < nblocks; idIdx++)
-          {
-          int numElts = this->NumberOfElementsPerBlock[idIdx];
-          if (numElts < 1) continue;   // no cells in this block
-
-          int defined = this->BlockVariableTruthValue(idIdx, i);
-          if (!defined) continue;    // var undefined in this block
-
-          int id = this->BlockIds[idIdx];
-          int first = this->BlockElementStart[idIdx]; 
-
-          rc = ex_put_elem_var(this->fid, ts + 1, i + 1, id, numElts, vars + first);
-
-          if (rc < 0)
-            {
-            vtkErrorMacro(<< "vtkExodusIIWriter::WriteNextTimeStep ex_put_elem_var");
-            return 1;
-            }
-          }
-
-        if (deleteIt)
-          {
-          delete [] vars;
-          }
+        delete [] vars;
         }
       }
     else
       {
-      // ATTRIBUTE EDITOR
-      if(this->EditorFlag)
+      float *vars = this->ExtractComponentF(da, component, this->ElementIndex);
+
+      for (idIdx=0; idIdx < nblocks; idIdx++)
         {
-        vtkFloatArray *editedArray = vtkFloatArray::New();
-        vtkIdTypeArray *idArray = vtkIdTypeArray::SafeDownCast(ug->GetPointData()->GetGlobalIds());
-        if(this->ExtractComponentForEditorF(da, editedArray, idArray, component, this->ElementIndex))
+        int numElts = this->NumberOfElementsPerBlock[idIdx];
+        if (numElts < 1) continue;   // no cells in this block
+
+        int defined = this->BlockVariableTruthValue(idIdx, i);
+        if (!defined) continue;    // var undefined in this block
+
+        int id = this->BlockIds[idIdx];
+        int first = this->BlockElementStart[idIdx];
+
+        rc = ex_put_elem_var(this->fid, ts + 1, i + 1, id, numElts, vars + first);
+
+        if (rc < 0)
           {
-          float *vars = editedArray->GetPointer(0);
-
-          for (idIdx=0; idIdx < nblocks; idIdx++)
-            {
-            int numElts = this->NumberOfElementsPerBlock[idIdx];
-            if (numElts < 1) continue;   // no cells in this block
-
-            int defined = this->BlockVariableTruthValue(idIdx, i);
-            if (!defined) continue;    // var undefined in this block
-
-            int id = this->BlockIds[idIdx];
-            int first = this->BlockElementStart[idIdx];
-
-            if(this->WritingToOriginalFile)
-              rc = ex_put_elem_var(this->fid, ts + 1, varIndex + 1, id, numElts, vars + first);
-            else
-               rc = ex_put_elem_var(this->fid, ts + 1, i + 1, id, numElts, vars + first);
-
-            if (rc < 0)
-              {
-              vtkErrorMacro(<< "vtkExodusIIWriter::WriteNextTimeStep ex_put_elem_var");
-              return 1;
-              }
-            }
+          vtkErrorMacro(<< "vtkExodusIIWriter::WriteNextTimeStep ex_put_elem_var");
+          return 1;
           }
-        editedArray->Delete();
         }
-      else
+      if (deleteIt)
         {
-        float *vars = this->ExtractComponentF(da, component, this->ElementIndex);
-
-        for (idIdx=0; idIdx < nblocks; idIdx++)
-          {
-          int numElts = this->NumberOfElementsPerBlock[idIdx];
-          if (numElts < 1) continue;   // no cells in this block
-
-          int defined = this->BlockVariableTruthValue(idIdx, i);
-          if (!defined) continue;    // var undefined in this block
-
-          int id = this->BlockIds[idIdx];
-          int first = this->BlockElementStart[idIdx];
-
-          rc = ex_put_elem_var(this->fid, ts + 1, i + 1, id, numElts, vars + first);
-
-          if (rc < 0)
-            {
-            vtkErrorMacro(<< "vtkExodusIIWriter::WriteNextTimeStep ex_put_elem_var");
-            return 1;
-            }
-          }
-        if (deleteIt)
-          {
-          delete [] vars;
-          }
+        delete [] vars;
         }
       }
     }
@@ -2478,22 +2295,15 @@ int vtkExodusIIWriter::WriteNextTimeStep()
     char *nameIn = this->InputNodeArrayNames[i];
     int component = this->InputNodeArrayComponent[i];
 
-    // ATTRIBUTE EDITOR
-    // if we are writing a single variable and the names do not match, don't write
-    int varIndex = i;
-
-    if(this->EditorFlag && this->EditedVariableName && strcmp(this->EditedVariableName,nameIn)) 
+    // Is this array displacement?
+    // If it is and we are not writing all the timesteps, 
+    // do not write out. It would mess up the geometry the
+    // next time the file was read in.
+    char nameInUpper[MAX_STR_LENGTH];
+    this->StringUppercase(nameIn,nameInUpper);
+    if (!strncmp(nameInUpper,"DIS",3) && !this->WriteAllTimeSteps) 
       {
       continue;
-      }
-    // get the real variable index used in the exodus file
-    char **names = this->ModelMetadata->GetOriginalNodeVariableNames();
-    for(int j=0;j<this->ModelMetadata->GetOriginalNumberOfNodeVariables();j++)
-      {
-      if(!strcmp(names[j],nameIn))
-        {
-        varIndex = j;
-        }
       }
 
     vtkDataArray *da = ug->GetPointData()->GetArray(nameIn);
@@ -2507,85 +2317,21 @@ int vtkExodusIIWriter::WriteNextTimeStep()
 
     if (this->PassDoubles)
       {
-      // ATTRIBUTE EDITOR
-      if(this->EditorFlag)
+      double *vars = this->ExtractComponentD(da, component, NULL);
+      rc = ex_put_nodal_var(this->fid, ts + 1, i + 1, npoints, vars);
+      if (deleteIt)
         {
-        vtkDoubleArray *editedArray = vtkDoubleArray::New();
-/*
-        vtkIntArray *idArray = vtkIntArray::New();
-
-        idArray->SetNumberOfValues(mmd->GetNumberOfNodes());
-
-        if(mmd)
-          idArray->SetArray(mmd->GetMapToInternalNodeIds(),mmd->GetNumberOfNodes(),1);
-        else
-          continue;
-*/
-        vtkIdTypeArray *idArray = vtkIdTypeArray::SafeDownCast(ug->GetPointData()->GetArray("InternalNodeId"));
-/*
-    // Get the data into the temp int array
-    ex_get_node_num_map(this->CurrentHandle, exo_array_data);
-
-    // Okay copy the points that are actually used into the vtk array
-    int point_index;
-    for (i=0; i<this->NumberOfUsedNodes; i++)
-      {
-      point_index = this->ReversePointMap->GetValue(i);
-      idarray->SetValue(i, exo_array_data[point_index]);
-      }
-*/
-        if(this->ExtractComponentForEditorD(da, editedArray, idArray, component, NULL))
-          {
-          double *vars = editedArray->GetPointer(0);
-          if(this->WritingToOriginalFile)
-            rc = ex_put_nodal_var(this->fid, ts + 1, varIndex + 1, npoints, vars);
-          else
-            rc = ex_put_nodal_var(this->fid, ts + 1, i + 1, npoints, vars);
-          }
-        editedArray->Delete();
+        delete [] vars;
         }
-      else
-        {
-        double *vars = this->ExtractComponentD(da, component, NULL);
-        rc = ex_put_nodal_var(this->fid, ts + 1, i + 1, npoints, vars);
-        if (deleteIt)
-          {
-          delete [] vars;
-          }
-        }
+     
       }
     else
       {
-      // ATTRIBUTE EDITOR
-      if(this->EditorFlag)
+      float *vars = this->ExtractComponentF(da, component, NULL);
+      rc = ex_put_nodal_var(this->fid, ts + 1, i + 1, npoints, vars);
+      if (deleteIt)
         {
-        vtkFloatArray *editedArray = vtkFloatArray::New();
-        vtkIdTypeArray *idArray = vtkIdTypeArray::SafeDownCast(ug->GetPointData()->GetArray("InternalNodeId"));
-/*
-        vtkIntArray *idArray = vtkIntArray::New();
-        if(mmd)
-          idArray->SetArray(mmd->GetMapToInternalNodeIds(),mmd->GetNumberOfNodes(),1);
-        else
-          continue;
-*/
-        if(this->ExtractComponentForEditorF(da, editedArray, idArray, component, NULL))
-          {
-          float *vars = editedArray->GetPointer(0);
-          if(this->WritingToOriginalFile)
-            rc = ex_put_nodal_var(this->fid, ts + 1, varIndex + 1, npoints, vars);
-          else
-            rc = ex_put_nodal_var(this->fid, ts + 1, i + 1, npoints, vars);
-          }
-        editedArray->Delete();
-        }
-      else
-        {
-        float *vars = this->ExtractComponentF(da, component, NULL);
-        rc = ex_put_nodal_var(this->fid, ts + 1, i + 1, npoints, vars);
-        if (deleteIt)
-          {
-          delete [] vars;
-          }
+        delete [] vars;
         }
       }
 
@@ -2597,7 +2343,7 @@ int vtkExodusIIWriter::WriteNextTimeStep()
     }
 
   // GLOBAL VARIABLES
-
+/*
   if (nGlobalVariables > 0)
     {
     float *vals = mmd->GetGlobalVariableValue();
@@ -2625,6 +2371,7 @@ int vtkExodusIIWriter::WriteNextTimeStep()
       return 1;
       }
     }
+*/
 
   return 0;
 }
@@ -2689,7 +2436,7 @@ int vtkExodusIIWriter::WriteProperties()
     //
     // rc = ex_put_prop_names(this->fid, EX_ELEM_BLOCK, nbprop, names);
 
-    if (rc >= 0 && !this->WritingToOriginalFile)
+    if (rc >= 0)
       {
       int *values = em->GetBlockPropertyValue();
   
@@ -2709,7 +2456,7 @@ int vtkExodusIIWriter::WriteProperties()
 
     // rc = ex_put_prop_names(this->fid, EX_NODE_SET, nnsprop, names);
 
-    if (rc >= 0 && !this->WritingToOriginalFile)
+    if (rc >= 0)
       {
       int *values = em->GetNodeSetPropertyValue();
 
@@ -2729,7 +2476,7 @@ int vtkExodusIIWriter::WriteProperties()
 
     // rc = ex_put_prop_names(this->fid, EX_SIDE_SET, nssprop, names);
 
-    if (rc >= 0 && !this->WritingToOriginalFile)
+    if (rc >= 0)
       {
       int *values = em->GetSideSetPropertyValue();
 
@@ -2781,7 +2528,7 @@ int vtkExodusIIWriter::WriteSideSetInformation()
 
   int nids = em->GetSumSidesPerSideSet();
 
-  if (nids < 1 && !this->WritingToOriginalFile)
+  if (nids < 1)
     {
     int *buf = new int [nssets];
 
@@ -2899,18 +2646,15 @@ int vtkExodusIIWriter::WriteSideSetInformation()
       }
     }
 
-  if(!this->WritingToOriginalFile)
+  if (this->PassDoubles)
     {
-    if (this->PassDoubles)
-      {
-      rc = ex_put_concat_side_sets(this->fid, em->GetSideSetIds(),
-              ssSize, ssNumDF, ssIdIdx, ssDFIdx, idBuf, sideBuf, dfBufD);
-      }
-    else
-      {
-      rc = ex_put_concat_side_sets(this->fid, em->GetSideSetIds(),
-              ssSize, ssNumDF, ssIdIdx, ssDFIdx, idBuf, sideBuf, dfBuf);
-      }
+    rc = ex_put_concat_side_sets(this->fid, em->GetSideSetIds(),
+            ssSize, ssNumDF, ssIdIdx, ssDFIdx, idBuf, sideBuf, dfBufD);
+    }
+  else
+    {
+    rc = ex_put_concat_side_sets(this->fid, em->GetSideSetIds(),
+            ssSize, ssNumDF, ssIdIdx, ssDFIdx, idBuf, sideBuf, dfBuf);
     }
 
   delete [] ssSize;
@@ -2941,7 +2685,7 @@ int vtkExodusIIWriter::WriteNodeSetInformation()
 
   int nids = em->GetSumNodesPerNodeSet();
 
-  if (nids < 1 && !this->WritingToOriginalFile)
+  if (nids < 1 || !this->GlobalNodeIdList)
     {
     int *buf = new int [nnsets];
 
@@ -3025,18 +2769,15 @@ int vtkExodusIIWriter::WriteNodeSetInformation()
       }
     }
 
-  if(!this->WritingToOriginalFile)
+  if (this->PassDoubles)
     {
-    if (this->PassDoubles)
-      {
-      rc = ex_put_concat_node_sets(this->fid, em->GetNodeSetIds(),
-                nsSize, nsNumDF, nsIdIdx, nsDFIdx, idBuf, dfBufD);
-      }
-    else
-      {
-      rc = ex_put_concat_node_sets(this->fid, em->GetNodeSetIds(),
-                nsSize, nsNumDF, nsIdIdx, nsDFIdx, idBuf, dfBuf);
-      }
+    rc = ex_put_concat_node_sets(this->fid, em->GetNodeSetIds(),
+              nsSize, nsNumDF, nsIdIdx, nsDFIdx, idBuf, dfBufD);
+    }
+  else
+    {
+    rc = ex_put_concat_node_sets(this->fid, em->GetNodeSetIds(),
+              nsSize, nsNumDF, nsIdIdx, nsDFIdx, idBuf, dfBuf);
     }
 
   delete [] nsSize;
@@ -3059,11 +2800,6 @@ int vtkExodusIIWriter::WriteCoordinateNames()
 {
   vtkModelMetadata *em = this->GetModelMetadata();
 
-  if(this->WritingToOriginalFile)
-    {
-    return 0;
-    }
-
   int rc = ex_put_coord_names(this->fid, em->GetCoordinateNames());
 
   int fail = (rc < 0);
@@ -3075,11 +2811,6 @@ int vtkExodusIIWriter::WriteCoordinateNames()
 int vtkExodusIIWriter::WriteGlobalPointIds()
 {
   int rc = 0;
-
-  if(this->WritingToOriginalFile)
-    {
-    return 0;
-    }
 
   if (sizeof(vtkIdType) != sizeof(int))
     {
@@ -3119,11 +2850,7 @@ int vtkExodusIIWriter::WriteGlobalPointIds()
 int vtkExodusIIWriter::WriteGlobalElementIds()
 {
   int rc = 0;
-
-  if(this->WritingToOriginalFile)
-    {
-    return 0;
-    }
+  int fail = 0;
 
   if (sizeof(vtkIdType) != sizeof(int))
     {
@@ -3136,27 +2863,19 @@ int vtkExodusIIWriter::WriteGlobalElementIds()
 
   if (ids)
     {
-    if (this->ElementIndex)
-      {
-      vtkUnstructuredGrid *ug = this->GetInput();
-      int ncells = ug->GetNumberOfCells();
-      copyOfIds = new int [ncells];
-  
-      for (int i=0; i<ncells; i++)
-        {
-        copyOfIds[i] = static_cast<int>(ids[this->ElementIndex[i]]);
-        }
-      }
-  
-    rc = ex_put_elem_num_map(this->fid, copyOfIds);
-  
-    if (copyOfIds != NULL)
-      {
-      delete [] copyOfIds;
-      }
-    }
+    vtkUnstructuredGrid *ug = this->GetInput();
+    int ncells = ug->GetNumberOfCells();
+    copyOfIds = new int [ncells];
 
-  int fail = ( rc < 0);
+    for (int i=0; i<ncells; i++)
+      {
+      copyOfIds[i] = static_cast<int>(ids[this->ElementIndex[i]]);
+      }
+
+    rc = ex_put_elem_num_map(this->fid, copyOfIds);
+    fail = ( rc < 0);
+    delete [] copyOfIds;
+    }
 
   return fail;
 }
@@ -3166,11 +2885,6 @@ int vtkExodusIIWriter::WritePoints()
 {
   vtkUnstructuredGrid *ug = this->GetInput();
   if (!ug) return 1;
-
-  if(this->WritingToOriginalFile)
-    {
-    return 0;
-    }
 
   vtkPoints *pts = ug->GetPoints();
   int npts = pts->GetNumberOfPoints();
@@ -3267,10 +2981,6 @@ int vtkExodusIIWriter::WritePoints()
 //---------------------------------------------------------
 int vtkExodusIIWriter::WriteQARecords()
 {
-  if(this->WritingToOriginalFile)
-    {
-    return 0;
-    }
 
   vtkModelMetadata *em = this->GetModelMetadata();
 
@@ -3297,10 +3007,6 @@ int vtkExodusIIWriter::WriteQARecords()
 //----------------------------------------------------------------------------
 int vtkExodusIIWriter::WriteInformationRecords()
 {
-  if(this->WritingToOriginalFile)
-    {
-    return 0;
-    }
 
   vtkModelMetadata *em = this->GetModelMetadata();
 
@@ -3323,11 +3029,6 @@ int vtkExodusIIWriter::WriteInitializationParameters()
 {
   vtkUnstructuredGrid *ug = this->GetInput();
   if (!ug) return 1;
-
-  if(this->WritingToOriginalFile)
-    {
-    return 0;
-    }
 
   vtkModelMetadata *em = this->GetModelMetadata();
 
@@ -3495,7 +3196,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
     lastId = blockId;
     }
 
-  if (needMapping)
+  if (needMapping || this->WriteOutGlobalElementIdArray)
     {
     // Element variables and global IDs are mixed up, not grouped
     // by block as they must be when written out.
@@ -3678,11 +3379,6 @@ int vtkExodusIIWriter::WriteBlockInformation()
       }
     }
 
-  if(this->WritingToOriginalFile)
-    {
-    return 0;
-    }
-
   // Now, finally, write out the block information
 
   int fail = 0;
@@ -3794,6 +3490,25 @@ char *vtkExodusIIWriter::StrDupWithNew(const char *s)
   return newstr;
 }
 
+
+void vtkExodusIIWriter::StringUppercase(const char* str, char* upperstr)
+{ 
+  int len = 0;
+  if ( str )
+    {
+    len = strlen(str);
+    for (int i=0; i<len; i++)
+      upperstr[i] = toupper(str[i]);
+    }
+  else
+    { 
+    upperstr = NULL;
+    }
+
+  // Add string terminator
+  upperstr[len] = '\0';
+}
+
 //----------------------------------------------------------------------------
 void vtkExodusIIWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -3821,12 +3536,4 @@ void vtkExodusIIWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "WriteOutGlobalElementIdArray " << this->WriteOutGlobalElementIdArray << endl;
 
   os << indent << "ModelMetadata " << this->ModelMetadata << endl;
-
-  // ATTRIBUTE EDITOR
-  if (this->EditedVariableName)
-    {
-    os << indent << "EditedVariableName " << this->EditedVariableName << endl;
-    }
-  os << indent << "EditorFlag " << this->EditorFlag << endl;
-  os << indent << "WritingToOriginalFile " << this->WritingToOriginalFile << endl;
 }
