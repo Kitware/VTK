@@ -70,6 +70,10 @@ public:
   vtkVariantArray* GetRow(vtkIdType row);
 
   // Description:
+  // Set a row of the table with a vtkVariantArray which has one entry for each column.
+  void SetRow(vtkIdType row, vtkVariantArray* values);
+
+  // Description:
   // Insert a blank row at the end of the table.
   vtkIdType InsertNextBlankRow();
 

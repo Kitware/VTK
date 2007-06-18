@@ -28,7 +28,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.6");
+vtkCxxRevisionMacro(vtkTable, "1.7");
 vtkStandardNewMacro(vtkTable);
 
 //----------------------------------------------------------------------------
@@ -96,6 +96,16 @@ vtkVariantArray* vtkTable::GetRow(vtkIdType row)
     varr->InsertNextValue(this->GetValue(row, i));
     }
   return varr;
+}
+
+//----------------------------------------------------------------------------
+
+void vtkTable::SetRow(vtkIdType row, vtkVariantArray* values)
+{
+  for (int i = 0; i < this->GetNumberOfColumns(); i++)
+    {
+    this->SetValue(row, i, values->GetValue(i));
+    }
 }
 
 //----------------------------------------------------------------------------
