@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.60");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.61");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -234,7 +234,7 @@ vtkCarbonRenderWindow::vtkCarbonRenderWindow()
   this->Internal = new vtkCarbonRenderWindowInternal(this);
   this->ApplicationInitialized = 0;
   this->ContextId = 0;
-  this->MultiSamples = 8;
+  this->MultiSamples = 0;
   this->WindowId = 0;
   this->ParentId = 0;
   this->RootWindow = 0;
