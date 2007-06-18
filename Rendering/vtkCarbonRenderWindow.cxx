@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.59");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.60");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -123,7 +123,7 @@ public:
     int multisamples, int alphaBitPlanes);
 
   AGLContext CreateContext(int offscreen, int& doublebuff, int& stereo, 
-    int& multisamples, int& alphaBitPlanes, char*& error);
+    int& multisamples, int& alphaBitPlanes, const char*& error);
   
 };
 
@@ -175,7 +175,7 @@ AGLPixelFormat vtkCarbonRenderWindowInternal::ChoosePixelFormat(int accel, int o
 }
 
 AGLContext vtkCarbonRenderWindowInternal::CreateContext(int offscreen, int& doublebuff, 
-  int& stereo, int& multisamples, int& alphaBitPlanes, char*& error)
+  int& stereo, int& multisamples, int& alphaBitPlanes, const char*& error)
 {
   error = NULL;
   AGLContext ctx = 0;
@@ -618,7 +618,6 @@ void vtkCarbonRenderWindow::InitializeApplication()
 void vtkCarbonRenderWindow::CreateAWindow()
 {
   static int count = 1;
-  short i;
   char *windowName;
   
   // if a Window and HIView wasn't given, make a Window and HIView
@@ -683,7 +682,7 @@ void vtkCarbonRenderWindow::CreateAWindow()
   
   SetPortWindowPort(this->GetRootWindow());
 
-  char* error = NULL;
+  const char* error = NULL;
   this->ContextId = this->Internal->CreateContext(0, this->DoubleBuffer,
                                 this->StereoCapableWindow, this->MultiSamples, 
                                 this->AlphaBitPlanes, error);
@@ -828,7 +827,7 @@ void vtkCarbonRenderWindow::CreateOffScreenWindow(int width, int height)
 {
   if(!this->CreateHardwareOffScreenWindow(width,height))
     {
-    char* error = NULL;
+    const char* error = NULL;
     int doubleBuf = 0;
     this->Internal->OffScreenContextId = 
       this->Internal->CreateContext(1, doubleBuf,
