@@ -39,7 +39,7 @@ class QVTKInteractor;
 #include <vtkRenderWindowInteractor.h>
 #include <vtkCommand.h>
 #include <vtkConfigure.h>
-class vtkUnsignedCharArray;
+class vtkImageData;
 
 #if defined(Q_WS_MAC) && QT_VERSION >= 0x040000
 #include <Carbon/Carbon.h>    // Event handling for dirty region
@@ -122,7 +122,7 @@ class QVTK_EXPORT QVTKWidget : public QWidget
   // Description:
   // Returns the current image in the window.  If the image cache is up
   // to date, that is returned to avoid grabbing other windows.
-  virtual vtkUnsignedCharArray* cachedImage();
+  virtual vtkImageData* cachedImage();
     
 #if QT_VERSION < 0x040000
   // Description:
@@ -234,7 +234,7 @@ void internalMacFixRect();
 
 protected:
     
-  vtkUnsignedCharArray* mCachedImage;
+  vtkImageData* mCachedImage;
   bool cachedImageCleanFlag;
   bool automaticImageCache;
   double maxImageCacheRenderRate;

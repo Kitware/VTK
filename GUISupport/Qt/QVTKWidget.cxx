@@ -52,6 +52,8 @@
 #include "vtkConfigure.h"
 #include "vtkToolkits.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkImageData.h"
+#include "vtkPointData.h"
 
 
 // function to get VTK keysyms from ascii characters
@@ -91,7 +93,10 @@ QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
     QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
     );
 
-  this->mCachedImage = vtkUnsignedCharArray::New();
+  this->mCachedImage = vtkImageData::New();
+  this->mCachedImage->SetScalarTypeToUnsignedChar();
+  this->mCachedImage->SetOrigin(0,0,0);
+  this->mCachedImage->SetSpacing(1.0,1.0,1.0);
 }
 #endif
 
@@ -121,7 +126,10 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WFlags f)
     QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
     );
 
-  this->mCachedImage = vtkUnsignedCharArray::New();
+  this->mCachedImage = vtkImageData::New();
+  this->mCachedImage->SetScalarTypeToUnsignedChar();
+  this->mCachedImage->SetOrigin(0,0,0);
+  this->mCachedImage->SetSpacing(1,1,1);
 
 #if defined(Q_WS_MAC)
   this->DirtyRegionHandler = 0;
@@ -312,8 +320,16 @@ void QVTKWidget::saveImageToCache()
     return;
     }
 
+  int w = this->width();
+  int h = this->height();
+  this->mCachedImage->SetWholeExtent(0, w-1, 0, h-1, 0, 0);
+  this->mCachedImage->SetNumberOfScalarComponents(3);
+  this->mCachedImage->SetExtent(this->mCachedImage->GetWholeExtent());
+  this->mCachedImage->AllocateScalars();
+  vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
+    this->mCachedImage->GetPointData()->GetScalars());
   this->mRenWin->GetPixelData(0, 0, this->width()-1, this->height()-1, 1,
-                              this->mCachedImage);
+                              array);
   this->cachedImageCleanFlag = true;
   emit cachedImageClean();
 }
@@ -324,6 +340,9 @@ void QVTKWidget::setAutomaticImageCacheEnabled(bool flag)
   if (!flag)
     {
     this->mCachedImage->Initialize();
+    this->mCachedImage->SetScalarTypeToUnsignedChar();
+    this->mCachedImage->SetOrigin(0,0,0);
+    this->mCachedImage->SetSpacing(1,1,1);
     }
 }
 bool QVTKWidget::isAutomaticImageCacheEnabled() const
@@ -340,7 +359,7 @@ double QVTKWidget::maxRenderRateForImageCache() const
   return this->maxImageCacheRenderRate;
 }
 
-vtkUnsignedCharArray* QVTKWidget::cachedImage()
+vtkImageData* QVTKWidget::cachedImage()
 {
   // Make sure image is up to date.
   this->paintEvent(NULL);
@@ -461,10 +480,11 @@ void QVTKWidget::paintEvent(QPaintEvent* )
   // if we have a saved image, use it
   if (this->cachedImageCleanFlag)
     {
+    vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
+      this->mCachedImage->GetPointData()->GetScalars());
     // put cached image into back buffer if we can
     this->mRenWin->SetPixelData(0, 0, this->width()-1, this->height()-1,
-                                this->mCachedImage, 
-                                !this->mRenWin->GetDoubleBuffer());
+                                array, !this->mRenWin->GetDoubleBuffer());
     // swap buffers, if double buffering
     this->mRenWin->Frame();
     // or should we just put it on the front buffer?
