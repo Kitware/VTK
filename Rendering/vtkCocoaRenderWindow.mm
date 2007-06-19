@@ -19,7 +19,7 @@ PURPOSE.  See the above copyright notice for more information.
 #import "vtkRendererCollection.h"
 #import "vtkCocoaGLView.h"
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.50");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.51");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -340,7 +340,15 @@ void vtkCocoaRenderWindow::SetPosition(int x, int y)
 void vtkCocoaRenderWindow::Frame()
 {
   this->MakeCurrent();
-  [(NSOpenGLContext*)this->GetContextId() flushBuffer];
+
+  if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
+    {
+    [(NSOpenGLContext*)this->GetContextId() flushBuffer];
+    }
+   else
+    {
+    glFlush();
+    }
 }
 
 //----------------------------------------------------------------------------
