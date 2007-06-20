@@ -29,7 +29,7 @@
 #include "vtkTriangle.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.70");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.71");
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
@@ -302,6 +302,7 @@ int vtkDelaunay2D::RequestData(
   vtkIdType ptId, tri[4], nei[3];
   vtkIdType p1 = 0;
   vtkIdType p2 = 0;
+  vtkIdType p3 = 0;
   vtkPoints *inPoints;
   vtkPoints *points;
   vtkPoints *tPoints = NULL;
@@ -311,9 +312,11 @@ int vtkDelaunay2D::RequestData(
   vtkIdType *triPts = 0;
   vtkIdType numNeiPts;
   vtkIdType npts = 0;
-  vtkIdType pts[3];
+  vtkIdType pts[3], swapPts[3];
   vtkIdList *neighbors, *cells;
+  vtkIdType tri1, tri2;
   double center[3], radius, tol, x[3];
+  double n1[3], n2[3];
   int *triUse = NULL;
   double *bounds;
 
@@ -713,9 +716,192 @@ int vtkDelaunay2D::RequestData(
     alphaLines->Delete();
     }
 
+  // The code below fixes a bug reported by Gilles Rougeron.
+  // Some input points were not connected in the output triangulation.
+  // The cause was that those points were only connected to triangles
+  // scheduled for removal (i.e. triangles connected to the boundary).
+  //
+  // We wrote the following fix: swap edges so the unconnected points
+  // become connected to new triangles not scheduled for removal.
+  // We only applies if:
+  // - the bounding triangulation must be deleted
+  //   (BoundingTriangulation == OFF)
+  // - alpha spheres are not used (Alpha == 0.0)
+  // - the triangulation is not constrained (source == NULL)
+
+  if ( !this->BoundingTriangulation && this->Alpha == 0.0 && !source )
+    {
+    bool isConnected;
+    vtkIdType numSwaps = 0;
+
+    for (ptId=0; ptId < numPoints; ptId++)
+      {
+      // check if point is only connected to triangles scheduled for
+      // removal
+      this->Mesh->GetPointCells(ptId, cells);
+      ncells = cells->GetNumberOfIds();
+
+      isConnected = false;
+
+      for (i=0; i < ncells; i++)
+        {
+        if( triUse[cells->GetId(i)] )
+          {
+          isConnected = true;
+          break;
+          }
+        }
+
+      // this point will be connected in the output
+      if( isConnected )
+        {
+        // point is connected: continue
+        continue;
+        }
+
+      // This point is only connected to triangles scheduled for removal.
+      // Therefore it will not be connected in the output triangulation.
+      // Let's swap edges to create a triangle with 3 inner points.
+      // - inner points have an id < numPoints
+      // - boundary point ids are, numPoints <= id < numPoints+8.
+
+      // visit every edge connected to that point.
+      // check the 2 triangles touching at that edge.
+      // if one triangle is connected to 2 non-boundary points
+
+      for (i=0; i < ncells; i++)
+        {
+        tri1 = cells->GetId(i);
+        this->Mesh->GetCellPoints(tri1,npts,triPts);
+
+        if(triPts[0] == ptId)
+          {
+          p1 = triPts[1];
+          p2 = triPts[2];
+          }
+        else if(triPts[1] == ptId)
+          {
+          p1 = triPts[2];
+          p2 = triPts[0];
+          }
+        else
+          {
+          p1 = triPts[0];
+          p2 = triPts[1];
+          }
+
+        // if both p1 & p2 are boundary points,
+        // we skip them.
+        if( p1 >= numPoints && p2 >= numPoints )
+          {
+          continue;
+          }
+
+        vtkDebugMacro( "tri " << tri1 << " [" << triPts[0]
+          << " " << triPts[1] << " " << triPts[2] << "]" );
+
+        vtkDebugMacro( "edge [" << p1 << " " << p2
+          << "] non-boundary" );
+
+        // get the triangle sharing edge [p1 p2] with tri1
+        this->Mesh->GetCellEdgeNeighbors(tri1,p1,p2,neighbors);
+
+        // Since p1 or p2 is not on the boundary,
+        // the neighbor triangle should exist.
+        // If more than one neighbor triangle exist,
+        // the edge is non-manifold.
+        if( neighbors->GetNumberOfIds() != 1 )
+          {
+          vtkErrorMacro("ERROR: Edge [" << p1 << " " << p2
+              << "] is non-manifold!!!");
+          return 0;
+          }
+
+        tri2 = neighbors->GetId(0);
+
+        // get the 3 points of the neighbor triangle
+        this->Mesh->GetCellPoints(tri2,npts,neiPts);
+
+        vtkDebugMacro("triangle " << tri2 << " [" << neiPts[0] << " "
+            << neiPts[1] << " " << neiPts[2] << "]" );
+
+        // locate the point different from p1 and p2
+        if( neiPts[0] != p1 && neiPts[0] != p2 )
+          {
+          p3 = neiPts[0];
+          }
+        else if( neiPts[1] != p1 && neiPts[1] != p2 )
+          {
+          p3 = neiPts[1];
+          }
+        else
+          {
+          p3 = neiPts[2];
+          }
+
+        vtkDebugMacro( "swap [" << p1 << " " << p2 << "] and ["
+          << ptId << " " << p3 << "]" );
+
+        // create the two new triangles.
+        // we just need to replace their pt ids.
+        pts[0] = ptId; pts[1] = p1; pts[2] = p3;
+        swapPts[0] = ptId; swapPts[1] = p3; swapPts[2] = p2;
+
+        vtkDebugMacro("candidate tri1 " << tri1 << " ["
+          << pts[0] << " " << pts[1] << " " << pts[2] << "]"
+          << " triUse " << triUse[tri1] );
+
+        vtkDebugMacro("candidate tri2 " << tri2 << " ["
+          << swapPts[0] << " " << swapPts[1] << " " << swapPts[2] << "]"
+          << "triUse " << triUse[tri2] );
+
+        // compute the normal for the 2 candidate triangles
+        vtkTriangle::ComputeNormal(points,3,pts,n1);
+        vtkTriangle::ComputeNormal(points,3,swapPts,n2);
+
+        // the normals must be along the same direction,
+        // or one triangle is upside down.
+        if( vtkMath::Dot(n1,n2) < 0.0 )
+          {
+          // do not swap diagonal
+          continue;
+          }
+
+        // swap edge [p1 p2] and diagonal [ptId p3]
+        this->Mesh->RemoveReferenceToCell(p1,tri2);
+        this->Mesh->RemoveReferenceToCell(p2,tri1);
+        this->Mesh->ResizeCellList(ptId,1);
+        this->Mesh->ResizeCellList(p3,1);
+        this->Mesh->AddReferenceToCell(ptId,tri2);
+        this->Mesh->AddReferenceToCell(p3,tri1);
+
+        // it's ok to swap the diagonal
+        this->Mesh->ReplaceCell(tri1,3,pts);
+        this->Mesh->ReplaceCell(tri2,3,swapPts);
+
+        triUse[tri1] = (p1 < numPoints && p3 < numPoints);
+        triUse[tri2] = (p3 < numPoints && p2 < numPoints);
+
+        vtkDebugMacro("replace tri1 " << tri1 << " [" << pts[0] << " "
+            << pts[1] << " " << pts[2] << "]" << " triUse "
+            << triUse[tri1] );
+
+        vtkDebugMacro("replace tri2 " << tri2 << " ["
+          << swapPts[0] << " " << swapPts[1] << " " << swapPts[2] << "]"
+          << " triUse " << triUse[tri2] );
+
+        // update the 'scheduled for removal' flag of the first triangle.
+        // The second triangle was not scheduled for removal anyway.
+        numSwaps++;
+        vtkDebugMacro("numSwaps " << numSwaps );
+        }
+      }
+    vtkDebugMacro("numSwaps " << numSwaps );
+    }
+
   // Update output; free up supporting data structures.
   //
-  if ( this->BoundingTriangulation && !this->Transform)
+  if (this->BoundingTriangulation && !this->Transform)
     {
     output->SetPoints(points);
     }  
