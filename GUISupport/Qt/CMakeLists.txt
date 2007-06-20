@@ -21,6 +21,11 @@ INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
 
 IF(DESIRED_QT_VERSION MATCHES 4)
 
+  # help CMake fine QtDesigner on Mac (binary install)
+  FIND_PATH(QT_QTDESIGNER_INCLUDE_DIR QDesignerComponents
+            PATHS ${QT_LIBRARY_DIR}/QtDesigner.framework/Headers
+            NO_DEFAULT_PATH)
+
   # import Qt4 build settings
   INCLUDE(${QT_USE_FILE})
 
