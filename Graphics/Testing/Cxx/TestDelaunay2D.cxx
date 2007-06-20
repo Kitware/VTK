@@ -122,18 +122,19 @@ int TestDelaunay2D( int argc, char* argv[] )
   // check that every point is connected
   triangulation->BuildLinks();
 
-  unsigned short ncells;
-  int *cells;
+  vtkIdList *cellIds = vtkIdList::New();
   vtkIdType numUnconnectedPts = 0;
 
   for(vtkIdType ptId=0; ptId<outNumPts; ptId++)
     {
-    triangulation->GetPointCells(ptId,ncells,cells);
-    if( !ncells )
+    triangulation->GetPointCells(ptId,cellIds);
+    if( !cellIds->GetNumberOfIds() )
       {
       numUnconnectedPts++;
       }
     }
+
+  cellIds->Delete();
 
   cout << "Triangulation has " << numUnconnectedPts
     << " unconnected points" << endl;
