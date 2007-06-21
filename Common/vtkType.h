@@ -185,16 +185,16 @@ typedef signed long   vtkTypeInt32;
 #endif
 
 /* Select a 64-bit integer type.  */
-#if VTK_SIZEOF_LONG == 8
-typedef unsigned long vtkTypeUInt64;
-typedef signed long   vtkTypeInt64;
-# define VTK_TYPE_UINT64 VTK_UNSIGNED_LONG
-# define VTK_TYPE_INT64 VTK_LONG
-#elif defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
+#if defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
 typedef unsigned long long vtkTypeUInt64;
 typedef signed long long   vtkTypeInt64;
 # define VTK_TYPE_UINT64 VTK_UNSIGNED_LONG_LONG
 # define VTK_TYPE_INT64 VTK_LONG_LONG
+#elif VTK_SIZEOF_LONG == 8
+typedef unsigned long vtkTypeUInt64;
+typedef signed long   vtkTypeInt64;
+# define VTK_TYPE_UINT64 VTK_UNSIGNED_LONG
+# define VTK_TYPE_INT64 VTK_LONG
 #elif defined(VTK_TYPE_USE___INT64) && VTK_SIZEOF___INT64 == 8
 typedef unsigned __int64 vtkTypeUInt64;
 typedef signed __int64   vtkTypeInt64;
