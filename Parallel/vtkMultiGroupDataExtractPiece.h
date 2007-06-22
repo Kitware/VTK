@@ -42,6 +42,9 @@ protected:
   vtkMultiGroupDataExtractPiece() {}
   ~vtkMultiGroupDataExtractPiece() {}
 
+  virtual int RequestUpdateExtent(vtkInformation*, 
+                                  vtkInformationVector**,
+                                  vtkInformationVector*);
   virtual int RequestData(vtkInformation*,
                           vtkInformationVector**,
                           vtkInformationVector*);
@@ -66,6 +69,9 @@ protected:
                                vtkMultiGroupDataSet *output,
                                int piece, int numberOfPieces, int ghostLevel,
                                unsigned int group);
+  void ExtractMultiGroupDataSet(
+    vtkMultiGroupDataSet *input, vtkMultiGroupDataSet *output,
+    int piece, int numberOfPieces, int ghostLevel, unsigned int group);
 
 private:
   vtkMultiGroupDataExtractPiece(const vtkMultiGroupDataExtractPiece&); // Not implemented.
