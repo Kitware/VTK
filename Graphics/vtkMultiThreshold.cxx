@@ -1,11 +1,21 @@
-/*
- * Copyright 2003 Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
- * license for use of this work by or on behalf of the
- * U.S. Government. Redistribution and use in source and binary forms, with
- * or without modification, are permitted provided that this Notice and any
- * statement of authorship are reproduced on all copies.
- */
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkMultiThreshold.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkMultiThreshold.h"
 
@@ -21,9 +31,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkMultiThreshold,"1.5");
+vtkCxxRevisionMacro(vtkMultiThreshold,"1.6");
 vtkStandardNewMacro(vtkMultiThreshold);
 
 // Prevent lots of error messages on the inner loop of the filter by keeping track of how many we have:
@@ -446,33 +457,39 @@ int vtkMultiThreshold::RequestData(
   vtkInformation* iinfo = inputs[0]->GetInformationObject( 0 );
   vtkInformation* oinfo = output->GetInformationObject( 0 );
 
-  vtkPointSet* in = vtkPointSet::SafeDownCast( iinfo->Get( vtkDataObject::DATA_OBJECT() ) );
-  vtkMultiBlockDataSet* omesh = vtkMultiBlockDataSet::SafeDownCast( oinfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  int updateNumPieces =
+    oinfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int updatePiece =
+    oinfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+
+  vtkPointSet* in = 
+    vtkPointSet::SafeDownCast( iinfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  vtkMultiBlockDataSet* omesh = 
+    vtkMultiBlockDataSet::SafeDownCast(
+      oinfo->Get( vtkDataObject::DATA_OBJECT() ) );
   if ( ! omesh )
     {
     return 0;
     }
+  omesh->SetNumberOfGroups(this->NumberOfOutputs);
 
   vtkstd::vector<vtkUnstructuredGrid*> outv; // vector of output datasets
   vtkUnstructuredGrid* ds;
   omesh->SetNumberOfBlocks( 1 );
-  vtkInformation* idx = vtkInformation::New();
-  idx->Set( vtkMultiBlockDataSet::BLOCK(), 0 );
   for ( i = 0; i < this->NumberOfOutputs; ++i )
     {
+    omesh->SetNumberOfDataSets(i, updateNumPieces);
     ds = vtkUnstructuredGrid::New();
     ds->SetPoints( in->GetPoints() );
     ds->GetPointData()->PassData( in->GetPointData() );
     ds->GetCellData()->CopyGlobalIdsOn();
     ds->GetCellData()->CopyAllocate( in->GetCellData() );
 
-    idx->Set( vtkCompositeDataSet::INDEX(), i );
-    omesh->AddDataSet( idx, ds );
+    omesh->SetDataSet( i, updatePiece, ds );
     ds->FastDelete();
 
     outv.push_back( ds );
     }
-  idx->Delete();
 
   // II. Prepare to loop over all the cells.
   //     A. Create a vector that we'll copy into setStates each time we start processing a new cell.
