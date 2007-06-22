@@ -110,7 +110,7 @@ typedef FILE* vtkLSDynaFile_t;
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.16");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.17");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -1480,7 +1480,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.16");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.17");
 // ============================================== End of XML Summary reader class
 
 
@@ -3289,9 +3289,6 @@ int vtkLSDynaReader::RequestInformation( vtkInformation* vtkNotUsed(request),
                                          vtkInformationVector** vtkNotUsed(iinfo),
                                          vtkInformationVector* oinfo )
 {
-  // There will be 1 output dataset containing 7 grids (some may be empty depending on the file)
-  oinfo->SetNumberOfInformationObjects(1);
-
   vtkLSDynaReaderPrivate* p = this->P;
   // If the time step is set before RequestInformation is called, we must
   // read the header information immediately in order to determine whether
@@ -3366,6 +3363,10 @@ int vtkLSDynaReader::RequestInformation( vtkInformation* vtkNotUsed(request),
   timeRange[0] = p->TimeValues[0];
   timeRange[1] = p->TimeValues[p->TimeValues.size() - 1];
   outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
+
+  // Currently, this is a serial reader.
+  outInfo->Set(
+    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), 1);
 
   return 1;
 }
@@ -4768,11 +4769,7 @@ void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
   if ( p->NumberOfCells[celltype] == 0 )
     {
     // no work to do, just add the dataset as-is.
-    vtkInformation* idx = vtkInformation::New();
-    idx->Set( vtkMultiBlockDataSet::BLOCK(), 0 );
-    idx->Set( vtkCompositeDataSet::INDEX(), celltype );
-    mbds->AddDataSet( idx, target );
-    idx->Delete();
+    mbds->SetDataSet( celltype, 0, target );
     return;
     }
 
@@ -4782,11 +4779,7 @@ void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
     if ( celltype == vtkLSDynaReader::RIGID_BODY || celltype == vtkLSDynaReader::ROAD_SURFACE )
       {
       // no deletion data for these cell types, just add the dataset as-is.
-      vtkInformation* idx = vtkInformation::New();
-      idx->Set( vtkMultiBlockDataSet::BLOCK(), 0 );
-      idx->Set( vtkCompositeDataSet::INDEX(), celltype );
-      mbds->AddDataSet( idx, target );
-      idx->Delete();
+      mbds->SetDataSet( celltype, 0, target );
       return;
       }
     }
@@ -4833,12 +4826,8 @@ void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
   thresh->Update();
   temp->Delete();
 
-  vtkInformation* idx = vtkInformation::New();
-  idx->Set( vtkMultiBlockDataSet::BLOCK(), 0 );
-  idx->Set( vtkCompositeDataSet::INDEX(), celltype );
-  mbds->AddDataSet( idx, thresh->GetOutput() );
+  mbds->SetDataSet( celltype, 0, thresh->GetOutput() );
   thresh->Delete();
-  idx->Delete();
 }
 
 // ================================================== OK Already! Read the file!
@@ -4887,8 +4876,6 @@ int vtkLSDynaReader::RequestData(
 
   mbds->SetNumberOfBlocks( 1 );
 
-  vtkInformation* idx = vtkInformation::New();
-  idx->Set( vtkMultiBlockDataSet::BLOCK(), 0 );
 #define VTK_LSDYNA_PREPDATASET(mds,x,m,n,mtype) \
     x = mtype::New();
 
@@ -5033,26 +5020,24 @@ int vtkLSDynaReader::RequestData(
   else if ( needToRunPartFilter == 0 )
     {
 #define VTK_LSDYNA_SETBLOCK(mds,x,m,n,mtype) \
-  idx->Set( vtkMultiBlockDataSet::BLOCK(), m ); \
-  idx->Set( vtkCompositeDataSet::INDEX(), n ); \
   if ( ! x ) \
     { \
     mtype* tmpDS = mtype::New(); \
-    mds->AddDataSet( idx, tmpDS ); \
+    mds->SetDataSet(m, n, tmpDS);               \
     tmpDS->FastDelete(); \
     } \
   else \
     { \
-    mds->AddDataSet( idx, x ); \
+    mds->SetDataSet(m, n, x);                   \
     }
 
     VTK_LSDYNA_SETBLOCK(mbds,this->OutputSolid,      0,0,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputThickShell, 0,1,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputShell,      0,2,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputRigidBody,  0,3,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputRoadSurface,0,4,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputBeams,      0,5,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputParticles,  0,6,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputThickShell, 1,0,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputShell,      2,0,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputRigidBody,  3,0,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputRoadSurface,4,0,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputBeams,      5,0,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputParticles,  6,0,vtkUnstructuredGrid);
 
 #undef VTK_LSDYNA_SETBLOCK
     }
@@ -5064,7 +5049,6 @@ int vtkLSDynaReader::RequestData(
   this->OutputRoadSurface->Delete();
   this->OutputBeams->Delete();
   this->OutputParticles->Delete();
-  idx->Delete();
 
 #ifdef VTK_LSDYNA_DBG_MULTIBLOCK
   // Print the hierarchy of meshes that is about to be returned as output.
