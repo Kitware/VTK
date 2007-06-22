@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.71");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.72");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -482,7 +482,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       if(this->DepthPeelingIsSupported)
         {
         // Some OpenGL implementations are buggy so depth peeling does not work:
-        //  - ATI on iMac, Mac Pro, Power Mac G5, PC
+        //  - ATI on iMac, Mac Pro, Power Mac G5, etc.  Bug <rdar://4975997>.
+        //  - ATI on some PCs
         //  - Mesa 6.5.2 and lower
         // Do alpha blending always.
         const char* gl_renderer =
@@ -520,7 +521,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           }
         else if(isATIRadeon9600XT)
           {
-          // The Mac OS X 10.4.9 version of the ATI driver, known not to work
+          // The Mac OS X 10.4.9 and 10.4.10 versions of the ATI driver, known not to work
           if(strstr(gl_version, "1.5 ATI-1.4.18"))
             {
             this->DepthPeelingIsSupported = 0;
@@ -537,8 +538,10 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           {
           // The Mac OS X 10.4.8 version of the ATI driver, known not to work
           // The Mac OS X 10.4.9 version of the ATI driver, known not to work
+          // The Mac OS X 10.4.10 version of the ATI driver, known not to work
           if(strstr(gl_version, "2.0 ATI-1.4.40") ||
-             strstr(gl_version, "2.0 ATI-1.4.52"))
+             strstr(gl_version, "2.0 ATI-1.4.52") ||
+             strstr(gl_version, "2.0 ATI-1.4.56"))
             {
             this->DepthPeelingIsSupported = 0;
             }
