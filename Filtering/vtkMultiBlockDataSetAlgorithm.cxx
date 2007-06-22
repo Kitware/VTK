@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMultiBlockDataSetAlgorithm, "1.7");
+vtkCxxRevisionMacro(vtkMultiBlockDataSetAlgorithm, "1.8");
 vtkStandardNewMacro(vtkMultiBlockDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -112,7 +112,19 @@ int vtkMultiBlockDataSetAlgorithm::ProcessRequest(
           vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
         }
       }
-    return this->RequestInformation(request, inputVector, outputVector);
+    else
+      {
+      for (int outIdx=0; outIdx < this->GetNumberOfOutputPorts(); outIdx++)
+        {
+        vtkInformation* info = outputVector->GetInformationObject(outIdx);
+        if (info)
+          {
+          info->Set(
+            vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+          }
+        }
+      return this->RequestInformation(request, inputVector, outputVector);
+      }
     }
 
   // set update extent

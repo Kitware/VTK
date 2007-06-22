@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMultiGroupDataSetAlgorithm, "1.3");
+vtkCxxRevisionMacro(vtkMultiGroupDataSetAlgorithm, "1.4");
 vtkStandardNewMacro(vtkMultiGroupDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -110,6 +110,18 @@ int vtkMultiGroupDataSetAlgorithm::ProcessRequest(
         {
         info->Set(
           vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+        }
+      }
+    else
+      {
+      for (int outIdx=0; outIdx < this->GetNumberOfOutputPorts(); outIdx++)
+        {
+        vtkInformation* info = outputVector->GetInformationObject(outIdx);
+        if (info)
+          {
+          info->Set(
+            vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+          }
         }
       }
     return this->RequestInformation(request, inputVector, outputVector);
