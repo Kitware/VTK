@@ -595,31 +595,80 @@ public:
   // Description:
   // Convert color in RGB format (Red, Green, Blue) to HSV format
   // (Hue, Saturation, Value). The input color is not modified.
-  static void RGBToHSV(float rgb[3], float hsv[3])
+  static void RGBToHSV(const float rgb[3], float hsv[3])
     { RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2); }
   static void RGBToHSV(float r, float g, float b, float *h, float *s, float *v);
-  static double* RGBToHSV(double rgb[3]);
+  static double* RGBToHSV(const double rgb[3]);
   static double* RGBToHSV(double r, double g, double b);
-  static void RGBToHSV(double rgb[3], double hsv[3])
+  static void RGBToHSV(const double rgb[3], double hsv[3])
     { RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2); }
   static void RGBToHSV(double r, double g, double b, double *h, double *s, double *v);
 
   // Description:
   // Convert color in HSV format (Hue, Saturation, Value) to RGB
   // format (Red, Green, Blue). The input color is not modified.
-  static void HSVToRGB(float hsv[3], float rgb[3])
+  static void HSVToRGB(const float hsv[3], float rgb[3])
     { HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2); }
   static void HSVToRGB(float h, float s, float v, float *r, float *g, float *b);
-  static double* HSVToRGB(double hsv[3]);
+  static double* HSVToRGB(const double hsv[3]);
   static double* HSVToRGB(double h, double s, double v);
-  static void HSVToRGB(double hsv[3], double rgb[3])
+  static void HSVToRGB(const double hsv[3], double rgb[3])
     { HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2); }
   static void HSVToRGB(double h, double s, double v, double *r, double *g, double *b);
 
   // Description:
-  // Convert color from Lab to XYZ system, and vice-versa
-  static void LabToXYZ(double lab[3], double xyz[3]);
-  static void XYZToRGB(double xyz[3], double rgb[3]);
+  // Convert color from the CIE-L*ab system to CIE XYZ.
+  static void LabToXYZ(const double lab[3], double xyz[3]) {
+    LabToXYZ(lab[0], lab[1], lab[2], xyz+0, xyz+1, xyz+2);
+  }
+  static void LabToXYZ(double L, double a, double b,
+                       double *x, double *y, double *z);
+  static double *LabToXYZ(const double lab[3]);
+
+  // Description:
+  // Convert Color from the CIE XYZ system to CIE-L*ab.
+  static void XYZToLab(const double xyz[3], double lab[3]) {
+    XYZToLab(xyz[0], xyz[1], xyz[2], lab+0, lab+1, lab+2);
+  }
+  static void XYZToLab(double x, double y, double z,
+                       double *L, double *a, double *b);
+  static double *XYZToLab(const double xyz[3]);
+
+  // Description:
+  // Convert color from the CIE XYZ system to RGB.
+  static void XYZToRGB(const double xyz[3], double rgb[3]) {
+    XYZToRGB(xyz[0], xyz[1], xyz[2], rgb+0, rgb+1, rgb+2);
+  }
+  static void XYZToRGB(double x, double y, double z,
+                       double *r, double *g, double *b);
+  static double *XYZToRGB(const double xyz[3]);
+
+  // Description:
+  // Convert color from the RGB system to CIE XYZ.
+  static void RGBToXYZ(const double rgb[3], double xyz[3]) {
+    RGBToXYZ(rgb[0], rgb[1], rgb[2], xyz+0, xyz+1, xyz+2);
+  }
+  static void RGBToXYZ(double r, double g, double b,
+                       double *x, double *y, double *z);
+  static double *RGBToXYZ(const double rgb[3]);
+
+  // Description:
+  // Convert color from the RGB system to CIE-L*ab.
+  static void RGBToLab(const double rgb[3], double lab[3]) {
+    RGBToLab(rgb[0], rgb[1], rgb[2], lab+0, lab+1, lab+2);
+  }
+  static void RGBToLab(double red, double green, double blue,
+                       double *L, double *a, double *b);
+  static double *RGBToLab(const double rgb[3]);
+
+  // Description:
+  // Convert color from the CIE-L*ab system to RGB.
+  static void LabToRGB(const double lab[3], double rgb[3]) {
+    LabToRGB(lab[0], lab[1], lab[2], rgb+0, rgb+1, rgb+2);
+  }
+  static void LabToRGB(double L, double a, double b,
+                       double *red, double *green, double *blue);
+  static double *LabToRGB(const double lab[3]);
 
   // Description:
   // Set the bounds to an uninitialized state

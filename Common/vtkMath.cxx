@@ -31,7 +31,7 @@
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.116");
+vtkCxxRevisionMacro(vtkMath, "1.117");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2978,7 +2978,7 @@ void vtkMath::RGBToHSV(float r, float g, float b,
 }
 
 //----------------------------------------------------------------------------
-double* vtkMath::RGBToHSV(double rgb[3])
+double* vtkMath::RGBToHSV(const double rgb[3])
 {
   return vtkMath::RGBToHSV(rgb[0], rgb[1], rgb[2]);
 }
@@ -3066,7 +3066,7 @@ void vtkMath::HSVToRGB(float h, float s, float v,
 }
 
 //----------------------------------------------------------------------------
-double* vtkMath::HSVToRGB(double hsv[3])
+double* vtkMath::HSVToRGB(const double hsv[3])
 {
   return vtkMath::HSVToRGB(hsv[0], hsv[1], hsv[2]);
 }
@@ -3083,10 +3083,10 @@ double* vtkMath::HSVToRGB(double h, double s, double v)
 void vtkMath::HSVToRGB(double h, double s, double v, 
                        double *r, double *g, double *b)
 {
-  double onethird = 1.0 / 3.0;
-  double onesixth = 1.0 / 6.0;
-  double twothird = 2.0 / 3.0;
-  double fivesixth = 5.0 / 6.0;
+  const double onethird = 1.0 / 3.0;
+  const double onesixth = 1.0 / 6.0;
+  const double twothird = 2.0 / 3.0;
+  const double fivesixth = 5.0 / 6.0;
 
   // compute RGB from HSV
   if (h > onesixth && h <= onethird) // green/red
@@ -3137,41 +3137,80 @@ void vtkMath::HSVToRGB(double h, double s, double v,
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::LabToXYZ(double lab[3], double xyz[3])
+void vtkMath::LabToXYZ(double L, double a, double b,
+                       double *x, double *y, double *z)
 {
   //LAB to XYZ
-  double var_Y = ( lab[0] + 16 ) / 116;
-  double var_X = lab[1] / 500 + var_Y;
-  double var_Z = var_Y - lab[2] / 200;
+  double var_Y = ( L + 16 ) / 116;
+  double var_X = a / 500 + var_Y;
+  double var_Z = var_Y - b / 200;
     
   if ( pow(var_Y,3) > 0.008856 ) var_Y = pow(var_Y,3);
-  else var_Y = ( var_Y - 16 / 116 ) / 7.787;
+  else var_Y = ( var_Y - 16.0 / 116.0 ) / 7.787;
                                                             
   if ( pow(var_X,3) > 0.008856 ) var_X = pow(var_X,3);
-  else var_X = ( var_X - 16 / 116 ) / 7.787;
+  else var_X = ( var_X - 16.0 / 116.0 ) / 7.787;
 
   if ( pow(var_Z,3) > 0.008856 ) var_Z = pow(var_Z,3);
-  else var_Z = ( var_Z - 16 / 116 ) / 7.787;
-  double ref_X =  95.047;
-  double ref_Y = 100.000;
-  double ref_Z = 108.883;
-  xyz[0] = ref_X * var_X;     //ref_X =  95.047  Observer= 2 Illuminant= D65
-  xyz[1] = ref_Y * var_Y;     //ref_Y = 100.000
-  xyz[2] = ref_Z * var_Z;     //ref_Z = 108.883
+  else var_Z = ( var_Z - 16.0 / 116.0 ) / 7.787;
+  const double ref_X =  95.047;
+  const double ref_Y = 100.000;
+  const double ref_Z = 108.883;
+  *x = ref_X * var_X;     //ref_X =  95.047  Observer= 2 deg Illuminant= D65
+  *y = ref_Y * var_Y;     //ref_Y = 100.000
+  *z = ref_Z * var_Z;     //ref_Z = 108.883
 }
 
+//-----------------------------------------------------------------------------
+double *vtkMath::LabToXYZ(const double lab[3])
+{
+  static double xyz[3];
+  vtkMath::LabToXYZ(lab[0], lab[1], lab[2], xyz+0, xyz+1, xyz+2);
+  return xyz;
+}
+
+//-----------------------------------------------------------------------------
+void vtkMath::XYZToLab(double x, double y, double z,
+                       double *L, double *a, double *b)
+{
+  const double ref_X =  95.047;
+  const double ref_Y = 100.000;
+  const double ref_Z = 108.883;
+  double var_X = x / ref_X;  //ref_X =  95.047  Observer= 2 deg, Illuminant= D65
+  double var_Y = y / ref_Y;  //ref_Y = 100.000
+  double var_Z = z / ref_Z;  //ref_Z = 108.883
+
+  if ( var_X > 0.008856 ) var_X = pow(var_X, 1.0/3.0);
+  else                    var_X = ( 7.787 * var_X ) + ( 16.0 / 116.0 );
+  if ( var_Y > 0.008856 ) var_Y = pow(var_Y, 1.0/3.0);
+  else                    var_Y = ( 7.787 * var_Y ) + ( 16.0 / 116.0 );
+  if ( var_Z > 0.008856 ) var_Z = pow(var_Z, 1.0/3.0);
+  else                    var_Z = ( 7.787 * var_Z ) + ( 16.0 / 116.0 );
+
+  *L = ( 116 * var_Y ) - 16;
+  *a = 500 * ( var_X - var_Y );
+  *b = 200 * ( var_Y - var_Z );
+}
+
+//-----------------------------------------------------------------------------
+double *vtkMath::XYZToLab(const double xyz[3])
+{
+  static double lab[3];
+  vtkMath::XYZToLab(xyz[0], xyz[1], xyz[2], lab+0, lab+1, lab+2);
+  return lab;
+}
 
 //----------------------------------------------------------------------------
-void vtkMath::XYZToRGB(double xyz[3], double rgb[3])
+void vtkMath::XYZToRGB(double x, double y, double z,
+                       double *r, double *g, double *b)
 {
-  
-  //double ref_X =  95.047;        //Observer = 2° Illuminant = D65
+  //double ref_X =  95.047;        //Observer = 2 deg Illuminant = D65
   //double ref_Y = 100.000;
   //double ref_Z = 108.883;
  
-  double var_X = xyz[0] / 100;        //X = From 0 to ref_X
-  double var_Y = xyz[1] / 100;        //Y = From 0 to ref_Y
-  double var_Z = xyz[2] / 100;        //Z = From 0 to ref_Y
+  double var_X = x / 100;        //X = From 0 to ref_X
+  double var_Y = y / 100;        //Y = From 0 to ref_Y
+  double var_Z = z / 100;        //Z = From 0 to ref_Z
  
   double var_R = var_X *  3.2406 + var_Y * -1.5372 + var_Z * -0.4986;
   double var_G = var_X * -0.9689 + var_Y *  1.8758 + var_Z *  0.0415;
@@ -3183,21 +3222,93 @@ void vtkMath::XYZToRGB(double xyz[3], double rgb[3])
   else  var_G = 12.92 * var_G;
   if ( var_B > 0.0031308 ) var_B = 1.055 * ( pow(var_B, ( 1 / 2.4 )) ) - 0.055;
   else var_B = 12.92 * var_B;
-                                                                                                 
-  rgb[0] = var_R;
-  rgb[1] = var_G;
-  rgb[2] = var_B;
+
+  *r = var_R;
+  *g = var_G;
+  *b = var_B;
   
   //clip colors. ideally we would do something different for colors
   //out of gamut, but not really sure what to do atm.
-  if (rgb[0]<0) rgb[0]=0;
-  if (rgb[1]<0) rgb[1]=0;
-  if (rgb[2]<0) rgb[2]=0;
-  if (rgb[0]>1) rgb[0]=1;
-  if (rgb[1]>1) rgb[1]=1;
-  if (rgb[2]>1) rgb[2]=1;
+  if (*r<0) *r=0;
+  if (*g<0) *g=0;
+  if (*b<0) *b=0;
+  if (*r>1) *r=1;
+  if (*g>1) *g=1;
+  if (*b>1) *b=1;
 
 }
+
+//-----------------------------------------------------------------------------
+double *vtkMath::XYZToRGB(const double xyz[3])
+{
+  static double rgb[3];
+  vtkMath::XYZToRGB(xyz[0], xyz[1], xyz[2], rgb+0, rgb+1, rgb+2);
+  return rgb;
+}
+
+//-----------------------------------------------------------------------------
+void vtkMath::RGBToXYZ(double r, double g, double b,
+                       double *x, double *y, double *z)
+{
+  double var_R;
+  double var_G;
+  double var_B;
+
+  if ( r > 0.04045 ) var_R = pow(( r + 0.055 ) / 1.055, 2.4);
+  else               var_R = r / 12.92;
+  if ( g > 0.04045 ) var_G = pow(( g + 0.055 ) / 1.055, 2.4);
+  else               var_G = g / 12.92;
+  if ( b > 0.04045 ) var_B = pow(( b + 0.055 ) / 1.055, 2.4);
+  else               var_B = b / 12.92;
+
+  var_R = var_R * 100;
+  var_G = var_G * 100;
+  var_B = var_B * 100;
+
+  //Observer. = 2 deg, Illuminant = D65
+  *x = var_R * 0.4124 + var_G * 0.3576 + var_B * 0.1805;
+  *y = var_R * 0.2126 + var_G * 0.7152 + var_B * 0.0722;
+  *z = var_R * 0.0193 + var_G * 0.1192 + var_B * 0.9505;
+}
+
+//-----------------------------------------------------------------------------
+double *vtkMath::RGBToXYZ(const double rgb[3])
+{
+  static double xyz[3];
+  vtkMath::RGBToXYZ(rgb[0], rgb[1], rgb[2], xyz+0, xyz+1, xyz+2);
+  return xyz;
+}
+
+//-----------------------------------------------------------------------------
+void vtkMath::RGBToLab(double red, double green, double blue,
+                       double *L, double *a, double *b)
+{
+  double x, y, z;
+  vtkMath::RGBToXYZ(red, green, blue, &x, &y, &z);
+  vtkMath::XYZToLab(x, y, z, L, a, b);
+}
+
+//-----------------------------------------------------------------------------
+double *vtkMath::RGBToLab(const double rgb[3])
+{
+  return vtkMath::XYZToLab(vtkMath::RGBToXYZ(rgb));
+}
+
+//-----------------------------------------------------------------------------
+void vtkMath::LabToRGB(double L, double a, double b,
+                       double *red, double *green, double *blue)
+{
+  double x, y, z;
+  vtkMath::LabToXYZ(L, a, b, &x, &y, &z);
+  vtkMath::XYZToRGB(x, y, z, red, green, blue);
+}
+
+//-----------------------------------------------------------------------------
+double *vtkMath::LabToRGB(const double lab[3])
+{
+  return vtkMath::XYZToRGB(vtkMath::LabToXYZ(lab));
+}
+
 //----------------------------------------------------------------------------
 void vtkMath::ClampValues(double *values, 
                           int nb_values, 

@@ -21,7 +21,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.70");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.71");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 class vtkCTFNode
@@ -681,7 +681,7 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
           tptr[1] = (1-s)*rgb1[1] + s*rgb2[1];
           tptr[2] = (1-s)*rgb1[2] + s*rgb2[2];
           }
-        else
+        else if ( this->ColorSpace == VTK_CTF_HSV )
           {
           double hsv1[3], hsv2[3];
           vtkMath::RGBToHSV(rgb1, hsv1);
@@ -712,6 +712,20 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
           
           // Now convert this back to RGB
           vtkMath::HSVToRGB( hsvTmp, tptr );
+          }
+        else // this->ColorSpace == VTK_CTF_LAB
+          {
+          double lab1[3], lab2[3];
+          vtkMath::RGBToLab(rgb1, lab1);
+          vtkMath::RGBToLab(rgb2, lab2);
+
+          double labTmp[3];
+          labTmp[0] = (1-s)*lab1[0] + s*lab2[0];
+          labTmp[1] = (1-s)*lab1[1] + s*lab2[1];
+          labTmp[2] = (1-s)*lab1[2] + s*lab2[2];
+
+          // Now convert back to RGB
+          vtkMath::LabToRGB(labTmp, tptr);
           }
         continue;
         }    
@@ -756,7 +770,7 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
           tptr[j] = h1*rgb1[j] + h2*rgb2[j] + h3*t + h4*t;
           }
         }
-      else 
+      else if (this->ColorSpace == VTK_CTF_HSV)
         {
         double hsv1[3], hsv2[3];
         vtkMath::RGBToHSV(rgb1, hsv1);
@@ -793,6 +807,25 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
           }
         // Now convert this back to RGB
         vtkMath::HSVToRGB( hsvTmp, tptr );
+        }
+      else // this->ColorSpace == VTK_CTF_LAB
+        {
+        double lab1[3], lab2[3];
+        vtkMath::RGBToLab(rgb1, lab1);
+        vtkMath::RGBToLab(rgb2, lab2);
+
+        double labTmp[3];
+        for (j = 0; j < 3; j++)
+          {
+          // Use one slope for both end points
+          slope = lab2[j] - lab1[j];
+          t = (1.0 - sharpness)*slope;
+          
+          // Compute the value
+          labTmp[j] = h1*lab1[j] + h2*lab2[j] + h3*t + h4*t;
+          }
+        // Now convert this back to RGB
+        vtkMath::LabToRGB(labTmp, tptr);
         }
       
       // Final error check to make sure we don't go outside [0,1]
@@ -1323,9 +1356,13 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Color Space: HSV\n";
     }
-  else
+  else if ( this->ColorSpace == VTK_CTF_HSV )
     {
     os << indent << "Color Space: HSV (No Wrap)\n";
+    }
+  else
+    {
+    os << indent << "Color Space: CIE-L*ab\n";
     }
   
   if ( this->Scale == VTK_CTF_LOG10 )

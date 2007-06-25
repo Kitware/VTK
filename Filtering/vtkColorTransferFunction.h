@@ -36,6 +36,7 @@ class vtkColorTransferFunctionInternals;
 
 #define VTK_CTF_RGB           0
 #define VTK_CTF_HSV           1
+#define VTK_CTF_LAB           2
 
 #define VTK_CTF_LINEAR        0
 #define VTK_CTF_LOG10         1
@@ -131,14 +132,15 @@ public:
   vtkBooleanMacro( Clamping, int );
   
   // Description:
-  // Set/Get the color space used for interpolation: RGB, or HSV.
+  // Set/Get the color space used for interpolation: RGB, HSV, or CIE-L*ab.
   // In HSV mode, if HSVWrap is on, it  will take the shortest path in Hue
   // (going back through 0 if that is the shortest way around the hue circle)
   // whereas if HSVWrap is off it will not go through 0 (in order the match
   // the current functionality of vtkLookupTable)
-  vtkSetClampMacro( ColorSpace, int, VTK_CTF_RGB, VTK_CTF_HSV );
+  vtkSetClampMacro( ColorSpace, int, VTK_CTF_RGB, VTK_CTF_LAB );
   void SetColorSpaceToRGB(){this->SetColorSpace(VTK_CTF_RGB);};
   void SetColorSpaceToHSV(){this->SetColorSpace(VTK_CTF_HSV);};
+  void SetColorSpaceToLab(){this->SetColorSpace(VTK_CTF_LAB);};
   vtkGetMacro( ColorSpace, int );
   vtkSetMacro(HSVWrap, int);
   vtkGetMacro(HSVWrap, int);
