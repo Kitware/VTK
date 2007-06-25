@@ -16,8 +16,13 @@
 //
 // .SECTION Description
 // The first input is a vtkGraph to take a subgraph from.
-// The second input is a vtkSelection containing the selected vertex indices.
-//
+// The second input is a vtkSelection containing the selected indices.
+// The vtkSelection may have FIELD_TYPE set to POINTS (a vertex selection)
+// or CELLS (an edge selection).  A vertex selection preserves all edges
+// that connect selected vertices.  An edge selection preserves all vertices
+// that are adjacent to at least one selected edge.  Alternately, you may
+// indicate that an edge selection should maintain the full set of vertices,
+// by turning RemoveIsolatedVertices off.
 
 #ifndef __vtkExtractSelectedGraph_h
 #define __vtkExtractSelectedGraph_h
@@ -34,6 +39,14 @@ public:
   // Description:
   // A convenience method for setting the second input (i.e. the selection).
   void SetSelectionConnection(vtkAlgorithmOutput* in);
+  
+  // Description:
+  // If set, removes vertices with no adjacent edges in an edge selection.
+  // A vertex selection ignores this flag and always returns the full set 
+  // of selected vertices.  Default is on.
+  vtkSetMacro(RemoveIsolatedVertices, bool);
+  vtkGetMacro(RemoveIsolatedVertices, bool);
+  vtkBooleanMacro(RemoveIsolatedVertices, bool);
 
   // Description:
   // Specify the first vtkGraph input and the second vtkSelection input.
@@ -47,6 +60,8 @@ protected:
     vtkInformation*, 
     vtkInformationVector**, 
     vtkInformationVector*);
+  
+  bool RemoveIsolatedVertices;
 
 private:
   vtkExtractSelectedGraph(const vtkExtractSelectedGraph&); // Not implemented
