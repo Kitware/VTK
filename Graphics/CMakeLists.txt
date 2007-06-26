@@ -240,10 +240,9 @@ SET_SOURCE_FILES_PROPERTIES(
 vtkApproximatingSubdivisionFilter
 vtkButtonSource
 vtkDicer
-vtkDijkstraGraphGeodesicPath
-vtkInterpolatingSubdivisionFilter
 vtkGeodesicPath
 vtkGraphGeodesicPath
+vtkInterpolatingSubdivisionFilter
 vtkEdgeSubdivisionCriterion.cxx 
 vtkStreamer
 ABSTRACT
