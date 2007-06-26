@@ -148,11 +148,21 @@ public:
   // The vtkRMIFunctionType has several arguments: localArg (same as passed in),
   // remoteArg, remoteArgLength (memory passed by process triggering the RMI),
   // remoteProcessId.
-  void AddRMI(vtkRMIFunctionType, void *localArg, int tag);
+  // Since only one callback can be registered per tag, this method will remove
+  // any previously registered callback for the given tag.
+  // Returns a unique Id for the RMI registration which can be used to
+  // unregister the callback. RemoveRMI() should be preferred over
+  // RemoveFirstRMI() since it avoid accidental removal of callbacks.
+  unsigned long AddRMI(vtkRMIFunctionType, void *localArg, int tag);
   
   // Description:
   // Remove the first RMI matching the tag.
   int RemoveFirstRMI(int tag);
+
+  // Description:
+  // Remove the  RMI matching the id. The id is the same id returned by
+  // AddRMI().
+  int RemoveRMI(unsigned long id);
 
   // Description:
   // Take an RMI away.
@@ -329,6 +339,8 @@ protected:
 private:
   vtkMultiProcessController(const vtkMultiProcessController&);  // Not implemented.
   void operator=(const vtkMultiProcessController&);  // Not implemented.
+
+  unsigned long RMICount;
 };
 
 

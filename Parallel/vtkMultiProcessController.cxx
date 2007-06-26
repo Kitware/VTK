@@ -42,6 +42,8 @@ public:
   int Tag;
   vtkRMIFunctionType Function;
   void *LocalArgument;
+
+  unsigned long Id;
   
 protected:
   vtkMultiProcessControllerRMI() {};
@@ -49,10 +51,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.24");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.25");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.24");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.25");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -77,6 +79,8 @@ vtkMultiProcessController::vtkMultiProcessController()
   this->LocalProcessId = 0;
   this->NumberOfProcesses = 1;
   this->MaximumNumberOfProcesses = MAX_PROCESSES;
+
+  this->RMICount = 1;
   
   this->RMIs = vtkCollection::New();
   
@@ -244,16 +248,41 @@ int vtkMultiProcessController::RemoveFirstRMI(int tag)
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiProcessController::AddRMI(vtkRMIFunctionType f, 
+int vtkMultiProcessController::RemoveRMI(unsigned long id)
+{
+  vtkMultiProcessControllerRMI *rmi = NULL;
+  this->RMIs->InitTraversal();
+  while ( (rmi = (vtkMultiProcessControllerRMI*)(this->RMIs->GetNextItemAsObject())) )
+    {
+    if (rmi->Id == id)
+      {
+      this->RMIs->RemoveItem(rmi);
+      return 1;
+      }
+    }
+
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+unsigned long vtkMultiProcessController::AddRMI(vtkRMIFunctionType f, 
                                        void *localArg, int tag)
 {
   vtkMultiProcessControllerRMI *rmi = vtkMultiProcessControllerRMI::New();
 
+  // Remove any previously registered RMI handler for the tag.
+  this->RemoveFirstRMI(tag);
+
   rmi->Tag = tag;
   rmi->Function = f;
   rmi->LocalArgument = localArg;
+  rmi->Id = this->RMICount;
+  this->RMICount++;
+
   this->RMIs->AddItem(rmi);
   rmi->Delete();
+
+  return rmi->Id;
 }
 
 //----------------------------------------------------------------------------
