@@ -288,6 +288,8 @@ public:
   int Receive(vtkDataObject* data, int remoteId, int tag);
   int Receive(vtkDataArray* data, int remoteId, int tag);
 
+  vtkDataObject *ReceiveDataObject(int remoteId, int tag);
+
 // Internally implemented RMI to break the process loop.
 
 protected:
@@ -473,6 +475,19 @@ inline int vtkMultiProcessController::Receive(vtkDataObject* data,
   if (this->Communicator)
     {
     return this->Communicator->Receive(data, remoteProcessId, tag);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+inline vtkDataObject* vtkMultiProcessController::ReceiveDataObject(
+  int remoteProcessId, int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->ReceiveDataObject(remoteProcessId, tag);
     }
   else
     {

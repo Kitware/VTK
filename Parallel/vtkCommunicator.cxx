@@ -33,12 +33,14 @@
 #include "vtkStructuredPointsWriter.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
+#include "vtkDataObjectTypes.h"
+#include "vtkMultiGroupDataSet.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.36");
+vtkCxxRevisionMacro(vtkCommunicator, "1.37");
 
 
 vtkCommunicator::vtkCommunicator()
@@ -64,6 +66,91 @@ void vtkCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 // Need to add better error checking
 int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle, 
                           int tag)
+{
+  int data_type = data->GetDataObjectType();
+  this->Send(&data_type, 1, remoteHandle, tag);
+  
+  switch(data_type)
+    {
+    //error on types we can't send
+    case VTK_DATA_OBJECT:
+    case VTK_DATA_SET:
+    case VTK_PIECEWISE_FUNCTION:
+    case VTK_POINT_SET:
+    case VTK_UNIFORM_GRID:
+    case VTK_GENERIC_DATA_SET:
+    case VTK_HYPER_OCTREE:
+    case VTK_COMPOSITE_DATA_SET:
+    default:
+      vtkWarningMacro(<< "Cannot send " << data->GetClassName());
+      return 0;
+      
+    //send elemental data objects
+    case VTK_GRAPH:
+    case VTK_IMAGE_DATA: 
+    case VTK_POLY_DATA:
+    case VTK_RECTILINEAR_GRID:
+    case VTK_STRUCTURED_GRID:
+    case VTK_STRUCTURED_POINTS:
+    case VTK_TABLE:
+    case VTK_TREE:
+    case VTK_UNSTRUCTURED_GRID:
+      return this->SendElementalDataObject(data, remoteHandle, tag);
+      
+    //for composite types send type, structure, and then iterate 
+    //over the internal dataobjects, sending each one (recursively)
+    case VTK_MULTIGROUP_DATA_SET:
+    case VTK_HIERARCHICAL_DATA_SET:
+    case VTK_HIERARCHICAL_BOX_DATA_SET:
+    case VTK_MULTIBLOCK_DATA_SET:
+    case VTK_TEMPORAL_DATA_SET:
+    {
+      int rc = 1;
+      vtkMultiGroupDataSet *hdObj = 
+        vtkMultiGroupDataSet::SafeDownCast(data);
+
+      int numgroups = hdObj->GetNumberOfGroups();
+      int *gptrs = new int[numgroups];
+      for (int i = 0; i < numgroups; i++)
+        {
+        gptrs[i] = hdObj->GetNumberOfDataSets(i);
+        }
+      this->Send(&numgroups, 1, remoteHandle, tag);
+      this->Send(gptrs, numgroups, remoteHandle, tag);
+      
+      for (int i = 0; i < numgroups; i++)
+        {
+        int *dtptrs = new int[gptrs[i]];
+        for (int j = 0; j < gptrs[i]; j++)
+          {
+          dtptrs[j] = -1;
+          if (hdObj->GetDataSet(i,j))
+            {
+            dtptrs[j] = hdObj->GetDataSet(i,j)->GetDataObjectType();
+            }              
+          }
+        
+        this->Send(dtptrs, gptrs[i], remoteHandle, tag);
+        delete[] dtptrs;
+        
+        for (int j = 0; j < gptrs[i]; j++)
+          {
+          if (hdObj->GetDataSet(i,j))
+            {
+            rc &= this->Send(hdObj->GetDataSet(i, j), remoteHandle, tag);
+            }
+          }
+        }      
+      delete[] gptrs;
+      return rc;
+    }
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkCommunicator::SendElementalDataObject(
+  vtkDataObject* data, int remoteHandle, 
+  int tag)
 {
   VTK_CREATE(vtkCharArray, buffer);
   if (vtkCommunicator::MarshalDataObject(data, buffer))
@@ -153,8 +240,126 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
 }
 
 
+//----------------------------------------------------------------------------
 int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle, 
                              int tag)
+{
+   //fill in the data object we are given
+   return this->ReceiveDataObject(data, remoteHandle, tag, -1);
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject *vtkCommunicator::ReceiveDataObject(int remoteHandle, int tag)
+{
+  int data_type = 0;
+  this->Receive(&data_type, 1, remoteHandle, tag); 
+  //manufacture a data object of the proper type to fill
+  vtkDataObject * dObj = vtkDataObjectTypes::NewDataObject(data_type);
+  if (dObj != NULL)
+    {
+    if (this->ReceiveDataObject(dObj, remoteHandle, tag, data_type) == 1)
+      {
+      return dObj;
+      }
+    }
+  if (dObj)
+    {
+    dObj->Delete();
+    }
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle, 
+                                       int tag, int dataType)
+{
+  int data_type = dataType;
+  if (data_type == -1)
+    {
+    this->Receive(&data_type, 1, remoteHandle, tag); 
+    if (data->GetDataObjectType() != data_type)
+      {
+      vtkErrorMacro("Cannot receive object, type sent is different from destination.");
+      return 0;
+      }
+    }
+  
+  switch(data_type)
+    {
+    //error on types we can't receive
+    case VTK_DATA_OBJECT:
+    case VTK_DATA_SET:
+    case VTK_PIECEWISE_FUNCTION:
+    case VTK_POINT_SET:
+    case VTK_UNIFORM_GRID:
+    case VTK_GENERIC_DATA_SET:
+    case VTK_HYPER_OCTREE:
+    case VTK_COMPOSITE_DATA_SET:
+      vtkWarningMacro(
+        << "Cannot receive " 
+        << vtkDataObjectTypes::GetClassNameFromTypeId(data_type));
+      return 0;
+
+    //receive elemental data objects
+    case VTK_GRAPH:
+    case VTK_IMAGE_DATA: 
+    case VTK_POLY_DATA:
+    case VTK_RECTILINEAR_GRID:
+    case VTK_STRUCTURED_GRID:
+    case VTK_STRUCTURED_POINTS:
+    case VTK_TABLE:
+    case VTK_TREE:
+    case VTK_UNSTRUCTURED_GRID:
+      return this->ReceiveElementalDataObject(data, remoteHandle, tag);
+
+    //for composite types receive type, structure, and then iterate 
+    //over the internal dataobjects, receiving each recursively as needed
+    case VTK_MULTIGROUP_DATA_SET:
+    case VTK_HIERARCHICAL_DATA_SET:
+    case VTK_HIERARCHICAL_BOX_DATA_SET:
+    case VTK_MULTIBLOCK_DATA_SET:
+    case VTK_TEMPORAL_DATA_SET:
+    {
+      int numgroups = 0;
+      this->Receive(&numgroups, 1, remoteHandle, tag);
+      
+      int *gptrs = new int[numgroups];
+      this->Receive(gptrs, numgroups, remoteHandle, tag);
+      
+      vtkMultiGroupDataSet *hdObj = 
+        vtkMultiGroupDataSet::SafeDownCast(data);
+      hdObj->SetNumberOfGroups(numgroups);
+      for (int i = 0; i < numgroups; i++)
+        {
+        hdObj->SetNumberOfDataSets(i, gptrs[i]);
+        int *dtptrs = new int[gptrs[i]];
+        this->Receive(dtptrs, gptrs[i], remoteHandle, tag);
+ 
+        for (int j = 0; j < gptrs[i]; j++)
+          {
+          if (dtptrs[j] != -1)
+            {
+            vtkDataObject *dObj = 
+              vtkDataObjectTypes::NewDataObject(dtptrs[j]);
+            this->Receive(dObj, remoteHandle, tag);
+            hdObj->SetDataSet(i, j, dObj);
+            dObj->Delete();
+            }
+          }
+        
+        delete[] dtptrs;
+        }
+      
+      delete[] gptrs;
+      return 1;
+    }
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkCommunicator::ReceiveElementalDataObject(
+  vtkDataObject* data, int remoteHandle, 
+  int tag)
 {
   VTK_CREATE(vtkCharArray, buffer);
   if (!this->Receive(buffer, remoteHandle, tag))

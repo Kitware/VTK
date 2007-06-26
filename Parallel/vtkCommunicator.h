@@ -101,6 +101,11 @@ public:
   int Receive(vtkDataObject* data, int remoteHandle, int tag);
 
   // Description:
+  // The caller does not have to know the data type before this call is made.
+  // It returns the newly created object.
+  vtkDataObject *ReceiveDataObject(int remoteHandle, int tag);
+
+  // Description:
   // This method receives a data array from a corresponding send. It blocks
   // until the receive is finished. 
   int Receive(vtkDataArray* data, int remoteHandle, int tag);
@@ -171,6 +176,7 @@ public:
   // Description:
   // Convert a data object into a string that can be transmitted and vice versa.
   // Returns 1 for success and 0 for failure.
+  // WARNING: This will only work for types that have a vtkDataWriter class.
   static int MarshalDataObject(vtkDataObject *object, vtkCharArray *buffer);
   static int UnMarshalDataObject(vtkCharArray *buffer, vtkDataObject *object);
 
@@ -181,6 +187,13 @@ protected:
 
   vtkCommunicator();
   ~vtkCommunicator();
+
+  // Internal methods called by Send/Receive(vtkDataObject *... ) above.
+  int SendElementalDataObject(vtkDataObject* data, int remoteHandle, int tag);
+  int ReceiveDataObject(vtkDataObject* data, 
+                        int remoteHandle, int tag, int type=-1);
+  int ReceiveElementalDataObject(vtkDataObject* data, 
+                                 int remoteHandle, int tag);
 
   static int UseCopy;
 
