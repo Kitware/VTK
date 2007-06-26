@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.68");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.69");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -124,6 +124,8 @@ vtkParallelRenderManager::vtkParallelRenderManager()
   this->UseRGBA = 1;
 
   this->AddedRMIs = 0;
+  this->RenderRMIId = 0;
+  this->BoundsRMIId = 0;
   this->Timer = vtkTimerLog::New();
   
   this->UseBackBuffer = 1;
@@ -135,8 +137,8 @@ vtkParallelRenderManager::~vtkParallelRenderManager()
   this->SetRenderWindow(NULL);
   if (this->Controller && this->AddedRMIs)
     {
-    this->Controller->RemoveFirstRMI(vtkParallelRenderManager::RENDER_RMI_TAG);
-    this->Controller->RemoveFirstRMI(COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);
+    this->Controller->RemoveRMI(this->RenderRMIId);
+    this->Controller->RemoveRMI(this->BoundsRMIId);
     this->AddedRMIs = 0;
     }
   this->SetController(NULL);
@@ -1008,12 +1010,16 @@ void vtkParallelRenderManager::InitializeRMIs()
     return;
     }
 
-  this->AddedRMIs = 1;
-  this->Controller->AddRMI(::RenderRMI, this,
-                           vtkParallelRenderManager::RENDER_RMI_TAG);
-  this->Controller->AddRMI(::ComputeVisiblePropBoundsRMI, this,
-                           vtkParallelRenderManager::
-                           COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);
+  if (!this->AddedRMIs)
+    {
+    this->AddedRMIs = 1;
+    this->RenderRMIId = this->Controller->AddRMI(::RenderRMI, this,
+                             vtkParallelRenderManager::RENDER_RMI_TAG);
+    this->BoundsRMIId = this->Controller->AddRMI(
+                             ::ComputeVisiblePropBoundsRMI, this,
+                             vtkParallelRenderManager::
+                             COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -562,7 +562,8 @@ protected:
 //ETX
 
   int AddedRMIs;
-
+  unsigned long RenderRMIId;
+  unsigned long BoundsRMIId;
   int UseBackBuffer;
 private:
   vtkParallelRenderManager(const vtkParallelRenderManager &); //Not implemented
