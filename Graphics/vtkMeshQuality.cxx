@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.50");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.51");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );
@@ -53,7 +53,6 @@ const char* QualityMeasureNames[] =
   "AspectFrobenius",
   "MedAspectFrobenius",
   "MaxAspectFrobenius",
-  "MaxEdgeRatios",
   "MinAngle",
   "CollapseRatio",
   "MaxAngle",
@@ -63,7 +62,21 @@ const char* QualityMeasureNames[] =
   "RelativeSizeSquared",
   "Shape",
   "ShapeAndSize",
-  "Distortion"
+  "Distortion",
+  "MaxEdgeRatio",
+  "Skew",
+  "Taper",
+  "Volume",
+  "Stretch",
+  "Diagonal",
+  "Dimension",
+  "Oddy",
+  "ShearAndSize",
+  "Jacobian",
+  "Warpage",
+  "AspectGamma",
+  "Area",
+  "AspectBeta"
 };
 
 double vtkMeshQuality::CurrentTriNormal[3];
