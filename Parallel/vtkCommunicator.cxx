@@ -40,7 +40,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.37");
+vtkCxxRevisionMacro(vtkCommunicator, "1.38");
 
 
 vtkCommunicator::vtkCommunicator()
@@ -295,6 +295,7 @@ int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle,
     case VTK_GENERIC_DATA_SET:
     case VTK_HYPER_OCTREE:
     case VTK_COMPOSITE_DATA_SET:
+    default:
       vtkWarningMacro(
         << "Cannot receive " 
         << vtkDataObjectTypes::GetClassNameFromTypeId(data_type));
