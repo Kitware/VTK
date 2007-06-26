@@ -28,6 +28,7 @@ IF (VTK_DATA_ROOT)
   SET(MyTests ${MyTests}
     ImagePlaneWidget.cxx
 #    TestConstrainedHandleWidget.cxx
+    TestSurfaceConstrainedHandleWidget.cxx
 #    TestFocalPlaneContour.cxx
 #    TestOrientedGlyphContour.cxx
     TestImageTracerWidget.cxx

@@ -87,6 +87,14 @@ public:
   // Create the default widget representation if one is not set. By default
   // an instance of vtkPointHandleRepresenation3D is created.
   void CreateDefaultRepresentation();
+  
+  // Description:
+  // Enable / disable axis constrained motion of the handles. By default the
+  // widget responds to the shift modifier to constrain the handle along the
+  // axis closest aligned with the motion vector.
+  vtkSetMacro( EnableAxisConstraint, int );
+  vtkGetMacro( EnableAxisConstraint, int );
+  vtkBooleanMacro( EnableAxisConstraint, int );
 
 protected:
   vtkHandleWidget();
@@ -107,6 +115,8 @@ protected:
   int WidgetState;
   enum _WidgetState {Start=0,Active};
 //ETX
+
+  int EnableAxisConstraint;
 
 private:
   vtkHandleWidget(const vtkHandleWidget&);  //Not implemented

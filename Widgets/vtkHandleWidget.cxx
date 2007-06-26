@@ -21,12 +21,12 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
 
-vtkCxxRevisionMacro(vtkHandleWidget, "1.5");
+vtkCxxRevisionMacro(vtkHandleWidget, "1.6");
 vtkStandardNewMacro(vtkHandleWidget);
 
 //----------------------------------------------------------------------------------
@@ -57,6 +57,7 @@ vtkHandleWidget::vtkHandleWidget()
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
                                           vtkWidgetEvent::Move,
                                           this, vtkHandleWidget::MoveAction);
+  this->EnableAxisConstraint = 1;
 }
 
 //----------------------------------------------------------------------------------
@@ -175,7 +176,7 @@ void vtkHandleWidget::GenericAction(vtkHandleWidget *self)
   self->SetCursor(self->WidgetRep->GetInteractionState());
 
   // Check to see whether motion is constrained
-  if ( self->Interactor->GetShiftKey() )
+  if ( self->Interactor->GetShiftKey() && self->EnableAxisConstraint )
     {
     reinterpret_cast<vtkHandleRepresentation*>(self->WidgetRep)->ConstrainedOn();
     }
