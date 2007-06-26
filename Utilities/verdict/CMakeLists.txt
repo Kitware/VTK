@@ -13,6 +13,7 @@ option( VERDICT_ENABLE_TESTING "Should tests of the VERDICT library be built?" O
 
 
 include_directories(${verdict_BINARY_DIR})
+include_directories(${verdict_SOURCE_DIR})
 
 set( verdict_SRCS
   V_EdgeMetric.cpp

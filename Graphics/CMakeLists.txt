@@ -249,7 +249,7 @@ vtkStreamer
 ABSTRACT
 )
 
-INCLUDE_DIRECTORIES( ${VTK_BINARY_DIR}/Utilities/verdict )
+INCLUDE_DIRECTORIES( ${VTK_BINARY_DIR}/Utilities/verdict ${VTK_SOURCE_DIR}/Utilities/verdict/ )
 
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)
