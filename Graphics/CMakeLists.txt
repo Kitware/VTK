@@ -242,6 +242,7 @@ vtkButtonSource
 vtkDicer
 vtkGeodesicPath
 vtkGraphGeodesicPath
+vtkDijkstraGraphGeodesicPath
 vtkInterpolatingSubdivisionFilter
 vtkEdgeSubdivisionCriterion.cxx 
 vtkStreamer
