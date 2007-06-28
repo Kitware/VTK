@@ -43,7 +43,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.39");
+vtkCxxRevisionMacro(vtkCommunicator, "1.40");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -83,8 +83,8 @@ void vtkCommunicator##name##Func(const float *, float *, vtkIdType) \
                          << " not supported for floating point numbers"); \
 }
 
-STANDARD_OPERATION_DEFINITION(Max, vtkstd::max(A[i], B[i]));
-STANDARD_OPERATION_DEFINITION(Min, vtkstd::min(A[i], B[i]));
+STANDARD_OPERATION_DEFINITION(Max, (A[i] < B[i] ? B[i] : A[i]));
+STANDARD_OPERATION_DEFINITION(Min, (A[i] < B[i] ? A[i] : B[i]));
 STANDARD_OPERATION_DEFINITION(Sum, A[i] + B[i]);
 STANDARD_OPERATION_DEFINITION(Product, A[i] * B[i]);
 STANDARD_OPERATION_FLOAT_OVERRIDE(LogicalAnd);
