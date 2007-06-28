@@ -35,7 +35,8 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
 
-#include "string.h"
+#include <string.h>
+#include <time.h>
 #include <vtkstd/vector>
 
 #include "vtkSmartPointer.h"
@@ -924,7 +925,7 @@ static void Run(vtkMultiProcessController *controller, void *_args)
     ExerciseDataObject(controller, polySource->GetOutput(),
                        vtkSmartPointer<vtkPolyData>::New());
     }
-  catch (ExerciseMultiProcessControllerError error)
+  catch (ExerciseMultiProcessControllerError)
     {
     args->retval = 1;
     }
