@@ -26,14 +26,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-#include <vtkstd/algorithm>
-
 #ifdef WIN32
 #include <float.h>
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.118");
+vtkCxxRevisionMacro(vtkMath, "1.119");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -3233,7 +3231,9 @@ void vtkMath::XYZToRGB(double x, double y, double z,
   // Clip colors. ideally we would do something that is perceptually closest
   // (since we can see colors outside of the display gamut), but this seems to
   // work well enough.
-  double maxVal = vtkstd::max(vtkstd::max(*r, *g), *b);
+  double maxVal = *r;
+  if (maxVal < *g) maxVal = *g;
+  if (maxVal < *b) maxVal = *b;
   if (maxVal > 1.0)
     {
     *r /= maxVal;
