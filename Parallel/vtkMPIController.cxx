@@ -65,9 +65,9 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.20");
+vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.21");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.20");
+vtkCxxRevisionMacro(vtkMPIController, "1.21");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------
@@ -104,44 +104,6 @@ void vtkMPIController::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Initialized: " << ( vtkMPIController::Initialized ? "(yes)" : "(no)" ) << endl;
 }
 
-// Set the number of processes and maximum number of processes
-// to the size obtained from MPI.
-int vtkMPIController::InitializeNumberOfProcesses()
-{
-  int err;
-
-  this->Modified();
-
-  vtkMPICommunicator* comm = (vtkMPICommunicator*)this->Communicator;
-  if ( (err = MPI_Comm_size(*(comm->MPIComm->Handle), 
-                            &(this->MaximumNumberOfProcesses))) 
-       != MPI_SUCCESS  )
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
-
-  if (this->MaximumNumberOfProcesses > MAX_PROCESSES)
-    {
-    vtkWarningMacro("Maximum of " << MAX_PROCESSES);
-    this->MaximumNumberOfProcesses = MAX_PROCESSES;
-    }
-  
-  this->NumberOfProcesses = this->MaximumNumberOfProcesses;
-  
-  if ( (err = MPI_Comm_rank(*(comm->MPIComm->Handle),&(this->LocalProcessId))) 
-       != MPI_SUCCESS)
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
-  return 1;
-}
-
 vtkMPICommunicator* vtkMPIController::WorldRMICommunicator=0;
 
 //----------------------------------------------------------------------------
@@ -161,7 +123,6 @@ void vtkMPIController::Initialize(int* argc, char*** argv,
     MPI_Init(argc, argv);
     }
   this->InitializeCommunicator(vtkMPICommunicator::GetWorldCommunicator());
-  this->InitializeNumberOfProcesses();
 
   int tmp;
   MPI_Get_processor_name(ProcessorName, &tmp);
@@ -228,10 +189,6 @@ void vtkMPIController::InitializeCommunicator(vtkMPICommunicator* comm)
       this->Communicator->Register(this); 
       } 
 
-    if (comm && comm->MPIComm->Handle)
-      {
-      this->InitializeNumberOfProcesses();
-      }
     this->Modified(); 
     }  
 
@@ -284,7 +241,7 @@ void vtkMPIController::SingleMethodExecute()
     return;
     }
 
-  if (this->LocalProcessId < this->NumberOfProcesses)
+  if (this->GetLocalProcessId() < this->GetNumberOfProcesses())
     {
     if (this->SingleMethod)
       {
@@ -308,9 +265,9 @@ void vtkMPIController::MultipleMethodExecute()
     return;
     }
 
-  int i = this->LocalProcessId;
+  int i = this->GetLocalProcessId();
   
-  if (this->LocalProcessId < this->NumberOfProcesses)
+  if (i < this->GetNumberOfProcesses())
     {
     if (this->MultipleMethod[i])
       {

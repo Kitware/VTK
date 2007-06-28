@@ -23,7 +23,7 @@
 #include "vtkTypeTraits.h"
 
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.65");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.66");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -107,6 +107,13 @@ int vtkSocketCommunicator::GetIsConnected()
     return this->Socket->GetConnected();
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkSocketCommunicator::SetNumberOfProcesses(int vtkNotUsed(num))
+{
+  vtkErrorMacro("Can not change the number of processes.");
+  return;
 }
 
 //----------------------------------------------------------------------------

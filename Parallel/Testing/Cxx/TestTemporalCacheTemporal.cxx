@@ -31,12 +31,12 @@
 #include "vtkTemporalInterpolator.h"
 #include "vtkThreshold.h"
 
-class ExecuteCallback
+class vtkTestTemporalCacheTemporalExecuteCallback
   : public vtkCommand
 {
 public:
-  static ExecuteCallback *New()
-  { return new ExecuteCallback; }
+  static vtkTestTemporalCacheTemporalExecuteCallback *New()
+  { return new vtkTestTemporalCacheTemporalExecuteCallback; }
   
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   { 
@@ -62,7 +62,7 @@ public:
 };
 
 //-------------------------------------------------------------------------
-int main(int , char *[])
+int TestTemporalCacheTemporal(int , char *[])
 {
   // we have to use a compsite pipeline
   vtkCompositeDataPipeline* prototype = vtkCompositeDataPipeline::New();
@@ -77,7 +77,8 @@ int main(int , char *[])
   fractal->GenerateRectilinearGridsOn();
   fractal->SetAdaptiveSubdivision(0);
 
-  ExecuteCallback *executecb =ExecuteCallback::New();
+  vtkTestTemporalCacheTemporalExecuteCallback *executecb
+    =vtkTestTemporalCacheTemporalExecuteCallback::New();
   executecb->Count = 0;
   fractal->AddObserver(vtkCommand::StartEvent,executecb);
   executecb->Delete();

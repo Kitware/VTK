@@ -32,7 +32,7 @@
 
 
 //-------------------------------------------------------------------------
-int main(int argc, char *argv[])
+int TestExodusTime(int argc, char *argv[])
 {
   // we have to use a compsite pipeline
   vtkCompositeDataPipeline* prototype = vtkCompositeDataPipeline::New();

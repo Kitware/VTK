@@ -25,6 +25,7 @@ vtkCompressCompositer.cxx
 vtkCutMaterial.cxx
 vtkDistributedDataFilter.cxx
 vtkDistributedStreamTracer.cxx
+vtkDummyCommunicator.cxx
 vtkDummyController.cxx
 vtkEnSightWriter.cxx
 vtkExtractCTHPart.cxx

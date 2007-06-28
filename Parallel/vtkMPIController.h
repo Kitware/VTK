@@ -173,22 +173,6 @@ public:
         (data, length, remoteProcessId, tag, req); }
 #endif
 
-  int Broadcast(int* data          , int length, int root)
-    { return ((vtkMPICommunicator*)this->Communicator)->Broadcast
-        (data, length, root); }
-  int Broadcast(unsigned long* data, int length, int root)
-    { return ((vtkMPICommunicator*)this->Communicator)->Broadcast
-        (data, length, root); }
-  int Broadcast(char* data         , int length, int root)
-    { return ((vtkMPICommunicator*)this->Communicator)->Broadcast
-        (data, length, root); }
-  int Broadcast(float* data        , int length, int root)
-    { return ((vtkMPICommunicator*)this->Communicator)->Broadcast
-        (data, length, root); }
-  int Broadcast(double* data        , int length, int root)
-    { return ((vtkMPICommunicator*)this->Communicator)->Broadcast
-        (data, length, root); }
-
 //ETX
 
   static const char* GetProcessorName();
@@ -196,12 +180,6 @@ public:
 protected:
   vtkMPIController();
   ~vtkMPIController();
-
-  // Given a communicator, obtain size and rank
-  // setting NumberOfProcesses and LocalProcessId
-  // Should not be called if the current communicator
-  // does not include this process
-  int InitializeNumberOfProcesses();
 
   // Set the communicator to comm and call InitializeNumberOfProcesses()
   void InitializeCommunicator(vtkMPICommunicator* comm);

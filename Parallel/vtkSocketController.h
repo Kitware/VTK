@@ -67,10 +67,6 @@ public:
   void Barrier() {};
 
   // Description:
-  // Set the number of processes you will be using.
-  virtual void SetNumberOfProcesses(int num);
-
-  // Description:
   // Wait for connection on a given port, forwarded
   // to the communicator
   virtual int WaitForConnection(int port);

@@ -84,7 +84,7 @@ public:
   vtkstd::vector<double> TimeStepValues;
 };
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalSphereSource, "1.2");
+vtkCxxRevisionMacro(vtkTemporalSphereSource, "1.3");
 vtkStandardNewMacro(vtkTemporalSphereSource);
 //----------------------------------------------------------------------------
 vtkTemporalSphereSource::vtkTemporalSphereSource()
@@ -123,7 +123,7 @@ int vtkTemporalSphereSource::RequestInformation(
   return 1;
 }
 //----------------------------------------------------------------------------
-class WithinTolerance: public vtkstd::binary_function<double, double, bool>
+class vtkTestTemporalCacheSimpleWithinTolerance: public vtkstd::binary_function<double, double, bool>
 {
 public:
     result_type operator()(first_argument_type a, second_argument_type b) const
@@ -149,7 +149,7 @@ int vtkTemporalSphereSource::RequestData(
     this->ActualTimeStep = vtkstd::find_if(
       this->TimeStepValues.begin(), 
       this->TimeStepValues.end(), 
-      vtkstd::bind2nd( WithinTolerance( ), requestedTimeValue )) 
+      vtkstd::bind2nd( vtkTestTemporalCacheSimpleWithinTolerance( ), requestedTimeValue )) 
       - this->TimeStepValues.begin();
     this->ActualTimeStep = this->ActualTimeStep + this->TimeStepRange[0];
     int N = outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
@@ -172,12 +172,12 @@ int vtkTemporalSphereSource::RequestData(
 //-------------------------------------------------------------------------
 //-------------------------------------------------------------------------
 //-------------------------------------------------------------------------
-class ExecuteCallback
+class vtkTestTemporalCacheSimpleExecuteCallback
   : public vtkCommand
 {
 public:
-  static ExecuteCallback *New()
-  { return new ExecuteCallback; }
+  static vtkTestTemporalCacheSimpleExecuteCallback *New()
+  { return new vtkTestTemporalCacheSimpleExecuteCallback; }
   
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   { 
@@ -202,7 +202,7 @@ public:
   unsigned int Count;
 };
 //-------------------------------------------------------------------------
-int main(int , char *[])
+int TestTemporalCacheSimple(int , char *[])
 {
   // we have to use a compsite pipeline
   vtkCompositeDataPipeline* prototype = vtkCompositeDataPipeline::New();
@@ -213,7 +213,8 @@ int main(int , char *[])
   vtkSmartPointer<vtkTemporalSphereSource> sphere = 
     vtkSmartPointer<vtkTemporalSphereSource>::New();
 
-  ExecuteCallback *executecb =ExecuteCallback::New();
+  vtkTestTemporalCacheSimpleExecuteCallback *executecb
+    =vtkTestTemporalCacheSimpleExecuteCallback::New();
   executecb->Count = 0;
   sphere->AddObserver(vtkCommand::StartEvent,executecb);
   executecb->Delete();

@@ -12,14 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkDummyCommunicator.h"
 #include "vtkDummyController.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDummyController, "1.3");
+vtkCxxRevisionMacro(vtkDummyController, "1.4");
 vtkStandardNewMacro(vtkDummyController);
 
 
 //----------------------------------------------------------------------------
+vtkDummyController::vtkDummyController()
+{
+  this->Communicator = vtkDummyCommunicator::New();
+  this->RMICommunicator = vtkDummyCommunicator::New();
+}
+
+vtkDummyController::~vtkDummyController()
+{
+  this->Communicator->Delete();
+  this->RMICommunicator->Delete();
+}
+
 void vtkDummyController::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

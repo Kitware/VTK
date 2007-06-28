@@ -80,6 +80,10 @@ public:
   // Is the communicator connected?.
   int GetIsConnected();
 
+  // Description:
+  // Set the number of processes you will be using.
+  virtual void SetNumberOfProcesses(int num);
+
   //------------------ Communication --------------------
 
   // Description:
@@ -134,7 +138,6 @@ public:
 protected:
 
   vtkClientSocket* Socket;
-  int NumberOfProcesses;
   int SwapBytesInReceivedData;
   int PerformHandshake;
   

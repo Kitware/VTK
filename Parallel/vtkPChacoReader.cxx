@@ -41,7 +41,7 @@
 #include "vtkMPIGroup.h"
 #endif
 
-vtkCxxRevisionMacro(vtkPChacoReader, "1.8");
+vtkCxxRevisionMacro(vtkPChacoReader, "1.9");
 vtkStandardNewMacro(vtkPChacoReader);
 
 //----------------------------------------------------------------------------
@@ -217,7 +217,7 @@ int vtkPChacoReader::RequestData(
   int oops = ((piece != this->MyId) || (numPieces != this->NumProcesses)); 
   int sum = 0;
 
-  comm->ReduceSum(&oops, &sum, 1, 0);
+  comm->Reduce(&oops, &sum, 1, vtkCommunicator::SUM_OP, 0);
   comm->Broadcast(&sum, 1, 0);
  
   if (sum > 0)
@@ -444,7 +444,7 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
     }
 
   int vote = 0;
-  comm->ReduceSum(&retVal, &vote, 1, 0);
+  comm->Reduce(&retVal, &vote, 1, vtkCommunicator::SUM_OP, 0);
   comm->Broadcast(&vote, 1, 0);
 
   if (vote < nprocs)

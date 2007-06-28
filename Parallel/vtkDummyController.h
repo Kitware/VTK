@@ -60,8 +60,8 @@ public:
   virtual void CreateOutputWindow() {}
 
 protected:
-  vtkDummyController() {}
-  ~vtkDummyController() {}
+  vtkDummyController();
+  ~vtkDummyController();
   
 private:
   vtkDummyController(const vtkDummyController&);  // Not implemented.

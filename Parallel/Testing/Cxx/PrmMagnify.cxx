@@ -69,7 +69,7 @@ private:
   void operator=(const vtkTestMagnifyRenderManager &);  // Not implemented.
 };
 
-vtkCxxRevisionMacro(vtkTestMagnifyRenderManager, "1.3");
+vtkCxxRevisionMacro(vtkTestMagnifyRenderManager, "1.4");
 vtkStandardNewMacro(vtkTestMagnifyRenderManager);
 
 vtkTestMagnifyRenderManager::vtkTestMagnifyRenderManager()
@@ -204,7 +204,7 @@ void vtkTestMagnifyRenderManager::ReadReducedImage()
 
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[])
+int PrmMagnify(int argc, char *argv[])
 {
   VTK_CREATE(vtkDummyController, controller);
   controller->Initialize(&argc, &argv);

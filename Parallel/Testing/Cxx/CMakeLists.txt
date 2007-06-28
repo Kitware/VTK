@@ -1,52 +1,53 @@
 IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
+  SET(KIT Parallel)
+  # add tests that do not require data
+  SET(MyTests
+    DummyController.cxx
+    TestTemporalCacheTemporal.cxx
+    TestTemporalCacheSimple.cxx
+    )
+  IF (VTK_DATA_ROOT)
+    # add tests that require data
+    SET(MyTests ${MyTests}
+      PrmMagnify.cxx
+      #TestExodusTime.cxx
+      TestTemporalFractal.cxx
+      )
+  ENDIF (VTK_DATA_ROOT)    
+  CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
+                         EXTRA_INCLUDE vtkTestDriver.h)
+  ADD_EXECUTABLE(${KIT}CxxTests ${Tests} ExerciseMultiProcessController.cxx)
+  TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO vtkParallel vtkHybrid)
+  SET (TestsToRun ${Tests})
+  REMOVE (TestsToRun ${KIT}CxxTests.cxx)
+
+  # Add all the standard tests
+  FOREACH (test ${TestsToRun})
+    GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
+    IF (VTK_DATA_ROOT)
+      ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}
+          -D ${VTK_DATA_ROOT}
+          -T ${VTK_BINARY_DIR}/Testing/Temporary
+          -V Baseline/${KIT}/${TName}.png)
+    ELSE (VTK_DATA_ROOT)
+      ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}) 
+    ENDIF (VTK_DATA_ROOT)
+  ENDFOREACH (test) 
+
+  # The following tests are launched special because they use MPI or
+  # have sockets.
   ADD_EXECUTABLE(SocketServer SocketServer.cxx)
   ADD_EXECUTABLE(SocketClient SocketClient.cxx)
   TARGET_LINK_LIBRARIES(SocketClient vtkParallel)
   TARGET_LINK_LIBRARIES(SocketServer vtkParallel)
 
-  ADD_EXECUTABLE(PrmMagnifyTest PrmMagnify.cxx)
-  TARGET_LINK_LIBRARIES(PrmMagnifyTest vtkParallel)
-
-  IF (VTK_DATA_ROOT)
-    ADD_TEST(PrmMagnify-image 
-      ${CXX_TEST_PATH}/PrmMagnifyTest
-      -D ${VTK_DATA_ROOT}
-      -T ${VTK_BINARY_DIR}/Testing/Temporary
-      -V Baseline/Parallel/PrmMagnify.png
-      )
-  ENDIF(VTK_DATA_ROOT)
-
-  ADD_EXECUTABLE(TestTemporalFractal TestTemporalFractal.cxx)
-  TARGET_LINK_LIBRARIES(TestTemporalFractal vtkParallel vtkHybrid)
-  IF (VTK_DATA_ROOT)
-    ADD_TEST(TestTemporalFractal-image 
-      ${CXX_TEST_PATH}/TestTemporalFractal
-      -D ${VTK_DATA_ROOT}
-      -T ${VTK_BINARY_DIR}/Testing/Temporary
-      -V Baseline/Parallel/TestTemporalFractal.png
-      )
-  ENDIF(VTK_DATA_ROOT)
-
-  ADD_EXECUTABLE(TestTemporalCacheTemporal TestTemporalCacheTemporal.cxx)
-  TARGET_LINK_LIBRARIES(TestTemporalCacheTemporal vtkParallel vtkHybrid)
-  ADD_TEST(TestTemporalCacheTemporal 
-    ${CXX_TEST_PATH}/TestTemporalCacheTemporal
-    -T ${VTK_BINARY_DIR}/Testing/Temporary
-    )
-
-  ADD_EXECUTABLE(TestTemporalCacheSimple TestTemporalCacheSimple.cxx)
-  TARGET_LINK_LIBRARIES(TestTemporalCacheSimple vtkParallel vtkHybrid)
-  ADD_TEST(TestTemporalCacheSimple
-    ${CXX_TEST_PATH}/TestTemporalCacheSimple
-    -T ${VTK_BINARY_DIR}/Testing/Temporary
-    )
-
-  ADD_EXECUTABLE(TestExodusTime TestExodusTime.cxx)
-  TARGET_LINK_LIBRARIES(TestExodusTime vtkParallel vtkHybrid)
-
   IF (VTK_USE_MPI)
     ADD_EXECUTABLE(ParallelIsoTest ParallelIso.cxx)
     TARGET_LINK_LIBRARIES(ParallelIsoTest vtkVolumeRendering vtkParallel vtkHybrid vtkWidgets)
+
+    ADD_EXECUTABLE(TestMPIController MPIController.cxx
+      ExerciseMultiProcessController.cxx)
+    TARGET_LINK_LIBRARIES(TestMPIController vtkParallel)
 
     ADD_EXECUTABLE(GenericCommunicator GenericCommunicator.cxx)
     TARGET_LINK_LIBRARIES(GenericCommunicator vtkParallel)
@@ -69,6 +70,23 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ADD_EXECUTABLE(TransmitStructuredGrid TransmitStructuredGrid.cxx)
     TARGET_LINK_LIBRARIES(TransmitStructuredGrid vtkParallel)
 
+    IF (VTK_MPIRUN_EXE)
+      ADD_TEST(MPIController
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPI_PREFLAGS}
+        ${CXX_TEST_PATH}/TestMPIController
+        ${VTK_MPI_POSTFLAGS}
+        )
+    ENDIF (VTK_MPIRUN_EXE)
+
+    # This definition looks wrong in multiple respects:
+    # 1. It's called an image test, but it does not actually compare an image.
+    # 2. It uses VTK_MPIRUN_EXE, but is not wrapped in a IF (VTK_MPIRUN_EXE)
+    #    block.
+    # 3. It is duplicated by the TestCommunicator test (when VTK_DATA_ROOT is
+    #    not defined).
+    # Since the functionality and more is tested by the MPIController test,
+    # I vote we just get rid of it altogether.
     ADD_TEST(GenericCommunicator-image 
       ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
       ${CXX_TEST_PATH}/GenericCommunicator

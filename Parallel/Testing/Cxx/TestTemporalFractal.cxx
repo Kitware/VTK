@@ -31,7 +31,7 @@
 #include "vtkPolyDataMapper.h"
 
 //-------------------------------------------------------------------------
-int main(int argc, char *argv[])
+int TestTemporalFractal(int argc, char *argv[])
 {
   // we have to use a compsite pipeline
   vtkCompositeDataPipeline* prototype = vtkCompositeDataPipeline::New();

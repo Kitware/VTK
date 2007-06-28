@@ -47,6 +47,76 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Set the number of processes you will be using.  This defaults
+  // to the maximum number available.  If you set this to a value
+  // higher than the default, you will get an error.
+  virtual void SetNumberOfProcesses(int num);
+  vtkGetMacro(NumberOfProcesses, int);
+
+  int MaximumNumberOfProcesses;
+  int NumberOfProcesses;
+
+  int LocalProcessId;
+
+  // Description:
+  // Tells you which process [0, NumProcess) you are in.
+  vtkGetMacro(LocalProcessId, int);
+
+//BTX
+
+  enum Tags
+  {
+    BROADCAST_TAG       = 10,
+    GATHER_TAG          = 11,
+    GATHERV_TAG         = 12,
+    SCATTER_TAG         = 13,
+    SCATTERV_TAG        = 14,
+    REDUCE_TAG          = 15
+  };
+
+  enum StandardOperations
+  {
+    MAX_OP,
+    MIN_OP,
+    SUM_OP,
+    PRODUCT_OP,
+    LOGICAL_AND_OP,
+    BITWISE_AND_OP,
+    LOGICAL_OR_OP,
+    BITWISE_OR_OP,
+    LOGICAL_XOR_OP,
+    BITWISE_XOR_OP
+  };
+
+  // Description:
+  // A custom operation to use in a reduce command.  Subclass this object to
+  // provide your own operations.
+  class Operation
+  {
+  public:
+    // Description:
+    // Subclasses must overload this method, which performs the actual
+    // operations.  The methods should first do a reintepret cast of the arrays
+    // to the type suggestsed by \c datatype (which will be one of the VTK type
+    // identifiers like VTK_INT, etc.).  Both arrays are considered top be
+    // length entries.  The method should perform the operation A*B (where * is
+    // a placeholder for whatever operation is actually performed) and store the
+    // result in B.  The operation is assumed to be associative.  Commutativity
+    // is specified by the Commutative method.
+    virtual void Function(const void *A, void *B, vtkIdType length,
+                          int datatype) = 0;
+
+    // Description:
+    // Subclasses override this method to specify whether their operation
+    // is commutative.  It should return 1 if commutative or 0 if not.
+    virtual int Commutative() = 0;
+
+    virtual ~Operation() {}
+  };
+
+//ETX
+
+  // Description:
   // This method sends a data object to a destination.  
   // Tag eliminates ambiguity
   // and is used to match sends to receives.
@@ -145,6 +215,542 @@ public:
     return this->ReceiveVoidArray(data, length, VTK_ID_TYPE, remoteHandle, tag);
   }
 #endif
+
+  //---------------------- Collective Operations ----------------------
+
+  // Description:
+  // Broadcast sends the array in the process with id \c srcProcessId to all of
+  // the other processes.  All processes must call these method with the same
+  // arguments in order for it to complete.
+  int Broadcast(int *data, vtkIdType length, int srcProcessId) {
+    return this->BroadcastVoidArray(data, length, VTK_INT, srcProcessId);
+  }
+  int Broadcast(unsigned long *data, vtkIdType length, int srcProcessId) {
+    return this->BroadcastVoidArray(data,length,VTK_UNSIGNED_LONG,srcProcessId);
+  }
+  int Broadcast(unsigned char *data, vtkIdType length, int srcProcessId) {
+    return this->BroadcastVoidArray(data,length,VTK_UNSIGNED_CHAR,srcProcessId);
+  }
+  int Broadcast(char *data, vtkIdType length, int srcProcessId) {
+    return this->BroadcastVoidArray(data, length, VTK_CHAR, srcProcessId);
+  }
+  int Broadcast(float *data, vtkIdType length, int srcProcessId) {
+    return this->BroadcastVoidArray(data, length, VTK_FLOAT, srcProcessId);
+  }
+  int Broadcast(double *data, vtkIdType length, int srcProcessId) {
+    return this->BroadcastVoidArray(data, length, VTK_DOUBLE, srcProcessId);
+  }
+#ifdef VTK_USE_64BIT_IDS
+  int Broadcast(vtkIdType *data, vtkIdType length, int srcProcessId) {
+    return this->BroadcastVoidArray(data, length, VTK_ID_TYPE, srcProcessId);
+  }
+#endif
+  int Broadcast(vtkDataObject *data, int srcProcessId);
+  int Broadcast(vtkDataArray *data, int srcProcessId);
+
+  // Description:
+  // Gather collects arrays in the process with id \c destProcessId.  Each
+  // process (including the destination) sends the contents of its send buffer
+  // to the destination process.  The destination process receives the
+  // messages and stores them in rank order.  The \c length argument
+  // (which must be the same on all processes) is the length of the
+  // sendBuffers.  The \c recvBuffer (on te destination process) must be of
+  // length length*numProcesses.  Gather is the inverse operation of Scatter.
+  int Gather(const int *sendBuffer, int *recvBuffer,
+             vtkIdType length, int destProcessId) {
+    return this->GatherVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_INT, destProcessId);
+  }
+  int Gather(const unsigned long *sendBuffer, unsigned long *recvBuffer,
+             vtkIdType length, int destProcessId) {
+    return this->GatherVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_UNSIGNED_LONG, destProcessId);
+  }
+  int Gather(const unsigned char *sendBuffer, unsigned char *recvBuffer,
+             vtkIdType length, int destProcessId) {
+    return this->GatherVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_UNSIGNED_CHAR, destProcessId);
+  }
+  int Gather(const char *sendBuffer, char *recvBuffer,
+             vtkIdType length, int destProcessId) {
+    return this->GatherVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_CHAR, destProcessId);
+  }
+  int Gather(const float *sendBuffer, float *recvBuffer,
+             vtkIdType length, int destProcessId) {
+    return this->GatherVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_FLOAT, destProcessId);
+  }
+  int Gather(const double *sendBuffer, double *recvBuffer,
+             vtkIdType length, int destProcessId) {
+    return this->GatherVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_DOUBLE, destProcessId);
+  }
+#ifdef VTK_USE_64BIT_IDS
+  int Gather(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
+             vtkIdType length, int destProcessId) {
+    return this->GatherVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_ID_TYPE, destProcessId);
+  }
+#endif
+  int Gather(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
+             int destProcessId);
+
+  // Description:
+  // GatherV is the vector variant of Gather.  It extends the functionality of
+  // Gather by allowing a varying count of data from each process.
+  // GatherV collects arrays in the process with id \c destProcessId.  Each
+  // process (including the destination) sends the contents of its send buffer
+  // to the destination process.  The destination process receives the
+  // messages and stores them in rank order.  The \c sendLength argument
+  // defines how much the local process sends to \c destProcessId and
+  // \c recvLengths is an array containing the amount \c destProcessId
+  // receives from each process, in rank order.
+  int GatherV(const int* sendBuffer, int* recvBuffer, 
+              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
+              int destProcessId) {
+    return this->GatherVVoidArray(sendBuffer, recvBuffer,
+                                  sendLength, recvLengths,
+                                  offsets, VTK_INT, destProcessId);
+  }
+  int GatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer, 
+              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
+              int destProcessId) {
+    return this->GatherVVoidArray(sendBuffer, recvBuffer,
+                                  sendLength, recvLengths,
+                                  offsets, VTK_UNSIGNED_LONG, destProcessId);
+  }
+  int GatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer, 
+              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
+              int destProcessId) {
+    return this->GatherVVoidArray(sendBuffer, recvBuffer,
+                                  sendLength, recvLengths,
+                                  offsets, VTK_UNSIGNED_CHAR, destProcessId);
+  }
+  int GatherV(const char* sendBuffer, char* recvBuffer, 
+              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
+              int destProcessId) {
+    return this->GatherVVoidArray(sendBuffer, recvBuffer,
+                                  sendLength, recvLengths,
+                                  offsets, VTK_CHAR, destProcessId);
+  }
+  int GatherV(const float* sendBuffer, float* recvBuffer, 
+              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
+              int destProcessId) {
+    return this->GatherVVoidArray(sendBuffer, recvBuffer,
+                                  sendLength, recvLengths,
+                                  offsets, VTK_FLOAT, destProcessId);
+  }
+  int GatherV(const double* sendBuffer, double* recvBuffer, 
+              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
+              int destProcessId) {
+    return this->GatherVVoidArray(sendBuffer, recvBuffer,
+                                  sendLength, recvLengths,
+                                  offsets, VTK_DOUBLE, destProcessId);
+  }
+#ifdef VTK_USE_64BIT_IDS
+  int GatherV(const vtkIdType* sendBuffer, vtkIdType* recvBuffer, 
+              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
+              int destProcessId) {
+    return this->GatherVVoidArray(sendBuffer, recvBuffer,
+                                  sendLength, recvLengths,
+                                  offsets, VTK_ID_TYPE, destProcessId);
+  }
+#endif
+
+  // Description:
+  // Scatter takes an array in the process with id \c srcProcessId and
+  // distributes it.  Each process (including the source) receives a portion of
+  // the send buffer.  Process 0 receives the first \c length values, process 1
+  // receives the second \c length values, and so on.  Scatter is the inverse
+  // operation of Gather.
+  int Scatter(const int *sendBuffer, int *recvBuffer,
+             vtkIdType length, int srcProcessId) {
+    return this->ScatterVoidArray(sendBuffer, recvBuffer, length,
+                                  VTK_INT, srcProcessId);
+  }
+  int Scatter(const unsigned long *sendBuffer, unsigned long *recvBuffer,
+             vtkIdType length, int srcProcessId) {
+    return this->ScatterVoidArray(sendBuffer, recvBuffer, length,
+                                  VTK_UNSIGNED_LONG, srcProcessId);
+  }
+  int Scatter(const unsigned char *sendBuffer, unsigned char *recvBuffer,
+             vtkIdType length, int srcProcessId) {
+    return this->ScatterVoidArray(sendBuffer, recvBuffer, length,
+                                  VTK_UNSIGNED_CHAR, srcProcessId);
+  }
+  int Scatter(const char *sendBuffer, char *recvBuffer,
+             vtkIdType length, int srcProcessId) {
+    return this->ScatterVoidArray(sendBuffer, recvBuffer, length,
+                                  VTK_CHAR, srcProcessId);
+  }
+  int Scatter(const float *sendBuffer, float *recvBuffer,
+             vtkIdType length, int srcProcessId) {
+    return this->ScatterVoidArray(sendBuffer, recvBuffer, length,
+                                  VTK_FLOAT, srcProcessId);
+  }
+  int Scatter(const double *sendBuffer, double *recvBuffer,
+             vtkIdType length, int srcProcessId) {
+    return this->ScatterVoidArray(sendBuffer, recvBuffer, length,
+                                  VTK_DOUBLE, srcProcessId);
+  }
+#ifdef VTK_USE_64BIT_IDS
+  int Scatter(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
+             vtkIdType length, int srcProcessId) {
+    return this->ScatterVoidArray(sendBuffer, recvBuffer, length,
+                                  VTK_ID_TYPE, srcProcessId);
+  }
+#endif
+  int Scatter(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
+             int srcProcessId);
+
+  // Description:
+  // ScatterV is the vector variant of Scatter.  It extends the functionality of
+  // Scatter by allowing a varying count of data to each process.
+  // ScatterV takes an array in the process with id \c srcProcessId and
+  // distributes it.  Each process (including the source) receives a portion of
+  // the send buffer defined by the \c sendLengths and \c offsets arrays.
+  int ScatterV(const int *sendBuffer, int *recvBuffer,
+               vtkIdType *sendLengths, vtkIdType *offsets,
+               vtkIdType recvLength, int srcProcessId) {
+    return this->ScatterVVoidArray(sendBuffer, recvBuffer,
+                                   sendLengths, offsets, recvLength,
+                                   VTK_INT, srcProcessId);
+  }
+  int ScatterV(const unsigned long *sendBuffer, unsigned long *recvBuffer,
+               vtkIdType *sendLengths, vtkIdType *offsets,
+               vtkIdType recvLength, int srcProcessId) {
+    return this->ScatterVVoidArray(sendBuffer, recvBuffer,
+                                   sendLengths, offsets, recvLength,
+                                   VTK_UNSIGNED_LONG, srcProcessId);
+  }
+  int ScatterV(const unsigned char *sendBuffer, unsigned char *recvBuffer,
+               vtkIdType *sendLengths, vtkIdType *offsets,
+               vtkIdType recvLength, int srcProcessId) {
+    return this->ScatterVVoidArray(sendBuffer, recvBuffer,
+                                   sendLengths, offsets, recvLength,
+                                   VTK_UNSIGNED_CHAR, srcProcessId);
+  }
+  int ScatterV(const char *sendBuffer, char *recvBuffer,
+               vtkIdType *sendLengths, vtkIdType *offsets,
+               vtkIdType recvLength, int srcProcessId) {
+    return this->ScatterVVoidArray(sendBuffer, recvBuffer,
+                                   sendLengths, offsets, recvLength,
+                                   VTK_CHAR, srcProcessId);
+  }
+  int ScatterV(const float *sendBuffer, float *recvBuffer,
+               vtkIdType *sendLengths, vtkIdType *offsets,
+               vtkIdType recvLength, int srcProcessId) {
+    return this->ScatterVVoidArray(sendBuffer, recvBuffer,
+                                   sendLengths, offsets, recvLength,
+                                   VTK_FLOAT, srcProcessId);
+  }
+  int ScatterV(const double *sendBuffer, double *recvBuffer,
+               vtkIdType *sendLengths, vtkIdType *offsets,
+               vtkIdType recvLength, int srcProcessId) {
+    return this->ScatterVVoidArray(sendBuffer, recvBuffer,
+                                   sendLengths, offsets, recvLength,
+                                   VTK_DOUBLE, srcProcessId);
+  }
+#ifdef VTK_USE_64BIT_IDS
+  int ScatterV(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
+               vtkIdType *sendLengths, vtkIdType *offsets,
+               vtkIdType recvLength, int srcProcessId) {
+    return this->ScatterVVoidArray(sendBuffer, recvBuffer,
+                                   sendLengths, offsets, recvLength,
+                                   VTK_ID_TYPE, srcProcessId);
+  }
+#endif
+
+  // Description:
+  // Same as gather except that the result ends up on all processes.
+  int AllGather(const int *sendBuffer, int *recvBuffer, vtkIdType length) {
+    return this->AllGatherVoidArray(sendBuffer, recvBuffer, length, VTK_INT);
+  }
+  int AllGather(const unsigned long *sendBuffer,
+                unsigned long *recvBuffer, vtkIdType length) {
+    return this->AllGatherVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_UNSIGNED_LONG);
+  }
+  int AllGather(const unsigned char *sendBuffer,
+                unsigned char *recvBuffer, vtkIdType length) {
+    return this->AllGatherVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_UNSIGNED_CHAR);
+  }
+  int AllGather(const char *sendBuffer, char *recvBuffer, vtkIdType length) {
+    return this->AllGatherVoidArray(sendBuffer, recvBuffer, length, VTK_CHAR);
+  }
+  int AllGather(const float *sendBuffer, float *recvBuffer, vtkIdType length) {
+    return this->AllGatherVoidArray(sendBuffer, recvBuffer, length, VTK_FLOAT);
+  }
+  int AllGather(const double *sendBuffer,
+                double *recvBuffer, vtkIdType length) {
+    return this->AllGatherVoidArray(sendBuffer, recvBuffer, length, VTK_DOUBLE);
+  }
+#ifdef VTK_USE_64BIT_IDS
+  int AllGather(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
+                vtkIdType length) {
+    return this->AllGatherVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_ID_TYPE);
+  }
+#endif
+  int AllGather(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer);
+
+  // Description:
+  // Same as GatherV except that the result is placed in all processes.
+  int AllGatherV(const int* sendBuffer, int* recvBuffer, 
+                 vtkIdType sendLength, vtkIdType* recvLengths,
+                 vtkIdType* offsets) {
+    return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
+                                     sendLength, recvLengths,
+                                     offsets, VTK_INT);
+  }
+  int AllGatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer, 
+                 vtkIdType sendLength, vtkIdType* recvLengths,
+                 vtkIdType* offsets) {
+    return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
+                                     sendLength, recvLengths,
+                                     offsets, VTK_UNSIGNED_LONG);
+  }
+  int AllGatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer, 
+                 vtkIdType sendLength, vtkIdType* recvLengths,
+                 vtkIdType* offsets) {
+    return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
+                                     sendLength, recvLengths,
+                                     offsets, VTK_UNSIGNED_CHAR);
+  }
+  int AllGatherV(const char* sendBuffer, char* recvBuffer, 
+                 vtkIdType sendLength, vtkIdType* recvLengths,
+                 vtkIdType* offsets) {
+    return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
+                                     sendLength, recvLengths,
+                                     offsets, VTK_CHAR);
+  }
+  int AllGatherV(const float* sendBuffer, float* recvBuffer, 
+                 vtkIdType sendLength, vtkIdType* recvLengths,
+                 vtkIdType* offsets) {
+    return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
+                                     sendLength, recvLengths,
+                                     offsets, VTK_FLOAT);
+  }
+  int AllGatherV(const double* sendBuffer, double* recvBuffer, 
+                 vtkIdType sendLength, vtkIdType* recvLengths,
+                 vtkIdType* offsets) {
+    return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
+                                     sendLength, recvLengths,
+                                     offsets, VTK_DOUBLE);
+  }
+#ifdef VTK_USE_64BIT_IDS
+  int AllGatherV(const vtkIdType* sendBuffer, vtkIdType* recvBuffer, 
+                 vtkIdType sendLength, vtkIdType* recvLengths,
+                 vtkIdType* offsets) {
+    return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
+                                     sendLength, recvLengths,
+                                     offsets, VTK_ID_TYPE);
+  }
+#endif
+
+  // Description:
+  // Reduce an array to the given destination process.  This version of Reduce
+  // takes an identifier defined in the
+  // vtkCommunicator::StandardOperations enum to define the operation.
+  int Reduce(const int *sendBuffer, int *recvBuffer,
+             vtkIdType length, int operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_INT, operation, destProcessId);
+  }
+  int Reduce(const unsigned long *sendBuffer, unsigned long *recvBuffer,
+             vtkIdType length, int operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_UNSIGNED_LONG, operation, destProcessId);
+  }
+  int Reduce(const unsigned char *sendBuffer, unsigned char *recvBuffer,
+             vtkIdType length, int operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_UNSIGNED_CHAR, operation, destProcessId);
+  }
+  int Reduce(const char *sendBuffer, char *recvBuffer,
+             vtkIdType length, int operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_CHAR, operation, destProcessId);
+  }
+  int Reduce(const float *sendBuffer, float *recvBuffer,
+             vtkIdType length, int operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_FLOAT, operation, destProcessId);
+  }
+  int Reduce(const double *sendBuffer, double *recvBuffer,
+             vtkIdType length, int operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_DOUBLE, operation, destProcessId);
+  }
+#ifdef VTK_USE_64BIT_IDS
+  int Reduce(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
+             vtkIdType length, int operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_ID_TYPE, operation, destProcessId);
+  }
+#endif
+  int Reduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
+             int operation, int destProcessId);
+
+  // Description:
+  // Reduce an array to the given destination process.  This version of Reduce
+  // takes a custom operation as a subclass of vtkCommunicator::Operation.
+  int Reduce(const int *sendBuffer, int *recvBuffer,
+             vtkIdType length, Operation *operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_INT, operation, destProcessId);
+  }
+  int Reduce(const unsigned long *sendBuffer, unsigned long *recvBuffer,
+             vtkIdType length, Operation *operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_UNSIGNED_LONG, operation, destProcessId);
+  }
+  int Reduce(const unsigned char *sendBuffer, unsigned char *recvBuffer,
+             vtkIdType length, Operation *operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_UNSIGNED_CHAR, operation, destProcessId);
+  }
+  int Reduce(const char *sendBuffer, char *recvBuffer,
+             vtkIdType length, Operation *operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_CHAR, operation, destProcessId);
+  }
+  int Reduce(const float *sendBuffer, float *recvBuffer,
+             vtkIdType length, Operation *operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_FLOAT, operation, destProcessId);
+  }
+  int Reduce(const double *sendBuffer, double *recvBuffer,
+             vtkIdType length, Operation *operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_DOUBLE, operation, destProcessId);
+  }
+#ifdef VTK_USE_64BIT_IDS
+  int Reduce(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
+             vtkIdType length, Operation *operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_ID_TYPE, operation, destProcessId);
+  }
+#endif
+  int Reduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
+             Operation *operation, int destProcessId);
+
+  // Description:
+  // Same as Reduce except that the result is placed in all of the processes.
+  int AllReduce(const int *sendBuffer, int *recvBuffer,
+                vtkIdType length, int operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_INT, operation);
+  }
+  int AllReduce(const unsigned long *sendBuffer, unsigned long *recvBuffer,
+                vtkIdType length, int operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_UNSIGNED_LONG, operation);
+  }
+  int AllReduce(const unsigned char *sendBuffer, unsigned char *recvBuffer,
+                vtkIdType length, int operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_UNSIGNED_CHAR, operation);
+  }
+  int AllReduce(const char *sendBuffer, char *recvBuffer,
+                vtkIdType length, int operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_CHAR, operation);
+  }
+  int AllReduce(const float *sendBuffer, float *recvBuffer,
+                vtkIdType length, int operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_FLOAT, operation);
+  }
+  int AllReduce(const double *sendBuffer, double *recvBuffer,
+                vtkIdType length, int operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_DOUBLE, operation);
+  }
+#ifdef VTK_USE_64BIT_IDS
+  int AllReduce(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
+                vtkIdType length, int operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_ID_TYPE, operation);
+  }
+#endif
+  int AllReduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
+                int operation);
+  int AllReduce(const int *sendBuffer, int *recvBuffer,
+                vtkIdType length, Operation *operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_INT, operation);
+  }
+  int AllReduce(const unsigned long *sendBuffer, unsigned long *recvBuffer,
+                vtkIdType length, Operation *operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_UNSIGNED_LONG, operation);
+  }
+  int AllReduce(const unsigned char *sendBuffer, unsigned char *recvBuffer,
+                vtkIdType length, Operation *operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_UNSIGNED_CHAR, operation);
+  }
+  int AllReduce(const char *sendBuffer, char *recvBuffer,
+                vtkIdType length, Operation *operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_CHAR, operation);
+  }
+  int AllReduce(const float *sendBuffer, float *recvBuffer,
+                vtkIdType length, Operation *operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_FLOAT, operation);
+  }
+  int AllReduce(const double *sendBuffer, double *recvBuffer,
+                vtkIdType length, Operation *operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_DOUBLE, operation);
+  }
+#ifdef VTK_USE_64BIT_IDS
+  int AllReduce(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
+                vtkIdType length, Operation *operation) {
+    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
+                                    VTK_ID_TYPE, operation);
+  }
+#endif
+  int AllReduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
+                Operation *operation);
+
+  // Description:
+  // Subclasses should reimplement these if they have a more efficient
+  // implementation.
+  virtual int BroadcastVoidArray(void *data, vtkIdType length, int type,
+                                 int srcProcessId);
+  virtual int GatherVoidArray(const void *sendBuffer, void *recvBuffer,
+                              vtkIdType length, int type, int destProcessId);
+  virtual int GatherVVoidArray(const void *sendBuffer, void *recvBuffer,
+                               vtkIdType sendLength, vtkIdType *recvLengths,
+                               vtkIdType *offsets, int type, int destProcessId);
+  virtual int ScatterVoidArray(const void *sendBuffer, void *recvBuffer,
+                               vtkIdType length, int type, int srcProcessId);
+  virtual int ScatterVVoidArray(const void *sendBuffer, void *recvBuffer,
+                                vtkIdType *sendLengths, vtkIdType *offsets,
+                                vtkIdType recvLength, int type,
+                                int srcProcessId);
+  virtual int AllGatherVoidArray(const void *sendBuffer, void *recvBuffer,
+                                 vtkIdType length, int type);
+  virtual int AllGatherVVoidArray(const void *sendBuffer, void *recvBuffer,
+                                  vtkIdType sendLength, vtkIdType *recvLengths,
+                                  vtkIdType *offsets, int type);
+  virtual int ReduceVoidArray(const void *sendBuffer, void *recvBuffer,
+                              vtkIdType length, int type,
+                              int operation, int destProcessId);
+  virtual int ReduceVoidArray(const void *sendBuffer, void *recvBuffer,
+                              vtkIdType length, int type,
+                              Operation *operation, int destProcessId);
+  virtual int AllReduceVoidArray(const void *sendBuffer, void *recvBuffer,
+                                 vtkIdType length, int type,
+                                 int operation);
+  virtual int AllReduceVoidArray(const void *sendBuffer, void *recvBuffer,
+                                 vtkIdType length, int type,
+                                 Operation *operation);
 
   static void SetUseCopy(int useCopy);
 
