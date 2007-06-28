@@ -26,12 +26,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
+#include <vtkstd/algorithm>
+
 #ifdef WIN32
 #include <float.h>
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.117");
+vtkCxxRevisionMacro(vtkMath, "1.118");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -3226,15 +3228,21 @@ void vtkMath::XYZToRGB(double x, double y, double z,
   *r = var_R;
   *g = var_G;
   *b = var_B;
+
   
-  //clip colors. ideally we would do something different for colors
-  //out of gamut, but not really sure what to do atm.
+  // Clip colors. ideally we would do something that is perceptually closest
+  // (since we can see colors outside of the display gamut), but this seems to
+  // work well enough.
+  double maxVal = vtkstd::max(vtkstd::max(*r, *g), *b);
+  if (maxVal > 1.0)
+    {
+    *r /= maxVal;
+    *g /= maxVal;
+    *b /= maxVal;
+    }
   if (*r<0) *r=0;
   if (*g<0) *g=0;
   if (*b<0) *b=0;
-  if (*r>1) *r=1;
-  if (*g>1) *g=1;
-  if (*b>1) *b=1;
 
 }
 
