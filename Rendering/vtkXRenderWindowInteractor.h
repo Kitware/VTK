@@ -38,6 +38,7 @@
 #include <X11/Intrinsic.h> // Needed for X types in the public interface
 
 class vtkCallbackCommand;
+class vtkXRenderWindowInteractorInternals;
 
 //BTX
 // Forward declare internal friend functions.
@@ -170,6 +171,7 @@ protected:
   int PositionBeforeStereo[2];
   Widget TopLevelShell;
   int TimerId;
+  vtkXRenderWindowInteractorInternals* Internal;
 
   // Description: 
   // X-specific internal timer methods. See the superclass for detailed

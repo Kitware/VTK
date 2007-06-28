@@ -27,8 +27,45 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.130");
+#include <vtkstd/map>
+
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.131");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
+
+// Map between the X native id to our own integer count id.  Note this
+// is separate from the TimerMap in the vtkRenderWindowInteractor
+// superclass.  This is used to avoid passing 64-bit values back
+// through the "int" return type of InternalCreateTimer.
+class vtkXRenderWindowInteractorInternals
+{
+public:
+  vtkXRenderWindowInteractorInternals()
+    {
+    this->TimerIdCount = 1;
+    }
+  int CreateLocalId(XtIntervalId xid)
+    {
+    int id = this->TimerIdCount++;
+    this->LocalToX[id] = xid;
+    this->XToLocal[xid] = id;
+    return id;
+    }
+  int GetLocalId(XtIntervalId xid)
+    {
+    return this->XToLocal[xid];
+    }
+  XtIntervalId DestroyLocalId(int id)
+    {
+    XtIntervalId xid = this->LocalToX[id];
+    this->LocalToX.erase(id);
+    this->XToLocal.erase(xid);
+    return xid;
+    }
+private:
+  int TimerIdCount;
+  vtkstd::map<int, XtIntervalId> LocalToX;
+  vtkstd::map<XtIntervalId, int> XToLocal;
+};
 
 // Initialize static members:
 int vtkXRenderWindowInteractor::NumAppInitialized = 0;
@@ -61,6 +98,7 @@ XrmOptionDescRec Desc[] =
 // Construct an instance so that the light follows the camera motion.
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
+  this->Internal = new vtkXRenderWindowInteractorInternals;
   this->Top = 0;
   this->OwnTop = 0;
   this->OwnApp = 0;
@@ -93,6 +131,7 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
       }
     vtkXRenderWindowInteractor::NumAppInitialized--;
     }
+  delete this->Internal;
 }
 
 //-------------------------------------------------------------------------
@@ -443,7 +482,8 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
 {
   vtkXRenderWindowInteractor *me = 
     static_cast<vtkXRenderWindowInteractor*>(client_data);
-  int platformTimerId = static_cast<int>(*id);
+  XtIntervalId xid = *id;
+  int platformTimerId = me->Internal->GetLocalId(xid);
 
   int timerId = me->GetVTKTimerId(platformTimerId);
   if (me->Enabled) 
@@ -464,16 +504,17 @@ int vtkXRenderWindowInteractor::InternalCreateTimer(int vtkNotUsed(timerId),
                                                     unsigned long duration) 
 {
   duration = (duration > 0 ? duration : this->TimerDuration);
-  int platformTimerId = this->AddTimeOut(vtkXRenderWindowInteractor::App, duration,
-                                         vtkXRenderWindowInteractorTimer,
-                                         (XtPointer)this);
-  return platformTimerId;
+  XtIntervalId xid =
+    this->AddTimeOut(vtkXRenderWindowInteractor::App, duration,
+                     vtkXRenderWindowInteractorTimer,
+                     (XtPointer)this);
+  return this->Internal->CreateLocalId(xid);
 }
 
 //-------------------------------------------------------------------------
 int vtkXRenderWindowInteractor::InternalDestroyTimer(int platformTimerId) 
 {
-  XtRemoveTimeOut(platformTimerId);
+  XtRemoveTimeOut(this->Internal->DestroyLocalId(platformTimerId));
   return 1;
 }
 
