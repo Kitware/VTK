@@ -27,7 +27,7 @@
 #include "vtkRepresentationPainter.h"
 
 vtkStandardNewMacro(vtkDefaultPainter);
-vtkCxxRevisionMacro(vtkDefaultPainter, "1.2");
+vtkCxxRevisionMacro(vtkDefaultPainter, "1.3");
 vtkCxxSetObjectMacro(vtkDefaultPainter, DefaultPainterDelegate, vtkPainter);
 vtkCxxSetObjectMacro(vtkDefaultPainter, ScalarsToColorsPainter, 
   vtkScalarsToColorsPainter);
@@ -178,6 +178,20 @@ void vtkDefaultPainter::Render(vtkRenderer* renderer, vtkActor* actor,
     this->ChainBuildTime.Modified();
     }
   this->Superclass::Render(renderer, actor, typeflags);
+}
+
+//-----------------------------------------------------------------------------
+void vtkDefaultPainter::ReleaseGraphicsResources(vtkWindow *window)
+{
+  if (this->DefaultPainterDelegate)
+    {
+    this->DefaultPainterDelegate->ReleaseGraphicsResources(window);
+    }
+  if (this->ScalarsToColorsPainter)
+    {
+    this->ScalarsToColorsPainter->ReleaseGraphicsResources(window);
+    }
+  this->Superclass::ReleaseGraphicsResources(window);
 }
 
 //-----------------------------------------------------------------------------

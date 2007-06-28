@@ -95,6 +95,13 @@ public:
   virtual void Render(vtkRenderer* renderer, vtkActor* actor, 
     unsigned long typeflags);
 
+  // Description:
+  // Release any graphics resources that are being consumed by this painter.
+  // The parameter window could be used to determine which graphic
+  // resources to release. 
+  // The call is propagated to the delegate painter, if any.
+  virtual void ReleaseGraphicsResources(vtkWindow *);
+ 
 protected:
   vtkDefaultPainter();
   ~vtkDefaultPainter();
