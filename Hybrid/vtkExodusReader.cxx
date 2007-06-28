@@ -1394,7 +1394,7 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.48");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.49");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1576,7 +1576,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.48");
+vtkCxxRevisionMacro(vtkExodusReader, "1.49");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -2470,8 +2470,13 @@ int vtkExodusReader::RequestInformation(
       if (!XMLfound)
         {
         //try artifact.dta
+#ifdef _WIN32
+        fpt=strrchr(tempName,'\\');
+        if (fpt) strncpy(fpt,"\\artifact.dta\0",14);
+#else
         fpt=strrchr(tempName,'/');
         if (fpt) strncpy(fpt,"/artifact.dta\0",14);
+#endif
         if (vtkExodusReaderFileExist(tempName)) 
           {
           SetXMLFileName(tempName);
@@ -3587,15 +3592,6 @@ void vtkExodusReader::AddDisplacements(vtkUnstructuredGrid* output)
   // Delete warp filter
   warp->Delete();
 
-  // Remove displacement field if it's possible the dataset will be
-  // written out to a new Exodus file later on.  Since we've just
-  // applied displacements to the points, maintaining the displacement array
-  // will yield incorrect geometry when the output file is read in.
-
-  if (this->ExodusModelMetadata)
-    {
-    output->GetPointData()->RemoveArray(arrayName);
-    }
 }
 
 

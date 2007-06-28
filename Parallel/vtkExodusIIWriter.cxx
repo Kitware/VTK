@@ -52,6 +52,7 @@
 #include "vtkMultiProcessController.h"
 #endif
 #include "vtkstd/map"
+#include "vtkstd/set"
 
 #include <netcdf.h>
 #include <exodusII.h>
@@ -98,7 +99,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.14");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.15");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -880,7 +881,7 @@ int vtkExodusIIWriter::CreateExodusModel()
   dimNames[2] = vtkExodusIIWriter::StrDupWithNew("Z");
   em->SetCoordinateNames(3, dimNames);
 
-  if (this->InputBlockIds && this->BlockIdList)
+  if (this->BlockIdList)
     {
     rc = this->CreateBlockIdInformation(em);
     }
@@ -1065,14 +1066,39 @@ int vtkExodusIIWriter::CreateBlockIdInformation(vtkModelMetadata *em)
   vtkUnstructuredGrid *ug = this->GetInput();
   vtkUnsignedCharArray *cellTypes = ug->GetCellTypesArray();
   vtkIdType ncells = ug->GetNumberOfCells();
+  //vtkCellData *cd = ug->GetCellData();
+  //vtkIntArray *blockIdArray = vtkIntArray::SafeDownCast(cd->GetArray(this->BlockIdArrayName));
+  int i;
+
+  // If we weren't explicitly given the block ids, extract them from the
+  // block id array embedded in the cell data.
+  if(!this->InputBlockIds)
+    {  
+    vtkstd::set<int> blockIdSet;
+    vtkstd::set<int>::iterator iter;
+    for(i=0; i<ncells; i++)
+      {
+      blockIdSet.insert(this->BlockIdList[i]);
+      }
+    vtkIntArray *blockIds = vtkIntArray::New();
+    for(iter = blockIdSet.begin(); iter != blockIdSet.end(); iter++)
+      {
+      blockIds->InsertNextValue(*iter);
+      }
+    this->SetAllBlockIds(blockIdSet.size(), blockIds->GetPointer(0));
+    blockIds->Delete();
+    }
 
   int nblocks = this->InputBlockIdsLength;
-  int i;
 
   if (nblocks < 1) return 1;
 
   em->SetNumberOfBlocks(nblocks);
-  em->SetBlockIds(this->InputBlockIds);
+
+  // vtkModelMetadata frees the memory when its done so we need to create a copy
+  int *blockIdsForMetadata = new int [this->InputBlockIdsLength];
+  memcpy(blockIdsForMetadata, this->InputBlockIds, this->InputBlockIdsLength * sizeof(int));
+  em->SetBlockIds(blockIdsForMetadata);
 
   char **blockNames = new char * [nblocks];
   int *numElements = new int [nblocks];
