@@ -33,7 +33,7 @@
 
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkTableToGraphFilter, "1.1");
+vtkCxxRevisionMacro(vtkTableToGraphFilter, "1.2");
 vtkStandardNewMacro(vtkTableToGraphFilter);
 
 vtkTableToGraphFilter::vtkTableToGraphFilter()
@@ -297,7 +297,8 @@ int vtkTableToGraphFilter::RequestData(
   else
     {
     // If no vertex table, vertices are implicit in edge table
-    if (vtkStringArray::SafeDownCast(sourceArray) != NULL)
+    if ((vtkStringArray::SafeDownCast(sourceArray) != NULL) &&
+        (vtkStringArray::SafeDownCast(targetArray) != NULL))
       {
       vtkStringArray* sourceArr = vtkStringArray::SafeDownCast(sourceArray);
       vtkStringArray* targetArr = vtkStringArray::SafeDownCast(targetArray);
