@@ -17,6 +17,8 @@ vtkRenderWindow-GetEventPending
 vtkXOpenGLRenderWindow-GetEventPending
 vtkXMesaRenderWindow-GetEventPending
 vtkMPICommunicator-GetWorldCommunicator
+vtkMPICommunicator-GetLocalProcessId
+vtkMPICommunicator-GetNumberOfProcesses
 }
 
 proc TestOne {cname} {
