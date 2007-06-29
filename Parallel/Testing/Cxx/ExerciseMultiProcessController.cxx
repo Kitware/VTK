@@ -308,7 +308,7 @@ void ExerciseType(vtkMultiProcessController *controller)
   vtkIdType length;
   vtkstd::vector<vtkIdType> lengths;  lengths.resize(numProc);
   vtkstd::vector<vtkIdType> offsets;  offsets.resize(numProc);
-  int arraySize = vtkstd::max(numProc, 8);
+  int arraySize = (numProc < 8) ? 8 : numProc;
 
   // Fill up some random arrays.  Note that here and elsewhere we are careful to
   // have each process request the same random numbers.  The pseudorandomness
