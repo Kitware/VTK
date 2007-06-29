@@ -33,7 +33,7 @@
 
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkTableToGraphFilter, "1.3");
+vtkCxxRevisionMacro(vtkTableToGraphFilter, "1.4");
 vtkStandardNewMacro(vtkTableToGraphFilter);
 
 vtkTableToGraphFilter::vtkTableToGraphFilter()
@@ -231,8 +231,8 @@ int vtkTableToGraphFilter::RequestData(
         }
       }
     else if ((vtkDataArray::SafeDownCast(sourceArray) != NULL) &&
-             (vtkDataArray::SafeDownCast(targetArr) != NULL) &&
-             (vtkDataArray::SafeDownCast(vertexIdArr) != NULL))
+             (vtkDataArray::SafeDownCast(targetArray) != NULL) &&
+             (vtkDataArray::SafeDownCast(vertexIdArray) != NULL))
       {
       vtkDataArray* sourceArr = vtkDataArray::SafeDownCast(sourceArray);
       vtkDataArray* targetArr = vtkDataArray::SafeDownCast(targetArray);
