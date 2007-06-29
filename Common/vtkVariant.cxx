@@ -322,7 +322,7 @@ vtkStdString vtkVariant::ToString() const
     }
   if (this->IsString())
     {
-    return vtkStdString(this->Data.String->c_str());
+    return vtkStdString(*(this->Data.String));
     }
   if (this->IsFloat())
     {
