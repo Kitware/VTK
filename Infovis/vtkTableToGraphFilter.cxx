@@ -33,7 +33,7 @@
 
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkTableToGraphFilter, "1.2");
+vtkCxxRevisionMacro(vtkTableToGraphFilter, "1.3");
 vtkStandardNewMacro(vtkTableToGraphFilter);
 
 vtkTableToGraphFilter::vtkTableToGraphFilter()
@@ -198,7 +198,9 @@ int vtkTableToGraphFilter::RequestData(
 
     // If the vertex table exists, first add vertices to the graph,
     // then add edges
-    if (vtkStringArray::SafeDownCast(sourceArray) != NULL)
+    if ((vtkStringArray::SafeDownCast(sourceArray) != NULL) &&
+        (vtkStringArray::SafeDownCast(targetArray) != NULL) &&
+        (vtkStringArray::SafeDownCast(vertexIdArray) != NULL))
       {
       vtkStringArray* sourceArr = vtkStringArray::SafeDownCast(sourceArray);
       vtkStringArray* targetArr = vtkStringArray::SafeDownCast(targetArray);
@@ -228,7 +230,9 @@ int vtkTableToGraphFilter::RequestData(
                              static_cast<double>(sourceArr->GetNumberOfValues()));
         }
       }
-    else if (vtkDataArray::SafeDownCast(sourceArray) != NULL)
+    else if ((vtkDataArray::SafeDownCast(sourceArray) != NULL) &&
+             (vtkDataArray::SafeDownCast(targetArr) != NULL) &&
+             (vtkDataArray::SafeDownCast(vertexIdArr) != NULL))
       {
       vtkDataArray* sourceArr = vtkDataArray::SafeDownCast(sourceArray);
       vtkDataArray* targetArr = vtkDataArray::SafeDownCast(targetArray);
@@ -344,7 +348,8 @@ int vtkTableToGraphFilter::RequestData(
       output->GetVertexData()->AddArray(idArr);
       idArr->Delete();
       }
-    else if (vtkDataArray::SafeDownCast(sourceArray) != NULL)
+    else if ((vtkDataArray::SafeDownCast(sourceArray) != NULL)&&
+             (vtkDataArray::SafeDownCast(targetArray) != NULL))
       {
       vtkDataArray* sourceArr = vtkDataArray::SafeDownCast(sourceArray);
       vtkDataArray* targetArr = vtkDataArray::SafeDownCast(targetArray);
