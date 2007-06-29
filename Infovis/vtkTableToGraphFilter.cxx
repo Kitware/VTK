@@ -33,7 +33,7 @@
 
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkTableToGraphFilter, "1.4");
+vtkCxxRevisionMacro(vtkTableToGraphFilter, "1.5");
 vtkStandardNewMacro(vtkTableToGraphFilter);
 
 vtkTableToGraphFilter::vtkTableToGraphFilter()
@@ -212,6 +212,15 @@ int vtkTableToGraphFilter::RequestData(
         }
       for (vtkIdType edge = 0; edge < sourceArr->GetNumberOfTuples(); edge++)
         {
+        
+        // Check to see if the source and target vertices exist
+        if ((vertices.count(sourceArr->GetValue(edge)) == 0) ||
+            (vertices.count(targetArr->GetValue(edge)) == 0))
+            {
+            continue;
+            }   
+         
+        // Okay both the source and target exist so go forth   
         if (this->CollapseEdges)
           {
           vtkIdType a = this->AppendEdge(
@@ -244,6 +253,15 @@ int vtkTableToGraphFilter::RequestData(
         }
       for (vtkIdType edge = 0; edge < sourceArr->GetNumberOfTuples(); edge++)
         {
+        
+        // Check to see if the source and target vertices exist
+        if ((vertices.count(sourceArr->GetTuple1(edge)) == 0) ||
+            (vertices.count(targetArr->GetTuple1(edge)) == 0))
+            {
+            continue;
+            }   
+            
+        // Okay both the source and target exist so go forth        
         if (this->CollapseEdges)
           {
           vtkIdType a = this->AppendEdge(
