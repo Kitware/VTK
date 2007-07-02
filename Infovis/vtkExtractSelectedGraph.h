@@ -29,6 +29,9 @@
 
 #include "vtkGraphAlgorithm.h"
 
+class vtkSelection;
+class vtkDataSet;
+
 class VTK_INFOVIS_EXPORT vtkExtractSelectedGraph : public vtkGraphAlgorithm
 {
 public:
@@ -56,6 +59,13 @@ protected:
   vtkExtractSelectedGraph();
   ~vtkExtractSelectedGraph();
 
+  // Description:
+  // Converts any selection to an INDICES selection.
+  int ConvertToIndexSelection(
+    vtkSelection* selection, 
+    vtkDataSet* input, 
+    vtkSelection* outputSelection);
+  
   int RequestData(
     vtkInformation*, 
     vtkInformationVector**, 
