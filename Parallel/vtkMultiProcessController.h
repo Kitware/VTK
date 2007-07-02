@@ -90,12 +90,8 @@ public:
   // Set the number of processes you will be using.  This defaults
   // to the maximum number available.  If you set this to a value
   // higher than the default, you will get an error.
-  void SetNumberOfProcesses(int num) {
-    this->Communicator->SetNumberOfProcesses(num);
-  }
-  int GetNumberOfProcesses() {
-    return this->Communicator->GetNumberOfProcesses();
-  }
+  void SetNumberOfProcesses(int num);
+  int GetNumberOfProcesses();
 
   //BTX
   // Description:
@@ -129,7 +125,7 @@ public:
 
   // Description:
   // Tells you which process [0, NumProcess) you are in.
-  int GetLocalProcessId() { return this->Communicator->GetLocalProcessId(); }
+  int GetLocalProcessId();
 
   // Description:
   // This convenience method returns the controller associated with the 

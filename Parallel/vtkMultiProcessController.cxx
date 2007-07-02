@@ -51,10 +51,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.26");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.27");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.26");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.27");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -173,6 +173,40 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
   
 }
 
+//----------------------------------------------------------------------------
+void vtkMultiProcessController::SetNumberOfProcesses(int num)
+{
+  if(this->Communicator)
+    {
+    this->Communicator->SetNumberOfProcesses(num);
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkMultiProcessController::GetNumberOfProcesses()
+{
+  if(this->Communicator)
+    {
+    return this->Communicator->GetNumberOfProcesses();
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkMultiProcessController::GetLocalProcessId()
+{
+  if(this->Communicator)
+    {
+    return this->Communicator->GetLocalProcessId();
+    }
+  else
+    {
+    return 0;
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkMultiProcessController::SetSingleMethod( vtkProcessFunctionType f, 
