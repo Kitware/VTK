@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkPainterPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.41");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.42");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -153,7 +153,7 @@ double *vtkPolyDataMapper::GetBounds()
       // if the mapper has a painter, update the bounds in the painter
       if( painterMapper )
         {
-        painterMapper->GetBounds(this->Bounds);
+        painterMapper->GetBounds();
         }
       else
         {
