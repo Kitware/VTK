@@ -126,6 +126,12 @@ public:
   // delegate painter.
   virtual double GetTimeToDraw();
 
+  // Description:
+  // Expand or shrink the estimated bounds of the object based on the
+  // geometric transformations performed in the painter. If the painter
+  // does not modify the geometry, the bounds are passed through.
+  virtual void UpdateBounds(double bounds[6]);
+
 protected:
   vtkPainter();
   ~vtkPainter();

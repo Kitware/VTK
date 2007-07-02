@@ -101,7 +101,13 @@ public:
   // resources to release. 
   // The call is propagated to the delegate painter, if any.
   virtual void ReleaseGraphicsResources(vtkWindow *);
- 
+
+  // Description:
+  // Expand or shrink the estimated bounds based on the geometric
+  // transformations applied in the painter. The bounds are left unchanged
+  // if the painter does not change the geometry.
+  void UpdateBounds(double bounds[6]);
+
 protected:
   vtkDefaultPainter();
   ~vtkDefaultPainter();

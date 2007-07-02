@@ -34,7 +34,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkPainter, "1.2");
+vtkCxxRevisionMacro(vtkPainter, "1.3");
 vtkCxxSetObjectMacro(vtkPainter, Information, vtkInformation);
 vtkInformationKeyMacro(vtkPainter, STATIC_DATA, Integer);
 vtkInformationKeyMacro(vtkPainter, CONSERVE_MEMORY, Integer);
@@ -242,6 +242,19 @@ void vtkPainter::PassInformation(vtkPainter* toPainter)
     // We have updated information, pass it on to
     // the delegate.
     toPainter->SetInformation(this->Information);
+    }
+}
+
+//-------------------------------------------------------------------------
+void vtkPainter::UpdateBounds(double bounds[6])
+{
+  // only apply UpdateBounds on the delegate painter
+  vtkPainter *painter = this->GetDelegatePainter();
+
+  if(painter)
+    {
+    // delegate the task of updating the bounds
+    painter->UpdateBounds(bounds);
     }
 }
 
