@@ -654,7 +654,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.18");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.19");
 
 
 
@@ -1364,7 +1364,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.18");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.19");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -4198,10 +4198,10 @@ int vtkExodusIIReaderPrivate::RequestInformation()
             this->Parser->GetAssemblyDescriptions(binfo.Id);
           vtkstd::vector<vtkStdString> localAssemblyNames;
 
-          for (vtkstd::vector<int>::size_type j=0;j<assemblyNumbers.size();j++)
+          for (vtkstd::vector<int>::size_type m=0;m<assemblyNumbers.size();m++)
             {
-            localAssemblyNames.push_back(assemblyDescriptions[j]+vtkStdString(" (")+
-                                    assemblyNumbers[j]+vtkStdString(")"));
+            localAssemblyNames.push_back(assemblyDescriptions[m]+vtkStdString(" (")+
+                                    assemblyNumbers[m]+vtkStdString(")"));
             }
 
           vtkStdString blockName, partName, materialName;
@@ -4274,11 +4274,11 @@ int vtkExodusIIReaderPrivate::RequestInformation()
             {
             vtkStdString assemblyName=localAssemblyNames[k];
             found=0;
-            for (unsigned int j=0;j<this->AssemblyInfo.size();j++)
+            for (unsigned int n=0;n<this->AssemblyInfo.size();n++)
               {
-              if (this->AssemblyInfo[j].Name==assemblyName){
+              if (this->AssemblyInfo[n].Name==assemblyName){
                 //binfo.AssemblyIds.push_back(j);
-                this->AssemblyInfo[j].BlockIndices.push_back(blockIdx);
+                this->AssemblyInfo[n].BlockIndices.push_back(blockIdx);
                 found=1;
                 }
               }
@@ -4950,7 +4950,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.18");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.19");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
