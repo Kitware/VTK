@@ -45,7 +45,6 @@ class vtkDataSet;
 class vtkPoints;
 class vtkExodusIIReaderPrivate;
 class vtkExodusModel;
-class vtkExodusIIXMLParser;
 class vtkExodusIICache;
 
 class VTK_HYBRID_EXPORT vtkExodusIIReader : public vtkUnstructuredGridAlgorithm 
@@ -250,6 +249,7 @@ public:
   int GetObjectId( int objectType, int objectIndex );
   const char* GetObjectName( int objectType, int objectIndex );
   int GetObjectIndex( int objectType, const char* objectName );
+  int GetObjectIndex( int objectType, int id );
   int GetObjectStatus( int objectType, int objectIndex );
   int GetObjectStatus( int objectType, const char* objectName )
     { return this->GetObjectStatus( objectType, this->GetObjectIndex( objectType, objectName ) ); }
@@ -605,10 +605,17 @@ protected:
   virtual void SetMetadata( vtkExodusIIReaderPrivate* );
   vtkGetObjectMacro(Metadata,vtkExodusIIReaderPrivate);
 
-  virtual void SetParser( vtkExodusIIXMLParser* );
-  vtkGetObjectMacro(Parser,vtkExodusIIXMLParser);
-
   virtual void Dump();
+
+  // Description: 
+  // Returns true if XMLFileName has already been set. Otherwise, look for the XML
+  // metadata file in the same directory as the data file(s) using the following
+  // possible file names:
+  //     DATA_FILE_NAME.xml
+  //     DATA_FILE_NAME.dart
+  //     artifact.dta
+  //  Return true if found, false otherwise
+  bool FindXMLFile();
 
   // Parameters for controlling what is read in.
   char* FileName;
@@ -627,8 +634,6 @@ protected:
  
   // Metadata containing a description of the currently open file.
   vtkExodusIIReaderPrivate* Metadata;
-  // Parser that understands the xml part and material file
-  vtkExodusIIXMLParser* Parser;
 
   // Time query function. Called by ExecuteInformation().
   // Fills the TimestepValues array.
