@@ -48,7 +48,11 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release. Merely propagates the call to the painter.
   void ReleaseGraphicsResources(vtkWindow *);
-  
+
+  // Description:
+  // Re-implement the superclass GetBounds method.
+  double *GetBounds();
+
 protected:
   vtkPainterPolyDataMapper();
   ~vtkPainterPolyDataMapper();
