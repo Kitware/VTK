@@ -413,6 +413,15 @@ class wxVTKRenderWindowInteractor(baseClass):
         """Handles the wx.EVT_LEFT/RIGHT/MIDDLE_UP events for
         wxVTKRenderWindowInteractor.
         """
+
+        # if the ActiveButton is released, then release mouse capture
+        # (we need to get rid of this as soon as possible; if we don't
+        #  and one of the event handlers raises an exception, mouse
+        #  is never released.)
+        if self._own_mouse and self._ActiveButton and _useCapture:
+            self.ReleaseMouse()
+            self._own_mouse = False
+        
         ctrl, shift = event.ControlDown(), event.ShiftDown()
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             ctrl, shift, chr(0), 0, None)
@@ -423,11 +432,6 @@ class wxVTKRenderWindowInteractor(baseClass):
             self._Iren.LeftButtonReleaseEvent()
         elif self._ActiveButton == 'Middle':
             self._Iren.MiddleButtonReleaseEvent()
-
-        # if the ActiveButton is realeased, then release mouse capture
-        if self._own_mouse and self._ActiveButton and _useCapture:
-            self.ReleaseMouse()
-            self._own_mouse = False
 
         # event processing should continue
         event.Skip()
