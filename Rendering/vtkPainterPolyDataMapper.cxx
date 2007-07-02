@@ -28,9 +28,10 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkScalarsToColorsPainter.h"
+#include "vtkMath.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.6")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.7")
 
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
@@ -219,30 +220,54 @@ void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
 
   this->UpdateProgress(1.0);
 }
-#if 0
+
 //-------------------------------------------------------------------------
 double* vtkPainterPolyDataMapper::GetBounds()
 {
-  vtkPolyData *input = this->GetInput();
+  static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
 
-  if( !input )
+  // do we have an input
+  if ( ! this->GetNumberOfInputConnections(0) )
     {
-    vtkErrorMacro("No input polydata!!!");
-    return NULL;
+    return bounds;
     }
-
-  // first compute the bounds for the input polydata
-  input->GetBounds(this->Bounds);
-
-  if( this->Painter )
+  else
     {
-    // let the painter chain update the bounds
-    this->Painter->UpdateBounds(this->Bounds);
-    }
+    if (!this->Static)
+      {
+      // For proper clipping, this would be this->Piece,
+      // this->NumberOfPieces.
+      // But that removes all benefites of streaming.
+      // Update everything as a hack for paraview streaming.
+      // This should not affect anything else, because no one uses this.
+      // It should also render just the same.
+      // Just remove this lie if we no longer need streaming in paraview :)
+      //this->GetInput()->SetUpdateExtent(0, 1, 0);
+      //this->GetInput()->Update();
 
-  return this->Bounds;
+      // first get the bounds from the input
+      this->Update();
+      this->GetInput()->GetBounds(this->Bounds);
+
+      // if the mapper has a painter, update the bounds in the painter
+      vtkPainter *painter = this->GetPainter();
+
+      if( painter )
+        {
+        painter->UpdateBounds(this->Bounds);
+        }
+      }
+    // if the bounds indicate NAN and subpieces are being used then
+    // return NULL
+    if (!vtkMath::AreBoundsInitialized(this->Bounds)
+        && this->NumberOfSubPieces > 1)
+      {
+      return NULL;
+      }
+    return this->Bounds;
+    }
 }
-#endif
+
 //-----------------------------------------------------------------------------
 void vtkPainterPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {

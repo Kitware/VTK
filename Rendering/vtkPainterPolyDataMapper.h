@@ -51,7 +51,7 @@ public:
 
   // Description:
   // Re-implement the superclass GetBounds method.
-  //double *GetBounds();
+  double *GetBounds();
 
 protected:
   vtkPainterPolyDataMapper();

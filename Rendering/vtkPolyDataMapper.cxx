@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkPainterPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.43");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.44");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -125,7 +125,7 @@ void vtkPolyDataMapper::Update()
 double *vtkPolyDataMapper::GetBounds()
 {
   static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-  
+
   // do we have an input
   if ( ! this->GetNumberOfInputConnections(0)) 
     {
@@ -147,15 +147,15 @@ double *vtkPolyDataMapper::GetBounds()
       this->Update();
 
       // get the default painter in the chain of painters if any
-      //vtkPainterPolyDataMapper *painterMapper =
-        //vtkPainterPolyDataMapper::SafeDownCast(this);
+      vtkPainterPolyDataMapper *painterMapper =
+        vtkPainterPolyDataMapper::SafeDownCast(this);
 
       // if the mapper has a painter, update the bounds in the painter
-      //if( painterMapper )
-        //{
-        //painterMapper->GetBounds();
-       // }
-      //else
+      if( painterMapper )
+        {
+        painterMapper->GetBounds();
+        }
+      else
         {
         // the mapper has no painter, get the bounds from the input
         this->GetInput()->GetBounds(this->Bounds);
