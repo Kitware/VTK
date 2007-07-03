@@ -31,7 +31,7 @@
 #include "vtkMath.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.7")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.8")
 
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
@@ -219,6 +219,13 @@ void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
     }
 
   this->UpdateProgress(1.0);
+}
+
+//-------------------------------------------------------------------------
+void vtkPainterPolyDataMapper::GetBounds(double bounds[6])
+{
+  this->GetBounds();
+  memcpy(bounds,this->Bounds,6*sizeof(double));
 }
 
 //-------------------------------------------------------------------------

@@ -51,6 +51,7 @@ public:
 
   // Description:
   // Re-implement the superclass GetBounds method.
+  void GetBounds(double bounds[6]);
   double *GetBounds();
 
 protected:
