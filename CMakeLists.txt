@@ -930,34 +930,13 @@ ENDIF(VTK_RENDERING_NEED_TK_INTERNAL AND TK_LIBRARY)
 
 #-----------------------------------------------------------------------------
 # Configure the python executable for use by testing.
-
 # Python executable is used by some tests whether VTK_WRAP_PYTHON is
 # on or not.  do not add a VTK_WRAP_PYTHON to this if.
-SET(VTK_NEED_PYTHON_EXECUTABLE 0)
-IF(BUILD_TESTING)
-  SET(VTK_NEED_PYTHON_EXECUTABLE 1)
-ENDIF(BUILD_TESTING)
-
-# If VTK_WRAP_PYTHON is on, then we need python executable to compile
-# scripts.
-IF(VTK_WRAP_PYTHON)
-  SET(VTK_NEED_PYTHON_EXECUTABLE 1)
-ENDIF(VTK_WRAP_PYTHON)
-
-IF(VTK_NEED_PYTHON_EXECUTABLE)
-  FIND_PROGRAM(PYTHON_EXECUTABLE
-    NAMES python2.4 python2.3 python2.2 python2.1 python2.0 python1.6 python1.5 python
-    PATHS
-    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.4\\InstallPath]
-    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.3\\InstallPath]
-    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.2\\InstallPath]
-    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.1\\InstallPath]
-    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.0\\InstallPath]
-    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\1.6\\InstallPath]
-    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\1.5\\InstallPath]
-)
+# If VTK_WRAP_PYTHON is on, then we need python executable to compile scripts.
+IF(BUILD_TESTING OR VTK_WRAP_PYTHON)
+  FIND_PACKAGE(PythonInterp)
   MARK_AS_ADVANCED(PYTHON_EXECUTABLE)
-ENDIF(VTK_NEED_PYTHON_EXECUTABLE)
+ENDIF(BUILD_TESTING OR VTK_WRAP_PYTHON)
 
 #-----------------------------------------------------------------------------
 # Configure the default VTK_DATA_ROOT for the location of VTKData.
