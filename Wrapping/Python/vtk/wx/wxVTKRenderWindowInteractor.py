@@ -7,7 +7,7 @@ Find wxPython info at http://wxPython.org
 Created by Prabhu Ramachandran, April 2002
 Based on wxVTKRenderWindow.py
 
-Fixes and updates by Charl P. Botha 2003-2005
+Fixes and updates by Charl P. Botha 2003-2007
 
 Updated to new wx namespace and some cleaning up by Andrea Gavana,
 December 2006
@@ -299,6 +299,12 @@ class wxVTKRenderWindowInteractor(baseClass):
         """Handles the wx.EVT_PAINT event for
         wxVTKRenderWindowInteractor.
         """
+
+        # wx should continue event processing after this handler.
+        # We call this BEFORE Render(), so that if Render() raises
+        # an exception, wx doesn't re-call OnPaint repeatedly.
+        event.Skip()
+        
         dc = wx.PaintDC(self)
 
         # make sure the RenderWindow is sized correctly
@@ -320,13 +326,18 @@ class wxVTKRenderWindowInteractor(baseClass):
             # now that we've painted once, the Render() reparenting logic
             # is safe
             self.__has_painted = True
-            
+
         self.Render()
 
     def OnSize(self,event):
         """Handles the wx.EVT_SIZE event for
         wxVTKRenderWindowInteractor.
         """
+
+        # event processing should continue (we call this before the
+        # Render(), in case it raises an exception)
+        event.Skip()
+
         try:
             width, height = event.GetSize()
         except:
@@ -334,11 +345,9 @@ class wxVTKRenderWindowInteractor(baseClass):
             height = event.GetSize().height
         self._Iren.SetSize(width, height)
         self._Iren.ConfigureEvent()
+
         # this will check for __handle
         self.Render()
-
-        # event processing should continue
-        event.Skip()
 
     def OnMotion(self, event):
         """Handles the wx.EVT_MOTION event for
