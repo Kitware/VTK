@@ -16,13 +16,11 @@ IF("${VTK_BINARY_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
   ENDMACRO(INSTALL_FILES)
 ENDIF("${VTK_BINARY_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
-# We will require CMake 2.4 as of August 15th 2006
+# VTK requires CMake 2.4 since August 15th 2006
 IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.4)
-  MESSAGE(FATAL_ERROR "VTK requires CMake 2.4 as of August 15th 2006. Please update your CMake and this message will go away.")
+  MESSAGE(FATAL_ERROR "VTK requires CMake 2.4 since August 15th 2006. Please update your CMake and this message will go away.")
 ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.4)
 
-# Don't build anything unless the version of CMake is high enough.
-# The matching ELSE/ENDIF should be the last lines in the file.
 SET(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${VTK_CMAKE_DIR}")
 
@@ -168,29 +166,6 @@ SET(VTK_INSTALL_TCL_DIR
 IF(NOT VTK_INSTALL_JAVA_DIR)
   SET(VTK_INSTALL_JAVA_DIR ${VTK_INSTALL_PACKAGE_DIR}/java)
 ENDIF(NOT VTK_INSTALL_JAVA_DIR)
-
-# Choose a default CMAKE_INSTALL_PREFIX on Windows.  CMake 2.2 and
-# above already choose a good default, so force a change only if the
-# current value looks like the CMake 2.0 default.
-IF(NOT UNIX)
-  IF(CMAKE_INSTALL_PREFIX MATCHES "/usr/local")
-    IF("$ENV{ProgramFiles}" MATCHES "^$")
-      IF("$ENV{SystemDrive}" MATCHES "^$")
-        SET(VTK_GENERIC_PROGRAM_FILES "C:/Program Files")
-      ELSE("$ENV{SystemDrive}" MATCHES "^$")
-        SET(VTK_GENERIC_PROGRAM_FILES "$ENV{SystemDrive}/Program Files")
-      ENDIF("$ENV{SystemDrive}" MATCHES "^$")
-    ELSE("$ENV{ProgramFiles}" MATCHES "^$")
-      SET(VTK_GENERIC_PROGRAM_FILES "$ENV{ProgramFiles}")
-    ENDIF("$ENV{ProgramFiles}" MATCHES "^$")
-    SET(CMAKE_INSTALL_PREFIX
-      "${VTK_GENERIC_PROGRAM_FILES}/${PROJECT_NAME}"
-      CACHE PATH "Install path prefix, prepended onto install directories."
-      FORCE)
-    SET(VTK_GENERIC_SYSTEM_DRIVE)
-  ENDIF(CMAKE_INSTALL_PREFIX MATCHES "/usr/local")
-  MARK_AS_ADVANCED(CLEAR CMAKE_INSTALL_PREFIX)
-ENDIF(NOT UNIX)
 
 # There are three basic components to the VTK installation: runtime,
 # development, and documentation.  Install rules for each component
@@ -453,15 +428,6 @@ SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${VTK_REQUIRED_EXE_LINKER_
 SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${VTK_REQUIRED_SHARED_LINKER_FLAGS}")
 SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${VTK_REQUIRED_MODULE_LINKER_FLAGS}")
 
-# The Borland implib tool is used by CMake to generate the .lib export
-# file from a .dll.  CMake 2.0 and earlier did not add the "-c" option
-# to specify that the exported symbols should be case sensitive.  Add
-# the flag now if it is not there.
-IF(BORLAND)
-  STRING(REGEX REPLACE "implib -w" "implib -c -w"
-    CMAKE_CXX_CREATE_SHARED_LIBRARY "${CMAKE_CXX_CREATE_SHARED_LIBRARY}")
-ENDIF(BORLAND)
-
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
 INCLUDE(${VTK_CMAKE_DIR}/CMakeBackwardCompatibilityC.cmake)
@@ -471,14 +437,7 @@ INCLUDE(${CMAKE_ROOT}/Modules/TestForANSIForScope.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
 
 # Simulate old CMakeBackwardCompatibilityCXX test.
-# In CMake 2.4 and up this could be just
-# INCLUDE(${CMAKE_ROOT}/Modules/TestForSSTREAM.cmake)
-INCLUDE(${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
-CHECK_INCLUDE_FILE_CXX("sstream" CMAKE_HAS_ANSI_STRING_STREAM)
-IF(NOT CMAKE_HAS_ANSI_STRING_STREAM)
-  SET(CMAKE_NO_ANSI_STRING_STREAM 1 CACHE INTERNAL
-    "Does the compiler support sstream or stringstream.")
-ENDIF(NOT CMAKE_HAS_ANSI_STRING_STREAM)
+INCLUDE(${CMAKE_ROOT}/Modules/TestForSSTREAM.cmake)
 
 SET(VTK_SIZEOF_CHAR   ${CMAKE_SIZEOF_CHAR})
 SET(VTK_SIZEOF_DOUBLE ${CMAKE_SIZEOF_DOUBLE})
