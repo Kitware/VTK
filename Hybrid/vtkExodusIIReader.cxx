@@ -654,7 +654,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.19");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.20");
 
 
 
@@ -821,6 +821,12 @@ public:
   vtkGetMacro(ModeShapeTime,double);
 
   vtkDataArray* FindDisplacementVectors( int timeStep );
+
+  vtkSetMacro(EdgeFieldDecorations,int);
+  vtkGetMacro(EdgeFieldDecorations,int);
+
+  vtkSetMacro(FaceFieldDecorations,int);
+  vtkGetMacro(FaceFieldDecorations,int);
 
   const struct ex_init_params* GetModelParams() const { return &this->ModelParameters; }
 
@@ -1190,6 +1196,9 @@ protected:
   float DisplacementMagnitude;
   int HasModeShapes;
 
+  int EdgeFieldDecorations;
+  int FaceFieldDecorations;
+
   /** Should the reader output only points used by elements in the output mesh, or all the points.
     * Outputting all the points is much faster since the point array can be read straight from
     * disk and the mesh connectivity need not be altered.
@@ -1364,7 +1373,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.19");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.20");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -4950,7 +4959,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.19");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.20");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -5249,6 +5258,26 @@ void vtkExodusIIReader::SetModeShapeTime( double phase )
 double vtkExodusIIReader::GetModeShapeTime()
 {
   return this->Metadata->GetModeShapeTime();
+}
+
+void vtkExodusIIReader::SetEdgeFieldDecorations( int d )
+{
+  this->Metadata->SetEdgeFieldDecorations( d );
+}
+
+int vtkExodusIIReader::GetEdgeFieldDecorations()
+{
+  return this->Metadata->GetEdgeFieldDecorations();
+}
+
+void vtkExodusIIReader::SetFaceFieldDecorations( int d )
+{
+  this->Metadata->SetFaceFieldDecorations( d );
+}
+
+int vtkExodusIIReader::GetFaceFieldDecorations()
+{
+  return this->Metadata->GetFaceFieldDecorations();
 }
 
 const char* vtkExodusIIReader::GetTitle() { return this->Metadata->ModelParameters.title; }
