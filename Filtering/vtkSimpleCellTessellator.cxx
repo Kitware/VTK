@@ -371,7 +371,7 @@ static int TRIANGLE_VERTEX_STATE[3]={5,  // 1 0 1
                                      3,  // 0 1 1
                                      6}; // 1 1 0
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.24");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.25");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -1171,14 +1171,6 @@ static void Reorder(vtkIdType in[4], vtkIdType order[4])
       }
     }
 }
-
-// With Visual Studio 7.0 in release mode, we have to disable the global
-// optimization flag for compiling vtkTetraTile::Refine
-#ifdef _MSC_VER
-# if _MSC_VER==1300
-#  pragma optimize("g",off)
-# endif
-#endif
 
 //-----------------------------------------------------------------------------
 int vtkTetraTile::Refine(vtkSimpleCellTessellator* tess,
@@ -1986,6 +1978,13 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
   
   vtkstd::queue<vtkTetraTile> work;
   vtkTetraTile roots[10]; // up to 10 top-level sub-tetra
+
+  // Here, declare the edges and faces outside the if/else, as the pointer to
+  // that variable will no longer be valid when out of scope.
+  int edgesIdsArray[6*10]; // 6 edges per sub-tetra, max of 10 sub-tetra
+  int faceIdsArray[4*10]; // 4 faces per sub-tetra,  max of 10 sub-tetra
+  int *edgeIds=edgesIdsArray;
+  int *faceIds=faceIdsArray;
   
   // Put the top-levels subtetra in the work queue.
   
@@ -2013,11 +2012,6 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
     
     int numEdges=cell->GetNumberOfBoundaries(1);
     int numFaces=cell->GetNumberOfBoundaries(2);
-    
-    int edgesIdsArray[6*10]; // 6 edges per sub-tetra, max of 10 sub-tetra
-    int faceIdsArray[4*10]; // 4 faces per sub-tetra,  max of 10 sub-tetra
-    int *edgeIds=edgesIdsArray;
-    int *faceIds=faceIdsArray;
     
     int tetraId=0;
     while(this->Connectivity->GetNextCell(npts,pts))
@@ -2093,7 +2087,6 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
     
     //
     // Get the edges Ids (local)
-    int edgeIds[6];
     int *originalEdge;
     int edge[2];
     j=0;
@@ -2117,7 +2110,6 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
       }
     
     // Get the face Ids (local)
-    int faceIds[4];
     int *originalFace;
     int face[3];
     int numFaces=cell->GetNumberOfBoundaries(2);
