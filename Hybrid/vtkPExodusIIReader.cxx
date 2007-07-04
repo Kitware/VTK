@@ -91,7 +91,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.7");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.8");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -473,6 +473,8 @@ int vtkPExodusIIReader::RequestData(
     this->ReaderList[reader_idx]->SetApplyDisplacements( this->GetApplyDisplacements() );
     this->ReaderList[reader_idx]->SetDisplacementMagnitude( this->GetDisplacementMagnitude() );
     this->ReaderList[reader_idx]->SetHasModeShapes( this->GetHasModeShapes() );
+    this->ReaderList[reader_idx]->SetEdgeFieldDecorations( this->GetEdgeFieldDecorations() );
+    this->ReaderList[reader_idx]->SetFaceFieldDecorations( this->GetFaceFieldDecorations() );
 
     this->ReaderList[reader_idx]->SetExodusModelMetadata( this->ExodusModelMetadata );
     // For now, this *must* come last before the UpdateInformation() call because its MTime is compared to the metadata's MTime,
