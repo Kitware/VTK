@@ -27,7 +27,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLClipPlanesPainter);
-vtkCxxRevisionMacro(vtkOpenGLClipPlanesPainter, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLClipPlanesPainter, "1.4");
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLClipPlanesPainter::vtkOpenGLClipPlanesPainter()
@@ -76,7 +76,7 @@ void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer* renderer,
     // OpenGL matrices are transposed compared to VTK matrices
     actorMatrix->Transpose();
 
-    double origin[4], normal[3], point[4];
+    double origin[4], normal[3];
 
     for (i = 0; i < numClipPlanes; i++)
       {    
