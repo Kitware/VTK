@@ -46,9 +46,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glxext.h last updated 2007/02/13 */
+/* glxext.h last updated 2007/04/21 */
 /* Current version at http://www.opengl.org/registry/ */
-#define GLX_GLXEXT_VERSION 18
+#define GLX_GLXEXT_VERSION 19
 
 #ifndef GLX_VERSION_1_3
 #define GLX_WINDOW_BIT                     0x00000001
@@ -386,7 +386,7 @@ typedef struct {
 /* (as used in the GLX_OML_sync_control extension). */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 #include <inttypes.h>
-#elif defined(__sun__)
+#elif defined(__sun__) || defined(__digital__)
 #include <inttypes.h>
 #if defined(__STDC__)
 #if defined(__arch64__)
