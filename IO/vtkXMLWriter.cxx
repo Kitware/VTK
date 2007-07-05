@@ -44,7 +44,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.58.2.4");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.58.2.5");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -405,6 +405,10 @@ int vtkXMLWriter::OpenFile()
       }
     this->Stream = this->OutFile;
     }
+
+  // Make sure sufficient precision is used in the ascii
+  // representation of data and meta-data.
+  this->Stream->precision(11);
 
   // Setup the output streams.
   this->DataStream->SetStream(this->Stream);
@@ -1487,7 +1491,6 @@ int vtkXMLWriter::WriteAsciiData(void* data, int numWords, int wordType,
   void* b = data;
   int nw = numWords;
   vtkIndent i = indent;
-  this->Stream->precision(11);
   ostream& os = *(this->Stream);
   switch(wordType)
     {
