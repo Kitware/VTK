@@ -286,11 +286,7 @@ VTK_GET_MUTEX();
   id = vtkJavaIdCount;
   vtkInstanceLookup->AddHashEntry((void *)(size_t)vtkJavaIdCount,ptr);
 
-#ifdef JNI_VERSION_1_2
-  vtkPointerLookup->AddHashEntry(ptr,(void *)env->NewWeakGlobalRef(obj));
-#else
   vtkPointerLookup->AddHashEntry(ptr,(void *)env->NewGlobalRef(obj));
-#endif
   vtkJavaSetId(env,obj,vtkJavaIdCount);
   
 #ifdef VTKJAVADEBUG
@@ -320,11 +316,7 @@ JNIEXPORT void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
   vtkInstanceLookup->DeleteHashEntry((void *)(size_t)id);
   vtkTypecastLookup->DeleteHashEntry((void *)(size_t)id);
   vptr = vtkPointerLookup->GetHashTableValue(ptr);
-#ifdef JNI_VERSION_1_2
-  env->DeleteWeakGlobalRef((jweak)vptr);
-#else
   env->DeleteGlobalRef((jobject)vptr);
-#endif
   vtkPointerLookup->DeleteHashEntry(ptr);
 }
 
