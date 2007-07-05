@@ -32,7 +32,7 @@
 #include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.19");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.20");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -316,8 +316,7 @@ int vtkExtractSelectedIds::ExtractCells(
     }
   else if (selType == vtkSelection::PEDIGREEIDS)
     {
-    labelArray = vtkIdTypeArray::SafeDownCast(
-      input->GetCellData()->GetPedigreeIds());
+    labelArray = input->GetCellData()->GetPedigreeIds();
     }
   else if (selType == vtkSelection::VALUES &&
            sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
@@ -640,15 +639,14 @@ int vtkExtractSelectedIds::ExtractPoints(
     }
   else if (selType == vtkSelection::PEDIGREEIDS)
     {
-    labelArray = vtkIdTypeArray::SafeDownCast(
-      input->GetPointData()->GetPedigreeIds());
+    labelArray = input->GetPointData()->GetPedigreeIds();
     }
   else if (selType == vtkSelection::VALUES &&
            sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
     {
     //user chose a specific label array
     labelArray = input->GetPointData()->GetAbstractArray(
-      sel->GetProperties()->Get(vtkSelection::ARRAY_NAME()));      
+      sel->GetProperties()->Get(vtkSelection::ARRAY_NAME()));
     }
   if (labelArray == NULL && selType != vtkSelection::INDICES)
     {

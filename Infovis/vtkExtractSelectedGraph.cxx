@@ -35,7 +35,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.5");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.6");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -123,6 +123,7 @@ int vtkExtractSelectedGraph::ConvertToIndexSelection(
     }
   outputSelection->SetSelectionList(indexArray);
   indexArray->Delete();
+  extract->Delete();
   return 1;
 }
 

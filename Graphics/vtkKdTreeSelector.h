@@ -52,9 +52,20 @@ public:
   // Description:
   // The field name to use when generating the selection.
   // If set, creates a VALUES selection.
-  // If not set, creates a INDICES selection.
+  // If not set (or is set to NULL), creates a INDICES selection.
+  // By default this is not set.
   vtkSetStringMacro(SelectionFieldName);
   vtkGetStringMacro(SelectionFieldName);
+
+  // Description:
+  // The field attribute to use when generating the selection.
+  // If set, creates a PEDIGREEIDS or GLOBALIDS selection.
+  // If not set (or is set to -1), creates a INDICES selection.
+  // By default this is not set.
+  // NOTE: This should be set a constant in vtkDataSetAttributes,
+  // not vtkSelection.
+  vtkSetMacro(SelectionAttribute, int);
+  vtkGetMacro(SelectionAttribute, int);
 
   // Description:
   // Whether to only allow up to one value in the result.
@@ -85,6 +96,7 @@ protected:
   bool BuildKdTreeFromInput;
   bool SingleSelection;
   double SingleSelectionThreshold;
+  int SelectionAttribute;
 
   virtual int FillInputPortInformation(
     int port, vtkInformation* info);

@@ -24,7 +24,7 @@
 #include "vtkPointSet.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkKdTreeSelector, "1.3");
+vtkCxxRevisionMacro(vtkKdTreeSelector, "1.4");
 vtkStandardNewMacro(vtkKdTreeSelector);
 
 vtkKdTreeSelector::vtkKdTreeSelector()
@@ -40,6 +40,7 @@ vtkKdTreeSelector::vtkKdTreeSelector()
   this->SelectionFieldName = 0;
   this->SingleSelection = false;
   this->SingleSelectionThreshold = 1.0;
+  this->SelectionAttribute = -1;
 }
 
 vtkKdTreeSelector::~vtkKdTreeSelector()
@@ -70,6 +71,7 @@ void vtkKdTreeSelector::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SingleSelection: "
     << (this->SingleSelection ? "on" : "off") << endl;
   os << indent << "SingleSelectionThreshold: " << this->SingleSelectionThreshold << endl;
+  os << indent << "SelectionAttribute: " << this->SelectionAttribute << endl;
 }
 
 void vtkKdTreeSelector::SetKdTree(vtkKdTree* arg)
@@ -149,6 +151,16 @@ int vtkKdTreeSelector::RequestData(
       }
     
     // Look for selection field
+    if (this->SelectionAttribute == vtkDataSetAttributes::GLOBALIDS ||
+        this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
+      {
+      field = input->GetPointData()->GetAbstractAttribute(this->SelectionAttribute);
+      if (field == NULL)
+        {
+        vtkErrorMacro("Could not find attribute " << this->SelectionAttribute);
+        return 0;
+        }
+      }
     if (this->SelectionFieldName)
       {
       field = input->GetPointData()->GetAbstractArray(this->SelectionFieldName);
@@ -167,15 +179,6 @@ int vtkKdTreeSelector::RequestData(
     }
 
   // Use the kd-tree to find the selected points
-#if 0
-  vtkWarningMacro(<< "finding points in area "
-    << this->SelectionBounds[0] << ","
-    << this->SelectionBounds[1] << ","
-    << this->SelectionBounds[2] << ","
-    << this->SelectionBounds[3] << ","
-    << this->SelectionBounds[4] << ","
-    << this->SelectionBounds[5] << ",");
-#endif
   vtkIdTypeArray* ids = vtkIdTypeArray::New();
   if (this->SingleSelection)
     {
@@ -206,8 +209,23 @@ int vtkKdTreeSelector::RequestData(
       {
       arr->InsertNextTuple(ids->GetValue(i), field);
       }
-    output->GetProperties()->Set(output->ARRAY_NAME(), this->SelectionFieldName);
-    output->GetProperties()->Set(output->CONTENT_TYPE(), vtkSelection::VALUES);
+    if (this->SelectionAttribute == vtkDataSetAttributes::GLOBALIDS ||
+        this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
+      {
+      if (this->SelectionAttribute == vtkDataSetAttributes::GLOBALIDS)
+        {
+        output->GetProperties()->Set(output->CONTENT_TYPE(), vtkSelection::GLOBALIDS);
+        }
+      else if (this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
+        {
+        output->GetProperties()->Set(output->CONTENT_TYPE(), vtkSelection::PEDIGREEIDS);
+        }
+      }
+    else
+      {
+      output->GetProperties()->Set(output->ARRAY_NAME(), this->SelectionFieldName);
+      output->GetProperties()->Set(output->CONTENT_TYPE(), vtkSelection::VALUES);
+      }
     output->SetSelectionList(arr);
     arr->Delete();
     }
