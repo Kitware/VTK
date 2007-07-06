@@ -29,7 +29,7 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.12");
+vtkCxxRevisionMacro(vtkSelection, "1.13");
 vtkStandardNewMacro(vtkSelection);
 
 vtkCxxSetObjectMacro(vtkSelection, SelectionList, vtkAbstractArray);
@@ -328,6 +328,54 @@ void vtkSelection::CopyChildren(vtkSelection* input)
     }
 
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::SetContentType(int type)
+{
+  this->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), type);
+}
+
+//----------------------------------------------------------------------------
+int vtkSelection::GetContentType()
+{
+  if (this->GetProperties()->Has(vtkSelection::CONTENT_TYPE()))
+    {
+    return this->GetProperties()->Get(vtkSelection::CONTENT_TYPE());
+    }
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::SetFieldType(int type)
+{
+  this->GetProperties()->Set(vtkSelection::FIELD_TYPE(), type);
+}
+
+//----------------------------------------------------------------------------
+int vtkSelection::GetFieldType()
+{
+  if (this->GetProperties()->Has(vtkSelection::FIELD_TYPE()))
+    {
+    return this->GetProperties()->Get(vtkSelection::FIELD_TYPE());
+    }
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::SetArrayName(const char* name)
+{
+  this->GetProperties()->Set(vtkSelection::ARRAY_NAME(), name);
+}
+
+//----------------------------------------------------------------------------
+const char* vtkSelection::GetArrayName()
+{
+  if (this->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
+    {
+    return this->GetProperties()->Get(vtkSelection::ARRAY_NAME());
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------

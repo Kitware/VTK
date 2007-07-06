@@ -162,6 +162,7 @@ public:
   // FRUSTUM means the set of points and cells inside a frustum
   // LOCATIONS means the set of points and cells near a set of positions
   // THRESHOLDS means the points and cells with values within a set of ranges
+  // GetContentType() returns -1 if the content type is not set.
   static vtkInformationIntegerKey* CONTENT_TYPE();
 //BTX
   enum SelectionContent
@@ -177,10 +178,13 @@ public:
     THRESHOLDS
   };
 //ETX
+  virtual void SetContentType(int type);
+  virtual int GetContentType();
 
   // Description:
   // The location of the array the selection came from 
-  //(ex, point, cell or field) default is CELL
+  //(ex, point, cell or field) default is CELL.
+  // GetFieldType() returns -1 if the field type is not set.
   static vtkInformationIntegerKey* FIELD_TYPE();
 //BTX
   enum SelectionField
@@ -189,10 +193,15 @@ public:
     POINT
   };
 //ETX
+  virtual void SetFieldType(int type);
+  virtual int GetFieldType();
 
   // Description:
   // The name of the array the selection came from.
+  // GetArrayName() returns null if the array name is not set.
   static vtkInformationStringKey* ARRAY_NAME();
+  virtual void SetArrayName(const char* name);
+  virtual const char* GetArrayName();
 
   // Description:
   // For location selection of points, if distance is greater than this reject.
