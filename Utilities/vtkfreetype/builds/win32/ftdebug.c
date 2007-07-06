@@ -63,6 +63,8 @@
 
 
     va_start( ap, fmt );
+    vprintf( fmt, ap );
+    /* send the string to the debugger as well */
     vsprintf( buf, fmt, ap );
     OutputDebugStringA( buf );
     va_end( ap );
@@ -173,7 +175,7 @@
           if ( *p )
           {
             level = *p++ - '0';
-            if ( level < 0 || level > 6 )
+            if ( level < 0 || level > 7 )
               level = -1;
           }
 

@@ -1,11 +1,3 @@
-/*
- *  VTK_FREETYPE_CHANGE this file is new for VTK.
- *
- *  This file is based on freetype's builds/unix/ftconfig.in.
- *  Be sure to keep it in sync with the original file when updating freetype
- *
- */
-
 /***************************************************************************/
 /*                                                                         */
 /*  ftconfig.in                                                            */
@@ -65,17 +57,15 @@ FT_BEGIN_HEADER
   /*************************************************************************/
 
 
-/* VTK_FREETYPE_CHANGE use cmakedefine */
-#cmakedefine HAVE_FCNTL_H ${HAVE_FCNTL_H}
-#cmakedefine HAVE_UNISTD_H ${HAVE_UNISTD_H}
+#undef HAVE_UNISTD_H
+#undef HAVE_FCNTL_H
 
 #undef SIZEOF_INT
 #undef SIZEOF_LONG
 
 
-/* VTK_FREETYPE_CHANGE use cmakedefine */
-#define FT_SIZEOF_INT   ${CMAKE_SIZEOF_INT}
-#define FT_SIZEOF_LONG  ${CMAKE_SIZEOF_LONG}
+#define FT_SIZEOF_INT   SIZEOF_INT
+#define FT_SIZEOF_LONG  SIZEOF_LONG
 
 #define FT_CHAR_BIT  CHAR_BIT
 
@@ -228,9 +218,8 @@ FT_BEGIN_HEADER
   /* Since `#undef' doesn't survive in configuration header files */
   /* we use the postprocessing facility of AC_CONFIG_HEADERS to   */
   /* replace the leading `/' with `#'.                            */
-  /* VTK_FREETYPE_CHANGE with cmake `#' is fine                   */
-#undef FT_LONG64
-#undef FT_INT64
+/undef FT_LONG64
+/undef FT_INT64
 
 #endif /* __STDC__ */
 

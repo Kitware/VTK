@@ -6391,7 +6391,7 @@
 	* include/freetype/internal/fnttypes.h (WinFNT_HeaderRec): Increase
 	size of `reserved2' to avoid memory overwrites.
 
-2003-01-08  Huw Dawies  <huw@codeweavers.com>
+2003-01-08  Huw Davies  <huw@codeweavers.com>
 
 	* src/winfonts/winfnt.c (winfnt_header_fields): Read 16 bytes into
 	`reserved2', not `reserved'.

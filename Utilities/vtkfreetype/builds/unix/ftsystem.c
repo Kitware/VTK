@@ -275,8 +275,6 @@
     /* To avoid overflow caused by fonts in huge files larger than     */
     /* 2GB, do a test.  Temporary fix proposed by Sean McBride.        */
     /*                                                                 */
-    /* VTK_FREETYPE_CHANGE Fixed a warning by changing this to         */
-    /* LONG_MAX not ULONG_MAX                                          */
     if ( stat_buf.st_size > LONG_MAX )
     {
       FT_ERROR(( "FT_Stream_Open: file is too big" ));
@@ -293,7 +291,8 @@
                                           file,
                                           0 );
 
-    if ( (long)stream->base != -1 )
+    /* on some RTOS, mmap might return 0 */
+    if ( (long)stream->base != -1 && stream->base != NULL )
       stream->close = ft_close_stream_by_munmap;
     else
     {

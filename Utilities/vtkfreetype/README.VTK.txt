@@ -1,4 +1,4 @@
-This directory contains a subset of the Freetype2 library (2.3.4) and
+This directory contains a subset of the Freetype2 library (2.3.5) and
 some custom changes that VTK needs.
 
 We only include enough of the distribution to provide the functionalities
@@ -43,6 +43,9 @@ include/ft2build.h:
 include/freetype/config/ftoption.h:
   -comment out FT_CONFIG_OPTION_USE_ZLIB and FT_CONFIG_OPTION_USE_LZW
 
-builds/unix/ftsystem.c:
-  -fixed a warning, this fix will also be in the next version of freetype
+other files have changes too, search for "VTK_FREETYPE_CHANGE"
 
+Renamed Files
+-------------
+docs/FTL.TXT -> FTL.txt
+docs/LICENSE.TXT -> license.txt
