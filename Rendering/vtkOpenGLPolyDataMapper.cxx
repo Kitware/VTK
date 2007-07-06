@@ -40,8 +40,9 @@
 
 #include <math.h>
 
+
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.106.4.1");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.106.4.2");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -422,7 +423,6 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
     }
 }
 
-//-----------------------------------------
 
 #define vtkDrawPointsMacro(ptype,ntype,glVertFuncs,glInitFuncs) \
 { \
@@ -494,7 +494,7 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
   ptype *points = (ptype *)voidPoints; \
   GLenum previousGlFunction=GL_INVALID_VALUE; \
   glInitFuncs \
-while (ptIds < endPtIds) \
+  while (ptIds < endPtIds) \
     { \
     nPts = *ptIds; \
     ++ptIds; \
@@ -530,286 +530,6 @@ while (ptIds < endPtIds) \
       || (previousGlFunction == GL_POINTS)) \
     { \
     glEnd(); \
-    } \
-}
-
-#define vtkDrawPolysMacro4Tri(ptype,ntype,ttype,prim,glVertFuncs,glCellFuncs,glInitFuncs) \
-{ \
-  vtkIdType nPts; unsigned short count = 0; \
-  ptype *points = (ptype *)voidPoints; \
-  GLenum previousGlFunction=GL_INVALID_VALUE; \
-  glInitFuncs \
-  \
-  double quad_center[3] = {0, 0, 0}; \
-  double quad_center_col[4] = {0, 0, 0, 0}; \
-  double quad_points[4][3]; \
-  double quad_points_col[4][4]; \
-  double dist_center[4] = {0, 0, 0, 0}; \
-  \
-  while (ptIds < endPtIds) \
-    { \
-    nPts = *ptIds; \
-  ++ptIds; \
-  /* If we don't want to draw a QUAD (ex : a triangle nPts = 3) */ \
-  if (nPts != 4) { \
-  /* Classic method */ \
-    vtkOpenGLBeginPolyTriangleOrQuad( prim, previousGlFunction, nPts ); \
-    glCellFuncs \
-    while (nPts > 0) \
-    { \
-    glVertFuncs \
-    ++ptIds; \
-    --nPts; \
-    } \
-  } \
-  /* If we want to draw a QUAD */ \
-  else { \
-  /* We launch glBegin(GL_TRIANGLES) mode in order to draw 4 triangles */ \
-    vtkOpenGLBeginPolyTriangleOrQuad( prim, previousGlFunction, 3 ); \
-    glCellFuncs \
-  /* We keep pointer on the first point of the first triangle */ \
-  /* ptIdsFirstPtQuad will be used for center calculation and for 2nd point of 4th triangle */ \
-    vtkIdType *ptIdsFirstPtQuad; \
-    ptIdsFirstPtQuad = ptIds; \
-  /* QUAD Center calculation */ \
-  /* We save the 4 QUAD points and their color */ \
-    GLfloat *vpt; \
-    GLubyte *vcol; \
-    for (int i=0; i<4; i++) { \
-      /* Position : */ \
-      vpt = points + 3**ptIds; \
-      quad_points[i][0] = vpt[0]; \
-      quad_points[i][1] = vpt[1]; \
-      quad_points[i][2] = vpt[2]; \
-      /* Color : */ \
-      vcol = colors + 4**ptIds; \
-      quad_points_col[i][0] = vcol[0]; \
-      quad_points_col[i][1] = vcol[1]; \
-      quad_points_col[i][2] = vcol[2]; \
-      quad_points_col[i][3] = vcol[3]; \
-      ++ptIds; \
-    } \
-  /* Actual calculation of QUAD center with the 4 summits */ \
-    quad_center[0] = (quad_points[0][0] + quad_points[1][0] + quad_points[2][0] + quad_points[3][0])/4; \
-    quad_center[1] = (quad_points[0][1] + quad_points[1][1] + quad_points[2][1] + quad_points[3][1])/4; \
-    quad_center[2] = (quad_points[0][2] + quad_points[1][2] + quad_points[2][2] + quad_points[3][2])/4; \
-  /* Color center calculation  (Interpolation on each component of RGB vector) */ \
-  /* Calculation of distances between center and summits */ \
-    for (int i=0; i<4; i++) { \
-      dist_center[i] = sqrt((quad_points[i][0] - quad_center[0])*(quad_points[i][0] - quad_center[0]) + \
-                (quad_points[i][1] - quad_center[1])*(quad_points[i][1] - quad_center[1]) + \
-                (quad_points[i][2] - quad_center[2])*(quad_points[i][2] - quad_center[2])); \
-    } \
-  /* Color interpolation (3 for RGB and 1 for Alpha transparency) */ \
-    for (int i=0; i<4; i++) { \
-      quad_center_col[i] = ((dist_center[3]*quad_points_col[1][i] + dist_center[1]*quad_points_col[3][i])/(dist_center[1] + dist_center[3]) + \
-                (dist_center[2]*quad_points_col[0][i] + dist_center[0]*quad_points_col[2][i])/(dist_center[2] + dist_center[0]) \
-                )/2; \
-    } \
-  /* We take pointer on the first QUAD point */ \
-    ptIds = ptIdsFirstPtQuad; \
-  /* Actual drawing of 4 triangles */ \
-    for (int i=0; i<4; i++) { \
-      /* 1st point */ \
-      glVertFuncs \
-      ++ptIds; \
-      /* 2nd point */ \
-      if (i >= 3) { /* If it is the last triangle */ \
-        /* this 2nd point = the 1st point of 1st triangle */ \
-        glColor3ubv(colors + 4**ptIdsFirstPtQuad); \
-        glVertex3fv((float*)points + 3**ptIdsFirstPtQuad); \
-      } \
-      else { \
-        /* Else 2nd point = next point */ \
-        glVertFuncs \
-      } \
-      /* 3rd point */ \
-      glColor4f(quad_center_col[0],quad_center_col[1],quad_center_col[2],quad_center_col[3]); \
-      glVertex3f(quad_center[0],quad_center[1],quad_center[2]); \
-    } \
-  } /* End of if (nPts == 4) */ \
-    if (++count == 10000) \
-      { \
-      cellNum += 10000; \
-      count = 0; \
-      this->UpdateProgress((double)cellNum/this->TotalCells); \
-      if (ren->GetRenderWindow()->CheckAbortStatus()) \
-        { \
-        noAbort = 0; \
-        break; \
-        } \
-      } \
-    if ((previousGlFunction != GL_TRIANGLES)  \
-        && (previousGlFunction != GL_QUADS)   \
-        && (previousGlFunction != GL_POINTS)) \
-      {  \
-      glEnd(); \
-      } \
-    } \
-  cellNum += count; \
-  if ((previousGlFunction == GL_TRIANGLES)  \
-      || (previousGlFunction == GL_QUADS)   \
-      || (previousGlFunction == GL_POINTS)) \
-    { \
-    glEnd(); \
-    } \
-}
-
-#define vtkDrawPolysMacro4TriTex(ptype,ntype,ttype,prim,glVertFuncs,glCellFuncs,glInitFuncs) \
-{ \
-  vtkIdType nPts; unsigned short count = 0; \
-  ptype *points = (ptype *)voidPoints; \
-  GLenum previousGlFunction=GL_INVALID_VALUE; \
-  glInitFuncs \
-  \
-double quad_center[3] = {0, 0, 0}; \
-double quad_center_tex = 0; \
-double quad_points[4][3]; \
-double quad_points_tex[4]; \
-double dist_center[4] = {0, 0, 0, 0}; \
-  \
-while (ptIds < endPtIds) \
-    { \
-    nPts = *ptIds; \
-  ++ptIds; \
-  /* If we don't want to draw a QUAD (ex : a triangle nPts = 3) */ \
-  if (nPts != 4) { \
-  /* Classic method */ \
-    vtkOpenGLBeginPolyTriangleOrQuad( prim, previousGlFunction, nPts ); \
-    glCellFuncs \
-    while (nPts > 0) \
-    { \
-    glVertFuncs \
-    ++ptIds; \
-    --nPts; \
-    } \
-  } \
-  /* If we want to draw a QUAD */ \
-  else { \
-    /* We launch glBegin(GL_TRIANGLES) mode in order to draw 4 triangles */ \
-    vtkOpenGLBeginPolyTriangleOrQuad( prim, previousGlFunction, 3 ); \
-    glCellFuncs \
-    /* We keep pointer on the first point of the first triangle */ \
-    /* ptIdsFirstPtQuad will be used for center calculation and for 2nd point of 4th triangle */ \
-    vtkIdType *ptIdsFirstPtQuad; \
-    ptIdsFirstPtQuad = ptIds; \
-  /* QUAD Center calculation */ \
-  /* We save the 4 QUAD points and their texture value */ \
-    GLfloat *vpt; \
-    GLfloat *vtex; \
-    for (int i=0; i<4; i++) { \
-      /* Position : */ \
-      vpt = points + 3**ptIds; \
-      quad_points[i][0] = vpt[0]; \
-      quad_points[i][1] = vpt[1]; \
-      quad_points[i][2] = vpt[2]; \
-      /* Texture : */ \
-      vtex = tcoords + *ptIds; \
-      quad_points_tex[i] = vtex[0]; \
-      ++ptIds; \
-    } \
-  /* Actual calculation of QUAD center with the 4 summits */ \
-    quad_center[0] = (quad_points[0][0] + quad_points[1][0] + quad_points[2][0] + quad_points[3][0])/4; \
-    quad_center[1] = (quad_points[0][1] + quad_points[1][1] + quad_points[2][1] + quad_points[3][1])/4; \
-    quad_center[2] = (quad_points[0][2] + quad_points[1][2] + quad_points[2][2] + quad_points[3][2])/4; \
-  /* Texture center calculation  (Interpolation on each component of RGB vector) */ \
-  /* Calculation of distances between center and summits */ \
-    for (int i=0; i<4; i++) { \
-      dist_center[i] = sqrt((quad_points[i][0] - quad_center[0])*(quad_points[i][0] - quad_center[0]) + \
-                (quad_points[i][1] - quad_center[1])*(quad_points[i][1] - quad_center[1]) + \
-                (quad_points[i][2] - quad_center[2])*(quad_points[i][2] - quad_center[2])); \
-    } \
-  /* Texture interpolation */ \
-    quad_center_tex = ((dist_center[3]*quad_points_tex[1] + dist_center[1]*quad_points_tex[3])/(dist_center[1] + dist_center[3]) + \
-              (dist_center[2]*quad_points_tex[0] + dist_center[0]*quad_points_tex[2])/(dist_center[2] + dist_center[0]) \
-              )/2; \
-  /* We take pointer on the first QUAD point */ \
-    ptIds = ptIdsFirstPtQuad; \
-  /* Actual drawing of 4 triangles */ \
-    for (int i=0; i<4; i++) { \
-      /* 1st point */ \
-      glVertFuncs \
-      ++ptIds; \
-      /* 2nd point */ \
-      if (i >= 3) { /* If it is the last triangle */ \
-        /* this 2nd point = the 1st point of 1st triangle */ \
-        glTexCoord1fv(tcoords + *ptIdsFirstPtQuad); \
-        glVertex3fv(points + 3**ptIdsFirstPtQuad); \
-      } \
-      else { \
-        /* Else 2nd point = next point */ \
-        glVertFuncs \
-      } \
-      /* 3rd point */ \
-      glTexCoord1f(quad_center_tex); \
-      glVertex3f(quad_center[0],quad_center[1],quad_center[2]); \
-    } \
-  } /* End of if (nPts == 4) */ \
-    if (++count == 10000) \
-      { \
-      cellNum += 10000; \
-      count = 0; \
-      this->UpdateProgress((double)cellNum/this->TotalCells); \
-      if (ren->GetRenderWindow()->CheckAbortStatus()) \
-        { \
-        noAbort = 0; \
-        break; \
-        } \
-      } \
-    if ((previousGlFunction != GL_TRIANGLES)  \
-        && (previousGlFunction != GL_QUADS)   \
-        && (previousGlFunction != GL_POINTS)) \
-      {  \
-      glEnd(); \
-      } \
-    } \
-  cellNum += count; \
-  if ((previousGlFunction == GL_TRIANGLES)  \
-      || (previousGlFunction == GL_QUADS)   \
-      || (previousGlFunction == GL_POINTS)) \
-    { \
-    glEnd(); \
-    } \
-}
-
-#define vtkDrawStripLinesMacro(ptype,ntype,ttype,prim,glVertFuncs,glCellFuncs,glInitFuncs) \
-{ \
-  vtkIdType nPts; \
-  ptype *points = (ptype *)voidPoints; \
-  vtkIdType *savedPtIds = ptIds; \
-  glInitFuncs \
-  while (ptIds < endPtIds) \
-    { \
-    glBegin(prim); \
-    nPts = *ptIds; \
-    ++ptIds; \
-    glCellFuncs \
-    while (nPts > 0) \
-      { \
-      glVertFuncs \
-      ptIds += 2; \
-      nPts -= 2; \
-      } \
-    glEnd(); \
-    ptIds += nPts; /* nPts could be 0 or -1 here */ \
-    } \
-  ptIds = savedPtIds; \
-  while (ptIds < endPtIds) \
-    { \
-    glBegin(prim); \
-    nPts = *ptIds; \
-    ++ptIds; \
-    glCellFuncs \
-    ++ptIds; \
-    --nPts; \
-    while (nPts > 0) \
-      { \
-      glVertFuncs \
-      ptIds += 2; \
-      nPts -= 2; \
-      } \
-    glEnd(); \
-    ptIds += nPts; /* nPts could be 0 or -1 here */ \
     } \
 }
 
@@ -1233,7 +953,7 @@ void vtkOpenGLPolyDataMapper::DrawPolygons(int idx,
                         PolyNormal,;);
       break;
     case VTK_PDM_POINT_TYPE_FLOAT | VTK_PDM_COLORS  | VTK_PDM_OPAQUE_COLORS:
-      vtkDrawPolysMacro4Tri(float, float, float, rep, 
+      vtkDrawPolysMacro(float, float, float, rep, 
                         glColor3ubv(colors + 4**ptIds);
                         glVertex3fv(points + 3**ptIds);, 
                         PolyNormal,;);
@@ -1275,7 +995,7 @@ void vtkOpenGLPolyDataMapper::DrawPolygons(int idx,
       break;
     case VTK_PDM_POINT_TYPE_FLOAT | 
          VTK_PDM_TCOORD_TYPE_FLOAT | VTK_PDM_TCOORD_1D | VTK_PDM_TCOORDS:
-      vtkDrawPolysMacro4TriTex(float, float, float, rep, 
+      vtkDrawPolysMacro(float, float, float, rep, 
                         glTexCoord1fv(tcoords + *ptIds);
                         glVertex3fv(points + 3**ptIds);,
                         PolyNormal;,
