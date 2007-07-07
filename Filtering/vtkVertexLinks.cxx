@@ -23,11 +23,11 @@ using vtkstd::vector;
 struct vtkVertexLinksInternals
 {
   struct vtkVertexLinkInfo {
-    vtkVertexLinkInfo() : InDegree(0), Degree(0), Allocated(0), Adjacent(-1) { }
+    vtkVertexLinkInfo() : InDegree(0), Degree(0), Allocated(0), Index(-1) { }
     vtkIdType InDegree;
     vtkIdType Degree;
     vtkIdType Allocated;
-    vtkIdType Adjacent;
+    vtkIdType Index;
   };
 
   vector<vtkVertexLinkInfo> VertexLinkInfo;
@@ -35,7 +35,7 @@ struct vtkVertexLinksInternals
 };
 
 
-vtkCxxRevisionMacro(vtkVertexLinks, "1.3");
+vtkCxxRevisionMacro(vtkVertexLinks, "1.4");
 vtkStandardNewMacro(vtkVertexLinks);
 
 //----------------------------------------------------------------------------
@@ -72,8 +72,8 @@ void vtkVertexLinks::Reset()
 unsigned long vtkVertexLinks::GetActualMemorySize()
 {
   unsigned long size = 0;
-  vtkIdType VertexLinkInfo = this->GetNumberOfVertices();
-  for (vtkIdType i = 0; i < VertexLinkInfo; i++)
+  vtkIdType NumVertices = this->GetNumberOfVertices();
+  for (vtkIdType i = 0; i < NumVertices; i++)
     {
     size += this->Internals->VertexLinkInfo[i].Allocated;
     }
@@ -93,11 +93,11 @@ void vtkVertexLinks::DeepCopy(vtkVertexLinks* src)
   for (vtkIdType i = 0; i < VertexLinkInfo; i++)
     {
     this->Internals->VertexLinkInfo[i] = src->Internals->VertexLinkInfo[i];
-    this->Internals->VertexLinkInfo[i].Adjacent = this->Internals->AdjacencyHeap.grab(this->Internals->VertexLinkInfo[i].Allocated);
+    this->Internals->VertexLinkInfo[i].Index = this->Internals->AdjacencyHeap.grab(this->Internals->VertexLinkInfo[i].Allocated);
     for (int j = 0; j < src->Internals->VertexLinkInfo[i].Degree; j++)
       {
-      this->Internals->AdjacencyHeap[this->Internals->VertexLinkInfo[i].Adjacent + j] = 
-        src->Internals->AdjacencyHeap[src->Internals->VertexLinkInfo[i].Adjacent + j];
+      this->Internals->AdjacencyHeap[this->Internals->VertexLinkInfo[i].Index + j] = 
+        src->Internals->AdjacencyHeap[src->Internals->VertexLinkInfo[i].Index + j];
       }
     }
 }
@@ -112,7 +112,7 @@ vtkIdType vtkVertexLinks::GetDegree(vtkIdType vertex)
 void vtkVertexLinks::GetAdjacent(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges)
 {
   nedges = this->Internals->VertexLinkInfo[vertex].Degree;
-  edges = this->Internals->AdjacencyHeap.pointer(this->Internals->VertexLinkInfo[vertex].Adjacent);
+  edges = this->Internals->AdjacencyHeap.pointer(this->Internals->VertexLinkInfo[vertex].Index);
 }
 
 //----------------------------------------------------------------------------
@@ -125,7 +125,7 @@ vtkIdType vtkVertexLinks::GetOutDegree(vtkIdType vertex)
 void vtkVertexLinks::GetOutAdjacent(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges)
 {
   nedges = this->GetOutDegree(vertex);
-  edges = this->Internals->AdjacencyHeap.pointer(this->Internals->VertexLinkInfo[vertex].Adjacent + this->Internals->VertexLinkInfo[vertex].InDegree);
+  edges = this->Internals->AdjacencyHeap.pointer(this->Internals->VertexLinkInfo[vertex].Index + this->Internals->VertexLinkInfo[vertex].InDegree);
 }
 
 //----------------------------------------------------------------------------
@@ -138,7 +138,7 @@ vtkIdType vtkVertexLinks::GetInDegree(vtkIdType vertex)
 void vtkVertexLinks::GetInAdjacent(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges)
 {
   nedges = this->GetInDegree(vertex);
-  edges = this->Internals->AdjacencyHeap.pointer(this->Internals->VertexLinkInfo[vertex].Adjacent);
+  edges = this->Internals->AdjacencyHeap.pointer(this->Internals->VertexLinkInfo[vertex].Index);
 }
 
 //----------------------------------------------------------------------------
@@ -160,8 +160,9 @@ void vtkVertexLinks::ResizeVertexList(vtkIdType vertex, vtkIdType size)
     {
     if (size == 0)
       {
-      this->Internals->AdjacencyHeap.free(this->Internals->VertexLinkInfo[vertex].Adjacent, this->Internals->VertexLinkInfo[vertex].Allocated);
-      this->Internals->VertexLinkInfo[vertex].Adjacent = -1;
+      this->Internals->AdjacencyHeap.free(this->Internals->VertexLinkInfo[vertex].Index, 
+                                          this->Internals->VertexLinkInfo[vertex].Allocated);
+      this->Internals->VertexLinkInfo[vertex].Index = -1;
       this->Internals->VertexLinkInfo[vertex].Allocated = 0;
       }
     return;
@@ -177,13 +178,14 @@ void vtkVertexLinks::ResizeVertexList(vtkIdType vertex, vtkIdType size)
     // Resize the array
     vtkIdType arrIndex = this->Internals->AdjacencyHeap.grab(size);
     vtkIdType* arr = this->Internals->AdjacencyHeap.pointer(arrIndex);
-    if (this->Internals->VertexLinkInfo[vertex].Adjacent != -1)
+    if (this->Internals->VertexLinkInfo[vertex].Index != -1)
       {
-      vtkIdType* oldArr = this->Internals->AdjacencyHeap.pointer(this->Internals->VertexLinkInfo[vertex].Adjacent);
+      vtkIdType* oldArr = this->Internals->AdjacencyHeap.pointer(this->Internals->VertexLinkInfo[vertex].Index);
       memcpy(arr, oldArr, curSize*sizeof(vtkIdType));
-      this->Internals->AdjacencyHeap.free(this->Internals->VertexLinkInfo[vertex].Adjacent, this->Internals->VertexLinkInfo[vertex].Allocated);
+      this->Internals->AdjacencyHeap.free(this->Internals->VertexLinkInfo[vertex].Index, 
+                                          this->Internals->VertexLinkInfo[vertex].Allocated);
       }
-    this->Internals->VertexLinkInfo[vertex].Adjacent = arrIndex;
+    this->Internals->VertexLinkInfo[vertex].Index = arrIndex;
     this->Internals->VertexLinkInfo[vertex].Allocated = size;
     }
 }
@@ -200,7 +202,7 @@ vtkIdType vtkVertexLinks::RemoveVertex(vtkIdType vertex)
   if (this->Internals->VertexLinkInfo[vertex].Allocated > 0)
     {
     this->Internals->AdjacencyHeap.free(
-      this->Internals->VertexLinkInfo[vertex].Adjacent, 
+      this->Internals->VertexLinkInfo[vertex].Index, 
       this->Internals->VertexLinkInfo[vertex].Allocated);
     }
   vtkIdType movedVertex = this->GetNumberOfVertices() - 1;
@@ -213,7 +215,7 @@ vtkIdType vtkVertexLinks::RemoveVertex(vtkIdType vertex)
 void vtkVertexLinks::AddInAdjacent(vtkIdType vertex, vtkIdType adj)
 {
   this->ResizeVertexList(vertex, this->GetDegree(vertex) + 1);
-  vtkIdType adjacent = this->Internals->VertexLinkInfo[vertex].Adjacent;
+  vtkIdType adjacent = this->Internals->VertexLinkInfo[vertex].Index;
   this->Internals->AdjacencyHeap[adjacent + this->GetDegree(vertex)] =
     this->Internals->AdjacencyHeap[adjacent + this->GetInDegree(vertex)];
   this->Internals->AdjacencyHeap[adjacent + this->GetInDegree(vertex)] = adj;
@@ -224,14 +226,14 @@ void vtkVertexLinks::AddInAdjacent(vtkIdType vertex, vtkIdType adj)
 void vtkVertexLinks::AddOutAdjacent(vtkIdType vertex, vtkIdType adj)
 {
   this->ResizeVertexList(vertex, this->GetDegree(vertex) + 1);
-  vtkIdType adjacent = this->Internals->VertexLinkInfo[vertex].Adjacent;
-  this->Internals->AdjacencyHeap[adjacent + this->GetDegree(vertex)] = adj;
+  vtkIdType index = this->Internals->VertexLinkInfo[vertex].Index;
+  this->Internals->AdjacencyHeap[index + this->GetDegree(vertex)] = adj;
   this->Internals->VertexLinkInfo[vertex].Degree++;
 }
 
 void vtkVertexLinks::RemoveInAdjacent(vtkIdType vertex, vtkIdType adj)
 {
-  vtkIdType adjacent = this->Internals->VertexLinkInfo[vertex].Adjacent;
+  vtkIdType adjacent = this->Internals->VertexLinkInfo[vertex].Index;
   for (vtkIdType e = 0; e < this->GetInDegree(vertex); e++)
     {
     if (this->Internals->AdjacencyHeap[adjacent + e] == adj)
@@ -249,13 +251,13 @@ void vtkVertexLinks::RemoveInAdjacent(vtkIdType vertex, vtkIdType adj)
 
 void vtkVertexLinks::RemoveOutAdjacent(vtkIdType vertex, vtkIdType adj)
 {
-  vtkIdType adjacent = this->Internals->VertexLinkInfo[vertex].Adjacent;
+  vtkIdType index = this->Internals->VertexLinkInfo[vertex].Index;
   for (vtkIdType e = this->GetInDegree(vertex); e < this->GetDegree(vertex); e++)
     {
-    if (this->Internals->AdjacencyHeap[adjacent + e] == adj)
+    if (this->Internals->AdjacencyHeap[index + e] == adj)
       {
-      this->Internals->AdjacencyHeap[adjacent + e] = 
-        this->Internals->AdjacencyHeap[adjacent + this->GetDegree(vertex) - 1];
+      this->Internals->AdjacencyHeap[index + e] = 
+        this->Internals->AdjacencyHeap[index + this->GetDegree(vertex) - 1];
       this->Internals->VertexLinkInfo[vertex].Degree--;
       break;
       }
@@ -264,15 +266,15 @@ void vtkVertexLinks::RemoveOutAdjacent(vtkIdType vertex, vtkIdType adj)
 
 void vtkVertexLinks::RemoveOutAdjacentShift(vtkIdType vertex, vtkIdType adj)
 {
-  vtkIdType adjacent = this->Internals->VertexLinkInfo[vertex].Adjacent;
+  vtkIdType index = this->Internals->VertexLinkInfo[vertex].Index;
   for (vtkIdType e = this->GetInDegree(vertex); e < this->GetDegree(vertex); e++)
     {
-    if (this->Internals->AdjacencyHeap[adjacent + e] == adj)
+    if (this->Internals->AdjacencyHeap[index + e] == adj)
       {
       if (e < this->GetDegree(vertex) - 1)
         {
-        vtkIdType* fromPtr = this->Internals->AdjacencyHeap.pointer(adjacent + e + 1);
-        vtkIdType* toPtr = this->Internals->AdjacencyHeap.pointer(adjacent + e);
+        vtkIdType* fromPtr = this->Internals->AdjacencyHeap.pointer(index + e + 1);
+        vtkIdType* toPtr = this->Internals->AdjacencyHeap.pointer(index + e);
         int size = this->GetDegree(vertex) - e - 1;
         memmove(toPtr, fromPtr, size*sizeof(vtkIdType));
         }
@@ -284,23 +286,24 @@ void vtkVertexLinks::RemoveOutAdjacentShift(vtkIdType vertex, vtkIdType adj)
 
 vtkIdType vtkVertexLinks::GetOutAdjacent(vtkIdType vertex, vtkIdType index)
 {
-  return this->Internals->AdjacencyHeap[this->Internals->VertexLinkInfo[vertex].Adjacent + this->Internals->VertexLinkInfo[vertex].InDegree + index];
+  return this->Internals->AdjacencyHeap[this->Internals->VertexLinkInfo[vertex].Index + 
+                              this->Internals->VertexLinkInfo[vertex].InDegree + index];
 }
 
 vtkIdType vtkVertexLinks::GetInAdjacent(vtkIdType vertex, vtkIdType index)
 {
-  return this->Internals->AdjacencyHeap[this->Internals->VertexLinkInfo[vertex].Adjacent + index];
+  return this->Internals->AdjacencyHeap[this->Internals->VertexLinkInfo[vertex].Index + index];
 }
 
 void vtkVertexLinks::SetOutAdjacent(vtkIdType vertex, vtkIdType index, vtkIdType value)
 {
-  this->Internals->AdjacencyHeap[this->Internals->VertexLinkInfo[vertex].Adjacent + this->Internals->VertexLinkInfo[vertex].InDegree + index] =
+  this->Internals->AdjacencyHeap[this->Internals->VertexLinkInfo[vertex].Index + this->Internals->VertexLinkInfo[vertex].InDegree + index] =
     value;
 }
 
 void vtkVertexLinks::SetInAdjacent(vtkIdType vertex, vtkIdType index, vtkIdType value)
 {
-  this->Internals->AdjacencyHeap[this->Internals->VertexLinkInfo[vertex].Adjacent + index] =
+  this->Internals->AdjacencyHeap[this->Internals->VertexLinkInfo[vertex].Index + index] =
     value;
 }
 
