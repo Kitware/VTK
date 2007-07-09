@@ -51,10 +51,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.27");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.28");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.27");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.28");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -180,6 +180,10 @@ void vtkMultiProcessController::SetNumberOfProcesses(int num)
     {
     this->Communicator->SetNumberOfProcesses(num);
     }
+  else
+    {
+    vtkErrorMacro("Communicator not set.");
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -191,6 +195,7 @@ int vtkMultiProcessController::GetNumberOfProcesses()
     }
   else
     {
+    vtkErrorMacro("Communicator not set.");
     return 0;
     }
 }
@@ -204,7 +209,8 @@ int vtkMultiProcessController::GetLocalProcessId()
     }
   else
     {
-    return 0;
+    vtkErrorMacro("Communicator not set.");
+    return -1;
     }
 }
 
