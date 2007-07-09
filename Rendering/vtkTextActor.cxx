@@ -32,7 +32,7 @@
 #include "vtkTexture.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.42");
+vtkCxxRevisionMacro(vtkTextActor, "1.43");
 vtkStandardNewMacro(vtkTextActor);
 vtkCxxSetObjectMacro(vtkTextActor,Texture,vtkTexture);
 
@@ -508,13 +508,28 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
   this->RectanglePoints->Reset();
   if (this->ImageData)
     {
-    this->ImageData->GetDimensions(dims);
+    int p2dims[3];
+    this->ImageData->GetDimensions(p2dims);
+    int text_bbox[4];
+    this->FreeTypeUtilities->GetBoundingBox(this->TextProperty, 
+                                            this->Input, text_bbox);
+    dims[0] = (text_bbox[1] - text_bbox[0] + 1);
+    dims[1] = (text_bbox[3] - text_bbox[2] + 1);
+
+    // compuet TCoords
+    vtkFloatArray* tc = vtkFloatArray::SafeDownCast
+      (this->Rectangle->GetPointData()->GetTCoords());
+    tc->InsertComponent(1,1, ((double)dims[1])/p2dims[1]);
+    tc->InsertComponent(2,0, ((double)dims[0])/p2dims[0]);  
+    tc->InsertComponent(2,1, ((double)dims[1])/p2dims[1]);
+    tc->InsertComponent(3,0, ((double)dims[0])/p2dims[0]);  
     }
   else
     {
     dims[0] = dims[1] = 0;
     }
     
+
   // I could do this with a transform, but it is simple enough
   // to rotate the four corners in 2D ...
   double radians = this->Orientation * vtkMath::DegreesToRadians();
