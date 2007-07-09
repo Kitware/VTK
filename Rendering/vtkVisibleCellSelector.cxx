@@ -23,6 +23,11 @@
 #include "vtkInformation.h"
 #include "vtkIdentColoredPainter.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 //----------------------------------------------------------------------------
 class vtkVisibleCellSelectorInternals
 {
@@ -34,6 +39,7 @@ class vtkVisibleCellSelectorInternals
 public:
   unsigned char Byte[15];
   int PixelCount;
+  vtkstd::set<vtkIdType> visverts;
 
   vtkVisibleCellSelectorInternals()
     {
@@ -190,7 +196,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.16");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.17");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -204,6 +210,8 @@ vtkVisibleCellSelector::vtkVisibleCellSelector()
   this->DoCellIdHi=0;
   this->DoCellIdMid=0;
   this->DoCellIdLo=1;
+  this->DoVertices=0;
+
   this->ProcessorId = 0;
 
   this->PixBuffer[0] = NULL;
@@ -211,19 +219,26 @@ vtkVisibleCellSelector::vtkVisibleCellSelector()
   this->PixBuffer[2] = NULL;
   this->PixBuffer[3] = NULL;
   this->PixBuffer[4] = NULL;
+  this->PixBuffer[5] = NULL;
   this->SelectedIds = vtkIdTypeArray::New();
   this->SelectedIds->SetNumberOfComponents(4);
   this->SelectedIds->SetNumberOfTuples(0);
   this->PixelCounts = vtkIntArray::New();
   this->PixelCounts->SetNumberOfComponents(1);
   this->PixelCounts->SetNumberOfTuples(0);
+  this->VertexPointers = vtkIdTypeArray::New();
+  this->VertexPointers->SetNumberOfComponents(1);
+  this->VertexPointers->SetNumberOfTuples(0);
+  this->VertexLists = vtkIdTypeArray::New();
+  this->VertexLists->SetNumberOfComponents(1);
+  this->VertexLists->SetNumberOfTuples(0);
 
 }
 
 //-----------------------------------------------------------------------------
 vtkVisibleCellSelector::~vtkVisibleCellSelector()
 {
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < 6; i++)
     {
     if (this->PixBuffer[i] != NULL)
       {
@@ -235,6 +250,11 @@ vtkVisibleCellSelector::~vtkVisibleCellSelector()
   this->SelectedIds = NULL;
   this->PixelCounts->Delete();
   this->PixelCounts = NULL;
+  this->VertexPointers->Delete();
+  this->VertexPointers = NULL;
+  this->VertexLists->Delete();
+  this->VertexLists = NULL;
+
   if (this->Renderer)
     {
     this->Renderer->UnRegister(this);
@@ -328,13 +348,17 @@ void vtkVisibleCellSelector::SetProcessorId(unsigned int pid)
 }
 
 //----------------------------------------------------------------------------
-void vtkVisibleCellSelector::SetRenderPasses(int p, int a, int h, int m, int l)
+void vtkVisibleCellSelector::SetRenderPasses(int p, 
+                                             int a, 
+                                             int h, int m, int l,
+                                             int v)
 {
   this->DoProcessor = p;
   this->DoActor = a;
   this->DoCellIdHi = h;
   this->DoCellIdMid = m;
   this->DoCellIdLo = l;
+  this->DoVertices = v;
 }
 
 //-----------------------------------------------------------------------------
@@ -376,7 +400,7 @@ void vtkVisibleCellSelector::Select()
   rwin->SwapBuffersOff();
   
   unsigned char *buf;
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < 6; i++)
     {
     if (i==0 && !this->DoProcessor)
       {
@@ -395,6 +419,10 @@ void vtkVisibleCellSelector::Select()
       continue;
       }
     if (i==4 && !this->DoCellIdLo)
+      {
+      continue;
+      }
+    if (i==5 && !this->DoVertices)
       {
       continue;
       }
@@ -420,9 +448,9 @@ void vtkVisibleCellSelector::SavePixelBuffer(int pass, unsigned char *buff)
     {
     pass = 0;
     }
-  if (pass > 4) 
+  if (pass > 5) 
     {
-    pass = 4;
+    pass = 5;
     }
   
   if (this->PixBuffer[pass] != NULL)
@@ -431,6 +459,27 @@ void vtkVisibleCellSelector::SavePixelBuffer(int pass, unsigned char *buff)
     this->PixBuffer[pass] = NULL;
     }
   this->PixBuffer[pass] = buff;
+
+  int wid = this->X1-this->X0+1;
+  int hi = this->Y1-this->Y0+1;
+  
+  unsigned char *obuf = new unsigned char[wid*hi*3];
+  unsigned char *ptr = obuf;
+  int cnt = 0;
+  for (; cnt<wid*hi; cnt++, ptr+=3, buff+=4)
+    {
+    *(ptr+0) = (*(buff+2)*30);
+    *(ptr+1) = (*(buff+2)*30);
+    *(ptr+2) = (*(buff+2)*30);
+    }
+
+  char space[256];
+  sprintf(space, "/tmp/buf_%d.pnm", pass);  
+  int fd = open(space, O_RDWR|O_CREAT, S_IRWXU);
+  sprintf(space, "P6\n %d %d 255\n", wid, hi);
+  write(fd, space, strlen(space));
+  write(fd, obuf, wid*hi*3);
+  close(fd);  
 }
 
 //----------------------------------------------------------------------------
@@ -447,6 +496,7 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
   unsigned char *cidH = this->PixBuffer[2];
   unsigned char *cidM = this->PixBuffer[3];
   unsigned char *cidL = this->PixBuffer[4];
+  unsigned char *vert = this->PixBuffer[5];
 
   vtkVisibleCellSelectorInternals nhit, zero;
   int Height = this->Y1-this->Y0;
@@ -480,6 +530,20 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
           hitrecords.insert(nhit);
           hitcnt++;
           }
+
+        //if we care about vertices, record any vert info too
+        if (this->DoVertices && vert && (vert[0] || vert[1] || vert[2]))
+          {          
+          vtkIdType vertid = 
+            (((vtkIdType)vert[0])<<16) |
+            (((vtkIdType)vert[1])<< 8) |
+            (((vtkIdType)vert[2])    ) - 1;
+          //cerr << "found vertex " << vertid << endl;
+          vtkVisibleCellSelectorInternals cpy = *(hitrecords.find(nhit));
+          hitrecords.erase(nhit);
+          cpy.visverts.insert(vertid);
+          hitrecords.insert(cpy);
+          }
         }
       else        
         {
@@ -492,6 +556,7 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
       cidH = (cidH==NULL) ? NULL : cidH+4;
       cidM = (cidM==NULL) ? NULL : cidM+4;
       cidL = (cidL==NULL) ? NULL : cidL+4;
+      vert = (vert==NULL) ? NULL : vert+4;
       }
     }
   //cerr << misscnt << " misses" << endl;
@@ -501,6 +566,13 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
   //save the hits into a vtkDataArray for external use
   this->SelectedIds->SetNumberOfTuples(hitcnt);
   this->PixelCounts->SetNumberOfTuples(hitcnt);
+
+  if (this->DoVertices)
+    {
+    this->VertexPointers->SetNumberOfTuples(hitcnt);
+    this->VertexLists->SetNumberOfTuples(0);  
+    }
+
   if (hitcnt != 0)
     {
     //traversing the set will result in a sorted list, because vtkstd::set 
@@ -516,6 +588,29 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
       info[3] = sit->GetField(3); //cidL
       this->SelectedIds->SetTupleValue(cellid, info);
       this->PixelCounts->SetValue(cellid, sit->PixelCount);
+
+      if (this->DoVertices)
+        {
+        vtkIdType top = this->VertexLists->GetNumberOfTuples();
+        vtkstd::set<vtkIdType>::iterator vit;
+        //record each visible vertex of this cell
+        if (sit->visverts.size()>0)
+          {
+          this->VertexLists->InsertNextValue(sit->visverts.size());
+          for (vit = sit->visverts.begin(); vit != sit->visverts.end(); vit++)
+            {
+            this->VertexLists->InsertNextValue(*vit);
+            }        
+          //record the index where this cell's vertices can be found in the 
+          //vertex list, or -1 if no verts were visible
+          this->VertexPointers->SetValue(cellid, top);
+          }
+        else
+          {
+          this->VertexPointers->SetValue(cellid, -1);
+          }
+        }
+
       cellid++;
       }    
     }
@@ -649,6 +744,39 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
 
     cellids->Delete();
     cellids = NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkVisibleCellSelector::GetSelectedVertices(
+  vtkIdTypeArray *pointers,
+  vtkIdTypeArray *ids)
+{
+  if (pointers==NULL || ids==NULL)
+    {
+    return;
+    }
+  
+  vtkIdType numTup;
+  
+  numTup = this->VertexPointers->GetNumberOfTuples();
+  pointers->SetNumberOfComponents(1);
+  pointers->SetNumberOfTuples(numTup);
+  cerr << "VERTPOINTERS:" << endl;
+  for (vtkIdType i = 0; i < numTup; i++)
+    {
+    pointers->SetValue(i, this->VertexPointers->GetValue(i));
+    cerr << this->VertexPointers->GetValue(i) << endl;
+    }
+
+  numTup = this->VertexLists->GetNumberOfTuples();
+  ids->SetNumberOfComponents(1);
+  ids->SetNumberOfTuples(numTup);
+  cerr << "VERTICES:" << endl;
+  for (vtkIdType i = 0; i < numTup; i++)
+    {
+    ids->SetValue(i, this->VertexLists->GetValue(i));
+    cerr << this->VertexLists->GetValue(i) << endl;
     }
 }
 

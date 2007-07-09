@@ -38,7 +38,7 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.233");
+vtkCxxRevisionMacro(vtkRenderer, "1.234");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
@@ -1741,6 +1741,10 @@ int vtkRenderer::UpdateGeometryForSelection()
       //Each polygon will gets its own color
       this->IdentPainter->ColorByIncreasingIdent(0);
       break;
+    case COLOR_BY_VERTEX:
+      //Each polygon will gets its own color
+      this->IdentPainter->ColorByVertex();
+      break;
     default:
       //should never get here
       return 0; 
@@ -1757,7 +1761,8 @@ int vtkRenderer::UpdateGeometryForSelection()
       }
     else if (this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_HIGH ||
              this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_MID ||
-             this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_LOW)
+             this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_LOW ||
+             this->SelectMode == vtkRenderer::COLOR_BY_VERTEX)
       {
       //each actor starts it's cell count at 0
       this->IdentPainter->ResetCurrentId();

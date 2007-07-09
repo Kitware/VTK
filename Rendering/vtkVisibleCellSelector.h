@@ -96,23 +96,38 @@ public:
   // and DoActor as false (the default). If you have less than 2^48 cells in 
   // any actor, you do not need the CellIdHi pass, or similarly if you have 
   // less than 2^24 cells, you do not need DoCellIdMid.
+  // The DoPointId will enable another render pass for determining visible
+  // vertices.
   void SetRenderPasses(int DoProcessor, int DoActor, 
-                       int DoCellIdHi, int DoCellIdMid, int DoCellIdLo);
-
+                       int DoCellIdHi, int DoCellIdMid, int DoCellIdLo,
+                       int DoVertexId=0);
 
   // Description:
   // Execute the selection algorithm.
   void Select();
 
   // Description:
-  // After RecordSelectedCells(), this will return the list of selected Ids.
+  // After Select(), this will return the list of selected Ids.
   // The ProcessorId and Actor Id are returned in the first two components.
   // The CellId is returned in the last two components (only 64 bits total).
   void GetSelectedIds(vtkIdTypeArray *ToCopyInto);
 
   // Description:
-  // After RecordSelectedCells(), this will return the list of selected Ids.
+  // After Select(), this will return the list of selected Ids.
   void GetSelectedIds(vtkSelection *ToCopyInto);
+
+  // Description:
+  // After Select(), (assuming DoVertexId is on), the will return arrays that
+  // describe which cell vertices are visible.
+  // The VertexPointers array contains one index into the VertexIds array for
+  // every visible cell. Any index may be -1 in which case no vertices were 
+  // visible for that cell. The VertexIds array contains a set of integers for
+  // each cell that has visible vertices. The first entry in the set is
+  // the number of visible vertices. The rest are visible vertex ranks. 
+  // A set such at 2,0,4, means that a particular polygon's first and fifth
+  // vertices were visible.
+  void GetSelectedVertices(vtkIdTypeArray *VertexPointers,
+                           vtkIdTypeArray *VertexIds);
 
   // Description:
   // After a select, this will return a pointer to the actor corresponding to
@@ -154,6 +169,7 @@ protected:
   int DoCellIdHi;
   int DoCellIdMid;
   int DoCellIdLo;
+  int DoVertices;
 
   unsigned int ProcessorId;
 
@@ -163,12 +179,14 @@ protected:
   unsigned int Y1;
 
   //buffer for id colored pixels
-  unsigned char *PixBuffer[5];
+  unsigned char *PixBuffer[6];
 
   // Description:
   // The results of the selection: processorIds, ActorIds, CellIds.
   vtkIdTypeArray *SelectedIds;
   vtkIntArray *PixelCounts;
+  vtkIdTypeArray *VertexPointers;
+  vtkIdTypeArray *VertexLists;
 
   vtkIdentColoredPainter *IdentPainter;
 private:

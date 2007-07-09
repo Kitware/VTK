@@ -576,7 +576,8 @@ protected:
   // polygons with an enoded index. Later the pixel colors can be retrieved to
   // determine what objects lie behind each pixel.  
   enum {NOT_SELECTING = 0, COLOR_BY_PROCESSOR, COLOR_BY_ACTOR, 
-        COLOR_BY_CELL_ID_HIGH, COLOR_BY_CELL_ID_MID, COLOR_BY_CELL_ID_LOW};  
+        COLOR_BY_CELL_ID_HIGH, COLOR_BY_CELL_ID_MID, COLOR_BY_CELL_ID_LOW,
+        COLOR_BY_VERTEX};  
   //ETX
   vtkSetMacro(SelectMode, int);
   vtkSetMacro(SelectConst, unsigned int);

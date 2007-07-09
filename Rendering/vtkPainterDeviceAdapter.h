@@ -176,6 +176,9 @@ public:
   // Returns current blending setting.
   virtual int QueryBlending() = 0;
 
+  // Description:
+  virtual void MakeVertexEmphasis(int mode) = 0;
+
 protected:
   vtkPainterDeviceAdapter();
   ~vtkPainterDeviceAdapter();
