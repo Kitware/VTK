@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.17");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.18");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -84,6 +84,12 @@ void vtkIdentColoredPainter::ColorByConstant(unsigned int constant)
   this->ColorMode = COLORBYCONST;
   this->ResetCurrentId();
   this->CurrentIdPlane0 = constant;
+}
+
+//-----------------------------------------------------------------------------
+void vtkIdentColoredPainter::ColorByVertex()
+{
+  this->ColorMode = COLORBYVERTEX;
 }
 
 //-----------------------------------------------------------------------------
@@ -288,14 +294,22 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
   if (typeflags & vtkPainter::VERTS)
     {
     this->DrawCells(VTK_POLY_VERTEX, this->PolyData->GetVerts(), startCell,
-      renderer);
+                    renderer);
     }
   startCell += this->PolyData->GetNumberOfVerts();
 
   if (typeflags & vtkPainter::LINES)
     {
+    if (this->ColorMode == COLORBYVERTEX)
+      {
+      //for point selection, draw twice to hide occluded verts
+      this->ColorByConstant(0);
+      this->DrawCells(VTK_POLY_LINE, this->PolyData->GetLines(), startCell,
+                      renderer);
+      this->ColorByVertex();
+      }
     this->DrawCells(VTK_POLY_LINE, this->PolyData->GetLines(), startCell,
-      renderer);
+                    renderer);
     }
   startCell += this->PolyData->GetNumberOfLines();
 
@@ -304,22 +318,43 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
 #if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
+      if (this->ColorMode == COLORBYVERTEX)
+        {
+        this->ColorByConstant(0);
+        this->DrawCells(VTK_TETRA, this->PolyData->GetPolys(), startCell,
+                        renderer);
+        this->ColorByVertex();
+        }
       this->DrawCells(VTK_TETRA, this->PolyData->GetPolys(), startCell,
-        renderer);
+                      renderer);
       }
     else
 #endif
       {
+      if (this->ColorMode == COLORBYVERTEX)
+        {
+        this->ColorByConstant(0);
+        this->DrawCells(VTK_POLYGON, this->PolyData->GetPolys(), startCell,
+                        renderer);
+        this->ColorByVertex();
+        }
       this->DrawCells(VTK_POLYGON, this->PolyData->GetPolys(), startCell,
-        renderer);
+                      renderer);
       }
     } 
   startCell += this->PolyData->GetNumberOfPolys();
 
   if (typeflags & vtkPainter::STRIPS)
     {
+    if (this->ColorMode == COLORBYVERTEX)
+      {
+      this->ColorByConstant(4);
+      this->DrawCells(VTK_TRIANGLE_STRIP, this->PolyData->GetStrips(), startCell,
+                      renderer);
+      this->ColorByVertex();
+      }
     this->DrawCells(VTK_TRIANGLE_STRIP, this->PolyData->GetStrips(), startCell,
-      renderer);
+                    renderer);
     }
   startCell += this->PolyData->GetNumberOfStrips();
 
@@ -348,6 +383,15 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
     return;
     }
 
+  if (this->ColorMode == COLORBYVERTEX)
+    {
+    mode = VTK_POLY_VERTEX;
+    vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
+      GetPainterDeviceAdapter();
+    device->MakeVertexEmphasis(1); //draw verts larger and nearer to be on top
+    //of their associated polygons
+   }
+
   vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
     GetPainterDeviceAdapter();
 
@@ -364,27 +408,24 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
     {
     device->BeginPrimitive(mode);
     
-    // fieldColors are same as cell colors except when rendering 
-    // VTK_TRIANGLE_STRIP, when they represent triangle colors.
+    if (this->ColorMode == COLORBYVERTEX)
+      {
+      this->ResetCurrentId();
+      }
     this->GetCurrentColor(color);
-
     device->SendAttribute(vtkCellData::SCALARS, 3, VTK_UNSIGNED_CHAR, color);
 
     for (vtkIdType cellpointi = 0; cellpointi < npts; cellpointi++)
       {
       vtkIdType pointId = pts[cellpointi];
-      if (mode == VTK_TRIANGLE_STRIP && cellpointi > 2)
+      if (this->ColorMode == COLORBYVERTEX && cellpointi > 0)
         {
+        this->IncrementCurrentId();
         this->GetCurrentColor(color);
 
         device->SendAttribute(vtkCellData::SCALARS, 3, VTK_UNSIGNED_CHAR, color);
-        }
-      
-      // Send the point position as the last attribute.
-      // TODO: how to mark that point position is being sent? since,
-      // vtkDataSetAttributes doesn't define point positions and hence has
-      // no enum for that. For now, vtkPointData::NUM_ATTRIBUTES marks
-      // point positions.
+        }      
+
       device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3, 
         pointtype, voidpoints, 3*pointId);
       }
@@ -403,10 +444,26 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
       // Abort render.
       if (renderer->GetRenderWindow()->CheckAbortStatus())
         {
+        if (this->ColorMode == COLORBYVERTEX)
+          {
+          vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
+            GetPainterDeviceAdapter();
+          device->MakeVertexEmphasis(0);
+          }
         return;
         }
       }
+
     }
+
+  if (this->ColorMode == COLORBYVERTEX)
+    {
+    vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
+      GetPainterDeviceAdapter();
+    device->MakeVertexEmphasis(0);
+    }
+
+
 }
  
 //-----------------------------------------------------------------------------

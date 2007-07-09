@@ -36,12 +36,15 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.14");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.15");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLPainterDeviceAdapter::vtkOpenGLPainterDeviceAdapter()
 {
+  this->PointSize = 1.0;
+  this->RangeNear = 0.0;
+  this->RangeFar = 1.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -707,3 +710,27 @@ int vtkOpenGLPainterDeviceAdapter::QueryBlending()
     return 0;
     }
 }
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(int mode)
+{
+  if (mode)
+    {
+    float nf[2];
+    glGetFloatv(GL_DEPTH_RANGE, nf);
+    this->RangeNear = (double)nf[0];
+    this->RangeFar = (double)nf[1];
+    glDepthRange(0.0, nf[1]*0.98);
+
+    float s;
+    glGetFloatv(GL_POINT_SIZE, &s);
+    this->PointSize = s;
+    glPointSize(5.0);
+    }
+  else
+    {
+    glDepthRange(this->RangeNear, this->RangeFar);
+    glPointSize(this->PointSize);
+    }
+}
+

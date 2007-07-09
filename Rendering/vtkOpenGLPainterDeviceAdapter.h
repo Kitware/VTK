@@ -115,9 +115,19 @@ public:
   // Returns current blending setting.
   virtual int QueryBlending();
 
+  // Description:
+  // Turns emphasis of vertices on or off. 
+  // When emphasized verts are drawn nearer to the camera and are drawn 
+  // larger than normal to make selection of them more reliable.
+  virtual void MakeVertexEmphasis(int mode);
+
 protected:
   vtkOpenGLPainterDeviceAdapter();
   ~vtkOpenGLPainterDeviceAdapter();
+
+  double PointSize;
+  double RangeNear;
+  double RangeFar;
 
 private:
   vtkOpenGLPainterDeviceAdapter(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.

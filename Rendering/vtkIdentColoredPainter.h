@@ -75,6 +75,10 @@ public:
   void ColorByActorId(vtkProp *ActorId);
 
   //Description:
+  //Use to color each vertex of each cell by its number.
+  void ColorByVertex();
+
+  //Description:
   //Allows you to specify a mapping for selected actor ids.
   void MakeActorLookupTable(vtkProp **Props, vtkIdTypeArray *IdsForProps);
 
@@ -95,7 +99,7 @@ protected:
   vtkIdType TotalCells;
 
 //BTX
-  enum {COLORBYIDENT=0, COLORBYCONST};
+  enum {COLORBYIDENT=0, COLORBYCONST, COLORBYVERTEX};
 //ETX
   int ColorMode;
 
