@@ -23,11 +23,6 @@
 #include "vtkInformation.h"
 #include "vtkIdentColoredPainter.h"
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-
 //----------------------------------------------------------------------------
 class vtkVisibleCellSelectorInternals
 {
@@ -196,7 +191,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.18");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.19");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -459,27 +454,6 @@ void vtkVisibleCellSelector::SavePixelBuffer(int pass, unsigned char *buff)
     this->PixBuffer[pass] = NULL;
     }
   this->PixBuffer[pass] = buff;
-
-  int wid = this->X1-this->X0+1;
-  int hi = this->Y1-this->Y0+1;
-  
-  unsigned char *obuf = new unsigned char[wid*hi*3];
-  unsigned char *ptr = obuf;
-  int cnt = 0;
-  for (; cnt<wid*hi; cnt++, ptr+=3, buff+=4)
-    {
-    *(ptr+0) = (*(buff+2)*30);
-    *(ptr+1) = (*(buff+2)*30);
-    *(ptr+2) = (*(buff+2)*30);
-    }
-
-  char space[256];
-  sprintf(space, "/tmp/buf_%d.pnm", pass);  
-  int fd = open(space, O_RDWR|O_CREAT, S_IRWXU);
-  sprintf(space, "P6\n %d %d 255\n", wid, hi);
-  write(fd, space, strlen(space));
-  write(fd, obuf, wid*hi*3);
-  close(fd);  
 }
 
 //----------------------------------------------------------------------------
