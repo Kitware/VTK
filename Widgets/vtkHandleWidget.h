@@ -96,6 +96,13 @@ public:
   vtkGetMacro( EnableAxisConstraint, int );
   vtkBooleanMacro( EnableAxisConstraint, int );
 
+  // Description:
+  // Allow resizing of handles ? By default the right mouse button scales
+  // the handle size.
+  vtkSetMacro( AllowHandleResize, int );
+  vtkGetMacro( AllowHandleResize, int );
+  vtkBooleanMacro( AllowHandleResize, int );
+
 protected:
   vtkHandleWidget();
   ~vtkHandleWidget();
@@ -117,6 +124,9 @@ protected:
 //ETX
 
   int EnableAxisConstraint;
+
+  // Allow resizing of handles.
+  int AllowHandleResize;
 
 private:
   vtkHandleWidget(const vtkHandleWidget&);  //Not implemented

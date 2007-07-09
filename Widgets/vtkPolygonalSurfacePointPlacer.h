@@ -66,9 +66,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Descuription:
-  // Add a prop, to place points on
+  // Add /remove a prop, to place points on
   virtual void AddProp( vtkProp * );
-
+  virtual void RemoveProp(vtkProp *prop);
+  virtual void RemoveAllProps();
+  
   // Description:
   // Given a renderer and a display position in pixel coordinates,
   // compute the world position and orientation where this point

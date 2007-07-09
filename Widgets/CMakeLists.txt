@@ -67,6 +67,7 @@ vtkPointPlacer.cxx
 vtkPointWidget.cxx
 vtkPolyDataSourceWidget.cxx
 vtkPolyDataPointPlacer.cxx
+vtkPolygonalHandleRepresentation3D.cxx
 vtkPolygonalSurfacePointPlacer.cxx
 vtkPolyDataContourLineInterpolator.cxx
 vtkPolygonalSurfaceContourLineInterpolator.cxx

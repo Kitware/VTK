@@ -29,6 +29,7 @@ IF (VTK_DATA_ROOT)
     ImagePlaneWidget.cxx
 #    TestConstrainedHandleWidget.cxx
     TestSurfaceConstrainedHandleWidget.cxx
+    TestPolygonalRepresentationHandleWidget.cxx
 #    TestFocalPlaneContour.cxx
 #    TestOrientedGlyphContour.cxx
     TestImageTracerWidget.cxx

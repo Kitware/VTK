@@ -141,7 +141,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkPolygonalSurfacePointPlacer, "1.1");
+vtkCxxRevisionMacro(vtkPolygonalSurfacePointPlacer, "1.2");
 vtkStandardNewMacro(vtkPolygonalSurfacePointPlacer);
 
 //----------------------------------------------------------------------
@@ -169,6 +169,20 @@ void vtkPolygonalSurfacePointPlacer::AddProp(vtkProp *prop)
 {
   this->SurfaceProps->AddItem(prop);
   this->CellPicker->AddPickList(prop);
+}
+
+//----------------------------------------------------------------------
+void vtkPolygonalSurfacePointPlacer::RemoveProp(vtkProp *prop)
+{
+  this->Superclass::RemoveProp( prop );
+  this->CellPicker->DeletePickList( prop );
+}
+
+//----------------------------------------------------------------------
+void vtkPolygonalSurfacePointPlacer::RemoveAllProps()
+{
+  this->Superclass::RemoveAllProps();
+  this->CellPicker->InitializePickList();
 }
 
 //----------------------------------------------------------------------
