@@ -675,6 +675,22 @@ void ExerciseType(vtkMultiProcessController *controller)
     }
   CheckSuccess(controller, result);
 
+  COUT("Send and receive vtkDataArray with ANY_SOURCE as source.");
+  if (rank == 0)
+    {
+    for (i = 1; i < numProc; i++)
+      {
+      buffer->Initialize();
+      controller->Receive(buffer, vtkMultiProcessController::ANY_SOURCE, 7127);
+      result &= CompareDataArrays(sourceArrays[0], buffer);
+      }
+    }
+  else
+    {
+    controller->Send(sourceArrays[0], 0, 7127);
+    }
+  CheckSuccess(controller, result);
+
   COUT("Broadcast with vtkDataArray");
   buffer->Initialize();
   srcProcessId = static_cast<int>(vtkMath::Random(0.0, numProc - 0.01));
@@ -876,6 +892,22 @@ static void ExerciseDataObject(vtkMultiProcessController *controller,
       controller->Receive(buffer, i, 5432);
       result &= CompareDataObjects(source, buffer);
       }
+    }
+  CheckSuccess(controller, result);
+
+  COUT("Send and receive vtkDataObject with ANY_SOURCE as source.");
+  if (rank == 0)
+    {
+    for (i = 1; i < numProc; i++)
+      {
+      buffer->Initialize();
+      controller->Receive(buffer, vtkMultiProcessController::ANY_SOURCE, 3462);
+      result &= CompareDataObjects(source, buffer);
+      }
+    }
+  else
+    {
+    controller->Send(source, 0, 3462);
     }
   CheckSuccess(controller, result);
 

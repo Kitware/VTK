@@ -43,7 +43,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.40");
+vtkCxxRevisionMacro(vtkCommunicator, "1.41");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -153,6 +153,19 @@ void vtkCommunicator::SetNumberOfProcesses(int num)
 int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle, 
                           int tag)
 {
+  // If the receiving end is using with ANY_SOURCE, we have a problem because
+  // some versions of MPI might deliver the multiple data objects require out of
+  // order.  To get around this, on the first message we send the actual source
+  // and a mangled tag.  The remote process then receives the rest of the
+  // messages with the specific source and mangled tag, which are guaranteed to
+  // be received in the correct order.
+  static int tagMangler = 1000;
+  int mangledTag = tag + tagMangler++;
+  int header[2];
+  header[0] = this->LocalProcessId;  header[1] = mangledTag;
+  this->Send(header, 2, remoteHandle, tag);
+  tag = mangledTag;
+
   int data_type = data->GetDataObjectType();
   this->Send(&data_type, 1, remoteHandle, tag);
   
@@ -250,6 +263,18 @@ int vtkCommunicator::SendElementalDataObject(
 
 int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
 {
+  // If the receiving end is using with ANY_SOURCE, we have a problem because
+  // some versions of MPI might deliver the multiple data objects require out of
+  // order.  To get around this, on the first message we send the actual source
+  // and a mangled tag.  The remote process then receives the rest of the
+  // messages with the specific source and mangled tag, which are guaranteed to
+  // be received in the correct order.
+  static int tagMangler = 1000;
+  int mangledTag = tag + tagMangler++;
+  int header[2];
+  header[0] = this->LocalProcessId;  header[1] = mangledTag;
+  this->Send(header, 2, remoteHandle, tag);
+  tag = mangledTag;
 
   int type = -1;
   if (data == NULL)
@@ -311,6 +336,21 @@ int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle,
 //----------------------------------------------------------------------------
 vtkDataObject *vtkCommunicator::ReceiveDataObject(int remoteHandle, int tag)
 {
+  // If we are receiving with ANY_SOURCE, we have a problem because some
+  // versions of MPI might deliver the multiple data objects require out of
+  // order.  To get around this, on the first message we receive the actual
+  // source and a mangled tag.  We then receive the rest of the messages with
+  // the specific source and mangled tag, which we are guaranteed to receive in
+  // the correct order.
+  int header[2];
+  this->Receive(header, 2, remoteHandle, tag);
+  // Use the specific source and tag.
+  if (remoteHandle == vtkMultiProcessController::ANY_SOURCE)
+    {
+    remoteHandle = header[0];
+    }
+  tag = header[1];
+
   int data_type = 0;
   this->Receive(&data_type, 1, remoteHandle, tag); 
   //manufacture a data object of the proper type to fill
@@ -333,9 +373,25 @@ vtkDataObject *vtkCommunicator::ReceiveDataObject(int remoteHandle, int tag)
 int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle, 
                                        int tag, int dataType)
 {
+  // If we have not yet received the data type, get the header and data type.
   int data_type = dataType;
   if (data_type == -1)
     {
+    // If we are receiving with ANY_SOURCE, we have a problem because some
+    // versions of MPI might deliver the multiple data objects require out of
+    // order.  To get around this, on the first message we receive the actual
+    // source and a mangled tag.  We then receive the rest of the messages with
+    // the specific source and mangled tag, which we are guaranteed to receive
+    // in the correct order.
+    int header[2];
+    this->Receive(header, 2, remoteHandle, tag);
+    // Use the specific source and tag.
+    if (remoteHandle == vtkMultiProcessController::ANY_SOURCE)
+      {
+      remoteHandle = header[0];
+      }
+    tag = header[1];
+
     this->Receive(&data_type, 1, remoteHandle, tag); 
     if (data->GetDataObjectType() != data_type)
       {
@@ -433,6 +489,21 @@ int vtkCommunicator::ReceiveElementalDataObject(
 
 int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, int tag)
 {
+  // If we are receiving with ANY_SOURCE, we have a problem because some
+  // versions of MPI might deliver the multiple data objects require out of
+  // order.  To get around this, on the first message we receive the actual
+  // source and a mangled tag.  We then receive the rest of the messages with
+  // the specific source and mangled tag, which we are guaranteed to receive in
+  // the correct order.
+  int header[2];
+  this->Receive(header, 2, remoteHandle, tag);
+  // Use the specific source and tag.
+  if (remoteHandle == vtkMultiProcessController::ANY_SOURCE)
+    {
+    remoteHandle = header[0];
+    }
+  tag = header[1];
+
   // First receive the data type.
   int type;
   if (!this->Receive( &type, 1, remoteHandle, tag))
