@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.18");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.19");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -446,8 +446,6 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
         {
         if (this->ColorMode == COLORBYVERTEX)
           {
-          vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
-            GetPainterDeviceAdapter();
           device->MakeVertexEmphasis(0);
           }
         return;
@@ -458,8 +456,6 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
 
   if (this->ColorMode == COLORBYVERTEX)
     {
-    vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
-      GetPainterDeviceAdapter();
     device->MakeVertexEmphasis(0);
     }
 
