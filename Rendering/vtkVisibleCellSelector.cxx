@@ -196,7 +196,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.17");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.18");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -762,21 +762,21 @@ void vtkVisibleCellSelector::GetSelectedVertices(
   numTup = this->VertexPointers->GetNumberOfTuples();
   pointers->SetNumberOfComponents(1);
   pointers->SetNumberOfTuples(numTup);
-  cerr << "VERTPOINTERS:" << endl;
+  //cerr << "VERTPOINTERS:" << endl;
   for (vtkIdType i = 0; i < numTup; i++)
     {
     pointers->SetValue(i, this->VertexPointers->GetValue(i));
-    cerr << this->VertexPointers->GetValue(i) << endl;
+    //cerr << this->VertexPointers->GetValue(i) << endl;
     }
 
   numTup = this->VertexLists->GetNumberOfTuples();
   ids->SetNumberOfComponents(1);
   ids->SetNumberOfTuples(numTup);
-  cerr << "VERTICES:" << endl;
+  //cerr << "VERTICES:" << endl;
   for (vtkIdType i = 0; i < numTup; i++)
     {
     ids->SetValue(i, this->VertexLists->GetValue(i));
-    cerr << this->VertexLists->GetValue(i) << endl;
+    //cerr << this->VertexLists->GetValue(i) << endl;
     }
 }
 
