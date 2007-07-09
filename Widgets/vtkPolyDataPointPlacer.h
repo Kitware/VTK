@@ -54,7 +54,7 @@ public:
   // Add an actor (that represents a terrain in a rendererd scene) to the
   // list. Only props in this list are considered by the PointPlacer
   virtual void AddProp( vtkProp * );
-  virtual void RemoveProp(vtkProp *prop);
+  virtual void RemoveViewProp(vtkProp *prop);
   virtual void RemoveAllProps();
   int          HasProp( vtkProp * );
   int          GetNumberOfProps();
