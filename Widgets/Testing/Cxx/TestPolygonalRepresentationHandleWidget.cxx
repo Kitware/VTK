@@ -67,8 +67,8 @@ int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
   vtkImageResample * resample = vtkImageResample::New();
   resample->SetInput(demReader->GetOutput());
   resample->SetDimensionality(2);
-  resample->SetAxisMagnificationFactor(0,0.25);
-  resample->SetAxisMagnificationFactor(1,0.25);
+  resample->SetAxisMagnificationFactor(0,1);
+  resample->SetAxisMagnificationFactor(1,1);
 
   // Extract geometry
   vtkImageDataGeometryFilter *surface = vtkImageDataGeometryFilter::New();
