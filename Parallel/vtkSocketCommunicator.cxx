@@ -22,8 +22,11 @@
 #include "vtkStdString.h"
 #include "vtkTypeTraits.h"
 
+#include <vtkstd/algorithm>
+#include <vtkstd/vector>
+
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.66");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.67");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -31,6 +34,7 @@ vtkSocketCommunicator::vtkSocketCommunicator()
   this->Socket = NULL;
   this->NumberOfProcesses = 2;
   this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapNotSet;
+  this->RemoteHas64BitIds = -1; // Invalid until handshake.
   this->PerformHandshake = 1;
   this->LogStream = 0;
   this->LogFile = 0;
@@ -64,6 +68,8 @@ void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "NotSet\n";
     }
+  os << indent << "RemoteHas64BitIds: "
+     << (this->RemoteHas64BitIds ? "yes" : "no") << endl;
   os << indent << "Socket: ";
   if (this->Socket)
     {
@@ -165,6 +171,21 @@ int vtkSocketCommunicator::SendVoidArray(const void *data, vtkIdType length,
 {
   if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
 
+#ifdef VTK_USE_64BIT_IDS
+  // Special case for type ids.  If the remote does not have 64 bit ids, we
+  // need to convert them before sending them.
+  if ((type == VTK_ID_TYPE) && !this->RemoteHas64BitIds)
+    {
+    vtkstd::vector<int> newData;
+    newData.resize(length);
+    vtkstd::copy(reinterpret_cast<const vtkIdType *>(data),
+                 reinterpret_cast<const vtkIdType *>(data) + length,
+                 newData.begin());
+    return this->SendVoidArray(&newData[0], length, VTK_INT,
+                               remoteProcessId, tag);
+    }
+#endif
+
   int typeSize;
   vtkStdString typeName;
   switch (type)
@@ -202,6 +223,21 @@ int vtkSocketCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
                                             int tag)
 {
   if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+
+#ifdef VTK_USE_64BIT_IDS
+  // Special case for type ids.  If the remote does not have 64 bit ids, we
+  // need to convert them before sending them.
+  if ((type == VTK_ID_TYPE) && !this->RemoteHas64BitIds)
+    {
+    vtkstd::vector<int> newData;
+    newData.resize(length);
+    int retval = this->ReceiveVoidArray(&newData[0], length, VTK_INT,
+                                        remoteProcessId, tag);
+    vtkstd::copy(newData.begin(), newData.end(),
+                 reinterpret_cast<vtkIdType *>(data));
+    return retval;
+    }
+#endif
 
   int typeSize;
   vtkStdString typeName;
@@ -288,6 +324,33 @@ int vtkSocketCommunicator::ServerSideHandshake()
       {
       this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapOff;
       }
+
+    // Handshake to determine if remote has 64 bit ids.
+#ifdef VTK_USE_64BIT_IDS
+    int IHave64BitIds = 1;
+#else
+    int IHave64BitIds = 0;
+#endif
+    if (!this->ReceiveTagged(&(this->RemoteHas64BitIds),
+                             static_cast<int>(sizeof(int)), 1,
+                             vtkSocketController::IDTYPESIZE_TAG, 0))
+      {
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Id Type Size handshake failed.");
+        }
+      return 0;
+      }
+    vtkDebugMacro(<< "Remote has 64 bit ids: " << this->RemoteHas64BitIds);
+    if (!this->SendTagged(&IHave64BitIds, static_cast<int>(sizeof(int)), 1,
+                          vtkSocketController::IDTYPESIZE_TAG, 0))
+      {
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Id Type Size handshake failed.");
+        }
+      return 0;
+      }
     }
   return 1;
 }
@@ -337,6 +400,34 @@ int vtkSocketCommunicator::ClientSideHandshake()
     {
     this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapOff;
     }
+
+  // Handshake to determine if remote has 64 bit ids.
+#ifdef VTK_USE_64BIT_IDS
+  int IHave64BitIds = 1;
+#else
+  int IHave64BitIds = 0;
+#endif
+  if (!this->SendTagged(&IHave64BitIds, static_cast<int>(sizeof(int)), 1,
+                        vtkSocketController::IDTYPESIZE_TAG, 0))
+    {
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Id Type Size handshake failed.");
+      }
+    return 0;
+    }
+  if (!this->ReceiveTagged(&(this->RemoteHas64BitIds),
+                           static_cast<int>(sizeof(int)), 1,
+                           vtkSocketController::IDTYPESIZE_TAG, 0))
+    {
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Id Type Size handshake failed.");
+      }
+    return 0;
+    }
+  vtkDebugMacro(<< "Remote has 64 bit ids: " << this->RemoteHas64BitIds);
+
   return 1;
 }
 

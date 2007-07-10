@@ -139,6 +139,7 @@ protected:
 
   vtkClientSocket* Socket;
   int SwapBytesInReceivedData;
+  int RemoteHas64BitIds;
   int PerformHandshake;
   
   int ReportErrors;

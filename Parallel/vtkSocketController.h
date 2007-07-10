@@ -90,7 +90,8 @@ public:
 //BTX
 
   enum Consts {
-    ENDIAN_TAG=1010580540 // 0x3c3c3c3c
+    ENDIAN_TAG=1010580540,      // 0x3c3c3c3c
+    IDTYPESIZE_TAG=1027423549   // 0x3d3d3d3d
   };
 
 //ETX
