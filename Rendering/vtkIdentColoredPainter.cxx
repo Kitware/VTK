@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.20");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.21");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -389,8 +389,6 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
   if (this->ColorMode == COLORBYVERTEX)
     {
     mode = VTK_POLY_VERTEX;
-    vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
-      GetPainterDeviceAdapter();
     device->MakeVertexEmphasis(1); //draw verts larger and nearer to be on top
     //of their associated polygons
    }
