@@ -374,9 +374,9 @@ void ExerciseType(vtkMultiProcessController *controller)
     buffer->DeepCopy(sourceArrays[srcProcessId]);
     }
   controller->Broadcast(buffer->GetPointer(0), arraySize, srcProcessId);
-  CheckSuccess(controller,
-               CompareArrays(sourceArrays[srcProcessId]->GetPointer(0),
-                             buffer->GetPointer(0), arraySize));
+  result = CompareArrays(sourceArrays[srcProcessId]->GetPointer(0),
+                         buffer->GetPointer(0), arraySize);
+  CheckSuccess(controller, result);
 
   COUT("Gather");
   destProcessId = static_cast<int>(vtkMath::Random(0.0, numProc - 0.99));
@@ -700,8 +700,8 @@ void ExerciseType(vtkMultiProcessController *controller)
     buffer->SetName(sourceArrays[srcProcessId]->GetName());
     }
   controller->Broadcast(buffer, srcProcessId);
-  CheckSuccess(controller,
-               CompareDataArrays(sourceArrays[srcProcessId], buffer));
+  result = CompareDataArrays(sourceArrays[srcProcessId], buffer);
+  CheckSuccess(controller, result);
 
   COUT("Gather with vtkDataArray");
   destProcessId = static_cast<int>(vtkMath::Random(0.0, numProc - 0.99));
@@ -919,7 +919,8 @@ static void ExerciseDataObject(vtkMultiProcessController *controller,
     buffer->DeepCopy(source);
     }
   controller->Broadcast(buffer, srcProcessId);
-  CheckSuccess(controller, CompareDataObjects(source, buffer));
+  result = CompareDataObjects(source, buffer);
+  CheckSuccess(controller, result);
 }
 
 //-----------------------------------------------------------------------------
