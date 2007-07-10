@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.67");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.67.2.1");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -435,7 +435,10 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     substring=strstr(reinterpret_cast<const char *>(openglString),
                      "ATI Radeon 9600 XT OpenGL Engine");
     int isATIRadeon9600XT=substring!=0;
-    
+    substring=strstr(reinterpret_cast<const char *>(openglString),
+                     "RADEON X300/X550 Series x86/SSE2");
+    int isATIRadeonX300X550=substring!=0;
+
     openglString=glGetString(GL_VERSION);
     
     int badCard=0;
@@ -451,6 +454,13 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       {
       substring=strstr(reinterpret_cast<const char *>(openglString),
                        "2.0.6237");
+      badCard=substring!=0;
+      }
+    else if(isATIRadeonX300X550)
+      {
+      // Windows XP 2.0.6479 version of the ATI driver, known not to work
+      substring=strstr(reinterpret_cast<const char *>(openglString),
+                       "2.0.6479 WinXP Release");
       badCard=substring!=0;
       }
     else
