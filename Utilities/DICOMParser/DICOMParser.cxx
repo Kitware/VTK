@@ -417,8 +417,7 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
             break;
           case DICOMParser::VR_FL:
           case DICOMParser::VR_FD:
-            DICOMFile::swap4((uint*) tempdata, (uint*) tempdata, length/sizeof(uint));
-            // dicom_stream::cout << "Float byte swap needed!" << dicom_stream::endl;
+            // No need to byte swap here, since these values were read by sscanf
             break;
           case DICOMParser::VR_SL:
           case DICOMParser::VR_UL:
