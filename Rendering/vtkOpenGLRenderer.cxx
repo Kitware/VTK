@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.72");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.73");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -496,6 +496,9 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           strstr(gl_renderer, "ATI FireGL V3300 Pentium 4 (SSE2)") != 0;
         int isATIRadeon9600XT =
           strstr(gl_renderer, "ATI Radeon 9600 XT OpenGL Engine") != 0;
+        int isATIRadeonX300X550 =
+          strstr(gl_renderer, "RADEON X300/X550 Series x86/SSE2") != 0;
+        
         const char* gl_version =
           reinterpret_cast<const char *>(glGetString(GL_VERSION));
         if(const char* mesa_version = strstr(gl_version, "Mesa"))
@@ -542,6 +545,14 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           if(strstr(gl_version, "2.0 ATI-1.4.40") ||
              strstr(gl_version, "2.0 ATI-1.4.52") ||
              strstr(gl_version, "2.0 ATI-1.4.56"))
+            {
+            this->DepthPeelingIsSupported = 0;
+            }
+          }
+        else if(isATIRadeonX300X550)
+          {
+          // Windows XP 2.0.6479 version of the ATI driver, known not to work
+          if(strstr(gl_version, "2.0.6479 WinXP Release")==0)
             {
             this->DepthPeelingIsSupported = 0;
             }
