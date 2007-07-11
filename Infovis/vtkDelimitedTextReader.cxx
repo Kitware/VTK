@@ -31,7 +31,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.15");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.16");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -70,7 +70,7 @@ vtkDelimitedTextReader::vtkDelimitedTextReader()
   this->SetFieldDelimiterCharacters(",");
   this->StringDelimiter = '"';
   this->UseStringDelimiter = true;
-  this->MaxLines = 0;
+  this->MaxRecords = 0;
 }
 
 // ----------------------------------------------------------------------
@@ -107,7 +107,7 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->HaveHeaders ? "true" : "false") << endl;
   os << indent << "MergeConsecutiveDelimiters: " 
      << (this->MergeConsecutiveDelimiters ? "true" : "false") << endl;
-  os << indent << "MaxLines: " << this->MaxLines
+  os << indent << "MaxRecords: " << this->MaxRecords
      << endl;
 }
 
@@ -240,7 +240,7 @@ int vtkDelimitedTextReader::RequestData(
   vtkStdString nextLine;
   while (my_getline(*(this->Internals->File), nextLine, line_count))
     {
-    if(this->MaxLines && line_count > this->MaxLines)
+    if(this->MaxRecords && line_count > this->MaxRecords)
       break;
     
     double progress = total_bytes

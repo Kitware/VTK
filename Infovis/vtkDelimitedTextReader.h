@@ -95,9 +95,9 @@ public:
   vtkBooleanMacro(MergeConsecutiveDelimiters, bool);
 
   // Description:
-  // Set/get the maximum number of lines to read from the file (zero = unlimited)
-  vtkGetMacro(MaxLines,int);
-  vtkSetMacro(MaxLines,int);
+  // Set/get the maximum number of records to read from the file (zero = unlimited)
+  vtkGetMacro(MaxRecords, int);
+  vtkSetMacro(MaxRecords, int);
 
  protected:
   vtkDelimitedTextReader();
@@ -119,7 +119,7 @@ public:
   bool HaveHeaders;
   bool MergeConsecutiveDelimiters;
   char *ReadBuffer;
-  int MaxLines;
+  int MaxRecords;
 
 private:
   vtkDelimitedTextReader(const vtkDelimitedTextReader&); // Not implemented
