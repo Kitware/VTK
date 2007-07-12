@@ -26,15 +26,21 @@
 //----------------------------------------------------------------------------
 class vtkVisibleCellSelectorInternals
 {
-// This class represents one pixel hit record, which may span from one to five
-// rendering passes. It is initialized from the color ids rendered into 1..5 
-// pixel  buffer. Because 24 bits (one RGB pixel in a standard color buffer) 
-// can not distinguish very many cells, three separate cell id entries are 
-// provided for the low, mid, and high 24 bit fields of a large integer.
+// This class represents one pixel hit record, which may span from one to six
+// rendering passes. It is initialized from the color ids rendered into the
+// various pixel buffers. Because 24 bits (one RGB pixel in a standard color 
+// buffer) can not distinguish between more than 16 million cells, three 
+// separate cell id entries are provided for the low, mid, and high 24 bit 
+// fields of a large integer for large data sets.
 public:
   unsigned char Byte[15];
-  int PixelCount;
-  vtkstd::set<vtkIdType> visverts;
+
+  //the mutables are here so that they can be changed while this is inside 
+  //a vtkstd::set
+  //ie, while Byte determines a particular cell for the set, these ivars
+  //are statistics of that particular cell which are allowed to change
+  mutable int PixelCount; 
+  mutable vtkstd::set<vtkIdType> visverts;
 
   vtkVisibleCellSelectorInternals()
     {
@@ -191,7 +197,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.19");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.20");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -488,11 +494,8 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
         if (hitrecords.find(nhit) != hitrecords.end()) 
           {
           //avoid dupl. entries
-          //increment hit count
-          vtkVisibleCellSelectorInternals cpy = *(hitrecords.find(nhit));
-          hitrecords.erase(nhit);
-          cpy.PixelCount++;
-          hitrecords.insert(cpy);
+          //increment hit count          
+          (hitrecords.find(nhit)->PixelCount)++;
           dupcnt++;
           }
         else
@@ -513,10 +516,7 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
             (((vtkIdType)vert[1])<< 8) |
             (((vtkIdType)vert[2])    ) - 1;
           //cerr << "found vertex " << vertid << endl;
-          vtkVisibleCellSelectorInternals cpy = *(hitrecords.find(nhit));
-          hitrecords.erase(nhit);
-          cpy.visverts.insert(vertid);
-          hitrecords.insert(cpy);
+          hitrecords.find(nhit)->visverts.insert(vertid);
           }
         }
       else        
