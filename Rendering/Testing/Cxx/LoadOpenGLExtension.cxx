@@ -160,6 +160,7 @@ int LoadOpenGLExtension(int argc, char *argv[])
       cout << "Failed to load OpenGL 1.4 features!" <<endl;
       }
     }
+  supported=extensions->ExtensionSupported("GL_VERSION_1_5");
   if(supported)
     {
     cout << "Driver claims to support OpenGL 1.5" <<endl;
@@ -173,6 +174,7 @@ int LoadOpenGLExtension(int argc, char *argv[])
       cout << "Failed to load OpenGL 1.5 features!" <<endl;
       }
     }
+  supported=extensions->ExtensionSupported("GL_VERSION_2_0");
   if(supported)
     {
     cout << "Driver claims to support OpenGL 2.0" <<endl;
@@ -186,6 +188,7 @@ int LoadOpenGLExtension(int argc, char *argv[])
       cout << "Failed to load OpenGL 2.0 features!" <<endl;
       }
     }
+  supported=extensions->ExtensionSupported("GL_VERSION_2_1");
   if(supported)
     {
     cout << "Driver claims to support OpenGL 2.1" <<endl;
