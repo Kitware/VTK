@@ -116,6 +116,89 @@ int LoadOpenGLExtension(int argc, char *argv[])
   cout << endl;
   renwin->Print(cout);
 
+  
+  int supported=extensions->ExtensionSupported("GL_VERSION_1_2");
+  int loaded=0;
+  if(supported)
+    {
+    cout << "Driver claims to support OpenGL 1.2" <<endl;
+    loaded=extensions->LoadSupportedExtension("GL_VERSION_1_2");
+    if(loaded)
+      {
+      cout << "OpenGL 1.2 features loaded." <<endl;
+      }
+    else
+      {
+      cout << "Failed to load OpenGL 1.2 features!" <<endl;
+      }
+    }
+  supported=extensions->ExtensionSupported("GL_VERSION_1_3");
+  if(supported)
+    {
+    cout << "Driver claims to support OpenGL 1.3" <<endl;
+    loaded=extensions->LoadSupportedExtension("GL_VERSION_1_3");
+    if(loaded)
+      {
+      cout << "OpenGL 1.3 features loaded." <<endl;
+      }
+    else
+      {
+      cout << "Failed to load OpenGL 1.3 features!" <<endl;
+      }
+    }
+  supported=extensions->ExtensionSupported("GL_VERSION_1_4");
+  if(supported)
+    {
+    cout << "Driver claims to support OpenGL 1.4" <<endl;
+    loaded=extensions->LoadSupportedExtension("GL_VERSION_1_4");
+    if(loaded)
+      {
+      cout << "OpenGL 1.4 features loaded." <<endl;
+      }
+    else
+      {
+      cout << "Failed to load OpenGL 1.4 features!" <<endl;
+      }
+    }
+  if(supported)
+    {
+    cout << "Driver claims to support OpenGL 1.5" <<endl;
+    loaded=extensions->LoadSupportedExtension("GL_VERSION_1_5");
+    if(loaded)
+      {
+      cout << "OpenGL 1.5 features loaded." <<endl;
+      }
+    else
+      {
+      cout << "Failed to load OpenGL 1.5 features!" <<endl;
+      }
+    }
+  if(supported)
+    {
+    cout << "Driver claims to support OpenGL 2.0" <<endl;
+    loaded=extensions->LoadSupportedExtension("GL_VERSION_2_0");
+    if(loaded)
+      {
+      cout << "OpenGL 2.0 features loaded." <<endl;
+      }
+    else
+      {
+      cout << "Failed to load OpenGL 2.0 features!" <<endl;
+      }
+    }
+  if(supported)
+    {
+    cout << "Driver claims to support OpenGL 2.1" <<endl;
+    loaded=extensions->LoadSupportedExtension("GL_VERSION_2_1");
+    if(loaded)
+      {
+      cout << "OpenGL 2.1 features loaded." <<endl;
+      }
+    else
+      {
+      cout << "Failed to load OpenGL 2.1 features!" <<endl;
+      }
+    }
   cout << "LoadSupportedExtension..." << endl;
   if (!extensions->LoadSupportedExtension("GL_VERSION_1_2"))
     {
