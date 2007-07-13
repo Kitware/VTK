@@ -131,6 +131,7 @@ vtkMergeFields.cxx
 vtkMergeFilter.cxx
 vtkMeshQuality.cxx
 vtkModelMetadata.cxx
+vtkMultiBlockMergeFilter.cxx
 vtkMultiGroupDataExtractDataSets.cxx
 vtkMultiGroupDataExtractGroup.cxx
 vtkMultiGroupDataGeometryFilter.cxx
