@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMultiBlockMergeFilter - merges multiple inputs into one multi-group dataset. 
+// .NAME vtkMultiBlockMergeFilter - merges multiple inputs into one multi-group dataset with special treatment for multiblock inputs. 
 // .SECTION Description
-// vtkMultiBlockMergeFilter is an M to 1 filter similar to vtkMultiGroupDataGroupFilters. However, when all N inputs are multiblock datasets, rather than producing a dataset with N groups, this will produce a multiblock dataset with 1 or more groups (depending on how many are in the input) where the output groups contain one dataset from the same numbered group in each of its inputs. 
+// vtkMultiBlockMergeFilter is an M to 1 filter similar to vtkMultiGroupDataGroupFilters. However where as the parent class creates N groups in the output for N inputs, this creates (when all N inputs are multiblock datasets) 1 group in the output with N datasets inside it. In actuality if the inputs have M groups, this will produce M groups, each of which has N datasets. 
 
 #ifndef __vtkMultiBlockMergeFilter_h
 #define __vtkMultiBlockMergeFilter_h

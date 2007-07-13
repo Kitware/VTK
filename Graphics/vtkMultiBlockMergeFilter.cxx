@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMultiBlockMergeFilter, "1.1");
+vtkCxxRevisionMacro(vtkMultiBlockMergeFilter, "1.2");
 vtkStandardNewMacro(vtkMultiBlockMergeFilter);
 
 vtkMultiBlockMergeFilter::vtkMultiBlockMergeFilter()
@@ -66,7 +66,7 @@ int vtkMultiBlockMergeFilter::RequestData(
   if (!allMBs)
     {
     //we do not, let the superclass append all of the inputs
-    cerr << "reverting to superclass" << endl;
+    //cerr << "reverting to superclass" << endl;
     return this->Superclass::RequestData(request,inputVector,outputVector);
     }
 
@@ -85,7 +85,7 @@ int vtkMultiBlockMergeFilter::RequestData(
       if (first)
         {
         //shallow copy first input to output to start off with      
-        cerr << "Copy first input" << endl;
+        //cerr << "Copy first input" << endl;
         output->ShallowCopy(vtkMultiGroupDataSet::SafeDownCast(input));
         first = 0;
         }
@@ -94,15 +94,17 @@ int vtkMultiBlockMergeFilter::RequestData(
         //merge in the inputs data sets into the proper places in the output
         for (int blk = 0; blk < input->GetNumberOfBlocks(); blk++)
           {
+          //inputs are allowed to have either 1 or N datasets in each group
           int dsId = 0;
           if (input->GetNumberOfDataSets(blk) == numInputs)
             {
             dsId = idx;
             }
-          cerr << "Copying blk " << blk << " index " << idx << endl;
+          //cerr << "Copying blk " << blk << " index " << idx << endl;
           vtkDataObject* inblk = input->GetDataSet(blk, dsId);
           vtkDataObject* dsCopy = inblk->NewInstance();
           dsCopy->ShallowCopy(inblk);
+          //output will always have N datasets in each group
           if (output->GetNumberOfDataSets(blk) != numInputs)
             {
             output->SetNumberOfDataSets(blk, numInputs);
