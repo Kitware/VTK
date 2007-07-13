@@ -28,6 +28,7 @@ vtkCameraRepresentation.cxx
 vtkCameraWidget.cxx
 vtkCaptionRepresentation.cxx
 vtkCaptionWidget.cxx
+vtkCenteredSliderWidget.cxx
 vtkContourLineInterpolator.cxx
 vtkContourRepresentation.cxx
 vtkFocalPlaneContourRepresentation.cxx
