@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMultiBlockMergeFilter, "1.2");
+vtkCxxRevisionMacro(vtkMultiBlockMergeFilter, "1.3");
 vtkStandardNewMacro(vtkMultiBlockMergeFilter);
 
 vtkMultiBlockMergeFilter::vtkMultiBlockMergeFilter()
@@ -70,6 +70,13 @@ int vtkMultiBlockMergeFilter::RequestData(
     return this->Superclass::RequestData(request,inputVector,outputVector);
     }
 
+  if (numInputs<0)
+    {
+    vtkErrorMacro("Too many inputs to algorithm.")
+    return 0;
+    }
+  unsigned int usNInputs = (unsigned int)numInputs;
+  
   int first = 1;
   for (int idx = 0; idx < numInputs; ++idx)
     {
@@ -92,11 +99,11 @@ int vtkMultiBlockMergeFilter::RequestData(
       else
         {
         //merge in the inputs data sets into the proper places in the output
-        for (int blk = 0; blk < input->GetNumberOfBlocks(); blk++)
+        for (unsigned int blk = 0; blk < input->GetNumberOfBlocks(); blk++)
           {
           //inputs are allowed to have either 1 or N datasets in each group
-          int dsId = 0;
-          if (input->GetNumberOfDataSets(blk) == numInputs)
+          unsigned int dsId = 0;
+          if (input->GetNumberOfDataSets(blk) == usNInputs)
             {
             dsId = idx;
             }
@@ -105,7 +112,7 @@ int vtkMultiBlockMergeFilter::RequestData(
           vtkDataObject* dsCopy = inblk->NewInstance();
           dsCopy->ShallowCopy(inblk);
           //output will always have N datasets in each group
-          if (output->GetNumberOfDataSets(blk) != numInputs)
+          if (output->GetNumberOfDataSets(blk) != usNInputs)
             {
             output->SetNumberOfDataSets(blk, numInputs);
             }
