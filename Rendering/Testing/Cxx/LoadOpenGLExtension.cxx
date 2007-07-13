@@ -40,6 +40,8 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkgl.h"
+#include "vtkTextActor.h"
+#include "vtkTextProperty.h"
 
 vtkUnsignedCharArray *image;
 
@@ -116,7 +118,7 @@ int LoadOpenGLExtension(int argc, char *argv[])
   cout << endl;
   renwin->Print(cout);
 
-  
+  cout << "LoadSupportedExtension..." << endl;
   int supported=extensions->ExtensionSupported("GL_VERSION_1_2");
   int loaded=0;
   if(supported)
@@ -202,53 +204,8 @@ int LoadOpenGLExtension(int argc, char *argv[])
       cout << "Failed to load OpenGL 2.1 features!" <<endl;
       }
     }
-  cout << "LoadSupportedExtension..." << endl;
-  if (!extensions->LoadSupportedExtension("GL_VERSION_1_2"))
-    {
-    cout << "Is it possible that your driver does not support OpenGL 1.2?"
-         << endl << endl;
-    int forceLoad = 0;
-    for (int i = 0; i < argc; i++)
-      {
-      if (strcmp("-ForceLoad", argv[i]) == 0)
-        {
-        forceLoad = 1;
-        break;
-        }
-      }
-    if (forceLoad)
-      {
-      cout << "Some drivers report supporting only GL 1.1 even though they\n"
-           << "actually support 1.2 (and probably higher).  I'm going to\n"
-           << "try to load the extension anyway.  You will definitely get\n"
-           << "a warning from vtkOpenGLExtensionManager about it.  If GL 1.2\n"
-           << "really is not supported (or something else is wrong), I will\n"
-           << "seg fault." << endl << endl;
-      }
-    else
-      {
-      cout << "Your OpenGL driver reports that it does not support\n"
-           << "OpenGL 1.2.  If this is true, I cannot perform this test.\n"
-           << "There are a few drivers that report only supporting GL 1.1\n"
-           << "when they in fact actually support 1.2 (and probably higher).\n"
-           << "If you think this might be the case, try rerunning this test\n"
-           << "with the -ForceLoad flag.  However, if Opengl 1.2 is really\n"
-           << "not supported, a seg fault will occur." << endl << endl;
-
-      cout << "GetExtensionsString..." << endl;
-      cout << extensions->GetExtensionsString() << endl;
-
-      renderer->Delete();
-      renwin->Delete();
-      iren->Delete();
-      extensions->Delete();
-      return 0;
-      }
-    }
-
   cout << "GetExtensionsString..." << endl;
   cout << extensions->GetExtensionsString() << endl;
-  extensions->Delete();
 
   cout << "Set up pipeline." << endl;
   vtkConeSource *cone = vtkConeSource::New();
@@ -268,42 +225,60 @@ int LoadOpenGLExtension(int argc, char *argv[])
   cout << "Do a render without convolution." << endl;
   renwin->Render();
 
-  // Set up a convolution filter.  We are using the Laplacian filter, which
-  // is basically an edge detector.  Once vtkgl::CONVOLUTION_2D is enabled,
-  // the filter will be applied any time an image is transfered in the
-  // pipeline.
-  cout << "Set up convolution filter." << endl;
-  vtkgl::ConvolutionFilter2D(vtkgl::CONVOLUTION_2D, GL_LUMINANCE, 3, 3,
-                             GL_LUMINANCE, GL_FLOAT, laplacian);
-  vtkgl::ConvolutionParameteri(vtkgl::CONVOLUTION_2D,
+  image=0;
+  if (extensions->LoadSupportedExtension("GL_ARB_imaging"))
+    {
+    // Set up a convolution filter.  We are using the Laplacian filter, which
+    // is basically an edge detector.  Once vtkgl::CONVOLUTION_2D is enabled,
+    // the filter will be applied any time an image is transfered in the
+    // pipeline.
+    cout << "Set up convolution filter." << endl;
+    vtkgl::ConvolutionFilter2D(vtkgl::CONVOLUTION_2D, GL_LUMINANCE, 3, 3,
+                               GL_LUMINANCE, GL_FLOAT, laplacian);
+    vtkgl::ConvolutionParameteri(vtkgl::CONVOLUTION_2D,
                                vtkgl::CONVOLUTION_BORDER_MODE,
-                               vtkgl::REPLICATE_BORDER);
+                                 vtkgl::REPLICATE_BORDER);
 
-  image = vtkUnsignedCharArray::New();
-  vtkCallbackCommand *cbc = vtkCallbackCommand::New();
-  cbc->SetCallback(ImageCallback);
-  renwin->AddObserver(vtkCommand::EndEvent, cbc);
-  cbc->Delete();
-
-  // This is a bit of a hack.  The EndEvent on the render window will swap
-  // the buffers.
-  renwin->SwapBuffersOff();
-
-  cout << "Do test render with convolution on." << endl;
-  renwin->Render();
+    image = vtkUnsignedCharArray::New();
+    vtkCallbackCommand *cbc = vtkCallbackCommand::New();
+    cbc->SetCallback(ImageCallback);
+    renwin->AddObserver(vtkCommand::EndEvent, cbc);
+    cbc->Delete();
+    
+    // This is a bit of a hack.  The EndEvent on the render window will swap
+    // the buffers.
+    renwin->SwapBuffersOff();
+    
+    cout << "Do test render with convolution on." << endl;
+    renwin->Render();
+    }
+  else
+    {
+    renderer->RemoveAllViewProps();
+    vtkTextActor *t=vtkTextActor::New();
+    t->SetInput("GL_ARB_imaging not supported.");
+    t->SetDisplayPosition(125,125);
+    t->GetTextProperty()->SetJustificationToCentered();
+    renderer->AddViewProp(t);
+    t->Delete();
+    renwin->Render();
+    }
+  extensions->Delete();
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }
-
   cone->Delete();
   mapper->Delete();
   actor->Delete();
   renderer->Delete();
   renwin->Delete();
   iren->Delete();
-  image->Delete();
+  if(image!=0)
+    {
+    image->Delete();
+    }
 
   return !retVal;
 }

@@ -57,7 +57,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.24");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.25");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 namespace vtkgl
@@ -298,7 +298,7 @@ void vtkOpenGLExtensionManager::LoadExtension(const char *name)
                     << ", which is not supported.");
     }
 
-  int success = vtkgl::LoadExtension(name, this);
+  int success = this->SafeLoadExtension(name);
 
   if (!success)
     {
@@ -315,7 +315,7 @@ int vtkOpenGLExtensionManager::LoadSupportedExtension(const char *name)
 
   if (supported)
     {
-    loaded = vtkgl::LoadExtension(name, this);
+    loaded = this->SafeLoadExtension(name);
     }
 
   vtkDebugMacro(
@@ -519,6 +519,77 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
   strcpy(this->ExtensionsString, extensions_string.c_str());
 
 #endif //!VTK_NO_EXTENSION_LOADING
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Wrap around the generated vtkgl::LoadExtension to deal with OpenGL 1.2
+// and its optional part GL_ARB_imaging. Also functions like glBlendEquation()
+// or glBlendColor are optional in OpenGL 1.2 or 1.3 and provided by the
+// GL_ARB_imaging but there are core features in OpenGL 1.4.
+int vtkOpenGLExtensionManager::SafeLoadExtension(const char *name)
+{
+  if (strcmp(name, "GL_VERSION_1_2") == 0)
+    {
+    vtkgl::DrawRangeElements = (vtkgl::PFNGLDRAWRANGEELEMENTSPROC)this->GetProcAddress("glDrawRangeElements");
+    vtkgl::TexImage3D = (vtkgl::PFNGLTEXIMAGE3DPROC)this->GetProcAddress("glTexImage3D");
+    vtkgl::TexSubImage3D = (vtkgl::PFNGLTEXSUBIMAGE3DPROC)this->GetProcAddress("glTexSubImage3D");
+    vtkgl::CopyTexSubImage3D = (vtkgl::PFNGLCOPYTEXSUBIMAGE3DPROC)this->GetProcAddress("glCopyTexSubImage3D");
+    return (vtkgl::DrawRangeElements != NULL) && (vtkgl::TexImage3D != NULL) && (vtkgl::TexSubImage3D != NULL) && (vtkgl::CopyTexSubImage3D != NULL);
+    }
+  if (strcmp(name, "GL_ARB_imaging") == 0)
+    {
+    vtkgl::BlendColor = (vtkgl::PFNGLBLENDCOLORPROC)this->GetProcAddress("glBlendColor");
+    vtkgl::BlendEquation = (vtkgl::PFNGLBLENDEQUATIONPROC)this->GetProcAddress("glBlendEquation");
+    vtkgl::ColorTable = (vtkgl::PFNGLCOLORTABLEPROC)this->GetProcAddress("glColorTable");
+    vtkgl::ColorTableParameterfv = (vtkgl::PFNGLCOLORTABLEPARAMETERFVPROC)this->GetProcAddress("glColorTableParameterfv");
+    vtkgl::ColorTableParameteriv = (vtkgl::PFNGLCOLORTABLEPARAMETERIVPROC)this->GetProcAddress("glColorTableParameteriv");
+    vtkgl::CopyColorTable = (vtkgl::PFNGLCOPYCOLORTABLEPROC)this->GetProcAddress("glCopyColorTable");
+    vtkgl::GetColorTable = (vtkgl::PFNGLGETCOLORTABLEPROC)this->GetProcAddress("glGetColorTable");
+    vtkgl::GetColorTableParameterfv = (vtkgl::PFNGLGETCOLORTABLEPARAMETERFVPROC)this->GetProcAddress("glGetColorTableParameterfv");
+    vtkgl::GetColorTableParameteriv = (vtkgl::PFNGLGETCOLORTABLEPARAMETERIVPROC)this->GetProcAddress("glGetColorTableParameteriv");
+    vtkgl::ColorSubTable = (vtkgl::PFNGLCOLORSUBTABLEPROC)this->GetProcAddress("glColorSubTable");
+    vtkgl::CopyColorSubTable = (vtkgl::PFNGLCOPYCOLORSUBTABLEPROC)this->GetProcAddress("glCopyColorSubTable");
+    vtkgl::ConvolutionFilter1D = (vtkgl::PFNGLCONVOLUTIONFILTER1DPROC)this->GetProcAddress("glConvolutionFilter1D");
+    vtkgl::ConvolutionFilter2D = (vtkgl::PFNGLCONVOLUTIONFILTER2DPROC)this->GetProcAddress("glConvolutionFilter2D");
+    vtkgl::ConvolutionParameterf = (vtkgl::PFNGLCONVOLUTIONPARAMETERFPROC)this->GetProcAddress("glConvolutionParameterf");
+    vtkgl::ConvolutionParameterfv = (vtkgl::PFNGLCONVOLUTIONPARAMETERFVPROC)this->GetProcAddress("glConvolutionParameterfv");
+    vtkgl::ConvolutionParameteri = (vtkgl::PFNGLCONVOLUTIONPARAMETERIPROC)this->GetProcAddress("glConvolutionParameteri");
+    vtkgl::ConvolutionParameteriv = (vtkgl::PFNGLCONVOLUTIONPARAMETERIVPROC)this->GetProcAddress("glConvolutionParameteriv");
+    vtkgl::CopyConvolutionFilter1D = (vtkgl::PFNGLCOPYCONVOLUTIONFILTER1DPROC)this->GetProcAddress("glCopyConvolutionFilter1D");
+    vtkgl::CopyConvolutionFilter2D = (vtkgl::PFNGLCOPYCONVOLUTIONFILTER2DPROC)this->GetProcAddress("glCopyConvolutionFilter2D");
+    vtkgl::GetConvolutionFilter = (vtkgl::PFNGLGETCONVOLUTIONFILTERPROC)this->GetProcAddress("glGetConvolutionFilter");
+    vtkgl::GetConvolutionParameterfv = (vtkgl::PFNGLGETCONVOLUTIONPARAMETERFVPROC)this->GetProcAddress("glGetConvolutionParameterfv");
+    vtkgl::GetConvolutionParameteriv = (vtkgl::PFNGLGETCONVOLUTIONPARAMETERIVPROC)this->GetProcAddress("glGetConvolutionParameteriv");
+    vtkgl::GetSeparableFilter = (vtkgl::PFNGLGETSEPARABLEFILTERPROC)this->GetProcAddress("glGetSeparableFilter");
+    vtkgl::SeparableFilter2D = (vtkgl::PFNGLSEPARABLEFILTER2DPROC)this->GetProcAddress("glSeparableFilter2D");
+    vtkgl::GetHistogram = (vtkgl::PFNGLGETHISTOGRAMPROC)this->GetProcAddress("glGetHistogram");
+    vtkgl::GetHistogramParameterfv = (vtkgl::PFNGLGETHISTOGRAMPARAMETERFVPROC)this->GetProcAddress("glGetHistogramParameterfv");
+    vtkgl::GetHistogramParameteriv = (vtkgl::PFNGLGETHISTOGRAMPARAMETERIVPROC)this->GetProcAddress("glGetHistogramParameteriv");
+    vtkgl::GetMinmax = (vtkgl::PFNGLGETMINMAXPROC)this->GetProcAddress("glGetMinmax");
+    vtkgl::GetMinmaxParameterfv = (vtkgl::PFNGLGETMINMAXPARAMETERFVPROC)this->GetProcAddress("glGetMinmaxParameterfv");
+    vtkgl::GetMinmaxParameteriv = (vtkgl::PFNGLGETMINMAXPARAMETERIVPROC)this->GetProcAddress("glGetMinmaxParameteriv");
+    vtkgl::Histogram = (vtkgl::PFNGLHISTOGRAMPROC)this->GetProcAddress("glHistogram");
+    vtkgl::Minmax = (vtkgl::PFNGLMINMAXPROC)this->GetProcAddress("glMinmax");
+    vtkgl::ResetHistogram = (vtkgl::PFNGLRESETHISTOGRAMPROC)this->GetProcAddress("glResetHistogram");
+    vtkgl::ResetMinmax = (vtkgl::PFNGLRESETMINMAXPROC)this->GetProcAddress("glResetMinmax");
+    return (vtkgl::BlendColor != NULL) && (vtkgl::BlendEquation != NULL) && (vtkgl::ColorTable != NULL) && (vtkgl::ColorTableParameterfv != NULL) && (vtkgl::ColorTableParameteriv != NULL) && (vtkgl::CopyColorTable != NULL) && (vtkgl::GetColorTable != NULL) && (vtkgl::GetColorTableParameterfv != NULL) && (vtkgl::GetColorTableParameteriv != NULL) && (vtkgl::ColorSubTable != NULL) && (vtkgl::CopyColorSubTable != NULL) && (vtkgl::ConvolutionFilter1D != NULL) && (vtkgl::ConvolutionFilter2D != NULL) && (vtkgl::ConvolutionParameterf != NULL) && (vtkgl::ConvolutionParameterfv != NULL) && (vtkgl::ConvolutionParameteri != NULL) && (vtkgl::ConvolutionParameteriv != NULL) && (vtkgl::CopyConvolutionFilter1D != NULL) && (vtkgl::CopyConvolutionFilter2D != NULL) && (vtkgl::GetConvolutionFilter != NULL) && (vtkgl::GetConvolutionParameterfv != NULL) && (vtkgl::GetConvolutionParameteriv != NULL) && (vtkgl::GetSeparableFilter != NULL) && (vtkgl::SeparableFilter2D != NULL) && (vtkgl::GetHistogram != NULL) && (vtkgl::GetHistogramParameterfv != NULL) && (vtkgl::GetHistogramParameteriv != NULL) && (vtkgl::GetMinmax != NULL) && (vtkgl::GetMinmaxParameterfv != NULL) && (vtkgl::GetMinmaxParameteriv != NULL) && (vtkgl::Histogram != NULL) && (vtkgl::Minmax != NULL) && (vtkgl::ResetHistogram != NULL) && (vtkgl::ResetMinmax != NULL);
+    }
+  if (strcmp(name, "GL_VERSION_1_4") == 0)
+    {
+    // rely on the generated function for most of the OpenGL 1.4 functions.
+    int success=vtkgl::LoadExtension(name, this);
+    // The following functions that used to be optional in OpenGL 1.2 and 1.3
+    // and only available through GL_ARB_imaging are now core features in
+    // OpenGL 1.4.
+    // See Appendix G.3 Changes to the imaging Subset.
+    vtkgl::BlendColor = (vtkgl::PFNGLBLENDCOLORPROC)this->GetProcAddress("glBlendColor");
+    vtkgl::BlendEquation = (vtkgl::PFNGLBLENDEQUATIONPROC)this->GetProcAddress("glBlendEquation");
+    return success && (vtkgl::BlendColor != NULL) && (vtkgl::BlendEquation != NULL);
+    }
+  
+  // For all other cases, rely on the generated function.
+  return vtkgl::LoadExtension(name, this);
 }
 
 // Those two functions are part of OpenGL2.0 but don't have direct
