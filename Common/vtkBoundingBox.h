@@ -207,9 +207,9 @@ inline void vtkBoundingBox::GetLengths(double lengths[3]) const
 
 inline void vtkBoundingBox::GetCenter(double center[3]) const
 {
-  center[0] = 0.5 * this->MaxPnt[0] + this->MinPnt[0];
-  center[1] = 0.5 * this->MaxPnt[1] + this->MinPnt[1];
-  center[2] = 0.5 * this->MaxPnt[2] + this->MinPnt[2];
+  center[0] = 0.5 * (this->MaxPnt[0] + this->MinPnt[0]);
+  center[1] = 0.5 * (this->MaxPnt[1] + this->MinPnt[1]);
+  center[2] = 0.5 * (this->MaxPnt[2] + this->MinPnt[2]);
 }
 
 inline void vtkBoundingBox::SetBounds(double bounds[6])
