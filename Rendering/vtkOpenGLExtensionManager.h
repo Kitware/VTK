@@ -166,7 +166,8 @@ public:
   // Description:
   // Returns a function pointer to the OpenGL extension function with the
   // given name.  Returns NULL if the function could not be retrieved.
-  virtual vtkOpenGLExtensionManagerFunctionPointer GetProcAddress(const char *fname);
+  virtual vtkOpenGLExtensionManagerFunctionPointer GetProcAddress(
+    const char *fname);
 //ETX
 
   // Description:
@@ -268,9 +269,9 @@ protected:
   
   // Description:
   // Wrap around the generated vtkgl::LoadExtension to deal with OpenGL 1.2
-  // and its optional part GL_ARB_imaging. Also functions like glBlendEquation()
-  // or glBlendColor are optional in OpenGL 1.2 or 1.3 and provided by the
-  // GL_ARB_imaging but there are core features in OpenGL 1.4.
+  // and its optional part GL_ARB_imaging. Also functions like
+  // glBlendEquation() or glBlendColor() are optional in OpenGL 1.2 or 1.3 and
+  // provided by the GL_ARB_imaging but there are core features in OpenGL 1.4.
   virtual int SafeLoadExtension(const char *name);
 
 private:
