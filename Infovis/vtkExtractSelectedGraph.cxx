@@ -35,7 +35,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.6");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.7");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -103,12 +103,14 @@ int vtkExtractSelectedGraph::ConvertToIndexSelection(
   else
     {
     vtkErrorMacro("Unknown field type");
+    extract->Delete();
     return 0;
     }
   
   if (!insidedness)
     {
     vtkErrorMacro("Did not find expected vtkInsidedness array.");
+    extract->Delete();
     return 0;
     }
   
@@ -135,6 +137,13 @@ int vtkExtractSelectedGraph::RequestData(
   vtkAbstractGraph* input = vtkAbstractGraph::GetData(inputVector[0]);
   vtkSelection* selection = vtkSelection::GetData(inputVector[1]);
   
+  // If there is nothing in the list, there is nothing to select.
+  vtkAbstractArray* list = selection->GetSelectionList();
+  if (!list || list->GetNumberOfTuples() == 0)
+    {
+    return 1;
+    }
+  
   vtkSelection* indexSelection = vtkSelection::New();
   indexSelection->ShallowCopy(selection);
   
@@ -146,6 +155,7 @@ int vtkExtractSelectedGraph::RequestData(
     if (ret != 1)
       {
       vtkErrorMacro("Selection conversion to INDICES failed.");
+      indexSelection->Delete();
       return 0;
       }
     }
