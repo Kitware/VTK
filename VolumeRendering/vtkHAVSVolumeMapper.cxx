@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkHAVSVolumeMapper, "1.5");
+vtkCxxRevisionMacro(vtkHAVSVolumeMapper, "1.6");
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkHAVSVolumeMapper);
 
@@ -285,13 +285,16 @@ vtkHAVSVolumeMapper::vtkHAVSVolumeMapper()
 
 //----------------------------------------------------------------------------
 vtkHAVSVolumeMapper::~vtkHAVSVolumeMapper()
-{
-  delete [] this->Vertices;
-  delete [] this->Scalars;
-  delete [] this->SortedFaces;
-  delete [] this->RadixTemp;
-  delete [] this->Centers;
-  delete [] this->TransferFunction;
+{  
+  if (this->Vertices) { delete [] this->Vertices; }
+  if (this->Scalars) { delete [] this->Scalars; }
+  if (this->Triangles) { delete [] this->Triangles; }
+  if (this->BoundaryTriangles) { delete [] this->BoundaryTriangles; }
+  if (this->InternalTriangles) { delete [] this->InternalTriangles; }
+  if (this->SortedFaces) { delete [] this->SortedFaces; }
+  if (this->RadixTemp) { delete [] this->RadixTemp; }
+  if (this->Centers) { delete [] this->Centers; }
+  if (this->TransferFunction) { delete [] this->TransferFunction; }
 }
 
 //----------------------------------------------------------------------------
