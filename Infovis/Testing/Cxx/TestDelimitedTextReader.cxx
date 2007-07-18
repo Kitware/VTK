@@ -138,6 +138,7 @@ TestDelimitedTextReader(int argc, char *argv[])
     }
   
   reader->Delete();
+  delete [] filename;
 
   return 0;
 }
