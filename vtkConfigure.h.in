@@ -134,6 +134,8 @@
 # define MAC_OSX_TK
 #endif
 
+/* Whether the Boost library is being used */
+#cmakedefine VTK_USE_BOOST
 
 /*--------------------------------------------------------------------------*/
 /* VTK Versioning                                                           */

@@ -44,7 +44,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.1");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.2");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearchTree);
 
 
@@ -110,6 +110,7 @@ vtkBoostBreadthFirstSearchTree::vtkBoostBreadthFirstSearchTree()
   this->SetArrayName("Not Set");
   this->ArrayNameSet = false;
   this->OriginValue = 0;
+  this->CreateGraphVertexIdArray = false;
 }
 
 vtkBoostBreadthFirstSearchTree::~vtkBoostBreadthFirstSearchTree()
@@ -246,6 +247,13 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
     vtkBoostUndirectedGraph g(input);
     breadth_first_search(g, this->OriginVertexIndex, q, builder, color);
     }
+  
+  // If the user wants it, store the mapping back to graph vertices
+  if (this->CreateGraphVertexIdArray)
+    {
+    treeToGraphIdMap->SetName("GraphVertexId");
+    output->GetVertexData()->AddArray(treeToGraphIdMap);
+    }
 
   // Clean up
   output->Squeeze();
@@ -269,5 +277,7 @@ void vtkBoostBreadthFirstSearchTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ArrayNameSet: " 
      << (this->ArrayNameSet ? "true" : "false") << endl;   
 
+  os << indent << "CreateGraphVertexIdArray: " 
+     << (this->CreateGraphVertexIdArray ? "on" : "off") << endl;   
 }
 

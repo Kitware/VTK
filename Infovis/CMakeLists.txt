@@ -7,8 +7,10 @@ SET(KIT_LIBS vtkWidgets vtklibxml2)
 
 SET( Kit_SRCS
 vtkBoxLayoutStrategy.cxx
+vtkDataObjectToTable.cxx
 vtkDelimitedTextReader.cxx
 vtkExtractSelectedGraph.cxx
+vtkFast2DLayoutStrategy.cxx
 vtkFixedWidthTextReader.cxx
 vtkForceDirectedLayoutStrategy.cxx
 vtkGraphHierarchicalBundle.cxx
@@ -19,12 +21,15 @@ vtkGraphToPolyData.cxx
 vtkGroupLeafVertices.cxx
 vtkInteractorStyleTreeMapHover.cxx
 vtkLabeledTreeMapDataMapper.cxx
+vtkMergeColumns.cxx
+vtkMergeTables.cxx
 vtkPruneTreeFilter.cxx
 vtkRandomGraphSource.cxx
 vtkRandomLayoutStrategy.cxx
 vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSquarifyLayoutStrategy.cxx
+vtkStringToNumeric.cxx
 vtkTableToGraphFilter.cxx
 vtkTableToTreeFilter.cxx
 vtkThresholdTable.cxx

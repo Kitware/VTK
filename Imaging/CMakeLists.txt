@@ -8,6 +8,7 @@ SET(KIT_LIBS vtkFiltering)
 SET( Kit_SRCS
 vtkBooleanTexture.cxx
 vtkExtractVOI.cxx
+vtkFastSplatter.cxx
 vtkGaussianSplatter.cxx
 vtkImageAccumulate.cxx
 vtkImageAnisotropicDiffusion2D.cxx

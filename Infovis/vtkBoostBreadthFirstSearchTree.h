@@ -62,6 +62,13 @@ public:
   // know the specific index of the vertex.
   void SetOriginVertex(vtkStdString arrayName, vtkVariant value);
   //ETX
+  
+  // Description:
+  // Stores the graph vertex ids for the tree vertices in an array
+  // named "GraphVertexId".  Default is off.
+  vtkSetMacro(CreateGraphVertexIdArray, bool);
+  vtkGetMacro(CreateGraphVertexIdArray, bool);
+  vtkBooleanMacro(CreateGraphVertexIdArray, bool);
 
 protected:
   vtkBoostBreadthFirstSearchTree();
@@ -79,6 +86,7 @@ private:
   vtkVariant OriginValue;
   //ETX
   bool ArrayNameSet;
+  bool CreateGraphVertexIdArray;
   
   // Description:
   // Using the convenience function for set strings internally

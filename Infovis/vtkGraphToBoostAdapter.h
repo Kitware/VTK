@@ -733,7 +733,7 @@ namespace boost {
 
   inline property_traits<vtkGraphIndexMap>::reference
   get(
-    vtkGraphIndexMap arr, 
+    vtkGraphIndexMap vtkNotUsed(arr), 
     property_traits<vtkGraphIndexMap>::key_type key)
   {
     return key;

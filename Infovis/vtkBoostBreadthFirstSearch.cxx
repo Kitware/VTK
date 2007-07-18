@@ -45,7 +45,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.4");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.5");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 
@@ -60,7 +60,7 @@ public:
     : d(dist), far_vertex(far), far_dist(-1) { *far_vertex = -1; }
 
   template <typename Vertex, typename Graph>
-  void discover_vertex(Vertex v, const Graph& g)
+  void discover_vertex(Vertex v, const Graph& vtkNotUsed(g))
   {
     // If this is the start vertex, initialize far vertex and distance
     if (*far_vertex < 0)
@@ -278,7 +278,7 @@ int vtkBoostBreadthFirstSearch::RequestData(
   // Create a queue to hand off to the BFS
   boost::queue<int> Q;
 
-  vtkIdType maxFromRootVertex, Root = 0;
+  vtkIdType maxFromRootVertex = 0;
   my_distance_recorder<vtkIntArray*> bfsVisitor(BFSArray, &maxFromRootVertex);
   
   // Is the graph directed or undirected

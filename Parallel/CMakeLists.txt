@@ -17,7 +17,9 @@ SET ( Kit_SRCS
 vtkDuplicatePolyData.cxx
 vtkBranchExtentTranslator.cxx
 vtkClientSocket.cxx
+vtkCollectGraph.cxx
 vtkCollectPolyData.cxx
+vtkCollectTable.cxx
 vtkCommunicator.cxx
 vtkCompositer.cxx
 vtkCompositeRenderManager.cxx

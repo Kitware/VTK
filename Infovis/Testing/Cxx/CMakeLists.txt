@@ -16,6 +16,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     SET(MyTests ${MyTests}
       TestDelimitedTextReader
       TestFixedWidthTextReader
+      TestStringToNumeric
       TestTreeMapViewer
       )
   ENDIF (VTK_DATA_ROOT)
@@ -23,6 +24,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     # add boost tests
     SET(MyTests ${MyTests}
       TestBoostAlgorithms
+      #TestBoostTreeLayoutStrategy
       )
   ENDIF (VTK_USE_BOOST)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}

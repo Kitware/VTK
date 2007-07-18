@@ -39,6 +39,7 @@ vtkCullerCollection.cxx
 vtkDataSetMapper.cxx
 vtkDefaultPainter.cxx
 vtkDisplayListPainter.cxx
+vtkDynamic2DLabelMapper.cxx
 vtkExporter.cxx
 vtkFollower.cxx
 vtkFrustumCoverageCuller.cxx
