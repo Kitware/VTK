@@ -24,8 +24,15 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenGLRenderWindow.h"
 
-#include <Carbon/Carbon.h> // Carbon and MAC specific
-#include <AGL/agl.h> // Carbon and MAC specific
+#include <Carbon/Carbon.h> // Carbon and Mac specific
+#include <AGL/agl.h> // Carbon and Mac specific
+
+// The 10.3.9 SDK (and older probably) have a bug in fp.h (in the Carbon
+// umbrella framework) which this works around. Without this, there
+// would be compile errors if Python wrappings were enabled.
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 1040
+  #define scalb scalbn
+#endif
 
 class vtkCarbonRenderWindowInternal;
 
