@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.8");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -94,6 +94,9 @@ vtkLineRepresentation::vtkLineRepresentation()
   bounds[5] = 0.5;
   this->PlaceFactor = 1.0; //overload parent's value
 
+  // This needs to be initialized before PlaceWidget is called.
+  this->InitializedDisplayPosition = 0;
+
   // Initial creation of the widget, serves to initialize it
   this->PlaceWidget(bounds);
   this->ClampToBounds = 0;
@@ -102,7 +105,6 @@ vtkLineRepresentation::vtkLineRepresentation()
   this->BoundingBox = vtkBox::New();
 
   this->RepresentationState = vtkLineRepresentation::Outside;
-  this->InitializedDisplayPosition = 0;
 }
 
 //----------------------------------------------------------------------------
