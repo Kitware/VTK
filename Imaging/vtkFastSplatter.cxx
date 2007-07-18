@@ -44,7 +44,7 @@
 #define MAX(x, y)       ((x) > (y) ? (x) : (y))
 #endif
 
-vtkCxxRevisionMacro(vtkFastSplatter, "1.1");
+vtkCxxRevisionMacro(vtkFastSplatter, "1.2");
 vtkStandardNewMacro(vtkFastSplatter);
 
 //-----------------------------------------------------------------------------
@@ -93,6 +93,7 @@ void vtkFastSplatter::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "LimitMode: " << this->LimitMode << endl;
   os << indent << "MinValue: " << this->MinValue << endl;
   os << indent << "MaxValue: " << this->MaxValue << endl;
+  os << indent << "NumberOfPointsSplatted: " << this->NumberOfPointsSplatted << endl;
 }
 
 //-----------------------------------------------------------------------------
