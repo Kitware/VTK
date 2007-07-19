@@ -36,7 +36,7 @@ using vtksys_stl::map;
 using vtksys_stl::pair;
 using vtksys_stl::vector;
 
-vtkCxxRevisionMacro(vtkCollectGraph, "1.1");
+vtkCxxRevisionMacro(vtkCollectGraph, "1.2");
 vtkStandardNewMacro(vtkCollectGraph);
 
 vtkCxxSetObjectMacro(vtkCollectGraph,Controller, vtkMultiProcessController);
@@ -214,7 +214,7 @@ int vtkCollectGraph::RequestData(
       vtkIdType numVerts = curGraph->GetNumberOfVertices();
       for (vtkIdType v = 0; v < numVerts; v++)
         {
-        vtkStdString globalIdStr = idArrStr ? idArrStr->GetValue(v) : "";
+        vtkStdString globalIdStr = idArrStr ? idArrStr->GetValue(v) : vtkStdString("");
         int globalIdInt = idArrInt ? idArrInt->GetValue(v) : 0;
 
         double pt[3];
