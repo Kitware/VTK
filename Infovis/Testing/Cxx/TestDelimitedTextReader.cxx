@@ -86,6 +86,7 @@ TestDelimitedTextReader(int argc, char *argv[])
     }
   
   reader->Delete();
+  delete [] filename;
 
   // Test 2: make sure the MergeConsecutiveDelimiters thing works
   reader = vtkDelimitedTextReader::New();
