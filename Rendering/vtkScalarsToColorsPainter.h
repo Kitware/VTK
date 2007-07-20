@@ -38,7 +38,7 @@ class VTK_RENDERING_EXPORT vtkScalarsToColorsPainter :
 public:
   static vtkScalarsToColorsPainter* New();
   vtkTypeRevisionMacro(vtkScalarsToColorsPainter, vtkPolyDataPainter);
-  void PrintSelf(ostream& os, vtkIndent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Control whether the mapper sets the lookuptable range based on its
