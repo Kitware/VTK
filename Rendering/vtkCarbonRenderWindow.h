@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 // umbrella framework) which this works around. Without this, there
 // would be a compile error from the Carbon header if Python wrappings
 // were enabled.
-#include <AvailabilityMacros.h>
+#include <AvailabilityMacros.h> // Needed for MAC_OS_X_VERSION_MAX_ALLOWED
 #if MAC_OS_X_VERSION_MAX_ALLOWED < 1040
   #define scalb scalbn
 #endif
