@@ -522,7 +522,7 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
     z.avail_out = buffer_size;
     }
     
-  delete output_buffer;
+  delete [] output_buffer;
 
   *compressedDataSize = z.total_out;
 
