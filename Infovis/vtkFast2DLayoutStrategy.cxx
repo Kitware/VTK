@@ -36,7 +36,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -83,8 +83,8 @@ vtkFast2DLayoutStrategy::~vtkFast2DLayoutStrategy()
 }
 
 
-// Helper function
-void GenerateSplat(vtkImageData *splat, int x, int y)
+// Helper functions
+void GenerateCircularSplat(vtkImageData *splat, int x, int y)
 {
   splat->SetScalarTypeToFloat();
   splat->SetNumberOfScalarComponents(1);
@@ -113,6 +113,37 @@ void GenerateSplat(vtkImageData *splat, int x, int y)
         {
         splatValue = 0;
         }
+        
+      // Set value
+      splat->SetScalarComponentFromFloat(col,row,0,0,splatValue);
+      }
+    }
+}
+
+void GenerateGaussianSplat(vtkImageData *splat, int x, int y)
+{
+  splat->SetScalarTypeToFloat();
+  splat->SetNumberOfScalarComponents(1);
+  splat->SetDimensions(x, y, 1);
+  splat->AllocateScalars();
+  
+  const int *dimensions = splat->GetDimensions();
+  
+  // Gaussian splat
+  float falloff = 20; // very fast falloff
+  float e= 2.71828182845904;
+
+  for (int row = 0; row < dimensions[1]; ++row)
+    {
+    for (int col = 0; col < dimensions[0]; ++col)
+      {
+      float splatValue;
+
+      // coordinates will range from -1 to 1
+      float xCoord = (col - dimensions[0]/2.0) / (dimensions[0]/2.0);
+      float yCoord = (row - dimensions[1]/2.0) / (dimensions[1]/2.0);
+      
+      splatValue = pow(e,-((xCoord*xCoord + yCoord*yCoord) * falloff));
         
       // Set value
       splat->SetScalarComponentFromFloat(col,row,0,0,splatValue);
@@ -224,7 +255,7 @@ void vtkFast2DLayoutStrategy::Initialize()
   this->Temp = this->InitialTemperature;
   
   // Set up the image splatter
-  GenerateSplat(this->SplatImage, 40, 40);
+  GenerateGaussianSplat(this->SplatImage, 40, 40);
   this->DensityGrid->SetInput(1, this->SplatImage);
   this->DensityGrid->SetOutputDimensions(100, 100, 1);
 
