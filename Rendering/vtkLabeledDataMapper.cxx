@@ -25,7 +25,7 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.47");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.48");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
@@ -94,6 +94,7 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
     }
   
   this->SetLabelTextProperty(NULL);
+  this->SetFieldDataName(NULL);
 }
 
 //----------------------------------------------------------------------------
