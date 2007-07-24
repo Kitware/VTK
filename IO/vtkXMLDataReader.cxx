@@ -29,7 +29,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.33");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.34");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -378,6 +378,14 @@ void vtkXMLDataReader::SetupOutputData()
   // CellDataOffset
   if( this->NumberOfPointArrays )
     {
+    if (this->PointDataTimeStep)
+      {
+      delete [] this->PointDataTimeStep;
+      }
+    if (this->PointDataOffset)
+      {
+      delete [] this->PointDataOffset;
+      }
     this->PointDataTimeStep = new int[this->NumberOfPointArrays];
     this->PointDataOffset = new unsigned long[this->NumberOfPointArrays];
     for(int i=0; i<this->NumberOfPointArrays;i++)
