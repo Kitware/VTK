@@ -7,6 +7,7 @@ SET(KIT_LIBS vtkWidgets vtklibxml2)
 
 SET( Kit_SRCS
 vtkBoxLayoutStrategy.cxx
+vtkCircularLayoutStrategy.cxx
 vtkDataObjectToTable.cxx
 vtkDelimitedTextReader.cxx
 vtkExtractSelectedGraph.cxx
