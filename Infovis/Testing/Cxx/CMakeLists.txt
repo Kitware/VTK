@@ -9,6 +9,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestGraphHierarchicalBundle
     TestGroupLeafVertices
     TestKdTreeBoxSelection
+    TestRandomGraphSource
     TestTable
     TestVariantArray
     TestVariant
