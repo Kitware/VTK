@@ -807,6 +807,14 @@ INCLUDE_DIRECTORIES(
 INCLUDE(${VTK_BINARY_DIR}/LocalUserOptions.cmake OPTIONAL)
 INCLUDE(${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
 
+
+IF(VTK_WRAP_PYTHON)
+  # Tell vtkWrapPython.cmake to set VTK_PYTHON_LIBRARIES for us.
+  SET(VTK_WRAP_PYTHON_FIND_LIBS 1)
+  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapPython.cmake")
+ENDIF(VTK_WRAP_PYTHON)
+
+
 # Utility libraries and executables.
 ADD_SUBDIRECTORY(Wrapping)
 
@@ -892,8 +900,8 @@ ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 # Configure Python wrapping support.
 IF(VTK_WRAP_PYTHON)
   # Tell vtkWrapPython.cmake to set VTK_PYTHON_LIBRARIES for us.
-  SET(VTK_WRAP_PYTHON_FIND_LIBS 1)
-  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapPython.cmake")
+#  SET(VTK_WRAP_PYTHON_FIND_LIBS 1)
+#  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapPython.cmake")
 
   GET_TARGET_PROPERTY(VTK_WRAP_PYTHON_EXE vtkWrapPython LOCATION)
   GET_TARGET_PROPERTY(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit LOCATION)
