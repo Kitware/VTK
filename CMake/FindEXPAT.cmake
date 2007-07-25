@@ -9,15 +9,9 @@
 # also defined, but not for general use are
 # EXPAT_LIBRARY, where to find the EXPAT library.
 
-FIND_PATH(EXPAT_INCLUDE_DIR expat.h
-  /usr/local/include
-  /usr/include
-)
+FIND_PATH(EXPAT_INCLUDE_DIR expat.h)
 
-FIND_LIBRARY(EXPAT_LIBRARY expat
-  /usr/lib
-  /usr/local/lib
-)
+FIND_LIBRARY(EXPAT_LIBRARY expat)
 
 IF(EXPAT_INCLUDE_DIR)
   IF(EXPAT_LIBRARY)

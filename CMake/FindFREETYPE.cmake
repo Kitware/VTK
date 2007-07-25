@@ -10,20 +10,14 @@
 # also defined, but not for general use are
 # FREETYPE_LIBRARY, where to find the FREETYPE library.
 
-FIND_PATH(FREETYPE_INCLUDE_DIR_FT2BUILD ft2build.h
-  /usr/include/
-  /usr/local/include/
-)
+FIND_PATH(FREETYPE_INCLUDE_DIR_FT2BUILD ft2build.h)
 
 FIND_PATH(FREETYPE_INCLUDE_DIR_FTHEADER freetype/config/ftheader.h
   /usr/include/freetype2
   /usr/local/include/freetype2
 )
 
-FIND_LIBRARY(FREETYPE_LIBRARY freetype
-  /usr/lib
-  /usr/local/lib
-)
+FIND_LIBRARY(FREETYPE_LIBRARY freetype)
 
 IF (FREETYPE_LIBRARY)
   IF (FREETYPE_INCLUDE_DIR_FTHEADER AND FREETYPE_INCLUDE_DIR_FT2BUILD)
