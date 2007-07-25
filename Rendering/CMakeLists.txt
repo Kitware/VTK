@@ -376,6 +376,11 @@ ELSE (WIN32)
                    vtkXOpenGLRenderWindow.cxx)
       SET (KIT_LIBS ${KIT_LIBS} ${OPENGL_gl_LIBRARY} )
     ENDIF (OPENGL_gl_LIBRARY)
+    IF (VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY AND NOT OPENGL_gl_LIBRARY)
+      SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
+                   vtkOSOpenGLRenderWindow.cxx)
+      SET (KIT_LIBS ${KIT_LIBS} ${OSMESA_LIBRARY} )
+    ENDIF (VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY AND NOT OPENGL_gl_LIBRARY)
   ENDIF (APPLE)
 ENDIF (WIN32)
 IF(VTK_USE_CG_SHADERS)
@@ -437,9 +442,10 @@ SET(KIT_TCL_DEPS)
 SET(KIT_PYTHON_DEPS)
 SET(KIT_JAVA_DEPS)
 
-IF (TK_LIBRARY AND VTK_USE_TK)
+IF (TK_FOUND AND VTK_USE_TK)
   SET(VTK_GENERATE_TK_INTERNALS 1)
-ENDIF (TK_LIBRARY AND VTK_USE_TK)
+ENDIF (TK_FOUND AND VTK_USE_TK)
+
 IF(VTK_GENERATE_TK_INTERNALS)
   SET (HAVE_LIMITS_H ${CMAKE_HAVE_LIMITS_H})
   SET (HAVE_UNISTD_H ${CMAKE_HAVE_UNISTD_H})
@@ -456,22 +462,20 @@ IF(VTK_GENERATE_TK_INTERNALS)
   INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 ENDIF (VTK_GENERATE_TK_INTERNALS)
 
-IF (VTK_WRAP_TCL)
-  IF(VTK_USE_TK)
-    SET(KitTCL_SRCS
-      vtkTkRenderWidget.cxx
-      vtkTkImageViewerWidget.cxx)
+IF (VTK_WRAP_TCL AND VTK_USE_TK)
+  SET(KitTCL_SRCS
+    vtkTkRenderWidget.cxx
+    vtkTkImageViewerWidget.cxx)
 
-    # Use special interactor for X and Tk.
-    IF(VTK_USE_X)
-      SET(KitTCL_SRCS ${KitTCL_SRCS}
-        vtkXRenderWindowTclInteractor.cxx)
-    ENDIF(VTK_USE_X)
-    SET(Kit_TCL_EXTRA_CMDS 
-      vtkTkRenderWidget 
-      vtkTkImageViewerWidget)
-  ENDIF (VTK_USE_TK)
-ENDIF (VTK_WRAP_TCL)
+  # Use special interactor for X and Tk.
+  IF(VTK_USE_X)
+    SET(KitTCL_SRCS ${KitTCL_SRCS}
+      vtkXRenderWindowTclInteractor.cxx)
+  ENDIF(VTK_USE_X)
+  SET(Kit_TCL_EXTRA_CMDS 
+    vtkTkRenderWidget 
+    vtkTkImageViewerWidget)
+ENDIF (VTK_WRAP_TCL AND VTK_USE_TK)
 
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.
@@ -490,35 +494,31 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
-IF (VTK_WRAP_PYTHON)
-  IF(VTK_USE_TK)
-    IF (TK_LIBRARY)
-       SET(RenderingPythonTkWidgets_SRCS
-          vtkTkWidgetsInit.cxx
-          vtkTkRenderWidgetPython.cxx
-          vtkTkImageViewerWidgetPython.cxx
-          )
-       ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
-                   ${RenderingPythonTkWidgets_SRCS})
-       TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
-                              vtk${KIT}
-                              ${VTK_TK_LIBRARIES})
+IF (VTK_WRAP_PYTHON AND VTK_USE_TK AND TK_FOUND)
+  SET(RenderingPythonTkWidgets_SRCS
+    vtkTkWidgetsInit.cxx
+    vtkTkRenderWidgetPython.cxx
+    vtkTkImageViewerWidgetPython.cxx
+    )
+  ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
+              ${RenderingPythonTkWidgets_SRCS})
+  TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
+                        vtk${KIT}
+                        ${VTK_TK_LIBRARIES})
 
-       # Apply user-defined properties to the library target.
-       IF(VTK_LIBRARY_PROPERTIES)
-         SET_TARGET_PROPERTIES(vtkRenderingPythonTkWidgets PROPERTIES
-           ${VTK_LIBRARY_PROPERTIES})
-       ENDIF(VTK_LIBRARY_PROPERTIES)
+  # Apply user-defined properties to the library target.
+  IF(VTK_LIBRARY_PROPERTIES)
+    SET_TARGET_PROPERTIES(vtkRenderingPythonTkWidgets PROPERTIES
+      ${VTK_LIBRARY_PROPERTIES})
+  ENDIF(VTK_LIBRARY_PROPERTIES)
 
-       IF(NOT VTK_INSTALL_NO_LIBRARIES)
-         INSTALL(TARGETS vtkRenderingPythonTkWidgets
-           RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
-           LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
-           ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
-       ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
-     ENDIF (TK_LIBRARY)
-   ENDIF(VTK_USE_TK)
-ENDIF (VTK_WRAP_PYTHON)
+  IF(NOT VTK_INSTALL_NO_LIBRARIES)
+    INSTALL(TARGETS vtkRenderingPythonTkWidgets
+      RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
+      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
+      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
+  ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
+ENDIF (VTK_WRAP_PYTHON AND VTK_USE_TK AND TK_FOUND)
 
 IF(VTK_USE_X)
   TARGET_LINK_LIBRARIES(vtk${KIT} -lXt ${X11_LIBRARIES})

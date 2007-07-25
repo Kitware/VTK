@@ -1,6 +1,7 @@
 # See if we need to link the socket library 
 INCLUDE(CheckLibraryExists)
 INCLUDE(CheckSymbolExists)
+
 CHECK_LIBRARY_EXISTS("socket" getsockname "" VTK_HAVE_LIBSOCKET)
 
 IF("VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T" MATCHES "^VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T$")
@@ -32,4 +33,6 @@ IF("VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T" MATCHES "^VTK_HAVE_GETSOCKNAME_WITH_SOC
   ENDIF(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T)
 ENDIF("VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T" MATCHES "^VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T$")
 
+# e.g. IBM BlueGene/L doesn't have SO_REUSEADDR, because "setsockopt is not needed for
+# BlueGene/L applications" according to the BlueGene/L Application Development handbook
 CHECK_SYMBOL_EXISTS(SO_REUSEADDR "sys/types.h;sys/socket.h" HAVE_SO_REUSEADDR)

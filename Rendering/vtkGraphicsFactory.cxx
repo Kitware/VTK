@@ -20,7 +20,7 @@
 #include "vtkPainterPolyDataMapper.h"
 
 // if using some sort of opengl, then include these files
-#if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
+#if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLClipPlanesPainter.h"
@@ -67,6 +67,13 @@
 # define VTK_DISPLAY_X11_OGL
 #endif
 
+// OSMESA OpenGL stuff
+#ifdef VTK_USE_OSMESA
+// # include "vtkXRenderWindowInteractor.h"
+# include "vtkOSOpenGLRenderWindow.h"
+//# define VTK_DISPLAY_X11_OGL
+#endif
+
 #if defined(VTK_USE_MANGLED_MESA)
 #include "vtkMesaActor.h"
 #include "vtkMesaCamera.h"
@@ -100,7 +107,7 @@ int vtkGraphicsFactory::OffScreenOnlyMode = 1;
 int vtkGraphicsFactory::OffScreenOnlyMode = 0;
 #endif
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.39");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.40");
 vtkStandardNewMacro(vtkGraphicsFactory);
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
@@ -188,6 +195,13 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     }
 #endif
 
+#if defined(VTK_USE_OSMESA)
+  if(strcmp(vtkclassname, "vtkRenderWindow") == 0)
+    {
+    return vtkOSOpenGLRenderWindow::New();
+    }
+#endif
+
 #ifdef VTK_DISPLAY_WIN32_OGL
   if ( !vtkGraphicsFactory::GetOffScreenOnlyMode() )
     {
@@ -232,7 +246,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     }
 #endif
 
-#if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
+#if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
   if (!strcmp("OpenGL",rl) || !strcmp("Win32OpenGL",rl) || !strcmp("CarbonOpenGL",rl) || !strcmp("CocoaOpenGL",rl))
     {
     if(strcmp(vtkclassname, "vtkActor") == 0)

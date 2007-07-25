@@ -16,6 +16,10 @@ IF (UNIX)
   SET(KIT_LIBS ${KIT_LIBS} ${CMAKE_THREAD_LIBS} ${CMAKE_DL_LIBS} -lm)
 ENDIF (UNIX)
 
+IF(CMAKE_SYSTEM MATCHES BlueGene)
+  ADD_DEFINITIONS(-DPY_VTK_NO_THREADS)
+ENDIF(CMAKE_SYSTEM MATCHES BlueGene)
+
 SET( Kit_SRCS
 vtkAbstractArray.cxx
 vtkAbstractTransform.cxx
@@ -47,7 +51,6 @@ vtkDebugLeaks.cxx
 vtkDebugLeaksManager.cxx
 vtkDirectory.cxx
 vtkDoubleArray.cxx
-vtkDynamicLoader.cxx
 vtkEdgeTable.cxx
 vtkErrorCode.cxx
 vtkEventForwarderCommand.cxx
@@ -154,6 +157,10 @@ vtkWindow.cxx
 vtkWindowLevelLookupTable.cxx
 vtkXMLFileOutputWindow.cxx
 )
+
+IF(VTK_TARGET_SUPPORTS_SHARED_LIBS)
+  SET(Kit_SRCS ${Kit_SRCS} vtkDynamicLoader.cxx )
+ENDIF(VTK_TARGET_SUPPORTS_SHARED_LIBS)
 
 IF(VTK_TYPE_USE_LONG_LONG)
   SET(Kit_SRCS ${Kit_SRCS}
@@ -329,14 +336,14 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
       vtkPythonUtil.h
       vtkPython.h
       )
-    IF (TK_LIBRARY)
+    IF (TK_FOUND)
       IF(NOT VTK_USE_COCOA)
         SET(__inst_files ${__inst_files}
           vtkTcl.h
           vtkTk.h
           )
       ENDIF(NOT VTK_USE_COCOA)
-    ENDIF (TK_LIBRARY)
+    ENDIF (TK_FOUND)
   ENDIF(VTK_WRAP_PYTHON)
   IF(VTK_WRAP_JAVA)
     SET(__inst_files ${__inst_files}

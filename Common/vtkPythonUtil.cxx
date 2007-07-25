@@ -382,9 +382,11 @@ void vtkPythonDeleteCommand::Execute(vtkObject *caller,
     return;
     }
 
+#ifndef PY_VTK_NO_THREADS
 #if (PY_MAJOR_VERSION > 2) || \
 ((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_STATE state = PyGILState_Ensure();
+#endif
 #endif
 
   vtkPythonDeleteObjectFromHash((PyObject *)this->Self);
@@ -396,9 +398,11 @@ void vtkPythonDeleteCommand::Execute(vtkObject *caller,
   PyMem_DEL(this->Self);
 #endif  
 
+#ifndef PY_VTK_NO_THREADS
 #if (PY_MAJOR_VERSION > 2) || \
 ((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_Release(state);
+#endif
 #endif
 }
 
@@ -1819,11 +1823,13 @@ void vtkPythonVoidFunc(void *arg)
   PyObject *arglist, *result;
   PyObject *func = (PyObject *)arg;
 
+#ifndef PY_VTK_NO_THREADS
 #if (PY_MAJOR_VERSION > 2) || \
 ((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_STATE state = PyGILState_Ensure();
 #endif
-
+#endif
+  
   arglist = Py_BuildValue((char*)"()");
 
   result = PyEval_CallObject(func, arglist);
@@ -1843,9 +1849,11 @@ void vtkPythonVoidFunc(void *arg)
     PyErr_Print();
     }
 
+#ifndef PY_VTK_NO_THREADS
 #if (PY_MAJOR_VERSION > 2) || \
 ((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_Release(state);
+#endif
 #endif
 }
 
@@ -1854,19 +1862,23 @@ void vtkPythonVoidFuncArgDelete(void *arg)
 {
   PyObject *func = (PyObject *)arg;
 
+#ifndef PY_VTK_NO_THREADS
 #if (PY_MAJOR_VERSION > 2) || \
 ((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_STATE state = PyGILState_Ensure();
 #endif
-
+#endif
+  
   if (func)
     {
     Py_DECREF(func);
     }
 
+#ifndef PY_VTK_NO_THREADS
 #if (PY_MAJOR_VERSION > 2) || \
 ((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_Release(state);
+#endif
 #endif
 }
   
@@ -1896,11 +1908,13 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
   PyObject *arglist, *result, *obj2;
   const char *eventname;
 
+#ifndef PY_VTK_NO_THREADS
 #if (PY_MAJOR_VERSION > 2) || \
 ((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_STATE state = PyGILState_Ensure();
 #endif
-
+#endif
+  
   if (ptr && ptr->GetReferenceCount() > 0)
     {
     obj2 = vtkPythonGetObjectFromPointer(ptr);
@@ -1995,9 +2009,11 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     PyErr_Print();
     }
 
+#ifndef PY_VTK_NO_THREADS
 #if (PY_MAJOR_VERSION > 2) || \
 ((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_Release(state);
+#endif
 #endif
 }
 //--------------------------------------------------------------------

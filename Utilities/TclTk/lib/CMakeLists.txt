@@ -1,4 +1,4 @@
-IF (TCL_LIBRARY AND TK_LIBRARY)
+IF (TCL_FOUND AND TK_FOUND)
 
   # Do we need to copy the Tcl/Tk support files to the build directory ?
   # Yes if we are building against  static Tcl/Tk, and also yes if we
@@ -89,4 +89,4 @@ IF (TCL_LIBRARY AND TK_LIBRARY)
 
   ENDIF (VTK_TCL_TK_COPY_SUPPORT_LIBRARY)
 
-ENDIF (TCL_LIBRARY AND TK_LIBRARY)
+ENDIF (TCL_FOUND AND TK_FOUND)

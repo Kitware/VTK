@@ -1,3 +1,5 @@
+# this file is used directly from VTK/CMakeLists.txt, not from VTK/Wrapping/CMakeLists.txt
+
 IF(JAVA_COMPILE)
   SET(VTK_JAVA_DEPENDENCIES "")
   INCLUDE(${VTK_BINARY_DIR}/Common/JavaDependencies.cmake OPTIONAL)

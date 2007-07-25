@@ -99,12 +99,16 @@
 #cmakedefine VTK_OSTREAM_SUPPORTS_LONG_LONG
 #define VTK_STREAM_EOF_SEVERITY @VTK_STREAM_EOF_SEVERITY@
 #cmakedefine VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T
+#cmakedefine VTK_HAVE_SO_REUSEADDR
 
 /* Whether we require large files support.  */
 #cmakedefine VTK_REQUIRE_LARGE_FILE_SUPPORT
 
 /*--------------------------------------------------------------------------*/
 /* VTK Platform Configuration                                               */
+
+/* Whether the target platform supports shared libraries.  */
+#cmakedefine VTK_TARGET_SUPPORTS_SHARED_LIBS
 
 /* Whether we are building shared libraries.  */
 #cmakedefine VTK_BUILD_SHARED_LIBS

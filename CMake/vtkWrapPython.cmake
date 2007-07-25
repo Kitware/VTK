@@ -111,19 +111,17 @@ MACRO(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
 ENDMACRO(VTK_WRAP_PYTHON3)
 
 IF(VTK_WRAP_PYTHON_FIND_LIBS)
-  INCLUDE(${CMAKE_ROOT}/Modules/FindPythonLibs.cmake)
+  FIND_PACKAGE(PythonLibs)
 
   # Use separate debug/optimized libraries if they are different.
   IF(PYTHON_DEBUG_LIBRARY)
-    STRING(COMPARE EQUAL "${PYTHON_DEBUG_LIBRARY}" "${PYTHON_LIBRARY}"
-      VTK_PYTHON_LIBRARIES_MATCH)
-    IF(VTK_PYTHON_LIBRARIES_MATCH)
+    IF("${PYTHON_DEBUG_LIBRARY}" STREQUAL "${PYTHON_LIBRARY}")
       SET(VTK_PYTHON_LIBRARIES ${PYTHON_LIBRARY})
-    ELSE(VTK_PYTHON_LIBRARIES_MATCH)
+    ELSE("${PYTHON_DEBUG_LIBRARY}" STREQUAL "${PYTHON_LIBRARY}")
       SET(VTK_PYTHON_LIBRARIES
         optimized ${PYTHON_LIBRARY}
         debug ${PYTHON_DEBUG_LIBRARY})
-    ENDIF(VTK_PYTHON_LIBRARIES_MATCH)
+    ENDIF("${PYTHON_DEBUG_LIBRARY}" STREQUAL "${PYTHON_LIBRARY}")
     SET(VTK_WINDOWS_PYTHON_DEBUGGABLE 0)
     IF(WIN32)
       IF(PYTHON_DEBUG_LIBRARY MATCHES "_d")
@@ -140,12 +138,11 @@ IF(VTK_WRAP_PYTHON_FIND_LIBS)
   # the libraries.  This should be needed only rarely.  It should
   # also be moved to the CMake FindPython.cmake module at some point.
   IF(UNIX)
-    IF(DEFINED PYTHON_EXTRA_LIBS)
-    ELSE(DEFINED PYTHON_EXTRA_LIBS)
+    IF(NOT DEFINED PYTHON_EXTRA_LIBS)
       SET(PYTHON_EXTRA_LIBS "" CACHE STRING
         "Extra libraries to link when linking to python (such as \"z\" for zlib).  Separate multiple libraries with semicolons.")
       MARK_AS_ADVANCED(PYTHON_EXTRA_LIBS)
-    ENDIF(DEFINED PYTHON_EXTRA_LIBS)
+    ENDIF(NOT DEFINED PYTHON_EXTRA_LIBS)
   ENDIF(UNIX)
 
   # Include any extra libraries for python.

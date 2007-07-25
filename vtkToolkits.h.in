@@ -110,4 +110,9 @@
 # define VTK_USE_OGLR
 #endif
 
+#if (defined(VTK_OPENGL_HAS_OSMESA) && !defined(VTK_USE_OGLR) &&  \
+    !defined(_WIN32) && !defined(VTK_USE_CARBON) && !defined(VTK_USE_COCOA))
+# define VTK_USE_OSMESA
+#endif
+
 #endif

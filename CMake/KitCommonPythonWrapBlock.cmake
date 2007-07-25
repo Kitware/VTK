@@ -33,16 +33,18 @@ ENDIF(KIT_PYTHON_DEPS)
 
 # Create a python module that can be loaded dynamically.  It links to
 # the shared library containing the wrappers for this kit.
-ADD_LIBRARY(vtk${KIT}Python MODULE vtk${KIT}PythonInit.cxx)
-TARGET_LINK_LIBRARIES(vtk${KIT}Python vtk${KIT}PythonD)
-
-# Python extension modules on Windows must have the extension ".pyd"
-# instead of ".dll" as of Python 2.5.  Older python versions do support
-# this suffix.
-IF(WIN32 AND NOT CYGWIN)
-  SET_TARGET_PROPERTIES(vtk${KIT}Python PROPERTIES SUFFIX ".pyd")
-ENDIF(WIN32 AND NOT CYGWIN)
-
-IF(WIN32 OR APPLE)
-  TARGET_LINK_LIBRARIES (vtk${KIT}Python ${VTK_PYTHON_LIBRARIES})
-ENDIF(WIN32 OR APPLE)
+PYTHON_ADD_MODULE(vtk${KIT}Python vtk${KIT}PythonInit.cxx)
+IF(PYTHON_ENABLE_MODULE_vtk${KIT}Python)
+  TARGET_LINK_LIBRARIES(vtk${KIT}Python vtk${KIT}PythonD)
+  
+  # Python extension modules on Windows must have the extension ".pyd"
+  # instead of ".dll" as of Python 2.5.  Older python versions do support
+  # this suffix.
+  IF(WIN32 AND NOT CYGWIN)
+    SET_TARGET_PROPERTIES(vtk${KIT}Python PROPERTIES SUFFIX ".pyd")
+  ENDIF(WIN32 AND NOT CYGWIN)
+  
+  IF(WIN32 OR APPLE)
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python ${VTK_PYTHON_LIBRARIES})
+  ENDIF(WIN32 OR APPLE)
+ENDIF(PYTHON_ENABLE_MODULE_vtk${KIT}Python)

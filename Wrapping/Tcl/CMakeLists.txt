@@ -1,3 +1,5 @@
+# this file is used directly from VTK/CMakeLists.txt, not from VTK/Wrapping/CMakeLists.txt
+
 # Defined local options to add to VTK Tcl interpreter
 # 
 # Example of such options are:
