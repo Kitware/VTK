@@ -97,20 +97,20 @@ ENDIF(NOT _FIND_PYTHONLIBS_ALREADY_INCLUDED)
 
 MACRO(PYTHON_ADD_MODULE _NAME )
   OPTION(PYTHON_ENABLE_MODULE_${_NAME} "Add module ${_NAME}" TRUE)
-  OPTION(PYTHON_MODULE_${_NAME}_SHARED "Add module ${_NAME} shared" FALSE)
-  MARK_AS_ADVANCED(PYTHON_ENABLE_MODULE_${_NAME} PYTHON_MODULE_${_NAME}_SHARED)
+  OPTION(PYTHON_MODULE_${_NAME}_BUILD_SHARED "Add module ${_NAME} shared" ${VTK_TARGET_SUPPORTS_SHARED_LIBS})
+  MARK_AS_ADVANCED(PYTHON_ENABLE_MODULE_${_NAME} PYTHON_MODULE_${_NAME}_BUILD_SHARED)
 
   IF(PYTHON_ENABLE_MODULE_${_NAME})
-    IF(PYTHON_MODULE_${_NAME}_SHARED)
+    IF(PYTHON_MODULE_${_NAME}_BUILD_SHARED)
       SET(PY_MODULE_TYPE MODULE)
-    ELSE(PYTHON_MODULE_${_NAME}_SHARED)
+    ELSE(PYTHON_MODULE_${_NAME}_BUILD_SHARED)
       SET(PY_MODULE_TYPE STATIC)
       IF(EXISTS "${CMAKE_BINARY_DIR}/CMakeFiles/PyStaticModulesList.txt")
         FILE(APPEND "${CMAKE_BINARY_DIR}/CMakeFiles/PyStaticModulesList.txt" ";${_NAME}")
       ELSE(EXISTS "${CMAKE_BINARY_DIR}/CMakeFiles/PyStaticModulesList.txt")
         FILE(WRITE "${CMAKE_BINARY_DIR}/CMakeFiles/PyStaticModulesList.txt" "${_NAME}")
       ENDIF(EXISTS "${CMAKE_BINARY_DIR}/CMakeFiles/PyStaticModulesList.txt")
-    ENDIF(PYTHON_MODULE_${_NAME}_SHARED)
+    ENDIF(PYTHON_MODULE_${_NAME}_BUILD_SHARED)
 
     IF(EXISTS "${CMAKE_BINARY_DIR}/CMakeFiles/PyModulesList.txt")
       FILE(APPEND "${CMAKE_BINARY_DIR}/CMakeFiles/PyModulesList.txt" ";${_NAME}")
@@ -124,10 +124,16 @@ ENDMACRO(PYTHON_ADD_MODULE)
 
 
 MACRO(PYTHON_WRITE_MODULES_HEADER _filename)
-  FILE(READ "${CMAKE_BINARY_DIR}/CMakeFiles/PyStaticModulesList.txt" PY_STATIC_MODULES_LIST)
-  FILE(READ "${CMAKE_BINARY_DIR}/CMakeFiles/PyModulesList.txt"       PY_MODULES_LIST)
-  message(STATUS "modules: ${PY_MODULES_LIST}")
-  message(STATUS "static modules: ${PY_STATIC_MODULES_LIST}")
+  SET(PY_STATIC_MODULES_LIST)
+  SET(PY_MODULES_LIST)
+  IF(EXISTS "${CMAKE_BINARY_DIR}/CMakeFiles/PyStaticModulesList.txt")
+    FILE(READ "${CMAKE_BINARY_DIR}/CMakeFiles/PyStaticModulesList.txt" PY_STATIC_MODULES_LIST)
+  ENDIF(EXISTS "${CMAKE_BINARY_DIR}/CMakeFiles/PyStaticModulesList.txt")
+  IF(EXISTS "${CMAKE_BINARY_DIR}/CMakeFiles/PyModulesList.txt")
+    FILE(READ "${CMAKE_BINARY_DIR}/CMakeFiles/PyModulesList.txt"       PY_MODULES_LIST)
+  ENDIF(EXISTS "${CMAKE_BINARY_DIR}/CMakeFiles/PyModulesList.txt")
+#  message(STATUS "modules: ${PY_MODULES_LIST}")
+#  message(STATUS "static modules: ${PY_STATIC_MODULES_LIST}")
   GET_FILENAME_COMPONENT(_name "${_filename}" NAME)
   STRING(REPLACE "." "_" _name "${_name}")
   STRING(TOUPPER ${_name} _name)
@@ -144,9 +150,9 @@ extern \"C\" {
 
 ")
 
-  FOREACH(_currentModule ${PY_MODULES_LIST})
+  FOREACH(_currentModule ${PY_STATIC_MODULES_LIST})
     FILE(APPEND ${_filename} "extern void init${PYTHON_MODULE_PREFIX}${_currentModule}(void);\n\n")
-  ENDFOREACH(_currentModule ${PY_MODULES_LIST})
+  ENDFOREACH(_currentModule ${PY_STATIC_MODULES_LIST})
 
   FILE(APPEND ${_filename} 
 "#ifdef __cplusplus
@@ -156,9 +162,9 @@ extern \"C\" {
 ")
 
 
-  FOREACH(_currentModule ${PY_MODULES_LIST})
+  FOREACH(_currentModule ${PY_STATIC_MODULES_LIST})
     FILE(APPEND ${_filename} "int CMakeLoadPythonModule_${_currentModule}(void) \n{\n  return PyImport_AppendInittab(\"${PYTHON_MODULE_PREFIX}${_currentModule}\", init${PYTHON_MODULE_PREFIX}${_currentModule});\n}\n\n")
-  ENDFOREACH(_currentModule ${PY_MODULES_LIST})
+  ENDFOREACH(_currentModule ${PY_STATIC_MODULES_LIST})
 
   FILE(APPEND ${_filename} "#ifndef EXCLUDE_LOAD_ALL_FUNCTION\nvoid CMakeLoadAllPythonModules(void)\n{\n")
   FOREACH(_currentModule ${PY_STATIC_MODULES_LIST})
