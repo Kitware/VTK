@@ -31,6 +31,9 @@ template <class T> struct vtkTypeTraits;
     /* The type itself.  */                                                   \
     typedef type ValueType;                                                   \
                                                                               \
+    /* the value defined for this type in vtkType */                          \
+    static int VTKTypeID() { return VTK_##macro; }                            \
+                                                                              \
     /* The smallest possible value represented by the type.  */               \
     static type Min() { return VTK_##macro##_MIN; }                           \
                                                                               \
