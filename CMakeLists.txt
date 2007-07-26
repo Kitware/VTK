@@ -1055,6 +1055,9 @@ EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
   INSTALL(FILES
+    ${VTK_CMAKE_DIR}/FindTCL.cmake
+    ${VTK_CMAKE_DIR}/FindPythonLibs.cmake
+    ${VTK_CMAKE_DIR}/FindPackageHandleStandardArgs.cmake
     ${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake
     ${VTK_CMAKE_DIR}/vtkWrapTcl.cmake
     ${VTK_CMAKE_DIR}/vtkWrapJava.cmake
