@@ -27,7 +27,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.9");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.10");
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
@@ -112,7 +112,7 @@ void vtkSelectionSource::AddLocation(double x, double y, double z)
 {
   if (this->ContentType != vtkSelection::LOCATIONS)
     {
-    this->SetContentType(vtkSelection::LOCATIONS);
+    return;
     }
 
   vtkDoubleArray *da = vtkDoubleArray::SafeDownCast(this->Internal->Values);
@@ -128,7 +128,7 @@ void vtkSelectionSource::AddThreshold(double min, double max)
 {
   if (this->ContentType != vtkSelection::THRESHOLDS)
     {
-    this->SetContentType(vtkSelection::THRESHOLDS);
+    return;
     }
 
   vtkDoubleArray *da = vtkDoubleArray::SafeDownCast(this->Internal->Values);
@@ -145,7 +145,7 @@ void vtkSelectionSource::SetFrustum(double *vertices)
 {
   if (this->ContentType != vtkSelection::FRUSTUM)
     {
-    this->SetContentType(vtkSelection::FRUSTUM);
+    return;
     }
 
   vtkDoubleArray *da = vtkDoubleArray::SafeDownCast(this->Internal->Values);
