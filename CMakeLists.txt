@@ -893,45 +893,6 @@ ENDIF(VTK_WRAP_JAVA)
 
 VTK_PREPARE_CMAKEDEFINE("" JAVA_AWT_INCLUDE_PATH VTK_USE_JAWT)
 
-#-----------------------------------------------------------------------------
-# Configure the Tk library for vtkRendering.
-
-IF(VTK_USE_TK)
-  INCLUDE(${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkDetermineTkResources.cmake)
-ENDIF(VTK_USE_TK)
-
-
-# Need Tk internal headers for Tk initialization.
-
-SET(VTK_RENDERING_NEED_TK_INTERNAL ${VTK_INCLUDE_NEED_TK})
-
-IF(VTK_INCLUDE_NEED_TK)
-  # Need Tk Internal headers to include tk.h on Cocoa
-  IF(VTK_USE_RENDERING AND VTK_USE_COCOA)
-     SET(VTK_RENDERING_NEED_TK_INTERNAL 1)
-  ENDIF(VTK_USE_RENDERING AND VTK_USE_COCOA)
-ENDIF(VTK_INCLUDE_NEED_TK)
-
-IF (VTK_RENDERING_NEED_TK_INTERNAL AND TK_FOUND)
-  SET (try_file "tkInt.h")
-  IF (CYGWIN OR WIN32)
-    SET (try_file "tkWinPort.h")
-  ENDIF (CYGWIN OR WIN32)
-  IF (APPLE)
-    SET (try_file "tkMacOSXPort.h")
-  ENDIF (APPLE)
-  IF (try_file)
-    VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
-    SET (TCL_TK_VERSIOND "${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}")
-    FIND_PATH(
-       TK_INTERNAL_PATH 
-       ${try_file} 
-       "${VTK_SOURCE_DIR}/Utilities/TclTk/internals/tk${TCL_TK_VERSIOND}"
-       DOC "The path to the Tk internal headers (${try_file}).")
-    MARK_AS_ADVANCED(TK_INTERNAL_PATH)
-  ENDIF (try_file)
-ENDIF(VTK_RENDERING_NEED_TK_INTERNAL AND TK_FOUND)
-
 ###################################
 
 ADD_SUBDIRECTORY(Utilities)

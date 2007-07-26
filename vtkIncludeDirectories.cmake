@@ -57,6 +57,25 @@ IF(VTK_INCLUDE_NEED_TK)
   IF (WIN32)
     SET(VTK_INCLUDE_DIRS_SYSTEM ${VTK_INCLUDE_DIRS_SYSTEM} ${TK_XLIB_PATH})
   ENDIF (WIN32)
+  
+  # Need Tk internal headers for Tk initialization.
+  SET (try_file "tkInt.h")
+  IF (WIN32)
+    SET (try_file "tkWinPort.h")
+  ENDIF (WIN32)
+  IF (APPLE)
+    SET (try_file "tkMacOSXPort.h")
+  ENDIF (APPLE)
+  IF (try_file)
+    VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
+    SET (TCL_TK_VERSIOND "${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}")
+    FIND_PATH(
+       TK_INTERNAL_PATH 
+       ${try_file} 
+       "${VTK_SOURCE_DIR}/Utilities/TclTk/internals/tk${TCL_TK_VERSIOND}"
+       DOC "The path to the Tk internal headers (${try_file}).")
+    MARK_AS_ADVANCED(TK_INTERNAL_PATH)
+  ENDIF (try_file)
 ENDIF(VTK_INCLUDE_NEED_TK)
 
 IF(VTK_WRAP_JAVA)
@@ -72,7 +91,6 @@ SET(VTK_INCLUDE_DIRS_BUILD_TREE
   ${VTK_BINARY_DIR}/Common
   ${VTK_BINARY_DIR}/Utilities
   )
-
 
 #-----------------------------------------------------------------------------
 # Include directories from the source tree.
@@ -129,6 +147,11 @@ IF(VTK_USE_TK)
   # Need access to internal Tk headers for the vtkTk... widget .cxx files.
   SET(VTK_INCLUDE_DIRS_BUILD_TREE_CXX ${VTK_INCLUDE_DIRS_BUILD_TREE_CXX}
       ${TK_INTERNAL_PATH})
+      
+  #-----------------------------------------------------------------------------
+  # Configure the Tk library for vtkRendering.
+  INCLUDE(${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkDetermineTkResources.cmake)
+    
 ENDIF(VTK_USE_TK)
 
 IF (VTK_USE_MATROX_IMAGING)
