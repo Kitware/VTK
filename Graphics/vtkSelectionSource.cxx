@@ -27,7 +27,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.8");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.9");
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
@@ -112,13 +112,47 @@ void vtkSelectionSource::AddLocation(double x, double y, double z)
 {
   if (this->ContentType != vtkSelection::LOCATIONS)
     {
-    return;
+    this->SetContentType(vtkSelection::LOCATIONS);
     }
 
   vtkDoubleArray *da = vtkDoubleArray::SafeDownCast(this->Internal->Values);
   if (da)
     {
     da->InsertNextTuple3(x,y,z);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSelectionSource::AddThreshold(double min, double max)
+{
+  if (this->ContentType != vtkSelection::THRESHOLDS)
+    {
+    this->SetContentType(vtkSelection::THRESHOLDS);
+    }
+
+  vtkDoubleArray *da = vtkDoubleArray::SafeDownCast(this->Internal->Values);
+  if (da)
+    {
+    da->InsertNextValue(min);
+    da->InsertNextValue(max);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSelectionSource::SetFrustum(double *vertices)
+{
+  if (this->ContentType != vtkSelection::FRUSTUM)
+    {
+    this->SetContentType(vtkSelection::FRUSTUM);
+    }
+
+  vtkDoubleArray *da = vtkDoubleArray::SafeDownCast(this->Internal->Values);
+  if (da)
+    {
+    double *data = da->GetPointer(0);
+    memcpy(data, vertices, 32*sizeof(double));
     this->Modified();
     }
 }
@@ -275,6 +309,40 @@ int vtkSelectionSource::RequestData(
     output->SetSelectionList(selectionList);
     selectionList->Delete();    
     }
+
+  if (
+    (this->ContentType == vtkSelection::THRESHOLDS)
+    &&
+    (this->Internal->Values != 0)
+    )
+    {
+    output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
+                                 this->ContentType);
+    output->GetProperties()->Set(vtkSelection::FIELD_TYPE(),
+                                 this->FieldType);
+    // Create the selection list
+    vtkAbstractArray* selectionList = this->Internal->Values->NewInstance();
+    selectionList->DeepCopy(this->Internal->Values);
+    output->SetSelectionList(selectionList);
+    selectionList->Delete();    
+    }
+
+  if (
+    (this->ContentType == vtkSelection::FRUSTUM)
+    &&
+    (this->Internal->Values != 0)
+    )
+    {
+    output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
+                                 this->ContentType);
+    output->GetProperties()->Set(vtkSelection::FIELD_TYPE(),
+                                 this->FieldType);
+    // Create the selection list
+    vtkAbstractArray* selectionList = this->Internal->Values->NewInstance();
+    selectionList->DeepCopy(this->Internal->Values);
+    output->SetSelectionList(selectionList);
+    selectionList->Delete();    
+    }
   
   return 1;
 }
@@ -305,8 +373,16 @@ void vtkSelectionSource::SetContentType(int value)
       case vtkSelection::THRESHOLDS:
         {
         vtkDoubleArray *da = vtkDoubleArray::New();
-        da->SetNumberOfComponents(2);
+        da->SetNumberOfComponents(1);
         da->SetNumberOfTuples(0);
+        this->Internal->Values = da;
+        break;
+        }
+      case vtkSelection::FRUSTUM:
+        {
+        vtkDoubleArray *da = vtkDoubleArray::New();
+        da->SetNumberOfComponents(4);
+        da->SetNumberOfTuples(8);
         this->Internal->Values = da;
         break;
         }

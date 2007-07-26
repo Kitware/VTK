@@ -44,11 +44,17 @@ public:
   void AddLocation(double x, double y, double z);
 
   // Description:
+  // Add a value range to threshold within.
+  void AddThreshold(double min, double max);
+
+  // Description:
+  // Set a frustum to choose within.
+  void SetFrustum(double *vertices);
+
+  // Description:
   // Removes all IDs.
   void RemoveAllIDs();
   void RemoveAllValues();
-
-
   
   // Description:
   // Set the content type for the generated selection.
