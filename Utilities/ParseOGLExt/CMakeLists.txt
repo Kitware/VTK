@@ -21,7 +21,11 @@
 # or without modification, are permitted provided that this Notice and any
 # statement of authorship are reproduced on all copies.
 
-ADD_EXECUTABLE(vtkParseOGLExt Tokenizer.cxx ParseOGLExt.cxx)
+IF(NOT CMAKE_CROSSCOMPILING)
+  ADD_EXECUTABLE(vtkParseOGLExt Tokenizer.cxx ParseOGLExt.cxx)
+  EXPORT(TARGETS vtkParseOGLExt FILE ${EXPORT_EXECUTABLES_FILE} PREFIX ${EXPORT_EXECUTABLES_PREFIX} APPEND) 
+ENDIF(NOT CMAKE_CROSSCOMPILING)
+
 
 GET_TARGET_PROPERTY(PARSEOGLEXT_EXE vtkParseOGLExt LOCATION)
 SET(VTK_PARSEOGLEXT_EXE ${PARSEOGLEXT_EXE}

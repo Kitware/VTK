@@ -69,9 +69,12 @@ SET( KitOpenGL_SRCS
 #-------------------------------------------------
 
 # Create an executable to encode source files into C string literals.
-ADD_EXECUTABLE(vtkVREncodeString
+IF(NOT CMAKE_CROSSCOMPILING)
+  ADD_EXECUTABLE(vtkVREncodeString
   ${VTK_SOURCE_DIR}/VolumeRendering/vtkVREncodeString.cxx
   )
+  EXPORT(TARGETS vtkVREncodeString FILE ${EXPORT_EXECUTABLES_FILE} PREFIX ${EXPORT_EXECUTABLES_PREFIX} APPEND)
+ENDIF(NOT CMAKE_CROSSCOMPILING)
 GET_TARGET_PROPERTY(ENCODE_EXE vtkVREncodeString LOCATION)
 
 # The set of source files to be encoded.

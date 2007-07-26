@@ -150,6 +150,53 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
   SET(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${TARGET}Init.cxx)
 ENDMACRO(VTK_WRAP_TCL3)
 
+
+IF (VTK_WRAP_TCL_FIND_LIBS)
+  FIND_PACKAGE(TCL)
+  IF(VTK_USE_TK AND NOT TK_FOUND)
+    MESSAGE(FATAL_ERROR "Tk not found. Install Tk development package or disable VTK_USE_TK")
+  ENDIF(VTK_USE_TK AND NOT TK_FOUND)
+
+  IF(VTK_WRAP_TCL AND NOT TCL_FOUND)
+    MESSAGE(FATAL_ERROR "Tcl not found. Install Tcl development package or disable VTK_WRAP_TCL")
+  ENDIF(VTK_WRAP_TCL AND NOT TCL_FOUND)
+
+  SET(VTK_TCL_LIBRARIES ${TCL_LIBRARY})
+  IF(TCL_LIBRARY_DEBUG)
+    SET(VTK_TCL_LIBRARIES optimized ${TCL_LIBRARY} debug ${TCL_LIBRARY_DEBUG})
+  ENDIF(TCL_LIBRARY_DEBUG)
+  IF(UNIX)
+    # The tcl library needs the math library on unix.
+    SET(VTK_TCL_LIBRARIES ${VTK_TCL_LIBRARIES} m)
+  ENDIF(UNIX)
+  IF(VTK_USE_TK AND TK_FOUND)
+    SET(VTK_TK_LIBRARIES ${TK_LIBRARY} ${VTK_TCL_LIBRARIES})
+    IF(TK_LIBRARY_DEBUG)
+      SET(VTK_TK_LIBRARIES optimized ${TK_LIBRARY} debug ${TK_LIBRARY_DEBUG} ${VTK_TCL_LIBRARIES})
+    ENDIF(TK_LIBRARY_DEBUG)
+  ENDIF(VTK_USE_TK AND TK_FOUND)
+  INCLUDE(${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake)
+  # Hide useless settings provided by FindTCL.
+  FOREACH(entry
+          TCL_STUB_LIBRARY
+          TCL_STUB_LIBRARY_DEBUG
+          TK_STUB_LIBRARY
+          TK_STUB_LIBRARY_DEBUG
+          TK_WISH)
+    SET(${entry} "${${entry}}" CACHE INTERNAL "This value is not used by VTK.")
+  ENDFOREACH(entry)
+
+  # Need Tk sources on windows
+  IF(WIN32)
+    FIND_PATH(TK_XLIB_PATH
+              X11/Xlib.h ${TK_INCLUDE_PATH}
+              ${TK_INCLUDE_PATH}/../xlib)
+    MARK_AS_ADVANCED(TK_XLIB_PATH)
+  ENDIF(WIN32)
+
+ENDIF (VTK_WRAP_TCL_FIND_LIBS)
+
+
 # VS 6 does not like needing to run a huge number of custom commands
 # when building a single target.  Generate some extra custom targets
 # that run the custom commands before the main target is built.  This

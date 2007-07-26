@@ -731,7 +731,7 @@ FIND_PATH(VTK_DATA_ROOT VTKData.readme
 # If the ffmpeg library is available, use it.
 OPTION (VTK_USE_FFMPEG_ENCODER "If the FFMPEG library is available, should VTK use it for saving .avi animation files?" BOOL)
 IF (VTK_USE_FFMPEG_ENCODER)
-  INCLUDE(${VTK_SOURCE_DIR}/CMake/FindFFMPEG.cmake OPTIONAL)
+  INCLUDE(${VTK_CMAKE_DIR}/FindFFMPEG.cmake OPTIONAL)
 ENDIF (VTK_USE_FFMPEG_ENCODER)
 
 #-----------------------------------------------------------------------------
@@ -762,7 +762,7 @@ OPTION (VTK_USE_MPEG2_ENCODER
   "Enable use of the patented mpeg2 library. You are solely responsible for any legal issues associated with using patented code in your software."
   OFF)
 IF (VTK_USE_MPEG2_ENCODER)
-  INCLUDE(${VTK_SOURCE_DIR}/CMake/FindMPEG2.cmake OPTIONAL)
+  INCLUDE(${VTK_CMAKE_DIR}/FindMPEG2.cmake OPTIONAL)
 ENDIF (VTK_USE_MPEG2_ENCODER)
 
 #-----------------------------------------------------------------------------
@@ -776,8 +776,8 @@ CONFIGURE_FILE(${VTK_SOURCE_DIR}/UseVTK.cmake.in
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/vtkToolkits.h.in
                ${VTK_BINARY_DIR}/vtkToolkits.h @ONLY)
 
+
 #-----------------------------------------------------------------------------
-# The entire VTK tree should use the same include path.
 
 IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
   IF(VTK_USE_RENDERING OR VTK_WRAP_TCL)
@@ -787,6 +787,31 @@ IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
     SET(VTK_INCLUDE_NEED_TK 1)
   ENDIF(VTK_USE_RENDERING AND VTK_USE_TK)
 ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
+
+#-----------------------------------------------------------------------------
+# search Python, Tcl and Java
+
+IF(VTK_WRAP_PYTHON)
+  # Tell vtkWrapPython.cmake to set VTK_PYTHON_LIBRARIES for us.
+  SET(VTK_WRAP_PYTHON_FIND_LIBS 1)
+  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapPython.cmake")
+ENDIF(VTK_WRAP_PYTHON)
+
+IF(VTK_WRAP_TCL OR VTK_INCLUDE_NEED_TK)
+  # Tell vtkWrapTcl.cmake to set VTK_TCL_LIBRARIES for us.
+  SET(VTK_WRAP_TCL_FIND_LIBS 1)
+  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapTcl.cmake")
+ENDIF(VTK_WRAP_TCL OR VTK_INCLUDE_NEED_TK)
+
+IF(VTK_WRAP_JAVA)
+  SET(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
+  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapJava.cmake")
+  FIND_PACKAGE(Java)
+  FIND_PACKAGE(JNI)
+ENDIF(VTK_WRAP_JAVA)
+
+#-----------------------------------------------------------------------------
+# The entire VTK tree should use the same include path.
 
 # Create the list of include directories needed for VTK header files.
 INCLUDE(${VTK_SOURCE_DIR}/vtkIncludeDirectories.cmake)
@@ -808,66 +833,23 @@ INCLUDE(${VTK_BINARY_DIR}/LocalUserOptions.cmake OPTIONAL)
 INCLUDE(${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
 
 
-IF(VTK_WRAP_PYTHON)
-  # Tell vtkWrapPython.cmake to set VTK_PYTHON_LIBRARIES for us.
-  SET(VTK_WRAP_PYTHON_FIND_LIBS 1)
-  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapPython.cmake")
-ENDIF(VTK_WRAP_PYTHON)
-
-
 # Utility libraries and executables.
 ADD_SUBDIRECTORY(Wrapping)
 
 #-----------------------------------------------------------------------------
-# Configure Tcl wrapping support.
-
-MACRO (VTK_INCLUDE_TCL_TK_MODULES)
-  FIND_PACKAGE(TCL)
-  IF(VTK_USE_TK AND NOT TK_FOUND)
-    MESSAGE(FATAL_ERROR "Tk not found. Install Tk development package or disable VTK_USE_TK")
-  ENDIF(VTK_USE_TK AND NOT TK_FOUND)
-
-  IF(VTK_WRAP_TCL AND NOT TCL_FOUND)
-    MESSAGE(FATAL_ERROR "Tcl not found. Install Tcl development package or disable VTK_WRAP_TCL")
-  ENDIF(VTK_WRAP_TCL AND NOT TCL_FOUND)
-
-  SET(VTK_TCL_LIBRARIES ${TCL_LIBRARY})
-  IF(TCL_LIBRARY_DEBUG)
-    SET(VTK_TCL_LIBRARIES optimized ${TCL_LIBRARY} debug ${TCL_LIBRARY_DEBUG})
-  ENDIF(TCL_LIBRARY_DEBUG)
-  IF(UNIX)
-    # The tcl library needs the math library on unix.
-    SET(VTK_TCL_LIBRARIES ${VTK_TCL_LIBRARIES} m)
-  ENDIF(UNIX)
-  IF(VTK_USE_TK AND TK_FOUND)
-    SET(VTK_TK_LIBRARIES ${TK_LIBRARY} ${VTK_TCL_LIBRARIES})
-    IF(TK_LIBRARY_DEBUG)
-      SET(VTK_TK_LIBRARIES optimized ${TK_LIBRARY} debug ${TK_LIBRARY_DEBUG} ${VTK_TCL_LIBRARIES})
-    ENDIF(TK_LIBRARY_DEBUG)
-  ENDIF(VTK_USE_TK AND TK_FOUND)
-  INCLUDE(${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake)
-  # Hide useless settings provided by FindTCL.
-  FOREACH(entry
-          TCL_STUB_LIBRARY
-          TCL_STUB_LIBRARY_DEBUG
-          TK_STUB_LIBRARY
-          TK_STUB_LIBRARY_DEBUG
-          TK_WISH)
-    SET(${entry} "${${entry}}" CACHE INTERNAL "This value is not used by VTK.")
-  ENDFOREACH(entry)
-ENDMACRO (VTK_INCLUDE_TCL_TK_MODULES)
-
-IF(VTK_WRAP_TCL)
-  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapTcl.cmake")
-
-  VTK_INCLUDE_TCL_TK_MODULES()
-
-  # Wrapping executables.
-  UTILITY_SOURCE(VTK_WRAP_TCL_EXE vtkWrapTcl Wrapping vtkWrapTcl.c)
-  UTILITY_SOURCE(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit 
-                 Wrapping vtkWrapTclInit.c)
+# Wrapping hints used by all Tcl, Python and Java wrapping
+IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
   FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping  NO_CMAKE_FIND_ROOT_PATH)
-  MARK_AS_ADVANCED(VTK_WRAP_TCL_EXE VTK_WRAP_TCL_INIT_EXE VTK_WRAP_HINTS)
+  MARK_AS_ADVANCED(VTK_WRAP_HINTS)
+ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
+
+
+#-----------------------------------------------------------------------------
+# Configure Tcl wrapping support, setup executables
+IF(VTK_WRAP_TCL)
+  # Wrapping executables.
+  GET_TARGET_PROPERTY(VTK_WRAP_TCL_EXE      vtkWrapTcl     LOCATION)
+  GET_TARGET_PROPERTY(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit LOCATION)
 
   # VTK tcl executables.
   SET(VTK_EXECUTABLE ${EXECUTABLE_OUTPUT_PATH}/vtk)
@@ -880,37 +862,13 @@ IF(VTK_WRAP_TCL)
 
   OPTION(VTK_TCL_TK_STATIC "Build with static Tcl/Tk support. TCL_LIBRARY and TK_LIBRARY must point to the corresponding Tcl/Tk static libraries (example, tcl84sx.lib, tk84sx.lib)." OFF)
   MARK_AS_ADVANCED(VTK_TCL_TK_STATIC)
-
 ENDIF(VTK_WRAP_TCL)
 
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL(FILES
-    ${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake
-    ${VTK_CMAKE_DIR}/vtkWrapTcl.cmake
-    ${VTK_CMAKE_DIR}/vtkWrapJava.cmake
-    ${VTK_CMAKE_DIR}/vtkWrapPython.cmake
-    ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
-    ${VTK_CMAKE_DIR}/VTKVersionMacros.cmake
-    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}/CMake 
-    COMPONENT Development
-    )
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-
 #-----------------------------------------------------------------------------
-# Configure Python wrapping support.
+# Configure Python wrapping support, setup the wrapper executables
 IF(VTK_WRAP_PYTHON)
-  # Tell vtkWrapPython.cmake to set VTK_PYTHON_LIBRARIES for us.
-#  SET(VTK_WRAP_PYTHON_FIND_LIBS 1)
-#  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapPython.cmake")
-
   GET_TARGET_PROPERTY(VTK_WRAP_PYTHON_EXE vtkWrapPython LOCATION)
   GET_TARGET_PROPERTY(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit LOCATION)
-
-  # Wrapping executables.
-#   UTILITY_SOURCE(VTK_WRAP_PYTHON_EXE vtkWrapPython Wrapping vtkWrapPython.c)
-#   UTILITY_SOURCE(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit Wrapping vtkWrapPythonInit.c)
-  FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping  NO_CMAKE_FIND_ROOT_PATH)
-  MARK_AS_ADVANCED(VTK_WRAP_HINTS)
 
   # VTK tcl executables.
   SET(VTK_PYTHON_EXE ${EXECUTABLE_OUTPUT_PATH}/vtkpython)
@@ -920,20 +878,12 @@ IF(VTK_WRAP_PYTHON)
 
 ENDIF(VTK_WRAP_PYTHON)
 
-
 #-----------------------------------------------------------------------------
-# Configure Java wrapping support.
+# Configure Java wrapping support, setup executables
 IF(VTK_WRAP_JAVA)
-  SET(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
-  INCLUDE("${VTK_CMAKE_DIR}/vtkWrapJava.cmake")
-  INCLUDE(${CMAKE_ROOT}/Modules/FindJava.cmake)
-  INCLUDE(${CMAKE_ROOT}/Modules/FindJNI.cmake)
-
   # Wrapping executables.
-  UTILITY_SOURCE(VTK_WRAP_JAVA_EXE vtkWrapJava Wrapping vtkWrapJava.c)
-  UTILITY_SOURCE(VTK_PARSE_JAVA_EXE vtkParseJava Wrapping vtkParseJava.c)
-  FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping  NO_CMAKE_FIND_ROOT_PATH)
-  MARK_AS_ADVANCED(VTK_WRAP_JAVA_EXE VTK_PARSE_JAVA_EXE VTK_WRAP_HINTS)
+  GET_TARGET_PROPERTY(VTK_WRAP_JAVA_EXE  vtkWrapJava  LOCATION)
+  GET_TARGET_PROPERTY(VTK_PARSE_JAVA_EXE vtkParseJava LOCATION)
 
   # Java package location.
   SET(VTK_JAVA_JAR ${LIBRARY_OUTPUT_PATH}/vtk.jar)
@@ -945,21 +895,6 @@ VTK_PREPARE_CMAKEDEFINE("" JAVA_AWT_INCLUDE_PATH VTK_USE_JAWT)
 
 #-----------------------------------------------------------------------------
 # Configure the Tk library for vtkRendering.
-
-IF(VTK_INCLUDE_NEED_TK)
-  # Need Tk headers and libraries for python TK widgets
-  IF(NOT VTK_WRAP_TCL)
-    VTK_INCLUDE_TCL_TK_MODULES()
-  ENDIF(NOT VTK_WRAP_TCL)
-
-  # Need Tk sources on windows
-  IF(WIN32)
-    FIND_PATH(TK_XLIB_PATH
-              X11/Xlib.h ${TK_INCLUDE_PATH}
-              ${TK_INCLUDE_PATH}/../xlib)
-    MARK_AS_ADVANCED(TK_XLIB_PATH)
-  ENDIF(WIN32)
-ENDIF(VTK_INCLUDE_NEED_TK)
 
 IF(VTK_USE_TK)
   INCLUDE(${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkDetermineTkResources.cmake)
@@ -1115,8 +1050,21 @@ ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 # Save library dependencies.
 EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
 
+
 # Install some files.
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+
+  INSTALL(FILES
+    ${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake
+    ${VTK_CMAKE_DIR}/vtkWrapTcl.cmake
+    ${VTK_CMAKE_DIR}/vtkWrapJava.cmake
+    ${VTK_CMAKE_DIR}/vtkWrapPython.cmake
+    ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
+    ${VTK_CMAKE_DIR}/VTKVersionMacros.cmake
+    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}/CMake 
+    COMPONENT Development
+    )
+
   SET(__inst_files
     ${VTK_BINARY_DIR}/vtkConfigure.h
     ${VTK_BINARY_DIR}/vtkToolkits.h)

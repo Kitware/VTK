@@ -13,21 +13,24 @@ IF(BUILD_SHARED_LIBS AND CMAKE_SKIP_RPATH AND NOT WIN32)
   SET (ML_FORWARD_PATH_INSTALL "\"${ML_FORWARD_DIR_INSTALL}\"")
 ENDIF(BUILD_SHARED_LIBS AND CMAKE_SKIP_RPATH AND NOT WIN32)
 
+IF(NOT CMAKE_CROSSCOMPILING)
+  ADD_EXECUTABLE(ProcessShader${ML_EXE_SUFFIX} ProcessShader.cxx)
+  TARGET_LINK_LIBRARIES(ProcessShader${ML_EXE_SUFFIX} vtksys)
+  EXPORT(TARGETS ProcessShader${ML_EXE_SUFFIX} FILE ${EXPORT_EXECUTABLES_FILE} PREFIX ${EXPORT_EXECUTABLES_PREFIX} APPEND)
 
-ADD_EXECUTABLE(ProcessShader${ML_EXE_SUFFIX} ProcessShader.cxx)
-TARGET_LINK_LIBRARIES(ProcessShader${ML_EXE_SUFFIX}
-  vtksys)
+  # Add shared link forwarding executable if necessary.
+  IF (NEED_SHARED_FORWARD)
+    SET (ML_FORWARD_EXE ProcessShader${ML_EXE_SUFFIX})
+    CONFIGURE_FILE(
+      ${MaterialLibrary_SOURCE_DIR}/vtk-forward.c.in
+      ${MaterialLibrary_BINARY_DIR}/ProcessShader-forward.c
+      @ONLY IMMEDIATE)
+    ADD_EXECUTABLE(ProcessShader ${MaterialLibrary_BINARY_DIR}/ProcessShader-forward.c)
+    ADD_DEPENDENCIES(ProcessShader ProcessShader${ML_EXE_SUFFIX})
+    EXPORT(TARGETS ProcessShader FILE ${EXPORT_EXECUTABLES_FILE} PREFIX ${EXPORT_EXECUTABLES_PREFIX} APPEND)
+  ENDIF (NEED_SHARED_FORWARD)
+ENDIF(NOT CMAKE_CROSSCOMPILING)
 
-# Add shared link forwarding executable if necessary.
-IF (NEED_SHARED_FORWARD)
-  SET (ML_FORWARD_EXE ProcessShader${ML_EXE_SUFFIX})
-  CONFIGURE_FILE(
-    ${MaterialLibrary_SOURCE_DIR}/vtk-forward.c.in
-    ${MaterialLibrary_BINARY_DIR}/ProcessShader-forward.c
-    @ONLY IMMEDIATE)
-  ADD_EXECUTABLE(ProcessShader ${MaterialLibrary_BINARY_DIR}/ProcessShader-forward.c)
-  ADD_DEPENDENCIES(ProcessShader ProcessShader${ML_EXE_SUFFIX})
-ENDIF (NEED_SHARED_FORWARD)
 
 # Macro to obtain the relative path of a file.
 MACRO(GET_RELATIVE_PATH __path __file __result)
@@ -110,19 +113,6 @@ SET (GLSLCodes
   ${MaterialLibrary_SOURCE_DIR}/GLSLShaders/Twisted.glsl
   )
 
-SET(EXE_EXT "")
-IF(WIN32)
-  SET(EXE_EXT ".exe")
-ENDIF(WIN32)
-
-# CMAKE_CFG_INTDIR is "." for build tools that don't support multiple
-# configurations. (Typical of a make build tool.)
-#
-# It's "$(OutDir)" or "$(CONFIGURATION)" or similar for build tools that do
-# support multiple configurations. (Typical of Visual Studio and Xcode.)
-#
-SET(CMD ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/ProcessShader${EXE_EXT})
-
 SET (ShaderLibraryDependencies)
 SET (ShaderLibraryHeaders)
 SET (ShaderLibraryModules)
@@ -135,12 +125,21 @@ MACRO(get_modules modules prefix files )
   ENDFOREACH(file)
 ENDMACRO(get_modules)
 
+GET_TARGET_PROPERTY(CMD ProcessShader LOCATION)
+GET_TARGET_PROPERTY(CMD_IS_IMPORTED ProcessShader IMPORTED)
+IF(CMD_IS_IMPORTED)
+   SET(CMD_DEP "")
+ELSE(CMD_IS_IMPORTED)
+   SET(CMD_DEP ProcessShader)
+ENDIF(CMD_IS_IMPORTED)
+
+
 IF (VTK_USE_CG_SHADERS)
   # Create the Cg library.
   ADD_CUSTOM_COMMAND(
     OUTPUT ${MaterialLibrary_BINARY_DIR}/vtkCgShaderLibrary.h
     DEPENDS ${CgCodes}
-    ProcessShader
+    ${CMD_DEP}
     COMMAND ${CMD}
     ARGS ${MaterialLibrary_BINARY_DIR}/vtkCgShaderLibrary.h
     vtkShaderCG Code GetCode
@@ -159,7 +158,7 @@ IF (VTK_USE_GLSL_SHADERS)
   ADD_CUSTOM_COMMAND(
     OUTPUT ${MaterialLibrary_BINARY_DIR}/vtkGLSLShaderLibrary.h
     DEPENDS ${GLSLCodes}
-    ProcessShader
+    ${CMD_DEP}
     COMMAND ${CMD}
     ARGS ${MaterialLibrary_BINARY_DIR}/vtkGLSLShaderLibrary.h
     vtkShaderGLSL Code GetCode
@@ -244,7 +243,7 @@ IF (${materials_exist})
   ADD_CUSTOM_COMMAND(
     OUTPUT ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
     DEPENDS ${MaterialXMLs} 
-      ProcessShader
+      ${CMD_DEP}
       ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h.forcebuild
     COMMAND ${CMD}
     ARGS ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
