@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkEvent, "1.6");
+vtkCxxRevisionMacro(vtkEvent, "1.7");
 vtkStandardNewMacro(vtkEvent);
 
 
@@ -86,26 +86,12 @@ int vtkEvent::operator==(vtkEvent *e)
 //----------------------------------------------------------------------------
 int vtkEvent::GetModifier(vtkRenderWindowInteractor* i)
 {
-  int ctrlKey = i->GetControlKey();
-  int shiftKey = i->GetShiftKey();
-  
-  if ( ctrlKey == 0 && shiftKey == 0 )
-    {
-    return vtkEvent::AnyModifier;
-    }
-  if ( ctrlKey == 0 && shiftKey == 1 )
-    {
-    return vtkEvent::ShiftModifier;
-    }
-  if ( ctrlKey == 1 && shiftKey == 0 )
-    {
-    return vtkEvent::ControlModifier;
-    }
-  if ( ctrlKey == 1 && shiftKey == 1 )
-    {
-    return (vtkEvent::ControlModifier | vtkEvent::ShiftModifier);
-    }
-  return vtkEvent::AnyModifier;
+  int modifier = 0;
+  modifier |= (i->GetShiftKey()   ? vtkEvent::ShiftModifier   : 0);
+  modifier |= (i->GetControlKey() ? vtkEvent::ControlModifier : 0);
+  modifier |= (i->GetAltKey()     ? vtkEvent::AltModifier     : 0);
+
+  return modifier;
 }
 
 
