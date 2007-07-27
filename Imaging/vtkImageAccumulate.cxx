@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.71");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.72");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -96,9 +96,7 @@ void vtkImageAccumulate::SetComponentExtent(int minX, int maxX,
 //----------------------------------------------------------------------------
 void vtkImageAccumulate::GetComponentExtent(int extent[6])
 {
-  int idx;
-
-  for (idx = 0; idx < 6; ++idx)
+  for (int idx = 0; idx < 6; ++idx)
     {
     extent[idx] = this->ComponentExtent[idx];
     }

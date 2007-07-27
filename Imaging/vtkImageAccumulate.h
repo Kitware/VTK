@@ -22,10 +22,10 @@
 // This filter can only handle images with 1 to 3 scalar components.
 // The input can be any type, but the output is always int.
 // Some statistics are computed on the pixel values at the same time.
-// The SetStencilFunction, SetClippingExtents and ReverseStencil
+// The SetStencil and ReverseStencil
 // functions allow the statistics to be computed on an arbitrary
 // portion of the input data.
-// See the documentation for vtkImageStencil for more information.
+// See the documentation for vtkImageStencilData for more information.
 
 #ifndef __vtkImageAccumulate_h
 #define __vtkImageAccumulate_h
