@@ -100,7 +100,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.16");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.17");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -2837,11 +2837,11 @@ int vtkExodusIIWriter::WriteGlobalPointIds()
 {
   int rc = 0;
 
-  if (sizeof(vtkIdType) != sizeof(int))
-    {
-    vtkErrorMacro(<<"vtkExodusIIWriter::WriteGlobalPointIds cannot convert vtkIdType to int.");
-    return -1;
-    }
+  //if (sizeof(vtkIdType) != sizeof(int))
+  //  {
+  //  vtkErrorMacro(<<"vtkExodusIIWriter::WriteGlobalPointIds cannot convert vtkIdType to int.");
+  //  return -1;
+  //  }
 
   vtkIdType *ids = this->GlobalNodeIdList;
   int *copyOfIds = NULL;
@@ -2877,11 +2877,11 @@ int vtkExodusIIWriter::WriteGlobalElementIds()
   int rc = 0;
   int fail = 0;
 
-  if (sizeof(vtkIdType) != sizeof(int))
-    {
-    vtkErrorMacro(<<"vtkExodusIIWriter::WriteGlobalElementIds cannot convert vtkIdType to int.");
-    return -1;
-    }
+  //if (sizeof(vtkIdType) != sizeof(int))
+  //  {
+  //  vtkErrorMacro(<<"vtkExodusIIWriter::WriteGlobalElementIds cannot convert vtkIdType to int.");
+  //  return -1;
+  //  }
 
   vtkIdType *ids = this->GlobalElementIdList;
   int *copyOfIds = NULL;
