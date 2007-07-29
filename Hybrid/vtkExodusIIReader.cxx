@@ -654,7 +654,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.20");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.21");
 
 
 
@@ -968,6 +968,12 @@ public:
   void SetAssemblyStatus(int idx, int on);
   void SetAssemblyStatus(vtkStdString name, int flag);
 
+  int AssembleArraysOverTime( vtkUnstructuredGrid* output );
+
+  void SetFastPathObjectType(vtkExodusIIReader::ObjectType type){this->FastPathObjectType = type;};
+  void SetFastPathObjectId(vtkIdType id){this->FastPathObjectId = id;};
+  vtkSetStringMacro(FastPathIdType);
+
 protected:
   vtkExodusIIReaderPrivate();
   ~vtkExodusIIReaderPrivate();
@@ -1116,6 +1122,7 @@ protected:
   /// Given a map type (NODE_MAP, EDGE_MAP, ...) return the associated object type (NODAL, EDGE_BLOCK, ...) or vice-versa.
   int GetObjectTypeFromMapType( int mtyp );
   int GetMapTypeFromObjectType( int otyp );
+  int GetTemporalTypeFromObjectType( int otyp );
 
   /// Given a set connectivity type (NODE_SET_CONN, ...), return the associated object type (NODE_SET, ...) or vice-versa.
   int GetSetTypeFromSetConnType( int sctyp );
@@ -1220,10 +1227,18 @@ protected:
   /// A map from nodal IDs in an Exodus file to nodal IDs in the output mesh.
   vtkstd::vector<vtkIdType> PointMap;
 
+  /// A map from nodal ids in the output mesh to those in an Exodus file. 
+  vtkstd::map<vtkIdType,vtkIdType> ReversePointMap;
+  vtkstd::map<vtkIdType,vtkIdType> ReverseCellMap;
+
   /// Pointer to owning reader... this is not registered in order to avoid circular references.
   vtkExodusIIReader* Parent;
 
   vtkExodusIIXMLParser *Parser;
+
+  vtkExodusIIReader::ObjectType FastPathObjectType;
+  vtkIdType FastPathObjectId;
+  char *FastPathIdType;
 
 private:
   vtkExodusIIReaderPrivate( const vtkExodusIIReaderPrivate& ); // Not implemented.
@@ -1373,7 +1388,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.20");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.21");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -1405,6 +1420,9 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->CachedConnectivity = 0;
   
   this->Parser = 0;
+
+  this->FastPathIdType = NULL;
+  this->FastPathObjectId = -1;
 
   memset( (void*)&this->ModelParameters, 0, sizeof(this->ModelParameters) );
 }
@@ -1784,6 +1802,8 @@ int vtkExodusIIReaderPrivate::AssembleOutputConnectivity( vtkIdType timeStep, vt
     {
     this->NextSqueezePoint = 0;
     this->PointMap.clear();
+    this->ReversePointMap.clear();
+    this->ReverseCellMap.clear();
     this->PointMap.reserve( this->ModelParameters.num_nodes );
     for ( int i = 0; i < this->ModelParameters.num_nodes; ++i )
       {
@@ -1892,6 +1912,108 @@ int vtkExodusIIReaderPrivate::AssembleOutputPoints( vtkIdType timeStep, vtkUnstr
     }
   return 1;
 }
+
+
+int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkUnstructuredGrid* output)
+{
+  vtkFieldData *ifd = output->GetFieldData();
+  int status = 1;
+  vtkstd::vector<ArrayInfoType>::iterator ai;
+  int aidx = 0;
+  vtkIdType internalExodusId = -1;
+  
+  if(this->FastPathObjectId < 0)
+    {
+    // This just means that no downstream filter has requested temporal data
+    // from this reader.
+    return 0;
+    }
+
+  // We need to get the internal id used by the exodus file from either the 
+  // VTK index, or from the global id
+  if(strcmp(this->FastPathIdType,"INDEX")==0)
+    {
+    // map the "used" index to the "original" index
+    if(this->FastPathObjectType == vtkExodusIIReader::NODAL)
+      {
+      internalExodusId = this->ReversePointMap[this->FastPathObjectId];
+      }
+    else
+      {
+      internalExodusId = this->ReverseCellMap[this->FastPathObjectId];
+      }
+    }
+  else if(strcmp(this->FastPathIdType,"GLOBAL")==0)
+    {
+    vtkExodusIICacheKey *globalIdMapKey;
+    switch(this->FastPathObjectType)
+      {
+      case vtkExodusIIReader::NODAL:
+        globalIdMapKey = new vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_ID, 0, 0 );
+        break;
+      case vtkExodusIIReader::ELEM_BLOCK:
+        globalIdMapKey = new vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 );
+        break;
+      default:
+        vtkWarningMacro( "Unsupported object type for fast path." );
+        return 0;
+      }
+
+    vtkIdTypeArray* globalIdMap = vtkIdTypeArray::SafeDownCast(this->GetCacheOrRead( *globalIdMapKey ));
+    delete globalIdMapKey;
+    if(!globalIdMap)
+      {
+      return 0;
+      }
+
+    // FIXME: there should be a faster way of doing this.
+    // Can we keep around a map from global ids to exodus ones?
+    for ( vtkIdType j = 0; j < globalIdMap->GetNumberOfTuples(); ++j )
+      {
+      if(globalIdMap->GetValue( j ) == this->FastPathObjectId)
+        {
+        // exodus ids are 1-based:
+        internalExodusId = j+1;
+        break;
+        }
+      }
+    }
+
+  // This will happen if the data does not reside in this file
+  if(internalExodusId < 0)
+    {
+    //vtkWarningMacro( "Unable to map id to internal exodus id." );
+    return 0;
+    }
+
+  for (
+    ai = this->ArrayInfo[ this->FastPathObjectType ].begin();
+    ai != this->ArrayInfo[ this->FastPathObjectType ].end();
+    ++ai, ++aidx )
+    {
+    if ( ! ai->Status )
+      continue; // Skip arrays we don't want.
+
+    vtkExodusIICacheKey temporalDataKey( 
+        -1, 
+        this->GetTemporalTypeFromObjectType(this->FastPathObjectType), 
+        internalExodusId, 
+        aidx );
+
+    vtkDataArray* temporalData = this->GetCacheOrRead( temporalDataKey );
+    if ( !temporalData )
+      {
+      vtkWarningMacro( "Unable to read array " << ai->Name.c_str() );
+      status = 0;
+      continue;
+      }
+
+    ifd->AddArray(temporalData);
+    }
+
+  return status;
+}
+
 
 int vtkExodusIIReaderPrivate::AssembleOutputPointArrays( vtkIdType timeStep, vtkUnstructuredGrid* output )
 {
@@ -2329,6 +2451,8 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
     return;
     }
 
+  vtkIdType cellId;
+
   if ( this->SqueezePoints )
     {
     vtkstd::vector<vtkIdType> cellIds;
@@ -2344,7 +2468,8 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
         }
       //cout << "\n";
       //cout << " " <<
-      output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
+      cellId = output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
+      this->ReverseCellMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(cellId,binfo->FileOffset + i - 1));
       srcIds += binfo->PointsPerCell;
       }
       //cout << "\n";
@@ -2364,15 +2489,17 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
         //cout << " " << srcIds[p];
         }
       //cout << "\n";
-      output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
+      cellId = output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
+      this->ReverseCellMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(cellId,binfo->FileOffset + i - 1));
       srcIds += binfo->PointsPerCell;
       }
 #else // VTK_USE_64BIT_IDS
     vtkIdType* srcIds = (vtkIdType*) arr->GetPointer( 0 );
-    
+
     for ( int i = 0; i < binfo->Size; ++i )
       {
-      output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, srcIds );
+      cellId = output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, srcIds );
+      this->ReverseCellMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(cellId,binfo->FileOffset + i - 1));
       srcIds += binfo->PointsPerCell;
       //for ( int k = 0; k < binfo->PointsPerCell; ++k )
         //cout << " " << srcIds[k];
@@ -2474,6 +2601,7 @@ void vtkExodusIIReaderPrivate::InsertSetNodeCopies( vtkIntArray* refs, int otyp,
       if ( *x < 0 )
         {
         *x = this->NextSqueezePoint++;
+        this->ReversePointMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(*x,tmp));
         }
       output->InsertNextCell( VTK_VERTEX, 1, x );
       }
@@ -2570,6 +2698,7 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies( vtkIntArray* refs, int otyp,
         if ( *x < 0 )
           {
           *x = this->NextSqueezePoint++;
+          this->ReversePointMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(*x,cellConn[k]));
           }
         cellConn[k] = *x;
         }
@@ -2618,6 +2747,7 @@ void vtkExodusIIReaderPrivate::InsertSetSides( vtkIntArray* refs, int otyp, int 
         if ( *x < 0 )
           {
           *x = this->NextSqueezePoint++;
+          this->ReversePointMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(*x,sideNodes[k]));
           }
         cellConn[k] = *x;
         }
@@ -2707,6 +2837,108 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
             &tmpVal[c][0] ) < 0)
           {
           vtkErrorMacro( "Could not read nodal result variable " << ainfop->OriginalNames[c].c_str() << "." );
+          arr->Delete();
+          arr = 0;
+          return 0;
+          }
+        }
+      int t;
+      vtkstd::vector<double> tmpTuple;
+      tmpTuple.resize( ainfop->Components );
+      for ( t = 0; t < arr->GetNumberOfTuples(); ++t )
+        {
+        for ( c = 0; c < ainfop->Components; ++c )
+          {
+          tmpTuple[c] = tmpVal[c][t];
+          }
+        arr->SetTuple( t, &tmpTuple[0] );
+        }
+      }
+    }
+  else if ( key.ObjectType == vtkExodusIIReader::NODAL_TEMPORAL )
+    {
+    // read temporal nodal array
+    ArrayInfoType* ainfop = &this->ArrayInfo[vtkExodusIIReader::NODAL][key.ArrayId];
+    arr = vtkDataArray::CreateDataArray( ainfop->StorageType );
+    vtkStdString newArrayName = ainfop->Name + "OverTime";
+    arr->SetName( newArrayName.c_str() );
+    arr->SetNumberOfComponents( ainfop->Components );
+    arr->SetNumberOfTuples( this->GetNumberOfTimeSteps() );
+    if ( ainfop->Components == 1 )
+      {
+      if ( ex_get_var_time( exoid, vtkExodusIIReader::NODAL, ainfop->OriginalIndices[0], key.ObjectId, 
+          1, this->GetNumberOfTimeSteps(), arr->GetVoidPointer( 0 ) ) < 0 )
+        {
+        vtkErrorMacro( "Could not read nodal result variable " << ainfop->Name.c_str() << "." );
+        arr->Delete();
+        arr = 0;
+        }
+      }
+    else
+      {
+      // Exodus doesn't support reading with a stride, so we have to manually interleave the arrays. Bleh.
+      vtkstd::vector<vtkstd::vector<double> > tmpVal;
+      tmpVal.resize( ainfop->Components );
+      int c;
+      for ( c = 0; c < ainfop->Components; ++c )
+        {
+        vtkIdType N = this->GetNumberOfTimeSteps();
+        tmpVal[c].resize( N );
+        if ( ex_get_var_time( exoid, vtkExodusIIReader::NODAL, ainfop->OriginalIndices[c], key.ObjectId, 
+            1, this->GetNumberOfTimeSteps(), &tmpVal[c][0] ) < 0 )
+          {
+          vtkErrorMacro( "Could not read temporal nodal result variable " << ainfop->OriginalNames[c].c_str() << "." );
+          arr->Delete();
+          arr = 0;
+          return 0;
+          }
+        }
+      int t;
+      vtkstd::vector<double> tmpTuple;
+      tmpTuple.resize( ainfop->Components );
+      for ( t = 0; t < arr->GetNumberOfTuples(); ++t )
+        {
+        for ( c = 0; c < ainfop->Components; ++c )
+          {
+          tmpTuple[c] = tmpVal[c][t];
+          }
+        arr->SetTuple( t, &tmpTuple[0] );
+        }
+      }
+    }
+  else if ( key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_TEMPORAL )
+    {
+    // read temporal element array
+    ArrayInfoType* ainfop = &this->ArrayInfo[vtkExodusIIReader::ELEM_BLOCK][key.ArrayId];
+    arr = vtkDataArray::CreateDataArray( ainfop->StorageType );
+    vtkStdString newArrayName = ainfop->Name + "OverTime";
+    arr->SetName( newArrayName.c_str() );
+    arr->SetNumberOfComponents( ainfop->Components );
+    arr->SetNumberOfTuples( this->GetNumberOfTimeSteps() );
+    if ( ainfop->Components == 1 )
+      {
+      if ( ex_get_var_time( exoid, vtkExodusIIReader::ELEM_BLOCK, ainfop->OriginalIndices[0], key.ObjectId, 
+          1, this->GetNumberOfTimeSteps(), arr->GetVoidPointer( 0 ) ) < 0 )
+        {
+        vtkErrorMacro( "Could not read element result variable " << ainfop->Name.c_str() << "." );
+        arr->Delete();
+        arr = 0;
+        }
+      }
+    else
+      {
+      // Exodus doesn't support reading with a stride, so we have to manually interleave the arrays. Bleh.
+      vtkstd::vector<vtkstd::vector<double> > tmpVal;
+      tmpVal.resize( ainfop->Components );
+      int c;
+      for ( c = 0; c < ainfop->Components; ++c )
+        {
+        vtkIdType N = this->GetNumberOfTimeSteps();
+        tmpVal[c].resize( N );
+        if ( ex_get_var_time( exoid, vtkExodusIIReader::ELEM_BLOCK, ainfop->OriginalIndices[c], key.ObjectId, 
+            1, this->GetNumberOfTimeSteps(), &tmpVal[c][0] ) < 0 )
+          {
+          vtkErrorMacro( "Could not read temporal element result variable " << ainfop->OriginalNames[c].c_str() << "." );
           arr->Delete();
           arr = 0;
           return 0;
@@ -3429,6 +3661,7 @@ vtkIdType vtkExodusIIReaderPrivate::GetSqueezePointId( int i )
   if ( *x < 0 )
     {
     *x = this->NextSqueezePoint++;
+    this->ReversePointMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(*x,i));
     }
   return *x;
 }
@@ -3554,6 +3787,22 @@ int vtkExodusIIReaderPrivate::GetMapTypeFromObjectType( int otyp )
     return vtkExodusIIReader::EDGE_MAP;
   case vtkExodusIIReader::NODAL:
     return vtkExodusIIReader::NODE_MAP;
+    }
+  return -1;
+}
+
+int vtkExodusIIReaderPrivate::GetTemporalTypeFromObjectType( int otyp )
+{
+  switch (otyp)
+    {
+  case vtkExodusIIReader::ELEM_BLOCK:
+    return vtkExodusIIReader::ELEM_BLOCK_TEMPORAL;
+  //case vtkExodusIIReader::FACE_BLOCK:
+  //  return vtkExodusIIReader::FACE_MAP;
+  //case vtkExodusIIReader::EDGE_BLOCK:
+  //  return vtkExodusIIReader::EDGE_MAP;
+  case vtkExodusIIReader::NODAL:
+    return vtkExodusIIReader::NODAL_TEMPORAL;
     }
   return -1;
 }
@@ -4505,6 +4754,10 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkUnstructuredGr
   this->AssembleOutputPointMaps( timeStep, output );
   this->AssembleOutputCellMaps( timeStep, output );
 
+  // Pack temporal data onto output field data arrays if fast path
+  // option is available:
+  this->AssembleArraysOverTime(output);
+
   this->CloseFile();
 
   return 0;
@@ -4529,6 +4782,8 @@ void vtkExodusIIReaderPrivate::Reset()
   this->NumberOfCells = 0;
   this->SqueezePoints = 1;
   this->PointMap.clear();
+  this->ReversePointMap.clear();
+  this->ReverseCellMap.clear();
   this->Cache->Clear();
   this->ApplyDisplacements = 1;
   this->DisplacementMagnitude = 1.;
@@ -4540,6 +4795,7 @@ void vtkExodusIIReaderPrivate::Reset()
   this->GenerateGlobalElementIdArray = 0;
   this->GenerateGlobalNodeIdArray = 0;
   this->GenerateObjectIdArray = 1;
+  this->FastPathObjectId = -1;
 
   this->Modified();
 }
@@ -4557,6 +4813,7 @@ void vtkExodusIIReaderPrivate::SetSqueezePoints( int sp )
 
   // The point map should be invalidated
   this->PointMap.clear();
+  this->ReversePointMap.clear();
   this->NextSqueezePoint = 0;
 }
 
@@ -4959,7 +5216,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.20");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.21");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -5071,6 +5328,28 @@ void vtkExodusIIReader::SetXMLFileName( const char* fname )
     }
 }
 
+
+
+//----------------------------------------------------------------------------
+int vtkExodusIIReader::ProcessRequest(vtkInformation* request,
+                                        vtkInformationVector** inputVector,
+                                        vtkInformationVector* outputVector)
+{
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    return this->RequestData(request, inputVector, outputVector);
+    }
+
+  // execute information
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    return this->RequestInformation(request, inputVector, outputVector);
+    }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+
 int vtkExodusIIReader::RequestInformation(
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
@@ -5126,6 +5405,10 @@ int vtkExodusIIReader::RequestInformation(
     static double timeRange[] = { 0, 1 };
     outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
     }
+
+  // Advertise to downstream filters that this reader supports a fast-path
+  // for reading data over time.
+  outInfo->Set( vtkStreamingDemandDrivenPipeline::FAST_PATH_FOR_TEMPORAL_DATA(), 1 );
 
   if ( newMetadata )
     {
@@ -6005,4 +6288,38 @@ bool vtkExodusIIReader::FindXMLFile()
     }
 
   return false;
+}
+
+void vtkExodusIIReader::SetFastPathObjectType(const char *type)
+{
+  if(strcmp(type,"POINT")==0)
+    {
+    this->Metadata->SetFastPathObjectType(vtkExodusIIReader::NODAL);
+    }
+  else if(strcmp(type,"CELL")==0)
+    {
+    this->Metadata->SetFastPathObjectType(vtkExodusIIReader::ELEM_BLOCK);
+    }
+  else if(strcmp(type,"FACE")==0)
+    {
+    this->Metadata->SetFastPathObjectType(vtkExodusIIReader::FACE_BLOCK);
+    }
+  else if(strcmp(type,"EDGE")==0)
+    {
+    this->Metadata->SetFastPathObjectType(vtkExodusIIReader::EDGE_BLOCK);
+    }
+  this->Modified();
+}
+
+void vtkExodusIIReader::SetFastPathObjectId(vtkIdType id)
+{
+  this->Metadata->SetFastPathObjectId(id);
+  this->Modified();
+}
+
+
+void vtkExodusIIReader::SetFastPathIdType(const char *type)
+{
+  this->Metadata->SetFastPathIdType(type);
+  this->Modified();
 }

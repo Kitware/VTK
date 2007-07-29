@@ -31,6 +31,8 @@ class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationObjectBaseKey;
+class vtkInformationStringKey;
+class vtkInformationIdTypeKey;
 
 class VTK_FILTERING_EXPORT vtkStreamingDemandDrivenPipeline : public vtkDemandDrivenPipeline
 {
@@ -205,6 +207,25 @@ public:
   // Key to specify from 0 to 1 the priority of this update extent
   static vtkInformationDoubleKey* PRIORITY();
 
+  // Description:
+  // The following keys are meant to be used by an algorithm that 
+  // works with temporal data. Rather than re-executing the pipeline
+  // for each timestep, if the reader, as part of its API, contains
+  // a faster way to read temporal data, algorithms may use these
+  // keys to request temporal data from the reader.
+  // See also: vtkExtractArraysOverTime. 
+
+  // Key to allow a reader to advertise that it supports a fast-path
+  // for reading data over time.
+  static vtkInformationIntegerKey* FAST_PATH_FOR_TEMPORAL_DATA();
+  // The type of data being requested.
+  // Possible values: POINT, CELL, EDGE, FACE
+  static vtkInformationStringKey* FAST_PATH_OBJECT_TYPE();
+  // Possible values: INDEX, GLOBAL
+  static vtkInformationStringKey* FAST_PATH_ID_TYPE();
+  // The id (either index or global id) being requested
+  static vtkInformationIdTypeKey* FAST_PATH_OBJECT_ID();
+
 protected:
   vtkStreamingDemandDrivenPipeline();
   ~vtkStreamingDemandDrivenPipeline();
@@ -218,10 +239,20 @@ protected:
   // We know that it does not have this time step.
   static vtkInformationDoubleVectorKey* PREVIOUS_UPDATE_TIME_STEPS();
 
+  // Keep track of the fast path keys corresponding to the 
+  // previous executing. If all key values are the same as their
+  // counterparts in the previous request, we do not need to re-execute.
+  static vtkInformationIdTypeKey* PREVIOUS_FAST_PATH_OBJECT_ID();
+  static vtkInformationStringKey* PREVIOUS_FAST_PATH_OBJECT_TYPE();
+  static vtkInformationStringKey* PREVIOUS_FAST_PATH_ID_TYPE();
+
   // Does the time request correspond to what is in the data?
   // Returns 0 if yes, 1 otherwise.
   virtual int NeedToExecuteBasedOnTime(vtkInformation* outInfo,
                                        vtkDataObject* dataObject);
+
+  // If the request contains a fast path key for temporal data, always execute
+  virtual int NeedToExecuteBasedOnFastPathData(vtkInformation* outInfo);
 
   // Setup default information on the output after the algorithm
   // executes information.

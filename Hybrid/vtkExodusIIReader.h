@@ -53,7 +53,7 @@ public:
   static vtkExodusIIReader *New();
   vtkTypeRevisionMacro(vtkExodusIIReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Determine if the file can be readed with this reader.
   int CanReadFile(const char* fname);
@@ -148,6 +148,8 @@ public:
     MATERIAL = 62,
     HIERARCHY = 63,
     // extended values (not in Exodus headers) for use in cache keys:
+    NODAL_TEMPORAL = 101,      //!< nodal data across timesteps
+    ELEM_BLOCK_TEMPORAL = 100,  //!< element data across timesteps
     GLOBAL_CONN = 99,          //!< connectivity assembled from all blocks+sets to be loaded
     ELEM_BLOCK_ELEM_CONN = 98, //!< raw element block connectivity for elements (not edges/faces)
     ELEM_BLOCK_FACE_CONN = 97, //!< raw element block connectivity for faces (references face blocks)
@@ -611,7 +613,27 @@ public:
     { return this->GetObjectArrayStatus(ELEM_SET, name); }
   void SetElementSetResultArrayStatus(const char* name, int flag)
     { this->SetObjectArrayStatus(ELEM_SET, name, flag); }
-  
+
+  // Description:
+  // The following are set using the fast-path keys found in 
+  // vtkPExodusIIReader's input information. 
+  // Fast-path keys are meant to be used by an filter that 
+  // works with temporal data. Rather than re-executing the pipeline
+  // for each timestep, since the exodus reader, as part of its API, contains
+  // a faster way to read temporal data, algorithms may use these
+  // keys to request temporal data.
+  // See also: vtkExtractArraysOverTime. 
+
+  // Set the fast-path keys. All three must be set for the fast-path
+  // option to work.
+  // Possible argument values: "POINT","CELL","EDGE","FACE"
+  void SetFastPathObjectType(const char *type);
+  // Possible argument values: "INDEX","GLOBAL"
+  // "GLOBAL" means the id refers to a global id
+  // "INDEX" means the id refers to an index into the VTK array
+  void SetFastPathIdType(const char *type);
+  void SetFastPathObjectId(vtkIdType id);
+
 protected:
   vtkExodusIIReader();
   ~vtkExodusIIReader();
@@ -665,8 +687,10 @@ protected:
   int PackExodusModelOntoOutput;
   int ExodusModelMetadata;
 
+  int ProcessRequest( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestInformation( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestData( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  //int RequestDataOverTime( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   virtual void SetExodusModel( vtkExodusModel* em );
 

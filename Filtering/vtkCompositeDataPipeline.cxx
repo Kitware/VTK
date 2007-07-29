@@ -26,6 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
+#include "vtkInformationIdTypeKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
@@ -79,7 +80,7 @@ PURPOSE.  See the above copyright notice for more information.
         !strcmp(name, "vtkTemporalStreamTracer")) \
       { \
 */
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.62");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.63");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
@@ -625,7 +626,7 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
       {
       time = outInfo->Get(UPDATE_TIME_STEPS())[0];
       }
-    
+
     // There must be a bug somehwere. If this Remove()
     // is not called, the following Set() has the effect
     // of removing (!) the key.
@@ -1236,6 +1237,18 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
           if (outInfo->Has(UPDATE_TIME_STEPS()))
             {
             inInfo->CopyEntry(outInfo, UPDATE_TIME_STEPS());
+            }
+          if (outInfo->Has(FAST_PATH_OBJECT_ID()))
+            {
+            inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_ID());
+            }
+          if (outInfo->Has(FAST_PATH_ID_TYPE()))
+            {
+            inInfo->CopyEntry(outInfo, FAST_PATH_ID_TYPE());
+            }
+          if (outInfo->Has(FAST_PATH_OBJECT_TYPE()))
+            {
+            inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_TYPE());
             }
           vtkDebugMacro(<< "CopyEntry UPDATE_PIECE_NUMBER() " << outInfo->Get(UPDATE_PIECE_NUMBER()) << " " << outInfo);
 

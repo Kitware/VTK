@@ -23,6 +23,8 @@
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationStringKey.h"
+#include "vtkInformationIdTypeKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationRequestKey.h"
@@ -30,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.52");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.53");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -54,6 +56,13 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_TIME_STEPS, Doub
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_UPDATE_TIME_STEPS, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_RANGE, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PRIORITY, Double);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, FAST_PATH_FOR_TEMPORAL_DATA, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, FAST_PATH_OBJECT_TYPE, String);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, FAST_PATH_ID_TYPE, String);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, FAST_PATH_OBJECT_ID, IdType);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_OBJECT_ID, IdType);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_OBJECT_TYPE, String);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_ID_TYPE, String);
 
 //----------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
@@ -400,6 +409,22 @@ vtkStreamingDemandDrivenPipeline
             inInfo->CopyEntry(outInfo, UPDATE_TIME_STEPS());
             }
 
+          // Copy the fast-path-specific keys
+          if ( outInfo->Has(FAST_PATH_OBJECT_ID()) )
+            {
+            inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_ID());
+            }
+
+          if ( outInfo->Has(FAST_PATH_OBJECT_TYPE()) )
+            {
+            inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_TYPE());
+            }
+
+          if ( outInfo->Has(FAST_PATH_ID_TYPE()) )
+            {
+            inInfo->CopyEntry(outInfo, FAST_PATH_ID_TYPE());
+            }
+
           // If an algorithm wants an exact extent it must explicitly
           // add it to the request.  We do not want to get the setting
           // from another consumer of the same input.
@@ -507,6 +532,12 @@ vtkStreamingDemandDrivenPipeline
   info->Remove(TIME_RANGE());
   info->Remove(UPDATE_TIME_STEPS());
   info->Remove(PREVIOUS_UPDATE_TIME_STEPS());
+  info->Remove(FAST_PATH_OBJECT_ID());
+  info->Remove(FAST_PATH_OBJECT_TYPE());
+  info->Remove(FAST_PATH_ID_TYPE());
+  info->Remove(PREVIOUS_FAST_PATH_OBJECT_ID());
+  info->Remove(PREVIOUS_FAST_PATH_OBJECT_TYPE());
+  info->Remove(PREVIOUS_FAST_PATH_ID_TYPE());
 }
 
 //----------------------------------------------------------------------------
@@ -815,6 +846,35 @@ vtkStreamingDemandDrivenPipeline
         {
         outInfo->Remove(PREVIOUS_UPDATE_TIME_STEPS());
         }
+
+      // We are keeping track of the previous fast-path keys.
+      if (outInfo->Has(FAST_PATH_OBJECT_ID()))
+        {
+        outInfo->Set(PREVIOUS_FAST_PATH_OBJECT_ID(),
+                     outInfo->Get(FAST_PATH_OBJECT_ID()));
+        }
+      else
+        {
+        outInfo->Remove(PREVIOUS_FAST_PATH_OBJECT_ID());
+        }
+      if (outInfo->Has(FAST_PATH_OBJECT_TYPE()))
+        {
+        outInfo->Set(PREVIOUS_FAST_PATH_OBJECT_TYPE(),
+                     outInfo->Get(FAST_PATH_OBJECT_TYPE()));
+        }
+      else
+        {
+        outInfo->Remove(PREVIOUS_FAST_PATH_OBJECT_TYPE());
+        }
+      if (outInfo->Has(FAST_PATH_ID_TYPE()))
+        {
+        outInfo->Set(PREVIOUS_FAST_PATH_ID_TYPE(),
+                     outInfo->Get(FAST_PATH_ID_TYPE()));
+        }
+      else
+        {
+        outInfo->Remove(PREVIOUS_FAST_PATH_ID_TYPE());
+        }
       }
     }
 }
@@ -908,6 +968,11 @@ int vtkStreamingDemandDrivenPipeline
     return 1;
     }
 
+  if (this->NeedToExecuteBasedOnFastPathData(outInfo))
+    {
+    return 1;
+    }
+
   // We do not need to execute.
   return 0;
 }
@@ -981,6 +1046,44 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
       }
     }
   return 0;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnFastPathData(
+  vtkInformation* outInfo)
+{
+  // If this algorithm does not provide a temporal fast-path, we do not
+  // re-execute.
+  if (!outInfo->Has(FAST_PATH_FOR_TEMPORAL_DATA()) ||
+      (!outInfo->Has(FAST_PATH_OBJECT_ID()) &&
+       !outInfo->Has(FAST_PATH_OBJECT_TYPE()) &&
+       !outInfo->Has(FAST_PATH_ID_TYPE())) )
+    {
+    return 0;
+    }
+
+  // When all the fast-path keys are the same as all the previous ones, 
+  // don't re-execute.
+  if (outInfo->Has(FAST_PATH_OBJECT_ID()) &&
+      outInfo->Has(FAST_PATH_OBJECT_TYPE()) &&
+      outInfo->Has(FAST_PATH_ID_TYPE()) &&
+      outInfo->Has(PREVIOUS_FAST_PATH_OBJECT_ID()) &&
+      outInfo->Has(PREVIOUS_FAST_PATH_OBJECT_TYPE()) &&
+      outInfo->Has(PREVIOUS_FAST_PATH_ID_TYPE()))
+    {
+    if( (outInfo->Get(FAST_PATH_OBJECT_ID()) == 
+            outInfo->Get(PREVIOUS_FAST_PATH_OBJECT_ID())) &&
+        (outInfo->Get(FAST_PATH_OBJECT_TYPE()) == 
+            outInfo->Get(PREVIOUS_FAST_PATH_OBJECT_TYPE())) &&
+        (outInfo->Get(FAST_PATH_ID_TYPE()) == 
+            outInfo->Get(PREVIOUS_FAST_PATH_ID_TYPE())) )
+      {
+      return 0;
+      }  
+    }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

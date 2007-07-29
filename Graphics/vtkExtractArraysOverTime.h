@@ -63,16 +63,19 @@ protected:
   vtkExtractArraysOverTime();
   ~vtkExtractArraysOverTime();
 
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector**,
+                             vtkInformationVector*);
+
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector, 
                                  vtkInformationVector* outputVector);
   virtual int RequestUpdateExtent(vtkInformation* request,
                                   vtkInformationVector** inputVector,
                                   vtkInformationVector* outputVector);
-
-  virtual int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*);
+  virtual int RequestData(vtkInformation* request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
 
   virtual void PostExecute(vtkInformation* request,
                            vtkInformationVector** inputVector,
@@ -84,11 +87,27 @@ protected:
 
   vtkIdType GetIndex(vtkIdType selIndex, vtkDataSet* input);
 
+  // Description:
+  // This method doesn't care about the content type of the selection, 
+  // just grabs the value. 
+  vtkIdType GetSelectedId( vtkInformationVector** inputV, 
+                         vtkInformation* outInfo);
+
+  // Description:
+  // This looks at the arrays in the vtkFieldData of input and copies those
+  // whose names are in the form "XXXOverTime" to the output point data.
+  void CopyFastPathDataToOutput(vtkDataSet *input, vtkRectilinearGrid *output);
+
   int CurrentTimeIndex;
   int NumberOfTimeSteps;
 
   int FieldType;
   int ContentType;
+
+  bool WaitingForFastPathData;
+  bool IsExecuting;
+  bool UseFastPath;
+  vtkIdType SelectedId;
 
   void ExecuteIdAtTimeStep(vtkInformationVector** inputV, 
                            vtkInformation* outInfo);

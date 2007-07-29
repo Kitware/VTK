@@ -91,7 +91,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.8");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.9");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -520,6 +520,25 @@ int vtkPExodusIIReader::RequestData(
         this->ReaderList[reader_idx]->SetObjectArrayStatus(
           objResultTypes[typ], idx, this->GetObjectArrayStatus( objResultTypes[typ], idx ) );
         }
+      }
+
+    // Look for fast-path keys and propagate to sub-reader.
+    // All keys must be present for the fast-path to work.
+    if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE()) && 
+         outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID()) && 
+         outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE()))
+      {
+      const char *objectType = outInfo->Get(
+            vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE());
+      this->ReaderList[reader_idx]->SetFastPathObjectType(objectType);
+
+      vtkIdType objectId = outInfo->Get(
+            vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID());
+      this->ReaderList[reader_idx]->SetFastPathObjectId(objectId);
+
+      const char *idType = outInfo->Get(
+            vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE());
+      this->ReaderList[reader_idx]->SetFastPathIdType(idType);
       }
 
     this->ReaderList[reader_idx]->Update();
