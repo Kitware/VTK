@@ -91,7 +91,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.9");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.10");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -840,7 +840,7 @@ int vtkPExodusIIReader::DetermineFileId( const char* file )
 int vtkPExodusIIReader::DeterminePattern( const char* file )
 {
   char* prefix = vtkExodusReader::StrDupWithNew(file);
-  int slen = strlen( prefix );
+  int slen = strlen( file );
   char pattern[20] = "%s";
   int scount = 0;
   int cc = 0;
@@ -848,10 +848,11 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   int min=0, max=0;
 
   
-  // Check for .exii or .ex2v3.
-  // If .exii is present do not look for a numbered sequence.
-  char* ex2 = strstr(prefix, ".exii");
-  if ( ex2 )
+  // Check for specific extensions
+  // If .ex2 or .ex2v2 is present do not look for a numbered sequence.
+  char* ex2 = strstr(prefix, ".ex2");
+  char* ex2v2 = strstr(prefix, ".ex2v2");
+  if ( ex2 || ex2v2 )
     {
     // Set my info
     this->SetFilePattern( pattern );
@@ -860,7 +861,6 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     delete [] prefix;
     return VTK_OK;
     }
-
 
   char* ex2v3 = strstr(prefix, ".ex2v3");
   // Find minimum of range, if any
