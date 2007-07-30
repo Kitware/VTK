@@ -51,6 +51,7 @@ vtkDebugLeaks.cxx
 vtkDebugLeaksManager.cxx
 vtkDirectory.cxx
 vtkDoubleArray.cxx
+vtkDynamicLoader.cxx
 vtkEdgeTable.cxx
 vtkErrorCode.cxx
 vtkEventForwarderCommand.cxx
@@ -157,10 +158,6 @@ vtkWindow.cxx
 vtkWindowLevelLookupTable.cxx
 vtkXMLFileOutputWindow.cxx
 )
-
-IF(VTK_TARGET_SUPPORTS_SHARED_LIBS)
-  SET(Kit_SRCS ${Kit_SRCS} vtkDynamicLoader.cxx )
-ENDIF(VTK_TARGET_SUPPORTS_SHARED_LIBS)
 
 IF(VTK_TYPE_USE_LONG_LONG)
   SET(Kit_SRCS ${Kit_SRCS}

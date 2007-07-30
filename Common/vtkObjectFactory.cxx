@@ -15,20 +15,17 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkDebugLeaks.h"
+#include "vtkDynamicLoader.h"
 #include "vtkObjectFactoryCollection.h"
 #include "vtkOverrideInformation.h"
 #include "vtkOverrideInformationCollection.h"
 #include "vtkVersion.h"
 
-#ifdef VTK_TARGET_SUPPORTS_SHARED_LIBS
-#include "vtkDynamicLoader.h"
-#endif
-
 #include "vtksys/Directory.hxx"
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkObjectFactory, "1.45");
+vtkCxxRevisionMacro(vtkObjectFactory, "1.46");
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
@@ -105,7 +102,6 @@ void vtkObjectFactory::RegisterDefaults()
 {
 }
 
-#ifdef VTK_TARGET_SUPPORTS_SHARED_LIBS
 
 // Load all libraries in VTK_AUTOLOAD_PATH
 
@@ -282,15 +278,6 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
     }
 }
 
-#else
-
-// dummy functions if shared libraries are not supported
-void vtkObjectFactory::LoadDynamicFactories() {}
-
-void vtkObjectFactory::LoadLibrariesInPath(const char*) {}
-
-
-#endif
 
 // Recheck the VTK_AUTOLOAD_PATH for new libraries
 
@@ -412,9 +399,7 @@ void vtkObjectFactory::UnRegisterFactory(vtkObjectFactory* factory)
   vtkObjectFactory::RegisteredFactories->RemoveItem(factory);
   if(lib)
     {
-#ifdef VTK_TARGET_SUPPORTS_SHARED_LIBS
     vtkDynamicLoader::CloseLibrary((vtkLibHandle)lib);
-#endif
     }
 }
 
@@ -448,9 +433,7 @@ void vtkObjectFactory::UnRegisterAllFactories()
     void* lib = libs[i];
     if(lib)
       {
-#ifdef VTK_TARGET_SUPPORTS_SHARED_LIBS
       vtkDynamicLoader::CloseLibrary(reinterpret_cast<vtkLibHandle>(lib));
-#endif
       }
     }
   delete [] libs;
