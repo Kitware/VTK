@@ -12,6 +12,9 @@ Modifications
 You can search for code for "VTK_FREETYPE_CHANGE" to find modifications
 vs the original freetype code
 
+There are two fixes to compiler warnings. These changes come from
+freetype's CVS (post-2.3.5)
+
 Added Files
 -----------
 builds/win32/freetype/config/ftoption.h: 

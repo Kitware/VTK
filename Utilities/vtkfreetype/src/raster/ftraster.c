@@ -543,6 +543,8 @@
 #endif /* FT_STATIC_RASTER */
 
 
+#ifdef FT_RASTER_OPTION_ANTI_ALIASING
+
 static const char  count_table[256] =
 {
   0 , 1 , 1 , 2 , 1 , 2 , 2 , 3 , 1 , 2 , 2 , 3 , 2 , 3 , 3 , 4,
@@ -561,6 +563,8 @@ static const char  count_table[256] =
   3 , 4 , 4 , 5 , 4 , 5 , 5 , 6 , 4 , 5 , 5 , 6 , 5 , 6 , 6 , 7,
   3 , 4 , 4 , 5 , 4 , 5 , 5 , 6 , 4 , 5 , 5 , 6 , 5 , 6 , 6 , 7,
   4 , 5 , 5 , 6 , 5 , 6 , 6 , 7 , 5 , 6 , 6 , 7 , 6 , 7 , 7 , 8 };
+
+#endif /* FT_RASTER_OPTION_ANTI_ALIASING */
 
 
 
