@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.150");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.151");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -1194,3 +1194,26 @@ const char *vtkRenderWindow::GetRenderLibrary()
   return vtkGraphicsFactory::GetRenderLibrary();
 }
 
+// Description: Return the stereo type as a character string.
+// when this method was inlined, static linking on BlueGene failed
+// (symbol referenced which is defined in discarded section)
+const char *vtkRenderWindow::GetStereoTypeAsString()
+{
+  switch ( this->StereoType )
+  {
+    case VTK_STEREO_CRYSTAL_EYES:
+      return "CrystalEyes";
+    case VTK_STEREO_RED_BLUE:
+      return "RedBlue";
+    case VTK_STEREO_LEFT:
+      return "Left";
+    case VTK_STEREO_RIGHT:
+      return "Right";
+    case VTK_STEREO_DRESDEN:
+      return "DresdenDisplay";
+    case VTK_STEREO_ANAGLYPH:
+      return "Anaglyph";
+    default:
+      return "";
+  }
+}

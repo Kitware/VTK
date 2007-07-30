@@ -526,27 +526,4 @@ private:
   void operator=(const vtkRenderWindow&);  // Not implemented.
 };
 
-// Description:
-// Return the stereo type as a character string.
-inline const char *vtkRenderWindow::GetStereoTypeAsString()
-{
-  switch ( this->StereoType )
-    {
-    case VTK_STEREO_CRYSTAL_EYES:
-      return "CrystalEyes";
-    case VTK_STEREO_RED_BLUE:
-      return "RedBlue";
-    case VTK_STEREO_LEFT:
-      return "Left";
-    case VTK_STEREO_RIGHT:
-      return "Right";
-    case VTK_STEREO_DRESDEN:
-      return "DresdenDisplay";
-    case VTK_STEREO_ANAGLYPH:
-      return "Anaglyph";
-    default:
-      return "";
-    }
-}
-
 #endif
