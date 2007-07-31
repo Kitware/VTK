@@ -85,7 +85,6 @@ public:
     ISO8601_TIME_MILLIS = 3,
     ISO8601_TIME = 4
     };
-  //ETX
 
   static const int MILLIS_PER_SECOND  =     1000;
   static const int MILLIS_PER_MINUTE  =    60000;
@@ -97,6 +96,7 @@ public:
   static const int MINUTES_PER_HOUR   =       60;
   static const int MINUTES_PER_DAY    =     1440;
   static const int HOURS_PER_DAY      =       24;
+  //ETX
 
   // Description:
   // Converts a ISO8601 string into a VTK timepoint.
