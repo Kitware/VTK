@@ -45,7 +45,7 @@ using vtksys_ios::ofstream;
 # define SNPRINTF snprintf
 #endif
 
-vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.3");
+vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.4");
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 
 //----------------------------------------------------------------------------
@@ -570,7 +570,8 @@ double vtkDynamic2DLabelMapper::GetCurrentScale(vtkViewport *viewport)
     {
     // For perspective projection, the scale depends on the view angle
     double viewAngle = camera->GetViewAngle();
-    double unitAngle = atan2(1.0, abs(camera->GetPosition()[2]))*vtkMath::RadiansToDegrees();
+    double distZ = camera->GetPosition()[2] > 0 ? camera->GetPosition()[2] : -camera->GetPosition()[2];
+    double unitAngle = atan2(1.0, distZ)*vtkMath::RadiansToDegrees();
     double scale = ren->GetSize()[1] * unitAngle / viewAngle;
     return scale;
     }
