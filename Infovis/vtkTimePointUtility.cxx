@@ -19,7 +19,6 @@
 #include "vtkStdString.h"
 
 #include "vtksys/ios/sstream"
-#include <iomanip>
 
 const int vtkTimePointUtility::MILLIS_PER_SECOND  =     1000;
 const int vtkTimePointUtility::MILLIS_PER_MINUTE  =    60000;
@@ -32,7 +31,7 @@ const int vtkTimePointUtility::MINUTES_PER_HOUR   =       60;
 const int vtkTimePointUtility::MINUTES_PER_DAY    =     1440;
 const int vtkTimePointUtility::HOURS_PER_DAY      =       24;
 
-vtkCxxRevisionMacro(vtkTimePointUtility, "1.3");
+vtkCxxRevisionMacro(vtkTimePointUtility, "1.4");
 vtkStandardNewMacro(vtkTimePointUtility);
 
 void vtkTimePointUtility::PrintSelf(ostream& os, vtkIndent indent)
@@ -356,41 +355,64 @@ const char* vtkTimePointUtility::TimePointToISO8601(vtkTypeUInt64 time, int form
   oss.fill('0');
   if (format == ISO8601_DATETIME)
     {
-    oss << vtksys_ios::setw(4) << year << '-'
-      << vtksys_ios::setw(2) << month << '-'
-      << vtksys_ios::setw(2) << day << 'T'
-      << vtksys_ios::setw(2) << hour << ':'
-      << vtksys_ios::setw(2) << minute << ':'
-      << vtksys_ios::setw(2) << second;
+    oss.width(4);
+    oss << year << '-';
+    oss.width(2);
+    oss << month << '-';
+    oss.width(2);
+    oss << day << 'T';
+    oss.width(2);
+    oss << hour << ':';
+    oss.width(2);
+    oss << minute << ':';
+    oss.width(2);
+    oss << second;
     }
   else if (format == ISO8601_DATETIME_MILLIS)
     {
-    oss << vtksys_ios::setw(4) << year << '-'
-      << vtksys_ios::setw(2) << month << '-'
-      << vtksys_ios::setw(2) << day << 'T'
-      << vtksys_ios::setw(2) << hour << ':'
-      << vtksys_ios::setw(2) << minute << ':'
-      << vtksys_ios::setw(2) << second << '.'
-      << vtksys_ios::setw(3) << msec;
+    oss.width(4);
+    oss << year << '-';
+    oss.width(2);
+    oss << month << '-';
+    oss.width(2);
+    oss << day << 'T';
+    oss.width(2);
+    oss << hour << ':';
+    oss.width(2);
+    oss << minute << ':';
+    oss.width(2);
+    oss << second << '.';
+    oss.width(3);
+    oss << msec;
     }
   else if (format == ISO8601_DATE)
     {
-    oss << vtksys_ios::setw(4) << year << '-'
-      << vtksys_ios::setw(2) << month << '-'
-      << vtksys_ios::setw(2) << day;
+    oss.width(4);
+    oss << year << '-';
+    oss.width(2);
+    oss << month << '-';
+    oss.width(2);
+    oss << day;
     }
   else if (format == ISO8601_TIME)
     {
-    oss << vtksys_ios::setw(2) << hour << ':'
-      << vtksys_ios::setw(2) << minute << ':'
-      << vtksys_ios::setw(2) << second;
+    oss.width(2);
+    oss << hour << ':';
+    oss.width(2);
+    oss << minute << ':';
+    oss.width(2);
+    oss << second;
     }
   else if (format == ISO8601_TIME_MILLIS)
     {
-    oss << vtksys_ios::setw(2) << hour << ':'
-      << vtksys_ios::setw(2) << minute << ':'
-      << vtksys_ios::setw(2) << second << "."
-      << vtksys_ios::setw(3) << msec;
+    oss.width(2);
+    oss << hour << ':';
+    oss.width(2);
+    oss << minute << ':';
+    oss.width(2);
+    oss << second << ".";
+    oss.width(3);
+    oss << msec;
     }
   else
     {
