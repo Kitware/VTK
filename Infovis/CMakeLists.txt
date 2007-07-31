@@ -34,6 +34,7 @@ vtkStringToNumeric.cxx
 vtkTableToGraphFilter.cxx
 vtkTableToTreeFilter.cxx
 vtkThresholdTable.cxx
+vtkTimePointUtility.cxx
 vtkTreeFieldAggregator.cxx
 vtkTreeLayoutStrategy.cxx
 vtkTreeLevelsFilter.cxx
@@ -44,15 +45,6 @@ vtkTreeMapViewer.cxx
 vtkVertexDegree.cxx
 vtkXMLTreeReader.cxx
 )
-
-# Add the option to use Boost
-OPTION(VTK_USE_BOOST "Use Boost libraries for graph algorithms - www.boost.org." OFF)
-
-# Look for Boost only if using Boost
-IF(VTK_USE_BOOST)
-  FIND_PACKAGE(Boost REQUIRED)
-  INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-ENDIF(VTK_USE_BOOST)
 
 # Add these classes only if using Boost
 IF(VTK_USE_BOOST)
@@ -65,6 +57,18 @@ IF(VTK_USE_BOOST)
     vtkBoostConnectedComponents.cxx
   )
 ENDIF(VTK_USE_BOOST)
+
+# Add these classes only if vtkTypeUInt64Array exists
+SET(VTK_HAS_UINT64_ARRAY VTK_TYPE_USE___INT64 AND VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+SET(VTK_HAS_UINT64_ARRAY VTK_HAS_UINT64_ARRAY OR VTK_TYPE_USE_LONG_LONG)
+IF(VTK_HAS_UINT64_ARRAY)
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkStringToTimePoint.cxx
+    vtkTimePointToString.cxx
+  )
+ENDIF(VTK_HAS_UINT64_ARRAY)
+
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkGraphLayoutStrategy.cxx

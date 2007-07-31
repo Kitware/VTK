@@ -66,9 +66,8 @@ namespace boost {
       bool equal(const tree_edge_iterator& other) const
         { 
         return tree == other.tree &&
-               adj == other.adj &&
-               source == other.source &&
-               cur == other.cur; 
+               (adj+cur) == (other.adj+other.cur) &&
+               source == other.source;
         }
 
       void increment() { cur++; }
@@ -142,7 +141,7 @@ namespace boost {
   inline vtkIdType
   vtkTree_edge_id(
          graph_traits< vtkTree* >::edge_descriptor e,
-         const vtkTree*& g)
+         const vtkTree*& vtkNotUsed(g))
   {
     return e;
   }
@@ -187,8 +186,8 @@ namespace boost {
     vtkTree* g)
   {
     typedef graph_traits< vtkTree* >::out_edge_iterator Iter;
-    vtkIdType nverts;
-    const vtkIdType* verts;
+    vtkIdType nverts = 0;
+    const vtkIdType* verts = 0;
     g->GetOutVertices(u, nverts, verts);
     return vtksys_stl::make_pair( Iter(g, u, verts), Iter(g, u, verts + nverts) );
   }
@@ -201,8 +200,8 @@ namespace boost {
     vtkTree* g)
   {
     typedef graph_traits< vtkTree* >::in_edge_iterator Iter;
-    vtkIdType nverts;
-    const vtkIdType* verts;
+    vtkIdType nverts = 0;
+    const vtkIdType* verts = 0;
     g->GetInVertices(u, nverts, verts);
     if (u == g->GetRoot())
       {

@@ -11,6 +11,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestKdTreeBoxSelection
     TestRandomGraphSource
     TestTable
+    TestTreeMapLayoutStrategy
+    TestThresholdTable
     TestVariantArray
     TestVariant
     )
@@ -26,10 +28,19 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   IF (VTK_USE_BOOST)
     # add boost tests
     SET(MyTests ${MyTests}
+      TestBoostAdapter
       TestBoostAlgorithms
       #TestBoostTreeLayoutStrategy
       )
   ENDIF (VTK_USE_BOOST)
+  SET(VTK_HAS_UINT64_ARRAY VTK_TYPE_USE___INT64 AND VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+  SET(VTK_HAS_UINT64_ARRAY VTK_HAS_UINT64_ARRAY OR VTK_TYPE_USE_LONG_LONG)
+  IF(VTK_HAS_UINT64_ARRAY)
+    # add these tests only if vtkTypeUInt64Array exists
+    SET(MyTests ${MyTests}
+      TestTimePoint
+      )    
+  ENDIF(VTK_HAS_UINT64_ARRAY)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                          EXTRA_INCLUDE vtkTestDriver.h)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
