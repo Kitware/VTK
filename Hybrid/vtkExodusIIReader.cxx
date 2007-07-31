@@ -24,6 +24,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 #include <vtkstd/map>
+#include <vtkstd/set>
 #include "vtksys/SystemTools.hxx"
 
 #include "vtksys/RegularExpression.hxx"
@@ -242,6 +243,11 @@ public:
     return this->apbToBlocks[entry];
   }
 
+  virtual vtkstd::set<int> GetBlockIds()
+  {
+    return this->blockIds;
+  }
+
 protected:
   vtkExodusIIXMLParser()
     {
@@ -403,6 +409,7 @@ protected:
       if (blockString)
         {
         id=atoi(blockString);
+        this->blockIds.insert(id);
         }
       if (this->PartNumber!="" && id>=0)
         {
@@ -652,10 +659,11 @@ private:
   vtkstd::map<vtkStdString,vtkstd::vector<int> > apbToBlocks;
   vtkstd::map<vtkStdString,int> apbIndents;
 
+  vtkstd::set<int> blockIds;
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.22");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.23");
 
 
 
@@ -974,6 +982,8 @@ public:
   void SetFastPathObjectType(vtkExodusIIReader::ObjectType type){this->FastPathObjectType = type;};
   void SetFastPathObjectId(vtkIdType id){this->FastPathObjectId = id;};
   vtkSetStringMacro(FastPathIdType);
+
+  bool IsXMLMetadataValid();
 
 protected:
   vtkExodusIIReaderPrivate();
@@ -1389,7 +1399,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.22");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.23");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -4804,6 +4814,36 @@ void vtkExodusIIReaderPrivate::Reset()
   this->Modified();
 }
 
+bool vtkExodusIIReaderPrivate::IsXMLMetadataValid()
+{
+  // Make sure that each block id referred to in the metadata arrays exist
+  // in the data
+
+  vtkstd::set<int> blockIdsFromXml = this->Parser->GetBlockIds();
+  vtkstd::vector<BlockInfoType> blocksFromData = this->BlockInfo[vtkExodusIIReader::ELEM_BLOCK];  
+  vtkstd::vector<BlockInfoType>::iterator iter2;
+  vtkstd::set<int>::iterator iter;
+  bool isBlockValid = false;
+  for(iter = blockIdsFromXml.begin(); iter!=blockIdsFromXml.end(); ++iter)
+    {
+    isBlockValid = false;
+    for(iter2 = blocksFromData.begin(); iter2!=blocksFromData.end(); ++iter2)
+      {
+      if(*iter == (*iter2).Id)
+        {
+        isBlockValid = true;
+        break;
+        }
+      }
+    if(!isBlockValid)
+      {
+      break;
+      }
+    }
+
+  return isBlockValid;
+}
+
 void vtkExodusIIReaderPrivate::SetSqueezePoints( int sp )
 {
   if ( this->SqueezePoints == sp )
@@ -5220,7 +5260,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.22");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.23");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -5379,6 +5419,14 @@ int vtkExodusIIReader::RequestInformation(
         }
 
       this->Metadata->RequestInformation();
+
+      // Now check to see if the DART metadata is valid
+      if(this->Metadata->Parser && !this->Metadata->IsXMLMetadataValid())
+        { 
+        this->Metadata->Parser->Delete();
+        this->Metadata->Parser = 0;
+        }
+
       this->Metadata->CloseFile();
       newMetadata = 1;
       }
