@@ -16,6 +16,7 @@
 #include "vtkDynamic2DLabelMapper.h"
 
 #include "vtkActor2D.h"
+#include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
@@ -23,9 +24,11 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkKdTree.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkRenderer.h"
 #include "vtkSortDataArray.h"
 #include "vtkStringArray.h"
 #include "vtkTextMapper.h"
@@ -42,7 +45,7 @@ using vtksys_ios::ofstream;
 # define SNPRINTF snprintf
 #endif
 
-vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.2");
+vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.3");
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 
 //----------------------------------------------------------------------------
@@ -432,8 +435,8 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       }
     this->Cutoff = new float[this->NumberOfLabels];
 
-    //vtkTimerLog* timer = vtkTimerLog::New();
-    //timer->StartTimer();
+    vtkTimerLog* timer = vtkTimerLog::New();
+    timer->StartTimer();
 
     vtkCoordinate* coord = vtkCoordinate::New();
     coord->SetViewport(viewport);
@@ -447,10 +450,11 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       dc = coord->GetComputedDoubleDisplayValue(0);
       pts->InsertNextPoint(dc[0], dc[1], 0);
       }
+    coord->Delete();
 
-    //timer->StopTimer();
-    //cerr << "vtkDynamic2DLabelMapper computed display coordinates for " << timer->GetElapsedTime() << "s" << endl;
-    //timer->StartTimer();
+    timer->StopTimer();
+    vtkDebugMacro("vtkDynamic2DLabelMapper computed display coordinates for " << timer->GetElapsedTime() << "s");
+    timer->StartTimer();
 
     // Announce progress
     double progress = 0;
@@ -470,7 +474,6 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     vtkAbstractArray* arr = this->GetInputAbstractArrayToProcess(0, input);
     if (arr)
       {
-      //cerr << "array is not null" << endl;
       vtkSortDataArray::Sort(arr, index);
       }
     
@@ -519,19 +522,11 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     pts->Delete();
 
     // Determine the reference scale
-    // Transform 0,0 and 0,1 into screen coordinates
-    coord->SetValue(0.0, 0.0, 0.0);
-    double* dc = coord->GetComputedDoubleDisplayValue(0);
-    double pos0 = dc[0];
-    coord->SetValue(1.0, 0.0, 0.0);
-    dc = coord->GetComputedDoubleDisplayValue(0);
-    double pos1 = dc[0];
-    this->ReferenceScale = (float)(pos1 - pos0);
-    coord->Delete();
+    this->ReferenceScale = this->GetCurrentScale(viewport);    
 
-    //timer->StopTimer();
-    //cerr << "vtkDynamic2DLabelMapper computed label cutoffs for " << timer->GetElapsedTime() << "s" << endl;
-    //timer->Delete();
+    timer->StopTimer();
+    vtkDebugMacro("vtkDynamic2DLabelMapper computed label cutoffs for " << timer->GetElapsedTime() << "s");
+    timer->Delete();
     }
 
   //
@@ -539,17 +534,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   //
 
   // Determine the current scale
-  // Transform 0,0 and 0,1 into screen coordinates
-  vtkCoordinate* coord = vtkCoordinate::New();
-  coord->SetViewport(viewport);
-  coord->SetValue(0.0, 0.0, 0.0);
-  double* dc = coord->GetComputedDoubleDisplayValue(0);
-  double pos0 = dc[0];
-  coord->SetValue(1.0, 0.0, 0.0);
-  dc = coord->GetComputedDoubleDisplayValue(0);
-  double pos1 = dc[0];
-  float scale = (float)(pos1 - pos0) / this->ReferenceScale;
-  coord->Delete();
+  double scale = this->GetCurrentScale(viewport) / this->ReferenceScale;    
 
   for (i = 0; i < this->NumberOfLabels; i++)
     {
@@ -564,8 +549,36 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 }
 
 //----------------------------------------------------------------------------
+double vtkDynamic2DLabelMapper::GetCurrentScale(vtkViewport *viewport)
+{
+  // The current scale is the size on the screen of 1 unit in the xy plane
+
+  vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
+  if (!ren)
+    {
+    vtkErrorMacro("vtkDynamic2DLabelMapper only works in a vtkRenderer or subclass");
+    return 1.0;
+    }
+  vtkCamera* camera = ren->GetActiveCamera();
+  if (camera->GetParallelProjection())
+    {
+    // For parallel projection, the scale depends on the parallel scale 
+    double scale = (ren->GetSize()[1] / 2.0) / camera->GetParallelScale();
+    return scale;
+    }
+  else
+    {
+    // For perspective projection, the scale depends on the view angle
+    double viewAngle = camera->GetViewAngle();
+    double unitAngle = atan2(1.0, abs(camera->GetPosition()[2]))*vtkMath::RadiansToDegrees();
+    double scale = ren->GetSize()[1] * unitAngle / viewAngle;
+    return scale;
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkDynamic2DLabelMapper::RenderOverlay(vtkViewport *viewport, 
-                                          vtkActor2D *actor)
+                                            vtkActor2D *actor)
 {
   int i;
   double x[3];
@@ -573,23 +586,10 @@ void vtkDynamic2DLabelMapper::RenderOverlay(vtkViewport *viewport,
   vtkIdType numPts = input->GetNumberOfPoints();
 
   // Determine the current scale
-  // Transform 0,0 and 0,1 into screen coordinates
-  vtkCoordinate* coord = vtkCoordinate::New();
-  coord->SetViewport(viewport);
-  coord->SetValue(0.0, 0.0, 0.0);
-  double* dc = coord->GetComputedDoubleDisplayValue(0);
-  double x0 = dc[0];
-  double y0 = dc[1];
-  coord->SetValue(1.0, 1.0, 0.0);
-  dc = coord->GetComputedDoubleDisplayValue(0);
-  double x1 = dc[0];
-  double y1 = dc[1];
-  double absScaleX = (x1 - x0);
-  double absScaleY = (y1 - y0);
-  double scale = absScaleX / this->ReferenceScale;
+  double scale = this->GetCurrentScale(viewport) / this->ReferenceScale;
 
-  //vtkTimerLog* timer = vtkTimerLog::New();
-  //timer->StartTimer();
+  vtkTimerLog* timer = vtkTimerLog::New();
+  timer->StartTimer();
 
   if ( ! input )
     {
@@ -599,12 +599,11 @@ void vtkDynamic2DLabelMapper::RenderOverlay(vtkViewport *viewport,
   for (i=0; i<this->NumberOfLabels && i<numPts; i++)
     {
     input->GetPoint(i,x);
-    double screenX = x0 + absScaleX*x[0];
-    double screenY = y0 + absScaleY*x[1];
+    actor->SetPosition(x);
+    double* display = actor->GetPositionCoordinate()->GetComputedDoubleDisplayValue(viewport);
+    double screenX = display[0];
+    double screenY = display[1];
 
-    //vtkStringArray* arr = vtkStringArray::SafeDownCast(
-    //  input->GetPointData()->GetAbstractArray(0));
-    //cerr << "placing label \"" << arr->GetValue(i) << "\" at " << screenX << "," << screenY << endl;
     bool inside = 
       viewport->IsInViewport(
         static_cast<int>(screenX + this->LabelWidth[i]), 
@@ -620,16 +619,13 @@ void vtkDynamic2DLabelMapper::RenderOverlay(vtkViewport *viewport,
         static_cast<int>(screenY - this->LabelHeight[i]));
     if (inside && (1.0f / scale) < this->Cutoff[i])
       {
-      actor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
-      actor->GetPositionCoordinate()->SetValue(screenX, screenY, 0);
       this->TextMappers[i]->RenderOverlay(viewport, actor);
       }
     }
-  coord->Delete();
 
-  //timer->StopTimer();
-  //cerr << "vtkDynamic2DLabelMapper interactive time: " << timer->GetElapsedTime() << "s" << endl;
-  //timer->Delete();
+  timer->StopTimer();
+  vtkDebugMacro("vtkDynamic2DLabelMapper interactive time: " << timer->GetElapsedTime() << "s");
+  timer->Delete();
 }
 
 //----------------------------------------------------------------------------

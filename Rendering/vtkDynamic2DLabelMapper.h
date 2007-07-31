@@ -92,6 +92,10 @@ protected:
   vtkDynamic2DLabelMapper();
   ~vtkDynamic2DLabelMapper();
 
+  // Description:
+  // Calculate the current zoom scale of the viewport.
+  double GetCurrentScale(vtkViewport *viewport);
+  
   float* LabelWidth;
   float* LabelHeight;
   float* Cutoff;
