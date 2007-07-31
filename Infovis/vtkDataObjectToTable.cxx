@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkDataObjectToTable, "1.1");
+vtkCxxRevisionMacro(vtkDataObjectToTable, "1.2");
 vtkStandardNewMacro(vtkDataObjectToTable);
 //---------------------------------------------------------------------------
 vtkDataObjectToTable::vtkDataObjectToTable()
@@ -62,26 +62,35 @@ int vtkDataObjectToTable::RequestData(
     outputInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkFieldData* data = vtkFieldData::New();
-  if (this->FieldType == FIELD_DATA)
+  
+  switch(this->FieldType)
     {
-    data->ShallowCopy(input->GetFieldData());
+    case FIELD_DATA:
+      if(input->GetFieldData())
+        {
+        data->ShallowCopy(input->GetFieldData());
+        }
+      break;
+    case POINT_DATA:
+      if(vtkDataSet* const dataset = vtkDataSet::SafeDownCast(input))
+        {
+        if(dataset->GetPointData())
+          {
+          data->ShallowCopy(dataset->GetPointData());
+          }
+        }
+      break;
+    case CELL_DATA:
+      if(vtkDataSet* const dataset = vtkDataSet::SafeDownCast(input))
+        {
+        if(dataset->GetCellData())
+          {
+          data->ShallowCopy(dataset->GetCellData());
+          }
+        }
+      break;
     }
-  else
-    {
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(input);
-    if (!ds)
-      {
-      vtkErrorMacro("Input must be vtkDataSet to extract point or cell data.");
-      }
-    if (this->FieldType == POINT_DATA)
-      {
-      data->ShallowCopy(ds->GetPointData());
-      }
-    else if (this->FieldType == CELL_DATA)
-      {
-      data->ShallowCopy(ds->GetCellData());
-      }
-    }
+    
   output->SetFieldData(data);
   data->Delete();
   return 1;
