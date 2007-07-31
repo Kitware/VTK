@@ -30,50 +30,67 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Return the time point for 12:00am on a specified day.
   static vtkTypeUInt64 DateToTimePoint(
     int year, int month, int day);
 
   // Description:
+  // Return the time point for a time of day (the number of milliseconds from 12:00am.
+  // The hour should be from 0-23.
   static vtkTypeUInt64 TimeToTimePoint(
     int hour, int minute, int second, int millis = 0);
 
   // Description:
+  // Return the time point for a date and time.
   static vtkTypeUInt64 DateTimeToTimePoint(
     int year, int month, int day, 
     int hour, int minute, int sec, int millis = 0);
 
   // Description:
+  // Retrieve the year, month, and day of a time point.
+  // Everything but the first argument are output parameters.
   static void GetDate(vtkTypeUInt64 time, 
     int& year, int& month, int& day);
 
   // Description:
+  // Retrieve the hour, minute, second, and milliseconds of a time point.
+  // Everything but the first argument are output parameters.
   static void GetTime(vtkTypeUInt64 time, 
     int& hour, int& minute, int& second, int& millis);
 
   // Description:
+  // Retrieve the date and time of a time point.
+  // Everything but the first argument are output parameters.
   static void GetDateTime(vtkTypeUInt64 time, 
     int& year, int& month, int& day, 
     int& hour, int& minute, int& second, int& millis);
 
   // Description:
+  // Retrieve the year from a time point.
   static int GetYear(vtkTypeUInt64 time);
 
   // Description:
+  // Retrieve the month from a time point.
   static int GetMonth(vtkTypeUInt64 time);
 
   // Description:
+  // Retrieve the day of the month from a time point.
   static int GetDay(vtkTypeUInt64 time);
 
   // Description:
+  // Retrieve the hour of the day from the time point.
   static int GetHour(vtkTypeUInt64 time);
 
   // Description:
+  // Retrieve the number of minutes from the start of the last hour.
   static int GetMinute(vtkTypeUInt64 time);
 
   // Description:
+  // Retrieve the number of seconds from the start of the last minute.
   static int GetSecond(vtkTypeUInt64 time);
 
   // Description:
+  // Retrieve the milliseconds from the start of the last second.
   static int GetMillisecond(vtkTypeUInt64 time);
 
   //BTX
@@ -85,16 +102,16 @@ public:
     ISO8601_TIME = 4
     };
 
-  static const int MILLIS_PER_SECOND  =     1000;
-  static const int MILLIS_PER_MINUTE  =    60000;
-  static const int MILLIS_PER_HOUR    =  3600000;
-  static const int MILLIS_PER_DAY     = 86400000;
-  static const int SECONDS_PER_MINUTE =       60;
-  static const int SECONDS_PER_HOUR   =     3600;
-  static const int SECONDS_PER_DAY    =    86400;
-  static const int MINUTES_PER_HOUR   =       60;
-  static const int MINUTES_PER_DAY    =     1440;
-  static const int HOURS_PER_DAY      =       24;
+  static const int MILLIS_PER_SECOND;
+  static const int MILLIS_PER_MINUTE;
+  static const int MILLIS_PER_HOUR;
+  static const int MILLIS_PER_DAY;
+  static const int SECONDS_PER_MINUTE;
+  static const int SECONDS_PER_HOUR;
+  static const int SECONDS_PER_DAY;
+  static const int MINUTES_PER_HOUR;
+  static const int MINUTES_PER_DAY;
+  static const int HOURS_PER_DAY;
 
   // Description:
   // Converts a ISO8601 string into a VTK timepoint.
