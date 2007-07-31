@@ -33,7 +33,7 @@
 
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkTableToGraphFilter, "1.6");
+vtkCxxRevisionMacro(vtkTableToGraphFilter, "1.7");
 vtkStandardNewMacro(vtkTableToGraphFilter);
 
 vtkTableToGraphFilter::vtkTableToGraphFilter()
@@ -135,6 +135,9 @@ int vtkTableToGraphFilter::RequestData(
   vtkGraph* output = vtkGraph::SafeDownCast(
     outputInfo->Get(vtkDataObject::DATA_OBJECT()));
   output->SetDirected(this->Directed);
+  
+  // Get rid of the field data in the output
+  output->GetFieldData()->Initialize();
 
   // Extract edge source/target input arrays
   vtkAbstractArray* sourceArray = 
