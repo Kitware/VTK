@@ -84,6 +84,11 @@ IF(VTK_WRAP_JAVA)
       ${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2} ${JAVA_AWT_INCLUDE_PATH})
 ENDIF(VTK_WRAP_JAVA)
 
+IF(VTK_USE_BOOST)
+  # Boost include directories.
+  SET(VTK_INCLUDE_DIRS_SYSTEM ${VTK_INCLUDE_DIRS_SYSTEM} ${Boost_INCLUDE_DIR})
+ENDIF(VTK_USE_BOOST)
+
 #-----------------------------------------------------------------------------
 # Include directories from the build tree.
 SET(VTK_INCLUDE_DIRS_BUILD_TREE

@@ -894,6 +894,15 @@ ENDIF(VTK_WRAP_JAVA)
 
 VTK_PREPARE_CMAKEDEFINE("" JAVA_AWT_INCLUDE_PATH VTK_USE_JAWT)
 
+#-----------------------------------------------------------------------------
+# Add the option to use Boost
+OPTION(VTK_USE_BOOST "Use Boost libraries for graph algorithms - www.boost.org." OFF)
+
+# Look for Boost only if using Boost
+IF(VTK_USE_BOOST)
+  FIND_PACKAGE(Boost REQUIRED)
+ENDIF(VTK_USE_BOOST)
+
 ###################################
 
 ADD_SUBDIRECTORY(Utilities)
