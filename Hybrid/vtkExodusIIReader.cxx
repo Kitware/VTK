@@ -247,6 +247,7 @@ protected:
     {
     this->Metadata = 0;
     this->InMaterialAssignment = 0;
+    this->ParseMaterials = 0;
     }
   virtual ~vtkExodusIIXMLParser()
     {
@@ -654,7 +655,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.21");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.22");
 
 
 
@@ -1388,7 +1389,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.21");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.22");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -1418,6 +1419,9 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->NextSqueezePoint = 0;
 
   this->CachedConnectivity = 0;
+
+  this->EdgeFieldDecorations = 0;
+  this->FaceFieldDecorations = 0;
   
   this->Parser = 0;
 
@@ -5216,7 +5220,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.21");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.22");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
