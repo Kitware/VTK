@@ -21,10 +21,6 @@ ENDIF(UNIX)
 PYTHON_WRITE_MODULES_HEADER("${CMAKE_CURRENT_BINARY_DIR}/vtkpythonmodules.h")
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 
-IF(CMAKE_SYSTEM MATCHES BlueGene)
-  ADD_DEFINITIONS(-DPY_VTK_NO_THREADS)
-ENDIF(CMAKE_SYSTEM MATCHES BlueGene)
-
 # create the VTK/Python  executable
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h.in
                ${VTK_BINARY_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h)

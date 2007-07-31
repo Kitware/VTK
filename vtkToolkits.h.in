@@ -64,6 +64,9 @@
 /* Whether we are building MPI support.  */
 #cmakedefine VTK_USE_MPI
 
+/* E.g. on BlueGene and Cray there is no multithreading */
+#cmakedefine VTK_NO_PYTHON_THREADS
+
 /* Should VTK use the display?  */
 #cmakedefine VTK_USE_DISPLAY
 

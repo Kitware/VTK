@@ -162,7 +162,7 @@ int main(int argc, char **argv)
 
   // Initialize python thread support. This function should first be
   // called from the main thread, after Py_Initialize.
-#ifndef PY_VTK_NO_THREADS
+#ifndef VTK_NO_PYTHON_THREADS
   PyEval_InitThreads();
 #endif
 

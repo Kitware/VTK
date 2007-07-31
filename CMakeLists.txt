@@ -273,6 +273,12 @@ SET(VTK_MATERIALS_DIRS
 
 MARK_AS_ADVANCED(VTK_USE_CG_SHADERS VTK_USE_GLSL_SHADERS VTK_MATERIALS_DIRS)
 
+# Python multithreading support
+SET(_DEFAULT_PYTHON_MULTITHREADING_SUPPORT 1)
+IF(CMAKE_SYSTEM MATCHES BlueGene)
+  SET(_DEFAULT_PYTHON_MULTITHREADING_SUPPORT 0)
+ENDIF(CMAKE_SYSTEM MATCHES BlueGene)
+OPTION(VTK_NO_PYTHON_THREADS "Disable multithreading support in the Python bindings" ${_DEFAULT_PYTHON_MULTITHREADING_SUPPORT})
   
 # Determine GUI Support.
 VTK_DEPENDENT_OPTION(VTK_USE_GUISUPPORT "Build VTK with GUI Support" OFF
@@ -349,10 +355,10 @@ ADD_DEFINITIONS(-DVTK_IN_VTK)
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
 INCLUDE(${VTK_CMAKE_DIR}/CMakeBackwardCompatibilityC.cmake)
-INCLUDE(${CMAKE_ROOT}/Modules/TestForANSIStreamHeaders.cmake)
-INCLUDE(${CMAKE_ROOT}/Modules/TestForSTDNamespace.cmake)
-INCLUDE(${CMAKE_ROOT}/Modules/TestForANSIForScope.cmake)
-INCLUDE(${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
+INCLUDE(TestForANSIStreamHeaders)
+INCLUDE(TestForSTDNamespace)
+INCLUDE(TestForANSIForScope)
+INCLUDE(CheckTypeSize)
 
 # Simulate old CMakeBackwardCompatibilityCXX test.
 INCLUDE(${CMAKE_ROOT}/Modules/TestForSSTREAM.cmake)
