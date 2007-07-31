@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.7");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.8");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -257,15 +257,29 @@ int vtkExtractSelectedFrustum::RequestData(
       vtkDoubleArray *corners = vtkDoubleArray::SafeDownCast(
         sel->GetSelectionList());
       this->CreateFrustum(corners->GetPointer(0));
-      if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
-          sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
+      if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()))
         {
-        this->PassThroughOn();
+        this->SetPassThrough(
+          sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY())
+          );
         }
-      if (sel->GetProperties()->Has(vtkSelection::INVERSE()) &&
-          sel->GetProperties()->Get(vtkSelection::INVERSE()) != 0)
+      if (sel->GetProperties()->Has(vtkSelection::INVERSE()))
         {
-        this->InsideOutOn();
+        this->SetInsideOut(
+          sel->GetProperties()->Get(vtkSelection::INVERSE())
+          );
+        }
+      if (sel->GetProperties()->Has(vtkSelection::EXACT_TEST()))
+        {
+        this->SetExactTest(
+          sel->GetProperties()->Get(vtkSelection::EXACT_TEST())
+          );
+        }
+      if (sel->GetProperties()->Has(vtkSelection::SHOW_BOUNDS()))
+        {
+        this->SetShowBounds(
+          sel->GetProperties()->Get(vtkSelection::SHOW_BOUNDS())
+          );
         }
       }    
     }

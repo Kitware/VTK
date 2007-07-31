@@ -27,7 +27,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.10");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.11");
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
@@ -61,12 +61,22 @@ vtkSelectionSource::vtkSelectionSource()
   
   this->ContentType = vtkSelection::INDICES;
   this->FieldType = vtkSelection::CELL;
+  this->ContainingCells = 1;
+  this->PreserveTopology = 0;
+  this->Inverse = 0;
+  this->ExactTest = 1;
+  this->ShowBounds = 0;
+  this->ArrayName = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkSelectionSource::~vtkSelectionSource()
 {
   delete this->Internal;
+  if (this->ArrayName)
+    {
+    delete[] this->ArrayName;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -206,6 +216,14 @@ void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
     os << "UNKNOWN";
     }
   os << endl;
+
+  os << indent << "ContainingCells: ";
+  os << (this->ContainingCells?"CELLS":"POINTS") << endl;
+  os << indent << "PreserveTopology: " << this->PreserveTopology << endl;
+  os << indent << "Inverse: " << this->Inverse << endl;
+  os << indent << "ExactTest: " << this->ExactTest << endl;
+  os << indent << "ShowBounds: " << this->ShowBounds << endl;
+  os << indent << "ArrayName: " << (this->ArrayName?this->ArrayName:"NULL") << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -343,7 +361,24 @@ int vtkSelectionSource::RequestData(
     output->SetSelectionList(selectionList);
     selectionList->Delete();    
     }
-  
+
+  output->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(),
+                               this->ContainingCells);  
+
+  output->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(),
+                               this->PreserveTopology);
+
+  output->GetProperties()->Set(vtkSelection::INVERSE(),
+                               this->Inverse);
+
+  output->GetProperties()->Set(vtkSelection::ARRAY_NAME(),
+                               this->ArrayName);
+
+  output->GetProperties()->Set(vtkSelection::EXACT_TEST(),
+                               this->ExactTest);
+
+  output->GetProperties()->Set(vtkSelection::SHOW_BOUNDS(),
+                               this->ShowBounds);
   return 1;
 }
 

@@ -70,6 +70,32 @@ public:
   vtkSetMacro(FieldType, int);
   vtkGetMacro(FieldType, int);
 
+  // Description:
+  // When extracting by points, extract the cells that contain the 
+  // passing points.
+  vtkSetMacro(ContainingCells, int);
+  vtkGetMacro(ContainingCells, int);
+
+  // Description:
+  vtkSetMacro(PreserveTopology, int);
+  vtkGetMacro(PreserveTopology, int);
+
+  // Description:
+  vtkSetMacro(Inverse, int);
+  vtkGetMacro(Inverse, int);
+
+  // Description:
+  vtkSetStringMacro(ArrayName);
+  vtkGetStringMacro(ArrayName);
+  
+  // Description:
+  vtkSetMacro(ExactTest, int);
+  vtkGetMacro(ExactTest, int);
+
+  // Description:
+  vtkSetMacro(ShowBounds, int);
+  vtkGetMacro(ShowBounds, int);
+
 protected:
   vtkSelectionSource();
   ~vtkSelectionSource();
@@ -86,6 +112,12 @@ protected:
 
   int ContentType;
   int FieldType;
+  int ContainingCells;
+  int PreserveTopology;
+  int Inverse;
+  int ExactTest;
+  int ShowBounds;
+  char *ArrayName;
 
 private:
   vtkSelectionSource(const vtkSelectionSource&);  // Not implemented.

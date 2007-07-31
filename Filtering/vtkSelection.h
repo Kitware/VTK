@@ -265,6 +265,14 @@ public:
   static vtkSelection* GetData(vtkInformation* info);
   static vtkSelection* GetData(vtkInformationVector* v, int i=0);
 
+  // Description:
+  // For Frustum selection.
+  static vtkInformationIntegerKey* EXACT_TEST();
+
+  // Description:
+  // For Frustum selection.
+  static vtkInformationIntegerKey* SHOW_BOUNDS();
+
 protected:
   vtkSelection();
   ~vtkSelection();
