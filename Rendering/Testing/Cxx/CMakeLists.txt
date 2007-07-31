@@ -21,6 +21,7 @@ IF(VTK_USE_DISPLAY)
     SET(RenderingTestsWithArguments
       ${RenderingTestsWithArguments}
       TestAreaSelections.cxx
+      TestScenePicker.cxx
       )
   ENDIF(VTK_DATA_ROOT)
 

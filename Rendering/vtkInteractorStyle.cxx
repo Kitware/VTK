@@ -31,8 +31,9 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
+#include "vtkEventForwarderCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.101");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.102");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
@@ -73,6 +74,7 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->MouseWheelMotionFactor = 1.0;
   
   this->TimerDuration = 10;
+  this->EventForwarder = vtkEventForwarderCommand::New();
 }
 
 //----------------------------------------------------------------------------
@@ -100,6 +102,7 @@ vtkInteractorStyle::~vtkInteractorStyle()
   this->Outline = NULL;
 
   this->SetCurrentRenderer(NULL);
+  this->EventForwarder->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -236,8 +239,18 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
                    this->EventCallbackCommand, 
                    this->Priority);
     }
+  
+  this->EventForwarder->SetTarget(this->Interactor);
+  if (this->Interactor)
+    {
+    this->AddObserver(vtkCommand::StartInteractionEvent, this->EventForwarder);
+    this->AddObserver(vtkCommand::EndInteractionEvent, this->EventForwarder);
+    }
+  else
+    {
+    this->RemoveObserver(this->EventForwarder);
+    }
 }
-
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::FindPokedRenderer(int x,int y) 

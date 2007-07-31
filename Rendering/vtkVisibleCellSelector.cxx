@@ -197,7 +197,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.20");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.21");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -793,6 +793,77 @@ void vtkVisibleCellSelector::SetIdentPainter(vtkIdentColoredPainter *ip)
   if (this->Renderer != NULL)
     {
     this->Renderer->SetIdentPainter(ip);
+    }
+}
+
+//----------------------------------------------------------------------------
+// Get the cellId, actor etc at this display position. Makes sense only
+// after Select() has been called.
+//
+void vtkVisibleCellSelector::GetPixelSelection( 
+    int displayPos[2],
+    vtkIdType & procId,
+    vtkIdType & cellId,
+    vtkIdType & vertId,
+    vtkProp  *& actorPtr )
+{
+  procId = vertId = cellId = -1;
+  actorPtr = NULL;
+  
+  // Check if its within the rendered area
+
+  if ((unsigned int)displayPos[0] < this->X0 || 
+      (unsigned int)displayPos[0] > this->X1 ||
+      (unsigned int)displayPos[1] < this->Y0 || 
+      (unsigned int)displayPos[1] > this->Y1)
+    {
+    return;
+    }
+
+  // Locate the pointers in the rendered color buffers.
+
+  int Width = this->X1-this->X0+1;
+  unsigned long offset =     
+    ((displayPos[1]-this->Y0) * Width + displayPos[0]-this->X0);
+
+  unsigned char *proc  = this->PixBuffer[0];
+  unsigned char *actor = this->PixBuffer[1];
+  unsigned char *cidH  = this->PixBuffer[2];
+  unsigned char *cidM  = this->PixBuffer[3];
+  unsigned char *cidL  = this->PixBuffer[4];
+  unsigned char *vert  = this->PixBuffer[5];
+  
+  proc  = (proc ==NULL) ? NULL : proc  +4 * offset;
+  actor = (actor==NULL) ? NULL : actor +4 * offset;
+  cidH  = (cidH ==NULL) ? NULL : cidH  +4 * offset;
+  cidM  = (cidM ==NULL) ? NULL : cidM  +4 * offset;
+  cidL  = (cidL ==NULL) ? NULL : cidL  +4 * offset;
+  vert  = (vert ==NULL) ? NULL : vert  +4 * offset;
+
+  // Now decode the info from these pointers
+
+  vtkVisibleCellSelectorInternals nhit, zero;
+  nhit.Init(proc, actor, cidH, cidM, cidL);
+
+  if (nhit != zero)
+    {
+
+    procId    = nhit.GetField(0);                           //procid
+    actorPtr  = this->GetActorFromId( nhit.GetField(1) );   //actorid
+
+#if (VTK_SIZEOF_ID_TYPE == 8)
+      cellId = (nhit.GetField(2) << 32) | nhit.GetField(3); // cellId
+#else 
+      cellId = nhit.GetField(3);                            // cellId
+#endif
+
+    // vertId
+    if (this->DoVertices && vert && (vert[0] || vert[1] || vert[2]))
+      {          
+      vertId = (((vtkIdType)vert[0])<<16) |
+               (((vtkIdType)vert[1])<< 8) |
+               (((vtkIdType)vert[2])    ) - 1;
+      }
     }
 }
 

@@ -113,6 +113,7 @@ vtkRepresentationPainter.cxx
 vtkScalarBarActor.cxx
 vtkScalarsToColorsPainter.cxx
 vtkScaledTextActor.cxx
+vtkScenePicker.cxx
 vtkSelectVisiblePoints.cxx
 vtkShader.cxx
 vtkShaderProgram.cxx

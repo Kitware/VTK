@@ -109,6 +109,7 @@
 class vtkActor2D;
 class vtkActor;
 class vtkCallbackCommand;
+class vtkEventForwarderCommand;
 class vtkOutlineSource;
 class vtkPolyDataMapper;
 class vtkProp3D;
@@ -306,6 +307,9 @@ protected:
 
   // Control the timer duration
   unsigned long  TimerDuration; //in milliseconds
+  
+  // Forward evets to the RenderWindowInteractor
+  vtkEventForwarderCommand * EventForwarder;
 
 private:
   vtkInteractorStyle(const vtkInteractorStyle&);  // Not implemented.

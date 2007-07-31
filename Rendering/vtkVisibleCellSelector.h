@@ -138,6 +138,15 @@ public:
   // For debugging - prints out the list of selected ids.
   void PrintSelectedIds(vtkIdTypeArray *IdsToPrint);
 
+  // Description:
+  // Get the cellId, vertexIds, actor, processor rendering the actor at a 
+  // given display position. Makes sense only after Select() has been called.
+  void GetPixelSelection( int displayPos[2],
+                          vtkIdType & procId,
+                          vtkIdType & cellId,
+                          vtkIdType & vertId,
+                          vtkProp  *& actorPtr );  
+
 protected:
   vtkVisibleCellSelector();
   ~vtkVisibleCellSelector();
