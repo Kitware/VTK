@@ -95,7 +95,6 @@ public:
   static const int MINUTES_PER_HOUR   =       60;
   static const int MINUTES_PER_DAY    =     1440;
   static const int HOURS_PER_DAY      =       24;
-  //ETX
 
   // Description:
   // Converts a ISO8601 string into a VTK timepoint.
@@ -104,6 +103,7 @@ public:
   // the second argument.  The value will be set to true if the
   // string was parsed successfully, false otherwise.
   static vtkTypeUInt64 ISO8601ToTimePoint(const char* str, bool* ok = NULL);
+  //ETX
 
   // Description:
   // Converts a VTK timepoint into one of the following ISO8601
