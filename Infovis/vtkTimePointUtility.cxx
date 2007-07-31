@@ -20,7 +20,7 @@
 
 #include "vtksys/ios/sstream"
 
-vtkCxxRevisionMacro(vtkTimePointUtility, "1.1");
+vtkCxxRevisionMacro(vtkTimePointUtility, "1.2");
 vtkStandardNewMacro(vtkTimePointUtility);
 
 void vtkTimePointUtility::PrintSelf(ostream& os, vtkIndent indent)
@@ -181,10 +181,12 @@ int vtkTimePointUtility::GetMillisecond(vtkTypeUInt64 time)
   return static_cast<int>(time % MILLIS_PER_SECOND);
 }
 
-vtkTypeUInt64 vtkTimePointUtility::ISO8601ToTimePoint(vtkStdString str, bool* ok)
+vtkTypeUInt64 vtkTimePointUtility::ISO8601ToTimePoint(const char* cstr, bool* ok)
 {
   bool formatValid = true;
   vtkTypeUInt64 value = 0;
+  
+  vtkStdString str(cstr);
 
   if (str.length() == 19 || str.length() == 23)
     {
@@ -329,12 +331,11 @@ vtkTypeUInt64 vtkTimePointUtility::ISO8601ToTimePoint(vtkStdString str, bool* ok
   if (ok != NULL)
     {
     *ok = formatValid;
-    //cerr << "coverted " << str << " to " << value << ", ok=" << *ok << endl;
     }
   return value;
 }
 
-vtkStdString vtkTimePointUtility::TimePointToISO8601(vtkTypeUInt64 time, int format)
+const char* vtkTimePointUtility::TimePointToISO8601(vtkTypeUInt64 time, int format)
 {
   int year, month, day, hour, minute, second, msec;
   GetDateTime(time, year, month, day, hour, minute, second, msec);
@@ -382,8 +383,9 @@ vtkStdString vtkTimePointUtility::TimePointToISO8601(vtkTypeUInt64 time, int for
   else
     {
     vtkGenericWarningMacro(<< "Format undefined.");
-    return vtkStdString();
+    return 0;
     }
-  //cerr << "converted " << time << " to " << oss.str() << endl;
-  return oss.str();
+  char* copy = new char[25];
+  strcpy(copy, oss.str().c_str());
+  return copy;
 }

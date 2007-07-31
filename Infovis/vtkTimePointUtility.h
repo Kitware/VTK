@@ -21,7 +21,6 @@
 #define __vtkTimePointUtility_h
 
 #include "vtkObject.h"
-#include "vtkStdString.h" // For string conversions
 
 class VTK_INFOVIS_EXPORT vtkTimePointUtility : public vtkObject
 {
@@ -104,7 +103,7 @@ public:
   // in ToISO8601.  To check for a valid format, pass a bool* as
   // the second argument.  The value will be set to true if the
   // string was parsed successfully, false otherwise.
-  static vtkTypeUInt64 ISO8601ToTimePoint(vtkStdString str, bool* ok = NULL);
+  static vtkTypeUInt64 ISO8601ToTimePoint(const char* str, bool* ok = NULL);
 
   // Description:
   // Converts a VTK timepoint into one of the following ISO8601
@@ -123,7 +122,7 @@ public:
   // 4 ISO8601_TIME            [hh]:[mm]:[ss]
   //                           03:04:05
   // </PRE>
-  static vtkStdString TimePointToISO8601(
+  static const char* TimePointToISO8601(
     vtkTypeUInt64, int format = ISO8601_DATETIME_MILLIS);
 
 protected:
