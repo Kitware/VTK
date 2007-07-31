@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTree - A graph representing a hieredgehical tree.
+// .NAME vtkTree - A graph representing a hierarchical tree.
 //
 // .SECTION Description
 // The tree contains a root vertex, and each vertex may contain one or more
@@ -57,9 +57,9 @@ public:
   virtual void GetOutVertices(vtkIdType vertex, vtkGraphIdList* vertices);
 
   // Description:
-  virtual void GetAdjacentVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType* verts);
-  virtual void GetInVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType* verts);
-  virtual void GetOutVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType* verts);
+  virtual void GetAdjacentVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType*& verts);
+  virtual void GetInVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType*& verts);
+  virtual void GetOutVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType*& verts);
 
   // Description:
   // Fill edges with the edge IDs of every edge incident to a certain vertex.

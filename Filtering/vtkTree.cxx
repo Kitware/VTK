@@ -31,7 +31,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTree, "1.8");
+vtkCxxRevisionMacro(vtkTree, "1.9");
 vtkStandardNewMacro(vtkTree);
 
 //----------------------------------------------------------------------------
@@ -87,28 +87,19 @@ vtkIdType vtkTree::GetNumberOfVertices()
 //----------------------------------------------------------------------------
 void vtkTree::GetAdjacentVertices(vtkIdType vertex, vtkGraphIdList* vertexIds)
 {
-  vertexIds->Reset();
-  if (vertex != this->Root)
-    {
-    vertexIds->InsertNextId(this->GetParent(vertex));
-    }
-  vtkIdType nchildren;
-  const vtkIdType* children;
-  this->VertexLinks->GetOutAdjacent(vertex, nchildren, children);
-  for (vtkIdType i = 0; i < nchildren; i++)
-    {
-    vertexIds->InsertNextId(children[i]);
-    }
+  vtkIdType nverts;
+  const vtkIdType* verts;
+  this->VertexLinks->GetAdjacent(vertex, nverts, verts);
+  vertexIds->SetArray(const_cast<vtkIdType*>(verts), nverts, true);
 }
 
 //----------------------------------------------------------------------------
 void vtkTree::GetInVertices(vtkIdType vertex, vtkGraphIdList* vertexIds)
 {
-  vertexIds->Reset();
-  if (vertex != this->Root)
-    {
-    vertexIds->InsertNextId(this->VertexLinks->GetInAdjacent(vertex, 0));
-    }
+  vtkIdType nverts;
+  const vtkIdType* verts;
+  this->VertexLinks->GetInAdjacent(vertex, nverts, verts);
+  vertexIds->SetArray(const_cast<vtkIdType*>(verts), nverts, true);
 }
 
 //----------------------------------------------------------------------------
@@ -121,19 +112,19 @@ void vtkTree::GetOutVertices(vtkIdType vertex, vtkGraphIdList* vertexIds)
 }
 
 //----------------------------------------------------------------------------
-void vtkTree::GetAdjacentVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType* verts)
+void vtkTree::GetAdjacentVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType*& verts)
 {
   this->VertexLinks->GetAdjacent(vertex, nverts, verts);
 }
 
 //----------------------------------------------------------------------------
-void vtkTree::GetInVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType* verts)
+void vtkTree::GetInVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType*& verts)
 {
   this->VertexLinks->GetInAdjacent(vertex, nverts, verts);
 }
 
 //----------------------------------------------------------------------------
-void vtkTree::GetOutVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType* verts)
+void vtkTree::GetOutVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType*& verts)
 {
   this->VertexLinks->GetOutAdjacent(vertex, nverts, verts);
 }
