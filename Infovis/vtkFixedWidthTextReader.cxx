@@ -34,7 +34,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFixedWidthTextReader, "1.6");
+vtkCxxRevisionMacro(vtkFixedWidthTextReader, "1.7");
 vtkStandardNewMacro(vtkFixedWidthTextReader);
 
 // Function body at bottom of file
@@ -243,7 +243,7 @@ splitString(const vtkStdString& input,
     
     if (stripWhitespace)
       {
-      unsigned int startIndex = 0, endIndex = thisFieldText.size() - 1;
+      unsigned int startIndex = 0, endIndex = static_cast<unsigned int>(thisFieldText.size()) - 1;
       while (startIndex < thisFieldText.size() && 
              isspace(static_cast<int>(thisFieldText.at(startIndex))))
         {
@@ -276,7 +276,7 @@ splitString(const vtkStdString& input,
       }
     }
 
-  return results.size();
+  return static_cast<int>(results.size());
 }
 
 // ----------------------------------------------------------------------

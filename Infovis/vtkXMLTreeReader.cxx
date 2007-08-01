@@ -26,7 +26,7 @@
 #include <vtklibxml2/libxml/parser.h>
 #include <vtklibxml2/libxml/tree.h>
 
-vtkCxxRevisionMacro(vtkXMLTreeReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLTreeReader, "1.3");
 vtkStandardNewMacro(vtkXMLTreeReader);
 
 const char * vtkXMLTreeReader::TagNameField = ".tagname";
@@ -103,7 +103,7 @@ void vtkXMLTreeReaderProcessElement(vtkTree* tree,
     for (xmlAttr* curAttr = curNode->properties; curAttr; curAttr = curAttr->next)
       {
       const char* name = reinterpret_cast<const char*>(curAttr->name);
-      int len = strlen(name);
+      int len = static_cast<int>(strlen(name));
       char* validName = new char[len+8];
       strcpy(validName, ".valid.");
       strcat(validName, name);
@@ -171,7 +171,7 @@ int vtkXMLTreeReader::RequestData(
   else if (this->XMLString)
     {
     // Parse from memory and get the DOM
-    doc = xmlReadMemory(this->XMLString, strlen(this->XMLString), "noname.xml", NULL, 0);
+    doc = xmlReadMemory(this->XMLString, static_cast<int>(strlen(this->XMLString)), "noname.xml", NULL, 0);
     }
 
   // Store the XML hierarchy into a vtkTree

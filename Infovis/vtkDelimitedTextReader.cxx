@@ -31,7 +31,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.16");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.17");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -376,7 +376,7 @@ splitString(const vtkStdString& input,
     }
 
   results.push_back(currentField);
-  return results.size();
+  return static_cast<int>(results.size());
 }
 
 // ----------------------------------------------------------------------
