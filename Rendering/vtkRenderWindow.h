@@ -249,7 +249,7 @@ public:
   // maintained, 1.0 means all of the color is maintained.  The default
   // value is 0.65.  Too much saturation can produce uncomfortable 3D
   // viewing because anaglyphs also use color to encode 3D.
-  vtkSetClampMacro(AnaglyphColorSaturation,float, 0.0, 1.0);
+  vtkSetClampMacro(AnaglyphColorSaturation,float, 0.0f, 1.0f);
   vtkGetMacro(AnaglyphColorSaturation,float);
 
   //Description:

@@ -94,10 +94,10 @@ public:
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  virtual float GetGradientMagnitudeScale() {return 1.0;};
-  virtual float GetGradientMagnitudeBias()  {return 0.0;};
-  virtual float GetGradientMagnitudeScale(int) {return 1.0;};
-  virtual float GetGradientMagnitudeBias(int)  {return 0.0;};
+  virtual float GetGradientMagnitudeScale() {return 1.0f;};
+  virtual float GetGradientMagnitudeBias()  {return 0.0f;};
+  virtual float GetGradientMagnitudeScale(int) {return 1.0f;};
+  virtual float GetGradientMagnitudeBias(int)  {return 0.0f;};
   
 
   // Description:
