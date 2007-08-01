@@ -32,7 +32,7 @@
 #include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.20");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.21");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -60,19 +60,14 @@ int vtkExtractSelectedIds::RequestDataObject(
     {
     return 0;
     }
-  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
-  if (!selInfo)
-    {
-    return 0;
-    }
 
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-
   if (input)
     {
     int passThrough = 0;
-    if (inInfo)
+    vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
+    if (selInfo)
       {
       vtkSelection *sel = vtkSelection::SafeDownCast(
         selInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -129,29 +124,22 @@ int vtkExtractSelectedIds::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the selection, input and ouptut
+  // verify the input selection and ouptut
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if ( ! input )
     {
     vtkErrorMacro(<<"No input specified");
-    return 1;
+    return 0;
     }
 
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
+  if ( ! selInfo )
+    {
+    //When not given a selection, quietly select nothing.
+    return 1;
+    }
   vtkSelection *sel = vtkSelection::SafeDownCast(
     selInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if ( ! sel )
-    {
-    vtkErrorMacro(<<"No selection specified");
-    return 1;
-    }
-
-  vtkDebugMacro(<< "Extracting from dataset");
-
-
   if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE())
       || 
       (
@@ -162,8 +150,14 @@ int vtkExtractSelectedIds::RequestData(
         )
     )
     {
-    return 1;
+    vtkErrorMacro("Missing or incompatible CONTENT_TYPE.");
+    return 0;
     }
+
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  vtkDebugMacro(<< "Extracting from dataset");
   
   int fieldType = vtkSelection::CELL;
   if (sel->GetProperties()->Has(vtkSelection::FIELD_TYPE()))
@@ -895,6 +889,7 @@ int vtkExtractSelectedIds::FillInputPortInformation(
   else
     {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     }
   return 1;
 }

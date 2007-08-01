@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.11");
+vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.12");
 vtkStandardNewMacro(vtkExtractSelectedLocations);
 
 //----------------------------------------------------------------------------
@@ -60,19 +60,14 @@ int vtkExtractSelectedLocations::RequestDataObject(
     {
     return 0;
     }
-  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
-  if (!selInfo)
-    {
-    return 0;
-    }
   
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
   if (input)
     {
+    vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
     int passThrough = 0;
-    if (inInfo)
+    if (selInfo)
       {
       vtkSelection *sel = vtkSelection::SafeDownCast(
         selInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -129,29 +124,32 @@ int vtkExtractSelectedLocations::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   
-  // get the selection, input and ouptut
+  // verify the input, selection and ouptut
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if ( ! input )
     {
     vtkErrorMacro(<<"No input specified");
-    return 1;
+    return 0;
     }
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  if ( ! selInfo )
+    {
+    //When not given a selection, quietly select nothing.
+    return 1;
+    }  
+
   vtkSelection *sel = vtkSelection::SafeDownCast(
     selInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if ( ! sel )
-    {
-    vtkErrorMacro(<<"No selection specified");
-    return 1;
-    }
-  
   if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE()) ||
       sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::LOCATIONS)
     {
-    return 1;
+    vtkErrorMacro("Missing or incompatible CONTENT_TYPE.");
+    return 0;
     }
+
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   vtkDebugMacro(<< "Extracting from dataset");
   
@@ -599,6 +597,7 @@ int vtkExtractSelectedLocations::FillInputPortInformation(
   else
     {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     }
   return 1;
 }

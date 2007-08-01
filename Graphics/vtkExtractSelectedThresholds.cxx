@@ -30,7 +30,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkSignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.10");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.11");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -58,19 +58,14 @@ int vtkExtractSelectedThresholds::RequestDataObject(
     {
     return 0;
     }
-  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
-  if (!selInfo)
-    {
-    return 0;
-    }
   
   vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));  
   if (input)
     {
     int passThrough = 0;
-    if (inInfo)
+    vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
+    if (selInfo)
       {
       vtkSelection *sel = vtkSelection::SafeDownCast(
         selInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -127,31 +122,33 @@ int vtkExtractSelectedThresholds::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the selection, input and ouptut
+  // verify the input, selection and ouptut
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!input)
     {
     vtkErrorMacro(<<"No input specified");
+    return 0;
+    }
+
+  if ( ! selInfo )
+    {
+    //When not given a selection, quietly select nothing.
+    return 1;
+    }
+
+  vtkSelection *sel = vtkSelection::SafeDownCast(
+    selInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE()) ||
+      sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::THRESHOLDS)
+    {
+    vtkErrorMacro("Missing or invalid CONTENT_TYPE.");
     return 1;
     }
 
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkSelection *sel = vtkSelection::SafeDownCast(
-    selInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if ( ! sel )
-    {
-    vtkErrorMacro(<<"No selection specified");
-    return 1;
-    }
-
-  if (!sel->GetProperties()->Has(vtkSelection::CONTENT_TYPE()) ||
-      sel->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::THRESHOLDS)
-    {
-    return 1;
-    }
 
   vtkDebugMacro(<< "Extracting from dataset");
 
@@ -555,6 +552,7 @@ int vtkExtractSelectedThresholds::FillInputPortInformation(
   else
     {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     }
   return 1;
 }

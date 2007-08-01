@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.8");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.9");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -59,16 +59,16 @@ vtkExtractSelectedFrustum::vtkExtractSelectedFrustum(vtkPlanes *f)
 
   this->ClipPoints = vtkPoints::New();
   this->ClipPoints->SetNumberOfPoints(8);
-  double verts[32] =
+  double verts[32] = //an inside out unit cube - which selects nothing
     {
-    0.0,0.0,0.0,0.0,
-    0.0,0.0,0.0,0.0,
-    0.0,0.0,0.0,0.0,
-    0.0,0.0,0.0,0.0,
-    0.0,0.0,0.0,0.0,
-    0.0,0.0,0.0,0.0,
-    0.0,0.0,0.0,0.0,
-    0.0,0.0,0.0,0.0
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 1.0, 0.0,
+    0.0, 1.0, 0.0, 0.0,
+    0.0, 1.0, 1.0, 0.0,
+    1.0, 0.0, 0.0, 0.0,
+    1.0, 0.0, 1.0, 0.0,
+    1.0, 1.0, 0.0, 0.0,
+    1.0, 1.0, 1.0, 0.0
     };
   this->Frustum = f;
   if (this->Frustum)
@@ -183,29 +183,30 @@ int vtkExtractSelectedFrustum::RequestDataObject(
     {
     return 0;
     }
+
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
-  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
-  if (selInfo)
-    {
-    vtkSelection *sel = vtkSelection::SafeDownCast(
-      selInfo->Get(vtkDataObject::DATA_OBJECT()));
-    if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
-        sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
-      {
-      this->PassThrough = 1;
-      }
-    }
-
   if (input)
     {
+    this->PassThrough = 0;
+    vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
+    if (selInfo)
+      {
+      vtkSelection *sel = vtkSelection::SafeDownCast(
+        selInfo->Get(vtkDataObject::DATA_OBJECT()));
+      if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
+          sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
+        {
+        this->PassThrough = 1;
+        }
+      }
+
     for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
       {
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkDataSet *output = vtkDataSet::SafeDownCast(
         info->Get(vtkDataObject::DATA_OBJECT()));
-    
+      
       if (!output || 
           ((this->ShowBounds || !this->PassThrough) && !output->IsA("vtkUnstructuredGrid")) ||
           (this->PassThrough && !output->IsA(input->GetClassName()))
@@ -283,9 +284,10 @@ int vtkExtractSelectedFrustum::RequestData(
         }
       }    
     }
+
   if ( !this->Frustum )
     {
-    vtkErrorMacro(<<"No frustum specified");
+    //if we don't have a frustum, quietly select nothing
     return 1;
     }
 
@@ -1073,14 +1075,14 @@ void vtkExtractSelectedFrustum::PlaneClipEdge(double *V0, double *V1, int pid,
 int vtkExtractSelectedFrustum::FillInputPortInformation(
   int port, vtkInformation* info)
 {
-  if (port==1)
+  if (port==0)
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
-    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");    
     }
   else
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");    
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     }
   return 1;
 }
