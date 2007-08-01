@@ -67,7 +67,7 @@ public:
   vtkstd::vector<vtkDataArray*> OutArrays;
 };
 
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.13");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.14");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 
 //----------------------------------------------------------------------------
@@ -594,7 +594,6 @@ int vtkExtractArraysOverTime::AllocateOutputData(vtkDataSet *input,
 void vtkExtractArraysOverTime::CopyFastPathDataToOutput(vtkDataSet *input, 
                                                  vtkRectilinearGrid *output)
 {
-  vtkIdType numInputAttributes = 0;
   vtkDataSetAttributes* inputAttributes = 0;
   vtkDataSetAttributes* outputAttributes = 0;
   vtkFieldData *ifd = input->GetFieldData();
@@ -605,11 +604,9 @@ void vtkExtractArraysOverTime::CopyFastPathDataToOutput(vtkDataSet *input,
   switch (this->FieldType)
     {
     case vtkSelection::CELL:
-      numInputAttributes = input->GetNumberOfCells();
       inputAttributes = input->GetCellData();
       break;
     case vtkSelection::POINT:
-      numInputAttributes = input->GetNumberOfPoints();
       inputAttributes = input->GetPointData();
     }
 
