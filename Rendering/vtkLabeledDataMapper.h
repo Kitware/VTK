@@ -48,6 +48,7 @@
 class vtkDataSet;
 class vtkTextMapper;
 class vtkTextProperty;
+class vtkTransform;
 
 #define VTK_LABEL_IDS        0
 #define VTK_LABEL_SCALARS    1
@@ -138,6 +139,11 @@ public:
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   virtual void ReleaseGraphicsResources(vtkWindow *);
+  
+  // Description:
+  // The transform to apply to the labels before mapping to 2D.
+  vtkGetObjectMacro(Transform, vtkTransform);
+  void SetTransform(vtkTransform* t);
 
 protected:
   vtkLabeledDataMapper();
@@ -157,6 +163,7 @@ protected:
   int NumberOfLabels;
   int NumberOfLabelsAllocated;
   vtkTextMapper **TextMappers;
+  vtkTransform *Transform;
 
   virtual int FillInputPortInformation(int, vtkInformation*);
 

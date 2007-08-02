@@ -24,11 +24,13 @@
 #include "vtkStringArray.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.48");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.49");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
+vtkCxxSetObjectMacro(vtkLabeledDataMapper,Transform,vtkTransform);
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 # define SNPRINTF _snprintf
@@ -74,6 +76,8 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
   this->LabelTextProperty->SetItalic(1);
   this->LabelTextProperty->SetShadow(1);
   this->LabelTextProperty->SetFontFamilyToArial();
+  
+  this->Transform = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -95,6 +99,7 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
   
   this->SetLabelTextProperty(NULL);
   this->SetFieldDataName(NULL);
+  this->SetTransform(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -149,8 +154,13 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
   for (i=0; i<this->NumberOfLabels && i<numPts; i++)
     {
     input->GetPoint(i,x);
+    double* pos = x;
+    if (this->Transform)
+      {
+      pos = this->Transform->TransformDoublePoint(x);
+      }
     actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
-    actor->GetPositionCoordinate()->SetValue(x);
+    actor->GetPositionCoordinate()->SetValue(pos);
     this->TextMappers[i]->RenderOverlay(viewport, actor);
     }
 }
@@ -452,8 +462,13 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   for (i=0; i<this->NumberOfLabels; i++)
     {
     input->GetPoint(i,x);
+    double* pos = x;
+    if (this->Transform)
+      {
+      pos = this->Transform->TransformDoublePoint(x);
+      }
     actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
-    actor->GetPositionCoordinate()->SetValue(x);
+    actor->GetPositionCoordinate()->SetValue(pos);
     this->TextMappers[i]->RenderOpaqueGeometry(viewport, actor);
     }
 }
@@ -534,6 +549,12 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Field Data Array: " << this->FieldDataArray << "\n";
   os << indent << "Field Data Name: " << (this->FieldDataName ? this->FieldDataName : "Null") << "\n";
+  
+  os << indent << "Transform: " << (this->Transform ? "" : "(none)") << endl;
+  if (this->Transform)
+    {
+    this->LabelTextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
 }
 
 // ----------------------------------------------------------------------
