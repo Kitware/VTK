@@ -76,7 +76,7 @@ vtkActor *CreateActor1( int argc, char *argv[], vtkRenderer * aRenderer )
 
 //-----------------------------------------------------------------------------
 // Create a few actors first
-vtkActor * CreateActor2( int argc, char *argv[], vtkRenderer * ren )
+vtkActor * CreateActor2( int vtkNotUsed(argc), char **vtkNotUsed(argv), vtkRenderer * ren )
 {
   vtkSphereSource *ss = vtkSphereSource::New();
   ss->SetThetaResolution(30);
@@ -105,7 +105,7 @@ public:
     return new TestScenePickerCommand;
     }
 
-  virtual void Execute(vtkObject *caller, unsigned long eventId, void* callData)
+  virtual void Execute(vtkObject *caller, unsigned long vtkNotUsed(eventId), void* vtkNotUsed(callData))
     {
     vtkRenderWindowInteractor * iren = reinterpret_cast<
       vtkRenderWindowInteractor *>(caller);
