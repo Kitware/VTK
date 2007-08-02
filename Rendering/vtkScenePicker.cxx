@@ -58,7 +58,7 @@ protected:
   bool InteractiveRender;
 };
 
-vtkCxxRevisionMacro(vtkScenePicker, "1.1");
+vtkCxxRevisionMacro(vtkScenePicker, "1.2");
 vtkStandardNewMacro(vtkScenePicker);
 
 //----------------------------------------------------------------------------
@@ -250,4 +250,6 @@ void vtkScenePicker::Update( int displayPos[2] )
 void vtkScenePicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Renderer: " << this->Renderer << endl;
+  os << indent << "EnableVertexPicking: " << this->EnableVertexPicking << endl;
 }
