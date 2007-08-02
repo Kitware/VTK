@@ -145,8 +145,10 @@ MACRO(PYTHON_WRITE_MODULES_HEADER _filename)
   GET_FILENAME_COMPONENT(_name "${_filename}" NAME)
   STRING(REPLACE "." "_" _name "${_name}")
   STRING(TOUPPER ${_name} _name)
-  FILE(WRITE ${_filename} "/*Created by cmake, do not edit, changes will be lost*/\n")
-  FILE(APPEND ${_filename} 
+  
+  SET(_filenameTmp "${_filename}.in")
+  FILE(WRITE ${_filenameTmp} "/*Created by cmake, do not edit, changes will be lost*/\n")
+  FILE(APPEND ${_filenameTmp} 
 "#ifndef ${_name}
 #define ${_name}
 
@@ -159,10 +161,10 @@ extern \"C\" {
 ")
 
   FOREACH(_currentModule ${PY_STATIC_MODULES_LIST})
-    FILE(APPEND ${_filename} "extern void init${PYTHON_MODULE_PREFIX}${_currentModule}(void);\n\n")
+    FILE(APPEND ${_filenameTmp} "extern void init${PYTHON_MODULE_PREFIX}${_currentModule}(void);\n\n")
   ENDFOREACH(_currentModule ${PY_STATIC_MODULES_LIST})
 
-  FILE(APPEND ${_filename} 
+  FILE(APPEND ${_filenameTmp} 
 "#ifdef __cplusplus
 }
 #endif /* __cplusplus */
@@ -171,12 +173,15 @@ extern \"C\" {
 
 
   FOREACH(_currentModule ${PY_STATIC_MODULES_LIST})
-    FILE(APPEND ${_filename} "int CMakeLoadPythonModule_${_currentModule}(void) \n{\n  char name[]=\"${PYTHON_MODULE_PREFIX}${_currentModule}\"; return PyImport_AppendInittab(name, init${PYTHON_MODULE_PREFIX}${_currentModule});\n}\n\n")
+    FILE(APPEND ${_filenameTmp} "int CMakeLoadPythonModule_${_currentModule}(void) \n{\n  char name[]=\"${PYTHON_MODULE_PREFIX}${_currentModule}\"; return PyImport_AppendInittab(name, init${PYTHON_MODULE_PREFIX}${_currentModule});\n}\n\n")
   ENDFOREACH(_currentModule ${PY_STATIC_MODULES_LIST})
 
-  FILE(APPEND ${_filename} "#ifndef EXCLUDE_LOAD_ALL_FUNCTION\nvoid CMakeLoadAllPythonModules(void)\n{\n")
+  FILE(APPEND ${_filenameTmp} "#ifndef EXCLUDE_LOAD_ALL_FUNCTION\nvoid CMakeLoadAllPythonModules(void)\n{\n")
   FOREACH(_currentModule ${PY_STATIC_MODULES_LIST})
-    FILE(APPEND ${_filename} "  CMakeLoadPythonModule_${_currentModule}();\n")
+    FILE(APPEND ${_filenameTmp} "  CMakeLoadPythonModule_${_currentModule}();\n")
   ENDFOREACH(_currentModule ${PY_STATIC_MODULES_LIST})
-  FILE(APPEND ${_filename} "}\n#endif\n\n#endif\n")
+  FILE(APPEND ${_filenameTmp} "}\n#endif\n\n#endif\n")
+  
+# with CONFIGURE_FILE() cmake complains that you may not use a file created using FILE(WRITE) as input file for CONFIGURE_FILE()
+  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_filenameTmp}" "${_filename}" OUTPUT_QUIET ERROR_QUIET)
 ENDMACRO(PYTHON_WRITE_MODULES_HEADER)
