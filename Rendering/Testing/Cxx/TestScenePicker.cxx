@@ -112,7 +112,7 @@ public:
     int e[2];
     iren->GetEventPosition(e);
     cout << "DisplayPosition : (" << e[0] << "," << e[1] << ")"
-         << " Prop: "     << m_ActorDescription[m_Picker->GetViewProp(e)].c_str();
+         << " Prop: "     << m_ActorDescription[m_Picker->GetViewProp(e)].c_str()
          << " CellId: "   << m_Picker->GetCellId(e) 
          << " VertexId: " << m_Picker->GetVertexId(e)
          << endl;
