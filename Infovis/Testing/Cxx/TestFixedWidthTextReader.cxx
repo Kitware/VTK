@@ -84,6 +84,7 @@ TestFixedWidthTextReader(int argc, char *argv[])
     }
   
   reader->Delete();
+  delete [] filename;
 
   reader = vtkFixedWidthTextReader::New();
   filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
@@ -137,6 +138,7 @@ TestFixedWidthTextReader(int argc, char *argv[])
     }
   
   reader->Delete();
+  delete [] filename;
 
   return 0;
 }
