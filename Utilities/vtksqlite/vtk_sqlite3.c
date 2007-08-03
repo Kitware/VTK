@@ -6551,8 +6551,8 @@ static void computeJD(DateTime *p){
   }
   A = Y/100;
   B = 2 - A + (A/4);
-  X1 = 365.25*(Y+4716);
-  X2 = 30.6001*(M+1);
+  X1 = (int)(365.25*(Y+4716));
+  X2 = (int)(30.6001*(M+1));
   p->rJD = X1 + X2 + D + B - 1524.5;
   p->validJD = 1;
   if( p->validHMS ){
@@ -6657,14 +6657,14 @@ static void computeYMD(DateTime *p){
     p->M = 1;
     p->D = 1;
   }else{
-    Z = p->rJD + 0.5;
-    A = (Z - 1867216.25)/36524.25;
+    Z = (int)(p->rJD + 0.5);
+    A = (int)((Z - 1867216.25)/36524.25);
     A = Z + 1 + A - (A/4);
     B = A + 1524;
-    C = (B - 122.1)/365.25;
-    D = 365.25*C;
-    E = (B-D)/30.6001;
-    X1 = 30.6001*E;
+    C = (int)((B - 122.1)/365.25);
+    D = (int)(365.25*C);
+    E = (int)((B-D)/30.6001);
+    X1 = (int)(30.6001*E);
     p->D = B - D - X1;
     p->M = E<14 ? E-1 : E-13;
     p->Y = p->M>2 ? C - 4716 : C - 4715;
@@ -6679,10 +6679,10 @@ static void computeHMS(DateTime *p){
   int Z, s;
   if( p->validHMS ) return;
   computeJD(p);
-  Z = p->rJD + 0.5;
-  s = (p->rJD + 0.5 - Z)*86400000.0 + 0.5;
+  Z = (int)(p->rJD + 0.5);
+  s = (int)((p->rJD + 0.5 - Z)*86400000.0 + 0.5);
   p->s = 0.001*s;
-  s = p->s;
+  s = (int) p->s;
   p->s -= s;
   p->h = s/3600;
   s -= p->h*3600;
@@ -6725,13 +6725,13 @@ static double localtimeOffset(DateTime *p){
     x.m = 0;
     x.s = 0.0;
   } else {
-    int s = x.s + 0.5;
+    int s = (int)(x.s + 0.5);
     x.s = s;
   }
   x.tz = 0;
   x.validJD = 0;
   computeJD(&x);
-  t = (x.rJD-2440587.5)*86400.0 + 0.5;
+  t = (int)((x.rJD-2440587.5)*86400.0 + 0.5);
 #ifdef HAVE_LOCALTIME_R
   {
     struct tm sLocal;
@@ -6842,13 +6842,13 @@ static int parseModifier(const char *zMod, DateTime *p){
       ** date is already on the appropriate weekday, this is a no-op.
       */
       if( strncmp(z, "weekday ", 8)==0 && getValue(&z[8],&r)>0
-                 && (n=r)==r && n>=0 && r<7 ){
+                 && (n=(int)r)==r && n>=0 && r<7 ){
         int Z;
         computeYMD_HMS(p);
         p->validTZ = 0;
         p->validJD = 0;
         computeJD(p);
-        Z = p->rJD + 1.5;
+        Z = (int)(p->rJD + 1.5);
         Z %= 7;
         if( Z>n ) Z -= 7;
         p->rJD += n - Z;
@@ -6940,19 +6940,19 @@ static int parseModifier(const char *zMod, DateTime *p){
       }else if( n==5 && strcmp(z,"month")==0 ){
         int x, y;
         computeYMD_HMS(p);
-        p->M += r;
+        p->M += (int)r;
         x = p->M>0 ? (p->M-1)/12 : (p->M-12)/12;
         p->Y += x;
         p->M -= x*12;
         p->validJD = 0;
         computeJD(p);
-        y = r;
+        y = (int)r;
         if( y!=r ){
           p->rJD += (r - y)*30.0;
         }
       }else if( n==4 && strcmp(z,"year")==0 ){
         computeYMD_HMS(p);
-        p->Y += r;
+        p->Y += (int)r;
         p->validJD = 0;
         computeJD(p);
       }else{
@@ -7168,7 +7168,7 @@ static void strftimeFunc(
           y.M = 1;
           y.D = 1;
           computeJD(&y);
-          nDay = x.rJD - y.rJD + 0.5;
+          nDay = (int)(x.rJD - y.rJD + 0.5);
           if( zFmt[i]=='W' ){
             int wd;   /* 0=Monday, 1=Tuesday, ... 6=Sunday */
             wd = ((int)(x.rJD+0.5)) % 7;
@@ -29749,7 +29749,7 @@ SQLITE_PRIVATE double sqlite3VdbeRealValue(Mem *pMem){
 */
 SQLITE_PRIVATE void sqlite3VdbeIntegerAffinity(Mem *pMem){
   assert( pMem->flags & MEM_Real );
-  pMem->u.i = pMem->r;
+  pMem->u.i = (int)pMem->r;
   if( ((double)pMem->u.i)==pMem->r ){
     pMem->flags |= MEM_Int;
   }
@@ -30033,12 +30033,12 @@ SQLITE_PRIVATE int sqlite3MemCompare(const Mem *pMem1, const Mem *pMem2, const C
     if( (f1 & f2 & MEM_Int)==0 ){
       double r1, r2;
       if( (f1&MEM_Real)==0 ){
-        r1 = pMem1->u.i;
+        r1 = (int) pMem1->u.i;
       }else{
         r1 = pMem1->r;
       }
       if( (f2&MEM_Real)==0 ){
-        r2 = pMem2->u.i;
+        r2 = (int) pMem2->u.i;
       }else{
         r2 = pMem2->r;
       }
@@ -32830,7 +32830,7 @@ static int sqlite3Step(Vdbe *p){
     if( db->xProfile && !db->init.busy ){
       double rNow;
       sqlite3OsCurrentTime(&rNow);
-      p->startTime = (rNow - (int)rNow)*3600.0*24.0*1000000000.0;
+      p->startTime = (int)((rNow - (int)rNow)*3600.0*24.0*1000000000.0);
     }
 #endif
 
@@ -32867,7 +32867,8 @@ static int sqlite3Step(Vdbe *p){
     u64 elapseTime;
 
     sqlite3OsCurrentTime(&rNow);
-    elapseTime = (rNow - (int)rNow)*3600.0*24.0*1000000000.0 - p->startTime;
+    elapseTime = 
+      (int)((rNow - (int)rNow)*3600.0*24.0*1000000000.0 - p->startTime);
     assert( p->nOp>0 );
     assert( p->aOp[p->nOp-1].opcode==OP_Noop );
     assert( p->aOp[p->nOp-1].p3!=0 );
@@ -34716,7 +34717,7 @@ case OP_Remainder: {           /* same as TK_REM, no-push */
         i64 ib = (i64)b;
         if( ia==0 ) goto divide_by_zero;
         if( ia==-1 ) ia = 1;
-        b = ib % ia;
+        b = (double)(ib % ia);
         break;
       }
     }
