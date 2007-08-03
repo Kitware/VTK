@@ -194,6 +194,10 @@ protected:
   // messages.
   static vtkMPICommunicator* WorldRMICommunicator;
 
+  //BTX
+  friend class vtkMPIOutputWindow;
+  //ETX
+
   // Initialize only once.
   static int Initialized;
 
