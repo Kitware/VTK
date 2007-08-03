@@ -20,6 +20,10 @@
 
 #include "vtksys/ios/sstream"
 
+#if defined (__BORLANDC__) && (__BORLANDC__ >= 0x0580)
+#include <ctype.h> // for isdigit
+#endif
+
 const int vtkTimePointUtility::MILLIS_PER_SECOND  =     1000;
 const int vtkTimePointUtility::MILLIS_PER_MINUTE  =    60000;
 const int vtkTimePointUtility::MILLIS_PER_HOUR    =  3600000;
@@ -31,7 +35,7 @@ const int vtkTimePointUtility::MINUTES_PER_HOUR   =       60;
 const int vtkTimePointUtility::MINUTES_PER_DAY    =     1440;
 const int vtkTimePointUtility::HOURS_PER_DAY      =       24;
 
-vtkCxxRevisionMacro(vtkTimePointUtility, "1.4");
+vtkCxxRevisionMacro(vtkTimePointUtility, "1.5");
 vtkStandardNewMacro(vtkTimePointUtility);
 
 void vtkTimePointUtility::PrintSelf(ostream& os, vtkIndent indent)
