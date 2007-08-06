@@ -23,7 +23,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkMergeTables, "1.2");
+vtkCxxRevisionMacro(vtkMergeTables, "1.3");
 vtkStandardNewMacro(vtkMergeTables);
 //---------------------------------------------------------------------------
 vtkMergeTables::vtkMergeTables()
@@ -31,6 +31,7 @@ vtkMergeTables::vtkMergeTables()
   this->FirstTablePrefix = 0;
   this->SecondTablePrefix = 0;
   this->MergeColumnsByName = true;
+  this->PrefixAllButMerged = false;
   this->SetFirstTablePrefix("Table1.");
   this->SetSecondTablePrefix("Table2.");
   this->SetNumberOfInputPorts(2);
@@ -44,6 +45,7 @@ vtkMergeTables::~vtkMergeTables()
   this->SetSecondTablePrefix(0);
 }
 
+//---------------------------------------------------------------------------
 int vtkMergeTables::RequestData(
   vtkInformation*, 
   vtkInformationVector** inputVector, 
@@ -77,17 +79,19 @@ int vtkMergeTables::RequestData(
   for (int c = 0; c < table1->GetNumberOfColumns(); c++)
     {
     vtkAbstractArray* col = table1->GetColumn(c);
-    const char* name = col->GetName();
-#if 0
-    int len = strlen(name);
-    int prefixLen = strlen(this->FirstTablePrefix);
-    char* newName = new char[prefixLen + len + 1];
-    strcpy(newName, this->FirstTablePrefix);
-    strcat(newName, name);
-#endif
+    char* name = col->GetName();
+    char* newName = name;
+    if (this->PrefixAllButMerged)
+      {
+      int len = strlen(name);
+      int prefixLen = strlen(this->FirstTablePrefix);
+      newName = new char[prefixLen + len + 1];
+      strcpy(newName, this->FirstTablePrefix);
+      strcat(newName, name);
+      }
     vtkAbstractArray* newCol = vtkAbstractArray::CreateArray(col->GetDataType());
     newCol->DeepCopy(col);
-    newCol->SetName(name);
+    newCol->SetName(newName);
     //vtkWarningMacro("adding column " << newCol->GetName() << " of size " << newCol->GetNumberOfTuples());
     output->AddColumn(newCol);
     newCol->Delete();
@@ -105,18 +109,21 @@ int vtkMergeTables::RequestData(
   for (int c = 0; c < table2->GetNumberOfColumns(); c++)
     {
     vtkAbstractArray* col = table2->GetColumn(c);
-    const char* name = col->GetName();
+    char* name = col->GetName();
     vtkAbstractArray* newCol = vtkAbstractArray::CreateArray(col->GetDataType());
-    if (output->GetColumnByName(name) != 0)
+    if (table1->GetColumnByName(name) != 0)
       {
       // We have a naming conflict.
       // Rename both columns using the prefixes.
       int len = static_cast<int>(strlen(name));
-      vtkAbstractArray* col1 = output->GetColumnByName(name);
       char* newName1 = new char[len + strlen(this->FirstTablePrefix) + 1];
       strcpy(newName1, this->FirstTablePrefix);
       strcat(newName1, name);
-      col1->SetName(newName1);
+      if (!this->PrefixAllButMerged)
+        {
+        vtkAbstractArray* col1 = output->GetColumnByName(name);
+        col1->SetName(newName1);
+        }
       char* newName2 = new char[len + strlen(this->SecondTablePrefix) + 1];
       strcpy(newName2, this->SecondTablePrefix);
       strcat(newName2, name);
@@ -127,7 +134,16 @@ int vtkMergeTables::RequestData(
       }
     else
       {
-      newCol->SetName(name);
+      char* newName = name;
+      if (this->PrefixAllButMerged)
+        {
+        int len = strlen(name);
+        int prefixLen = strlen(this->SecondTablePrefix);
+        newName = new char[prefixLen + len + 1];
+        strcpy(newName, this->SecondTablePrefix);
+        strcat(newName, name);
+        }
+      newCol->SetName(newName);
       }
     tempTable->AddColumn(newCol);
     newCol->Delete();
@@ -212,4 +228,6 @@ void vtkMergeTables::PrintSelf(ostream& os, vtkIndent indent)
      << (this->SecondTablePrefix ? this->SecondTablePrefix : "(null)") << endl;
   os << indent << "MergeColumnsByName: "
      << (this->MergeColumnsByName ? "on" : "off") << endl;
+  os << indent << "PrefixAllButMerged: "
+     << (this->PrefixAllButMerged ? "on" : "off") << endl;
 }

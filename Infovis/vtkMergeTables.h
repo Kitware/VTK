@@ -61,11 +61,20 @@ public:
   vtkGetMacro(MergeColumnsByName, bool);
   vtkBooleanMacro(MergeColumnsByName, bool);
 
+  // Description:
+  // If on, all columns will have prefixes except merged columns.
+  // If off, only unmerged columns with the same name will have prefixes.
+  // Default is off.
+  vtkSetMacro(PrefixAllButMerged, bool);
+  vtkGetMacro(PrefixAllButMerged, bool);
+  vtkBooleanMacro(PrefixAllButMerged, bool);
+
 protected:
   vtkMergeTables();
   ~vtkMergeTables();
   
   bool MergeColumnsByName;
+  bool PrefixAllButMerged;
   char* FirstTablePrefix;
   char* SecondTablePrefix;
 
