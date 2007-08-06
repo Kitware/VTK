@@ -1394,7 +1394,7 @@ private:
   void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.50");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.51");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1576,7 +1576,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.50");
+vtkCxxRevisionMacro(vtkExodusReader, "1.51");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -1719,6 +1719,7 @@ vtkExodusReader::~vtkExodusReader()
 {
   this->SetFileName(NULL);
   this->SetXMLFileName(NULL);
+  this->SetCurrentXMLFileName(NULL);
 
   this->SetTitle(NULL);
   this->SetCurrentFileName(NULL);
