@@ -50,7 +50,7 @@ void usage()
 int main(int argc, char* argv[])
 {
   // Initialize parameters from the command line.
-  char* labelArray = ".tagname";
+  char* labelArray = const_cast<char*>(".tagname");
   char* colorArray = NULL;
   if (argc < 2)
     {

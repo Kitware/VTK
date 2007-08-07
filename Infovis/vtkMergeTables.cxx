@@ -23,7 +23,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkMergeTables, "1.3");
+vtkCxxRevisionMacro(vtkMergeTables, "1.4");
 vtkStandardNewMacro(vtkMergeTables);
 //---------------------------------------------------------------------------
 vtkMergeTables::vtkMergeTables()
@@ -83,8 +83,8 @@ int vtkMergeTables::RequestData(
     char* newName = name;
     if (this->PrefixAllButMerged)
       {
-      int len = strlen(name);
-      int prefixLen = strlen(this->FirstTablePrefix);
+      int len = static_cast<int>(strlen(name));
+      int prefixLen = static_cast<int>(strlen(this->FirstTablePrefix));
       newName = new char[prefixLen + len + 1];
       strcpy(newName, this->FirstTablePrefix);
       strcat(newName, name);
@@ -137,8 +137,8 @@ int vtkMergeTables::RequestData(
       char* newName = name;
       if (this->PrefixAllButMerged)
         {
-        int len = strlen(name);
-        int prefixLen = strlen(this->SecondTablePrefix);
+        int len = static_cast<int>(strlen(name));
+        int prefixLen = static_cast<int>(strlen(this->SecondTablePrefix));
         newName = new char[prefixLen + len + 1];
         strcpy(newName, this->SecondTablePrefix);
         strcat(newName, name);
