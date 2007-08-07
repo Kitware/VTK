@@ -27,7 +27,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.11");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.12");
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
@@ -261,7 +261,11 @@ int vtkSelectionSource::RequestData(
     (this->ContentType == vtkSelection::GLOBALIDS) ||
     (this->ContentType == vtkSelection::INDICES))
     {    
-    
+    output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
+      this->ContentType);
+    output->GetProperties()->Set(vtkSelection::FIELD_TYPE(),
+      this->FieldType);
+
     // Number of selected items common to all pieces
     vtkIdType numCommonElems = 0;
     if (!this->Internal->IDs.empty())
@@ -291,10 +295,6 @@ int vtkSelectionSource::RequestData(
       
       if (selSet.size() > 0)
         {
-        output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
-                                     this->ContentType);
-        output->GetProperties()->Set(vtkSelection::FIELD_TYPE(),
-                                     this->FieldType);
         // Create the selection list
         vtkIdTypeArray* selectionList = vtkIdTypeArray::New();
         selectionList->SetNumberOfTuples(selSet.size());
