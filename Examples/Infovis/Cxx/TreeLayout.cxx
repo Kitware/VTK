@@ -50,8 +50,8 @@ void usage()
 int main(int argc, char* argv[])
 {
   // Initialize parameters from the command line.
-  char* labelArray = const_cast<char*>(".tagname");
-  char* colorArray = NULL;
+  const char* labelArray = ".tagname";
+  const char* colorArray = NULL;
   if (argc < 2)
     {
     usage();
