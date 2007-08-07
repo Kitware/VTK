@@ -34,7 +34,7 @@
 #include "vtkTreeMapToPolyData.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.7");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.8");
 vtkStandardNewMacro(vtkInteractorStyleTreeMapHover);
 
 //----------------------------------------------------------------------------
@@ -318,7 +318,6 @@ void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
   this->CurrentSelectedId = GetTreeMapIdAtPos(x,y);
-  this->HighLightCurrentSelectedItem();
 
   // Get the pedigree id of this object and
   // send out an event with that id as data
@@ -335,6 +334,7 @@ void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()
       }
     }
 
+  this->HighLightCurrentSelectedItem();
   Superclass::OnLeftButtonUp();
 }
 
