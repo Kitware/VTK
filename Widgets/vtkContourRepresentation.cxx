@@ -32,7 +32,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.19");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.20");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -1048,6 +1048,58 @@ void vtkContourRepresentation
   displayPos[0] = pos[0];
   displayPos[1] = pos[1];
 }
+
+//----------------------------------------------------------------------
+void vtkContourRepresentation::Initialize( vtkPolyData * pd )
+{
+  vtkPoints *points   = pd->GetPoints();
+  vtkIdType nPoints = points->GetNumberOfPoints();
+  if (nPoints <= 0)
+    {
+    return; // Yeah right.. build from nothing !
+    }
+
+  // Clear all existing nodes.
+  for(unsigned int i=0;i<this->Internal->Nodes.size();i++)
+    {
+    for (unsigned int j=0;j<this->Internal->Nodes[i]->Points.size();j++)
+      {
+      delete this->Internal->Nodes[i]->Points[j];
+      }
+    this->Internal->Nodes[i]->Points.clear();
+    delete this->Internal->Nodes[i];
+    }
+  this->Internal->Nodes.clear();
+
+  vtkIdList *pointIds = pd->GetCell(0)->GetPointIds();
+
+  // Get the worldOrient from the point placer
+  double ref[3], displayPos[2], worldPos[3], worldOrient[9];
+  ref[0] = 0.0; ref[1] = 0.0; ref[2] = 0.0;
+  displayPos[0] = 0.0; displayPos[1] = 0.0;
+  this->PointPlacer->ComputeWorldPosition(this->Renderer,
+                                 displayPos, ref, worldPos, worldOrient );
+
+  // Add nodes
+
+  for ( vtkIdType i=0; i < nPoints; i++ )
+    {
+    double *p = points->GetPoint( i );
+    this->AddNodeAtWorldPosition( p, worldOrient );
+    }
+
+  if ( pointIds->GetNumberOfIds() > nPoints )
+    {
+    this->ClosedLoopOn();
+    }
+
+  // Update the contour representation from the nodes using the line interpolator
+  this->BuildRepresentation();
+
+  // Show the contour.
+  this->VisibilityOn();
+}
+
 
 //----------------------------------------------------------------------
 void vtkContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)

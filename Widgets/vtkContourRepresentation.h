@@ -87,6 +87,9 @@ public:
 
 class VTK_WIDGETS_EXPORT vtkContourRepresentation : public vtkWidgetRepresentation
 {
+  //BTX  
+  friend class vtkContourWidget;
+  //ETX
 public:
   // Description:
   // Standard VTK methods.
@@ -320,17 +323,13 @@ public:
   
   // Description:
   // Get the points in this contour as a vtkPolyData. 
-//BTX
+  //BTX
   virtual vtkPolyData * GetContourRepresentationAsPolyData() = 0;
-//ETX
+  //ETX
 
 protected:
   vtkContourRepresentation();
   ~vtkContourRepresentation();
-
-//BTX  
-  friend class vtkContourWidget;
-//ETX
   
   // Selection tolerance for the handles
   int    PixelTolerance;
@@ -384,7 +383,16 @@ protected:
       mid[1] = (p1[1] + p2[1])/2;
       mid[2] = (p1[2] + p2[2])/2;
     }
-  
+
+  // Description:
+  // Build a contour representation from externally supplied PolyData. This
+  // is very useful when you use an external program to compute a set of
+  // contour nodes, let's say based on image features. Subsequently, you want
+  // to build and display a contour that runs through those points.
+  // This method is protected and accessible only from 
+  // vtkContourWidget::Initialize( vtkPolyData * )
+  virtual void Initialize( vtkPolyData * );
+
 private:
   vtkContourRepresentation(const vtkContourRepresentation&);  //Not implemented
   void operator=(const vtkContourRepresentation&);  //Not implemented

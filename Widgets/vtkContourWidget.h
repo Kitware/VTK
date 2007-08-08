@@ -109,6 +109,7 @@
 #include "vtkAbstractWidget.h"
 
 class vtkContourRepresentation;
+class vtkPolyData;
 
 class VTK_WIDGETS_EXPORT vtkContourWidget : public vtkAbstractWidget
 {
@@ -138,6 +139,15 @@ public:
   // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
+
+  // Description:
+  // Initialize the contour widget from a user supplied set of points. The
+  // state of the widget decides if you are still defining the widget, or
+  // if you've finished defining (added the last point) are manipulating
+  // it. Note that if the polydata supplied is closed, the state will be
+  // set to manipulate.
+  //  State: Define = 0, Manipulate = 1.
+  virtual void Initialize( vtkPolyData *, int state = 1 );
 
 protected:
   vtkContourWidget();

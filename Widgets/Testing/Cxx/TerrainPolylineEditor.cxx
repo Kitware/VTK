@@ -816,8 +816,7 @@ int TerrainPolylineEditor(int argc, char * argv[])
       vtkPolyDataReader *terrainPathReader = vtkPolyDataReader::New();
       terrainPathReader->SetFileName(argv[i+1]);
       terrainPathReader->Update();
-      rep->BuildRepresentationFromUserSuppliedPolydata( 
-                       terrainPathReader->GetOutput() );
+      contourWidget->Initialize( terrainPathReader->GetOutput(), 0 );
       terrainPathReader->Delete();
       }
     }
