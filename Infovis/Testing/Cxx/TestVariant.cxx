@@ -12,9 +12,10 @@ int TestVariant(int, char*[])
     VTK_TYPE_INT64,
     VTK_TYPE_UINT64,
     VTK_FLOAT,
-    VTK_DOUBLE
+    VTK_DOUBLE,
+    VTK_STRING
     };
-  int numTypes = 10;
+  int numTypes = 7;
 
   for (int i = 0; i < numTypes; i++)
     {
