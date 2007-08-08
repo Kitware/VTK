@@ -32,7 +32,7 @@
 #include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.21");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.22");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -346,7 +346,6 @@ int vtkExtractSelectedIds::ExtractCells(
     {
     //no global array, so just use the input cell index
     labelArray = idxArray;
-    labelArray->Register(NULL);
     }
 
   // Reverse the "in" flag
@@ -378,12 +377,32 @@ int vtkExtractSelectedIds::ExtractCells(
 
   if (idArray == NULL)
     {
+    idxArray->Delete();
+    idList->Delete();
+    if (ptIds)
+      {
+      ptIds->Delete();
+      }
+    if (cellCounter)
+      {
+      delete[] cellCounter;
+      }
     return 1;
     }
   
   // Array types must match
   if (idArray->GetDataType() != labelArray->GetDataType())
     {
+    idxArray->Delete();
+    idList->Delete();
+    if (ptIds)
+      {
+      ptIds->Delete();
+      }
+    if (cellCounter)
+      {
+      delete[] cellCounter;
+      }
     vtkWarningMacro("array types don't match");
     return 0;
     }
@@ -509,10 +528,7 @@ int vtkExtractSelectedIds::ExtractCells(
       }
     }
 
-  if (idArray)
-    {
-    idArray->Delete();
-    }
+  idArray->Delete();
 
   if (invert)
     {
@@ -532,7 +548,6 @@ int vtkExtractSelectedIds::ExtractCells(
 
   idList->Delete();
   idxArray->Delete();
-  labelArray->Delete();
 
   if (!passThrough)
     {
@@ -677,18 +692,11 @@ int vtkExtractSelectedIds::ExtractPoints(
   vtkIdList *cellPts = vtkIdList::New();
   vtkIdType numIds = 0, ptId, cellId, idArrayIndex = 0, labelArrayIndex = 0;
   vtkAbstractArray* idArray = sel->GetSelectionList();
-  if (idArray)
-    {
-    numIds = idArray->GetNumberOfTuples();
-    vtkAbstractArray* sortedArray = 
-      vtkAbstractArray::CreateArray(idArray->GetDataType());
-    sortedArray->DeepCopy(idArray);
-    vtkSortDataArray::SortArrayByComponent(sortedArray, 0);
-    idArray = sortedArray;
-    }
-
   if (idArray == NULL)
     {
+    idxArray->Delete();
+    ptCells->Delete();
+    cellPts->Delete();
     return 1;
     }
 
@@ -696,8 +704,18 @@ int vtkExtractSelectedIds::ExtractPoints(
   if (idArray->GetDataType() != labelArray->GetDataType())
     {
     vtkWarningMacro("array types don't match");
+    idxArray->Delete();
+    ptCells->Delete();
+    cellPts->Delete();
     return 0;
     }
+
+  numIds = idArray->GetNumberOfTuples();
+  vtkAbstractArray* sortedArray = 
+    vtkAbstractArray::CreateArray(idArray->GetDataType());
+  sortedArray->DeepCopy(idArray);
+  vtkSortDataArray::SortArrayByComponent(sortedArray, 0);
+  idArray = sortedArray;
 
   void *idVoid = idArray->GetVoidPointer(0);
   void *labelVoid = labelArray->GetVoidPointer(0);
@@ -822,10 +840,7 @@ int vtkExtractSelectedIds::ExtractPoints(
       }
     }
 
-  if (idArray)
-    {
-    idArray->Delete();
-    }
+  idArray->Delete();
 
   ptCells->Delete();
   cellPts->Delete();
