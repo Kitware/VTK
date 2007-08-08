@@ -35,4 +35,5 @@ vs the original zlib code
 
 zconf.h
   -Include vtk_zlib_mangle.h (at the top)
+  -Include vtkzlib/zlibDllConfig.h (at the top)
   -Suppress selected compiler warnings (at the bottom)

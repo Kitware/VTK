@@ -11,6 +11,9 @@
 /* KITWARE_ZLIB_CHANGE - Added to mangle function names */
 #include "vtk_zlib_mangle.h"
 
+/* KITWARE_ZLIB_CHANGE - Added to get the correct definition of ZLIB_DLL */
+#include "vtkzlib/zlibDllConfig.h"
+
 /*
  * If you *really* need a unique prefix for all types and library functions,
  * compile with -DZ_PREFIX. The "standard" zlib should be compiled without it.
