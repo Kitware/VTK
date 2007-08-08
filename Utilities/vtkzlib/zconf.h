@@ -290,7 +290,8 @@ typedef uLong FAR uLongf;
    typedef Byte       *voidp;
 #endif
 
-#if 0           /* HAVE_UNISTD_H -- this line is updated by ./configure */
+/* KITWARE_ZLIB_CHANGE - Since VTK/ITK use CMake, not ./configure, we can go ahead and test HAVE_UNISTD_H */
+#ifdef HAVE_UNISTD_H
 #  include <sys/types.h> /* for off_t */
 #  include <unistd.h>    /* for SEEK_* and off_t */
 #  ifdef VMS
@@ -341,12 +342,14 @@ typedef uLong FAR uLongf;
 #pragma warning ( disable : 4127 ) /* cond expr is constant */
 #pragma warning ( disable : 4131 ) /* Old style declaration */
 #pragma warning ( disable : 4244 ) /* conversion loss of data */
-#pragma warning ( disable : 4267 )
+#pragma warning ( disable : 4267 ) /* conversion from 'size_t' to 'int', possible loss of data */
 #endif
 #if defined(__BORLANDC__)
-#pragma warn -8004 /* "assigned a value that is never used" */
-#pragma warn -8012 /* "comparing signed with unsigned" */
-#pragma warn -8057 /* "parameter never used" */
+/* #pragma warn -8004  "assigned a value that is never used" */
+#pragma warn -8008 /* "Condition is always true" */
+/* #pragma warn -8012  "comparing signed with unsigned" */
+/* #pragma warn -8057  "parameter never used" */
+#pragma warn -8066 /* "Unreachable code" */
 #endif
 
 #endif /* ZCONF_H */

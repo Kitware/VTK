@@ -1,8 +1,8 @@
 This directory contains a subset of the zlib library (1.2.3) and
-some custom changes that VTK needs.
+some custom changes.
 
 We only include enough of the distribution to provide the functionalities
-required by VTK.
+required.
 
 We would like to thank the zlib team for distributing this library.
 http://www.zlib.net
@@ -36,4 +36,5 @@ vs the original zlib code
 zconf.h
   -Include vtk_zlib_mangle.h (at the top)
   -Include vtkzlib/zlibDllConfig.h (at the top)
+  -Changed an #if 0 to #ifdef HAVE_UNISTD_H (near middle)
   -Suppress selected compiler warnings (at the bottom)

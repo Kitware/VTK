@@ -9,7 +9,8 @@ SET(ZLIB_SRCS
   inflate.c  inftrees.c  trees.c  uncompr.c  zutil.c
   )
 
-# for windows add the .def and .rc files to the source list if building shared libs
+# for windows add the .def and .rc files to the source list
+# if building shared libs
 IF(WIN32)
   IF(BUILD_SHARED_LIBS)
     SET(ZLIB_DLL 1)
@@ -24,9 +25,9 @@ IF(WIN32)
 ENDIF(WIN32)
 
 CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/.NoDartCoverage
-  ${VTKZLIB_BINARY_DIR}/.NoDartCoverage)
+               ${VTKZLIB_BINARY_DIR}/.NoDartCoverage)
 CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/zlibDllConfig.h.in
-  ${VTKZLIB_BINARY_DIR}/zlibDllConfig.h)
+               ${VTKZLIB_BINARY_DIR}/zlibDllConfig.h)
 
 
 ADD_LIBRARY(vtkzlib ${ZLIB_SRCS})
@@ -42,6 +43,7 @@ IF(NOT VTK_INSTALL_NO_LIBRARIES)
     LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
     ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
+
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
     ${VTKZLIB_SOURCE_DIR}/zlib.h
