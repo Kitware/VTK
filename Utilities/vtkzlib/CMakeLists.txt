@@ -5,11 +5,8 @@ INCLUDE_DIRECTORIES(${VTKZLIB_SOURCE_DIR})
 
 # source files for zlib
 SET(ZLIB_SRCS
-  adler32.c   gzio.c      inftrees.c  uncompr.c
-  compress.c  infblock.c  infutil.c   zutil.c
-  crc32.c     infcodes.c 
-  deflate.c   inffast.c  
-  inflate.c   trees.c
+  adler32.c  compress.c  crc32.c  deflate.c  gzio.c   inffast.c
+  inflate.c  inftrees.c  trees.c  uncompr.c  zutil.c
   )
 
 # for windows add the .def and .rc files to the source list if building shared libs
