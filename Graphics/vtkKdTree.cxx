@@ -48,7 +48,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.18");
+vtkCxxRevisionMacro(vtkKdTree, "1.19");
 
 // Timing data ---------------------------------------------
 
@@ -577,7 +577,7 @@ float *vtkKdTree::ComputeCellCenters(vtkDataSet *set)
       cptr[1] = (float)dcenter[1];
       cptr[2] = (float)dcenter[2];
       cptr += 3;
-      if (j%100)
+      if (j%1000 == 0)
         {
         this->UpdateSubOperationProgress(static_cast<double>(j)/totalCells);
         }
@@ -599,7 +599,7 @@ float *vtkKdTree::ComputeCellCenters(vtkDataSet *set)
         cptr[1] = (float)dcenter[1];
         cptr[2] = (float)dcenter[2];
         cptr += 3;
-        if (j%100)
+        if (j%1000 == 0)
           {
           this->UpdateSubOperationProgress(static_cast<double>(j)/totalCells);
           }
