@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.35");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.36");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -1332,6 +1332,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
   this->SavedMinMaxFlagTime.Modified();
 
   delete [] minNonZeroGradientMagnitudeIndex;
+  delete [] minNonZeroScalarIndex;
 }
 
 void vtkFixedPointVolumeRayCastMapper::UpdateCroppingRegions()
