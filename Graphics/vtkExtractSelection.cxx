@@ -30,7 +30,7 @@
 
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.17");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.18");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -69,6 +69,7 @@ int vtkExtractSelection::RequestDataObject(
 
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   if (input)
     {
     int passThrough = 0;
@@ -84,35 +85,32 @@ int vtkExtractSelection::RequestDataObject(
         }
       }
 
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkDataSet *output = vtkDataSet::SafeDownCast(
-        info->Get(vtkDataObject::DATA_OBJECT()));
+    vtkInformation* info = outputVector->GetInformationObject(0);
+    vtkDataSet *output = vtkDataSet::SafeDownCast(
+      info->Get(vtkDataObject::DATA_OBJECT()));
 
-      if (!output
-          ||
-          (passThrough && !output->IsA(input->GetClassName()))
-          ||
-          (!passThrough && !output->IsA("vtkUnstructuredGrid"))
-        )
+    if (!output
+        ||
+        (passThrough && !output->IsA(input->GetClassName()))
+        ||
+        (!passThrough && !output->IsA("vtkUnstructuredGrid"))
+      )
+      {
+      vtkDataSet* newOutput = NULL;
+      if (!passThrough)
         {
-        vtkDataSet* newOutput = NULL;
-        if (!passThrough)
-          {
-          // The mesh will be modified. 
-          newOutput = vtkUnstructuredGrid::New();
-          }
-        else
-          {
-          // The mesh will not be modified.
-          newOutput = input->NewInstance();
-          }
-        newOutput->SetPipelineInformation(info);
-        newOutput->Delete();
-        this->GetOutputPortInformation(i)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
+        // The mesh will be modified. 
+        newOutput = vtkUnstructuredGrid::New();
         }
+      else
+        {
+        // The mesh will not be modified.
+        newOutput = input->NewInstance();
+        }
+      newOutput->SetPipelineInformation(info);
+      newOutput->Delete();
+      this->GetOutputPortInformation(0)->Set(
+        vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
       }
     return 1;
     }

@@ -58,12 +58,12 @@ protected:
   vtkExtractSelection();
   ~vtkExtractSelection();
 
-  //sets up output dataset
+  //sets up empty output dataset
   virtual int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
  
-  // Usual data generation method
+  //runs the algorithm and fills the output with results
   virtual int RequestData(vtkInformation *, 
                   vtkInformationVector **, 
                   vtkInformationVector *);
