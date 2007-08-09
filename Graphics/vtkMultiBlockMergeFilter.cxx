@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMultiBlockMergeFilter, "1.4");
+vtkCxxRevisionMacro(vtkMultiBlockMergeFilter, "1.5");
 vtkStandardNewMacro(vtkMultiBlockMergeFilter);
 
 vtkMultiBlockMergeFilter::vtkMultiBlockMergeFilter()
@@ -34,7 +34,7 @@ vtkMultiBlockMergeFilter::~vtkMultiBlockMergeFilter()
 }
 
 int vtkMultiBlockMergeFilter::RequestData(
-  vtkInformation *request,
+  vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
@@ -42,11 +42,6 @@ int vtkMultiBlockMergeFilter::RequestData(
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
     info->Get(vtkDataObject::DATA_OBJECT()));
   if (!output) {return 0;}
-
-  unsigned int updatePiece = static_cast<unsigned int>(
-    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
-  unsigned int updateNumPieces =  static_cast<unsigned int>(
-    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
 
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   if (numInputs<0)
