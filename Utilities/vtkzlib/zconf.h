@@ -340,8 +340,8 @@ typedef uLong FAR uLongf;
 #if defined(_MSC_VER)
 /*#pragma warning ( disable : 4100 ) unreferenced variable */
 /*#pragma warning ( disable : 4127 ) cond expr is constant */
-/*#pragma warning ( disable : 4131 ) old style declaration */
-/*#pragma warning ( disable : 4244 ) conversion loss of data */
+#pragma warning ( disable : 4131 ) /* old style declaration */
+#pragma warning ( disable : 4244 ) /* conversion loss of data */
 /*#pragma warning ( disable : 4267 ) conversion from 'size_t' to 'int', possible loss of data */
 #endif
 #if defined(__BORLANDC__)
