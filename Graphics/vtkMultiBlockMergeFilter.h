@@ -12,25 +12,39 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMultiBlockMergeFilter - merges multiple inputs into one multi-group dataset with special treatment for multiblock inputs. 
+// .NAME vtkMultiBlockMergeFilter - merges multiblock inputs into a single multiblock output
 // .SECTION Description
-// vtkMultiBlockMergeFilter is an M to 1 filter similar to vtkMultiGroupDataGroupFilters. However where as the parent class creates N groups in the output for N inputs, this creates (when all N inputs are multiblock datasets) 1 group in the output with N datasets inside it. In actuality if the inputs have M groups, this will produce M groups, each of which has N datasets. 
+// vtkMultiBlockMergeFilter is an M to 1 filter similar to 
+// vtkMultiGroupDataGroupFilters. However where as that class creates N groups 
+// in the output for N inputs, this creates 1 group in the output with N 
+// datasets inside it. In actuality if the inputs have M groups, this will 
+// produce M groups, each of which has N datasets. Inside the merged group, 
+// the i'th data set comes from the i'th data set in the i'th input.
 
 #ifndef __vtkMultiBlockMergeFilter_h
 #define __vtkMultiBlockMergeFilter_h
 
-#include "vtkMultiGroupDataGroupFilter.h"
+#include "vtkMultiBlockDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkMultiBlockMergeFilter : public vtkMultiGroupDataGroupFilter
+class VTK_GRAPHICS_EXPORT vtkMultiBlockMergeFilter 
+: public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkMultiBlockMergeFilter,vtkMultiGroupDataGroupFilter);
+  vtkTypeRevisionMacro(vtkMultiBlockMergeFilter,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object with PointIds and CellIds on; and ids being generated
   // as scalars.
   static vtkMultiBlockMergeFilter *New();
+
+  // Description:
+  // Add an input of this algorithm.  Note that these methods support
+  // old-style pipeline connections.  When writing new code you should
+  // use the more general vtkAlgorithm::AddInputConnection().  See
+  // SetInput() for details.
+  void AddInput(vtkDataObject *);
+  void AddInput(int, vtkDataObject*);
 
 protected:
   vtkMultiBlockMergeFilter();
@@ -39,6 +53,9 @@ protected:
   int RequestData(vtkInformation *, 
                   vtkInformationVector **, 
                   vtkInformationVector *);
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 
 private:
   vtkMultiBlockMergeFilter(const vtkMultiBlockMergeFilter&);  // Not implemented.
