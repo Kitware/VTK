@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.36");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.37");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -824,33 +824,48 @@ void vtkArrayCalculator::AddCoordinateScalarVariable(const char* variableName,
                                                      int component)
 {
   int i;
-  char** oldNames = this->CoordinateScalarVariableNames;
-  int* oldComponents = this->SelectedCoordinateScalarComponents;
-  
-  this->CoordinateScalarVariableNames = 
-    new char *[this->NumberOfCoordinateScalarArrays + 1];
-  this->SelectedCoordinateScalarComponents = 
-    new int[this->NumberOfCoordinateScalarArrays + 1];
-  
+  char** varNames = new char *[this->NumberOfCoordinateScalarArrays];
+  int* tempComponents = new int[this->NumberOfCoordinateScalarArrays];
+
   for (i = 0; i < this->NumberOfCoordinateScalarArrays; i++)
     {
-    this->CoordinateScalarVariableNames[i] = oldNames[i];
-    this->SelectedCoordinateScalarComponents[i] = oldComponents[i];
+    varNames[i] = new char[strlen(this->CoordinateScalarVariableNames[i]) + 1];
+    strcpy(varNames[i], this->CoordinateScalarVariableNames[i]);
+    delete [] this->CoordinateScalarVariableNames[i];
+    this->CoordinateScalarVariableNames[i] = NULL;
+    tempComponents[i] = this->SelectedCoordinateScalarComponents[i];
+    }
+  if (this->CoordinateScalarVariableNames)
+    {
+    delete [] this->CoordinateScalarVariableNames;
+    this->CoordinateScalarVariableNames = NULL;
+    }
+  if (this->SelectedCoordinateScalarComponents)
+    {
+    delete [] this->SelectedCoordinateScalarComponents;
+    this->SelectedCoordinateScalarComponents = NULL;
     }
 
-  if(oldNames)
+  this->CoordinateScalarVariableNames =
+    new char *[this->NumberOfCoordinateScalarArrays + 1];
+  this->SelectedCoordinateScalarComponents =
+    new int[this->NumberOfCoordinateScalarArrays + 1];
+
+  for (i = 0; i < this->NumberOfCoordinateScalarArrays; i++)
     {
-    delete [] oldNames;
+    this->CoordinateScalarVariableNames[i] = new char[strlen(varNames[i]) + 1];
+    strcpy(this->CoordinateScalarVariableNames[i], varNames[i]);
+    delete [] varNames[i];
+    varNames[i] = NULL;
+    this->SelectedCoordinateScalarComponents[i] = tempComponents[i];
     }
-  if(oldComponents)
-    {
-    delete [] oldComponents;
-    }
+  delete [] varNames;
+  delete [] tempComponents;
 
   this->CoordinateScalarVariableNames[i] = new char[strlen(variableName) + 1];
   strcpy(this->CoordinateScalarVariableNames[i], variableName);
   this->SelectedCoordinateScalarComponents[i] = component;
-  
+
   this->NumberOfCoordinateScalarArrays++;
 }
 
@@ -860,28 +875,54 @@ void vtkArrayCalculator::AddCoordinateVectorVariable(const char* variableName,
                                                      int component2)
 {
   int i;
-  char** oldNames = this->CoordinateVectorVariableNames;
-  int** oldComponents = this->SelectedCoordinateVectorComponents;
-  
+  char** varNames = new char *[this->NumberOfCoordinateVectorArrays];
+  int** tempComponents = new int *[this->NumberOfCoordinateVectorArrays];
+
+  for (i = 0; i < this->NumberOfCoordinateVectorArrays; i++)
+    {
+    varNames[i] = new char[strlen(this->CoordinateVectorVariableNames[i])+1];
+    strcpy(varNames[i], this->CoordinateVectorVariableNames[i]);
+    delete [] this->CoordinateVectorVariableNames[i];
+    this->CoordinateVectorVariableNames[i] = NULL;
+    tempComponents[i] = new int[3];
+    tempComponents[i][0] = this->SelectedCoordinateVectorComponents[i][0];
+    tempComponents[i][1] = this->SelectedCoordinateVectorComponents[i][1];
+    tempComponents[i][2] = this->SelectedCoordinateVectorComponents[i][2];
+    delete [] this->SelectedCoordinateVectorComponents[i];
+    this->SelectedCoordinateVectorComponents[i] = NULL;
+    }
+
+  if (this->CoordinateVectorVariableNames)
+    {
+    delete [] this->CoordinateVectorVariableNames;
+    this->CoordinateVectorVariableNames = NULL;
+    }
+  if (this->SelectedCoordinateVectorComponents)
+    {
+    delete [] this->SelectedCoordinateVectorComponents;
+    this->SelectedCoordinateVectorComponents = NULL;
+    }
+
   this->CoordinateVectorVariableNames = 
     new char *[this->NumberOfCoordinateVectorArrays + 1];
   this->SelectedCoordinateVectorComponents = 
     new int *[this->NumberOfCoordinateVectorArrays + 1];
-  
+
   for (i = 0; i < this->NumberOfCoordinateVectorArrays; i++)
     {
-    this->CoordinateVectorVariableNames[i] = oldNames[i];
-    this->SelectedCoordinateVectorComponents[i] = oldComponents[i];
+    this->CoordinateVectorVariableNames[i] = new char[strlen(varNames[i]) + 1];
+    strcpy(this->CoordinateVectorVariableNames[i], varNames[i]);
+    delete [] varNames[i];
+    varNames[i] = NULL;
+    this->SelectedCoordinateVectorComponents[i] = new int[3];
+    this->SelectedCoordinateVectorComponents[i][0] = tempComponents[i][0];
+    this->SelectedCoordinateVectorComponents[i][1] = tempComponents[i][1];
+    this->SelectedCoordinateVectorComponents[i][2] = tempComponents[i][2];
+    delete [] tempComponents[i];
+    tempComponents[i] = NULL;
     }
-
-  if(oldNames)
-    {
-    delete [] oldNames;
-    }
-  if(oldComponents)
-    {
-    delete [] oldComponents;
-    }
+  delete [] varNames;
+  delete [] tempComponents;
 
   this->CoordinateVectorVariableNames[i] = new char[strlen(variableName) + 1];
   strcpy(this->CoordinateVectorVariableNames[i], variableName);
