@@ -32,7 +32,7 @@
 #include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.22");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.23");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -346,6 +346,7 @@ int vtkExtractSelectedIds::ExtractCells(
     {
     //no global array, so just use the input cell index
     labelArray = idxArray;
+    labelArray->Register(NULL);
     }
 
   // Reverse the "in" flag
@@ -377,6 +378,7 @@ int vtkExtractSelectedIds::ExtractCells(
 
   if (idArray == NULL)
     {
+    labelArray->Delete();
     idxArray->Delete();
     idList->Delete();
     if (ptIds)
@@ -393,6 +395,7 @@ int vtkExtractSelectedIds::ExtractCells(
   // Array types must match
   if (idArray->GetDataType() != labelArray->GetDataType())
     {
+    labelArray->Delete();
     idxArray->Delete();
     idList->Delete();
     if (ptIds)
@@ -548,6 +551,7 @@ int vtkExtractSelectedIds::ExtractCells(
 
   idList->Delete();
   idxArray->Delete();
+  labelArray->Delete();
 
   if (!passThrough)
     {
@@ -694,6 +698,7 @@ int vtkExtractSelectedIds::ExtractPoints(
   vtkAbstractArray* idArray = sel->GetSelectionList();
   if (idArray == NULL)
     {
+    labelArray->Delete();
     idxArray->Delete();
     ptCells->Delete();
     cellPts->Delete();
@@ -704,6 +709,7 @@ int vtkExtractSelectedIds::ExtractPoints(
   if (idArray->GetDataType() != labelArray->GetDataType())
     {
     vtkWarningMacro("array types don't match");
+    labelArray->Delete();
     idxArray->Delete();
     ptCells->Delete();
     cellPts->Delete();
