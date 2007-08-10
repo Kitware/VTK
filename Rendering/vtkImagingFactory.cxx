@@ -18,7 +18,7 @@
 #include "vtkToolkits.h"
 #include "vtkDebugLeaks.h"
 
-#ifdef VTK_USE_OGLR
+#if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA)
 #include "vtkOpenGLImageMapper.h"
 #include "vtkOpenGLPolyDataMapper2D.h"
 #include "vtkOpenGLFreeTypeTextMapper.h"
@@ -59,7 +59,7 @@
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 int vtkImagingFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkImagingFactory, "1.30");
+vtkCxxRevisionMacro(vtkImagingFactory, "1.31");
 vtkStandardNewMacro(vtkImagingFactory);
 
 const char *vtkImagingFactoryGetRenderLibrary()
@@ -91,7 +91,7 @@ const char *vtkImagingFactoryGetRenderLibrary()
   // if nothing is set then work down the list of possible renderers
   if ( !temp )
     {
-#ifdef VTK_USE_OGLR
+#if defined(VTK_USE_OGLR)  || defined(VTK_USE_OSMESA)
     temp = "OpenGL";
 #endif
 #ifdef _WIN32
@@ -125,7 +125,7 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
 
   const char *rl = vtkImagingFactoryGetRenderLibrary();
 
-#ifdef VTK_USE_OGLR
+#if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA)
   if (!strcmp("OpenGL",rl))
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)

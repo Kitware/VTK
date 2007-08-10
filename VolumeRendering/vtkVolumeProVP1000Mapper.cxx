@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.3");
+vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.4");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -184,7 +184,7 @@ vtkVolumeProVP1000Mapper *vtkVolumeProVP1000Mapper::New()
   // If the factory was unable to create the object, then create it here.
   const char *temp = vtkGraphicsFactory::GetRenderLibrary();
   
-#ifdef VTK_USE_OGLR
+#if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA)
   if (!strcmp("OpenGL",temp))
     {
 #ifdef VTK_DEBUG_LEAKS

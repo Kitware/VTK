@@ -21,7 +21,7 @@
 #include "vtkGraphicsFactory.h"
 
 // if using some sort of opengl, then include these files
-#if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
+#if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA) ||defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
 #include "vtkOpenGLHAVSVolumeMapper.h"
 #include "vtkOpenGLProjectedTetrahedraMapper.h"
 #include "vtkOpenGLRayCastImageDisplayHelper.h"
@@ -39,7 +39,7 @@
 
 #include "stdlib.h"
 
-vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.11");
+vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.12");
 vtkStandardNewMacro(vtkVolumeRenderingFactory);
 
 
