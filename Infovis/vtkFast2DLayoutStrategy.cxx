@@ -36,7 +36,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.3");
+vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.4");
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -66,7 +66,7 @@ vtkFast2DLayoutStrategy::vtkFast2DLayoutStrategy()
   this->AttractionArray = vtkSmartPointer<vtkFloatArray>::New();
     
   this->RandomSeed = 123;
-  this->MaxNumberOfIterations = 100;
+  this->MaxNumberOfIterations = 200;
   this->IterationsPerLayout = 100;
   this->InitialTemperature = 5;
   this->CoolDownRate = 50.0;
@@ -130,7 +130,7 @@ void GenerateGaussianSplat(vtkImageData *splat, int x, int y)
   const int *dimensions = splat->GetDimensions();
   
   // Gaussian splat
-  float falloff = 20; // very fast falloff
+  float falloff = 10; // fast falloff
   float e= 2.71828182845904;
 
   for (int row = 0; row < dimensions[1]; ++row)
@@ -319,6 +319,7 @@ void vtkFast2DLayoutStrategy::Layout()
     paddedBounds[1] = bounds[1] + (bounds[1]-bounds[0])*.1;
     paddedBounds[2] = bounds[2] - (bounds[3]-bounds[2])*.1;
     paddedBounds[3] = bounds[3] + (bounds[3]-bounds[2])*.1;
+    paddedBounds[4] = paddedBounds[5] = 0;
     
     // Update the density grid
     this->DensityGrid->SetModelBounds(paddedBounds);
