@@ -67,6 +67,10 @@ public:
   // Description:
   // Restore data object to initial state,
   virtual void Initialize();
+  
+  // Description:
+  // Returns VTK_SELECTION enumeration value.
+  virtual int GetDataObjectType() {return VTK_SELECTION;}
 
   // Description:
   // Sets the selection list.

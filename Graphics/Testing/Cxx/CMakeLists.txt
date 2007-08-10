@@ -10,6 +10,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     PointLocator.cxx
     FrustumClip.cxx
     RGrid.cxx
+    TestAppendSelection.cxx
     TestClipHyperOctree.cxx
     TestDelaunay2D.cxx
     TestExtraction.cxx

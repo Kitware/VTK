@@ -9,6 +9,7 @@ SET(KIT_LIBS vtkFiltering verdict )
 SET( Kit_SRCS
 vtkAppendFilter.cxx
 vtkAppendPolyData.cxx
+vtkAppendSelection.cxx
 vtkApproximatingSubdivisionFilter.cxx
 vtkArrayCalculator.cxx
 vtkArrowSource.cxx
@@ -179,6 +180,7 @@ vtkRotationalExtrusionFilter.cxx
 vtkRotationFilter.cxx
 vtkRuledSurfaceFilter.cxx
 vtkSelectPolyData.cxx
+vtkSelectionLink.cxx
 vtkSelectionSource.cxx
 vtkShrinkFilter.cxx
 vtkShrinkPolyData.cxx
