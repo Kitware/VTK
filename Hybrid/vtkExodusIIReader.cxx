@@ -71,7 +71,8 @@ static int obj_types[] = {
   EX_NODE_MAP,
   EX_EDGE_MAP,
   EX_FACE_MAP,
-  EX_ELEM_MAP
+  EX_ELEM_MAP,
+  EX_NODAL
 };
 
 static int num_obj_types = (int)(sizeof(obj_types)/sizeof(obj_types[0]));
@@ -89,6 +90,7 @@ static int obj_sizes[] = {
   EX_INQ_EDGE_MAP,
   EX_INQ_FACE_MAP,
   EX_INQ_ELEM_MAP,
+  EX_INQ_NODES
 };
 
 static const char* objtype_names[] = {
@@ -103,7 +105,8 @@ static const char* objtype_names[] = {
   "Node map",
   "Edge map",
   "Face map",
-  "Element map"
+  "Element map",
+  "Nodal"
 };
 
 static const char* obj_typestr[] = {
@@ -119,11 +122,13 @@ static const char* obj_typestr[] = {
   0,
   0,
   0,
+  "N"
 };
 
 #define OBJTYPE_IS_BLOCK(i) ((i>=0)&&(i<3))
 #define OBJTYPE_IS_SET(i) ((i>2)&&(i<8))
 #define OBJTYPE_IS_MAP(i) ((i>7)&&(i<12))
+#define OBJTYPE_IS_NODAL(i) (i==12)
 
 // Unlike obj* items above:
 // - conn* arrays only reference objects that generate connectivity information
@@ -663,7 +668,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.23");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.24");
 
 
 
@@ -1047,6 +1052,8 @@ protected:
     */
   int AssembleOutputProceduralArrays( vtkIdType timeStep, vtkUnstructuredGrid* output );
 
+  //int AssembleOutputGlobalArrays( vtkIdType timeStep, vtkUnstructuredGrid* output );
+
   /// Insert cells from a specified block into a mesh
   void InsertBlockCells( int otyp, int obj, int conn_type, int timeStep, vtkUnstructuredGrid* output );
 
@@ -1399,7 +1406,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.23");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.24");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -1950,7 +1957,14 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkUnstructuredGrid* output
     // map the "used" index to the "original" index
     if(this->FastPathObjectType == vtkExodusIIReader::NODAL)
       {
-      internalExodusId = this->ReversePointMap[this->FastPathObjectId];
+      if(this->SqueezePoints)
+        {
+        internalExodusId = this->ReversePointMap[this->FastPathObjectId];
+        }
+      else
+        {
+        internalExodusId = this->FastPathObjectId + 1;
+        }
       }
     else
       {
@@ -2027,6 +2041,59 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkUnstructuredGrid* output
 
   return status;
 }
+
+/*
+int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays( vtkIdType timeStep, vtkUnstructuredGrid* output )
+{
+  int status = 1;
+  vtkstd::vector<ArrayInfoType>::iterator ai;
+  int aidx = 0;
+
+  vtkExodusIICacheKey key( timeStep, vtkExodusIIReader::GLOBAL, 0, aidx );
+  vtkDataArray* src = this->GetCacheOrRead( key );
+  if ( !src )
+    {
+    vtkWarningMacro( "Unable to read global variables " << ai->Name.c_str() << " at time step " << timeStep );
+    status = 0;
+    continue;
+    }
+/*
+  // Select which global variables to send to the output?
+  for (
+    ai = this->ArrayInfo[ vtkExodusIIReader::GLOBAL ].begin();
+    ai != this->ArrayInfo[ vtkExodusIIReader::GLOBAL ].end();
+    ++ai, ++aidx )
+    {
+    if ( ! ai->Status )
+      continue; // Skip arrays we don't want.
+
+    }
+*/
+/*
+  output->GetFieldData()->AddArray( src );
+
+  // Add block id information for the exodus writer
+  BlockInfoType* binfop;
+  int numBlk = (int) this->BlockInfo[vtkExodusIIReader::ELEM_BLOCK].size();
+  int blk;
+  vtkIntArray *elemBlockIdArray = vtkIntArray::New();
+  elemBlockIdArray->SetNumberOfComponents(1);
+  elemBlockIdArray->SetNumberOfValues(numBlk);
+  elemBlockIdArray->SetName("ElementBlockIds");
+
+  for ( blk = 0; blk < numBlk; ++blk )
+    {
+    binfop = &this->BlockInfo[vtkExodusIIReader::ELEM_BLOCK][blk];
+    elemBlockIdArray->SetValue(blk,binfop->Id);
+    }
+  
+  output->GetFieldData()->AddArray(elemBlockIdArray);
+  
+  elemBlockIdArray->Delete();
+
+  return status;
+}
+*/
 
 
 int vtkExodusIIReaderPrivate::AssembleOutputPointArrays( vtkIdType timeStep, vtkUnstructuredGrid* output )
@@ -2816,6 +2883,22 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     // need to assemble result array from smaller ones.
     // call GetCacheOrRead() for each smaller array
     // pay attention to SqueezePoints
+/*
+    ArrayInfoType* ainfop = &this->ArrayInfo[vtkExodusIIReader::GLOBAL][key.ArrayId];
+    arr = vtkDataArray::CreateDataArray( ainfop->StorageType );
+    arr->SetName( this->GetGlobalVariablesArrayName() );
+    arr->SetNumberOfComponents( 1 );
+    arr->SetNumberOfTuples( 1 );
+
+    if ( ex_get_var( exoid, key.Time + 1, key.ObjectType,
+        ainfop->OriginalIndices[0], 0, arr->GetNumberOfTuples(),
+        arr->GetVoidPointer( 0 ) ) < 0 )
+      {
+      vtkErrorMacro( "Could not read nodal result variable " << ainfop->Name.c_str() << "." );
+      arr->Delete();
+      arr = 0;
+      }
+*/
     }
   else if ( key.ObjectType == vtkExodusIIReader::NODAL )
     {
@@ -4312,6 +4395,11 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   this->NumberOfCells = 0;
   for ( i = 0; i < num_obj_types; ++i )
     {
+    if(OBJTYPE_IS_NODAL(i))
+      {
+      continue;
+      }
+
     vtkIdType blockEntryFileOffset = 1;
     vtkIdType setEntryFileOffset = 1;
     vtkIdType blockEntryGridOffset = 0;
@@ -4707,6 +4795,37 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     free( var_names );
     var_names = 0;
     }
+/*
+  // Now read information for global variables
+  VTK_EXO_FUNC( ex_get_var_param( exoid, "g", &num_vars ), "Unable to read number of global variables." );
+  if ( num_vars > 0 )
+    {
+    ArrayInfoType ainfo;
+    var_names = (char**) malloc( num_vars * sizeof(char*) );
+    for ( j = 0; j < num_vars; ++j )
+      var_names[j] = (char*) malloc( (MAX_STR_LENGTH + 1) * sizeof(char) );
+
+    VTK_EXO_FUNC( ex_get_var_names( exoid, "g", num_vars, var_names ), "Could not read global variable names." );
+    this->RemoveBeginningAndTrailingSpaces( num_vars, var_names );
+
+    nids = 1;
+    vtkstd::vector<int> dummy_truth;
+    dummy_truth.reserve( num_vars );
+    for ( j = 0; j < num_vars; ++j )
+      {
+      dummy_truth.push_back( 1 );
+      }
+
+    this->GlomArrayNames( vtkExodusIIReader::GLOBAL, nids, num_vars, var_names, &dummy_truth[0] );
+
+    for ( j = 0; j < num_vars; ++j )
+      {
+      free( var_names[j] );
+      }
+    free( var_names );
+    var_names = 0;
+    }
+*/
 
   return 0;
 }
@@ -4764,6 +4883,8 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkUnstructuredGr
   this->AssembleOutputCellArrays( timeStep, output );
 
   this->AssembleOutputProceduralArrays( timeStep, output );
+
+  //this->AssembleOutputGlobalArrays( timeStep, output );
 
   this->AssembleOutputPointMaps( timeStep, output );
   this->AssembleOutputCellMaps( timeStep, output );
@@ -5260,7 +5381,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.23");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.24");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
