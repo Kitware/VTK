@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkAbstractGraph.h"
 #include "vtkCellData.h"
@@ -35,7 +39,7 @@
 
 double vtkAbstractGraph::DefaultPoint[3] = {0, 0, 0};
 
-vtkCxxRevisionMacro(vtkAbstractGraph, "1.5");
+vtkCxxRevisionMacro(vtkAbstractGraph, "1.6");
 
 //----------------------------------------------------------------------------
 vtkAbstractGraph::vtkAbstractGraph()

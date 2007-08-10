@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 #include "vtkGraphToPolyData.h"
 
 #include "vtkCellArray.h"
@@ -24,7 +28,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkAbstractGraph.h"
 
-vtkCxxRevisionMacro(vtkGraphToPolyData, "1.5");
+vtkCxxRevisionMacro(vtkGraphToPolyData, "1.6");
 vtkStandardNewMacro(vtkGraphToPolyData);
 
 vtkGraphToPolyData::vtkGraphToPolyData()

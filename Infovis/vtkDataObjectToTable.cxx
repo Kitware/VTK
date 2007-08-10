@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkDataObjectToTable.h"
 
@@ -25,7 +29,7 @@
 #include "vtkPointData.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkDataObjectToTable, "1.2");
+vtkCxxRevisionMacro(vtkDataObjectToTable, "1.3");
 vtkStandardNewMacro(vtkDataObjectToTable);
 //---------------------------------------------------------------------------
 vtkDataObjectToTable::vtkDataObjectToTable()

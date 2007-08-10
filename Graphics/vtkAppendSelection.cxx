@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 #include "vtkAppendSelection.h"
 
 #include "vtkAlgorithmOutput.h"
@@ -21,7 +25,7 @@
 #include "vtkSelection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendSelection, "1.1");
+vtkCxxRevisionMacro(vtkAppendSelection, "1.2");
 vtkStandardNewMacro(vtkAppendSelection);
 
 //----------------------------------------------------------------------------

@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkStringToTimePoint.h"
 
@@ -27,7 +31,7 @@
 #include "vtkTimePointUtility.h"
 #include "vtkTypeUInt64Array.h"
 
-vtkCxxRevisionMacro(vtkStringToTimePoint, "1.1");
+vtkCxxRevisionMacro(vtkStringToTimePoint, "1.2");
 vtkStandardNewMacro(vtkStringToTimePoint);
 
 vtkStringToTimePoint::vtkStringToTimePoint()

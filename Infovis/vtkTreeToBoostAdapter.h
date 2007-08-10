@@ -1,3 +1,27 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkTreeToBoostAdapter.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
+// .NAME vtkTreeToBoostAdapter - adapter to the boost graph library (www.boost.org)
+//
+// .SECTION Description
+// Including this header allows you to use a vtkTree directly in boost algorithms.
+// You may use a tree only in algorithms that do not modify the graph.
+
 #ifndef __vtkTreeToBoostAdapter_h
 #define __vtkTreeToBoostAdapter_h
 

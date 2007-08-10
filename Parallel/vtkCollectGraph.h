@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 // .NAME vtkCollectGraph - Collect distributed graph.
 // .SECTION Description
 // This filter has code to collect a graph from across processes onto vertex 0.

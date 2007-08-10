@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkGraphDFSIterator.h"
 #include "vtkGraph.h"
@@ -37,7 +41,7 @@ public:
   stack<vtkGraphDFSIteratorPosition> Stack;
 };
 
-vtkCxxRevisionMacro(vtkGraphDFSIterator, "1.4");
+vtkCxxRevisionMacro(vtkGraphDFSIterator, "1.5");
 vtkStandardNewMacro(vtkGraphDFSIterator);
 
 vtkGraphDFSIterator::vtkGraphDFSIterator()

@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkTimePointUtility.h"
 
@@ -35,7 +39,7 @@ const int vtkTimePointUtility::MINUTES_PER_HOUR   =       60;
 const int vtkTimePointUtility::MINUTES_PER_DAY    =     1440;
 const int vtkTimePointUtility::HOURS_PER_DAY      =       24;
 
-vtkCxxRevisionMacro(vtkTimePointUtility, "1.5");
+vtkCxxRevisionMacro(vtkTimePointUtility, "1.6");
 vtkStandardNewMacro(vtkTimePointUtility);
 
 void vtkTimePointUtility::PrintSelf(ostream& os, vtkIndent indent)

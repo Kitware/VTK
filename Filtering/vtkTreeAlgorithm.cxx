@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 #include "vtkTreeAlgorithm.h"
 
 #include "vtkCommand.h"
@@ -21,7 +25,7 @@
 #include "vtkTree.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTreeAlgorithm, "1.2");
+vtkCxxRevisionMacro(vtkTreeAlgorithm, "1.3");
 vtkStandardNewMacro(vtkTreeAlgorithm);
 
 //----------------------------------------------------------------------------

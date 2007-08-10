@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkXMLTreeReader.h"
 
@@ -26,7 +30,7 @@
 #include <vtklibxml2/libxml/parser.h>
 #include <vtklibxml2/libxml/tree.h>
 
-vtkCxxRevisionMacro(vtkXMLTreeReader, "1.3");
+vtkCxxRevisionMacro(vtkXMLTreeReader, "1.4");
 vtkStandardNewMacro(vtkXMLTreeReader);
 
 const char * vtkXMLTreeReader::TagNameField = ".tagname";

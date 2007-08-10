@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 #include "vtkGraph.h"
 
 #include "vtkObjectFactory.h"
@@ -29,7 +33,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkGraph, "1.5");
+vtkCxxRevisionMacro(vtkGraph, "1.6");
 vtkStandardNewMacro(vtkGraph);
 
 //----------------------------------------------------------------------------

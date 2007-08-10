@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkTable.h"
@@ -28,7 +32,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.7");
+vtkCxxRevisionMacro(vtkTable, "1.8");
 vtkStandardNewMacro(vtkTable);
 
 //----------------------------------------------------------------------------

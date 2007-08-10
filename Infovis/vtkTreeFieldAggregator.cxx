@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkTreeFieldAggregator.h"
 #include "vtkTreeDFSIterator.h"
@@ -31,7 +35,7 @@
 #include "vtkGraph.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkTreeFieldAggregator, "1.5");
+vtkCxxRevisionMacro(vtkTreeFieldAggregator, "1.6");
 vtkStandardNewMacro(vtkTreeFieldAggregator);
 
 vtkTreeFieldAggregator::vtkTreeFieldAggregator():MinValue(0.0)

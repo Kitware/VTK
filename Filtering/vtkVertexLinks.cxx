@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 #include "vtkVertexLinks.h"
 #include "vtkObjectFactory.h"
 #include "stdlib.h"
@@ -35,7 +39,7 @@ struct vtkVertexLinksInternals
 };
 
 
-vtkCxxRevisionMacro(vtkVertexLinks, "1.4");
+vtkCxxRevisionMacro(vtkVertexLinks, "1.5");
 vtkStandardNewMacro(vtkVertexLinks);
 
 //----------------------------------------------------------------------------

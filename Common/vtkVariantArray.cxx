@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 // We do not provide a definition for the copy constructor or
 // operator=.  Block the warning.
@@ -33,7 +37,7 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkVariant);
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.4");
+vtkCxxRevisionMacro(vtkVariantArray, "1.5");
 vtkStandardNewMacro(vtkVariantArray);
 
 //----------------------------------------------------------------------------

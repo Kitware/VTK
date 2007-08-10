@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 // .NAME vtkDynamic2DLabelMapper - draw text labels at 2D dataset points
 // .SECTION Description
 // vtkDynamic2DLabelMapper is a mapper that renders text at dataset

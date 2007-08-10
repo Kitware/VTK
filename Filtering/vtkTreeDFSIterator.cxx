@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkTreeDFSIterator.h"
 #include "vtkTree.h"
@@ -36,7 +40,7 @@ public:
   stack<vtkTreeDFSIteratorPosition> Stack;
 };
 
-vtkCxxRevisionMacro(vtkTreeDFSIterator, "1.5");
+vtkCxxRevisionMacro(vtkTreeDFSIterator, "1.6");
 vtkStandardNewMacro(vtkTreeDFSIterator);
 
 vtkTreeDFSIterator::vtkTreeDFSIterator()

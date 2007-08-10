@@ -12,9 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 // .NAME vtkDataObjectToTable - extract field data as a table
 //
 // .SECTION Description
+// This filter cen extrac the field, cell or point data of any data object
+// as a table.
 
 #ifndef __vtkDataObjectToTable_h
 #define __vtkDataObjectToTable_h

@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkStringToNumeric.h"
 
@@ -28,7 +32,7 @@
 #include "vtkStringArray.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkStringToNumeric, "1.1");
+vtkCxxRevisionMacro(vtkStringToNumeric, "1.2");
 vtkStandardNewMacro(vtkStringToNumeric);
 
 vtkStringToNumeric::vtkStringToNumeric()

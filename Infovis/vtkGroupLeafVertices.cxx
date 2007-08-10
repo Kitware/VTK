@@ -1,3 +1,21 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkGroupLeafVertices.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkGroupLeafVertices.h"
 
@@ -13,7 +31,7 @@
 #include <vtksys/stl/set>
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.1");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.2");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 

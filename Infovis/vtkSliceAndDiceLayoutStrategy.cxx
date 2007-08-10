@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkSliceAndDiceLayoutStrategy.h"
 #include "vtkTreeDFSIterator.h"
@@ -28,7 +32,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkSliceAndDiceLayoutStrategy, "1.3");
+vtkCxxRevisionMacro(vtkSliceAndDiceLayoutStrategy, "1.4");
 vtkStandardNewMacro(vtkSliceAndDiceLayoutStrategy);
 
 vtkSliceAndDiceLayoutStrategy::vtkSliceAndDiceLayoutStrategy()

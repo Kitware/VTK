@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 
 #include "vtkPruneTreeFilter.h"
 #include "vtkTree.h"
@@ -21,7 +25,7 @@
 #include "vtkInformation.h"
 #include "vtkStringArray.h"
 
-vtkCxxRevisionMacro(vtkPruneTreeFilter, "1.2");
+vtkCxxRevisionMacro(vtkPruneTreeFilter, "1.3");
 vtkStandardNewMacro(vtkPruneTreeFilter);
 
 
