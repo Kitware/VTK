@@ -133,6 +133,8 @@ protected:
   int GenerateFileIdArray;
 //BTX
   vtkstd::vector<vtkExodusIIReader*> ReaderList;
+  vtkstd::vector<int> NumberOfPointsPerFile;
+  vtkstd::vector<int> NumberOfCellsPerFile;
 //ETX
 
   int Timing;

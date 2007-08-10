@@ -91,7 +91,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.10");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.11");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -361,15 +361,16 @@ int vtkPExodusIIReader::RequestData(
   // our append object that puts the 'pieces' together
   unsigned int numMyFiles = max - min + 1;
 
+  int totalCells = 0;
+  int totalPoints = 0;
 #ifdef APPEND
   vtkAppendFilter *append = vtkAppendFilter::New();
 #else
   int totalSets = 0;
-  int totalCells = 0;
-  int totalPoints = 0;
   vtkUnstructuredGrid** mergeGrid = new vtkUnstructuredGrid*[numMyFiles];
   memset( mergeGrid, 0, sizeof(vtkUnstructuredGrid*) );
 #endif
+  vtkFieldData *fieldData = vtkFieldData::New();
 
   if ( this->ExodusModelMetadata )
     {
@@ -397,6 +398,17 @@ int vtkPExodusIIReader::RequestData(
       this->ReaderList[reader_idx]->Delete();
       ReaderList.pop_back();
       }
+    }
+
+  // If this is the first execution, we need to initialize the arrays
+  // that store the number of points/cells output by each reader
+  if(this->NumberOfCellsPerFile.size()==0)
+    {
+    this->NumberOfCellsPerFile.resize(max-min+1,0);
+    }
+  if(this->NumberOfPointsPerFile.size()==0)
+    {
+    this->NumberOfPointsPerFile.resize(max-min+1,0);
     }
 
 #ifdef DBG_PEXOIIRDR
@@ -530,14 +542,48 @@ int vtkPExodusIIReader::RequestData(
       {
       const char *objectType = outInfo->Get(
             vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE());
-      this->ReaderList[reader_idx]->SetFastPathObjectType(objectType);
-
       vtkIdType objectId = outInfo->Get(
             vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID());
-      this->ReaderList[reader_idx]->SetFastPathObjectId(objectId);
-
       const char *idType = outInfo->Get(
             vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE());
+
+      // If the id is a VTK index, check whether it resides in this file,
+      // if not, set objectId to -1. The reason we pass the keys to the reader
+      // either way is to make sure the sub-reader gets re-executed. Because 
+      // even if the id doesn't belong to the file, the
+      // previous id from the previous fast-path request may have and we want
+      // to make sure that its output field data does not include old temporal
+      // arrays.
+      if(strcmp(idType,"INDEX")==0)
+        {
+        if(strcmp(objectType,"POINT")==0)
+          {
+          if(objectId < totalPoints || 
+             objectId >= totalPoints + this->NumberOfPointsPerFile[reader_idx])
+            {
+            objectId = -1;
+            }
+          else
+            {
+            objectId = objectId - totalPoints;
+            }
+          }
+        else if(strcmp(objectType,"CELL")==0)
+          {
+          if(objectId < totalCells || 
+             objectId >= totalCells + this->NumberOfCellsPerFile[reader_idx])
+            {
+            objectId = -1;
+            }
+          else
+            {
+            objectId = objectId - totalCells;
+            }
+          }
+        }
+
+      this->ReaderList[reader_idx]->SetFastPathObjectType(objectType);
+      this->ReaderList[reader_idx]->SetFastPathObjectId(objectId);
       this->ReaderList[reader_idx]->SetFastPathIdType(idType);
       }
 
@@ -573,13 +619,24 @@ int vtkPExodusIIReader::RequestData(
           }
         }
 
+    // Store field data arrays of each reader to be added to the appended
+    // output later:
+    vtkFieldData *ifd = subgrid->GetFieldData();
+    for(vtkIdType fidx = 0; fidx < ifd->GetNumberOfArrays(); fidx++)
+      {
+      fieldData->AddArray(ifd->GetArray(fidx));
+      }
+
+    totalCells += ncells;
+    totalPoints += subgrid->GetNumberOfPoints();
+    this->NumberOfCellsPerFile[reader_idx] = ncells;
+    this->NumberOfPointsPerFile[reader_idx] = subgrid->GetNumberOfPoints();
+
 #ifdef APPEND
       append->AddInput(subgrid);
       subgrid->Delete();
 #else
       totalSets++;
-      totalCells += ncells;
-      totalPoints += subgrid->GetNumberOfPoints();
       mergeGrid[reader_idx] = subgrid;
 #endif
       }
@@ -591,8 +648,14 @@ int vtkPExodusIIReader::RequestData(
     {
     append->Update();
     output->ShallowCopy(append->GetOutput());
+    // vtkAppendFilter does not handle field data so we must do so separately:
+    output->GetFieldData()->ShallowCopy(fieldData);
     }
 
+  // I've copied fieldData's output to the 'output' so delete fieldData
+  fieldData->Delete();
+  fieldData = NULL;
+  
   // I've copied append's output to the 'output' so delete append
   append->Delete();
   append = NULL;
