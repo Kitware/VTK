@@ -279,7 +279,7 @@ public:
     { return this->GetObjectStatus( objectType, this->GetObjectIndex( objectType, objectName ) ); }
   void SetObjectStatus( int objectType, int objectIndex, int status );
   void SetObjectStatus( int objectType, const char* objectName, int status ) 
-    { this->SetObjectStatus( objectType, this->GetObjectIndex( objectType, objectName ), status ); }
+    { if(objectName && strlen(objectName)>0) { this->SetObjectStatus( objectType, this->GetObjectIndex( objectType, objectName ), status ); } }
 
   // Descriptions:
   // By default arrays are not loaded.  These methods allow the user to select
@@ -295,7 +295,7 @@ public:
     { return this->GetObjectArrayStatus( objectType, this->GetObjectArrayIndex( objectType, arrayName ) ); }
   void SetObjectArrayStatus( int objectType, int arrayIndex, int status );
   void SetObjectArrayStatus( int objectType, const char* arrayName, int status ) 
-    { this->SetObjectArrayStatus( objectType, this->GetObjectArrayIndex( objectType, arrayName ), status ); }
+    { if(arrayName && strlen(arrayName)>0) { this->SetObjectArrayStatus( objectType, this->GetObjectArrayIndex( objectType, arrayName ), status ); } }
 
   // Descriptions:
   // By default attributes are not loaded.  These methods allow the user to select
