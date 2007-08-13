@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAnimationScene, "1.14");
+vtkCxxRevisionMacro(vtkAnimationScene, "1.15");
 vtkStandardNewMacro(vtkAnimationScene);
 
 //----------------------------------------------------------------------------
@@ -179,7 +179,7 @@ void vtkAnimationScene::Play()
     double deltatime = 0.0;
     do
       {
-      this->Tick(currenttime, deltatime);
+      this->Tick(currenttime, deltatime, currenttime);
 
       // needed to compute delta times.
       double previous_tick_time = currenttime;
@@ -227,9 +227,11 @@ void vtkAnimationScene::Stop()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnimationScene::TickInternal(double currenttime, double deltatime)
+void vtkAnimationScene::TickInternal(
+  double currenttime, double deltatime, double clocktime)
 {
   this->AnimationTime = currenttime;
+  this->ClockTime = clocktime;
   
   vtkCollectionIterator* iter = this->AnimationCuesIterator;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
@@ -241,18 +243,21 @@ void vtkAnimationScene::TickInternal(double currenttime, double deltatime)
       switch(cue->GetTimeMode())
         {
       case vtkAnimationCue::TIMEMODE_RELATIVE:
-        cue->Tick(currenttime - this->StartTime, deltatime);
+        cue->Tick(currenttime - this->StartTime, deltatime, clocktime);
         break;
+
       case vtkAnimationCue::TIMEMODE_NORMALIZED:
         cue->Tick( (currenttime - this->StartTime) / (this->EndTime - this->StartTime),
-          deltatime / (this->EndTime - this->StartTime));
+          deltatime / (this->EndTime - this->StartTime), clocktime);
         break;
+
       default:
         vtkErrorMacro("Invalid cue time mode");
         }
       }
     }
-  this->Superclass::TickInternal(currenttime, deltatime);
+
+  this->Superclass::TickInternal(currenttime, deltatime, clocktime);
 }
 
 //----------------------------------------------------------------------------
@@ -278,7 +283,7 @@ void vtkAnimationScene::SetAnimationTime(double currenttime)
     return;
     }
   this->Initialize();
-  this->Tick(currenttime,0.0);
+  this->Tick(currenttime, 0.0, currenttime);
   if (this->CueState == vtkAnimationCue::INACTIVE)
     {
     this->Finalize();
