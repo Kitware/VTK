@@ -69,7 +69,7 @@
 
 // OSMESA OpenGL stuff
 #ifdef VTK_USE_OSMESA
-// # include "vtkXRenderWindowInteractor.h"
+# include "vtkRenderWindowInteractor.h"
 # include "vtkOSOpenGLRenderWindow.h"
 //# define VTK_DISPLAY_X11_OGL
 #endif
@@ -107,7 +107,7 @@ int vtkGraphicsFactory::OffScreenOnlyMode = 1;
 int vtkGraphicsFactory::OffScreenOnlyMode = 0;
 #endif
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.41");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.42");
 vtkStandardNewMacro(vtkGraphicsFactory);
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
@@ -199,6 +199,10 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
   if(strcmp(vtkclassname, "vtkRenderWindow") == 0)
     {
     return vtkOSOpenGLRenderWindow::New();
+    }
+  if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
+    {
+    return vtkRenderWindowInteractor::New();
     }
 #endif
 
