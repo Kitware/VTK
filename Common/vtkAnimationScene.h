@@ -110,7 +110,7 @@ protected:
   // Description:
   // Called on every valid tick.
   // Calls ticks on all the contained cues.
-  virtual void TickInternal(double currenttime, double deltatime, double clocktime);
+  virtual void TickInternal(double currenttime, double deltatime);
   virtual void StartCueInternal();
   virtual void EndCueInternal();
 
