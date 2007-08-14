@@ -668,7 +668,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.25");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.26");
 
 
 
@@ -1406,7 +1406,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.25");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.26");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -2550,7 +2550,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
       //cout << "\n";
       //cout << " " <<
       cellId = output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
-      this->ReverseCellMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(cellId,binfo->FileOffset + i - 1));
+      this->ReverseCellMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(cellId,binfo->FileOffset + i - 1));
       srcIds += binfo->PointsPerCell;
       }
       //cout << "\n";
@@ -2571,7 +2571,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
         }
       //cout << "\n";
       cellId = output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
-      this->ReverseCellMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(cellId,binfo->FileOffset + i - 1));
+      this->ReverseCellMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(cellId,binfo->FileOffset + i - 1));
       srcIds += binfo->PointsPerCell;
       }
 #else // VTK_USE_64BIT_IDS
@@ -2580,7 +2580,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
     for ( int i = 0; i < binfo->Size; ++i )
       {
       cellId = output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, srcIds );
-      this->ReverseCellMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(cellId,binfo->FileOffset + i - 1));
+      this->ReverseCellMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(cellId,binfo->FileOffset + i - 1));
       srcIds += binfo->PointsPerCell;
       //for ( int k = 0; k < binfo->PointsPerCell; ++k )
         //cout << " " << srcIds[k];
@@ -2682,7 +2682,7 @@ void vtkExodusIIReaderPrivate::InsertSetNodeCopies( vtkIntArray* refs, int otyp,
       if ( *x < 0 )
         {
         *x = this->NextSqueezePoint++;
-        this->ReversePointMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(*x,tmp));
+        this->ReversePointMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(*x,tmp));
         }
       output->InsertNextCell( VTK_VERTEX, 1, x );
       }
@@ -2779,7 +2779,7 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies( vtkIntArray* refs, int otyp,
         if ( *x < 0 )
           {
           *x = this->NextSqueezePoint++;
-          this->ReversePointMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(*x,cellConn[k]));
+          this->ReversePointMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(*x,cellConn[k]));
           }
         cellConn[k] = *x;
         }
@@ -2828,7 +2828,7 @@ void vtkExodusIIReaderPrivate::InsertSetSides( vtkIntArray* refs, int otyp, int 
         if ( *x < 0 )
           {
           *x = this->NextSqueezePoint++;
-          this->ReversePointMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(*x,sideNodes[k]));
+          this->ReversePointMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(*x,sideNodes[k]));
           }
         cellConn[k] = *x;
         }
@@ -3758,7 +3758,7 @@ vtkIdType vtkExodusIIReaderPrivate::GetSqueezePointId( int i )
   if ( *x < 0 )
     {
     *x = this->NextSqueezePoint++;
-    this->ReversePointMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(*x,i));
+    this->ReversePointMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(*x,i));
     }
   return *x;
 }
@@ -5381,7 +5381,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.25");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.26");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
