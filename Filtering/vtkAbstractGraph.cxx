@@ -39,7 +39,7 @@
 
 double vtkAbstractGraph::DefaultPoint[3] = {0, 0, 0};
 
-vtkCxxRevisionMacro(vtkAbstractGraph, "1.6");
+vtkCxxRevisionMacro(vtkAbstractGraph, "1.7");
 
 //----------------------------------------------------------------------------
 vtkAbstractGraph::vtkAbstractGraph()
@@ -65,6 +65,7 @@ vtkAbstractGraph::~vtkAbstractGraph()
 //----------------------------------------------------------------------------
 void vtkAbstractGraph::Initialize()
 {
+  this->Superclass::Initialize();
   this->Line->Delete();
   this->Line = vtkLine::New();
 }
