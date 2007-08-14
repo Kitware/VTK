@@ -81,13 +81,6 @@ public:
   virtual void WidgetInteraction(double eventPos[2]);
   virtual int ComputeInteractionState(int X, int Y, int modified=0);
 
-#ifndef VTK_LEGACY_REMOVE
-  // Description:
-  // Build a contour representation from externally supplied PolyData.
-  // Deprecated : Use vtkContourWidget::Initialize( vtkPolyData * ).
-  virtual void BuildRepresentationFromUserSuppliedPolydata( vtkPolyData * );
-#endif
-
   // Description:
   // Methods to make this class behave as a vtkProp.
   virtual void GetActors(vtkPropCollection *);

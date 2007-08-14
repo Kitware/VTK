@@ -40,7 +40,7 @@
 #include "vtkFocalPlanePointPlacer.h"
 #include "vtkBezierContourLineInterpolator.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.11");
+vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.12");
 vtkStandardNewMacro(vtkOrientedGlyphContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -606,17 +606,6 @@ void vtkOrientedGlyphContourRepresentation::BuildRepresentation()
     }
 
 }
-
-#ifndef VTK_LEGACY_REMOVE
-//----------------------------------------------------------------------
-void vtkOrientedGlyphContourRepresentation
-::BuildRepresentationFromUserSuppliedPolydata( vtkPolyData * pd )
-{
-  vtkWarningMacro( << 
-  "Deprecated. Please use vtkContourWidget::Initialize(vtkPolyData*) instead");
-  this->Initialize(pd);
-}
-#endif
 
 //----------------------------------------------------------------------
 void vtkOrientedGlyphContourRepresentation::GetActors(vtkPropCollection *pc)
