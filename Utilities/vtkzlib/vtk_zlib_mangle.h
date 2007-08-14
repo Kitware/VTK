@@ -14,7 +14,7 @@ nm libvtkzlib.so |grep " [TRD] "
 
 This is the way to recreate the whole list:
 
-nm bin/libvtkzlib.so |grep " [TRD] " | awk '{ print "#define "$3" vtk_zlib_"$3 }'
+nm libvtkzlib.so |grep " [TRD] " | awk '{ print "#define "$3" vtk_zlib_"$3 }'
 
 */
 
