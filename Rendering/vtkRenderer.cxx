@@ -38,7 +38,7 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.234");
+vtkCxxRevisionMacro(vtkRenderer, "1.235");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
@@ -763,6 +763,12 @@ vtkVolumeCollection *vtkRenderer::GetVolumes()
 void vtkRenderer::RemoveLight(vtkLight *light)
 {
   this->Lights->RemoveItem(light);
+}
+
+// Remove all lights from the list of lights.
+void vtkRenderer::RemoveAllLights()
+{
+  this->Lights->RemoveAllItems();
 }
 
 // Add an culler to the list of cullers.

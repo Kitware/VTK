@@ -77,6 +77,10 @@ public:
   void RemoveLight(vtkLight *);
 
   // Description:
+  // Remove all lights from the list of lights.
+  void RemoveAllLights();
+
+  // Description:
   // Return the collection of lights.
   vtkLightCollection *GetLights();
   
