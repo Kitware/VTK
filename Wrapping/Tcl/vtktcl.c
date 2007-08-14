@@ -46,6 +46,10 @@ extern int Vtkparalleltcl_Init(Tcl_Interp *interp);
 extern int Vtkinfovistcl_Init(Tcl_Interp *interp);
 #endif
 
+#ifdef VTK_USE_VIEWS
+extern int Vtkviewstcl_Init(Tcl_Interp *interp);
+#endif
+
 int Vtktcl_Init(Tcl_Interp *interp)
 {
   /* init the core vtk stuff */
@@ -101,6 +105,13 @@ int Vtktcl_Init(Tcl_Interp *interp)
 
 #ifdef VTK_USE_INFOVIS
   if (Vtkinfovistcl_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+#endif
+
+#ifdef VTK_USE_VIEWS
+  if (Vtkviewstcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }

@@ -83,6 +83,12 @@ except ImportError, exc:
     __helper.refine_import_err('infovis', 'vtkInfovisPython', exc)
 
 try:
+    from views import *
+    kits.append('views')
+except ImportError, exc:
+    __helper.refine_import_err('views', 'vtkViewsPython', exc)
+
+try:
     from parallel import *
     kits.append('parallel')
 except ImportError, exc:

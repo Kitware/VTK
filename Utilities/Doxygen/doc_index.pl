@@ -75,6 +75,7 @@ my %default =
             "../../Parallel",
             "../../Patented",
             "../../Rendering",
+            "../../Views",
             "../../VolumeRendering"],
    project => "VTK",
    stop => "doc_index.stop",

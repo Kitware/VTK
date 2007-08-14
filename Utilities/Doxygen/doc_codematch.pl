@@ -46,6 +46,7 @@ my %default =
             "../../Parallel",
             "../../Patented",
             "../../Rendering",
+            "../../Views",
             "../../VolumeRendering"],
    headerext => "h",
    headernewext => "h",

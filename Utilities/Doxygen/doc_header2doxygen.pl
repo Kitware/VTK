@@ -123,6 +123,7 @@ my %default =
             "../../Parallel",
             "../../Patented",
             "../../Rendering",
+            "../../Views",
             "../../VolumeRendering"],
    relativeto => "",
    temp => "doc_header2doxygen.tmp",

@@ -255,6 +255,8 @@ VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF
 
 VTK_DEPENDENT_OPTION(VTK_USE_INFOVIS "Build the vtkInfovis kit.  Needed for performing information visualization." ON "VTK_USE_RENDERING" OFF)
 
+VTK_DEPENDENT_OPTION(VTK_USE_VIEWS "Build the vtkViews kit.  Needed for creating packaged and linked views." ON "VTK_USE_INFOVIS" OFF)
+
 # Determine Shading Support
 VTK_DEPENDENT_OPTION(VTK_USE_CG_SHADERS "Build pixel and vertex shader support for Cg." OFF
                      "VTK_USE_RENDERING" OFF)
@@ -313,6 +315,10 @@ ENDIF(VTK_USE_PARALLEL)
 IF(VTK_USE_INFOVIS)
   SET(VTK_KITS ${VTK_KITS} INFOVIS)
 ENDIF(VTK_USE_INFOVIS)
+
+IF(VTK_USE_VIEWS)
+  SET(VTK_KITS ${VTK_KITS} VIEWS)
+ENDIF(VTK_USE_VIEWS)
 
 # from GUISupport
 IF(VTK_USE_QVTK)
@@ -935,6 +941,9 @@ ENDIF(VTK_USE_PARALLEL)
 IF(VTK_USE_INFOVIS)
   ADD_SUBDIRECTORY(Infovis)
 ENDIF(VTK_USE_INFOVIS)
+IF(VTK_USE_VIEWS)
+  ADD_SUBDIRECTORY(Views)
+ENDIF(VTK_USE_VIEWS)
 IF(VTK_USE_GUISUPPORT)
   ADD_SUBDIRECTORY(GUISupport)
 ENDIF(VTK_USE_GUISUPPORT)
@@ -973,6 +982,9 @@ IF(BUILD_TESTING)
   IF(VTK_USE_INFOVIS)
     ADD_SUBDIRECTORY(Infovis/Testing)
   ENDIF(VTK_USE_INFOVIS)
+  IF(VTK_USE_VIEWS)
+    ADD_SUBDIRECTORY(Views/Testing)
+  ENDIF(VTK_USE_VIEWS)
 ENDIF(BUILD_TESTING)
 
 
@@ -1009,6 +1021,9 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   IF(VTK_USE_INFOVIS)
     SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkInfovisInstantiator.h)
   ENDIF(VTK_USE_INFOVIS)
+  IF(VTK_USE_VIEWS)
+    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkViewsInstantiator.h)
+  ENDIF(VTK_USE_VIEWS)
 
   # Install cmake extensions so user projects can load them.
   INSTALL(FILES ${__inst_files}

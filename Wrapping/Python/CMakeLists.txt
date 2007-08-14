@@ -75,6 +75,9 @@ IF(BORLAND)
   IF (VTK_USE_INFOVIS)
     SET(KITS ${KITS} Infovis)
   ENDIF(VTK_USE_INFOVIS)
+  IF (VTK_USE_VIEWS)
+    SET(KITS ${KITS} Views)
+  ENDIF(VTK_USE_VIEWS)
   IF (VTK_USE_RENDERING)
     SET(KITS ${KITS} Widgets)
     SET(KITS ${KITS} Hybrid)
@@ -121,6 +124,14 @@ IF (VTK_USE_INFOVIS)
       vtkInfovisPython
       )
 ENDIF (VTK_USE_INFOVIS)
+
+IF (VTK_USE_VIEWS)
+  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkViews)
+  SET(vtkpython_pyc_depends
+      ${vtkpython_pyc_depends}
+      vtkViewsPython
+      )
+ENDIF (VTK_USE_VIEWS)
 
 IF(PY_STATIC_MODULES_LIST)
   SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} ${PY_STATIC_MODULES_LIST})
@@ -202,6 +213,7 @@ IF(PYTHON_EXECUTABLE)
     vtk/parallel
     vtk/rendering
     vtk/required
+    vtk/views
     vtk/volumerendering
     vtk/widgets
     )
@@ -425,6 +437,11 @@ IF(VTK_USE_INFOVIS)
 ELSE(VTK_USE_INFOVIS)
   SET(VTK_PYTHON_USE_INFOVIS 0)
 ENDIF(VTK_USE_INFOVIS)
+IF(VTK_USE_VIEWS)
+  SET(VTK_PYTHON_USE_VIEWS 1)
+ELSE(VTK_USE_VIEWS)
+  SET(VTK_PYTHON_USE_VIEWS 0)
+ENDIF(VTK_USE_VIEWS)
 IF(VTK_USE_MPI)
   SET(VTK_PYTHON_USE_MPI 1)
 ELSE(VTK_USE_MPI)

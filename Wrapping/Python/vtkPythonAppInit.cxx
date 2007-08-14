@@ -58,6 +58,10 @@
 #include "vtkInfovisInstantiator.h"
 #endif
 
+#ifdef VTK_USE_VIEWS
+#include "vtkViewsInstantiator.h"
+#endif
+
 #include <vtkstd/string>
 #include <vtksys/SystemTools.hxx>
 
