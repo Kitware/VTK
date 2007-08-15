@@ -18,7 +18,9 @@
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataWriter, "1.15");
+#include <vtksys/ios/sstream>
+
+vtkCxxRevisionMacro(vtkXMLPDataWriter, "1.16");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataWriter::vtkXMLPDataWriter()
@@ -259,15 +261,21 @@ void vtkXMLPDataWriter::SplitFileName()
 //----------------------------------------------------------------------------
 char* vtkXMLPDataWriter::CreatePieceFileName(int index, const char* path)
 {
-  ostrstream fn_with_warning_C4701;
+  vtksys_ios::ostringstream fn_with_warning_C4701;
   if(path) { fn_with_warning_C4701 << path; }
   fn_with_warning_C4701 << this->FileNameBase << "_" << index;
   if(this->PieceFileNameExtension) 
   { fn_with_warning_C4701 << this->PieceFileNameExtension; }
   //if(this->FileNameExtension) 
   //{ fn_with_warning_C4701 << this->FileNameExtension; }
-  fn_with_warning_C4701 << ends;
-  return fn_with_warning_C4701.str();
+  fn_with_warning_C4701;
+  
+  size_t len = fn_with_warning_C4701.str().length();
+  char *buffer = new char[len + 1];
+  strncpy(buffer, fn_with_warning_C4701.str().c_str(), len);
+  buffer[len] = '\0';
+  
+  return buffer;
 }
 
 //----------------------------------------------------------------------------

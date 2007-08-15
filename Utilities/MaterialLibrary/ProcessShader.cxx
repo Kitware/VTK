@@ -20,6 +20,7 @@
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/ios/fstream>
+#include <vtksys/ios/sstream>
 
 class Output
 {
@@ -29,13 +30,10 @@ public:
     this->MaxLen = 16000;
     this->CurrentPosition = 0;
     }
-  ~Output()
-    {
-    this->Stream.rdbuf()->freeze(0);
-    }
+  ~Output(){}
   Output(const Output&){}
   void operator=(const Output&){}
-  ostrstream Stream;
+  vtksys_ios::ostringstream Stream;
 
   int MaxLen;
   long CurrentPosition;
@@ -193,8 +191,8 @@ int main(int argc, char* argv[])
       return 1;
       }
     int kk;
-    ostrstream createstring;
-    ostrstream lenstr;
+    vtksys_ios::ostringstream createstring;
+    vtksys_ios::ostringstream lenstr;
     for ( kk = 0; kk < num; kk ++ )
       {
       lenstr << endl 
@@ -208,11 +206,11 @@ int main(int argc, char* argv[])
       << "char* " << ot.Prefix.c_str() << moduleName.c_str() << argv[4] << "()" << endl
       << "{" << endl
       << "  int len = ( 0"
-      << lenstr.rdbuf()
+      << lenstr.str()
       << " );" << endl
       << "  char* res = new char[ len + 1];" << endl
       << "  res[0] = 0;" << endl
-      << createstring.rdbuf()
+      << createstring.str()
       << "  return res;" << endl
       << "}" << endl << endl;
     }
@@ -227,7 +225,7 @@ int main(int argc, char* argv[])
     cout << "Cannot open output file: " << output.c_str() << endl;
     return 1;
     }
-  fprintf(fp, "%s", ot.Stream.str());
+  fprintf(fp, "%s", ot.Stream.str().c_str());
   fclose(fp);
   return 0;
 }

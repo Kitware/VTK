@@ -19,7 +19,9 @@ PURPOSE.  See the above copyright notice for more information.
 #import "vtkRendererCollection.h"
 #import "vtkCocoaGLView.h"
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.51");
+#include <vtksys/ios/sstream>
+
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.52");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -185,7 +187,7 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
   const char* glVersion = (const char*) glGetString(GL_VERSION);
   const char* glExtensions = (const char*) glGetString(GL_EXTENSIONS);
 
-  ostrstream strm;
+  vtksys_ios::ostringstream strm;
   strm << "OpenGL vendor string:  " << glVendor
        << "\nOpenGL renderer string:  " << glRenderer
        << "\nOpenGL version string:  " << glVersion
@@ -225,10 +227,12 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAAccelerated forVirtualScreen: currentScreen];
   strm  << "  hardware acceleration::  " << (pfd == YES ? "Yes" : "No") << endl;
 
-  strm << ends;
   delete[] this->Capabilities;
-  this->Capabilities = new char[strlen(strm.str()) + 1];
-  strcpy(this->Capabilities, strm.str());
+  
+  size_t len = strm.str().length() + 1;
+  this->Capabilities = new char[len];
+  strlcpy(this->Capabilities, strm.str().c_str(), len);
+
   return this->Capabilities;
 }
 

@@ -69,6 +69,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <float.h>
 #include <vtkstd/string>
 #include <vtkstd/map>
+#include <vtksys/ios/sstream>
 
 //-------------------------------------------------------------------------
 // A container for mapping attribute names to arrays
@@ -121,7 +122,7 @@ private:
 };
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.7");
+vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.8");
 vtkStandardNewMacro(vtkMINCImageAttributes);
 
 vtkCxxSetObjectMacro(vtkMINCImageAttributes,ImageMin,vtkDoubleArray);
@@ -298,7 +299,7 @@ const char *vtkMINCImageAttributes::ConvertDataArrayToString(
     return charArray->GetPointer(0);
     }
 
-  ostrstream os;
+  vtksys_ios::ostringstream os;
 
   int n = array->GetNumberOfTuples();
   int i = 0;
@@ -339,10 +340,8 @@ const char *vtkMINCImageAttributes::ConvertDataArrayToString(
       }
     }
 
-    os << ends;
-
     // Store the string
-    const char *str = os.str();
+    vtkstd::string str = os.str();
     const char *result = 0;
 
     if (this->StringStore == 0)
@@ -355,7 +354,7 @@ const char *vtkMINCImageAttributes::ConvertDataArrayToString(
     for (i = 0; i < n; i++)
       {
       result = this->StringStore->GetValue(i);
-      if (strcmp(str, result) == 0)
+      if (strcmp(str.c_str(), result) == 0)
         {
         break;
         }
@@ -363,11 +362,9 @@ const char *vtkMINCImageAttributes::ConvertDataArrayToString(
     // If not, add it to the array.
     if (i == n)
       {
-      i = this->StringStore->InsertNextValue(str);
+      i = this->StringStore->InsertNextValue(str.c_str());
       result = this->StringStore->GetValue(i);
       }
-
-    os.rdbuf()->freeze(0);
 
     return result;
 }

@@ -278,6 +278,9 @@ void get_args(FILE *fp, int i)
     case 0x3:
       fprintf(fp,"  temp%i = (char)(0xff & id%i);\n",i,i);
       break;
+    case 0xE:
+      fprintf(fp,"  temp%i = (id%i != 0) ? true : false;\n",i,i);
+      break;
     case 0x303:
       fprintf(fp,"  temp%i = vtkJavaUTFToChar(env,id%i);\n",i,i);
       break;
@@ -955,6 +958,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"#include \"vtkSystemIncludes.h\"\n");
   fprintf(fp,"#include \"%s.h\"\n",data->ClassName);
   fprintf(fp,"#include \"vtkJavaUtil.h\"\n\n");
+  fprintf(fp,"#include <vtksys/ios/sstream>\n");
   
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
@@ -1036,11 +1040,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  jstring tmp;\n\n");
     fprintf(fp,"  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj,(char *) \"vtkObject\");\n");
     
-    fprintf(fp,"  ostrstream vtkmsg_with_warning_C4701;\n");
+    fprintf(fp,"  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;\n");
     fprintf(fp,"  op->Print(vtkmsg_with_warning_C4701);\n");
     fprintf(fp,"  vtkmsg_with_warning_C4701.put('\\0');\n");  
-    fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,vtkmsg_with_warning_C4701.str());\n");
-    fprintf(fp,"  delete vtkmsg_with_warning_C4701.str();\n");
+    fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,vtkmsg_with_warning_C4701.str().c_str());\n");
 
     fprintf(fp,"  return tmp;\n");
     fprintf(fp,"}\n");
@@ -1051,11 +1054,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  jstring tmp;\n\n");
     fprintf(fp,"  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj,(char *) \"vtkObject\");\n");
     
-    fprintf(fp,"  ostrstream vtkmsg_with_warning_C4701;\n");
+    fprintf(fp,"  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;\n");
     fprintf(fp,"  op->PrintRevisions(vtkmsg_with_warning_C4701);\n");
     fprintf(fp,"  vtkmsg_with_warning_C4701.put('\\0');\n");  
-    fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,vtkmsg_with_warning_C4701.str());\n");
-    fprintf(fp,"  delete vtkmsg_with_warning_C4701.str();\n");
+    fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,vtkmsg_with_warning_C4701.str().c_str());\n");
 
     fprintf(fp,"  return tmp;\n");
     fprintf(fp,"}\n");

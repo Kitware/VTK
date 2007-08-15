@@ -26,7 +26,9 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataReader, "1.18");
+#include <vtksys/ios/sstream>
+
+vtkCxxRevisionMacro(vtkXMLPDataReader, "1.19");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataReader::vtkXMLPDataReader()
@@ -432,13 +434,19 @@ int vtkXMLPDataReader::CanReadPiece(int index)
 //----------------------------------------------------------------------------
 char* vtkXMLPDataReader::CreatePieceFileName(const char* fileName)
 {
-  ostrstream fn_with_warning_C4701;
+  vtksys_ios::ostringstream fn_with_warning_C4701;
   if(this->PathName)
     {
     fn_with_warning_C4701 << this->PathName;
     }
-  fn_with_warning_C4701 << fileName << ends;
-  return fn_with_warning_C4701.str();
+  fn_with_warning_C4701 << fileName;
+  
+  size_t len = fn_with_warning_C4701.str().length();
+  char *buffer = new char[len + 1];
+  strncpy(buffer, fn_with_warning_C4701.str().c_str(), len);
+  buffer[len] = '\0';
+  
+  return buffer;
 }
 
 //----------------------------------------------------------------------------

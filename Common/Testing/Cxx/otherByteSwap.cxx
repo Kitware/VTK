@@ -20,6 +20,8 @@
 #include "vtkByteSwap.h"
 #include "vtkDebugLeaks.h"
 
+#include <vtksys/ios/sstream>
+
 int TestByteSwap(ostream& strm)
 {
   // actual test
@@ -154,6 +156,6 @@ int TestByteSwap(ostream& strm)
 
 int otherByteSwap(int,char *[])
 {
-  ostrstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
   return TestByteSwap(vtkmsg_with_warning_C4701);
 } 

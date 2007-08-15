@@ -21,7 +21,9 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkWriter, "1.44");
+#include <vtksys/ios/sstream>
+
+vtkCxxRevisionMacro(vtkWriter, "1.45");
 
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
@@ -169,7 +171,7 @@ void vtkWriter::EncodeString(char* resname, const char* name, bool doublePercent
     return;
     }
   int cc = 0;
-  ostrstream str;
+  vtksys_ios::ostringstream str;
 
   char buffer[10];
 
@@ -197,9 +199,7 @@ void vtkWriter::EncodeString(char* resname, const char* name, bool doublePercent
       }
     cc++;
     }
-  str << ends;
-  strcpy(resname, str.str());
-  str.rdbuf()->freeze(0);
+  strcpy(resname, str.str().c_str());
 }
 
 void vtkWriter::EncodeWriteString(ostream* out, const char* name, bool doublePercent)

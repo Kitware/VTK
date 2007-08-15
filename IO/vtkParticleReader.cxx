@@ -31,8 +31,9 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 #include <vtkstd/string>
+#include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkParticleReader, "1.28");
+vtkCxxRevisionMacro(vtkParticleReader, "1.29");
 vtkStandardNewMacro(vtkParticleReader);
 
 namespace {
@@ -93,8 +94,8 @@ namespace {
       vtkstd::replace(s.begin(),s.end(),',','\t');
 
       // We have data.
-      strstream is;
-      is << s.c_str() << ends;// no istringstream in VTK
+      vtksys_ios::stringstream is;
+      is << s.c_str();
       is >> val[0] >> val[1] >> val[2] >> val[3];
 
       return 1;

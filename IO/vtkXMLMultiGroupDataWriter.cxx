@@ -45,13 +45,13 @@
 #include "vtkXMLUnstructuredGridWriter.h"
 #include "vtkXMLWriter.h"
 #include <vtksys/SystemTools.hxx>
-
+#include <vtksys/ios/sstream>
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLMultiGroupDataWriter);
-vtkCxxRevisionMacro(vtkXMLMultiGroupDataWriter, "1.4");
+vtkCxxRevisionMacro(vtkXMLMultiGroupDataWriter, "1.5");
 
 class vtkXMLMultiGroupDataWriterInternals
 {
@@ -224,13 +224,12 @@ int vtkXMLMultiGroupDataWriter::RequestData(vtkInformation*,
     unsigned int numLevels = hdBoxInput->GetNumberOfLevels();
     for (unsigned int levelId=0; levelId<numLevels-1; levelId++)
       {
-      ostrstream entry_with_warning_C4701;
+      vtksys_ios::ostringstream entry_with_warning_C4701;
       entry_with_warning_C4701
         << "<RefinementRatio level=\"" << levelId << "\""
         << " refinement=\"" << hdBoxInput->GetRefinementRatio(levelId) << "\""
-        << "/>" << ends;
-      this->AppendEntry(entry_with_warning_C4701.str());
-      delete[] entry_with_warning_C4701.str();
+        << "/>";
+      this->AppendEntry(entry_with_warning_C4701.str().c_str());
       }
     }
 
@@ -252,7 +251,7 @@ int vtkXMLMultiGroupDataWriter::RequestData(vtkInformation*,
       // Set the file name.
       vtkstd::string fname = this->Internal->CreatePieceFileName(i);
       // Create the entry for the collection file.
-      ostrstream entry_with_warning_C4701;
+      vtksys_ios::ostringstream entry_with_warning_C4701;
       entry_with_warning_C4701
         << "<DataSet group=\"" << groupId << "\" dataset=\"" << dataSetId << "\"";
       if (hdBoxInput)
@@ -269,9 +268,8 @@ int vtkXMLMultiGroupDataWriter::RequestData(vtkInformation*,
             << box.HiCorner[2] << "\"";
         }
       entry_with_warning_C4701
-        << " file=\"" << fname.c_str() << "\"/>" << ends;
-      this->AppendEntry(entry_with_warning_C4701.str());
-      delete[] entry_with_warning_C4701.str();
+        << " file=\"" << fname.c_str() << "\"/>";
+      this->AppendEntry(entry_with_warning_C4701.str().c_str());
       
       vtkDataObject* dobj = hdInput->GetDataSet(groupId, dataSetId);
       vtkDataSet* ds = vtkDataSet::SafeDownCast(dobj);
@@ -683,13 +681,12 @@ void vtkXMLMultiGroupDataWriter::DeleteAllEntries()
 vtkstd::string vtkXMLMultiGroupDataWriterInternals::CreatePieceFileName(int index)
 {
   vtkstd::string fname;
-  ostrstream fn_with_warning_C4701;
+  vtksys_ios::ostringstream fn_with_warning_C4701;
   fn_with_warning_C4701
     << this->FilePrefix.c_str() << "/"
     << this->FilePrefix.c_str() << "_" << index << "."
-    << this->Writers[index]->GetDefaultFileExtension() << ends;
+    << this->Writers[index]->GetDefaultFileExtension();
   fname = fn_with_warning_C4701.str();
-  fn_with_warning_C4701.rdbuf()->freeze(0);
   return fname;
 }
 

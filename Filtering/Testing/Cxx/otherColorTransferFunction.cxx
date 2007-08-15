@@ -20,6 +20,8 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkDebugLeaks.h"
 
+#include <vtksys/ios/sstream>
+
 int Test(ostream& strm)
 {
   int i, j, k;
@@ -147,6 +149,6 @@ int Test(ostream& strm)
 
 int otherColorTransferFunction(int, char *[])
 {
-  ostrstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
   return Test(vtkmsg_with_warning_C4701);
 } 

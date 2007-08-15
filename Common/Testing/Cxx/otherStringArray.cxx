@@ -19,6 +19,8 @@
 #include "vtkStringArray.h"
 #include "vtkIdList.h"
 
+#include <vtksys/ios/sstream>
+
 #define SIZE 1000
 
 int doStringArrayTest(ostream& strm, int size)
@@ -199,7 +201,7 @@ int otherStringArrayTest(ostream& strm)
 
 int otherStringArray(int, char *[])
 {
-  ostrstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
 //  return otherArraysTest(vtkmsg_with_warning_C4701);
   return otherStringArrayTest(cerr);
 

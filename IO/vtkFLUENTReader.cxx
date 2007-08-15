@@ -52,12 +52,13 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 #include "vtksys/ios/fstream"
+#include "vtksys/ios/sstream"
 #include "vtkstd/algorithm"
 
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.13");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.14");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -2501,8 +2502,7 @@ void vtkFLUENTReader::GetNodesAscii()
     int dend = this->CaseBuffer->value.find(')', dstart+1);
     vtkstd::string pdata = this->CaseBuffer->
                            value.substr(dstart+1, dend-start-1);
-    strstream pdatastream;
-    pdatastream << pdata.c_str() << ends;
+    vtksys_ios::stringstream pdatastream(pdata);
 
     double x, y, z;
     if (this->GridDimension == 3)
@@ -2644,8 +2644,7 @@ void vtkFLUENTReader::GetCellsAscii()
       int dend = this->CaseBuffer->value.find(')', dstart+1);
       vtkstd::string pdata = this->CaseBuffer->
                                    value.substr(dstart+1, dend-start-1);
-      strstream pdatastream;
-      pdatastream << pdata.c_str() << ends;
+      vtksys_ios::stringstream pdatastream(pdata);
       for (int i = firstIndex; i <=lastIndex; i++)
         {
         pdatastream >> this->Cells->value[i].type;
@@ -2730,8 +2729,7 @@ void vtkFLUENTReader::GetFacesAscii()
     int dend = this->CaseBuffer->value.find(')', dstart+1);
     vtkstd::string pdata = this->CaseBuffer->
                                  value.substr(dstart+1, dend-start-1);
-    strstream pdatastream;
-    pdatastream << pdata.c_str() << ends;
+    vtksys_ios::stringstream pdatastream(pdata);
 
     int numberOfNodesInFace = 0;
     for (int i = firstIndex; i <=lastIndex; i++)
@@ -2847,8 +2845,7 @@ void vtkFLUENTReader::GetPeriodicShadowFacesAscii()
   int dstart = this->CaseBuffer->value.find('(', 7);
   int dend = this->CaseBuffer->value.find(')', dstart+1);
   vtkstd::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  strstream pdatastream;
-  pdatastream << pdata.c_str() << ends;
+  vtksys_ios::stringstream pdatastream(pdata);
 
   int faceIndex1, faceIndex2;
   for (int i = firstIndex; i <=lastIndex; i++)
@@ -2897,8 +2894,7 @@ void vtkFLUENTReader::GetCellTreeAscii()
   int dstart = this->CaseBuffer->value.find('(', 7);
   int dend = this->CaseBuffer->value.find(')', dstart+1);
   vtkstd::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  strstream pdatastream;
-  pdatastream << pdata.c_str() << ends;
+  vtksys_ios::stringstream pdatastream(pdata);
 
   int numberOfKids, kid;
   for (int i = cellId0; i <=cellId1; i++)
@@ -2955,8 +2951,7 @@ void vtkFLUENTReader::GetFaceTreeAscii()
   int dstart = this->CaseBuffer->value.find('(', 7);
   int dend = this->CaseBuffer->value.find(')', dstart+1);
   vtkstd::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  strstream pdatastream;
-  pdatastream << pdata.c_str() << ends;
+  vtksys_ios::stringstream pdatastream(pdata);
 
   int numberOfKids, kid;
   for (int i = faceId0; i <=faceId1; i++)
@@ -3011,8 +3006,7 @@ void vtkFLUENTReader::GetInterfaceFaceParentsAscii()
   int dstart = this->CaseBuffer->value.find('(', 7);
   int dend = this->CaseBuffer->value.find(')', dstart+1);
   vtkstd::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  strstream pdatastream;
-  pdatastream << pdata.c_str() << ends;
+  vtksys_ios::stringstream pdatastream(pdata);
 
   int parentId0, parentId1;
   for (int i = faceId0; i <=faceId1; i++)
@@ -3065,8 +3059,7 @@ void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationAscii()
   int dstart = this->CaseBuffer->value.find('(', 7);
   int dend = this->CaseBuffer->value.find(')', dstart+1);
   vtkstd::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  strstream pdatastream;
-  pdatastream << pdata.c_str() << ends;
+  vtksys_ios::stringstream pdatastream(pdata);
 
   int child, parent;
   for (int i = 0; i < numberOfFaces; i++)
@@ -4017,8 +4010,7 @@ void vtkFLUENTReader::GetData(int dataType)
   int start = this->DataBuffer->value.find('(', 1);
   int end = this->DataBuffer->value.find(')',1);
   vtkstd::string info = this->DataBuffer->value.substr(start+1,end-start-1 );
-  strstream infostream;
-  infostream << info.c_str() << ends;
+  vtksys_ios::stringstream infostream(info);
   int subSectionId, zoneId, size, nTimeLevels, nPhases, firstId, lastId;
   infostream >> subSectionId >> zoneId >> size >> nTimeLevels >> nPhases >>
                 firstId >> lastId;
@@ -4039,10 +4031,9 @@ void vtkFLUENTReader::GetData(int dataType)
     // Set up stream or pointer to data
     int dstart = this->DataBuffer->value.find('(', 7);
     int dend = this->DataBuffer->value.find(')', dstart+1);
-    strstream pdatastream;
     vtkstd::string pdata = this->DataBuffer->
                            value.substr(dstart+1, dend-dstart-2);
-    pdatastream << pdata.c_str() << ends;
+    vtksys_ios::stringstream pdatastream(pdata);
     int ptr = dstart + 1;
 
     // Is this a new variable?

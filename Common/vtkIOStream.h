@@ -33,7 +33,6 @@
 #endif
 
 # include <iostream>  // Include real ansi istream and ostream.
-# include <strstream> // Include real ansi strstreams.
 # include <fstream>   // Include real ansi ifstream and ofstream.
 # include <iomanip>   // Include real ansi io manipulators.
 
@@ -52,9 +51,6 @@ using std::endl;
 using std::ends;
 using std::ostream;
 using std::istream;
-using std::ostrstream;
-using std::istrstream;
-using std::strstream;
 using std::ofstream;
 using std::ifstream;
 using std::fstream;
@@ -71,11 +67,6 @@ using std::fstream;
 # else
 #  include <iostream.h>   // Include old-style istream and ostream.
 #  include <iomanip.h>
-#  if defined(_MSC_VER)
-#   include <strstrea.h>  // Include old-style strstream from MSVC.
-#  else
-#   include <strstream.h> // Include old-style strstream.
-#  endif
 #  include <fstream.h>    // Include old-style ifstream and ofstream.
 # endif
 #endif

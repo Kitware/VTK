@@ -36,6 +36,8 @@
 #include "vtkPentagonalPrism.h"
 #include "vtkHexagonalPrism.h"
 
+#include <vtksys/ios/sstream>
+
 int TestOCP(ostream& strm)
 {
   // actual test
@@ -578,6 +580,6 @@ int TestOCP(ostream& strm)
 
 int otherCellPosition(int, char *[])
 {
-  ostrstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
   return TestOCP(vtkmsg_with_warning_C4701);
 } 

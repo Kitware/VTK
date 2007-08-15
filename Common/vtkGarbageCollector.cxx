@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointerBase.h"
 
+#include <vtksys/ios/sstream>
 #include <vtkstd/queue>
 #include <vtkstd/stack>
 #include <vtkstd/vector>
@@ -35,7 +36,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.30");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.31");
 vtkStandardNewMacro(vtkGarbageCollector);
 
 #if VTK_GARBAGE_COLLECTOR_HASH
@@ -610,14 +611,12 @@ void vtkGarbageCollectorImpl::Report(vtkObjectBase* obj, void* ptr,
     if(this->Debug && vtkObject::GetGlobalWarningDisplay())
       {
       vtkObjectBase* current = this->Current->Object;
-      ostrstream msg;
+      vtksys_ios::ostringstream msg;
       msg << "Report: "
           << current->GetClassName() << "(" << current << ") "
           << (desc?desc:"")
           << " -> " << obj->GetClassName() << "(" << obj << ")";
-      msg << ends;
-      vtkDebugMacro(<< msg.str());
-      msg.rdbuf()->freeze(0);
+      vtkDebugMacro(<< msg.str().c_str());
       }
 
     // Forward call to the internal implementation.
@@ -708,7 +707,7 @@ void vtkGarbageCollectorImpl::PrintComponent(ComponentType* c)
 {
   if(this->Debug && vtkObject::GetGlobalWarningDisplay())
     {
-    ostrstream msg;
+    vtksys_ios::ostringstream msg;
     msg << "Identified strongly connected component "
         << c->Identifier << " with net reference count "
         << c->NetCount << ":";
@@ -720,9 +719,7 @@ void vtkGarbageCollectorImpl::PrintComponent(ComponentType* c)
           << " with " << count << " external "
           << ((count == 1)? "reference" : "references");
       }
-    msg << ends;
-    vtkDebugMacro(<< msg.str());
-    msg.rdbuf()->freeze(0);
+    vtkDebugMacro(<< msg.str().c_str());
     }
 }
 #else

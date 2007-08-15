@@ -1,6 +1,7 @@
 #include "vtkObject.h"
 
 #include <vtkstd/string> 
+#include <vtksys/ios/sstream>
 
 class Output
 {
@@ -10,11 +11,8 @@ public:
     }
   Output(const Output&);
   void operator=(const Output&);
-  ~Output()
-    {
-    this->Stream.rdbuf()->freeze(0);
-    }
-  ostrstream Stream;
+  ~Output(){}
+  vtksys_ios::ostringstream Stream;
 
   int ProcessFile(const char* file, const char* title)
     {
@@ -82,14 +80,13 @@ int main(int argc, char* argv[])
     }
   ot.Stream << "" << endl
     << "#endif" << endl;
-  ot.Stream << ends;
   FILE* fp = fopen(output.c_str(), "w");
   if ( !fp )
     {
     cout << "Cannot open output file: " << output.c_str() << endl;
     return 1;
     }
-  fprintf(fp, "%s", ot.Stream.str());
+  fprintf(fp, "%s", ot.Stream.str().c_str());
   fclose(fp);
   return 0;
 }

@@ -29,6 +29,8 @@
 #include "vtkQuadraticPyramid.h"
 #include "vtkPoints.h"
 
+#include <vtksys/ios/sstream>
+
 void  ComputeDataValues(vtkPoints *pts, double *edgeValues)
 {
   double x[3];
@@ -396,6 +398,6 @@ int TestQE(ostream& strm)
 
 int quadraticEvaluation(int,char *[])
 {
-  ostrstream vtkmsg_with_warning_C4701;
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
   return TestQE(vtkmsg_with_warning_C4701);
 }

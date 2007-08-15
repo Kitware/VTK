@@ -1337,6 +1337,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"#undef _THREAD_SAFE /* Conflicts with pthread.h.  */\n");
   #endif
   fprintf(fp,"#include \"vtkPythonUtil.h\"\n");
+  fprintf(fp,"#include <vtksys/ios/sstream>\n");
   fprintf(fp,"#include \"%s.h\"\n",data->ClassName);
 
   fprintf(fp,"#if defined(WIN32)\n");
@@ -1423,11 +1424,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  op = (%s *)PyArg_VTKParseTuple(self, args, (char*)\"\");\n",data->ClassName);
     fprintf(fp,"  if (op)\n");
     fprintf(fp,"    {\n");
-    fprintf(fp,"    ostrstream vtkmsg_with_warning_C4701;\n");
+    fprintf(fp,"    vtksys_ios::ostringstream vtkmsg_with_warning_C4701;\n");
     fprintf(fp,"    op->PrintRevisions(vtkmsg_with_warning_C4701);\n");
     fprintf(fp,"    vtkmsg_with_warning_C4701.put('\\0');\n");
-    fprintf(fp,"    PyObject *result = PyString_FromString(vtkmsg_with_warning_C4701.str());\n");
-    fprintf(fp,"    delete vtkmsg_with_warning_C4701.str();\n");
+    fprintf(fp,"    PyObject *result = PyString_FromString(vtkmsg_with_warning_C4701.str().c_str());\n");
     fprintf(fp,"    return result;\n");
     fprintf(fp,"    }\n");
     fprintf(fp,"  return NULL;\n}\n\n");

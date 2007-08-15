@@ -24,6 +24,8 @@
 #include "vtkIdTypeArray.h"
 #include "vtkQuad.h"
 
+#include <vtksys/ios/sstream>
+
 int TestCellArray(ostream& strm)
 {
   // actual test
@@ -81,6 +83,6 @@ int TestCellArray(ostream& strm)
 
 int otherCellArray(int,char *[])
 {
-  ostrstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
   return TestCellArray(vtkmsg_with_warning_C4701);
 } 

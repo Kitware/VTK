@@ -37,8 +37,10 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
+#include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.120");
+
+vtkCxxRevisionMacro(vtkDataWriter, "1.121");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -171,8 +173,8 @@ ostream *vtkDataWriter::OpenVTKFile()
       + 1024 * input->GetActualMemorySize());
     this->OutputString = new char[this->OutputStringAllocatedLength];
 
-    fptr = new ostrstream(this->OutputString, 
-                          this->OutputStringAllocatedLength);
+    vtkstd::string str(this->OutputString, this->OutputStringAllocatedLength);
+    fptr = new vtksys_ios::ostringstream(str);
     }
   else 
     {
@@ -1380,21 +1382,20 @@ void vtkDataWriter::CloseVTKFile(ostream *fp)
     {
     if (this->WriteToOutputString)
       {
-      char *tmp;
-      ostrstream *ostr = (ostrstream*)(fp);
-      this->OutputStringLength = ostr->pcount();
+      vtksys_ios::ostringstream *ostr = (vtksys_ios::ostringstream*)(fp);
+      this->OutputStringLength = ostr->str().length();
 
       if (this->OutputStringLength == this->OutputStringAllocatedLength)
         {
         vtkErrorMacro("OutputString was not long enough.");
         }
       // Sanity check.
-      tmp = ostr->str();
-      if (tmp != this->OutputString)
+      vtksys_stl::string s = ostr->str();
+      const char *tmp = s.c_str();
+      if (strcmp(this->OutputString, tmp) != 0)
         {
         vtkErrorMacro("String mismatch");
         }
-      this->OutputString = tmp;
       }
     delete fp;
     }

@@ -25,6 +25,8 @@
 #include "vtkTimeStamp.h"
 #include "vtkWindows.h"
 
+
+#include <vtksys/ios/sstream>
 #include <vtkstd/map>
 #include <vtkstd/string>
 
@@ -100,11 +102,10 @@ static PyObject *PyVTKObject_PyString(PyVTKObject *self)
     }
   PyErr_Clear();
 
-  ostrstream vtkmsg_with_warning_C4701;
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
   self->vtk_ptr->Print(vtkmsg_with_warning_C4701);
   vtkmsg_with_warning_C4701.put('\0');
-  PyObject *res = PyString_FromString(vtkmsg_with_warning_C4701.str());
-  vtkmsg_with_warning_C4701.rdbuf()->freeze(0);
+  PyObject *res = PyString_FromString(vtkmsg_with_warning_C4701.str().c_str());
   return res;
 }
 

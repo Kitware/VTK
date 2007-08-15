@@ -18,6 +18,8 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
+#include <vtksys/ios/sstream>
+
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
 #else
@@ -29,7 +31,7 @@
 typedef vtkstd::vector<vtkXMLDataElement*> vtkXMLUtilitiesDataElementContainer;
 
 vtkStandardNewMacro(vtkXMLUtilities);
-vtkCxxRevisionMacro(vtkXMLUtilities, "1.7");
+vtkCxxRevisionMacro(vtkXMLUtilities, "1.8");
 
 #define  VTK_XML_UTILITIES_FACTORED_POOL_NAME "FactoredPool"
 #define  VTK_XML_UTILITIES_FACTORED_NAME      "Factored"
@@ -418,11 +420,11 @@ vtkXMLUtilities::ReadElementFromString(const char *str, int encoding)
     return 0;
     }
 
-  strstream strstr;
+  vtksys_ios::stringstream strstr;
   strstr << str;
   vtkXMLDataElement *res = 
     vtkXMLUtilities::ReadElementFromStream(strstr, encoding);
-  strstr.rdbuf()->freeze(0);
+
   return res;
 }
 
@@ -584,13 +586,13 @@ int vtkXMLUtilities::FactorElementsInternal(vtkXMLDataElement *tree,
   char buffer[5];
   sprintf(buffer, "%02d_", pool->GetNumberOfNestedElements());
 
-  ostrstream id;
-  id << buffer << tree->GetName() << ends;
+  vtksys_ios::ostringstream id;
+  id << buffer << tree->GetName();
     
   vtkXMLDataElement *factored = vtkXMLDataElement::New();
   factored->SetName(VTK_XML_UTILITIES_FACTORED_NAME);
   factored->SetAttributeEncoding(pool->GetAttributeEncoding());
-  factored->SetAttribute("Id", id.str());
+  factored->SetAttribute("Id", id.str().c_str());
   pool->AddNestedElement(factored);
   factored->Delete();
 
@@ -604,15 +606,13 @@ int vtkXMLUtilities::FactorElementsInternal(vtkXMLDataElement *tree,
     similar_trees[i]->RemoveAllAttributes();
     similar_trees[i]->RemoveAllNestedElements();
     similar_trees[i]->SetName(VTK_XML_UTILITIES_FACTORED_REF_NAME);
-    similar_trees[i]->SetAttribute("Id", id.str());
+    similar_trees[i]->SetAttribute("Id", id.str().c_str());
     }
 
   tree->RemoveAllAttributes();
   tree->RemoveAllNestedElements();
   tree->SetName(VTK_XML_UTILITIES_FACTORED_REF_NAME);
-  tree->SetAttribute("Id", id.str());
-    
-  id.rdbuf()->freeze(0);
+  tree->SetAttribute("Id", id.str().c_str());
 
   delete [] similar_trees;
 

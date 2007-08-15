@@ -22,6 +22,8 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
+#include <vtksys/ios/sstream>
+
 #include "vtkDebugLeaks.h"
 
 void TestOEC(ostream& strm)
@@ -93,7 +95,7 @@ void TestOEC(ostream& strm)
 
 int otherEmptyCell(int , char *[])
 {
-  ostrstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
   TestOEC(vtkmsg_with_warning_C4701);
 
   return 0;

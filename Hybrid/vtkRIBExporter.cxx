@@ -40,7 +40,9 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.63");
+#include <vtksys/ios/sstream>
+
+vtkCxxRevisionMacro(vtkRIBExporter, "1.64");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef double RtColor[3];
@@ -837,7 +839,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
       if ( pointData )
         {
         int cc, aa;      
-        ostrstream str_with_warning_C4701;
+        vtksys_ios::ostringstream str_with_warning_C4701;
         for ( cc = 0; cc < pointData->GetNumberOfArrays(); cc ++ )
           {
           vtkDataArray *array = pointData->GetArray(cc);
@@ -855,15 +857,13 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
             }
           str_with_warning_C4701 << "] ";
           }
-        str_with_warning_C4701 << ends;
-        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str() );
-        str_with_warning_C4701.rdbuf()->freeze(0);      
+        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );     
         }
 
       if ( cellData )
         {
         int cc, aa;
-        ostrstream str_with_warning_C4701;
+        vtksys_ios::ostringstream str_with_warning_C4701;
         for ( cc = 0; cc < cellData->GetNumberOfArrays(); cc ++ )
           {
           vtkDataArray *array = cellData->GetArray(cc);
@@ -881,15 +881,13 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
             }
           str_with_warning_C4701 << "] ";
           }
-        str_with_warning_C4701 << ends;
-        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str() );
-        str_with_warning_C4701.rdbuf()->freeze(0);      
+        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );      
         }
 
       if ( fieldData )
         {
         int cc, aa;
-        ostrstream str_with_warning_C4701;
+        vtksys_ios::ostringstream str_with_warning_C4701;
 
         for ( cc = 0; cc < fieldData->GetNumberOfArrays(); cc ++ )
           {
@@ -908,9 +906,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
             }
           str_with_warning_C4701 << "] ";
           }
-        str_with_warning_C4701 << ends;
-        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str() );
-        str_with_warning_C4701.rdbuf()->freeze(0);      
+        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );      
         }
       }
 
@@ -1093,7 +1089,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
         if ( pointData )
           {
           int cc, aa;
-          ostrstream str_with_warning_C4701;
+          vtksys_ios::ostringstream str_with_warning_C4701;
           for ( cc = 0; cc < pointData->GetNumberOfArrays(); cc ++ )
             {
             vtkDataArray *array = pointData->GetArray(cc);
@@ -1111,15 +1107,13 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
               }
             str_with_warning_C4701 << "] ";
             }
-          str_with_warning_C4701 << ends;
-          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str() );
-          str_with_warning_C4701.rdbuf()->freeze(0);      
+          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );    
           }
 
         if ( cellData )
           {
           int cc, aa;
-          ostrstream str_with_warning_C4701;
+          vtksys_ios::ostringstream str_with_warning_C4701;
           for ( cc = 0; cc < cellData->GetNumberOfArrays(); cc ++ )
             {
             vtkDataArray *array = cellData->GetArray(cc);
@@ -1137,15 +1131,13 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
               }
             str_with_warning_C4701 << "] ";
             }
-          str_with_warning_C4701 << ends;
-          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str() );
-          str_with_warning_C4701.rdbuf()->freeze(0);      
+          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );    
           }
 
         if ( fieldData )
           {
           int cc, aa;
-          ostrstream str_with_warning_C4701;
+          vtksys_ios::ostringstream str_with_warning_C4701;
           for ( cc = 0; cc < fieldData->GetNumberOfArrays(); cc ++ )
             {
             vtkDataArray *array = fieldData->GetArray(cc);
@@ -1163,9 +1155,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
               }
             str_with_warning_C4701 << "] ";
             }
-          str_with_warning_C4701 << ends;
-          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str() );
-          str_with_warning_C4701.rdbuf()->freeze(0);      
+          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );     
           }
         }
       fprintf (this->FilePtr, "\n");

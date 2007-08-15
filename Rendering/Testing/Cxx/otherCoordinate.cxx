@@ -22,6 +22,8 @@
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
 
+#include <vtksys/ios/sstream>
+
 #include "vtkDebugLeaks.h"
 
 void ToAll (ostream& strm, vtkCoordinate *c1, vtkViewport *ren1, 
@@ -168,7 +170,7 @@ int Test(ostream& strm)
 
 int otherCoordinate(int,char *[])
 {
-  ostrstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
   return Test(vtkmsg_with_warning_C4701);
 }
 

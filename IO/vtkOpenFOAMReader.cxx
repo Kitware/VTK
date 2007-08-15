@@ -18,9 +18,9 @@
 //
 #include "vtkOpenFOAMReader.h"
 
-#include <vtksys/ios/sstream>
 #include <vtkstd/string>
 #include <vtkstd/vector>
+#include <vtksys/ios/sstream>
 
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -58,7 +58,7 @@
 #define VTK_IOS_NOCREATE | ios::nocreate
 #endif
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.9");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.10");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 struct stdString
@@ -212,14 +212,14 @@ int vtkOpenFOAMReader::RequestInformation(
 
   //Add scalars and vectors to metadata
   //create path to current time step
-  strstream tempPath;
+  vtksys_ios::stringstream tempPath;
   tempPath << this->PathPrefix->value.c_str();
-  tempPath << this->Steps[this->TimeStep] << ends;
+  tempPath << this->Steps[this->TimeStep];
 
   //open the directory and get num of files
   int numSolvers;
   vtkDirectory * directory = vtkDirectory::New();
-  int opened = directory->Open(tempPath.str());
+  int opened = directory->Open(tempPath.str().c_str());
   if(opened)
     {
     numSolvers = directory->GetNumberOfFiles();
@@ -241,7 +241,7 @@ int vtkOpenFOAMReader::RequestInformation(
       {
       if(tempSolver != (char *)"." && tempSolver != (char *)"..")
         {
-        vtkstd::string type(this->GetDataType(tempPath.str(),
+        vtkstd::string type(this->GetDataType(tempPath.str().c_str(),
                                               tempSolver));
         if(strcmp(type.c_str(), "Scalar") == 0)
         {
@@ -256,7 +256,7 @@ int vtkOpenFOAMReader::RequestInformation(
         }
       }
     }
-  delete [] tempPath.str();
+
   directory->Delete();
   return 1;
 }
@@ -754,8 +754,7 @@ double vtkOpenFOAMReader::ControlDictDataParser(const char * lineIn)
   vtkstd::string line(lineIn);
   line.erase(line.begin()+line.find(";"));
   vtkstd::string token;
-  strstream tokenizer;
-  tokenizer << line;
+  vtksys_ios::stringstream tokenizer(line);
 
   //parse to the final entry - double
   //while(tokenizer>>token);
@@ -763,8 +762,8 @@ double vtkOpenFOAMReader::ControlDictDataParser(const char * lineIn)
     {
     tokenizer >> token;
     }
-  strstream conversion;
-  conversion << token;
+
+  vtksys_ios::stringstream conversion(token);
   conversion >> value;
   return value;
 }
@@ -847,8 +846,8 @@ void vtkOpenFOAMReader::ReadControlDict ()
 
   temp.erase(temp.begin()+temp.find(";"));
   vtkstd::string token;
-  strstream tokenizer;
-  tokenizer << temp;
+  vtksys_ios::stringstream tokenizer(temp);
+
   //while(tokenizer >> token);
   while(!tokenizer.eof())
     {
@@ -896,7 +895,7 @@ void vtkOpenFOAMReader::ReadControlDict ()
   //make sure time step dir exists
   vtkstd::vector< double > tempSteps;
   vtkDirectory * test = vtkDirectory::New();
-  strstream parser;
+  vtksys_ios::stringstream parser;
   double tempStep;
   for(int i = 0; i < tempNumTimeSteps; i++)
     {
@@ -904,13 +903,13 @@ void vtkOpenFOAMReader::ReadControlDict ()
     parser.clear();
     if(timeFormat.find("general") != vtkstd::string::npos)
       {
-      parser << tempStep << ends;
+      parser << tempStep;
       }
     else
       {
-      parser << ios::scientific <<tempStep << ends;
+      parser << ios::scientific <<tempStep;
       }
-    if(test->Open((this->PathPrefix->value+parser.str()).c_str()))
+    if(test->Open((this->PathPrefix->value+parser.str().c_str()).c_str()))
       {
       tempSteps.push_back(tempStep);
       }
@@ -927,7 +926,6 @@ void vtkOpenFOAMReader::ReadControlDict ()
     this->Steps[i] =tempSteps[i];
     }
 
-  delete[] parser.str();
   input->close();
   delete input;
   vtkDebugMacro(<<"controlDict read");
@@ -987,7 +985,7 @@ void vtkOpenFOAMReader::GetPoints (int timeState)
     }
 
   double x,y,z;
-  strstream tokenizer;
+  vtksys_ios::stringstream tokenizer;
 
   //instantiate the points class
   this->Points->Reset();
@@ -1104,7 +1102,7 @@ void vtkOpenFOAMReader::ReadFacesFile (const char * facePathIn)
     binaryWriteFormat = false;
     }
 
-  strstream tokenizer;
+  vtksys_ios::stringstream tokenizer;
   size_t pos;
   int numFacePoints;
   this->FacePoints->value.clear();
@@ -1181,7 +1179,7 @@ void vtkOpenFOAMReader::ReadFacesFile (const char * facePathIn)
       delete tempStringStruct;
 
       pos = temp.find("(");
-      strstream ascTokenizer;
+      vtksys_ios::stringstream ascTokenizer;
       ascTokenizer << temp.substr(0, pos);
       temp.erase(0, pos+1);
       ascTokenizer >> numFacePoints;
@@ -1189,7 +1187,7 @@ void vtkOpenFOAMReader::ReadFacesFile (const char * facePathIn)
       for(int j = 0; j < numFacePoints; j++)
         {
         pos = temp.find(" ");
-        strstream lineTokenizer;
+        vtksys_ios::stringstream lineTokenizer;
         lineTokenizer << temp.substr(0, pos);
         temp.erase(0, pos+1);
         lineTokenizer >> this->FacePoints->value[i][j];
@@ -1256,8 +1254,8 @@ void vtkOpenFOAMReader::ReadOwnerFile(const char * ownerPathIn)
 
   this->FaceOwner = vtkIntArray::New();
 
-  strstream tokenizer;
-  tokenizer << this->NumFaces << ends;
+  vtksys_ios::stringstream tokenizer;
+  tokenizer << this->NumFaces;
   tokenizer >> numFacesStr;
   //find end of header & number of faces
   //while(temp.compare(0,numFacesStr.size(),numFacesStr,
@@ -1379,8 +1377,8 @@ void vtkOpenFOAMReader::ReadNeighborFile(const char * neighborPathIn)
   int faceValue;
   vtkIntArray * faceNeighbor = vtkIntArray::New();
 
-  strstream tokenizer;
-  tokenizer << this->NumFaces << ends;
+  vtksys_ios::stringstream tokenizer;
+  tokenizer << this->NumFaces;
   tokenizer >> numFacesStr;
   //find end of header & number of faces
   //while(temp.compare(0,numFacesStr.size(),numFacesStr,0,
@@ -1457,8 +1455,8 @@ void vtkOpenFOAMReader::ReadNeighborFile(const char * neighborPathIn)
 void vtkOpenFOAMReader::PopulatePolyMeshDirArrays()
 {
   vtkDebugMacro(<<"Create list of points/faces file directories");
-  strstream path;
-  strstream timeStep;
+  vtksys_ios::stringstream path;
+  vtksys_ios::stringstream timeStep;
   bool facesFound;
   bool pointsFound;
   bool polyMeshFound;
@@ -1477,12 +1475,12 @@ void vtkOpenFOAMReader::PopulatePolyMeshDirArrays()
     //create the path to the timestep
     path.clear();
     timeStep.clear();
-    timeStep << Steps[i] << ends;
-    path << this->PathPrefix->value <<timeStep.str() << "/" << ends;
+    timeStep << Steps[i];
+    path << this->PathPrefix->value <<timeStep.str() << "/";
 
     //get the number of files
     vtkDirectory * directory = vtkDirectory::New();
-    directory->Open(path.str());
+    directory->Open(path.str().c_str());
     int numFiles = directory->GetNumberOfFiles();
     //Look for polyMesh Dir
     for(int j = 0; j < numFiles; j++)
@@ -1492,11 +1490,11 @@ void vtkOpenFOAMReader::PopulatePolyMeshDirArrays()
         {
         polyMeshFound = true;
 
-        path << "polyMesh/" << ends;
+        path << "polyMesh/";
 
         //get number of files in the polyMesh dir
         vtkDirectory * polyMeshDirectory = vtkDirectory::New();
-        polyMeshDirectory->Open(path.str());
+        polyMeshDirectory->Open(path.str().c_str());
         int numPolyMeshFiles = polyMeshDirectory->GetNumberOfFiles();
         //Look for points/faces files
         for(int k = 0; k < numPolyMeshFiles; k++)
@@ -1568,8 +1566,7 @@ void vtkOpenFOAMReader::PopulatePolyMeshDirArrays()
       }
     directory->Delete();
     }
-  delete[] timeStep.str();
-  delete [] path.str();
+
   vtkDebugMacro(<<"Points/faces list created");
   return;
 }
@@ -1601,7 +1598,7 @@ const char * vtkOpenFOAMReader::GetDataType(const char * pathIn,
 
   vtkstd::string temp;
   vtkstd::string foamClass;
-  strstream tokenizer;
+  vtksys_ios::stringstream tokenizer;
   int opened;
 
   //see if fileName is a file or directory
@@ -1678,20 +1675,18 @@ vtkDoubleArray * vtkOpenFOAMReader::GetInternalVariableAtTimestep
                  (const char * varNameIn, int timeState)
 {
   vtkstd::string varName(varNameIn);
-  strstream varPath;
-  varPath << this->PathPrefix->value << this->Steps[timeState] << "/" <<
-    varName << ends;
-  vtkDebugMacro(<<"Get internal variable: "<<varPath.str());
+  vtksys_ios::stringstream varPath;
+  varPath << this->PathPrefix->value << this->Steps[timeState] << "/" << varName;
+  vtkDebugMacro(<<"Get internal variable: "<<varPath.str().c_str());
   vtkDoubleArray *data = vtkDoubleArray::New();
 
   vtkstd::string temp;
   stdString* tempStringStruct;
   bool binaryWriteFormat;
-  ifstream * input = new ifstream(varPath.str(), ios::in VTK_IOS_NOCREATE);
+  ifstream * input = new ifstream(varPath.str().c_str(), ios::in VTK_IOS_NOCREATE);
   //make sure file exists
   if(input->fail())
     {
-    delete[] varPath.str();
     input->close();
     delete input;
     return data;
@@ -1710,21 +1705,20 @@ vtkDoubleArray * vtkOpenFOAMReader::GetInternalVariableAtTimestep
   if(temp.find("binary") != vtkstd::string::npos)
     {
 #ifdef _WIN32
-    input->open(varPath.str(), ios::binary | ios::in VTK_IOS_NOCREATE);
+    input->open(varPath.str().c_str(), ios::binary | ios::in VTK_IOS_NOCREATE);
 #else
-    input->open(varPath.str(), ios::in VTK_IOS_NOCREATE);
+    input->open(varPath.str().c_str(), ios::in VTK_IOS_NOCREATE);
 #endif
     binaryWriteFormat = true;
     }
   else
     {
-    input->open(varPath.str(),ios::in);
+    input->open(varPath.str().c_str(),ios::in);
     binaryWriteFormat = false;
     }
-  delete[] varPath.str();
 
   vtkstd::string foamClass;
-  strstream tokenizer;
+  vtksys_ios::stringstream tokenizer;
   double value;
 
   //find class
@@ -1954,20 +1948,18 @@ vtkDoubleArray * vtkOpenFOAMReader::GetBoundaryVariableAtTimestep
                  vtkUnstructuredGrid * internalMesh)
 {
   vtkstd::string varName(varNameIn);
-  strstream varPath;
-  varPath << this->PathPrefix->value << this->Steps[timeState] << "/" <<
-    varName << ends;
-  vtkDebugMacro(<<"Get boundary variable: "<<varPath.str());
+  vtksys_ios::stringstream varPath;
+  varPath << this->PathPrefix->value << this->Steps[timeState] << "/" << varName;
+  vtkDebugMacro(<<"Get boundary variable: "<<varPath.str().c_str());
   vtkDoubleArray *data = vtkDoubleArray::New();
 
   vtkstd::string temp;
   stdString* tempStringStruct;
   bool binaryWriteFormat;
-  ifstream * input = new ifstream(varPath.str(), ios::in VTK_IOS_NOCREATE);
+  ifstream * input = new ifstream(varPath.str().c_str(), ios::in VTK_IOS_NOCREATE);
   //make sure file exists
   if(input->fail())
     {
-    delete[] varPath.str();
     input->close();
     delete input;
     return data;
@@ -1986,21 +1978,20 @@ vtkDoubleArray * vtkOpenFOAMReader::GetBoundaryVariableAtTimestep
   if(temp.find("binary") != vtkstd::string::npos)
     {
 #ifdef _WIN32
-    input->open(varPath.str(), ios::binary | ios::in VTK_IOS_NOCREATE);
+    input->open(varPath.str().c_str(), ios::binary | ios::in VTK_IOS_NOCREATE);
 #else
-    input->open(varPath.str(), ios::in VTK_IOS_NOCREATE);
+    input->open(varPath.str().c_str(), ios::in VTK_IOS_NOCREATE);
 #endif
     binaryWriteFormat = true;
     }
   else
     {
-    input->open(varPath.str(),ios::in);
+    input->open(varPath.str().c_str(),ios::in);
     binaryWriteFormat = false;
     }
-  delete[] varPath.str();
 
   vtkstd::string foamClass;
-  strstream tokenizer;
+  vtksys_ios::stringstream tokenizer;
   double value;
 
   //find class
@@ -2326,7 +2317,7 @@ stringVector * vtkOpenFOAMReader::GatherBlocks(const char * typeIn,
   vtkstd::string temp;
   stdString* tempStringStruct;
   vtkstd::string token;
-  strstream tokenizer;
+  vtksys_ios::stringstream tokenizer;
   vtkstd::string tempName;
 
   //find end of header
@@ -2410,7 +2401,7 @@ vtkUnstructuredGrid * vtkOpenFOAMReader::GetBoundaryMesh(int timeState,
   vtkstd::string temp;
   stdString* tempStringStruct;
   vtkstd::string token;
-  strstream tokenizer;
+  vtksys_ios::stringstream tokenizer;
 
   //find desired mesh entry
   while(temp.find(this->BoundaryNames->value[boundaryIndex]) == 
@@ -2576,7 +2567,7 @@ vtkUnstructuredGrid * vtkOpenFOAMReader::GetPointZoneMesh(int timeState,
     }
 
   vtkstd::string token;
-  strstream tokenizer;
+  vtksys_ios::stringstream tokenizer;
   vtkVertex * pointCell;
   int tempElement;
   vtkstd::vector< vtkstd::vector < int > > tempElementZones;
@@ -2728,7 +2719,7 @@ vtkUnstructuredGrid * vtkOpenFOAMReader::GetFaceZoneMesh(int timeState,
     }
 
   vtkstd::string token;
-  strstream tokenizer;
+  vtksys_ios::stringstream tokenizer;
   vtkstd::vector< int > faceZone;
   int tempElement;
   vtkstd::vector< vtkstd::vector < int > > tempElementZones;
@@ -2919,7 +2910,7 @@ vtkUnstructuredGrid * vtkOpenFOAMReader::GetCellZoneMesh(int timeState,
     }
 
   vtkstd::string token;
-  strstream tokenizer;
+  vtksys_ios::stringstream tokenizer;
   vtkstd::vector< int > cellZone;
   int tempElement;
   vtkstd::vector< vtkstd::vector < int > > tempElementZones;

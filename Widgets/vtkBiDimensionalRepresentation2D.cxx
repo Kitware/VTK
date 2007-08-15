@@ -32,7 +32,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.21");
+#include <vtksys/ios/sstream>
+
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.22");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -856,7 +858,7 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
       {
       line2Dist = sqrt(vtkMath::Distance2BetweenPoints(wp3, wp4));
       }
-    ostrstream label;
+    vtksys_ios::ostringstream label;
     if (this->IDInitialized)
       {
       label << this->ID << ": ";
@@ -866,14 +868,13 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
 
     if (line1Dist > line2Dist)
       {
-      label << distStr1 << " x " << distStr2 << ends;
+      label << distStr1 << " x " << distStr2;
       }
     else
       {
-      label << distStr2 << " x " << distStr1 << ends;
+      label << distStr2 << " x " << distStr1;
       }
-    this->TextMapper->SetInput(label.str());
-    label.rdbuf()->freeze(0);
+    this->TextMapper->SetInput(label.str().c_str());
 
     // Adjust the font size
     int stringSize[2], *winSize = this->Renderer->GetSize();

@@ -29,10 +29,11 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <vtksys/ios/sstream>
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.45");
+vtkCxxRevisionMacro(vtkXMLReader, "1.46");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -684,9 +685,8 @@ int vtkXMLReader::CanReadFileVersionString(const char* version)
   
   if(s > begin)
     {
-    strstream str;
+    vtksys_ios::stringstream str;
     str.write(begin, s-begin);
-    str << ends;
     str >> major;
     if(!str)
       {
@@ -695,9 +695,8 @@ int vtkXMLReader::CanReadFileVersionString(const char* version)
     }
   if(++s < end)
     {
-    strstream str;
+    vtksys_ios::stringstream str;
     str.write(s, end-s);
-    str << ends;
     str >> minor;
     if(!str)
       {
@@ -875,10 +874,9 @@ void vtkXMLReader::SetDataArraySelections(vtkXMLDataElement* eDSA,
       }
     else
       {
-      ostrstream ostr_with_warning_C4701;
-      ostr_with_warning_C4701 << "Array " << i << ends;
-      sel->AddArray( ostr_with_warning_C4701.str() );
-      ostr_with_warning_C4701.rdbuf()->freeze(0);
+      vtksys_ios::ostringstream ostr_with_warning_C4701;
+      ostr_with_warning_C4701 << "Array " << i;
+      sel->AddArray( ostr_with_warning_C4701.str().c_str() );
       }
     }
 }

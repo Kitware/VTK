@@ -40,6 +40,7 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
+#include <vtksys/ios/sstream>
 
 // We only have vtkTypeUInt64Array if we have long long
 // or we have __int64 with conversion to double.
@@ -57,7 +58,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.145");
+vtkCxxRevisionMacro(vtkDataReader, "1.146");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -423,15 +424,17 @@ int vtkDataReader::OpenVTKFile()
     if (this->InputArray)
       {
       vtkDebugMacro(<< "Reading from InputArray");
-      this->IS = new istrstream(this->InputArray->GetPointer(0), 
+      vtkstd::string str(this->InputArray->GetPointer(0),
         static_cast<size_t>( this->InputArray->GetNumberOfTuples()  *
                              this->InputArray->GetNumberOfComponents()) );
+      this->IS = new vtksys_ios::istringstream(str);
       return 1;
       }
     else if (this->InputString)
       {
       vtkDebugMacro(<< "Reading from InputString");
-      this->IS = new istrstream(this->InputString, this->InputStringLength);
+      vtkstd::string str(this->InputString, this->InputStringLength);
+      this->IS = new vtksys_ios::istringstream(str);
       return 1;
       }
     }
@@ -2594,18 +2597,17 @@ int vtkDataReader::DecodeString(char *resname, const char* name)
     {
     return 0;
     }
-  //strcpy(resname, name);
-  ostrstream str;
-  int cc = 0;
+  vtksys_ios::ostringstream str;
+  size_t cc = 0;
   unsigned int ch;
-  int len = static_cast<int>(strlen(name));
-  int reslen = 0;
+  size_t len = strlen(name);
+  size_t reslen = 0;
   char buffer[10] = "0x";
   while(name[cc]) 
     {
     if ( name[cc] == '%' )
       {
-      if ( cc <= len - 3 )
+      if ( cc <= (len - 3) )
         {
         buffer[2] = name[cc+1];
         buffer[3] = name[cc+2];
@@ -2623,9 +2625,8 @@ int vtkDataReader::DecodeString(char *resname, const char* name)
       }
     cc ++;
     }
-  str << ends;
-  strncpy(resname, str.str(), reslen+1);
-  str.rdbuf()->freeze(0);
+  strncpy(resname, str.str().c_str(), reslen+1);
+  resname[reslen+1] = 0;
   return reslen;
 }
 

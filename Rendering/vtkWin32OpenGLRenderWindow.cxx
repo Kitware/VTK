@@ -28,6 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWin32RenderWindowInteractor.h"
 
 #include <math.h>
+#include <vtksys/ios/sstream>
 
 #if defined(_MSC_VER) || defined (__BORLANDC__)
 # include "vtkWindows.h"
@@ -36,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkOpenGL.h"
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.147");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.148");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -396,7 +397,7 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
   const char *glVersion = (const char *) glGetString(GL_VERSION);
   const char *glExtensions = (const char *) glGetString(GL_EXTENSIONS);
 
-  ostrstream strm;
+  vtksys_ios::ostringstream strm;
   strm << "OpenGL vendor string:  " << glVendor << endl;
   strm << "OpenGL renderer string:  " << glRenderer << endl;
   strm << "OpenGL version string:  " << glVersion << endl;
@@ -442,9 +443,12 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
   strm << "stencil size:  " << static_cast<int>(pfd.cStencilBits) << endl;
   strm << "accum:  redSize=" << static_cast<int>(pfd.cAccumRedBits) << " greenSize=" << static_cast<int>(pfd.cAccumGreenBits) << "blueSize=" << static_cast<int>(pfd.cAccumBlueBits) << "alphaSize=" << static_cast<int>(pfd.cAccumAlphaBits) << endl;
 
-  strm << ends;
   delete[] this->Capabilities;
-  this->Capabilities = strm.str();
+  
+  size_t len = strm.str().length() + 1;
+  this->Capabilities = new char[len];
+  lstrcpyn(this->Capabilities, strm.str().c_str(), len);
+  
   return this->Capabilities;
 }
 

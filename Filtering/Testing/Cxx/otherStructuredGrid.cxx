@@ -28,6 +28,8 @@
 #include "vtkShortArray.h"
 #include "vtkStructuredGrid.h"
 
+#include <vtksys/ios/sstream>
+
 int TestOSG(ostream& strm)
 {
   int i, j, k;
@@ -629,6 +631,6 @@ int TestOSG(ostream& strm)
 
 int otherStructuredGrid(int,char *[])
 {
-  ostrstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
   return TestOSG(vtkmsg_with_warning_C4701);
 } 

@@ -43,6 +43,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtksys/SystemTools.hxx"
 
+#include <vtksys/ios/sstream>
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
@@ -108,7 +110,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.84");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.85");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1588,7 +1590,7 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
   const char *glVersion = (const char *) glGetString(GL_VERSION);
   const char *glExtensions = (const char *) glGetString(GL_EXTENSIONS);
 
-  ostrstream strm;
+  vtksys_ios::ostringstream strm;
   strm << "server glx vendor string:  " << serverVendor << endl;
   strm << "server glx version string:  " << serverVersion << endl;
   strm << "server glx extensions:  " << serverExtensions << endl;
@@ -1613,9 +1615,14 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
     strm << extlist[i] << endl;
     }
     }
-  strm << ends;
+
   delete[] this->Capabilities;
-  this->Capabilities = strm.str();
+
+  size_t len = strm.str().length();
+  this->Capabilities = new char[len + 1];
+  strncpy(this->Capabilities, strm.str().c_str(), len);
+  this->Capabilities[len] = 0;
+
   return this->Capabilities;
 }
 

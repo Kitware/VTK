@@ -759,6 +759,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"#include \"%s.h\"\n\n",data->ClassName);
   fprintf(fp,"#include \"vtkTclUtil.h\"\n");
   fprintf(fp,"#include <vtkstd/stdexcept>\n");
+  fprintf(fp,"#include <vtksys/ios/sstream>\n");
   if (data->IsConcrete)
     {
     if (strcmp(data->ClassName, "vtkRenderWindowInteractor") == 0)
@@ -913,21 +914,19 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   if (!strcmp("vtkObjectBase",data->ClassName))
     {
     fprintf(fp,"  if ((!strcmp(\"Print\",argv[1]))&&(argc == 2))\n    {\n");
-    fprintf(fp,"    ostrstream buf_with_warning_C4701;\n");
+    fprintf(fp,"    vtksys_ios::ostringstream buf_with_warning_C4701;\n");
     fprintf(fp,"    op->Print(buf_with_warning_C4701);\n");
     fprintf(fp,"    buf_with_warning_C4701.put('\\0');\n");
-    fprintf(fp,"    Tcl_SetResult(interp,buf_with_warning_C4701.str(),\n");
+    fprintf(fp,"    Tcl_SetResult(interp,const_cast<char *>(buf_with_warning_C4701.str().c_str()),\n");
     fprintf(fp,"      TCL_VOLATILE);\n");
-    fprintf(fp,"    buf_with_warning_C4701.rdbuf()->freeze(0);\n");
     fprintf(fp,"    return TCL_OK;\n    }\n");
     /* Add the PrintRevisions method to vtkObjectBase. */
     fprintf(fp,"  if ((!strcmp(\"PrintRevisions\",argv[1]))&&(argc == 2))\n    {\n");
-    fprintf(fp,"    ostrstream buf_with_warning_C4701;\n");
+    fprintf(fp,"    vtksys_ios::ostringstream buf_with_warning_C4701;\n");
     fprintf(fp,"    op->PrintRevisions(buf_with_warning_C4701);\n");
     fprintf(fp,"    buf_with_warning_C4701.put('\\0');\n");
-    fprintf(fp,"    Tcl_SetResult(interp,buf_with_warning_C4701.str(),\n");
+    fprintf(fp,"    Tcl_SetResult(interp,const_cast<char *>(buf_with_warning_C4701.str().c_str()),\n");
     fprintf(fp,"      TCL_VOLATILE);\n");
-    fprintf(fp,"    delete [] buf_with_warning_C4701.str();\n");
     fprintf(fp,"    return TCL_OK;\n    }\n");    
     }
   /* Add the AddObserver method to vtkObject. */

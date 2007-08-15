@@ -20,6 +20,8 @@
 #include "vtkTimerLog.h"
 #include "vtkDebugLeaks.h"
 
+#include <vtksys/ios/sstream>
+
 // this is needed for the unlink call
 #if defined(__CYGWIN__)
 #include <sys/unistd.h>
@@ -68,7 +70,7 @@ void otherTimerLogTest(ostream& strm)
 
 int otherTimerLog(int,char *[])
 {
-  ostrstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
   otherTimerLogTest(vtkmsg_with_warning_C4701);
 
   return 0;
