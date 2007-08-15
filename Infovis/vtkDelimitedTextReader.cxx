@@ -31,7 +31,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.17");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.18");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -71,6 +71,7 @@ vtkDelimitedTextReader::vtkDelimitedTextReader()
   this->StringDelimiter = '"';
   this->UseStringDelimiter = true;
   this->MaxRecords = 0;
+  this->MergeConsecutiveDelimiters = false;
 }
 
 // ----------------------------------------------------------------------
