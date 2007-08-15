@@ -33,7 +33,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkGraph, "1.6");
+vtkCxxRevisionMacro(vtkGraph, "1.7");
 vtkStandardNewMacro(vtkGraph);
 
 //----------------------------------------------------------------------------
@@ -410,7 +410,7 @@ void vtkGraph::RemoveVertex(vtkIdType vertex)
     {
     vtkAbstractArray* aa = this->GetPointData()->GetAbstractArray(i);
     aa->SetTuple(vertex, movedVertex, aa);
-    aa->Resize(aa->GetNumberOfTuples() - 1);
+    aa->SetNumberOfTuples(aa->GetNumberOfTuples() - 1);
     }
   if (this->Points)
     {
@@ -445,7 +445,7 @@ void vtkGraph::RemoveEdge(vtkIdType edge)
 
   this->Edges->SetValue(2*edge, movedSource);
   this->Edges->SetValue(2*edge + 1, movedTarget);
-  this->Edges->Resize(this->Edges->GetNumberOfTuples() - 1);
+  this->Edges->SetNumberOfTuples(this->Edges->GetNumberOfTuples() - 1);
 
   // Modify the adjacency lists to reflect the id change
   for (vtkIdType e = 0; e < this->VertexLinks->GetOutDegree(movedSource); e++)
@@ -470,7 +470,7 @@ void vtkGraph::RemoveEdge(vtkIdType edge)
     {
     vtkAbstractArray* aa = this->GetCellData()->GetAbstractArray(i);
     aa->SetTuple(edge, movedEdge, aa);
-    aa->Resize(aa->GetNumberOfTuples() - 1);
+    aa->SetNumberOfTuples(aa->GetNumberOfTuples() - 1);
     }
 }
 
