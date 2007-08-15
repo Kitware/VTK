@@ -111,7 +111,6 @@ public:
   int GetGenerateGlobalNodeIdArray();
   vtkBooleanMacro(GenerateGlobalNodeIdArray, int);
 
-
   // Description:
   // Extra cell data array that can be generated.  By default, this array
   // is off.  The value of the array is the integer global id of the cell.

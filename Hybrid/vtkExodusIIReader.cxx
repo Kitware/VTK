@@ -15,6 +15,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkSortDataArray.h"
 #include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -668,7 +669,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.26");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.27");
 
 
 
@@ -1052,6 +1053,12 @@ protected:
     */
   int AssembleOutputProceduralArrays( vtkIdType timeStep, vtkUnstructuredGrid* output );
 
+  // Generate the decorations for edge fields.
+  void AssembleOutputEdgeDecorations();
+
+  // Generate the decorations for face fields.
+  void AssembleOutputFaceDecorations();
+
   //int AssembleOutputGlobalArrays( vtkIdType timeStep, vtkUnstructuredGrid* output );
 
   /// Insert cells from a specified block into a mesh
@@ -1221,8 +1228,13 @@ protected:
   float DisplacementMagnitude;
   int HasModeShapes;
 
+  // Specify how to decorate edge and face variables.
   int EdgeFieldDecorations;
   int FaceFieldDecorations;
+
+  // Meshes to support edge and face glyph decorations.
+  vtkPolyData* EdgeDecorationMesh;
+  vtkPolyData* FaceDecorationMesh;
 
   /** Should the reader output only points used by elements in the output mesh, or all the points.
     * Outputting all the points is much faster since the point array can be read straight from
@@ -1406,7 +1418,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.26");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.27");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -1439,6 +1451,9 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
 
   this->EdgeFieldDecorations = 0;
   this->FaceFieldDecorations = 0;
+
+  this->EdgeDecorationMesh = 0;
+  this->FaceDecorationMesh = 0;
   
   this->Parser = 0;
 
@@ -2509,6 +2524,25 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays( vtkIdType timeStep
   return status;
 }
 
+void vtkExodusIIReaderPrivate::AssembleOutputEdgeDecorations()
+{
+  if ( this->EdgeFieldDecorations == vtkExodusIIReader::NONE ) 
+    {
+    // Do nothing if no decorations are requested.
+    return;
+    }
+
+}
+
+void vtkExodusIIReaderPrivate::AssembleOutputFaceDecorations()
+{
+  if ( this->FaceFieldDecorations == vtkExodusIIReader::NONE ) 
+    {
+    // Do nothing if no decorations are requested.
+    return;
+    }
+  
+}
 
 void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_type, int timeStep, vtkUnstructuredGrid* output )
 {
@@ -4875,7 +4909,7 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkUnstructuredGr
   // This function doesn't apply displacements because we don't have the displacement vectors yet.
   this->AssembleOutputPoints( timeStep, output );
 
-  // Finally, add the desired arrays from cache (or disk)
+  // Then, add the desired arrays from cache (or disk)
   // Point and cell arrays are handled differently because they have different problems
   // to solve. Point arrays must use the PointMap index to subset values while cell arrays
   // must be padded with zeros for cells in blocks/sets that do not contain the given arrays.
@@ -4889,9 +4923,13 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkUnstructuredGr
   this->AssembleOutputPointMaps( timeStep, output );
   this->AssembleOutputCellMaps( timeStep, output );
 
-  // Pack temporal data onto output field data arrays if fast path
+  // Pack temporal data onto output field data arrays if fast path.
   // option is available:
   this->AssembleArraysOverTime(output);
+
+  // Finally, generate the decorations for edge and face fields.
+  this->AssembleOutputEdgeDecorations();
+  this->AssembleOutputFaceDecorations();
 
   this->CloseFile();
 
@@ -5381,7 +5419,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.26");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.27");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
