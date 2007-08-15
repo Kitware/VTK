@@ -100,7 +100,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.17");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.18");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -855,14 +855,43 @@ int vtkExodusIIWriter::CreateExodusModel()
 
   int i, rc;
 
-  if ((this->NumberOfProcesses > 1) && 
-      ((!this->InputBlockIds)  || (!this->BlockIdList)))
+  if ((this->NumberOfProcesses > 1))
     {
-    // Parallel apps must have a global list of all block IDs, plus a
-    // list of block IDs for each cell.
+    if(!this->InputBlockIds)
+      {
+      // First check to see if the reader explicitly added the element block
+      // ids onto the field data:
+      vtkFieldData *inFieldData = this->GetInput()->GetFieldData();
+      if(inFieldData)
+        {
+        vtkIntArray *elemBlockIds = vtkIntArray::SafeDownCast(inFieldData->GetArray("ElementBlockIds"));
+        if(elemBlockIds)
+          {
+          vtkstd::set<int> blockIdSet;
+          vtkstd::set<int>::iterator iter;
+          for(i=0; i<elemBlockIds->GetNumberOfTuples(); i++)
+            {
+            blockIdSet.insert(elemBlockIds->GetValue(i));
+            }
+          vtkIntArray *blockIds = vtkIntArray::New();
+          for(iter = blockIdSet.begin(); iter != blockIdSet.end(); iter++)
+            {
+            blockIds->InsertNextValue(*iter);
+            }
+          this->SetAllBlockIds(blockIdSet.size(), blockIds->GetPointer(0));
+          blockIds->Delete();
+          }
+        }
+      }
 
-    vtkErrorMacro(<< "Can't proceed without metadata.  Go back and request metadata from reader.");
-    return 1; 
+    if( !this->InputBlockIds || !this->BlockIdList)
+      {
+      // Parallel apps must have a global list of all block IDs, plus a
+      // list of block IDs for each cell.
+
+      vtkErrorMacro(<< "Can't proceed without metadata.  Go back and request metadata from reader.");
+      return 1;
+      }
     }
 
   vtkModelMetadata *em = vtkModelMetadata::New();

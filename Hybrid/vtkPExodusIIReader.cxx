@@ -91,7 +91,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.11");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.12");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -624,7 +624,26 @@ int vtkPExodusIIReader::RequestData(
     vtkFieldData *ifd = subgrid->GetFieldData();
     for(vtkIdType fidx = 0; fidx < ifd->GetNumberOfArrays(); fidx++)
       {
-      fieldData->AddArray(ifd->GetArray(fidx));
+      vtkAbstractArray *farray = ifd->GetAbstractArray(fidx);
+
+      // A special case:
+      // The exodus writer needs the set of element block ids in order to write
+      // out in parallel. So here we add it to the field data:
+      vtkIntArray *iprevArray = vtkIntArray::SafeDownCast(fieldData->GetArray(farray->GetName()));
+      vtkIntArray *ifarray = vtkIntArray::SafeDownCast(farray);
+      if(iprevArray && ifarray && strcmp(farray->GetName(),"ElementBlockIds")==0)
+        {
+        // If there is already an array in our field data object of this name,
+        // append its contents to the existing one
+        for(vtkIdType fidx2=0; fidx2<ifarray->GetNumberOfTuples(); fidx2++)
+          {
+          iprevArray->InsertNextValue(ifarray->GetValue(fidx2));
+          }
+        }
+      else
+        {
+        fieldData->AddArray(farray);
+        }
       }
 
     totalCells += ncells;
