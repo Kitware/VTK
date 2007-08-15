@@ -100,7 +100,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.18");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.19");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -904,6 +904,8 @@ int vtkExodusIIWriter::CreateExodusModel()
   sprintf(title, "Created by vtkExodusIIWriter, %s", stime);
 
   em->SetTitle(title);
+
+  delete [] title;
 
   char **dimNames = new char * [3];
   dimNames[0] = vtkExodusIIWriter::StrDupWithNew("X");

@@ -58,7 +58,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.146");
+vtkCxxRevisionMacro(vtkDataReader, "1.147");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -1293,6 +1293,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
           IS->read(str, stringLength);
           vtkStdString s(str, stringLength);
           ((vtkStringArray*)array)->InsertNextValue(s);
+          delete [] str;
           }
         }
       }
