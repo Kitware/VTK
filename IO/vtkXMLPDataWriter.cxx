@@ -20,7 +20,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkXMLPDataWriter, "1.16");
+vtkCxxRevisionMacro(vtkXMLPDataWriter, "1.17");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataWriter::vtkXMLPDataWriter()
@@ -268,8 +268,7 @@ char* vtkXMLPDataWriter::CreatePieceFileName(int index, const char* path)
   { fn_with_warning_C4701 << this->PieceFileNameExtension; }
   //if(this->FileNameExtension) 
   //{ fn_with_warning_C4701 << this->FileNameExtension; }
-  fn_with_warning_C4701;
-  
+
   size_t len = fn_with_warning_C4701.str().length();
   char *buffer = new char[len + 1];
   strncpy(buffer, fn_with_warning_C4701.str().c_str(), len);
