@@ -3,9 +3,11 @@ SET(UKIT RENDERING)
 SET(KIT_TCL_LIBS vtkGraphicsTCL vtkImagingTCL ${VTK_TK_LIBRARIES})
 SET(KIT_PYTHON_LIBS vtkGraphicsPythonD vtkImagingPythonD)
 SET(KIT_JAVA_LIBS vtkGraphicsJava vtkImagingJava)
+
 IF (JAVA_AWT_LIBRARY)
   SET(KIT_JAVA_LIBS ${KIT_JAVA_LIBS} ${JAVA_AWT_LIBRARY})
 ENDIF (JAVA_AWT_LIBRARY)
+
 SET(KIT_LIBS vtkGraphics vtkImaging vtkIO
   vtkftgl
   ${VTK_FREETYPE_LIBRARIES}
@@ -18,125 +20,125 @@ IF(APPLE AND VTK_WRAP_JAVA)
 ENDIF(APPLE AND VTK_WRAP_JAVA)
 
 SET( Kit_SRCS
-vtkAbstractMapper3D.cxx
-vtkAbstractVolumeMapper.cxx
-vtkAbstractPicker.cxx
-vtkAbstractPropPicker.cxx
-vtkActor.cxx
-vtkActorCollection.cxx
-vtkAreaPicker.cxx
-vtkAssembly.cxx
-vtkAxisActor2D.cxx
-vtkCamera.cxx
-vtkCameraInterpolator.cxx
-vtkCellCenterDepthSort.cxx
-vtkCellPicker.cxx
-vtkChooserPainter.cxx
-vtkClipPlanesPainter.cxx
-vtkCoincidentTopologyResolutionPainter.cxx
-vtkCuller.cxx
-vtkCullerCollection.cxx
-vtkDataSetMapper.cxx
-vtkDefaultPainter.cxx
-vtkDisplayListPainter.cxx
-vtkDynamic2DLabelMapper.cxx
-vtkExporter.cxx
-vtkFollower.cxx
-vtkFrustumCoverageCuller.cxx
-vtkGenericRenderWindowInteractor.cxx
-vtkGraphicsFactory.cxx
-vtkHierarchicalPolyDataMapper.cxx
-vtkIVExporter.cxx
-vtkIdentColoredPainter.cxx
-vtkImageActor.cxx
-vtkImageMapper.cxx
-vtkImageViewer.cxx
-vtkImageViewer2.cxx
-vtkImagingFactory.cxx
-vtkImporter.cxx
-vtkInteractorEventRecorder.cxx
-vtkInteractorObserver.cxx
-vtkInteractorStyle.cxx
-vtkInteractorStyleFlight.cxx
-vtkInteractorStyleImage.cxx
-vtkInteractorStyleJoystickActor.cxx
-vtkInteractorStyleJoystickCamera.cxx
-vtkInteractorStyleRubberBandPick.cxx
-vtkInteractorStyleRubberBandZoom.cxx
-vtkInteractorStyleSwitch.cxx
-vtkInteractorStyleTerrain.cxx
-vtkInteractorStyleTrackball.cxx
-vtkInteractorStyleTrackballActor.cxx
-vtkInteractorStyleTrackballCamera.cxx
-vtkInteractorStyleUnicam.cxx
-vtkInteractorStyleUser.cxx
-vtkLODActor.cxx
-vtkLODProp3D.cxx
-vtkLabeledDataMapper.cxx
-vtkLeaderActor2D.cxx
-vtkLight.cxx
-vtkLightCollection.cxx
-vtkLightKit.cxx
-vtkLightingPainter.cxx
-vtkLinesPainter.cxx
-vtkMapper.cxx
-vtkMapperCollection.cxx
-vtkMultiGroupPolyDataMapper.cxx
-vtkOBJExporter.cxx
-vtkObserverMediator.cxx
-vtkOOGLExporter.cxx
-vtkPainter.cxx
-vtkPainterDeviceAdapter.cxx
-vtkPainterPolyDataMapper.cxx
-vtkParallelCoordinatesActor.cxx
-vtkPicker.cxx
-vtkPointsPainter.cxx
-vtkPointPicker.cxx
-vtkPolyDataMapper.cxx
-vtkPolyDataMapper2D.cxx
-vtkPolyDataPainter.cxx
-vtkPolygonsPainter.cxx
-vtkPrimitivePainter.cxx
-vtkProp3D.cxx
-vtkProp3DCollection.cxx
-vtkPropPicker.cxx
-vtkProperty.cxx
-vtkQuaternionInterpolator.cxx
-vtkRenderWindow.cxx
-vtkRenderWindowCollection.cxx
-vtkRenderWindowInteractor.cxx
-vtkRenderedAreaPicker.cxx
-vtkRenderer.cxx
-vtkRendererCollection.cxx
-vtkRendererSource.cxx
-vtkRepresentationPainter.cxx
-vtkScalarBarActor.cxx
-vtkScalarsToColorsPainter.cxx
-vtkScaledTextActor.cxx
-vtkScenePicker.cxx
-vtkSelectVisiblePoints.cxx
-vtkShader.cxx
-vtkShaderProgram.cxx
-vtkStandardPolyDataPainter.cxx
-vtkTesting.cxx
-vtkTextActor.cxx
-# vtkTextActor2D.cxx
-vtkTextActor3D.cxx
-vtkTextMapper.cxx
-vtkTextProperty.cxx
-vtkTexture.cxx
-vtkTransformInterpolator.cxx
-vtkTStripsPainter.cxx
-vtkTupleInterpolator.cxx
-vtkVisibleCellSelector.cxx
-vtkVisibilitySort.cxx
-vtkVRMLExporter.cxx
-vtkVolume.cxx
-vtkVolumeCollection.cxx
-vtkVolumeProperty.cxx
-vtkWindowToImageFilter.cxx
-vtkWorldPointPicker.cxx
-)
+  vtkAbstractMapper3D.cxx
+  vtkAbstractVolumeMapper.cxx
+  vtkAbstractPicker.cxx
+  vtkAbstractPropPicker.cxx
+  vtkActor.cxx
+  vtkActorCollection.cxx
+  vtkAreaPicker.cxx
+  vtkAssembly.cxx
+  vtkAxisActor2D.cxx
+  vtkCamera.cxx
+  vtkCameraInterpolator.cxx
+  vtkCellCenterDepthSort.cxx
+  vtkCellPicker.cxx
+  vtkChooserPainter.cxx
+  vtkClipPlanesPainter.cxx
+  vtkCoincidentTopologyResolutionPainter.cxx
+  vtkCuller.cxx
+  vtkCullerCollection.cxx
+  vtkDataSetMapper.cxx
+  vtkDefaultPainter.cxx
+  vtkDisplayListPainter.cxx
+  vtkDynamic2DLabelMapper.cxx
+  vtkExporter.cxx
+  vtkFollower.cxx
+  vtkFrustumCoverageCuller.cxx
+  vtkGenericRenderWindowInteractor.cxx
+  vtkGraphicsFactory.cxx
+  vtkHierarchicalPolyDataMapper.cxx
+  vtkIVExporter.cxx
+  vtkIdentColoredPainter.cxx
+  vtkImageActor.cxx
+  vtkImageMapper.cxx
+  vtkImageViewer.cxx
+  vtkImageViewer2.cxx
+  vtkImagingFactory.cxx
+  vtkImporter.cxx
+  vtkInteractorEventRecorder.cxx
+  vtkInteractorObserver.cxx
+  vtkInteractorStyle.cxx
+  vtkInteractorStyleFlight.cxx
+  vtkInteractorStyleImage.cxx
+  vtkInteractorStyleJoystickActor.cxx
+  vtkInteractorStyleJoystickCamera.cxx
+  vtkInteractorStyleRubberBandPick.cxx
+  vtkInteractorStyleRubberBandZoom.cxx
+  vtkInteractorStyleSwitch.cxx
+  vtkInteractorStyleTerrain.cxx
+  vtkInteractorStyleTrackball.cxx
+  vtkInteractorStyleTrackballActor.cxx
+  vtkInteractorStyleTrackballCamera.cxx
+  vtkInteractorStyleUnicam.cxx
+  vtkInteractorStyleUser.cxx
+  vtkLODActor.cxx
+  vtkLODProp3D.cxx
+  vtkLabeledDataMapper.cxx
+  vtkLeaderActor2D.cxx
+  vtkLight.cxx
+  vtkLightCollection.cxx
+  vtkLightKit.cxx
+  vtkLightingPainter.cxx
+  vtkLinesPainter.cxx
+  vtkMapper.cxx
+  vtkMapperCollection.cxx
+  vtkMultiGroupPolyDataMapper.cxx
+  vtkOBJExporter.cxx
+  vtkObserverMediator.cxx
+  vtkOOGLExporter.cxx
+  vtkPainter.cxx
+  vtkPainterDeviceAdapter.cxx
+  vtkPainterPolyDataMapper.cxx
+  vtkParallelCoordinatesActor.cxx
+  vtkPicker.cxx
+  vtkPointsPainter.cxx
+  vtkPointPicker.cxx
+  vtkPolyDataMapper.cxx
+  vtkPolyDataMapper2D.cxx
+  vtkPolyDataPainter.cxx
+  vtkPolygonsPainter.cxx
+  vtkPrimitivePainter.cxx
+  vtkProp3D.cxx
+  vtkProp3DCollection.cxx
+  vtkPropPicker.cxx
+  vtkProperty.cxx
+  vtkQuaternionInterpolator.cxx
+  vtkRenderWindow.cxx
+  vtkRenderWindowCollection.cxx
+  vtkRenderWindowInteractor.cxx
+  vtkRenderedAreaPicker.cxx
+  vtkRenderer.cxx
+  vtkRendererCollection.cxx
+  vtkRendererSource.cxx
+  vtkRepresentationPainter.cxx
+  vtkScalarBarActor.cxx
+  vtkScalarsToColorsPainter.cxx
+  vtkScaledTextActor.cxx
+  vtkScenePicker.cxx
+  vtkSelectVisiblePoints.cxx
+  vtkShader.cxx
+  vtkShaderProgram.cxx
+  vtkStandardPolyDataPainter.cxx
+  vtkTesting.cxx
+  vtkTextActor.cxx
+  # vtkTextActor2D.cxx
+  vtkTextActor3D.cxx
+  vtkTextMapper.cxx
+  vtkTextProperty.cxx
+  vtkTexture.cxx
+  vtkTransformInterpolator.cxx
+  vtkTStripsPainter.cxx
+  vtkTupleInterpolator.cxx
+  vtkVisibleCellSelector.cxx
+  vtkVisibilitySort.cxx
+  vtkVRMLExporter.cxx
+  vtkVolume.cxx
+  vtkVolumeCollection.cxx
+  vtkVolumeProperty.cxx
+  vtkWindowToImageFilter.cxx
+  vtkWorldPointPicker.cxx
+  )
 
 IF(VTK_USE_GL2PS)
   SET(Kit_SRCS ${Kit_SRCS} vtkGL2PSExporter.cxx)
@@ -185,38 +187,33 @@ IF(VTK_USE_GLSL_SHADERS)
 ENDIF(VTK_USE_GLSL_SHADERS)
 
 SET_SOURCE_FILES_PROPERTIES(
-vtkAbstractMapper3D
-vtkAbstractVolumeMapper
-vtkAbstractPicker
-vtkAbstractPropPicker
-vtkCuller
-vtkExporter
-vtkImporter
-vtkInteractorObserver
-vtkMapper
-vtkOpenGLRenderWindow
-vtkPainter
-vtkPolyDataPainter
-vtkPrimitivePainter
-vtkProp3D
-vtkShader
-vtkShaderProgram
-vtkVisibilitySort.cxx
-ABSTRACT
-)
+  vtkAbstractMapper3D
+  vtkAbstractVolumeMapper
+  vtkAbstractPicker
+  vtkAbstractPropPicker
+  vtkCuller
+  vtkExporter
+  vtkImporter
+  vtkInteractorObserver
+  vtkMapper
+  vtkOpenGLRenderWindow
+  vtkPainter
+  vtkPolyDataPainter
+  vtkPrimitivePainter
+  vtkProp3D
+  vtkShader
+  vtkShaderProgram
+  vtkVisibilitySort.cxx
+  ABSTRACT
+  )
 
 # Freetype stuff
 
-SET(Kit_SRCS ${Kit_SRCS}
-  vtkFreeTypeUtilities.cxx
-)
-SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
-  vtkOpenGLFreeTypeTextMapper.cxx
-)
-SET_SOURCE_FILES_PROPERTIES(
-  vtkFreeTypeUtilities
-  WRAP_EXCLUDE
-)
+SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkOpenGLFreeTypeTextMapper.cxx)
+
+SET(Kit_SRCS ${Kit_SRCS} vtkFreeTypeUtilities.cxx )
+SET_SOURCE_FILES_PROPERTIES(vtkFreeTypeUtilities.cxx PROPERTIES WRAP_EXCLUDE TRUE)
+
 SET(Kit_FT_SRCS 
   fonts/face_arial.cxx
   fonts/face_arial_bold.cxx
@@ -233,8 +230,7 @@ SET(Kit_FT_SRCS
 )
 
 IF(VTK_USE_X)
-  SET( Kit_SRCS ${Kit_SRCS}
-    vtkXRenderWindowInteractor.cxx)
+  SET( Kit_SRCS ${Kit_SRCS} vtkXRenderWindowInteractor.cxx)
 ENDIF(VTK_USE_X)
 
 # OpenGL extensions stuff.
@@ -250,9 +246,9 @@ ADD_CUSTOM_COMMAND(
 SET_SOURCE_FILES_PROPERTIES(vtkOpenGLExtensionManager.cxx
   PROPERTIES OBJECT_DEPENDS ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx)
 
-SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
-  ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx
-)
+SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} 
+  ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx 
+  )
 
 SET_SOURCE_FILES_PROPERTIES(
   # OK, so it's not abstract, but this stops the instantiator
@@ -288,11 +284,10 @@ ELSE (WIN32)
       )
     CHECK_FUNCTION_EXISTS(glXGetProcAddressARB VTK_USE_GLX_GET_PROC_ADDRESS_ARB)
     IF (VTK_USE_GLX_GET_PROC_ADDRESS_ARB)
-      IF ("${VTK_GLX_GET_PROC_ADDRESS_ARB_PROTOTYPE_EXISTS_INCLUDES}" STREQUAL "${OPENGL_INCLUDE_DIR}")
-      ELSE ("${VTK_GLX_GET_PROC_ADDRESS_ARB_PROTOTYPE_EXISTS_INCLUDES}" STREQUAL "${OPENGL_INCLUDE_DIR}")
+      IF (NOT "${VTK_GLX_GET_PROC_ADDRESS_ARB_PROTOTYPE_EXISTS_INCLUDES}" STREQUAL "${OPENGL_INCLUDE_DIR}")
         # The OpenGL includes changed.  Retest glXGetProcAddressARB prototype.
         SET(VTK_GLX_GET_PROC_ADDRESS_ARB_PROTOTYPE_EXISTS_TESTED 0)
-      ENDIF ("${VTK_GLX_GET_PROC_ADDRESS_ARB_PROTOTYPE_EXISTS_INCLUDES}" STREQUAL "${OPENGL_INCLUDE_DIR}")
+      ENDIF (NOT "${VTK_GLX_GET_PROC_ADDRESS_ARB_PROTOTYPE_EXISTS_INCLUDES}" STREQUAL "${OPENGL_INCLUDE_DIR}")
       IF (NOT VTK_GLX_GET_PROC_ADDRESS_ARB_PROTOTYPE_EXISTS_TESTED)
         MESSAGE(STATUS "Looking for glXGetProcAddressARB in GL/glx.h")
         TRY_COMPILE(VTK_GLX_GET_PROC_ADDRESS_ARB_PROTOTYPE_EXISTS
@@ -338,9 +333,8 @@ ENDIF(VTK_USE_GL2PS)
 IF (WIN32)
   IF(VTK_USE_X)
     IF (OPENGL_gl_LIBRARY)
-      SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
-                   vtkXOpenGLRenderWindow.cxx)
-      SET (KIT_LIBS ${KIT_LIBS} ${OPENGL_gl_LIBRARY} )
+      SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkXOpenGLRenderWindow.cxx)
+      SET(KIT_LIBS ${KIT_LIBS} ${OPENGL_gl_LIBRARY} )
     ENDIF (OPENGL_gl_LIBRARY)    
   ELSE(VTK_USE_X)
     SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
@@ -364,26 +358,22 @@ ELSE (WIN32)
                    vtkCarbonRenderWindow.cxx)
       SET (KIT_LIBS ${KIT_LIBS} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} "-framework Carbon")
     ENDIF(VTK_USE_CARBON)
-    IF(VTK_USE_X)
-      IF (OPENGL_gl_LIBRARY)
-        SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
-                     vtkXOpenGLRenderWindow.cxx)
-        SET (KIT_LIBS ${KIT_LIBS} "-lGL")
-      ENDIF (OPENGL_gl_LIBRARY)
-    ENDIF(VTK_USE_X)
+    IF(VTK_USE_X  AND  OPENGL_gl_LIBRARY)
+      SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkXOpenGLRenderWindow.cxx)
+      SET (KIT_LIBS ${KIT_LIBS} "-lGL")
+    ENDIF(VTK_USE_X  AND  OPENGL_gl_LIBRARY)
   ELSE (APPLE)
     IF (OPENGL_gl_LIBRARY)
-      SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
-                   vtkXOpenGLRenderWindow.cxx)
+      SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkXOpenGLRenderWindow.cxx)
       SET (KIT_LIBS ${KIT_LIBS} ${OPENGL_gl_LIBRARY} )
     ENDIF (OPENGL_gl_LIBRARY)
-    IF (VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY AND NOT OPENGL_gl_LIBRARY)
-      SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
-                   vtkOSOpenGLRenderWindow.cxx)
+    IF (VTK_OPENGL_HAS_OSMESA  AND  OSMESA_LIBRARY AND NOT OPENGL_gl_LIBRARY)
+      SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkOSOpenGLRenderWindow.cxx)
       SET (KIT_LIBS ${KIT_LIBS} ${OSMESA_LIBRARY} )
-    ENDIF (VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY AND NOT OPENGL_gl_LIBRARY)
+    ENDIF (VTK_OPENGL_HAS_OSMESA  AND  OSMESA_LIBRARY AND NOT OPENGL_gl_LIBRARY)
   ENDIF (APPLE)
 ENDIF (WIN32)
+
 IF(VTK_USE_CG_SHADERS)
   SET(KIT_LIBS ${KIT_LIBS} ${OPENGL_glu_LIBRARY})
 ENDIF(VTK_USE_CG_SHADERS)
@@ -421,17 +411,15 @@ IF (VTK_USE_MANGLED_MESA)
     ENDIF(MANGLED_OSMESA_LIBRARY)
   ENDIF (MANGLED_MESA_LIBRARY)
 ELSE (VTK_USE_MANGLED_MESA)
-  IF(VTK_OPENGL_HAS_OSMESA)
-    IF (OSMESA_LIBRARY)
-      SET(KIT_LIBS ${KIT_LIBS} ${OSMESA_LIBRARY})
-    ENDIF (OSMESA_LIBRARY)
-  ENDIF(VTK_OPENGL_HAS_OSMESA)
+  IF(VTK_OPENGL_HAS_OSMESA  AND  OSMESA_LIBRARY)
+    SET(KIT_LIBS ${KIT_LIBS} ${OSMESA_LIBRARY})
+  ENDIF(VTK_OPENGL_HAS_OSMESA  AND  OSMESA_LIBRARY)
 ENDIF(VTK_USE_MANGLED_MESA)
 SET(Kit_SRCS ${Kit_SRCS} ${KitOpenGL_SRCS})
 SET(Kit_EXTRA_SRCS ${Kit_FT_SRCS})
 
 IF(VTK_USE_GL2PS)
-SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${Kit_GL2PS_SRCS})
+  SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${Kit_GL2PS_SRCS})
 ENDIF(VTK_USE_GL2PS)
 
 SET(Kit_EXTRA_CMDS)
@@ -470,8 +458,7 @@ IF (VTK_WRAP_TCL AND VTK_USE_TK)
 
   # Use special interactor for X and Tk.
   IF(VTK_USE_X)
-    SET(KitTCL_SRCS ${KitTCL_SRCS}
-      vtkXRenderWindowTclInteractor.cxx)
+    SET(KitTCL_SRCS ${KitTCL_SRCS} vtkXRenderWindowTclInteractor.cxx)
   ENDIF(VTK_USE_X)
   SET(Kit_TCL_EXTRA_CMDS 
     vtkTkRenderWidget 
@@ -488,8 +475,7 @@ INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 IF(NOT CMAKE_CROSSCOMPILING)
   # Add target dependency to ensure the vtkParseOGLExt is built before
   # Rendering is.
-  ADD_DEPENDENCIES(vtk${KIT}
-    vtkParseOGLExt)
+  ADD_DEPENDENCIES(vtk${KIT} vtkParseOGLExt)
 ENDIF(NOT CMAKE_CROSSCOMPILING)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
