@@ -212,7 +212,7 @@ SET_SOURCE_FILES_PROPERTIES(
 SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkOpenGLFreeTypeTextMapper.cxx)
 
 SET(Kit_SRCS ${Kit_SRCS} vtkFreeTypeUtilities.cxx )
-SET_SOURCE_FILES_PROPERTIES(vtkFreeTypeUtilities.h PROPERTIES WRAP_EXCLUDE TRUE)
+SET_SOURCE_FILES_PROPERTIES(vtkFreeTypeUtilities WRAP_EXCLUDE)
 
 SET(Kit_FT_SRCS 
   fonts/face_arial.cxx
