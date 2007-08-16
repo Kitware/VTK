@@ -21,7 +21,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkViewTheme, "1.1");
+vtkCxxRevisionMacro(vtkViewTheme, "1.2");
 vtkStandardNewMacro(vtkViewTheme);
 
 vtkViewTheme::vtkViewTheme()
@@ -70,16 +70,16 @@ vtkViewTheme* vtkViewTheme::CreateOceanTheme()
   theme->SetPointValueRange(0.75, 0.75);
 
   theme->SetCellColor(0.25, 0.25, 0.25);
-  theme->SetCellOpacity(0.5);
+  theme->SetCellOpacity(0.3);
   theme->SetCellHueRange(0.667, 0);
-  theme->SetCellAlphaRange(0.5, 1);
+  theme->SetCellAlphaRange(0.3, 1);
   theme->SetCellValueRange(0.5, 1);
   theme->SetCellSaturationRange(0.5, 1);
   
   theme->SetOutlineColor(0,0,0);
 
-  theme->SetSelectedPointColor(.3, .3, .5);
-  theme->SetSelectedCellColor(.3, .3, .3);
+  theme->SetSelectedPointColor(.8, .3, .8);
+  theme->SetSelectedCellColor(.8, .3, .8);
 
   return theme;
 }
