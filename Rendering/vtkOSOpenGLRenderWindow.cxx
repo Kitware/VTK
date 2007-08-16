@@ -42,6 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLExtensionManager.h"
 
 #include "vtksys/SystemTools.hxx"
+#include "vtksys/ios/sstream"
 
 class vtkOSOpenGLRenderWindow;
 class vtkRenderWindow;
@@ -75,7 +76,7 @@ vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOSOpenGLRenderWindow, "1.2");
+vtkCxxRevisionMacro(vtkOSOpenGLRenderWindow, "1.3");
 vtkStandardNewMacro(vtkOSOpenGLRenderWindow);
 #endif
 
@@ -449,14 +450,16 @@ const char* vtkOSOpenGLRenderWindow::ReportCapabilities()
   const char *glVersion = (const char *) glGetString(GL_VERSION);
   const char *glExtensions = (const char *) glGetString(GL_EXTENSIONS);
 
-  ostrstream strm;
+  vtksys_ios::ostringstream strm;
   strm << "OpenGL vendor string:  " << glVendor << endl;
   strm << "OpenGL renderer string:  " << glRenderer << endl;
   strm << "OpenGL version string:  " << glVersion << endl;
   strm << "OpenGL extensions:  " << glExtensions << endl;
-  strm << ends;
   delete[] this->Capabilities;
-  this->Capabilities = strm.str();
+  size_t len = strm.str().length();
+  this->Capabilities = new char[len + 1];
+  strncpy(this->Capabilities, strm.str().c_str(), len);
+  this->Capabilities[len] = 0;
   return this->Capabilities;
 }
 
