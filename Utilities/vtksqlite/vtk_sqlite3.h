@@ -32,8 +32,8 @@
 **
 ** @(#) Id
 */
-#ifndef _SQLITE3_H_
-#define _SQLITE3_H_
+#ifndef _VTK_SQLITE3_H_
+#define _VTK_SQLITE3_H_
 #include <stdarg.h>     /* Needed for the definition of va_list */
 
 /*
@@ -47,18 +47,18 @@ extern "C" {
 ** Make sure these symbols where not defined by some previous header
 ** file.
 */
-#ifdef SQLITE_VERSION
-# undef SQLITE_VERSION
+#ifdef VTK_SQLITE_VERSION
+# undef VTK_SQLITE_VERSION
 #endif
-#ifdef SQLITE_VERSION_NUMBER
-# undef SQLITE_VERSION_NUMBER
+#ifdef VTK_SQLITE_VERSION_NUMBER
+# undef VTK_SQLITE_VERSION_NUMBER
 #endif
 
 /*
 ** CAPI3REF: Compile-Time Library Version Numbers
 **
-** The version of the SQLite library is contained in the sqlite3.h
-** header file in a #define named SQLITE_VERSION.  The SQLITE_VERSION
+** The version of the SQLite library is contained in the vtk_sqlite3.h
+** header file in a #define named VTK_SQLITE_VERSION.  The VTK_SQLITE_VERSION
 ** macro resolves to a string constant.
 **
 ** The format of the version string is "X.Y.Z", where
@@ -73,49 +73,49 @@ extern "C" {
 ** but not backwards compatible.  The Z value is incremented with
 ** each release but resets back to 0 when Y is incremented.
 **
-** The SQLITE_VERSION_NUMBER is an integer with the value 
+** The VTK_SQLITE_VERSION_NUMBER is an integer with the value 
 ** (X*1000000 + Y*1000 + Z). For example, for version "3.1.1beta", 
-** SQLITE_VERSION_NUMBER is set to 3001001. To detect if they are using 
+** VTK_SQLITE_VERSION_NUMBER is set to 3001001. To detect if they are using 
 ** version 3.1.1 or greater at compile time, programs may use the test 
-** (SQLITE_VERSION_NUMBER>=3001001).
+** (VTK_SQLITE_VERSION_NUMBER>=3001001).
 **
-** See also: [sqlite3_libversion()] and [sqlite3_libversion_number()].
+** See also: [vtk_sqlite3_libversion()] and [vtk_sqlite3_libversion_number()].
 */
-#define SQLITE_VERSION         "3.4.1"
-#define SQLITE_VERSION_NUMBER 3004001
+#define VTK_SQLITE_VERSION         "3.4.1"
+#define VTK_SQLITE_VERSION_NUMBER 3004001
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
 **
 ** These routines return values equivalent to the header constants
-** [SQLITE_VERSION] and [SQLITE_VERSION_NUMBER].  The values returned
+** [VTK_SQLITE_VERSION] and [VTK_SQLITE_VERSION_NUMBER].  The values returned
 ** by this routines should only be different from the header values
-** if you compile your program using an sqlite3.h header from a
+** if you compile your program using an vtk_sqlite3.h header from a
 ** different version of SQLite that the version of the library you
 ** link against.
 **
-** The sqlite3_version[] string constant contains the text of the
-** [SQLITE_VERSION] string.  The sqlite3_libversion() function returns
-** a poiner to the sqlite3_version[] string constant.  The function
+** The vtk_sqlite3_version[] string constant contains the text of the
+** [VTK_SQLITE_VERSION] string.  The vtk_sqlite3_libversion() function returns
+** a poiner to the vtk_sqlite3_version[] string constant.  The function
 ** is provided for DLL users who can only access functions and not
 ** constants within the DLL.
 */
-extern const char sqlite3_version[];
-const char *sqlite3_libversion(void);
-int sqlite3_libversion_number(void);
+extern const char vtk_sqlite3_version[];
+const char *vtk_sqlite3_libversion(void);
+int vtk_sqlite3_libversion_number(void);
 
 /*
 ** CAPI3REF: Database Connection Handle
 **
 ** Each open SQLite database is represented by pointer to an instance of the
-** opaque structure named "sqlite3".  It is useful to think of an sqlite3
-** pointer as an object.  The [sqlite3_open] interface is its constructor
-** and [sqlite3_close] is its destructor.  There are many other interfaces
-** (such as [sqlite3_prepare_v2], [sqlite3_create_function], and
-** [sqlite3_busy_timeout] to name but three) that are methods on this
+** opaque structure named "vtk_sqlite3".  It is useful to think of an vtk_sqlite3
+** pointer as an object.  The [vtk_sqlite3_open] interface is its constructor
+** and [vtk_sqlite3_close] is its destructor.  There are many other interfaces
+** (such as [vtk_sqlite3_prepare_v2], [vtk_sqlite3_create_function], and
+** [vtk_sqlite3_busy_timeout] to name but three) that are methods on this
 ** object.
 */
-typedef struct sqlite3 sqlite3;
+typedef struct vtk_sqlite3 vtk_sqlite3;
 
 
 /*
@@ -127,45 +127,45 @@ typedef struct sqlite3 sqlite3;
 ** Many SQLite interface functions require a 64-bit integer arguments.
 ** Those interfaces are declared using this typedef.
 */
-#ifdef SQLITE_INT64_TYPE
-  typedef SQLITE_INT64_TYPE sqlite_int64;
-  typedef unsigned SQLITE_INT64_TYPE sqlite_uint64;
+#ifdef VTK_SQLITE_INT64_TYPE
+  typedef VTK_SQLITE_INT64_TYPE vtk_sqlite_int64;
+  typedef unsigned VTK_SQLITE_INT64_TYPE vtk_sqlite_uint64;
 #elif defined(_MSC_VER) || defined(__BORLANDC__)
-  typedef __int64 sqlite_int64;
-  typedef unsigned __int64 sqlite_uint64;
+  typedef __int64 vtk_sqlite_int64;
+  typedef unsigned __int64 vtk_sqlite_uint64;
 #else
-  typedef long long int sqlite_int64;
-  typedef unsigned long long int sqlite_uint64;
+  typedef long long int vtk_sqlite_int64;
+  typedef unsigned long long int vtk_sqlite_uint64;
 #endif
 
 /*
 ** If compiling for a processor that lacks floating point support,
 ** substitute integer for floating-point
 */
-#ifdef SQLITE_OMIT_FLOATING_POINT
-# define double sqlite_int64
+#ifdef VTK_SQLITE_OMIT_FLOATING_POINT
+# define double vtk_sqlite_int64
 #endif
 
 /*
 ** CAPI3REF: Closing A Database Connection
 **
 ** Call this function with a pointer to a structure that was previously
-** returned from [sqlite3_open()] and the corresponding database will by
+** returned from [vtk_sqlite3_open()] and the corresponding database will by
 ** closed.
 **
-** All SQL statements prepared using [sqlite3_prepare_v2()] or
-** [sqlite3_prepare16_v2()] must be destroyed using [sqlite3_finalize()]
-** before this routine is called. Otherwise, SQLITE_BUSY is returned and the
+** All SQL statements prepared using [vtk_sqlite3_prepare_v2()] or
+** [vtk_sqlite3_prepare16_v2()] must be destroyed using [vtk_sqlite3_finalize()]
+** before this routine is called. Otherwise, VTK_SQLITE_BUSY is returned and the
 ** database connection remains open.
 */
-int sqlite3_close(sqlite3 *);
+int vtk_sqlite3_close(vtk_sqlite3 *);
 
 /*
 ** The type for a callback function.
 ** This is legacy and deprecated.  It is included for historical
 ** compatibility and is not documented.
 */
-typedef int (*sqlite3_callback)(void*,int,char**, char**);
+typedef int (*vtk_sqlite3_callback)(void*,int,char**, char**);
 
 /*
 ** CAPI3REF: One-Step Query Execution Interface
@@ -173,15 +173,15 @@ typedef int (*sqlite3_callback)(void*,int,char**, char**);
 ** This interface is used to do a one-time evaluatation of zero
 ** or more SQL statements.  UTF-8 text of the SQL statements to
 ** be evaluted is passed in as the second parameter.  The statements
-** are prepared one by one using [sqlite3_prepare()], evaluated
-** using [sqlite3_step()], then destroyed using [sqlite3_finalize()].
+** are prepared one by one using [vtk_sqlite3_prepare()], evaluated
+** using [vtk_sqlite3_step()], then destroyed using [vtk_sqlite3_finalize()].
 **
 ** If one or more of the SQL statements are queries, then
 ** the callback function specified by the 3rd parameter is
 ** invoked once for each row of the query result.  This callback
 ** should normally return 0.  If the callback returns a non-zero
 ** value then the query is aborted, all subsequent SQL statements
-** are skipped and the sqlite3_exec() function returns the SQLITE_ABORT.
+** are skipped and the vtk_sqlite3_exec() function returns the VTK_SQLITE_ABORT.
 **
 ** The 4th parameter to this interface is an arbitrary pointer that is
 ** passed through to the callback function as its first parameter.
@@ -189,9 +189,9 @@ typedef int (*sqlite3_callback)(void*,int,char**, char**);
 ** The 2nd parameter to the callback function is the number of
 ** columns in the query result.  The 3rd parameter to the callback
 ** is an array of strings holding the values for each column
-** as extracted using [sqlite3_column_text()].
+** as extracted using [vtk_sqlite3_column_text()].
 ** The 4th parameter to the callback is an array of strings
-** obtained using [sqlite3_column_name()] and holding
+** obtained using [vtk_sqlite3_column_name()] and holding
 ** the names of each column.
 **
 ** The callback function may be NULL, even for queries.  A NULL
@@ -200,19 +200,19 @@ typedef int (*sqlite3_callback)(void*,int,char**, char**);
 **
 ** If an error occurs while parsing or evaluating the SQL (but
 ** not while executing the callback) then an appropriate error
-** message is written into memory obtained from [sqlite3_malloc()] and
+** message is written into memory obtained from [vtk_sqlite3_malloc()] and
 ** *errmsg is made to point to that message.  The calling function
 ** is responsible for freeing the memory that holds the error
-** message.   Use [sqlite3_free()] for this.  If errmsg==NULL,
+** message.   Use [vtk_sqlite3_free()] for this.  If errmsg==NULL,
 ** then no error message is ever written.
 **
-** The return value is is SQLITE_OK if there are no errors and
-** some other [SQLITE_OK | return code] if there is an error.  
+** The return value is is VTK_SQLITE_OK if there are no errors and
+** some other [VTK_SQLITE_OK | return code] if there is an error.  
 ** The particular return value depends on the type of error. 
 **
 */
-int sqlite3_exec(
-  sqlite3*,                                  /* An open database */
+int vtk_sqlite3_exec(
+  vtk_sqlite3*,                                  /* An open database */
   const char *sql,                           /* SQL to be evaluted */
   int (*callback)(void*,int,char**,char**),  /* Callback function */
   void *,                                    /* 1st argument to callback */
@@ -221,49 +221,49 @@ int sqlite3_exec(
 
 /*
 ** CAPI3REF: Result Codes
-** KEYWORDS: SQLITE_OK
+** KEYWORDS: VTK_SQLITE_OK
 **
 ** Many SQLite functions return an integer result code from the set shown
 ** above in order to indicates success or failure.
 **
 ** The result codes above are the only ones returned by SQLite in its
-** default configuration.  However, the [sqlite3_extended_result_codes()]
+** default configuration.  However, the [vtk_sqlite3_extended_result_codes()]
 ** API can be used to set a database connectoin to return more detailed
 ** result codes.
 **
-** See also: [SQLITE_IOERR_READ | extended result codes]
+** See also: [VTK_SQLITE_IOERR_READ | extended result codes]
 **
 */
-#define SQLITE_OK           0   /* Successful result */
+#define VTK_SQLITE_OK           0   /* Successful result */
 /* beginning-of-error-codes */
-#define SQLITE_ERROR        1   /* SQL error or missing database */
-#define SQLITE_INTERNAL     2   /* NOT USED. Internal logic error in SQLite */
-#define SQLITE_PERM         3   /* Access permission denied */
-#define SQLITE_ABORT        4   /* Callback routine requested an abort */
-#define SQLITE_BUSY         5   /* The database file is locked */
-#define SQLITE_LOCKED       6   /* A table in the database is locked */
-#define SQLITE_NOMEM        7   /* A malloc() failed */
-#define SQLITE_READONLY     8   /* Attempt to write a readonly database */
-#define SQLITE_INTERRUPT    9   /* Operation terminated by sqlite3_interrupt()*/
-#define SQLITE_IOERR       10   /* Some kind of disk I/O error occurred */
-#define SQLITE_CORRUPT     11   /* The database disk image is malformed */
-#define SQLITE_NOTFOUND    12   /* NOT USED. Table or record not found */
-#define SQLITE_FULL        13   /* Insertion failed because database is full */
-#define SQLITE_CANTOPEN    14   /* Unable to open the database file */
-#define SQLITE_PROTOCOL    15   /* NOT USED. Database lock protocol error */
-#define SQLITE_EMPTY       16   /* Database is empty */
-#define SQLITE_SCHEMA      17   /* The database schema changed */
-#define SQLITE_TOOBIG      18   /* String or BLOB exceeds size limit */
-#define SQLITE_CONSTRAINT  19   /* Abort due to contraint violation */
-#define SQLITE_MISMATCH    20   /* Data type mismatch */
-#define SQLITE_MISUSE      21   /* Library used incorrectly */
-#define SQLITE_NOLFS       22   /* Uses OS features not supported on host */
-#define SQLITE_AUTH        23   /* Authorization denied */
-#define SQLITE_FORMAT      24   /* Auxiliary database format error */
-#define SQLITE_RANGE       25   /* 2nd parameter to sqlite3_bind out of range */
-#define SQLITE_NOTADB      26   /* File opened that is not a database file */
-#define SQLITE_ROW         100  /* sqlite3_step() has another row ready */
-#define SQLITE_DONE        101  /* sqlite3_step() has finished executing */
+#define VTK_SQLITE_ERROR        1   /* SQL error or missing database */
+#define VTK_SQLITE_INTERNAL     2   /* NOT USED. Internal logic error in Vtk_Sqlite */
+#define VTK_SQLITE_PERM         3   /* Access permission denied */
+#define VTK_SQLITE_ABORT        4   /* Callback routine requested an abort */
+#define VTK_SQLITE_BUSY         5   /* The database file is locked */
+#define VTK_SQLITE_LOCKED       6   /* A table in the database is locked */
+#define VTK_SQLITE_NOMEM        7   /* A malloc() failed */
+#define VTK_SQLITE_READONLY     8   /* Attempt to write a readonly database */
+#define VTK_SQLITE_INTERRUPT    9   /* Operation terminated by vtk_sqlite3_interrupt()*/
+#define VTK_SQLITE_IOERR       10   /* Some kind of disk I/O error occurred */
+#define VTK_SQLITE_CORRUPT     11   /* The database disk image is malformed */
+#define VTK_SQLITE_NOTFOUND    12   /* NOT USED. Table or record not found */
+#define VTK_SQLITE_FULL        13   /* Insertion failed because database is full */
+#define VTK_SQLITE_CANTOPEN    14   /* Unable to open the database file */
+#define VTK_SQLITE_PROTOCOL    15   /* NOT USED. Database lock protocol error */
+#define VTK_SQLITE_EMPTY       16   /* Database is empty */
+#define VTK_SQLITE_SCHEMA      17   /* The database schema changed */
+#define VTK_SQLITE_TOOBIG      18   /* String or BLOB exceeds size limit */
+#define VTK_SQLITE_CONSTRAINT  19   /* Abort due to contraint violation */
+#define VTK_SQLITE_MISMATCH    20   /* Data type mismatch */
+#define VTK_SQLITE_MISUSE      21   /* Library used incorrectly */
+#define VTK_SQLITE_NOLFS       22   /* Uses OS features not supported on host */
+#define VTK_SQLITE_AUTH        23   /* Authorization denied */
+#define VTK_SQLITE_FORMAT      24   /* Auxiliary database format error */
+#define VTK_SQLITE_RANGE       25   /* 2nd parameter to vtk_sqlite3_bind out of range */
+#define VTK_SQLITE_NOTADB      26   /* File opened that is not a database file */
+#define VTK_SQLITE_ROW         100  /* vtk_sqlite3_step() has another row ready */
+#define VTK_SQLITE_DONE        101  /* vtk_sqlite3_step() has finished executing */
 /* end-of-error-codes */
 
 /*
@@ -277,7 +277,7 @@ int sqlite3_exec(
 ** support for additional result codes that provide more detailed information
 ** about errors.  The extended result codes are enabled (or disabled) for 
 ** each database
-** connection using the [sqlite3_extended_result_codes()] API.
+** connection using the [vtk_sqlite3_extended_result_codes()] API.
 ** 
 ** Some of the available extended result codes are listed above.
 ** We expect the number of extended result codes will be expand
@@ -290,28 +290,28 @@ int sqlite3_exec(
 ** The numeric value of an extended result code can be converted to its
 ** corresponding primary result code by masking off the lower 8 bytes.
 **
-** The SQLITE_OK result code will never be extended.  It will always
+** The VTK_SQLITE_OK result code will never be extended.  It will always
 ** be exactly zero.
 */
-#define SQLITE_IOERR_READ          (SQLITE_IOERR | (1<<8))
-#define SQLITE_IOERR_SHORT_READ    (SQLITE_IOERR | (2<<8))
-#define SQLITE_IOERR_WRITE         (SQLITE_IOERR | (3<<8))
-#define SQLITE_IOERR_FSYNC         (SQLITE_IOERR | (4<<8))
-#define SQLITE_IOERR_DIR_FSYNC     (SQLITE_IOERR | (5<<8))
-#define SQLITE_IOERR_TRUNCATE      (SQLITE_IOERR | (6<<8))
-#define SQLITE_IOERR_FSTAT         (SQLITE_IOERR | (7<<8))
-#define SQLITE_IOERR_UNLOCK        (SQLITE_IOERR | (8<<8))
-#define SQLITE_IOERR_RDLOCK        (SQLITE_IOERR | (9<<8))
-#define SQLITE_IOERR_DELETE        (SQLITE_IOERR | (10<<8))
-#define SQLITE_IOERR_BLOCKED       (SQLITE_IOERR | (11<<8))
+#define VTK_SQLITE_IOERR_READ          (VTK_SQLITE_IOERR | (1<<8))
+#define VTK_SQLITE_IOERR_SHORT_READ    (VTK_SQLITE_IOERR | (2<<8))
+#define VTK_SQLITE_IOERR_WRITE         (VTK_SQLITE_IOERR | (3<<8))
+#define VTK_SQLITE_IOERR_FSYNC         (VTK_SQLITE_IOERR | (4<<8))
+#define VTK_SQLITE_IOERR_DIR_FSYNC     (VTK_SQLITE_IOERR | (5<<8))
+#define VTK_SQLITE_IOERR_TRUNCATE      (VTK_SQLITE_IOERR | (6<<8))
+#define VTK_SQLITE_IOERR_FSTAT         (VTK_SQLITE_IOERR | (7<<8))
+#define VTK_SQLITE_IOERR_UNLOCK        (VTK_SQLITE_IOERR | (8<<8))
+#define VTK_SQLITE_IOERR_RDLOCK        (VTK_SQLITE_IOERR | (9<<8))
+#define VTK_SQLITE_IOERR_DELETE        (VTK_SQLITE_IOERR | (10<<8))
+#define VTK_SQLITE_IOERR_BLOCKED       (VTK_SQLITE_IOERR | (11<<8))
 
 /*
 ** CAPI3REF: Enable Or Disable Extended Result Codes
 **
 ** This routine enables or disables the
-** [SQLITE_IOERR_READ | extended result codes] feature.
+** [VTK_SQLITE_IOERR_READ | extended result codes] feature.
 ** By default, SQLite API routines return one of only 26 integer
-** [SQLITE_OK | result codes].  When extended result codes
+** [VTK_SQLITE_OK | result codes].  When extended result codes
 ** are enabled by this routine, the repetoire of result codes can be
 ** much larger and can (hopefully) provide more detailed information
 ** about the cause of an error.
@@ -320,7 +320,7 @@ int sqlite3_exec(
 ** codes on and off.  Extended result codes are off by default for
 ** backwards compatibility with older versions of SQLite.
 */
-int sqlite3_extended_result_codes(sqlite3*, int onoff);
+int vtk_sqlite3_extended_result_codes(vtk_sqlite3*, int onoff);
 
 /*
 ** CAPI3REF: Last Insert Rowid
@@ -342,7 +342,7 @@ int sqlite3_extended_result_codes(sqlite3*, int onoff);
 ** by this routine reverts to the last value inserted before the
 ** trigger fired.
 */
-sqlite_int64 sqlite3_last_insert_rowid(sqlite3*);
+vtk_sqlite_int64 vtk_sqlite3_last_insert_rowid(vtk_sqlite3*);
 
 /*
 ** CAPI3REF: Count The Number Of Rows Modified
@@ -351,10 +351,10 @@ sqlite_int64 sqlite3_last_insert_rowid(sqlite3*);
 ** (or inserted or deleted) by the most recent SQL statement.  Only
 ** changes that are directly specified by the INSERT, UPDATE, or
 ** DELETE statement are counted.  Auxiliary changes caused by
-** triggers are not counted.  Use the [sqlite3_total_changes()] function
+** triggers are not counted.  Use the [vtk_sqlite3_total_changes()] function
 ** to find the total number of changes including changes caused by triggers.
 **
-** Within the body of a trigger, the sqlite3_changes() interface can be
+** Within the body of a trigger, the vtk_sqlite3_changes() interface can be
 ** called to find the number of
 ** changes in the most recently completed INSERT, UPDATE, or DELETE
 ** statement within the body of the trigger.
@@ -363,7 +363,7 @@ sqlite_int64 sqlite3_last_insert_rowid(sqlite3*);
 ** ROLLBACK or ABORT.  Except, changes associated with creating and
 ** dropping tables are not counted.
 **
-** If a callback invokes [sqlite3_exec()] or [sqlite3_step()] recursively,
+** If a callback invokes [vtk_sqlite3_exec()] or [vtk_sqlite3_step()] recursively,
 ** then the changes in the inner, recursive call are counted together
 ** with the changes in the outer call.
 **
@@ -375,7 +375,7 @@ sqlite_int64 sqlite3_last_insert_rowid(sqlite3*);
 ** table. To get an accurate count of the number of rows deleted, use
 ** "DELETE FROM table WHERE 1" instead.
 */
-int sqlite3_changes(sqlite3*);
+int vtk_sqlite3_changes(vtk_sqlite3*);
 
 /*
 ** CAPI3REF: Total Number Of Rows Modified
@@ -385,9 +385,9 @@ int sqlite3_changes(sqlite3*);
 ** was opened. This includes UPDATE, INSERT and DELETE statements executed
 ** as part of trigger programs. All changes are counted as soon as the
 ** statement that makes them is completed (when the statement handle is
-** passed to [sqlite3_reset()] or [sqlite_finalise()]).
+** passed to [vtk_sqlite3_reset()] or [vtk_sqlite_finalise()]).
 **
-** See also the [sqlite3_change()] interface.
+** See also the [vtk_sqlite3_change()] interface.
 **
 ** SQLite implements the command "DELETE FROM table" without a WHERE clause
 ** by dropping and recreating the table.  (This is much faster than going
@@ -397,7 +397,7 @@ int sqlite3_changes(sqlite3*);
 ** table. To get an accurate count of the number of rows deleted, use
 ** "DELETE FROM table WHERE 1" instead.
 */
-int sqlite3_total_changes(sqlite3*);
+int vtk_sqlite3_total_changes(vtk_sqlite3*);
 
 /*
 ** CAPI3REF: Interrupt A Long-Running Query
@@ -411,20 +411,20 @@ int sqlite3_total_changes(sqlite3*);
 ** It is safe to call this routine from a thread different from the
 ** thread that is currently running the database operation.
 **
-** The SQL operation that is interrupted will return [SQLITE_INTERRUPT].
+** The SQL operation that is interrupted will return [VTK_SQLITE_INTERRUPT].
 ** If an interrupted operation was an update that is inside an
 ** explicit transaction, then the entire transaction will be rolled
 ** back automatically.
 */
-void sqlite3_interrupt(sqlite3*);
+void vtk_sqlite3_interrupt(vtk_sqlite3*);
 
 /*
 ** CAPI3REF: Determine If An SQL Statement Is Complete
 **
 ** These functions return true if the given input string comprises
-** one or more complete SQL statements. For the sqlite3_complete() call,
+** one or more complete SQL statements. For the vtk_sqlite3_complete() call,
 ** the parameter must be a nul-terminated UTF-8 string. For
-** sqlite3_complete16(), a nul-terminated machine byte order UTF-16 string
+** vtk_sqlite3_complete16(), a nul-terminated machine byte order UTF-16 string
 ** is required.
 **
 ** These routines are useful for command-line input to determine if the
@@ -436,17 +436,17 @@ void sqlite3_interrupt(sqlite3*);
 ** in order to deal with triggers, but the basic idea is the same:  the
 ** statement is not complete unless it ends in a semicolon.
 */
-int sqlite3_complete(const char *sql);
-int sqlite3_complete16(const void *sql);
+int vtk_sqlite3_complete(const char *sql);
+int vtk_sqlite3_complete16(const void *sql);
 
 /*
-** CAPI3REF: Register A Callback To Handle SQLITE_BUSY Errors
+** CAPI3REF: Register A Callback To Handle VTK_SQLITE_BUSY Errors
 **
 ** This routine identifies a callback function that might be invoked
 ** whenever an attempt is made to open a database table 
 ** that another thread or process has locked.
-** If the busy callback is NULL, then [SQLITE_BUSY]
-** (or sometimes [SQLITE_IOERR_BLOCKED])
+** If the busy callback is NULL, then [VTK_SQLITE_BUSY]
+** (or sometimes [VTK_SQLITE_IOERR_BLOCKED])
 ** is returned immediately upon encountering the lock.
 ** If the busy callback is not NULL, then the
 ** callback will be invoked with two arguments.  The
@@ -455,14 +455,14 @@ int sqlite3_complete16(const void *sql);
 ** the handler is the number of times that the busy handler has
 ** been invoked for this locking event. If the
 ** busy callback returns 0, then no additional attempts are made to
-** access the database and [SQLITE_BUSY] or [SQLITE_IOERR_BLOCKED] is returned.
+** access the database and [VTK_SQLITE_BUSY] or [VTK_SQLITE_IOERR_BLOCKED] is returned.
 ** If the callback returns non-zero, then another attempt is made to open the
 ** database for reading and the cycle repeats.
 **
 ** The presence of a busy handler does not guarantee that
 ** it will be invoked when there is lock contention.
 ** If SQLite determines that invoking the busy handler could result in
-** a deadlock, it will return [SQLITE_BUSY] instead.
+** a deadlock, it will return [VTK_SQLITE_BUSY] instead.
 ** Consider a scenario where one process is holding a read lock that
 ** it is trying to promote to a reserved lock and
 ** a second process is holding a reserved lock that it is trying
@@ -470,13 +470,13 @@ int sqlite3_complete16(const void *sql);
 ** because it is blocked by the second and the second process cannot
 ** proceed because it is blocked by the first.  If both processes
 ** invoke the busy handlers, neither will make any progress.  Therefore,
-** SQLite returns [SQLITE_BUSY] for the first process, hoping that this
+** SQLite returns [VTK_SQLITE_BUSY] for the first process, hoping that this
 ** will induce the first process to release its read lock and allow
 ** the second process to proceed.
 **
 ** The default busy callback is NULL.
 **
-** The [SQLITE_BUSY] error is converted to [SQLITE_IOERR_BLOCKED] when
+** The [VTK_SQLITE_BUSY] error is converted to [VTK_SQLITE_IOERR_BLOCKED] when
 ** SQLite is in the middle of a large transaction where all the
 ** changes will not fit into the in-memory cache.  SQLite will
 ** already hold a RESERVED lock on the database file, but it needs
@@ -484,8 +484,8 @@ int sqlite3_complete16(const void *sql);
 ** pages into the database file without harm to concurrent
 ** readers.  If it is unable to promote the lock, then the in-memory
 ** cache will be left in an inconsistent state and so the error
-** code is promoted from the relatively benign [SQLITE_BUSY] to
-** the more severe [SQLITE_IOERR_BLOCKED].  This error code promotion
+** code is promoted from the relatively benign [VTK_SQLITE_BUSY] to
+** the more severe [VTK_SQLITE_IOERR_BLOCKED].  This error code promotion
 ** forces an automatic rollback of the changes. See the
 ** <a href="http://www.sqlite.org/cvstrac/wiki?p=CorruptionFollowingBusyError">
 ** CorruptionFollowingBusyError</a> wiki page for a discussion of why
@@ -500,10 +500,10 @@ int sqlite3_complete16(const void *sql);
 **
 ** There can only be a single busy handler defined for each database
 ** connection.  Setting a new busy handler clears any previous one.
-** Note that calling [sqlite3_busy_timeout()] will also set or clear
+** Note that calling [vtk_sqlite3_busy_timeout()] will also set or clear
 ** the busy handler.
 */
-int sqlite3_busy_handler(sqlite3*, int(*)(void*,int), void*);
+int vtk_sqlite3_busy_handler(vtk_sqlite3*, int(*)(void*,int), void*);
 
 /*
 ** CAPI3REF: Set A Busy Timeout
@@ -512,25 +512,25 @@ int sqlite3_busy_handler(sqlite3*, int(*)(void*,int), void*);
 ** table is locked.  The handler will sleep multiple times until 
 ** at least "ms" milliseconds of sleeping have been done.  After
 ** "ms" milliseconds of sleeping, the handler returns 0 which
-** causes [sqlite3_step()] to return [SQLITE_BUSY] or [SQLITE_IOERR_BLOCKED].
+** causes [vtk_sqlite3_step()] to return [VTK_SQLITE_BUSY] or [VTK_SQLITE_IOERR_BLOCKED].
 **
 ** Calling this routine with an argument less than or equal to zero
 ** turns off all busy handlers.
 **
 ** There can only be a single busy handler for a particular database
 ** connection.  If another busy handler was defined  
-** (using [sqlite3_busy_handler()]) prior to calling
+** (using [vtk_sqlite3_busy_handler()]) prior to calling
 ** this routine, that other busy handler is cleared.
 */
-int sqlite3_busy_timeout(sqlite3*, int ms);
+int vtk_sqlite3_busy_timeout(vtk_sqlite3*, int ms);
 
 /*
 ** CAPI3REF: Convenience Routines For Running Queries
 **
-** This next routine is a convenience wrapper around [sqlite3_exec()].
+** This next routine is a convenience wrapper around [vtk_sqlite3_exec()].
 ** Instead of invoking a user-supplied callback for each row of the
 ** result, this routine remembers each row of the result in memory
-** obtained from [sqlite3_malloc()], then returns all of the result after the
+** obtained from [vtk_sqlite3_malloc()], then returns all of the result after the
 ** query has finished. 
 **
 ** As an example, suppose the query result where this table:
@@ -563,23 +563,23 @@ int sqlite3_busy_timeout(sqlite3*, int ms);
 ** will be ((*nrow) + 1)*(*ncolumn).
 **
 ** After the calling function has finished using the result, it should 
-** pass the result data pointer to sqlite3_free_table() in order to 
+** pass the result data pointer to vtk_sqlite3_free_table() in order to 
 ** release the memory that was malloc-ed.  Because of the way the 
-** [sqlite3_malloc()] happens, the calling function must not try to call 
-** [sqlite3_free()] directly.  Only [sqlite3_free_table()] is able to release 
+** [vtk_sqlite3_malloc()] happens, the calling function must not try to call 
+** [vtk_sqlite3_free()] directly.  Only [vtk_sqlite3_free_table()] is able to release 
 ** the memory properly and safely.
 **
-** The return value of this routine is the same as from [sqlite3_exec()].
+** The return value of this routine is the same as from [vtk_sqlite3_exec()].
 */
-int sqlite3_get_table(
-  sqlite3*,              /* An open database */
+int vtk_sqlite3_get_table(
+  vtk_sqlite3*,              /* An open database */
   const char *sql,       /* SQL to be executed */
   char ***resultp,       /* Result written to a char *[]  that this points to */
   int *nrow,             /* Number of result rows written here */
   int *ncolumn,          /* Number of result columns written here */
   char **errmsg          /* Error msg written here */
 );
-void sqlite3_free_table(char **result);
+void vtk_sqlite3_free_table(char **result);
 
 /*
 ** CAPI3REF: Formatted String Printing Functions
@@ -587,27 +587,27 @@ void sqlite3_free_table(char **result);
 ** These routines are workalikes of the "printf()" family of functions
 ** from the standard C library.
 **
-** The sqlite3_mprintf() and sqlite3_vmprintf() routines write their
-** results into memory obtained from [sqlite_malloc()].
+** The vtk_sqlite3_mprintf() and vtk_sqlite3_vmprintf() routines write their
+** results into memory obtained from [vtk_sqlite_malloc()].
 ** The strings returned by these two routines should be
-** released by [sqlite3_free()].  Both routines return a
-** NULL pointer if [sqlite3_malloc()] is unable to allocate enough
+** released by [vtk_sqlite3_free()].  Both routines return a
+** NULL pointer if [vtk_sqlite3_malloc()] is unable to allocate enough
 ** memory to hold the resulting string.
 **
-** In sqlite3_snprintf() routine is similar to "snprintf()" from
+** In vtk_sqlite3_snprintf() routine is similar to "snprintf()" from
 ** the standard C library.  The result is written into the
 ** buffer supplied as the second parameter whose size is given by
 ** the first parameter.  Note that the order of the
 ** first two parameters is reversed from snprintf().  This is an
 ** historical accident that cannot be fixed without breaking
-** backwards compatibility.  Note also that sqlite3_snprintf()
+** backwards compatibility.  Note also that vtk_sqlite3_snprintf()
 ** returns a pointer to its buffer instead of the number of
 ** characters actually written into the buffer.  We admit that
 ** the number of characters written would be a more useful return
-** value but we cannot change the implementation of sqlite3_snprintf()
+** value but we cannot change the implementation of vtk_sqlite3_snprintf()
 ** now without breaking compatibility.
 **
-** As long as the buffer size is greater than zero, sqlite3_snprintf()
+** As long as the buffer size is greater than zero, vtk_sqlite3_snprintf()
 ** guarantees that the buffer is always zero-terminated.  The first
 ** parameter "n" is the total size of the buffer, including space for
 ** the zero terminator.  So the longest string that can be completely
@@ -633,9 +633,9 @@ void sqlite3_free_table(char **result);
 ** One can use this text in an SQL statement as follows:
 **
 ** <blockquote><pre>
-**  char *zSQL = sqlite3_mprintf("INSERT INTO table VALUES('%q')", zText);
-**  sqlite3_exec(db, zSQL, 0, 0, 0);
-**  sqlite3_free(zSQL);
+**  char *zSQL = vtk_sqlite3_mprintf("INSERT INTO table VALUES('%q')", zText);
+**  vtk_sqlite3_exec(db, zSQL, 0, 0, 0);
+**  vtk_sqlite3_free(zSQL);
 ** </pre></blockquote>
 **
 ** Because the %q format string is used, the '\'' character in zText
@@ -662,17 +662,17 @@ void sqlite3_free_table(char **result);
 ** quotes) in place of the %Q option.  So, for example, one could say:
 **
 ** <blockquote><pre>
-**  char *zSQL = sqlite3_mprintf("INSERT INTO table VALUES(%Q)", zText);
-**  sqlite3_exec(db, zSQL, 0, 0, 0);
-**  sqlite3_free(zSQL);
+**  char *zSQL = vtk_sqlite3_mprintf("INSERT INTO table VALUES(%Q)", zText);
+**  vtk_sqlite3_exec(db, zSQL, 0, 0, 0);
+**  vtk_sqlite3_free(zSQL);
 ** </pre></blockquote>
 **
 ** The code above will render a correct SQL statement in the zSQL
 ** variable even if the zText variable is a NULL pointer.
 */
-char *sqlite3_mprintf(const char*,...);
-char *sqlite3_vmprintf(const char*, va_list);
-char *sqlite3_snprintf(int,char*,const char*, ...);
+char *vtk_sqlite3_mprintf(const char*,...);
+char *vtk_sqlite3_vmprintf(const char*, va_list);
+char *vtk_sqlite3_snprintf(int,char*,const char*, ...);
 
 /*
 ** CAPI3REF: Memory Allocation Functions
@@ -683,40 +683,40 @@ char *sqlite3_snprintf(int,char*,const char*, ...);
 ** different.  For maximum portability, it is best not to mix calls
 ** to the standard malloc/realloc/free with the sqlite versions.
 */
-void *sqlite3_malloc(int);
-void *sqlite3_realloc(void*, int);
-void sqlite3_free(void*);
+void *vtk_sqlite3_malloc(int);
+void *vtk_sqlite3_realloc(void*, int);
+void vtk_sqlite3_free(void*);
 
 /*
 ** CAPI3REF: Compile-Time Authorization Callbacks
 ***
 ** This routine registers a authorizer callback with the SQLite library.  
 ** The authorizer callback is invoked as SQL statements are being compiled
-** by [sqlite3_prepare()] or its variants [sqlite3_prepare_v2()],
-** [sqlite3_prepare16()] and [sqlite3_prepare16_v2()].  At various
+** by [vtk_sqlite3_prepare()] or its variants [vtk_sqlite3_prepare_v2()],
+** [vtk_sqlite3_prepare16()] and [vtk_sqlite3_prepare16_v2()].  At various
 ** points during the compilation process, as logic is being created
 ** to perform various actions, the authorizer callback is invoked to
 ** see if those actions are allowed.  The authorizer callback should
-** return SQLITE_OK to allow the action, [SQLITE_IGNORE] to disallow the
+** return VTK_SQLITE_OK to allow the action, [VTK_SQLITE_IGNORE] to disallow the
 ** specific action but allow the SQL statement to continue to be
-** compiled, or [SQLITE_DENY] to cause the entire SQL statement to be
+** compiled, or [VTK_SQLITE_DENY] to cause the entire SQL statement to be
 ** rejected with an error.  
 **
-** Depending on the action, the [SQLITE_IGNORE] and [SQLITE_DENY] return
+** Depending on the action, the [VTK_SQLITE_IGNORE] and [VTK_SQLITE_DENY] return
 ** codes might mean something different or they might mean the same
 ** thing.  If the action is, for example, to perform a delete opertion,
-** then [SQLITE_IGNORE] and [SQLITE_DENY] both cause the statement compilation
+** then [VTK_SQLITE_IGNORE] and [VTK_SQLITE_DENY] both cause the statement compilation
 ** to fail with an error.  But if the action is to read a specific column
-** from a specific table, then [SQLITE_DENY] will cause the entire
-** statement to fail but [SQLITE_IGNORE] will cause a NULL value to be
+** from a specific table, then [VTK_SQLITE_DENY] will cause the entire
+** statement to fail but [VTK_SQLITE_IGNORE] will cause a NULL value to be
 ** read instead of the actual column value.
 **
 ** The first parameter to the authorizer callback is a copy of
-** the third parameter to the sqlite3_set_authorizer() interface.
+** the third parameter to the vtk_sqlite3_set_authorizer() interface.
 ** The second parameter to the callback is an integer 
-** [SQLITE_COPY | action code] that specifies the particular action
+** [VTK_SQLITE_COPY | action code] that specifies the particular action
 ** to be authorized.  The available action codes are
-** [SQLITE_COPY | documented separately].  The third through sixth
+** [VTK_SQLITE_COPY | documented separately].  The third through sixth
 ** parameters to the callback are strings that contain additional
 ** details about the action to be authorized.
 **
@@ -732,16 +732,16 @@ void sqlite3_free(void*);
 ** except SELECT statements.  
 **
 ** Only a single authorizer can be in place on a database connection
-** at a time.  Each call to sqlite3_set_authorizer overrides the
+** at a time.  Each call to vtk_sqlite3_set_authorizer overrides the
 ** previous call.  A NULL authorizer means that no authorization
 ** callback is invoked.  The default authorizer is NULL.
 **
 ** Note that the authorizer callback is invoked only during 
-** [sqlite3_prepare()] or its variants.  Authorization is not
-** performed during statement evaluation in [sqlite3_step()].
+** [vtk_sqlite3_prepare()] or its variants.  Authorization is not
+** performed during statement evaluation in [vtk_sqlite3_step()].
 */
-int sqlite3_set_authorizer(
-  sqlite3*,
+int vtk_sqlite3_set_authorizer(
+  vtk_sqlite3*,
   int (*xAuth)(void*,int,const char*,const char*,const char*,const char*),
   void *pUserData
 );
@@ -749,19 +749,19 @@ int sqlite3_set_authorizer(
 /*
 ** CAPI3REF: Authorizer Return Codes
 **
-** The [sqlite3_set_authorizer | authorizer callback function] must
-** return either [SQLITE_OK] or one of these two constants in order
+** The [vtk_sqlite3_set_authorizer | authorizer callback function] must
+** return either [VTK_SQLITE_OK] or one of these two constants in order
 ** to signal SQLite whether or not the action is permitted.  See the
-** [sqlite3_set_authorizer | authorizer documentation] for additional
+** [vtk_sqlite3_set_authorizer | authorizer documentation] for additional
 ** information.
 */
-#define SQLITE_DENY   1   /* Abort the SQL statement with an error */
-#define SQLITE_IGNORE 2   /* Don't allow access, but don't generate an error */
+#define VTK_SQLITE_DENY   1   /* Abort the SQL statement with an error */
+#define VTK_SQLITE_IGNORE 2   /* Don't allow access, but don't generate an error */
 
 /*
 ** CAPI3REF: Authorizer Action Codes
 **
-** The [sqlite3_set_authorizer()] interface registers a callback function
+** The [vtk_sqlite3_set_authorizer()] interface registers a callback function
 ** that is invoked to authorizer certain SQL statement actions.  The
 ** second parameter to the callback is an integer code that specifies
 ** what action is being authorized.  These are the integer action codes that
@@ -778,63 +778,63 @@ int sqlite3_set_authorizer(
 ** top-level SQL code.
 */
 /******************************************* 3rd ************ 4th ***********/
-#define SQLITE_CREATE_INDEX          1   /* Index Name      Table Name      */
-#define SQLITE_CREATE_TABLE          2   /* Table Name      NULL            */
-#define SQLITE_CREATE_TEMP_INDEX     3   /* Index Name      Table Name      */
-#define SQLITE_CREATE_TEMP_TABLE     4   /* Table Name      NULL            */
-#define SQLITE_CREATE_TEMP_TRIGGER   5   /* Trigger Name    Table Name      */
-#define SQLITE_CREATE_TEMP_VIEW      6   /* View Name       NULL            */
-#define SQLITE_CREATE_TRIGGER        7   /* Trigger Name    Table Name      */
-#define SQLITE_CREATE_VIEW           8   /* View Name       NULL            */
-#define SQLITE_DELETE                9   /* Table Name      NULL            */
-#define SQLITE_DROP_INDEX           10   /* Index Name      Table Name      */
-#define SQLITE_DROP_TABLE           11   /* Table Name      NULL            */
-#define SQLITE_DROP_TEMP_INDEX      12   /* Index Name      Table Name      */
-#define SQLITE_DROP_TEMP_TABLE      13   /* Table Name      NULL            */
-#define SQLITE_DROP_TEMP_TRIGGER    14   /* Trigger Name    Table Name      */
-#define SQLITE_DROP_TEMP_VIEW       15   /* View Name       NULL            */
-#define SQLITE_DROP_TRIGGER         16   /* Trigger Name    Table Name      */
-#define SQLITE_DROP_VIEW            17   /* View Name       NULL            */
-#define SQLITE_INSERT               18   /* Table Name      NULL            */
-#define SQLITE_PRAGMA               19   /* Pragma Name     1st arg or NULL */
-#define SQLITE_READ                 20   /* Table Name      Column Name     */
-#define SQLITE_SELECT               21   /* NULL            NULL            */
-#define SQLITE_TRANSACTION          22   /* NULL            NULL            */
-#define SQLITE_UPDATE               23   /* Table Name      Column Name     */
-#define SQLITE_ATTACH               24   /* Filename        NULL            */
-#define SQLITE_DETACH               25   /* Database Name   NULL            */
-#define SQLITE_ALTER_TABLE          26   /* Database Name   Table Name      */
-#define SQLITE_REINDEX              27   /* Index Name      NULL            */
-#define SQLITE_ANALYZE              28   /* Table Name      NULL            */
-#define SQLITE_CREATE_VTABLE        29   /* Table Name      Module Name     */
-#define SQLITE_DROP_VTABLE          30   /* Table Name      Module Name     */
-#define SQLITE_FUNCTION             31   /* Function Name   NULL            */
-#define SQLITE_COPY                  0   /* No longer used */
+#define VTK_SQLITE_CREATE_INDEX          1   /* Index Name      Table Name      */
+#define VTK_SQLITE_CREATE_TABLE          2   /* Table Name      NULL            */
+#define VTK_SQLITE_CREATE_TEMP_INDEX     3   /* Index Name      Table Name      */
+#define VTK_SQLITE_CREATE_TEMP_TABLE     4   /* Table Name      NULL            */
+#define VTK_SQLITE_CREATE_TEMP_TRIGGER   5   /* Trigger Name    Table Name      */
+#define VTK_SQLITE_CREATE_TEMP_VIEW      6   /* View Name       NULL            */
+#define VTK_SQLITE_CREATE_TRIGGER        7   /* Trigger Name    Table Name      */
+#define VTK_SQLITE_CREATE_VIEW           8   /* View Name       NULL            */
+#define VTK_SQLITE_DELETE                9   /* Table Name      NULL            */
+#define VTK_SQLITE_DROP_INDEX           10   /* Index Name      Table Name      */
+#define VTK_SQLITE_DROP_TABLE           11   /* Table Name      NULL            */
+#define VTK_SQLITE_DROP_TEMP_INDEX      12   /* Index Name      Table Name      */
+#define VTK_SQLITE_DROP_TEMP_TABLE      13   /* Table Name      NULL            */
+#define VTK_SQLITE_DROP_TEMP_TRIGGER    14   /* Trigger Name    Table Name      */
+#define VTK_SQLITE_DROP_TEMP_VIEW       15   /* View Name       NULL            */
+#define VTK_SQLITE_DROP_TRIGGER         16   /* Trigger Name    Table Name      */
+#define VTK_SQLITE_DROP_VIEW            17   /* View Name       NULL            */
+#define VTK_SQLITE_INSERT               18   /* Table Name      NULL            */
+#define VTK_SQLITE_PRAGMA               19   /* Pragma Name     1st arg or NULL */
+#define VTK_SQLITE_READ                 20   /* Table Name      Column Name     */
+#define VTK_SQLITE_SELECT               21   /* NULL            NULL            */
+#define VTK_SQLITE_TRANSACTION          22   /* NULL            NULL            */
+#define VTK_SQLITE_UPDATE               23   /* Table Name      Column Name     */
+#define VTK_SQLITE_ATTACH               24   /* Filename        NULL            */
+#define VTK_SQLITE_DETACH               25   /* Database Name   NULL            */
+#define VTK_SQLITE_ALTER_TABLE          26   /* Database Name   Table Name      */
+#define VTK_SQLITE_REINDEX              27   /* Index Name      NULL            */
+#define VTK_SQLITE_ANALYZE              28   /* Table Name      NULL            */
+#define VTK_SQLITE_CREATE_VTABLE        29   /* Table Name      Module Name     */
+#define VTK_SQLITE_DROP_VTABLE          30   /* Table Name      Module Name     */
+#define VTK_SQLITE_FUNCTION             31   /* Function Name   NULL            */
+#define VTK_SQLITE_COPY                  0   /* No longer used */
 
 /*
 ** CAPI3REF: Tracing And Profiling Functions
 **
 ** These routines register callback functions that can be used for
 ** tracing and profiling the execution of SQL statements.
-** The callback function registered by sqlite3_trace() is invoked
-** at the first [sqlite3_step()] for the evaluation of an SQL statement.
-** The callback function registered by sqlite3_profile() is invoked
+** The callback function registered by vtk_sqlite3_trace() is invoked
+** at the first [vtk_sqlite3_step()] for the evaluation of an SQL statement.
+** The callback function registered by vtk_sqlite3_profile() is invoked
 ** as each SQL statement finishes and includes
 ** information on how long that statement ran.
 **
-** The sqlite3_profile() API is currently considered experimental and
+** The vtk_sqlite3_profile() API is currently considered experimental and
 ** is subject to change.
 */
-void *sqlite3_trace(sqlite3*, void(*xTrace)(void*,const char*), void*);
-void *sqlite3_profile(sqlite3*,
-   void(*xProfile)(void*,const char*,sqlite_uint64), void*);
+void *vtk_sqlite3_trace(vtk_sqlite3*, void(*xTrace)(void*,const char*), void*);
+void *vtk_sqlite3_profile(vtk_sqlite3*,
+   void(*xProfile)(void*,const char*,vtk_sqlite_uint64), void*);
 
 /*
 ** CAPI3REF: Query Progress Callbacks
 **
 ** This routine configures a callback function - the progress callback - that
-** is invoked periodically during long running calls to [sqlite3_exec()],
-** [sqlite3_step()] and [sqlite3_get_table()].  An example use for this 
+** is invoked periodically during long running calls to [vtk_sqlite3_exec()],
+** [vtk_sqlite3_step()] and [vtk_sqlite3_get_table()].  An example use for this 
 ** interface is to keep a GUI updated during a large query.
 **
 ** The progress callback is invoked once for every N virtual machine opcodes,
@@ -843,89 +843,89 @@ void *sqlite3_profile(sqlite3*,
 ** argument to this function is a void pointer passed to the progress callback
 ** function each time it is invoked.
 **
-** If a call to [sqlite3_exec()], [sqlite3_step()], or [sqlite3_get_table()]
+** If a call to [vtk_sqlite3_exec()], [vtk_sqlite3_step()], or [vtk_sqlite3_get_table()]
 ** results in fewer than N opcodes being executed, then the progress 
 ** callback is never invoked.
 ** 
 ** Only a single progress callback function may be registered for each
-** open database connection.  Every call to sqlite3_progress_handler()
+** open database connection.  Every call to vtk_sqlite3_progress_handler()
 ** overwrites the results of the previous call.
 ** To remove the progress callback altogether, pass NULL as the third
 ** argument to this function.
 **
 ** If the progress callback returns a result other than 0, then the current 
 ** query is immediately terminated and any database changes rolled back.
-** The containing [sqlite3_exec()], [sqlite3_step()], or
-** [sqlite3_get_table()] call returns SQLITE_INTERRUPT.   This feature
+** The containing [vtk_sqlite3_exec()], [vtk_sqlite3_step()], or
+** [vtk_sqlite3_get_table()] call returns VTK_SQLITE_INTERRUPT.   This feature
 ** can be used, for example, to implement the "Cancel" button on a
 ** progress dialog box in a GUI.
 */
-void sqlite3_progress_handler(sqlite3*, int, int(*)(void*), void*);
+void vtk_sqlite3_progress_handler(vtk_sqlite3*, int, int(*)(void*), void*);
 
 /*
 ** CAPI3REF: Opening A New Database Connection
 **
 ** Open the sqlite database file "filename".  The "filename" is UTF-8
-** encoded for sqlite3_open() and UTF-16 encoded in the native byte order
-** for sqlite3_open16().  An [sqlite3*] handle is returned in *ppDb, even
+** encoded for vtk_sqlite3_open() and UTF-16 encoded in the native byte order
+** for vtk_sqlite3_open16().  An [vtk_sqlite3*] handle is returned in *ppDb, even
 ** if an error occurs. If the database is opened (or created) successfully,
-** then SQLITE_OK is returned. Otherwise an error code is returned. The
-** sqlite3_errmsg() or sqlite3_errmsg16()  routines can be used to obtain
+** then VTK_SQLITE_OK is returned. Otherwise an error code is returned. The
+** vtk_sqlite3_errmsg() or vtk_sqlite3_errmsg16()  routines can be used to obtain
 ** an English language description of the error.
 **
 ** If the database file does not exist, then a new database will be created
 ** as needed.  The default encoding for the database will be UTF-8 if
-** sqlite3_open() is called and UTF-16 if sqlite3_open16 is used.
+** vtk_sqlite3_open() is called and UTF-16 if vtk_sqlite3_open16 is used.
 **
 ** Whether or not an error occurs when it is opened, resources associated
-** with the [sqlite3*] handle should be released by passing it to
-** sqlite3_close() when it is no longer required.
+** with the [vtk_sqlite3*] handle should be released by passing it to
+** vtk_sqlite3_close() when it is no longer required.
 **
 ** Note to windows users:  The encoding used for the filename argument
-** of sqlite3_open() must be UTF-8, not whatever codepage is currently
+** of vtk_sqlite3_open() must be UTF-8, not whatever codepage is currently
 ** defined.  Filenames containing international characters must be converted
-** to UTF-8 prior to passing them into sqlite3_open().
+** to UTF-8 prior to passing them into vtk_sqlite3_open().
 */
-int sqlite3_open(
+int vtk_sqlite3_open(
   const char *filename,   /* Database filename (UTF-8) */
-  sqlite3 **ppDb          /* OUT: SQLite db handle */
+  vtk_sqlite3 **ppDb          /* OUT: Vtk_Sqlite db handle */
 );
-int sqlite3_open16(
+int vtk_sqlite3_open16(
   const void *filename,   /* Database filename (UTF-16) */
-  sqlite3 **ppDb          /* OUT: SQLite db handle */
+  vtk_sqlite3 **ppDb          /* OUT: SQLite db handle */
 );
 
 /*
 ** CAPI3REF: Error Codes And Messages
 **
-** The sqlite3_errcode() interface returns the numeric
-** [SQLITE_OK | result code] or [SQLITE_IOERR_READ | extended result code]
-** for the most recent failed sqlite3_* API call associated
-** with [sqlite3] handle 'db'.  If a prior API call failed but the
-** most recent API call succeeded, the return value from sqlite3_errcode()
+** The vtk_sqlite3_errcode() interface returns the numeric
+** [VTK_SQLITE_OK | result code] or [VTK_SQLITE_IOERR_READ | extended result code]
+** for the most recent failed vtk_sqlite3_* API call associated
+** with [vtk_sqlite3] handle 'db'.  If a prior API call failed but the
+** most recent API call succeeded, the return value from vtk_sqlite3_errcode()
 ** is undefined. 
 **
-** The sqlite3_errmsg() and sqlite3_errmsg16() return English-langauge
+** The vtk_sqlite3_errmsg() and vtk_sqlite3_errmsg16() return English-langauge
 ** text that describes the error, as either UTF8 or UTF16 respectively.
 ** Memory to hold the error message string is managed internally.  The 
 ** string may be overwritten or deallocated by subsequent calls to SQLite
 ** interface functions.
 **
-** Calls to many sqlite3_* functions set the error code and string returned
-** by [sqlite3_errcode()], [sqlite3_errmsg()], and [sqlite3_errmsg16()]
-** (overwriting the previous values). Note that calls to [sqlite3_errcode()],
-** [sqlite3_errmsg()], and [sqlite3_errmsg16()] themselves do not affect the
+** Calls to many vtk_sqlite3_* functions set the error code and string returned
+** by [vtk_sqlite3_errcode()], [vtk_sqlite3_errmsg()], and [vtk_sqlite3_errmsg16()]
+** (overwriting the previous values). Note that calls to [vtk_sqlite3_errcode()],
+** [vtk_sqlite3_errmsg()], and [vtk_sqlite3_errmsg16()] themselves do not affect the
 ** results of future invocations.  Calls to API routines that do not return
-** an error code (examples: [sqlite3_data_count()] or [sqlite3_mprintf()]) do
+** an error code (examples: [vtk_sqlite3_data_count()] or [vtk_sqlite3_mprintf()]) do
 ** not change the error code returned by this routine.
 **
-** Assuming no other intervening sqlite3_* API calls are made, the error
+** Assuming no other intervening vtk_sqlite3_* API calls are made, the error
 ** code returned by this function is associated with the same error as
-** the strings returned by [sqlite3_errmsg()] and [sqlite3_errmsg16()].
+** the strings returned by [vtk_sqlite3_errmsg()] and [vtk_sqlite3_errmsg16()].
 */
-int sqlite3_errcode(sqlite3 *db);
-const char *sqlite3_errmsg(sqlite3*);
-const void *sqlite3_errmsg16(sqlite3*);
+int vtk_sqlite3_errcode(vtk_sqlite3 *db);
+const char *vtk_sqlite3_errmsg(vtk_sqlite3*);
+const void *vtk_sqlite3_errmsg16(vtk_sqlite3*);
 
 /*
 ** CAPI3REF: SQL Statement Object
@@ -937,20 +937,20 @@ const void *sqlite3_errmsg16(sqlite3*);
 ** The life of a statement object goes something like this:
 **
 ** <ol>
-** <li> Create the object using [sqlite3_prepare_v2()] or a related
+** <li> Create the object using [vtk_sqlite3_prepare_v2()] or a related
 **      function.
 ** <li> Bind values to host parameters using
-**      [sqlite3_bind_blob | sqlite3_bind_* interfaces].
-** <li> Run the SQL by calling [sqlite3_step()] one or more times.
-** <li> Reset the statement using [sqlite3_reset()] then go back
+**      [vtk_sqlite3_bind_blob | vtk_sqlite3_bind_* interfaces].
+** <li> Run the SQL by calling [vtk_sqlite3_step()] one or more times.
+** <li> Reset the statement using [vtk_sqlite3_reset()] then go back
 **      to step 2.  Do this zero or more times.
-** <li> Destroy the object using [sqlite3_finalize()].
+** <li> Destroy the object using [vtk_sqlite3_finalize()].
 ** </ol>
 **
 ** Refer to documentation on individual methods above for additional
 ** information.
 */
-typedef struct sqlite3_stmt sqlite3_stmt;
+typedef struct vtk_sqlite3_stmt vtk_sqlite3_stmt;
 
 /*
 ** CAPI3REF: Compiling An SQL Statement
@@ -958,11 +958,11 @@ typedef struct sqlite3_stmt sqlite3_stmt;
 ** To execute an SQL query, it must first be compiled into a byte-code
 ** program using one of these routines. 
 **
-** The first argument "db" is an [sqlite3 | SQLite database handle] 
-** obtained from a prior call to [sqlite3_open()] or [sqlite3_open16()].
+** The first argument "db" is an [vtk_sqlite3 | SQLite database handle] 
+** obtained from a prior call to [vtk_sqlite3_open()] or [vtk_sqlite3_open16()].
 ** The second argument "zSql" is the statement to be compiled, encoded
-** as either UTF-8 or UTF-16.  The sqlite3_prepare() and sqlite3_prepare_v2()
-** interfaces uses UTF-8 and sqlite3_prepare16() and sqlite3_prepare16_v2()
+** as either UTF-8 or UTF-16.  The vtk_sqlite3_prepare() and vtk_sqlite3_prepare_v2()
+** interfaces uses UTF-8 and vtk_sqlite3_prepare16() and vtk_sqlite3_prepare16_v2()
 ** use UTF-16.
 **
 ** If the nByte argument is less
@@ -977,75 +977,75 @@ typedef struct sqlite3_stmt sqlite3_stmt;
 ** in zSql, so *pzTail is left pointing to what remains uncompiled.
 **
 ** *ppStmt is left pointing to a compiled 
-** [sqlite3_stmt | SQL statement structure] that can be
-** executed using [sqlite3_step()].  Or if there is an error, *ppStmt may be
+** [vtk_sqlite3_stmt | SQL statement structure] that can be
+** executed using [vtk_sqlite3_step()].  Or if there is an error, *ppStmt may be
 ** set to NULL.  If the input text contained no SQL (if the input is and
 ** empty string or a comment) then *ppStmt is set to NULL.  The calling
 ** procedure is responsible for deleting the compiled SQL statement
-** using [sqlite3_finalize()] after it has finished with it.
+** using [vtk_sqlite3_finalize()] after it has finished with it.
 **
-** On success, [SQLITE_OK] is returned.  Otherwise an 
-** [SQLITE_ERROR | error code] is returned.
+** On success, [VTK_SQLITE_OK] is returned.  Otherwise an 
+** [VTK_SQLITE_ERROR | error code] is returned.
 **
-** The sqlite3_prepare_v2() and sqlite3_prepare16_v2() interfaces are
+** The vtk_sqlite3_prepare_v2() and vtk_sqlite3_prepare16_v2() interfaces are
 ** recommended for all new programs. The two older interfaces are retained
 ** for backwards compatibility, but their use is discouraged.
 ** In the "v2" interfaces, the prepared statement
-** that is returned (the [sqlite3_stmt] object) contains a copy of the 
-** original SQL text. This causes the [sqlite3_step()] interface to
+** that is returned (the [vtk_sqlite3_stmt] object) contains a copy of the 
+** original SQL text. This causes the [vtk_sqlite3_step()] interface to
 ** behave a differently in two ways:
 **
 ** <ol>
 ** <li>
-** If the database schema changes, instead of returning [SQLITE_SCHEMA] as it
-** always used to do, [sqlite3_step()] will automatically recompile the SQL
+** If the database schema changes, instead of returning [VTK_SQLITE_SCHEMA] as it
+** always used to do, [vtk_sqlite3_step()] will automatically recompile the SQL
 ** statement and try to run it again.  If the schema has changed in a way
-** that makes the statement no longer valid, [sqlite3_step()] will still
-** return [SQLITE_SCHEMA].  But unlike the legacy behavior, [SQLITE_SCHEMA] is
-** now a fatal error.  Calling [sqlite3_prepare_v2()] again will not make the
-** error go away.  Note: use [sqlite3_errmsg()] to find the text of the parsing
-** error that results in an [SQLITE_SCHEMA] return.
+** that makes the statement no longer valid, [vtk_sqlite3_step()] will still
+** return [VTK_SQLITE_SCHEMA].  But unlike the legacy behavior, [VTK_SQLITE_SCHEMA] is
+** now a fatal error.  Calling [vtk_sqlite3_prepare_v2()] again will not make the
+** error go away.  Note: use [vtk_sqlite3_errmsg()] to find the text of the parsing
+** error that results in an [VTK_SQLITE_SCHEMA] return.
 ** </li>
 **
 ** <li>
 ** When an error occurs, 
-** [sqlite3_step()] will return one of the detailed 
-** [SQLITE_ERROR | result codes] or
-** [SQLITE_IOERR_READ | extended result codes] such as directly.
-** The legacy behavior was that [sqlite3_step()] would only return a generic
-** [SQLITE_ERROR] result code and you would have to make a second call to
-** [sqlite3_reset()] in order to find the underlying cause of the problem.
+** [vtk_sqlite3_step()] will return one of the detailed 
+** [VTK_SQLITE_ERROR | result codes] or
+** [VTK_SQLITE_IOERR_READ | extended result codes] such as directly.
+** The legacy behavior was that [vtk_sqlite3_step()] would only return a generic
+** [VTK_SQLITE_ERROR] result code and you would have to make a second call to
+** [vtk_sqlite3_reset()] in order to find the underlying cause of the problem.
 ** With the "v2" prepare interfaces, the underlying reason for the error is
 ** returned immediately.
 ** </li>
 ** </ol>
 */
-int sqlite3_prepare(
-  sqlite3 *db,            /* Database handle */
+int vtk_sqlite3_prepare(
+  vtk_sqlite3 *db,            /* Database handle */
   const char *zSql,       /* SQL statement, UTF-8 encoded */
   int nByte,              /* Maximum length of zSql in bytes. */
-  sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
+  vtk_sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
   const char **pzTail     /* OUT: Pointer to unused portion of zSql */
 );
-int sqlite3_prepare_v2(
-  sqlite3 *db,            /* Database handle */
+int vtk_sqlite3_prepare_v2(
+  vtk_sqlite3 *db,            /* Database handle */
   const char *zSql,       /* SQL statement, UTF-8 encoded */
   int nByte,              /* Maximum length of zSql in bytes. */
-  sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
+  vtk_sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
   const char **pzTail     /* OUT: Pointer to unused portion of zSql */
 );
-int sqlite3_prepare16(
-  sqlite3 *db,            /* Database handle */
+int vtk_sqlite3_prepare16(
+  vtk_sqlite3 *db,            /* Database handle */
   const void *zSql,       /* SQL statement, UTF-16 encoded */
   int nByte,              /* Maximum length of zSql in bytes. */
-  sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
+  vtk_sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
   const void **pzTail     /* OUT: Pointer to unused portion of zSql */
 );
-int sqlite3_prepare16_v2(
-  sqlite3 *db,            /* Database handle */
+int vtk_sqlite3_prepare16_v2(
+  vtk_sqlite3 *db,            /* Database handle */
   const void *zSql,       /* SQL statement, UTF-16 encoded */
   int nByte,              /* Maximum length of zSql in bytes. */
-  sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
+  vtk_sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
   const void **pzTail     /* OUT: Pointer to unused portion of zSql */
 );
 
@@ -1055,23 +1055,23 @@ int sqlite3_prepare16_v2(
 ** SQLite uses dynamic typing for the values it stores.  Values can 
 ** be integers, floating point values, strings, BLOBs, or NULL.  When
 ** passing around values internally, each value is represented as
-** an instance of the sqlite3_value object.
+** an instance of the vtk_sqlite3_value object.
 */
-typedef struct Mem sqlite3_value;
+typedef struct Mem vtk_sqlite3_value;
 
 /*
 ** CAPI3REF:  SQL Function Context Object
 **
 ** The context in which an SQL function executes is stored in an
-** sqlite3_context object.  A pointer to such an object is the
+** vtk_sqlite3_context object.  A pointer to such an object is the
 ** first parameter to user-defined SQL functions.
 */
-typedef struct sqlite3_context sqlite3_context;
+typedef struct vtk_sqlite3_context vtk_sqlite3_context;
 
 /*
 ** CAPI3REF:  Binding Values To Prepared Statements
 **
-** In the SQL strings input to [sqlite3_prepare_v2()] and its variants,
+** In the SQL strings input to [vtk_sqlite3_prepare_v2()] and its variants,
 ** one or more literals can be replace by a parameter in one of these
 ** forms:
 **
@@ -1087,20 +1087,20 @@ typedef struct sqlite3_context sqlite3_context;
 ** AAA is an alphanumeric identifier and VVV is a variable name according
 ** to the syntax rules of the TCL programming language.
 ** The values of these parameters (also called "host parameter names")
-** can be set using the sqlite3_bind_*() routines defined here.
+** can be set using the vtk_sqlite3_bind_*() routines defined here.
 **
-** The first argument to the sqlite3_bind_*() routines always is a pointer
-** to the [sqlite3_stmt] object returned from [sqlite3_prepare_v2()] or
+** The first argument to the vtk_sqlite3_bind_*() routines always is a pointer
+** to the [vtk_sqlite3_stmt] object returned from [vtk_sqlite3_prepare_v2()] or
 ** its variants.  The second
 ** argument is the index of the parameter to be set.  The first parameter has
 ** an index of 1. When the same named parameter is used more than once, second
 ** and subsequent
 ** occurrences have the same index as the first occurrence.  The index for
 ** named parameters can be looked up using the
-** [sqlite3_bind_parameter_name()] API if desired.  The index for "?NNN"
+** [vtk_sqlite3_bind_parameter_name()] API if desired.  The index for "?NNN"
 ** parametes is the value of NNN.
 ** The NNN value must be between 1 and the compile-time
-** parameter SQLITE_MAX_VARIABLE_NUMBER (default value: 999).
+** parameter VTK_SQLITE_MAX_VARIABLE_NUMBER (default value: 999).
 ** See <a href="limits.html">limits.html</a> for additional information.
 **
 ** The third argument is the value to bind to the parameter.
@@ -1113,43 +1113,43 @@ typedef struct sqlite3_context sqlite3_context;
 ** If the fourth parameter is negative, the length of the string is
 ** number of bytes up to the first zero terminator.
 **
-** The fifth argument to sqlite3_bind_blob(), sqlite3_bind_text(), and
-** sqlite3_bind_text16() is a destructor used to dispose of the BLOB or
+** The fifth argument to vtk_sqlite3_bind_blob(), vtk_sqlite3_bind_text(), and
+** vtk_sqlite3_bind_text16() is a destructor used to dispose of the BLOB or
 ** text after SQLite has finished with it.  If the fifth argument is the
-** special value [SQLITE_STATIC], then the library assumes that the information
+** special value [VTK_SQLITE_STATIC], then the library assumes that the information
 ** is in static, unmanaged space and does not need to be freed.  If the
-** fifth argument has the value [SQLITE_TRANSIENT], then SQLite makes its
-** own private copy of the data immediately, before the sqlite3_bind_*()
+** fifth argument has the value [VTK_SQLITE_TRANSIENT], then SQLite makes its
+** own private copy of the data immediately, before the vtk_sqlite3_bind_*()
 ** routine returns.
 **
-** The sqlite3_bind_zeroblob() routine binds a BLOB of length n that
+** The vtk_sqlite3_bind_zeroblob() routine binds a BLOB of length n that
 ** is filled with zeros.  A zeroblob uses a fixed amount of memory
 ** (just an integer to hold it size) while it is being processed.
 ** Zeroblobs are intended to serve as place-holders for BLOBs whose
 ** content is later written using 
-** [sqlite3_blob_open | increment BLOB I/O] routines.
+** [vtk_sqlite3_blob_open | increment BLOB I/O] routines.
 **
-** The sqlite3_bind_*() routines must be called after
-** [sqlite3_prepare_v2()] (and its variants) or [sqlite3_reset()] and
-** before [sqlite3_step()].
-** Bindings are not cleared by the [sqlite3_reset()] routine.
+** The vtk_sqlite3_bind_*() routines must be called after
+** [vtk_sqlite3_prepare_v2()] (and its variants) or [vtk_sqlite3_reset()] and
+** before [vtk_sqlite3_step()].
+** Bindings are not cleared by the [vtk_sqlite3_reset()] routine.
 ** Unbound parameters are interpreted as NULL.
 **
-** These routines return [SQLITE_OK] on success or an error code if
-** anything goes wrong.  [SQLITE_RANGE] is returned if the parameter
-** index is out of range.  [SQLITE_NOMEM] is returned if malloc fails.
-** [SQLITE_MISUSE] is returned if these routines are called on a virtual
+** These routines return [VTK_SQLITE_OK] on success or an error code if
+** anything goes wrong.  [VTK_SQLITE_RANGE] is returned if the parameter
+** index is out of range.  [VTK_SQLITE_NOMEM] is returned if malloc fails.
+** [VTK_SQLITE_MISUSE] is returned if these routines are called on a virtual
 ** machine that is the wrong state or which has already been finalized.
 */
-int sqlite3_bind_blob(sqlite3_stmt*, int, const void*, int n, void(*)(void*));
-int sqlite3_bind_double(sqlite3_stmt*, int, double);
-int sqlite3_bind_int(sqlite3_stmt*, int, int);
-int sqlite3_bind_int64(sqlite3_stmt*, int, sqlite_int64);
-int sqlite3_bind_null(sqlite3_stmt*, int);
-int sqlite3_bind_text(sqlite3_stmt*, int, const char*, int n, void(*)(void*));
-int sqlite3_bind_text16(sqlite3_stmt*, int, const void*, int, void(*)(void*));
-int sqlite3_bind_value(sqlite3_stmt*, int, const sqlite3_value*);
-int sqlite3_bind_zeroblob(sqlite3_stmt*, int, int n);
+int vtk_sqlite3_bind_blob(vtk_sqlite3_stmt*, int, const void*, int n, void(*)(void*));
+int vtk_sqlite3_bind_double(vtk_sqlite3_stmt*, int, double);
+int vtk_sqlite3_bind_int(vtk_sqlite3_stmt*, int, int);
+int vtk_sqlite3_bind_int64(vtk_sqlite3_stmt*, int, vtk_sqlite_int64);
+int vtk_sqlite3_bind_null(vtk_sqlite3_stmt*, int);
+int vtk_sqlite3_bind_text(vtk_sqlite3_stmt*, int, const char*, int n, void(*)(void*));
+int vtk_sqlite3_bind_text16(vtk_sqlite3_stmt*, int, const void*, int, void(*)(void*));
+int vtk_sqlite3_bind_value(vtk_sqlite3_stmt*, int, const vtk_sqlite3_value*);
+int vtk_sqlite3_bind_zeroblob(vtk_sqlite3_stmt*, int, int n);
 
 /*
 ** CAPI3REF: Number Of Host Parameters
@@ -1165,13 +1165,13 @@ int sqlite3_bind_zeroblob(sqlite3_stmt*, int, int n);
 ** numbering and the value returned by this interface is the index of the
 ** host parameter with the largest index value.
 */
-int sqlite3_bind_parameter_count(sqlite3_stmt*);
+int vtk_sqlite3_bind_parameter_count(vtk_sqlite3_stmt*);
 
 /*
 ** CAPI3REF: Name Of A Host Parameter
 **
 ** This routine returns a pointer to the name of the n-th parameter in a 
-** [sqlite3_stmt | prepared statement].
+** [vtk_sqlite3_stmt | prepared statement].
 ** Host parameters of the form ":AAA" or "@AAA" or "$VVV" have a name
 ** which is the string ":AAA" or "@AAA" or "$VVV".  
 ** In other words, the initial ":" or "$" or "@"
@@ -1183,9 +1183,9 @@ int sqlite3_bind_parameter_count(sqlite3_stmt*);
 ** If the value n is out of range or if the n-th parameter is nameless,
 ** then NULL is returned.  The returned string is always in the
 ** UTF-8 encoding even if the named parameter was originally specified
-** as UTF-16 in [sqlite3_prepare16()] or [sqlite3_prepare16_v2()].
+** as UTF-16 in [vtk_sqlite3_prepare16()] or [vtk_sqlite3_prepare16_v2()].
 */
-const char *sqlite3_bind_parameter_name(sqlite3_stmt*, int);
+const char *vtk_sqlite3_bind_parameter_name(vtk_sqlite3_stmt*, int);
 
 /*
 ** CAPI3REF: Index Of A Parameter With A Given Name
@@ -1194,46 +1194,46 @@ const char *sqlite3_bind_parameter_name(sqlite3_stmt*, int);
 ** The name must match exactly.  If no parameter with the given name is 
 ** found, return 0.  Parameter names must be UTF8.
 */
-int sqlite3_bind_parameter_index(sqlite3_stmt*, const char *zName);
+int vtk_sqlite3_bind_parameter_index(vtk_sqlite3_stmt*, const char *zName);
 
 /*
 ** CAPI3REF: Reset All Bindings On A Prepared Statement
 **
-** Contrary to the intuition of many, [sqlite3_reset()] does not
-** reset the [sqlite3_bind_blob | bindings] on a 
-** [sqlite3_stmt | prepared statement].  Use this routine to
+** Contrary to the intuition of many, [vtk_sqlite3_reset()] does not
+** reset the [vtk_sqlite3_bind_blob | bindings] on a 
+** [vtk_sqlite3_stmt | prepared statement].  Use this routine to
 ** reset all host parameters to NULL.
 */
-int sqlite3_clear_bindings(sqlite3_stmt*);
+int vtk_sqlite3_clear_bindings(vtk_sqlite3_stmt*);
 
 /*
 ** CAPI3REF: Number Of Columns In A Result Set
 **
 ** Return the number of columns in the result set returned by the 
-** [sqlite3_stmt | compiled SQL statement]. This routine returns 0
+** [vtk_sqlite3_stmt | compiled SQL statement]. This routine returns 0
 ** if pStmt is an SQL statement that does not return data (for 
 ** example an UPDATE).
 */
-int sqlite3_column_count(sqlite3_stmt *pStmt);
+int vtk_sqlite3_column_count(vtk_sqlite3_stmt *pStmt);
 
 /*
 ** CAPI3REF: Column Names In A Result Set
 **
 ** These routines return the name assigned to a particular column
-** in the result set of a SELECT statement.  The sqlite3_column_name()
-** interface returns a pointer to a UTF8 string and sqlite3_column_name16()
+** in the result set of a SELECT statement.  The vtk_sqlite3_column_name()
+** interface returns a pointer to a UTF8 string and vtk_sqlite3_column_name16()
 ** returns a pointer to a UTF16 string.  The first parameter is the
-** [sqlite_stmt | prepared statement] that implements the SELECT statement.
+** [vtk_sqlite_stmt | prepared statement] that implements the SELECT statement.
 ** The second parameter is the column number.  The left-most column is
 ** number 0.
 **
 ** The returned string pointer is valid until either the 
-** [sqlite_stmt | prepared statement] is destroyed by [sqlite3_finalize()]
-** or until the next call sqlite3_column_name() or sqlite3_column_name16()
+** [vtk_sqlite_stmt | prepared statement] is destroyed by [vtk_sqlite3_finalize()]
+** or until the next call vtk_sqlite3_column_name() or vtk_sqlite3_column_name16()
 ** on the same column.
 */
-const char *sqlite3_column_name(sqlite3_stmt*, int N);
-const void *sqlite3_column_name16(sqlite3_stmt*, int N);
+const char *vtk_sqlite3_column_name(vtk_sqlite3_stmt*, int N);
+const void *vtk_sqlite3_column_name16(vtk_sqlite3_stmt*, int N);
 
 /*
 ** CAPI3REF: Source Of Data In A Query Result
@@ -1245,15 +1245,15 @@ const void *sqlite3_column_name16(sqlite3_stmt*, int N);
 ** the database name, the _table_ routines return the table name, and
 ** the origin_ routines return the column name.
 ** The returned string is valid until
-** the [sqlite3_stmt | prepared statement] is destroyed using
-** [sqlite3_finalize()] or until the same information is requested
+** the [vtk_sqlite3_stmt | prepared statement] is destroyed using
+** [vtk_sqlite3_finalize()] or until the same information is requested
 ** again in a different encoding.
 **
 ** The names returned are the original un-aliased names of the
 ** database, table, and column.
 **
 ** The first argument to the following calls is a 
-** [sqlite3_stmt | compiled SQL statement].
+** [vtk_sqlite3_stmt | compiled SQL statement].
 ** These functions return information about the Nth column returned by 
 ** the statement, where N is the second function argument.
 **
@@ -1267,19 +1267,19 @@ const void *sqlite3_column_name16(sqlite3_stmt*, int N);
 ** encoded strings, the other functions return UTF-8.
 **
 ** These APIs are only available if the library was compiled with the 
-** SQLITE_ENABLE_COLUMN_METADATA preprocessor symbol defined.
+** VTK_SQLITE_ENABLE_COLUMN_METADATA preprocessor symbol defined.
 */
-const char *sqlite3_column_database_name(sqlite3_stmt*,int);
-const void *sqlite3_column_database_name16(sqlite3_stmt*,int);
-const char *sqlite3_column_table_name(sqlite3_stmt*,int);
-const void *sqlite3_column_table_name16(sqlite3_stmt*,int);
-const char *sqlite3_column_origin_name(sqlite3_stmt*,int);
-const void *sqlite3_column_origin_name16(sqlite3_stmt*,int);
+const char *vtk_sqlite3_column_database_name(vtk_sqlite3_stmt*,int);
+const void *vtk_sqlite3_column_database_name16(vtk_sqlite3_stmt*,int);
+const char *vtk_sqlite3_column_table_name(vtk_sqlite3_stmt*,int);
+const void *vtk_sqlite3_column_table_name16(vtk_sqlite3_stmt*,int);
+const char *vtk_sqlite3_column_origin_name(vtk_sqlite3_stmt*,int);
+const void *vtk_sqlite3_column_origin_name16(vtk_sqlite3_stmt*,int);
 
 /*
 ** CAPI3REF: Declared Datatype Of A Query Result
 **
-** The first parameter is a [sqlite3_stmt | compiled SQL statement]. 
+** The first parameter is a [vtk_sqlite3_stmt | compiled SQL statement]. 
 ** If this statement is a SELECT statement and the Nth column of the 
 ** returned result set  of that SELECT is a table column (not an
 ** expression or subquery) then the declared type of the table
@@ -1305,99 +1305,99 @@ const void *sqlite3_column_origin_name16(sqlite3_stmt*,int);
 ** is associated with individual values, not with the containers
 ** used to hold those values.
 */
-const char *sqlite3_column_decltype(sqlite3_stmt *, int i);
-const void *sqlite3_column_decltype16(sqlite3_stmt*,int);
+const char *vtk_sqlite3_column_decltype(vtk_sqlite3_stmt *, int i);
+const void *vtk_sqlite3_column_decltype16(vtk_sqlite3_stmt*,int);
 
 /* 
 ** CAPI3REF:  Evaluate An SQL Statement
 **
-** After an [sqlite3_stmt | SQL statement] has been prepared with a call
-** to either [sqlite3_prepare_v2()] or [sqlite3_prepare16_v2()] or to one of
-** the legacy interfaces [sqlite3_prepare()] or [sqlite3_prepare16()],
+** After an [vtk_sqlite3_stmt | SQL statement] has been prepared with a call
+** to either [vtk_sqlite3_prepare_v2()] or [vtk_sqlite3_prepare16_v2()] or to one of
+** the legacy interfaces [vtk_sqlite3_prepare()] or [vtk_sqlite3_prepare16()],
 ** then this function must be called one or more times to evaluate the 
 ** statement.
 **
-** The details of the behavior of this sqlite3_step() interface depend
+** The details of the behavior of this vtk_sqlite3_step() interface depend
 ** on whether the statement was prepared using the newer "v2" interface
-** [sqlite3_prepare_v2()] and [sqlite3_prepare16_v2()] or the older legacy
-** interface [sqlite3_prepare()] and [sqlite3_prepare16()].  The use of the
+** [vtk_sqlite3_prepare_v2()] and [vtk_sqlite3_prepare16_v2()] or the older legacy
+** interface [vtk_sqlite3_prepare()] and [vtk_sqlite3_prepare16()].  The use of the
 ** new "v2" interface is recommended for new applications but the legacy
 ** interface will continue to be supported.
 **
-** In the lagacy interface, the return value will be either [SQLITE_BUSY], 
-** [SQLITE_DONE], [SQLITE_ROW], [SQLITE_ERROR], or [SQLITE_MISUSE].
-** With the "v2" interface, any of the other [SQLITE_OK | result code]
-** or [SQLITE_IOERR_READ | extended result code] might be returned as
+** In the lagacy interface, the return value will be either [VTK_SQLITE_BUSY], 
+** [VTK_SQLITE_DONE], [VTK_SQLITE_ROW], [VTK_SQLITE_ERROR], or [VTK_SQLITE_MISUSE].
+** With the "v2" interface, any of the other [VTK_SQLITE_OK | result code]
+** or [VTK_SQLITE_IOERR_READ | extended result code] might be returned as
 ** well.
 **
-** [SQLITE_BUSY] means that the database engine was unable to acquire the
+** [VTK_SQLITE_BUSY] means that the database engine was unable to acquire the
 ** database locks it needs to do its job.  If the statement is a COMMIT
 ** or occurs outside of an explicit transaction, then you can retry the
 ** statement.  If the statement is not a COMMIT and occurs within a
 ** explicit transaction then you should rollback the transaction before
 ** continuing.
 **
-** [SQLITE_DONE] means that the statement has finished executing
-** successfully.  sqlite3_step() should not be called again on this virtual
-** machine without first calling [sqlite3_reset()] to reset the virtual
+** [VTK_SQLITE_DONE] means that the statement has finished executing
+** successfully.  vtk_sqlite3_step() should not be called again on this virtual
+** machine without first calling [vtk_sqlite3_reset()] to reset the virtual
 ** machine back to its initial state.
 **
 ** If the SQL statement being executed returns any data, then 
-** [SQLITE_ROW] is returned each time a new row of data is ready
+** [VTK_SQLITE_ROW] is returned each time a new row of data is ready
 ** for processing by the caller. The values may be accessed using
-** the [sqlite3_column_int | column access functions].
-** sqlite3_step() is called again to retrieve the next row of data.
+** the [vtk_sqlite3_column_int | column access functions].
+** vtk_sqlite3_step() is called again to retrieve the next row of data.
 ** 
-** [SQLITE_ERROR] means that a run-time error (such as a constraint
-** violation) has occurred.  sqlite3_step() should not be called again on
-** the VM. More information may be found by calling [sqlite3_errmsg()].
+** [VTK_SQLITE_ERROR] means that a run-time error (such as a constraint
+** violation) has occurred.  vtk_sqlite3_step() should not be called again on
+** the VM. More information may be found by calling [vtk_sqlite3_errmsg()].
 ** With the legacy interface, a more specific error code (example:
-** [SQLITE_INTERRUPT], [SQLITE_SCHEMA], [SQLITE_CORRUPT], and so forth)
-** can be obtained by calling [sqlite3_reset()] on the
-** [sqlite_stmt | prepared statement].  In the "v2" interface,
-** the more specific error code is returned directly by sqlite3_step().
+** [VTK_SQLITE_INTERRUPT], [VTK_SQLITE_SCHEMA], [VTK_SQLITE_CORRUPT], and so forth)
+** can be obtained by calling [vtk_sqlite3_reset()] on the
+** [vtk_sqlite_stmt | prepared statement].  In the "v2" interface,
+** the more specific error code is returned directly by vtk_sqlite3_step().
 **
-** [SQLITE_MISUSE] means that the this routine was called inappropriately.
-** Perhaps it was called on a [sqlite_stmt | prepared statement] that has
-** already been [sqlite3_finalize | finalized] or on one that had 
-** previously returned [SQLITE_ERROR] or [SQLITE_DONE].  Or it could
+** [VTK_SQLITE_MISUSE] means that the this routine was called inappropriately.
+** Perhaps it was called on a [vtk_sqlite_stmt | prepared statement] that has
+** already been [vtk_sqlite3_finalize | finalized] or on one that had 
+** previously returned [VTK_SQLITE_ERROR] or [VTK_SQLITE_DONE].  Or it could
 ** be the case that the same database connection is being used by two or
 ** more threads at the same moment in time.
 **
 ** <b>Goofy Interface Alert:</b>
 ** In the legacy interface, 
-** the sqlite3_step() API always returns a generic error code,
-** [SQLITE_ERROR], following any error other than [SQLITE_BUSY]
-** and [SQLITE_MISUSE].  You must call [sqlite3_reset()] or
-** [sqlite3_finalize()] in order to find one of the specific
-** [SQLITE_ERROR | result codes] that better describes the error.
+** the vtk_sqlite3_step() API always returns a generic error code,
+** [VTK_SQLITE_ERROR], following any error other than [VTK_SQLITE_BUSY]
+** and [VTK_SQLITE_MISUSE].  You must call [vtk_sqlite3_reset()] or
+** [vtk_sqlite3_finalize()] in order to find one of the specific
+** [VTK_SQLITE_ERROR | result codes] that better describes the error.
 ** We admit that this is a goofy design.  The problem has been fixed
 ** with the "v2" interface.  If you prepare all of your SQL statements
-** using either [sqlite3_prepare_v2()] or [sqlite3_prepare16_v2()] instead
-** of the legacy [sqlite3_prepare()] and [sqlite3_prepare16()], then the 
-** more specific [SQLITE_ERROR | result codes] are returned directly
-** by sqlite3_step().  The use of the "v2" interface is recommended.
+** using either [vtk_sqlite3_prepare_v2()] or [vtk_sqlite3_prepare16_v2()] instead
+** of the legacy [vtk_sqlite3_prepare()] and [vtk_sqlite3_prepare16()], then the 
+** more specific [VTK_SQLITE_ERROR | result codes] are returned directly
+** by vtk_sqlite3_step().  The use of the "v2" interface is recommended.
 */
-int sqlite3_step(sqlite3_stmt*);
+int vtk_sqlite3_step(vtk_sqlite3_stmt*);
 
 /*
 ** CAPI3REF:
 **
 ** Return the number of values in the current row of the result set.
 **
-** After a call to [sqlite3_step()] that returns [SQLITE_ROW], this routine
-** will return the same value as the [sqlite3_column_count()] function.
-** After [sqlite3_step()] has returned an [SQLITE_DONE], [SQLITE_BUSY], or
-** a [SQLITE_ERROR | error code], or before [sqlite3_step()] has been 
-** called on the [sqlite_stmt | prepared statement] for the first time,
+** After a call to [vtk_sqlite3_step()] that returns [VTK_SQLITE_ROW], this routine
+** will return the same value as the [vtk_sqlite3_column_count()] function.
+** After [vtk_sqlite3_step()] has returned an [VTK_SQLITE_DONE], [VTK_SQLITE_BUSY], or
+** a [VTK_SQLITE_ERROR | error code], or before [vtk_sqlite3_step()] has been 
+** called on the [vtk_sqlite_stmt | prepared statement] for the first time,
 ** this routine returns zero.
 */
-int sqlite3_data_count(sqlite3_stmt *pStmt);
+int vtk_sqlite3_data_count(vtk_sqlite3_stmt *pStmt);
 
 /*
 ** CAPI3REF: Fundamental Datatypes
 **
-** Every value in SQLite has one of five fundamental datatypes:
+** Every value in Vtk_Sqlite has one of five fundamental datatypes:
 **
 ** <ul>
 ** <li> 64-bit signed integer
@@ -1409,21 +1409,21 @@ int sqlite3_data_count(sqlite3_stmt *pStmt);
 **
 ** These constants are codes for each of those types.
 **
-** Note that the SQLITE_TEXT constant was also used in SQLite version 2
+** Note that the VTK_SQLITE_TEXT constant was also used in Vtk_Sqlite version 2
 ** for a completely different meaning.  Software that links against both
-** SQLite version 2 and SQLite version 3 should use SQLITE3_TEXT not
-** SQLITE_TEXT.
+** Vtk_Sqlite version 2 and SQLite version 3 should use VTK_SQLITE3_TEXT not
+** VTK_SQLITE_TEXT.
 */
-#define SQLITE_INTEGER  1
-#define SQLITE_FLOAT    2
-#define SQLITE_BLOB     4
-#define SQLITE_NULL     5
-#ifdef SQLITE_TEXT
-# undef SQLITE_TEXT
+#define VTK_SQLITE_INTEGER  1
+#define VTK_SQLITE_FLOAT    2
+#define VTK_SQLITE_BLOB     4
+#define VTK_SQLITE_NULL     5
+#ifdef VTK_SQLITE_TEXT
+# undef VTK_SQLITE_TEXT
 #else
-# define SQLITE_TEXT     3
+# define VTK_SQLITE_TEXT     3
 #endif
-#define SQLITE3_TEXT     3
+#define VTK_SQLITE3_TEXT     3
 
 /*
 ** CAPI3REF: Results Values From A Query
@@ -1431,43 +1431,43 @@ int sqlite3_data_count(sqlite3_stmt *pStmt);
 ** These routines return information about the information
 ** in a single column of the current result row of a query.  In every
 ** case the first argument is a pointer to the 
-** [sqlite3_stmt | SQL statement] that is being
-** evaluate (the [sqlite_stmt*] that was returned from 
-** [sqlite3_prepare_v2()] or one of its variants) and
+** [vtk_sqlite3_stmt | SQL statement] that is being
+** evaluate (the [vtk_sqlite_stmt*] that was returned from 
+** [vtk_sqlite3_prepare_v2()] or one of its variants) and
 ** the second argument is the index of the column for which information 
 ** should be returned.  The left-most column has an index of 0.
 **
 ** If the SQL statement is not currently point to a valid row, or if the
 ** the column index is out of range, the result is undefined.
 **
-** The sqlite3_column_type() routine returns 
-** [SQLITE_INTEGER | datatype code] for the initial data type
-** of the result column.  The returned value is one of [SQLITE_INTEGER],
-** [SQLITE_FLOAT], [SQLITE_TEXT], [SQLITE_BLOB], or [SQLITE_NULL].  The value
-** returned by sqlite3_column_type() is only meaningful if no type
+** The vtk_sqlite3_column_type() routine returns 
+** [VTK_SQLITE_INTEGER | datatype code] for the initial data type
+** of the result column.  The returned value is one of [VTK_SQLITE_INTEGER],
+** [VTK_SQLITE_FLOAT], [VTK_SQLITE_TEXT], [VTK_SQLITE_BLOB], or [VTK_SQLITE_NULL].  The value
+** returned by vtk_sqlite3_column_type() is only meaningful if no type
 ** conversions have occurred as described below.  After a type conversion,
-** the value returned by sqlite3_column_type() is undefined.  Future
-** versions of SQLite may change the behavior of sqlite3_column_type()
+** the value returned by vtk_sqlite3_column_type() is undefined.  Future
+** versions of Vtk_Sqlite may change the behavior of vtk_sqlite3_column_type()
 ** following a type conversion.
 **
-** If the result is a BLOB or UTF-8 string then the sqlite3_column_bytes() 
+** If the result is a BLOB or UTF-8 string then the vtk_sqlite3_column_bytes() 
 ** routine returns the number of bytes in that BLOB or string.
-** If the result is a UTF-16 string, then sqlite3_column_bytes() converts
+** If the result is a UTF-16 string, then vtk_sqlite3_column_bytes() converts
 ** the string to UTF-8 and then returns the number of bytes.
-** If the result is a numeric value then sqlite3_column_bytes() uses
-** [sqlite3_snprintf()] to convert that value to a UTF-8 string and returns
+** If the result is a numeric value then vtk_sqlite3_column_bytes() uses
+** [vtk_sqlite3_snprintf()] to convert that value to a UTF-8 string and returns
 ** the number of bytes in that string.
 ** The value returned does not include the zero terminator at the end
 ** of the string.  For clarity: the value returned is the number of
 ** bytes in the string, not the number of characters.
 **
-** The sqlite3_column_bytes16() routine is similar to sqlite3_column_bytes()
+** The vtk_sqlite3_column_bytes16() routine is similar to vtk_sqlite3_column_bytes()
 ** but leaves the result in UTF-16 instead of UTF-8.  
 ** The zero terminator is not included in this count.
 **
 ** These routines attempt to convert the value where appropriate.  For
 ** example, if the internal representation is FLOAT and a text result
-** is requested, [sqlite3_snprintf()] is used internally to do the conversion
+** is requested, [vtk_sqlite3_snprintf()] is used internally to do the conversion
 ** automatically.  The following table details the conversions that
 ** are applied:
 **
@@ -1496,28 +1496,28 @@ int sqlite3_data_count(sqlite3_stmt *pStmt);
 ** </blockquote>
 **
 ** The table above makes reference to standard C library functions atoi()
-** and atof().  SQLite does not really use these functions.  It has its
+** and atof().  Vtk_Sqlite does not really use these functions.  It has its
 ** on equavalent internal routines.  The atoi() and atof() names are
 ** used in the table for brevity and because they are familiar to most
 ** C programmers.
 **
 ** Note that when type conversions occur, pointers returned by prior
-** calls to sqlite3_column_blob(), sqlite3_column_text(), and/or
-** sqlite3_column_text16() may be invalidated. 
+** calls to vtk_sqlite3_column_blob(), vtk_sqlite3_column_text(), and/or
+** vtk_sqlite3_column_text16() may be invalidated. 
 ** Type conversions and pointer invalidations might occur
 ** in the following cases:
 **
 ** <ul>
-** <li><p>  The initial content is a BLOB and sqlite3_column_text() 
-**          or sqlite3_column_text16() is called.  A zero-terminator might
+** <li><p>  The initial content is a BLOB and vtk_sqlite3_column_text() 
+**          or vtk_sqlite3_column_text16() is called.  A zero-terminator might
 **          need to be added to the string.</p></li>
 **
-** <li><p>  The initial content is UTF-8 text and sqlite3_column_bytes16() or
-**          sqlite3_column_text16() is called.  The content must be converted
+** <li><p>  The initial content is UTF-8 text and vtk_sqlite3_column_bytes16() or
+**          vtk_sqlite3_column_text16() is called.  The content must be converted
 **          to UTF-16.</p></li>
 **
-** <li><p>  The initial content is UTF-16 text and sqlite3_column_bytes() or
-**          sqlite3_column_text() is called.  The content must be converted
+** <li><p>  The initial content is UTF-16 text and vtk_sqlite3_column_bytes() or
+**          vtk_sqlite3_column_text() is called.  The content must be converted
 **          to UTF-8.</p></li>
 ** </ul>
 **
@@ -1531,60 +1531,60 @@ int sqlite3_data_count(sqlite3_stmt *pStmt);
 ** in one of the following ways:
 **
 **  <ul>
-**  <li>sqlite3_column_text() followed by sqlite3_column_bytes()</li>
-**  <li>sqlite3_column_blob() followed by sqlite3_column_bytes()</li>
-**  <li>sqlite3_column_text16() followed by sqlite3_column_bytes16()</li>
+**  <li>vtk_sqlite3_column_text() followed by vtk_sqlite3_column_bytes()</li>
+**  <li>vtk_sqlite3_column_blob() followed by vtk_sqlite3_column_bytes()</li>
+**  <li>vtk_sqlite3_column_text16() followed by vtk_sqlite3_column_bytes16()</li>
 **  </ul>
 **
-** In other words, you should call sqlite3_column_text(), sqlite3_column_blob(),
-** or sqlite3_column_text16() first to force the result into the desired
-** format, then invoke sqlite3_column_bytes() or sqlite3_column_bytes16() to
-** find the size of the result.  Do not mix call to sqlite3_column_text() or
-** sqlite3_column_blob() with calls to sqlite3_column_bytes16().  And do not
-** mix calls to sqlite3_column_text16() with calls to sqlite3_column_bytes().
+** In other words, you should call vtk_sqlite3_column_text(), vtk_sqlite3_column_blob(),
+** or vtk_sqlite3_column_text16() first to force the result into the desired
+** format, then invoke vtk_sqlite3_column_bytes() or vtk_sqlite3_column_bytes16() to
+** find the size of the result.  Do not mix call to vtk_sqlite3_column_text() or
+** vtk_sqlite3_column_blob() with calls to vtk_sqlite3_column_bytes16().  And do not
+** mix calls to vtk_sqlite3_column_text16() with calls to vtk_sqlite3_column_bytes().
 */
-const void *sqlite3_column_blob(sqlite3_stmt*, int iCol);
-int sqlite3_column_bytes(sqlite3_stmt*, int iCol);
-int sqlite3_column_bytes16(sqlite3_stmt*, int iCol);
-double sqlite3_column_double(sqlite3_stmt*, int iCol);
-int sqlite3_column_int(sqlite3_stmt*, int iCol);
-sqlite_int64 sqlite3_column_int64(sqlite3_stmt*, int iCol);
-const unsigned char *sqlite3_column_text(sqlite3_stmt*, int iCol);
-const void *sqlite3_column_text16(sqlite3_stmt*, int iCol);
-int sqlite3_column_type(sqlite3_stmt*, int iCol);
-sqlite3_value *sqlite3_column_value(sqlite3_stmt*, int iCol);
+const void *vtk_sqlite3_column_blob(vtk_sqlite3_stmt*, int iCol);
+int vtk_sqlite3_column_bytes(vtk_sqlite3_stmt*, int iCol);
+int vtk_sqlite3_column_bytes16(vtk_sqlite3_stmt*, int iCol);
+double vtk_sqlite3_column_double(vtk_sqlite3_stmt*, int iCol);
+int vtk_sqlite3_column_int(vtk_sqlite3_stmt*, int iCol);
+vtk_sqlite_int64 vtk_sqlite3_column_int64(vtk_sqlite3_stmt*, int iCol);
+const unsigned char *vtk_sqlite3_column_text(vtk_sqlite3_stmt*, int iCol);
+const void *vtk_sqlite3_column_text16(vtk_sqlite3_stmt*, int iCol);
+int vtk_sqlite3_column_type(vtk_sqlite3_stmt*, int iCol);
+vtk_sqlite3_value *vtk_sqlite3_column_value(vtk_sqlite3_stmt*, int iCol);
 
 /*
 ** CAPI3REF: Destroy A Prepared Statement Object
 **
-** The sqlite3_finalize() function is called to delete a 
-** [sqlite3_stmt | compiled SQL statement]. If the statement was
-** executed successfully, or not executed at all, then SQLITE_OK is returned.
+** The vtk_sqlite3_finalize() function is called to delete a 
+** [vtk_sqlite3_stmt | compiled SQL statement]. If the statement was
+** executed successfully, or not executed at all, then VTK_SQLITE_OK is returned.
 ** If execution of the statement failed then an 
-** [SQLITE_ERROR | error code] or [SQLITE_IOERR_READ | extended error code]
+** [VTK_SQLITE_ERROR | error code] or [VTK_SQLITE_IOERR_READ | extended error code]
 ** is returned. 
 **
 ** This routine can be called at any point during the execution of the
-** [sqlite3_stmt | virtual machine].  If the virtual machine has not 
+** [vtk_sqlite3_stmt | virtual machine].  If the virtual machine has not 
 ** completed execution when this routine is called, that is like
-** encountering an error or an interrupt.  (See [sqlite3_interrupt()].) 
+** encountering an error or an interrupt.  (See [vtk_sqlite3_interrupt()].) 
 ** Incomplete updates may be rolled back and transactions cancelled,  
 ** depending on the circumstances, and the 
-** [SQLITE_ERROR | result code] returned will be [SQLITE_ABORT].
+** [VTK_SQLITE_ERROR | result code] returned will be [VTK_SQLITE_ABORT].
 */
-int sqlite3_finalize(sqlite3_stmt *pStmt);
+int vtk_sqlite3_finalize(vtk_sqlite3_stmt *pStmt);
 
 /*
 ** CAPI3REF: Reset A Prepared Statement Object
 **
-** The sqlite3_reset() function is called to reset a 
-** [sqlite_stmt | compiled SQL statement] object.
+** The vtk_sqlite3_reset() function is called to reset a 
+** [vtk_sqlite_stmt | compiled SQL statement] object.
 ** back to it's initial state, ready to be re-executed.
 ** Any SQL statement variables that had values bound to them using
-** the [sqlite3_bind_blob | sqlite3_bind_*() API] retain their values.
-** Use [sqlite3_clear_bindings()] to reset the bindings.
+** the [vtk_sqlite3_bind_blob | vtk_sqlite3_bind_*() API] retain their values.
+** Use [vtk_sqlite3_clear_bindings()] to reset the bindings.
 */
-int sqlite3_reset(sqlite3_stmt *pStmt);
+int vtk_sqlite3_reset(vtk_sqlite3_stmt *pStmt);
 
 /*
 ** CAPI3REF: Create Or Redefine SQL Functions
@@ -1593,9 +1593,9 @@ int sqlite3_reset(sqlite3_stmt *pStmt);
 ** or to redefine the behavior of existing SQL functions or aggregates.  The
 ** difference only between the two is that the second parameter, the
 ** name of the (scalar) function or aggregate, is encoded in UTF-8 for
-** sqlite3_create_function() and UTF-16 for sqlite3_create_function16().
+** vtk_sqlite3_create_function() and UTF-16 for vtk_sqlite3_create_function16().
 **
-** The first argument is the [sqlite3 | database handle] that holds the
+** The first argument is the [vtk_sqlite3 | database handle] that holds the
 ** SQL function or aggregate is to be added or redefined. If a single
 ** program uses more than one database handle internally, then SQL
 ** functions or aggregates must be added individually to each database
@@ -1606,28 +1606,28 @@ int sqlite3_reset(sqlite3_stmt *pStmt);
 ** The length of the name is limited to 255 bytes, exclusive of the 
 ** zero-terminator.  Note that the name length limit is in bytes, not
 ** characters.  Any attempt to create a function with a longer name
-** will result in an SQLITE_ERROR error.
+** will result in an VTK_SQLITE_ERROR error.
 **
 ** The third parameter is the number of arguments that the SQL function or
 ** aggregate takes. If this parameter is negative, then the SQL function or
 ** aggregate may take any number of arguments.
 **
 ** The fourth parameter, eTextRep, specifies what 
-** [SQLITE_UTF8 | text encoding] this SQL function prefers for
+** [VTK_SQLITE_UTF8 | text encoding] this SQL function prefers for
 ** its parameters.  Any SQL function implementation should be able to work
 ** work with UTF-8, UTF-16le, or UTF-16be.  But some implementations may be
 ** more efficient with one encoding than another.  It is allowed to
-** invoke sqlite_create_function() or sqlite3_create_function16() multiple
+** invoke vtk_sqlite_create_function() or vtk_sqlite3_create_function16() multiple
 ** times with the same function but with different values of eTextRep.
-** When multiple implementations of the same function are available, SQLite
+** When multiple implementations of the same function are available, Vtk_Sqlite
 ** will pick the one that involves the least amount of data conversion.
 ** If there is only a single implementation which does not care what
 ** text encoding is used, then the fourth argument should be
-** [SQLITE_ANY].
+** [VTK_SQLITE_ANY].
 **
 ** The fifth parameter is an arbitrary pointer.  The implementation
 ** of the function can gain access to this pointer using
-** [sqlite_user_data()].
+** [vtk_sqlite_user_data()].
 **
 ** The seventh, eighth and ninth parameters, xFunc, xStep and xFinal, are
 ** pointers to C-language functions that implement the SQL
@@ -1640,43 +1640,43 @@ int sqlite3_reset(sqlite3_stmt *pStmt);
 **
 ** It is permitted to register multiple implementations of the same
 ** functions with the same name but with either differing numbers of
-** arguments or differing perferred text encodings.  SQLite will use
+** arguments or differing perferred text encodings.  Vtk_Sqlite will use
 ** the implementation most closely matches the way in which the
 ** SQL function is used.
 */
-int sqlite3_create_function(
-  sqlite3 *,
+int vtk_sqlite3_create_function(
+  vtk_sqlite3 *,
   const char *zFunctionName,
   int nArg,
   int eTextRep,
   void*,
-  void (*xFunc)(sqlite3_context*,int,sqlite3_value**),
-  void (*xStep)(sqlite3_context*,int,sqlite3_value**),
-  void (*xFinal)(sqlite3_context*)
+  void (*xFunc)(vtk_sqlite3_context*,int,vtk_sqlite3_value**),
+  void (*xStep)(vtk_sqlite3_context*,int,vtk_sqlite3_value**),
+  void (*xFinal)(vtk_sqlite3_context*)
 );
-int sqlite3_create_function16(
-  sqlite3*,
+int vtk_sqlite3_create_function16(
+  vtk_sqlite3*,
   const void *zFunctionName,
   int nArg,
   int eTextRep,
   void*,
-  void (*xFunc)(sqlite3_context*,int,sqlite3_value**),
-  void (*xStep)(sqlite3_context*,int,sqlite3_value**),
-  void (*xFinal)(sqlite3_context*)
+  void (*xFunc)(vtk_sqlite3_context*,int,vtk_sqlite3_value**),
+  void (*xStep)(vtk_sqlite3_context*,int,vtk_sqlite3_value**),
+  void (*xFinal)(vtk_sqlite3_context*)
 );
 
 /*
 ** CAPI3REF: Text Encodings
 **
 ** These constant define integer codes that represent the various
-** text encodings supported by SQLite.
+** text encodings supported by Vtk_Sqlite.
 */
-#define SQLITE_UTF8           1
-#define SQLITE_UTF16LE        2
-#define SQLITE_UTF16BE        3
-#define SQLITE_UTF16          4    /* Use native byte order */
-#define SQLITE_ANY            5    /* sqlite3_create_function only */
-#define SQLITE_UTF16_ALIGNED  8    /* sqlite3_create_collation only */
+#define VTK_SQLITE_UTF8           1
+#define VTK_SQLITE_UTF16LE        2
+#define VTK_SQLITE_UTF16BE        3
+#define VTK_SQLITE_UTF16          4    /* Use native byte order */
+#define VTK_SQLITE_ANY            5    /* vtk_sqlite3_create_function only */
+#define VTK_SQLITE_UTF16_ALIGNED  8    /* vtk_sqlite3_create_collation only */
 
 /*
 ** CAPI3REF: Obsolete Functions
@@ -1687,10 +1687,10 @@ int sqlite3_create_function16(
 ** the use of these functions.  To help encourage people to avoid
 ** using these functions, we are not going to tell you want they do.
 */
-int sqlite3_aggregate_count(sqlite3_context*);
-int sqlite3_expired(sqlite3_stmt*);
-int sqlite3_transfer_bindings(sqlite3_stmt*, sqlite3_stmt*);
-int sqlite3_global_recover(void);
+int vtk_sqlite3_aggregate_count(vtk_sqlite3_context*);
+int vtk_sqlite3_expired(vtk_sqlite3_stmt*);
+int vtk_sqlite3_transfer_bindings(vtk_sqlite3_stmt*, vtk_sqlite3_stmt*);
+int vtk_sqlite3_global_recover(void);
 
 
 /*
@@ -1701,49 +1701,49 @@ int sqlite3_global_recover(void);
 ** the function or aggregate.
 **
 ** The xFunc (for scalar functions) or xStep (for aggregates) parameters
-** to [sqlite3_create_function()] and [sqlite3_create_function16()]
+** to [vtk_sqlite3_create_function()] and [vtk_sqlite3_create_function16()]
 ** define callbacks that implement the SQL functions and aggregates.
 ** The 4th parameter to these callbacks is an array of pointers to
-** [sqlite3_value] objects.  There is one [sqlite3_value] object for
+** [vtk_sqlite3_value] objects.  There is one [vtk_sqlite3_value] object for
 ** each parameter to the SQL function.  These routines are used to
-** extract values from the [sqlite3_value] objects.
+** extract values from the [vtk_sqlite3_value] objects.
 **
 ** These routines work just like the corresponding 
-** [sqlite3_column_blob | sqlite3_column_* routines] except that 
-** these routines take a single [sqlite3_value*] pointer instead
-** of an [sqlite3_stmt*] pointer and an integer column number.
+** [vtk_sqlite3_column_blob | vtk_sqlite3_column_* routines] except that 
+** these routines take a single [vtk_sqlite3_value*] pointer instead
+** of an [vtk_sqlite3_stmt*] pointer and an integer column number.
 **
-** The sqlite3_value_text16() interface extracts a UTF16 string
+** The vtk_sqlite3_value_text16() interface extracts a UTF16 string
 ** in the native byte-order of the host machine.  The
-** sqlite3_value_text16be() and sqlite3_value_text16le() interfaces
+** vtk_sqlite3_value_text16be() and vtk_sqlite3_value_text16le() interfaces
 ** extract UTF16 strings as big-endian and little-endian respectively.
 **
-** The sqlite3_value_numeric_type() interface attempts to apply
+** The vtk_sqlite3_value_numeric_type() interface attempts to apply
 ** numeric affinity to the value.  This means that an attempt is
 ** made to convert the value to an integer or floating point.  If
 ** such a conversion is possible without loss of information (in order
 ** words if the value is original a string that looks like a number)
 ** then it is done.  Otherwise no conversion occurs.  The 
-** [SQLITE_INTEGER | datatype] after conversion is returned.
+** [VTK_SQLITE_INTEGER | datatype] after conversion is returned.
 **
 ** Please pay particular attention to the fact that the pointer that
-** is returned from [sqlite3_value_blob()], [sqlite3_value_text()], or
-** [sqlite3_value_text16()] can be invalidated by a subsequent call to
-** [sqlite3_value_bytes()], [sqlite3_value_bytes16()], [sqlite_value_text()],
-** or [sqlite3_value_text16()].  
+** is returned from [vtk_sqlite3_value_blob()], [vtk_sqlite3_value_text()], or
+** [vtk_sqlite3_value_text16()] can be invalidated by a subsequent call to
+** [vtk_sqlite3_value_bytes()], [vtk_sqlite3_value_bytes16()], [vtk_sqlite_value_text()],
+** or [vtk_sqlite3_value_text16()].  
 */
-const void *sqlite3_value_blob(sqlite3_value*);
-int sqlite3_value_bytes(sqlite3_value*);
-int sqlite3_value_bytes16(sqlite3_value*);
-double sqlite3_value_double(sqlite3_value*);
-int sqlite3_value_int(sqlite3_value*);
-sqlite_int64 sqlite3_value_int64(sqlite3_value*);
-const unsigned char *sqlite3_value_text(sqlite3_value*);
-const void *sqlite3_value_text16(sqlite3_value*);
-const void *sqlite3_value_text16le(sqlite3_value*);
-const void *sqlite3_value_text16be(sqlite3_value*);
-int sqlite3_value_type(sqlite3_value*);
-int sqlite3_value_numeric_type(sqlite3_value*);
+const void *vtk_sqlite3_value_blob(vtk_sqlite3_value*);
+int vtk_sqlite3_value_bytes(vtk_sqlite3_value*);
+int vtk_sqlite3_value_bytes16(vtk_sqlite3_value*);
+double vtk_sqlite3_value_double(vtk_sqlite3_value*);
+int vtk_sqlite3_value_int(vtk_sqlite3_value*);
+vtk_sqlite_int64 vtk_sqlite3_value_int64(vtk_sqlite3_value*);
+const unsigned char *vtk_sqlite3_value_text(vtk_sqlite3_value*);
+const void *vtk_sqlite3_value_text16(vtk_sqlite3_value*);
+const void *vtk_sqlite3_value_text16le(vtk_sqlite3_value*);
+const void *vtk_sqlite3_value_text16be(vtk_sqlite3_value*);
+int vtk_sqlite3_value_type(vtk_sqlite3_value*);
+int vtk_sqlite3_value_numeric_type(vtk_sqlite3_value*);
 
 /*
 ** CAPI3REF: Obtain Aggregate Function Context
@@ -1755,25 +1755,25 @@ int sqlite3_value_numeric_type(sqlite3_value*);
 ** same aggregate instance) the same buffer is returned.  The implementation
 ** of the aggregate can use the returned buffer to accumulate data.
 **
-** The buffer allocated is freed automatically by SQLite whan the aggregate
+** The buffer allocated is freed automatically by Vtk_Sqlite whan the aggregate
 ** query concludes.
 **
 ** The first parameter should be a copy of the 
-** [sqlite3_context | SQL function context] that is the first
+** [vtk_sqlite3_context | SQL function context] that is the first
 ** parameter to the callback routine that implements the aggregate
 ** function.
 */
-void *sqlite3_aggregate_context(sqlite3_context*, int nBytes);
+void *vtk_sqlite3_aggregate_context(vtk_sqlite3_context*, int nBytes);
 
 /*
 ** CAPI3REF: User Data For Functions
 **
-** The pUserData parameter to the [sqlite3_create_function()]
-** and [sqlite3_create_function16()] routines
+** The pUserData parameter to the [vtk_sqlite3_create_function()]
+** and [vtk_sqlite3_create_function16()] routines
 ** used to register user functions is available to
 ** the implementation of the function using this call.
 */
-void *sqlite3_user_data(sqlite3_context*);
+void *vtk_sqlite3_user_data(vtk_sqlite3_context*);
 
 /*
 ** CAPI3REF: Function Auxiliary Data
@@ -1789,12 +1789,12 @@ void *sqlite3_user_data(sqlite3_context*);
 ** invocations of the same function so that the original pattern string
 ** does not need to be recompiled on each invocation.
 **
-** The sqlite3_get_auxdata() interface returns a pointer to the meta-data
+** The vtk_sqlite3_get_auxdata() interface returns a pointer to the meta-data
 ** associated with the Nth argument value to the current SQL function
 ** call, where N is the second parameter. If no meta-data has been set for
 ** that value, then a NULL pointer is returned.
 **
-** The sqlite3_set_auxdata() is used to associate meta-data with an SQL
+** The vtk_sqlite3_set_auxdata() is used to associate meta-data with an SQL
 ** function argument. The third parameter is a pointer to the meta-data
 ** to be associated with the Nth user function argument value. The fourth
 ** parameter specifies a destructor that will be called on the meta-
@@ -1805,89 +1805,89 @@ void *sqlite3_user_data(sqlite3_context*);
 ** expressions that are constant at compile time. This includes literal
 ** values and SQL variables.
 */
-void *sqlite3_get_auxdata(sqlite3_context*, int);
-void sqlite3_set_auxdata(sqlite3_context*, int, void*, void (*)(void*));
+void *vtk_sqlite3_get_auxdata(vtk_sqlite3_context*, int);
+void vtk_sqlite3_set_auxdata(vtk_sqlite3_context*, int, void*, void (*)(void*));
 
 
 /*
 ** CAPI3REF: Constants Defining Special Destructor Behavior
 **
 ** These are special value for the destructor that is passed in as the
-** final argument to routines like [sqlite3_result_blob()].  If the destructor
-** argument is SQLITE_STATIC, it means that the content pointer is constant
+** final argument to routines like [vtk_sqlite3_result_blob()].  If the destructor
+** argument is VTK_SQLITE_STATIC, it means that the content pointer is constant
 ** and will never change.  It does not need to be destroyed.  The 
-** SQLITE_TRANSIENT value means that the content will likely change in
-** the near future and that SQLite should make its own private copy of
+** VTK_SQLITE_TRANSIENT value means that the content will likely change in
+** the near future and that Vtk_Sqlite should make its own private copy of
 ** the content before returning.
 **
 ** The typedef is necessary to work around problems in certain
 ** C++ compilers.  See ticket #2191.
 */
-typedef void (*sqlite3_destructor_type)(void*);
-#define SQLITE_STATIC      ((sqlite3_destructor_type)0)
-#define SQLITE_TRANSIENT   ((sqlite3_destructor_type)-1)
+typedef void (*vtk_sqlite3_destructor_type)(void*);
+#define VTK_SQLITE_STATIC      ((vtk_sqlite3_destructor_type)0)
+#define VTK_SQLITE_TRANSIENT   ((vtk_sqlite3_destructor_type)-1)
 
 /*
 ** CAPI3REF: Setting The Result Of An SQL Function
 **
 ** These routines are used by the xFunc or xFinal callbacks that
 ** implement SQL functions and aggregates.  See
-** [sqlite3_create_function()] and [sqlite3_create_function16()]
+** [vtk_sqlite3_create_function()] and [vtk_sqlite3_create_function16()]
 ** for additional information.
 **
 ** These functions work very much like the 
-** [sqlite3_bind_blob | sqlite3_bind_*] family of functions used
+** [vtk_sqlite3_bind_blob | vtk_sqlite3_bind_*] family of functions used
 ** to bind values to host parameters in prepared statements.
 ** Refer to the
-** [sqlite3_bind_blob | sqlite3_bind_* documentation] for
+** [vtk_sqlite3_bind_blob | vtk_sqlite3_bind_* documentation] for
 ** additional information.
 **
-** The sqlite3_result_error() and sqlite3_result_error16() functions
+** The vtk_sqlite3_result_error() and vtk_sqlite3_result_error16() functions
 ** cause the implemented SQL function to throw an exception.  The
-** parameter to sqlite3_result_error() or sqlite3_result_error16()
+** parameter to vtk_sqlite3_result_error() or vtk_sqlite3_result_error16()
 ** is the text of an error message.
 **
-** The sqlite3_result_toobig() cause the function implementation
+** The vtk_sqlite3_result_toobig() cause the function implementation
 ** to throw and error indicating that a string or BLOB is to long
 ** to represent.
 */
-void sqlite3_result_blob(sqlite3_context*, const void*, int, void(*)(void*));
-void sqlite3_result_double(sqlite3_context*, double);
-void sqlite3_result_error(sqlite3_context*, const char*, int);
-void sqlite3_result_error16(sqlite3_context*, const void*, int);
-void sqlite3_result_error_toobig(sqlite3_context*);
-void sqlite3_result_int(sqlite3_context*, int);
-void sqlite3_result_int64(sqlite3_context*, sqlite_int64);
-void sqlite3_result_null(sqlite3_context*);
-void sqlite3_result_text(sqlite3_context*, const char*, int, void(*)(void*));
-void sqlite3_result_text16(sqlite3_context*, const void*, int, void(*)(void*));
-void sqlite3_result_text16le(sqlite3_context*, const void*, int,void(*)(void*));
-void sqlite3_result_text16be(sqlite3_context*, const void*, int,void(*)(void*));
-void sqlite3_result_value(sqlite3_context*, sqlite3_value*);
-void sqlite3_result_zeroblob(sqlite3_context*, int n);
+void vtk_sqlite3_result_blob(vtk_sqlite3_context*, const void*, int, void(*)(void*));
+void vtk_sqlite3_result_double(vtk_sqlite3_context*, double);
+void vtk_sqlite3_result_error(vtk_sqlite3_context*, const char*, int);
+void vtk_sqlite3_result_error16(vtk_sqlite3_context*, const void*, int);
+void vtk_sqlite3_result_error_toobig(vtk_sqlite3_context*);
+void vtk_sqlite3_result_int(vtk_sqlite3_context*, int);
+void vtk_sqlite3_result_int64(vtk_sqlite3_context*, vtk_sqlite_int64);
+void vtk_sqlite3_result_null(vtk_sqlite3_context*);
+void vtk_sqlite3_result_text(vtk_sqlite3_context*, const char*, int, void(*)(void*));
+void vtk_sqlite3_result_text16(vtk_sqlite3_context*, const void*, int, void(*)(void*));
+void vtk_sqlite3_result_text16le(vtk_sqlite3_context*, const void*, int,void(*)(void*));
+void vtk_sqlite3_result_text16be(vtk_sqlite3_context*, const void*, int,void(*)(void*));
+void vtk_sqlite3_result_value(vtk_sqlite3_context*, vtk_sqlite3_value*);
+void vtk_sqlite3_result_zeroblob(vtk_sqlite3_context*, int n);
 
 /*
 ** CAPI3REF: Define New Collating Sequences
 **
 ** These functions are used to add new collation sequences to the
-** [sqlite3*] handle specified as the first argument. 
+** [vtk_sqlite3*] handle specified as the first argument. 
 **
 ** The name of the new collation sequence is specified as a UTF-8 string
-** for sqlite3_create_collation() and sqlite3_create_collation_v2()
-** and a UTF-16 string for sqlite3_create_collation16().  In all cases
+** for vtk_sqlite3_create_collation() and vtk_sqlite3_create_collation_v2()
+** and a UTF-16 string for vtk_sqlite3_create_collation16().  In all cases
 ** the name is passed as the second function argument.
 **
-** The third argument must be one of the constants [SQLITE_UTF8],
-** [SQLITE_UTF16LE] or [SQLITE_UTF16BE], indicating that the user-supplied
+** The third argument must be one of the constants [VTK_SQLITE_UTF8],
+** [VTK_SQLITE_UTF16LE] or [VTK_SQLITE_UTF16BE], indicating that the user-supplied
 ** routine expects to be passed pointers to strings encoded using UTF-8,
 ** UTF-16 little-endian or UTF-16 big-endian respectively.
 **
 ** A pointer to the user supplied routine must be passed as the fifth
 ** argument. If it is NULL, this is the same as deleting the collation
-** sequence (so that SQLite cannot call it anymore). Each time the user
+** sequence (so that Vtk_Sqlite cannot call it anymore). Each time the user
 ** supplied function is invoked, it is passed a copy of the void* passed as
-** the fourth argument to sqlite3_create_collation() or
-** sqlite3_create_collation16() as its first parameter.
+** the fourth argument to vtk_sqlite3_create_collation() or
+** vtk_sqlite3_create_collation16() as its first parameter.
 **
 ** The remaining arguments to the user-supplied routine are two strings,
 ** each represented by a [length, data] pair and encoded in the encoding
@@ -1896,35 +1896,35 @@ void sqlite3_result_zeroblob(sqlite3_context*, int n);
 ** the first string is less than, equal to, or greater than the second
 ** string. i.e. (STRING1 - STRING2).
 **
-** The sqlite3_create_collation_v2() works like sqlite3_create_collation()
+** The vtk_sqlite3_create_collation_v2() works like vtk_sqlite3_create_collation()
 ** excapt that it takes an extra argument which is a destructor for
 ** the collation.  The destructor is called when the collation is
 ** destroyed and is passed a copy of the fourth parameter void* pointer
-** of the sqlite3_create_collation_v2().  Collations are destroyed when
+** of the vtk_sqlite3_create_collation_v2().  Collations are destroyed when
 ** they are overridden by later calls to the collation creation functions
-** or when the [sqlite3*] database handle is closed using [sqlite3_close()].
+** or when the [vtk_sqlite3*] database handle is closed using [vtk_sqlite3_close()].
 **
-** The sqlite3_create_collation_v2() interface is experimental and
+** The vtk_sqlite3_create_collation_v2() interface is experimental and
 ** subject to change in future releases.  The other collation creation
 ** functions are stable.
 */
-int sqlite3_create_collation(
-  sqlite3*, 
+int vtk_sqlite3_create_collation(
+  vtk_sqlite3*, 
   const char *zName, 
   int eTextRep, 
   void*,
   int(*xCompare)(void*,int,const void*,int,const void*)
 );
-int sqlite3_create_collation_v2(
-  sqlite3*, 
+int vtk_sqlite3_create_collation_v2(
+  vtk_sqlite3*, 
   const char *zName, 
   int eTextRep, 
   void*,
   int(*xCompare)(void*,int,const void*,int,const void*),
   void(*xDestroy)(void*)
 );
-int sqlite3_create_collation16(
-  sqlite3*, 
+int vtk_sqlite3_create_collation16(
+  vtk_sqlite3*, 
   const char *zName, 
   int eTextRep, 
   void*,
@@ -1939,44 +1939,44 @@ int sqlite3_create_collation16(
 ** database handle to be called whenever an undefined collation sequence is
 ** required.
 **
-** If the function is registered using the sqlite3_collation_needed() API,
+** If the function is registered using the vtk_sqlite3_collation_needed() API,
 ** then it is passed the names of undefined collation sequences as strings
-** encoded in UTF-8. If sqlite3_collation_needed16() is used, the names
+** encoded in UTF-8. If vtk_sqlite3_collation_needed16() is used, the names
 ** are passed as UTF-16 in machine native byte order. A call to either
 ** function replaces any existing callback.
 **
 ** When the callback is invoked, the first argument passed is a copy
-** of the second argument to sqlite3_collation_needed() or
-** sqlite3_collation_needed16(). The second argument is the database
-** handle. The third argument is one of [SQLITE_UTF8], [SQLITE_UTF16BE], or
-** [SQLITE_UTF16LE], indicating the most desirable form of the collation
+** of the second argument to vtk_sqlite3_collation_needed() or
+** vtk_sqlite3_collation_needed16(). The second argument is the database
+** handle. The third argument is one of [VTK_SQLITE_UTF8], [VTK_SQLITE_UTF16BE], or
+** [VTK_SQLITE_UTF16LE], indicating the most desirable form of the collation
 ** sequence function required. The fourth parameter is the name of the
 ** required collation sequence.
 **
 ** The callback function should register the desired collation using
-** [sqlite3_create_collation()], [sqlite3_create_collation16()], or
-** [sqlite3_create_collation_v2()].
+** [vtk_sqlite3_create_collation()], [vtk_sqlite3_create_collation16()], or
+** [vtk_sqlite3_create_collation_v2()].
 */
-int sqlite3_collation_needed(
-  sqlite3*, 
+int vtk_sqlite3_collation_needed(
+  vtk_sqlite3*, 
   void*, 
-  void(*)(void*,sqlite3*,int eTextRep,const char*)
+  void(*)(void*,vtk_sqlite3*,int eTextRep,const char*)
 );
-int sqlite3_collation_needed16(
-  sqlite3*, 
+int vtk_sqlite3_collation_needed16(
+  vtk_sqlite3*, 
   void*,
-  void(*)(void*,sqlite3*,int eTextRep,const void*)
+  void(*)(void*,vtk_sqlite3*,int eTextRep,const void*)
 );
 
 /*
 ** Specify the key for an encrypted database.  This routine should be
-** called right after sqlite3_open().
+** called right after vtk_sqlite3_open().
 **
 ** The code to implement this API is not available in the public release
-** of SQLite.
+** of Vtk_Sqlite.
 */
-int sqlite3_key(
-  sqlite3 *db,                   /* Database to be rekeyed */
+int vtk_sqlite3_key(
+  vtk_sqlite3 *db,                   /* Database to be rekeyed */
   const void *pKey, int nKey     /* The key */
 );
 
@@ -1986,10 +1986,10 @@ int sqlite3_key(
 ** database is decrypted.
 **
 ** The code to implement this API is not available in the public release
-** of SQLite.
+** of Vtk_Sqlite.
 */
-int sqlite3_rekey(
-  sqlite3 *db,                   /* Database to be rekeyed */
+int vtk_sqlite3_rekey(
+  vtk_sqlite3 *db,                   /* Database to be rekeyed */
   const void *pKey, int nKey     /* The new key */
 );
 
@@ -2004,23 +2004,23 @@ int sqlite3_rekey(
 ** the nearest second. The number of milliseconds of sleep actually 
 ** requested from the operating system is returned.
 */
-int sqlite3_sleep(int);
+int vtk_sqlite3_sleep(int);
 
 /*
 ** CAPI3REF:  Name Of The Folder Holding Temporary Files
 **
 ** If this global variable is made to point to a string which is
 ** the name of a folder (a.ka. directory), then all temporary files
-** created by SQLite will be placed in that directory.  If this variable
-** is NULL pointer, then SQLite does a search for an appropriate temporary
+** created by Vtk_Sqlite will be placed in that directory.  If this variable
+** is NULL pointer, then Vtk_Sqlite does a search for an appropriate temporary
 ** file directory.
 **
-** Once [sqlite3_open()] has been called, changing this variable will
+** Once [vtk_sqlite3_open()] has been called, changing this variable will
 ** invalidate the current temporary database, if any.  Generally speaking,
-** it is not safe to invoke this routine after [sqlite3_open()] has
+** it is not safe to invoke this routine after [vtk_sqlite3_open()] has
 ** been called.
 */
-extern char *sqlite3_temp_directory;
+extern char *vtk_sqlite3_temp_directory;
 
 /*
 ** CAPI3REF:  Test To See If The Databse Is In Auto-Commit Mode
@@ -2030,18 +2030,18 @@ extern char *sqlite3_temp_directory;
 ** by default.  Autocommit is disabled by a BEGIN statement and reenabled
 ** by the next COMMIT or ROLLBACK.
 */
-int sqlite3_get_autocommit(sqlite3*);
+int vtk_sqlite3_get_autocommit(vtk_sqlite3*);
 
 /*
 ** CAPI3REF:  Find The Database Handle Associated With A Prepared Statement
 **
-** Return the [sqlite3*] database handle to which a
-** [sqlite3_stmt | prepared statement] belongs.
+** Return the [vtk_sqlite3*] database handle to which a
+** [vtk_sqlite3_stmt | prepared statement] belongs.
 ** This is the same database handle that was
-** the first argument to the [sqlite3_prepare_v2()] or its variants
+** the first argument to the [vtk_sqlite3_prepare_v2()] or its variants
 ** that was used to create the statement in the first place.
 */
-sqlite3 *sqlite3_db_handle(sqlite3_stmt*);
+vtk_sqlite3 *vtk_sqlite3_db_handle(vtk_sqlite3_stmt*);
 
 
 /*
@@ -2066,8 +2066,8 @@ sqlite3 *sqlite3_db_handle(sqlite3_stmt*);
 **
 ** These are experimental interfaces and are subject to change.
 */
-void *sqlite3_commit_hook(sqlite3*, int(*)(void*), void*);
-void *sqlite3_rollback_hook(sqlite3*, void(*)(void *), void*);
+void *vtk_sqlite3_commit_hook(vtk_sqlite3*, int(*)(void*), void*);
+void *vtk_sqlite3_rollback_hook(vtk_sqlite3*, void(*)(void *), void*);
 
 /*
 ** CAPI3REF: Data Change Notification Callbacks
@@ -2079,8 +2079,8 @@ void *sqlite3_rollback_hook(sqlite3*, void(*)(void *), void*);
 **
 ** The second argument is a pointer to the function to invoke when a 
 ** row is updated, inserted or deleted. The first argument to the callback is
-** a copy of the third argument to sqlite3_update_hook(). The second callback 
-** argument is one of SQLITE_INSERT, SQLITE_DELETE or SQLITE_UPDATE, depending
+** a copy of the third argument to vtk_sqlite3_update_hook(). The second callback 
+** argument is one of VTK_SQLITE_INSERT, VTK_SQLITE_DELETE or VTK_SQLITE_UPDATE, depending
 ** on the operation that caused the callback to be invoked. The third and 
 ** fourth arguments to the callback contain pointers to the database and 
 ** table name containing the affected row. The final callback parameter is 
@@ -2088,14 +2088,14 @@ void *sqlite3_rollback_hook(sqlite3*, void(*)(void *), void*);
 ** the update takes place.
 **
 ** The update hook is not invoked when internal system tables are
-** modified (i.e. sqlite_master and sqlite_sequence).
+** modified (i.e. vtk_sqlite_master and vtk_sqlite_sequence).
 **
 ** If another function was previously registered, its pArg value is returned.
 ** Otherwise NULL is returned.
 */
-void *sqlite3_update_hook(
-  sqlite3*, 
-  void(*)(void *,int ,char const *,char const *,sqlite_int64),
+void *vtk_sqlite3_update_hook(
+  vtk_sqlite3*, 
+  void(*)(void *,int ,char const *,char const *,vtk_sqlite_int64),
   void*
 );
 
@@ -2115,7 +2115,7 @@ void *sqlite3_update_hook(
 **
 ** Sharing must be disabled prior to shutting down a thread or else
 ** the thread will leak memory.  Call this routine with an argument of
-** 0 to turn off sharing.  Or use the sqlite3_thread_cleanup() API.
+** 0 to turn off sharing.  Or use the vtk_sqlite3_thread_cleanup() API.
 **
 ** This routine must not be called when any database connections
 ** are active in the current thread.  Enabling or disabling shared
@@ -2124,23 +2124,23 @@ void *sqlite3_update_hook(
 **
 ** When the shared cache is enabled, the
 ** following routines must always be called from the same thread:
-** [sqlite3_open()], [sqlite3_prepare_v2()], [sqlite3_step()],
-** [sqlite3_reset()], [sqlite3_finalize()], and [sqlite3_close()].
+** [vtk_sqlite3_open()], [vtk_sqlite3_prepare_v2()], [vtk_sqlite3_step()],
+** [vtk_sqlite3_reset()], [vtk_sqlite3_finalize()], and [vtk_sqlite3_close()].
 ** This is due to the fact that the shared cache makes use of
 ** thread-specific storage so that it will be available for sharing
 ** with other connections.
 **
 ** Virtual tables cannot be used with a shared cache.  When shared
-** cache is enabled, the sqlite3_create_module() API used to register
+** cache is enabled, the vtk_sqlite3_create_module() API used to register
 ** virtual tables will always return an error.
 **
-** This routine returns [SQLITE_OK] if shared cache was
-** enabled or disabled successfully.  An [SQLITE_ERROR | error code]
+** This routine returns [VTK_SQLITE_OK] if shared cache was
+** enabled or disabled successfully.  An [VTK_SQLITE_ERROR | error code]
 ** is returned otherwise.
 **
 ** Shared cache is disabled by default for backward compatibility.
 */
-int sqlite3_enable_shared_cache(int);
+int vtk_sqlite3_enable_shared_cache(int);
 
 /*
 ** CAPI3REF:  Attempt To Free Heap Memory
@@ -2150,40 +2150,40 @@ int sqlite3_enable_shared_cache(int);
 ** used to cache database pages to improve performance).
 **
 ** This function is not a part of standard builds.  It is only created
-** if SQLite is compiled with the SQLITE_ENABLE_MEMORY_MANAGEMENT macro.
+** if Vtk_Sqlite is compiled with the VTK_SQLITE_ENABLE_MEMORY_MANAGEMENT macro.
 */
-int sqlite3_release_memory(int);
+int vtk_sqlite3_release_memory(int);
 
 /*
 ** CAPI3REF:  Impose A Limit On Heap Size
 **
 ** Place a "soft" limit on the amount of heap memory that may be allocated by
-** SQLite within the current thread. If an internal allocation is requested 
-** that would exceed the specified limit, [sqlite3_release_memory()] is invoked
+** Vtk_Sqlite within the current thread. If an internal allocation is requested 
+** that would exceed the specified limit, [vtk_sqlite3_release_memory()] is invoked
 ** one or more times to free up some space before the allocation is made.
 **
-** The limit is called "soft", because if [sqlite3_release_memory()] cannot free
+** The limit is called "soft", because if [vtk_sqlite3_release_memory()] cannot free
 ** sufficient memory to prevent the limit from being exceeded, the memory is
 ** allocated anyway and the current operation proceeds.
 **
-** Prior to shutting down a thread sqlite3_soft_heap_limit() must be set to 
+** Prior to shutting down a thread vtk_sqlite3_soft_heap_limit() must be set to 
 ** zero (the default) or else the thread will leak memory. Alternatively, use
-** the [sqlite3_thread_cleanup()] API.
+** the [vtk_sqlite3_thread_cleanup()] API.
 **
 ** A negative or zero value for N means that there is no soft heap limit and
-** [sqlite3_release_memory()] will only be called when memory is exhaused.
+** [vtk_sqlite3_release_memory()] will only be called when memory is exhaused.
 ** The default value for the soft heap limit is zero.
 **
-** SQLite makes a best effort to honor the soft heap limit.  But if it
+** Vtk_Sqlite makes a best effort to honor the soft heap limit.  But if it
 ** is unable to reduce memory usage below the soft limit, execution will
 ** continue without error or notification.  This is why the limit is 
 ** called a "soft" limit.  It is advisory only.
 **
 ** This function is only available if the library was compiled with the 
-** SQLITE_ENABLE_MEMORY_MANAGEMENT option set.
+** VTK_SQLITE_ENABLE_MEMORY_MANAGEMENT option set.
 ** memory-management has been enabled.
 */
-void sqlite3_soft_heap_limit(int);
+void vtk_sqlite3_soft_heap_limit(int);
 
 /*
 ** CAPI3REF:  Clean Up Thread Local Storage
@@ -2198,7 +2198,7 @@ void sqlite3_soft_heap_limit(int);
 ** want to make absolutely sure they have not forgotten something
 ** prior to killing off a thread.
 */
-void sqlite3_thread_cleanup(void);
+void vtk_sqlite3_thread_cleanup(void);
 
 /*
 ** CAPI3REF:  Extract Metadata About A Column Of A Table
@@ -2238,7 +2238,7 @@ void sqlite3_thread_cleanup(void);
 **
 ** The memory pointed to by the character pointers returned for the 
 ** declaration type and collation sequence is valid only until the next 
-** call to any sqlite API function.
+** call to any vtk_sqlite API function.
 **
 ** If the specified table is actually a view, then an error is returned.
 **
@@ -2258,14 +2258,14 @@ void sqlite3_thread_cleanup(void);
 **
 ** This function may load one or more schemas from database files. If an
 ** error occurs during this process, or if the requested table or column
-** cannot be found, an SQLITE error code is returned and an error message
-** left in the database handle (to be retrieved using sqlite3_errmsg()).
+** cannot be found, an VTK_SQLITE error code is returned and an error message
+** left in the database handle (to be retrieved using vtk_sqlite3_errmsg()).
 **
 ** This API is only available if the library was compiled with the
-** SQLITE_ENABLE_COLUMN_METADATA preprocessor symbol defined.
+** VTK_SQLITE_ENABLE_COLUMN_METADATA preprocessor symbol defined.
 */
-int sqlite3_table_column_metadata(
-  sqlite3 *db,                /* Connection handle */
+int vtk_sqlite3_table_column_metadata(
+  vtk_sqlite3 *db,                /* Connection handle */
   const char *zDbName,        /* Database name or NULL */
   const char *zTableName,     /* Table name */
   const char *zColumnName,    /* Column name */
@@ -2279,21 +2279,21 @@ int sqlite3_table_column_metadata(
 /*
 ** CAPI3REF: Load An Extension
 **
-** Attempt to load an SQLite extension library contained in the file
+** Attempt to load an Vtk_Sqlite extension library contained in the file
 ** zFile.  The entry point is zProc.  zProc may be 0 in which case the
-** name of the entry point defaults to "sqlite3_extension_init".
+** name of the entry point defaults to "vtk_sqlite3_extension_init".
 **
-** Return [SQLITE_OK] on success and [SQLITE_ERROR] if something goes wrong.
+** Return [VTK_SQLITE_OK] on success and [VTK_SQLITE_ERROR] if something goes wrong.
 **
 ** If an error occurs and pzErrMsg is not 0, then fill *pzErrMsg with 
 ** error message text.  The calling function should free this memory
-** by calling [sqlite3_free()].
+** by calling [vtk_sqlite3_free()].
 **
-** Extension loading must be enabled using [sqlite3_enable_load_extension()]
+** Extension loading must be enabled using [vtk_sqlite3_enable_load_extension()]
 ** prior to calling this API or an error will be returned.
 */
-int sqlite3_load_extension(
-  sqlite3 *db,          /* Load the extension into this database connection */
+int vtk_sqlite3_load_extension(
+  vtk_sqlite3 *db,          /* Load the extension into this database connection */
   const char *zFile,    /* Name of the shared library containing extension */
   const char *zProc,    /* Entry point.  Derived from zFile if 0 */
   char **pzErrMsg       /* Put error message here if not 0 */
@@ -2305,20 +2305,20 @@ int sqlite3_load_extension(
 ** So as not to open security holes in older applications that are
 ** unprepared to deal with extension loading, and as a means of disabling
 ** extension loading while evaluating user-entered SQL, the following
-** API is provided to turn the [sqlite3_load_extension()] mechanism on and
+** API is provided to turn the [vtk_sqlite3_load_extension()] mechanism on and
 ** off.  It is off by default.  See ticket #1863.
 **
 ** Call this routine with onoff==1 to turn extension loading on
 ** and call it with onoff==0 to turn it back off again.
 */
-int sqlite3_enable_load_extension(sqlite3 *db, int onoff);
+int vtk_sqlite3_enable_load_extension(vtk_sqlite3 *db, int onoff);
 
 /*
 ** CAPI3REF: Make Arrangements To Automatically Load An Extension
 **
 ** Register an extension entry point that is automatically invoked
 ** whenever a new database connection is opened using
-** [sqlite3_open()] or [sqlite3_open16()].
+** [vtk_sqlite3_open()] or [vtk_sqlite3_open16()].
 **
 ** This API can be invoked at program startup in order to register
 ** one or more statically linked extensions that will be available
@@ -2330,30 +2330,30 @@ int sqlite3_enable_load_extension(sqlite3 *db, int onoff);
 ** This routine stores a pointer to the extension in an array
 ** that is obtained from malloc().  If you run a memory leak
 ** checker on your program and it reports a leak because of this
-** array, then invoke [sqlite3_automatic_extension_reset()] prior
+** array, then invoke [vtk_sqlite3_automatic_extension_reset()] prior
 ** to shutdown to free the memory.
 **
 ** Automatic extensions apply across all threads.
 **
 ** This interface is experimental and is subject to change or
-** removal in future releases of SQLite.
+** removal in future releases of Vtk_Sqlite.
 */
-int sqlite3_auto_extension(void *xEntryPoint);
+int vtk_sqlite3_auto_extension(void *xEntryPoint);
 
 
 /*
 ** CAPI3REF: Reset Automatic Extension Loading
 **
 ** Disable all previously registered automatic extensions.  This
-** routine undoes the effect of all prior [sqlite3_automatic_extension()]
+** routine undoes the effect of all prior [vtk_sqlite3_automatic_extension()]
 ** calls.
 **
 ** This call disabled automatic extensions in all threads.
 **
 ** This interface is experimental and is subject to change or
-** removal in future releases of SQLite.
+** removal in future releases of Vtk_Sqlite.
 */
-void sqlite3_reset_auto_extension(void);
+void vtk_sqlite3_reset_auto_extension(void);
 
 
 /*
@@ -2370,51 +2370,51 @@ void sqlite3_reset_auto_extension(void);
 /*
 ** Structures used by the virtual table interface
 */
-typedef struct sqlite3_vtab sqlite3_vtab;
-typedef struct sqlite3_index_info sqlite3_index_info;
-typedef struct sqlite3_vtab_cursor sqlite3_vtab_cursor;
-typedef struct sqlite3_module sqlite3_module;
+typedef struct vtk_sqlite3_vtab vtk_sqlite3_vtab;
+typedef struct vtk_sqlite3_index_info vtk_sqlite3_index_info;
+typedef struct vtk_sqlite3_vtab_cursor vtk_sqlite3_vtab_cursor;
+typedef struct vtk_sqlite3_module vtk_sqlite3_module;
 
 /*
 ** A module is a class of virtual tables.  Each module is defined
 ** by an instance of the following structure.  This structure consists
 ** mostly of methods for the module.
 */
-struct sqlite3_module {
+struct vtk_sqlite3_module {
   int iVersion;
-  int (*xCreate)(sqlite3*, void *pAux,
+  int (*xCreate)(vtk_sqlite3*, void *pAux,
                int argc, const char *const*argv,
-               sqlite3_vtab **ppVTab, char**);
-  int (*xConnect)(sqlite3*, void *pAux,
+               vtk_sqlite3_vtab **ppVTab, char**);
+  int (*xConnect)(vtk_sqlite3*, void *pAux,
                int argc, const char *const*argv,
-               sqlite3_vtab **ppVTab, char**);
-  int (*xBestIndex)(sqlite3_vtab *pVTab, sqlite3_index_info*);
-  int (*xDisconnect)(sqlite3_vtab *pVTab);
-  int (*xDestroy)(sqlite3_vtab *pVTab);
-  int (*xOpen)(sqlite3_vtab *pVTab, sqlite3_vtab_cursor **ppCursor);
-  int (*xClose)(sqlite3_vtab_cursor*);
-  int (*xFilter)(sqlite3_vtab_cursor*, int idxNum, const char *idxStr,
-                int argc, sqlite3_value **argv);
-  int (*xNext)(sqlite3_vtab_cursor*);
-  int (*xEof)(sqlite3_vtab_cursor*);
-  int (*xColumn)(sqlite3_vtab_cursor*, sqlite3_context*, int);
-  int (*xRowid)(sqlite3_vtab_cursor*, sqlite_int64 *pRowid);
-  int (*xUpdate)(sqlite3_vtab *, int, sqlite3_value **, sqlite_int64 *);
-  int (*xBegin)(sqlite3_vtab *pVTab);
-  int (*xSync)(sqlite3_vtab *pVTab);
-  int (*xCommit)(sqlite3_vtab *pVTab);
-  int (*xRollback)(sqlite3_vtab *pVTab);
-  int (*xFindFunction)(sqlite3_vtab *pVtab, int nArg, const char *zName,
-                       void (**pxFunc)(sqlite3_context*,int,sqlite3_value**),
+               vtk_sqlite3_vtab **ppVTab, char**);
+  int (*xBestIndex)(vtk_sqlite3_vtab *pVTab, vtk_sqlite3_index_info*);
+  int (*xDisconnect)(vtk_sqlite3_vtab *pVTab);
+  int (*xDestroy)(vtk_sqlite3_vtab *pVTab);
+  int (*xOpen)(vtk_sqlite3_vtab *pVTab, vtk_sqlite3_vtab_cursor **ppCursor);
+  int (*xClose)(vtk_sqlite3_vtab_cursor*);
+  int (*xFilter)(vtk_sqlite3_vtab_cursor*, int idxNum, const char *idxStr,
+                int argc, vtk_sqlite3_value **argv);
+  int (*xNext)(vtk_sqlite3_vtab_cursor*);
+  int (*xEof)(vtk_sqlite3_vtab_cursor*);
+  int (*xColumn)(vtk_sqlite3_vtab_cursor*, vtk_sqlite3_context*, int);
+  int (*xRowid)(vtk_sqlite3_vtab_cursor*, vtk_sqlite_int64 *pRowid);
+  int (*xUpdate)(vtk_sqlite3_vtab *, int, vtk_sqlite3_value **, vtk_sqlite_int64 *);
+  int (*xBegin)(vtk_sqlite3_vtab *pVTab);
+  int (*xSync)(vtk_sqlite3_vtab *pVTab);
+  int (*xCommit)(vtk_sqlite3_vtab *pVTab);
+  int (*xRollback)(vtk_sqlite3_vtab *pVTab);
+  int (*xFindFunction)(vtk_sqlite3_vtab *pVtab, int nArg, const char *zName,
+                       void (**pxFunc)(vtk_sqlite3_context*,int,vtk_sqlite3_value**),
                        void **ppArg);
 
-  int (*xRename)(sqlite3_vtab *pVtab, const char *zNew);
+  int (*xRename)(vtk_sqlite3_vtab *pVtab, const char *zNew);
 };
 
 /*
-** The sqlite3_index_info structure and its substructures is used to
+** The vtk_sqlite3_index_info structure and its substructures is used to
 ** pass information into and receive the reply from the xBestIndex
-** method of an sqlite3_module.  The fields under **Inputs** are the
+** method of an vtk_sqlite3_module.  The fields under **Inputs** are the
 ** inputs to xBestIndex and are read-only.  xBestIndex inserts its
 ** results into the **Outputs** fields.
 **
@@ -2443,10 +2443,10 @@ struct sqlite3_module {
 ** the right-hand side of the corresponding aConstraint[] is evaluated
 ** and becomes the argvIndex-th entry in argv.  If aConstraintUsage[].omit
 ** is true, then the constraint is assumed to be fully handled by the
-** virtual table and is not checked again by SQLite.
+** virtual table and is not checked again by Vtk_Sqlite.
 **
 ** The idxNum and idxPtr values are recorded and passed into xFilter.
-** sqlite3_free() is used to free idxPtr if needToFreeIdxPtr is true.
+** vtk_sqlite3_free() is used to free idxPtr if needToFreeIdxPtr is true.
 **
 ** The orderByConsumed means that output from xFilter will occur in
 ** the correct order to satisfy the ORDER BY clause so that no separate
@@ -2457,61 +2457,61 @@ struct sqlite3_module {
 ** a cost of N.  A binary search of a table of N entries should have a
 ** cost of approximately log(N).
 */
-struct sqlite3_index_info {
+struct vtk_sqlite3_index_info {
   /* Inputs */
   const int nConstraint;     /* Number of entries in aConstraint */
-  const struct sqlite3_index_constraint {
+  const struct vtk_sqlite3_index_constraint {
      int iColumn;              /* Column on left-hand side of constraint */
      unsigned char op;         /* Constraint operator */
      unsigned char usable;     /* True if this constraint is usable */
      int iTermOffset;          /* Used internally - xBestIndex should ignore */
   } *const aConstraint;      /* Table of WHERE clause constraints */
   const int nOrderBy;        /* Number of terms in the ORDER BY clause */
-  const struct sqlite3_index_orderby {
+  const struct vtk_sqlite3_index_orderby {
      int iColumn;              /* Column number */
      unsigned char desc;       /* True for DESC.  False for ASC. */
   } *const aOrderBy;         /* The ORDER BY clause */
 
   /* Outputs */
-  struct sqlite3_index_constraint_usage {
+  struct vtk_sqlite3_index_constraint_usage {
     int argvIndex;           /* if >0, constraint is part of argv to xFilter */
     unsigned char omit;      /* Do not code a test for this constraint */
   } *const aConstraintUsage;
   int idxNum;                /* Number used to identify the index */
-  char *idxStr;              /* String, possibly obtained from sqlite3_malloc */
-  int needToFreeIdxStr;      /* Free idxStr using sqlite3_free() if true */
+  char *idxStr;              /* String, possibly obtained from vtk_sqlite3_malloc */
+  int needToFreeIdxStr;      /* Free idxStr using vtk_sqlite3_free() if true */
   int orderByConsumed;       /* True if output is already ordered */
   double estimatedCost;      /* Estimated cost of using this index */
 };
-#define SQLITE_INDEX_CONSTRAINT_EQ    2
-#define SQLITE_INDEX_CONSTRAINT_GT    4
-#define SQLITE_INDEX_CONSTRAINT_LE    8
-#define SQLITE_INDEX_CONSTRAINT_LT    16
-#define SQLITE_INDEX_CONSTRAINT_GE    32
-#define SQLITE_INDEX_CONSTRAINT_MATCH 64
+#define VTK_SQLITE_INDEX_CONSTRAINT_EQ    2
+#define VTK_SQLITE_INDEX_CONSTRAINT_GT    4
+#define VTK_SQLITE_INDEX_CONSTRAINT_LE    8
+#define VTK_SQLITE_INDEX_CONSTRAINT_LT    16
+#define VTK_SQLITE_INDEX_CONSTRAINT_GE    32
+#define VTK_SQLITE_INDEX_CONSTRAINT_MATCH 64
 
 /*
-** This routine is used to register a new module name with an SQLite
+** This routine is used to register a new module name with an Vtk_Sqlite
 ** connection.  Module names must be registered before creating new
 ** virtual tables on the module, or before using preexisting virtual
 ** tables of the module.
 */
-int sqlite3_create_module(
-  sqlite3 *db,               /* SQLite connection to register module with */
+int vtk_sqlite3_create_module(
+  vtk_sqlite3 *db,               /* Vtk_Sqlite connection to register module with */
   const char *zName,         /* Name of the module */
-  const sqlite3_module *,    /* Methods for the module */
+  const vtk_sqlite3_module *,    /* Methods for the module */
   void *                     /* Client data for xCreate/xConnect */
 );
 
 /*
-** This routine is identical to the sqlite3_create_module() method above,
+** This routine is identical to the vtk_sqlite3_create_module() method above,
 ** except that it allows a destructor function to be specified. It is
 ** even more experimental than the rest of the virtual tables API.
 */
-int sqlite3_create_module_v2(
-  sqlite3 *db,               /* SQLite connection to register module with */
+int vtk_sqlite3_create_module_v2(
+  vtk_sqlite3 *db,               /* Vtk_Sqlite connection to register module with */
   const char *zName,         /* Name of the module */
-  const sqlite3_module *,    /* Methods for the module */
+  const vtk_sqlite3_module *,    /* Methods for the module */
   void *,                    /* Client data for xCreate/xConnect */
   void(*xDestroy)(void*)     /* Module destructor function */
 );
@@ -2524,19 +2524,19 @@ int sqlite3_create_module_v2(
 ** to all module implementations.
 **
 ** Virtual tables methods can set an error message by assigning a
-** string obtained from sqlite3_mprintf() to zErrMsg.  The method should
-** take care that any prior string is freed by a call to sqlite3_free()
+** string obtained from vtk_sqlite3_mprintf() to zErrMsg.  The method should
+** take care that any prior string is freed by a call to vtk_sqlite3_free()
 ** prior to assigning a new string to zErrMsg.  After the error message
 ** is delivered up to the client application, the string will be automatically
-** freed by sqlite3_free() and the zErrMsg field will be zeroed.  Note
-** that sqlite3_mprintf() and sqlite3_free() are used on the zErrMsg field
+** freed by vtk_sqlite3_free() and the zErrMsg field will be zeroed.  Note
+** that vtk_sqlite3_mprintf() and vtk_sqlite3_free() are used on the zErrMsg field
 ** since virtual tables are commonly implemented in loadable extensions which
-** do not have access to sqlite3MPrintf() or sqlite3Free().
+** do not have access to vtk_sqlite3MPrintf() or vtk_sqlite3Free().
 */
-struct sqlite3_vtab {
-  const sqlite3_module *pModule;  /* The module for this virtual table */
+struct vtk_sqlite3_vtab {
+  const vtk_sqlite3_module *pModule;  /* The module for this virtual table */
   int nRef;                       /* Used internally */
-  char *zErrMsg;                  /* Error message from sqlite3_mprintf() */
+  char *zErrMsg;                  /* Error message from vtk_sqlite3_mprintf() */
   /* Virtual table implementations will typically add additional fields */
 };
 
@@ -2549,8 +2549,8 @@ struct sqlite3_vtab {
 ** This superclass exists in order to define fields of the cursor that
 ** are common to all implementations.
 */
-struct sqlite3_vtab_cursor {
-  sqlite3_vtab *pVtab;      /* Virtual table of this cursor */
+struct vtk_sqlite3_vtab_cursor {
+  vtk_sqlite3_vtab *pVtab;      /* Virtual table of this cursor */
   /* Virtual table implementations will typically add additional fields */
 };
 
@@ -2559,7 +2559,7 @@ struct sqlite3_vtab_cursor {
 ** to declare the format (the names and datatypes of the columns) of
 ** the virtual tables they implement.
 */
-int sqlite3_declare_vtab(sqlite3*, const char *zCreateTable);
+int vtk_sqlite3_declare_vtab(vtk_sqlite3*, const char *zCreateTable);
 
 /*
 ** Virtual tables can provide alternative implementations of functions
@@ -2577,7 +2577,7 @@ int sqlite3_declare_vtab(sqlite3*, const char *zCreateTable);
 ** This API should be considered part of the virtual table interface,
 ** which is experimental and subject to change.
 */
-int sqlite3_overload_function(sqlite3*, const char *zFuncName, int nArg);
+int vtk_sqlite3_overload_function(vtk_sqlite3*, const char *zFuncName, int nArg);
 
 /*
 ** The interface to the virtual-table mechanism defined above (back up
@@ -2596,13 +2596,13 @@ int sqlite3_overload_function(sqlite3*, const char *zFuncName, int nArg);
 **
 ** An instance of the following opaque structure is used to 
 ** represent an blob-handle.  A blob-handle is created by
-** [sqlite3_blob_open()] and destroyed by [sqlite3_blob_close()].
-** The [sqlite3_blob_read()] and [sqlite3_blob_write()] interfaces
+** [vtk_sqlite3_blob_open()] and destroyed by [vtk_sqlite3_blob_close()].
+** The [vtk_sqlite3_blob_read()] and [vtk_sqlite3_blob_write()] interfaces
 ** can be used to read or write small subsections of the blob.
 ** The [sqltie3_blob_size()] interface returns the size of the
 ** blob in bytes.
 */
-typedef struct sqlite3_blob sqlite3_blob;
+typedef struct vtk_sqlite3_blob vtk_sqlite3_blob;
 
 /*
 ** CAPI3REF: Open A BLOB For Incremental I/O
@@ -2619,80 +2619,80 @@ typedef struct sqlite3_blob sqlite3_blob;
 ** read and write access. If it is zero, the blob is opened for read 
 ** access.
 **
-** On success, [SQLITE_OK] is returned and the new 
-** [sqlite3_blob | blob handle] is written to *ppBlob.
+** On success, [VTK_SQLITE_OK] is returned and the new 
+** [vtk_sqlite3_blob | blob handle] is written to *ppBlob.
 ** Otherwise an error code is returned and 
 ** any value written to *ppBlob should not be used by the caller.
 ** This function sets the database-handle error code and message
-** accessible via [sqlite3_errcode()] and [sqlite3_errmsg()].
+** accessible via [vtk_sqlite3_errcode()] and [vtk_sqlite3_errmsg()].
 */
-int sqlite3_blob_open(
-  sqlite3*,
+int vtk_sqlite3_blob_open(
+  vtk_sqlite3*,
   const char *zDb,
   const char *zTable,
   const char *zColumn,
-  sqlite_int64 iRow,
+  vtk_sqlite_int64 iRow,
   int flags,
-  sqlite3_blob **ppBlob
+  vtk_sqlite3_blob **ppBlob
 );
 
 /*
 ** CAPI3REF:  Close A BLOB Handle
 **
-** Close an open [sqlite3_blob | blob handle].
+** Close an open [vtk_sqlite3_blob | blob handle].
 */
-int sqlite3_blob_close(sqlite3_blob *);
+int vtk_sqlite3_blob_close(vtk_sqlite3_blob *);
 
 /*
 ** CAPI3REF:  Return The Size Of An Open BLOB
 **
 ** Return the size in bytes of the blob accessible via the open 
-** [sqlite3_blob | blob-handle] passed as an argument.
+** [vtk_sqlite3_blob | blob-handle] passed as an argument.
 */
-int sqlite3_blob_bytes(sqlite3_blob *);
+int vtk_sqlite3_blob_bytes(vtk_sqlite3_blob *);
 
 /*
 ** CAPI3REF:  Read Data From A BLOB Incrementally
 **
 ** This function is used to read data from an open 
-** [sqlite3_blob | blob-handle] into a caller supplied buffer.
+** [vtk_sqlite3_blob | blob-handle] into a caller supplied buffer.
 ** n bytes of data are copied into buffer
 ** z from the open blob, starting at offset iOffset.
 **
-** On success, SQLITE_OK is returned. Otherwise, an 
-** [SQLITE_ERROR | SQLite error code] or an
-** [SQLITE_IOERR_READ | extended error code] is returned.
+** On success, VTK_SQLITE_OK is returned. Otherwise, an 
+** [VTK_SQLITE_ERROR | Vtk_Sqlite error code] or an
+** [VTK_SQLITE_IOERR_READ | extended error code] is returned.
 */
-int sqlite3_blob_read(sqlite3_blob *, void *z, int n, int iOffset);
+int vtk_sqlite3_blob_read(vtk_sqlite3_blob *, void *z, int n, int iOffset);
 
 /*
 ** CAPI3REF:  Write Data Into A BLOB Incrementally
 **
 ** This function is used to write data into an open 
-** [sqlite3_blob | blob-handle] from a user supplied buffer.
+** [vtk_sqlite3_blob | blob-handle] from a user supplied buffer.
 ** n bytes of data are copied from the buffer
 ** pointed to by z into the open blob, starting at offset iOffset.
 **
-** If the [sqlite3_blob | blob-handle] passed as the first argument
-** was not opened for writing (the flags parameter to [sqlite3_blob_open()]
-*** was zero), this function returns [SQLITE_READONLY].
+** If the [vtk_sqlite3_blob | blob-handle] passed as the first argument
+** was not opened for writing (the flags parameter to [vtk_sqlite3_blob_open()]
+*** was zero), this function returns [VTK_SQLITE_READONLY].
 **
 ** This function may only modify the contents of the blob, it is
 ** not possible to increase the size of a blob using this API. If
 ** offset iOffset is less than n bytes from the end of the blob, 
-** [SQLITE_ERROR] is returned and no data is written.
+** [VTK_SQLITE_ERROR] is returned and no data is written.
 **
-** On success, SQLITE_OK is returned. Otherwise, an 
-** [SQLITE_ERROR | SQLite error code] or an
-** [SQLITE_IOERR_READ | extended error code] is returned.
+** On success, VTK_SQLITE_OK is returned. Otherwise, an 
+** [VTK_SQLITE_ERROR | Vtk_Sqlite error code] or an
+** [VTK_SQLITE_IOERR_READ | extended error code] is returned.
 */
-int sqlite3_blob_write(sqlite3_blob *, const void *z, int n, int iOffset);
+int vtk_sqlite3_blob_write(vtk_sqlite3_blob *, const void *z, int n, int iOffset);
 
 /*
 ** Undo the hack that converts floating point types to integer for
 ** builds on processors without floating point support.
 */
-#ifdef SQLITE_OMIT_FLOATING_POINT
+#ifdef VTK_SQLITE_OMIT_FLOATING_POINT
 # undef double
 #endif
 
