@@ -47,6 +47,13 @@ public:
   vtkBooleanMacro(UserManagedInputs,int);
 
   // Description:
+  // When enabled, the inputs will be combined togther by creating a new
+  // vtkSelection root with ContentType as SELECTIONS and simply adding all
+  // inputs as children of this root. Disabled by default.
+  vtkSetMacro(AppendByCompositing, int);
+  vtkGetMacro(AppendByCompositing, int);
+
+  // Description:
   // Add a dataset to the list of data to append. Should not be
   // used when UserManagedInputs is true, use SetInputByNumber instead.
   void AddInput(vtkSelection *);
@@ -80,12 +87,22 @@ protected:
                           vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int, vtkInformation *);
 
+  // RequestData when AppendByCompositing is true.
+  int RequestDataCompositing(vtkInformation *request,
+    vtkInformationVector **inputVector,
+    vtkInformationVector *outputVector);
+
+  // RequestData when AppendByCompositing is false (default).
+  int RequestDataUnion(vtkInformation *request,
+    vtkInformationVector **inputVector,
+    vtkInformationVector *outputVector);
  private:
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkSelection not a vtkDataObject."); };
 
   int UserManagedInputs;
+  int AppendByCompositing;
 
 private:
   vtkAppendSelection(const vtkAppendSelection&);  // Not implemented.

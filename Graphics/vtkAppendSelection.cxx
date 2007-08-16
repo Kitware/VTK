@@ -25,13 +25,14 @@
 #include "vtkSelection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendSelection, "1.2");
+vtkCxxRevisionMacro(vtkAppendSelection, "1.3");
 vtkStandardNewMacro(vtkAppendSelection);
 
 //----------------------------------------------------------------------------
 vtkAppendSelection::vtkAppendSelection()
 {
   this->UserManagedInputs = 0;
+  this->AppendByCompositing = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -104,9 +105,60 @@ void vtkAppendSelection::SetInputByNumber(int num, vtkSelection *input)
 }
 
 //----------------------------------------------------------------------------
-int vtkAppendSelection::RequestData(vtkInformation *vtkNotUsed(request),
+int vtkAppendSelection::RequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector)
+{
+
+  return (this->AppendByCompositing?
+    this->RequestDataCompositing(request, inputVector, outputVector):
+    this->RequestDataUnion(request, inputVector, outputVector));
+}
+
+//----------------------------------------------------------------------------
+int vtkAppendSelection::RequestDataCompositing(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  // Get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // Get the output
+  vtkSelection *output = vtkSelection::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  // If there are no inputs, we are done.
+  int numInputs = this->GetNumberOfInputConnections(0);
+  if (numInputs == 0)
+    {
+    return 1;
+    }
+
+  output->SetContentType(vtkSelection::SELECTIONS);
+
+  // Take the union of all non-null selections
+  for (int idx=0; idx < numInputs; ++idx)
+    {
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(idx);
+    vtkSelection *s = vtkSelection::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    if (s != NULL)
+      {
+      vtkSelection* clone = vtkSelection::New();
+      clone->ShallowCopy(s);
+      output->AddChild(clone);
+      clone->Delete();
+      } // for a non NULL input
+    } // for each input
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkAppendSelection::RequestDataUnion(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
   // Get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -176,6 +228,7 @@ int vtkAppendSelection::FillInputPortInformation(int port, vtkInformation *info)
 void vtkAppendSelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
+  os << "AppendByCompositing: " 
+    << (this->AppendByCompositing? "On" : "Off") << endl;
   os << "UserManagedInputs:" << (this->UserManagedInputs?"On":"Off") << endl;
 }
