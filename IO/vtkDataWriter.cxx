@@ -40,7 +40,7 @@
 #include <vtksys/ios/sstream>
 
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.122");
+vtkCxxRevisionMacro(vtkDataWriter, "1.123");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -1376,7 +1376,7 @@ void vtkDataWriter::WriteData()
 void vtkDataWriter::CloseVTKFile(ostream *fp)
 {
   vtkDebugMacro(<<"Closing vtk file\n");
-  
+ 
   if ( fp != NULL )
     {
     if (this->WriteToOutputString)
@@ -1384,10 +1384,11 @@ void vtkDataWriter::CloseVTKFile(ostream *fp)
       vtksys_ios::ostringstream *ostr = (vtksys_ios::ostringstream*)(fp);
 
       if (this->OutputString &&
-          this->OutputStringAllocatedLength > ostr->str().length())
+          static_cast<unsigned int>(this->OutputStringAllocatedLength) > ostr->str().size())
         {
-        strcpy(this->OutputString, ostr->str().c_str());
-        this->OutputStringLength = ostr->str().length();
+        this->OutputStringLength = ostr->str().size();
+        memcpy(this->OutputString, ostr->str().c_str(), 
+          this->OutputStringLength);
         }
       else
         {
