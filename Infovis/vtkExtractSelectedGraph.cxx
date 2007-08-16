@@ -39,7 +39,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.8");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.9");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -258,6 +258,12 @@ int vtkExtractSelectedGraph::RequestData(
       }
     output->SetPoints(outputPoints);
     outputPoints->Delete();
+    
+    // Make a directed shallow copy of the graph so GetOutEdges()
+    // returns every edge no more than once.
+    vtkGraph* copy = vtkGraph::New();
+    copy->ShallowCopy(input);
+    copy->SetDirected(true);
   
     // Copy any edges that connect selected vertices
     vtkCellData* inputEdgeData = input->GetEdgeData();
@@ -270,7 +276,7 @@ int vtkExtractSelectedGraph::RequestData(
       if (idMap.count(inputVertex) > 0)
         {
         vtkIdType outputVertex = idMap[inputVertex];
-        input->GetOutEdges(inputVertex, edgeList);
+        copy->GetOutEdges(inputVertex, edgeList);
         for (vtkIdType j = 0; j < edgeList->GetNumberOfIds(); j++)
           {
           vtkIdType inputEdge = edgeList->GetId(j);
@@ -285,6 +291,9 @@ int vtkExtractSelectedGraph::RequestData(
         }
       }
     edgeList->Delete();
+    
+    // Clean up
+    copy->Delete();
     }
 
   // Clean up
