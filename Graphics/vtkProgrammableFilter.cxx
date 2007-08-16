@@ -22,7 +22,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkProgrammableFilter, "1.22");
+vtkCxxRevisionMacro(vtkProgrammableFilter, "1.23");
 vtkStandardNewMacro(vtkProgrammableFilter);
 
 // Construct programmable filter with empty execute method.
@@ -110,19 +110,27 @@ int vtkProgrammableFilter::RequestData(
   vtkInformationVector *outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *inInfo = 0;
+  if (inputVector[0]->GetNumberOfInformationObjects() > 0)
+    {
+    inInfo = inputVector[0]->GetInformationObject(0);
+    }
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and ouptut
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *input = 0;
+  if (inInfo)
+    {
+    input = vtkDataSet::SafeDownCast(
+      inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    }
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDebugMacro(<<"Executing programmable filter");
 
   // First, copy the input to the output as a starting point
-  if (input->GetDataObjectType() == output->GetDataObjectType())
+  if (input && input->GetDataObjectType() == output->GetDataObjectType())
     {
     output->CopyStructure( input );
     }
