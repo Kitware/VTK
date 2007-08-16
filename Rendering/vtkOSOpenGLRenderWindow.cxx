@@ -76,7 +76,7 @@ vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOSOpenGLRenderWindow, "1.3");
+vtkCxxRevisionMacro(vtkOSOpenGLRenderWindow, "1.4");
 vtkStandardNewMacro(vtkOSOpenGLRenderWindow);
 #endif
 
@@ -360,10 +360,7 @@ void vtkOSOpenGLRenderWindow::SetForceMakeCurrent()
 
 void *vtkOSOpenGLRenderWindow::GetGenericContext()
 {
-  if (this->Internal->OffScreenContextId)
-    {
-    return (void *)this->Internal->OffScreenContextId;
-    }
+  return (void *)this->Internal->OffScreenContextId;
 }
 
 int vtkOSOpenGLRenderWindow::GetEventPending()
