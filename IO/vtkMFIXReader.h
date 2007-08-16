@@ -243,7 +243,7 @@ private:
   void GetDouble(istream& in, double& val);
   void GetFloat(istream& in, float& val);
   void SkipBytes(istream& in, int n);
-  void RestartVersionNumber(char* buffer);
+  void RestartVersionNumber(const char* buffer);
   void GetBlockOfDoubles(istream& in, vtkDoubleArray *v, int n);
   void GetBlockOfFloats(istream& in, vtkFloatArray *v, int n);
   void GetBlockOfInts(istream& in, vtkIntArray *v, int n);
@@ -252,7 +252,7 @@ private:
   void CreateVariableNames();
   void GetTimeSteps();
   void MakeTimeStepTable(int nvars);
-  void SetProjectName (char *infile);
+  void SetProjectName (const char *infile);
   void MakeSPXTimeStepIndexTable(int nvars);
   void CalculateMaxTimeStep();
   void GetNumberOfVariablesInSPXFiles();

@@ -38,7 +38,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 
-vtkCxxRevisionMacro(vtkMFIXReader, "1.4");
+vtkCxxRevisionMacro(vtkMFIXReader, "1.5");
 vtkStandardNewMacro(vtkMFIXReader);
 
 //----------------------------------------------------------------------------
@@ -719,13 +719,14 @@ void vtkMFIXReader::GetCellDataRange(int cellComp, int index,
 }
 
 //----------------------------------------------------------------------------
-void vtkMFIXReader::SetProjectName (char *infile) {
+void vtkMFIXReader::SetProjectName (const char *infile)
+{
   int len = strlen(infile);
   strncpy(this->RunName, infile, len-4);
 }
 
 //----------------------------------------------------------------------------
-void vtkMFIXReader::RestartVersionNumber(char* buffer)
+void vtkMFIXReader::RestartVersionNumber(const char* buffer)
 {
   char s1[512];
   char s2[512];
