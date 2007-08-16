@@ -114,6 +114,7 @@ public:
   // child to be 0.
   virtual void RemoveChild(unsigned int idx);
   virtual void RemoveChild(vtkSelection*);
+  virtual void RemoveAllChildren();
 
   // Description: 
   // Removes all properties and children. Removes selection list array.

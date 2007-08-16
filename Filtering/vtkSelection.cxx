@@ -29,7 +29,7 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.14");
+vtkCxxRevisionMacro(vtkSelection, "1.15");
 vtkStandardNewMacro(vtkSelection);
 
 vtkCxxSetObjectMacro(vtkSelection, SelectionList, vtkAbstractArray);
@@ -185,11 +185,24 @@ void vtkSelection::RemoveChild(vtkSelection* child)
 }
 
 //----------------------------------------------------------------------------
+void vtkSelection::RemoveAllChildren()
+{
+  vtkstd::vector<vtkSmartPointer<vtkSelection> >::iterator iter =
+    this->Internal->Children.begin();
+  for (; iter != this->Internal->Children.end(); ++iter)
+    {
+    iter->GetPointer()->ParentNode = 0;
+    }
+  this->Internal->Children.clear();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
 void vtkSelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "SelectionList:";
+  os << indent << "SelectionList :";
   if (this->SelectionList)
     {
     this->SelectionList->PrintSelf(os, indent.GetNextIndent());
@@ -205,10 +218,10 @@ void vtkSelection::PrintSelf(ostream& os, vtkIndent indent)
           {
           os << indent <<  da->GetComponent(i,j) << " ";
           }
-        cerr << endl;
+        os << endl;
         }
       }
-    */
+      */
     }
   else
     {
@@ -241,6 +254,7 @@ void vtkSelection::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Children: " << endl;
   for (unsigned int i=0; i<numChildren; i++)
     {
+    os << indent << "Child #" << i << endl;
     this->GetChild(i)->PrintSelf(os, indent.GetNextIndent());
     }
 }
@@ -253,7 +267,8 @@ void vtkSelection::ShallowCopy(vtkDataObject* src)
     {
     return;
     }
-
+  
+  this->Initialize();
   this->Properties->Copy(input->Properties, 0);
   this->SetSelectionList(input->SelectionList);
 
