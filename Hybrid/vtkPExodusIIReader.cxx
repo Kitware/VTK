@@ -79,7 +79,8 @@ static const int objResultTypes[] = {
   vtkExodusIIReader::EDGE_SET,
   vtkExodusIIReader::FACE_SET,
   vtkExodusIIReader::SIDE_SET,
-  vtkExodusIIReader::ELEM_SET
+  vtkExodusIIReader::ELEM_SET,
+  vtkExodusIIReader::GLOBAL
 };
 static const int numObjResultTypes = sizeof(objResultTypes)/sizeof(objResultTypes[0]);
 
@@ -91,7 +92,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.12");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.13");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand

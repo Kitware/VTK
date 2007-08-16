@@ -147,6 +147,7 @@ public:
     MATERIAL = 62,
     HIERARCHY = 63,
     // extended values (not in Exodus headers) for use in cache keys:
+    GLOBAL_TEMPORAL = 102,  //!< global data across timesteps
     NODAL_TEMPORAL = 101,      //!< nodal data across timesteps
     ELEM_BLOCK_TEMPORAL = 100,  //!< element data across timesteps
     GLOBAL_CONN = 99,          //!< connectivity assembled from all blocks+sets to be loaded
@@ -449,6 +450,15 @@ public:
   void SetElementBlockArrayStatus(const char* name, int flag)
     { this->SetObjectStatus(ELEM_BLOCK, name, flag); }
 
+  int GetNumberOfGlobalResultArrays()
+    { return this->GetNumberOfObjectArrays(GLOBAL); }
+  const char* GetGlobalResultArrayName(int index)
+    { return this->GetObjectArrayName(GLOBAL, index); }
+  int GetGlobalResultArrayStatus(const char* name)
+    { return this->GetObjectArrayStatus(GLOBAL, name); }
+  void SetGlobalResultArrayStatus(const char* name, int flag)
+    { this->SetObjectArrayStatus(GLOBAL, name, flag); }
+  
   int GetNumberOfPointResultArrays()
     { return this->GetNumberOfObjectArrays(NODAL); }
   const char* GetPointResultArrayName(int index)

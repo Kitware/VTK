@@ -73,6 +73,7 @@ vtkExtractSelectedLocations.cxx
 vtkExtractSelectedPolyDataIds.cxx
 vtkExtractSelectedThresholds.cxx
 vtkExtractSelection.cxx
+vtkExtractTemporalFieldData.cxx
 vtkExtractTensorComponents.cxx
 vtkExtractUnstructuredGrid.cxx
 vtkExtractVectorComponents.cxx
