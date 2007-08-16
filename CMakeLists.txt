@@ -536,6 +536,15 @@ VTK_DEPENDENT_OPTION(VTK_OPENGL_HAS_OSMESA
                      "The opengl library being used supports off screen Mesa calls." OFF
                      "VTK_USE_RENDERING;UNIX" OFF)
 
+
+# Off-Screen MESA cannot be used with Mangled MESA.
+IF(VTK_OPENGL_HAS_OSMESA  AND  VTK_USE_MANGLED_MESA)
+  MESSAGE(FATAL_ERROR
+    "Off-Screen MESA cannot be used with Mangled MESA.  Turn off either "
+    "VTK_OPENGL_HAS_OSMESA or VTK_USE_MANGLED_MESA.")
+ENDIF(VTK_OPENGL_HAS_OSMESA  AND  VTK_USE_MANGLED_MESA)
+
+
 SET(VTK_CAN_DO_OFF_SCREEN)
 IF(VTK_USE_MANGLED_MESA OR VTK_OPENGL_HAS_OSMESA OR WIN32)
   SET(VTK_CAN_DO_OFF_SCREEN 1)
@@ -555,11 +564,9 @@ VTK_DEPENDENT_OPTION(VTK_USE_GL2PS "Build VTK with gl2ps support." OFF
 
 SET(VTK_CAN_USE_TK)
 IF(VTK_WRAP_PYTHON OR VTK_WRAP_TCL)
-  IF(NOT VTK_USE_COCOA)
-    IF(NOT VTK_DISABLE_TK_INIT)
-      SET(VTK_CAN_USE_TK 1)
-    ENDIF(NOT VTK_DISABLE_TK_INIT)
-  ENDIF(NOT VTK_USE_COCOA)
+  IF(NOT VTK_USE_COCOA  AND NOT  VTK_DISABLE_TK_INIT)
+    SET(VTK_CAN_USE_TK 1)
+  ENDIF(NOT VTK_USE_COCOA  AND NOT  VTK_DISABLE_TK_INIT)
 ENDIF(VTK_WRAP_PYTHON OR VTK_WRAP_TCL)
 VTK_DEPENDENT_OPTION(VTK_USE_TK "Build VTK with Tk support" ON
                      "VTK_CAN_USE_TK" OFF)
@@ -608,10 +615,7 @@ VTK_PREPARE_CMAKEDEFINE("" OPENGL_LIBRARY VTK_USE_OPENGL_LIBRARY)
 #-----------------------------------------------------------------------------
 # Configure Mangled MESA support.
 IF(VTK_USE_MANGLED_MESA)
-  INCLUDE(${VTK_CMAKE_DIR}/FindMangledMesa.cmake)
-
-  MARK_AS_ADVANCED(MANGLED_MESA_INCLUDE_DIR MANGLED_MESA_LIBRARY
-                   MANGLED_OSMESA_INCLUDE_DIR MANGLED_OSMESA_LIBRARY)
+  FIND_PACKAGE(MangledMesa)
 
   IF(MANGLED_MESA_INCLUDE_DIR)
     USE_MANGLED_MESA(${MANGLED_MESA_INCLUDE_DIR}/GL
@@ -621,16 +625,14 @@ ENDIF(VTK_USE_MANGLED_MESA)
 
 #-----------------------------------------------------------------------------
 # Configure Off-Screen MESA support.
+# If rendering is enabled, but there is no graphics system enabled, enforce osmesa
+IF(VTK_USE_RENDERING AND NOT WIN32 AND NOT APPLE AND NOT VTK_USE_X)
+  SET(VTK_OPENGL_HAS_OSMESA ON CACHE BOOL "Forced to ON since neither OPEN_gl_LIBRARY nor MangledMesa were found" FORCE)
+ENDIF(VTK_USE_RENDERING AND NOT WIN32 AND NOT APPLE AND NOT VTK_USE_X)
+
 IF(VTK_OPENGL_HAS_OSMESA)
   FIND_PACKAGE(OSMesa)
 ENDIF(VTK_OPENGL_HAS_OSMESA)
-
-# Off-Screen MESA cannot be used with Mangled MESA.
-IF(VTK_OPENGL_HAS_OSMESA AND VTK_USE_MANGLED_MESA)
-  MESSAGE(SEND_ERROR
-    "Off-Screen MESA cannot be used with Mangled MESA.  Turn off either "
-    "VTK_OPENGL_HAS_OSMESA or VTK_USE_MANGLED_MESA.")
-ENDIF(VTK_OPENGL_HAS_OSMESA AND VTK_USE_MANGLED_MESA)
 
 #-----------------------------------------------------------------------------
 # Configure CG-Shading support.

@@ -1,6 +1,7 @@
 # Try to find Mesa off-screen library and include dir.
 # Once done this will define
 #
+# OSMESA_FOUND        - true if OSMesa has been found
 # OSMESA_INCLUDE_DIR  - where the GL/osmesa.h can be found
 # OSMESA_LIBRARY      - Link this to use OSMesa
 
@@ -20,5 +21,8 @@ IF (NOT OSMESA_LIBRARY)
     /usr/openwin/lib 
   )
 ENDIF (NOT OSMESA_LIBRARY)
+
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(OSMesa  DEFAULT_MSG  OSMESA_LIBRARY  OSMESA_INCLUDE_DIR)
 
 MARK_AS_ADVANCED(OSMESA_INCLUDE_DIR OSMESA_LIBRARY)
