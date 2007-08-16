@@ -1,8 +1,4 @@
-#
-# Check if the system is big endian or little endian
-#
-# VARIABLE - variable to store the result to
-#
+# Tests whether the compiler is Intel icc and needs -i_dynamic
 
 MACRO(TESTNO_ICC_IDYNAMIC_NEEDED VARIABLE LOCAL_TEST_DIR)
   IF("HAVE_${VARIABLE}" MATCHES "^HAVE_${VARIABLE}$")
