@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.34");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.35");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -1822,7 +1822,9 @@ int vtkFunctionParser::FindEndOfMathFunction(int beginIndex)
     {
     i++;
     }
-  
+
+  i++;
+
   for (parenthesisCount = 1; parenthesisCount > 0; ++i)
     {
     parenthesisCount += (this->Function[i] == '(' ? 1 :
