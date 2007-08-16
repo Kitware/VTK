@@ -36,7 +36,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.9");
+vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.10");
 vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
@@ -235,7 +235,7 @@ void vtkLabeledTreeMapDataMapper::GetVertexLabel(vtkIdType vertex,
                                                vtkDataArray *numericData, 
                                                vtkStringArray *stringData, 
                                                int activeComp, int numComp,
-                                               const char *string)
+                                               char *string)
 {
   char format[1024];
   double val;
@@ -560,7 +560,7 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree *tree,
   this->BuildTime.Modified();
 }
 
-int vtkLabeledTreeMapDataMapper::GetStringSize(const char *string, int level)
+int vtkLabeledTreeMapDataMapper::GetStringSize(char *string, int level)
 {
  
   if (level > this->MaxFontLevel)
@@ -703,7 +703,7 @@ void vtkLabeledTreeMapDataMapper::SetFontSizeRange(int maxSize, int minSize,
 }
 
 
-int vtkLabeledTreeMapDataMapper::AnalyseLabel(const char * string, int level, 
+int vtkLabeledTreeMapDataMapper::AnalyseLabel(char * string, int level, 
                                               float *blimitsDC,
                                               float *textPosWC,
                                               vtkTextProperty **tprop)

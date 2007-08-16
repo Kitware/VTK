@@ -113,15 +113,15 @@ protected:
                  int activeComp, int numComps);
   void GetVertexLabel(vtkIdType vertex, vtkDataArray *numericData, 
                     vtkStringArray *stringData, int activeComp, int numComps, 
-                    const char *string);
+                    char *string);
   void UpdateFontSizes();
   int UpdateWindowInfo(vtkViewport *viewport);
-  int GetStringSize(const char *string, int level);
+  int GetStringSize(char *string, int level);
   // Returns 1 if the transformed box is off screen
   int ConvertToDC(float *origBoxInfo, float *newBoxInfo);
   // Returns 1 if the label will not fit in box - 2 if the text could 
   // not be placed due to other labels
-  int AnalyseLabel(const char * string, int level, float *blimitsDC,
+  int AnalyseLabel(char * string, int level, float *blimitsDC,
                    float *textPosWC,
                    vtkTextProperty **tprop);
   int ApplyMasks(int level, float flimits[4], float blimits[4]);
