@@ -218,5 +218,6 @@ int TestAreaSelections(int argc, char* argv[])
   act2->Delete();
   sMap->Delete();
   sAct->Delete();
+  delete [] cfname;
   return !retVal;
 }
