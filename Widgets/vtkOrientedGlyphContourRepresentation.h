@@ -93,6 +93,15 @@ public:
   // Description:
   // Get the points in this contour as a vtkPolyData. 
   virtual vtkPolyData * GetContourRepresentationAsPolyData();
+
+  // Description:
+  // Controls whether the contour widget should always appear on top
+  // of other actors in the scene. (In effect, this will disable OpenGL
+  // Depth buffer tests while rendering the contour).
+  // Default is to set it to true.
+  vtkSetMacro( AlwaysOnTop, int );
+  vtkGetMacro( AlwaysOnTop, int );
+  vtkBooleanMacro( AlwaysOnTop, int );
   
 protected:
   vtkOrientedGlyphContourRepresentation();
@@ -135,6 +144,8 @@ protected:
   // Distance between where the mouse event happens and where the
   // widget is focused - maintain this distance during interaction.
   double InteractionOffset[2];
+
+  int AlwaysOnTop;
 
   void BuildLines();
   
