@@ -97,6 +97,7 @@ public:
   // Description:
   // The range of font sizes to use when rendering the labels.
   void SetFontSizeRange(int maxSize, int minSize, int delta=4);
+  void GetFontSizeRange(int range[3]);
 
   // Description:
   // The range of levels to attempt to label.

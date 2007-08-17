@@ -88,8 +88,8 @@ public:
   
   // Description:
   // The sizes of the fonts used for labeling.
-  void SetFontSizeRange(const int maxSize, const int minSize);
-  void GetFontSizeRange(int range[2]);
+  void SetFontSizeRange(const int maxSize, const int minSize, const int delta=4);
+  void GetFontSizeRange(int range[3]);
   
   // Description:
   // Sets up interactor style.
