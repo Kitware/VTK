@@ -100,7 +100,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.20");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.21");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -1485,13 +1485,11 @@ int vtkExodusIIWriter::CreateNewExodusFile()
     char *nm = new char [1024];
     if (this->FileName == NULL)
       {
-      sprintf(nm, "./ExodusIIWriter.exo.%04d.%04d", 
-              this->NumberOfProcesses, this->MyRank);
+      sprintf(nm, "./ExodusIIWriter.exo.%04d", this->MyRank);
       }
     else
       {
-      sprintf(nm, "%s.%04d.%04d", this->FileName, 
-                this->NumberOfProcesses, this->MyRank);
+      sprintf(nm, "%s.%04d", this->FileName, this->MyRank);
       }
     this->SetMyFileName(nm);
     delete [] nm;
