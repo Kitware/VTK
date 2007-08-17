@@ -57,7 +57,7 @@
 #include "vtkViewTheme.h"
 #include "vtkVisibleCellSelector.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.1");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.2");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -489,6 +489,7 @@ void vtkGraphLayoutView::SetLayoutStrategy(const char* name)
   this->SetLayoutStrategyInternal(name);
 }
 
+//----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetIterationsPerLayout(int iterations)
 {
   // Hmmm... this seems a bit silly, probably a better way
@@ -687,6 +688,10 @@ void vtkGraphLayoutView::ProcessEvents(
     this->GetRepresentation()->Select(this, selection);
     
     selection->Delete();
+    }
+  else if(eventId == vtkCommand::SelectionChangedEvent)
+    {
+    this->Update();
     }
   else
     {
