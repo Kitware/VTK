@@ -7,6 +7,11 @@ SET(KIT_LIBS vtkInfovis)
 
 SET( Kit_SRCS
 vtkDataRepresentation.cxx
+vtkGraphLayoutView.cxx
+vtkRenderView.cxx
+vtkSurfaceRepresentation.cxx
+vtkTreeLayoutView.cxx
+vtkTreeMapView.cxx
 vtkView.cxx
 vtkViewTheme.cxx
 )

@@ -17,20 +17,31 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 // .NAME vtkDataRepresentation - The superclass for all representations
+//
 // .SECTION Description
 // vtkDataRepresentation the superclass for representations of data objects.
 // This class itself may be instantiated and used as a representation
-// that simply holds a connection to a pipeline.  This is used when there
-// is tight integration between view and representation, and the view
-// mangages all representation pipleline / logic.
+// that simply holds a connection to a pipeline.
 //
-// If there is looser integration between representation and view and/or
-// there are multiple representations present in a view, you should use
-// a subclass of vtkDataRepresentation.  The representation should be
+// If there are multiple representations present in a view, you should use
+// a subclass of vtkDataRepresentation.  The representation is
 // responsible for taking the input pipeline connection and converting it
 // to an object usable by a view.  In the most common case, the representation
 // will contain the pipeline necessary to convert a data object into an actor
 // or set of actors.
+//
+// The representation has a concept of a selection.  If the user performs a
+// selection operation on the view, the view forwards this on to its
+// representations.  The representation is responsible for displaying that
+// selection in an appropriate way.
+//
+// Representation selections may also be linked.  The representation shares
+// the selection by converting it into a view-independent format, then
+// setting the selection on its vtkSelectionLink.  Other representations
+// sharing the same selection link instance will get the same selection
+// from the selection link when the view is updated.  The application is
+// responsible for linking representations as appropriate by setting the
+// same vtkSelectionLink on each linked representation.
 
 #ifndef __vtkDataRepresentation_h
 #define __vtkDataRepresentation_h

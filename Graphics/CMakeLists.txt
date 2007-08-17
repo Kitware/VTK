@@ -232,6 +232,7 @@ vtkTubeFilter.cxx
 vtkUnstructuredGridGeometryFilter.cxx
 vtkVectorDot.cxx
 vtkVectorNorm.cxx
+vtkVertexGlyphFilter.cxx
 vtkVoxelContoursToSurfaceFilter.cxx
 vtkWarpLens.cxx
 vtkWarpScalar.cxx

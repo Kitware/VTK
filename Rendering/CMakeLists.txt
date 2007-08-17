@@ -63,6 +63,8 @@ SET( Kit_SRCS
   vtkInteractorStyleImage.cxx
   vtkInteractorStyleJoystickActor.cxx
   vtkInteractorStyleJoystickCamera.cxx
+  vtkInteractorStyleRubberBand2D.cxx
+  vtkInteractorStyleRubberBand3D.cxx
   vtkInteractorStyleRubberBandPick.cxx
   vtkInteractorStyleRubberBandZoom.cxx
   vtkInteractorStyleSwitch.cxx
