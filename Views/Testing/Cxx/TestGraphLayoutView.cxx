@@ -16,7 +16,6 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-
 #include "vtkCommand.h"
 #include "vtkDataRepresentation.h"
 #include "vtkGraphLayoutView.h"
@@ -27,35 +26,9 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLTreeReader.h"
 
-#include <vtksys/stl/vector>
-using vtksys_stl::vector;
-
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
-
-class TestGraphLayoutViewUpdater : public vtkCommand
-{
-public:
-  static TestGraphLayoutViewUpdater* New()
-  { return new TestGraphLayoutViewUpdater; }
-  
-  void SetView(vtkView* view)
-  {
-    this->View = view;
-    view->AddObserver(vtkCommand::SelectionChangedEvent, this);
-  }
-  
-  virtual void Execute(vtkObject*, unsigned long, void*)
-  {
-    this->View->Update();
-  }
-private:
-  TestGraphLayoutViewUpdater() { }  
-  ~TestGraphLayoutViewUpdater() { }
-  vtkView* View;
-};
 
 int TestGraphLayoutView(int argc, char* argv[])
 {
@@ -81,9 +54,6 @@ int TestGraphLayoutView(int argc, char* argv[])
   view->SetupRenderWindow(win);
   view->AddRepresentationFromInputConnection(numeric->GetOutputPort());
   
-  VTK_CREATE(TestGraphLayoutViewUpdater, update);
-  update->SetView(view);
-    
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
