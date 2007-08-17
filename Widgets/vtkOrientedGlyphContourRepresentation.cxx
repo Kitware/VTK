@@ -41,7 +41,7 @@
 #include "vtkBezierContourLineInterpolator.h"
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.13");
+vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.14");
 vtkStandardNewMacro(vtkOrientedGlyphContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -648,7 +648,7 @@ int vtkOrientedGlyphContourRepresentation::RenderOpaqueGeometry(
   // build here
   this->BuildRepresentation();
   
-  GLboolean flag;
+  GLboolean flag = GL_FALSE;
   if ( this->AlwaysOnTop 
       && (this->ActiveActor->GetVisibility() ||
           this->LinesActor->GetVisibility()))
