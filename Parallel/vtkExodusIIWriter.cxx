@@ -100,7 +100,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.19");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.20");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -731,11 +731,11 @@ int vtkExodusIIWriter::CheckParameters()
 
   if (!HaveBlockIdArray)
     {
-    da = cd->GetArray("BlockId");
+    da = cd->GetArray("ObjectId");
 
     if (da)
       {
-      this->SetBlockIdArrayName("BlockId");
+      this->SetBlockIdArrayName("ObjectId");
       HaveBlockIdArray = 1;
       }
     }
