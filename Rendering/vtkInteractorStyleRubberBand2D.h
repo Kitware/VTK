@@ -55,6 +55,7 @@ public:
   virtual void OnMouseWheelForward();
   virtual void OnMouseWheelBackward();
 
+  //BTX
   // Description:
   // Selection types
   enum
@@ -62,10 +63,13 @@ public:
     SELECT_NORMAL = 0,
     SELECT_UNION = 1
     };
+  //ETX
 
   // Description:
   // Current interaction state
   vtkGetMacro(Interaction, int);
+  
+  //BTX
   enum
     {
     NONE,
@@ -73,6 +77,7 @@ public:
     ZOOMING,
     SELECTING
     };
+  //ETX
     
 protected:
   vtkInteractorStyleRubberBand2D();
