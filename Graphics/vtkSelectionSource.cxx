@@ -27,7 +27,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.12");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.13");
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
@@ -394,6 +394,7 @@ void vtkSelectionSource::SetContentType(int value)
     if (this->Internal->Values)
       {
       this->Internal->Values->Delete();
+      this->Internal->Values=0;
       }
     switch (value)
       {
