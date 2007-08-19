@@ -1,3 +1,21 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkExodusIIReader.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
 #include "vtkExodusIIReader.h"
 #include "vtkExodusIICache.h"
 
@@ -669,7 +687,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.29");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.30");
 
 
 
@@ -1421,7 +1439,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.29");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.30");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -5452,7 +5470,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.29");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.30");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
