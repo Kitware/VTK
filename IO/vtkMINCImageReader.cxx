@@ -78,7 +78,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageReader, "1.14");
+vtkCxxRevisionMacro(vtkMINCImageReader, "1.15");
 vtkStandardNewMacro(vtkMINCImageReader);
 
 //-------------------------------------------------------------------------
@@ -543,8 +543,13 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
       // Set the type of the data.
       this->MINCImageType = vartype;
 
-      // Find the sign of the data.
+      // Find the sign of the data, default to "signed"
       int signedType = 1;
+      // Except for bytes, where default is "unsigned"
+      if (vartype == NC_BYTE)
+        {
+        signedType = 0;
+        }
       const char *signtype =
         this->ImageAttributes->GetAttributeValueAsString(
           MIimage, MIsigntype);
