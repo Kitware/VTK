@@ -187,7 +187,7 @@ extern "C" { typedef int (*vtkExodusIIGetMapFunc)( int, int* ); }
 
 
 
-// ------------------------------------------------------------ XML PARSER CLASS
+// ----------------------------------------------------------- XML PARSER CLASS
 
 class vtkExodusIIXMLParser : public vtkXMLParser
 {
@@ -203,7 +203,8 @@ public:
     this->InMaterialAssignment = 0;
     if ( ! xmlFileName || ! metadata )
       {
-      vtkErrorMacro( "Must have a valid filename and metadata object to open XML file." );
+      vtkErrorMacro( 
+          "Must have a valid filename and metadata object to open XML file." );
       }
     else
       {
@@ -287,7 +288,8 @@ protected:
     {
     (void)attrs; //FIXME: Useme
     const char* name = strrchr( tagName, ':' );
-    name = name ? name + 1 : tagName; // If tag name has xml namespace separator, get rid of namespace.
+    // If tag name has xml namespace separator, get rid of namespace:
+    name = name ? name + 1 : tagName; 
     vtkStdString tName( name );
 
     if ( tName == "assembly" )
@@ -304,7 +306,8 @@ protected:
       const char* assemblyDescription=this->GetValue("description",attrs);
       if (assemblyDescription)
         {
-        this->CurrentAssemblyDescriptions.push_back(vtkStdString(assemblyDescription));
+        this->CurrentAssemblyDescriptions.push_back(
+                                        vtkStdString(assemblyDescription));
         }
       
       //make the entry for the hierarchical list
@@ -513,11 +516,13 @@ protected:
       const char* desc=this->GetValue("description",attrs);
       if (material && spec)
         {
-        this->MaterialSpecificationsBlocks[vtkStdString(material)]=vtkStdString(spec);
+        this->MaterialSpecificationsBlocks[vtkStdString(material)] = 
+                                                        vtkStdString(spec); 
         }
       if (material && desc)
         {
-        this->MaterialDescriptionsBlocks[vtkStdString(material)]=vtkStdString(desc);
+        this->MaterialDescriptionsBlocks[vtkStdString(material)] = 
+                                                        vtkStdString(desc);
         }
       }
     }
@@ -572,14 +577,16 @@ protected:
       {
       this->MaterialSpecifications.clear();
       this->MaterialDescriptions.clear();
-      
-      for (vtkstd::map<int,vtkStdString>::iterator i=this->BlockIDToPartNumber.begin();i!=this->BlockIDToPartNumber.end();i++)
+      vtkstd::map<int,vtkStdString>::iterator i = 
+                                  this->BlockIDToPartNumber.begin();
+      while(i!=this->BlockIDToPartNumber.end())
         {
         int blockID=(*i).first;
         this->MaterialSpecifications[this->BlockIDToPartNumber[blockID]]=
           this->MaterialSpecificationsBlocks[this->BlockIDToMaterial[blockID]];
         this->MaterialDescriptions[this->BlockIDToPartNumber[blockID]]=
           this->MaterialDescriptionsBlocks[this->BlockIDToMaterial[blockID]];
+        i++;
         }
       }
 
@@ -587,7 +594,9 @@ protected:
     //of items from the BlockIDToPartNumber array
     if (this->apbList.size()==0)
       {
-      for (vtkstd::map<int,vtkStdString>::iterator i=this->BlockIDToPartNumber.begin();i!=this->BlockIDToPartNumber.end();i++)
+      vtkstd::map<int,vtkStdString>::iterator i = 
+                                  this->BlockIDToPartNumber.begin();
+      while (i!=this->BlockIDToPartNumber.end())
         {
         int id=(*i).first;
         vtkStdString part=(*i).second;
@@ -599,7 +608,7 @@ protected:
           {
           partSpec.assign(part,0,pos);
           instance.assign(part,pos+11,part.size()-(pos+11));
-        }
+          }
         
         this->PartDescriptions[part]=vtkStdString("None");
         
@@ -608,8 +617,13 @@ protected:
         sprintf(buffer,"%d",id);
 
         //find the Part entry in the apbList
-        vtkStdString apbPartEntry=vtkStdString("Part: None (")+partSpec+vtkStdString(") Instance: ")+instance;
-        vtkStdString apbBlockEntry=vtkStdString("       ")+vtkStdString("Block: ")+vtkStdString(buffer);
+        vtkStdString apbPartEntry = vtkStdString("Part: None (") + 
+                                    partSpec + 
+                                    vtkStdString(") Instance: ") + 
+                                    instance;
+        vtkStdString apbBlockEntry = vtkStdString("       ") + 
+                                     vtkStdString("Block: ") + 
+                                     vtkStdString(buffer);
         vtkStdString foundEntry=this->findEntry(this->apbList,apbPartEntry);
         if (foundEntry==vtkStdString(""))
           {
@@ -629,7 +643,7 @@ protected:
         this->apbToBlocks[apbBlockEntry]=vtkstd::vector<int>();
         this->apbToBlocks[apbBlockEntry].push_back(id);        
         
-        
+        i++;
         }
       }
 
@@ -674,9 +688,13 @@ private:
   vtkstd::vector<vtkStdString> CurrentAssemblyDescriptions;
 
   //mappings for as-tested materials
-  vtkstd::map<vtkStdString,vtkStdString> MaterialSpecificationsBlocks; //maps material name to spec
-  vtkstd::map<vtkStdString,vtkStdString> MaterialDescriptionsBlocks; //maps material name to desc
-  vtkstd::map<int,vtkStdString> BlockIDToMaterial; //maps block id to material
+
+  //maps material name to spec:
+  vtkstd::map<vtkStdString,vtkStdString> MaterialSpecificationsBlocks; 
+  //maps material name to desc
+  vtkstd::map<vtkStdString,vtkStdString> MaterialDescriptionsBlocks; 
+  //maps block id to material
+  vtkstd::map<int,vtkStdString> BlockIDToMaterial; 
 
   //hierarchical list mappings
   vtkstd::list<vtkStdString> apbList;
@@ -687,7 +705,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.30");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.31");
 
 
 
@@ -721,7 +739,8 @@ public:
   void Reset();
 
   /** Return the number of time steps in the open file.
-    * You must have called RequestInformation() before invoking this member function.
+    * You must have called RequestInformation() before 
+    * invoking this member function.
     */
   int GetNumberOfTimeSteps() { return (int) this->Times.size(); }
 
@@ -731,102 +750,128 @@ public:
   /// Set the current time step for subsequent calls to RequestData().
   vtkSetMacro(TimeStep,int);
 
-  /// Return whether subsequent RequestData() calls will produce the minimal point set required to represent the output.
+  /// Return whether subsequent RequestData() calls will produce the minimal 
+  /// point set required to represent the output.
   vtkGetMacro(SqueezePoints,int);
 
-  /// Set whether subsequent RequestData() calls will produce the minimal point set required to represent the output.
+  /// Set whether subsequent RequestData() calls will produce the minimal 
+  /// point set required to represent the output.
   void SetSqueezePoints( int sp );
 
-  /// Convenience routines that for producing (or not) the minimal point set required to represent the output.
+  /// Convenience routines that for producing (or not) the minimal point set 
+  /// required to represent the output.
   vtkBooleanMacro(SqueezePoints,int);
 
   /// Return the number of nodes in the output (depends on SqueezePoints)
   int GetNumberOfNodes();
 
-  /** Returns the number of objects of a given type (e.g., EX_ELEM_BLOCK, EX_NODE_SET, ...).
-    * You must have called RequestInformation before invoking this member function.
+  /** Returns the number of objects of a given type (e.g., EX_ELEM_BLOCK, 
+    * EX_NODE_SET, ...). You must have called RequestInformation before 
+    * invoking this member function.
     */
   int GetNumberOfObjectsOfType( int otype );
 
-  /** Returns the number of arrays defined over objects of a given type (e.g., EX_ELEM_BLOCK, EX_NODE_SET, ...).
-    * You must have called RequestInformation before invoking this member function.
+  /** Returns the number of arrays defined over objects of a given type 
+    * (e.g., EX_ELEM_BLOCK, EX_NODE_SET, ...).
+    * You must have called RequestInformation before invoking this 
+    * member function.
     *
-    * N.B.: This method will eventually disappear. Really, what we should be providing is an interface to
-    * query the arrays defined on a particular object, not a class of objects. However, until the reader
+    * N.B.: This method will eventually disappear. Really, what we should be 
+    * providing is an interface to query the arrays defined on a particular 
+    * object, not a class of objects. However, until the reader
     * outputs multiblock datasets, we can't be that specific.
     */
   int GetNumberOfObjectArraysOfType( int otype );
 
   /** For a given object type, returns the name of the i-th object. 
-    * You must have called RequestInformation before invoking this member function.
+    * You must have called RequestInformation before invoking this 
+    * member function.
     */
   const char* GetObjectName( int otype, int i );
 
   /** For a given object type, return the user-assigned ID of the i-th object.
-    * You must have called RequestInformation before invoking this member function.
+    * You must have called RequestInformation before invoking this 
+    * member function.
     */
   int GetObjectId( int otype, int i );
 
   /** For a given object type, return the size of the i-th object.
     * The size is the number of entries.
     * As an example, for an element block, it is the number of elements.
-    * You must have called RequestInformation before invoking this member function.
+    * You must have called RequestInformation before invoking this 
+    * member function.
     */
   int GetObjectSize( int otype, int i );
 
   /** For a given object type, returns the status of the i-th object.
-    * You must have called RequestInformation before invoking this member function.
+    * You must have called RequestInformation before invoking this 
+    * member function.
     */
   int GetObjectStatus( int otype, int i );
 
   /** For a given object type, returns the status of the i-th object, where i is
     * an index into the unsorted object array.
-    * You must have called RequestInformation before invoking this member function.
+    * You must have called RequestInformation before invoking this 
+    * member function.
     */
   int GetUnsortedObjectStatus( int otype, int i );
 
   /** For a given object type, sets the status of the i-th object.
-    * You must have called RequestInformation before invoking this member function.
+    * You must have called RequestInformation before invoking this 
+    * member function.
     */
   void SetObjectStatus( int otype, int i, int stat );
 
   /** For a given object type, sets the status of the i-th object,
     * where i is an index into the *unsorted* object array.
-    * You must have called RequestInformation before invoking this member function.
+    * You must have called RequestInformation before invoking this 
+    * member function.
     */
   void SetUnsortedObjectStatus( int otype, int i, int stat );
 
   /** For a given object type, returns the name of the i-th array. 
-    * You must have called RequestInformation before invoking this member function.
+    * You must have called RequestInformation before invoking this 
+    * member function.
     */
   const char* GetObjectArrayName( int otype, int i );
 
-  /** For a given object type, returns the number of components of the i-th array.
-    * You must have called RequestInformation before invoking this member function.
+  /** For a given object type, returns the number of components of the i-th 
+    * array. You must have called RequestInformation before invoking this 
+    * member function.
     */
   int GetNumberOfObjectArrayComponents( int otype, int i );
 
   /** For a given object type, returns the status of the i-th array.
-    * You must have called RequestInformation before invoking this member function.
+    * You must have called RequestInformation before invoking this 
+    * member function.
     */
   int GetObjectArrayStatus( int otype, int i );
 
   /** For a given object type, sets the status of the i-th array.
-    * You must have called RequestInformation before invoking this member function.
+    * You must have called RequestInformation before invoking this 
+    * member function.
     */
   void SetObjectArrayStatus( int otype, int i, int stat );
 
   /** Unlike object arrays, attributes are only defined over blocks (not sets)
     * and are defined on a per-block (not a per-block-type) basis.
     * In other words, there is no truth table for attributes.
-    * This means the interface is different because each block can have a different number of attributes with
-    * different names.
+    * This means the interface is different because each block can have a 
+    * different number of attributes with different names.
     */
   int GetNumberOfObjectAttributes( int objectType, int objectIndex );
-  const char* GetObjectAttributeName( int objectType, int objectIndex, int attributeIndex );
-  int GetObjectAttributeIndex( int objectType, int objectIndex, const char* attribName );
-  int GetObjectAttributeStatus( int objectType, int objectIndex, int attribIndex );
-  void SetObjectAttributeStatus( int objectType, int objectIndex, int attribIndex, int status );
+  const char* GetObjectAttributeName( int objectType, 
+                                      int objectIndex, 
+                                      int attributeIndex );
+  int GetObjectAttributeIndex( int objectType, 
+                               int objectIndex, 
+                               const char* attribName );
+  int GetObjectAttributeStatus( int objectType, 
+                                int objectIndex, 
+                                int attribIndex );
+  void SetObjectAttributeStatus( int objectType, 
+                                 int objectIndex, 
+                                 int attribIndex, int status );
 
   /// Generate an array containing the block or set ID associated with each cell.
   vtkGetMacro(GenerateObjectIdArray,int);
@@ -841,8 +886,10 @@ public:
   vtkGetMacro(GenerateGlobalNodeIdArray,int);
   static const char *GetGlobalNodeIdArrayName() { return "GlobalNodeId"; }  
 
-  static const char *GetGlobalVariableValuesArrayName() { return "GlobalVariableValues"; }  
-  static const char *GetGlobalVariableNamesArrayName() { return "GlobalVariableNames"; }  
+  static const char *GetGlobalVariableValuesArrayName() 
+    { return "GlobalVariableValues"; }  
+  static const char *GetGlobalVariableNamesArrayName() 
+    { return "GlobalVariableNames"; }  
 
   virtual void SetApplyDisplacements( int d );
   vtkGetMacro(ApplyDisplacements,int);
@@ -864,7 +911,8 @@ public:
   vtkSetMacro(FaceFieldDecorations,int);
   vtkGetMacro(FaceFieldDecorations,int);
 
-  const struct ex_init_params* GetModelParams() const { return &this->ModelParameters; }
+  const struct ex_init_params* GetModelParams() const 
+    { return &this->ModelParameters; }
 
   /// A struct to hold information about time-varying arrays
   struct ArrayInfoType {
@@ -874,20 +922,23 @@ public:
     int Components;
     /** The type of "glomming" performed.
      * Glomming is the process of aggregating one or more results variable names
-     * from the Exodus files into a single VTK result variable name with one or more
-     * components.
+     * from the Exodus files into a single VTK result variable name with one or 
+     * more components.
      * One of: scalar, vector(2), vector(3), symtensor(6), integrationpoint.
      */
     int GlomType;
-    /// Storage type of array (a type that can be passed to vtkDataArray::Create())
+    /// Storage type of array (a type that can be passed to 
+    /// vtkDataArray::Create())
     int StorageType;
     /// The source of the array (Result or Attribute)
     int Source;
     /// Whether or not the array should be loaded by RequestData
     int Status;
-    /// The name of each component of the array as defined by the Exodus file. Empty for generated arrays.
+    /// The name of each component of the array as defined by the Exodus file. 
+    /// Empty for generated arrays.
     vtkstd::vector<vtkStdString> OriginalNames;
-    /// The index of each component of the array as ordered by the Exodus file. Empty for generated arrays.
+    /// The index of each component of the array as ordered by the Exodus file. 
+    /// Empty for generated arrays.
     vtkstd::vector<int> OriginalIndices;
     /** A map describing which objects the variable is defined on.
      * Each key (a pair<int,int>) is a block/set type and integer
@@ -918,23 +969,30 @@ public:
   struct MapInfoType : public ObjectInfoType {
   };
 
-  /// A struct to hold information about Exodus blocks or sets (they have some members in common)
+  /// A struct to hold information about Exodus blocks or sets 
+  /// (they have some members in common)
   struct BlockSetInfoType : public ObjectInfoType {
     /// Id (1-based) of first entry in file-local list across all blocks in file
     vtkIdType FileOffset;
-    /// Id (0-based) of first entry in the vtkUnstructuredGrid containing all blocks with Status != 0
+    /// Id (0-based) of first entry in the vtkUnstructuredGrid containing all 
+    /// blocks with Status != 0
     vtkIdType GridOffset;
   };
 
   /// A struct to hold information about Exodus blocks
   struct BlockInfoType : public BlockSetInfoType {
     vtkStdString TypeName;
-    int BdsPerEntry[3]; // number of boundaries per entry. The index is the dimensionality of the entry. 0=node, 1=edge, 2=face
+    // number of boundaries per entry
+    // The index is the dimensionality of the entry. 0=node, 1=edge, 2=face
+    int BdsPerEntry[3]; 
     int AttributesPerEntry;
     vtkstd::vector<vtkStdString> AttributeNames;
     vtkstd::vector<int> AttributeStatus;
-    int CellType; // VTK cell type (a function of TypeName and BdsPerEntry...)
-    int PointsPerCell; // Number of points per cell as used by VTK -- not what's in the file (i.e., BdsPerEntry[0] >= PointsPerCell)
+    // VTK cell type (a function of TypeName and BdsPerEntry...)
+    int CellType; 
+    // Number of points per cell as used by VTK 
+    // -- not what's in the file (i.e., BdsPerEntry[0] >= PointsPerCell)
+    int PointsPerCell; 
   };
 
   /// A struct to hold information about Exodus blocks
@@ -950,22 +1008,27 @@ public:
 
   /// A struct to hold information about Exodus sets
   struct SetInfoType : public BlockSetInfoType {
-    int DistFact; // Number of distribution factors (for the entire block, not per array or entry)
+    int DistFact;     // Number of distribution factors 
+                      // (for the entire block, not per array or entry)
   };
 
-  /// Tags to indicate how single-component Exodus arrays are glommed (aggregated) into multi-component VTK arrays.
+  /// Tags to indicate how single-component Exodus arrays are glommed 
+  /// (aggregated) into multi-component VTK arrays.
   enum GlomTypes {
     Scalar=0,          //!< The array is a scalar
     Vector2=1,         //!< The array is a 2-D vector
     Vector3=2,         //!< The array is a 3-D vector
-    SymmetricTensor=3, //!< The array is a symmetric tensor (order xx, yy, zz, xy, yz, zx)
+    SymmetricTensor=3, //!< The array is a symmetric tensor 
+                       //   (order xx, yy, zz, xy, yz, zx)
     IntegrationPoint=4 //!< The array is a set of integration point values
   };
 
   /// Tags to indicate the source of values for an array.
   enum ArraySourceTypes {
-    Result=0,        //!< The array is composed of results variables (that vary over time)
-    Attribute=1,     //!< The array is composed of attributes (constants over time)
+    Result=0,        //!< The array is composed of results variables 
+                     //   (that vary over time)
+    Attribute=1,     //!< The array is composed of attributes 
+                     //   (constants over time)
     Map=2,           //!< The array has a corresponding entry in MapInfo
     Generated=3      //!< The array is procedurally generated (e.g., BlockId)
   };
@@ -1006,7 +1069,8 @@ public:
 
   int AssembleArraysOverTime( vtkUnstructuredGrid* output );
 
-  void SetFastPathObjectType(vtkExodusIIReader::ObjectType type){this->FastPathObjectType = type;};
+  void SetFastPathObjectType(vtkExodusIIReader::ObjectType type)
+    {this->FastPathObjectType = type;};
   void SetFastPathObjectId(vtkIdType id){this->FastPathObjectId = id;};
   vtkSetStringMacro(FastPathIdType);
 
@@ -1016,28 +1080,38 @@ protected:
   vtkExodusIIReaderPrivate();
   ~vtkExodusIIReaderPrivate();
 
-  /// Any time the Status member of a block or set changes, this function must be called.
+  /// Any time the Status member of a block or set changes, 
+  /// this function must be called.
   void ComputeGridOffsets();
 
-  /// Returns true when order and text of names are consistent with integration points. Called from GlomArrayNames().
-  int VerifyIntegrationPointGlom( int nn, char** np, vtksys::RegularExpression& re, vtkStdString& field, vtkStdString& ele );
+  /// Returns true when order and text of names are consistent with integration 
+  /// points. Called from GlomArrayNames().
+  int VerifyIntegrationPointGlom( int nn, 
+                                  char** np, 
+                                  vtksys::RegularExpression& re, 
+                                  vtkStdString& field, 
+                                  vtkStdString& ele );
 
   /// Aggregate Exodus array names into VTK arrays with multiple components
-  void GlomArrayNames( int i, int num_obj, int num_vars, char** var_names, int* truth_tab );
+  void GlomArrayNames( int i, 
+                       int num_obj, 
+                       int num_vars, 
+                       char** var_names, 
+                       int* truth_tab );
 
   /// Add generated array information to array info lists.
   void PrepareGeneratedArrayInfo();
 
   /** Read connectivity information and populate an unstructured grid with cells.
-    * If the connectivity hasn't changed since the last time RequestData was called,
-    * this copies a cache to the output.
+    * If the connectivity hasn't changed since the last time RequestData was 
+    * called, this copies a cache to the output.
     * 
     * Otherwise, this routine iterates over all block and set types.
     * For each type, it iterates over all objects of that type.
-    * For each object whose status is 1, it reads that object's connectivity entries from
-    * cache or disk and inserts cells into CachedConnectivity.
-    * If SqueezePoints is on, then connectivity entries are translated as required and
-    * PointMap is populated.
+    * For each object whose status is 1, it reads that object's connectivity 
+    * entries from cache or disk and inserts cells into CachedConnectivity.
+    * If SqueezePoints is on, then connectivity entries are translated as 
+    * required and PointMap is populated.
     * Finally, CachedConnectivity is shallow-copied to the output.
     * 
     * AssembleOutputConnectivity returns 1 if cache was used, 0 otherwise.
@@ -1057,11 +1131,13 @@ protected:
   int AssembleOutputPointArrays( vtkIdType timeStep, vtkUnstructuredGrid* output );
   /** Add the requested arrays to the output grid's cell data.
     * This adds time-varying results arrays to the grid's vtkCellData object.
-    * Each array added may not be defined on all blocks of cells, so zero-padding will be used where required.
+    * Each array added may not be defined on all blocks of cells, so zero-padding 
+    * will be used where required.
     */
   int AssembleOutputCellArrays( vtkIdType timeStep, vtkUnstructuredGrid* output );
   /** Add maps to an output mesh.
-    * Maps are special integer arrays that may serve as GlobalId fields in vtkDataSetAttributes objects.
+    * Maps are special integer arrays that may serve as GlobalId fields in 
+    * vtkDataSetAttributes objects.
     * Maps will only be zero-padded when cells representing set entries exist;
     * also, maps may be procedurally generated if no map is contained in a file.
     * Maps are not time-varying.
@@ -1069,10 +1145,11 @@ protected:
   int AssembleOutputPointMaps( vtkIdType timeStep, vtkUnstructuredGrid* output );
   int AssembleOutputCellMaps( vtkIdType timeStep, vtkUnstructuredGrid* output );
   /** Add procedurally generated arrays to an output mesh.
-    * Currently, the only array that is procedurally generated is the object id array.
-    * Others may be added in the future.
+    * Currently, the only array that is procedurally generated is the object id 
+    * array. Others may be added in the future.
     */
-  int AssembleOutputProceduralArrays( vtkIdType timeStep, vtkUnstructuredGrid* output );
+  int AssembleOutputProceduralArrays( vtkIdType timeStep, 
+                                      vtkUnstructuredGrid* output );
 
   int AssembleOutputGlobalArrays( vtkIdType timeStep, vtkUnstructuredGrid* output );
 
@@ -1083,25 +1160,44 @@ protected:
   void AssembleOutputFaceDecorations();
 
   /// Insert cells from a specified block into a mesh
-  void InsertBlockCells( int otyp, int obj, int conn_type, int timeStep, vtkUnstructuredGrid* output );
+  void InsertBlockCells( int otyp, 
+                         int obj, 
+                         int conn_type, 
+                         int timeStep, 
+                         vtkUnstructuredGrid* output );
 
   /// Insert cells from a specified set into a mesh
-  void InsertSetCells( int otyp, int obj, int conn_type, int timeStep, vtkUnstructuredGrid* output );
+  void InsertSetCells( int otyp, 
+                       int obj, 
+                       int conn_type, 
+                       int timeStep, 
+                       vtkUnstructuredGrid* output );
 
   /// Add a point array to an output grid's point data, squeezing if necessary
   void AddPointArray( vtkDataArray* src, vtkUnstructuredGrid* output );
 
   /// Insert cells referenced by a node set.
-  void InsertSetNodeCopies( vtkIntArray* refs, int otyp, int obj, vtkUnstructuredGrid* output );
+  void InsertSetNodeCopies( vtkIntArray* refs, 
+                            int otyp, 
+                            int obj, 
+                            vtkUnstructuredGrid* output );
 
   /// Insert cells referenced by an edge, face, or element set.
-  void InsertSetCellCopies( vtkIntArray* refs, int otyp, int obj, vtkUnstructuredGrid* output );
+  void InsertSetCellCopies( vtkIntArray* refs, 
+                            int otyp, 
+                            int obj, 
+                            vtkUnstructuredGrid* output );
 
   /// Insert cells referenced by a side set.
-  void InsertSetSides( vtkIntArray* refs, int otyp, int obj, vtkUnstructuredGrid* output );
+  void InsertSetSides( vtkIntArray* refs, 
+                       int otyp, 
+                       int obj, 
+                       vtkUnstructuredGrid* output );
 
-  /** Return an array for the specified cache key. If the array was not cached, read it from the file.
-    * This function can still return 0 if you are foolish enough to request an array not present in the file, grasshopper.
+  /** Return an array for the specified cache key. If the array was not cached, 
+    * read it from the file.
+    * This function can still return 0 if you are foolish enough to request an 
+    * array not present in the file, grasshopper.
     */
   vtkDataArray* GetCacheOrRead( vtkExodusIICacheKey );
 
@@ -1117,41 +1213,50 @@ protected:
 
   /** Return the number of objects of the given type.
     * The integer typeIndex is not the type of the object (e.g., EX_ELEM_BLOCK), but
-    * is rather the index into the list of all object types (see obj_types in vtkExodusIIReader.cxx).
+    * is rather the index into the list of all object types 
+    * (see obj_types in vtkExodusIIReader.cxx).
     */
   int GetNumberOfObjectsAtTypeIndex( int typeIndex );
 
   /** Return a pointer to the ObjectInfo of the specified type and index.
-    * The integer typeIndex is not the type of the object (e.g., EX_ELEM_BLOCK), but
-    * is rather the index into the list of all object types (see obj_types in vtkExodusIIReader.cxx).
-    * The integer objectIndex is not the ID of the object (i.e., the ID stored in the Exodus file),
-    * but is rather the index into the list of all objects of the given type.
+    * The integer typeIndex is not the type of the object (e.g., EX_ELEM_BLOCK), 
+    * but is rather the index into the list of all object types (see obj_types 
+    * in vtkExodusIIReader.cxx). The integer objectIndex is not the ID of the 
+    * object (i.e., the ID stored in the Exodus file), but is rather the index 
+    * into the list of all objects of the given type.
     */
   ObjectInfoType* GetObjectInfo( int typeIndex, int objectIndex );
 
-  /** Return a pointer to the ObjectInfo of the specified type and index, but using indices sorted by object ID.
-    * This is the same as GetObjectInfo() except that it uses the SortedObjectIndices member to permute
-    * the requested \a objectIndex and it takes an object type (e.g., EX_ELEM_BLOCK) rather than an object type index.
+  /** Return a pointer to the ObjectInfo of the specified type and index, but 
+    * using indices sorted by object ID. This is the same as GetObjectInfo() 
+    * except that it uses the SortedObjectIndices member to permute the 
+    * requested \a objectIndex and it takes an object type (e.g., EX_ELEM_BLOCK) 
+    * rather than an object type index.
     */
   ObjectInfoType* GetSortedObjectInfo( int objectType, int objectIndex );
 
-  /** Return a pointer to the ObjectInfo of the specified type and index, but using indices sorted by object ID.
-    * This is the same as GetSortedObjectInfo() except that \a objectIndex directly indexes the object info array
-    * rather SortedObjectIndices, and it takes an object type (e.g., EX_ELEM_BLOCK) rather than an object type index.
+  /** Return a pointer to the ObjectInfo of the specified type and index, but 
+    * using indices sorted by object ID. This is the same as 
+    * GetSortedObjectInfo() except that \a objectIndex directly indexes the 
+    * object info array rather SortedObjectIndices, and it takes an object 
+    * type (e.g., EX_ELEM_BLOCK) rather than an object type index.
     */
   ObjectInfoType* GetUnsortedObjectInfo( int objectType, int objectIndex );
 
-  /** Get the index of the block containing the entity referenced by the specified file-global ID.
+  /** Get the index of the block containing the entity referenced by the 
+    * specified file-global ID.
     * In this case, an entity is an edge, face, or element.
     */
   int GetBlockIndexFromFileGlobalId( int otyp, int refId );
 
-  /** Get the block containing the entity referenced by the specified file-global ID.
+  /** Get the block containing the entity referenced by the specified 
+    * file-global ID.
     * In this case, an entity is an edge, face, or element.
     */
   BlockInfoType* GetBlockFromFileGlobalId( int otyp, int refId );
 
-  /// Find or create a new SqueezePoint ID (unique sequential list of points referenced by cells in blocks/sets with Status == 1)
+  /// Find or create a new SqueezePoint ID (unique sequential list of points 
+  /// referenced by cells in blocks/sets with Status == 1)
   vtkIdType GetSqueezePointId( int i );
 
   /// Determine the VTK cell type for a given edge/face/element block
@@ -1160,20 +1265,24 @@ protected:
   /// Find an ArrayInfo object for a specific object type using the name as a key.
   ArrayInfoType* FindArrayInfoByName( int otyp, const char* name );
 
-  /// Does the specified object type match? Avoid using these... they aren't robust against new types being implemented.
+  /// Does the specified object type match? Avoid using these... they aren't 
+  /// robust against new types being implemented.
   int IsObjectTypeBlock( int otyp );
   int IsObjectTypeSet( int otyp );
   int IsObjectTypeMap( int otyp );
 
-  /// Given a map type (NODE_MAP, EDGE_MAP, ...) return the associated object type (NODAL, EDGE_BLOCK, ...) or vice-versa.
+  /// Given a map type (NODE_MAP, EDGE_MAP, ...) return the associated object 
+  /// type (NODAL, EDGE_BLOCK, ...) or vice-versa.
   int GetObjectTypeFromMapType( int mtyp );
   int GetMapTypeFromObjectType( int otyp );
   int GetTemporalTypeFromObjectType( int otyp );
 
-  /// Given a set connectivity type (NODE_SET_CONN, ...), return the associated object type (NODE_SET, ...) or vice-versa.
+  /// Given a set connectivity type (NODE_SET_CONN, ...), return the associated 
+  /// object type (NODE_SET, ...) or vice-versa.
   int GetSetTypeFromSetConnType( int sctyp );
 
-  /// Given a block type (EDGE_BLOCK, ...), return the associated block connectivity type (EDGE_BLOCK_CONN, ...) or vice-versa.
+  /// Given a block type (EDGE_BLOCK, ...), return the associated block 
+  /// connectivity type (EDGE_BLOCK_CONN, ...) or vice-versa.
   int GetBlockConnTypeFromBlockType( int btyp );
 
   /// Get/Set the cached connectivity data
@@ -1181,7 +1290,8 @@ protected:
   virtual void SetCachedConnectivity( vtkUnstructuredGrid* mesh );
 
   /** Function to trim space from names retrieved with ex_get_var_names.
-   * This was added because some meshes had displacement arrays named "DISPX ", "DISPY ", "DISPZ " (note trailing spaces),
+   * This was added because some meshes had displacement arrays named 
+   * "DISPX ", "DISPY ", "DISPZ " (note trailing spaces),
    * which prevented glomming and use of the vector field for displacements.
    */
   void RemoveBeginningAndTrailingSpaces( int len, char **names );
@@ -1439,7 +1549,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.30");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.31");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -2083,7 +2193,6 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays( vtkIdType vtkNotUsed(t
 {
   vtkFieldData *ofieldData = output->GetFieldData();
 
-/*
   int status = 1;
   vtkstd::vector<ArrayInfoType>::iterator ai;
   int aidx = 0;
@@ -2114,9 +2223,6 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays( vtkIdType vtkNotUsed(t
 
     ofieldData->AddArray(temporalData);
     }
-
-  output->GetFieldData()->AddArray( src );
-*/
 
   // Add block id information for the exodus writer
   BlockInfoType* binfop;
@@ -5470,7 +5576,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.30");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.31");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
