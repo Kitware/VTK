@@ -32,7 +32,7 @@
 #include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.23");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.24");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -445,12 +445,12 @@ int vtkExtractSelectedIds::ExtractCells(
         }
       }
 
-    this->UpdateProgress(static_cast<double>(idArrayIndex) / (numIds * (passThrough + 1)));
     if (idArrayIndex >= numIds)
       {
       // We're out of selection ids, so we're done.
       break;
       }
+    this->UpdateProgress(static_cast<double>(idArrayIndex) / (numIds * (passThrough + 1)));
 
     // Advance through and mark all cells with a label EQUAL TO the
     // current selection id, as well as their points.

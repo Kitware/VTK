@@ -144,6 +144,7 @@ void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
   this->MaxId = fa->GetMaxId();
   this->Size = fa->GetSize();
 
+  this->Size = (this->Size > 0 ? this->Size : 1);
   this->Array = (T*)malloc(this->Size * sizeof(T));
   if(!this->Array)
     {
@@ -155,7 +156,10 @@ void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
     this->MaxId = -1;
     return;
     }
-  memcpy(this->Array, fa->GetVoidPointer(0), this->Size*sizeof(T));
+  if (fa->GetSize() > 0)
+    {
+    memcpy(this->Array, fa->GetVoidPointer(0), this->Size*sizeof(T));
+    }
 }
 
 //----------------------------------------------------------------------------
