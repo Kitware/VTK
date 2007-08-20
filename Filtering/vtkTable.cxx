@@ -32,7 +32,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.8");
+vtkCxxRevisionMacro(vtkTable, "1.9");
 vtkStandardNewMacro(vtkTable);
 
 //----------------------------------------------------------------------------
@@ -375,6 +375,11 @@ vtkVariant vtkTableGetVariantValue(iterT* it, vtkIdType row)
 vtkVariant vtkTable::GetValueByName(vtkIdType row, const char* col)
 {
   vtkAbstractArray* arr = this->GetColumnByName(col);
+  if (!arr)
+    {
+    return vtkVariant();
+    }
+
   int comps = arr->GetNumberOfComponents();
   if (arr->IsA("vtkDataArray"))
     {
