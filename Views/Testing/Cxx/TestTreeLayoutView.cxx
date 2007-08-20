@@ -70,7 +70,7 @@ public:
   
   virtual void Execute(vtkObject*, unsigned long, void*)
   {
-    for (vector<vtkView*>::size_type i = 0; i < this->Views.size(); i++)
+    for (unsigned int i = 0; i < this->Views.size(); i++)
       {
       this->Views[i]->Update();
       }

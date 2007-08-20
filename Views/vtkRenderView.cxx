@@ -35,7 +35,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkRenderView, "1.1");
+vtkCxxRevisionMacro(vtkRenderView, "1.2");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, InteractorStyle, vtkInteractorStyle);
 //----------------------------------------------------------------------------
@@ -91,7 +91,6 @@ void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId,
     {
     // Do a visible cell selection.
     unsigned int* rect = reinterpret_cast<unsigned int*>(callData);
-    bool singleSelectMode = false;
     unsigned int pos1X = rect[0];
     unsigned int pos1Y = rect[1];
     unsigned int pos2X = rect[2];
@@ -99,7 +98,6 @@ void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId,
     int stretch = 2;
     if (pos1X == pos2X && pos1Y == pos2Y)
       {
-      singleSelectMode = true;
       pos1X = pos1X - stretch > 0 ? pos1X - stretch : 0;
       pos1Y = pos1Y - stretch > 0 ? pos1Y - stretch : 0;
       pos2X = pos2X + stretch;

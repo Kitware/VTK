@@ -57,7 +57,9 @@
 #include "vtkViewTheme.h"
 #include "vtkVisibleCellSelector.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.2");
+#include <ctype.h> // for tolower()
+
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.3");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
