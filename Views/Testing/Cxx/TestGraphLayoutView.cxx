@@ -47,6 +47,7 @@ int TestGraphLayoutView(int argc, char* argv[])
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(win);
   VTK_CREATE(vtkGraphLayoutView, view);
+  view->SetLayoutStrategyToCircular();
   view->SetVertexLabelArrayName("name");
   view->VertexLabelVisibilityOn();
   view->SetVertexColorArrayName("size");
