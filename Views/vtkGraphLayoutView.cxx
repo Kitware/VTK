@@ -59,7 +59,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.3");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.4");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -837,26 +837,16 @@ void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
   this->VertexMapper->PrintSelf(os, indent.GetNextIndent());
   os << indent << "VertexColorLUT: " << endl;
   this->VertexColorLUT->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "VertexActor: " << endl;
-  this->VertexActor->PrintSelf(os, indent.GetNextIndent());
   os << indent << "OutlineMapper: " << endl;
   this->OutlineMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "OutlineActor: " << endl;
-  this->OutlineActor->PrintSelf(os, indent.GetNextIndent());
   os << indent << "EdgeMapper: " << endl;
   this->EdgeMapper->PrintSelf(os, indent.GetNextIndent());
   os << indent << "EdgeColorLUT: " << endl;
   this->EdgeColorLUT->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "EdgeActor: " << endl;
-  this->EdgeActor->PrintSelf(os, indent.GetNextIndent());
   os << indent << "VertexLabelMapper: " << endl;
   this->VertexLabelMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "VertexLabelActor: " << endl;
-  this->VertexLabelActor->PrintSelf(os, indent.GetNextIndent());
   os << indent << "EdgeLabelMapper: " << endl;
   this->EdgeLabelMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "EdgeLabelActor: " << endl;
-  this->EdgeLabelActor->PrintSelf(os, indent.GetNextIndent());
   os << indent << "KdTreeSelector: " << endl;
   this->KdTreeSelector->PrintSelf(os, indent.GetNextIndent());
   os << indent << "VisibleCellSelector: " << endl;
@@ -869,13 +859,26 @@ void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
   this->SelectionVertexGlyph->PrintSelf(os, indent.GetNextIndent());
   os << indent << "SelectionVertexMapper: " << endl;
   this->SelectionVertexMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "SelectionVertexActor: " << endl;
-  this->SelectionVertexActor->PrintSelf(os, indent.GetNextIndent());
   os << indent << "SelectionEdgeMapper: " << endl;
   this->SelectionEdgeMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "SelectionEdgeActor: " << endl;
-  this->SelectionEdgeActor->PrintSelf(os, indent.GetNextIndent());
   os << indent << "LayoutStrategy: "
      << (this->LayoutStrategyInternal ? this->LayoutStrategyInternal : "(null)") << endl;
+  if (this->GetRepresentation())
+    {
+    os << indent << "VertexActor: " << endl;
+    this->VertexActor->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "OutlineActor: " << endl;
+    this->OutlineActor->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "EdgeActor: " << endl;
+    this->EdgeActor->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "VertexLabelActor: " << endl;
+    this->VertexLabelActor->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "EdgeLabelActor: " << endl;
+    this->EdgeLabelActor->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "SelectionVertexActor: " << endl;
+    this->SelectionVertexActor->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "SelectionEdgeActor: " << endl;
+    this->SelectionEdgeActor->PrintSelf(os, indent.GetNextIndent());
+    }
 }
 

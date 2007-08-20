@@ -48,7 +48,7 @@
 #include "vtkTreeMapToPolyData.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkTreeMapView, "1.2");
+vtkCxxRevisionMacro(vtkTreeMapView, "1.3");
 vtkStandardNewMacro(vtkTreeMapView);
 //----------------------------------------------------------------------------
 vtkTreeMapView::vtkTreeMapView()
@@ -434,13 +434,16 @@ void vtkTreeMapView::PrintSelf(ostream& os, vtkIndent indent)
   this->TreeMapToPolyData->PrintSelf(os, indent.GetNextIndent());
   os << indent << "TreeMapMapper: " << endl;
   this->TreeMapMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "TreeMapActor: " << endl;
-  this->TreeMapActor->PrintSelf(os, indent.GetNextIndent());
   os << indent << "LabelMapper: " << endl;
   this->LabelMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "LabelActor: " << endl;
-  this->LabelActor->PrintSelf(os, indent.GetNextIndent());
   os << indent << "ColorLUT: " << endl;
   this->ColorLUT->PrintSelf(os, indent.GetNextIndent());
+  if (this->GetRepresentation())
+    {
+    os << indent << "TreeMapActor: " << endl;
+    this->TreeMapActor->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "LabelActor: " << endl;
+    this->LabelActor->PrintSelf(os, indent.GetNextIndent());
+    }
 }
 
