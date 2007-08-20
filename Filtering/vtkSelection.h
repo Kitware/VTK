@@ -187,8 +187,8 @@ public:
   virtual int GetContentType();
 
   // Description:
-  // The location of the array the selection came from 
-  //(ex, point, cell or field) default is CELL.
+  // Controls whether cells or points determine what is inside and out.
+  // The default is CELL.
   // GetFieldType() returns -1 if the field type is not set.
   static vtkInformationIntegerKey* FIELD_TYPE();
 //BTX
