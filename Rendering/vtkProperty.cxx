@@ -33,7 +33,6 @@
 #include "vtkXMLMaterial.h"
 #include "vtkXMLMaterialParser.h"
 #include "vtkXMLShader.h"
-#include "vtkPointData.h"
 
 #include <stdlib.h>
 
@@ -48,7 +47,7 @@ public:
   MapOfTextures Textures;
 };
 
-vtkCxxRevisionMacro(vtkProperty, "1.66");
+vtkCxxRevisionMacro(vtkProperty, "1.67");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -440,13 +439,11 @@ void vtkProperty::LoadMaterial(const char* name)
 //----------------------------------------------------------------------------
 void vtkProperty::LoadMaterialFromString(const char* materialxml)
 {
-  cout << __LINE__ << " vtkProperty LoadMaterialFromString" << endl;
   if (!materialxml)
     {
     this->LoadMaterial(static_cast<vtkXMLMaterial*>(0));
     return;
     }
-  cout << "materialxml " << materialxml << endl;
   vtkXMLMaterialParser* parser = vtkXMLMaterialParser::New();
   vtkXMLMaterial* material = vtkXMLMaterial::New();
   parser->SetMaterial(material);
@@ -887,40 +884,6 @@ void vtkProperty::ReleaseGraphicsResources(vtkWindow *win)
     {
     iter->second->ReleaseGraphicsResources(win);
     }  
-}
-
-
-//----------------------------------------------------------------------------
-int vtkProperty::GetIsOpaque()
-{
-  if (this->GetOpacity()< 1.0)
-    {
-    return 0;
-    }
-
-  vtkPropertyInternals::MapOfTextures::iterator iter =
-    this->Internals->Textures.begin();
-  for ( ;iter != this->Internals->Textures.end(); ++iter)
-  {
-    vtkTexture* texture = iter->second.GetPointer();
-    if (texture && texture->GetInput())
-    {
-      texture->GetInput()->UpdateInformation();
-      texture->GetInput()->SetUpdateExtent(
-          texture->GetInput()->GetWholeExtent());
-      texture->GetInput()->PropagateUpdateExtent();
-      texture->GetInput()->TriggerAsynchronousUpdate();
-      texture->GetInput()->UpdateData();
-      if (texture->GetInput()->GetPointData()->GetScalars() != NULL &&
-       texture->GetInput()->GetPointData()->GetScalars()
-          ->GetNumberOfComponents()%2 == 0)
-      {
-        return 0;
-      }
-    }  
-  }
-
-  return 1;
 }
 
 

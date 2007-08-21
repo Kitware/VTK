@@ -31,19 +31,19 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.134");
+vtkCxxRevisionMacro(vtkActor, "1.135");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 vtkCxxSetObjectMacro(vtkActor,Mapper,vtkMapper);
 vtkCxxSetObjectMacro(vtkActor,BackfaceProperty,vtkProperty);
 vtkCxxSetObjectMacro(vtkActor,Property,vtkProperty);
 
-//---------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkActor);
 
 
-// Creates an actor with the following defaults: origin(0,0,0)
+// Creates an actor with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
 // orientation=(0,0,0). No user defined matrix and no texture map.
 vtkActor::vtkActor()
@@ -117,7 +117,7 @@ void vtkActor::GetActors(vtkPropCollection *ac)
 // should be called from the render methods only
 int vtkActor::GetIsOpaque()
 {
-  if (this->Property->GetIsOpaque())
+  if (this->Property->GetOpacity() >= 1.0)
     {
     if (this->Texture && this->Texture->GetInput())
       {
@@ -142,7 +142,6 @@ int vtkActor::GetIsOpaque()
       return 1;
       }
     }
-  cout << "Not opaque" << endl;
   return 0;
 }
 
@@ -442,7 +441,7 @@ unsigned long int vtkActor::GetRedrawMTime()
   return mTime;
 }
 
-//---------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
