@@ -1,5 +1,5 @@
 """
-Miscellaneous constants copied from vtkSystemIncludes.h
+Miscellaneous constants copied from vtkSystemIncludes.h and vtkType.h
 (It would be nice if this file were automatically generated,
 but the constants don't change very often)
 """
