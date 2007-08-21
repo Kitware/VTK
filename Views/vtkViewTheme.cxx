@@ -21,35 +21,45 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkViewTheme, "1.2");
+vtkCxxRevisionMacro(vtkViewTheme, "1.3");
 vtkStandardNewMacro(vtkViewTheme);
 
 vtkViewTheme::vtkViewTheme()
 {
-  this->SetPointColor(1, 1, 1);
-  this->SetPointOpacity(1);
-  this->SetPointHueRange(0.667, 0);
-  this->SetPointSaturationRange(1, 1);
-  this->SetPointValueRange(1, 1);
-  this->SetPointAlphaRange(1, 1);
+  this->PointColor[0] = this->PointColor[1] = this->PointColor[2] = 1;
+  this->PointOpacity = 1;
+  this->PointHueRange[0] = 0.667;
+  this->PointHueRange[1] = 0;
+  this->PointSaturationRange[0] = this->PointSaturationRange[1] = 1;
+  this->PointValueRange[0] = this->PointValueRange[1] = 1;
+  this->PointAlphaRange[0] = this->PointAlphaRange[1] = 1;
 
-  this->SetCellColor(1, 1, 1);
-  this->SetCellOpacity(0.5);
-  this->SetCellHueRange(0.667, 0);
-  this->SetCellSaturationRange(0.5, 1);
-  this->SetCellValueRange(0.5, 1);
-  this->SetCellAlphaRange(0.5, 1);
-  
-  this->SetOutlineColor(0,0,0);
+  this->CellColor[0] = this->CellColor[1] = this->CellColor[2] = 1;
+  this->CellOpacity = 0.5;
+  this->CellHueRange[0] = 0.667;
+  this->CellHueRange[1] = 0;
+  this->CellSaturationRange[0] = 0.5;
+  this->CellSaturationRange[1] = 1;
+  this->CellValueRange[0] = 0.5;
+  this->CellValueRange[1] = 1;
+  this->CellAlphaRange[0] = 0.5;
+  this->CellAlphaRange[1] = 1;
 
-  this->SetSelectedPointColor(1, 0, 1);
-  this->SetSelectedPointOpacity(1);
-  this->SetSelectedCellColor(1, 0, 1);
-  this->SetSelectedCellOpacity(1);
+  this->OutlineColor[0] = this->OutlineColor[1] = this->OutlineColor[2] = 0;
 
-  this->SetBackgroundColor(0.3, 0.3, 0.3);
-  this->SetVertexLabelColor(1, 1, 1);
-  this->SetEdgeLabelColor(.7, .7, .7);
+  this->SelectedPointColor[0] = this->SelectedPointColor[2] = 1;
+  this->SelectedPointColor[1] = 0;
+  this->SelectedPointOpacity = 1;
+  this->SelectedCellColor[0] = this->SelectedCellColor[2] = 1;
+  this->SelectedCellColor[1] = 0;
+  this->SelectedCellOpacity = 1;
+
+  this->BackgroundColor[0] = this->BackgroundColor[1] =
+    this->BackgroundColor[2] = 0.3;
+  this->VertexLabelColor[0] = this->VertexLabelColor[1] =
+    this->VertexLabelColor[2] = 1;
+  this->EdgeLabelColor[0] = this->EdgeLabelColor[1] =
+    this->EdgeLabelColor[2] = 0.7;
 }
 
 vtkViewTheme::~vtkViewTheme()
