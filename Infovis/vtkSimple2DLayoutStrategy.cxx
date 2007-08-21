@@ -36,7 +36,7 @@
 #include "vtkTree.h"
 
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.14");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.15");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 #ifndef MIN
@@ -59,6 +59,7 @@ vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
   this->RepulsionArray = vtkFloatArray::New();
   this->AttractionArray = vtkFloatArray::New();
     
+  this->RandomSeed = 123;
   this->IterationsPerLayout = 100;
   this->InitialTemperature = 5;
   this->CoolDownRate = 50.0;
@@ -83,6 +84,8 @@ vtkSimple2DLayoutStrategy::~vtkSimple2DLayoutStrategy()
 // Set the graph that will be laid out
 void vtkSimple2DLayoutStrategy::Initialize()
 {
+  srand(this->RandomSeed);
+
   // Set up some quick access variables
   vtkPoints* pts = this->Graph->GetPoints();
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
@@ -332,6 +335,7 @@ void vtkSimple2DLayoutStrategy::Layout()
 void vtkSimple2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "RandomSeed: " << this->RandomSeed << endl;
   os << indent << "InitialTemperature: " << this->InitialTemperature << endl;
   os << indent << "MaxNumberOfIterations: " << this->MaxNumberOfIterations << endl;
   os << indent << "IterationsPerLayout: " << this->IterationsPerLayout << endl;

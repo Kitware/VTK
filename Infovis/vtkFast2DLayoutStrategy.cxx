@@ -36,7 +36,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.4");
+vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.5");
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -441,11 +441,11 @@ void vtkFast2DLayoutStrategy::Layout()
 void vtkFast2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "InitialTemperature: " << this->InitialTemperature << endl;
+  os << indent << "RandomSeed: " << this->RandomSeed << endl;
   os << indent << "MaxNumberOfIterations: " << this->MaxNumberOfIterations << endl;
   os << indent << "IterationsPerLayout: " << this->IterationsPerLayout << endl;
+  os << indent << "InitialTemperature: " << this->InitialTemperature << endl;
   os << indent << "CoolDownRate: " << this->CoolDownRate << endl;
-  os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)") << endl;
   os << indent << "RestDistance: " << this->RestDistance << endl;
-  os << indent << "RandomSeed: " << this->RandomSeed << endl;
+  os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)") << endl;
 }

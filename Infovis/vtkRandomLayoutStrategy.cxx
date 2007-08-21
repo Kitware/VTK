@@ -31,11 +31,12 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkRandomLayoutStrategy, "1.3");
+vtkCxxRevisionMacro(vtkRandomLayoutStrategy, "1.4");
 vtkStandardNewMacro(vtkRandomLayoutStrategy);
 
 vtkRandomLayoutStrategy::vtkRandomLayoutStrategy()
 {
+  this->RandomSeed = 123;
   this->GraphBounds[0] = this->GraphBounds[2] = this->GraphBounds[4] = -0.5;
   this->GraphBounds[1] = this->GraphBounds[3] = this->GraphBounds[5] =  0.5;
   this->AutomaticBoundsComputation = 0;
@@ -73,6 +74,8 @@ void vtkRandomLayoutStrategy::SetGraph(vtkAbstractGraph *graph)
     }
           
   // Generate the points, either x,y,0 or x,y,z
+  srand(this->RandomSeed);
+
   vtkPoints* newPoints = vtkPoints::New();
   for (int i=0; i< graph->GetNumberOfVertices(); i++)
     {
@@ -103,6 +106,8 @@ void vtkRandomLayoutStrategy::SetGraph(vtkAbstractGraph *graph)
 void vtkRandomLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "RandomSeed: " << this->RandomSeed << endl;
 
   os << indent << "AutomaticBoundsComputation: " 
      << (this->AutomaticBoundsComputation ? "On\n" : "Off\n");

@@ -31,11 +31,12 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.3");
+vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.4");
 vtkStandardNewMacro(vtkForceDirectedLayoutStrategy);
 
 vtkForceDirectedLayoutStrategy::vtkForceDirectedLayoutStrategy()
 {
+  this->RandomSeed = 123;
   this->GraphBounds[0] = this->GraphBounds[2] = this->GraphBounds[4] = -0.5;
   this->GraphBounds[1] = this->GraphBounds[3] = this->GraphBounds[5] =  0.5;
   this->MaxNumberOfIterations = 50;
@@ -116,6 +117,8 @@ void vtkForceDirectedLayoutStrategy::Initialize()
   // Get the points, either x,y,0 or x,y,z or random
   if (this->RandomInitialPoints)
     {
+    srand(this->RandomSeed);
+    
     for (vtkIdType i = 0; i < numVertices; i++)
       {
       for (int j = 0; j < maxCoord; j++)
@@ -300,6 +303,7 @@ void vtkForceDirectedLayoutStrategy::Layout()
 void vtkForceDirectedLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "RandomSeed: " << this->RandomSeed << endl;
   os << indent << "AutomaticBoundsComputation: " 
      << (this->AutomaticBoundsComputation ? "On\n" : "Off\n");
   os << indent << "CoolDownRate: " << this->CoolDownRate << endl;

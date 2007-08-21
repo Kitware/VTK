@@ -39,6 +39,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Seed the random number generator used to compute point positions.
+  // This has a significant effect on their final positions when
+  // the layout is complete.
+  vtkSetClampMacro(RandomSeed, int, 0, VTK_LARGE_INTEGER);
+  vtkGetMacro(RandomSeed, int);
+
+  // Description:
   // Set / get the region in space in which to place the final graph.
   // The GraphBounds only affects the results if AutomaticBoundsComputation
   // is off.
@@ -73,6 +80,7 @@ protected:
   vtkRandomLayoutStrategy();
   ~vtkRandomLayoutStrategy();
 
+  int RandomSeed;
   double GraphBounds[6];
   int   AutomaticBoundsComputation;
   int   ThreeDimensionalLayout;  //Boolean for a third dimension.

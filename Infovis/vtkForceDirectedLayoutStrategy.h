@@ -42,6 +42,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Seed the random number generator used to jitter point positions.
+  // This has a significant effect on their final positions when
+  // the layout is complete.
+  vtkSetClampMacro(RandomSeed, int, 0, VTK_LARGE_INTEGER);
+  vtkGetMacro(RandomSeed, int);
+
+  // Description:
   // Set / get the region in space in which to place the final graph.
   // The GraphBounds only affects the results if AutomaticBoundsComputation
   // is off.
@@ -147,6 +154,7 @@ private:
   } vtkLayoutEdge;
   //ETX
 
+  int RandomSeed;
   int IterationsPerLayout;
   int TotalIterations;
   int LayoutComplete;

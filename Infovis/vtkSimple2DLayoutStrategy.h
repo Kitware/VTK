@@ -43,6 +43,12 @@ public:
   vtkTypeRevisionMacro(vtkSimple2DLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Seed the random number generator used to jitter point positions.
+  // This has a significant effect on their final positions when
+  // the layout is complete.
+  vtkSetClampMacro(RandomSeed, int, 0, VTK_LARGE_INTEGER);
+  vtkGetMacro(RandomSeed, int);
 
   // Description:
   // Set/Get the maximum number of iterations to be used.
@@ -140,6 +146,7 @@ private:
   vtkLayoutEdge *EdgeArray;
   //ETX
   
+  int RandomSeed;
   int IterationsPerLayout;
   int TotalIterations;
   int LayoutComplete;
