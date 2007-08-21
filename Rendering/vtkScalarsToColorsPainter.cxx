@@ -37,7 +37,7 @@
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.5");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.6");
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_MODE, Integer);
@@ -106,7 +106,8 @@ vtkScalarsToColorsPainter* vtkScalarsToColorsPainter::New()
 //-----------------------------------------------------------------------------
 int vtkScalarsToColorsPainter::GetPremultiplyColorsWithAlpha(vtkActor* actor)
 {
-  if (actor && actor->GetTexture())
+  if (actor && (actor->GetTexture() || 
+      actor->GetProperty()->GetNumberOfTextures() > 0))
     {
     return 0;
     }

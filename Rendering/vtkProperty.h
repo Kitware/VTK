@@ -341,6 +341,9 @@ public:
   // Description:
   // Returns the number of textures in this property.
   int GetNumberOfTextures();
+ 
+  // is this property opaque
+  int GetIsOpaque();
 
   // Description:
   // Release any graphics resources that are being consumed by this

@@ -15,6 +15,7 @@ IF(VTK_USE_DISPLAY)
     TestInteractorTimers.cxx
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
+    TestTextureRGBA.cxx
     )
 
   IF(VTK_DATA_ROOT)
