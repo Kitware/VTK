@@ -272,10 +272,6 @@ public:
 
   // Description:
   // For Frustum selection.
-  static vtkInformationIntegerKey* EXACT_TEST();
-
-  // Description:
-  // For Frustum selection.
   static vtkInformationIntegerKey* SHOW_BOUNDS();
 
 protected:

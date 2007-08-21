@@ -89,10 +89,6 @@ public:
   vtkGetStringMacro(ArrayName);
   
   // Description:
-  vtkSetMacro(ExactTest, int);
-  vtkGetMacro(ExactTest, int);
-
-  // Description:
   vtkSetMacro(ShowBounds, int);
   vtkGetMacro(ShowBounds, int);
 
@@ -115,7 +111,6 @@ protected:
   int ContainingCells;
   int PreserveTopology;
   int Inverse;
-  int ExactTest;
   int ShowBounds;
   char *ArrayName;
 
