@@ -30,7 +30,7 @@
 #include <vtklibxml2/libxml/parser.h>
 #include <vtklibxml2/libxml/tree.h>
 
-vtkCxxRevisionMacro(vtkXMLTreeReader, "1.4");
+vtkCxxRevisionMacro(vtkXMLTreeReader, "1.5");
 vtkStandardNewMacro(vtkXMLTreeReader);
 
 const char * vtkXMLTreeReader::TagNameField = ".tagname";
@@ -142,6 +142,7 @@ void vtkXMLTreeReaderProcessElement(vtkTree* tree,
         bitArr->InsertNextValue(true);
         }
       //cerr << "attname=" << name << ",value=" << value << endl;
+      delete [] validName;
       }
 
     // Process this node's children
