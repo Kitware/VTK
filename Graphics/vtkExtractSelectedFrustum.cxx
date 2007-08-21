@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.9");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.10");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -50,7 +50,8 @@ vtkExtractSelectedFrustum::vtkExtractSelectedFrustum(vtkPlanes *f)
   this->ShowBounds = 0;
 
   this->PassThrough = 0;
-  this->ExactTest = 1;
+  this->FieldType = 0;
+  this->ContainingCells = 0;
   this->InsideOut = 0;
 
   this->NumRejects = 0;
@@ -270,10 +271,16 @@ int vtkExtractSelectedFrustum::RequestData(
           sel->GetProperties()->Get(vtkSelection::INVERSE())
           );
         }
-      if (sel->GetProperties()->Has(vtkSelection::EXACT_TEST()))
+      if (sel->GetProperties()->Has(vtkSelection::FIELD_TYPE()))
         {
-        this->SetExactTest(
-          sel->GetProperties()->Get(vtkSelection::EXACT_TEST())
+        this->SetFieldType(
+          sel->GetProperties()->Get(vtkSelection::FIELD_TYPE())
+          );
+        }
+      if (sel->GetProperties()->Has(vtkSelection::CONTAINING_CELLS()))
+        {
+        this->SetContainingCells(
+          sel->GetProperties()->Get(vtkSelection::CONTAINING_CELLS())
           );
         }
       if (sel->GetProperties()->Has(vtkSelection::SHOW_BOUNDS()))
@@ -449,12 +456,22 @@ int vtkExtractSelectedFrustum::RequestData(
     outputUG->Allocate(numCells/4); //allocate storage for geometry/topology
     newPts->Allocate(numPts/4,numPts);
     outputPD->CopyAllocate(pd);
-    outputCD->CopyAllocate(cd);
-    originalCellIds = vtkIdTypeArray::New();
-    originalCellIds->SetNumberOfComponents(1);
-    originalCellIds->SetName("vtkOriginalCellIds");
-    outputCD->AddArray(originalCellIds);
-    originalCellIds->Delete();
+
+    if ((this->FieldType == vtkSelection::CELL)
+        ||
+        this->PassThrough 
+        ||
+        this->ContainingCells
+      )
+      {
+      outputCD->CopyAllocate(cd);
+
+      originalCellIds = vtkIdTypeArray::New();
+      originalCellIds->SetNumberOfComponents(1);
+      originalCellIds->SetName("vtkOriginalCellIds");
+      outputCD->AddArray(originalCellIds);
+      originalCellIds->Delete();
+      }
 
     originalPointIds = vtkIdTypeArray::New();
     originalPointIds->SetNumberOfComponents(1);
@@ -467,13 +484,13 @@ int vtkExtractSelectedFrustum::RequestData(
 
   vtkIdType updateInterval;
 
-  if (this->ExactTest)
+  if (this->FieldType == vtkSelection::CELL)
     {
-    updateInterval = numCells/1000 + 1;
-
     //cell based isect test, a cell is inside if any part of it is inside the
     //frustum, a point is inside if it belongs to an inside cell, or is not 
     //in any cell but is inside the frustum
+
+    updateInterval = numCells/1000 + 1;
 
     //initialize all points to say not looked at
     for (ptId=0; ptId < numPts; ptId++)
@@ -571,7 +588,7 @@ int vtkExtractSelectedFrustum::RequestData(
       if (pointMap[ptId] == -1) //point wasn't attached to a cell
         {
         input->GetPoint(ptId,x);      
-        if ((this->Frustum->EvaluateFunction(x) *flag)< 0.0)
+        if ((this->Frustum->EvaluateFunction(x) * flag) < 0.0)
           {
           /*
           NUMPTS++;
@@ -590,9 +607,10 @@ int vtkExtractSelectedFrustum::RequestData(
         }
       }
     }
-  else
+
+  else //this->FieldType == vtkSelection::POINT
     {
-    //point based isect test, a cell is inside if all of its points are inside
+    //point based isect test
 
     updateInterval = numPts/1000 + 1;
 
@@ -607,7 +625,7 @@ int vtkExtractSelectedFrustum::RequestData(
 
       input->GetPoint(ptId,x);      
       pointMap[ptId] = -1;
-      if (this->Frustum->EvaluateFunction(x) < 0.0)
+      if ((this->Frustum->EvaluateFunction(x) * flag) < 0.0)
         {
         /*
         NUMPTS++;
@@ -633,48 +651,99 @@ int vtkExtractSelectedFrustum::RequestData(
     timer->StartTimer();
     */
 
-    //run through cells and accept only those with all points inside
-    for (cellId = 0;  cellId < numCells; cellId++)
+    if (this->PassThrough)
       {
-      cell = input->GetCell(cellId);
-      cellPts = cell->GetPointIds();
-      numCellPts = cell->GetNumberOfPoints();      
-      newCellPts->Reset();
-
-      isect = 1;
-      for (i=0; i < numCellPts; i++)
+      //we have already created a copy of the input and marked points as 
+      //being in or not
+      if (this->ContainingCells)
         {
-        ptId = cellPts->GetId(i);
-        newPointId = pointMap[ptId];
-        if ( newPointId < 0 )
+        //mark the cells that have at least one point inside as being in
+        for (cellId = 0;  cellId < numCells; cellId++)
           {
-          isect = 0;
-          /*
-          this->NumRejects++;
-          */
-          break; //this cell won't be inserted
-          }
-        newCellPts->InsertId(i,newPointId);
-        }
-      if (isect)
-        {
-        /*
-        NUMCELLS++;
-        this->NumAccepts++;
-        */
-        if (this->PassThrough)
-          {
-          cellInArray->SetValue(cellId,flag);
-          }
-        else
-          {
-          newCellId = outputUG->InsertNextCell(cell->GetCellType(),newCellPts);
-          outputCD->CopyData(cd,cellId,newCellId);
-          originalCellIds->InsertNextValue(cellId);
+          cell = input->GetCell(cellId);
+          cellPts = cell->GetPointIds();
+          numCellPts = cell->GetNumberOfPoints();                
+          for (i=0; i < numCellPts; i++)
+            {
+            ptId = cellPts->GetId(i);
+            newPointId = pointMap[ptId];
+            if ( newPointId >= 0 )
+              {
+              cellInArray->SetValue(cellId,flag);
+              break;
+              }
+            }
           }
         }
       }
-    } 
+    else
+      {      
+      if (this->ContainingCells)
+        {
+        vtkIdType *pointMap2 = new vtkIdType[numPts]; // maps old point ids into new
+        memcpy(pointMap2, pointMap, numPts*sizeof(vtkIdType));
+
+        //run through cells and accept those with any point inside
+        for (cellId = 0;  cellId < numCells; cellId++)
+          {
+          cell = input->GetCell(cellId);
+          cellPts = cell->GetPointIds();
+          numCellPts = cell->GetNumberOfPoints();      
+          newCellPts->Reset();
+          
+          isect = 0;
+          for (i=0; i < numCellPts; i++)
+            {
+            ptId = cellPts->GetId(i);
+            newPointId = pointMap[ptId];
+            if ( newPointId >= 0 )
+              {
+              isect=1;
+              break; //this cell won't be inserted
+              }
+            }
+          if (isect)
+            {
+            for (i=0; i < numCellPts; i++)
+              {
+              ptId = cellPts->GetId(i);
+              newPointId = pointMap[ptId];
+              if ( newPointId < 0 )
+                {
+                //this vertex wasn't inside
+                newPointId = pointMap2[ptId];
+                if (newPointId < 0)
+                  {
+                  //we haven't encountered it before, add it and remember
+                  input->GetPoint(ptId,x);      
+                  newPointId = newPts->InsertNextPoint(x);
+                  outputPD->CopyData(pd,ptId,newPointId);
+                  originalPointIds->InsertNextValue(ptId);
+                  pointMap2[ptId] = newPointId;
+                  }
+                }
+              newCellPts->InsertId(i,newPointId);
+              }
+
+            newCellId = outputUG->InsertNextCell(cell->GetCellType(),newCellPts);
+            outputCD->CopyData(cd,cellId,newCellId);
+            originalCellIds->InsertNextValue(cellId);
+            }
+          }
+        delete[] pointMap2;
+        }
+      else
+        {
+        //produce a new vtk_vertex cell for each accepted point
+        for (ptId = 0; ptId < newPts->GetNumberOfPoints(); ptId++)
+          {
+          newCellPts->Reset();
+          newCellPts->InsertId(0, ptId);
+          outputUG->InsertNextCell(VTK_VERTEX, newCellPts);
+          }
+        }
+      }
+    }
 
   /*
   cerr << "  REJECTS " << this->NumRejects << " ";
@@ -1100,8 +1169,11 @@ void vtkExtractSelectedFrustum::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PassThrough: " 
      << (this->PassThrough ? "On\n" : "Off\n");
 
-  os << indent << "ExactTest: "
-     << (this->ExactTest ? "On\n" : "Off\n");
+  os << indent << "FieldType: "
+     << (this->FieldType ? "On\n" : "Off\n");
+
+  os << indent << "ContainingCells: "
+     << (this->ContainingCells ? "On\n" : "Off\n");
 
   os << indent << "ShowBounds: "
      << (this->ShowBounds ? "On\n" : "Off\n");

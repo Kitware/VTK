@@ -1029,6 +1029,87 @@ int TestExtraction(int argc, char *argv[])
   showMe(extIData, 2, 5, COLORBYCELL, insideArray);
 
   //-------------------------------------------------------------------------
+  //test the extract FRUSTUM filter on points
+
+  sel->Clear();
+  sel->GetProperties()->Set(
+    vtkSelection::CONTENT_TYPE(), vtkSelection::FRUSTUM);
+  sel->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
+  frustcorners = vtkDoubleArray::New();
+  frustcorners->SetNumberOfComponents(4);
+  frustcorners->SetNumberOfTuples(8);
+  //a frustum containing the 4 lower left (-X,-Y) vertices
+  frustcorners->SetTuple4(0,  -0.1, -0.1,  3.1, 0.0);
+  frustcorners->SetTuple4(1,  -0.1, -0.1, -0.1, 0.0);
+  frustcorners->SetTuple4(2,  -0.1,  0.1,  3.1, 0.0);
+  frustcorners->SetTuple4(3,  -0.1,  0.1, -0.1, 0.0);
+  frustcorners->SetTuple4(4,  0.1, -0.1,  3.1, 0.0);
+  frustcorners->SetTuple4(5,  0.1, -0.1, -0.1, 0.0);
+  frustcorners->SetTuple4(6,  0.1,  0.1,  3.1, 0.0);
+  frustcorners->SetTuple4(7,  0.1,  0.1, -0.1, 0.0);
+  sel->SetSelectionList(frustcorners);
+  frustcorners->Delete();
+
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Fru.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 3, 5, COLORBYPOINT, pia);
+  
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 1);
+  ext->Update();
+  extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    writer->SetInput(extGrid);
+    writer->SetFileName("ext_P_Fru_I.vtk");
+    writer->Write();
+    }
+  showMe(extGrid, 4, 5, COLORBYPOINT, pia);
+
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extGrid);
+    xwriter->SetFileName("ext_P_Fru_WC.vti");
+    xwriter->Write();
+    }
+  showMe(extGrid, 5, 5, COLORBYPOINT, pia);
+
+  sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 0);
+  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_P_Fru_PT.vti");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetPointData()->GetArray("vtkInsidedness");
+  showMe(extIData, 6, 5, COLORBYPOINT, insideArray);
+
+  sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 1);
+  ext->Update();
+  extIData = vtkImageData::SafeDownCast(ext->GetOutput());
+  if (DoWrite)
+    {
+    xwriter->SetInput(extIData);
+    xwriter->SetFileName("ext_P_Fru_PT_WC.vti");
+    xwriter->Write();
+    }
+  insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
+  showMe(extIData, 7, 5, COLORBYCELL, insideArray);
+
+  //-------------------------------------------------------------------------
   /*
   vtkCamera *cam = renderer->GetActiveCamera();
   cam->SetPosition(-6, -2, 45);

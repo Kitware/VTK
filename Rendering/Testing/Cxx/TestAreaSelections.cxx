@@ -140,7 +140,6 @@ int TestAreaSelections(int argc, char* argv[])
   vtkExtractSelectedFrustum *extractor = vtkExtractSelectedFrustum::New();
   extractor->SetInputConnection(reader->GetOutputPort());
   extractor->PassThroughOff();
-  extractor->ExactTestOn();
   extractor->SetFrustum(areaPicker->GetFrustum());
 
   vtkDataSetMapper *eMap = vtkDataSetMapper::New();

@@ -27,14 +27,6 @@
 // input cell produced each output cell. This is an example of a Pedigree ID 
 // which helps to trace back results.
 //
-// You have two choices for what cells are considered to be inside.
-// ExactTestOff treats a cell as inside only if all of its points are 
-// inside. This is equivalent to the inside only mode of vtkExtractGeometry 
-// filter. ExactTestOn treats a cell as inside if any part of it is 
-// inside. Points are considered to be inside if they are part of an inside 
-// cell. An example of a cell that is treated differently in the two modes 
-// is a line segment that crosses the frustum but has both vertices outside.
-//
 // .SECTION See Also
 // vtkExtractGeometry, vtkAreaPicker, vtkExtractSelection, vtkSelection
 
@@ -93,13 +85,14 @@ public:
   
   // Description:
   // Sets/gets the intersection test type.
-  // Off extracts only those points and cells that are completely within the 
-  // frustum. On extracts all of the above as well as those cells that cross 
-  // the frustum along with all of their points.
-  // On is the default.
-  vtkSetMacro(ExactTest,int);
-  vtkGetMacro(ExactTest,int);
-  vtkBooleanMacro(ExactTest,int);
+  vtkSetMacro(FieldType,int);
+  vtkGetMacro(FieldType,int);
+
+  // Description:
+  // Sets/gets the intersection test type. Only meaningful when fieldType is 
+  // vtkSelection::POINT
+  vtkSetMacro(ContainingCells,int);
+  vtkGetMacro(ContainingCells,int);
 
   // Description:
   // Does a quick test on the AABBox defined by the bounds.
@@ -151,7 +144,8 @@ protected:
 
   //modes
   int PassThrough;
-  int ExactTest;
+  int FieldType;
+  int ContainingCells;
   int InsideOut;
 
   //used internally
