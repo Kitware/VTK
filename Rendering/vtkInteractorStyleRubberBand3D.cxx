@@ -28,7 +28,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBand3D, "1.1");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBand3D, "1.2");
 vtkStandardNewMacro(vtkInteractorStyleRubberBand3D);
 
 //--------------------------------------------------------------------------
@@ -263,4 +263,5 @@ void vtkInteractorStyleRubberBand3D::RedrawRubberBand()
 void vtkInteractorStyleRubberBand3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Interaction: " << this->Interaction << endl;
 }
