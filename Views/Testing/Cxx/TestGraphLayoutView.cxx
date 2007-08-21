@@ -63,6 +63,7 @@ int TestGraphLayoutView(int argc, char* argv[])
     
     retVal = vtkRegressionTester::PASSED;
     }
-  
+
+  delete [] file;
   return !retVal;
 }
