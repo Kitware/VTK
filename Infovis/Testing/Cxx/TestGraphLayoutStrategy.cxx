@@ -83,7 +83,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     output->GetPoint(u, pt);
     output->GetPoint(v, pt2);
     double dist = sqrt(vtkMath::Distance2BetweenPoints(pt, pt2));
-    if (dist < length/10.0 || dist > length*10.0)
+    if (dist < length/20.0 || dist > length*20.0)
       {
       cerr << "ERROR: Edge " << u << "," << v << " distance is " << dist
            << " but resting distance is " << length << endl;
@@ -115,7 +115,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     output->GetPoint(u, pt);
     output->GetPoint(v, pt2);
     double dist = sqrt(vtkMath::Distance2BetweenPoints(pt, pt2));
-    if (dist < length/10.0 || dist > length*10.0)
+    if (dist < length/20.0 || dist > length*20.0)
       {
       cerr << "ERROR: Edge " << u << "," << v << " distance is " << dist
            << " but resting distance is " << length << endl;
@@ -174,7 +174,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     output->GetPoint(u, pt);
     output->GetPoint(v, pt2);
     double dist = sqrt(vtkMath::Distance2BetweenPoints(pt, pt2));
-    if (dist < length/15.0 || dist > length*15.0)
+    if (dist < length/20.0 || dist > length*20.0)
       {
       cerr << "ERROR: Edge " << u << "," << v << " distance is " << dist
            << " but resting distance is " << length << endl;
