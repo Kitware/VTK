@@ -41,7 +41,7 @@
 #include "vtkBezierContourLineInterpolator.h"
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.14");
+vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.15");
 vtkStandardNewMacro(vtkOrientedGlyphContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -181,7 +181,7 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   this->InteractionOffset[0] = 0.0;
   this->InteractionOffset[1] = 0.0;
 
-  this->AlwaysOnTop = 1;
+  this->AlwaysOnTop = 0;
 }
 
 //----------------------------------------------------------------------
