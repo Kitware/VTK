@@ -10,13 +10,16 @@ VTK.
 
 The following command was used to obtain the symbol list:
 
-nm libvtkzlib.so |grep " [TRD] " | grep -v " [TRD] _"
+nm libvtkzlib.so |grep " [TRD] "
 
 This is the way to recreate the whole list:
 
-nm libvtkzlib.so |grep " [TRD] " | grep -v " [TRD] _" | awk '{ print "#define "$3" vtk_zlib_"$3 }'
+nm libvtkzlib.so |grep " [TRD] " | awk '{ print "#define "$3" vtk_zlib_"$3 }'
+
+REMOVE the "_init" and "_fini" entries.
 
 */
+
 #define adler32 vtk_zlib_adler32
 #define adler32_combine vtk_zlib_adler32_combine
 #define compress vtk_zlib_compress
@@ -24,6 +27,7 @@ nm libvtkzlib.so |grep " [TRD] " | grep -v " [TRD] _" | awk '{ print "#define "$
 #define compressBound vtk_zlib_compressBound
 #define crc32 vtk_zlib_crc32
 #define crc32_combine vtk_zlib_crc32_combine
+#define get_crc_table vtk_zlib_get_crc_table
 #define deflate vtk_zlib_deflate
 #define deflateBound vtk_zlib_deflateBound
 #define deflateCopy vtk_zlib_deflateCopy
@@ -37,7 +41,6 @@ nm libvtkzlib.so |grep " [TRD] " | grep -v " [TRD] _" | awk '{ print "#define "$
 #define deflateSetHeader vtk_zlib_deflateSetHeader
 #define deflateTune vtk_zlib_deflateTune
 #define deflate_copyright vtk_zlib_deflate_copyright
-#define get_crc_table vtk_zlib_get_crc_table
 #define gzclearerr vtk_zlib_gzclearerr
 #define gzclose vtk_zlib_gzclose
 #define gzdirect vtk_zlib_gzdirect
@@ -58,6 +61,7 @@ nm libvtkzlib.so |grep " [TRD] " | grep -v " [TRD] _" | awk '{ print "#define "$
 #define gztell vtk_zlib_gztell
 #define gzungetc vtk_zlib_gzungetc
 #define gzwrite vtk_zlib_gzwrite
+#define inflate_fast vtk_zlib_inflate_fast
 #define inflate vtk_zlib_inflate
 #define inflateCopy vtk_zlib_inflateCopy
 #define inflateEnd vtk_zlib_inflateEnd
@@ -70,8 +74,14 @@ nm libvtkzlib.so |grep " [TRD] " | grep -v " [TRD] _" | awk '{ print "#define "$
 #define inflateSync vtk_zlib_inflateSync
 #define inflateSyncPoint vtk_zlib_inflateSyncPoint
 #define inflate_copyright vtk_zlib_inflate_copyright
-#define inflate_fast vtk_zlib_inflate_fast
 #define inflate_table vtk_zlib_inflate_table
+#define _dist_code vtk_zlib__dist_code
+#define _length_code vtk_zlib__length_code
+#define _tr_align vtk_zlib__tr_align
+#define _tr_flush_block vtk_zlib__tr_flush_block
+#define _tr_init vtk_zlib__tr_init
+#define _tr_stored_block vtk_zlib__tr_stored_block
+#define _tr_tally vtk_zlib__tr_tally
 #define uncompress vtk_zlib_uncompress
 #define zError vtk_zlib_zError
 #define z_errmsg vtk_zlib_z_errmsg
@@ -79,4 +89,5 @@ nm libvtkzlib.so |grep " [TRD] " | grep -v " [TRD] _" | awk '{ print "#define "$
 #define zcfree vtk_zlib_zcfree
 #define zlibCompileFlags vtk_zlib_zlibCompileFlags
 #define zlibVersion vtk_zlib_zlibVersion
+
 #endif
