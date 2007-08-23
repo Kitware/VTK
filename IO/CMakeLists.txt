@@ -94,7 +94,6 @@ vtkSQLDatabase.cxx
 vtkSQLiteDatabase.cxx
 vtkSQLiteQuery.cxx
 vtkSQLQuery.cxx
-vtkSQLTableReader.cxx
 vtkSLCReader.cxx
 vtkSTLReader.cxx
 vtkSTLWriter.cxx
@@ -242,6 +241,30 @@ IF (VTK_USE_MPEG2_ENCODER)
   SET(Kit_SRCS ${Kit_SRCS} vtkMPEG2Writer.cxx)
   SET(KIT_LIBS ${KIT_LIBS} ${vtkMPEG2Encode_LIBRARIES})
 ENDIF (VTK_USE_MPEG2_ENCODER)
+
+#-----------------------------------------------------------------------------
+# Add these classes only if vtkTypeUInt64Array exists
+SET(VTK_HAS_UINT64_ARRAY 0)
+IF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
+  SET(VTK_HAS_UINT64_ARRAY 1)
+ELSE(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
+  IF(VTK_SIZEOF_LONG MATCHES "^8$")
+    SET(VTK_HAS_UINT64_ARRAY 1)
+  ELSE(VTK_SIZEOF_LONG MATCHES "^8$")
+    IF(VTK_SIZEOF___INT64 MATCHES "^8$")
+      IF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+        SET(VTK_HAS_UINT64_ARRAY 1)
+      ENDIF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+    ENDIF(VTK_SIZEOF___INT64 MATCHES "^8$")
+  ENDIF(VTK_SIZEOF_LONG MATCHES "^8$")
+ENDIF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
+IF(VTK_HAS_UINT64_ARRAY)
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkSQLTableReader.cxx
+  )
+ENDIF(VTK_HAS_UINT64_ARRAY)
+
 
 #-----------------------------------------------------------------------------
 SET_SOURCE_FILES_PROPERTIES(
