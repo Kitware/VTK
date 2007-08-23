@@ -21,6 +21,11 @@
 **
 ** This amalgamation was generated on 2007-07-20 11:05:39 UTC.
 */
+#define VTK_SQLITE_OMIT_LOAD_EXTENSION
+#if defined(_MSC_VER)
+#pragma warning( disable: 4127 ) // conditional expression is constant
+#endif
+
 #define VTK_SQLITE_AMALGAMATION 1
 #ifndef VTK_SQLITE_PRIVATE
 # define VTK_SQLITE_PRIVATE static
@@ -6524,7 +6529,7 @@ static int parseHhMmSs(const char *zDate, DateTime *p){
   p->m = m;
   p->s = s + ms;
   if( parseTimezone(zDate, p) ) return 1;
-  p->validTZ = p->tz!=0;
+  p->validTZ = (char)(p->tz!=0);
   return 0;
 }
 
@@ -6795,7 +6800,7 @@ static int parseModifier(const char *zMod, DateTime *p){
   char *z, zBuf[30];
   z = zBuf;
   for(n=0; n<(int)(sizeof(zBuf)-1) && zMod[n]; n++){
-    z[n] = tolower(zMod[n]);
+    z[n] = (char)(tolower(zMod[n]));
   }
   z[n] = 0;
   switch( z[0] ){
@@ -7196,7 +7201,7 @@ static void strftimeFunc(
           break;
         }
         case 'S':  vtk_sqlite3_snprintf(3,&z[j],"%02d",(int)x.s); j+=2; break;
-        case 'w':  z[j++] = (((int)(x.rJD+1.5)) % 7) + '0'; break;
+        case 'w':  z[j++] = (char)((((int)(x.rJD+1.5)) % 7)) + '0'; break;
         case 'Y':  vtk_sqlite3_snprintf(5,&z[j],"%04d",x.Y); j+=strlen(&z[j]);break;
         case '%':  z[j++] = '%'; break;
       }
@@ -7220,6 +7225,7 @@ static void ctimeFunc(
   vtk_sqlite3_value **argv
 ){
   vtk_sqlite3_value *pVal = vtk_sqlite3ValueNew();
+  argc; argv; /* use arguments */
   if( pVal ){
     vtk_sqlite3ValueSetStr(pVal, -1, "now", VTK_SQLITE_UTF8, VTK_SQLITE_STATIC);
     timeFunc(context, 1, &pVal);
@@ -7238,6 +7244,7 @@ static void cdateFunc(
   vtk_sqlite3_value **argv
 ){
   vtk_sqlite3_value *pVal = vtk_sqlite3ValueNew();
+  argc; argv; /* use arguments */
   if( pVal ){
     vtk_sqlite3ValueSetStr(pVal, -1, "now", VTK_SQLITE_UTF8, VTK_SQLITE_STATIC);
     dateFunc(context, 1, &pVal);
@@ -7256,6 +7263,7 @@ static void ctimestampFunc(
   vtk_sqlite3_value **argv
 ){
   vtk_sqlite3_value *pVal = vtk_sqlite3ValueNew();
+  argc; argv; /* use arguments */
   if( pVal ){
     vtk_sqlite3ValueSetStr(pVal, -1, "now", VTK_SQLITE_UTF8, VTK_SQLITE_STATIC);
     datetimeFunc(context, 1, &pVal);
@@ -8526,7 +8534,7 @@ static int vxprintf(
   char buf[etBUFSIZE];       /* Conversion buffer */
   char prefix;               /* Prefix character.  "+" or "-" or " " or '\0'. */
   etByte errorflag = 0;      /* True if an error is encountered */
-  etByte xtype;              /* Conversion paradigm */
+  etByte xtype = 0;          /* Conversion paradigm */
   char *zExtra;              /* Extra memory used for etTCLESCAPE conversions */
   static const char spaces[] =
    "                                                                         ";
@@ -8799,7 +8807,7 @@ static int vxprintf(
           e2 = exp;
         }
         nsd = 0;
-        flag_dp = (precision>0) | flag_alternateform | flag_altform2;
+        flag_dp = (etByte)((precision>0) | flag_alternateform | flag_altform2);
         /* The sign in front of the number */
         if( prefix ){
           *(bufpt++) = prefix;
@@ -8809,7 +8817,7 @@ static int vxprintf(
           *(bufpt++) = '0';
         }else{
           for(; e2>=0; e2--){
-            *(bufpt++) = et_getdigit(&realvalue,&nsd);
+            *(bufpt++) = (char)(et_getdigit(&realvalue,&nsd));
           }
         }
         /* The decimal point */
@@ -8823,7 +8831,7 @@ static int vxprintf(
         }
         /* Significant digits after the decimal point */
         while( (precision--)>0 ){
-          *(bufpt++) = et_getdigit(&realvalue,&nsd);
+          *(bufpt++) = (char)(et_getdigit(&realvalue,&nsd));
         }
         /* Remove trailing zeros and the "." if no digits follow the "." */
         if( flag_rtz && flag_dp ){
@@ -8846,11 +8854,11 @@ static int vxprintf(
             *(bufpt++) = '+';
           }
           if( exp>=100 ){
-            *(bufpt++) = (exp/100)+'0';                /* 100's digit */
+            *(bufpt++) = (char)((exp/100)+'0');                /* 100's digit */
             exp %= 100;
           }
-          *(bufpt++) = exp/10+'0';                     /* 10's digit */
-          *(bufpt++) = exp%10+'0';                     /* 1's digit */
+          *(bufpt++) = (char)(exp/10+'0');                     /* 10's digit */
+          *(bufpt++) = (char)(exp%10+'0');                     /* 1's digit */
         }
         *bufpt = 0;
 
@@ -8885,9 +8893,9 @@ static int vxprintf(
         break;
       case etCHARLIT:
       case etCHARX:
-        c = buf[0] = (xtype==etCHARX ? va_arg(ap,int) : *++fmt);
+        c = buf[0] = (char)(xtype==etCHARX ? va_arg(ap,int) : *++fmt);
         if( precision>=0 ){
-          for(idx=1; idx<precision; idx++) buf[idx] = c;
+          for(idx=1; idx<precision; idx++) buf[idx] = (char)c;
           length = precision;
         }else{
           length =1;
@@ -8928,8 +8936,8 @@ static int vxprintf(
         j = 0;
         if( needQuote ) bufpt[j++] = q;
         for(i=0; (ch=escarg[i])!=0; i++){
-          bufpt[j++] = ch;
-          if( ch==q ) bufpt[j++] = ch;
+          bufpt[j++] = (char)ch;
+          if( ch==q ) bufpt[j++] = (char)ch;
         }
         if( needQuote ) bufpt[j++] = q;
         bufpt[j] = 0;
@@ -9244,7 +9252,7 @@ static int randomByte(void){
     prng.i = 0;
     vtk_sqlite3OsRandomSeed(k);
     for(i=0; i<256; i++){
-      prng.s[i] = i;
+      prng.s[i] = (unsigned char)i;
     }
     for(i=0; i<256; i++){
       prng.j += prng.s[i] + k[i];
@@ -9259,10 +9267,10 @@ static int randomByte(void){
   */
   prng.i++;
   t = prng.s[prng.i];
-  prng.j += t;
+  prng.j = prng.j + t;
   prng.s[prng.i] = prng.s[prng.j];
   prng.s[prng.j] = t;
-  t += prng.s[prng.i];
+  t = t + (prng.s[prng.i]);
   return prng.s[t];
 }
 
@@ -9273,7 +9281,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3Randomness(int N, void *pBuf){
   unsigned char *zBuf = pBuf;
   vtk_sqlite3OsEnterMutex();
   while( N-- ){
-    *(zBuf++) = randomByte();
+    *(zBuf++) = (unsigned char)(randomByte());
   }
   vtk_sqlite3OsLeaveMutex();
 }
@@ -9773,48 +9781,48 @@ const unsigned char vtk_sqlite3UtfTrans1[] = {
   0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x00, 0x00,
 };
 
-#define WRITE_UTF8(zOut, c) {                          \
-  if( c<0x00080 ){                                     \
-    *zOut++ = (c&0xFF);                                \
-  }                                                    \
-  else if( c<0x00800 ){                                \
-    *zOut++ = 0xC0 + ((c>>6)&0x1F);                    \
-    *zOut++ = 0x80 + (c & 0x3F);                       \
-  }                                                    \
-  else if( c<0x10000 ){                                \
-    *zOut++ = 0xE0 + ((c>>12)&0x0F);                   \
-    *zOut++ = 0x80 + ((c>>6) & 0x3F);                  \
-    *zOut++ = 0x80 + (c & 0x3F);                       \
-  }else{                                               \
-    *zOut++ = 0xF0 + ((c>>18) & 0x07);                 \
-    *zOut++ = 0x80 + ((c>>12) & 0x3F);                 \
-    *zOut++ = 0x80 + ((c>>6) & 0x3F);                  \
-    *zOut++ = 0x80 + (c & 0x3F);                       \
-  }                                                    \
+#define WRITE_UTF8(zOut, c) {                                           \
+  if( c<0x00080 ){                                                      \
+    *zOut++ = (unsigned char)(c&0xFF);                                  \
+  }                                                                     \
+  else if( c<0x00800 ){                                                 \
+    *zOut++ = (unsigned char)(0xC0 + ((c>>6)&0x1F));                    \
+    *zOut++ = (unsigned char)(0x80 + (c & 0x3F));                       \
+  }                                                                     \
+  else if( c<0x10000 ){                                                 \
+    *zOut++ = (unsigned char)(0xE0 + ((c>>12)&0x0F));                   \
+    *zOut++ = (unsigned char)(0x80 + ((c>>6) & 0x3F));                  \
+    *zOut++ = (unsigned char)(0x80 + (c & 0x3F));                       \
+  }else{                                                                \
+    *zOut++ = (unsigned char)(0xF0 + ((c>>18) & 0x07));                 \
+    *zOut++ = (unsigned char)(0x80 + ((c>>12) & 0x3F));                 \
+    *zOut++ = (unsigned char)(0x80 + ((c>>6) & 0x3F));                  \
+    *zOut++ = (unsigned char)(0x80 + (c & 0x3F));                       \
+  }                                                                     \
 }
 
-#define WRITE_UTF16LE(zOut, c) {                                \
-  if( c<=0xFFFF ){                                              \
-    *zOut++ = (c&0x00FF);                                       \
-    *zOut++ = ((c>>8)&0x00FF);                                  \
-  }else{                                                        \
-    *zOut++ = (((c>>10)&0x003F) + (((c-0x10000)>>10)&0x00C0));  \
-    *zOut++ = (0x00D8 + (((c-0x10000)>>18)&0x03));              \
-    *zOut++ = (c&0x00FF);                                       \
-    *zOut++ = (0x00DC + ((c>>8)&0x03));                         \
-  }                                                             \
+#define WRITE_UTF16LE(zOut, c) {                                               \
+  if( c<=0xFFFF ){                                                             \
+    *zOut++ = (unsigned char)(c&0x00FF);                                       \
+    *zOut++ = (unsigned char)((c>>8)&0x00FF);                                  \
+  }else{                                                                       \
+    *zOut++ = (unsigned char)(((c>>10)&0x003F) + (((c-0x10000)>>10)&0x00C0));  \
+    *zOut++ = (unsigned char)(0x00D8 + (((c-0x10000)>>18)&0x03));              \
+    *zOut++ = (unsigned char)(c&0x00FF);                                       \
+    *zOut++ = (unsigned char)(0x00DC + ((c>>8)&0x03));                         \
+  }                                                                            \
 }
 
-#define WRITE_UTF16BE(zOut, c) {                                \
-  if( c<=0xFFFF ){                                              \
-    *zOut++ = ((c>>8)&0x00FF);                                  \
-    *zOut++ = (c&0x00FF);                                       \
-  }else{                                                        \
-    *zOut++ = (0x00D8 + (((c-0x10000)>>18)&0x03));              \
-    *zOut++ = (((c>>10)&0x003F) + (((c-0x10000)>>10)&0x00C0));  \
-    *zOut++ = (0x00DC + ((c>>8)&0x03));                         \
-    *zOut++ = (c&0x00FF);                                       \
-  }                                                             \
+#define WRITE_UTF16BE(zOut, c) {                                               \
+  if( c<=0xFFFF ){                                                             \
+    *zOut++ = (unsigned char)((c>>8)&0x00FF);                                  \
+    *zOut++ = (unsigned char)(c&0x00FF);                                       \
+  }else{                                                                       \
+    *zOut++ = (unsigned char)(0x00D8 + (((c-0x10000)>>18)&0x03));              \
+    *zOut++ = (unsigned char)(((c>>10)&0x003F) + (((c-0x10000)>>10)&0x00C0));  \
+    *zOut++ = (unsigned char)(0x00DC + ((c>>8)&0x03));                         \
+    *zOut++ = (unsigned char)(c&0x00FF);                                       \
+  }                                                                            \
 }
 
 #define READ_UTF16LE(zIn, c){                                         \
@@ -10378,7 +10386,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3Dequote(char *z){
   for(i=1, j=0; z[i]; i++){
     if( z[i]==quote ){
       if( z[i+1]==quote ){
-        z[j++] = quote;
+        z[j++] = (char)(quote);
         i++;
       }else{
         z[j++] = 0;
@@ -10548,7 +10556,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3AtoF(const char *z, double *pResult){
       v1 *= scale;
     }
   }
-  *pResult = sign<0 ? -v1 : v1;
+  *pResult = (double)(sign<0 ? -v1 : v1);
   return z - zBegin;
 #else
   return vtk_sqlite3Atoi64(z, pResult);
@@ -10855,10 +10863,10 @@ VTK_SQLITE_PRIVATE u32 vtk_sqlite3Get4byte(const u8 *p){
   return (p[0]<<24) | (p[1]<<16) | (p[2]<<8) | p[3];
 }
 VTK_SQLITE_PRIVATE void vtk_sqlite3Put4byte(unsigned char *p, u32 v){
-  p[0] = v>>24;
-  p[1] = v>>16;
-  p[2] = v>>8;
-  p[3] = v;
+  p[0] = (unsigned char)(v>>24);
+  p[1] = (unsigned char)(v>>16);
+  p[2] = (unsigned char)(v>>8);
+  p[3] = (unsigned char)(v);
 }
 
 
@@ -10896,7 +10904,7 @@ VTK_SQLITE_PRIVATE void *vtk_sqlite3HexToBlob(const char *z){
   zBlob = (char *)vtk_sqliteMalloc(n/2);
   if( zBlob ){
     for(i=0; i<n; i+=2){
-      zBlob[i/2] = (hexToInt(z[i])<<4) | hexToInt(z[i+1]);
+      zBlob[i/2] = (char)((hexToInt(z[i])<<4) | hexToInt(z[i+1]));
     }
   }
   return zBlob;
@@ -11021,11 +11029,11 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3ReleaseThreadData(){
 VTK_SQLITE_PRIVATE void vtk_sqlite3HashInit(Hash *pNew, int keyClass, int copyKey){
   assert( pNew!=0 );
   assert( keyClass>=VTK_SQLITE_HASH_STRING && keyClass<=VTK_SQLITE_HASH_BINARY );
-  pNew->keyClass = keyClass;
+  pNew->keyClass = (char)(keyClass);
 #if 0
   if( keyClass==VTK_SQLITE_HASH_POINTER || keyClass==VTK_SQLITE_HASH_INT ) copyKey = 0;
 #endif
-  pNew->copyKey = copyKey;
+  pNew->copyKey = (char)(copyKey);
   pNew->first = 0;
   pNew->count = 0;
   pNew->htsize = 0;
@@ -16127,7 +16135,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3GenericFree(void *p){
   free(p);
 }
 /* Never actually used, but needed for the linker */
-VTK_SQLITE_PRIVATE int vtk_sqlite3GenericAllocationSize(void *p){ return 0; }
+VTK_SQLITE_PRIVATE int vtk_sqlite3GenericAllocationSize(void *p){ p; /* use arg */ return 0; }
 #endif
 
 /*
@@ -17006,6 +17014,7 @@ static int winOpenDirectory(
   OsFile *id,
   const char *zDirname
 ){
+  id; zDirname; /* use arg */
   return VTK_SQLITE_OK;
 }
 
@@ -17122,7 +17131,7 @@ static int winRead(OsFile *id, void *pBuf, int amt){
 */
 static int winWrite(OsFile *id, const void *pBuf, int amt){
   int rc = 0;
-  DWORD wrote;
+  DWORD wrote = 0;
   assert( id!=0 );
   SimulateIOError(return VTK_SQLITE_IOERR_READ);
   SimulateDiskfullError(return VTK_SQLITE_FULL);
@@ -17169,6 +17178,7 @@ static int winSeek(OsFile *id, i64 offset){
 ** Make sure all writes to a particular file are committed to disk.
 */
 static int winSync(OsFile *id, int dataOnly){
+  dataOnly; /* use arg */
   assert( id!=0 );
   OSTRACE3("SYNC %d lock=%d\n", ((winFile*)id)->h, ((winFile*)id)->locktype);
   if( FlushFileBuffers(((winFile*)id)->h) ){
@@ -17183,6 +17193,7 @@ static int winSync(OsFile *id, int dataOnly){
 ** than UNIX.
 */
 VTK_SQLITE_PRIVATE int vtk_sqlite3WinSyncDirectory(const char *zDirname){
+  zDirname; /* use arg */
   SimulateIOError(return VTK_SQLITE_IOERR_READ);
   return VTK_SQLITE_OK;
 }
@@ -17235,7 +17246,7 @@ static int getReadLock(winFile *id){
   }else{
     int lk;
     vtk_sqlite3Randomness(sizeof(lk), &lk);
-    id->sharedLockByte = (lk & 0x7fffffff)%(SHARED_SIZE - 1);
+    id->sharedLockByte = (short)((lk & 0x7fffffff)%(SHARED_SIZE - 1));
     res = LockFile(id->h, SHARED_FIRST+id->sharedLockByte, 0, 1, 0);
   }
   return res;
@@ -17416,7 +17427,7 @@ static int winLock(OsFile *id, int locktype){
            locktype, newLocktype);
     rc = VTK_SQLITE_BUSY;
   }
-  pFile->locktype = newLocktype;
+  pFile->locktype = (unsigned char)(newLocktype);
   return rc;
 }
 
@@ -17480,7 +17491,7 @@ static int winUnlock(OsFile *id, int locktype){
   if( type>=PENDING_LOCK ){
     UnlockFile(pFile->h, PENDING_BYTE, 0, 1, 0);
   }
-  pFile->locktype = locktype;
+  pFile->locktype = (unsigned char)(locktype);
   return rc;
 }
 
@@ -17538,6 +17549,7 @@ VTK_SQLITE_PRIVATE char *vtk_sqlite3WinFullPathname(const char *zRelative){
 ** The fullSync option is meaningless on windows.   This is a no-op.
 */
 static void winSetFullSync(OsFile *id, int v){
+  id; v; /* use arg */
   return;
 }
 
@@ -17567,6 +17579,7 @@ static int winLockState(OsFile *id){
 ** same for both.
 */
 static int winSectorSize(OsFile *id){
+  id; /* use arg */
   return VTK_SQLITE_DEFAULT_SECTOR_SIZE;
 }
 
@@ -17752,6 +17765,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3WinInMutex(int thisThreadOnly){
 #ifdef VTK_SQLITE_W32_THREADS
   return inMutex>0 && (thisThreadOnly==0 || mutexOwner==GetCurrentThreadId());
 #else
+  thisThreadOnly; /* use arg */
   return inMutex>0;
 #endif
 }
@@ -19520,9 +19534,9 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3PagerSetCachesize(Pager *pPager, int mxPage){
 */
 #ifndef VTK_SQLITE_OMIT_PAGER_PRAGMAS
 VTK_SQLITE_PRIVATE void vtk_sqlite3PagerSetSafetyLevel(Pager *pPager, int level, int full_fsync){
-  pPager->noSync =  level==1 || pPager->tempFile;
-  pPager->fullSync = level==3 && !pPager->tempFile;
-  pPager->full_fsync = full_fsync;
+  pPager->noSync =  (u8)(level==1 || pPager->tempFile);
+  pPager->fullSync = (u8)(level==3 && !pPager->tempFile);
+  pPager->full_fsync = (u8)(full_fsync);
   if( pPager->noSync ) pPager->needSync = 0;
 }
 #endif
@@ -19584,7 +19598,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3PagerOpen(
 ){
   Pager *pPager = 0;
   char *zFullPathname = 0;
-  int nameLen;  /* Compiler is wrong. This is always initialized before use */
+  int nameLen = 0;  /* Compiler is wrong. This is always initialized before use */
   OsFile *fd = 0;
   int rc = VTK_SQLITE_OK;
   int i;
@@ -19681,8 +19695,8 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3PagerOpen(
   memcpy(&pPager->zJournal[nameLen], "-journal",sizeof("-journal"));
   pPager->fd = fd;
   /* pPager->journalOpen = 0; */
-  pPager->useJournal = useJournal && !memDb;
-  pPager->noReadlock = noReadlock && readOnly;
+  pPager->useJournal = (u8)(useJournal && !memDb);
+  pPager->noReadlock = (u8)(noReadlock && readOnly);
   /* pPager->stmtOpen = 0; */
   /* pPager->stmtInUse = 0; */
   /* pPager->nRef = 0; */
@@ -19696,15 +19710,15 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3PagerOpen(
   assert( PAGER_UNLOCK==0 );
   /* pPager->state = PAGER_UNLOCK; */
   /* pPager->errMask = 0; */
-  pPager->tempFile = tempFile;
+  pPager->tempFile = (u8)(tempFile);
   assert( tempFile==PAGER_LOCKINGMODE_NORMAL 
           || tempFile==PAGER_LOCKINGMODE_EXCLUSIVE );
   assert( PAGER_LOCKINGMODE_EXCLUSIVE==1 );
-  pPager->exclusiveMode = tempFile; 
-  pPager->memDb = memDb;
-  pPager->readOnly = readOnly;
+  pPager->exclusiveMode = (u8)(tempFile); 
+  pPager->memDb = (u8)(memDb);
+  pPager->readOnly = (u8)(readOnly);
   /* pPager->needSync = 0; */
-  pPager->noSync = pPager->tempFile || !useJournal;
+  pPager->noSync = (u8)(pPager->tempFile || !useJournal);
   pPager->fullSync = (pPager->noSync?0:1);
   /* pPager->pFirst = 0; */
   /* pPager->pFirstSynced = 0; */
@@ -20018,7 +20032,7 @@ static int pager_wait_on_lock(Pager *pPager, int locktype){
       rc = vtk_sqlite3OsLock(pPager->fd, locktype);
     }while( rc==VTK_SQLITE_BUSY && vtk_sqlite3InvokeBusyHandler(pPager->pBusyHandler) );
     if( rc==VTK_SQLITE_OK ){
-      pPager->state = locktype;
+      pPager->state = (u8)(locktype);
       IOTRACE(("LOCK %p %d\n", pPager, locktype))
     }
   }
@@ -20996,7 +21010,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3PagerAcquire(
     if( pPager->aInJournal && (int)pgno<=pPager->origDbSize ){
       vtk_sqlite3CheckMemory(pPager->aInJournal, pgno/8);
       assert( pPager->journalOpen );
-      pPg->inJournal = (pPager->aInJournal[pgno/8] & (1<<(pgno&7)))!=0;
+      pPg->inJournal = (u8)((pPager->aInJournal[pgno/8] & (1<<(pgno&7)))!=0);
       pPg->needSync = 0;
     }else{
       pPg->inJournal = 0;
@@ -21027,7 +21041,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3PagerAcquire(
         return VTK_SQLITE_FULL;
       }
       memset(PGHDR_TO_DATA(pPg), 0, pPager->pageSize);
-      pPg->needRead = noContent && !pPager->alwaysRollback;
+      pPg->needRead = (u8)(noContent && !pPager->alwaysRollback);
       IOTRACE(("ZERO %p %d\n", pPager, pgno));
     }else{
       rc = readDbPage(pPager, pPg, pgno);
@@ -22218,7 +22232,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3PagerMovepage(Pager *pPager, DbPage *pPg, Pgno
     pPg->needSync = 0;
   }
   if( pPager->aInJournal && (int)pgno<=pPager->origDbSize ){
-    pPg->inJournal =  (pPager->aInJournal[pgno/8] & (1<<(pgno&7)))!=0;
+    pPg->inJournal =  (u8)((pPager->aInJournal[pgno/8] & (1<<(pgno&7)))!=0);
   }else{
     pPg->inJournal = 0;
     assert( pPg->needSync==0 || (int)pgno>pPager->origDbSize );
@@ -22298,7 +22312,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3PagerLockingMode(Pager *pPager, int eMode){
   assert( PAGER_LOCKINGMODE_QUERY<0 );
   assert( PAGER_LOCKINGMODE_NORMAL>=0 && PAGER_LOCKINGMODE_EXCLUSIVE>=0 );
   if( eMode>=0 && !pPager->tempFile ){
-    pPager->exclusiveMode = eMode;
+    pPager->exclusiveMode = (u8)(eMode);
   }
   return (int)pPager->exclusiveMode;
 }
@@ -23405,19 +23419,19 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3BtreeParseCellPtr(
     nPayload += x;
   }
   pInfo->nPayload = nPayload;
-  pInfo->nHeader = n;
+  pInfo->nHeader = (u16)(n);
   if( nPayload<=pPage->maxLocal ){
     /* This is the (easy) common case where the entire payload fits
     ** on the local page.  No overflow is required.
     */
     int nSize;          /* Total size of cell content in bytes */
-    pInfo->nLocal = nPayload;
+    pInfo->nLocal = (u16)(nPayload);
     pInfo->iOverflow = 0;
     nSize = nPayload + n;
     if( nSize<4 ){
       nSize = 4;        /* Minimum cell size is 4 */
     }
-    pInfo->nSize = nSize;
+    pInfo->nSize = (u16)(nSize);
   }else{
     /* If the payload will not fit completely on the local page, we have
     ** to decide how much to store locally and how much to spill onto
@@ -23436,11 +23450,11 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3BtreeParseCellPtr(
     maxLocal = pPage->maxLocal;
     surplus = minLocal + (nPayload - minLocal)%(pPage->pBt->usableSize - 4);
     if( surplus <= maxLocal ){
-      pInfo->nLocal = surplus;
+      pInfo->nLocal = (u16)(surplus);
     }else{
-      pInfo->nLocal = minLocal;
+      pInfo->nLocal = (u16)(minLocal);
     }
-    pInfo->iOverflow = pInfo->nLocal + n;
+    pInfo->iOverflow = (u16)(pInfo->nLocal + n);
     pInfo->nSize = pInfo->iOverflow + 4;
   }
 }
@@ -23585,7 +23599,7 @@ static int allocateSpace(MemPage *pPage, int nByte){
   assert( pPage->pBt );
   if( nByte<4 ) nByte = 4;
   if( pPage->nFree<nByte || pPage->nOverflow>0 ) return 0;
-  pPage->nFree -= nByte;
+  pPage->nFree = (u16)(pPage->nFree - nByte);
   hdr = pPage->hdrOffset;
 
   nFrag = data[hdr+7];
@@ -23598,7 +23612,7 @@ static int allocateSpace(MemPage *pPage, int nByte){
       if( size>=nByte ){
         if( size<nByte+4 ){
           memcpy(&data[addr], &data[pc], 2);
-          data[hdr+7] = nFrag + size - nByte;
+          data[hdr+7] = (unsigned char)(nFrag + size - nByte);
           return pc;
         }else{
           put2byte(&data[pc+2], size-nByte);
@@ -23662,7 +23676,7 @@ static void freeSpace(MemPage *pPage, int start, int size){
   put2byte(&data[addr], start);
   put2byte(&data[start], pbegin);
   put2byte(&data[start+2], size);
-  pPage->nFree += size;
+  pPage->nFree = (u16)(pPage->nFree + size);
 
   /* Coalesce adjacent free blocks */
   addr = pPage->hdrOffset + 1;
@@ -23675,7 +23689,7 @@ static void freeSpace(MemPage *pPage, int start, int size){
     if( pbegin + psize + 3 >= pnext && pnext>0 ){
       int frag = pnext - (pbegin+psize);
       assert( frag<=data[pPage->hdrOffset+7] );
-      data[pPage->hdrOffset+7] -= frag;
+      data[pPage->hdrOffset+7] = (unsigned char)(data[pPage->hdrOffset+7] - frag);
       put2byte(&data[pbegin], get2byte(&data[pnext]));
       put2byte(&data[pbegin+2], pnext+get2byte(&data[pnext+2])-pbegin);
     }else{
@@ -23701,21 +23715,21 @@ static void decodeFlags(MemPage *pPage, int flagByte){
   BtShared *pBt;     /* A copy of pPage->pBt */
 
   assert( pPage->hdrOffset==(pPage->pgno==1 ? 100 : 0) );
-  pPage->intKey = (flagByte & (PTF_INTKEY|PTF_LEAFDATA))!=0;
-  pPage->zeroData = (flagByte & PTF_ZERODATA)!=0;
-  pPage->leaf = (flagByte & PTF_LEAF)!=0;
+  pPage->intKey = (u8)((flagByte & (PTF_INTKEY|PTF_LEAFDATA))!=0);
+  pPage->zeroData = (u8)((flagByte & PTF_ZERODATA)!=0);
+  pPage->leaf = (u8)((flagByte & PTF_LEAF)!=0);
   pPage->childPtrSize = 4*(pPage->leaf==0);
   pBt = pPage->pBt;
   if( flagByte & PTF_LEAFDATA ){
     pPage->leafData = 1;
-    pPage->maxLocal = pBt->maxLeaf;
-    pPage->minLocal = pBt->minLeaf;
+    pPage->maxLocal = (u16)(pBt->maxLeaf);
+    pPage->minLocal = (u16)(pBt->minLeaf);
   }else{
     pPage->leafData = 0;
-    pPage->maxLocal = pBt->maxLocal;
-    pPage->minLocal = pBt->minLocal;
+    pPage->maxLocal = (u16)(pBt->maxLocal);
+    pPage->minLocal = (u16)(pBt->minLocal);
   }
-  pPage->hasData = !(pPage->zeroData || (!pPage->leaf && pPage->leafData));
+  pPage->hasData = (u8)(!(pPage->zeroData || (!pPage->leaf && pPage->leafData)));
 }
 
 /*
@@ -23764,7 +23778,8 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeInitPage(
   pPage->nOverflow = 0;
   pPage->idxShift = 0;
   usableSize = pBt->usableSize;
-  pPage->cellOffset = cellOffset = hdr + 12 - 4*pPage->leaf;
+  cellOffset = hdr + 12 - 4*pPage->leaf;
+  pPage->cellOffset = (u16) cellOffset;
   top = get2byte(&data[hdr+5]);
   pPage->nCell = get2byte(&data[hdr+3]);
   if( pPage->nCell>MX_CELL(pBt) ){
@@ -23794,7 +23809,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeInitPage(
     nFree += size;
     pc = next;
   }
-  pPage->nFree = nFree;
+  pPage->nFree = (u16)(nFree);
   if( nFree>=usableSize ){
     /* Free space cannot exceed total page size */
     return VTK_SQLITE_CORRUPT_BKPT; 
@@ -23818,15 +23833,15 @@ static void zeroPage(MemPage *pPage, int flags){
   assert( &data[pBt->pageSize] == (unsigned char*)pPage );
   assert( vtk_sqlite3PagerIswriteable(pPage->pDbPage) );
   memset(&data[hdr], 0, pBt->usableSize - hdr);
-  data[hdr] = flags;
+  data[hdr] = (unsigned char)(flags);
   first = hdr + 8 + 4*((flags&PTF_LEAF)==0);
   memset(&data[hdr+1], 0, 4);
   data[hdr+7] = 0;
   put2byte(&data[hdr+5], pBt->usableSize);
-  pPage->nFree = pBt->usableSize - first;
+  pPage->nFree = (u16)(pBt->usableSize - first);
   decodeFlags(pPage, flags);
-  pPage->hdrOffset = hdr;
-  pPage->cellOffset = first;
+  pPage->hdrOffset = (u8)(hdr);
+  pPage->cellOffset = (u16)(first);
   pPage->nOverflow = 0;
   pPage->idxShift = 0;
   pPage->nCell = 0;
@@ -23908,6 +23923,7 @@ static void releasePage(MemPage *pPage){
 */
 static void pageDestructor(DbPage *pData, int pageSize){
   MemPage *pPage;
+  pageSize; /* use arg */
   assert( (pageSize & 7)==0 );
   pPage = (MemPage *)vtk_sqlite3PagerGetExtra(pData);
   if( pPage->pParent ){
@@ -23928,6 +23944,7 @@ static void pageDestructor(DbPage *pData, int pageSize){
 */
 static void pageReinit(DbPage *pData, int pageSize){
   MemPage *pPage;
+  pageSize; /* use arg */
   assert( (pageSize & 7)==0 );
   pPage = (MemPage *)vtk_sqlite3PagerGetExtra(pData);
   if( pPage->isInit ){
@@ -24030,7 +24047,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeOpen(
   vtk_sqlite3PagerSetReiniter(pBt->pPager, pageReinit);
   pBt->pCursor = 0;
   pBt->pPage1 = 0;
-  pBt->readOnly = vtk_sqlite3PagerIsreadonly(pBt->pPager);
+  pBt->readOnly = (u8)(vtk_sqlite3PagerIsreadonly(pBt->pPager));
   pBt->pageSize = get2byte(&zDbHeader[16]);
   if( pBt->pageSize<512 || pBt->pageSize>VTK_SQLITE_MAX_PAGE_SIZE
        || ((pBt->pageSize-1)&pBt->pageSize)!=0 ){
@@ -24062,7 +24079,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeOpen(
     pBt->incrVacuum = (get4byte(&zDbHeader[36 + 7*4])?1:0);
 #endif
   }
-  pBt->usableSize = pBt->pageSize - nReserve;
+  pBt->usableSize = (u16)(pBt->pageSize - nReserve);
   assert( (pBt->pageSize & 7)==0 );  /* 8-byte alignment of pageSize */
   vtk_sqlite3PagerSetPagesize(pBt->pPager, pBt->pageSize);
 
@@ -24245,9 +24262,9 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeSetPageSize(Btree *p, int pageSize, int n
         ((pageSize-1)&pageSize)==0 ){
     assert( (pageSize & 7)==0 );
     assert( !pBt->pPage1 && !pBt->pCursor );
-    pBt->pageSize = vtk_sqlite3PagerSetPagesize(pBt->pPager, pageSize);
+    pBt->pageSize = (u16)(vtk_sqlite3PagerSetPagesize(pBt->pPager, pageSize));
   }
-  pBt->usableSize = pBt->pageSize - nReserve;
+  pBt->usableSize = (u16)(pBt->pageSize - nReserve);
   return VTK_SQLITE_OK;
 }
 
@@ -24286,7 +24303,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeSetAutoVacuum(Btree *p, int autoVacuum){
   if( pBt->pageSizeFixed && av!=pBt->autoVacuum ){
     return VTK_SQLITE_READONLY;
   }
-  pBt->autoVacuum = av;
+  pBt->autoVacuum = (u8)(av);
   return VTK_SQLITE_OK;
 #endif
 }
@@ -24345,8 +24362,8 @@ static int lockBtree(BtShared *pBt){
       goto page1_init_failed;
     }
     assert( (pageSize & 7)==0 );
-    pBt->pageSize = pageSize;
-    pBt->usableSize = pageSize - page1[20];
+    pBt->pageSize = (u16)(pageSize);
+    pBt->usableSize = (u16)(pageSize - page1[20]);
     if( pBt->usableSize<500 ){
       goto page1_init_failed;
     }
@@ -24455,7 +24472,7 @@ static int newDatabase(BtShared *pBt){
   put2byte(&data[16], pBt->pageSize);
   data[18] = 1;
   data[19] = 1;
-  data[20] = pBt->pageSize - pBt->usableSize;
+  data[20] = (unsigned char)(pBt->pageSize - pBt->usableSize);
   data[21] = pBt->maxEmbedFrac;
   data[22] = pBt->minEmbedFrac;
   data[23] = pBt->minLeafFrac;
@@ -24613,7 +24630,7 @@ static int setChildPtrmaps(MemPage *pPage){
   }
 
 set_child_ptrmaps_out:
-  pPage->isInit = isInitOrig;
+  pPage->isInit = (u8)(isInitOrig);
   return rc;
 }
 
@@ -24674,7 +24691,7 @@ static int modifyPagePointer(MemPage *pPage, Pgno iFrom, Pgno iTo, u8 eType){
       put4byte(&pPage->aData[pPage->hdrOffset+8], iTo);
     }
 
-    pPage->isInit = isInitOrig;
+    pPage->isInit = (u8)(isInitOrig);
   }
   return VTK_SQLITE_OK;
 }
@@ -25229,6 +25246,7 @@ static int dfltCompare(
   int n2, const void *p2     /* Second key to compare */
 ){
   int c;
+  NotUsed; /* use arg */
   c = memcmp(p1, p2, n1<n2 ? n1 : n2);
   if( c==0 ){
     c = n1 - n2;
@@ -25322,7 +25340,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeCursor(
   pCur->xCompare = xCmp ? xCmp : dfltCompare;
   pCur->pArg = pArg;
   pCur->pBtree = p;
-  pCur->wrFlag = wrFlag;
+  pCur->wrFlag = (u8)(wrFlag);
   pCur->pNext = pBt->pCursor;
   if( pCur->pNext ){
     pCur->pNext->pPrev = pCur;
@@ -25498,7 +25516,7 @@ static int getOverflowPage(
   Pgno *pPgnoNext              /* OUT: Next overflow page number */
 ){
   Pgno next = 0;
-  int rc;
+  int rc = 0;
 
   /* One of these must not be NULL. Otherwise, why call this function? */
   assert(ppPage || pPgnoNext);
@@ -25889,7 +25907,7 @@ static int moveToChild(BtCursor *pCur, u32 newPgno){
   assert( pCur->eState==CURSOR_VALID );
   rc = getAndInitPage(pBt, newPgno, &pNewPage, pCur->pPage);
   if( rc ) return rc;
-  pNewPage->idxParent = pCur->idx;
+  pNewPage->idxParent = (u16)(pCur->idx);
   pOldPage = pCur->pPage;
   pOldPage->idxShift = 0;
   releasePage(pOldPage);
@@ -26799,7 +26817,7 @@ static int fillInCell(
         }
       }
 #endif
-      rc = allocateBtreePage(pBt, &pOvfl, &pgnoOvfl, pgnoOvfl, isExact);
+      rc = allocateBtreePage(pBt, &pOvfl, &pgnoOvfl, pgnoOvfl, (u8)isExact);
 #ifndef VTK_SQLITE_OMIT_AUTOVACUUM
       /* If the database supports auto-vacuum, and the second or subsequent
       ** overflow page is being allocated, add an entry to the pointer-map
@@ -26876,7 +26894,7 @@ static int reparentPage(BtShared *pBt, Pgno pgno, MemPage *pNewParent, int idx){
         pThis->pParent = pNewParent;
         vtk_sqlite3PagerRef(pNewParent->pDbPage);
       }
-      pThis->idxParent = idx;
+      pThis->idxParent = (u16)(idx);
     }
     vtk_sqlite3PagerUnref(pDbPage);
   }
@@ -27001,7 +27019,7 @@ static int insertCell(
     j = pPage->nOverflow++;
     assert( j<sizeof(pPage->aOvfl)/sizeof(pPage->aOvfl[0]) );
     pPage->aOvfl[j].pCell = pCell;
-    pPage->aOvfl[j].idx = i;
+    pPage->aOvfl[j].idx = (u16)(i);
     pPage->nFree = 0;
   }else{
     data = pPage->aData;
@@ -27081,7 +27099,7 @@ static void assemblePage(
     cellbody = allocateSpace(pPage, totalSize);
     assert( cellbody>0 );
     assert( pPage->nFree >= 2*nCell );
-    pPage->nFree -= 2*nCell;
+    pPage->nFree = (u16)(pPage->nFree - 2*nCell);
     for(i=0; i<nCell; i++){
       put2byte(&data[cellptr], cellbody);
       memcpy(&data[cellbody], apCell[i], aSize[i]);
@@ -27090,7 +27108,7 @@ static void assemblePage(
     }
     assert( cellbody==pPage->pBt->usableSize );
   }
-  pPage->nCell = nCell;
+  pPage->nCell = (u16)(nCell);
 }
 
 /*
@@ -27358,7 +27376,7 @@ static int balance_nonroot(MemPage *pPage){
     }
     rc = getAndInitPage(pBt, pgnoOld[i], &apOld[i], pParent);
     if( rc ) goto balance_cleanup;
-    apOld[i]->idxParent = k;
+    apOld[i]->idxParent = (u16)(k);
     apCopy[i] = 0;
     assert( i==nOld );
     nOld++;
@@ -27442,7 +27460,7 @@ static int balance_nonroot(MemPage *pPage){
 #ifndef VTK_SQLITE_OMIT_AUTOVACUUM
       if( pBt->autoVacuum ){
         int a;
-        aFrom[nCell] = i;
+        aFrom[nCell] = (u8)(i);
         for(a=0; a<pOld->nOverflow; a++){
           if( pOld->aOvfl[a].pCell==apCell[nCell] ){
             aFrom[nCell] = 0xFF;
@@ -28169,10 +28187,10 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeDelete(BtCursor *pCur){
     ** to be a leaf so we can use it.
     */
     BtCursor leafCur;
-    unsigned char *pNext;
-    int szNext;  /* The compiler warning is wrong: szNext is always 
-                 ** initialized before use.  Adding an extra initialization
-                 ** to silence the compiler slows down the code. */
+    unsigned char *pNext = 0;
+    int szNext = 0;  /* The compiler warning is wrong: szNext is always 
+                      ** initialized before use.  Adding an extra initialization
+                      ** to silence the compiler slows down the code. */
     int notUsed;
     unsigned char *tempCell = 0;
     assert( !pPage->leafData );
@@ -28620,7 +28638,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeUpdateMeta(Btree *p, int idx, u32 iMeta){
   if( idx==7 ){
     assert( pBt->autoVacuum || iMeta==0 );
     assert( iMeta==0 || iMeta==1 );
-    pBt->incrVacuum = iMeta;
+    pBt->incrVacuum = (u8)(iMeta);
   }
   return VTK_SQLITE_OK;
 }
@@ -29458,7 +29476,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3VdbeChangeEncoding(Mem *pMem, int desiredEnc){
   /* MemTranslate() may return VTK_SQLITE_OK or VTK_SQLITE_NOMEM. If NOMEM is returned,
   ** then the encoding of the value may not have changed.
   */
-  rc = vtk_sqlite3VdbeMemTranslate(pMem, desiredEnc);
+  rc = vtk_sqlite3VdbeMemTranslate(pMem, (u8)desiredEnc);
   assert(rc==VTK_SQLITE_OK    || rc==VTK_SQLITE_NOMEM);
   assert(rc==VTK_SQLITE_OK    || pMem->enc!=desiredEnc);
   assert(rc==VTK_SQLITE_NOMEM || pMem->enc==desiredEnc);
@@ -30551,7 +30569,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3VdbeAddOp(Vdbe *p, int op, int p1, int p2){
   }
   p->nOp++;
   pOp = &p->aOp[i];
-  pOp->opcode = op;
+  pOp->opcode = (u8)(op);
   pOp->p1 = p1;
   pOp->p2 = p2;
   pOp->p3 = 0;
@@ -32085,7 +32103,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3VdbeCursorMoveto(Cursor *p){
     if( rc ) return rc;
     *p->pIncrKey = 0;
     p->lastRowid = keyToInt(p->movetoTarget);
-    p->rowidIsValid = res==0;
+    p->rowidIsValid = (Bool)(res==0);
     if( res<0 ){
       rc = vtk_sqlite3BtreeNext(p->pCursor, &res);
       if( rc ) return rc;
@@ -32943,6 +32961,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3InvalidFunction(
 ){
   const char *zName = context->pFunc->zName;
   char *zErr;
+  argc; argv; /* use args */
   zErr = vtk_sqlite3MPrintf(
       "unable to use function %s in the requested context", zName);
   vtk_sqlite3_result_error(context, zErr, -1);
@@ -33338,7 +33357,7 @@ static int bindText(
     return rc;
   }
   pVar = &p->aVar[i-1];
-  rc = vtk_sqlite3VdbeMemSetStr(pVar, zData, nData, encoding, xDel);
+  rc = vtk_sqlite3VdbeMemSetStr(pVar, zData, nData, (u8)encoding, xDel);
   if( rc==VTK_SQLITE_OK && encoding!=0 ){
     rc = vtk_sqlite3VdbeChangeEncoding(pVar, ENC(p->db));
   }
@@ -35211,7 +35230,7 @@ case OP_Ge: {             /* same as TK_GE, no-push */
     }
   }
 
-  affinity = pOp->p1 & 0xFF;
+  affinity = (char)(pOp->p1 & 0xFF);
   if( affinity ){
     applyAffinity(pNos, affinity, encoding);
     applyAffinity(pTos, affinity, encoding);
@@ -35584,7 +35603,7 @@ case OP_Column: {
     u8 *zEndHdr;     /* Pointer to first byte after the header */
     u32 offset;      /* Offset into the data */
     int szHdrSz;     /* Size of the header size field at start of record */
-    int avail;       /* Number of bytes of available data */
+    int avail = 0;   /* Number of bytes of available data */
 
     aType = pC->aType;
     if( aType==0 ){
@@ -35948,8 +35967,8 @@ case OP_Statement: {       /* no-push */
 ** This instruction causes the VM to halt.
 */
 case OP_AutoCommit: {       /* no-push */
-  u8 i = pOp->p1;
-  u8 rollback = pOp->p2;
+  u8 i = (u8)(pOp->p1);
+  u8 rollback = (u8)(pOp->p2);
 
   assert( i==1 || i==0 );
   assert( i==1 || rollback==0 );
@@ -36284,8 +36303,8 @@ case OP_OpenWrite: {       /* no-push */
         rc = VTK_SQLITE_CORRUPT_BKPT;
         goto abort_due_to_error;
       }
-      pCur->isTable = (flags & BTREE_INTKEY)!=0;
-      pCur->isIndex = (flags & BTREE_ZERODATA)!=0;
+      pCur->isTable = (Bool)((flags & BTREE_INTKEY)!=0);
+      pCur->isIndex = (Bool)((flags & BTREE_ZERODATA)!=0);
       /* If P3==0 it means we are expected to open a table.  If P3!=0 then
       ** we expect to be opening an index.  If this is not what happened,
       ** then the database is corrupt
@@ -36298,7 +36317,7 @@ case OP_OpenWrite: {       /* no-push */
       break;
     }
     case VTK_SQLITE_EMPTY: {
-      pCur->isTable = pOp->p3type!=P3_KEYINFO;
+      pCur->isTable = (Bool)(pOp->p3type!=P3_KEYINFO);
       pCur->isIndex = !pCur->isTable;
       rc = VTK_SQLITE_OK;
       break;
@@ -36464,7 +36483,7 @@ case OP_MoveGt: {       /* no-push */
     int res, oc;
     oc = pOp->opcode;
     pC->nullRow = 0;
-    *pC->pIncrKey = oc==OP_MoveGt || oc==OP_MoveLe;
+    *pC->pIncrKey = (u8)(oc==OP_MoveGt || oc==OP_MoveLe);
     if( pC->isTable ){
       i64 iKey;
       vtk_sqlite3VdbeMemIntegerify(pTos);
@@ -36481,7 +36500,7 @@ case OP_MoveGt: {       /* no-push */
         goto abort_due_to_error;
       }
       pC->lastRowid = pTos->u.i;
-      pC->rowidIsValid = res==0;
+      pC->rowidIsValid = (Bool)(res==0);
     }else{
       assert( pTos->flags & MEM_Blob );
       ExpandBlob(pTos);
@@ -36744,7 +36763,7 @@ case OP_NotExists: {        /* no-push */
     iKey = intToKey(pTos->u.i);
     rc = vtk_sqlite3BtreeMoveto(pCrsr, 0, iKey, 0,&res);
     pC->lastRowid = pTos->u.i;
-    pC->rowidIsValid = res==0;
+    pC->rowidIsValid = (Bool)(res==0);
     pC->nullRow = 0;
     pC->cacheStatus = CACHE_STALE;
     /* res might be uninitialized if rc!=VTK_SQLITE_OK.  But if rc!=VTK_SQLITE_OK
@@ -37250,7 +37269,7 @@ case OP_Last: {        /* no-push */
   if( (pCrsr = pC->pCursor)!=0 ){
     int res;
     rc = vtk_sqlite3BtreeLast(pCrsr, &res);
-    pC->nullRow = res;
+    pC->nullRow = (Bool)(res);
     pC->deferredMoveto = 0;
     pC->cacheStatus = CACHE_STALE;
     if( res && pOp->p2>0 ){
@@ -37301,13 +37320,13 @@ case OP_Rewind: {        /* no-push */
   assert( pC!=0 );
   if( (pCrsr = pC->pCursor)!=0 ){
     rc = vtk_sqlite3BtreeFirst(pCrsr, &res);
-    pC->atFirst = res==0;
+    pC->atFirst = (Bool)(res==0);
     pC->deferredMoveto = 0;
     pC->cacheStatus = CACHE_STALE;
   }else{
     res = 1;
   }
-  pC->nullRow = res;
+  pC->nullRow = (Bool)(res);
   if( res && pOp->p2>0 ){
     pc = pOp->p2 - 1;
   }
@@ -37349,7 +37368,7 @@ case OP_Next: {        /* no-push */
       assert( pC->deferredMoveto==0 );
       rc = pOp->opcode==OP_Next ? vtk_sqlite3BtreeNext(pCrsr, &res) :
                                   vtk_sqlite3BtreePrevious(pCrsr, &res);
-      pC->nullRow = res;
+      pC->nullRow = (Bool) res;
       pC->cacheStatus = CACHE_STALE;
     }
     if( res==0 ){
@@ -37524,7 +37543,7 @@ case OP_IdxGE: {        /* no-push */
     assert( pTos->flags & MEM_Blob );  /* Created using OP_MakeRecord */
     assert( pC->deferredMoveto==0 );
     ExpandBlob(pTos);
-    *pC->pIncrKey = pOp->p3!=0;
+    *pC->pIncrKey = (u8)(pOp->p3!=0);
     assert( pOp->p3==0 || pOp->opcode!=OP_IdxGT );
     rc = vtk_sqlite3VdbeIdxKeyCompare(pC, pTos->n, (u8*)pTos->z, &res);
     *pC->pIncrKey = 0;
@@ -38254,7 +38273,7 @@ case OP_Expire: {        /* no-push */
 */
 case OP_TableLock: {        /* no-push */
   int p1 = pOp->p1; 
-  u8 isWriteLock = (p1<0);
+  u8 isWriteLock = (u8)(p1<0);
   if( isWriteLock ){
     p1 = (-1*p1)-1;
   }
@@ -39294,7 +39313,7 @@ VTK_SQLITE_PRIVATE Expr *vtk_sqlite3Expr(int op, Expr *pLeft, Expr *pRight, cons
     vtk_sqlite3ExprDelete(pRight);
     return 0;
   }
-  pNew->op = op;
+  pNew->op = (u8)op;
   pNew->pLeft = pLeft;
   pNew->pRight = pRight;
   pNew->iAgg = -1;
@@ -39465,7 +39484,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3ExprAssignVarNumber(Parse *pParse, Expr *pExp
     for(i=0; i<pParse->nVarExpr; i++){
       Expr *pE;
       if( (pE = pParse->apVarExpr[i])!=0
-          && pE->token.n==n
+          && pE->token.n==(unsigned int)n
           && memcmp(pE->token.z, pToken->z, n)==0 ){
         pExpr->iTable = pE->iTable;
         break;
@@ -40402,9 +40421,9 @@ static int nameResolverStep(void *pArg, Expr *pExpr){
 
       zId = (char*)pExpr->token.z;
       nId = pExpr->token.n;
-      pDef = vtk_sqlite3FindFunction(pParse->db, zId, nId, n, enc, 0);
+      pDef = vtk_sqlite3FindFunction(pParse->db, zId, nId, n, (u8)enc, 0);
       if( pDef==0 ){
-        pDef = vtk_sqlite3FindFunction(pParse->db, zId, nId, -1, enc, 0);
+        pDef = vtk_sqlite3FindFunction(pParse->db, zId, nId, -1, (u8)enc, 0);
         if( pDef==0 ){
           no_such_func = 1;
         }else{
@@ -41695,6 +41714,7 @@ static void renameTableFunc(
   int len = 0;
   char *zRet;
 
+  argc; /* use arg */
   /* The principle used to locate the table name in the CREATE TABLE 
   ** statement is that the table name is the first token that is immediatedly
   ** followed by a left parenthesis - TK_LP - or "USING" TK_USING.
@@ -41749,6 +41769,7 @@ static void renameTriggerFunc(
   int len = 0;
   char *zRet;
 
+  argc; /* use arg */
   /* The principle used to locate the table name in the CREATE TRIGGER 
   ** statement is that the table name is the first token that is immediatedly
   ** preceded by either TK_ON or TK_DOT and immediatedly followed by one
@@ -42607,6 +42628,7 @@ static int analysisLoader(void *pData, int argc, char **argv, char **azNotUsed){
   unsigned int v;
   const char *z;
 
+  argc; azNotUsed; /* use args */
   assert( argc==2 );
   if( argv==0 || argv[0]==0 || argv[1]==0 ){
     return 0;
@@ -42743,6 +42765,7 @@ static void attachFunc(
   char zErr[128];
   char *zErrDyn = 0;
 
+  argc; /* not used */
   zFile = (const char *)vtk_sqlite3_value_text(argv[0]);
   zName = (const char *)vtk_sqlite3_value_text(argv[1]);
   if( zFile==0 ) zFile = "";
@@ -42903,6 +42926,7 @@ static void detachFunc(
   Db *pDb = 0;
   char zErr[128];
 
+  argc; /* not used */
   if( zName==0 ) zName = "";
   for(i=0; i<db->nDb; i++){
     pDb = &db->aDb[i];
@@ -43451,7 +43475,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3AuthContextPop(AuthContext *pContext){
 ** be parsed.  Initialize the pParse structure as needed.
 */
 VTK_SQLITE_PRIVATE void vtk_sqlite3BeginParse(Parse *pParse, int explainFlag){
-  pParse->explain = explainFlag;
+  pParse->explain = (u8)(explainFlag);
   pParse->nVar = 0;
 }
 
@@ -44376,7 +44400,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3AddNotNull(Parse *pParse, int onError){
   int i;
   if( (p = pParse->pNewTable)==0 ) return;
   i = p->nCol-1;
-  if( i>=0 ) p->aCol[i].notNull = onError;
+  if( i>=0 ) p->aCol[i].notNull = (u8)onError;
 }
 
 /*
@@ -44552,8 +44576,8 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3AddPrimaryKey(
   if( zType && vtk_sqlite3StrICmp(zType, "INTEGER")==0
         && sortOrder==VTK_SQLITE_SO_ASC ){
     pTab->iPKey = iCol;
-    pTab->keyConf = onError;
-    pTab->autoInc = autoInc;
+    pTab->keyConf = (u8)onError;
+    pTab->autoInc = (u8)autoInc;
   }else if( autoInc ){
 #ifndef VTK_SQLITE_OMIT_AUTOINCREMENT
     vtk_sqlite3ErrorMsg(pParse, "AUTOINCREMENT is only allowed on an "
@@ -45543,9 +45567,9 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3CreateForeignKey(
     }
   }
   pFKey->isDeferred = 0;
-  pFKey->deleteConf = flags & 0xff;
-  pFKey->updateConf = (flags >> 8 ) & 0xff;
-  pFKey->insertConf = (flags >> 16 ) & 0xff;
+  pFKey->deleteConf = (u8)(flags & 0xff);
+  pFKey->updateConf = (u8)((flags >> 8 ) & 0xff);
+  pFKey->insertConf = (u8)((flags >> 16 ) & 0xff);
 
   /* Link the foreign key to the table as the last step.
   */
@@ -45571,7 +45595,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3DeferForeignKey(Parse *pParse, int isDeferred
   Table *pTab;
   FKey *pFKey;
   if( (pTab = pParse->pNewTable)==0 || (pFKey = pTab->pFKey)==0 ) return;
-  pFKey->isDeferred = isDeferred;
+  pFKey->isDeferred = (u8)isDeferred;
 #endif
 }
 
@@ -45813,7 +45837,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3CreateIndex(
     nullId.n = strlen((char*)nullId.z);
     pList = vtk_sqlite3ExprListAppend(0, 0, &nullId);
     if( pList==0 ) goto exit_create_index;
-    pList->a[0].sortOrder = sortOrder;
+    pList->a[0].sortOrder = (u8)sortOrder;
   }
 
   /* Figure out how many bytes of space are required to store explicitly
@@ -45850,8 +45874,8 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3CreateIndex(
   memcpy(pIndex->zName, zName, nName+1);
   pIndex->pTable = pTab;
   pIndex->nColumn = pList->nExpr;
-  pIndex->onError = onError;
-  pIndex->autoIndex = pName==0;
+  pIndex->onError = (u8)onError;
+  pIndex->autoIndex = (u8)(pName==0);
   pIndex->pSchema = db->aDb[iDb].pSchema;
 
   /* Check to see if we should honor DESC requests on index columns
@@ -45903,7 +45927,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3CreateIndex(
     }
     pIndex->azColl[i] = zColl;
     requestedSortOrder = pListItem->sortOrder & sortOrderMask;
-    pIndex->aSortOrder[i] = requestedSortOrder;
+    pIndex->aSortOrder[i] = (u8)requestedSortOrder;
   }
   vtk_sqlite3DefaultRowEst(pIndex);
 
@@ -47086,7 +47110,7 @@ VTK_SQLITE_PRIVATE FuncDef *vtk_sqlite3FindFunction(
   */
   if( createFlag && bestmatch<6 && 
       (pBest = vtk_sqliteMalloc(sizeof(*pBest)+nName))!=0 ){
-    pBest->nArg = nArg;
+    pBest->nArg = (i16)nArg;
     pBest->pNext = pFirst;
     pBest->iPrefEnc = enc;
     memcpy(pBest->zName, zName, nName);
@@ -47497,7 +47521,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3OpenTable(
   if( IsVirtual(pTab) ) return;
   v = vtk_sqlite3GetVdbe(p);
   assert( opcode==OP_OpenWrite || opcode==OP_OpenRead );
-  vtk_sqlite3TableLock(p, iDb, pTab->tnum, (opcode==OP_OpenWrite), pTab->zName);
+  vtk_sqlite3TableLock(p, iDb, pTab->tnum, (u8)(opcode==OP_OpenWrite), pTab->zName);
   vtk_sqlite3VdbeAddOp(v, OP_Integer, iDb, 0);
   VdbeComment((v, "# %s", pTab->zName));
   vtk_sqlite3VdbeAddOp(v, opcode, iCur, pTab->tnum);
@@ -47820,6 +47844,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3GenerateRowDelete(
   int count          /* Increment the row change counter */
 ){
   int addr;
+  db; /* use arg */
   addr = vtk_sqlite3VdbeAddOp(v, OP_NotExists, iCur, 0);
   vtk_sqlite3GenerateRowIndexDelete(v, pTab, iCur, 0);
   vtk_sqlite3VdbeAddOp(v, OP_Delete, iCur, (count?OPFLAG_NCHANGE:0));
@@ -47958,6 +47983,7 @@ static void typeofFunc(
   vtk_sqlite3_value **argv
 ){
   const char *z = 0;
+  argc; /* use arg */
   switch( vtk_sqlite3_value_type(argv[0]) ){
     case VTK_SQLITE_NULL:    z = "null";    break;
     case VTK_SQLITE_INTEGER: z = "integer"; break;
@@ -47979,6 +48005,7 @@ static void lengthFunc(
 ){
   int len;
 
+  argc; /* use arg */
   assert( argc==1 );
   switch( vtk_sqlite3_value_type(argv[0]) ){
     case VTK_SQLITE_BLOB:
@@ -48009,6 +48036,7 @@ static void lengthFunc(
 ** Implementation of the abs() function
 */
 static void absFunc(vtk_sqlite3_context *context, int argc, vtk_sqlite3_value **argv){
+  argc; /* use arg */
   assert( argc==1 );
   switch( vtk_sqlite3_value_type(argv[0]) ){
     case VTK_SQLITE_INTEGER: {
@@ -48056,7 +48084,8 @@ static void substrFunc(
   int len;
   int p0type;
   i64 p1, p2;
-
+  
+  argc; /* use arg */
   assert( argc==3 );
   p0type = vtk_sqlite3_value_type(argv[0]);
   if( p0type==VTK_SQLITE_BLOB ){
@@ -48139,7 +48168,7 @@ static void upperFunc(vtk_sqlite3_context *context, int argc, vtk_sqlite3_value 
     if( z1 ){
       memcpy(z1, z2, n+1);
       for(i=0; z1[i]; i++){
-        z1[i] = toupper(z1[i]);
+        z1[i] = (char)(toupper(z1[i]));
       }
       vtk_sqlite3_result_text(context, z1, -1, vtk_sqlite3_free);
     }
@@ -48159,7 +48188,7 @@ static void lowerFunc(vtk_sqlite3_context *context, int argc, vtk_sqlite3_value 
     if( z1 ){
       memcpy(z1, z2, n+1);
       for(i=0; z1[i]; i++){
-        z1[i] = tolower(z1[i]);
+        z1[i] = (char)(tolower(z1[i]));
       }
       vtk_sqlite3_result_text(context, z1, -1, vtk_sqlite3_free);
     }
@@ -48194,6 +48223,7 @@ static void randomFunc(
   vtk_sqlite3_value **argv
 ){
   vtk_sqlite_int64 r;
+  argc; argv; /* use args */
   vtk_sqlite3Randomness(sizeof(r), &r);
   if( (r<<1)==0 ) r = 0;  /* Prevent 0x8000.... as the result so that we */
                           /* can always do abs() of the result */
@@ -48211,6 +48241,7 @@ static void randomBlob(
 ){
   int n;
   unsigned char *p;
+  argc; /* use arg */
   assert( argc==1 );
   n = vtk_sqlite3_value_int(argv[0]);
   if( n<1 ){
@@ -48237,6 +48268,7 @@ static void last_insert_rowid(
   vtk_sqlite3_value **argv
 ){
   vtk_sqlite3 *db = vtk_sqlite3_user_data(context);
+  arg; argv; /* use args */
   vtk_sqlite3_result_int64(context, vtk_sqlite3_last_insert_rowid(db));
 }
 
@@ -48250,6 +48282,7 @@ static void changes(
   vtk_sqlite3_value **argv
 ){
   vtk_sqlite3 *db = vtk_sqlite3_user_data(context);
+  arg; argv; /* use args */
   vtk_sqlite3_result_int(context, vtk_sqlite3_changes(db));
 }
 
@@ -48263,6 +48296,7 @@ static void total_changes(
   vtk_sqlite3_value **argv
 ){
   vtk_sqlite3 *db = vtk_sqlite3_user_data(context);
+  arg; argv; /* use args */
   vtk_sqlite3_result_int(context, vtk_sqlite3_total_changes(db));
 }
 
@@ -48500,6 +48534,7 @@ static void nullifFunc(
   vtk_sqlite3_value **argv
 ){
   CollSeq *pColl = vtk_sqlite3GetFuncCollSeq(context);
+  argc; /* use arg */
   if( vtk_sqlite3MemCompare(argv[0], argv[1], pColl)!=0 ){
     vtk_sqlite3_result_value(context, argv[0]);
   }
@@ -48514,6 +48549,7 @@ static void versionFunc(
   int argc,
   vtk_sqlite3_value **argv
 ){
+  argc; argv; /* use args */
   vtk_sqlite3_result_text(context, vtk_sqlite3_version, -1, VTK_SQLITE_STATIC);
 }
 
@@ -48616,6 +48652,7 @@ static void hexFunc(
   int i, n;
   const unsigned char *pBlob;
   char *zHex, *z;
+  argc; /* use args */
   assert( argc==1 );
   pBlob = vtk_sqlite3_value_blob(argv[0]);
   n = vtk_sqlite3_value_bytes(argv[0]);
@@ -48644,6 +48681,7 @@ static void zeroblobFunc(
   vtk_sqlite3_value **argv
 ){
   i64 n;
+  argc; /* use args */
   assert( argc==1 );
   n = vtk_sqlite3_value_int64(argv[0]);
   if( n>VTK_SQLITE_MAX_LENGTH ){
@@ -48675,6 +48713,7 @@ static void replaceFunc(
   int loopLimit;           /* Last zStr[] that might match zPattern[] */
   int i, j;                /* Loop counters */
 
+  argc; /* use args */
   assert( argc==3 );
   zStr = vtk_sqlite3_value_text(argv[0]);
   if( zStr==0 ) return;
@@ -48736,8 +48775,8 @@ static void trimFunc(
   int nIn;                          /* Number of bytes in input */
   int flags;                        /* 1: trimleft  2: trimright  3: trim */
   int i;                            /* Loop counter */
-  unsigned char *aLen;              /* Length of each character in zCharSet */
-  const unsigned char **azChar;     /* Individual characters in zCharSet */
+  unsigned char *aLen = 0;          /* Length of each character in zCharSet */
+  const unsigned char **azChar = 0; /* Individual characters in zCharSet */
   int nChar;                        /* Number of characters in zCharSet */
 
   if( vtk_sqlite3_value_type(argv[0])==VTK_SQLITE_NULL ){
@@ -48770,7 +48809,7 @@ static void trimFunc(
       for(z=zCharSet, nChar=0; *z; nChar++){
         azChar[nChar] = z;
         VTK_SQLITE_SKIP_UTF8(z);
-        aLen[nChar] = z - azChar[nChar];
+        aLen[nChar] = (unsigned char)(z - azChar[nChar]);
       }
     }
   }
@@ -48778,7 +48817,7 @@ static void trimFunc(
     flags = (int)vtk_sqlite3_user_data(context);
     if( flags & 1 ){
       while( nIn>0 ){
-        int len;
+        int len = 0;
         for(i=0; i<nChar; i++){
           len = aLen[i];
           if( memcmp(zIn, azChar[i], len)==0 ) break;
@@ -48790,7 +48829,7 @@ static void trimFunc(
     }
     if( flags & 2 ){
       while( nIn>0 ){
-        int len;
+        int len = 0;
         for(i=0; i<nChar; i++){
           len = aLen[i];
           if( len<=nIn && memcmp(&zIn[nIn-len],azChar[i],len)==0 ) break;
@@ -48800,7 +48839,7 @@ static void trimFunc(
       }
     }
     if( zCharSet ){
-      vtk_sqlite3_free(azChar);
+      vtk_sqlite3_free((void*)azChar);
     }
   }
   vtk_sqlite3_result_text(context, (char*)zIn, nIn, VTK_SQLITE_TRANSIENT);
@@ -49063,6 +49102,7 @@ struct SumCtx {
 static void sumStep(vtk_sqlite3_context *context, int argc, vtk_sqlite3_value **argv){
   SumCtx *p;
   int type;
+  argc; /* use args */
   assert( argc==1 );
   p = vtk_sqlite3_aggregate_context(context, sizeof(*p));
   type = vtk_sqlite3_value_numeric_type(argv[0]);
@@ -49076,7 +49116,7 @@ static void sumStep(vtk_sqlite3_context *context, int argc, vtk_sqlite3_value **
         int s1 = (int) (p->iSum >> (sizeof(i64)*8-1));
         int s2 = (int) (v       >> (sizeof(i64)*8-1));
         int s3 = (int) (iNewSum >> (sizeof(i64)*8-1));
-        p->overflow = (s1&s2&~s3) | (~s1&~s2&s3);
+        p->overflow = (u8)((s1&s2&~s3) | (~s1&~s2&s3));
         p->iSum = iNewSum;
       }
     }else{
@@ -49143,6 +49183,7 @@ static void minmaxStep(vtk_sqlite3_context *context, int argc, vtk_sqlite3_value
   Mem *pArg  = (Mem *)argv[0];
   Mem *pBest;
 
+  argc; /* use args */
   if( vtk_sqlite3_value_type(argv[0])==VTK_SQLITE_NULL ) return;
   pBest = (Mem *)vtk_sqlite3_aggregate_context(context, sizeof(*pBest));
   if( !pBest ) return;
@@ -49321,7 +49362,7 @@ static void setLikeOptFlag(vtk_sqlite3 *db, const char *zName, int flagVal){
   FuncDef *pDef;
   pDef = vtk_sqlite3FindFunction(db, zName, strlen(zName), 2, VTK_SQLITE_UTF8, 0);
   if( pDef ){
-    pDef->flags = flagVal;
+    pDef->flags = (u8)flagVal;
   }
 }
 
@@ -51999,7 +52040,7 @@ static int changeTempStorage(Parse *pParse, const char *zStorageType){
   if( invalidateTempStorage( pParse ) != VTK_SQLITE_OK ){
     return VTK_SQLITE_ERROR;
   }
-  db->temp_store = ts;
+  db->temp_store = (u8)ts;
   return VTK_SQLITE_OK;
 }
 #endif /* VTK_SQLITE_PAGER_PRAGMAS */
@@ -52254,7 +52295,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3Pragma(
           pPager = vtk_sqlite3BtreePager(db->aDb[ii].pBt);
           vtk_sqlite3PagerLockingMode(pPager, eMode);
         }
-        db->dfltLockMode = eMode;
+        db->dfltLockMode = (u8)eMode;
       }
       pPager = vtk_sqlite3BtreePager(pDb->pBt);
       eMode = vtk_sqlite3PagerLockingMode(pPager, eMode);
@@ -52451,7 +52492,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3Pragma(
         vtk_sqlite3ErrorMsg(pParse, 
             "Safety level may not be changed inside a transaction");
       }else{
-        pDb->safety_level = getSafetyLevel(zRight)+1;
+        pDb->safety_level = (u8)(getSafetyLevel(zRight)+1);
       }
     }
   }else
@@ -53084,6 +53125,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3InitCallback(void *pInit, int argc, char **arg
   vtk_sqlite3 *db = pData->db;
   int iDb = pData->iDb;
 
+  argc; azColName; /* use args */
   pData->rc = VTK_SQLITE_OK;
   DbClearProperty(db, iDb, DB_Empty);
   if( vtk_sqlite3MallocFailed() ){
@@ -53307,7 +53349,7 @@ static int vtk_sqlite3InitOne(vtk_sqlite3 *db, int iDb, char **pzErrMsg){
   ** file_format==3    Version 3.1.4.  // ditto but with non-NULL defaults
   ** file_format==4    Version 3.3.0.  // DESC indices.  Boolean constants
   */
-  pDb->pSchema->file_format = meta[1];
+  pDb->pSchema->file_format = (u8)(meta[1]);
   if( pDb->pSchema->file_format==0 ){
     pDb->pSchema->file_format = 1;
   }
@@ -53801,7 +53843,7 @@ VTK_SQLITE_PRIVATE Select *vtk_sqlite3SelectNew(
   pNew->pGroupBy = pGroupBy;
   pNew->pHaving = pHaving;
   pNew->pOrderBy = pOrderBy;
-  pNew->isDistinct = isDistinct;
+  pNew->isDistinct = (u8)(isDistinct);
   pNew->op = TK_SELECT;
   assert( pOffset==0 || pLimit!=0 );
   pNew->pLimit = pLimit;
@@ -54321,7 +54363,7 @@ static int selectInnerLoop(
       vtk_sqlite3VdbeAddOp(v, OP_NotNull, -1, addr1+3);
       vtk_sqlite3VdbeAddOp(v, OP_Pop, 1, 0);
       addr2 = vtk_sqlite3VdbeAddOp(v, OP_Goto, 0, 0);
-      p->affinity = vtk_sqlite3CompareAffinity(pEList->a[0].pExpr,(iParm>>16)&0xff);
+      p->affinity = vtk_sqlite3CompareAffinity(pEList->a[0].pExpr,(char)((iParm>>16)&0xff));
       if( pOrderBy ){
         /* At first glance you would think we could optimize out the
         ** ORDER BY in this case since the order of entries in the set
@@ -55527,7 +55569,7 @@ static int multiSelect(
       }
       p->pPrior = 0;
       p->pOrderBy = 0;
-      p->disallowOrderBy = pOrderBy!=0;
+      p->disallowOrderBy = (u8)(pOrderBy!=0);
       pLimit = p->pLimit;
       p->pLimit = 0;
       pOffset = p->pOffset;
@@ -56041,7 +56083,7 @@ static int flattenSubquery(
       pSrc->a[i+iFrom] = pSubSrc->a[i];
       memset(&pSubSrc->a[i], 0, sizeof(pSubSrc->a[i]));
     }
-    pSrc->a[iFrom].jointype = jointype;
+    pSrc->a[iFrom].jointype = (u8)(jointype);
   }
 
   /* Now begin substituting subquery result set expressions for 
@@ -56620,8 +56662,8 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3Select(
   WhereInfo *pWInfo;     /* Return from vtk_sqlite3WhereBegin() */
   Vdbe *v;               /* The virtual machine under construction */
   int isAgg;             /* True for select lists like "count(*)" */
-  ExprList *pEList;      /* List of columns to extract. */
-  SrcList *pTabList;     /* List of tables to select from */
+  ExprList *pEList = 0;  /* List of columns to extract. */
+  SrcList *pTabList = 0; /* List of tables to select from */
   Expr *pWhere;          /* The WHERE clause.  May be NULL */
   ExprList *pOrderBy;    /* The ORDER BY clause.  May be NULL */
   ExprList *pGroupBy;    /* The GROUP BY clause.  May be NULL */
@@ -57616,7 +57658,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3BeginTrigger(
   pTrigger->table = vtk_sqliteStrDup(pTableName->a[0].zName);
   pTrigger->pSchema = db->aDb[iDb].pSchema;
   pTrigger->pTabSchema = pTab->pSchema;
-  pTrigger->op = op;
+  pTrigger->op = (u8)op;
   pTrigger->tr_tm = tr_tm==TK_BEFORE ? TRIGGER_BEFORE : TRIGGER_AFTER;
   pTrigger->pWhen = vtk_sqlite3ExprDup(pWhen);
   pTrigger->pColumns = vtk_sqlite3IdListDup(pColumns);
@@ -58052,6 +58094,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3TriggersExist(
   Trigger *pTrigger;
   int mask = 0;
 
+  pParse; /* use arg */
   pTrigger = IsVirtual(pTab) ? 0 : pTab->pTrigger;
   while( pTrigger ){
     if( pTrigger->op==op && checkColumnOverLap(pTrigger->pColumns, pChanges) ){
@@ -60189,7 +60232,7 @@ static int whereClauseInsert(WhereClause *pWC, Expr *p, int flags){
   pTerm = &pWC->a[idx = pWC->nTerm];
   pWC->nTerm++;
   pTerm->pExpr = p;
-  pTerm->flags = flags;
+  pTerm->flags = (u8)flags;
   pTerm->pWC = pWC;
   pTerm->iParent = -1;
   return idx;
@@ -60673,9 +60716,9 @@ static void exprAnalyze(
     Expr *pLeft = pExpr->pLeft;
     Expr *pRight = pExpr->pRight;
     if( pLeft->op==TK_COLUMN ){
-      pTerm->leftCursor = pLeft->iTable;
-      pTerm->leftColumn = pLeft->iColumn;
-      pTerm->eOperator = operatorMask(op);
+      pTerm->leftCursor = (i16)(pLeft->iTable);
+      pTerm->leftColumn = (i16)(pLeft->iColumn);
+      pTerm->eOperator = (u16)(operatorMask(op));
     }
     if( pRight && pRight->op==TK_COLUMN ){
       WhereTerm *pNew;
@@ -60690,7 +60733,7 @@ static void exprAnalyze(
         idxNew = whereClauseInsert(pWC, pDup, TERM_VIRTUAL|TERM_DYNAMIC);
         if( idxNew==0 ) return;
         pNew = &pWC->a[idxNew];
-        pNew->iParent = idxTerm;
+        pNew->iParent = (i16)(idxTerm);
         pTerm = &pWC->a[idxTerm];
         pTerm->nChild = 1;
         pTerm->flags |= TERM_COPIED;
@@ -60700,11 +60743,11 @@ static void exprAnalyze(
       }
       exprCommute(pDup);
       pLeft = pDup->pLeft;
-      pNew->leftCursor = pLeft->iTable;
-      pNew->leftColumn = pLeft->iColumn;
+      pNew->leftCursor = (i16)(pLeft->iTable);
+      pNew->leftColumn = (i16)(pLeft->iColumn);
       pNew->prereqRight = prereqLeft;
       pNew->prereqAll = prereqAll;
-      pNew->eOperator = operatorMask(pDup->op);
+      pNew->eOperator = (u16)(operatorMask(pDup->op));
     }
   }
 
@@ -60726,7 +60769,7 @@ static void exprAnalyze(
       idxNew = whereClauseInsert(pWC, pNewExpr, TERM_VIRTUAL|TERM_DYNAMIC);
       exprAnalyze(pSrc, pWC, idxNew);
       pTerm = &pWC->a[idxTerm];
-      pWC->a[idxNew].iParent = idxTerm;
+      pWC->a[idxNew].iParent = (i16)idxTerm;
     }
     pTerm->nChild = 2;
   }
@@ -60796,7 +60839,7 @@ static void exprAnalyze(
         idxNew = whereClauseInsert(pWC, pNew, TERM_VIRTUAL|TERM_DYNAMIC);
         exprAnalyze(pSrc, pWC, idxNew);
         pTerm = &pWC->a[idxTerm];
-        pWC->a[idxNew].iParent = idxTerm;
+        pWC->a[idxNew].iParent = (i16)idxTerm;
         pTerm->nChild = 1;
       }else{
         vtk_sqlite3ExprListDelete(pList);
@@ -60838,8 +60881,8 @@ or_not_possible:
     exprAnalyze(pSrc, pWC, idxNew2);
     pTerm = &pWC->a[idxTerm];
     if( isComplete ){
-      pWC->a[idxNew1].iParent = idxTerm;
-      pWC->a[idxNew2].iParent = idxTerm;
+      pWC->a[idxNew1].iParent = (i16)idxTerm;
+      pWC->a[idxNew2].iParent = (i16)idxTerm;
       pTerm->nChild = 2;
     }
   }
@@ -60868,10 +60911,10 @@ or_not_possible:
       idxNew = whereClauseInsert(pWC, pNewExpr, TERM_VIRTUAL|TERM_DYNAMIC);
       pNewTerm = &pWC->a[idxNew];
       pNewTerm->prereqRight = prereqExpr;
-      pNewTerm->leftCursor = pLeft->iTable;
-      pNewTerm->leftColumn = pLeft->iColumn;
+      pNewTerm->leftCursor = (i16)pLeft->iTable;
+      pNewTerm->leftColumn = (i16)pLeft->iColumn;
       pNewTerm->eOperator = WO_MATCH;
-      pNewTerm->iParent = idxTerm;
+      pNewTerm->iParent = (i16)idxTerm;
       pTerm = &pWC->a[idxTerm];
       pTerm->nChild = 1;
       pTerm->flags |= TERM_COPIED;
@@ -61285,7 +61328,7 @@ static double bestVirtualIndex(
   for(i=0; i<pIdxInfo->nConstraint; i++, pIdxCons++){
     j = pIdxCons->iTermOffset;
     pTerm = &pWC->a[j];
-    pIdxCons->usable =  (pTerm->prereqRight & notReady)==0;
+    pIdxCons->usable =  (unsigned char)((pTerm->prereqRight & notReady)==0);
   }
   memset(pUsage, 0, sizeof(pUsage[0])*pIdxInfo->nConstraint);
   if( pIdxInfo->needToFreeIdxStr ){
@@ -61477,7 +61520,7 @@ static double bestIndex(
     flags = 0;
     for(i=0; i<pProbe->nColumn; i++){
       int j = pProbe->aiColumn[i];
-      pTerm = findTerm(pWC, iCur, j, notReady, eqTermMask, pProbe);
+      pTerm = findTerm(pWC, iCur, j, notReady, (u16)eqTermMask, pProbe);
       if( pTerm==0 ) break;
       flags |= WHERE_COLUMN_EQ;
       if( pTerm->eOperator & WO_IN ){
@@ -61738,7 +61781,7 @@ static void codeAllEqualityTerms(
   assert( pIdx->nColumn>=nEq );
   for(j=0; j<nEq; j++){
     int k = pIdx->aiColumn[j];
-    pTerm = findTerm(pWC, iCur, k, notReady, pLevel->flags, pIdx);
+    pTerm = findTerm(pWC, iCur, k, notReady, (u16)(pLevel->flags), pIdx);
     if( pTerm==0 ) break;
     assert( (pTerm->flags & TERM_CODED)==0 );
     codeEqualityTerm(pParse, pTerm, pLevel);
@@ -62355,7 +62398,7 @@ VTK_SQLITE_PRIVATE WhereInfo *vtk_sqlite3WhereBegin(
       if( topLimit ){
         Expr *pX;
         int k = pIdx->aiColumn[j];
-        pTerm = findTerm(&wc, iCur, k, notReady, topOp, pIdx);
+        pTerm = findTerm(&wc, iCur, k, notReady, (u16)topOp, pIdx);
         assert( pTerm!=0 );
         pX = pTerm->pExpr;
         assert( (pTerm->flags & TERM_CODED)==0 );
@@ -62394,7 +62437,7 @@ VTK_SQLITE_PRIVATE WhereInfo *vtk_sqlite3WhereBegin(
       if( btmLimit ){
         Expr *pX;
         int k = pIdx->aiColumn[j];
-        pTerm = findTerm(&wc, iCur, k, notReady, btmOp, pIdx);
+        pTerm = findTerm(&wc, iCur, k, notReady, (u16)btmOp, pIdx);
         assert( pTerm!=0 );
         pX = pTerm->pExpr;
         assert( (pTerm->flags & TERM_CODED)==0 );
@@ -64039,7 +64082,7 @@ static int yy_pop_parser_stack(yyParser *pParser){
       yyTokenName[yytos->major]);
   }
 #endif
-  yymajor = yytos->major;
+  yymajor = (unsigned char)(yytos->major);
   yy_destructor( yymajor, &yytos->minor);
   pParser->yyidx--;
   return yymajor;
@@ -64104,7 +64147,7 @@ static int yy_find_shift_action(
              yyTracePrompt, yyTokenName[iLookAhead], yyTokenName[iFallback]);
         }
 #endif
-        return yy_find_shift_action(pParser, iFallback);
+        return yy_find_shift_action(pParser, (YYCODETYPE)iFallback);
       }
 #endif
 #ifdef YYWILDCARD
@@ -64163,6 +64206,7 @@ static int yy_find_reduce_action(
 */
 static void yyStackOverflow(yyParser *yypParser, YYMINORTYPE *yypMinor){
    vtk_sqlite3ParserARG_FETCH;
+   yypMinor; /* use arg */
    yypParser->yyidx--;
 #ifndef NDEBUG
    if( yyTraceFILE ){
@@ -64889,7 +64933,7 @@ static void yy_reduce(
       case 106:
 {
   if( yymsp[0].minor.yy219 ){
-    yymsp[0].minor.yy219->op = yymsp[-1].minor.yy46;
+    yymsp[0].minor.yy219->op = (u8)(yymsp[-1].minor.yy46);
     yymsp[0].minor.yy219->pPrior = yymsp[-2].minor.yy219;
   }else{
     vtk_sqlite3SelectDelete(yymsp[-2].minor.yy219);
@@ -64948,7 +64992,7 @@ static void yy_reduce(
       case 124:
 {
    yygotominor.yy373 = yymsp[-1].minor.yy373;
-   if( yygotominor.yy373 && yygotominor.yy373->nSrc>0 ) yygotominor.yy373->a[yygotominor.yy373->nSrc-1].jointype = yymsp[0].minor.yy46;
+   if( yygotominor.yy373 && yygotominor.yy373->nSrc>0 ) yygotominor.yy373->a[yygotominor.yy373->nSrc-1].jointype = (u8)(yymsp[0].minor.yy46);
 }
         break;
       case 125:
@@ -65022,13 +65066,13 @@ static void yy_reduce(
       case 143:
 {
   yygotominor.yy174 = vtk_sqlite3ExprListAppend(yymsp[-3].minor.yy174,yymsp[-1].minor.yy172,0);
-  if( yygotominor.yy174 ) yygotominor.yy174->a[yygotominor.yy174->nExpr-1].sortOrder = yymsp[0].minor.yy46;
+  if( yygotominor.yy174 ) yygotominor.yy174->a[yygotominor.yy174->nExpr-1].sortOrder = (u8)(yymsp[0].minor.yy46);
 }
         break;
       case 144:
 {
   yygotominor.yy174 = vtk_sqlite3ExprListAppend(0,yymsp[-1].minor.yy172,0);
-  if( yygotominor.yy174 && yygotominor.yy174->a ) yygotominor.yy174->a[0].sortOrder = yymsp[0].minor.yy46;
+  if( yygotominor.yy174 && yygotominor.yy174->a ) yygotominor.yy174->a[0].sortOrder = (u8)(yymsp[0].minor.yy46);
 }
         break;
       case 146:
@@ -65364,7 +65408,7 @@ static void yy_reduce(
   }
   yygotominor.yy174 = vtk_sqlite3ExprListAppend(yymsp[-4].minor.yy174, p, &yymsp[-2].minor.yy410);
   vtk_sqlite3ExprListCheckLength(pParse, yygotominor.yy174, VTK_SQLITE_MAX_COLUMN, "index");
-  if( yygotominor.yy174 ) yygotominor.yy174->a[yygotominor.yy174->nExpr-1].sortOrder = yymsp[0].minor.yy46;
+  if( yygotominor.yy174 ) yygotominor.yy174->a[yygotominor.yy174->nExpr-1].sortOrder = (u8)(yymsp[0].minor.yy46);
 }
         break;
       case 239:
@@ -65376,7 +65420,7 @@ static void yy_reduce(
   }
   yygotominor.yy174 = vtk_sqlite3ExprListAppend(0, p, &yymsp[-2].minor.yy410);
   vtk_sqlite3ExprListCheckLength(pParse, yygotominor.yy174, VTK_SQLITE_MAX_COLUMN, "index");
-  if( yygotominor.yy174 ) yygotominor.yy174->a[yygotominor.yy174->nExpr-1].sortOrder = yymsp[0].minor.yy46;
+  if( yygotominor.yy174 ) yygotominor.yy174->a[yygotominor.yy174->nExpr-1].sortOrder = (u8)(yymsp[0].minor.yy46);
 }
         break;
       case 241:
@@ -65568,7 +65612,7 @@ static void yy_reduce(
   yygoto = yyRuleInfo[yyruleno].lhs;
   yysize = yyRuleInfo[yyruleno].nrhs;
   yypParser->yyidx -= yysize;
-  yyact = yy_find_reduce_action(yymsp[-yysize].stateno,yygoto);
+  yyact = yy_find_reduce_action(yymsp[-yysize].stateno, (YYCODETYPE)yygoto);
   if( yyact < YYNSTATE ){
 #ifdef NDEBUG
     /* If we are not debugging and the reduce action popped at least
@@ -65618,6 +65662,7 @@ static void yy_syntax_error(
   YYMINORTYPE yyminor            /* The minor type of the error token */
 ){
   vtk_sqlite3ParserARG_FETCH;
+  yymajor; /* use arg */
 #define TOKEN (yyminor.yy0)
 
   if( !pParse->parseError ){
@@ -65706,7 +65751,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3Parser(
 #endif
 
   do{
-    yyact = yy_find_shift_action(yypParser,yymajor);
+    yyact = yy_find_shift_action(yypParser,(YYCODETYPE)yymajor);
     if( yyact<YYNSTATE ){
       yy_shift(yypParser,yyact,yymajor,&yyminorunion);
       yypParser->yyerrcnt--;
@@ -65755,7 +65800,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3Parser(
              yyTracePrompt,yyTokenName[yymajor]);
         }
 #endif
-        yy_destructor(yymajor,&yyminorunion);
+        yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
         yymajor = YYNOCODE;
       }else{
          while(
@@ -65768,7 +65813,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3Parser(
           yy_pop_parser_stack(yypParser);
         }
         if( yypParser->yyidx < 0 || yymajor==0 ){
-          yy_destructor(yymajor,&yyminorunion);
+          yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
           yy_parse_failed(yypParser);
           yymajor = YYNOCODE;
         }else if( yymx!=YYERRORSYMBOL ){
@@ -66493,6 +66538,7 @@ static int binCollFunc(
   int nKey2, const void *pKey2
 ){
   int rc, n;
+  NotUsed; /* use arg */
   n = nKey1<nKey2 ? nKey1 : nKey2;
   rc = memcmp(pKey1, pKey2, n);
   if( rc==0 ){
@@ -66517,6 +66563,7 @@ static int nocaseCollatingFunc(
 ){
   int r = vtk_sqlite3StrNICmp(
       (const char *)pKey1, (const char *)pKey2, (nKey1<nKey2)?nKey1:nKey2);
+  NotUsed; /* use arg */
   if( 0==r ){
     r = nKey1-nKey2;
   }
@@ -66945,7 +66992,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3CreateFunc(
   ** is being overridden/deleted but there are no active VMs, allow the
   ** operation to continue but invalidate all precompiled statements.
   */
-  p = vtk_sqlite3FindFunction(db, zFunctionName, nName, nArg, enc, 0);
+  p = vtk_sqlite3FindFunction(db, zFunctionName, nName, nArg, (u8)enc, 0);
   if( p && p->iPrefEnc==enc && p->nArg==nArg ){
     if( db->activeVdbeCnt ){
       vtk_sqlite3Error(db, VTK_SQLITE_BUSY, 
@@ -66957,14 +67004,14 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3CreateFunc(
     }
   }
 
-  p = vtk_sqlite3FindFunction(db, zFunctionName, nName, nArg, enc, 1);
+  p = vtk_sqlite3FindFunction(db, zFunctionName, nName, nArg, (u8)enc, 1);
   if( p ){
     p->flags = 0;
     p->xFunc = xFunc;
     p->xStep = xStep;
     p->xFinalize = xFinal;
     p->pUserData = pUserData;
-    p->nArg = nArg;
+    p->nArg = (i16)nArg;
   }
   return VTK_SQLITE_OK;
 }
@@ -67337,7 +67384,7 @@ static int createCollation(
     pColl->xCmp = xCompare;
     pColl->pUser = pCtx;
     pColl->xDel = xDel;
-    pColl->enc = enc2 | (enc & VTK_SQLITE_UTF16_ALIGNED);
+    pColl->enc = (u8)(enc2 | (enc & VTK_SQLITE_UTF16_ALIGNED));
   }
   vtk_sqlite3Error(db, VTK_SQLITE_OK, 0);
   return VTK_SQLITE_OK;
@@ -67721,7 +67768,7 @@ int vtk_sqlite3_enable_shared_cache(int enable){
       return VTK_SQLITE_MISUSE;
     }
 
-    pTd->useSharedData = enable;
+    pTd->useSharedData = (u8)enable;
     vtk_sqlite3ReleaseThreadData();
   }
   return vtk_sqlite3ApiExit(0, VTK_SQLITE_OK);
@@ -67881,3 +67928,6 @@ int vtk_sqlite3_extended_result_codes(vtk_sqlite3 *db, int onoff){
 }
 
 /************** End of main.c ************************************************/
+#if defined(_MSC_VER)
+#pragma warning( default: 4127 )
+#endif

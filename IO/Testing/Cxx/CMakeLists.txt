@@ -21,6 +21,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestXML.cxx
   TestMetaIO.cxx
   TestCompress.cxx
+  TestSQLiteDatabase.cxx
   ${ConditionalTests}
   EXTRA_INCLUDE vtkTestDriver.h
 )
@@ -41,6 +42,7 @@ IF (VTK_DATA_ROOT)
     ${VTK_DATA_ROOT}/Data/HeadMRVolume.mhd)
   ADD_TEST(TestCompress ${CXX_TEST_PATH}/${KIT}CxxTests TestCompress
     ${VTK_DATA_ROOT}/Data/sample.xml)
+  ADD_TEST(TestSQLiteDatabase ${CXX_TEST_PATH}/${KIT}CxxTests TestSQLiteDatabase)
   IF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ADD_TEST(TestHyperOctreeIO ${CXX_TEST_PATH}/${KIT}CxxTests
          TestHyperOctreeIO -D ${VTK_DATA_ROOT}
