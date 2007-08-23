@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.37");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.38");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -136,6 +136,45 @@ vtkArrayCalculator::~vtkArrayCalculator()
       }
     delete [] this->SelectedVectorComponents;
     this->SelectedVectorComponents = NULL;
+    }
+
+  if (this->CoordinateScalarVariableNames)
+    {
+    for (i = 0; i < this->NumberOfCoordinateScalarArrays; i++)
+      {
+      delete [] this->CoordinateScalarVariableNames[i];
+      this->CoordinateScalarVariableNames[i] = NULL;
+      }
+    delete [] this->CoordinateScalarVariableNames;
+    this->CoordinateScalarVariableNames = NULL;
+    }
+
+  if (this->CoordinateVectorVariableNames)
+    {
+    for (i = 0; i < this->NumberOfCoordinateVectorArrays; i++)
+      {
+      delete [] this->CoordinateVectorVariableNames[i];
+      this->CoordinateVectorVariableNames[i] = NULL;
+      }
+    delete [] this->CoordinateVectorVariableNames;
+    this->CoordinateVectorVariableNames = NULL;
+    }
+
+  if (this->SelectedCoordinateScalarComponents)
+    {
+    delete [] this->SelectedCoordinateScalarComponents;
+    this->SelectedCoordinateScalarComponents = NULL;    
+    }
+
+  if (this->SelectedCoordinateVectorComponents)
+    {
+    for (i = 0; i < this->NumberOfCoordinateVectorArrays; i++)
+      {
+      delete [] this->SelectedCoordinateVectorComponents[i];
+      this->SelectedCoordinateVectorComponents[i] = NULL;
+      }
+    delete [] this->SelectedCoordinateVectorComponents;
+    this->SelectedCoordinateVectorComponents = NULL;
     }
 }
 
