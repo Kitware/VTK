@@ -36,7 +36,7 @@
 #include "vtkTree.h"
 
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.15");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.16");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 #ifndef MIN
@@ -68,6 +68,7 @@ vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
   this->RestDistance = 0;
   this->Jitter = true;
   this->MaxNumberOfIterations = 100;
+  this->EdgeArray = NULL;
 }
 
 // ----------------------------------------------------------------------
@@ -133,6 +134,11 @@ void vtkSimple2DLayoutStrategy::Initialize()
     }
     
   // Put the edge data into compact, fast access edge data structure
+  if (this->EdgeArray)
+    {
+    delete [] this->EdgeArray;
+    this->EdgeArray = NULL;
+    }
   this->EdgeArray =  new vtkLayoutEdge[numEdges];
   
   // If jitter then do it now at initialization

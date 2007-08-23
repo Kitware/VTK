@@ -36,7 +36,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.5");
+vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.6");
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -73,6 +73,7 @@ vtkFast2DLayoutStrategy::vtkFast2DLayoutStrategy()
   this->LayoutComplete = 0;
   this->EdgeWeightField = 0;
   this->RestDistance = 0;
+  this->EdgeArray = NULL;
 }
 
 // ----------------------------------------------------------------------
@@ -204,8 +205,12 @@ void vtkFast2DLayoutStrategy::Initialize()
     }
     
   // Put the edge data into compact, fast access edge data structure
-  this->EdgeArray =  new vtkLayoutEdge[numEdges];
-  
+  if (this->EdgeArray)
+    {
+    delete [] this->EdgeArray;
+    this->EdgeArray = NULL;
+    }
+  this->EdgeArray =  new vtkLayoutEdge[numEdges];  
     
   // Jitter x and y, skip z
   for (vtkIdType i=0; i<numVertices*3; i+=3)
