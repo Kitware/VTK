@@ -25,7 +25,7 @@ SET( verdict_INSTALL_LIB_DIR ${VTK_INSTALL_LIB_DIR_CM24})
 SUBDIRS(verdict)
 SUBDIRS(vtknetcdf)
 SUBDIRS(vtkmetaio)
-SUBDIRS(vtksqlite)
+#SUBDIRS(vtksqlite)
 
 IF(VTK_HAS_EXODUS)
   SUBDIRS(vtkexodus2)

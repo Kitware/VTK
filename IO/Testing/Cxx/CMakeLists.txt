@@ -21,7 +21,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestXML.cxx
   TestMetaIO.cxx
   TestCompress.cxx
-  TestSQLiteDatabase.cxx
+#  TestSQLiteDatabase.cxx
   ${ConditionalTests}
   EXTRA_INCLUDE vtkTestDriver.h
 )

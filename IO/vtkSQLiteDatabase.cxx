@@ -26,7 +26,7 @@
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.1");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.2");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
@@ -241,6 +241,7 @@ void vtkSQLiteDatabase::PrintSelf(ostream &os, vtkIndent indent)
     {
     cout << "(null)" << "\n";
     }
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(null)") << endl;
 }
 
 

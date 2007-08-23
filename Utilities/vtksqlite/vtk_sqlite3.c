@@ -42772,7 +42772,7 @@ static void attachFunc(
   char zErr[128];
   char *zErrDyn = 0;
 
-  argc; /* not used */
+  (void)argc; /* use arg */
   zFile = (const char *)vtk_sqlite3_value_text(argv[0]);
   zName = (const char *)vtk_sqlite3_value_text(argv[1]);
   if( zFile==0 ) zFile = "";
@@ -42933,7 +42933,7 @@ static void detachFunc(
   Db *pDb = 0;
   char zErr[128];
 
-  argc; /* not used */
+  (void)argc; /* use arg */
   if( zName==0 ) zName = "";
   for(i=0; i<db->nDb; i++){
     pDb = &db->aDb[i];
