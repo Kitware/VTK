@@ -1,4 +1,4 @@
-/* changed by awilson: replace all instances of 'sqlite' with 'vtk_sqlite'
+/* changed by awilson: replace all instances of 'sqlite' with 'vtk_sqlite' */
 
 /******************************************************************************
 ** This file is an amalgamation of many separate C source files from SQLite
@@ -7222,10 +7222,10 @@ static void strftimeFunc(
 static void ctimeFunc(
   vtk_sqlite3_context *context,
   int argc,
-  vtk_sqlite3_value **argv
+  vtk_sqlite3_value ** argv
 ){
   vtk_sqlite3_value *pVal = vtk_sqlite3ValueNew();
-  argc; argv; /* use arguments */
+  (void)argc; (void)argv; /* use arguments */
   if( pVal ){
     vtk_sqlite3ValueSetStr(pVal, -1, "now", VTK_SQLITE_UTF8, VTK_SQLITE_STATIC);
     timeFunc(context, 1, &pVal);
@@ -7244,7 +7244,7 @@ static void cdateFunc(
   vtk_sqlite3_value **argv
 ){
   vtk_sqlite3_value *pVal = vtk_sqlite3ValueNew();
-  argc; argv; /* use arguments */
+  (void)argc; (void)argv; /* use arguments */
   if( pVal ){
     vtk_sqlite3ValueSetStr(pVal, -1, "now", VTK_SQLITE_UTF8, VTK_SQLITE_STATIC);
     dateFunc(context, 1, &pVal);
@@ -7263,7 +7263,7 @@ static void ctimestampFunc(
   vtk_sqlite3_value **argv
 ){
   vtk_sqlite3_value *pVal = vtk_sqlite3ValueNew();
-  argc; argv; /* use arguments */
+  (void)argc; (void)argv; /* use arguments */
   if( pVal ){
     vtk_sqlite3ValueSetStr(pVal, -1, "now", VTK_SQLITE_UTF8, VTK_SQLITE_STATIC);
     datetimeFunc(context, 1, &pVal);
@@ -16135,7 +16135,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3GenericFree(void *p){
   free(p);
 }
 /* Never actually used, but needed for the linker */
-VTK_SQLITE_PRIVATE int vtk_sqlite3GenericAllocationSize(void *p){ p; /* use arg */ return 0; }
+VTK_SQLITE_PRIVATE int vtk_sqlite3GenericAllocationSize(void *p){ (void)p; /* use arg */ return 0; }
 #endif
 
 /*
@@ -17014,7 +17014,7 @@ static int winOpenDirectory(
   OsFile *id,
   const char *zDirname
 ){
-  id; zDirname; /* use arg */
+  (void)id; (void)zDirname; /* use arg */
   return VTK_SQLITE_OK;
 }
 
@@ -17178,7 +17178,7 @@ static int winSeek(OsFile *id, i64 offset){
 ** Make sure all writes to a particular file are committed to disk.
 */
 static int winSync(OsFile *id, int dataOnly){
-  dataOnly; /* use arg */
+  (void)dataOnly; /* use arg */
   assert( id!=0 );
   OSTRACE3("SYNC %d lock=%d\n", ((winFile*)id)->h, ((winFile*)id)->locktype);
   if( FlushFileBuffers(((winFile*)id)->h) ){
@@ -17193,7 +17193,7 @@ static int winSync(OsFile *id, int dataOnly){
 ** than UNIX.
 */
 VTK_SQLITE_PRIVATE int vtk_sqlite3WinSyncDirectory(const char *zDirname){
-  zDirname; /* use arg */
+  (void)zDirname; /* use arg */
   SimulateIOError(return VTK_SQLITE_IOERR_READ);
   return VTK_SQLITE_OK;
 }
@@ -17549,7 +17549,7 @@ VTK_SQLITE_PRIVATE char *vtk_sqlite3WinFullPathname(const char *zRelative){
 ** The fullSync option is meaningless on windows.   This is a no-op.
 */
 static void winSetFullSync(OsFile *id, int v){
-  id; v; /* use arg */
+  (void)id; (void)v; /* use arg */
   return;
 }
 
@@ -17579,7 +17579,7 @@ static int winLockState(OsFile *id){
 ** same for both.
 */
 static int winSectorSize(OsFile *id){
-  id; /* use arg */
+  (void)id; /* use arg */
   return VTK_SQLITE_DEFAULT_SECTOR_SIZE;
 }
 
@@ -17765,7 +17765,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3WinInMutex(int thisThreadOnly){
 #ifdef VTK_SQLITE_W32_THREADS
   return inMutex>0 && (thisThreadOnly==0 || mutexOwner==GetCurrentThreadId());
 #else
-  thisThreadOnly; /* use arg */
+  (void)thisThreadOnly; /* use arg */
   return inMutex>0;
 #endif
 }
@@ -23923,7 +23923,7 @@ static void releasePage(MemPage *pPage){
 */
 static void pageDestructor(DbPage *pData, int pageSize){
   MemPage *pPage;
-  pageSize; /* use arg */
+  (void)pageSize; /* use arg */
   assert( (pageSize & 7)==0 );
   pPage = (MemPage *)vtk_sqlite3PagerGetExtra(pData);
   if( pPage->pParent ){
@@ -23944,7 +23944,7 @@ static void pageDestructor(DbPage *pData, int pageSize){
 */
 static void pageReinit(DbPage *pData, int pageSize){
   MemPage *pPage;
-  pageSize; /* use arg */
+  (void)pageSize; /* use arg */
   assert( (pageSize & 7)==0 );
   pPage = (MemPage *)vtk_sqlite3PagerGetExtra(pData);
   if( pPage->isInit ){
@@ -25246,7 +25246,7 @@ static int dfltCompare(
   int n2, const void *p2     /* Second key to compare */
 ){
   int c;
-  NotUsed; /* use arg */
+  (void)NotUsed; /* use arg */
   c = memcmp(p1, p2, n1<n2 ? n1 : n2);
   if( c==0 ){
     c = n1 - n2;
@@ -32961,7 +32961,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3InvalidFunction(
 ){
   const char *zName = context->pFunc->zName;
   char *zErr;
-  argc; argv; /* use args */
+  (void)argc; (void)argv; /* use args */
   zErr = vtk_sqlite3MPrintf(
       "unable to use function %s in the requested context", zName);
   vtk_sqlite3_result_error(context, zErr, -1);
@@ -41714,7 +41714,7 @@ static void renameTableFunc(
   int len = 0;
   char *zRet;
 
-  argc; /* use arg */
+  (void)argc; /* use arg */
   /* The principle used to locate the table name in the CREATE TABLE 
   ** statement is that the table name is the first token that is immediatedly
   ** followed by a left parenthesis - TK_LP - or "USING" TK_USING.
@@ -41769,7 +41769,7 @@ static void renameTriggerFunc(
   int len = 0;
   char *zRet;
 
-  argc; /* use arg */
+  (void)argc; /* use arg */
   /* The principle used to locate the table name in the CREATE TRIGGER 
   ** statement is that the table name is the first token that is immediatedly
   ** preceded by either TK_ON or TK_DOT and immediatedly followed by one
@@ -42628,7 +42628,7 @@ static int analysisLoader(void *pData, int argc, char **argv, char **azNotUsed){
   unsigned int v;
   const char *z;
 
-  argc; azNotUsed; /* use args */
+  (void)argc; (void)azNotUsed; /* use args */
   assert( argc==2 );
   if( argv==0 || argv[0]==0 || argv[1]==0 ){
     return 0;
@@ -47844,7 +47844,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3GenerateRowDelete(
   int count          /* Increment the row change counter */
 ){
   int addr;
-  db; /* use arg */
+  (void)db; /* use arg */
   addr = vtk_sqlite3VdbeAddOp(v, OP_NotExists, iCur, 0);
   vtk_sqlite3GenerateRowIndexDelete(v, pTab, iCur, 0);
   vtk_sqlite3VdbeAddOp(v, OP_Delete, iCur, (count?OPFLAG_NCHANGE:0));
@@ -47983,7 +47983,7 @@ static void typeofFunc(
   vtk_sqlite3_value **argv
 ){
   const char *z = 0;
-  argc; /* use arg */
+  (void)argc; /* use arg */
   switch( vtk_sqlite3_value_type(argv[0]) ){
     case VTK_SQLITE_NULL:    z = "null";    break;
     case VTK_SQLITE_INTEGER: z = "integer"; break;
@@ -48005,7 +48005,7 @@ static void lengthFunc(
 ){
   int len;
 
-  argc; /* use arg */
+  (void)argc; /* use arg */
   assert( argc==1 );
   switch( vtk_sqlite3_value_type(argv[0]) ){
     case VTK_SQLITE_BLOB:
@@ -48036,7 +48036,7 @@ static void lengthFunc(
 ** Implementation of the abs() function
 */
 static void absFunc(vtk_sqlite3_context *context, int argc, vtk_sqlite3_value **argv){
-  argc; /* use arg */
+  (void)argc; /* use arg */
   assert( argc==1 );
   switch( vtk_sqlite3_value_type(argv[0]) ){
     case VTK_SQLITE_INTEGER: {
@@ -48085,7 +48085,7 @@ static void substrFunc(
   int p0type;
   i64 p1, p2;
   
-  argc; /* use arg */
+  (void)argc; /* use arg */
   assert( argc==3 );
   p0type = vtk_sqlite3_value_type(argv[0]);
   if( p0type==VTK_SQLITE_BLOB ){
@@ -48223,7 +48223,7 @@ static void randomFunc(
   vtk_sqlite3_value **argv
 ){
   vtk_sqlite_int64 r;
-  argc; argv; /* use args */
+  (void)argc; (void)argv; /* use args */
   vtk_sqlite3Randomness(sizeof(r), &r);
   if( (r<<1)==0 ) r = 0;  /* Prevent 0x8000.... as the result so that we */
                           /* can always do abs() of the result */
@@ -48241,7 +48241,7 @@ static void randomBlob(
 ){
   int n;
   unsigned char *p;
-  argc; /* use arg */
+  (void)argc; /* use arg */
   assert( argc==1 );
   n = vtk_sqlite3_value_int(argv[0]);
   if( n<1 ){
@@ -48268,7 +48268,7 @@ static void last_insert_rowid(
   vtk_sqlite3_value **argv
 ){
   vtk_sqlite3 *db = vtk_sqlite3_user_data(context);
-  arg; argv; /* use args */
+  (void)arg; (void)argv; /* use args */
   vtk_sqlite3_result_int64(context, vtk_sqlite3_last_insert_rowid(db));
 }
 
@@ -48282,7 +48282,7 @@ static void changes(
   vtk_sqlite3_value **argv
 ){
   vtk_sqlite3 *db = vtk_sqlite3_user_data(context);
-  arg; argv; /* use args */
+  (void)arg; (void)argv; /* use args */
   vtk_sqlite3_result_int(context, vtk_sqlite3_changes(db));
 }
 
@@ -48296,7 +48296,7 @@ static void total_changes(
   vtk_sqlite3_value **argv
 ){
   vtk_sqlite3 *db = vtk_sqlite3_user_data(context);
-  arg; argv; /* use args */
+  (void)arg; (void)argv; /* use args */
   vtk_sqlite3_result_int(context, vtk_sqlite3_total_changes(db));
 }
 
@@ -48534,7 +48534,7 @@ static void nullifFunc(
   vtk_sqlite3_value **argv
 ){
   CollSeq *pColl = vtk_sqlite3GetFuncCollSeq(context);
-  argc; /* use arg */
+  (void)argc; /* use arg */
   if( vtk_sqlite3MemCompare(argv[0], argv[1], pColl)!=0 ){
     vtk_sqlite3_result_value(context, argv[0]);
   }
@@ -48549,7 +48549,7 @@ static void versionFunc(
   int argc,
   vtk_sqlite3_value **argv
 ){
-  argc; argv; /* use args */
+  (void)argc; (void)argv; /* use args */
   vtk_sqlite3_result_text(context, vtk_sqlite3_version, -1, VTK_SQLITE_STATIC);
 }
 
@@ -48652,7 +48652,7 @@ static void hexFunc(
   int i, n;
   const unsigned char *pBlob;
   char *zHex, *z;
-  argc; /* use args */
+  (void)argc; /* use args */
   assert( argc==1 );
   pBlob = vtk_sqlite3_value_blob(argv[0]);
   n = vtk_sqlite3_value_bytes(argv[0]);
@@ -48681,7 +48681,7 @@ static void zeroblobFunc(
   vtk_sqlite3_value **argv
 ){
   i64 n;
-  argc; /* use args */
+  (void)argc; /* use args */
   assert( argc==1 );
   n = vtk_sqlite3_value_int64(argv[0]);
   if( n>VTK_SQLITE_MAX_LENGTH ){
@@ -48713,7 +48713,7 @@ static void replaceFunc(
   int loopLimit;           /* Last zStr[] that might match zPattern[] */
   int i, j;                /* Loop counters */
 
-  argc; /* use args */
+  (void)argc; /* use args */
   assert( argc==3 );
   zStr = vtk_sqlite3_value_text(argv[0]);
   if( zStr==0 ) return;
@@ -49102,7 +49102,7 @@ struct SumCtx {
 static void sumStep(vtk_sqlite3_context *context, int argc, vtk_sqlite3_value **argv){
   SumCtx *p;
   int type;
-  argc; /* use args */
+  (void)argc; /* use args */
   assert( argc==1 );
   p = vtk_sqlite3_aggregate_context(context, sizeof(*p));
   type = vtk_sqlite3_value_numeric_type(argv[0]);
@@ -49183,7 +49183,7 @@ static void minmaxStep(vtk_sqlite3_context *context, int argc, vtk_sqlite3_value
   Mem *pArg  = (Mem *)argv[0];
   Mem *pBest;
 
-  argc; /* use args */
+  (void)argc; /* use args */
   if( vtk_sqlite3_value_type(argv[0])==VTK_SQLITE_NULL ) return;
   pBest = (Mem *)vtk_sqlite3_aggregate_context(context, sizeof(*pBest));
   if( !pBest ) return;
@@ -53125,7 +53125,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3InitCallback(void *pInit, int argc, char **arg
   vtk_sqlite3 *db = pData->db;
   int iDb = pData->iDb;
 
-  argc; azColName; /* use args */
+  (void)argc; (void)azColName; /* use args */
   pData->rc = VTK_SQLITE_OK;
   DbClearProperty(db, iDb, DB_Empty);
   if( vtk_sqlite3MallocFailed() ){
@@ -58094,7 +58094,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3TriggersExist(
   Trigger *pTrigger;
   int mask = 0;
 
-  pParse; /* use arg */
+  (void)pParse; /* use arg */
   pTrigger = IsVirtual(pTab) ? 0 : pTab->pTrigger;
   while( pTrigger ){
     if( pTrigger->op==op && checkColumnOverLap(pTrigger->pColumns, pChanges) ){
@@ -64206,7 +64206,7 @@ static int yy_find_reduce_action(
 */
 static void yyStackOverflow(yyParser *yypParser, YYMINORTYPE *yypMinor){
    vtk_sqlite3ParserARG_FETCH;
-   yypMinor; /* use arg */
+   (void)yypMinor; /* use arg */
    yypParser->yyidx--;
 #ifndef NDEBUG
    if( yyTraceFILE ){
@@ -65662,7 +65662,7 @@ static void yy_syntax_error(
   YYMINORTYPE yyminor            /* The minor type of the error token */
 ){
   vtk_sqlite3ParserARG_FETCH;
-  yymajor; /* use arg */
+  (void)yymajor; /* use arg */
 #define TOKEN (yyminor.yy0)
 
   if( !pParse->parseError ){
@@ -66538,7 +66538,7 @@ static int binCollFunc(
   int nKey2, const void *pKey2
 ){
   int rc, n;
-  NotUsed; /* use arg */
+  (void)NotUsed; /* use arg */
   n = nKey1<nKey2 ? nKey1 : nKey2;
   rc = memcmp(pKey1, pKey2, n);
   if( rc==0 ){
@@ -66563,7 +66563,7 @@ static int nocaseCollatingFunc(
 ){
   int r = vtk_sqlite3StrNICmp(
       (const char *)pKey1, (const char *)pKey2, (nKey1<nKey2)?nKey1:nKey2);
-  NotUsed; /* use arg */
+  (void)NotUsed; /* use arg */
   if( 0==r ){
     r = nKey1-nKey2;
   }
