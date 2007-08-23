@@ -13088,7 +13088,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3GenericFree(void *p){
   free(p);
 }
 /* Never actually used, but needed for the linker */
-VTK_SQLITE_PRIVATE int vtk_sqlite3GenericAllocationSize(void *p){ return 0; }
+VTK_SQLITE_PRIVATE int vtk_sqlite3GenericAllocationSize(void *p){ (void)p; /* use arg */ return 0; }
 #endif
 
 /*
@@ -14125,6 +14125,8 @@ int vtk_sqlite3_fullsync_count = 0;
 */
 static int full_fsync(int fd, int fullSync, int dataOnly){
   int rc;
+  
+  (void)fullSync; /* use arg */
 
   /* Record the number of times that we do a normal fsync() and 
   ** FULLSYNC.  This is used during testing to verify that this procedure
@@ -15329,6 +15331,7 @@ static int unixLockState(OsFile *id){
 ** same for both.
 */
 static int unixSectorSize(OsFile *id){
+  (void)id; /* use arg */
   return VTK_SQLITE_DEFAULT_SECTOR_SIZE;
 }
 
@@ -30281,7 +30284,7 @@ VTK_SQLITE_PRIVATE const void *vtk_sqlite3ValueText(vtk_sqlite3_value* pVal, u8 
   expandBlob(pVal);
   if( pVal->flags&MEM_Str ){
     vtk_sqlite3VdbeChangeEncoding(pVal, enc & ~VTK_SQLITE_UTF16_ALIGNED);
-    if( (enc & VTK_SQLITE_UTF16_ALIGNED)!=0 && 1==(1&(int)pVal->z) ){
+    if( (enc & VTK_SQLITE_UTF16_ALIGNED)!=0 && 1==(1&(size_t)pVal->z) ){
       assert( (pVal->flags & (MEM_Ephem|MEM_Static))!=0 );
       if( vtk_sqlite3VdbeMemMakeWriteable(pVal)!=VTK_SQLITE_OK ){
         return 0;
@@ -48818,7 +48821,7 @@ static void trimFunc(
     }
   }
   if( nChar>0 ){
-    flags = (int)vtk_sqlite3_user_data(context);
+    flags = (int)(size_t)vtk_sqlite3_user_data(context);
     if( flags & 1 ){
       while( nIn>0 ){
         int len = 0;
@@ -49311,7 +49314,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3RegisterBuiltinFunctions(vtk_sqlite3 *db){
     if( argType==0xff ){
       pArg = db;
     }else{
-      pArg = (void*)(int)argType;
+      pArg = (void*)(size_t)argType;
     }
     vtk_sqlite3CreateFunc(db, aFuncs[i].zName, aFuncs[i].nArg,
         aFuncs[i].eTextRep, pArg, aFuncs[i].xFunc, 0, 0);
@@ -49330,7 +49333,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3RegisterBuiltinFunctions(vtk_sqlite3 *db){
   vtk_sqlite3AttachFunctions(db);
 #endif
   for(i=0; i<(int)(sizeof(aAggs)/sizeof(aAggs[0])); i++){
-    void *pArg = (void*)(int)aAggs[i].argType;
+    void *pArg = (void*)(size_t)aAggs[i].argType;
     vtk_sqlite3CreateFunc(db, aAggs[i].zName, aAggs[i].nArg, VTK_SQLITE_UTF8, 
         pArg, 0, aAggs[i].xStep, aAggs[i].xFinalize);
     if( aAggs[i].needCollSeq ){
@@ -57431,7 +57434,7 @@ int vtk_sqlite3_get_table(
   rc = vtk_sqlite3_exec(db, zSql, vtk_sqlite3_get_table_cb, &res, pzErrMsg);
   if( res.azResult ){
     assert( sizeof(res.azResult[0])>= sizeof(res.nData) );
-    res.azResult[0] = (char*)res.nData;
+    res.azResult[0] = (char*)(size_t)res.nData;
   }
   if( (rc&0xff)==VTK_SQLITE_ABORT ){
     vtk_sqlite3_free_table(&res.azResult[1]);
@@ -57476,7 +57479,7 @@ void vtk_sqlite3_free_table(
     int i, n;
     azResult--;
     if( azResult==0 ) return;
-    n = (int)azResult[0];
+    n = (int)(size_t)azResult[0];
     for(i=1; i<n; i++){ if( azResult[i] ) vtk_sqlite3_free(azResult[i]); }
     vtk_sqlite3_free(azResult);
   }
