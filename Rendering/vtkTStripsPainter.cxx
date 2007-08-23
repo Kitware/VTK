@@ -31,7 +31,7 @@
 #include "vtkTimerLog.h"
 
 vtkStandardNewMacro(vtkTStripsPainter);
-vtkCxxRevisionMacro(vtkTStripsPainter, "1.2");
+vtkCxxRevisionMacro(vtkTStripsPainter, "1.3");
 //-----------------------------------------------------------------------------
 vtkTStripsPainter::vtkTStripsPainter()
 {
@@ -287,17 +287,86 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
       device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
         ptype, points, 3**ptIds);,;,;);
     break;
+  case VTK_PDM_COLORS | VTK_PDM_TCOORDS:
+    if (this->BuildNormals)
+      {
+      vtkDrawPolysMacro(rep,
+        TStripNormal
+        device->SendAttribute(vtkPointData::TCOORDS, tcomps,
+          ttype, tcoords, tcomps**ptIds);
+        device->SendAttribute(vtkPointData::SCALARS, 4,
+          VTK_UNSIGNED_CHAR, colors + (*ptIds<<2));
+        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+          ptype, points, 3**ptIds);,
+        TStripNormalStart,;);
+      }
+    else
+      {
+      vtkDrawPolysMacro(rep,
+        device->SendAttribute(vtkPointData::TCOORDS, tcomps,
+          ttype, tcoords, tcomps**ptIds);
+        device->SendAttribute(vtkPointData::SCALARS, 4,
+          VTK_UNSIGNED_CHAR, colors + (*ptIds<<2));
+        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+          ptype, points, 3**ptIds);,
+        ;,;);
+      }
+    break;
+  case VTK_PDM_COLORS | VTK_PDM_OPAQUE_COLORS | VTK_PDM_TCOORDS:
+    if (this->BuildNormals)
+      {
+      vtkDrawPolysMacro(rep,
+        TStripNormal
+        device->SendAttribute(vtkPointData::TCOORDS, tcomps,
+          ttype, tcoords, tcomps**ptIds);
+        device->SendAttribute(vtkPointData::SCALARS, 3,
+          VTK_UNSIGNED_CHAR, colors + (*ptIds<<2));
+        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+          ptype, points, 3**ptIds);,
+        TStripNormalStart,;);
+      }
+    else
+      {
+      vtkDrawPolysMacro(rep,
+        device->SendAttribute(vtkPointData::TCOORDS, tcomps,
+          ttype, tcoords, tcomps**ptIds);
+        device->SendAttribute(vtkPointData::SCALARS, 3,
+          VTK_UNSIGNED_CHAR, colors + (*ptIds<<2));
+        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+          ptype, points, 3**ptIds);,
+        ;,;);
+      }
+    break;
+  case VTK_PDM_NORMALS | VTK_PDM_COLORS | VTK_PDM_TCOORDS:
+    vtkDrawPolysMacro(rep,
+      device->SendAttribute(vtkPointData::NORMALS, 3,
+        ntype, normals, 3**ptIds);
+      device->SendAttribute(vtkPointData::SCALARS, 4,
+        VTK_UNSIGNED_CHAR, colors + (*ptIds<<2));
+      device->SendAttribute(vtkPointData::TCOORDS, tcomps,
+        ttype, tcoords, tcomps**ptIds);
+      device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+        ptype, points, 3**ptIds);,;,;);
+    break;
+  case VTK_PDM_NORMALS | VTK_PDM_COLORS | VTK_PDM_OPAQUE_COLORS |
+    VTK_PDM_TCOORDS:
+    vtkDrawPolysMacro(rep,
+      device->SendAttribute(vtkPointData::NORMALS, 3,
+        ntype, normals, 3**ptIds);
+      device->SendAttribute(vtkPointData::SCALARS, 3,
+        VTK_UNSIGNED_CHAR, colors + (*ptIds<<2));
+      device->SendAttribute(vtkPointData::TCOORDS, tcomps,
+        ttype, tcoords, tcomps**ptIds);
+      device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+        ptype, points, 3**ptIds);,;,;);
+    break;
   default:
     return 0; // let delegate painter process this render.
     }
   return 1;
 }
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void vtkTStripsPainter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

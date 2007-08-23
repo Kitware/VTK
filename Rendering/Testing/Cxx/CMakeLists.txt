@@ -16,6 +16,10 @@ IF(VTK_USE_DISPLAY)
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
     TestTextureRGBA.cxx
+    TestTStripsColorsTCoords.cxx
+    TestTStripsNormalsColorsTCoords.cxx
+    TestTStripsNormalsTCoords.cxx
+    TestTStripsTCoords.cxx
     )
 
   IF(VTK_DATA_ROOT)
