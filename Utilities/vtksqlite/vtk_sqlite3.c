@@ -23,7 +23,11 @@
 */
 #define VTK_SQLITE_OMIT_LOAD_EXTENSION
 #if defined(_MSC_VER)
-#pragma warning( disable: 4127 ) // conditional expression is constant
+#pragma warning( disable: 4127 ) /* conditional expression is constant */
+#endif
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* assigned a value that is never used */
+#pragma warn -8008 /* condition is always true */
 #endif
 
 #define VTK_SQLITE_AMALGAMATION 1
