@@ -28,7 +28,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-int TestSQLiteDatabase(int, char ** const)
+int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
 {
   const char *queryText = "SELECT name, age, weight FROM people WHERE age <= 20";
   vtkSQLiteDatabase *db = vtkSQLiteDatabase::New();
