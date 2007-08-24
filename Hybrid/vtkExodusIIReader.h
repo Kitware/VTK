@@ -180,19 +180,19 @@ public:
   };
 //ETX
   static const char* GetGlobalElementIdArrayName() { return "GlobalElementId"; }
-  static const char* GetPedigreeElementIdArrayName() { return "pedigreeElementId"; }
+  static const char* GetPedigreeElementIdArrayName() { return "PedigreeElementId"; }
   static int GetGlobalElementID( vtkDataSet *data, int localID );
   static int GetGlobalElementID ( vtkDataSet *data, int localID, 
       int searchType );
 
   static const char* GetGlobalFaceIdArrayName() { return "GlobalFaceId"; }
-  static const char* GetPedigreeFaceIdArrayName() { return "pedigreeFaceId"; }
+  static const char* GetPedigreeFaceIdArrayName() { return "PedigreeFaceId"; }
   static int GetGlobalFaceID( vtkDataSet *data, int localID );
   static int GetGlobalFaceID ( vtkDataSet *data, int localID, 
       int searchType );
 
   static const char* GetGlobalEdgeIdArrayName() { return "GlobalEdgeId"; }
-  static const char* GetPedigreeEdgeIdArrayName() { return "pedigreeEdgeId"; }
+  static const char* GetPedigreeEdgeIdArrayName() { return "PedigreeEdgeId"; }
   static int GetGlobalEdgeID( vtkDataSet *data, int localID );
   static int GetGlobalEdgeID ( vtkDataSet *data, int localID, 
       int searchType );
@@ -203,7 +203,7 @@ public:
   // The id is relative to the entire data set.
   // The name of the array is returned by GlobalNodeIdArrayName().
   static const char* GetGlobalNodeIdArrayName() { return "GlobalNodeId"; }  
-  static const char* GetPedigreeNodeIdArrayName() { return "pedigreeNodeId"; }  
+  static const char* GetPedigreeNodeIdArrayName() { return "PedigreeNodeId"; }  
   static int GetGlobalNodeID( vtkDataSet *data, int localID );
   static int GetGlobalNodeID( vtkDataSet *data, int localID, 
       int searchType );
