@@ -177,7 +177,14 @@ public:
   virtual int QueryBlending() = 0;
 
   // Description:
+  // Turns emphasis of vertices on or off for vertex selection.
   virtual void MakeVertexEmphasis(int mode) = 0;
+
+  // Description:
+  // Control use of the stencil buffer (for vertex selection).
+  virtual void Stencil(int on) = 0;
+  virtual void WriteStencil(vtkIdType value) = 0;
+  virtual void TestStencil(vtkIdType value) = 0;
 
 protected:
   vtkPainterDeviceAdapter();

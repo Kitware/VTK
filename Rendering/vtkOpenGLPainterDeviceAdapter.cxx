@@ -36,7 +36,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.15");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.16");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -720,17 +720,69 @@ void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(int mode)
     glGetFloatv(GL_DEPTH_RANGE, nf);
     this->RangeNear = (double)nf[0];
     this->RangeFar = (double)nf[1];
-    glDepthRange(0.0, nf[1]*0.98);
+    if (this->MaxStencil == 0)
+      {
+      //if we can't stencil, then render the verts behind the geometry, 
+      //preventing all vertex selection so as not to get it wrong
+      glDepthRange(0.1, nf[1]);
+      }
+    else
+      {
+      glDepthRange(0.0, nf[1]*0.98);
+      }
 
     float s;
     glGetFloatv(GL_POINT_SIZE, &s);
     this->PointSize = s;
-    glPointSize(5.0);
+    glPointSize(4.0);
+
+    int depthmask;
+    glGetIntegerv(GL_DEPTH_WRITEMASK, &depthmask);
+    this->DepthMask = depthmask;
+    glDepthMask(0);
     }
   else
     {
+    glDepthMask(this->DepthMask);
     glDepthRange(this->RangeNear, this->RangeFar);
     glPointSize(this->PointSize);
     }
 }
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPainterDeviceAdapter::WriteStencil(vtkIdType value)
+{
+  value = value % this->MaxStencil + 1;
+  if (value == 1)
+    {
+    glClearStencil(0); //start over so don't write into some previous area
+    }
+  glStencilFunc(GL_ALWAYS, value, this->MaxStencil);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPainterDeviceAdapter::TestStencil(vtkIdType value)
+{
+  value = value % this->MaxStencil + 1;
+  glStencilFunc(GL_EQUAL, value, this->MaxStencil);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPainterDeviceAdapter::Stencil(int on)
+{
+  if (on)
+    {
+    glEnable(GL_STENCIL_TEST);    
+    int stencilbits;
+    glGetIntegerv(GL_STENCIL_BITS, &stencilbits);
+    this->MaxStencil = 1<<stencilbits-1;
+    }
+  else
+    {
+    glDisable(GL_STENCIL_TEST);
+    }
+}
+
 

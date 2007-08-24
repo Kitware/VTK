@@ -116,10 +116,16 @@ public:
   virtual int QueryBlending();
 
   // Description:
-  // Turns emphasis of vertices on or off. 
+  // Turns emphasis of vertices on or off for vertex selection.
   // When emphasized verts are drawn nearer to the camera and are drawn 
   // larger than normal to make selection of them more reliable.
   virtual void MakeVertexEmphasis(int mode);
+
+  // Description:
+  // Control use of the stencil buffer (for vertex selection).
+  virtual void Stencil(int on);
+  virtual void WriteStencil(vtkIdType value);
+  virtual void TestStencil(vtkIdType value);
 
 protected:
   vtkOpenGLPainterDeviceAdapter();
@@ -128,7 +134,8 @@ protected:
   double PointSize;
   double RangeNear;
   double RangeFar;
-
+  int DepthMask;
+  int MaxStencil;
 private:
   vtkOpenGLPainterDeviceAdapter(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.
   void operator=(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.
