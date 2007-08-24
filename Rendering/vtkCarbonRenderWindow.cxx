@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.64");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.65");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -701,7 +701,8 @@ void vtkCarbonRenderWindow::CreateAWindow()
   const char* error = NULL;
   this->ContextId = this->Internal->CreateContext(0, this->DoubleBuffer,
                                 this->StereoCapableWindow, this->MultiSamples, 
-                                this->AlphaBitPlanes, error);
+                                this->AlphaBitPlanes, this->StencilCapable, 
+                                error);
   if (NULL == this->ContextId)
     {
     if(error)
@@ -848,7 +849,7 @@ void vtkCarbonRenderWindow::CreateOffScreenWindow(int width, int height)
     this->Internal->OffScreenContextId = 
       this->Internal->CreateContext(1, doubleBuf,
          this->StereoCapableWindow, this->MultiSamples, 
-         this->AlphaBitPlanes, error);
+         this->AlphaBitPlanes, this->StencilCapable, error);
     
     this->Internal->OffScreenWindow = vtkCreateOSWindow(width, height, 4);
     this->Size[0] = width;
