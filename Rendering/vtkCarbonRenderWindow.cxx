@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.63");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.64");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -210,7 +210,7 @@ AGLContext vtkCarbonRenderWindowInternal::CreateContext(int offscreen, int& doub
             {
             for(int accel = 1; !fmt && accel >= noSoftwareRendering; accel--)
               {
-              fmt = this->ChoosePixelFormat(accel, offscreen, _db, _s, _m, _a);
+              fmt = this->ChoosePixelFormat(accel, offscreen, _db, _s, _m, _a, _stencil);
               if(fmt)
                 {
                 doublebuff = _db;
