@@ -197,7 +197,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.21");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.22");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -573,7 +573,7 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
           this->VertexLists->InsertNextValue(sit->visverts.size());
           for (vit = sit->visverts.begin(); vit != sit->visverts.end(); vit++)
             {
-            this->VertexLists->InsertNextValue(*vit);
+            this->VertexLists->InsertNextValue(*vit);            
             }        
           //record the index where this cell's vertices can be found in the 
           //vertex list, or -1 if no verts were visible
@@ -629,6 +629,8 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
   vtkIdType lActorId = -1;
 
   vtkIdTypeArray *cellids = NULL;
+  vtkIdTypeArray *cellvertptrs = NULL;
+  vtkIdTypeArray *cellvertlist = NULL;
 
   vtkSelection* selection = NULL;
 
@@ -652,6 +654,15 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
         //cellids and selection are created at the same time so this is OK
         cellids->Delete();
         cellids = NULL;
+
+        if (cellvertptrs)
+          {
+          cellvertptrs->Delete();
+          cellvertptrs = NULL;
+          cellvertlist->Delete();
+          cellvertlist = NULL;
+          }
+
         }
 
       //remember what processor we are recording hits on
@@ -675,6 +686,14 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
         
         cellids->Delete();
         cellids = NULL;
+
+        if (cellvertptrs)
+          {
+          cellvertptrs->Delete();
+          cellvertptrs = NULL;
+          cellvertlist->Delete();
+          cellvertlist = NULL;
+          }
         }
 
       pixelCount = 0;
@@ -697,6 +716,18 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
       selection->SetSelectionList(cellids);
 
       lActorId = aTuple[1];
+
+      if (this->DoVertices)
+        {
+        cellvertptrs = vtkIdTypeArray::New();
+        cellvertptrs->SetNumberOfComponents(1);
+        selection->SetAuxiliaryData1(cellvertptrs);
+        cellvertlist = vtkIdTypeArray::New();
+        cellvertlist->SetNumberOfComponents(1);
+        selection->SetAuxiliaryData2(cellvertlist);
+        selection->GetProperties()->Set(
+          vtkSelection::INDEXED_VERTICES(), 1);
+        }
       }
 
     //Try to use 64 bits to hold the cell id, if not possible ignore upper 32.
@@ -705,6 +736,28 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
 #endif
     cellids->InsertNextValue(aTuple[3]);    
     pixelCount += this->PixelCounts->GetValue(i);
+    
+    if (this->DoVertices)
+      {
+      //pull out the list of selected vertices for this cell 
+      //and put them into the current vtkSelection in the selection tree
+      vtkIdType ptr = this->VertexPointers->GetValue(i);
+      if (ptr == -1)
+        {
+        cellvertptrs->InsertNextValue(-1); //no visible cells
+        }
+      else
+        {
+        //update offset to point into this selection's list
+        cellvertptrs->InsertNextValue(cellvertlist->GetNumberOfTuples());
+        vtkIdType npts = this->VertexLists->GetValue(ptr);
+        cellvertlist->InsertNextValue(npts);
+        for (vtkIdType i = 0; i < npts; i++)
+          {
+          cellvertlist->InsertNextValue(this->VertexLists->GetValue(ptr+1+i));
+          }
+        }
+      }
     }
 
   if (selection != NULL)
@@ -718,6 +771,14 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
 
     cellids->Delete();
     cellids = NULL;
+
+    if (cellvertptrs)
+      {
+      cellvertptrs->Delete();
+      cellvertptrs = NULL;
+      cellvertlist->Delete();
+      cellvertlist = NULL;
+      }
     }
 }
 
