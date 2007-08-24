@@ -36,7 +36,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.16");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.17");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -736,7 +736,7 @@ void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(int mode)
     this->PointSize = s;
     glPointSize(4.0);
 
-    int depthmask;
+    GLint depthmask;
     glGetIntegerv(GL_DEPTH_WRITEMASK, &depthmask);
     this->DepthMask = depthmask;
     glDepthMask(0);
@@ -775,7 +775,7 @@ void vtkOpenGLPainterDeviceAdapter::Stencil(int on)
   if (on)
     {
     glEnable(GL_STENCIL_TEST);    
-    int stencilbits;
+    GLint stencilbits;
     glGetIntegerv(GL_STENCIL_BITS, &stencilbits);
     this->MaxStencil = 1<<stencilbits-1;
     }
