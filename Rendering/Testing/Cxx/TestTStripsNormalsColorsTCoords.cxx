@@ -44,6 +44,8 @@ int TestTStripsNormalsColorsTCoords(int argc, char *argv[])
   JPEGReader->SetFileName(fname);
   JPEGReader->Update();
 
+  delete [] fname;
+
   vtkTexture *texture = vtkTexture::New();
   texture->SetInputConnection(JPEGReader->GetOutputPort());
   JPEGReader->Delete();

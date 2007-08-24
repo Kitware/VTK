@@ -82,6 +82,8 @@ int TestTreeMapViewer(int argc, char* argv[])
   reader->SetFileName(file);
   reader->Update();
 
+  delete [] file;
+
   vtkTreeMapViewer* viewer = vtkTreeMapViewer::New();
 
   vtkRenderWindow* win = vtkRenderWindow::New();

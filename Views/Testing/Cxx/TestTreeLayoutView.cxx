@@ -89,7 +89,9 @@ int TestTreeLayoutView(int argc, char* argv[])
   VTK_CREATE(vtkXMLTreeReader, reader);
   reader->SetFileName(file);
   reader->SetMaskArrays(true);
-  
+
+  delete [] file;
+
   VTK_CREATE(vtkXMLTreeReader, reader2);
   reader2->SetXMLString(xml);
   reader2->SetMaskArrays(true);

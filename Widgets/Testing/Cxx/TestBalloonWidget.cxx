@@ -148,7 +148,8 @@ int TestBalloonWidget( int argc, char *argv[] )
   renWin->Delete();
   ren1->Delete();
   recorder->Delete();
-  
+  delete [] fname;
+
   return !retVal;
 
 }

@@ -81,6 +81,9 @@ void Run(vtkMultiProcessController *contr, void *arg)
     sp = spr->GetOutput();
 
     spr->Update();
+
+    delete [] fname;
+
     go = 1;
 
     if ((sp == NULL) || (sp->GetNumberOfCells() == 0))

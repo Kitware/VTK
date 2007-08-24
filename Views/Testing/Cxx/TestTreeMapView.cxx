@@ -41,7 +41,9 @@ int TestTreeMapView(int argc, char* argv[])
   VTK_CREATE(vtkXMLTreeReader, reader);
   reader->SetFileName(file);
   reader->SetMaskArrays(true);
-  
+
+  delete [] file;
+
   VTK_CREATE(vtkStringToNumeric, numeric);
   numeric->SetInputConnection(reader->GetOutputPort());
     

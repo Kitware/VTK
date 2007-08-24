@@ -37,7 +37,9 @@ int TestStringToNumeric(int argc, char* argv[])
   VTK_CREATE(vtkDelimitedTextReader, reader);
   reader->SetFileName(file);
   reader->SetHaveHeaders(true);
-  
+
+  delete [] file;
+
   VTK_CREATE(vtkStringToNumeric, numeric);
   numeric->SetInputConnection(reader->GetOutputPort());
   numeric->Update();

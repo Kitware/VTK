@@ -77,6 +77,9 @@ void Run(vtkMultiProcessController *contr, void *arg)
     rg = rgr->GetOutput();
 
     rgr->Update();
+
+    delete [] fname;
+
     go = 1;
 
     if ((rg == NULL) || (rg->GetNumberOfCells() == 0))
