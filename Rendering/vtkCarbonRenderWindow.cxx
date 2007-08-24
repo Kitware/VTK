@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.62");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.63");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -128,15 +128,15 @@ public:
   int ScreenDoubleBuffer;
   
   AGLPixelFormat ChoosePixelFormat(int accel, int offscreen, int doublebuff, int stereo, 
-    int multisamples, int alphaBitPlanes);
+    int multisamples, int alphaBitPlanes, int stencil);
 
   AGLContext CreateContext(int offscreen, int& doublebuff, int& stereo, 
-    int& multisamples, int& alphaBitPlanes, const char*& error);
+    int& multisamples, int& alphaBitPlanes, int &stencil, const char*& error);
   
 };
 
 AGLPixelFormat vtkCarbonRenderWindowInternal::ChoosePixelFormat(int accel, int offscreen, int doublebuff, 
-  int stereo, int multisamples, int alphaBitPlanes)
+  int stereo, int multisamples, int alphaBitPlanes, int stencil)
 {
   int i = 0;
   GLint attr[64];
@@ -176,6 +176,11 @@ AGLPixelFormat vtkCarbonRenderWindowInternal::ChoosePixelFormat(int accel, int o
     attr[i++] = AGL_STEREO;
     attr[i++] = GL_TRUE;
     }
+  if(stencil)
+    {
+    attr[i++] = AGL_STENCIL_SIZE;
+    attr[i++] = 8;    
+    }
   attr[i++] = AGL_NO_RECOVERY;  // must choose the pixel format we want!
   attr[i++] = AGL_NONE;
 
@@ -183,7 +188,7 @@ AGLPixelFormat vtkCarbonRenderWindowInternal::ChoosePixelFormat(int accel, int o
 }
 
 AGLContext vtkCarbonRenderWindowInternal::CreateContext(int offscreen, int& doublebuff, 
-  int& stereo, int& multisamples, int& alphaBitPlanes, const char*& error)
+  int& stereo, int& multisamples, int& alphaBitPlanes, int& stencil, const char*& error)
 {
   error = NULL;
   AGLContext ctx = 0;
@@ -191,32 +196,35 @@ AGLContext vtkCarbonRenderWindowInternal::CreateContext(int offscreen, int& doub
   int noSoftwareRendering = 1;  // flip to zero if you're willing to do software
                                 // rendering to get more features.
 
-  int _db, _a, _s, _m;
+  int _db, _a, _s, _m, _stencil;
 
-  for(_db = doublebuff; !fmt && _db >= 0; _db--)
+  for(_stencil = stencil; !fmt && _stencil >= 0; _stencil--)
     {
-    for(_a = alphaBitPlanes; !fmt && _a >= 0; _a--)
+    for(_db = doublebuff; !fmt && _db >= 0; _db--)
       {
-      for(_s = stereo; !fmt && _s >= 0; _s--)
+      for(_a = alphaBitPlanes; !fmt && _a >= 0; _a--)
         {
-        for(_m = multisamples; !fmt && _m >= 0; _m--)
+        for(_s = stereo; !fmt && _s >= 0; _s--)
           {
-          for(int accel = 1; !fmt && accel >= noSoftwareRendering; accel--)
+          for(_m = multisamples; !fmt && _m >= 0; _m--)
             {
-            fmt = this->ChoosePixelFormat(accel, offscreen, _db, _s, _m, _a);
-            if(fmt)
+            for(int accel = 1; !fmt && accel >= noSoftwareRendering; accel--)
               {
-              doublebuff = _db;
-              stereo = _s;
-              multisamples = _m;
-              alphaBitPlanes = _a;
+              fmt = this->ChoosePixelFormat(accel, offscreen, _db, _s, _m, _a);
+              if(fmt)
+                {
+                doublebuff = _db;
+                stereo = _s;
+                multisamples = _m;
+                alphaBitPlanes = _a;
+                stencil = _stencil;
+                }
               }
             }
           }
         }
       }
     }
-
   aglReportError (); // cough up any errors encountered
   if (NULL == fmt)
     {

@@ -479,6 +479,12 @@ public:
   vtkSetMacro(MultiSamples,int);
   vtkGetMacro(MultiSamples,int);
 
+  // Description:
+  // Set / Get the availability of the stencil buffer.
+  vtkSetMacro(StencilCapable, int);
+  vtkGetMacro(StencilCapable, int);
+  vtkBooleanMacro(StencilCapable, int);
+  
 protected:
   vtkRenderWindow();
   ~vtkRenderWindow();
@@ -521,6 +527,8 @@ protected:
   float AnaglyphColorSaturation;
   int AnaglyphColorMask[2];
   int MultiSamples;
+  int StencilCapable;
+
 private:
   vtkRenderWindow(const vtkRenderWindow&);  // Not implemented.
   void operator=(const vtkRenderWindow&);  // Not implemented.

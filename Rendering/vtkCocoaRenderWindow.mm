@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.52");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.53");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -223,6 +223,9 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
 
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAStereo forVirtualScreen: currentScreen];
   strm  << "  stereo:  " << (pfd == YES ? "Yes" : "No") << endl;
+
+  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAStencilSize forVirtualScreen: currentScreen];
+  strm  << "  stencil:  " << pfd << endl;
 
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAAccelerated forVirtualScreen: currentScreen];
   strm  << "  hardware acceleration::  " << (pfd == YES ? "Yes" : "No") << endl;

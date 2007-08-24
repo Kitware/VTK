@@ -110,7 +110,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.85");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.86");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -139,7 +139,8 @@ vtkglX::GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
                                                           int doublebuff,
                                                           int stereo,
                                                           int multisamples,
-                                                          int alphaBitPlanes)
+                                                          int alphaBitPlanes,
+                                                          int stencil)
 {
   int           index;
   static int    attributes[50];
@@ -166,6 +167,11 @@ vtkglX::GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
   if (doublebuff)
     {
     attributes[index++] = GLX_DOUBLEBUFFER;
+    }
+  if (stencil)
+    {    
+    attributes[index++] = GLX_STENCIL_SIZE;
+    attributes[index++] = 8;
     }
   if (stereo)
     {
@@ -196,7 +202,8 @@ vtkglX::GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
 XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
                                                 int doublebuff, int stereo,
                                                 int multisamples,
-                                                int alphaBitPlanes)
+                                                int alphaBitPlanes,
+                                                int stencil)
 {
   int           index;
   static int    attributes[50];
@@ -220,6 +227,11 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
   if (doublebuff)
     {
     attributes[index++] = GLX_DOUBLEBUFFER;
+    }
+  if (stencil)
+    {
+    attributes[index++] = GLX_STENCIL_SIZE;
+    attributes[index++] = 8;
     }
   if (stereo)
     {
@@ -246,9 +258,10 @@ vtkglX::GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
   Display *DisplayId,
   int &win_stereo,
   int &win_multisamples,
-  int & win_doublebuffer,
+  int &win_doublebuffer,
   int &win_alphaplanes,
-  int drawable_type)
+  int drawable_type,
+  int &stencil)
 {
   vtkglX::GLXFBConfig   *fbc = NULL;
   int           multi;
@@ -267,7 +280,8 @@ vtkglX::GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
                                                  drawable_type,
                                                  win_doublebuffer,
                                                  stereo, multi,
-                                                 win_alphaplanes);
+                                                 win_alphaplanes,
+                                                 stencil);
       if (fbc && win_stereo && !stereo)
         {
         // requested a stereo capable window but we could not get one
@@ -287,7 +301,8 @@ vtkglX::GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
                                                  drawable_type,
                                                  !win_doublebuffer, 
                                                  stereo, multi,
-                                                 win_alphaplanes);
+                                                 win_alphaplanes,
+                                                 stencil);
       if (fbc)
         {
         win_doublebuffer = !win_doublebuffer;
@@ -309,7 +324,8 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
   int           alpha;
   int           multi;
   int           stereo = 0;
-  
+  int           stencil;
+
   // get the default display connection 
   if (!this->DisplayId)
     {
@@ -326,43 +342,53 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
     }
 
   // try every possibility stoping when we find one that works
-  for (alpha = this->AlphaBitPlanes; !v && alpha >= 0; alpha--)
+  for (stencil = this->StencilCapable; !v && stencil >= 0; stencil--)
     {
-    for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
+    for (alpha = this->AlphaBitPlanes; !v && alpha >= 0; alpha--)
       {
-      for (multi = this->MultiSamples; !v && multi >= 0; multi--)
+      for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
         {
-        if (v) 
+        for (multi = this->MultiSamples; !v && multi >= 0; multi--)
           {
-          XFree(v);
-          }
-        v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
-                                               this->DoubleBuffer, 
-                                               stereo, multi, alpha);
-        if (v)
-          {
-          this->StereoCapableWindow = stereo;
-          this->MultiSamples = multi;
-          this->AlphaBitPlanes = alpha;
+          if (v) 
+            {
+            XFree(v);
+            }
+          v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
+                                                 this->DoubleBuffer, 
+                                                 stereo, multi, alpha, 
+                                                 stencil);
+          if (v)
+            {
+            this->StereoCapableWindow = stereo;
+            this->MultiSamples = multi;
+            this->AlphaBitPlanes = alpha;
+            this->StencilCapable = stencil;
+            }
           }
         }
       }
     }
-  for (alpha = this->AlphaBitPlanes; !v && alpha >= 0; alpha--)
+  for (stencil = this->StencilCapable; !v && stencil >= 0; stencil--)
     {
-    for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
+    for (alpha = this->AlphaBitPlanes; !v && alpha >= 0; alpha--)
       {
-      for (multi = this->MultiSamples; !v && multi >= 0; multi--)
+      for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
         {
-        v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
-                                               !this->DoubleBuffer, 
-                                               stereo, multi, alpha);
-        if (v)
+        for (multi = this->MultiSamples; !v && multi >= 0; multi--)
           {
-          this->DoubleBuffer = !this->DoubleBuffer;
-          this->StereoCapableWindow = stereo;
-          this->MultiSamples = multi;
-          this->AlphaBitPlanes = alpha;
+          v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
+                                                 !this->DoubleBuffer, 
+                                                 stereo, multi, alpha,
+                                                 stencil);
+          if (v)
+            {
+            this->DoubleBuffer = !this->DoubleBuffer;
+            this->StereoCapableWindow = stereo;
+            this->MultiSamples = multi;
+            this->AlphaBitPlanes = alpha;
+            this->StencilCapable = stencil;
+            }
           }
         }
       }
@@ -814,7 +840,8 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
             // get FBConfig
             vtkglX::GLXFBConfig* fb = vtkXOpenGLRenderWindowGetDesiredFBConfig(
               this->DisplayId,this->StereoCapableWindow, this->MultiSamples,
-              this->DoubleBuffer,this->AlphaBitPlanes, vtkglX::PBUFFER_BIT);
+              this->DoubleBuffer,this->AlphaBitPlanes, vtkglX::PBUFFER_BIT,
+              this->StencilCapable);
             if(fb)
               {
               XErrorHandler previousHandler = XSetErrorHandler(vtkXOGLPbufferErrorHandler);
