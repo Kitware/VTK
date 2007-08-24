@@ -71,6 +71,7 @@ vtkActor *CreateActor1( int argc, char *argv[], vtkRenderer * aRenderer )
   skinNormals->Delete();
   skinMapper->Delete();
   skin->Delete();
+  delete [] fname2;
   return skin;
 }
 
