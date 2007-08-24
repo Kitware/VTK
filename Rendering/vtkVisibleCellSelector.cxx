@@ -197,7 +197,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.22");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.23");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -752,9 +752,9 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
         cellvertptrs->InsertNextValue(cellvertlist->GetNumberOfTuples());
         vtkIdType npts = this->VertexLists->GetValue(ptr);
         cellvertlist->InsertNextValue(npts);
-        for (vtkIdType i = 0; i < npts; i++)
+        for (vtkIdType pt = 0; pt < npts; pt++)
           {
-          cellvertlist->InsertNextValue(this->VertexLists->GetValue(ptr+1+i));
+          cellvertlist->InsertNextValue(this->VertexLists->GetValue(ptr+1+pt));
           }
         }
       }
