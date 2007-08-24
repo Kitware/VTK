@@ -83,6 +83,7 @@ int TestTextureRGBA(int argc, char *argv[])
   renderer->Delete();
   renWin->Delete();
   interactor->Delete();
+  delete [] fname;
 
   return !retVal;
 }
