@@ -295,7 +295,7 @@ protected:
     if ( tName == "assembly" )
       {
       //this->Metadata->AddAssembly( tName, this->ParentAssembly );
-      cout << name << "\n";
+      //cout << name << "\n";
 
       const char* assemblyNumber=this->GetValue("number",attrs);
       if (assemblyNumber)
@@ -331,7 +331,7 @@ protected:
     else if ( tName == "part" )
       {
       //this->Metadata->AddPart( pnum, inst, curAssy );
-      cout << name << "\n";
+      //cout << name << "\n";
 
       const char* instance=this->GetValue("instance",attrs);
       vtkStdString instanceString=vtkStdString("");
@@ -382,7 +382,7 @@ protected:
       {
       //matl = this->Metadata->AddMatl( matname );
       //this->Metadata->SetPartMaterial( this->CurrentPart, inst, matl );
-      cout << name << "\n";
+      //cout << name << "\n";
 
       if (this->PartNumber!="")
         {
@@ -412,7 +412,7 @@ protected:
         this->Metadata->SetPartMaterial( this->CurrentPart, inst, matl );
         }
        */
-      cout << name << "\n";
+      //cout << name << "\n";
 
       const char* instance=this->GetValue("part-instance",attrs);
       vtkStdString instanceString=vtkStdString("");
@@ -429,7 +429,7 @@ protected:
     else if ( tName == "block" )
       {
       //this->Metadata->SetBlockName( this->GetBlockType( attrs ), blockid );
-      cout << name << "\n";
+      //cout << name << "\n";
 
       const char* blockString=this->GetValue("id",attrs);
       int id=-1;
@@ -504,12 +504,12 @@ protected:
     else if ( tName == "material-assignments" )
       {
       this->InMaterialAssignment = 1;
-      cout << name << "\n";
+      //cout << name << "\n";
       this->ParseMaterials=1;
       }
     else if ( tName == "material" )
       {
-      cout << name << "\n";
+      //cout << name << "\n";
 
       const char* material=this->GetValue("name",attrs);
       const char* spec=this->GetValue("specification",attrs);
@@ -705,7 +705,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.31");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.32");
 
 
 
@@ -1549,7 +1549,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.31");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.32");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -5122,9 +5122,6 @@ void vtkExodusIIReaderPrivate::Reset()
   this->Cache->SetCacheCapacity( 128. ); // FIXME: Perhaps Cache should have a Reset and a Clear method?
   this->SetCachedConnectivity( 0 );
   this->NextSqueezePoint = 0;
-  this->GenerateGlobalElementIdArray = 0;
-  this->GenerateGlobalNodeIdArray = 0;
-  this->GenerateObjectIdArray = 1;
   this->FastPathObjectId = -1;
 
   this->Modified();
@@ -5576,7 +5573,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.31");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.32");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
