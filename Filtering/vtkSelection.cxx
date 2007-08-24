@@ -29,10 +29,12 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.16");
+vtkCxxRevisionMacro(vtkSelection, "1.17");
 vtkStandardNewMacro(vtkSelection);
 
 vtkCxxSetObjectMacro(vtkSelection, SelectionList, vtkAbstractArray);
+vtkCxxSetObjectMacro(vtkSelection, AuxiliaryData1, vtkAbstractArray);
+vtkCxxSetObjectMacro(vtkSelection, AuxiliaryData2, vtkAbstractArray);
 
 vtkInformationKeyMacro(vtkSelection,CONTENT_TYPE,Integer);
 vtkInformationKeyMacro(vtkSelection,SOURCE,ObjectBase);
@@ -50,6 +52,7 @@ vtkInformationKeyMacro(vtkSelection,CONTAINING_CELLS,Integer);
 vtkInformationKeyMacro(vtkSelection,PIXEL_COUNT,Integer);
 vtkInformationKeyMacro(vtkSelection,INVERSE,Integer);
 vtkInformationKeyMacro(vtkSelection,SHOW_BOUNDS,Integer);
+vtkInformationKeyMacro(vtkSelection,INDEXED_VERTICES,Integer);
 
 struct vtkSelectionInternals
 {
@@ -62,6 +65,8 @@ vtkSelection::vtkSelection()
 {
   this->Internal = new vtkSelectionInternals;
   this->SelectionList = 0;
+  this->AuxiliaryData1 = 0;
+  this->AuxiliaryData2 = 0;
   this->ParentNode = 0;
   this->Properties = vtkInformation::New();
 
@@ -78,6 +83,14 @@ vtkSelection::~vtkSelection()
   if (this->SelectionList)
     {
     this->SelectionList->Delete();
+    }
+  if (this->AuxiliaryData1)
+    {
+    this->AuxiliaryData1->Delete();
+    }
+  if (this->AuxiliaryData2)
+    {
+    this->AuxiliaryData2->Delete();
     }
   this->ParentNode = 0;
   this->Properties->Delete();
@@ -102,6 +115,16 @@ void vtkSelection::Clear()
     this->SelectionList->Delete();
     }
   this->SelectionList = 0;
+  if (this->AuxiliaryData1)
+    {
+    this->AuxiliaryData1->Delete();
+    }
+  this->AuxiliaryData2 = 0;
+  if (this->AuxiliaryData2)
+    {
+    this->AuxiliaryData2->Delete();
+    }
+  this->AuxiliaryData2 = 0;
   this->Properties->Clear();
 
   this->Modified();
@@ -205,7 +228,7 @@ void vtkSelection::PrintSelf(ostream& os, vtkIndent indent)
   if (this->SelectionList)
     {
     this->SelectionList->PrintSelf(os, indent.GetNextIndent());
-    /*
+/*    
     vtkDataArray *da = vtkDataArray::SafeDownCast(this->SelectionList);
     if (da)
       {
@@ -220,7 +243,26 @@ void vtkSelection::PrintSelf(ostream& os, vtkIndent indent)
         os << endl;
         }
       }
-      */
+*/     
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+
+  os << indent << "AuxiliaryData1 :";
+  if (this->AuxiliaryData1)
+    {
+    this->AuxiliaryData1->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+  os << indent << "AuxiliaryData2 :";
+  if (this->AuxiliaryData2)
+    {
+    this->AuxiliaryData2->PrintSelf(os, indent.GetNextIndent());
     }
   else
     {
@@ -270,6 +312,8 @@ void vtkSelection::ShallowCopy(vtkDataObject* src)
   this->Initialize();
   this->Properties->Copy(input->Properties, 0);
   this->SetSelectionList(input->SelectionList);
+  this->SetAuxiliaryData1(input->AuxiliaryData1);
+  this->SetAuxiliaryData2(input->AuxiliaryData2);
 
   unsigned int numChildren = input->GetNumberOfChildren();
   for (unsigned int i=0; i<numChildren; i++)
@@ -297,6 +341,16 @@ void vtkSelection::DeepCopy(vtkDataObject* src)
     {
     this->SelectionList = input->SelectionList->NewInstance();
     this->SelectionList->DeepCopy(input->SelectionList);
+    }
+  if (input->AuxiliaryData1)
+    {
+    this->AuxiliaryData1 = input->AuxiliaryData1->NewInstance();
+    this->AuxiliaryData1->DeepCopy(input->AuxiliaryData1);
+    }
+  if (input->AuxiliaryData2)
+    {
+    this->AuxiliaryData2 = input->AuxiliaryData2->NewInstance();
+    this->AuxiliaryData2->DeepCopy(input->AuxiliaryData2);
     }
 
   unsigned int numChildren = input->GetNumberOfChildren();

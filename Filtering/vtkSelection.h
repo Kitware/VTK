@@ -81,6 +81,24 @@ public:
   vtkGetObjectMacro(SelectionList, vtkAbstractArray);
 
   // Description:
+  // Sets the first auxiliary data array
+  virtual void SetAuxiliaryData1(vtkAbstractArray*);
+
+  // Description:
+  // Returns the first auxiliary data array
+  // For surface vertex selection these are cell vertex pointers into aux2.
+  vtkGetObjectMacro(AuxiliaryData1, vtkAbstractArray);
+
+  // Description:
+  // Sets the second auxiliary data array
+  // For surface vertex selection this holds lists of visible vertex indices.
+  virtual void SetAuxiliaryData2(vtkAbstractArray*);
+
+  // Description:
+  // Returns the second auxiliary data array
+  vtkGetObjectMacro(AuxiliaryData2, vtkAbstractArray);
+
+  // Description:
   // Returns the property map.
   vtkGetObjectMacro(Properties, vtkInformation);
 
@@ -266,6 +284,12 @@ public:
   static vtkInformationIntegerKey* BLOCK();
 
   // Description:
+  // This key is used when making visible vertex selection. It means
+  // that the cell ID selection has data about which vertices for each
+  // cell are visible.
+  static vtkInformationIntegerKey* INDEXED_VERTICES();
+
+  // Description:
   // Retrieve a vtkSelection stored inside an invormation object.
   static vtkSelection* GetData(vtkInformation* info);
   static vtkSelection* GetData(vtkInformationVector* v, int i=0);
@@ -280,6 +304,8 @@ protected:
 
   vtkInformation* Properties;
   vtkAbstractArray* SelectionList;
+  vtkAbstractArray* AuxiliaryData1;
+  vtkAbstractArray* AuxiliaryData2;
   vtkSelection* ParentNode;
 
 private:
