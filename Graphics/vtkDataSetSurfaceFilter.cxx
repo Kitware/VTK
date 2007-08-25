@@ -51,7 +51,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.57");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.58");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -75,6 +75,7 @@ vtkDataSetSurfaceFilter::vtkDataSetSurfaceFilter()
   this->PassThroughCellIds = 0;
   this->PassThroughPointIds = 0;
   this->OriginalCellIds = NULL;
+  this->OriginalPointIds = NULL;
 }
 
 //----------------------------------------------------------------------------
