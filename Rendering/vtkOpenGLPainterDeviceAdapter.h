@@ -134,7 +134,6 @@ protected:
   double PointSize;
   double RangeNear;
   double RangeFar;
-  int DepthMask;
   int MaxStencil;
 private:
   vtkOpenGLPainterDeviceAdapter(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.

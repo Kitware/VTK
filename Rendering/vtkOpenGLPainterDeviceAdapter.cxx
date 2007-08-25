@@ -36,7 +36,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.18");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.19");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -45,6 +45,7 @@ vtkOpenGLPainterDeviceAdapter::vtkOpenGLPainterDeviceAdapter()
   this->PointSize = 1.0;
   this->RangeNear = 0.0;
   this->RangeFar = 1.0;
+  this->MaxStencil = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -716,57 +717,62 @@ void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(int mode)
 {
   if (mode)
     {
-    float nf[2];
-    glGetFloatv(GL_DEPTH_RANGE, nf);
-    this->RangeNear = (double)nf[0];
-    this->RangeFar = (double)nf[1];
-    if (this->MaxStencil == 0)
-      {
-      //if we can't stencil, then render the verts behind the geometry, 
-      //preventing all vertex selection so as not to get it wrong
-      glDepthRange(0.1, nf[1]);
-      }
-    else
-      {
-      glDepthRange(0.0, nf[1]*0.98);
-      }
-
     float s;
     glGetFloatv(GL_POINT_SIZE, &s);
     this->PointSize = s;
-    glPointSize(4.0);
+    glPointSize(4.0); //make verts large enough to be sure to overlap cell
 
-    GLint depthmask;
-    glGetIntegerv(GL_DEPTH_WRITEMASK, &depthmask);
-    this->DepthMask = depthmask;
-    glDepthMask(0);
+    float nf[2];   //put verts just in front of associated cells
+    glGetFloatv(GL_DEPTH_RANGE, nf);
+    this->RangeNear = (double)nf[0];
+    this->RangeFar = (double)nf[1];
+    glDepthRange(0.0, nf[1]*0.98);
+
+    glDepthMask(GL_FALSE); //prevent verts from interfering with each other
+
+    if (this->MaxStencil == 0)
+      {
+      //if we don't have the stencil buffer, act as if everything fails
+      //in order not to return invalid results
+      glColorMask(0,0,0,0);
+      }
     }
   else
     {
-    glDepthMask(this->DepthMask);
-    glDepthRange(this->RangeNear, this->RangeFar);
     glPointSize(this->PointSize);
+    glDepthRange(this->RangeNear, this->RangeFar);
+    glDepthMask(GL_TRUE);
+    if (this->MaxStencil == 0)
+      {
+      glColorMask(1,1,1,1);
+      }
     }
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::WriteStencil(vtkIdType value)
 {
-  value = value % this->MaxStencil + 1;
-  if (value == 1)
+  if (this->MaxStencil)
     {
-    glClearStencil(0); //start over so don't write into some previous area
+    value = value % this->MaxStencil + 1;
+    if (value == 1)
+      {
+      glClearStencil(0); //start over so don't write into some previous area
+      }
+    glStencilFunc(GL_ALWAYS, value, this->MaxStencil);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     }
-  glStencilFunc(GL_ALWAYS, value, this->MaxStencil);
-  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::TestStencil(vtkIdType value)
 {
-  value = value % this->MaxStencil + 1;
-  glStencilFunc(GL_EQUAL, value, this->MaxStencil);
-  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+  if (this->MaxStencil)
+    {
+    value = value % this->MaxStencil + 1;
+    glStencilFunc(GL_EQUAL, value, this->MaxStencil);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    }
 }
 
 //-----------------------------------------------------------------------------
