@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkStripper, "1.74");
+vtkCxxRevisionMacro(vtkStripper, "1.75");
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
@@ -606,4 +606,5 @@ void vtkStripper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Length: " << this->MaximumLength << "\n";
   os << indent << "PassCellDataAsFieldData: " << this->PassCellDataAsFieldData << endl;
   os << indent << "PassThroughCellIds: " << this->PassThroughCellIds << endl;
+  os << indent << "PassThroughPointIds: " << this->PassThroughPointIds << endl;
 }
