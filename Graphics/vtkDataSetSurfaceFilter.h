@@ -67,6 +67,9 @@ public:
   vtkSetMacro(PassThroughCellIds,int);
   vtkGetMacro(PassThroughCellIds,int);
   vtkBooleanMacro(PassThroughCellIds,int);
+  vtkSetMacro(PassThroughPointIds,int);
+  vtkGetMacro(PassThroughPointIds,int);
+  vtkBooleanMacro(PassThroughPointIds,int);
 
 protected:
   vtkDataSetSurfaceFilter();
@@ -138,6 +141,11 @@ protected:
   int PassThroughCellIds;
   void RecordOrigCellId(vtkIdType newIndex, vtkIdType origId);
   vtkIdTypeArray *OriginalCellIds;
+
+  int PassThroughPointIds;
+  void RecordOrigPointId(vtkIdType newIndex, vtkIdType origId);
+  vtkIdTypeArray *OriginalPointIds;
+
 private:
   vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&);  // Not implemented.
   void operator=(const vtkDataSetSurfaceFilter&);  // Not implemented.

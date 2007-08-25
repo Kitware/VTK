@@ -79,11 +79,20 @@ public:
   // Description:
   // If on, the output polygonal dataset will have a celldata array that 
   // holds the cell index of the original 3D cell that produced each output
-  // cell. This is useful for cell picking. The default is off to conserve 
+  // cell. This is useful for picking. The default is off to conserve 
   // memory.
   vtkSetMacro(PassThroughCellIds,int);
   vtkGetMacro(PassThroughCellIds,int);
   vtkBooleanMacro(PassThroughCellIds,int);
+
+  // Description:
+  // If on, the output polygonal dataset will have a pointdata array that 
+  // holds the point index of the original vertex that produced each output
+  // vertex. This is useful for picking. The default is off to conserve 
+  // memory.
+  vtkSetMacro(PassThroughPointIds,int);
+  vtkGetMacro(PassThroughPointIds,int);
+  vtkBooleanMacro(PassThroughPointIds,int);
 
 protected:
   vtkStripper();
@@ -95,6 +104,7 @@ protected:
   int MaximumLength;
   int PassCellDataAsFieldData;
   int PassThroughCellIds;
+  int PassThroughPointIds;
 
 private:
   vtkStripper(const vtkStripper&);  // Not implemented.
