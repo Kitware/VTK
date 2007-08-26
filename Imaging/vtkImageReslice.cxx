@@ -36,7 +36,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.72");
+vtkCxxRevisionMacro(vtkImageReslice, "1.73");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -1650,6 +1650,7 @@ void vtkGetResliceInterpFunc(vtkImageReslice *self,
         }
       break;
     case VTK_RESLICE_LINEAR:
+    case VTK_RESLICE_RESERVED_2:
       switch (dataType)
         {
         vtkTemplateAliasMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
@@ -2632,6 +2633,7 @@ void vtkGetResliceSummationFunc(vtkImageReslice *self,
         }
       break;
     case VTK_RESLICE_LINEAR:
+    case VTK_RESLICE_RESERVED_2:
       switch (scalarType)
         {
         vtkTemplateAliasMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
@@ -3041,6 +3043,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
       step = 1;
       break;
     case VTK_RESLICE_LINEAR:
+    case VTK_RESLICE_RESERVED_2:
       step = 2;
       break;
     case VTK_RESLICE_CUBIC:
@@ -3068,6 +3071,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
                              useNearestNeighbor, newmat);
       break;
     case VTK_RESLICE_LINEAR:
+    case VTK_RESLICE_RESERVED_2:
       vtkPermuteLinearTable(self, outExt, inExt, inInc, clipExt,
                             traversal, constants, 
                             useNearestNeighbor, newmat);

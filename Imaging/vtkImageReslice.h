@@ -56,6 +56,7 @@
 // interpolation mode constants
 #define VTK_RESLICE_NEAREST 0
 #define VTK_RESLICE_LINEAR 1
+#define VTK_RESLICE_RESERVED_2 2
 #define VTK_RESLICE_CUBIC 3
 
 class vtkImageData;
@@ -194,7 +195,8 @@ public:
 
   // Description:
   // Set interpolation mode (default: nearest neighbor). 
-  vtkSetMacro(InterpolationMode, int);
+  vtkSetClampMacro(InterpolationMode, int,
+                   VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC);
   vtkGetMacro(InterpolationMode, int);
   void SetInterpolationModeToNearestNeighbor() {
     this->SetInterpolationMode(VTK_RESLICE_NEAREST); };
@@ -351,6 +353,8 @@ inline const char *vtkImageReslice::GetInterpolationModeAsString()
       return "NearestNeighbor";
     case VTK_RESLICE_LINEAR:
       return "Linear";
+    case VTK_RESLICE_RESERVED_2:
+      return "ReservedValue";
     case VTK_RESLICE_CUBIC:
       return "Cubic";
     default:
