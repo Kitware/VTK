@@ -487,14 +487,15 @@ public:
   static double* SolveLinear(double c0, double c1);
 
   // Description:
-  // Seeks all REAL roots of a \a d -th degree polynomial equation using 
-  // Lin-Bairstow's method ( polynomial coefficients are REAL ) and stores the
-  // \nr roots found ( multiple roots are multiply stored ) in the \r array.
-  // \a tolerance is the user-defined solver tolerance; this variable may be 
+  // Seeks all REAL roots of the \a d -th degree polynomial 
+  //   c[0] X^d + ... + c[d-1] X + c[d] = 0
+  // equation Lin-Bairstow's method ( polynomial coefficients are REAL ) and 
+  // stores the \nr roots found ( multiple roots are multiply stored ) in \a r.
+  // \tolerance is the user-defined solver tolerance; this variable may be 
   // relaxed by the iterative solver if needed.
   // Returns \nr.
   // Warning: it is the user's responsibility to make sure the \a r
-  // array is large enough to contain the maximal number of expect roots.
+  // array is large enough to contain the maximal number of expected roots.
   static int LinBairstowSolve( double* c, int d, double* r, double& tolerance );
 
   // Description:
