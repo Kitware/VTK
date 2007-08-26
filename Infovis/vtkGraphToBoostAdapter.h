@@ -703,7 +703,7 @@ namespace boost {
     property_traits<T*>::key_type key,                  \
     const property_traits<T*>::value_type & value)      \
   {                                                     \
-    return arr->InsertValue(key, value);                \
+    arr->InsertValue(key, value);                       \
   }
 
   vtkPropertyMapMacro(vtkIdTypeArray, vtkIdType)
