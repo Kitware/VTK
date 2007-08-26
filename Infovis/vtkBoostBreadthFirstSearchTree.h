@@ -94,7 +94,7 @@ private:
   // Description:
   // This method is basically a helper function to find
   // the index of a specific value within a specific array
-  vtkIdType vtkBoostBreadthFirstSearchTree::GetVertexIndex(
+  vtkIdType GetVertexIndex(
     vtkAbstractArray *abstract,vtkVariant value);
   //ETX
 
