@@ -19,19 +19,19 @@
   or without modification, are permitted provided that this Notice and any
   statement of authorship are reproduced on all copies.
 
-  Contact: pppebay@ca.sandia.gov,dcthomp@sandia.gov,
+  Contact: pppebay@sandia.gov,dcthomp@sandia.gov,
 
 =========================================================================*/
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
+#include <vtkstd/vector>
 
 #ifdef WIN32
-#include <float.h>
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.119");
+vtkCxxRevisionMacro(vtkMath, "1.120");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -902,7 +902,7 @@ double* vtkMath::SolveCubic( double c0, double c1, double c2, double c3 )
 }
 
 //----------------------------------------------------------------------------
-// Solves a \a d -th degree polynomial equation using Lin-Bairstow's method.
+// Solves a d-th degree polynomial equation using Lin-Bairstow's method.
 //
 int vtkMath::LinBairstowSolve( double* c, int d, double* r, double& tolerance )
 {
@@ -936,7 +936,7 @@ int vtkMath::LinBairstowSolve( double* c, int d, double* r, double& tolerance )
       if ( ! ( nIterations % 100 ) )
         {
         R = vtkMath::Random( 0., 2. );
-        if ( ! ( nIterations % 200 ) ) tolerance *= 10.;
+        if ( ! ( nIterations % 200 ) ) tolerance *= 4.;
         }
 
       div1[1] = c[1] - R;
@@ -964,10 +964,7 @@ int vtkMath::LinBairstowSolve( double* c, int d, double* r, double& tolerance )
       ++ nIterations;
       }
 
-    for ( int j = 0; j < i - 1; ++ j )
-      {
-        c[j] = div1[j];
-      }
+    for ( int j = 0; j < i - 1; ++ j ) c[j] = div1[j];
     c[i] = S;
     c[i - 1] = R;
     }
@@ -1016,7 +1013,7 @@ extern "C" {
 // Algebraically extracts REAL roots of the quartic polynomial with 
 // REAL coefficients X^4 + c[0] X^3 + c[1] X^2 + c[2] X + c[3]
 // and stores them (when they exist) and their respective multiplicities
-// in the \a r and \a m arrays.
+// in the r and m arrays.
 int vtkMath::FerrariSolve( double* c, double* r, int* m )
 {
   // step 0: eliminate trivial cases up to numerical noise
