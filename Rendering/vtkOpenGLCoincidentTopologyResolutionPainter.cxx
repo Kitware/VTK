@@ -26,7 +26,7 @@
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLCoincidentTopologyResolutionPainter);
 vtkCxxRevisionMacro(vtkOpenGLCoincidentTopologyResolutionPainter, 
-  "1.4");
+  "1.5");
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLCoincidentTopologyResolutionPainter::
@@ -58,7 +58,15 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderInternal(
     else
       {
 #ifdef GL_VERSION_1_1
-      glEnable(GL_POLYGON_OFFSET_FILL);
+      if (this->OffsetFaces)
+        {
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        }
+      else
+        {
+        glEnable(GL_POLYGON_OFFSET_LINE);
+        glEnable(GL_POLYGON_OFFSET_POINT);
+        }
       glPolygonOffset(this->PolygonOffsetFactor, this->PolygonOffsetUnits);
 #endif      
       }
@@ -96,7 +104,15 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderInternal(
     else
       {
 #ifdef GL_VERSION_1_1
-      glDisable(GL_POLYGON_OFFSET_FILL);
+      if (this->OffsetFaces)
+        {
+        glDisable(GL_POLYGON_OFFSET_FILL);
+        }
+      else
+        {
+        glDisable(GL_POLYGON_OFFSET_LINE);
+        glDisable(GL_POLYGON_OFFSET_POINT);
+        }
 #endif
       }
     }

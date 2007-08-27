@@ -31,7 +31,7 @@
 #include "vtkMath.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.8")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.9")
 
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
@@ -153,6 +153,8 @@ void vtkPainterPolyDataMapper::UpdatePainterInformation()
   this->GetResolveCoincidentTopologyPolygonOffsetParameters(p[0], p[1]);
   info->Set(vtkCoincidentTopologyResolutionPainter::POLYGON_OFFSET_PARAMETERS(),
     p, 2);
+  info->Set(vtkCoincidentTopologyResolutionPainter::POLYGON_OFFSET_FACES(),
+    this->GetResolveCoincidentTopologyPolygonOffsetFaces());
 
   int immr = (this->ImmediateModeRendering || 
               vtkMapper::GetGlobalImmediateModeRendering());

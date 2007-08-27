@@ -283,6 +283,15 @@ public:
     double& factor, double& units);
 
   // Description:
+  // Used when ResolveCoincidentTopology is set to PolygonOffset. The polygon
+  // offset can be applied either to the solid polygonal faces or the
+  // lines/vertices. When set (default), the offset is applied to the faces 
+  // otherwise it is applied to lines and vertices.
+  // This is a global variable.
+  static void SetResolveCoincidentTopologyPolygonOffsetFaces(int faces);
+  static int GetResolveCoincidentTopologyPolygonOffsetFaces();
+
+  // Description:
   // Used to set the z-shift if ResolveCoincidentTopology is set to
   // ShiftZBuffer. This is a global variable.
   static void SetResolveCoincidentTopologyZShift(double val);

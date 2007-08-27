@@ -61,6 +61,11 @@ public:
   // ResolveCoincidentTopology is set to PolygonOffset. 
   static vtkInformationDoubleVectorKey* POLYGON_OFFSET_PARAMETERS();
   
+  // Description:
+  // When set and when RESOLVE_COINCIDENT_TOPOLOGY is set to use polygon offset,
+  // solid polygonal faces will be offsetted, otherwise lines/vertices will be
+  // offsetted.
+  static vtkInformationIntegerKey* POLYGON_OFFSET_FACES();
 protected:
   vtkCoincidentTopologyResolutionPainter();
   ~vtkCoincidentTopologyResolutionPainter();
@@ -74,6 +79,7 @@ protected:
   // The only means to affect these values is thru information object.
   vtkSetMacro(ResolveCoincidentTopology, int);
   vtkSetMacro(ZShift, double);
+  vtkSetMacro(OffsetFaces, int);
   void SetPolygonOffsetParameters(double factor, double units)
     {
     if (this->PolygonOffsetFactor != factor || 
@@ -89,6 +95,7 @@ protected:
   double PolygonOffsetFactor;
   double PolygonOffsetUnits;
   double ZShift;
+  int OffsetFaces;
 private:
   vtkCoincidentTopologyResolutionPainter(const vtkCoincidentTopologyResolutionPainter&); // Not implemented.
   void operator=(const vtkCoincidentTopologyResolutionPainter&); // Not implemented.
