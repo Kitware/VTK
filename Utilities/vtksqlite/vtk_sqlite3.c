@@ -10995,8 +10995,19 @@ VTK_SQLITE_PRIVATE ThreadData *vtk_sqlite3ThreadData(){
 ** to a substitute ThreadData structure that is all zeros. 
 */
 VTK_SQLITE_PRIVATE const ThreadData *vtk_sqlite3ThreadDataReadOnly(){
-  static const ThreadData zeroData = {0};  /* Initializer to silence warnings
-                                           ** from broken compilers */
+  static const ThreadData zeroData =  /* Initializer to silence warnings
+                                      ** from broken compilers */
+#if defined(VTK_SQLITE_ENABLE_MEMORY_MANAGEMENT)
+#if defined(VTK_SQLITE_OMIT_SHARED_CACHE)
+  {0, 0, 0, 0};
+#else
+  {0, 0, 0, 0, 0, 0};
+#endif
+#elif defined(VTK_SQLITE_OMIT_SHARED_CACHE)
+  {0};
+#else
+  {0, 0, 0};
+#endif
   const ThreadData *pTd = vtk_sqlite3OsThreadSpecificData(0);
   return pTd ? pTd : &zeroData;
 }
@@ -15828,8 +15839,19 @@ int vtk_sqlite3_tsd_count = 0;
 ** unallocated or gets deallocated.
 */
 VTK_SQLITE_PRIVATE ThreadData *vtk_sqlite3UnixThreadSpecificData(int allocateFlag){
-  static const ThreadData zeroData = {0};  /* Initializer to silence warnings
-                                           ** from broken compilers */
+  static const ThreadData zeroData =  /* Initializer to silence warnings
+                                      ** from broken compilers */
+#if defined(VTK_SQLITE_ENABLE_MEMORY_MANAGEMENT)
+#if defined(VTK_SQLITE_OMIT_SHARED_CACHE)
+  {0, 0, 0, 0};
+#else
+  {0, 0, 0, 0, 0, 0};
+#endif
+#elif defined(VTK_SQLITE_OMIT_SHARED_CACHE)
+  {0};
+#else
+  {0, 0, 0};
+#endif
 #ifdef VTK_SQLITE_UNIX_THREADS
   static pthread_key_t key;
   static int keyInit = 0;
@@ -33106,11 +33128,12 @@ int vtk_sqlite3_data_count(vtk_sqlite3_stmt *pStmt){
 ** If iCol is not valid, return a pointer to a Mem which has a value
 ** of NULL.
 */
+void dummyfunction(void* p) { (void)p; } /* for initializer */
 static Mem *columnMem(vtk_sqlite3_stmt *pStmt, int i){
   Vdbe *pVm = (Vdbe *)pStmt;
   int vals = vtk_sqlite3_data_count(pStmt);
   if( pVm==0 || pVm->resOnStack==0 || i>=pVm->nResColumn || i<0 ){
-    static const Mem nullMem = {{0}, 0.0, "", 0, MEM_Null, VTK_SQLITE_NULL };
+    static const Mem nullMem = {{0}, 0.0, (char*)"", 0, MEM_Null, 0, 0, dummyfunction, "" };
     vtk_sqlite3Error(pVm->db, VTK_SQLITE_RANGE, 0);
     return (Mem*)&nullMem;
   }
