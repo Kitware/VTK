@@ -311,9 +311,8 @@ NC_findvar(const NC_vararray *ncap, const char *name, NC_var **varpp)
   for(varid = 0; (size_t) varid < ncap->nelems; varid++, loc++)
   {
     /* NOTE: The [slen-1] check is a specific optimization for
-     * exodusII files with many blocks and variables. Because
-     * names usually end with a different suffix, check that
-     * before comparing entire string.
+     * exodusII files with many blocks and variables. See log
+     * message for more details.
      */
     if(strlen((*loc)->name->cp) == slen &&
        name[slen-1]==(*loc)->name->cp[slen-1] &&
@@ -351,7 +350,7 @@ ncx_szof(nc_type type)
   case NC_DOUBLE : 
     return X_SIZEOF_DOUBLE;
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+    ;
   }
   /* default */
   assert("ncx_szof invalid type" == 0);
@@ -450,15 +449,15 @@ int
 NC_check_vlen(NC_var *varp, size_t vlen_max) {
   size_t prod=varp->xsz;  /* product of xsz and dimensions so far */
 
-  int ii;
+  size_t ii;
 
-  for(ii = IS_RECVAR(varp) ? 1 : 0; ii < (int)varp->ndims; ii++) {
+  for(ii = IS_RECVAR(varp) ? 1 : 0; ii < varp->ndims; ii++) {
     if (varp->shape[ii] > vlen_max / prod) {
       return 0;   /* size in bytes won't fit in a 32-bit int */
     }
     prod *= varp->shape[ii];
   }
-  return 1;     /* OK */
+    return 1;     /* OK */
 }
 
 

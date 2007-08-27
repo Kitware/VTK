@@ -22,16 +22,21 @@
  * 
  */
 
-#include "ncconfig.h" /* output of 'configure' */
+#include  "ncconfig.h"
+#ifndef NO_SYS_TYPES_H
+#  include <sys/types.h>  /* off_t */
+#endif /* NO_SYS_TYPES_H */
+#include  "netcdf.h"
 #include "rnd.h"
 #include <stddef.h> /* size_t */
 #include <errno.h>
-#ifndef NO_SYS_TYPES_H
-#  include <sys/types.h> /* off_t */
-#endif /* NO_SYS_TYPES_H */
-#include "netcdf.h"
 
-#if defined(_CRAY) && !defined(_CRAYIEEE) && !defined(__crayx1)
+#ifdef _MSC_VER
+#  pragma warning ( disable : 4244 )
+#endif
+
+
+#if defined(_CRAY) && !defined(_CRAYIEEE)
 #define CRAYFLOAT 1 /* CRAY Floating point */
 #elif defined(_SX) && defined(_FLOAT2)  /* NEC SUPER-UX in CRAY mode */
 #define CRAYFLOAT 1 /* CRAY Floating point */
@@ -41,8 +46,8 @@
 #if defined(DLL_NETCDF) /* define when library is a DLL */
 #  include <io.h>
 #  if !defined(__BORLANDC__) && !defined(__GNUC__)
-#  define lseek _lseeki64
-#  define off_t __int64
+#    define lseek _lseeki64
+#    define off_t __int64
 #  endif /* ! __BORLANDC__ && ! __GNUC__ */
 #endif  /* defined(DLL_NETCDF) */
 

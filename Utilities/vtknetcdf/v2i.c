@@ -4,9 +4,9 @@
  */
 /* Id */
 
-#include "ncconfig.h"
 #include <stdlib.h>
-#include <netcdf.h>
+#include "nc.h" /* WARNING: nc.h must be included before netcdf.h or MSVC60 will die. */
+#include "netcdf.h"
 
 #ifndef NO_NETCDF_2
 
@@ -113,7 +113,7 @@ numrecvars(int ncid, int *nrecvarsp, int *recvarids)
     }
   }
   *nrecvarsp = nrecvars;
-  return NC_NOERR;
+    return NC_NOERR;
 }
 
 
@@ -352,6 +352,12 @@ int ncerr = NC_NOERR ;
 int ncopts = (NC_FATAL | NC_VERBOSE) ;
 #endif
 
+/*
+ * Backward compatibility for the version 2 fortran jackets
+ */
+const char *cdf_routine_name;
+
+
 /* End globals */
 
 /* Begin error handling */
@@ -359,6 +365,7 @@ int ncopts = (NC_FATAL | NC_VERBOSE) ;
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+
 
 /*
  */
@@ -393,7 +400,22 @@ nc_advise(const char *routine_name, int err, const char *fmt,...)
   }
 }
 
+
+/*
+ * Backward compatibility for the version 2 fortran jackets
+ */
+void
+NCadvise(int err, char *fmt,...)
+{
+  va_list args;
+
+  va_start(args ,fmt);
+  nc_advise(cdf_routine_name, err, fmt, args);
+  va_end(args);
+}
+
 /* End error handling */
+
 
 int
 nccreate(const char* path, int cmode)

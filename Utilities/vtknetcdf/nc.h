@@ -9,7 +9,11 @@
 /*
  *  netcdf library 'private' data structures, objects and interfaces
  */
-#include "ncconfig.h"
+#include  "ncconfig.h"
+
+#ifndef NO_SYS_TYPES_H
+#  include  <sys/types.h> /* off_t */
+#endif
 
 /* If netcdf-4 is in use, rename all nc_ functions to nc3_ functions. */
 #ifdef USE_NETCDF4
@@ -18,12 +22,19 @@
 #endif
 
 #include  <stddef.h>  /* size_t */
-#ifndef NO_SYS_TYPES_H
-#  include <sys/types.h> /* off_t */
-#endif /* NO_SYS_TYPES_H */
 #include  "netcdf.h"
 #include  "ncio.h"  /* ncio */
 #include  "fbits.h"
+
+#ifdef _MSC_VER
+#  pragma warning ( disable : 4127 )
+#  pragma warning ( disable : 4130 )
+#endif
+
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#pragma warn -8008 /* "condition always true" */
+#endif
 
 
 #ifndef NC_ARRAY_GROWBY
@@ -373,7 +384,7 @@ nc_get_NC( NC *ncp);
 /* Begin defined in putget.c */
 
 extern int
-fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno);
+fill_NC_var(NC *ncp, const NC_var *varp, size_t recno);
 
 extern int
 nc_inq_rec(int ncid, size_t *nrecvars, int *recvarids, size_t *recsizes);

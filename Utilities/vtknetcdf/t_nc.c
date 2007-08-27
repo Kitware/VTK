@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "netcdf.h"
 
 #ifdef USE_NETCDF4
 #include <netcdf3.h>
