@@ -32,7 +32,7 @@
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.2");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.3");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 //----------------------------------------------------------------------------
@@ -112,7 +112,7 @@ int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR 
   
   double iB0 = 1. / B[0];
   int nj;
-  double Q[mMn + 1];
+  double* Q = new double[mMn + 1];
   for ( i = 0; i <= mMn; ++ i )
     {
     nj = i > n ? n : i;
@@ -130,7 +130,8 @@ int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR 
 
     if ( mR[n - i] ) r = i - 1;
     }
-
+  delete[] Q;
+  
   if ( ! r && ! mR[0] ) return -1;
 
   return r;
