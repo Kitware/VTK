@@ -664,11 +664,11 @@ static int
 px_double_buffer(ncio *const nciop, off_t to, off_t from,
                  size_t nbytes, int rflags)
 {
-  (void)rflags;
   ncio_px *const pxp = (ncio_px *)nciop->pvt;
   int status = ENOERR;
   void *src;
   void *dest;
+  (void)rflags;
   
 #if INSTRUMENT
 fprintf(stderr, "\tdouble_buffr %ld %ld %ld\n",
