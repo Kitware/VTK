@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkImageExport, "1.32");
+vtkCxxRevisionMacro(vtkImageExport, "1.33");
 vtkStandardNewMacro(vtkImageExport);
 
 //----------------------------------------------------------------------------
@@ -418,6 +418,8 @@ const char* vtkImageExport::ScalarTypeCallback()
       { return "char"; }
     case VTK_UNSIGNED_CHAR:
       { return "unsigned char"; }
+    case VTK_SIGNED_CHAR:
+      { return "signed char"; }
     default:
       { return "<unsupported>"; }
     }

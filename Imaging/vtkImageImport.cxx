@@ -27,7 +27,7 @@
 #include <ctype.h>
 #include <vtkstd/exception>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.49");
+vtkCxxRevisionMacro(vtkImageImport, "1.50");
 vtkStandardNewMacro(vtkImageImport);
 
 
@@ -405,6 +405,10 @@ void vtkImageImport::InvokeExecuteInformationCallbacks()
     else if (strcmp(scalarType, "unsigned char")==0)
       {
       this->SetDataScalarType(VTK_UNSIGNED_CHAR);
+      }    
+    else if (strcmp(scalarType, "signed char")==0)
+      {
+      this->SetDataScalarType(VTK_SIGNED_CHAR);
       }    
     }
 }
