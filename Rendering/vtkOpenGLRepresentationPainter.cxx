@@ -25,7 +25,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLRepresentationPainter);
-vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.2");
+vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.3");
 #endif
 
 //-----------------------------------------------------------------------------
@@ -45,25 +45,61 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer* renderer,
   vtkProperty* prop = actor->GetProperty();
   int rep = prop->GetRepresentation();
   int reset_needed = 0;
-  if (!prop->GetBackfaceCulling() && !prop->GetFrontfaceCulling())
+
+
+  GLenum face = GL_FRONT_AND_BACK;
+
+  // If both front & back culling is on, will fall into backface culling.
+  if (prop->GetBackfaceCulling())
     {
-    switch (rep)
-      {
-    case VTK_POINTS:
-      glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-      reset_needed = 1;
-      break;
-    case VTK_WIREFRAME:
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-      reset_needed = 1;
-      break;
-      }
+    face = GL_FRONT;
     }
+  else if (prop->GetFrontfaceCulling())
+    {
+    face = GL_BACK;
+    }
+
+  switch (rep)
+    {
+  case VTK_POINTS:
+    glPolygonMode(face, GL_POINT);
+    reset_needed = 1;
+    break;
+  case VTK_WIREFRAME:
+    glPolygonMode(face, GL_LINE);
+    reset_needed = 1;
+    break;
+    }
+
   this->Superclass::RenderInternal(renderer, actor, typeflags);
   if (reset_needed)
     {
     // reset the default.
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode(face, GL_FILL);
+    }
+
+  if (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE)
+    {
+    glPushAttrib(GL_CURRENT_BIT);
+    glPushAttrib(GL_LIGHTING_BIT);
+    double color[4];
+    prop->GetEdgeColor(color);
+    color[0] *= prop->GetOpacity();
+    color[1] *= prop->GetOpacity();
+    color[2] *= prop->GetOpacity();
+    color[3] = prop->GetOpacity();
+
+    glDisable(GL_LIGHTING);
+    glColor4dv(color);
+    glPolygonMode(face, GL_LINE);
+
+    this->Superclass::RenderInternal(renderer, actor, typeflags);
+
+    // reset the default.
+    glPolygonMode(face, GL_FILL);
+
+    glPopAttrib(); //GL_LIGHTING
+    glPopAttrib(); //GL_CURRENT_BIT
     }
 }
 //-----------------------------------------------------------------------------

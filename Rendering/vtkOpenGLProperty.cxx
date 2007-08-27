@@ -28,7 +28,7 @@
 #include "vtkgl.h" // vtkgl namespace
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.39");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.40");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -71,35 +71,11 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
     {
     glCullFace (GL_BACK);
     glEnable (GL_CULL_FACE);
-    if (this->GetRepresentation() == VTK_WIREFRAME)
-      {
-      glPolygonMode(GL_FRONT, GL_LINE); 
-      }
-    else if (this->GetRepresentation() == VTK_SURFACE)
-      {
-      glPolygonMode(GL_FRONT, GL_FILL);
-      }
-    else
-      {
-      glPolygonMode(GL_FRONT, GL_POINT);
-      }
     }
   else //if both front & back culling on, will fall into backface culling
     { //if you really want both front and back, use the Actor's visibility flag
     glCullFace (GL_FRONT);
     glEnable (GL_CULL_FACE);
-    if (this->GetRepresentation() == VTK_WIREFRAME)
-      {
-      glPolygonMode(GL_BACK, GL_LINE);
-      }  
-    else if (this->GetRepresentation() == VTK_SURFACE)
-      {
-      glPolygonMode(GL_BACK, GL_FILL);
-      }
-    else
-      {
-      glPolygonMode(GL_BACK, GL_POINT);
-      }
     }
 
   Info[3] = this->Opacity;

@@ -47,7 +47,7 @@ public:
   MapOfTextures Textures;
 };
 
-vtkCxxRevisionMacro(vtkProperty, "1.67");
+vtkCxxRevisionMacro(vtkProperty, "1.68");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -185,9 +185,9 @@ vtkProperty::vtkProperty()
   this->SpecularColor[1] = 1;
   this->SpecularColor[2] = 1;
 
-  this->EdgeColor[0] = 1;
-  this->EdgeColor[1] = 1;
-  this->EdgeColor[2] = 1;
+  this->EdgeColor[0] = 0;
+  this->EdgeColor[1] = 0;
+  this->EdgeColor[2] = 0;
 
   this->Ambient = 0.0;
   this->Diffuse = 1.0;
