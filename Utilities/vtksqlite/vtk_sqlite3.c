@@ -28,6 +28,8 @@
 #if defined(__BORLANDC__)
 #pragma warn -8004 /* assigned a value that is never used */
 #pragma warn -8008 /* condition is always true */
+#pragma warn -8066 /* unreachable code */
+#pragma warn -8019 /* code has no effect */
 #endif
 
 #define VTK_SQLITE_AMALGAMATION 1
@@ -4556,10 +4558,15 @@ VTK_SQLITE_PRIVATE ThreadData *vtk_sqlite3OsThreadSpecificData(int);
 VTK_SQLITE_PRIVATE void *vtk_sqlite3OsMalloc(int);
 VTK_SQLITE_PRIVATE void *vtk_sqlite3OsRealloc(void *, int);
 VTK_SQLITE_PRIVATE void vtk_sqlite3OsFree(void *);
-VTK_SQLITE_PRIVATE int vtk_sqlite3OsAllocationSize(void *);
+/* function is defined but never used */
+/* We can get rid of this because REDEF_IO is off */
+/* VTK_SQLITE_PRIVATE int vtk_sqlite3OsAllocationSize(void *); */
+
+#ifndef VTK_SQLITE_OMIT_LOAD_EXTENSION
 VTK_SQLITE_PRIVATE void *vtk_sqlite3OsDlopen(const char*);
 VTK_SQLITE_PRIVATE void *vtk_sqlite3OsDlsym(void*, const char*);
 VTK_SQLITE_PRIVATE int vtk_sqlite3OsDlclose(void*);
+#endif
 
 #if defined(VTK_SQLITE_TEST) || defined(VTK_SQLITE_DEBUG)
 VTK_SQLITE_PRIVATE   int vtk_sqlite3OsFileHandle(OsFile *id);
@@ -6233,7 +6240,8 @@ VTK_SQLITE_PRIVATE Expr *vtk_sqlite3ExprSetColl(Parse *pParse, Expr *, Token *);
 VTK_SQLITE_PRIVATE int vtk_sqlite3CheckCollSeq(Parse *, CollSeq *);
 VTK_SQLITE_PRIVATE int vtk_sqlite3CheckObjectName(Parse *, const char *);
 VTK_SQLITE_PRIVATE void vtk_sqlite3VdbeSetChanges(vtk_sqlite3 *, int);
-VTK_SQLITE_PRIVATE void vtk_sqlite3Utf16Substr(vtk_sqlite3_context *,int,vtk_sqlite3_value **);
+/* This function is never referenced or defined */
+/* VTK_SQLITE_PRIVATE void vtk_sqlite3Utf16Substr(vtk_sqlite3_context *,int,vtk_sqlite3_value **); */
 
 VTK_SQLITE_PRIVATE const void *vtk_sqlite3ValueText(vtk_sqlite3_value*, u8);
 VTK_SQLITE_PRIVATE int vtk_sqlite3ValueBytes(vtk_sqlite3_value*, u8);
@@ -6352,9 +6360,11 @@ VTK_SQLITE_PRIVATE   int vtk_sqlite3SelectExprHeight(Select *);
   #define vtk_sqlite3ExprSetHeight(x)
 #endif
 
-VTK_SQLITE_PRIVATE u32 vtk_sqlite3Get2byte(const u8*);
+/* this function is never referenced or defined */
+/* VTK_SQLITE_PRIVATE u32 vtk_sqlite3Get2byte(const u8*); */
 VTK_SQLITE_PRIVATE u32 vtk_sqlite3Get4byte(const u8*);
-VTK_SQLITE_PRIVATE void vtk_sqlite3Put2byte(u8*, u32);
+/* this function is never referenced or defined */
+/* VTK_SQLITE_PRIVATE void vtk_sqlite3Put2byte(u8*, u32); */
 VTK_SQLITE_PRIVATE void vtk_sqlite3Put4byte(u8*, u32);
 
 #ifdef VTK_SQLITE_SSE
@@ -8716,7 +8726,7 @@ static int vxprintf(
           cset = &aDigits[infop->charset];
           base = infop->base;
           do{                                           /* Convert to ascii */
-            *(--bufpt) = cset[longvalue%base];
+            *(--bufpt) = cset[(int)(longvalue%base)];
             longvalue = longvalue/base;
           }while( longvalue>0 );
         }
@@ -13088,7 +13098,10 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3GenericFree(void *p){
   free(p);
 }
 /* Never actually used, but needed for the linker */
-VTK_SQLITE_PRIVATE int vtk_sqlite3GenericAllocationSize(void *p){ (void)p; /* use arg */ return 0; }
+/* We can get rid of this because REDEF_IO is off */
+/*
+VTK_SQLITE_PRIVATE int vtk_sqlite3GenericAllocationSize(void *p){ (void)p; return 0; }
+*/
 #endif
 
 /*
@@ -22949,7 +22962,8 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeGetPage(BtShared*, Pgno, MemPage**, int);
 VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeInitPage(MemPage *pPage, MemPage *pParent);
 VTK_SQLITE_PRIVATE void vtk_sqlite3BtreeParseCellPtr(MemPage*, u8*, CellInfo*);
 VTK_SQLITE_PRIVATE void vtk_sqlite3BtreeParseCell(MemPage*, int, CellInfo*);
-VTK_SQLITE_PRIVATE u8 *vtk_sqlite3BtreeFindCell(MemPage *pPage, int iCell);
+/* This function is defined but never used */
+/* VTK_SQLITE_PRIVATE u8 *vtk_sqlite3BtreeFindCell(MemPage *pPage, int iCell); */
 VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeRestoreOrClearCursorPosition(BtCursor *pCur);
 VTK_SQLITE_PRIVATE void vtk_sqlite3BtreeGetTempCursor(BtCursor *pCur, BtCursor *pTempCur);
 VTK_SQLITE_PRIVATE void vtk_sqlite3BtreeReleaseTempCursor(BtCursor *pCur);
@@ -23363,11 +23377,15 @@ static int ptrmapGet(BtShared *pBt, Pgno key, u8 *pEType, Pgno *pPgno){
 */
 #define findCell(pPage, iCell) \
   ((pPage)->aData + get2byte(&(pPage)->aData[(pPage)->cellOffset+2*(iCell)]))
+
+/* This function is defined but never used */
+/*
 VTK_SQLITE_PRIVATE u8 *vtk_sqlite3BtreeFindCell(MemPage *pPage, int iCell){
   assert( iCell>=0 );
   assert( iCell<get2byte(&pPage->aData[pPage->hdrOffset+3]) );
   return findCell(pPage, iCell);
 }
+*/
 
 /*
 ** This a more complex version of vtk_sqlite3BtreeFindCell() that works for
@@ -23427,7 +23445,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3BtreeParseCellPtr(
   }
   pInfo->nPayload = nPayload;
   pInfo->nHeader = (u16)(n);
-  if( nPayload<=pPage->maxLocal ){
+  if( nPayload<=(unsigned int)pPage->maxLocal ){
     /* This is the (easy) common case where the entire payload fits
     ** on the local page.  No overflow is required.
     */
@@ -48133,7 +48151,7 @@ static void substrFunc(
     vtk_sqlite3_result_text(context, (char*)z, z2-z, VTK_SQLITE_TRANSIENT);
   }else{
     if( p2<0 ) p2 = 0;
-    vtk_sqlite3_result_blob(context, (char*)&z[p1], (int)p2, VTK_SQLITE_TRANSIENT);
+    vtk_sqlite3_result_blob(context, (char*)&z[(size_t)p1], (int)p2, VTK_SQLITE_TRANSIENT);
   }
 }
 
@@ -53918,7 +53936,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3JoinType(Parse *pParse, Token *pA, Token *pB, 
   for(i=0; i<3 && apAll[i]; i++){
     p = apAll[i];
     for(j=0; j<(int)(sizeof(keywords)/sizeof(keywords[0])); j++){
-      if( p->n==keywords[j].nChar 
+      if( p->n==(unsigned int)keywords[j].nChar 
           && vtk_sqlite3StrNICmp((char*)p->z, keywords[j].zKeyword, p->n)==0 ){
         jointype |= keywords[j].code;
         break;

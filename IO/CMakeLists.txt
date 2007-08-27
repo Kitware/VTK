@@ -3,7 +3,7 @@ SET(UKIT IO)
 SET(KIT_TCL_LIBS vtkFilteringTCL)
 SET(KIT_PYTHON_LIBS vtkFilteringPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
-SET(KIT_LIBS vtkFiltering vtkDICOMParser vtkNetCDF vtkmetaio # vtksqlite
+SET(KIT_LIBS vtkFiltering vtkDICOMParser vtkNetCDF vtkmetaio vtksqlite
   ${VTK_PNG_LIBRARIES} ${VTK_ZLIB_LIBRARIES} ${VTK_JPEG_LIBRARIES}
   ${VTK_TIFF_LIBRARIES} ${VTK_EXPAT_LIBRARIES}
   ${KWSYS_NAMESPACE})
@@ -91,8 +91,8 @@ vtkRTXMLPolyDataReader.cxx
 vtkSESAMEReader.cxx
 vtkShaderCodeLibrary.cxx
 vtkSQLDatabase.cxx
-#vtkSQLiteDatabase.cxx
-#vtkSQLiteQuery.cxx
+vtkSQLiteDatabase.cxx
+vtkSQLiteQuery.cxx
 vtkSQLQuery.cxx
 vtkSLCReader.cxx
 vtkSTLReader.cxx
