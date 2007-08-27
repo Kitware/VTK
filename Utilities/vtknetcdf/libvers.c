@@ -4,7 +4,7 @@
  */
 /* Id */
 
-#include  "ncconfig.h"
+#include "ncconfig.h"
 #include "netcdf.h"
 
 /*
@@ -25,13 +25,3 @@ nc_inq_libvers(void)
 }
 
 #endif /* USE_NETCDF4*/
-
-#if MAKE_PROGRAM /* TEST JIG */
-#include <stdio.h>
-
-main()
-{
-  (void) printf("Version: %s\n", nc_inq_libvers());
-  return 0;
-}
-#endif

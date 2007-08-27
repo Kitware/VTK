@@ -128,6 +128,7 @@ fprintf(stderr, "nextread %lu, remaining %lu\n",
 
 /* End v1hs */
 
+/* Write a size_t to the header */
 static int
 v1h_put_size_t(v1hs *psp, const size_t *sp)
 {
@@ -138,6 +139,7 @@ v1h_put_size_t(v1hs *psp, const size_t *sp)
 }
 
 
+/* Read a size_t from the header */
 static int
 v1h_get_size_t(v1hs *gsp, size_t *sp)
 {
@@ -152,6 +154,7 @@ v1h_get_size_t(v1hs *gsp, size_t *sp)
 
 #define X_SIZEOF_NC_TYPE X_SIZEOF_INT
 
+/* Write a nc_type to the header */
 static int
 v1h_put_nc_type(v1hs *psp, const nc_type *typep)
 {
@@ -165,6 +168,7 @@ v1h_put_nc_type(v1hs *psp, const nc_type *typep)
 }
 
 
+/* Read a nc_type from the header */
 static int
 v1h_get_nc_type(v1hs *gsp, nc_type *typep)
 {
@@ -195,6 +199,7 @@ v1h_get_nc_type(v1hs *gsp, nc_type *typep)
 
 #define X_SIZEOF_NCTYPE X_SIZEOF_INT
 
+/* Write a NCtype to the header */
 static int
 v1h_put_NCtype(v1hs *psp, NCtype type)
 {
@@ -207,6 +212,7 @@ v1h_put_NCtype(v1hs *psp, NCtype type)
   return status;
 }
 
+/* Read a NCtype from the header */
 static int
 v1h_get_NCtype(v1hs *gsp, NCtype *typep)
 {
@@ -251,6 +257,7 @@ ncx_len_NC_string(const NC_string *ncstrp)
 }
 
 
+/* Write a NC_string to the header */
 static int
 v1h_put_NC_string(v1hs *psp, const NC_string *ncstrp)
 {
@@ -274,6 +281,7 @@ v1h_put_NC_string(v1hs *psp, const NC_string *ncstrp)
 }
 
 
+/* Read a NC_string from the header */
 static int
 v1h_get_NC_string(v1hs *gsp, NC_string **ncstrpp)
 {
@@ -340,6 +348,7 @@ ncx_len_NC_dim(const NC_dim *dimp)
 }
 
 
+/* Write a NC_dim to the header */
 static int
 v1h_put_NC_dim(v1hs *psp, const NC_dim *dimp)
 {
@@ -356,6 +365,7 @@ v1h_put_NC_dim(v1hs *psp, const NC_dim *dimp)
   return ENOERR;
 }
 
+/* Read a NC_dim from the header */
 static int
 v1h_get_NC_dim(v1hs *gsp, NC_dim **dimpp)
 {
@@ -391,6 +401,7 @@ unwind_name:
 }
 
 
+/* How much space in the header is required for this NC_dimarray? */
 static size_t
 ncx_len_NC_dimarray(const NC_dimarray *ncap)
 {
@@ -411,6 +422,7 @@ ncx_len_NC_dimarray(const NC_dimarray *ncap)
 }
 
 
+/* Write a NC_dimarray to the header */
 static int
 v1h_put_NC_dimarray(v1hs *psp, const NC_dimarray *ncap)
 {
@@ -465,6 +477,7 @@ v1h_put_NC_dimarray(v1hs *psp, const NC_dimarray *ncap)
 }
 
 
+/* Read a NC_dimarray from the header */
 static int
 v1h_get_NC_dimarray(v1hs *gsp, NC_dimarray *ncap)
 {
@@ -575,6 +588,7 @@ v1h_put_NC_attrV(v1hs *psp, const NC_attr *attrp)
   return ENOERR;
 }
 
+/* Write a NC_attr to the header */
 static int
 v1h_put_NC_attr(v1hs *psp, const NC_attr *attrp)
 {
@@ -614,8 +628,6 @@ v1h_get_NC_attrV(v1hs *gsp, NC_attr *attrp)
   void *value = attrp->xvalue;
   size_t nget; 
 
-  assert(gsp->extent % X_ALIGN == 0);
-  
   do {
     nget = MIN(perchunk, remaining);
   
@@ -635,6 +647,7 @@ v1h_get_NC_attrV(v1hs *gsp, NC_attr *attrp)
 }
 
 
+/* Read a NC_attr from the header */
 static int
 v1h_get_NC_attr(v1hs *gsp, NC_attr **attrpp)
 {
@@ -680,6 +693,7 @@ unwind_name:
 }
 
 
+/* How much space in the header is required for this NC_attrarray? */
 static size_t
 ncx_len_NC_attrarray(const NC_attrarray *ncap)
 {
@@ -700,6 +714,7 @@ ncx_len_NC_attrarray(const NC_attrarray *ncap)
 }
 
 
+/* Write a NC_attrarray to the header */
 static int
 v1h_put_NC_attrarray(v1hs *psp, const NC_attrarray *ncap)
 {
@@ -754,6 +769,7 @@ v1h_put_NC_attrarray(v1hs *psp, const NC_attrarray *ncap)
 }
 
 
+/* Read a NC_attrarray from the header */
 static int
 v1h_get_NC_attrarray(v1hs *gsp, NC_attrarray *ncap)
 {
@@ -828,6 +844,7 @@ ncx_len_NC_var(const NC_var *varp, size_t sizeof_off_t)
 }
 
 
+/* Write a NC_var to the header */
 static int
 v1h_put_NC_var(v1hs *psp, const NC_var *varp)
 {
@@ -872,6 +889,7 @@ v1h_put_NC_var(v1hs *psp, const NC_var *varp)
 }
 
 
+/* Read a NC_var from the header */
 static int
 v1h_get_NC_var(v1hs *gsp, NC_var **varpp)
 {
@@ -936,6 +954,7 @@ unwind_name:
 }
 
 
+/* How much space in the header is required for this NC_vararray? */
 static size_t
 ncx_len_NC_vararray(const NC_vararray *ncap, size_t sizeof_off_t)
 {
@@ -956,6 +975,7 @@ ncx_len_NC_vararray(const NC_vararray *ncap, size_t sizeof_off_t)
 }
 
 
+/* Write a NC_vararray to the header */
 static int
 v1h_put_NC_vararray(v1hs *psp, const NC_vararray *ncap)
 {
@@ -1010,6 +1030,7 @@ v1h_put_NC_vararray(v1hs *psp, const NC_vararray *ncap)
 }
 
 
+/* Read a NC_vararray from the header */
 static int
 v1h_get_NC_vararray(v1hs *gsp, NC_vararray *ncap)
 {
@@ -1139,32 +1160,7 @@ NC_computeshapes(NC *ncp)
 }
 
 
-#if 0
-/*
- * Return actual unpadded length (in bytes) of a variable, which
- * doesn't include any extra padding used for alignment.  For a record
- * variable, this is the length in bytes of one record's worth of that
- * variable's data.
- */
-static off_t
-NC_var_unpadded_len(const NC_var *varp, const NC_dimarray *dims)
-{
-  size_t *shp;
-  off_t product = 1;
-
-  (void)dims;
-
-  if(varp->ndims != 0) {
-    for(shp = varp->shape + varp->ndims -1; shp >= varp->shape; shp--) {
-      if(!(shp == varp->shape && IS_RECVAR(varp)))
-        product *= *shp;
-    }
-  }
-  product = product * varp->xsz;
-  return product;
-}
-#endif /* 0 */
-
+/* How much space in the header is required for the NC data structure? */
 size_t
 ncx_len_NC(const NC *ncp, size_t sizeof_off_t)
 {
@@ -1181,6 +1177,7 @@ ncx_len_NC(const NC *ncp, size_t sizeof_off_t)
 }
 
 
+/* Write the file header */
 int
 ncx_put_NC(const NC *ncp, void **xpp, off_t offset, size_t extent)
 {
@@ -1272,6 +1269,7 @@ release:
 }
 
 
+/* Make the in-memory NC structure from reading the file header */
 int
 nc_get_NC(NC *ncp)
 {
@@ -1290,32 +1288,32 @@ nc_get_NC(NC *ncp)
   gs.base = NULL;
   gs.pos = gs.base;
 
-    {
+  {
     /*
      * Come up with a reasonable stream read size.
      */
     off_t filesize;
     size_t extent = MIN_NC_XSZ;
-
+    
     extent = ncp->xsz;
     if(extent <= MIN_NC_XSZ)
-      {
+    {
       status = ncio_filesize(ncp->nciop, &filesize);
       if(status)
-        return status;
+          return status;
       /* first time read */
       extent = ncp->chunk;
       /* Protection for when ncp->chunk is huge;
        * no need to read hugely. */
       if(extent > 4096)
         extent = 4096;
-      if( ((off_t)extent) > filesize )
-        extent = (size_t) _RNDUP(filesize, X_ALIGN);
-      }
+      if(extent > (size_t)filesize)
+        extent = filesize;
+    }
     else if(extent > ncp->chunk)
-      {
+    {
       extent = ncp->chunk;
-      }
+    }
 
     /*
      * Invalidate the I/O buffers to force a read of the header
@@ -1328,11 +1326,11 @@ nc_get_NC(NC *ncp)
     status = fault_v1hs(&gs, extent);
     if(status)
       return status;
-    }
+  }
 
   /* get the header from the stream gs */
 
-    {
+  {
     /* Get & check magic number */
     schar magic[sizeof(ncmagic)];
     (void) memset(magic, 0, sizeof(magic));
@@ -1341,12 +1339,12 @@ nc_get_NC(NC *ncp)
       (const void **)(&gs.pos), sizeof(magic), magic);
     if(status != ENOERR)
       goto unwind_get;
-
+  
     if(memcmp(magic, ncmagic, sizeof(ncmagic)-1) != 0)
-      {
+    {
       status = NC_ENOTNC;
       goto unwind_get;
-      }
+    }
     /* Check version number in last byte of magic */
     if (magic[sizeof(ncmagic)-1] == 0x1) {
       gs.version = 1;
@@ -1363,15 +1361,15 @@ nc_get_NC(NC *ncp)
       status = NC_ENOTNC;
       goto unwind_get;
     }
-    }
-
-    {
-    size_t nrecs = 0;
-    status = ncx_get_size_t((const void **)(&gs.pos), &nrecs);
-    if(status != ENOERR)
-      goto unwind_get;
-    NC_set_numrecs(ncp, nrecs);
-    }
+  }
+  
+  {
+  size_t nrecs = 0;
+  status = ncx_get_size_t((const void **)(&gs.pos), &nrecs);
+  if(status != ENOERR)
+    goto unwind_get;
+  NC_set_numrecs(ncp, nrecs);
+  }
 
   assert((char *)gs.pos < (char *)gs.end);
 
@@ -1386,7 +1384,7 @@ nc_get_NC(NC *ncp)
   status = v1h_get_NC_vararray(&gs, &ncp->vars);
   if(status != ENOERR)
     goto unwind_get;
-
+    
   ncp->xsz = ncx_len_NC(ncp, (gs.version == 1) ? 4 : 8);
 
   status = NC_computeshapes(ncp);

@@ -46,7 +46,7 @@
 
 # define FREE_ONSTACK(name)
 
-#elif defined(_CRAYC) && !__cplusplus && __STDC__ > 1
+#elif defined(_CRAYC) && !defined(__crayx1) && !__cplusplus && __STDC__ > 1
 /*
  * Cray C allows sizing of arrays with non-constant values.
  */

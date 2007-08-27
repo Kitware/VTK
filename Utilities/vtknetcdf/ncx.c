@@ -90,11 +90,33 @@ static const char nada[X_ALIGN] = {0, 0, 0, 0};
     (((a) >>  8) & 0x0000ff00) | \
     (((a) >> 24) & 0x000000ff) )
 
+
 static void
 swapn2b(void *dst, const void *src, size_t nn)
 {
   char *op = dst;
   const char *ip = src;
+
+/* unroll the following to reduce loop overhead
+ *
+ *  while(nn-- != 0)
+ *  {
+ *    *op++ = *(++ip);
+ *    *op++ = *(ip++ -1);
+ *  }                                       
+ */
+  while(nn > 3)
+  {
+    *op++ = *(++ip);
+    *op++ = *(ip++ -1);
+    *op++ = *(++ip);
+    *op++ = *(ip++ -1);
+    *op++ = *(++ip);
+    *op++ = *(ip++ -1);
+    *op++ = *(++ip);
+    *op++ = *(ip++ -1);
+    nn -= 4;
+  }
   while(nn-- != 0)
   {
     *op++ = *(++ip);
@@ -120,6 +142,40 @@ swapn4b(void *dst, const void *src, size_t nn)
 {
   char *op = dst;
   const char *ip = src;
+
+/* unroll the following to reduce loop overhead
+ *  while(nn-- != 0)
+ *  {
+ *    op[0] = ip[3];
+ *    op[1] = ip[2];
+ *    op[2] = ip[1];
+ *    op[3] = ip[0];
+ *    op += 4;
+ *    ip += 4;
+ *  }
+ */
+  while(nn > 3)
+  {
+    op[0] = ip[3];
+    op[1] = ip[2];
+    op[2] = ip[1];
+    op[3] = ip[0];
+    op[4] = ip[7];
+    op[5] = ip[6];
+    op[6] = ip[5];
+    op[7] = ip[4];
+    op[8] = ip[11];
+    op[9] = ip[10];
+    op[10] = ip[9];
+    op[11] = ip[8];
+    op[12] = ip[15];
+    op[13] = ip[14];
+    op[14] = ip[13];
+    op[15] = ip[12];
+    op += 16;
+    ip += 16;
+    nn -= 4;
+  }
   while(nn-- != 0)
   {
     op[0] = ip[3];
@@ -154,6 +210,44 @@ swapn8b(void *dst, const void *src, size_t nn)
 {
   char *op = dst;
   const char *ip = src;
+
+/* unroll the following to reduce loop overhead
+ *  while(nn-- != 0)
+ *  {
+ *    op[0] = ip[7];
+ *    op[1] = ip[6];
+ *    op[2] = ip[5];
+ *    op[3] = ip[4];
+ *    op[4] = ip[3];
+ *    op[5] = ip[2];
+ *    op[6] = ip[1];
+ *    op[7] = ip[0];
+ *    op += 8;
+ *    ip += 8;
+ *  }
+ */
+  while(nn > 1)
+  {
+    op[0] = ip[7];
+    op[1] = ip[6];
+    op[2] = ip[5];
+    op[3] = ip[4];
+    op[4] = ip[3];
+    op[5] = ip[2];
+    op[6] = ip[1];
+    op[7] = ip[0];
+    op[8] = ip[15];
+    op[9] = ip[14];
+    op[10] = ip[13];
+    op[11] = ip[12];
+    op[12] = ip[11];
+    op[13] = ip[10];
+    op[14] = ip[9];
+    op[15] = ip[8];
+    op += 16;
+    ip += 16;
+    nn -= 2;
+  }
   while(nn-- != 0)
   {
     op[0] = ip[7];
@@ -229,7 +323,7 @@ ncx_get_short_schar(const void *xp, schar *ip)
 {
   ix_short xx;
   get_ix_short(xp, &xx);
-  *ip = (schar)xx;
+  *ip = xx;
   if(xx > SCHAR_MAX || xx < SCHAR_MIN)
     return NC_ERANGE;
   return ENOERR;
@@ -240,7 +334,7 @@ ncx_get_short_uchar(const void *xp, uchar *ip)
 {
   ix_short xx;
   get_ix_short(xp, &xx);
-  *ip = (uchar)xx;
+  *ip = xx;
   if(xx > UCHAR_MAX || xx < 0)
     return NC_ERANGE;
   return ENOERR;
@@ -395,7 +489,7 @@ ncx_put_short_long(void *xp, const long *ip)
 int
 ncx_put_short_float(void *xp, const float *ip)
 {
-  ix_short xx = (ix_short)*ip;
+  ix_short xx = *ip;
   put_ix_short(xp, &xx);
   if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
     return NC_ERANGE;
@@ -405,7 +499,7 @@ ncx_put_short_float(void *xp, const float *ip)
 int
 ncx_put_short_double(void *xp, const double *ip)
 {
-  ix_short xx = (ix_short)*ip;
+  ix_short xx = *ip;
   put_ix_short(xp, &xx);
   if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
     return NC_ERANGE;
@@ -542,8 +636,8 @@ ncx_get_int_float(const void *xp, float *ip)
 {
   ix_int xx;
   get_ix_int(xp, &xx);
-  *ip = (float)xx;
-#if 0  /* TODO: determine when necessary */
+  *ip = xx;
+#if 0 /* TODO: determine when necessary */
   if(xx > FLT_MAX || xx < (-FLT_MAX))
     return NC_ERANGE;
 #endif
@@ -825,7 +919,7 @@ put_ix_float(void *xp, const float *ip)
 }
 
   /* vax */
-#elif defined(_CRAY)
+#elif defined(_CRAY) && !defined(__crayx1)
 
 /*
  * Return the number of bytes until the next "word" boundary
@@ -1444,7 +1538,7 @@ put_ix_double(void *xp, const double *ip)
 }
 
   /* vax */
-#elif defined(_CRAY)
+#elif defined(_CRAY) && !defined(__crayx1)
 
 static void
 get_ix_double(const void *xp, double *ip)
@@ -1705,7 +1799,7 @@ ncx_put_double_double(void *xp, const double *ip)
 
 #if SIZEOF_SIZE_T < X_SIZEOF_SIZE_T
 #error "x_size_t implementation"
-/* netcdf requires size_t which can hold a values from 0 to 2^32 -1 */
+/* netcdf requires size_t which can hold values from 0 to 2^32 -1 */
 #endif
 
 int
@@ -1713,10 +1807,7 @@ ncx_put_size_t(void **xpp, const size_t *ulp)
 {
   /* similar to put_ix_int() */
   uchar *cp = (uchar *) *xpp;
-#ifndef __BORLANDC__
-  /* For borland, the following *is* always true and will generate a warning. */
   assert(*ulp <= X_SIZE_MAX);
-#endif /* __BORLANDC__ */
 
   *cp++ = (uchar)((*ulp) >> 24);
   *cp++ = (uchar)(((*ulp) & 0x00ff0000) >> 16);
@@ -2393,7 +2484,7 @@ ncx_getn_short_uchar(const void **xpp, size_t nelems, uchar *tp)
 int
 ncx_getn_short_short(const void **xpp, size_t nelems, short *tp)
 {
-# if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
   (void) memcpy(tp, *xpp, nelems * sizeof(short));
 # else
   swapn2b(tp, *xpp, nelems);
@@ -2683,7 +2774,7 @@ ncx_putn_short_uchar(void **xpp, size_t nelems, const uchar *tp)
 int
 ncx_putn_short_short(void **xpp, size_t nelems, const short *tp)
 {
-# if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
   (void) memcpy(*xpp, tp, nelems * X_SIZEOF_SHORT);
 # else
   swapn2b(*xpp, tp, nelems);
@@ -3014,7 +3105,7 @@ ncx_getn_int_short(const void **xpp, size_t nelems, short *tp)
 int
 ncx_getn_int_int(const void **xpp, size_t nelems, int *tp)
 {
-# if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
   (void) memcpy(tp, *xpp, nelems * sizeof(int));
 # else
   swapn4b(tp, *xpp, nelems);
@@ -3046,7 +3137,7 @@ ncx_getn_int_int(const void **xpp, size_t nelems, int *tp)
 int
 ncx_getn_int_long(const void **xpp, size_t nelems, long *tp)
 {
-# if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
   (void) memcpy(tp, *xpp, nelems * sizeof(long));
 # else
   swapn4b(tp, *xpp, nelems);
@@ -3164,7 +3255,7 @@ ncx_putn_int_short(void **xpp, size_t nelems, const short *tp)
 int
 ncx_putn_int_int(void **xpp, size_t nelems, const int *tp)
 {
-# if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
   (void) memcpy(*xpp, tp, nelems * X_SIZEOF_INT);
 # else
   swapn4b(*xpp, tp, nelems);
@@ -3196,7 +3287,7 @@ ncx_putn_int_int(void **xpp, size_t nelems, const int *tp)
 int
 ncx_putn_int_long(void **xpp, size_t nelems, const long *tp)
 {
-# if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
   (void) memcpy(*xpp, tp, nelems * X_SIZEOF_INT);
 # else
   swapn4b(*xpp, tp, nelems);
@@ -3351,7 +3442,7 @@ ncx_getn_float_long(const void **xpp, size_t nelems, long *tp)
 int
 ncx_getn_float_float(const void **xpp, size_t nelems, float *tp)
 {
-# if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
   (void) memcpy(tp, *xpp, nelems * sizeof(float));
 # else
   swapn4b(tp, *xpp, nelems);
@@ -3557,7 +3648,7 @@ ncx_putn_float_long(void **xpp, size_t nelems, const long *tp)
 int
 ncx_putn_float_float(void **xpp, size_t nelems, const float *tp)
 {
-# if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
   (void) memcpy(*xpp, tp, nelems * X_SIZEOF_FLOAT);
 # else
   swapn4b(*xpp, tp, nelems);
@@ -3782,7 +3873,7 @@ ncx_getn_double_float(const void **xpp, size_t nelems, float *tp)
 int
 ncx_getn_double_double(const void **xpp, size_t nelems, double *tp)
 {
-# if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
   (void) memcpy(tp, *xpp, nelems * sizeof(double));
 # else
   swapn8b(tp, *xpp, nelems);
@@ -3984,7 +4075,7 @@ ncx_putn_double_float(void **xpp, size_t nelems, const float *tp)
 int
 ncx_putn_double_double(void **xpp, size_t nelems, const double *tp)
 {
-# if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
   (void) memcpy(*xpp, tp, nelems * X_SIZEOF_DOUBLE);
 # else
   swapn8b(*xpp, tp, nelems);

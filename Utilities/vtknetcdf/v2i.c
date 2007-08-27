@@ -4,9 +4,9 @@
  */
 /* Id */
 
+#include "ncconfig.h"
 #include <stdlib.h>
-#include "nc.h" /* WARNING: nc.h must be included before netcdf.h or MSVC60 will die. */
-#include "netcdf.h"
+#include <netcdf.h>
 
 #ifndef NO_NETCDF_2
 
@@ -78,41 +78,41 @@ typedef signed char schar;
 static int
 numrecvars(int ncid, int *nrecvarsp, int *recvarids)
 {
-  int status;
-  int nvars = 0;
-  int ndims = 0;
-  int nrecvars;
-  int varid;
-  int recdimid;
-  int dimids[MAX_NC_DIMS];
+    int status;
+    int nvars = 0;
+    int ndims = 0;
+    int nrecvars = 0;
+    int varid;
+    int recdimid;
+    int dimids[MAX_NC_DIMS];
 
-  status = nc_inq_nvars(ncid, &nvars); 
-  if(status != NC_NOERR)
-    return status;
-
-  status = nc_inq_unlimdim(ncid, &recdimid); 
-  if(status != NC_NOERR)
-    return status;
-
-  if (recdimid == -1) {
-    *nrecvarsp = 0;
-    return NC_NOERR;
-  }
-  nrecvars = 0;
-  for (varid = 0; varid < nvars; varid++) {
-    status = nc_inq_varndims(ncid, varid, &ndims); 
+    status = nc_inq_nvars(ncid, &nvars); 
     if(status != NC_NOERR)
-      return status;
-    status = nc_inq_vardimid(ncid, varid, dimids); 
+  return status;
+
+    status = nc_inq_unlimdim(ncid, &recdimid); 
     if(status != NC_NOERR)
+  return status;
+
+    if (recdimid == -1) {
+  *nrecvarsp = 0;
+  return NC_NOERR;
+    }
+    nrecvars = 0;
+    for (varid = 0; varid < nvars; varid++) {
+  status = nc_inq_varndims(ncid, varid, &ndims); 
+  if(status != NC_NOERR)
       return status;
-    if (ndims > 0 && dimids[0] == recdimid) {
+  status = nc_inq_vardimid(ncid, varid, dimids); 
+  if(status != NC_NOERR)
+      return status;
+  if (ndims > 0 && dimids[0] == recdimid) {
       if (recvarids != NULL)
         recvarids[nrecvars] = varid;
       nrecvars++;
-    }
   }
-  *nrecvarsp = nrecvars;
+    }
+    *nrecvarsp = nrecvars;
     return NC_NOERR;
 }
 
@@ -341,7 +341,7 @@ nc_get_rec(
 /*
  * Error code
  */
-#ifndef DLL_NETCDF /* define when library is not a DLL */
+#if !DLL_NETCDF /* define when library is not a DLL */
 int ncerr = NC_NOERR ;
 
 
@@ -352,12 +352,6 @@ int ncerr = NC_NOERR ;
 int ncopts = (NC_FATAL | NC_VERBOSE) ;
 #endif
 
-/*
- * Backward compatibility for the version 2 fortran jackets
- */
-const char *cdf_routine_name;
-
-
 /* End globals */
 
 /* Begin error handling */
@@ -365,7 +359,6 @@ const char *cdf_routine_name;
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-
 
 /*
  */
@@ -400,22 +393,7 @@ nc_advise(const char *routine_name, int err, const char *fmt,...)
   }
 }
 
-
-/*
- * Backward compatibility for the version 2 fortran jackets
- */
-void
-NCadvise(int err, char *fmt,...)
-{
-  va_list args;
-
-  va_start(args ,fmt);
-  nc_advise(cdf_routine_name, err, fmt, args);
-  va_end(args);
-}
-
 /* End error handling */
-
 
 int
 nccreate(const char* path, int cmode)
