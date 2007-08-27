@@ -94,7 +94,6 @@ vtkSQLDatabase.cxx
 vtkSQLiteDatabase.cxx
 vtkSQLiteQuery.cxx
 vtkSQLQuery.cxx
-vtkSQLTableReader.cxx
 vtkSLCReader.cxx
 vtkSTLReader.cxx
 vtkSTLWriter.cxx
