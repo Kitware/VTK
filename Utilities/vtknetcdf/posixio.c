@@ -123,6 +123,8 @@ blksize(int fd)
     return 8192;
   }
   /* else, silent in the face of error */
+#else
+  (void)fd;
 #endif
   return (size_t) 2 * pagesize();
 }
@@ -328,6 +330,7 @@ typedef struct ncio_px {
 static int
 px_rel(ncio_px *const pxp, off_t offset, int rflags)
 {
+  (void)offset;
   assert(pxp->bf_offset <= offset
      && offset < pxp->bf_offset + (off_t) pxp->bf_extent);
   assert(pIf(fIsSet(rflags, RGN_MODIFIED),
@@ -1014,6 +1017,7 @@ ncio_spx_rel(ncio *const nciop, off_t offset, int rflags)
 {
   ncio_spx *const pxp = (ncio_spx *)nciop->pvt;
   int status = ENOERR;
+  (void)offset;
 
   assert(pxp->bf_offset <= offset);
   assert(pxp->bf_cnt != 0);

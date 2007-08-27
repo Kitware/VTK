@@ -220,7 +220,7 @@ NC_begins(NC *ncp,
 {
   size_t ii;
   int sizeof_off_t;
-  off_t index = 0;
+  off_t index;
   NC_var **vpp;
   NC_var *last = NULL;
 
@@ -339,7 +339,7 @@ fprintf(stderr, "    REC %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index);
 int
 read_numrecs(NC *ncp)
 {
-  int status = NC_NOERR;
+  int status;
   const void *xp = NULL;
   size_t nrecs = NC_get_numrecs(ncp);
 
@@ -374,7 +374,7 @@ read_numrecs(NC *ncp)
 int
 write_numrecs(NC *ncp)
 {
-  int status = NC_NOERR;
+  int status;
   void *xp = NULL;
 
   assert(!NC_readonly(ncp));
@@ -406,7 +406,7 @@ write_numrecs(NC *ncp)
 static int
 read_NC(NC *ncp)
 {
-  int status = NC_NOERR;
+  int status;
 
   free_NC_dimarrayV(&ncp->dims);
   free_NC_attrarrayV(&ncp->attrs);
@@ -427,7 +427,7 @@ read_NC(NC *ncp)
 static int
 write_NC(NC *ncp)
 {
-  int status = NC_NOERR;
+  int status;
 
   assert(!NC_readonly(ncp));
 
@@ -509,35 +509,35 @@ fill_added_recs(NC *gnu, NC *old)
   NC_var **vpp = gnu_varpp;
   NC_var *const *const end = &vpp[gnu->vars.nelems];
   int numrecvars = 0;
-  NC_var *recvarp = NULL;
+  NC_var *recvarp;
 
   /* Determine if there is only one record variable.  If so, we
      must treat as a special case because there's no record padding */
   for(; vpp < end; vpp++) {
       if(IS_RECVAR(*vpp)) {
-    recvarp = *vpp;
-    numrecvars++;
+        recvarp = *vpp;
+        numrecvars++;
       }
   }
 
   for(; recno < old_nrecs; recno++)
       {
-    int varid = (int)old->vars.nelems;
-    for(; varid < (int)gnu->vars.nelems; varid++)
+      int varid = (int)old->vars.nelems;
+      for(; varid < (int)gnu->vars.nelems; varid++)
         {
-      const NC_var *const gnu_varp = *(gnu_varpp + varid);
-      if(!IS_RECVAR(gnu_varp))
+        const NC_var *const gnu_varp = *(gnu_varpp + varid);
+        if(!IS_RECVAR(gnu_varp))
           {
-        /* skip non-record variables */
-        continue;
+          /* skip non-record variables */
+          continue;
           }
-      /* else */
-      {
+        /* else */
+          {
           size_t varsize = numrecvars == 1 ? gnu->recsize :  gnu_varp->len;
           const int status = fill_NC_var(gnu, gnu_varp, varsize, recno);
           if(status != NC_NOERR)
-        return status;
-      }
+            return status;
+          }
         }
       }
   return NC_NOERR;
@@ -769,7 +769,7 @@ NC_endef(NC *ncp,
   size_t h_minfree, size_t v_align,
   size_t v_minfree, size_t r_align)
 {
-  int status = NC_NOERR;
+  int status;
 
   assert(!NC_readonly(ncp));
   assert(NC_indef(ncp));
@@ -878,7 +878,7 @@ NC_calcsize(NC *ncp, off_t *calcsizep)
   NC_var **vpp = (NC_var **)ncp->vars.value;
   NC_var *const *const end = &vpp[ncp->vars.nelems];
   NC_var *last_fix = NULL;  /* last "non-record" var */
-  NC_var *last_rec = NULL;  /* last "record" var */
+  NC_var *last_rec;         /* last "record" var */
   /*NC_var *last_var;*/
   int status;
   int numrecvars = 0; /* number of record variables */
@@ -890,24 +890,24 @@ NC_calcsize(NC *ncp, off_t *calcsizep)
   }
 
   for( /*NADA*/; vpp < end; vpp++) {
-      status = NC_var_shape(*vpp, &ncp->dims);
-      if(status != NC_NOERR)
-    return status;
-      if(IS_RECVAR(*vpp)) {
-    last_rec = *vpp;
-    numrecvars++;
-      } else {
-    last_fix = *vpp;
-      }
+    status = NC_var_shape(*vpp, &ncp->dims);
+    if(status != NC_NOERR)
+      return status;
+    if(IS_RECVAR(*vpp)) {
+      last_rec = *vpp;
+      numrecvars++;
+    } else {
+      last_fix = *vpp;
+    }
   }
 
   if(numrecvars == 0) {
-      assert(last_fix != NULL);
-      *calcsizep = last_fix->begin + last_fix->len;
-      /*last_var = last_fix;*/
+    assert(last_fix != NULL);
+    *calcsizep = last_fix->begin + last_fix->len;
+    /*last_var = last_fix;*/
   } else {       /* we have at least one record variable */
-      *calcsizep = ncp->begin_rec + ncp->numrecs * ncp->recsize;
-      /*last_var = last_rec;*/
+    *calcsizep = ncp->begin_rec + ncp->numrecs * ncp->recsize;
+    /*last_var = last_rec;*/
   }
 
   return NC_NOERR;
@@ -930,7 +930,7 @@ nc__create_mp(const char * path, int ioflags, size_t initialsz, int basepe,
   NC *ncp;
   int status;
   void *xp = NULL;
-  int sizeof_off_t = 0;
+  int sizeof_off_t;
 
 #if ALWAYS_NC_SHARE /* DEBUG */
   fSet(ioflags, NC_SHARE);
@@ -1165,7 +1165,7 @@ nc_enddef(int ncid)
 int
 nc_close(int ncid)
 {
-  int status = NC_NOERR;
+  int status;
   NC *ncp; 
 
   status = NC_check_id(ncid, &ncp); 
@@ -1286,7 +1286,7 @@ nc_abort(int ncid)
 {
   int status;
   NC *ncp;
-  int doUnlink = 0;
+  int doUnlink;
 
   status = NC_check_id(ncid, &ncp); 
   if(status != NC_NOERR)

@@ -1181,7 +1181,7 @@ ncx_len_NC(const NC *ncp, size_t sizeof_off_t)
 int
 ncx_put_NC(const NC *ncp, void **xpp, off_t offset, size_t extent)
 {
-  int status = ENOERR;
+  int status;
   v1hs ps; /* the get stream */
 
   assert(ncp != NULL);
@@ -1293,7 +1293,7 @@ nc_get_NC(NC *ncp)
      * Come up with a reasonable stream read size.
      */
     off_t filesize;
-    size_t extent = MIN_NC_XSZ;
+    size_t extent;
     
     extent = ncp->xsz;
     if(extent <= MIN_NC_XSZ)
