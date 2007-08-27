@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================
-  Copyright 2005 Sandia Corporation.
+  Copyright 2007 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
   license for use of this work by or on behalf of the
   U.S. Government. Redistribution and use in source and binary forms, with
   or without modification, are permitted provided that this Notice and any
   statement of authorship are reproduced on all copies.
 
-  Contact: pppebay@sandia.gov,dcthomp@sandia.gov,
+  Contact: pppebay@sandia.gov,dcthomp@sandia.gov
 
 =========================================================================*/
 #include "vtkPolynomialSolvers.h"
@@ -32,7 +32,7 @@
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.1");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.2");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 //----------------------------------------------------------------------------
