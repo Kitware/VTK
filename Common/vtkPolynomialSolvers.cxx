@@ -32,7 +32,7 @@
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.3");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.4");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 //----------------------------------------------------------------------------
@@ -117,7 +117,10 @@ int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR 
     {
     nj = i > n ? n : i;
     Q[i] = A[i];
-    for ( int j = 1; j <= nj; ++ j ) Q[i] -= B[j] * Q[i - j] ;
+    for ( int j = 1; j <= nj; ++ j ) 
+      {
+      Q[i] -= B[j] * Q[i - j] ;
+      }
     Q[i] *= iB0;
     }
 
@@ -128,9 +131,12 @@ int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR 
     nj = mMn + 1 > i ? i : mMn + 1;
     for ( int j = 0; j < nj; ++ j ) mR[n - i] += B[n - i + 1 + j] * Q[mMn - j];
 
-    if ( mR[n - i] ) r = i - 1;
+    if ( mR[n - i] ) 
+      {
+      r = i - 1;
+      }
     }
-  delete[] Q;
+  delete [] Q;
   
   if ( ! r && ! mR[0] ) return -1;
 
@@ -223,31 +229,31 @@ int vtkPolynomialSolvers::SturmRootCount( double* P, int d, double* a )
 //----------------------------------------------------------------------------
 // Find all real roots in ] a[0] ; a[1] ] of a real 
 // d-th degree polynomial using Sturm's theorem.
-int vtkPolynomialSolvers::SturmBissectionSolve( double* P, int d, double* a, double *lowerBnds, double tol )
+int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, double *lowerBnds, double tol )
 {
   // 0. Stupidity checks
 
   if ( tol <= 0 )
     {
-    vtkGenericWarningMacro(<<"vtkPolynomialSolvers::SturmRootBissectionSolve: Tolerance must be positive");
+    vtkGenericWarningMacro(<<"vtkPolynomialSolvers::SturmRootBisectionSolve: Tolerance must be positive");
     return -1;
     }
 
   if ( ! P[0] )
     {
-    vtkGenericWarningMacro(<<"vtkPolynomialSolvers::SturmRootBissectionSolve: Zero leading coefficient");
+    vtkGenericWarningMacro(<<"vtkPolynomialSolvers::SturmRootBisectionSolve: Zero leading coefficient");
     return -1;
     }
 
   if ( d < 1 )
     {
-    vtkGenericWarningMacro(<<"vtkPolynomialSolvers::SturmRootBissectionSolve: Degree < 1");
+    vtkGenericWarningMacro(<<"vtkPolynomialSolvers::SturmRootBisectionSolve: Degree < 1");
     return -1;
     }
 
   if ( a[1] < a[0] + tol )
     {
-    vtkGenericWarningMacro(<<"vtkPolynomialSolvers::SturmRootBissectionSolve: Erroneous interval endpoints and/or tolerance");
+    vtkGenericWarningMacro(<<"vtkPolynomialSolvers::SturmRootBisectionSolve: Erroneous interval endpoints and/or tolerance");
     return -1;
     }
 

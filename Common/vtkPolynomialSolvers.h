@@ -66,7 +66,7 @@ public:
   // Note that \nr is smaller or equal to the actual number of roots in 
   // ]\a[0] ; \a[1]] since roots within \tol are lumped in the same bracket.
   // array is large enough to contain the maximal number of expected lower bounds.
-  static int SturmBissectionSolve( double* P, int d, double* a, double *lowerBnds, double tol );
+  static int SturmBisectionSolve( double* P, int d, double* a, double *lowerBnds, double tol );
 
 protected:
   vtkPolynomialSolvers() {};

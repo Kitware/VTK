@@ -31,10 +31,10 @@ int TestPolynomialSolvers(int,char *[])
 
   double* lowerBnds = new double[degP];
   double tol = 1.e-5;
-  testIntValue = vtkPolynomialSolvers::SturmBissectionSolve( P, degP, rootInt, lowerBnds, tol );
+  testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P, degP, rootInt, lowerBnds, tol );
   if ( testIntValue != 5 )
     {
-    vtkGenericWarningMacro("SturmBissectionSolve( -0.0005 x^22 -0.001 x^21 +0.05 x^20 +0.1 x^19 -0.2 x^18 +1 x^17 -5.1 x^15 +4 x^13 -1 x^12 +0.2 x^11 +3 x^10 +2.2 x^9 +2 x^8 -7 x^7 -0.3 x^6 +3.8 x^5 +14 x^4 -16 x^3 +80 x^2 -97.9 x +5, 22, ] -3 ; 3 ] ) = "<<testIntValue<<" != 5");
+    vtkGenericWarningMacro("SturmBisectionSolve( -0.0005 x^22 -0.001 x^21 +0.05 x^20 +0.1 x^19 -0.2 x^18 +1 x^17 -5.1 x^15 +4 x^13 -1 x^12 +0.2 x^11 +3 x^10 +2.2 x^9 +2 x^8 -7 x^7 -0.3 x^6 +3.8 x^5 +14 x^4 -16 x^3 +80 x^2 -97.9 x +5, 22, ] -3 ; 3 ] ) = "<<testIntValue<<" != 5");
     return 1;
     }
 
