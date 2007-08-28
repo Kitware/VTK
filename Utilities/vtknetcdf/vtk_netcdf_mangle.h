@@ -75,6 +75,7 @@ used when the shared library is loaded/unloaded from an executable.
 #define nc__enddef vtk_netcdf_nc__enddef
 #define nc_enddef vtk_netcdf_nc_enddef
 #define ncendef vtk_netcdf_ncendef
+#define ncerr vtk_netcdf_ncerr
 #define NC_findattr vtk_netcdf_NC_findattr
 #define NC_findvar vtk_netcdf_NC_findvar
 #define nc_get_att_double vtk_netcdf_nc_get_att_double
@@ -168,6 +169,7 @@ used when the shared library is loaded/unloaded from an executable.
 #define nc__open vtk_netcdf_nc__open
 #define nc_open vtk_netcdf_nc_open
 #define ncopen vtk_netcdf_ncopen
+#define ncopts vtk_netcdf_ncopts
 #define nc_put_att_double vtk_netcdf_nc_put_att_double
 #define nc_put_att_float vtk_netcdf_nc_put_att_float
 #define nc_put_att_int vtk_netcdf_nc_put_att_int
