@@ -24,6 +24,7 @@
 #define VTK_SQLITE_OMIT_LOAD_EXTENSION
 #if defined(_MSC_VER)
 #pragma warning( disable: 4127 ) /* conditional expression is constant */
+#pragma warning( disable: 4049 ) /* too many lines in file */
 #endif
 #if defined(__BORLANDC__)
 #pragma warn -8004 /* assigned a value that is never used */
@@ -14150,7 +14151,7 @@ int vtk_sqlite3_fullsync_count = 0;
 static int full_fsync(int fd, int fullSync, int dataOnly){
   int rc;
   
-  (void)fullSync; /* use arg */
+  (void)fullSync; (void)dataOnly; /* use args */
 
   /* Record the number of times that we do a normal fsync() and 
   ** FULLSYNC.  This is used during testing to verify that this procedure
@@ -36901,7 +36902,7 @@ case OP_NewRowid: {
     ** larger than the previous rowid.  This has been shown experimentally
     ** to double the speed of the COPY operation.
     */
-    int res, rx=VTK_SQLITE_OK, cnt;
+    int res=0, rx=VTK_SQLITE_OK, cnt;
     i64 x;
     cnt = 0;
     if( (vtk_sqlite3BtreeFlags(pC->pCursor)&(BTREE_INTKEY|BTREE_ZERODATA)) !=
@@ -37114,7 +37115,7 @@ case OP_Delete: {        /* no-push */
   pC = p->apCsr[i];
   assert( pC!=0 );
   if( pC->pCursor!=0 ){
-    i64 iKey;
+    i64 iKey=0;
 
     /* If the update-hook will be invoked, set iKey to the rowid of the
     ** row being deleted.
@@ -67976,6 +67977,3 @@ int vtk_sqlite3_extended_result_codes(vtk_sqlite3 *db, int onoff){
 }
 
 /************** End of main.c ************************************************/
-#if defined(_MSC_VER)
-#pragma warning( default: 4127 )
-#endif
