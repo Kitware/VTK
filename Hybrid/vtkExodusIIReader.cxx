@@ -44,7 +44,6 @@
 #include <vtkstd/vector>
 #include <vtkstd/map>
 #include <vtkstd/set>
-#include <vtkstd/string>
 #include "vtksys/SystemTools.hxx"
 
 #include "vtksys/RegularExpression.hxx"
@@ -706,7 +705,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.33");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.34");
 
 
 
@@ -1595,7 +1594,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.33");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.34");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -5367,13 +5366,13 @@ void vtkExodusIIReaderPrivate::SetInitialObjectStatus( int objectType, const cha
 {
   ObjectInfoType info;
   vtkStdString nm = objName;
-  unsigned int idx = 0;
+  int idx = 0;
   int idlen = 0;
   int id = -1;
 
   // When no name is found for an object, it is given one of a certain format.
   // Parse the id out of that string and use it to identify the object later.
-  if( (idx = nm.find("ID: ")) != vtkstd::string::npos)
+  if( (idx = nm.find("ID: ")) != (int)vtkStdString::npos)
     {
     idx += 4;
     idlen = 0;
@@ -5691,7 +5690,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.33");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.34");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
