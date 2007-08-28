@@ -247,8 +247,8 @@ typedef enum {
 /* When netCDF is built as a DLL, this will export ncerr and
  * ncopts. When it is used as a DLL, it will import them. */
 #if defined(DLL_NETCDF) 
-MSC_EXTRA int ncerr;
-MSC_EXTRA int ncopts;
+EXTERNL int ncerr;
+EXTERNL int ncopts;
 #endif
 
 EXTERNL const char *
