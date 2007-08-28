@@ -68,6 +68,18 @@ public:
   // array is large enough to contain the maximal number of expected lower bounds.
   static int SturmBisectionSolve( double* P, int d, double* a, double *lowerBnds, double tol );
 
+  // Description:
+  // Seeks all REAL roots of the \a d -th degree polynomial 
+  //   c[0] X^d + ... + c[d-1] X + c[d] = 0
+  // equation Lin-Bairstow's method ( polynomial coefficients are REAL ) and 
+  // stores the \nr roots found ( multiple roots are multiply stored ) in \a r.
+  // \tolerance is the user-defined solver tolerance; this variable may be 
+  // relaxed by the iterative solver if needed.
+  // Returns \nr.
+  // Warning: it is the user's responsibility to make sure the \a r
+  // array is large enough to contain the maximal number of expected roots.
+  static int LinBairstowSolve( double* c, int d, double* r, double& tolerance );
+
 protected:
   vtkPolynomialSolvers() {};
   ~vtkPolynomialSolvers() {};

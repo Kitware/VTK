@@ -31,7 +31,7 @@
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.121");
+vtkCxxRevisionMacro(vtkMath, "1.122");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -899,108 +899,6 @@ double* vtkMath::SolveCubic( double c0, double c1, double c2, double c3 )
                                  &roots[1], &roots[2], &roots[3], &num_roots );
   roots[0] = num_roots;
   return roots;
-}
-
-//----------------------------------------------------------------------------
-// Solves a d-th degree polynomial equation using Lin-Bairstow's method.
-//
-int vtkMath::LinBairstowSolve( double* c, int d, double* r, double& tolerance )
-{
-  if ( ! c[0] )
-    {
-    vtkGenericWarningMacro(<<"vtkMath::LinBairstowSolve: Zero leading coefficient");
-    return 0;
-    }
-
-  int i;
-  int dp1 = d + 1;
-  for ( i = 1 ; i < dp1; ++ i )
-    {
-    c[i] /= c[0];
-    }
- 
-  double* div1 = new double[dp1];
-  double* div2 = new double[dp1];
-  div1[0] = div2[0] = 1;
-  for ( i = d ; i > 2; i -= 2 )
-    {
-    double det, detR, detS;
-    double R = 0.;
-    double S = 0.;
-    double dR = 1.;
-    double dS = 0.;
-    int nIterations = 1;
-
-    while ( ( fabs( dR ) + fabs( dS ) ) > tolerance )
-      {
-      if ( ! ( nIterations % 100 ) )
-        {
-        R = vtkMath::Random( 0., 2. );
-        if ( ! ( nIterations % 200 ) ) tolerance *= 4.;
-        }
-
-      div1[1] = c[1] - R;
-      div2[1] = div1[1] - R;
-
-      for ( int j = 2; j <= i; ++ j )
-        {
-        div1[j] = c[j] - R * div1[j - 1] - S * div1[j - 2];
-        div2[j] = div1[j] - R * div2[j - 1] - S * div2[j - 2];
-        }
-
-      det  = div2[i - 1] * div2[i -3]  - div2[i - 2] * div2[i - 2];
-      detR = div1[i]     * div2[i -3]  - div1[i - 1] * div2[i - 2];
-      detS = div1[i - 1] * div2[i - 1] - div1[i]     * div2[i - 2];
-
-      if ( fabs( det ) < VTK_DBL_EPSILON )
-        {
-        det = detR = detS = 1.;
-        }
-
-      dR = detR / det;
-      dS = detS / det;
-      R += dR;
-      S += dS;
-      ++ nIterations;
-      }
-
-    for ( int j = 0; j < i - 1; ++ j ) c[j] = div1[j];
-    c[i] = S;
-    c[i - 1] = R;
-    }
-
-  int nr = 0;  
-  for ( i = d; i >= 2; i -= 2 )
-    {
-    double delta = c[i - 1] * c[i - 1] - 4. * c[i];
-    if ( delta >= 0 )
-      {
-      // check whether there is 2 simple or 1 double root(s)
-      if ( delta )
-        {
-        delta = sqrt( delta );
-        // we have 2 simple real roots
-        r[nr ++] = ( - c[i - 1] - delta ) / 2.;
-        // insert 2nd simple real root
-        r[nr ++] = ( - c[i - 1] + delta ) / 2.;
-        }
-      else
-        {
-        // we have a double real root
-        r[nr ++] = - c[1];
-        r[nr ++] = - c[1];
-        }
-      }
-    }
-  if ( ( d % 2 ) == 1 )
-    {
-    // what's left when degree is odd
-    r[nr ++] = - c[1];
-    }
-
-  delete [] div1;
-  delete [] div2;
-  return nr;
 }
 
 extern "C" {
