@@ -432,4 +432,6 @@ used when the shared library is loaded/unloaded from an executable.
 #define set_NC_string vtk_netcdf_set_NC_string
 #define write_numrecs vtk_netcdf_write_numrecs
 
+#include "ncconfig.h"
+
 #endif /* vtk_netcdf_mangle_h */

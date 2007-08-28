@@ -220,7 +220,7 @@ typedef enum {
 /* Declaration modifiers for DLL support (MSC et al) */
 
 #if defined(DLL_NETCDF) /* define when library is a DLL */
-#  if defined(NC_DLL_EXPORT) /* define when building the library */
+#  if defined(vtkNetCDF_EXPORTS) /* define when building the library */
 #   define MSC_EXTRA __declspec(dllexport)
 #  else
 #   define MSC_EXTRA __declspec(dllimport)
