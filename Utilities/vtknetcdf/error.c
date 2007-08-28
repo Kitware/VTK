@@ -6,7 +6,7 @@
 
 /*LINTLIBRARY*/
 
-#include  "ncconfig.h"
+#include "ncconfig.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -80,7 +80,7 @@ nc_strerror(int err)
   if(err == EVMSERR)
   {
     return vms_strerror(err);
-  }
+  } 
   /* else */
 #endif /* vms */
 
@@ -98,69 +98,69 @@ nc_strerror(int err)
   case NC_NOERR:
       return "No error";
   case NC_EBADID:
-      return "Not a netCDF id";
+      return "NetCDF: Not a valid ID";
   case NC_ENFILE:
-      return "Too many netCDF files open";
+      return "NetCDF: Too many files open";
   case NC_EEXIST:
-      return "netCDF file exists && NC_NOCLOBBER";
+      return "NetCDF: File exists && NC_NOCLOBBER";
   case NC_EINVAL:
-      return "Invalid argument";
+      return "NetCDF: Invalid argument";
   case NC_EPERM:
-      return "Write to read only";
+      return "NetCDF: Write to read only";
   case NC_ENOTINDEFINE:
-      return "Operation not allowed in data mode";
+      return "NetCDF: Operation not allowed in data mode";
   case NC_EINDEFINE:
-      return "Operation not allowed in define mode";
+      return "NetCDF: Operation not allowed in define mode";
   case NC_EINVALCOORDS:
-      return "Index exceeds dimension bound";
+      return "NetCDF: Index exceeds dimension bound";
   case NC_EMAXDIMS:
-      return "NC_MAX_DIMS exceeded";
+      return "NetCDF: NC_MAX_DIMS exceeded";
   case NC_ENAMEINUSE:
-      return "String match to name in use";
+      return "NetCDF: String match to name in use";
   case NC_ENOTATT:
-      return "Attribute not found";
+      return "NetCDF: Attribute not found";
   case NC_EMAXATTS:
-      return "NC_MAX_ATTRS exceeded";
+      return "NetCDF: NC_MAX_ATTRS exceeded";
   case NC_EBADTYPE:
-      return "Not a netCDF data type or _FillValue type mismatch";
+      return "NetCDF: Not a valid data type or _FillValue type mismatch";
   case NC_EBADDIM:
-      return "Invalid dimension id or name";
+      return "NetCDF: Invalid dimension ID or name";
   case NC_EUNLIMPOS:
-      return "NC_UNLIMITED in the wrong index";
+      return "NetCDF: NC_UNLIMITED in the wrong index";
   case NC_EMAXVARS:
-      return "NC_MAX_VARS exceeded";
+      return "NetCDF: NC_MAX_VARS exceeded";
   case NC_ENOTVAR:
-      return "Variable not found";
+      return "NetCDF: Variable not found";
   case NC_EGLOBAL:
-      return "Action prohibited on NC_GLOBAL varid";
+      return "NetCDF: Action prohibited on NC_GLOBAL varid";
   case NC_ENOTNC:
-      return "Not a netCDF file";
+      return "NetCDF: Unknown file format";
   case NC_ESTS:
-      return "In Fortran, string too short";
+      return "NetCDF: In Fortran, string too short";
   case NC_EMAXNAME:
-      return "NC_MAX_NAME exceeded";
+      return "NetCDF: NC_MAX_NAME exceeded";
   case NC_EUNLIMIT:
-      return "NC_UNLIMITED size already in use";
+      return "NetCDF: NC_UNLIMITED size already in use";
   case NC_ENORECVARS:
-      return "nc_rec op when there are no record vars";
+      return "NetCDF: nc_rec op when there are no record vars";
   case NC_ECHAR:
-      return "Attempt to convert between text & numbers";
+      return "NetCDF: Attempt to convert between text & numbers";
   case NC_EEDGE:
-      return "Start+count exceeds dimension bound";
+      return "NetCDF: Start+count exceeds dimension bound";
   case NC_ESTRIDE:
-      return "Illegal stride";
+      return "NetCDF: Illegal stride";
   case NC_EBADNAME:
-      return "Attribute or variable name contains illegal characters";
+      return "NetCDF: Name contains illegal characters";
   case NC_ERANGE:
-      return "Numeric conversion not representable";
+      return "NetCDF: Numeric conversion not representable";
   case NC_ENOMEM:
-      return "Memory allocation (malloc) failure";
+      return "NetCDF: Memory allocation (malloc) failure";
   case NC_EVARSIZE:
-      return "One or more variable sizes violate format constraints";
+      return "NetCDF: One or more variable sizes violate format constraints";
   case NC_EDIMSIZE:
-      return "Invalid dimension size";
+      return "NetCDF: Invalid dimension size";
   case NC_ETRUNC:
-      return "File likely truncated or possibly corrupted";
+      return "NetCDF: File likely truncated or possibly corrupted";
   }
   /* default */
   return unknown;

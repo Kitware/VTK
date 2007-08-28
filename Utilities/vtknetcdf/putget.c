@@ -62,7 +62,7 @@ nctypelen(nc_type type)
   case NC_DOUBLE : 
     return((int)sizeof(double));
   case NC_NAT:
-    break;
+    break; /* some compilers complain if enums are missing from a switch */
   }
 
   return -1;
@@ -102,7 +102,7 @@ NC_fill_schar(
   assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
 
   {
-    schar *vp = fillp;  /* lower bound of area to be filled */
+    schar *vp = fillp; /* lower bound of area to be filled */
     const schar *const end = vp + nelems;
     while(vp < end)
     {
@@ -142,7 +142,7 @@ NC_fill_short(
   assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
 
   {
-    short *vp = fillp;  /* lower bound of area to be filled */
+    short *vp = fillp; /* lower bound of area to be filled */
     const short *const end = vp + nelems;
     while(vp < end)
     {
@@ -164,7 +164,7 @@ NC_fill_int(
   assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
 
   {
-    int *vp = fillp;  /* lower bound of area to be filled */
+    int *vp = fillp; /* lower bound of area to be filled */
     const int *const end = vp + nelems;
     while(vp < end)
     {
@@ -209,7 +209,7 @@ NC_fill_float(
   assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
 
   {
-    float *vp = fillp;  /* lower bound of area to be filled */
+    float *vp = fillp; /* lower bound of area to be filled */
     const float *const end = vp + nelems;
     while(vp < end)
     {
@@ -241,26 +241,30 @@ NC_fill_double(
 
 
 
-/*
- * Fill the external space for variable 'varp' values at 'recno'
- * with the appropriate value. If 'varp' is not a record
- * variable, fill the whole thing.
+
+
+/* 
+ * Fill the external space for variable 'varp' values at 'recno' with
+ * the appropriate value. If 'varp' is not a record variable, fill the
+ * whole thing.  For the special case when 'varp' is the only record
+ * variable and it is of type byte, char, or short, varsize should be
+ * ncp->recsize, otherwise it should be varp->len.
  * Formerly
 xdr_NC_fill()
  */
 int
-fill_NC_var(NC *ncp, const NC_var *varp, size_t recno)
+fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno)
 {
   char xfillp[NFILL * X_SIZEOF_DOUBLE];
   const size_t step = varp->xsz;
   const size_t nelems = sizeof(xfillp)/step;
   const size_t xsz = varp->xsz * nelems;
-  NC_attr **attrpp = NULL;
+  NC_attr **attrpp;
   off_t offset;
-  size_t remaining = varp->len;
+  size_t remaining = varsize;
 
   void *xp;
-  int status = NC_NOERR;
+  int status;
 
   /*
    * Set up fill value
@@ -347,7 +351,6 @@ fill_NC_var(NC *ncp, const NC_var *varp, size_t recno)
   {
     const size_t chunksz = MIN(remaining, ncp->chunk);
     size_t ii;
-    assert(chunksz % X_ALIGN == 0);
 
     status = ncp->nciop->get(ncp->nciop, offset, chunksz,
          RGN_WRITE, &xp); 
@@ -410,13 +413,31 @@ NCfillrecord(NC *ncp, const NC_var *const *varpp, size_t recno)
       continue; /* skip non-record variables */
     }
     {
-    const int status = fill_NC_var(ncp, *varpp, recno);
+    const int status = fill_NC_var(ncp, *varpp, (*varpp)->len, recno);
     if(status != NC_NOERR)
       return status;
     }
   }
   return NC_NOERR;
 }
+
+
+/*
+ * Add a record containing the fill values in the special case when
+ * there is exactly one record variable, where we don't require each
+ * record to be four-byte aligned (no record padding).
+ */
+static int
+NCfillspecialrecord(NC *ncp, const NC_var *varp, size_t recno)
+{
+    int status;
+    assert(IS_RECVAR(varp));
+    status = fill_NC_var(ncp, varp, ncp->recsize, recno);
+    if(status != NC_NOERR)
+  return status;
+    return NC_NOERR;
+}
+
 
 /*
  * It is advantageous to
@@ -529,10 +550,29 @@ NCvnrecs(NC *ncp, size_t numrecs)
     }
     else
     {
+        /* Treat two cases differently: 
+            - exactly one record variable (no padding)
+                        - multiple record variables (each record padded 
+                          to 4-byte alignment)
+        */
+        NC_var **vpp = (NC_var **)ncp->vars.value;
+        NC_var *const *const end = &vpp[ncp->vars.nelems];
+        NC_var *recvarp = NULL; /* last record var */
+        int numrecvars = 0;
+        size_t cur_nrecs;
+        
+        /* determine how many record variables */
+        for( /*NADA*/; vpp < end; vpp++) {
+      if(IS_RECVAR(*vpp)) {
+          recvarp = *vpp;
+          numrecvars++;
+      }
+        }
+        
+        if (numrecvars != 1) { /* usual case */
       /* Fill each record out to numrecs */
-      size_t cur_nrecs;
       while((cur_nrecs = NC_get_numrecs(ncp)) < numrecs)
-      {
+          {
         status = NCfillrecord(ncp,
           (const NC_var *const*)ncp->vars.value,
           cur_nrecs);
@@ -544,6 +584,23 @@ NCvnrecs(NC *ncp, size_t numrecs)
       }
       if(status != NC_NOERR)
         goto common_return;
+        } else {  /* special case */
+      /* Fill each record out to numrecs */
+      while((cur_nrecs = NC_get_numrecs(ncp)) < numrecs)
+          {
+        status = NCfillspecialrecord(ncp,
+          recvarp,
+          cur_nrecs);
+        if(status != NC_NOERR)
+        {
+          break;
+        }
+        NC_increase_numrecs(ncp, cur_nrecs +1);
+      }
+      if(status != NC_NOERR)
+        goto common_return;
+      
+        }
     }
 
     if(NC_doNsync(ncp))
@@ -633,7 +690,6 @@ NCedgeck(const NC *ncp, const NC_var *varp,
 {
   const size_t *const end = start + varp->ndims;
   const size_t *shp = varp->shape;
-
   (void)ncp;
 
   if(varp->ndims == 0)
@@ -2362,7 +2418,7 @@ putNCv_schar(NC *ncp, const NC_var *varp,
     return putNCvx_double_schar(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -2390,7 +2446,7 @@ putNCv_uchar(NC *ncp, const NC_var *varp,
     return putNCvx_double_uchar(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -2418,7 +2474,7 @@ putNCv_short(NC *ncp, const NC_var *varp,
     return putNCvx_double_short(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -2446,7 +2502,7 @@ putNCv_int(NC *ncp, const NC_var *varp,
     return putNCvx_double_int(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -2474,7 +2530,7 @@ putNCv_long(NC *ncp, const NC_var *varp,
     return putNCvx_double_long(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -2502,7 +2558,7 @@ putNCv_float(NC *ncp, const NC_var *varp,
     return putNCvx_double_float(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -2530,7 +2586,7 @@ putNCv_double(NC *ncp, const NC_var *varp,
     return putNCvx_double_double(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -4009,7 +4065,7 @@ getNCv_schar(const NC *ncp, const NC_var *varp,
     return getNCvx_double_schar(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -4037,7 +4093,7 @@ getNCv_uchar(const NC *ncp, const NC_var *varp,
     return getNCvx_double_uchar(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -4065,7 +4121,7 @@ getNCv_short(const NC *ncp, const NC_var *varp,
     return getNCvx_double_short(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -4093,7 +4149,7 @@ getNCv_int(const NC *ncp, const NC_var *varp,
     return getNCvx_double_int(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -4121,7 +4177,7 @@ getNCv_long(const NC *ncp, const NC_var *varp,
     return getNCvx_double_long(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -4149,7 +4205,7 @@ getNCv_float(const NC *ncp, const NC_var *varp,
     return getNCvx_double_float(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -4177,7 +4233,7 @@ getNCv_double(const NC *ncp, const NC_var *varp,
     return getNCvx_double_double(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -6591,7 +6647,7 @@ nc_get_vara_double(int ncid, int varid,
 
 
 
-#if defined(__cplusplus) || defined(_MSC_VER)
+#if defined(__cplusplus)
 /* C++ consts default to internal linkage and must be initialized */
 const size_t coord_zero[NC_MAX_VAR_DIMS] = {0};
 #else
@@ -11182,7 +11238,7 @@ nc_get_att(int ncid, int varid, const char *name, void *value)
     return nc_get_att_double(ncid, varid, name,
       (double *)value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -11222,7 +11278,7 @@ nc_put_att(
     return nc_put_att_double(ncid, varid, name, type, nelems,
       (double *)value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -11258,7 +11314,7 @@ nc_get_var1(int ncid, int varid, const size_t *coord, void *value)
     return nc_get_var1_double(ncid, varid, coord,
       (double *) value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -11294,7 +11350,7 @@ nc_put_var1(int ncid, int varid, const size_t *coord, const void *value)
     return nc_put_var1_double(ncid, varid, coord,
       (const double *) value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -11338,7 +11394,7 @@ nc_get_vara(int ncid, int varid,
     return nc_get_vara_double(ncid, varid, start, edges,
       (double *) value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -11374,7 +11430,7 @@ nc_put_vara(int ncid, int varid,
     return nc_put_vara_double(ncid, varid, start, edges,
       (const double *) value);
   case NC_NAT:
-    break;
+    break; /* Some compilers complain if enums are missing from a switch */
   }
   return NC_EBADTYPE;
 }
@@ -11386,7 +11442,7 @@ nc_get_varm (
   const size_t * start,
   const size_t * edges,
   const ptrdiff_t * stride,
-  const ptrdiff_t * map,
+  const ptrdiff_t * imapp,
   void *value)
 {
   int status;
@@ -11402,7 +11458,7 @@ nc_get_varm (
   if(status != NC_NOERR)
     return status;
 
-  if(map != NULL && varndims != 0)
+  if(imapp != NULL && varndims != 0)
   {
     /*
      * convert map units from bytes to units of sizeof(type)
@@ -11414,40 +11470,40 @@ nc_get_varm (
       return NC_ENOMEM;
     for(ii = 0; (int)ii < varndims; ii++)
     {
-      if(map[ii] % szof != 0) 
+      if(imapp[ii] % szof != 0) 
       {
         free(cvtmap);
         return NC_EINVAL;
       }
-      cvtmap[ii] = map[ii] / szof;
+      cvtmap[ii] = imapp[ii] / szof;
     }
-    map = cvtmap;
+    imapp = cvtmap;
   }
 
   switch(vartype){
   case NC_CHAR:
     status =  nc_get_varm_text(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (char *) value);
     break;
   case NC_BYTE:
     status = nc_get_varm_schar(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (schar *) value);
     break;
   case NC_SHORT:
     status = nc_get_varm_short(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (short *) value);
     break;
   case NC_INT:
 #if (SIZEOF_INT >= X_SIZEOF_INT)
     status = nc_get_varm_int(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (int *) value);
 #elif SIZEOF_LONG == X_SIZEOF_INT
     status = nc_get_varm_long(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (long *) value);
 #else
 #error "nc_get_varm implementation"
@@ -11455,12 +11511,12 @@ nc_get_varm (
     break;
   case NC_FLOAT:
     status = nc_get_varm_float(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (float *) value);
     break;
   case NC_DOUBLE: 
     status = nc_get_varm_double(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (double *) value);
     break;
   default:
@@ -11483,7 +11539,7 @@ nc_put_varm (
   const size_t * start,
   const size_t * edges,
   const ptrdiff_t * stride,
-  const ptrdiff_t * map,
+  const ptrdiff_t * imapp,
   const void *value)
 {
   int status;
@@ -11499,7 +11555,7 @@ nc_put_varm (
   if(status != NC_NOERR)
     return status;
 
-  if(map != NULL && varndims != 0)
+  if(imapp != NULL && varndims != 0)
   {
     /*
      * convert map units from bytes to units of sizeof(type)
@@ -11511,40 +11567,40 @@ nc_put_varm (
       return NC_ENOMEM;
     for(ii = 0; (int)ii < varndims; ii++)
     {
-      if(map[ii] % szof != 0) 
+      if(imapp[ii] % szof != 0) 
       {
         free(cvtmap);
         return NC_EINVAL;
       }
-      cvtmap[ii] = map[ii] / szof;
+      cvtmap[ii] = imapp[ii] / szof;
     }
-    map = cvtmap;
+    imapp = cvtmap;
   }
 
   switch(vartype){
   case NC_CHAR:
     status =  nc_put_varm_text(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (const char *) value);
     break;
   case NC_BYTE:
     status = nc_put_varm_schar(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (const schar *) value);
     break;
   case NC_SHORT:
     status = nc_put_varm_short(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (const short *) value);
     break;
   case NC_INT:
 #if (SIZEOF_INT >= X_SIZEOF_INT)
     status = nc_put_varm_int(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (const int *) value);
 #elif SIZEOF_LONG == X_SIZEOF_INT
     status = nc_put_varm_long(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (const long *) value);
 #else
 #error "nc_put_varm implementation"
@@ -11552,12 +11608,12 @@ nc_put_varm (
     break;
   case NC_FLOAT:
     status = nc_put_varm_float(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (const float *) value);
     break;
   case NC_DOUBLE: 
     status = nc_put_varm_double(ncid, varid, start, edges,
-      stride, map,
+      stride, imapp,
       (const double *) value);
     break;
   default:

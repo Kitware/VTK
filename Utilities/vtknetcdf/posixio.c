@@ -4,35 +4,33 @@
  */
 /* Id */
 
-#include  "ncconfig.h"
-#ifndef NO_SYS_TYPES_H
-#  include <sys/types.h>
-#endif /* NO_SYS_TYPES_H */
-
-#if defined(__BORLANDC__)
-#pragma warn -8004 /* "assigned a value that is never used" */
-#pragma warn -8065 /* "Call to function 'XXX' with no prototype" */
-#endif
-
+#include "ncconfig.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <errno.h>
 #ifndef ENOERR
 #define ENOERR 0
 #endif
+#ifndef NO_SYS_TYPES_H
+#  include <sys/types.h>
+#endif /* NO_SYS_TYPES_H */
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
+
 #ifdef _MSC_VER /* Microsoft Compilers */
-#include <io.h>
+#  include <io.h>
 #endif
+
 #ifdef __BORLANDC__
-#include <io.h>
+#  include <io.h>
+#  pragma warn -8004 /* "assigned a value that is never used" */
+#  pragma warn -8065 /* "Call to function 'XXX' with no prototype" */
 #endif
+
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#  include <unistd.h>
 #endif
-#include <stdio.h>
 
 #ifndef SEEK_SET
 #define SEEK_SET 0
@@ -51,59 +49,6 @@
 #include "instr.h"
 #endif
 
-#if defined(__LIBCATAMOUNT__) && defined(USE_IOBUF)
-#include <iobuf.h>
-#define LSEEK iobuf_lseek
-#define OPEN  iobuf_open
-#define CLOSE iobuf_close
-#define READ  iobuf_read
-#define WRITE iobuf_write
-#else
-#define LSEEK lseek
-#define OPEN  open
-#define CLOSE close
-#define READ  read
-#define WRITE write
-#endif
-
-/* Borland bcc32 doesn't have these definitions of permission bits */
-#ifndef S_IRUSR
-#define S_IRUSR 0000400
-#endif
-#ifndef S_IRGRP
-#define S_IRGRP 0000040
-#endif
-#ifndef S_IROTH
-#define S_IROTH 0000004
-#endif
-#ifndef S_IWUSR
-#define S_IWUSR 0000200
-#endif
-#ifndef S_IWGRP
-#define S_IWGRP 0000020
-#endif
-#ifndef S_IWOTH
-#define S_IWOTH 0000002
-#endif
-#ifndef S_IXUSR
-#define S_IXUSR 0000100
-#endif
-#ifndef S_IXGRP
-#define S_IXGRP 0000010
-#endif
-#ifndef S_IXOTH
-#define S_IXOTH 0000001
-#endif
-#ifndef S_IRWXU
-#define S_IRWXU 0000700
-#endif
-#ifndef S_IRWXG
-#define S_IRWXG 0000070
-#endif
-#ifndef S_IRWXO
-#define S_IRWXO 0000007
-#endif
-
 #undef MIN  /* system may define MIN somewhere and complain */
 #define MIN(mm,nn) (((mm) < (nn)) ? (mm) : (nn))
 
@@ -115,6 +60,22 @@
 #define  X_ALIGN 4
 #else
 #undef X_ALIGN
+#endif
+
+/* These are needed on mingw to get a dll to compile. They really
+ * should be provided in sys/stats.h, but what the heck. Let's not be
+ * too picky! */
+#ifndef S_IRGRP
+#define S_IRGRP   0000040
+#endif
+#ifndef S_IROTH
+#define S_IROTH   0000004
+#endif
+#ifndef S_IWGRP
+#define S_IWGRP   0000020
+#endif
+#ifndef S_IWOTH
+#define S_IWOTH   0000002
 #endif
 
 /*
@@ -152,107 +113,25 @@ pagesize(void)
 }
 
 /*
- * This routine permits the user to override the default block size
- * via the NC_BLOCKSIZE environment variable.  If specified, then it
- * overrides all other calculations in this module.  The environment
- * is only queried one time. If found, it currently prints a message
- * to stderr indicating that the block size is set by the user.
- *
- * The size can either be specified as a power of 2 or as the actual
- * size. The logic is that if the size <32, it is a power of 2;
- * otherwise a raw size.
- */
-static size_t
-environment_specified_size()
-{
-  /*
-   * If size == -1, then this is first time into routine.  Check for
-   * environment variable NC_BLOCKSIZE and if set, set size to value
-   * specified...
-   *
-   * If size == 0, then the environment variable has been checked for
-   * and not found. Don't check again, just use the default value.
-   *
-   * If size > 0, then it is the user-specified size; use it.
-   */
-  static int checked = 0;
-  static size_t size = 0;
-  if (!checked) {
-    char *option = getenv("NC_BLOCKSIZE");
-    checked = 1;
-    if (option != NULL) {
-      size = strtol(option, NULL, 0);
-      if (size < 32) {
-        size = 1 << size;
-      }
-      fprintf(stderr, "NETCDF: Block size set to %d via NC_BLOCKSIZE environment variable.\n",
-              (int)size);
-    }
-  }
-  return size;
-}
-
-/*
  * What is the preferred I/O block size?
- * Handle some operating system/filesystem special cases here.
- * If define a special blksize routine, define BLKSIZE_DEFINED
- * so the default implementation is not used.
- * Note that the special blksize routines are a local SANDIA modification
  */
-#if defined(__LIBCATAMOUNT__)
-/*
- * As of 2005/08/26, the stat/fstat calls are not working correctly on
- * the Catamount nodes.  It is returning 0 for all block sizes which
- * is not very helpful. getpagesize() is returning 4096 which is also
- * not very helpful, so we just pick a default pagesize and return
- * that. Based on some test runs, it looks like a block size of 2^18
- * .. 2^20 provides good speed on the lustre filesystems, so we use
- * the middle of that as the default.
- * 
- * However, the testing showed that a blocksize of 2^24 gives even
- * better speed, but eats of too much memory to be the default value. 
- */
- 
-#define DEFAULT_PAGESIZE (1 << 19)
-static size_t blksize(int fd)
-{
-  size_t size = environment_specified_size();
-  if (size > 0) {
-    return size;
-  } else {
-    return DEFAULT_PAGESIZE;
-  }
-}
-#define BLKSIZE_DEFINED
-#endif
-
-#if !defined(BLKSIZE_DEFINED)
-/* This is the default implementation from unidata, but modified to
-   enable overriding the value via the NC_BLOCKSIZE env variable.*/
 static size_t
 blksize(int fd)
 {
-  size_t size = environment_specified_size();
-  if (size > 0)
-    return size;
-
 #if defined(HAVE_ST_BLKSIZE)
- {
   struct stat sb;
-  if (fstat(fd, &sb) > -1)
+  if (NC_FSTAT(fd, &sb) > -1)
   {
     if(sb.st_blksize >= 8192)
       return (size_t) sb.st_blksize;
     return 8192;
   }
   /* else, silent in the face of error */
- }
+#else
+  (void)fd;
 #endif
-  (void) fd;
   return (size_t) 2 * pagesize();
 }
-#define BLKSIZE_DEFINED
-#endif
 
 
 /*
@@ -263,7 +142,7 @@ static int
 fgrow(const int fd, const off_t len)
 {
   struct stat sb;
-  if (fstat(fd, &sb) < 0)
+  if (NC_FSTAT(fd, &sb) < 0)
     return errno;
   if (len < sb.st_size)
     return ENOERR;
@@ -271,14 +150,14 @@ fgrow(const int fd, const off_t len)
       const long dumb = 0;
       /* we don't use ftruncate() due to problem with FAT32 file systems */
       /* cache current position */
-      const off_t pos = LSEEK(fd, 0, SEEK_CUR);
+      const off_t pos = NC_LSEEK(fd, 0, SEEK_CUR);
       if(pos < 0)
     return errno;
-      if (LSEEK(fd, len-sizeof(dumb), SEEK_SET) < 0)
+      if (NC_LSEEK(fd, len-sizeof(dumb), SEEK_SET) < 0)
     return errno;
-      if(WRITE(fd, &dumb, sizeof(dumb)) < 0)
+      if(write(fd, &dumb, sizeof(dumb)) < 0)
     return errno;
-      if (LSEEK(fd, pos, SEEK_SET) < 0)
+      if (NC_LSEEK(fd, pos, SEEK_SET) < 0)
     return errno;
   }
   return ENOERR;
@@ -294,7 +173,7 @@ static int
 fgrow2(const int fd, const off_t len)
 {
   struct stat sb;
-  if (fstat(fd, &sb) < 0)
+  if (NC_FSTAT(fd, &sb) < 0)
     return errno;
   if (len <= sb.st_size)
     return ENOERR;
@@ -302,14 +181,14 @@ fgrow2(const int fd, const off_t len)
       const char dumb = 0;
       /* we don't use ftruncate() due to problem with FAT32 file systems */
       /* cache current position */
-      const off_t pos = LSEEK(fd, 0, SEEK_CUR);
+      const off_t pos = NC_LSEEK(fd, 0, SEEK_CUR);
       if(pos < 0)
     return errno;
-      if (LSEEK(fd, len-1, SEEK_SET) < 0)
+      if (NC_LSEEK(fd, len-1, SEEK_SET) < 0)
     return errno;
-      if(WRITE(fd, &dumb, sizeof(dumb)) < 0)
+      if(write(fd, &dumb, sizeof(dumb)) < 0)
     return errno;
-      if (LSEEK(fd, pos, SEEK_SET) < 0)
+      if (NC_LSEEK(fd, pos, SEEK_SET) < 0)
     return errno;
   }
   return ENOERR;
@@ -338,17 +217,17 @@ px_pgout(ncio *const nciop,
   assert(offset % X_ALIGN == 0);
 #endif
 
-  assert(*posp == OFF_NONE || *posp == LSEEK(nciop->fd, 0, SEEK_CUR));
+  assert(*posp == OFF_NONE || *posp == NC_LSEEK(nciop->fd, 0, SEEK_CUR));
 
   if(*posp != offset)
   {
-    if(LSEEK(nciop->fd, offset, SEEK_SET) != offset)
+    if(NC_LSEEK(nciop->fd, offset, SEEK_SET) != offset)
     {
       return errno;
     }
     *posp = offset;
   }
-  if(WRITE(nciop->fd, vp, extent) != (ssize_t) extent)
+  if(write(nciop->fd, vp, extent) != (ssize_t) extent)
   {
     return errno;
   }
@@ -379,11 +258,11 @@ px_pgin(ncio *const nciop,
   assert(extent % X_ALIGN == 0);
 #endif
 
-  assert(*posp == OFF_NONE || *posp == LSEEK(nciop->fd, 0, SEEK_CUR));
+  assert(*posp == OFF_NONE || *posp == NC_LSEEK(nciop->fd, 0, SEEK_CUR));
 
   if(*posp != offset)
   {
-    if(LSEEK(nciop->fd, offset, SEEK_SET) != offset)
+    if(NC_LSEEK(nciop->fd, offset, SEEK_SET) != offset)
     {
       status = errno;
       return status;
@@ -392,7 +271,7 @@ px_pgin(ncio *const nciop,
   }
 
   errno = 0;
-  nread = READ(nciop->fd, vp, extent);
+  nread = read(nciop->fd, vp, extent);
   if(nread != (ssize_t) extent)
   {
     status = errno;
@@ -455,12 +334,11 @@ typedef struct ncio_px {
 static int
 px_rel(ncio_px *const pxp, off_t offset, int rflags)
 {
+  (void)offset;
   assert(pxp->bf_offset <= offset
      && offset < pxp->bf_offset + (off_t) pxp->bf_extent);
   assert(pIf(fIsSet(rflags, RGN_MODIFIED),
     fIsSet(pxp->bf_rflags, RGN_WRITE)));
-
-  (void)offset;
 
   if(fIsSet(rflags, RGN_MODIFIED))
   {
@@ -791,13 +669,12 @@ ncio_px_get(ncio *const nciop,
 /* ARGSUSED */
 static int
 px_double_buffer(ncio *const nciop, off_t to, off_t from,
-      size_t nbytes, int rflags)
+                 size_t nbytes, int rflags)
 {
   ncio_px *const pxp = (ncio_px *)nciop->pvt;
   int status = ENOERR;
   void *src;
   void *dest;
-
   (void)rflags;
   
 #if INSTRUMENT
@@ -1144,7 +1021,6 @@ ncio_spx_rel(ncio *const nciop, off_t offset, int rflags)
 {
   ncio_spx *const pxp = (ncio_spx *)nciop->pvt;
   int status = ENOERR;
-
   (void)offset;
 
   assert(pxp->bf_offset <= offset);
@@ -1601,10 +1477,10 @@ ncio_create(const char *path, int ioflags,
   fSet(oflags, O_BINARY);
 #endif
 #ifdef vms
-  fd = OPEN(path, oflags, NC_DEFAULT_CREAT_MODE, "ctx=stm");
+  fd = open(path, oflags, NC_DEFAULT_CREAT_MODE, "ctx=stm");
 #else
   /* Should we mess with the mode based on NC_SHARE ?? */
-  fd = OPEN(path, oflags, NC_DEFAULT_CREAT_MODE);
+  fd = open(path, oflags, NC_DEFAULT_CREAT_MODE);
 #endif
 #if 0
   (void) fprintf(stderr, "ncio_create(): path=\"%s\"\n", path);
@@ -1656,7 +1532,7 @@ ncio_create(const char *path, int ioflags,
   return ENOERR;
 
 unwind_open:
-  (void) CLOSE(fd);
+  (void) close(fd);
   /* ?? unlink */
   /*FALLTHRU*/
 unwind_new:
@@ -1730,9 +1606,9 @@ ncio_open(const char *path,
   fSet(oflags, O_BINARY);
 #endif
 #ifdef vms
-  fd = OPEN(path, oflags, 0, "ctx=stm");
+  fd = open(path, oflags, 0, "ctx=stm");
 #else
-  fd = OPEN(path, oflags, 0);
+  fd = open(path, oflags, 0);
 #endif
   if(fd < 0)
   {
@@ -1773,7 +1649,7 @@ ncio_open(const char *path,
   return ENOERR;
 
 unwind_open:
-  (void) CLOSE(fd);
+  (void) close(fd);
   /*FALLTHRU*/
 unwind_new:
   ncio_free(nciop);
@@ -1818,7 +1694,7 @@ ncio_pad_length(ncio *nciop, off_t length)
           return status;
 
   status = fgrow2(nciop->fd, length);
-  if(status != NC_NOERR)
+  if(status != ENOERR)
           return status;
   return ENOERR;
 }
@@ -1844,7 +1720,7 @@ ncio_close(ncio *nciop, int doUnlink)
 
   status = nciop->sync(nciop);
 
-  (void) CLOSE(nciop->fd);
+  (void) close(nciop->fd);
   
   if(doUnlink)
     (void) unlink(nciop->path);

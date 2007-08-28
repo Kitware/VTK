@@ -48,8 +48,13 @@ blksize(int fd)
   struct ffsw sw;
   if (fffcntl(fd, FC_STAT, &sb, &sw) > -1)
   {
+#ifdef __crayx1
+    if(sb.st_blksize > 0)
+      return (size_t) sb.st_blksize;
+#else
     if(sb.st_oblksize > 0)
       return (size_t) sb.st_oblksize;
+#endif
   }
   /* else, silent in the face of error */
   return (size_t) 32768;
@@ -104,14 +109,14 @@ fgrow2(const int fd, const off_t len)
       const char dumb = 0;
       /* we don't use ftruncate() due to problem with FAT32 file systems */
       /* cache current position */
-      const off_t pos = lseek(fd, 0, SEEK_CUR);
+      const off_t pos = ffseek(fd, 0, SEEK_CUR);
       if(pos < 0)
     return errno;
-      if (lseek(fd, len-1, SEEK_SET) < 0)
+      if (ffseek(fd, len-1, SEEK_SET) < 0)
     return errno;
-      if(write(fd, &dumb, sizeof(dumb)) < 0)
+      if(ffwrite(fd, (void *)&dumb, sizeof(dumb)) < 0)
     return errno;
-      if (lseek(fd, pos, SEEK_SET) < 0)
+      if (ffseek(fd, pos, SEEK_SET) < 0)
     return errno;
   }
   return ENOERR;
@@ -387,7 +392,12 @@ ncio_ffio_global_test(const char *ControlString)
 static int
 ncio_ffio_sync(ncio *const nciop)
 {
+#ifdef __crayx1
+  struct ffsw stat;
+  if(ffflush(nciop->fd,&stat) < 0)
+#else
   if(ffflush(nciop->fd) < 0)
+#endif
     return errno;
   return ENOERR;
 }
@@ -508,15 +518,22 @@ ncio_new(const char *path, int ioflags)
  * check errno for the netCDF error value
  */
 /* prototype fortran subroutines */
+#ifdef __crayx1
+void ASNQFILE(const char *filename, const char *attribute, int *istat, int flen, int alen);
+void ASNFILE(const char *filename, const char *attribute, int *istat, int flen, int alen);
+#else
 void ASNQFILE(_fcd filename, _fcd attribute, int *istat);
 void ASNFILE(_fcd filename, _fcd attribute, int *istat);
+#endif
 
 #define BUFLEN 256
 static const char *
 ncio_ffio_assign(const char *filename) {
   static char buffer[BUFLEN];
   int istat;
+#ifndef __crayx1
   _fcd fnp, fbp;
+#endif
   char *envstr;
   char *xtra_assign;
   char emptystr='\0';
@@ -526,11 +543,15 @@ ncio_ffio_assign(const char *filename) {
   errno = ENOERR;
 
 /* set up Fortran character pointers */
+#ifdef __crayx1
+  ASNQFILE(filename, buffer, &istat, strlen(filename)+1, BUFLEN);
+#else
   fnp = _cptofcd((char *)filename, strlen(filename));
   fbp = _cptofcd(buffer, BUFLEN);
 
 /* see if the user has "assigned" to this file */
   ASNQFILE(fnp, fbp, &istat);
+#endif
   if (istat == 0) { /* user has already specified an assign */
     return buffer;
   } else if (istat > 0 || istat < -1) { /* error occured */
@@ -556,8 +577,12 @@ ncio_ffio_assign(const char *filename) {
     return (const char *) NULL;
   }
   (void) sprintf(buffer,"-F %s %s", envstr,xtra_assign);
+#ifdef __crayx1
+  ASNFILE(filename, buffer, &istat, strlen(filename)+1, strlen(buffer)+1);
+#else
   fbp = _cptofcd(buffer, strlen(buffer));
   ASNFILE(fnp, fbp, &istat);
+#endif
   if (istat == 0) { /* success */
     return buffer;
   } else {    /* error */

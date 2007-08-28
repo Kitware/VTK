@@ -1,4 +1,3 @@
-#include "vtk_netcdf_mangle.h"
 /*
  * Copyright 1993-2005 University Corporation for Atmospheric Research/Unidata
  * 
@@ -36,10 +35,10 @@
 #ifndef _NETCDF_
 #define _NETCDF_
 
+#include "vtk_netcdf_mangle.h"
+
 #include <stddef.h> /* size_t, ptrdiff_t */
 #include <errno.h>  /* netcdf functions sometimes return system errors */
-
-#include "ncconfig.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -110,8 +109,8 @@ typedef enum {
 #define NC_LOCK   0x0400  /* Use locking if available */
 
 /*
- * Starting with version 3.6, there are different format netCDF
- * files. 4.0 instroduces the third one.
+ * Starting with version 3.6, there were two different format netCDF
+ * files.  netCDF-4 introduces the third one.
  */
 #define NC_FORMAT_CLASSIC (1)
 #define NC_FORMAT_64BIT   (2)
@@ -159,11 +158,11 @@ typedef enum {
  * applications and utilities.  However, nothing is statically allocated to
  * these sizes internally.
  */
-#define NC_MAX_DIMS  65536   /* max dimensions per file */
-#define NC_MAX_ATTRS    8192   /* max global or per variable attributes */
-#define NC_MAX_VARS 524288   /* max variables per file */
-#define NC_MAX_NAME    256   /* max length of a name */
-#define NC_MAX_VAR_DIMS      8   /* max per variable dimensions */
+#define NC_MAX_DIMS 1024   /* max dimensions per file */
+#define NC_MAX_ATTRS  8192   /* max global or per variable attributes */
+#define NC_MAX_VARS 8192   /* max variables per file */
+#define NC_MAX_NAME 256  /* max length of a name */
+#define NC_MAX_VAR_DIMS NC_MAX_DIMS /* max per variable dimensions */
 
 /*
  * The netcdf version 3 functions all return integer error status.
@@ -220,76 +219,37 @@ typedef enum {
 /* Declaration modifiers for DLL support (MSC et al) */
 
 #if defined(DLL_NETCDF) /* define when library is a DLL */
-#  if defined(DLL_EXPORT) /* define when building the library */
+#  if defined(NC_DLL_EXPORT) /* define when building the library */
 #   define MSC_EXTRA __declspec(dllexport)
 #  else
 #   define MSC_EXTRA __declspec(dllimport)
 #  endif
 #  include <io.h>
 #  if !defined(__BORLANDC__) && !defined(__GNUC__)
-#    define lseek _lseeki64
+#    define NC_LSEEK _lseeki64
 #    define off_t __int64
+#    define NC_STAT __stat64
+#    define NC_FSTAT _fstat64
+#  else /* ! __BORLANDC__ && ! __GNUC__ */
+#    define NC_LSEEK lseek
+#    define NC_STAT stat
+#    define NC_FSTAT fstat
 #  endif /* ! __BORLANDC__ && ! __GNUC__ */
 #else
-#define MSC_EXTRA
+#  define MSC_EXTRA
+#  define NC_LSEEK lseek
+#  define NC_STAT stat
+#  define NC_FSTAT fstat
 #endif  /* defined(DLL_NETCDF) */
 
 # define EXTERNL extern MSC_EXTRA
 
-#if defined(DLL_NETCDF) /* define when library is a DLL */
+/* When netCDF is built as a DLL, this will export ncerr and
+ * ncopts. When it is used as a DLL, it will import them. */
+#if defined(DLL_NETCDF) 
 MSC_EXTRA int ncerr;
 MSC_EXTRA int ncopts;
 #endif
-
-/* Here are functions for coordinate axis stuff. */
-
-/* Label the axis type of a coordinate var. */
-EXTERNL int
-nc_def_axis_type(int ncid, int varid, int axis_type);
-
-/* Find out the axis type o a coordinate var. */
-EXTERNL int
-nc_inq_axis_type(int ncid, int varid, int *axis_type);
-
-/* Define a coordinate system consisting of naxes axes, each axis
- * represented by a coordinate varid in the axis_varids array. This
- * create a new (scalar, NC_CHAR) var, whose varid is returned in
- * system_varid. */
-EXTERNL int
-nc_def_coord_system(int ncid, const char *name, int naxes, int *axis_varids, 
-        int *system_varid);
-
-/* Find out about a coordinate system, it's name, number of axes, and
- * the varid of each axis coordinate var. */
-EXTERNL int
-nc_inq_coord_system(int ncid, int system_varid, char *name, 
-        int *naxes, int *axis_varids);
-
-/* Assign a coordinate system to a var. This adds an attriibute to the
- * var. */
-EXTERNL int
-nc_assign_coord_system(int ncid, int varid, int system_varid);
-
-/* Define a coordinate transform. This adds a (scalar, NC_CHAR) var,
- * which contains some attributes. The varid of this new variable is
- * returned in transform_varid. */
-EXTERNL int
-nc_def_transform(int ncid, const char *name, const char *transform_type, 
-     const char *transform_name, int *transform_varid);
-
-/* Find out about a coordinate transform, it's name, and the contents
- * of the transform_type and transform_name attributes. Pass NULL for
- * any that you're not interested in. Pass NULL for transform_type and
- * transform_name to get their lengths with type_len and name_len. */
-EXTERNL int
-nc_inq_transform(int ncid, int transform_varid, char *name, size_t *type_len, 
-     char *transform_type, size_t *name_len, char *transform_name);
-
-/* Assign a coordinate transform to a coordinate system. This adds an
- * attribute to the variable that holds the coordinate system
- * attributes. */
-EXTERNL int
-nc_assign_transform(int ncid, int system_varid, int transform_varid);
 
 EXTERNL const char *
 nc_inq_libvers(void);
@@ -511,10 +471,10 @@ nc_copy_var(int ncid_in, int varid, int ncid_out);
 /* Begin {put,get}_var1 */
 
 EXTERNL int
-nc_put_var1(int ncid, int varid, const size_t *index, const void *value);
+nc_put_var1(int ncid, int varid, const size_t *indexp, const void *value);
 
 EXTERNL int
-nc_get_var1(int ncid, int varid, const size_t *index, void *value);
+nc_get_var1(int ncid, int varid, const size_t *indexp, void *value);
 
 EXTERNL int
 nc_put_var1_text(int ncid, int varid, const size_t *indexp, const char *op);
@@ -742,14 +702,13 @@ nc_get_vars_double(int ncid, int varid,
 /* Begin {put,get}_varm */
 
 EXTERNL int
-nc_put_varm(int ncid, int varid,
-   const size_t *start, const size_t *count, const ptrdiff_t *stride,
-   const ptrdiff_t * map, const void *value);
+nc_put_varm(int ncid, int varid, const size_t *start, const size_t *count, 
+            const ptrdiff_t *stride, const ptrdiff_t *imapp, 
+      const void *value);
 
 EXTERNL int
-nc_get_varm(int ncid, int varid,
-   const size_t *start, const size_t *count, const ptrdiff_t *stride,
-   const ptrdiff_t * map, void *value);
+nc_get_varm(int ncid, int varid, const size_t *start, const size_t *count, 
+      const ptrdiff_t *stride, const ptrdiff_t *imapp, void *value);
 
 EXTERNL int
 nc_put_varm_text(int ncid, int varid,
@@ -844,7 +803,7 @@ nc_put_varm_double(int ncid, int varid,
 EXTERNL int
 nc_get_varm_double(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t * imap, 
+  const ptrdiff_t * imapp, 
   double *ip);
 
 /* End {put,get}_varm */
@@ -898,14 +857,23 @@ nc_put_var_double(int ncid, int varid, const double *op);
 EXTERNL int
 nc_get_var_double(int ncid, int varid, double *ip);
 
+#ifdef LOGGING
+
 #ifdef DEBUG
 EXTERNL void
 nc_exit(void);
+#endif
+
 EXTERNL void 
 nc_set_log_level(int new_level);
 /* Use this to turn off logging by calling
    nc_log_level(NC_TURN_OFF_LOGGING) */
 #define NC_TURN_OFF_LOGGING (-1)
+
+#else /* not LOGGING */
+
+#define nc_set_log_level(e)
+
 #endif
 
 /* End {put,get}_var */
