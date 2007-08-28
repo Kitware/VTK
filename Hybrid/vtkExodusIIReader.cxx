@@ -44,6 +44,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/map>
 #include <vtkstd/set>
+#include <vtkstd/string>
 #include "vtksys/SystemTools.hxx"
 
 #include "vtksys/RegularExpression.hxx"
@@ -705,7 +706,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.32");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.33");
 
 
 
@@ -1076,6 +1077,39 @@ public:
 
   bool IsXMLMetadataValid();
 
+  /** For a given object type, looks for an object in the collection
+    * of initial objects of the same name, or if the name is empty, then of 
+    * the same id as "info". If found, info's Status is set to the status of
+    * the found object. 
+    * You DO NOT need to have called RequestInformation before invoking this 
+    * member function.
+    */
+  void GetInitialObjectStatus( int otype, ObjectInfoType *info );
+
+  /** For a given array type, looks for an object in the collection
+    * of initial objects of the same name, or if the name is empty, then of 
+    * the same id as "info". If found, info's Status is set to the status of
+    * the found object. 
+    * You DO NOT need to have called RequestInformation before invoking this 
+    * member function.
+    */
+  void GetInitialObjectArrayStatus( int otype, ArrayInfoType *info );
+
+  /** For a given object type, creates and stores an ObjectInfoType
+    * object using the given name and status. If the name contains a "ID: %d" 
+    * substring, then it is used to initialize the ObjectInfoType.Id value.
+    * You DO NOT need to have called RequestInformation before invoking this 
+    * member function.
+    */
+  void SetInitialObjectStatus( int otype, const char *name, int stat );
+
+  /** For a given array type, creates and stores an ArrayInfoType
+    * object using the given name and status.
+    * You DO NOT need to have called RequestInformation before invoking this 
+    * member function.
+    */
+  void SetInitialObjectArrayStatus( int otype, const char *name, int stat );
+
 protected:
   vtkExodusIIReaderPrivate();
   ~vtkExodusIIReaderPrivate();
@@ -1322,6 +1356,18 @@ protected:
   /// Maps an object type (EX_ELEM_BLOCK, EX_NODE_SET, ...) to a list of arrays defined on that type.
   vtkstd::map<int,vtkstd::vector<ArrayInfoType> > ArrayInfo;
 
+  /** Maps an object type (EX_ELEM_BLOCK, EX_NODE_SET, ...) to a list of arrays
+    * defined on that type. Used to store initial status of arrays before 
+    * RequestInformation can be called.
+    */
+  vtkstd::map<int,vtkstd::vector<ArrayInfoType> > InitialArrayInfo;
+
+  /** Maps an object type (EX_ELEM_BLOCK, EX_NODE_SET, ...) to a list of objects 
+    * defined on that type. Used to store initial status of objects before 
+    * RequestInformation can be called.
+    */
+  vtkstd::map<int,vtkstd::vector<ObjectInfoType> > InitialObjectInfo;
+
   /// These aren't the variables you're looking for.
   int AppWordSize;
   int DiskWordSize;
@@ -1549,7 +1595,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.32");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.33");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -1831,6 +1877,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
           ainfo.GlomType = vtkExodusIIReaderPrivate::SymmetricTensor;
           ainfo.Status = 0;
           ainfo.StorageType = VTK_DOUBLE;
+          this->GetInitialObjectArrayStatus(objtyp, &ainfo);
           this->ArrayInfo[ objtyp ].push_back( ainfo );
           i = ii - 1; // advance to end of glom
           }
@@ -1868,6 +1915,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
           ainfo.GlomType = ainfo.Components == 2 ? vtkExodusIIReaderPrivate::Vector2 : vtkExodusIIReaderPrivate::Vector3;
           ainfo.Status = 0;
           ainfo.StorageType = VTK_DOUBLE;
+          this->GetInitialObjectArrayStatus(objtyp, &ainfo);
           this->ArrayInfo[ objtyp ].push_back( ainfo );
           i = ii - 1; // advance to end of glom
           }
@@ -1902,6 +1950,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
           ainfo.GlomType = vtkExodusIIReaderPrivate::IntegrationPoint;
           ainfo.Status = 0;
           ainfo.StorageType = VTK_DOUBLE;
+          this->GetInitialObjectArrayStatus(objtyp, &ainfo);
           this->ArrayInfo[ objtyp ].push_back( ainfo );
           i = ii - 1; // advance to end of glom
           }
@@ -1920,6 +1969,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
             ainfo.StorageType = VTK_DOUBLE;
             ainfo.Status = 0;
             glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ); // fill in ainfo.ObjectTruth
+            this->GetInitialObjectArrayStatus(objtyp, &ainfo);
             this->ArrayInfo[ objtyp ].push_back( ainfo );
             }
           }
@@ -1947,6 +1997,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
       ainfo.StorageType = VTK_DOUBLE;
       ainfo.Status = 0;
       glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ); // fill in ainfo.ObjectTruth
+      this->GetInitialObjectArrayStatus(objtyp, &ainfo);
       this->ArrayInfo[ objtyp ].push_back( ainfo );
       ainfo.Reset();
       }
@@ -4696,6 +4747,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
           binfo.TypeName = obj_typenames[obj];
           binfo.BdsPerEntry[1] = binfo.BdsPerEntry[2] = 0;
         }
+        this->GetInitialObjectStatus(obj_types[i], &binfo);
         //num_entries = binfo.Size;
         binfo.FileOffset = blockEntryFileOffset;
         blockEntryFileOffset += binfo.Size;
@@ -4860,6 +4912,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         //num_entries = sinfo.Size;
         sinfo.FileOffset = setEntryFileOffset;
         setEntryFileOffset += sinfo.Size;
+        this->GetInitialObjectStatus(obj_types[i], &sinfo);
         if ( sinfo.Status )
           {
           sinfo.GridOffset = setEntryGridOffset;
@@ -5233,6 +5286,21 @@ int vtkExodusIIReaderPrivate::GetUnsortedObjectStatus( int otyp, int k )
   return oinfop ? oinfop->Status : 0;
 }
 
+void vtkExodusIIReaderPrivate::GetInitialObjectStatus( int otyp, ObjectInfoType *objType )
+{
+  for(unsigned int oidx=0; oidx<this->InitialObjectInfo[otyp].size(); oidx++)
+    {
+    if( (this->InitialObjectInfo[otyp][oidx].Name != "" && 
+         objType->Name == this->InitialObjectInfo[otyp][oidx].Name) ||
+        (this->InitialObjectInfo[otyp][oidx].Id != -1 &&
+        objType->Id == this->InitialObjectInfo[otyp][oidx].Id) )
+      {
+      objType->Status = this->InitialObjectInfo[otyp][oidx].Status;
+      break;
+      }
+    }
+}
+
 void vtkExodusIIReaderPrivate::SetObjectStatus( int otyp, int k, int stat )
 {
   stat = (stat != 0); // Force stat to be either 0 or 1
@@ -5295,6 +5363,35 @@ void vtkExodusIIReaderPrivate::SetUnsortedObjectStatus( int otyp, int k, int sta
   this->Modified();
 }
 
+void vtkExodusIIReaderPrivate::SetInitialObjectStatus( int objectType, const char* objName, int status )
+{
+  ObjectInfoType info;
+  vtkStdString nm = objName;
+  unsigned int idx = 0;
+  int idlen = 0;
+  int id = -1;
+
+  // When no name is found for an object, it is given one of a certain format.
+  // Parse the id out of that string and use it to identify the object later.
+  if( (idx = nm.find("ID: ")) != vtkstd::string::npos)
+    {
+    idx += 4;
+    idlen = 0;
+    while(nm.at(idx+idlen) != ' ')
+      {
+      idlen++;
+      }
+    id = atoi(nm.substr(idx,idlen).c_str());
+    }
+  else
+    {
+    info.Name = objName;
+    }
+  info.Id = id;
+  info.Status = status;
+  this->InitialObjectInfo[objectType].push_back(info);
+}
+
 const char* vtkExodusIIReaderPrivate::GetObjectArrayName( int otyp, int i )
 {
   vtkstd::map<int,vtkstd::vector<ArrayInfoType> >::iterator it = this->ArrayInfo.find( otyp );
@@ -5349,6 +5446,19 @@ int vtkExodusIIReaderPrivate::GetObjectArrayStatus( int otyp, int i )
   return 0;
 }
 
+
+void vtkExodusIIReaderPrivate::GetInitialObjectArrayStatus( int otyp, ArrayInfoType *objType )
+{
+  for(unsigned int oidx=0; oidx<this->InitialArrayInfo[otyp].size(); oidx++)
+    {
+    if(objType->Name == this->InitialArrayInfo[otyp][oidx].Name)
+      {
+      objType->Status = this->InitialArrayInfo[otyp][oidx].Status;
+      break;
+      }
+    }
+}
+
 void vtkExodusIIReaderPrivate::SetObjectArrayStatus( int otyp, int i, int stat )
 {
   stat = ( stat != 0 ); // Force stat to be either 0 or 1
@@ -5384,6 +5494,14 @@ void vtkExodusIIReaderPrivate::SetObjectArrayStatus( int otyp, int i, int stat )
     vtkWarningMacro( "Could not find collection of arrays for objects of type " << otyp <<
       " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
     }
+}
+
+void vtkExodusIIReaderPrivate::SetInitialObjectArrayStatus( int objectType, const char* arrayName, int status )
+{
+  ArrayInfoType ainfo;
+  ainfo.Name = arrayName;
+  ainfo.Status = status;
+  this->InitialArrayInfo[objectType].push_back(ainfo);
 }
 
 int vtkExodusIIReaderPrivate::GetNumberOfObjectAttributes( int otyp, int oi )
@@ -5573,7 +5691,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.32");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.33");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -6050,6 +6168,22 @@ void vtkExodusIIReader::SetObjectStatus( int objectType, int objectIndex, int st
   this->Metadata->SetObjectStatus( objectType, objectIndex, status );
 }
 
+void vtkExodusIIReader::SetObjectStatus( int objectType, const char* objectName, int status )
+{ 
+  if(objectName && strlen(objectName)>0) 
+    { 
+    if(this->GetNumberOfObjects(objectType) == 0)
+      {
+      // The object status is being set before the meta data has been finalized
+      // so cache this value for later and use as the initial value
+      // If the number of objects really is zero then this doesn't do any harm.
+      this->Metadata->SetInitialObjectStatus(objectType, objectName, status);
+      return;
+      }
+    this->SetObjectStatus( objectType, this->GetObjectIndex( objectType, objectName ), status ); 
+    } 
+}
+
 const char* vtkExodusIIReader::GetObjectName( int objectType, int objectIndex )
 {
   return this->Metadata->GetObjectName( objectType, objectIndex );
@@ -6121,6 +6255,22 @@ int vtkExodusIIReader::GetObjectArrayStatus( int objectType, int arrayIndex )
 void vtkExodusIIReader::SetObjectArrayStatus( int objectType, int arrayIndex, int status )
 {
   this->Metadata->SetObjectArrayStatus( objectType, arrayIndex, status );
+}
+
+void vtkExodusIIReader::SetObjectArrayStatus( int objectType, const char* arrayName, int status )
+{ 
+  if(arrayName && strlen(arrayName)>0) 
+    { 
+    if(this->GetNumberOfObjectArrays( objectType ) == 0)
+      {
+      // The array status is being set before the meta data has been finalized
+      // so cache this value for later and use as the initial value
+      // If the number of arrays really is zero then this doesn't do any harm.
+      this->Metadata->SetInitialObjectArrayStatus(objectType, arrayName, status);
+      return;
+      }
+    this->SetObjectArrayStatus( objectType, this->GetObjectArrayIndex( objectType, arrayName ), status ); 
+    } 
 }
 
 int vtkExodusIIReader::GetNumberOfObjectAttributes( int objectType, int objectIndex )
