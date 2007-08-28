@@ -15,6 +15,11 @@
 #  include <intrinsics.h>
 #endif
 
+#ifdef __BORLANDC__
+#  pragma warn -8004 /* "assigned a value that is never used" */
+#  pragma warn -8065 /* "Call to function 'XXX' with no prototype" */
+#endif
+
 /* list of open netcdf's */
 static NC *NClist = NULL;
 

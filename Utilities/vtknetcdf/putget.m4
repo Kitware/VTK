@@ -28,6 +28,11 @@ dnl
 #  endif
 #endif
 
+#ifdef __BORLANDC__
+#  pragma warn -8004 /* "assigned a value that is never used" */
+#  pragma warn -8065 /* "Call to function 'XXX' with no prototype" */
+#endif
+
 #undef MIN  /* system may define MIN somewhere and complain */
 #define MIN(mm,nn) (((mm) < (nn)) ? (mm) : (nn))
 
