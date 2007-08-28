@@ -225,16 +225,16 @@ typedef enum {
 #   define MSC_EXTRA __declspec(dllimport)
 #  endif
 #  include <io.h>
-#  if !defined(__BORLANDC__) && !defined(__GNUC__)
+#  if defined(_MSC_VER) && _MSC_VER>=1300
 #    define NC_LSEEK _lseeki64
 #    define off_t __int64
 #    define NC_STAT __stat64
 #    define NC_FSTAT _fstat64
-#  else /* ! __BORLANDC__ && ! __GNUC__ */
+#  else /* defined(_MSC_VER) && _MSC_VER>=1300 */
 #    define NC_LSEEK lseek
 #    define NC_STAT stat
 #    define NC_FSTAT fstat
-#  endif /* ! __BORLANDC__ && ! __GNUC__ */
+#  endif /* defined(_MSC_VER) && _MSC_VER>=1300 */
 #else
 #  define MSC_EXTRA
 #  define NC_LSEEK lseek
