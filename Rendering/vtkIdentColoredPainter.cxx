@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.22");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.23");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -182,6 +182,7 @@ void vtkIdentColoredPainter::ColorByActorId(vtkProp *actorAddr)
   arr->SetValue(numIds, maxId+1);
   SaveProps[numIds] = actorAddr;
   this->MakeActorLookupTable(SaveProps, arr);
+  delete[] SaveProps;
   arr->Delete();
 
   this->CurrentIdPlane0 = maxId+2;
