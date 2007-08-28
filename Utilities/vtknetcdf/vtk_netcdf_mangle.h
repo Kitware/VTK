@@ -10,11 +10,11 @@ VTK.
 
 The following command was used to obtain the symbol list:
 
-nm libvtkNetCDF.a |grep " [TR] "
+nm libvtkNetCDF.a |grep " [TRD] "
 
 This is the way to recreate the whole list:
 
-nm bin/libvtkNetCDF.so |grep " [TR] " | awk '{ print "#define "$3" vtk_netcdf_"$3 }' | \
+nm bin/libvtkNetCDF.so |grep " [TRD] " | awk '{ print "#define "$3" vtk_netcdf_"$3 }' | \
         grep -v vtk_netcdf__fini | grep -v vtk_netcdf__init | sort
 
 Note that _fini and _init should be excluded because they are not functions
@@ -23,6 +23,7 @@ used when the shared library is loaded/unloaded from an executable.
 
 */
 
+#define default_create_format vtk_netcdf_default_create_format
 #define dup_NC_attrarrayV vtk_netcdf_dup_NC_attrarrayV
 #define dup_NC_dimarrayV vtk_netcdf_dup_NC_dimarrayV
 #define dup_NC_vararrayV vtk_netcdf_dup_NC_vararrayV
