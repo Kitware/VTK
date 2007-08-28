@@ -251,6 +251,9 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/ncconfig.h.in
 ADD_LIBRARY(vtkNetCDF
   ${netcdf_SRCS})
 
+# Take care of symbol export/import on Windows
+ADD_DEFINITIONS("-DNC_DLL_EXPORT")
+
 # Apply user-defined properties to the library target.
 IF(VTK_LIBRARY_PROPERTIES)
   SET_TARGET_PROPERTIES(vtkNetCDF PROPERTIES ${VTK_LIBRARY_PROPERTIES})
