@@ -80,6 +80,7 @@ vtkLogLookupTable.cxx
 vtkLongArray.cxx
 vtkLookupTable.cxx
 vtkMath.cxx
+vtkPolynomialSolvers.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
 vtkMatrixToLinearTransform.cxx
