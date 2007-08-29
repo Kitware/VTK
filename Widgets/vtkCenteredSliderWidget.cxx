@@ -25,7 +25,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkCenteredSliderWidget, "1.1");
+vtkCxxRevisionMacro(vtkCenteredSliderWidget, "1.2");
 vtkStandardNewMacro(vtkCenteredSliderWidget);
 
 //------------------------------------------------------------
@@ -94,12 +94,12 @@ void vtkCenteredSliderWidget::SelectAction(vtkAbstractWidget *w)
     }
   
   // We are definitely selected
-  self->GrabFocus(self->EventCallbackCommand);
   vtkSliderRepresentation *slider = 
     vtkSliderRepresentation::SafeDownCast(self->WidgetRep);
   self->EventCallbackCommand->SetAbortFlag(1);
   if ( interactionState == vtkSliderRepresentation::Slider )
     {
+    self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkCenteredSliderWidget::Sliding;
     // Start off the timer
     self->TimerId = 
