@@ -26,7 +26,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.67");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.68");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -325,6 +325,39 @@ int vtkSocketCommunicator::ServerSideHandshake()
       this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapOff;
       }
 
+    // Check to make sure the client and server have the same version of the
+    // socket communicator.
+    int myVersion = vtkSocketCommunicator::GetVersion();
+    int clientVersion;
+    if (!this->ReceiveTagged(&clientVersion, static_cast<int>(sizeof(int)),
+                             1, vtkSocketController::VERSION_TAG, 0))
+      {
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Version handshake failed.  "
+                      "Perhaps there is a client/server version mismatch.");
+        }
+      return 0;
+      }
+    if (!this->SendTagged(&myVersion, static_cast<int>(sizeof(int)),
+                          1, vtkSocketController::VERSION_TAG, 0))
+      {
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Version handshake failed.  "
+                      "Perhaps there is a client/server version mismatch.");
+        }
+      return 0;
+      }
+    if (myVersion != clientVersion)
+      {
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Client/server version mismatch.");
+        }
+      return 0;
+      }
+
     // Handshake to determine if remote has 64 bit ids.
 #ifdef VTK_USE_64BIT_IDS
     int IHave64BitIds = 1;
@@ -399,6 +432,39 @@ int vtkSocketCommunicator::ClientSideHandshake()
   else
     {
     this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapOff;
+    }
+
+  // Check to make sure the client and server have the same version of the
+  // socket communicator.
+  int myVersion = vtkSocketCommunicator::GetVersion();
+  int serverVersion;
+  if (!this->SendTagged(&myVersion, static_cast<int>(sizeof(int)),
+                        1, vtkSocketController::VERSION_TAG, 0))
+    {
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Version handshake failed.  "
+                    "Perhaps there is a client/server version mismatch.");
+      }
+    return 0;
+    }
+  if (!this->ReceiveTagged(&serverVersion, static_cast<int>(sizeof(int)),
+                           1, vtkSocketController::VERSION_TAG, 0))
+    {
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Version handshake failed.  "
+                    "Perhaps there is a client/server version mismatch.");
+      }
+    return 0;
+    }
+  if (myVersion != serverVersion)
+    {
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Client/server version mismatch.");
+      }
+    return 0;
     }
 
   // Handshake to determine if remote has 64 bit ids.
@@ -837,4 +903,13 @@ int vtkSocketCommunicator::CheckForErrorInternal(int id)
     return 1;
     }
   return 0;
+}
+
+//-----------------------------------------------------------------------------
+int vtkSocketCommunicator::GetVersion()
+{
+  const char revision[] = "$Revision: 1.68 $";
+  int version;
+  sscanf(revision, "$Revision: 1.%d", &version);
+  return version;
 }

@@ -135,6 +135,11 @@ public:
   // Description:
   // Performs ClientSide handshake.
   int ClientSideHandshake();
+
+  // Description:
+  // Uniquely identifies the version of this class.  If the versions match,
+  // then the socket communicators should be compatible.
+  static int GetVersion();
 protected:
 
   vtkClientSocket* Socket;
