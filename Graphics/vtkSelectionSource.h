@@ -54,13 +54,20 @@ public:
   // Description:
   // Removes all IDs.
   void RemoveAllIDs();
-  void RemoveAllValues();
-  
+
+  // Description:
+  // Remove all thresholds added with AddThreshold.
+  void RemoveAllThresholds();
+
+  // Description:
+  // Remove all locations added with AddLocation.
+  void RemoveAllLocations();
+
   // Description:
   // Set the content type for the generated selection.
   // Possible values are as defined by 
   // vtkSelection::SelectionContent.
-  void SetContentType(int);
+  vtkSetMacro(ContentType, int);
   vtkGetMacro(ContentType, int);
 
   // Description:
