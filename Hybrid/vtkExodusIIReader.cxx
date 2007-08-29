@@ -705,7 +705,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.34");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.35");
 
 
 
@@ -735,8 +735,23 @@ public:
   /// Read requested data and store in unstructured grid.
   int RequestData( vtkIdType timeStep, vtkUnstructuredGrid* output );
 
-  /// Reset the class so that another file may be read.
+  /** Reset the class so that another file may be read.
+    * This does not change any user-specified parameters, such as
+    * which <b>generated</b> arrays should be present, whether there are
+    * mode shapes or time steps, etc.
+    * Note that which arrays should be loaded is a more delicate
+    * issue; if you set these after RequestInformation has been called,
+    * these will not be saved.
+    * Any settings you make <b>before</b> RequestInformation is called
+    * will be saved because they are stored in InitialArrayInfo and InitialObjectInfo.
+    */
   void Reset();
+
+  /** Return user-specified variables to their default values.
+    * Calling ResetSettings() and then Reset() will return the class
+    * to a state just like it was after New() was called.
+    */
+  void ResetSettings();
 
   /** Return the number of time steps in the open file.
     * You must have called RequestInformation() before 
@@ -1594,7 +1609,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.34");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.35");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
@@ -1616,6 +1631,7 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->GenerateObjectIdArray = 1;
   this->GenerateGlobalElementIdArray = 0;
   this->GenerateGlobalNodeIdArray = 0;
+  this->GenerateGlobalIdArray = 0;
   this->ApplyDisplacements = 1;
   this->DisplacementMagnitude = 1.;
 
@@ -1633,6 +1649,7 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   
   this->Parser = 0;
 
+  this->FastPathObjectType = vtkExodusIIReader::NODAL;
   this->FastPathIdType = NULL;
   this->FastPathObjectId = -1;
 
@@ -5159,16 +5176,11 @@ void vtkExodusIIReaderPrivate::Reset()
   this->ExodusVersion = -1.;
   this->Times.clear();
   this->TimeStep = 0;
-  this->HasModeShapes = 0;
-  this->ModeShapeTime = -1.;
   this->NumberOfCells = 0;
-  this->SqueezePoints = 1;
   this->PointMap.clear();
   this->ReversePointMap.clear();
   this->ReverseCellMap.clear();
   this->Cache->Clear();
-  this->ApplyDisplacements = 1;
-  this->DisplacementMagnitude = 1.;
   memset( (void*)&this->ModelParameters, 0, sizeof(this->ModelParameters) );
   this->Cache->SetCacheCapacity( 0. ); // FIXME: Perhaps Cache should have a Reset and a Clear method?
   this->Cache->SetCacheCapacity( 128. ); // FIXME: Perhaps Cache should have a Reset and a Clear method?
@@ -5177,6 +5189,32 @@ void vtkExodusIIReaderPrivate::Reset()
   this->FastPathObjectId = -1;
 
   this->Modified();
+}
+
+void vtkExodusIIReaderPrivate::ResetSettings()
+{
+  this->GenerateGlobalElementIdArray = 0;
+  this->GenerateGlobalNodeIdArray = 0;
+  this->GenerateGlobalIdArray = 0;
+  this->GenerateObjectIdArray = 1;
+
+  this->ApplyDisplacements = 1;
+  this->DisplacementMagnitude = 1.;
+
+  this->HasModeShapes = 0;
+  this->ModeShapeTime = -1.;
+
+  this->SqueezePoints = 1;
+
+  this->EdgeFieldDecorations = 0;
+  this->FaceFieldDecorations = 0;
+
+  this->InitialArrayInfo.clear();
+  this->InitialObjectInfo.clear();
+
+  this->FastPathObjectType = vtkExodusIIReader::NODAL;
+  this->FastPathObjectId = -1;
+  this->SetFastPathIdType( 0 );
 }
 
 bool vtkExodusIIReaderPrivate::IsXMLMetadataValid()
@@ -5690,7 +5728,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.34");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.35");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -6839,3 +6877,15 @@ void vtkExodusIIReader::SetFastPathIdType(const char *type)
   this->Metadata->SetFastPathIdType(type);
   this->Modified();
 }
+
+void vtkExodusIIReader::Reset()
+{
+  this->Metadata->Reset();
+  this->Metadata->ResetSettings();
+}
+
+void vtkExodusIIReader::ResetSettings()
+{
+  this->Metadata->ResetSettings();
+}
+

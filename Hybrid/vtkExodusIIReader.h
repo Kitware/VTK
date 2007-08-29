@@ -641,6 +641,24 @@ public:
   void SetFastPathIdType(const char *type);
   void SetFastPathObjectId(vtkIdType id);
 
+  // Description:
+  // Reset the user-specified parameters and flush internal arrays
+  // so that the reader state is just as it was after the reader was
+  // instantiated.
+  //
+  // It doesn't make sense to let users reset only the internal state;
+  // both the settings and the state are changed by this call.
+  void Reset();
+
+  // Description:
+  // Reset the user-specified parameters to their default values.
+  // The only settings not affected are the filename and/or pattern
+  // because these have no default.
+  //
+  // Resetting the settings but not the state allows users to
+  // keep the active cache but return to initial array selections, etc.
+  void ResetSettings();
+
 protected:
   vtkExodusIIReader();
   ~vtkExodusIIReader();
