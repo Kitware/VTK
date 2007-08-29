@@ -237,15 +237,18 @@ typedef enum {
 #    define NC_LSEEK _lseeki64
 #    define off_t __int64
 #    define NC_STAT __stat64
+#    define NC_STAT_STRUCT __stat64
 #    define NC_FSTAT _fstat64
 #  else /* defined(_MSC_VER) && _MSC_VER>=1300 */
 #    define NC_LSEEK lseek
 #    define NC_STAT stat
+#    define NC_STAT_STRUCT stat
 #    define NC_FSTAT fstat
 #  endif /* defined(_MSC_VER) && _MSC_VER>=1300 */
 #else
 #  define NC_LSEEK lseek
 #  define NC_STAT stat
+#  define NC_STAT_STRUCT stat
 #  define NC_FSTAT fstat
 #endif  /* defined(DLL_NETCDF) */
 

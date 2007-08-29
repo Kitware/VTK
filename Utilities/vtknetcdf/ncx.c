@@ -323,7 +323,7 @@ ncx_get_short_schar(const void *xp, schar *ip)
 {
   ix_short xx;
   get_ix_short(xp, &xx);
-  *ip = xx;
+  *ip = (schar)xx;
   if(xx > SCHAR_MAX || xx < SCHAR_MIN)
     return NC_ERANGE;
   return ENOERR;
@@ -334,7 +334,7 @@ ncx_get_short_uchar(const void *xp, uchar *ip)
 {
   ix_short xx;
   get_ix_short(xp, &xx);
-  *ip = xx;
+  *ip = (uchar)xx;
   if(xx > UCHAR_MAX || xx < 0)
     return NC_ERANGE;
   return ENOERR;
@@ -489,7 +489,7 @@ ncx_put_short_long(void *xp, const long *ip)
 int
 ncx_put_short_float(void *xp, const float *ip)
 {
-  ix_short xx = *ip;
+  ix_short xx = (ix_short) *ip;
   put_ix_short(xp, &xx);
   if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
     return NC_ERANGE;
@@ -499,7 +499,7 @@ ncx_put_short_float(void *xp, const float *ip)
 int
 ncx_put_short_double(void *xp, const double *ip)
 {
-  ix_short xx = *ip;
+  ix_short xx = (ix_short) *ip;
   put_ix_short(xp, &xx);
   if(*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
     return NC_ERANGE;
@@ -636,7 +636,7 @@ ncx_get_int_float(const void *xp, float *ip)
 {
   ix_int xx;
   get_ix_int(xp, &xx);
-  *ip = xx;
+  *ip = (float)xx;
 #if 0 /* TODO: determine when necessary */
   if(xx > FLT_MAX || xx < (-FLT_MAX))
     return NC_ERANGE;
@@ -1057,7 +1057,7 @@ put_ix_float(void *xp, const float *ip)
   }
   else if(ieee_exp > -23)
   {
-    /* ieee subnormal, right  */
+    /* ieee subnormal, right shift */
     const int rshift = (48 - 23 - ieee_exp);
 
     isp->mant = csp->mant >> rshift;
@@ -1105,7 +1105,7 @@ put_ix_float(void *xp, const float *ip)
   }
   else if(ieee_exp > -23)
   {
-    /* ieee subnormal, right  */
+    /* ieee subnormal, right shift */
     const int rshift = (48 - 23 - ieee_exp);
 
     isp->mant = csp->mant >> rshift;
@@ -1591,14 +1591,14 @@ put_ix_double(void *xp, const double *ip)
   }
   else if(ieee_exp >= (-(52 -48)))
   {
-    /* ieee subnormal, left  */
+    /* ieee subnormal, left shift */
     const int lshift = (52 - 48) + ieee_exp;
     idp->mant = csp->mant << lshift;
     idp->exp  = 0;
   }
   else if(ieee_exp >= -52)
   {
-    /* ieee subnormal, right  */
+    /* ieee subnormal, right shift */
     const int rshift = (- (52 - 48) - ieee_exp);
 
     idp->mant = csp->mant >> rshift;
