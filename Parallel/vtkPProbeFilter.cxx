@@ -15,7 +15,7 @@
 #include "vtkPProbeFilter.h"
 
 #include "vtkCompositeDataPipeline.h"
-#include "vtkIdTypeArray.h"
+#include "vtkCharArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiGroupDataSet.h"
@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.18");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.19");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -97,54 +97,59 @@ int vtkPProbeFilter::RequestData(vtkInformation *vtkNotUsed(request),
     numProcs = this->Controller->GetNumberOfProcesses();
     }
 
-  vtkIdType numPoints = this->GetValidPoints()->GetMaxId() + 1;
+  vtkIdType numPoints = this->NumberOfValidPoints;
   if ( procid )
     {
     // Satellite node
-    this->Controller->Send(&numPoints, 1, 0, 1970);
+    this->Controller->Send(&numPoints, 1, 0, PROBE_COMMUNICATION_TAG);
     if ( numPoints > 0 )
       {
-      this->Controller->Send(this->GetValidPoints(), 0, 1971);
-      this->Controller->Send(output, 0, 1972);      
+      this->Controller->Send(output, 0, PROBE_COMMUNICATION_TAG);
       }
     output->ReleaseData();
     }
   else if ( numProcs > 1 )
     {
-    vtkIdType numRemotePoints = 0;
-    vtkIdTypeArray *validPoints = vtkIdTypeArray::New();
+    vtkIdType numRemoteValidPoints = 0;
     vtkDataSet *remoteProbeOutput = output->NewInstance();
     vtkPointData *remotePointData;
     vtkPointData *pointData = output->GetPointData();
     vtkIdType i;
-    vtkIdType j;
     vtkIdType k;
     vtkIdType pointId;
     for (i = 1; i < numProcs; i++)
       {
-      this->Controller->Receive(&numRemotePoints, 1, i, 1970);
-      if (numRemotePoints > 0)
+      this->Controller->Receive(&numRemoteValidPoints, 1, i, PROBE_COMMUNICATION_TAG);
+      if (numRemoteValidPoints > 0)
         {
-        this->Controller->Receive(validPoints, i, 1971);
-        this->Controller->Receive(remoteProbeOutput, i, 1972);
+        this->Controller->Receive(remoteProbeOutput, i, PROBE_COMMUNICATION_TAG);
       
         remotePointData = remoteProbeOutput->GetPointData();
-        for (j = 0; j < numRemotePoints; j++)
+
+        vtkCharArray* maskArray = vtkCharArray::SafeDownCast(
+          remotePointData->GetArray(this->ValidPointMaskArrayName));
+
+        // Iterate over all point data in the output gathered from the remove
+        // and copy array values from all the pointIds which have the mask array
+        // bit set to 1.
+        vtkIdType numRemotePoints = remoteProbeOutput->GetNumberOfPoints();
+        for (pointId=0; (pointId < numRemotePoints) && maskArray; pointId++)
           {
-          pointId = validPoints->GetValue(j);
-          for (k = 0; k < pointData->GetNumberOfArrays(); k++)
+          if (maskArray->GetValue(pointId) == 1)
             {
-            vtkAbstractArray *oaa = pointData->GetArray(k);
-            vtkAbstractArray *raa = remotePointData->GetArray(oaa->GetName());
-            if (raa != NULL)
+            for (k = 0; k < pointData->GetNumberOfArrays(); k++)
               {
-              oaa->SetTuple(pointId, pointId, raa);
-              }            
+              vtkAbstractArray *oaa = pointData->GetArray(k);
+              vtkAbstractArray *raa = remotePointData->GetArray(oaa->GetName());
+              if (raa != NULL)
+                {
+                oaa->SetTuple(pointId, pointId, raa);
+                }            
+              }
             }
           }
         }
       }
-    validPoints->Delete();
     remoteProbeOutput->Delete();
     }
 

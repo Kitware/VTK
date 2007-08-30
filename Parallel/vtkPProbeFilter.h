@@ -36,10 +36,16 @@ public:
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
+//BTX
 protected:
   vtkPProbeFilter();
   ~vtkPProbeFilter();
 
+  enum 
+    {
+    PROBE_COMMUNICATION_TAG=1970
+    };
+  
   // Usual data generation method
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
@@ -51,6 +57,7 @@ protected:
 private:
   vtkPProbeFilter(const vtkPProbeFilter&);  // Not implemented.
   void operator=(const vtkPProbeFilter&);  // Not implemented.
+//ETX
 };
 
 #endif

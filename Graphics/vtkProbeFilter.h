@@ -74,7 +74,14 @@ public:
   // Get the list of point ids in the output that contain attribute data
   // interpolated from the source.
   vtkGetObjectMacro(ValidPoints, vtkIdTypeArray);
-  
+ 
+  // Description:
+  // Returns the name of the char array added to the output with values 1 for
+  // valid points and 0 for invalid points.
+  // Set to "vtkValidPointMask" by default.
+  vtkSetStringMacro(ValidPointMaskArrayName)
+  vtkGetStringMacro(ValidPointMaskArrayName)
+ 
 protected:
   vtkProbeFilter();
   ~vtkProbeFilter();
@@ -87,7 +94,9 @@ protected:
 
   void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output);
 
+  char* ValidPointMaskArrayName;
   vtkIdTypeArray *ValidPoints;
+  vtkIdType NumberOfValidPoints;
 private:
   vtkProbeFilter(const vtkProbeFilter&);  // Not implemented.
   void operator=(const vtkProbeFilter&);  // Not implemented.

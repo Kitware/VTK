@@ -14,8 +14,9 @@
 =========================================================================*/
 #include "vtkProbeFilter.h"
 
-#include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkCell.h"
+#include "vtkCharArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -26,15 +27,18 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.88");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.89");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
 vtkProbeFilter::vtkProbeFilter()
 {
   this->SpatialMatch = 0;
+  this->NumberOfValidPoints = 0;
   this->ValidPoints = vtkIdTypeArray::New();
   this->SetNumberOfInputPorts(2);
+  this->ValidPointMaskArrayName = 0;
+  this->SetValidPointMaskArrayName("vtkValidPointMask");
 }
 
 //----------------------------------------------------------------------------
@@ -42,6 +46,7 @@ vtkProbeFilter::~vtkProbeFilter()
 {
   this->ValidPoints->Delete();
   this->ValidPoints = NULL;
+  this->SetValidPointMaskArrayName(0);
 }
 
 //----------------------------------------------------------------------------
@@ -99,6 +104,7 @@ int vtkProbeFilter::RequestData(
 void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
                            vtkDataSet *output)
 {
+  this->NumberOfValidPoints = 0;
   vtkIdType ptId, numPts;
   double x[3], tol2;
   vtkCell *cell;
@@ -130,6 +136,12 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
 
   numPts = input->GetNumberOfPoints();
   this->ValidPoints->Allocate(numPts);
+
+  vtkCharArray* maskArray = vtkCharArray::New();
+  maskArray->SetNumberOfComponents(1);
+  maskArray->SetNumberOfTuples(numPts);
+  maskArray->SetName(this->ValidPointMaskArrayName? 
+    this->ValidPointMaskArrayName: "vtkValidPointMask");
 
   // Allocate storage for output PointData
   //
@@ -188,6 +200,7 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
       }
     if (cell)
       {
+      this->NumberOfValidPoints++;
       // Interpolate the point data
       outPD->InterpolatePoint(pd,ptId,cell->PointIds,weights);
       this->ValidPoints->InsertNextValue(ptId);
@@ -199,12 +212,18 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
           outPD->CopyTuple(inArray, outArrays[i], cellId, ptId);
           }
         }
+      maskArray->SetValue(ptId, (char)1);
       }
     else
       {
       outPD->NullPoint(ptId);
+      maskArray->SetValue(ptId, (char)0);
       }
     }
+
+  output->GetPointData()->AddArray(maskArray);
+  maskArray->Delete();
+
   // BUG FIX: JB.
   // Output gets setup from input, but when output is imagedata, scalartype
   // depends on source scalartype not input scalartype
@@ -394,5 +413,7 @@ void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Source: " << source << "\n";
   os << indent << "SpatialMatch: " << ( this->SpatialMatch ? "On" : "Off" ) << "\n";
+  os << indent << "ValidPointMaskArrayName: " << (this->ValidPointMaskArrayName?
+    this->ValidPointMaskArrayName : "vtkValidPointMask") << "\n";
   os << indent << "ValidPoints: " << this->ValidPoints << "\n";
 }
