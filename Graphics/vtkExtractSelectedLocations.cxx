@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.12");
+vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.13");
 vtkStandardNewMacro(vtkExtractSelectedLocations);
 
 //----------------------------------------------------------------------------
@@ -560,7 +560,6 @@ int vtkExtractSelectedLocations::ExtractPoints(
         {
         vtkExtractSelectedLocationsCopyCells<vtkUnstructuredGrid>(input, vtkUnstructuredGrid::SafeDownCast(output), cellInArray->GetPointer(0), pointMap);
         }
-      delete [] pointMap;
       }
     else
       {
@@ -572,6 +571,7 @@ int vtkExtractSelectedLocations::ExtractPoints(
         outputUG->InsertNextCell(VTK_VERTEX, 1, &i);
         }
       }
+    delete [] pointMap;
     this->UpdateProgress(1.0);      
     }
 
