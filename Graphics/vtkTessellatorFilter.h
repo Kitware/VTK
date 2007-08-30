@@ -79,9 +79,18 @@ public:
 
   virtual unsigned long GetMTime();
 
+  // Description:
+  // Set the dimension of the output tessellation.
+  // Cells in dimensions higher than the given value will have
+  // their boundaries of dimension \a OutputDimension tessellated.
+  // For example, if \a OutputDimension is 2, a hexahedron's
+  // quadrilateral faces would be tessellated rather than its
+  // interior.
   vtkSetClampMacro(OutputDimension,int,1,3);
   vtkGetMacro(OutputDimension,int);
+  //BTX
   int GetOutputDimension() const;
+  //ETX
 
   // Description:
   // These are convenience routines for setting properties maintained by the
