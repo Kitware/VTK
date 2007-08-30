@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.70");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.71");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -1125,7 +1125,11 @@ int vtkEnSightReader::ReadCaseFile()
           this->ReadNextDataLine(line);
           strcpy(formatLine, " %f");
           strcpy(subLine, "");
-          sscanf(line, formatLine, &timeStep);
+          while (sscanf(line, formatLine, &timeStep) < 1)
+            {
+            // The time values may start on the next line after "time values:".
+            this->ReadNextDataLine(line);
+            }
           }
         if (firstTimeStep)
           {
@@ -1904,6 +1908,18 @@ void vtkEnSightReader::ReplaceWildcards(char* filename, int num)
     tmpNum -= multTen * newNum;
     multTen /= 10;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkEnSightReader::RemoveLeadingBlanks(char *line)
+{
+  int count = 0;
+  int len = strlen(line);
+  while (line[count] == ' ')
+    {
+    count++;
+    }
+  memcpy(line, line+count, len-count+1);
 }
 
 //----------------------------------------------------------------------------

@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.62");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.63");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -224,16 +224,20 @@ int vtkEnSight6Reader::ReadGeometryFile(const char* fileName, int timeStep,
     {
     for (i = 0; i < timeStep - 1; i++)
       {
+      this->RemoveLeadingBlanks(line);
       while (strncmp(line, "END TIME STEP", 13) != 0)
         {
         this->ReadLine(line);
+        this->RemoveLeadingBlanks(line);
         }
       this->ReadLine(line);
       }
-    
+
+    this->RemoveLeadingBlanks(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
       {
       this->ReadNextDataLine(line);
+      this->RemoveLeadingBlanks(line);
       }
     this->ReadLine(line);
     }
@@ -311,16 +315,16 @@ int vtkEnSight6Reader::ReadGeometryFile(const char* fileName, int timeStep,
   
   lineRead = this->ReadNextDataLine(line); // "part"
   
-  while (lineRead && strncmp(line, "part", 4) == 0)
+  while (lineRead && sscanf(line, " part %d", &partId) == 1)
     {
     this->NumberOfGeometryParts++;
-    sscanf(line, " part %d", &partId);
     partId--; // EnSight starts #ing at 1.
     int realId = this->InsertNewPartId(partId);
 
     this->ReadLine(line); // part description line
     char *name = strdup(line);
     this->ReadNextDataLine(line);
+    this->RemoveLeadingBlanks(line);
     
     if (strncmp(line, "block", 5) == 0)
       {
@@ -406,16 +410,20 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName,
     {
     for (i = 0; i < timeStep - 1; i++)
       {
+      this->RemoveLeadingBlanks(line);
       while (strncmp(line, "END TIME STEP", 13) != 0)
         {
         this->ReadLine(line);
+        this->RemoveLeadingBlanks(line);
         }
       this->ReadLine(line);
       }
-    
+
+    this->RemoveLeadingBlanks(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
       {
       this->ReadLine(line);
+      this->RemoveLeadingBlanks(line);
       }
     this->ReadLine(line);
     }
@@ -510,22 +518,27 @@ int vtkEnSight6Reader::ReadScalarsPerNode(
     for (i = 0; i < timeStep - 1; i++)
       {
       this->ReadLine(line);
+      this->RemoveLeadingBlanks(line);
       while (strncmp(line, "END TIME STEP", 13) != 0)
         {
         this->ReadLine(line);
+        this->RemoveLeadingBlanks(line);
         }
       }
   
     this->ReadLine(line);
+    this->RemoveLeadingBlanks(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
       {
       this->ReadLine(line);
+      this->RemoveLeadingBlanks(line);
       }
     }
   
   this->ReadLine(line); // skip the description line
 
   this->ReadNextDataLine(line); // 1st data line or part #
+  this->RemoveLeadingBlanks(line);
   if (strncmp(line, "part", 4) != 0)
     {
     int allocatedScalars = 0;
@@ -621,6 +634,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(
       }
     }  
 
+  this->RemoveLeadingBlanks(line);
   // scalars for structured parts
   while (strncmp(line, "part", 4) == 0)
     {
@@ -684,6 +698,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(
       {
       scalars->Delete();
       }
+    this->RemoveLeadingBlanks(line);
     }
   
   delete this->IS;
@@ -741,22 +756,27 @@ int vtkEnSight6Reader::ReadVectorsPerNode(
     for (i = 0; i < timeStep - 1; i++)
       {
       this->ReadLine(line);
+      this->RemoveLeadingBlanks(line);
       while (strncmp(line, "END TIME STEP", 13) != 0)
         {
         this->ReadLine(line);
+        this->RemoveLeadingBlanks(line);
         }
       }
   
     this->ReadLine(line);
+    this->RemoveLeadingBlanks(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
       {
       this->ReadLine(line);
+      this->RemoveLeadingBlanks(line);
       }
     }
 
   this->ReadLine(line); // skip the description line
 
   this->ReadNextDataLine(line); // 1st data line or part #
+  this->RemoveLeadingBlanks(line);
   if (strncmp(line, "part", 4) != 0)
     {
     // There are 6 values per line, and 3 values (or 1 vector) per point.
@@ -828,6 +848,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(
     }
 
   // vectors for structured parts
+  this->RemoveLeadingBlanks(line);
   while (strncmp(line, "part", 4) == 0)
     {
     sscanf(line, " part %d", &partId);
@@ -877,6 +898,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(
     vectors->Delete();
     
     this->ReadNextDataLine(line);
+    this->RemoveLeadingBlanks(line);
     }
   
   delete this->IS;
@@ -935,22 +957,27 @@ int vtkEnSight6Reader::ReadTensorsPerNode(
     for (i = 0; i < timeStep - 1; i++)
       {
       this->ReadLine(line);
+      this->RemoveLeadingBlanks(line);
       while (strncmp(line, "END TIME STEP", 13) != 0)
         {
         this->ReadLine(line);
+        this->RemoveLeadingBlanks(line);
         }
       }
   
     this->ReadLine(line);
+    this->RemoveLeadingBlanks(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
       {
       this->ReadLine(line);
+      this->RemoveLeadingBlanks(line);
       }
     }
 
   this->ReadLine(line); // skip the description line
 
   lineRead = this->ReadNextDataLine(line); // 1st data line or part #
+  this->RemoveLeadingBlanks(line);
   if (strncmp(line, "part", 4) != 0)
     {
     // There are 6 values per line, and 6 values (or 1 tensor) per point.
@@ -980,6 +1007,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(
     }
 
   // vectors for structured parts
+  this->RemoveLeadingBlanks(line);
   while (lineRead && strncmp(line, "part", 4) == 0)
     {
     sscanf(line, " part %d", &partId);
@@ -1024,6 +1052,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(
     output->GetPointData()->AddArray(tensors);
     tensors->Delete();
     lineRead = this->ReadNextDataLine(line);
+    this->RemoveLeadingBlanks(line);
     }
   
   delete this->IS;
@@ -1577,9 +1606,11 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(
     }
   
   output->Allocate(1000);
-  
-  while(lineRead && strncmp(line, "part", 4) != 0)
+
+  int tmpId;
+  while(lineRead && sscanf(line, " part %d", &tmpId) != 1)
     {
+    this->RemoveLeadingBlanks(line);
     if (strncmp(line, "point", 5) == 0)
       {
       vtkDebugMacro("point");

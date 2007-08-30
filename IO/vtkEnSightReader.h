@@ -223,7 +223,11 @@ protected:
   // Description:
   // Replace the *'s in the filename with the given filename number.
   void ReplaceWildcards(char* filename, int num);
-  
+
+  // Description:
+  // Remove leading blank spaces from a string.
+  void RemoveLeadingBlanks(char *line);
+
   // Get the vtkIdList for the given output index and cell type.
   vtkIdList* GetCellIds(int index, int cellType);
   
