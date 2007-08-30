@@ -32,6 +32,7 @@
  */
 
 # include "onstack.h"
+# include "nc.h"
 
 static size_t
 nvdims(int ncid, int varid)
