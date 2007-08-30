@@ -41,7 +41,7 @@
 #  include "vtkUnsigned__Int64Array.h"
 # endif
 #endif
-vtkCxxRevisionMacro(vtkAbstractArray, "1.8");
+vtkCxxRevisionMacro(vtkAbstractArray, "1.9");
 //----------------------------------------------------------------------------
 // Construct object with sane defaults.
 vtkAbstractArray::vtkAbstractArray(vtkIdType vtkNotUsed(numComp))
@@ -215,7 +215,7 @@ void vtkAbstractArray::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Name: (none)\n";
     }
-  os << indent << "Data type: " << this->GetDataTypeAsString();
+  os << indent << "Data type: " << this->GetDataTypeAsString() << "\n";
   os << indent << "Size: " << this->Size << "\n";
   os << indent << "MaxId: " << this->MaxId << "\n";
   os << indent << "NumberOfComponents: " << this->NumberOfComponents << endl;
