@@ -32,7 +32,7 @@
 #include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.24");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.25");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -873,7 +873,6 @@ int vtkExtractSelectedIds::ExtractPoints(
           vtkUnstructuredGrid::SafeDownCast(output), 
           cellInArray->GetPointer(0), pointMap);
         }
-      delete [] pointMap;
       }
     else
       {
@@ -886,7 +885,7 @@ int vtkExtractSelectedIds::ExtractPoints(
         }
       }
       this->UpdateProgress(1.0);
-
+      delete [] pointMap;
     }
   output->Squeeze();
   return 1;
