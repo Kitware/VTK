@@ -20,6 +20,11 @@
 #  pragma warn -8065 /* "Call to function 'XXX' with no prototype" */
 #endif
 
+#if defined(_MSC_VER) && (_MSC_VER == 1310)
+#  pragma warning ( disable : 4127 ) /* conditional expression is constant */
+#endif /* MSVC 7.1 */
+
+
 /* list of open netcdf's */
 static NC *NClist = NULL;
 
@@ -700,14 +705,14 @@ NC_check_vlens(NC *ncp)
     int last = 0;
 
     if(ncp->vars.nelems == 0) 
-  return NC_NOERR;
+      return NC_NOERR;
 
     if ((ncp->flags & NC_64BIT_OFFSET) && sizeof(off_t) > 4) {
-  /* CDF2 format and LFS */
-  vlen_max = X_UINT_MAX - 3; /* "- 3" handles rounded-up size */
+      /* CDF2 format and LFS */
+      vlen_max = X_UINT_MAX - 3; /* "- 3" handles rounded-up size */
     } else {
-  /* CDF1 format */
-  vlen_max = X_INT_MAX - 3;
+      /* CDF1 format */
+      vlen_max = X_INT_MAX - 3;
     }
     /* Loop through vars, first pass is for non-record variables.   */
     large_vars_count = 0;

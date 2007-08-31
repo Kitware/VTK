@@ -313,8 +313,8 @@ static void
 put_ix_short(void *xp, const ix_short *ip)
 {
   uchar *cp = (uchar *) xp;
-  *cp++ = (*ip) >> 8;
-  *cp = (*ip) & 0xff;
+  *cp++ = (uchar)( (*ip) >> 8 );
+  *cp = (uchar)(*ip) & 0xff;
 }
 
 
@@ -548,10 +548,10 @@ put_ix_int(void *xp, const ix_int *ip)
 {
   uchar *cp = (uchar *) xp;
 
-  *cp++ = (*ip) >> 24;
-  *cp++ = ((*ip) & 0x00ff0000) >> 16;
-  *cp++ = ((*ip) & 0x0000ff00) >>  8;
-  *cp   = ((*ip) & 0x000000ff);
+  *cp++ = (uchar)( (*ip) >> 24 );
+  *cp++ = (uchar)( ((*ip) & 0x00ff0000) >> 16 );
+  *cp++ = (uchar)( ((*ip) & 0x0000ff00) >>  8 );
+  *cp   = (uchar) ((*ip) & 0x000000ff);
 }
 
 
@@ -571,7 +571,7 @@ ncx_get_int_uchar(const void *xp, uchar *ip)
 {
   ix_int xx;
   get_ix_int(xp, &xx);
-  *ip = xx;
+  *ip = (uchar)xx;
   if(xx > UCHAR_MAX || xx < 0)
     return NC_ERANGE;
   return ENOERR;
@@ -586,7 +586,7 @@ ncx_get_int_short(const void *xp, short *ip)
 #else
   ix_int xx;
   get_ix_int(xp, &xx);
-  *ip = xx;
+  *ip = (short)xx;
 #  if IX_INT_MAX > SHORT_MAX
   if(xx > SHORT_MAX || xx < SHORT_MIN)
     return NC_ERANGE;

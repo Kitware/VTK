@@ -6656,7 +6656,11 @@ nc_get_vara_double(int ncid, int varid,
 /* C++ consts default to internal linkage and must be initialized */
 const size_t coord_zero[NC_MAX_VAR_DIMS] = {0};
 #else
+#  if defined(_MSC_VER) && _MSC_VER >= 1300
+static const size_t coord_zero[NC_MAX_VAR_DIMS] = { 0 };
+#  else
 static const size_t coord_zero[NC_MAX_VAR_DIMS];
+#  endif
 #endif
 
 
