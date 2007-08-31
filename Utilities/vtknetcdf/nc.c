@@ -22,6 +22,7 @@
 
 #if defined(_MSC_VER) && (_MSC_VER == 1310)
 #  pragma warning ( disable : 4127 ) /* conditional expression is constant */
+#  pragma warning ( disable : 4130 ) /* logical operation on address of string constant */
 #endif /* MSVC 7.1 */
 
 
