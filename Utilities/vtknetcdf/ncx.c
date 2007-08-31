@@ -560,7 +560,7 @@ ncx_get_int_schar(const void *xp, schar *ip)
 {
   ix_int xx;
   get_ix_int(xp, &xx);
-  *ip = xx;
+  *ip = (schar)xx;
   if(xx > SCHAR_MAX || xx < SCHAR_MIN)
     return NC_ERANGE;
   return ENOERR;
