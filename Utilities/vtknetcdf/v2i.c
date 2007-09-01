@@ -6,6 +6,9 @@
 
 #include "ncconfig.h"
 #include <stdlib.h>
+#ifndef NO_SYS_TYPES_H
+#  include <sys/types.h> /* Keep before netcdf.h or Win64 gets confused. */
+#endif /* NO_SYS_TYPES_H */
 #include "netcdf.h"
 
 #ifndef NO_NETCDF_2
