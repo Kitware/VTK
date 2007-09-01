@@ -11,7 +11,7 @@
 #include "ncx.h"
 #include "fbits.h"
 
-#if defined(_MSC_VER) && (_MSC_VER == 1310)
+#if defined(_MSC_VER) && (_MSC_VER >= 1310)
 #  pragma warning ( disable : 4127 ) /* conditional expression is constant */
 #endif /* MSVC 7.1 */
 
